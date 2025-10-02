@@ -43,7 +43,9 @@ class RechtspraakRESTService:
         if not AIOHTTP_AVAILABLE:  # pragma: no cover
             raise RuntimeError("aiohttp vereist voor Rechtspraak REST service")
         self.session = aiohttp.ClientSession(
-            headers=self.headers, timeout=aiohttp.ClientTimeout(total=20), trust_env=True
+            headers=self.headers,
+            timeout=aiohttp.ClientTimeout(total=20),
+            trust_env=True,
         )
         return self
 
@@ -97,7 +99,9 @@ class RechtspraakRESTService:
         from hashlib import sha256
 
         retrieved_at = datetime.now(UTC).isoformat()
-        content_hash = sha256((snippet or title).encode("utf-8", errors="ignore")).hexdigest()
+        content_hash = sha256(
+            (snippet or title).encode("utf-8", errors="ignore")
+        ).hexdigest()
 
         metadata: dict[str, Any] = {
             "dc_identifier": ecli,
@@ -132,4 +136,3 @@ async def rechtspraak_lookup(term: str) -> LookupResult | None:
     ecli = m.group(0).upper()
     async with RechtspraakRESTService() as svc:
         return await svc.fetch_by_ecli(ecli)
-

@@ -1,27 +1,29 @@
 """Tests voor CategoryService v2 functionaliteit."""
 
-import pytest
-from unittest.mock import Mock, MagicMock
 from datetime import datetime
-from src.services.category_service import CategoryService
-from src.database.definitie_repository import DefinitieRecord
+from unittest.mock import MagicMock, Mock
+
+import pytest
+
 from models.category_models import CategoryChangeResult
+from src.database.definitie_repository import DefinitieRecord
+from src.services.category_service import CategoryService
 
 
 class TestCategoryServiceV2:
     """Test class voor CategoryService v2 methods."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def mock_repository(self):
         """Mock repository voor tests."""
         return Mock()
 
-    @pytest.fixture
+    @pytest.fixture()
     def category_service(self, mock_repository):
         """CategoryService instance voor tests."""
         return CategoryService(mock_repository)
 
-    @pytest.fixture
+    @pytest.fixture()
     def sample_definition(self):
         """Sample definitie voor tests."""
         definition = Mock(spec=DefinitieRecord)
@@ -31,7 +33,9 @@ class TestCategoryServiceV2:
         definition.status = "DRAFT"
         return definition
 
-    def test_update_category_v2_success(self, category_service, mock_repository, sample_definition):
+    def test_update_category_v2_success(
+        self, category_service, mock_repository, sample_definition
+    ):
         """Test succesvolle categorie update met v2."""
         # Arrange
         mock_repository.get_definitie_by_id.return_value = sample_definition
@@ -42,7 +46,7 @@ class TestCategoryServiceV2:
             definition_id=1,
             new_category="REL",
             user="test_user",
-            reason="Test wijziging"
+            reason="Test wijziging",
         )
 
         # Assert
@@ -53,7 +57,9 @@ class TestCategoryServiceV2:
         assert "Relatie" in result.message
         assert result.timestamp is not None
 
-    def test_update_category_v2_with_validation_failure(self, category_service, mock_repository):
+    def test_update_category_v2_with_validation_failure(
+        self, category_service, mock_repository
+    ):
         """Test update met validatie fout."""
         # Arrange
         definition = Mock(spec=DefinitieRecord)
@@ -62,16 +68,16 @@ class TestCategoryServiceV2:
 
         # Act
         result = category_service.update_category_v2(
-            definition_id=1,
-            new_category="REL",
-            user="test_user"
+            definition_id=1, new_category="REL", user="test_user"
         )
 
         # Assert
         assert result.success is False
         assert "Goedgekeurde definities" in result.message
 
-    def test_legacy_compatibility(self, category_service, mock_repository, sample_definition):
+    def test_legacy_compatibility(
+        self, category_service, mock_repository, sample_definition
+    ):
         """Test dat legacy method nog werkt."""
         # Arrange
         mock_repository.get_definitie_by_id.return_value = sample_definition
@@ -91,7 +97,7 @@ class TestCategoryServiceV2:
             success=True,
             message="Test message",
             previous_category="ENT",
-            new_category="REL"
+            new_category="REL",
         )
 
         # Assert

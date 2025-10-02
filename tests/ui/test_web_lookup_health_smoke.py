@@ -1,9 +1,9 @@
 import pytest
 
-
 pytestmark = pytest.mark.smoke_web_lookup
 
-@pytest.mark.asyncio
+
+@pytest.mark.asyncio()
 async def test_web_lookup_health_smoke(monkeypatch):
     """Headless smoketest voor Web Lookup Health Check met mocks (geen netwerk).
 
@@ -11,7 +11,7 @@ async def test_web_lookup_health_smoke(monkeypatch):
     retourneren via gemockte SRU en Wikipedia services.
     """
 
-    from services.interfaces import LookupResult, WebSource, LookupRequest
+    from services.interfaces import LookupRequest, LookupResult, WebSource
 
     # Stub SRUService context manager met search()
     class _StubSRUService:
@@ -21,7 +21,9 @@ async def test_web_lookup_health_smoke(monkeypatch):
         async def __aexit__(self, exc_type, exc, tb):
             return False
 
-        async def search(self, term: str, endpoint: str, max_records: int = 1, collection=None):
+        async def search(
+            self, term: str, endpoint: str, max_records: int = 1, collection=None
+        ):
             name_map = {
                 "wetgeving_nl": "Wetgeving.nl",
                 "overheid": "Overheid.nl",
@@ -32,7 +34,12 @@ async def test_web_lookup_health_smoke(monkeypatch):
             return [
                 LookupResult(
                     term=term,
-                    source=WebSource(name=name, url=f"https://example/{endpoint}", confidence=1.0, is_juridical=True),
+                    source=WebSource(
+                        name=name,
+                        url=f"https://example/{endpoint}",
+                        confidence=1.0,
+                        is_juridical=True,
+                    ),
                     definition=f"Result for {term}",
                     success=True,
                     metadata={},
@@ -43,7 +50,12 @@ async def test_web_lookup_health_smoke(monkeypatch):
     async def _stub_wikipedia_lookup(term: str):
         return LookupResult(
             term=term,
-            source=WebSource(name="Wikipedia", url="https://example/wiki", confidence=0.8, is_juridical=False),
+            source=WebSource(
+                name="Wikipedia",
+                url="https://example/wiki",
+                confidence=0.8,
+                is_juridical=False,
+            ),
             definition=f"Wiki {term}",
             success=True,
             metadata={"wikipedia_title": term.title()},

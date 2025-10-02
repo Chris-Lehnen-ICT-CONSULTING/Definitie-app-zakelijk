@@ -48,4 +48,3 @@ def test_check_category_minimums():
 
     minimums_fail = {"juridisch": 0.76}
     assert check_category_minimums(detailed, minimums_fail) is False
-

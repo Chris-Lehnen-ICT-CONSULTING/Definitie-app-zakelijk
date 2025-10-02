@@ -5,20 +5,17 @@ Deze tests valideren alle business logic voor status workflow
 zonder database dependencies.
 """
 
-import pytest
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 
-from services.workflow_service import (
-    WorkflowService,
-    DefinitionStatus,
-    StatusChange
-)
+import pytest
+
+from services.workflow_service import DefinitionStatus, StatusChange, WorkflowService
 
 
 class TestWorkflowService:
     """Test suite voor WorkflowService."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def service(self):
         """Create a service instance."""
         return WorkflowService()
@@ -68,7 +65,7 @@ class TestWorkflowService:
             definition_id=1,
             current_status="draft",
             new_status="review",
-            user="test_user"
+            user="test_user",
         )
 
         assert changes["status"] == "review"
@@ -83,7 +80,7 @@ class TestWorkflowService:
             new_status="established",
             user="reviewer1",
             user_role="reviewer",
-            notes="Looks good"
+            notes="Looks good",
         )
 
         assert changes["status"] == "established"
@@ -98,7 +95,7 @@ class TestWorkflowService:
             new_status="archived",
             user="admin1",
             user_role="admin",
-            notes="Outdated"
+            notes="Outdated",
         )
 
         assert changes["status"] == "archived"
@@ -112,7 +109,7 @@ class TestWorkflowService:
             current_status="archived",
             new_status="draft",
             user="admin1",
-            user_role="admin"
+            user_role="admin",
         )
 
         assert changes["status"] == "draft"
@@ -129,7 +126,7 @@ class TestWorkflowService:
                 definition_id=1,
                 current_status="draft",
                 new_status="established",
-                user="test_user"
+                user="test_user",
             )
         assert "Invalid transition" in str(exc.value)
 
@@ -140,7 +137,7 @@ class TestWorkflowService:
                 current_status="review",
                 new_status="established",
                 user="test_user",
-                user_role="user"
+                user_role="user",
             )
         assert "Invalid transition" in str(exc.value)
         assert "user" in str(exc.value)
@@ -166,33 +163,35 @@ class TestWorkflowService:
         """Test status change history validation."""
         # Valid history
         valid_history = [
-            StatusChange("draft", "review", "user1", datetime.now(timezone.utc)),
-            StatusChange("review", "established", "reviewer1", datetime.now(timezone.utc)),
-            StatusChange("established", "archived", "admin1", datetime.now(timezone.utc))
+            StatusChange("draft", "review", "user1", datetime.now(UTC)),
+            StatusChange("review", "established", "reviewer1", datetime.now(UTC)),
+            StatusChange("established", "archived", "admin1", datetime.now(UTC)),
         ]
 
         assert service.validate_status_change_history(valid_history) is True
 
         # Invalid initial status
         invalid_history = [
-            StatusChange("review", "established", "user1", datetime.now(timezone.utc))
+            StatusChange("review", "established", "user1", datetime.now(UTC))
         ]
 
         assert service.validate_status_change_history(invalid_history) is False
 
         # Invalid transition
         invalid_history = [
-            StatusChange("draft", "review", "user1", datetime.now(timezone.utc)),
-            StatusChange("review", "archived", "user2", datetime.now(timezone.utc)),
-            StatusChange("archived", "established", "user3", datetime.now(timezone.utc))  # Invalid
+            StatusChange("draft", "review", "user1", datetime.now(UTC)),
+            StatusChange("review", "archived", "user2", datetime.now(UTC)),
+            StatusChange(
+                "archived", "established", "user3", datetime.now(UTC)
+            ),  # Invalid
         ]
 
         assert service.validate_status_change_history(invalid_history) is False
 
         # Discontinuity
         invalid_history = [
-            StatusChange("draft", "review", "user1", datetime.now(timezone.utc)),
-            StatusChange("established", "archived", "user2", datetime.now(timezone.utc))  # Gap
+            StatusChange("draft", "review", "user1", datetime.now(UTC)),
+            StatusChange("established", "archived", "user2", datetime.now(UTC)),  # Gap
         ]
 
         assert service.validate_status_change_history(invalid_history) is False
@@ -255,10 +254,7 @@ class TestWorkflowService:
     def test_submit_for_review(self, service):
         """Test submit_for_review convenience method."""
         # Basic submit for review
-        changes = service.submit_for_review(
-            definition_id=42,
-            user="test_user"
-        )
+        changes = service.submit_for_review(definition_id=42, user="test_user")
 
         assert changes["status"] == "review"
         assert changes["updated_by"] == "test_user"
@@ -267,9 +263,7 @@ class TestWorkflowService:
 
         # Submit with custom notes
         changes = service.submit_for_review(
-            definition_id=42,
-            user="test_user",
-            notes="Custom submission note"
+            definition_id=42, user="test_user", notes="Custom submission note"
         )
 
         # The notes are passed to prepare_status_change but not in the returned dict
@@ -288,7 +282,7 @@ class TestWorkflowService:
                 current_status="established",  # Wrong status
                 new_status="review",
                 user="test_user",
-                notes="Should fail"
+                notes="Should fail",
             )
         assert "Invalid transition" in str(exc.value)
 
@@ -311,7 +305,7 @@ class TestWorkflowServiceEdgeCases:
             current_status="review",
             new_status="established",
             user="reviewer1",
-            user_role="reviewer"
+            user_role="reviewer",
         )
         assert changes["approval_notes"] == "Goedgekeurd"
 
@@ -321,7 +315,7 @@ class TestWorkflowServiceEdgeCases:
             current_status="established",
             new_status="archived",
             user="admin1",
-            user_role="admin"
+            user_role="admin",
         )
         assert changes["archive_reason"] == "Gearchiveerd"
 

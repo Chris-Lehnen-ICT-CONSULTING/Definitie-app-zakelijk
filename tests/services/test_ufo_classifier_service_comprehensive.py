@@ -24,7 +24,7 @@ import unicodedata
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
-from unittest.mock import MagicMock, Mock, patch, mock_open
+from unittest.mock import MagicMock, Mock, mock_open, patch
 
 import pytest
 import yaml
@@ -33,8 +33,8 @@ from src.services.ufo_classifier_service import (
     UFOCategory,
     UFOClassificationResult,
     UFOClassifierService,
-    get_ufo_classifier,
     create_ufo_classifier_service,
+    get_ufo_classifier,
 )
 
 
@@ -44,8 +44,15 @@ class TestUFOCategory:
     def test_all_categories_defined(self):
         """Test dat alle 9 UFO categorieën gedefinieerd zijn."""
         expected_categories = [
-            "KIND", "EVENT", "ROLE", "PHASE", "RELATOR",
-            "MODE", "QUANTITY", "QUALITY", "COLLECTIVE"
+            "KIND",
+            "EVENT",
+            "ROLE",
+            "PHASE",
+            "RELATOR",
+            "MODE",
+            "QUANTITY",
+            "QUALITY",
+            "COLLECTIVE",
         ]
 
         actual_categories = [cat.name for cat in UFOCategory]
@@ -75,7 +82,7 @@ class TestUFOClassificationResult:
             secondary_categories=[UFOCategory.ROLE],
             matched_patterns=["Kind: persoon", "Kind: mens"],
             explanation="Kind (85% zekerheid) - Basisentiteit of object",
-            classification_time_ms=12.5
+            classification_time_ms=12.5,
         )
 
         assert result.term == "persoon"
@@ -90,9 +97,7 @@ class TestUFOClassificationResult:
     def test_default_values(self):
         """Test default waarden van result."""
         result = UFOClassificationResult(
-            term="test",
-            definition="test def",
-            primary_category=UFOCategory.KIND
+            term="test", definition="test def", primary_category=UFOCategory.KIND
         )
 
         assert result.confidence == 0.0
@@ -111,7 +116,7 @@ class TestUFOClassificationResult:
             secondary_categories=[UFOCategory.KIND],
             matched_patterns=["Role: verdachte"],
             explanation="Test explanation",
-            classification_time_ms=5.2
+            classification_time_ms=5.2,
         )
 
         # Converteer naar dict voor serialisatie
@@ -123,7 +128,7 @@ class TestUFOClassificationResult:
             "secondary_categories": [c.value for c in result.secondary_categories],
             "matched_patterns": result.matched_patterns,
             "explanation": result.explanation,
-            "classification_time_ms": result.classification_time_ms
+            "classification_time_ms": result.classification_time_ms,
         }
 
         json_str = json.dumps(result_dict)
@@ -145,38 +150,38 @@ class TestUFOClassifierServiceInitialization:
         assert classifier is not None
         assert classifier.compiled_patterns is not None
         assert classifier.config is not None
-        assert classifier.config['high_confidence'] == 0.8
-        assert classifier.config['medium_confidence'] == 0.6
-        assert classifier.config['max_time_ms'] == 500
+        assert classifier.config["high_confidence"] == 0.8
+        assert classifier.config["medium_confidence"] == 0.6
+        assert classifier.config["max_time_ms"] == 500
 
     def test_initialization_with_config(self, tmp_path):
         """Test initialisatie met config bestand."""
         config_file = tmp_path / "test_config.yaml"
         config_data = {
-            'high_confidence': 0.9,
-            'medium_confidence': 0.7,
-            'max_time_ms': 1000
+            "high_confidence": 0.9,
+            "medium_confidence": 0.7,
+            "max_time_ms": 1000,
         }
 
-        with open(config_file, 'w') as f:
+        with open(config_file, "w") as f:
             yaml.dump(config_data, f)
 
         classifier = UFOClassifierService(config_path=config_file)
 
-        assert classifier.config['high_confidence'] == 0.9
-        assert classifier.config['medium_confidence'] == 0.7
-        assert classifier.config['max_time_ms'] == 1000
+        assert classifier.config["high_confidence"] == 0.9
+        assert classifier.config["medium_confidence"] == 0.7
+        assert classifier.config["max_time_ms"] == 1000
 
     def test_initialization_with_invalid_config(self, tmp_path):
         """Test initialisatie met ongeldig config bestand."""
         config_file = tmp_path / "invalid_config.yaml"
         config_file.write_text("invalid: yaml: content:")
 
-        with patch('src.services.ufo_classifier_service.logger') as mock_logger:
+        with patch("src.services.ufo_classifier_service.logger") as mock_logger:
             classifier = UFOClassifierService(config_path=config_file)
 
             # Should use defaults
-            assert classifier.config['high_confidence'] == 0.8
+            assert classifier.config["high_confidence"] == 0.8
             mock_logger.warning.assert_called()
 
     def test_initialization_with_missing_config(self):
@@ -184,8 +189,8 @@ class TestUFOClassifierServiceInitialization:
         classifier = UFOClassifierService(config_path=Path("non_existent.yaml"))
 
         # Should use defaults
-        assert classifier.config['high_confidence'] == 0.8
-        assert classifier.config['medium_confidence'] == 0.6
+        assert classifier.config["high_confidence"] == 0.8
+        assert classifier.config["medium_confidence"] == 0.6
 
     def test_compile_patterns(self):
         """Test dat patterns correct gecompileerd worden."""
@@ -212,7 +217,7 @@ class TestUFOClassifierServiceInitialization:
 class TestClassification:
     """Test de classify methode."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def classifier(self):
         """Maak een UFOClassifierService instance."""
         return UFOClassifierService()
@@ -220,8 +225,7 @@ class TestClassification:
     def test_classify_kind(self, classifier):
         """Test classificatie van KIND entiteit."""
         result = classifier.classify(
-            "persoon",
-            "Een natuurlijk persoon is een mens van vlees en bloed"
+            "persoon", "Een natuurlijk persoon is een mens van vlees en bloed"
         )
 
         assert result.primary_category == UFOCategory.KIND
@@ -234,7 +238,7 @@ class TestClassification:
         """Test classificatie van EVENT."""
         result = classifier.classify(
             "arrestatie",
-            "Het proces waarbij iemand tijdens het onderzoek wordt aangehouden"
+            "Het proces waarbij iemand tijdens het onderzoek wordt aangehouden",
         )
 
         assert result.primary_category == UFOCategory.EVENT
@@ -244,8 +248,7 @@ class TestClassification:
     def test_classify_role(self, classifier):
         """Test classificatie van ROLE."""
         result = classifier.classify(
-            "verdachte",
-            "Persoon in de hoedanigheid van mogelijke dader"
+            "verdachte", "Persoon in de hoedanigheid van mogelijke dader"
         )
 
         assert result.primary_category == UFOCategory.ROLE
@@ -254,8 +257,7 @@ class TestClassification:
     def test_classify_phase(self, classifier):
         """Test classificatie van PHASE."""
         result = classifier.classify(
-            "voorlopige hechtenis",
-            "De voorlopige fase van detentie"
+            "voorlopige hechtenis", "De voorlopige fase van detentie"
         )
 
         assert result.primary_category == UFOCategory.PHASE
@@ -264,8 +266,7 @@ class TestClassification:
     def test_classify_relator(self, classifier):
         """Test classificatie van RELATOR."""
         result = classifier.classify(
-            "koopovereenkomst",
-            "Een overeenkomst tussen koper en verkoper"
+            "koopovereenkomst", "Een overeenkomst tussen koper en verkoper"
         )
 
         assert result.primary_category == UFOCategory.RELATOR
@@ -274,8 +275,7 @@ class TestClassification:
     def test_classify_mode(self, classifier):
         """Test classificatie van MODE."""
         result = classifier.classify(
-            "locatie",
-            "De eigenschap die aangeeft waar iets zich bevindt"
+            "locatie", "De eigenschap die aangeeft waar iets zich bevindt"
         )
 
         assert result.primary_category == UFOCategory.MODE
@@ -283,10 +283,7 @@ class TestClassification:
 
     def test_classify_quantity(self, classifier):
         """Test classificatie van QUANTITY."""
-        result = classifier.classify(
-            "schadevergoeding",
-            "Een bedrag van 10.000 euro"
-        )
+        result = classifier.classify("schadevergoeding", "Een bedrag van 10.000 euro")
 
         assert result.primary_category == UFOCategory.QUANTITY
         assert result.confidence > 0.3
@@ -294,8 +291,7 @@ class TestClassification:
     def test_classify_quality(self, classifier):
         """Test classificatie van QUALITY."""
         result = classifier.classify(
-            "betrouwbaarheid",
-            "De mate van betrouwbaarheid van de getuige"
+            "betrouwbaarheid", "De mate van betrouwbaarheid van de getuige"
         )
 
         assert result.primary_category == UFOCategory.QUALITY
@@ -303,10 +299,7 @@ class TestClassification:
 
     def test_classify_collective(self, classifier):
         """Test classificatie van COLLECTIVE."""
-        result = classifier.classify(
-            "commissie",
-            "Een groep van deskundigen"
-        )
+        result = classifier.classify("commissie", "Een groep van deskundigen")
 
         assert result.primary_category == UFOCategory.COLLECTIVE
         assert result.confidence > 0.3
@@ -345,10 +338,7 @@ class TestClassification:
         times = []
         for _ in range(10):
             start = time.perf_counter()
-            result = classifier.classify(
-                "persoon",
-                "Een natuurlijk persoon"
-            )
+            result = classifier.classify("persoon", "Een natuurlijk persoon")
             duration = (time.perf_counter() - start) * 1000
             times.append(duration)
 
@@ -360,87 +350,63 @@ class TestClassification:
 class TestDisambiguation:
     """Test disambiguation voor ambigue termen."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def classifier(self):
         return UFOClassifierService()
 
     def test_zaak_disambiguation(self, classifier):
         """Test disambiguatie van 'zaak'."""
         # Rechtszaak -> EVENT
-        result1 = classifier.classify(
-            "zaak",
-            "Een rechtszaak voor de rechter"
-        )
+        result1 = classifier.classify("zaak", "Een rechtszaak voor de rechter")
         assert result1.primary_category == UFOCategory.EVENT
 
         # Roerende zaak -> KIND
-        result2 = classifier.classify(
-            "zaak",
-            "Een roerende zaak zoals een auto"
-        )
+        result2 = classifier.classify("zaak", "Een roerende zaak zoals een auto")
         assert result2.primary_category == UFOCategory.KIND
 
     def test_huwelijk_disambiguation(self, classifier):
         """Test disambiguatie van 'huwelijk'."""
         # Sluiten van huwelijk -> EVENT
-        result1 = classifier.classify(
-            "huwelijk",
-            "Het sluiten van een huwelijk"
-        )
+        result1 = classifier.classify("huwelijk", "Het sluiten van een huwelijk")
         assert result1.primary_category == UFOCategory.EVENT
 
         # Huwelijk als relatie -> RELATOR
-        result2 = classifier.classify(
-            "huwelijk",
-            "Een band tussen twee personen"
-        )
+        result2 = classifier.classify("huwelijk", "Een band tussen twee personen")
         assert result2.primary_category == UFOCategory.RELATOR
 
     def test_overeenkomst_disambiguation(self, classifier):
         """Test disambiguatie van 'overeenkomst'."""
         # Sluiten overeenkomst -> EVENT
         result1 = classifier.classify(
-            "overeenkomst",
-            "Het aangaan van een overeenkomst"
+            "overeenkomst", "Het aangaan van een overeenkomst"
         )
         assert result1.primary_category == UFOCategory.EVENT
 
         # Overeenkomst tussen partijen -> RELATOR
-        result2 = classifier.classify(
-            "overeenkomst",
-            "Een contract tussen partijen"
-        )
+        result2 = classifier.classify("overeenkomst", "Een contract tussen partijen")
         assert result2.primary_category == UFOCategory.RELATOR
 
     def test_procedure_disambiguation(self, classifier):
         """Test disambiguatie van 'procedure'."""
         # Start procedure -> EVENT
-        result1 = classifier.classify(
-            "procedure",
-            "Het begin van de procedure"
-        )
+        result1 = classifier.classify("procedure", "Het begin van de procedure")
         assert result1.primary_category == UFOCategory.EVENT
 
         # Procedure volgens regels -> KIND
         result2 = classifier.classify(
-            "procedure",
-            "Een vastgestelde procedure volgens de wet"
+            "procedure", "Een vastgestelde procedure volgens de wet"
         )
         assert result2.primary_category == UFOCategory.KIND
 
     def test_vergunning_disambiguation(self, classifier):
         """Test disambiguatie van 'vergunning'."""
         # Aanvragen vergunning -> EVENT
-        result1 = classifier.classify(
-            "vergunning",
-            "Het verlenen van een vergunning"
-        )
+        result1 = classifier.classify("vergunning", "Het verlenen van een vergunning")
         assert result1.primary_category == UFOCategory.EVENT
 
         # Vergunning voor iets -> RELATOR
         result2 = classifier.classify(
-            "vergunning",
-            "Hij heeft een vergunning voor de bouw"
+            "vergunning", "Hij heeft een vergunning voor de bouw"
         )
         assert result2.primary_category == UFOCategory.RELATOR
 
@@ -448,15 +414,14 @@ class TestDisambiguation:
 class TestPatternMatching:
     """Test pattern matching functionaliteit."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def classifier(self):
         return UFOClassifierService()
 
     def test_calculate_pattern_scores(self, classifier):
         """Test score berekening."""
         scores = classifier._calculate_pattern_scores(
-            "persoon",
-            "Een natuurlijk persoon is een mens"
+            "persoon", "Een natuurlijk persoon is een mens"
         )
 
         assert UFOCategory.KIND in scores
@@ -465,8 +430,7 @@ class TestPatternMatching:
     def test_get_matched_patterns(self, classifier):
         """Test ophalen van gematchte patterns."""
         patterns = classifier._get_matched_patterns(
-            "verdachte",
-            "De verdachte wordt verhoord"
+            "verdachte", "De verdachte wordt verhoord"
         )
 
         assert len(patterns) > 0
@@ -483,17 +447,16 @@ class TestPatternMatching:
     def test_pattern_scores_capped(self, classifier):
         """Test dat scores gecapped zijn op 1.0."""
         # Text met heel veel KIND patterns
-        text = "persoon mens organisatie zaak ding object document gebouw voertuig " * 10
+        text = (
+            "persoon mens organisatie zaak ding object document gebouw voertuig " * 10
+        )
         scores = classifier._calculate_pattern_scores("test", text)
 
         assert all(score <= 1.0 for score in scores.values())
 
     def test_no_pattern_matches(self, classifier):
         """Test met tekst zonder pattern matches."""
-        scores = classifier._calculate_pattern_scores(
-            "xyz",
-            "abc def ghi"
-        )
+        scores = classifier._calculate_pattern_scores("xyz", "abc def ghi")
 
         assert len(scores) == 0
 
@@ -501,7 +464,7 @@ class TestPatternMatching:
 class TestConfidenceCalculation:
     """Test confidence berekening."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def classifier(self):
         return UFOClassifierService()
 
@@ -518,19 +481,13 @@ class TestConfidenceCalculation:
 
     def test_calculate_confidence_ambiguous(self, classifier):
         """Test confidence bij ambiguïteit."""
-        scores = {
-            UFOCategory.KIND: 0.6,
-            UFOCategory.ROLE: 0.5  # Dicht bij elkaar
-        }
+        scores = {UFOCategory.KIND: 0.6, UFOCategory.ROLE: 0.5}  # Dicht bij elkaar
         confidence = classifier._calculate_confidence(scores, UFOCategory.KIND)
         assert confidence < 0.6  # Verlaagd door ambiguïteit
 
     def test_calculate_confidence_clear_winner(self, classifier):
         """Test confidence met duidelijke winnaar."""
-        scores = {
-            UFOCategory.KIND: 0.9,
-            UFOCategory.ROLE: 0.2
-        }
+        scores = {UFOCategory.KIND: 0.9, UFOCategory.ROLE: 0.2}
         confidence = classifier._calculate_confidence(scores, UFOCategory.KIND)
         assert confidence >= 0.9
 
@@ -540,7 +497,7 @@ class TestConfidenceCalculation:
             UFOCategory.KIND: 0.7,
             UFOCategory.EVENT: 0.6,
             UFOCategory.ROLE: 0.5,
-            UFOCategory.RELATOR: 0.4
+            UFOCategory.RELATOR: 0.4,
         }
         confidence = classifier._calculate_confidence(scores, UFOCategory.KIND)
         # Total score > 2.0, dus confidence boost
@@ -561,7 +518,7 @@ class TestConfidenceCalculation:
 class TestSecondaryCategories:
     """Test bepaling van secundaire categorieën."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def classifier(self):
         return UFOClassifierService()
 
@@ -571,7 +528,7 @@ class TestSecondaryCategories:
             UFOCategory.KIND: 0.8,
             UFOCategory.ROLE: 0.6,
             UFOCategory.EVENT: 0.4,
-            UFOCategory.PHASE: 0.2
+            UFOCategory.PHASE: 0.2,
         }
 
         secondary = classifier._get_secondary_categories(scores, UFOCategory.KIND)
@@ -586,7 +543,7 @@ class TestSecondaryCategories:
         scores = {
             UFOCategory.KIND: 0.8,
             UFOCategory.ROLE: 0.25,  # Onder threshold
-            UFOCategory.EVENT: 0.4
+            UFOCategory.EVENT: 0.4,
         }
 
         secondary = classifier._get_secondary_categories(scores, UFOCategory.KIND)
@@ -600,7 +557,7 @@ class TestSecondaryCategories:
             UFOCategory.KIND: 0.8,
             UFOCategory.ROLE: 0.3,
             UFOCategory.EVENT: 0.6,
-            UFOCategory.PHASE: 0.5
+            UFOCategory.PHASE: 0.5,
         }
 
         secondary = classifier._get_secondary_categories(scores, UFOCategory.KIND)
@@ -612,16 +569,14 @@ class TestSecondaryCategories:
 class TestExplanationGeneration:
     """Test uitleg generatie."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def classifier(self):
         return UFOClassifierService()
 
     def test_generate_explanation_basic(self, classifier):
         """Test basis uitleg generatie."""
         explanation = classifier._generate_explanation(
-            UFOCategory.KIND,
-            0.85,
-            ["Kind: persoon", "Kind: mens"]
+            UFOCategory.KIND, 0.85, ["Kind: persoon", "Kind: mens"]
         )
 
         assert "Kind" in explanation
@@ -631,11 +586,7 @@ class TestExplanationGeneration:
 
     def test_generate_explanation_no_patterns(self, classifier):
         """Test uitleg zonder patterns."""
-        explanation = classifier._generate_explanation(
-            UFOCategory.EVENT,
-            0.6,
-            []
-        )
+        explanation = classifier._generate_explanation(UFOCategory.EVENT, 0.6, [])
 
         assert "Event" in explanation
         assert "60%" in explanation
@@ -651,7 +602,7 @@ class TestExplanationGeneration:
 class TestNormalization:
     """Test tekst normalisatie."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def classifier(self):
         return UFOClassifierService()
 
@@ -664,7 +615,7 @@ class TestNormalization:
         """Test Unicode normalisatie."""
         text_with_accents = "café naïef"
         normalized = classifier._normalize_text(text_with_accents, "field")
-        assert normalized == unicodedata.normalize('NFC', text_with_accents)
+        assert normalized == unicodedata.normalize("NFC", text_with_accents)
 
     def test_normalize_text_very_long(self, classifier):
         """Test truncatie van zeer lange tekst."""
@@ -691,7 +642,7 @@ class TestNormalization:
 class TestBatchClassification:
     """Test batch classificatie."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def classifier(self):
         return UFOClassifierService()
 
@@ -700,7 +651,7 @@ class TestBatchClassification:
         definitions = [
             ("persoon", "Een mens"),
             ("proces", "Een procedure"),
-            ("verdachte", "Iemand die verdacht wordt")
+            ("verdachte", "Iemand die verdacht wordt"),
         ]
 
         results = classifier.batch_classify(definitions)
@@ -716,10 +667,10 @@ class TestBatchClassification:
         definitions = [
             ("valid", "Een geldige definitie"),
             ("", "Lege term"),  # Zal error geven
-            ("another", "Nog een definitie")
+            ("another", "Nog een definitie"),
         ]
 
-        with patch('src.services.ufo_classifier_service.logger') as mock_logger:
+        with patch("src.services.ufo_classifier_service.logger") as mock_logger:
             results = classifier.batch_classify(definitions)
 
             assert len(results) == 3
@@ -735,7 +686,7 @@ class TestBatchClassification:
         """Test progress logging bij batch."""
         definitions = [(f"term_{i}", f"def_{i}") for i in range(25)]
 
-        with patch('src.services.ufo_classifier_service.logger') as mock_logger:
+        with patch("src.services.ufo_classifier_service.logger") as mock_logger:
             results = classifier.batch_classify(definitions)
 
             assert len(results) == 25
@@ -764,7 +715,7 @@ class TestBatchClassification:
 class TestJuridicalDomain:
     """Test met Nederlandse juridische termen."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def classifier(self):
         return UFOClassifierService()
 
@@ -779,8 +730,9 @@ class TestJuridicalDomain:
 
         for term, definition, expected in test_cases:
             result = classifier.classify(term, definition)
-            assert result.primary_category == expected, \
-                f"{term} verwacht {expected}, kreeg {result.primary_category}"
+            assert (
+                result.primary_category == expected
+            ), f"{term} verwacht {expected}, kreeg {result.primary_category}"
 
     def test_bestuursrechtelijke_termen(self, classifier):
         """Test bestuursrechtelijke termen."""
@@ -794,7 +746,10 @@ class TestJuridicalDomain:
             result = classifier.classify(term, definition)
             # Flexibel voor ambigue termen
             if term == "vergunning":
-                assert result.primary_category in [UFOCategory.RELATOR, UFOCategory.EVENT]
+                assert result.primary_category in [
+                    UFOCategory.RELATOR,
+                    UFOCategory.EVENT,
+                ]
             else:
                 assert result.primary_category == expected
 
@@ -814,16 +769,13 @@ class TestJuridicalDomain:
 class TestFallbackBehavior:
     """Test fallback gedrag."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def classifier(self):
         return UFOClassifierService()
 
     def test_fallback_no_patterns(self, classifier):
         """Test fallback als geen patterns matchen."""
-        result = classifier.classify(
-            "xyz",
-            "abc def ghi"
-        )
+        result = classifier.classify("xyz", "abc def ghi")
 
         # Should fallback to KIND
         assert result.primary_category == UFOCategory.KIND
@@ -831,37 +783,25 @@ class TestFallbackBehavior:
 
     def test_fallback_event_keyword(self, classifier):
         """Test fallback met EVENT keywords."""
-        result = classifier.classify(
-            "xyz",
-            "Dit gebeurt tijdens het proces"
-        )
+        result = classifier.classify("xyz", "Dit gebeurt tijdens het proces")
 
         assert result.primary_category == UFOCategory.EVENT
 
     def test_fallback_role_keyword(self, classifier):
         """Test fallback met ROLE keywords."""
-        result = classifier.classify(
-            "xyz",
-            "De eigenaar van het pand"
-        )
+        result = classifier.classify("xyz", "De eigenaar van het pand")
 
         assert result.primary_category == UFOCategory.ROLE
 
     def test_fallback_relator_keyword(self, classifier):
         """Test fallback met RELATOR keywords."""
-        result = classifier.classify(
-            "xyz",
-            "Het contract tussen partijen"
-        )
+        result = classifier.classify("xyz", "Het contract tussen partijen")
 
         assert result.primary_category == UFOCategory.RELATOR
 
     def test_fallback_quantity_pattern(self, classifier):
         """Test fallback met QUANTITY pattern."""
-        result = classifier.classify(
-            "xyz",
-            "Een bedrag van 100 euro"
-        )
+        result = classifier.classify("xyz", "Een bedrag van 100 euro")
 
         assert result.primary_category == UFOCategory.QUANTITY
 
@@ -869,19 +809,13 @@ class TestFallbackBehavior:
 class TestEdgeCases:
     """Test edge cases."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def classifier(self):
         return UFOClassifierService()
 
     def test_special_characters(self, classifier):
         """Test met speciale karakters."""
-        test_cases = [
-            "test-term",
-            "test_term",
-            "test.term",
-            "test@term",
-            "test#term"
-        ]
+        test_cases = ["test-term", "test_term", "test.term", "test@term", "test#term"]
 
         for term in test_cases:
             result = classifier.classify(term, "Een test definitie")
@@ -910,8 +844,7 @@ class TestEdgeCases:
     def test_mixed_language(self, classifier):
         """Test met gemengde taal."""
         result = classifier.classify(
-            "software",
-            "Een computer programma voor processing"
+            "software", "Een computer programma voor processing"
         )
         assert result is not None
 
@@ -932,10 +865,11 @@ class TestIntegration:
         assert classifier1 is classifier2
         assert isinstance(classifier1, UFOClassifierService)
 
-    @patch('src.services.ufo_classifier_service._classifier_instance', None)
+    @patch("src.services.ufo_classifier_service._classifier_instance", None)
     def test_singleton_initialization(self):
         """Test singleton initialisatie."""
         from src.services import ufo_classifier_service
+
         ufo_classifier_service._classifier_instance = None
 
         classifier = get_ufo_classifier()
@@ -944,7 +878,7 @@ class TestIntegration:
 
     def test_create_ufo_classifier_service(self):
         """Test factory functie."""
-        with patch('pathlib.Path.exists', return_value=False):
+        with patch("pathlib.Path.exists", return_value=False):
             classifier = create_ufo_classifier_service()
             assert isinstance(classifier, UFOClassifierService)
 
@@ -953,16 +887,16 @@ class TestIntegration:
         config_file = tmp_path / "ufo_classifier.yaml"
         config_file.write_text("high_confidence: 0.95")
 
-        with patch('pathlib.Path', return_value=config_file):
-            with patch('pathlib.Path.exists', return_value=True):
+        with patch("pathlib.Path", return_value=config_file):
+            with patch("pathlib.Path.exists", return_value=True):
                 classifier = create_ufo_classifier_service()
-                assert classifier.config['high_confidence'] == 0.95
+                assert classifier.config["high_confidence"] == 0.95
 
 
 class TestCompleteWorkflow:
     """Test complete workflow scenarios."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def classifier(self):
         return UFOClassifierService()
 
@@ -1027,7 +961,7 @@ class TestCompleteWorkflow:
 class TestPerformanceRequirements:
     """Test performance requirements."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def classifier(self):
         return UFOClassifierService()
 
@@ -1064,11 +998,13 @@ class TestPerformanceRequirements:
 
 if __name__ == "__main__":
     """Run tests met coverage report."""
-    pytest.main([
-        __file__,
-        "-v",
-        "--tb=short",
-        "--cov=src.services.ufo_classifier_service",
-        "--cov-report=term-missing",
-        "--cov-report=html:coverage_ufo_classifier"
-    ])
+    pytest.main(
+        [
+            __file__,
+            "-v",
+            "--tb=short",
+            "--cov=src.services.ufo_classifier_service",
+            "--cov-report=term-missing",
+            "--cov-report=html:coverage_ufo_classifier",
+        ]
+    )

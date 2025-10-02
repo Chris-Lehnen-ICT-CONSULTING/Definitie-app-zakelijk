@@ -1,6 +1,7 @@
 """
 Test UI integratie met nieuwe services.
 """
+
 import os
 import sys
 from pathlib import Path
@@ -14,6 +15,7 @@ print("Testing imports...")
 
 try:
     from ui.tabbed_interface import TabbedInterface
+
     print("✅ TabbedInterface import OK")
 except Exception as e:
     print(f"❌ TabbedInterface import fout: {e}")
@@ -21,6 +23,7 @@ except Exception as e:
 try:
     from services import get_definition_service
     from ui.helpers.feature_toggle import render_feature_flag_toggle
+
     print("✅ Service factory imports OK")
 except Exception as e:
     print(f"❌ Service factory import fout: {e}")
@@ -38,6 +41,7 @@ try:
 except Exception as e:
     print(f"❌ Service instantiation fout: {e}")
     import traceback
+
     traceback.print_exc()
 
 # Test UI instantiation
@@ -47,13 +51,14 @@ try:
     ui = TabbedInterface()
     print("✅ TabbedInterface created")
 
-    if hasattr(ui, 'definition_service'):
+    if hasattr(ui, "definition_service"):
         print("✅ Definition service attached to UI")
     else:
         print("❌ Definition service not found in UI")
 except Exception as e:
     print(f"❌ UI instantiation fout: {e}")
     import traceback
+
     traceback.print_exc()
 
 print("\n🎉 UI integratie test compleet!")

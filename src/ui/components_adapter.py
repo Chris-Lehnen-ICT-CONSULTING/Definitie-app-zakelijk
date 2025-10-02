@@ -155,8 +155,12 @@ class UIComponentsAdapter:
         # Technical: haal prompt uit canonieke bron (laatste generation_result)
         try:
             last_gen = SessionStateManager.get_value("last_generation_result", {}) or {}
-            agent_result = last_gen.get("agent_result") if isinstance(last_gen, dict) else None
-            meta = agent_result.get("metadata") if isinstance(agent_result, dict) else None
+            agent_result = (
+                last_gen.get("agent_result") if isinstance(last_gen, dict) else None
+            )
+            meta = (
+                agent_result.get("metadata") if isinstance(agent_result, dict) else None
+            )
             prompt_text = None
             if isinstance(meta, dict):
                 prompt_text = meta.get("prompt_text") or meta.get("prompt_template")

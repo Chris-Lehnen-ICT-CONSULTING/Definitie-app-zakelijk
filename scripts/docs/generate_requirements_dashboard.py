@@ -17,7 +17,6 @@ from __future__ import annotations
 
 import re
 from pathlib import Path
-from typing import Dict, List, Optional
 
 ROOT = Path(__file__).resolve().parents[1]
 REQ_DIR_PRIMARY = ROOT / "docs" / "requirements"
@@ -39,7 +38,7 @@ def read_file(path: Path) -> str:
     return path.read_text(encoding="utf-8", errors="replace")
 
 
-def extract_frontmatter(md: str) -> Dict[str, object]:
+def extract_frontmatter(md: str) -> dict[str, object]:
     """Extracts naive frontmatter block between first two '---' lines and returns raw key→value lines.
 
     This is a pragmatic parser to avoid YAML dependency. It supports simple key: value pairs and a single-line
@@ -55,12 +54,12 @@ def extract_frontmatter(md: str) -> Dict[str, object]:
             else:
                 fm_end = i
                 break
-    result: Dict[str, object] = {}
+    result: dict[str, object] = {}
     if fm_start is None or fm_end is None:
         return result
     block = lines[fm_start + 1 : fm_end]
     # Track simplistic nested section for 'links'
-    current_section: Optional[str] = None
+    current_section: str | None = None
     i = 0
     while i < len(block):
         raw = block[i]
@@ -80,17 +79,19 @@ def extract_frontmatter(md: str) -> Dict[str, object]:
             key = m.group(1).strip()
             val = m.group(2).strip()
             # Handle YAML-style lists when value is empty
-            list_items: Optional[List[str]] = None
+            list_items: list[str] | None = None
             if val == "":
                 j = i + 1
-                items: List[str] = []
+                items: list[str] = []
                 while j < len(block):
                     nxt = block[j]
                     if not nxt.strip():
                         j += 1
                         continue
                     if re.match(r"^\s*[-]\s+", nxt):
-                        item = re.sub(r"^\s*[-]\s+", "", nxt).strip().strip('"').strip("'")
+                        item = (
+                            re.sub(r"^\s*[-]\s+", "", nxt).strip().strip('"').strip("'")
+                        )
                         items.append(item)
                         j += 1
                         continue
@@ -114,7 +115,7 @@ def extract_frontmatter(md: str) -> Dict[str, object]:
     return result
 
 
-def parse_epics_from_value(val: str) -> List[str]:
+def parse_epics_from_value(val: str) -> list[str]:
     # Accept formats: ["EPIC-001", "EPIC-002"], ['EPIC-001'], or simple string EPIC-001
     if not val:
         return []
@@ -127,8 +128,8 @@ def parse_epics_from_value(val: str) -> List[str]:
     return m
 
 
-def collect_requirements() -> List[Dict[str, object]]:
-    reqs: List[Dict[str, object]] = []
+def collect_requirements() -> list[dict[str, object]]:
+    reqs: list[dict[str, object]] = []
     sources = []
     if REQ_DIR_PRIMARY.exists():
         sources.extend(sorted(REQ_DIR_PRIMARY.glob("REQ-*.md")))
@@ -178,7 +179,7 @@ def simple_markdown_to_html(md: str) -> str:
     Supports: #, ##, ### headers; lists; code fences; paragraphs; inline code.
     """
     lines = md.splitlines()
-    html_lines: List[str] = []
+    html_lines: list[str] = []
     in_code = False
     in_ul = False
     for line in lines:
@@ -192,11 +193,7 @@ def simple_markdown_to_html(md: str) -> str:
             continue
         if in_code:
             # escape HTML special chars
-            esc = (
-                line.replace("&", "&amp;")
-                .replace("<", "&lt;")
-                .replace(">", "&gt;")
-            )
+            esc = line.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
             html_lines.append(esc)
             continue
 
@@ -223,10 +220,9 @@ def simple_markdown_to_html(md: str) -> str:
             item = re.sub(r"^\s*[-*]\s+", "", line).strip()
             html_lines.append(f"<li>{item}</li>")
             continue
-        else:
-            if in_ul:
-                html_lines.append("</ul>")
-                in_ul = False
+        elif in_ul:
+            html_lines.append("</ul>")
+            in_ul = False
 
         # inline code
         line_proc = re.sub(r"`([^`]+)`", r"<code>\1</code>", line)
@@ -243,11 +239,11 @@ def simple_markdown_to_html(md: str) -> str:
     return "\n".join(html_lines)
 
 
-def collect_epics() -> Dict[str, Dict[str, str]]:
+def collect_epics() -> dict[str, dict[str, str]]:
     """Return mapping EPIC-ID → {title, content, path}.
     Accepts epic files even if filename includes a suffix.
     """
-    mapping: Dict[str, Dict[str, str]] = {}
+    mapping: dict[str, dict[str, str]] = {}
     sources = []
     if EPIC_DIR_PRIMARY.exists():
         sources.extend(sorted(EPIC_DIR_PRIMARY.glob("EPIC-*.md")))
@@ -294,18 +290,26 @@ input[type="search"]{ padding:8px 10px; width: 320px; border:1px solid #e5e7eb; 
     )
 
 
-def render_index(requirements: List[Dict[str, object]], epics: Dict[str, Dict[str, str]]) -> None:
+def render_index(
+    requirements: list[dict[str, object]], epics: dict[str, dict[str, str]]
+) -> None:
     # Build rows
     rows = []
     for r in requirements:
-        epic_links: List[str] = []
+        epic_links: list[str] = []
         for eid in r.get("epics", []):
-            target = f"epics/{eid}.html" if eid in epics else (epics.get(eid, {}).get("path") or "#")
+            target = (
+                f"epics/{eid}.html"
+                if eid in epics
+                else (epics.get(eid, {}).get("path") or "#")
+            )
             epic_links.append(f'<a href="{target}">{eid}</a>')
-        epics_html = ", ".join(epic_links) if epic_links else "<span class=muted>—</span>"
-        req_path = str(r['path'])
-        if req_path.startswith('docs/'):
-            req_path_rel = req_path[len('docs/'):]
+        epics_html = (
+            ", ".join(epic_links) if epic_links else "<span class=muted>—</span>"
+        )
+        req_path = str(r["path"])
+        if req_path.startswith("docs/"):
+            req_path_rel = req_path[len("docs/") :]
         else:
             req_path_rel = req_path
         rows.append(
@@ -411,17 +415,19 @@ def render_index(requirements: List[Dict[str, object]], epics: Dict[str, Dict[st
             epic_md = f"[${eid}](../epics/{eid}.md)".replace("$", "")
             epic_links.append(epic_md)
         epics_md = ", ".join(epic_links) if epic_links else "—"
-        md_rows.append(f"| {req_link} | {title} | {rtype} | {prio} | {status} | {epics_md} |")
+        md_rows.append(
+            f"| {req_link} | {title} | {rtype} | {prio} | {status} | {epics_md} |"
+        )
     (OUT_DIR / "README.md").write_text("\n".join(md_rows) + "\n", encoding="utf-8")
 
 
-def render_epic_pages(epics: Dict[str, Dict[str, str]]) -> None:
+def render_epic_pages(epics: dict[str, dict[str, str]]) -> None:
     for eid, meta in epics.items():
         title = meta.get("title", eid)
         content_md = meta.get("content", "")
         content_html = simple_markdown_to_html(content_md)
-        src_path = meta.get('path','')
-        src_rel = src_path[len('docs/'):] if src_path.startswith('docs/') else src_path
+        src_path = meta.get("path", "")
+        src_rel = src_path[len("docs/") :] if src_path.startswith("docs/") else src_path
         html = f"""
 <!doctype html>
 <html lang="nl">
@@ -444,11 +450,13 @@ def render_epic_pages(epics: Dict[str, Dict[str, str]]) -> None:
         (OUT_EPICS_DIR / f"{eid}.html").write_text(html, encoding="utf-8")
 
 
-def render_collapsible_epic_view(requirements: List[Dict[str, object]], epics: Dict[str, Dict[str, str]]) -> None:
+def render_collapsible_epic_view(
+    requirements: list[dict[str, object]], epics: dict[str, dict[str, str]]
+) -> None:
     """Write per-epic collapsible HTML: each epic is a details/summary with its requirements."""
     # Build mapping epic -> list[req]
-    by_epic: Dict[str, List[Dict[str, object]]] = {eid: [] for eid in epics.keys()}
-    orphans: List[Dict[str, object]] = []
+    by_epic: dict[str, list[dict[str, object]]] = {eid: [] for eid in epics}
+    orphans: list[dict[str, object]] = []
     for r in requirements:
         linked = False
         for eid in r.get("epics", []):
@@ -458,10 +466,18 @@ def render_collapsible_epic_view(requirements: List[Dict[str, object]], epics: D
             orphans.append(r)
 
     # Unique filter values
-    statuses = sorted({str((r.get("status") or "")).strip() for r in requirements if r.get("status")})
-    priorities = sorted({str((r.get("priority") or "")).strip() for r in requirements if r.get("priority")})
+    statuses = sorted(
+        {str(r.get("status") or "").strip() for r in requirements if r.get("status")}
+    )
+    priorities = sorted(
+        {
+            str(r.get("priority") or "").strip()
+            for r in requirements
+            if r.get("priority")
+        }
+    )
 
-    def render_req_li(r: Dict[str, object]) -> str:
+    def render_req_li(r: dict[str, object]) -> str:
         rid = r["id"]
         title = r.get("title") or ""
         rtype = r.get("type") or ""
@@ -471,8 +487,8 @@ def render_collapsible_epic_view(requirements: List[Dict[str, object]], epics: D
         badges = f"<span class='tag'>{rtype}</span> • <span class='muted'>{prio}</span> • <span class='muted'>{status}</span>"
         # build relative path from docs/backlog/dashboard
         p = str(path)
-        if p.startswith('docs/'):
-            p_rel = p[len('docs/'):]
+        if p.startswith("docs/"):
+            p_rel = p[len("docs/") :]
         else:
             p_rel = p
         return (
@@ -481,11 +497,14 @@ def render_collapsible_epic_view(requirements: List[Dict[str, object]], epics: D
             f"</li>"
         )
 
-    sections: List[str] = []
+    sections: list[str] = []
     for eid in sorted(by_epic.keys()):
         title = epics.get(eid, {}).get("title", eid)
         reqs = sorted(by_epic.get(eid, []), key=lambda x: str(x.get("id")))
-        items = "\n".join(render_req_li(r) for r in reqs) or "<li><span class='muted'>Geen gekoppelde requirements</span></li>"
+        items = (
+            "\n".join(render_req_li(r) for r in reqs)
+            or "<li><span class='muted'>Geen gekoppelde requirements</span></li>"
+        )
         sections.append(
             f"""
 <details open>
@@ -498,7 +517,9 @@ def render_collapsible_epic_view(requirements: List[Dict[str, object]], epics: D
         )
 
     if orphans:
-        items = "\n".join(render_req_li(r) for r in sorted(orphans, key=lambda x: str(x.get("id"))))
+        items = "\n".join(
+            render_req_li(r) for r in sorted(orphans, key=lambda x: str(x.get("id")))
+        )
         sections.append(
             f"""
 <details>
@@ -593,10 +614,16 @@ def render_collapsible_epic_view(requirements: List[Dict[str, object]], epics: D
 </html>
     """
     (OUT_DIR / "per-epic.html").write_text(html, encoding="utf-8")
-def write_graph_artifacts(requirements: List[Dict[str, object]], epics: Dict[str, Dict[str, str]]) -> None:
+
+
+def write_graph_artifacts(
+    requirements: list[dict[str, object]], epics: dict[str, dict[str, str]]
+) -> None:
     """Write data.json and graph.html for a simple bipartite SVG graph (EPICs ⇄ REQs)."""
     # Build data model
-    epic_nodes = {eid: {"id": eid, "title": meta.get("title", eid)} for eid, meta in epics.items()}
+    epic_nodes = {
+        eid: {"id": eid, "title": meta.get("title", eid)} for eid, meta in epics.items()
+    }
     # Also include epics referenced by requirements but missing in files
     for r in requirements:
         for eid in r.get("epics", []):
@@ -604,7 +631,12 @@ def write_graph_artifacts(requirements: List[Dict[str, object]], epics: Dict[str
                 epic_nodes[eid] = {"id": eid, "title": eid}
 
     req_nodes = [
-        {"id": r["id"], "title": r.get("title", ""), "epics": list(r.get("epics", [])), "path": r.get("path", "")}
+        {
+            "id": r["id"],
+            "title": r.get("title", ""),
+            "epics": list(r.get("epics", [])),
+            "path": r.get("path", ""),
+        }
         for r in requirements
     ]
     data = {
@@ -613,9 +645,12 @@ def write_graph_artifacts(requirements: List[Dict[str, object]], epics: Dict[str
     }
     # Write data.json and prepare inline JSON
     import json
+
     data_json = json.dumps(data, ensure_ascii=False)
 
-    (OUT_DIR / "data.json").write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+    (OUT_DIR / "data.json").write_text(
+        json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
 
     # Render graph.html (bipartite layout: epics left, requirements right)
     html = """

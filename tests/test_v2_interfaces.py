@@ -34,10 +34,10 @@ class TestPromptServiceInterface:
 
     def test_interface_definition(self):
         """Test dat interface correct gedefinieerd is."""
-        assert hasattr(PromptServiceInterface, 'build_generation_prompt')
-        assert hasattr(PromptServiceInterface, 'optimize_prompt')
+        assert hasattr(PromptServiceInterface, "build_generation_prompt")
+        assert hasattr(PromptServiceInterface, "optimize_prompt")
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_concrete_implementation(self):
         """Test concrete implementatie van PromptServiceInterface."""
 
@@ -46,7 +46,7 @@ class TestPromptServiceInterface:
                 self,
                 request: GenerationRequest,
                 feedback_history: list[dict[str, Any]] | None = None,
-                context: dict[str, Any] | None = None
+                context: dict[str, Any] | None = None,
             ) -> PromptResult:
                 return PromptResult(
                     text=f"Prompt for {request.begrip}",
@@ -54,7 +54,7 @@ class TestPromptServiceInterface:
                     components_used=["base", "context"],
                     feedback_integrated=feedback_history is not None,
                     optimization_applied=True,
-                    metadata={}
+                    metadata={},
                 )
 
             async def optimize_prompt(self, prompt: str, max_tokens: int) -> str:
@@ -72,10 +72,10 @@ class TestValidationServiceInterface:
 
     def test_interface_definition(self):
         """Test dat interface correct gedefinieerd is."""
-        assert hasattr(ValidationServiceInterface, 'validate_definition')
-        assert hasattr(ValidationServiceInterface, 'batch_validate')
+        assert hasattr(ValidationServiceInterface, "validate_definition")
+        assert hasattr(ValidationServiceInterface, "batch_validate")
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_async_validation(self):
         """Test async validatie methode."""
 
@@ -85,17 +85,13 @@ class TestValidationServiceInterface:
                 begrip: str,
                 text: str,
                 ontologische_categorie: str | None = None,
-                context: dict[str, Any] | None = None
+                context: dict[str, Any] | None = None,
             ) -> ValidationResult:
                 await asyncio.sleep(0.01)  # Simuleer async operatie
-                return ValidationResult(
-                    is_valid=True,
-                    definition_text=text
-                )
+                return ValidationResult(is_valid=True, definition_text=text)
 
             async def batch_validate(
-                self,
-                definitions: list[tuple[str, str]]
+                self, definitions: list[tuple[str, str]]
             ) -> list[ValidationResult]:
                 results = []
                 for begrip, text in definitions:
@@ -111,7 +107,7 @@ class TestValidationServiceInterface:
 class TestCleaningServiceInterface:
     """Test suite voor async CleaningServiceInterface."""
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_async_cleaning(self):
         """Test dat cleaning service nu async is."""
 
@@ -121,15 +117,13 @@ class TestCleaningServiceInterface:
                 return CleaningResult(
                     original_text=definition.definitie,
                     cleaned_text=definition.definitie.strip(),
-                    was_cleaned=True
+                    was_cleaned=True,
                 )
 
             async def clean_text(self, text: str, term: str) -> CleaningResult:
                 await asyncio.sleep(0.01)
                 return CleaningResult(
-                    original_text=text,
-                    cleaned_text=text.strip(),
-                    was_cleaned=True
+                    original_text=text, cleaned_text=text.strip(), was_cleaned=True
                 )
 
             def validate_cleaning_rules(self) -> bool:
@@ -145,7 +139,7 @@ class TestCleaningServiceInterface:
 class TestEnhancementServiceInterface:
     """Test suite voor EnhancementServiceInterface."""
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_enhancement_interface(self):
         """Test enhancement service interface."""
 
@@ -153,16 +147,13 @@ class TestEnhancementServiceInterface:
             async def enhance_definition(
                 self,
                 definition: Definition,
-                enhancement_options: dict[str, Any] | None = None
+                enhancement_options: dict[str, Any] | None = None,
             ) -> Definition:
                 definition.voorbeelden = ["Voorbeeld 1", "Voorbeeld 2"]
                 return definition
 
             async def generate_examples(
-                self,
-                begrip: str,
-                definitie: str,
-                aantal: int = 3
+                self, begrip: str, definitie: str, aantal: int = 3
             ) -> list[str]:
                 return [f"Voorbeeld {i+1} voor {begrip}" for i in range(aantal)]
 
@@ -175,33 +166,24 @@ class TestEnhancementServiceInterface:
 class TestSecurityServiceInterface:
     """Test suite voor SecurityServiceInterface."""
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_security_interface(self):
         """Test security service interface."""
 
         class ConcreteSecurityService(SecurityServiceInterface):
             async def redact_pii(
-                self,
-                text: str,
-                redaction_level: str = "medium"
+                self, text: str, redaction_level: str = "medium"
             ) -> str:
                 # Simpele mock redactie
                 return text.replace("John Doe", "[REDACTED]")
 
             async def validate_compliance(
-                self,
-                definition: Definition,
-                compliance_rules: list[str] | None = None
+                self, definition: Definition, compliance_rules: list[str] | None = None
             ) -> dict[str, bool]:
-                return {
-                    "GDPR": True,
-                    "AVG": True
-                }
+                return {"GDPR": True, "AVG": True}
 
             async def encrypt_sensitive_data(
-                self,
-                data: dict[str, Any],
-                encryption_keys: list[str]
+                self, data: dict[str, Any], encryption_keys: list[str]
             ) -> dict[str, Any]:
                 encrypted_data = data.copy()
                 for key in encryption_keys:
@@ -217,7 +199,7 @@ class TestSecurityServiceInterface:
 class TestMonitoringServiceInterface:
     """Test suite voor MonitoringServiceInterface."""
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_monitoring_interface(self):
         """Test monitoring service interface."""
 
@@ -226,9 +208,7 @@ class TestMonitoringServiceInterface:
                 self.metrics = []
 
             async def track_generation_metrics(
-                self,
-                request_id: str,
-                metrics: dict[str, Any]
+                self, request_id: str, metrics: dict[str, Any]
             ) -> None:
                 self.metrics.append({"id": request_id, "metrics": metrics})
 
@@ -237,17 +217,14 @@ class TestMonitoringServiceInterface:
                 operation: str,
                 duration: float,
                 success: bool,
-                metadata: dict[str, Any] | None = None
+                metadata: dict[str, Any] | None = None,
             ) -> None:
-                self.metrics.append({
-                    "operation": operation,
-                    "duration": duration,
-                    "success": success
-                })
+                self.metrics.append(
+                    {"operation": operation, "duration": duration, "success": success}
+                )
 
             def get_metrics_summary(
-                self,
-                time_range: tuple | None = None
+                self, time_range: tuple | None = None
             ) -> dict[str, Any]:
                 return {"total_operations": len(self.metrics)}
 
@@ -260,7 +237,7 @@ class TestMonitoringServiceInterface:
 class TestFeedbackEngineInterface:
     """Test suite voor FeedbackEngineInterface."""
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_feedback_interface(self):
         """Test feedback engine interface."""
 
@@ -273,29 +250,27 @@ class TestFeedbackEngineInterface:
                 definition_id: str,
                 feedback_type: str,
                 feedback_content: str,
-                metadata: dict[str, Any] | None = None
+                metadata: dict[str, Any] | None = None,
             ) -> dict[str, Any]:
                 feedback = {
                     "id": definition_id,
                     "type": feedback_type,
-                    "content": feedback_content
+                    "content": feedback_content,
                 }
                 self.feedback_store.append(feedback)
                 return {"status": "processed", "feedback_id": len(self.feedback_store)}
 
             async def get_feedback_history(
-                self,
-                definition_id: str | None = None,
-                limit: int = 10
+                self, definition_id: str | None = None, limit: int = 10
             ) -> list[dict[str, Any]]:
                 if definition_id:
-                    return [f for f in self.feedback_store if f["id"] == definition_id][:limit]
+                    return [f for f in self.feedback_store if f["id"] == definition_id][
+                        :limit
+                    ]
                 return self.feedback_store[:limit]
 
             async def integrate_feedback(
-                self,
-                prompt: str,
-                feedback_items: list[dict[str, Any]]
+                self, prompt: str, feedback_items: list[dict[str, Any]]
             ) -> str:
                 feedback_text = " ".join([f["content"] for f in feedback_items])
                 return f"{prompt}\n\nFeedback: {feedback_text}"
@@ -308,23 +283,21 @@ class TestFeedbackEngineInterface:
 class TestOrchestratorInterface:
     """Test suite voor updated DefinitionOrchestratorInterface."""
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_orchestrator_with_context(self):
         """Test orchestrator met optionele context parameter."""
 
         class ConcreteOrchestrator(DefinitionOrchestratorInterface):
             async def create_definition(
-                self,
-                request: GenerationRequest,
-                context: dict[str, Any] | None = None
+                self, request: GenerationRequest, context: dict[str, Any] | None = None
             ) -> DefinitionResponse:
                 # Mock implementatie
                 return DefinitionResponse(
                     success=True,
                     definition=Definition(
                         begrip=request.begrip,
-                        definitie=f"Definitie voor {request.begrip}"
-                    )
+                        definitie=f"Definitie voor {request.begrip}",
+                    ),
                 )
 
             async def update_definition(
@@ -332,7 +305,9 @@ class TestOrchestratorInterface:
             ) -> DefinitionResponse:
                 return DefinitionResponse(success=True)
 
-            async def validate_and_save(self, definition: Definition) -> DefinitionResponse:
+            async def validate_and_save(
+                self, definition: Definition
+            ) -> DefinitionResponse:
                 return DefinitionResponse(success=True, definition=definition)
 
         orchestrator = ConcreteOrchestrator()
@@ -342,14 +317,16 @@ class TestOrchestratorInterface:
         response1 = await orchestrator.create_definition(request)
         assert response1.success is True
 
-        response2 = await orchestrator.create_definition(request, context={"extra": "info"})
+        response2 = await orchestrator.create_definition(
+            request, context={"extra": "info"}
+        )
         assert response2.success is True
 
 
 class TestInterfaceCompatibility:
     """Test dat alle interfaces compatible zijn met elkaar."""
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_v2_orchestrator_can_use_all_services(self):
         """Test dat V2 orchestrator alle services kan gebruiken."""
 
@@ -369,7 +346,7 @@ class TestInterfaceCompatibility:
             components_used=[],
             feedback_integrated=False,
             optimization_applied=False,
-            metadata={}
+            metadata={},
         )
 
         validation_service.validate_definition.return_value = ValidationResult(
@@ -377,19 +354,17 @@ class TestInterfaceCompatibility:
         )
 
         cleaning_service.clean_text.return_value = CleaningResult(
-            original_text="test",
-            cleaned_text="test",
-            was_cleaned=False
+            original_text="test", cleaned_text="test", was_cleaned=False
         )
 
         # Verify dat alle services de juiste interface implementeren
-        assert hasattr(prompt_service, 'build_generation_prompt')
-        assert hasattr(validation_service, 'validate_definition')
-        assert hasattr(cleaning_service, 'clean_definition')
-        assert hasattr(enhancement_service, 'enhance_definition')
-        assert hasattr(security_service, 'redact_pii')
-        assert hasattr(monitoring_service, 'track_generation_metrics')
-        assert hasattr(feedback_engine, 'process_feedback')
+        assert hasattr(prompt_service, "build_generation_prompt")
+        assert hasattr(validation_service, "validate_definition")
+        assert hasattr(cleaning_service, "clean_definition")
+        assert hasattr(enhancement_service, "enhance_definition")
+        assert hasattr(security_service, "redact_pii")
+        assert hasattr(monitoring_service, "track_generation_metrics")
+        assert hasattr(feedback_engine, "process_feedback")
 
 
 if __name__ == "__main__":

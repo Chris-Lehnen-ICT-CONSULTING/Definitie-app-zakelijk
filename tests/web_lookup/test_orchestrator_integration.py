@@ -17,7 +17,9 @@ class _StubPromptResult:
 
 
 class _StubPromptService:
-    async def build_generation_prompt(self, request, feedback_history=None, context=None):
+    async def build_generation_prompt(
+        self, request, feedback_history=None, context=None
+    ):
         return _StubPromptResult(text=f"PROMPT for {request.begrip}")
 
 
@@ -33,6 +35,7 @@ class _StubAIService:
 class _StubValidationService:
     async def validate_definition(self, definition, context=None):
         from services.validation.interfaces import CONTRACT_VERSION
+
         return {
             "version": CONTRACT_VERSION,
             "overall_score": 0.9,
@@ -72,7 +75,12 @@ class _StubWebLookupService:
         )
         r2 = LookupResult(
             term=request.term,
-            source=WebSource(name="Overheid.nl", url="https://overheid.nl/b", confidence=1.0, is_juridical=True),
+            source=WebSource(
+                name="Overheid.nl",
+                url="https://overheid.nl/b",
+                confidence=1.0,
+                is_juridical=True,
+            ),
             definition="Beta",
             success=True,
             metadata={},
@@ -80,10 +88,12 @@ class _StubWebLookupService:
         return [r2, r1]  # Already ranked
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_orchestrator_includes_provenance_sources_in_metadata():
     from services.interfaces import GenerationRequest, OrchestratorConfig
-    from services.orchestrators.definition_orchestrator_v2 import DefinitionOrchestratorV2
+    from services.orchestrators.definition_orchestrator_v2 import (
+        DefinitionOrchestratorV2,
+    )
 
     orch = DefinitionOrchestratorV2(
         prompt_service=_StubPromptService(),
@@ -95,7 +105,9 @@ async def test_orchestrator_includes_provenance_sources_in_metadata():
         web_lookup_service=_StubWebLookupService(),
     )
 
-    req = GenerationRequest(id="00000000-0000-0000-0000-000000000000", begrip="test-term")
+    req = GenerationRequest(
+        id="00000000-0000-0000-0000-000000000000", begrip="test-term"
+    )
     resp = await orch.create_definition(req, context={})
 
     assert resp.success and resp.definition is not None

@@ -7,18 +7,20 @@ Removes all History Tab references from the codebase
 import re
 import shutil
 import sys
-from pathlib import Path
 from datetime import datetime
-from typing import List, Tuple, Dict
+from pathlib import Path
+
 
 class HistoryTabRemover:
     """Handles safe removal of History Tab from the codebase"""
 
     def __init__(self, project_root: Path):
         self.project_root = project_root
-        self.backup_dir = Path(f"/tmp/history_tab_removal_{datetime.now().strftime('%Y%m%d_%H%M%S')}")
-        self.modifications: List[str] = []
-        self.errors: List[str] = []
+        self.backup_dir = Path(
+            f"/tmp/history_tab_removal_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+        )
+        self.modifications: list[str] = []
+        self.errors: list[str] = []
 
     def create_backups(self) -> bool:
         """Create backups of files to be modified"""
@@ -27,7 +29,7 @@ class HistoryTabRemover:
 
         files_to_backup = [
             self.project_root / "src/ui/tabbed_interface.py",
-            self.project_root / "src/ui/components/history_tab.py.backup"
+            self.project_root / "src/ui/components/history_tab.py.backup",
         ]
 
         for file_path in files_to_backup:
@@ -73,7 +75,7 @@ echo "✓ Rollback complete!"
             self.errors.append(f"File not found: {file_path}")
             return False
 
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, encoding="utf-8") as f:
             lines = f.readlines()
 
         new_lines = []
@@ -82,30 +84,34 @@ echo "✓ Rollback complete!"
             line = lines[i]
 
             # Remove import statement
-            if 'from ui.components.history_tab import HistoryTab' in line:
+            if "from ui.components.history_tab import HistoryTab" in line:
                 self.modifications.append(f"Line {i+1}: Removed HistoryTab import")
                 i += 1
                 continue
 
             # Remove initialization
-            if 'self.history_tab = HistoryTab' in line:
-                self.modifications.append(f"Line {i+1}: Removed HistoryTab initialization")
+            if "self.history_tab = HistoryTab" in line:
+                self.modifications.append(
+                    f"Line {i+1}: Removed HistoryTab initialization"
+                )
                 i += 1
                 continue
 
             # Remove history tab config (multi-line block)
-            if '"history":' in line and '{' in lines[i]:
+            if '"history":' in line and "{" in lines[i]:
                 # Find the closing brace
                 brace_count = 1
                 start_line = i
                 i += 1
                 while i < len(lines) and brace_count > 0:
-                    if '{' in lines[i]:
-                        brace_count += lines[i].count('{')
-                    if '}' in lines[i]:
-                        brace_count -= lines[i].count('}')
+                    if "{" in lines[i]:
+                        brace_count += lines[i].count("{")
+                    if "}" in lines[i]:
+                        brace_count -= lines[i].count("}")
                     i += 1
-                self.modifications.append(f"Lines {start_line+1}-{i}: Removed history tab config")
+                self.modifications.append(
+                    f"Lines {start_line+1}-{i}: Removed history tab config"
+                )
                 continue
 
             # Remove render block
@@ -113,16 +119,18 @@ echo "✓ Rollback complete!"
                 start_line = i
                 i += 1
                 # Skip the render line
-                if i < len(lines) and 'self.history_tab.render()' in lines[i]:
+                if i < len(lines) and "self.history_tab.render()" in lines[i]:
                     i += 1
-                self.modifications.append(f"Lines {start_line+1}-{i}: Removed history tab render block")
+                self.modifications.append(
+                    f"Lines {start_line+1}-{i}: Removed history tab render block"
+                )
                 continue
 
             new_lines.append(line)
             i += 1
 
         # Write modified content
-        with open(file_path, 'w', encoding='utf-8') as f:
+        with open(file_path, "w", encoding="utf-8") as f:
             f.writelines(new_lines)
 
         print(f"  ✓ Applied {len(self.modifications)} modifications")
@@ -178,7 +186,7 @@ if __name__ == "__main__":
 '''
         cleanup_script.write_text(cleanup_content)
         cleanup_script.chmod(0o755)
-        print(f"  ✓ Created session state cleanup script")
+        print("  ✓ Created session state cleanup script")
         return True
 
     def cleanup_files(self) -> bool:
@@ -192,11 +200,7 @@ if __name__ == "__main__":
             print(f"  ✓ Removed {backup_file.name}")
 
         # Clean Python cache
-        cache_patterns = [
-            "**/__pycache__",
-            "**/*.pyc",
-            "**/*.pyo"
-        ]
+        cache_patterns = ["**/__pycache__", "**/*.pyc", "**/*.pyo"]
 
         for pattern in cache_patterns:
             for path in self.project_root.glob(pattern):
@@ -208,7 +212,7 @@ if __name__ == "__main__":
         print("  ✓ Cleaned Python cache files")
         return True
 
-    def verify_removal(self) -> Tuple[bool, List[str]]:
+    def verify_removal(self) -> tuple[bool, list[str]]:
         """Verify that all references have been removed"""
         print("\n✅ Verifying removal...")
 
@@ -216,27 +220,32 @@ if __name__ == "__main__":
 
         # Check for HistoryTab references
         patterns = [
-            r'HistoryTab',
-            r'history_tab(?!\.py\.backup)',
+            r"HistoryTab",
+            r"history_tab(?!\.py\.backup)",
             r'"history":\s*{',
-            r"'history':\s*{"
+            r"'history':\s*{",
         ]
 
         src_dir = self.project_root / "src"
         for py_file in src_dir.rglob("*.py"):
             try:
-                content = py_file.read_text(encoding='utf-8')
+                content = py_file.read_text(encoding="utf-8")
                 for pattern in patterns:
                     if re.search(pattern, content):
                         # Filter out non-UI history references
-                        if not any(skip in str(py_file) for skip in [
-                            'history_entry', 'history_file',
-                            'rate_limit_history', 'retry_history',
-                            '_add_history'
-                        ]):
+                        if not any(
+                            skip in str(py_file)
+                            for skip in [
+                                "history_entry",
+                                "history_file",
+                                "rate_limit_history",
+                                "retry_history",
+                                "_add_history",
+                            ]
+                        ):
                             matches = re.findall(pattern, content)
                             for match in matches:
-                                if 'history_' not in match or 'history_tab' in match:
+                                if "history_" not in match or "history_tab" in match:
                                     remaining_refs.append(f"{py_file}: {match}")
             except Exception as e:
                 self.errors.append(f"Error checking {py_file}: {e}")
@@ -257,6 +266,7 @@ if __name__ == "__main__":
         file_path = self.project_root / "src/ui/tabbed_interface.py"
         try:
             import py_compile
+
             py_compile.compile(str(file_path), doraise=True)
             print(f"  ✓ Syntax valid: {file_path.name}")
             return True
@@ -267,9 +277,9 @@ if __name__ == "__main__":
 
     def generate_report(self):
         """Generate a summary report"""
-        print("\n" + "="*60)
+        print("\n" + "=" * 60)
         print("📊 REMOVAL REPORT")
-        print("="*60)
+        print("=" * 60)
 
         print(f"\n📁 Backup Location: {self.backup_dir}")
         print(f"🔧 Modifications: {len(self.modifications)}")
@@ -292,14 +302,14 @@ if __name__ == "__main__":
     def run(self) -> bool:
         """Execute the complete removal process"""
         print("🚀 Starting History Tab Removal Process")
-        print("="*60)
+        print("=" * 60)
 
         steps = [
             ("Creating backups", self.create_backups),
             ("Modifying code", self.remove_from_tabbed_interface),
             ("Creating cleanup scripts", self.clean_session_state_references),
             ("Cleaning files", self.cleanup_files),
-            ("Testing syntax", self.test_syntax)
+            ("Testing syntax", self.test_syntax),
         ]
 
         for step_name, step_func in steps:
@@ -318,6 +328,7 @@ if __name__ == "__main__":
 
         return success and not self.errors
 
+
 def main():
     """Main entry point"""
     project_root = Path("/Users/chrislehnen/Projecten/Definitie-app")
@@ -333,12 +344,15 @@ def main():
             print("\n✅ History Tab successfully removed!")
             sys.exit(0)
         else:
-            print("\n⚠️ Removal completed with warnings. Please review the report above.")
+            print(
+                "\n⚠️ Removal completed with warnings. Please review the report above."
+            )
             sys.exit(1)
     except Exception as e:
         print(f"\n❌ Unexpected error: {e}")
         print(f"Rollback script available at: {remover.backup_dir}/rollback.sh")
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

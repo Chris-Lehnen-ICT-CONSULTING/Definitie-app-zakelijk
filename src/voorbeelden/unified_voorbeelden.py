@@ -36,9 +36,7 @@ from utils.voorbeelden_debug import (  # Debug logging voor voorbeelden flow
     debug_flow_point,
     debugger,
 )
-from voorbeelden.robust_cache import (
-    get_robust_cache,
-)  # Robuuste cache voor voorbeelden
+from voorbeelden.robust_cache import get_robust_cache
 
 logger = logging.getLogger(__name__)  # Logger instantie voor unified voorbeelden module
 

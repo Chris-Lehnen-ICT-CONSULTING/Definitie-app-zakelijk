@@ -14,7 +14,5 @@ class UIComponents:  # Backwards-compatibele aggregator
     en kan later uitgebreid worden met helpers.
     """
 
-    pass
-
 
 __all__ = ["UIComponents"]

@@ -3,9 +3,7 @@
 import logging
 
 from database.definitie_repository import DefinitieRecord, DefinitieRepository
-from models.category_models import (
-    CategoryChangeResult,
-)
+from models.category_models import CategoryChangeResult
 
 logger = logging.getLogger(__name__)
 

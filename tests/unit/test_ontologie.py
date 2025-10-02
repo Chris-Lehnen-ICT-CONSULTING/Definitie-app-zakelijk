@@ -6,11 +6,15 @@ Test de 6-stappen ontologische analyzer met verschillende voorbeelden.
 """
 
 import asyncio
-import sys
 import os
-sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
+import sys
 
-from ontologie.ontological_analyzer import OntologischeAnalyzer, QuickOntologischeAnalyzer
+sys.path.append(os.path.join(os.path.dirname(__file__), "src"))
+
+from ontologie.ontological_analyzer import (
+    OntologischeAnalyzer,
+    QuickOntologischeAnalyzer,
+)
 
 
 async def test_ontological_analyzer():
@@ -24,7 +28,7 @@ async def test_ontological_analyzer():
         ("document", "Overheid", "Wet openbaarheid van bestuur"),
         ("aanvrager", "Gemeente Utrecht", "Awb"),
         ("verificatie", "Ministerie", "Cybersecurity"),
-        ("besluit", "Provincie", "Omgevingswet")
+        ("besluit", "Provincie", "Omgevingswet"),
     ]
 
     analyzer = OntologischeAnalyzer()
@@ -41,16 +45,22 @@ async def test_ontological_analyzer():
             )
 
             print(f"   ✅ Categorie: {categorie.value}")
-            print(f"   📊 Confidence: {analyse_resultaat.get('categorie_resultaat', {}).get('confidence', 0.0):.2f}")
+            print(
+                f"   📊 Confidence: {analyse_resultaat.get('categorie_resultaat', {}).get('confidence', 0.0):.2f}"
+            )
 
             # Toon semantische kenmerken
-            kenmerken = analyse_resultaat.get('semantisch_profiel', {}).get('semantische_kenmerken', {})
+            kenmerken = analyse_resultaat.get("semantisch_profiel", {}).get(
+                "semantische_kenmerken", {}
+            )
             positieve_kenmerken = [k for k, v in kenmerken.items() if v]
             if positieve_kenmerken:
                 print(f"   🔍 Kenmerken: {', '.join(positieve_kenmerken)}")
 
             # Toon gevonden definities
-            definities = analyse_resultaat.get('semantisch_profiel', {}).get('definities', [])
+            definities = analyse_resultaat.get("semantisch_profiel", {}).get(
+                "definities", []
+            )
             if definities:
                 print(f"   📚 Gevonden definities: {len(definities)}")
 
@@ -73,7 +83,7 @@ async def test_quick_analyzer():
         "besluit",
         "systeem",
         "gebruiker",
-        "controle"
+        "controle",
     ]
 
     for begrip in test_begrippen:
@@ -98,6 +108,7 @@ async def main():
     except Exception as e:
         print(f"\n❌ Test mislukt: {e}")
         import traceback
+
         traceback.print_exc()
 
 

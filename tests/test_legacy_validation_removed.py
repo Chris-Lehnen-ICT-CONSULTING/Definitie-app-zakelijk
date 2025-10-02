@@ -4,17 +4,18 @@ and V2 validation orchestrator is working correctly.
 """
 
 import asyncio
+from unittest.mock import AsyncMock, Mock, patch
+
 import pytest
-from unittest.mock import Mock, AsyncMock, patch
 
 from services.container import ServiceContainer
-from services.service_factory import ServiceAdapter as ServiceFactory
-from services.orchestrators.validation_orchestrator_v2 import ValidationOrchestratorV2
 from services.interfaces import (
-    ValidationServiceInterface,
     CleaningServiceInterface,
     Definition,
+    ValidationServiceInterface,
 )
+from services.orchestrators.validation_orchestrator_v2 import ValidationOrchestratorV2
+from services.service_factory import ServiceAdapter as ServiceFactory
 from services.validation.interfaces import (
     ValidationContext,
     ValidationOrchestratorInterface,
@@ -29,7 +30,7 @@ class TestLegacyValidationRemoval:
     def test_container_has_no_validator_method(self):
         """Verify container.validator() method no longer exists."""
         container = ServiceContainer()
-        assert not hasattr(container, 'validator')
+        assert not hasattr(container, "validator")
 
         # Verify trying to call it raises AttributeError
         with pytest.raises(AttributeError):
@@ -48,68 +49,70 @@ class TestLegacyValidationRemoval:
         stats = factory.get_stats()
 
         # Should have stats for other services but not validator
-        assert 'generator' in stats
-        assert 'repository' in stats
-        assert 'orchestrator' in stats
-        assert 'validator' not in stats
+        assert "generator" in stats
+        assert "repository" in stats
+        assert "orchestrator" in stats
+        assert "validator" not in stats
 
     def test_no_validator_config_in_container(self):
         """Verify ValidatorConfig is not created in container."""
         container = ServiceContainer()
 
         # Check that validator_config attribute doesn't exist
-        assert not hasattr(container, 'validator_config')
+        assert not hasattr(container, "validator_config")
 
     def test_no_validator_imports_in_container(self):
         """Verify no legacy validator imports in container module."""
         import src.services.container as container_module
 
         # Check module doesn't have validator imports
-        assert not hasattr(container_module, 'DefinitionValidator')
-        assert not hasattr(container_module, 'ValidatorConfig')
+        assert not hasattr(container_module, "DefinitionValidator")
+        assert not hasattr(container_module, "ValidatorConfig")
 
 
 class TestV2ValidationOrchestrator:
     """Test suite for V2 validation orchestrator functionality."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def mock_validation_service(self):
         """Create mock validation service."""
         service = Mock(spec=ValidationServiceInterface)
         # TypedDict-style ValidationResult stub
-        service.validate_text = AsyncMock(return_value={
-            "version": "1.0.0",
-            "overall_score": 0.85,
-            "is_acceptable": True,
-            "violations": [],
-            "passed_rules": [],
-            "detailed_scores": {},
-            "system": {"correlation_id": "00000000-0000-0000-0000-000000000000"},
-        })
+        service.validate_text = AsyncMock(
+            return_value={
+                "version": "1.0.0",
+                "overall_score": 0.85,
+                "is_acceptable": True,
+                "violations": [],
+                "passed_rules": [],
+                "detailed_scores": {},
+                "system": {"correlation_id": "00000000-0000-0000-0000-000000000000"},
+            }
+        )
         return service
 
-    @pytest.fixture
+    @pytest.fixture()
     def mock_cleaning_service(self):
         """Create mock cleaning service."""
         service = Mock(spec=CleaningServiceInterface)
         service.clean_text = AsyncMock(side_effect=lambda text: text.strip())
         return service
 
-    @pytest.fixture
+    @pytest.fixture()
     def orchestrator(self, mock_validation_service, mock_cleaning_service):
         """Create V2 orchestrator with mocked services."""
         return ValidationOrchestratorV2(
             validation_service=mock_validation_service,
-            cleaning_service=mock_cleaning_service
+            cleaning_service=mock_cleaning_service,
         )
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_v2_orchestrator_validate_text(self, orchestrator):
         """Test V2 orchestrator can validate text."""
         result = await orchestrator.validate_text(
             begrip="Test Begriff",
             text="Test definitie text",
-            ontologische_categorie="proces"
+            ontologische_categorie="proces",
         )
 
         assert result is not None
@@ -117,30 +120,27 @@ class TestV2ValidationOrchestrator:
         assert result["is_acceptable"] is True
         assert result["overall_score"] == 0.85
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_v2_orchestrator_with_context(self, orchestrator):
         """Test V2 orchestrator handles validation context."""
         context = ValidationContext(
-            correlation_id="test-123",
-            metadata={"source": "test"}
+            correlation_id="test-123", metadata={"source": "test"}
         )
 
         result = await orchestrator.validate_text(
-            begrip="Test",
-            text="Test text",
-            context=context
+            begrip="Test", text="Test text", context=context
         )
 
         assert result is not None
         assert result.metadata.get("correlation_id") == "test-123"
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_v2_orchestrator_validate_definition(self, orchestrator):
         """Test V2 orchestrator can validate Definition objects."""
         definition = Definition(
             begrip="TestBegrip",
             definitie="Dit is een test definitie",
-            ontologische_categorie="proces"
+            ontologische_categorie="proces",
         )
 
         result = await orchestrator.validate_definition(definition)
@@ -149,14 +149,14 @@ class TestV2ValidationOrchestrator:
         assert isinstance(result, dict)
         assert result["is_acceptable"] is True
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_v2_orchestrator_batch_validate(self, orchestrator):
         """Test V2 orchestrator batch validation."""
         requests = [
             ValidationRequest(
                 begrip=f"Begriff{i}",
                 text=f"Definitie {i}",
-                ontologische_categorie="proces"
+                ontologische_categorie="proces",
             )
             for i in range(3)
         ]
@@ -168,20 +168,20 @@ class TestV2ValidationOrchestrator:
             assert isinstance(result, dict)
             assert result["is_acceptable"] is True
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_v2_orchestrator_with_cleaning(self, orchestrator):
         """Test V2 orchestrator applies cleaning when configured."""
         result = await orchestrator.validate_text(
             begrip="Test",
             text="  Test with spaces  ",  # Text with extra spaces
-            ontologische_categorie="proces"
+            ontologische_categorie="proces",
         )
 
         # Cleaning service should have been called
         orchestrator.cleaning_service.clean_text.assert_called()
         assert result.is_valid is True
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_v2_orchestrator_error_handling(self, mock_validation_service):
         """Test V2 orchestrator handles validation errors gracefully."""
         # Make validation service raise an error
@@ -190,14 +190,10 @@ class TestV2ValidationOrchestrator:
         )
 
         orchestrator = ValidationOrchestratorV2(
-            validation_service=mock_validation_service,
-            cleaning_service=None
+            validation_service=mock_validation_service, cleaning_service=None
         )
 
-        result = await orchestrator.validate_text(
-            begrip="Test",
-            text="Test text"
-        )
+        result = await orchestrator.validate_text(begrip="Test", text="Test text")
 
         # Should return degraded result instead of raising
         assert result is not None
@@ -214,20 +210,21 @@ class TestIntegrationWithoutLegacyValidator:
         factory = ServiceFactory(container)
 
         # Create a mock response from orchestrator
-        with patch.object(factory.orchestrator, 'generate_definition') as mock_generate:
+        with patch.object(factory.orchestrator, "generate_definition") as mock_generate:
             from services.orchestrators.definition_orchestrator_v2 import (
-                DefinitionResponse
+                DefinitionResponse,
             )
 
-            mock_generate.return_value = asyncio.coroutine(lambda: DefinitionResponse(
-                success=True,
-                definitie="Generated definition",
-                metadata={"validation_score": 0.9}
-            ))()
+            mock_generate.return_value = asyncio.coroutine(
+                lambda: DefinitionResponse(
+                    success=True,
+                    definitie="Generated definition",
+                    metadata={"validation_score": 0.9},
+                )
+            )()
 
             result = factory.genereer_definitie(
-                begrip="TestBegrip",
-                context="Test context"
+                begrip="TestBegrip", context="Test context"
             )
 
             assert result is not None
@@ -243,10 +240,10 @@ class TestIntegrationWithoutLegacyValidator:
 
         # Should initialize without errors
         assert container is not None
-        assert hasattr(container, 'generator')
-        assert hasattr(container, 'repository')
-        assert hasattr(container, 'orchestrator')
-        assert not hasattr(container, 'validator')
+        assert hasattr(container, "generator")
+        assert hasattr(container, "repository")
+        assert hasattr(container, "orchestrator")
+        assert not hasattr(container, "validator")
 
     def test_v2_validation_available_through_orchestrator(self):
         """Test validation is still available through V2 orchestrator."""
@@ -256,10 +253,9 @@ class TestIntegrationWithoutLegacyValidator:
         orchestrator = container.orchestrator()
 
         # Verify it has validation capabilities
-        assert hasattr(orchestrator, 'validation_orchestrator')
+        assert hasattr(orchestrator, "validation_orchestrator")
         assert isinstance(
-            orchestrator.validation_orchestrator,
-            ValidationOrchestratorInterface
+            orchestrator.validation_orchestrator, ValidationOrchestratorInterface
         )
 
 
@@ -271,22 +267,22 @@ class TestMigrationCompleteness:
         # This would normally use code analysis tools
         # For now, we just check key files don't import it
 
-        import src.services.service_factory as factory_module
         import src.services.container as container_module
+        import src.services.service_factory as factory_module
 
         # Check these modules don't reference DefinitionValidator
         factory_source = str(factory_module)
         container_source = str(container_module)
 
-        assert 'DefinitionValidator' not in factory_source
-        assert 'DefinitionValidator' not in container_source
+        assert "DefinitionValidator" not in factory_source
+        assert "DefinitionValidator" not in container_source
 
     def test_interfaces_updated(self):
         """Verify interfaces no longer include DefinitionValidatorInterface."""
         import src.services.interfaces as interfaces_module
 
         # Should not have DefinitionValidatorInterface
-        assert not hasattr(interfaces_module, 'DefinitionValidatorInterface')
+        assert not hasattr(interfaces_module, "DefinitionValidatorInterface")
 
     def test_all_validation_through_v2(self):
         """Verify all validation now goes through V2 orchestrator."""
@@ -297,7 +293,7 @@ class TestMigrationCompleteness:
         orchestrator = container.orchestrator()
 
         # Orchestrator should have V2 validation
-        assert hasattr(orchestrator, 'validation_orchestrator')
+        assert hasattr(orchestrator, "validation_orchestrator")
         assert orchestrator.validation_orchestrator is not None
 
     def test_no_validator_config_usage(self):
@@ -305,11 +301,11 @@ class TestMigrationCompleteness:
         container = ServiceContainer.get_instance()
 
         # Container should not have validator_config
-        assert not hasattr(container, 'validator_config')
+        assert not hasattr(container, "validator_config")
 
         # Config should not be passed to any services
         config = container.config
-        assert 'validator_config' not in str(config)
+        assert "validator_config" not in str(config)
 
 
 if __name__ == "__main__":

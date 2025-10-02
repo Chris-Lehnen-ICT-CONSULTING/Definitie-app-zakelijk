@@ -15,15 +15,15 @@ Test Coverage:
 - Schema evolution and versioning
 """
 
-import pytest
 import json
+from dataclasses import asdict, dataclass
+from typing import Any, Dict, List, Optional
+
 import jsonschema
-from jsonschema import validate, ValidationError, Draft7Validator
-from typing import Dict, List, Any, Optional
-from dataclasses import dataclass, asdict
+import pytest
+from jsonschema import Draft7Validator, ValidationError, validate
 
 from src.services.interfaces import GenerationRequest
-
 
 # Define the context payload schema
 CONTEXT_PAYLOAD_SCHEMA_V1 = {
@@ -35,61 +35,56 @@ CONTEXT_PAYLOAD_SCHEMA_V1 = {
             "type": "string",
             "minLength": 1,
             "maxLength": 500,
-            "description": "The term to define"
+            "description": "The term to define",
         },
         "organisatorische_context": {
             "type": "array",
             "items": {
                 "type": "string",
-                "enum": ["DJI", "OM", "Rechtspraak", "KMAR", "CJIB", "RvdK", "NFI", "Anders..."]
+                "enum": [
+                    "DJI",
+                    "OM",
+                    "Rechtspraak",
+                    "KMAR",
+                    "CJIB",
+                    "RvdK",
+                    "NFI",
+                    "Anders...",
+                ],
             },
             "uniqueItems": True,
-            "description": "Organizational context"
+            "description": "Organizational context",
         },
         "juridische_context": {
             "type": "array",
-            "items": {
-                "type": "string",
-                "minLength": 1,
-                "maxLength": 100
-            },
+            "items": {"type": "string", "minLength": 1, "maxLength": 100},
             "uniqueItems": True,
-            "description": "Legal context"
+            "description": "Legal context",
         },
         "wettelijke_basis": {
             "type": "array",
-            "items": {
-                "type": "string",
-                "minLength": 1,
-                "maxLength": 500
-            },
+            "items": {"type": "string", "minLength": 1, "maxLength": 500},
             "uniqueItems": True,
-            "description": "Legal basis references"
+            "description": "Legal basis references",
         },
         "api_version": {
             "type": "string",
             "pattern": "^\\d+\\.\\d+(\\.\\d+)?$",
             "default": "1.0",
-            "description": "API version"
+            "description": "API version",
         },
         "metadata": {
             "type": "object",
             "properties": {
                 "user_id": {"type": "string"},
                 "session_id": {"type": "string"},
-                "timestamp": {
-                    "type": "string",
-                    "format": "date-time"
-                },
-                "source": {
-                    "type": "string",
-                    "enum": ["web", "api", "batch", "test"]
-                }
-            }
-        }
+                "timestamp": {"type": "string", "format": "date-time"},
+                "source": {"type": "string", "enum": ["web", "api", "batch", "test"]},
+            },
+        },
     },
     "required": ["begrip"],
-    "additionalProperties": False
+    "additionalProperties": False,
 }
 
 
@@ -97,16 +92,14 @@ CONTEXT_PAYLOAD_SCHEMA_V1 = {
 class TestSchemaValidation:
     """Test basic schema validation."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def validator(self):
         """Create JSON schema validator."""
         return Draft7Validator(CONTEXT_PAYLOAD_SCHEMA_V1)
 
     def test_valid_minimal_payload(self, validator):
         """Test minimal valid payload."""
-        payload = {
-            "begrip": "voorlopige hechtenis"
-        }
+        payload = {"begrip": "voorlopige hechtenis"}
 
         # Should validate without error
         validator.validate(payload)
@@ -117,14 +110,17 @@ class TestSchemaValidation:
             "begrip": "voorlopige hechtenis",
             "organisatorische_context": ["DJI", "OM"],
             "juridische_context": ["Strafrecht", "Strafprocesrecht"],
-            "wettelijke_basis": ["Wetboek van Strafvordering", "Wet voorlopige hechtenis"],
+            "wettelijke_basis": [
+                "Wetboek van Strafvordering",
+                "Wet voorlopige hechtenis",
+            ],
             "api_version": "1.0",
             "metadata": {
                 "user_id": "user123",
                 "session_id": "session456",
                 "timestamp": "2024-01-15T10:30:00Z",
-                "source": "web"
-            }
+                "source": "web",
+            },
         }
 
         # Should validate without error
@@ -144,10 +140,7 @@ class TestSchemaValidation:
 
     def test_additional_properties_rejected(self, validator):
         """Test that additional properties are rejected."""
-        payload = {
-            "begrip": "test",
-            "unknown_field": "should fail"
-        }
+        payload = {"begrip": "test", "unknown_field": "should fail"}
 
         with pytest.raises(ValidationError) as exc_info:
             validator.validate(payload)
@@ -159,22 +152,18 @@ class TestSchemaValidation:
 class TestFieldTypeValidation:
     """Test field type validation and coercion."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def validator(self):
         return Draft7Validator(CONTEXT_PAYLOAD_SCHEMA_V1)
 
     def test_string_fields(self, validator):
         """Test string field validation."""
         # Valid
-        payload = {
-            "begrip": "Valid string term"
-        }
+        payload = {"begrip": "Valid string term"}
         validator.validate(payload)
 
         # Invalid - number instead of string
-        payload = {
-            "begrip": 12345
-        }
+        payload = {"begrip": 12345}
         with pytest.raises(ValidationError):
             validator.validate(payload)
 
@@ -185,14 +174,14 @@ class TestFieldTypeValidation:
             "begrip": "test",
             "organisatorische_context": ["DJI", "OM"],
             "juridische_context": ["Strafrecht"],
-            "wettelijke_basis": ["Test wet"]
+            "wettelijke_basis": ["Test wet"],
         }
         validator.validate(payload)
 
         # Invalid - string instead of array
         payload = {
             "begrip": "test",
-            "organisatorische_context": "DJI"  # Should be array
+            "organisatorische_context": "DJI",  # Should be array
         }
         with pytest.raises(ValidationError):
             validator.validate(payload)
@@ -202,19 +191,14 @@ class TestFieldTypeValidation:
         # Valid metadata
         payload = {
             "begrip": "test",
-            "metadata": {
-                "user_id": "user123",
-                "source": "api"
-            }
+            "metadata": {"user_id": "user123", "source": "api"},
         }
         validator.validate(payload)
 
         # Invalid metadata source
         payload = {
             "begrip": "test",
-            "metadata": {
-                "source": "invalid_source"  # Not in enum
-            }
+            "metadata": {"source": "invalid_source"},  # Not in enum
         }
         with pytest.raises(ValidationError):
             validator.validate(payload)
@@ -224,7 +208,7 @@ class TestFieldTypeValidation:
 class TestFieldConstraints:
     """Test field constraints and formats."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def validator(self):
         return Draft7Validator(CONTEXT_PAYLOAD_SCHEMA_V1)
 
@@ -249,15 +233,12 @@ class TestFieldConstraints:
         # Valid organization
         payload = {
             "begrip": "test",
-            "organisatorische_context": ["DJI", "OM", "Rechtspraak"]
+            "organisatorische_context": ["DJI", "OM", "Rechtspraak"],
         }
         validator.validate(payload)
 
         # Invalid organization
-        payload = {
-            "begrip": "test",
-            "organisatorische_context": ["InvalidOrg"]
-        }
+        payload = {"begrip": "test", "organisatorische_context": ["InvalidOrg"]}
         with pytest.raises(ValidationError):
             validator.validate(payload)
 
@@ -266,7 +247,7 @@ class TestFieldConstraints:
         # Duplicate items
         payload = {
             "begrip": "test",
-            "organisatorische_context": ["DJI", "DJI"]  # Duplicate
+            "organisatorische_context": ["DJI", "DJI"],  # Duplicate
         }
         with pytest.raises(ValidationError):
             validator.validate(payload)
@@ -274,38 +255,22 @@ class TestFieldConstraints:
     def test_pattern_constraints(self, validator):
         """Test pattern constraints (regex)."""
         # Valid version pattern
-        payload = {
-            "begrip": "test",
-            "api_version": "1.0.0"
-        }
+        payload = {"begrip": "test", "api_version": "1.0.0"}
         validator.validate(payload)
 
         # Invalid version pattern
-        payload = {
-            "begrip": "test",
-            "api_version": "v1.0"  # Doesn't match pattern
-        }
+        payload = {"begrip": "test", "api_version": "v1.0"}  # Doesn't match pattern
         with pytest.raises(ValidationError):
             validator.validate(payload)
 
     def test_datetime_format(self, validator):
         """Test datetime format validation."""
         # Valid datetime
-        payload = {
-            "begrip": "test",
-            "metadata": {
-                "timestamp": "2024-01-15T10:30:00Z"
-            }
-        }
+        payload = {"begrip": "test", "metadata": {"timestamp": "2024-01-15T10:30:00Z"}}
         validator.validate(payload)
 
         # Invalid datetime
-        payload = {
-            "begrip": "test",
-            "metadata": {
-                "timestamp": "not-a-datetime"
-            }
-        }
+        payload = {"begrip": "test", "metadata": {"timestamp": "not-a-datetime"}}
         with pytest.raises(ValidationError):
             validator.validate(payload)
 
@@ -321,20 +286,19 @@ class TestCrossFieldDependencies:
 
         def validate_anders_option(payload):
             """Custom validator for Anders option."""
-            org_context = payload.get('organisatorische_context', [])
+            org_context = payload.get("organisatorische_context", [])
 
-            if 'Anders...' in org_context:
+            if "Anders..." in org_context:
                 # Should have custom_organisatorische_context field
-                if 'custom_organisatorische_context' not in payload:
-                    raise ValidationError("Anders... requires custom_organisatorische_context")
+                if "custom_organisatorische_context" not in payload:
+                    raise ValidationError(
+                        "Anders... requires custom_organisatorische_context"
+                    )
 
             return True
 
         # Test with Anders but no custom text
-        payload = {
-            "begrip": "test",
-            "organisatorische_context": ["DJI", "Anders..."]
-        }
+        payload = {"begrip": "test", "organisatorische_context": ["DJI", "Anders..."]}
 
         with pytest.raises(ValidationError):
             validate_anders_option(payload)
@@ -348,20 +312,12 @@ class TestCrossFieldDependencies:
                 {
                     "if": {
                         "properties": {
-                            "juridische_context": {
-                                "contains": {"const": "Strafrecht"}
-                            }
+                            "juridische_context": {"contains": {"const": "Strafrecht"}}
                         }
                     },
-                    "then": {
-                        "properties": {
-                            "wettelijke_basis": {
-                                "minItems": 1
-                            }
-                        }
-                    }
+                    "then": {"properties": {"wettelijke_basis": {"minItems": 1}}},
                 }
-            ]
+            ],
         }
 
         validator = Draft7Validator(conditional_schema)
@@ -370,7 +326,7 @@ class TestCrossFieldDependencies:
         payload = {
             "begrip": "test",
             "juridische_context": ["Strafrecht"],
-            "wettelijke_basis": []
+            "wettelijke_basis": [],
         }
 
         # This would fail with the conditional schema
@@ -383,21 +339,15 @@ class TestSchemaEvolution:
     def test_backward_compatibility(self):
         """New schema versions should be backward compatible."""
         # V1 payload
-        v1_payload = {
-            "begrip": "test",
-            "organisatorische_context": ["DJI"]
-        }
+        v1_payload = {"begrip": "test", "organisatorische_context": ["DJI"]}
 
         # V2 schema (with new optional fields)
         v2_schema = {
             **CONTEXT_PAYLOAD_SCHEMA_V1,
             "properties": {
                 **CONTEXT_PAYLOAD_SCHEMA_V1["properties"],
-                "new_optional_field": {
-                    "type": "string",
-                    "description": "New in v2"
-                }
-            }
+                "new_optional_field": {"type": "string", "description": "New in v2"},
+            },
         }
 
         v2_validator = Draft7Validator(v2_schema)
@@ -411,15 +361,17 @@ class TestSchemaEvolution:
         old_payload = {
             "term": "voorlopige hechtenis",  # Old field name
             "context": "DJI",  # String instead of array
-            "domain": "Strafrecht"  # Old field name
+            "domain": "Strafrecht",  # Old field name
         }
 
         # Migration function
         def migrate_payload(old):
             return {
                 "begrip": old.get("term"),
-                "organisatorische_context": [old.get("context")] if old.get("context") else [],
-                "juridische_context": [old.get("domain")] if old.get("domain") else []
+                "organisatorische_context": (
+                    [old.get("context")] if old.get("context") else []
+                ),
+                "juridische_context": [old.get("domain")] if old.get("domain") else [],
             }
 
         # Migrate
@@ -436,12 +388,13 @@ class TestDataclassIntegration:
 
     def test_dataclass_to_schema_validation(self):
         """Test that dataclass instances validate against schema."""
+
         @dataclass
         class ContextPayload:
             begrip: str
-            organisatorische_context: List[str] = None
-            juridische_context: List[str] = None
-            wettelijke_basis: List[str] = None
+            organisatorische_context: list[str] = None
+            juridische_context: list[str] = None
+            wettelijke_basis: list[str] = None
 
             def to_dict(self):
                 data = asdict(self)
@@ -452,7 +405,7 @@ class TestDataclassIntegration:
         payload = ContextPayload(
             begrip="test",
             organisatorische_context=["DJI"],
-            juridische_context=["Strafrecht"]
+            juridische_context=["Strafrecht"],
         )
 
         # Convert to dict
@@ -468,7 +421,7 @@ class TestDataclassIntegration:
             begrip="voorlopige hechtenis",
             organisatorische_context=["DJI", "OM"],
             juridische_context=["Strafrecht"],
-            wettelijke_basis=["Wetboek van Strafvordering"]
+            wettelijke_basis=["Wetboek van Strafvordering"],
         )
 
         # Convert to dict (simulated)
@@ -476,7 +429,7 @@ class TestDataclassIntegration:
             "begrip": request.begrip,
             "organisatorische_context": request.organisatorische_context,
             "juridische_context": request.juridische_context,
-            "wettelijke_basis": request.wettelijke_basis
+            "wettelijke_basis": request.wettelijke_basis,
         }
 
         # Validate
@@ -488,7 +441,7 @@ class TestDataclassIntegration:
 class TestErrorHandling:
     """Test schema validation error handling."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def validator(self):
         return Draft7Validator(CONTEXT_PAYLOAD_SCHEMA_V1)
 
@@ -512,6 +465,7 @@ class TestErrorHandling:
 
     def test_error_recovery_suggestions(self):
         """Test that errors include recovery suggestions."""
+
         def validate_with_suggestions(payload):
             validator = Draft7Validator(CONTEXT_PAYLOAD_SCHEMA_V1)
             errors = list(validator.iter_errors(payload))
@@ -527,10 +481,7 @@ class TestErrorHandling:
 
             return suggestions
 
-        payload = {
-            "begrip": "",
-            "organisatorische_context": ["InvalidOrg"]
-        }
+        payload = {"begrip": "", "organisatorische_context": ["InvalidOrg"]}
 
         suggestions = validate_with_suggestions(payload)
         assert len(suggestions) > 0
@@ -548,10 +499,11 @@ class TestPerformanceOptimization:
             "begrip": "test",
             "organisatorische_context": ["DJI", "OM"],
             "juridische_context": ["Strafrecht"],
-            "wettelijke_basis": ["Test wet"]
+            "wettelijke_basis": ["Test wet"],
         }
 
         import time
+
         iterations = 10000
 
         start = time.perf_counter()
@@ -570,12 +522,10 @@ class TestPerformanceOptimization:
         validator = Draft7Validator(CONTEXT_PAYLOAD_SCHEMA_V1)
         validate_fn = validator.validate
 
-        payload = {
-            "begrip": "test",
-            "organisatorische_context": ["DJI"]
-        }
+        payload = {"begrip": "test", "organisatorische_context": ["DJI"]}
 
         import time
+
         iterations = 10000
 
         start = time.perf_counter()
@@ -595,14 +545,16 @@ class TestSchemaDocumentation:
 
     def test_schema_has_descriptions(self):
         """All fields should have descriptions."""
+
         def check_descriptions(schema, path=""):
             if "properties" in schema:
                 for prop, prop_schema in schema["properties"].items():
                     current_path = f"{path}.{prop}" if path else prop
 
                     # Should have description
-                    assert "description" in prop_schema or "title" in prop_schema, \
-                           f"Field {current_path} lacks description"
+                    assert (
+                        "description" in prop_schema or "title" in prop_schema
+                    ), f"Field {current_path} lacks description"
 
                     # Recurse for nested objects
                     if prop_schema.get("type") == "object":
@@ -617,18 +569,18 @@ class TestSchemaDocumentation:
                 "begrip": "voorlopige hechtenis",
                 "organisatorische_context": ["DJI", "OM"],
                 "juridische_context": ["Strafrecht"],
-                "wettelijke_basis": ["Wetboek van Strafvordering"]
+                "wettelijke_basis": ["Wetboek van Strafvordering"],
             },
             {
                 "begrip": "dwangmiddel",
                 "organisatorische_context": ["OM"],
-                "juridische_context": ["Strafprocesrecht"]
+                "juridische_context": ["Strafprocesrecht"],
             },
             {
                 "begrip": "gedetineerde",
                 "organisatorische_context": ["DJI"],
-                "wettelijke_basis": ["Penitentiaire beginselenwet"]
-            }
+                "wettelijke_basis": ["Penitentiaire beginselenwet"],
+            },
         ]
 
         validator = Draft7Validator(CONTEXT_PAYLOAD_SCHEMA_V1)

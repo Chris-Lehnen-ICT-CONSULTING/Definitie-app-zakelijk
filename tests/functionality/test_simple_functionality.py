@@ -4,15 +4,17 @@ Simplified deep test voor kritieke functionaliteit.
 """
 
 import asyncio
-import sys
 import os
-import pytest
+import sys
 import time
 
+import pytest
+
 # Add src to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "src"))
 
 from dotenv import load_dotenv
+
 load_dotenv()
 
 # Skip early if no API key configured; these tests call external generators
@@ -24,8 +26,10 @@ if not os.getenv("OPENAI_API_KEY"):
 
 # Import test modules
 from voorbeelden.unified_voorbeelden import (
-    genereer_synoniemen, genereer_antoniemen, genereer_alle_voorbeelden,
-    GenerationMode
+    GenerationMode,
+    genereer_alle_voorbeelden,
+    genereer_antoniemen,
+    genereer_synoniemen,
 )
 
 
@@ -40,7 +44,7 @@ def test_synoniemen_antoniemen():
     context_dict = {
         "organisatorisch": ["Openbaar Ministerie"],
         "juridisch": ["Strafrecht"],
-        "wettelijk": ["Wetboek van Strafvordering"]
+        "wettelijk": ["Wetboek van Strafvordering"],
     }
 
     # Test synoniemen
@@ -87,24 +91,26 @@ def test_bulk_generation():
     context_dict = {
         "organisatorisch": ["Justitiële Informatiedienst"],
         "juridisch": ["Strafrecht"],
-        "wettelijk": ["Wet justitiële en strafvorderlijke gegevens"]
+        "wettelijk": ["Wet justitiële en strafvorderlijke gegevens"],
     }
 
     print("\n📦 Start bulk generatie...")
     start = time.time()
-    voorbeelden = genereer_alle_voorbeelden(begrip, definitie, context_dict, GenerationMode.RESILIENT)
+    voorbeelden = genereer_alle_voorbeelden(
+        begrip, definitie, context_dict, GenerationMode.RESILIENT
+    )
     duration = time.time() - start
 
     print(f"\n✅ Bulk generatie voltooid in {duration:.2f}s")
     print("\nResultaten:")
 
     expected_counts = {
-        'sentence': 3,
-        'practical': 3,
-        'counter': 3,
-        'synonyms': 5,
-        'antonyms': 5,
-        'explanation': 1
+        "sentence": 3,
+        "practical": 3,
+        "counter": 3,
+        "synonyms": 5,
+        "antonyms": 5,
+        "explanation": 1,
     }
 
     all_correct = True
@@ -141,7 +147,9 @@ def main():
         # Final summary
         print("\n📋 SAMENVATTING:")
         print(f"  - Synoniemen/Antoniemen (5 items): {'✅' if test1_passed else '❌'}")
-        print(f"  - Bulk generatie met juiste aantallen: {'✅' if test2_passed else '❌'}")
+        print(
+            f"  - Bulk generatie met juiste aantallen: {'✅' if test2_passed else '❌'}"
+        )
 
         if test1_passed and test2_passed:
             print("\n🎉 ALLE TESTS GESLAAGD!")
@@ -151,6 +159,7 @@ def main():
     except Exception as e:
         print(f"\n❌ Test failed with error: {e}")
         import traceback
+
         traceback.print_exc()
 
 

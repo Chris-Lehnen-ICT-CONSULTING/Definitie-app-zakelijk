@@ -8,8 +8,8 @@ class _BoomRule:
         raise RuntimeError("boom")
 
 
-@pytest.mark.unit
-@pytest.mark.asyncio
+@pytest.mark.unit()
+@pytest.mark.asyncio()
 async def test_module_adapter_catches_rule_exceptions_and_marks_errored():
     m = pytest.importorskip(
         "services.validation.module_adapter",
@@ -25,6 +25,7 @@ async def test_module_adapter_catches_rule_exceptions_and_marks_errored():
     # Minimal EvaluationContext stub is acceptable for this test
     ctx = getattr(t, "EvaluationContext", None)
     if ctx is None:
+
         class DummyCtx:  # fallback if context type is not provided yet
             pass
 

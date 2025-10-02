@@ -6,13 +6,13 @@ from datetime import datetime
 
 import streamlit as st
 
+from config.config_manager import ConfigSection, get_config
 from database.definitie_repository import (
     DefinitieRecord,
     DefinitieRepository,
     DefinitieStatus,
 )
 from ui.session_state import SessionStateManager
-from config.config_manager import get_config, ConfigSection
 
 
 class ExpertReviewTab:
@@ -92,7 +92,7 @@ class ExpertReviewTab:
                 # Toon afkortingen-uitleg uit config (indien aanwezig)
                 try:
                     ui_cfg = get_config(ConfigSection.UI)
-                    abbrev = getattr(ui_cfg, 'afkortingen', {}) or {}
+                    abbrev = getattr(ui_cfg, "afkortingen", {}) or {}
                     if abbrev:
                         with st.expander("ℹ️ Afkortingen (uitleg)", expanded=False):
                             for ak in sorted(abbrev.keys()):
@@ -146,31 +146,47 @@ class ExpertReviewTab:
                             return ""
 
                     rows = []
+
                     def _status_label(code: str | None, source: str | None) -> str:
-                        if (source or '').lower() == 'imported':
-                            return 'Geïmporteerd'
+                        if (source or "").lower() == "imported":
+                            return "Geïmporteerd"
                         mapping = {
-                            'draft': 'Concept',
-                            'review': 'In review',
-                            'established': 'Vastgesteld',
-                            'archived': 'Gearchiveerd',
+                            "draft": "Concept",
+                            "review": "In review",
+                            "established": "Vastgesteld",
+                            "archived": "Gearchiveerd",
                         }
-                        return mapping.get((code or '').lower(), code or '')
+                        return mapping.get((code or "").lower(), code or "")
+
                     def _source_label(src: str | None) -> str:
-                        m = {'imported': 'Geïmporteerd', 'generated': 'Gegenereerd', 'manual': 'Handmatig'}
-                        return m.get((src or '').lower(), src or '')
+                        m = {
+                            "imported": "Geïmporteerd",
+                            "generated": "Gegenereerd",
+                            "manual": "Handmatig",
+                        }
+                        return m.get((src or "").lower(), src or "")
+
                     for d in filtered_reviews:
                         org, jur, wet = self._format_record_context(d)
-                        status_disp = _status_label(d.status, getattr(d, 'source_type', None))
+                        status_disp = _status_label(
+                            d.status, getattr(d, "source_type", None)
+                        )
                         rows.append(
                             {
                                 "ID": d.id,
                                 "Begrip": d.begrip,
                                 "Categorie": d.categorie or "",
-                                "UFO-categorie": getattr(d, "ufo_categorie", None) or "",
+                                "UFO-categorie": getattr(d, "ufo_categorie", None)
+                                or "",
                                 "Status": status_disp,
-                                "Herkomst": _source_label(getattr(d, 'source_type', None)),
-                                "Score": (f"{d.validation_score:.2f}" if d.validation_score is not None else ""),
+                                "Herkomst": _source_label(
+                                    getattr(d, "source_type", None)
+                                ),
+                                "Score": (
+                                    f"{d.validation_score:.2f}"
+                                    if d.validation_score is not None
+                                    else ""
+                                ),
                                 "Organisatorische context": org,
                                 "Juridische context": jur,
                                 "Wettelijke basis": wet,
@@ -178,12 +194,30 @@ class ExpertReviewTab:
                         )
 
                     df = pd.DataFrame(rows)
-                    prev_selected_id = SessionStateManager.get_value("review_selected_id")
-                    df.insert(0, "Selecteer", df["ID"].apply(lambda x: bool(prev_selected_id == x)))
+                    prev_selected_id = SessionStateManager.get_value(
+                        "review_selected_id"
+                    )
+                    df.insert(
+                        0,
+                        "Selecteer",
+                        df["ID"].apply(lambda x: bool(prev_selected_id == x)),
+                    )
                     edited = st.data_editor(
-                        df[[
-                            "Selecteer","ID","Begrip","Categorie","UFO-categorie","Status","Herkomst","Score","Organisatorische context","Juridische context","Wettelijke basis"
-                        ]],
+                        df[
+                            [
+                                "Selecteer",
+                                "ID",
+                                "Begrip",
+                                "Categorie",
+                                "UFO-categorie",
+                                "Status",
+                                "Herkomst",
+                                "Score",
+                                "Organisatorische context",
+                                "Juridische context",
+                                "Wettelijke basis",
+                            ]
+                        ],
                         use_container_width=True,
                         height=420,
                         hide_index=True,
@@ -200,15 +234,25 @@ class ExpertReviewTab:
                             "Status": st.column_config.TextColumn(disabled=True),
                             "Herkomst": st.column_config.TextColumn(disabled=True),
                             "Score": st.column_config.TextColumn(disabled=True),
-                            "Organisatorische context": st.column_config.TextColumn(disabled=True),
-                            "Juridische context": st.column_config.TextColumn(disabled=True),
-                            "Wettelijke basis": st.column_config.TextColumn(disabled=True),
+                            "Organisatorische context": st.column_config.TextColumn(
+                                disabled=True
+                            ),
+                            "Juridische context": st.column_config.TextColumn(
+                                disabled=True
+                            ),
+                            "Wettelijke basis": st.column_config.TextColumn(
+                                disabled=True
+                            ),
                         },
                     )
 
                     # Enforce enkelvoudige selectie
                     try:
-                        true_ids = [int(r["ID"]) for _, r in edited.iterrows() if bool(r.get("Selecteer"))]
+                        true_ids = [
+                            int(r["ID"])
+                            for _, r in edited.iterrows()
+                            if bool(r.get("Selecteer"))
+                        ]
                     except Exception:
                         true_ids = []
 
@@ -220,16 +264,26 @@ class ExpertReviewTab:
                             selected_id = prev_selected_id
                         else:
                             selected_id = true_ids[0]
-                        st.caption("Er kan maar één rij geselecteerd zijn; selectie gecorrigeerd.")
+                        st.caption(
+                            "Er kan maar één rij geselecteerd zijn; selectie gecorrigeerd."
+                        )
                     SessionStateManager.set_value("review_selected_id", selected_id)
 
-                    btn_col, _ = st.columns([1,3])
+                    btn_col, _ = st.columns([1, 3])
                     with btn_col:
-                        if st.button("👁️ Open geselecteerde", key="review_open_selected_table", disabled=selected_id is None):
+                        if st.button(
+                            "👁️ Open geselecteerde",
+                            key="review_open_selected_table",
+                            disabled=selected_id is None,
+                        ):
                             sel_id = int(selected_id)
-                            chosen = next((x for x in filtered_reviews if x.id == sel_id), None)
+                            chosen = next(
+                                (x for x in filtered_reviews if x.id == sel_id), None
+                            )
                             if chosen:
-                                SessionStateManager.set_value("selected_review_definition", chosen)
+                                SessionStateManager.set_value(
+                                    "selected_review_definition", chosen
+                                )
                                 st.rerun()
                 except Exception as e:
                     st.warning(f"Kon tabelweergave niet renderen: {e!s}")
@@ -347,13 +401,29 @@ class ExpertReviewTab:
                 st.markdown("**UFO‑categorie**")
                 ufo_opties = [
                     "",
-                    "Kind","Event","Role","Phase","Relator","Mode","Quantity","Quality",
-                    "Subkind","Category","Mixin","RoleMixin","PhaseMixin","Abstract","Relatie","Event Composition",
+                    "Kind",
+                    "Event",
+                    "Role",
+                    "Phase",
+                    "Relator",
+                    "Mode",
+                    "Quantity",
+                    "Quality",
+                    "Subkind",
+                    "Category",
+                    "Mixin",
+                    "RoleMixin",
+                    "PhaseMixin",
+                    "Abstract",
+                    "Relatie",
+                    "Event Composition",
                 ]
                 try:
-                    current_ufo = getattr(definitie, 'ufo_categorie', None) or ""
+                    current_ufo = getattr(definitie, "ufo_categorie", None) or ""
                     ufo_default_index = (
-                        ufo_opties.index(current_ufo) if current_ufo in ufo_opties else 0
+                        ufo_opties.index(current_ufo)
+                        if current_ufo in ufo_opties
+                        else 0
                     )
                 except Exception:
                     ufo_default_index = 0
@@ -367,18 +437,21 @@ class ExpertReviewTab:
 
                 # Procesmatige toelichting veld (review/validatie notities)
                 st.markdown("**Toelichting (optioneel)**")
-                toelichting_proces_val = getattr(definitie, 'toelichting_proces', '') or ''
+                toelichting_proces_val = (
+                    getattr(definitie, "toelichting_proces", "") or ""
+                )
                 toelichting_proces = st.text_area(
                     "Procesmatige opmerkingen/notities",
                     value=toelichting_proces_val,
                     height=100,
                     key=f"review_toelichting_proces_{definitie.id}",
                     help="Opmerkingen over het review/validatie proces (niet over de definitie zelf)",
-                    disabled=False  # Altijd bewerkbaar in expert review
+                    disabled=False,  # Altijd bewerkbaar in expert review
                 )
 
                 # Voorbeelden blok (gedeeld met Edit-tab)
                 from ui.components.examples_block import render_examples_block
+
                 render_examples_block(
                     definitie,
                     state_prefix=f"review_{definitie.id}",
@@ -453,6 +526,7 @@ class ExpertReviewTab:
     def _render_review_actions(self, definitie: DefinitieRecord):
         """Render US-155 acties: Vaststellen, Afwijzen, Maak bewerkbaar."""
         from services.container import get_container
+
         container = get_container()
         workflow = container.definition_workflow_service()
 
@@ -460,12 +534,15 @@ class ExpertReviewTab:
         label = self._status_label(status)
         st.markdown(f"**Huidige status:** {label}")
 
-        if status == 'review':
+        if status == "review":
             # US-160: Gate preview tonen en knoppenstate bepalen
             try:
                 gate = workflow.preview_gate(definitie.id)
             except Exception:
-                gate = {"status": "blocked", "reasons": ["Technische fout bij gate‑preview"]}
+                gate = {
+                    "status": "blocked",
+                    "reasons": ["Technische fout bij gate‑preview"],
+                }
 
             gate_status = gate.get("status", "blocked")
             gate_reasons = gate.get("reasons", []) or []
@@ -489,24 +566,35 @@ class ExpertReviewTab:
                 st.markdown("#### ✅ Vaststellen")
                 # Bij override_required moet een reden worden opgegeven
                 notes_label = (
-                    "Reden (verplicht bij override)" if gate_status == "override_required" else "Notities (optioneel)"
+                    "Reden (verplicht bij override)"
+                    if gate_status == "override_required"
+                    else "Notities (optioneel)"
                 )
-                notes = st.text_area(notes_label, key=f"approve_notes_{definitie.id}", height=80)
+                notes = st.text_area(
+                    notes_label, key=f"approve_notes_{definitie.id}", height=80
+                )
 
                 # Ketenpartners selectie
-                from config.config_manager import get_config, ConfigSection
+                from config.config_manager import ConfigSection, get_config
+
                 ui_cfg = get_config(ConfigSection.UI)
                 partner_opties = list(getattr(ui_cfg, "ketenpartners", []))
                 geselecteerd = st.multiselect(
                     "🤝 Ketenpartners die akkoord zijn",
                     options=partner_opties,
-                    default=definitie.get_ketenpartners_list() if hasattr(definitie, "get_ketenpartners_list") else [],
+                    default=(
+                        definitie.get_ketenpartners_list()
+                        if hasattr(definitie, "get_ketenpartners_list")
+                        else []
+                    ),
                     key=f"approve_ketenpartners_{definitie.id}",
-                    help="Selecteer alle partners die expliciet akkoord zijn met deze definitie."
+                    help="Selecteer alle partners die expliciet akkoord zijn met deze definitie.",
                 )
 
                 approve_label = (
-                    "Vaststellen met override" if gate_status == "override_required" else "Vaststellen"
+                    "Vaststellen met override"
+                    if gate_status == "override_required"
+                    else "Vaststellen"
                 )
                 approve_disabled = gate_status == "blocked" or (
                     gate_status == "override_required" and not (notes and notes.strip())
@@ -514,7 +602,9 @@ class ExpertReviewTab:
                 approve_help = None
                 if gate_status == "blocked":
                     approve_help = "Gate blokkeert vaststellen — los issues op of vul ontbrekende velden"
-                elif gate_status == "override_required" and not (notes and notes.strip()):
+                elif gate_status == "override_required" and not (
+                    notes and notes.strip()
+                ):
                     approve_help = "Voer een reden in voor de override"
 
                 if st.button(
@@ -524,11 +614,13 @@ class ExpertReviewTab:
                     disabled=approve_disabled,
                     help=approve_help,
                 ):
-                    user = st.session_state.get('user', 'expert')
+                    user = st.session_state.get("user", "expert")
                     # Neem gewijzigde UFO‑categorie automatisch mee bij vaststellen
                     try:
-                        selected_ufo = st.session_state.get(f"review_ufo_{definitie.id}")
-                        current_ufo = getattr(definitie, 'ufo_categorie', None)
+                        selected_ufo = st.session_state.get(
+                            f"review_ufo_{definitie.id}"
+                        )
+                        current_ufo = getattr(definitie, "ufo_categorie", None)
                         # Leeg ("") betekent verwijderen (NULL)
                         if selected_ufo == "" and current_ufo is not None:
                             _ = self.repository.update_definitie(
@@ -536,7 +628,10 @@ class ExpertReviewTab:
                                 {"ufo_categorie": None},
                                 updated_by=user,
                             )
-                        elif selected_ufo not in (None, "") and selected_ufo != current_ufo:
+                        elif (
+                            selected_ufo not in (None, "")
+                            and selected_ufo != current_ufo
+                        ):
                             _ = self.repository.update_definitie(
                                 definitie.id,
                                 {"ufo_categorie": selected_ufo},
@@ -555,33 +650,46 @@ class ExpertReviewTab:
                         st.success("✅ Definitie vastgesteld")
                         st.rerun()
                     else:
-                        st.error(f"❌ Vaststellen mislukt: {res.error_message or 'Onbekende fout'}")
+                        st.error(
+                            f"❌ Vaststellen mislukt: {res.error_message or 'Onbekende fout'}"
+                        )
             with col2:
                 st.markdown("#### ❌ Afwijzen")
                 reason = st.text_area(
                     "Reden (verplicht)", key=f"reject_reason_{definitie.id}", height=80
                 )
                 disabled = not bool(reason and reason.strip())
-                if st.button("Afwijzen", key=f"reject_btn_{definitie.id}", disabled=disabled):
-                    user = st.session_state.get('user', 'expert')
-                    res = workflow.reject(definition_id=definitie.id, user=user, reason=reason.strip())
+                if st.button(
+                    "Afwijzen", key=f"reject_btn_{definitie.id}", disabled=disabled
+                ):
+                    user = st.session_state.get("user", "expert")
+                    res = workflow.reject(
+                        definition_id=definitie.id, user=user, reason=reason.strip()
+                    )
                     if res.success:
                         st.success("✅ Definitie afgewezen (terug naar Concept)")
                         st.rerun()
                     else:
-                        st.error(f"❌ Afwijzen mislukt: {res.error_message or 'Onbekende fout'}")
+                        st.error(
+                            f"❌ Afwijzen mislukt: {res.error_message or 'Onbekende fout'}"
+                        )
 
-        elif status == 'established':
+        elif status == "established":
             st.markdown("#### 🔓 Maak bewerkbaar")
             reason = st.text_area(
                 "Reden (verplicht)", key=f"unlock_reason_{definitie.id}", height=80
             )
             disabled = not bool(reason and reason.strip())
-            if st.button("Maak bewerkbaar (naar Concept)", key=f"unlock_btn_{definitie.id}", disabled=disabled):
-                user = st.session_state.get('user', 'expert')
+            if st.button(
+                "Maak bewerkbaar (naar Concept)",
+                key=f"unlock_btn_{definitie.id}",
+                disabled=disabled,
+            ):
+                user = st.session_state.get("user", "expert")
                 # Gebruik DefinitionWorkflowService voor consistente statuswijziging
                 try:
                     from services.container import get_container
+
                     container = get_container()
                     workflow = container.definition_workflow_service()
                     ok = workflow.update_status(
@@ -593,21 +701,28 @@ class ExpertReviewTab:
                 except Exception:
                     ok = False
                 if ok:
-                    st.success("✅ Status teruggezet naar Concept; bewerken weer mogelijk")
+                    st.success(
+                        "✅ Status teruggezet naar Concept; bewerken weer mogelijk"
+                    )
                     st.rerun()
                 else:
                     st.error("❌ Terugzetten mislukt")
 
-        elif status == 'archived':
+        elif status == "archived":
             st.markdown("#### ♻️ Herstel uit archief")
             reason = st.text_area(
                 "Reden (verplicht)", key=f"restore_reason_{definitie.id}", height=80
             )
             disabled = not bool(reason and reason.strip())
-            if st.button("Herstel (naar Concept)", key=f"restore_btn_{definitie.id}", disabled=disabled):
-                user = st.session_state.get('user', 'expert')
+            if st.button(
+                "Herstel (naar Concept)",
+                key=f"restore_btn_{definitie.id}",
+                disabled=disabled,
+            ):
+                user = st.session_state.get("user", "expert")
                 try:
                     from services.container import get_container
+
                     container = get_container()
                     workflow = container.definition_workflow_service()
                     ok = workflow.update_status(
@@ -717,24 +832,38 @@ class ExpertReviewTab:
             v2 = SessionStateManager.get_value(vkey)
             if not v2:
                 # Probeer bestaande DB-validatie te mappen naar V2-formaat
-                issues = definitie.get_validation_issues_list() if hasattr(definitie, 'get_validation_issues_list') else []
+                issues = (
+                    definitie.get_validation_issues_list()
+                    if hasattr(definitie, "get_validation_issues_list")
+                    else []
+                )
                 if issues:
                     try:
-                        score = float(getattr(definitie, 'validation_score', 0.0) or 0.0)
+                        score = float(
+                            getattr(definitie, "validation_score", 0.0) or 0.0
+                        )
                     except Exception:
                         score = 0.0
                     # Map DB issues → V2 violations
                     mapped = []
                     for it in issues:
                         try:
-                            mapped.append({
-                                "code": it.get("code") or it.get("rule_id") or "",
-                                "severity": it.get("severity", "warning"),
-                                "message": it.get("message") or it.get("description") or "",
-                                "description": it.get("description") or it.get("message") or "",
-                                "rule_id": it.get("rule_id") or it.get("code") or "",
-                                "category": it.get("category", "system"),
-                            })
+                            mapped.append(
+                                {
+                                    "code": it.get("code") or it.get("rule_id") or "",
+                                    "severity": it.get("severity", "warning"),
+                                    "message": it.get("message")
+                                    or it.get("description")
+                                    or "",
+                                    "description": it.get("description")
+                                    or it.get("message")
+                                    or "",
+                                    "rule_id": it.get("rule_id")
+                                    or it.get("code")
+                                    or "",
+                                    "category": it.get("category", "system"),
+                                }
+                            )
                         except Exception:
                             pass
                     v2 = {
@@ -744,14 +873,21 @@ class ExpertReviewTab:
                         "violations": mapped,
                         "passed_rules": [],
                         "detailed_scores": {},
-                        "system": {"correlation_id": "00000000-0000-0000-0000-000000000000"},
+                        "system": {
+                            "correlation_id": "00000000-0000-0000-0000-000000000000"
+                        },
                     }
                     SessionStateManager.set_value(vkey, v2)
 
             if v2:
-                from ui.components.validation_view import render_validation_detailed_list
+                from ui.components.validation_view import (
+                    render_validation_detailed_list,
+                )
+
                 st.markdown("#### ✅ Kwaliteitstoetsing")
-                render_validation_detailed_list(v2, key_prefix=f"review_{definitie.id}", show_toggle=True, gate=None)
+                render_validation_detailed_list(
+                    v2, key_prefix=f"review_{definitie.id}", show_toggle=True, gate=None
+                )
         except Exception:
             pass
 
@@ -808,19 +944,21 @@ class ExpertReviewTab:
 
             # Check voor aangepaste UFO categorie
             ufo_selected = st.session_state.get(f"review_ufo_{definitie.id}")
-            if ufo_selected and ufo_selected != getattr(definitie, 'ufo_categorie', ''):
+            if ufo_selected and ufo_selected != getattr(definitie, "ufo_categorie", ""):
                 updates["ufo_categorie"] = ufo_selected if ufo_selected else None
 
             # Check voor aangepaste procesmatige toelichting
-            toelichting_proces = st.session_state.get(f"review_toelichting_proces_{definitie.id}")
-            if toelichting_proces != getattr(definitie, 'toelichting_proces', ''):
-                updates["toelichting_proces"] = toelichting_proces if toelichting_proces else None
+            toelichting_proces = st.session_state.get(
+                f"review_toelichting_proces_{definitie.id}"
+            )
+            if toelichting_proces != getattr(definitie, "toelichting_proces", ""):
+                updates["toelichting_proces"] = (
+                    toelichting_proces if toelichting_proces else None
+                )
 
             # Update alles in één keer indien er wijzigingen zijn
             if updates:
-                self.repository.update_definitie(
-                    definitie.id, updates, reviewer
-                )
+                self.repository.update_definitie(definitie.id, updates, reviewer)
 
             # Process decision
             if "Goedkeuren" in decision:
@@ -853,7 +991,12 @@ class ExpertReviewTab:
                         st.rerun()
                     else:
                         # Toon duidelijke melding incl. gate redenen indien aanwezig
-                        msg = getattr(result, "error_message", "Kon definitie niet goedkeuren") or "Kon definitie niet goedkeuren"
+                        msg = (
+                            getattr(
+                                result, "error_message", "Kon definitie niet goedkeuren"
+                            )
+                            or "Kon definitie niet goedkeuren"
+                        )
                         st.error(f"❌ {msg}")
                         if getattr(result, "gate_status", None):
                             st.info(
@@ -913,15 +1056,28 @@ class ExpertReviewTab:
             definition = Definition(
                 begrip=definitie.begrip,
                 definitie=definitie.definitie,
-                organisatorische_context=definitie.get_org_list() if hasattr(definitie, 'get_org_list') else [],
-                juridische_context=definitie.get_jur_list() if hasattr(definitie, 'get_jur_list') else [],
-                wettelijke_basis=definitie.get_wettelijke_basis_list() if hasattr(definitie, 'get_wettelijke_basis_list') else [],
+                organisatorische_context=(
+                    definitie.get_org_list()
+                    if hasattr(definitie, "get_org_list")
+                    else []
+                ),
+                juridische_context=(
+                    definitie.get_jur_list()
+                    if hasattr(definitie, "get_jur_list")
+                    else []
+                ),
+                wettelijke_basis=(
+                    definitie.get_wettelijke_basis_list()
+                    if hasattr(definitie, "get_wettelijke_basis_list")
+                    else []
+                ),
                 categorie=definitie.categorie,
             )
             ctx = ValidationContext(
                 correlation_id=None,
                 metadata={
-                    "organisatorische_context": definition.organisatorische_context or [],
+                    "organisatorische_context": definition.organisatorische_context
+                    or [],
                     "juridische_context": definition.juridische_context or [],
                     "wettelijke_basis": definition.wettelijke_basis or [],
                 },
@@ -942,7 +1098,9 @@ class ExpertReviewTab:
         SessionStateManager.clear_value("selected_review_definition")
         SessionStateManager.clear_value(f"edited_definition_{definitie_id}")
 
-    def _format_record_context(self, definitie: DefinitieRecord) -> tuple[str, str, str]:
+    def _format_record_context(
+        self, definitie: DefinitieRecord
+    ) -> tuple[str, str, str]:
         """Normaliseer en formatteer context (org/jur/wet) voor weergave."""
         import json as _json
 
@@ -951,7 +1109,9 @@ class ExpertReviewTab:
                 if not val:
                     return []
                 if isinstance(val, str):
-                    return list(_json.loads(val)) if val.strip().startswith("[") else [val]
+                    return (
+                        list(_json.loads(val)) if val.strip().startswith("[") else [val]
+                    )
                 if isinstance(val, list):
                     return val
             except Exception:
@@ -960,7 +1120,11 @@ class ExpertReviewTab:
 
         org_list = _parse(getattr(definitie, "organisatorische_context", None))
         jur_list = _parse(getattr(definitie, "juridische_context", None))
-        wet_list = definitie.get_wettelijke_basis_list() if hasattr(definitie, 'get_wettelijke_basis_list') else []
+        wet_list = (
+            definitie.get_wettelijke_basis_list()
+            if hasattr(definitie, "get_wettelijke_basis_list")
+            else []
+        )
         return ", ".join(org_list), ", ".join(jur_list), ", ".join(wet_list)
 
     def _show_definition_preview(self, definitie: DefinitieRecord):
@@ -1032,7 +1196,9 @@ class ExpertReviewTab:
 
         return filtered
 
-    def _parse_context_lists(self, definitie: DefinitieRecord) -> tuple[list[str], list[str], list[str]]:
+    def _parse_context_lists(
+        self, definitie: DefinitieRecord
+    ) -> tuple[list[str], list[str], list[str]]:
         """Parseer org/jur (JSON/str) en wet (helper) naar lijsten."""
         import json as _json
 
@@ -1041,7 +1207,9 @@ class ExpertReviewTab:
                 if not val:
                     return []
                 if isinstance(val, str):
-                    return list(_json.loads(val)) if val.strip().startswith("[") else [val]
+                    return (
+                        list(_json.loads(val)) if val.strip().startswith("[") else [val]
+                    )
                 if isinstance(val, list):
                     return val
             except Exception:
@@ -1069,9 +1237,7 @@ class ExpertReviewTab:
             with col1:
                 # Import verboden woorden functionaliteit
                 try:
-                    from config.verboden_woorden import (
-                        laad_verboden_woorden,
-                    )
+                    from config.verboden_woorden import laad_verboden_woorden
 
                     # Huidige verboden woorden laden
                     huidige_woorden = laad_verboden_woorden()
@@ -1189,6 +1355,7 @@ class ExpertReviewTab:
                     SessionStateManager.set_value("override_actief", False)
                     SessionStateManager.set_value("override_verboden_woorden", "")
                     st.rerun()
+
     def _render_prefill_readonly_context(self):
         """Render read-only contextpaneel voor laatst gegenereerde definitie (prefill)."""
         try:
@@ -1227,9 +1394,9 @@ class ExpertReviewTab:
     def _status_label(self, code: str) -> str:
         """Geef Nederlands label voor statuscode."""
         mapping = {
-            'draft': 'Concept',
-            'review': 'In review',
-            'established': 'Vastgesteld',
-            'archived': 'Gearchiveerd',
+            "draft": "Concept",
+            "review": "In review",
+            "established": "Vastgesteld",
+            "archived": "Gearchiveerd",
         }
         return mapping.get(code, code)

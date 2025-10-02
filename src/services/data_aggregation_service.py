@@ -164,8 +164,12 @@ class DataAggregationService:
                     return []
                 return []
 
-            org_list = _parse_list(getattr(definitie_record, "organisatorische_context", None))
-            jur_list = _parse_list(getattr(definitie_record, "juridische_context", None))
+            org_list = _parse_list(
+                getattr(definitie_record, "organisatorische_context", None)
+            )
+            jur_list = _parse_list(
+                getattr(definitie_record, "juridische_context", None)
+            )
             wet_raw = (
                 definitie_record.get_wettelijke_basis_list()
                 if hasattr(definitie_record, "get_wettelijke_basis_list")
@@ -188,7 +192,9 @@ class DataAggregationService:
                     "wettelijk": wet_list,
                 }
             # Ook handige stringrepresentaties in metadata voor CSV
-            export_data.metadata["organisatorische_context"] = ", ".join(map(str, org_list))
+            export_data.metadata["organisatorische_context"] = ", ".join(
+                map(str, org_list)
+            )
             export_data.metadata["juridische_context"] = ", ".join(map(str, jur_list))
             export_data.metadata["wettelijke_basis"] = ", ".join(map(str, wet_list))
 

@@ -5,11 +5,14 @@ Verifieert dat datum_voorstel, voorgesteld_door en ketenpartners correct werken.
 """
 
 import sys
-sys.path.append('src')
+
+sys.path.append("src")
 
 from datetime import datetime
-from ui.session_state import SessionStateManager
+
 from export.export_txt import exporteer_naar_txt
+from ui.session_state import SessionStateManager
+
 
 def test_metadata_fields():
     print("🧪 Testing metadata fields implementation...")
@@ -57,11 +60,11 @@ def test_metadata_fields():
             "marker": "type",
             "datum_voorstel": test_date,
             "voorgesteld_door": "Test User",
-            "ketenpartners": ["ZM", "DJI", "KMAR"]
+            "ketenpartners": ["ZM", "DJI", "KMAR"],
         },
         "context_dict": {},
         "toetsresultaten": [],
-        "bronnen": []
+        "bronnen": [],
     }
 
     try:
@@ -69,7 +72,7 @@ def test_metadata_fields():
         print(f"✅ Export successful: {export_path}")
 
         # Read and verify content
-        with open(export_path, 'r', encoding='utf-8') as f:
+        with open(export_path, encoding="utf-8") as f:
             content = f.read()
             assert "datum_voorstel:" in content
             assert "voorgesteld_door: Test User" in content
@@ -94,6 +97,7 @@ def test_metadata_fields():
 
     print("\n✅ All tests passed! Metadata fields implementation successful.")
     return True
+
 
 if __name__ == "__main__":
     success = test_metadata_fields()

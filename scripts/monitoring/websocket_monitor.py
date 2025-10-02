@@ -4,11 +4,8 @@ WebSocket Health Monitor voor Streamlit applicatie.
 Monitort de WebSocket verbinding tijdens langdurige operaties.
 """
 
-import asyncio
 import logging
 import time
-from datetime import datetime
-from typing import Optional
 
 import streamlit as st
 
@@ -36,7 +33,7 @@ class WebSocketMonitor:
         """Record a heartbeat (UI update)."""
         self.last_heartbeat = time.time()
 
-    def check_health(self) -> tuple[bool, Optional[str]]:
+    def check_health(self) -> tuple[bool, str | None]:
         """Check WebSocket health.
 
         Returns:
@@ -67,7 +64,9 @@ class WebSocketMonitor:
             "operation_duration": f"{total_time:.1f}s",
             "last_heartbeat": f"{time_since_heartbeat:.1f}s ago",
             "warnings_issued": self.warnings_issued,
-            "health_status": "🟢 Healthy" if time_since_heartbeat < 10 else "🟡 At Risk"
+            "health_status": (
+                "🟢 Healthy" if time_since_heartbeat < 10 else "🟡 At Risk"
+            ),
         }
 
 

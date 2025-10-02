@@ -12,17 +12,19 @@ import hashlib
 import json
 import logging
 import os
-from typing import Any
 from functools import lru_cache
+from typing import Any
 
 from services.container import ContainerConfigs, ServiceContainer
 
 logger = logging.getLogger(__name__)
 
+
 # Kleine LRU-cache voor custom containers op basis van config-hash
 @lru_cache(maxsize=8)
 def _create_custom_container(_hash: str, _config_json: str) -> ServiceContainer:
     import json as _json
+
     logger.info(f"🔧 Maak custom ServiceContainer (hash: {_hash[:8]}...)")
     return ServiceContainer(_json.loads(_config_json))
 
@@ -106,6 +108,7 @@ def get_container_with_config(config: dict[str, Any] | None = None) -> ServiceCo
     # Maak nieuwe container met custom config (aparte cache entry)
     # Gebruik een kleine LRU-cache op basis van hash en een JSON snapshot
     import json as _json
+
     return _create_custom_container(
         config_hash, _json.dumps(config, sort_keys=True, default=str)
     )
@@ -156,13 +159,10 @@ def get_container_stats() -> dict[str, Any]:
             "config": {
                 "db_path": container.db_path,
                 "has_api_key": bool(container.openai_api_key),
-            }
+            },
         }
     except Exception as e:
-        return {
-            "initialized": False,
-            "error": str(e)
-        }
+        return {"initialized": False, "error": str(e)}
 
 
 # Lazy loading helpers voor specifieke services
@@ -217,7 +217,7 @@ def debug_container_state():
     print("=" * 60)
 
     if stats["initialized"]:
-        print(f"✅ Container geïnitialiseerd")
+        print("✅ Container geïnitialiseerd")
         print(f"📦 Aantal services: {stats['service_count']}")
         print(f"🔧 Services: {', '.join(stats['services'])}")
         print(f"💾 Database: {stats['config']['db_path']}")

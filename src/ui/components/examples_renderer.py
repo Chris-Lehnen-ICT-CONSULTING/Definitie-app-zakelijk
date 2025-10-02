@@ -6,9 +6,11 @@ Provides a consistent layout for examples across Generator, Edit, and Expert Rev
 
 from __future__ import annotations
 
-from typing import Any, Dict, Iterable
+from collections.abc import Iterable
+from typing import Any
 
 import streamlit as st
+
 from ui.session_state import SessionStateManager
 
 
@@ -24,7 +26,7 @@ def _as_list(val: Any) -> list[str]:
     return []
 
 
-def render_examples_readonly(examples: Dict[str, Any] | None) -> None:
+def render_examples_readonly(examples: dict[str, Any] | None) -> None:
     """Render examples in a consistent, read-only layout.
 
     Sections order:
@@ -38,16 +40,38 @@ def render_examples_readonly(examples: Dict[str, Any] | None) -> None:
     data = examples or {}
 
     sections: list[tuple[str, str, Iterable[str]]] = [
-        ("📄 Voorbeeldzinnen", "voorbeeldzinnen", _as_list(data.get("voorbeeldzinnen"))),
-        ("💼 Praktijkvoorbeelden", "praktijkvoorbeelden", _as_list(data.get("praktijkvoorbeelden"))),
-        ("❌ Tegenvoorbeelden", "tegenvoorbeelden", _as_list(data.get("tegenvoorbeelden"))),
+        (
+            "📄 Voorbeeldzinnen",
+            "voorbeeldzinnen",
+            _as_list(data.get("voorbeeldzinnen")),
+        ),
+        (
+            "💼 Praktijkvoorbeelden",
+            "praktijkvoorbeelden",
+            _as_list(data.get("praktijkvoorbeelden")),
+        ),
+        (
+            "❌ Tegenvoorbeelden",
+            "tegenvoorbeelden",
+            _as_list(data.get("tegenvoorbeelden")),
+        ),
         ("🔄 Synoniemen", "synoniemen", _as_list(data.get("synoniemen"))),
         ("↔️ Antoniemen", "antoniemen", _as_list(data.get("antoniemen"))),
     ]
 
     for title, _key, items in sections:
         items = list(items)
-        with st.expander(title, expanded=bool(items) and title in {"📄 Voorbeeldzinnen", "💼 Praktijkvoorbeelden", "💡 Toelichting", "📝 Toelichting"}):
+        with st.expander(
+            title,
+            expanded=bool(items)
+            and title
+            in {
+                "📄 Voorbeeldzinnen",
+                "💼 Praktijkvoorbeelden",
+                "💡 Toelichting",
+                "📝 Toelichting",
+            },
+        ):
             if items:
                 for it in items:
                     st.write(f"• {it}")
@@ -63,7 +87,7 @@ def render_examples_readonly(examples: Dict[str, Any] | None) -> None:
             st.caption("Geen toelichting")
 
 
-def render_examples_expandable(examples: Dict[str, Any] | None) -> None:
+def render_examples_expandable(examples: dict[str, Any] | None) -> None:
     """Render examples met dezelfde expanders‑indeling als de Generator‑tab.
 
     - 📄 Voorbeeldzinnen: bullets
@@ -115,7 +139,9 @@ def render_examples_expandable(examples: Dict[str, Any] | None) -> None:
             # Bestaande keuze als default (indien aanwezig)
             current_choice = SessionStateManager.get_value("voorkeursterm", "")
             try:
-                default_index = opties.index(current_choice) if current_choice in opties else 0
+                default_index = (
+                    opties.index(current_choice) if current_choice in opties else 0
+                )
             except ValueError:
                 default_index = 0
 

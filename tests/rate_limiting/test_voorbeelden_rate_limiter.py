@@ -2,11 +2,13 @@
 """Test voorbeelden generatie met nieuwe rate limiter."""
 
 import asyncio
+import os
 import sys
 import time
-import os
+
 import pytest
-sys.path.insert(0, 'src')
+
+sys.path.insert(0, "src")
 
 # Skip if no API key configured; voorbeelden generator depends on external API
 if not os.getenv("OPENAI_API_KEY"):
@@ -16,11 +18,12 @@ if not os.getenv("OPENAI_API_KEY"):
     )
 
 from voorbeelden.unified_voorbeelden import (
-    genereer_alle_voorbeelden_async,
     ExampleRequest,
     ExampleType,
-    GenerationMode
+    GenerationMode,
+    genereer_alle_voorbeelden_async,
 )
+
 
 async def test_voorbeelden_generatie():
     """Test voorbeelden generatie met nieuwe rate limiter."""
@@ -33,7 +36,7 @@ async def test_voorbeelden_generatie():
     context = {
         "domein": "milieu",
         "doelgroep": "algemeen publiek",
-        "complexiteit": "gemiddeld"
+        "complexiteit": "gemiddeld",
     }
 
     print(f"\n📝 Begrip: {begrip}")
@@ -52,7 +55,7 @@ async def test_voorbeelden_generatie():
             begrip=begrip,
             definitie=definitie,
             context=context,
-            mode=GenerationMode.FAST  # Gebruik fast mode voor snellere generatie
+            mode=GenerationMode.FAST,  # Gebruik fast mode voor snellere generatie
         )
 
         elapsed = time.time() - start_time
@@ -72,7 +75,7 @@ async def test_voorbeelden_generatie():
 
     except Exception as e:
         elapsed = time.time() - start_time
-        print(f"\n❌ Fout na {elapsed:.2f}s: {type(e).__name__}: {str(e)}")
+        print(f"\n❌ Fout na {elapsed:.2f}s: {type(e).__name__}: {e!s}")
         return False
 
     # Test 2: Test individuele endpoints met timing
@@ -84,7 +87,7 @@ async def test_voorbeelden_generatie():
         ExampleType.PRACTICAL,
         ExampleType.COUNTER,
         ExampleType.SYNONYMS,
-        ExampleType.ANTONYMS
+        ExampleType.ANTONYMS,
     ]
 
     tasks = []
@@ -94,13 +97,14 @@ async def test_voorbeelden_generatie():
             definitie=definitie,
             context=context,
             example_type=example_type,
-            mode=GenerationMode.FAST
+            mode=GenerationMode.FAST,
         )
 
         async def generate_with_timing(req, etype):
             start = time.time()
             try:
                 from voorbeelden.unified_voorbeelden import get_examples_generator
+
                 generator = get_examples_generator()
                 result = await generator.generate_examples_async(req)
                 elapsed = time.time() - start
@@ -119,13 +123,17 @@ async def test_voorbeelden_generatie():
     success_count = 0
     for etype, result, elapsed, error in results:
         if error:
-            print(f"❌ {etype.value}: Failed after {elapsed:.2f}s - {type(error).__name__}")
+            print(
+                f"❌ {etype.value}: Failed after {elapsed:.2f}s - {type(error).__name__}"
+            )
         else:
             success_count += 1
             count = len(result) if result else 0
             print(f"✅ {etype.value}: {count} examples in {elapsed:.2f}s")
 
-    print(f"\nSuccess rate: {success_count}/{len(example_types)} ({success_count/len(example_types)*100:.0f}%)")
+    print(
+        f"\nSuccess rate: {success_count}/{len(example_types)} ({success_count/len(example_types)*100:.0f}%)"
+    )
 
     # Test 3: Stress test - meerdere requests naar zelfde endpoint
     print("\n\n📊 Test 3: Stress test - 10 requests naar zelfde endpoint")
@@ -137,17 +145,18 @@ async def test_voorbeelden_generatie():
             definitie=definitie,
             context=context,
             example_type=ExampleType.SENTENCE,
-            mode=GenerationMode.FAST
+            mode=GenerationMode.FAST,
         )
 
         start = time.time()
         try:
             from voorbeelden.unified_voorbeelden import get_examples_generator
+
             generator = get_examples_generator()
             result = await generator.generate_examples_async(request)
             elapsed = time.time() - start
             return (i, True, elapsed)
-        except Exception as e:
+        except Exception:
             elapsed = time.time() - start
             return (i, False, elapsed)
 
@@ -159,7 +168,7 @@ async def test_voorbeelden_generatie():
     success_count = sum(1 for _, success, _ in results if success)
     total_time = time.time() - start_time
 
-    print(f"\nResultaten:")
+    print("\nResultaten:")
     for i, success, elapsed in results[:5]:  # Toon eerste 5
         status = "✅" if success else "❌"
         print(f"  {status} Request {i}: {elapsed:.2f}s")
@@ -170,6 +179,7 @@ async def test_voorbeelden_generatie():
     print(f"Gemiddelde tijd per request: {total_time/10:.2f}s")
 
     return True
+
 
 async def main():
     """Run the test."""
@@ -183,7 +193,9 @@ async def main():
 
     # Cleanup
     from utils.smart_rate_limiter import cleanup_smart_limiters
+
     await cleanup_smart_limiters()
+
 
 if __name__ == "__main__":
     asyncio.run(main())

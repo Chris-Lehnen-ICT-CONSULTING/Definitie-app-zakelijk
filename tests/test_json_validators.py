@@ -5,7 +5,8 @@ Test dat alle 45 validators correct geladen en uitgevoerd worden.
 """
 
 import pytest
-from ai_toetser import toets_definitie, ModularToetser
+
+from ai_toetser import ModularToetser, toets_definitie
 from ai_toetser.json_validator_loader import json_validator_loader
 
 
@@ -14,7 +15,9 @@ def test_load_all_validators():
     regel_ids = json_validator_loader.get_all_regel_ids()
 
     # Er moeten 45 validators zijn
-    assert len(regel_ids) >= 45, f"Verwacht minstens 45 validators, gevonden: {len(regel_ids)}"
+    assert (
+        len(regel_ids) >= 45
+    ), f"Verwacht minstens 45 validators, gevonden: {len(regel_ids)}"
 
     # Check dat belangrijke validators aanwezig zijn
     expected = ["CON-01", "ESS-01", "STR-01", "INT-01", "SAM-01", "VER-01", "ARAI-01"]
@@ -27,16 +30,10 @@ def test_validate_with_json_validators():
     definitie = "Een persoon is een natuurlijk persoon of rechtspersoon."
 
     # Test met enkele regels
-    toetsregels = {
-        "CON-01": {},
-        "ESS-01": {},
-        "STR-01": {}
-    }
+    toetsregels = {"CON-01": {}, "ESS-01": {}, "STR-01": {}}
 
     results = toets_definitie(
-        definitie=definitie,
-        toetsregels=toetsregels,
-        begrip="persoon"
+        definitie=definitie, toetsregels=toetsregels, begrip="persoon"
     )
 
     # Check resultaten
@@ -55,9 +52,7 @@ def test_validator_without_examples():
 
     # Test validate methode
     success, message, score = validator.validate(
-        "Een test definitie zonder doel.",
-        "test",
-        {}
+        "Een test definitie zonder doel.", "test", {}
     )
 
     assert isinstance(success, bool)
@@ -75,10 +70,7 @@ def test_all_validators_validate():
     for regel_id in regel_ids:
         try:
             results = json_validator_loader.validate_definitie(
-                definitie=definitie,
-                begrip="document",
-                regel_ids=[regel_id],
-                context={}
+                definitie=definitie, begrip="document", regel_ids=[regel_id], context={}
             )
             assert len(results) > 0
         except Exception as e:

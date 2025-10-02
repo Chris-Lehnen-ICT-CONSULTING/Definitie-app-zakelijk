@@ -10,11 +10,11 @@ Ontworpen om zonder externe dependencies te draaien.
 from __future__ import annotations
 
 import json
+import os
 import re
 import sys
-from pathlib import Path
-import os
 from datetime import datetime
+from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 DOCS = ROOT / "docs"
@@ -85,11 +85,7 @@ def classify(path: Path) -> str:
         return "US"
 
     # BUG: tolerant — of specifieke mapstructuur, of presence van BUG-segment
-    if (
-        re.fullmatch(r"BUG-\d{3}\.md", fname)
-        or "/BUG-" in p
-        or "/CFR-BUG-" in p
-    ):
+    if re.fullmatch(r"BUG-\d{3}\.md", fname) or "/BUG-" in p or "/CFR-BUG-" in p:
         return "BUG"
 
     if "/architectuur/" in p:
@@ -210,7 +206,7 @@ def simple_markdown_to_html(md: str) -> str:
     """Eenvoudige Markdown → HTML conversie (koppen/lijsten/links/code/blockquote/para).
     Ontworpen zonder externe dependencies; dekt de meest voorkomende patronen.
     """
-    lines = md.replace('\r\n', '\n').split('\n')
+    lines = md.replace("\r\n", "\n").split("\n")
     html_lines: list[str] = []
     in_code = False
     code_buf: list[str] = []
@@ -220,19 +216,26 @@ def simple_markdown_to_html(md: str) -> str:
         nonlocal in_code, code_buf
         if not in_code:
             return
-        html_lines.append('<pre><code>' + ('\n'.join(code_buf)).replace('&','&amp;').replace('<','&lt;').replace('>','&gt;') + '</code></pre>')
+        html_lines.append(
+            "<pre><code>"
+            + ("\n".join(code_buf))
+            .replace("&", "&amp;")
+            .replace("<", "&lt;")
+            .replace(">", "&gt;")
+            + "</code></pre>"
+        )
         in_code = False
         code_buf = []
 
     def flush_list():
         nonlocal list_mode
         if list_mode:
-            html_lines.append(f'</{list_mode}>')
+            html_lines.append(f"</{list_mode}>")
             list_mode = None
 
     for raw in lines:
-        line = raw.rstrip('\n')
-        if line.strip().startswith('```'):
+        line = raw.rstrip("\n")
+        if line.strip().startswith("```"):
             if in_code:
                 flush_code()
             else:
@@ -243,67 +246,69 @@ def simple_markdown_to_html(md: str) -> str:
             continue
 
         # headings
-        m = re.match(r'^(#{1,6})\s+(.*)$', line)
+        m = re.match(r"^(#{1,6})\s+(.*)$", line)
         if m:
             flush_list()
             level = len(m.group(1))
             content = m.group(2).strip()
-            html_lines.append(f'<h{level}>' + content + f'</h{level}>')
+            html_lines.append(f"<h{level}>" + content + f"</h{level}>")
             continue
 
         # blockquote
-        if line.startswith('> '):
+        if line.startswith("> "):
             flush_list()
-            html_lines.append('<blockquote>' + line[2:] + '</blockquote>')
+            html_lines.append("<blockquote>" + line[2:] + "</blockquote>")
             continue
 
         # lists
-        if re.match(r'^\s*[-*]\s+.+', line):
-            if list_mode != 'ul':
+        if re.match(r"^\s*[-*]\s+.+", line):
+            if list_mode != "ul":
                 flush_list()
-                html_lines.append('<ul>')
-                list_mode = 'ul'
-            html_lines.append('<li>' + line.split(' ', 1)[1] + '</li>')
+                html_lines.append("<ul>")
+                list_mode = "ul"
+            html_lines.append("<li>" + line.split(" ", 1)[1] + "</li>")
             continue
-        if re.match(r'^\s*\d+\.\s+.+', line):
-            if list_mode != 'ol':
+        if re.match(r"^\s*\d+\.\s+.+", line):
+            if list_mode != "ol":
                 flush_list()
-                html_lines.append('<ol>')
-                list_mode = 'ol'
-            html_lines.append('<li>' + re.sub(r'^\s*\d+\.\s+', '', line) + '</li>')
+                html_lines.append("<ol>")
+                list_mode = "ol"
+            html_lines.append("<li>" + re.sub(r"^\s*\d+\.\s+", "", line) + "</li>")
             continue
 
         # blank line → para break
         if not line.strip():
             flush_list()
-            html_lines.append('')
+            html_lines.append("")
             continue
 
         # inline: code, bold, italic, links
         t = line
-        t = re.sub(r'`([^`]+)`', r'<code>\1</code>', t)
-        t = re.sub(r'\*\*([^*]+)\*\*', r'<strong>\1</strong>', t)
-        t = re.sub(r'\*([^*]+)\*', r'<em>\1</em>', t)
-        t = re.sub(r'\[([^\]]+)\]\(([^)]+)\)', r'<a href="\2" target="_blank">\1</a>', t)
-        html_lines.append('<p>' + t + '</p>')
+        t = re.sub(r"`([^`]+)`", r"<code>\1</code>", t)
+        t = re.sub(r"\*\*([^*]+)\*\*", r"<strong>\1</strong>", t)
+        t = re.sub(r"\*([^*]+)\*", r"<em>\1</em>", t)
+        t = re.sub(
+            r"\[([^\]]+)\]\(([^)]+)\)", r'<a href="\2" target="_blank">\1</a>', t
+        )
+        html_lines.append("<p>" + t + "</p>")
 
     flush_code()
     flush_list()
-    out = '\n'.join(x for x in html_lines)
+    out = "\n".join(x for x in html_lines)
     return out
 
 
 def write_rendered_markdown(md_path: Path, title: str) -> Path:
     """Render een .md bestand naar een standalone HTML onder docs/portal/rendered/…"""
     try:
-        text = md_path.read_text(encoding='utf-8', errors='ignore')
+        text = md_path.read_text(encoding="utf-8", errors="ignore")
     except Exception:
         return Path()
     body = simple_markdown_to_html(text)
     rel = md_path.relative_to(DOCS)
-    out_dir = (RENDERED / rel.parent)
+    out_dir = RENDERED / rel.parent
     out_dir.mkdir(parents=True, exist_ok=True)
-    out_file = out_dir / (rel.stem + '.html')
+    out_file = out_dir / (rel.stem + ".html")
     html = f"""<!doctype html>
 <html lang=\"nl\">
 <head>
@@ -328,7 +333,7 @@ def write_rendered_markdown(md_path: Path, title: str) -> Path:
   </div>
 </body>
 </html>"""
-    out_file.write_text(html, encoding='utf-8')
+    out_file.write_text(html, encoding="utf-8")
     return out_file
 
 
@@ -462,7 +467,7 @@ def inject_inline_json(data: dict) -> None:
     _, middle2, after2 = after.partition(end)
     if not middle2:
         return
-    payload = f"\n    <script id=\"portal-data\" type=\"application/json\">{json.dumps(data, ensure_ascii=False)}</script>\n"
+    payload = f'\n    <script id="portal-data" type="application/json">{json.dumps(data, ensure_ascii=False)}</script>\n'
     new = before + start + payload + end + after2
     html.write_text(new, encoding="utf-8")
 

@@ -5,9 +5,9 @@ Bevat alle CSV import functionaliteit, exact zoals het al werkte.
 """
 
 import logging
+
 import pandas as pd
 import streamlit as st
-from typing import Optional
 
 from database.definitie_repository import (
     DefinitieRecord,
@@ -33,8 +33,8 @@ class CSVImporter:
         # File upload
         uploaded_file = st.file_uploader(
             "Selecteer CSV bestand",
-            type=['csv'],
-            help="CSV moet kolommen bevatten: begrip, definitie, categorie, context"
+            type=["csv"],
+            help="CSV moet kolommen bevatten: begrip, definitie, categorie, context",
         )
 
         if uploaded_file is not None:
@@ -47,7 +47,7 @@ class CSVImporter:
                 st.dataframe(df.head(), use_container_width=True)
 
                 # Validatie
-                required_cols = ['begrip', 'definitie']
+                required_cols = ["begrip", "definitie"]
                 missing_cols = [col for col in required_cols if col not in df.columns]
 
                 if missing_cols:
@@ -60,14 +60,14 @@ class CSVImporter:
                     skip_duplicates = st.checkbox(
                         "Skip duplicaten",
                         value=True,
-                        help="Sla rijen over die al bestaan (op basis van begrip + context)"
+                        help="Sla rijen over die al bestaan (op basis van begrip + context)",
                     )
 
                 with col2:
                     auto_validate = st.checkbox(
                         "Auto-validatie",
                         value=False,
-                        help="Valideer geïmporteerde definities automatisch"
+                        help="Valideer geïmporteerde definities automatisch",
                     )
 
                 # Import knop
@@ -75,9 +75,11 @@ class CSVImporter:
                     self._process_import(df, skip_duplicates, auto_validate)
 
             except Exception as e:
-                st.error(f"Fout bij lezen CSV: {str(e)}")
+                st.error(f"Fout bij lezen CSV: {e!s}")
 
-    def _process_import(self, df: pd.DataFrame, skip_duplicates: bool, auto_validate: bool):
+    def _process_import(
+        self, df: pd.DataFrame, skip_duplicates: bool, auto_validate: bool
+    ):
         """Verwerk CSV import - exact verplaatst van origineel."""
         progress_bar = st.progress(0)
         status_text = st.empty()
@@ -97,8 +99,7 @@ class CSVImporter:
                 # Check duplicaat
                 if skip_duplicates:
                     existing = self.repository.find_by_begrip(
-                        row.get('begrip', ''),
-                        row.get('context', '')
+                        row.get("begrip", ""), row.get("context", "")
                     )
                     if existing:
                         skipped += 1
@@ -106,12 +107,12 @@ class CSVImporter:
 
                 # Maak record
                 record = DefinitieRecord(
-                    begrip=row.get('begrip', ''),
-                    definitie=row.get('definitie', ''),
-                    categorie=row.get('categorie', 'Type'),
-                    organisatorische_context=row.get('context', 'Algemeen'),
+                    begrip=row.get("begrip", ""),
+                    definitie=row.get("definitie", ""),
+                    categorie=row.get("categorie", "Type"),
+                    organisatorische_context=row.get("context", "Algemeen"),
                     status=DefinitieStatus.DRAFT.value,
-                    validation_score=0.0
+                    validation_score=0.0,
                 )
 
                 # Save
@@ -124,13 +125,15 @@ class CSVImporter:
                     pass
 
             except Exception as e:
-                errors.append(f"Rij {idx + 1}: {str(e)}")
+                errors.append(f"Rij {idx + 1}: {e!s}")
 
         # Resultaten
         progress_bar.empty()
         status_text.empty()
 
-        st.success(f"✅ Import voltooid: {imported} geïmporteerd, {skipped} overgeslagen")
+        st.success(
+            f"✅ Import voltooid: {imported} geïmporteerd, {skipped} overgeslagen"
+        )
         if errors:
             with st.expander(f"⚠️ {len(errors)} fouten opgetreden"):
                 for error in errors[:10]:  # Max 10 fouten tonen

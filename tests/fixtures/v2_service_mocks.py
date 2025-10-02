@@ -2,22 +2,21 @@
 Mock fixtures for V2 services to support testing without external dependencies.
 """
 
+from unittest.mock import AsyncMock, Mock
+
 import pytest
-from unittest.mock import AsyncMock, Mock, MagicMock
-from typing import Any
-import asyncio
 
 from services.interfaces import (
     Definition,
-    ValidationResult,
-    GenerationResult,
     DefinitionResponseV2,
-    WebSource
+    GenerationResult,
+    ValidationResult,
+    WebSource,
 )
 from services.validation.interfaces import CONTRACT_VERSION
 
 
-@pytest.fixture
+@pytest.fixture()
 def mock_ai_service_v2():
     """Mock AIServiceV2 to prevent actual API calls."""
     mock = AsyncMock()
@@ -34,7 +33,7 @@ def mock_ai_service_v2():
     return mock
 
 
-@pytest.fixture
+@pytest.fixture()
 def mock_validation_orchestrator_v2():
     """Mock ValidationOrchestratorV2 for testing."""
     mock = AsyncMock()
@@ -49,15 +48,15 @@ def mock_validation_orchestrator_v2():
             "passed_rules": ["rule1", "rule2"],
             "system": {
                 "correlation_id": "test-correlation-id",
-                "timestamp": "2025-01-01T00:00:00Z"
-            }
+                "timestamp": "2025-01-01T00:00:00Z",
+            },
         }
 
     mock.validate_definition = mock_validate_definition
     return mock
 
 
-@pytest.fixture
+@pytest.fixture()
 def mock_modular_validation_service():
     """Mock ModularValidationService."""
     mock = AsyncMock()
@@ -77,7 +76,7 @@ def mock_modular_validation_service():
     return mock
 
 
-@pytest.fixture
+@pytest.fixture()
 def mock_web_lookup_service():
     """Mock ModernWebLookupService."""
     mock = AsyncMock()
@@ -89,7 +88,7 @@ def mock_web_lookup_service():
                 url=f"https://example.com/{query}",
                 title=f"Mock result for {query}",
                 snippet=f"This is a mock search result for {query}",
-                reliability_score=0.8
+                reliability_score=0.8,
             )
         ]
 
@@ -99,7 +98,7 @@ def mock_web_lookup_service():
     return mock
 
 
-@pytest.fixture
+@pytest.fixture()
 def mock_prompt_service_v2():
     """Mock PromptServiceV2."""
     mock = Mock()
@@ -107,27 +106,23 @@ def mock_prompt_service_v2():
     mock.build_definition_prompt = Mock(
         return_value="Mock definition generation prompt"
     )
-    mock.build_validation_prompt = Mock(
-        return_value="Mock validation prompt"
-    )
-    mock.get_system_prompt = Mock(
-        return_value="You are a helpful assistant."
-    )
+    mock.build_validation_prompt = Mock(return_value="Mock validation prompt")
+    mock.get_system_prompt = Mock(return_value="You are a helpful assistant.")
 
     return mock
 
 
-@pytest.fixture
+@pytest.fixture()
 def mock_definition_repository():
     """Mock DefinitionRepository for testing."""
     mock = Mock()
 
     mock.save = Mock(return_value=1)  # Return mock ID
-    mock.get = Mock(return_value=Definition(
-        begrip="test",
-        definitie="test definition",
-        ontologische_categorie="concept"
-    ))
+    mock.get = Mock(
+        return_value=Definition(
+            begrip="test", definitie="test definition", ontologische_categorie="concept"
+        )
+    )
     mock.search = Mock(return_value=[])
     mock.update = Mock(return_value=True)
     mock.delete = Mock(return_value=True)
@@ -135,7 +130,7 @@ def mock_definition_repository():
     return mock
 
 
-@pytest.fixture
+@pytest.fixture()
 def mock_cleaning_service():
     """Mock CleaningService."""
     mock = Mock()
@@ -147,14 +142,14 @@ def mock_cleaning_service():
     return mock
 
 
-@pytest.fixture
+@pytest.fixture()
 async def mock_definition_orchestrator_v2(
     mock_ai_service_v2,
     mock_validation_orchestrator_v2,
     mock_prompt_service_v2,
     mock_definition_repository,
     mock_cleaning_service,
-    mock_web_lookup_service
+    mock_web_lookup_service,
 ):
     """Complete mock for DefinitionOrchestratorV2."""
     mock = AsyncMock()
@@ -174,15 +169,17 @@ async def mock_definition_orchestrator_v2(
             definition=Definition(
                 begrip=request.begrip,
                 definitie="Mock generated definition",
-                ontologische_categorie=request.ontologische_categorie or "concept"
+                ontologische_categorie=request.ontologische_categorie or "concept",
             ),
-            validation_result=await mock_validation_orchestrator_v2.validate_definition(None),
+            validation_result=await mock_validation_orchestrator_v2.validate_definition(
+                None
+            ),
             generation_metadata={
                 "model": "gpt-4-test",
                 "temperature": 0.0,
                 "prompt_tokens": 100,
-                "completion_tokens": 50
-            }
+                "completion_tokens": 50,
+            },
         )
 
     mock.create_definition = mock_create_definition
@@ -192,7 +189,7 @@ async def mock_definition_orchestrator_v2(
     return mock
 
 
-@pytest.fixture
+@pytest.fixture()
 def mock_service_container(mock_definition_orchestrator_v2):
     """Mock ServiceContainer with all V2 services."""
     mock = Mock()
@@ -205,41 +202,40 @@ def mock_service_container(mock_definition_orchestrator_v2):
     mock.config = {
         "db_path": ":memory:",
         "use_database": False,
-        "enable_monitoring": False
+        "enable_monitoring": False,
     }
 
     mock._instances = {}
     mock.reset = Mock()
     mock.update_config = Mock()
-    mock.get_service = Mock(side_effect=lambda name: {
-        "generator": mock_definition_orchestrator_v2,
-        "orchestrator": mock_definition_orchestrator_v2,
-        "repository": mock_definition_repository,
-        "web_lookup": mock_web_lookup_service
-    }.get(name))
+    mock.get_service = Mock(
+        side_effect=lambda name: {
+            "generator": mock_definition_orchestrator_v2,
+            "orchestrator": mock_definition_orchestrator_v2,
+            "repository": mock_definition_repository,
+            "web_lookup": mock_web_lookup_service,
+        }.get(name)
+    )
 
     return mock
 
 
 # Helper functions for common test scenarios
 
+
 def create_test_definition(
     begrip: str = "testbegrip",
     definitie: str = "Een test definitie",
-    categorie: str = "concept"
+    categorie: str = "concept",
 ) -> Definition:
     """Create a test Definition object."""
     return Definition(
-        begrip=begrip,
-        definitie=definitie,
-        ontologische_categorie=categorie
+        begrip=begrip, definitie=definitie, ontologische_categorie=categorie
     )
 
 
 def create_test_validation_result(
-    score: float = 0.85,
-    is_valid: bool = True,
-    violations: list = None
+    score: float = 0.85, is_valid: bool = True, violations: list = None
 ) -> dict:
     """Create a test validation result matching contract."""
     return {
@@ -248,24 +244,16 @@ def create_test_validation_result(
         "is_acceptable": is_valid,
         "violations": violations or [],
         "passed_rules": ["rule1", "rule2", "rule3"],
-        "system": {
-            "correlation_id": "test-id",
-            "timestamp": "2025-01-01T00:00:00Z"
-        }
+        "system": {"correlation_id": "test-id", "timestamp": "2025-01-01T00:00:00Z"},
     }
 
 
 def create_test_generation_result(
-    success: bool = True,
-    definition_text: str = "Generated definition"
+    success: bool = True, definition_text: str = "Generated definition"
 ) -> GenerationResult:
     """Create a test GenerationResult."""
     return GenerationResult(
         success=success,
         definition=definition_text,
-        metadata={
-            "model": "gpt-4-test",
-            "temperature": 0.0,
-            "tokens_used": 150
-        }
+        metadata={"model": "gpt-4-test", "temperature": 0.0, "tokens_used": 150},
     )

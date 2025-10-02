@@ -28,6 +28,7 @@ class _StubCleaningService:
 class _StubValidationService:
     async def validate_definition(self, definition, context=None):
         from services.validation.interfaces import CONTRACT_VERSION
+
         # Return a schema-like ValidationResult dict
         return {
             "version": CONTRACT_VERSION,
@@ -52,14 +53,24 @@ class _StubWebLookupService:
 
         r1 = LookupResult(
             term=request.term,
-            source=WebSource(name="Overheid.nl", url="https://overheid.nl/b", confidence=1.0, is_juridical=True),
+            source=WebSource(
+                name="Overheid.nl",
+                url="https://overheid.nl/b",
+                confidence=1.0,
+                is_juridical=True,
+            ),
             definition="Beta",
             success=True,
             metadata={},
         )
         r2 = LookupResult(
             term=request.term,
-            source=WebSource(name="Wikipedia", url="https://w.org/a", confidence=0.7, is_juridical=False),
+            source=WebSource(
+                name="Wikipedia",
+                url="https://w.org/a",
+                confidence=0.7,
+                is_juridical=False,
+            ),
             definition="Alpha",
             success=True,
             metadata={},
@@ -67,10 +78,12 @@ class _StubWebLookupService:
         return [r1, r2]
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_e2e_orchestrator_prompt_augmentation(monkeypatch):
     from services.interfaces import GenerationRequest, OrchestratorConfig
-    from services.orchestrators.definition_orchestrator_v2 import DefinitionOrchestratorV2
+    from services.orchestrators.definition_orchestrator_v2 import (
+        DefinitionOrchestratorV2,
+    )
     from services.prompts.prompt_service_v2 import PromptServiceV2
 
     # Force prompt augmentation enabled with deterministic builder
@@ -95,6 +108,7 @@ async def test_e2e_orchestrator_prompt_augmentation(monkeypatch):
     )
 
     prompt_service = PromptServiceV2()
+
     # Make prompt body deterministic
     class _StubBuilder:
         def build_prompt(self, begrip, context):
@@ -118,7 +132,9 @@ async def test_e2e_orchestrator_prompt_augmentation(monkeypatch):
         web_lookup_service=web_lookup_service,
     )
 
-    req = GenerationRequest(id="00000000-0000-0000-0000-000000000000", begrip="e2e-term")
+    req = GenerationRequest(
+        id="00000000-0000-0000-0000-000000000000", begrip="e2e-term"
+    )
     resp = await orch.create_definition(req, context={})
 
     # Response OK

@@ -3,13 +3,13 @@ Comprehensive test suite for validation system.
 Tests input validation, sanitization, Dutch text validation, and security middleware.
 """
 
+# Fix import paths - these modules are in src/
+import sys
+from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
 
-# Fix import paths - these modules are in src/
-import sys
-from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
 from security.security_middleware import SecurityMiddleware

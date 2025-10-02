@@ -55,7 +55,9 @@ def main() -> int:
     conn = sqlite3.connect(str(db_path))
     conn.row_factory = sqlite3.Row
     cur = conn.cursor()
-    cur.execute("SELECT id, organisatorische_context, juridische_context, wettelijke_basis FROM definities")
+    cur.execute(
+        "SELECT id, organisatorische_context, juridische_context, wettelijke_basis FROM definities"
+    )
     rows = cur.fetchall()
 
     updated = 0

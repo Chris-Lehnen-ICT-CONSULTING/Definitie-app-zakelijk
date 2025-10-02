@@ -24,7 +24,7 @@ class _FakeRepo:
         return list(self._defs)
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_ess02_marker_override_passes():
     svc = ModularValidationService(get_toetsregel_manager(), None, None)
     res = await svc.validate_definition(
@@ -37,7 +37,7 @@ async def test_ess02_marker_override_passes():
     assert not any(v.get("code") == "ESS-02" for v in res.get("violations", []))
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_ess02_ambiguity_fails():
     svc = ModularValidationService(get_toetsregel_manager(), None, None)
     # Text suggests both process and result
@@ -48,15 +48,27 @@ async def test_ess02_ambiguity_fails():
         ontologische_categorie=None,
         context={},
     )
-    assert any(v.get("code") == "ESS-02" and v.get("severity") == "error" for v in res["violations"])  # noqa: E501
+    assert any(
+        v.get("code") == "ESS-02" and v.get("severity") == "error"
+        for v in res["violations"]
+    )
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_con01_duplicate_signals_warning():
     # Existing definition with same context
-    existing = _FakeDef(1, "registratie", org=["DJI"], jur=["strafrecht"], categorie="proces", status="established")  # noqa: E501
+    existing = _FakeDef(
+        1,
+        "registratie",
+        org=["DJI"],
+        jur=["strafrecht"],
+        categorie="proces",
+        status="established",
+    )
     repo = _FakeRepo([existing])
-    svc = ModularValidationService(get_toetsregel_manager(), None, None, repository=repo)
+    svc = ModularValidationService(
+        get_toetsregel_manager(), None, None, repository=repo
+    )
     res = await svc.validate_definition(
         begrip="registratie",
         text="Registratie is het vastleggen …",
@@ -68,12 +80,16 @@ async def test_con01_duplicate_signals_warning():
         },
     )
     # Expect a CON-01 warning with existing_definition_id
-    warns = [v for v in res["violations"] if v.get("code") == "CON-01" and v.get("severity") == "warning"]  # noqa: E501
+    warns = [
+        v
+        for v in res["violations"]
+        if v.get("code") == "CON-01" and v.get("severity") == "warning"
+    ]
     assert warns, f"No CON-01 duplicate warning found: {res['violations']}"
     assert warns[0].get("metadata", {}).get("existing_definition_id") == 1
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_ess01_goal_phrases_forbidden():
     svc = ModularValidationService(get_toetsregel_manager(), None, None)
     text = "… is een systeem om te registreren …"
@@ -83,5 +99,6 @@ async def test_ess01_goal_phrases_forbidden():
         ontologische_categorie=None,
         context={},
     )
-    assert any(v.get("code") == "ESS-01" for v in res["violations"])  # forbidden pattern
-
+    assert any(
+        v.get("code") == "ESS-01" for v in res["violations"]
+    )  # forbidden pattern

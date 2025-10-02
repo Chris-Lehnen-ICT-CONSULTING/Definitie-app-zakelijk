@@ -2,14 +2,15 @@
 """Test improved async_bridge with ThreadPoolExecutor."""
 
 import asyncio
+import sys
 import time
 from pathlib import Path
-import sys
 
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 print("Testing improved async_bridge with thread pool...")
+
 
 # Test 1: Basic functionality
 def test_basic():
@@ -25,6 +26,7 @@ def test_basic():
     print(f"   Result: {result}")
     assert result == "success", f"Expected 'success', got {result}"
     print("   ✓ Basic test passed")
+
 
 # Test 2: Simulate Streamlit environment
 def test_streamlit_like():
@@ -49,10 +51,13 @@ def test_streamlit_like():
     asyncio.set_event_loop(loop)
     try:
         final = loop.run_until_complete(streamlit_main())
-        assert final == "streamlit_success", f"Expected 'streamlit_success', got {final}"
+        assert (
+            final == "streamlit_success"
+        ), f"Expected 'streamlit_success', got {final}"
         print("   ✓ Streamlit-like test passed")
     finally:
         loop.close()
+
 
 # Test 3: Real import service test
 def test_real_import():
@@ -71,7 +76,7 @@ def test_real_import():
         "categorie": "proces",
         "organisatorische_context": ["Test org"],
         "juridische_context": [],
-        "wettelijke_basis": []
+        "wettelijke_basis": [],
     }
 
     print("   Calling import_single with improved async_bridge...")
@@ -79,12 +84,10 @@ def test_real_import():
 
     result = run_async_safe(
         import_service.import_single(
-            payload,
-            duplicate_strategy="skip",
-            created_by="improved_test"
+            payload, duplicate_strategy="skip", created_by="improved_test"
         ),
         default=None,
-        timeout=3.0
+        timeout=3.0,
     )
 
     elapsed = time.time() - start
@@ -101,6 +104,7 @@ def test_real_import():
             print(f"   Error: {result.error}")
         print("   ✓ Import service test completed")
         return True
+
 
 # Test 4: Concurrent imports
 def test_concurrent():
@@ -129,6 +133,7 @@ def test_concurrent():
     assert results == expected, f"Expected {expected}, got {results}"
     print("   ✓ Concurrent test passed")
 
+
 if __name__ == "__main__":
     print("=" * 60)
     print("Improved Async Bridge Tests")
@@ -150,4 +155,5 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"\nERROR: {e}")
         import traceback
+
         traceback.print_exc()

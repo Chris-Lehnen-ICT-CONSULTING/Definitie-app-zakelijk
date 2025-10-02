@@ -10,12 +10,12 @@ Dit script:
 5. Slaat prompts op voor analyse
 """
 
-import sys
-import os
 import json
+import os
+import sys
+from dataclasses import asdict, dataclass
 from datetime import datetime
-from dataclasses import dataclass, asdict
-from typing import Dict, List, Any
+from typing import Any, Dict, List
 
 # Add project root to path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -28,42 +28,45 @@ os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 from src.services.definition_generator_config import UnifiedGeneratorConfig
 from src.services.definition_generator_context import EnrichedContext
-from src.services.prompts.modular_prompt_builder import ModularPromptBuilder, PromptComponentConfig
+from src.services.prompts.modular_prompt_builder import (
+    ModularPromptBuilder,
+    PromptComponentConfig,
+)
 
 
 @dataclass
 class ValidationTestCase:
     """Test case configuratie."""
+
     name: str
     begrip: str
-    context: Dict[str, List[str]]
+    context: dict[str, list[str]]
     ontologische_categorie: str
-    config_overrides: Dict[str, Any] = None
+    config_overrides: dict[str, Any] = None
 
 
 @dataclass
 class ValidationTestResult:
     """Test resultaat."""
+
     test_name: str
     begrip: str
     prompt_length: int
     prompt_length_after_truncation: int
     validation_rule_count: int
-    sections_found: List[str]
-    missing_sections: List[str]
+    sections_found: list[str]
+    missing_sections: list[str]
     execution_time_ms: float
-    metadata: Dict[str, Any]
+    metadata: dict[str, Any]
 
 
 def count_validation_rules(prompt: str) -> int:
     """Tel het aantal validatieregels in de prompt."""
     # Zoek naar regel patterns
-    rule_patterns = [
-        "CON-", "ESS-", "INT-", "SAM-", "STR-", "ARAI-"
-    ]
+    rule_patterns = ["CON-", "ESS-", "INT-", "SAM-", "STR-", "ARAI-"]
 
     rule_count = 0
-    for line in prompt.split('\n'):
+    for line in prompt.split("\n"):
         for pattern in rule_patterns:
             if pattern in line and "**" in line:  # Bold regel headers
                 rule_count += 1
@@ -72,7 +75,7 @@ def count_validation_rules(prompt: str) -> int:
     return rule_count
 
 
-def find_sections(prompt: str) -> List[str]:
+def find_sections(prompt: str) -> list[str]:
     """Vind alle secties in de prompt."""
     sections = []
     section_markers = [
@@ -96,7 +99,7 @@ def find_sections(prompt: str) -> List[str]:
         "### 📝 Grammatica en Taalgebruik:",
         "📌 Context:",
         "### 📐 Let op betekenislaag",
-        "BELANGRIJKE VEREISTEN:"
+        "BELANGRIJKE VEREISTEN:",
     ]
 
     for marker in section_markers:
@@ -106,7 +109,7 @@ def find_sections(prompt: str) -> List[str]:
     return sections
 
 
-def expected_sections() -> List[str]:
+def expected_sections() -> list[str]:
     """Lijst van verwachte secties."""
     return [
         "# Je rol en expertise",
@@ -141,9 +144,7 @@ def run_test_case(test_case: ValidationTestCase) -> ValidationTestResult:
         sources=[],
         expanded_terms={},
         confidence_scores={},
-        metadata={
-            "ontologische_categorie": test_case.ontologische_categorie
-        }
+        metadata={"ontologische_categorie": test_case.ontologische_categorie},
     )
 
     # Maak prompt builder
@@ -159,9 +160,7 @@ def run_test_case(test_case: ValidationTestCase) -> ValidationTestResult:
 
     # Genereer prompt
     prompt = builder.build_prompt(
-        begrip=test_case.begrip,
-        context=enriched_context,
-        config=config
+        begrip=test_case.begrip, context=enriched_context, config=config
     )
 
     execution_time = (time.time() - start_time) * 1000  # ms
@@ -192,11 +191,11 @@ def run_test_case(test_case: ValidationTestCase) -> ValidationTestResult:
         sections_found=sections,
         missing_sections=missing,
         execution_time_ms=execution_time,
-        metadata=metadata
+        metadata=metadata,
     )
 
     # Print samenvatting
-    print(f"\nResultaten:")
+    print("\nResultaten:")
     print(f"- Prompt lengte: {original_length} karakters")
     print(f"- Na truncatie: {truncated_length} karakters")
     print(f"- Validatieregels gevonden: {rule_count}")
@@ -210,7 +209,7 @@ def run_test_case(test_case: ValidationTestCase) -> ValidationTestResult:
     # Sla prompt op
     filename = f"prompt_{test_case.name.replace(' ', '_').lower()}.txt"
     file_path = os.path.join(OUTPUT_DIR, filename)
-    with open(file_path, 'w', encoding='utf-8') as f:
+    with open(file_path, "w", encoding="utf-8") as f:
         f.write(f"# Test Case: {test_case.name}\n")
         f.write(f"# Begrip: {test_case.begrip}\n")
         f.write(f"# Context: {json.dumps(test_case.context)}\n")
@@ -218,7 +217,7 @@ def run_test_case(test_case: ValidationTestCase) -> ValidationTestResult:
         f.write(f"# Gegenereerd op: {datetime.now().isoformat()}\n")
         f.write(f"# Lengte: {original_length} karakters\n")
         f.write(f"# Validatieregels: {rule_count}\n")
-        f.write("# " + "="*50 + "\n\n")
+        f.write("# " + "=" * 50 + "\n\n")
         f.write(prompt)
 
     print(f"✓ Prompt opgeslagen als: {file_path}")
@@ -229,7 +228,7 @@ def run_test_case(test_case: ValidationTestCase) -> ValidationTestResult:
 def main():
     """Hoofdfunctie."""
     print("🔬 Modular Prompt System Test")
-    print("="*60)
+    print("=" * 60)
 
     # Definieer test cases
     test_cases = [
@@ -237,30 +236,30 @@ def main():
             name="Simple Case",
             begrip="toezicht",
             context={"organisatorisch": ["DJI"]},
-            ontologische_categorie="proces"
+            ontologische_categorie="proces",
         ),
         ValidationTestCase(
             name="Compact Mode",
             begrip="toezicht",
             context={"organisatorisch": ["DJI"]},
             ontologische_categorie="proces",
-            config_overrides={"compact_mode": True}
+            config_overrides={"compact_mode": True},
         ),
         ValidationTestCase(
             name="No ARAI Rules",
             begrip="toezicht",
             context={"organisatorisch": ["DJI"]},
             ontologische_categorie="proces",
-            config_overrides={"include_arai_rules": False}
+            config_overrides={"include_arai_rules": False},
         ),
         ValidationTestCase(
             name="Complex Context",
             begrip="registratie",
             context={
                 "organisatorisch": ["DJI", "OM"],
-                "juridisch": ["Wetboek van Strafrecht"]
+                "juridisch": ["Wetboek van Strafrecht"],
             },
-            ontologische_categorie="resultaat"
+            ontologische_categorie="resultaat",
         ),
     ]
 
@@ -273,17 +272,18 @@ def main():
         except Exception as e:
             print(f"❌ Test '{test_case.name}' failed: {e}")
             import traceback
+
             traceback.print_exc()
 
     # Genereer samenvattend rapport
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("📊 SAMENVATTEND RAPPORT")
-    print("="*60)
+    print("=" * 60)
 
     report = {
         "test_run": datetime.now().isoformat(),
         "total_tests": len(results),
-        "results": []
+        "results": [],
     }
 
     for result in results:
@@ -297,7 +297,7 @@ def main():
 
     # Sla rapport op
     report_path = os.path.join(OUTPUT_DIR, "modular_prompt_test_report.json")
-    with open(report_path, 'w', encoding='utf-8') as f:
+    with open(report_path, "w", encoding="utf-8") as f:
         json.dump(report, f, indent=2, ensure_ascii=False)
 
     print(f"\n✅ Test rapport opgeslagen als: {report_path}")
@@ -306,13 +306,17 @@ def main():
     print("\n📏 Validatieregel Analyse:")
     for result in results:
         expected_rules = 34 if "No ARAI" not in result.test_name else 25
-        print(f"  - {result.test_name}: {result.validation_rule_count}/{expected_rules} regels")
+        print(
+            f"  - {result.test_name}: {result.validation_rule_count}/{expected_rules} regels"
+        )
 
     # Check module metadata
     print("\n🔧 Module Metadata:")
     for result in results:
         if "modules" in result.metadata:
-            print(f"  - {result.test_name}: {len(result.metadata['modules'])} modules geregistreerd")
+            print(
+                f"  - {result.test_name}: {len(result.metadata['modules'])} modules geregistreerd"
+            )
 
 
 if __name__ == "__main__":

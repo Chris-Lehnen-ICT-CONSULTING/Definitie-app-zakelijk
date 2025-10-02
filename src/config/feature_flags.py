@@ -114,7 +114,6 @@ class FeatureFlags:
         env_var="ENABLE_ASYNC_GENERATION",
     )
 
-
     @classmethod
     def get_all_flags(cls) -> dict[str, FeatureFlag]:
         """Get all feature flags.
@@ -187,7 +186,6 @@ class FeatureFlags:
                 f"Enable it by setting {feature_flag.env_var}=true"
             )
         return True
-
 
 
 def guard_legacy_route(feature_flag: FeatureFlag):

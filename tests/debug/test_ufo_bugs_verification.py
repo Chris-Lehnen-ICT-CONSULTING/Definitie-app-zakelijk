@@ -5,21 +5,21 @@ UFO Classifier Bug Verification Script
 Direct testing of claimed bugs to determine if they are real or false positives.
 """
 
-import sys
+import gc
 import os
-import traceback
+import sys
 import threading
 import time
-import gc
+import traceback
 from pathlib import Path
 
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from src.services.ufo_classifier_service import (
-    UFOClassifierService,
     UFOCategory,
-    get_ufo_classifier
+    UFOClassifierService,
+    get_ufo_classifier,
 )
 
 
@@ -27,7 +27,7 @@ def print_section(title):
     """Print a section header."""
     print(f"\n{'='*60}")
     print(f"  {title}")
-    print('='*60)
+    print("=" * 60)
 
 
 def test_bug_1_empty_none_input():
@@ -51,7 +51,7 @@ def test_bug_1_empty_none_input():
     for term, definition, description in test_cases:
         try:
             print(f"\nTesting {description}:")
-            print(f"  Input: term={repr(term)}, def={repr(definition)}")
+            print(f"  Input: term={term!r}, def={definition!r}")
 
             result = classifier.classify(term, definition)
 
@@ -61,7 +61,7 @@ def test_bug_1_empty_none_input():
 
             # Check if it silently returns UNKNOWN
             if result.primary_category == UFOCategory.UNKNOWN:
-                print(f"  ✓ Returns UNKNOWN (as claimed)")
+                print("  ✓ Returns UNKNOWN (as claimed)")
             else:
                 print(f"  ✗ Returns {result.primary_category.value} (not UNKNOWN)")
 
@@ -72,20 +72,22 @@ def test_bug_1_empty_none_input():
             results.append((description, "EXCEPTION", str(e)))
 
     # Summary
-    print("\n" + "-"*40)
+    print("\n" + "-" * 40)
     print("SUMMARY:")
     crashes = [r for r in results if r[1] == "EXCEPTION"]
-    unknowns = [r for r in results if r[1] == "NO_CRASH" and r[2] == UFOCategory.UNKNOWN]
+    unknowns = [
+        r for r in results if r[1] == "NO_CRASH" and r[2] == UFOCategory.UNKNOWN
+    ]
 
     print(f"  Crashes: {len(crashes)}/{len(test_cases)}")
     print(f"  Silent UNKNOWN returns: {len(unknowns)}/{len(test_cases)}")
 
     if crashes:
-        print(f"  BUG CLAIM: FALSE - Does crash (not silent)")
+        print("  BUG CLAIM: FALSE - Does crash (not silent)")
     elif unknowns == results:
-        print(f"  BUG CLAIM: TRUE - Silently returns UNKNOWN")
+        print("  BUG CLAIM: TRUE - Silently returns UNKNOWN")
     else:
-        print(f"  BUG CLAIM: PARTIAL - Mixed behavior")
+        print("  BUG CLAIM: PARTIAL - Mixed behavior")
 
     return len(crashes) == 0 and len(unknowns) == len(test_cases)
 
@@ -114,20 +116,21 @@ def test_bug_2_config_loading():
 
     # Inspect the class methods
     import inspect
+
     source = inspect.getsource(UFOClassifierService)
 
     # Count references to config_path outside __init__
-    lines = source.split('\n')
+    lines = source.split("\n")
     config_refs = []
     in_init = False
 
     for i, line in enumerate(lines):
-        if 'def __init__' in line:
+        if "def __init__" in line:
             in_init = True
-        elif in_init and line.strip() and not line.startswith(' '):
+        elif in_init and line.strip() and not line.startswith(" "):
             in_init = False
 
-        if not in_init and 'config_path' in line.lower():
+        if not in_init and "config_path" in line.lower():
             config_refs.append((i, line.strip()))
 
     if config_refs:
@@ -140,7 +143,7 @@ def test_bug_2_config_loading():
         print("  Config is stored but NEVER USED!")
         has_config_usage = False
 
-    print("\n" + "-"*40)
+    print("\n" + "-" * 40)
     print("SUMMARY:")
     if not has_config_usage:
         print("  BUG CLAIM: TRUE - Config parameter accepted but never used")
@@ -214,7 +217,7 @@ def test_bug_3_singleton_race_condition():
     unique_sequential = len(set(sequential_ids))
     print(f"Unique instances in sequential calls: {unique_sequential}")
 
-    print("\n" + "-"*40)
+    print("\n" + "-" * 40)
     print("SUMMARY:")
 
     has_race_condition = len(unique_ids) > 1 or unique_sequential > 1
@@ -280,7 +283,9 @@ def test_bug_4_memory_leak():
 
     # Check how many regex patterns are compiled
     num_categories = len(UFOClassifierService.PATTERNS)
-    total_patterns = sum(len(patterns) for patterns in UFOClassifierService.PATTERNS.values())
+    total_patterns = sum(
+        len(patterns) for patterns in UFOClassifierService.PATTERNS.values()
+    )
 
     print(f"Categories: {num_categories}")
     print(f"Total patterns: {total_patterns}")
@@ -290,7 +295,7 @@ def test_bug_4_memory_leak():
     compiled_count = sum(len(patterns) for patterns in inst.compiled_patterns.values())
     print(f"Compiled patterns per instance: {compiled_count}")
 
-    print("\n" + "-"*40)
+    print("\n" + "-" * 40)
     print("SUMMARY:")
 
     has_memory_leak = patterns_per_instance and growth > 5000
@@ -310,32 +315,38 @@ def test_bug_5_edge_case_failures():
     """BUG CLAIM 4: 15/34 edge tests fail (44% failure)"""
     print_section("BUG 5: Edge Case Test Failures")
 
-    import subprocess
     import re
+    import subprocess
 
     print("Running edge case test suite...")
 
     # Run pytest and capture output
     result = subprocess.run(
-        ["python", "-m", "pytest",
-         "tests/services/test_ufo_classifier_edge_cases.py",
-         "-v", "--tb=no"],
+        [
+            "python",
+            "-m",
+            "pytest",
+            "tests/services/test_ufo_classifier_edge_cases.py",
+            "-v",
+            "--tb=no",
+        ],
         capture_output=True,
         text=True,
-        cwd="/Users/chrislehnen/Projecten/Definitie-app"
+        cwd="/Users/chrislehnen/Projecten/Definitie-app",
+        check=False,
     )
 
     output = result.stdout + result.stderr
 
     # Parse test results
-    passed = re.findall(r'(\d+) passed', output)
-    failed = re.findall(r'(\d+) failed', output)
+    passed = re.findall(r"(\d+) passed", output)
+    failed = re.findall(r"(\d+) failed", output)
 
     num_passed = int(passed[0]) if passed else 0
     num_failed = int(failed[0]) if failed else 0
     total_tests = num_passed + num_failed
 
-    print(f"\nTest Results:")
+    print("\nTest Results:")
     print(f"  Passed: {num_passed}")
     print(f"  Failed: {num_failed}")
     print(f"  Total: {total_tests}")
@@ -348,16 +359,16 @@ def test_bug_5_edge_case_failures():
         print("  No tests found")
 
     # Extract failed test names
-    failed_tests = re.findall(r'FAILED (.*?) -', output)
+    failed_tests = re.findall(r"FAILED (.*?) -", output)
     if failed_tests:
         print(f"\nFailed tests ({len(failed_tests)}):")
         for test in failed_tests[:10]:  # Show first 10
-            test_name = test.split('::')[-1] if '::' in test else test
+            test_name = test.split("::")[-1] if "::" in test else test
             print(f"  - {test_name}")
         if len(failed_tests) > 10:
             print(f"  ... and {len(failed_tests)-10} more")
 
-    print("\n" + "-"*40)
+    print("\n" + "-" * 40)
     print("SUMMARY:")
 
     claimed_failures = 15
@@ -379,59 +390,59 @@ def test_bug_5_edge_case_failures():
 
 def main():
     """Run all bug verification tests."""
-    print("="*60)
+    print("=" * 60)
     print("  UFO CLASSIFIER v5.0.0 BUG VERIFICATION")
     print("  Analyzing claimed critical issues")
-    print("="*60)
+    print("=" * 60)
 
     results = {}
 
     # Test each bug claim
     try:
-        results['bug1_empty_input'] = test_bug_1_empty_none_input()
+        results["bug1_empty_input"] = test_bug_1_empty_none_input()
     except Exception as e:
         print(f"\nBUG 1 TEST CRASHED: {e}")
-        results['bug1_empty_input'] = None
+        results["bug1_empty_input"] = None
 
     try:
-        results['bug2_config'] = test_bug_2_config_loading()
+        results["bug2_config"] = test_bug_2_config_loading()
     except Exception as e:
         print(f"\nBUG 2 TEST CRASHED: {e}")
-        results['bug2_config'] = None
+        results["bug2_config"] = None
 
     try:
-        results['bug3_singleton'] = test_bug_3_singleton_race_condition()
+        results["bug3_singleton"] = test_bug_3_singleton_race_condition()
     except Exception as e:
         print(f"\nBUG 3 TEST CRASHED: {e}")
-        results['bug3_singleton'] = None
+        results["bug3_singleton"] = None
 
     try:
-        results['bug4_memory'] = test_bug_4_memory_leak()
+        results["bug4_memory"] = test_bug_4_memory_leak()
     except Exception as e:
         print(f"\nBUG 4 TEST CRASHED: {e}")
-        results['bug4_memory'] = None
+        results["bug4_memory"] = None
 
     try:
-        results['bug5_edge_cases'] = test_bug_5_edge_case_failures()
+        results["bug5_edge_cases"] = test_bug_5_edge_case_failures()
     except Exception as e:
         print(f"\nBUG 5 TEST CRASHED: {e}")
-        results['bug5_edge_cases'] = None
+        results["bug5_edge_cases"] = None
 
     # Final report
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("  FINAL BUG VERIFICATION REPORT")
-    print("="*60)
+    print("=" * 60)
 
     confirmed_bugs = []
     false_positives = []
     partial_bugs = []
 
     bug_names = {
-        'bug1_empty_input': 'Empty/None input handling',
-        'bug2_config': 'Config file loading',
-        'bug3_singleton': 'Singleton race conditions',
-        'bug4_memory': 'Memory leaks',
-        'bug5_edge_cases': 'Edge case test failures'
+        "bug1_empty_input": "Empty/None input handling",
+        "bug2_config": "Config file loading",
+        "bug3_singleton": "Singleton race conditions",
+        "bug4_memory": "Memory leaks",
+        "bug5_edge_cases": "Edge case test failures",
     }
 
     for bug_id, is_real in results.items():
@@ -445,14 +456,14 @@ def main():
             false_positives.append(name)
             print(f"  ✓  {name}: FALSE POSITIVE")
 
-    print("\n" + "-"*40)
+    print("\n" + "-" * 40)
     print(f"Confirmed bugs: {len(confirmed_bugs)}/{len(results)}")
     print(f"False positives: {len(false_positives)}/{len(results)}")
 
     # Severity assessment
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("  PRODUCTION READINESS ASSESSMENT")
-    print("="*60)
+    print("=" * 60)
 
     if len(confirmed_bugs) >= 3:
         print("Status: NOT PRODUCTION READY")

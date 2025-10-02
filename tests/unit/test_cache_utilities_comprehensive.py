@@ -48,7 +48,10 @@ class TestCacheConfig:
         """Test custom configuration values."""
         with tempfile.TemporaryDirectory() as temp_dir:
             config = CacheConfig(
-                cache_dir=temp_dir, default_ttl=7200, max_cache_size=500, enable_cache=False
+                cache_dir=temp_dir,
+                default_ttl=7200,
+                max_cache_size=500,
+                enable_cache=False,
             )
             assert config.cache_dir == Path(temp_dir)
             assert config.default_ttl == 7200
@@ -80,7 +83,13 @@ class TestFileCache:
     def test_metadata_loading(self):
         """Test metadata loading from file."""
         # Create metadata file
-        metadata = {"test_key": {"timestamp": datetime.now(UTC).isoformat(), "ttl": 3600, "size": 100}}
+        metadata = {
+            "test_key": {
+                "timestamp": datetime.now(UTC).isoformat(),
+                "ttl": 3600,
+                "size": 100,
+            }
+        }
         metadata_file = Path(self.temp_dir) / "metadata.json"
         with open(metadata_file, "w") as f:
             json.dump(metadata, f)
@@ -296,7 +305,9 @@ class TestFileCache:
         self.cache.set("test_key", "test_value")
 
         with patch("utils.cache.logger") as mock_logger:
-            with patch.object(self.cache, "_delete_entry", side_effect=Exception("Delete error")):
+            with patch.object(
+                self.cache, "_delete_entry", side_effect=Exception("Delete error")
+            ):
                 self.cache.clear()
                 mock_logger.error.assert_called()
 
@@ -459,7 +470,7 @@ class TestSpecializedCacheDecorators:
 class TestAsyncCache:
     """Test async cache functionality."""
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_cache_async_result(self):
         """Test async caching decorator."""
         call_count = 0
@@ -558,7 +569,7 @@ class TestCacheManager:
 
     def test_file_persistence_error(self):
         """Test handling of file persistence errors."""
-        with patch("builtins.open", side_effect=IOError("Write error")):
+        with patch("builtins.open", side_effect=OSError("Write error")):
             with patch("utils.cache.logger") as mock_logger:
                 self.manager.set("key1", "value1")
                 # Should still work in memory
@@ -658,6 +669,7 @@ class TestUtilityFunctions:
 
     def test_clear_cache(self):
         """Test clearing global cache."""
+
         @cached(ttl=60)
         def test_func(x):
             return x * 2
@@ -675,7 +687,10 @@ class TestUtilityFunctions:
         """Test configuring global cache."""
         with tempfile.TemporaryDirectory() as temp_dir:
             configure_cache(
-                cache_dir=temp_dir, default_ttl=7200, max_cache_size=500, enable_cache=False
+                cache_dir=temp_dir,
+                default_ttl=7200,
+                max_cache_size=500,
+                enable_cache=False,
             )
 
             # Test that configuration is applied
@@ -698,7 +713,6 @@ class TestEdgeCases:
         def test_func():
             nonlocal call_count
             call_count += 1
-            return None
 
         result1 = test_func()
         result2 = test_func()
@@ -764,7 +778,10 @@ class TestEdgeCases:
         manager = CacheManager(cache_dir=tempfile.mkdtemp())
 
         # Simulate Python 3.8 by making unlink raise TypeError
-        with patch("pathlib.Path.unlink", side_effect=TypeError("got an unexpected keyword argument 'missing_ok'")):
+        with patch(
+            "pathlib.Path.unlink",
+            side_effect=TypeError("got an unexpected keyword argument 'missing_ok'"),
+        ):
             # Should handle gracefully
             manager.delete("nonexistent")
             manager.clear()
@@ -775,7 +792,9 @@ class TestEdgeCases:
             config = CacheConfig(cache_dir=temp_dir)
             cache = FileCache(config)
 
-            with patch.object(cache, "_save_metadata", side_effect=Exception("Save error")):
+            with patch.object(
+                cache, "_save_metadata", side_effect=Exception("Save error")
+            ):
                 # Should still return True but log error
                 result = cache.set("key1", "value1")
                 assert result is True  # Operation succeeds despite metadata save error

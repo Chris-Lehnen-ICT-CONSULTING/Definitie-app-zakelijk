@@ -158,3 +158,6 @@ logs/
 reports/
 .env
 /.tmp_test_dbs/
+# BMAD (local only)
+.bmad-core/
+.bmad-*/

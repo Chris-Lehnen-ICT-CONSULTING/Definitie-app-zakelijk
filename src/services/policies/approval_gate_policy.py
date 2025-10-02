@@ -71,10 +71,18 @@ def _deep_merge(base: dict[str, Any], overlay: dict[str, Any]) -> dict[str, Any]
 class GatePolicy:
     """Typed view on the approval gate policy."""
 
-    hard_requirements: dict[str, Any] = field(default_factory=lambda: DEFAULT_POLICY["hard_requirements"].copy())
-    thresholds: dict[str, Any] = field(default_factory=lambda: DEFAULT_POLICY["thresholds"].copy())
-    soft_requirements: dict[str, Any] = field(default_factory=lambda: DEFAULT_POLICY["soft_requirements"].copy())
-    cache: dict[str, Any] = field(default_factory=lambda: DEFAULT_POLICY["cache"].copy())
+    hard_requirements: dict[str, Any] = field(
+        default_factory=lambda: DEFAULT_POLICY["hard_requirements"].copy()
+    )
+    thresholds: dict[str, Any] = field(
+        default_factory=lambda: DEFAULT_POLICY["thresholds"].copy()
+    )
+    soft_requirements: dict[str, Any] = field(
+        default_factory=lambda: DEFAULT_POLICY["soft_requirements"].copy()
+    )
+    cache: dict[str, Any] = field(
+        default_factory=lambda: DEFAULT_POLICY["cache"].copy()
+    )
 
     @property
     def hard_min_score(self) -> float:
@@ -130,7 +138,8 @@ class GatePolicyService:
                     base_data = yaml.safe_load(f) or {}
             else:
                 logger.warning(
-                    "Approval gate config not found at %s – using defaults", self.base_path
+                    "Approval gate config not found at %s – using defaults",
+                    self.base_path,
                 )
         except Exception as e:
             logger.warning("Invalid approval gate config (%s) – using defaults", e)

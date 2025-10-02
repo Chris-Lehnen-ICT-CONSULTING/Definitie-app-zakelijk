@@ -4,7 +4,7 @@ from textwrap import dedent
 import pytest
 
 
-@pytest.mark.unit
+@pytest.mark.unit()
 def test_validation_config_from_yaml_parses_expected_sections(tmp_path):
     m = pytest.importorskip(
         "services.validation.config",
@@ -33,7 +33,7 @@ def test_validation_config_from_yaml_parses_expected_sections(tmp_path):
     cfg_file = tmp_path / "validation_rules.yaml"
     cfg_file.write_text(yaml_content, encoding="utf-8")
 
-    ValidationConfig = getattr(m, "ValidationConfig")
+    ValidationConfig = m.ValidationConfig
     cfg = ValidationConfig.from_yaml(str(cfg_file))
 
     assert "ESS_01" in cfg.enabled_codes

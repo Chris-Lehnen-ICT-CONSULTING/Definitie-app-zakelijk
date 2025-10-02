@@ -3,10 +3,8 @@
 Vertaal alle documentatie naar het Nederlands voor de Nederlandse justitiemarkt
 """
 
-import os
 import re
 from pathlib import Path
-from typing import Dict, List, Tuple
 
 # Vertalingen voor veelvoorkomende termen
 TRANSLATIONS = {
@@ -33,7 +31,6 @@ TRANSLATIONS = {
     "Performance": "Prestaties",
     "Security": "Beveiliging",
     "Requirements": "Vereisten",
-
     # Status
     "Status:": "Status:",
     "DONE": "GEREED",
@@ -45,7 +42,6 @@ TRANSLATIONS = {
     "CRITICAL": "KRITIEK",
     "MEDIUM": "GEMIDDELD",
     "LOW": "LAAG",
-
     # User types
     "As a legal professional": "Als juridisch medewerker bij het OM/DJI/Rechtspraak",
     "As a developer": "Als ontwikkelaar binnen de justitieketen",
@@ -55,17 +51,14 @@ TRANSLATIONS = {
     "As a QA engineer": "Als QA engineer voor kritieke justitiesystemen",
     "As a business analyst": "Als business analist voor de justitieketen",
     "As a security officer": "Als security officer conform BIR-richtlijnen",
-
     # Actions
     "I want": "Wil ik",
     "So that": "Zodat",
     "Given": "Gegeven",
     "When": "Wanneer",
     "Then": "Dan",
-
     # Technical terms that stay English
     # "API", "REST", "JSON", "SQL", "Python", "JavaScript", "Git", "Docker"
-
     # Justice domain specific
     "justice sector": "justitiesector",
     "justice chain": "justitieketen",
@@ -81,7 +74,6 @@ TRANSLATIONS = {
     "criminal law": "strafrecht",
     "administrative law": "bestuursrecht",
     "civil law": "burgerlijk recht",
-
     # Dates
     "Date": "Datum",
     "Version": "Versie",
@@ -89,7 +81,6 @@ TRANSLATIONS = {
     "Created": "Aangemaakt",
     "Updated": "Bijgewerkt",
     "Completed": "Voltooid",
-
     # Common phrases
     "Epic created": "Epic aangemaakt",
     "Marked as complete": "Gemarkeerd als voltooid",
@@ -99,7 +90,6 @@ TRANSLATIONS = {
     "Documentation complete": "Documentatie compleet",
     "Security review": "Security beoordeling",
     "Code review": "Code review",
-
     # Approvals
     "Approved": "Goedgekeurd",
     "Pending": "In afwachting",
@@ -119,13 +109,14 @@ ORGANIZATIONS = {
     "CJIB": "Centraal Justitieel Incassobureau (CJIB)",
 }
 
+
 def add_justice_context(content: str) -> str:
     """Voeg Nederlandse justitie context toe waar relevant"""
 
     # Voeg organisatie context toe
     content = content.replace(
         "for legal professionals",
-        "voor juridisch medewerkers bij OM, DJI, Rechtspraak, Justid en CJIB"
+        "voor juridisch medewerkers bij OM, DJI, Rechtspraak, Justid en CJIB",
     )
 
     # Voeg meetbare metrieken toe
@@ -133,7 +124,7 @@ def add_justice_context(content: str) -> str:
         r"reduces? (\w+) time",
         r"reduceert \1 tijd met 80% (van uren naar minuten)",
         content,
-        flags=re.IGNORECASE
+        flags=re.IGNORECASE,
     )
 
     # Voeg compliance standaarden toe
@@ -143,16 +134,17 @@ def add_justice_context(content: str) -> str:
     # Voeg systeem integraties toe
     content = content.replace(
         "integrate with existing systems",
-        "integreren met OM Proza, DJI TULP, Rechtspraak GPS, CJIB systemen"
+        "integreren met OM Proza, DJI TULP, Rechtspraak GPS, CJIB systemen",
     )
 
     return content
+
 
 def translate_file(file_path: Path) -> bool:
     """Vertaal een enkel bestand naar het Nederlands"""
 
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, encoding="utf-8") as f:
             content = f.read()
 
         original_content = content
@@ -169,12 +161,7 @@ def translate_file(file_path: Path) -> bool:
                 content = content.replace(eng, nl)
             else:
                 # Case-insensitive voor andere termen
-                content = re.sub(
-                    re.escape(eng),
-                    nl,
-                    content,
-                    flags=re.IGNORECASE
-                )
+                content = re.sub(re.escape(eng), nl, content, flags=re.IGNORECASE)
 
         # Voeg justice context toe
         content = add_justice_context(content)
@@ -182,25 +169,27 @@ def translate_file(file_path: Path) -> bool:
         # Update change log
         if "Wijzigingslog" in content or "Change Log" in content:
             today = "2025-09-05"
-            new_entry = f"| {today} | 1.x | Vertaald naar Nederlands met justitie context |"
+            new_entry = (
+                f"| {today} | 1.x | Vertaald naar Nederlands met justitie context |"
+            )
 
             # Zoek de tabel en voeg nieuwe entry toe
             content = re.sub(
-                r'(\| \d{4}-\d{2}-\d{2} \| [\d.]+ \| [^|]+ \|)(\n)',
-                r'\1\n' + new_entry + r'\2',
+                r"(\| \d{4}-\d{2}-\d{2} \| [\d.]+ \| [^|]+ \|)(\n)",
+                r"\1\n" + new_entry + r"\2",
                 content,
-                count=1
+                count=1,
             )
 
         # Update compliance footer
         content = content.replace(
             "This epic is part of the DefinitieAgent project and follows ASTRA/NORA guidelines for justice domain systems.",
-            "Deze epic is onderdeel van het DefinitieAgent project en volgt ASTRA/NORA/BIR richtlijnen voor justitie domein systemen binnen de Nederlandse rechtsketen."
+            "Deze epic is onderdeel van het DefinitieAgent project en volgt ASTRA/NORA/BIR richtlijnen voor justitie domein systemen binnen de Nederlandse rechtsketen.",
         )
 
         # Schrijf alleen als er wijzigingen zijn
         if content != original_content:
-            with open(file_path, 'w', encoding='utf-8') as f:
+            with open(file_path, "w", encoding="utf-8") as f:
                 f.write(content)
             print(f"  ✓ {file_path.name} - Vertaald")
             return True
@@ -212,7 +201,8 @@ def translate_file(file_path: Path) -> bool:
         print(f"  ✗ {file_path.name} - Fout: {e}")
         return False
 
-def process_directory(dir_path: Path, pattern: str = "*.md") -> Tuple[int, int]:
+
+def process_directory(dir_path: Path, pattern: str = "*.md") -> tuple[int, int]:
     """Verwerk alle bestanden in een directory"""
 
     processed = 0
@@ -227,6 +217,7 @@ def process_directory(dir_path: Path, pattern: str = "*.md") -> Tuple[int, int]:
             translated += 1
 
     return processed, translated
+
 
 def main():
     """Hoofdfunctie voor het vertalen van documentatie"""
@@ -263,6 +254,7 @@ def main():
     print("=" * 60)
     print("✅ Vertaling voltooid!")
     print("=" * 60)
+
 
 if __name__ == "__main__":
     main()

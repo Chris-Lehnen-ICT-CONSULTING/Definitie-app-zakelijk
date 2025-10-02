@@ -1,11 +1,12 @@
 import asyncio
 import time
-import pytest
 
+import pytest
 
 pytestmark = pytest.mark.smoke_web_lookup
 
-@pytest.mark.asyncio
+
+@pytest.mark.asyncio()
 async def test_web_lookup_timeout_budget_respected(monkeypatch):
     """Ensure ModernWebLookupService respects LookupRequest.timeout for SRU.
 

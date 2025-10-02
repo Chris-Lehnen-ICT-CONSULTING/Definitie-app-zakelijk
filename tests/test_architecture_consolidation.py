@@ -6,6 +6,7 @@ Ensures canonical documents, templates, archives, and links are properly maintai
 import os
 import re
 from pathlib import Path
+
 import pytest
 
 
@@ -22,13 +23,17 @@ class TestArchitectureConsolidation:
             "ENTERPRISE_ARCHITECTURE.md",
             "SOLUTION_ARCHITECTURE.md",
             "TECHNICAL_ARCHITECTURE.md",
-            "README.md"
+            "README.md",
         ]
 
         for doc_name in required_docs:
             doc_path = self.ARCH_DIR / doc_name
-            assert doc_path.exists(), f"Canonical document {doc_name} not found at {doc_path}"
-            assert doc_path.stat().st_size > 1000, f"Document {doc_name} appears to be empty or too small"
+            assert (
+                doc_path.exists()
+            ), f"Canonical document {doc_name} not found at {doc_path}"
+            assert (
+                doc_path.stat().st_size > 1000
+            ), f"Document {doc_name} appears to be empty or too small"
 
     def test_templates_accessible(self):
         """Test that all templates are in correct location."""
@@ -38,17 +43,23 @@ class TestArchitectureConsolidation:
         required_templates = [
             "ENTERPRISE_ARCHITECTURE_TEMPLATE.md",
             "SOLUTION_ARCHITECTURE_TEMPLATE.md",
-            "TECHNICAL_ARCHITECTURE_TEMPLATE.md"
+            "TECHNICAL_ARCHITECTURE_TEMPLATE.md",
         ]
 
         for template_name in required_templates:
             template_path = template_dir / template_name
-            assert template_path.exists(), f"Template {template_name} not found at {template_path}"
-            assert template_path.stat().st_size > 1000, f"Template {template_name} appears to be empty"
+            assert (
+                template_path.exists()
+            ), f"Template {template_name} not found at {template_path}"
+            assert (
+                template_path.stat().st_size > 1000
+            ), f"Template {template_name} appears to be empty"
 
     def test_archive_structure(self):
         """Test that archive is properly organized."""
-        assert self.ARCHIVE_DIR.exists(), f"Archive directory not found at {self.ARCHIVE_DIR}"
+        assert (
+            self.ARCHIVE_DIR.exists()
+        ), f"Archive directory not found at {self.ARCHIVE_DIR}"
 
         # Check for key subdirectories
         expected_dirs = [
@@ -56,7 +67,7 @@ class TestArchitectureConsolidation:
             "sa-variants",
             "ta-variants",
             "old-templates",
-            "consolidation-reports"
+            "consolidation-reports",
         ]
 
         for dir_name in expected_dirs:
@@ -74,7 +85,7 @@ class TestArchitectureConsolidation:
         """Test that canonical docs properly reference each other."""
         # Check EA references SA and TA
         ea_path = self.ARCH_DIR / "ENTERPRISE_ARCHITECTURE.md"
-        with open(ea_path, 'r', encoding='utf-8') as f:
+        with open(ea_path, encoding="utf-8") as f:
             ea_content = f.read()
 
         assert "SOLUTION_ARCHITECTURE.md" in ea_content, "EA doesn't reference SA"
@@ -82,14 +93,14 @@ class TestArchitectureConsolidation:
 
         # Check SA references EA (TA reference is optional but recommended)
         sa_path = self.ARCH_DIR / "SOLUTION_ARCHITECTURE.md"
-        with open(sa_path, 'r', encoding='utf-8') as f:
+        with open(sa_path, encoding="utf-8") as f:
             sa_content = f.read()
 
         assert "ENTERPRISE_ARCHITECTURE.md" in sa_content, "SA doesn't reference EA"
 
         # Check TA references EA and SA
         ta_path = self.ARCH_DIR / "TECHNICAL_ARCHITECTURE.md"
-        with open(ta_path, 'r', encoding='utf-8') as f:
+        with open(ta_path, encoding="utf-8") as f:
             ta_content = f.read()
 
         assert "ENTERPRISE_ARCHITECTURE.md" in ta_content, "TA doesn't reference EA"
@@ -103,7 +114,7 @@ class TestArchitectureConsolidation:
             "ENTERPRISE_ARCHITECTURE.md",
             "SOLUTION_ARCHITECTURE.md",
             "TECHNICAL_ARCHITECTURE.md",
-            "README.md"
+            "README.md",
         ]
 
         for doc_name in canonical_docs:
@@ -111,42 +122,46 @@ class TestArchitectureConsolidation:
             if not doc_path.exists():
                 continue
 
-            with open(doc_path, 'r', encoding='utf-8') as f:
+            with open(doc_path, encoding="utf-8") as f:
                 content = f.read()
 
             # Find markdown links (excluding URLs and anchors)
-            pattern = r'\[([^\]]+)\]\(([^\)]+)\)'
+            pattern = r"\[([^\]]+)\]\(([^\)]+)\)"
             matches = re.findall(pattern, content)
 
             for link_text, link_target in matches:
                 # Skip external URLs and anchors
-                if link_target.startswith('http') or link_target.startswith('#'):
+                if link_target.startswith("http") or link_target.startswith("#"):
                     continue
 
                 # Resolve relative paths
-                if link_target.startswith('./'):
+                if link_target.startswith("./"):
                     link_target = link_target[2:]
 
                 # Build full path
-                if link_target.startswith('/'):
+                if link_target.startswith("/"):
                     full_path = self.BASE_DIR / link_target[1:]
                 else:
                     full_path = doc_path.parent / link_target
 
                 # Check if file exists
                 if not full_path.exists():
-                    broken_links.append({
-                        'document': doc_name,
-                        'text': link_text,
-                        'target': link_target,
-                        'resolved_path': str(full_path)
-                    })
+                    broken_links.append(
+                        {
+                            "document": doc_name,
+                            "text": link_text,
+                            "target": link_target,
+                            "resolved_path": str(full_path),
+                        }
+                    )
 
         # Allow some broken links but warn about them
         if broken_links:
             warning_msg = f"Found {len(broken_links)} broken internal links:\n"
             for link in broken_links[:10]:  # Show first 10
-                warning_msg += f"  - [{link['text']}]({link['target']}) in {link['document']}\n"
+                warning_msg += (
+                    f"  - [{link['text']}]({link['target']}) in {link['document']}\n"
+                )
 
             # This is a warning, not a failure
             pytest.skip(warning_msg)
@@ -156,7 +171,7 @@ class TestArchitectureConsolidation:
         min_references = {
             "ENTERPRISE_ARCHITECTURE.md": 5,
             "SOLUTION_ARCHITECTURE.md": 1,
-            "TECHNICAL_ARCHITECTURE.md": 3
+            "TECHNICAL_ARCHITECTURE.md": 3,
         }
 
         for doc_name, min_count in min_references.items():
@@ -164,13 +179,14 @@ class TestArchitectureConsolidation:
             if not doc_path.exists():
                 continue
 
-            with open(doc_path, 'r', encoding='utf-8') as f:
+            with open(doc_path, encoding="utf-8") as f:
                 content = f.read()
 
             # Count ASTRA references (case insensitive)
-            astra_count = len(re.findall(r'ASTRA|astra', content, re.IGNORECASE))
-            assert astra_count >= min_count, \
-                f"{doc_name} has only {astra_count} ASTRA references, expected at least {min_count}"
+            astra_count = len(re.findall(r"ASTRA|astra", content, re.IGNORECASE))
+            assert (
+                astra_count >= min_count
+            ), f"{doc_name} has only {astra_count} ASTRA references, expected at least {min_count}"
 
     def test_document_sizes_acceptable(self):
         """Test that consolidated documents are not too large."""
@@ -179,7 +195,7 @@ class TestArchitectureConsolidation:
         canonical_docs = [
             "ENTERPRISE_ARCHITECTURE.md",
             "SOLUTION_ARCHITECTURE.md",
-            "TECHNICAL_ARCHITECTURE.md"
+            "TECHNICAL_ARCHITECTURE.md",
         ]
 
         for doc_name in canonical_docs:
@@ -188,15 +204,16 @@ class TestArchitectureConsolidation:
                 continue
 
             size_kb = doc_path.stat().st_size / 1024
-            assert size_kb <= max_size_kb, \
-                f"{doc_name} is {size_kb:.1f}KB, exceeds max size of {max_size_kb}KB"
+            assert (
+                size_kb <= max_size_kb
+            ), f"{doc_name} is {size_kb:.1f}KB, exceeds max size of {max_size_kb}KB"
 
     def test_index_updated_with_new_structure(self):
         """Test that INDEX.md properly references the new structure."""
         index_path = self.BASE_DIR / "docs" / "INDEX.md"
         assert index_path.exists(), "INDEX.md not found"
 
-        with open(index_path, 'r', encoding='utf-8') as f:
+        with open(index_path, encoding="utf-8") as f:
             content = f.read()
 
         # Check for canonical document references
@@ -205,12 +222,15 @@ class TestArchitectureConsolidation:
         assert "TECHNICAL_ARCHITECTURE.md" in content, "INDEX doesn't reference TA"
 
         # Check for template references
-        assert "templates/ENTERPRISE_ARCHITECTURE_TEMPLATE.md" in content, \
-            "INDEX doesn't reference EA template"
-        assert "templates/SOLUTION_ARCHITECTURE_TEMPLATE.md" in content, \
-            "INDEX doesn't reference SA template"
-        assert "templates/TECHNICAL_ARCHITECTURE_TEMPLATE.md" in content, \
-            "INDEX doesn't reference TA template"
+        assert (
+            "templates/ENTERPRISE_ARCHITECTURE_TEMPLATE.md" in content
+        ), "INDEX doesn't reference EA template"
+        assert (
+            "templates/SOLUTION_ARCHITECTURE_TEMPLATE.md" in content
+        ), "INDEX doesn't reference SA template"
+        assert (
+            "templates/TECHNICAL_ARCHITECTURE_TEMPLATE.md" in content
+        ), "INDEX doesn't reference TA template"
 
     def test_no_duplicate_architecture_docs(self):
         """Test that no duplicate architecture documents exist outside archive."""
@@ -223,7 +243,7 @@ class TestArchitectureConsolidation:
             r"TA[-_].*\.md",
             r".*ENTERPRISE.*ARCHITECTURE.*\.md",
             r".*SOLUTION.*ARCHITECTURE.*\.md",
-            r".*TECHNICAL.*ARCHITECTURE.*\.md"
+            r".*TECHNICAL.*ARCHITECTURE.*\.md",
         ]
 
         potential_duplicates = []
@@ -238,7 +258,7 @@ class TestArchitectureConsolidation:
                 continue
 
             for file in files:
-                if not file.endswith('.md'):
+                if not file.endswith(".md"):
                     continue
 
                 for pattern in duplicate_patterns:
@@ -246,15 +266,16 @@ class TestArchitectureConsolidation:
                         potential_duplicates.append(os.path.join(root, file))
                         break
 
-        assert len(potential_duplicates) == 0, \
-            f"Found potential duplicate architecture docs outside archive: {potential_duplicates}"
+        assert (
+            len(potential_duplicates) == 0
+        ), f"Found potential duplicate architecture docs outside archive: {potential_duplicates}"
 
     def test_frontmatter_present_in_canonical_docs(self):
         """Test that canonical documents have proper frontmatter."""
         canonical_docs = [
             "ENTERPRISE_ARCHITECTURE.md",
             "SOLUTION_ARCHITECTURE.md",
-            "TECHNICAL_ARCHITECTURE.md"
+            "TECHNICAL_ARCHITECTURE.md",
         ]
 
         for doc_name in canonical_docs:
@@ -262,24 +283,32 @@ class TestArchitectureConsolidation:
             if not doc_path.exists():
                 continue
 
-            with open(doc_path, 'r', encoding='utf-8') as f:
+            with open(doc_path, encoding="utf-8") as f:
                 content = f.read()
 
             # Check for frontmatter
-            assert content.startswith('---'), f"{doc_name} missing frontmatter"
+            assert content.startswith("---"), f"{doc_name} missing frontmatter"
 
             # Extract frontmatter
-            parts = content.split('---', 2)
+            parts = content.split("---", 2)
             if len(parts) >= 2:
                 frontmatter = parts[1]
 
                 # Check for required frontmatter fields (flexible format)
-                assert 'canonical:' in frontmatter, f"{doc_name} missing canonical field in frontmatter"
-                assert 'status:' in frontmatter, f"{doc_name} missing status in frontmatter"
+                assert (
+                    "canonical:" in frontmatter
+                ), f"{doc_name} missing canonical field in frontmatter"
+                assert (
+                    "status:" in frontmatter
+                ), f"{doc_name} missing status in frontmatter"
                 # Version info is optional but recommended
-                has_version = 'version:' in frontmatter or 'version_history:' in frontmatter
+                has_version = (
+                    "version:" in frontmatter or "version_history:" in frontmatter
+                )
                 if not has_version:
-                    pytest.skip(f"Warning: {doc_name} missing version information in frontmatter")
+                    pytest.skip(
+                        f"Warning: {doc_name} missing version information in frontmatter"
+                    )
 
 
 if __name__ == "__main__":

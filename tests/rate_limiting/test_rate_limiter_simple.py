@@ -2,15 +2,18 @@
 """Simpele test voor rate limiter met mock API calls."""
 
 import asyncio
-import pytest
 import sys
 import time
-sys.path.insert(0, 'src')
+
+import pytest
+
+sys.path.insert(0, "src")
 
 from utils.integrated_resilience import get_integrated_system, with_full_resilience
 from utils.smart_rate_limiter import RequestPriority
 
 pytestmark = [pytest.mark.performance, pytest.mark.integration, pytest.mark.slow]
+
 
 async def test_rate_limiter():
     """Test rate limiter met gesimuleerde API calls."""
@@ -23,10 +26,9 @@ async def test_rate_limiter():
     # Simuleer API calls voor verschillende endpoints
     async def simulate_api_call(endpoint: str, call_id: int, delay: float = 0.1):
         """Simuleer een API call."""
+
         @with_full_resilience(
-            endpoint_name=endpoint,
-            priority=RequestPriority.NORMAL,
-            timeout=15.0
+            endpoint_name=endpoint, priority=RequestPriority.NORMAL, timeout=15.0
         )
         async def api_call():
             await asyncio.sleep(delay)
@@ -42,7 +44,7 @@ async def test_rate_limiter():
     endpoints = [
         "examples_generation_sentence",
         "examples_generation_practical",
-        "examples_generation_counter"
+        "examples_generation_counter",
     ]
 
     # Start 5 calls per endpoint tegelijk
@@ -65,13 +67,15 @@ async def test_rate_limiter():
             elapsed = time.time() - start_time
             print(f"✅ [{elapsed:5.2f}s] {result}")
             results_by_endpoint[endpoint]["success"] += 1
-        except asyncio.TimeoutError:
+        except TimeoutError:
             elapsed = time.time() - start_time
             print(f"❌ [{elapsed:5.2f}s] {endpoint} - Call {call_id} TIMEOUT")
             results_by_endpoint[endpoint]["timeout"] += 1
         except Exception as e:
             elapsed = time.time() - start_time
-            print(f"❌ [{elapsed:5.2f}s] {endpoint} - Call {call_id} ERROR: {type(e).__name__}")
+            print(
+                f"❌ [{elapsed:5.2f}s] {endpoint} - Call {call_id} ERROR: {type(e).__name__}"
+            )
 
     # Resultaten samenvatting
     print(f"\n📊 Resultaten na {time.time() - start_time:.2f}s:")
@@ -110,7 +114,7 @@ async def test_rate_limiter():
     status = system.get_system_status()
 
     print(f"\nActieve rate limiters: {len(status['rate_limiters'])}")
-    for endpoint, limiter_status in status['rate_limiters'].items():
+    for endpoint, limiter_status in status["rate_limiters"].items():
         print(f"\n{endpoint}:")
         print(f"  Current rate: {limiter_status['current_rate']:.1f} req/s")
         print(f"  Total requests: {limiter_status['stats']['total_requests']}")
@@ -118,10 +122,10 @@ async def test_rate_limiter():
         print(f"  Dropped: {limiter_status['stats']['total_dropped']}")
 
         # Queue status
-        queue_total = sum(limiter_status['queue_lengths'].values())
+        queue_total = sum(limiter_status["queue_lengths"].values())
         if queue_total > 0:
-            print(f"  Queue status:")
-            for priority, count in limiter_status['queue_lengths'].items():
+            print("  Queue status:")
+            for priority, count in limiter_status["queue_lengths"].items():
                 if count > 0:
                     print(f"    {priority}: {count}")
 
@@ -129,6 +133,7 @@ async def test_rate_limiter():
     await system.stop()
 
     print("\n\n✅ Test completed!")
+
 
 if __name__ == "__main__":
     asyncio.run(test_rate_limiter())

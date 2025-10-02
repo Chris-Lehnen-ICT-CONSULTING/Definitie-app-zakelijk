@@ -6,15 +6,16 @@ Dit script test de async/sync bridge met dezelfde aanpak als de CSV import.
 
 import asyncio
 import logging
+import sys
 import time
 from pathlib import Path
-import sys
 
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
+
 
 # Test 1: Basic async_bridge functionality
 def test_async_bridge():
@@ -30,6 +31,7 @@ def test_async_bridge():
     print(f"Result: {result}")
     assert result == "success", f"Expected 'success', got {result}"
     print("✓ Basic async_bridge works\n")
+
 
 # Test 2: Test with Streamlit-like event loop
 def test_with_existing_loop():
@@ -60,6 +62,7 @@ def test_with_existing_loop():
         loop.close()
     print()
 
+
 # Test 3: Test import_single isolation
 def test_import_service():
     """Test the actual import service call."""
@@ -80,7 +83,7 @@ def test_import_service():
             "categorie": "proces",
             "organisatorische_context": ["Test context"],
             "juridische_context": [],
-            "wettelijke_basis": []
+            "wettelijke_basis": [],
         }
 
         print("Calling import_single...")
@@ -88,11 +91,9 @@ def test_import_service():
 
         result = run_async_safe(
             import_service.import_single(
-                payload,
-                duplicate_strategy="skip",
-                created_by="debug_test"
+                payload, duplicate_strategy="skip", created_by="debug_test"
             ),
-            default=None
+            default=None,
         )
 
         elapsed = time.time() - start_time
@@ -108,8 +109,10 @@ def test_import_service():
     except Exception as e:
         print(f"ERROR in test: {e}")
         import traceback
+
         traceback.print_exc()
     print()
+
 
 # Test 4: Check for event loop conflicts
 def test_event_loop_state():
@@ -131,6 +134,7 @@ def test_event_loop_state():
         print("No running loop")
     print()
 
+
 # Test 5: Direct coroutine execution
 def test_direct_coroutine():
     """Test running the coroutine directly without async_bridge."""
@@ -148,14 +152,12 @@ def test_direct_coroutine():
             "categorie": "proces",
             "organisatorische_context": ["Test"],
             "juridische_context": [],
-            "wettelijke_basis": []
+            "wettelijke_basis": [],
         }
 
         async def run_import():
             return await import_service.import_single(
-                payload,
-                duplicate_strategy="skip",
-                created_by="direct_test"
+                payload, duplicate_strategy="skip", created_by="direct_test"
             )
 
         # Run directly with asyncio.run
@@ -173,8 +175,10 @@ def test_direct_coroutine():
     except Exception as e:
         print(f"ERROR: {e}")
         import traceback
+
         traceback.print_exc()
     print()
+
 
 if __name__ == "__main__":
     print("=" * 60)

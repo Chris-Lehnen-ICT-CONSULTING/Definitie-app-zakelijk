@@ -6,8 +6,9 @@ safe execution, error decorators, and service error management.
 """
 
 import logging
+from collections.abc import Callable
 from functools import wraps
-from typing import Any, Callable, TypeVar, cast
+from typing import Any, TypeVar, cast
 
 # Type variables for generic functions
 T = TypeVar("T")
@@ -40,7 +41,9 @@ def safe_execute(
         if logger and error_message:
             logger.error(f"{error_message}: {e}")
         elif logger:
-            logger.error(f"Error in {func.__name__ if hasattr(func, '__name__') else 'operation'}: {e}")
+            logger.error(
+                f"Error in {func.__name__ if hasattr(func, '__name__') else 'operation'}: {e}"
+            )
 
         if raise_on_error:
             raise
@@ -65,6 +68,7 @@ def error_handler(
     Returns:
         Decorated function
     """
+
     def decorator(func: F) -> F:
         @wraps(func)
         def wrapper(*args, **kwargs):
@@ -79,7 +83,9 @@ def error_handler(
                 # UI-presentatie wordt niet door utils verzorgd; UI kan dit afhandelen
 
                 return default_return
+
         return cast(F, wrapper)
+
     return decorator
 
 

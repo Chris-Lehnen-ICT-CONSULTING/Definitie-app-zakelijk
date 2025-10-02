@@ -15,14 +15,13 @@ Run with: python scripts/debug_performance_issues.py
 import asyncio
 import json
 import logging
-import os
 import sys
 import time
 import tracemalloc
 from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
@@ -30,11 +29,13 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 # Configure logging
 logging.basicConfig(
     level=logging.DEBUG,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     handlers=[
-        logging.FileHandler(f'logs/debug_perf_{datetime.now().strftime("%Y%m%d_%H%M%S")}.log'),
-        logging.StreamHandler()
-    ]
+        logging.FileHandler(
+            f'logs/debug_perf_{datetime.now().strftime("%Y%m%d_%H%M%S")}.log'
+        ),
+        logging.StreamHandler(),
+    ],
 )
 logger = logging.getLogger(__name__)
 
@@ -54,20 +55,27 @@ class InitializationTracker:
 
         # Capture call stack
         import traceback
+
         stack = traceback.extract_stack()
         self.call_stacks[class_name].append([str(frame) for frame in stack[-10:-1]])
 
-    def report(self) -> Dict[str, Any]:
+    def report(self) -> dict[str, Any]:
         """Generate initialization report."""
         report = {}
         for class_name, count in self.init_counts.items():
             times = self.init_times[class_name]
             report[class_name] = {
                 "count": count,
-                "first_init": datetime.fromtimestamp(times[0]).isoformat() if times else None,
-                "last_init": datetime.fromtimestamp(times[-1]).isoformat() if times else None,
+                "first_init": (
+                    datetime.fromtimestamp(times[0]).isoformat() if times else None
+                ),
+                "last_init": (
+                    datetime.fromtimestamp(times[-1]).isoformat() if times else None
+                ),
                 "duration_span": times[-1] - times[0] if len(times) > 1 else 0,
-                "unique_stacks": len(set(tuple(s) for s in self.call_stacks[class_name]))
+                "unique_stacks": len(
+                    set(tuple(s) for s in self.call_stacks[class_name])
+                ),
             }
         return report
 
@@ -87,13 +95,11 @@ class CacheAnalyzer:
         else:
             self.cache_misses += 1
 
-        self.cache_operations.append({
-            "time": time.time(),
-            "operation": operation,
-            "hit": hit
-        })
+        self.cache_operations.append(
+            {"time": time.time(), "operation": operation, "hit": hit}
+        )
 
-    def report(self) -> Dict[str, Any]:
+    def report(self) -> dict[str, Any]:
         """Generate cache effectiveness report."""
         total = self.cache_hits + self.cache_misses
         return {
@@ -101,7 +107,7 @@ class CacheAnalyzer:
             "cache_hits": self.cache_hits,
             "cache_misses": self.cache_misses,
             "hit_rate": self.cache_hits / total if total > 0 else 0,
-            "miss_rate": self.cache_misses / total if total > 0 else 0
+            "miss_rate": self.cache_misses / total if total > 0 else 0,
         }
 
 
@@ -115,13 +121,11 @@ class MemoryProfiler:
     def take_snapshot(self, label: str):
         """Take a memory snapshot."""
         snapshot = tracemalloc.take_snapshot()
-        self.snapshots.append({
-            "label": label,
-            "time": time.time(),
-            "snapshot": snapshot
-        })
+        self.snapshots.append(
+            {"label": label, "time": time.time(), "snapshot": snapshot}
+        )
 
-    def report(self) -> Dict[str, Any]:
+    def report(self) -> dict[str, Any]:
         """Generate memory usage report."""
         if len(self.snapshots) < 2:
             return {"error": "Need at least 2 snapshots for comparison"}
@@ -130,18 +134,20 @@ class MemoryProfiler:
         first = self.snapshots[0]["snapshot"]
         last = self.snapshots[-1]["snapshot"]
 
-        top_stats = last.compare_to(first, 'lineno')
+        top_stats = last.compare_to(first, "lineno")
 
         # Get top 10 memory consumers
         top_consumers = []
         for stat in top_stats[:10]:
-            top_consumers.append({
-                "file": stat.traceback.format()[0] if stat.traceback else "unknown",
-                "size_diff": stat.size_diff,
-                "size": stat.size,
-                "count_diff": stat.count_diff,
-                "count": stat.count
-            })
+            top_consumers.append(
+                {
+                    "file": stat.traceback.format()[0] if stat.traceback else "unknown",
+                    "size_diff": stat.size_diff,
+                    "size": stat.size,
+                    "count_diff": stat.count_diff,
+                    "count": stat.count,
+                }
+            )
 
         # Calculate total memory growth
         total_growth = sum(stat.size_diff for stat in top_stats)
@@ -151,7 +157,7 @@ class MemoryProfiler:
             "duration_seconds": self.snapshots[-1]["time"] - self.snapshots[0]["time"],
             "total_memory_growth_bytes": total_growth,
             "total_memory_growth_mb": total_growth / (1024 * 1024),
-            "top_consumers": top_consumers
+            "top_consumers": top_consumers,
         }
 
 
@@ -161,6 +167,7 @@ def monkey_patch_services(tracker: InitializationTracker):
     # Patch ServiceContainer
     try:
         from services.container import ServiceContainer
+
         original_init = ServiceContainer.__init__
 
         def tracked_init(self, *args, **kwargs):
@@ -175,6 +182,7 @@ def monkey_patch_services(tracker: InitializationTracker):
     # Patch PromptOrchestrator
     try:
         from services.prompts.modules.prompt_orchestrator import PromptOrchestrator
+
         original_init = PromptOrchestrator.__init__
 
         def tracked_init(self, *args, **kwargs):
@@ -189,6 +197,7 @@ def monkey_patch_services(tracker: InitializationTracker):
     # Patch ModularPromptAdapter
     try:
         from services.prompts.modular_prompt_adapter import ModularPromptAdapter
+
         original_init = ModularPromptAdapter.__init__
 
         def tracked_init(self, *args, **kwargs):
@@ -208,7 +217,6 @@ def analyze_sru_errors():
 
     # Check SRU service configuration
     try:
-        from services.web_lookup.sru_service import SRUService
         from services.web_lookup.config_loader import load_web_lookup_config
 
         config = load_web_lookup_config()
@@ -244,27 +252,26 @@ def analyze_sru_errors():
                             "operation": "searchRetrieve",
                             "version": wetgeving_config.get("sru_version", "1.2"),
                             "query": "vonnis",
-                            "maximumRecords": 1
+                            "maximumRecords": 1,
                         },
                         headers=headers,
-                        timeout=5.0
+                        timeout=5.0,
                     )
-                    results.append({
-                        "headers": headers,
-                        "status": response.status_code,
-                        "success": response.status_code == 200
-                    })
+                    results.append(
+                        {
+                            "headers": headers,
+                            "status": response.status_code,
+                            "success": response.status_code == 200,
+                        }
+                    )
                 except Exception as e:
-                    results.append({
-                        "headers": headers,
-                        "error": str(e)
-                    })
+                    results.append({"headers": headers, "error": str(e)})
 
             return {
                 "endpoint": base_url,
                 "sru_version": wetgeving_config.get("sru_version"),
                 "test_results": results,
-                "recommendation": "Use Accept: application/xml header for Wetgeving.nl"
+                "recommendation": "Use Accept: application/xml header for Wetgeving.nl",
             }
     except Exception as e:
         logger.error(f"Failed to analyze SRU errors: {e}")
@@ -280,52 +287,61 @@ def analyze_cache_implementation():
 
     # Check for @lru_cache usage
     try:
-        from utils.container_manager import get_cached_container, _create_custom_container
+        from utils.container_manager import (
+            _create_custom_container,
+            get_cached_container,
+        )
 
         # Check cache info
-        if hasattr(get_cached_container, 'cache_info'):
+        if hasattr(get_cached_container, "cache_info"):
             cache_info = get_cached_container.cache_info()
-            findings.append({
-                "function": "get_cached_container",
-                "type": "lru_cache",
-                "hits": cache_info.hits,
-                "misses": cache_info.misses,
-                "maxsize": cache_info.maxsize,
-                "currsize": cache_info.currsize
-            })
+            findings.append(
+                {
+                    "function": "get_cached_container",
+                    "type": "lru_cache",
+                    "hits": cache_info.hits,
+                    "misses": cache_info.misses,
+                    "maxsize": cache_info.maxsize,
+                    "currsize": cache_info.currsize,
+                }
+            )
 
-        if hasattr(_create_custom_container, 'cache_info'):
+        if hasattr(_create_custom_container, "cache_info"):
             cache_info = _create_custom_container.cache_info()
-            findings.append({
-                "function": "_create_custom_container",
-                "type": "lru_cache",
-                "hits": cache_info.hits,
-                "misses": cache_info.misses,
-                "maxsize": cache_info.maxsize,
-                "currsize": cache_info.currsize
-            })
+            findings.append(
+                {
+                    "function": "_create_custom_container",
+                    "type": "lru_cache",
+                    "hits": cache_info.hits,
+                    "misses": cache_info.misses,
+                    "maxsize": cache_info.maxsize,
+                    "currsize": cache_info.currsize,
+                }
+            )
     except Exception as e:
         logger.error(f"Failed to analyze cache: {e}")
 
     # Check for Streamlit cache usage
     try:
         # Look for @st.cache_resource usage
-        import ast
         import inspect
 
         cache_decorators = []
 
         # Check ui.cached_services module
         from ui import cached_services
+
         for name, obj in inspect.getmembers(cached_services):
             if callable(obj):
                 source = inspect.getsource(obj)
-                if '@st.cache' in source or 'cache_resource' in source:
-                    cache_decorators.append({
-                        "module": "ui.cached_services",
-                        "function": name,
-                        "has_streamlit_cache": True
-                    })
+                if "@st.cache" in source or "cache_resource" in source:
+                    cache_decorators.append(
+                        {
+                            "module": "ui.cached_services",
+                            "function": name,
+                            "has_streamlit_cache": True,
+                        }
+                    )
     except Exception as e:
         logger.error(f"Failed to analyze Streamlit cache: {e}")
 
@@ -335,8 +351,8 @@ def analyze_cache_implementation():
             "ServiceContainer uses lru_cache but may need better cache key strategy",
             "PromptOrchestrator is created inside ModularPromptAdapter without caching",
             "Consider using singleton pattern for PromptOrchestrator",
-            "Streamlit session state and lru_cache may conflict - pick one strategy"
-        ]
+            "Streamlit session state and lru_cache may conflict - pick one strategy",
+        ],
     }
 
 
@@ -383,7 +399,7 @@ async def simulate_user_flow():
             organisatie="OM",
             project="Test",
             versie="1.0",
-            status="Draft"
+            status="Draft",
         )
 
         # This would trigger prompt service initialization
@@ -398,7 +414,7 @@ async def simulate_user_flow():
 
     return {
         "initialization_report": tracker.report(),
-        "memory_report": memory_profiler.report()
+        "memory_report": memory_profiler.report(),
     }
 
 
@@ -410,10 +426,7 @@ def main():
     print("=" * 80)
 
     # Create results dictionary
-    results = {
-        "timestamp": datetime.now().isoformat(),
-        "findings": {}
-    }
+    results = {"timestamp": datetime.now().isoformat(), "findings": {}}
 
     # 1. Analyze cache implementation
     print("\n1. Analyzing Cache Implementation...")
@@ -449,7 +462,7 @@ def main():
     if "user_flow" in results["findings"]:
         mem_report = results["findings"]["user_flow"].get("memory_report", {})
         if "total_memory_growth_mb" in mem_report:
-            print(f"\nMEMORY USAGE:")
+            print("\nMEMORY USAGE:")
             print(f"  Total growth: {mem_report['total_memory_growth_mb']:.2f} MB")
             print(f"  Duration: {mem_report.get('duration_seconds', 0):.2f} seconds")
 
@@ -463,7 +476,7 @@ def main():
     if "sru_errors" in results["findings"]:
         sru_report = results["findings"]["sru_errors"]
         if "test_results" in sru_report:
-            print(f"\nSRU/WETGEVING.NL ISSUES:")
+            print("\nSRU/WETGEVING.NL ISSUES:")
             print(f"  Endpoint: {sru_report.get('endpoint')}")
             print(f"  SRU Version: {sru_report.get('sru_version')}")
             print("  Header test results:")
@@ -471,17 +484,25 @@ def main():
                 status = result.get("status", "error")
                 headers = result.get("headers", {})
                 success = "✓" if result.get("success") else "✗"
-                print(f"    {success} Accept: {headers.get('Accept', 'none')} -> {status}")
+                print(
+                    f"    {success} Accept: {headers.get('Accept', 'none')} -> {status}"
+                )
             print(f"  Recommendation: {sru_report.get('recommendation')}")
 
     # Print cache issues
     if "cache_analysis" in results["findings"]:
         cache_report = results["findings"]["cache_analysis"]
-        print(f"\nCACHE ANALYSIS:")
+        print("\nCACHE ANALYSIS:")
         if cache_report.get("lru_cache_functions"):
             for func in cache_report["lru_cache_functions"]:
-                hit_rate = func["hits"] / (func["hits"] + func["misses"]) if (func["hits"] + func["misses"]) > 0 else 0
-                print(f"  {func['function']}: {func['hits']} hits, {func['misses']} misses (hit rate: {hit_rate:.1%})")
+                hit_rate = (
+                    func["hits"] / (func["hits"] + func["misses"])
+                    if (func["hits"] + func["misses"]) > 0
+                    else 0
+                )
+                print(
+                    f"  {func['function']}: {func['hits']} hits, {func['misses']} misses (hit rate: {hit_rate:.1%})"
+                )
 
         if cache_report.get("recommendations"):
             print("\n  Recommendations:")
@@ -489,7 +510,9 @@ def main():
                 print(f"    • {rec}")
 
     # Save detailed report
-    report_path = Path(f"logs/perf_debug_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json")
+    report_path = Path(
+        f"logs/perf_debug_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+    )
     report_path.parent.mkdir(exist_ok=True)
 
     with open(report_path, "w", encoding="utf-8") as f:
@@ -502,7 +525,8 @@ def main():
     print("SUMMARY & RECOMMENDATIONS")
     print("=" * 80)
 
-    print("""
+    print(
+        """
 1. SERVICE INITIALIZATION (6x issue):
    Problem: ServiceContainer initialized multiple times despite caching
    Root Cause: Mixed caching strategies (lru_cache + Streamlit session state)
@@ -527,7 +551,8 @@ def main():
    Problem: Potential race conditions in concurrent initialization
    Root Cause: No locking mechanism for singleton creation
    Solution: Add threading.Lock() for thread-safe singleton initialization
-    """)
+    """
+    )
 
     print("=" * 80)
     print("Debugging complete!")

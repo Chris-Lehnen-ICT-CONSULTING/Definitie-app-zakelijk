@@ -3,7 +3,6 @@
 Story Enrichment Helper - Generates enriched user story content
 """
 
-import os
 from pathlib import Path
 
 # Story enrichment templates based on story type
@@ -17,32 +16,32 @@ STORY_TEMPLATES = {
                 "No ability to test new models without code deployment",
                 "Cannot fallback to cheaper models during outages",
                 "No cost optimization based on complexity",
-                "Missing model performance metrics"
+                "Missing model performance metrics",
             ],
             "desired": [
                 "Dynamic model selection based on context",
                 "A/B testing capability for new models",
                 "Automatic fallback chain (GPT-4 -> GPT-3.5 -> GPT-3)",
                 "Cost-optimized model selection",
-                "Real-time model performance tracking"
-            ]
+                "Real-time model performance tracking",
+            ],
         },
         "metrics": {
             "current": "100% GPT-4 usage at €0.03/1K tokens",
-            "target": "60% GPT-3.5 for simple terms at €0.001/1K tokens"
+            "target": "60% GPT-3.5 for simple terms at €0.001/1K tokens",
         },
         "implementation": {
             "files": [
                 "src/services/ai_service_v2.py",
                 "src/config/models.yaml",
-                "src/services/model_selector.py"
+                "src/services/model_selector.py",
             ],
             "functions": [
                 "ModelSelector.select_optimal_model()",
                 "AIServiceV2.get_model_for_context()",
-                "ConfigManager.get_model_config()"
-            ]
-        }
+                "ConfigManager.get_model_config()",
+            ],
+        },
     },
     "US-006": {
         "title": "Build Comprehensive Validation Rules Interface with Rule Metadata",
@@ -53,20 +52,20 @@ STORY_TEMPLATES = {
                 "Rules scattered across multiple files",
                 "No rule prioritization or categorization",
                 "Cannot disable specific rules per context",
-                "Missing rule execution metrics"
+                "Missing rule execution metrics",
             ],
             "desired": [
                 "Single ValidationRule interface for all rules",
                 "Rule registry with metadata and priority",
                 "Context-aware rule selection",
                 "Dynamic rule enable/disable",
-                "Rule performance tracking"
-            ]
+                "Rule performance tracking",
+            ],
         },
         "metrics": {
             "current": "45 rules always execute, 3.2 seconds total",
-            "target": "5-10 relevant rules execute, < 0.5 seconds"
-        }
+            "target": "5-10 relevant rules execute, < 0.5 seconds",
+        },
     },
     "US-007": {
         "title": "Implement Core Validation Engine with Parallel Execution",
@@ -77,20 +76,20 @@ STORY_TEMPLATES = {
                 "No caching of validation results",
                 "Rules re-run even for unchanged content",
                 "Memory spike during validation (500MB)",
-                "No partial validation support"
+                "No partial validation support",
             ],
             "desired": [
                 "Parallel rule execution with thread pool",
                 "Smart caching with content hashing",
                 "Incremental validation on changes only",
                 "Memory-efficient streaming validation",
-                "Partial validation for real-time feedback"
-            ]
+                "Partial validation for real-time feedback",
+            ],
         },
         "metrics": {
             "current": "3.2 seconds sequential, 500MB memory",
-            "target": "0.8 seconds parallel, 100MB memory"
-        }
+            "target": "0.8 seconds parallel, 100MB memory",
+        },
     },
     "US-008": {
         "title": "Wire Validation Services into ServiceContainer with Health Checks",
@@ -101,20 +100,20 @@ STORY_TEMPLATES = {
                 "No dependency injection for validators",
                 "Services not monitored for health",
                 "Manual wiring causing initialization errors",
-                "No service lifecycle management"
+                "No service lifecycle management",
             ],
             "desired": [
                 "All validators registered in ServiceContainer",
                 "Automatic dependency injection",
                 "Health checks every 30 seconds",
                 "Graceful degradation on service failure",
-                "Proper lifecycle (init -> ready -> shutdown)"
-            ]
+                "Proper lifecycle (init -> ready -> shutdown)",
+            ],
         },
         "metrics": {
             "current": "3 initialization failures per week",
-            "target": "Zero initialization failures"
-        }
+            "target": "Zero initialization failures",
+        },
     },
     "US-009": {
         "title": "Migrate Legacy Validation to V2 Architecture with Zero Downtime",
@@ -125,20 +124,20 @@ STORY_TEMPLATES = {
                 "25% performance overhead from dual execution",
                 "Complex branching logic for version selection",
                 "8,000 lines of legacy validation code",
-                "Inconsistent results between versions"
+                "Inconsistent results between versions",
             ],
             "desired": [
                 "Single V2 validation architecture",
                 "Feature flag controlled migration",
                 "Gradual rollout by user group",
                 "Legacy code completely removed",
-                "Consistent validation results"
-            ]
+                "Consistent validation results",
+            ],
         },
         "metrics": {
             "current": "25% overhead, 8,000 legacy lines",
-            "target": "0% overhead, 0 legacy lines"
-        }
+            "target": "0% overhead, 0 legacy lines",
+        },
     },
     "US-010": {
         "title": "Comprehensive Testing Suite with 95% Coverage for Validation",
@@ -149,22 +148,23 @@ STORY_TEMPLATES = {
                 "No integration tests for rule combinations",
                 "Missing performance regression tests",
                 "No automated rule validation testing",
-                "Manual testing taking 4 hours"
+                "Manual testing taking 4 hours",
             ],
             "desired": [
                 "95% code coverage for all validators",
                 "Integration tests for rule interactions",
                 "Automated performance benchmarks",
                 "Rule behavior verification tests",
-                "CI/CD test suite running in 10 minutes"
-            ]
+                "CI/CD test suite running in 10 minutes",
+            ],
         },
         "metrics": {
             "current": "60% coverage, 4 hours manual testing",
-            "target": "95% coverage, 10 minutes automated"
-        }
-    }
+            "target": "95% coverage, 10 minutes automated",
+        },
+    },
 }
+
 
 def generate_enriched_story(story_id, template):
     """Generate fully enriched story content"""
@@ -303,6 +303,7 @@ requirements:
 *This story is part of {template['epic']}*
 """
 
+
 def main():
     """Generate enriched content for stories"""
     stories_dir = Path("/Users/chrislehnen/Projecten/Definitie-app/docs/stories")
@@ -311,16 +312,19 @@ def main():
         story_file = stories_dir / f"{story_id}.md"
         if story_file.exists():
             # Read current content to check if already enriched
-            with open(story_file, 'r') as f:
+            with open(story_file) as f:
                 current_content = f.read()
-                current_lines = len(current_content.split('\n'))
+                current_lines = len(current_content.split("\n"))
 
             if current_lines < 150:  # Not yet enriched
                 enriched_content = generate_enriched_story(story_id, template)
-                print(f"Generated enriched content for {story_id} ({len(enriched_content.split(chr(10)))} lines)")
+                print(
+                    f"Generated enriched content for {story_id} ({len(enriched_content.split(chr(10)))} lines)"
+                )
                 # We'll write these one by one using the Edit tool
             else:
                 print(f"{story_id} already enriched ({current_lines} lines)")
+
 
 if __name__ == "__main__":
     main()

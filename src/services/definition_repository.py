@@ -13,12 +13,9 @@ from datetime import datetime
 from typing import Any
 
 # Import bestaande repository voor backward compatibility
-from database.definitie_repository import (
-    DefinitieRecord,
-    DefinitieRepository as LegacyRepository,
-    DefinitieStatus,
-    SourceType,
-)
+from database.definitie_repository import DefinitieRecord
+from database.definitie_repository import DefinitieRepository as LegacyRepository
+from database.definitie_repository import DefinitieStatus, SourceType
 from services.interfaces import Definition, DefinitionRepositoryInterface
 
 logger = logging.getLogger(__name__)
@@ -84,11 +81,15 @@ class DefinitionRepository(DefinitionRepositoryInterface):
             # Bypass duplicate guard indien expliciet toegestaan via metadata
             allow_duplicate = False
             try:
-                if definition.metadata and bool(definition.metadata.get("force_duplicate")):
+                if definition.metadata and bool(
+                    definition.metadata.get("force_duplicate")
+                ):
                     allow_duplicate = True
             except Exception:
                 allow_duplicate = False
-            return self.legacy_repo.create_definitie(record, allow_duplicate=allow_duplicate)
+            return self.legacy_repo.create_definitie(
+                record, allow_duplicate=allow_duplicate
+            )
 
         except Exception as e:
             logger.error(f"Fout bij opslaan definitie: {e}")
@@ -315,9 +316,7 @@ class DefinitionRepository(DefinitionRepositoryInterface):
             return []
 
     def get_or_create_draft(
-        self,
-        begrip: str,
-        context: dict[str, Any] | None = None
+        self, begrip: str, context: dict[str, Any] | None = None
     ) -> int:
         """
         Get existing draft or create new one for begrip+context combination.
@@ -362,7 +361,7 @@ class DefinitionRepository(DefinitionRepositoryInterface):
                     AND status = 'draft'
                     LIMIT 1
                     """,
-                    (begrip, org_context, jur_context, categorie)
+                    (begrip, org_context, jur_context, categorie),
                 )
 
                 row = cursor.fetchone()
@@ -395,8 +394,8 @@ class DefinitionRepository(DefinitionRepositoryInterface):
                         org_context,
                         jur_context,
                         categorie,
-                        context.get("created_by", "system")
-                    )
+                        context.get("created_by", "system"),
+                    ),
                 )
 
                 conn.commit()
@@ -425,7 +424,7 @@ class DefinitionRepository(DefinitionRepositoryInterface):
                         AND status = 'draft'
                         LIMIT 1
                         """,
-                        (begrip, org_context, jur_context, categorie)
+                        (begrip, org_context, jur_context, categorie),
                     )
                     row = cursor.fetchone()
                     if row:
@@ -496,6 +495,7 @@ class DefinitionRepository(DefinitionRepositoryInterface):
     def _definition_to_record(self, definition: Definition) -> DefinitieRecord:
         """Converteer Definition naar DefinitieRecord."""
         import json as _json
+
         # Bepaal bron type op basis van metadata (import vs generated)
         source_type_value = SourceType.GENERATED.value
         try:
@@ -535,9 +535,13 @@ class DefinitionRepository(DefinitionRepositoryInterface):
             wb_list = list(definition.wettelijke_basis or [])
             # Normaliseer lijst naar gesorteerde, unieke waarden voor consistente opslag
             record.set_wettelijke_basis(wb_list)
-        except Exception:
-            # Laat default/None staan als iets misgaat
-            pass
+        except Exception as exc:  # pragma: no cover - unexpected edge cases
+            logger.warning(
+                "Kon wettelijke basis normaliseren voor '%s': %s",
+                definition.begrip,
+                exc,
+            )
+            record.wettelijke_basis = "[]"
 
         # Voeg extra metadata toe indien aanwezig
         if definition.metadata:
@@ -550,9 +554,15 @@ class DefinitionRepository(DefinitionRepositoryInterface):
             # Herkomst voor import
             if "imported_from" in definition.metadata:
                 try:
-                    record.imported_from = str(definition.metadata["imported_from"])  # type: ignore[attr-defined]
-                except Exception:
-                    pass
+                    record.imported_from = str(
+                        definition.metadata["imported_from"]  # type: ignore[attr-defined]
+                    )
+                except Exception as exc:  # pragma: no cover - defensive guard
+                    logger.debug(
+                        "Kon imported_from niet casten naar string voor '%s': %s",
+                        definition.begrip,
+                        exc,
+                    )
 
         # Voeg toelichting toe aan definitie tekst indien aanwezig
         if definition.toelichting:
@@ -574,6 +584,7 @@ class DefinitionRepository(DefinitionRepositoryInterface):
             toelichting = parts[1].strip() if len(parts) > 1 else None
 
         import json as _json
+
         # Parse context JSON arrays (safe fallbacks)
         def _parse_list(val):
             try:
@@ -588,7 +599,7 @@ class DefinitionRepository(DefinitionRepositoryInterface):
             begrip=record.begrip,
             definitie=definitie_text,
             toelichting=toelichting,
-            toelichting_proces=getattr(record, 'toelichting_proces', None),
+            toelichting_proces=getattr(record, "toelichting_proces", None),
             bron=record.source_reference,
             organisatorische_context=_parse_list(record.organisatorische_context),
             juridische_context=_parse_list(record.juridische_context),
@@ -670,8 +681,10 @@ class DefinitionRepository(DefinitionRepositoryInterface):
                 )
                 stats["by_status"] = dict(cursor.fetchall())
 
-        except (sqlite3.Error, Exception):
-            pass
+        except sqlite3.Error as exc:
+            logger.warning("Kon repository statistieken niet ophalen: %s", exc)
+        except Exception:  # pragma: no cover - unexpected failure
+            logger.exception("Onverwachte fout bij ophalen repositorystatistieken")
 
         return stats
 
@@ -720,6 +733,7 @@ class DefinitionRepository(DefinitionRepositoryInterface):
     def _definition_to_updates(self, definition: Definition) -> dict[str, Any]:
         """Converteer Definition naar updates‑dict voor legacy update_definitie()."""
         import json as _json
+
         updates: dict[str, Any] = {}
         if definition.begrip is not None:
             updates["begrip"] = definition.begrip
@@ -744,7 +758,12 @@ class DefinitionRepository(DefinitionRepositoryInterface):
                 if definition.wettelijke_basis is None
                 else _json.dumps(list(definition.wettelijke_basis), ensure_ascii=False)
             )
-        except Exception:
+        except Exception as exc:
+            logger.warning(
+                "Kon wettelijke_basis serialiseren voor update van '%s': %s",
+                definition.begrip,
+                exc,
+            )
             updates["wettelijke_basis"] = None
         # Embed toelichting in definitietekst indien aanwezig (consistent met create)
         try:
@@ -754,9 +773,15 @@ class DefinitionRepository(DefinitionRepositoryInterface):
                     base = ""
                 # Voorkom dubbele embed: _record_to_definition levert definitie zonder 'Toelichting:'
                 # dus we kunnen veilig toevoegen
-                updates["definitie"] = f"{base}\n\nToelichting: {str(definition.toelichting).strip()}"
-        except Exception:
-            pass
+                updates["definitie"] = (
+                    f"{base}\n\nToelichting: {str(definition.toelichting).strip()}"
+                )
+        except Exception as exc:  # pragma: no cover - defensive guard
+            logger.debug(
+                "Kon toelichting embedden voor '%s': %s",
+                definition.begrip,
+                exc,
+            )
 
         # Extra velden
         if definition.metadata and "status" in definition.metadata:

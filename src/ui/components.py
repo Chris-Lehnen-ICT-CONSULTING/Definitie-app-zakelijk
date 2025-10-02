@@ -9,13 +9,13 @@ from typing import Any
 
 import streamlit as st
 
+from config.config_manager import ConfigSection, get_config
 from config.verboden_woorden import (
     laad_verboden_woorden,
     log_test_verboden_woord,
     sla_verboden_woorden_op,
 )
 from ui.session_state import SessionStateManager
-from config.config_manager import get_config, ConfigSection
 from utils.exceptions import log_and_display_error
 
 
@@ -281,7 +281,6 @@ class UIComponents:
             from ui.components_adapter import render_export_button_new
 
             render_export_button_new()
-
 
     @staticmethod
     def render_modified_tab():

@@ -4,8 +4,9 @@ Schema tests voor het canonieke VoorbeeldenDict contract.
 Test dat voorbeelden altijd de juiste structuur hebben en geen legacy keys bevatten.
 """
 
-import pytest
 from typing import Any
+
+import pytest
 
 from services.interfaces import VoorbeeldenDict
 from voorbeelden import genereer_alle_voorbeelden
@@ -37,18 +38,30 @@ def test_voorbeelden_canonical_keys():
     assert "toelichting" in voorbeelden, "toelichting key verwacht"
 
     # GEEN legacy keys
-    assert "juridisch" not in voorbeelden, "Legacy key 'juridisch' gevonden - moet voorbeeldzinnen zijn"
-    assert "praktijk" not in voorbeelden, "Legacy key 'praktijk' gevonden - moet praktijkvoorbeelden zijn"
+    assert (
+        "juridisch" not in voorbeelden
+    ), "Legacy key 'juridisch' gevonden - moet voorbeeldzinnen zijn"
+    assert (
+        "praktijk" not in voorbeelden
+    ), "Legacy key 'praktijk' gevonden - moet praktijkvoorbeelden zijn"
 
     # Type checking - verplichte velden zijn lijsten
-    assert isinstance(voorbeelden["voorbeeldzinnen"], list), "voorbeeldzinnen moet een lijst zijn"
-    assert isinstance(voorbeelden["praktijkvoorbeelden"], list), "praktijkvoorbeelden moet een lijst zijn"
-    assert isinstance(voorbeelden["tegenvoorbeelden"], list), "tegenvoorbeelden moet een lijst zijn"
+    assert isinstance(
+        voorbeelden["voorbeeldzinnen"], list
+    ), "voorbeeldzinnen moet een lijst zijn"
+    assert isinstance(
+        voorbeelden["praktijkvoorbeelden"], list
+    ), "praktijkvoorbeelden moet een lijst zijn"
+    assert isinstance(
+        voorbeelden["tegenvoorbeelden"], list
+    ), "tegenvoorbeelden moet een lijst zijn"
 
     # Optionele velden
     assert isinstance(voorbeelden["synoniemen"], list), "synoniemen moet een lijst zijn"
     assert isinstance(voorbeelden["antoniemen"], list), "antoniemen moet een lijst zijn"
-    assert isinstance(voorbeelden["toelichting"], str), "toelichting moet een string zijn"
+    assert isinstance(
+        voorbeelden["toelichting"], str
+    ), "toelichting moet een string zijn"
 
 
 def test_voorbeelden_businesslogica_aantallen():
@@ -56,9 +69,15 @@ def test_voorbeelden_businesslogica_aantallen():
     from voorbeelden.unified_voorbeelden import DEFAULT_EXAMPLE_COUNTS
 
     # Businesslogica: default aantallen per type
-    assert DEFAULT_EXAMPLE_COUNTS["voorbeeldzinnen"] == 3, "Default voorbeeldzinnen moet 3 zijn"
-    assert DEFAULT_EXAMPLE_COUNTS["praktijkvoorbeelden"] == 3, "Default praktijkvoorbeelden moet 3 zijn"
-    assert DEFAULT_EXAMPLE_COUNTS["tegenvoorbeelden"] == 3, "Default tegenvoorbeelden moet 3 zijn"
+    assert (
+        DEFAULT_EXAMPLE_COUNTS["voorbeeldzinnen"] == 3
+    ), "Default voorbeeldzinnen moet 3 zijn"
+    assert (
+        DEFAULT_EXAMPLE_COUNTS["praktijkvoorbeelden"] == 3
+    ), "Default praktijkvoorbeelden moet 3 zijn"
+    assert (
+        DEFAULT_EXAMPLE_COUNTS["tegenvoorbeelden"] == 3
+    ), "Default tegenvoorbeelden moet 3 zijn"
     assert DEFAULT_EXAMPLE_COUNTS["synoniemen"] == 5, "Default synoniemen moet 5 zijn"
     assert DEFAULT_EXAMPLE_COUNTS["antoniemen"] == 5, "Default antoniemen moet 5 zijn"
     assert DEFAULT_EXAMPLE_COUNTS["toelichting"] == 1, "Default toelichting moet 1 zijn"

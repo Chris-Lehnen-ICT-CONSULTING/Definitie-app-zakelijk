@@ -6,8 +6,6 @@ Gebruik `get_additional_patterns(code)` om patronen voor een regelcode op te hal
 
 from __future__ import annotations
 
-from typing import List
-
 _ADDITIONAL_PATTERNS: dict[str, list[str]] = {
     # ARAI – taal/algemene formulering
     "ARAI-01": [
@@ -36,7 +34,7 @@ _ADDITIONAL_PATTERNS: dict[str, list[str]] = {
     ],
     "INT-01": [
         r"\.\s+[A-Z]",  # Meerdere zinnen
-        r";\s*[a-z]",    # Semicolon gevolgd door kleine letter (mogelijk nieuwe zin)
+        r";\s*[a-z]",  # Semicolon gevolgd door kleine letter (mogelijk nieuwe zin)
     ],
     "INT-03": [
         r"\b(deze|dit|die|daarvan)\b(?!\s+(begrip|definitie|regel))",  # Onduidelijke verwijzingen
@@ -55,7 +53,7 @@ _ADDITIONAL_PATTERNS: dict[str, list[str]] = {
 }
 
 
-def get_additional_patterns(code: str) -> List[str]:
+def get_additional_patterns(code: str) -> list[str]:
     """Geef aanvullende patronen voor een toetsregelcode.
 
     Args:

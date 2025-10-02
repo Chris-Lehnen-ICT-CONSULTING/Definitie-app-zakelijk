@@ -22,9 +22,7 @@ from datetime import (  # Datum en tijd functionaliteit voor timestamps, timezon
 )
 from enum import Enum  # Enumeraties voor prioriteit levels
 from pathlib import Path  # Object-georiënteerde pad manipulatie
-from typing import (  # Type hints voor betere code documentatie
-    Any,
-)
+from typing import Any  # Type hints voor betere code documentatie
 
 logger = logging.getLogger(__name__)  # Logger instantie voor smart rate limiter module
 

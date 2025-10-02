@@ -3,19 +3,20 @@
 
 import streamlit as st
 
+
 def clean_history_session_state():
     """Remove history-related keys from session state"""
     history_keys = [
-        'history_date_range',
-        'history_start_date',
-        'history_end_date',
-        'history_status_filter',
-        'history_context_filter',
-        'history_search',
-        'history_filters',
-        'history_page',
-        'history_selected',
-        'history_sort'
+        "history_date_range",
+        "history_start_date",
+        "history_end_date",
+        "history_status_filter",
+        "history_context_filter",
+        "history_search",
+        "history_filters",
+        "history_page",
+        "history_selected",
+        "history_sort",
     ]
 
     removed = []
@@ -33,10 +34,13 @@ def clean_history_session_state():
 
     return removed
 
+
 if __name__ == "__main__":
     # This can be run standalone or imported
-    if 'streamlit' in sys.modules:
+    if "streamlit" in sys.modules:
         clean_history_session_state()
     else:
         print("Note: This script should be run within a Streamlit context")
-        print("Add to your main.py: from scripts.clean_history_session_state import clean_history_session_state")
+        print(
+            "Add to your main.py: from scripts.clean_history_session_state import clean_history_session_state"
+        )

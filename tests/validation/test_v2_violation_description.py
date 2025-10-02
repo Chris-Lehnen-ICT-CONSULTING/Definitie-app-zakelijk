@@ -4,7 +4,7 @@ from services.validation.modular_validation_service import ModularValidationServ
 from toetsregels.manager import get_toetsregel_manager
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_violations_include_description_field():
     """V2 violations should mirror 'message' into 'description' for UI."""
     svc = ModularValidationService(get_toetsregel_manager(), None, None)
@@ -20,5 +20,6 @@ async def test_violations_include_description_field():
     with_msg = next((v for v in vlist if v.get("message")), None)
     assert with_msg is not None, f"Expected a violation with message, got: {vlist}"
     assert "description" in with_msg, "description field missing in violation"
-    assert with_msg["description"] == with_msg["message"], "description should mirror message"
-
+    assert (
+        with_msg["description"] == with_msg["message"]
+    ), "description should mirror message"

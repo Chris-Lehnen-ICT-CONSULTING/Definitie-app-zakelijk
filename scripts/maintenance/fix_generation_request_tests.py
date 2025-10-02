@@ -1,38 +1,35 @@
 #!/usr/bin/env python
 """Fix all test files that use GenerationRequest without id parameter."""
-import re
 import os
-from pathlib import Path
+import re
+
 
 def fix_generation_request_in_file(filepath):
     """Add id parameter to GenerationRequest instantiations."""
-    with open(filepath, 'r', encoding='utf-8') as f:
+    with open(filepath, encoding="utf-8") as f:
         content = f.read()
 
     # Pattern to match GenerationRequest without id
     # This matches GenerationRequest( followed by begrip= but not id=
-    pattern = r'GenerationRequest\(\s*\n?\s*begrip='
+    pattern = r"GenerationRequest\(\s*\n?\s*begrip="
 
     if re.search(pattern, content):
         # Add id as first parameter
         content = re.sub(
             pattern,
             r'GenerationRequest(\n        id="test-id",\n        begrip=',
-            content
+            content,
         )
 
         # Also handle single-line cases
-        pattern2 = r'GenerationRequest\(begrip='
-        content = re.sub(
-            pattern2,
-            r'GenerationRequest(id="test-id", begrip=',
-            content
-        )
+        pattern2 = r"GenerationRequest\(begrip="
+        content = re.sub(pattern2, r'GenerationRequest(id="test-id", begrip=', content)
 
-        with open(filepath, 'w', encoding='utf-8') as f:
+        with open(filepath, "w", encoding="utf-8") as f:
             f.write(content)
         return True
     return False
+
 
 def main():
     test_files = [
@@ -59,6 +56,7 @@ def main():
                 print(f"⏭️  Skipped: {file} (no changes needed)")
         else:
             print(f"❌ Not found: {file}")
+
 
 if __name__ == "__main__":
     main()

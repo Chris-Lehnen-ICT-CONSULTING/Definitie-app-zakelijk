@@ -10,15 +10,17 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 
 
-@pytest.mark.integration
-@pytest.mark.asyncio
+@pytest.mark.integration()
+@pytest.mark.asyncio()
 async def test_enhancement_applied_leads_to_successful_validation_and_save():
-    from services.orchestrators.definition_orchestrator_v2 import DefinitionOrchestratorV2
     from services.interfaces import (
         AIGenerationResult,
         CleaningResult,
         GenerationRequest,
         OrchestratorConfig,
+    )
+    from services.orchestrators.definition_orchestrator_v2 import (
+        DefinitionOrchestratorV2,
     )
 
     prompt_service = AsyncMock()
@@ -48,7 +50,9 @@ async def test_enhancement_applied_leads_to_successful_validation_and_save():
     )
 
     cleaning_service.clean_text.return_value = CleaningResult(
-        original_text="Slechte definitie.", cleaned_text="Slechte definitie.", was_cleaned=False
+        original_text="Slechte definitie.",
+        cleaned_text="Slechte definitie.",
+        was_cleaned=False,
     )
 
     # First validation fails, second succeeds
@@ -56,9 +60,22 @@ async def test_enhancement_applied_leads_to_successful_validation_and_save():
         "version": "1.0.0",
         "overall_score": 0.45,
         "is_acceptable": False,
-        "violations": [{"code": "ESS-01", "severity": "error", "message": "", "rule_id": "ESS-01", "category": "juridisch"}],
+        "violations": [
+            {
+                "code": "ESS-01",
+                "severity": "error",
+                "message": "",
+                "rule_id": "ESS-01",
+                "category": "juridisch",
+            }
+        ],
         "passed_rules": [],
-        "detailed_scores": {"taal": 0.5, "juridisch": 0.4, "structuur": 0.5, "samenhang": 0.5},
+        "detailed_scores": {
+            "taal": 0.5,
+            "juridisch": 0.4,
+            "structuur": 0.5,
+            "samenhang": 0.5,
+        },
         "system": {"correlation_id": "00000000-0000-0000-0000-000000000000"},
     }
     ok_result = {
@@ -67,7 +84,12 @@ async def test_enhancement_applied_leads_to_successful_validation_and_save():
         "is_acceptable": True,
         "violations": [],
         "passed_rules": ["ALL-GOOD"],
-        "detailed_scores": {"taal": 0.8, "juridisch": 0.82, "structuur": 0.78, "samenhang": 0.8},
+        "detailed_scores": {
+            "taal": 0.8,
+            "juridisch": 0.82,
+            "structuur": 0.78,
+            "samenhang": 0.8,
+        },
         "system": {"correlation_id": "00000000-0000-0000-0000-000000000000"},
     }
 
@@ -92,7 +114,16 @@ async def test_enhancement_applied_leads_to_successful_validation_and_save():
 
     with patch(
         "voorbeelden.unified_voorbeelden.genereer_alle_voorbeelden_async",
-        new=AsyncMock(return_value={"voorbeeldzinnen": [], "praktijkvoorbeelden": [], "tegenvoorbeelden": [], "synoniemen": [], "antoniemen": [], "toelichting": ""}),
+        new=AsyncMock(
+            return_value={
+                "voorbeeldzinnen": [],
+                "praktijkvoorbeelden": [],
+                "tegenvoorbeelden": [],
+                "synoniemen": [],
+                "antoniemen": [],
+                "toelichting": "",
+            }
+        ),
     ):
         req = GenerationRequest(
             id="it-ENH-S",
@@ -109,4 +140,3 @@ async def test_enhancement_applied_leads_to_successful_validation_and_save():
     repository.save.assert_called()
     # No feedback processing on success
     feedback_engine.process_validation_feedback.assert_not_awaited()
-

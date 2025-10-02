@@ -185,14 +185,18 @@ class Definition:
     begrip: str = ""
     definitie: str = ""
     toelichting: str | None = None  # AI-gegenereerde toelichting op de definitie
-    toelichting_proces: str | None = None  # Procesmatige toelichting (review/validatie notities)
+    toelichting_proces: str | None = (
+        None  # Procesmatige toelichting (review/validatie notities)
+    )
     bron: str | None = None
     # Context (canoniek)
     organisatorische_context: list[str] | None = None
     juridische_context: list[str] | None = None
     wettelijke_basis: list[str] | None = None
     # Overig
-    synoniemen: list[str] | None = None  # Wordt opgeslagen in definitie_voorbeelden tabel
+    synoniemen: list[str] | None = (
+        None  # Wordt opgeslagen in definitie_voorbeelden tabel
+    )
     gerelateerde_begrippen: list[str] | None = None
     voorbeelden: list[str] | None = None
     categorie: str | None = None

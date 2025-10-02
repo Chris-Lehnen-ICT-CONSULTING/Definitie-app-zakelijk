@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Analyze test performance and identify slow tests."""
 
-import subprocess
 import re
+import subprocess
 from pathlib import Path
-from collections import defaultdict
+
 
 def analyze_test_performance():
     """Run tests with timing information and identify slow tests."""
@@ -17,7 +17,9 @@ def analyze_test_performance():
     print("\nRunning tests to collect timing data...")
 
     cmd = [
-        "python", "-m", "pytest",
+        "python",
+        "-m",
+        "pytest",
         "--durations=50",
         "--tb=no",
         "-q",
@@ -25,7 +27,8 @@ def analyze_test_performance():
         "--ignore=tests/services/test_ufo_classifier_comprehensive.py",
         "--ignore=tests/services/test_ufo_classifier_service.py",
         "--ignore=tests/services/test_ufo_classifier_service_correctness.py",
-        "-m", "not slow"
+        "-m",
+        "not slow",
     ]
 
     try:
@@ -34,7 +37,8 @@ def analyze_test_performance():
             capture_output=True,
             text=True,
             timeout=30,
-            cwd="/Users/chrislehnen/Projecten/Definitie-app"
+            cwd="/Users/chrislehnen/Projecten/Definitie-app",
+            check=False,
         )
 
         output = result.stdout + result.stderr
@@ -43,13 +47,13 @@ def analyze_test_performance():
         slow_tests = []
         parsing = False
 
-        for line in output.split('\n'):
+        for line in output.split("\n"):
             if "slowest durations" in line:
                 parsing = True
                 continue
             if parsing and line.strip():
                 # Parse lines like "1.23s call     tests/test_example.py::test_function"
-                match = re.match(r'(\d+\.\d+)s\s+\w+\s+(.+)', line)
+                match = re.match(r"(\d+\.\d+)s\s+\w+\s+(.+)", line)
                 if match:
                     duration = float(match.group(1))
                     test_path = match.group(2)
@@ -79,16 +83,20 @@ def analyze_test_performance():
             if "__pycache__" in str(test_file):
                 continue
             try:
-                with open(test_file, 'r') as f:
+                with open(test_file) as f:
                     content = f.read()
                     if "time.sleep" in content or "sleep(" in content:
                         # Count occurrences
                         count = content.count("sleep(")
-                        sleep_tests.append((test_file.relative_to(Path("tests")), count))
+                        sleep_tests.append(
+                            (test_file.relative_to(Path("tests")), count)
+                        )
             except:
                 pass
 
-        for test_file, count in sorted(sleep_tests, key=lambda x: x[1], reverse=True)[:15]:
+        for test_file, count in sorted(sleep_tests, key=lambda x: x[1], reverse=True)[
+            :15
+        ]:
             print(f"  {test_file}: {count} sleep() calls")
 
         # Check for database tests
@@ -98,10 +106,22 @@ def analyze_test_performance():
             if "__pycache__" in str(test_file):
                 continue
             try:
-                with open(test_file, 'r') as f:
+                with open(test_file) as f:
                     content = f.read()
-                    if any(x in content for x in ["sqlite", "database", "cursor", "CREATE TABLE", "INSERT INTO"]):
-                        if "transaction" not in content.lower() and "rollback" not in content:
+                    if any(
+                        x in content
+                        for x in [
+                            "sqlite",
+                            "database",
+                            "cursor",
+                            "CREATE TABLE",
+                            "INSERT INTO",
+                        ]
+                    ):
+                        if (
+                            "transaction" not in content.lower()
+                            and "rollback" not in content
+                        ):
                             db_tests.append(test_file.relative_to(Path("tests")))
             except:
                 pass
@@ -116,7 +136,7 @@ def analyze_test_performance():
             if "__pycache__" in str(test_file):
                 continue
             try:
-                with open(test_file, 'r') as f:
+                with open(test_file) as f:
                     content = f.read()
                     io_score = 0
                     io_score += content.count("open(") * 2
@@ -126,7 +146,9 @@ def analyze_test_performance():
                     io_score += content.count("json.load") * 2
 
                     if io_score > 10:
-                        io_tests.append((test_file.relative_to(Path("tests")), io_score))
+                        io_tests.append(
+                            (test_file.relative_to(Path("tests")), io_score)
+                        )
             except:
                 pass
 
@@ -153,6 +175,7 @@ def analyze_test_performance():
         print("   This indicates very slow tests or infinite loops")
     except Exception as e:
         print(f"❌ Error running tests: {e}")
+
 
 if __name__ == "__main__":
     analyze_test_performance()

@@ -7,18 +7,20 @@ Immediate fixes for CRITICAL issues preventing 95% precision target
 import logging
 import re
 import unicodedata
-from dataclasses import dataclass, field
-from datetime import datetime
+from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import Dict, List, Optional, Set, Tuple, Any
+from typing import Any
+
 import yaml
 
 logger = logging.getLogger(__name__)
 
+
 # FIX #1: Add missing ABSTRACT category or fix disambiguation
 class UFOCategoryFixed(Enum):
     """Fixed UFO categories - removed invalid ABSTRACT reference."""
+
     KIND = "Kind"
     EVENT = "Event"
     ROLE = "Role"
@@ -38,7 +40,7 @@ class UFOCategoryFixed(Enum):
 
 
 # FIX #3: Proper input validation
-def validate_input(term: str, definition: str) -> Tuple[str, str]:
+def validate_input(term: str, definition: str) -> tuple[str, str]:
     """
     Validate and clean input strings.
     Raises ValueError for invalid input.
@@ -67,13 +69,13 @@ def validate_input(term: str, definition: str) -> Tuple[str, str]:
 
     # Check for suspicious patterns (basic injection protection)
     suspicious_patterns = [
-        r'<script',
-        r'javascript:',
-        r'DROP\s+TABLE',
-        r'DELETE\s+FROM',
-        r'\$\(',
-        r'eval\(',
-        r'exec\('
+        r"<script",
+        r"javascript:",
+        r"DROP\s+TABLE",
+        r"DELETE\s+FROM",
+        r"\$\(",
+        r"eval\(",
+        r"exec\(",
     ]
 
     combined = f"{term} {definition}".lower()
@@ -94,18 +96,18 @@ def normalize_dutch_text(text: str) -> str:
         return ""
 
     # Normalize to NFC (composed form)
-    text = unicodedata.normalize('NFC', text)
+    text = unicodedata.normalize("NFC", text)
 
     # Handle common Dutch character issues
     replacements = {
-        'ĳ': 'ij',  # Dutch IJ ligature
-        'Ĳ': 'IJ',
-        'ÿ': 'y',   # Sometimes used in old Dutch
-        '´': "'",   # Acute accent to apostrophe
-        '`': "'",   # Grave accent to apostrophe
-        ''': "'",   # Smart quote to apostrophe
-        ''': "'",
-        '"': '"',   # Smart quotes to regular
+        "ĳ": "ij",  # Dutch IJ ligature
+        "Ĳ": "IJ",
+        "ÿ": "y",  # Sometimes used in old Dutch
+        "´": "'",  # Acute accent to apostrophe
+        "`": "'",  # Grave accent to apostrophe
+        """: "'",   # Smart quote to apostrophe
+        """: "'",
+        '"': '"',  # Smart quotes to regular
         '"': '"',
     }
 
@@ -126,19 +128,19 @@ class CompiledPatternMatcher:
     def _compile_all_patterns(self):
         """Pre-compile all regex patterns for performance."""
         patterns_to_compile = {
-            'kind': [
-                r'\b(?:een|de|het)\s+(\w+)\s+(?:is|zijn|betreft)',
-                r'(?:natuurlijk|rechts)persoon',
-                r'(?:organisatie|instantie|orgaan|lichaam)',
+            "kind": [
+                r"\b(?:een|de|het)\s+(\w+)\s+(?:is|zijn|betreft)",
+                r"(?:natuurlijk|rechts)persoon",
+                r"(?:organisatie|instantie|orgaan|lichaam)",
             ],
-            'event': [
-                r'(?:tijdens|gedurende|na afloop van|voorafgaand aan)',
-                r'(?:proces|procedure|handeling|gebeurtenis)\b',
-                r'\b\w+(?:ing|atie|itie)\b',
+            "event": [
+                r"(?:tijdens|gedurende|na afloop van|voorafgaand aan)",
+                r"(?:proces|procedure|handeling|gebeurtenis)\b",
+                r"\b\w+(?:ing|atie|itie)\b",
             ],
-            'role': [
-                r'(?:in de hoedanigheid van|in de rol van|als)\s+\w+',
-                r'(?:optreedt?|handel\w+|fungeer\w+)\s+als',
+            "role": [
+                r"(?:in de hoedanigheid van|in de rol van|als)\s+\w+",
+                r"(?:optreedt?|handel\w+|fungeer\w+)\s+als",
             ],
             # ... more patterns
         }
@@ -150,9 +152,11 @@ class CompiledPatternMatcher:
                     compiled = re.compile(pattern_str, re.IGNORECASE | re.UNICODE)
                     self._compiled_patterns[category].append((pattern_str, compiled))
                 except re.error as e:
-                    logger.error(f"Failed to compile pattern for {category}: {pattern_str} - {e}")
+                    logger.error(
+                        f"Failed to compile pattern for {category}: {pattern_str} - {e}"
+                    )
 
-    def find_matches(self, text: str, category: str) -> List[str]:
+    def find_matches(self, text: str, category: str) -> list[str]:
         """Find all matches for a category in text."""
         if category not in self._compiled_patterns:
             return []
@@ -169,9 +173,7 @@ class CompiledPatternMatcher:
 
 # FIX #2: Division by zero protection
 def calculate_confidence_safe(
-    primary_category: Any,
-    all_scores: Dict[Any, float],
-    pattern_count: int
+    primary_category: Any, all_scores: dict[Any, float], pattern_count: int
 ) -> float:
     """
     Calculate confidence score with full protection against edge cases.
@@ -261,7 +263,7 @@ class BatchProcessor:
         total = len(definitions)
 
         for i in range(0, total, self.chunk_size):
-            chunk = definitions[i:i + self.chunk_size]
+            chunk = definitions[i : i + self.chunk_size]
             chunk_results = []
 
             for term, definition in chunk:
@@ -276,7 +278,7 @@ class BatchProcessor:
             results.extend(chunk_results)
 
             # Optional: Clear internal caches between chunks
-            if hasattr(self.classifier, 'clear_cache'):
+            if hasattr(self.classifier, "clear_cache"):
                 self.classifier.clear_cache()
 
             logger.info(f"Processed chunk: {min(i + self.chunk_size, total)}/{total}")
@@ -285,27 +287,27 @@ class BatchProcessor:
 
 
 # FIX #7: Robust YAML configuration loading
-def load_config_safe(config_path: Optional[Path]) -> Dict:
+def load_config_safe(config_path: Path | None) -> dict:
     """
     Load and validate YAML configuration with full error handling.
     """
     default_config = {
-        'version': '1.0.0',
-        'classification': {
-            'complete_analysis': True,
-            'high_confidence_threshold': 0.8,
-            'medium_confidence_threshold': 0.6,
-            'low_confidence_threshold': 0.4,
-            'max_classification_time_ms': 500,
-            'target_precision': 0.95
+        "version": "1.0.0",
+        "classification": {
+            "complete_analysis": True,
+            "high_confidence_threshold": 0.8,
+            "medium_confidence_threshold": 0.6,
+            "low_confidence_threshold": 0.4,
+            "max_classification_time_ms": 500,
+            "target_precision": 0.95,
         },
-        'categories': {},
-        'disambiguation': {},
-        'validation': {
-            'require_all_steps': True,
-            'check_all_categories': True,
-            'minimum_pattern_matches': 1
-        }
+        "categories": {},
+        "disambiguation": {},
+        "validation": {
+            "require_all_steps": True,
+            "check_all_categories": True,
+            "minimum_pattern_matches": 1,
+        },
     }
 
     if not config_path:
@@ -317,7 +319,7 @@ def load_config_safe(config_path: Optional[Path]) -> Dict:
         return default_config
 
     try:
-        with open(config_path, 'r', encoding='utf-8') as f:
+        with open(config_path, encoding="utf-8") as f:
             config = yaml.safe_load(f)
 
         # Validate it's a dictionary
@@ -326,36 +328,40 @@ def load_config_safe(config_path: Optional[Path]) -> Dict:
             return default_config
 
         # Validate required top-level keys
-        required_keys = ['version', 'categories']
+        required_keys = ["version", "categories"]
         for key in required_keys:
             if key not in config:
                 logger.warning(f"Missing required key '{key}' in config")
                 config[key] = default_config.get(key, {})
 
         # Validate categories structure
-        if not isinstance(config.get('categories'), dict):
+        if not isinstance(config.get("categories"), dict):
             logger.error("Categories must be a dictionary")
-            config['categories'] = {}
+            config["categories"] = {}
 
         # Validate each category
-        for cat_name, cat_config in config['categories'].items():
+        for cat_name, cat_config in config["categories"].items():
             if not isinstance(cat_config, dict):
                 logger.error(f"Category {cat_name} config must be a dictionary")
-                config['categories'][cat_name] = {}
+                config["categories"][cat_name] = {}
                 continue
 
             # Ensure required category fields
-            if 'patterns' not in cat_config:
-                cat_config['patterns'] = []
-            if 'keywords' not in cat_config:
-                cat_config['keywords'] = []
-            if 'weight' not in cat_config:
-                cat_config['weight'] = 1.0
+            if "patterns" not in cat_config:
+                cat_config["patterns"] = []
+            if "keywords" not in cat_config:
+                cat_config["keywords"] = []
+            if "weight" not in cat_config:
+                cat_config["weight"] = 1.0
 
         # Merge with defaults for missing values
         def deep_merge(base, override):
             for key, value in override.items():
-                if key in base and isinstance(base[key], dict) and isinstance(value, dict):
+                if (
+                    key in base
+                    and isinstance(base[key], dict)
+                    and isinstance(value, dict)
+                ):
                     deep_merge(base[key], value)
                 else:
                     base[key] = value
@@ -369,7 +375,7 @@ def load_config_safe(config_path: Optional[Path]) -> Dict:
     except yaml.YAMLError as e:
         logger.error(f"YAML parsing error: {e}")
         return default_config
-    except IOError as e:
+    except OSError as e:
         logger.error(f"IO error reading config: {e}")
         return default_config
     except Exception as e:
@@ -385,7 +391,9 @@ class SafeDisambiguation:
         self.max_depth = max_depth
         self._call_stack = []
 
-    def apply_disambiguation(self, term: str, definition: str, rules: Dict, depth: int = 0):
+    def apply_disambiguation(
+        self, term: str, definition: str, rules: dict, depth: int = 0
+    ):
         """Apply disambiguation with recursion protection."""
 
         # Check recursion depth
@@ -408,18 +416,15 @@ class SafeDisambiguation:
         finally:
             self._call_stack.pop()
 
-    def _apply_rules(self, term: str, definition: str, rules: Dict):
+    def _apply_rules(self, term: str, definition: str, rules: dict):
         """Apply disambiguation rules safely."""
         # Implementation here
-        pass
 
 
 # FIX #11: Secondary categories deduplication
 def identify_secondary_categories_safe(
-    all_scores: Dict[Any, float],
-    primary: Any,
-    threshold: float = 0.3
-) -> List[Any]:
+    all_scores: dict[Any, float], primary: Any, threshold: float = 0.3
+) -> list[Any]:
     """
     Identify secondary categories with proper deduplication.
     """
@@ -430,11 +435,7 @@ def identify_secondary_categories_safe(
     seen = {primary}  # Track primary to avoid duplicates
 
     # Sort by score
-    sorted_categories = sorted(
-        all_scores.items(),
-        key=lambda x: x[1],
-        reverse=True
-    )
+    sorted_categories = sorted(all_scores.items(), key=lambda x: x[1], reverse=True)
 
     for category, score in sorted_categories:
         # Skip primary and already seen
@@ -458,7 +459,6 @@ def identify_secondary_categories_safe(
 # Helper function for error results
 def create_error_result(term: str, definition: str, error_msg: str):
     """Create an error result for failed classification."""
-    from dataclasses import dataclass, field
     from datetime import datetime
 
     @dataclass
@@ -470,11 +470,7 @@ def create_error_result(term: str, definition: str, error_msg: str):
         error: str = ""
         timestamp: datetime = field(default_factory=datetime.now)
 
-    return ErrorResult(
-        term=term,
-        definition=definition,
-        error=error_msg
-    )
+    return ErrorResult(term=term, definition=definition, error=error_msg)
 
 
 # Test suite for fixes
@@ -527,7 +523,7 @@ def test_fixes():
 
     print("\nTesting Fix #7: YAML config loading")
     config = load_config_safe(Path("nonexistent.yaml"))
-    assert config['version'] == '1.0.0'
+    assert config["version"] == "1.0.0"
     print("✓ Missing file returns defaults")
 
     print("\nAll fixes tested successfully!")
@@ -537,7 +533,7 @@ if __name__ == "__main__":
     # Configure logging
     logging.basicConfig(
         level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     )
 
     # Run tests

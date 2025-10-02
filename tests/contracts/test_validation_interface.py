@@ -7,13 +7,13 @@ from uuid import UUID, uuid4
 
 import pytest
 from jsonschema import FormatChecker, ValidationError, validate
+
 from services.interfaces import Definition
 from services.validation.interfaces import (
     CONTRACT_VERSION,
     ValidationContext,
     ValidationRequest,
 )
-
 from tests.contracts.mock_orchestrator import MockValidationOrchestrator
 
 
@@ -23,7 +23,9 @@ class SchemaValidator:
     def __init__(self) -> None:
         base = Path(__file__).parents[2]
         # Prefer English path; fallback to Dutch 'architectuur' for repo layout
-        schema_path = base / "docs/architecture/contracts/schemas/validation_result.schema.json"
+        schema_path = (
+            base / "docs/architecture/contracts/schemas/validation_result.schema.json"
+        )
         if not schema_path.exists():
             schema_path = (
                 base

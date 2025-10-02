@@ -1,15 +1,14 @@
 #!/usr/bin/env python3
 """Verify that requirement fixes have been properly applied."""
 
-import os
+import json
 import re
 from pathlib import Path
-from typing import Dict, List, Tuple
-import json
 
 # Base path
 BASE_PATH = Path("/Users/chrislehnen/Projecten/Definitie-app")
 REQUIREMENTS_PATH = BASE_PATH / "docs" / "requirements"
+
 
 def check_file_exists(file_path: str) -> bool:
     """Check if a source file actually exists."""
@@ -18,16 +17,17 @@ def check_file_exists(file_path: str) -> bool:
     full_path = BASE_PATH / file_path
     return full_path.exists()
 
-def analyze_requirement(file_path: Path) -> Dict:
+
+def analyze_requirement(file_path: Path) -> dict:
     """Analyze a single requirement file for issues."""
     issues = []
-    with open(file_path, 'r', encoding='utf-8') as f:
+    with open(file_path, encoding="utf-8") as f:
         content = f.read()
 
     req_id = file_path.stem
 
     # Check epic format (should be EPIC-00X)
-    epic_pattern = r'EPIC-(\d+)'
+    epic_pattern = r"EPIC-(\d+)"
     epic_matches = re.findall(epic_pattern, content)
     for match in epic_matches:
         if len(match) == 1:  # Single digit, should be 3
@@ -36,11 +36,11 @@ def analyze_requirement(file_path: Path) -> Dict:
             issues.append(f"Epic format issue: EPIC-{match} should be EPIC-0{match}")
 
     # Check source files exist
-    source_pattern = r'path:\s*([^\n]+)'
+    source_pattern = r"path:\s*([^\n]+)"
     source_matches = re.findall(source_pattern, content)
     for source in source_matches:
         source = source.strip()
-        if source and not source.startswith("docs/") and not source == "all":
+        if source and not source.startswith("docs/") and source != "all":
             if not check_file_exists(source) and "TODO" not in source:
                 issues.append(f"Missing source file: {source}")
 
@@ -62,15 +62,16 @@ def analyze_requirement(file_path: Path) -> Dict:
             issues.append("Missing domain context for domain requirement")
 
     # Extract status
-    status_match = re.search(r'[Ss]tatus:\s*(\w+)', content)
+    status_match = re.search(r"[Ss]tatus:\s*(\w+)", content)
     status = status_match.group(1) if status_match else "Unknown"
 
     return {
         "id": req_id,
         "status": status,
         "issues": issues,
-        "issue_count": len(issues)
+        "issue_count": len(issues),
     }
+
 
 def main():
     """Main verification function."""
@@ -124,7 +125,9 @@ def main():
             issue_types[issue_type] = issue_types.get(issue_type, 0) + 1
 
     print("\nISSUE BREAKDOWN:")
-    for issue_type, count in sorted(issue_types.items(), key=lambda x: x[1], reverse=True):
+    for issue_type, count in sorted(
+        issue_types.items(), key=lambda x: x[1], reverse=True
+    ):
         print(f"  {issue_type}: {count}")
 
     # Status breakdown
@@ -143,20 +146,25 @@ def main():
 
     # Save detailed report
     report_path = REQUIREMENTS_PATH / "fix_verification_report.json"
-    with open(report_path, 'w', encoding='utf-8') as f:
-        json.dump({
-            "summary": {
-                "total_requirements": len(req_files),
-                "requirements_with_issues": requirements_with_issues,
-                "total_issues": total_issues,
-                "success_rate": success_rate
+    with open(report_path, "w", encoding="utf-8") as f:
+        json.dump(
+            {
+                "summary": {
+                    "total_requirements": len(req_files),
+                    "requirements_with_issues": requirements_with_issues,
+                    "total_issues": total_issues,
+                    "success_rate": success_rate,
+                },
+                "issue_breakdown": issue_types,
+                "status_breakdown": status_counts,
+                "details": results,
             },
-            "issue_breakdown": issue_types,
-            "status_breakdown": status_counts,
-            "details": results
-        }, f, indent=2)
+            f,
+            indent=2,
+        )
 
     print(f"\nDetailed report saved to: {report_path}")
+
 
 if __name__ == "__main__":
     main()

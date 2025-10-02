@@ -5,23 +5,24 @@ Tests the integration of UFOClassifierService with the ServiceContainer
 and other services in the application.
 """
 
-import pytest
-from unittest.mock import Mock, patch, MagicMock
-from pathlib import Path
-import tempfile
 import sqlite3
+import tempfile
+from pathlib import Path
+from unittest.mock import MagicMock, Mock, patch
+
+import pytest
 
 from src.services.ufo_classifier_service import (
-    UFOClassifierService,
     UFOCategory,
-    get_ufo_classifier
+    UFOClassifierService,
+    get_ufo_classifier,
 )
 
 
 class TestServiceContainerIntegration:
     """Test UFO Classifier integration with ServiceContainer"""
 
-    @pytest.fixture
+    @pytest.fixture()
     def mock_service_container(self):
         """Create a mock ServiceContainer with UFO classifier"""
         container = Mock()
@@ -60,12 +61,15 @@ class TestServiceContainerIntegration:
 
     def test_lazy_loading_in_container(self, mock_service_container):
         """Test lazy loading of UFO classifier"""
+
         # Simulate lazy loading
         def lazy_ufo_classifier():
-            if 'ufo_classifier' not in mock_service_container._instances:
-                mock_service_container._instances['ufo_classifier'] = UFOClassifierService()
+            if "ufo_classifier" not in mock_service_container._instances:
+                mock_service_container._instances["ufo_classifier"] = (
+                    UFOClassifierService()
+                )
                 mock_service_container._initialization_count += 1
-            return mock_service_container._instances['ufo_classifier']
+            return mock_service_container._instances["ufo_classifier"]
 
         mock_service_container.ufo_classifier = lazy_ufo_classifier
 
@@ -84,25 +88,26 @@ class TestServiceContainerIntegration:
         repository = mock_service_container.repository
 
         # Mock repository methods
-        repository.get_all_definitions = Mock(return_value=[
-            {'id': 1, 'begrip': 'verdachte', 'definitie': 'Persoon verdacht van strafbaar feit'},
-            {'id': 2, 'begrip': 'proces', 'definitie': 'Juridische procedure'}
-        ])
+        repository.get_all_definitions = Mock(
+            return_value=[
+                {
+                    "id": 1,
+                    "begrip": "verdachte",
+                    "definitie": "Persoon verdacht van strafbaar feit",
+                },
+                {"id": 2, "begrip": "proces", "definitie": "Juridische procedure"},
+            ]
+        )
 
         repository.update_ufo_category = Mock()
 
         # Process definitions
         definitions = repository.get_all_definitions()
         for definition in definitions:
-            result = classifier.classify(
-                definition['begrip'],
-                definition['definitie']
-            )
+            result = classifier.classify(definition["begrip"], definition["definitie"])
 
             repository.update_ufo_category(
-                definition['id'],
-                result.primary_category.value,
-                result.confidence
+                definition["id"], result.primary_category.value, result.confidence
             )
 
         # Verify repository was called correctly
@@ -116,27 +121,22 @@ class TestServiceContainerIntegration:
 
         # Mock validation context
         validation_context = {
-            'begrip': 'verdachte',
-            'definitie': 'Persoon verdacht van strafbaar feit',
-            'require_ufo': True
+            "begrip": "verdachte",
+            "definitie": "Persoon verdacht van strafbaar feit",
+            "require_ufo": True,
         }
 
         # Classify
         result = classifier.classify(
-            validation_context['begrip'],
-            validation_context['definitie']
+            validation_context["begrip"], validation_context["definitie"]
         )
 
         # Add to validation
         validator.add_ufo_validation = Mock()
-        validator.add_ufo_validation(
-            result.primary_category.value,
-            result.confidence
-        )
+        validator.add_ufo_validation(result.primary_category.value, result.confidence)
 
         validator.add_ufo_validation.assert_called_once_with(
-            result.primary_category.value,
-            result.confidence
+            result.primary_category.value, result.confidence
         )
 
     def test_integration_with_ai_service(self, mock_service_container):
@@ -145,24 +145,21 @@ class TestServiceContainerIntegration:
         ai_service = mock_service_container.ai_service
 
         # Mock AI service enhancement
-        ai_service.enhance_classification = Mock(return_value={
-            'additional_context': 'legal domain',
-            'confidence_boost': 0.1
-        })
+        ai_service.enhance_classification = Mock(
+            return_value={"additional_context": "legal domain", "confidence_boost": 0.1}
+        )
 
         # Classify with potential AI enhancement
-        result = classifier.classify('verdachte', 'Persoon verdacht')
+        result = classifier.classify("verdachte", "Persoon verdacht")
 
         # Simulate AI enhancement
         if result.confidence < 0.8:
             enhancement = ai_service.enhance_classification(
-                'verdachte',
-                'Persoon verdacht'
+                "verdachte", "Persoon verdacht"
             )
             # Could boost confidence based on AI analysis
             enhanced_confidence = min(
-                result.confidence + enhancement['confidence_boost'],
-                1.0
+                result.confidence + enhancement["confidence_boost"], 1.0
             )
 
             assert enhanced_confidence >= result.confidence
@@ -171,11 +168,11 @@ class TestServiceContainerIntegration:
         """Test container configuration specific to UFO classifier"""
         # Add configuration
         mock_service_container.config = {
-            'ufo_classifier': {
-                'confidence_threshold': 0.6,
-                'enable_caching': True,
-                'max_cache_size': 1024,
-                'batch_size': 100
+            "ufo_classifier": {
+                "confidence_threshold": 0.6,
+                "enable_caching": True,
+                "max_cache_size": 1024,
+                "batch_size": 100,
             }
         }
 
@@ -183,9 +180,9 @@ class TestServiceContainerIntegration:
         classifier = mock_service_container.ufo_classifier()
 
         # Verify configuration can be accessed
-        config = mock_service_container.config['ufo_classifier']
-        assert config['confidence_threshold'] == 0.6
-        assert config['enable_caching'] == True
+        config = mock_service_container.config["ufo_classifier"]
+        assert config["confidence_threshold"] == 0.6
+        assert config["enable_caching"] == True
 
     def test_error_handling_in_container(self, mock_service_container):
         """Test error handling when UFO classifier fails"""
@@ -205,21 +202,21 @@ class TestServiceContainerIntegration:
 
         # Simulate cleanup
         def cleanup():
-            if 'ufo_classifier' in mock_service_container._instances:
+            if "ufo_classifier" in mock_service_container._instances:
                 # Clear caches
                 classifier.pattern_matcher.find_matches.cache_clear()
-                del mock_service_container._instances['ufo_classifier']
+                del mock_service_container._instances["ufo_classifier"]
 
         mock_service_container.cleanup = cleanup
         mock_service_container.cleanup()
 
-        assert 'ufo_classifier' not in mock_service_container._instances
+        assert "ufo_classifier" not in mock_service_container._instances
 
 
 class TestServiceOrchestration:
     """Test orchestration of UFO classifier with other services"""
 
-    @pytest.fixture
+    @pytest.fixture()
     def orchestrator(self):
         """Create service orchestrator with UFO classifier"""
         orchestrator = Mock()
@@ -234,40 +231,41 @@ class TestServiceOrchestration:
         """Test complete workflow for definition creation with UFO"""
         # 1. Create definition
         new_definition = {
-            'begrip': 'verdachte',
-            'definitie': 'Persoon verdacht van strafbaar feit'
+            "begrip": "verdachte",
+            "definitie": "Persoon verdacht van strafbaar feit",
         }
 
         # 2. Classify with UFO
         ufo_result = orchestrator.ufo_classifier.classify(
-            new_definition['begrip'],
-            new_definition['definitie']
+            new_definition["begrip"], new_definition["definitie"]
         )
 
         # 3. Validate
-        orchestrator.validator.validate = Mock(return_value={'valid': True})
+        orchestrator.validator.validate = Mock(return_value={"valid": True})
         validation = orchestrator.validator.validate(new_definition)
 
         # 4. Save to repository
-        orchestrator.repository.create = Mock(return_value={'id': 1})
-        saved = orchestrator.repository.create({
-            **new_definition,
-            'ufo_categorie': ufo_result.primary_category.value,
-            'ufo_confidence': ufo_result.confidence
-        })
+        orchestrator.repository.create = Mock(return_value={"id": 1})
+        saved = orchestrator.repository.create(
+            {
+                **new_definition,
+                "ufo_categorie": ufo_result.primary_category.value,
+                "ufo_confidence": ufo_result.confidence,
+            }
+        )
 
         # Verify workflow
         assert ufo_result.primary_category == UFOCategory.ROLE
-        assert validation['valid']
-        assert saved['id'] == 1
+        assert validation["valid"]
+        assert saved["id"] == 1
 
     def test_bulk_import_workflow(self, orchestrator):
         """Test bulk import workflow with UFO classification"""
         # Mock import data
         import_data = [
-            {'begrip': 'verdachte', 'definitie': 'Persoon verdacht'},
-            {'begrip': 'proces', 'definitie': 'Juridische procedure'},
-            {'begrip': 'overeenkomst', 'definitie': 'Contract tussen partijen'}
+            {"begrip": "verdachte", "definitie": "Persoon verdacht"},
+            {"begrip": "proces", "definitie": "Juridische procedure"},
+            {"begrip": "overeenkomst", "definitie": "Contract tussen partijen"},
         ]
 
         orchestrator.import_service.parse_file = Mock(return_value=import_data)
@@ -277,62 +275,62 @@ class TestServiceOrchestration:
         for item in import_data:
             # Classify
             result = orchestrator.ufo_classifier.classify(
-                item['begrip'],
-                item['definitie']
+                item["begrip"], item["definitie"]
             )
 
             # Add UFO data
-            item['ufo_categorie'] = result.primary_category.value
-            item['ufo_confidence'] = result.confidence
-            item['needs_review'] = result.confidence < 0.6
+            item["ufo_categorie"] = result.primary_category.value
+            item["ufo_confidence"] = result.confidence
+            item["needs_review"] = result.confidence < 0.6
 
             processed.append(item)
 
         # Verify processing
         assert len(processed) == 3
-        assert all('ufo_categorie' in item for item in processed)
-        assert any(item['needs_review'] for item in processed) or True  # At least one might need review
+        assert all("ufo_categorie" in item for item in processed)
+        assert (
+            any(item["needs_review"] for item in processed) or True
+        )  # At least one might need review
 
     def test_validation_integration(self, orchestrator):
         """Test UFO classifier integration with validation rules"""
         # Definition to validate
         definition = {
-            'begrip': 'verdachte',
-            'definitie': 'Persoon verdacht van strafbaar feit',
-            'categorie': 'type'  # Old category system
+            "begrip": "verdachte",
+            "definitie": "Persoon verdacht van strafbaar feit",
+            "categorie": "type",  # Old category system
         }
 
         # Get UFO classification
         ufo_result = orchestrator.ufo_classifier.classify(
-            definition['begrip'],
-            definition['definitie']
+            definition["begrip"], definition["definitie"]
         )
 
         # Mock validation rule that checks UFO category
         def validate_ufo_consistency(data, ufo_category):
             # Check if old category aligns with UFO category
-            if data['categorie'] == 'type' and ufo_category == UFOCategory.KIND:
+            if data["categorie"] == "type" and ufo_category == UFOCategory.KIND:
                 return True
-            if data['categorie'] == 'proces' and ufo_category == UFOCategory.EVENT:
+            if data["categorie"] == "proces" and ufo_category == UFOCategory.EVENT:
                 return True
             # ROLE doesn't map directly to old categories
             return ufo_category == UFOCategory.ROLE
 
-        is_consistent = validate_ufo_consistency(definition, ufo_result.primary_category)
+        is_consistent = validate_ufo_consistency(
+            definition, ufo_result.primary_category
+        )
         assert is_consistent or ufo_result.primary_category == UFOCategory.ROLE
 
     def test_approval_workflow_with_ufo(self, orchestrator):
         """Test approval workflow considering UFO confidence"""
         # Low confidence classification
         low_conf_result = orchestrator.ufo_classifier.classify(
-            "vague",
-            "unclear definition"
+            "vague", "unclear definition"
         )
 
         # High confidence classification
         high_conf_result = orchestrator.ufo_classifier.classify(
-            "rechtspersoon",
-            "Een juridische entiteit met rechtspersoonlijkheid"
+            "rechtspersoon", "Een juridische entiteit met rechtspersoonlijkheid"
         )
 
         # Mock workflow service
@@ -356,10 +354,10 @@ class TestServiceOrchestration:
         # Mock data with UFO categories
         export_data = [
             {
-                'begrip': 'verdachte',
-                'definitie': 'Persoon verdacht',
-                'ufo_categorie': 'Role',
-                'ufo_confidence': 0.85
+                "begrip": "verdachte",
+                "definitie": "Persoon verdacht",
+                "ufo_categorie": "Role",
+                "ufo_confidence": 0.85,
             }
         ]
 
@@ -367,30 +365,27 @@ class TestServiceOrchestration:
         orchestrator.export_service.export_to_json = Mock(return_value=True)
 
         # Export with UFO data
-        orchestrator.export_service.export_to_json(
-            export_data,
-            include_ufo=True
-        )
+        orchestrator.export_service.export_to_json(export_data, include_ufo=True)
 
         orchestrator.export_service.export_to_json.assert_called_once_with(
-            export_data,
-            include_ufo=True
+            export_data, include_ufo=True
         )
 
 
 class TestDatabaseIntegration:
     """Test database integration for UFO classifier"""
 
-    @pytest.fixture
+    @pytest.fixture()
     def test_db(self):
         """Create test database"""
-        with tempfile.NamedTemporaryFile(suffix='.db', delete=False) as f:
+        with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as f:
             db_path = f.name
 
         conn = sqlite3.connect(db_path)
 
         # Create schema
-        conn.executescript("""
+        conn.executescript(
+            """
             CREATE TABLE definities (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 begrip TEXT NOT NULL,
@@ -413,7 +408,8 @@ class TestDatabaseIntegration:
                 timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (definition_id) REFERENCES definities(id)
             );
-        """)
+        """
+        )
 
         conn.commit()
         yield conn, db_path
@@ -427,30 +423,29 @@ class TestDatabaseIntegration:
         classifier = UFOClassifierService()
 
         # Classify
-        result = classifier.classify(
-            "verdachte",
-            "Persoon verdacht van strafbaar feit"
-        )
+        result = classifier.classify("verdachte", "Persoon verdacht van strafbaar feit")
 
         # Save to database
-        cursor = conn.execute("""
+        cursor = conn.execute(
+            """
             INSERT INTO definities (begrip, definitie, ufo_suggestion, ufo_confidence, ufo_source)
             VALUES (?, ?, ?, ?, ?)
-        """, (
-            "verdachte",
-            "Persoon verdacht van strafbaar feit",
-            result.primary_category.value,
-            result.confidence,
-            'auto'
-        ))
+        """,
+            (
+                "verdachte",
+                "Persoon verdacht van strafbaar feit",
+                result.primary_category.value,
+                result.confidence,
+                "auto",
+            ),
+        )
 
         conn.commit()
         definition_id = cursor.lastrowid
 
         # Verify saved
         saved = conn.execute(
-            "SELECT * FROM definities WHERE id = ?",
-            (definition_id,)
+            "SELECT * FROM definities WHERE id = ?", (definition_id,)
         ).fetchone()
 
         assert saved is not None
@@ -463,10 +458,13 @@ class TestDatabaseIntegration:
         classifier = UFOClassifierService()
 
         # Insert initial record
-        cursor = conn.execute("""
+        cursor = conn.execute(
+            """
             INSERT INTO definities (begrip, definitie)
             VALUES (?, ?)
-        """, ("verdachte", "Persoon verdacht"))
+        """,
+            ("verdachte", "Persoon verdacht"),
+        )
         conn.commit()
         def_id = cursor.lastrowid
 
@@ -474,26 +472,32 @@ class TestDatabaseIntegration:
         result = classifier.classify("verdachte", "Persoon verdacht")
 
         # Update with classification
-        conn.execute("""
+        conn.execute(
+            """
             UPDATE definities
             SET ufo_suggestion = ?, ufo_confidence = ?, ufo_source = ?,
                 updated_at = CURRENT_TIMESTAMP
             WHERE id = ?
-        """, (result.primary_category.value, result.confidence, 'auto', def_id))
+        """,
+            (result.primary_category.value, result.confidence, "auto", def_id),
+        )
 
         # Add to history
-        conn.execute("""
+        conn.execute(
+            """
             INSERT INTO definition_ufo_history
             (definition_id, old_category, new_category, confidence, source)
             VALUES (?, ?, ?, ?, ?)
-        """, (def_id, None, result.primary_category.value, result.confidence, 'auto'))
+        """,
+            (def_id, None, result.primary_category.value, result.confidence, "auto"),
+        )
 
         conn.commit()
 
         # Verify update
         updated = conn.execute(
             "SELECT ufo_suggestion, ufo_confidence FROM definities WHERE id = ?",
-            (def_id,)
+            (def_id,),
         ).fetchone()
 
         assert updated[0] == result.primary_category.value
@@ -501,8 +505,7 @@ class TestDatabaseIntegration:
 
         # Verify history
         history = conn.execute(
-            "SELECT * FROM definition_ufo_history WHERE definition_id = ?",
-            (def_id,)
+            "SELECT * FROM definition_ufo_history WHERE definition_id = ?", (def_id,)
         ).fetchone()
 
         assert history is not None
@@ -517,13 +520,13 @@ class TestDatabaseIntegration:
         test_data = [
             ("verdachte", "Persoon verdacht van strafbaar feit"),
             ("proces", "Juridische procedure"),
-            ("overeenkomst", "Contract tussen partijen")
+            ("overeenkomst", "Contract tussen partijen"),
         ]
 
         for begrip, definitie in test_data:
             conn.execute(
                 "INSERT INTO definities (begrip, definitie) VALUES (?, ?)",
-                (begrip, definitie)
+                (begrip, definitie),
             )
         conn.commit()
 
@@ -535,11 +538,14 @@ class TestDatabaseIntegration:
         for def_id, begrip, definitie in definitions:
             result = classifier.classify(begrip, definitie)
 
-            conn.execute("""
+            conn.execute(
+                """
                 UPDATE definities
                 SET ufo_suggestion = ?, ufo_confidence = ?, ufo_source = ?
                 WHERE id = ?
-            """, (result.primary_category.value, result.confidence, 'auto', def_id))
+            """,
+                (result.primary_category.value, result.confidence, "auto", def_id),
+            )
 
             update_count += 1
 
@@ -564,26 +570,37 @@ class TestDatabaseIntegration:
             ("verdachte", "Persoon verdacht van strafbaar feit"),  # High confidence
             ("vague", "unclear"),  # Low confidence
             ("abstract", "something"),  # Low confidence
-            ("rechtspersoon", "Juridische entiteit")  # High confidence
+            ("rechtspersoon", "Juridische entiteit"),  # High confidence
         ]
 
         for begrip, definitie in test_data:
             result = classifier.classify(begrip, definitie)
-            conn.execute("""
+            conn.execute(
+                """
                 INSERT INTO definities
                 (begrip, definitie, ufo_suggestion, ufo_confidence, ufo_source)
                 VALUES (?, ?, ?, ?, ?)
-            """, (begrip, definitie, result.primary_category.value, result.confidence, 'auto'))
+            """,
+                (
+                    begrip,
+                    definitie,
+                    result.primary_category.value,
+                    result.confidence,
+                    "auto",
+                ),
+            )
 
         conn.commit()
 
         # Query low confidence items
-        cursor = conn.execute("""
+        cursor = conn.execute(
+            """
             SELECT begrip, definitie, ufo_suggestion, ufo_confidence
             FROM definities
             WHERE ufo_confidence < 0.6
             ORDER BY ufo_confidence ASC
-        """)
+        """
+        )
 
         low_confidence = cursor.fetchall()
 

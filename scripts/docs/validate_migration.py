@@ -3,21 +3,24 @@
 
 import re
 from pathlib import Path
+
 import yaml
+
 
 def extract_frontmatter(filepath):
     """Extract YAML frontmatter from markdown file."""
-    with open(filepath, 'r') as f:
+    with open(filepath) as f:
         content = f.read()
 
-    if content.startswith('---'):
-        parts = content.split('---', 2)
+    if content.startswith("---"):
+        parts = content.split("---", 2)
         if len(parts) >= 3:
             try:
                 return yaml.safe_load(parts[1])
             except:
                 return {}
     return {}
+
 
 def validate_migration():
     """Validate the complete migration."""
@@ -56,32 +59,32 @@ def validate_migration():
     stories_in_epics = set()
     for epic in epic_files:
         meta = extract_frontmatter(epic)
-        if 'stories' in meta:
-            stories = meta['stories']
+        if "stories" in meta:
+            stories = meta["stories"]
             if isinstance(stories, list):
                 for story in stories:
                     if isinstance(story, str):
-                        story_id = story.split()[0] if ' ' in story else story
+                        story_id = story.split()[0] if " " in story else story
                         stories_in_epics.add(story_id)
 
     # Collect all epic references from stories
     epics_from_stories = set()
     for story in story_files:
         meta = extract_frontmatter(story)
-        if 'epic' in meta:
-            epics_from_stories.add(meta['epic'])
+        if "epic" in meta:
+            epics_from_stories.add(meta["epic"])
 
     # Collect all requirement references
     requirements_referenced = set()
     for epic in epic_files:
         meta = extract_frontmatter(epic)
-        if 'requirements' in meta and isinstance(meta['requirements'], list):
-            requirements_referenced.update(meta['requirements'])
+        if "requirements" in meta and isinstance(meta["requirements"], list):
+            requirements_referenced.update(meta["requirements"])
 
     for story in story_files:
         meta = extract_frontmatter(story)
-        if 'requirements' in meta and isinstance(meta['requirements'], list):
-            requirements_referenced.update(meta['requirements'])
+        if "requirements" in meta and isinstance(meta["requirements"], list):
+            requirements_referenced.update(meta["requirements"])
 
     print(f"  Stories referenced in epics: {len(stories_in_epics)}")
     print(f"  Epics referenced from stories: {len(epics_from_stories)}")
@@ -93,14 +96,14 @@ def validate_migration():
     if orphaned:
         print(f"\n⚠️  Orphaned stories (not in any epic): {orphaned}")
     else:
-        print(f"\n✅ All stories are linked to epics")
+        print("\n✅ All stories are linked to epics")
 
     # Check for missing stories
     missing = stories_in_epics - actual_story_ids
     if missing:
         print(f"⚠️  Missing story files: {missing}")
     else:
-        print(f"✅ All referenced stories exist")
+        print("✅ All referenced stories exist")
 
     # Check requirements exist
     actual_req_ids = {f.stem for f in req_files}
@@ -108,7 +111,7 @@ def validate_migration():
     if missing_reqs:
         print(f"⚠️  Missing requirement files: {missing_reqs}")
     else:
-        print(f"✅ All referenced requirements exist")
+        print("✅ All referenced requirements exist")
 
     # Summary
     print("\n" + "=" * 60)
@@ -117,12 +120,13 @@ def validate_migration():
     print(f"Epics: {len(epic_files)}")
     print(f"Stories: {len(story_files)}")
     print(f"Requirements: {len(req_files)}")
-    print(f"Cross-references validated: ✅")
+    print("Cross-references validated: ✅")
 
     if not orphaned and not missing and not missing_reqs:
         print("\n🎉 MIGRATION SUCCESSFUL - All validations passed!")
     else:
         print("\n⚠️  MIGRATION COMPLETE - Some issues need attention")
+
 
 if __name__ == "__main__":
     validate_migration()

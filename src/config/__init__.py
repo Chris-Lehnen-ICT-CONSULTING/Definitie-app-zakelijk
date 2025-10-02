@@ -12,12 +12,12 @@ from typing import Any
 
 # Legacy loaders kept for back-compat (used by some docs/tools)
 from .config_loader import laad_toetsregels, laad_verboden_woorden
+from .config_manager import APIConfig
+from .config_manager import CacheConfig as _CacheCfg
+from .config_manager import ConfigSection
+from .config_manager import PathsConfig as _PathsCfg
+from .config_manager import ValidationConfig as _ValCfg
 from .config_manager import (
-    APIConfig,
-    CacheConfig as _CacheCfg,
-    ValidationConfig as _ValCfg,
-    ConfigSection,
-    PathsConfig as _PathsCfg,
     get_config,
     get_config_manager,
     get_default_model,
@@ -38,7 +38,9 @@ class APIConfigAdapter:
         if entry:
             return {
                 "model": m,
-                "temperature": entry.get("temperature", self.config.default_temperature),
+                "temperature": entry.get(
+                    "temperature", self.config.default_temperature
+                ),
                 "max_tokens": entry.get("max_tokens", self.config.default_max_tokens),
             }
         # Fallback to defaults when model not found
@@ -90,10 +92,14 @@ class CacheConfigAdapter:
     def get_operation_ttl(self, name: str) -> int:
         # Map known operations; fall back to default TTL
         mapping = {
-            "definition": getattr(self.config, "definition_ttl", self.config.default_ttl),
+            "definition": getattr(
+                self.config, "definition_ttl", self.config.default_ttl
+            ),
             "examples": getattr(self.config, "examples_ttl", self.config.default_ttl),
             "synonyms": getattr(self.config, "synonyms_ttl", self.config.default_ttl),
-            "validation": getattr(self.config, "validation_ttl", self.config.default_ttl),
+            "validation": getattr(
+                self.config, "validation_ttl", self.config.default_ttl
+            ),
         }
         return int(mapping.get(name, self.config.default_ttl))
 

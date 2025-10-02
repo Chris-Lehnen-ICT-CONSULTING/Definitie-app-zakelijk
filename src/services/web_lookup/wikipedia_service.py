@@ -101,7 +101,9 @@ class WikipediaService:
 
             # Sla disambiguation-pagina's over (te weinig inhoudelijk bruikbaar)
             if page_details and page_details.get("type") == "disambiguation":
-                logger.info("Wikipedia disambiguation page skipped: %s", page_info["title"])
+                logger.info(
+                    "Wikipedia disambiguation page skipped: %s", page_info["title"]
+                )
                 return None
 
             if not page_details:

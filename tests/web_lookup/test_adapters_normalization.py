@@ -11,7 +11,9 @@ def test_wikipedia_build_lookup_result_contract_like():
         "title": "Amsterdam",
         "type": "standard",
         "timestamp": "2025-01-01T00:00:00Z",
-        "content_urls": {"desktop": {"page": "https://nl.wikipedia.org/wiki/Amsterdam"}},
+        "content_urls": {
+            "desktop": {"page": "https://nl.wikipedia.org/wiki/Amsterdam"}
+        },
         "extract": "Amsterdam is de hoofdstad van Nederland.",
     }
 
@@ -25,7 +27,7 @@ def test_wikipedia_build_lookup_result_contract_like():
 
 
 def test_sru_parse_response_adds_metadata_and_url():
-    from services.web_lookup.sru_service import SRUService, SRUConfig
+    from services.web_lookup.sru_service import SRUConfig, SRUService
 
     svc = SRUService()
     cfg = SRUConfig(
@@ -37,7 +39,7 @@ def test_sru_parse_response_adds_metadata_and_url():
         is_juridical=True,
     )
 
-    xml = f"""
+    xml = """
     <srw:searchRetrieveResponse xmlns:srw="http://www.loc.gov/zing/srw/" xmlns:dc="http://purl.org/dc/elements/1.1/">
       <srw:records>
         <srw:record>

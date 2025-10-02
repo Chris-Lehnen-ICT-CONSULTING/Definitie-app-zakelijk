@@ -2,13 +2,15 @@
 Comprehensive test suite for caching system.
 Tests cache functionality, TTL management, performance, and integration.
 """
-import pytest
+
 import os
-import time
-import tempfile
 import shutil
-from unittest.mock import patch, MagicMock, call
+import tempfile
+import time
 from datetime import datetime, timedelta
+from unittest.mock import MagicMock, call, patch
+
+import pytest
 
 from utils.cache import cached, clear_cache, get_cache_stats
 
@@ -143,6 +145,7 @@ class TestCacheDecorator:
 
     def test_cache_key_generation(self):
         """Test cache key generation for different scenarios."""
+
         @cached(ttl=60)
         def test_function(x, y=None):
             return x + (y or 0)
@@ -171,9 +174,9 @@ class TestCacheDecorator:
         test_function(1)  # Hit
 
         stats = get_cache_stats()
-        assert stats['hits'] == 3
-        assert stats['misses'] == 2
-        assert stats['hit_rate'] == 0.6  # 3/5
+        assert stats["hits"] == 3
+        assert stats["misses"] == 2
+        assert stats["hit_rate"] == 0.6  # 3/5
 
 
 @pytest.mark.skipif(CacheManager is None, reason="CacheManager not available")
@@ -201,17 +204,17 @@ class TestCacheManager:
     def test_cache_set_get(self):
         """Test basic cache set and get operations."""
         # Test setting and getting values
-        self.cache_manager.set('key1', 'value1', ttl=60)
-        result = self.cache_manager.get('key1')
-        assert result == 'value1'
+        self.cache_manager.set("key1", "value1", ttl=60)
+        result = self.cache_manager.get("key1")
+        assert result == "value1"
 
         # Test non-existent key
-        result = self.cache_manager.get('nonexistent')
+        result = self.cache_manager.get("nonexistent")
         assert result is None
 
         # Test default value
-        result = self.cache_manager.get('nonexistent', default='default_value')
-        assert result == 'default_value'
+        result = self.cache_manager.get("nonexistent", default="default_value")
+        assert result == "default_value"
 
     def test_cache_expiration_in_manager(self, monkeypatch):
         """Test cache expiration in manager."""
@@ -225,48 +228,48 @@ class TestCacheManager:
             monkeypatch.setattr(self.cache_manager, "_now", _fake_now, raising=True)
 
         # Set value with 1 second TTL at t=0
-        self.cache_manager.set('key1', 'value1', ttl=1)
+        self.cache_manager.set("key1", "value1", ttl=1)
 
         # Should exist immediately
-        result = self.cache_manager.get('key1')
-        assert result == 'value1', "Value should be available immediately after setting"
+        result = self.cache_manager.get("key1")
+        assert result == "value1", "Value should be available immediately after setting"
 
         # Advance internal clock by > 1s (no real sleep)
         base[0] = 2.0
 
         # Should be expired with advanced clock
-        result = self.cache_manager.get('key1')
+        result = self.cache_manager.get("key1")
         assert result is None, "Value should be expired after TTL"
 
     def test_cache_delete(self):
         """Test cache deletion."""
         # Set value
-        self.cache_manager.set('key1', 'value1', ttl=60)
-        assert self.cache_manager.get('key1') == 'value1'
+        self.cache_manager.set("key1", "value1", ttl=60)
+        assert self.cache_manager.get("key1") == "value1"
 
         # Delete value
-        self.cache_manager.delete('key1')
-        assert self.cache_manager.get('key1') is None
+        self.cache_manager.delete("key1")
+        assert self.cache_manager.get("key1") is None
 
         # Delete non-existent key should not raise error
-        self.cache_manager.delete('nonexistent')
+        self.cache_manager.delete("nonexistent")
 
     def test_cache_clear(self):
         """Test cache clearing."""
         # Set multiple values
-        self.cache_manager.set('key1', 'value1', ttl=60)
-        self.cache_manager.set('key2', 'value2', ttl=60)
+        self.cache_manager.set("key1", "value1", ttl=60)
+        self.cache_manager.set("key2", "value2", ttl=60)
 
         # Verify values exist
-        assert self.cache_manager.get('key1') == 'value1'
-        assert self.cache_manager.get('key2') == 'value2'
+        assert self.cache_manager.get("key1") == "value1"
+        assert self.cache_manager.get("key2") == "value2"
 
         # Clear cache
         self.cache_manager.clear()
 
         # Verify values are gone
-        assert self.cache_manager.get('key1') is None
-        assert self.cache_manager.get('key2') is None
+        assert self.cache_manager.get("key1") is None
+        assert self.cache_manager.get("key2") is None
 
     def test_cache_size_management(self):
         """Test cache size management."""
@@ -274,46 +277,46 @@ class TestCacheManager:
         small_cache = CacheManager(cache_dir=self.temp_dir, max_size=2)
 
         # Add items up to max size
-        small_cache.set('key1', 'value1', ttl=60)
-        small_cache.set('key2', 'value2', ttl=60)
+        small_cache.set("key1", "value1", ttl=60)
+        small_cache.set("key2", "value2", ttl=60)
 
         # Both should exist
-        assert small_cache.get('key1') == 'value1'
-        assert small_cache.get('key2') == 'value2'
+        assert small_cache.get("key1") == "value1"
+        assert small_cache.get("key2") == "value2"
 
         # Add third item (should trigger eviction)
-        small_cache.set('key3', 'value3', ttl=60)
+        small_cache.set("key3", "value3", ttl=60)
 
         # One of the earlier items should be evicted
         # (depends on eviction policy - LRU)
-        assert small_cache.get('key3') == 'value3'
+        assert small_cache.get("key3") == "value3"
 
     def test_cache_persistence(self):
         """Test cache persistence to disk."""
         # Set value with file cache
-        self.cache_manager.set('persistent_key', 'persistent_value', ttl=60)
+        self.cache_manager.set("persistent_key", "persistent_value", ttl=60)
 
         # Create new cache manager with same directory
         new_cache_manager = CacheManager(cache_dir=self.temp_dir)
 
         # Value should be persisted
-        result = new_cache_manager.get('persistent_key')
-        assert result == 'persistent_value'
+        result = new_cache_manager.get("persistent_key")
+        assert result == "persistent_value"
 
     def test_cache_stats_in_manager(self):
         """Test cache statistics in manager."""
         # Perform various operations
-        self.cache_manager.set('key1', 'value1', ttl=60)
-        self.cache_manager.get('key1')  # Hit
-        self.cache_manager.get('key1')  # Hit
-        self.cache_manager.get('nonexistent')  # Miss
+        self.cache_manager.set("key1", "value1", ttl=60)
+        self.cache_manager.get("key1")  # Hit
+        self.cache_manager.get("key1")  # Hit
+        self.cache_manager.get("nonexistent")  # Miss
 
         stats = self.cache_manager.get_stats()
-        assert 'hits' in stats
-        assert 'misses' in stats
-        assert 'hit_rate' in stats
-        assert stats['hits'] >= 2
-        assert stats['misses'] >= 1
+        assert "hits" in stats
+        assert "misses" in stats
+        assert "hit_rate" in stats
+        assert stats["hits"] >= 2
+        assert stats["misses"] >= 1
 
 
 @pytest.mark.skipif(EnhancedCache is None, reason="EnhancedCache not available")
@@ -332,43 +335,44 @@ class TestEnhancedCache:
     def test_enhanced_cache_initialization(self):
         """Test EnhancedCache initialization."""
         assert self.enhanced_cache.cache_dir == self.temp_dir
-        assert hasattr(self.enhanced_cache, 'memory_cache')
-        assert hasattr(self.enhanced_cache, 'file_cache')
+        assert hasattr(self.enhanced_cache, "memory_cache")
+        assert hasattr(self.enhanced_cache, "file_cache")
 
     def test_multi_level_caching(self):
         """Test multi-level caching (memory + file)."""
         # Set value
-        self.enhanced_cache.set('key1', 'value1', ttl=60)
+        self.enhanced_cache.set("key1", "value1", ttl=60)
 
         # Should be in memory cache
-        result = self.enhanced_cache.get('key1')
-        assert result == 'value1'
+        result = self.enhanced_cache.get("key1")
+        assert result == "value1"
 
         # Clear memory cache but keep file cache
         self.enhanced_cache.memory_cache.clear()
 
         # Should still be available from file cache
-        result = self.enhanced_cache.get('key1')
-        assert result == 'value1'
+        result = self.enhanced_cache.get("key1")
+        assert result == "value1"
 
     def test_cache_warming(self):
         """Test cache warming functionality."""
+
         # Mock function to warm cache
         def warm_function():
-            return {'key1': 'value1', 'key2': 'value2'}
+            return {"key1": "value1", "key2": "value2"}
 
         # Warm cache
         self.enhanced_cache.warm_cache(warm_function)
 
         # Values should be available
-        assert self.enhanced_cache.get('key1') == 'value1'
-        assert self.enhanced_cache.get('key2') == 'value2'
+        assert self.enhanced_cache.get("key1") == "value1"
+        assert self.enhanced_cache.get("key2") == "value2"
 
     def test_cache_cleanup(self, monkeypatch):
         """Test cache cleanup functionality."""
         # Set values with different TTLs
-        self.enhanced_cache.set('key1', 'value1', ttl=0.1)  # Short TTL
-        self.enhanced_cache.set('key2', 'value2', ttl=60)   # Long TTL
+        self.enhanced_cache.set("key1", "value1", ttl=0.1)  # Short TTL
+        self.enhanced_cache.set("key2", "value2", ttl=60)  # Long TTL
 
         # Try to advance internal clock if available; fallback to tiny real sleep
         advanced = False
@@ -380,7 +384,9 @@ class TestEnhancedCache:
                     return base[0] + 1.0
 
                 try:
-                    monkeypatch.setattr(self.enhanced_cache, attr, _fake_now, raising=True)
+                    monkeypatch.setattr(
+                        self.enhanced_cache, attr, _fake_now, raising=True
+                    )
                     advanced = True
                     break
                 except Exception:
@@ -394,42 +400,42 @@ class TestEnhancedCache:
         self.enhanced_cache.cleanup_expired()
 
         # Expired key should be gone, valid key should remain
-        assert self.enhanced_cache.get('key1') is None
-        assert self.enhanced_cache.get('key2') == 'value2'
+        assert self.enhanced_cache.get("key1") is None
+        assert self.enhanced_cache.get("key2") == "value2"
 
     def test_cache_preloading(self):
         """Test cache preloading functionality."""
         # Define preload data
         preload_data = {
-            'preload_key1': 'preload_value1',
-            'preload_key2': 'preload_value2'
+            "preload_key1": "preload_value1",
+            "preload_key2": "preload_value2",
         }
 
         # Preload cache
         self.enhanced_cache.preload(preload_data, ttl=60)
 
         # Values should be available
-        assert self.enhanced_cache.get('preload_key1') == 'preload_value1'
-        assert self.enhanced_cache.get('preload_key2') == 'preload_value2'
+        assert self.enhanced_cache.get("preload_key1") == "preload_value1"
+        assert self.enhanced_cache.get("preload_key2") == "preload_value2"
 
     def test_cache_performance_monitoring(self):
         """Test cache performance monitoring."""
         # Perform operations
-        self.enhanced_cache.set('key1', 'value1', ttl=60)
-        self.enhanced_cache.get('key1')  # Hit
-        self.enhanced_cache.get('key1')  # Hit
-        self.enhanced_cache.get('nonexistent')  # Miss
+        self.enhanced_cache.set("key1", "value1", ttl=60)
+        self.enhanced_cache.get("key1")  # Hit
+        self.enhanced_cache.get("key1")  # Hit
+        self.enhanced_cache.get("nonexistent")  # Miss
 
         # Get performance metrics
         metrics = self.enhanced_cache.get_performance_metrics()
 
-        assert 'hit_rate' in metrics
-        assert 'average_response_time' in metrics
-        assert 'memory_usage' in metrics
-        assert 'cache_size' in metrics
+        assert "hit_rate" in metrics
+        assert "average_response_time" in metrics
+        assert "memory_usage" in metrics
+        assert "cache_size" in metrics
 
-        assert metrics['hit_rate'] > 0
-        assert metrics['average_response_time'] >= 0
+        assert metrics["hit_rate"] > 0
+        assert metrics["average_response_time"] >= 0
 
 
 class TestCacheIntegration:
@@ -462,7 +468,7 @@ class TestCacheIntegration:
         # Verify in cache manager
         # Note: The actual key depends on implementation
         stats = cache_manager.get_stats()
-        assert stats['hits'] > 0
+        assert stats["hits"] > 0
 
     def test_cache_configuration_integration(self):
         """Test cache integration with configuration system."""
@@ -474,31 +480,32 @@ class TestCacheIntegration:
 
         # Create cache manager with configuration
         cache_manager = CacheManager(
-            cache_dir=cache_settings['cache_dir'],
-            max_size=cache_settings['max_cache_size'],
-            default_ttl=cache_settings['default_ttl']
+            cache_dir=cache_settings["cache_dir"],
+            max_size=cache_settings["max_cache_size"],
+            default_ttl=cache_settings["default_ttl"],
         )
 
         # Test that configuration is applied
-        assert cache_manager.default_ttl == cache_settings['default_ttl']
-        assert cache_manager.max_size == cache_settings['max_cache_size']
+        assert cache_manager.default_ttl == cache_settings["default_ttl"]
+        assert cache_manager.max_size == cache_settings["max_cache_size"]
 
     def test_cache_with_different_data_types(self):
         """Test caching with various data types."""
+
         @cached(ttl=60)
         def test_function(data_type, value):
             return f"{data_type}: {value}"
 
         # Test different data types
         test_cases = [
-            ('string', 'hello'),
-            ('int', 42),
-            ('float', 3.14),
-            ('list', [1, 2, 3]),
-            ('dict', {'key': 'value'}),
-            ('tuple', (1, 2, 3)),
-            ('bool', True),
-            ('none', None)
+            ("string", "hello"),
+            ("int", 42),
+            ("float", 3.14),
+            ("list", [1, 2, 3]),
+            ("dict", {"key": "value"}),
+            ("tuple", (1, 2, 3)),
+            ("bool", True),
+            ("none", None),
         ]
 
         for data_type, value in test_cases:
@@ -511,6 +518,7 @@ class TestCacheIntegration:
 
     def test_cache_error_handling(self):
         """Test cache error handling."""
+
         @cached(ttl=60)
         def error_function():
             raise ValueError("Test error")
@@ -529,11 +537,11 @@ class TestCacheIntegration:
 
         # Add many items
         for i in range(10):
-            small_cache.set(f'key_{i}', f'value_{i}', ttl=60)
+            small_cache.set(f"key_{i}", f"value_{i}", ttl=60)
 
         # Should have evicted some items
         stats = small_cache.get_stats()
-        assert stats['evictions'] > 0
+        assert stats["evictions"] > 0
 
     def test_concurrent_cache_access(self):
         """Test concurrent access to cache."""
@@ -545,8 +553,8 @@ class TestCacheIntegration:
         def cache_worker(worker_id):
             # Each worker performs cache operations
             for i in range(10):
-                key = f'worker_{worker_id}_key_{i}'
-                value = f'worker_{worker_id}_value_{i}'
+                key = f"worker_{worker_id}_key_{i}"
+                value = f"worker_{worker_id}_value_{i}"
                 cache_manager.set(key, value, ttl=60)
                 result = cache_manager.get(key)
                 results.append(result == value)
@@ -587,13 +595,13 @@ class TestCachePerformance:
         # Measure cache set performance
         start_time = time.time()
         for i in range(1000):
-            self.cache_manager.set(f'key_{i}', f'value_{i}', ttl=60)
+            self.cache_manager.set(f"key_{i}", f"value_{i}", ttl=60)
         set_time = time.time() - start_time
 
         # Measure cache get performance
         start_time = time.time()
         for i in range(1000):
-            self.cache_manager.get(f'key_{i}')
+            self.cache_manager.get(f"key_{i}")
         get_time = time.time() - start_time
 
         # Performance should be reasonable
@@ -602,12 +610,13 @@ class TestCachePerformance:
 
         # Hit rate should be high
         stats = self.cache_manager.get_stats()
-        assert stats['hit_rate'] > 0.9  # 90% hit rate
+        assert stats["hit_rate"] > 0.9  # 90% hit rate
 
     def test_memory_usage_monitoring(self):
         """Test memory usage monitoring."""
-        import psutil
         import os
+
+        import psutil
 
         # Get initial memory usage
         process = psutil.Process(os.getpid())
@@ -615,7 +624,7 @@ class TestCachePerformance:
 
         # Add many items to cache
         for i in range(5000):
-            self.cache_manager.set(f'key_{i}', f'value_{i}' * 100, ttl=60)
+            self.cache_manager.set(f"key_{i}", f"value_{i}" * 100, ttl=60)
 
         # Check memory usage
         final_memory = process.memory_info().rss
@@ -631,23 +640,24 @@ class TestCachePerformance:
 
         # First, populate cache
         for i in range(100):
-            self.cache_manager.set(f'key_{i}', f'value_{i}', ttl=60)
+            self.cache_manager.set(f"key_{i}", f"value_{i}", ttl=60)
 
         # Simulate access pattern
         for _ in range(1000):
             import random
+
             if random.random() < 0.8:  # 80% hits
-                key = f'key_{random.randint(0, 99)}'
+                key = f"key_{random.randint(0, 99)}"
                 self.cache_manager.get(key)
             else:  # 20% misses
-                key = f'miss_key_{random.randint(0, 99)}'
+                key = f"miss_key_{random.randint(0, 99)}"
                 self.cache_manager.get(key)
 
         # Check efficiency metrics
         stats = self.cache_manager.get_stats()
-        assert stats['hit_rate'] > 0.7  # Should be > 70%
-        assert stats['hit_rate'] < 0.9  # Should be < 90% (due to misses)
+        assert stats["hit_rate"] > 0.7  # Should be > 70%
+        assert stats["hit_rate"] < 0.9  # Should be < 90% (due to misses)
 
 
-if __name__ == '__main__':
-    pytest.main([__file__, '-v'])
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

@@ -3,12 +3,13 @@ Unit tests for US-042: Fix "Anders..." Custom Context Option.
 Tests the context selector to ensure custom options work without crashes.
 """
 
+from unittest.mock import MagicMock, Mock, patch
+
 import pytest
-from unittest.mock import Mock, patch, MagicMock
 import streamlit as st
 
 # Import after mocking streamlit
-with patch('streamlit.multiselect'), patch('streamlit.text_input'):
+with patch("streamlit.multiselect"), patch("streamlit.text_input"):
     from src.ui.components.context_selector import ContextSelector
 
 
@@ -19,9 +20,11 @@ class TestAndersOptionFix:
         """Set up test fixtures."""
         self.selector = ContextSelector()
 
-    @patch('streamlit.multiselect')
-    @patch('streamlit.text_input')
-    def test_anders_removed_from_final_list_organisatorisch(self, mock_text_input, mock_multiselect):
+    @patch("streamlit.multiselect")
+    @patch("streamlit.text_input")
+    def test_anders_removed_from_final_list_organisatorisch(
+        self, mock_text_input, mock_multiselect
+    ):
         """Test that 'Anders...' is removed from final organisatorische_context list."""
         # Simulate user selecting "Anders..." and entering custom text
         mock_multiselect.return_value = ["DJI", "Anders..."]
@@ -34,7 +37,7 @@ class TestAndersOptionFix:
         # This test validates the fix for the multiselect crash
         assert "Anders..." not in ["DJI", "Ministerie van Justitie"]
 
-    @patch('streamlit.multiselect')
+    @patch("streamlit.multiselect")
     def test_multiselect_default_value_fix(self, mock_multiselect):
         """Test that multiselect doesn't crash with modified default values."""
         # The bug: When "Anders..." is selected and custom text added,
@@ -131,12 +134,12 @@ class TestAndersOptionFix:
 class TestMultiselectStateFix:
     """Test the multiselect state management fix."""
 
-    @patch('streamlit.session_state', new_callable=dict)
+    @patch("streamlit.session_state", new_callable=dict)
     def test_session_state_consistency(self, mock_session_state):
         """Test that session state remains consistent after Anders... processing."""
         # Initial state
-        mock_session_state['organisatorische_context'] = ["DJI", "Anders..."]
-        mock_session_state['custom_org'] = "Test Org"
+        mock_session_state["organisatorische_context"] = ["DJI", "Anders..."]
+        mock_session_state["custom_org"] = "Test Org"
 
         # After processing
         # Should be updated to final list without "Anders..."
@@ -164,10 +167,12 @@ class TestMultiselectStateFix:
 class TestContextSelectorIntegration:
     """Integration tests for the complete context selector fix."""
 
-    @patch('streamlit.columns')
-    @patch('streamlit.multiselect')
-    @patch('streamlit.text_input')
-    def test_complete_context_selection_flow(self, mock_text_input, mock_multiselect, mock_columns):
+    @patch("streamlit.columns")
+    @patch("streamlit.multiselect")
+    @patch("streamlit.text_input")
+    def test_complete_context_selection_flow(
+        self, mock_text_input, mock_multiselect, mock_columns
+    ):
         """Test the complete flow of context selection with Anders... option."""
         # Mock the columns
         mock_col1 = MagicMock()

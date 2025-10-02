@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import pytest
+
 """
 Test script voor DefinitionOrchestratorV2 via service factory.
 
@@ -8,7 +9,9 @@ te genereren en te controleren of ontological categories correct werken.
 """
 
 # Legacy compatibility: markeer deze suite als informatief en uitgesloten in PR-profiel
-pytestmark = pytest.mark.xfail(reason="Legacy fallback/CLI-style script (excluded in PR)", strict=False)
+pytestmark = pytest.mark.xfail(
+    reason="Legacy fallback/CLI-style script (excluded in PR)", strict=False
+)
 
 import asyncio
 import os
@@ -19,8 +22,8 @@ from pathlib import Path
 # Voeg src toe aan Python path
 sys.path.insert(0, str(Path(__file__).parent / "src"))
 
-from services.service_factory import get_definition_service
 from services.interfaces import GenerationRequest
+from services.service_factory import get_definition_service
 
 
 async def test_v2_orchestrator():
@@ -32,9 +35,10 @@ async def test_v2_orchestrator():
 
     try:
         # Get service directly via container to avoid asyncio issues
+        import uuid
+
         from services.container import get_container
         from services.interfaces import GenerationRequest
-        import uuid
 
         container = get_container()
         orchestrator = container.orchestrator()  # Should be V2 orchestrator
@@ -51,7 +55,7 @@ async def test_v2_orchestrator():
             context="DJI",
             ontologische_categorie="proces",
             actor="test_script",
-            legal_basis="testing"
+            legal_basis="testing",
         )
 
         response = await orchestrator.create_definition(request)
@@ -67,8 +71,12 @@ async def test_v2_orchestrator():
 
             # Check if ontological category was properly handled
             if response.metadata:
-                print(f"🏷️  Ontological category: {response.metadata.get('ontological_category', 'Not found')}")
-                print(f"🔧 Orchestrator version: {response.metadata.get('orchestrator_version', 'unknown')}")
+                print(
+                    f"🏷️  Ontological category: {response.metadata.get('ontological_category', 'Not found')}"
+                )
+                print(
+                    f"🔧 Orchestrator version: {response.metadata.get('orchestrator_version', 'unknown')}"
+                )
 
         else:
             print(f"❌ Error: {response.error}")
@@ -84,7 +92,7 @@ async def test_v2_orchestrator():
             context="DJI",
             ontologische_categorie="type",
             actor="test_script",
-            legal_basis="testing"
+            legal_basis="testing",
         )
 
         response2 = await orchestrator.create_definition(request2)
@@ -99,7 +107,7 @@ async def test_v2_orchestrator():
                 print(f"📊 Score: {response2.validation_result.score or 0.0}")
 
         # Test 3: Performance comparison
-        print(f"\n📈 Performance Analysis:")
+        print("\n📈 Performance Analysis:")
         print(f"Process generation: {duration:.2f}s")
         print(f"Type generation: {duration2:.2f}s")
         print(f"Average: {(duration + duration2) / 2:.2f}s")
@@ -117,6 +125,7 @@ async def test_v2_orchestrator():
     except Exception as e:
         print(f"💥 Test failed with exception: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
@@ -135,9 +144,7 @@ def test_v1_fallback():
 
         # Quick generation test
         result = service.generate_definition(
-            begrip="test",
-            context_dict={"juridisch": ["test"]},
-            categorie="type"
+            begrip="test", context_dict={"juridisch": ["test"]}, categorie="type"
         )
 
         print(f"✅ V1 Fallback works: {result.success}")

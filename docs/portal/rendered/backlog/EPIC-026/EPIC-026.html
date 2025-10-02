@@ -1,0 +1,441 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>God Object Refactoring (Architectural Debt Resolution)</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>aangemaakt: 2025-09-30</p>
+<p>applies_to: definitie-app@current</p>
+<p>bijgewerkt: 2025-09-30</p>
+<p>canonical: true</p>
+<p>completion: 0%</p>
+<p>id: EPIC-026</p>
+<p>last_verified: 2025-09-30</p>
+<p>owner: code-architect</p>
+<p>prioriteit: P1</p>
+<p>status: proposed</p>
+<p>target_release: v2.2</p>
+<p>titel: God Object Refactoring (Architectural Debt Resolution)</p>
+<p>vereisten:</p>
+<ul>
+<li>REQ-091</li>
+<p>---</p>
+</ul>
+
+<h1>EPIC-026: God Object Refactoring (Architectural Debt Resolution)</h1>
+
+<h2>Epic Overview</h2>
+
+<p><strong>ID:</strong> EPIC-026</p>
+<p><strong>Titel:</strong> God Object Refactoring (Architectural Debt Resolution)</p>
+<p><strong>Status:</strong> PROPOSED</p>
+<p><strong>Priority:</strong> P1</p>
+<p><strong>Created:</strong> 2025-09-30</p>
+<p><strong>Owner:</strong> Code Architect Team</p>
+<p><strong>Target Release:</strong> v2.2</p>
+<p><strong>Predecessor:</strong> EPIC-025 (Brownfield Cleanup)</p>
+
+<h2>Problem Statement</h2>
+
+<p>US-427 discovery revealed that 3 critical files (5872 LOC combined) suffer from <strong>God Object anti-pattern</strong> and cannot be safely split without proper architectural refactoring:</p>
+
+<ul>
+<li>`definition_generator_tab.py`: 2339 LOC, 46+ methods</li>
+<li>`definitie_repository.py`: 1800 LOC, 40+ methods</li>
+<li>`tabbed_interface.py`: 1733 LOC, 38 methods</li>
+</ul>
+
+<p><strong>Impact:</strong></p>
+<ul>
+<li>Unmaintainable code (massive files, unclear responsibilities)</li>
+<li>High regression risk (changes cascade unexpectedly)</li>
+<li>Blocked feature development (cannot safely extend)</li>
+<li>Technical debt accumulation (problem compounds)</li>
+</ul>
+
+<p><strong>Root Cause:</strong> God Object anti-pattern - single classes with too many responsibilities</p>
+
+<p>---</p>
+
+<h2>Business Value</h2>
+
+<h3>Direct Benefits</h3>
+
+<ol>
+<li>**Maintainability** (+200%)</li>
+</ol>
+<ul>
+<li>  - Files < 500 LOC (from 2339 max)</li>
+<li>  - Clear single responsibilities</li>
+<li>  - Testable components</li>
+</ul>
+
+<ol>
+<li>**Development Velocity** (+40%)</li>
+</ol>
+<ul>
+<li>  - Faster feature additions</li>
+<li>  - Reduced regression risk</li>
+<li>  - Parallel development possible</li>
+</ul>
+
+<ol>
+<li>**Code Quality** (Sustainable)</li>
+</ol>
+<ul>
+<li>  - Proper separation of concerns</li>
+<li>  - Dependency injection enabled</li>
+<li>  - Unit test coverage possible</li>
+</ul>
+
+<ol>
+<li>**Onboarding** (-50% time)</li>
+</ol>
+<ul>
+<li>  - Clear module boundaries</li>
+<li>  - Self-documenting structure</li>
+<li>  - Easier to understand</li>
+</ul>
+
+<h3>Risk Reduction</h3>
+
+<ul>
+<li>**Regression risk:** Isolated changes, better tests</li>
+<li>**Breaking changes:** Incremental extraction strategy</li>
+<li>**Technical debt:** Sustainable architecture foundation</li>
+</ul>
+
+<p>---</p>
+
+<h2>Scope</h2>
+
+<h3>In Scope (11-16 days)</h3>
+
+<p><strong>Phase 1: Design (3-5 days)</strong></p>
+<ul>
+<li>Map responsibilities for all 3 God Objects</li>
+<li>Design service boundaries & interfaces</li>
+<li>Create incremental migration plan</li>
+<li>Get architecture review approval</li>
+</ul>
+
+<p><strong>Phase 2: Incremental Extraction (7-10 days)</strong></p>
+<ul>
+<li>`definitie_repository.py`: Extract READ/WRITE/BULK services (2-3 days)</li>
+<li>`definition_generator_tab.py`: Extract UI/Logic/Renderer (3-4 days)</li>
+<li>`tabbed_interface.py`: Extract tab components (2-3 days)</li>
+</ul>
+
+<p><strong>Phase 3: Validation (1 day)</strong></p>
+<ul>
+<li>Coverage >= baseline (73 tests)</li>
+<li>Performance benchmarks</li>
+<li>Code review & approval</li>
+</ul>
+
+<h3>Out of Scope</h3>
+
+<ul>
+<li>**New features:** No functionality changes</li>
+<li>**UI redesign:** Streamlit structure unchanged</li>
+<li>**Database migration:** SQLite remains</li>
+<li>**Other God Objects:** Focus on top 3 only</li>
+<li>**Performance optimization:** Maintain current perf</li>
+</ul>
+
+<p>---</p>
+
+<h2>Goals & Success Criteria</h2>
+
+<h3>Quantitative Targets</h3>
+
+<p>| Metric | Baseline | Target | Validation |</p>
+<p>|--------|----------|--------|------------|</p>
+<p>| <strong>Max file size</strong> | 2339 LOC | <500 LOC | <code>find src -exec wc -l</code> |</p>
+<p>| <strong>Files > 500 LOC</strong> | 5 | 0 | File size audit |</p>
+<p>| <strong>God Object count</strong> | 3 | 0 | Architecture review |</p>
+<p>| <strong>Test coverage</strong> | 73 tests | >=73 tests | pytest --cov |</p>
+<p>| <strong>Circular dependencies</strong> | Unknown | 0 | Import graph check |</p>
+<p>| <strong>Module cohesion</strong> | Low | High | Responsibility map |</p>
+
+<h3>Qualitative Targets</h3>
+
+<ul>
+<li>✅ Each module has single clear responsibility</li>
+<li>✅ Dependencies injected, not hardcoded</li>
+<li>✅ Unit tests possible for all components</li>
+<li>✅ Parallel feature development enabled</li>
+<li>✅ Onboarding documentation accurate</li>
+</ul>
+
+<p>---</p>
+
+<h2>Timeline</h2>
+
+<p><strong>Duration:</strong> 11-16 weken (werkdagen)</p>
+
+<h3>Sprint Breakdown</h3>
+
+<p><strong>Sprint A: Design Phase (Week 1)</strong></p>
+<ul>
+<li>Days 1-2: Responsibility mapping (all 3 files)</li>
+<li>Days 3-4: Service boundary design</li>
+<li>Day 5: Migration plan & approval</li>
+</ul>
+
+<p><strong>Sprint B: Repository Extraction (Week 2)</strong></p>
+<ul>
+<li>Days 1-3: Extract `definitie_repository.py` → 3 services</li>
+<li>Deliverable: READ/WRITE/BULK modules, tests passing</li>
+</ul>
+
+<p><strong>Sprint C: Generator Extraction (Week 2-3)</strong></p>
+<ul>
+<li>Days 1-4: Extract `definition_generator_tab.py` → 5 components</li>
+<li>Deliverable: UI/Logic/Renderer/State/Validation modules</li>
+</ul>
+
+<p><strong>Sprint D: Interface Extraction (Week 3)</strong></p>
+<ul>
+<li>Days 1-3: Extract `tabbed_interface.py` → tab components</li>
+<li>Deliverable: Thin orchestrator + tab modules</li>
+</ul>
+
+<p><strong>Sprint E: Validation (Week 3)</strong></p>
+<ul>
+<li>Day 1: Final validation, code review, documentation</li>
+</ul>
+
+<p><strong>Milestones:</strong></p>
+<ul>
+<li>Week 1 end: Design approved</li>
+<li>Week 2 end: 2/3 files complete</li>
+<li>Week 3 end: All complete, validated</li>
+</ul>
+
+<p>---</p>
+
+<h2>User Stories</h2>
+
+<h3>Sprint A: Design</h3>
+<ul>
+<li>**US-441:** Map God Object Responsibilities (Code Architect, 2d)</li>
+<li>**US-442:** Design Service Boundaries (Code Architect, 2d)</li>
+<li>**US-443:** Create Migration Plan (Code Architect, 1d)</li>
+</ul>
+
+<h3>Sprint B: Repository</h3>
+<ul>
+<li>**US-444:** Extract READ Service (Code Architect, 1d)</li>
+<li>**US-445:** Extract WRITE Service (Code Architect, 1d)</li>
+<li>**US-446:** Extract BULK Service (Code Architect, 1d)</li>
+</ul>
+
+<h3>Sprint C: Generator</h3>
+<ul>
+<li>**US-447:** Extract UI Renderer (Code Architect, 1d)</li>
+<li>**US-448:** Extract Business Logic (Code Architect, 1d)</li>
+<li>**US-449:** Extract Result Renderer (Code Architect, 1d)</li>
+<li>**US-450:** Extract State Manager (Code Architect, 1d)</li>
+</ul>
+
+<h3>Sprint D: Interface</h3>
+<ul>
+<li>**US-451:** Extract Tab Components (Code Architect, 2d)</li>
+<li>**US-452:** Create Thin Orchestrator (Code Architect, 1d)</li>
+</ul>
+
+<h3>Sprint E: Validation</h3>
+<ul>
+<li>**US-453:** Final Validation & Review (Code Architect, 1d)</li>
+</ul>
+
+<p><strong>Total:</strong> 11 user stories, 11-16 days</p>
+
+<p>---</p>
+
+<h2>Dependencies</h2>
+
+<h3>Blocked By</h3>
+<ul>
+<li>✅ **EPIC-025 Sprint 1 complete** (US-426, US-428 done)</li>
+<li>✅ **US-427 coverage baseline** established</li>
+</ul>
+
+<h3>Blocks</h3>
+<ul>
+<li>**Future feature development** in affected modules</li>
+<li>**Performance optimization** work (needs stable base)</li>
+</ul>
+
+<h3>Requires</h3>
+<ul>
+<li>Code Architect Agent availability (11-16 days)</li>
+<li>Architecture review approval (design phase)</li>
+<li>Stakeholder buy-in for timeline</li>
+</ul>
+
+<p>---</p>
+
+<h2>Risks & Mitigation</h2>
+
+<h3>High Risks</h3>
+
+<p><strong>Risk 1: Breaking Changes During Extraction</strong></p>
+<ul>
+<li>Likelihood: MEDIUM</li>
+<li>Impact: Application doesn't start, features broken</li>
+<li>Mitigation: Incremental extraction, test after EACH step</li>
+<li>Contingency: Git revert to last stable commit</li>
+</ul>
+
+<p><strong>Risk 2: Timeline Overrun (11→20 days)</strong></p>
+<ul>
+<li>Likelihood: MEDIUM</li>
+<li>Impact: Delays other work</li>
+<li>Mitigation: Start with lowest-risk file (`definitie_repository`)</li>
+<li>Contingency: Deliver partial (1-2 files), defer rest</li>
+</ul>
+
+<p><strong>Risk 3: Test Coverage Gaps Discovered</strong></p>
+<ul>
+<li>Likelihood: LOW</li>
+<li>Impact: Cannot validate refactoring safety</li>
+<li>Mitigation: Add tests BEFORE extraction</li>
+<li>Contingency: Skip files with <50% coverage</li>
+</ul>
+
+<h3>Rollback Plan</h3>
+
+<p><strong>Trigger Scenarios:</strong></p>
+<ol>
+<li>Sprint A complete but design rejected → Abort, revise US-427</li>
+<li>>3 days blocked on one file → Skip file, continue others</li>
+<li>Tests fail after extraction → Revert, add more tests first</li>
+<li>< 50% progress at day 8 → Reassess, deliver partial</li>
+</ol>
+
+<p><strong>Rollback Threshold:</strong> If < 1 file complete by day 8, abort and rescope</p>
+
+<p>---</p>
+
+<h2>Acceptance Criteria</h2>
+
+<h3>Definition of Done (Epic Level)</h3>
+
+<ul>
+<li>[ ] All 11 user stories completed</li>
+<li>[ ] All 6 quantitative targets met</li>
+<li>[ ] Zero files > 500 LOC</li>
+<li>[ ] Test coverage >= 73 tests</li>
+<li>[ ] No circular dependencies</li>
+<li>[ ] Architecture review approved</li>
+<li>[ ] Documentation updated (module diagrams)</li>
+<li>[ ] Code review passed</li>
+<li>[ ] Performance benchmarks met</li>
+</ul>
+
+<h3>Validation Tests</h3>
+
+<p><strong>Phase 1 (Design):</strong></p>
+<pre><code>ls docs/backlog/EPIC-026/design/  # Responsibility maps exist
+grep "approved" docs/backlog/EPIC-026/design/review.md</code></pre>
+
+<p><strong>Phase 2-4 (Extraction):</strong></p>
+<pre><code>find src -name "*.py" -exec wc -l {} \; | awk '$1 &gt; 500'  # No oversized
+pytest --cov=src  # Coverage &gt;= baseline
+python scripts/check_circular_deps.py  # No cycles</code></pre>
+
+<p><strong>Phase 5 (Final):</strong></p>
+<pre><code>pytest -q  # All green
+python scripts/performance_benchmark.py  # &gt;= baseline
+ls docs/backlog/EPIC-026/review-approval.md  # Exists</code></pre>
+
+<p>---</p>
+
+<h2>Notes</h2>
+
+<h3>Related Documentation</h3>
+
+<ul>
+<li>**US-427 Strategy:** `docs/backlog/EPIC-025/US-427/US-427-REFACTORING-STRATEGY.md`</li>
+<li>**Coverage Baseline:** `docs/testing/US-427-coverage-baseline.md`</li>
+<li>**Original US-427:** `docs/backlog/EPIC-025/US-427/US-427.md`</li>
+<li>**Agent Analysis:** `docs/planning/AGENT_ANALYSIS_SUMMARY.md` (Finding #1)</li>
+</ul>
+
+<h3>Key Principles</h3>
+
+<ol>
+<li>**Incremental extraction** (not big bang)</li>
+<li>**Test after EACH step** (safety net)</li>
+<li>**One responsibility per module** (SRP)</li>
+<li>**Dependency injection** (testability)</li>
+<li>**Honest estimates** (11-16 days, not 2.5)</li>
+</ol>
+
+<h3>Alternative Approach (If Time Critical)</h3>
+
+<p><strong>Minimal Viable Refactoring:</strong></p>
+<ul>
+<li>Refactor `definitie_repository.py` ONLY (lowest risk, 2-3 days)</li>
+<li>Defer other 2 files to future epic</li>
+<li>Partial progress > broken code</li>
+</ul>
+
+<p><strong>Trade-off:</strong> Less value, but faster delivery and lower risk</p>
+
+<p>---</p>
+
+<h2>Stakeholder Communication</h2>
+
+<h3>Why This Epic?</h3>
+
+<p>US-427 revealed that naive file splitting creates more problems than it solves. God Objects need <strong>proper refactoring</strong>, not cosmetic changes.</p>
+
+<h3>Why 11-16 Days (Not 2.5)?</h3>
+
+<p>Original estimate assumed simple file splits. Reality: architectural refactoring with:</p>
+<ul>
+<li>Design phase (3-5 days)</li>
+<li>Incremental extraction (safety-first)</li>
+<li>Comprehensive validation</li>
+</ul>
+
+<h3>What's the ROI?</h3>
+
+<p><strong>Cost:</strong> 11-16 days, ~$10-15k developer time</p>
+<p><strong>Benefit:</strong></p>
+<ul>
+<li>40% faster feature development (ongoing)</li>
+<li>200% better maintainability</li>
+<li>Zero regression risk</li>
+<li>Sustainable codebase</li>
+</ul>
+
+<p><strong>Payback:</strong> 4-6 months (via velocity gains)</p>
+
+<p>---</p>
+
+<p><strong>Status:</strong> Awaiting approval</p>
+<p><strong>Next Action:</strong> Review & approve design phase (Sprint A)</p>
+<p><strong>Decision Needed:</strong> Full epic (11-16d) vs Minimal (2-3d)?</p>
+
+  </div>
+</body>
+</html>

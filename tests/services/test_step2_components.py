@@ -4,18 +4,25 @@ Tests voor Step 2 componenten van de UnifiedDefinitionGenerator refactoring.
 Deze tests valideren de nieuwe context, prompt, monitoring en enhancement modules.
 """
 
-import pytest
 import asyncio
 from unittest.mock import Mock, patch
 
-from services.definition_generator_context import HybridContextManager, EnrichedContext
-from services.definition_generator_prompts import UnifiedPromptBuilder
-from services.definition_generator_monitoring import GenerationMonitor, MetricType
-from services.definition_generator_enhancement import DefinitionEnhancer, EnhancementType
+import pytest
+
 from services.definition_generator_config import (
-    ContextConfig, UnifiedGeneratorConfig, MonitoringConfig, QualityConfig
+    ContextConfig,
+    MonitoringConfig,
+    QualityConfig,
+    UnifiedGeneratorConfig,
 )
-from services.interfaces import GenerationRequest, Definition
+from services.definition_generator_context import EnrichedContext, HybridContextManager
+from services.definition_generator_enhancement import (
+    DefinitionEnhancer,
+    EnhancementType,
+)
+from services.definition_generator_monitoring import GenerationMonitor, MetricType
+from services.definition_generator_prompts import UnifiedPromptBuilder
+from services.interfaces import Definition, GenerationRequest
 
 
 class TestHybridContextManager:
@@ -26,14 +33,14 @@ class TestHybridContextManager:
         self.config = ContextConfig()
         self.context_manager = HybridContextManager(self.config)
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_build_enriched_context_basic(self):
         """Test basis context building."""
         request = GenerationRequest(
-        id="test-id",
-        begrip="testbegrip",
+            id="test-id",
+            begrip="testbegrip",
             context="juridisch, OM, Openbaar Ministerie",
-            organisatie="OM"
+            organisatie="OM",
         )
 
         enriched_context = await self.context_manager.build_enriched_context(request)
@@ -44,14 +51,11 @@ class TestHybridContextManager:
         assert "OM" in enriched_context.base_context["organisatorisch"]
         assert "juridisch" in enriched_context.base_context["juridisch"]
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_abbreviation_expansion(self):
         """Test afkortingen uitbreiding."""
         request = GenerationRequest(
-        id="test-id",
-        begrip="testbegrip",
-            context="OM, FIOD, AVG",
-            organisatie="OM"
+            id="test-id", begrip="testbegrip", context="OM, FIOD, AVG", organisatie="OM"
         )
 
         enriched_context = await self.context_manager.build_enriched_context(request)
@@ -69,7 +73,7 @@ class TestHybridContextManager:
             sources=[],
             expanded_terms={"OM": "Openbaar Ministerie"},
             confidence_scores={},
-            metadata={"avg_confidence": 0.8}
+            metadata={"avg_confidence": 0.8},
         )
 
         summary = self.context_manager.get_context_summary(enriched_context)
@@ -100,7 +104,7 @@ class TestUnifiedPromptBuilder:
             sources=[],
             expanded_terms={},
             confidence_scores={},
-            metadata={"avg_confidence": 0.3}  # Low confidence = basic strategy
+            metadata={"avg_confidence": 0.3},  # Low confidence = basic strategy
         )
 
         prompt = self.prompt_builder.build_prompt("testbegrip", enriched_context)
@@ -116,7 +120,7 @@ class TestUnifiedPromptBuilder:
         # Create rich context that should trigger context-aware strategy
         sources = [
             ContextSource("web_lookup", 0.9, "Web informatie over testbegrip"),
-            ContextSource("hybrid_context", 0.8, "Hybrid context data")
+            ContextSource("hybrid_context", 0.8, "Hybrid context data"),
         ]
 
         enriched_context = EnrichedContext(
@@ -124,7 +128,7 @@ class TestUnifiedPromptBuilder:
             sources=sources,
             expanded_terms={"OM": "Openbaar Ministerie"},
             confidence_scores={"web": 0.9, "hybrid": 0.8},
-            metadata={"avg_confidence": 0.85}  # High confidence = context-aware
+            metadata={"avg_confidence": 0.85},  # High confidence = context-aware
         )
 
         prompt = self.prompt_builder.build_prompt("testbegrip", enriched_context)
@@ -145,7 +149,9 @@ class TestGenerationMonitor:
     def test_start_and_finish_generation(self):
         """Test generatie monitoring lifecycle."""
         # Start monitoring
-        generation_id = self.monitor.start_generation("testbegrip", {})  # domein removed per US-043
+        generation_id = self.monitor.start_generation(
+            "testbegrip", {}
+        )  # domein removed per US-043
 
         assert generation_id != ""
         assert generation_id in self.monitor.active_generations
@@ -164,7 +170,9 @@ class TestGenerationMonitor:
         """Test context metrics recording."""
         generation_id = self.monitor.start_generation("testbegrip")
 
-        self.monitor.record_context_metrics(generation_id, sources=3, confidence=0.8, richness_score=0.9)
+        self.monitor.record_context_metrics(
+            generation_id, sources=3, confidence=0.8, richness_score=0.9
+        )
 
         assert generation_id in self.monitor.active_generations
         metrics = self.monitor.active_generations[generation_id]
@@ -179,7 +187,9 @@ class TestGenerationMonitor:
         generation_id = self.monitor.start_generation("testbegrip")
 
         error_message = "Test error message"
-        self.monitor.finish_generation(generation_id, success=False, error=error_message)
+        self.monitor.finish_generation(
+            generation_id, success=False, error=error_message
+        )
 
         # Check error was recorded
         assert len(self.monitor.recent_errors) > 0
@@ -203,7 +213,7 @@ class TestDefinitionEnhancer:
             enable_enhancement=True,
             enable_completeness_enhancement=True,
             enable_linguistic_enhancement=True,
-            enhancement_confidence_threshold=0.5
+            enhancement_confidence_threshold=0.5,
         )
         self.enhancer = DefinitionEnhancer(self.config)
 
@@ -224,10 +234,12 @@ class TestDefinitionEnhancer:
             definitie="Een kort begrip.",  # Very short definition should trigger clarity enhancement
             categorie="proces",
             bron="test",
-            metadata={}
+            metadata={},
         )
 
-        enhanced_def, applied_enhancements = self.enhancer.enhance_definition(original_definition)
+        enhanced_def, applied_enhancements = self.enhancer.enhance_definition(
+            original_definition
+        )
 
         assert isinstance(enhanced_def, Definition)
         assert len(applied_enhancements) >= 0  # May or may not apply enhancements
@@ -244,7 +256,7 @@ class TestDefinitionEnhancer:
             definitie="Een zeer korte definitie die mogelijk verbetering nodig heeft.",
             categorie="proces",
             bron="test",
-            metadata={}
+            metadata={},
         )
 
         quality_report = self.enhancer.evaluate_definition_quality(definition)
@@ -259,7 +271,7 @@ class TestDefinitionEnhancer:
 class TestIntegration:
     """Integration tests voor alle Step 2 componenten samen."""
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_full_step2_integration(self):
         """Test volledige integratie van alle Step 2 componenten."""
         # Initialize all components
@@ -271,10 +283,7 @@ class TestIntegration:
 
         # Create test request
         request = GenerationRequest(
-        id="test-id",
-        begrip="testbegrip",
-            context="juridisch, OM",
-            organisatie="OM"
+            id="test-id", begrip="testbegrip", context="juridisch, OM", organisatie="OM"
         )
 
         # Test workflow
@@ -286,7 +295,7 @@ class TestIntegration:
             generation_id,
             len(enriched_context.sources),
             enriched_context.metadata.get("avg_confidence", 0.0),
-            0.8
+            0.8,
         )
 
         # Build prompt
@@ -299,7 +308,7 @@ class TestIntegration:
             definitie="Een test definitie die mogelijk verbetering nodig heeft.",
             categorie="proces",
             bron="test",
-            metadata={}
+            metadata={},
         )
 
         # Enhance definition

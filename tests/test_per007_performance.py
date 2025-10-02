@@ -2,9 +2,12 @@
 PER-007 Performance Benchmark Tests
 These tests run after GREEN phase to ensure performance requirements are met.
 """
-import pytest
+
 import time
-from services.definition_generator_context import HybridContextManager, EnrichedContext
+
+import pytest
+
+from services.definition_generator_context import EnrichedContext, HybridContextManager
 from services.interfaces import GenerationRequest
 from services.prompts.prompt_service_v2 import PromptServiceV2
 
@@ -12,8 +15,8 @@ from services.prompts.prompt_service_v2 import PromptServiceV2
 class TestPerformance:
     """Performance benchmarks - run after GREEN phase implementation"""
 
-    @pytest.mark.benchmark
-    @pytest.mark.performance
+    @pytest.mark.benchmark()
+    @pytest.mark.performance()
     def test_context_processing_under_100ms(self):
         """Context processing must complete in < 100ms"""
         # GIVEN: Complex request with all context types
@@ -21,7 +24,7 @@ class TestPerformance:
             begrip="test",
             organisatorische_context=["OM", "DJI", "Rechtspraak", "CJIB", "KMAR"],
             juridische_context=["Strafrecht", "Bestuursrecht", "Civiel recht"],
-            wettelijke_basis=["Art. 27 Sv", "Art. 67 Sv", "AWB", "BW", "WvSr"]
+            wettelijke_basis=["Art. 27 Sv", "Art. 67 Sv", "AWB", "BW", "WvSr"],
         )
 
         manager = HybridContextManager()
@@ -48,18 +51,15 @@ class TestPerformance:
         assert len(result["juridisch"]) == 3
         assert len(result["wettelijk"]) == 5
 
-    @pytest.mark.benchmark
-    @pytest.mark.performance
+    @pytest.mark.benchmark()
+    @pytest.mark.performance()
     def test_deduplication_performance(self):
         """Deduplication must be efficient even with large lists"""
         # GIVEN: Large list with many duplicates
         base_orgs = ["OM", "DJI", "Rechtspraak", "CJIB"]
         large_list = base_orgs * 50  # 200 items with lots of duplicates
 
-        request = GenerationRequest(
-            begrip="test",
-            organisatorische_context=large_list
-        )
+        request = GenerationRequest(begrip="test", organisatorische_context=large_list)
 
         manager = HybridContextManager()
 
@@ -76,11 +76,12 @@ class TestPerformance:
         assert avg_time < 50, f"Deduplication took {avg_time:.2f}ms, exceeds 50ms limit"
 
         # Verify deduplication worked and preserved order
-        assert result["organisatorisch"] == base_orgs, \
-            f"Deduplication failed. Got {result['organisatorisch']}"
+        assert (
+            result["organisatorisch"] == base_orgs
+        ), f"Deduplication failed. Got {result['organisatorisch']}"
 
-    @pytest.mark.benchmark
-    @pytest.mark.performance
+    @pytest.mark.benchmark()
+    @pytest.mark.performance()
     def test_ui_formatting_performance(self):
         """UI preview generation must be fast"""
         # GIVEN: Complex context
@@ -91,17 +92,21 @@ class TestPerformance:
                 "wettelijk": ["Art. 27 Sv", "Art. 67 Sv", "AWB", "BW", "WvSr"],
                 "domein": ["Justice", "Security"],
                 "technisch": [],
-                "historisch": []
+                "historisch": [],
             },
             sources=[],
-            expanded_terms={"OM": "Openbaar Ministerie", "DJI": "Dienst Justitiële Inrichtingen"},
+            expanded_terms={
+                "OM": "Openbaar Ministerie",
+                "DJI": "Dienst Justitiële Inrichtingen",
+            },
             confidence_scores={"organisatorisch": 1.0, "juridisch": 0.95},
-            metadata={"timestamp": "2025-09-04"}
+            metadata={"timestamp": "2025-09-04"},
         )
 
         # Assuming ContextFormatter will be implemented
         try:
             from services.ui.formatters import ContextFormatter
+
             formatter = ContextFormatter()
         except ImportError:
             pytest.skip("ContextFormatter not yet implemented")
@@ -122,17 +127,25 @@ class TestPerformance:
         assert "📋 Org:" in result or "Org:" in result
         assert "⚖️ Juridisch:" in result or "Juridisch:" in result
 
-    @pytest.mark.benchmark
-    @pytest.mark.performance
+    @pytest.mark.benchmark()
+    @pytest.mark.performance()
     def test_astra_validation_performance(self):
         """ASTRA validation must be fast"""
         # GIVEN: Mix of valid, invalid, and custom organizations
         request = GenerationRequest(
             begrip="test",
             organisatorische_context=[
-                "OM", "DJI", "InvalidOrg", "CustomOrg", "Rechtspraak",
-                "FakeOrg", "CJIB", "KMAR", "AnotherCustom", "NP"
-            ]
+                "OM",
+                "DJI",
+                "InvalidOrg",
+                "CustomOrg",
+                "Rechtspraak",
+                "FakeOrg",
+                "CJIB",
+                "KMAR",
+                "AnotherCustom",
+                "NP",
+            ],
         )
 
         manager = HybridContextManager()
@@ -148,10 +161,12 @@ class TestPerformance:
 
         # THEN: Validation adds minimal overhead
         avg_time = sum(times) / len(times) * 1000  # ms
-        assert avg_time < 10, f"ASTRA validation took {avg_time:.2f}ms, exceeds 10ms limit"
+        assert (
+            avg_time < 10
+        ), f"ASTRA validation took {avg_time:.2f}ms, exceeds 10ms limit"
 
-    @pytest.mark.benchmark
-    @pytest.mark.performance
+    @pytest.mark.benchmark()
+    @pytest.mark.performance()
     def test_end_to_end_flow_performance(self):
         """Complete context flow must be under 200ms"""
         # GIVEN: Full request
@@ -159,7 +174,7 @@ class TestPerformance:
             begrip="verdachte",
             organisatorische_context=["OM", "DJI", "Anders...", "CustomOrg"],
             juridische_context=["Strafrecht", "Anders...", "CustomJur"],
-            wettelijke_basis=["Art. 27 Sv", "Art. 67 Sv", "Anders...", "CustomWet"]
+            wettelijke_basis=["Art. 27 Sv", "Art. 67 Sv", "Anders...", "CustomWet"],
         )
 
         # WHEN: Complete flow
@@ -177,12 +192,13 @@ class TestPerformance:
                 sources=[],
                 expanded_terms={},
                 confidence_scores={},
-                metadata={}
+                metadata={},
             )
 
             # Step 3: Format for UI (if formatter exists)
             try:
                 from services.ui.formatters import ContextFormatter
+
                 formatter = ContextFormatter()
                 ui_preview = formatter.format_ui_preview(enriched)
             except ImportError:
@@ -202,20 +218,26 @@ class TestPerformance:
         assert avg_time < 200, f"E2E flow took {avg_time:.2f}ms average, exceeds 200ms"
         assert max_time < 400, f"E2E flow took {max_time:.2f}ms max, exceeds 400ms"
 
-    @pytest.mark.benchmark
-    @pytest.mark.performance
+    @pytest.mark.benchmark()
+    @pytest.mark.performance()
     def test_anders_processing_overhead(self):
         """Anders option processing should add minimal overhead"""
         # GIVEN: Request without Anders
         request_normal = GenerationRequest(
-            begrip="test",
-            organisatorische_context=["OM", "DJI", "Rechtspraak"]
+            begrip="test", organisatorische_context=["OM", "DJI", "Rechtspraak"]
         )
 
         # Request with Anders
         request_anders = GenerationRequest(
             begrip="test",
-            organisatorische_context=["OM", "Anders...", "CustomOrg", "DJI", "Anders...", "Custom2"]
+            organisatorische_context=[
+                "OM",
+                "Anders...",
+                "CustomOrg",
+                "DJI",
+                "Anders...",
+                "Custom2",
+            ],
         )
 
         manager = HybridContextManager()
@@ -242,11 +264,12 @@ class TestPerformance:
         avg_anders = sum(times_anders) / len(times_anders)
         overhead_percent = ((avg_anders - avg_normal) / avg_normal) * 100
 
-        assert overhead_percent < 20, \
-            f"Anders processing adds {overhead_percent:.1f}% overhead, exceeds 20% limit"
+        assert (
+            overhead_percent < 20
+        ), f"Anders processing adds {overhead_percent:.1f}% overhead, exceeds 20% limit"
 
-    @pytest.mark.benchmark
-    @pytest.mark.performance
+    @pytest.mark.benchmark()
+    @pytest.mark.performance()
     def test_memory_efficiency(self):
         """Context processing should be memory efficient"""
         import tracemalloc
@@ -256,7 +279,7 @@ class TestPerformance:
             begrip="test",
             organisatorische_context=["OM", "DJI", "Rechtspraak"] * 10,
             juridische_context=["Strafrecht", "Bestuursrecht"] * 10,
-            wettelijke_basis=["Art. 27 Sv", "AWB"] * 10
+            wettelijke_basis=["Art. 27 Sv", "AWB"] * 10,
         )
 
         manager = HybridContextManager()
@@ -274,14 +297,14 @@ class TestPerformance:
         tracemalloc.stop()
 
         # THEN: Memory usage should be reasonable
-        stats = snapshot2.compare_to(snapshot1, 'lineno')
+        stats = snapshot2.compare_to(snapshot1, "lineno")
         total_memory = sum(stat.size_diff for stat in stats)
         memory_mb = total_memory / 1024 / 1024
 
         assert memory_mb < 10, f"Memory usage {memory_mb:.2f}MB exceeds 10MB limit"
 
-    @pytest.mark.benchmark
-    @pytest.mark.performance
+    @pytest.mark.benchmark()
+    @pytest.mark.performance()
     def test_concurrent_processing_performance(self):
         """Context processing should handle concurrent requests efficiently"""
         import concurrent.futures
@@ -293,7 +316,7 @@ class TestPerformance:
                 begrip=f"test_{i}",
                 organisatorische_context=["OM", "DJI", f"Org{i}"],
                 juridische_context=["Strafrecht", f"Domain{i}"],
-                wettelijke_basis=["Art. 27 Sv", f"Law{i}"]
+                wettelijke_basis=["Art. 27 Sv", f"Law{i}"],
             )
             for i in range(10)
         ]
@@ -322,9 +345,11 @@ class TestPerformance:
 
         # Total time should be less than sum of individual times (parallelism benefit)
         sequential_estimate = sum(individual_times) * 1000
-        assert total_time_ms < sequential_estimate * 0.5, \
-            f"Concurrent processing too slow: {total_time_ms:.2f}ms"
+        assert (
+            total_time_ms < sequential_estimate * 0.5
+        ), f"Concurrent processing too slow: {total_time_ms:.2f}ms"
 
         # Each request should still be fast
-        assert avg_individual < 50, \
-            f"Individual processing too slow: {avg_individual:.2f}ms average"
+        assert (
+            avg_individual < 50
+        ), f"Individual processing too slow: {avg_individual:.2f}ms average"

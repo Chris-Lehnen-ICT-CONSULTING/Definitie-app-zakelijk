@@ -23,8 +23,8 @@ from typing import Any
 
 
 async def main() -> int:
-    from services.modern_web_lookup_service import ModernWebLookupService
     from services.interfaces import LookupRequest
+    from services.modern_web_lookup_service import ModernWebLookupService
 
     parser = argparse.ArgumentParser(description="Web Lookup Debug CLI")
     parser.add_argument("--term", required=True, help="Zoekterm")
@@ -36,11 +36,22 @@ async def main() -> int:
     parser.add_argument(
         "--provider",
         default=None,
-        choices=[None, "wikipedia", "wetgeving", "overheid", "rechtspraak", "overheid_zoek"],
+        choices=[
+            None,
+            "wikipedia",
+            "wetgeving",
+            "overheid",
+            "rechtspraak",
+            "overheid_zoek",
+        ],
         help="Beperk lookup tot 1 provider",
     )
     parser.add_argument("--max-results", type=int, default=3)
-    parser.add_argument("--timeout", type=float, default=float(os.getenv("WEB_LOOKUP_TIMEOUT_SECONDS", 10)))
+    parser.add_argument(
+        "--timeout",
+        type=float,
+        default=float(os.getenv("WEB_LOOKUP_TIMEOUT_SECONDS", 10)),
+    )
     parser.add_argument("--json", action="store_true", help="Print raw JSON output")
 
     args = parser.parse_args()
@@ -66,7 +77,8 @@ async def main() -> int:
                     "provider": getattr(r.source, "name", ""),
                     "url": getattr(r.source, "url", ""),
                     "confidence": getattr(r.source, "confidence", 0.0),
-                    "title": (r.metadata or {}).get("dc_title") or (r.metadata or {}).get("wikipedia_title"),
+                    "title": (r.metadata or {}).get("dc_title")
+                    or (r.metadata or {}).get("wikipedia_title"),
                     "definition": r.definition,
                     "metadata": r.metadata,
                 }
@@ -86,7 +98,11 @@ async def main() -> int:
 
     print(f"Results: {len(results or [])}")
     for i, r in enumerate(results or [], 1):
-        title = (r.metadata or {}).get("dc_title") or (r.metadata or {}).get("wikipedia_title") or "(geen titel)"
+        title = (
+            (r.metadata or {}).get("dc_title")
+            or (r.metadata or {}).get("wikipedia_title")
+            or "(geen titel)"
+        )
         print(
             f"{i}. {r.source.name} [{r.source.confidence:.2f}] — {title}\n   URL: {getattr(r.source, 'url', '')}\n   DEF: {(r.definition or '')[:200]}{'…' if (r.definition and len(r.definition) > 200) else ''}"
         )
@@ -95,7 +111,9 @@ async def main() -> int:
     print("\nAttempts (strategies/status):")
     attempts = (debug or {}).get("attempts") if isinstance(debug, dict) else None
     if not attempts:
-        print("  (geen attempts beschikbaar; provider kan Wikipedia-only zijn of er trad een vroege fout op)")
+        print(
+            "  (geen attempts beschikbaar; provider kan Wikipedia-only zijn of er trad een vroege fout op)"
+        )
     else:
         for a in attempts:
             prov = a.get("provider") or a.get("endpoint")
@@ -113,13 +131,18 @@ async def main() -> int:
     # Suggesties bij 0 resultaten
     if not results:
         print("\nSuggesties:")
-        print("- Voeg 'Sv' of 'Wetboek van Strafvordering' toe in --context voor strafvorderingstermen")
-        print("- Probeer alternatieve schrijfwijzen: 'inverzekeringstelling' / 'in verzekeringstelling' / koppeltekenvariant")
-        print("- Vergroot --timeout als endpoints traag antwoorden of er rate-limits zijn")
+        print(
+            "- Voeg 'Sv' of 'Wetboek van Strafvordering' toe in --context voor strafvorderingstermen"
+        )
+        print(
+            "- Probeer alternatieve schrijfwijzen: 'inverzekeringstelling' / 'in verzekeringstelling' / koppeltekenvariant"
+        )
+        print(
+            "- Vergroot --timeout als endpoints traag antwoorden of er rate-limits zijn"
+        )
 
     return 0
 
 
 if __name__ == "__main__":
     raise SystemExit(asyncio.run(main()))
-

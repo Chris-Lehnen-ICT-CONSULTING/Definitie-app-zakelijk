@@ -13,15 +13,17 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 
 
-@pytest.mark.integration
-@pytest.mark.asyncio
+@pytest.mark.integration()
+@pytest.mark.asyncio()
 async def test_orchestrator_feedback_loop_integration_success():
-    from services.orchestrators.definition_orchestrator_v2 import DefinitionOrchestratorV2
     from services.interfaces import (
         AIGenerationResult,
         CleaningResult,
         GenerationRequest,
         OrchestratorConfig,
+    )
+    from services.orchestrators.definition_orchestrator_v2 import (
+        DefinitionOrchestratorV2,
     )
 
     # Arrange services
@@ -49,7 +51,10 @@ async def test_orchestrator_feedback_loop_integration_success():
 
     # AI result
     ai_service.generate_definition.return_value = AIGenerationResult(
-        text="Definitie met voldoende kwaliteit.", model="gpt-4", tokens_used=123, generation_time=0.02
+        text="Definitie met voldoende kwaliteit.",
+        model="gpt-4",
+        tokens_used=123,
+        generation_time=0.02,
     )
 
     # Cleaning
@@ -74,7 +79,12 @@ async def test_orchestrator_feedback_loop_integration_success():
             }
         ],
         "passed_rules": ["ESS-OK"],
-        "detailed_scores": {"taal": 0.8, "juridisch": 0.82, "structuur": 0.78, "samenhang": 0.8},
+        "detailed_scores": {
+            "taal": 0.8,
+            "juridisch": 0.82,
+            "structuur": 0.78,
+            "samenhang": 0.8,
+        },
         "system": {"correlation_id": "00000000-0000-0000-0000-000000000000"},
     }
     validation_service.validate_definition.return_value = ok_result
@@ -147,4 +157,3 @@ async def test_orchestrator_feedback_loop_integration_success():
 
     # No feedback processing on success
     feedback_engine.process_validation_feedback.assert_not_awaited()
-

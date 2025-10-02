@@ -17,12 +17,12 @@ import pytest
 
 # Import all major components for integration testing
 from ai_toetser.modular_toetser import ModularToetser
+from config.config_manager import ConfigSection, get_config_manager
 from document_processing.document_extractor import extract_text_from_file
+from toetsregels.loader import load_toetsregels
 from utils.cache import cached, clear_cache, get_cache_stats
 from validation.sanitizer import get_sanitizer, sanitize_user_input
 
-from toetsregels.loader import load_toetsregels
-from config.config_manager import ConfigSection, get_config_manager
 
 # Lokale stub voor generation functionaliteit (legacy verwijderd)
 def create_hybrid_generation_context(**kwargs):

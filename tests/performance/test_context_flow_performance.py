@@ -14,27 +14,30 @@ Test Coverage:
 - Cache effectiveness
 """
 
-import pytest
+import gc
+import statistics
 import time
 import timeit
-import statistics
-import memory_profiler
-import psutil
-import gc
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
-from typing import List, Dict, Any, Optional
-import numpy as np
+from typing import Any, Dict, List, Optional
 
+import memory_profiler
+import numpy as np
+import psutil
+import pytest
+
+from src.services.container import ServiceContainer
 from src.services.interfaces import GenerationRequest
 from src.services.prompts.prompt_service_v2 import PromptServiceV2
-from src.services.container import ServiceContainer
+
 # from src.services.context.context_manager import ContextManager
 
 
 @dataclass
 class PerformanceMetrics:
     """Container for performance test results."""
+
     operation: str
     mean_time_ms: float
     median_time_ms: float
@@ -50,7 +53,7 @@ class PerformanceMetrics:
         """Check if performance meets SLA."""
         return self.p95_time_ms < target_ms
 
-    def improvement_over(self, baseline: 'PerformanceMetrics') -> float:
+    def improvement_over(self, baseline: "PerformanceMetrics") -> float:
         """Calculate improvement percentage over baseline."""
         return (baseline.mean_time_ms - self.mean_time_ms) / baseline.mean_time_ms * 100
 
@@ -59,17 +62,19 @@ class PerformanceMetrics:
 class TestContextFlowPerformance:
     """Core performance tests for context flow."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def prompt_service(self):
         """Create PromptServiceV2 instance."""
         return PromptServiceV2()
 
-    @pytest.fixture
+    @pytest.fixture()
     def context_manager(self):
         """Create ContextManager instance."""
         return ContextManager()
 
-    def measure_operation(self, operation, iterations: int = 1000) -> PerformanceMetrics:
+    def measure_operation(
+        self, operation, iterations: int = 1000
+    ) -> PerformanceMetrics:
         """Measure performance of an operation."""
         times = []
 
@@ -95,7 +100,9 @@ class TestContextFlowPerformance:
         times_sorted = sorted(times)
 
         return PerformanceMetrics(
-            operation=operation.__name__ if hasattr(operation, '__name__') else str(operation),
+            operation=(
+                operation.__name__ if hasattr(operation, "__name__") else str(operation)
+            ),
             mean_time_ms=statistics.mean(times),
             median_time_ms=statistics.median(times),
             p95_time_ms=times_sorted[int(len(times) * 0.95)],
@@ -104,54 +111,67 @@ class TestContextFlowPerformance:
             max_time_ms=max(times),
             throughput_per_sec=1000 / statistics.mean(times),
             memory_mb=final_memory - initial_memory,
-            cpu_percent=final_cpu - initial_cpu
+            cpu_percent=final_cpu - initial_cpu,
         )
 
     def test_simple_context_processing(self, prompt_service):
         """Test performance of simple context processing."""
+
         def operation():
             request = GenerationRequest(
                 begrip="test",
                 organisatorische_context=["DJI"],
                 juridische_context=["Strafrecht"],
-                wettelijke_basis=["Wetboek van Strafrecht"]
+                wettelijke_basis=["Wetboek van Strafrecht"],
             )
             prompt_service.build_prompt(request)
 
         metrics = self.measure_operation(operation)
 
         # Assert performance requirements
-        assert metrics.meets_sla(100), f"Simple context processing too slow: {metrics.p95_time_ms:.2f}ms"
-        assert metrics.throughput_per_sec > 10, f"Throughput too low: {metrics.throughput_per_sec:.2f}/sec"
+        assert metrics.meets_sla(
+            100
+        ), f"Simple context processing too slow: {metrics.p95_time_ms:.2f}ms"
+        assert (
+            metrics.throughput_per_sec > 10
+        ), f"Throughput too low: {metrics.throughput_per_sec:.2f}/sec"
 
     def test_complex_context_processing(self, prompt_service):
         """Test performance with complex multi-value contexts."""
+
         def operation():
             request = GenerationRequest(
                 begrip="complexe juridische term met meerdere woorden",
                 organisatorische_context=["DJI", "OM", "Rechtspraak", "KMAR", "CJIB"],
-                juridische_context=["Strafrecht", "Bestuursrecht", "Civiel recht", "Internationaal recht"],
+                juridische_context=[
+                    "Strafrecht",
+                    "Bestuursrecht",
+                    "Civiel recht",
+                    "Internationaal recht",
+                ],
                 wettelijke_basis=[
                     "Wetboek van Strafrecht",
                     "Wetboek van Strafvordering",
                     "Algemene wet bestuursrecht",
                     "Burgerlijk Wetboek",
-                    "Penitentiaire beginselenwet"
-                ]
+                    "Penitentiaire beginselenwet",
+                ],
             )
             prompt_service.build_prompt(request)
 
         metrics = self.measure_operation(operation)
 
         # Complex should still meet SLA
-        assert metrics.meets_sla(200), f"Complex context processing too slow: {metrics.p95_time_ms:.2f}ms"
+        assert metrics.meets_sla(
+            200
+        ), f"Complex context processing too slow: {metrics.p95_time_ms:.2f}ms"
 
     def test_context_manager_performance(self, context_manager):
         """Test ContextManager set/get performance."""
         context_data = {
             "organisatorische_context": ["DJI", "OM"],
             "juridische_context": ["Strafrecht"],
-            "wettelijke_basis": ["Test wet"]
+            "wettelijke_basis": ["Test wet"],
         }
 
         def operation():
@@ -162,8 +182,12 @@ class TestContextFlowPerformance:
         metrics = self.measure_operation(operation)
 
         # Context management should be very fast
-        assert metrics.meets_sla(10), f"Context management too slow: {metrics.p95_time_ms:.2f}ms"
-        assert metrics.throughput_per_sec > 100, f"Context ops throughput too low: {metrics.throughput_per_sec:.2f}/sec"
+        assert metrics.meets_sla(
+            10
+        ), f"Context management too slow: {metrics.p95_time_ms:.2f}ms"
+        assert (
+            metrics.throughput_per_sec > 100
+        ), f"Context ops throughput too low: {metrics.throughput_per_sec:.2f}/sec"
 
 
 @pytest.mark.skip(reason="Context module not yet implemented (US-041/042/043)")
@@ -172,6 +196,7 @@ class TestPerformanceImprovement:
 
     def simulate_legacy_flow(self) -> PerformanceMetrics:
         """Simulate legacy context flow performance."""
+
         def legacy_operation():
             # Simulate legacy inefficiencies
             context = {}
@@ -213,7 +238,7 @@ class TestPerformanceImprovement:
             max_time_ms=max(times),
             throughput_per_sec=1000 / statistics.mean(times),
             memory_mb=0,
-            cpu_percent=0
+            cpu_percent=0,
         )
 
     def test_improvement_target_achieved(self):
@@ -229,7 +254,7 @@ class TestPerformanceImprovement:
                 begrip="test",
                 organisatorische_context=["DJI"],
                 juridische_context=["Strafrecht"],
-                wettelijke_basis=["Test wet"]
+                wettelijke_basis=["Test wet"],
             )
             prompt_service.build_prompt(request)
 
@@ -249,7 +274,7 @@ class TestPerformanceImprovement:
             max_time_ms=max(times),
             throughput_per_sec=1000 / statistics.mean(times),
             memory_mb=0,
-            cpu_percent=0
+            cpu_percent=0,
         )
 
         # Calculate improvement
@@ -272,7 +297,7 @@ class TestScalability:
                 begrip=f"test_{i}",
                 organisatorische_context=["DJI", "OM"],
                 juridische_context=["Strafrecht"],
-                wettelijke_basis=["Test wet"]
+                wettelijke_basis=["Test wet"],
             )
 
             start = time.perf_counter()
@@ -293,7 +318,9 @@ class TestScalability:
             p95_time = sorted(times)[95]
 
             # Performance should degrade gracefully
-            assert p95_time < 500, f"P95 latency {p95_time:.2f}ms too high with {num_threads} threads"
+            assert (
+                p95_time < 500
+            ), f"P95 latency {p95_time:.2f}ms too high with {num_threads} threads"
 
     def test_memory_under_load(self):
         """Test memory usage doesn't grow excessively under load."""
@@ -310,7 +337,7 @@ class TestScalability:
                 begrip=f"test_{i}",
                 organisatorische_context=[f"Org_{j}" for j in range(10)],
                 juridische_context=[f"Jur_{j}" for j in range(10)],
-                wettelijke_basis=[f"Wet_{j}" for j in range(10)]
+                wettelijke_basis=[f"Wet_{j}" for j in range(10)],
             )
             prompt_service.build_prompt(request)
 
@@ -323,7 +350,9 @@ class TestScalability:
         memory_growth = final_memory - baseline_memory
 
         # Memory growth should be reasonable
-        assert memory_growth < 100, f"Memory grew by {memory_growth:.2f}MB, should be <100MB"
+        assert (
+            memory_growth < 100
+        ), f"Memory grew by {memory_growth:.2f}MB, should be <100MB"
 
 
 @pytest.mark.skip(reason="Context module not yet implemented (US-041/042/043)")
@@ -346,7 +375,7 @@ class TestLatencyPercentiles:
                 begrip=f"test_term_{i}",
                 organisatorische_context=[f"Org_{j}" for j in range(num_orgs)],
                 juridische_context=[f"Jur_{j}" for j in range(num_jurs)],
-                wettelijke_basis=[f"Wet_{j}" for j in range(num_wets)]
+                wettelijke_basis=[f"Wet_{j}" for j in range(num_wets)],
             )
 
             start = time.perf_counter()
@@ -380,7 +409,7 @@ class TestCacheEffectiveness:
             begrip="test",
             organisatorische_context=["DJI", "OM"],
             juridische_context=["Strafrecht"],
-            wettelijke_basis=["Wetboek van Strafrecht"]
+            wettelijke_basis=["Wetboek van Strafrecht"],
         )
 
         # First call (cold)
@@ -432,7 +461,7 @@ class TestResourceUtilization:
                 begrip="test",
                 organisatorische_context=["DJI"],
                 juridische_context=["Strafrecht"],
-                wettelijke_basis=["Test wet"]
+                wettelijke_basis=["Test wet"],
             )
             prompt_service.build_prompt(request)
             count += 1
@@ -458,7 +487,7 @@ class TestResourceUtilization:
                     begrip=f"thread_{thread_id}",
                     organisatorische_context=[f"Org_{thread_id}"],
                     juridische_context=[f"Jur_{thread_id}"],
-                    wettelijke_basis=[f"Wet_{thread_id}"]
+                    wettelijke_basis=[f"Wet_{thread_id}"],
                 )
 
                 result = prompt_service.build_prompt(request)
@@ -474,7 +503,9 @@ class TestResourceUtilization:
 
         # Run concurrent threads
         with ThreadPoolExecutor(max_workers=50) as executor:
-            futures = [executor.submit(process_with_unique_context, i) for i in range(500)]
+            futures = [
+                executor.submit(process_with_unique_context, i) for i in range(500)
+            ]
             for future in as_completed(futures):
                 future.result()
 
@@ -496,7 +527,7 @@ class TestWorstCaseScenarios:
             begrip="zeer complexe juridische term met veel woorden en speciale karakters",
             organisatorische_context=[f"Organisation_{i}" for i in range(100)],
             juridische_context=[f"Juridisch_Context_{i}" for i in range(100)],
-            wettelijke_basis=[f"Wet_{i}: " + "x" * 200 for i in range(100)]
+            wettelijke_basis=[f"Wet_{i}: " + "x" * 200 for i in range(100)],
         )
 
         start = time.perf_counter()
@@ -504,7 +535,9 @@ class TestWorstCaseScenarios:
         elapsed = (time.perf_counter() - start) * 1000
 
         # Even with huge context, should complete reasonably fast
-        assert elapsed < 1000, f"Maximum context took {elapsed:.2f}ms, should be <1000ms"
+        assert (
+            elapsed < 1000
+        ), f"Maximum context took {elapsed:.2f}ms, should be <1000ms"
         assert result is not None
 
     def test_rapid_context_switching(self):
@@ -519,14 +552,17 @@ class TestWorstCaseScenarios:
                     begrip="criminal",
                     organisatorische_context=["DJI", "OM", "Rechtspraak"],
                     juridische_context=["Strafrecht", "Strafprocesrecht"],
-                    wettelijke_basis=["Wetboek van Strafrecht", "Wetboek van Strafvordering"]
+                    wettelijke_basis=[
+                        "Wetboek van Strafrecht",
+                        "Wetboek van Strafvordering",
+                    ],
                 )
             else:
                 request = GenerationRequest(
                     begrip="civil",
                     organisatorische_context=["Rechtspraak", "Notariaat"],
                     juridische_context=["Civiel recht", "Familierecht"],
-                    wettelijke_basis=["Burgerlijk Wetboek", "Wet op het notarisambt"]
+                    wettelijke_basis=["Burgerlijk Wetboek", "Wet op het notarisambt"],
                 )
 
             start = time.perf_counter()
@@ -563,7 +599,7 @@ class TestMemoryLeaks:
                     begrip=f"test_{iteration}_{i}",
                     organisatorische_context=[f"Org_{i % 10}"],
                     juridische_context=[f"Jur_{i % 5}"],
-                    wettelijke_basis=[f"Wet_{i % 7}"]
+                    wettelijke_basis=[f"Wet_{i % 7}"],
                 )
                 prompt_service.build_prompt(request)
 

@@ -8,32 +8,36 @@ Test alle functionaliteit van de DefinitionRepository inclusief:
 - Error handling
 - Data conversie tussen Definition en DefinitieRecord
 """
-import pytest
-from unittest.mock import Mock, patch, MagicMock, call
-from datetime import datetime, timezone
-import sqlite3
-import json
 
+import json
+import sqlite3
+from datetime import UTC, datetime, timezone
+from unittest.mock import MagicMock, Mock, call, patch
+
+import pytest
+
+from database.definitie_repository import DefinitieRecord, DefinitieStatus, SourceType
 from services.definition_repository import DefinitionRepository
 from services.interfaces import Definition
-from database.definitie_repository import DefinitieRecord, DefinitieStatus, SourceType
 
 
-@pytest.fixture
+@pytest.fixture()
 def mock_legacy_repo():
     """Mock voor de legacy DefinitieRepository."""
     return Mock()
 
 
-@pytest.fixture
+@pytest.fixture()
 def repository(mock_legacy_repo):
     """DefinitionRepository instance met gemockte legacy repo."""
-    with patch('services.definition_repository.LegacyRepository', return_value=mock_legacy_repo):
-        repo = DefinitionRepository(db_path=':memory:')
+    with patch(
+        "services.definition_repository.LegacyRepository", return_value=mock_legacy_repo
+    ):
+        repo = DefinitionRepository(db_path=":memory:")
         return repo
 
 
-@pytest.fixture
+@pytest.fixture()
 def sample_definition():
     """Sample Definition voor tests."""
     return Definition(
@@ -51,21 +55,21 @@ def sample_definition():
     )
 
 
-@pytest.fixture
+@pytest.fixture()
 def sample_record():
     """Sample DefinitieRecord voor tests."""
     record = DefinitieRecord()
     record.id = 123
     record.begrip = "Identiteitsbewijs"
     record.definitie = "Een officieel document uitgegeven door de overheid."
-    record.organisatorische_context = "[\"Overheidsadministratie\"]"
+    record.organisatorische_context = '["Overheidsadministratie"]'
     record.categorie = "type"
     record.status = DefinitieStatus.DRAFT.value
     record.source_type = SourceType.GENERATED.value
-    record.created_at = datetime.now(timezone.utc)
-    record.updated_at = datetime.now(timezone.utc)
+    record.created_at = datetime.now(UTC)
+    record.updated_at = datetime.now(UTC)
     record.validation_score = 0.95
-    record.juridische_context = "[\"Wet op de identificatieplicht\"]"
+    record.juridische_context = '["Wet op de identificatieplicht"]'
     return record
 
 
@@ -74,16 +78,19 @@ class TestDefinitionRepository:
 
     def test_initialization(self, mock_legacy_repo, chdir_tmp_path):
         """Test repository initialisatie."""
-        with patch('services.definition_repository.LegacyRepository', return_value=mock_legacy_repo) as mock_class:
-            repo = DefinitionRepository(db_path='test.db')
+        with patch(
+            "services.definition_repository.LegacyRepository",
+            return_value=mock_legacy_repo,
+        ) as mock_class:
+            repo = DefinitionRepository(db_path="test.db")
 
-            mock_class.assert_called_once_with('test.db')
-            assert repo.db_path == 'test.db'
+            mock_class.assert_called_once_with("test.db")
+            assert repo.db_path == "test.db"
             assert repo.legacy_repo == mock_legacy_repo
-            assert repo._stats['total_saves'] == 0
-            assert repo._stats['total_searches'] == 0
-            assert repo._stats['total_updates'] == 0
-            assert repo._stats['total_deletes'] == 0
+            assert repo._stats["total_saves"] == 0
+            assert repo._stats["total_searches"] == 0
+            assert repo._stats["total_updates"] == 0
+            assert repo._stats["total_deletes"] == 0
 
     def test_save_new_definition(self, repository, mock_legacy_repo, sample_definition):
         """Test opslaan van nieuwe definitie zonder ID."""
@@ -95,16 +102,20 @@ class TestDefinitionRepository:
 
         # Verify
         assert result_id == 123
-        assert repository._stats['total_saves'] == 1
+        assert repository._stats["total_saves"] == 1
         mock_legacy_repo.create_definitie.assert_called_once()
 
         # Verify the record was created correctly
         call_args = mock_legacy_repo.create_definitie.call_args[0][0]
         assert isinstance(call_args, DefinitieRecord)
         assert call_args.begrip == "Identiteitsbewijs"
-        assert "Toelichting: Dit wordt gebruikt voor identificatie." in call_args.definitie
+        assert (
+            "Toelichting: Dit wordt gebruikt voor identificatie." in call_args.definitie
+        )
 
-    def test_save_existing_definition(self, repository, mock_legacy_repo, sample_definition):
+    def test_save_existing_definition(
+        self, repository, mock_legacy_repo, sample_definition
+    ):
         """Test update van bestaande definitie met ID."""
         # Setup
         sample_definition.id = 456
@@ -114,7 +125,7 @@ class TestDefinitionRepository:
 
         # Verify
         assert result_id == 456
-        assert repository._stats['total_saves'] == 1
+        assert repository._stats["total_saves"] == 1
         mock_legacy_repo.update_definitie.assert_called_once()
         # Verify it was called with ID and an update payload (record or dict)
         call_args = mock_legacy_repo.update_definitie.call_args[0]
@@ -144,8 +155,8 @@ class TestDefinitionRepository:
         assert result.id == 123
         assert result.begrip == "Identiteitsbewijs"
         assert result.definitie == "Een officieel document uitgegeven door de overheid."
-        assert result.metadata['status'] == DefinitieStatus.DRAFT.value
-        assert result.metadata['validation_score'] == 0.95
+        assert result.metadata["status"] == DefinitieStatus.DRAFT.value
+        assert result.metadata["validation_score"] == 0.95
         mock_legacy_repo.get_definitie.assert_called_once_with(123)
 
     def test_get_nonexistent_definition(self, repository, mock_legacy_repo):
@@ -182,10 +193,9 @@ class TestDefinitionRepository:
         # Verify
         assert len(results) == 1
         assert results[0].begrip == "Identiteitsbewijs"
-        assert repository._stats['total_searches'] == 1
+        assert repository._stats["total_searches"] == 1
         mock_legacy_repo.search.assert_called_once_with(
-            search_term="identiteit",
-            limit=5
+            search_term="identiteit", limit=5
         )
 
     def test_search_with_none_records(self, repository, mock_legacy_repo):
@@ -201,8 +211,10 @@ class TestDefinitionRepository:
         valid_definition = Definition(begrip="Valid", definitie="Valid def")
 
         # Mock _record_to_definition to return None for invalid record
-        with patch.object(repository, '_record_to_definition') as mock_convert:
-            mock_convert.side_effect = lambda r: None if r == invalid_record else valid_definition
+        with patch.object(repository, "_record_to_definition") as mock_convert:
+            mock_convert.side_effect = lambda r: (
+                None if r == invalid_record else valid_definition
+            )
             mock_legacy_repo.search.return_value = [valid_record, invalid_record]
 
             # Execute
@@ -222,7 +234,7 @@ class TestDefinitionRepository:
 
         # Verify
         assert results == []
-        assert repository._stats['total_searches'] == 1
+        assert repository._stats["total_searches"] == 1
 
     def test_search_error_handling(self, repository, mock_legacy_repo):
         """Test error handling bij search."""
@@ -234,7 +246,7 @@ class TestDefinitionRepository:
 
         # Verify - should return empty list on error
         assert results == []
-        assert repository._stats['total_searches'] == 1
+        assert repository._stats["total_searches"] == 1
 
     def test_update(self, repository, mock_legacy_repo, sample_definition):
         """Test update functionaliteit."""
@@ -246,7 +258,7 @@ class TestDefinitionRepository:
 
         # Verify
         assert result is True
-        assert repository._stats['total_updates'] == 1
+        assert repository._stats["total_updates"] == 1
         mock_legacy_repo.update_definitie.assert_called_once()
 
         # Verify the update parameter (record or dict)
@@ -254,7 +266,9 @@ class TestDefinitionRepository:
         assert call_args[0] == 123  # ID
         assert isinstance(call_args[1], (DefinitieRecord, dict))
 
-    def test_update_error_handling(self, repository, mock_legacy_repo, sample_definition):
+    def test_update_error_handling(
+        self, repository, mock_legacy_repo, sample_definition
+    ):
         """Test error handling bij update."""
         # Setup
         mock_legacy_repo.update_definitie.side_effect = Exception("Update failed")
@@ -264,7 +278,7 @@ class TestDefinitionRepository:
 
         # Verify - should return False on error
         assert result is False
-        assert repository._stats['total_updates'] == 1
+        assert repository._stats["total_updates"] == 1
 
     def test_delete(self, repository, mock_legacy_repo, sample_record):
         """Test soft delete functionaliteit."""
@@ -276,7 +290,7 @@ class TestDefinitionRepository:
 
         # Verify
         assert result is True
-        assert repository._stats['total_deletes'] == 1
+        assert repository._stats["total_deletes"] == 1
 
         # Verify soft delete (status change)
         mock_legacy_repo.get_definitie.assert_called_once_with(123)
@@ -297,7 +311,7 @@ class TestDefinitionRepository:
 
         # Verify
         assert result is False
-        assert repository._stats['total_deletes'] == 1
+        assert repository._stats["total_deletes"] == 1
         mock_legacy_repo.update_definitie.assert_not_called()
 
     def test_delete_error_handling(self, repository, mock_legacy_repo):
@@ -310,18 +324,25 @@ class TestDefinitionRepository:
 
         # Verify
         assert result is False
-        assert repository._stats['total_deletes'] == 1
+        assert repository._stats["total_deletes"] == 1
 
     def test_find_by_begrip(self, repository):
         """Test find_by_begrip met database connectie."""
-        with patch.object(repository, '_get_connection') as mock_get_conn:
+        with patch.object(repository, "_get_connection") as mock_get_conn:
             # Setup mock connection and cursor
             mock_cursor = Mock()
             # Use a proper sqlite3.Row mock
             mock_row = Mock(spec=sqlite3.Row)
-            mock_row.__getitem__ = Mock(side_effect=lambda x: [1, 'Test', 'Test def', 'draft'][x])
+            mock_row.__getitem__ = Mock(
+                side_effect=lambda x: [1, "Test", "Test def", "draft"][x]
+            )
             mock_cursor.fetchone.return_value = mock_row
-            mock_cursor.description = [('id',), ('begrip',), ('definitie',), ('status',)]
+            mock_cursor.description = [
+                ("id",),
+                ("begrip",),
+                ("definitie",),
+                ("status",),
+            ]
 
             mock_conn = Mock()
             mock_conn.cursor.return_value = mock_cursor
@@ -341,7 +362,7 @@ class TestDefinitionRepository:
 
     def test_find_by_begrip_not_found(self, repository):
         """Test find_by_begrip wanneer begrip niet gevonden wordt."""
-        with patch.object(repository, '_get_connection') as mock_get_conn:
+        with patch.object(repository, "_get_connection") as mock_get_conn:
             # Setup
             mock_cursor = Mock()
             mock_cursor.fetchone.return_value = None
@@ -361,7 +382,7 @@ class TestDefinitionRepository:
 
     def test_find_by_begrip_error_handling(self, repository):
         """Test error handling in find_by_begrip."""
-        with patch.object(repository, '_get_connection') as mock_get_conn:
+        with patch.object(repository, "_get_connection") as mock_get_conn:
             # Setup
             mock_get_conn.side_effect = Exception("Database error")
 
@@ -396,7 +417,7 @@ class TestDefinitionRepository:
         mock_match.definitie_record = Mock()  # Invalid record
 
         # Mock _record_to_definition to return None
-        with patch.object(repository, '_record_to_definition', return_value=None):
+        with patch.object(repository, "_record_to_definition", return_value=None):
             mock_legacy_repo.find_duplicates.return_value = [mock_match]
 
             definition = Definition(begrip="Test", definitie="Test def")
@@ -407,10 +428,14 @@ class TestDefinitionRepository:
             # Verify - empty list because conversion failed
             assert results == []
 
-    def test_find_duplicates_error_handling(self, repository, mock_legacy_repo, sample_definition):
+    def test_find_duplicates_error_handling(
+        self, repository, mock_legacy_repo, sample_definition
+    ):
         """Test error handling in find_duplicates."""
         # Setup
-        mock_legacy_repo.find_duplicates.side_effect = Exception("Duplicate check failed")
+        mock_legacy_repo.find_duplicates.side_effect = Exception(
+            "Duplicate check failed"
+        )
 
         # Execute
         results = repository.find_duplicates(sample_definition)
@@ -444,8 +469,10 @@ class TestDefinitionRepository:
         valid_definition = Definition(begrip="Valid", definitie="Valid def")
 
         # Mock _record_to_definition to return None for invalid
-        with patch.object(repository, '_record_to_definition') as mock_convert:
-            mock_convert.side_effect = lambda r: None if r == invalid_record else valid_definition
+        with patch.object(repository, "_record_to_definition") as mock_convert:
+            mock_convert.side_effect = lambda r: (
+                None if r == invalid_record else valid_definition
+            )
             mock_legacy_repo.get_by_status.return_value = [valid_record, invalid_record]
 
             # Execute
@@ -482,10 +509,7 @@ class TestDefinitionRepository:
     def test_definition_to_record_minimal(self, repository):
         """Test conversie met minimale Definition."""
         # Create minimal definition
-        definition = Definition(
-            begrip="Test",
-            definitie="Test definitie"
-        )
+        definition = Definition(begrip="Test", definitie="Test definitie")
 
         # Execute
         record = repository._definition_to_record(definition)
@@ -504,17 +528,17 @@ class TestDefinitionRepository:
             begrip="Test",
             definitie="Test definitie",
             metadata={
-                'source_reference': 'https://example.com/source',
-                'created_by': 'test_user'
-            }
+                "source_reference": "https://example.com/source",
+                "created_by": "test_user",
+            },
         )
 
         # Execute
         record = repository._definition_to_record(definition)
 
         # Verify
-        assert record.source_reference == 'https://example.com/source'
-        assert record.created_by == 'test_user'
+        assert record.source_reference == "https://example.com/source"
+        assert record.created_by == "test_user"
 
     def test_record_to_definition_with_toelichting(self, repository):
         """Test conversie van Record naar Definition met toelichting."""
@@ -533,7 +557,7 @@ class TestDefinitionRepository:
         assert definition.begrip == "Test"
         assert definition.definitie == "Test definitie"
         assert definition.toelichting == "Extra uitleg hier"
-        assert definition.metadata['validation_issues'] == ["issue1", "issue2"]
+        assert definition.metadata["validation_issues"] == ["issue1", "issue2"]
 
     def test_record_to_definition_invalid_json(self, repository):
         """Test record conversie met ongeldige JSON."""
@@ -548,18 +572,18 @@ class TestDefinitionRepository:
         definition = repository._record_to_definition(record)
 
         # Verify - should handle gracefully
-        assert 'validation_issues' not in definition.metadata
+        assert "validation_issues" not in definition.metadata
 
     def test_get_stats(self, repository):
         """Test statistieken ophalen."""
-        with patch.object(repository, '_get_connection') as mock_get_conn:
+        with patch.object(repository, "_get_connection") as mock_get_conn:
             # Setup database mocks
             mock_cursor = Mock()
             mock_cursor.fetchone.return_value = (42,)  # Total count
             mock_cursor.fetchall.return_value = [
-                ('draft', 10),
-                ('established', 30),
-                ('archived', 2)
+                ("draft", 10),
+                ("established", 30),
+                ("archived", 2),
             ]
 
             mock_conn = Mock()
@@ -570,22 +594,22 @@ class TestDefinitionRepository:
             mock_get_conn.return_value = mock_conn
 
             # Do some operations
-            repository._stats['total_saves'] = 5
-            repository._stats['total_searches'] = 10
+            repository._stats["total_saves"] = 5
+            repository._stats["total_searches"] = 10
 
             # Execute
             stats = repository.get_stats()
 
             # Verify
-            assert stats['total_saves'] == 5
-            assert stats['total_searches'] == 10
-            assert stats['total_definitions'] == 42
-            assert stats['by_status']['draft'] == 10
-            assert stats['by_status']['established'] == 30
+            assert stats["total_saves"] == 5
+            assert stats["total_searches"] == 10
+            assert stats["total_definitions"] == 42
+            assert stats["by_status"]["draft"] == 10
+            assert stats["by_status"]["established"] == 30
 
     def test_get_stats_error_handling(self, repository):
         """Test stats met database error."""
-        with patch.object(repository, '_get_connection') as mock_get_conn:
+        with patch.object(repository, "_get_connection") as mock_get_conn:
             # Setup - database error
             mock_get_conn.side_effect = Exception("DB Error")
 
@@ -593,36 +617,39 @@ class TestDefinitionRepository:
             stats = repository.get_stats()
 
             # Verify - should still return basic stats
-            assert 'total_saves' in stats
-            assert 'total_searches' in stats
-            assert 'total_definitions' not in stats  # DB stats missing
+            assert "total_saves" in stats
+            assert "total_searches" in stats
+            assert "total_definitions" not in stats  # DB stats missing
 
     def test_reset_stats(self, repository):
         """Test reset van statistieken."""
         # Setup - set some stats
-        repository._stats['total_saves'] = 10
-        repository._stats['total_searches'] = 20
+        repository._stats["total_saves"] = 10
+        repository._stats["total_searches"] = 20
 
         # Execute
         repository.reset_stats()
 
         # Verify
-        assert repository._stats['total_saves'] == 0
-        assert repository._stats['total_searches'] == 0
-        assert repository._stats['total_updates'] == 0
-        assert repository._stats['total_deletes'] == 0
+        assert repository._stats["total_saves"] == 0
+        assert repository._stats["total_searches"] == 0
+        assert repository._stats["total_updates"] == 0
+        assert repository._stats["total_deletes"] == 0
 
     def test_row_to_record(self, repository):
         """Test _row_to_record conversie."""
         # Create mock row that behaves like sqlite3.Row
         mock_row = Mock(spec=sqlite3.Row)
-        row_data = [1, 'Test', 'Test def', '2024-01-01T10:00:00', '2024-01-01T11:00:00']
+        row_data = [1, "Test", "Test def", "2024-01-01T10:00:00", "2024-01-01T11:00:00"]
         mock_row.__getitem__ = Mock(side_effect=lambda x: row_data[x])
 
         # Mock description
         description = [
-            ('id',), ('begrip',), ('definitie',),
-            ('created_at',), ('updated_at',)
+            ("id",),
+            ("begrip",),
+            ("definitie",),
+            ("created_at",),
+            ("updated_at",),
         ]
 
         # Execute
@@ -630,32 +657,35 @@ class TestDefinitionRepository:
 
         # Verify
         assert record.id == 1
-        assert record.begrip == 'Test'
+        assert record.begrip == "Test"
         assert isinstance(record.created_at, datetime)
 
     def test_row_to_record_with_invalid_datetime(self, repository):
         """Test _row_to_record met ongeldige datetime."""
         # Create mock row with invalid datetime
         mock_row = Mock(spec=sqlite3.Row)
-        row_data = [1, 'Test', 'Test def', 'invalid-date', None]
+        row_data = [1, "Test", "Test def", "invalid-date", None]
         mock_row.__getitem__ = Mock(side_effect=lambda x: row_data[x])
 
         # Mock description
         description = [
-            ('id',), ('begrip',), ('definitie',),
-            ('created_at',), ('updated_at',)
+            ("id",),
+            ("begrip",),
+            ("definitie",),
+            ("created_at",),
+            ("updated_at",),
         ]
 
         # Execute
         record = repository._row_to_record(mock_row, description)
 
         # Verify - invalid date should remain as string
-        assert record.created_at == 'invalid-date'
+        assert record.created_at == "invalid-date"
         assert record.updated_at is None
 
     def test_get_connection_context_manager(self, repository):
         """Test _get_connection context manager."""
-        with patch('sqlite3.connect') as mock_connect:
+        with patch("sqlite3.connect") as mock_connect:
             mock_conn = Mock()
             mock_connect.return_value = mock_conn
 
@@ -677,7 +707,7 @@ class TestDefinitionRepositoryIntegration:
         definition = Definition(
             begrip="CycleTest",
             definitie="Test voor complete cycle",
-            metadata={'test': True}
+            metadata={"test": True},
         )
 
         mock_legacy_repo.create_definitie.return_value = 789
@@ -685,7 +715,7 @@ class TestDefinitionRepositoryIntegration:
             id=789,
             begrip="CycleTest",
             definitie="Test voor complete cycle",
-            status="draft"
+            status="draft",
         )
 
         # Execute
@@ -695,7 +725,7 @@ class TestDefinitionRepositoryIntegration:
         # Verify
         assert saved_id == 789
         assert retrieved.begrip == "CycleTest"
-        assert repository._stats['total_saves'] == 1
+        assert repository._stats["total_saves"] == 1
 
     def test_record_conversion_edge_cases(self, repository):
         """Test edge cases in record conversie."""
@@ -725,10 +755,7 @@ class TestDefinitionRepositoryIntegration:
         """Test search gevolgd door update."""
         # Setup
         record = DefinitieRecord(
-            id=100,
-            begrip="UpdateTest",
-            definitie="Original",
-            status="draft"
+            id=100, begrip="UpdateTest", definitie="Original", status="draft"
         )
         mock_legacy_repo.search.return_value = [record]
 
@@ -743,14 +770,14 @@ class TestDefinitionRepositoryIntegration:
 
         # Verify
         assert success is True
-        assert repository._stats['total_searches'] == 1
-        assert repository._stats['total_updates'] == 1
+        assert repository._stats["total_searches"] == 1
+        assert repository._stats["total_updates"] == 1
 
 
 class TestDraftManagement:
     """Test suite for draft management functionality (US-064)."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def repository_with_db(self, tmp_path):
         """Create repository with actual SQLite database for draft tests."""
         # Create a temporary database
@@ -758,11 +785,13 @@ class TestDraftManagement:
 
         # Initialize database with schema
         import sqlite3
+
         conn = sqlite3.connect(str(db_path))
         cursor = conn.cursor()
 
         # Create simplified definities table for testing
-        cursor.execute("""
+        cursor.execute(
+            """
             CREATE TABLE definities (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 begrip VARCHAR(255) NOT NULL,
@@ -776,7 +805,8 @@ class TestDraftManagement:
                 created_by VARCHAR(255),
                 UNIQUE(begrip, organisatorische_context, juridische_context, categorie, status)
             )
-        """)
+        """
+        )
         conn.commit()
         conn.close()
 
@@ -794,15 +824,15 @@ class TestDraftManagement:
 
             if row:
                 record = DefinitieRecord()
-                record.id = row['id']
-                record.begrip = row['begrip']
-                record.definitie = row['definitie']
-                record.organisatorische_context = row['organisatorische_context']
-                record.juridische_context = row['juridische_context']
-                record.categorie = row['categorie']
-                record.status = row['status']
-                record.created_at = row['created_at']
-                record.updated_at = row['updated_at']
+                record.id = row["id"]
+                record.begrip = row["begrip"]
+                record.definitie = row["definitie"]
+                record.organisatorische_context = row["organisatorische_context"]
+                record.juridische_context = row["juridische_context"]
+                record.categorie = row["categorie"]
+                record.status = row["status"]
+                record.created_at = row["created_at"]
+                record.updated_at = row["updated_at"]
                 return record
             return None
 
@@ -817,8 +847,8 @@ class TestDraftManagement:
             context={
                 "organisatorische_context": ["DJI"],
                 "juridische_context": ["Strafrecht"],
-                "categorie": "proces"
-            }
+                "categorie": "proces",
+            },
         )
 
         # Verify
@@ -840,8 +870,8 @@ class TestDraftManagement:
             context={
                 "organisatorische_context": ["DJI"],
                 "juridische_context": ["Strafrecht"],
-                "categorie": "proces"
-            }
+                "categorie": "proces",
+            },
         )
 
         # Try to create again with same context
@@ -850,8 +880,8 @@ class TestDraftManagement:
             context={
                 "organisatorische_context": ["DJI"],
                 "juridische_context": ["Strafrecht"],
-                "categorie": "proces"
-            }
+                "categorie": "proces",
+            },
         )
 
         # Verify - should return same ID
@@ -865,8 +895,8 @@ class TestDraftManagement:
             context={
                 "organisatorische_context": ["DJI"],
                 "juridische_context": ["Strafrecht"],
-                "categorie": "proces"
-            }
+                "categorie": "proces",
+            },
         )
 
         # Create draft with context B (different org context)
@@ -875,8 +905,8 @@ class TestDraftManagement:
             context={
                 "organisatorische_context": ["IND"],  # Different
                 "juridische_context": ["Strafrecht"],
-                "categorie": "proces"
-            }
+                "categorie": "proces",
+            },
         )
 
         # Verify - should be different IDs
@@ -890,8 +920,8 @@ class TestDraftManagement:
             context={
                 "organisatorische_context": ["DJI"],
                 "juridische_context": ["Strafrecht"],
-                "categorie": "proces"
-            }
+                "categorie": "proces",
+            },
         )
 
         # Create draft with category "type"
@@ -900,8 +930,8 @@ class TestDraftManagement:
             context={
                 "organisatorische_context": ["DJI"],
                 "juridische_context": ["Strafrecht"],
-                "categorie": "type"  # Different category
-            }
+                "categorie": "type",  # Different category
+            },
         )
 
         # Verify - should be different IDs
@@ -910,9 +940,7 @@ class TestDraftManagement:
     def test_get_or_create_draft_empty_context(self, repository_with_db):
         """Test creating draft with empty/no context."""
         # Execute with no context
-        draft_id = repository_with_db.get_or_create_draft(
-            begrip="TestBegrip"
-        )
+        draft_id = repository_with_db.get_or_create_draft(begrip="TestBegrip")
 
         # Verify
         assert draft_id > 0
@@ -927,8 +955,7 @@ class TestDraftManagement:
         """Test handling of race condition with UNIQUE constraint."""
         # Create a draft first
         draft_id_1 = repository_with_db.get_or_create_draft(
-            begrip="RaceBegrip",
-            context={"categorie": "proces"}
+            begrip="RaceBegrip", context={"categorie": "proces"}
         )
 
         # Mock the connection to simulate UNIQUE constraint violation
@@ -981,8 +1008,7 @@ class TestDraftManagement:
 
         # Try to create again - should handle race condition and return existing
         draft_id_2 = repository_with_db.get_or_create_draft(
-            begrip="RaceBegrip",
-            context={"categorie": "proces"}
+            begrip="RaceBegrip", context={"categorie": "proces"}
         )
 
         # Should return the existing draft
@@ -996,8 +1022,8 @@ class TestDraftManagement:
             context={
                 "organisatorische_context": ["Org2", "Org1"],
                 "juridische_context": ["Jur2", "Jur1"],
-                "categorie": "proces"
-            }
+                "categorie": "proces",
+            },
         )
 
         # Try to create with same context but different order
@@ -1006,8 +1032,8 @@ class TestDraftManagement:
             context={
                 "organisatorische_context": ["Org1", "Org2"],  # Different order
                 "juridische_context": ["Jur1", "Jur2"],  # Different order
-                "categorie": "proces"
-            }
+                "categorie": "proces",
+            },
         )
 
         # Should return same draft (contexts are sorted)

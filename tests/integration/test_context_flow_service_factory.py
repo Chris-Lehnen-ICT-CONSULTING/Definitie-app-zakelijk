@@ -6,15 +6,17 @@ to prompt_service_v2 works correctly, particularly that list fields are
 properly populated instead of using string fallback.
 """
 
-import pytest
 import asyncio
-from unittest.mock import MagicMock, AsyncMock, patch
-from services.service_factory import ServiceAdapter
-from services.interfaces import GenerationRequest
+from unittest.mock import AsyncMock, MagicMock, patch
+
+import pytest
+
 from services.container import ServiceContainer
+from services.interfaces import GenerationRequest
+from services.service_factory import ServiceAdapter
 
 
-@pytest.mark.integration
+@pytest.mark.integration()
 def test_context_flows_from_ui_to_prompt_service():
     """
     CRITICAL TEST: Verifies US-041 context flow actually works.
@@ -28,19 +30,18 @@ def test_context_flows_from_ui_to_prompt_service():
 
     # Mock orchestrator that captures the request
     captured_request = None
+
     async def capture_request(request):
         nonlocal captured_request
         captured_request = request
         # Return a mock response
-        from services.interfaces import DefinitionResponseV2, Definition
+        from services.interfaces import Definition, DefinitionResponseV2
+
         # Note: Using V2 response which the orchestrator returns
         response = DefinitionResponseV2()
         response.success = True
         response.definition = Definition(
-            id="test-id",
-            begrip="test",
-            definitie="Test definitie",
-            metadata={}
+            id="test-id", begrip="test", definitie="Test definitie", metadata={}
         )
         response.validation_result = {"overall_score": 0.9, "violations": []}
         response.metadata = {"voorbeelden": {}}
@@ -54,8 +55,12 @@ def test_context_flows_from_ui_to_prompt_service():
     container.orchestrator = MagicMock(return_value=mock_orchestrator)
     container.web_lookup = MagicMock(return_value=MagicMock())
     container.definition_ui_service = MagicMock(return_value=MagicMock())
-    container.generator = MagicMock(return_value=MagicMock(get_stats=MagicMock(return_value={})))
-    container.repository = MagicMock(return_value=MagicMock(get_stats=MagicMock(return_value={})))
+    container.generator = MagicMock(
+        return_value=MagicMock(get_stats=MagicMock(return_value={}))
+    )
+    container.repository = MagicMock(
+        return_value=MagicMock(get_stats=MagicMock(return_value={}))
+    )
 
     # Create adapter (this is what UI uses)
     adapter = ServiceAdapter(container)
@@ -65,58 +70,67 @@ def test_context_flows_from_ui_to_prompt_service():
     context_dict = {
         "organisatorisch": ["DJI", "OM", "Rechtspraak"],
         "juridisch": ["Strafrecht", "Bestuursrecht"],
-        "wettelijk": ["Wetboek van Strafrecht", "Wetboek van Strafvordering"]
+        "wettelijk": ["Wetboek van Strafrecht", "Wetboek van Strafvordering"],
     }
 
     # Call the method that UI would call (async method needs asyncio.run)
-    result = asyncio.run(adapter.generate_definition(
-        begrip="gevangenisstraf",
-        context_dict=context_dict,
-        organisatie="DJI",
-        extra_instructies="Focus op Nederlandse context"
-    ))
+    result = asyncio.run(
+        adapter.generate_definition(
+            begrip="gevangenisstraf",
+            context_dict=context_dict,
+            organisatie="DJI",
+            extra_instructies="Focus op Nederlandse context",
+        )
+    )
 
     # Verify the request was captured
     assert captured_request is not None, "Request should have been captured"
 
     # CRITICAL ASSERTIONS: Verify list fields are populated, not string field
-    assert captured_request.organisatorische_context == ["DJI", "OM", "Rechtspraak"], \
-        f"organisatorische_context should be populated as list, got: {captured_request.organisatorische_context}"
+    assert captured_request.organisatorische_context == [
+        "DJI",
+        "OM",
+        "Rechtspraak",
+    ], f"organisatorische_context should be populated as list, got: {captured_request.organisatorische_context}"
 
-    assert captured_request.juridische_context == ["Strafrecht", "Bestuursrecht"], \
-        f"juridische_context should be populated as list, got: {captured_request.juridische_context}"
+    assert captured_request.juridische_context == [
+        "Strafrecht",
+        "Bestuursrecht",
+    ], f"juridische_context should be populated as list, got: {captured_request.juridische_context}"
 
-    assert captured_request.wettelijke_basis == ["Wetboek van Strafrecht", "Wetboek van Strafvordering"], \
-        f"wettelijke_basis should be populated as list, got: {captured_request.wettelijke_basis}"
+    assert captured_request.wettelijke_basis == [
+        "Wetboek van Strafrecht",
+        "Wetboek van Strafvordering",
+    ], f"wettelijke_basis should be populated as list, got: {captured_request.wettelijke_basis}"
 
     # Verify context field is still populated for backward compatibility
     # EPIC-010: context field remains populated with org context for legacy compatibility
-    assert captured_request.context == "DJI, OM, Rechtspraak", \
-        f"Context field should contain org context for compatibility, got: {captured_request.context}"
+    assert (
+        captured_request.context == "DJI, OM, Rechtspraak"
+    ), f"Context field should contain org context for compatibility, got: {captured_request.context}"
 
     # EPIC-010: domein field removed - no longer testing for it
 
     print("✅ Context flow test PASSED - List fields are properly populated!")
 
 
-@pytest.mark.integration
+@pytest.mark.integration()
 def test_empty_context_lists_handled_correctly():
     """Test that empty context lists don't cause errors."""
     container = MagicMock(spec=ServiceContainer)
 
     captured_request = None
+
     async def capture_request(request):
         nonlocal captured_request
         captured_request = request
-        from services.interfaces import DefinitionResponseV2, Definition
+        from services.interfaces import Definition, DefinitionResponseV2
+
         # Note: Using V2 response which the orchestrator returns
         response = DefinitionResponseV2()
         response.success = True
         response.definition = Definition(
-            id="test-id",
-            begrip="test",
-            definitie="Test definitie",
-            metadata={}
+            id="test-id", begrip="test", definitie="Test definitie", metadata={}
         )
         response.validation_result = {"overall_score": 0.9, "violations": []}
         response.metadata = {"voorbeelden": {}}
@@ -129,47 +143,52 @@ def test_empty_context_lists_handled_correctly():
     container.orchestrator = MagicMock(return_value=mock_orchestrator)
     container.web_lookup = MagicMock(return_value=MagicMock())
     container.definition_ui_service = MagicMock(return_value=MagicMock())
-    container.generator = MagicMock(return_value=MagicMock(get_stats=MagicMock(return_value={})))
-    container.repository = MagicMock(return_value=MagicMock(get_stats=MagicMock(return_value={})))
+    container.generator = MagicMock(
+        return_value=MagicMock(get_stats=MagicMock(return_value={}))
+    )
+    container.repository = MagicMock(
+        return_value=MagicMock(get_stats=MagicMock(return_value={}))
+    )
 
     adapter = ServiceAdapter(container)
 
     # Call with empty context
     context_dict = {}
 
-    result = asyncio.run(adapter.generate_definition(
-        begrip="test",
-        context_dict=context_dict
-    ))
+    result = asyncio.run(
+        adapter.generate_definition(begrip="test", context_dict=context_dict)
+    )
 
     # Verify empty lists are handled gracefully
     assert captured_request is not None
-    assert captured_request.organisatorische_context == [], \
-        "Empty context should result in empty list, not None"
-    assert captured_request.juridische_context == [], \
-        "Empty context should result in empty list, not None"
-    assert captured_request.wettelijke_basis == [], \
-        "Empty context should result in empty list, not None"
+    assert (
+        captured_request.organisatorische_context == []
+    ), "Empty context should result in empty list, not None"
+    assert (
+        captured_request.juridische_context == []
+    ), "Empty context should result in empty list, not None"
+    assert (
+        captured_request.wettelijke_basis == []
+    ), "Empty context should result in empty list, not None"
 
 
-@pytest.mark.integration
+@pytest.mark.integration()
 def test_backwards_compatibility_with_string_context():
     """Test that old string-based context still works for backward compatibility."""
     container = MagicMock(spec=ServiceContainer)
 
     captured_request = None
+
     async def capture_request(request):
         nonlocal captured_request
         captured_request = request
-        from services.interfaces import DefinitionResponseV2, Definition
+        from services.interfaces import Definition, DefinitionResponseV2
+
         # Note: Using V2 response which the orchestrator returns
         response = DefinitionResponseV2()
         response.success = True
         response.definition = Definition(
-            id="test-id",
-            begrip="test",
-            definitie="Test definitie",
-            metadata={}
+            id="test-id", begrip="test", definitie="Test definitie", metadata={}
         )
         response.validation_result = {"overall_score": 0.9, "violations": []}
         response.metadata = {"voorbeelden": {}}
@@ -182,8 +201,12 @@ def test_backwards_compatibility_with_string_context():
     container.orchestrator = MagicMock(return_value=mock_orchestrator)
     container.web_lookup = MagicMock(return_value=MagicMock())
     container.definition_ui_service = MagicMock(return_value=MagicMock())
-    container.generator = MagicMock(return_value=MagicMock(get_stats=MagicMock(return_value={})))
-    container.repository = MagicMock(return_value=MagicMock(get_stats=MagicMock(return_value={})))
+    container.generator = MagicMock(
+        return_value=MagicMock(get_stats=MagicMock(return_value={}))
+    )
+    container.repository = MagicMock(
+        return_value=MagicMock(get_stats=MagicMock(return_value={}))
+    )
 
     adapter = ServiceAdapter(container)
 
@@ -193,18 +216,19 @@ def test_backwards_compatibility_with_string_context():
         "context": "Some old string context",  # Old string field
     }
 
-    result = asyncio.run(adapter.generate_definition(
-        begrip="test",
-        context_dict=context_dict
-    ))
+    result = asyncio.run(
+        adapter.generate_definition(begrip="test", context_dict=context_dict)
+    )
 
     assert captured_request is not None
-    assert captured_request.organisatorische_context == ["DJI"], \
-        "List context should be preserved"
+    assert captured_request.organisatorische_context == [
+        "DJI"
+    ], "List context should be preserved"
     # The string context field should contain org context for backward compatibility
     # EPIC-010: context field remains populated with org context for legacy compatibility
-    assert captured_request.context == "DJI", \
-        f"Context field should contain org context for compatibility, got: {captured_request.context}"
+    assert (
+        captured_request.context == "DJI"
+    ), f"Context field should contain org context for compatibility, got: {captured_request.context}"
 
 
 if __name__ == "__main__":

@@ -7,8 +7,8 @@ geïntegreerde services en orchestratie functionaliteiten.
 # Import nieuwe services - lazy imports to avoid circular dependencies
 from services.container import ContainerConfigs, ServiceContainer, get_container
 from services.definition_generator_cache import DefinitionGeneratorCache
-from services.modern_web_lookup_service import ModernWebLookupService
 from services.definition_generator_config import UnifiedGeneratorConfig
+from services.modern_web_lookup_service import ModernWebLookupService
 
 # UnifiedDefinitionGenerator vervangen door moderne architectuur
 # from services.unified_definition_generator import UnifiedDefinitionGenerator

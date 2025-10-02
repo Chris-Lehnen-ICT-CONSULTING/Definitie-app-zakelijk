@@ -4,10 +4,11 @@ Integration tests for Story 3.1: End-to-end source metadata flow.
 Tests the complete flow from web lookup through prompt generation to UI display.
 """
 
-import pytest
-from unittest.mock import Mock, patch, AsyncMock
 import sys
 from pathlib import Path
+from unittest.mock import AsyncMock, Mock, patch
+
+import pytest
 
 # Add src to path
 src_path = Path(__file__).parent.parent.parent / "src"
@@ -17,7 +18,7 @@ from services.service_factory import ServiceAdapter
 from services.web_lookup.provenance import build_provenance
 
 
-@pytest.mark.integration
+@pytest.mark.integration()
 class TestSourceMetadataE2E:
     """Test end-to-end flow of source metadata through the system."""
 
@@ -36,7 +37,7 @@ class TestSourceMetadataE2E:
                 "snippet": "Een rechtspersoon is een juridische entiteit...",
                 "score": 0.95,
                 "used_in_prompt": True,
-                "source_label": "Wikipedia NL"
+                "source_label": "Wikipedia NL",
             },
             {
                 "provider": "overheid",
@@ -45,18 +46,20 @@ class TestSourceMetadataE2E:
                 "snippet": "Rechtspersonen zijn...",
                 "score": 0.85,
                 "used_in_prompt": True,
-                "source_label": "Overheid.nl"
-            }
+                "source_label": "Overheid.nl",
+            },
         ]
 
         # Mock the orchestrator response
         mock_response = Mock()
         mock_response.success = True
         mock_response.definition = Mock()
-        mock_response.definition.definitie = "Een rechtspersoon is een juridische entiteit met rechtsbevoegdheid."
+        mock_response.definition.definitie = (
+            "Een rechtspersoon is een juridische entiteit met rechtsbevoegdheid."
+        )
         mock_response.definition.metadata = {
             "sources": web_lookup_results,
-            "processing_time": 2.5
+            "processing_time": 2.5,
         }
         mock_response.metadata = {"voorbeelden": {}}
         mock_response.validation_result = None
@@ -67,20 +70,17 @@ class TestSourceMetadataE2E:
         adapter.orchestrator.create_definition = AsyncMock(return_value=mock_response)
 
         # Act - Generate definition
-        result = adapter.generate_definition(
-            begrip="rechtspersoon",
-            context_dict={}
-        )
+        result = adapter.generate_definition(begrip="rechtspersoon", context_dict={})
 
         # Assert - Sources should be accessible in result
-        assert hasattr(result, 'sources'), "Result should have sources attribute"
+        assert hasattr(result, "sources"), "Result should have sources attribute"
         assert len(result.sources) == 2
         assert result.sources[0]["provider"] == "wikipedia"
         assert result.sources[0]["used_in_prompt"] is True
         assert result.sources[1]["provider"] == "overheid"
 
         # Sources should also be in metadata
-        assert hasattr(result, 'metadata')
+        assert hasattr(result, "metadata")
         assert "sources" in result.metadata
         assert result.metadata["sources"] == web_lookup_results
 
@@ -101,10 +101,10 @@ class TestSourceMetadataE2E:
                 "used_in_prompt": True,
                 "legal": {
                     "ecli": "ECLI:NL:HR:2023:1234",
-                    "citation_text": "ECLI:NL:HR:2023:1234"
+                    "citation_text": "ECLI:NL:HR:2023:1234",
                 },
                 "is_authoritative": True,
-                "source_label": "Rechtspraak.nl"
+                "source_label": "Rechtspraak.nl",
             }
         ]
 
@@ -113,9 +113,7 @@ class TestSourceMetadataE2E:
         mock_response.success = True
         mock_response.definition = Mock()
         mock_response.definition.definitie = "Nietigheid van rechtshandelingen..."
-        mock_response.definition.metadata = {
-            "sources": juridical_sources
-        }
+        mock_response.definition.metadata = {"sources": juridical_sources}
         mock_response.metadata = {}
         mock_response.validation_result = None
         mock_response.error = None
@@ -124,10 +122,7 @@ class TestSourceMetadataE2E:
         adapter.orchestrator.create_definition = AsyncMock(return_value=mock_response)
 
         # Act
-        result = adapter.generate_definition(
-            begrip="nietigheid",
-            context_dict={}
-        )
+        result = adapter.generate_definition(begrip="nietigheid", context_dict={})
 
         # Assert - Legal metadata should be preserved
         assert result.sources[0]["legal"]["ecli"] == "ECLI:NL:HR:2023:1234"
@@ -156,18 +151,15 @@ class TestSourceMetadataE2E:
         adapter.orchestrator.create_definition = AsyncMock(return_value=mock_response)
 
         # Act
-        result = adapter.generate_definition(
-            begrip="test",
-            context_dict={}
-        )
+        result = adapter.generate_definition(begrip="test", context_dict={})
 
         # Assert - Should have empty sources list
-        assert hasattr(result, 'sources')
+        assert hasattr(result, "sources")
         assert result.sources == []
         # UI should be able to detect this and show appropriate message
 
 
-@pytest.mark.integration
+@pytest.mark.integration()
 class TestProvenanceBuilding:
     """Test provenance building with all enhancements."""
 
@@ -181,17 +173,15 @@ class TestProvenanceBuilding:
                 "url": "https://rechtspraak.nl/test",
                 "snippet": "Test content",
                 "score": 0.95,
-                "metadata": {
-                    "dc_identifier": "ECLI:NL:HR:2023:1234"
-                }
+                "metadata": {"dc_identifier": "ECLI:NL:HR:2023:1234"},
             },
             {
                 "provider": "overheid",
                 "title": "Artikel 3:40 Burgerlijk Wetboek",
                 "url": "https://wetten.overheid.nl/test",
                 "snippet": "Wetsartikel content",
-                "score": 0.85
-            }
+                "score": 0.85,
+            },
         ]
 
         # Act
@@ -219,7 +209,7 @@ class TestProvenanceBuilding:
         results = [
             {"provider": "wikipedia", "score": 0.7, "title": "Test 1"},
             {"provider": "overheid", "score": 0.9, "title": "Test 2"},
-            {"provider": "rechtspraak", "score": 0.95, "title": "Test 3"}
+            {"provider": "rechtspraak", "score": 0.95, "title": "Test 3"},
         ]
 
         # Act
@@ -234,7 +224,7 @@ class TestProvenanceBuilding:
         assert provenance[2]["source_label"] == "Wikipedia NL"
 
 
-@pytest.mark.integration
+@pytest.mark.integration()
 class TestUISourceAccess:
     """Test UI access patterns for sources."""
 
@@ -243,27 +233,25 @@ class TestUISourceAccess:
         from services.service_factory import LegacyGenerationResult
 
         # Arrange - Create result with sources
-        sources = [
-            {"provider": "wikipedia", "title": "Test", "score": 0.9}
-        ]
+        sources = [{"provider": "wikipedia", "title": "Test", "score": 0.9}]
 
         result = LegacyGenerationResult(
             success=True,
             definitie="Test",
             sources=sources,
-            metadata={"sources": sources}
+            metadata={"sources": sources},
         )
 
         # Act & Assert - All access patterns should work
         # Direct attribute access
-        assert hasattr(result, 'sources')
+        assert hasattr(result, "sources")
         assert result.sources == sources
 
         # Via metadata
         assert result.metadata["sources"] == sources
 
         # Via getattr with default
-        assert getattr(result, 'sources', []) == sources
+        assert getattr(result, "sources", []) == sources
 
         # Check that both point to same data
         assert result.sources is result.metadata["sources"]

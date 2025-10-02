@@ -117,7 +117,7 @@ Notable clusters:
 ### 6.1 Files in Wrong Locations
 | File | Current Location | Should Be | Priority |
 |------|------------------|-----------|----------|
-| UI_UX_INTEGRATION_ANALYSIS_REPORT.md | / (root) | docs/reports/ | HIGH |
+| UI_UX_INTEGRATION_ANALYSIS_REPORT.md | docs/reports/ | docs/reports/ | ✅ Resolved |
 | old.db, new.db | data/old_databases/ | Should be deleted | MEDIUM |
 
 ### 6.2 Hardcoded Values
@@ -165,7 +165,7 @@ Notable clusters:
 
 ### Week 1 - Critical Fixes (16 hours)
 1. Remove TODO marker from examples/ufo_classifier_integration.py
-2. Move UI_UX_INTEGRATION_ANALYSIS_REPORT.md to docs/reports/
+2. (Done) UI_UX_INTEGRATION_ANALYSIS_REPORT.md verplaatst naar docs/reports/
 3. Implement NotImplementedError methods in export_service.py
 4. Remove print statements from validation modules
 

@@ -7,7 +7,6 @@ Skips external (http/https/mailto) links and archived docs.
 
 from __future__ import annotations
 
-import os
 import re
 import sys
 from pathlib import Path
@@ -44,7 +43,11 @@ def check_file(md_path: Path) -> list[str]:
 
         # Skip archived/review targets (case-insensitive)
         lower_path = str(target_path).lower()
-        if "/archief/" in lower_path or "/archive/" in lower_path or "/reviews/" in lower_path:
+        if (
+            "/archief/" in lower_path
+            or "/archive/" in lower_path
+            or "/reviews/" in lower_path
+        ):
             continue
         if not target_path.exists():
             errors.append(f"Broken link in {md_path}: {target}")

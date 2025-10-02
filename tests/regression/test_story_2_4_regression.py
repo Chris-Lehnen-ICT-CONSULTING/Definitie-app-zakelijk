@@ -19,12 +19,14 @@ from typing import Any, Dict
 from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
+
 from services.container import ServiceContainer
 from services.interfaces import (
     Definition,
     DefinitionResponseV2,
     GenerationRequest,
-    ValidationResult)
+    ValidationResult,
+)
 from services.orchestrators.definition_orchestrator_v2 import DefinitionOrchestratorV2
 
 
@@ -40,11 +42,12 @@ class TestStory24RegressionSuite:
     def baseline_generation_request(self):
         """Standard generation request for consistent testing."""
         return GenerationRequest(
-        id="test-id",
-        begrip="automatisering",
+            id="test-id",
+            begrip="automatisering",
             context="informatiesystemen",
             ontologische_categorie="proces",
-            actor="regression-test")
+            actor="regression-test",
+        )
 
     @pytest.fixture()
     def expected_validation_result_structure(self):
@@ -102,7 +105,8 @@ class TestStory24RegressionSuite:
         self,
         container,
         baseline_generation_request,
-        expected_validation_result_structure):
+        expected_validation_result_structure,
+    ):
         """Regression test: ValidationResult format must remain consistent."""
         orchestrator = container.get_orchestrator()
         self._setup_mocked_services(orchestrator)
@@ -220,11 +224,12 @@ class TestStory24RegressionSuite:
 
         # Test with known input that should produce consistent validation scores
         test_request = GenerationRequest(
-        id="test-id",
-        begrip="regressietest",
+            id="test-id",
+            begrip="regressietest",
             context="gestandaardiseerde testcontext",
             ontologische_categorie="object",
-            actor="regression-test")
+            actor="regression-test",
+        )
 
         # Mock with realistic validation scores
         self._setup_realistic_validation_mocks(orchestrator)
@@ -333,14 +338,16 @@ class TestStory24RegressionSuite:
             return_value=Mock(
                 text="Standard regression test prompt",
                 token_count=100,
-                components_used=["base"])
+                components_used=["base"],
+            )
         )
 
         orchestrator.ai_service.generate_definition = AsyncMock(
             return_value=Mock(
                 text="automatisering: het gebruik van technologie om processen te automatiseren.",
                 model="gpt-4",
-                tokens_used=150)
+                tokens_used=150,
+            )
         )
 
         orchestrator.cleaning_service.clean_text = AsyncMock(
@@ -418,7 +425,8 @@ class TestStory24RegressionEdgeCases:
     async def test_empty_text_validation_regression(self):
         """Regression test: Empty text validation should still work."""
         from services.orchestrators.validation_orchestrator_v2 import (
-            ValidationOrchestratorV2)
+            ValidationOrchestratorV2,
+        )
 
         mock_service = AsyncMock()
         mock_service.validate_definition.return_value = {
@@ -442,7 +450,8 @@ class TestStory24RegressionEdgeCases:
     async def test_unicode_handling_regression(self):
         """Regression test: Unicode text handling should remain consistent."""
         from services.orchestrators.validation_orchestrator_v2 import (
-            ValidationOrchestratorV2)
+            ValidationOrchestratorV2,
+        )
 
         mock_service = AsyncMock()
         mock_service.validate_definition.return_value = {
@@ -470,7 +479,8 @@ class TestStory24RegressionEdgeCases:
     async def test_concurrent_validation_regression(self):
         """Regression test: Concurrent validation should still work properly."""
         from services.orchestrators.validation_orchestrator_v2 import (
-            ValidationOrchestratorV2)
+            ValidationOrchestratorV2,
+        )
 
         mock_service = AsyncMock()
         mock_service.validate_definition.return_value = {

@@ -3,33 +3,40 @@
 Final test voor alle functionaliteit met juiste sync/async handling.
 """
 
-import sys
-import os
-import pytest
-import time
 import json
+import os
+import sys
+import time
+
+import pytest
 
 # Add src to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "src"))
 
 from dotenv import load_dotenv
+
 load_dotenv()
 
 # Skip early if no API key configured; these tests call external generators
 if not os.getenv("OPENAI_API_KEY"):
     pytest.skip(
         "OPENAI_API_KEY not set; skipping final functionality tests requiring external API",
-        allow_module_level=True)
+        allow_module_level=True,
+    )
 
-from voorbeelden.unified_voorbeelden import (
-    genereer_synoniemen, genereer_antoniemen, genereer_alle_voorbeelden,
-    genereer_voorbeeld_zinnen, genereer_praktijkvoorbeelden,
-    genereer_tegenvoorbeelden, genereer_toelichting,
-    GenerationMode
-)
-from services.orchestrators.definition_orchestrator_v2 import DefinitionOrchestratorV2
-from services.interfaces import GenerationRequest, OrchestratorConfig
 from services.container import ServiceContainer, get_container
+from services.interfaces import GenerationRequest, OrchestratorConfig
+from services.orchestrators.definition_orchestrator_v2 import DefinitionOrchestratorV2
+from voorbeelden.unified_voorbeelden import (
+    GenerationMode,
+    genereer_alle_voorbeelden,
+    genereer_antoniemen,
+    genereer_praktijkvoorbeelden,
+    genereer_synoniemen,
+    genereer_tegenvoorbeelden,
+    genereer_toelichting,
+    genereer_voorbeeld_zinnen,
+)
 
 
 def test_individual_generation():
@@ -43,7 +50,7 @@ def test_individual_generation():
     context_dict = {
         "organisatorisch": ["Politie", "Openbaar Ministerie"],
         "juridisch": ["Strafprocesrecht"],
-        "wettelijk": ["Wetboek van Strafvordering"]
+        "wettelijk": ["Wetboek van Strafvordering"],
     }
 
     tests = [
@@ -67,7 +74,9 @@ def test_individual_generation():
         passed = actual_count == expected_count
         status = "✅" if passed else "❌"
 
-        print(f"{status} {test_name}: {actual_count}/{expected_count} in {duration:.2f}s")
+        print(
+            f"{status} {test_name}: {actual_count}/{expected_count} in {duration:.2f}s"
+        )
 
         if results:
             print(f"   Voorbeeld: {results[0][:60]}...")
@@ -76,14 +85,16 @@ def test_individual_generation():
             all_passed = False
 
     # Test toelichting apart (returnt string, niet list)
-    print(f"\n📝 Test Toelichting...")
+    print("\n📝 Test Toelichting...")
     start = time.time()
     toelichting = genereer_toelichting(begrip, definitie, context_dict)
     duration = time.time() - start
 
     passed = len(toelichting) > 0
     status = "✅" if passed else "❌"
-    print(f"{status} Toelichting: {'Gegenereerd' if passed else 'Leeg'} in {duration:.2f}s")
+    print(
+        f"{status} Toelichting: {'Gegenereerd' if passed else 'Leeg'} in {duration:.2f}s"
+    )
     if toelichting:
         print(f"   Start: {toelichting[:80]}...")
 
@@ -101,25 +112,27 @@ def test_bulk_generation_sequential():
     context_dict = {
         "organisatorisch": ["Rechter-commissaris", "Raadkamer"],
         "juridisch": ["Strafprocesrecht"],
-        "wettelijk": ["Wetboek van Strafvordering art. 63-88"]
+        "wettelijk": ["Wetboek van Strafvordering art. 63-88"],
     }
 
     print("\n📦 Start bulk generatie...")
     print("⚠️ Dit kan 60-90 seconden duren door rate limiting...")
 
     start = time.time()
-    voorbeelden = genereer_alle_voorbeelden(begrip, definitie, context_dict, GenerationMode.RESILIENT)
+    voorbeelden = genereer_alle_voorbeelden(
+        begrip, definitie, context_dict, GenerationMode.RESILIENT
+    )
     duration = time.time() - start
 
     print(f"\n✅ Bulk generatie voltooid in {duration:.2f}s")
 
     expected_counts = {
-        'sentence': 3,
-        'practical': 3,
-        'counter': 3,
-        'synonyms': 5,
-        'antonyms': 5,
-        'explanation': 1
+        "sentence": 3,
+        "practical": 3,
+        "counter": 3,
+        "synonyms": 5,
+        "antonyms": 5,
+        "explanation": 1,
     }
 
     print("\n📊 Resultaten:")
@@ -153,11 +166,12 @@ async def test_definition_generation():
     orchestrator = container.orchestrator()
 
     import uuid
+
     request = GenerationRequest(
         id=str(uuid.uuid4()),
         begrip="recidive",
         context="Reclassering Nederland",
-        ontologische_categorie="PROCES"
+        ontologische_categorie="PROCES",
     )
 
     print("\n🚀 Genereer definitie met voorbeelden...")
@@ -201,9 +215,15 @@ async def main():
         print("📋 EINDRESULTAAT:")
         print("=" * 80)
 
-        print(f"\nTest 1 - Individuele Generatie: {'✅ GESLAAGD' if test1_passed else '❌ GEFAALD'}")
-        print(f"Test 2 - Bulk Generatie: {'✅ GESLAAGD' if test2_passed else '❌ GEFAALD'}")
-        print(f"Test 3 - Complete Definitie: {'✅ GESLAAGD' if test3_passed else '❌ GEFAALD'}")
+        print(
+            f"\nTest 1 - Individuele Generatie: {'✅ GESLAAGD' if test1_passed else '❌ GEFAALD'}"
+        )
+        print(
+            f"Test 2 - Bulk Generatie: {'✅ GESLAAGD' if test2_passed else '❌ GEFAALD'}"
+        )
+        print(
+            f"Test 3 - Complete Definitie: {'✅ GESLAAGD' if test3_passed else '❌ GEFAALD'}"
+        )
 
         if test1_passed and test2_passed and test3_passed:
             print("\n🎉 ALLE TESTS GESLAAGD!")
@@ -224,9 +244,11 @@ async def main():
     except Exception as e:
         print(f"\n❌ Test suite failed: {e}")
         import traceback
+
         traceback.print_exc()
 
 
 if __name__ == "__main__":
     import asyncio
+
     asyncio.run(main())
