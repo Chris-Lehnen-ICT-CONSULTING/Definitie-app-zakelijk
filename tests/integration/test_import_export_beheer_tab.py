@@ -3,18 +3,19 @@ Integration tests voor ImportExportBeheer tab consolidatie.
 Test de nieuwe geconsolideerde tab functionaliteit.
 """
 
-import pytest
 import tempfile
-import pandas as pd
 from pathlib import Path
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import MagicMock, Mock, patch
+
+import pandas as pd
+import pytest
 import streamlit as st
 
-from ui.components.import_export_beheer_tab import ImportExportBeheerTab
 from database.definitie_repository import DefinitieRecord, DefinitieStatus
+from ui.components.import_export_beheer_tab import ImportExportBeheerTab
 
 
-@pytest.fixture
+@pytest.fixture()
 def mock_repository():
     """Mock repository voor testing."""
     repo = Mock()
@@ -28,7 +29,7 @@ def mock_repository():
             categorie="Type",
             organisatorische_context="Test Context",
             status=DefinitieStatus.VASTGESTELD.value,
-            validation_score=0.85
+            validation_score=0.85,
         ),
         DefinitieRecord(
             id=2,
@@ -37,8 +38,8 @@ def mock_repository():
             categorie="Proces",
             organisatorische_context="Test Context",
             status=DefinitieStatus.DRAFT.value,
-            validation_score=0.65
-        )
+            validation_score=0.65,
+        ),
     ]
 
     repo.get_all.return_value = test_definitions
@@ -50,7 +51,7 @@ def mock_repository():
     return repo
 
 
-@pytest.fixture
+@pytest.fixture()
 def tab_instance(mock_repository):
     """Create ImportExportBeheerTab instance."""
     return ImportExportBeheerTab(mock_repository)
@@ -62,22 +63,22 @@ class TestImportFunctionality:
     def test_csv_import_validation(self, tab_instance):
         """Test CSV validatie tijdens import."""
         # Create test CSV
-        test_data = pd.DataFrame({
-            'begrip': ['Test1', 'Test2'],
-            'definitie': ['Def1', 'Def2'],
-            'categorie': ['Type', 'Proces'],
-            'context': ['Context1', 'Context2']
-        })
+        test_data = pd.DataFrame(
+            {
+                "begrip": ["Test1", "Test2"],
+                "definitie": ["Def1", "Def2"],
+                "categorie": ["Type", "Proces"],
+                "context": ["Context1", "Context2"],
+            }
+        )
 
         # Test missing columns detection
-        invalid_data = pd.DataFrame({
-            'wrong_column': ['Test']
-        })
+        invalid_data = pd.DataFrame({"wrong_column": ["Test"]})
 
         # Validate that required columns check works
-        assert 'begrip' in test_data.columns
-        assert 'definitie' in test_data.columns
-        assert 'begrip' not in invalid_data.columns
+        assert "begrip" in test_data.columns
+        assert "definitie" in test_data.columns
+        assert "begrip" not in invalid_data.columns
 
     def test_duplicate_detection(self, tab_instance, mock_repository):
         """Test duplicate detection tijdens import."""
@@ -93,16 +94,18 @@ class TestImportFunctionality:
         new_record = mock_repository.find_by_begrip("NewBegrip", "Test Context")
         assert new_record is None
 
-    @patch('streamlit.progress')
-    @patch('streamlit.empty')
+    @patch("streamlit.progress")
+    @patch("streamlit.empty")
     def test_import_progress_tracking(self, mock_empty, mock_progress, tab_instance):
         """Test progress tracking tijdens import."""
-        test_df = pd.DataFrame({
-            'begrip': [f'Begrip{i}' for i in range(10)],
-            'definitie': [f'Def{i}' for i in range(10)],
-            'categorie': ['Type'] * 10,
-            'context': ['Test'] * 10
-        })
+        test_df = pd.DataFrame(
+            {
+                "begrip": [f"Begrip{i}" for i in range(10)],
+                "definitie": [f"Def{i}" for i in range(10)],
+                "categorie": ["Type"] * 10,
+                "context": ["Test"] * 10,
+            }
+        )
 
         # Mock progress components
         progress_bar = Mock()
@@ -127,13 +130,13 @@ class TestExportFunctionality:
         # Test CSV export
         df = tab_instance._definitions_to_dataframe(mock_repository.get_all())
         assert len(df) == 2
-        assert 'begrip' in df.columns
-        assert 'definitie' in df.columns
+        assert "begrip" in df.columns
+        assert "definitie" in df.columns
 
         # Test data conversion
         csv_output = df.to_csv(index=False)
-        assert 'TestBegrip1' in csv_output
-        assert 'Test definitie 1' in csv_output
+        assert "TestBegrip1" in csv_output
+        assert "Test definitie 1" in csv_output
 
     def test_export_filtering(self, tab_instance, mock_repository):
         """Test filtering bij export."""
@@ -190,28 +193,28 @@ class TestDatabaseManagement:
         """Test ophalen database statistieken."""
         stats = tab_instance._get_database_stats()
 
-        assert 'total' in stats
-        assert 'established' in stats
-        assert 'draft' in stats
-        assert 'size' in stats
+        assert "total" in stats
+        assert "established" in stats
+        assert "draft" in stats
+        assert "size" in stats
 
-        assert stats['total'] == 2
-        assert stats['established'] == 1
-        assert stats['draft'] == 1
+        assert stats["total"] == 2
+        assert stats["established"] == 1
+        assert stats["draft"] == 1
 
-    @patch('pathlib.Path.exists')
-    @patch('pathlib.Path.stat')
+    @patch("pathlib.Path.exists")
+    @patch("pathlib.Path.stat")
     def test_database_size_calculation(self, mock_stat, mock_exists, tab_instance):
         """Test database grootte berekening."""
         mock_exists.return_value = True
-        mock_stat.return_value = Mock(st_size=1024*1024*5)  # 5 MB
+        mock_stat.return_value = Mock(st_size=1024 * 1024 * 5)  # 5 MB
 
         stats = tab_instance._get_database_stats()
-        assert stats['size'] == "5.0 MB"
+        assert stats["size"] == "5.0 MB"
 
         mock_exists.return_value = False
         stats = tab_instance._get_database_stats()
-        assert stats['size'] == "N/A"
+        assert stats["size"] == "N/A"
 
     def test_database_reset_safety(self, tab_instance):
         """Test database reset veiligheidscontroles."""
@@ -234,44 +237,43 @@ class TestServiceIntegration:
         # Should load on first access
         service = tab_instance.service
         assert service is not None
-        assert hasattr(service, 'get_service_info')
+        assert hasattr(service, "get_service_info")
 
     def test_dummy_service_fallback(self, tab_instance):
         """Test fallback naar dummy service."""
-        with patch('ui.components.import_export_beheer_tab.get_definition_service',
-                  side_effect=Exception("No API key")):
+        with patch(
+            "ui.components.import_export_beheer_tab.get_definition_service",
+            side_effect=Exception("No API key"),
+        ):
             service = tab_instance.service
             assert service is not None
 
             info = service.get_service_info()
-            assert info['service_mode'] == 'dummy'
-            assert info['version'] == 'test'
+            assert info["service_mode"] == "dummy"
+            assert info["version"] == "test"
 
 
 class TestUIRendering:
     """Test UI rendering."""
 
-    @patch('streamlit.markdown')
-    @patch('streamlit.tabs')
+    @patch("streamlit.markdown")
+    @patch("streamlit.tabs")
     def test_main_interface_rendering(self, mock_tabs, mock_markdown, tab_instance):
         """Test hoofdinterface rendering."""
         # Setup tabs mock
         mock_tabs.return_value = [Mock() for _ in range(4)]
 
         # Render
-        with patch('streamlit.tab') as mock_tab_context:
+        with patch("streamlit.tab") as mock_tab_context:
             tab_instance.render()
 
         # Verify structure
         mock_markdown.assert_called()
-        mock_tabs.assert_called_with([
-            "📥 Import",
-            "📤 Export",
-            "⚡ Bulk Acties",
-            "🔧 Database Beheer"
-        ])
+        mock_tabs.assert_called_with(
+            ["📥 Import", "📤 Export", "⚡ Bulk Acties", "🔧 Database Beheer"]
+        )
 
-    @patch('streamlit.file_uploader')
+    @patch("streamlit.file_uploader")
     def test_import_ui_components(self, mock_uploader, tab_instance):
         """Test import UI componenten."""
         mock_uploader.return_value = None
@@ -280,8 +282,8 @@ class TestUIRendering:
         tab_instance._render_import_section()
         mock_uploader.assert_called_with(
             "Selecteer CSV bestand",
-            type=['csv'],
-            help="CSV moet kolommen bevatten: begrip, definitie, categorie, context"
+            type=["csv"],
+            help="CSV moet kolommen bevatten: begrip, definitie, categorie, context",
         )
 
 
@@ -292,19 +294,23 @@ class TestPerformance:
     def test_large_import_handling(self, tab_instance, mock_repository):
         """Test handling van grote imports."""
         # Create large dataset
-        large_df = pd.DataFrame({
-            'begrip': [f'Begrip{i}' for i in range(1000)],
-            'definitie': [f'Definitie{i}' for i in range(1000)],
-            'categorie': ['Type'] * 1000,
-            'context': ['Test'] * 1000
-        })
+        large_df = pd.DataFrame(
+            {
+                "begrip": [f"Begrip{i}" for i in range(1000)],
+                "definitie": [f"Definitie{i}" for i in range(1000)],
+                "categorie": ["Type"] * 1000,
+                "context": ["Test"] * 1000,
+            }
+        )
 
         # Should handle without issues
         assert len(large_df) == 1000
 
         # Processing should be chunked
         chunk_size = 100
-        chunks = [large_df[i:i+chunk_size] for i in range(0, len(large_df), chunk_size)]
+        chunks = [
+            large_df[i : i + chunk_size] for i in range(0, len(large_df), chunk_size)
+        ]
         assert len(chunks) == 10
 
     def test_export_memory_efficiency(self, tab_instance, mock_repository):
@@ -318,8 +324,9 @@ class TestPerformance:
                 categorie="Type",
                 organisatorische_context="Test",
                 status=DefinitieStatus.DRAFT.value,
-                validation_score=0.5
-            ) for i in range(1000)
+                validation_score=0.5,
+            )
+            for i in range(1000)
         ]
 
         # Convert to dataframe should be efficient

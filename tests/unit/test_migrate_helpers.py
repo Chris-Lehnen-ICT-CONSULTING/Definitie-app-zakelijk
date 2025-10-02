@@ -105,8 +105,7 @@ def test_ensure_indexes_and_triggers(tmp_path: Path):
             row[1] for row in conn.execute("PRAGMA index_list(definities)")
         }
         voorbeelden_indexes = {
-            row[1]
-            for row in conn.execute("PRAGMA index_list(definitie_voorbeelden)")
+            row[1] for row in conn.execute("PRAGMA index_list(definitie_voorbeelden)")
         }
         triggers = {
             row[0]

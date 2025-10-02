@@ -3,16 +3,13 @@
 import pytest
 
 from services.interfaces import LookupRequest, LookupResult, WebSource
-from services.modern_web_lookup_service import (
-    ModernWebLookupService,
-    SourceConfig,
-)
+from services.modern_web_lookup_service import ModernWebLookupService, SourceConfig
 
 
 class _BadMeta(dict):
     """Metadata dict that raises for specific keys to trigger logging."""
 
-    def get(self, key, default=None):  # noqa: D401 - keep dict signature
+    def get(self, key, default=None):  # - keep dict signature
         if key in {"article_number", "law_code", "law_clause", "dc_identifier"}:
             raise ValueError("boom")
         return super().get(key, default)
@@ -34,7 +31,7 @@ class _DummySRUService:
         raise RuntimeError("cannot fetch attempts")
 
 
-@pytest.fixture
+@pytest.fixture()
 def service(monkeypatch):
     """Provide a ModernWebLookupService with minimal setup."""
 
@@ -49,7 +46,7 @@ def service(monkeypatch):
     return svc
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_lookup_sru_logs_attempt_failures(service, monkeypatch, caplog):
     """SRU attempt logging failures should be surfaced as debug logs."""
 
