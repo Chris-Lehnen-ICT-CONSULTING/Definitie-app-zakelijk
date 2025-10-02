@@ -626,37 +626,6 @@
     {
       "id": null,
       "type": "DOC",
-      "title": "Validation Orchestrator V2 — Implementatie Guide",
-      "path": "../development/validation_orchestrator_implementation.md",
-      "url": "../development/validation_orchestrator_implementation.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
-      "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
-      "category": null,
-      "sprint": null,
-      "story_points": null,
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 5,
-        "type_rank": 9
-      },
-      "parent_epic": null,
-      "parent_us": null,
-      "_refs": {
-        "us": [],
-        "epic": [],
-        "req": []
-      },
-      "rendered_url": "rendered/development/validation_orchestrator_implementation.html"
-    },
-    {
-      "id": null,
-      "type": "DOC",
       "title": "Codebase Deep Dive en Verbeterplan",
       "path": "../backlog/DEEP_DIVE_IMPROVEMENT_PLAN.md",
       "url": "../backlog/DEEP_DIVE_IMPROVEMENT_PLAN.md",
@@ -5529,37 +5498,6 @@
         "req": []
       },
       "rendered_url": "rendered/migration/synoniemen-migratie-strategie.html"
-    },
-    {
-      "id": null,
-      "type": "DOC",
-      "title": "History Tab Removal - Complete Summary",
-      "path": "../technical/history_tab_removal_summary.md",
-      "url": "../technical/history_tab_removal_summary.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
-      "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
-      "category": null,
-      "sprint": null,
-      "story_points": null,
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 5,
-        "type_rank": 9
-      },
-      "parent_epic": null,
-      "parent_us": null,
-      "_refs": {
-        "us": [],
-        "epic": [],
-        "req": []
-      },
-      "rendered_url": "rendered/technical/history_tab_removal_summary.html"
     },
     {
       "id": null,
@@ -35307,7 +35245,7 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 507,
+      "DOC": 505,
       "ARCH": 24,
       "COMP": 5,
       "TEST": 32,
@@ -35317,7 +35255,7 @@
       "US": 255,
       "BUG": 18
     },
-    "generated_at": "2025-10-02T07:15:45Z"
+    "generated_at": "2025-10-02T07:22:56Z"
   },
   "sources": [
     "docs"
