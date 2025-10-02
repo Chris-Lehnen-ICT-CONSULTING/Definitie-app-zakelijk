@@ -1,7 +1,10 @@
 ---
 id: CFR-BUG-021
 titel: CI gate false positives (deprecated attributes scope)
-status: OPEN
+status: open
+owner: development-team
+applies_to: definitie-app@current
+last_verified: 2025-10-02
 severity: LOW
 gevonden_op: 2025-09-15
 component: ci

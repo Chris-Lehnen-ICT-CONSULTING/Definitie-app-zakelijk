@@ -1,12 +1,16 @@
 ---
 id: CFR-BUG-003
 epic: EPIC-010
-story: US-041
 titel: GenerationResult Import Error blokkeert tests
+status: open
 prioriteit: KRITIEK
-status: OPEN
 aangemaakt: 2025-09-09
 bijgewerkt: 2025-09-11
+owner: development-team
+applies_to: definitie-app@current
+canonical: false
+last_verified: 2025-10-02
+story: US-041
 gevonden_in: v1.0.1
 component: testinfrastructuur
 ---

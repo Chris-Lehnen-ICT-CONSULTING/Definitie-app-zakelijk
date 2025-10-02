@@ -2,9 +2,11 @@
 id: CFR-BUG-023
 titel: UI dependencies buiten UI (services/config/utils)
 status: RESOLVED
+owner: development-team
+applies_to: definitie-app@current
+last_verified: 2025-09-19
 severity: HIGH
 gevonden_op: 2025-09-15
-last_verified: 2025-09-19
 component: laaggrenzen
 ---
 

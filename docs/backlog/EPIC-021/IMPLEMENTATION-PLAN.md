@@ -1,14 +1,16 @@
 ---
 id: EPIC-021-IMPLEMENTATION
+epic: EPIC-021
 titel: History & Audit Trail Implementation Plan
 type: implementation-plan
-epic: EPIC-021
 status: Ready for Implementation
-versie: 1.0
 aangemaakt: 2025-09-29
 bijgewerkt: 2025-09-29
 owner: tech-lead
+applies_to: definitie-app@current
 canonical: true
+last_verified: 2025-10-02
+versie: 1.0
 ---
 
 # EPIC-021 History & Audit Trail - Implementation Plan

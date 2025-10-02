@@ -1,14 +1,16 @@
 ---
 id: EPIC-021-TRACEABILITY
+epic: EPIC-021
 titel: History & Audit Trail Requirements Traceability Matrix
 type: traceability-matrix
-epic: EPIC-021
-status: Active
-versie: 1.0
+status: active
 aangemaakt: 2025-09-29
 bijgewerkt: 2025-09-29
 owner: product-owner
+applies_to: definitie-app@current
 canonical: true
+last_verified: 2025-10-02
+versie: 1.0
 ---
 
 # EPIC-021 History & Audit Trail - Requirements Traceability Matrix

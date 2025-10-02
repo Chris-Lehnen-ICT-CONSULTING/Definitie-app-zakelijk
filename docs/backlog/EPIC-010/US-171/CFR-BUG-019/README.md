@@ -2,6 +2,9 @@
 id: CFR-BUG-019
 titel: Sync-bridges aanwezig in services (event-loop bridging)
 status: RESOLVED
+owner: development-team
+applies_to: definitie-app@current
+last_verified: 2025-10-02
 severity: HIGH
 gevonden_op: 2025-09-15
 component: services

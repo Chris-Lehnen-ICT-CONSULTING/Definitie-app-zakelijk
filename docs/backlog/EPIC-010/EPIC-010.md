@@ -1,44 +1,43 @@
 ---
-applies_to: definitie-app@current
 id: EPIC-010
-aangemaakt: 04-09-2025
-applies_to: definitie-app@current
-astra_compliance: COMPLIANT
-bijgewerkt: 11-09-2025
-business_impact: HOOG
-canonical: true
-completion: 100%
-last_verified: 11-09-2025
-nora_compliance: COMPLIANT
-owner: business-analyst
-prioriteit: KRITIEK
-risk_level: RESOLVED
-stakeholders:
-- OM (Openbaar Ministerie)
-- DJI (Dienst Justitiële Inrichtingen)
-- Justid (Justitiële Informatiedienst)
-- Rechtspraak
-- CJIB (Centraal Justitieel Incassobureau)
-status: COMPLETED
-stories:
-- US-041
-- US-042
-- US-043
-- US-048
-- US-049
-- US-050
-- US-051
-- US-052
-- US-053
-target_release: v1.0.1
 titel: Context FLAAG Refactoring
+status: completed
+prioriteit: KRITIEK
+aangemaakt: 04-09-2025
+bijgewerkt: 11-09-2025
+owner: business-analyst
+applies_to: definitie-app@current
+canonical: true
+last_verified: 11-09-2025
 vereisten:
-- REQ-019
-- REQ-020
-- REQ-032
-- REQ-033
-- REQ-036
-- REQ-037
+  - REQ-019
+  - REQ-020
+  - REQ-032
+  - REQ-033
+  - REQ-036
+  - REQ-037
+stories:
+  - US-041
+  - US-042
+  - US-043
+  - US-048
+  - US-049
+  - US-050
+  - US-051
+  - US-052
+  - US-053
+stakeholders:
+  - OM (Openbaar Ministerie)
+  - DJI (Dienst Justitiële Inrichtingen)
+  - Justid (Justitiële Informatiedienst)
+  - Rechtspraak
+  - CJIB (Centraal Justitieel Incassobureau)
+astra_compliance: COMPLIANT
+business_impact: HOOG
+completion: 100%
+nora_compliance: COMPLIANT
+risk_level: RESOLVED
+target_release: v1.0.1
 ---
 
 

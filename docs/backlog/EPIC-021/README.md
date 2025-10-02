@@ -1,14 +1,16 @@
 ---
 id: EPIC-021-README
+epic: EPIC-021
 titel: History & Audit Trail Documentation Overview
 type: overview
-epic: EPIC-021
 status: Complete Documentation
-versie: 1.0
 aangemaakt: 2025-09-29
 bijgewerkt: 2025-09-29
 owner: product-owner
+applies_to: definitie-app@current
 canonical: true
+last_verified: 2025-10-02
+versie: 1.0
 ---
 
 # EPIC-021: History & Audit Trail - Documentation Overview

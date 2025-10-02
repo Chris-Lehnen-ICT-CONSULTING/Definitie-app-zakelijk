@@ -1,53 +1,53 @@
 ---
-aangemaakt: 01-01-2025
-applies_to: definitie-app@current
-astra_compliance: true
-bijgewerkt: 05-09-2025
-canonical: true
-completion: 35%
 id: EPIC-007
-last_verified: 05-09-2025
-nora_compliance: true
-owner: business-analyst
-prioriteit: HOOG
-stakeholders:
-- OM (HOOG-volume usage)
-- DJI (real-time vereisten)
-- Rechtspraak (concurrent users)
-- Justid (peak load handling)
-- CJIB (batch processing)
-status: IN_UITVOERING
-stories:
-- US-142
-- US-143
-- US-144
-- US-145
-- US-146
-- US-033
-- US-034
-- US-035
-- US-047
-- US-063
-target_release: v1.1
 titel: Prestaties & Scaling
+status: active
+prioriteit: HOOG
+aangemaakt: 01-01-2025
+bijgewerkt: 05-09-2025
+owner: business-analyst
+applies_to: definitie-app@current
+canonical: true
+last_verified: 05-09-2025
 vereisten:
-- REQ-019
-- REQ-031
-- REQ-035
-- REQ-036
-- REQ-041
-- REQ-046
-- REQ-058
-- REQ-060
-- REQ-061
-- REQ-062
-- REQ-064
-- REQ-065
-- REQ-066
-- REQ-067
-- REQ-070
-- REQ-073
-- REQ-077
+  - REQ-019
+  - REQ-031
+  - REQ-035
+  - REQ-036
+  - REQ-041
+  - REQ-046
+  - REQ-058
+  - REQ-060
+  - REQ-061
+  - REQ-062
+  - REQ-064
+  - REQ-065
+  - REQ-066
+  - REQ-067
+  - REQ-070
+  - REQ-073
+  - REQ-077
+stories:
+  - US-142
+  - US-143
+  - US-144
+  - US-145
+  - US-146
+  - US-033
+  - US-034
+  - US-035
+  - US-047
+  - US-063
+stakeholders:
+  - OM (HOOG-volume usage)
+  - DJI (real-time vereisten)
+  - Rechtspraak (concurrent users)
+  - Justid (peak load handling)
+  - CJIB (batch processing)
+astra_compliance: true
+completion: 35%
+nora_compliance: true
+target_release: v1.1
 ---
 
 

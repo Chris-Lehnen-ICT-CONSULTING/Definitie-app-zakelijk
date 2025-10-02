@@ -1,30 +1,30 @@
 ---
-aangemaakt: 01-01-2025
-applies_to: definitie-app@current
-astra_compliance: true
-bijgewerkt: 05-09-2025
-canonical: true
-completion: 100%
 id: EPIC-001
-last_verified: 05-09-2025
-owner: business-analyst
-prioriteit: HOOG
-status: Voltooid
-stories:
-- US-001
-- US-002
-- US-003
-- US-004
-- US-005
-target_release: v1.0
 titel: Basis Definitie Generatie
+status: completed
+prioriteit: HOOG
+aangemaakt: 01-01-2025
+bijgewerkt: 05-09-2025
+owner: business-analyst
+applies_to: definitie-app@current
+canonical: true
+last_verified: 05-09-2025
 vereisten:
-- REQ-018
-- REQ-038
-- REQ-059
-- REQ-078
-- REQ-079
-- REQ-082
+  - REQ-018
+  - REQ-038
+  - REQ-059
+  - REQ-078
+  - REQ-079
+  - REQ-082
+stories:
+  - US-001
+  - US-002
+  - US-003
+  - US-004
+  - US-005
+astra_compliance: true
+completion: 100%
+target_release: v1.0
 ---
 
 
