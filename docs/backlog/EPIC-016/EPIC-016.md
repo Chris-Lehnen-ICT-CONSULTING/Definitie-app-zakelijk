@@ -1,20 +1,20 @@
 ---
 id: EPIC-016
 titel: Beheer & Configuratie Console
-status: Active
+status: active
 prioriteit: HOOG
 owner: product-owner
 applies_to: definitie-app@current
 canonical: true
 last_verified: 2025-09-15
 stories:
-- US-181
-- US-182
-- US-183
-- US-184
-- US-185
-- US-186
-- US-187
+  - US-181
+  - US-182
+  - US-183
+  - US-184
+  - US-185
+  - US-186
+  - US-187
 ---
 
 # EPIC-016: Beheer & Configuratie Console

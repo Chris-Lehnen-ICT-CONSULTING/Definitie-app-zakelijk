@@ -1,21 +1,22 @@
 ---
-aangemaakt: 2025-09-09
-bijgewerkt: 2025-09-09
 titel: Business Requirements Specification - Custom Context Input Functionality
-canonical: true
 type: business-requirements
 status: goedgekeurd
-applies_to: definitie-app@v1.1
-owner: business-analyst-justice
 priority: KRITIEK
+aangemaakt: 2025-09-09
+bijgewerkt: 2025-09-09
+owner: business-analyst-justice
+applies_to: definitie-app@v1.1
+canonical: true
+last_verified: 2025-10-02
 stakeholders:
-- OM (Openbaar Ministerie)
-- DJI (Dienst Justitiële Inrichtingen)
-- Justid (Justitiële Informatiedienst)
-- Rechtspraak
-- NFI (Nederlands Forensisch Instituut)
-- KMAR (Koninklijke Marechaussee)
-- FIOD (Fiscale Inlichtingen- en Opsporingsdienst)
+  - OM (Openbaar Ministerie)
+  - DJI (Dienst Justitiële Inrichtingen)
+  - Justid (Justitiële Informatiedienst)
+  - Rechtspraak
+  - NFI (Nederlands Forensisch Instituut)
+  - KMAR (Koninklijke Marechaussee)
+  - FIOD (Fiscale Inlichtingen- en Opsporingsdienst)
 ---
 
 # Business Requirements Specification: Custom Context Input Functionality

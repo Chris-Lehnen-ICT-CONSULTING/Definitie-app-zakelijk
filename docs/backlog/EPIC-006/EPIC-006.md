@@ -1,29 +1,29 @@
 ---
-aangemaakt: 01-01-2025
-applies_to: definitie-app@current
-astra_compliance: true
-bijgewerkt: 05-09-2025
-canonical: true
-completion: 40%
 id: EPIC-006
-last_verified: 05-09-2025
-owner: business-analyst
-prioriteit: KRITIEK
-status: IN_UITVOERING
-stories:
-- US-140
-- US-141
-- US-026
-- US-027
-target_release: v1.0
 titel: beveiliging & Auth
+status: active
+prioriteit: KRITIEK
+aangemaakt: 01-01-2025
+bijgewerkt: 05-09-2025
+owner: business-analyst
+applies_to: definitie-app@current
+canonical: true
+last_verified: 05-09-2025
 vereisten:
-- REQ-044
-- REQ-045
-- REQ-047
-- REQ-063
-- REQ-071
-- REQ-081
+  - REQ-044
+  - REQ-045
+  - REQ-047
+  - REQ-063
+  - REQ-071
+  - REQ-081
+stories:
+  - US-140
+  - US-141
+  - US-026
+  - US-027
+astra_compliance: true
+completion: 40%
+target_release: v1.0
 ---
 
 

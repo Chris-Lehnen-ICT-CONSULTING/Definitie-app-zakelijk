@@ -1,14 +1,14 @@
 ---
 id: CFR-BUG-028
 titel: Ontbrekende testbestanden/fixtures voor ModernWebLookupService en providers
-status: OPEN
-severity: MEDIUM
-component: testing
+status: open
 owner: qa-team
-gevonden_op: 2025-09-19
+applies_to: definitie-app@v2
 canonical: false
 last_verified: 2025-09-19
-applies_to: definitie-app@v2
+severity: MEDIUM
+component: testing
+gevonden_op: 2025-09-19
 ---
 
 # CFR-BUG-028: Ontbrekende testbestanden/fixtures (Web Lookup)

@@ -1,7 +1,10 @@
 ---
 id: CFR-BUG-020
 titel: Status-inconsistentie (APPROVED vs ESTABLISHED) in services/doc
-status: OPEN
+status: open
+owner: development-team
+applies_to: definitie-app@current
+last_verified: 2025-10-02
 severity: MEDIUM
 gevonden_op: 2025-09-15
 component: workflow/status

@@ -2,9 +2,12 @@
 id: US-300-FINAL-REVIEW
 epic: EPIC-014
 title: Consolidated Multi-Agent Review - UFO Classifier
+status: COMPLETE
+owner: development-team
+applies_to: definitie-app@current
+last_verified: 2025-10-02
 date: 2025-01-23
 reviewers: 5
-status: COMPLETE
 ---
 
 # 🔍 EINDOORDEEL UFO CLASSIFIER IMPLEMENTATIE

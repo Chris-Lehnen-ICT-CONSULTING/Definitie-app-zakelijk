@@ -1,7 +1,10 @@
 ---
 id: CFR-BUG-022
 titel: `best_iteration` fallback in UI hoofdflow aanwezig
-status: OPEN
+status: open
+owner: development-team
+applies_to: definitie-app@current
+last_verified: 2025-10-02
 severity: HIGH
 gevonden_op: 2025-09-15
 component: ui

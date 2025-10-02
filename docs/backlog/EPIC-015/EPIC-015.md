@@ -1,23 +1,24 @@
 ---
 id: EPIC-015
 titel: Multi-User & Externalisatie
-status: TE_DOEN
+status: active
 prioriteit: GEMIDDELD
 owner: architecture
+applies_to: definitie-app@current
 canonical: true
 last_verified: 2025-09-11
 stories:
-- US-158
-- US-125
-- US-126
-- US-127
-- US-128
-- US-129
-- US-130
-- US-131
-- US-132
-- US-133
-- US-134
+  - US-158
+  - US-125
+  - US-126
+  - US-127
+  - US-128
+  - US-129
+  - US-130
+  - US-131
+  - US-132
+  - US-133
+  - US-134
 ---
 
 # EPIC-015: Multi-User & Externalisatie

@@ -1,13 +1,14 @@
 ---
 id: CFR-BUG-031
 titel: Legacy cleanup – container API, validator interface en service_factory marker (tests failing)
-status: OPEN
+status: open
+owner: architecture
+applies_to: definitie-app@current
+canonical: false
+last_verified: 2025-10-02
 severity: HIGH
 component: core-infra
-owner: architecture
 gevonden_op: 2025-09-22
-canonical: false
-applies_to: definitie-app@current
 ---
 
 # CFR-BUG-031: Legacy cleanup — container API, validator interface en service_factory marker

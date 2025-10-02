@@ -2,14 +2,24 @@
 id: EPIC-023
 titel: Quality Control & System Health Dashboard
 type: epic
-status: Deferred
+status: deferred
 prioriteit: LOW
-business_value: MEDIUM
 aangemaakt: 2025-09-29
 bijgewerkt: 2025-09-29
-uitgesteld: 2025-09-29
-reden_uitstel: Geen huidige behoefte aan deze functionaliteit
 owner: quality-lead
+applies_to: definitie-app@current
+canonical: true
+last_verified: 2025-10-02
+vereisten:
+  - REQ-110
+  - REQ-111
+  - REQ-112
+stories:
+  - US-413
+  - US-414
+  - US-415
+  - US-416
+  - US-417
 stakeholders:
   - business-analyst
   - technical-lead
@@ -21,18 +31,9 @@ tags:
   - validation
   - system-health
   - toetsregels
-canonical: true
-applies_to: definitie-app@current
-stories:
-  - US-413
-  - US-414
-  - US-415
-  - US-416
-  - US-417
-vereisten:
-  - REQ-110
-  - REQ-111
-  - REQ-112
+business_value: MEDIUM
+uitgesteld: 2025-09-29
+reden_uitstel: Geen huidige behoefte aan deze functionaliteit
 ---
 
 # EPIC-023: Quality Control & System Health Dashboard

@@ -2,29 +2,14 @@
 id: EPIC-022
 titel: Externe Bronnen Integratie & Import
 type: epic
-status: DEFERRED
+status: deferred
 prioriteit: LOW
-owner: product-owner
-applies_to: definitie-app@future
-last_verified: 2025-09-29
-stakeholders:
-  - juridisch-professional
-  - data-steward
-  - integratie-specialist
-  - security-officer
 aangemaakt: 2025-09-29
 bijgewerkt: 2025-09-29
-uitgesteld: 2025-09-29
-reden_uitstel: Functionaliteit heeft 95% overlap met Export tab, geen meerwaarde voor single-user applicatie
-target_release: TBD
+owner: product-owner
+applies_to: definitie-app@future
 canonical: true
-stories:
-  - US-413
-  - US-414
-  - US-415
-  - US-416
-  - US-440
-  - US-418
+last_verified: 2025-09-29
 vereisten:
   - REQ-043
   - REQ-102
@@ -33,6 +18,21 @@ vereisten:
   - REQ-105
   - REQ-106
   - REQ-107
+stories:
+  - US-413
+  - US-414
+  - US-415
+  - US-416
+  - US-440
+  - US-418
+stakeholders:
+  - juridisch-professional
+  - data-steward
+  - integratie-specialist
+  - security-officer
+uitgesteld: 2025-09-29
+reden_uitstel: Functionaliteit heeft 95% overlap met Export tab, geen meerwaarde voor single-user applicatie
+target_release: TBD
 ---
 
 

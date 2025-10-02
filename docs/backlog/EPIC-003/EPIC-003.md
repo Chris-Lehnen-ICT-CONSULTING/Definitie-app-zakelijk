@@ -1,44 +1,44 @@
 ---
-aangemaakt: 01-01-2025
-applies_to: definitie-app@current
-astra_compliance: true
-bijgewerkt: 05-09-2025
-canonical: true
-completion: 30%
 id: EPIC-003
+titel: Content Verrijking / Web Lookup
+status: active
+prioriteit: HOOG
+aangemaakt: 01-01-2025
+bijgewerkt: 05-09-2025
+owner: business-analyst
+applies_to: definitie-app@current
+canonical: true
 last_verified: 05-09-2025
+vereisten:
+  - REQ-021
+  - REQ-039
+  - REQ-040
+stories:
+  - US-135
+  - US-015
+  - US-016
+  - US-017
+  - US-018
+  - US-019
+  - US-079
+  - US-080
+  - US-081
+  - US-082
+  - US-083
+  - US-084
+  - US-087
+  - US-088
+  - US-089
+stakeholders:
+  - Justid (terminology authority)
+  - Rechtspraak (legal sources)
+  - OM (Openbaar Ministerie (OM) context)
+  - KB (National Library - SRU provider)
+astra_compliance: true
+completion: 30%
 nora_compliance: true
 note: Episch Verhaal 8 (Web Lookup Module) has been merged into this epic
-owner: business-analyst
-prioriteit: HOOG
-stakeholders:
-- Justid (terminology authority)
-- Rechtspraak (legal sources)
-- OM (Openbaar Ministerie (OM) context)
-- KB (National Library - SRU provider)
-status: IN_UITVOERING
-stories:
-- US-135
-- US-015
-- US-016
-- US-017
-- US-018
-- US-019
-- US-079
-- US-080
-- US-081
-- US-082
-- US-083
-- US-084
-- US-087
-- US-088
-- US-089
 target_release: v1.1
-titel: Content Verrijking / Web Lookup
-vereisten:
-- REQ-021
-- REQ-039
-- REQ-040
 ---
 
 
