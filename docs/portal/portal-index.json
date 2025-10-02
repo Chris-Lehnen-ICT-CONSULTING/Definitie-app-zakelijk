@@ -626,6 +626,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Validation Orchestrator V2 — Implementatie Guide",
+      "path": "../development/validation_orchestrator_implementation.md",
+      "url": "../development/validation_orchestrator_implementation.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/development/validation_orchestrator_implementation.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Codebase Deep Dive en Verbeterplan",
       "path": "../backlog/DEEP_DIVE_IMPROVEMENT_PLAN.md",
       "url": "../backlog/DEEP_DIVE_IMPROVEMENT_PLAN.md",
@@ -5533,6 +5564,37 @@
         "req": []
       },
       "rendered_url": "rendered/migration/synoniemen-migratie-strategie.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "History Tab Removal - Complete Summary",
+      "path": "../technical/history_tab_removal_summary.md",
+      "url": "../technical/history_tab_removal_summary.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/technical/history_tab_removal_summary.html"
     },
     {
       "id": null,
@@ -17490,6 +17552,61 @@
       "linked_stories": null
     },
     {
+      "id": "EPIC-026",
+      "type": "EPIC",
+      "title": "God Object Refactoring (Architectural Debt Resolution)",
+      "path": "../backlog/EPIC-026/EPIC-026.md",
+      "url": "../backlog/EPIC-026/EPIC-026.md",
+      "status": "proposed",
+      "prioriteit": "P1",
+      "owner": "code-architect",
+      "canonical": true,
+      "last_verified": "2025-09-30",
+      "applies_to": "definitie-app@current",
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": "0%",
+      "target_release": "v2.2",
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 1
+      },
+      "parent_epic": "EPIC-026.md",
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-426",
+          "US-427",
+          "US-428",
+          "US-441",
+          "US-442",
+          "US-443",
+          "US-444",
+          "US-445",
+          "US-446",
+          "US-447",
+          "US-448",
+          "US-449",
+          "US-450",
+          "US-451",
+          "US-452",
+          "US-453"
+        ],
+        "epic": [
+          "EPIC-025",
+          "EPIC-026"
+        ],
+        "req": [
+          "REQ-091"
+        ]
+      },
+      "rendered_url": "rendered/backlog/EPIC-026/EPIC-026.html",
+      "linked_reqs": null,
+      "linked_stories": null
+    },
+    {
       "id": "EPIC-019",
       "type": "EPIC",
       "title": "Prompt Compact & Dedup (Token Efficiency)",
@@ -25576,6 +25693,45 @@
       },
       "rendered_url": "rendered/backlog/EPIC-025/US-427/US-427.html",
       "linked_reqs": null
+    },
+    {
+      "id": "US-427-STRATEGY",
+      "type": "DOC",
+      "title": "US-427 God Object Refactoring Strategy",
+      "path": "../backlog/EPIC-025/US-427/US-427-REFACTORING-STRATEGY.md",
+      "url": "../backlog/EPIC-025/US-427/US-427-REFACTORING-STRATEGY.md",
+      "status": "deferred",
+      "prioriteit": "P0",
+      "owner": "code-architect",
+      "canonical": false,
+      "last_verified": "2025-09-30",
+      "applies_to": "definitie-app@current",
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-025",
+      "parent_us": "US-427-REFACTORING-STRATEGY.md",
+      "_refs": {
+        "us": [
+          "US-001",
+          "US-002",
+          "US-005",
+          "US-427"
+        ],
+        "epic": [
+          "EPIC-025",
+          "EPIC-026"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-025/US-427/US-427-REFACTORING-STRATEGY.html"
     },
     {
       "id": "US-426",
@@ -35344,17 +35500,17 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 505,
+      "DOC": 508,
       "ARCH": 24,
       "COMP": 5,
       "TEST": 33,
       "GUIDE": 12,
-      "EPIC": 23,
+      "EPIC": 24,
       "REQ": 110,
       "US": 255,
       "BUG": 18
     },
-    "generated_at": "2025-10-02T07:46:53Z"
+    "generated_at": "2025-10-02T07:49:08Z"
   },
   "sources": [
     "docs"
