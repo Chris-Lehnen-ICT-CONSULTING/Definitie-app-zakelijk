@@ -2,21 +2,37 @@
 
 Dit bestand biedt richtlijnen aan Claude Code bij het werken met code in deze repository.
 
-## 🎯 BELANGRIJKE UPDATE: Unified Agent Instructions
+## 🎯 Agent Instruction Hierarchy & Precedence
 
-**Voor geharmoniseerde werking met Codex, volg ook:**
-- **Primaire instructies**: `~/.ai-agents/UNIFIED_INSTRUCTIONS.md` (LEES DIT EERST!)
-- **Kwaliteitsregels**: `~/.ai-agents/quality-gates.yaml` (forbidden patterns)
-- **Tool mappings**: `~/.ai-agents/agent-mappings.yaml` (Claude ↔ Codex)
-- **Preflight checks**: `~/.ai-agents/preflight-checks.sh` (run voor wijzigingen)
+### Instruction Priority (Highest → Lowest)
 
-De unified instructions bevatten:
-- ✅ Approval Ladder (wanneer toestemming vragen)
-- 🚫 Forbidden Patterns (wat NOOIT te doen)
-- 🔄 Workflow Selection (welke aanpak wanneer)
-- 📝 Naming Conventions (juiste namen gebruiken)
+1. **`~/.ai-agents/UNIFIED_INSTRUCTIONS.md`** - Cross-project generieke regels (PRIMAIR)
+2. **`CLAUDE.md` (dit document)** - DefinitieAgent project-specifieke regels
+3. **`~/.ai-agents/quality-gates.yaml`** - Forbidden patterns & quality checks
+4. **`~/.ai-agents/agent-mappings.yaml`** - Agent name translations
+5. **`AGENTS.md`** - BMad Method workflows (alleen voor BMad agents)
 
-**Bij conflicten**: Unified instructions > Dit document
+### Werkwijze
+- **ALTIJD begin met UNIFIED_INSTRUCTIONS.md** voor basis regels
+- **Gebruik CLAUDE.md** voor DefinitieAgent-specifieke patterns
+- **Bij conflicten**: UNIFIED > CLAUDE.md > quality-gates > mappings
+- **Check preflight**: Run `~/.ai-agents/preflight-checks.sh` voor wijzigingen
+
+### Agent Name Mapping (Cross-Platform)
+
+| Workflow Role | TDD Workflow | Codex | Claude Code | BMad Method |
+|---------------|--------------|-------|-------------|-------------|
+| **Documentation** | doc-auditor | Documentor | Analysis mode | bmad-analyst |
+| **Architecture** | architect / justice-architecture-designer | Architect | Design mode | bmad-architect |
+| **Development** | dev / implementor | Developer | Implementation | bmad-dev |
+| **Code Quality** | code-architect | Refactor Agent | Review mode | bmad-reviewer |
+| **Process** | process-guardian | QA/Process | Workflow mode | bmad-pm |
+| **Testing** | test-engineer | Test Engineer | Test mode | bmad-tester |
+
+**Gebruik deze mapping bij:**
+- Handoffs tussen agents
+- Cross-platform documentatie
+- Workflow referenties
 
 ## Project Overzicht
 
