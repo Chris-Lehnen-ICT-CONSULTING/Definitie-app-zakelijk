@@ -896,6 +896,89 @@
       "rendered_url": "rendered/planning/V2_VALIDATOR_VOLLEDIG_IMPLEMENTATIEPLAN.html"
     },
     {
+      "id": "PARALLEL-TRACK-COORD",
+      "type": "DOC",
+      "title": "Parallel Track Coordination (Sprint 2 + EPIC-026 Prep)",
+      "path": "../planning/PARALLEL-TRACK-COORDINATION.md",
+      "url": "../planning/PARALLEL-TRACK-COORDINATION.md",
+      "status": "active",
+      "prioriteit": null,
+      "owner": "bmad-master",
+      "canonical": true,
+      "last_verified": "2025-09-30",
+      "applies_to": "definitie-app@epic-025",
+      "category": "coordination-doc",
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-426",
+          "US-427",
+          "US-428",
+          "US-429",
+          "US-430",
+          "US-431",
+          "US-432",
+          "US-433",
+          "US-434"
+        ],
+        "epic": [
+          "EPIC-025",
+          "EPIC-026"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/planning/PARALLEL-TRACK-COORDINATION.html"
+    },
+    {
+      "id": "EPIC-026-REVIEW-BRIEF",
+      "type": "DOC",
+      "title": "EPIC-026 Stakeholder Review Brief",
+      "path": "../planning/EPIC-026-STAKEHOLDER-REVIEW-BRIEF.md",
+      "url": "../planning/EPIC-026-STAKEHOLDER-REVIEW-BRIEF.md",
+      "status": "pending-approval",
+      "prioriteit": null,
+      "owner": "bmad-master",
+      "canonical": true,
+      "last_verified": "2025-09-30",
+      "applies_to": "definitie-app@epic-026",
+      "category": "decision-document",
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-026-STAKEHOLDER-REVIEW-BRIEF.md",
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-427",
+          "US-432",
+          "US-433",
+          "US-434"
+        ],
+        "epic": [
+          "EPIC-025",
+          "EPIC-026"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/planning/EPIC-026-STAKEHOLDER-REVIEW-BRIEF.html"
+    },
+    {
       "id": null,
       "type": "DOC",
       "title": "Sprint Change Proposal: Brownfield Cleanup & Quality Infrastructure",
@@ -941,6 +1024,44 @@
         "req": []
       },
       "rendered_url": "rendered/planning/SPRINT_CHANGE_PROPOSAL_BROWNFIELD_CLEANUP.html"
+    },
+    {
+      "id": "EPIC-025-SPRINT-2-COMPLETION-REPORT",
+      "type": "DOC",
+      "title": "Sprint 2 Completion Report - Process Enforcement",
+      "path": "../planning/EPIC-025-SPRINT-2-COMPLETION-REPORT.md",
+      "url": "../planning/EPIC-025-SPRINT-2-COMPLETION-REPORT.md",
+      "status": "completed",
+      "prioriteit": null,
+      "owner": "process-guardian",
+      "canonical": false,
+      "last_verified": "2025-10-02",
+      "applies_to": "definitie-app@current",
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-025-SPRINT-2-COMPLETION-REPORT.md",
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-429",
+          "US-430",
+          "US-431"
+        ],
+        "epic": [
+          "EPIC-025",
+          "EPIC-026"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/planning/EPIC-025-SPRINT-2-COMPLETION-REPORT.html"
     },
     {
       "id": null,
@@ -25609,11 +25730,11 @@
       "title": "Implement CI Quality Gates",
       "path": "../backlog/EPIC-025/US-429/US-429.md",
       "url": "../backlog/EPIC-025/US-429/US-429.md",
-      "status": "open",
+      "status": "completed",
       "prioriteit": "P0",
       "owner": "process-guardian",
       "canonical": false,
-      "last_verified": "2025-09-30",
+      "last_verified": "2025-10-02",
       "applies_to": "definitie-app@current",
       "category": null,
       "sprint": "2",
@@ -25905,11 +26026,11 @@
       "title": "Workflow Validation Automation",
       "path": "../backlog/EPIC-025/US-431/US-431.md",
       "url": "../backlog/EPIC-025/US-431/US-431.md",
-      "status": "open",
+      "status": "completed",
       "prioriteit": "P1",
       "owner": "process-guardian",
       "canonical": false,
-      "last_verified": "2025-09-30",
+      "last_verified": "2025-10-02",
       "applies_to": "definitie-app@current",
       "category": null,
       "sprint": "2",
@@ -25941,11 +26062,11 @@
       "title": "Extend Pre-commit Hooks",
       "path": "../backlog/EPIC-025/US-430/US-430.md",
       "url": "../backlog/EPIC-025/US-430/US-430.md",
-      "status": "open",
+      "status": "completed",
       "prioriteit": "P1",
       "owner": "code-architect",
       "canonical": false,
-      "last_verified": "2025-09-30",
+      "last_verified": "2025-10-02",
       "applies_to": "definitie-app@current",
       "category": null,
       "sprint": "2",
@@ -35482,7 +35603,7 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 507,
+      "DOC": 510,
       "ARCH": 24,
       "COMP": 5,
       "TEST": 33,
@@ -35492,7 +35613,7 @@
       "US": 255,
       "BUG": 18
     },
-    "generated_at": "2025-10-02T08:05:46Z"
+    "generated_at": "2025-10-02T08:15:45Z"
   },
   "sources": [
     "docs"

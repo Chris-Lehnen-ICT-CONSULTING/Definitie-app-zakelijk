@@ -1,11 +1,8 @@
 """Tests voor de insert helper van DefinitieRepository."""
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 
-from database.definitie_repository import (
-    DefinitieRecord,
-    DefinitieRepository,
-)
+from database.definitie_repository import DefinitieRecord, DefinitieRepository
 
 
 def _make_record() -> DefinitieRecord:
@@ -22,21 +19,21 @@ def _make_record() -> DefinitieRecord:
     record.version_number = 1
     record.previous_version_id = None
     record.validation_score = 0.9
-    record.validation_date = datetime.now(timezone.utc)
+    record.validation_date = datetime.now(UTC)
     record.validation_issues = None
     record.source_type = "generated"
     record.source_reference = "bron"
     record.imported_from = "import"
-    record.created_at = datetime.now(timezone.utc)
-    record.updated_at = datetime.now(timezone.utc)
+    record.created_at = datetime.now(UTC)
+    record.updated_at = datetime.now(UTC)
     record.created_by = "tester"
     record.updated_by = "tester"
     record.approved_by = "approver"
-    record.approved_at = datetime.now(timezone.utc)
+    record.approved_at = datetime.now(UTC)
     record.approval_notes = "notes"
     record.last_exported_at = None
     record.export_destinations = "[]"
-    record.datum_voorstel = datetime.now(timezone.utc)
+    record.datum_voorstel = datetime.now(UTC)
     record.ketenpartners = "[]"
     return record
 

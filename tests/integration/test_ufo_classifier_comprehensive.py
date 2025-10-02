@@ -16,70 +16,101 @@ Based on US-300 requirements, this test suite covers:
 12. A/B testing framework for rule improvements
 """
 
-import pytest
-import time
 import json
 import sqlite3
 import tempfile
-from pathlib import Path
-from unittest.mock import Mock, patch, MagicMock
-from datetime import datetime
-from typing import List, Dict, Tuple, Optional
-import numpy as np
+import time
 from contextlib import contextmanager
+from datetime import datetime
+from pathlib import Path
+from typing import Dict, List, Optional, Tuple
+from unittest.mock import MagicMock, Mock, patch
+
+import numpy as np
+import pytest
 
 from src.services.ufo_classifier_service import (
+    PatternMatcher,
     UFOCategory,
     UFOClassificationResult,
     UFOClassifierService,
-    PatternMatcher,
-    get_ufo_classifier
+    get_ufo_classifier,
 )
-
 
 # ============================================================================
 # 1. UNIT TESTS (35+ test cases)
 # ============================================================================
 
+
 class TestUFOClassifierUnit:
     """Comprehensive unit tests for UFO Classifier Service"""
 
-    @pytest.fixture
+    @pytest.fixture()
     def classifier(self):
         """Create a fresh classifier instance for each test"""
         return UFOClassifierService()
 
-    @pytest.fixture
+    @pytest.fixture()
     def dutch_legal_samples(self):
         """Dutch legal terminology test samples"""
         return {
-            'strafrecht': [
-                ("verdachte", "Een persoon die wordt verdacht van het plegen van een strafbaar feit"),
+            "strafrecht": [
+                (
+                    "verdachte",
+                    "Een persoon die wordt verdacht van het plegen van een strafbaar feit",
+                ),
                 ("dader", "De persoon die een strafbaar feit heeft gepleegd"),
-                ("slachtoffer", "Degene die rechtstreeks schade heeft ondervonden door een strafbaar feit"),
-                ("aanhouding", "Het proces waarbij een persoon van zijn vrijheid wordt beroofd"),
-                ("inverzekeringstelling", "Het vasthouden van een verdachte na aanhouding"),
-                ("dagvaarding", "Schriftelijke oproep om voor de rechter te verschijnen"),
-                ("proces-verbaal", "Schriftelijk verslag van bevindingen door opsporingsambtenaar")
+                (
+                    "slachtoffer",
+                    "Degene die rechtstreeks schade heeft ondervonden door een strafbaar feit",
+                ),
+                (
+                    "aanhouding",
+                    "Het proces waarbij een persoon van zijn vrijheid wordt beroofd",
+                ),
+                (
+                    "inverzekeringstelling",
+                    "Het vasthouden van een verdachte na aanhouding",
+                ),
+                (
+                    "dagvaarding",
+                    "Schriftelijke oproep om voor de rechter te verschijnen",
+                ),
+                (
+                    "proces-verbaal",
+                    "Schriftelijk verslag van bevindingen door opsporingsambtenaar",
+                ),
             ],
-            'bestuursrecht': [
+            "bestuursrecht": [
                 ("burger", "Een natuurlijk persoon in relatie tot de overheid"),
-                ("bestuursorgaan", "Orgaan van een rechtspersoon die krachtens publiekrecht is ingesteld"),
+                (
+                    "bestuursorgaan",
+                    "Orgaan van een rechtspersoon die krachtens publiekrecht is ingesteld",
+                ),
                 ("beschikking", "Besluit dat niet van algemene strekking is"),
                 ("vergunning", "Toestemming van de overheid om iets te mogen doen"),
                 ("bezwaar", "Procedure tegen een besluit van een bestuursorgaan"),
                 ("beroep", "Procedure bij de rechter tegen een beslissing op bezwaar"),
-                ("handhaving", "Het toezien op naleving van voorschriften")
+                ("handhaving", "Het toezien op naleving van voorschriften"),
             ],
-            'civiel_recht': [
+            "civiel_recht": [
                 ("koper", "Partij die een zaak koopt"),
                 ("verkoper", "Partij die een zaak verkoopt"),
                 ("eigenaar", "Degene aan wie een zaak toebehoort"),
-                ("koopovereenkomst", "Overeenkomst waarbij verkoper zich verbindt zaak te geven"),
-                ("huurovereenkomst", "Overeenkomst waarbij verhuurder zich verbindt tot verschaffen van genot"),
-                ("vorderingsrecht", "Het recht om van een ander een prestatie te vorderen"),
-                ("hypotheek", "Zakelijk recht op onroerende zaak tot zekerheid")
-            ]
+                (
+                    "koopovereenkomst",
+                    "Overeenkomst waarbij verkoper zich verbindt zaak te geven",
+                ),
+                (
+                    "huurovereenkomst",
+                    "Overeenkomst waarbij verhuurder zich verbindt tot verschaffen van genot",
+                ),
+                (
+                    "vorderingsrecht",
+                    "Het recht om van een ander een prestatie te vorderen",
+                ),
+                ("hypotheek", "Zakelijk recht op onroerende zaak tot zekerheid"),
+            ],
         }
 
     # Test 1-5: Basic category detection
@@ -87,7 +118,7 @@ class TestUFOClassifierUnit:
         """Test 1: Natural person as KIND"""
         result = classifier.classify(
             "natuurlijk persoon",
-            "Een mens van vlees en bloed met rechtspersoonlijkheid"
+            "Een mens van vlees en bloed met rechtspersoonlijkheid",
         )
         assert result.primary_category == UFOCategory.KIND
         assert result.confidence >= 0.7
@@ -96,8 +127,7 @@ class TestUFOClassifierUnit:
     def test_kind_detection_organization(self, classifier):
         """Test 2: Organization as KIND"""
         result = classifier.classify(
-            "rechtspersoon",
-            "Een juridische entiteit met eigen rechten en plichten"
+            "rechtspersoon", "Een juridische entiteit met eigen rechten en plichten"
         )
         assert result.primary_category == UFOCategory.KIND
         assert result.confidence >= 0.6
@@ -106,7 +136,7 @@ class TestUFOClassifierUnit:
         """Test 3: Legal process as EVENT"""
         result = classifier.classify(
             "strafproces",
-            "Het proces van opsporing, vervolging en berechting dat plaatsvindt na een strafbaar feit"
+            "Het proces van opsporing, vervolging en berechting dat plaatsvindt na een strafbaar feit",
         )
         assert result.primary_category == UFOCategory.EVENT
         assert result.confidence >= 0.6
@@ -116,7 +146,7 @@ class TestUFOClassifierUnit:
         """Test 4: Temporal event detection"""
         result = classifier.classify(
             "hoorzitting",
-            "Een bijeenkomst tijdens welke partijen hun standpunten kunnen toelichten"
+            "Een bijeenkomst tijdens welke partijen hun standpunten kunnen toelichten",
         )
         assert result.primary_category == UFOCategory.EVENT
         assert "tijdens" in str(result.matched_patterns).lower()
@@ -124,8 +154,7 @@ class TestUFOClassifierUnit:
     def test_role_detection_context(self, classifier):
         """Test 5: Contextual role detection"""
         result = classifier.classify(
-            "advocaat",
-            "Een persoon in de hoedanigheid van juridisch vertegenwoordiger"
+            "advocaat", "Een persoon in de hoedanigheid van juridisch vertegenwoordiger"
         )
         assert result.primary_category == UFOCategory.ROLE
         assert result.confidence >= 0.5
@@ -135,7 +164,7 @@ class TestUFOClassifierUnit:
         """Test 6: Legal contract as RELATOR"""
         result = classifier.classify(
             "arbeidsovereenkomst",
-            "Een overeenkomst tussen werkgever en werknemer voor het verrichten van arbeid"
+            "Een overeenkomst tussen werkgever en werknemer voor het verrichten van arbeid",
         )
         assert result.primary_category == UFOCategory.RELATOR
         assert "overeenkomst" in str(result.matched_patterns).lower()
@@ -144,7 +173,7 @@ class TestUFOClassifierUnit:
         """Test 7: Status/phase detection"""
         result = classifier.classify(
             "voorlopige hechtenis",
-            "De fase waarin een verdachte in verzekering is gesteld voorafgaand aan het proces"
+            "De fase waarin een verdachte in verzekering is gesteld voorafgaand aan het proces",
         )
         assert result.primary_category in [UFOCategory.PHASE, UFOCategory.EVENT]
 
@@ -152,7 +181,7 @@ class TestUFOClassifierUnit:
         """Test 8: State/attribute as MODE"""
         result = classifier.classify(
             "handelingsbekwaamheid",
-            "De toestand waarin een persoon bevoegd is rechtshandelingen te verrichten"
+            "De toestand waarin een persoon bevoegd is rechtshandelingen te verrichten",
         )
         assert result.primary_category == UFOCategory.MODE
         assert "toestand" in str(result.matched_patterns).lower()
@@ -161,35 +190,39 @@ class TestUFOClassifierUnit:
         """Test 9: Monetary amount as QUANTITY"""
         result = classifier.classify(
             "schadevergoeding",
-            "Het bedrag in euro's dat als compensatie voor geleden schade wordt uitgekeerd"
+            "Het bedrag in euro's dat als compensatie voor geleden schade wordt uitgekeerd",
         )
         assert result.primary_category in [UFOCategory.QUANTITY, UFOCategory.MODE]
         if result.primary_category == UFOCategory.QUANTITY:
-            assert "euro" in str(result.matched_patterns).lower() or "bedrag" in str(result.matched_patterns).lower()
+            assert (
+                "euro" in str(result.matched_patterns).lower()
+                or "bedrag" in str(result.matched_patterns).lower()
+            )
 
     def test_quality_gradation(self, classifier):
         """Test 10: Quality with gradation"""
         result = classifier.classify(
             "ernst van het feit",
-            "De mate waarin een strafbaar feit als zwaarwegend wordt beschouwd"
+            "De mate waarin een strafbaar feit als zwaarwegend wordt beschouwd",
         )
         assert result.primary_category == UFOCategory.QUALITY
-        assert "ernst" in str(result.matched_patterns).lower() or "mate" in str(result.matched_patterns).lower()
+        assert (
+            "ernst" in str(result.matched_patterns).lower()
+            or "mate" in str(result.matched_patterns).lower()
+        )
 
     # Test 11-15: Ambiguous terms
     def test_ambiguous_zaak_multiple_meanings(self, classifier):
         """Test 11: Ambiguous term 'zaak' (case/thing/matter)"""
         # As physical object
         result1 = classifier.classify(
-            "zaak",
-            "Een stoffelijk voorwerp dat in het handelsverkeer kan zijn"
+            "zaak", "Een stoffelijk voorwerp dat in het handelsverkeer kan zijn"
         )
         assert result1.primary_category == UFOCategory.KIND
 
         # As legal case
         result2 = classifier.classify(
-            "zaak",
-            "Een juridische procedure die bij de rechter aanhangig is"
+            "zaak", "Een juridische procedure die bij de rechter aanhangig is"
         )
         assert result2.primary_category in [UFOCategory.EVENT, UFOCategory.KIND]
 
@@ -197,34 +230,25 @@ class TestUFOClassifierUnit:
         """Test 12: 'Huwelijk' as both RELATOR and EVENT"""
         # As relationship
         result1 = classifier.classify(
-            "huwelijk",
-            "De wettelijke verbintenis tussen twee personen"
+            "huwelijk", "De wettelijke verbintenis tussen twee personen"
         )
         assert result1.primary_category == UFOCategory.RELATOR
 
         # As ceremony/event
         result2 = classifier.classify(
-            "huwelijk",
-            "De ceremonie waarbij twee personen in de echt worden verbonden"
+            "huwelijk", "De ceremonie waarbij twee personen in de echt worden verbonden"
         )
         assert result2.primary_category in [UFOCategory.EVENT, UFOCategory.RELATOR]
 
     def test_ambiguous_low_confidence(self, classifier):
         """Test 13: Ambiguous term should have lower confidence"""
-        result = classifier.classify(
-            "ding",
-            "Iets"
-        )
+        result = classifier.classify("ding", "Iets")
         assert result.confidence < 0.5
 
     def test_context_disambiguation(self, classifier):
         """Test 14: Context helps disambiguation"""
-        context = {'domain': 'strafrecht', 'type': 'proces'}
-        result = classifier.classify(
-            "onderzoek",
-            "Het verzamelen van bewijs",
-            context
-        )
+        context = {"domain": "strafrecht", "type": "proces"}
+        result = classifier.classify("onderzoek", "Het verzamelen van bewijs", context)
         assert result.primary_category == UFOCategory.EVENT
         assert result.confidence >= 0.4
 
@@ -232,7 +256,7 @@ class TestUFOClassifierUnit:
         """Test 15: Compound Dutch legal terms"""
         result = classifier.classify(
             "rechter-commissaris",
-            "Een rechter belast met het voorbereidend onderzoek in strafzaken"
+            "Een rechter belast met het voorbereidend onderzoek in strafzaken",
         )
         assert result.primary_category == UFOCategory.ROLE
         assert "rechter" in str(result.matched_patterns).lower()
@@ -242,32 +266,39 @@ class TestUFOClassifierUnit:
         """Test 16: Subkind detection"""
         result = classifier.classify(
             "type verdachte",
-            "Een soort persoon die van een strafbaar feit wordt verdacht"
+            "Een soort persoon die van een strafbaar feit wordt verdacht",
         )
-        assert UFOCategory.SUBKIND in result.secondary_tags or result.primary_category == UFOCategory.SUBKIND
+        assert (
+            UFOCategory.SUBKIND in result.secondary_tags
+            or result.primary_category == UFOCategory.SUBKIND
+        )
 
     def test_category_abstract_type(self, classifier):
         """Test 17: Abstract category detection"""
         result = classifier.classify(
-            "juridische categorie",
-            "Een abstracte groepering van juridische concepten"
+            "juridische categorie", "Een abstracte groepering van juridische concepten"
         )
-        assert UFOCategory.ABSTRACT in result.secondary_tags or UFOCategory.CATEGORY in result.secondary_tags
+        assert (
+            UFOCategory.ABSTRACT in result.secondary_tags
+            or UFOCategory.CATEGORY in result.secondary_tags
+        )
 
     def test_mixin_pattern(self, classifier):
         """Test 18: Mixin pattern detection"""
         result = classifier.classify(
             "procespartij",
-            "Verschillende rollen die partijen in een proces kunnen hebben"
+            "Verschillende rollen die partijen in een proces kunnen hebben",
         )
         if result.primary_category == UFOCategory.ROLE:
-            assert UFOCategory.ROLEMIXIN in result.secondary_tags or len(result.secondary_tags) > 0
+            assert (
+                UFOCategory.ROLEMIXIN in result.secondary_tags
+                or len(result.secondary_tags) > 0
+            )
 
     def test_event_composition(self, classifier):
         """Test 19: Composite event detection"""
         result = classifier.classify(
-            "strafproces",
-            "Het geheel van opsporing, vervolging en berechting"
+            "strafproces", "Het geheel van opsporing, vervolging en berechting"
         )
         assert result.primary_category == UFOCategory.EVENT
         # Could have Event Composition as secondary tag
@@ -276,18 +307,20 @@ class TestUFOClassifierUnit:
         """Test 20: Distinguish RELATIE from RELATOR"""
         # Relator (reified relationship)
         result1 = classifier.classify(
-            "huurcontract",
-            "Een overeenkomst tussen huurder en verhuurder"
+            "huurcontract", "Een overeenkomst tussen huurder en verhuurder"
         )
         assert result1.primary_category == UFOCategory.RELATOR
 
         # Pure relation (if pattern exists)
         result2 = classifier.classify(
-            "is_eigenaar_van",
-            "De relatie tussen een persoon en zijn eigendom"
+            "is_eigenaar_van", "De relatie tussen een persoon en zijn eigendom"
         )
         # This might be RELATOR or have RELATIE tag
-        assert result2.primary_category in [UFOCategory.RELATOR, UFOCategory.MODE, UFOCategory.UNKNOWN]
+        assert result2.primary_category in [
+            UFOCategory.RELATOR,
+            UFOCategory.MODE,
+            UFOCategory.UNKNOWN,
+        ]
 
     # Test 21-25: Edge cases
     def test_empty_definition(self, classifier):
@@ -305,8 +338,7 @@ class TestUFOClassifierUnit:
     def test_special_characters_robustness(self, classifier):
         """Test 23: Special characters handling"""
         result = classifier.classify(
-            "test@#$",
-            "Een persoon met speciale !@#$ karakters"
+            "test@#$", "Een persoon met speciale !@#$ karakters"
         )
         # Should still detect 'persoon' pattern
         assert result.primary_category == UFOCategory.KIND
@@ -314,8 +346,7 @@ class TestUFOClassifierUnit:
     def test_mixed_language_robustness(self, classifier):
         """Test 24: Mixed Dutch-English text"""
         result = classifier.classify(
-            "legal person",
-            "Een rechtspersoon is a legal entity met eigen rights"
+            "legal person", "Een rechtspersoon is a legal entity met eigen rights"
         )
         assert result.primary_category == UFOCategory.KIND
         assert "rechtspersoon" in str(result.matched_patterns).lower()
@@ -324,7 +355,7 @@ class TestUFOClassifierUnit:
         """Test 25: Numeric and measurement terms"""
         result = classifier.classify(
             "artikel 3:40 BW",
-            "Het wetsartikel dat nietigheid van rechtshandelingen regelt"
+            "Het wetsartikel dat nietigheid van rechtshandelingen regelt",
         )
         # Articles are typically KIND (document/regulation)
         assert result.primary_category in [UFOCategory.KIND, UFOCategory.UNKNOWN]
@@ -334,26 +365,20 @@ class TestUFOClassifierUnit:
         """Test 26: High confidence (≥0.8) for clear cases"""
         result = classifier.classify(
             "natuurlijk persoon",
-            "Een mens van vlees en bloed met rechtspersoonlijkheid"
+            "Een mens van vlees en bloed met rechtspersoonlijkheid",
         )
         assert result.confidence >= 0.8
         assert "Hoge zekerheid" in " ".join(result.explanation)
 
     def test_medium_confidence_threshold(self, classifier):
         """Test 27: Medium confidence (0.5-0.8) for moderate matches"""
-        result = classifier.classify(
-            "procedure",
-            "Een vastgestelde werkwijze"
-        )
+        result = classifier.classify("procedure", "Een vastgestelde werkwijze")
         if result.confidence >= 0.5 and result.confidence < 0.8:
             assert "Redelijke zekerheid" in " ".join(result.explanation)
 
     def test_low_confidence_threshold(self, classifier):
         """Test 28: Low confidence (<0.5) for weak matches"""
-        result = classifier.classify(
-            "iets",
-            "Een onduidelijk begrip"
-        )
+        result = classifier.classify("iets", "Een onduidelijk begrip")
         assert result.confidence < 0.5
         if result.confidence >= 0.15:  # Not UNKNOWN
             assert "Lage zekerheid" in " ".join(result.explanation)
@@ -362,26 +387,25 @@ class TestUFOClassifierUnit:
         """Test 29: Explanation includes matched patterns"""
         result = classifier.classify(
             "koopovereenkomst",
-            "Een overeenkomst waarbij de verkoper zich verbindt een zaak te leveren"
+            "Een overeenkomst waarbij de verkoper zich verbindt een zaak te leveren",
         )
         assert len(result.explanation) >= 2
         assert any("overeenkomst" in exp.lower() for exp in result.explanation)
 
     def test_explanation_category_specific(self, classifier):
         """Test 30: Category-specific explanations"""
-        result = classifier.classify(
-            "persoon",
-            "Een natuurlijk persoon met rechten"
+        result = classifier.classify("persoon", "Een natuurlijk persoon met rechten")
+        assert any(
+            "zelfstandig" in exp.lower() or "object" in exp.lower()
+            for exp in result.explanation
         )
-        assert any("zelfstandig" in exp.lower() or "object" in exp.lower()
-                   for exp in result.explanation)
 
     def test_pattern_priority_weights(self, classifier):
         """Test 31: Pattern weights affect classification"""
         # KIND has higher weight than others
         result = classifier.classify(
             "persoon proces",  # Contains both KIND and EVENT markers
-            "Een persoon in een juridisch proces"
+            "Een persoon in een juridisch proces",
         )
         # KIND should win due to higher weight
         assert result.primary_category in [UFOCategory.KIND, UFOCategory.EVENT]
@@ -389,8 +413,7 @@ class TestUFOClassifierUnit:
     def test_heuristic_rules_application(self, classifier):
         """Test 32: Heuristic rules enhance classification"""
         result = classifier.classify(
-            "vergadering",
-            "Een bijeenkomst die plaatsvindt tussen partijen"
+            "vergadering", "Een bijeenkomst die plaatsvindt tussen partijen"
         )
         # "plaatsvindt" should boost EVENT score
         assert result.primary_category == UFOCategory.EVENT
@@ -398,49 +421,46 @@ class TestUFOClassifierUnit:
     def test_conflicting_patterns_resolution(self, classifier):
         """Test 33: Resolve conflicting patterns"""
         result = classifier.classify(
-            "procespartij",
-            "Een persoon die als partij optreedt in een proces"
+            "procespartij", "Een persoon die als partij optreedt in een proces"
         )
         # Has both EVENT (proces) and ROLE (als, optreedt) markers
         assert result.primary_category in [UFOCategory.ROLE, UFOCategory.KIND]
 
     def test_unknown_category_fallback(self, classifier):
         """Test 34: UNKNOWN for unrecognizable terms"""
-        result = classifier.classify(
-            "xyzabc",
-            "qwerty uiop asdfgh"
-        )
+        result = classifier.classify("xyzabc", "qwerty uiop asdfgh")
         assert result.primary_category == UFOCategory.UNKNOWN
         assert result.confidence < 0.3
 
     def test_serialization_completeness(self, classifier):
         """Test 35: Complete serialization to dict"""
         result = classifier.classify(
-            "verdachte",
-            "Een persoon die wordt verdacht van een strafbaar feit"
+            "verdachte", "Een persoon die wordt verdacht van een strafbaar feit"
         )
         data = result.to_dict()
 
-        assert 'primary_category' in data
-        assert 'confidence' in data
-        assert 'explanation' in data
-        assert 'secondary_tags' in data
-        assert 'matched_patterns' in data
-        assert isinstance(data['confidence'], float)
-        assert 0 <= data['confidence'] <= 1
+        assert "primary_category" in data
+        assert "confidence" in data
+        assert "explanation" in data
+        assert "secondary_tags" in data
+        assert "matched_patterns" in data
+        assert isinstance(data["confidence"], float)
+        assert 0 <= data["confidence"] <= 1
 
 
 # ============================================================================
 # 2. INTEGRATION TESTS WITH SERVICE CONTAINER
 # ============================================================================
 
+
 class TestServiceContainerIntegration:
     """Test integration with ServiceContainer for dependency injection"""
 
-    @pytest.fixture
+    @pytest.fixture()
     def mock_container(self):
         """Create a mock ServiceContainer with UFO classifier"""
         from unittest.mock import Mock
+
         container = Mock()
         container.ufo_classifier = Mock(return_value=get_ufo_classifier())
         return container
@@ -459,9 +479,9 @@ class TestServiceContainerIntegration:
         container_instances = {}
 
         def get_or_create_classifier():
-            if 'ufo_classifier' not in container_instances:
-                container_instances['ufo_classifier'] = UFOClassifierService()
-            return container_instances['ufo_classifier']
+            if "ufo_classifier" not in container_instances:
+                container_instances["ufo_classifier"] = UFOClassifierService()
+            return container_instances["ufo_classifier"]
 
         classifier1 = get_or_create_classifier()
         classifier2 = get_or_create_classifier()
@@ -473,16 +493,17 @@ class TestServiceContainerIntegration:
 
         # Mock repository interaction
         mock_definitions = [
-            {"id": 1, "begrip": "verdachte", "definitie": "Persoon verdacht van strafbaar feit"},
+            {
+                "id": 1,
+                "begrip": "verdachte",
+                "definitie": "Persoon verdacht van strafbaar feit",
+            },
             {"id": 2, "begrip": "proces", "definitie": "Juridische procedure"},
         ]
 
         # Classify all definitions
         for definition in mock_definitions:
-            result = classifier.classify(
-                definition["begrip"],
-                definition["definitie"]
-            )
+            result = classifier.classify(definition["begrip"], definition["definitie"])
             assert result.primary_category != UFOCategory.UNKNOWN
 
     def test_integration_with_validator(self):
@@ -491,14 +512,13 @@ class TestServiceContainerIntegration:
 
         # Mock validation context
         validation_context = {
-            'begrip': 'verdachte',
-            'definitie': 'Een persoon die wordt verdacht',
-            'ufo_required': True
+            "begrip": "verdachte",
+            "definitie": "Een persoon die wordt verdacht",
+            "ufo_required": True,
         }
 
         result = classifier.classify(
-            validation_context['begrip'],
-            validation_context['definitie']
+            validation_context["begrip"], validation_context["definitie"]
         )
 
         # Validation should check if UFO category is present
@@ -510,14 +530,15 @@ class TestServiceContainerIntegration:
 # 3. PERFORMANCE TESTS (10ms target)
 # ============================================================================
 
+
 class TestPerformanceRequirements:
     """Test performance requirements from US-300"""
 
-    @pytest.fixture
+    @pytest.fixture()
     def classifier(self):
         return UFOClassifierService()
 
-    @pytest.fixture
+    @pytest.fixture()
     def test_dataset(self, dutch_legal_samples):
         """Generate test dataset for performance testing"""
         all_samples = []
@@ -562,7 +583,9 @@ class TestPerformanceRequirements:
         throughput = len(results) / duration
 
         assert len(results) == 2000
-        assert throughput > 2000, f"Throughput {throughput:.0f}/sec below 2000/sec target"
+        assert (
+            throughput > 2000
+        ), f"Throughput {throughput:.0f}/sec below 2000/sec target"
 
     def test_memory_footprint_under_100mb(self, classifier):
         """Test memory usage stays under 100MB"""
@@ -573,8 +596,7 @@ class TestPerformanceRequirements:
         # Perform many classifications
         for i in range(1000):
             classifier.classify(
-                f"term_{i}",
-                f"Definition for term {i} with some legal context"
+                f"term_{i}", f"Definition for term {i} with some legal context"
             )
 
         current, peak = tracemalloc.get_traced_memory()
@@ -592,7 +614,7 @@ class TestPerformanceRequirements:
             "Een juridisch proces",
             "Een overeenkomst tussen partijen",
             "Een verdachte in een strafzaak",
-            "Een bestuursorgaan van de overheid"
+            "Een bestuursorgaan van de overheid",
         ]
 
         # First pass - cache miss
@@ -625,8 +647,8 @@ class TestPerformanceRequirements:
 
         # Each compiled pattern should be a regex object
         for category, pattern in matcher.compiled_patterns.items():
-            assert hasattr(pattern, 'findall')
-            assert hasattr(pattern, 'search')
+            assert hasattr(pattern, "findall")
+            assert hasattr(pattern, "search")
 
     def test_concurrent_classification_performance(self, classifier):
         """Test performance under concurrent load"""
@@ -658,24 +680,30 @@ class TestPerformanceRequirements:
 # 4. BATCH PROCESSING TESTS
 # ============================================================================
 
+
 class TestBatchProcessing:
     """Test batch processing capabilities"""
 
-    @pytest.fixture
+    @pytest.fixture()
     def classifier(self):
         return UFOClassifierService()
 
-    @pytest.fixture
+    @pytest.fixture()
     def large_batch(self):
         """Create a large batch for testing"""
         terms = [
-            "verdachte", "proces", "overeenkomst", "persoon", "organisatie",
-            "vergunning", "besluit", "bezwaar", "beroep", "rechter"
+            "verdachte",
+            "proces",
+            "overeenkomst",
+            "persoon",
+            "organisatie",
+            "vergunning",
+            "besluit",
+            "bezwaar",
+            "beroep",
+            "rechter",
         ]
-        definitions = [
-            f"Definitie voor {term} in juridische context"
-            for term in terms
-        ]
+        definitions = [f"Definitie voor {term} in juridische context" for term in terms]
 
         # Create 2000 items by repeating
         batch = []
@@ -690,7 +718,7 @@ class TestBatchProcessing:
         items = [
             ("persoon", "Een natuurlijk persoon", None),
             ("proces", "Een juridisch proces", None),
-            ("overeenkomst", "Een contract tussen partijen", None)
+            ("overeenkomst", "Een contract tussen partijen", None),
         ]
 
         results = classifier.batch_classify(items)
@@ -706,7 +734,7 @@ class TestBatchProcessing:
         items = [
             ("valid", "Een geldige definitie", None),
             (None, None, None),  # This should cause an error
-            ("another", "Nog een definitie", None)
+            ("another", "Nog een definitie", None),
         ]
 
         results = classifier.batch_classify(items)
@@ -742,7 +770,9 @@ class TestBatchProcessing:
 
         # Should not use excessive memory
         peak_mb = peak / 1024 / 1024
-        assert peak_mb < 200, f"Peak memory {peak_mb:.1f}MB too high for batch processing"
+        assert (
+            peak_mb < 200
+        ), f"Peak memory {peak_mb:.1f}MB too high for batch processing"
 
         # All results should be valid
         assert all(isinstance(r, UFOClassificationResult) for r in results)
@@ -750,10 +780,10 @@ class TestBatchProcessing:
     def test_batch_with_context(self, classifier):
         """Test batch processing with different contexts"""
         items = [
-            ("zaak", "Een juridische aangelegenheid", {'domain': 'legal'}),
-            ("zaak", "Een fysiek voorwerp", {'domain': 'physical'}),
-            ("onderzoek", "Wetenschappelijk onderzoek", {'domain': 'science'}),
-            ("onderzoek", "Strafrechtelijk onderzoek", {'domain': 'strafrecht'})
+            ("zaak", "Een juridische aangelegenheid", {"domain": "legal"}),
+            ("zaak", "Een fysiek voorwerp", {"domain": "physical"}),
+            ("onderzoek", "Wetenschappelijk onderzoek", {"domain": "science"}),
+            ("onderzoek", "Strafrechtelijk onderzoek", {"domain": "strafrecht"}),
         ]
 
         results = classifier.batch_classify(items)
@@ -769,20 +799,27 @@ class TestBatchProcessing:
 # 5. EDGE CASES FOR DUTCH LEGAL TERMINOLOGY
 # ============================================================================
 
+
 class TestDutchLegalEdgeCases:
     """Test edge cases specific to Dutch legal terminology"""
 
-    @pytest.fixture
+    @pytest.fixture()
     def classifier(self):
         return UFOClassifierService()
 
     def test_compound_legal_terms(self, classifier):
         """Test compound Dutch legal terms"""
         compounds = [
-            ("gerechtsdeurwaarder", "Ambtenaar belast met betekening en tenuitvoerlegging"),
+            (
+                "gerechtsdeurwaarder",
+                "Ambtenaar belast met betekening en tenuitvoerlegging",
+            ),
             ("kinderrechter", "Rechter gespecialiseerd in jeugdzaken"),
-            ("arrondissementsrechtbank", "Rechtbank met rechtsmacht in een arrondissement"),
-            ("hoger-beroepsprocedure", "Procedure bij het gerechtshof")
+            (
+                "arrondissementsrechtbank",
+                "Rechtbank met rechtsmacht in een arrondissement",
+            ),
+            ("hoger-beroepsprocedure", "Procedure bij het gerechtshof"),
         ]
 
         for term, definition in compounds:
@@ -796,7 +833,7 @@ class TestDutchLegalEdgeCases:
             ("OM", "Het Openbaar Ministerie"),
             ("IND", "Immigratie- en Naturalisatiedienst"),
             ("ABRvS", "Afdeling bestuursrechtspraak van de Raad van State"),
-            ("WAHV", "Wet administratiefrechtelijke handhaving verkeersvoorschriften")
+            ("WAHV", "Wet administratiefrechtelijke handhaving verkeersvoorschriften"),
         ]
 
         for abbr, definition in abbreviations:
@@ -810,7 +847,7 @@ class TestDutchLegalEdgeCases:
             ("habeas corpus", "Het recht om voor een rechter te worden gebracht"),
             ("pro forma", "Een formaliteit zonder inhoudelijke behandeling"),
             ("in dubio pro reo", "Bij twijfel in het voordeel van de verdachte"),
-            ("nulla poena sine lege", "Geen straf zonder wet")
+            ("nulla poena sine lege", "Geen straf zonder wet"),
         ]
 
         for term, definition in latin_terms:
@@ -823,7 +860,7 @@ class TestDutchLegalEdgeCases:
         archaic = [
             ("drossaard", "Historische benaming voor een justitiële ambtenaar"),
             ("schout", "Vroegere benaming voor hoofd van politie"),
-            ("baljuw", "Middeleeuwse rechterlijke ambtenaar")
+            ("baljuw", "Middeleeuwse rechterlijke ambtenaar"),
         ]
 
         for term, definition in archaic:
@@ -834,12 +871,23 @@ class TestDutchLegalEdgeCases:
         """Test words with different meanings in legal context"""
         homonyms = [
             # 'Akte' as document vs ceremony
-            ("akte", "Een officieel document opgemaakt door een notaris", {'domain': 'notarieel'}),
-            ("akte", "De handeling van het opmaken van een document", {'domain': 'proces'}),
-
+            (
+                "akte",
+                "Een officieel document opgemaakt door een notaris",
+                {"domain": "notarieel"},
+            ),
+            (
+                "akte",
+                "De handeling van het opmaken van een document",
+                {"domain": "proces"},
+            ),
             # 'Vordering' as claim vs demand
-            ("vordering", "Een eis tot betaling", {'domain': 'civiel'}),
-            ("vordering", "Het instellen van een rechtszaak", {'domain': 'procesrecht'})
+            ("vordering", "Een eis tot betaling", {"domain": "civiel"}),
+            (
+                "vordering",
+                "Het instellen van een rechtszaak",
+                {"domain": "procesrecht"},
+            ),
         ]
 
         for term, definition, context in homonyms:
@@ -851,23 +899,28 @@ class TestDutchLegalEdgeCases:
         negations = [
             ("niet-ontvankelijk", "Het niet kunnen behandelen van een zaak"),
             ("onbevoegd", "Niet bevoegd om een handeling te verrichten"),
-            ("nietig", "Zonder rechtsgevolg")
+            ("nietig", "Zonder rechtsgevolg"),
         ]
 
         for term, definition in negations:
             result = classifier.classify(term, definition)
             # Negations often indicate MODE or QUALITY
-            assert result.primary_category in [UFOCategory.MODE, UFOCategory.QUALITY, UFOCategory.PHASE]
+            assert result.primary_category in [
+                UFOCategory.MODE,
+                UFOCategory.QUALITY,
+                UFOCategory.PHASE,
+            ]
 
 
 # ============================================================================
 # 6. CONFIDENCE SCORING VALIDATION
 # ============================================================================
 
+
 class TestConfidenceScoring:
     """Test confidence score calculation and thresholds"""
 
-    @pytest.fixture
+    @pytest.fixture()
     def classifier(self):
         return UFOClassifierService()
 
@@ -877,14 +930,12 @@ class TestConfidenceScoring:
             # High confidence cases (>0.8)
             ("rechtspersoon", "Een juridische entiteit met rechtspersoonlijkheid"),
             ("arrestatie", "Het proces van aanhouding van een verdachte"),
-
             # Medium confidence (0.5-0.8)
             ("procedure", "Een vastgestelde werkwijze"),
             ("zaak", "Een juridische aangelegenheid"),
-
             # Low confidence (<0.5)
             ("iets", "Een onduidelijk begrip"),
-            ("ding", "Een object")
+            ("ding", "Een object"),
         ]
 
         confidences = []
@@ -895,7 +946,7 @@ class TestConfidenceScoring:
         # Should have a range of confidences
         assert max(confidences) > 0.8
         assert min(confidences) < 0.5
-        assert 0.5 < sorted(confidences)[len(confidences)//2] < 0.8
+        assert 0.5 < sorted(confidences)[len(confidences) // 2] < 0.8
 
     def test_confidence_monotonicity(self, classifier):
         """Test that more evidence increases confidence"""
@@ -903,12 +954,14 @@ class TestConfidenceScoring:
         result1 = classifier.classify("x", "Een persoon")
 
         # More evidence
-        result2 = classifier.classify("x", "Een natuurlijk persoon met rechtspersoonlijkheid")
+        result2 = classifier.classify(
+            "x", "Een natuurlijk persoon met rechtspersoonlijkheid"
+        )
 
         # Most evidence
         result3 = classifier.classify(
             "natuurlijk persoon",
-            "Een natuurlijk persoon is een mens met rechtspersoonlijkheid"
+            "Een natuurlijk persoon is een mens met rechtspersoonlijkheid",
         )
 
         assert result1.confidence <= result2.confidence
@@ -918,8 +971,7 @@ class TestConfidenceScoring:
         """Test confidence when patterns conflict"""
         # Contains both KIND (persoon) and EVENT (proces) markers
         result = classifier.classify(
-            "procespersoon",
-            "Een persoon die deelneemt aan een juridisch proces"
+            "procespersoon", "Een persoon die deelneemt aan een juridisch proces"
         )
 
         # Confidence should be moderate due to conflicts
@@ -930,7 +982,7 @@ class TestConfidenceScoring:
         low_confidence_cases = [
             ("vague", "Something unclear"),
             ("xyz", "Abstract concept"),
-            ("", "")
+            ("", ""),
         ]
 
         for term, definition in low_confidence_cases:
@@ -945,10 +997,11 @@ class TestConfidenceScoring:
 # 7. RULE ENGINE TESTS FOR ALL 16 UFO CATEGORIES
 # ============================================================================
 
+
 class TestRuleEngineComprehensive:
     """Test rule engine for all 16 UFO categories"""
 
-    @pytest.fixture
+    @pytest.fixture()
     def classifier(self):
         return UFOClassifierService()
 
@@ -957,9 +1010,14 @@ class TestRuleEngineComprehensive:
         matcher = PatternMatcher()
 
         main_categories = [
-            UFOCategory.KIND, UFOCategory.EVENT, UFOCategory.ROLE,
-            UFOCategory.PHASE, UFOCategory.RELATOR, UFOCategory.MODE,
-            UFOCategory.QUANTITY, UFOCategory.QUALITY
+            UFOCategory.KIND,
+            UFOCategory.EVENT,
+            UFOCategory.ROLE,
+            UFOCategory.PHASE,
+            UFOCategory.RELATOR,
+            UFOCategory.MODE,
+            UFOCategory.QUANTITY,
+            UFOCategory.QUALITY,
         ]
 
         for category in main_categories:
@@ -983,11 +1041,17 @@ class TestRuleEngineComprehensive:
     def test_category_specific_rules(self, classifier):
         """Test specific rules for each category"""
         test_cases = {
-            UFOCategory.KIND: ("organisatie", "Een rechtspersoon met eigen doelstellingen"),
+            UFOCategory.KIND: (
+                "organisatie",
+                "Een rechtspersoon met eigen doelstellingen",
+            ),
             UFOCategory.EVENT: ("zitting", "Een bijeenkomst van de rechtbank"),
             UFOCategory.ROLE: ("curator", "Persoon aangesteld als bewindvoerder"),
             UFOCategory.PHASE: ("voorlopig", "In de fase voorafgaand aan definitief"),
-            UFOCategory.RELATOR: ("huurcontract", "Overeenkomst tussen huurder en verhuurder"),
+            UFOCategory.RELATOR: (
+                "huurcontract",
+                "Overeenkomst tussen huurder en verhuurder",
+            ),
             UFOCategory.MODE: ("gezondheid", "De toestand van fysiek welzijn"),
             UFOCategory.QUANTITY: ("bedrag", "Een som van 100 euro"),
             UFOCategory.QUALITY: ("betrouwbaarheid", "De mate van vertrouwen"),
@@ -999,11 +1063,17 @@ class TestRuleEngineComprehensive:
         for expected_category, (term, definition) in test_cases.items():
             result = classifier.classify(term, definition)
             # Allow for some flexibility in classification
-            if expected_category in [UFOCategory.SUBKIND, UFOCategory.CATEGORY, UFOCategory.MIXIN]:
+            if expected_category in [
+                UFOCategory.SUBKIND,
+                UFOCategory.CATEGORY,
+                UFOCategory.MIXIN,
+            ]:
                 # These might be secondary tags
-                assert (result.primary_category == expected_category or
-                        expected_category in result.secondary_tags or
-                        result.primary_category != UFOCategory.UNKNOWN)
+                assert (
+                    result.primary_category == expected_category
+                    or expected_category in result.secondary_tags
+                    or result.primary_category != UFOCategory.UNKNOWN
+                )
             else:
                 assert result.primary_category == expected_category
 
@@ -1032,13 +1102,14 @@ class TestRuleEngineComprehensive:
 # 8. DATABASE MIGRATION TESTS
 # ============================================================================
 
+
 class TestDatabaseMigration:
     """Test database migration for UFO categories"""
 
-    @pytest.fixture
+    @pytest.fixture()
     def temp_db(self):
         """Create temporary database for testing"""
-        with tempfile.NamedTemporaryFile(suffix='.db', delete=False) as f:
+        with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as f:
             db_path = f.name
 
         yield db_path
@@ -1046,13 +1117,14 @@ class TestDatabaseMigration:
         # Cleanup
         Path(db_path).unlink(missing_ok=True)
 
-    @pytest.fixture
+    @pytest.fixture()
     def test_db_connection(self, temp_db):
         """Create test database with schema"""
         conn = sqlite3.connect(temp_db)
 
         # Create simplified schema
-        conn.execute("""
+        conn.execute(
+            """
             CREATE TABLE definities (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 begrip TEXT NOT NULL,
@@ -1062,9 +1134,11 @@ class TestDatabaseMigration:
                 ufo_confidence REAL,
                 ufo_source TEXT DEFAULT 'manual'
             )
-        """)
+        """
+        )
 
-        conn.execute("""
+        conn.execute(
+            """
             CREATE TABLE definition_ufo_history (
                 id INTEGER PRIMARY KEY,
                 definition_id INTEGER,
@@ -1074,19 +1148,20 @@ class TestDatabaseMigration:
                 source TEXT,
                 timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
             )
-        """)
+        """
+        )
 
         # Insert test data
         test_data = [
             ("verdachte", "Persoon verdacht van strafbaar feit"),
             ("proces", "Juridische procedure"),
-            ("overeenkomst", "Contract tussen partijen")
+            ("overeenkomst", "Contract tussen partijen"),
         ]
 
         for begrip, definitie in test_data:
             conn.execute(
                 "INSERT INTO definities (begrip, definitie) VALUES (?, ?)",
-                (begrip, definitie)
+                (begrip, definitie),
             )
 
         conn.commit()
@@ -1103,20 +1178,24 @@ class TestDatabaseMigration:
 
         # Create table first if not exists
         if not columns:
-            conn.execute("""
+            conn.execute(
+                """
                 CREATE TABLE definities (
                     id INTEGER PRIMARY KEY,
                     begrip TEXT,
                     definitie TEXT
                 )
-            """)
+            """
+            )
             conn.commit()
 
         # Simulate migration
         try:
             conn.execute("ALTER TABLE definities ADD COLUMN ufo_suggestion TEXT")
             conn.execute("ALTER TABLE definities ADD COLUMN ufo_confidence REAL")
-            conn.execute("ALTER TABLE definities ADD COLUMN ufo_source TEXT DEFAULT 'manual'")
+            conn.execute(
+                "ALTER TABLE definities ADD COLUMN ufo_source TEXT DEFAULT 'manual'"
+            )
             conn.commit()
         except sqlite3.OperationalError:
             pass  # Columns might already exist
@@ -1125,7 +1204,7 @@ class TestDatabaseMigration:
         cursor = conn.execute("PRAGMA table_info(definities)")
         columns = {row[1] for row in cursor.fetchall()}
 
-        assert 'ufo_suggestion' in columns or 'ufo_categorie' in columns
+        assert "ufo_suggestion" in columns or "ufo_categorie" in columns
 
         conn.close()
 
@@ -1143,11 +1222,14 @@ class TestDatabaseMigration:
             result = classifier.classify(begrip, definitie)
 
             # Update database
-            conn.execute("""
+            conn.execute(
+                """
                 UPDATE definities
                 SET ufo_suggestion = ?, ufo_confidence = ?, ufo_source = ?
                 WHERE id = ?
-            """, (result.primary_category.value, result.confidence, 'auto', def_id))
+            """,
+                (result.primary_category.value, result.confidence, "auto", def_id),
+            )
 
         conn.commit()
 
@@ -1166,47 +1248,56 @@ class TestDatabaseMigration:
         conn = test_db_connection
 
         # Simulate UFO category change
-        conn.execute("""
+        conn.execute(
+            """
             INSERT INTO definition_ufo_history
             (definition_id, old_category, new_category, confidence, source)
             VALUES (?, ?, ?, ?, ?)
-        """, (1, None, 'Role', 0.85, 'auto'))
+        """,
+            (1, None, "Role", 0.85, "auto"),
+        )
 
-        conn.execute("""
+        conn.execute(
+            """
             INSERT INTO definition_ufo_history
             (definition_id, old_category, new_category, confidence, source)
             VALUES (?, ?, ?, ?, ?)
-        """, (1, 'Role', 'Kind', 0.92, 'manual'))
+        """,
+            (1, "Role", "Kind", 0.92, "manual"),
+        )
 
         conn.commit()
 
         # Verify audit trail
-        cursor = conn.execute("""
+        cursor = conn.execute(
+            """
             SELECT * FROM definition_ufo_history
             WHERE definition_id = 1
             ORDER BY timestamp
-        """)
+        """
+        )
 
         history = cursor.fetchall()
         assert len(history) == 2
         assert history[0][2] is None  # old_category
-        assert history[0][3] == 'Role'  # new_category
-        assert history[1][2] == 'Role'  # old_category
-        assert history[1][3] == 'Kind'  # new_category
+        assert history[0][3] == "Role"  # new_category
+        assert history[1][2] == "Role"  # old_category
+        assert history[1][3] == "Kind"  # new_category
 
 
 # ============================================================================
 # 9. UI INTEGRATION TESTS
 # ============================================================================
 
+
 class TestUIIntegration:
     """Test integration with UI components (Generator/Edit/Expert tabs)"""
 
-    @pytest.fixture
+    @pytest.fixture()
     def classifier(self):
         return UFOClassifierService()
 
-    @pytest.fixture
+    @pytest.fixture()
     def mock_streamlit(self):
         """Mock Streamlit components"""
         mock_st = Mock()
@@ -1244,7 +1335,7 @@ class TestUIIntegration:
         selected = mock_streamlit.selectbox(
             "UFO Categorie",
             options=categories,
-            index=categories.index(result.primary_category.value)
+            index=categories.index(result.primary_category.value),
         )
 
         assert selected == "Kind"
@@ -1272,9 +1363,7 @@ class TestUIIntegration:
 
         if result.confidence < 0.6:
             mock_streamlit.warning = Mock()
-            mock_streamlit.warning(
-                "⚠️ Lage zekerheid - handmatige review vereist"
-            )
+            mock_streamlit.warning("⚠️ Lage zekerheid - handmatige review vereist")
             mock_streamlit.warning.assert_called_once()
 
     def test_bulk_review_interface(self, classifier):
@@ -1284,14 +1373,15 @@ class TestUIIntegration:
             ("term1", "clear definition", None),
             ("term2", "vague description", None),
             ("term3", "another clear one", None),
-            ("term4", "unclear", None)
+            ("term4", "unclear", None),
         ]
 
         results = classifier.batch_classify(items)
 
         # Filter items needing review
         needs_review = [
-            (item, result) for (item, result) in zip(items, results)
+            (item, result)
+            for (item, result) in zip(items, results, strict=False)
             if result.confidence < 0.6
         ]
 
@@ -1304,10 +1394,11 @@ class TestUIIntegration:
 # 10. FALLBACK MECHANISM TESTS (confidence <0.6)
 # ============================================================================
 
+
 class TestFallbackMechanism:
     """Test fallback mechanism for low confidence classifications"""
 
-    @pytest.fixture
+    @pytest.fixture()
     def classifier(self):
         return UFOClassifierService()
 
@@ -1336,15 +1427,15 @@ class TestFallbackMechanism:
         if result.confidence < 0.6:
             # Should trigger manual review
             review_required = {
-                'definition_id': 1,
-                'term': 'unclear',
-                'auto_classification': result.primary_category.value,
-                'confidence': result.confidence,
-                'requires_manual_review': True
+                "definition_id": 1,
+                "term": "unclear",
+                "auto_classification": result.primary_category.value,
+                "confidence": result.confidence,
+                "requires_manual_review": True,
             }
 
-            assert review_required['requires_manual_review']
-            assert review_required['confidence'] < 0.6
+            assert review_required["requires_manual_review"]
+            assert review_required["confidence"] < 0.6
 
     def test_fallback_preserves_suggestion(self, classifier):
         """Test that fallback preserves the original suggestion"""
@@ -1352,28 +1443,29 @@ class TestFallbackMechanism:
 
         # Even with low confidence, should preserve the suggestion
         fallback_data = {
-            'suggested_category': result.primary_category.value,
-            'confidence': result.confidence,
-            'status': 'needs_review' if result.confidence < 0.6 else 'auto_classified'
+            "suggested_category": result.primary_category.value,
+            "confidence": result.confidence,
+            "status": "needs_review" if result.confidence < 0.6 else "auto_classified",
         }
 
         if result.confidence < 0.6:
-            assert fallback_data['status'] == 'needs_review'
-            assert fallback_data['suggested_category'] is not None
+            assert fallback_data["status"] == "needs_review"
+            assert fallback_data["suggested_category"] is not None
 
 
 # ============================================================================
 # 11. AUDIT LOGGING TESTS
 # ============================================================================
 
+
 class TestAuditLogging:
     """Test audit logging functionality"""
 
-    @pytest.fixture
+    @pytest.fixture()
     def classifier(self):
         return UFOClassifierService()
 
-    @pytest.fixture
+    @pytest.fixture()
     def audit_log(self):
         """Mock audit log storage"""
         return []
@@ -1384,84 +1476,89 @@ class TestAuditLogging:
 
         # Create audit entry
         audit_entry = {
-            'timestamp': datetime.now().isoformat(),
-            'action': 'auto_classification',
-            'term': 'verdachte',
-            'category': result.primary_category.value,
-            'confidence': result.confidence,
-            'source': 'auto',
-            'patterns_matched': list(result.matched_patterns.keys())
+            "timestamp": datetime.now().isoformat(),
+            "action": "auto_classification",
+            "term": "verdachte",
+            "category": result.primary_category.value,
+            "confidence": result.confidence,
+            "source": "auto",
+            "patterns_matched": list(result.matched_patterns.keys()),
         }
 
         audit_log.append(audit_entry)
 
         assert len(audit_log) == 1
-        assert audit_log[0]['action'] == 'auto_classification'
-        assert audit_log[0]['confidence'] > 0
+        assert audit_log[0]["action"] == "auto_classification"
+        assert audit_log[0]["confidence"] > 0
 
     def test_audit_log_manual_override(self, classifier, audit_log):
         """Test logging of manual overrides"""
         result = classifier.classify("verdachte", "Persoon verdacht van strafbaar feit")
 
         # Log auto classification
-        audit_log.append({
-            'timestamp': datetime.now().isoformat(),
-            'action': 'auto_classification',
-            'category': result.primary_category.value,
-            'confidence': result.confidence
-        })
+        audit_log.append(
+            {
+                "timestamp": datetime.now().isoformat(),
+                "action": "auto_classification",
+                "category": result.primary_category.value,
+                "confidence": result.confidence,
+            }
+        )
 
         # Log manual override
-        audit_log.append({
-            'timestamp': datetime.now().isoformat(),
-            'action': 'manual_override',
-            'old_category': result.primary_category.value,
-            'new_category': 'Kind',
-            'reason': 'Expert judgment'
-        })
+        audit_log.append(
+            {
+                "timestamp": datetime.now().isoformat(),
+                "action": "manual_override",
+                "old_category": result.primary_category.value,
+                "new_category": "Kind",
+                "reason": "Expert judgment",
+            }
+        )
 
         assert len(audit_log) == 2
-        assert audit_log[1]['action'] == 'manual_override'
-        assert audit_log[1]['old_category'] != audit_log[1]['new_category']
+        assert audit_log[1]["action"] == "manual_override"
+        assert audit_log[1]["old_category"] != audit_log[1]["new_category"]
 
     def test_audit_log_no_pii(self, classifier, audit_log):
         """Test that audit logs contain no PII"""
         result = classifier.classify(
             "Jan Jansen",  # Name (PII)
-            "Een specifieke persoon met BSN 123456789"  # Contains BSN (PII)
+            "Een specifieke persoon met BSN 123456789",  # Contains BSN (PII)
         )
 
         # Audit entry should not contain PII
         audit_entry = {
-            'timestamp': datetime.now().isoformat(),
-            'action': 'classification',
-            'category': result.primary_category.value,
-            'confidence': result.confidence,
+            "timestamp": datetime.now().isoformat(),
+            "action": "classification",
+            "category": result.primary_category.value,
+            "confidence": result.confidence,
             # No term or definition stored
-            'has_pii': False
+            "has_pii": False,
         }
 
         audit_log.append(audit_entry)
 
         # Verify no PII in audit log
-        assert 'Jan Jansen' not in str(audit_log)
-        assert '123456789' not in str(audit_log)
-        assert audit_log[0]['has_pii'] == False
+        assert "Jan Jansen" not in str(audit_log)
+        assert "123456789" not in str(audit_log)
+        assert audit_log[0]["has_pii"] == False
 
 
 # ============================================================================
 # 12. A/B TESTING FRAMEWORK
 # ============================================================================
 
+
 class TestABTestingFramework:
     """Test A/B testing framework for rule improvements"""
 
-    @pytest.fixture
+    @pytest.fixture()
     def classifier_a(self):
         """Baseline classifier"""
         return UFOClassifierService()
 
-    @pytest.fixture
+    @pytest.fixture()
     def classifier_b(self):
         """Experimental classifier with modified rules"""
         classifier = UFOClassifierService()
@@ -1474,7 +1571,7 @@ class TestABTestingFramework:
         test_set = [
             ("proces", "Een juridische procedure"),
             ("persoon", "Een natuurlijk persoon"),
-            ("overeenkomst", "Contract tussen partijen")
+            ("overeenkomst", "Contract tussen partijen"),
         ]
 
         results_a = []
@@ -1486,15 +1583,17 @@ class TestABTestingFramework:
 
         # Compare results
         differences = []
-        for i, (a, b) in enumerate(zip(results_a, results_b)):
+        for i, (a, b) in enumerate(zip(results_a, results_b, strict=False)):
             if a.primary_category != b.primary_category:
-                differences.append({
-                    'term': test_set[i][0],
-                    'classifier_a': a.primary_category.value,
-                    'classifier_b': b.primary_category.value,
-                    'confidence_a': a.confidence,
-                    'confidence_b': b.confidence
-                })
+                differences.append(
+                    {
+                        "term": test_set[i][0],
+                        "classifier_a": a.primary_category.value,
+                        "classifier_b": b.primary_category.value,
+                        "confidence_a": a.confidence,
+                        "confidence_b": b.confidence,
+                    }
+                )
 
         # Should detect some differences due to weight changes
         assert len(differences) >= 0
@@ -1504,7 +1603,7 @@ class TestABTestingFramework:
         test_set = [
             ("proces", "Een juridische procedure", UFOCategory.EVENT),  # Expected
             ("persoon", "Een natuurlijk persoon", UFOCategory.KIND),
-            ("overeenkomst", "Contract tussen partijen", UFOCategory.RELATOR)
+            ("overeenkomst", "Contract tussen partijen", UFOCategory.RELATOR),
         ]
 
         def evaluate_classifier(classifier, test_set):
@@ -1518,20 +1617,20 @@ class TestABTestingFramework:
                 total_confidence += result.confidence
 
             return {
-                'accuracy': correct / len(test_set),
-                'avg_confidence': total_confidence / len(test_set)
+                "accuracy": correct / len(test_set),
+                "avg_confidence": total_confidence / len(test_set),
             }
 
         metrics_a = evaluate_classifier(classifier_a, test_set)
         metrics_b = evaluate_classifier(classifier_b, test_set)
 
         # Both should have reasonable accuracy
-        assert metrics_a['accuracy'] >= 0.5
-        assert metrics_b['accuracy'] >= 0.5
+        assert metrics_a["accuracy"] >= 0.5
+        assert metrics_b["accuracy"] >= 0.5
 
         # Confidence should be positive
-        assert metrics_a['avg_confidence'] > 0
-        assert metrics_b['avg_confidence'] > 0
+        assert metrics_a["avg_confidence"] > 0
+        assert metrics_b["avg_confidence"] > 0
 
     def test_ab_statistical_significance(self):
         """Test framework for statistical significance testing"""
@@ -1576,18 +1675,16 @@ class TestABTestingFramework:
 # FIXTURES AND UTILITIES
 # ============================================================================
 
+
 @pytest.fixture(scope="session")
 def performance_report():
     """Generate performance report after all tests"""
-    report = {
-        'timestamp': datetime.now().isoformat(),
-        'metrics': {}
-    }
+    report = {"timestamp": datetime.now().isoformat(), "metrics": {}}
 
     yield report
 
     # Save report
-    with open('test_performance_report.json', 'w') as f:
+    with open("test_performance_report.json", "w") as f:
         json.dump(report, f, indent=2)
 
 
@@ -1598,14 +1695,15 @@ def timer(name: str, report: dict):
     yield
     duration = time.perf_counter() - start
 
-    if 'timings' not in report:
-        report['timings'] = {}
-    report['timings'][name] = duration
+    if "timings" not in report:
+        report["timings"] = {}
+    report["timings"][name] = duration
 
 
 # ============================================================================
 # INTEGRATION TEST SUITE
 # ============================================================================
+
 
 class TestFullIntegration:
     """Full integration test combining all components"""
@@ -1629,17 +1727,17 @@ class TestFullIntegration:
 
         # Simulate storage
         stored_data = {
-            'begrip': term,
-            'definitie': definition,
-            'ufo_categorie': result.primary_category.value,
-            'ufo_confidence': result.confidence,
-            'ufo_source': 'auto'
+            "begrip": term,
+            "definitie": definition,
+            "ufo_categorie": result.primary_category.value,
+            "ufo_confidence": result.confidence,
+            "ufo_source": "auto",
         }
 
         # Verify storage format
-        assert stored_data['ufo_categorie'] in [cat.value for cat in UFOCategory]
-        assert 0 <= stored_data['ufo_confidence'] <= 1
-        assert stored_data['ufo_source'] in ['auto', 'manual']
+        assert stored_data["ufo_categorie"] in [cat.value for cat in UFOCategory]
+        assert 0 <= stored_data["ufo_confidence"] <= 1
+        assert stored_data["ufo_source"] in ["auto", "manual"]
 
     def test_migration_and_reclassification(self):
         """Test migration of existing definitions with reclassification"""
@@ -1647,35 +1745,46 @@ class TestFullIntegration:
 
         # Simulate existing definitions without UFO categories
         existing_definitions = [
-            {'id': 1, 'begrip': 'verdachte', 'definitie': 'Persoon verdacht van strafbaar feit'},
-            {'id': 2, 'begrip': 'proces', 'definitie': 'Juridische procedure'},
-            {'id': 3, 'begrip': 'vague', 'definitie': 'unclear'},
+            {
+                "id": 1,
+                "begrip": "verdachte",
+                "definitie": "Persoon verdacht van strafbaar feit",
+            },
+            {"id": 2, "begrip": "proces", "definitie": "Juridische procedure"},
+            {"id": 3, "begrip": "vague", "definitie": "unclear"},
         ]
 
         migration_results = []
         needs_review = []
 
         for definition in existing_definitions:
-            result = classifier.classify(definition['begrip'], definition['definitie'])
+            result = classifier.classify(definition["begrip"], definition["definitie"])
 
             migration_data = {
-                'id': definition['id'],
-                'ufo_suggestion': result.primary_category.value,
-                'confidence': result.confidence,
-                'needs_review': result.confidence < 0.6
+                "id": definition["id"],
+                "ufo_suggestion": result.primary_category.value,
+                "confidence": result.confidence,
+                "needs_review": result.confidence < 0.6,
             }
 
             migration_results.append(migration_data)
 
-            if migration_data['needs_review']:
-                needs_review.append(definition['id'])
+            if migration_data["needs_review"]:
+                needs_review.append(definition["id"])
 
         # Verify migration results
         assert len(migration_results) == 3
         assert len(needs_review) > 0  # Should have at least one low confidence
-        assert all('ufo_suggestion' in r for r in migration_results)
+        assert all("ufo_suggestion" in r for r in migration_results)
 
 
 if __name__ == "__main__":
     # Run tests with coverage
-    pytest.main([__file__, "-v", "--cov=src.services.ufo_classifier_service", "--cov-report=html"])
+    pytest.main(
+        [
+            __file__,
+            "-v",
+            "--cov=src.services.ufo_classifier_service",
+            "--cov-report=html",
+        ]
+    )

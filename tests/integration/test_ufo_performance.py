@@ -11,65 +11,69 @@ Performance Targets:
 - Cache hit rate: >90%
 """
 
-import pytest
-import time
+import cProfile
 import gc
-import psutil
+import io
+import json
+import pstats
+import time
+import tracemalloc
+from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
+from datetime import datetime
+from typing import Dict, List, Tuple
+from unittest.mock import Mock
+
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from datetime import datetime
-from typing import List, Dict, Tuple
-import json
-import tracemalloc
-import cProfile
-import pstats
-import io
-from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
-from unittest.mock import Mock
-import matplotlib.pyplot as plt
+import psutil
+import pytest
 import seaborn as sns
 
 from src.services.ufo_classifier_service import (
-    UFOClassifierService,
-    UFOCategory,
     PatternMatcher,
-    get_ufo_classifier
+    UFOCategory,
+    UFOClassifierService,
+    get_ufo_classifier,
 )
 
 
 class TestPerformanceMetrics:
     """Test performance metrics against US-300 requirements"""
 
-    @pytest.fixture
+    @pytest.fixture()
     def classifier(self):
         """Create classifier instance for testing"""
         return UFOClassifierService()
 
-    @pytest.fixture
+    @pytest.fixture()
     def large_dataset(self):
         """Generate large dataset for performance testing"""
         # Dutch legal terms dataset
         base_terms = [
-            ("verdachte", "Een persoon die wordt verdacht van het plegen van een strafbaar feit"),
+            (
+                "verdachte",
+                "Een persoon die wordt verdacht van het plegen van een strafbaar feit",
+            ),
             ("dader", "De persoon die een strafbaar feit heeft gepleegd"),
             ("slachtoffer", "Degene die rechtstreeks schade heeft ondervonden"),
-            ("aanhouding", "Het proces waarbij een persoon van zijn vrijheid wordt beroofd"),
+            (
+                "aanhouding",
+                "Het proces waarbij een persoon van zijn vrijheid wordt beroofd",
+            ),
             ("dagvaarding", "Schriftelijke oproep om voor de rechter te verschijnen"),
             ("bestuursorgaan", "Orgaan van een rechtspersoon krachtens publiekrecht"),
             ("beschikking", "Besluit dat niet van algemene strekking is"),
             ("vergunning", "Toestemming van de overheid om iets te mogen doen"),
             ("koopovereenkomst", "Overeenkomst waarbij verkoper zich verbindt"),
-            ("hypotheek", "Zakelijk recht op onroerende zaak tot zekerheid")
+            ("hypotheek", "Zakelijk recht op onroerende zaak tot zekerheid"),
         ]
 
         # Generate variations for larger dataset
         dataset = []
         for i in range(200):  # 2000 items total
             for term, definition in base_terms:
-                dataset.append((
-                    f"{term}_{i}",
-                    f"{definition} (variant {i})"
-                ))
+                dataset.append((f"{term}_{i}", f"{definition} (variant {i})"))
 
         return dataset
 
@@ -99,7 +103,7 @@ class TestPerformanceMetrics:
         p99_time = np.percentile(times, 99)
         max_time = np.max(times)
 
-        print(f"\n=== Single Classification Performance ===")
+        print("\n=== Single Classification Performance ===")
         print(f"Average: {avg_time:.3f}ms")
         print(f"Median: {median_time:.3f}ms")
         print(f"P95: {p95_time:.3f}ms")
@@ -127,7 +131,7 @@ class TestPerformanceMetrics:
         throughput = len(results) / duration
         ms_per_item = (duration * 1000) / len(results)
 
-        print(f"\n=== Batch Processing Performance ===")
+        print("\n=== Batch Processing Performance ===")
         print(f"Items processed: {len(results)}")
         print(f"Total time: {duration:.3f}s")
         print(f"Throughput: {throughput:.0f} items/sec")
@@ -135,10 +139,14 @@ class TestPerformanceMetrics:
 
         # Assert requirements
         assert len(results) == len(items)
-        assert throughput > 2000, f"Throughput {throughput:.0f}/sec below 2000/sec target"
+        assert (
+            throughput > 2000
+        ), f"Throughput {throughput:.0f}/sec below 2000/sec target"
 
         # Verify quality of results
-        valid_results = sum(1 for r in results if r.primary_category != UFOCategory.UNKNOWN)
+        valid_results = sum(
+            1 for r in results if r.primary_category != UFOCategory.UNKNOWN
+        )
         quality_rate = valid_results / len(results)
         assert quality_rate > 0.8, f"Quality rate {quality_rate:.1%} too low"
 
@@ -164,7 +172,7 @@ class TestPerformanceMetrics:
         memory_used = peak - initial_memory
         memory_mb = memory_used / 1024 / 1024
 
-        print(f"\n=== Memory Usage ===")
+        print("\n=== Memory Usage ===")
         print(f"Initial: {initial_memory / 1024 / 1024:.2f}MB")
         print(f"Peak: {peak / 1024 / 1024:.2f}MB")
         print(f"Used: {memory_mb:.2f}MB")
@@ -191,7 +199,7 @@ class TestPerformanceMetrics:
             "Een contract tussen werkgever en werknemer",
             "Een hypotheek op onroerend goed",
             "Een beschikking van het bestuursorgaan",
-            "Een dagvaarding voor de rechtbank"
+            "Een dagvaarding voor de rechtbank",
         ]
 
         # Clear cache
@@ -219,7 +227,7 @@ class TestPerformanceMetrics:
 
         hit_rate = total_hits / total_calls if total_calls > 0 else 0
 
-        print(f"\n=== Cache Performance ===")
+        print("\n=== Cache Performance ===")
         print(f"Cache size: {cache_info.currsize}")
         print(f"Total hits: {total_hits}")
         print(f"Total misses: {total_misses}")
@@ -235,13 +243,15 @@ class TestPerformanceMetrics:
         matcher = PatternMatcher()
         compilation_time = (time.perf_counter() - start) * 1000
 
-        print(f"\n=== Pattern Compilation ===")
+        print("\n=== Pattern Compilation ===")
         print(f"Compilation time: {compilation_time:.2f}ms")
         print(f"Number of categories: {len(matcher.patterns)}")
         print(f"Number of compiled patterns: {len(matcher.compiled_patterns)}")
 
         # Assert compilation is fast
-        assert compilation_time < 100, f"Pattern compilation {compilation_time:.2f}ms too slow"
+        assert (
+            compilation_time < 100
+        ), f"Pattern compilation {compilation_time:.2f}ms too slow"
 
         # Test pattern matching speed
         text = "Een verdachte persoon in een juridisch proces met een overeenkomst"
@@ -262,7 +272,7 @@ class TestPerformanceMetrics:
 class TestConcurrentPerformance:
     """Test performance under concurrent load"""
 
-    @pytest.fixture
+    @pytest.fixture()
     def classifier(self):
         return UFOClassifierService()
 
@@ -273,7 +283,7 @@ class TestConcurrentPerformance:
             ("proces", "Juridische procedure"),
             ("overeenkomst", "Contract tussen partijen"),
             ("persoon", "Natuurlijk persoon"),
-            ("organisatie", "Rechtspersoon")
+            ("organisatie", "Rechtspersoon"),
         ] * 20  # 100 items total
 
         def classify_item(item):
@@ -291,7 +301,7 @@ class TestConcurrentPerformance:
         sequential_results = [classify_item(item) for item in test_items]
         sequential_duration = time.perf_counter() - start
 
-        print(f"\n=== Concurrent Performance ===")
+        print("\n=== Concurrent Performance ===")
         print(f"Thread pool (10 workers): {thread_duration:.3f}s")
         print(f"Sequential: {sequential_duration:.3f}s")
         print(f"Speedup: {sequential_duration / thread_duration:.2f}x")
@@ -306,7 +316,7 @@ class TestConcurrentPerformance:
         test_items = [
             ("verdachte", "Persoon verdacht van strafbaar feit"),
             ("proces", "Juridische procedure"),
-            ("overeenkomst", "Contract tussen partijen")
+            ("overeenkomst", "Contract tussen partijen"),
         ] * 100
 
         def classify_batch(batch):
@@ -315,7 +325,10 @@ class TestConcurrentPerformance:
 
         # Split into batches
         batch_size = 50
-        batches = [test_items[i:i+batch_size] for i in range(0, len(test_items), batch_size)]
+        batches = [
+            test_items[i : i + batch_size]
+            for i in range(0, len(test_items), batch_size)
+        ]
 
         start = time.perf_counter()
         with ProcessPoolExecutor(max_workers=4) as executor:
@@ -327,7 +340,7 @@ class TestConcurrentPerformance:
 
         throughput = len(results) / duration
 
-        print(f"\n=== Process Pool Performance ===")
+        print("\n=== Process Pool Performance ===")
         print(f"Items: {len(results)}")
         print(f"Duration: {duration:.3f}s")
         print(f"Throughput: {throughput:.0f} items/sec")
@@ -344,7 +357,7 @@ class TestConcurrentPerformance:
         test_items = [
             ("verdachte", "Persoon verdacht"),
             ("proces", "Juridische procedure"),
-            ("overeenkomst", "Contract")
+            ("overeenkomst", "Contract"),
         ]
 
         print(f"\n=== Load Testing ({duration_seconds}s) ===")
@@ -392,7 +405,7 @@ class TestPerformanceOptimizations:
             get_ufo_classifier()
         singleton_time = time.perf_counter() - start
 
-        print(f"\n=== Singleton Performance ===")
+        print("\n=== Singleton Performance ===")
         print(f"New instances (100x): {new_instance_time:.3f}s")
         print(f"Singleton (100x): {singleton_time:.3f}s")
         print(f"Speedup: {new_instance_time / singleton_time:.1f}x")
@@ -404,9 +417,9 @@ class TestPerformanceOptimizations:
         import re
 
         patterns = [
-            r'\b(persoon|mens|individu|burger)\b',
-            r'\b(proces|procedure|handeling)\b',
-            r'\b(overeenkomst|contract|afspraak)\b'
+            r"\b(persoon|mens|individu|burger)\b",
+            r"\b(proces|procedure|handeling)\b",
+            r"\b(overeenkomst|contract|afspraak)\b",
         ]
 
         text = "Een persoon in een proces met een overeenkomst" * 10
@@ -427,7 +440,7 @@ class TestPerformanceOptimizations:
                 pattern.findall(text)
         precompile_time = time.perf_counter() - start
 
-        print(f"\n=== Pattern Precompilation ===")
+        print("\n=== Pattern Precompilation ===")
         print(f"Without precompilation: {no_precompile_time:.3f}s")
         print(f"With precompilation: {precompile_time:.3f}s")
         print(f"Speedup: {no_precompile_time / precompile_time:.1f}x")
@@ -442,13 +455,14 @@ class TestPerformanceOptimizations:
         for cache_size in cache_sizes:
             # Create classifier with specific cache size
             classifier = UFOClassifierService()
-            classifier.pattern_matcher.find_matches = \
+            classifier.pattern_matcher.find_matches = (
                 classifier.pattern_matcher.find_matches.__wrapped__
-            classifier.pattern_matcher.find_matches = \
+            )
+            classifier.pattern_matcher.find_matches = (
                 classifier.pattern_matcher.find_matches.__get__(
-                    classifier.pattern_matcher,
-                    type(classifier.pattern_matcher)
+                    classifier.pattern_matcher, type(classifier.pattern_matcher)
                 )
+            )
 
             # Test performance
             test_texts = [f"Text variation {i}" for i in range(cache_size * 2)]
@@ -460,7 +474,7 @@ class TestPerformanceOptimizations:
 
             performance_results.append((cache_size, duration))
 
-        print(f"\n=== Cache Size Optimization ===")
+        print("\n=== Cache Size Optimization ===")
         for size, duration in performance_results:
             print(f"Cache size {size}: {duration:.3f}s")
 
@@ -472,7 +486,7 @@ class TestPerformanceOptimizations:
 class TestPerformanceProfile:
     """Profile performance to identify bottlenecks"""
 
-    @pytest.fixture
+    @pytest.fixture()
     def classifier(self):
         return UFOClassifierService()
 
@@ -484,8 +498,7 @@ class TestPerformanceProfile:
         profiler.enable()
         for _ in range(1000):
             classifier.classify(
-                "verdachte",
-                "Een persoon die wordt verdacht van een strafbaar feit"
+                "verdachte", "Een persoon die wordt verdacht van een strafbaar feit"
             )
         profiler.disable()
 
@@ -493,15 +506,15 @@ class TestPerformanceProfile:
         stats = pstats.Stats(profiler)
         stream = io.StringIO()
         stats.stream = stream
-        stats.sort_stats('cumulative')
+        stats.sort_stats("cumulative")
         stats.print_stats(10)  # Top 10 functions
 
         profile_output = stream.getvalue()
-        print(f"\n=== Performance Profile ===")
+        print("\n=== Performance Profile ===")
         print(profile_output[:2000])  # First 2000 chars
 
         # Check that pattern matching is optimized
-        assert 'find_matches' in profile_output
+        assert "find_matches" in profile_output
 
     def test_memory_profile(self, classifier):
         """Profile memory usage patterns"""
@@ -510,7 +523,7 @@ class TestPerformanceProfile:
         items = [
             ("verdachte", "Persoon verdacht"),
             ("proces", "Juridische procedure"),
-            ("overeenkomst", "Contract")
+            ("overeenkomst", "Contract"),
         ] * 100
 
         # Measure object sizes
@@ -525,7 +538,7 @@ class TestPerformanceProfile:
 
         avg_result_size = np.mean(results)
 
-        print(f"\n=== Memory Profile ===")
+        print("\n=== Memory Profile ===")
         print(f"Classifier size: {classifier_size} bytes")
         print(f"PatternMatcher size: {pattern_matcher_size} bytes")
         print(f"Avg result size: {avg_result_size:.0f} bytes")
@@ -535,14 +548,14 @@ class TestPerformanceProfile:
 class TestPerformanceRegression:
     """Test for performance regressions"""
 
-    @pytest.fixture
+    @pytest.fixture()
     def baseline_performance(self):
         """Baseline performance metrics from US-300"""
         return {
-            'single_classification_ms': 0.01,
-            'batch_throughput': 148467,
-            'memory_mb': 0.04,
-            'cache_hit_rate': 0.95
+            "single_classification_ms": 0.01,
+            "batch_throughput": 148467,
+            "memory_mb": 0.04,
+            "cache_hit_rate": 0.95,
         }
 
     def test_no_performance_regression(self, baseline_performance):
@@ -565,15 +578,15 @@ class TestPerformanceRegression:
         batch_time = time.perf_counter() - start
         throughput = len(results) / batch_time
 
-        print(f"\n=== Performance Regression Test ===")
+        print("\n=== Performance Regression Test ===")
         print(f"Baseline single: {baseline_performance['single_classification_ms']}ms")
         print(f"Current single: {avg_time:.3f}ms")
         print(f"Baseline throughput: {baseline_performance['batch_throughput']}/sec")
         print(f"Current throughput: {throughput:.0f}/sec")
 
         # Allow 50% degradation from baseline
-        assert avg_time < baseline_performance['single_classification_ms'] * 50
-        assert throughput > baseline_performance['batch_throughput'] * 0.5
+        assert avg_time < baseline_performance["single_classification_ms"] * 50
+        assert throughput > baseline_performance["batch_throughput"] * 0.5
 
 
 class TestPerformanceReport:
@@ -583,15 +596,19 @@ class TestPerformanceReport:
         """Generate detailed performance report"""
         classifier = UFOClassifierService()
         report = {
-            'timestamp': datetime.now().isoformat(),
-            'metrics': {},
-            'benchmarks': []
+            "timestamp": datetime.now().isoformat(),
+            "metrics": {},
+            "benchmarks": [],
         }
 
         # Run benchmarks
         test_cases = [
             ("Simple", "persoon", "Een natuurlijk persoon"),
-            ("Complex", "verdachte", "Een persoon die wordt verdacht van een strafbaar feit in de context van het strafrecht waarbij sprake is van voorlopige hechtenis"),
+            (
+                "Complex",
+                "verdachte",
+                "Een persoon die wordt verdacht van een strafbaar feit in de context van het strafrecht waarbij sprake is van voorlopige hechtenis",
+            ),
             ("Ambiguous", "zaak", "Een aangelegenheid"),
         ]
 
@@ -603,32 +620,36 @@ class TestPerformanceReport:
                 duration = (time.perf_counter() - start) * 1000
                 times.append(duration)
 
-            report['benchmarks'].append({
-                'name': name,
-                'term': term,
-                'category': result.primary_category.value,
-                'confidence': result.confidence,
-                'avg_time_ms': np.mean(times),
-                'p95_time_ms': np.percentile(times, 95)
-            })
+            report["benchmarks"].append(
+                {
+                    "name": name,
+                    "term": term,
+                    "category": result.primary_category.value,
+                    "confidence": result.confidence,
+                    "avg_time_ms": np.mean(times),
+                    "p95_time_ms": np.percentile(times, 95),
+                }
+            )
 
         # Overall metrics
-        report['metrics'] = {
-            'avg_classification_time': np.mean([b['avg_time_ms'] for b in report['benchmarks']]),
-            'cache_info': str(classifier.pattern_matcher.find_matches.cache_info()),
+        report["metrics"] = {
+            "avg_classification_time": np.mean(
+                [b["avg_time_ms"] for b in report["benchmarks"]]
+            ),
+            "cache_info": str(classifier.pattern_matcher.find_matches.cache_info()),
         }
 
         # Save report
-        report_path = 'test_performance_report.json'
-        with open(report_path, 'w') as f:
+        report_path = "test_performance_report.json"
+        with open(report_path, "w") as f:
             json.dump(report, f, indent=2)
 
-        print(f"\n=== Performance Report Generated ===")
+        print("\n=== Performance Report Generated ===")
         print(f"Report saved to: {report_path}")
         print(json.dumps(report, indent=2))
 
         # Verify all benchmarks completed successfully
-        assert all(b['avg_time_ms'] < 10 for b in report['benchmarks'])
+        assert all(b["avg_time_ms"] < 10 for b in report["benchmarks"])
 
 
 if __name__ == "__main__":
