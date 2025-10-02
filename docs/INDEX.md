@@ -17,16 +17,32 @@
 | **CI/CD Gates** | Geen | 7 patterns | ✅ **Geïmplementeerd** |
 | **US-064 Edit Interface** | 0% | 100% | ✅ **COMPLETED** (12-09-2025) |
 
+## 📊 Kwaliteitsmetrieken - POST CLEANUP & Actuele Status (Oktober 2025)
+
+### ⚠️ Status Normalisatie Nodig
+
+**Probleem:** Status values zijn niet consistent over backlog:
+- **EPIC Status Waarden (21 unieke)**: IN_UITVOERING, Nogtebepalen, active, TE_DOEN, Active, proposed, completed, Voltooid, READY, Open, Deferred, DEFERRED, COMPLETED, etc.
+- **US Status Waarden (21 unieke)**: Nogtebepalen, Open, TE_DOEN, Backlog, GEREED, proposed, TODO, IN_UITVOERING, pending, OPEN, todo, Todo, Inuitvoering, IN_PROGRESS, Completed, Ready, READY, Gepland, Done, DRAFT, DONE, COMPLETED
+
+**Canonieke Waarden (MOETEN WORDEN):**
+- EPICs: `active`, `completed`, `deferred`, `proposed`
+- US: `open`, `in_progress`, `completed`, `blocked`, `deferred`
+
+**Actie:** Task 3 normaliseert frontmatter inclusief status values (zie US-426)
+
+---
+
 ## 📊 Kwaliteitsmetrieken (8 September 2025) - POST CLEANUP
 
-| Categorie | Documents | 5 Sep | 8 Sep | Status |
-|-----------|-----------|-------|-------|--------|
-| **Vereisten** | 92 | 92% | 95% | ✅ Excellent |
-| **Epische Verhalen** | 11 | 95% | 100% | ✅ Perfect |
-| **Gebruikersverhalen** | 55 | 90% | 94% | ✅ Excellent |
-| **Technical Docs** | 67 | 68% | 87% | ✅ Verbeterd |
-| **Architecture** | 15 | 72% | 92% | ✅ Excellent |
-| **Totaal** | **607** | **68%** | **78%** | ✅ Significant verbeterd |
+| Categorie | Documents | 5 Sep | 8 Sep | Actueel (Okt 2025) | Status |
+|-----------|-----------|-------|-------|---------------------|--------|
+| **Vereisten** | 92 | 92% | 95% | 92 docs | ✅ Excellent |
+| **Epische Verhalen** | 11 → 24 | 95% | 100% | 24 EPICs | ✅ Uitgebreid |
+| **Gebruikersverhalen** | 55 → 279 | 90% | 94% | 279 US docs | ✅ Significant gegroeid |
+| **Technical Docs** | 67 | 68% | 87% | ~70 docs | ✅ Verbeterd |
+| **Architecture** | 15 | 72% | 92% | 15 docs | ✅ Excellent |
+| **Totaal** | **607 → 750+** | **68%** | **78%** | **Actuele Status** | ⚠️ Compliance verificatie nodig |
 
 ### 🚀 Cleanup Impact (8 September)
 - **Documents Updated:** 232/607 (38%)
@@ -64,9 +80,9 @@
 - **[🇳🇱 NORMALISATIE RAPPORT](./NORMALISATIE_RAPPORT.md)** 🔥 **NIEUW** - Nederlandse terminologie normalisatie: 5256 wijzigingen
 
 ### 📦 Backlog Management (Centralized - September 2025)
-- **[📊 Requirements Index](./backlog/requirements/)** 🆕 - Alle geregistreerde vereisten (REQ-001 t/m REQ-092)
-- **📊 Episch Verhaal Dashboard** 🆕 **PRIMARY VIEW** - All epics with status & metrics
-- **📋 Story Index** 🆕 **ALL STORIES** - Complete overzicht per EPIC (US-XXX)
+- **[📊 Requirements Index](./backlog/requirements/)** 🆕 - Alle geregistreerde vereisten (REQ-001 t/m REQ-092) - **92 requirements**
+- **📊 Episch Verhaal Dashboard** 🆕 **PRIMARY VIEW** - All epics with status & metrics - **24 EPICs**
+- **📋 Story Index** 🆕 **ALL STORIES** - Complete overzicht per EPIC (US-XXX) - **279 user stories**
 - **[🌀 Centrale Portal](./portal/index.html)** 🔥 **PRIMAIR** – Eén ingang voor backlog + documentatie (zoek/filter/sort)
 - (Gearchiveerd) **[Requirements Dashboard](./backlog/dashboard/index.html)** – zie Portal als vervanging
 - (Gearchiveerd) **[Per‑Epic Overzicht](./backlog/dashboard/per-epic.html)** – zie Portal als vervanging
@@ -173,10 +189,12 @@ docs/
 ├── 📁 guidelines/       7 project-wide guidelines ✅
 ├── 📁 backlog/          Requirements, epics, stories & bugs ✅
 │   ├── requirements/    92 requirements (REQ-001 to REQ-092)
-│   ├── epics/          11 epics (EPIC-001 to EPIC-011)
-│   ├── stories/        55 user stories (US-001 to US-055)
-│   └── US-XXX/         User stories met eventuele bugs
-│   └── dashboard/      HTML dashboards & visualizations
+│   ├── EPIC-XXX/       24 epics (EPIC-001 to EPIC-025)
+│   │   ├── EPIC-XXX.md Epic documentation
+│   │   └── US-XXX/     User stories within epic
+│   │       └── BUG-XXX/ Bugs within user story
+│   ├── 279 user stories (US-001 to US-440, with gaps)
+│   └── dashboard/      HTML dashboards & visualizations (archived - see portal/)
 ├── 📁 implementation/   Implementation plans & status tracking ✅
 ├── 📁 testing/          Test plans & results
 ├── 📁 technisch/        Technical documentation ✅

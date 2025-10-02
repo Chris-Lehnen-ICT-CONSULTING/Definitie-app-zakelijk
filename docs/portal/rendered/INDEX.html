@@ -37,16 +37,36 @@
 <p>| <strong>CI/CD Gates</strong> | Geen | 7 patterns | ✅ <strong>Geïmplementeerd</strong> |</p>
 <p>| <strong>US-064 Edit Interface</strong> | 0% | 100% | ✅ <strong>COMPLETED</strong> (12-09-2025) |</p>
 
+<h2>📊 Kwaliteitsmetrieken - POST CLEANUP & Actuele Status (Oktober 2025)</h2>
+
+<h3>⚠️ Status Normalisatie Nodig</h3>
+
+<p><strong>Probleem:</strong> Status values zijn niet consistent over backlog:</p>
+<ul>
+<li>**EPIC Status Waarden (21 unieke)**: IN_UITVOERING, Nogtebepalen, active, TE_DOEN, Active, proposed, completed, Voltooid, READY, Open, Deferred, DEFERRED, COMPLETED, etc.</li>
+<li>**US Status Waarden (21 unieke)**: Nogtebepalen, Open, TE_DOEN, Backlog, GEREED, proposed, TODO, IN_UITVOERING, pending, OPEN, todo, Todo, Inuitvoering, IN_PROGRESS, Completed, Ready, READY, Gepland, Done, DRAFT, DONE, COMPLETED</li>
+</ul>
+
+<p><strong>Canonieke Waarden (MOETEN WORDEN):</strong></p>
+<ul>
+<li>EPICs: `active`, `completed`, `deferred`, `proposed`</li>
+<li>US: `open`, `in_progress`, `completed`, `blocked`, `deferred`</li>
+</ul>
+
+<p><strong>Actie:</strong> Task 3 normaliseert frontmatter inclusief status values (zie US-426)</p>
+
+<p>---</p>
+
 <h2>📊 Kwaliteitsmetrieken (8 September 2025) - POST CLEANUP</h2>
 
-<p>| Categorie | Documents | 5 Sep | 8 Sep | Status |</p>
-<p>|-----------|-----------|-------|-------|--------|</p>
-<p>| <strong>Vereisten</strong> | 92 | 92% | 95% | ✅ Excellent |</p>
-<p>| <strong>Epische Verhalen</strong> | 11 | 95% | 100% | ✅ Perfect |</p>
-<p>| <strong>Gebruikersverhalen</strong> | 55 | 90% | 94% | ✅ Excellent |</p>
-<p>| <strong>Technical Docs</strong> | 67 | 68% | 87% | ✅ Verbeterd |</p>
-<p>| <strong>Architecture</strong> | 15 | 72% | 92% | ✅ Excellent |</p>
-<p>| <strong>Totaal</strong> | <strong>607</strong> | <strong>68%</strong> | <strong>78%</strong> | ✅ Significant verbeterd |</p>
+<p>| Categorie | Documents | 5 Sep | 8 Sep | Actueel (Okt 2025) | Status |</p>
+<p>|-----------|-----------|-------|-------|---------------------|--------|</p>
+<p>| <strong>Vereisten</strong> | 92 | 92% | 95% | 92 docs | ✅ Excellent |</p>
+<p>| <strong>Epische Verhalen</strong> | 11 → 24 | 95% | 100% | 24 EPICs | ✅ Uitgebreid |</p>
+<p>| <strong>Gebruikersverhalen</strong> | 55 → 279 | 90% | 94% | 279 US docs | ✅ Significant gegroeid |</p>
+<p>| <strong>Technical Docs</strong> | 67 | 68% | 87% | ~70 docs | ✅ Verbeterd |</p>
+<p>| <strong>Architecture</strong> | 15 | 72% | 92% | 15 docs | ✅ Excellent |</p>
+<p>| <strong>Totaal</strong> | <strong>607 → 750+</strong> | <strong>68%</strong> | <strong>78%</strong> | <strong>Actuele Status</strong> | ⚠️ Compliance verificatie nodig |</p>
 
 <h3>🚀 Cleanup Impact (8 September)</h3>
 <ul>
@@ -95,9 +115,9 @@
 
 <h3>📦 Backlog Management (Centralized - September 2025)</h3>
 <ul>
-<li>**[📊 Requirements Index](./backlog/requirements/)** 🆕 - Alle geregistreerde vereisten (REQ-001 t/m REQ-092)</li>
-<li>**📊 Episch Verhaal Dashboard** 🆕 **PRIMARY VIEW** - All epics with status & metrics</li>
-<li>**📋 Story Index** 🆕 **ALL STORIES** - Complete overzicht per EPIC (US-XXX)</li>
+<li>**[📊 Requirements Index](./backlog/requirements/)** 🆕 - Alle geregistreerde vereisten (REQ-001 t/m REQ-092) - **92 requirements**</li>
+<li>**📊 Episch Verhaal Dashboard** 🆕 **PRIMARY VIEW** - All epics with status & metrics - **24 EPICs**</li>
+<li>**📋 Story Index** 🆕 **ALL STORIES** - Complete overzicht per EPIC (US-XXX) - **279 user stories**</li>
 <li>**[🌀 Centrale Portal](./portal/index.html)** 🔥 **PRIMAIR** – Eén ingang voor backlog + documentatie (zoek/filter/sort)</li>
 <li>(Gearchiveerd) **[Requirements Dashboard](./backlog/dashboard/index.html)** – zie Portal als vervanging</li>
 <li>(Gearchiveerd) **[Per‑Epic Overzicht](./backlog/dashboard/per-epic.html)** – zie Portal als vervanging</li>
@@ -226,10 +246,12 @@
 ├── 📁 guidelines/       7 project-wide guidelines ✅
 ├── 📁 backlog/          Requirements, epics, stories &amp; bugs ✅
 │   ├── requirements/    92 requirements (REQ-001 to REQ-092)
-│   ├── epics/          11 epics (EPIC-001 to EPIC-011)
-│   ├── stories/        55 user stories (US-001 to US-055)
-│   └── US-XXX/         User stories met eventuele bugs
-│   └── dashboard/      HTML dashboards &amp; visualizations
+│   ├── EPIC-XXX/       24 epics (EPIC-001 to EPIC-025)
+│   │   ├── EPIC-XXX.md Epic documentation
+│   │   └── US-XXX/     User stories within epic
+│   │       └── BUG-XXX/ Bugs within user story
+│   ├── 279 user stories (US-001 to US-440, with gaps)
+│   └── dashboard/      HTML dashboards &amp; visualizations (archived - see portal/)
 ├── 📁 implementation/   Implementation plans &amp; status tracking ✅
 ├── 📁 testing/          Test plans &amp; results
 ├── 📁 technisch/        Technical documentation ✅
