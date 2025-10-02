@@ -8,92 +8,104 @@ Auteur: AI Assistant
 Datum: 2025-09-23
 """
 
-import pytest
 import json
 from typing import Dict, List, Tuple
 from unittest.mock import MagicMock, patch
 
+import pytest
+
 from src.services.ufo_classifier_service import (
+    PatternMatcher,
     UFOCategory,
     UFOClassificationResult,
     UFOClassifierService,
-    PatternMatcher,
-    get_ufo_classifier
+    get_ufo_classifier,
 )
 
 
 class TestCorrectnessDutchLegalTerms:
     """Test correctheid met echte Nederlandse juridische termen."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def classifier(self):
         """Maak een classifier instance voor tests."""
         return UFOClassifierService()
 
-    @pytest.fixture
+    @pytest.fixture()
     def legal_test_cases(self):
         """Definieer uitgebreide test cases voor juridische termen."""
         return {
             "verdachte": {
                 "definition": "Persoon die wordt verdacht van het plegen van een strafbaar feit",
-                "expected_primary": [UFOCategory.ROLE, UFOCategory.KIND],  # Accepteer beide
+                "expected_primary": [
+                    UFOCategory.ROLE,
+                    UFOCategory.KIND,
+                ],  # Accepteer beide
                 "must_have_patterns": ["verdachte", "persoon"],
-                "context": "strafrecht"
+                "context": "strafrecht",
             },
             "koopovereenkomst": {
                 "definition": "Overeenkomst waarbij de verkoper zich verbindt een zaak te geven en de koper om daarvoor een prijs te betalen",
                 "expected_primary": [UFOCategory.RELATOR, UFOCategory.KIND],
                 "must_have_patterns": ["overeenkomst"],
-                "context": "civiel recht"
+                "context": "civiel recht",
             },
             "beschikking": {
                 "definition": "Besluit van een bestuursorgaan dat niet van algemene strekking is",
                 "expected_primary": [UFOCategory.KIND, UFOCategory.EVENT],
                 "must_have_patterns": ["besluit", "bestuursorgaan"],
-                "context": "bestuursrecht"
+                "context": "bestuursrecht",
             },
             "arrestatie": {
                 "definition": "Het proces waarbij een verdachte door de politie wordt aangehouden",
                 "expected_primary": [UFOCategory.EVENT],
                 "must_have_patterns": ["proces"],
-                "context": "strafprocesrecht"
+                "context": "strafprocesrecht",
             },
             "eigendom": {
                 "definition": "Het meest omvattende recht dat een persoon op een zaak kan hebben",
-                "expected_primary": [UFOCategory.RELATOR, UFOCategory.KIND, UFOCategory.MODE],
+                "expected_primary": [
+                    UFOCategory.RELATOR,
+                    UFOCategory.KIND,
+                    UFOCategory.MODE,
+                ],
                 "must_have_patterns": ["persoon", "zaak"],
-                "context": "goederenrecht"
+                "context": "goederenrecht",
             },
             "rechtspersoon": {
                 "definition": "Een juridische entiteit die zelfstandig rechten en plichten kan hebben",
                 "expected_primary": [UFOCategory.KIND],
                 "must_have_patterns": ["rechtspersoon"],
-                "context": "algemeen"
+                "context": "algemeen",
             },
             "huwelijk": {
                 "definition": "Een door de wet erkende verbintenis tussen twee personen",
                 "expected_primary": [UFOCategory.RELATOR],
                 "must_have_patterns": ["huwelijk", "verbintenis"],
-                "context": "familierecht"
+                "context": "familierecht",
             },
             "vergunning": {
                 "definition": "Toestemming van een bestuursorgaan om een bepaalde handeling te verrichten",
                 "expected_primary": [UFOCategory.RELATOR, UFOCategory.KIND],
                 "must_have_patterns": ["vergunning", "bestuursorgaan"],
-                "context": "bestuursrecht"
+                "context": "bestuursrecht",
             },
             "schadevergoeding": {
                 "definition": "Een bedrag in euro's dat moet worden betaald ter compensatie van geleden schade",
-                "expected_primary": [UFOCategory.QUANTITY, UFOCategory.MODE, UFOCategory.KIND],
+                "expected_primary": [
+                    UFOCategory.QUANTITY,
+                    UFOCategory.MODE,
+                    UFOCategory.KIND,
+                ],
                 "must_have_patterns": ["euro", "bedrag"],
-                "context": "schadevergoedingsrecht"
+                "context": "schadevergoedingsrecht",
             },
             "betrouwbaarheid": {
                 "definition": "De mate waarin iemand of iets te vertrouwen is",
                 "expected_primary": [UFOCategory.QUALITY],
                 "must_have_patterns": ["mate", "betrouwbaarheid"],
-                "context": "algemeen"
-            }
+                "context": "algemeen",
+            },
         }
 
     def test_legal_term_classification_accuracy(self, classifier, legal_test_cases):
@@ -112,7 +124,9 @@ class TestCorrectnessDutchLegalTerms:
 
             if is_correct:
                 correct_classifications += 1
-            elif any(cat in result.secondary_tags for cat in test_data["expected_primary"]):
+            elif any(
+                cat in result.secondary_tags for cat in test_data["expected_primary"]
+            ):
                 partial_correct += 1
 
             # Check patterns
@@ -120,30 +134,38 @@ class TestCorrectnessDutchLegalTerms:
             for pattern_list in result.matched_patterns.values():
                 all_patterns.extend(pattern_list)
 
-            patterns_found = all([
-                any(pattern in all_patterns for pattern in [must_have])
-                for must_have in test_data["must_have_patterns"]
-            ])
+            patterns_found = all(
+                [
+                    any(pattern in all_patterns for pattern in [must_have])
+                    for must_have in test_data["must_have_patterns"]
+                ]
+            )
 
-            results_log.append({
-                "term": term,
-                "expected": [cat.value for cat in test_data["expected_primary"]],
-                "got": result.primary_category.value,
-                "confidence": result.confidence,
-                "patterns_found": patterns_found,
-                "is_correct": is_correct
-            })
+            results_log.append(
+                {
+                    "term": term,
+                    "expected": [cat.value for cat in test_data["expected_primary"]],
+                    "got": result.primary_category.value,
+                    "confidence": result.confidence,
+                    "patterns_found": patterns_found,
+                    "is_correct": is_correct,
+                }
+            )
 
         # Print results for debugging
         print("\n=== Classification Results ===")
         for log in results_log:
             status = "✓" if log["is_correct"] else "✗"
-            print(f"{status} {log['term']}: Expected {log['expected']}, "
-                  f"Got {log['got']} (conf: {log['confidence']:.2f})")
+            print(
+                f"{status} {log['term']}: Expected {log['expected']}, "
+                f"Got {log['got']} (conf: {log['confidence']:.2f})"
+            )
 
         accuracy = (correct_classifications + 0.5 * partial_correct) / total_cases
-        print(f"\nAccuracy: {accuracy:.1%} ({correct_classifications} correct, "
-              f"{partial_correct} partial, {total_cases - correct_classifications - partial_correct} wrong)")
+        print(
+            f"\nAccuracy: {accuracy:.1%} ({correct_classifications} correct, "
+            f"{partial_correct} partial, {total_cases - correct_classifications - partial_correct} wrong)"
+        )
 
         # Voor nu accepteren we 50% accuracy gezien de huidige implementatie
         assert accuracy >= 0.5, f"Accuracy {accuracy:.1%} is onder minimum van 50%"
@@ -151,20 +173,31 @@ class TestCorrectnessDutchLegalTerms:
     def test_disambiguation_complex_terms(self, classifier):
         """Test disambiguatie van complexe termen zoals 'zaak'."""
         test_cases = [
-            ("zaak", "Een rechtszaak voor de rechter", [UFOCategory.EVENT, UFOCategory.KIND]),
+            (
+                "zaak",
+                "Een rechtszaak voor de rechter",
+                [UFOCategory.EVENT, UFOCategory.KIND],
+            ),
             ("zaak", "Een roerende zaak zoals een auto", [UFOCategory.KIND]),
-            ("besluit", "Het nemen van een besluit door het bestuursorgaan",
-             [UFOCategory.EVENT, UFOCategory.KIND]),
-            ("besluit", "Een schriftelijk besluit van het bestuursorgaan",
-             [UFOCategory.KIND, UFOCategory.EVENT]),
+            (
+                "besluit",
+                "Het nemen van een besluit door het bestuursorgaan",
+                [UFOCategory.EVENT, UFOCategory.KIND],
+            ),
+            (
+                "besluit",
+                "Een schriftelijk besluit van het bestuursorgaan",
+                [UFOCategory.KIND, UFOCategory.EVENT],
+            ),
         ]
 
         for term, definition, acceptable_categories in test_cases:
             result = classifier.classify(term, definition)
 
-            assert result.primary_category in acceptable_categories or \
-                   result.primary_category == UFOCategory.UNKNOWN, \
-                f"'{term}' met context '{definition[:30]}...' kreeg onverwachte categorie {result.primary_category.value}"
+            assert (
+                result.primary_category in acceptable_categories
+                or result.primary_category == UFOCategory.UNKNOWN
+            ), f"'{term}' met context '{definition[:30]}...' kreeg onverwachte categorie {result.primary_category.value}"
 
     def test_confidence_distribution(self, classifier, legal_test_cases):
         """Test verdeling van confidence scores."""
@@ -178,7 +211,7 @@ class TestCorrectnessDutchLegalTerms:
         high_confidence = sum(1 for c in confidence_scores if c >= 0.5)
         low_confidence = sum(1 for c in confidence_scores if c < 0.3)
 
-        print(f"\nConfidence distribution:")
+        print("\nConfidence distribution:")
         print(f"  Average: {avg_confidence:.2f}")
         print(f"  High (≥0.5): {high_confidence}/{len(confidence_scores)}")
         print(f"  Low (<0.3): {low_confidence}/{len(confidence_scores)}")
@@ -191,7 +224,7 @@ class TestCorrectnessDutchLegalTerms:
 class TestDecisionLogicCompleteness:
     """Test volledigheid van de beslislogica."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def classifier(self):
         return UFOClassifierService()
 
@@ -219,9 +252,15 @@ class TestDecisionLogicCompleteness:
             categories_found.update(result.secondary_tags)
 
         # We verwachten tenminste de hoofdcategorieën
-        main_categories = {UFOCategory.KIND, UFOCategory.EVENT, UFOCategory.ROLE,
-                          UFOCategory.RELATOR, UFOCategory.MODE, UFOCategory.QUALITY,
-                          UFOCategory.QUANTITY}
+        main_categories = {
+            UFOCategory.KIND,
+            UFOCategory.EVENT,
+            UFOCategory.ROLE,
+            UFOCategory.RELATOR,
+            UFOCategory.MODE,
+            UFOCategory.QUALITY,
+            UFOCategory.QUANTITY,
+        }
 
         missing_categories = main_categories - categories_found
 
@@ -229,8 +268,9 @@ class TestDecisionLogicCompleteness:
         print(f"Missing categories: {[c.value for c in missing_categories]}")
 
         # Accepteer als meeste hoofdcategorieën gevonden zijn
-        assert len(categories_found & main_categories) >= 4, \
-            f"Te weinig hoofdcategorieën gevonden: {categories_found & main_categories}"
+        assert (
+            len(categories_found & main_categories) >= 4
+        ), f"Te weinig hoofdcategorieën gevonden: {categories_found & main_categories}"
 
     def test_pattern_matching_coverage(self, classifier):
         """Test dekking van pattern matching."""
@@ -257,34 +297,38 @@ class TestDecisionLogicCompleteness:
         coverage = texts_with_patterns / len(test_texts)
         avg_patterns = total_patterns / len(test_texts)
 
-        print(f"\nPattern matching coverage:")
-        print(f"  Texts with patterns: {texts_with_patterns}/{len(test_texts)} ({coverage:.0%})")
+        print("\nPattern matching coverage:")
+        print(
+            f"  Texts with patterns: {texts_with_patterns}/{len(test_texts)} ({coverage:.0%})"
+        )
         print(f"  Average patterns per text: {avg_patterns:.1f}")
 
         assert coverage >= 0.8, f"Pattern coverage {coverage:.0%} te laag"
-        assert avg_patterns >= 1.0, f"Gemiddeld aantal patterns {avg_patterns:.1f} te laag"
+        assert (
+            avg_patterns >= 1.0
+        ), f"Gemiddeld aantal patterns {avg_patterns:.1f} te laag"
 
 
 class TestExplanationQuality:
     """Test kwaliteit van de gegenereerde uitleg."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def classifier(self):
         return UFOClassifierService()
 
     def test_explanation_components(self, classifier):
         """Test dat uitleg alle vereiste componenten bevat."""
         result = classifier.classify(
-            "verdachte",
-            "Een persoon die wordt verdacht van een strafbaar feit"
+            "verdachte", "Een persoon die wordt verdacht van een strafbaar feit"
         )
 
         # Check aanwezigheid van uitleg
         assert len(result.explanation) >= 2, "Uitleg moet meerdere regels bevatten"
 
         # Check confidence niveau
-        assert any('zekerheid' in exp.lower() for exp in result.explanation), \
-            "Uitleg moet confidence niveau bevatten"
+        assert any(
+            "zekerheid" in exp.lower() for exp in result.explanation
+        ), "Uitleg moet confidence niveau bevatten"
 
         # Check uitgebreide uitleg
         full_explanation = classifier.explain_classification(result)
@@ -305,8 +349,7 @@ class TestExplanationQuality:
             result = classifier.classify(term, definition)
 
             # Er moeten patronen zijn
-            assert result.matched_patterns, \
-                f"Geen patronen gevonden voor '{term}'"
+            assert result.matched_patterns, f"Geen patronen gevonden voor '{term}'"
 
             # Patronen moeten relevant zijn
             all_patterns = []
@@ -314,16 +357,16 @@ class TestExplanationQuality:
                 all_patterns.extend(patterns)
 
             # Term of gerelateerde woorden moeten in patronen zitten
-            assert any(term.lower() in pattern.lower() or
-                      pattern.lower() in definition.lower()
-                      for pattern in all_patterns), \
-                f"Geen relevante patronen voor '{term}'"
+            assert any(
+                term.lower() in pattern.lower() or pattern.lower() in definition.lower()
+                for pattern in all_patterns
+            ), f"Geen relevante patronen voor '{term}'"
 
     def test_decision_reasoning_trace(self, classifier):
         """Test dat beslisredenen traceerbaar zijn."""
         complex_case = classifier.classify(
             "koopovereenkomst",
-            "Een overeenkomst waarbij de verkoper zich verbindt een zaak te geven"
+            "Een overeenkomst waarbij de verkoper zich verbindt een zaak te geven",
         )
 
         # Check dat er uitleg is over de gekozen categorie
@@ -336,19 +379,22 @@ class TestExplanationQuality:
 
         relevant_explanation = False
         for exp in complex_case.explanation:
-            if any(key_phrase in exp.lower()
-                   for key_phrase in category_explanation.values()):
+            if any(
+                key_phrase in exp.lower()
+                for key_phrase in category_explanation.values()
+            ):
                 relevant_explanation = True
                 break
 
-        assert relevant_explanation or complex_case.primary_category == UFOCategory.UNKNOWN, \
-            "Uitleg moet de gekozen categorie onderbouwen"
+        assert (
+            relevant_explanation or complex_case.primary_category == UFOCategory.UNKNOWN
+        ), "Uitleg moet de gekozen categorie onderbouwen"
 
 
 class TestBatchProcessingCorrectness:
     """Test batch processing voor grote aantallen definities."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def classifier(self):
         return UFOClassifierService()
 
@@ -371,10 +417,13 @@ class TestBatchProcessingCorrectness:
         # Vergelijk resultaten
         assert len(batch_results) == len(individual_results)
 
-        for i, (batch, individual) in enumerate(zip(batch_results, individual_results)):
-            assert batch.primary_category == individual.primary_category, \
-                f"Inconsistentie bij item {i}: batch={batch.primary_category.value}, " \
+        for i, (batch, individual) in enumerate(
+            zip(batch_results, individual_results, strict=False)
+        ):
+            assert batch.primary_category == individual.primary_category, (
+                f"Inconsistentie bij item {i}: batch={batch.primary_category.value}, "
                 f"individual={individual.primary_category.value}"
+            )
 
     def test_large_batch_processing(self, classifier):
         """Test verwerking van 80+ definities zoals vereist."""
@@ -382,8 +431,16 @@ class TestBatchProcessingCorrectness:
         large_batch = []
         base_definitions = [
             ("verdachte_{}", "Persoon die wordt verdacht van {}", "strafrecht"),
-            ("overeenkomst_{}", "Contract waarbij partijen afspreken over {}", "contractrecht"),
-            ("besluit_{}", "Beslissing van bestuursorgaan betreffende {}", "bestuursrecht"),
+            (
+                "overeenkomst_{}",
+                "Contract waarbij partijen afspreken over {}",
+                "contractrecht",
+            ),
+            (
+                "besluit_{}",
+                "Beslissing van bestuursorgaan betreffende {}",
+                "bestuursrecht",
+            ),
             ("procedure_{}", "Proces voor het afhandelen van {}", "procesrecht"),
         ]
 
@@ -403,12 +460,15 @@ class TestBatchProcessingCorrectness:
 
         # Check dat alle results valide zijn
         for i, result in enumerate(results):
-            assert isinstance(result, UFOClassificationResult), \
-                f"Item {i} is geen valide result"
-            assert result.primary_category in UFOCategory, \
-                f"Item {i} heeft ongeldige categorie"
-            assert 0.0 <= result.confidence <= 1.0, \
-                f"Item {i} heeft ongeldige confidence: {result.confidence}"
+            assert isinstance(
+                result, UFOClassificationResult
+            ), f"Item {i} is geen valide result"
+            assert (
+                result.primary_category in UFOCategory
+            ), f"Item {i} heeft ongeldige categorie"
+            assert (
+                0.0 <= result.confidence <= 1.0
+            ), f"Item {i} heeft ongeldige confidence: {result.confidence}"
 
         # Check verdeling van categorieën
         category_counts = {}
@@ -416,13 +476,16 @@ class TestBatchProcessingCorrectness:
             cat = result.primary_category
             category_counts[cat] = category_counts.get(cat, 0) + 1
 
-        print(f"\nBatch processing distribution:")
-        for cat, count in sorted(category_counts.items(), key=lambda x: x[1], reverse=True):
+        print("\nBatch processing distribution:")
+        for cat, count in sorted(
+            category_counts.items(), key=lambda x: x[1], reverse=True
+        ):
             print(f"  {cat.value}: {count}/{len(results)} ({count/len(results):.0%})")
 
         # Verwacht dat niet alles UNKNOWN is
-        assert category_counts.get(UFOCategory.UNKNOWN, 0) < len(results), \
-            "Te veel UNKNOWN classificaties in batch"
+        assert category_counts.get(UFOCategory.UNKNOWN, 0) < len(
+            results
+        ), "Te veel UNKNOWN classificaties in batch"
 
     def test_batch_error_handling(self, classifier):
         """Test error handling in batch processing."""
@@ -440,12 +503,20 @@ class TestBatchProcessingCorrectness:
         # Check dat fouten correct afgehandeld zijn
         assert results[1].primary_category == UFOCategory.UNKNOWN
         assert results[1].confidence <= 0.2  # Lage confidence voor errors
-        assert any('fout' in exp.lower() or 'geen duidelijke' in exp.lower()
-                  for exp in results[1].explanation)
+        assert any(
+            "fout" in exp.lower() or "geen duidelijke" in exp.lower()
+            for exp in results[1].explanation
+        )
 
         # Check dat andere items nog werken
-        assert results[0].primary_category != UFOCategory.UNKNOWN or results[0].confidence > 0
-        assert results[3].primary_category != UFOCategory.UNKNOWN or results[3].confidence > 0
+        assert (
+            results[0].primary_category != UFOCategory.UNKNOWN
+            or results[0].confidence > 0
+        )
+        assert (
+            results[3].primary_category != UFOCategory.UNKNOWN
+            or results[3].confidence > 0
+        )
 
 
 class TestServiceIntegration:
@@ -466,28 +537,31 @@ class TestServiceIntegration:
         """Test serialisatie voor database opslag."""
         classifier = UFOClassifierService()
         result = classifier.classify(
-            "verdachte",
-            "Persoon die wordt verdacht van een strafbaar feit"
+            "verdachte", "Persoon die wordt verdacht van een strafbaar feit"
         )
 
         # Convert to dict
         data = result.to_dict()
 
         # Check vereiste velden
-        required_fields = ['primary_category', 'confidence', 'explanation',
-                          'secondary_tags', 'matched_patterns']
+        required_fields = [
+            "primary_category",
+            "confidence",
+            "explanation",
+            "secondary_tags",
+            "matched_patterns",
+        ]
         for field in required_fields:
             assert field in data, f"Veld '{field}' ontbreekt"
 
         # Check types
-        assert isinstance(data['primary_category'], str)
-        assert isinstance(data['confidence'], float)
-        assert isinstance(data['explanation'], list)
-        assert isinstance(data['secondary_tags'], list)
-        assert isinstance(data['matched_patterns'], dict)
+        assert isinstance(data["primary_category"], str)
+        assert isinstance(data["confidence"], float)
+        assert isinstance(data["explanation"], list)
+        assert isinstance(data["secondary_tags"], list)
+        assert isinstance(data["matched_patterns"], dict)
 
         # Test JSON serialization
-        import json
         json_str = json.dumps(data)
         reconstructed = json.loads(json_str)
 
@@ -500,18 +574,20 @@ class TestServiceIntegration:
         for category in [UFOCategory.KIND, UFOCategory.EVENT, UFOCategory.ROLE]:
             examples = classifier.get_category_examples(category)
 
-            assert isinstance(examples, dict), f"Examples voor {category.value} moet dict zijn"
+            assert isinstance(
+                examples, dict
+            ), f"Examples voor {category.value} moet dict zijn"
 
             if examples:  # Als er voorbeelden zijn
                 for group, terms in examples.items():
                     assert isinstance(terms, list), f"Terms in {group} moet lijst zijn"
-                    assert len(terms) <= 5, f"Max 5 voorbeelden per groep"
+                    assert len(terms) <= 5, "Max 5 voorbeelden per groep"
 
 
 class TestManualOverrideScenarios:
     """Test scenarios voor manual override."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def classifier(self):
         return UFOClassifierService()
 
@@ -530,20 +606,21 @@ class TestManualOverrideScenarios:
             # Bij lage confidence (<0.6) is manual review nodig
             if result.confidence < 0.6:
                 # Check dat dit duidelijk is in de uitleg
-                assert any('lage' in exp.lower() or 'laag' in exp.lower()
-                          for exp in result.explanation), \
-                    "Lage confidence moet aangegeven worden"
+                assert any(
+                    "lage" in exp.lower() or "laag" in exp.lower()
+                    for exp in result.explanation
+                ), "Lage confidence moet aangegeven worden"
 
             # UNKNOWN moet altijd lage confidence hebben
             if result.primary_category == UFOCategory.UNKNOWN:
-                assert result.confidence < 0.3, \
-                    f"UNKNOWN moet lage confidence hebben, kreeg {result.confidence}"
+                assert (
+                    result.confidence < 0.3
+                ), f"UNKNOWN moet lage confidence hebben, kreeg {result.confidence}"
 
     def test_override_data_structure(self, classifier):
         """Test dat override data correct opgeslagen kan worden."""
         original_result = classifier.classify(
-            "complexe_term",
-            "Een moeilijk te classificeren begrip"
+            "complexe_term", "Een moeilijk te classificeren begrip"
         )
 
         # Simuleer manual override
@@ -553,16 +630,17 @@ class TestManualOverrideScenarios:
             "override_category": UFOCategory.KIND.value,
             "override_reason": "Expert judgement: dit is een KIND",
             "override_timestamp": "2025-09-23T10:00:00",
-            "override_user": "expert_user"
+            "override_user": "expert_user",
         }
 
         # Check dat alle data serialiseerbaar is
-        import json
         json_str = json.dumps(override_data)
         assert json_str, "Override data moet serialiseerbaar zijn"
 
         # Check dat original result behouden blijft
-        assert override_data["original_category"] == original_result.primary_category.value
+        assert (
+            override_data["original_category"] == original_result.primary_category.value
+        )
         assert override_data["original_confidence"] == original_result.confidence
 
 
@@ -572,6 +650,7 @@ class TestPerformanceWithinRequirements:
     def test_single_classification_speed(self):
         """Test dat enkele classificatie <500ms is."""
         import time
+
         classifier = UFOClassifierService()
 
         # Warmup
@@ -599,6 +678,7 @@ class TestPerformanceWithinRequirements:
     def test_caching_effectiveness(self):
         """Test dat caching werkt voor performance."""
         import time
+
         classifier = UFOClassifierService()
 
         text = "Een persoon is een natuurlijk mens met rechtspersoonlijkheid"
@@ -617,8 +697,9 @@ class TestPerformanceWithinRequirements:
         assert matches1 == matches2, "Cached result moet identiek zijn"
 
         # Tweede call zou sneller moeten zijn (of gelijk)
-        assert duration2 <= duration1 * 1.1, \
-            f"Cached call niet sneller: {duration2:.4f}s vs {duration1:.4f}s"
+        assert (
+            duration2 <= duration1 * 1.1
+        ), f"Cached call niet sneller: {duration2:.4f}s vs {duration1:.4f}s"
 
 
 if __name__ == "__main__":

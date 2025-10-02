@@ -9,63 +9,64 @@ Test de complete UFO classificatie functionaliteit inclusief:
 - Juridische domein aanpassingen
 """
 
-import pytest
 from pathlib import Path
-from unittest.mock import patch, Mock
+from unittest.mock import Mock, patch
+
+import pytest
 
 from src.services.ufo_classifier_service import (
-    UFOClassifierService,
-    UFOClassificationResult,
-    UFOCategory,
+    DisambiguationNote,
     PatternMatch,
-    DisambiguationNote
+    UFOCategory,
+    UFOClassificationResult,
+    UFOClassifierService,
 )
 
 
 class TestUFOClassifierService:
     """Test suite voor UFO Classifier Service."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def classifier(self):
         """Maak een UFO classifier instance voor tests."""
         return UFOClassifierService()
 
-    @pytest.fixture
+    @pytest.fixture()
     def sample_definitions(self):
         """Sample definities voor verschillende UFO categorieën."""
         return {
             "Kind": {
                 "term": "rechtspersoon",
-                "definition": "Een rechtspersoon is een zelfstandige juridische entiteit die rechten en plichten kan hebben, zoals een BV, NV of stichting."
+                "definition": "Een rechtspersoon is een zelfstandige juridische entiteit die rechten en plichten kan hebben, zoals een BV, NV of stichting.",
             },
             "Event": {
                 "term": "arrestatie",
-                "definition": "Een arrestatie is de handeling waarbij een opsporingsambtenaar iemand van zijn vrijheid berooft tijdens het onderzoek naar een strafbaar feit."
+                "definition": "Een arrestatie is de handeling waarbij een opsporingsambtenaar iemand van zijn vrijheid berooft tijdens het onderzoek naar een strafbaar feit.",
             },
             "Role": {
                 "term": "verdachte",
-                "definition": "Een persoon die in de hoedanigheid van verdachte wordt aangemerkt wanneer er redelijke verdenking bestaat dat hij een strafbaar feit heeft gepleegd."
+                "definition": "Een persoon die in de hoedanigheid van verdachte wordt aangemerkt wanneer er redelijke verdenking bestaat dat hij een strafbaar feit heeft gepleegd.",
             },
             "Phase": {
                 "term": "voorlopige hechtenis",
-                "definition": "De fase waarin een verdachte in afwachting van zijn berechting in detentie wordt gehouden."
+                "definition": "De fase waarin een verdachte in afwachting van zijn berechting in detentie wordt gehouden.",
             },
             "Relator": {
                 "term": "koopovereenkomst",
-                "definition": "Een overeenkomst tussen koper en verkoper waarbij de verkoper zich verbindt een zaak te geven en de koper om daarvoor een prijs in geld te betalen."
+                "definition": "Een overeenkomst tussen koper en verkoper waarbij de verkoper zich verbindt een zaak te geven en de koper om daarvoor een prijs in geld te betalen.",
             },
             "Mode": {
                 "term": "bevoegdheid",
-                "definition": "De eigenschap van een persoon of organisatie om bepaalde rechtshandelingen te mogen verrichten."
+                "definition": "De eigenschap van een persoon of organisatie om bepaalde rechtshandelingen te mogen verrichten.",
             },
             "Quantity": {
                 "term": "koopsom",
-                "definition": "Het bedrag in euro's dat de koper aan de verkoper verschuldigd is voor de gekochte zaak."
+                "definition": "Het bedrag in euro's dat de koper aan de verkoper verschuldigd is voor de gekochte zaak.",
             },
             "Quality": {
                 "term": "betrouwbaarheid",
-                "definition": "De mate waarin een getuigenverklaring als waarheidsgetrouw kan worden beschouwd."
-            }
+                "definition": "De mate waarin een getuigenverklaring als waarheidsgetrouw kan worden beschouwd.",
+            },
         }
 
     def test_initialization(self, classifier):
@@ -140,7 +141,9 @@ class TestUFOClassifierService:
 
         assert result.primary_category == "Quantity"
         assert result.confidence > 0.5
-        assert any("euro" in str(p.matched_text).lower() for p in result.matched_patterns)
+        assert any(
+            "euro" in str(p.matched_text).lower() for p in result.matched_patterns
+        )
 
     def test_classify_quality(self, classifier, sample_definitions):
         """Test classificatie van Quality."""
@@ -156,14 +159,14 @@ class TestUFOClassifierService:
         # Test rechtszaak -> Event
         result1 = classifier.classify(
             "rechtszaak",
-            "Een rechtszaak is een procedure voor de rechter waarin een juridisch geschil wordt beslecht."
+            "Een rechtszaak is een procedure voor de rechter waarin een juridisch geschil wordt beslecht.",
         )
         assert result1.primary_category == "Event"
 
         # Test roerende zaak -> Kind
         result2 = classifier.classify(
             "roerende zaak",
-            "Een roerende zaak is een fysiek voorwerp dat verplaatst kan worden, zoals een auto of meubel."
+            "Een roerende zaak is een fysiek voorwerp dat verplaatst kan worden, zoals een auto of meubel.",
         )
         assert result2.primary_category == "Kind"
 
@@ -176,14 +179,14 @@ class TestUFOClassifierService:
         # Test huwelijksvoltrekking -> Event
         result1 = classifier.classify(
             "huwelijksvoltrekking",
-            "De ceremonie waarbij twee personen voor de wet in het huwelijk treden."
+            "De ceremonie waarbij twee personen voor de wet in het huwelijk treden.",
         )
         assert result1.primary_category == "Event"
 
         # Test huwelijk als relatie -> Relator
         result2 = classifier.classify(
             "huwelijk",
-            "Een huwelijk is een wettelijke verbintenis tussen twee personen met wederzijdse rechten en plichten."
+            "Een huwelijk is een wettelijke verbintenis tussen twee personen met wederzijdse rechten en plichten.",
         )
         assert result2.primary_category == "Relator"
 
@@ -191,7 +194,7 @@ class TestUFOClassifierService:
         """Test disambiguatie voor de term 'overeenkomst'."""
         result = classifier.classify(
             "overeenkomst",
-            "Een contract waarbij partijen zich over en weer verbinden tot het verrichten van prestaties."
+            "Een contract waarbij partijen zich over en weer verbinden tot het verrichten van prestaties.",
         )
         assert result.primary_category == "Relator"
         assert result.confidence > 0.5
@@ -200,37 +203,37 @@ class TestUFOClassifierService:
         """Test dat secundaire tags correct worden toegepast."""
         result = classifier.classify(
             "bijzondere overeenkomst",
-            "Een specifiek type contract met bijzondere voorwaarden die afwijken van het algemene contractenrecht."
+            "Een specifiek type contract met bijzondere voorwaarden die afwijken van het algemene contractenrecht.",
         )
 
         assert len(result.secondary_tags) > 0
         # Mogelijk Subkind, Category of Abstract tag
-        assert any(tag in ["Subkind", "Category", "Abstract"] for tag in result.secondary_tags)
+        assert any(
+            tag in ["Subkind", "Category", "Abstract"] for tag in result.secondary_tags
+        )
 
     def test_domain_adjustments(self, classifier):
         """Test domein-specifieke aanpassingen."""
         # Strafrecht context
-        strafrecht_context = {
-            "juridische_context": ["Strafrecht"]
-        }
+        strafrecht_context = {"juridische_context": ["Strafrecht"]}
 
         result = classifier.classify(
             "verdachte",
             "Persoon tegen wie een verdenking van een strafbaar feit bestaat.",
-            context=strafrecht_context
+            context=strafrecht_context,
         )
 
         assert result.primary_category == "Role"
         # Check dat strafrecht boost is toegepast
-        assert "strafrecht" in result.detailed_explanation.lower() or result.confidence > 0.5
+        assert (
+            "strafrecht" in result.detailed_explanation.lower()
+            or result.confidence > 0.5
+        )
 
     def test_low_confidence_manual_override(self, classifier):
         """Test dat lage confidence een manual override vereist."""
         # Gebruik een vage definitie die lage confidence zou moeten geven
-        result = classifier.classify(
-            "iets",
-            "Dit is een ding."
-        )
+        result = classifier.classify("iets", "Dit is een ding.")
 
         if result.confidence < 0.3:
             assert result.manual_override_required
@@ -240,7 +243,7 @@ class TestUFOClassifierService:
         """Test dat alle categorieën worden geëvalueerd."""
         result = classifier.classify(
             "test begrip",
-            "Een test definitie voor het controleren van de volledige evaluatie."
+            "Een test definitie voor het controleren van de volledige evaluatie.",
         )
 
         # Check dat alle hoofdcategorieën een score hebben
@@ -258,7 +261,7 @@ class TestUFOClassifierService:
         """Test dat het volledige beslispad wordt vastgelegd."""
         result = classifier.classify(
             "verdachte",
-            "Een persoon die verdacht wordt van het plegen van een strafbaar feit."
+            "Een persoon die verdacht wordt van het plegen van een strafbaar feit.",
         )
 
         assert len(result.decision_path) >= 9  # Alle 9 stappen
@@ -269,20 +272,19 @@ class TestUFOClassifierService:
         """Test pattern matching functionaliteit."""
         result = classifier.classify(
             "koopsom",
-            "Het bedrag van 50.000 euro dat betaald moet worden voor de woning."
+            "Het bedrag van 50.000 euro dat betaald moet worden voor de woning.",
         )
 
         assert len(result.matched_patterns) > 0
         # Check voor euro pattern match
-        assert any("euro" in p.matched_text or "€" in p.pattern_text
-                  for p in result.matched_patterns)
+        assert any(
+            "euro" in p.matched_text or "€" in p.pattern_text
+            for p in result.matched_patterns
+        )
 
     def test_processing_time_tracked(self, classifier):
         """Test dat processing tijd wordt bijgehouden."""
-        result = classifier.classify(
-            "test",
-            "Een simpele test definitie."
-        )
+        result = classifier.classify("test", "Een simpele test definitie.")
 
         assert result.processing_time_ms > 0
         assert result.processing_time_ms < 1000  # Moet onder 1 seconde zijn
@@ -308,14 +310,14 @@ class TestUFOClassifierService:
 
         assert len(results) == len(definitions)
         assert all(isinstance(r, UFOClassificationResult) for r in results)
-        assert all(r.primary_category in [cat.value for cat in UFOCategory]
-                  for r in results)
+        assert all(
+            r.primary_category in [cat.value for cat in UFOCategory] for r in results
+        )
 
     def test_to_dict_serialization(self, classifier):
         """Test dat resultaten correct serialiseren naar dict."""
         result = classifier.classify(
-            "rechtspersoon",
-            "Een juridische entiteit met rechtspersoonlijkheid."
+            "rechtspersoon", "Een juridische entiteit met rechtspersoonlijkheid."
         )
 
         result_dict = result.to_dict()
@@ -333,18 +335,18 @@ class TestUFOClassifierService:
             {
                 "term": "dwangsom",
                 "definition": "Een geldsom die een schuldenaar moet betalen indien hij niet of niet tijdig aan een rechterlijke uitspraak voldoet.",
-                "expected": ["Quantity", "Relator"]  # Kan beide zijn
+                "expected": ["Quantity", "Relator"],  # Kan beide zijn
             },
             {
                 "term": "curator",
                 "definition": "Persoon die door de rechtbank is aangesteld om het beheer te voeren over het vermogen van een failliet verklaarde.",
-                "expected": ["Role"]
+                "expected": ["Role"],
             },
             {
                 "term": "bestuursorgaan",
                 "definition": "Een orgaan van een rechtspersoon die krachtens publiekrecht is ingesteld of een ander persoon of college met enig openbaar gezag bekleed.",
-                "expected": ["Kind", "Role"]  # Kan beide aspecten hebben
-            }
+                "expected": ["Kind", "Role"],  # Kan beide aspecten hebben
+            },
         ]
 
         for test_case in complex_definitions:
@@ -357,15 +359,12 @@ class TestUFOClassifierService:
         # Hoge confidence
         result_high = classifier.classify(
             "rechtspersoon",
-            "Een rechtspersoon is een zelfstandige juridische entiteit zoals een BV, NV of stichting met volledige rechtsbevoegdheid."
+            "Een rechtspersoon is een zelfstandige juridische entiteit zoals een BV, NV of stichting met volledige rechtsbevoegdheid.",
         )
         assert result_high.confidence > 0.6
 
         # Lage confidence (vage definitie)
-        result_low = classifier.classify(
-            "dinges",
-            "Dat ding daar."
-        )
+        result_low = classifier.classify("dinges", "Dat ding daar.")
         assert result_low.confidence < 0.6
 
     def test_empty_input_handling(self, classifier):
@@ -376,9 +375,10 @@ class TestUFOClassifierService:
 
     def test_very_long_definition(self, classifier):
         """Test handling van zeer lange definities."""
-        long_definition = " ".join([
-            "Een zeer uitgebreide definitie die veel verschillende aspecten belicht"
-        ] * 50)
+        long_definition = " ".join(
+            ["Een zeer uitgebreide definitie die veel verschillende aspecten belicht"]
+            * 50
+        )
 
         result = classifier.classify("lang begrip", long_definition)
         assert result is not None
@@ -387,8 +387,7 @@ class TestUFOClassifierService:
     def test_special_characters_handling(self, classifier):
         """Test handling van speciale karakters."""
         result = classifier.classify(
-            "test-begrip",
-            "Een definitie met speciale karakters zoals €, %, & en @."
+            "test-begrip", "Een definitie met speciale karakters zoals €, %, & en @."
         )
         assert result is not None
         assert result.primary_category in [cat.value for cat in UFOCategory]
