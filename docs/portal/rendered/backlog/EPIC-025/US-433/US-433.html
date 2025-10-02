@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Consolidate Code Duplicatie</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>aangemaakt: 2025-09-30</p>
+<p>applies_to: definitie-app@current</p>
+<p>bijgewerkt: 2025-09-30</p>
+<p>canonical: false</p>
+<p>epic: EPIC-025</p>
+<p>id: US-433</p>
+<p>last_verified: 2025-09-30</p>
+<p>owner: code-architect</p>
+<p>prioriteit: P1</p>
+<p>sprint: 3</p>
+<p>status: pending</p>
+<p>story_points: 8</p>
+<p>titel: Consolidate Code Duplicatie</p>
+<p>---</p>
+
+<h1>US-433: Consolidate Code Duplicatie</h1>
+
+<h2>User Story</h2>
+
+<p><strong>Als</strong> developer</p>
+<p><strong>Wil ik</strong> geen duplicate code modules</p>
+<p><strong>Zodat</strong> ik weet welke versie te gebruiken en maintenance reduced is</p>
+
+<h2>Acceptance Criteria</h2>
+
+<ul>
+<li>[ ] Resilience modules: 4 files → 1 canonical (2066 LOC → ~800)</li>
+<li>[ ] Remove exports/ duplicate directory</li>
+<li>[ ] Merge technical/ → technisch/</li>
+<li>[ ] Replace print() with logging in top 5 files (412 → <50)</li>
+<li>[ ] All tests still pass</li>
+</ul>
+
+<h2>Tasks</h2>
+
+<ol>
+<li>**Consolidate Resilience (6h):** Merge 4 modules to optimized_resilience.py</li>
+<li>**Remove Duplicates (1h):** Delete exports/, merge technical/</li>
+<li>**Fix Print Statements (3h):** Top 5 offending files to logging</li>
+</ol>
+
+<h2>Validation</h2>
+
+<pre><code>find src/utils -name "*resilience*.py" | wc -l
+# Expected: 1-2 (was 4-5)
+
+grep -r "print(" src/ | wc -l
+# Expected: &lt; 50 (was 412)</code></pre>
+
+<h2>Owner</h2>
+
+<p><strong>Agent:</strong> 🏗️ Code Architect | <strong>Effort:</strong> 10h | <strong>Sprint:</strong> 3</p>
+
+  </div>
+</body>
+</html>

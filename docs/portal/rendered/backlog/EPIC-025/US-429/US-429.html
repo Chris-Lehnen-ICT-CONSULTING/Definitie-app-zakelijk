@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Implement CI Quality Gates</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>aangemaakt: 2025-09-30</p>
+<p>applies_to: definitie-app@current</p>
+<p>bijgewerkt: 2025-09-30</p>
+<p>canonical: false</p>
+<p>epic: EPIC-025</p>
+<p>id: US-429</p>
+<p>last_verified: 2025-09-30</p>
+<p>owner: process-guardian</p>
+<p>prioriteit: P0</p>
+<p>sprint: 2</p>
+<p>status: pending</p>
+<p>story_points: 5</p>
+<p>titel: Implement CI Quality Gates</p>
+<p>---</p>
+
+<h1>US-429: Implement CI Quality Gates</h1>
+
+<h2>User Story</h2>
+
+<p><strong>Als</strong> developer</p>
+<p><strong>Wil ik</strong> dat CI quality gates afdwingt</p>
+<p><strong>Zodat</strong> code quality standards niet omzeild kunnen worden</p>
+
+<h2>Acceptance Criteria</h2>
+
+<ul>
+<li>[ ] CI verifieert dat pre-commit hooks zijn uitgevoerd</li>
+<li>[ ] preflight-checks.sh wordt gerund in GitHub Actions</li>
+<li>[ ] Commits zonder pre-commit execution worden geblokkeerd</li>
+<li>[ ] Branch name validation toegevoegd (feature/*, fix/*, etc)</li>
+<li>[ ] Failing checks blokkeren merge</li>
+</ul>
+
+<h2>Tasks</h2>
+
+<ol>
+<li>Add `.github/workflows/quality-gates.yml`</li>
+<li>Verify pre-commit ran (check for hook metadata)</li>
+<li>Run `~/.ai-agents/preflight-checks.sh`</li>
+<li>Validate branch naming convention</li>
+<li>Test with deliberate violations</li>
+</ol>
+
+<h2>Validation</h2>
+
+<pre><code>gh workflow list | grep "quality-gates"
+# Expected: Active workflow found</code></pre>
+
+<h2>Owner</h2>
+
+<p><strong>Agent:</strong> ⚙️ Process Guardian | <strong>Effort:</strong> 8h | <strong>Sprint:</strong> 2</p>
+
+  </div>
+</body>
+</html>

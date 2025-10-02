@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>📊 GESCHIEDENIS TAB - DIEPGAANDE ANALYSE RAPPORT</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>📊 GESCHIEDENIS TAB - DIEPGAANDE ANALYSE RAPPORT</h1>
+
+<p><strong>Datum:</strong> 2025-09-29</p>
+<p><strong>Component:</strong> <code>src/ui/components/history_tab.py</code></p>
+<p><strong>Status:</strong> ✅ Operationeel met beperkingen</p>
+
+<h2>🎯 EXECUTIVE SUMMARY</h2>
+
+<p>De Geschiedenis tab is <strong>volledig geïmplementeerd</strong> maar ontbreekt cruciale <strong>audit trail functionaliteit</strong>. De tab biedt uitgebreide filter-, visualisatie- en export-mogelijkheden, maar haalt geen echte wijzigingsgeschiedenis op uit de <code>definitie_geschiedenis</code> tabel.</p>
+
+<h3>Belangrijkste Bevindingen</h3>
+<ul>
+<li>**94 geschiedenis entries** aanwezig in database (niet gebruikt)</li>
+<li>**40 definities** beschikbaar voor weergave</li>
+<li>**Audit trail placeholder** op regel 396: "Feature komt binnenkort beschikbaar"</li>
+<li>**US-068** open voor audit trail implementatie</li>
+</ul>
+
+<p>---</p>
+
+<h2>1. VOLLEDIGE FUNCTIONALITEIT INVENTARISATIE</h2>
+
+<h3>✅ GEÏMPLEMENTEERDE FEATURES</h3>
+
+<p>| Feature | Regels | Status | Business Waarde |</p>
+<p>|---------|--------|--------|-----------------|</p>
+<p>| <strong>Filter Controls</strong> | 42-112 | ✅ Werkend | Snel zoeken in historie |</p>
+<p>| Tijdsperiode filter | 50-66 | ✅ Volledig | Week/maand/3 maanden/custom |</p>
+<p>| Status filter | 70-74 | ✅ Werkend | Filter op draft/review/established |</p>
+<p>| Context filter | 77-91 | ✅ Dynamisch | Filter op organisatorische context |</p>
+<p>| Zoekfunctionaliteit | 95-99 | ✅ Werkend | Tekstueel zoeken in begrip/definitie |</p>
+<p>| <strong>Overview Dashboard</strong> | 114-170 | ✅ Compleet | Management overzicht |</p>
+<p>| Metrics (4 KPIs) | 129-163 | ✅ Live data | Totaal/Vastgesteld/Review/Score |</p>
+<p>| Timeline Chart | 285-324 | ✅ Visueel | Bar chart activiteit per dag |</p>
+<p>| <strong>Detailed History</strong> | 171-220 | ✅ Functioneel | Lijst van definities |</p>
+<p>| Pagination | 184-216 | ✅ Werkend | 10 items per pagina |</p>
+<p>| History Items | 221-283 | ✅ Rich UI | Status, scores, timestamps |</p>
+<p>| <strong>Statistics</strong> | 326-353 | ✅ Expandable | Gedetailleerde statistieken |</p>
+<p>| Status verdeling | 335-338 | ✅ Live | Groepering per status |</p>
+<p>| Categorie verdeling | 341-344 | ✅ Live | Groepering per categorie |</p>
+<p>| <strong>Detail Views</strong> | 355-391 | ✅ Modals | Pop-up detail informatie |</p>
+<p>| Definitie details | 355-391 | ✅ Volledig | Metadata, context, scores |</p>
+<p>| Version info | 374 | ✅ Getoond | Version_number veld |</p>
+<p>| <strong>Audit Trail</strong> | 393-398 | ❌ PLACEHOLDER | "Feature komt binnenkort" |</p>
+
+<h3>🔴 ONTBREKENDE FEATURES (US-068)</h3>
+
+<p>| Feature | Requirement | Impact | Prioriteit |</p>
+<p>|---------|------------|--------|------------|</p>
+<p>| Audit Trail Query | REQ-045 | Geen wijzigingshistorie | HIGH |</p>
+<p>| Version Diff Viewer | US-068 | Geen vergelijking | MEDIUM |</p>
+<p>| Change Reasons | Database aanwezig | Niet getoond | MEDIUM |</p>
+<p>| Export History | US-068 | Geen compliance export | LOW |</p>
+<p>| Role-based Filtering | Privacy | Alle data zichtbaar | MEDIUM |</p>
+
+<p>---</p>
+
+<h2>2. DATABASE ANALYSE</h2>
+
+<h3>📊 Database Structuur</h3>
+
+<h4>`definitie_geschiedenis` Tabel (Regels 97-119 in schema.sql)</h4>
+<pre><code>CREATE TABLE definitie_geschiedenis (
+    id INTEGER PRIMARY KEY,
+    definitie_id INTEGER NOT NULL,
+    begrip VARCHAR(255) NOT NULL,
+    definitie_oude_waarde TEXT,
+    definitie_nieuwe_waarde TEXT,
+    wijziging_type VARCHAR(50),  -- created/updated/status_changed/approved/archived
+    wijziging_reden TEXT,
+    gewijzigd_door VARCHAR(255),
+    gewijzigd_op TIMESTAMP,
+    context_snapshot TEXT  -- JSON
+);</code></pre>
+
+<h3>📈 Huidige Data Status</h3>
+<ul>
+<li>**94 geschiedenis entries** aanwezig ✅</li>
+<li>**Triggers actief** voor auto-logging (regel 235-258)</li>
+<li>**Indices aanwezig** voor performance</li>
+<li>**Data wordt WEL opgeslagen** maar NIET opgehaald</li>
+</ul>
+
+<h3>🔍 Repository Methoden</h3>
+<pre><code># AANWEZIG in definitie_repository.py
+def _log_geschiedenis()  # Regel 1282 - Schrijft naar geschiedenis
+
+# ONTBREEKT
+def get_audit_trail()    # ❌ Niet geïmplementeerd
+def get_version_diff()   # ❌ Niet geïmplementeerd
+def get_history()        # ❌ Niet geïmplementeerd</code></pre>
+
+<p>---</p>
+
+<h2>3. DEPENDENCIES & INTEGRATIE</h2>
+
+<h3>Import Dependencies</h3>
+<pre><code># Regel 5-18 in history_tab.py
+from datetime import UTC, datetime, timedelta
+import pandas as pd  # Voor timeline chart
+import streamlit as st
+from database.definitie_repository import DefinitieRecord, DefinitieRepository
+from ui.session_state import SessionStateManager</code></pre>
+
+<h3>Waar Gebruikt</h3>
+<ul>
+<li>`src/ui/tabbed_interface.py:64` - Import HistoryTab</li>
+<li>`src/ui/tabbed_interface.py:185` - Instantiatie met repository</li>
+<li>`src/ui/tabbed_interface.py:1610` - Render aanroep</li>
+</ul>
+
+<h3>Session State Dependencies</h3>
+<ul>
+<li>`history_filters` - Bewaard filterstate</li>
+<li>`history_date_range` - Geselecteerde periode</li>
+<li>`history_status_filter` - Status selectie</li>
+<li>`history_context_filter` - Context selectie</li>
+<li>`history_search` - Zoekterm</li>
+<li>`history_page` - Huidige pagina</li>
+</ul>
+
+<p>---</p>
+
+<h2>4. BESTAANDE REQUIREMENTS COVERAGE</h2>
+
+<h3>US-068: Audit Trail Query Implementation</h3>
+<p><strong>Status:</strong> 🔴 OPEN - Niet geïmplementeerd</p>
+
+<p>| Criterium | Status | Implementatie |</p>
+<p>|-----------|--------|--------------|</p>
+<p>| Audit trail alle wijzigingen | ❌ | Placeholder op regel 396 |</p>
+<p>| Wie/Wat/Wanneer/Waarom | ❌ | Data aanwezig, niet getoond |</p>
+<p>| Datum range filter | ✅ | Regel 50-66 (voor definities) |</p>
+<p>| Type wijziging filter | ❌ | Geen UI element |</p>
+<p>| Gebruiker filter | ❌ | Geen UI element |</p>
+<p>| CSV/JSON Export | ❌ | Niet aanwezig |</p>
+<p>| Timeline view | ✅ | Regel 285-324 (voor definities) |</p>
+<p>| Version diffs | ❌ | Niet geïmplementeerd |</p>
+<p>| Compare side-by-side | ❌ | Niet geïmplementeerd |</p>
+
+<p>---</p>
+
+<h2>5. PERFORMANCE & GEBRUIK</h2>
+
+<h3>Performance Karakteristieken</h3>
+<ul>
+<li>**Lazy loading** via pagination (10 items)</li>
+<li>**Max 1000 definities** ophalen (regel 417)</li>
+<li>**Caching** niet geïmplementeerd</li>
+<li>**Indices** aanwezig in database</li>
+</ul>
+
+<h3>Actueel Gebruik</h3>
+<ul>
+<li>Tab is **actief en bereikbaar**</li>
+<li>Toont **echte definitie data**</li>
+<li>Audit trail wordt **opgevraagd maar niet gebruikt**</li>
+<li>**94 geschiedenis entries** worden genegeerd</li>
+</ul>
+
+<p>---</p>
+
+<h2>6. TECHNISCHE SCHULD & RISICO'S</h2>
+
+<h3>🚨 Kritieke Issues</h3>
+
+<ol>
+<li>**AUDIT TRAIL NIET WERKEND**</li>
+</ol>
+<ul>
+<li>  - Compliance risico</li>
+<li>  - Traceability ontbreekt</li>
+<li>  - Business requirement niet vervuld</li>
+</ul>
+
+<ol>
+<li>**PERFORMANCE RISICO**</li>
+</ol>
+<ul>
+<li>  - Geen caching mechanisme</li>
+<li>  - Volledige reload bij filters</li>
+<li>  - 1000 record limiet hardcoded</li>
+</ul>
+
+<ol>
+<li>**DATA INTEGRITEIT**</li>
+</ol>
+<ul>
+<li>  - Geschiedenis wordt gelogd maar niet gevalideerd</li>
+<li>  - Geen controle op missing entries</li>
+<li>  - Context snapshot mogelijk corrupt</li>
+</ul>
+
+<h3>💡 Quick Wins</h3>
+
+<ol>
+<li>**Implementeer `get_audit_trail()` methode**</li>
+<pre><code>   def get_audit_trail(self, definitie_id: int):
+       query = """
+       SELECT * FROM definitie_geschiedenis
+       WHERE definitie_id = ?
+       ORDER BY gewijzigd_op DESC
+       """
+       return self.execute_query(query, (definitie_id,))</code></pre>
+</ol>
+
+<ol>
+<li>**Vervang placeholder op regel 396**</li>
+<pre><code>   # Van:
+   st.info("Feature komt binnenkort")
+   # Naar:
+   audit_data = self.repository.get_audit_trail(definitie.id)
+   self._render_audit_entries(audit_data)</code></pre>
+</ol>
+
+<ol>
+<li>**Add caching decorator**</li>
+<pre><code>   @st.cache_data(ttl=300)
+   def _get_filtered_definitions(...)</code></pre>
+</ol>
+
+<p>---</p>
+
+<h2>7. AANBEVELINGEN</h2>
+
+<h3>🎯 Prioriteit 1: Audit Trail Activeren</h3>
+<ol>
+<li>Implementeer `get_audit_trail()` in repository</li>
+<li>Maak UI component voor audit entries</li>
+<li>Test met bestaande 94 entries</li>
+</ol>
+
+<h3>🎯 Prioriteit 2: Performance Optimalisatie</h3>
+<ol>
+<li>Voeg caching toe aan queries</li>
+<li>Implementeer incremental loading</li>
+<li>Optimaliseer timeline aggregatie</li>
+</ol>
+
+<h3>🎯 Prioriteit 3: Compliance Features</h3>
+<ol>
+<li>Export functionaliteit (CSV/JSON)</li>
+<li>Version comparison tool</li>
+<li>Change reason tracking</li>
+</ol>
+
+<p>---</p>
+
+<h2>8. IMPLEMENTATIE ROADMAP</h2>
+
+<h3>Fase 1: Core Audit Trail (1-2 dagen)</h3>
+<ul>
+<li>[ ] Repository methode voor geschiedenis</li>
+<li>[ ] UI component voor audit entries</li>
+<li>[ ] Basic filtering</li>
+</ul>
+
+<h3>Fase 2: Advanced Features (2-3 dagen)</h3>
+<ul>
+<li>[ ] Version diff viewer</li>
+<li>[ ] Export functionaliteit</li>
+<li>[ ] Advanced filters</li>
+</ul>
+
+<h3>Fase 3: Optimalisatie (1 dag)</h3>
+<ul>
+<li>[ ] Caching implementatie</li>
+<li>[ ] Performance tuning</li>
+<li>[ ] User feedback</li>
+</ul>
+
+<p>---</p>
+
+<h2>CONCLUSIE</h2>
+
+<p>De Geschiedenis tab is een <strong>rijke, goed gestructureerde UI component</strong> met uitstekende visualisaties en filtering. De <strong>kritieke tekortkoming</strong> is het ontbreken van echte audit trail functionaliteit, ondanks dat:</p>
+
+<ol>
+<li>**Database structuur** volledig aanwezig is</li>
+<li>**94 geschiedenis entries** al bestaan</li>
+<li>**UI placeholder** klaar staat</li>
+<li>**Requirements** duidelijk gedefinieerd zijn in US-068</li>
+</ol>
+
+<p><strong>Geschatte effort voor volledig werkend:</strong> 3-5 dagen ontwikkeling</p>
+
+<h3>Business Impact Score: 7/10</h3>
+<ul>
+<li>Huidige functionaliteit: 5/10 (basis historie)</li>
+<li>Potentieel na audit trail: 9/10 (volledige compliance)</li>
+<li>ROI: Hoog (compliance + traceability)</li>
+</ul>
+
+<p>---</p>
+
+<p><em>Dit rapport is gegenereerd op basis van code analyse van commit 4a26a86</em></p>
+  </div>
+</body>
+</html>

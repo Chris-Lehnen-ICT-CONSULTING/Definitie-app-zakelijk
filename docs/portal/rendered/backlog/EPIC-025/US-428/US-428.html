@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Resolve Agent Instruction Conflicts</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>aangemaakt: 2025-09-30</p>
+<p>applies_to: definitie-app@current</p>
+<p>bijgewerkt: 2025-09-30</p>
+<p>canonical: false</p>
+<p>epic: EPIC-025</p>
+<p>id: US-428</p>
+<p>last_verified: 2025-09-30</p>
+<p>owner: process-guardian</p>
+<p>prioriteit: P1</p>
+<p>sprint: 1</p>
+<p>status: pending</p>
+<p>story_points: 1</p>
+<p>titel: Resolve Agent Instruction Conflicts</p>
+<p>---</p>
+
+<h1>US-428: Resolve Agent Instruction Conflicts</h1>
+
+<h2>User Story</h2>
+
+<p><strong>Als</strong> AI agent (Claude/Codex/BMad)</p>
+<p><strong>Wil ik</strong> één duidelijke instructiebron</p>
+<p><strong>Zodat</strong> ik weet welke regels te volgen zonder conflicten</p>
+
+<h2>Description</h2>
+
+<p>Resolve conflict tussen 3 agent instruction sources:</p>
+
+<ol>
+<li>`CLAUDE.md` (376 regels, project-specific)</li>
+<li>`~/.ai-agents/UNIFIED_INSTRUCTIONS.md` (220 regels, generiek)</li>
+<li>`AGENTS.md` (5749 regels, BMad method)</li>
+</ol>
+
+<p>CLAUDE.md zegt "Unified instructions > dit document" maar bevat overlapping content.</p>
+
+<h2>Acceptance Criteria</h2>
+
+<ul>
+<li>[ ] CLAUDE.md contains ONLY project-specific rules</li>
+<li>[ ] UNIFIED_INSTRUCTIONS precedence explicitly stated</li>
+<li>[ ] Agent name mapping table added (TDD ↔ Codex ↔ Claude ↔ BMad)</li>
+<li>[ ] No overlapping/conflicting rules</li>
+<li>[ ] Clear which document for which purpose</li>
+</ul>
+
+<h2>Tasks</h2>
+
+<ol>
+<li>**Refactor CLAUDE.md (1h)**</li>
+</ol>
+<ul>
+<li>  - Remove generieke regels (defer naar UNIFIED)</li>
+<li>  - Keep only DefinitieAgent-specific patterns</li>
+<li>  - Add explicit precedence statement</li>
+<li>  - Add agent mapping table</li>
+</ul>
+
+<ol>
+<li>**Update UNIFIED_INSTRUCTIONS.md (30min)**</li>
+</ol>
+<ul>
+<li>  - Clarify precedence over project docs</li>
+<li>  - Deduplicate overlap with CLAUDE.md</li>
+<li>  - Reference CLAUDE.md for project specifics</li>
+</ul>
+
+<ol>
+<li>**Create Agent Mapping Table (30min)**</li>
+<pre><code>   | Workflow Role | Codex | Claude | BMad |
+   |---------------|-------|--------|------|
+   | Business Analysis | analyst | Analysis mode | bmad-analyst |
+   | Architecture | architect | Design mode | bmad-architect |
+   | Development | dev | Implementation | bmad-dev |</code></pre>
+</ol>
+
+<h2>Validation</h2>
+
+<pre><code># No "conflict" mentions in CLAUDE.md
+grep -c "conflict" CLAUDE.md
+# Expected: 0 (or only in historical context)
+
+# Precedence clearly stated
+grep "precedence\|priority" CLAUDE.md
+# Expected: Clear statement found
+
+# Mapping table exists
+grep "Agent.*Mapping\|TDD.*Codex" CLAUDE.md
+# Expected: Table found</code></pre>
+
+<h2>Dependencies</h2>
+
+<ul>
+<li>Process Guardian analysis report</li>
+<li>Understanding of all 3 instruction systems</li>
+</ul>
+
+<h2>Owner</h2>
+
+<p><strong>Agent:</strong> ⚙️ Process Guardian Agent</p>
+<p><strong>Effort:</strong> 2 hours</p>
+<p><strong>Sprint:</strong> 1</p>
+
+<h2>Notes</h2>
+
+<ul>
+<li>Preserve BMad-specific content in AGENTS.md (don't modify)</li>
+<li>UNIFIED_INSTRUCTIONS is shared across projects (careful with edits)</li>
+<li>Focus on clarity, not perfection</li>
+</ul>
+
+<h2>Related</h2>
+
+<ul>
+<li>**Epic:** EPIC-025</li>
+<li>**Agent Report:** Finding #3 (Agent Instruction Conflict)</li>
+</ul>
+
+  </div>
+</body>
+</html>
