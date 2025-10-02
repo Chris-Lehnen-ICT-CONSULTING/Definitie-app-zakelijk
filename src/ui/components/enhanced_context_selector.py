@@ -9,11 +9,8 @@ from dataclasses import dataclass
 
 import streamlit as st
 
-from config.context_options import (
-    COMMON_LAWS,
-    LEGAL_DOMAINS,
-    ORGANIZATIONS as ASTRA_ORGANIZATIONS,
-)
+from config.context_options import COMMON_LAWS, LEGAL_DOMAINS
+from config.context_options import ORGANIZATIONS as ASTRA_ORGANIZATIONS
 from ui.helpers.context_adapter import get_context_adapter
 
 

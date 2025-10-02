@@ -15,8 +15,8 @@ import plotly.graph_objects as go
 import streamlit as st
 
 from config.feature_flags import FeatureFlags
-from ui.helpers.feature_toggle import render_legacy_warning
 from database.definitie_repository import DefinitieRepository
+from ui.helpers.feature_toggle import render_legacy_warning
 from ui.session_state import SessionStateManager
 
 
@@ -45,9 +45,7 @@ class OrchestrationTab:
             return
 
         # Always show archive notice when legacy tab is forced on
-        st.warning(
-            "⚠️ Legacy agent is gearchiveerd; gebruik V2‑iteraties (EPIC‑017)."
-        )
+        st.warning("⚠️ Legacy agent is gearchiveerd; gebruik V2‑iteraties (EPIC‑017).")
 
         if not self.DefinitieAgent:
             st.error("❌ Orchestration Agent niet beschikbaar")
@@ -461,7 +459,9 @@ class OrchestrationTab:
         # Overview metrics (derive from V2 fields)
         validation = agent_result.get("validation_details", {}) or {}
         meta = agent_result.get("metadata", {}) or {}
-        iterations = meta.get("iterations", [])  # Non-contract field we attach for visualization
+        iterations = meta.get(
+            "iterations", []
+        )  # Non-contract field we attach for visualization
 
         col1, col2, col3, col4 = st.columns(4)
         with col1:
@@ -485,7 +485,9 @@ class OrchestrationTab:
                     with st.container():
                         col1, col2, col3 = st.columns([1, 2, 1])
                         with col1:
-                            st.write(f"**Iteratie {iteration.get('iteration_number')}**")
+                            st.write(
+                                f"**Iteratie {iteration.get('iteration_number')}**"
+                            )
                             st.write(f"Score: {iteration.get('score', 0.0):.3f}")
                             st.write(f"Violations: {iteration.get('violations', 0)}")
                         with col2:

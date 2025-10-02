@@ -5,8 +5,8 @@ Tests that the fix in service_factory.py line 297 properly handles
 missing 'overall_score' in validation_details.
 """
 
-import sys
 import os
+import sys
 
 # Add project root to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
@@ -60,9 +60,10 @@ def test_get_with_default():
 def test_normalize_validation_always_includes_overall_score():
     """Test that normalize_validation always includes overall_score in output."""
 
-    from src.services.service_factory import ServiceAdapter
-    from src.services.container import ServiceContainer
     from unittest.mock import MagicMock
+
+    from src.services.container import ServiceContainer
+    from src.services.service_factory import ServiceAdapter
 
     # Create a mock container
     container = MagicMock(spec=ServiceContainer)
@@ -82,28 +83,33 @@ def test_normalize_validation_always_includes_overall_score():
     for input_val, description in test_cases:
         result = adapter.normalize_validation(input_val)
         assert "overall_score" in result, f"Missing overall_score for {description}"
-        assert isinstance(result["overall_score"], (int, float)), f"Invalid type for {description}"
-        print(f"✓ normalize_validation({description}): overall_score = {result['overall_score']}")
+        assert isinstance(
+            result["overall_score"], (int, float)
+        ), f"Invalid type for {description}"
+        print(
+            f"✓ normalize_validation({description}): overall_score = {result['overall_score']}"
+        )
 
     print("\nnormalize_validation always includes 'overall_score' in output.")
 
 
 if __name__ == "__main__":
     print("Testing overall_score KeyError fix...\n")
-    print("="*50)
+    print("=" * 50)
     print("Test 1: .get() with default value")
-    print("="*50)
+    print("=" * 50)
     test_get_with_default()
 
-    print("\n" + "="*50)
+    print("\n" + "=" * 50)
     print("Test 2: normalize_validation output")
-    print("="*50)
+    print("=" * 50)
     test_normalize_validation_always_includes_overall_score()
 
-    print("\n" + "="*50)
+    print("\n" + "=" * 50)
     print("CONCLUSION: The fix is ROBUST")
-    print("="*50)
-    print("""
+    print("=" * 50)
+    print(
+        """
 The change from:
     "final_score": validation_details["overall_score"]
 
@@ -119,4 +125,5 @@ Is a robust fix that:
 The root cause analysis shows that normalize_validation() ALWAYS includes
 'overall_score' in its output, so this should rarely happen. However, the
 defensive .get() approach is still good practice for robustness.
-""")
+"""
+    )

@@ -15,7 +15,6 @@ Key improvements:
 """
 
 import logging
-import os
 import time
 import uuid
 from datetime import UTC, datetime
@@ -23,27 +22,25 @@ from datetime import UTC, datetime
 UTC = UTC  # Python 3.10 compatibility  # noqa: PLW0127
 from typing import TYPE_CHECKING, Any, Optional
 
-from utils.dict_helpers import safe_dict_get
-from utils.type_helpers import ensure_list, ensure_dict, ensure_string
-from utils.error_helpers import safe_execute, error_handler
-
+from services.interfaces import AIServiceInterface as IntelligentAIService
 from services.interfaces import (
-    AIServiceInterface as IntelligentAIService,
     CleaningServiceInterface,
     Definition,
     DefinitionOrchestratorInterface,
     DefinitionRepositoryInterface,
     DefinitionResponseV2,
-    EnhancementServiceInterface as EnhancementService,
-    FeedbackEngineInterface as FeedbackEngine,
-    GenerationRequest,
-    MonitoringServiceInterface as MonitoringService,
-    OrchestratorConfig,
-    PromptServiceInterface as PromptServiceV2,
-    SecurityServiceInterface as SecurityService,
-    ValidationResult,
 )
+from services.interfaces import EnhancementServiceInterface as EnhancementService
+from services.interfaces import FeedbackEngineInterface as FeedbackEngine
+from services.interfaces import GenerationRequest
+from services.interfaces import MonitoringServiceInterface as MonitoringService
+from services.interfaces import OrchestratorConfig
+from services.interfaces import PromptServiceInterface as PromptServiceV2
+from services.interfaces import SecurityServiceInterface as SecurityService
+from services.interfaces import ValidationResult
 from services.validation.interfaces import ValidationOrchestratorInterface
+from utils.dict_helpers import safe_dict_get
+from utils.type_helpers import ensure_dict, ensure_list, ensure_string
 
 logger = logging.getLogger(__name__)
 
@@ -141,11 +138,11 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             "service_mode": "orchestrator_v2",
             "architecture": "microservices",
             "version": "2.0",
-            "validation_service": "V2"
+            "validation_service": "V2",
         }
 
         # Get rule count from validation service if available
-        if hasattr(self.validation_service, 'get_stats'):
+        if hasattr(self.validation_service, "get_stats"):
             try:
                 stats = self.validation_service.get_stats()
                 info["rule_count"] = safe_dict_get(stats, "total_rules", 0)
@@ -158,15 +155,10 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
 
     def get_stats(self) -> dict:
         """Get statistics from orchestrator and services."""
-        stats = {
-            "orchestrator": {
-                "requests_processed": 0,
-                "success_rate": 0.0
-            }
-        }
+        stats = {"orchestrator": {"requests_processed": 0, "success_rate": 0.0}}
 
         # Include validation stats if available
-        if hasattr(self.validation_service, 'get_stats'):
+        if hasattr(self.validation_service, "get_stats"):
             try:
                 stats["validation"] = self.validation_service.get_stats()
             except Exception:
@@ -249,8 +241,11 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             debug_info = None  # Ensure defined even when web lookup is unavailable
             # Allow timeout override via env for environments with slower network
             import os
+
             try:
-                WEB_LOOKUP_TIMEOUT = float(os.getenv("WEB_LOOKUP_TIMEOUT_SECONDS", "10.0"))
+                WEB_LOOKUP_TIMEOUT = float(
+                    os.getenv("WEB_LOOKUP_TIMEOUT_SECONDS", "10.0")
+                )
             except Exception:
                 WEB_LOOKUP_TIMEOUT = 10.0
 
@@ -275,6 +270,7 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
 
                     # Allow broader result set so UI can show all hits
                     import os as _os
+
                     try:
                         _max_res = int(_os.getenv("WEB_LOOKUP_MAX_RESULTS", "20"))
                     except Exception:
@@ -290,16 +286,19 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
 
                     # Add timeout protection for web lookup
                     import asyncio
+
                     web_results = await asyncio.wait_for(
                         self.web_lookup_service.lookup(lookup_request),
-                        timeout=WEB_LOOKUP_TIMEOUT
+                        timeout=WEB_LOOKUP_TIMEOUT,
                     )
                     logger.info(
                         f"Generation {generation_id}: Web lookup returned {len(web_results) if web_results else 0} results"
                     )
                     # Capture debug info from service if available
                     try:
-                        debug_info = getattr(self.web_lookup_service, "_last_debug", None)
+                        debug_info = getattr(
+                            self.web_lookup_service, "_last_debug", None
+                        )
                     except Exception:
                         debug_info = None
 
@@ -347,9 +346,11 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                     logger.info(
                         f"Generation {generation_id}: Web lookup enriched context with {len(provenance_sources)} sources"
                     )
-                    web_lookup_status = "success" if provenance_sources else "no_results"
+                    web_lookup_status = (
+                        "success" if provenance_sources else "no_results"
+                    )
 
-                except asyncio.TimeoutError:
+                except TimeoutError:
                     logger.warning(
                         f"Generation {generation_id}: Web lookup timeout after {WEB_LOOKUP_TIMEOUT} seconds - "
                         f"proceeding WITHOUT external context"
@@ -375,7 +376,11 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             # PHASE 2.9: Merge document snippets into provenance sources (EPIC-018)
             # =====================================
             try:
-                docs_ctx = ensure_dict(safe_dict_get(context, "documents", {})) if context else {}
+                docs_ctx = (
+                    ensure_dict(safe_dict_get(context, "documents", {}))
+                    if context
+                    else {}
+                )
                 doc_snippets = ensure_list(safe_dict_get(docs_ctx, "snippets", []))
                 if doc_snippets:
                     normalized_docs = []
@@ -384,10 +389,18 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                             normalized_docs.append(
                                 {
                                     "provider": "documents",
-                                    "title": ensure_string(safe_dict_get(s, "title") or safe_dict_get(s, "filename") or "document"),
+                                    "title": ensure_string(
+                                        safe_dict_get(s, "title")
+                                        or safe_dict_get(s, "filename")
+                                        or "document"
+                                    ),
                                     "url": safe_dict_get(s, "url"),
-                                    "snippet": ensure_string(safe_dict_get(s, "snippet", "")),
-                                    "score": float(safe_dict_get(s, "score", 0.0) or 0.0),
+                                    "snippet": ensure_string(
+                                        safe_dict_get(s, "snippet", "")
+                                    ),
+                                    "score": float(
+                                        safe_dict_get(s, "score", 0.0) or 0.0
+                                    ),
                                     "used_in_prompt": True,
                                     "doc_id": safe_dict_get(s, "doc_id"),
                                     "source_label": "Geüpload document",
@@ -396,7 +409,9 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                         except Exception:
                             continue
                     if normalized_docs:
-                        provenance_sources = normalized_docs + (provenance_sources or [])
+                        provenance_sources = normalized_docs + (
+                            provenance_sources or []
+                        )
                         context = context or {}
                         context["documents"] = {"snippets": normalized_docs}
             except Exception:
@@ -580,7 +595,11 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             try:
                 if sanitized_request.options:
                     # Expliciet doorgeven van force_duplicate voor duplicate-escalatie
-                    if bool(safe_dict_get(sanitized_request.options, "force_duplicate", False)):
+                    if bool(
+                        safe_dict_get(
+                            sanitized_request.options, "force_duplicate", False
+                        )
+                    ):
                         meta["force_duplicate"] = True
                     # Bewaar volledige options voor toekomstig gebruik (niet verplicht)
                     meta["options"] = dict(sanitized_request.options)
@@ -594,7 +613,8 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             temp_definition = Definition(
                 begrip=sanitized_request.begrip,
                 definitie=cleaned_text,
-                organisatorische_context=sanitized_request.organisatorische_context or [],
+                organisatorische_context=sanitized_request.organisatorische_context
+                or [],
                 juridische_context=sanitized_request.juridische_context or [],
                 wettelijke_basis=sanitized_request.wettelijke_basis or [],
                 ontologische_categorie=sanitized_request.ontologische_categorie,
@@ -607,6 +627,7 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             # Normalize to schema-conform dict for internal decisions
             try:
                 from services.validation.mappers import ensure_schema_compliance
+
                 validation_result = ensure_schema_compliance(raw_validation)
             except Exception:
                 # Defensive fallback to simple mapping
@@ -655,7 +676,8 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                 enhanced_definition = Definition(
                     begrip=sanitized_request.begrip,
                     definitie=enhanced_text,
-                    organisatorische_context=sanitized_request.organisatorische_context or [],
+                    organisatorische_context=sanitized_request.organisatorische_context
+                    or [],
                     juridische_context=sanitized_request.juridische_context or [],
                     wettelijke_basis=sanitized_request.wettelijke_basis or [],
                     ontologische_categorie=sanitized_request.ontologische_categorie,
@@ -667,6 +689,7 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                 )
                 try:
                     from services.validation.mappers import ensure_schema_compliance
+
                     validation_result = ensure_schema_compliance(raw_validation)
                 except Exception:
                     is_ok = getattr(raw_validation, "is_valid", False)
@@ -721,7 +744,15 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                     "prompt_text": prompt_result.text if prompt_result else "",
                     "prompt_template": prompt_result.text if prompt_result else "",
                     # Doorgeven van force_duplicate voor downstream repository
-                    "force_duplicate": bool(safe_dict_get(sanitized_request.options, "force_duplicate", False)) if getattr(sanitized_request, "options", None) else False,
+                    "force_duplicate": (
+                        bool(
+                            safe_dict_get(
+                                sanitized_request.options, "force_duplicate", False
+                            )
+                        )
+                        if getattr(sanitized_request, "options", None)
+                        else False
+                    ),
                 },
             )
 
@@ -878,7 +909,9 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             ontologische_categorie=request.ontologische_categorie,  # V2: Properly set
             ufo_categorie=getattr(request, "ufo_categorie", None),
             valid=safe_dict_get(validation_result, "is_acceptable", False),
-            validation_violations=ensure_list(safe_dict_get(validation_result, "violations", [])),
+            validation_violations=ensure_list(
+                safe_dict_get(validation_result, "violations", [])
+            ),
             metadata=generation_metadata,
             created_by=request.actor,
             created_at=datetime.now(UTC),

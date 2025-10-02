@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 """Fix all test files that use domein parameter (removed per US-043)."""
 
-import re
 import os
-from pathlib import Path
+import re
+
 
 def fix_domein_in_file(filepath):
     """Remove or comment out domein= parameters in test file."""
 
-    with open(filepath, 'r') as f:
+    with open(filepath) as f:
         content = f.read()
 
     original_content = content
@@ -16,44 +16,43 @@ def fix_domein_in_file(filepath):
     # Pattern 1: domein="..." as parameter in function calls
     # Replace with comment showing it was removed
     content = re.sub(
-        r',?\s*domein\s*=\s*["\'][^"\']*["\']',
-        '',  # Remove completely
-        content
+        r',?\s*domein\s*=\s*["\'][^"\']*["\']', "", content  # Remove completely
     )
 
     # Pattern 2: domein=variable as parameter
     content = re.sub(
         r',?\s*domein\s*=\s*[a-zA-Z_][a-zA-Z0-9_]*(?!["\'])',
-        '',  # Remove completely
-        content
+        "",  # Remove completely
+        content,
     )
 
     # Pattern 3: In Definition() constructor specifically
     content = re.sub(
         r'(\s+)(domein\s*=\s*["\'][^"\']*["\'],?\s*\n)',
-        r'\1# \2',  # Comment out the line
-        content
+        r"\1# \2",  # Comment out the line
+        content,
     )
 
     # Pattern 4: In dataclass/dict definitions
     content = re.sub(
         r'(["\']domein["\']\s*:\s*["\'][^"\']*["\'])',
-        r'# \1  # removed per US-043',
-        content
+        r"# \1  # removed per US-043",
+        content,
     )
 
     # Clean up any double commas that might result
-    content = re.sub(r',\s*,', ',', content)
+    content = re.sub(r",\s*,", ",", content)
 
     # Clean up any trailing commas before closing parentheses
-    content = re.sub(r',\s*\)', ')', content)
+    content = re.sub(r",\s*\)", ")", content)
 
     # If changes were made, write back
     if content != original_content:
-        with open(filepath, 'w') as f:
+        with open(filepath, "w") as f:
             f.write(content)
         return True
     return False
+
 
 def main():
     """Fix all test files."""
@@ -89,6 +88,7 @@ def main():
     print(f"\n{'='*60}")
     print(f"Fixed {fixed_count} files")
     print(f"{'='*60}")
+
 
 if __name__ == "__main__":
     main()

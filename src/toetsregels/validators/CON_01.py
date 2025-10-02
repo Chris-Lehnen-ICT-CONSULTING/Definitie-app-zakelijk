@@ -73,7 +73,8 @@ class CON01Validator:
                 contexten = context.get("contexten") or {}
             else:
                 contexten = {
-                    "organisatorische_context": context.get("organisatorische_context") or [],
+                    "organisatorische_context": context.get("organisatorische_context")
+                    or [],
                     "juridische_context": context.get("juridische_context") or [],
                     "wettelijke_basis": context.get("wettelijke_basis") or [],
                 }

@@ -4,7 +4,7 @@ from services.validation.modular_validation_service import ModularValidationServ
 from toetsregels.manager import get_toetsregel_manager
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_int02_no_decision_rules_fail():
     svc = ModularValidationService(get_toetsregel_manager(), None, None)
     res = await svc.validate_definition(
@@ -16,7 +16,7 @@ async def test_int02_no_decision_rules_fail():
     assert any(v.get("code") == "INT-02" for v in res.get("violations", [])), res
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_int08_positive_formulation_fail():
     svc = ModularValidationService(get_toetsregel_manager(), None, None)
     res = await svc.validate_definition(
@@ -28,7 +28,7 @@ async def test_int08_positive_formulation_fail():
     assert any(v.get("code") == "INT-08" for v in res.get("violations", [])), res
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_int09_extension_definition_limitative_fail():
     svc = ModularValidationService(get_toetsregel_manager(), None, None)
     res = await svc.validate_definition(
@@ -40,7 +40,7 @@ async def test_int09_extension_definition_limitative_fail():
     assert any(v.get("code") == "INT-09" for v in res.get("violations", [])), res
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_int10_no_hidden_background_knowledge_fail():
     svc = ModularValidationService(get_toetsregel_manager(), None, None)
     res = await svc.validate_definition(
@@ -50,4 +50,3 @@ async def test_int10_no_hidden_background_knowledge_fail():
         context={},
     )
     assert any(v.get("code") == "INT-10" for v in res.get("violations", [])), res
-

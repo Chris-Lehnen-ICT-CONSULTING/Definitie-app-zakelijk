@@ -1,17 +1,16 @@
 import os
-import types
 import time as _time
+import types
 
 import pytest
 
-from services.policies.approval_gate_policy import (
-    DEFAULT_POLICY,
-    GatePolicyService,
-)
+from services.policies.approval_gate_policy import DEFAULT_POLICY, GatePolicyService
 
 
 class _StubYAML:
-    def __init__(self, base_path: str, overlay_path: str, base_data: dict, overlay_data: dict):
+    def __init__(
+        self, base_path: str, overlay_path: str, base_data: dict, overlay_data: dict
+    ):
         self._base_path = base_path
         self._overlay_path = overlay_path
         self._base_data = base_data
@@ -19,7 +18,7 @@ class _StubYAML:
 
     def safe_load(self, f):
         # Choose dataset by file name
-        name = getattr(f, 'name', '')
+        name = getattr(f, "name", "")
         if os.path.abspath(name) == os.path.abspath(self._base_path):
             return self._base_data
         if os.path.abspath(name) == os.path.abspath(self._overlay_path):
@@ -35,18 +34,21 @@ def test_policy_merge_and_ttl(monkeypatch, tmp_path):
 
     # Prepare fake yaml loader returning dicts based on file name
     base_data = {"thresholds": {"hard_min_score": 0.9}}
-    overlay_data = {"soft_requirements": {"missing_wettelijke_basis_soft": False}, "cache": {"ttl_seconds": 1}}
+    overlay_data = {
+        "soft_requirements": {"missing_wettelijke_basis_soft": False},
+        "cache": {"ttl_seconds": 1},
+    }
 
     stub_yaml = _StubYAML(str(base), str(overlay), base_data, overlay_data)
 
     # Patch yaml import helper
     monkeypatch.setattr(
-        'services.policies.approval_gate_policy._safe_import_yaml',
+        "services.policies.approval_gate_policy._safe_import_yaml",
         lambda: stub_yaml,
     )
 
     # Pretend files exist
-    monkeypatch.setenv('APPROVAL_GATE_CONFIG_OVERLAY', str(overlay))
+    monkeypatch.setenv("APPROVAL_GATE_CONFIG_OVERLAY", str(overlay))
 
     svc = GatePolicyService(base_path=str(base))
 
@@ -56,12 +58,14 @@ def test_policy_merge_and_ttl(monkeypatch, tmp_path):
     def fake_time():
         return t[0]
 
-    monkeypatch.setattr('time.time', fake_time)
+    monkeypatch.setattr("time.time", fake_time)
 
     # First load
     p1 = svc.get_policy()
     assert p1.hard_min_score == 0.9  # from base
-    assert p1.soft_requirements.get('missing_wettelijke_basis_soft') is False  # from overlay
+    assert (
+        p1.soft_requirements.get("missing_wettelijke_basis_soft") is False
+    )  # from overlay
     assert p1.ttl_seconds == 1
 
     # Within TTL → cached object
@@ -77,7 +81,10 @@ def test_policy_merge_and_ttl(monkeypatch, tmp_path):
 
 def test_policy_defaults_when_missing_yaml(monkeypatch, tmp_path):
     # Patch yaml to empty loader and os.path.exists to False
-    monkeypatch.setattr('services.policies.approval_gate_policy._safe_import_yaml', lambda: types.SimpleNamespace(safe_load=lambda f: {}))
+    monkeypatch.setattr(
+        "services.policies.approval_gate_policy._safe_import_yaml",
+        lambda: types.SimpleNamespace(safe_load=lambda f: {}),
+    )
 
     # Non-existing base path
     base_path = tmp_path / "does_not_exist.yaml"
@@ -85,7 +92,6 @@ def test_policy_defaults_when_missing_yaml(monkeypatch, tmp_path):
 
     policy = svc.get_policy()
     # Verify we fall back to DEFAULT_POLICY values
-    assert policy.hard_min_score == DEFAULT_POLICY['thresholds']['hard_min_score']
-    assert policy.soft_min_score == DEFAULT_POLICY['thresholds']['soft_min_score']
-    assert policy.hard_requirements['min_one_context_required'] is True
-
+    assert policy.hard_min_score == DEFAULT_POLICY["thresholds"]["hard_min_score"]
+    assert policy.soft_min_score == DEFAULT_POLICY["thresholds"]["soft_min_score"]
+    assert policy.hard_requirements["min_one_context_required"] is True

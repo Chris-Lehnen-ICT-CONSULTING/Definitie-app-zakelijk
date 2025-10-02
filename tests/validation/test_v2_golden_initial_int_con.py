@@ -22,7 +22,7 @@ class _FakeRepo:
         return list(self._defs)
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_int01_single_sentence_pass_and_multi_sentence_fail():
     svc = ModularValidationService(get_toetsregel_manager(), None, None)
 
@@ -34,7 +34,9 @@ async def test_int01_single_sentence_pass_and_multi_sentence_fail():
         ontologische_categorie=None,
         context={},
     )
-    assert not any(v.get("code") == "INT-01" for v in res_ok.get("violations", [])), res_ok
+    assert not any(
+        v.get("code") == "INT-01" for v in res_ok.get("violations", [])
+    ), res_ok
 
     # FAIL: meerzinnigheid en verbindingswoorden → zou INT-01 patterns moeten raken
     text_bad = (
@@ -47,15 +49,26 @@ async def test_int01_single_sentence_pass_and_multi_sentence_fail():
         ontologische_categorie=None,
         context={},
     )
-    assert any(v.get("code") == "INT-01" for v in res_bad.get("violations", [])), res_bad
+    assert any(
+        v.get("code") == "INT-01" for v in res_bad.get("violations", [])
+    ), res_bad
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_con01_forbidden_context_patterns_and_duplicate_signal():
     # Set up repo with existing definition → duplicate signal as warning
-    existing = _FakeDef(1, "registratie", org=["DJI"], jur=["strafrecht"], categorie="proces", status="established")
+    existing = _FakeDef(
+        1,
+        "registratie",
+        org=["DJI"],
+        jur=["strafrecht"],
+        categorie="proces",
+        status="established",
+    )
     repo = _FakeRepo([existing])
-    svc = ModularValidationService(get_toetsregel_manager(), None, None, repository=repo)
+    svc = ModularValidationService(
+        get_toetsregel_manager(), None, None, repository=repo
+    )
 
     # FAIL: explicit context mention should trigger CON-01
     text_bad = "Registratie is het formeel vastleggen van gegevens binnen de context van het strafrecht bij DJI."
@@ -69,13 +82,19 @@ async def test_con01_forbidden_context_patterns_and_duplicate_signal():
             "categorie": "proces",
         },
     )
-    assert any(v.get("code") == "CON-01" for v in res_bad.get("violations", [])), res_bad
+    assert any(
+        v.get("code") == "CON-01" for v in res_bad.get("violations", [])
+    ), res_bad
 
     # Also expect a duplicate-context warning via repo signal
     dup_warns = [
-        v for v in res_bad.get("violations", []) if v.get("code") == "CON-01" and v.get("severity") == "warning"
+        v
+        for v in res_bad.get("violations", [])
+        if v.get("code") == "CON-01" and v.get("severity") == "warning"
     ]
-    assert dup_warns, f"Expected CON-01 duplicate warning, got: {res_bad.get('violations', [])}"
+    assert (
+        dup_warns
+    ), f"Expected CON-01 duplicate warning, got: {res_bad.get('violations', [])}"
     assert dup_warns[0].get("metadata", {}).get("existing_definition_id") == 1
 
     # PASS: no explicit context wording → CON-01 should not appear (duplicate still may warn if same context)
@@ -91,6 +110,6 @@ async def test_con01_forbidden_context_patterns_and_duplicate_signal():
         },
     )
     assert not any(
-        v.get("code") == "CON-01" and v.get("severity") != "warning" for v in res_ok.get("violations", [])
+        v.get("code") == "CON-01" and v.get("severity") != "warning"
+        for v in res_ok.get("violations", [])
     ), res_ok
-

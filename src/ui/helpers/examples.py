@@ -9,8 +9,8 @@ Priority order:
 
 from __future__ import annotations
 
-from typing import Any, Dict
 import re
+from typing import Any
 
 from ui.session_state import SessionStateManager
 
@@ -34,13 +34,13 @@ def _to_list(val: Any) -> list[str]:
     return []
 
 
-def canonicalize_examples(raw: Dict[str, Any] | None) -> Dict[str, Any]:
+def canonicalize_examples(raw: dict[str, Any] | None) -> dict[str, Any]:
     """Map diverse voorbeeld-type keys naar de canonieke UI-sleutels.
 
     Returns dict met keys: voorbeeldzinnen, praktijkvoorbeelden, tegenvoorbeelden, synoniemen, antoniemen, toelichting.
     """
     data = raw or {}
-    out: Dict[str, Any] = {
+    out: dict[str, Any] = {
         "voorbeeldzinnen": [],
         "praktijkvoorbeelden": [],
         "tegenvoorbeelden": [],
@@ -110,7 +110,9 @@ def canonicalize_examples(raw: Dict[str, Any] | None) -> Dict[str, Any]:
     return out
 
 
-def resolve_examples(state_key: str, definition: Any | None, *, repository: Any | None = None) -> Dict[str, Any]:
+def resolve_examples(
+    state_key: str, definition: Any | None, *, repository: Any | None = None
+) -> dict[str, Any]:
     """Return examples dict using common resolution order.
 
     Args:
@@ -136,14 +138,17 @@ def resolve_examples(state_key: str, definition: Any | None, *, repository: Any 
                 v = md.get("voorbeelden") or {}
                 if isinstance(v, dict):
                     canon = canonicalize_examples(v)
-                    if any(canon.get(k) for k in (
-                        "voorbeeldzinnen",
-                        "praktijkvoorbeelden",
-                        "tegenvoorbeelden",
-                        "synoniemen",
-                        "antoniemen",
-                        "toelichting",
-                    )):
+                    if any(
+                        canon.get(k)
+                        for k in (
+                            "voorbeeldzinnen",
+                            "praktijkvoorbeelden",
+                            "tegenvoorbeelden",
+                            "synoniemen",
+                            "antoniemen",
+                            "toelichting",
+                        )
+                    ):
                         SessionStateManager.set_value(state_key, canon)
                         return canon
     except Exception:
@@ -165,10 +170,15 @@ def resolve_examples(state_key: str, definition: Any | None, *, repository: Any 
 
     # 4) Database fallback via repository (Expert/Edit)
     try:
-        if definition is not None and hasattr(definition, "id") and int(getattr(definition, "id")) > 0:
+        if (
+            definition is not None
+            and hasattr(definition, "id")
+            and int(definition.id) > 0
+        ):
             # Gebruik meegegeven repository indien beschikbaar, anders shared repo
             if repository is None:
                 from database.definitie_repository import get_definitie_repository
+
                 repo = get_definitie_repository()
             else:
                 repo = repository

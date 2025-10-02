@@ -10,14 +10,16 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 
 
-@pytest.mark.integration
-@pytest.mark.asyncio
+@pytest.mark.integration()
+@pytest.mark.asyncio()
 async def test_orchestrator_monitoring_token_count_and_components():
-    from services.orchestrators.definition_orchestrator_v2 import DefinitionOrchestratorV2
     from services.interfaces import (
         AIGenerationResult,
         CleaningResult,
         GenerationRequest,
+    )
+    from services.orchestrators.definition_orchestrator_v2 import (
+        DefinitionOrchestratorV2,
     )
 
     prompt_service = AsyncMock()
@@ -55,7 +57,12 @@ async def test_orchestrator_monitoring_token_count_and_components():
         "is_acceptable": True,
         "violations": [],
         "passed_rules": ["ALL-GOOD"],
-        "detailed_scores": {"taal": 0.9, "juridisch": 0.9, "structuur": 0.9, "samenhang": 0.9},
+        "detailed_scores": {
+            "taal": 0.9,
+            "juridisch": 0.9,
+            "structuur": 0.9,
+            "samenhang": 0.9,
+        },
         "system": {"correlation_id": "00000000-0000-0000-0000-000000000000"},
     }
 
@@ -74,7 +81,16 @@ async def test_orchestrator_monitoring_token_count_and_components():
 
     with patch(
         "voorbeelden.unified_voorbeelden.genereer_alle_voorbeelden_async",
-        new=AsyncMock(return_value={"voorbeeldzinnen": [], "praktijkvoorbeelden": [], "tegenvoorbeelden": [], "synoniemen": [], "antoniemen": [], "toelichting": ""}),
+        new=AsyncMock(
+            return_value={
+                "voorbeeldzinnen": [],
+                "praktijkvoorbeelden": [],
+                "tegenvoorbeelden": [],
+                "synoniemen": [],
+                "antoniemen": [],
+                "toelichting": "",
+            }
+        ),
     ):
         req = GenerationRequest(
             id="it-MON-1",
@@ -96,4 +112,3 @@ async def test_orchestrator_monitoring_token_count_and_components():
     assert kwargs.get("token_count") == 77
     # Components used should come from prompt_result.components_used
     assert kwargs.get("components_used") == ["ontologie_proces", "context_pack"]
-

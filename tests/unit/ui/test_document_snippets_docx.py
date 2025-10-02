@@ -2,7 +2,6 @@ import io
 
 import pytest
 
-
 docx = pytest.importorskip("docx")
 
 
@@ -52,4 +51,3 @@ def test_build_document_snippets_multiple_matches_with_citation():
     assert len(snippets) >= 2  # beide matches moeten gevonden worden
     # Controleer bronvermelding (DOCX → paragraaf label)
     assert all(s.get("citation_label", "").startswith("¶ ") for s in snippets)
-

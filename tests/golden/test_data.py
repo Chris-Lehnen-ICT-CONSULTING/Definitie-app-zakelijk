@@ -20,9 +20,8 @@ JURIDISCHE_DEFINITIES = {
             "geen_lidwoord": "Zekerheidsrecht op onroerend goed.",
             "voorbeelden": "Een zekerheidsrecht, bijvoorbeeld op een woning of kantoorpand.",
             "tegenstrijdig": "Een recht dat zowel zakelijk als persoonlijk is.",
-        }
+        },
     },
-
     "eigendom": {
         "correct": [
             "Het meest omvattende recht dat een persoon op een zaak kan hebben.",
@@ -35,9 +34,8 @@ JURIDISCHE_DEFINITIES = {
             "informeel": "Als iets van jou is.",
             "tegenstrijdig": "Het recht om te beschikken zonder te mogen gebruiken.",
             "te_complex": "Het recht dat ontstaat wanneer men krachtens titel en levering, dan wel door verjaring, occupatie, natrekking, vermenging, zaaksvorming, vruchtvorming of afscheiding, de rechthebbende wordt.",
-        }
+        },
     },
-
     "overeenkomst": {
         "correct": [
             "Een meerzijdige rechtshandeling waarbij partijen jegens elkaar verbintenissen aangaan.",
@@ -50,9 +48,8 @@ JURIDISCHE_DEFINITIES = {
             "vaag": "Wanneer mensen iets afspreken over iets.",
             "geen_juridisch": "Een belofte die je moet nakomen.",
             "met_spelling": "Een meerszijdige rechthandeling.",  # Spelling error
-        }
+        },
     },
-
     "verbintenis": {
         "correct": [
             "Een rechtsbetrekking tussen twee of meer personen waarbij de een jegens de ander tot een prestatie gerechtigd is.",
@@ -64,9 +61,8 @@ JURIDISCHE_DEFINITIES = {
             "voorbeelden": "Een verplichting zoals betalen, leveren of iets doen.",
             "te_abstract": "De relatie tussen recht en plicht.",
             "onvolledig": "Een verplichting.",
-        }
+        },
     },
-
     "erfdienstbaarheid": {
         "correct": [
             "Een last waarmee een onroerende zaak ten behoeve van een andere onroerende zaak is bezwaard.",
@@ -78,8 +74,8 @@ JURIDISCHE_DEFINITIES = {
             "voorbeelden": "Een recht zoals recht van overpad of uitweg.",
             "vaag": "Een soort beperking op je eigendom.",
             "geen_zakelijk": "Een afspraak tussen buren over gebruik van elkaars grond.",
-        }
-    }
+        },
+    },
 }
 
 # Test zinnen voor context
@@ -89,13 +85,11 @@ CONTEXT_ZINNEN = {
         "De hypotheek strekt tot zekerheid voor de lening.",
         "Bij verkoop moet eerst de hypotheek worden afgelost.",
     ],
-
     "eigendom": [
         "De eigendom van het perceel is overgegaan op de koper.",
         "Hij kan zijn eigendom niet bewijzen.",
         "De eigendom is belast met een erfdienstbaarheid.",
     ],
-
     "overeenkomst": [
         "Partijen hebben een overeenkomst gesloten.",
         "De overeenkomst is nietig wegens wilsgebrek.",
@@ -113,10 +107,10 @@ REGEL_PRIORITEITEN = {
 # Verwachte scores voor verschillende kwaliteitsniveaus
 KWALITEIT_DREMPELS = {
     "uitstekend": 0.85,  # > 85% score
-    "goed": 0.70,         # 70-85% score
-    "voldoende": 0.60,    # 60-70% score
-    "matig": 0.50,        # 50-60% score
-    "onvoldoende": 0.0,   # < 50% score
+    "goed": 0.70,  # 70-85% score
+    "voldoende": 0.60,  # 60-70% score
+    "matig": 0.50,  # 50-60% score
+    "onvoldoende": 0.0,  # < 50% score
 }
 
 # Edge cases voor robuustheidstests
@@ -133,7 +127,7 @@ EDGE_CASES = {
     "sql_injection": "'; DROP TABLE definitions; --",
     "newlines": "Een definitie\nmet\nmeerdere\nregels.",
     "tabs": "Een\tdefinitie\tmet\ttabs.",
-    "mixed_quotes": 'Een definitie met "dubbele" en \'enkele\' quotes.',
+    "mixed_quotes": "Een definitie met \"dubbele\" en 'enkele' quotes.",
     "numbers": "Een definitie met 123 getallen en 45.67 decimalen.",
     "all_caps": "EEN DEFINITIE IN HOOFDLETTERS.",
     "no_period": "Een definitie zonder punt",

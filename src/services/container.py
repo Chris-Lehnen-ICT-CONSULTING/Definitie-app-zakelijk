@@ -29,9 +29,7 @@ from services.interfaces import (
 from services.modern_web_lookup_service import ModernWebLookupService
 
 # V2 Architecture imports
-from services.orchestrators.definition_orchestrator_v2 import (
-    DefinitionOrchestratorV2,
-)
+from services.orchestrators.definition_orchestrator_v2 import DefinitionOrchestratorV2
 
 # UnifiedDefinitionGenerator vervangen door DefinitionOrchestrator
 # from services.unified_definition_generator import UnifiedDefinitionGenerator
@@ -39,7 +37,6 @@ from services.workflow_service import WorkflowService
 
 if TYPE_CHECKING:
     from services.data_aggregation_service import DataAggregationService
-    from services.definition_ui_service import DefinitionUIService
     from services.export_service import ExportService
 
 logger = logging.getLogger(__name__)
@@ -67,7 +64,9 @@ class ServiceContainer:
         self._initialization_count = 0  # Track init count voor debugging
         self._load_configuration()
         self._initialization_count += 1
-        logger.info(f"ServiceContainer geïnitialiseerd (init count: {self._initialization_count})")
+        logger.info(
+            f"ServiceContainer geïnitialiseerd (init count: {self._initialization_count})"
+        )
 
     def _load_configuration(self):
         """Laad configuratie uit environment en config dict."""
@@ -200,9 +199,7 @@ class ServiceContainer:
                 CleaningServiceAdapterV1toV2,
             )
             from services.ai_service_v2 import AIServiceV2
-            from services.interfaces import (
-                OrchestratorConfig as V2OrchestratorConfig,
-            )
+            from services.interfaces import OrchestratorConfig as V2OrchestratorConfig
             from services.prompts.prompt_service_v2 import PromptServiceV2
             from services.validation.config import ValidationConfig
 
@@ -210,6 +207,7 @@ class ServiceContainer:
             from services.validation.modular_validation_service import (
                 ModularValidationService,
             )
+
             # US-202: Use cached manager voor 100x betere performance
             from toetsregels.cached_manager import get_cached_toetsregel_manager
 
@@ -297,7 +295,9 @@ class ServiceContainer:
         if "web_lookup" not in self._instances:
             try:
                 self._instances["web_lookup"] = ModernWebLookupService()
-                logger.info("✅ ModernWebLookupService initialized successfully - external context enrichment AVAILABLE")
+                logger.info(
+                    "✅ ModernWebLookupService initialized successfully - external context enrichment AVAILABLE"
+                )
             except Exception as e:
                 logger.error(
                     f"⚠️ ModernWebLookupService initialization FAILED: {type(e).__name__}: {e}\n"
@@ -339,9 +339,7 @@ class ServiceContainer:
                 "approval_gate_config_path", "config/approval_gate.yaml"
             )
             self._instances["gate_policy"] = GatePolicyService(base_path)
-            logger.info(
-                "GatePolicyService instance aangemaakt (config: %s)", base_path
-            )
+            logger.info("GatePolicyService instance aangemaakt (config: %s)", base_path)
         return self._instances["gate_policy"]
 
     def workflow(self) -> WorkflowService:
@@ -355,29 +353,31 @@ class ServiceContainer:
             self._instances["workflow"] = WorkflowService()
             logger.info("WorkflowService instance aangemaakt")
         return self._instances["workflow"]
-    
+
     def definition_workflow_service(self):
         """
         Get of create DefinitionWorkflowService instance.
-        
+
         US-072: Deze service combineert workflow en repository acties
         zodat UI geen losse services hoeft te coördineren.
-        
+
         Returns:
             Singleton instance van DefinitionWorkflowService
         """
         if "definition_workflow_service" not in self._instances:
             from services.definition_workflow_service import DefinitionWorkflowService
-            
+
             # Use existing services
             workflow_service = self.workflow()
             repository = self.repository()
-            
+
             # Optional services (None for now, can be added later)
             event_bus = None  # Pending: integrate Event Bus when US-060 is delivered
-            audit_logger = None  # Pending: integrate Audit Trail when US-068 is delivered
+            audit_logger = (
+                None  # Pending: integrate Audit Trail when US-068 is delivered
+            )
             gate_policy_service = self.gate_policy()
-            
+
             self._instances["definition_workflow_service"] = DefinitionWorkflowService(
                 workflow_service=workflow_service,
                 repository=repository,

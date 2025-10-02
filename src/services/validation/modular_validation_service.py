@@ -14,11 +14,9 @@ import re
 import uuid
 from typing import Any
 
-from utils.dict_helpers import safe_dict_get
-from utils.type_helpers import ensure_list, ensure_dict, ensure_string
-from utils.error_helpers import safe_execute, error_handler
-
 from services.validation.interfaces import CONTRACT_VERSION
+from utils.dict_helpers import safe_dict_get
+from utils.type_helpers import ensure_list, ensure_string
 
 from .aggregation import calculate_weighted_score, determine_acceptability
 from .types_internal import EvaluationContext
@@ -124,13 +122,17 @@ class ModularValidationService:
             with contextlib.suppress(Exception):
                 self._overall_threshold = float(
                     safe_dict_get(
-                        self.config.thresholds, "overall_accept", self._overall_threshold
+                        self.config.thresholds,
+                        "overall_accept",
+                        self._overall_threshold,
                     )
                 )
             with contextlib.suppress(Exception):
                 self._category_threshold = float(
                     safe_dict_get(
-                        self.config.thresholds, "category_accept", self._category_threshold
+                        self.config.thresholds,
+                        "category_accept",
+                        self._category_threshold,
                     )
                 )
 
@@ -164,7 +166,9 @@ class ModularValidationService:
             # Add baseline internal rules to retain safeguards (no-op if already present via JSON)
             self._add_baseline_rules()
 
-            logger.info(f"Loaded {len(self._internal_rules)} rules from ToetsregelManager")
+            logger.info(
+                f"Loaded {len(self._internal_rules)} rules from ToetsregelManager"
+            )
 
         except Exception as e:
             logger.warning(f"Could not load rules from ToetsregelManager: {e}")
@@ -177,12 +181,16 @@ class ModularValidationService:
             try:
                 return float(rule_data["weight"])
             except (TypeError, ValueError):
-                logger.debug(f"Invalid weight value: {rule_data.get('weight')}, using priority-based weight")
+                logger.debug(
+                    f"Invalid weight value: {rule_data.get('weight')}, using priority-based weight"
+                )
 
         # Use priority to determine weight
         priority = ensure_string(safe_dict_get(rule_data, "prioriteit", "midden"))
         priority_weights = {"hoog": 1.0, "midden": 0.7}
-        return priority_weights.get(priority, 0.4)  # default to 0.4 for "laag" or unknown
+        return priority_weights.get(
+            priority, 0.4
+        )  # default to 0.4 for "laag" or unknown
 
     def _add_baseline_rules(self) -> None:
         """Add baseline internal rules (VAL-*/STR-*) to retain safeguards."""
@@ -309,10 +317,12 @@ class ModularValidationService:
         # 4) Regels evalueren in deterministische volgorde
         weights = dict(self._default_weights)
         if getattr(self.config, "weights", None):
-            weights.update({
-                k: float(v) if v is not None else self._default_weights.get(k, 0.5)
-                for k, v in self.config.weights.items()
-            })
+            weights.update(
+                {
+                    k: float(v) if v is not None else self._default_weights.get(k, 0.5)
+                    for k, v in self.config.weights.items()
+                }
+            )
 
         # Exclude certain rules from scoring (weight=0):
         # - Interne baseline regels (self._baseline_internal)
@@ -322,7 +332,9 @@ class ModularValidationService:
                 cu = str(code).upper()
                 if code in self._baseline_internal:
                     weights[code] = 0.0
-                elif cu.startswith("ARAI") or cu.startswith("AR-") or cu.startswith("AR"):
+                elif (
+                    cu.startswith("ARAI") or cu.startswith("AR-") or cu.startswith("AR")
+                ):
                     # Beperk tot ARAI‑familie; AR‑prefix meegenomen voor compat
                     weights[code] = 0.0
         except Exception:
@@ -414,7 +426,7 @@ class ModularValidationService:
                     "suggestion": "Gebruik formele, precieze taal in plaats van informele bewoordingen.",
                 }
             )
-            if not any(str(v.get("code","")) == "ESS-CONT-001" for v in violations):
+            if not any(str(v.get("code", "")) == "ESS-CONT-001" for v in violations):
                 violations.append(
                     {
                         "code": "ESS-CONT-001",
@@ -460,7 +472,11 @@ class ModularValidationService:
             if current_begrip:
                 tn = raw_text.lower()
                 gb = str(current_begrip).strip().lower()
-                if gb and gb in tn and not any(v.get("code") == "CON-CIRC-001" for v in violations):
+                if (
+                    gb
+                    and gb in tn
+                    and not any(v.get("code") == "CON-CIRC-001" for v in violations)
+                ):
                     violations.append(
                         {
                             "code": "CON-CIRC-001",
@@ -470,11 +486,13 @@ class ModularValidationService:
                             "description": "Definitie is circulair (begrip komt voor in tekst)",
                             "rule_id": "CON-CIRC-001",
                             "category": "samenhang",
-                            "suggestion": f"Vermijd {str(current_begrip)} letterlijk; omschrijf zonder de term te herhalen.",
+                            "suggestion": f"Vermijd {current_begrip!s} letterlijk; omschrijf zonder de term te herhalen.",
                         }
                     )
                     # Voeg ook essentie-tekort toe voor strengere golden criteria
-                    if not any(str(v.get("code","")) == "ESS-CONT-001" for v in violations):
+                    if not any(
+                        str(v.get("code", "")) == "ESS-CONT-001" for v in violations
+                    ):
                         violations.append(
                             {
                                 "code": "ESS-CONT-001",
@@ -492,7 +510,9 @@ class ModularValidationService:
 
         # 6) Categorie-scores: bereken op basis van rule_scores (geen mirror)
         try:
-            detailed = self._calculate_category_scores(rule_scores, default_value=overall)
+            detailed = self._calculate_category_scores(
+                rule_scores, default_value=overall
+            )
         except Exception:
             # Conservatieve fallback bij onverwachte fout
             detailed = {
@@ -504,7 +524,11 @@ class ModularValidationService:
 
         # 7) Voeg eventuele CON-01 duplicate warnings toe (best-effort)
         try:
-            dup_warns = eval_ctx.metadata.get("__con01_dup_warnings__") if hasattr(eval_ctx, "metadata") else None
+            dup_warns = (
+                eval_ctx.metadata.get("__con01_dup_warnings__")
+                if hasattr(eval_ctx, "metadata")
+                else None
+            )
             if dup_warns:
                 # Ensure proper minimal structure
                 for w in dup_warns:
@@ -518,14 +542,19 @@ class ModularValidationService:
 
         # 9) Acceptance gates bepalen acceptatie (kritiek/overall/categorieën)
         try:
-            acceptance_gate = self._evaluate_acceptance_gates(overall, detailed, violations)
+            acceptance_gate = self._evaluate_acceptance_gates(
+                overall, detailed, violations
+            )
         except Exception:
             # Fallback op basis-acceptatie als gate-evaluatie faalt
             acceptance_gate = {
                 "acceptable": determine_acceptability(overall, self._overall_threshold),
                 "gates_passed": [],
                 "gates_failed": [],
-                "thresholds": {"overall": self._overall_threshold, "category": self._category_threshold},
+                "thresholds": {
+                    "overall": self._overall_threshold,
+                    "category": self._category_threshold,
+                },
             }
 
         # Minder strikte acceptatie: soft floor conform policy (0.65) zolang er geen blocking errors zijn
@@ -534,13 +563,15 @@ class ModularValidationService:
                 if str(v.get("severity", "")).lower() != "error":
                     continue
                 code = str(v.get("code", ""))
-                if code.startswith((
-                    "VAL-EMP",
-                    "CON-CIRC",
-                    "VAL-LEN-002",
-                    "LANG-",
-                    "STR-FORM-001",
-                )):
+                if code.startswith(
+                    (
+                        "VAL-EMP",
+                        "CON-CIRC",
+                        "VAL-LEN-002",
+                        "LANG-",
+                        "STR-FORM-001",
+                    )
+                ):
                     return True
             return False
 
@@ -668,7 +699,8 @@ class ModularValidationService:
                     found = gb in tn
                 if found:
                     return 0.0, vio(
-                        "CON-CIRC-001", "Definitie is circulair (begrip komt voor in tekst)"
+                        "CON-CIRC-001",
+                        "Definitie is circulair (begrip komt voor in tekst)",
                     )
             return 1.0, None
 
@@ -748,7 +780,9 @@ class ModularValidationService:
         if code_up == "SAM-02":
             head = None
             try:
-                begrip_full = (getattr(self, "_current_begrip", "") or "").strip().lower()
+                begrip_full = (
+                    (getattr(self, "_current_begrip", "") or "").strip().lower()
+                )
                 parts = begrip_full.split()
                 if len(parts) >= 2:
                     head = parts[-1]
@@ -773,7 +807,8 @@ class ModularValidationService:
 
                 # 2) Heuristische detectie van herhaling van bekende basisfrase (bv. strafbepaling‑zin)
                 if head in text_l and (
-                    "binnen de grenzen van" in text_l or "wettelijke strafbepaling" in text_l
+                    "binnen de grenzen van" in text_l
+                    or "wettelijke strafbepaling" in text_l
                 ):
                     msg = "Kwalificatie bevat (gedeelten van) de basisdefinitie van het hoofdbegrip"
                     return 0.0, {
@@ -826,6 +861,7 @@ class ModularValidationService:
         patterns = rule.get("herkenbaar_patronen", []) or []
         # Legacy-compatible additional patterns (centralized)
         from validation.additional_patterns import get_additional_patterns
+
         extra = get_additional_patterns(code_up)
         if extra:
             # Preserve order and de-duplicate
@@ -855,7 +891,12 @@ class ModularValidationService:
             messages.append(f"Verboden patroon gedetecteerd: {pat_list}")
             suggestions.append(
                 self._build_suggestion_for_violation(
-                    code_up, rule, text, ctx, reason="forbidden_patterns", details=pat_list
+                    code_up,
+                    rule,
+                    text,
+                    ctx,
+                    reason="forbidden_patterns",
+                    details=pat_list,
                 )
             )
 
@@ -866,8 +907,12 @@ class ModularValidationService:
                 if ":" in body:
                     body = body.split(":", 1)[1].lstrip()
                 if re.match(r"^(is|de|het|een|wordt|betreft)\\b", body, re.IGNORECASE):
-                    messages.append("Start niet met zelfstandig naamwoord (hulpwoord/artikel gedetecteerd)")
-                    suggestions.append("Start met het kernzelfstandig naamwoord i.p.v. een hulpwoord of lidwoord.")
+                    messages.append(
+                        "Start niet met zelfstandig naamwoord (hulpwoord/artikel gedetecteerd)"
+                    )
+                    suggestions.append(
+                        "Start met het kernzelfstandig naamwoord i.p.v. een hulpwoord of lidwoord."
+                    )
             except Exception:
                 pass
 
@@ -882,7 +927,12 @@ class ModularValidationService:
                 messages.append("Vereist patroon niet gevonden")
                 suggestions.append(
                     self._build_suggestion_for_violation(
-                        code_up, rule, text, ctx, reason="required_patterns", details=", ".join(req_patterns)
+                        code_up,
+                        rule,
+                        text,
+                        ctx,
+                        reason="required_patterns",
+                        details=", ".join(req_patterns),
                     )
                 )
 
@@ -892,7 +942,12 @@ class ModularValidationService:
                 messages.append(f"Verboden term: '{phrase}'")
                 suggestions.append(
                     self._build_suggestion_for_violation(
-                        code_up, rule, text, ctx, reason="forbidden_phrase", details=phrase
+                        code_up,
+                        rule,
+                        text,
+                        ctx,
+                        reason="forbidden_phrase",
+                        details=phrase,
                     )
                 )
 
@@ -936,7 +991,9 @@ class ModularValidationService:
         # 6) Circular definition (begrip in definitie)
         if rule.get("circular_definition"):
             begrip = getattr(self, "_current_begrip", None)
-            if begrip and re.search(rf"\b{re.escape(str(begrip))}\b", text_norm, re.IGNORECASE):
+            if begrip and re.search(
+                rf"\b{re.escape(str(begrip))}\b", text_norm, re.IGNORECASE
+            ):
                 messages.append("Circulaire definitie: begrip komt letterlijk voor")
                 suggestions.append(
                     self._build_suggestion_for_violation(
@@ -953,7 +1010,12 @@ class ModularValidationService:
                 )
                 suggestions.append(
                     self._build_suggestion_for_violation(
-                        code_up, rule, text, ctx, reason="structure_runon", details=f"{min_commas}|{max_chars}"
+                        code_up,
+                        rule,
+                        text,
+                        ctx,
+                        reason="structure_runon",
+                        details=f"{min_commas}|{max_chars}",
                     )
                 )
 
@@ -976,25 +1038,33 @@ class ModularValidationService:
         if code_up == "CON-02" and not self._has_authentic_source_basis(text):
             messages.append("Geen authentieke bron/basis in definitietekst")
             suggestions.append(
-                self._build_suggestion_for_violation(code_up, rule, text, ctx, reason="auth_source")
+                self._build_suggestion_for_violation(
+                    code_up, rule, text, ctx, reason="auth_source"
+                )
             )
 
         if code_up == "ESS-03" and not self._has_unique_identification(text):
             messages.append("Ontbreekt uniek identificatiecriterium")
             suggestions.append(
-                self._build_suggestion_for_violation(code_up, rule, text, ctx, reason="unique_id")
+                self._build_suggestion_for_violation(
+                    code_up, rule, text, ctx, reason="unique_id"
+                )
             )
 
         if code_up == "ESS-04" and not self._has_testable_element(text):
             messages.append("Ontbreekt objectief toetsbaar element")
             suggestions.append(
-                self._build_suggestion_for_violation(code_up, rule, text, ctx, reason="testable")
+                self._build_suggestion_for_violation(
+                    code_up, rule, text, ctx, reason="testable"
+                )
             )
 
         if code_up == "ESS-05" and not self._has_distinguishing_feature(text):
             messages.append("Ontbreekt onderscheidend kenmerk")
             suggestions.append(
-                self._build_suggestion_for_violation(code_up, rule, text, ctx, reason="distinguishing")
+                self._build_suggestion_for_violation(
+                    code_up, rule, text, ctx, reason="distinguishing"
+                )
             )
 
         if code_up == "VER-01":
@@ -1002,13 +1072,19 @@ class ModularValidationService:
             if not self._lemma_is_singular(begrip):
                 messages.append("Term (lemma) lijkt meervoud (geen plurale tantum)")
                 suggestions.append(
-                    self._build_suggestion_for_violation(code_up, rule, text, ctx, reason="singular", details=begrip)
+                    self._build_suggestion_for_violation(
+                        code_up, rule, text, ctx, reason="singular", details=begrip
+                    )
                 )
 
         # Resultaat opbouwen
         if messages:
             # Als er ook forbidden pattern hits waren, verlaag de score licht op basis van aantal hits
-            score = 0.0 if not pattern_hits else max(0.0, 1.0 - 0.3 * len(set(pattern_hits)))
+            score = (
+                0.0
+                if not pattern_hits
+                else max(0.0, 1.0 - 0.3 * len(set(pattern_hits)))
+            )
             description = "; ".join(dict.fromkeys(messages))  # unique-preserving
             suggestion_text = "; ".join([s for s in suggestions if s]).strip() or None
             # Belangrijk: description blijft gelijk aan message (tests verwachten dit)
@@ -1073,7 +1149,9 @@ class ModularValidationService:
         if reason == "forbidden_phrase":
             return f"Vervang of verwijder de term ‘{d}’; kies correcte terminologie."
         if reason == "min_words":
-            return f"Breid de definitie uit tot minimaal {d} woorden met kerninformatie."
+            return (
+                f"Breid de definitie uit tot minimaal {d} woorden met kerninformatie."
+            )
         if reason == "max_words":
             return f"Verkort de definitie tot maximaal {d} woorden; schrap bijzinnen."
         if reason == "min_chars":
@@ -1089,7 +1167,9 @@ class ModularValidationService:
         if reason == "auth_source" and c == "CON-02":
             return "Voeg een authentieke bron/basis toe (bijv. ‘volgens’, ‘conform’, of wet/regeling)."
         if reason == "unique_id" and c == "ESS-03":
-            return "Voeg een uniek identificatiecriterium toe (nummer/code/registratie)."
+            return (
+                "Voeg een uniek identificatiecriterium toe (nummer/code/registratie)."
+            )
         if reason == "testable" and c == "ESS-04":
             return "Maak een objectief toetsbaar element expliciet (bijv. termijn of meetbare grens)."
         if reason == "distinguishing" and c == "ESS-05":
@@ -1099,7 +1179,9 @@ class ModularValidationService:
 
         # Regel-specifieke defaults
         if c == "INT-01":
-            return "Herschrijf naar één compacte zin; vermijd ‘en/maar/of’ en bijzinnen."
+            return (
+                "Herschrijf naar één compacte zin; vermijd ‘en/maar/of’ en bijzinnen."
+            )
         if c == "CON-01":
             return "Noem de context niet expliciet; formuleer context‑neutraal."
         if c == "ESS-02":
@@ -1109,7 +1191,13 @@ class ModularValidationService:
 
     # ===== Helper checks (JSON required/structure) =====
     def _has_authentic_source_basis(self, text: str) -> bool:
-        return bool(re.search(r"\b(volgens|conform|gebaseerd|bepaald|bedoeld|wet|regeling)\b", text, re.IGNORECASE))
+        return bool(
+            re.search(
+                r"\b(volgens|conform|gebaseerd|bepaald|bedoeld|wet|regeling)\b",
+                text,
+                re.IGNORECASE,
+            )
+        )
 
     def _has_unique_identification(self, text: str) -> bool:
         return bool(
@@ -1121,10 +1209,22 @@ class ModularValidationService:
         )
 
     def _has_testable_element(self, text: str) -> bool:
-        return bool(re.search(r"\b(\d+|binnen|na|voor|volgens|conform|gebaseerd op)\b", text, re.IGNORECASE))
+        return bool(
+            re.search(
+                r"\b(\d+|binnen|na|voor|volgens|conform|gebaseerd op)\b",
+                text,
+                re.IGNORECASE,
+            )
+        )
 
     def _has_distinguishing_feature(self, text: str) -> bool:
-        return bool(re.search(r"\b(onderscheidt|specifiek|bijzonder|kenmerk|eigenschap)\b", text, re.IGNORECASE))
+        return bool(
+            re.search(
+                r"\b(onderscheidt|specifiek|bijzonder|kenmerk|eigenschap)\b",
+                text,
+                re.IGNORECASE,
+            )
+        )
 
     def _lemma_is_singular(self, begrip: str) -> bool:
         # Heuristic: NL plural often ends with 'en'; whitelist of plurale tantum could be extended
@@ -1149,7 +1249,16 @@ class ModularValidationService:
             marker = None
         if marker:
             m = str(marker).strip().lower()
-            if m in {"soort", "type", "exemplaar", "particulier", "proces", "activiteit", "resultaat", "uitkomst"}:
+            if m in {
+                "soort",
+                "type",
+                "exemplaar",
+                "particulier",
+                "proces",
+                "activiteit",
+                "resultaat",
+                "uitkomst",
+            }:
                 return 1.0, None
 
         # Compile per-category patterns once
@@ -1187,7 +1296,9 @@ class ModularValidationService:
                 "description": f"Ambigu: meerdere categorieën herkend ({', '.join(sorted(hits.keys()))})",
                 "rule_id": "ESS-02",
                 "category": self._category_for("ESS-02"),
-                "suggestion": self._build_suggestion_for_violation("ESS-02", rule, text, ctx, reason="ambigu"),
+                "suggestion": self._build_suggestion_for_violation(
+                    "ESS-02", rule, text, ctx, reason="ambigu"
+                ),
             }
         # No hits → missing element
         return 0.0, {
@@ -1198,7 +1309,9 @@ class ModularValidationService:
             "description": "Geen duidelijke ontologische marker (type/particulier/proces/resultaat)",
             "rule_id": "ESS-02",
             "category": self._category_for("ESS-02"),
-            "suggestion": self._build_suggestion_for_violation("ESS-02", rule, text, ctx, reason="missing"),
+            "suggestion": self._build_suggestion_for_violation(
+                "ESS-02", rule, text, ctx, reason="missing"
+            ),
         }
 
     def _maybe_add_duplicate_context_signal(self, ctx: EvaluationContext) -> None:
@@ -1241,7 +1354,9 @@ class ModularValidationService:
             # Silent: duplicate signal is best-effort
             return
 
-    def _find_duplicate_definition(self, begrip: str, org: list, jur: list, wet: list, md: dict) -> dict | None:
+    def _find_duplicate_definition(
+        self, begrip: str, org: list, jur: list, wet: list, md: dict
+    ) -> dict | None:
         """Find existing definition with same context (drie lijsten).
 
         Vereist exacte match op:
@@ -1265,11 +1380,20 @@ class ModularValidationService:
                 continue
 
             # Check context matches
-            if self._normalize_context_list(getattr(d, "organisatorische_context", [])) != org_n:
+            if (
+                self._normalize_context_list(getattr(d, "organisatorische_context", []))
+                != org_n
+            ):
                 continue
-            if self._normalize_context_list(getattr(d, "juridische_context", [])) != jur_n:
+            if (
+                self._normalize_context_list(getattr(d, "juridische_context", []))
+                != jur_n
+            ):
                 continue
-            if self._normalize_context_list(getattr(d, "wettelijke_basis", [])) != wet_n:
+            if (
+                self._normalize_context_list(getattr(d, "wettelijke_basis", []))
+                != wet_n
+            ):
                 continue
 
             # Check category if provided
@@ -1288,26 +1412,39 @@ class ModularValidationService:
         except Exception:
             return []
 
-    def _add_duplicate_warning(self, md: dict, found_id: Any, found_status: Any) -> None:
+    def _add_duplicate_warning(
+        self, md: dict, found_id: Any, found_status: Any
+    ) -> None:
         """Add duplicate warning to metadata."""
         warn_list = md.setdefault("__con01_dup_warnings__", [])
         # Escaleer naar error wanneer generation geforceerd is (force_duplicate)
         force_dup = False
         try:
-            force_dup = bool(md.get("force_duplicate") or (isinstance(md.get("options"), dict) and md.get("options", {}).get("force_duplicate")))
+            force_dup = bool(
+                md.get("force_duplicate")
+                or (
+                    isinstance(md.get("options"), dict)
+                    and md.get("options", {}).get("force_duplicate")
+                )
+            )
         except Exception:
             force_dup = False
-        warn_list.append({
-            "code": "CON-01",
-            "severity": "error" if force_dup else "warning",
-            "severity_level": "high" if force_dup else "medium",
-            "message": "Bestaande definitie met dezelfde context gevonden",
-            "description": "Bestaande definitie met dezelfde context gevonden",
-            "rule_id": "CON-01",
-            "category": self._category_for("CON-01"),
-            "metadata": {"existing_definition_id": found_id, "status": found_status},
-            "suggestion": "Overweeg de bestaande definitie te hergebruiken of pas de context/lemma aan om duplicatie te voorkomen.",
-        })
+        warn_list.append(
+            {
+                "code": "CON-01",
+                "severity": "error" if force_dup else "warning",
+                "severity_level": "high" if force_dup else "medium",
+                "message": "Bestaande definitie met dezelfde context gevonden",
+                "description": "Bestaande definitie met dezelfde context gevonden",
+                "rule_id": "CON-01",
+                "category": self._category_for("CON-01"),
+                "metadata": {
+                    "existing_definition_id": found_id,
+                    "status": found_status,
+                },
+                "suggestion": "Overweeg de bestaande definitie te hergebruiken of pas de context/lemma aan om duplicatie te voorkomen.",
+            }
+        )
 
     def _category_for(self, code: str) -> str:
         c = str(code)
@@ -1327,7 +1464,9 @@ class ModularValidationService:
             return "taal"
         return "system"
 
-    def _suggestion_for_internal_rule(self, code: str, ctx: EvaluationContext) -> str | None:
+    def _suggestion_for_internal_rule(
+        self, code: str, ctx: EvaluationContext
+    ) -> str | None:
         """Suggesties voor interne baseline regels (VAL-*, STR-*, CON-CIRC-*)."""
         c = (code or "").upper()
         if c == "VAL-EMP-001":
@@ -1347,7 +1486,9 @@ class ModularValidationService:
             return "Vereenvoudig de zinsstructuur: minder komma’s, kortere zinsdelen."
         return None
 
-    def _calculate_category_scores(self, rule_scores: dict[str, float], default_value: float) -> dict[str, float]:
+    def _calculate_category_scores(
+        self, rule_scores: dict[str, float], default_value: float
+    ) -> dict[str, float]:
         """Bereken echte categorie-scores op basis van rule_scores en regelprefix.
 
         Categorieën: taal (ARAI/VER), juridisch (ESS/VAL), structuur (STR/INT), samenhang (CON/SAM).
@@ -1360,7 +1501,12 @@ class ModularValidationService:
                 r = str(rid)
                 ru = r.upper()
                 # Skip interne regels en ARAI* bij categorie-aggregatie
-                if r in self._baseline_internal or ru.startswith("ARAI") or ru.startswith("AR-") or ru.startswith("AR"):
+                if (
+                    r in self._baseline_internal
+                    or ru.startswith("ARAI")
+                    or ru.startswith("AR-")
+                    or ru.startswith("AR")
+                ):
                     continue
                 cat = self._category_for(r)
                 buckets[cat].append(float(score or 0.0))
@@ -1378,7 +1524,12 @@ class ModularValidationService:
             "samenhang": round(avg(buckets.get("samenhang", [])), 2),
         }
 
-    def _evaluate_acceptance_gates(self, overall: float, detailed: dict[str, float], violations: list[dict[str, Any]]) -> dict[str, Any]:
+    def _evaluate_acceptance_gates(
+        self,
+        overall: float,
+        detailed: dict[str, float],
+        violations: list[dict[str, Any]],
+    ) -> dict[str, Any]:
         """Evalueer acceptance gates (critical/overall/category)."""
         critical = 0
         for v in violations or []:

@@ -96,7 +96,9 @@ class ModernWebLookupService(WebLookupServiceInterface):
                     providers.get("rechtspraak_ecli", {}).get("weight", 0.95)
                 ),
                 "wiktionary": float(providers.get("wiktionary", {}).get("weight", 0.9)),
-                "wetgeving": float(providers.get("wetgeving_nl", {}).get("weight", 0.9)),
+                "wetgeving": float(
+                    providers.get("wetgeving_nl", {}).get("weight", 0.9)
+                ),
             }
         except Exception as e:
             logger.warning(f"Web lookup config not loaded, using defaults: {e}")
@@ -111,7 +113,12 @@ class ModernWebLookupService(WebLookupServiceInterface):
         # Helper om enabled-vlag te lezen uit config
         def _is_enabled(key: str, default: bool = True) -> bool:
             try:
-                return bool(self._config.get("web_lookup", {}).get("providers", {}).get(key, {}).get("enabled", default))
+                return bool(
+                    self._config.get("web_lookup", {})
+                    .get("providers", {})
+                    .get(key, {})
+                    .get("enabled", default)
+                )
             except Exception:
                 return default
 
@@ -167,7 +174,9 @@ class ModernWebLookupService(WebLookupServiceInterface):
         }
 
     # === Context token parsing helpers ===
-    def _classify_context_tokens(self, context: str | None) -> tuple[list[str], list[str], list[str]]:
+    def _classify_context_tokens(
+        self, context: str | None
+    ) -> tuple[list[str], list[str], list[str]]:
         """Classify context tokens into organisatorisch, juridisch, wettelijk.
 
         Heuristics based on common abbreviations/keywords in this domain.
@@ -372,6 +381,7 @@ class ModernWebLookupService(WebLookupServiceInterface):
         source_config = self.sources[source_name]
 
         import time as _t
+
         start = _t.time()
         attempt: dict[str, Any] = {
             "provider": source_name,
@@ -418,7 +428,9 @@ class ModernWebLookupService(WebLookupServiceInterface):
                 from .web_lookup.wikipedia_service import wikipedia_lookup
 
                 # Stage-based context backoff: 1) org+jur+wet 2) jur+wet 3) wet 4) term
-                org, jur, wet = self._classify_context_tokens(getattr(request, "context", None))
+                org, jur, wet = self._classify_context_tokens(
+                    getattr(request, "context", None)
+                )
                 stages: list[tuple[str, list[str]]] = []
                 all_tokens = org + jur + wet
                 if all_tokens:
@@ -463,7 +475,9 @@ class ModernWebLookupService(WebLookupServiceInterface):
                     if t.lower().endswith("tekst") and len(t) > 6:
                         fallbacks.append(t[: -len("tekst")])
                     if t.lower() == "vonnistekst":
-                        fallbacks.extend(["vonnis", "uitspraak"])  # juridische synoniemen
+                        fallbacks.extend(
+                            ["vonnis", "uitspraak"]
+                        )  # juridische synoniemen
 
                     seen: set[str] = set()
                     for fb in fallbacks:
@@ -499,7 +513,9 @@ class ModernWebLookupService(WebLookupServiceInterface):
                 # Gebruik moderne Wiktionary service (vergelijkbare stage-logica)
                 from .web_lookup.wiktionary_service import wiktionary_lookup
 
-                org, jur, wet = self._classify_context_tokens(getattr(request, "context", None))
+                org, jur, wet = self._classify_context_tokens(
+                    getattr(request, "context", None)
+                )
                 stages: list[tuple[str, list[str]]] = []
                 all_tokens = org + jur + wet
                 if all_tokens:
@@ -603,7 +619,9 @@ class ModernWebLookupService(WebLookupServiceInterface):
 
             # Stage-based SRU search using context backoff (SRU: alleen 'wet' tokens)
             async with SRUService() as sru_service:
-                org, jur, wet = self._classify_context_tokens(getattr(request, "context", None))
+                org, jur, wet = self._classify_context_tokens(
+                    getattr(request, "context", None)
+                )
                 stages: list[tuple[str, list[str]]] = []
                 # Voor Rechtspraak: term‑only eerst (context verlaagt recall)
                 if endpoint == "rechtspraak":
@@ -636,8 +654,13 @@ class ModernWebLookupService(WebLookupServiceInterface):
                             }
                             rec.update(att)
                             self._debug_attempts.append(rec)
-                    except Exception:
-                        pass
+                    except Exception as exc:  # pragma: no cover - diagnostic only
+                        logger.debug(
+                            "SRU attempt logging failed for %s (%s stage): %s",
+                            source.name,
+                            stage_name,
+                            exc,
+                        )
 
                     if results:
                         r = results[0]
@@ -695,6 +718,7 @@ class ModernWebLookupService(WebLookupServiceInterface):
         """Lookup via REST API providers (e.g., Rechtspraak Open Data)."""
         logger.info(f"REST lookup for {term} in {source.name}")
         import time as _t
+
         start = _t.time()
         attempt = {
             "provider": source.name,
@@ -840,11 +864,17 @@ class ModernWebLookupService(WebLookupServiceInterface):
                 clause = result.metadata.get("law_clause")
                 if num and code and snippet_src:
                     if clause:
-                        snippet_src = f"Artikel {num} lid {clause} {code}: {snippet_src}"
+                        snippet_src = (
+                            f"Artikel {num} lid {clause} {code}: {snippet_src}"
+                        )
                     else:
                         snippet_src = f"Artikel {num} {code}: {snippet_src}"
-        except Exception:
-            pass
+        except Exception as exc:  # pragma: no cover - enrichment best effort
+            logger.debug(
+                "Kon juridische metadata niet verrijken voor provider '%s': %s",
+                provider_key,
+                exc,
+            )
         snippet = sanitize_snippet(snippet_src, max_length=500)
         url = getattr(result.source, "url", "")
         content = (snippet_src or "").encode("utf-8", errors="ignore")
@@ -858,8 +888,12 @@ class ModernWebLookupService(WebLookupServiceInterface):
                 idf = str(meta.get("dc_identifier", ""))
                 if ("ECLI:" in idf) or ("ECLI:" in snippet_src):
                     score = min(1.0, score + 0.05)
-        except Exception:
-            pass
+        except Exception as exc:  # pragma: no cover - scoring best effort
+            logger.debug(
+                "Kon ECLI-boost niet toepassen voor provider '%s': %s",
+                provider_key,
+                exc,
+            )
 
         return {
             "provider": provider_key,

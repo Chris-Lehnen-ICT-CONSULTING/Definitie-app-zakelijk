@@ -31,7 +31,10 @@ def validate_type(
     """
     if not isinstance(value, expected_type):
         if raise_on_invalid:
-            msg = error_message or f"Expected {expected_type.__name__}, got {type(value).__name__}"
+            msg = (
+                error_message
+                or f"Expected {expected_type.__name__}, got {type(value).__name__}"
+            )
             raise TypeError(msg)
         return False
     return True

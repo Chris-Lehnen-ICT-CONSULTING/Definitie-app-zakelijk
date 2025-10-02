@@ -3,13 +3,15 @@ Tests voor Ontological Category Fix.
 
 Valideert dat de ontologische categorie correct wordt gebruikt voor template selectie.
 """
-import pytest
+
 import asyncio
 from unittest.mock import Mock, patch
 
+import pytest
+
 from services.interfaces import GenerationRequest
-from services.prompts.prompt_service_v2 import PromptServiceV2, PromptServiceConfig
 from services.orchestrators.definition_orchestrator_v2 import DefinitionOrchestratorV2
+from services.prompts.prompt_service_v2 import PromptServiceConfig, PromptServiceV2
 
 
 class TestOntologicalCategoryFix:
@@ -19,7 +21,7 @@ class TestOntologicalCategoryFix:
         """Setup test dependencies."""
         self.prompt_service = PromptServiceV2()
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_prompt_service_v2_uses_ontological_category(self):
         """Test dat PromptServiceV2 ontological category gebruikt voor template selectie."""
 
@@ -28,7 +30,7 @@ class TestOntologicalCategoryFix:
             ("proces", "authenticatie", "Proces waarbij gebruikers zich identificeren"),
             ("type", "document", "Soort schriftelijk stuk"),
             ("resultaat", "besluit", "Uitkomst van een beoordelingsproces"),
-            ("exemplaar", "contract", "Specifiek exemplaar van een overeenkomst")
+            ("exemplaar", "contract", "Specifiek exemplaar van een overeenkomst"),
         ]
 
         for category, begrip, expected_context in test_cases:
@@ -38,7 +40,7 @@ class TestOntologicalCategoryFix:
                 ontologische_categorie=category,
                 context="Test context",
                 actor="test_user",
-                legal_basis="legitimate_interest"
+                legal_basis="legitimate_interest",
             )
 
             result = await self.prompt_service.build_generation_prompt(request)
@@ -52,34 +54,34 @@ class TestOntologicalCategoryFix:
             # Verificeer dat prompt category-specifieke elementen bevat
             assert category in result.text.lower() or begrip in result.text.lower()
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_orchestrator_v2_with_prompt_service_v2(self):
         """Test dat DefinitionOrchestratorV2 correct werkt met PromptServiceV2."""
 
         # Mock dependencies met async methods
         from unittest.mock import AsyncMock
+
         mock_ai_service = Mock()
-        mock_ai_service.generate_definition = AsyncMock(return_value=Mock(
-            text="Test definitie",
-            model="gpt-4",
-            tokens_used=50
-        ))
+        mock_ai_service.generate_definition = AsyncMock(
+            return_value=Mock(text="Test definitie", model="gpt-4", tokens_used=50)
+        )
 
         mock_cleaning_service = Mock()
-        mock_cleaning_service.clean_definition = AsyncMock(return_value="Clean test definitie")
+        mock_cleaning_service.clean_definition = AsyncMock(
+            return_value="Clean test definitie"
+        )
 
         mock_validation_service = Mock()
-        mock_validation_service.validate_definition = AsyncMock(return_value=Mock(
-            is_valid=True,
-            violations=[],
-            suggestions=[]
-        ))
+        mock_validation_service.validate_definition = AsyncMock(
+            return_value=Mock(is_valid=True, violations=[], suggestions=[])
+        )
 
         mock_repository = Mock()
         mock_repository.save_definition = AsyncMock(return_value="def-123")
 
         # Mock monitoring met async methods
         from unittest.mock import AsyncMock
+
         mock_monitoring = Mock()
         mock_monitoring.start_generation = AsyncMock(return_value=None)
         mock_monitoring.complete_generation = AsyncMock(return_value=None)
@@ -95,7 +97,7 @@ class TestOntologicalCategoryFix:
             cleaning_service=mock_cleaning_service,
             repository=mock_repository,
             monitoring=mock_monitoring,
-            feedback_engine=None
+            feedback_engine=None,
         )
 
         # Test request with ontological category
@@ -105,7 +107,7 @@ class TestOntologicalCategoryFix:
             ontologische_categorie="proces",
             context="Beveiligingscontext",
             actor="test_user",
-            legal_basis="legitimate_interest"
+            legal_basis="legitimate_interest",
         )
 
         # Execute orchestration
@@ -128,7 +130,7 @@ class TestOntologicalCategoryFix:
             ontologische_categorie="proces",
             context="Juridische context, Compliance",
             actor="legal_user",
-            legal_basis="legal_obligation"
+            legal_basis="legal_obligation",
         )
 
         enriched_context = self.prompt_service._convert_request_to_context(request)
@@ -142,10 +144,12 @@ class TestOntologicalCategoryFix:
         # Verify context structure
         assert "organisatorisch" in enriched_context.base_context
         assert "domein" in enriched_context.base_context
-        assert enriched_context.base_context["organisatorisch"] == ["Juridische context, Compliance"]
+        assert enriched_context.base_context["organisatorisch"] == [
+            "Juridische context, Compliance"
+        ]
         assert enriched_context.base_context["domein"] == ["Rechtspraak"]
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_category_specific_template_selection(self):
         """Test dat verschillende categories leiden tot verschillende prompts."""
 
@@ -155,7 +159,7 @@ class TestOntologicalCategoryFix:
             "context": "Test context",
             # "domein": "Test domein"  # removed per US-043,
             "actor": "test_user",
-            "legal_basis": "legitimate_interest"
+            "legal_basis": "legitimate_interest",
         }
 
         # Test verschillende categories
@@ -164,8 +168,7 @@ class TestOntologicalCategoryFix:
 
         for category in categories:
             request = GenerationRequest(
-                ontologische_categorie=category,
-                **base_request_data
+                ontologische_categorie=category, **base_request_data
             )
 
             result = await self.prompt_service.build_generation_prompt(request)
@@ -173,7 +176,9 @@ class TestOntologicalCategoryFix:
 
         # Verify dat verschillende categories verschillende prompts genereren
         unique_prompts = set(prompts.values())
-        assert len(unique_prompts) >= 2, "Different categories should generate different prompts"
+        assert (
+            len(unique_prompts) >= 2
+        ), "Different categories should generate different prompts"
 
         # Verify dat elke prompt de category weergeeft
         for category, prompt_text in prompts.items():
@@ -181,7 +186,7 @@ class TestOntologicalCategoryFix:
             assert len(prompt_text) > 0
             # Deze test kan worden uitgebreid met meer specifieke checks
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_fallback_when_no_category_provided(self):
         """Test dat service correct werkt zonder ontological category."""
 
@@ -191,7 +196,7 @@ class TestOntologicalCategoryFix:
             ontologische_categorie=None,  # Geen category
             context="Test context",
             actor="test_user",
-            legal_basis="legitimate_interest"
+            legal_basis="legitimate_interest",
         )
 
         result = await self.prompt_service.build_generation_prompt(request)
@@ -202,7 +207,9 @@ class TestOntologicalCategoryFix:
         assert result.metadata["ontologische_categorie"] is None
 
         # Maar geen category-specifieke components
-        category_components = [c for c in result.components_used if c.startswith("ontologische_")]
+        category_components = [
+            c for c in result.components_used if c.startswith("ontologische_")
+        ]
         assert len(category_components) == 0
 
 

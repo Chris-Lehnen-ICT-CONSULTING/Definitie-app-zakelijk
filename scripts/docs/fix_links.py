@@ -50,22 +50,22 @@ def canonical_req_path(req_id: str) -> Path:
 
 def normalize_href(href: str) -> str:
     # strip anchors/queries for existence checks
-    core = href.split('#', 1)[0].split('?', 1)[0]
+    core = href.split("#", 1)[0].split("?", 1)[0]
     return core
 
 
 def replace_in_text(text: str, base: Path, us_lookup: dict[str, Path]) -> str:
     def replace_md(m: re.Match) -> str:
-        label = m.group('text')
-        href = m.group('href')
+        label = m.group("text")
+        href = m.group("href")
         new_href = fix_href(href, base, us_lookup)
         if new_href is None:
             # If target still doesn't exist, drop link but keep label
             core = normalize_href(href)
             if core.startswith(("http://", "https://", "mailto:", "#")):
                 return m.group(0)
-            target = (base / core)
-            if core.startswith('docs/'):
+            target = base / core
+            if core.startswith("docs/"):
                 target = ROOT / core
             if not target.exists():
                 return label
@@ -75,14 +75,14 @@ def replace_in_text(text: str, base: Path, us_lookup: dict[str, Path]) -> str:
         return f"[{label}]({new_href})"
 
     def replace_html(m: re.Match) -> str:
-        href = m.group('href')
+        href = m.group("href")
         new_href = fix_href(href, base, us_lookup)
         if new_href is None:
             return m.group(0)
         if new_href == "__REMOVE_LINK_KEEP_TEXT__":
             # cannot drop href attribute cleanly; keep original
             return m.group(0)
-        return f"href=\"{new_href}\""
+        return f'href="{new_href}"'
 
     text = MD_LINK.sub(replace_md, text)
     text = HTML_HREF.sub(replace_html, text)
@@ -121,7 +121,10 @@ def fix_href(href: str, base: Path, us_lookup: dict[str, Path]) -> str | None:
             return rel_from(target, base)
 
     # Map requirements misspellings → canonical requirements path
-    if any(seg in core for seg in ("/vereistes/", "/vereisten/", "/requirements/")) and "REQ-" in core:
+    if (
+        any(seg in core for seg in ("/vereistes/", "/vereisten/", "/requirements/"))
+        and "REQ-" in core
+    ):
         m = REQ_ID.search(core)
         if m:
             target = canonical_req_path(m.group(0))
@@ -132,7 +135,7 @@ def fix_href(href: str, base: Path, us_lookup: dict[str, Path]) -> str | None:
         # if target doesn't exist, try EPIC/US mapping by IDs
         p = ROOT / core
         if p.exists():
-            return h.lstrip('/')
+            return h.lstrip("/")
         # try ID-based mapping fallback
         m = US_ID.search(core)
         if m and m.group(0) in us_lookup:

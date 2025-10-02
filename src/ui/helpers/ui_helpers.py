@@ -6,9 +6,10 @@ across all tab components while maintaining exact functionality.
 """
 
 import logging
+from collections.abc import Callable, Generator
 from contextlib import contextmanager
 from functools import wraps
-from typing import Any, Callable, Generator, TypeVar
+from typing import Any, TypeVar
 
 import streamlit as st
 
@@ -21,6 +22,7 @@ T = TypeVar("T")
 
 
 # === Session State Helpers ===
+
 
 def ensure_session_value(key: str, default: Any = None) -> Any:
     """
@@ -65,6 +67,7 @@ def clear_session_values(*keys: str) -> None:
 
 # === Service Access Helpers ===
 
+
 def get_service_safe(service_name: str) -> Any:
     """
     Get a service with automatic initialization and error handling.
@@ -101,6 +104,7 @@ def get_web_lookup():
 
 
 # === UI Feedback Helpers ===
+
 
 def show_result(success: bool, message: str, icon: str = None) -> None:
     """
@@ -140,6 +144,7 @@ def show_metrics(metrics: dict[str, Any], columns: int = 3) -> None:
 
 # === Progress Indicators ===
 
+
 @contextmanager
 def show_progress(message: str, type: str = "spinner") -> Generator:
     """
@@ -161,10 +166,11 @@ def show_progress(message: str, type: str = "spinner") -> Generator:
 
 # === Error Handling ===
 
+
 def safe_operation(
     operation_name: str = "operation",
     show_error: bool = True,
-    default_return: Any = None
+    default_return: Any = None,
 ) -> Callable:
     """
     Decorator for safe operation execution with error handling.
@@ -177,6 +183,7 @@ def safe_operation(
             st.error(f"Error: {e}")
             return None
     """
+
     def decorator(func: Callable[..., T]) -> Callable[..., T | Any]:
         @wraps(func)
         def wrapper(*args, **kwargs) -> T | Any:
@@ -185,13 +192,16 @@ def safe_operation(
             except Exception as e:
                 logger.error(f"Error in {operation_name}: {e}")
                 if show_error:
-                    st.error(f"Fout in {operation_name}: {str(e)}")
+                    st.error(f"Fout in {operation_name}: {e!s}")
                 return default_return
+
         return wrapper
+
     return decorator
 
 
 # === Button Handlers ===
+
 
 def create_action_button(
     label: str,
@@ -200,7 +210,7 @@ def create_action_button(
     type: str = "secondary",
     confirm: str = None,
     disabled: bool = False,
-    **kwargs
+    **kwargs,
 ) -> Any:
     """
     Create a button with optional confirmation and execute action.
@@ -214,13 +224,7 @@ def create_action_button(
                 except Exception as e:
                     st.error(f"Error: {e}")
     """
-    button_clicked = st.button(
-        label,
-        key=key,
-        type=type,
-        disabled=disabled,
-        **kwargs
-    )
+    button_clicked = st.button(label, key=key, type=type, disabled=disabled, **kwargs)
 
     if button_clicked:
         if confirm:
@@ -238,9 +242,9 @@ def create_action_button(
 
 # === Data Validation ===
 
+
 def validate_required_fields(
-    fields: dict[str, Any],
-    field_names: dict[str, str] = None
+    fields: dict[str, Any], field_names: dict[str, str] = None
 ) -> tuple[bool, list[str]]:
     """
     Validate required fields and return validation status.
@@ -277,11 +281,9 @@ def show_validation_errors(errors: list[str]) -> None:
 
 # === Form Helpers ===
 
+
 @contextmanager
-def create_form(
-    key: str,
-    clear_on_submit: bool = False
-) -> Generator:
+def create_form(key: str, clear_on_submit: bool = False) -> Generator:
     """
     Create a form with automatic state management.
 
@@ -301,7 +303,7 @@ def create_select_box(
     key: str,
     default_index: int = 0,
     format_func: Callable = None,
-    help: str = None
+    help: str = None,
 ) -> Any:
     """
     Create a selectbox with consistent styling and behavior.
@@ -314,18 +316,15 @@ def create_select_box(
         index=default_index,
         key=key,
         format_func=format_func or str,
-        help=help
+        help=help,
     )
 
 
 # === Expander Helpers ===
 
+
 @contextmanager
-def create_section(
-    title: str,
-    expanded: bool = False,
-    icon: str = None
-) -> Generator:
+def create_section(title: str, expanded: bool = False, icon: str = None) -> Generator:
     """
     Create a section with consistent styling.
 
@@ -340,9 +339,9 @@ def create_section(
 
 # === Status Display ===
 
+
 def show_status_badge(
-    status: str,
-    statuses_map: dict[str, tuple[str, str]] = None
+    status: str, statuses_map: dict[str, tuple[str, str]] = None
 ) -> None:
     """
     Display a status badge with color coding.
@@ -364,16 +363,14 @@ def show_status_badge(
 
     st.markdown(
         f"<span style='color: {color}; font-size: 1.2em;'>{icon} {status}</span>",
-        unsafe_allow_html=True
+        unsafe_allow_html=True,
     )
 
 
 # === Tab Navigation ===
 
-def create_tab_navigation(
-    tabs: dict[str, Callable],
-    default_tab: str = None
-) -> None:
+
+def create_tab_navigation(tabs: dict[str, Callable], default_tab: str = None) -> None:
     """
     Create tab navigation with automatic state management.
 
@@ -391,12 +388,13 @@ def create_tab_navigation(
 
 # === Data Export Helpers ===
 
+
 def create_download_button(
     data: str | bytes,
     filename: str,
     label: str = "Download",
     mime: str = "text/plain",
-    key: str = None
+    key: str = None,
 ) -> bool:
     """
     Create a download button with consistent styling.
@@ -404,19 +402,15 @@ def create_download_button(
     Replaces varied download button patterns.
     """
     return st.download_button(
-        label=f"📥 {label}",
-        data=data,
-        file_name=filename,
-        mime=mime,
-        key=key
+        label=f"📥 {label}", data=data, file_name=filename, mime=mime, key=key
     )
 
 
 # === Initialization Helper ===
 
+
 def initialize_tab(
-    tab_name: str,
-    required_services: list[str] = None
+    tab_name: str, required_services: list[str] = None
 ) -> dict[str, Any]:
     """
     Initialize a tab with required services and session state.

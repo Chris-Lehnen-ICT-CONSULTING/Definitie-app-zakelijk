@@ -23,8 +23,8 @@ class ValidationResult(Enum):
 @dataclass
 class ValidationContext:
     definitie: str
-    regel: Dict[str, Any] | None = None
-    contexten: Dict[str, Any] | None = None
+    regel: dict[str, Any] | None = None
+    contexten: dict[str, Any] | None = None
     begrip: str | None = None
 
 
@@ -72,4 +72,3 @@ __all__ = [
     "ValidationOutput",
     "validation_registry",
 ]
-

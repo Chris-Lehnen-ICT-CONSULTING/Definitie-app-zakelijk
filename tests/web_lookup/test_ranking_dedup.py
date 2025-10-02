@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 
 import pytest
 
@@ -14,7 +14,7 @@ def _mk_result(provider: str, title: str, url: str, score: float, content_hash: 
         "score": score,
         "used_in_prompt": False,
         "position_in_prompt": -1,
-        "retrieved_at": datetime.now(timezone.utc),
+        "retrieved_at": datetime.now(UTC),
         "content_hash": content_hash,
         "error": None,
         "legal_refs": [],

@@ -1,14 +1,11 @@
 import pytest
 
+from services.definition_generator_config import ContextConfig, UnifiedGeneratorConfig
+from services.definition_generator_context import EnrichedContext, HybridContextManager
 from services.interfaces import GenerationRequest
-from services.definition_generator_context import HybridContextManager, EnrichedContext
-from services.definition_generator_config import ContextConfig
-from services.prompts.prompt_service_v2 import PromptServiceV2
-from services.prompts.modules.context_awareness_module import (
-    ContextAwarenessModule,
-)
-from services.definition_generator_config import UnifiedGeneratorConfig
 from services.prompts.modules.base_module import ModuleContext
+from services.prompts.modules.context_awareness_module import ContextAwarenessModule
+from services.prompts.prompt_service_v2 import PromptServiceV2
 
 
 def make_request() -> GenerationRequest:
@@ -77,6 +74,8 @@ def test_context_awareness_module_renders_all_sections():
     assert "DJI" in text and "OM" in text
     assert "Juridisch" in text and "Strafrecht" in text
     assert "Wettelijk" in text and "Art. 27 Sv" in text
+
+
 def test_legacy_context_ignored_when_structured_present():
     # Wanneer de gestructureerde velden aanwezig zijn, mag de vrije context-string niet toegevoegd worden
     request = make_request()

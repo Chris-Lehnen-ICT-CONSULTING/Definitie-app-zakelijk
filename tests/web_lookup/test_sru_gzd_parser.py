@@ -1,11 +1,10 @@
 import pytest
 
-
 pytestmark = pytest.mark.smoke_web_lookup
 
 
 def test_sru_gzd_parser_parses_basic_fields():
-    from services.web_lookup.sru_service import SRUService, SRUConfig
+    from services.web_lookup.sru_service import SRUConfig, SRUService
 
     svc = SRUService()
     cfg = SRUConfig(

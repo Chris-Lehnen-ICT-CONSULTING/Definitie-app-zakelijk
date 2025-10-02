@@ -4,7 +4,7 @@ from services.validation.modular_validation_service import ModularValidationServ
 from toetsregels.manager import get_toetsregel_manager
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_ess03_unique_identification_pass_and_fail():
     svc = ModularValidationService(get_toetsregel_manager(), None, None)
 
@@ -14,7 +14,9 @@ async def test_ess03_unique_identification_pass_and_fail():
         ontologische_categorie=None,
         context={},
     )
-    assert not any(v.get("code") == "ESS-03" for v in res_ok.get("violations", [])), res_ok
+    assert not any(
+        v.get("code") == "ESS-03" for v in res_ok.get("violations", [])
+    ), res_ok
 
     res_bad = await svc.validate_definition(
         begrip="identificatie",
@@ -22,10 +24,12 @@ async def test_ess03_unique_identification_pass_and_fail():
         ontologische_categorie=None,
         context={},
     )
-    assert any(v.get("code") == "ESS-03" for v in res_bad.get("violations", [])), res_bad
+    assert any(
+        v.get("code") == "ESS-03" for v in res_bad.get("violations", [])
+    ), res_bad
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_ess04_testable_element_pass_and_fail():
     svc = ModularValidationService(get_toetsregel_manager(), None, None)
 
@@ -35,7 +39,9 @@ async def test_ess04_testable_element_pass_and_fail():
         ontologische_categorie=None,
         context={},
     )
-    assert not any(v.get("code") == "ESS-04" for v in res_ok.get("violations", [])), res_ok
+    assert not any(
+        v.get("code") == "ESS-04" for v in res_ok.get("violations", [])
+    ), res_ok
 
     res_bad = await svc.validate_definition(
         begrip="termijn",
@@ -43,10 +49,12 @@ async def test_ess04_testable_element_pass_and_fail():
         ontologische_categorie=None,
         context={},
     )
-    assert any(v.get("code") == "ESS-04" for v in res_bad.get("violations", [])), res_bad
+    assert any(
+        v.get("code") == "ESS-04" for v in res_bad.get("violations", [])
+    ), res_bad
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_ess05_distinguishing_feature_pass_and_fail():
     svc = ModularValidationService(get_toetsregel_manager(), None, None)
 
@@ -56,7 +64,9 @@ async def test_ess05_distinguishing_feature_pass_and_fail():
         ontologische_categorie=None,
         context={},
     )
-    assert not any(v.get("code") == "ESS-05" for v in res_ok.get("violations", [])), res_ok
+    assert not any(
+        v.get("code") == "ESS-05" for v in res_ok.get("violations", [])
+    ), res_ok
 
     res_bad = await svc.validate_definition(
         begrip="kenmerk",
@@ -64,4 +74,6 @@ async def test_ess05_distinguishing_feature_pass_and_fail():
         ontologische_categorie=None,
         context={},
     )
-    assert any(v.get("code") == "ESS-05" for v in res_bad.get("violations", [])), res_bad
+    assert any(
+        v.get("code") == "ESS-05" for v in res_bad.get("violations", [])
+    ), res_bad

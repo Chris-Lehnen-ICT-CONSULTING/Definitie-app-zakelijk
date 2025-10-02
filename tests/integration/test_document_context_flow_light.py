@@ -2,7 +2,6 @@ import io
 
 import pytest
 
-
 docx = pytest.importorskip("docx")
 
 
@@ -55,4 +54,3 @@ def test_light_flow_upload_select_summarize_and_snippets():
     )
     assert len(snippets) >= 2
     assert all(s.get("used_in_prompt") for s in snippets)
-

@@ -1,13 +1,14 @@
 """Tests for batch validation functionality."""
 
-import pytest
+import asyncio
 import os
 from typing import List
-import asyncio
+
+import pytest
 
 
-@pytest.mark.unit
-@pytest.mark.asyncio
+@pytest.mark.unit()
+@pytest.mark.asyncio()
 async def test_batch_validate_interface():
     """Test that batch_validate method exists and works."""
     m = pytest.importorskip(
@@ -31,7 +32,9 @@ async def test_batch_validate_interface():
     results = await service.batch_validate(items)
 
     # Results length must match input length
-    assert len(results) == len(items), f"Expected {len(items)} results, got {len(results)}"
+    assert len(results) == len(
+        items
+    ), f"Expected {len(items)} results, got {len(results)}"
 
     # Each result must be a valid ValidationResult
     for i, result in enumerate(results):
@@ -41,8 +44,8 @@ async def test_batch_validate_interface():
         assert "violations" in result, f"Result {i} missing violations"
 
 
-@pytest.mark.unit
-@pytest.mark.asyncio
+@pytest.mark.unit()
+@pytest.mark.asyncio()
 async def test_batch_validate_order_preservation():
     """Test that batch results are returned in same order as input."""
     m = pytest.importorskip(
@@ -59,9 +62,15 @@ async def test_batch_validate_order_preservation():
     # Items with predictable quality order
     items = [
         {"begrip": "empty", "text": ""},  # Will fail
-        {"begrip": "good", "text": "Een goede definitie met voldoende uitleg en context voor validatie."},  # Will pass
+        {
+            "begrip": "good",
+            "text": "Een goede definitie met voldoende uitleg en context voor validatie.",
+        },  # Will pass
         {"begrip": "short", "text": "Te kort."},  # Will fail
-        {"begrip": "perfect", "text": "Een uitstekende definitie die alle vereisten vervult met duidelijke uitleg, goede structuur, en voldoende detail om het concept volledig te begrijpen."},  # Will pass
+        {
+            "begrip": "perfect",
+            "text": "Een uitstekende definitie die alle vereisten vervult met duidelijke uitleg, goede structuur, en voldoende detail om het concept volledig te begrijpen.",
+        },  # Will pass
     ]
 
     results = await service.batch_validate(items)
@@ -73,8 +82,8 @@ async def test_batch_validate_order_preservation():
     assert results[3]["is_acceptable"] is True, "Perfect definition should pass"
 
 
-@pytest.mark.unit
-@pytest.mark.asyncio
+@pytest.mark.unit()
+@pytest.mark.asyncio()
 async def test_batch_validate_with_max_concurrency():
     """Test batch validation with concurrency control."""
     m = pytest.importorskip(
@@ -90,7 +99,10 @@ async def test_batch_validate_with_max_concurrency():
 
     # Create many items to test concurrency
     items = [
-        {"begrip": f"test{i}", "text": f"Test definitie nummer {i} met voldoende inhoud."}
+        {
+            "begrip": f"test{i}",
+            "text": f"Test definitie nummer {i} met voldoende inhoud.",
+        }
         for i in range(10)
     ]
 
@@ -104,12 +116,13 @@ async def test_batch_validate_with_max_concurrency():
 
     # Results should be identical regardless of concurrency
     for i in range(10):
-        assert results_seq[i]["overall_score"] == results_par[i]["overall_score"], \
-            f"Item {i}: scores differ between sequential and parallel"
+        assert (
+            results_seq[i]["overall_score"] == results_par[i]["overall_score"]
+        ), f"Item {i}: scores differ between sequential and parallel"
 
 
-@pytest.mark.unit
-@pytest.mark.asyncio
+@pytest.mark.unit()
+@pytest.mark.asyncio()
 async def test_batch_validate_individual_failure_handling():
     """Test that individual failures don't crash entire batch."""
     m = pytest.importorskip(
@@ -138,8 +151,14 @@ async def test_batch_validate_individual_failure_handling():
     assert len(results) == len(items), "Must return result for each item"
 
     # Check that valid items still processed correctly
-    assert results[0]["is_acceptable"] in [True, False], "Normal item should have valid result"
-    assert results[4]["is_acceptable"] in [True, False], "Last normal item should have valid result"
+    assert results[0]["is_acceptable"] in [
+        True,
+        False,
+    ], "Normal item should have valid result"
+    assert results[4]["is_acceptable"] in [
+        True,
+        False,
+    ], "Last normal item should have valid result"
 
     # Invalid items should have degraded results
     assert results[3]["is_acceptable"] is False, "Invalid begrip should fail"
@@ -147,8 +166,8 @@ async def test_batch_validate_individual_failure_handling():
         assert results[3]["system"]["error"] is not None, "Error should be recorded"
 
 
-@pytest.mark.unit
-@pytest.mark.asyncio
+@pytest.mark.unit()
+@pytest.mark.asyncio()
 async def test_batch_validate_with_validation_request_objects():
     """Test batch validation using ValidationRequest dataclass."""
     m = pytest.importorskip(
@@ -173,7 +192,9 @@ async def test_batch_validate_with_validation_request_objects():
         service = svc()
 
     # Create ValidationRequest objects
-    context = ValidationContext(correlation_id="batch-123") if ValidationContext else None
+    context = (
+        ValidationContext(correlation_id="batch-123") if ValidationContext else None
+    )
 
     requests = [
         ValidationRequest(
@@ -200,8 +221,8 @@ async def test_batch_validate_with_validation_request_objects():
             assert result["system"]["correlation_id"] == "batch-123"
 
 
-@pytest.mark.unit
-@pytest.mark.asyncio
+@pytest.mark.unit()
+@pytest.mark.asyncio()
 async def test_batch_validate_empty_input():
     """Test batch validation with empty input list."""
     m = pytest.importorskip(
@@ -230,8 +251,8 @@ SKIP_TIMING = pytest.mark.skipif(
 )
 
 
-@pytest.mark.unit
-@pytest.mark.asyncio
+@pytest.mark.unit()
+@pytest.mark.asyncio()
 @SKIP_TIMING
 async def test_batch_validate_performance_benefit():
     """Test that batch validation is more efficient than sequential calls."""
@@ -271,8 +292,9 @@ async def test_batch_validate_performance_benefit():
 
     # Batch should be faster (or at least not significantly slower)
     # We allow some margin for overhead
-    assert time_batch <= time_seq * 1.2, \
-        f"Batch ({time_batch:.2f}s) should not be much slower than sequential ({time_seq:.2f}s)"
+    assert (
+        time_batch <= time_seq * 1.2
+    ), f"Batch ({time_batch:.2f}s) should not be much slower than sequential ({time_seq:.2f}s)"
 
     # Results should be equivalent
     assert len(results_batch) == len(results_seq)

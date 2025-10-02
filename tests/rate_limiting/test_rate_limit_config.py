@@ -2,14 +2,21 @@
 """Test script voor rate limit configuratie verificatie."""
 
 import asyncio
-import pytest
 import sys
-sys.path.insert(0, 'src')
 
-from config.rate_limit_config import get_rate_limit_config, get_endpoint_timeout, get_all_endpoints
+import pytest
+
+sys.path.insert(0, "src")
+
+from config.rate_limit_config import (
+    get_all_endpoints,
+    get_endpoint_timeout,
+    get_rate_limit_config,
+)
 from utils.smart_rate_limiter import get_smart_limiter
 
 pytestmark = [pytest.mark.integration]
+
 
 async def test_config_loading():
     """Test dat configuraties correct worden geladen."""
@@ -25,7 +32,7 @@ async def test_config_loading():
         "examples_generation_practical",
         "definition_generation",
         "web_search",
-        "non_existent_endpoint"
+        "non_existent_endpoint",
     ]
 
     for endpoint in endpoints_to_test:
@@ -63,7 +70,9 @@ async def test_config_loading():
 
     # Cleanup
     from utils.smart_rate_limiter import cleanup_smart_limiters
+
     await cleanup_smart_limiters()
+
 
 if __name__ == "__main__":
     asyncio.run(test_config_loading())

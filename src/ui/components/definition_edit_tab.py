@@ -5,19 +5,17 @@ Deze tab biedt een gebruiksvriendelijke interface voor het bewerken
 van definities met ondersteuning voor versiegeschiedenis en auto-save.
 """
 
-import json
 import logging
 from datetime import datetime, timedelta
-from typing import Any, Dict, Optional
+from typing import Any
 
 import streamlit as st
-from config.config_manager import get_config, ConfigSection
 
+from config.config_manager import ConfigSection, get_config
 from services.definition_edit_repository import DefinitionEditRepository
 from services.definition_edit_service import DefinitionEditService
 from services.validation.modular_validation_service import ModularValidationService
 from ui.session_state import SessionStateManager
-from ui.helpers.async_bridge import run_async
 
 logger = logging.getLogger(__name__)
 
@@ -25,9 +23,11 @@ logger = logging.getLogger(__name__)
 class DefinitionEditTab:
     """Tab voor het bewerken van definities met rich text editor."""
 
-    def __init__(self,
-                 repository: DefinitionEditRepository = None,
-                 validation_service: ModularValidationService = None):
+    def __init__(
+        self,
+        repository: DefinitionEditRepository = None,
+        validation_service: ModularValidationService = None,
+    ):
         """
         Initialiseer definition edit tab.
 
@@ -37,8 +37,7 @@ class DefinitionEditTab:
         """
         self.repository = repository or DefinitionEditRepository()
         self.edit_service = DefinitionEditService(
-            repository=self.repository,
-            validation_service=validation_service
+            repository=self.repository, validation_service=validation_service
         )
 
         # Initialize session state via SessionStateManager
@@ -49,12 +48,14 @@ class DefinitionEditTab:
     def render(self):
         """Render de edit tab interface."""
         st.markdown("## ✏️ Definitie Editor")
-        st.markdown("Bewerk definities met een rijke text editor, versiegeschiedenis en auto-save functionaliteit.")
+        st.markdown(
+            "Bewerk definities met een rijke text editor, versiegeschiedenis en auto-save functionaliteit."
+        )
 
         # Auto-start bewerksessie als er al een target ID is gezet (bijv. via generator-tab)
         try:
-            target_id = SessionStateManager.get_value('editing_definition_id')
-            current_definition = SessionStateManager.get_value('editing_definition')
+            target_id = SessionStateManager.get_value("editing_definition_id")
+            current_definition = SessionStateManager.get_value("editing_definition")
 
             # Check of we een nieuwe definitie moeten laden
             # Dit gebeurt als:
@@ -64,42 +65,54 @@ class DefinitionEditTab:
             if target_id and not current_definition:
                 should_load = True
                 logger.info(f"Loading definition {target_id} - no current definition")
-            elif target_id and current_definition and hasattr(current_definition, 'id'):
+            elif target_id and current_definition and hasattr(current_definition, "id"):
                 if current_definition.id != target_id:
                     should_load = True
-                    logger.info(f"Loading definition {target_id} - different from current {current_definition.id}")
+                    logger.info(
+                        f"Loading definition {target_id} - different from current {current_definition.id}"
+                    )
 
             if should_load:
                 # Probeer sessie te starten zodat geschiedenis/auto-save beschikbaar zijn
                 session = self.edit_service.start_edit_session(
-                    target_id,
-                    user=SessionStateManager.get_value('user') or 'system'
+                    target_id, user=SessionStateManager.get_value("user") or "system"
                 )
-                if session and session.get('success'):
-                    SessionStateManager.set_value('editing_definition', session.get('definition'))
-                    SessionStateManager.set_value('edit_session', session)
+                if session and session.get("success"):
+                    SessionStateManager.set_value(
+                        "editing_definition", session.get("definition")
+                    )
+                    SessionStateManager.set_value("edit_session", session)
 
                     # Check of er contexten zijn meegegeven vanuit de generator tab
                     # Dit zorgt ervoor dat de contexten automatisch ingevuld worden
-                    edit_org_context = SessionStateManager.get_value('edit_organisatorische_context')
-                    edit_jur_context = SessionStateManager.get_value('edit_juridische_context')
-                    edit_wet_context = SessionStateManager.get_value('edit_wettelijke_basis')
+                    edit_org_context = SessionStateManager.get_value(
+                        "edit_organisatorische_context"
+                    )
+                    edit_jur_context = SessionStateManager.get_value(
+                        "edit_juridische_context"
+                    )
+                    edit_wet_context = SessionStateManager.get_value(
+                        "edit_wettelijke_basis"
+                    )
 
                     if edit_org_context or edit_jur_context or edit_wet_context:
                         # Log dat we contexten hebben gevonden
-                        logger.info(f"Loading contexts from generator tab for definition {target_id}")
+                        logger.info(
+                            f"Loading contexts from generator tab for definition {target_id}"
+                        )
 
                         # Toon melding aan gebruiker
-                        st.info("📋 Contexten van gegenereerde definitie zijn automatisch ingevuld")
+                        st.info(
+                            "📋 Contexten van gegenereerde definitie zijn automatisch ingevuld"
+                        )
 
                         # Clear de tijdelijke context variabelen na gebruik
                         # Dit voorkomt dat oude contexten blijven hangen
-                        SessionStateManager.clear_value('edit_organisatorische_context')
-                        SessionStateManager.clear_value('edit_juridische_context')
-                        SessionStateManager.clear_value('edit_wettelijke_basis')
+                        SessionStateManager.clear_value("edit_organisatorische_context")
+                        SessionStateManager.clear_value("edit_juridische_context")
+                        SessionStateManager.clear_value("edit_wettelijke_basis")
         except Exception as e:
             logger.error(f"Error in edit tab auto-load: {e}")
-            pass
 
         # Main layout
         col1, col2 = st.columns([2, 1])
@@ -108,14 +121,14 @@ class DefinitionEditTab:
             # Definition selector and editor
             self._render_definition_selector()
 
-            if SessionStateManager.get_value('editing_definition_id'):
+            if SessionStateManager.get_value("editing_definition_id"):
                 self._render_editor()
                 self._render_action_buttons()
                 self._render_examples_section()
 
         with col2:
             # Sidebar with metadata and history
-            if SessionStateManager.get_value('editing_definition_id'):
+            if SessionStateManager.get_value("editing_definition_id"):
                 self._render_metadata_panel()
                 self._render_version_history()
 
@@ -133,7 +146,7 @@ class DefinitionEditTab:
             search_term = st.text_input(
                 "Zoek definitie",
                 placeholder="Typ begrip of deel van definitie...",
-                key="edit_search_term"
+                key="edit_search_term",
             )
 
         with col2:
@@ -147,9 +160,7 @@ class DefinitionEditTab:
                 "Gearchiveerd": "archived",
             }
             status_label = st.selectbox(
-                "Status",
-                list(status_options.keys()),
-                key="edit_status_filter"
+                "Status", list(status_options.keys()), key="edit_status_filter"
             )
 
         with col3:
@@ -158,7 +169,7 @@ class DefinitionEditTab:
                 options=[10, 25, 50, 100, 200],
                 index=2,
                 key="edit_max_results",
-                help="Aantal resultaten om op te halen en te tonen"
+                help="Aantal resultaten om op te halen en te tonen",
             )
 
         with col4:
@@ -169,7 +180,7 @@ class DefinitionEditTab:
 
         # Auto-load: toon standaard de meest recente definities wanneer er nog niet gezocht is
         try:
-            current_results = SessionStateManager.get_value('edit_search_results')
+            current_results = SessionStateManager.get_value("edit_search_results")
         except Exception:
             current_results = None
 
@@ -178,12 +189,12 @@ class DefinitionEditTab:
             self._search_definitions("", "Alle", max_results)
 
         # Display search results
-        if SessionStateManager.get_value('edit_search_results') is not None:
+        if SessionStateManager.get_value("edit_search_results") is not None:
             self._render_search_results()
 
     def _render_search_results(self):
         """Render search results."""
-        results = SessionStateManager.get_value('edit_search_results')
+        results = SessionStateManager.get_value("edit_search_results")
 
         if not results:
             st.info("Geen definities gevonden.")
@@ -211,6 +222,7 @@ class DefinitionEditTab:
                         return ""
 
                 rows = []
+
                 def _status_label(code: str | None, source_type: str | None) -> str:
                     # Toon 'Geïmporteerd' als herkomst imported is, anders vertaal status
                     if (source_type or "").lower() == "imported":
@@ -221,7 +233,7 @@ class DefinitionEditTab:
                         "established": "Vastgesteld",
                         "archived": "Gearchiveerd",
                     }
-                    return mapping.get((code or '').lower(), code or '')
+                    return mapping.get((code or "").lower(), code or "")
 
                 def _source_label(src: str | None) -> str:
                     m = {
@@ -229,26 +241,37 @@ class DefinitionEditTab:
                         "generated": "Gegenereerd",
                         "manual": "Handmatig",
                     }
-                    return m.get((src or '').lower(), src or '')
+                    return m.get((src or "").lower(), src or "")
+
                 prev_selected_id = SessionStateManager.get_value("edit_selected_id")
                 for d in results:
-                    status = (d.metadata.get('status') if d.metadata else None) or 'draft'
-                    source_type = (d.metadata.get('source_type') if d.metadata else None)
+                    status = (
+                        d.metadata.get("status") if d.metadata else None
+                    ) or "draft"
+                    source_type = d.metadata.get("source_type") if d.metadata else None
                     status_disp = _status_label(status, source_type)
-                    score = (d.metadata.get('validation_score') if d.metadata else None)
-                    rows.append({
-                        "Selecteer": bool(prev_selected_id == d.id),
-                        "ID": d.id,
-                        "Begrip": d.begrip,
-                        "Categorie": d.categorie or "",
-                        "UFO-categorie": getattr(d, 'ufo_categorie', None) or "",
-                        "Status": status_disp,
-                        "Herkomst": _source_label(source_type),
-                        "Score": score if score is not None else "",
-                        "Organisatorische context": _join_list(getattr(d, 'organisatorische_context', [])),
-                        "Juridische context": _join_list(getattr(d, 'juridische_context', [])),
-                        "Wettelijke basis": _join_list(getattr(d, 'wettelijke_basis', [])),
-                    })
+                    score = d.metadata.get("validation_score") if d.metadata else None
+                    rows.append(
+                        {
+                            "Selecteer": bool(prev_selected_id == d.id),
+                            "ID": d.id,
+                            "Begrip": d.begrip,
+                            "Categorie": d.categorie or "",
+                            "UFO-categorie": getattr(d, "ufo_categorie", None) or "",
+                            "Status": status_disp,
+                            "Herkomst": _source_label(source_type),
+                            "Score": score if score is not None else "",
+                            "Organisatorische context": _join_list(
+                                getattr(d, "organisatorische_context", [])
+                            ),
+                            "Juridische context": _join_list(
+                                getattr(d, "juridische_context", [])
+                            ),
+                            "Wettelijke basis": _join_list(
+                                getattr(d, "wettelijke_basis", [])
+                            ),
+                        }
+                    )
 
                 df = pd.DataFrame(rows)
                 edited = st.data_editor(
@@ -269,15 +292,23 @@ class DefinitionEditTab:
                         "Status": st.column_config.TextColumn(disabled=True),
                         "Herkomst": st.column_config.TextColumn(disabled=True),
                         "Score": st.column_config.TextColumn(disabled=True),
-                        "Organisatorische context": st.column_config.TextColumn(disabled=True),
-                        "Juridische context": st.column_config.TextColumn(disabled=True),
+                        "Organisatorische context": st.column_config.TextColumn(
+                            disabled=True
+                        ),
+                        "Juridische context": st.column_config.TextColumn(
+                            disabled=True
+                        ),
                         "Wettelijke basis": st.column_config.TextColumn(disabled=True),
                     },
                 )
 
                 # Enforce enkelvoudige selectie: kies vorige selectie als aanwezig, anders de eerste True
                 try:
-                    true_ids = [int(r["ID"]) for _, r in edited.iterrows() if bool(r.get("Selecteer"))]
+                    true_ids = [
+                        int(r["ID"])
+                        for _, r in edited.iterrows()
+                        if bool(r.get("Selecteer"))
+                    ]
                 except Exception:
                     true_ids = []
 
@@ -290,13 +321,19 @@ class DefinitionEditTab:
                         selected_id = prev_selected_id
                     else:
                         selected_id = true_ids[0]
-                    st.caption("Er kan maar één rij geselecteerd zijn; selectie gecorrigeerd.")
+                    st.caption(
+                        "Er kan maar één rij geselecteerd zijn; selectie gecorrigeerd."
+                    )
                 # Update session state
                 SessionStateManager.set_value("edit_selected_id", selected_id)
 
                 col_sel, _ = st.columns([1, 3])
                 with col_sel:
-                    if st.button("✏️ Bewerk geselecteerde", key="edit_btn_selected_table", disabled=selected_id is None):
+                    if st.button(
+                        "✏️ Bewerk geselecteerde",
+                        key="edit_btn_selected_table",
+                        disabled=selected_id is None,
+                    ):
                         self._start_edit_session(int(selected_id))
             except Exception as e:
                 st.warning(f"Kon tabelweergave niet renderen: {e!s}")
@@ -308,20 +345,32 @@ class DefinitionEditTab:
                 with st.container():
                     c1, c2 = st.columns([4, 1])
                     with c1:
-                        status = (d.metadata.get('status') if d.metadata else None) or 'draft'
-                        source_type = (d.metadata.get('source_type') if d.metadata else None)
+                        status = (
+                            d.metadata.get("status") if d.metadata else None
+                        ) or "draft"
+                        source_type = (
+                            d.metadata.get("source_type") if d.metadata else None
+                        )
                         mapping = {
                             "draft": "Concept",
                             "review": "In review",
                             "established": "Vastgesteld",
                             "archived": "Gearchiveerd",
                         }
-                        status_disp = "Geïmporteerd" if (source_type or '').lower() == 'imported' else mapping.get((status or '').lower(), status or '')
-                        st.markdown(f"**[{d.id}] {d.begrip}** — {d.categorie or ''} · {status_disp}")
+                        status_disp = (
+                            "Geïmporteerd"
+                            if (source_type or "").lower() == "imported"
+                            else mapping.get((status or "").lower(), status or "")
+                        )
+                        st.markdown(
+                            f"**[{d.id}] {d.begrip}** — {d.categorie or ''} · {status_disp}"
+                        )
                         # Kleine contextregel
                         try:
-                            org = ", ".join(getattr(d, 'organisatorische_context', []) or [])
-                            jur = ", ".join(getattr(d, 'juridische_context', []) or [])
+                            org = ", ".join(
+                                getattr(d, "organisatorische_context", []) or []
+                            )
+                            jur = ", ".join(getattr(d, "juridische_context", []) or [])
                             if org or jur:
                                 st.caption(f"Org: {org or '—'} · Jur: {jur or '—'}")
                         except Exception:
@@ -336,7 +385,7 @@ class DefinitionEditTab:
         st.markdown("### ✏️ Bewerk Definitie")
 
         # Get current definition
-        definition = SessionStateManager.get_value('editing_definition')
+        definition = SessionStateManager.get_value("editing_definition")
         if not definition:
             st.error("Geen definitie geselecteerd voor bewerking.")
             return
@@ -346,15 +395,15 @@ class DefinitionEditTab:
             return f"edit_{definition.id}_{name}"
 
         # Begrip field
-        status_code = definition.metadata.get('status') if definition.metadata else None
-        disabled = True if status_code in ('established', 'archived') else False
+        status_code = definition.metadata.get("status") if definition.metadata else None
+        disabled = True if status_code in ("established", "archived") else False
 
         begrip = st.text_input(
             "Begrip",
             value=definition.begrip,
             key=k("begrip"),
             disabled=disabled,
-            help="Het juridische begrip dat gedefinieerd wordt"
+            help="Het juridische begrip dat gedefinieerd wordt",
         )
 
         # Rich text editor for definition
@@ -367,7 +416,7 @@ class DefinitionEditTab:
             height=200,
             key=k("definitie"),
             disabled=disabled,
-            help="De volledige definitie van het begrip"
+            help="De volledige definitie van het begrip",
         )
 
         # Additional fields
@@ -376,10 +425,19 @@ class DefinitionEditTab:
         with col1:
             # Organisatorische context (multiselect met Anders...)
             ui_cfg = get_config(ConfigSection.UI)
-            org_options = list(getattr(ui_cfg, 'organizational_contexts', []) or [])
+            org_options = list(getattr(ui_cfg, "organizational_contexts", []) or [])
             # Bepaal bron (generator-tab of definitie) en splits in bekende/overige waarden
-            edit_org_from_generator = SessionStateManager.get_value('edit_organisatorische_context')
-            current_org = edit_org_from_generator if (edit_org_from_generator and isinstance(edit_org_from_generator, list)) else (getattr(definition, 'organisatorische_context', []) or [])
+            edit_org_from_generator = SessionStateManager.get_value(
+                "edit_organisatorische_context"
+            )
+            current_org = (
+                edit_org_from_generator
+                if (
+                    edit_org_from_generator
+                    and isinstance(edit_org_from_generator, list)
+                )
+                else (getattr(definition, "organisatorische_context", []) or [])
+            )
             org_known = [v for v in current_org if v in org_options]
             org_other = [v for v in current_org if v not in org_options]
             org_default = org_known + (["Anders..."] if org_other else [])
@@ -393,7 +451,7 @@ class DefinitionEditTab:
             )
             # Afkortingen-uitleg uit config (indien aanwezig)
             try:
-                abbrev = getattr(ui_cfg, 'afkortingen', {}) or {}
+                abbrev = getattr(ui_cfg, "afkortingen", {}) or {}
                 if abbrev:
                     with st.expander("ℹ️ Afkortingen (uitleg)", expanded=False):
                         for ak in sorted(abbrev.keys()):
@@ -408,10 +466,14 @@ class DefinitionEditTab:
                     key=k("org_custom"),
                     disabled=disabled,
                 )
-                org_custom_values = [v.strip() for v in org_custom_raw.split(",") if v.strip()]
+                org_custom_values = [
+                    v.strip() for v in org_custom_raw.split(",") if v.strip()
+                ]
             # Schrijf de samengevoegde lijst naar session state voor save‑flow
-            org_resolved = [v for v in org_selected if v != "Anders..."] + org_custom_values
-            SessionStateManager.set_value(k('organisatorische_context'), org_resolved)
+            org_resolved = [
+                v for v in org_selected if v != "Anders..."
+            ] + org_custom_values
+            SessionStateManager.set_value(k("organisatorische_context"), org_resolved)
 
             # Category
             categorie = st.selectbox(
@@ -421,18 +483,34 @@ class DefinitionEditTab:
                     definition.categorie or "proces"
                 ),
                 key=k("categorie"),
-                help="Ontologische categorie van het begrip"
+                help="Ontologische categorie van het begrip",
             )
 
             # UFO‑categorie selectie (onder ontologische categorie)
             ufo_opties = [
                 "",
-                "Kind","Event","Role","Phase","Relator","Mode","Quantity","Quality",
-                "Subkind","Category","Mixin","RoleMixin","PhaseMixin","Abstract","Relatie","Event Composition",
+                "Kind",
+                "Event",
+                "Role",
+                "Phase",
+                "Relator",
+                "Mode",
+                "Quantity",
+                "Quality",
+                "Subkind",
+                "Category",
+                "Mixin",
+                "RoleMixin",
+                "PhaseMixin",
+                "Abstract",
+                "Relatie",
+                "Event Composition",
             ]
             try:
-                current_ufo = getattr(definition, 'ufo_categorie', None) or ""
-                ufo_default_index = (ufo_opties.index(current_ufo) if current_ufo in ufo_opties else 0)
+                current_ufo = getattr(definition, "ufo_categorie", None) or ""
+                ufo_default_index = (
+                    ufo_opties.index(current_ufo) if current_ufo in ufo_opties else 0
+                )
             except Exception:
                 ufo_default_index = 0
             ufo_selected = st.selectbox(
@@ -447,9 +525,18 @@ class DefinitionEditTab:
         with col2:
             # Juridische context
             # Juridische context (multiselect met Anders...)
-            jur_options = list(getattr(ui_cfg, 'legal_contexts', []) or [])
-            edit_jur_from_generator = SessionStateManager.get_value('edit_juridische_context')
-            current_jur = edit_jur_from_generator if (edit_jur_from_generator and isinstance(edit_jur_from_generator, list)) else (getattr(definition, 'juridische_context', []) or [])
+            jur_options = list(getattr(ui_cfg, "legal_contexts", []) or [])
+            edit_jur_from_generator = SessionStateManager.get_value(
+                "edit_juridische_context"
+            )
+            current_jur = (
+                edit_jur_from_generator
+                if (
+                    edit_jur_from_generator
+                    and isinstance(edit_jur_from_generator, list)
+                )
+                else (getattr(definition, "juridische_context", []) or [])
+            )
             jur_known = [v for v in current_jur if v in jur_options]
             jur_other = [v for v in current_jur if v not in jur_options]
             jur_default = jur_known + (["Anders..."] if jur_other else [])
@@ -469,14 +556,27 @@ class DefinitionEditTab:
                     key=k("jur_custom"),
                     disabled=disabled,
                 )
-                jur_custom_values = [v.strip() for v in jur_custom_raw.split(",") if v.strip()]
-            jur_resolved = [v for v in jur_selected if v != "Anders..."] + jur_custom_values
-            SessionStateManager.set_value(k('juridische_context'), jur_resolved)
+                jur_custom_values = [
+                    v.strip() for v in jur_custom_raw.split(",") if v.strip()
+                ]
+            jur_resolved = [
+                v for v in jur_selected if v != "Anders..."
+            ] + jur_custom_values
+            SessionStateManager.set_value(k("juridische_context"), jur_resolved)
 
             # Wettelijke basis (multiselect met Anders...)
-            wet_options = list(getattr(ui_cfg, 'common_laws', []) or [])
-            edit_wet_from_generator = SessionStateManager.get_value('edit_wettelijke_basis')
-            current_wet = edit_wet_from_generator if (edit_wet_from_generator and isinstance(edit_wet_from_generator, list)) else (getattr(definition, 'wettelijke_basis', []) or [])
+            wet_options = list(getattr(ui_cfg, "common_laws", []) or [])
+            edit_wet_from_generator = SessionStateManager.get_value(
+                "edit_wettelijke_basis"
+            )
+            current_wet = (
+                edit_wet_from_generator
+                if (
+                    edit_wet_from_generator
+                    and isinstance(edit_wet_from_generator, list)
+                )
+                else (getattr(definition, "wettelijke_basis", []) or [])
+            )
             wet_known = [v for v in current_wet if v in wet_options]
             wet_other = [v for v in current_wet if v not in wet_options]
             wet_default = wet_known + (["Anders..."] if wet_other else [])
@@ -496,12 +596,20 @@ class DefinitionEditTab:
                     key=k("wet_custom"),
                     disabled=disabled,
                 )
-                wet_custom_values = [v.strip() for v in wet_custom_raw.split(",") if v.strip()]
-            wet_resolved = [v for v in wet_selected if v != "Anders..."] + wet_custom_values
-            SessionStateManager.set_value(k('wettelijke_basis'), wet_resolved)
+                wet_custom_values = [
+                    v.strip() for v in wet_custom_raw.split(",") if v.strip()
+                ]
+            wet_resolved = [
+                v for v in wet_selected if v != "Anders..."
+            ] + wet_custom_values
+            SessionStateManager.set_value(k("wettelijke_basis"), wet_resolved)
 
             # Status (toon ook 'imported' indien van toepassing)
-            current_status = definition.metadata.get('status', 'draft') if definition.metadata else 'draft'
+            current_status = (
+                definition.metadata.get("status", "draft")
+                if definition.metadata
+                else "draft"
+            )
             status_options = ["imported", "draft", "review", "established", "archived"]
             try:
                 status_index = status_options.index(current_status)
@@ -513,7 +621,7 @@ class DefinitionEditTab:
                 index=status_index,
                 key=k("status"),
                 disabled=True if disabled else False,
-                help="De huidige status van de definitie"
+                help="De huidige status van de definitie",
             )
 
         # Toelichting
@@ -523,21 +631,25 @@ class DefinitionEditTab:
             height=100,
             key=k("toelichting"),
             disabled=disabled,
-            help="Extra uitleg of context bij de definitie"
+            help="Extra uitleg of context bij de definitie",
         )
 
         if disabled:
-            if status_code == 'established':
-                st.info("🛡️ Deze definitie is Vastgesteld en daarom alleen-lezen. Zet de status via de Expert-tab terug om te bewerken.")
-            elif status_code == 'archived':
-                st.info("📦 Deze definitie is Gearchiveerd en daarom alleen-lezen. Herstel via de Expert-tab om te bewerken.")
+            if status_code == "established":
+                st.info(
+                    "🛡️ Deze definitie is Vastgesteld en daarom alleen-lezen. Zet de status via de Expert-tab terug om te bewerken."
+                )
+            elif status_code == "archived":
+                st.info(
+                    "📦 Deze definitie is Gearchiveerd en daarom alleen-lezen. Herstel via de Expert-tab om te bewerken."
+                )
 
         # Persist context lijsten (gebruik resolved waarden zonder 'Anders...')
-        if 'org_resolved' in locals():
+        if "org_resolved" in locals():
             SessionStateManager.set_value(k("organisatorische_context"), org_resolved)
-        if 'jur_resolved' in locals():
+        if "jur_resolved" in locals():
             SessionStateManager.set_value(k("juridische_context"), jur_resolved)
-        if 'wet_resolved' in locals():
+        if "wet_resolved" in locals():
             SessionStateManager.set_value(k("wettelijke_basis"), wet_resolved)
 
         # Track changes for auto-save
@@ -546,23 +658,29 @@ class DefinitionEditTab:
     def _render_action_buttons(self):
         """Render action buttons for saving and validation."""
         # Reden voor wijziging (persistente input boven de knoppen) - ID-gescope
-        def_id = SessionStateManager.get_value('editing_definition_id')
+        def_id = SessionStateManager.get_value("editing_definition_id")
+
         def k(name: str) -> str:
             return f"edit_{def_id}_{name}"
+
         st.text_input("Reden voor wijziging (optioneel)", key=k("save_reason"))
 
         # Check ‘minstens 1 context’ voor Save‑actie
-        org_list = SessionStateManager.get_value(k('organisatorische_context')) or []
-        jur_list = SessionStateManager.get_value(k('juridische_context')) or []
-        wet_list = SessionStateManager.get_value(k('wettelijke_basis')) or []
+        org_list = SessionStateManager.get_value(k("organisatorische_context")) or []
+        jur_list = SessionStateManager.get_value(k("juridische_context")) or []
+        wet_list = SessionStateManager.get_value(k("wettelijke_basis")) or []
         can_save = bool(org_list or jur_list or wet_list)
         if not can_save:
-            st.warning("Minstens één context is vereist (organisatorisch of juridisch of wettelijk) om op te slaan.")
+            st.warning(
+                "Minstens één context is vereist (organisatorisch of juridisch of wettelijk) om op te slaan."
+            )
 
         col1, col2, col3, col4 = st.columns(4)
 
         with col1:
-            if st.button("💾 Opslaan", type="primary", key="save_btn", disabled=not can_save):
+            if st.button(
+                "💾 Opslaan", type="primary", key="save_btn", disabled=not can_save
+            ):
                 self._save_definition()
 
         with col2:
@@ -570,7 +688,7 @@ class DefinitionEditTab:
                 results = self._validate_definition()
                 if results:
                     # Sla op in session en render buiten kolommen (full-width)
-                    SessionStateManager.set_value('edit_last_validation', results)
+                    SessionStateManager.set_value("edit_last_validation", results)
                     st.rerun()
                 else:
                     st.info("Validatie service niet beschikbaar")
@@ -588,10 +706,10 @@ class DefinitionEditTab:
 
     def _render_examples_section(self):
         """Render sectie voor AI-gegenereerde voorbeelden (edit-tab)."""
-        def_id = SessionStateManager.get_value('editing_definition_id')
+        def_id = SessionStateManager.get_value("editing_definition_id")
         if not def_id:
             return
-        definition = SessionStateManager.get_value('editing_definition')
+        definition = SessionStateManager.get_value("editing_definition")
         if not definition:
             return
 
@@ -599,8 +717,8 @@ class DefinitionEditTab:
         st.markdown("### 📚 Voorbeelden & Synoniemen")
 
         # Gebruik het gedeelde voorbeelden-blok
-        from ui.components.examples_block import render_examples_block
         from database.definitie_repository import DefinitieRepository
+        from ui.components.examples_block import render_examples_block
 
         # Get repository voor edit functionaliteit
         repo = DefinitieRepository()
@@ -619,7 +737,7 @@ class DefinitionEditTab:
         try:
             if repo and definition.id:
                 voorbeelden_dict = repo.get_voorbeelden_by_type(definition.id)
-                synoniemen = voorbeelden_dict.get('synonyms', [])
+                synoniemen = voorbeelden_dict.get("synonyms", [])
 
                 if synoniemen:
                     st.markdown("### 🔁 Voorkeursterm Status")
@@ -630,13 +748,22 @@ class DefinitionEditTab:
                         # Consistent met generator-tab: als gebruiker 'begrip' selecteert is er geen DB-flag.
                         try:
                             from ui.session_state import SessionStateManager as _SSM
+
                             sess_vt = _SSM.get_value("voorkeursterm", "")
-                            if sess_vt and str(sess_vt).strip() == str(getattr(definition, 'begrip', '') or ''):
-                                st.success(f"✅ Huidige voorkeursterm: **{getattr(definition, 'begrip', '')}**")
+                            if sess_vt and str(sess_vt).strip() == str(
+                                getattr(definition, "begrip", "") or ""
+                            ):
+                                st.success(
+                                    f"✅ Huidige voorkeursterm: **{getattr(definition, 'begrip', '')}**"
+                                )
                             else:
-                                st.info("ℹ️ Geen voorkeursterm geselecteerd. Gebruik de selector hierboven om er een te kiezen.")
+                                st.info(
+                                    "ℹ️ Geen voorkeursterm geselecteerd. Gebruik de selector hierboven om er een te kiezen."
+                                )
                         except Exception:
-                            st.info("ℹ️ Geen voorkeursterm geselecteerd. Gebruik de selector hierboven om er een te kiezen.")
+                            st.info(
+                                "ℹ️ Geen voorkeursterm geselecteerd. Gebruik de selector hierboven om er een te kiezen."
+                            )
         except Exception as e:
             logger.debug(f"Could not show voorkeursterm status: {e}")
 
@@ -644,7 +771,7 @@ class DefinitionEditTab:
         """Render metadata panel."""
         st.markdown("### 📊 Metadata")
 
-        definition = SessionStateManager.get_value('editing_definition')
+        definition = SessionStateManager.get_value("editing_definition")
         if not definition:
             return
 
@@ -652,29 +779,33 @@ class DefinitionEditTab:
         metadata = definition.metadata or {}
 
         # Version info
-        version = metadata.get('version_number', 1)
+        version = metadata.get("version_number", 1)
         st.metric("Versie", f"v{version}")
 
         # Timestamps
         if definition.created_at:
-            st.caption(f"**Aangemaakt:** {self._format_datetime(definition.created_at)}")
+            st.caption(
+                f"**Aangemaakt:** {self._format_datetime(definition.created_at)}"
+            )
         if definition.updated_at:
-            st.caption(f"**Laatst bewerkt:** {self._format_datetime(definition.updated_at)}")
+            st.caption(
+                f"**Laatst bewerkt:** {self._format_datetime(definition.updated_at)}"
+            )
 
         # Created/Updated by
-        if metadata.get('created_by'):
+        if metadata.get("created_by"):
             st.caption(f"**Aangemaakt door:** {metadata['created_by']}")
-        if metadata.get('updated_by'):
+        if metadata.get("updated_by"):
             st.caption(f"**Bewerkt door:** {metadata['updated_by']}")
 
         # Validation score
-        if metadata.get('validation_score'):
-            score = metadata['validation_score']
+        if metadata.get("validation_score"):
+            score = metadata["validation_score"]
             color = "green" if score > 0.8 else "orange" if score > 0.6 else "red"
             st.markdown(f"**Validatie Score:** :{color}[{score:.2f}]")
 
         # Source info
-        if metadata.get('source_type'):
+        if metadata.get("source_type"):
             st.caption(f"**Bron Type:** {metadata['source_type']}")
         if definition.bron:
             st.caption(f"**Bron Referentie:** {definition.bron}")
@@ -683,7 +814,7 @@ class DefinitionEditTab:
         """Render version history panel."""
         st.markdown("### 📜 Versiegeschiedenis")
 
-        definition_id = SessionStateManager.get_value('editing_definition_id')
+        definition_id = SessionStateManager.get_value("editing_definition_id")
         if not definition_id:
             return
 
@@ -698,28 +829,28 @@ class DefinitionEditTab:
         for entry in history:
             with st.expander(
                 f"{entry.get('summary', 'Wijziging')} - {entry.get('gewijzigd_op_readable', '')}",
-                expanded=False
+                expanded=False,
             ):
                 # Change details
-                if entry.get('wijziging_reden'):
+                if entry.get("wijziging_reden"):
                     st.caption(f"**Reden:** {entry['wijziging_reden']}")
 
                 # Show old vs new if available
-                if entry.get('definitie_oude_waarde'):
+                if entry.get("definitie_oude_waarde"):
                     st.caption("**Oude waarde:**")
-                    st.text(entry['definitie_oude_waarde'][:200] + "...")
+                    st.text(entry["definitie_oude_waarde"][:200] + "...")
 
-                if entry.get('definitie_nieuwe_waarde'):
+                if entry.get("definitie_nieuwe_waarde"):
                     st.caption("**Nieuwe waarde:**")
-                    st.text(entry['definitie_nieuwe_waarde'][:200] + "...")
+                    st.text(entry["definitie_nieuwe_waarde"][:200] + "...")
 
                 # Revert button
-                if st.button(f"↩️ Herstel", key=f"revert_{entry.get('id')}"):
-                    self._revert_to_version(entry.get('id'))
+                if st.button("↩️ Herstel", key=f"revert_{entry.get('id')}"):
+                    self._revert_to_version(entry.get("id"))
 
     def _render_auto_save_status(self):
         """Render auto-save status indicator."""
-        if not SessionStateManager.get_value('editing_definition_id'):
+        if not SessionStateManager.get_value("editing_definition_id"):
             return
 
         # Auto-save status in sidebar
@@ -727,13 +858,11 @@ class DefinitionEditTab:
             st.markdown("---")
 
             auto_save_enabled = st.checkbox(
-                "Auto-save inschakelen",
-                value=True,
-                key="auto_save_enabled"
+                "Auto-save inschakelen", value=True, key="auto_save_enabled"
             )
 
             if auto_save_enabled:
-                last_save = SessionStateManager.get_value('last_auto_save')
+                last_save = SessionStateManager.get_value("last_auto_save")
                 if last_save:
                     time_diff = datetime.now() - last_save
                     if time_diff < timedelta(seconds=60):
@@ -747,24 +876,26 @@ class DefinitionEditTab:
     def _render_status_badge(self, status: str):
         """Render a status badge."""
         colors = {
-            'imported': '🔵',
-            'draft': '🟡',
-            'review': '🟠',
-            'established': '🟢',
-            'archived': '⚫'
+            "imported": "🔵",
+            "draft": "🟡",
+            "review": "🟠",
+            "established": "🟢",
+            "archived": "⚫",
         }
         labels_nl = {
-            'imported': 'Geïmporteerd',
-            'draft': 'Concept',
-            'review': 'In review',
-            'established': 'Vastgesteld',
-            'archived': 'Gearchiveerd',
+            "imported": "Geïmporteerd",
+            "draft": "Concept",
+            "review": "In review",
+            "established": "Vastgesteld",
+            "archived": "Gearchiveerd",
         }
         st.markdown(f"{colors.get(status, '⚪')} {labels_nl.get(status, status)}")
 
     # Action methods
 
-    def _search_definitions(self, search_term: str, status_filter: str, limit: int = 50):
+    def _search_definitions(
+        self, search_term: str, status_filter: str, limit: int = 50
+    ):
         """Search for definitions."""
         try:
             # Build filters
@@ -781,18 +912,16 @@ class DefinitionEditTab:
             status_code = status_label_to_code.get(status_filter, status_filter)
             # Speciale case: 'Geïmporteerd' is herkomst (source_type), geen status in schema
             if status_code == "imported":
-                filters['source_type'] = 'imported'
+                filters["source_type"] = "imported"
             elif status_code and status_code != "Alle":
-                filters['status'] = status_code
+                filters["status"] = status_code
 
             # Search
             results = self.repository.search_with_filters(
-                search_term=search_term,
-                **filters,
-                limit=int(limit or 50)
+                search_term=search_term, **filters, limit=int(limit or 50)
             )
 
-            SessionStateManager.set_value('edit_search_results', results)
+            SessionStateManager.set_value("edit_search_results", results)
 
             if results:
                 st.success(f"✅ {len(results)} definities gevonden")
@@ -800,7 +929,7 @@ class DefinitionEditTab:
                 st.info("Geen definities gevonden met deze criteria")
 
         except Exception as e:
-            st.error(f"Fout bij zoeken: {str(e)}")
+            st.error(f"Fout bij zoeken: {e!s}")
             logger.error(f"Search error: {e}")
 
     def _start_edit_session(self, definition_id: int):
@@ -808,20 +937,21 @@ class DefinitionEditTab:
         try:
             # Start session
             session = self.edit_service.start_edit_session(
-                definition_id,
-                user=SessionStateManager.get_value('user') or 'system'
+                definition_id, user=SessionStateManager.get_value("user") or "system"
             )
 
-            if session['success']:
-                SessionStateManager.set_value('editing_definition_id', definition_id)
-                SessionStateManager.set_value('editing_definition', session['definition'])
-                SessionStateManager.set_value('edit_session', session)
+            if session["success"]:
+                SessionStateManager.set_value("editing_definition_id", definition_id)
+                SessionStateManager.set_value(
+                    "editing_definition", session["definition"]
+                )
+                SessionStateManager.set_value("edit_session", session)
 
                 # Check for auto-save en bied herstelknop
-                if session.get('auto_save'):
+                if session.get("auto_save"):
                     st.info("💾 Auto-save gevonden voor deze definitie.")
                     if st.button("Herstel auto-save", key="restore_auto_save_btn"):
-                        self._restore_auto_save(session['auto_save'])
+                        self._restore_auto_save(session["auto_save"])
 
                 # ID-gescope widget-keys zorgen dat de juiste waarden direct getoond worden
 
@@ -831,76 +961,88 @@ class DefinitionEditTab:
                 st.error(f"Fout: {session.get('error', 'Onbekende fout')}")
 
         except Exception as e:
-            st.error(f"Fout bij starten edit sessie: {str(e)}")
+            st.error(f"Fout bij starten edit sessie: {e!s}")
             logger.error(f"Edit session error: {e}")
 
     def _save_definition(self):
         """Save the edited definition."""
         try:
-            definition_id = SessionStateManager.get_value('editing_definition_id')
+            definition_id = SessionStateManager.get_value("editing_definition_id")
             if not definition_id:
                 st.error("Geen definitie geselecteerd")
                 return
+
             def k(name: str) -> str:
                 return f"edit_{definition_id}_{name}"
 
             # Collect updates - gebruik SessionStateManager.get_value voor context lijsten
             # Minimaal één context vereist
-            org_list = SessionStateManager.get_value(k('organisatorische_context')) or []
-            jur_list = SessionStateManager.get_value(k('juridische_context')) or []
-            wet_list = SessionStateManager.get_value(k('wettelijke_basis')) or []
+            org_list = (
+                SessionStateManager.get_value(k("organisatorische_context")) or []
+            )
+            jur_list = SessionStateManager.get_value(k("juridische_context")) or []
+            wet_list = SessionStateManager.get_value(k("wettelijke_basis")) or []
             if not (org_list or jur_list or wet_list):
-                st.error("Minimaal één context is vereist (organisatorisch, juridisch of wettelijk)")
+                st.error(
+                    "Minimaal één context is vereist (organisatorisch, juridisch of wettelijk)"
+                )
                 return
 
             # Voor de overige velden gebruiken we SessionStateManager voor consistentie
             updates = {
-                'begrip': SessionStateManager.get_value(k('begrip')),
-                'definitie': SessionStateManager.get_value(k('definitie')),
-                'organisatorische_context': org_list,
-                'juridische_context': jur_list,
-                'wettelijke_basis': wet_list,
-                'categorie': SessionStateManager.get_value(k('categorie')),
-                'ufo_categorie': (SessionStateManager.get_value(k('ufo_categorie')) or None),
-                'toelichting': SessionStateManager.get_value(k('toelichting')),
-                'status': SessionStateManager.get_value(k('status')),
+                "begrip": SessionStateManager.get_value(k("begrip")),
+                "definitie": SessionStateManager.get_value(k("definitie")),
+                "organisatorische_context": org_list,
+                "juridische_context": jur_list,
+                "wettelijke_basis": wet_list,
+                "categorie": SessionStateManager.get_value(k("categorie")),
+                "ufo_categorie": (
+                    SessionStateManager.get_value(k("ufo_categorie")) or None
+                ),
+                "toelichting": SessionStateManager.get_value(k("toelichting")),
+                "status": SessionStateManager.get_value(k("status")),
             }
 
             # Add version number for optimistic locking
-            editing_definition = SessionStateManager.get_value('editing_definition')
+            editing_definition = SessionStateManager.get_value("editing_definition")
             if editing_definition and editing_definition.metadata:
-                updates['version_number'] = editing_definition.metadata.get('version_number', 1)
+                updates["version_number"] = editing_definition.metadata.get(
+                    "version_number", 1
+                )
 
             # Save
             result = self.edit_service.save_definition(
                 definition_id,
                 updates,
-                user=SessionStateManager.get_value('user') or 'system',
-                reason=SessionStateManager.get_value(k('save_reason')),
-                validate=True
+                user=SessionStateManager.get_value("user") or "system",
+                reason=SessionStateManager.get_value(k("save_reason")),
+                validate=True,
             )
 
-            if result['success']:
+            if result["success"]:
                 st.success("✅ Definitie opgeslagen!")
 
                 # Show validation results if available
-                if result.get('validation'):
+                if result.get("validation"):
                     # Sla op in session en render buiten kolommen (full-width)
-                    SessionStateManager.set_value('edit_last_validation', result['validation'])
+                    SessionStateManager.set_value(
+                        "edit_last_validation", result["validation"]
+                    )
                     st.rerun()
 
                 # Refresh definition
                 self._refresh_current_definition()
+            elif result.get("conflict"):
+                st.error(
+                    "⚠️ Versie conflict - de definitie is gewijzigd door een andere gebruiker"
+                )
+                if st.button("🔄 Ververs en probeer opnieuw"):
+                    self._refresh_current_definition()
             else:
-                if result.get('conflict'):
-                    st.error("⚠️ Versie conflict - de definitie is gewijzigd door een andere gebruiker")
-                    if st.button("🔄 Ververs en probeer opnieuw"):
-                        self._refresh_current_definition()
-                else:
-                    st.error(f"Fout bij opslaan: {result.get('error', 'Onbekende fout')}")
+                st.error(f"Fout bij opslaan: {result.get('error', 'Onbekende fout')}")
 
         except Exception as e:
-            st.error(f"Fout bij opslaan: {str(e)}")
+            st.error(f"Fout bij opslaan: {e!s}")
             logger.error(f"Save error: {e}")
 
     def _validate_definition(self):
@@ -908,21 +1050,30 @@ class DefinitionEditTab:
         try:
             # Create definition object from current state
             from services.interfaces import Definition
-            def_id = SessionStateManager.get_value('editing_definition_id')
+
+            def_id = SessionStateManager.get_value("editing_definition_id")
+
             def k(name: str) -> str:
                 return f"edit_{def_id}_{name}"
 
             definition = Definition(
-                begrip=SessionStateManager.get_value(k('begrip'), ''),
-                definitie=SessionStateManager.get_value(k('definitie'), ''),
-                organisatorische_context=SessionStateManager.get_value(k('organisatorische_context')) or [],
-                juridische_context=SessionStateManager.get_value(k('juridische_context')) or [],
-                wettelijke_basis=SessionStateManager.get_value(k('wettelijke_basis')) or [],
-                categorie=SessionStateManager.get_value(k('categorie'), 'proces'),
-                toelichting=SessionStateManager.get_value(k('toelichting'), ''),
+                begrip=SessionStateManager.get_value(k("begrip"), ""),
+                definitie=SessionStateManager.get_value(k("definitie"), ""),
+                organisatorische_context=SessionStateManager.get_value(
+                    k("organisatorische_context")
+                )
+                or [],
+                juridische_context=SessionStateManager.get_value(
+                    k("juridische_context")
+                )
+                or [],
+                wettelijke_basis=SessionStateManager.get_value(k("wettelijke_basis"))
+                or [],
+                categorie=SessionStateManager.get_value(k("categorie"), "proces"),
+                toelichting=SessionStateManager.get_value(k("toelichting"), ""),
                 metadata={
-                    'status': SessionStateManager.get_value(k('status'), 'draft')
-                }
+                    "status": SessionStateManager.get_value(k("status"), "draft")
+                },
             )
 
             # Validate
@@ -936,10 +1087,12 @@ class DefinitionEditTab:
                 container = get_container()
                 orch = container.orchestrator()
                 from services.validation.interfaces import ValidationContext
+
                 vc = ValidationContext(
                     correlation_id=None,
                     metadata={
-                        "organisatorische_context": definition.organisatorische_context or [],
+                        "organisatorische_context": definition.organisatorische_context
+                        or [],
                         "juridische_context": definition.juridische_context or [],
                         "wettelijke_basis": definition.wettelijke_basis or [],
                     },
@@ -960,7 +1113,8 @@ class DefinitionEditTab:
                         normalized_issues.append(
                             {
                                 "rule": item.get("rule_id") or item.get("code"),
-                                "message": item.get("description") or item.get("message", ""),
+                                "message": item.get("description")
+                                or item.get("message", ""),
                                 "severity": item.get("severity", "warning"),
                             }
                         )
@@ -974,36 +1128,38 @@ class DefinitionEditTab:
             return results
 
         except Exception as e:
-            st.error(f"Fout bij validatie: {str(e)}")
+            st.error(f"Fout bij validatie: {e!s}")
             logger.error(f"Validation error: {e}")
             return None
 
     def _render_fullwidth_validation_results(self) -> None:
         """Render opgeslagen validatieresultaten buiten de knoppenkolommen (volle breedte)."""
         try:
-            results = SessionStateManager.get_value('edit_last_validation')
+            results = SessionStateManager.get_value("edit_last_validation")
             if results:
                 st.markdown("#### ✅ Kwaliteitstoetsing")
                 self._show_validation_results(results)
         except Exception:
             pass
 
-    def _show_validation_results(self, results: Dict[str, Any]):
+    def _show_validation_results(self, results: dict[str, Any]):
         """Show validation results."""
         # Als V2 ruwe data aanwezig is: render gedetailleerde output gelijk aan generatie-tab
-        v2 = results.get('raw_v2') if isinstance(results, dict) else None
+        v2 = results.get("raw_v2") if isinstance(results, dict) else None
         if isinstance(v2, dict):
             st.markdown("#### ✅ Kwaliteitstoetsing")
             from ui.components.validation_view import render_validation_detailed_list
+
             # Gebruik ID-gescope key_prefix voor stabiele togglestate per definitie
-            def_id = SessionStateManager.get_value('editing_definition_id')
+            def_id = SessionStateManager.get_value("editing_definition_id")
             kp = f"edit_{def_id}" if def_id else "edit"
-            render_validation_detailed_list(v2, key_prefix=kp, show_toggle=True, gate=None)
+            render_validation_detailed_list(
+                v2, key_prefix=kp, show_toggle=True, gate=None
+            )
+        elif results["valid"]:
+            st.success(f"✅ Validatie geslaagd! Score: {results['score']:.2f}")
         else:
-            if results['valid']:
-                st.success(f"✅ Validatie geslaagd! Score: {results['score']:.2f}")
-            else:
-                st.warning(f"⚠️ Validatie problemen gevonden. Score: {results['score']:.2f}")
+            st.warning(f"⚠️ Validatie problemen gevonden. Score: {results['score']:.2f}")
 
         # Let op: Geen extra 'Uitleg bij alle regels' sectie meer.
         # De gedeelde renderer toont inline uitleg per regel om duplicatie te voorkomen.
@@ -1017,8 +1173,8 @@ class DefinitionEditTab:
         - Link naar uitgebreide handleiding
         """
         try:
-            from pathlib import Path
             import json as _json
+            from pathlib import Path
 
             rules_dir = Path("src/toetsregels/regels")
             json_path = rules_dir / f"{rule_id}.json"
@@ -1031,7 +1187,9 @@ class DefinitionEditTab:
             if json_path.exists():
                 data = _json.loads(json_path.read_text(encoding="utf-8"))
                 name = str(data.get("naam") or "").strip()
-                explanation = str(data.get("uitleg") or data.get("toetsvraag") or "").strip()
+                explanation = str(
+                    data.get("uitleg") or data.get("toetsvraag") or ""
+                ).strip()
                 good = list(data.get("goede_voorbeelden") or [])
                 bad = list(data.get("foute_voorbeelden") or [])
 
@@ -1052,8 +1210,8 @@ class DefinitionEditTab:
             return "\n".join(lines)
         except Exception:
             return (
-                f"Meer uitleg: [Validatieregels (CON‑01 e.a.)]"
-                f"(docs/handleidingen/gebruikers/uitleg-validatieregels.md)"
+                "Meer uitleg: [Validatieregels (CON‑01 e.a.)]"
+                "(docs/handleidingen/gebruikers/uitleg-validatieregels.md)"
             )
 
     def _render_v2_validation_details(self, validation_result: dict) -> None:
@@ -1063,24 +1221,38 @@ class DefinitionEditTab:
             violations = list(validation_result.get("violations") or [])
             passed_rules = list(validation_result.get("passed_rules") or [])
 
-            score_color = "green" if overall_score > 0.8 else ("orange" if overall_score > 0.6 else "red")
+            score_color = (
+                "green"
+                if overall_score > 0.8
+                else ("orange" if overall_score > 0.6 else "red")
+            )
             st.markdown(
                 f"**Overall Score:** <span style='color: {score_color}'>{overall_score:.2f}</span>",
                 unsafe_allow_html=True,
             )
 
             # Samenvatting
-            failed_ids = sorted({str(v.get('rule_id') or v.get('code') or '') for v in violations if isinstance(v, dict)})
+            failed_ids = sorted(
+                {
+                    str(v.get("rule_id") or v.get("code") or "")
+                    for v in violations
+                    if isinstance(v, dict)
+                }
+            )
             passed_ids = sorted({str(r) for r in passed_rules})
             total = len(set(failed_ids).union(passed_ids))
             passed_count = len(passed_ids)
             failed_count = len(failed_ids)
             pct = (passed_count / total * 100.0) if total > 0 else 0.0
-            st.markdown(f"📊 **Toetsing Samenvatting**: {passed_count}/{total} regels geslaagd ({pct:.1f}%)" + (f" | ❌ {failed_count} gefaald" if failed_count else ""))
+            st.markdown(
+                f"📊 **Toetsing Samenvatting**: {passed_count}/{total} regels geslaagd ({pct:.1f}%)"
+                + (f" | ❌ {failed_count} gefaald" if failed_count else "")
+            )
 
             # Violations
             if violations:
                 st.markdown("#### ❌ Gevallen regels")
+
                 def _v_key(v):
                     rid = str(v.get("rule_id") or v.get("code") or "")
                     return self._rule_sort_key(rid)
@@ -1095,8 +1267,14 @@ class DefinitionEditTab:
                     emoji = "❌" if sev in {"critical", "error", "high"} else "⚠️"
                     name, explanation = self._get_rule_info(rid)
                     name_part = f" — {name}" if name else ""
-                    expl_labeled = f" · Wat toetst: {explanation}" if explanation else " · Wat toetst: —"
-                    st.markdown(f"{emoji} {rid}{name_part}: Waarom niet geslaagd: {desc}{expl_labeled}")
+                    expl_labeled = (
+                        f" · Wat toetst: {explanation}"
+                        if explanation
+                        else " · Wat toetst: —"
+                    )
+                    st.markdown(
+                        f"{emoji} {rid}{name_part}: Waarom niet geslaagd: {desc}{expl_labeled}"
+                    )
 
             # Geslaagde regels
             if passed_ids:
@@ -1104,7 +1282,11 @@ class DefinitionEditTab:
                     for rid in sorted(passed_ids, key=self._rule_sort_key):
                         name, explanation = self._get_rule_info(rid)
                         name_part = f" — {name}" if name else ""
-                        wat_toetst = f"Wat toetst: {explanation}" if explanation else "Wat toetst: —"
+                        wat_toetst = (
+                            f"Wat toetst: {explanation}"
+                            if explanation
+                            else "Wat toetst: —"
+                        )
                         st.markdown(f"✅ {rid}{name_part}: OK · {wat_toetst}")
         except Exception as e:
             st.warning(f"Kon gedetailleerde validatie niet tonen: {e!s}")
@@ -1112,15 +1294,18 @@ class DefinitionEditTab:
     def _get_rule_info(self, rule_id: str) -> tuple[str, str]:
         """Haal (naam, uitleg) op voor een regel uit JSON, indien beschikbaar."""
         try:
-            from pathlib import Path
             import json as _json
+            from pathlib import Path
+
             rid = (rule_id or "").replace("_", "-")
             json_path = Path("src/toetsregels/regels") / f"{rid}.json"
             if not json_path.exists():
                 return "", ""
             data = _json.loads(json_path.read_text(encoding="utf-8"))
             name = str(data.get("naam") or "").strip()
-            explanation = str(data.get("uitleg") or data.get("toetsvraag") or "").strip()
+            explanation = str(
+                data.get("uitleg") or data.get("toetsvraag") or ""
+            ).strip()
             return name, explanation
         except Exception:
             return "", ""
@@ -1144,6 +1329,7 @@ class DefinitionEditTab:
         try:
             tail = rid.split("-", 1)[1] if "-" in rid else ""
             import re as _re
+
             m = _re.search(r"(\d+)", tail)
             if m:
                 num = int(m.group(1))
@@ -1155,22 +1341,22 @@ class DefinitionEditTab:
         """Undo recent changes."""
         try:
             # Reload original definition
-            definition_id = SessionStateManager.get_value('editing_definition_id')
+            definition_id = SessionStateManager.get_value("editing_definition_id")
             if definition_id:
                 definition = self.repository.get(definition_id)
                 if definition:
-                    SessionStateManager.set_value('editing_definition', definition)
+                    SessionStateManager.set_value("editing_definition", definition)
                     st.success("✅ Wijzigingen ongedaan gemaakt")
                     st.rerun()
 
         except Exception as e:
-            st.error(f"Fout bij ongedaan maken: {str(e)}")
+            st.error(f"Fout bij ongedaan maken: {e!s}")
             logger.error(f"Undo error: {e}")
 
     def _cancel_edit(self):
         """Cancel the edit session."""
         # Clear edit state using SessionStateManager
-        for key in ['editing_definition_id', 'editing_definition', 'edit_session']:
+        for key in ["editing_definition_id", "editing_definition", "edit_session"]:
             SessionStateManager.set_value(key, None)
 
         st.info("Edit sessie geannuleerd")
@@ -1179,34 +1365,36 @@ class DefinitionEditTab:
     def _revert_to_version(self, version_id: int):
         """Revert to a specific version."""
         try:
-            definition_id = SessionStateManager.get_value('editing_definition_id')
+            definition_id = SessionStateManager.get_value("editing_definition_id")
             if not definition_id:
                 return
 
             result = self.edit_service.revert_to_version(
                 definition_id,
                 version_id,
-                user=SessionStateManager.get_value('user') or 'system'
+                user=SessionStateManager.get_value("user") or "system",
             )
 
-            if result['success']:
+            if result["success"]:
                 st.success("✅ Definitie hersteld naar eerdere versie")
                 self._refresh_current_definition()
             else:
-                st.error(f"Fout bij herstellen: {result.get('error', 'Onbekende fout')}")
+                st.error(
+                    f"Fout bij herstellen: {result.get('error', 'Onbekende fout')}"
+                )
 
         except Exception as e:
-            st.error(f"Fout bij herstellen: {str(e)}")
+            st.error(f"Fout bij herstellen: {e!s}")
             logger.error(f"Revert error: {e}")
 
     def _refresh_current_definition(self):
         """Refresh the current definition from database."""
         try:
-            definition_id = SessionStateManager.get_value('editing_definition_id')
+            definition_id = SessionStateManager.get_value("editing_definition_id")
             if definition_id:
                 definition = self.repository.get(definition_id)
                 if definition:
-                    SessionStateManager.set_value('editing_definition', definition)
+                    SessionStateManager.set_value("editing_definition", definition)
                     st.rerun()
 
         except Exception as e:
@@ -1214,26 +1402,28 @@ class DefinitionEditTab:
 
     def _track_changes(self):
         """Track changes for auto-save."""
-        auto_save_enabled = SessionStateManager.get_value('auto_save_enabled')
+        auto_save_enabled = SessionStateManager.get_value("auto_save_enabled")
         if not auto_save_enabled:
             return
 
         # Check if content changed
-        definition = SessionStateManager.get_value('editing_definition')
+        definition = SessionStateManager.get_value("editing_definition")
         if not definition:
             return
 
         def k(name: str) -> str:
             return f"edit_{definition.id}_{name}"
+
         changed = False
 
         # Check each field for changes (widget keys nog steeds in st.session_state)
         fields_to_check = [
-            (k('begrip'), 'begrip'),
-            (k('definitie'), 'definitie'),
-            (k('categorie'), 'categorie'),
-            (k('toelichting'), 'toelichting'),
+            (k("begrip"), "begrip"),
+            (k("definitie"), "definitie"),
+            (k("categorie"), "categorie"),
+            (k("toelichting"), "toelichting"),
         ]
+
         # Vergelijk ook V2 contextlijsten (genormaliseerd)
         def _norm_list(v):
             try:
@@ -1250,16 +1440,19 @@ class DefinitionEditTab:
 
         if not changed:
             # Check contextlijsten via SessionStateManager
-            if _norm_list(SessionStateManager.get_value(k('organisatorische_context'))) != _norm_list(getattr(definition, 'organisatorische_context', [])):
-                changed = True
-            elif _norm_list(SessionStateManager.get_value(k('juridische_context'))) != _norm_list(getattr(definition, 'juridische_context', [])):
-                changed = True
-            elif _norm_list(SessionStateManager.get_value(k('wettelijke_basis'))) != _norm_list(getattr(definition, 'wettelijke_basis', [])):
+            if (
+                _norm_list(SessionStateManager.get_value(k("organisatorische_context")))
+                != _norm_list(getattr(definition, "organisatorische_context", []))
+                or _norm_list(SessionStateManager.get_value(k("juridische_context")))
+                != _norm_list(getattr(definition, "juridische_context", []))
+                or _norm_list(SessionStateManager.get_value(k("wettelijke_basis")))
+                != _norm_list(getattr(definition, "wettelijke_basis", []))
+            ):
                 changed = True
 
         # Auto-save if changed and interval verstreken
         if changed:
-            last = SessionStateManager.get_value('last_auto_save')
+            last = SessionStateManager.get_value("last_auto_save")
             if last:
                 try:
                     elapsed = datetime.now() - last
@@ -1272,55 +1465,69 @@ class DefinitionEditTab:
     def _perform_auto_save(self):
         """Perform auto-save."""
         try:
-            definition_id = SessionStateManager.get_value('editing_definition_id')
+            definition_id = SessionStateManager.get_value("editing_definition_id")
             if not definition_id:
                 return
+
             def k(name: str) -> str:
                 return f"edit_{definition_id}_{name}"
 
             # Collect current state - gebruik SessionStateManager
             content = {
-                'begrip': SessionStateManager.get_value(k('begrip')),
-                'definitie': SessionStateManager.get_value(k('definitie')),
-                'organisatorische_context': SessionStateManager.get_value(k('organisatorische_context')),
-                'juridische_context': SessionStateManager.get_value(k('juridische_context')),
-                'wettelijke_basis': SessionStateManager.get_value(k('wettelijke_basis')),
-                'categorie': SessionStateManager.get_value(k('categorie')),
-                'toelichting': SessionStateManager.get_value(k('toelichting')),
-                'status': SessionStateManager.get_value(k('status')),
+                "begrip": SessionStateManager.get_value(k("begrip")),
+                "definitie": SessionStateManager.get_value(k("definitie")),
+                "organisatorische_context": SessionStateManager.get_value(
+                    k("organisatorische_context")
+                ),
+                "juridische_context": SessionStateManager.get_value(
+                    k("juridische_context")
+                ),
+                "wettelijke_basis": SessionStateManager.get_value(
+                    k("wettelijke_basis")
+                ),
+                "categorie": SessionStateManager.get_value(k("categorie")),
+                "toelichting": SessionStateManager.get_value(k("toelichting")),
+                "status": SessionStateManager.get_value(k("status")),
             }
 
             # Save
             if self.edit_service.auto_save(definition_id, content):
-                SessionStateManager.set_value('last_auto_save', datetime.now())
+                SessionStateManager.set_value("last_auto_save", datetime.now())
 
         except Exception as e:
             logger.error(f"Auto-save error: {e}")
 
-    def _restore_auto_save(self, auto_save_content: Dict[str, Any]):
+    def _restore_auto_save(self, auto_save_content: dict[str, Any]):
         """Restore from auto-save."""
         try:
-            def_id = SessionStateManager.get_value('editing_definition_id')
+            def_id = SessionStateManager.get_value("editing_definition_id")
+
             def k(name: str) -> str:
                 return f"edit_{def_id}_{name}"
+
             # Update session state with auto-save content - hybride aanpak
             field_mapping = {
-                'begrip': k('begrip'),
-                'definitie': k('definitie'),
-                'categorie': k('categorie'),
-                'toelichting': k('toelichting'),
-                'status': k('status'),
+                "begrip": k("begrip"),
+                "definitie": k("definitie"),
+                "categorie": k("categorie"),
+                "toelichting": k("toelichting"),
+                "status": k("status"),
             }
             # Context lijsten via SessionStateManager
             context_mapping = {
-                'organisatorische_context': k('organisatorische_context'),
-                'juridische_context': k('juridische_context'),
-                'wettelijke_basis': k('wettelijke_basis'),
+                "organisatorische_context": k("organisatorische_context"),
+                "juridische_context": k("juridische_context"),
+                "wettelijke_basis": k("wettelijke_basis"),
             }
 
             # Backward compat: map legacy 'context' naar organisatorische_context indien aanwezig
-            if 'context' in auto_save_content and 'organisatorische_context' not in auto_save_content:
-                auto_save_content['organisatorische_context'] = auto_save_content.get('context')
+            if (
+                "context" in auto_save_content
+                and "organisatorische_context" not in auto_save_content
+            ):
+                auto_save_content["organisatorische_context"] = auto_save_content.get(
+                    "context"
+                )
 
             # Widget fields naar SessionStateManager
             for field, session_key in field_mapping.items():
@@ -1335,7 +1542,7 @@ class DefinitionEditTab:
             st.success("✅ Auto-save hersteld")
 
         except Exception as e:
-            st.error(f"Fout bij herstellen auto-save: {str(e)}")
+            st.error(f"Fout bij herstellen auto-save: {e!s}")
             logger.error(f"Restore auto-save error: {e}")
 
     def _format_datetime(self, dt) -> str:
@@ -1357,12 +1564,12 @@ class DefinitionEditTab:
         """Ensure edit session state variables exist via SessionStateManager."""
         # Gebruik SessionStateManager voor consistentie met de rest van de applicatie
         edit_defaults = {
-            'editing_definition_id': None,
-            'editing_definition': None,
-            'edit_session': None,
-            'edit_search_results': [],
-            'last_auto_save': None,
-            'auto_save_enabled': True,
+            "editing_definition_id": None,
+            "editing_definition": None,
+            "edit_session": None,
+            "edit_search_results": [],
+            "last_auto_save": None,
+            "auto_save_enabled": True,
         }
 
         # Gebruik SessionStateManager voor alle edit-specifieke defaults

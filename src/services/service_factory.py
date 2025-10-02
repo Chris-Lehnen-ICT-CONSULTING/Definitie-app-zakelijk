@@ -192,24 +192,32 @@ class ServiceAdapter:
         """Extract violations from dict format."""
         violations = []
         for v in ensure_list(safe_dict_get(source, "violations", [])):
-            violations.append({
-                "rule_id": safe_dict_get(v, "rule_id", safe_dict_get(v, "code", "unknown")),
-                "severity": self._normalize_severity(safe_dict_get(v, "severity")),
-                "description": safe_dict_get(v, "description", safe_dict_get(v, "message", "")),
-                "suggestion": safe_dict_get(v, "suggestion"),
-            })
+            violations.append(
+                {
+                    "rule_id": safe_dict_get(
+                        v, "rule_id", safe_dict_get(v, "code", "unknown")
+                    ),
+                    "severity": self._normalize_severity(safe_dict_get(v, "severity")),
+                    "description": safe_dict_get(
+                        v, "description", safe_dict_get(v, "message", "")
+                    ),
+                    "suggestion": safe_dict_get(v, "suggestion"),
+                }
+            )
         return violations
 
     def _extract_object_violations(self, source: Any) -> list[dict]:
         """Extract violations from object format."""
         violations = []
         for v in source.violations:
-            violations.append({
-                "rule_id": getattr(v, "rule_id", "unknown"),
-                "severity": self._normalize_severity(getattr(v, "severity", None)),
-                "description": getattr(v, "description", ""),
-                "suggestion": getattr(v, "suggestion", None),
-            })
+            violations.append(
+                {
+                    "rule_id": getattr(v, "rule_id", "unknown"),
+                    "severity": self._normalize_severity(getattr(v, "severity", None)),
+                    "description": getattr(v, "description", ""),
+                    "suggestion": getattr(v, "suggestion", None),
+                }
+            )
         return violations
 
     def _extract_score(self, result: Any) -> float:
@@ -271,10 +279,16 @@ class ServiceAdapter:
         if isinstance(result, dict):
             return {
                 "overall_score": self._safe_float(
-                    safe_dict_get(result, "overall_score", safe_dict_get(result, "score", 0.0))
+                    safe_dict_get(
+                        result, "overall_score", safe_dict_get(result, "score", 0.0)
+                    )
                 ),
                 "is_acceptable": bool(
-                    safe_dict_get(result, "is_acceptable", safe_dict_get(result, "is_valid", False))
+                    safe_dict_get(
+                        result,
+                        "is_acceptable",
+                        safe_dict_get(result, "is_valid", False),
+                    )
                 ),
                 "violations": ensure_list(safe_dict_get(result, "violations", [])),
                 "passed_rules": ensure_list(safe_dict_get(result, "passed_rules", [])),
@@ -289,20 +303,34 @@ class ServiceAdapter:
                     if isinstance(data, dict):
                         return {
                             "overall_score": self._safe_float(
-                                safe_dict_get(data, "overall_score", safe_dict_get(data, "score", 0.0))
+                                safe_dict_get(
+                                    data,
+                                    "overall_score",
+                                    safe_dict_get(data, "score", 0.0),
+                                )
                             ),
                             "is_acceptable": bool(
-                                safe_dict_get(data, "is_acceptable", safe_dict_get(data, "is_valid", False))
+                                safe_dict_get(
+                                    data,
+                                    "is_acceptable",
+                                    safe_dict_get(data, "is_valid", False),
+                                )
                             ),
-                            "violations": ensure_list(safe_dict_get(data, "violations", [])),
-                            "passed_rules": ensure_list(safe_dict_get(data, "passed_rules", [])),
+                            "violations": ensure_list(
+                                safe_dict_get(data, "violations", [])
+                            ),
+                            "passed_rules": ensure_list(
+                                safe_dict_get(data, "passed_rules", [])
+                            ),
                         }
                 except Exception:
                     pass
 
         # Prefer schema-compliant adapter for dataclass/TypedDict
         try:
-            from services.validation.mappers import ensure_schema_compliance  # lazy import
+            from services.validation.mappers import (
+                ensure_schema_compliance,  # lazy import
+            )
 
             schema = ensure_schema_compliance(result)
             # Derive score robustly: prefer schema value, otherwise fallback extract
@@ -341,14 +369,19 @@ class ServiceAdapter:
     def _handle_regeneration_context(self, begrip: str, kwargs: dict) -> str:
         """Handle regeneration context enhancement if present."""
         regeneration_context = safe_dict_get(kwargs, "regeneration_context")
-        extra_instructions = ensure_string(safe_dict_get(kwargs, "extra_instructies", ""))
+        extra_instructions = ensure_string(
+            safe_dict_get(kwargs, "extra_instructies", "")
+        )
 
         if not regeneration_context:
             return extra_instructions
 
         from services.regeneration_service import RegenerationService
+
         # Create temporary service to enhance prompt
-        temp_service = RegenerationService(None)  # No prompt builder needed for enhancement
+        temp_service = RegenerationService(
+            None
+        )  # No prompt builder needed for enhancement
         extra_instructions = temp_service.enhance_prompt_with_context(
             extra_instructions or "", regeneration_context
         )
@@ -383,7 +416,9 @@ class ServiceAdapter:
         # REFACTORED: Geen mapping meer nodig, producers leveren al canonieke keys
         voorbeelden = {}
         if response.definition and response.definition.metadata:
-            voorbeelden = ensure_dict(safe_dict_get(response.definition.metadata, "voorbeelden", {}))
+            voorbeelden = ensure_dict(
+                safe_dict_get(response.definition.metadata, "voorbeelden", {})
+            )
             # Direct pass-through - orchestrator heeft al canonieke voorbeelden
 
             # Debug logging point B - ServiceFactory adapter
@@ -430,7 +465,9 @@ class ServiceAdapter:
         # Extract sources
         sources = []
         if response.definition and response.definition.metadata:
-            sources = ensure_list(safe_dict_get(response.definition.metadata, "sources", []))
+            sources = ensure_list(
+                safe_dict_get(response.definition.metadata, "sources", [])
+            )
 
         # Build canonical UI response
         result = {
@@ -446,7 +483,9 @@ class ServiceAdapter:
 
         # Voeg opgeslagen ID toe indien beschikbaar (orchestrator heeft opgeslagen)
         try:
-            if getattr(response, "definition", None) and getattr(response.definition, "id", None):
+            if getattr(response, "definition", None) and getattr(
+                response.definition, "id", None
+            ):
                 result["saved_definition_id"] = int(response.definition.id)
         except Exception:
             pass
@@ -488,20 +527,25 @@ class ServiceAdapter:
         opts = ensure_dict(safe_dict_get(kwargs, "options", {}))
 
         # Document context (EPIC-018): compacte samenvatting door UI aangeleverd
-        doc_context = ensure_string(safe_dict_get(kwargs, "document_context", "")).strip()
+        doc_context = ensure_string(
+            safe_dict_get(kwargs, "document_context", "")
+        ).strip()
 
         request = GenerationRequest(
             id=str(uuid.uuid4()),  # Generate unique ID for tracking
             begrip=begrip,
             # CRITICAL FIX: Use the new list fields for V2 context mapping
             organisatorische_context=org_list,
-            juridische_context=ensure_list(safe_dict_get(context_dict, "juridisch", [])),
+            juridische_context=ensure_list(
+                safe_dict_get(context_dict, "juridisch", [])
+            ),
             wettelijke_basis=ensure_list(safe_dict_get(context_dict, "wettelijk", [])),
             # Standard fields
             organisatie=ensure_string(safe_dict_get(kwargs, "organisatie", "")),
             extra_instructies=extra_instructions,
             ontologische_categorie=ontologische_categorie,  # Categorie uit 6-stappen protocol
-            ufo_categorie=ensure_string(safe_dict_get(kwargs, "ufo_categorie", "")) or None,
+            ufo_categorie=ensure_string(safe_dict_get(kwargs, "ufo_categorie", ""))
+            or None,
             actor="legacy_ui",  # Track that this comes from legacy UI
             legal_basis="legitimate_interest",  # Default legal basis for DPIA compliance
             # Populate legacy string context for compatibility with tests/UI
@@ -524,7 +568,9 @@ class ServiceAdapter:
                 pass
 
         # Handle V2 orchestrator async call properly
-        response = await self.orchestrator.create_definition(request, context=extra_context or None)
+        response = await self.orchestrator.create_definition(
+            request, context=extra_context or None
+        )
 
         # Early return for failure case
         if not response.success or not response.definition:
@@ -538,11 +584,17 @@ class ServiceAdapter:
             **ui_response,
             "success": True,
             "final_definitie": ui_response["definitie_gecorrigeerd"],  # Legacy alias
-            "marker": ensure_string(safe_dict_get(response.definition.metadata, "marker", "")),
+            "marker": ensure_string(
+                safe_dict_get(response.definition.metadata, "marker", "")
+            ),
             "validation_score": ui_response["final_score"],  # Legacy alias
             # Ensure prompt fields are available for debug
-            "prompt_text": ensure_string(safe_dict_get(ui_response["metadata"], "prompt_text", "")),
-            "prompt_template": safe_dict_get(ui_response["metadata"], "prompt_template", ""),
+            "prompt_text": ensure_string(
+                safe_dict_get(ui_response["metadata"], "prompt_text", "")
+            ),
+            "prompt_template": safe_dict_get(
+                ui_response["metadata"], "prompt_template", ""
+            ),
         }
         return result_dict
 
@@ -619,6 +671,7 @@ class ServiceAdapter:
         """
         # Gebruik pure serviceslaag voor export (geen UI-service afhankelijkheid)
         from services.export_service import ExportFormat
+
         export_service = self.container.export_service()
         export_path = export_service.export_definitie(
             definitie_id=definition_id,
@@ -627,12 +680,17 @@ class ServiceAdapter:
             format=ExportFormat(format.lower()),
         )
         import os
+
         filename = os.path.basename(export_path) if export_path else None
         return {
             "success": True if export_path else False,
             "path": export_path,
             "filename": filename,
-            "message": (f"Definitie succesvol geëxporteerd naar {filename}" if export_path else "Export mislukt"),
+            "message": (
+                f"Definitie succesvol geëxporteerd naar {filename}"
+                if export_path
+                else "Export mislukt"
+            ),
             "error": None if export_path else "Export pad onbekend",
         }
 
@@ -650,6 +708,7 @@ class ServiceAdapter:
 def get_service(*args, **kwargs):
     """Legacy alias for obtaining the definition service (adapter by default)."""
     return get_definition_service(*args, **kwargs)
+
 
 ## NOTE:
 ## Keep a single, test‑patchable symbol named `get_container` in this module.

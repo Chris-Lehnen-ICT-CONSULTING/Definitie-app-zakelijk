@@ -2,8 +2,8 @@ import pytest
 
 
 def test_prompt_includes_document_snippets_block():
-    from services.prompts.prompt_service_v2 import PromptServiceV2
     from services.definition_generator_context import EnrichedContext
+    from services.prompts.prompt_service_v2 import PromptServiceV2
 
     svc = PromptServiceV2()
 
@@ -31,4 +31,3 @@ def test_prompt_includes_document_snippets_block():
     assert "DOCUMENTCONTEXT (snippets)" in text
     assert "test.docx (¶ 2):" in text
     assert text.endswith("PROMPT-REST")
-

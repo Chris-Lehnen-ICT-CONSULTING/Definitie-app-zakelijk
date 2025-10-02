@@ -15,13 +15,13 @@ Alle review issues zijn verwerkt:
 
 import logging
 import re
+import unicodedata
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
 from functools import lru_cache
 from pathlib import Path
-from typing import Dict, List, Optional, Set, Tuple, Any
-import unicodedata
+
 import yaml
 
 logger = logging.getLogger(__name__)
@@ -29,6 +29,7 @@ logger = logging.getLogger(__name__)
 
 class UFOCategory(Enum):
     """16 UFO/OntoUML categorieën voor Nederlandse juridische concepten."""
+
     # Primaire categorieën
     KIND = "Kind"
     EVENT = "Event"
@@ -53,15 +54,16 @@ class UFOCategory(Enum):
 @dataclass
 class UFOClassificationResult:
     """Classificatie resultaat met volledige transparantie."""
+
     term: str
     definition: str
     primary_category: UFOCategory
     confidence: float = 0.0
-    secondary_categories: List[UFOCategory] = field(default_factory=list)
-    all_scores: Dict[UFOCategory, float] = field(default_factory=dict)
-    matched_patterns: List[str] = field(default_factory=list)
-    explanation: List[str] = field(default_factory=list)
-    decision_path: List[str] = field(default_factory=list)
+    secondary_categories: list[UFOCategory] = field(default_factory=list)
+    all_scores: dict[UFOCategory, float] = field(default_factory=dict)
+    matched_patterns: list[str] = field(default_factory=list)
+    explanation: list[str] = field(default_factory=list)
+    decision_path: list[str] = field(default_factory=list)
     classification_time_ms: float = 0.0
     version: str = "2.0.0"
 
@@ -69,6 +71,7 @@ class UFOClassificationResult:
 @dataclass
 class Features:
     """Geëxtraheerde features voor classificatie."""
+
     has_temporal: bool = False
     has_entity: bool = False
     has_role: bool = False
@@ -78,8 +81,8 @@ class Features:
     has_quantity: bool = False
     has_quality: bool = False
     has_collection: bool = False
-    keyword_matches: Dict[str, List[str]] = field(default_factory=dict)
-    pattern_scores: Dict[UFOCategory, float] = field(default_factory=dict)
+    keyword_matches: dict[str, list[str]] = field(default_factory=dict)
+    pattern_scores: dict[UFOCategory, float] = field(default_factory=dict)
 
 
 class UFOClassifierService:
@@ -88,7 +91,7 @@ class UFOClassifierService:
     Focus op correctheid (95% precisie) voor single-user gebruik.
     """
 
-    def __init__(self, config_path: Optional[Path] = None):
+    def __init__(self, config_path: Path | None = None):
         """Initialiseer classifier met configuratie."""
         self.version = "2.0.0"
         self.config = self._load_config(config_path)
@@ -97,120 +100,130 @@ class UFOClassifierService:
         self.disambiguation_rules = self._load_disambiguation_rules()
         logger.info(f"UFO Classifier v{self.version} initialized")
 
-    def _load_config(self, config_path: Optional[Path]) -> Dict:
+    def _load_config(self, config_path: Path | None) -> dict:
         """Laad configuratie met error handling."""
         if config_path and config_path.exists():
             try:
-                with open(config_path, 'r', encoding='utf-8') as f:
+                with open(config_path, encoding="utf-8") as f:
                     return yaml.safe_load(f) or {}
             except Exception as e:
                 logger.error(f"Config loading failed: {e}, using defaults")
 
         # Default configuration
         return {
-            'thresholds': {
-                'high_confidence': 0.8,
-                'medium_confidence': 0.6,
-                'manual_review': 0.6
+            "thresholds": {
+                "high_confidence": 0.8,
+                "medium_confidence": 0.6,
+                "manual_review": 0.6,
             },
-            'max_time_ms': 500
+            "max_time_ms": 500,
         }
 
     @lru_cache(maxsize=1)
-    def _compile_patterns(self) -> Dict[UFOCategory, List[re.Pattern]]:
+    def _compile_patterns(self) -> dict[UFOCategory, list[re.Pattern]]:
         """Compile patterns eenmalig voor performance."""
         patterns = {
             UFOCategory.KIND: [
-                r'\b(?:persoon|mens|organisatie|zaak|ding|object)\b',
-                r'\b(?:document|gebouw|voertuig)\b',
-                r'(?:natuurlijk|rechts)persoon'
+                r"\b(?:persoon|mens|organisatie|zaak|ding|object)\b",
+                r"\b(?:document|gebouw|voertuig)\b",
+                r"(?:natuurlijk|rechts)persoon",
             ],
             UFOCategory.EVENT: [
-                r'(?:tijdens|gedurende|na afloop)',
-                r'\b(?:proces|procedure|gebeurtenis)\b',
-                r'\b\w+(?:ing|atie)\b'  # Nominalisaties
+                r"(?:tijdens|gedurende|na afloop)",
+                r"\b(?:proces|procedure|gebeurtenis)\b",
+                r"\b\w+(?:ing|atie)\b",  # Nominalisaties
             ],
             UFOCategory.ROLE: [
-                r'(?:in de hoedanigheid van|als)\s+\w+',
-                r'\b(?:verdachte|eigenaar|koper|verkoper)\b'
+                r"(?:in de hoedanigheid van|als)\s+\w+",
+                r"\b(?:verdachte|eigenaar|koper|verkoper)\b",
             ],
             UFOCategory.PHASE: [
-                r'(?:voorlopig|definitief|concept)',
-                r'(?:actief|inactief|gesloten)',
-                r'(?:fase|stadium|status)\b'
+                r"(?:voorlopig|definitief|concept)",
+                r"(?:actief|inactief|gesloten)",
+                r"(?:fase|stadium|status)\b",
             ],
             UFOCategory.RELATOR: [
-                r'(?:overeenkomst|contract|huwelijk)',
-                r'(?:tussen|met)\s+\w+',
-                r'(?:vergunning|mandaat)\b'
+                r"(?:overeenkomst|contract|huwelijk)",
+                r"(?:tussen|met)\s+\w+",
+                r"(?:vergunning|mandaat)\b",
             ],
             UFOCategory.MODE: [
-                r'(?:eigenschap|kenmerk|toestand)',
-                r'(?:gezondheid|locatie|adres)\b'
+                r"(?:eigenschap|kenmerk|toestand)",
+                r"(?:gezondheid|locatie|adres)\b",
             ],
             UFOCategory.QUANTITY: [
-                r'\d+\s*(?:euro|EUR|€|%)',
-                r'(?:bedrag|aantal|percentage)\b'
+                r"\d+\s*(?:euro|EUR|€|%)",
+                r"(?:bedrag|aantal|percentage)\b",
             ],
             UFOCategory.QUALITY: [
-                r'(?:kwaliteit|ernst|betrouwbaarheid)',
-                r'(?:mate van|graad van)'
+                r"(?:kwaliteit|ernst|betrouwbaarheid)",
+                r"(?:mate van|graad van)",
             ],
             UFOCategory.COLLECTIVE: [
-                r'(?:groep|team|commissie|raad)',
-                r'(?:verzameling|collectie)\s+van'
-            ]
+                r"(?:groep|team|commissie|raad)",
+                r"(?:verzameling|collectie)\s+van",
+            ],
         }
 
         # Compile all patterns
         compiled = {}
         for category, pattern_list in patterns.items():
-            compiled[category] = [
-                re.compile(p, re.IGNORECASE)
-                for p in pattern_list
-            ]
+            compiled[category] = [re.compile(p, re.IGNORECASE) for p in pattern_list]
         return compiled
 
-    def _load_legal_terms(self) -> Dict[str, Set[str]]:
+    def _load_legal_terms(self) -> dict[str, set[str]]:
         """Laad kern juridische termen (simplified)."""
         return {
-            'strafrecht': {'verdachte', 'dader', 'aangifte', 'arrestatie', 'dagvaarding'},
-            'bestuursrecht': {'beschikking', 'vergunning', 'bezwaar', 'beroep', 'handhaving'},
-            'civiel': {'eigendom', 'overeenkomst', 'koper', 'verkoper', 'hypotheek'},
-            'algemeen': {'rechtspersoon', 'bevoegdheid', 'rechtsbetrekking'}
+            "strafrecht": {
+                "verdachte",
+                "dader",
+                "aangifte",
+                "arrestatie",
+                "dagvaarding",
+            },
+            "bestuursrecht": {
+                "beschikking",
+                "vergunning",
+                "bezwaar",
+                "beroep",
+                "handhaving",
+            },
+            "civiel": {"eigendom", "overeenkomst", "koper", "verkoper", "hypotheek"},
+            "algemeen": {"rechtspersoon", "bevoegdheid", "rechtsbetrekking"},
         }
 
-    def _load_disambiguation_rules(self) -> Dict[str, List[Tuple[str, UFOCategory]]]:
+    def _load_disambiguation_rules(self) -> dict[str, list[tuple[str, UFOCategory]]]:
         """Laad disambiguatie regels voor complexe termen."""
         return {
-            'zaak': [
-                (r'rechts?zaak|strafzaak', UFOCategory.EVENT),
-                (r'roerende|onroerende', UFOCategory.KIND)
+            "zaak": [
+                (r"rechts?zaak|strafzaak", UFOCategory.EVENT),
+                (r"roerende|onroerende", UFOCategory.KIND),
             ],
-            'huwelijk': [
-                (r'sluiten|voltrekken', UFOCategory.EVENT),
-                (r'tussen|band', UFOCategory.RELATOR)
+            "huwelijk": [
+                (r"sluiten|voltrekken", UFOCategory.EVENT),
+                (r"tussen|band", UFOCategory.RELATOR),
             ],
-            'overeenkomst': [
-                (r'sluiten|aangaan', UFOCategory.EVENT),
-                (r'tussen partijen', UFOCategory.RELATOR)
+            "overeenkomst": [
+                (r"sluiten|aangaan", UFOCategory.EVENT),
+                (r"tussen partijen", UFOCategory.RELATOR),
             ],
-            'procedure': [
-                (r'start|begin', UFOCategory.EVENT),
-                (r'volgens de', UFOCategory.KIND)
+            "procedure": [
+                (r"start|begin", UFOCategory.EVENT),
+                (r"volgens de", UFOCategory.KIND),
             ],
-            'vergunning': [
-                (r'aanvragen|verlenen', UFOCategory.EVENT),
-                (r'voor|heeft een', UFOCategory.RELATOR)
+            "vergunning": [
+                (r"aanvragen|verlenen", UFOCategory.EVENT),
+                (r"voor|heeft een", UFOCategory.RELATOR),
             ],
-            'besluit': [
-                (r'nemen|maken', UFOCategory.EVENT),
-                (r'schriftelijk|document', UFOCategory.KIND)
-            ]
+            "besluit": [
+                (r"nemen|maken", UFOCategory.EVENT),
+                (r"schriftelijk|document", UFOCategory.KIND),
+            ],
         }
 
-    def classify(self, term: str, definition: str,
-                 context: Optional[Dict] = None) -> UFOClassificationResult:
+    def classify(
+        self, term: str, definition: str, context: dict | None = None
+    ) -> UFOClassificationResult:
         """
         Classificeer een juridische term volgens UFO.
         Simplified 3-fase beslislogica ipv 9 stappen.
@@ -224,7 +237,7 @@ class UFOClassifierService:
         result = UFOClassificationResult(
             term=term,
             definition=definition,
-            primary_category=UFOCategory.KIND  # Safe default
+            primary_category=UFOCategory.KIND,  # Safe default
         )
 
         try:
@@ -233,13 +246,19 @@ class UFOClassifierService:
             result.matched_patterns = self._get_matched_patterns(features)
 
             # Fase 2: Bepaal categorie (simplified decision tree)
-            result.primary_category = self._determine_category(features, term, definition)
-            result.decision_path = features.keyword_matches.get('decision_path', [])
+            result.primary_category = self._determine_category(
+                features, term, definition
+            )
+            result.decision_path = features.keyword_matches.get("decision_path", [])
 
             # Fase 3: Bereken confidence en secundaire categorieën
             result.all_scores = features.pattern_scores
-            result.confidence = self._calculate_confidence(features, result.primary_category)
-            result.secondary_categories = self._get_secondary_categories(features, result.primary_category)
+            result.confidence = self._calculate_confidence(
+                features, result.primary_category
+            )
+            result.secondary_categories = self._get_secondary_categories(
+                features, result.primary_category
+            )
 
             # Genereer uitleg
             result.explanation = self._generate_explanation(result, features)
@@ -247,13 +266,17 @@ class UFOClassifierService:
         except Exception as e:
             logger.error(f"Classification error: {e}")
             result.confidence = 0.0
-            result.explanation = [f"Error: {str(e)}"]
+            result.explanation = [f"Error: {e!s}"]
 
         # Bereken tijd
-        result.classification_time_ms = (datetime.now() - start_time).total_seconds() * 1000
+        result.classification_time_ms = (
+            datetime.now() - start_time
+        ).total_seconds() * 1000
 
-        logger.debug(f"Classified '{term}' as {result.primary_category.value} "
-                    f"({result.confidence:.1%}) in {result.classification_time_ms:.1f}ms")
+        logger.debug(
+            f"Classified '{term}' as {result.primary_category.value} "
+            f"({result.confidence:.1%}) in {result.classification_time_ms:.1f}ms"
+        )
 
         return result
 
@@ -268,7 +291,7 @@ class UFOClassifierService:
             raise ValueError(f"{field_name} mag niet leeg zijn")
 
         # Unicode normalisatie voor Nederlandse tekst
-        text = unicodedata.normalize('NFC', text)
+        text = unicodedata.normalize("NFC", text)
 
         # Basis sanitization (prevent injection)
         if len(text) > 5000:
@@ -308,7 +331,9 @@ class UFOClassifierService:
 
         return features
 
-    def _determine_category(self, features: Features, term: str, definition: str) -> UFOCategory:
+    def _determine_category(
+        self, features: Features, term: str, definition: str
+    ) -> UFOCategory:
         """
         Simplified 3-fase beslisboom (ipv 9 stappen).
         Fase 1: Check voor disambiguatie
@@ -323,37 +348,43 @@ class UFOClassifierService:
             for pattern, category in self.disambiguation_rules[term_lower]:
                 if re.search(pattern, definition.lower()):
                     decision_path.append(f"Disambiguatie: '{term}' → {category.value}")
-                    features.keyword_matches['decision_path'] = decision_path
+                    features.keyword_matches["decision_path"] = decision_path
                     return category
 
         # Fase 2: Hoogste pattern score (FIX: check voor lege scores)
         if features.pattern_scores:
             best_category = max(features.pattern_scores.items(), key=lambda x: x[1])
             if best_category[1] >= 0.6:  # Confidence threshold
-                decision_path.append(f"Pattern match: {best_category[0].value} (score: {best_category[1]:.2f})")
-                features.keyword_matches['decision_path'] = decision_path
+                decision_path.append(
+                    f"Pattern match: {best_category[0].value} (score: {best_category[1]:.2f})"
+                )
+                features.keyword_matches["decision_path"] = decision_path
                 return best_category[0]
 
         # Fase 3: Simplified heuristieken
         text_lower = f"{term} {definition}".lower()
 
-        if features.has_temporal or 'tijdens' in text_lower or 'proces' in text_lower:
+        if features.has_temporal or "tijdens" in text_lower or "proces" in text_lower:
             decision_path.append("Heuristiek: temporele markers → Event")
             category = UFOCategory.EVENT
-        elif features.has_role or 'als' in text_lower or 'verdachte' in text_lower:
+        elif features.has_role or "als" in text_lower or "verdachte" in text_lower:
             decision_path.append("Heuristiek: rol markers → Role")
             category = UFOCategory.ROLE
-        elif features.has_relation or 'tussen' in text_lower or 'overeenkomst' in text_lower:
+        elif (
+            features.has_relation
+            or "tussen" in text_lower
+            or "overeenkomst" in text_lower
+        ):
             decision_path.append("Heuristiek: relatie markers → Relator")
             category = UFOCategory.RELATOR
-        elif features.has_quantity or bool(re.search(r'\d+', text_lower)):
+        elif features.has_quantity or bool(re.search(r"\d+", text_lower)):
             decision_path.append("Heuristiek: kwantitatieve markers → Quantity")
             category = UFOCategory.QUANTITY
         else:
             decision_path.append("Default: geen specifieke markers → Kind")
             category = UFOCategory.KIND
 
-        features.keyword_matches['decision_path'] = decision_path
+        features.keyword_matches["decision_path"] = decision_path
         return category
 
     def _calculate_confidence(self, features: Features, category: UFOCategory) -> float:
@@ -381,7 +412,9 @@ class UFOClassifierService:
 
         return max(0.1, min(confidence, 1.0))  # Clamp tussen 0.1 en 1.0
 
-    def _get_secondary_categories(self, features: Features, primary: UFOCategory) -> List[UFOCategory]:
+    def _get_secondary_categories(
+        self, features: Features, primary: UFOCategory
+    ) -> list[UFOCategory]:
         """Bepaal secundaire categorieën."""
         secondary = []
         threshold = 0.3
@@ -394,7 +427,7 @@ class UFOClassifierService:
         secondary.sort(key=lambda c: features.pattern_scores.get(c, 0), reverse=True)
         return secondary[:3]  # Max 3 secundaire categorieën
 
-    def _get_matched_patterns(self, features: Features) -> List[str]:
+    def _get_matched_patterns(self, features: Features) -> list[str]:
         """Verzamel alle gematchte patronen."""
         patterns = []
         for category, matches in features.keyword_matches.items():
@@ -402,12 +435,14 @@ class UFOClassifierService:
                 patterns.append(f"{category}: {match}")
         return patterns
 
-    def _generate_explanation(self, result: UFOClassificationResult, features: Features) -> List[str]:
+    def _generate_explanation(
+        self, result: UFOClassificationResult, features: Features
+    ) -> list[str]:
         """Genereer beknopte maar complete uitleg."""
         explanation = [
             f"Classificatie: {result.primary_category.value}",
             f"Confidence: {result.confidence:.1%}",
-            f"Basis: {len(result.matched_patterns)} patronen gevonden"
+            f"Basis: {len(result.matched_patterns)} patronen gevonden",
         ]
 
         if result.decision_path:
@@ -421,8 +456,9 @@ class UFOClassifierService:
 
         return explanation
 
-    def batch_classify(self, definitions: List[Tuple[str, str]],
-                       context: Optional[Dict] = None) -> List[UFOClassificationResult]:
+    def batch_classify(
+        self, definitions: list[tuple[str, str]], context: dict | None = None
+    ) -> list[UFOClassificationResult]:
         """
         Batch processing met memory-efficient streaming.
         FIX: Geen memory accumulation meer.
@@ -443,7 +479,7 @@ class UFOClassifierService:
                     definition=definition,
                     primary_category=UFOCategory.KIND,
                     confidence=0.0,
-                    explanation=[f"Error: {str(e)}"]
+                    explanation=[f"Error: {e!s}"],
                 )
                 yield error_result
 
@@ -477,7 +513,7 @@ if __name__ == "__main__":
         ("verdachte", "Persoon die wordt verdacht van een strafbaar feit"),
         ("koopovereenkomst", "Overeenkomst tussen koper en verkoper"),
         ("rechtszaak", "Een zaak die voor de rechter wordt behandeld"),
-        ("eigendom", "Het meest omvattende recht op een zaak")
+        ("eigendom", "Het meest omvattende recht op een zaak"),
     ]
 
     print("UFO Classifier v2.0 - Production Ready")

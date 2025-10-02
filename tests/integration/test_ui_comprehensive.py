@@ -11,15 +11,15 @@ from unittest.mock import MagicMock, Mock, patch
 
 import pytest
 
-
 """UI comprehensive tests use the central Streamlit mock.
 
 We reuse the test-wide mock to avoid conflicts with other suites that
 depend on Streamlit caching decorators (cache_data/cache_resource).
 """
 
-from mocks.streamlit_mock import get_streamlit_mock
 import sys
+
+from mocks.streamlit_mock import get_streamlit_mock
 
 # Mock streamlit globally using the shared mock
 mock_st = get_streamlit_mock()
@@ -47,6 +47,7 @@ except ImportError as e:
     class ContextSelector:
         def __init__(self):
             pass
+
         def render(self):
             return {
                 "organisatorische_context": [],

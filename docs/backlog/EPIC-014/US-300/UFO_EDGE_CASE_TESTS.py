@@ -4,30 +4,26 @@ Comprehensive Edge Case Test Suite for UFO Classifier
 Tests for all identified bugs and edge cases to ensure 95% precision target
 """
 
-import pytest
-import time
 import gc
-import sys
-import unicodedata
-from typing import List, Tuple
-from unittest.mock import Mock, patch
-import psutil
 import os
+import sys
+import time
+
+import psutil
+import pytest
 
 # Import the classifier (adjust path as needed)
 from src.services.ufo_classifier_service import (
-    UFOClassifierService,
+    DutchLegalLexicon,
     UFOCategory,
-    UFOClassificationResult,
-    PatternMatcher,
-    DutchLegalLexicon
+    UFOClassifierService,
 )
 
 
 class TestEdgeCasesEmptyAndWhitespace:
     """Test edge cases with empty strings and whitespace."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def classifier(self):
         return UFOClassifierService()
 
@@ -57,10 +53,7 @@ class TestEdgeCasesEmptyAndWhitespace:
 
     def test_whitespace_normalization(self, classifier):
         """Test that leading/trailing whitespace is handled."""
-        result = classifier.classify(
-            "  verdachte  ",
-            "  Persoon die wordt verdacht  "
-        )
+        result = classifier.classify("  verdachte  ", "  Persoon die wordt verdacht  ")
         assert result.term == "verdachte"  # Should be trimmed
         assert result.confidence > 0
 
@@ -68,7 +61,7 @@ class TestEdgeCasesEmptyAndWhitespace:
 class TestEdgeCasesUnicode:
     """Test Unicode edge cases specific to Dutch text."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def classifier(self):
         return UFOClassifierService()
 
@@ -119,10 +112,10 @@ class TestEdgeCasesUnicode:
         """Test edge Unicode characters that might break regex."""
         problematic_chars = [
             ("test\u200b", "Zero-width space"),  # Zero-width space
-            ("test\ufeff", "BOM character"),      # Byte order mark
+            ("test\ufeff", "BOM character"),  # Byte order mark
             ("test\u00a0", "Non-breaking space"),  # Non-breaking space
-            ("test\u2028", "Line separator"),      # Line separator
-            ("test\u2029", "Paragraph separator"), # Paragraph separator
+            ("test\u2028", "Line separator"),  # Line separator
+            ("test\u2029", "Paragraph separator"),  # Paragraph separator
         ]
 
         for term, definition in problematic_chars:
@@ -138,7 +131,7 @@ class TestEdgeCasesUnicode:
 class TestEdgeCasesSpecialCharacters:
     """Test special characters and potential injection attempts."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def classifier(self):
         return UFOClassifierService()
 
@@ -200,7 +193,7 @@ class TestEdgeCasesSpecialCharacters:
 class TestEdgeCasesPerformance:
     """Test performance edge cases."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def classifier(self):
         return UFOClassifierService()
 
@@ -236,14 +229,11 @@ class TestEdgeCasesPerformance:
         assert elapsed < 0.5, f"Complex classification took {elapsed:.2f}s"
         assert len(result.matched_patterns) > 10  # Should find many patterns
 
-    @pytest.mark.slow
+    @pytest.mark.slow()
     def test_batch_memory_usage(self, classifier):
         """Test memory usage with large batches."""
         # Create large batch
-        large_batch = [
-            (f"term_{i}", f"Definitie nummer {i}")
-            for i in range(1000)
-        ]
+        large_batch = [(f"term_{i}", f"Definitie nummer {i}") for i in range(1000)]
 
         # Measure memory before
         process = psutil.Process(os.getpid())
@@ -266,7 +256,7 @@ class TestEdgeCasesPerformance:
 class TestEdgeCasesNumericAndMeasurements:
     """Test edge cases with numbers and measurements."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def classifier(self):
         return UFOClassifierService()
 
@@ -307,13 +297,16 @@ class TestEdgeCasesNumericAndMeasurements:
 
         for term, definition in test_cases:
             result = classifier.classify(term, definition)
-            assert result.primary_category in [UFOCategory.QUANTITY, UFOCategory.QUALITY]
+            assert result.primary_category in [
+                UFOCategory.QUANTITY,
+                UFOCategory.QUALITY,
+            ]
 
 
 class TestEdgeCasesDisambiguation:
     """Test disambiguation edge cases."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def classifier(self):
         return UFOClassifierService()
 
@@ -351,7 +344,7 @@ class TestEdgeCasesDisambiguation:
 class TestEdgeCasesConfidenceCalculation:
     """Test confidence calculation edge cases."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def classifier(self):
         return UFOClassifierService()
 
@@ -379,7 +372,7 @@ class TestEdgeCasesConfidenceCalculation:
         """Test high confidence with clear match."""
         result = classifier.classify(
             "arrestatie",
-            "Het aanhouden van een persoon door de politie tijdens het onderzoek"
+            "Het aanhouden van een persoon door de politie tijdens het onderzoek",
         )
 
         assert result.primary_category == UFOCategory.EVENT
@@ -389,7 +382,7 @@ class TestEdgeCasesConfidenceCalculation:
 class TestEdgeCasesErrorHandling:
     """Test error handling and recovery."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def classifier(self):
         return UFOClassifierService()
 
@@ -445,20 +438,18 @@ class TestEdgeCasesErrorHandling:
 class TestEdgeCasesSecondaryCategories:
     """Test secondary category identification edge cases."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def classifier(self):
         return UFOClassifierService()
 
     def test_no_secondary_categories(self, classifier):
         """Test when only one category matches."""
-        result = classifier.classify(
-            "gebouw",
-            "Een onroerend goed"
-        )
+        result = classifier.classify("gebouw", "Een onroerend goed")
 
         assert result.primary_category == UFOCategory.KIND
-        assert len(result.secondary_categories) == 0 or \
-               all(s != result.primary_category for s in result.secondary_categories)
+        assert len(result.secondary_categories) == 0 or all(
+            s != result.primary_category for s in result.secondary_categories
+        )
 
     def test_many_secondary_categories(self, classifier):
         """Test limiting secondary categories to 3."""
@@ -480,7 +471,7 @@ class TestEdgeCasesSecondaryCategories:
 class TestEdgeCasesDecisionPath:
     """Test decision path edge cases."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def classifier(self):
         return UFOClassifierService()
 
@@ -506,8 +497,9 @@ class TestEdgeCasesDecisionPath:
                         pass
 
             # Should have steps 1-9
-            assert set(range(1, 10)).issubset(set(step_numbers)), \
-                f"Missing steps in decision path for {term}"
+            assert set(range(1, 10)).issubset(
+                set(step_numbers)
+            ), f"Missing steps in decision path for {term}"
 
 
 class TestEdgeCasesLexiconMemory:
@@ -529,7 +521,6 @@ class TestEdgeCasesLexiconMemory:
 
     def test_lexicon_memory_efficiency(self):
         """Test lexicon memory usage is reasonable."""
-        import sys
 
         lexicon = DutchLegalLexicon()
 
@@ -546,11 +537,11 @@ class TestEdgeCasesLexiconMemory:
 
 
 # Performance benchmark suite
-@pytest.mark.benchmark
+@pytest.mark.benchmark()
 class TestPerformanceBenchmarks:
     """Performance benchmarks to ensure 500ms target."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def classifier(self):
         return UFOClassifierService()
 
@@ -559,8 +550,7 @@ class TestPerformanceBenchmarks:
 
         def classify():
             return classifier.classify(
-                "verdachte",
-                "Persoon die wordt verdacht van een strafbaar feit"
+                "verdachte", "Persoon die wordt verdacht van een strafbaar feit"
             )
 
         result = benchmark(classify)
@@ -569,9 +559,7 @@ class TestPerformanceBenchmarks:
     def test_worst_case_classification_time(self, classifier, benchmark):
         """Benchmark worst-case with complex input."""
 
-        complex_def = " ".join([
-            "verdachte eigenaar arrestatie koopovereenkomst"
-        ] * 50)
+        complex_def = " ".join(["verdachte eigenaar arrestatie koopovereenkomst"] * 50)
 
         def classify():
             return classifier.classify("complex", complex_def)

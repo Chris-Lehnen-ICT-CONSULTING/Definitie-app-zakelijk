@@ -5,7 +5,6 @@ Service voor het exporteren van definities naar verschillende formaten.
 Gebruikt DataAggregationService om data te verzamelen zonder directe UI dependencies.
 """
 
-import asyncio
 import json
 import logging
 from datetime import UTC, datetime, timedelta
@@ -285,8 +284,12 @@ class ExportService:
                 "definitie_aangepast": export_data.definitie_aangepast or "",
                 "status": export_data.metadata.get("status", ""),
                 "categorie": export_data.metadata.get("categorie", ""),
-                "organisatorische_context": export_data.metadata.get("organisatorische_context", ""),
-                "juridische_context": export_data.metadata.get("juridische_context", ""),
+                "organisatorische_context": export_data.metadata.get(
+                    "organisatorische_context", ""
+                ),
+                "juridische_context": export_data.metadata.get(
+                    "juridische_context", ""
+                ),
                 "wettelijke_basis": export_data.metadata.get("wettelijke_basis", ""),
                 "voorkeursterm": export_data.voorkeursterm,
                 "synoniemen": export_data.synoniemen,

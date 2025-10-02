@@ -1,10 +1,9 @@
 import pytest
 
-
 pytestmark = pytest.mark.smoke_web_lookup
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_sru_uses_only_wet_tokens(monkeypatch):
     """Verify SRU lookup receives only 'wet' tokens (no org/jur) from orchestrator."""
 
@@ -29,7 +28,12 @@ async def test_sru_uses_only_wet_tokens(monkeypatch):
             return [
                 LookupResult(
                     term=term,
-                    source=WebSource(name="Overheid.nl", url="https://example/overheid", confidence=1.0, is_juridical=True),
+                    source=WebSource(
+                        name="Overheid.nl",
+                        url="https://example/overheid",
+                        confidence=1.0,
+                        is_juridical=True,
+                    ),
                     definition="Dummy",
                     success=True,
                     metadata={},
@@ -45,7 +49,13 @@ async def test_sru_uses_only_wet_tokens(monkeypatch):
     svc = ModernWebLookupService()
     # Context met org + jur + wet tokens
     context = "OM|Strafrecht|Sv"
-    req = LookupRequest(term="voorlopige hechtenis", sources=["wetgeving"], context=context, max_results=1, timeout=5)
+    req = LookupRequest(
+        term="voorlopige hechtenis",
+        sources=["wetgeving"],
+        context=context,
+        max_results=1,
+        timeout=5,
+    )
     res = await svc.lookup(req)
 
     assert res and len(res) == 1
@@ -55,4 +65,6 @@ async def test_sru_uses_only_wet_tokens(monkeypatch):
     assert all("OM" not in t for t in captured_terms)
     assert all("Strafrecht" not in t for t in captured_terms)
     # Wel 'Sv' of de uitgeschreven wetnaam aanwezig in ten minste één term
-    assert any(("Sv" in t) or ("Wetboek van Strafvordering" in t) for t in captured_terms)
+    assert any(
+        ("Sv" in t) or ("Wetboek van Strafvordering" in t) for t in captured_terms
+    )

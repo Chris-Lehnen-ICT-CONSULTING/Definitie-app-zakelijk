@@ -4,11 +4,13 @@ from services.definition_generator_config import UnifiedGeneratorConfig
 from services.definition_generator_context import ContextSource, EnrichedContext
 from services.prompts.modules.base_module import ModuleContext
 from services.prompts.modules.definition_task_module import DefinitionTaskModule
-from services.prompts.modules.structure_rules_module import StructureRulesModule
-from services.prompts.modules.output_specification_module import OutputSpecificationModule
+from services.prompts.modules.output_specification_module import (
+    OutputSpecificationModule,
+)
 from services.prompts.modules.semantic_categorisation_module import (
     SemanticCategorisationModule,
 )
+from services.prompts.modules.structure_rules_module import StructureRulesModule
 
 
 def _make_context(
@@ -23,13 +25,17 @@ def _make_context(
             "juridische_context": ["Strafrecht"],
             "wettelijke_basis": ["WvSr"],
         },
-        sources=[ContextSource(source_type="web_lookup", confidence=0.9, content="wiki")],
+        sources=[
+            ContextSource(source_type="web_lookup", confidence=0.9, content="wiki")
+        ],
         expanded_terms={},
         confidence_scores={"web_lookup": 0.9},
         metadata=meta or {},
     )
     cfg = UnifiedGeneratorConfig()
-    return ModuleContext(begrip=begrip, enriched_context=enriched, config=cfg, shared_state={})
+    return ModuleContext(
+        begrip=begrip, enriched_context=enriched, config=cfg, shared_state={}
+    )
 
 
 def test_definition_task_module_validate_and_execute():
@@ -44,7 +50,7 @@ def test_definition_task_module_validate_and_execute():
     # execute builds expected sections and metadata
     ctx = _make_context(begrip="authenticatie")
     ctx.set_shared("word_type", "zelfstandig naamwoord")
-    ctx.set_shared("organization_contexts", ["OM"]) 
+    ctx.set_shared("organization_contexts", ["OM"])
 
     out = mod.execute(ctx)
     assert out.success is True
@@ -90,4 +96,3 @@ def test_semantic_categorisation_sets_shared_and_guidance():
     # guidance hints appear
     assert "PROCES CATEGORIE" in out.content
     assert out.metadata.get("ontological_category") == "proces"
-

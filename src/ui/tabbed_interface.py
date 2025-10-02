@@ -9,10 +9,8 @@ met ondersteuning voor meerdere tabs en complete workflow beheer.
 
 import asyncio  # Asynchrone programmering voor ontologische analyse
 import os
-from datetime import (
-    UTC,
-    datetime,  # Datum en tijd functionaliteit
-)
+from datetime import datetime  # Datum en tijd functionaliteit
+from datetime import UTC
 
 UTC = UTC  # Voor Python 3.10 compatibility  # noqa: PLW0127
 import contextlib
@@ -34,32 +32,34 @@ from domain.ontological_categories import (
     OntologischeCategorie,  # Ontologische categorieën
 )
 from integration.definitie_checker import (  # Definitie integratie controle
-    DefinitieChecker,
     CheckAction,
+    DefinitieChecker,
 )
 
 # Nieuwe services imports
 from services import get_definition_service
 from services.regeneration_service import RegenerationService
 from ui.components.context_state_cleaner import init_context_cleaner
-from ui.components.definition_generator_tab import (  # Hoofdtab voor definitie generatie
-    DefinitionGeneratorTab,
-)
 from ui.components.definition_edit_tab import (  # Edit interface voor definities
     DefinitionEditTab,
 )
-from utils.container_manager import get_cached_container  # Gebruik nieuwe cached container manager
+from ui.components.definition_generator_tab import (  # Hoofdtab voor definitie generatie
+    DefinitionGeneratorTab,
+)
 
 # Importeer alle UI tab componenten voor de verschillende functionaliteiten
 from ui.components.enhanced_context_manager_selector import (
     EnhancedContextManagerSelector as ContextSelector,
-)  # Context selectie component via ContextManager
+)
+
+# Context selectie component via ContextManager
 from ui.components.expert_review_tab import (  # Expert review en validatie tab
     ExpertReviewTab,
 )
+from ui.components.monitoring_tab import MonitoringTab  # Monitoring en statistieken
+
 # Geconsolideerde import/export/beheer tab (vervangt Export en Management tabs)
 from ui.components.tabs.import_export_beheer import ImportExportBeheerTab
-from ui.components.monitoring_tab import MonitoringTab  # Monitoring en statistieken
 
 # TIJDELIJK UITGESCHAKELD - OrchestrationTab heeft compatibility issues
 # from ui.components.orchestration_tab import (  # Orchestratie en automatisering
@@ -71,6 +71,9 @@ from ui.components.web_lookup_tab import WebLookupTab  # Web lookup interface
 # Importeer core services en utilities
 from ui.session_state import (  # Sessie state management voor UI persistentie
     SessionStateManager,
+)
+from utils.container_manager import (
+    get_cached_container,  # Gebruik nieuwe cached container manager
 )
 from utils.type_helpers import ensure_dict
 
@@ -118,7 +121,9 @@ class TabbedInterface:
                         "version": "test",
                     }
 
-                async def generate_definition(self, begrip: str, context_dict: dict, **kwargs):
+                async def generate_definition(
+                    self, begrip: str, context_dict: dict, **kwargs
+                ):
                     # Uniform V2 response vorm; UI kan hiermee omgaan
                     return {
                         "success": False,
@@ -165,7 +170,9 @@ class TabbedInterface:
         # Koppel validatie service aan Edit-tab (ModularValidation via Orchestrator V2)
         try:
             # Use cached container instead of creating new one
-            validation_service = self.container.orchestrator()  # ValidationOrchestratorV2
+            validation_service = (
+                self.container.orchestrator()
+            )  # ValidationOrchestratorV2
         except Exception as e:
             logger.warning(
                 f"Validatie service niet beschikbaar ({type(e).__name__}: {e!s}); Edit-tab zonder validator"
@@ -744,12 +751,28 @@ class TabbedInterface:
         st.markdown("#### 🧭 UFO‑categorie (optioneel)")
         ufo_opties = [
             "",  # leeg = geen voorkeur; service bepaalt of laat leeg
-            "Kind","Event","Role","Phase","Relator","Mode","Quantity","Quality",
-            "Subkind","Category","Mixin","RoleMixin","PhaseMixin","Abstract","Relatie","Event Composition",
+            "Kind",
+            "Event",
+            "Role",
+            "Phase",
+            "Relator",
+            "Mode",
+            "Quantity",
+            "Quality",
+            "Subkind",
+            "Category",
+            "Mixin",
+            "RoleMixin",
+            "PhaseMixin",
+            "Abstract",
+            "Relatie",
+            "Event Composition",
         ]
         ufo_default = SessionStateManager.get_value("ufo_categorie", "")
         try:
-            default_index = ufo_opties.index(ufo_default) if ufo_default in ufo_opties else 0
+            default_index = (
+                ufo_opties.index(ufo_default) if ufo_default in ufo_opties else 0
+            )
         except Exception:
             default_index = 0
         ufo_selected = st.selectbox(
@@ -825,15 +848,22 @@ class TabbedInterface:
                 )
 
                 # DUPLICATE GATE: Voer duplicate-check uit vóór generatie (tenzij geforceerd)
-                options = ensure_dict(SessionStateManager.get_value("generation_options", {}))
+                options = ensure_dict(
+                    SessionStateManager.get_value("generation_options", {})
+                )
                 is_forced = bool(options.get("force_generate"))
 
                 # Gebruik de automatisch bepaalde categorie voor nauwkeuriger check
                 if not is_forced:
                     # DB repository bewaart org/jur als JSON-string; vergelijk exact daarop
                     import json as _json
-                    primary_org = _json.dumps(sorted(org_context or []), ensure_ascii=False)
-                    primary_jur = _json.dumps(sorted(jur_context or []), ensure_ascii=False)
+
+                    primary_org = _json.dumps(
+                        sorted(org_context or []), ensure_ascii=False
+                    )
+                    primary_jur = _json.dumps(
+                        sorted(jur_context or []), ensure_ascii=False
+                    )
                     wet_norm = sorted({str(x).strip() for x in (wet_context or [])})
                     check_result = self.checker.check_before_generation(
                         begrip=begrip,
@@ -849,24 +879,35 @@ class TabbedInterface:
                         st.warning("⚠️ Bestaande definitie gevonden. Kies een optie:")
                         c1, c2 = st.columns(2)
                         with c1:
-                            if st.button("👁️ Toon bestaande definitie", key="btn_show_existing"):
+                            if st.button(
+                                "👁️ Toon bestaande definitie", key="btn_show_existing"
+                            ):
                                 if check_result.existing_definitie:
                                     SessionStateManager.set_value(
-                                        "selected_definition", check_result.existing_definitie
+                                        "selected_definition",
+                                        check_result.existing_definitie,
                                     )
                                 # Wis eventuele vorige generatie-output
-                                SessionStateManager.clear_value("last_generation_result")
+                                SessionStateManager.clear_value(
+                                    "last_generation_result"
+                                )
                                 st.rerun()
                         with c2:
-                            if st.button("🚀 Genereer nieuwe definitie", key="btn_force_generate"):
+                            if st.button(
+                                "🚀 Genereer nieuwe definitie", key="btn_force_generate"
+                            ):
                                 # Forceer generatie en duid duplicaat als geaccepteerd voor doorlopen
                                 options["force_generate"] = True
                                 options["force_duplicate"] = True
-                                SessionStateManager.set_value("generation_options", options)
+                                SessionStateManager.set_value(
+                                    "generation_options", options
+                                )
                                 # Wis duplicate‑check resultaat zodat bestaande definitie niet meer wordt getoond
                                 try:
                                     SessionStateManager.clear_value("last_check_result")
-                                    SessionStateManager.clear_value("selected_definition")
+                                    SessionStateManager.clear_value(
+                                        "selected_definition"
+                                    )
                                 except Exception:
                                     pass
                                 # Ga door met geforceerde generatie (buiten gate)
@@ -919,7 +960,9 @@ class TabbedInterface:
                 from ui.helpers.async_bridge import run_async
 
                 # Haal actuele generation options op (kan force flags bevatten)
-                options = ensure_dict(SessionStateManager.get_value("generation_options", {}))
+                options = ensure_dict(
+                    SessionStateManager.get_value("generation_options", {})
+                )
 
                 # EPIC-018: bouw een samenvatting van documentcontext voor de service
                 doc_summary = None
@@ -956,7 +999,9 @@ class TabbedInterface:
                         },
                         organisatie=primary_org,
                         categorie=auto_categorie,
-                        ufo_categorie=(SessionStateManager.get_value("ufo_categorie") or None),
+                        ufo_categorie=(
+                            SessionStateManager.get_value("ufo_categorie") or None
+                        ),
                         # Geef opties door zodat validator duplicate kan escaleren
                         options={
                             k: v
@@ -969,7 +1014,7 @@ class TabbedInterface:
                         # Pass regeneration context for GVI feedback loop
                         regeneration_context=regeneration_context,
                     ),
-                    timeout=120
+                    timeout=120,
                 )
 
                 # Converteer naar checker formaat voor UI compatibility variabelen
@@ -979,9 +1024,9 @@ class TabbedInterface:
                 # Voor auto-load in de Bewerk-tab: gebruik ID uit service‑resultaat; geen extra DB‑save
                 saved_record = None
                 saved_definition_id = None
-                if isinstance(service_result, dict) and service_result.get('success'):
+                if isinstance(service_result, dict) and service_result.get("success"):
                     # Orchestrator (V2) slaat zelf op en ServiceAdapter levert saved_definition_id terug
-                    saved_definition_id = service_result.get('saved_definition_id')
+                    saved_definition_id = service_result.get("saved_definition_id")
 
                 # Capture voorbeelden prompts voor debug
                 voorbeelden_prompts = None
@@ -1058,27 +1103,37 @@ class TabbedInterface:
 
                 # Koppel gegenereerde definitie aan edit tab voor auto-load
                 # Dit zorgt ervoor dat de definitie klaarstaat als gebruiker naar Bewerk navigeert
-                logger.info(f"DEBUG: saved_record = {saved_record}, type = {type(saved_record)}")
+                logger.info(
+                    f"DEBUG: saved_record = {saved_record}, type = {type(saved_record)}"
+                )
                 if saved_record:
-                    logger.info(f"DEBUG: saved_record has id? {hasattr(saved_record, 'id')}")
-                    if hasattr(saved_record, 'id'):
+                    logger.info(
+                        f"DEBUG: saved_record has id? {hasattr(saved_record, 'id')}"
+                    )
+                    if hasattr(saved_record, "id"):
                         logger.info(f"DEBUG: saved_record.id = {saved_record.id}")
 
                 # Bepaal te openen definitie‑ID voor de Bewerk‑tab
                 target_edit_id = None
                 if saved_definition_id:
                     target_edit_id = int(saved_definition_id)
-                elif saved_record and hasattr(saved_record, 'id'):
+                elif saved_record and hasattr(saved_record, "id"):
                     target_edit_id = int(saved_record.id)
 
                 if target_edit_id:
                     # Sla definitie ID op voor edit tab
-                    SessionStateManager.set_value("editing_definition_id", target_edit_id)
+                    SessionStateManager.set_value(
+                        "editing_definition_id", target_edit_id
+                    )
 
                     # Sla ook de contexten op voor de edit tab
                     # Gebruik de context uit de generation call, niet uit saved_record
-                    SessionStateManager.set_value("edit_organisatorische_context", org_context)
-                    SessionStateManager.set_value("edit_juridische_context", jur_context)
+                    SessionStateManager.set_value(
+                        "edit_organisatorische_context", org_context
+                    )
+                    SessionStateManager.set_value(
+                        "edit_juridische_context", jur_context
+                    )
                     SessionStateManager.set_value("edit_wettelijke_basis", wet_context)
 
                     logger.info(
@@ -1225,7 +1280,9 @@ class TabbedInterface:
 
             # Stel totaal‑limiet af op aantal documenten × per‑doc‑limiet
             if max_snippets_total is None:
-                max_snippets_total = max(0, int(len(selected_doc_ids) * max(1, per_doc_max)))
+                max_snippets_total = max(
+                    0, int(len(selected_doc_ids) * max(1, per_doc_max))
+                )
 
             snippets: list[dict[str, Any]] = []
             for doc_id in selected_doc_ids:
@@ -1298,6 +1355,7 @@ class TabbedInterface:
                 wet_context = context_data.get("wettelijke_basis", [])
 
                 import json as _json
+
                 primary_org = _json.dumps(sorted(org_context or []), ensure_ascii=False)
                 primary_jur = _json.dumps(sorted(jur_context or []), ensure_ascii=False)
                 wet_norm = sorted({str(x).strip() for x in (wet_context or [])})
@@ -1436,7 +1494,7 @@ class TabbedInterface:
             # Update session state
             SessionStateManager.set_value("documents_updated", True)
 
-    def _render_uploaded_documents_list(self):  # noqa: PLR0912, PLR0915
+    def _render_uploaded_documents_list(self):  # noqa: PLR0915
         """Render lijst van geüploade documenten."""
         processor = get_document_processor()
         documents = processor.get_processed_documents()
@@ -1536,7 +1594,9 @@ class TabbedInterface:
         # Stel beschikbare keys samen (inclusief optionele legacy orchestratie)
         tab_keys = list(self.tab_config.keys())
         if FeatureFlags.ENABLE_LEGACY_TAB.is_enabled() and self.orchestration_tab:
-            export_index = tab_keys.index("export") if "export" in tab_keys else len(tab_keys)
+            export_index = (
+                tab_keys.index("export") if "export" in tab_keys else len(tab_keys)
+            )
             tab_keys.insert(export_index + 1, "orchestration")
             self.tab_config["orchestration"] = {
                 "title": "🎭 Orchestration (Legacy)",

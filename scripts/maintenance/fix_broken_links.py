@@ -4,12 +4,12 @@ Fix Broken Links Script
 Automatisch repareren van gebroken links na vertaaloperatie
 """
 
+import json
 import os
 import re
-from pathlib import Path
-from typing import List, Tuple, Dict
-import json
 from datetime import datetime
+from pathlib import Path
+
 
 class LinkFixer:
     def __init__(self, base_dir: str = "docs"):
@@ -22,7 +22,6 @@ class LinkFixer:
             # EPIC-CFR werd EPIC-010
             "./epics/EPIC-CFR.md": "./epics/EPIC-010-context-flow-refactoring.md",
             "../epics/EPIC-CFR.md": "../epics/EPIC-010-context-flow-refactoring.md",
-
             # Moved to archief
             "../TARGET_ARCHITECTURE.md": "../architectuur/TECHNICAL_ARCHITECTURE.md",
             "../CURRENT_STATE.md": "../architectuur/ENTERPRISE_ARCHITECTURE.md",
@@ -31,26 +30,24 @@ class LinkFixer:
             "../SA.md": "../architectuur/SOLUTION_ARCHITECTURE.md",
             "../EA-CFR.md": "../archief/2025-09-architectuur-consolidatie/cfr-documents/EA-CFR.md",
             "../SA-CFR.md": "../archief/2025-09-architectuur-consolidatie/cfr-documents/SA-CFR.md",
-
             # Story references
             "../../stories/MASTER-EPICS-USER-STORIES.md#epic-cfr-context-flow-refactoring": "../../stories/MASTER-EPICS-USER-STORIES.md#epic-010-context-flow-refactoring",
-
             # Fix encoded spaces
             "../architectuur/definitie%20service/": "../architectuur/definitie-service/",
         }
 
-    def find_all_markdown_files(self) -> List[Path]:
+    def find_all_markdown_files(self) -> list[Path]:
         """Find all markdown files in docs directory"""
         return list(self.base_dir.rglob("*.md"))
 
-    def extract_links(self, content: str) -> List[Tuple[str, str, int]]:
+    def extract_links(self, content: str) -> list[tuple[str, str, int]]:
         """Extract all markdown links from content with line numbers"""
         links = []
-        lines = content.split('\n')
+        lines = content.split("\n")
 
         for i, line in enumerate(lines, 1):
             # Find markdown links [text](url)
-            matches = re.finditer(r'\[([^\]]+)\]\(([^)]+)\)', line)
+            matches = re.finditer(r"\[([^\]]+)\]\(([^)]+)\)", line)
             for match in matches:
                 link_text = match.group(1)
                 link_url = match.group(2)
@@ -61,22 +58,22 @@ class LinkFixer:
     def resolve_link(self, source_file: Path, link_path: str) -> Path:
         """Resolve a link relative to source file"""
         # Skip external links
-        if link_path.startswith('http'):
+        if link_path.startswith("http"):
             return None
 
         # Skip anchors
-        if link_path.startswith('#'):
+        if link_path.startswith("#"):
             return None
 
         # Remove anchor from path
-        clean_path = link_path.split('#')[0] if '#' in link_path else link_path
+        clean_path = link_path.split("#")[0] if "#" in link_path else link_path
 
         # Resolve relative paths
-        if clean_path.startswith('../'):
+        if clean_path.startswith("../"):
             target = (source_file.parent / clean_path).resolve()
-        elif clean_path.startswith('/'):
+        elif clean_path.startswith("/"):
             target = Path(clean_path[1:])
-        elif clean_path.startswith('./'):
+        elif clean_path.startswith("./"):
             target = source_file.parent / clean_path[2:]
         else:
             target = source_file.parent / clean_path
@@ -101,23 +98,23 @@ class LinkFixer:
             try:
                 rel_path = os.path.relpath(target, source_file.parent)
                 # Preserve anchor if present
-                if '#' in broken_path:
-                    anchor = broken_path.split('#')[1]
+                if "#" in broken_path:
+                    anchor = broken_path.split("#")[1]
                     rel_path = f"{rel_path}#{anchor}"
                 return rel_path
             except ValueError:
                 return None
 
         # Try searching for similar filenames
-        base_name = filename.replace('.md', '')
+        base_name = filename.replace(".md", "")
         similar = list(self.base_dir.rglob(f"*{base_name}*.md"))
 
         if len(similar) == 1:
             target = similar[0]
             try:
                 rel_path = os.path.relpath(target, source_file.parent)
-                if '#' in broken_path:
-                    anchor = broken_path.split('#')[1]
+                if "#" in broken_path:
+                    anchor = broken_path.split("#")[1]
                     rel_path = f"{rel_path}#{anchor}"
                 return rel_path
             except ValueError:
@@ -135,7 +132,7 @@ class LinkFixer:
 
         for link_text, link_url, line_num in links:
             # Skip external links
-            if link_url.startswith('http') or link_url.startswith('#'):
+            if link_url.startswith("http") or link_url.startswith("#"):
                 continue
 
             # Check if link is broken
@@ -149,26 +146,30 @@ class LinkFixer:
                     new_link = f"[{link_text}]({alternative})"
                     content = content.replace(old_link, new_link)
 
-                    self.fixes_applied.append({
-                        'file': str(file_path),
-                        'line': line_num,
-                        'old': link_url,
-                        'new': alternative,
-                        'text': link_text
-                    })
+                    self.fixes_applied.append(
+                        {
+                            "file": str(file_path),
+                            "line": line_num,
+                            "old": link_url,
+                            "new": alternative,
+                            "text": link_text,
+                        }
+                    )
                     fixes += 1
                 else:
-                    self.manual_review_needed.append({
-                        'file': str(file_path),
-                        'line': line_num,
-                        'link': link_url,
-                        'text': link_text
-                    })
+                    self.manual_review_needed.append(
+                        {
+                            "file": str(file_path),
+                            "line": line_num,
+                            "link": link_url,
+                            "text": link_text,
+                        }
+                    )
 
         # Write changes if not dry run and there were fixes
         if fixes > 0 and not dry_run:
             # Create backup
-            backup_path = file_path.with_suffix('.md.linkfix_backup')
+            backup_path = file_path.with_suffix(".md.linkfix_backup")
             backup_path.write_text(original_content)
 
             # Write fixed content
@@ -194,7 +195,9 @@ class LinkFixer:
             if fixes > 0:
                 total_fixes += fixes
                 files_fixed += 1
-                print(f"{'[DRY RUN] Would fix' if dry_run else 'Fixed'} {fixes} links in {md_file}")
+                print(
+                    f"{'[DRY RUN] Would fix' if dry_run else 'Fixed'} {fixes} links in {md_file}"
+                )
 
         # Generate report
         self.generate_report(dry_run, total_fixes, files_fixed)
@@ -235,30 +238,39 @@ class LinkFixer:
                 print()
 
         # Save detailed report
-        report_file = f"logs/link_fix_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+        report_file = (
+            f"logs/link_fix_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+        )
         os.makedirs("logs", exist_ok=True)
 
-        with open(report_file, 'w') as f:
-            json.dump({
-                'timestamp': datetime.now().isoformat(),
-                'mode': 'dry_run' if dry_run else 'live',
-                'statistics': {
-                    'files_processed': len(list(self.base_dir.rglob('*.md'))),
-                    'files_fixed': files_fixed,
-                    'links_fixed': total_fixes,
-                    'manual_review': len(self.manual_review_needed)
+        with open(report_file, "w") as f:
+            json.dump(
+                {
+                    "timestamp": datetime.now().isoformat(),
+                    "mode": "dry_run" if dry_run else "live",
+                    "statistics": {
+                        "files_processed": len(list(self.base_dir.rglob("*.md"))),
+                        "files_fixed": files_fixed,
+                        "links_fixed": total_fixes,
+                        "manual_review": len(self.manual_review_needed),
+                    },
+                    "fixes_applied": self.fixes_applied,
+                    "manual_review_needed": self.manual_review_needed,
                 },
-                'fixes_applied': self.fixes_applied,
-                'manual_review_needed': self.manual_review_needed
-            }, f, indent=2)
+                f,
+                indent=2,
+            )
 
         print(f"Detailed report saved to: {report_file}")
+
 
 if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(description="Fix broken links in documentation")
-    parser.add_argument("--dry-run", action="store_true", help="Preview changes without applying")
+    parser.add_argument(
+        "--dry-run", action="store_true", help="Preview changes without applying"
+    )
     args = parser.parse_args()
 
     fixer = LinkFixer()

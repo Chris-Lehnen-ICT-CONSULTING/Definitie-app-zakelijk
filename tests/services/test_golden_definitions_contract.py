@@ -8,8 +8,8 @@ def _load_cases():
     return data["cases"]
 
 
-@pytest.mark.contract
-@pytest.mark.asyncio
+@pytest.mark.contract()
+@pytest.mark.asyncio()
 async def test_golden_definitions_against_modular_service():
     m = pytest.importorskip(
         "services.validation.modular_validation_service",
@@ -44,9 +44,12 @@ async def test_golden_definitions_against_modular_service():
         expected_codes = exp.get("violations", [])
         if expected_codes:
             actual_codes = [v.get("code", "") for v in res.get("violations", [])]
+
             # Accept either exact code or prefix match (e.g., "ESS-")
             def _prefix_present(prefix: str) -> bool:
                 return any(c.startswith(prefix) for c in actual_codes)
 
             for code in expected_codes:
-                assert _prefix_present(code), f"Expected violation code/prefix '{code}' not found in {actual_codes}"
+                assert _prefix_present(
+                    code
+                ), f"Expected violation code/prefix '{code}' not found in {actual_codes}"

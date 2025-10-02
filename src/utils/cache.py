@@ -19,9 +19,7 @@ from datetime import (  # Datum en tijd voor TTL management, timezone
 )
 from functools import wraps  # Decorator utilities voor cache functionaliteit
 from pathlib import Path  # Object-georiënteerde pad manipulatie
-from typing import (  # Type hints voor betere code documentatie
-    Any,
-)
+from typing import Any  # Type hints voor betere code documentatie
 
 logger = logging.getLogger(__name__)  # Logger instantie voor cache module
 
@@ -256,8 +254,8 @@ def cached(
                 cache_key = _generate_key_from_args(func_name, *args, **kwargs)
 
             # Try to get from cache
-            backend_get = (cache_manager.get if cache_manager else _cache.get)
-            backend_set = (cache_manager.set if cache_manager else _cache.set)
+            backend_get = cache_manager.get if cache_manager else _cache.get
+            backend_set = cache_manager.set if cache_manager else _cache.set
             cached_result = backend_get(cache_key)
             if cached_result is not None:
                 fn = getattr(func, "__name__", "callable")
@@ -452,7 +450,12 @@ def cache_async_result(ttl: int | None = None):
 class CacheManager:
     """Thread-safe in-memory cache with simple file persistence and LRU eviction."""
 
-    def __init__(self, cache_dir: str | None = None, max_size: int = 1000, default_ttl: int = 3600):
+    def __init__(
+        self,
+        cache_dir: str | None = None,
+        max_size: int = 1000,
+        default_ttl: int = 3600,
+    ):
         self.cache_dir = str(cache_dir or "cache")
         Path(self.cache_dir).mkdir(parents=True, exist_ok=True)
         self.max_size = int(max_size)

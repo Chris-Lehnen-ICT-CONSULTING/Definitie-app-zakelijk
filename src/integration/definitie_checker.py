@@ -11,18 +11,18 @@ import logging  # Logging faciliteiten voor debug en monitoring
 from dataclasses import dataclass  # Dataklassen voor gestructureerde data
 from datetime import UTC, datetime
 from enum import Enum  # Enumeraties voor actie types
-from typing import (  # Type hints voor betere code documentatie
-    Any,
-)
+from typing import Any  # Type hints voor betere code documentatie
 
 # Database en core component imports
+from database.definitie_repository import SourceType  # Data modellen en enums
+from database.definitie_repository import (
+    get_definitie_repository,  # Repository toegang en factory
+)
 from database.definitie_repository import (
     DefinitieRecord,
     DefinitieRepository,
     DefinitieStatus,
     DuplicateMatch,
-    SourceType,  # Data modellen en enums
-    get_definitie_repository,  # Repository toegang en factory
 )
 from domain.ontological_categories import OntologischeCategorie  # Generatie componenten
 
@@ -127,9 +127,13 @@ class DefinitieChecker:
         # Extra filtering: vereis ook match op wettelijke_basis (lijst, order-onafhankelijk)
         if existing:
             try:
+
                 def _norm(lst: list[str] | None) -> tuple[str, ...]:
                     return tuple(sorted([str(x).strip().lower() for x in (lst or [])]))
-                if _norm(getattr(existing, "get_wettelijke_basis_list")()) != _norm(wettelijke_basis or []):
+
+                if _norm(existing.get_wettelijke_basis_list()) != _norm(
+                    wettelijke_basis or []
+                ):
                     existing = None
             except Exception:
                 # Als er iets misgaat met parsing, behandel als geen exacte match
@@ -148,12 +152,16 @@ class DefinitieChecker:
         # Extra filtering op wettelijke_basis
         if duplicates:
             try:
+
                 def _norm(lst: list[str] | None) -> tuple[str, ...]:
                     return tuple(sorted([str(x).strip().lower() for x in (lst or [])]))
+
                 wb_norm = _norm(wettelijke_basis or [])
                 duplicates = [
-                    d for d in duplicates
-                    if hasattr(d.definitie_record, "get_wettelijke_basis_list") and _norm(d.definitie_record.get_wettelijke_basis_list()) == wb_norm
+                    d
+                    for d in duplicates
+                    if hasattr(d.definitie_record, "get_wettelijke_basis_list")
+                    and _norm(d.definitie_record.get_wettelijke_basis_list()) == wb_norm
                 ]
             except Exception:
                 # Fallback: laat duplicates ongewijzigd
@@ -200,7 +208,11 @@ class DefinitieChecker:
         """
         # Stap 1: Check voor duplicates
         check_result = self.check_before_generation(
-            begrip, organisatorische_context, juridische_context, categorie, wettelijke_basis
+            begrip,
+            organisatorische_context,
+            juridische_context,
+            categorie,
+            wettelijke_basis,
         )
 
         # Stap 2: Bepaal actie
@@ -214,11 +226,12 @@ class DefinitieChecker:
         )
         try:
             import asyncio
+
             adapter = self._get_integrated_service()
             context_dict = {
-                "organisatorisch": [organisatorische_context]
-                if organisatorische_context
-                else [],
+                "organisatorisch": (
+                    [organisatorische_context] if organisatorische_context else []
+                ),
                 "juridisch": [juridische_context] if juridische_context else [],
                 "wettelijk": [],
             }
@@ -234,7 +247,9 @@ class DefinitieChecker:
                 extra_kwargs["enable_hybrid"] = enable_hybrid
 
             async def _task():
-                return await adapter.generate_definition(begrip, context_dict, **extra_kwargs)
+                return await adapter.generate_definition(
+                    begrip, context_dict, **extra_kwargs
+                )
 
             integrated_result = asyncio.run(asyncio.wait_for(_task(), timeout=120))
 
@@ -256,7 +271,9 @@ class DefinitieChecker:
                     ),
                     organisatorische_context=organisatorische_context,
                     juridische_context=juridische_context,
-                    final_score=(float(final_score) if final_score is not None else None),
+                    final_score=(
+                        float(final_score) if final_score is not None else None
+                    ),
                     created_by=created_by,
                     source_reference="IntegratedService_V2",
                 )
@@ -323,7 +340,9 @@ class DefinitieChecker:
             return []
 
         context_dict = {
-            "organisatorisch": _to_list(getattr(existing, "organisatorische_context", None)),
+            "organisatorisch": _to_list(
+                getattr(existing, "organisatorische_context", None)
+            ),
             "juridisch": _to_list(getattr(existing, "juridische_context", None)),
             "wettelijk": [],
         }
@@ -333,7 +352,11 @@ class DefinitieChecker:
                 begrip=existing.begrip,
                 context_dict=context_dict,
                 categorie=categorie.value,
-                organisatie=(context_dict["organisatorisch"][0] if context_dict["organisatorisch"] else ""),
+                organisatie=(
+                    context_dict["organisatorisch"][0]
+                    if context_dict["organisatorisch"]
+                    else ""
+                ),
             )
 
         integrated_result = asyncio.run(asyncio.wait_for(_task2(), timeout=120))
@@ -348,10 +371,16 @@ class DefinitieChecker:
             updates = {
                 "definitie": definitie_text,
                 "validation_score": float(final_score),
-                "version_number": (existing.version_number + 1 if getattr(existing, "version_number", None) else 1),
+                "version_number": (
+                    existing.version_number + 1
+                    if getattr(existing, "version_number", None)
+                    else 1
+                ),
                 "previous_version_id": definitie_id,
             }
-            success = self.repository.update_definitie(definitie_id, updates, updated_by)
+            success = self.repository.update_definitie(
+                definitie_id, updates, updated_by
+            )
             return success, integrated_result
 
         return False, integrated_result
@@ -421,13 +450,18 @@ class DefinitieChecker:
         """
         return self.repository.import_from_json(file_path, import_by)
 
-    def _handle_exact_match(self, existing: DefinitieRecord, search_term: str | None = None) -> DefinitieCheckResult:
+    def _handle_exact_match(
+        self, existing: DefinitieRecord, search_term: str | None = None
+    ) -> DefinitieCheckResult:
         """Behandel exact match scenario."""
         # Bepaal of de hit via synoniem tot stand kwam (i.p.v. exact begrip)
         via_synoniem = False
         try:
             if search_term and search_term.strip():
-                via_synoniem = search_term.strip().lower() != (existing.begrip or "").strip().lower()
+                via_synoniem = (
+                    search_term.strip().lower()
+                    != (existing.begrip or "").strip().lower()
+                )
         except Exception:
             via_synoniem = False
 
@@ -439,6 +473,7 @@ class DefinitieChecker:
                     f"Gevonden via synoniem ‘{search_term}’ met gelijke context."
                 )
             return f"{prefix} voor '{existing.begrip}' (ID: {existing.id})"
+
         if existing.status == DefinitieStatus.ESTABLISHED.value:
             return DefinitieCheckResult(
                 action=CheckAction.USE_EXISTING,
@@ -661,8 +696,10 @@ def generate_or_retrieve_definition(
         # Step 3: Generate using integrated service (async API, V2 dict response)
         try:
             # ServiceAdapter.generate_definition is async and returns a V2 UIResponse-like dict
-            integrated_result = await self._get_integrated_service().generate_definition(
-                begrip, context
+            integrated_result = (
+                await self._get_integrated_service().generate_definition(
+                    begrip, context
+                )
             )
 
             # Expect a dict: { success: bool, definitie_gecorrigeerd: str, final_score: float, ... }
@@ -686,7 +723,9 @@ def generate_or_retrieve_definition(
                     organisatorische_context=organisatorische_context,
                     juridische_context=juridische_context,
                     status=DefinitieStatus.REVIEW.value,
-                    validation_score=(float(final_score) if final_score is not None else None),
+                    validation_score=(
+                        float(final_score) if final_score is not None else None
+                    ),
                     source_type=SourceType.GENERATED.value,
                     source_reference="IntegratedService_V2",
                     created_by=created_by or "integrated_service",
@@ -699,9 +738,7 @@ def generate_or_retrieve_definition(
                         f"Successfully saved definition for '{begrip}' with ID {saved_id}"
                     )
                     return check_result, integrated_result, saved_record
-                logger.error(
-                    f"Failed to save definition for '{begrip}' to database"
-                )
+                logger.error(f"Failed to save definition for '{begrip}' to database")
                 return check_result, integrated_result, None
 
             # Non-success result: return as-is for caller to inspect

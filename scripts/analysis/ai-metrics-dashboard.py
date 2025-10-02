@@ -7,7 +7,7 @@ Simple monitoring dashboard for AI code generation performance.
 
 import argparse
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 
@@ -30,9 +30,7 @@ class AIMetricsDashboard:
         print("\n" + "=" * 60)
         print("🤖 AI Agent Performance Dashboard")
         print("=" * 60)
-        print(
-            f"Generated at: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')}"
-        )
+        print(f"Generated at: {datetime.now(UTC).strftime('%Y-%m-%d %H:%M:%S')}")
         print("=" * 60)
 
         if not self.metrics:
@@ -123,9 +121,7 @@ class AIMetricsDashboard:
         """Export metrics to a markdown report."""
         with open(output_file, "w") as f:
             f.write("# AI Agent Code Review Metrics Report\n\n")
-            f.write(
-                f"Generated: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')}\n\n"
-            )
+            f.write(f"Generated: {datetime.now(UTC).strftime('%Y-%m-%d %H:%M:%S')}\n\n")
 
             if not self.metrics:
                 f.write("No metrics data available.\n")

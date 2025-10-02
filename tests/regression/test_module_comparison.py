@@ -9,8 +9,11 @@ from pathlib import Path
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent))
 
-from src.services.prompts.modular_prompt_builder import ModularPromptBuilder, PromptComponentConfig
 from src.services.definition_generator_context import EnrichedContext
+from src.services.prompts.modular_prompt_builder import (
+    ModularPromptBuilder,
+    PromptComponentConfig,
+)
 
 
 def compare_module_outputs():
@@ -21,7 +24,11 @@ def compare_module_outputs():
         {"begrip": "blockchain", "categorie": "Technologie", "woordsoort": "overig"},
         {"begrip": "opsporing", "categorie": "Juridisch", "woordsoort": "deverbaal"},
         {"begrip": "beheren", "categorie": "Proces", "woordsoort": "werkwoord"},
-        {"begrip": "sanctionering", "categorie": "Juridisch", "woordsoort": "deverbaal"},
+        {
+            "begrip": "sanctionering",
+            "categorie": "Juridisch",
+            "woordsoort": "deverbaal",
+        },
         {"begrip": "AI", "categorie": "Technologie", "woordsoort": "overig"},
     ]
 
@@ -43,7 +50,7 @@ Gebruik een zakelijke en generieke stijl voor het definiëren van dit begrip."""
         include_ontological=False,
         include_validation_rules=False,
         include_forbidden_patterns=False,
-        include_final_instructions=False
+        include_final_instructions=False,
     )
     builder = ModularPromptBuilder(config)
 
@@ -53,8 +60,12 @@ Gebruik een zakelijke en generieke stijl voor het definiëren van dit begrip."""
         output = builder._build_role_and_basic_rules(case["begrip"])
         woordsoort = builder._bepaal_woordsoort(case["begrip"])
 
-        print(f"Begrip: {case['begrip']} (gedetecteerd: {woordsoort}, verwacht: {case['woordsoort']})")
-        print(f"Lengte: {len(output)} chars (toename: +{len(output) - len(old_output)} chars)")
+        print(
+            f"Begrip: {case['begrip']} (gedetecteerd: {woordsoort}, verwacht: {case['woordsoort']})"
+        )
+        print(
+            f"Lengte: {len(output)} chars (toename: +{len(output) - len(old_output)} chars)"
+        )
         print("-" * 50)
         print(output)
         print("=" * 70)
@@ -63,7 +74,7 @@ Gebruik een zakelijke en generieke stijl voor het definiëren van dit begrip."""
     # Analyseer verschillen
     print("\n=== Analyse ===")
     print(f"Oude versie: {len(old_output)} chars, 3 regels")
-    print(f"Nieuwe versie: ~436 chars, 11 regels")
+    print("Nieuwe versie: ~436 chars, 11 regels")
     print(f"Toename: {436 - len(old_output)} chars ({436/len(old_output):.1f}x)")
 
     print("\nToegevoegde features:")
@@ -93,15 +104,15 @@ def test_with_metadata():
         include_ontological=False,
         include_validation_rules=False,
         include_forbidden_patterns=False,
-        include_final_instructions=False
+        include_final_instructions=False,
     )
     builder = ModularPromptBuilder(config)
 
     # Test cases met verschillende karakter limieten
     test_cases = [
         {"begrip": "blockchain", "max_chars": 4000},  # Ruim voldoende
-        {"begrip": "opsporing", "max_chars": 2000},   # Krap
-        {"begrip": "AI", "max_chars": 1500},          # Zeer krap
+        {"begrip": "opsporing", "max_chars": 2000},  # Krap
+        {"begrip": "AI", "max_chars": 1500},  # Zeer krap
     ]
 
     for case in test_cases:
@@ -111,7 +122,7 @@ def test_with_metadata():
             sources=[],
             expanded_terms={},
             confidence_scores={},
-            metadata={"max_chars": case["max_chars"]}
+            metadata={"max_chars": case["max_chars"]},
         )
 
         # Simuleer dat metadata beschikbaar is
@@ -123,7 +134,7 @@ def test_with_metadata():
 
         # Check voor waarschuwing
         if "⚠️" in output:
-            warning_line = [line for line in output.split('\n') if "⚠️" in line][0]
+            warning_line = [line for line in output.split("\n") if "⚠️" in line][0]
             print(f"Waarschuwing: {warning_line}")
         else:
             print("Geen waarschuwing (voldoende ruimte)")

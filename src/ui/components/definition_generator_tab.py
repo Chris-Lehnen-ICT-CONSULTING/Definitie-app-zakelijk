@@ -3,20 +3,17 @@
 Definition Generator Tab - Main AI definition generation interface.
 """
 
+import json
 import logging
 import os
 import re
 from datetime import UTC
+from pathlib import Path
 from typing import Any
 
 import streamlit as st
-from pathlib import Path
-import json
 
-from database.definitie_repository import (
-    DefinitieRecord,
-    get_definitie_repository,
-)
+from database.definitie_repository import DefinitieRecord, get_definitie_repository
 from integration.definitie_checker import CheckAction, DefinitieChecker
 from services.category_service import CategoryService
 from services.category_state_manager import CategoryStateManager
@@ -156,7 +153,9 @@ class DefinitionGeneratorTab:
                     disabled=not can_generate,
                 ):
                     # Forceer nieuwe generatie: zet flag en wis duplicate‑resultaat; geen directe call naar TabbedInterface‑methode
-                    options = ensure_dict(SessionStateManager.get_value("generation_options", {}))
+                    options = ensure_dict(
+                        SessionStateManager.get_value("generation_options", {})
+                    )
                     options["force_generate"] = True
                     options["force_duplicate"] = True
                     SessionStateManager.set_value("generation_options", options)
@@ -165,7 +164,9 @@ class DefinitionGeneratorTab:
                         SessionStateManager.clear_value("selected_definition")
                     except Exception:
                         pass
-                    st.info("Forceer‑generatie geactiveerd. Klik bovenaan op ‘🚀 Genereer Definitie’ om door te gaan.")
+                    st.info(
+                        "Forceer‑generatie geactiveerd. Klik bovenaan op ‘🚀 Genereer Definitie’ om door te gaan."
+                    )
 
     def _render_duplicate_matches(self, duplicates):
         """Render lijst van mogelijke duplicates."""
@@ -188,7 +189,9 @@ class DefinitionGeneratorTab:
                     ctx_parts.append(f"Juridisch: {jur}")
                 if wet:
                     ctx_parts.append(f"Wettelijk: {wet}")
-                st.markdown(f"**Context:** {' | '.join(ctx_parts) if ctx_parts else '—'}")
+                st.markdown(
+                    f"**Context:** {' | '.join(ctx_parts) if ctx_parts else '—'}"
+                )
                 st.markdown(f"**Redenen:** {', '.join(reasons)}")
 
                 if st.button("Gebruik deze definitie", key=f"dup_use_{definitie.id}"):
@@ -208,7 +211,9 @@ class DefinitionGeneratorTab:
                 if not val:
                     return []
                 if isinstance(val, str):
-                    return list(_json.loads(val)) if val.strip().startswith("[") else [val]
+                    return (
+                        list(_json.loads(val)) if val.strip().startswith("[") else [val]
+                    )
                 if isinstance(val, list):
                     return val
             except Exception:
@@ -272,7 +277,10 @@ class DefinitionGeneratorTab:
         # EPIC-018: Badge/indicator voor gebruikte documentcontext
         try:
             doc_ctx = safe_dict_get(generation_result, "document_context")
-            if isinstance(doc_ctx, dict) and int(doc_ctx.get("document_count", 0) or 0) > 0:
+            if (
+                isinstance(doc_ctx, dict)
+                and int(doc_ctx.get("document_count", 0) or 0) > 0
+            ):
                 st.info(
                     f"📄 Documentcontext gebruikt: {int(doc_ctx['document_count'])} document(en)"
                 )
@@ -284,13 +292,15 @@ class DefinitionGeneratorTab:
         target_id = None
         if isinstance(saved_definition_id, int) and saved_definition_id > 0:
             target_id = saved_definition_id
-        elif saved_record and getattr(saved_record, 'id', None):
+        elif saved_record and getattr(saved_record, "id", None):
             target_id = int(saved_record.id)
 
         if target_id:
             try:
                 # Voor Expert/Bewerk tabs
-                SessionStateManager.set_value("selected_review_definition_id", target_id)
+                SessionStateManager.set_value(
+                    "selected_review_definition_id", target_id
+                )
                 # Zorg dat de Bewerk‑tab direct kan auto‑laden
                 SessionStateManager.set_value("editing_definition_id", target_id)
             except Exception:
@@ -306,7 +316,9 @@ class DefinitionGeneratorTab:
         try:
             self._render_ufo_category_selector(generation_result)
         except Exception:
-            logger.debug("UFO-categorie selector render skipped due to error", exc_info=True)
+            logger.debug(
+                "UFO-categorie selector render skipped due to error", exc_info=True
+            )
 
         # Generated definition
         st.markdown("#### 📝 Gegenereerde Definitie")
@@ -330,9 +342,13 @@ class DefinitionGeneratorTab:
                 st.code(f"Attributes: {dir(agent_result)}")
 
         # V2-only: agent_result is a dict
-        definitie_to_show = agent_result.get(
-            "definitie_gecorrigeerd", agent_result.get("definitie", "")
-        ) if isinstance(agent_result, dict) else ""
+        definitie_to_show = (
+            agent_result.get(
+                "definitie_gecorrigeerd", agent_result.get("definitie", "")
+            )
+            if isinstance(agent_result, dict)
+            else ""
+        )
 
         # Debug logging voor opschoning
         if isinstance(agent_result, dict) and (
@@ -468,15 +484,22 @@ class DefinitionGeneratorTab:
                     # Persistente opslag van voorbeelden in DB (automatisch) wanneer een record is opgeslagen
                     try:
                         saved_id = None
-                        if isinstance(saved_record, DefinitieRecord) and getattr(saved_record, 'id', None):
+                        if isinstance(saved_record, DefinitieRecord) and getattr(
+                            saved_record, "id", None
+                        ):
                             saved_id = int(saved_record.id)
-                        elif isinstance(saved_definition_id, int) and saved_definition_id > 0:
+                        elif (
+                            isinstance(saved_definition_id, int)
+                            and saved_definition_id > 0
+                        ):
                             saved_id = int(saved_definition_id)
 
                         if saved_id:
                             self._maybe_persist_examples(saved_id, agent_result)
                     except Exception as e:
-                        logger.warning(f"Automatisch opslaan van voorbeelden overgeslagen: {e}")
+                        logger.warning(
+                            f"Automatisch opslaan van voorbeelden overgeslagen: {e}"
+                        )
 
                     # Handmatige opslagknop (forceren)
                     try:
@@ -484,9 +507,14 @@ class DefinitionGeneratorTab:
                         with col_left:
                             can_save_examples = True
                             saved_id_btn = None
-                            if isinstance(saved_record, DefinitieRecord) and getattr(saved_record, 'id', None):
+                            if isinstance(saved_record, DefinitieRecord) and getattr(
+                                saved_record, "id", None
+                            ):
                                 saved_id_btn = int(saved_record.id)
-                            elif isinstance(saved_definition_id, int) and saved_definition_id > 0:
+                            elif (
+                                isinstance(saved_definition_id, int)
+                                and saved_definition_id > 0
+                            ):
                                 saved_id_btn = int(saved_definition_id)
                             else:
                                 can_save_examples = False
@@ -502,13 +530,21 @@ class DefinitionGeneratorTab:
                                 help=help_text,
                             ):
                                 if saved_id_btn:
-                                    ok = self._persist_examples_manual(saved_id_btn, agent_result)
+                                    ok = self._persist_examples_manual(
+                                        saved_id_btn, agent_result
+                                    )
                                     if ok:
-                                        st.success("✅ Voorbeelden opgeslagen in database")
+                                        st.success(
+                                            "✅ Voorbeelden opgeslagen in database"
+                                        )
                                     else:
-                                        st.info("ℹ️ Geen op te slaan voorbeelden of al up-to-date")
+                                        st.info(
+                                            "ℹ️ Geen op te slaan voorbeelden of al up-to-date"
+                                        )
                     except Exception as e:
-                        logger.debug(f"Render force-save examples knop overgeslagen: {e}")
+                        logger.debug(
+                            f"Render force-save examples knop overgeslagen: {e}"
+                        )
                 else:
                     st.markdown("#### 📚 Gegenereerde Content")
                     st.info("ℹ️ Geen voorbeelden beschikbaar voor deze generatie.")
@@ -525,7 +561,6 @@ class DefinitionGeneratorTab:
                     f"Debug: voorbeelden content = {agent_result.get('voorbeelden')}"
                 )
 
-
         # Prompt Debug Section — always render (not only on errors)
         try:
             from ui.components.prompt_debug_section import PromptDebugSection
@@ -536,18 +571,28 @@ class DefinitionGeneratorTab:
                 meta = agent_result.get("metadata") or {}
                 if isinstance(meta, dict):
                     prompt_template = (
-                        meta.get("prompt_text")
-                        or meta.get("prompt_template")
-                        or None
+                        meta.get("prompt_text") or meta.get("prompt_template") or None
                     )
 
-            if not prompt_template and saved_record and getattr(saved_record, "metadata", None):
-                meta = saved_record.metadata if isinstance(saved_record.metadata, dict) else {}
-                prompt_template = meta.get("prompt_text") or meta.get("prompt_template") or None
+            if (
+                not prompt_template
+                and saved_record
+                and getattr(saved_record, "metadata", None)
+            ):
+                meta = (
+                    saved_record.metadata
+                    if isinstance(saved_record.metadata, dict)
+                    else {}
+                )
+                prompt_template = (
+                    meta.get("prompt_text") or meta.get("prompt_template") or None
+                )
 
             # Example prompts captured during generation (optional)
             voorbeelden_prompts = (
-                generation_result.get("voorbeelden_prompts") if generation_result else None
+                generation_result.get("voorbeelden_prompts")
+                if generation_result
+                else None
             )
 
             # Always render the debug section
@@ -660,8 +705,22 @@ class DefinitionGeneratorTab:
         st.markdown("#### 🧭 UFO‑categorie")
         ufo_opties = [
             "",
-            "Kind","Event","Role","Phase","Relator","Mode","Quantity","Quality",
-            "Subkind","Category","Mixin","RoleMixin","PhaseMixin","Abstract","Relatie","Event Composition",
+            "Kind",
+            "Event",
+            "Role",
+            "Phase",
+            "Relator",
+            "Mode",
+            "Quantity",
+            "Quality",
+            "Subkind",
+            "Category",
+            "Mixin",
+            "RoleMixin",
+            "PhaseMixin",
+            "Abstract",
+            "Relatie",
+            "Event Composition",
         ]
 
         saved_record = safe_dict_get(generation_result, "saved_record")
@@ -669,7 +728,7 @@ class DefinitionGeneratorTab:
         target_id = None
         if isinstance(saved_definition_id, int) and saved_definition_id > 0:
             target_id = saved_definition_id
-        elif saved_record and getattr(saved_record, 'id', None):
+        elif saved_record and getattr(saved_record, "id", None):
             target_id = int(saved_record.id)
 
         current_ufo = None
@@ -682,7 +741,11 @@ class DefinitionGeneratorTab:
             current_ufo = None
 
         try:
-            default_index = ufo_opties.index(current_ufo or "") if (current_ufo or "") in ufo_opties else 0
+            default_index = (
+                ufo_opties.index(current_ufo or "")
+                if (current_ufo or "") in ufo_opties
+                else 0
+            )
         except Exception:
             default_index = 0
 
@@ -694,8 +757,10 @@ class DefinitionGeneratorTab:
                 if value == "":
                     value = None
                 repo = get_definitie_repository()
-                user = st.session_state.get('user', 'system')
-                _ = repo.update_definitie(int(def_id), {"ufo_categorie": value}, updated_by=user)
+                user = st.session_state.get("user", "system")
+                _ = repo.update_definitie(
+                    int(def_id), {"ufo_categorie": value}, updated_by=user
+                )
             except Exception:
                 # Zwijgende fout om UI niet te verstoren; logs via Streamlit niet nodig
                 pass
@@ -711,7 +776,9 @@ class DefinitionGeneratorTab:
             args=(key_sel, target_id),
         )
 
-    def _maybe_persist_examples(self, definitie_id: int, agent_result: dict[str, Any]) -> None:
+    def _maybe_persist_examples(
+        self, definitie_id: int, agent_result: dict[str, Any]
+    ) -> None:
         """Sla gegenereerde voorbeelden automatisch op in de DB.
 
         - Vermijdt dubbele opslag door te keyen op generation_id
@@ -719,13 +786,25 @@ class DefinitionGeneratorTab:
         - Vergelijkt met huidige actieve DB‑voorbeelden om onnodige writes te vermijden
         """
         try:
-            meta = ensure_dict(agent_result.get("metadata", {})) if isinstance(agent_result, dict) else {}
+            meta = (
+                ensure_dict(agent_result.get("metadata", {}))
+                if isinstance(agent_result, dict)
+                else {}
+            )
             gen_id = meta.get("generation_id")
-            flag_key = f"examples_saved_for_gen_{gen_id}" if gen_id else f"examples_saved_for_def_{definitie_id}"
+            flag_key = (
+                f"examples_saved_for_gen_{gen_id}"
+                if gen_id
+                else f"examples_saved_for_def_{definitie_id}"
+            )
             if SessionStateManager.get_value(flag_key):
                 return
 
-            raw = ensure_dict(agent_result.get("voorbeelden", {})) if isinstance(agent_result, dict) else {}
+            raw = (
+                ensure_dict(agent_result.get("voorbeelden", {}))
+                if isinstance(agent_result, dict)
+                else {}
+            )
             if not raw:
                 return
 
@@ -749,7 +828,10 @@ class DefinitionGeneratorTab:
                 "antoniemen": _as_list(canon.get("antoniemen")),
             }
             # Toelichting optioneel opslaan als één regel (repository ondersteunt explanation)
-            if isinstance(canon.get("toelichting"), str) and canon.get("toelichting").strip():
+            if (
+                isinstance(canon.get("toelichting"), str)
+                and canon.get("toelichting").strip()
+            ):
                 to_save["toelichting"] = [canon.get("toelichting").strip()]  # type: ignore[index]
 
             # Controleer of er iets nieuws is
@@ -762,17 +844,23 @@ class DefinitionGeneratorTab:
             current = repo.get_voorbeelden_by_type(definitie_id)
 
             def _norm(d: dict[str, list[str]]) -> dict[str, set[str]]:
-                return {k: set([str(x).strip() for x in (d.get(k) or [])]) for k in d.keys()}
+                return {k: set([str(x).strip() for x in (d.get(k) or [])]) for k in d}
 
             # Map DB keys naar canonical UI keys voor vergelijking
             # DB keys zijn al canonicalized in helpers.resolve_examples pad, maar hier gebruiken we direct:
             current_canon = {
-                "voorbeeldzinnen": current.get("sentence", []) or current.get("voorbeeldzinnen", []),
-                "praktijkvoorbeelden": current.get("practical", []) or current.get("praktijkvoorbeelden", []),
-                "tegenvoorbeelden": current.get("counter", []) or current.get("tegenvoorbeelden", []),
-                "synoniemen": current.get("synonyms", []) or current.get("synoniemen", []),
-                "antoniemen": current.get("antonyms", []) or current.get("antoniemen", []),
-                "toelichting": current.get("explanation", []) or current.get("toelichting", []),
+                "voorbeeldzinnen": current.get("sentence", [])
+                or current.get("voorbeeldzinnen", []),
+                "praktijkvoorbeelden": current.get("practical", [])
+                or current.get("praktijkvoorbeelden", []),
+                "tegenvoorbeelden": current.get("counter", [])
+                or current.get("tegenvoorbeelden", []),
+                "synoniemen": current.get("synonyms", [])
+                or current.get("synoniemen", []),
+                "antoniemen": current.get("antonyms", [])
+                or current.get("antoniemen", []),
+                "toelichting": current.get("explanation", [])
+                or current.get("toelichting", []),
             }
 
             if _norm(current_canon) == _norm(to_save):
@@ -790,21 +878,30 @@ class DefinitionGeneratorTab:
                 voorkeursterm=voorkeursterm if voorkeursterm else None,
             )
             SessionStateManager.set_value(flag_key, True)
-            logger.info("Voorbeelden automatisch opgeslagen voor definitie %s", definitie_id)
+            logger.info(
+                "Voorbeelden automatisch opgeslagen voor definitie %s", definitie_id
+            )
         except Exception as e:
             logger.warning("Automatisch opslaan voorbeelden mislukt: %s", e)
 
-    def _persist_examples_manual(self, definitie_id: int, agent_result: dict[str, Any]) -> bool:
+    def _persist_examples_manual(
+        self, definitie_id: int, agent_result: dict[str, Any]
+    ) -> bool:
         """Forceer het opslaan van voorbeelden in de DB (handmatige actie).
 
         Returns True als er iets is opgeslagen, False als er niets te doen was.
         """
         try:
-            raw = ensure_dict(agent_result.get("voorbeelden", {})) if isinstance(agent_result, dict) else {}
+            raw = (
+                ensure_dict(agent_result.get("voorbeelden", {}))
+                if isinstance(agent_result, dict)
+                else {}
+            )
             if not raw:
                 return False
 
             from ui.helpers.examples import canonicalize_examples
+
             canon = canonicalize_examples(raw)
 
             def _as_list(v: Any) -> list[str]:
@@ -821,7 +918,10 @@ class DefinitionGeneratorTab:
                 "synoniemen": _as_list(canon.get("synoniemen")),
                 "antoniemen": _as_list(canon.get("antoniemen")),
             }
-            if isinstance(canon.get("toelichting"), str) and canon.get("toelichting").strip():
+            if (
+                isinstance(canon.get("toelichting"), str)
+                and canon.get("toelichting").strip()
+            ):
                 to_save["toelichting"] = [canon.get("toelichting").strip()]  # type: ignore[index]
 
             total_new = sum(len(v) for v in to_save.values())
@@ -834,8 +934,16 @@ class DefinitionGeneratorTab:
                 definitie_id=definitie_id,
                 voorbeelden_dict=to_save,
                 generation_model="ai",
-                generation_params=ensure_dict(agent_result.get("metadata", {})) if isinstance(agent_result, dict) else None,
-                gegenereerd_door=ensure_string((agent_result.get("metadata", {}) or {}).get("model") if isinstance(agent_result, dict) else "ai"),
+                generation_params=(
+                    ensure_dict(agent_result.get("metadata", {}))
+                    if isinstance(agent_result, dict)
+                    else None
+                ),
+                gegenereerd_door=ensure_string(
+                    (agent_result.get("metadata", {}) or {}).get("model")
+                    if isinstance(agent_result, dict)
+                    else "ai"
+                ),
                 voorkeursterm=voorkeursterm if voorkeursterm else None,
             )
             return True
@@ -973,25 +1081,45 @@ class DefinitionGeneratorTab:
                 if isinstance(agent_result, dict):
                     vdet = agent_result.get("validation_details") or {}
                     acceptable = bool(vdet.get("is_acceptable", False))
-                    definitie_text = agent_result.get("definitie_gecorrigeerd") or agent_result.get("definitie", "")
+                    definitie_text = agent_result.get(
+                        "definitie_gecorrigeerd"
+                    ) or agent_result.get("definitie", "")
                     if definitie_text and not acceptable:
-                        st.warning("❗ Deze generatie voldoet niet aan de kwaliteitsdrempel.")
+                        st.warning(
+                            "❗ Deze generatie voldoet niet aan de kwaliteitsdrempel."
+                        )
                         can_save = self._has_min_one_context()
                         if not can_save:
-                            st.caption("Minstens één context vereist om als concept op te slaan.")
-                        if st.button("💾 Bewaar als concept en bewerk", disabled=not can_save):
-                            from utils.container_manager import get_cached_container
+                            st.caption(
+                                "Minstens één context vereist om als concept op te slaan."
+                            )
+                        if st.button(
+                            "💾 Bewaar als concept en bewerk", disabled=not can_save
+                        ):
                             from services.interfaces import Definition
+                            from utils.container_manager import get_cached_container
+
                             container = get_cached_container()
                             repo = container.repository()
 
-                            begrip_val = ensure_string(generation_result.get("begrip", ""))
+                            begrip_val = ensure_string(
+                                generation_result.get("begrip", "")
+                            )
                             # Haal contextlijsten uit globale context (zoals gebruikt bij generatie)
-                            ctx = ensure_dict(SessionStateManager.get_value("global_context", {}))
+                            ctx = ensure_dict(
+                                SessionStateManager.get_value("global_context", {})
+                            )
                             org_list = ctx.get("organisatorische_context", []) or []
                             jur_list = ctx.get("juridische_context", []) or []
                             wet_list = ctx.get("wettelijke_basis", []) or []
-                            categorie = ensure_string(safe_dict_get(generation_result, "determined_category", "")) or None
+                            categorie = (
+                                ensure_string(
+                                    safe_dict_get(
+                                        generation_result, "determined_category", ""
+                                    )
+                                )
+                                or None
+                            )
 
                             # Defensieve guard (naast disabled UI)
                             if not (org_list or jur_list or wet_list):
@@ -1013,12 +1141,24 @@ class DefinitionGeneratorTab:
                             try:
                                 new_id = repo.save(new_def)
                                 # Zet auto-load voor Bewerk‑tab
-                                SessionStateManager.set_value("editing_definition_id", int(new_id))
-                                SessionStateManager.set_value("edit_organisatorische_context", org_list)
-                                SessionStateManager.set_value("edit_juridische_context", jur_list)
-                                SessionStateManager.set_value("edit_wettelijke_basis", wet_list)
-                                SessionStateManager.set_value("selected_review_definition_id", int(new_id))
-                                st.success("✅ Concept opgeslagen. Open de Bewerk‑tab om te bewerken.")
+                                SessionStateManager.set_value(
+                                    "editing_definition_id", int(new_id)
+                                )
+                                SessionStateManager.set_value(
+                                    "edit_organisatorische_context", org_list
+                                )
+                                SessionStateManager.set_value(
+                                    "edit_juridische_context", jur_list
+                                )
+                                SessionStateManager.set_value(
+                                    "edit_wettelijke_basis", wet_list
+                                )
+                                SessionStateManager.set_value(
+                                    "selected_review_definition_id", int(new_id)
+                                )
+                                st.success(
+                                    "✅ Concept opgeslagen. Open de Bewerk‑tab om te bewerken."
+                                )
                             except Exception as se:
                                 st.error(f"Opslaan mislukt: {se}")
             except Exception as e:
@@ -1041,7 +1181,7 @@ class DefinitionGeneratorTab:
 
             # 2b) Backward: attribute style (should not occur for dict responses)
             if sources is None and hasattr(agent_result, "sources"):
-                sources = getattr(agent_result, "sources")
+                sources = agent_result.sources
 
             # 3) Val terug op agent_result.metadata (legacy support)
             if sources is None and isinstance(agent_result, dict):
@@ -1070,7 +1210,7 @@ class DefinitionGeneratorTab:
                         status_meta = meta.get("web_lookup_status")
                         available_meta = meta.get("web_lookup_available")
                 elif hasattr(agent_result, "metadata") and isinstance(
-                    getattr(agent_result, "metadata"), dict
+                    agent_result.metadata, dict
                 ):
                     status_meta = agent_result.metadata.get("web_lookup_status")
                     available_meta = agent_result.metadata.get("web_lookup_available")
@@ -1087,21 +1227,23 @@ class DefinitionGeneratorTab:
                     if isinstance(m, dict):
                         timeout_meta = m.get("web_lookup_timeout")
                 elif hasattr(agent_result, "metadata") and isinstance(
-                    getattr(agent_result, "metadata"), dict
+                    agent_result.metadata, dict
                 ):
                     timeout_meta = agent_result.metadata.get("web_lookup_timeout")
 
             if status_meta or available_meta is not None:
                 status_text = status_meta or "onbekend"
                 avail_text = (
-                    "beschikbaar" if (available_meta is True) else "niet beschikbaar"
-                    if (available_meta is False)
-                    else "onbekend"
+                    "beschikbaar"
+                    if (available_meta is True)
+                    else "niet beschikbaar" if (available_meta is False) else "onbekend"
                 )
                 # Fallback naar env als metadata geen timeout bevat
                 if timeout_meta is None:
                     try:
-                        timeout_meta = float(os.getenv("WEB_LOOKUP_TIMEOUT_SECONDS", "10.0"))
+                        timeout_meta = float(
+                            os.getenv("WEB_LOOKUP_TIMEOUT_SECONDS", "10.0")
+                        )
                     except Exception:
                         timeout_meta = 10.0
                 st.caption(
@@ -1121,7 +1263,7 @@ class DefinitionGeneratorTab:
                     if isinstance(m, dict):
                         debug_info = m.get("web_lookup_debug")
                 elif hasattr(agent_result, "metadata") and isinstance(
-                    getattr(agent_result, "metadata"), dict
+                    agent_result.metadata, dict
                 ):
                     debug_info = agent_result.metadata.get("web_lookup_debug")
 
@@ -1144,12 +1286,18 @@ class DefinitionGeneratorTab:
                             try:
                                 provider = a.get("provider") or a.get("endpoint") or "?"
                                 api = a.get("api_type") or "?"
-                                strategy = a.get("strategy") or ("fallback" if a.get("fallback") else "")
+                                strategy = a.get("strategy") or (
+                                    "fallback" if a.get("fallback") else ""
+                                )
                                 q = a.get("query") or a.get("term") or ""
                                 status = (
                                     a.get("status")
                                     if "status" in a
-                                    else ("ok" if a.get("success") else "fail" if "success" in a else "")
+                                    else (
+                                        "ok"
+                                        if a.get("success")
+                                        else "fail" if "success" in a else ""
+                                    )
                                 )
                                 records = a.get("records")
                                 url = a.get("url") or ""
@@ -1199,7 +1347,7 @@ class DefinitionGeneratorTab:
                     if isinstance(m, dict):
                         agent_meta_sources = m.get("sources")
                 elif hasattr(agent_result, "metadata") and isinstance(
-                    getattr(agent_result, "metadata"), dict
+                    agent_result.metadata, dict
                 ):
                     agent_meta_sources = agent_result.metadata.get("sources")
 
@@ -1209,7 +1357,7 @@ class DefinitionGeneratorTab:
                     agent_top_sources = agent_result.get("sources")
 
                 if hasattr(agent_result, "sources"):
-                    agent_attr_sources = getattr(agent_result, "sources")
+                    agent_attr_sources = agent_result.sources
 
                 st.json(
                     {
@@ -1243,7 +1391,7 @@ class DefinitionGeneratorTab:
                             web_status = meta.get("web_lookup_status")
                             web_available = meta.get("web_lookup_available")
                     elif hasattr(agent_result, "metadata") and isinstance(
-                        getattr(agent_result, "metadata"), dict
+                        agent_result.metadata, dict
                     ):
                         web_status = agent_result.metadata.get("web_lookup_status")
                         web_available = agent_result.metadata.get(
@@ -1325,7 +1473,9 @@ class DefinitionGeneratorTab:
         }
         return labels.get(self, self.replace("_", " ").title())
 
-    def _log_generation_result_debug(self, generation_result: dict, agent_result: Any) -> None:
+    def _log_generation_result_debug(
+        self, generation_result: dict, agent_result: Any
+    ) -> None:
         """Log debug information about generation result structure."""
         logger.debug(f"Generation result keys: {list(generation_result.keys())}")
 
@@ -1334,8 +1484,12 @@ class DefinitionGeneratorTab:
 
         if isinstance(agent_result, dict):
             logger.debug(f"Agent result type: dict, keys: {list(agent_result.keys())}")
-            if "metadata" in agent_result and isinstance(agent_result["metadata"], dict):
-                logger.debug(f"Agent result metadata keys: {list(agent_result['metadata'].keys())}")
+            if "metadata" in agent_result and isinstance(
+                agent_result["metadata"], dict
+            ):
+                logger.debug(
+                    f"Agent result metadata keys: {list(agent_result['metadata'].keys())}"
+                )
         else:
             logger.debug(f"Agent result type: {type(agent_result).__name__}")
 
@@ -1349,20 +1503,25 @@ class DefinitionGeneratorTab:
                 score = self._extract_score_from_result(agent_result)
                 st.success(f"✅ Definitie succesvol gegenereerd! (Score: {score:.2f})")
             else:
-                reason = ensure_string(safe_dict_get(agent_result, "reason", "Onbekende fout"))
+                reason = ensure_string(
+                    safe_dict_get(agent_result, "reason", "Onbekende fout")
+                )
                 st.warning(f"⚠️ Generatie gedeeltelijk succesvol: {reason}")
         # Handle object format (legacy)
         elif hasattr(agent_result, "success"):
             if agent_result.success:
-                st.success(f"✅ Definitie succesvol gegenereerd! (Score: {agent_result.final_score:.2f})")
+                st.success(
+                    f"✅ Definitie succesvol gegenereerd! (Score: {agent_result.final_score:.2f})"
+                )
             else:
                 st.warning(f"⚠️ Generatie gedeeltelijk succesvol: {agent_result.reason}")
 
     def _extract_score_from_result(self, agent_result: dict) -> float:
         """Extract validation score from agent result."""
         return safe_dict_get(
-            agent_result, "validation_score",
-            safe_dict_get(agent_result, "final_score", 0.0)
+            agent_result,
+            "validation_score",
+            safe_dict_get(agent_result, "final_score", 0.0),
         )
 
     def _build_detailed_assessment(self, validation_result: dict) -> list[str]:
@@ -1391,10 +1550,13 @@ class DefinitionGeneratorTab:
 
     def _calculate_validation_stats(self, violations: list, passed_rules: list) -> dict:
         """Calculate validation statistics."""
-        failed_ids = sorted({
-            str(v.get("rule_id") or v.get("code") or "")
-            for v in violations if isinstance(v, dict)
-        })
+        failed_ids = sorted(
+            {
+                str(v.get("rule_id") or v.get("code") or "")
+                for v in violations
+                if isinstance(v, dict)
+            }
+        )
         passed_ids = sorted({str(r) for r in passed_rules})
         total = len(set(failed_ids).union(passed_ids))
         passed_count = len(passed_ids)
@@ -1407,13 +1569,13 @@ class DefinitionGeneratorTab:
             "total": total,
             "passed_count": passed_count,
             "failed_count": failed_count,
-            "percentage": pct
+            "percentage": pct,
         }
 
     def _format_validation_summary(self, stats: dict) -> str:
         """Format validation summary line."""
         summary = f"📊 **Toetsing Samenvatting**: {stats['passed_count']}/{stats['total']} regels geslaagd ({stats['percentage']:.1f}%)"
-        if stats['failed_count'] > 0:
+        if stats["failed_count"] > 0:
             summary += f" | ❌ {stats['failed_count']} gefaald"
         return summary
 
@@ -1436,8 +1598,12 @@ class DefinitionGeneratorTab:
             emoji = self._get_severity_emoji(sev)
             name, explanation = self._get_rule_display_and_explanation(rid)
             name_part = f" — {name}" if name else ""
-            expl_labeled = f" · Wat toetst: {explanation}" if explanation else " · Wat toetst: —"
-            lines.append(f"{emoji} {rid}{name_part}: Waarom niet geslaagd: {desc}{expl_labeled}")
+            expl_labeled = (
+                f" · Wat toetst: {explanation}" if explanation else " · Wat toetst: —"
+            )
+            lines.append(
+                f"{emoji} {rid}{name_part}: Waarom niet geslaagd: {desc}{expl_labeled}"
+            )
 
         return lines
 
@@ -1457,7 +1623,9 @@ class DefinitionGeneratorTab:
         for rid in sorted(passed_ids, key=self._rule_sort_key):
             name, explanation = self._get_rule_display_and_explanation(rid)
             name_part = f" — {name}" if name else ""
-            wat_toetst = f"Wat toetst: {explanation}" if explanation else "Wat toetst: —"
+            wat_toetst = (
+                f"Wat toetst: {explanation}" if explanation else "Wat toetst: —"
+            )
             reason = self._build_pass_reason(rid, text, begrip)
             waarom = f" · Waarom geslaagd: {reason}" if reason else ""
             lines_out.append(f"✅ {rid}{name_part}: OK · {wat_toetst}{waarom}")
@@ -1468,11 +1636,16 @@ class DefinitionGeneratorTab:
         st.markdown("#### ✅ Kwaliteitstoetsing")
         try:
             from ui.components.validation_view import render_validation_detailed_list
+
             render_validation_detailed_list(
                 validation_result,
                 key_prefix="gen",
                 show_toggle=True,
-                gate=validation_result.get("acceptance_gate") if isinstance(validation_result, dict) else None,
+                gate=(
+                    validation_result.get("acceptance_gate")
+                    if isinstance(validation_result, dict)
+                    else None
+                ),
             )
         except Exception as e:
             st.error(f"Validatiesectie kon niet worden gerenderd: {e!s}")
@@ -1481,6 +1654,7 @@ class DefinitionGeneratorTab:
         """Haal regelcode (bv. CON-01) heuristisch uit een weergegeven lijn."""
         try:
             import re as _re
+
             m = _re.search(r"([A-Z]{2,5}(?:[-_][A-Z0-9]+)+)", str(line))
             return m.group(1) if m else ""
         except Exception:
@@ -1512,6 +1686,7 @@ class DefinitionGeneratorTab:
             tail = rid.split("-", 1)[1] if "-" in rid else ""
             # Neem eerste aaneengesloten cijferreeks als nummer
             import re as _re
+
             m = _re.search(r"(\d+)", tail)
             if m:
                 num = int(m.group(1))
@@ -1528,8 +1703,8 @@ class DefinitionGeneratorTab:
         - Link naar uitgebreide handleiding
         """
         try:
-            from pathlib import Path
             import json as _json
+            from pathlib import Path
 
             rules_dir = Path("src/toetsregels/regels")
             json_path = rules_dir / f"{rule_id}.json"
@@ -1542,7 +1717,9 @@ class DefinitionGeneratorTab:
             if json_path.exists():
                 data = _json.loads(json_path.read_text(encoding="utf-8"))
                 name = str(data.get("naam") or "").strip()
-                explanation = str(data.get("uitleg") or data.get("toetsvraag") or "").strip()
+                explanation = str(
+                    data.get("uitleg") or data.get("toetsvraag") or ""
+                ).strip()
                 good = list(data.get("goede_voorbeelden") or [])
                 bad = list(data.get("foute_voorbeelden") or [])
 
@@ -1563,8 +1740,8 @@ class DefinitionGeneratorTab:
             return "\n".join(lines)
         except Exception:
             return (
-                f"Meer uitleg: [Validatieregels (CON‑01 e.a.)]"
-                f"(docs/handleidingen/gebruikers/uitleg-validatieregels.md)"
+                "Meer uitleg: [Validatieregels (CON‑01 e.a.)]"
+                "(docs/handleidingen/gebruikers/uitleg-validatieregels.md)"
             )
 
     def _use_existing_definition(self, definitie: DefinitieRecord):
@@ -1578,9 +1755,7 @@ class DefinitionGeneratorTab:
             text = ensure_string(
                 SessionStateManager.get_value("current_definition_text", "")
             )
-            begrip = ensure_string(
-                SessionStateManager.get_value("current_begrip", "")
-            )
+            begrip = ensure_string(SessionStateManager.get_value("current_begrip", ""))
             return text, begrip
         except Exception:
             return "", ""
@@ -1610,15 +1785,21 @@ class DefinitionGeneratorTab:
                 )
             if rid == "VAL-LEN-002":
                 return (
-                    f"Lengte OK: {w} ≤ 80 en {c} ≤ 600." if (w <= 80 and c <= 600) else ""
+                    f"Lengte OK: {w} ≤ 80 en {c} ≤ 600."
+                    if (w <= 80 and c <= 600)
+                    else ""
                 )
             if rid == "ESS-CONT-001":
                 return f"Essentie aanwezig: {w} woorden ≥ 6." if w >= 6 else ""
             if rid == "CON-CIRC-001":
                 gb = ensure_string(begrip)
                 if gb:
-                    found = re.search(rf"\b{re.escape(gb)}\b", ensure_string(text), re.IGNORECASE)
-                    return "Begrip niet in tekst (geen exacte match)." if not found else ""
+                    found = re.search(
+                        rf"\b{re.escape(gb)}\b", ensure_string(text), re.IGNORECASE
+                    )
+                    return (
+                        "Begrip niet in tekst (geen exacte match)." if not found else ""
+                    )
                 return "Begrip niet opgegeven."
             if rid == "STR-TERM-001":
                 return (
@@ -1649,6 +1830,7 @@ class DefinitionGeneratorTab:
             return ""
 
         return "Geen issues gemeld door validator."
+
     # (Verouderde util-methodes voor aparte expander verwijderd)
 
     def _get_rule_display_and_explanation(self, rule_id: str) -> tuple[str, str]:
@@ -1670,9 +1852,9 @@ class DefinitionGeneratorTab:
             if json_path.exists():
                 data = json.loads(json_path.read_text(encoding="utf-8"))
                 name = str(data.get("naam") or "").strip()
-                explanation = (
-                    str(data.get("uitleg") or data.get("toetsvraag") or "").strip()
-                )
+                explanation = str(
+                    data.get("uitleg") or data.get("toetsvraag") or ""
+                ).strip()
                 if name or explanation:
                     return name, explanation
         except Exception:
@@ -1708,21 +1890,24 @@ class DefinitionGeneratorTab:
         """Submit definitie voor expert review via DefinitionWorkflowService."""
         try:
             # US-072: Use DefinitionWorkflowService for combined workflow and repository actions
-            if hasattr(st.session_state, 'service_container'):
-                workflow_service = st.session_state.service_container.definition_workflow_service()
+            if hasattr(st.session_state, "service_container"):
+                workflow_service = (
+                    st.session_state.service_container.definition_workflow_service()
+                )
             else:
                 # Fallback to container method
                 from services.container import get_container
+
                 container = get_container()
                 workflow_service = container.definition_workflow_service()
-            
+
             # Submit for review using the new consolidated service
             result = workflow_service.submit_for_review(
                 definition_id=definitie.id,
                 user="web_user",
                 notes="Submitted via web interface",
             )
-            
+
             if result.success:
                 st.success("✅ Definitie ingediend voor review")
                 # Log the workflow change for audit purposes
@@ -1817,6 +2002,7 @@ class DefinitionGeneratorTab:
 
         # Uniforme rendering van voorbeelden (generator-stijl met expanders)
         from ui.components.examples_renderer import render_examples_expandable
+
         render_examples_expandable(voorbeelden)
 
     def _trigger_regeneration_with_category(
@@ -2094,7 +2280,7 @@ class DefinitionGeneratorTab:
                     categorie=OntologischeCategorie(new_category.lower()),
                     regeneration_context=self.regeneration_service.get_active_context(),
                 ),
-                timeout=120
+                timeout=120,
             )
 
             # Step 5: Update UI with results

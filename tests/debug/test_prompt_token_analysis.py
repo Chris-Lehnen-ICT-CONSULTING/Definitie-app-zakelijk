@@ -7,21 +7,24 @@ Voor US-203: Prompt Token Optimization
 import asyncio
 import sys
 from pathlib import Path
+
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
+from services.definition_generator_context import EnrichedContext
 from services.interfaces import GenerationRequest
 from services.prompts.prompt_service_v2 import PromptServiceV2
-from services.definition_generator_context import EnrichedContext
 
 # Optional dependency: skip this debug script if tiktoken is unavailable
 try:  # pragma: no cover - debug utility
     import tiktoken  # type: ignore
 except Exception:  # pragma: no cover - safe skip during collection
     import pytest
+
     pytest.skip(
         "tiktoken not installed; skipping prompt token analysis debug script",
         allow_module_level=True,
     )
+
 
 async def analyze_prompt_tokens():
     """Analyseer de token distributie in gegenereerde prompts."""
@@ -32,7 +35,7 @@ async def analyze_prompt_tokens():
         organisatorische_context=["Rechtbank"],
         juridische_context=["Wetboek van Burgerlijke Rechtsvordering"],
         wettelijke_basis=["Artikel 1:2 BW"],
-        ontologische_categorie="proces"
+        ontologische_categorie="proces",
     )
 
     # Initialize service
@@ -71,15 +74,17 @@ async def analyze_prompt_tokens():
             if len(section) > 100:
                 preview += "..."
 
-            token_distribution.append({
-                'preview': preview,
-                'tokens': section_tokens,
-                'percentage': percentage,
-                'chars': len(section)
-            })
+            token_distribution.append(
+                {
+                    "preview": preview,
+                    "tokens": section_tokens,
+                    "percentage": percentage,
+                    "chars": len(section),
+                }
+            )
 
     # Sorteer op token count
-    token_distribution.sort(key=lambda x: x['tokens'], reverse=True)
+    token_distribution.sort(key=lambda x: x["tokens"], reverse=True)
 
     # Print top 10 grootste secties
     print("\nTop 10 grootste token consumers:")
@@ -94,10 +99,22 @@ async def analyze_prompt_tokens():
     print("=" * 80)
 
     modules = [
-        "semantic_categorisation", "template", "expertise", "grammar",
-        "metrics", "output_specification", "structure_rules", "integrity_rules",
-        "error_prevention", "definition_task", "context_awareness",
-        "arai_rules", "con_rules", "ess_rules", "sam_rules", "ver_rules"
+        "semantic_categorisation",
+        "template",
+        "expertise",
+        "grammar",
+        "metrics",
+        "output_specification",
+        "structure_rules",
+        "integrity_rules",
+        "error_prevention",
+        "definition_task",
+        "context_awareness",
+        "arai_rules",
+        "con_rules",
+        "ess_rules",
+        "sam_rules",
+        "ver_rules",
     ]
 
     for module in modules:
@@ -106,7 +123,7 @@ async def analyze_prompt_tokens():
             f"## {module}",
             f"### {module}",
             module.upper(),
-            module.replace("_", " ").title()
+            module.replace("_", " ").title(),
         ]
 
         found = False
@@ -167,6 +184,7 @@ async def analyze_prompt_tokens():
     print(f"Verwacht resultaat: {len(tokens) - total_potential_savings} tokens")
 
     return result
+
 
 if __name__ == "__main__":
     result = asyncio.run(analyze_prompt_tokens())

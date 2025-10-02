@@ -9,9 +9,9 @@ Deze module bevat de volgende componenten:
 - ImportExportOrchestrator: Hoofdcomponent dat alle onderdelen orchestreert
 """
 
-from .orchestrator import ImportExportOrchestrator, ImportExportBeheerTab
+from .orchestrator import ImportExportBeheerTab, ImportExportOrchestrator
 
 __all__ = [
-    'ImportExportOrchestrator',
-    'ImportExportBeheerTab'  # Backward compatibility
+    "ImportExportOrchestrator",
+    "ImportExportBeheerTab",  # Backward compatibility
 ]

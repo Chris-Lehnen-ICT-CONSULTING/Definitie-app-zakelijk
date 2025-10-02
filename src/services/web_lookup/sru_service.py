@@ -5,11 +5,11 @@ Implementeert moderne async approach voor overheid.nl en rechtspraak.nl
 als onderdeel van het Strangler Fig pattern voor web lookup modernisering.
 """
 
-import logging
 import asyncio
+import logging
 import os
-import socket
 import re
+import socket
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass, field
 from urllib.parse import quote_plus, urlencode
@@ -226,7 +226,7 @@ class SRUService:
                 return []
 
             async def _try_query(query_str: str, strategy: str) -> list[LookupResult]:
-                from urllib.parse import urlencode, quote_plus
+                from urllib.parse import quote_plus, urlencode
                 nonlocal parked_503
 
                 # Primary URL
@@ -539,6 +539,7 @@ class SRUService:
                 if not v:
                     continue
                 import re as _re
+
                 # case‑insensitive vervanging, als los woord of frase
                 pattern = _re.compile(r"\b" + _re.escape(v) + r"\b", _re.IGNORECASE)
                 bt = pattern.sub(" ", bt)

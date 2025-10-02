@@ -32,7 +32,6 @@ def run_async(coro: Coroutine[Any, Any, T], timeout: float | None = None) -> T:
     Example:
         result = run_async(service.async_method(args))
     """
-    import threading
     from concurrent.futures import ThreadPoolExecutor
 
     # Check if we're in the main thread with a running event loop (Streamlit)
@@ -49,6 +48,7 @@ def run_async(coro: Coroutine[Any, Any, T], timeout: float | None = None) -> T:
 
     # No running loop - create new one
     if timeout:
+
         async def with_timeout():
             return await asyncio.wait_for(coro, timeout)
 
@@ -59,7 +59,7 @@ def run_async(coro: Coroutine[Any, Any, T], timeout: float | None = None) -> T:
 def run_async_safe(
     coro: Coroutine[Any, Any, T],
     default: T | None = None,
-    timeout: float | None = 5.0  # Default 5 second timeout for safety
+    timeout: float | None = 5.0,  # Default 5 second timeout for safety
 ) -> T | None:
     """Run an async coroutine safely, returning default on error or timeout.
 
@@ -73,7 +73,7 @@ def run_async_safe(
     """
     try:
         return run_async(coro, timeout=timeout)
-    except asyncio.TimeoutError:
+    except TimeoutError:
         logger.warning(f"Async operation timed out after {timeout}s")
         return default
     except Exception as e:

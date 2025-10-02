@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 
 import pytest
 
@@ -10,7 +10,7 @@ def test_build_provenance_records_structure_and_ordering():
         pytest.fail(f"provenance module missing or import failed: {e}")
 
     # Minimal WebLookupResult-like dicts
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     inputs = [
         {
             "provider": "wikipedia",

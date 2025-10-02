@@ -2,12 +2,15 @@
 """Direct test van smart rate limiter zonder dependencies."""
 
 import asyncio
-import pytest
 import sys
 import time
-sys.path.insert(0, 'src')
+
+import pytest
+
+sys.path.insert(0, "src")
 
 pytestmark = [pytest.mark.performance, pytest.mark.integration]
+
 
 async def test_direct_rate_limiter():
     """Test smart rate limiter direct."""
@@ -15,7 +18,7 @@ async def test_direct_rate_limiter():
     print("=" * 50)
 
     # Import hier om circular imports te vermijden
-    from utils.smart_rate_limiter import get_smart_limiter, RequestPriority
+    from utils.smart_rate_limiter import RequestPriority, get_smart_limiter
 
     # Test 1: Maak verschillende rate limiters
     print("\n📊 Test 1: Endpoint-specifieke rate limiters")
@@ -43,7 +46,7 @@ async def test_direct_rate_limiter():
         acquired = await limiter.acquire(
             priority=RequestPriority.NORMAL,
             timeout=2.0,
-            request_id=f"{endpoint}_req_{req_id}"
+            request_id=f"{endpoint}_req_{req_id}",
         )
         elapsed = time.time() - start
         return (endpoint, req_id, acquired, elapsed)
@@ -81,9 +84,11 @@ async def test_direct_rate_limiter():
 
     # Cleanup
     from utils.smart_rate_limiter import cleanup_smart_limiters
+
     await cleanup_smart_limiters()
 
     print("\n✅ Test completed!")
+
 
 if __name__ == "__main__":
     asyncio.run(test_direct_rate_limiter())

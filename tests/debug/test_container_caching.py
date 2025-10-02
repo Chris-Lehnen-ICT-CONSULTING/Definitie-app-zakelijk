@@ -21,8 +21,7 @@ sys.path.insert(0, str(src_path))
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 
 logger = logging.getLogger(__name__)
@@ -36,10 +35,10 @@ def test_container_initialization():
 
     # Import de container manager
     from utils.container_manager import (
-        get_cached_container,
         clear_container_cache,
-        get_container_stats,
         debug_container_state,
+        get_cached_container,
+        get_container_stats,
     )
 
     # Clear cache voor schone test
@@ -72,8 +71,8 @@ def test_container_initialization():
     print(f"   Init count onveranderd: {init_count1 == init_count2}")
 
     # Performance verbetering
-    speedup = init_time / cache_time if cache_time > 0 else float('inf')
-    print(f"\n5. Performance:")
+    speedup = init_time / cache_time if cache_time > 0 else float("inf")
+    print("\n5. Performance:")
     print(f"   Eerste init: {init_time:.2f}s")
     print(f"   Cached ophalen: {cache_time:.4f}s")
     print(f"   Speedup: {speedup:.0f}x sneller")
@@ -92,9 +91,9 @@ def test_container_initialization():
     print("\n" + "=" * 80)
     if is_same_instance and init_count1 == init_count2 and speedup > 100:
         print("✅ SUCCESS: Container wordt correct gecached!")
-        print(f"   - Container wordt maar 1x geïnitialiseerd")
+        print("   - Container wordt maar 1x geïnitialiseerd")
         print(f"   - Caching geeft {speedup:.0f}x speedup")
-        print(f"   - Verwachte 83% reductie in startup tijd bereikt")
+        print("   - Verwachte 83% reductie in startup tijd bereikt")
     else:
         print("❌ FAILURE: Container caching werkt niet correct")
         if not is_same_instance:
@@ -176,7 +175,9 @@ def test_multiple_reruns():
         elapsed = time.time() - start_time
         init_times.append(elapsed)
         containers.append(container)
-        print(f"   Time: {elapsed:.4f}s, Init count: {container.get_initialization_count()}")
+        print(
+            f"   Time: {elapsed:.4f}s, Init count: {container.get_initialization_count()}"
+        )
 
     # Analyse
     print("\n" + "=" * 80)
@@ -194,7 +195,7 @@ def test_multiple_reruns():
         else 0.0
     )
 
-    print(f"\nPerformance winst:")
+    print("\nPerformance winst:")
     print(f"   Zonder cache: {total_time_without_cache:.2f}s (6x init)")
     print(f"   Met cache: {total_time_with_cache:.2f}s (1x init + 5x cache)")
     print(f"   Tijd bespaard: {time_saved:.2f}s ({percentage_saved:.0f}%)")
@@ -228,5 +229,6 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"\n❌ Test gefaald met error: {e}")
         import traceback
+
         traceback.print_exc()
         sys.exit(1)

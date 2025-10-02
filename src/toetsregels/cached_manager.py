@@ -6,7 +6,6 @@ de RuleCache voor drastisch betere performance. Compatible met bestaande code.
 """
 
 import logging
-from pathlib import Path
 from typing import Any
 
 from .rule_cache import get_rule_cache
@@ -68,7 +67,8 @@ class CachedToetsregelManager:
         """Haal alle verplichte regels op."""
         all_rules = self.get_all_regels()
         return [
-            rule for rule in all_rules.values()
+            rule
+            for rule in all_rules.values()
             if rule.get("aanbeveling") == "verplicht"
         ]
 
@@ -76,9 +76,12 @@ class CachedToetsregelManager:
         """Haal kritieke regels op (verplicht + hoge prioriteit)."""
         all_rules = self.get_all_regels()
         return [
-            rule for rule in all_rules.values()
-            if (rule.get("aanbeveling") == "verplicht" or
-                rule.get("prioriteit") == "hoog")
+            rule
+            for rule in all_rules.values()
+            if (
+                rule.get("aanbeveling") == "verplicht"
+                or rule.get("prioriteit") == "hoog"
+            )
         ]
 
     def get_regels_voor_prioriteit(self, prioriteit: str) -> list[dict[str, Any]]:
@@ -115,7 +118,6 @@ class CachedToetsregelManager:
     def load_regelset(self, set_naam: str) -> None:
         """Regelsets zijn deprecated - gebruik get_*_regels() methods."""
         logger.warning(f"load_regelset('{set_naam}') aangeroepen maar is deprecated")
-        return None
 
     def get_regels_voor_categorie(self, categorie: str) -> list[dict[str, Any]]:
         """Backward compatibility - filter regels op categorie."""
@@ -126,7 +128,8 @@ class CachedToetsregelManager:
         """Backward compatibility - filter regels op thema."""
         all_rules = self.get_all_regels()
         return [
-            rule for rule in all_rules.values()
+            rule
+            for rule in all_rules.values()
             if rule.get("thema", "").lower() == thema.lower()
         ]
 
@@ -134,10 +137,11 @@ class CachedToetsregelManager:
         """Backward compatibility - validatie is niet meer nodig met cache."""
         return []  # Geen errors
 
-    def create_custom_set(self, naam: str, regel_ids: list[str], beschrijving: str = "") -> None:
+    def create_custom_set(
+        self, naam: str, regel_ids: list[str], beschrijving: str = ""
+    ) -> None:
         """Custom sets zijn deprecated in gecachte versie."""
         logger.warning("create_custom_set() is deprecated in CachedToetsregelManager")
-        return None
 
     def get_available_sets(self) -> list[str]:
         """Sets zijn deprecated - gebruik specifieke get methods."""

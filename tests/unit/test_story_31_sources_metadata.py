@@ -5,18 +5,23 @@ Tests the proper flow of sources metadata through the system from web lookup
 to UI display, including provider-neutral references and juridical citations.
 """
 
-import pytest
-from unittest.mock import Mock, MagicMock, patch, AsyncMock
+import re
 import sys
 from pathlib import Path
-import re
+from unittest.mock import AsyncMock, MagicMock, Mock, patch
+
+import pytest
 
 # Add src to path
 src_path = Path(__file__).parent.parent.parent / "src"
 sys.path.insert(0, str(src_path))
 
 from services.service_factory import LegacyGenerationResult, ServiceAdapter
-from services.web_lookup.provenance import build_provenance, _get_provider_label, _extract_legal_metadata
+from services.web_lookup.provenance import (
+    _extract_legal_metadata,
+    _get_provider_label,
+    build_provenance,
+)
 
 
 class TestLegacyGenerationResultSources:
@@ -27,7 +32,7 @@ class TestLegacyGenerationResultSources:
         # Arrange - Create a result with sources
         test_sources = [
             {"provider": "wikipedia", "title": "Test", "score": 0.9},
-            {"provider": "overheid", "title": "Wet test", "score": 0.8}
+            {"provider": "overheid", "title": "Wet test", "score": 0.8},
         ]
 
         # Act - Create LegacyGenerationResult with sources
@@ -35,11 +40,13 @@ class TestLegacyGenerationResultSources:
             success=True,
             definitie="Test definitie",
             sources=test_sources,  # This should be added to make sources accessible
-            metadata={"sources": test_sources}
+            metadata={"sources": test_sources},
         )
 
         # Assert
-        assert hasattr(result, 'sources'), "LegacyGenerationResult should have sources attribute"
+        assert hasattr(
+            result, "sources"
+        ), "LegacyGenerationResult should have sources attribute"
         assert result.sources == test_sources
         assert len(result.sources) == 2
         assert result.sources[0]["provider"] == "wikipedia"
@@ -54,13 +61,15 @@ class TestLegacyGenerationResultSources:
         mock_response = Mock()
         mock_response.success = True
         mock_response.definition = Mock()
-        mock_response.definition.definitie = "Test definitie"  # Changed from .text to .definitie
+        mock_response.definition.definitie = (
+            "Test definitie"  # Changed from .text to .definitie
+        )
         mock_response.definition.metadata = {
             "sources": [
                 {"provider": "wikipedia", "title": "Test", "score": 0.9},
-                {"provider": "overheid", "title": "Wet test", "score": 0.8}
+                {"provider": "overheid", "title": "Wet test", "score": 0.8},
             ],
-            "processing_time": 1.5
+            "processing_time": 1.5,
         }
         mock_response.metadata = {"voorbeelden": {}}
         mock_response.error = None
@@ -74,7 +83,7 @@ class TestLegacyGenerationResultSources:
         result = adapter.generate_definition(begrip="test", context_dict={})
 
         # Assert - result should have sources field
-        assert hasattr(result, 'sources'), "Result should have sources attribute"
+        assert hasattr(result, "sources"), "Result should have sources attribute"
         assert result.sources == mock_response.definition.metadata["sources"]
 
     def test_sources_empty_list_when_no_sources(self):
@@ -86,7 +95,9 @@ class TestLegacyGenerationResultSources:
         mock_response = Mock()
         mock_response.success = True
         mock_response.definition = Mock()
-        mock_response.definition.definitie = "Test definitie"  # Changed from .text to .definitie
+        mock_response.definition.definitie = (
+            "Test definitie"  # Changed from .text to .definitie
+        )
         mock_response.definition.metadata = {"processing_time": 1.5}  # No sources
         mock_response.metadata = None
         mock_response.error = None
@@ -100,7 +111,7 @@ class TestLegacyGenerationResultSources:
         result = adapter.generate_definition(begrip="test", context_dict={})
 
         # Assert
-        assert hasattr(result, 'sources')
+        assert hasattr(result, "sources")
         assert result.sources == []
 
 
@@ -114,8 +125,18 @@ class TestProviderNeutralReferences:
 
         # Arrange
         mock_sources = [
-            {"provider": "wikipedia", "snippet": "Test content 1", "score": 0.9, "used_in_prompt": True},
-            {"provider": "overheid", "snippet": "Test content 2", "score": 0.8, "used_in_prompt": True},
+            {
+                "provider": "wikipedia",
+                "snippet": "Test content 1",
+                "score": 0.9,
+                "used_in_prompt": True,
+            },
+            {
+                "provider": "overheid",
+                "snippet": "Test content 2",
+                "score": 0.8,
+                "used_in_prompt": True,
+            },
         ]
 
         # Expected: prompt should contain "Bron 1:" and "Bron 2:" not provider names
@@ -151,7 +172,7 @@ class TestProvenanceEnhancements:
                 "snippet": "Test content here",
                 "score": 0.9,
                 "used_in_prompt": True,
-                "retrieved_at": "2025-01-01T10:00:00"
+                "retrieved_at": "2025-01-01T10:00:00",
             },
             {
                 "provider": "overheid",
@@ -160,8 +181,8 @@ class TestProvenanceEnhancements:
                 "snippet": "Legal content",
                 "score": 0.8,
                 "used_in_prompt": False,
-                "retrieved_at": "2025-01-01T10:01:00"
-            }
+                "retrieved_at": "2025-01-01T10:01:00",
+            },
         ]
 
         # Act
@@ -194,7 +215,7 @@ class TestProvenanceEnhancements:
         titles = [
             "Artikel 3:40 Burgerlijk Wetboek",
             "Art. 162 Wetboek van Strafrecht",
-            "artikel 8 EVRM"
+            "artikel 8 EVRM",
         ]
 
         # Act & Assert
@@ -225,14 +246,16 @@ class TestUISourceDisplay:
             {"provider": "wikipedia", "title": "Test", "score": 0.9}
         ]
         agent_result.metadata = {
-            "sources": [
-                {"provider": "wikipedia", "title": "Test", "score": 0.9}
-            ]
+            "sources": [{"provider": "wikipedia", "title": "Test", "score": 0.9}]
         }
 
         # Act - Try different access patterns used by UI
-        sources_direct = getattr(agent_result, 'sources', [])
-        sources_metadata = agent_result.metadata.get('sources', []) if hasattr(agent_result, 'metadata') else []
+        sources_direct = getattr(agent_result, "sources", [])
+        sources_metadata = (
+            agent_result.metadata.get("sources", [])
+            if hasattr(agent_result, "metadata")
+            else []
+        )
 
         # Assert - Both should work
         assert len(sources_direct) == 1
@@ -242,12 +265,12 @@ class TestUISourceDisplay:
     def test_ui_handles_missing_sources_gracefully(self):
         """Test UI handles case when no sources are present."""
         # Arrange
-        agent_result = Mock(spec=['metadata'])  # Spec to avoid auto-creating attributes
+        agent_result = Mock(spec=["metadata"])  # Spec to avoid auto-creating attributes
         agent_result.metadata = {}
         # Intentionally don't set sources attribute
 
         # Act - UI should handle missing attribute
-        sources = getattr(agent_result, 'sources', [])
+        sources = getattr(agent_result, "sources", [])
 
         # Assert
         assert sources == []
@@ -261,7 +284,7 @@ class TestUISourceDisplay:
             "wikipedia": "Wikipedia NL",
             "overheid": "Overheid.nl",
             "rechtspraak": "Rechtspraak.nl",
-            "wiktionary": "Wiktionary NL"
+            "wiktionary": "Wiktionary NL",
         }
 
         # Act & Assert

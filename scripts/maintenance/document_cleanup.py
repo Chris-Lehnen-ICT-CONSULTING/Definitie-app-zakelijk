@@ -4,15 +4,15 @@ Document Cleanup Script voor DefinitieAgent Project
 Voert complete normalisatie, fixes en compliance checks uit.
 """
 
-import os
-import re
 import json
-import yaml
-from pathlib import Path
-from datetime import datetime
-from typing import Dict, List, Tuple, Optional
-from collections import defaultdict
+import re
 import shutil
+from collections import defaultdict
+from datetime import datetime
+from pathlib import Path
+
+import yaml
+
 
 class DocumentCleanup:
     def __init__(self, project_root: Path):
@@ -21,7 +21,9 @@ class DocumentCleanup:
         self.stats = defaultdict(int)
         self.fixes = defaultdict(list)
         self.errors = []
-        self.backup_dir = project_root / f"backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+        self.backup_dir = (
+            project_root / f"backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+        )
 
         # Mappings voor fixes
         self.file_mappings = {
@@ -45,7 +47,7 @@ class DocumentCleanup:
             "sprint": "sprint",
             "epic": "epic",
             "title": "titel",
-            "id": "id"
+            "id": "id",
         }
 
         # Typefouten correcties
@@ -58,25 +60,25 @@ class DocumentCleanup:
             "acceptatiecritea": "acceptatiecriteria",
             "implemented": "geïmplementeerd",
             "requirement": "vereiste",
-            "dependency": "afhankelijkheid"
+            "dependency": "afhankelijkheid",
         }
 
     def backup_documents(self):
         """Maak backup van alle documenten voor wijzigingen."""
         print(f"📦 Backup maken naar {self.backup_dir}")
         shutil.copytree(self.docs_dir, self.backup_dir, dirs_exist_ok=True)
-        self.stats['backup_created'] = 1
+        self.stats["backup_created"] = 1
 
-    def scan_document(self, file_path: Path) -> Dict:
+    def scan_document(self, file_path: Path) -> dict:
         """Scan een document voor frontmatter en inhoud."""
         try:
-            with open(file_path, 'r', encoding='utf-8') as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
 
             # Extract frontmatter
             frontmatter = {}
-            if content.startswith('---'):
-                parts = content.split('---', 2)
+            if content.startswith("---"):
+                parts = content.split("---", 2)
                 if len(parts) >= 3:
                     try:
                         frontmatter = yaml.safe_load(parts[1])
@@ -85,36 +87,36 @@ class DocumentCleanup:
                     content = parts[2]
 
             return {
-                'path': file_path,
-                'frontmatter': frontmatter,
-                'content': content,
-                'original': frontmatter.copy() if frontmatter else {}
+                "path": file_path,
+                "frontmatter": frontmatter,
+                "content": content,
+                "original": frontmatter.copy() if frontmatter else {},
             }
         except Exception as e:
             self.errors.append(f"Error reading {file_path}: {e}")
             return None
 
-    def normalize_frontmatter(self, doc: Dict) -> bool:
+    def normalize_frontmatter(self, doc: dict) -> bool:
         """Normaliseer frontmatter naar Nederlandse standaard."""
-        if not doc or not doc['frontmatter']:
+        if not doc or not doc["frontmatter"]:
             return False
 
         changed = False
-        fm = doc['frontmatter']
+        fm = doc["frontmatter"]
 
         # Vervang Engels door Nederlands
         for eng, nl in self.nl_terms.items():
             if eng in fm and eng != nl:
                 fm[nl] = fm.pop(eng)
                 changed = True
-                self.fixes['frontmatter_normalized'].append(doc['path'])
+                self.fixes["frontmatter_normalized"].append(doc["path"])
 
         # Voeg verplichte velden toe indien afwezig
         required_fields = {
-            'status': 'draft',
-            'prioriteit': 'medium',
-            'aangemaakt': datetime.now().strftime('%Y-%m-%d'),
-            'bijgewerkt': datetime.now().strftime('%Y-%m-%d')
+            "status": "draft",
+            "prioriteit": "medium",
+            "aangemaakt": datetime.now().strftime("%Y-%m-%d"),
+            "bijgewerkt": datetime.now().strftime("%Y-%m-%d"),
         }
 
         for field, default in required_fields.items():
@@ -123,26 +125,26 @@ class DocumentCleanup:
                 changed = True
 
         # Fix epic format (EPIC-2 -> EPIC-002)
-        if 'epic' in fm:
-            epic = fm['epic']
+        if "epic" in fm:
+            epic = fm["epic"]
             if isinstance(epic, str):
-                fm['epic'] = self.fix_epic_format(epic)
+                fm["epic"] = self.fix_epic_format(epic)
             elif isinstance(epic, list):
-                fm['epic'] = [self.fix_epic_format(e) for e in epic]
+                fm["epic"] = [self.fix_epic_format(e) for e in epic]
             changed = True
 
-        doc['frontmatter'] = fm
+        doc["frontmatter"] = fm
         return changed
 
     def fix_epic_format(self, epic: str) -> str:
         """Fix epic format naar EPIC-XXX."""
-        match = re.match(r'EPIC-(\d+)', epic)
+        match = re.match(r"EPIC-(\d+)", epic)
         if match:
             num = int(match.group(1))
             return f"EPIC-{num:03d}"
         return epic
 
-    def fix_typos_and_language(self, content: str) -> Tuple[str, int]:
+    def fix_typos_and_language(self, content: str) -> tuple[str, int]:
         """Corrigeer typefouten en taalissues."""
         fixes_count = 0
 
@@ -153,7 +155,7 @@ class DocumentCleanup:
 
         return content, fixes_count
 
-    def fix_links_and_paths(self, content: str, file_path: Path) -> Tuple[str, int]:
+    def fix_links_and_paths(self, content: str, file_path: Path) -> tuple[str, int]:
         """Herstel broken links en paden."""
         fixes_count = 0
 
@@ -165,32 +167,43 @@ class DocumentCleanup:
                     fixes_count += 1
                 else:
                     # Mark as TODO if file doesn't exist
-                    content = content.replace(old_path, f"TODO: {old_path} (file does not exist)")
+                    content = content.replace(
+                        old_path, f"TODO: {old_path} (file does not exist)"
+                    )
                     fixes_count += 1
 
         # Fix epic references
-        content = re.sub(r'\[EPIC-(\d)\]', r'[EPIC-00\1]', content)
-        content = re.sub(r'EPIC-(\d)(?!\d)', r'EPIC-00\1', content)
+        content = re.sub(r"\[EPIC-(\d)\]", r"[EPIC-00\1]", content)
+        content = re.sub(r"EPIC-(\d)(?!\d)", r"EPIC-00\1", content)
 
         # Fix story references (remove invalid ones)
-        invalid_stories = ['US-6.5', 'US-6.6', 'US-8.1', 'US-8.2', 'US-8.3']
+        invalid_stories = ["US-6.5", "US-6.6", "US-8.1", "US-8.2", "US-8.3"]
         for story in invalid_stories:
             if story in content:
-                if 'US-8' in story:
-                    content = content.replace(story, 'US-3.1')  # Web lookup stories
+                if "US-8" in story:
+                    content = content.replace(story, "US-3.1")  # Web lookup stories
                 else:
-                    content = content.replace(story, '')  # Remove invalid
+                    content = content.replace(story, "")  # Remove invalid
                 fixes_count += 1
 
         return content, fixes_count
 
-    def add_smart_criteria(self, content: str, doc_type: str) -> Tuple[str, bool]:
+    def add_smart_criteria(self, content: str, doc_type: str) -> tuple[str, bool]:
         """Voeg SMART acceptatiecriteria toe waar nodig."""
-        if 'Acceptatiecriteria' not in content:
+        if "Acceptatiecriteria" not in content:
             return content, False
 
         # Check of er al SMART criteria zijn
-        if any(marker in content for marker in ['Specifiek:', 'Meetbaar:', 'Acceptabel:', 'Relevant:', 'Tijdgebonden:']):
+        if any(
+            marker in content
+            for marker in [
+                "Specifiek:",
+                "Meetbaar:",
+                "Acceptabel:",
+                "Relevant:",
+                "Tijdgebonden:",
+            ]
+        ):
             return content, False
 
         # Voeg SMART template toe
@@ -211,21 +224,23 @@ class DocumentCleanup:
 
         # Voeg toe na Acceptatiecriteria sectie
         content = re.sub(
-            r'(## Acceptatiecriteria.*?)(\n## |\n### |\Z)',
-            r'\1' + smart_template + r'\2',
+            r"(## Acceptatiecriteria.*?)(\n## |\n### |\Z)",
+            r"\1" + smart_template + r"\2",
             content,
-            flags=re.DOTALL
+            flags=re.DOTALL,
         )
 
         return content, True
 
-    def add_compliance_references(self, content: str, file_path: Path) -> Tuple[str, bool]:
+    def add_compliance_references(
+        self, content: str, file_path: Path
+    ) -> tuple[str, bool]:
         """Voeg ASTRA/NORA compliance referenties toe."""
-        if 'requirement' not in str(file_path).lower():
+        if "requirement" not in str(file_path).lower():
             return content, False
 
         # Check of er al compliance refs zijn
-        if any(ref in content for ref in ['ASTRA-', 'NORA-', 'GEMMA-']):
+        if any(ref in content for ref in ["ASTRA-", "NORA-", "GEMMA-"]):
             return content, False
 
         compliance_template = """
@@ -260,43 +275,43 @@ class DocumentCleanup:
         # 1. Normaliseer frontmatter
         if self.normalize_frontmatter(doc):
             changes_made = True
-            self.stats['frontmatter_fixed'] += 1
+            self.stats["frontmatter_fixed"] += 1
 
-        content = doc['content']
+        content = doc["content"]
 
         # 2. Fix typefouten en taal
         content, typo_fixes = self.fix_typos_and_language(content)
         if typo_fixes > 0:
             changes_made = True
-            self.stats['typos_fixed'] += typo_fixes
+            self.stats["typos_fixed"] += typo_fixes
 
         # 3. Fix links en paden
         content, link_fixes = self.fix_links_and_paths(content, file_path)
         if link_fixes > 0:
             changes_made = True
-            self.stats['links_fixed'] += link_fixes
+            self.stats["links_fixed"] += link_fixes
 
         # 4. Voeg SMART criteria toe
         content, smart_added = self.add_smart_criteria(content, str(file_path))
         if smart_added:
             changes_made = True
-            self.stats['smart_criteria_added'] += 1
+            self.stats["smart_criteria_added"] += 1
 
         # 5. Voeg compliance referenties toe
         content, compliance_added = self.add_compliance_references(content, file_path)
         if compliance_added:
             changes_made = True
-            self.stats['compliance_refs_added'] += 1
+            self.stats["compliance_refs_added"] += 1
 
         # Schrijf document terug indien gewijzigd
         if changes_made:
-            self.write_document(file_path, doc['frontmatter'], content)
-            self.stats['documents_updated'] += 1
+            self.write_document(file_path, doc["frontmatter"], content)
+            self.stats["documents_updated"] += 1
             return True
 
         return False
 
-    def write_document(self, file_path: Path, frontmatter: Dict, content: str):
+    def write_document(self, file_path: Path, frontmatter: dict, content: str):
         """Schrijf document terug met frontmatter en content."""
         try:
             output = ""
@@ -304,36 +319,33 @@ class DocumentCleanup:
             # Voeg frontmatter toe indien aanwezig
             if frontmatter:
                 output = "---\n"
-                output += yaml.dump(frontmatter, default_flow_style=False, allow_unicode=True)
+                output += yaml.dump(
+                    frontmatter, default_flow_style=False, allow_unicode=True
+                )
                 output += "---\n\n"
 
             output += content
 
-            with open(file_path, 'w', encoding='utf-8') as f:
+            with open(file_path, "w", encoding="utf-8") as f:
                 f.write(output)
         except Exception as e:
             self.errors.append(f"Error writing {file_path}: {e}")
 
     def generate_traceability_matrix(self):
         """Genereer traceability matrix."""
-        matrix = {
-            'requirements': {},
-            'epics': {},
-            'stories': {},
-            'code_files': {}
-        }
+        matrix = {"requirements": {}, "epics": {}, "stories": {}, "code_files": {}}
 
         # Scan requirements
-        req_dir = self.docs_dir / 'requirements'
+        req_dir = self.docs_dir / "requirements"
         if req_dir.exists():
-            for req_file in req_dir.glob('REQ-*.md'):
+            for req_file in req_dir.glob("REQ-*.md"):
                 doc = self.scan_document(req_file)
-                if doc and doc['frontmatter']:
+                if doc and doc["frontmatter"]:
                     req_id = req_file.stem
-                    matrix['requirements'][req_id] = {
-                        'epics': doc['frontmatter'].get('epic', []),
-                        'stories': doc['frontmatter'].get('stories', []),
-                        'status': doc['frontmatter'].get('status', 'unknown')
+                    matrix["requirements"][req_id] = {
+                        "epics": doc["frontmatter"].get("epic", []),
+                        "stories": doc["frontmatter"].get("stories", []),
+                        "status": doc["frontmatter"].get("status", "unknown"),
                     }
 
         return matrix
@@ -409,8 +421,8 @@ All original files backed up to: `{self.backup_dir}`
 
         # 2. Process all markdown files
         total_files = 0
-        for md_file in self.docs_dir.rglob('*.md'):
-            if 'archief' not in str(md_file) and 'backup' not in str(md_file):
+        for md_file in self.docs_dir.rglob("*.md"):
+            if "archief" not in str(md_file) and "backup" not in str(md_file):
                 total_files += 1
                 if total_files % 50 == 0:
                     print(f"  Processed {total_files} files...")
@@ -418,18 +430,19 @@ All original files backed up to: `{self.backup_dir}`
 
         # 3. Generate traceability matrix
         matrix = self.generate_traceability_matrix()
-        matrix_path = self.docs_dir / 'TRACEABILITY-MATRIX-UPDATED.json'
-        with open(matrix_path, 'w') as f:
+        matrix_path = self.docs_dir / "TRACEABILITY-MATRIX-UPDATED.json"
+        with open(matrix_path, "w") as f:
             json.dump(matrix, f, indent=2)
 
         # 4. Generate report
         report = self.generate_report()
-        report_path = self.docs_dir / 'CLEANUP-REPORT.md'
-        with open(report_path, 'w') as f:
+        report_path = self.docs_dir / "CLEANUP-REPORT.md"
+        with open(report_path, "w") as f:
             f.write(report)
 
         print(f"✅ Cleanup complete! Report saved to {report_path}")
         print(f"📊 Stats: {dict(self.stats)}")
+
 
 if __name__ == "__main__":
     project_root = Path(__file__).parent.parent

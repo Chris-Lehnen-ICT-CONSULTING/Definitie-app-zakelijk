@@ -3,11 +3,11 @@
 import pytest
 
 
-@pytest.mark.integration
-@pytest.mark.asyncio
+@pytest.mark.integration()
+@pytest.mark.asyncio()
 async def test_orchestrator_validate_definition_with_definition_object():
     """Test that validate_definition path works with Definition object."""
-    from services.container import ServiceContainer, ContainerConfigs
+    from services.container import ContainerConfigs, ServiceContainer
     from services.interfaces import Definition, GenerationRequest
     from services.validation.interfaces import CONTRACT_VERSION
 
@@ -18,7 +18,7 @@ async def test_orchestrator_validate_definition_with_definition_object():
     definition = Definition(
         begrip="testbegrip",
         definitie="Een definitie voor het testen van de Definition object path.",
-        ontologische_categorie="concept"
+        ontologische_categorie="concept",
     )
 
     # Get validation service directly since orchestrator doesn't have validate_definition

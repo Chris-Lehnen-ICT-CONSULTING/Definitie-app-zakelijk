@@ -11,17 +11,16 @@ Stappen:
 3. Verwijder oude tabs na verificatie
 """
 
-import sys
-import shutil
-import logging
-from pathlib import Path
-from datetime import datetime
 import argparse
+import logging
+import shutil
+import sys
+from datetime import datetime
+from pathlib import Path
 
 # Setup logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -79,7 +78,7 @@ class TabConsolidationMigration:
             return True
 
         except Exception as e:
-            logger.error(f"Migration failed with error: {str(e)}")
+            logger.error(f"Migration failed with error: {e!s}")
             self.rollback()
             return False
 
@@ -105,12 +104,14 @@ class TabConsolidationMigration:
     def check_git_status(self):
         """Check for uncommitted changes."""
         import subprocess
+
         try:
             result = subprocess.run(
                 ["git", "status", "--porcelain"],
                 capture_output=True,
                 text=True,
-                cwd=PROJECT_ROOT
+                cwd=PROJECT_ROOT,
+                check=False,
             )
             if result.stdout.strip():
                 logger.warning("Uncommitted changes detected:")
@@ -139,18 +140,22 @@ class TabConsolidationMigration:
             # Backup tabbed interface
             tabbed_interface = PROJECT_ROOT / "src/ui/tabbed_interface.py"
             if tabbed_interface.exists():
-                shutil.copy2(tabbed_interface, self.backup_dir / "tabbed_interface.py.bak")
+                shutil.copy2(
+                    tabbed_interface, self.backup_dir / "tabbed_interface.py.bak"
+                )
 
             # Create restoration script
             restore_script = self.backup_dir / "restore.sh"
-            restore_script.write_text(f"""#!/bin/bash
+            restore_script.write_text(
+                f"""#!/bin/bash
 # Restoration script for tab consolidation rollback
 echo "Restoring from backup {self.backup_dir}..."
 cp "{self.backup_dir}/export_tab.py.bak" "{OLD_EXPORT_TAB}"
 cp "{self.backup_dir}/management_tab.py.bak" "{OLD_MANAGEMENT_TAB}"
 cp "{self.backup_dir}/tabbed_interface.py.bak" "{PROJECT_ROOT}/src/ui/tabbed_interface.py"
 echo "Restoration complete!"
-""")
+"""
+            )
             restore_script.chmod(0o755)
 
             logger.info(f"✓ Backup created at {self.backup_dir}")
@@ -167,19 +172,29 @@ echo "Restoration complete!"
         try:
             # Check imports
             import ast
+
             with open(NEW_TAB) as f:
                 tree = ast.parse(f.read())
 
             # Check for required methods
             class_found = False
-            required_methods = ['render', '_render_import_section',
-                              '_render_export_section', '_render_bulk_actions',
-                              '_render_database_management']
+            required_methods = [
+                "render",
+                "_render_import_section",
+                "_render_export_section",
+                "_render_bulk_actions",
+                "_render_database_management",
+            ]
 
             for node in ast.walk(tree):
-                if isinstance(node, ast.ClassDef) and node.name == 'ImportExportBeheerTab':
+                if (
+                    isinstance(node, ast.ClassDef)
+                    and node.name == "ImportExportBeheerTab"
+                ):
                     class_found = True
-                    methods = [m.name for m in node.body if isinstance(m, ast.FunctionDef)]
+                    methods = [
+                        m.name for m in node.body if isinstance(m, ast.FunctionDef)
+                    ]
 
                     for method in required_methods:
                         if method in methods:
@@ -248,19 +263,20 @@ echo "Restoration complete!"
 
             shutil.move(
                 str(OLD_EXPORT_TAB),
-                str(archive_dir / f"export_tab_{timestamp}.py.archived")
+                str(archive_dir / f"export_tab_{timestamp}.py.archived"),
             )
             logger.info(f"✓ Archived {OLD_EXPORT_TAB.name}")
 
             shutil.move(
                 str(OLD_MANAGEMENT_TAB),
-                str(archive_dir / f"management_tab_{timestamp}.py.archived")
+                str(archive_dir / f"management_tab_{timestamp}.py.archived"),
             )
             logger.info(f"✓ Archived {OLD_MANAGEMENT_TAB.name}")
 
             # Create README in archive
             readme = archive_dir / "README.md"
-            readme.write_text(f"""# Archived Tab Files
+            readme.write_text(
+                f"""# Archived Tab Files
 
 ## Tab Consolidation - {timestamp}
 
@@ -288,7 +304,8 @@ The Export and Management tabs were consolidated into ImportExportBeheerTab.
 ### Restoration:
 To restore old tabs, use the backup at:
 `{self.backup_dir}/restore.sh`
-""")
+"""
+            )
 
             logger.info("✓ Old tabs archived successfully")
             return True
@@ -325,7 +342,8 @@ To restore old tabs, use the backup at:
             restore_script = self.backup_dir / "restore.sh"
             if restore_script.exists():
                 import subprocess
-                subprocess.run(["bash", str(restore_script)])
+
+                subprocess.run(["bash", str(restore_script)], check=False)
                 logger.info("✓ Rollback completed")
             else:
                 logger.error("✗ No restore script found")
@@ -341,12 +359,10 @@ def main():
     parser.add_argument(
         "--dry-run",
         action="store_true",
-        help="Run migration in dry-run mode (no actual changes)"
+        help="Run migration in dry-run mode (no actual changes)",
     )
     parser.add_argument(
-        "--skip-git-check",
-        action="store_true",
-        help="Skip git status check"
+        "--skip-git-check", action="store_true", help="Skip git status check"
     )
 
     args = parser.parse_args()
@@ -360,18 +376,18 @@ def main():
     success = migration.run_migration()
 
     if success:
-        logger.info("\n" + "="*50)
+        logger.info("\n" + "=" * 50)
         logger.info("MIGRATION COMPLETED SUCCESSFULLY!")
-        logger.info("="*50)
+        logger.info("=" * 50)
         logger.info("\nNext steps:")
         logger.info("1. Test the application thoroughly")
         logger.info("2. Run: pytest tests/integration/test_import_export_beheer_tab.py")
         logger.info("3. Commit changes if everything works")
         logger.info(f"\nBackup location: {migration.backup_dir}")
     else:
-        logger.error("\n" + "="*50)
+        logger.error("\n" + "=" * 50)
         logger.error("MIGRATION FAILED!")
-        logger.error("="*50)
+        logger.error("=" * 50)
         logger.error("\nCheck the logs above for details.")
         sys.exit(1)
 

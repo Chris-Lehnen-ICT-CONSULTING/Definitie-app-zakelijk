@@ -1,4 +1,31 @@
 repos:
+  # Ruff - Fast Python linting
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.3.0
+    hooks:
+      - id: ruff
+        name: Ruff linting
+        args: [--fix, --exit-non-zero-on-fix]
+        types: [python]
+
+  # Black - Code formatting
+  - repo: https://github.com/psf/black
+    rev: 24.2.0
+    hooks:
+      - id: black
+        name: Black formatting
+        types: [python]
+
+  # isort - Import sorting
+  - repo: https://github.com/pycqa/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+        name: Sort imports (isort)
+        args: ["--profile", "black"]
+        types: [python]
+
+  # Local custom hooks
   - repo: local
     hooks:
       - id: fix-requirements-frontmatter
@@ -21,6 +48,26 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
+        stages: [pre-commit]
+      - id: pytest-smoke
+        name: Run smoke tests (quick validation)
+        entry: bash -c 'pytest -m smoke --tb=short --maxfail=1 -q || true'
+        language: system
+        pass_filenames: false
+        types: [python]
+        stages: [pre-commit]
+      - id: forbidden-patterns
+        name: Check forbidden patterns (streamlit in services)
+        entry: bash -c 'bash scripts/ci/check-forbidden-patterns.sh || true'
+        language: system
+        pass_filenames: false
+        types: [python]
+        stages: [pre-commit]
+      - id: file-size-check
+        name: Warn on large files (>500 LOC)
+        entry: bash -c 'bash scripts/ci/check-file-size.sh || true'
+        language: system
+        types: [python]
         stages: [pre-commit]
       - id: generate-portal-on-docs-change
         name: Generate portal (docs → portal)

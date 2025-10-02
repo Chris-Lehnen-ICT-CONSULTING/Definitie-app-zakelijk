@@ -5,23 +5,27 @@ Deze tests valideren alle business logic voor duplicate detection
 zonder database dependencies.
 """
 
-import pytest
 from datetime import datetime
 
-from services.duplicate_detection_service import DuplicateDetectionService, DuplicateMatch
+import pytest
+
+from services.duplicate_detection_service import (
+    DuplicateDetectionService,
+    DuplicateMatch,
+)
 from services.interfaces import Definition
 
 
 class TestDuplicateDetectionService:
     """Test suite voor DuplicateDetectionService."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def service(self):
         """Create a service instance."""
         # V2: woord-Jaccard is conservatief; gebruik 0.3 drempel
         return DuplicateDetectionService(similarity_threshold=0.3)
 
-    @pytest.fixture
+    @pytest.fixture()
     def sample_definitions(self):
         """Create sample definitions for testing."""
         return [
@@ -30,36 +34,36 @@ class TestDuplicateDetectionService:
                 begrip="Gemeente",
                 definitie="Een lokaal bestuursorgaan",
                 organisatorische_context=["Overheid"],
-                metadata={"status": "established"}
+                metadata={"status": "established"},
             ),
             Definition(
                 id=2,
                 begrip="gemeente",  # lowercase variant
                 definitie="Een gemeente is een lokaal bestuursorgaan",
                 organisatorische_context=["overheid"],  # lowercase context
-                metadata={"status": "draft"}
+                metadata={"status": "draft"},
             ),
             Definition(
                 id=3,
                 begrip="Gemeentelijk orgaan",
                 definitie="Orgaan van de gemeente",
                 organisatorische_context=["Overheid"],
-                metadata={"status": "established"}
+                metadata={"status": "established"},
             ),
             Definition(
                 id=4,
                 begrip="Provincie",
                 definitie="Een regionaal bestuursorgaan",
                 organisatorische_context=["Overheid"],
-                metadata={"status": "established"}
+                metadata={"status": "established"},
             ),
             Definition(
                 id=5,
                 begrip="Gemeente",
                 definitie="Archived definition",
                 organisatorische_context=["Overheid"],
-                metadata={"status": "archived"}  # Should be skipped
-            )
+                metadata={"status": "archived"},  # Should be skipped
+            ),
         ]
 
     def test_exact_match_detection(self, service, sample_definitions):
@@ -67,7 +71,7 @@ class TestDuplicateDetectionService:
         new_def = Definition(
             begrip="GEMEENTE",  # Different case
             definitie="Test definitie",
-            organisatorische_context=["overheid"]  # Different case
+            organisatorische_context=["overheid"],  # Different case
         )
 
         matches = service.find_duplicates(new_def, sample_definitions)
@@ -83,7 +87,7 @@ class TestDuplicateDetectionService:
         new_def = Definition(
             begrip="Gemeentelijke instantie",
             definitie="Test definitie",
-            organisatorische_context=["Overheid"]
+            organisatorische_context=["Overheid"],
         )
 
         matches = service.find_duplicates(new_def, sample_definitions)
@@ -99,7 +103,7 @@ class TestDuplicateDetectionService:
         new_def = Definition(
             begrip="Waterschap",
             definitie="Waterbeheer organisatie",
-            organisatorische_context=["Water"]
+            organisatorische_context=["Water"],
         )
 
         matches = service.find_duplicates(new_def, sample_definitions)
@@ -115,11 +119,10 @@ class TestDuplicateDetectionService:
 
         # Partial overlap
         score = service._calculate_similarity(
-            "gemeentelijk orgaan",
-            "gemeentelijk bestuur"
+            "gemeentelijk orgaan", "gemeentelijk bestuur"
         )
         assert 0 < score < 1
-        assert score == 1/3  # 1 common word out of 3 total unique words
+        assert score == 1 / 3  # 1 common word out of 3 total unique words
 
         # Empty strings
         assert service._calculate_similarity("", "test") == 0.0
@@ -134,7 +137,7 @@ class TestDuplicateDetectionService:
         new_def = Definition(
             begrip="Gemeentelijk",  # Only one word from "Gemeentelijk orgaan"
             definitie="Test",
-            organisatorische_context=["Overheid"]
+            organisatorische_context=["Overheid"],
         )
 
         matches = service.find_duplicates(new_def, sample_definitions)
@@ -147,9 +150,7 @@ class TestDuplicateDetectionService:
         """Test risk level determination."""
         # High risk - exact match
         exact_def = Definition(
-            begrip="Gemeente",
-            definitie="Test",
-            organisatorische_context=["Overheid"]
+            begrip="Gemeente", definitie="Test", organisatorische_context=["Overheid"]
         )
         assert service.check_duplicate_risk(exact_def, sample_definitions) == "high"
 
@@ -157,16 +158,14 @@ class TestDuplicateDetectionService:
         fuzzy_def = Definition(
             begrip="Gemeentelijke dienst",
             definitie="Test",
-            organisatorische_context=["Overheid"]
+            organisatorische_context=["Overheid"],
         )
         risk = service.check_duplicate_risk(fuzzy_def, sample_definitions)
         assert risk in ["medium", "low", "none"]
 
         # No risk - no matches
         unique_def = Definition(
-            begrip="Uniek begrip",
-            definitie="Test",
-            organisatorische_context=["Uniek"]
+            begrip="Uniek begrip", definitie="Test", organisatorische_context=["Uniek"]
         )
         assert service.check_duplicate_risk(unique_def, sample_definitions) == "none"
 
@@ -183,14 +182,14 @@ class TestDuplicateDetectionService:
                 definition=Definition(begrip="Test1"),
                 score=1.0,
                 reason="Exact match",
-                match_type="exact"
+                match_type="exact",
             ),
             DuplicateMatch(
                 definition=Definition(begrip="Test2"),
                 score=0.85,
                 reason="Fuzzy match",
-                match_type="fuzzy"
-            )
+                match_type="fuzzy",
+            ),
         ]
 
         summary = service.get_duplicate_summary(matches)
@@ -205,7 +204,7 @@ class TestDuplicateDetectionService:
         new_def = Definition(
             begrip="Gemeente",
             definitie="Test definitie",
-            organisatorische_context=["Overheid"]
+            organisatorische_context=["Overheid"],
         )
 
         matches = service.find_duplicates(new_def, sample_definitions)
@@ -225,7 +224,9 @@ class TestDuplicateDetectionService:
         new_def = Definition(
             begrip="Test B C D",
             definitie="Test",
-            organisatorische_context=["different"]  # Different context, so no exact match
+            organisatorische_context=[
+                "different"
+            ],  # Different context, so no exact match
         )
 
         matches = service.find_duplicates(new_def, definitions)
@@ -293,7 +294,7 @@ class TestDuplicateDetectionEdgeCases:
             Definition(begrip="Test.begrip", organisatorische_context=["ctx"]),
         ]
 
-        new_def = Definition(begrip="Test begrip", organisatorische_context=["ctx"]) 
+        new_def = Definition(begrip="Test begrip", organisatorische_context=["ctx"])
 
         # Should not find exact matches due to special chars
         matches = service.find_duplicates(new_def, definitions)

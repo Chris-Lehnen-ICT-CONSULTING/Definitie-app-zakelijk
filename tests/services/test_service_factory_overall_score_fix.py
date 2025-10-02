@@ -8,23 +8,25 @@ Tests the fix for:
 This test suite validates all edge cases and ensures production-ready error handling.
 """
 
-import pytest
 import asyncio
-from unittest.mock import Mock, AsyncMock, patch
-from typing import Any, Dict, Optional, Union
+import os
 
 # Import the actual modules
 import sys
-import os
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../../src'))
+from typing import Any, Dict, Optional, Union
+from unittest.mock import AsyncMock, Mock, patch
 
-from services.service_factory import ServiceAdapter
+import pytest
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../src"))
+
 from services.interfaces import (
-    DefinitionResponse,
     Definition,
+    DefinitionResponse,
+    GenerationRequest,
     ValidationResult,
-    GenerationRequest
 )
+from services.service_factory import ServiceAdapter
 
 
 class TestOverallScoreRobustness:
@@ -33,14 +35,14 @@ class TestOverallScoreRobustness:
     Tests all edge cases and type variations to ensure production stability.
     """
 
-    @pytest.fixture
+    @pytest.fixture()
     def mock_container(self):
         """Create a mock container for testing."""
         container = Mock()
         container.orchestrator = Mock()
         return container
 
-    @pytest.fixture
+    @pytest.fixture()
     def service_adapter(self, mock_container):
         """Create a ServiceAdapter instance for testing."""
         orchestrator = AsyncMock()
@@ -50,9 +52,9 @@ class TestOverallScoreRobustness:
 
     def create_validation_response(
         self,
-        overall_score: Optional[Union[float, int, str, list, dict, Any]] = None,
+        overall_score: float | int | str | list | dict | Any | None = None,
         include_score: bool = True,
-        validation_exists: bool = True
+        validation_exists: bool = True,
     ) -> DefinitionResponse:
         """
         Helper to create validation responses with different score scenarios.
@@ -68,16 +70,16 @@ class TestOverallScoreRobustness:
                 definition=Definition(
                     begrip="Test",
                     definitie="Test definitie",
-                    metadata={"origineel": "Original"}
+                    metadata={"origineel": "Original"},
                 ),
                 validation=None,
-                message="Success"
+                message="Success",
             )
 
         validation_dict = {
             "is_acceptable": True,
             "violations": [],
-            "passed_rules": ["rule1"]
+            "passed_rules": ["rule1"],
         }
 
         if include_score:
@@ -99,17 +101,19 @@ class TestOverallScoreRobustness:
             definition=Definition(
                 begrip="Test",
                 definitie="Test definitie",
-                metadata={"origineel": "Original", "voorbeelden": {}}
+                metadata={"origineel": "Original", "voorbeelden": {}},
             ),
             validation=mock_validation,
-            message="Success"
+            message="Success",
         )
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_normal_float_score(self, service_adapter, mock_container):
         """Test normal case with valid float overall_score."""
         orchestrator = mock_container.orchestrator.return_value
-        orchestrator.create_definition.return_value = self.create_validation_response(85.5)
+        orchestrator.create_definition.return_value = self.create_validation_response(
+            85.5
+        )
 
         result = await service_adapter.generate_definition("Test", {})
 
@@ -118,11 +122,13 @@ class TestOverallScoreRobustness:
         assert isinstance(result["final_score"], float)
         assert isinstance(result["validation_details"]["overall_score"], float)
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_normal_int_score(self, service_adapter, mock_container):
         """Test normal case with valid integer overall_score."""
         orchestrator = mock_container.orchestrator.return_value
-        orchestrator.create_definition.return_value = self.create_validation_response(90)
+        orchestrator.create_definition.return_value = self.create_validation_response(
+            90
+        )
 
         result = await service_adapter.generate_definition("Test", {})
 
@@ -130,7 +136,7 @@ class TestOverallScoreRobustness:
         assert result["final_score"] == 90.0
         assert isinstance(result["final_score"], float)
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_missing_overall_score_key(self, service_adapter, mock_container):
         """Test when overall_score key is completely missing from response."""
         orchestrator = mock_container.orchestrator.return_value
@@ -145,11 +151,13 @@ class TestOverallScoreRobustness:
         assert result["final_score"] == 0.0
         assert isinstance(result["final_score"], float)
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_none_overall_score(self, service_adapter, mock_container):
         """Test when overall_score is explicitly None."""
         orchestrator = mock_container.orchestrator.return_value
-        orchestrator.create_definition.return_value = self.create_validation_response(None)
+        orchestrator.create_definition.return_value = self.create_validation_response(
+            None
+        )
 
         result = await service_adapter.generate_definition("Test", {})
 
@@ -157,11 +165,13 @@ class TestOverallScoreRobustness:
         assert result["validation_details"]["overall_score"] == 0.0
         assert result["final_score"] == 0.0
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_empty_string_score(self, service_adapter, mock_container):
         """Test when overall_score is an empty string."""
         orchestrator = mock_container.orchestrator.return_value
-        orchestrator.create_definition.return_value = self.create_validation_response("")
+        orchestrator.create_definition.return_value = self.create_validation_response(
+            ""
+        )
 
         result = await service_adapter.generate_definition("Test", {})
 
@@ -169,11 +179,13 @@ class TestOverallScoreRobustness:
         assert result["validation_details"]["overall_score"] == 0.0
         assert result["final_score"] == 0.0
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_numeric_string_score(self, service_adapter, mock_container):
         """Test when overall_score is a valid numeric string."""
         orchestrator = mock_container.orchestrator.return_value
-        orchestrator.create_definition.return_value = self.create_validation_response("75.5")
+        orchestrator.create_definition.return_value = self.create_validation_response(
+            "75.5"
+        )
 
         result = await service_adapter.generate_definition("Test", {})
 
@@ -182,7 +194,7 @@ class TestOverallScoreRobustness:
         assert result["final_score"] == 75.5
         assert isinstance(result["final_score"], float)
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_zero_score(self, service_adapter, mock_container):
         """Test when overall_score is zero (should not be replaced with default)."""
         orchestrator = mock_container.orchestrator.return_value
@@ -194,11 +206,13 @@ class TestOverallScoreRobustness:
         assert result["validation_details"]["overall_score"] == 0.0
         assert result["final_score"] == 0.0
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_negative_score(self, service_adapter, mock_container):
         """Test when overall_score is negative."""
         orchestrator = mock_container.orchestrator.return_value
-        orchestrator.create_definition.return_value = self.create_validation_response(-25.5)
+        orchestrator.create_definition.return_value = self.create_validation_response(
+            -25.5
+        )
 
         result = await service_adapter.generate_definition("Test", {})
 
@@ -206,19 +220,21 @@ class TestOverallScoreRobustness:
         assert result["validation_details"]["overall_score"] == -25.5
         assert result["final_score"] == -25.5
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_very_large_score(self, service_adapter, mock_container):
         """Test when overall_score is extremely large."""
         orchestrator = mock_container.orchestrator.return_value
         large_score = 1e308  # Near float max
-        orchestrator.create_definition.return_value = self.create_validation_response(large_score)
+        orchestrator.create_definition.return_value = self.create_validation_response(
+            large_score
+        )
 
         result = await service_adapter.generate_definition("Test", {})
 
         assert result["validation_details"]["overall_score"] == large_score
         assert result["final_score"] == large_score
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_validation_object_none(self, service_adapter, mock_container):
         """Test when entire validation object is None."""
         orchestrator = mock_container.orchestrator.return_value
@@ -235,11 +251,13 @@ class TestOverallScoreRobustness:
         assert result["validation_details"]["violations"] == []
         assert result["validation_details"]["passed_rules"] == []
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_boolean_true_score(self, service_adapter, mock_container):
         """Test when overall_score is boolean True (edge case)."""
         orchestrator = mock_container.orchestrator.return_value
-        orchestrator.create_definition.return_value = self.create_validation_response(True)
+        orchestrator.create_definition.return_value = self.create_validation_response(
+            True
+        )
 
         result = await service_adapter.generate_definition("Test", {})
 
@@ -247,11 +265,13 @@ class TestOverallScoreRobustness:
         assert result["validation_details"]["overall_score"] == 1.0
         assert result["final_score"] == 1.0
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_boolean_false_score(self, service_adapter, mock_container):
         """Test when overall_score is boolean False (edge case)."""
         orchestrator = mock_container.orchestrator.return_value
-        orchestrator.create_definition.return_value = self.create_validation_response(False)
+        orchestrator.create_definition.return_value = self.create_validation_response(
+            False
+        )
 
         result = await service_adapter.generate_definition("Test", {})
 
@@ -263,7 +283,7 @@ class TestOverallScoreRobustness:
 class TestConcurrentValidations:
     """Test concurrent validation scenarios with different overall_score values."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def mock_containers(self):
         """Create multiple mock containers for concurrent testing."""
         containers = []
@@ -275,7 +295,7 @@ class TestConcurrentValidations:
             containers.append((container, orchestrator))
         return containers
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_concurrent_mixed_scores(self, mock_containers):
         """Test concurrent validations with various score scenarios."""
         adapters = []
@@ -283,11 +303,11 @@ class TestConcurrentValidations:
 
         # Setup different scenarios
         test_scenarios = [
-            (100.0, True),    # Normal high score
-            (None, False),    # None score
-            ("50.5", True),   # String score
-            (0, False),       # Zero score
-            (-10, False)      # Negative score
+            (100.0, True),  # Normal high score
+            (None, False),  # None score
+            ("50.5", True),  # String score
+            (0, False),  # Zero score
+            (-10, False),  # Negative score
         ]
 
         for i, (container, orchestrator) in enumerate(mock_containers):
@@ -301,7 +321,7 @@ class TestConcurrentValidations:
             validation_dict = {
                 "is_acceptable": is_acceptable,
                 "violations": [],
-                "passed_rules": ["rule1"] if is_acceptable else []
+                "passed_rules": ["rule1"] if is_acceptable else [],
             }
 
             if score_value is not None:
@@ -321,10 +341,10 @@ class TestConcurrentValidations:
                 definition=Definition(
                     begrip=f"Test{i}",
                     definitie=f"Definition {i}",
-                    metadata={"origineel": f"Original {i}", "voorbeelden": {}}
+                    metadata={"origineel": f"Original {i}", "voorbeelden": {}},
                 ),
                 validation=mock_validation,
-                message="Success"
+                message="Success",
             )
 
         # Execute concurrent validations
@@ -338,13 +358,15 @@ class TestConcurrentValidations:
         # Verify results
         expected_scores = [100.0, 0.0, 50.5, 0.0, -10.0]
 
-        for i, (result, expected_score) in enumerate(zip(results, expected_scores)):
+        for i, (result, expected_score) in enumerate(
+            zip(results, expected_scores, strict=False)
+        ):
             assert result["final_score"] == expected_score, f"Scenario {i} failed"
             assert result["validation_details"]["overall_score"] == expected_score
             assert isinstance(result["final_score"], float)
             assert isinstance(result["validation_details"]["overall_score"], float)
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_concurrent_error_recovery(self, mock_containers):
         """Test concurrent validations with some causing errors."""
         adapters = []
@@ -362,7 +384,7 @@ class TestConcurrentValidations:
                     "overall_score": {"nested": "dict"},  # Invalid type
                     "is_acceptable": False,
                     "violations": [],
-                    "passed_rules": []
+                    "passed_rules": [],
                 }
             else:
                 # Normal case
@@ -370,7 +392,7 @@ class TestConcurrentValidations:
                     "overall_score": 80.0 + i,
                     "is_acceptable": True,
                     "violations": [],
-                    "passed_rules": ["rule1"]
+                    "passed_rules": ["rule1"],
                 }
 
             mock_validation = Mock()
@@ -387,10 +409,10 @@ class TestConcurrentValidations:
                 definition=Definition(
                     begrip=f"Test{i}",
                     definitie=f"Definition {i}",
-                    metadata={"origineel": f"Original {i}", "voorbeelden": {}}
+                    metadata={"origineel": f"Original {i}", "voorbeelden": {}},
                 ),
                 validation=mock_validation,
-                message="Success"
+                message="Success",
             )
 
         # Execute with error handling
@@ -419,7 +441,7 @@ class TestConcurrentValidations:
 class TestProductionReadiness:
     """Test production readiness aspects of the overall_score fix."""
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_memory_efficiency_large_batch(self):
         """Test memory efficiency with large batch of validations."""
         container = Mock()
@@ -436,7 +458,7 @@ class TestProductionReadiness:
             "overall_score": 85.5,
             "is_acceptable": True,
             "violations": [],
-            "passed_rules": ["rule1"]
+            "passed_rules": ["rule1"],
         }
         mock_validation.to_dict.return_value = validation_dict
         # Add required attributes
@@ -451,17 +473,14 @@ class TestProductionReadiness:
             definition=Definition(
                 begrip="Test",
                 definitie="Test definitie",
-                metadata={"origineel": "Original", "voorbeelden": {}}
+                metadata={"origineel": "Original", "voorbeelden": {}},
             ),
             validation=mock_validation,
-            message="Success"
+            message="Success",
         )
 
         # Process batch
-        tasks = [
-            adapter.generate_definition(f"Test{i}", {})
-            for i in range(batch_size)
-        ]
+        tasks = [adapter.generate_definition(f"Test{i}", {}) for i in range(batch_size)]
 
         results = await asyncio.gather(*tasks)
 
@@ -470,7 +489,7 @@ class TestProductionReadiness:
         for result in results:
             assert result["final_score"] == 85.5
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_resilience_malformed_response(self):
         """Test resilience against malformed API responses."""
         container = Mock()
@@ -494,10 +513,10 @@ class TestProductionReadiness:
             definition=Definition(
                 begrip="Test",
                 definitie="Test definitie",
-                metadata={"origineel": "Original"}
+                metadata={"origineel": "Original"},
             ),
             validation=mock_validation,
-            message="Success"
+            message="Success",
         )
 
         # Should handle gracefully or raise appropriate error
@@ -506,22 +525,22 @@ class TestProductionReadiness:
             # If it succeeds, check for safe defaults
             if "validation_details" in result:
                 assert isinstance(result["validation_details"], dict)
-        except (AttributeError, TypeError) as e:
+        except (AttributeError, TypeError):
             # Expected if not handled - document the behavior
             assert True
 
     def test_type_safety_validation(self):
         """Test that type conversion is safe and predictable."""
         test_cases = [
-            (85.5, 85.5),        # Float
-            (90, 90.0),          # Int
-            ("75.5", 75.5),      # Valid string
-            ("", 0.0),           # Empty string
-            (None, 0.0),         # None
-            (True, 1.0),         # Boolean True
-            (False, 0.0),        # Boolean False
-            (0, 0.0),            # Zero
-            (-10, -10.0),        # Negative
+            (85.5, 85.5),  # Float
+            (90, 90.0),  # Int
+            ("75.5", 75.5),  # Valid string
+            ("", 0.0),  # Empty string
+            (None, 0.0),  # None
+            (True, 1.0),  # Boolean True
+            (False, 0.0),  # Boolean False
+            (0, 0.0),  # Zero
+            (-10, -10.0),  # Negative
         ]
 
         for input_val, expected in test_cases:
@@ -533,7 +552,7 @@ class TestProductionReadiness:
 class TestDocumentedBehavior:
     """Test that the implementation matches documented behavior."""
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_line_170_behavior(self):
         """Test line 170: float(result.get("overall_score") or 0.0)"""
         container = Mock()
@@ -544,11 +563,11 @@ class TestDocumentedBehavior:
 
         # Test the exact behavior of line 170
         test_cases = [
-            {"overall_score": 85.5},     # Normal case
-            {"overall_score": None},      # None case
-            {},                           # Missing key
-            {"overall_score": ""},        # Empty string
-            {"overall_score": 0},         # Zero
+            {"overall_score": 85.5},  # Normal case
+            {"overall_score": None},  # None case
+            {},  # Missing key
+            {"overall_score": ""},  # Empty string
+            {"overall_score": 0},  # Zero
         ]
 
         for test_dict in test_cases:
@@ -557,7 +576,7 @@ class TestDocumentedBehavior:
                 **test_dict,
                 "is_acceptable": True,
                 "violations": [],
-                "passed_rules": []
+                "passed_rules": [],
             }
             mock_validation.to_dict.return_value = validation_dict
             # Add required attributes
@@ -572,10 +591,10 @@ class TestDocumentedBehavior:
                 definition=Definition(
                     begrip="Test",
                     definitie="Test definitie",
-                    metadata={"origineel": "Original", "voorbeelden": {}}
+                    metadata={"origineel": "Original", "voorbeelden": {}},
                 ),
                 validation=mock_validation,
-                message="Success"
+                message="Success",
             )
 
             result = await adapter.generate_definition("Test", {})
@@ -584,7 +603,7 @@ class TestDocumentedBehavior:
             expected = float(test_dict.get("overall_score") or 0.0)
             assert result["validation_details"]["overall_score"] == expected
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_line_297_behavior(self):
         """Test line 297: validation_details.get("overall_score", 0.0)"""
         container = Mock()
@@ -598,7 +617,7 @@ class TestDocumentedBehavior:
         validation_dict = {
             "is_acceptable": True,
             "violations": [],
-            "passed_rules": []
+            "passed_rules": [],
             # Intentionally missing overall_score
         }
         mock_validation.to_dict.return_value = validation_dict
@@ -614,10 +633,10 @@ class TestDocumentedBehavior:
             definition=Definition(
                 begrip="Test",
                 definitie="Test definitie",
-                metadata={"origineel": "Original", "voorbeelden": {}}
+                metadata={"origineel": "Original", "voorbeelden": {}},
             ),
             validation=mock_validation,
-            message="Success"
+            message="Success",
         )
 
         result = await adapter.generate_definition("Test", {})

@@ -12,7 +12,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
 import os
-from services.service_factory import get_definition_service  # noqa: E402
+
+from services.service_factory import get_definition_service
 
 
 def test_service_factory_returns_same_instance():

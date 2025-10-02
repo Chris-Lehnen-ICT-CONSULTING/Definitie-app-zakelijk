@@ -1,11 +1,13 @@
 """Tests voor category domain models."""
 
-import pytest
 from datetime import datetime
+
+import pytest
+
 from src.models.category_models import (
-    DefinitionCategory,
     CategoryChangeResult,
-    CategoryUpdateEvent
+    CategoryUpdateEvent,
+    DefinitionCategory,
 )
 
 
@@ -23,7 +25,7 @@ class TestCategoryModels:
             ("AUT", "Autorisatie"),
             ("STA", "Status"),
             ("OTH", "Overig"),
-            ("UNKNOWN", "UNKNOWN")  # Onbekende code
+            ("UNKNOWN", "UNKNOWN"),  # Onbekende code
         ]
 
         for code, expected_name in test_cases:
@@ -36,10 +38,7 @@ class TestCategoryModels:
     def test_category_change_result_auto_timestamp(self):
         """Test dat CategoryChangeResult automatisch timestamp krijgt."""
         # Act
-        result = CategoryChangeResult(
-            success=True,
-            message="Test"
-        )
+        result = CategoryChangeResult(success=True, message="Test")
 
         # Assert
         assert isinstance(result.timestamp, datetime)
@@ -53,7 +52,7 @@ class TestCategoryModels:
             old_category="ENT",
             new_category="REL",
             changed_by="test_user",
-            reason="Test reason"
+            reason="Test reason",
         )
 
         # Assert

@@ -6,14 +6,11 @@ Bevat database beheer functionaliteit, exact zoals het al werkte.
 
 import logging
 from pathlib import Path
-from typing import Dict, Any
+from typing import Any
 
 import streamlit as st
 
-from database.definitie_repository import (
-    DefinitieRepository,
-    DefinitieStatus,
-)
+from database.definitie_repository import DefinitieRepository, DefinitieStatus
 
 logger = logging.getLogger(__name__)
 
@@ -35,36 +32,40 @@ class DatabaseManager:
 
             col1, col2, col3, col4 = st.columns(4)
             with col1:
-                st.metric("Totaal Definities", stats['total'])
+                st.metric("Totaal Definities", stats["total"])
             with col2:
-                st.metric("Vastgesteld", stats['established'])
+                st.metric("Vastgesteld", stats["established"])
             with col3:
-                st.metric("Draft", stats['draft'])
+                st.metric("Draft", stats["draft"])
             with col4:
-                st.metric("Database Size", stats['size'])
+                st.metric("Database Size", stats["size"])
 
         # Reset functionaliteit
         st.markdown("### ⚠️ Database Reset")
-        st.warning("**LET OP**: Deze actie verwijdert ALLE data en kan niet ongedaan worden gemaakt!")
+        st.warning(
+            "**LET OP**: Deze actie verwijdert ALLE data en kan niet ongedaan worden gemaakt!"
+        )
 
         col1, col2 = st.columns(2)
         with col1:
             confirm_text = st.text_input(
                 "Type 'RESET' om te bevestigen",
-                help="Beveiliging tegen onbedoeld resetten"
+                help="Beveiliging tegen onbedoeld resetten",
             )
 
         with col2:
-            if st.button("🗑️ Reset Database",
-                        type="secondary",
-                        disabled=(confirm_text != "RESET")):
+            if st.button(
+                "🗑️ Reset Database", type="secondary", disabled=(confirm_text != "RESET")
+            ):
                 self._execute_database_reset()
 
-    def _get_database_stats(self) -> Dict[str, Any]:
+    def _get_database_stats(self) -> dict[str, Any]:
         """Haal database statistieken op - exact verplaatst van origineel."""
         try:
             total = len(self.repository.get_all())
-            established = len(self.repository.get_by_status(DefinitieStatus.VASTGESTELD.value))
+            established = len(
+                self.repository.get_by_status(DefinitieStatus.VASTGESTELD.value)
+            )
             draft = len(self.repository.get_by_status(DefinitieStatus.DRAFT.value))
 
             # Database size
@@ -77,19 +78,14 @@ class DatabaseManager:
                 size_str = "N/A"
 
             return {
-                'total': total,
-                'established': established,
-                'draft': draft,
-                'size': size_str
+                "total": total,
+                "established": established,
+                "draft": draft,
+                "size": size_str,
             }
         except Exception as e:
             logger.error(f"Error getting stats: {e}")
-            return {
-                'total': 0,
-                'established': 0,
-                'draft': 0,
-                'size': "Error"
-            }
+            return {"total": 0, "established": 0, "draft": 0, "size": "Error"}
 
     def _execute_database_reset(self):
         """Reset de database - exact verplaatst van origineel."""
@@ -104,4 +100,4 @@ class DatabaseManager:
                 # st.rerun()
 
             except Exception as e:
-                st.error(f"Fout bij database reset: {str(e)}")
+                st.error(f"Fout bij database reset: {e!s}")

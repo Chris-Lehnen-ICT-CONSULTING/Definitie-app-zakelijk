@@ -5,21 +5,22 @@ Test alle 6 componenten afzonderlijk en als geheel.
 Volgt MODULAIRE_PROMPT_ARCHITECTUUR_WORKFLOW.md testing strategie.
 """
 
-import pytest
 from unittest.mock import Mock
 
+import pytest
+
+from services.definition_generator_config import UnifiedGeneratorConfig
+from services.definition_generator_context import EnrichedContext
 from services.prompts.modular_prompt_builder import (
     ModularPromptBuilder,
-    PromptComponentConfig
+    PromptComponentConfig,
 )
-from services.definition_generator_context import EnrichedContext
-from services.definition_generator_config import UnifiedGeneratorConfig
 
 
 def create_test_context(
     ontologische_categorie: str = None,
     organisatorisch: list = None,
-    domein: list = None
+    domein: list = None,
 ) -> EnrichedContext:
     """Helper function om test context te maken."""
 
@@ -38,7 +39,7 @@ def create_test_context(
         sources=[],
         expanded_terms={},
         confidence_scores={},
-        metadata=metadata
+        metadata=metadata,
     )
 
 
@@ -57,8 +58,7 @@ class TestModularPromptBuilderFoundation:
 
         # Custom configuratie
         custom_config = PromptComponentConfig(
-            include_validation_rules=False,
-            include_forbidden_patterns=False
+            include_validation_rules=False, include_forbidden_patterns=False
         )
         builder_custom = ModularPromptBuilder(custom_config)
         assert builder_custom.component_config.include_validation_rules is False
@@ -133,8 +133,7 @@ class TestComponent2ContextSection:
         builder = ModularPromptBuilder()
 
         context = create_test_context(
-            organisatorisch=["NP"],
-            domein=["Nederlands Politie"]
+            organisatorisch=["NP"], domein=["Nederlands Politie"]
         )
 
         context_section = builder._build_context_section(context)
@@ -180,8 +179,7 @@ class TestComponent2ContextSection:
         builder = ModularPromptBuilder()
 
         context = create_test_context(
-            organisatorisch=["NP", "DJI"],
-            domein=["Politie", "Justitie"]
+            organisatorisch=["NP", "DJI"], domein=["Politie", "Justitie"]
         )
         context_section = builder._build_context_section(context)
 
@@ -202,7 +200,10 @@ class TestComponent3OntologicalSection:
         # Basis ESS-02 sectie moet aanwezig zijn
         assert "ESS-02" in ontological_section
         assert "Ontologische categorie" in ontological_section
-        assert "type (soort), • exemplaar (specifiek geval), • proces (activiteit), • resultaat (uitkomst)" in ontological_section
+        assert (
+            "type (soort), • exemplaar (specifiek geval), • proces (activiteit), • resultaat (uitkomst)"
+            in ontological_section
+        )
 
         # Proces-specifieke guidance
         assert "PROCES CATEGORIE" in ontological_section
@@ -347,7 +348,7 @@ class TestBasicPromptGeneration:
         context = create_test_context(
             ontologische_categorie="proces",  # Toegevoegd zodat Component 3 actief wordt
             organisatorisch=["NP"],
-            domein=["Nederlands Politie"]
+            domein=["Nederlands Politie"],
         )
         config = UnifiedGeneratorConfig()
 
@@ -362,7 +363,9 @@ class TestBasicPromptGeneration:
 
         # Alle componenten moeten nu volledig geïmplementeerd zijn
         assert "### 📐 Let op betekenislaag" in prompt  # Component 3 geïmplementeerd
-        assert "### ✅ Richtlijnen voor de definitie:" in prompt  # Component 4 geïmplementeerd
+        assert (
+            "### ✅ Richtlijnen voor de definitie:" in prompt
+        )  # Component 4 geïmplementeerd
         assert "### ⚠️ Veelgemaakte fouten" in prompt  # Component 5 geïmplementeerd
         assert "### 🎯 FINALE INSTRUCTIES:" in prompt  # Component 6 geïmplementeerd
 
@@ -395,10 +398,11 @@ class TestBasicPromptGeneration:
 
         # Metadata met context
         context = create_test_context(
-            ontologische_categorie="proces",
-            organisatorisch=["NP"]
+            ontologische_categorie="proces", organisatorisch=["NP"]
         )
-        metadata_with_context = builder.get_component_metadata("voorwaardelijk", context)
+        metadata_with_context = builder.get_component_metadata(
+            "voorwaardelijk", context
+        )
 
         assert metadata_with_context["ontological_category"] == "proces"
         assert metadata_with_context["has_organizational_context"] is True
@@ -427,7 +431,7 @@ class TestBasicPromptGeneration:
         context = create_test_context(
             ontologische_categorie="proces",
             organisatorisch=["NP"],
-            domein=["Nederlands Politie"]
+            domein=["Nederlands Politie"],
         )
         config = UnifiedGeneratorConfig()
 
@@ -436,7 +440,9 @@ class TestBasicPromptGeneration:
         generation_time = time.time() - start_time
 
         # Performance moet acceptabel zijn (< 1s voor basis componenten)
-        assert generation_time < 1.0, f"Prompt generatie te langzaam: {generation_time:.3f}s"
+        assert (
+            generation_time < 1.0
+        ), f"Prompt generatie te langzaam: {generation_time:.3f}s"
 
         # Prompt moet volledige lengte hebben nu alle componenten geïmplementeerd zijn
         assert 5000 < len(prompt) < 20000  # Volledige prompt met alle 6 componenten
@@ -494,7 +500,7 @@ class TestComponent4ValidationRules:
             include_ontological=True,
             include_validation_rules=True,
             include_forbidden_patterns=False,
-            include_final_instructions=False
+            include_final_instructions=False,
         )
 
         builder = ModularPromptBuilder(component_config=config)
@@ -536,11 +542,11 @@ class TestComponent5ForbiddenPatterns:
         assert '"Het..."' in patterns
         assert '"De..."' in patterns
         assert '"Een..." als het begrip al "een" bevat' in patterns
-        assert 'Het begrip zelf' in patterns
-        assert 'Werkwoorden' in patterns
+        assert "Het begrip zelf" in patterns
+        assert "Werkwoorden" in patterns
 
         # Positieve alternatieven
-        assert 'Direct het hoofdwoord' in patterns
+        assert "Direct het hoofdwoord" in patterns
         assert '"Activiteit waarbij..."' in patterns
 
     def test_container_begrippen(self):
@@ -586,7 +592,7 @@ class TestComponent5ForbiddenPatterns:
             include_ontological=False,
             include_validation_rules=False,
             include_forbidden_patterns=True,
-            include_final_instructions=False
+            include_final_instructions=False,
         )
 
         builder = ModularPromptBuilder(component_config=config)
@@ -605,15 +611,23 @@ class TestComponent5ForbiddenPatterns:
 
         # Test met organisatorische context
         context = create_test_context(
-            organisatorisch=["DJI", "Gevangeniswezen"],
-            domein=["Penitentiair recht"]
+            organisatorisch=["DJI", "Gevangeniswezen"], domein=["Penitentiair recht"]
         )
         patterns = builder._build_forbidden_patterns_section(context)
 
         # Check dat context-specifieke verboden zijn toegevoegd
-        assert "Gebruik de term 'DJI' of een variant daarvan niet letterlijk in de definitie." in patterns
-        assert "Gebruik de term 'Gevangeniswezen' of een variant daarvan niet letterlijk in de definitie." in patterns
-        assert "Vermijd expliciete vermelding van domein 'Penitentiair recht' in de definitie." in patterns
+        assert (
+            "Gebruik de term 'DJI' of een variant daarvan niet letterlijk in de definitie."
+            in patterns
+        )
+        assert (
+            "Gebruik de term 'Gevangeniswezen' of een variant daarvan niet letterlijk in de definitie."
+            in patterns
+        )
+        assert (
+            "Vermijd expliciete vermelding van domein 'Penitentiair recht' in de definitie."
+            in patterns
+        )
 
 
 class TestComponent6FinalInstructions:
@@ -652,16 +666,17 @@ class TestComponent6FinalInstructions:
 
         # Zonder context
         no_context = create_test_context()
-        instructions_no_ctx = builder._build_final_instructions_section("test", no_context)
+        instructions_no_ctx = builder._build_final_instructions_section(
+            "test", no_context
+        )
         assert "algemeen gebruik" in instructions_no_ctx
         assert "Context beschikbaar: Nee" in instructions_no_ctx
 
         # Met context
-        with_context = create_test_context(
-            organisatorisch=["NP"],
-            domein=["Politie"]
+        with_context = create_test_context(organisatorisch=["NP"], domein=["Politie"])
+        instructions_with_ctx = builder._build_final_instructions_section(
+            "test", with_context
         )
-        instructions_with_ctx = builder._build_final_instructions_section("test", with_context)
         assert "de gegeven context" in instructions_with_ctx
         assert "Context beschikbaar: Ja" in instructions_with_ctx
 
@@ -674,7 +689,7 @@ class TestComponent6FinalInstructions:
             "proces": "activiteit/handeling",
             "type": "soort/categorie",
             "resultaat": "uitkomst/gevolg",
-            "exemplaar": "specifiek geval"
+            "exemplaar": "specifiek geval",
         }
 
         for cat, hint in categories.items():
@@ -691,7 +706,7 @@ class TestComponent6FinalInstructions:
             include_ontological=False,
             include_validation_rules=False,
             include_forbidden_patterns=False,
-            include_final_instructions=True
+            include_final_instructions=True,
         )
 
         builder = ModularPromptBuilder(component_config=config)

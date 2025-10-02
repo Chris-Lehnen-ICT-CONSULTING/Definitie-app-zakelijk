@@ -20,10 +20,8 @@ import unicodedata
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from functools import lru_cache
 from pathlib import Path
-from typing import Dict, List, Optional, Set, Tuple, Any
-import yaml
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -36,6 +34,7 @@ DEFAULT_CONFIDENCE = 0.3
 
 class UFOCategory(Enum):
     """UFO/OntoUML categories voor Nederlandse juridische concepten."""
+
     # Core categories (most used)
     KIND = "Kind"
     EVENT = "Event"
@@ -53,17 +52,18 @@ class UFOCategory(Enum):
 @dataclass
 class UFOClassificationResult:
     """Complete classification result with transparency."""
+
     term: str
     definition: str
     primary_category: UFOCategory
     confidence: float = 0.0
-    secondary_categories: List[UFOCategory] = field(default_factory=list)
-    matched_patterns: List[str] = field(default_factory=list)
-    explanation: List[str] = field(default_factory=list)
+    secondary_categories: list[UFOCategory] = field(default_factory=list)
+    matched_patterns: list[str] = field(default_factory=list)
+    explanation: list[str] = field(default_factory=list)
     classification_time_ms: float = 0.0
     version: str = "5.0.0"
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for storage."""
         return {
             "term": self.term,
@@ -74,7 +74,7 @@ class UFOClassificationResult:
             "matched_patterns": self.matched_patterns,
             "explanation": self.explanation,
             "classification_time_ms": round(self.classification_time_ms, 2),
-            "version": self.version
+            "version": self.version,
         }
 
 
@@ -87,66 +87,66 @@ class UFOClassifierService:
     # Pattern definitions (compiled once)
     PATTERNS = {
         UFOCategory.KIND: [
-            r'\b(persoon|organisatie|instantie|rechter|advocaat|notaris|ambtenaar)\b',
-            r'\b(rechtbank|griffie|ministerie|gemeente|provincie|overheid)\b',
-            r'\b(document|akte|vonnis|beschikking|uitspraak|besluit)\b',
-            r'\b(zaak|dossier|proces-verbaal|rapport|verslag)\b'
+            r"\b(persoon|organisatie|instantie|rechter|advocaat|notaris|ambtenaar)\b",
+            r"\b(rechtbank|griffie|ministerie|gemeente|provincie|overheid)\b",
+            r"\b(document|akte|vonnis|beschikking|uitspraak|besluit)\b",
+            r"\b(zaak|dossier|proces-verbaal|rapport|verslag)\b",
         ],
         UFOCategory.EVENT: [
-            r'\b(gebeurtenis|voorval|incident|feit|handeling|actie)\b',
-            r'\b(procedure|proces|zitting|hoorzitting|behandeling)\b',
-            r'\b(overtreding|misdrijf|delict|strafbaar feit)\b',
-            r'\b(transactie|overdracht|levering|betaling)\b',
-            r'\b(start|begin|einde|afloop|voltooiing)\b'
+            r"\b(gebeurtenis|voorval|incident|feit|handeling|actie)\b",
+            r"\b(procedure|proces|zitting|hoorzitting|behandeling)\b",
+            r"\b(overtreding|misdrijf|delict|strafbaar feit)\b",
+            r"\b(transactie|overdracht|levering|betaling)\b",
+            r"\b(start|begin|einde|afloop|voltooiing)\b",
         ],
         UFOCategory.ROLE: [
-            r'\b(verdachte|beklaagde|gedaagde|eiser|verzoeker)\b',
-            r'\b(getuige|deskundige|tolk|curator|bewindvoerder)\b',
-            r'\b(eigenaar|huurder|verhuurder|koper|verkoper)\b',
-            r'\b(schuldenaar|schuldeiser|crediteur|debiteur)\b',
-            r'\b(voogd|ouder|kind|echtgenoot|partner)\b'
+            r"\b(verdachte|beklaagde|gedaagde|eiser|verzoeker)\b",
+            r"\b(getuige|deskundige|tolk|curator|bewindvoerder)\b",
+            r"\b(eigenaar|huurder|verhuurder|koper|verkoper)\b",
+            r"\b(schuldenaar|schuldeiser|crediteur|debiteur)\b",
+            r"\b(voogd|ouder|kind|echtgenoot|partner)\b",
         ],
         UFOCategory.PHASE: [
-            r'\b(fase|stadium|status|toestand|situatie)\b',
-            r'\b(voorlopig|definitief|onherroepelijk|voorwaardelijk)\b',
-            r'\b(hangende|lopende|afgerond|gesloten|open)\b',
-            r'\b(minnelijk|gerechtelijk|buitengerechtelijk)\b'
+            r"\b(fase|stadium|status|toestand|situatie)\b",
+            r"\b(voorlopig|definitief|onherroepelijk|voorwaardelijk)\b",
+            r"\b(hangende|lopende|afgerond|gesloten|open)\b",
+            r"\b(minnelijk|gerechtelijk|buitengerechtelijk)\b",
         ],
         UFOCategory.RELATOR: [
-            r'\b(overeenkomst|contract|verbintenis|afspraak)\b',
-            r'\b(relatie|verhouding|band|connectie|link)\b',
-            r'\b(huwelijk|partnerschap|samenleving)\b',
-            r'\b(eigendom|bezit|recht|aanspraak|vordering)\b',
-            r'\b(volmacht|machtiging|toestemming|instemming)\b'
+            r"\b(overeenkomst|contract|verbintenis|afspraak)\b",
+            r"\b(relatie|verhouding|band|connectie|link)\b",
+            r"\b(huwelijk|partnerschap|samenleving)\b",
+            r"\b(eigendom|bezit|recht|aanspraak|vordering)\b",
+            r"\b(volmacht|machtiging|toestemming|instemming)\b",
         ],
         UFOCategory.MODE: [
-            r'\b(bevoegdheid|competentie|capaciteit|vermogen)\b',
-            r'\b(verplichting|plicht|verbod|gebod)\b',
-            r'\b(intentie|bedoeling|opzet|voornemen)\b',
-            r'\b(geloof|overtuiging|mening|standpunt)\b'
+            r"\b(bevoegdheid|competentie|capaciteit|vermogen)\b",
+            r"\b(verplichting|plicht|verbod|gebod)\b",
+            r"\b(intentie|bedoeling|opzet|voornemen)\b",
+            r"\b(geloof|overtuiging|mening|standpunt)\b",
         ],
         UFOCategory.QUANTITY: [
-            r'\b(bedrag|som|totaal|aantal|hoeveelheid)\b',
-            r'\b(termijn|periode|duur|tijd)\b',
-            r'\b(percentage|promille|fractie|deel)\b',
-            r'\b(rente|interest|rendement|opbrengst)\b',
-            r'\b(euro|gulden|dollar|valuta|munt)\b',
-            r'\b\d+\b'
+            r"\b(bedrag|som|totaal|aantal|hoeveelheid)\b",
+            r"\b(termijn|periode|duur|tijd)\b",
+            r"\b(percentage|promille|fractie|deel)\b",
+            r"\b(rente|interest|rendement|opbrengst)\b",
+            r"\b(euro|gulden|dollar|valuta|munt)\b",
+            r"\b\d+\b",
         ],
         UFOCategory.QUALITY: [
-            r'\b(eigenschap|kenmerk|karakteristiek|attribuut)\b',
-            r'\b(geldig|ongeldig|nietig|vernietigbaar)\b',
-            r'\b(rechtmatig|onrechtmatig|wettig|onwettig)\b',
-            r'\b(schuldig|onschuldig|aansprakelijk)\b',
-            r'\b(bevoegd|onbevoegd|competent|incompetent)\b'
+            r"\b(eigenschap|kenmerk|karakteristiek|attribuut)\b",
+            r"\b(geldig|ongeldig|nietig|vernietigbaar)\b",
+            r"\b(rechtmatig|onrechtmatig|wettig|onwettig)\b",
+            r"\b(schuldig|onschuldig|aansprakelijk)\b",
+            r"\b(bevoegd|onbevoegd|competent|incompetent)\b",
         ],
         UFOCategory.COLLECTIVE: [
-            r'\b(verzameling|collectie|groep|set|serie)\b',
-            r'\b(bestuur|directie|raad|commissie|college)\b',
-            r'\b(team|afdeling|department|divisie)\b',
-            r'\b(maatschap|vennootschap|coöperatie|vereniging)\b',
-            r'\b(gemeenschap|samenleving|maatschappij)\b'
-        ]
+            r"\b(verzameling|collectie|groep|set|serie)\b",
+            r"\b(bestuur|directie|raad|commissie|college)\b",
+            r"\b(team|afdeling|department|divisie)\b",
+            r"\b(maatschap|vennootschap|coöperatie|vereniging)\b",
+            r"\b(gemeenschap|samenleving|maatschappij)\b",
+        ],
     }
 
     # Disambiguation rules for ambiguous terms
@@ -155,44 +155,43 @@ class UFOClassifierService:
             "patterns": {
                 r"rechts|procedure|behandel": UFOCategory.EVENT,
                 r"dossier|nummer|registr": UFOCategory.KIND,
-                r"eigendom|goed|object": UFOCategory.RELATOR
+                r"eigendom|goed|object": UFOCategory.RELATOR,
             }
         },
         "procedure": {
             "patterns": {
                 r"volg|doorloop|stap": UFOCategory.EVENT,
-                r"regel|voorschrift|protocol": UFOCategory.KIND
+                r"regel|voorschrift|protocol": UFOCategory.KIND,
             }
         },
         "huwelijk": {
             "patterns": {
                 r"sluit|voltrek|vier": UFOCategory.EVENT,
-                r"staat|band|relatie": UFOCategory.RELATOR
+                r"staat|band|relatie": UFOCategory.RELATOR,
             }
         },
         "eigendom": {
             "patterns": {
                 r"verkrijg|overdra|verlies": UFOCategory.EVENT,
                 r"recht|aanspraak|titel": UFOCategory.RELATOR,
-                r"goed|object|zaak": UFOCategory.KIND
+                r"goed|object|zaak": UFOCategory.KIND,
             }
-        }
+        },
     }
 
-    def __init__(self, config_path: Optional[Path] = None):
+    def __init__(self, config_path: Path | None = None):
         """Initialize classifier."""
         self.version = "5.0.0"
         self.config_path = config_path
         self.compiled_patterns = self._compile_patterns()
         logger.info(f"UFO Classifier v{self.version} initialized")
 
-    def _compile_patterns(self) -> Dict[UFOCategory, List[re.Pattern]]:
+    def _compile_patterns(self) -> dict[UFOCategory, list[re.Pattern]]:
         """Compile regex patterns once for performance."""
         compiled = {}
         for category, patterns in self.PATTERNS.items():
             compiled[category] = [
-                re.compile(pattern, re.IGNORECASE)
-                for pattern in patterns
+                re.compile(pattern, re.IGNORECASE) for pattern in patterns
             ]
         return compiled
 
@@ -203,7 +202,7 @@ class UFOClassifierService:
 
         # Strip and normalize Unicode (NFC for Dutch)
         text = text.strip()
-        text = unicodedata.normalize('NFC', text)
+        text = unicodedata.normalize("NFC", text)
 
         # Limit length
         if len(text) > MAX_TEXT_LENGTH:
@@ -211,7 +210,7 @@ class UFOClassifierService:
 
         return text
 
-    def _extract_features(self, term: str, definition: str) -> Dict[UFOCategory, float]:
+    def _extract_features(self, term: str, definition: str) -> dict[UFOCategory, float]:
         """Extract pattern-based features from text."""
         scores = {}
         combined_text = f"{term} {definition}".lower()
@@ -230,8 +229,9 @@ class UFOClassifierService:
 
         return scores
 
-    def _apply_disambiguation(self, term: str, definition: str,
-                            scores: Dict[UFOCategory, float]) -> Dict[UFOCategory, float]:
+    def _apply_disambiguation(
+        self, term: str, definition: str, scores: dict[UFOCategory, float]
+    ) -> dict[UFOCategory, float]:
         """Apply disambiguation rules for ambiguous terms."""
         term_lower = term.lower()
 
@@ -244,12 +244,16 @@ class UFOClassifierService:
                     # Boost the target category
                     current = scores.get(target_category, 0.0)
                     scores[target_category] = min(current + 0.3, MAX_CONFIDENCE)
-                    logger.debug(f"Disambiguation: '{term}' → {target_category} (context match)")
+                    logger.debug(
+                        f"Disambiguation: '{term}' → {target_category} (context match)"
+                    )
                     break
 
         return scores
 
-    def _determine_primary_category(self, scores: Dict[UFOCategory, float]) -> Tuple[UFOCategory, float]:
+    def _determine_primary_category(
+        self, scores: dict[UFOCategory, float]
+    ) -> tuple[UFOCategory, float]:
         """Determine primary category from scores with guards."""
         if not scores:
             return UFOCategory.UNKNOWN, DEFAULT_CONFIDENCE
@@ -266,8 +270,9 @@ class UFOClassifierService:
 
         return primary_cat, max(MIN_CONFIDENCE, min(primary_score, MAX_CONFIDENCE))
 
-    def _get_secondary_categories(self, scores: Dict[UFOCategory, float],
-                                 primary: UFOCategory) -> List[UFOCategory]:
+    def _get_secondary_categories(
+        self, scores: dict[UFOCategory, float], primary: UFOCategory
+    ) -> list[UFOCategory]:
         """Get secondary categories above threshold."""
         threshold = 0.2
         secondary = []
@@ -278,12 +283,15 @@ class UFOClassifierService:
 
         return sorted(secondary, key=lambda c: scores[c], reverse=True)[:3]
 
-    def _generate_explanation(self, result: UFOClassificationResult,
-                            scores: Dict[UFOCategory, float]) -> List[str]:
+    def _generate_explanation(
+        self, result: UFOClassificationResult, scores: dict[UFOCategory, float]
+    ) -> list[str]:
         """Generate human-readable explanation."""
         explanations = []
 
-        explanations.append(f"Term '{result.term}' classified as {result.primary_category.value}")
+        explanations.append(
+            f"Term '{result.term}' classified as {result.primary_category.value}"
+        )
         explanations.append(f"Confidence: {result.confidence:.1%}")
 
         if result.matched_patterns:
@@ -295,8 +303,9 @@ class UFOClassifierService:
 
         return explanations
 
-    def classify(self, term: str, definition: str,
-                context: Optional[Dict] = None) -> UFOClassificationResult:
+    def classify(
+        self, term: str, definition: str, context: dict | None = None
+    ) -> UFOClassificationResult:
         """
         Classify a Dutch legal term into UFO category.
 
@@ -321,7 +330,7 @@ class UFOClassifierService:
                     definition=definition or "",
                     primary_category=UFOCategory.UNKNOWN,
                     confidence=MIN_CONFIDENCE,
-                    explanation=["Empty or invalid input"]
+                    explanation=["Empty or invalid input"],
                 )
 
             # Phase 1: Feature extraction
@@ -332,7 +341,9 @@ class UFOClassifierService:
 
             # Phase 3: Category determination
             primary_category, confidence = self._determine_primary_category(scores)
-            secondary_categories = self._get_secondary_categories(scores, primary_category)
+            secondary_categories = self._get_secondary_categories(
+                scores, primary_category
+            )
 
             # Build result
             result = UFOClassificationResult(
@@ -342,14 +353,17 @@ class UFOClassifierService:
                 confidence=confidence,
                 secondary_categories=secondary_categories,
                 matched_patterns=[],  # Simplified: not tracking individual patterns
-                classification_time_ms=(datetime.now() - start_time).total_seconds() * 1000,
-                version=self.version
+                classification_time_ms=(datetime.now() - start_time).total_seconds()
+                * 1000,
+                version=self.version,
             )
 
             # Add explanation
             result.explanation = self._generate_explanation(result, scores)
 
-            logger.debug(f"Classified '{term}' as {primary_category.value} ({confidence:.1%})")
+            logger.debug(
+                f"Classified '{term}' as {primary_category.value} ({confidence:.1%})"
+            )
             return result
 
         except Exception as e:
@@ -359,11 +373,12 @@ class UFOClassifierService:
                 definition=definition,
                 primary_category=UFOCategory.UNKNOWN,
                 confidence=MIN_CONFIDENCE,
-                explanation=[f"Classification error: {str(e)}"]
+                explanation=[f"Classification error: {e!s}"],
             )
 
-    def batch_classify(self, definitions: List[Tuple[str, str]],
-                      context: Optional[Dict] = None) -> List[UFOClassificationResult]:
+    def batch_classify(
+        self, definitions: list[tuple[str, str]], context: dict | None = None
+    ) -> list[UFOClassificationResult]:
         """Batch classify multiple terms efficiently."""
         results = []
 
@@ -373,13 +388,15 @@ class UFOClassifierService:
                 results.append(result)
             except Exception as e:
                 logger.error(f"Error in batch classification for '{term}': {e}")
-                results.append(UFOClassificationResult(
-                    term=term,
-                    definition=definition,
-                    primary_category=UFOCategory.UNKNOWN,
-                    confidence=MIN_CONFIDENCE,
-                    explanation=[f"Batch processing error: {str(e)}"]
-                ))
+                results.append(
+                    UFOClassificationResult(
+                        term=term,
+                        definition=definition,
+                        primary_category=UFOCategory.UNKNOWN,
+                        confidence=MIN_CONFIDENCE,
+                        explanation=[f"Batch processing error: {e!s}"],
+                    )
+                )
 
         return results
 
@@ -396,7 +413,9 @@ def get_ufo_classifier() -> UFOClassifierService:
     return _classifier_instance
 
 
-def create_ufo_classifier_service(config_path: Optional[Path] = None) -> UFOClassifierService:
+def create_ufo_classifier_service(
+    config_path: Path | None = None,
+) -> UFOClassifierService:
     """Factory method for dependency injection."""
     return UFOClassifierService(config_path=config_path)
 

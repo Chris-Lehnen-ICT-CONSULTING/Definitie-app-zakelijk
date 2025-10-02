@@ -1,18 +1,19 @@
 #!/usr/bin/env python3
 """Final verification of epic/story migration completeness."""
 
-import re
-import yaml
-from pathlib import Path
 from collections import defaultdict
+from pathlib import Path
+
+import yaml
+
 
 def extract_frontmatter(filepath):
     """Extract YAML frontmatter from markdown file."""
-    with open(filepath, 'r') as f:
+    with open(filepath) as f:
         content = f.read()
 
-    if content.startswith('---'):
-        parts = content.split('---', 2)
+    if content.startswith("---"):
+        parts = content.split("---", 2)
         if len(parts) >= 3:
             try:
                 return yaml.safe_load(parts[1])
@@ -20,36 +21,46 @@ def extract_frontmatter(filepath):
                 return {}
     return {}
 
+
 def check_content_completeness(filepath, file_type="epic"):
     """Check if a file has complete content sections."""
-    with open(filepath, 'r') as f:
+    with open(filepath) as f:
         content = f.read()
 
     completeness = {
-        'has_frontmatter': False,
-        'has_astra': False,
-        'has_requirements': False,
-        'has_stories': False,
-        'has_acceptance_criteria': False,
-        'has_business_value': False,
-        'has_test_scenarios': False
+        "has_frontmatter": False,
+        "has_astra": False,
+        "has_requirements": False,
+        "has_stories": False,
+        "has_acceptance_criteria": False,
+        "has_business_value": False,
+        "has_test_scenarios": False,
     }
 
     meta = extract_frontmatter(filepath)
-    completeness['has_frontmatter'] = bool(meta)
+    completeness["has_frontmatter"] = bool(meta)
 
     if file_type == "epic":
-        completeness['has_astra'] = 'astra_compliance' in meta or 'ASTRA' in content
-        completeness['has_requirements'] = 'requirements' in meta and len(meta.get('requirements', [])) > 0
-        completeness['has_stories'] = 'stories' in meta and len(meta.get('stories', [])) > 0
-        completeness['has_business_value'] = 'Business Value' in content or 'Business Case' in content
+        completeness["has_astra"] = "astra_compliance" in meta or "ASTRA" in content
+        completeness["has_requirements"] = (
+            "requirements" in meta and len(meta.get("requirements", [])) > 0
+        )
+        completeness["has_stories"] = (
+            "stories" in meta and len(meta.get("stories", [])) > 0
+        )
+        completeness["has_business_value"] = (
+            "Business Value" in content or "Business Case" in content
+        )
     else:  # story
-        completeness['has_astra'] = 'ASTRA' in content or 'astra' in str(meta)
-        completeness['has_requirements'] = 'requirements' in meta
-        completeness['has_acceptance_criteria'] = 'Acceptance Criteria' in content
-        completeness['has_test_scenarios'] = 'Test Scenarios' in content or 'Test Coverage' in content
+        completeness["has_astra"] = "ASTRA" in content or "astra" in str(meta)
+        completeness["has_requirements"] = "requirements" in meta
+        completeness["has_acceptance_criteria"] = "Acceptance Criteria" in content
+        completeness["has_test_scenarios"] = (
+            "Test Scenarios" in content or "Test Coverage" in content
+        )
 
     return completeness
+
 
 def main():
     """Run final verification."""
@@ -80,14 +91,16 @@ def main():
         print(f"  ├─ Stories: {len(meta.get('stories', []))} linked")
         print(f"  ├─ Requirements: {len(meta.get('requirements', []))} linked")
         print(f"  ├─ ASTRA: {'✅' if completeness['has_astra'] else '❌'}")
-        print(f"  └─ Business Value: {'✅' if completeness['has_business_value'] else '❌'}")
+        print(
+            f"  └─ Business Value: {'✅' if completeness['has_business_value'] else '❌'}"
+        )
 
-        if completeness['has_stories']:
-            epic_stats['with_stories'] += 1
-        if completeness['has_requirements']:
-            epic_stats['with_requirements'] += 1
-        if completeness['has_astra']:
-            epic_stats['with_astra'] += 1
+        if completeness["has_stories"]:
+            epic_stats["with_stories"] += 1
+        if completeness["has_requirements"]:
+            epic_stats["with_requirements"] += 1
+        if completeness["has_astra"]:
+            epic_stats["with_astra"] += 1
 
     # Story verification
     story_files = list(stories_dir.glob("US-*.md"))
@@ -99,18 +112,18 @@ def main():
 
     for story in sorted(story_files)[:5]:  # Sample first 5
         meta = extract_frontmatter(story)
-        epic_ref = meta.get('epic', 'UNASSIGNED')
+        epic_ref = meta.get("epic", "UNASSIGNED")
         stories_by_epic[epic_ref].append(story.stem)
 
         completeness = check_content_completeness(story, "story")
-        if completeness['has_acceptance_criteria']:
-            story_stats['with_acceptance'] += 1
-        if completeness['has_requirements']:
-            story_stats['with_requirements'] += 1
-        if completeness['has_test_scenarios']:
-            story_stats['with_tests'] += 1
+        if completeness["has_acceptance_criteria"]:
+            story_stats["with_acceptance"] += 1
+        if completeness["has_requirements"]:
+            story_stats["with_requirements"] += 1
+        if completeness["has_test_scenarios"]:
+            story_stats["with_tests"] += 1
 
-    print(f"Sample of first 5 stories analyzed...")
+    print("Sample of first 5 stories analyzed...")
     print(f"  ├─ With acceptance criteria: {story_stats['with_acceptance']}/5")
     print(f"  ├─ With requirements: {story_stats['with_requirements']}/5")
     print(f"  └─ With test scenarios: {story_stats['with_tests']}/5")
@@ -120,7 +133,7 @@ def main():
     print(f"\n📁 REQUIREMENT FILES: {len(req_files)} total")
 
     # Cross-reference validation
-    print(f"\n🔗 CROSS-REFERENCE VALIDATION")
+    print("\n🔗 CROSS-REFERENCE VALIDATION")
     print("-" * 40)
 
     # Collect all references
@@ -129,12 +142,12 @@ def main():
 
     for epic in epic_files:
         meta = extract_frontmatter(epic)
-        if 'stories' in meta:
-            for story in meta['stories']:
+        if "stories" in meta:
+            for story in meta["stories"]:
                 story_id = story.split()[0] if isinstance(story, str) else story
                 all_story_refs.add(story_id)
-        if 'requirements' in meta:
-            all_req_refs.update(meta.get('requirements', []))
+        if "requirements" in meta:
+            all_req_refs.update(meta.get("requirements", []))
 
     actual_stories = {f.stem for f in story_files}
     actual_reqs = {f.stem for f in req_files}
@@ -145,47 +158,58 @@ def main():
 
     print(f"  ├─ Story references in epics: {len(all_story_refs)}")
     print(f"  ├─ Actual story files: {len(actual_stories)}")
-    print(f"  ├─ Missing story files: {len(missing_stories)} {'✅' if not missing_stories else '❌'}")
-    print(f"  ├─ Orphan stories: {len(orphan_stories)} {'✅' if not orphan_stories else '❌'}")
+    print(
+        f"  ├─ Missing story files: {len(missing_stories)} {'✅' if not missing_stories else '❌'}"
+    )
+    print(
+        f"  ├─ Orphan stories: {len(orphan_stories)} {'✅' if not orphan_stories else '❌'}"
+    )
     print(f"  ├─ Requirement references: {len(all_req_refs)}")
-    print(f"  └─ Missing requirements: {len(missing_reqs)} {'✅' if not missing_reqs else '❌'}")
+    print(
+        f"  └─ Missing requirements: {len(missing_reqs)} {'✅' if not missing_reqs else '❌'}"
+    )
 
     # Summary
     print("\n" + "=" * 80)
     print("SUMMARY")
     print("=" * 80)
 
-    print(f"\n✅ STRUCTURE:")
+    print("\n✅ STRUCTURE:")
     print(f"  ├─ Epics: {len(epic_files)} files")
     print(f"  ├─ Stories: {len(story_files)} files")
     print(f"  └─ Requirements: {len(req_files)} files")
 
-    print(f"\n✅ COMPLETENESS:")
+    print("\n✅ COMPLETENESS:")
     print(f"  ├─ Epics with stories: {epic_stats['with_stories']}/{len(epic_files)}")
-    print(f"  ├─ Epics with requirements: {epic_stats['with_requirements']}/{len(epic_files)}")
+    print(
+        f"  ├─ Epics with requirements: {epic_stats['with_requirements']}/{len(epic_files)}"
+    )
     print(f"  └─ Epics with ASTRA: {epic_stats['with_astra']}/{len(epic_files)}")
 
-    print(f"\n✅ QUALITY:")
-    print(f"  ├─ Naming convention: EPIC-XXX-onderwerp ✅")
-    print(f"  ├─ Story format: US-XXX ✅")
-    print(f"  └─ Cross-references: {'✅ Valid' if not missing_stories and not missing_reqs else '❌ Issues found'}")
+    print("\n✅ QUALITY:")
+    print("  ├─ Naming convention: EPIC-XXX-onderwerp ✅")
+    print("  ├─ Story format: US-XXX ✅")
+    print(
+        f"  └─ Cross-references: {'✅ Valid' if not missing_stories and not missing_reqs else '❌ Issues found'}"
+    )
 
     # Final verdict
     if not missing_stories and not missing_reqs and not orphan_stories:
-        print(f"\n🎉 MIGRATION FULLY COMPLETE AND VERIFIED!")
-        print(f"   All epics and stories are properly documented with:")
-        print(f"   - Complete metadata and frontmatter")
-        print(f"   - Requirement mappings")
-        print(f"   - ASTRA/NORA compliance notes")
-        print(f"   - Bidirectional traceability")
+        print("\n🎉 MIGRATION FULLY COMPLETE AND VERIFIED!")
+        print("   All epics and stories are properly documented with:")
+        print("   - Complete metadata and frontmatter")
+        print("   - Requirement mappings")
+        print("   - ASTRA/NORA compliance notes")
+        print("   - Bidirectional traceability")
     else:
-        print(f"\n⚠️  MIGRATION COMPLETE WITH MINOR ISSUES")
+        print("\n⚠️  MIGRATION COMPLETE WITH MINOR ISSUES")
         if missing_stories:
             print(f"   - Missing story files: {missing_stories}")
         if orphan_stories:
             print(f"   - Orphan stories: {orphan_stories}")
         if missing_reqs:
             print(f"   - Missing requirements: {missing_reqs}")
+
 
 if __name__ == "__main__":
     main()

@@ -1,10 +1,7 @@
 import uuid
 from pathlib import Path
 
-from database.definitie_repository import (
-    DefinitieRepository,
-    DefinitieRecord,
-)
+from database.definitie_repository import DefinitieRecord, DefinitieRepository
 from domain.ontological_categories import OntologischeCategorie
 
 
@@ -15,7 +12,15 @@ def _make_repo() -> DefinitieRepository:
     return DefinitieRepository(str(db_path))
 
 
-def _insert_definition(repo: DefinitieRepository, *, begrip: str, definitie: str, categorie: str, org: str, jur: str) -> int:
+def _insert_definition(
+    repo: DefinitieRepository,
+    *,
+    begrip: str,
+    definitie: str,
+    categorie: str,
+    org: str,
+    jur: str,
+) -> int:
     rec = DefinitieRecord(
         begrip=begrip,
         definitie=definitie,
@@ -64,4 +69,3 @@ def test_voorkeursterm_single_source_repo_roundtrip():
         voorkeursterm="ID-kaart",
     )
     assert repo.get_voorkeursterm(definitie_id) == "ID-kaart"
-

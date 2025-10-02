@@ -2,7 +2,11 @@ import pytest
 
 from services.definition_generator_config import UnifiedGeneratorConfig
 from services.definition_generator_context import ContextSource, EnrichedContext
-from services.prompts.modules.base_module import BasePromptModule, ModuleContext, ModuleOutput
+from services.prompts.modules.base_module import (
+    BasePromptModule,
+    ModuleContext,
+    ModuleOutput,
+)
 from services.prompts.modules.prompt_orchestrator import PromptOrchestrator
 
 
@@ -11,12 +15,16 @@ class _OkModule(BasePromptModule):
         super().__init__(module_id=module_id, module_name=f"{module_id}")
         self._deps = deps or []
         self.text = text
+
     def initialize(self, config: dict):
         self._initialized = True
+
     def validate_input(self, context: ModuleContext):
         return True, None
+
     def execute(self, context: ModuleContext):
         return ModuleOutput(content=f"[{self.module_id}:{self.text}]", metadata={})
+
     def get_dependencies(self):
         return self._deps
 
@@ -24,12 +32,16 @@ class _OkModule(BasePromptModule):
 class _SkipModule(BasePromptModule):
     def __init__(self, module_id: str):
         super().__init__(module_id=module_id, module_name=f"{module_id}")
+
     def initialize(self, config: dict):
         self._initialized = True
+
     def validate_input(self, context: ModuleContext):
         return False, "not needed"
+
     def execute(self, context: ModuleContext):
         return ModuleOutput(content="SHOULD_NOT_APPEAR", metadata={})
+
     def get_dependencies(self):
         return []
 
@@ -87,4 +99,3 @@ def test_orchestrator_skips_invalid_module_and_keeps_content():
     prompt = orch.build_prompt("b", enriched, cfg)
     assert "SHOULD_NOT_APPEAR" not in prompt
     assert "[ok:" in prompt
-

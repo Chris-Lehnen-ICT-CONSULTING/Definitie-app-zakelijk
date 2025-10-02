@@ -7,7 +7,9 @@ import hashlib
 import json
 import logging
 import time
-from typing import Any, Callable, Optional
+from collections.abc import Callable
+from typing import Any, Optional
+
 from utils.cache import cached
 
 logger = logging.getLogger(__name__)
@@ -20,6 +22,7 @@ def cache_validation_results(ttl: int = 300):
     Args:
         ttl: Time-to-live in seconden (default 5 minuten)
     """
+
     def decorator(func: Callable) -> Callable:
         @functools.wraps(func)
         def wrapper(*args, **kwargs) -> Any:
@@ -38,7 +41,9 @@ def cache_validation_results(ttl: int = 300):
             if cache_key in cache:
                 cached_result, timestamp = cache[cache_key]
                 if time.time() - timestamp < ttl:
-                    logger.debug(f"Cache hit voor {func.__name__} (key: {cache_key[:8]}...)")
+                    logger.debug(
+                        f"Cache hit voor {func.__name__} (key: {cache_key[:8]}...)"
+                    )
                     return cached_result
 
             # Voer functie uit en cache resultaat
@@ -50,7 +55,9 @@ def cache_validation_results(ttl: int = 300):
             _cleanup_cache(cache, ttl)
 
             return result
+
         return wrapper
+
     return decorator
 
 
@@ -66,7 +73,9 @@ def get_cached_validation_rules():
         from toetsregels.manager import get_toetsregel_manager  # canonical path
     except Exception:
         # Fallback voor oude padnamen
-        from toetsregels.toetsregel_manager import get_toetsregel_manager  # type: ignore
+        from toetsregels.toetsregel_manager import (
+            get_toetsregel_manager,  # type: ignore
+        )
 
     logger.info("Loading validation rules into cache...")
     manager = get_toetsregel_manager()
@@ -91,27 +100,31 @@ def process_validation_results(validation_details: dict) -> dict:
             "overall_score": 0.0,
             "violations": [],
             "passed_rules": [],
-            "summary": {}
+            "summary": {},
         }
 
     # Process violations voor UI rendering
     processed_violations = []
     for violation in validation_details.get("violations", []):
-        processed_violations.append({
-            "rule_id": violation.get("rule_id", "unknown"),
-            "severity": violation.get("severity", "low"),
-            "description": violation.get("description", ""),
-            "suggestion": violation.get("suggestion", "")
-        })
+        processed_violations.append(
+            {
+                "rule_id": violation.get("rule_id", "unknown"),
+                "severity": violation.get("severity", "low"),
+                "description": violation.get("description", ""),
+                "suggestion": violation.get("suggestion", ""),
+            }
+        )
 
     # Process passed rules
     processed_passed = []
     for rule in validation_details.get("passed_rules", []):
         if isinstance(rule, dict):
-            processed_passed.append({
-                "rule_id": rule.get("rule_id", "unknown"),
-                "name": rule.get("name", "")
-            })
+            processed_passed.append(
+                {
+                    "rule_id": rule.get("rule_id", "unknown"),
+                    "name": rule.get("name", ""),
+                }
+            )
         else:
             processed_passed.append({"rule_id": str(rule), "name": str(rule)})
 
@@ -119,7 +132,7 @@ def process_validation_results(validation_details: dict) -> dict:
         "overall_score": float(validation_details.get("overall_score", 0.0)),
         "violations": processed_violations,
         "passed_rules": processed_passed,
-        "summary": validation_details.get("summary", {})
+        "summary": validation_details.get("summary", {}),
     }
 
 
@@ -139,7 +152,7 @@ def _generate_cache_key(func_name: str, args: tuple, kwargs: dict) -> str:
     key_data = {
         "func": func_name,
         "args": _make_hashable(args),
-        "kwargs": _make_hashable(kwargs)
+        "kwargs": _make_hashable(kwargs),
     }
 
     key_string = json.dumps(key_data, sort_keys=True, default=str)
@@ -178,8 +191,7 @@ def _cleanup_cache(cache: dict, ttl: int):
     """
     current_time = time.time()
     expired_keys = [
-        key for key, (_, timestamp) in cache.items()
-        if current_time - timestamp > ttl
+        key for key, (_, timestamp) in cache.items() if current_time - timestamp > ttl
     ]
 
     for key in expired_keys:
@@ -208,7 +220,7 @@ class ValidationCache:
             self._ttl = 300  # 5 minuten default
             self._initialized = True
 
-    def get(self, key: str) -> Optional[Any]:
+    def get(self, key: str) -> Any | None:
         """Get cached value als nog geldig."""
         if key in self._cache:
             value, timestamp = self._cache[key]
@@ -231,8 +243,7 @@ class ValidationCache:
         """Verwijder verlopen entries."""
         current_time = time.time()
         expired = [
-            k for k, (_, ts) in self._cache.items()
-            if current_time - ts > self._ttl
+            k for k, (_, ts) in self._cache.items() if current_time - ts > self._ttl
         ]
         for key in expired:
             del self._cache[key]

@@ -9,7 +9,14 @@ def _make_validator(monkeypatch, count_return: int):
 
     # Fake repo with desired count
     class FakeRepo:
-        def count_exact_by_context(self, *, begrip, organisatorische_context, juridische_context="", wettelijke_basis=None) -> int:
+        def count_exact_by_context(
+            self,
+            *,
+            begrip,
+            organisatorische_context,
+            juridische_context="",
+            wettelijke_basis=None,
+        ) -> int:
             return count_return
 
     # Patch repository class in module

@@ -1,35 +1,35 @@
 """Tests voor category regeneration functionaliteit."""
 
+from unittest.mock import MagicMock, Mock, patch
+
 import pytest
-from unittest.mock import Mock, patch, MagicMock
 import streamlit as st
-from src.ui.components.definition_generator_tab import DefinitionGeneratorTab
+
 from src.ui.components.category_regeneration_helper import CategoryRegenerationHelper
+from src.ui.components.definition_generator_tab import DefinitionGeneratorTab
 
 
 class TestCategoryRegeneration:
     """Test class voor category regeneration flow."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def mock_checker(self):
         """Mock DefinitieChecker."""
         return Mock()
 
-    @pytest.fixture
+    @pytest.fixture()
     def generator_tab(self, mock_checker):
         """DefinitionGeneratorTab instance."""
-        with patch('src.ui.components.definition_generator_tab.get_definitie_repository'):
+        with patch(
+            "src.ui.components.definition_generator_tab.get_definitie_repository"
+        ):
             return DefinitionGeneratorTab(mock_checker)
 
-    @patch('streamlit.warning')
-    @patch('streamlit.info')
-    @patch('src.ui.components.definition_generator_tab.SessionStateManager')
+    @patch("streamlit.warning")
+    @patch("streamlit.info")
+    @patch("src.ui.components.definition_generator_tab.SessionStateManager")
     def test_trigger_regeneration_with_category(
-        self,
-        mock_session,
-        mock_info,
-        mock_warning,
-        generator_tab
+        self, mock_session, mock_info, mock_warning, generator_tab
     ):
         """Test trigger regeneration method."""
         # Arrange
@@ -41,7 +41,7 @@ class TestCategoryRegeneration:
             begrip="TestBegrip",
             new_category="ACT",
             old_category="ENT",
-            saved_record=saved_record
+            saved_record=saved_record,
         )
 
         # Assert
@@ -63,10 +63,12 @@ class TestCategoryRegeneration:
         test_data = {
             "begrip": "TestBegrip",
             "category": "REL",
-            "feedback": "Test feedback"
+            "feedback": "Test feedback",
         }
 
-        with patch('src.ui.components.category_regeneration_helper.SessionStateManager') as mock_sm:
+        with patch(
+            "src.ui.components.category_regeneration_helper.SessionStateManager"
+        ) as mock_sm:
             mock_sm.get_value.return_value = test_data
 
             # Act
@@ -78,7 +80,9 @@ class TestCategoryRegeneration:
 
     def test_category_regeneration_helper_no_request(self):
         """Test helper wanneer geen regeneration request."""
-        with patch('src.ui.components.category_regeneration_helper.SessionStateManager') as mock_sm:
+        with patch(
+            "src.ui.components.category_regeneration_helper.SessionStateManager"
+        ) as mock_sm:
             mock_sm.get_value.return_value = None
 
             # Act

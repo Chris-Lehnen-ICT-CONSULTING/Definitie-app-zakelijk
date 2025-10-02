@@ -8,9 +8,8 @@ import time
 from unittest.mock import patch
 
 import pytest
-from ai_toetser.modular_toetser import ModularToetser
-from utils.cache import cached, clear_cache, get_cache_stats
 
+from ai_toetser.modular_toetser import ModularToetser
 from config.config_adapters import (
     get_api_config,
     get_cache_config,
@@ -18,10 +17,11 @@ from config.config_adapters import (
     get_default_temperature,
     get_paths_config,
 )
-from toetsregels.loader import load_toetsregels
 
 # Import available modules
 from config.config_manager import ConfigSection, get_config, get_config_manager
+from toetsregels.loader import load_toetsregels
+from utils.cache import cached, clear_cache, get_cache_stats
 
 
 class TestConfigurationSystem:

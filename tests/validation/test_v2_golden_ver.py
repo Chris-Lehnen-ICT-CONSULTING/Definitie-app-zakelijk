@@ -4,7 +4,7 @@ from services.validation.modular_validation_service import ModularValidationServ
 from toetsregels.manager import get_toetsregel_manager
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_ver02_definition_in_singular_fail():
     svc = ModularValidationService(get_toetsregel_manager(), None, None)
     res = await svc.validate_definition(
@@ -16,7 +16,7 @@ async def test_ver02_definition_in_singular_fail():
     assert any(v.get("code") == "VER-02" for v in res.get("violations", [])), res
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_ver03_infinitive_for_verb_term_pass_and_fail():
     svc = ModularValidationService(get_toetsregel_manager(), None, None)
 
@@ -27,7 +27,9 @@ async def test_ver03_infinitive_for_verb_term_pass_and_fail():
         ontologische_categorie=None,
         context={},
     )
-    assert any(v.get("code") == "VER-03" for v in res_bad.get("violations", [])), res_bad
+    assert any(
+        v.get("code") == "VER-03" for v in res_bad.get("violations", [])
+    ), res_bad
 
     # PASS: infinitief
     res_ok = await svc.validate_definition(
@@ -36,4 +38,6 @@ async def test_ver03_infinitive_for_verb_term_pass_and_fail():
         ontologische_categorie=None,
         context={},
     )
-    assert not any(v.get("code") == "VER-03" for v in res_ok.get("violations", [])), res_ok
+    assert not any(
+        v.get("code") == "VER-03" for v in res_ok.get("violations", [])
+    ), res_ok

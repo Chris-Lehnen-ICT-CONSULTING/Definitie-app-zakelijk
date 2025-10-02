@@ -13,29 +13,30 @@ Coverage Areas:
 - Error handling
 """
 
-import pytest
-import unicodedata
-import threading
-import queue
 import gc
-import time
+import queue
 import re
-from unittest.mock import patch, MagicMock
+import threading
+import time
+import unicodedata
 from typing import List, Tuple
+from unittest.mock import MagicMock, patch
+
+import pytest
 
 from src.services.ufo_classifier_service import (
-    UFOClassifierService,
-    UFOClassificationResult,
     UFOCategory,
+    UFOClassificationResult,
+    UFOClassifierService,
+    create_ufo_classifier_service,
     get_ufo_classifier,
-    create_ufo_classifier_service
 )
 
 
 class TestInputValidation:
     """Test input validation and sanitization."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def classifier(self):
         return UFOClassifierService()
 
@@ -120,7 +121,7 @@ class TestInputValidation:
             ("test/slash", "definitie met/slash"),
             ("test\\backslash", "definitie met\\backslash"),
             ("test'quote", "definitie met 'quotes'"),
-            ('test"doublequote', 'definitie met "quotes"')
+            ('test"doublequote', 'definitie met "quotes"'),
         ]
 
         for term, definition in test_cases:
@@ -136,7 +137,7 @@ class TestInputValidation:
             "' OR '1'='1",
             "admin'--",
             "1; DELETE FROM definitions WHERE 1=1",
-            "UNION SELECT * FROM users"
+            "UNION SELECT * FROM users",
         ]
 
         for dangerous in dangerous_inputs:
@@ -154,7 +155,7 @@ class TestInputValidation:
             "`cat /etc/passwd`",
             "| ls -la",
             "; shutdown -h now",
-            "&& echo hacked"
+            "&& echo hacked",
         ]
 
         for dangerous in dangerous_inputs:
@@ -169,7 +170,7 @@ class TestInputValidation:
             "../../../windows/system32",
             "..\\..\\..\\windows\\system32",
             "/etc/passwd",
-            "C:\\Windows\\System32"
+            "C:\\Windows\\System32",
         ]
 
         for dangerous in dangerous_inputs:
@@ -180,7 +181,7 @@ class TestInputValidation:
 class TestUnicodeHandling:
     """Test Unicode normalization and Dutch diacritics."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def classifier(self):
         return UFOClassifierService()
 
@@ -211,7 +212,7 @@ class TestUnicodeHandling:
             ("test™", "trademark symbol"),  # Special symbols
             ("Α", "Greek alpha"),  # Non-Latin scripts
             ("א", "Hebrew aleph"),  # Right-to-left script
-            ("中", "Chinese character")  # Ideographic script
+            ("中", "Chinese character"),  # Ideographic script
         ]
 
         for term, definition in test_cases:
@@ -223,10 +224,10 @@ class TestUnicodeHandling:
         test_text = "café coöperatie"
 
         # Different normalization forms
-        nfc = unicodedata.normalize('NFC', test_text)
-        nfd = unicodedata.normalize('NFD', test_text)
-        nfkc = unicodedata.normalize('NFKC', test_text)
-        nfkd = unicodedata.normalize('NFKD', test_text)
+        nfc = unicodedata.normalize("NFC", test_text)
+        nfd = unicodedata.normalize("NFD", test_text)
+        nfkc = unicodedata.normalize("NFKC", test_text)
+        nfkd = unicodedata.normalize("NFKD", test_text)
 
         results = []
         for form in [nfc, nfd, nfkc, nfkd]:
@@ -235,13 +236,15 @@ class TestUnicodeHandling:
 
         # All should produce consistent classification
         categories = [r.primary_category for r in results]
-        assert len(set(categories)) == 1, "Inconsistent classification across Unicode forms"
+        assert (
+            len(set(categories)) == 1
+        ), "Inconsistent classification across Unicode forms"
 
 
 class TestPerformanceAndMemory:
     """Test performance boundaries and memory management."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def classifier(self):
         return UFOClassifierService()
 
@@ -250,7 +253,7 @@ class TestPerformanceAndMemory:
         test_cases = [
             ("rechtspersoon", "Een juridische entiteit"),
             ("overeenkomst", "Contract tussen partijen"),
-            ("verdachte", "Persoon in de hoedanigheid van verdachte")
+            ("verdachte", "Persoon in de hoedanigheid van verdachte"),
         ]
 
         times = []
@@ -260,7 +263,9 @@ class TestPerformanceAndMemory:
             elapsed = (time.perf_counter() - start) * 1000  # ms
 
             times.append(elapsed)
-            assert result.classification_time_ms < 500, f"Classification too slow: {elapsed}ms"
+            assert (
+                result.classification_time_ms < 500
+            ), f"Classification too slow: {elapsed}ms"
 
         avg_time = sum(times) / len(times)
         assert avg_time < 100, f"Average time {avg_time}ms exceeds target"
@@ -268,10 +273,7 @@ class TestPerformanceAndMemory:
     def test_batch_processing_memory(self, classifier):
         """Test memory usage in batch processing."""
         # Generate large batch
-        definitions = [
-            (f"term_{i}", f"definition_{i}")
-            for i in range(1000)
-        ]
+        definitions = [(f"term_{i}", f"definition_{i}") for i in range(1000)]
 
         # Measure initial memory
         gc.collect()
@@ -308,13 +310,15 @@ class TestPerformanceAndMemory:
         final = len(gc.get_objects())
 
         growth_rate = (final - initial) / 500
-        assert growth_rate < 10, f"Memory growing at {growth_rate} objects per classification"
+        assert (
+            growth_rate < 10
+        ), f"Memory growing at {growth_rate} objects per classification"
 
 
 class TestConcurrency:
     """Test thread safety and concurrent operations."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def classifier(self):
         return UFOClassifierService()
 
@@ -328,7 +332,7 @@ class TestConcurrency:
                 try:
                     result = classifier.classify(
                         f"term_{worker_id}_{i}",
-                        f"definition for worker {worker_id} item {i}"
+                        f"definition for worker {worker_id} item {i}",
                     )
                     results.put((worker_id, result))
                 except Exception as e:
@@ -340,10 +344,7 @@ class TestConcurrency:
         classifications_per_worker = 20
 
         for i in range(num_workers):
-            t = threading.Thread(
-                target=worker,
-                args=(i, classifications_per_worker)
-            )
+            t = threading.Thread(target=worker, args=(i, classifications_per_worker))
             threads.append(t)
             t.start()
 
@@ -387,16 +388,18 @@ class TestConcurrency:
 class TestErrorHandling:
     """Test error handling and recovery."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def classifier(self):
         return UFOClassifierService()
 
     def test_pattern_compilation_errors(self):
         """Test handling of invalid regex patterns."""
         # Mock invalid patterns
-        with patch.object(UFOClassifierService, 'PATTERNS', {
-            UFOCategory.KIND: [r'[invalid(regex']  # Invalid regex
-        }):
+        with patch.object(
+            UFOClassifierService,
+            "PATTERNS",
+            {UFOCategory.KIND: [r"[invalid(regex"]},  # Invalid regex
+        ):
             # Should handle compilation error gracefully
             classifier = UFOClassifierService()
             result = classifier.classify("test", "definition")
@@ -409,7 +412,7 @@ class TestErrorHandling:
             ("", ""),  # Will cause error
             ("valid2", "definition 2"),
             (None, None),  # Will cause error
-            ("valid3", "definition 3")
+            ("valid3", "definition 3"),
         ]
 
         results = classifier.batch_classify(definitions)
@@ -438,7 +441,7 @@ class TestErrorHandling:
         assert classifier.config is not None  # Should use defaults
 
         # Invalid YAML
-        with patch("builtins.open", MagicMock(side_effect=IOError("File error"))):
+        with patch("builtins.open", MagicMock(side_effect=OSError("File error"))):
             classifier = UFOClassifierService(Path("dummy.yaml"))
             assert classifier.config is not None  # Should use defaults
 
@@ -446,7 +449,7 @@ class TestErrorHandling:
 class TestCategoryClassification:
     """Test correct classification of each UFO category."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def classifier(self):
         return UFOClassifierService()
 
@@ -456,7 +459,7 @@ class TestCategoryClassification:
             ("persoon", "Een natuurlijk persoon is een mens"),
             ("organisatie", "Een bedrijf of instelling"),
             ("document", "Een schriftelijk stuk"),
-            ("gebouw", "Een onroerend goed")
+            ("gebouw", "Een onroerend goed"),
         ]
 
         for term, definition in test_cases:
@@ -468,7 +471,7 @@ class TestCategoryClassification:
         test_cases = [
             ("procedure", "Een proces dat wordt uitgevoerd"),
             ("zitting", "Een gebeurtenis tijdens de rechtszaak"),
-            ("arrestatie", "Het aanhouden van een verdachte")
+            ("arrestatie", "Het aanhouden van een verdachte"),
         ]
 
         for term, definition in test_cases:
@@ -480,7 +483,7 @@ class TestCategoryClassification:
         test_cases = [
             ("verdachte", "Persoon in de hoedanigheid van verdachte"),
             ("eigenaar", "Iemand die eigendom heeft"),
-            ("koper", "Partij die als koper optreedt")
+            ("koper", "Partij die als koper optreedt"),
         ]
 
         for term, definition in test_cases:
@@ -492,7 +495,7 @@ class TestCategoryClassification:
         test_cases = [
             ("overeenkomst", "Contract tussen twee partijen"),
             ("huwelijk", "Verbintenis tussen twee personen"),
-            ("vergunning", "Toestemming verleend aan houder")
+            ("vergunning", "Toestemming verleend aan houder"),
         ]
 
         for term, definition in test_cases:
@@ -504,7 +507,7 @@ class TestCategoryClassification:
         test_cases = [
             ("bedrag", "Een som van 1000 euro"),
             ("percentage", "Het deel uitgedrukt in procenten"),
-            ("koopsom", "Het bedrag van €250.000")
+            ("koopsom", "Het bedrag van €250.000"),
         ]
 
         for term, definition in test_cases:
@@ -515,56 +518,42 @@ class TestCategoryClassification:
 class TestDisambiguation:
     """Test disambiguation of ambiguous terms."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def classifier(self):
         return UFOClassifierService()
 
     def test_zaak_disambiguation(self, classifier):
         """Test disambiguation of 'zaak'."""
         # As legal case (EVENT)
-        result = classifier.classify(
-            "rechtszaak",
-            "Een rechtszaak voor de rechter"
-        )
+        result = classifier.classify("rechtszaak", "Een rechtszaak voor de rechter")
         assert result.primary_category == UFOCategory.EVENT
 
         # As object (KIND)
-        result = classifier.classify(
-            "zaak",
-            "Een roerende zaak zoals een auto"
-        )
+        result = classifier.classify("zaak", "Een roerende zaak zoals een auto")
         assert result.primary_category == UFOCategory.KIND
 
     def test_huwelijk_disambiguation(self, classifier):
         """Test disambiguation of 'huwelijk'."""
         # As ceremony (EVENT)
         result = classifier.classify(
-            "huwelijksvoltrekking",
-            "Het sluiten van een huwelijk"
+            "huwelijksvoltrekking", "Het sluiten van een huwelijk"
         )
         assert result.primary_category == UFOCategory.EVENT
 
         # As relationship (RELATOR)
-        result = classifier.classify(
-            "huwelijk",
-            "De band tussen twee gehuwde personen"
-        )
+        result = classifier.classify("huwelijk", "De band tussen twee gehuwde personen")
         assert result.primary_category == UFOCategory.RELATOR
 
     def test_procedure_disambiguation(self, classifier):
         """Test disambiguation of 'procedure'."""
         # As process (EVENT)
         result = classifier.classify(
-            "bezwaarprocedure",
-            "De procedure start met indienen bezwaar"
+            "bezwaarprocedure", "De procedure start met indienen bezwaar"
         )
         assert result.primary_category == UFOCategory.EVENT
 
         # As document (KIND)
-        result = classifier.classify(
-            "procedure",
-            "Het document volgens de procedure"
-        )
+        result = classifier.classify("procedure", "Het document volgens de procedure")
         assert result.primary_category == UFOCategory.KIND
 
 
@@ -596,15 +585,14 @@ class TestIntegration:
 class TestRegressionPrevention:
     """Tests to prevent regression of previously fixed bugs."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def classifier(self):
         return UFOClassifierService()
 
     def test_no_division_by_zero(self, classifier):
         """Test that division by zero is prevented."""
         # Create scenario with no matches
-        with patch.object(classifier, '_calculate_pattern_scores',
-                         return_value={}):
+        with patch.object(classifier, "_calculate_pattern_scores", return_value={}):
             result = classifier.classify("test", "definition")
             assert result is not None
             assert result.confidence >= 0
@@ -615,15 +603,19 @@ class TestRegressionPrevention:
         test_cases = [
             ("", ""),  # Edge case
             ("x", "y"),  # Minimal
-            ("rechtspersoon", "Een rechtspersoon is een juridische entiteit"),  # Clear match
+            (
+                "rechtspersoon",
+                "Een rechtspersoon is een juridische entiteit",
+            ),  # Clear match
             ("ambiguous", "Could be many things"),  # Ambiguous
         ]
 
         for term, definition in test_cases:
             try:
                 result = classifier.classify(term, definition)
-                assert 0 <= result.confidence <= 1, \
-                    f"Confidence {result.confidence} out of bounds for {term}"
+                assert (
+                    0 <= result.confidence <= 1
+                ), f"Confidence {result.confidence} out of bounds for {term}"
             except ValueError:
                 pass  # Expected for empty inputs
 
@@ -638,7 +630,7 @@ class TestRegressionPrevention:
     def test_pattern_compilation_cached(self, classifier):
         """Test patterns are compiled once, not per classification."""
         # Patterns should already be compiled
-        assert hasattr(classifier, 'compiled_patterns')
+        assert hasattr(classifier, "compiled_patterns")
         assert len(classifier.compiled_patterns) > 0
 
         # Check they're compiled regex objects

@@ -5,7 +5,6 @@ Detecteert of een definitie al bestaat in de database.
 """
 
 import logging
-from typing import Optional
 
 logger = logging.getLogger(__name__)
 
@@ -22,9 +21,12 @@ class DUP01:
         """Lazy initialize repository to avoid circular imports."""
         try:
             from database.definition_repository import DefinitionRepository
+
             self.repository = DefinitionRepository()
         except Exception as e:
-            logger.warning(f"Could not initialize repository for duplicate detection: {e}")
+            logger.warning(
+                f"Could not initialize repository for duplicate detection: {e}"
+            )
             self.repository = None
 
     def check(self, definitie: str, begrip: str = "", context: dict = None) -> dict:
@@ -43,14 +45,14 @@ class DUP01:
             # Can't check without repository
             return {
                 "voldoet": True,
-                "toelichting": "Duplicate check overgeslagen (database niet beschikbaar)"
+                "toelichting": "Duplicate check overgeslagen (database niet beschikbaar)",
             }
 
         if not begrip:
             # Need begrip to check for duplicates
             return {
                 "voldoet": True,
-                "toelichting": "Duplicate check overgeslagen (begrip ontbreekt)"
+                "toelichting": "Duplicate check overgeslagen (begrip ontbreekt)",
             }
 
         try:
@@ -60,7 +62,7 @@ class DUP01:
             if not existing:
                 return {
                     "voldoet": True,
-                    "toelichting": "Geen bestaande definities gevonden voor dit begrip"
+                    "toelichting": "Geen bestaande definities gevonden voor dit begrip",
                 }
 
             # Normaliseer definitie voor vergelijking
@@ -68,8 +70,10 @@ class DUP01:
 
             # Check voor exacte of bijna-exacte duplicates
             for record in existing:
-                if record.get('begrip', '').lower() == begrip.lower():
-                    existing_def = record.get('definitie_gecorrigeerd') or record.get('definitie', '')
+                if record.get("begrip", "").lower() == begrip.lower():
+                    existing_def = record.get("definitie_gecorrigeerd") or record.get(
+                        "definitie", ""
+                    )
                     normalized_existing = self._normalize_text(existing_def)
 
                     # Exacte match
@@ -77,28 +81,30 @@ class DUP01:
                         return {
                             "voldoet": False,
                             "toelichting": f"Exacte duplicate gevonden (ID: {record.get('id')})",
-                            "suggestie": "Gebruik de bestaande definitie of pas deze substantieel aan"
+                            "suggestie": "Gebruik de bestaande definitie of pas deze substantieel aan",
                         }
 
                     # Similarity check (> 90% overlap)
-                    similarity = self._calculate_similarity(normalized_new, normalized_existing)
+                    similarity = self._calculate_similarity(
+                        normalized_new, normalized_existing
+                    )
                     if similarity > 0.9:
                         return {
                             "voldoet": False,
                             "toelichting": f"Zeer vergelijkbare definitie gevonden ({int(similarity*100)}% overlap, ID: {record.get('id')})",
-                            "suggestie": "Overweeg de bestaande definitie te updaten in plaats van een nieuwe toe te voegen"
+                            "suggestie": "Overweeg de bestaande definitie te updaten in plaats van een nieuwe toe te voegen",
                         }
 
             return {
                 "voldoet": True,
-                "toelichting": f"Geen duplicates gevonden ({len(existing)} bestaande definities gecontroleerd)"
+                "toelichting": f"Geen duplicates gevonden ({len(existing)} bestaande definities gecontroleerd)",
             }
 
         except Exception as e:
             logger.error(f"Error during duplicate check: {e}")
             return {
                 "voldoet": True,
-                "toelichting": "Duplicate check mislukt (technische fout)"
+                "toelichting": "Duplicate check mislukt (technische fout)",
             }
 
     def _normalize_text(self, text: str) -> str:
@@ -114,10 +120,10 @@ class DUP01:
 
         normalized = text.lower().strip()
         # Verwijder trailing punctuation
-        while normalized and normalized[-1] in '.,;:!?':
+        while normalized and normalized[-1] in ".,;:!?":
             normalized = normalized[:-1].strip()
         # Collapse whitespace
-        normalized = ' '.join(normalized.split())
+        normalized = " ".join(normalized.split())
         return normalized
 
     def _calculate_similarity(self, text1: str, text2: str) -> float:

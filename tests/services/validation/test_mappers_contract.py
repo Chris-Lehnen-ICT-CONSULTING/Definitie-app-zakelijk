@@ -2,14 +2,21 @@ import re
 
 import pytest
 
-from services.interfaces import ValidationResult as DCValidationResult, ValidationViolation, ValidationSeverity
+from services.interfaces import ValidationResult as DCValidationResult
+from services.interfaces import ValidationSeverity, ValidationViolation
 from services.validation.interfaces import CONTRACT_VERSION
-from services.validation.mappers import ensure_schema_compliance, dataclass_to_schema_dict, DEFAULT_PASSED_RULES
+from services.validation.mappers import (
+    DEFAULT_PASSED_RULES,
+    dataclass_to_schema_dict,
+    ensure_schema_compliance,
+)
 
 
 def test_dataclass_to_schema_minimal_maps_core_fields():
     dc = DCValidationResult(is_valid=True, definition_text="txt", score=0.8)
-    mapped = dataclass_to_schema_dict(dc, correlation_id="00000000-0000-0000-0000-000000000000")
+    mapped = dataclass_to_schema_dict(
+        dc, correlation_id="00000000-0000-0000-0000-000000000000"
+    )
 
     assert isinstance(mapped, dict)
     assert mapped["version"] == CONTRACT_VERSION
@@ -21,8 +28,15 @@ def test_dataclass_to_schema_minimal_maps_core_fields():
 
 
 def test_violation_mapping_and_defaults():
-    v = ValidationViolation(rule_id="STR-01", severity=ValidationSeverity.HIGH, description="desc", suggestion="fix it")
-    dc = DCValidationResult(is_valid=False, definition_text="x", score=0.2, violations=[v])
+    v = ValidationViolation(
+        rule_id="STR-01",
+        severity=ValidationSeverity.HIGH,
+        description="desc",
+        suggestion="fix it",
+    )
+    dc = DCValidationResult(
+        is_valid=False, definition_text="x", score=0.2, violations=[v]
+    )
     mapped = dataclass_to_schema_dict(dc, correlation_id=None)
 
     assert mapped["version"] == CONTRACT_VERSION
@@ -48,11 +62,14 @@ def test_ensure_schema_compliance_on_dict_adds_correlation_id():
     }
     ensured = ensure_schema_compliance(result, correlation_id=None)
     assert ensured["system"].get("correlation_id")
-    assert re.match(r"^[0-9a-f\-]{36}$", ensured["system"]["correlation_id"]) is not None
+    assert (
+        re.match(r"^[0-9a-f\-]{36}$", ensured["system"]["correlation_id"]) is not None
+    )
 
 
 def test_ensure_schema_compliance_invalid_type_returns_degraded():
-    ensured = ensure_schema_compliance(object(), correlation_id="00000000-0000-0000-0000-000000000000")
+    ensured = ensure_schema_compliance(
+        object(), correlation_id="00000000-0000-0000-0000-000000000000"
+    )
     assert ensured["is_acceptable"] is False
     assert any(v.get("code") == "SYS-SVC-001" for v in ensured.get("violations", []))
-

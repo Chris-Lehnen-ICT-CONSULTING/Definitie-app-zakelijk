@@ -14,6 +14,7 @@ from datetime import datetime, timezone
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
+
 from services.interfaces import (
     Definition,
     DefinitionResponseV2,
@@ -22,7 +23,8 @@ from services.interfaces import (
     PromptResult,
     ValidationResult,
     ValidationSeverity,
-    ValidationViolation)
+    ValidationViolation,
+)
 from services.orchestrators.definition_orchestrator_v2 import DefinitionOrchestratorV2
 
 
@@ -57,7 +59,8 @@ class TestDefinitionOrchestratorV2:
             repository=mock_services["repository"],
             monitoring=mock_services["monitoring"],
             feedback_engine=mock_services["feedback_engine"],
-            config=OrchestratorConfig())
+            config=OrchestratorConfig(),
+        )
 
     @pytest.fixture()
     def sample_request(self):
@@ -68,7 +71,8 @@ class TestDefinitionOrchestratorV2:
             context="DJI detentiesysteem",
             ontologische_categorie="proces",  # Critical: test ontological category
             actor="test_user",
-            legal_basis="legitimate_interest")
+            legal_basis="legitimate_interest",
+        )
 
     @pytest.mark.asyncio()
     async def test_successful_generation_with_ontological_category(
@@ -87,7 +91,8 @@ class TestDefinitionOrchestratorV2:
                 components_used=["ontologie_proces"],  # Should use process template
                 feedback_integrated=False,
                 optimization_applied=False,
-                metadata={"ontological_category": "proces"})
+                metadata={"ontological_category": "proces"},
+            )
         )
 
         # Mock AI generation result
@@ -99,12 +104,13 @@ class TestDefinitionOrchestratorV2:
 
         # Mock cleaning service (V2 interface)
         from services.interfaces import CleaningResult
+
         mock_cleaning_result = CleaningResult(
             original_text="Een proces waarbij identiteit wordt geverifieerd.",
             cleaned_text="Een proces waarbij identiteit wordt geverifieerd.",
             was_cleaned=False,
             applied_rules=[],
-            improvements=[]
+            improvements=[],
         )
         mock_services["cleaning_service"].clean_text.return_value = mock_cleaning_result
 
@@ -112,7 +118,8 @@ class TestDefinitionOrchestratorV2:
         mock_services["validation_service"].validate_definition.return_value = (
             ValidationResult(
                 is_valid=True,
-                definition_text="Een proces waarbij identiteit wordt geverifieerd.")
+                definition_text="Een proces waarbij identiteit wordt geverifieerd.",
+            )
         )
 
         # Mock repository save
@@ -170,7 +177,8 @@ class TestDefinitionOrchestratorV2:
                 components_used=["ontologie_proces", "feedback_integration"],
                 feedback_integrated=True,
                 optimization_applied=False,
-                metadata={"feedback_entries": 1})
+                metadata={"feedback_entries": 1},
+            )
         )
 
         # Mock validation failure to trigger feedback processing
@@ -182,7 +190,8 @@ class TestDefinitionOrchestratorV2:
                     ValidationViolation(
                         "CON-01", ValidationSeverity.HIGH, "Circular reasoning"
                     )
-                ])
+                ],
+            )
         )
 
         # Mock other required services
@@ -226,7 +235,8 @@ class TestDefinitionOrchestratorV2:
             context="[PII-REDACTED] detentiesysteem",  # Sanitized context.domein,
             ontologische_categorie=sample_request.ontologische_categorie,
             actor=sample_request.actor,
-            legal_basis=sample_request.legal_basis)
+            legal_basis=sample_request.legal_basis,
+        )
         mock_services["security_service"].sanitize_request.return_value = (
             sanitized_request
         )
@@ -240,7 +250,8 @@ class TestDefinitionOrchestratorV2:
                 components_used=[],
                 feedback_integrated=False,
                 optimization_applied=False,
-                metadata={})
+                metadata={},
+            )
         )
 
         mock_ai_result = MagicMock()
@@ -285,7 +296,8 @@ class TestDefinitionOrchestratorV2:
                 components_used=[],
                 feedback_integrated=False,
                 optimization_applied=False,
-                metadata={})
+                metadata={},
+            )
         )
 
         mock_ai_result = MagicMock()
@@ -293,12 +305,13 @@ class TestDefinitionOrchestratorV2:
         mock_services["ai_service"].generate_definition.return_value = mock_ai_result
 
         from services.interfaces import CleaningResult
+
         mock_cleaning_result = CleaningResult(
             original_text="Poor quality definition",
             cleaned_text="Poor quality definition",
             was_cleaned=False,
             applied_rules=[],
-            improvements=[]
+            improvements=[],
         )
         mock_services["cleaning_service"].clean_text.return_value = mock_cleaning_result
 
@@ -308,7 +321,8 @@ class TestDefinitionOrchestratorV2:
             definition_text="Poor quality definition",
             violations=[
                 ValidationViolation("STR-01", ValidationSeverity.HIGH, "Bad structure")
-            ])
+            ],
+        )
 
         # Enhanced validation succeeds
         enhanced_validation = ValidationResult(
@@ -333,7 +347,8 @@ class TestDefinitionOrchestratorV2:
         mock_services["enhancement_service"].enhance_definition.assert_called_once_with(
             "Poor quality definition",
             initial_validation.violations,
-            context=sample_request)
+            context=sample_request,
+        )
 
         # Verify validation was called twice (before and after enhancement)
         assert mock_services["validation_service"].validate_definition.call_count == 2
@@ -364,7 +379,6 @@ class TestDefinitionOrchestratorV2:
         if mock_services["monitoring"]:
             mock_services["monitoring"].track_error.assert_called_once()
 
-
     @pytest.mark.asyncio()
     async def test_monitoring_integration(
         self, orchestrator, mock_services, sample_request
@@ -380,7 +394,8 @@ class TestDefinitionOrchestratorV2:
                 components_used=["test"],
                 feedback_integrated=False,
                 optimization_applied=False,
-                metadata={})
+                metadata={},
+            )
         )
 
         mock_ai_result = MagicMock()

@@ -7,10 +7,10 @@ from services.interfaces import LookupRequest, LookupResult, WebSource
 from services.modern_web_lookup_service import ModernWebLookupService
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_parallel_lookup_concurrency_and_timeout(monkeypatch):
     # Patch providers with small delays
-    from tests.fixtures.web_lookup_mocks import wikipedia_lookup_stub, SRUServiceStub
+    from tests.fixtures.web_lookup_mocks import SRUServiceStub, wikipedia_lookup_stub
 
     async def slow_wiki(term: str, language: str = "nl"):
         await asyncio.sleep(0.3)
@@ -21,11 +21,15 @@ async def test_parallel_lookup_concurrency_and_timeout(monkeypatch):
             await asyncio.sleep(0.3)
             return await super().search(*a, **k)
 
-    monkeypatch.setattr("services.web_lookup.wikipedia_service.wikipedia_lookup", slow_wiki)
+    monkeypatch.setattr(
+        "services.web_lookup.wikipedia_service.wikipedia_lookup", slow_wiki
+    )
     monkeypatch.setattr("services.web_lookup.sru_service.SRUService", SlowSRU)
 
     svc = ModernWebLookupService()
-    req = LookupRequest(term="authenticatie", sources=["wikipedia", "overheid"], max_results=2)
+    req = LookupRequest(
+        term="authenticatie", sources=["wikipedia", "overheid"], max_results=2
+    )
 
     start = time.perf_counter()
     results = await svc.lookup(req)
@@ -36,7 +40,7 @@ async def test_parallel_lookup_concurrency_and_timeout(monkeypatch):
     assert isinstance(results, list) and len(results) >= 1
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_error_handling_returns_empty_results(monkeypatch):
     # Providers raise → service should handle and return []
     async def broken_wiki(*a, **k):
@@ -52,7 +56,9 @@ async def test_error_handling_returns_empty_results(monkeypatch):
         async def search(self, *a, **k):
             raise RuntimeError("sru boom")
 
-    monkeypatch.setattr("services.web_lookup.wikipedia_service.wikipedia_lookup", broken_wiki)
+    monkeypatch.setattr(
+        "services.web_lookup.wikipedia_service.wikipedia_lookup", broken_wiki
+    )
     monkeypatch.setattr("services.web_lookup.sru_service.SRUService", BrokenSRU)
 
     svc = ModernWebLookupService()
@@ -62,13 +68,17 @@ async def test_error_handling_returns_empty_results(monkeypatch):
     assert results == []
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_ranking_and_dedup(monkeypatch):
     # Return two items with same URL/content but different weights to test dedup
-    def make_result(name: str, url: str, score: float, is_juridical: bool, text: str) -> LookupResult:
+    def make_result(
+        name: str, url: str, score: float, is_juridical: bool, text: str
+    ) -> LookupResult:
         return LookupResult(
             term="t",
-            source=WebSource(name=name, url=url, confidence=score, is_juridical=is_juridical),
+            source=WebSource(
+                name=name, url=url, confidence=score, is_juridical=is_juridical
+            ),
             definition=text,
             success=True,
         )
@@ -97,4 +107,3 @@ async def test_ranking_and_dedup(monkeypatch):
     # Dedup should collapse to single best (juridical/higher score)
     assert len(results) == 1
     assert "Overheid" in results[0].source.name
-

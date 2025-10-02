@@ -1,17 +1,20 @@
 #!/usr/bin/env python3
 """End-to-end simulation test for auto-load functionality."""
 
-import sys
 import os
+import sys
+
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from unittest.mock import Mock
+
 import streamlit as st
 
 # Initialize mock session state
 st.session_state = {}
 
 from src.ui.session_state import SessionStateManager
+
 
 def simulate_generation_flow():
     """Simulate the complete flow from generation to edit tab."""
@@ -37,7 +40,7 @@ def simulate_generation_flow():
     print(f"Wettelijke basis: {wet_context}")
 
     # This is what tabbed_interface.py does (lines 951-959)
-    if mock_saved_record and hasattr(mock_saved_record, 'id'):
+    if mock_saved_record and hasattr(mock_saved_record, "id"):
         SessionStateManager.set_value("editing_definition_id", mock_saved_record.id)
         SessionStateManager.set_value("edit_organisatorische_context", org_context)
         SessionStateManager.set_value("edit_juridische_context", jur_context)
@@ -49,15 +52,15 @@ def simulate_generation_flow():
     print("-" * 40)
 
     # Simulate what definition_edit_tab.py does
-    target_id = SessionStateManager.get_value('editing_definition_id')
+    target_id = SessionStateManager.get_value("editing_definition_id")
 
     if target_id:
         print(f"✓ Edit tab detects definition ID: {target_id}")
 
         # Check for contexts
-        edit_org = SessionStateManager.get_value('edit_organisatorische_context')
-        edit_jur = SessionStateManager.get_value('edit_juridische_context')
-        edit_wet = SessionStateManager.get_value('edit_wettelijke_basis')
+        edit_org = SessionStateManager.get_value("edit_organisatorische_context")
+        edit_jur = SessionStateManager.get_value("edit_juridische_context")
+        edit_wet = SessionStateManager.get_value("edit_wettelijke_basis")
 
         if edit_org or edit_jur or edit_wet:
             print("✓ Edit tab detects contexts from generator")
@@ -70,9 +73,9 @@ def simulate_generation_flow():
             print("   'Contexten van gegenereerde definitie zijn automatisch ingevuld'")
 
             # Clean up after loading
-            SessionStateManager.clear_value('edit_organisatorische_context')
-            SessionStateManager.clear_value('edit_juridische_context')
-            SessionStateManager.clear_value('edit_wettelijke_basis')
+            SessionStateManager.clear_value("edit_organisatorische_context")
+            SessionStateManager.clear_value("edit_juridische_context")
+            SessionStateManager.clear_value("edit_wettelijke_basis")
             print("\n✓ Temporary context variables cleaned up")
     else:
         print("❌ No definition to auto-load")
@@ -83,7 +86,9 @@ def simulate_generation_flow():
 
     # Definition ID should still be there
     assert SessionStateManager.get_value("editing_definition_id") == 12345
-    print(f"✓ Definition ID persists: {SessionStateManager.get_value('editing_definition_id')}")
+    print(
+        f"✓ Definition ID persists: {SessionStateManager.get_value('editing_definition_id')}"
+    )
 
     # Temporary contexts should be cleared
     assert SessionStateManager.get_value("edit_organisatorische_context") is None
@@ -100,6 +105,7 @@ def simulate_generation_flow():
     print("3. Contexts are displayed and then cleaned up")
     print("4. User doesn't need to manually search!")
 
+
 def main():
     """Run the simulation."""
     try:
@@ -112,8 +118,10 @@ def main():
     except Exception as e:
         print(f"\n❌ SIMULATION FAILED: {e}")
         import traceback
+
         traceback.print_exc()
         return 1
+
 
 if __name__ == "__main__":
     exit(main())
