@@ -1,3 +1,18 @@
+---
+id: US-205-TOKEN
+epic: EPIC-020-PHOENIX
+titel: Token Optimization & Caching Implementation
+status: open
+prioriteit: P2
+story_points: 5
+aangemaakt: 2025-09-30
+bijgewerkt: 2025-09-30
+owner: tbd
+applies_to: definitie-app@current
+canonical: false
+last_verified: 2025-09-30
+---
+
 # US-205: Token Optimization & Caching Implementation
 
 **Note**: Er is een nummering conflict. Dit document beschrijft de ECHTE US-205 volgens EPIC-020.

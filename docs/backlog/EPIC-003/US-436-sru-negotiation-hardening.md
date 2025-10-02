@@ -1,3 +1,18 @@
+---
+id: US-436
+epic: EPIC-003
+titel: SRU Negotiation Hardening
+status: open
+prioriteit: P2
+story_points: 5
+aangemaakt: 2025-09-30
+bijgewerkt: 2025-09-30
+owner: tbd
+applies_to: definitie-app@current
+canonical: false
+last_verified: 2025-09-30
+---
+
 id: US-436
 titel: SRU negotiation hardening (schema ladder, Accept/httpAccept, diagnostics)
 

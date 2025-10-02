@@ -1,3 +1,18 @@
+---
+id: US-207-BREAKDOWN
+epic: EPIC-020-PHOENIX
+titel: God Class Refactoring - BREAKDOWN
+status: open
+prioriteit: P2
+story_points: 5
+aangemaakt: 2025-09-30
+bijgewerkt: 2025-09-30
+owner: tbd
+applies_to: definitie-app@current
+canonical: false
+last_verified: 2025-09-30
+---
+
 # US-207: God Class Refactoring - BREAKDOWN
 
 **Probleem**: US-207 is te groot! We hebben 4 god classes gevonden:
