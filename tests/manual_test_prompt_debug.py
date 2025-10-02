@@ -20,8 +20,8 @@ from services.service_factory import ServiceAdapter
 
 # Set up logging
 logging.basicConfig(
-    level=logging.DEBUG,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+    level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
 
 
@@ -40,7 +40,8 @@ def test_prompt_storage():
         id="test-id",
         begrip="algoritme",
         context="Een reeks instructies voor het oplossen van een probleem",
-        organisatie="Test Organisatie")
+        organisatie="Test Organisatie",
+    )
 
     # Call via adapter (die sync interface biedt)
     result = adapter.generate_definition(
@@ -49,7 +50,8 @@ def test_prompt_storage():
             "organisatorisch": [request.context or ""],
             "domein": [request.domein or ""],
         },
-        organisatie=request.organisatie)
+        organisatie=request.organisatie,
+    )
 
     # 3. Check resultaat structuur
     print("\n3. Analyseer resultaat structuur...")

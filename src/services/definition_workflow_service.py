@@ -6,8 +6,8 @@ met de bijbehorende repository-updates en audit/event-publicatie zodat UI-code
 geen losse services hoeft te coördineren en we consistente businessregels afdwingen.
 """
 
-import logging
 import json
+import logging
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Any
@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class WorkflowResult:
     """Result van een workflow operatie."""
-    
+
     success: bool
     new_status: str | None
     updated_by: str | None
@@ -38,7 +38,7 @@ class WorkflowResult:
     # US-160: Gate-uitkomst voor UI en logging
     gate_status: str | None = None  # pass | override_required | blocked
     gate_reasons: list[str] | None = None
-    
+
     def __post_init__(self):
         if self.timestamp is None:
             self.timestamp = datetime.now()
@@ -47,14 +47,14 @@ class WorkflowResult:
 class DefinitionWorkflowService:
     """
     Service die workflow transities en repository updates combineert.
-    
+
     Deze service zorgt voor:
     - Validatie van workflow transities volgens business regels
     - Atomaire updates van definitie status in repository
     - Audit logging van alle transities
     - Event publishing (indien event bus actief)
     """
-    
+
     def __init__(
         self,
         workflow_service: WorkflowService,
@@ -65,7 +65,7 @@ class DefinitionWorkflowService:
     ):
         """
         Initialize de workflow service.
-        
+
         Args:
             workflow_service: Service voor workflow validatie
             repository: Repository voor persistentie
@@ -77,7 +77,7 @@ class DefinitionWorkflowService:
         self.event_bus = event_bus
         self.audit_logger = audit_logger
         self.gate_policy_service = gate_policy_service
-        
+
     def submit_for_review(
         self,
         definition_id: int,
@@ -86,12 +86,12 @@ class DefinitionWorkflowService:
     ) -> WorkflowResult:
         """
         Submit een definitie voor review.
-        
+
         Args:
             definition_id: ID van de definitie
             user: Gebruiker die de actie uitvoert
             notes: Optionele notities
-            
+
         Returns:
             WorkflowResult met status en metadata
         """
@@ -107,12 +107,10 @@ class DefinitionWorkflowService:
                     events=[],
                     error_message=f"Definitie {definition_id} niet gevonden",
                 )
-            
+
             # Valideer transitie via workflow service (strings)
             current_status = definition.status
-            if not self.workflow_service.can_change_status(
-                current_status, "review"
-            ):
+            if not self.workflow_service.can_change_status(current_status, "review"):
                 return WorkflowResult(
                     success=False,
                     new_status=None,
@@ -121,7 +119,7 @@ class DefinitionWorkflowService:
                     events=[],
                     error_message=f"Transitie van {current_status} naar REVIEW niet toegestaan",
                 )
-            
+
             # Update status in repository (atomair)
             success = self.repository.change_status(
                 definitie_id=definition_id,
@@ -129,7 +127,7 @@ class DefinitionWorkflowService:
                 changed_by=user,
                 notes=notes,
             )
-            
+
             if not success:
                 return WorkflowResult(
                     success=False,
@@ -139,7 +137,7 @@ class DefinitionWorkflowService:
                     events=[],
                     error_message="Status update mislukt in repository",
                 )
-            
+
             # Log audit trail
             if self.audit_logger:
                 self.audit_logger.log_transition(
@@ -149,7 +147,7 @@ class DefinitionWorkflowService:
                     user=user,
                     notes=notes,
                 )
-            
+
             # Publish event
             events = []
             if self.event_bus:
@@ -161,11 +159,9 @@ class DefinitionWorkflowService:
                 }
                 self.event_bus.publish(event)
                 events.append("definition.submitted_for_review")
-            
-            logger.info(
-                f"Definitie {definition_id} submitted for review by {user}"
-            )
-            
+
+            logger.info(f"Definitie {definition_id} submitted for review by {user}")
+
             return WorkflowResult(
                 success=True,
                 new_status=DefinitieStatus.REVIEW.value,
@@ -173,7 +169,7 @@ class DefinitionWorkflowService:
                 notes=notes,
                 events=events,
             )
-            
+
         except Exception as e:
             logger.error(f"Error submitting definition {definition_id} for review: {e}")
             return WorkflowResult(
@@ -184,7 +180,7 @@ class DefinitionWorkflowService:
                 events=[],
                 error_message=str(e),
             )
-    
+
     def approve(
         self,
         definition_id: int,
@@ -195,12 +191,12 @@ class DefinitionWorkflowService:
     ) -> WorkflowResult:
         """
         Approve een definitie.
-        
+
         Args:
             definition_id: ID van de definitie
             user: Gebruiker die de actie uitvoert
             notes: Optionele notities
-            
+
         Returns:
             WorkflowResult met status en metadata
         """
@@ -216,7 +212,7 @@ class DefinitionWorkflowService:
                     events=[],
                     error_message=f"Definitie {definition_id} niet gevonden",
                 )
-            
+
             # Valideer transitie via workflow service (naar ESTABLISHED)
             current_status = definition.status
             if not self.workflow_service.can_change_status(
@@ -258,7 +254,7 @@ class DefinitionWorkflowService:
                         gate_status="override_required",
                         gate_reasons=gate["reasons"],
                     )
-            
+
             # Update status in repository (atomair)
             success = self.repository.change_status(
                 definitie_id=definition_id,
@@ -266,7 +262,7 @@ class DefinitionWorkflowService:
                 changed_by=user,
                 notes=notes,
             )
-            
+
             if not success:
                 return WorkflowResult(
                     success=False,
@@ -276,17 +272,23 @@ class DefinitionWorkflowService:
                     events=[],
                     error_message="Status update mislukt in repository",
                 )
-            
+
             # Update ketenpartners indien opgegeven
             if ketenpartners is not None:
                 try:
                     self.repository.update_definitie(
                         definition_id,
-                        {"ketenpartners": json.dumps(list(ketenpartners), ensure_ascii=False)},
+                        {
+                            "ketenpartners": json.dumps(
+                                list(ketenpartners), ensure_ascii=False
+                            )
+                        },
                         updated_by=user,
                     )
                 except Exception as e:  # pragma: no cover
-                    logger.warning(f"Kon ketenpartners niet opslaan voor {definition_id}: {e}")
+                    logger.warning(
+                        f"Kon ketenpartners niet opslaan voor {definition_id}: {e}"
+                    )
 
             # Log audit trail
             if self.audit_logger:
@@ -297,7 +299,7 @@ class DefinitionWorkflowService:
                     user=user,
                     notes=notes,
                 )
-            
+
             # Publish event
             events = []
             if self.event_bus:
@@ -309,11 +311,11 @@ class DefinitionWorkflowService:
                 }
                 self.event_bus.publish(event)
                 events.append("definition.approved")
-            
+
             logger.info(
                 f"Definitie {definition_id} vastgesteld door {user} (gate={gate['status']})"
             )
-            
+
             return WorkflowResult(
                 success=True,
                 new_status=DefinitieStatus.ESTABLISHED.value,
@@ -323,7 +325,7 @@ class DefinitionWorkflowService:
                 gate_status=gate["status"],
                 gate_reasons=gate["reasons"],
             )
-            
+
         except Exception as e:
             logger.error(f"Error approving definition {definition_id}: {e}")
             return WorkflowResult(
@@ -334,7 +336,7 @@ class DefinitionWorkflowService:
                 events=[],
                 error_message=str(e),
             )
-    
+
     def reject(
         self,
         definition_id: int,
@@ -343,12 +345,12 @@ class DefinitionWorkflowService:
     ) -> WorkflowResult:
         """
         Reject een definitie.
-        
+
         Args:
             definition_id: ID van de definitie
             user: Gebruiker die de actie uitvoert
             reason: Reden voor afwijzing
-            
+
         Returns:
             WorkflowResult met status en metadata
         """
@@ -364,12 +366,10 @@ class DefinitionWorkflowService:
                     events=[],
                     error_message=f"Definitie {definition_id} niet gevonden",
                 )
-            
+
             # Valideer transitie via workflow service (strings)
             current_status = definition.status
-            if not self.workflow_service.can_change_status(
-                current_status, "draft"
-            ):
+            if not self.workflow_service.can_change_status(current_status, "draft"):
                 return WorkflowResult(
                     success=False,
                     new_status=None,
@@ -378,7 +378,7 @@ class DefinitionWorkflowService:
                     events=[],
                     error_message=f"Transitie van {current_status} naar ARCHIVED niet toegestaan",
                 )
-            
+
             # Update status in repository (atomair)
             success = self.repository.change_status(
                 definitie_id=definition_id,
@@ -386,7 +386,7 @@ class DefinitionWorkflowService:
                 changed_by=user,
                 notes=reason,
             )
-            
+
             if not success:
                 return WorkflowResult(
                     success=False,
@@ -396,7 +396,7 @@ class DefinitionWorkflowService:
                     events=[],
                     error_message="Status update mislukt in repository",
                 )
-            
+
             # Log audit trail
             if self.audit_logger:
                 self.audit_logger.log_transition(
@@ -406,7 +406,7 @@ class DefinitionWorkflowService:
                     user=user,
                     notes=reason,
                 )
-            
+
             # Publish event
             events = []
             if self.event_bus:
@@ -419,11 +419,11 @@ class DefinitionWorkflowService:
                 }
                 self.event_bus.publish(event)
                 events.append("definition.rejected")
-            
+
             logger.info(
                 f"Definitie {definition_id} rejected by {user} with reason: {reason}"
             )
-            
+
             return WorkflowResult(
                 success=True,
                 new_status=DefinitieStatus.DRAFT.value,
@@ -431,7 +431,7 @@ class DefinitionWorkflowService:
                 notes=reason,
                 events=events,
             )
-            
+
         except Exception as e:
             logger.error(f"Error rejecting definition {definition_id}: {e}")
             return WorkflowResult(
@@ -442,7 +442,7 @@ class DefinitionWorkflowService:
                 events=[],
                 error_message=str(e),
             )
-    
+
     def update_status(
         self,
         definition_id: int,
@@ -491,10 +491,10 @@ class DefinitionWorkflowService:
     ) -> list[str]:
         """
         Haal toegestane transities op voor een definitie.
-        
+
         Args:
             definition_id: ID van de definitie
-            
+
         Returns:
             Lijst met toegestane status transities
         """
@@ -504,7 +504,7 @@ class DefinitionWorkflowService:
                 return []
             current_status = definition.status
             return self.workflow_service.get_allowed_transitions(current_status)
-            
+
         except Exception as e:
             logger.error(f"Error getting allowed transitions for {definition_id}: {e}")
             return []
@@ -525,7 +525,10 @@ class DefinitionWorkflowService:
             return self._evaluate_gate(definition)
         except Exception as e:  # pragma: no cover - guard
             logger.warning("Gate preview failed: %s", e)
-            return {"status": "blocked", "reasons": ["Technische fout bij gate‑preview"]}
+            return {
+                "status": "blocked",
+                "reasons": ["Technische fout bij gate‑preview"],
+            }
 
     def _evaluate_gate(self, definition) -> dict[str, Any]:
         """Implementeert Option B gate‑logica.
@@ -543,6 +546,7 @@ class DefinitionWorkflowService:
 
         # 1) Context aanwezig? (JSON arrays in TEXT voor org/jur; wet via helper)
         import json as _json
+
         def _parse_list(val):
             try:
                 if not val:
@@ -577,14 +581,18 @@ class DefinitionWorkflowService:
         if score is None:
             reasons.append("Geen validatieresultaat beschikbaar (eerst (her)valideren)")
 
-        if policy.hard_requirements.get("forbid_critical_issues", True) and has_critical:
+        if (
+            policy.hard_requirements.get("forbid_critical_issues", True)
+            and has_critical
+        ):
             reasons.append("Kritieke issues aanwezig")
 
         if score is not None and float(score) < hard_min:
             reasons.append(f"Score onder harde drempel ({hard_min:.2f})")
 
         hard_block = any(
-            r in reasons for r in [
+            r in reasons
+            for r in [
                 "Geen context ingevuld (minimaal één vereist)",
                 "Kritieke issues aanwezig",
                 f"Score onder harde drempel ({hard_min:.2f})",
@@ -596,7 +604,9 @@ class DefinitionWorkflowService:
             # Optioneel: sta override toe voor hard blocks indien policy dit toestaat
             try:
                 allow_hard_override = bool(
-                    getattr(policy, "soft_requirements", {}).get("allow_hard_override", False)
+                    getattr(policy, "soft_requirements", {}).get(
+                        "allow_hard_override", False
+                    )
                 )
             except Exception:
                 allow_hard_override = False
@@ -612,7 +622,10 @@ class DefinitionWorkflowService:
             soft_reasons.append(
                 f"Score onder vaststel‑drempel maar ≥ soft‑drempel ({soft_min:.2f})"
             )
-        if policy.soft_requirements.get("allow_high_issues_with_override", True) and has_high:
+        if (
+            policy.soft_requirements.get("allow_high_issues_with_override", True)
+            and has_high
+        ):
             soft_reasons.append("Alleen hoge issues aanwezig (geen kritieke)")
         if policy.soft_requirements.get("missing_wettelijke_basis_soft", True):
             if not wb_list:
@@ -632,11 +645,19 @@ class DefinitionWorkflowService:
                 return GatePolicyService().get_policy()
             except Exception:  # pragma: no cover
                 pass
+
         # Fallback naar defaults uit policy module
         class _Defaults:
-            hard_requirements = {"require_org_context": True, "require_jur_context": True, "forbid_critical_issues": True}
+            hard_requirements = {
+                "require_org_context": True,
+                "require_jur_context": True,
+                "forbid_critical_issues": True,
+            }
             thresholds = {"hard_min_score": 0.75, "soft_min_score": 0.65}
-            soft_requirements = {"allow_high_issues_with_override": True, "missing_wettelijke_basis_soft": True}
+            soft_requirements = {
+                "allow_high_issues_with_override": True,
+                "missing_wettelijke_basis_soft": True,
+            }
 
             @property
             def hard_min_score(self) -> float:  # type: ignore[misc]

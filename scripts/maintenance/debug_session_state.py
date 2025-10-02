@@ -58,15 +58,29 @@ st.markdown("---")
 st.markdown("## 🚨 Problematische Waardes")
 
 base_org_options = [
-    "OM", "ZM", "Reclassering", "DJI", "NP", "Justid",
-    "KMAR", "FIOD", "CJIB", "Strafrechtketen",
-    "Migratieketen", "Justitie en Veiligheid", "Anders..."
+    "OM",
+    "ZM",
+    "Reclassering",
+    "DJI",
+    "NP",
+    "Justid",
+    "KMAR",
+    "FIOD",
+    "CJIB",
+    "Strafrechtketen",
+    "Migratieketen",
+    "Justitie en Veiligheid",
+    "Anders...",
 ]
 
 base_jur_options = [
-    "Strafrecht", "Civiel recht", "Bestuursrecht",
-    "Internationaal recht", "Europees recht",
-    "Migratierecht", "Anders..."
+    "Strafrecht",
+    "Civiel recht",
+    "Bestuursrecht",
+    "Internationaal recht",
+    "Europees recht",
+    "Migratierecht",
+    "Anders...",
 ]
 
 base_wet_options = [
@@ -76,31 +90,41 @@ base_wet_options = [
     "Wet op de politiegegevens",
     "Wetboek van Strafrecht",
     "Algemene verordening gegevensbescherming",
-    "Anders..."
+    "Anders...",
 ]
 
 problems_found = False
 
 # Check organisatorische context
 if "org_context_values" in st.session_state:
-    invalid_org = [v for v in st.session_state.org_context_values
-                   if v == "Anders..." or (v not in base_org_options and v not in st.session_state.org_context_values)]
+    invalid_org = [
+        v
+        for v in st.session_state.org_context_values
+        if v == "Anders..."
+        or (v not in base_org_options and v not in st.session_state.org_context_values)
+    ]
     if invalid_org:
         st.error(f"❌ Ongeldige waardes in Organisatorische context: {invalid_org}")
         problems_found = True
 
 # Check juridische context
 if "jur_context_values" in st.session_state:
-    invalid_jur = [v for v in st.session_state.jur_context_values
-                   if v == "Anders..." or v == "en nu"]
+    invalid_jur = [
+        v
+        for v in st.session_state.jur_context_values
+        if v == "Anders..." or v == "en nu"
+    ]
     if invalid_jur:
         st.error(f"❌ Ongeldige waardes in Juridische context: {invalid_jur}")
         problems_found = True
 
 # Check wettelijke basis
 if "wet_basis_values" in st.session_state:
-    invalid_wet = [v for v in st.session_state.wet_basis_values
-                   if v == "Anders..." or v == "toetsen"]
+    invalid_wet = [
+        v
+        for v in st.session_state.wet_basis_values
+        if v == "Anders..." or v == "toetsen"
+    ]
     if invalid_wet:
         st.error(f"❌ Ongeldige waardes in Wettelijke basis: {invalid_wet}")
         problems_found = True
@@ -125,13 +149,23 @@ with col1:
 
 with col2:
     if st.button("🔍 Toon Volledige Session State"):
-        st.json({k: v for k, v in st.session_state.items()
-                if "context" in k.lower() or "wet" in k.lower() or "jur" in k.lower() or "org" in k.lower()})
+        st.json(
+            {
+                k: v
+                for k, v in st.session_state.items()
+                if "context" in k.lower()
+                or "wet" in k.lower()
+                or "jur" in k.lower()
+                or "org" in k.lower()
+            }
+        )
 
 st.markdown("---")
 st.markdown("### Instructies")
-st.markdown("""
+st.markdown(
+    """
 1. **Problematische waardes**: 'Anders...', 'toetsen', 'en nu' zijn vaak de boosdoeners
 2. **Oplossing**: Wis de betreffende context en probeer opnieuw
 3. **Preventie**: Selecteer nooit 'Anders...' zonder direct een waarde in te voeren
-""")
+"""
+)

@@ -5,15 +5,19 @@ Unit tests voor de CoreInstructionsModule (_build_role_and_basic_rules).
 Test de output en functionaliteit van de eerste module in isolatie.
 """
 
-import pytest
 import sys
 from pathlib import Path
+
+import pytest
 
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from src.services.prompts.modular_prompt_builder import ModularPromptBuilder, PromptComponentConfig
 from src.services.definition_generator_context import EnrichedContext
+from src.services.prompts.modular_prompt_builder import (
+    ModularPromptBuilder,
+    PromptComponentConfig,
+)
 
 
 class TestCoreInstructionsModule:
@@ -28,7 +32,7 @@ class TestCoreInstructionsModule:
             include_ontological=False,
             include_validation_rules=False,
             include_forbidden_patterns=False,
-            include_final_instructions=False
+            include_final_instructions=False,
         )
         self.builder = ModularPromptBuilder(config)
 
@@ -60,12 +64,14 @@ class TestCoreInstructionsModule:
 
         for begrip in begrippen:
             output = self.builder._build_role_and_basic_rules(begrip)
-            assert begrip not in output, f"Begrip '{begrip}' mag niet in core instructions staan"
+            assert (
+                begrip not in output
+            ), f"Begrip '{begrip}' mag niet in core instructions staan"
 
     def test_line_count(self):
         """Test aantal regels in output."""
         output = self.builder._build_role_and_basic_rules("test")
-        lines = output.split('\n')
+        lines = output.split("\n")
 
         # Huidige implementatie heeft 3 regels
         assert len(lines) == 3
@@ -102,11 +108,13 @@ class TestCoreInstructionsModule:
             "ess_reference": "ess" not in output.lower(),
             "warnings": "⚠️" not in output,
             "emphasis": "**" not in output,
-            "structure": "###" not in output
+            "structure": "###" not in output,
         }
 
         # Documenteer wat mist voor verbetering
-        assert all(missing_elements.values()), "Huidige implementatie mist veel elementen"
+        assert all(
+            missing_elements.values()
+        ), "Huidige implementatie mist veel elementen"
 
         # Return voor analyse
         return missing_elements
@@ -115,7 +123,7 @@ class TestCoreInstructionsModule:
 class TestCoreInstructionsModuleImproved:
     """Test suite voor verbeterde versie van CoreInstructionsModule."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def improved_output(self):
         """Mock improved output voor vergelijking."""
         return """Je bent een ervaren Nederlandse expert in het opstellen van beleidsmatige en juridische definities voor de Nederlandse overheid.
@@ -156,7 +164,7 @@ BELANGRIJK: Focus op precisie en helderheid. De definitie moet juridisch houdbaa
 
     def test_improved_structure(self, improved_output):
         """Test structuur van verbeterde output."""
-        lines = improved_output.split('\n')
+        lines = improved_output.split("\n")
 
         # Meer gestructureerd dan huidige 3 regels
         assert len(lines) > 10

@@ -118,7 +118,9 @@ class WiktionaryService:
                 success=True,
                 metadata=metadata,
             )
-        except Exception as e:  # pragma: no cover - beschermt tegen onverwachte API-issues
+        except (
+            Exception
+        ) as e:  # pragma: no cover - beschermt tegen onverwachte API-issues
             logger.error("Wiktionary lookup error for %s: %s", term, e)
             return None
 
@@ -194,11 +196,7 @@ class WiktionaryService:
             if resp.status != 200:
                 return None
             data = await resp.json()
-            wtxt = (
-                data.get("parse", {})
-                .get("wikitext", {})
-                .get("*", "")
-            )
+            wtxt = data.get("parse", {}).get("wikitext", {}).get("*", "")
             if not wtxt:
                 return None
 

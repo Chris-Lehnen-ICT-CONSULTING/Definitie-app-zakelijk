@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 """Test rate limiter in Streamlit UI context."""
 
+import asyncio
+import sys
+import time
+
 import pytest
 import streamlit as st
-import asyncio
-import time
-import sys
-sys.path.insert(0, 'src')
+
+sys.path.insert(0, "src")
 
 # Configureer pagina
 # Skip this UI test when running under pytest without full Streamlit API
@@ -16,11 +18,7 @@ if not hasattr(st, "set_page_config"):
         allow_module_level=True,
     )
 
-st.set_page_config(
-    page_title="Rate Limiter Test",
-    page_icon="🧪",
-    layout="wide"
-)
+st.set_page_config(page_title="Rate Limiter Test", page_icon="🧪", layout="wide")
 
 st.title("🧪 Rate Limiter Test - Endpoint-Specific")
 st.markdown("Test om te verifiëren dat endpoint-specifieke rate limiting werkt")
@@ -30,12 +28,16 @@ col1, col2 = st.columns(2)
 with col1:
     test_type = st.selectbox(
         "Test Type",
-        ["Quick Test (3 requests)", "Stress Test (10 requests)", "Parallel Endpoints"]
+        ["Quick Test (3 requests)", "Stress Test (10 requests)", "Parallel Endpoints"],
     )
 with col2:
     endpoint = st.selectbox(
         "Endpoint",
-        ["examples_generation_sentence", "examples_generation_practical", "definition_generation"]
+        [
+            "examples_generation_sentence",
+            "examples_generation_practical",
+            "definition_generation",
+        ],
     )
 
 if st.button("🚀 Start Test"):
@@ -50,7 +52,7 @@ if st.button("🚀 Start Test"):
             @with_full_resilience(
                 endpoint_name=endpoint_name,
                 priority=RequestPriority.NORMAL,
-                timeout=10.0
+                timeout=10.0,
             )
             async def mock_api():
                 await asyncio.sleep(0.1)  # Simuleer API latency
@@ -96,7 +98,7 @@ if st.button("🚀 Start Test"):
             endpoints = [
                 "examples_generation_sentence",
                 "examples_generation_practical",
-                "definition_generation"
+                "definition_generation",
             ]
 
             tasks = []
@@ -119,17 +121,18 @@ if st.button("🚀 Start Test"):
 
         # Maak tabel
         import pandas as pd
+
         df = pd.DataFrame(results, columns=["Status", "Request", "Time (s)", "Result"])
 
         # Kleur codering
         def color_status(val):
             if val == "✅":
-                return 'color: green'
+                return "color: green"
             elif val == "❌":
-                return 'color: red'
-            return ''
+                return "color: red"
+            return ""
 
-        styled_df = df.style.applymap(color_status, subset=['Status'])
+        styled_df = df.style.applymap(color_status, subset=["Status"])
         st.dataframe(styled_df, use_container_width=True)
 
         # Statistieken
@@ -146,13 +149,15 @@ if st.button("🚀 Start Test"):
         st.markdown("### 🔧 System Status")
         status = system.get_system_status()
 
-        for ep, limiter_status in status['rate_limiters'].items():
+        for ep, limiter_status in status["rate_limiters"].items():
             with st.expander(f"📊 {ep}"):
                 col1, col2 = st.columns(2)
-                col1.metric("Current Rate", f"{limiter_status['current_rate']:.1f} req/s")
-                col1.metric("Total Requests", limiter_status['stats']['total_requests'])
-                col2.metric("Queued", limiter_status['stats']['total_queued'])
-                col2.metric("Dropped", limiter_status['stats']['total_dropped'])
+                col1.metric(
+                    "Current Rate", f"{limiter_status['current_rate']:.1f} req/s"
+                )
+                col1.metric("Total Requests", limiter_status["stats"]["total_requests"])
+                col2.metric("Queued", limiter_status["stats"]["total_queued"])
+                col2.metric("Dropped", limiter_status["stats"]["total_dropped"])
 
         await system.stop()
 
@@ -162,7 +167,8 @@ if st.button("🚀 Start Test"):
 # Informatie
 with st.sidebar:
     st.markdown("### i️ Rate Limiter Info")
-    st.markdown("""
+    st.markdown(
+        """
     **Endpoint Configuraties:**
     - `examples_generation_*`: 3 req/s
     - `definition_generation`: 2 req/s
@@ -173,14 +179,17 @@ with st.sidebar:
     - Priority-based queueing
     - Adaptive rate adjustment
     - Graceful degradation
-    """)
+    """
+    )
 
     st.markdown("### 🔍 Wat te verwachten")
-    st.markdown("""
+    st.markdown(
+        """
     - **Quick Test**: Alle 3 requests zouden moeten slagen
     - **Stress Test**: Eerste ~3-5 slagen, rest krijgt timeout
     - **Parallel**: Elke endpoint werkt onafhankelijk
-    """)
+    """
+    )
 
 if __name__ == "__main__":
     st.write("Run with: `streamlit run test_ui_rate_limiter.py`")

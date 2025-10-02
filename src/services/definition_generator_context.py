@@ -141,7 +141,11 @@ class HybridContextManager:
                             meta.get("wikipedia_title")
                             or meta.get("dc_title")
                             or getattr(r, "term", None)
-                            or (meta.get("title") if isinstance(meta.get("title"), str) else None)
+                            or (
+                                meta.get("title")
+                                if isinstance(meta.get("title"), str)
+                                else None
+                            )
                             or r.source.name
                         )
                         labels.append(f"{label} ({r.source.name})")

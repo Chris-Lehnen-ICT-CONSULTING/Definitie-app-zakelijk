@@ -26,7 +26,9 @@ def _ctx(base_items=0, sources=0, expanded=0, confidences=None):
         metadata={},
     )
     cfg = UnifiedGeneratorConfig()
-    return ModuleContext(begrip="authenticatie", enriched_context=enriched, config=cfg, shared_state={})
+    return ModuleContext(
+        begrip="authenticatie", enriched_context=enriched, config=cfg, shared_state={}
+    )
 
 
 def test_minimal_context_yields_minimal_section():
@@ -64,5 +66,7 @@ def test_rich_context_includes_sections_and_emojis():
     assert out.metadata.get("formatting_level") == "rich"
     assert "📊 UITGEBREIDE CONTEXT ANALYSE:" in out.content
     # Confidence indicator emojis present
-    assert any(emoji in out.content for emoji in ["🟢", "🟡", "🔴"]) or "ADDITIONELE BRONNEN:" in out.content
-
+    assert (
+        any(emoji in out.content for emoji in ["🟢", "🟡", "🔴"])
+        or "ADDITIONELE BRONNEN:" in out.content
+    )

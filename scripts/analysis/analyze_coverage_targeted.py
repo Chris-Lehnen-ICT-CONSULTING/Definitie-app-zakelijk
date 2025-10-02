@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 """Targeted test coverage analysis without running tests."""
 
-import os
-import re
 import ast
-from pathlib import Path
+import re
 from collections import defaultdict
-from typing import Dict, List, Set
+from pathlib import Path
+
 
 class CoverageAuditor:
     def __init__(self, root_path: Path):
@@ -17,11 +16,11 @@ class CoverageAuditor:
     def scan_source_modules(self):
         """Scan all source modules and categorize them."""
         modules = {
-            'services': [],
-            'ui': [],
-            'database': [],
-            'toetsregels': [],
-            'other': []
+            "services": [],
+            "ui": [],
+            "database": [],
+            "toetsregels": [],
+            "other": [],
         }
 
         for py_file in self.src_path.rglob("*.py"):
@@ -31,19 +30,19 @@ class CoverageAuditor:
             rel_path = py_file.relative_to(self.src_path)
 
             if rel_path.parts[0] == "services":
-                modules['services'].append(rel_path)
+                modules["services"].append(rel_path)
             elif rel_path.parts[0] == "ui":
-                modules['ui'].append(rel_path)
+                modules["ui"].append(rel_path)
             elif rel_path.parts[0] == "database":
-                modules['database'].append(rel_path)
+                modules["database"].append(rel_path)
             elif rel_path.parts[0] == "toetsregels":
-                modules['toetsregels'].append(rel_path)
+                modules["toetsregels"].append(rel_path)
             else:
-                modules['other'].append(rel_path)
+                modules["other"].append(rel_path)
 
         return modules
 
-    def find_test_for_module(self, module_path: Path) -> List[Path]:
+    def find_test_for_module(self, module_path: Path) -> list[Path]:
         """Find test files for a given module."""
         tests = []
         module_name = module_path.stem
@@ -56,107 +55,111 @@ class CoverageAuditor:
         patterns = [
             f"test_{module_name}.py",
             f"test_{module_name}_*.py",
-            f"*{module_name}*.py"
+            f"*{module_name}*.py",
         ]
 
         for pattern in patterns:
             for test_file in self.tests_path.rglob(pattern):
-                if "__pycache__" not in str(test_file) and test_file.name.startswith("test_"):
+                if "__pycache__" not in str(test_file) and test_file.name.startswith(
+                    "test_"
+                ):
                     tests.append(test_file)
 
         return tests
 
-    def analyze_module_complexity(self, module_path: Path) -> Dict:
+    def analyze_module_complexity(self, module_path: Path) -> dict:
         """Analyze a module for complexity metrics."""
         metrics = {
-            'lines': 0,
-            'functions': 0,
-            'classes': 0,
-            'methods': 0,
-            'complexity': 'low'
+            "lines": 0,
+            "functions": 0,
+            "classes": 0,
+            "methods": 0,
+            "complexity": "low",
         }
 
         try:
             full_path = self.src_path / module_path
-            with open(full_path, 'r', encoding='utf-8') as f:
+            with open(full_path, encoding="utf-8") as f:
                 content = f.read()
-                metrics['lines'] = len(content.splitlines())
+                metrics["lines"] = len(content.splitlines())
 
             tree = ast.parse(content)
 
             for node in ast.walk(tree):
                 if isinstance(node, ast.FunctionDef):
-                    metrics['functions'] += 1
+                    metrics["functions"] += 1
                 elif isinstance(node, ast.ClassDef):
-                    metrics['classes'] += 1
+                    metrics["classes"] += 1
                     for item in node.body:
                         if isinstance(item, ast.FunctionDef):
-                            metrics['methods'] += 1
+                            metrics["methods"] += 1
 
             # Determine complexity
-            total_entities = metrics['functions'] + metrics['classes'] + metrics['methods']
-            if metrics['lines'] > 500 or total_entities > 20:
-                metrics['complexity'] = 'high'
-            elif metrics['lines'] > 200 or total_entities > 10:
-                metrics['complexity'] = 'medium'
+            total_entities = (
+                metrics["functions"] + metrics["classes"] + metrics["methods"]
+            )
+            if metrics["lines"] > 500 or total_entities > 20:
+                metrics["complexity"] = "high"
+            elif metrics["lines"] > 200 or total_entities > 10:
+                metrics["complexity"] = "medium"
         except:
             pass
 
         return metrics
 
-    def analyze_test_file_quality(self, test_path: Path) -> Dict:
+    def analyze_test_file_quality(self, test_path: Path) -> dict:
         """Analyze test file for quality issues."""
         issues = {
-            'total_tests': 0,
-            'assertions': 0,
-            'mocks': 0,
-            'fixtures': 0,
-            'bad_practices': []
+            "total_tests": 0,
+            "assertions": 0,
+            "mocks": 0,
+            "fixtures": 0,
+            "bad_practices": [],
         }
 
         try:
-            with open(test_path, 'r', encoding='utf-8') as f:
+            with open(test_path, encoding="utf-8") as f:
                 content = f.read()
 
             # Count test methods
-            issues['total_tests'] = len(re.findall(r'def test_\w+', content))
+            issues["total_tests"] = len(re.findall(r"def test_\w+", content))
 
             # Count assertions
             assertion_patterns = [
-                r'assert\s+',
-                r'\.assert[A-Z]\w*\(',
-                r'pytest\.raises',
-                r'\.called',
-                r'\.call_count'
+                r"assert\s+",
+                r"\.assert[A-Z]\w*\(",
+                r"pytest\.raises",
+                r"\.called",
+                r"\.call_count",
             ]
             for pattern in assertion_patterns:
-                issues['assertions'] += len(re.findall(pattern, content))
+                issues["assertions"] += len(re.findall(pattern, content))
 
             # Count mocks
             mock_patterns = [
-                r'@patch',
-                r'Mock\(',
-                r'MagicMock\(',
-                r'@mock\.',
-                r'mocker\.'
+                r"@patch",
+                r"Mock\(",
+                r"MagicMock\(",
+                r"@mock\.",
+                r"mocker\.",
             ]
             for pattern in mock_patterns:
-                issues['mocks'] += len(re.findall(pattern, content))
+                issues["mocks"] += len(re.findall(pattern, content))
 
             # Count fixtures
-            issues['fixtures'] = len(re.findall(r'@pytest\.fixture', content))
+            issues["fixtures"] = len(re.findall(r"@pytest\.fixture", content))
 
             # Check for bad practices
-            if 'time.sleep' in content:
-                issues['bad_practices'].append('uses_sleep')
-            if 'requests.' in content and '@patch' not in content:
-                issues['bad_practices'].append('unmocked_requests')
-            if 'openai.' in content and '@patch' not in content:
-                issues['bad_practices'].append('unmocked_openai')
-            if issues['total_tests'] > 0 and issues['assertions'] == 0:
-                issues['bad_practices'].append('no_assertions')
-            if 'Mock.ANY' in content or 'ANY' in content:
-                issues['bad_practices'].append('uses_mock_any')
+            if "time.sleep" in content:
+                issues["bad_practices"].append("uses_sleep")
+            if "requests." in content and "@patch" not in content:
+                issues["bad_practices"].append("unmocked_requests")
+            if "openai." in content and "@patch" not in content:
+                issues["bad_practices"].append("unmocked_openai")
+            if issues["total_tests"] > 0 and issues["assertions"] == 0:
+                issues["bad_practices"].append("no_assertions")
+            if "Mock.ANY" in content or "ANY" in content:
+                issues["bad_practices"].append("uses_mock_any")
 
         except:
             pass
@@ -176,42 +179,46 @@ class CoverageAuditor:
         print("-" * 50)
 
         coverage_stats = {
-            'services': {'total': 0, 'tested': 0, 'untested': []},
-            'ui': {'total': 0, 'tested': 0, 'untested': []},
-            'database': {'total': 0, 'tested': 0, 'untested': []},
-            'toetsregels': {'total': 0, 'tested': 0, 'untested': []},
+            "services": {"total": 0, "tested": 0, "untested": []},
+            "ui": {"total": 0, "tested": 0, "untested": []},
+            "database": {"total": 0, "tested": 0, "untested": []},
+            "toetsregels": {"total": 0, "tested": 0, "untested": []},
         }
 
         high_complexity_untested = []
 
         for category, module_list in modules.items():
-            if category == 'other':
+            if category == "other":
                 continue
 
             for module in module_list:
                 if module.name == "__init__.py":
                     continue
 
-                coverage_stats[category]['total'] += 1
+                coverage_stats[category]["total"] += 1
                 tests = self.find_test_for_module(module)
 
                 if tests:
-                    coverage_stats[category]['tested'] += 1
+                    coverage_stats[category]["tested"] += 1
                 else:
-                    coverage_stats[category]['untested'].append(module)
+                    coverage_stats[category]["untested"].append(module)
 
                     # Check complexity
                     complexity = self.analyze_module_complexity(module)
-                    if complexity['complexity'] == 'high':
+                    if complexity["complexity"] == "high":
                         high_complexity_untested.append((module, complexity))
 
         # Print coverage summary
         print("\n📊 COVERAGE SUMMARY BY CATEGORY:\n")
         for category, stats in coverage_stats.items():
-            if stats['total'] > 0:
-                coverage_pct = (stats['tested'] / stats['total']) * 100
-                status = "🟢" if coverage_pct > 70 else "🟡" if coverage_pct > 40 else "🔴"
-                print(f"{status} {category.upper():15} {stats['tested']:3}/{stats['total']:3} files tested ({coverage_pct:.1f}%)")
+            if stats["total"] > 0:
+                coverage_pct = (stats["tested"] / stats["total"]) * 100
+                status = (
+                    "🟢" if coverage_pct > 70 else "🟡" if coverage_pct > 40 else "🔴"
+                )
+                print(
+                    f"{status} {category.upper():15} {stats['tested']:3}/{stats['total']:3} files tested ({coverage_pct:.1f}%)"
+                )
 
         # 2. CRITICAL UNTESTED MODULES
         print("\n\n2. CRITICAL UNTESTED MODULES (High Complexity)")
@@ -227,7 +234,7 @@ class CoverageAuditor:
             "services/definition_repository.py",
             "services/export_service.py",
             "services/modern_web_lookup_service.py",
-            "services/workflow_service.py"
+            "services/workflow_service.py",
         ]
 
         print("\n🚨 CRITICAL SERVICES STATUS:\n")
@@ -243,7 +250,9 @@ class CoverageAuditor:
                 status = "❌"
                 test_info = "NO TESTS"
 
-            print(f"{status} {service_path:55} | {complexity['lines']:4} lines | {test_info}")
+            print(
+                f"{status} {service_path:55} | {complexity['lines']:4} lines | {test_info}"
+            )
 
         # 3. TOP UNTESTED MODULES BY SIZE
         print("\n\n3. TOP 20 UNTESTED MODULES BY SIZE")
@@ -251,37 +260,37 @@ class CoverageAuditor:
 
         all_untested = []
         for category, stats in coverage_stats.items():
-            for module in stats['untested']:
+            for module in stats["untested"]:
                 complexity = self.analyze_module_complexity(module)
-                all_untested.append((module, complexity['lines']))
+                all_untested.append((module, complexity["lines"]))
 
         all_untested.sort(key=lambda x: x[1], reverse=True)
 
         print("\n📏 LARGEST UNTESTED FILES:\n")
         for module, lines in all_untested[:20]:
-            print(f"  {str(module):60} {lines:5} lines")
+            print(f"  {module!s:60} {lines:5} lines")
 
         # 4. TEST QUALITY ANALYSIS
         print("\n\n4. TEST QUALITY ANALYSIS")
         print("-" * 50)
 
         quality_issues = defaultdict(list)
-        test_stats = {'total': 0, 'with_issues': 0}
+        test_stats = {"total": 0, "with_issues": 0}
 
         for test_file in self.tests_path.rglob("test_*.py"):
             if "__pycache__" in str(test_file):
                 continue
 
-            test_stats['total'] += 1
+            test_stats["total"] += 1
             analysis = self.analyze_test_file_quality(test_file)
 
-            if analysis['bad_practices']:
-                test_stats['with_issues'] += 1
+            if analysis["bad_practices"]:
+                test_stats["with_issues"] += 1
                 rel_path = test_file.relative_to(self.tests_path)
-                for issue in analysis['bad_practices']:
+                for issue in analysis["bad_practices"]:
                     quality_issues[issue].append(rel_path)
 
-        print(f"\n📈 TEST QUALITY METRICS:")
+        print("\n📈 TEST QUALITY METRICS:")
         print(f"  Total test files: {test_stats['total']}")
         print(f"  Files with issues: {test_stats['with_issues']}")
         print(f"  Clean test files: {test_stats['total'] - test_stats['with_issues']}")
@@ -312,7 +321,10 @@ class CoverageAuditor:
                     found_source = True
                     break
 
-            if not found_source and not any(x in test_name for x in ['smoke', 'integration', 'performance', 'regression']):
+            if not found_source and not any(
+                x in test_name
+                for x in ["smoke", "integration", "performance", "regression"]
+            ):
                 orphaned_tests.append(test_file.relative_to(self.tests_path))
 
         print(f"\n🔍 ORPHANED TEST FILES (no matching source): {len(orphaned_tests)}")
@@ -343,14 +355,23 @@ class CoverageAuditor:
         print("EXECUTIVE SUMMARY")
         print("=" * 100)
 
-        total_src_files = sum(stats['total'] for stats in coverage_stats.values())
-        total_tested = sum(stats['tested'] for stats in coverage_stats.values())
-        overall_coverage = (total_tested / total_src_files * 100) if total_src_files > 0 else 0
+        total_src_files = sum(stats["total"] for stats in coverage_stats.values())
+        total_tested = sum(stats["tested"] for stats in coverage_stats.values())
+        overall_coverage = (
+            (total_tested / total_src_files * 100) if total_src_files > 0 else 0
+        )
 
-        print(f"\n📊 Overall test coverage: {total_tested}/{total_src_files} files ({overall_coverage:.1f}%)")
-        print(f"🔴 Critical services without tests: {len([s for s in critical_services if not self.find_test_for_module(Path(s))])}")
-        print(f"⚠️ Test files with quality issues: {test_stats['with_issues']}/{test_stats['total']}")
+        print(
+            f"\n📊 Overall test coverage: {total_tested}/{total_src_files} files ({overall_coverage:.1f}%)"
+        )
+        print(
+            f"🔴 Critical services without tests: {len([s for s in critical_services if not self.find_test_for_module(Path(s))])}"
+        )
+        print(
+            f"⚠️ Test files with quality issues: {test_stats['with_issues']}/{test_stats['total']}"
+        )
         print(f"📁 Orphaned test files: {len(orphaned_tests)}")
+
 
 if __name__ == "__main__":
     auditor = CoverageAuditor(Path("/Users/chrislehnen/Projecten/Definitie-app"))

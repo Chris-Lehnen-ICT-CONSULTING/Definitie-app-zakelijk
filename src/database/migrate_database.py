@@ -5,10 +5,148 @@ Dit script voegt de ontbrekende legacy velden toe aan de database
 voor backward compatibility met de UI.
 """
 
+import json
 import logging
 import sqlite3
 from pathlib import Path
-import json
+
+DEFINITIE_VOORBEELDEN_TABLE_SQL = """
+CREATE TABLE {table_name} (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    definitie_id INTEGER NOT NULL REFERENCES definities(id) ON DELETE CASCADE,
+    voorbeeld_type VARCHAR(50) NOT NULL CHECK (
+        voorbeeld_type IN ('sentence', 'practical', 'counter', 'synonyms', 'antonyms', 'explanation')
+    ),
+    voorbeeld_tekst TEXT NOT NULL,
+    voorbeeld_volgorde INTEGER DEFAULT 1,
+    gegenereerd_door VARCHAR(50) DEFAULT 'system',
+    generation_model VARCHAR(50),
+    generation_parameters TEXT,
+    actief BOOLEAN NOT NULL DEFAULT TRUE,
+    beoordeeld BOOLEAN NOT NULL DEFAULT FALSE,
+    beoordeeling VARCHAR(50),
+    beoordeeling_notities TEXT,
+    beoordeeld_door VARCHAR(255),
+    beoordeeld_op TIMESTAMP,
+    aangemaakt_op TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    bijgewerkt_op TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(definitie_id, voorbeeld_type, voorbeeld_volgorde)
+);
+"""
+
+
+DEFINITIES_TABLE_SQL = """
+CREATE TABLE {table_name} (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    begrip VARCHAR(255) NOT NULL,
+    definitie TEXT NOT NULL,
+    categorie VARCHAR(50) NOT NULL CHECK (
+        categorie IN ('type','proces','resultaat','exemplaar','ENT','ACT','REL','ATT','AUT','STA','OTH')
+    ),
+    organisatorische_context TEXT NOT NULL DEFAULT '[]',
+    juridische_context TEXT NOT NULL DEFAULT '[]',
+    wettelijke_basis TEXT NOT NULL DEFAULT '[]',
+    ufo_categorie TEXT CHECK (
+        ufo_categorie IN (
+            'Kind','Event','Role','Phase','Relator','Mode','Quantity','Quality','Subkind',
+            'Category','Mixin','RoleMixin','PhaseMixin','Abstract','Relatie','Event Composition'
+        )
+    ),
+    toelichting_proces TEXT,
+    status VARCHAR(50) NOT NULL DEFAULT 'draft' CHECK (
+        status IN ('imported','draft','review','established','archived')
+    ),
+    version_number INTEGER NOT NULL DEFAULT 1,
+    previous_version_id INTEGER REFERENCES definities(id),
+    validation_score DECIMAL(3,2),
+    validation_date TIMESTAMP,
+    validation_issues TEXT,
+    source_type VARCHAR(50) DEFAULT 'generated' CHECK (
+        source_type IN ('generated','imported','manual')
+    ),
+    source_reference VARCHAR(500),
+    imported_from VARCHAR(255),
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_by VARCHAR(255),
+    updated_by VARCHAR(255),
+    approved_by VARCHAR(255),
+    approved_at TIMESTAMP,
+    approval_notes TEXT,
+    last_exported_at TIMESTAMP,
+    export_destinations TEXT,
+    datum_voorstel DATE,
+    ketenpartners TEXT,
+    voorkeursterm TEXT
+);
+"""
+
+
+def _create_definitie_voorbeelden_table(
+    conn: sqlite3.Connection, table_name: str = "definitie_voorbeelden"
+) -> None:
+    """(Re)create the definitie_voorbeelden table with the canonical schema."""
+
+    conn.executescript(DEFINITIE_VOORBEELDEN_TABLE_SQL.format(table_name=table_name))
+
+
+def _ensure_definitie_voorbeelden_indexes(conn: sqlite3.Connection) -> None:
+    """Ensure indexes and triggers exist for definitie_voorbeelden."""
+
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS idx_voorbeelden_definitie_id ON definitie_voorbeelden(definitie_id)"
+    )
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS idx_voorbeelden_type ON definitie_voorbeelden(voorbeeld_type)"
+    )
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS idx_voorbeelden_actief ON definitie_voorbeelden(actief)"
+    )
+    conn.executescript(
+        """
+        CREATE TRIGGER IF NOT EXISTS update_voorbeelden_timestamp
+            AFTER UPDATE ON definitie_voorbeelden
+            FOR EACH ROW
+            WHEN NEW.bijgewerkt_op = OLD.bijgewerkt_op
+        BEGIN
+            UPDATE definitie_voorbeelden
+            SET bijgewerkt_op = CURRENT_TIMESTAMP
+            WHERE id = NEW.id;
+        END;
+        """
+    )
+
+
+def _create_definities_table(
+    conn: sqlite3.Connection, table_name: str = "definities"
+) -> None:
+    """(Re)create the definities table with the canonical schema."""
+
+    conn.executescript(DEFINITIES_TABLE_SQL.format(table_name=table_name))
+
+
+def _ensure_definities_indexes(conn: sqlite3.Connection) -> None:
+    """Ensure indexes exist for the definities table."""
+
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS idx_definities_begrip ON definities(begrip)"
+    )
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS idx_definities_context ON definities(organisatorische_context, juridische_context)"
+    )
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS idx_definities_status ON definities(status)"
+    )
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS idx_definities_categorie ON definities(categorie)"
+    )
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS idx_definities_created_at ON definities(created_at)"
+    )
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS idx_definities_datum_voorstel ON definities(datum_voorstel)"
+    )
+
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -210,9 +348,7 @@ def migrate_database(db_path: str = "data/definities.db"):
                 cur = conn.execute("PRAGMA table_info(definities)")
                 definities_columns = {row[1] for row in cur.fetchall()}
                 if "voorkeursterm" not in definities_columns:
-                    conn.execute(
-                        "ALTER TABLE definities ADD COLUMN voorkeursterm TEXT"
-                    )
+                    conn.execute("ALTER TABLE definities ADD COLUMN voorkeursterm TEXT")
                     logger.info("✅ Kolom 'voorkeursterm' toegevoegd aan 'definities'")
                     # Backfill vanuit gemarkeerde synoniemen → definities.voorkeursterm = voorbeeld_tekst
                     try:
@@ -282,32 +418,14 @@ def migrate_database(db_path: str = "data/definities.db"):
 
                 # 1) definitie_voorbeelden: drop is_voorkeursterm if present
                 if _col_exists("definitie_voorbeelden", "is_voorkeursterm"):
-                    logger.info("🔧 Rebuild 'definitie_voorbeelden' zonder kolom 'is_voorkeursterm'")
-                    conn.execute("PRAGMA foreign_keys=OFF")
-                    conn.execute("ALTER TABLE definitie_voorbeelden RENAME TO definitie_voorbeelden_old")
-                    conn.executescript(
-                        """
-                        CREATE TABLE definitie_voorbeelden (
-                            id INTEGER PRIMARY KEY AUTOINCREMENT,
-                            definitie_id INTEGER NOT NULL REFERENCES definities(id) ON DELETE CASCADE,
-                            voorbeeld_type VARCHAR(50) NOT NULL CHECK (voorbeeld_type IN ('sentence', 'practical', 'counter', 'synonyms', 'antonyms', 'explanation')),
-                            voorbeeld_tekst TEXT NOT NULL,
-                            voorbeeld_volgorde INTEGER DEFAULT 1,
-                            gegenereerd_door VARCHAR(50) DEFAULT 'system',
-                            generation_model VARCHAR(50),
-                            generation_parameters TEXT,
-                            actief BOOLEAN NOT NULL DEFAULT TRUE,
-                            beoordeeld BOOLEAN NOT NULL DEFAULT FALSE,
-                            beoordeeling VARCHAR(50),
-                            beoordeeling_notities TEXT,
-                            beoordeeld_door VARCHAR(255),
-                            beoordeeld_op TIMESTAMP,
-                            aangemaakt_op TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                            bijgewerkt_op TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                            UNIQUE(definitie_id, voorbeeld_type, voorbeeld_volgorde)
-                        );
-                        """
+                    logger.info(
+                        "🔧 Rebuild 'definitie_voorbeelden' zonder kolom 'is_voorkeursterm'"
                     )
+                    conn.execute("PRAGMA foreign_keys=OFF")
+                    conn.execute(
+                        "ALTER TABLE definitie_voorbeelden RENAME TO definitie_voorbeelden_old"
+                    )
+                    _create_definitie_voorbeelden_table(conn)
                     conn.execute(
                         """
                         INSERT INTO definitie_voorbeelden (
@@ -326,71 +444,23 @@ def migrate_database(db_path: str = "data/definities.db"):
                     )
                     # Indexes en trigger
                     try:
-                        conn.execute("CREATE INDEX IF NOT EXISTS idx_voorbeelden_definitie_id ON definitie_voorbeelden(definitie_id)")
-                        conn.execute("CREATE INDEX IF NOT EXISTS idx_voorbeelden_type ON definitie_voorbeelden(voorbeeld_type)")
-                        conn.execute("CREATE INDEX IF NOT EXISTS idx_voorbeelden_actief ON definitie_voorbeelden(actief)")
-                        conn.executescript(
-                            """
-                            CREATE TRIGGER IF NOT EXISTS update_voorbeelden_timestamp
-                                AFTER UPDATE ON definitie_voorbeelden
-                                FOR EACH ROW
-                                WHEN NEW.bijgewerkt_op = OLD.bijgewerkt_op
-                            BEGIN
-                                UPDATE definitie_voorbeelden SET bijgewerkt_op = CURRENT_TIMESTAMP WHERE id = NEW.id;
-                            END;
-                            """
-                        )
+                        _ensure_definitie_voorbeelden_indexes(conn)
                     except sqlite3.Error as e:
-                        logger.warning(f"Indexes/triggers hercreatie mislukt voor definitie_voorbeelden: {e}")
+                        logger.warning(
+                            f"Indexes/triggers hercreatie mislukt voor definitie_voorbeelden: {e}"
+                        )
                     conn.execute("DROP TABLE definitie_voorbeelden_old")
                     conn.execute("PRAGMA foreign_keys=ON")
                     logger.info("✅ Kolom 'is_voorkeursterm' verwijderd")
 
                 # 2) definities: drop voorkeursterm_is_begrip if present
                 if _col_exists("definities", "voorkeursterm_is_begrip"):
-                    logger.info("🔧 Rebuild 'definities' zonder kolom 'voorkeursterm_is_begrip'")
+                    logger.info(
+                        "🔧 Rebuild 'definities' zonder kolom 'voorkeursterm_is_begrip'"
+                    )
                     conn.execute("PRAGMA foreign_keys=OFF")
                     conn.execute("ALTER TABLE definities RENAME TO definities_old")
-                    conn.executescript(
-                        """
-                        CREATE TABLE definities (
-                            id INTEGER PRIMARY KEY AUTOINCREMENT,
-                            begrip VARCHAR(255) NOT NULL,
-                            definitie TEXT NOT NULL,
-                            categorie VARCHAR(50) NOT NULL CHECK (categorie IN (
-                                'type','proces','resultaat','exemplaar','ENT','ACT','REL','ATT','AUT','STA','OTH'
-                            )),
-                            organisatorische_context TEXT NOT NULL DEFAULT '[]',
-                            juridische_context TEXT NOT NULL DEFAULT '[]',
-                            wettelijke_basis TEXT NOT NULL DEFAULT '[]',
-                            ufo_categorie TEXT CHECK (ufo_categorie IN (
-                                'Kind','Event','Role','Phase','Relator','Mode','Quantity','Quality','Subkind','Category','Mixin','RoleMixin','PhaseMixin','Abstract','Relatie','Event Composition'
-                            )),
-                            toelichting_proces TEXT,
-                            status VARCHAR(50) NOT NULL DEFAULT 'draft' CHECK (status IN ('imported','draft','review','established','archived')),
-                            version_number INTEGER NOT NULL DEFAULT 1,
-                            previous_version_id INTEGER REFERENCES definities(id),
-                            validation_score DECIMAL(3,2),
-                            validation_date TIMESTAMP,
-                            validation_issues TEXT,
-                            source_type VARCHAR(50) DEFAULT 'generated' CHECK (source_type IN ('generated','imported','manual')),
-                            source_reference VARCHAR(500),
-                            imported_from VARCHAR(255),
-                            created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                            updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                            created_by VARCHAR(255),
-                            updated_by VARCHAR(255),
-                            approved_by VARCHAR(255),
-                            approved_at TIMESTAMP,
-                            approval_notes TEXT,
-                            last_exported_at TIMESTAMP,
-                            export_destinations TEXT,
-                            datum_voorstel DATE,
-                            ketenpartners TEXT,
-                            voorkeursterm TEXT
-                        );
-                        """
-                    )
+                    _create_definities_table(conn)
                     conn.execute(
                         """
                         INSERT INTO definities (
@@ -411,12 +481,7 @@ def migrate_database(db_path: str = "data/definities.db"):
                     )
                     # Recreate indexes
                     try:
-                        conn.execute("CREATE INDEX IF NOT EXISTS idx_definities_begrip ON definities(begrip)")
-                        conn.execute("CREATE INDEX IF NOT EXISTS idx_definities_context ON definities(organisatorische_context, juridische_context)")
-                        conn.execute("CREATE INDEX IF NOT EXISTS idx_definities_status ON definities(status)")
-                        conn.execute("CREATE INDEX IF NOT EXISTS idx_definities_categorie ON definities(categorie)")
-                        conn.execute("CREATE INDEX IF NOT EXISTS idx_definities_created_at ON definities(created_at)")
-                        conn.execute("CREATE INDEX IF NOT EXISTS idx_definities_datum_voorstel ON definities(datum_voorstel)")
+                        _ensure_definities_indexes(conn)
                     except sqlite3.Error as e:
                         logger.warning(f"Definities-indexen hercreatie mislukt: {e}")
                     conn.execute("DROP TABLE definities_old")
@@ -427,36 +492,20 @@ def migrate_database(db_path: str = "data/definities.db"):
 
             # Correcteer eventueel FK die nog naar 'definities_old' wijst
             try:
-                cur = conn.execute("SELECT sql FROM sqlite_master WHERE type='table' AND name='definitie_voorbeelden'")
+                cur = conn.execute(
+                    "SELECT sql FROM sqlite_master WHERE type='table' AND name='definitie_voorbeelden'"
+                )
                 row = cur.fetchone()
                 table_sql = row[0] if row else ""
                 if "definities_old" in (table_sql or ""):
-                    logger.info("🔧 Corrigeer FK: rebuild 'definitie_voorbeelden' met FK naar 'definities'")
-                    conn.execute("PRAGMA foreign_keys=OFF")
-                    conn.execute("ALTER TABLE definitie_voorbeelden RENAME TO definitie_voorbeelden_old2")
-                    conn.executescript(
-                        """
-                        CREATE TABLE definitie_voorbeelden (
-                            id INTEGER PRIMARY KEY AUTOINCREMENT,
-                            definitie_id INTEGER NOT NULL REFERENCES definities(id) ON DELETE CASCADE,
-                            voorbeeld_type VARCHAR(50) NOT NULL CHECK (voorbeeld_type IN ('sentence', 'practical', 'counter', 'synonyms', 'antonyms', 'explanation')),
-                            voorbeeld_tekst TEXT NOT NULL,
-                            voorbeeld_volgorde INTEGER DEFAULT 1,
-                            gegenereerd_door VARCHAR(50) DEFAULT 'system',
-                            generation_model VARCHAR(50),
-                            generation_parameters TEXT,
-                            actief BOOLEAN NOT NULL DEFAULT TRUE,
-                            beoordeeld BOOLEAN NOT NULL DEFAULT FALSE,
-                            beoordeeling VARCHAR(50),
-                            beoordeeling_notities TEXT,
-                            beoordeeld_door VARCHAR(255),
-                            beoordeeld_op TIMESTAMP,
-                            aangemaakt_op TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                            bijgewerkt_op TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                            UNIQUE(definitie_id, voorbeeld_type, voorbeeld_volgorde)
-                        );
-                        """
+                    logger.info(
+                        "🔧 Corrigeer FK: rebuild 'definitie_voorbeelden' met FK naar 'definities'"
                     )
+                    conn.execute("PRAGMA foreign_keys=OFF")
+                    conn.execute(
+                        "ALTER TABLE definitie_voorbeelden RENAME TO definitie_voorbeelden_old2"
+                    )
+                    _create_definitie_voorbeelden_table(conn)
                     # Copy data
                     conn.execute(
                         """
@@ -476,25 +525,16 @@ def migrate_database(db_path: str = "data/definities.db"):
                     )
                     # Recreate indexes + trigger
                     try:
-                        conn.execute("CREATE INDEX IF NOT EXISTS idx_voorbeelden_definitie_id ON definitie_voorbeelden(definitie_id)")
-                        conn.execute("CREATE INDEX IF NOT EXISTS idx_voorbeelden_type ON definitie_voorbeelden(voorbeeld_type)")
-                        conn.execute("CREATE INDEX IF NOT EXISTS idx_voorbeelden_actief ON definitie_voorbeelden(actief)")
-                        conn.executescript(
-                            """
-                            CREATE TRIGGER IF NOT EXISTS update_voorbeelden_timestamp
-                                AFTER UPDATE ON definitie_voorbeelden
-                                FOR EACH ROW
-                                WHEN NEW.bijgewerkt_op = OLD.bijgewerkt_op
-                            BEGIN
-                                UPDATE definitie_voorbeelden SET bijgewerkt_op = CURRENT_TIMESTAMP WHERE id = NEW.id;
-                            END;
-                            """
-                        )
+                        _ensure_definitie_voorbeelden_indexes(conn)
                     except sqlite3.Error as e:
-                        logger.warning(f"Indexes/triggers hercreatie mislukt (FK fix): {e}")
+                        logger.warning(
+                            f"Indexes/triggers hercreatie mislukt (FK fix): {e}"
+                        )
                     conn.execute("DROP TABLE definitie_voorbeelden_old2")
                     conn.execute("PRAGMA foreign_keys=ON")
-                    logger.info("✅ FK naar 'definities' hersteld op 'definitie_voorbeelden'")
+                    logger.info(
+                        "✅ FK naar 'definities' hersteld op 'definitie_voorbeelden'"
+                    )
             except Exception as e:
                 logger.warning(f"FK correctie check overslagen/mislukt: {e}")
 
@@ -556,11 +596,7 @@ def verify_migration(db_path: str = "data/definities.db"):
             count = cursor.fetchone()[0]
             logger.info(f"\nAantal records met datum_voorstel: {count}")
 
-            return (
-                has_datum_voorstel
-                and has_ketenpartners
-                and has_voorkeursterm_text
-            )
+            return has_datum_voorstel and has_ketenpartners and has_voorkeursterm_text
 
     except Exception as e:
         logger.error(f"Verificatie mislukt: {e}")

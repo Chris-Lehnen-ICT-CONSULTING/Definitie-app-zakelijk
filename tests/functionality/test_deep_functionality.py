@@ -11,12 +11,12 @@ Test alle kritieke componenten:
 """
 
 import asyncio
-import sys
 import os
-import pytest
+import sys
 import time
 from typing import Dict, List
 
+import pytest
 from dotenv import load_dotenv
 
 # Load dotenv and skip if no API key configured BEFORE importing modules that touch OpenAI
@@ -24,29 +24,35 @@ load_dotenv()
 if not os.getenv("OPENAI_API_KEY"):
     pytest.skip(
         "OPENAI_API_KEY not set; skipping deep functionality tests requiring external API",
-        allow_module_level=True)
+        allow_module_level=True,
+    )
 
 # Add src to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "src"))
 
 # Import test modules (after skip guard)
-from voorbeelden.unified_voorbeelden import (
-    genereer_synoniemen, genereer_antoniemen, genereer_alle_voorbeelden,
-    genereer_voorbeeld_zinnen, genereer_praktijkvoorbeelden,
-    GenerationMode, get_examples_generator
-)
-from utils.smart_rate_limiter import get_smart_limiter
-from utils.performance_monitor import get_performance_monitor, start_timing, stop_timing
-from services.orchestrators.definition_orchestrator_v2 import DefinitionOrchestratorV2
-from services.interfaces import GenerationRequest, OrchestratorConfig
 from services.container import get_container
+from services.interfaces import GenerationRequest, OrchestratorConfig
+from services.orchestrators.definition_orchestrator_v2 import DefinitionOrchestratorV2
+from utils.performance_monitor import get_performance_monitor, start_timing, stop_timing
+from utils.smart_rate_limiter import get_smart_limiter
+from voorbeelden.unified_voorbeelden import (
+    GenerationMode,
+    genereer_alle_voorbeelden,
+    genereer_antoniemen,
+    genereer_praktijkvoorbeelden,
+    genereer_synoniemen,
+    genereer_voorbeeld_zinnen,
+    get_examples_generator,
+)
 
 # Load dotenv and skip if no API key configured
 load_dotenv()
 if not os.getenv("OPENAI_API_KEY"):
     pytest.skip(
         "OPENAI_API_KEY not set; skipping deep functionality tests requiring external API",
-        allow_module_level=True)
+        allow_module_level=True,
+    )
 
 
 async def test_synoniemen_antoniemen():
@@ -60,7 +66,7 @@ async def test_synoniemen_antoniemen():
     context_dict = {
         "organisatorisch": ["Openbaar Ministerie"],
         "juridisch": ["Strafrecht"],
-        "wettelijk": ["Wetboek van Strafvordering"]
+        "wettelijk": ["Wetboek van Strafvordering"],
     }
 
     # Test synoniemen
@@ -107,24 +113,26 @@ async def test_bulk_generation():
     context_dict = {
         "organisatorisch": ["Justitiële Informatiedienst"],
         "juridisch": ["Strafrecht"],
-        "wettelijk": ["Wet justitiële en strafvorderlijke gegevens"]
+        "wettelijk": ["Wet justitiële en strafvorderlijke gegevens"],
     }
 
     print("\n📦 Start bulk generatie...")
     start_timing("bulk_generatie")
-    voorbeelden = genereer_alle_voorbeelden(begrip, definitie, context_dict, GenerationMode.RESILIENT)
+    voorbeelden = genereer_alle_voorbeelden(
+        begrip, definitie, context_dict, GenerationMode.RESILIENT
+    )
     duration = stop_timing("bulk_generatie")
 
     print(f"\n✅ Bulk generatie voltooid in {duration:.2f}s")
     print("\nResultaten:")
 
     expected_counts = {
-        'sentence': 3,
-        'practical': 3,
-        'counter': 3,
-        'synonyms': 5,
-        'antonyms': 5,
-        'explanation': 1
+        "sentence": 3,
+        "practical": 3,
+        "counter": 3,
+        "synonyms": 5,
+        "antonyms": 5,
+        "explanation": 1,
     }
 
     for example_type, examples in voorbeelden.items():
@@ -148,7 +156,7 @@ async def test_rate_limiting():
     endpoints = [
         "examples_generation_sentence",
         "examples_generation_synonyms",
-        "examples_generation_antonyms"
+        "examples_generation_antonyms",
     ]
 
     print("\n📊 Check rate limiters voor verschillende endpoints...")
@@ -218,11 +226,12 @@ async def test_orchestrator_v2():
     orchestrator = container.orchestrator()
 
     import uuid
+
     request = GenerationRequest(
         id=str(uuid.uuid4()),
         begrip="hoger beroep",
         context="Gerechtshof",
-        ontologische_categorie="PROCES"
+        ontologische_categorie="PROCES",
     )
 
     result = await orchestrator.create_definition(request)
@@ -231,7 +240,9 @@ async def test_orchestrator_v2():
     if result.success and result.definition:
         print("\n✅ Definition generated successfully")
         print(f"    - Definition: {result.definition.definitie[:100]}...")
-        print(f"    - Examples generated: {len(result.definition.voorbeelden) if result.definition.voorbeelden else 0}")
+        print(
+            f"    - Examples generated: {len(result.definition.voorbeelden) if result.definition.voorbeelden else 0}"
+        )
     else:
         print(f"\n❌ Generation failed: {result.error}")
 
@@ -281,13 +292,14 @@ async def main():
         print("\n📋 SAMENVATTING:")
         print(f"  - Synoniemen generatie: {'✅' if len(synoniemen) == 5 else '❌'}")
         print(f"  - Antoniemen generatie: {'✅' if len(antoniemen) == 5 else '❌'}")
-        print(f"  - Rate limiting per endpoint: ✅")
-        print(f"  - Prompt logging: ❌ (removed)")
-        print(f"  - Performance monitoring: ✅")
+        print("  - Rate limiting per endpoint: ✅")
+        print("  - Prompt logging: ❌ (removed)")
+        print("  - Performance monitoring: ✅")
 
     except Exception as e:
         print(f"\n❌ Test failed with error: {e}")
         import traceback
+
         traceback.print_exc()
 
 

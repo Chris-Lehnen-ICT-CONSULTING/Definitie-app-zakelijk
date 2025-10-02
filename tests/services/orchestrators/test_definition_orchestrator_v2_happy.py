@@ -12,15 +12,17 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 
 
-@pytest.mark.integration
-@pytest.mark.asyncio
+@pytest.mark.integration()
+@pytest.mark.asyncio()
 async def test_orchestrator_happy_path_minimal():
-    from services.orchestrators.definition_orchestrator_v2 import DefinitionOrchestratorV2
     from services.interfaces import (
         AIGenerationResult,
         CleaningResult,
         Definition,
         GenerationRequest,
+    )
+    from services.orchestrators.definition_orchestrator_v2 import (
+        DefinitionOrchestratorV2,
     )
 
     # Mocks for services
@@ -34,18 +36,28 @@ async def test_orchestrator_happy_path_minimal():
     web_lookup_service._last_debug = None
 
     # Prompt builder returns a minimal prompt
-    prompt_service.build_generation_prompt.return_value = (
-        MagicMock(text="PROMPT", token_count=10, components_used=[], feedback_integrated=False, optimization_applied=False, metadata={})
+    prompt_service.build_generation_prompt.return_value = MagicMock(
+        text="PROMPT",
+        token_count=10,
+        components_used=[],
+        feedback_integrated=False,
+        optimization_applied=False,
+        metadata={},
     )
 
     # AI returns a minimal generation result
     ai_service.generate_definition.return_value = AIGenerationResult(
-        text="Een gegenereerde definitie.", model="gpt-4", tokens_used=10, generation_time=0.01
+        text="Een gegenereerde definitie.",
+        model="gpt-4",
+        tokens_used=10,
+        generation_time=0.01,
     )
 
     # Cleaning returns passthrough
     cleaning_service.clean_text.return_value = CleaningResult(
-        original_text="Een gegenereerde definitie.", cleaned_text="Een tegenereerde definitie.", was_cleaned=False
+        original_text="Een gegenereerde definitie.",
+        cleaned_text="Een tegenereerde definitie.",
+        was_cleaned=False,
     )
 
     # Validation returns schema-like dict (accept)
@@ -55,7 +67,12 @@ async def test_orchestrator_happy_path_minimal():
         "is_acceptable": True,
         "violations": [],
         "passed_rules": ["ESS-OK"],
-        "detailed_scores": {"taal": 0.8, "juridisch": 0.85, "structuur": 0.8, "samenhang": 0.8},
+        "detailed_scores": {
+            "taal": 0.8,
+            "juridisch": 0.85,
+            "structuur": 0.8,
+            "samenhang": 0.8,
+        },
         "system": {"correlation_id": "00000000-0000-0000-0000-000000000000"},
     }
 
@@ -85,7 +102,10 @@ async def test_orchestrator_happy_path_minimal():
         "toelichting": "",
     }
 
-    with patch("voorbeelden.unified_voorbeelden.genereer_alle_voorbeelden_async", new=AsyncMock(return_value=fake_examples)):
+    with patch(
+        "voorbeelden.unified_voorbeelden.genereer_alle_voorbeelden_async",
+        new=AsyncMock(return_value=fake_examples),
+    ):
         # Also patch web lookup off by not providing service (already None)
         request = GenerationRequest(
             id="it-001",

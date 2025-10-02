@@ -33,6 +33,7 @@ def _rule_sort_key(rule_id: str) -> tuple[int, int]:
     try:
         tail = rid.split("-", 1)[1] if "-" in rid else ""
         import re as _re
+
         m = _re.search(r"(\d+)", tail)
         num = int(m.group(1)) if m else 9999
     except Exception:
@@ -43,8 +44,8 @@ def _rule_sort_key(rule_id: str) -> tuple[int, int]:
 def _get_rule_info(rule_id: str) -> tuple[str, str]:
     """Read (name, explanation) for a rule from JSON when available."""
     try:
-        from pathlib import Path
         import json as _json
+        from pathlib import Path
 
         rid = (rule_id or "").replace("_", "-")
         json_path = Path("src/toetsregels/regels") / f"{rid}.json"
@@ -62,6 +63,7 @@ def _extract_rule_id_from_line(line: str) -> str:
     """Extract rule ID (e.g., CON-01) heuristically from a line."""
     try:
         import re as _re
+
         m = _re.search(r"([A-Z]{2,5}(?:[-_][A-Z0-9]+)+)", str(line))
         return m.group(1) if m else ""
     except Exception:
@@ -77,8 +79,8 @@ def _build_rule_hint_markdown(rule_id: str) -> str:
     - Link to the extended user guide
     """
     try:
-        from pathlib import Path
         import json as _json
+        from pathlib import Path
 
         rules_dir = Path("src/toetsregels/regels")
         rid = (rule_id or "").replace("_", "-")
@@ -91,7 +93,9 @@ def _build_rule_hint_markdown(rule_id: str) -> str:
         if json_path.exists():
             data = _json.loads(json_path.read_text(encoding="utf-8"))
             name = str(data.get("naam") or "").strip()
-            explanation = str(data.get("uitleg") or data.get("toetsvraag") or "").strip()
+            explanation = str(
+                data.get("uitleg") or data.get("toetsvraag") or ""
+            ).strip()
             good = list(data.get("goede_voorbeelden") or [])
             bad = list(data.get("foute_voorbeelden") or [])
 
@@ -112,16 +116,19 @@ def _build_rule_hint_markdown(rule_id: str) -> str:
         return "\n".join(lines)
     except Exception:
         return (
-            f"Meer uitleg: [Validatieregels (CON‑01 e.a.)]"
-            f"(docs/handleidingen/gebruikers/uitleg-validatieregels.md)"
+            "Meer uitleg: [Validatieregels (CON‑01 e.a.)]"
+            "(docs/handleidingen/gebruikers/uitleg-validatieregels.md)"
         )
 
 
 def _calculate_validation_stats(violations: list, passed_rules: list) -> dict:
-    failed_ids = sorted({
-        str(v.get("rule_id") or v.get("code") or "")
-        for v in violations if isinstance(v, dict)
-    })
+    failed_ids = sorted(
+        {
+            str(v.get("rule_id") or v.get("code") or "")
+            for v in violations
+            if isinstance(v, dict)
+        }
+    )
     passed_ids = sorted({str(r) for r in (passed_rules or [])})
     total = len(set(failed_ids).union(passed_ids))
     passed_count = len(passed_ids)
@@ -174,8 +181,12 @@ def _build_detailed_assessment(validation_result: dict) -> list[str]:
         emoji = _severity_emoji(sev)
         name, explanation = _get_rule_info(rid)
         name_part = f" — {name}" if name else ""
-        expl_labeled = f" · Wat toetst: {explanation}" if explanation else " · Wat toetst: —"
-        lines.append(f"{emoji} {rid}{name_part}: Waarom niet geslaagd: {desc}{expl_labeled}")
+        expl_labeled = (
+            f" · Wat toetst: {explanation}" if explanation else " · Wat toetst: —"
+        )
+        lines.append(
+            f"{emoji} {rid}{name_part}: Waarom niet geslaagd: {desc}{expl_labeled}"
+        )
 
     # Passed rules (sorted)
     for rid in sorted(stats["passed_ids"], key=_rule_sort_key):
@@ -190,7 +201,9 @@ def _build_detailed_assessment(validation_result: dict) -> list[str]:
 def render_v2_validation_details(validation_result: dict[str, Any]) -> None:
     """Render V2 validation details consistently for all tabs."""
     # Backwards-compatible simple renderer delegates to the unified detailed list without toggle.
-    render_validation_detailed_list(validation_result, key_prefix="v2_default", show_toggle=False)
+    render_validation_detailed_list(
+        validation_result, key_prefix="v2_default", show_toggle=False
+    )
 
 
 def render_validation_detailed_list(
@@ -212,7 +225,9 @@ def render_validation_detailed_list(
 
     # Score
     overall_score = float(validation_result.get("overall_score", 0.0))
-    score_color = "green" if overall_score > 0.8 else ("orange" if overall_score > 0.6 else "red")
+    score_color = (
+        "green" if overall_score > 0.8 else ("orange" if overall_score > 0.6 else "red")
+    )
     st.markdown(
         f"**Overall Score:** <span style='color: {score_color}'>{overall_score:.2f}</span>",
         unsafe_allow_html=True,
@@ -248,13 +263,19 @@ def render_validation_detailed_list(
                     msg += f" · {', '.join(map(str, gates_passed))}"
                 st.success(msg)
             else:
-                reason = ", ".join(map(str, gates_failed)) if gates_failed else "niet voldaan"
+                reason = (
+                    ", ".join(map(str, gates_failed))
+                    if gates_failed
+                    else "niet voldaan"
+                )
                 st.error(f"Gates: NIET OK · {reason}")
 
     # Toggle + details
     details_key = f"{key_prefix}_show_validation_details"
     if show_toggle:
-        if st.button("📊 Toon/verberg gedetailleerde toetsresultaten", key=f"btn_{details_key}"):
+        if st.button(
+            "📊 Toon/verberg gedetailleerde toetsresultaten", key=f"btn_{details_key}"
+        ):
             current_state = SessionStateManager.get_value(details_key, False)
             SessionStateManager.set_value(details_key, not current_state)
 
@@ -262,7 +283,9 @@ def render_validation_detailed_list(
     if show_toggle and SessionStateManager.get_value(details_key, None) is None:
         SessionStateManager.set_value(details_key, True)
 
-    show_details = SessionStateManager.get_value(details_key, False) if show_toggle else True
+    show_details = (
+        SessionStateManager.get_value(details_key, False) if show_toggle else True
+    )
     if not show_details:
         return
 

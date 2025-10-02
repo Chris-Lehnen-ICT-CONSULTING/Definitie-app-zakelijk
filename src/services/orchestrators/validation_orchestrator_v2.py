@@ -22,10 +22,7 @@ from services.validation.interfaces import (
     ValidationRequest,
     ValidationResult,
 )
-from services.validation.mappers import (
-    create_degraded_result,
-    ensure_schema_compliance,
-)
+from services.validation.mappers import create_degraded_result, ensure_schema_compliance
 
 logger = logging.getLogger(__name__)
 
@@ -209,7 +206,9 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
         return results
 
     # Internal helpers
-    def _enrich_context_with_definition_fields(self, ctx: dict | None, definition: Definition) -> dict:
+    def _enrich_context_with_definition_fields(
+        self, ctx: dict | None, definition: Definition
+    ) -> dict:
         """Add definition fields to context metadata for richer validation.
 
         Minimale verrijking zonder complexe regels: dit stelt de validator in staat
@@ -220,7 +219,9 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
         # Top-level context velden (compatibel met validator meta‑checks)
         try:
             if definition.organisatorische_context:
-                enriched["organisatorische_context"] = list(definition.organisatorische_context)
+                enriched["organisatorische_context"] = list(
+                    definition.organisatorische_context
+                )
             if definition.juridische_context:
                 enriched["juridische_context"] = list(definition.juridische_context)
             if definition.wettelijke_basis:

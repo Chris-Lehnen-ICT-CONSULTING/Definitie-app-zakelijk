@@ -1,25 +1,27 @@
 """Tests voor CategoryService."""
 
+from unittest.mock import MagicMock, Mock
+
 import pytest
-from unittest.mock import Mock, MagicMock
-from src.services.category_service import CategoryService
+
 from src.database.definitie_repository import DefinitieRecord
+from src.services.category_service import CategoryService
 
 
 class TestCategoryService:
     """Test class voor CategoryService."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def mock_repository(self):
         """Mock repository voor tests."""
         return Mock()
 
-    @pytest.fixture
+    @pytest.fixture()
     def category_service(self, mock_repository):
         """CategoryService instance voor tests."""
         return CategoryService(mock_repository)
 
-    @pytest.fixture
+    @pytest.fixture()
     def sample_definition(self):
         """Sample definitie voor tests."""
         definition = Mock(spec=DefinitieRecord)
@@ -29,7 +31,9 @@ class TestCategoryService:
         definition.status = "DRAFT"
         return definition
 
-    def test_update_category_success(self, category_service, mock_repository, sample_definition):
+    def test_update_category_success(
+        self, category_service, mock_repository, sample_definition
+    ):
         """Test succesvolle categorie update."""
         # Arrange
         mock_repository.get_definitie_by_id.return_value = sample_definition
@@ -54,7 +58,9 @@ class TestCategoryService:
         assert success is False
         assert error == "Ongeldige categorie: INVALID"
 
-    def test_update_category_definition_not_found(self, category_service, mock_repository):
+    def test_update_category_definition_not_found(
+        self, category_service, mock_repository
+    ):
         """Test update wanneer definitie niet bestaat."""
         # Arrange
         mock_repository.get_definitie_by_id.return_value = None
@@ -66,7 +72,9 @@ class TestCategoryService:
         assert success is False
         assert error == "Definitie met ID 999 niet gevonden"
 
-    def test_update_category_database_error(self, category_service, mock_repository, sample_definition):
+    def test_update_category_database_error(
+        self, category_service, mock_repository, sample_definition
+    ):
         """Test update met database fout."""
         # Arrange
         mock_repository.get_definitie_by_id.return_value = sample_definition
@@ -82,7 +90,9 @@ class TestCategoryService:
     def test_update_category_exception(self, category_service, mock_repository):
         """Test update met exception."""
         # Arrange
-        mock_repository.get_definitie_by_id.side_effect = Exception("Database connection error")
+        mock_repository.get_definitie_by_id.side_effect = Exception(
+            "Database connection error"
+        )
 
         # Act
         success, error = category_service.update_category(1, "REL")
@@ -131,7 +141,9 @@ class TestCategoryService:
         assert is_valid is True
         assert error is None
 
-    def test_all_valid_categories(self, category_service, mock_repository, sample_definition):
+    def test_all_valid_categories(
+        self, category_service, mock_repository, sample_definition
+    ):
         """Test alle geldige categorieën."""
         # Arrange
         valid_categories = ["ENT", "REL", "ACT", "ATT", "AUT", "STA", "OTH"]

@@ -8,15 +8,15 @@ def _load_cases():
     return data["cases"]
 
 
-@pytest.mark.integration
-@pytest.mark.asyncio
+@pytest.mark.integration()
+@pytest.mark.asyncio()
 async def test_golden_definitions_via_orchestrator():
-    from services.container import ServiceContainer, ContainerConfigs
+    from services.container import ContainerConfigs, ServiceContainer
 
     container = ServiceContainer(ContainerConfigs.testing())
     orch = container.orchestrator()
     # Gebruik de door DI geleverde ValidationOrchestratorV2 rechtstreeks
-    val_orch = getattr(orch, "validation_service")
+    val_orch = orch.validation_service
 
     mismatches = []
     for case in _load_cases():
@@ -31,7 +31,9 @@ async def test_golden_definitions_via_orchestrator():
         exp = case["expected"]
 
         if res["is_acceptable"] is not exp["is_acceptable"]:
-            mismatches.append((case.get("id"), res["overall_score"], res.get("violations", [])))
+            mismatches.append(
+                (case.get("id"), res["overall_score"], res.get("violations", []))
+            )
             continue
 
         # violations: allow prefix matching for stability
@@ -44,7 +46,9 @@ async def test_golden_definitions_via_orchestrator():
 
             for code in expected_codes:
                 if not _prefix_present(code):
-                    mismatches.append((case.get("id"), actual_codes, f"missing prefix {code}"))
+                    mismatches.append(
+                        (case.get("id"), actual_codes, f"missing prefix {code}")
+                    )
                     break
 
     assert not mismatches, f"Golden mismatches: {mismatches}"

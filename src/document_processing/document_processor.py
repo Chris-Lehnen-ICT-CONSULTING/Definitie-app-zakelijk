@@ -9,10 +9,7 @@ from dataclasses import (  # Dataklassen voor gestructureerde document data
     asdict,
     dataclass,
 )
-from datetime import (  # Datum en tijd functionaliteit voor timestamps
-    UTC,
-    datetime,
-)
+from datetime import UTC, datetime  # Datum en tijd functionaliteit voor timestamps
 from pathlib import Path  # Object-georiënteerde pad manipulatie
 from typing import Any  # Type hints voor betere code documentatie
 
@@ -403,7 +400,7 @@ class DocumentProcessor:
 
             # Converteer naar leesbare weergave
             refs: list[str] = []
-            for v in (gevonden or []):
+            for v in gevonden or []:
                 try:
                     parts: list[str] = []
                     if getattr(v, "wet", None):
@@ -416,7 +413,11 @@ class DocumentProcessor:
                         parts.append(f"lid {v.lid}")
                     if getattr(v, "sub", None):
                         parts.append(f"onder {v.sub}")
-                    label = ", ".join(parts) if parts else str(getattr(v, "herkend_via", "")).strip()
+                    label = (
+                        ", ".join(parts)
+                        if parts
+                        else str(getattr(v, "herkend_via", "")).strip()
+                    )
                     if label:
                         refs.append(label)
                 except Exception:

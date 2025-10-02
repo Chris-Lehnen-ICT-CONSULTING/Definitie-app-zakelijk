@@ -1,6 +1,7 @@
 """
 Test UI met nieuwe services ingeschakeld.
 """
+
 import os
 import sys
 from pathlib import Path
@@ -10,13 +11,13 @@ src_path = Path(__file__).parent / "src"
 sys.path.insert(0, str(src_path))
 
 # Forceer nieuwe services
-os.environ['USE_NEW_SERVICES'] = 'true'
+os.environ["USE_NEW_SERVICES"] = "true"
 
 print("Testing UI met nieuwe services...")
 
 try:
-    from ui.tabbed_interface import TabbedInterface
     from services import get_definition_service
+    from ui.tabbed_interface import TabbedInterface
 
     # Test service met nieuwe mode
     service = get_definition_service()
@@ -30,7 +31,7 @@ try:
     # Test UI instantiation
     ui = TabbedInterface()
 
-    if hasattr(ui, 'definition_service'):
+    if hasattr(ui, "definition_service"):
         ui_info = ui.definition_service.get_service_info()
         print(f"\n✅ UI service mode: {ui_info['service_mode']}")
         print(f"✅ UI architecture: {ui_info['architecture']}")
@@ -40,6 +41,7 @@ try:
 except Exception as e:
     print(f"\n❌ Fout: {e}")
     import traceback
+
     traceback.print_exc()
 
 print("\n📋 Samenvatting UI integratie:")

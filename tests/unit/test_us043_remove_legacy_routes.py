@@ -21,14 +21,15 @@ Test Coverage:
 - Code maintainability metrics
 """
 
-import pytest
-import time
-import traceback
 import ast
 import inspect
-from unittest.mock import Mock, patch, MagicMock
-from typing import List, Dict, Any, Optional
+import time
 import timeit
+import traceback
+from typing import Any, Dict, List, Optional
+from unittest.mock import MagicMock, Mock, patch
+
+import pytest
 
 from src.services.container import ServiceContainer
 from src.services.interfaces import GenerationRequest
@@ -49,11 +50,13 @@ class TestSingleContextFlowPath:
             begrip="test",
             organisatorische_context=["DJI"],
             juridische_context=["Strafrecht"],
-            wettelijke_basis=["Test wet"]
+            wettelijke_basis=["Test wet"],
         )
 
         # Trace the call path
-        with patch.object(prompt_service, 'build_prompt', wraps=prompt_service.build_prompt) as mock_build:
+        with patch.object(
+            prompt_service, "build_prompt", wraps=prompt_service.build_prompt
+        ) as mock_build:
             prompt = prompt_service.build_prompt(request)
 
             # Should be called exactly once
@@ -72,7 +75,7 @@ class TestSingleContextFlowPath:
         context_data = {
             "organisatorische_context": ["DJI"],
             "juridische_context": ["Strafrecht"],
-            "wettelijke_basis": ["Test wet"]
+            "wettelijke_basis": ["Test wet"],
         }
 
         # Should have single entry point
@@ -97,19 +100,22 @@ class TestSingleContextFlowPath:
             "st.session_state.get('context'",
             "session_state['context']",
             "getattr(request, 'context'",
-            "request.context or request.organisatorische_context"
+            "request.context or request.organisatorische_context",
         ]
 
         for pattern in legacy_patterns:
-            assert pattern not in source, f"Legacy pattern '{pattern}' found in orchestrator"
+            assert (
+                pattern not in source
+            ), f"Legacy pattern '{pattern}' found in orchestrator"
 
 
 class TestPerformanceImprovement:
     """Verify >20% performance improvement target is achieved."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def legacy_context_flow(self):
         """Simulate legacy context flow timing."""
+
         def legacy_flow():
             # Simulate multiple session state accesses
             time.sleep(0.001)  # Session state read
@@ -127,16 +133,17 @@ class TestPerformanceImprovement:
 
         return legacy_flow
 
-    @pytest.fixture
+    @pytest.fixture()
     def modern_context_flow(self):
         """Modern streamlined context flow."""
+
         def modern_flow():
             # Direct interface access
             request = GenerationRequest(
                 begrip="test",
                 organisatorische_context=[],
                 juridische_context=[],
-                wettelijke_basis=[]
+                wettelijke_basis=[],
             )
 
             # Single transformation
@@ -149,7 +156,9 @@ class TestPerformanceImprovement:
 
         return modern_flow
 
-    def test_performance_improvement_achieved(self, legacy_context_flow, modern_context_flow):
+    def test_performance_improvement_achieved(
+        self, legacy_context_flow, modern_context_flow
+    ):
         """Verify at least 20% performance improvement."""
         # Measure legacy timing
         legacy_time = timeit.timeit(legacy_context_flow, number=100) / 100
@@ -161,7 +170,9 @@ class TestPerformanceImprovement:
         improvement = (legacy_time - modern_time) / legacy_time
 
         # Should achieve at least 20% improvement
-        assert improvement >= 0.20, f"Performance improvement {improvement:.1%} is less than 20%"
+        assert (
+            improvement >= 0.20
+        ), f"Performance improvement {improvement:.1%} is less than 20%"
 
     def test_context_processing_under_100ms(self):
         """Context processing should complete in under 100ms."""
@@ -169,7 +180,7 @@ class TestPerformanceImprovement:
             begrip="test",
             organisatorische_context=["DJI", "OM", "Rechtspraak"],
             juridische_context=["Strafrecht", "Bestuursrecht"],
-            wettelijke_basis=["Wet A", "Wet B", "Wet C"]
+            wettelijke_basis=["Wet A", "Wet B", "Wet C"],
         )
 
         prompt_service = PromptServiceV2()
@@ -178,23 +189,29 @@ class TestPerformanceImprovement:
         prompt = prompt_service.build_prompt(request)
         elapsed = (time.perf_counter() - start) * 1000  # Convert to ms
 
-        assert elapsed < 100, f"Context processing took {elapsed:.1f}ms, should be under 100ms"
+        assert (
+            elapsed < 100
+        ), f"Context processing took {elapsed:.1f}ms, should be under 100ms"
 
     def test_no_redundant_context_operations(self):
         """Ensure no redundant context operations occur."""
-        with patch('src.services.prompts.prompt_service_v2.PromptServiceV2._format_context') as mock_format:
+        with patch(
+            "src.services.prompts.prompt_service_v2.PromptServiceV2._format_context"
+        ) as mock_format:
             request = GenerationRequest(
                 begrip="test",
                 organisatorische_context=["DJI"],
                 juridische_context=["Strafrecht"],
-                wettelijke_basis=["Test wet"]
+                wettelijke_basis=["Test wet"],
             )
 
             prompt_service = PromptServiceV2()
             prompt = prompt_service.build_prompt(request)
 
             # Format should be called at most once per context type
-            assert mock_format.call_count <= 3, "Context formatting called too many times"
+            assert (
+                mock_format.call_count <= 3
+            ), "Context formatting called too many times"
 
 
 class TestLegacyCodeRemoval:
@@ -205,6 +222,7 @@ class TestLegacyCodeRemoval:
         # Check that V1 modules are removed or deprecated
         try:
             from src.services.context_handler_v1 import ContextHandlerV1
+
             assert False, "V1 context handler still exists"
         except ImportError:
             pass  # Expected
@@ -216,7 +234,7 @@ class TestLegacyCodeRemoval:
             "st.session_state['organisatorische_context']",
             "st.session_state.organisatorische_context",
             "session_state.get('juridische_context')",
-            "session_state['wettelijke_basis']"
+            "session_state['wettelijke_basis']",
         ]
 
         # This test documents the requirement
@@ -230,17 +248,18 @@ class TestLegacyCodeRemoval:
 
         # Check for deprecation markers
         deprecated_methods = [
-            'get_context_legacy',
-            'set_context_v1',
-            'transform_context_old'
+            "get_context_legacy",
+            "set_context_v1",
+            "transform_context_old",
         ]
 
         for method_name in deprecated_methods:
             if hasattr(container, method_name):
                 method = getattr(container, method_name)
                 # Should have deprecation warning
-                assert hasattr(method, '__deprecated__') or \
-                       '@deprecated' in inspect.getsource(method)
+                assert hasattr(
+                    method, "__deprecated__"
+                ) or "@deprecated" in inspect.getsource(method)
 
 
 class TestSessionStateEncapsulation:
@@ -248,7 +267,7 @@ class TestSessionStateEncapsulation:
 
     def test_context_not_directly_accessible(self):
         """Context should not be directly accessible from session state."""
-        with patch('streamlit.session_state', create=True) as mock_session:
+        with patch("streamlit.session_state", create=True) as mock_session:
             mock_session.organisatorische_context = ["DJI"]
 
             # Should not be able to access directly
@@ -266,13 +285,17 @@ class TestSessionStateEncapsulation:
         manager = ContextManager()
 
         # Track all modifications
-        with patch.object(manager, 'set_context', wraps=manager.set_context) as mock_set:
+        with patch.object(
+            manager, "set_context", wraps=manager.set_context
+        ) as mock_set:
             # Modify context
-            result = manager.set_context({
-                "organisatorische_context": ["DJI"],
-                "juridische_context": ["Strafrecht"],
-                "wettelijke_basis": ["Test wet"]
-            })
+            result = manager.set_context(
+                {
+                    "organisatorische_context": ["DJI"],
+                    "juridische_context": ["Strafrecht"],
+                    "wettelijke_basis": ["Test wet"],
+                }
+            )
 
             # Should go through manager
             assert mock_set.call_count == 1
@@ -285,21 +308,25 @@ class TestSessionStateEncapsulation:
         manager = ContextManager()
 
         # First request
-        manager.set_context({
-            "organisatorische_context": ["DJI"],
-            "juridische_context": ["Strafrecht"],
-            "wettelijke_basis": ["Wet A"]
-        })
+        manager.set_context(
+            {
+                "organisatorische_context": ["DJI"],
+                "juridische_context": ["Strafrecht"],
+                "wettelijke_basis": ["Wet A"],
+            }
+        )
 
         # Clear for new request
         manager.clear_context()
 
         # Second request
-        manager.set_context({
-            "organisatorische_context": ["OM"],
-            "juridische_context": ["Bestuursrecht"],
-            "wettelijke_basis": ["Wet B"]
-        })
+        manager.set_context(
+            {
+                "organisatorische_context": ["OM"],
+                "juridische_context": ["Bestuursrecht"],
+                "wettelijke_basis": ["Wet B"],
+            }
+        )
 
         current = manager.get_context()
 
@@ -317,7 +344,7 @@ class TestMemoryEfficiency:
             begrip="test",
             organisatorische_context=["DJI"] * 100,  # Large list
             juridische_context=["Strafrecht"] * 100,
-            wettelijke_basis=["Test wet"] * 100
+            wettelijke_basis=["Test wet"] * 100,
         )
 
         # Check that references are used, not copies
@@ -342,7 +369,7 @@ class TestMemoryEfficiency:
         context = {
             "organisatorische_context": ["DJI"],
             "juridische_context": ["Strafrecht"],
-            "wettelijke_basis": ["Test wet"]
+            "wettelijke_basis": ["Test wet"],
         }
 
         # Create weak reference
@@ -365,14 +392,16 @@ class TestCodeMaintainability:
 
         # Context fields should be defined in one place
         context_fields = [
-            'organisatorische_context',
-            'juridische_context',
-            'wettelijke_basis'
+            "organisatorische_context",
+            "juridische_context",
+            "wettelijke_basis",
         ]
 
         for field in context_fields:
-            assert hasattr(GenerationRequest, field) or \
-                   field in GenerationRequest.__annotations__
+            assert (
+                hasattr(GenerationRequest, field)
+                or field in GenerationRequest.__annotations__
+            )
 
     def test_context_validation_centralized(self):
         """Context validation should be centralized."""
@@ -384,7 +413,7 @@ class TestCodeMaintainability:
         valid_context = {
             "organisatorische_context": ["DJI"],
             "juridische_context": ["Strafrecht"],
-            "wettelijke_basis": ["Test wet"]
+            "wettelijke_basis": ["Test wet"],
         }
 
         assert validator.validate(valid_context) == True
@@ -393,7 +422,7 @@ class TestCodeMaintainability:
         invalid_context = {
             "organisatorische_context": "DJI",  # Should be list
             "juridische_context": None,
-            "wettelijke_basis": 123  # Wrong type
+            "wettelijke_basis": 123,  # Wrong type
         }
 
         assert validator.validate(invalid_context) == False
@@ -418,14 +447,12 @@ class TestRegressionPrevention:
         source = inspect.getsource(prompt_service.build_prompt)
 
         # Should not have patterns like
-        bad_patterns = [
-            "context = ''",
-            "context += ",
-            "prompt = prompt + context"
-        ]
+        bad_patterns = ["context = ''", "context += ", "prompt = prompt + context"]
 
         for pattern in bad_patterns:
-            assert pattern not in source, f"String concatenation pattern '{pattern}' found"
+            assert (
+                pattern not in source
+            ), f"String concatenation pattern '{pattern}' found"
 
     def test_no_nested_context_extraction(self):
         """Context extraction should not be deeply nested."""
@@ -433,7 +460,7 @@ class TestRegressionPrevention:
         bad_patterns = [
             "request.context.organisatorische_context",
             "data['context']['fields']['organisatorische']",
-            "getattr(getattr(request, 'context'), 'org')"
+            "getattr(getattr(request, 'context'), 'org')",
         ]
 
         # This test documents the anti-pattern
@@ -444,12 +471,18 @@ class TestRegressionPrevention:
             begrip="test",
             organisatorische_context=["DJI"],
             juridische_context=["Strafrecht"],
-            wettelijke_basis=["Test wet"]
+            wettelijke_basis=["Test wet"],
         )
 
         # All context fields should be lists
-        assert all(isinstance(getattr(request, field), (list, type(None)))
-                  for field in ['organisatorische_context', 'juridische_context', 'wettelijke_basis'])
+        assert all(
+            isinstance(getattr(request, field), (list, type(None)))
+            for field in [
+                "organisatorische_context",
+                "juridische_context",
+                "wettelijke_basis",
+            ]
+        )
 
 
 class TestFeatureFlags:
@@ -460,28 +493,30 @@ class TestFeatureFlags:
         import os
 
         # Test with flag enabled
-        os.environ['USE_MODERN_CONTEXT_FLOW'] = 'true'
+        os.environ["USE_MODERN_CONTEXT_FLOW"] = "true"
 
         from src.services.feature_flags import is_feature_enabled
 
-        assert is_feature_enabled('modern_context_flow') == True
+        assert is_feature_enabled("modern_context_flow") == True
 
         # Test with flag disabled
-        os.environ['USE_MODERN_CONTEXT_FLOW'] = 'false'
+        os.environ["USE_MODERN_CONTEXT_FLOW"] = "false"
 
-        assert is_feature_enabled('modern_context_flow') == False
+        assert is_feature_enabled("modern_context_flow") == False
 
     def test_gradual_rollout_percentage(self):
         """Support percentage-based rollout."""
         from src.services.feature_flags import get_rollout_percentage
 
         # Should support gradual rollout
-        percentage = get_rollout_percentage('modern_context_flow')
+        percentage = get_rollout_percentage("modern_context_flow")
         assert 0 <= percentage <= 100
 
     def test_fallback_to_legacy_if_error(self):
         """Should fallback to legacy flow if modern flow fails."""
-        with patch('src.services.prompts.prompt_service_v2.PromptServiceV2.build_prompt') as mock_modern:
+        with patch(
+            "src.services.prompts.prompt_service_v2.PromptServiceV2.build_prompt"
+        ) as mock_modern:
             mock_modern.side_effect = Exception("Modern flow failed")
 
             # Should fallback gracefully
@@ -493,12 +528,12 @@ class TestMonitoring:
 
     def test_context_flow_metrics(self):
         """Context flow should emit metrics."""
-        with patch('src.services.monitoring.metrics.record') as mock_metrics:
+        with patch("src.services.monitoring.metrics.record") as mock_metrics:
             request = GenerationRequest(
                 begrip="test",
                 organisatorische_context=["DJI"],
                 juridische_context=["Strafrecht"],
-                wettelijke_basis=["Test wet"]
+                wettelijke_basis=["Test wet"],
             )
 
             prompt_service = PromptServiceV2()
@@ -511,12 +546,12 @@ class TestMonitoring:
         """Context flow should be traceable."""
         import logging
 
-        with patch.object(logging.Logger, 'debug') as mock_log:
+        with patch.object(logging.Logger, "debug") as mock_log:
             request = GenerationRequest(
                 begrip="test",
                 organisatorische_context=["DJI"],
                 juridische_context=["Strafrecht"],
-                wettelijke_basis=["Test wet"]
+                wettelijke_basis=["Test wet"],
             )
 
             prompt_service = PromptServiceV2()

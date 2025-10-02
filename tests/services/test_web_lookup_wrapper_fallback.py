@@ -1,12 +1,13 @@
-import pytest
 from unittest.mock import AsyncMock, patch
+
+import pytest
 
 from services.definition_generator_config import ContextConfig
 from services.definition_generator_context import HybridContextManager
 from services.interfaces import GenerationRequest, LookupResult, WebSource
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_web_lookup_wrapper_title_fallbacks():
     """Ensure web lookup wrapper formats labels without relying on r.title."""
     config = ContextConfig()

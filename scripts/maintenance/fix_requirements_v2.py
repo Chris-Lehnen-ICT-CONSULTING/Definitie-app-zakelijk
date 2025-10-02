@@ -1,24 +1,28 @@
 #!/usr/bin/env python3
 """Enhanced fix for all requirement documents - Phase 2."""
 
-import os
 import re
 from pathlib import Path
-from typing import Dict, List, Tuple
 
 # Base path
 BASE_PATH = Path("/Users/chrislehnen/Projecten/Definitie-app")
 REQUIREMENTS_PATH = BASE_PATH / "docs" / "requirements"
 
+
 def check_file_exists(file_path: str) -> bool:
     """Check if a source file actually exists."""
     if "TODO" in file_path or file_path == "all" or file_path == "<bestand>":
         return True
-    if file_path.startswith("docs/") or file_path.startswith("logs/") or file_path.startswith("tests/"):
+    if (
+        file_path.startswith("docs/")
+        or file_path.startswith("logs/")
+        or file_path.startswith("tests/")
+    ):
         full_path = BASE_PATH / file_path
         return full_path.exists() or full_path.parent.exists()
     full_path = BASE_PATH / file_path
     return full_path.exists()
+
 
 def fix_missing_source_files(content: str, req_id: str) -> str:
     """Replace missing source files with TODO markers or correct paths."""
@@ -88,6 +92,7 @@ def fix_missing_source_files(content: str, req_id: str) -> str:
 
     return content
 
+
 def add_smart_criteria_for_high_priority(content: str, req_id: str) -> str:
     """Add SMART criteria to high priority requirements."""
 
@@ -99,7 +104,7 @@ def add_smart_criteria_for_high_priority(content: str, req_id: str) -> str:
         return content
 
     # Extract requirement title for context
-    title_match = re.search(r'title:\s*(.+)', content)
+    title_match = re.search(r"title:\s*(.+)", content)
     if not title_match:
         return content
 
@@ -164,23 +169,36 @@ def add_smart_criteria_for_high_priority(content: str, req_id: str) -> str:
     # Find insertion point (after Success Criteria or before Related User Stories)
     if "## Success Criteria" in content:
         # Insert after Success Criteria section
-        pattern = r'(## Success Criteria.*?)(\n## |\Z)'
+        pattern = r"(## Success Criteria.*?)(\n## |\Z)"
         match = re.search(pattern, content, re.DOTALL)
         if match:
             insertion_point = match.end(1)
-            content = content[:insertion_point] + "\n" + smart_text + "\n" + content[insertion_point:]
+            content = (
+                content[:insertion_point]
+                + "\n"
+                + smart_text
+                + "\n"
+                + content[insertion_point:]
+            )
     elif "## Related User Stories" in content:
         # Insert before Related User Stories
-        pattern = r'(\n)(## Related User Stories)'
+        pattern = r"(\n)(## Related User Stories)"
         match = re.search(pattern, content)
         if match:
             insertion_point = match.start(1)
-            content = content[:insertion_point] + "\n" + smart_text + "\n" + content[insertion_point:]
+            content = (
+                content[:insertion_point]
+                + "\n"
+                + smart_text
+                + "\n"
+                + content[insertion_point:]
+            )
     else:
         # Append at the end
         content += "\n" + smart_text + "\n"
 
     return content
+
 
 def add_domain_context_if_needed(content: str, req_id: str) -> str:
     """Add domain context to domain requirements (REQ-013 to REQ-022)."""
@@ -189,7 +207,11 @@ def add_domain_context_if_needed(content: str, req_id: str) -> str:
 
     # Only for domain requirements that don't have context yet
     if 13 <= req_num <= 22:
-        if "## Domain Context" not in content and "ASTRA" not in content and "NORA" not in content:
+        if (
+            "## Domain Context" not in content
+            and "ASTRA" not in content
+            and "NORA" not in content
+        ):
 
             domain_context = """## Domain Context
 
@@ -203,24 +225,31 @@ This requirement aligns with Dutch justice sector standards and frameworks:
 
             # Find insertion point (after Description)
             if "## Description" in content or "## Beschrijving" in content:
-                pattern = r'(## (?:Description|Beschrijving).*?)(\n## |\Z)'
+                pattern = r"(## (?:Description|Beschrijving).*?)(\n## |\Z)"
                 match = re.search(pattern, content, re.DOTALL)
                 if match:
                     insertion_point = match.end(1)
-                    content = content[:insertion_point] + "\n" + domain_context + "\n" + content[insertion_point:]
+                    content = (
+                        content[:insertion_point]
+                        + "\n"
+                        + domain_context
+                        + "\n"
+                        + content[insertion_point:]
+                    )
             else:
                 # Insert after frontmatter
-                pattern = r'(---\n\n.*?\n\n)(.*)'
+                pattern = r"(---\n\n.*?\n\n)(.*)"
                 match = re.search(pattern, content, re.DOTALL)
                 if match:
                     content = match.group(1) + domain_context + "\n\n" + match.group(2)
 
     return content
 
-def process_requirement_file(file_path: Path) -> Tuple[bool, str]:
+
+def process_requirement_file(file_path: Path) -> tuple[bool, str]:
     """Process a single requirement file with enhanced fixes."""
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, encoding="utf-8") as f:
             content = f.read()
 
         original_content = content
@@ -233,14 +262,15 @@ def process_requirement_file(file_path: Path) -> Tuple[bool, str]:
 
         # Write back if changed
         if content != original_content:
-            with open(file_path, 'w', encoding='utf-8') as f:
+            with open(file_path, "w", encoding="utf-8") as f:
                 f.write(content)
             return True, f"Fixed {req_id}"
         else:
             return False, f"No changes needed for {req_id}"
 
     except Exception as e:
-        return False, f"Error processing {file_path.name}: {str(e)}"
+        return False, f"Error processing {file_path.name}: {e!s}"
+
 
 def main():
     """Main processing function."""
@@ -259,16 +289,16 @@ def main():
             if "Fixed" in message:
                 fixed_count += 1
                 print(f"✓ {message}")
-        else:
-            if "Error" in message:
-                error_count += 1
-                print(f"✗ {message}")
+        elif "Error" in message:
+            error_count += 1
+            print(f"✗ {message}")
 
     print("=" * 60)
-    print(f"Phase 2 processing complete!")
+    print("Phase 2 processing complete!")
     print(f"Files fixed: {fixed_count}")
     print(f"Errors: {error_count}")
     print(f"Total processed: {len(req_files)}")
+
 
 if __name__ == "__main__":
     main()

@@ -10,6 +10,14 @@ from unittest.mock import MagicMock, patch
 import pytest
 import yaml
 
+from config import (
+    get_api_config,
+    get_cache_config,
+    get_default_model,
+    get_default_temperature,
+    get_openai_api_key,
+    get_paths_config,
+)
 from config.config_manager import (
     ConfigManager,
     ConfigSection,
@@ -18,14 +26,6 @@ from config.config_manager import (
     get_config_manager,
     reload_config,
     set_config,
-)
-from config import (
-    get_api_config,
-    get_cache_config,
-    get_paths_config,
-    get_default_model,
-    get_default_temperature,
-    get_openai_api_key,
 )
 
 

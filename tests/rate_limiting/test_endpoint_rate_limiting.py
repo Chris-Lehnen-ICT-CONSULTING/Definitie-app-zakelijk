@@ -2,16 +2,23 @@
 """Test script voor endpoint-specifieke rate limiting."""
 
 import asyncio
-import pytest
 import sys
 import time
-sys.path.insert(0, 'src')
 
-from utils.smart_rate_limiter import get_smart_limiter, with_smart_rate_limit, RequestPriority
+import pytest
+
+sys.path.insert(0, "src")
+
 from utils.integrated_resilience import get_integrated_system
+from utils.smart_rate_limiter import (
+    RequestPriority,
+    get_smart_limiter,
+    with_smart_rate_limit,
+)
 
-@pytest.mark.performance
-@pytest.mark.integration
+
+@pytest.mark.performance()
+@pytest.mark.integration()
 async def test_endpoint_specific_rate_limiting():
     """Test dat verschillende endpoints hun eigen rate limiting hebben."""
     print("🧪 Testing Endpoint-Specific Rate Limiting")
@@ -21,16 +28,15 @@ async def test_endpoint_specific_rate_limiting():
     endpoints = [
         "examples_generation_sentence",
         "examples_generation_practical",
-        "examples_generation_counter"
+        "examples_generation_counter",
     ]
 
     # Simuleer API calls voor verschillende endpoints
     async def simulate_api_call(endpoint: str, call_id: int):
         """Simuleer een API call met rate limiting."""
+
         @with_smart_rate_limit(
-            endpoint_name=endpoint,
-            priority=RequestPriority.NORMAL,
-            timeout=5.0
+            endpoint_name=endpoint, priority=RequestPriority.NORMAL, timeout=5.0
         )
         async def api_call():
             await asyncio.sleep(0.1)  # Simuleer API latency
@@ -59,7 +65,7 @@ async def test_endpoint_specific_rate_limiting():
             elapsed = time.time() - start_time
             print(f"✅ [{elapsed:.2f}s] {result}")
             results.append((endpoint, True))
-        except asyncio.TimeoutError:
+        except TimeoutError:
             elapsed = time.time() - start_time
             print(f"❌ [{elapsed:.2f}s] {endpoint} - Call {call_id} TIMEOUT")
             results.append((endpoint, False))
@@ -83,7 +89,7 @@ async def test_endpoint_specific_rate_limiting():
             result = await simulate_api_call(endpoint, i)
             elapsed = time.time() - start_time
             print(f"✅ [{elapsed:.2f}s] {result}")
-        except asyncio.TimeoutError:
+        except TimeoutError:
             elapsed = time.time() - start_time
             print(f"❌ [{elapsed:.2f}s] {endpoint} - Call {i} TIMEOUT")
 
@@ -95,6 +101,7 @@ async def test_endpoint_specific_rate_limiting():
 
     async def resilient_call(endpoint: str, call_id: int):
         """Test call met volledig resilience systeem."""
+
         async def mock_api():
             await asyncio.sleep(0.1)
             return f"{endpoint} - Resilient call {call_id}"
@@ -103,7 +110,7 @@ async def test_endpoint_specific_rate_limiting():
             mock_api,
             endpoint_name=endpoint,
             priority=RequestPriority.NORMAL,
-            timeout=5.0
+            timeout=5.0,
         )
 
     # Test verschillende endpoints met resilience
@@ -127,11 +134,12 @@ async def test_endpoint_specific_rate_limiting():
     status = system.get_system_status()
     print("\n📊 System Status:")
     print(f"  Active rate limiters: {len(status['rate_limiters'])}")
-    for endpoint, limiter_status in status['rate_limiters'].items():
+    for endpoint, limiter_status in status["rate_limiters"].items():
         print(f"  - {endpoint}: {limiter_status['current_rate']:.2f} req/s")
 
     # Cleanup
     await system.stop()
+
 
 if __name__ == "__main__":
     asyncio.run(test_endpoint_specific_rate_limiting())

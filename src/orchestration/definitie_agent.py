@@ -9,8 +9,7 @@ service layer via ServiceAdapter.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, List, Optional
-
+from typing import Any
 
 # --- Minimal legacy-shaped result structures ---
 
@@ -37,12 +36,12 @@ class ValidationViolationShim:
     rule_id: str
     severity: str
     description: str
-    suggestion: Optional[str] = None
+    suggestion: str | None = None
 
 
 @dataclass
 class ValidationResultShim:
-    violations: List[ValidationViolationShim] = field(default_factory=list)
+    violations: list[ValidationViolationShim] = field(default_factory=list)
 
 
 class AgentResult:
@@ -90,12 +89,15 @@ class DefinitieAgent:
         enable_hybrid: bool = False,
     ) -> AgentResult:
         # Lazy imports to avoid circular dependencies at import time
-        from services.service_factory import get_definition_service
         import asyncio
+
+        from services.service_factory import get_definition_service
 
         # Build legacy-style context dict expected by ServiceAdapter
         context_dict = {
-            "organisatorisch": [organisatorische_context] if organisatorische_context else [],
+            "organisatorisch": (
+                [organisatorische_context] if organisatorische_context else []
+            ),
             "juridisch": [juridische_context] if juridische_context else [],
             # No wettelijke basis available in legacy call
             "wettelijk": [],
@@ -114,8 +116,11 @@ class DefinitieAgent:
 
         # Obtain V2 adapter and generate definition asynchronously via run_async
         adapter = get_definition_service()
+
         async def _task():
-            return await adapter.generate_definition(begrip, context_dict, **extra_kwargs)
+            return await adapter.generate_definition(
+                begrip, context_dict, **extra_kwargs
+            )
 
         # Run coroutine synchronously without UI bridge
         v2_result = asyncio.run(asyncio.wait_for(_task(), timeout=120))
@@ -153,7 +158,9 @@ class DefinitieAgent:
             organisatorische_context=organisatorische_context,
             juridische_context=juridische_context,
         )
-        iteration = IterationShim(generation_result=GenerationResultShim(context=context))
+        iteration = IterationShim(
+            generation_result=GenerationResultShim(context=context)
+        )
 
         return AgentResult(
             success=success,

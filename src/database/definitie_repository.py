@@ -13,15 +13,10 @@ from dataclasses import (  # Dataclass decorators voor gestructureerde data
     asdict,
     dataclass,
 )
-from datetime import (  # Datum en tijd functionaliteit voor timestamps
-    UTC,
-    datetime,
-)
+from datetime import UTC, datetime  # Datum en tijd functionaliteit voor timestamps
 from enum import Enum  # Enumeratie types voor constante waarden
 from pathlib import Path  # Object-georiënteerde pad manipulatie
-from typing import (  # Type hints voor betere code documentatie
-    Any,
-)
+from typing import Any  # Type hints voor betere code documentatie
 
 from domain.ontological_categories import (
     OntologischeCategorie,  # Import ontologische categorieën voor classificatie
@@ -78,7 +73,9 @@ class DefinitieRecord:
     ufo_categorie: str | None = None
 
     # Procesmatige velden
-    toelichting_proces: str | None = None  # Procesmatige toelichting/opmerkingen (review/validatie notities)
+    toelichting_proces: str | None = (
+        None  # Procesmatige toelichting/opmerkingen (review/validatie notities)
+    )
 
     # Status en versioning - Houdt bij in welke fase de definitie zich bevindt
     status: str = DefinitieStatus.DRAFT.value  # Huidige status van de definitie
@@ -337,11 +334,87 @@ class DefinitieRepository:
         """Check if database has legacy columns (datum_voorstel, ketenpartners)."""
         try:
             with self._get_connection() as conn:
-                cursor = conn.execute("PRAGMA table_info(definities)")
-                columns = {row[1] for row in cursor.fetchall()}
-                return "datum_voorstel" in columns and "ketenpartners" in columns
+                return self._has_legacy_columns_in_conn(conn)
         except Exception:
             return False
+
+    @staticmethod
+    def _has_legacy_columns_in_conn(conn: sqlite3.Connection) -> bool:
+        """Determine legacy column presence using an existing connection."""
+
+        cursor = conn.execute("PRAGMA table_info(definities)")
+        columns = {row[1] for row in cursor.fetchall()}
+        return "datum_voorstel" in columns and "ketenpartners" in columns
+
+    @staticmethod
+    def _build_insert_columns(
+        record: "DefinitieRecord", wb_value: str, include_legacy: bool
+    ) -> tuple[list[str], list[Any]]:
+        """Compose insert columns/values for definities table."""
+
+        columns = [
+            "begrip",
+            "definitie",
+            "categorie",
+            "organisatorische_context",
+            "juridische_context",
+            "wettelijke_basis",
+            "ufo_categorie",
+            "toelichting_proces",
+            "status",
+            "version_number",
+            "previous_version_id",
+            "validation_score",
+            "validation_date",
+            "validation_issues",
+            "source_type",
+            "source_reference",
+            "imported_from",
+            "created_at",
+            "updated_at",
+            "created_by",
+            "updated_by",
+            "approved_by",
+            "approved_at",
+            "approval_notes",
+            "last_exported_at",
+            "export_destinations",
+        ]
+
+        values: list[Any] = [
+            record.begrip,
+            record.definitie,
+            record.categorie,
+            record.organisatorische_context,
+            record.juridische_context,
+            wb_value,
+            record.ufo_categorie,
+            record.toelichting_proces,
+            record.status,
+            record.version_number,
+            record.previous_version_id,
+            record.validation_score,
+            record.validation_date,
+            record.validation_issues,
+            record.source_type,
+            record.source_reference,
+            record.imported_from,
+            record.created_at,
+            record.updated_at,
+            record.created_by,
+            record.updated_by,
+            record.approved_by,
+            record.approved_at,
+            record.approval_notes,
+            record.last_exported_at,
+            record.export_destinations,
+        ]
+
+        if include_legacy:
+            columns.extend(["datum_voorstel", "ketenpartners"])
+            values.extend([record.datum_voorstel, record.ketenpartners])
+
+        return columns, values
 
     def _init_database(self):
         """Initialiseer database met schema."""
@@ -369,7 +442,9 @@ class DefinitieRepository:
                             logger.warning(f"Schema execution warning: {e}")
                             # Fallback to individual statements if executescript fails
                 else:
-                    logger.debug("Database tables already exist, skipping schema creation")
+                    logger.debug(
+                        "Database tables already exist, skipping schema creation"
+                    )
         else:
             # Fallback schema creation if schema.sql not found
             logger.warning("schema.sql not found, creating basic schema")
@@ -440,7 +515,9 @@ class DefinitieRepository:
 
         return statements
 
-    def create_definitie(self, record: DefinitieRecord, allow_duplicate: bool = False) -> int:
+    def create_definitie(
+        self, record: DefinitieRecord, allow_duplicate: bool = False
+    ) -> int:
         """
         Maak nieuwe definitie aan.
 
@@ -460,7 +537,8 @@ class DefinitieRepository:
                     categorie=None,  # categorie is geen onderdeel van duplicate-criteria
                     wettelijke_basis=(
                         json.loads(record.wettelijke_basis)
-                        if record.wettelijke_basis else []
+                        if record.wettelijke_basis
+                        else []
                     ),
                 )
 
@@ -478,99 +556,21 @@ class DefinitieRepository:
 
             # Insert record - check which columns exist
             # Ensure NOT NULL columns receive defaults where appropriate
-            wb_value = record.wettelijke_basis if record.wettelijke_basis is not None else "[]"
+            wb_value = (
+                record.wettelijke_basis if record.wettelijke_basis is not None else "[]"
+            )
 
-            if self._has_legacy_columns():
-                # Voor databases met legacy kolommen - inclusief toelichting_proces
-                cursor = conn.execute(
-                    """
-                    INSERT INTO definities (
-                        begrip, definitie, categorie, organisatorische_context, juridische_context,
-                        wettelijke_basis, ufo_categorie, toelichting_proces,
-                        status, version_number, previous_version_id,
-                        validation_score, validation_date, validation_issues,
-                        source_type, source_reference, imported_from,
-                        created_at, updated_at, created_by, updated_by,
-                        approved_by, approved_at, approval_notes,
-                        last_exported_at, export_destinations,
-                        datum_voorstel, ketenpartners
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """,
-                    (
-                        record.begrip,
-                        record.definitie,
-                        record.categorie,
-                        record.organisatorische_context,
-                        record.juridische_context,
-                        wb_value,
-                        record.ufo_categorie,
-                        record.toelichting_proces,  # Nu correct opgeslagen
-                        record.status,
-                        record.version_number,
-                        record.previous_version_id,
-                        record.validation_score,
-                        record.validation_date,
-                        record.validation_issues,
-                        record.source_type,
-                        record.source_reference,
-                        record.imported_from,
-                        record.created_at,
-                        record.updated_at,
-                        record.created_by,
-                        record.updated_by,
-                        record.approved_by,
-                        record.approved_at,
-                        record.approval_notes,
-                        record.last_exported_at,
-                        record.export_destinations,
-                        record.datum_voorstel,
-                        record.ketenpartners,
-                    ),
-                )
-            else:
-                # Fallback voor databases zonder legacy kolommen
-                cursor = conn.execute(
-                    """
-                    INSERT INTO definities (
-                        begrip, definitie, categorie, organisatorische_context, juridische_context,
-                        wettelijke_basis, ufo_categorie, toelichting_proces,
-                        status, version_number, previous_version_id,
-                        validation_score, validation_date, validation_issues,
-                        source_type, source_reference, imported_from,
-                        created_at, updated_at, created_by, updated_by,
-                        approved_by, approved_at, approval_notes,
-                        last_exported_at, export_destinations
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """,
-                    (
-                        record.begrip,
-                        record.definitie,
-                        record.categorie,
-                        record.organisatorische_context,
-                        record.juridische_context,
-                        wb_value,
-                        record.ufo_categorie,
-                        record.toelichting_proces,
-                        record.status,
-                        record.version_number,
-                        record.previous_version_id,
-                        record.validation_score,
-                        record.validation_date,
-                        record.validation_issues,
-                        record.source_type,
-                        record.source_reference,
-                        record.imported_from,
-                        record.created_at,
-                        record.updated_at,
-                        record.created_by,
-                        record.updated_by,
-                        record.approved_by,
-                        record.approved_at,
-                        record.approval_notes,
-                        record.last_exported_at,
-                        record.export_destinations,
-                    ),
-                )
+            include_legacy = self._has_legacy_columns_in_conn(conn)
+            columns, values = self._build_insert_columns(
+                record, wb_value, include_legacy
+            )
+            column_sql = ", ".join(columns)
+            placeholders = ", ".join("?" for _ in columns)
+
+            cursor = conn.execute(
+                f"INSERT INTO definities ({column_sql}) VALUES ({placeholders})",
+                tuple(values),
+            )
 
             record_id = cursor.lastrowid
 
@@ -812,7 +812,9 @@ class DefinitieRepository:
 
                 if wettelijke_basis is not None:
                     try:
-                        norm = sorted({str(x).strip() for x in (wettelijke_basis or [])})
+                        norm = sorted(
+                            {str(x).strip() for x in (wettelijke_basis or [])}
+                        )
                         wb_json = json.dumps(norm, ensure_ascii=False)
                     except Exception:
                         wb_json = json.dumps(wettelijke_basis or [], ensure_ascii=False)
@@ -953,7 +955,11 @@ class DefinitieRepository:
                 where_clause += " AND version_number = ?"
                 where_params.append(expected_version)
 
-            query = "UPDATE definities SET " + ", ".join(set_clauses) + f" WHERE {where_clause}"
+            query = (
+                "UPDATE definities SET "
+                + ", ".join(set_clauses)
+                + f" WHERE {where_clause}"
+            )
             cursor = conn.execute(query, params + where_params)
             if cursor.rowcount == 0 and expected_version is not None:
                 # Versieconflict
@@ -1240,9 +1246,15 @@ class DefinitieRepository:
             categorie=row["categorie"],
             organisatorische_context=row["organisatorische_context"],
             juridische_context=row["juridische_context"],
-            wettelijke_basis=row.get("wettelijke_basis") if isinstance(row, dict) else row["wettelijke_basis"],
+            wettelijke_basis=(
+                row.get("wettelijke_basis")
+                if isinstance(row, dict)
+                else row["wettelijke_basis"]
+            ),
             ufo_categorie=(row["ufo_categorie"] if "ufo_categorie" in _keys else None),
-            toelichting_proces=(row["toelichting_proces"] if "toelichting_proces" in _keys else None),
+            toelichting_proces=(
+                row["toelichting_proces"] if "toelichting_proces" in _keys else None
+            ),
             status=row["status"],
             version_number=row["version_number"],
             previous_version_id=row["previous_version_id"],
@@ -1386,7 +1398,8 @@ class DefinitieRepository:
                     total_new += len([x for x in _v if str(x).strip()])
             if total_new == 0:
                 logger.info(
-                    "No new examples provided for definitie %s — skipping overwrite", definitie_id
+                    "No new examples provided for definitie %s — skipping overwrite",
+                    definitie_id,
                 )
                 return []
         except Exception:

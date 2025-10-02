@@ -5,6 +5,7 @@ Tests the complete refactoring from legacy to modular architecture.
 """
 
 import asyncio
+
 from services.container import ServiceContainer
 from services.interfaces import GenerationRequest
 
@@ -23,22 +24,29 @@ async def test_story_2_4_integration():
 
     # Verify types
     print(f"   ✓ Orchestrator type: {type(orchestrator).__name__}")
-    print(f"   ✓ Validation service type: {type(orchestrator.validation_service).__name__}")
+    print(
+        f"   ✓ Validation service type: {type(orchestrator.validation_service).__name__}"
+    )
 
     # Check that it's the right type
-    from services.orchestrators.validation_orchestrator_v2 import ValidationOrchestratorV2
-    assert isinstance(orchestrator.validation_service, ValidationOrchestratorV2), \
-        "DefinitionOrchestratorV2 should use ValidationOrchestratorV2"
+    from services.orchestrators.validation_orchestrator_v2 import (
+        ValidationOrchestratorV2,
+    )
+
+    assert isinstance(
+        orchestrator.validation_service, ValidationOrchestratorV2
+    ), "DefinitionOrchestratorV2 should use ValidationOrchestratorV2"
 
     # 2. Test validation through orchestrator
     print("\n2. Testing validation through orchestrator...")
 
     # Create a test request
     import uuid
+
     request = GenerationRequest(
         id=str(uuid.uuid4()),
         begrip="testbegrip",
-        context="Dit is een test context voor validatie."
+        context="Dit is een test context voor validatie.",
     )
 
     # Call create_definition which internally uses validation
@@ -48,17 +56,23 @@ async def test_story_2_4_integration():
 
         # Check result structure
         assert result is not None, "Result should not be None"
-        assert hasattr(result, 'definitie'), "Result should have definitie"
-        assert hasattr(result, 'validation_result'), "Result should have validation_result"
+        assert hasattr(result, "definitie"), "Result should have definitie"
+        assert hasattr(
+            result, "validation_result"
+        ), "Result should have validation_result"
 
-        print(f"   ✓ Definition created successfully")
+        print("   ✓ Definition created successfully")
         print(f"   ✓ Validation result present: {result.validation_result is not None}")
 
         # Check validation result structure (if present)
         if result.validation_result:
             val_result = result.validation_result
-            assert 'is_acceptable' in val_result, "Validation result should have is_acceptable"
-            assert 'overall_score' in val_result, "Validation result should have overall_score"
+            assert (
+                "is_acceptable" in val_result
+            ), "Validation result should have is_acceptable"
+            assert (
+                "overall_score" in val_result
+            ), "Validation result should have overall_score"
             print(f"   ✓ Validation score: {val_result.get('overall_score', 'N/A')}")
             print(f"   ✓ Is acceptable: {val_result.get('is_acceptable', 'N/A')}")
 
@@ -69,28 +83,28 @@ async def test_story_2_4_integration():
     # 3. Test direct validation through ValidationOrchestratorV2
     print("\n3. Testing direct validation through ValidationOrchestratorV2...")
 
-    from services.validation.interfaces import ValidationContext
     import uuid
 
+    from services.validation.interfaces import ValidationContext
+
     validation_context = ValidationContext(
-        correlation_id=uuid.uuid4(),
-        metadata={"test": "story_2_4"}
+        correlation_id=uuid.uuid4(), metadata={"test": "story_2_4"}
     )
 
     val_result = await orchestrator.validation_service.validate_text(
         begrip="testbegrip",
         text="Een test definitie voor Story 2.4 implementatie.",
         ontologische_categorie=None,
-        context=validation_context
+        context=validation_context,
     )
 
     # Check result
     assert val_result is not None, "Validation result should not be None"
-    assert 'is_acceptable' in val_result, "Should have is_acceptable"
-    assert 'overall_score' in val_result, "Should have overall_score"
-    assert 'violations' in val_result, "Should have violations"
+    assert "is_acceptable" in val_result, "Should have is_acceptable"
+    assert "overall_score" in val_result, "Should have overall_score"
+    assert "violations" in val_result, "Should have violations"
 
-    print(f"   ✓ Direct validation successful")
+    print("   ✓ Direct validation successful")
     print(f"   ✓ Score: {val_result['overall_score']}")
     print(f"   ✓ Acceptable: {val_result['is_acceptable']}")
     print(f"   ✓ Violations: {len(val_result.get('violations', []))}")

@@ -3,6 +3,7 @@ Unit tests for ModernWebLookupService with fully mocked providers.
 
 No network calls are made; MediaWiki and SRU providers are patched to stubs.
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -15,12 +16,9 @@ import pytest
 # Ensure src on path
 sys.path.insert(0, str(Path(__file__).parents[3] / "src"))
 
-from services.interfaces import LookupRequest  # noqa: E402
-from services.modern_web_lookup_service import ModernWebLookupService  # noqa: E402
-from tests.fixtures.web_lookup_mocks import (  # noqa: E402
-    SRUServiceStub,
-    wikipedia_lookup_stub,
-)
+from services.interfaces import LookupRequest
+from services.modern_web_lookup_service import ModernWebLookupService
+from tests.fixtures.web_lookup_mocks import SRUServiceStub, wikipedia_lookup_stub
 
 
 @pytest.mark.asyncio()
@@ -40,7 +38,9 @@ async def test_parallel_lookup_mediawiki_and_sru(monkeypatch):
     )
 
     svc = ModernWebLookupService()
-    req = LookupRequest(term="authenticatie", sources=["wikipedia", "overheid"], max_results=2)
+    req = LookupRequest(
+        term="authenticatie", sources=["wikipedia", "overheid"], max_results=2
+    )
     results = await svc.lookup(req)
 
     assert isinstance(results, list)
@@ -69,7 +69,9 @@ async def test_error_in_sru_does_not_break_other_providers(monkeypatch):
     )
 
     svc = ModernWebLookupService()
-    req = LookupRequest(term="rechtspraak", sources=["wikipedia", "overheid"], max_results=2)
+    req = LookupRequest(
+        term="rechtspraak", sources=["wikipedia", "overheid"], max_results=2
+    )
     results = await svc.lookup(req)
 
     # Only wikipedia survives
@@ -89,4 +91,3 @@ async def test_lookup_single_source(monkeypatch):
     result = await svc.lookup_single_source("authenticatie", "wikipedia")
     assert result is not None
     assert result.source.name == "Wikipedia"
-

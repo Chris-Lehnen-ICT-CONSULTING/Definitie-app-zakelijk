@@ -36,4 +36,4 @@ class CategoryStateManager:
     @staticmethod
     def clear_category_selector():
         """No-op placeholder; UI beheert eigen session state."""
-        return None
+        return

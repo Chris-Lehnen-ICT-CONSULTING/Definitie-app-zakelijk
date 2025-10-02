@@ -336,7 +336,10 @@ class InputValidator:
 
         if not isinstance(email, str):
             return self.SimpleResult(False, ["Invalid email type"])
-        ok = re.match(r"^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$", email) is not None
+        ok = (
+            re.match(r"^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$", email)
+            is not None
+        )
         return self.SimpleResult(ok, [] if ok else ["Invalid email format"])
 
     def validate_url(self, url: Any) -> "InputValidator.SimpleResult":
@@ -378,7 +381,9 @@ class InputValidator:
         # Basic rule: in strict_mode, avoid ellipsis and incomplete sentence
         if not isinstance(text, str):
             return self.SimpleResult(False, ["Invalid input type"])
-        strict = bool(context.get("strict_mode")) if isinstance(context, dict) else False
+        strict = (
+            bool(context.get("strict_mode")) if isinstance(context, dict) else False
+        )
         if strict and text.strip().endswith("..."):
             return self.SimpleResult(False, ["Incomplete sentence in strict mode"])
         return self.SimpleResult(True, [])
@@ -734,7 +739,9 @@ def get_validator() -> InputValidator:
     return _global_validator
 
 
-def validate_input(data: dict[str, Any], schema_name: str) -> list[InputValidationResult]:
+def validate_input(
+    data: dict[str, Any], schema_name: str
+) -> list[InputValidationResult]:
     """Convenience function for input validation."""
     validator = get_validator()
     return validator.validate(data, schema_name)
@@ -746,7 +753,9 @@ def is_valid_input(data: dict[str, Any], schema_name: str) -> bool:
     return validator.is_valid(data, schema_name)
 
 
-def get_input_errors(data: dict[str, Any], schema_name: str) -> list[InputValidationResult]:
+def get_input_errors(
+    data: dict[str, Any], schema_name: str
+) -> list[InputValidationResult]:
     """Convenience function to get input errors."""
     validator = get_validator()
     return validator.get_errors(data, schema_name)

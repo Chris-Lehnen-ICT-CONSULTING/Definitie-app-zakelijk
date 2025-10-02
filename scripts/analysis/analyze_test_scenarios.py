@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 """Identify missing test scenarios and edge cases."""
 
-import ast
-import re
-from pathlib import Path
 from collections import defaultdict
+from pathlib import Path
+
 
 def analyze_test_scenarios():
     """Analyze missing test scenarios."""
@@ -25,7 +24,7 @@ def analyze_test_scenarios():
                 "temperature variations",
                 "max token limits",
                 "empty/null inputs",
-                "concurrent requests"
+                "concurrent requests",
             ]
         },
         "src/services/definition_repository.py": {
@@ -38,7 +37,7 @@ def analyze_test_scenarios():
                 "large dataset pagination",
                 "duplicate key handling",
                 "null/empty field handling",
-                "cascade deletes"
+                "cascade deletes",
             ]
         },
         "src/services/validation/modular_validation_service.py": {
@@ -51,7 +50,7 @@ def analyze_test_scenarios():
                 "performance with large inputs",
                 "rule dependency chains",
                 "custom rule injection",
-                "validation state persistence"
+                "validation state persistence",
             ]
         },
         "src/services/orchestrators/validation_orchestrator_v2.py": {
@@ -64,7 +63,7 @@ def analyze_test_scenarios():
                 "retry strategies",
                 "circuit breaker patterns",
                 "state machine transitions",
-                "rollback scenarios"
+                "rollback scenarios",
             ]
         },
         "src/services/export_service.py": {
@@ -77,9 +76,9 @@ def analyze_test_scenarios():
                 "character encoding issues",
                 "template rendering failures",
                 "partial export recovery",
-                "export cancellation"
+                "export cancellation",
             ]
-        }
+        },
     }
 
     # Check what's actually tested
@@ -98,21 +97,29 @@ def analyze_test_scenarios():
             if "__pycache__" in str(test_file):
                 continue
             try:
-                with open(test_file, 'r') as f:
+                with open(test_file) as f:
                     content = f.read()
 
                     # Look for scenario keywords in test names and comments
                     for scenario in expected["scenarios"]:
                         keywords = scenario.split()
-                        if any(keyword.lower() in content.lower() for keyword in keywords):
+                        if any(
+                            keyword.lower() in content.lower() for keyword in keywords
+                        ):
                             tested_scenarios.add(scenario)
             except:
                 pass
 
         missing = set(expected["scenarios"]) - tested_scenarios
-        coverage_pct = (len(tested_scenarios) / len(expected["scenarios"])) * 100 if expected["scenarios"] else 0
+        coverage_pct = (
+            (len(tested_scenarios) / len(expected["scenarios"])) * 100
+            if expected["scenarios"]
+            else 0
+        )
 
-        print(f"  Coverage: {len(tested_scenarios)}/{len(expected['scenarios'])} scenarios ({coverage_pct:.0f}%)")
+        print(
+            f"  Coverage: {len(tested_scenarios)}/{len(expected['scenarios'])} scenarios ({coverage_pct:.0f}%)"
+        )
 
         if missing:
             print("  ❌ MISSING SCENARIOS:")
@@ -135,7 +142,7 @@ def analyze_test_scenarios():
             "XSS payloads",
             "binary data",
             "malformed JSON",
-            "circular references"
+            "circular references",
         ],
         "Boundary Conditions": [
             "zero values",
@@ -145,7 +152,7 @@ def analyze_test_scenarios():
             "date/time edge cases",
             "array/list boundaries",
             "pagination limits",
-            "rate limit boundaries"
+            "rate limit boundaries",
         ],
         "Error Handling": [
             "network timeouts",
@@ -155,7 +162,7 @@ def analyze_test_scenarios():
             "memory exhaustion",
             "stack overflow",
             "deadlocks",
-            "race conditions"
+            "race conditions",
         ],
         "Concurrency": [
             "parallel writes",
@@ -164,8 +171,8 @@ def analyze_test_scenarios():
             "session conflicts",
             "resource locking",
             "async cancellation",
-            "event ordering"
-        ]
+            "event ordering",
+        ],
     }
 
     # Search for edge case testing
@@ -175,14 +182,16 @@ def analyze_test_scenarios():
         if "__pycache__" in str(test_file):
             continue
         try:
-            with open(test_file, 'r') as f:
+            with open(test_file) as f:
                 content = f.read()
 
                 for category, cases in edge_cases.items():
                     for case in cases:
                         # Look for keywords indicating this edge case is tested
                         keywords = case.replace("(", "").replace(")", "").split()
-                        if any(keyword.lower() in content.lower() for keyword in keywords):
+                        if any(
+                            keyword.lower() in content.lower() for keyword in keywords
+                        ):
                             edge_case_coverage[category].add(case)
         except:
             pass
@@ -193,7 +202,9 @@ def analyze_test_scenarios():
         coverage_pct = (len(tested) / len(cases)) * 100 if cases else 0
         status = "🟢" if coverage_pct > 60 else "🟡" if coverage_pct > 30 else "🔴"
 
-        print(f"\n{status} {category}: {len(tested)}/{len(cases)} cases tested ({coverage_pct:.0f}%)")
+        print(
+            f"\n{status} {category}: {len(tested)}/{len(cases)} cases tested ({coverage_pct:.0f}%)"
+        )
 
         missing = set(cases) - tested
         if missing and coverage_pct < 50:
@@ -208,7 +219,7 @@ def analyze_test_scenarios():
     state_files = [
         "src/services/orchestrators/validation_orchestrator_v2.py",
         "src/services/workflow_service.py",
-        "src/services/category_state_manager.py"
+        "src/services/category_state_manager.py",
     ]
 
     for file_path in state_files:
@@ -218,16 +229,21 @@ def analyze_test_scenarios():
 
             for test_file in Path("tests").rglob(f"*{module_name}*.py"):
                 try:
-                    with open(test_file, 'r') as f:
+                    with open(test_file) as f:
                         content = f.read()
-                        if any(x in content for x in ["state", "transition", "workflow", "status"]):
+                        if any(
+                            x in content
+                            for x in ["state", "transition", "workflow", "status"]
+                        ):
                             has_state_tests = True
                             break
                 except:
                     pass
 
             status = "✅" if has_state_tests else "❌"
-            print(f"  {status} {file_path}: {'Has state tests' if has_state_tests else 'NO STATE TESTS'}")
+            print(
+                f"  {status} {file_path}: {'Has state tests' if has_state_tests else 'NO STATE TESTS'}"
+            )
 
     # Integration test coverage
     print("\n\n4. INTEGRATION TEST COVERAGE")
@@ -242,21 +258,25 @@ def analyze_test_scenarios():
         "Database transaction flows",
         "Multi-service orchestration",
         "Error propagation across services",
-        "Performance under load"
+        "Performance under load",
     ]
 
     found_integration_tests = set()
     for test_file in Path("tests/integration").rglob("test_*.py"):
         try:
-            with open(test_file, 'r') as f:
+            with open(test_file) as f:
                 content = f.read()
                 for scenario in integration_scenarios:
-                    if any(word.lower() in content.lower() for word in scenario.split()[:2]):
+                    if any(
+                        word.lower() in content.lower() for word in scenario.split()[:2]
+                    ):
                         found_integration_tests.add(scenario)
         except:
             pass
 
-    print(f"\n📊 Integration Scenarios: {len(found_integration_tests)}/{len(integration_scenarios)} covered")
+    print(
+        f"\n📊 Integration Scenarios: {len(found_integration_tests)}/{len(integration_scenarios)} covered"
+    )
     missing_integration = set(integration_scenarios) - found_integration_tests
     if missing_integration:
         print("\n❌ Missing Integration Tests:")
@@ -292,6 +312,7 @@ def analyze_test_scenarios():
     print("   - End-to-end workflow testing")
     print("   - Multi-service failure scenarios")
     print("   - Performance under concurrent load")
+
 
 if __name__ == "__main__":
     analyze_test_scenarios()

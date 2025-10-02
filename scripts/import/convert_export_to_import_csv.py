@@ -21,10 +21,8 @@ from __future__ import annotations
 import argparse
 import csv
 import json
-import sys
 from pathlib import Path
 from typing import Any
-
 
 CANONICAL_HEADERS = [
     "begrip",
@@ -69,7 +67,12 @@ def normalize_row(d: dict[str, Any]) -> dict[str, str]:
     )
     categorie = d.get("categorie") or d.get("category") or "proces"
 
-    org = d.get("organisatorische_context") or d.get("context") or d.get("organisatie") or []
+    org = (
+        d.get("organisatorische_context")
+        or d.get("context")
+        or d.get("organisatie")
+        or []
+    )
     jur = d.get("juridische_context") or d.get("juridisch") or []
     wet = d.get("wettelijke_basis") or d.get("wet") or []
 
@@ -130,7 +133,9 @@ def write_import_csv(out_path: Path, rows: list[dict[str, str]]):
 
 
 def main(argv: list[str] | None = None) -> int:
-    ap = argparse.ArgumentParser(description="Convert export (JSON/CSV) to import CSV format")
+    ap = argparse.ArgumentParser(
+        description="Convert export (JSON/CSV) to import CSV format"
+    )
     ap.add_argument("--input", required=True, help="Pad naar exportbestand (JSON/CSV)")
     ap.add_argument("--output", required=True, help="Pad voor output import CSV")
     args = ap.parse_args(argv)

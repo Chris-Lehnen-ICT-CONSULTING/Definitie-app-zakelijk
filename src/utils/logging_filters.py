@@ -12,7 +12,6 @@ import logging
 import re
 from typing import Any
 
-
 REDACTED = "[REDACTED]"
 
 
@@ -60,7 +59,7 @@ def _redact_text(text: str) -> str:
 class PIIRedactingFilter(logging.Filter):
     """Logging filter die gevoelige gegevens maskeert in logrecords."""
 
-    def filter(self, record: logging.LogRecord) -> bool:  # noqa: D401
+    def filter(self, record: logging.LogRecord) -> bool:
         try:
             # Redact hoofdbericht
             if isinstance(record.msg, str):
@@ -83,7 +82,10 @@ class PIIRedactingFilter(logging.Filter):
 
     def _redact_args(self, args: Any) -> Any:
         if isinstance(args, dict):
-            return {k: (_redact_text(v) if isinstance(v, str) else v) for k, v in args.items()}
+            return {
+                k: (_redact_text(v) if isinstance(v, str) else v)
+                for k, v in args.items()
+            }
         if isinstance(args, (list, tuple)):
             red = [(_redact_text(v) if isinstance(v, str) else v) for v in args]
             return type(args)(red)
@@ -93,4 +95,3 @@ class PIIRedactingFilter(logging.Filter):
 
 
 __all__ = ["PIIRedactingFilter"]
-

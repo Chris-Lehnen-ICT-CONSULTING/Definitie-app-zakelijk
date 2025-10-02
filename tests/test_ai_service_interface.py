@@ -33,7 +33,7 @@ class TestAIGenerationResult:
             generation_time=1.5,
             cached=True,
             retry_count=2,
-            metadata={"custom": "value"}
+            metadata={"custom": "value"},
         )
 
         assert result.text == "Test definitie"
@@ -47,10 +47,7 @@ class TestAIGenerationResult:
     def test_creation_with_defaults(self):
         """Test default waarden voor optionele velden."""
         result = AIGenerationResult(
-            text="Test",
-            model="gpt-4",
-            tokens_used=100,
-            generation_time=1.0
+            text="Test", model="gpt-4", tokens_used=100, generation_time=1.0
         )
 
         assert result.cached is False
@@ -61,10 +58,7 @@ class TestAIGenerationResult:
     def test_tokens_estimated_flag_when_tokens_none(self):
         """Test automatische tokens_estimated flag bij None tokens."""
         result = AIGenerationResult(
-            text="Test",
-            model="gpt-4",
-            tokens_used=None,
-            generation_time=1.0
+            text="Test", model="gpt-4", tokens_used=None, generation_time=1.0
         )
 
         assert result.tokens_used is None
@@ -73,10 +67,7 @@ class TestAIGenerationResult:
     def test_no_tokens_estimated_flag_when_tokens_provided(self):
         """Test geen tokens_estimated flag bij echte tokens."""
         result = AIGenerationResult(
-            text="Test",
-            model="gpt-4",
-            tokens_used=100,
-            generation_time=1.0
+            text="Test", model="gpt-4", tokens_used=100, generation_time=1.0
         )
 
         assert "tokens_estimated" not in result.metadata
@@ -88,7 +79,7 @@ class TestAIGenerationResult:
             model="gpt-4",
             tokens_used=None,
             generation_time=1.0,
-            metadata={"existing": "data"}
+            metadata={"existing": "data"},
         )
 
         assert result.metadata["existing"] == "data"
@@ -97,10 +88,7 @@ class TestAIGenerationResult:
     def test_serialization(self):
         """Test dataclass serialization naar dict."""
         result = AIGenerationResult(
-            text="Test",
-            model="gpt-4",
-            tokens_used=100,
-            generation_time=1.0
+            text="Test", model="gpt-4", tokens_used=100, generation_time=1.0
         )
 
         data = asdict(result)
@@ -121,7 +109,7 @@ class TestAIBatchRequest:
             model="gpt-4-turbo",
             system_prompt="You are a legal expert",
             timeout_seconds=60,
-            metadata={"priority": "high"}
+            metadata={"priority": "high"},
         )
 
         assert request.prompt == "Generate definition"
@@ -158,7 +146,6 @@ class TestAIServiceInterface:
 
         class IncompleteService(AIServiceInterface):
             """Incomplete implementatie voor test."""
-            pass
 
         with pytest.raises(TypeError) as exc_info:
             IncompleteService()
@@ -179,18 +166,17 @@ class TestAIServiceInterface:
                 max_tokens: int = 500,
                 model: str | None = None,
                 system_prompt: str | None = None,
-                timeout_seconds: int = 30
+                timeout_seconds: int = 30,
             ) -> AIGenerationResult:
                 return AIGenerationResult(
                     text="Test result",
                     model=model or "gpt-4",
                     tokens_used=100,
-                    generation_time=1.0
+                    generation_time=1.0,
                 )
 
             async def batch_generate(
-                self,
-                requests: list[AIBatchRequest]
+                self, requests: list[AIBatchRequest]
             ) -> list[AIGenerationResult]:
                 results = []
                 for req in requests:
@@ -200,7 +186,7 @@ class TestAIServiceInterface:
                         req.max_tokens,
                         req.model,
                         req.system_prompt,
-                        req.timeout_seconds
+                        req.timeout_seconds,
                     )
                     results.append(result)
                 return results
@@ -209,31 +195,34 @@ class TestAIServiceInterface:
         service = ConcreteAIService()
         assert isinstance(service, AIServiceInterface)
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_interface_async_methods(self):
         """Test dat interface methoden correct async zijn."""
 
         class TestService(AIServiceInterface):
-            async def generate_definition(self, prompt: str, **kwargs) -> AIGenerationResult:
+            async def generate_definition(
+                self, prompt: str, **kwargs
+            ) -> AIGenerationResult:
                 await asyncio.sleep(0.01)  # Simuleer async operatie
                 return AIGenerationResult(
                     text="Async result",
                     model="gpt-4",
                     tokens_used=50,
-                    generation_time=0.01
+                    generation_time=0.01,
                 )
 
-            async def batch_generate(self, requests: list[AIBatchRequest]) -> list[AIGenerationResult]:
+            async def batch_generate(
+                self, requests: list[AIBatchRequest]
+            ) -> list[AIGenerationResult]:
                 return [await self.generate_definition(req.prompt) for req in requests]
 
         service = TestService()
         result = await service.generate_definition("Test prompt")
         assert result.text == "Async result"
 
-        batch_results = await service.batch_generate([
-            AIBatchRequest(prompt="Prompt 1"),
-            AIBatchRequest(prompt="Prompt 2")
-        ])
+        batch_results = await service.batch_generate(
+            [AIBatchRequest(prompt="Prompt 1"), AIBatchRequest(prompt="Prompt 2")]
+        )
         assert len(batch_results) == 2
 
 
@@ -286,14 +275,16 @@ class TestAIServiceExceptions:
 class TestInterfaceIntegration:
     """Integration tests voor interface componenten."""
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_full_flow_simulation(self):
         """Test complete flow met mock implementatie."""
 
         class MockAIService(AIServiceInterface):
             """Mock service voor integration test."""
 
-            async def generate_definition(self, prompt: str, **kwargs) -> AIGenerationResult:
+            async def generate_definition(
+                self, prompt: str, **kwargs
+            ) -> AIGenerationResult:
                 # Simuleer verschillende scenarios
                 if "error" in prompt.lower():
                     raise AIServiceError("Simulated error")
@@ -309,10 +300,12 @@ class TestInterfaceIntegration:
                     generation_time=0.5,
                     cached="cache" in prompt.lower(),
                     retry_count=1 if "retry" in prompt.lower() else 0,
-                    metadata={"mock": True}
+                    metadata={"mock": True},
                 )
 
-            async def batch_generate(self, requests: list[AIBatchRequest]) -> list[AIGenerationResult]:
+            async def batch_generate(
+                self, requests: list[AIBatchRequest]
+            ) -> list[AIGenerationResult]:
                 results = []
                 for req in requests:
                     try:
@@ -320,18 +313,23 @@ class TestInterfaceIntegration:
                             req.prompt,
                             model=req.model,
                             temperature=req.temperature,
-                            max_tokens=req.max_tokens
+                            max_tokens=req.max_tokens,
                         )
                         results.append(result)
                     except AIServiceError as e:
                         # In batch, errors worden result met error metadata
-                        results.append(AIGenerationResult(
-                            text="",
-                            model=req.model or "gpt-4",
-                            tokens_used=0,
-                            generation_time=0,
-                            metadata={"error": str(e), "error_type": type(e).__name__}
-                        ))
+                        results.append(
+                            AIGenerationResult(
+                                text="",
+                                model=req.model or "gpt-4",
+                                tokens_used=0,
+                                generation_time=0,
+                                metadata={
+                                    "error": str(e),
+                                    "error_type": type(e).__name__,
+                                },
+                            )
+                        )
                 return results
 
         service = MockAIService()

@@ -4,8 +4,8 @@ from pathlib import Path
 import pytest
 
 
-@pytest.mark.contract
-@pytest.mark.asyncio
+@pytest.mark.contract()
+@pytest.mark.asyncio()
 async def test_validation_result_happy_path_schema():
     m = pytest.importorskip(
         "services.validation.modular_validation_service",
@@ -13,7 +13,9 @@ async def test_validation_result_happy_path_schema():
     )
 
     # Load JSON schema
-    schema_path = Path("docs/architectuur/contracts/schemas/validation_result.schema.json")
+    schema_path = Path(
+        "docs/architectuur/contracts/schemas/validation_result.schema.json"
+    )
     assert schema_path.exists(), "Schema file missing"
     schema = json.loads(schema_path.read_text(encoding="utf-8"))
 
@@ -36,14 +38,17 @@ async def test_validation_result_happy_path_schema():
     validate(instance=result, schema=schema)
 
 
-@pytest.mark.contract
+@pytest.mark.contract()
 def test_validation_result_degraded_schema():
     # Load JSON schema
-    schema_path = Path("docs/architectuur/contracts/schemas/validation_result.schema.json")
+    schema_path = Path(
+        "docs/architectuur/contracts/schemas/validation_result.schema.json"
+    )
     assert schema_path.exists(), "Schema file missing"
     schema = json.loads(schema_path.read_text(encoding="utf-8"))
 
     from jsonschema import validate
+
     from services.validation.mappers import create_degraded_result
 
     degraded = create_degraded_result(

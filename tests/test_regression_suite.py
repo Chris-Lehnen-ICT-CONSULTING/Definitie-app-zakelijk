@@ -324,9 +324,11 @@ class TestCoreFunctionality(unittest.TestCase):
         # Mock Streamlit om tests mogelijk te maken (gebruik centrale mock)
         try:
             from mocks.streamlit_mock import get_streamlit_mock
+
             sys.modules["streamlit"] = get_streamlit_mock()
         except Exception:
             from unittest.mock import MagicMock
+
             sys.modules["streamlit"] = MagicMock()
 
     def test_definitie_repository_basic_operations(self):

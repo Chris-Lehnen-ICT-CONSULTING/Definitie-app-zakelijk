@@ -21,9 +21,10 @@ def test_placeholder_warnings_are_not_marked_success(placeholder):
         "document_processing.document_processor.extract_text_from_file",
         return_value=placeholder,
     ):
-        doc = dp.process_uploaded_file(fake_bytes, filename="fake.pdf", mime_type="application/pdf")
+        doc = dp.process_uploaded_file(
+            fake_bytes, filename="fake.pdf", mime_type="application/pdf"
+        )
 
     assert doc.processing_status == "error"
     assert doc.text_length == 0
     assert doc.error_message.startswith("⚠️")
-
