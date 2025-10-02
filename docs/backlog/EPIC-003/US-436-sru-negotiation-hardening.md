@@ -1,4 +1,4 @@
-id: US-202
+id: US-436
 titel: SRU negotiation hardening (schema ladder, Accept/httpAccept, diagnostics)
 
 Doel
