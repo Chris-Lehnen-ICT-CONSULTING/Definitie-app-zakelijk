@@ -626,6 +626,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Validation Orchestrator V2 — Implementatie Guide",
+      "path": "../development/validation_orchestrator_implementation.md",
+      "url": "../development/validation_orchestrator_implementation.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/development/validation_orchestrator_implementation.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Codebase Deep Dive en Verbeterplan",
       "path": "../backlog/DEEP_DIVE_IMPROVEMENT_PLAN.md",
       "url": "../backlog/DEEP_DIVE_IMPROVEMENT_PLAN.md",
@@ -4667,6 +4698,41 @@
     },
     {
       "id": null,
+      "type": "TEST",
+      "title": "US-427 Test Coverage Baseline",
+      "path": "../testing/US-427-coverage-baseline.md",
+      "url": "../testing/US-427-coverage-baseline.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": "US-427-coverage-baseline.md",
+      "_refs": {
+        "us": [
+          "US-427"
+        ],
+        "epic": [
+          "EPIC-025"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/testing/US-427-coverage-baseline.html"
+    },
+    {
+      "id": null,
       "type": "DOC",
       "title": "Implementatieplan: Synoniemen/Antoniemen & Context Flow Fixes",
       "path": "../implementation/synoniemen-antoniemen-fix-plan.md",
@@ -5498,6 +5564,37 @@
         "req": []
       },
       "rendered_url": "rendered/migration/synoniemen-migratie-strategie.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "History Tab Removal - Complete Summary",
+      "path": "../technical/history_tab_removal_summary.md",
+      "url": "../technical/history_tab_removal_summary.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/technical/history_tab_removal_summary.html"
     },
     {
       "id": null,
@@ -16598,20 +16695,20 @@
       "rendered_url": "rendered/code-analyse/quality/TECHNICAL_DEBT_ASSESSMENT_2025.html"
     },
     {
-      "id": null,
+      "id": "US-437",
       "type": "DOC",
-      "title": "US-437-provider-health-metrics",
+      "title": "Provider Health Metrics",
       "path": "../backlog/EPIC-003/US-437-provider-health-metrics.md",
       "url": "../backlog/EPIC-003/US-437-provider-health-metrics.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
+      "status": "open",
+      "prioriteit": "P2",
+      "owner": "tbd",
       "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
+      "last_verified": "2025-09-30",
+      "applies_to": "definitie-app@current",
       "category": null,
       "sprint": null,
-      "story_points": null,
+      "story_points": "5",
       "completion": null,
       "target_release": null,
       "planning": {
@@ -16625,7 +16722,9 @@
         "us": [
           "US-437"
         ],
-        "epic": [],
+        "epic": [
+          "EPIC-003"
+        ],
         "req": []
       },
       "rendered_url": "rendered/backlog/EPIC-003/US-437-provider-health-metrics.html"
@@ -16682,20 +16781,20 @@
       "rendered_url": "rendered/backlog/EPIC-003/WEB-LOOKUP-ANALYSIS-REPORT.html"
     },
     {
-      "id": null,
+      "id": "US-435",
       "type": "DOC",
-      "title": "US-435-mediawiki-query-sanitization",
+      "title": "MediaWiki Query Sanitization",
       "path": "../backlog/EPIC-003/US-435-mediawiki-query-sanitization.md",
       "url": "../backlog/EPIC-003/US-435-mediawiki-query-sanitization.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
+      "status": "open",
+      "prioriteit": "P2",
+      "owner": "tbd",
       "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
+      "last_verified": "2025-09-30",
+      "applies_to": "definitie-app@current",
       "category": null,
       "sprint": null,
-      "story_points": null,
+      "story_points": "5",
       "completion": null,
       "target_release": null,
       "planning": {
@@ -16863,20 +16962,20 @@
       ]
     },
     {
-      "id": null,
+      "id": "US-436",
       "type": "DOC",
-      "title": "US-436-sru-negotiation-hardening",
+      "title": "SRU Negotiation Hardening",
       "path": "../backlog/EPIC-003/US-436-sru-negotiation-hardening.md",
       "url": "../backlog/EPIC-003/US-436-sru-negotiation-hardening.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
+      "status": "open",
+      "prioriteit": "P2",
+      "owner": "tbd",
       "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
+      "last_verified": "2025-09-30",
+      "applies_to": "definitie-app@current",
       "category": null,
       "sprint": null,
-      "story_points": null,
+      "story_points": "5",
       "completion": null,
       "target_release": null,
       "planning": {
@@ -16890,7 +16989,9 @@
         "us": [
           "US-436"
         ],
-        "epic": [],
+        "epic": [
+          "EPIC-003"
+        ],
         "req": []
       },
       "rendered_url": "rendered/backlog/EPIC-003/US-436-sru-negotiation-hardening.html"
@@ -16986,20 +17087,20 @@
       ]
     },
     {
-      "id": null,
+      "id": "US-237",
       "type": "DOC",
-      "title": "US-237-reset-examples-to-db",
+      "title": "Reset Examples to DB",
       "path": "../backlog/EPIC-004/US-237-reset-examples-to-db.md",
       "url": "../backlog/EPIC-004/US-237-reset-examples-to-db.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
+      "status": "open",
+      "prioriteit": "P2",
+      "owner": "tbd",
       "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
+      "last_verified": "2025-09-30",
+      "applies_to": "definitie-app@current",
       "category": null,
       "sprint": null,
-      "story_points": null,
+      "story_points": "5",
       "completion": null,
       "target_release": null,
       "planning": {
@@ -17013,26 +17114,28 @@
         "us": [
           "US-237"
         ],
-        "epic": [],
+        "epic": [
+          "EPIC-004"
+        ],
         "req": []
       },
       "rendered_url": "rendered/backlog/EPIC-004/US-237-reset-examples-to-db.html"
     },
     {
-      "id": null,
+      "id": "US-438",
       "type": "DOC",
-      "title": "US-438-ui-arrow-typesafety",
+      "title": "UI DataFrame Type-Safety",
       "path": "../backlog/EPIC-004/US-438-ui-arrow-typesafety.md",
       "url": "../backlog/EPIC-004/US-438-ui-arrow-typesafety.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
+      "status": "open",
+      "prioriteit": "P2",
+      "owner": "tbd",
       "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
+      "last_verified": "2025-09-30",
+      "applies_to": "definitie-app@current",
       "category": null,
       "sprint": null,
-      "story_points": null,
+      "story_points": "5",
       "completion": null,
       "target_release": null,
       "planning": {
@@ -17046,7 +17149,9 @@
         "us": [
           "US-438"
         ],
-        "epic": [],
+        "epic": [
+          "EPIC-004"
+        ],
         "req": []
       },
       "rendered_url": "rendered/backlog/EPIC-004/US-438-ui-arrow-typesafety.html"
@@ -17323,20 +17428,20 @@
       "linked_stories": null
     },
     {
-      "id": null,
+      "id": "US-439",
       "type": "DOC",
-      "title": "US-439-env-ssot",
+      "title": "Environment SSOT",
       "path": "../backlog/EPIC-011/US-439-env-ssot.md",
       "url": "../backlog/EPIC-011/US-439-env-ssot.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
+      "status": "open",
+      "prioriteit": "P2",
+      "owner": "tbd",
       "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
+      "last_verified": "2025-09-30",
+      "applies_to": "definitie-app@current",
       "category": null,
       "sprint": null,
-      "story_points": null,
+      "story_points": "5",
       "completion": null,
       "target_release": null,
       "planning": {
@@ -17350,7 +17455,9 @@
         "us": [
           "US-439"
         ],
-        "epic": [],
+        "epic": [
+          "EPIC-011"
+        ],
         "req": []
       },
       "rendered_url": "rendered/backlog/EPIC-011/US-439-env-ssot.html"
@@ -23544,20 +23651,20 @@
       "rendered_url": "rendered/backlog/EPIC-014/EPIC-014.html"
     },
     {
-      "id": null,
+      "id": "US-108",
       "type": "US",
-      "title": "US-108: Implementeer Violation-to-Feedback Mapping Service",
+      "title": "Implementeer Violation-to-Feedback Mapping Service",
       "path": "../backlog/EPIC-014/US-108/US-108.md",
       "url": "../backlog/EPIC-014/US-108/US-108.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
+      "status": "open",
+      "prioriteit": "P2",
+      "owner": "tbd",
       "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
+      "last_verified": "2025-09-30",
+      "applies_to": "definitie-app@current",
       "category": null,
       "sprint": null,
-      "story_points": null,
+      "story_points": "5",
       "completion": null,
       "target_release": null,
       "planning": {
@@ -23576,23 +23683,24 @@
         ],
         "req": []
       },
-      "rendered_url": "rendered/backlog/EPIC-014/US-108/US-108.html"
+      "rendered_url": "rendered/backlog/EPIC-014/US-108/US-108.html",
+      "linked_reqs": null
     },
     {
-      "id": null,
+      "id": "US-109",
       "type": "US",
-      "title": "US-109: Implementeer Definitie Acceptatie Criteria Engine",
+      "title": "Implementeer Definitie Acceptatie Criteria Engine",
       "path": "../backlog/EPIC-014/US-109/US-109.md",
       "url": "../backlog/EPIC-014/US-109/US-109.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
+      "status": "open",
+      "prioriteit": "P2",
+      "owner": "tbd",
       "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
+      "last_verified": "2025-09-30",
+      "applies_to": "definitie-app@current",
       "category": null,
       "sprint": null,
-      "story_points": null,
+      "story_points": "5",
       "completion": null,
       "target_release": null,
       "planning": {
@@ -23611,7 +23719,8 @@
         ],
         "req": []
       },
-      "rendered_url": "rendered/backlog/EPIC-014/US-109/US-109.html"
+      "rendered_url": "rendered/backlog/EPIC-014/US-109/US-109.html",
+      "linked_reqs": null
     },
     {
       "id": "US-122",
@@ -23650,20 +23759,20 @@
       "linked_reqs": null
     },
     {
-      "id": null,
+      "id": "US-113",
       "type": "US",
-      "title": "US-113: Implementeer Clarity Enhancement Service",
+      "title": "Implementeer Clarity Enhancement Service",
       "path": "../backlog/EPIC-014/US-113/US-113.md",
       "url": "../backlog/EPIC-014/US-113/US-113.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
+      "status": "open",
+      "prioriteit": "P2",
+      "owner": "tbd",
       "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
+      "last_verified": "2025-09-30",
+      "applies_to": "definitie-app@current",
       "category": null,
       "sprint": null,
-      "story_points": null,
+      "story_points": "5",
       "completion": null,
       "target_release": null,
       "planning": {
@@ -23683,23 +23792,24 @@
         ],
         "req": []
       },
-      "rendered_url": "rendered/backlog/EPIC-014/US-113/US-113.html"
+      "rendered_url": "rendered/backlog/EPIC-014/US-113/US-113.html",
+      "linked_reqs": null
     },
     {
-      "id": null,
+      "id": "US-114",
       "type": "US",
-      "title": "US-114: Implementeer Context Integration Handler",
+      "title": "Implementeer Context Integration Handler",
       "path": "../backlog/EPIC-014/US-114/US-114.md",
       "url": "../backlog/EPIC-014/US-114/US-114.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
+      "status": "open",
+      "prioriteit": "P2",
+      "owner": "tbd",
       "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
+      "last_verified": "2025-09-30",
+      "applies_to": "definitie-app@current",
       "category": null,
       "sprint": null,
-      "story_points": null,
+      "story_points": "5",
       "completion": null,
       "target_release": null,
       "planning": {
@@ -23720,23 +23830,24 @@
         ],
         "req": []
       },
-      "rendered_url": "rendered/backlog/EPIC-014/US-114/US-114.html"
+      "rendered_url": "rendered/backlog/EPIC-014/US-114/US-114.html",
+      "linked_reqs": null
     },
     {
-      "id": null,
+      "id": "US-115",
       "type": "US",
-      "title": "US-115: Implementeer Completeness Analyzer",
+      "title": "Implementeer Completeness Analyzer",
       "path": "../backlog/EPIC-014/US-115/US-115.md",
       "url": "../backlog/EPIC-014/US-115/US-115.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
+      "status": "open",
+      "prioriteit": "P2",
+      "owner": "tbd",
       "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
+      "last_verified": "2025-09-30",
+      "applies_to": "definitie-app@current",
       "category": null,
       "sprint": null,
-      "story_points": null,
+      "story_points": "5",
       "completion": null,
       "target_release": null,
       "planning": {
@@ -23755,23 +23866,24 @@
         ],
         "req": []
       },
-      "rendered_url": "rendered/backlog/EPIC-014/US-115/US-115.html"
+      "rendered_url": "rendered/backlog/EPIC-014/US-115/US-115.html",
+      "linked_reqs": null
     },
     {
-      "id": null,
+      "id": "US-112",
       "type": "US",
-      "title": "US-112: Implementeer Voorbeelden Caching Strategy",
+      "title": "Implementeer Voorbeelden Caching Strategy",
       "path": "../backlog/EPIC-014/US-112/US-112.md",
       "url": "../backlog/EPIC-014/US-112/US-112.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
+      "status": "open",
+      "prioriteit": "P2",
+      "owner": "tbd",
       "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
+      "last_verified": "2025-09-30",
+      "applies_to": "definitie-app@current",
       "category": null,
       "sprint": null,
-      "story_points": null,
+      "story_points": "5",
       "completion": null,
       "target_release": null,
       "planning": {
@@ -23790,7 +23902,8 @@
         ],
         "req": []
       },
-      "rendered_url": "rendered/backlog/EPIC-014/US-112/US-112.html"
+      "rendered_url": "rendered/backlog/EPIC-014/US-112/US-112.html",
+      "linked_reqs": null
     },
     {
       "id": "US-124",
@@ -23865,20 +23978,20 @@
       "linked_reqs": null
     },
     {
-      "id": null,
+      "id": "US-156",
       "type": "US",
-      "title": "US-156: Implementeer FeedbackBuilder Priority Algorithm",
+      "title": "Implementeer FeedbackBuilder Priority Algorithm",
       "path": "../backlog/EPIC-014/US-156/US-156.md",
       "url": "../backlog/EPIC-014/US-156/US-156.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
+      "status": "open",
+      "prioriteit": "P2",
+      "owner": "tbd",
       "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
+      "last_verified": "2025-09-30",
+      "applies_to": "definitie-app@current",
       "category": null,
       "sprint": null,
-      "story_points": null,
+      "story_points": "5",
       "completion": null,
       "target_release": null,
       "planning": {
@@ -23897,7 +24010,8 @@
         ],
         "req": []
       },
-      "rendered_url": "rendered/backlog/EPIC-014/US-156/US-156.html"
+      "rendered_url": "rendered/backlog/EPIC-014/US-156/US-156.html",
+      "linked_reqs": null
     },
     {
       "id": null,
@@ -24353,20 +24467,20 @@
       "rendered_url": "rendered/backlog/EPIC-014/US-300/IMPLEMENTATION_ANALYSIS_REPORT.html"
     },
     {
-      "id": null,
+      "id": "US-157",
       "type": "US",
-      "title": "US-157: Implementeer Weighted Score Calculator",
+      "title": "Implementeer Weighted Score Calculator",
       "path": "../backlog/EPIC-014/US-157/US-157.md",
       "url": "../backlog/EPIC-014/US-157/US-157.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
+      "status": "open",
+      "prioriteit": "P2",
+      "owner": "tbd",
       "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
+      "last_verified": "2025-09-30",
+      "applies_to": "definitie-app@current",
       "category": null,
       "sprint": null,
-      "story_points": null,
+      "story_points": "5",
       "completion": null,
       "target_release": null,
       "planning": {
@@ -24385,23 +24499,24 @@
         ],
         "req": []
       },
-      "rendered_url": "rendered/backlog/EPIC-014/US-157/US-157.html"
+      "rendered_url": "rendered/backlog/EPIC-014/US-157/US-157.html",
+      "linked_reqs": null
     },
     {
-      "id": null,
+      "id": "US-119",
       "type": "US",
-      "title": "US-119: Implementeer Feedback History Manager",
+      "title": "Implementeer Feedback History Manager",
       "path": "../backlog/EPIC-014/US-119/US-119.md",
       "url": "../backlog/EPIC-014/US-119/US-119.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
+      "status": "open",
+      "prioriteit": "P2",
+      "owner": "tbd",
       "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
+      "last_verified": "2025-09-30",
+      "applies_to": "definitie-app@current",
       "category": null,
       "sprint": null,
-      "story_points": null,
+      "story_points": "5",
       "completion": null,
       "target_release": null,
       "planning": {
@@ -24420,23 +24535,24 @@
         ],
         "req": []
       },
-      "rendered_url": "rendered/backlog/EPIC-014/US-119/US-119.html"
+      "rendered_url": "rendered/backlog/EPIC-014/US-119/US-119.html",
+      "linked_reqs": null
     },
     {
-      "id": null,
+      "id": "US-121",
       "type": "US",
-      "title": "US-121: Implementeer Stagnation Detector",
+      "title": "Implementeer Stagnation Detector",
       "path": "../backlog/EPIC-014/US-121/US-121.md",
       "url": "../backlog/EPIC-014/US-121/US-121.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
+      "status": "open",
+      "prioriteit": "P2",
+      "owner": "tbd",
       "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
+      "last_verified": "2025-09-30",
+      "applies_to": "definitie-app@current",
       "category": null,
       "sprint": null,
-      "story_points": null,
+      "story_points": "5",
       "completion": null,
       "target_release": null,
       "planning": {
@@ -24455,23 +24571,24 @@
         ],
         "req": []
       },
-      "rendered_url": "rendered/backlog/EPIC-014/US-121/US-121.html"
+      "rendered_url": "rendered/backlog/EPIC-014/US-121/US-121.html",
+      "linked_reqs": null
     },
     {
-      "id": null,
+      "id": "US-117",
       "type": "US",
-      "title": "US-117: Implementeer Validation Element Detectors",
+      "title": "Implementeer Validation Element Detectors",
       "path": "../backlog/EPIC-014/US-117/US-117.md",
       "url": "../backlog/EPIC-014/US-117/US-117.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
+      "status": "open",
+      "prioriteit": "P2",
+      "owner": "tbd",
       "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
+      "last_verified": "2025-09-30",
+      "applies_to": "definitie-app@current",
       "category": null,
       "sprint": null,
-      "story_points": null,
+      "story_points": "5",
       "completion": null,
       "target_release": null,
       "planning": {
@@ -24490,23 +24607,24 @@
         ],
         "req": []
       },
-      "rendered_url": "rendered/backlog/EPIC-014/US-117/US-117.html"
+      "rendered_url": "rendered/backlog/EPIC-014/US-117/US-117.html",
+      "linked_reqs": null
     },
     {
-      "id": null,
+      "id": "US-111",
       "type": "US",
-      "title": "US-111: Implementeer Iterative Improvement Controller",
+      "title": "Implementeer Iterative Improvement Controller",
       "path": "../backlog/EPIC-014/US-111/US-111.md",
       "url": "../backlog/EPIC-014/US-111/US-111.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
+      "status": "open",
+      "prioriteit": "P2",
+      "owner": "tbd",
       "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
+      "last_verified": "2025-09-30",
+      "applies_to": "definitie-app@current",
       "category": null,
       "sprint": null,
-      "story_points": null,
+      "story_points": "5",
       "completion": null,
       "target_release": null,
       "planning": {
@@ -24525,23 +24643,24 @@
         ],
         "req": []
       },
-      "rendered_url": "rendered/backlog/EPIC-014/US-111/US-111.html"
+      "rendered_url": "rendered/backlog/EPIC-014/US-111/US-111.html",
+      "linked_reqs": null
     },
     {
-      "id": null,
+      "id": "US-116",
       "type": "US",
-      "title": "US-116: Implementeer Linguistic Enhancer",
+      "title": "Implementeer Linguistic Enhancer",
       "path": "../backlog/EPIC-014/US-116/US-116.md",
       "url": "../backlog/EPIC-014/US-116/US-116.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
+      "status": "open",
+      "prioriteit": "P2",
+      "owner": "tbd",
       "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
+      "last_verified": "2025-09-30",
+      "applies_to": "definitie-app@current",
       "category": null,
       "sprint": null,
-      "story_points": null,
+      "story_points": "5",
       "completion": null,
       "target_release": null,
       "planning": {
@@ -24560,23 +24679,24 @@
         ],
         "req": []
       },
-      "rendered_url": "rendered/backlog/EPIC-014/US-116/US-116.html"
+      "rendered_url": "rendered/backlog/EPIC-014/US-116/US-116.html",
+      "linked_reqs": null
     },
     {
-      "id": null,
+      "id": "US-120",
       "type": "US",
-      "title": "US-120: Implementeer Best Iteration Tracker",
+      "title": "Implementeer Best Iteration Tracker",
       "path": "../backlog/EPIC-014/US-120/US-120.md",
       "url": "../backlog/EPIC-014/US-120/US-120.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
+      "status": "open",
+      "prioriteit": "P2",
+      "owner": "tbd",
       "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
+      "last_verified": "2025-09-30",
+      "applies_to": "definitie-app@current",
       "category": null,
       "sprint": null,
-      "story_points": null,
+      "story_points": "5",
       "completion": null,
       "target_release": null,
       "planning": {
@@ -24595,23 +24715,24 @@
         ],
         "req": []
       },
-      "rendered_url": "rendered/backlog/EPIC-014/US-120/US-120.html"
+      "rendered_url": "rendered/backlog/EPIC-014/US-120/US-120.html",
+      "linked_reqs": null
     },
     {
-      "id": null,
+      "id": "US-118",
       "type": "US",
-      "title": "US-118: Implementeer Structure Checkers",
+      "title": "Implementeer Structure Checkers",
       "path": "../backlog/EPIC-014/US-118/US-118.md",
       "url": "../backlog/EPIC-014/US-118/US-118.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
+      "status": "open",
+      "prioriteit": "P2",
+      "owner": "tbd",
       "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
+      "last_verified": "2025-09-30",
+      "applies_to": "definitie-app@current",
       "category": null,
       "sprint": null,
-      "story_points": null,
+      "story_points": "5",
       "completion": null,
       "target_release": null,
       "planning": {
@@ -24630,7 +24751,8 @@
         ],
         "req": []
       },
-      "rendered_url": "rendered/backlog/EPIC-014/US-118/US-118.html"
+      "rendered_url": "rendered/backlog/EPIC-014/US-118/US-118.html",
+      "linked_reqs": null
     },
     {
       "id": "US-086",
@@ -26190,20 +26312,20 @@
       "linked_reqs": null
     },
     {
-      "id": null,
+      "id": "US-152",
       "type": "US",
-      "title": "US-152: Refactor FeedbackBuilder naar moderne service",
+      "title": "Refactor FeedbackBuilder naar moderne service",
       "path": "../backlog/EPIC-012/US-152/US-152.md",
       "url": "../backlog/EPIC-012/US-152/US-152.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
+      "status": "open",
+      "prioriteit": "P2",
+      "owner": "tbd",
       "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
+      "last_verified": "2025-09-30",
+      "applies_to": "definitie-app@current",
       "category": null,
       "sprint": null,
-      "story_points": null,
+      "story_points": "5",
       "completion": null,
       "target_release": null,
       "planning": {
@@ -26226,7 +26348,8 @@
         ],
         "req": []
       },
-      "rendered_url": "rendered/backlog/EPIC-012/US-152/US-152.html"
+      "rendered_url": "rendered/backlog/EPIC-012/US-152/US-152.html",
+      "linked_reqs": null
     },
     {
       "id": null,
@@ -26269,20 +26392,20 @@
       "rendered_url": "rendered/backlog/EPIC-012/US-152/IMPLEMENTATION_PLAN.html"
     },
     {
-      "id": null,
+      "id": "US-170",
       "type": "US",
-      "title": "US-170: Koppel Orchestration-tab aan V2 Orchestrator (productiepad)",
+      "title": "Koppel Orchestration-tab aan V2 Orchestrator (productiepad)",
       "path": "../backlog/EPIC-012/US-170/US-170.md",
       "url": "../backlog/EPIC-012/US-170/US-170.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
+      "status": "open",
+      "prioriteit": "P2",
+      "owner": "tbd",
       "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
+      "last_verified": "2025-09-30",
+      "applies_to": "definitie-app@current",
       "category": null,
       "sprint": null,
-      "story_points": null,
+      "story_points": "5",
       "completion": null,
       "target_release": null,
       "planning": {
@@ -26301,23 +26424,24 @@
         ],
         "req": []
       },
-      "rendered_url": "rendered/backlog/EPIC-012/US-170/US-170.html"
+      "rendered_url": "rendered/backlog/EPIC-012/US-170/US-170.html",
+      "linked_reqs": null
     },
     {
-      "id": null,
+      "id": "US-061",
       "type": "US",
-      "title": "US-061: Extract en documenteer business kennis uit legacy",
+      "title": "Extract en documenteer business kennis uit legacy",
       "path": "../backlog/EPIC-012/US-061/US-061.md",
       "url": "../backlog/EPIC-012/US-061/US-061.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
+      "status": "open",
+      "prioriteit": "P2",
+      "owner": "tbd",
       "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
+      "last_verified": "2025-09-30",
+      "applies_to": "definitie-app@current",
       "category": null,
       "sprint": null,
-      "story_points": null,
+      "story_points": "5",
       "completion": null,
       "target_release": null,
       "planning": {
@@ -26340,7 +26464,8 @@
         ],
         "req": []
       },
-      "rendered_url": "rendered/backlog/EPIC-012/US-061/US-061.html"
+      "rendered_url": "rendered/backlog/EPIC-012/US-061/US-061.html",
+      "linked_reqs": null
     },
     {
       "id": null,
@@ -27150,20 +27275,20 @@
       "linked_reqs": null
     },
     {
-      "id": null,
+      "id": "US-141",
       "type": "US",
-      "title": "US-141: User authenticatie",
+      "title": "User authenticatie",
       "path": "../backlog/EPIC-006/US-141/US-141.md",
       "url": "../backlog/EPIC-006/US-141/US-141.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
+      "status": "open",
+      "prioriteit": "P2",
+      "owner": "tbd",
       "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
+      "last_verified": "2025-09-30",
+      "applies_to": "definitie-app@current",
       "category": null,
       "sprint": null,
-      "story_points": null,
+      "story_points": "5",
       "completion": null,
       "target_release": null,
       "planning": {
@@ -27186,7 +27311,8 @@
           "REQ-071"
         ]
       },
-      "rendered_url": "rendered/backlog/EPIC-006/US-141/US-141.html"
+      "rendered_url": "rendered/backlog/EPIC-006/US-141/US-141.html",
+      "linked_reqs": null
     },
     {
       "id": "US-032",
@@ -27663,20 +27789,20 @@
       "linked_reqs": null
     },
     {
-      "id": null,
+      "id": "US-146",
       "type": "US",
-      "title": "US-146: Frontend Bundle Optimization",
+      "title": "Frontend Bundle Optimization",
       "path": "../backlog/EPIC-007/US-146/US-146.md",
       "url": "../backlog/EPIC-007/US-146/US-146.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
+      "status": "open",
+      "prioriteit": "P2",
+      "owner": "tbd",
       "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
+      "last_verified": "2025-09-30",
+      "applies_to": "definitie-app@current",
       "category": null,
       "sprint": null,
-      "story_points": null,
+      "story_points": "5",
       "completion": null,
       "target_release": null,
       "planning": {
@@ -27695,23 +27821,24 @@
         ],
         "req": []
       },
-      "rendered_url": "rendered/backlog/EPIC-007/US-146/US-146.html"
+      "rendered_url": "rendered/backlog/EPIC-007/US-146/US-146.html",
+      "linked_reqs": null
     },
     {
-      "id": null,
+      "id": "US-033",
       "type": "US",
-      "title": "US-033: Memory Leak Prevention",
+      "title": "Memory Leak Prevention",
       "path": "../backlog/EPIC-007/US-033/US-033.md",
       "url": "../backlog/EPIC-007/US-033/US-033.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
+      "status": "open",
+      "prioriteit": "P2",
+      "owner": "tbd",
       "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
+      "last_verified": "2025-09-30",
+      "applies_to": "definitie-app@current",
       "category": null,
       "sprint": null,
-      "story_points": null,
+      "story_points": "5",
       "completion": null,
       "target_release": null,
       "planning": {
@@ -27730,23 +27857,24 @@
         ],
         "req": []
       },
-      "rendered_url": "rendered/backlog/EPIC-007/US-033/US-033.html"
+      "rendered_url": "rendered/backlog/EPIC-007/US-033/US-033.html",
+      "linked_reqs": null
     },
     {
-      "id": null,
+      "id": "US-034",
       "type": "US",
-      "title": "US-034: Background Processing",
+      "title": "Background Processing",
       "path": "../backlog/EPIC-007/US-034/US-034.md",
       "url": "../backlog/EPIC-007/US-034/US-034.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
+      "status": "open",
+      "prioriteit": "P2",
+      "owner": "tbd",
       "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
+      "last_verified": "2025-09-30",
+      "applies_to": "definitie-app@current",
       "category": null,
       "sprint": null,
-      "story_points": null,
+      "story_points": "5",
       "completion": null,
       "target_release": null,
       "planning": {
@@ -27765,7 +27893,8 @@
         ],
         "req": []
       },
-      "rendered_url": "rendered/backlog/EPIC-007/US-034/US-034.html"
+      "rendered_url": "rendered/backlog/EPIC-007/US-034/US-034.html",
+      "linked_reqs": null
     },
     {
       "id": "US-035",
@@ -28187,20 +28316,20 @@
       "linked_reqs": null
     },
     {
-      "id": null,
+      "id": "US-147",
       "type": "US",
-      "title": "US-147: Load Testen & Benchmarking",
+      "title": "Load Testen & Benchmarking",
       "path": "../backlog/EPIC-009/US-147/US-147.md",
       "url": "../backlog/EPIC-009/US-147/US-147.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
+      "status": "open",
+      "prioriteit": "P2",
+      "owner": "tbd",
       "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
+      "last_verified": "2025-09-30",
+      "applies_to": "definitie-app@current",
       "category": null,
       "sprint": null,
-      "story_points": null,
+      "story_points": "5",
       "completion": null,
       "target_release": null,
       "planning": {
@@ -28215,27 +28344,29 @@
           "US-147"
         ],
         "epic": [
-          "EPIC-007"
+          "EPIC-007",
+          "EPIC-009"
         ],
         "req": []
       },
-      "rendered_url": "rendered/backlog/EPIC-009/US-147/US-147.html"
+      "rendered_url": "rendered/backlog/EPIC-009/US-147/US-147.html",
+      "linked_reqs": null
     },
     {
-      "id": null,
+      "id": "US-149",
       "type": "US",
-      "title": "US-149: Collaborative Editing",
+      "title": "Collaborative Editing",
       "path": "../backlog/EPIC-009/US-149/US-149.md",
       "url": "../backlog/EPIC-009/US-149/US-149.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
+      "status": "open",
+      "prioriteit": "P2",
+      "owner": "tbd",
       "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
+      "last_verified": "2025-09-30",
+      "applies_to": "definitie-app@current",
       "category": null,
       "sprint": null,
-      "story_points": null,
+      "story_points": "5",
       "completion": null,
       "target_release": null,
       "planning": {
@@ -28254,23 +28385,24 @@
         ],
         "req": []
       },
-      "rendered_url": "rendered/backlog/EPIC-009/US-149/US-149.html"
+      "rendered_url": "rendered/backlog/EPIC-009/US-149/US-149.html",
+      "linked_reqs": null
     },
     {
-      "id": null,
+      "id": "US-148",
       "type": "US",
-      "title": "US-148: Versie History",
+      "title": "Versie History",
       "path": "../backlog/EPIC-009/US-148/US-148.md",
       "url": "../backlog/EPIC-009/US-148/US-148.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
+      "status": "open",
+      "prioriteit": "P2",
+      "owner": "tbd",
       "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
+      "last_verified": "2025-09-30",
+      "applies_to": "definitie-app@current",
       "category": null,
       "sprint": null,
-      "story_points": null,
+      "story_points": "5",
       "completion": null,
       "target_release": null,
       "planning": {
@@ -28289,7 +28421,8 @@
         ],
         "req": []
       },
-      "rendered_url": "rendered/backlog/EPIC-009/US-148/US-148.html"
+      "rendered_url": "rendered/backlog/EPIC-009/US-148/US-148.html",
+      "linked_reqs": null
     },
     {
       "id": "US-060",
@@ -28368,20 +28501,20 @@
       "linked_reqs": null
     },
     {
-      "id": null,
+      "id": "US-040",
       "type": "US",
-      "title": "US-040: Advanced Search",
+      "title": "Advanced Search",
       "path": "../backlog/EPIC-009/US-040/US-040.md",
       "url": "../backlog/EPIC-009/US-040/US-040.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
+      "status": "open",
+      "prioriteit": "P2",
+      "owner": "tbd",
       "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
+      "last_verified": "2025-09-30",
+      "applies_to": "definitie-app@current",
       "category": null,
       "sprint": null,
-      "story_points": null,
+      "story_points": "5",
       "completion": null,
       "target_release": null,
       "planning": {
@@ -28400,23 +28533,24 @@
         ],
         "req": []
       },
-      "rendered_url": "rendered/backlog/EPIC-009/US-040/US-040.html"
+      "rendered_url": "rendered/backlog/EPIC-009/US-040/US-040.html",
+      "linked_reqs": null
     },
     {
-      "id": null,
+      "id": "US-151",
       "type": "US",
-      "title": "US-151: Batch Processing",
+      "title": "Batch Processing",
       "path": "../backlog/EPIC-009/US-151/US-151.md",
       "url": "../backlog/EPIC-009/US-151/US-151.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
+      "status": "open",
+      "prioriteit": "P2",
+      "owner": "tbd",
       "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
+      "last_verified": "2025-09-30",
+      "applies_to": "definitie-app@current",
       "category": null,
       "sprint": null,
-      "story_points": null,
+      "story_points": "5",
       "completion": null,
       "target_release": null,
       "planning": {
@@ -28435,23 +28569,24 @@
         ],
         "req": []
       },
-      "rendered_url": "rendered/backlog/EPIC-009/US-151/US-151.html"
+      "rendered_url": "rendered/backlog/EPIC-009/US-151/US-151.html",
+      "linked_reqs": null
     },
     {
-      "id": null,
+      "id": "US-150",
       "type": "US",
-      "title": "US-150: API Endpoints",
+      "title": "API Endpoints",
       "path": "../backlog/EPIC-009/US-150/US-150.md",
       "url": "../backlog/EPIC-009/US-150/US-150.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
+      "status": "open",
+      "prioriteit": "P2",
+      "owner": "tbd",
       "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
+      "last_verified": "2025-09-30",
+      "applies_to": "definitie-app@current",
       "category": null,
       "sprint": null,
-      "story_points": null,
+      "story_points": "5",
       "completion": null,
       "target_release": null,
       "planning": {
@@ -28470,7 +28605,8 @@
         ],
         "req": []
       },
-      "rendered_url": "rendered/backlog/EPIC-009/US-150/US-150.html"
+      "rendered_url": "rendered/backlog/EPIC-009/US-150/US-150.html",
+      "linked_reqs": null
     },
     {
       "id": "US-212",
@@ -28584,20 +28720,20 @@
       "rendered_url": "rendered/backlog/EPIC-020-PHOENIX/US-201/PERFORMANCE_ANALYSIS_REPORT.html"
     },
     {
-      "id": null,
+      "id": "US-201-IMPLEMENTATION-REPORT",
       "type": "DOC",
-      "title": "US-201: ServiceContainer Caching Implementatie Rapport",
+      "title": "ServiceContainer Caching Implementatie Rapport",
       "path": "../backlog/EPIC-020-PHOENIX/US-201/US-201-IMPLEMENTATION-REPORT.md",
       "url": "../backlog/EPIC-020-PHOENIX/US-201/US-201-IMPLEMENTATION-REPORT.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
+      "status": "open",
+      "prioriteit": "P2",
+      "owner": "tbd",
       "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
+      "last_verified": "2025-09-30",
+      "applies_to": "definitie-app@current",
       "category": null,
       "sprint": null,
-      "story_points": null,
+      "story_points": "5",
       "completion": null,
       "target_release": null,
       "planning": {
@@ -28612,7 +28748,9 @@
           "US-201",
           "US-202"
         ],
-        "epic": [],
+        "epic": [
+          "EPIC-020"
+        ],
         "req": []
       },
       "rendered_url": "rendered/backlog/EPIC-020-PHOENIX/US-201/US-201-IMPLEMENTATION-REPORT.html"
@@ -28801,20 +28939,20 @@
       "rendered_url": "rendered/backlog/EPIC-020-PHOENIX/US-207/US-207.html"
     },
     {
-      "id": null,
+      "id": "US-207-BREAKDOWN",
       "type": "DOC",
-      "title": "US-207: God Class Refactoring - BREAKDOWN",
+      "title": "God Class Refactoring - BREAKDOWN",
       "path": "../backlog/EPIC-020-PHOENIX/US-207/US-207-BREAKDOWN.md",
       "url": "../backlog/EPIC-020-PHOENIX/US-207/US-207-BREAKDOWN.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
+      "status": "open",
+      "prioriteit": "P2",
+      "owner": "tbd",
       "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
+      "last_verified": "2025-09-30",
+      "applies_to": "definitie-app@current",
       "category": null,
       "sprint": null,
-      "story_points": null,
+      "story_points": "5",
       "completion": null,
       "target_release": null,
       "planning": {
@@ -28828,7 +28966,9 @@
         "us": [
           "US-207"
         ],
-        "epic": [],
+        "epic": [
+          "EPIC-020"
+        ],
         "req": []
       },
       "rendered_url": "rendered/backlog/EPIC-020-PHOENIX/US-207/US-207-BREAKDOWN.html"
@@ -28947,20 +29087,20 @@
       "rendered_url": "rendered/backlog/EPIC-020-PHOENIX/US-205/US-205.html"
     },
     {
-      "id": null,
+      "id": "US-205-TOKEN",
       "type": "DOC",
-      "title": "US-205: Token Optimization & Caching Implementation",
+      "title": "Token Optimization & Caching Implementation",
       "path": "../backlog/EPIC-020-PHOENIX/US-205/US-205-TOKEN.md",
       "url": "../backlog/EPIC-020-PHOENIX/US-205/US-205-TOKEN.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
+      "status": "open",
+      "prioriteit": "P2",
+      "owner": "tbd",
       "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
+      "last_verified": "2025-09-30",
+      "applies_to": "definitie-app@current",
       "category": null,
       "sprint": null,
-      "story_points": null,
+      "story_points": "5",
       "completion": null,
       "target_release": null,
       "planning": {
@@ -29343,20 +29483,20 @@
       "linked_reqs": null
     },
     {
-      "id": null,
+      "id": "US-044",
       "type": "US",
-      "title": "US-044: Multi-language Support",
+      "title": "Multi-language Support",
       "path": "../backlog/EPIC-010/US-044/US-044.md",
       "url": "../backlog/EPIC-010/US-044/US-044.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
+      "status": "open",
+      "prioriteit": "P2",
+      "owner": "tbd",
       "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
+      "last_verified": "2025-09-30",
+      "applies_to": "definitie-app@current",
       "category": null,
       "sprint": null,
-      "story_points": null,
+      "story_points": "5",
       "completion": null,
       "target_release": null,
       "planning": {
@@ -29371,27 +29511,29 @@
           "US-044"
         ],
         "epic": [
-          "EPIC-009"
+          "EPIC-009",
+          "EPIC-010"
         ],
         "req": []
       },
-      "rendered_url": "rendered/backlog/EPIC-010/US-044/US-044.html"
+      "rendered_url": "rendered/backlog/EPIC-010/US-044/US-044.html",
+      "linked_reqs": null
     },
     {
-      "id": null,
+      "id": "US-045",
       "type": "US",
-      "title": "US-045: Integration with Legal Systems",
+      "title": "Integration with Legal Systems",
       "path": "../backlog/EPIC-010/US-045/US-045.md",
       "url": "../backlog/EPIC-010/US-045/US-045.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
+      "status": "open",
+      "prioriteit": "P2",
+      "owner": "tbd",
       "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
+      "last_verified": "2025-09-30",
+      "applies_to": "definitie-app@current",
       "category": null,
       "sprint": null,
-      "story_points": null,
+      "story_points": "5",
       "completion": null,
       "target_release": null,
       "planning": {
@@ -29406,11 +29548,13 @@
           "US-045"
         ],
         "epic": [
-          "EPIC-009"
+          "EPIC-009",
+          "EPIC-010"
         ],
         "req": []
       },
-      "rendered_url": "rendered/backlog/EPIC-010/US-045/US-045.html"
+      "rendered_url": "rendered/backlog/EPIC-010/US-045/US-045.html",
+      "linked_reqs": null
     },
     {
       "id": "US-042",
@@ -29798,20 +29942,20 @@
       "linked_reqs": null
     },
     {
-      "id": null,
+      "id": "US-047",
       "type": "US",
-      "title": "US-047: Complete V1 Code Removal",
+      "title": "Complete V1 Code Removal",
       "path": "../backlog/EPIC-010/US-047/US-047.md",
       "url": "../backlog/EPIC-010/US-047/US-047.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
+      "status": "open",
+      "prioriteit": "P2",
+      "owner": "tbd",
       "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
+      "last_verified": "2025-09-30",
+      "applies_to": "definitie-app@current",
       "category": null,
       "sprint": null,
-      "story_points": null,
+      "story_points": "5",
       "completion": null,
       "target_release": null,
       "planning": {
@@ -29826,11 +29970,13 @@
           "US-047"
         ],
         "epic": [
-          "EPIC-007"
+          "EPIC-007",
+          "EPIC-010"
         ],
         "req": []
       },
-      "rendered_url": "rendered/backlog/EPIC-010/US-047/US-047.html"
+      "rendered_url": "rendered/backlog/EPIC-010/US-047/US-047.html",
+      "linked_reqs": null
     },
     {
       "id": "US-041",
@@ -29870,20 +30016,20 @@
       "linked_reqs": null
     },
     {
-      "id": null,
+      "id": "US-046",
       "type": "US",
-      "title": "US-046: Advanced Analytics Dashboard",
+      "title": "Advanced Analytics Dashboard",
       "path": "../backlog/EPIC-010/US-046/US-046.md",
       "url": "../backlog/EPIC-010/US-046/US-046.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
+      "status": "open",
+      "prioriteit": "P2",
+      "owner": "tbd",
       "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
+      "last_verified": "2025-09-30",
+      "applies_to": "definitie-app@current",
       "category": null,
       "sprint": null,
-      "story_points": null,
+      "story_points": "5",
       "completion": null,
       "target_release": null,
       "planning": {
@@ -29898,11 +30044,13 @@
           "US-046"
         ],
         "epic": [
-          "EPIC-009"
+          "EPIC-009",
+          "EPIC-010"
         ],
         "req": []
       },
-      "rendered_url": "rendered/backlog/EPIC-010/US-046/US-046.html"
+      "rendered_url": "rendered/backlog/EPIC-010/US-046/US-046.html",
+      "linked_reqs": null
     },
     {
       "id": "US-048",
@@ -31604,20 +31752,20 @@
       "linked_reqs": null
     },
     {
-      "id": null,
+      "id": "US-185",
       "type": "US",
-      "title": "US-185: Configuratie auditlog en versiebeheer",
+      "title": "Configuratie auditlog en versiebeheer",
       "path": "../backlog/EPIC-016/US-185/US-185.md",
       "url": "../backlog/EPIC-016/US-185/US-185.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
+      "status": "open",
+      "prioriteit": "P2",
+      "owner": "tbd",
       "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
+      "last_verified": "2025-09-30",
+      "applies_to": "definitie-app@current",
       "category": null,
       "sprint": null,
-      "story_points": null,
+      "story_points": "5",
       "completion": null,
       "target_release": null,
       "planning": {
@@ -31638,23 +31786,24 @@
           "REQ-096"
         ]
       },
-      "rendered_url": "rendered/backlog/EPIC-016/US-185/US-185.html"
+      "rendered_url": "rendered/backlog/EPIC-016/US-185/US-185.html",
+      "linked_reqs": null
     },
     {
-      "id": null,
+      "id": "US-182",
       "type": "US",
-      "title": "US-182: Gate‑policy beheer (Approval Gate Policy)",
+      "title": "Gate‑policy beheer (Approval Gate Policy)",
       "path": "../backlog/EPIC-016/US-182/US-182.md",
       "url": "../backlog/EPIC-016/US-182/US-182.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
+      "status": "open",
+      "prioriteit": "P2",
+      "owner": "tbd",
       "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
+      "last_verified": "2025-09-30",
+      "applies_to": "definitie-app@current",
       "category": null,
       "sprint": null,
-      "story_points": null,
+      "story_points": "5",
       "completion": null,
       "target_release": null,
       "planning": {
@@ -31675,23 +31824,24 @@
           "REQ-093"
         ]
       },
-      "rendered_url": "rendered/backlog/EPIC-016/US-182/US-182.html"
+      "rendered_url": "rendered/backlog/EPIC-016/US-182/US-182.html",
+      "linked_reqs": null
     },
     {
-      "id": null,
+      "id": "US-183",
       "type": "US",
-      "title": "US-183: Validatieregels beheren (regels/gewichten/drempels)",
+      "title": "Validatieregels beheren (regels/gewichten/drempels)",
       "path": "../backlog/EPIC-016/US-183/US-183.md",
       "url": "../backlog/EPIC-016/US-183/US-183.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
+      "status": "open",
+      "prioriteit": "P2",
+      "owner": "tbd",
       "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
+      "last_verified": "2025-09-30",
+      "applies_to": "definitie-app@current",
       "category": null,
       "sprint": null,
-      "story_points": null,
+      "story_points": "5",
       "completion": null,
       "target_release": null,
       "planning": {
@@ -31712,23 +31862,24 @@
           "REQ-094"
         ]
       },
-      "rendered_url": "rendered/backlog/EPIC-016/US-183/US-183.html"
+      "rendered_url": "rendered/backlog/EPIC-016/US-183/US-183.html",
+      "linked_reqs": null
     },
     {
-      "id": null,
+      "id": "US-184",
       "type": "US",
-      "title": "US-184: Contextopties beheren (organisaties/rechtsgebieden/wetgeving)",
+      "title": "Contextopties beheren (organisaties/rechtsgebieden/wetgeving)",
       "path": "../backlog/EPIC-016/US-184/US-184.md",
       "url": "../backlog/EPIC-016/US-184/US-184.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
+      "status": "open",
+      "prioriteit": "P2",
+      "owner": "tbd",
       "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
+      "last_verified": "2025-09-30",
+      "applies_to": "definitie-app@current",
       "category": null,
       "sprint": null,
-      "story_points": null,
+      "story_points": "5",
       "completion": null,
       "target_release": null,
       "planning": {
@@ -31749,23 +31900,24 @@
           "REQ-095"
         ]
       },
-      "rendered_url": "rendered/backlog/EPIC-016/US-184/US-184.html"
+      "rendered_url": "rendered/backlog/EPIC-016/US-184/US-184.html",
+      "linked_reqs": null
     },
     {
-      "id": null,
+      "id": "US-181",
       "type": "US",
-      "title": "US-181: Beheer‑tab UI (⚙️) met configuratiesecties",
+      "title": "Beheer‑tab UI (⚙️) met configuratiesecties",
       "path": "../backlog/EPIC-016/US-181/US-181.md",
       "url": "../backlog/EPIC-016/US-181/US-181.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
+      "status": "open",
+      "prioriteit": "P2",
+      "owner": "tbd",
       "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
+      "last_verified": "2025-09-30",
+      "applies_to": "definitie-app@current",
       "category": null,
       "sprint": null,
-      "story_points": null,
+      "story_points": "5",
       "completion": null,
       "target_release": null,
       "planning": {
@@ -31784,23 +31936,24 @@
         ],
         "req": []
       },
-      "rendered_url": "rendered/backlog/EPIC-016/US-181/US-181.html"
+      "rendered_url": "rendered/backlog/EPIC-016/US-181/US-181.html",
+      "linked_reqs": null
     },
     {
-      "id": null,
+      "id": "US-186",
       "type": "US",
-      "title": "US-186: Configuratie import/export (JSON/YAML)",
+      "title": "Configuratie import/export (JSON/YAML)",
       "path": "../backlog/EPIC-016/US-186/US-186.md",
       "url": "../backlog/EPIC-016/US-186/US-186.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
+      "status": "open",
+      "prioriteit": "P2",
+      "owner": "tbd",
       "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
+      "last_verified": "2025-09-30",
+      "applies_to": "definitie-app@current",
       "category": null,
       "sprint": null,
-      "story_points": null,
+      "story_points": "5",
       "completion": null,
       "target_release": null,
       "planning": {
@@ -31819,7 +31972,8 @@
         ],
         "req": []
       },
-      "rendered_url": "rendered/backlog/EPIC-016/US-186/US-186.html"
+      "rendered_url": "rendered/backlog/EPIC-016/US-186/US-186.html",
+      "linked_reqs": null
     },
     {
       "id": null,
@@ -34266,20 +34420,20 @@
       "linked_reqs": null
     },
     {
-      "id": null,
+      "id": "US-214",
       "type": "US",
-      "title": "US-214: Web Lookup Interface Unification",
+      "title": "Web Lookup Interface Unification",
       "path": "../backlog/EPIC-003/US-214/US-214.md",
       "url": "../backlog/EPIC-003/US-214/US-214.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
+      "status": "open",
+      "prioriteit": "P2",
+      "owner": "tbd",
       "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
+      "last_verified": "2025-09-30",
+      "applies_to": "definitie-app@current",
       "category": null,
       "sprint": null,
-      "story_points": null,
+      "story_points": "5",
       "completion": null,
       "target_release": null,
       "planning": {
@@ -34301,7 +34455,8 @@
         ],
         "req": []
       },
-      "rendered_url": "rendered/backlog/EPIC-003/US-214/US-214.html"
+      "rendered_url": "rendered/backlog/EPIC-003/US-214/US-214.html",
+      "linked_reqs": null
     },
     {
       "id": "US-089",
@@ -34452,20 +34607,20 @@
       "linked_reqs": null
     },
     {
-      "id": null,
+      "id": "US-215",
       "type": "US",
-      "title": "US-215: Web Lookup Configuration Consolidation",
+      "title": "Web Lookup Configuration Consolidation",
       "path": "../backlog/EPIC-003/US-215/US-215.md",
       "url": "../backlog/EPIC-003/US-215/US-215.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
+      "status": "open",
+      "prioriteit": "P2",
+      "owner": "tbd",
       "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
+      "last_verified": "2025-09-30",
+      "applies_to": "definitie-app@current",
       "category": null,
       "sprint": null,
-      "story_points": null,
+      "story_points": "5",
       "completion": null,
       "target_release": null,
       "planning": {
@@ -34486,7 +34641,8 @@
         ],
         "req": []
       },
-      "rendered_url": "rendered/backlog/EPIC-003/US-215/US-215.html"
+      "rendered_url": "rendered/backlog/EPIC-003/US-215/US-215.html",
+      "linked_reqs": null
     },
     {
       "id": "US-020",
@@ -34643,20 +34799,20 @@
       "linked_reqs": null
     },
     {
-      "id": null,
+      "id": "US-219",
       "type": "US",
-      "title": "US-219: Basic Web Lookup Test Coverage",
+      "title": "Basic Web Lookup Test Coverage",
       "path": "../backlog/EPIC-003/US-219/US-219.md",
       "url": "../backlog/EPIC-003/US-219/US-219.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
+      "status": "open",
+      "prioriteit": "P2",
+      "owner": "tbd",
       "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
+      "last_verified": "2025-09-30",
+      "applies_to": "definitie-app@current",
       "category": null,
       "sprint": null,
-      "story_points": null,
+      "story_points": "5",
       "completion": null,
       "target_release": null,
       "planning": {
@@ -34680,7 +34836,8 @@
         ],
         "req": []
       },
-      "rendered_url": "rendered/backlog/EPIC-003/US-219/US-219.html"
+      "rendered_url": "rendered/backlog/EPIC-003/US-219/US-219.html",
+      "linked_reqs": null
     },
     {
       "id": "US-221",
@@ -34723,20 +34880,20 @@
       "linked_reqs": null
     },
     {
-      "id": null,
+      "id": "US-217",
       "type": "US",
-      "title": "US-217: Web Lookup Dependency Injection Implementation",
+      "title": "Web Lookup Dependency Injection Implementation",
       "path": "../backlog/EPIC-003/US-217/US-217.md",
       "url": "../backlog/EPIC-003/US-217/US-217.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
+      "status": "open",
+      "prioriteit": "P2",
+      "owner": "tbd",
       "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
+      "last_verified": "2025-09-30",
+      "applies_to": "definitie-app@current",
       "category": null,
       "sprint": null,
-      "story_points": null,
+      "story_points": "5",
       "completion": null,
       "target_release": null,
       "planning": {
@@ -34758,7 +34915,8 @@
         ],
         "req": []
       },
-      "rendered_url": "rendered/backlog/EPIC-003/US-217/US-217.html"
+      "rendered_url": "rendered/backlog/EPIC-003/US-217/US-217.html",
+      "linked_reqs": null
     },
     {
       "id": "US-082",
@@ -34799,20 +34957,20 @@
       "linked_reqs": null
     },
     {
-      "id": null,
+      "id": "US-216",
       "type": "US",
-      "title": "US-216: Web Lookup Test Interface Fix",
+      "title": "Web Lookup Test Interface Fix",
       "path": "../backlog/EPIC-003/US-216/US-216.md",
       "url": "../backlog/EPIC-003/US-216/US-216.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
+      "status": "open",
+      "prioriteit": "P2",
+      "owner": "tbd",
       "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
+      "last_verified": "2025-09-30",
+      "applies_to": "definitie-app@current",
       "category": null,
       "sprint": null,
-      "story_points": null,
+      "story_points": "5",
       "completion": null,
       "target_release": null,
       "planning": {
@@ -34832,7 +34990,8 @@
         ],
         "req": []
       },
-      "rendered_url": "rendered/backlog/EPIC-003/US-216/US-216.html"
+      "rendered_url": "rendered/backlog/EPIC-003/US-216/US-216.html",
+      "linked_reqs": null
     },
     {
       "id": "US-220",
@@ -34876,20 +35035,20 @@
       "linked_reqs": null
     },
     {
-      "id": null,
+      "id": "US-218",
       "type": "US",
-      "title": "US-218: True Async Web Lookup Implementation",
+      "title": "True Async Web Lookup Implementation",
       "path": "../backlog/EPIC-003/US-218/US-218.md",
       "url": "../backlog/EPIC-003/US-218/US-218.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
+      "status": "open",
+      "prioriteit": "P2",
+      "owner": "tbd",
       "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
+      "last_verified": "2025-09-30",
+      "applies_to": "definitie-app@current",
       "category": null,
       "sprint": null,
-      "story_points": null,
+      "story_points": "5",
       "completion": null,
       "target_release": null,
       "planning": {
@@ -34910,7 +35069,8 @@
         ],
         "req": []
       },
-      "rendered_url": "rendered/backlog/EPIC-003/US-218/US-218.html"
+      "rendered_url": "rendered/backlog/EPIC-003/US-218/US-218.html",
+      "linked_reqs": null
     },
     {
       "id": "US-015",
@@ -35068,20 +35228,20 @@
       "linked_reqs": null
     },
     {
-      "id": null,
+      "id": "US-301",
       "type": "US",
-      "title": "US-301: Verwijder redundante single import functionaliteit",
+      "title": "Verwijder redundante single import functionaliteit",
       "path": "../backlog/EPIC-003/US-301/US-301.md",
       "url": "../backlog/EPIC-003/US-301/US-301.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
+      "status": "open",
+      "prioriteit": "P2",
+      "owner": "tbd",
       "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
+      "last_verified": "2025-09-30",
+      "applies_to": "definitie-app@current",
       "category": null,
       "sprint": null,
-      "story_points": null,
+      "story_points": "5",
       "completion": null,
       "target_release": null,
       "planning": {
@@ -35100,7 +35260,8 @@
         ],
         "req": []
       },
-      "rendered_url": "rendered/backlog/EPIC-003/US-301/US-301.html"
+      "rendered_url": "rendered/backlog/EPIC-003/US-301/US-301.html",
+      "linked_reqs": null
     },
     {
       "id": "US-135",
@@ -35245,17 +35406,17 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 505,
+      "DOC": 507,
       "ARCH": 24,
       "COMP": 5,
-      "TEST": 32,
+      "TEST": 33,
       "GUIDE": 12,
       "EPIC": 23,
       "REQ": 110,
       "US": 255,
       "BUG": 18
     },
-    "generated_at": "2025-10-02T07:22:56Z"
+    "generated_at": "2025-10-02T07:45:27Z"
   },
   "sources": [
     "docs"
