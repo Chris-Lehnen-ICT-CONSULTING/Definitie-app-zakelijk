@@ -1,10 +1,14 @@
 """Tests for orchestrator monitoring fixes and interface compliance."""
 
 import asyncio
-import pytest
 from unittest.mock import AsyncMock, Mock
-from src.services.orchestrators.definition_orchestrator_v2 import DefinitionOrchestratorV2
+
+import pytest
+
 from src.services.interfaces import GenerationRequest, OrchestratorConfig
+from src.services.orchestrators.definition_orchestrator_v2 import (
+    DefinitionOrchestratorV2,
+)
 
 
 class MonitoringStub:
@@ -17,27 +21,35 @@ class MonitoringStub:
         self.calls["start"].append(generation_id)
 
     async def complete_generation(
-        self, generation_id: str, success: bool, duration: float,
-        token_count: int | None = None, **kwargs
+        self,
+        generation_id: str,
+        success: bool,
+        duration: float,
+        token_count: int | None = None,
+        **kwargs,
     ) -> None:
-        self.calls["complete"].append({
-            "generation_id": generation_id,
-            "success": success,
-            "duration": duration,
-            "token_count": token_count,
-            "kwargs": kwargs,
-        })
+        self.calls["complete"].append(
+            {
+                "generation_id": generation_id,
+                "success": success,
+                "duration": duration,
+                "token_count": token_count,
+                "kwargs": kwargs,
+            }
+        )
 
     async def track_error(
         self, generation_id: str, error: Exception, error_type: str | None = None
     ) -> None:
         # Verify error is Exception, not string
-        self.calls["error"].append({
-            "generation_id": generation_id,
-            "error": error,
-            "error_is_exception": isinstance(error, Exception),
-            "error_type": error_type,
-        })
+        self.calls["error"].append(
+            {
+                "generation_id": generation_id,
+                "error": error,
+                "error_is_exception": isinstance(error, Exception),
+                "error_type": error_type,
+            }
+        )
 
 
 class AIServiceStub:
@@ -50,32 +62,42 @@ class AIServiceStub:
         self.calls = []
 
     async def generate_definition(
-        self, prompt: str, temperature: float = 0.7,
-        max_tokens: int = 500, model: str | None = None,
-        system_prompt: str | None = None, timeout_seconds: int = 30
+        self,
+        prompt: str,
+        temperature: float = 0.7,
+        max_tokens: int = 500,
+        model: str | None = None,
+        system_prompt: str | None = None,
+        timeout_seconds: int = 30,
     ):
-        self.calls.append({
-            "prompt": prompt,
-            "temperature": temperature,
-            "max_tokens": max_tokens,
-            "model": model,
-            "system_prompt": system_prompt,
-            "timeout_seconds": timeout_seconds,
-        })
+        self.calls.append(
+            {
+                "prompt": prompt,
+                "temperature": temperature,
+                "max_tokens": max_tokens,
+                "model": model,
+                "system_prompt": system_prompt,
+                "timeout_seconds": timeout_seconds,
+            }
+        )
 
         if self.should_fail:
             raise TimeoutError("AI service timeout")
 
         # Return AIGenerationResult-like object
-        return type("AIGenerationResult", (), {
-            "text": self.text,
-            "model": model or "gpt-4",
-            "tokens_used": self.tokens,
-            "generation_time": 0.5,
-            "cached": False,
-            "retry_count": 0,
-            "metadata": {},
-        })()
+        return type(
+            "AIGenerationResult",
+            (),
+            {
+                "text": self.text,
+                "model": model or "gpt-4",
+                "tokens_used": self.tokens,
+                "generation_time": 0.5,
+                "cached": False,
+                "retry_count": 0,
+                "metadata": {},
+            },
+        )()
 
 
 class CleaningStub:
@@ -85,11 +107,15 @@ class CleaningStub:
         cleaned = text.strip()
         if cleaned and not cleaned.endswith("."):
             cleaned += "."
-        return type("CleaningResult", (), {
-            "original_text": text,
-            "cleaned_text": cleaned,
-            "was_cleaned": cleaned != text,
-        })()
+        return type(
+            "CleaningResult",
+            (),
+            {
+                "original_text": text,
+                "cleaned_text": cleaned,
+                "was_cleaned": cleaned != text,
+            },
+        )()
 
     async def clean_definition(self, definition):
         return await self.clean_text(definition.definitie, definition.begrip)
@@ -99,28 +125,42 @@ class ValidationStub:
     """Test stub for validation service."""
 
     async def validate_definition(
-        self, begrip: str, text: str,
+        self,
+        begrip: str,
+        text: str,
         ontologische_categorie: str | None = None,
-        context: dict | None = None
+        context: dict | None = None,
     ):
         # Simple validation: at least 10 chars
         is_valid = len(text or "") >= 10
-        return type("ValidationResult", (), {
-            "is_valid": is_valid,
-            "violations": [] if is_valid else [
-                type("ValidationViolation", (), {
-                    "rule_id": "MIN_LENGTH",
-                    "severity": "HIGH",
-                    "description": "Definitie te kort",
-                })()
-            ],
-            "errors": [],
-            "warnings": [],
-            "suggestions": [],
-        })()
+        return type(
+            "ValidationResult",
+            (),
+            {
+                "is_valid": is_valid,
+                "violations": (
+                    []
+                    if is_valid
+                    else [
+                        type(
+                            "ValidationViolation",
+                            (),
+                            {
+                                "rule_id": "MIN_LENGTH",
+                                "severity": "HIGH",
+                                "description": "Definitie te kort",
+                            },
+                        )()
+                    ]
+                ),
+                "errors": [],
+                "warnings": [],
+                "suggestions": [],
+            },
+        )()
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_monitoring_success_flow():
     """Test monitoring calls in success flow."""
     # Setup
@@ -132,7 +172,7 @@ async def test_monitoring_success_flow():
         cleaning_service=CleaningStub(),
         validation_service=ValidationStub(),
         monitoring=mon,
-        config=OrchestratorConfig()
+        config=OrchestratorConfig(),
     )
 
     req = GenerationRequest(id="test-123", begrip="test", context="testing")
@@ -156,7 +196,7 @@ async def test_monitoring_success_flow():
     assert len(mon.calls["error"]) == 0
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_monitoring_error_tracking():
     """Test that errors are tracked with Exception object, not string."""
     # Setup
@@ -168,7 +208,7 @@ async def test_monitoring_error_tracking():
         cleaning_service=CleaningStub(),
         validation_service=ValidationStub(),
         monitoring=mon,
-        config=OrchestratorConfig()
+        config=OrchestratorConfig(),
     )
 
     req = GenerationRequest(id="test-456", begrip="test")
@@ -194,7 +234,7 @@ async def test_monitoring_error_tracking():
     assert error_call["error_type"] == "TimeoutError"
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_monitoring_disabled():
     """Test orchestrator works without monitoring service."""
     # Setup without monitoring
@@ -205,7 +245,7 @@ async def test_monitoring_disabled():
         cleaning_service=CleaningStub(),
         validation_service=ValidationStub(),
         monitoring=None,  # No monitoring
-        config=OrchestratorConfig()
+        config=OrchestratorConfig(),
     )
 
     req = GenerationRequest(id="test-789", begrip="test")
@@ -218,7 +258,7 @@ async def test_monitoring_disabled():
     assert result.definition is not None
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_token_count_none_handling():
     """Test handling of None token count."""
     # Setup with None tokens
@@ -226,22 +266,26 @@ async def test_token_count_none_handling():
 
     class AIServiceNoneTokens:
         async def generate_definition(self, **kwargs):
-            return type("AIGenerationResult", (), {
-                "text": "Test definitie.",
-                "model": "gpt-4",
-                "tokens_used": None,  # None tokens
-                "generation_time": 0.5,
-                "cached": False,
-                "retry_count": 0,
-                "metadata": {"tokens_estimated": True},
-            })()
+            return type(
+                "AIGenerationResult",
+                (),
+                {
+                    "text": "Test definitie.",
+                    "model": "gpt-4",
+                    "tokens_used": None,  # None tokens
+                    "generation_time": 0.5,
+                    "cached": False,
+                    "retry_count": 0,
+                    "metadata": {"tokens_estimated": True},
+                },
+            )()
 
     orch = DefinitionOrchestratorV2(
         ai_service=AIServiceNoneTokens(),
         cleaning_service=CleaningStub(),
         validation_service=ValidationStub(),
         monitoring=mon,
-        config=OrchestratorConfig()
+        config=OrchestratorConfig(),
     )
 
     req = GenerationRequest(id="test-none", begrip="test")
@@ -255,7 +299,7 @@ async def test_token_count_none_handling():
     assert mon.calls["complete"][0]["token_count"] is None
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_token_count_float_conversion():
     """Test that float token counts are converted to int."""
     # Setup with float tokens
@@ -263,22 +307,26 @@ async def test_token_count_float_conversion():
 
     class AIServiceFloatTokens:
         async def generate_definition(self, **kwargs):
-            return type("AIGenerationResult", (), {
-                "text": "Test definitie.",
-                "model": "gpt-4",
-                "tokens_used": 42.7,  # Float tokens
-                "generation_time": 0.5,
-                "cached": False,
-                "retry_count": 0,
-                "metadata": {},
-            })()
+            return type(
+                "AIGenerationResult",
+                (),
+                {
+                    "text": "Test definitie.",
+                    "model": "gpt-4",
+                    "tokens_used": 42.7,  # Float tokens
+                    "generation_time": 0.5,
+                    "cached": False,
+                    "retry_count": 0,
+                    "metadata": {},
+                },
+            )()
 
     orch = DefinitionOrchestratorV2(
         ai_service=AIServiceFloatTokens(),
         cleaning_service=CleaningStub(),
         validation_service=ValidationStub(),
         monitoring=mon,
-        config=OrchestratorConfig()
+        config=OrchestratorConfig(),
     )
 
     req = GenerationRequest(id="test-float", begrip="test")

@@ -1,14 +1,15 @@
+import uuid
+from pathlib import Path
+
 import pytest
 
-from integration.definitie_checker import DefinitieChecker, CheckAction
 from database.definitie_repository import (
-    DefinitieRepository,
     DefinitieRecord,
+    DefinitieRepository,
     DefinitieStatus,
 )
 from domain.ontological_categories import OntologischeCategorie
-import uuid
-from pathlib import Path
+from integration.definitie_checker import CheckAction, DefinitieChecker
 
 
 def _make_repo() -> DefinitieRepository:

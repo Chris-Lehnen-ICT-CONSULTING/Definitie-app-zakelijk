@@ -8,9 +8,9 @@ def test_snippet_sanitization_strips_tags_and_blocks_protocols():
         pytest.fail(f"sanitization module missing or import failed: {e}")
 
     raw = (
-        '<script>alert(1)</script>'
+        "<script>alert(1)</script>"
         '<a href="javascript:evil()">bad</a>'
-        '<div>Ok <b>content</b></div>'
+        "<div>Ok <b>content</b></div>"
     )
     result = sanitize_snippet(raw, max_length=500)
     assert "script" not in result.lower()

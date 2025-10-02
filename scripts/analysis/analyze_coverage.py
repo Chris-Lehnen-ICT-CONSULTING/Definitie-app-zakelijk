@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
 """Comprehensive test coverage and quality analyzer."""
 
-import os
-import re
-import json
-import subprocess
 import ast
-from pathlib import Path
+import json
+import re
+import subprocess
 from collections import defaultdict
-from typing import Dict, List, Set, Tuple
+from pathlib import Path
+
 
 class TestCoverageAnalyzer:
     def __init__(self, project_root: Path):
@@ -16,7 +15,7 @@ class TestCoverageAnalyzer:
         self.src_path = project_root / "src"
         self.tests_path = project_root / "tests"
 
-    def find_all_source_files(self) -> Dict[str, Path]:
+    def find_all_source_files(self) -> dict[str, Path]:
         """Find all Python source files in src/."""
         source_files = {}
         for file_path in self.src_path.rglob("*.py"):
@@ -25,7 +24,7 @@ class TestCoverageAnalyzer:
                 source_files[str(relative_path)] = file_path
         return source_files
 
-    def find_all_test_files(self) -> Dict[str, Path]:
+    def find_all_test_files(self) -> dict[str, Path]:
         """Find all test files."""
         test_files = {}
         for file_path in self.tests_path.rglob("test_*.py"):
@@ -34,28 +33,32 @@ class TestCoverageAnalyzer:
                 test_files[str(relative_path)] = file_path
         return test_files
 
-    def map_source_to_test(self, source_files: Dict[str, Path], test_files: Dict[str, Path]) -> Dict[str, List[str]]:
+    def map_source_to_test(
+        self, source_files: dict[str, Path], test_files: dict[str, Path]
+    ) -> dict[str, list[str]]:
         """Map source files to their test files."""
         mapping = defaultdict(list)
 
-        for src_file in source_files.keys():
+        for src_file in source_files:
             # Remove .py extension and __init__ handling
             src_base = src_file.replace(".py", "").replace("/__init__", "")
             src_module = src_base.replace("/", "_")
 
             # Look for matching test files
-            for test_file in test_files.keys():
+            for test_file in test_files:
                 test_name = Path(test_file).stem
 
                 # Check various naming patterns
-                if (test_name == f"test_{src_module}" or
-                    src_module in test_name or
-                    src_base.split("/")[-1] in test_name):
+                if (
+                    test_name == f"test_{src_module}"
+                    or src_module in test_name
+                    or src_base.split("/")[-1] in test_name
+                ):
                     mapping[src_file].append(test_file)
 
         return dict(mapping)
 
-    def analyze_test_quality(self, test_file: Path) -> Dict:
+    def analyze_test_quality(self, test_file: Path) -> dict:
         """Analyze a test file for quality metrics."""
         metrics = {
             "total_tests": 0,
@@ -66,11 +69,11 @@ class TestCoverageAnalyzer:
             "has_docstrings": 0,
             "uses_mock_any": False,
             "complex_mocks": [],
-            "has_sleep": False
+            "has_sleep": False,
         }
 
         try:
-            with open(test_file, "r", encoding="utf-8") as f:
+            with open(test_file, encoding="utf-8") as f:
                 content = f.read()
                 tree = ast.parse(content)
         except:
@@ -99,10 +102,18 @@ class TestCoverageAnalyzer:
                 assertions = 0
                 for child in ast.walk(node):
                     if isinstance(child, ast.Call):
-                        if hasattr(child.func, 'attr'):
-                            if child.func.attr in ['assertEqual', 'assertTrue', 'assertFalse',
-                                                   'assertIn', 'assertIsNone', 'assertIsNotNone',
-                                                   'assertRaises', 'assert_called', 'assert_called_once']:
+                        if hasattr(child.func, "attr"):
+                            if child.func.attr in [
+                                "assertEqual",
+                                "assertTrue",
+                                "assertFalse",
+                                "assertIn",
+                                "assertIsNone",
+                                "assertIsNotNone",
+                                "assertRaises",
+                                "assert_called",
+                                "assert_called_once",
+                            ]:
                                 assertions += 1
                     elif isinstance(child, ast.Assert):
                         assertions += 1
@@ -110,7 +121,9 @@ class TestCoverageAnalyzer:
                 if assertions == 0:
                     metrics["tests_with_no_assertions"].append(node.name)
                 elif assertions > 5:
-                    metrics["tests_with_many_assertions"].append((node.name, assertions))
+                    metrics["tests_with_many_assertions"].append(
+                        (node.name, assertions)
+                    )
 
                 # Check test name clarity
                 if len(node.name) < 10 or "_" not in node.name[5:]:
@@ -118,20 +131,29 @@ class TestCoverageAnalyzer:
 
         return metrics
 
-    def get_coverage_data(self) -> Dict:
+    def get_coverage_data(self) -> dict:
         """Run pytest with coverage and get results."""
         try:
             # Run pytest with coverage in JSON format
             subprocess.run(
-                ["python", "-m", "pytest", "--cov=src", "--cov-report=json", "-q", "--tb=no"],
+                [
+                    "python",
+                    "-m",
+                    "pytest",
+                    "--cov=src",
+                    "--cov-report=json",
+                    "-q",
+                    "--tb=no",
+                ],
                 cwd=self.project_root,
                 capture_output=True,
-                timeout=60
+                timeout=60,
+                check=False,
             )
 
             coverage_file = self.project_root / "coverage.json"
             if coverage_file.exists():
-                with open(coverage_file, "r") as f:
+                with open(coverage_file) as f:
                     return json.load(f)
         except:
             pass
@@ -147,14 +169,14 @@ class TestCoverageAnalyzer:
         test_files = self.find_all_test_files()
         mapping = self.map_source_to_test(source_files, test_files)
 
-        print(f"\n📊 PROJECT STATISTICS")
+        print("\n📊 PROJECT STATISTICS")
         print(f"  Source files: {len(source_files)}")
         print(f"  Test files: {len(test_files)}")
         print(f"  Source files with tests: {len(mapping)}")
         print(f"  Source files without tests: {len(source_files) - len(mapping)}")
 
         # 1. COVERAGE GAPS ANALYSIS
-        print(f"\n\n1. COVERAGE GAPS ANALYSIS")
+        print("\n\n1. COVERAGE GAPS ANALYSIS")
         print("-" * 40)
 
         # Get coverage data
@@ -186,7 +208,7 @@ class TestCoverageAnalyzer:
                 print(f"  {module:60} {cov:5.1f}%")
 
         # 2. TEST FILE MAPPING
-        print(f"\n\n2. TEST FILE MAPPING")
+        print("\n\n2. TEST FILE MAPPING")
         print("-" * 40)
 
         # Find source files without tests
@@ -198,7 +220,7 @@ class TestCoverageAnalyzer:
                 print(f"  src/{file}")
 
         # 3. TEST QUALITY METRICS
-        print(f"\n\n3. TEST QUALITY METRICS")
+        print("\n\n3. TEST QUALITY METRICS")
         print("-" * 40)
 
         quality_issues = {
@@ -208,20 +230,26 @@ class TestCoverageAnalyzer:
             "uses_real_services": [],
             "uses_mock_any": [],
             "has_sleep": [],
-            "low_docstring_coverage": []
+            "low_docstring_coverage": [],
         }
 
         for test_file_rel, test_file_path in test_files.items():
             metrics = self.analyze_test_quality(test_file_path)
 
             if metrics["tests_with_no_assertions"]:
-                quality_issues["no_assertions"].append((test_file_rel, metrics["tests_with_no_assertions"]))
+                quality_issues["no_assertions"].append(
+                    (test_file_rel, metrics["tests_with_no_assertions"])
+                )
 
             if metrics["tests_with_many_assertions"]:
-                quality_issues["too_many_assertions"].append((test_file_rel, metrics["tests_with_many_assertions"]))
+                quality_issues["too_many_assertions"].append(
+                    (test_file_rel, metrics["tests_with_many_assertions"])
+                )
 
             if metrics["tests_with_unclear_names"]:
-                quality_issues["unclear_names"].append((test_file_rel, metrics["tests_with_unclear_names"][:3]))
+                quality_issues["unclear_names"].append(
+                    (test_file_rel, metrics["tests_with_unclear_names"][:3])
+                )
 
             if metrics["uses_real_services"]:
                 quality_issues["uses_real_services"].append(test_file_rel)
@@ -235,7 +263,9 @@ class TestCoverageAnalyzer:
             if metrics["total_tests"] > 0:
                 docstring_ratio = metrics["has_docstrings"] / metrics["total_tests"]
                 if docstring_ratio < 0.3:
-                    quality_issues["low_docstring_coverage"].append((test_file_rel, docstring_ratio))
+                    quality_issues["low_docstring_coverage"].append(
+                        (test_file_rel, docstring_ratio)
+                    )
 
         print("\n⚠️ Tests with NO assertions:")
         for file, tests in quality_issues["no_assertions"][:10]:
@@ -259,7 +289,7 @@ class TestCoverageAnalyzer:
             print(f"  {file}")
 
         # 4. MISSING TEST SCENARIOS
-        print(f"\n\n4. CRITICAL SERVICE COVERAGE")
+        print("\n\n4. CRITICAL SERVICE COVERAGE")
         print("-" * 40)
 
         critical_services = [
@@ -270,41 +300,54 @@ class TestCoverageAnalyzer:
             "services/definition_repository.py",
             "services/export_service.py",
             "services/container.py",
-            "services/service_factory.py"
+            "services/service_factory.py",
         ]
 
         print("\n📌 Critical Service Coverage:")
         for service in critical_services:
             if service in source_files:
                 test_count = len(mapping.get(service, []))
-                cov = coverage_by_module.get(service, 0) if 'coverage_by_module' in locals() else "?"
+                cov = (
+                    coverage_by_module.get(service, 0)
+                    if "coverage_by_module" in locals()
+                    else "?"
+                )
                 status = "🟢" if test_count > 0 else "🔴"
                 print(f"  {status} {service:50} Tests: {test_count}, Coverage: {cov}%")
 
         # 5. TEST IMPROVEMENT PRIORITY MATRIX
-        print(f"\n\n5. TEST IMPROVEMENT PRIORITY MATRIX")
+        print("\n\n5. TEST IMPROVEMENT PRIORITY MATRIX")
         print("-" * 40)
 
         print("\n🎯 HIGH PRIORITY (Critical services with low/no coverage):")
         high_priority = []
         for service in critical_services:
-            if service in untested_files or (service in coverage_by_module and coverage_by_module[service] < 50):
+            if service in untested_files or (
+                service in coverage_by_module and coverage_by_module[service] < 50
+            ):
                 high_priority.append(service)
                 print(f"  - src/{service}")
 
         print("\n📊 SUMMARY METRICS:")
         print(f"  Total source files: {len(source_files)}")
-        print(f"  Files with tests: {len(mapping)} ({len(mapping)*100/len(source_files):.1f}%)")
-        print(f"  Files without tests: {len(untested_files)} ({len(untested_files)*100/len(source_files):.1f}%)")
-        print(f"  Test quality issues found: {sum(len(v) for v in quality_issues.values())}")
+        print(
+            f"  Files with tests: {len(mapping)} ({len(mapping)*100/len(source_files):.1f}%)"
+        )
+        print(
+            f"  Files without tests: {len(untested_files)} ({len(untested_files)*100/len(source_files):.1f}%)"
+        )
+        print(
+            f"  Test quality issues found: {sum(len(v) for v in quality_issues.values())}"
+        )
 
         if coverage_data and "totals" in coverage_data:
             totals = coverage_data["totals"]
-            print(f"\n📈 OVERALL COVERAGE:")
+            print("\n📈 OVERALL COVERAGE:")
             print(f"  Lines: {totals.get('num_statements', 0)}")
             print(f"  Covered: {totals.get('covered_lines', 0)}")
             print(f"  Missing: {totals.get('missing_lines', 0)}")
             print(f"  Coverage: {totals.get('percent_covered', 0):.1f}%")
+
 
 if __name__ == "__main__":
     analyzer = TestCoverageAnalyzer(Path("/Users/chrislehnen/Projecten/Definitie-app"))

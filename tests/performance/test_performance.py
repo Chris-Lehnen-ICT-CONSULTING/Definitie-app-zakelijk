@@ -2,19 +2,21 @@
 Performance and benchmarking tests for DefinitieAgent system.
 Tests system performance, load handling, and optimization effectiveness.
 """
-import pytest
-import time
-import threading
-import concurrent.futures
-from unittest.mock import patch, MagicMock
-import psutil
-import os
 
+import concurrent.futures
+import os
+import threading
+import time
+from unittest.mock import MagicMock, patch
+
+import psutil
+import pytest
+
+from config.config_manager import get_config_manager
 from utils.async_api import AsyncGPTClient
 from utils.cache import cached
 from utils.resilience import ResilienceFramework
 from utils.smart_rate_limiter import SmartRateLimiter
-from config.config_manager import get_config_manager
 
 
 class TestPerformanceBenchmarks:
@@ -32,13 +34,13 @@ class TestPerformanceBenchmarks:
         # Benchmark cache set operations
         start_time = time.time()
         for i in range(1000):
-            cache_manager.set(f'key_{i}', f'value_{i}', ttl=300)
+            cache_manager.set(f"key_{i}", f"value_{i}", ttl=300)
         set_time = time.time() - start_time
 
         # Benchmark cache get operations
         start_time = time.time()
         for i in range(1000):
-            cache_manager.get(f'key_{i}')
+            cache_manager.get(f"key_{i}")
         get_time = time.time() - start_time
 
         # Performance assertions
@@ -47,12 +49,14 @@ class TestPerformanceBenchmarks:
 
         # Hit rate should be high
         stats = cache_manager.get_stats()
-        assert stats['hit_rate'] > 0.9, f"Cache hit rate too low: {stats['hit_rate']:.2f}"
+        assert (
+            stats["hit_rate"] > 0.9
+        ), f"Cache hit rate too low: {stats['hit_rate']:.2f}"
 
     def test_async_api_performance(self):
         """Test async API performance."""
         # Mock OpenAI API calls
-        with patch('openai.ChatCompletion.create') as mock_create:
+        with patch("openai.ChatCompletion.create") as mock_create:
             mock_create.return_value = MagicMock(
                 choices=[MagicMock(message=MagicMock(content="Test response"))]
             )
@@ -61,7 +65,10 @@ class TestPerformanceBenchmarks:
 
             # Test sequential vs parallel performance
             requests = [
-                {"model": "gpt-4", "messages": [{"role": "user", "content": f"Test {i}"}]}
+                {
+                    "model": "gpt-4",
+                    "messages": [{"role": "user", "content": f"Test {i}"}],
+                }
                 for i in range(10)
             ]
 
@@ -112,10 +119,7 @@ class TestPerformanceBenchmarks:
 
     def test_rate_limiter_performance(self):
         """Test rate limiter performance."""
-        rate_limiter = SmartRateLimiter(
-            tokens_per_second=100,
-            bucket_capacity=100
-        )
+        rate_limiter = SmartRateLimiter(tokens_per_second=100, bucket_capacity=100)
 
         # Test rate limiting performance
         start_time = time.time()
@@ -128,10 +132,14 @@ class TestPerformanceBenchmarks:
         end_time = time.time()
 
         # Should complete quickly
-        assert end_time - start_time < 1.0, f"Rate limiter too slow: {end_time - start_time:.2f}s"
+        assert (
+            end_time - start_time < 1.0
+        ), f"Rate limiter too slow: {end_time - start_time:.2f}s"
 
         # Should allow reasonable number of requests
-        assert allowed_requests > 50, f"Rate limiter too restrictive: {allowed_requests} requests"
+        assert (
+            allowed_requests > 50
+        ), f"Rate limiter too restrictive: {allowed_requests} requests"
 
     def test_configuration_loading_performance(self):
         """Test configuration loading performance."""
@@ -141,16 +149,20 @@ class TestPerformanceBenchmarks:
         config_load_time = time.time() - start_time
 
         # Should load quickly
-        assert config_load_time < 0.5, f"Configuration loading too slow: {config_load_time:.2f}s"
+        assert (
+            config_load_time < 0.5
+        ), f"Configuration loading too slow: {config_load_time:.2f}s"
 
         # Test configuration access time
         start_time = time.time()
         for _ in range(100):
-            config_manager.get_config('api')
+            config_manager.get_config("api")
         config_access_time = time.time() - start_time
 
         # Should access quickly
-        assert config_access_time < 0.1, f"Configuration access too slow: {config_access_time:.2f}s"
+        assert (
+            config_access_time < 0.1
+        ), f"Configuration access too slow: {config_access_time:.2f}s"
 
     def test_memory_usage_performance(self):
         """Test memory usage performance."""
@@ -162,20 +174,23 @@ class TestPerformanceBenchmarks:
 
         # Add 1000 cache entries
         for i in range(1000):
-            cache_manager.set(f'key_{i}', f'value_{i}' * 100, ttl=300)
+            cache_manager.set(f"key_{i}", f"value_{i}" * 100, ttl=300)
 
         # Check memory usage
         current_memory = self.process.memory_info().rss
         memory_increase = current_memory - initial_memory
 
         # Memory increase should be reasonable
-        assert memory_increase < 50 * 1024 * 1024, f"Memory usage too high: {memory_increase / 1024 / 1024:.2f}MB"
+        assert (
+            memory_increase < 50 * 1024 * 1024
+        ), f"Memory usage too high: {memory_increase / 1024 / 1024:.2f}MB"
 
         # Clear cache and check memory cleanup
         cache_manager.clear()
 
         # Give garbage collector time to work
         import gc
+
         gc.collect()
 
         final_memory = self.process.memory_info().rss
@@ -197,8 +212,8 @@ class TestLoadTesting:
         def cache_worker(worker_id, num_operations):
             try:
                 for i in range(num_operations):
-                    key = f'worker_{worker_id}_key_{i}'
-                    value = f'worker_{worker_id}_value_{i}'
+                    key = f"worker_{worker_id}_key_{i}"
+                    value = f"worker_{worker_id}_value_{i}"
 
                     # Set value
                     cache_manager.set(key, value, ttl=300)
@@ -216,10 +231,7 @@ class TestLoadTesting:
         start_time = time.time()
         threads = []
         for i in range(10):
-            thread = threading.Thread(
-                target=cache_worker,
-                args=(i, 50)
-            )
+            thread = threading.Thread(target=cache_worker, args=(i, 50))
             threads.append(thread)
             thread.start()
 
@@ -230,14 +242,18 @@ class TestLoadTesting:
         end_time = time.time()
 
         # Performance assertions
-        assert end_time - start_time < 10.0, f"Concurrent access too slow: {end_time - start_time:.2f}s"
+        assert (
+            end_time - start_time < 10.0
+        ), f"Concurrent access too slow: {end_time - start_time:.2f}s"
         assert len(errors) == 0, f"Concurrent access errors: {errors}"
-        assert all(results), f"Some operations failed: {sum(results)}/{len(results)} succeeded"
+        assert all(
+            results
+        ), f"Some operations failed: {sum(results)}/{len(results)} succeeded"
 
     def test_concurrent_api_calls(self):
         """Test concurrent API call handling."""
         # Mock API calls
-        with patch('openai.ChatCompletion.create') as mock_create:
+        with patch("openai.ChatCompletion.create") as mock_create:
             mock_create.return_value = MagicMock(
                 choices=[MagicMock(message=MagicMock(content="Test response"))]
             )
@@ -252,7 +268,12 @@ class TestLoadTesting:
                         # Simulate API call
                         request = {
                             "model": "gpt-4",
-                            "messages": [{"role": "user", "content": f"Worker {worker_id} call {i}"}]
+                            "messages": [
+                                {
+                                    "role": "user",
+                                    "content": f"Worker {worker_id} call {i}",
+                                }
+                            ],
                         }
 
                         # This would normally be async, but we'll simulate
@@ -265,17 +286,16 @@ class TestLoadTesting:
             # Test concurrent API calls
             start_time = time.time()
             with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
-                futures = [
-                    executor.submit(api_worker, i, 10)
-                    for i in range(5)
-                ]
+                futures = [executor.submit(api_worker, i, 10) for i in range(5)]
 
                 concurrent.futures.wait(futures)
 
             end_time = time.time()
 
             # Performance assertions
-            assert end_time - start_time < 5.0, f"Concurrent API calls too slow: {end_time - start_time:.2f}s"
+            assert (
+                end_time - start_time < 5.0
+            ), f"Concurrent API calls too slow: {end_time - start_time:.2f}s"
             assert len(errors) == 0, f"Concurrent API errors: {errors}"
             assert len(results) == 50, f"Expected 50 results, got {len(results)}"
 
@@ -303,11 +323,15 @@ class TestLoadTesting:
 
         # Performance assertions
         validation_time = end_time - start_time
-        assert validation_time < 5.0, f"High volume validation too slow: {validation_time:.2f}s"
+        assert (
+            validation_time < 5.0
+        ), f"High volume validation too slow: {validation_time:.2f}s"
 
         # Rate calculation
         validation_rate = len(test_inputs) / validation_time
-        assert validation_rate > 100, f"Validation rate too low: {validation_rate:.2f} validations/sec"
+        assert (
+            validation_rate > 100
+        ), f"Validation rate too low: {validation_rate:.2f} validations/sec"
 
     def test_stress_testing(self):
         """Test system under stress conditions."""
@@ -321,8 +345,8 @@ class TestLoadTesting:
         # Run for 5 seconds
         while time.time() - start_time < 5.0:
             # Rapid cache operations
-            key = f'stress_key_{operations}'
-            value = f'stress_value_{operations}'
+            key = f"stress_key_{operations}"
+            value = f"stress_value_{operations}"
 
             cache_manager.set(key, value, ttl=60)
             retrieved = cache_manager.get(key)
@@ -334,11 +358,15 @@ class TestLoadTesting:
 
         # Performance assertions
         ops_per_second = operations / actual_time
-        assert ops_per_second > 500, f"Stress test performance too low: {ops_per_second:.2f} ops/sec"
+        assert (
+            ops_per_second > 500
+        ), f"Stress test performance too low: {ops_per_second:.2f} ops/sec"
 
         # System should remain stable
         stats = cache_manager.get_stats()
-        assert stats['hit_rate'] > 0.9, f"Hit rate degraded under stress: {stats['hit_rate']:.2f}"
+        assert (
+            stats["hit_rate"] > 0.9
+        ), f"Hit rate degraded under stress: {stats['hit_rate']:.2f}"
 
 
 class TestOptimizationEffectiveness:
@@ -368,12 +396,15 @@ class TestOptimizationEffectiveness:
         # Assertions
         assert result1 == result2 == 10
         assert call_count == 1, "Function should only be called once"
-        assert second_call_time < first_call_time * 0.1, "Cache should provide significant speedup"
+        assert (
+            second_call_time < first_call_time * 0.1
+        ), "Cache should provide significant speedup"
 
     def test_async_optimization_effectiveness(self):
         """Test async optimization effectiveness."""
         # Mock API calls with delay
-        with patch('openai.ChatCompletion.create') as mock_create:
+        with patch("openai.ChatCompletion.create") as mock_create:
+
             def mock_api_call(*args, **kwargs):
                 time.sleep(0.1)  # Simulate API delay
                 return MagicMock(
@@ -397,7 +428,9 @@ class TestOptimizationEffectiveness:
 
             # Calculate speedup
             speedup = sequential_time / parallel_time
-            assert speedup > 3.0, f"Async optimization insufficient: {speedup:.2f}x speedup"
+            assert (
+                speedup > 3.0
+            ), f"Async optimization insufficient: {speedup:.2f}x speedup"
 
     def test_resilience_effectiveness(self):
         """Test resilience optimization effectiveness."""
@@ -428,10 +461,7 @@ class TestOptimizationEffectiveness:
 
     def test_rate_limiting_effectiveness(self):
         """Test rate limiting effectiveness."""
-        rate_limiter = SmartRateLimiter(
-            tokens_per_second=10,
-            bucket_capacity=10
-        )
+        rate_limiter = SmartRateLimiter(tokens_per_second=10, bucket_capacity=10)
 
         # Test rate limiting
         start_time = time.time()
@@ -452,7 +482,9 @@ class TestOptimizationEffectiveness:
 
         # Rate should be approximately correct
         actual_rate = successful_requests / (end_time - start_time)
-        assert actual_rate <= 15, f"Rate limiting not effective: {actual_rate:.2f} req/sec"
+        assert (
+            actual_rate <= 15
+        ), f"Rate limiting not effective: {actual_rate:.2f} req/sec"
 
     def test_memory_optimization_effectiveness(self):
         """Test memory optimization effectiveness."""
@@ -467,18 +499,22 @@ class TestOptimizationEffectiveness:
 
         # Add many items (should trigger eviction)
         for i in range(1000):
-            cache_manager.set(f'key_{i}', f'value_{i}' * 100, ttl=300)
+            cache_manager.set(f"key_{i}", f"value_{i}" * 100, ttl=300)
 
         # Measure memory after operations
         current_memory = self.process.memory_info().rss
         memory_increase = current_memory - initial_memory
 
         # Memory should be controlled by optimization
-        assert memory_increase < 20 * 1024 * 1024, f"Memory optimization ineffective: {memory_increase / 1024 / 1024:.2f}MB"
+        assert (
+            memory_increase < 20 * 1024 * 1024
+        ), f"Memory optimization ineffective: {memory_increase / 1024 / 1024:.2f}MB"
 
         # Cache should have evicted items
         stats = cache_manager.get_stats()
-        assert stats.get('evictions', 0) > 0, "Should have evicted items to control memory"
+        assert (
+            stats.get("evictions", 0) > 0
+        ), "Should have evicted items to control memory"
 
 
 class TestPerformanceRegression:
@@ -487,7 +523,7 @@ class TestPerformanceRegression:
     def test_api_response_time_regression(self):
         """Test API response time regression."""
         # Mock API with controlled response time
-        with patch('openai.ChatCompletion.create') as mock_create:
+        with patch("openai.ChatCompletion.create") as mock_create:
             mock_create.return_value = MagicMock(
                 choices=[MagicMock(message=MagicMock(content="Test response"))]
             )
@@ -502,7 +538,9 @@ class TestPerformanceRegression:
             response_time = end_time - start_time
 
             # Baseline expectation (should be under 2 seconds)
-            assert response_time < 2.0, f"API response time regression: {response_time:.2f}s"
+            assert (
+                response_time < 2.0
+            ), f"API response time regression: {response_time:.2f}s"
 
     def test_cache_hit_rate_regression(self):
         """Test cache hit rate regression."""
@@ -510,15 +548,15 @@ class TestPerformanceRegression:
 
         # Populate cache
         for i in range(100):
-            cache_manager.set(f'key_{i}', f'value_{i}', ttl=300)
+            cache_manager.set(f"key_{i}", f"value_{i}", ttl=300)
 
         # Access cached items
         for i in range(100):
-            cache_manager.get(f'key_{i}')
+            cache_manager.get(f"key_{i}")
 
         # Check hit rate
         stats = cache_manager.get_stats()
-        hit_rate = stats.get('hit_rate', 0)
+        hit_rate = stats.get("hit_rate", 0)
 
         # Should maintain high hit rate
         assert hit_rate > 0.95, f"Cache hit rate regression: {hit_rate:.2f}"
@@ -532,13 +570,15 @@ class TestPerformanceRegression:
         cache_manager = CacheManager()
 
         for i in range(500):
-            cache_manager.set(f'key_{i}', f'value_{i}', ttl=300)
+            cache_manager.set(f"key_{i}", f"value_{i}", ttl=300)
 
         current_memory = self.process.memory_info().rss
         memory_increase = current_memory - initial_memory
 
         # Memory usage should stay within bounds
-        assert memory_increase < 30 * 1024 * 1024, f"Memory usage regression: {memory_increase / 1024 / 1024:.2f}MB"
+        assert (
+            memory_increase < 30 * 1024 * 1024
+        ), f"Memory usage regression: {memory_increase / 1024 / 1024:.2f}MB"
 
     def test_throughput_regression(self):
         """Test throughput regression."""
@@ -550,8 +590,8 @@ class TestPerformanceRegression:
 
         # Run for 2 seconds
         while time.time() - start_time < 2.0:
-            cache_manager.set(f'key_{operations}', f'value_{operations}', ttl=300)
-            cache_manager.get(f'key_{operations}')
+            cache_manager.set(f"key_{operations}", f"value_{operations}", ttl=300)
+            cache_manager.get(f"key_{operations}")
             operations += 1
 
         end_time = time.time()
@@ -561,5 +601,5 @@ class TestPerformanceRegression:
         assert throughput > 1000, f"Throughput regression: {throughput:.2f} ops/sec"
 
 
-if __name__ == '__main__':
-    pytest.main([__file__, '-v', '-s'])
+if __name__ == "__main__":
+    pytest.main([__file__, "-v", "-s"])

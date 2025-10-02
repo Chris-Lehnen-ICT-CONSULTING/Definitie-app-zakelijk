@@ -1,13 +1,14 @@
 """Tests for validation configuration with environment overlay."""
 
-import pytest
 import os
 import tempfile
 from pathlib import Path
+
+import pytest
 import yaml
 
 
-@pytest.mark.unit
+@pytest.mark.unit()
 def test_config_load_from_yaml_file():
     """Test loading configuration from YAML file."""
     m = pytest.importorskip(
@@ -19,27 +20,30 @@ def test_config_load_from_yaml_file():
     assert ValidationConfig is not None, "ValidationConfig class must exist"
 
     # Create temporary YAML config
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
-        yaml.dump({
-            "enabled_codes": ["ESS-01", "CON-01", "STR-01"],
-            "weights": {
-                "ESS-01": 1.0,
-                "CON-01": 0.8,
-                "STR-01": 0.6,
-            },
-            "thresholds": {
-                "overall_accept": 0.75,
-                "category_min": {
-                    "ESS": 0.7,
-                    "CON": 0.6,
-                    "STR": 0.5,
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
+        yaml.dump(
+            {
+                "enabled_codes": ["ESS-01", "CON-01", "STR-01"],
+                "weights": {
+                    "ESS-01": 1.0,
+                    "CON-01": 0.8,
+                    "STR-01": 0.6,
+                },
+                "thresholds": {
+                    "overall_accept": 0.75,
+                    "category_min": {
+                        "ESS": 0.7,
+                        "CON": 0.6,
+                        "STR": 0.5,
+                    },
+                },
+                "params": {
+                    "ESS-01": {"min_length": 12},
+                    "CON-01": {"max_circular_ratio": 0.3},
                 },
             },
-            "params": {
-                "ESS-01": {"min_length": 12},
-                "CON-01": {"max_circular_ratio": 0.3},
-            },
-        }, f)
+            f,
+        )
         config_path = f.name
 
     try:
@@ -56,7 +60,7 @@ def test_config_load_from_yaml_file():
         os.unlink(config_path)
 
 
-@pytest.mark.unit
+@pytest.mark.unit()
 def test_config_environment_overlay():
     """Test that environment variables can overlay YAML config."""
     m = pytest.importorskip(
@@ -84,11 +88,13 @@ def test_config_environment_overlay():
         "thresholds": {"overall_accept": 0.80},  # Override threshold
     }
 
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as base_f:
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as base_f:
         yaml.dump(base_config, base_f)
         base_path = base_f.name
 
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as overlay_f:
+    with tempfile.NamedTemporaryFile(
+        mode="w", suffix=".yaml", delete=False
+    ) as overlay_f:
         yaml.dump(overlay_config, overlay_f)
         overlay_path = overlay_f.name
 
@@ -109,7 +115,7 @@ def test_config_environment_overlay():
         os.environ.pop("VALIDATION_CONFIG_OVERLAY", None)
 
 
-@pytest.mark.unit
+@pytest.mark.unit()
 def test_config_validation_at_startup():
     """Test that invalid configuration is validated and rejected."""
     m = pytest.importorskip(
@@ -166,7 +172,7 @@ def test_config_validation_at_startup():
     assert len(errors) > 0, "Weight for disabled code should be invalid"
 
 
-@pytest.mark.unit
+@pytest.mark.unit()
 def test_config_fallback_to_defaults_on_error():
     """Test that system falls back to defaults when config is invalid."""
     m = pytest.importorskip(
@@ -181,7 +187,7 @@ def test_config_fallback_to_defaults_on_error():
         pytest.skip("get_default_config function not found")
 
     # Try to load invalid config
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
         f.write("invalid: yaml: content: [[[")  # Invalid YAML
         invalid_path = f.name
 
@@ -192,12 +198,15 @@ def test_config_fallback_to_defaults_on_error():
 
         # Config should match defaults
         assert config.enabled_codes == default_config.enabled_codes
-        assert config.thresholds["overall_accept"] == default_config.thresholds["overall_accept"]
+        assert (
+            config.thresholds["overall_accept"]
+            == default_config.thresholds["overall_accept"]
+        )
     finally:
         os.unlink(invalid_path)
 
 
-@pytest.mark.unit
+@pytest.mark.unit()
 def test_config_deep_merge_overlay():
     """Test that overlay performs deep merge, not shallow replace."""
     m = pytest.importorskip(
@@ -248,7 +257,7 @@ def test_config_deep_merge_overlay():
     assert result["thresholds"]["category_min"]["CON"] == 0.6  # Preserved
 
 
-@pytest.mark.unit
+@pytest.mark.unit()
 def test_config_handles_missing_overlay_gracefully():
     """Test that missing overlay file doesn't crash the system."""
     m = pytest.importorskip(
@@ -262,12 +271,15 @@ def test_config_handles_missing_overlay_gracefully():
         pytest.skip("load_with_env_overlay function not found")
 
     # Create base config
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
-        yaml.dump({
-            "enabled_codes": ["ESS-01"],
-            "weights": {"ESS-01": 1.0},
-            "thresholds": {"overall_accept": 0.75},
-        }, f)
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
+        yaml.dump(
+            {
+                "enabled_codes": ["ESS-01"],
+                "weights": {"ESS-01": 1.0},
+                "thresholds": {"overall_accept": 0.75},
+            },
+            f,
+        )
         base_path = f.name
 
     try:
@@ -285,7 +297,7 @@ def test_config_handles_missing_overlay_gracefully():
         os.environ.pop("VALIDATION_CONFIG_OVERLAY", None)
 
 
-@pytest.mark.unit
+@pytest.mark.unit()
 def test_config_v1_parity_extraction():
     """Test extraction of weights/thresholds from V1 DefinitionValidator."""
     m = pytest.importorskip(

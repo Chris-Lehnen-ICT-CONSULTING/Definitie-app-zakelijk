@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 """Test CSV import with overwrite strategy to verify complete fix."""
 
+import sys
 import time
 from pathlib import Path
-import sys
 
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+
 
 def test_with_overwrite():
     """Test batch import with overwrite strategy."""
@@ -27,7 +28,7 @@ def test_with_overwrite():
             "wettelijke_basis": [],
             "UFO_Categorie": "Event",
             "Synoniemen": f"updated_syn_{i}",
-            "Voorkeursterm": f"updated_term_{i}"
+            "Voorkeursterm": f"updated_term_{i}",
         }
         for i in range(3)
     ]
@@ -49,12 +50,10 @@ def test_with_overwrite():
         # First import (should succeed or be duplicate)
         result1 = run_async_safe(
             import_service.import_single(
-                row,
-                duplicate_strategy="skip",
-                created_by="test"
+                row, duplicate_strategy="skip", created_by="test"
             ),
             default=None,
-            timeout=3.0
+            timeout=3.0,
         )
 
         if result1 is None:
@@ -63,17 +62,17 @@ def test_with_overwrite():
         elif result1.success:
             print(f"  ✓ First import: SUCCESS - ID {result1.definition_id}")
         else:
-            print(f"  ℹ First import: Duplicate (expected)")
+            print("  ℹ First import: Duplicate (expected)")
 
         # Second import with overwrite (should always succeed)
         result2 = run_async_safe(
             import_service.import_single(
                 row,
                 duplicate_strategy="overwrite",  # Use overwrite
-                created_by="test_overwrite"
+                created_by="test_overwrite",
             ),
             default=None,
-            timeout=3.0
+            timeout=3.0,
         )
 
         if result2 is None:
@@ -101,6 +100,7 @@ def test_with_overwrite():
     print(f"Average time per row: {total_time/len(test_rows):.2f}s")
 
     return timeout_count == 0 and success_count == len(test_rows)
+
 
 if __name__ == "__main__":
     print("\nThis test verifies that the CSV import fix handles:")

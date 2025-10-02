@@ -5,21 +5,22 @@ Deze tests verifiëren dat de nieuwe services werken zonder directe
 afhankelijkheden van UI session state.
 """
 
-import pytest
-from unittest.mock import Mock, patch
 from datetime import datetime
+from unittest.mock import Mock, patch
+
+import pytest
 
 from database.definitie_repository import DefinitieRecord, DefinitieRepository
-from services.service_factory import get_definition_service, ServiceAdapter
 from services.data_aggregation_service import DataAggregationService
-from services.export_service import ExportService, ExportFormat
+from services.export_service import ExportFormat, ExportService
+from services.service_factory import ServiceAdapter, get_definition_service
 from ui.services.definition_ui_service import DefinitionUIService
 
 
 class TestSessionStateElimination:
     """Test eliminatie van session state dependencies."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def mock_repository(self):
         """Create mock repository met sample data."""
         repo = Mock(spec=DefinitieRepository)
@@ -35,7 +36,7 @@ class TestSessionStateElimination:
         sample_record.domein = "juridisch"
         sample_record.context = {
             "organisatorisch": ["OM", "ZM"],
-            "juridisch": ["Strafrecht"]
+            "juridisch": ["Strafrecht"],
         }
         sample_record.created_at = datetime.now()
         sample_record.updated_at = datetime.now()
@@ -56,13 +57,12 @@ class TestSessionStateElimination:
             "expert_review": "Definitie is goedgekeurd",
             "voorkeursterm": "authenticatie",
             "voorbeeld_zinnen": ["De gebruiker voert authenticatie uit"],
-            "synoniemen": "identiteitsverificatie, inloggen"
+            "synoniemen": "identiteitsverificatie, inloggen",
         }
 
         # Act
         result = service.aggregate_definitie_for_export(
-            definitie_id=1,
-            additional_data=ui_data
+            definitie_id=1, additional_data=ui_data
         )
 
         # Assert
@@ -82,22 +82,20 @@ class TestSessionStateElimination:
         export_service = ExportService(
             repository=mock_repository,
             data_aggregation_service=data_agg_service,
-            export_dir=str(tmp_path)
+            export_dir=str(tmp_path),
         )
 
         ui_data = {
             "expert_review": "Goedgekeurd door expert",
-            "ketenpartners": ["ZM", "OM"]
+            "ketenpartners": ["ZM", "OM"],
         }
 
-        with patch('export.export_txt.exporteer_naar_txt') as mock_export:
+        with patch("export.export_txt.exporteer_naar_txt") as mock_export:
             mock_export.return_value = str(tmp_path / "test_export.txt")
 
             # Act
             result = export_service.export_definitie(
-                definitie_id=1,
-                additional_data=ui_data,
-                format=ExportFormat.TXT
+                definitie_id=1, additional_data=ui_data, format=ExportFormat.TXT
             )
 
             # Assert
@@ -130,7 +128,7 @@ class TestSessionStateElimination:
     def test_service_adapter_integration(self):
         """Test dat ServiceAdapter correct werkt met nieuwe services."""
         # Arrange
-        with patch('services.service_factory.get_container') as mock_get_container:
+        with patch("services.service_factory.get_container") as mock_get_container:
             # Mock container with all services
             mock_container = Mock()
             mock_container.definition_ui_service.return_value = Mock()
@@ -143,13 +141,13 @@ class TestSessionStateElimination:
 
             # Assert
             assert isinstance(service, ServiceAdapter)
-            assert hasattr(service, 'ui_service')
-            assert hasattr(service, 'export_definition')
+            assert hasattr(service, "ui_service")
+            assert hasattr(service, "export_definition")
 
     def test_export_via_service_adapter(self, mock_repository):
         """Test export via ServiceAdapter zonder session state."""
         # Arrange
-        with patch('services.service_factory.get_container') as mock_get_container:
+        with patch("services.service_factory.get_container") as mock_get_container:
             # Setup mock container
             mock_container = Mock()
 
@@ -159,7 +157,7 @@ class TestSessionStateElimination:
                 "success": True,
                 "path": "/test/export.txt",
                 "filename": "export.txt",
-                "message": "Export succesvol"
+                "message": "Export succesvol",
             }
             mock_container.definition_ui_service.return_value = mock_ui_service
             mock_container.orchestrator.return_value = Mock()
@@ -172,23 +170,19 @@ class TestSessionStateElimination:
             ui_data = {
                 "begrip": "authenticatie",
                 "expert_review": "Goedgekeurd",
-                "voorkeursterm": "authenticatie"
+                "voorkeursterm": "authenticatie",
             }
 
             # Act
             result = service.export_definition(
-                definition_id=1,
-                ui_data=ui_data,
-                format="json"
+                definition_id=1, ui_data=ui_data, format="json"
             )
 
             # Assert
             assert result["success"] is True
             assert result["filename"] == "export.txt"
             mock_ui_service.export_definition.assert_called_once_with(
-                definitie_id=1,
-                ui_data=ui_data,
-                format="json"
+                definitie_id=1, ui_data=ui_data, format="json"
             )
 
     def test_no_session_state_manager_imports(self):
@@ -196,20 +190,27 @@ class TestSessionStateElimination:
         # Deze test verifieert dat we de dependency echt hebben geëlimineerd
 
         import inspect
+
         from services import data_aggregation_service, export_service
         from ui.services import definition_ui_service
 
         # Check source code voor SessionStateManager imports
         das_source = inspect.getsource(data_aggregation_service)
-        assert "SessionStateManager" not in das_source, "DataAggregationService mag geen SessionStateManager importeren"
+        assert (
+            "SessionStateManager" not in das_source
+        ), "DataAggregationService mag geen SessionStateManager importeren"
 
         es_source = inspect.getsource(export_service)
-        assert "SessionStateManager" not in es_source, "ExportService mag geen SessionStateManager importeren"
+        assert (
+            "SessionStateManager" not in es_source
+        ), "ExportService mag geen SessionStateManager importeren"
 
         # DefinitionUIService mag SessionStateManager NIET importeren
         # (het is een facade tussen UI en services, maar gebruikt geen session state intern)
         duis_source = inspect.getsource(definition_ui_service)
-        assert "SessionStateManager" not in duis_source, "DefinitionUIService mag geen SessionStateManager importeren"
+        assert (
+            "SessionStateManager" not in duis_source
+        ), "DefinitionUIService mag geen SessionStateManager importeren"
 
     def test_clean_architecture_boundaries(self, mock_repository):
         """Test dat architecture boundaries gerespecteerd worden."""
@@ -218,18 +219,18 @@ class TestSessionStateElimination:
         export_service = ExportService(mock_repository)
 
         # Services mogen geen UI imports hebben
-        assert not hasattr(data_service, 'session_state')
-        assert not hasattr(export_service, 'session_state')
+        assert not hasattr(data_service, "session_state")
+        assert not hasattr(export_service, "session_state")
 
         # Services moeten werken met pure data
         result = data_service.aggregate_definitie_for_export(
             definitie_id=1,
-            additional_data={"test": "data"}  # Pure dict, geen UI objecten
+            additional_data={"test": "data"},  # Pure dict, geen UI objecten
         )
 
         assert result is not None
-        assert hasattr(result, 'begrip')
-        assert hasattr(result, 'created_at')
+        assert hasattr(result, "begrip")
+        assert hasattr(result, "created_at")
 
     def test_backward_compatibility_maintained(self):
         """Test dat backward compatibility behouden blijft."""
@@ -237,8 +238,8 @@ class TestSessionStateElimination:
         service = get_definition_service()
 
         # Deze methods moeten nog bestaan voor legacy UI
-        assert hasattr(service, 'generate_definition')
-        assert hasattr(service, 'get_stats')
+        assert hasattr(service, "generate_definition")
+        assert hasattr(service, "get_stats")
 
         # Nieuwe methods zijn toegevoegd
-        assert hasattr(service, 'export_definition')
+        assert hasattr(service, "export_definition")

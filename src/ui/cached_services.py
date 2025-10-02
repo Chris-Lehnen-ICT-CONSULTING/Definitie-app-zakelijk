@@ -10,15 +10,9 @@ Update: Gebruikt nu utils.container_manager voor gecentraliseerde caching.
 import logging
 from typing import Any
 
-import streamlit as st
-
 from ui.session_state import SessionStateManager
-from utils.container_manager import (
-    get_cached_container,
-    get_container_with_config,
-    clear_container_cache as clear_manager_cache,
-    get_container_stats as get_manager_stats,
-)
+from utils.container_manager import clear_container_cache as clear_manager_cache
+from utils.container_manager import get_cached_container, get_container_with_config
 
 logger = logging.getLogger(__name__)
 
@@ -52,7 +46,9 @@ def initialize_services_once():
         logger.info("📦 Initializing service container in session state")
 
         # Gebruik de gecachte container
-        SessionStateManager.set_value("service_container", get_cached_service_container())
+        SessionStateManager.set_value(
+            "service_container", get_cached_service_container()
+        )
 
         # Track initialization stats
         if SessionStateManager.get_value("service_init_count") is None:
@@ -116,7 +112,8 @@ def get_service_stats() -> dict[str, Any]:
         Dictionary met stats
     """
     stats = {
-        "container_exists": SessionStateManager.get_value("service_container") is not None,
+        "container_exists": SessionStateManager.get_value("service_container")
+        is not None,
         "init_count": SessionStateManager.get_value("service_init_count", 0),
     }
 

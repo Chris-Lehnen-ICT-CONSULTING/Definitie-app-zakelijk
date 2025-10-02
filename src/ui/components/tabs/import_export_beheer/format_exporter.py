@@ -7,7 +7,6 @@ Bevat alle export functionaliteit, exact zoals het al werkte.
 import io
 import logging
 from datetime import datetime
-from typing import List
 
 import pandas as pd
 import streamlit as st
@@ -39,14 +38,14 @@ class FormatExporter:
             export_format = st.selectbox(
                 "Export formaat",
                 ["CSV", "Excel", "JSON", "TXT"],
-                help="Selecteer het gewenste export formaat"
+                help="Selecteer het gewenste export formaat",
             )
 
         with col2:
             status_filter = st.selectbox(
                 "Status filter",
                 ["Alle"] + [status.value for status in DefinitieStatus],
-                help="Filter op definitie status"
+                help="Filter op definitie status",
             )
 
         with col3:
@@ -56,7 +55,7 @@ class FormatExporter:
                 max_value=10000,
                 value=0,
                 step=100,
-                help="0 = geen limiet"
+                help="0 = geen limiet",
             )
 
         # Export knop
@@ -91,12 +90,12 @@ class FormatExporter:
                     extension = "csv"
                 elif format == "Excel":
                     output = io.BytesIO()
-                    df.to_excel(output, index=False, engine='openpyxl')
+                    df.to_excel(output, index=False, engine="openpyxl")
                     output.seek(0)
                     mime_type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                     extension = "xlsx"
                 elif format == "JSON":
-                    output = df.to_json(orient='records', indent=2)
+                    output = df.to_json(orient="records", indent=2)
                     mime_type = "application/json"
                     extension = "json"
                 else:  # TXT
@@ -109,45 +108,55 @@ class FormatExporter:
 
                 st.download_button(
                     label=f"📥 Download {format} ({len(definitions)} definities)",
-                    data=output if isinstance(output, (str, bytes)) else output.getvalue(),
+                    data=(
+                        output
+                        if isinstance(output, (str, bytes))
+                        else output.getvalue()
+                    ),
                     file_name=filename,
-                    mime=mime_type
+                    mime=mime_type,
                 )
 
                 st.success(f"✅ Export gegenereerd: {len(definitions)} definities")
 
             except Exception as e:
-                st.error(f"Fout bij genereren export: {str(e)}")
+                st.error(f"Fout bij genereren export: {e!s}")
 
-    def _definitions_to_dataframe(self, definitions: List[DefinitieRecord]) -> pd.DataFrame:
+    def _definitions_to_dataframe(
+        self, definitions: list[DefinitieRecord]
+    ) -> pd.DataFrame:
         """Converteer definities naar DataFrame - exact verplaatst."""
         data = []
         for d in definitions:
-            data.append({
-                'begrip': d.begrip,
-                'definitie': d.definitie,
-                'categorie': d.categorie,
-                'context': d.organisatorische_context,
-                'status': d.status,
-                'validation_score': d.validation_score,
-                'aangemaakt': d.aangemaakt_op,
-                'laatst_gewijzigd': d.laatst_gewijzigd
-            })
+            data.append(
+                {
+                    "begrip": d.begrip,
+                    "definitie": d.definitie,
+                    "categorie": d.categorie,
+                    "context": d.organisatorische_context,
+                    "status": d.status,
+                    "validation_score": d.validation_score,
+                    "aangemaakt": d.aangemaakt_op,
+                    "laatst_gewijzigd": d.laatst_gewijzigd,
+                }
+            )
         return pd.DataFrame(data)
 
-    def _generate_txt_export(self, definitions: List[DefinitieRecord]) -> str:
+    def _generate_txt_export(self, definitions: list[DefinitieRecord]) -> str:
         """Genereer platte tekst export - exact verplaatst."""
         lines = ["DEFINITIE EXPORT", "=" * 50, ""]
 
         for d in definitions:
-            lines.extend([
-                f"Begrip: {d.begrip}",
-                f"Definitie: {d.definitie}",
-                f"Categorie: {d.categorie}",
-                f"Context: {d.organisatorische_context}",
-                f"Status: {d.status}",
-                "-" * 30,
-                ""
-            ])
+            lines.extend(
+                [
+                    f"Begrip: {d.begrip}",
+                    f"Definitie: {d.definitie}",
+                    f"Categorie: {d.categorie}",
+                    f"Context: {d.organisatorische_context}",
+                    f"Status: {d.status}",
+                    "-" * 30,
+                    "",
+                ]
+            )
 
         return "\n".join(lines)

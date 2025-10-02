@@ -10,7 +10,7 @@ from pathlib import Path
 # Voeg src toe aan sys.path voor directe imports
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
-from services.container import ServiceContainer  # noqa: E402
+from services.container import ServiceContainer
 
 
 def test_get_service_validator_returns_none():

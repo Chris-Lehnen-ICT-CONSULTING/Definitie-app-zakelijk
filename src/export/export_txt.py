@@ -1,8 +1,5 @@
 import os  # Operating system interface voor bestandsoperaties
-from datetime import (  # Datum en tijd functionaliteit voor timestamps
-    UTC,
-    datetime,
-)
+from datetime import UTC, datetime  # Datum en tijd functionaliteit voor timestamps
 
 
 def exporteer_naar_txt(gegevens: dict) -> str:

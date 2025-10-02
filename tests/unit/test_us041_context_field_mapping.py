@@ -19,14 +19,15 @@ Test Coverage:
 - ASTRA compliance for context audit trails
 """
 
-import pytest
-from unittest.mock import Mock, patch, MagicMock
-from typing import List, Optional
 import json
+from typing import List, Optional
+from unittest.mock import MagicMock, Mock, patch
 
+import pytest
+
+from src.services.container import ServiceContainer
 from src.services.interfaces import GenerationRequest
 from src.services.prompts.prompt_service_v2 import PromptServiceV2
-from src.services.container import ServiceContainer
 
 
 class TestContextFieldTypes:
@@ -39,7 +40,7 @@ class TestContextFieldTypes:
             begrip="test",
             organisatorische_context=["DJI", "OM"],
             juridische_context=["Strafrecht"],
-            wettelijke_basis=["Wetboek van Strafrecht"]
+            wettelijke_basis=["Wetboek van Strafrecht"],
         )
 
         assert isinstance(request.organisatorische_context, list)
@@ -53,7 +54,7 @@ class TestContextFieldTypes:
             begrip="test",
             organisatorische_context=[],
             juridische_context=[],
-            wettelijke_basis=[]
+            wettelijke_basis=[],
         )
 
         assert request.organisatorische_context == []
@@ -67,11 +68,14 @@ class TestContextFieldTypes:
             begrip="test",
             organisatorische_context=None,
             juridische_context=None,
-            wettelijke_basis=None
+            wettelijke_basis=None,
         )
 
         # After normalization in service
-        assert request.organisatorische_context is None or request.organisatorische_context == []
+        assert (
+            request.organisatorische_context is None
+            or request.organisatorische_context == []
+        )
         assert request.juridische_context is None or request.juridische_context == []
         assert request.wettelijke_basis is None or request.wettelijke_basis == []
 
@@ -79,7 +83,7 @@ class TestContextFieldTypes:
 class TestPromptServiceV2Integration:
     """Test PromptServiceV2 correctly handles context fields."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def prompt_service(self):
         """Create PromptServiceV2 instance."""
         return PromptServiceV2()
@@ -89,7 +93,7 @@ class TestPromptServiceV2Integration:
         request = GenerationRequest(
             id="test-004",
             begrip="voorlopige hechtenis",
-            organisatorische_context=["DJI", "OM", "Rechtspraak"]
+            organisatorische_context=["DJI", "OM", "Rechtspraak"],
         )
 
         prompt = prompt_service.build_prompt(request)
@@ -100,19 +104,22 @@ class TestPromptServiceV2Integration:
         assert "Rechtspraak" in prompt
 
         # Section header should exist
-        assert any(header in prompt.lower() for header in [
-            "organisatorische context:",
-            "organisatorische_context:",
-            "organisatie:",
-            "context organisatie"
-        ])
+        assert any(
+            header in prompt.lower()
+            for header in [
+                "organisatorische context:",
+                "organisatorische_context:",
+                "organisatie:",
+                "context organisatie",
+            ]
+        )
 
     def test_juridische_context_in_prompt(self, prompt_service):
         """Verify juridische_context appears in generated prompt."""
         request = GenerationRequest(
             id="test-005",
             begrip="dwangmiddel",
-            juridische_context=["Strafrecht", "Bestuursrecht", "Civiel recht"]
+            juridische_context=["Strafrecht", "Bestuursrecht", "Civiel recht"],
         )
 
         prompt = prompt_service.build_prompt(request)
@@ -123,12 +130,15 @@ class TestPromptServiceV2Integration:
         assert "Civiel recht" in prompt
 
         # Section header should exist
-        assert any(header in prompt.lower() for header in [
-            "juridische context:",
-            "juridische_context:",
-            "rechtsgebied:",
-            "juridisch domein"
-        ])
+        assert any(
+            header in prompt.lower()
+            for header in [
+                "juridische context:",
+                "juridische_context:",
+                "rechtsgebied:",
+                "juridisch domein",
+            ]
+        )
 
     def test_wettelijke_basis_in_prompt(self, prompt_service):
         """Verify wettelijke_basis appears in generated prompt."""
@@ -138,8 +148,8 @@ class TestPromptServiceV2Integration:
             wettelijke_basis=[
                 "Wet op de Identificatieplicht",
                 "Wetboek van Strafvordering",
-                "Algemene wet bestuursrecht"
-            ]
+                "Algemene wet bestuursrecht",
+            ],
         )
 
         prompt = prompt_service.build_prompt(request)
@@ -150,12 +160,15 @@ class TestPromptServiceV2Integration:
         assert "Algemene wet bestuursrecht" in prompt
 
         # Section header should exist
-        assert any(header in prompt.lower() for header in [
-            "wettelijke basis:",
-            "wettelijke_basis:",
-            "wetgeving:",
-            "relevante wetgeving"
-        ])
+        assert any(
+            header in prompt.lower()
+            for header in [
+                "wettelijke basis:",
+                "wettelijke_basis:",
+                "wetgeving:",
+                "relevante wetgeving",
+            ]
+        )
 
     def test_all_context_fields_combined(self, prompt_service):
         """Test all three context types work together."""
@@ -164,7 +177,7 @@ class TestPromptServiceV2Integration:
             begrip="gedetineerde",
             organisatorische_context=["DJI", "OM"],
             juridische_context=["Strafrecht", "Penitentiair recht"],
-            wettelijke_basis=["Penitentiaire beginselenwet", "Wetboek van Strafrecht"]
+            wettelijke_basis=["Penitentiaire beginselenwet", "Wetboek van Strafrecht"],
         )
 
         prompt = prompt_service.build_prompt(request)
@@ -172,7 +185,10 @@ class TestPromptServiceV2Integration:
         # Verify all context elements present
         assert all(org in prompt for org in ["DJI", "OM"])
         assert all(jur in prompt for jur in ["Strafrecht", "Penitentiair recht"])
-        assert all(wet in prompt for wet in ["Penitentiaire beginselenwet", "Wetboek van Strafrecht"])
+        assert all(
+            wet in prompt
+            for wet in ["Penitentiaire beginselenwet", "Wetboek van Strafrecht"]
+        )
 
     def test_special_characters_handled(self, prompt_service):
         """Test context with special characters is handled correctly."""
@@ -182,8 +198,8 @@ class TestPromptServiceV2Integration:
             wettelijke_basis=[
                 "Richtlijn (EU) 2016/680 'Politie-richtlijn'",
                 "Art. 5 EVRM & Art. 15 Grondwet",
-                "Wet bijzondere opnemingen in psychiatrische ziekenhuizen (Wet Bopz)"
-            ]
+                "Wet bijzondere opnemingen in psychiatrische ziekenhuizen (Wet Bopz)",
+            ],
         )
 
         prompt = prompt_service.build_prompt(request)
@@ -197,10 +213,12 @@ class TestPromptServiceV2Integration:
 class TestContextPropagationFlow:
     """Test context flows correctly through entire system."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def service_container(self):
         """Create ServiceContainer with mocked dependencies."""
-        with patch('src.services.container.ServiceContainer.__init__', return_value=None):
+        with patch(
+            "src.services.container.ServiceContainer.__init__", return_value=None
+        ):
             container = ServiceContainer()
             container._orchestrator = Mock()
             container._prompt_service = PromptServiceV2()
@@ -214,7 +232,9 @@ class TestContextPropagationFlow:
         mock_result.definition = "Test definitie"
         mock_result.debug_info = {}
 
-        service_container._orchestrator.generate_definition = Mock(return_value=mock_result)
+        service_container._orchestrator.generate_definition = Mock(
+            return_value=mock_result
+        )
 
         # Create request with full context
         request = GenerationRequest(
@@ -222,7 +242,7 @@ class TestContextPropagationFlow:
             begrip="test",
             organisatorische_context=["DJI"],
             juridische_context=["Strafrecht"],
-            wettelijke_basis=["Test wet"]
+            wettelijke_basis=["Test wet"],
         )
 
         # Call orchestrator
@@ -238,7 +258,7 @@ class TestContextPropagationFlow:
 class TestJusticeDomainSpecificScenarios:
     """Test justice-specific context scenarios."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def prompt_service(self):
         return PromptServiceV2()
 
@@ -249,14 +269,17 @@ class TestJusticeDomainSpecificScenarios:
             begrip="verlof",
             organisatorische_context=["DJI"],
             juridische_context=["Penitentiair recht"],
-            wettelijke_basis=["Penitentiaire beginselenwet", "Verlofregeling TBS"]
+            wettelijke_basis=["Penitentiaire beginselenwet", "Verlofregeling TBS"],
         )
 
         prompt = prompt_service.build_prompt(request)
 
         # DJI context should trigger penitentiary-specific instructions
         assert "DJI" in prompt
-        assert any(term in prompt.lower() for term in ["detentie", "gevangenis", "penitentiair"])
+        assert any(
+            term in prompt.lower()
+            for term in ["detentie", "gevangenis", "penitentiair"]
+        )
 
     def test_om_context_specifics(self, prompt_service):
         """Test OM-specific context handling."""
@@ -265,14 +288,17 @@ class TestJusticeDomainSpecificScenarios:
             begrip="dagvaarding",
             organisatorische_context=["OM"],
             juridische_context=["Strafprocesrecht"],
-            wettelijke_basis=["Wetboek van Strafvordering"]
+            wettelijke_basis=["Wetboek van Strafvordering"],
         )
 
         prompt = prompt_service.build_prompt(request)
 
         # OM context should trigger prosecution-specific instructions
         assert "OM" in prompt
-        assert any(term in prompt.lower() for term in ["vervolging", "openbaar ministerie", "officier"])
+        assert any(
+            term in prompt.lower()
+            for term in ["vervolging", "openbaar ministerie", "officier"]
+        )
 
     def test_rechtspraak_context_specifics(self, prompt_service):
         """Test Rechtspraak-specific context handling."""
@@ -281,7 +307,7 @@ class TestJusticeDomainSpecificScenarios:
             begrip="hoger beroep",
             organisatorische_context=["Rechtspraak"],
             juridische_context=["Procesrecht"],
-            wettelijke_basis=["Wetboek van Strafvordering", "Wet RO"]
+            wettelijke_basis=["Wetboek van Strafvordering", "Wet RO"],
         )
 
         prompt = prompt_service.build_prompt(request)
@@ -298,7 +324,7 @@ class TestJusticeDomainSpecificScenarios:
             begrip="strafbeschikking",
             organisatorische_context=["OM", "Rechtspraak", "CJIB"],
             juridische_context=["Strafrecht", "Bestuursrecht"],
-            wettelijke_basis=["Wetboek van Strafrecht", "Wetboek van Strafvordering"]
+            wettelijke_basis=["Wetboek van Strafrecht", "Wetboek van Strafvordering"],
         )
 
         prompt = prompt_service.build_prompt(request)
@@ -314,13 +340,13 @@ class TestContextAuditCompliance:
 
     def test_context_logged_for_audit(self):
         """Verify context decisions are logged for audit trail."""
-        with patch('logging.Logger.info') as mock_log:
+        with patch("logging.Logger.info") as mock_log:
             request = GenerationRequest(
                 id="test-014",
                 begrip="test",
                 organisatorische_context=["DJI"],
                 juridische_context=["Strafrecht"],
-                wettelijke_basis=["Test wet"]
+                wettelijke_basis=["Test wet"],
             )
 
             prompt_service = PromptServiceV2()
@@ -337,7 +363,7 @@ class TestContextAuditCompliance:
             begrip="test",
             organisatorische_context=["DJI"],
             juridische_context=["Strafrecht"],
-            wettelijke_basis=["Test wet"]
+            wettelijke_basis=["Test wet"],
         )
 
         # This test documents requirement for metadata inclusion
@@ -349,8 +375,14 @@ class TestContextAuditCompliance:
         valid_orgs = ["DJI", "OM", "Rechtspraak", "KMAR", "CJIB", "RvdK", "NFI"]
 
         # Valid legal contexts
-        valid_juridisch = ["Strafrecht", "Bestuursrecht", "Civiel recht",
-                          "Penitentiair recht", "Jeugdrecht", "Vreemdelingenrecht"]
+        valid_juridisch = [
+            "Strafrecht",
+            "Bestuursrecht",
+            "Civiel recht",
+            "Penitentiair recht",
+            "Jeugdrecht",
+            "Vreemdelingenrecht",
+        ]
 
         # This test documents the requirement for validation
         # Implementation should validate against these lists
@@ -359,7 +391,7 @@ class TestContextAuditCompliance:
 class TestEdgeCases:
     """Test edge cases and error conditions."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def prompt_service(self):
         return PromptServiceV2()
 
@@ -370,7 +402,7 @@ class TestEdgeCases:
             begrip="test",
             organisatorische_context=[],
             juridische_context=[],
-            wettelijke_basis=[]
+            wettelijke_basis=[],
         )
 
         prompt = prompt_service.build_prompt(request)
@@ -384,7 +416,7 @@ class TestEdgeCases:
             begrip="test",
             organisatorische_context=["Org" + str(i) for i in range(20)],
             juridische_context=["Context" + str(i) for i in range(15)],
-            wettelijke_basis=["Wet" + str(i) for i in range(30)]
+            wettelijke_basis=["Wet" + str(i) for i in range(30)],
         )
 
         prompt = prompt_service.build_prompt(request)
@@ -398,7 +430,7 @@ class TestEdgeCases:
             begrip="test",
             organisatorische_context=["DJI", "OM", "DJI", "OM"],
             juridische_context=["Strafrecht", "Strafrecht"],
-            wettelijke_basis=["Wet A", "Wet B", "Wet A"]
+            wettelijke_basis=["Wet A", "Wet B", "Wet A"],
         )
 
         prompt = prompt_service.build_prompt(request)
@@ -418,7 +450,7 @@ class TestEdgeCases:
             begrip="test",
             organisatorische_context=["DJI"],
             juridische_context=None,
-            wettelijke_basis=["Test wet"]
+            wettelijke_basis=["Test wet"],
         )
 
         prompt = prompt_service.build_prompt(request)

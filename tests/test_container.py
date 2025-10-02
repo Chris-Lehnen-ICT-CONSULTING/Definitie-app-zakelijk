@@ -1,6 +1,7 @@
 """
 Test voor de Dependency Injection Container.
 """
+
 import asyncio
 import sys
 from pathlib import Path
@@ -9,7 +10,7 @@ from pathlib import Path
 src_path = Path(__file__).parent.parent / "src"
 sys.path.insert(0, str(src_path))
 
-from services.container import ServiceContainer, get_container, ContainerConfigs
+from services.container import ContainerConfigs, ServiceContainer, get_container
 from services.interfaces import GenerationRequest
 
 
@@ -23,9 +24,9 @@ def test_container_creation():
 
     # Test met custom config
     custom_config = {
-        'db_path': 'custom.db',
-        'generator_model': 'gpt-3.5-turbo',
-        'min_quality_score': 0.8
+        "db_path": "custom.db",
+        "generator_model": "gpt-3.5-turbo",
+        "min_quality_score": 0.8,
     }
     custom_container = ServiceContainer(custom_config)
     print("✅ Custom container aangemaakt")
@@ -63,7 +64,7 @@ def test_service_creation():
     print("✅ Orchestrator service")
 
     # Test get_service
-    gen_via_name = container.get_service('generator')
+    gen_via_name = container.get_service("generator")
     assert gen_via_name is generator1
     print("✅ get_service() werkt")
 
@@ -78,9 +79,7 @@ async def test_service_integration():
 
     # Test request
     request = GenerationRequest(
-        id="test-id",
-        begrip="container test",
-        context="Test van dependency injection"
+        id="test-id", begrip="container test", context="Test van dependency injection"
     )
 
     try:
@@ -88,7 +87,9 @@ async def test_service_integration():
         print(f"✅ Integration test: {response.success}")
         if response.definition:
             print(f"   Begrip: {response.definition.begrip}")
-            print(f"   Score: {response.validation_result.score if response.validation_result else 'N/A'}")
+            print(
+                f"   Score: {response.validation_result.score if response.validation_result else 'N/A'}"
+            )
     except Exception as e:
         print(f"❌ Integration test mislukt: {e}")
 
@@ -105,6 +106,7 @@ def test_global_container():
 
     # Reset
     from services.container import reset_container
+
     reset_container()
     container3 = get_container()
     assert container3 is not container1
@@ -121,6 +123,7 @@ def main():
 
     # Async test
     import os
+
     if os.getenv("OPENAI_API_KEY"):
         asyncio.run(test_service_integration())
     else:

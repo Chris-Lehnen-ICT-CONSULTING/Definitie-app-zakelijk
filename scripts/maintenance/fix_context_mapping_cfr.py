@@ -18,9 +18,8 @@ Related: Epic CFR, Bug CFR-BUG-001
 import argparse
 import shutil
 import sys
-from pathlib import Path
 from datetime import datetime
-from typing import Optional
+from pathlib import Path
 
 
 class ContextMappingFixer:
@@ -29,7 +28,9 @@ class ContextMappingFixer:
     def __init__(self):
         """Initialize fixer with paths."""
         self.project_root = Path(__file__).parent.parent
-        self.target_file = self.project_root / "src/services/prompts/prompt_service_v2.py"
+        self.target_file = (
+            self.project_root / "src/services/prompts/prompt_service_v2.py"
+        )
         self.backup_file = self.target_file.with_suffix(".py.backup_cfr")
 
     def check_issue(self) -> bool:
@@ -44,8 +45,11 @@ class ContextMappingFixer:
         issues = []
 
         # Issue 1: Context fields not extracted
-        if "getattr(request, \"organisatorische_context\", None)" in content:
-            if "extend_unique(getattr(request, \"organisatorische_context\", None)" in content:
+        if 'getattr(request, "organisatorische_context", None)' in content:
+            if (
+                'extend_unique(getattr(request, "organisatorische_context", None)'
+                in content
+            ):
                 print("✅ Organisatorische context mapping appears to be present")
             else:
                 issues.append("organisatorische_context not properly mapped")
@@ -203,7 +207,7 @@ class ContextMappingFixer:
                     fixed_method += "\n" + rest_of_method
                 else:
                     # Add default return
-                    fixed_method += '''
+                    fixed_method += """
         }
 
         return EnrichedContext(
@@ -211,7 +215,7 @@ class ContextMappingFixer:
             sources=sources,
             metadata=metadata
         )
-'''
+"""
 
             # Replace the method in the content
             new_content = content[:method_start] + fixed_method + content[method_end:]
@@ -222,14 +226,22 @@ class ContextMappingFixer:
                 if import_pos != -1:
                     # Find end of docstring
                     import_pos = new_content.find('"""', import_pos + 3) + 3
-                    new_content = new_content[:import_pos] + "\n\nimport logging" + new_content[import_pos:]
+                    new_content = (
+                        new_content[:import_pos]
+                        + "\n\nimport logging"
+                        + new_content[import_pos:]
+                    )
 
             if "logger = logging.getLogger(__name__)" not in new_content:
                 # Add after imports
                 import_end = new_content.rfind("from services.web_lookup")
                 if import_end != -1:
                     line_end = new_content.find("\n", import_end)
-                    new_content = new_content[:line_end + 1] + "\nlogger = logging.getLogger(__name__)\n" + new_content[line_end + 1:]
+                    new_content = (
+                        new_content[: line_end + 1]
+                        + "\nlogger = logging.getLogger(__name__)\n"
+                        + new_content[line_end + 1 :]
+                    )
 
             # Write the fixed content
             self.target_file.write_text(new_content)
@@ -292,7 +304,7 @@ class ContextMappingFixer:
             content = log_file.read_text()
             content += log_entry
         else:
-            content = f"# CFR Context Fix Log\n\n" + log_entry
+            content = "# CFR Context Fix Log\n\n" + log_entry
 
         log_file.write_text(content)
         print(f"✅ Fix logged to {log_file}")
@@ -308,7 +320,7 @@ def main():
         choices=["check", "apply", "rollback"],
         nargs="?",
         default="check",
-        help="Action to perform (default: check)"
+        help="Action to perform (default: check)",
     )
 
     args = parser.parse_args()

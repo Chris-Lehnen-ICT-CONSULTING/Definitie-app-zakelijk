@@ -19,7 +19,7 @@ import streamlit as st
 # Add src to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from ui.components.definition_generator_tab import DefinitionGeneratorTab
 from ui.session_state import SessionStateManager
@@ -65,7 +65,7 @@ def test_category_change_flow():
                 "resultaat": 0.1,
                 "exemplaar": 0.1,
             },
-            "timestamp": datetime.now(timezone.utc),
+            "timestamp": datetime.now(UTC),
         }
 
         SessionStateManager.set_value("last_generation_result", mock_result)

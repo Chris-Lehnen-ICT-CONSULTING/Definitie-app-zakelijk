@@ -9,7 +9,6 @@ and prints whether indexes are used. Non-destructive, read-only.
 import sqlite3
 from pathlib import Path
 
-
 DB_PATH = Path("data/definities.db")
 
 

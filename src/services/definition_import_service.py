@@ -13,7 +13,8 @@ from __future__ import annotations
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
-from typing import Any, Dict
+from typing import Any
+
 import pandas as pd
 
 from services.interfaces import Definition
@@ -54,7 +55,7 @@ class DefinitionImportService:
         # Thread pool voor sync database operaties
         self._executor = ThreadPoolExecutor(max_workers=2)
 
-    async def validate_single(self, payload: Dict[str, Any]) -> SingleImportPreview:
+    async def validate_single(self, payload: dict[str, Any]) -> SingleImportPreview:
         """Valideer één definitie en geef duplicates terug.
 
         Vereist velden in payload: begrip, definitie, categorie, organisatorische_context(list),
@@ -66,9 +67,12 @@ class DefinitionImportService:
         # Duplicaatcontrole op begrip + context (repository logica)
         # Run sync database operation in thread pool to prevent blocking
         loop = asyncio.get_event_loop()
-        duplicates = await loop.run_in_executor(
-            self._executor, self._repo.find_duplicates, definition
-        ) or []
+        duplicates = (
+            await loop.run_in_executor(
+                self._executor, self._repo.find_duplicates, definition
+            )
+            or []
+        )
 
         ok = True
         try:
@@ -80,7 +84,7 @@ class DefinitionImportService:
 
     async def import_single(
         self,
-        payload: Dict[str, Any],
+        payload: dict[str, Any],
         *,
         allow_duplicate: bool = False,
         duplicate_strategy: str | None = None,
@@ -93,7 +97,7 @@ class DefinitionImportService:
         # Voor kleine timeout safety, gebruik asyncio.wait_for
         try:
             preview = await asyncio.wait_for(self.validate_single(payload), timeout=2.0)
-        except asyncio.TimeoutError:
+        except TimeoutError:
             return SingleImportResult(
                 success=False,
                 definition_id=None,
@@ -103,7 +107,9 @@ class DefinitionImportService:
             )
 
         # Bepaal strategie: 'skip' (default) of 'overwrite'
-        strategy = (duplicate_strategy or ("overwrite" if allow_duplicate else "skip")).lower()
+        strategy = (
+            duplicate_strategy or ("overwrite" if allow_duplicate else "skip")
+        ).lower()
 
         if preview.duplicates and strategy == "skip":
             return SingleImportResult(
@@ -120,8 +126,12 @@ class DefinitionImportService:
         definition = self._payload_to_definition(payload)
         # Zet status/metadata voor import herkomst
         md = dict(definition.metadata or {})
-        md.setdefault("status", "draft")  # Gebruik 'draft' i.p.v. 'imported' voor DB constraint
-        md.setdefault("source_type", "imported")  # Dit geeft aan dat het geïmporteerd is
+        md.setdefault(
+            "status", "draft"
+        )  # Gebruik 'draft' i.p.v. 'imported' voor DB constraint
+        md.setdefault(
+            "source_type", "imported"
+        )  # Dit geeft aan dat het geïmporteerd is
         md.setdefault("imported_from", "single_import_ui")
         if created_by:
             md.setdefault("created_by", created_by)
@@ -140,9 +150,7 @@ class DefinitionImportService:
 
         # Run sync save operation in thread pool to prevent blocking
         loop = asyncio.get_event_loop()
-        new_id = await loop.run_in_executor(
-            self._executor, self._repo.save, definition
-        )
+        new_id = await loop.run_in_executor(self._executor, self._repo.save, definition)
 
         # Sla synoniemen en voorkeursterm op in voorbeelden tabel
         if new_id:
@@ -152,20 +160,24 @@ class DefinitionImportService:
                     voorbeelden_dict = {}
 
                     # Voorkeursterm (als eerste synoniem met is_voorkeursterm=True)
-                    voorkeursterm = definition.metadata.get('voorkeursterm') if definition.metadata else None
+                    voorkeursterm = (
+                        definition.metadata.get("voorkeursterm")
+                        if definition.metadata
+                        else None
+                    )
                     if voorkeursterm:
-                        voorbeelden_dict['synonyms'] = [voorkeursterm]
+                        voorbeelden_dict["synonyms"] = [voorkeursterm]
 
                     # Andere synoniemen
                     if definition.synoniemen:
-                        if 'synonyms' in voorbeelden_dict:
-                            voorbeelden_dict['synonyms'].extend(definition.synoniemen)
+                        if "synonyms" in voorbeelden_dict:
+                            voorbeelden_dict["synonyms"].extend(definition.synoniemen)
                         else:
-                            voorbeelden_dict['synonyms'] = definition.synoniemen
+                            voorbeelden_dict["synonyms"] = definition.synoniemen
 
                     # AI toelichting
                     if definition.toelichting:
-                        voorbeelden_dict['explanation'] = [definition.toelichting]
+                        voorbeelden_dict["explanation"] = [definition.toelichting]
 
                     # Sla voorbeelden op als ze bestaan
                     if voorbeelden_dict:
@@ -175,10 +187,10 @@ class DefinitionImportService:
                             voorbeelden_dict,
                             generation_model="import",
                             gegenereerd_door=created_by or "import",
-                            voorkeursterm=voorkeursterm
+                            voorkeursterm=voorkeursterm,
                         )
 
-            except Exception as e:
+            except Exception:
                 # Voorbeelden opslag is best-effort, hoofddefinitie is al opgeslagen
                 pass
 
@@ -203,7 +215,7 @@ class DefinitionImportService:
         )
 
     # -------- intern --------
-    def _payload_to_definition(self, payload: Dict[str, Any]) -> Definition:
+    def _payload_to_definition(self, payload: dict[str, Any]) -> Definition:
         begrip = str(payload.get("begrip", "")).strip()
         definitie = str(payload.get("definitie", "")).strip()
         categorie = payload.get("categorie") or None
@@ -243,6 +255,7 @@ class DefinitionImportService:
 
         # Nieuwe velden mapping – UFO-categorie valideren/normaliseren naar canonieke waarden
         import re as _re
+
         def _normalize_ufo(val: str | None) -> str | None:
             if not val:
                 return None
@@ -251,8 +264,22 @@ class DefinitionImportService:
                 return None
             # Canonieke waarden zoals toegestaan in schema.sql (CHECK constraint)
             allowed = [
-                "Kind","Event","Role","Phase","Relator","Mode","Quantity","Quality",
-                "Subkind","Category","Mixin","RoleMixin","PhaseMixin","Abstract","Relatie","Event Composition",
+                "Kind",
+                "Event",
+                "Role",
+                "Phase",
+                "Relator",
+                "Mode",
+                "Quantity",
+                "Quality",
+                "Subkind",
+                "Category",
+                "Mixin",
+                "RoleMixin",
+                "PhaseMixin",
+                "Abstract",
+                "Relatie",
+                "Event Composition",
             ]
             # Directe match (case-sensitive) of case-insensitive
             if v in allowed:
@@ -261,18 +288,22 @@ class DefinitionImportService:
             for c in allowed:
                 if v.lower() == c.lower():
                     return c
+
             # Normaliseer: verwijder spaties/strepen/underscores/punten
             def _key(s: str) -> str:
                 return _re.sub(r"[\s_.\-]", "", s.strip().lower())
-            allowed_map = { _key(c): c for c in allowed }
+
+            allowed_map = {_key(c): c for c in allowed}
             # Voeg simpele synoniemen toe
-            allowed_map.update({
-                "relation": "Relatie",
-                "eventcomposition": "Event Composition",
-                "rolemixin": "RoleMixin",
-                "phasemixin": "PhaseMixin",
-                "subkind": "Subkind",
-            })
+            allowed_map.update(
+                {
+                    "relation": "Relatie",
+                    "eventcomposition": "Event Composition",
+                    "rolemixin": "RoleMixin",
+                    "phasemixin": "PhaseMixin",
+                    "subkind": "Subkind",
+                }
+            )
             return allowed_map.get(_key(v))
 
         # Normaliseer categorie naar toegestane waarden
@@ -314,12 +345,18 @@ class DefinitionImportService:
         # Normaliseer categorie
         categorie_normalized = _normalize_categorie(categorie)
 
-        ufo_categorie_raw = _clean_text(payload.get("UFO_Categorie", payload.get("ufo_categorie", "")))
+        ufo_categorie_raw = _clean_text(
+            payload.get("UFO_Categorie", payload.get("ufo_categorie", ""))
+        )
         ufo_categorie = _normalize_ufo(ufo_categorie_raw)
-        voorkeursterm = _clean_text(payload.get("Voorkeursterm", payload.get("voorkeursterm", "")))
+        voorkeursterm = _clean_text(
+            payload.get("Voorkeursterm", payload.get("voorkeursterm", ""))
+        )
 
         # Synoniemen (komma-gescheiden naar lijst)
-        synoniemen_field = _clean_text(payload.get("Synoniemen", payload.get("synoniemen", "")))
+        synoniemen_field = _clean_text(
+            payload.get("Synoniemen", payload.get("synoniemen", ""))
+        )
         synoniemen_list = _as_list(synoniemen_field) if synoniemen_field else []
 
         # Procesmatige toelichting: merge beide velden indien aanwezig
@@ -342,7 +379,14 @@ class DefinitionImportService:
         elif toelichting_1:
             # Als alleen hoofdveld, bepaal op basis van inhoud (heuristiek)
             # Als het lijkt op procesnotities (bevat woorden als "validatie", "review", etc.)
-            proces_keywords = ["validatie", "review", "controle", "opmerking", "nota", "proces"]
+            proces_keywords = [
+                "validatie",
+                "review",
+                "controle",
+                "opmerking",
+                "nota",
+                "proces",
+            ]
             if any(keyword in toelichting_1.lower() for keyword in proces_keywords):
                 toelichting_proces = toelichting_1
             else:
@@ -356,7 +400,9 @@ class DefinitionImportService:
             wettelijke_basis=wet_list,
             categorie=categorie_normalized,  # Gebruik genormaliseerde categorie
             ufo_categorie=ufo_categorie if ufo_categorie else None,
-            synoniemen=synoniemen_list if synoniemen_list else None,  # Tijdelijk, wordt later naar voorbeelden geschreven
+            synoniemen=(
+                synoniemen_list if synoniemen_list else None
+            ),  # Tijdelijk, wordt later naar voorbeelden geschreven
             toelichting=toelichting_definitie if toelichting_definitie else None,
         )
 
@@ -364,10 +410,10 @@ class DefinitionImportService:
         if voorkeursterm:
             if not definition.metadata:
                 definition.metadata = {}
-            definition.metadata['voorkeursterm'] = voorkeursterm
+            definition.metadata["voorkeursterm"] = voorkeursterm
         if toelichting_proces:
             if not definition.metadata:
                 definition.metadata = {}
-            definition.metadata['toelichting_proces'] = toelichting_proces
+            definition.metadata["toelichting_proces"] = toelichting_proces
 
         return definition

@@ -2,13 +2,14 @@
 Global pytest configuration and fixtures for the test suite.
 """
 
+import asyncio
+import builtins
+import os
+import socket
 import sys
 from pathlib import Path
+
 import pytest
-import asyncio
-import os
-import builtins
-import socket
 
 # 'src' staat al op PYTHONPATH via pytest.ini; dubbele insert niet nodig.
 
@@ -17,12 +18,15 @@ import socket
 sys.path.insert(0, str(Path(__file__).parent))
 try:
     from mocks.streamlit_mock import get_streamlit_mock  # type: ignore
+
     sys.modules["streamlit"] = get_streamlit_mock()
 except Exception:  # pragma: no cover - inline fallback
+
     class _NoOpDec:
         def __call__(self, *args, **kwargs):
             def _decorator(func):
                 return func
+
             return _decorator
 
         def clear(self):
@@ -39,13 +43,11 @@ except Exception:  # pragma: no cover - inline fallback
 # Provide legacy-compatible config helpers in builtins for tests that assume
 # top-level imports (e.g., get_api_config without explicit import).
 try:  # pragma: no cover - integration convenience
-    from config import (
-        get_api_config as _compat_get_api_config,
-        get_cache_config as _compat_get_cache_config,
-        get_paths_config as _compat_get_paths_config,
-        get_default_model as _compat_get_default_model,
-        get_default_temperature as _compat_get_default_temperature,
-    )
+    from config import get_api_config as _compat_get_api_config
+    from config import get_cache_config as _compat_get_cache_config
+    from config import get_default_model as _compat_get_default_model
+    from config import get_default_temperature as _compat_get_default_temperature
+    from config import get_paths_config as _compat_get_paths_config
 
     builtins.get_api_config = getattr(  # type: ignore[attr-defined]
         builtins, "get_api_config", _compat_get_api_config
@@ -68,6 +70,7 @@ except Exception:
 # Import all fixtures from v2_service_mocks to make them globally available
 from fixtures.v2_service_mocks import *
 
+
 # Configure asyncio for testing
 @pytest.fixture(scope="session")
 def event_loop():
@@ -83,18 +86,19 @@ def reset_singletons():
     # Reset the global container if it exists
     try:
         from services.container import reset_container
+
         reset_container()
     except ImportError:
         pass
 
 
-@pytest.fixture
+@pytest.fixture()
 def test_db_path(tmp_path):
     """Provide a temporary database path for testing."""
     return str(tmp_path / "test.db")
 
 
-@pytest.fixture
+@pytest.fixture()
 def in_memory_db():
     """Provide in-memory database configuration."""
     return ":memory:"
@@ -125,7 +129,7 @@ def pytest_ignore_collect(collection_path: Path, config):
 
 
 # Performance monitoring for tests
-@pytest.fixture
+@pytest.fixture()
 def benchmark_timer():
     """Simple benchmark timer for performance testing."""
     import time
@@ -147,7 +151,9 @@ def benchmark_timer():
         def assert_under(self, seconds: float):
             """Assert that elapsed time is under specified seconds."""
             assert self.elapsed is not None, "Timer not stopped"
-            assert self.elapsed < seconds, f"Took {self.elapsed:.2f}s, expected under {seconds}s"
+            assert (
+                self.elapsed < seconds
+            ), f"Took {self.elapsed:.2f}s, expected under {seconds}s"
 
     return Timer()
 
@@ -156,13 +162,13 @@ def benchmark_timer():
 # pytest-benchmark is not installed. When the plugin is present, its
 # BenchmarkFixture should be used to avoid conflicts.
 try:  # pragma: no cover - import guard for optional plugin
-    import pytest_benchmark  # type: ignore
     _HAS_BENCHMARK_PLUGIN = True
 except Exception:  # plugin not available
     _HAS_BENCHMARK_PLUGIN = False
 
 if not _HAS_BENCHMARK_PLUGIN:
-    @pytest.fixture
+
+    @pytest.fixture()
     def benchmark():
         def run(fn, *args, **kwargs):
             return fn(*args, **kwargs)
@@ -171,28 +177,28 @@ if not _HAS_BENCHMARK_PLUGIN:
 
 
 # Test data fixtures
-@pytest.fixture
+@pytest.fixture()
 def sample_definition_data():
     """Provide sample definition data for testing."""
     return {
         "begrip": "rechtspersoon",
         "definitie": "Een juridische entiteit die rechten en plichten kan hebben",
-        "ontologische_categorie": "juridisch concept"
+        "ontologische_categorie": "juridisch concept",
     }
 
 
-@pytest.fixture
+@pytest.fixture()
 def sample_validation_rules():
     """Provide sample validation rules for testing."""
     return [
         {"id": "RULE001", "name": "Minimum Length", "threshold": 10},
         {"id": "RULE002", "name": "Contains Definition", "threshold": 0.8},
-        {"id": "RULE003", "name": "Dutch Language", "threshold": 0.9}
+        {"id": "RULE003", "name": "Dutch Language", "threshold": 0.9},
     ]
 
 
 # Environment setup
-@pytest.fixture
+@pytest.fixture()
 def mock_env_vars(monkeypatch):
     """Mock environment variables for testing."""
     monkeypatch.setenv("OPENAI_API_KEY", "test-key-123")
@@ -203,7 +209,7 @@ def mock_env_vars(monkeypatch):
 
 # Opt-in fixture to sandbox relative writes under a temporary directory.
 # Usage: add 'chdir_tmp_path' to your test function signature.
-@pytest.fixture
+@pytest.fixture()
 def chdir_tmp_path(tmp_path, monkeypatch):
     """Change CWD to pytest's tmp_path for the duration of a test.
 
@@ -233,7 +239,9 @@ def _disable_network(monkeypatch):
         )
 
     # Block common socket entry points
-    monkeypatch.setattr(socket, "create_connection", _blocked_create_connection, raising=True)
+    monkeypatch.setattr(
+        socket, "create_connection", _blocked_create_connection, raising=True
+    )
     monkeypatch.setattr(socket.socket, "connect", _blocked_connect, raising=True)
     monkeypatch.setattr(socket.socket, "connect_ex", _blocked_connect, raising=True)
 
@@ -244,20 +252,23 @@ def _disable_network(monkeypatch):
 @pytest.fixture(autouse=True)
 def _fast_asyncio_sleep(monkeypatch, request):
     import os as _os
+
     if _os.getenv("FAST_SLEEP") != "1":
         return
 
     # Niet versnellen voor performance/benchmark/slow gemarkeerde tests
-    if any(request.node.get_closest_marker(m) for m in ("performance", "benchmark", "slow")):
+    if any(
+        request.node.get_closest_marker(m) for m in ("performance", "benchmark", "slow")
+    ):
         return
 
     import asyncio as _asyncio
+
     _orig_sleep = _asyncio.sleep
 
     async def _quick_sleep(delay, *args, **kwargs):
         # Eén event loop yield om scheduling-semantiek te behouden
         if delay and delay > 0:
             await _orig_sleep(0)
-        return None
 
     monkeypatch.setattr(_asyncio, "sleep", _quick_sleep, raising=True)

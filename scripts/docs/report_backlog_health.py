@@ -14,7 +14,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any
 
@@ -65,7 +65,11 @@ def first_heading(text: str) -> str | None:
 
 
 def is_external_link(href: str) -> bool:
-    return href.startswith("http://") or href.startswith("https://") or href.startswith("mailto:")
+    return (
+        href.startswith("http://")
+        or href.startswith("https://")
+        or href.startswith("mailto:")
+    )
 
 
 def resolve_link(md_path: Path, href: str) -> Path:
@@ -119,7 +123,7 @@ def scan() -> Health:
         # link scan
         in_archief = "docs/archief/" in str(md.as_posix())
         for m in re.finditer(r"\[[^\]]*\]\(([^)]+)\)", text):
-            href = m.group(1).strip().strip('"\'')
+            href = m.group(1).strip().strip("\"'")
             if is_external_link(href):
                 continue
             target = resolve_link(md, href)
@@ -134,7 +138,9 @@ def scan() -> Health:
 
     dup_us = {k: v for k, v in us_ids.items() if len(v) > 1}
     dup_bug = {k: v for k, v in bug_ids.items() if len(v) > 1}
-    return Health(counts, canonical_counts, dup_us, dup_bug, broken_links, archived_broken_links)
+    return Health(
+        counts, canonical_counts, dup_us, dup_bug, broken_links, archived_broken_links
+    )
 
 
 def main() -> int:
@@ -156,7 +162,9 @@ def main() -> int:
     if args.out:
         out_path = Path(args.out)
         out_path.parent.mkdir(parents=True, exist_ok=True)
-        out_path.write_text(json.dumps(asdict(health), ensure_ascii=False, indent=2), encoding="utf-8")
+        out_path.write_text(
+            json.dumps(asdict(health), ensure_ascii=False, indent=2), encoding="utf-8"
+        )
         print(f"Report written to {out_path}")
 
     # Exit code is always 0 (this is a report). Failures are handled by the integrity checker.

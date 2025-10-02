@@ -37,10 +37,10 @@ async def test_complete_categorie_flow():
     request = GenerationRequest(
         begrip="verificatieproces",
         context="identiteitscontrole bij overheid",
-        ontologische_categorie="proces"
+        ontologische_categorie="proces",
     )
 
-    print(f"🔹 GenerationRequest aangemaakt:")
+    print("🔹 GenerationRequest aangemaakt:")
     print(f"   - Begrip: {request.begrip}")
     print(f"   - Context: {request.context}")
     print(f"   - Categorie: {request.ontologische_categorie}")
@@ -50,9 +50,11 @@ async def test_complete_categorie_flow():
     response = await orchestrator.create_definition(request)
 
     if response.success:
-        print(f"\n✅ Definitie succesvol gegenereerd!")
+        print("\n✅ Definitie succesvol gegenereerd!")
         print(f"   - Definitie: {response.definition.definitie[:100]}...")
-        print(f"   - Metadata: {response.definition.metadata.get('prompt_template', '')[:100]}...")
+        print(
+            f"   - Metadata: {response.definition.metadata.get('prompt_template', '')[:100]}..."
+        )
     else:
         print(f"\n❌ Generatie mislukt: {response.message}")
         return
@@ -63,23 +65,27 @@ async def test_complete_categorie_flow():
     original_category = OntologischeCategorie.PROCES
     new_category = OntologischeCategorie.RESULTAAT
 
-    print(f"🔹 Wijzig categorie van {original_category.value} naar {new_category.value}")
+    print(
+        f"🔹 Wijzig categorie van {original_category.value} naar {new_category.value}"
+    )
 
     action = workflow_service.handle_category_change(
         definition_id=1,  # Dummy ID voor test
         old_category=original_category,
-        new_category=new_category
+        new_category=new_category,
     )
 
-    print(f"\n📋 WorkflowAction resultaat:")
+    print("\n📋 WorkflowAction resultaat:")
     print(f"   - Type: {action.action_type}")
     print(f"   - Data keys: {list(action.data.keys())}")
 
     if action.action_type == WorkflowAction.ActionType.SHOW_REGENERATION_OPTIONS:
-        print(f"\n🔄 Regeneratie opties beschikbaar:")
+        print("\n🔄 Regeneratie opties beschikbaar:")
         print(f"   - Old category: {action.data.get('old_category')}")
         print(f"   - New category: {action.data.get('new_category')}")
-        print(f"   - Impact analysis: {action.data.get('impact_analysis', {}).get('description', '')}")
+        print(
+            f"   - Impact analysis: {action.data.get('impact_analysis', {}).get('description', '')}"
+        )
 
     print_section("Test 3: Service Adapter Legacy Interface")
 
@@ -89,20 +95,22 @@ async def test_complete_categorie_flow():
     result = adapter.generate_definition(
         begrip="toetsingsresultaat",
         context_dict={"organisatorisch": ["kwaliteitscontrole"]},
-        categorie=OntologischeCategorie.RESULTAAT
+        categorie=OntologischeCategorie.RESULTAAT,
     )
 
-    print(f"🔹 ServiceAdapter resultaat:")
+    print("🔹 ServiceAdapter resultaat:")
     print(f"   - Success: {result.get('success', False)}")
-    if result.get('success'):
+    if result.get("success"):
         print(f"   - Definitie: {result.get('final_definitie', '')[:100]}...")
-        print(f"   - Bevat 'resultaat' keyword: {'resultaat' in result.get('final_definitie', '').lower()}")
+        print(
+            f"   - Bevat 'resultaat' keyword: {'resultaat' in result.get('final_definitie', '').lower()}"
+        )
 
     print_section("Test 4: Prompt Template Selectie")
 
     # Test 4: Direct prompt builder test
-    from services.definition_generator_prompts import BasicPromptBuilder
     from services.definition_generator_context import EnrichedContext
+    from services.definition_generator_prompts import BasicPromptBuilder
 
     builder = BasicPromptBuilder()
 
@@ -115,7 +123,7 @@ async def test_complete_categorie_flow():
             sources=[],
             expanded_terms={},
             confidence_scores={},
-            metadata={"ontologische_categorie": cat}
+            metadata={"ontologische_categorie": cat},
         )
 
         template = builder._select_template("testbegrip", context)
@@ -124,9 +132,11 @@ async def test_complete_categorie_flow():
         # Check of juiste template geselecteerd is
         expected_template = f"ontologie_{cat}"
         if template.name == expected_template:
-            print(f"   ✅ Correct template geselecteerd")
+            print("   ✅ Correct template geselecteerd")
         else:
-            print(f"   ❌ Verkeerd template: verwacht {expected_template}, kreeg {template.name}")
+            print(
+                f"   ❌ Verkeerd template: verwacht {expected_template}, kreeg {template.name}"
+            )
 
     print_section("Samenvatting")
 

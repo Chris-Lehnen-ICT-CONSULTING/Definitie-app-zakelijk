@@ -9,13 +9,13 @@ Shared Examples Block for Edit and Expert tabs.
 
 from __future__ import annotations
 
-from typing import Any, Dict
 import re
+from typing import Any
 
 import streamlit as st
 
-from ui.session_state import SessionStateManager
 from ui.helpers.examples import resolve_examples
+from ui.session_state import SessionStateManager
 
 
 def render_examples_block(
@@ -45,7 +45,7 @@ def render_examples_block(
 
     # Resolve current examples (session/metadata/last_generation_result/DB)
     examples_state_key = k("examples")
-    current_examples: Dict[str, Any] = resolve_examples(
+    current_examples: dict[str, Any] = resolve_examples(
         examples_state_key, definition, repository=repository
     )
 
@@ -57,14 +57,33 @@ def render_examples_block(
             import os as _os
 
             if not (_os.getenv("OPENAI_API_KEY") or _os.getenv("OPENAI_API_KEY_PROD")):
-                st.info("ℹ️ Geen OPENAI_API_KEY gevonden — voorbeelden genereren is uitgeschakeld.")
+                st.info(
+                    "ℹ️ Geen OPENAI_API_KEY gevonden — voorbeelden genereren is uitgeschakeld."
+                )
                 can_call = False
-            if st.button("✨ Genereer voorbeelden (AI)", disabled=not can_call, key=k("gen_examples")):
+            if st.button(
+                "✨ Genereer voorbeelden (AI)",
+                disabled=not can_call,
+                key=k("gen_examples"),
+            ):
                 try:
-                    begrip = SessionStateManager.get_value(k("begrip")) or getattr(definition, "begrip", "") or ""
-                    definitie_text = SessionStateManager.get_value(k("definitie")) or getattr(definition, "definitie", "") or ""
-                    org_ctx = SessionStateManager.get_value(k("organisatorische_context")) or []
-                    jur_ctx = SessionStateManager.get_value(k("juridische_context")) or []
+                    begrip = (
+                        SessionStateManager.get_value(k("begrip"))
+                        or getattr(definition, "begrip", "")
+                        or ""
+                    )
+                    definitie_text = (
+                        SessionStateManager.get_value(k("definitie"))
+                        or getattr(definition, "definitie", "")
+                        or ""
+                    )
+                    org_ctx = (
+                        SessionStateManager.get_value(k("organisatorische_context"))
+                        or []
+                    )
+                    jur_ctx = (
+                        SessionStateManager.get_value(k("juridische_context")) or []
+                    )
                     wet_ctx = SessionStateManager.get_value(k("wettelijke_basis")) or []
 
                     context_dict = {
@@ -75,7 +94,9 @@ def render_examples_block(
 
                     with st.spinner("🧠 Voorbeelden genereren met AI..."):
                         from ui.helpers.async_bridge import run_async
-                        from voorbeelden.unified_voorbeelden import genereer_alle_voorbeelden_async
+                        from voorbeelden.unified_voorbeelden import (
+                            genereer_alle_voorbeelden_async,
+                        )
 
                         result = run_async(
                             genereer_alle_voorbeelden_async(
@@ -107,19 +128,23 @@ def render_examples_block(
             items = []
         if items:
             for it in items:
-                st.markdown(f"- {str(it)}")
+                st.markdown(f"- {it!s}")
         else:
             st.info(empty_msg)
 
     _render_list("📄 Voorbeeldzinnen", "voorbeeldzinnen", "Geen voorbeeldzinnen")
-    _render_list("💼 Praktijkvoorbeelden", "praktijkvoorbeelden", "Geen praktijkvoorbeelden")
+    _render_list(
+        "💼 Praktijkvoorbeelden", "praktijkvoorbeelden", "Geen praktijkvoorbeelden"
+    )
     _render_list("❌ Tegenvoorbeelden", "tegenvoorbeelden", "Geen tegenvoorbeelden")
 
     # Special handling for synoniemen with voorkeursterm
     st.markdown("#### 🔄 Synoniemen")
     synoniemen = []
     voorkeursterm_display = None  # Waarde uit DB (synoniem met is_voorkeursterm=True)
-    voorkeursterm_render = None   # Waarde voor weergave (DB of session fallback, kan ook begrip zijn)
+    voorkeursterm_render = (
+        None  # Waarde voor weergave (DB of session fallback, kan ook begrip zijn)
+    )
 
     try:
         val = current_examples.get("synoniemen")
@@ -138,6 +163,7 @@ def render_examples_block(
     # Fallback naar session‑keuze voor directe feedback (zoals generator-tab)
     try:
         from ui.session_state import SessionStateManager as _SSM
+
         sess_vt = _SSM.get_value("voorkeursterm", "")
     except Exception:
         sess_vt = ""
@@ -271,6 +297,7 @@ def render_examples_block(
                         target = current_voorkeursterm
                     else:
                         from ui.session_state import SessionStateManager as _SSM
+
                         sess_vt = _SSM.get_value("voorkeursterm", "")
                         target = sess_vt or None
                     if target and target in voorkeursterm_options:
@@ -283,7 +310,7 @@ def render_examples_block(
                     options=voorkeursterm_options,
                     index=min(max(default_index, 0), len(voorkeursterm_options) - 1),
                     key=k("voorkeursterm_select"),
-                    help="Selecteer de voorkeurs-term (kan ook het begrip zelf zijn)"
+                    help="Selecteer de voorkeurs-term (kan ook het begrip zelf zijn)",
                 )
 
                 # Normaliseer selectie
@@ -295,6 +322,7 @@ def render_examples_block(
                 # Houd de keuze ook bij in de (globale) session state net als in generator-tab
                 try:
                     from ui.session_state import SessionStateManager as _SSM
+
                     _SSM.set_value("voorkeursterm", selected_voorkeursterm or "")
                 except Exception:
                     pass
@@ -315,8 +343,13 @@ def render_examples_block(
             with col_s1:
                 if st.button("💾 Voorbeelden opslaan", key=k("save_examples")):
                     try:
+
                         def _split_lines(text: str) -> list[str]:
-                            return [ln.strip() for ln in (text or "").splitlines() if ln.strip()]
+                            return [
+                                ln.strip()
+                                for ln in (text or "").splitlines()
+                                if ln.strip()
+                            ]
 
                         def _split_csv(text: str) -> list[str]:
                             return _split_synonyms(text or "")
@@ -332,7 +365,9 @@ def render_examples_block(
                             new_examples["toelichting"] = [tol.strip()]
 
                         # Persist in DB with voorkeursterm
-                        reviewer = SessionStateManager.get_value("reviewer_name") or "expert"
+                        reviewer = (
+                            SessionStateManager.get_value("reviewer_name") or "expert"
+                        )
                         repository.save_voorbeelden(
                             definitie_id=int(definition.id),
                             voorbeelden_dict=new_examples,
@@ -345,8 +380,12 @@ def render_examples_block(
                         # Update session state (flatten explanation back to str)
                         updated = {
                             "voorbeeldzinnen": new_examples.get("voorbeeldzinnen", []),
-                            "praktijkvoorbeelden": new_examples.get("praktijkvoorbeelden", []),
-                            "tegenvoorbeelden": new_examples.get("tegenvoorbeelden", []),
+                            "praktijkvoorbeelden": new_examples.get(
+                                "praktijkvoorbeelden", []
+                            ),
+                            "tegenvoorbeelden": new_examples.get(
+                                "tegenvoorbeelden", []
+                            ),
                             "synoniemen": new_examples.get("synoniemen", []),
                             "antoniemen": new_examples.get("antoniemen", []),
                             "toelichting": tol.strip() if tol and tol.strip() else "",

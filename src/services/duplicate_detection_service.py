@@ -146,6 +146,7 @@ class DuplicateDetectionService:
         def _normalize_tokens(s: str) -> set[str]:
             tokens = []
             import re
+
             cleaned = re.sub(r"[-/._]", " ", (s or "").lower())
             for t in cleaned.split():
                 base = t.strip()

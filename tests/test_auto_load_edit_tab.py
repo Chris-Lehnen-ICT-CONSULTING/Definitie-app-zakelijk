@@ -1,18 +1,22 @@
 #!/usr/bin/env python3
 """Test auto-load functionality for edit tab."""
 
-import sys
 import os
+import sys
+
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import MagicMock, Mock, patch
+
 import streamlit as st
 
 # Mock streamlit before importing our modules
 st.session_state = {}
 
-from src.ui.session_state import SessionStateManager
 from datetime import datetime
+
+from src.ui.session_state import SessionStateManager
+
 
 def test_session_state_keys_exist():
     """Test that all required session state keys are defined."""
@@ -26,7 +30,7 @@ def test_session_state_keys_exist():
         "last_auto_save",
         "edit_organisatorische_context",
         "edit_juridische_context",
-        "edit_wettelijke_basis"
+        "edit_wettelijke_basis",
     ]
 
     for key in required_keys:
@@ -34,6 +38,7 @@ def test_session_state_keys_exist():
         print(f"✓ Key '{key}' exists")
 
     print("✅ All session state keys are present!\n")
+
 
 def test_context_coupling():
     """Test that contexts are properly coupled when definition is generated."""
@@ -50,19 +55,27 @@ def test_context_coupling():
     SessionStateManager.set_value("editing_definition_id", mock_saved_record.id)
     SessionStateManager.set_value("edit_organisatorische_context", ["DJI", "JUSTID"])
     SessionStateManager.set_value("edit_juridische_context", ["Strafrecht"])
-    SessionStateManager.set_value("edit_wettelijke_basis", ["Wetboek van Strafvordering"])
+    SessionStateManager.set_value(
+        "edit_wettelijke_basis", ["Wetboek van Strafvordering"]
+    )
 
     # Verify values are set
     assert SessionStateManager.get_value("editing_definition_id") == 123
-    assert SessionStateManager.get_value("edit_organisatorische_context") == ["DJI", "JUSTID"]
+    assert SessionStateManager.get_value("edit_organisatorische_context") == [
+        "DJI",
+        "JUSTID",
+    ]
     assert SessionStateManager.get_value("edit_juridische_context") == ["Strafrecht"]
-    assert SessionStateManager.get_value("edit_wettelijke_basis") == ["Wetboek van Strafvordering"]
+    assert SessionStateManager.get_value("edit_wettelijke_basis") == [
+        "Wetboek van Strafvordering"
+    ]
 
     print("✓ Definition ID is coupled")
     print("✓ Organisatorische context is coupled")
     print("✓ Juridische context is coupled")
     print("✓ Wettelijke basis is coupled")
     print("✅ Context coupling works correctly!\n")
+
 
 def test_auto_load_detection():
     """Test that edit tab can detect when a definition should be loaded."""
@@ -91,6 +104,7 @@ def test_auto_load_detection():
 
     print("✅ Auto-load detection works correctly!\n")
 
+
 def test_context_cleanup():
     """Test that contexts are cleaned up after use."""
     print("Testing context cleanup...")
@@ -114,6 +128,7 @@ def test_context_cleanup():
     print("✓ Contexts are cleared after use")
 
     print("✅ Context cleanup works correctly!\n")
+
 
 def main():
     """Run all tests."""
@@ -145,8 +160,10 @@ def main():
     except Exception as e:
         print(f"\n❌ UNEXPECTED ERROR: {e}")
         import traceback
+
         traceback.print_exc()
         return 1
+
 
 if __name__ == "__main__":
     exit(main())

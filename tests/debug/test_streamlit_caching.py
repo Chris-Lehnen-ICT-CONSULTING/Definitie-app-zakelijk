@@ -19,27 +19,25 @@ sys.path.insert(0, str(src_path))
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 
 # Import de container manager
+from ui.cached_services import get_service_stats
 from utils.container_manager import (
+    clear_container_cache,
     get_cached_container,
     get_container_stats,
-    clear_container_cache,
 )
-from ui.cached_services import get_service_stats
-
 
 st.set_page_config(
-    page_title="US-201 Container Caching Test",
-    page_icon="🚀",
-    layout="wide"
+    page_title="US-201 Container Caching Test", page_icon="🚀", layout="wide"
 )
 
 st.title("🚀 US-201: ServiceContainer Caching Test")
-st.markdown("Deze app test of de ServiceContainer correct wordt gecached tussen Streamlit reruns.")
+st.markdown(
+    "Deze app test of de ServiceContainer correct wordt gecached tussen Streamlit reruns."
+)
 
 # Initialize rerun counter
 if "rerun_count" not in st.session_state:
@@ -95,7 +93,14 @@ with col1:
 with col2:
     st.metric("Services", stats.get("service_count", 0))
 with col3:
-    st.metric("Database", stats["config"].get("db_path", "").split("/")[-1] if stats.get("config") else "N/A")
+    st.metric(
+        "Database",
+        (
+            stats["config"].get("db_path", "").split("/")[-1]
+            if stats.get("config")
+            else "N/A"
+        ),
+    )
 with col4:
     st.metric("API Key", "✅" if stats.get("config", {}).get("has_api_key") else "❌")
 
@@ -111,7 +116,9 @@ session_stats = get_service_stats()
 
 col1, col2 = st.columns(2)
 with col1:
-    st.metric("Container in Session", "✅" if session_stats["container_exists"] else "❌")
+    st.metric(
+        "Container in Session", "✅" if session_stats["container_exists"] else "❌"
+    )
 with col2:
     st.metric("Session Init Count", session_stats.get("init_count", 0))
 
@@ -121,7 +128,12 @@ if len(st.session_state.init_times) > 1:
 
     avg_time = sum(st.session_state.init_times) / len(st.session_state.init_times)
     first_time = st.session_state.init_times[0]
-    avg_cached = sum(st.session_state.init_times[1:]) / max(1, len(st.session_state.init_times) - 1) if len(st.session_state.init_times) > 1 else 0
+    avg_cached = (
+        sum(st.session_state.init_times[1:])
+        / max(1, len(st.session_state.init_times) - 1)
+        if len(st.session_state.init_times) > 1
+        else 0
+    )
 
     col1, col2, col3 = st.columns(3)
     with col1:
@@ -136,39 +148,46 @@ if len(st.session_state.init_times) > 1:
     st.subheader("Load Times per Rerun")
     chart_data = {
         "Rerun": list(range(1, len(st.session_state.init_times) + 1)),
-        "Load Time (s)": st.session_state.init_times
+        "Load Time (s)": st.session_state.init_times,
     }
     st.line_chart(data=chart_data, x="Rerun", y="Load Time (s)")
 
 # Success indicator
 st.header("🎯 Test Resultaat")
 if container.get_initialization_count() == 1 and st.session_state.rerun_count > 1:
-    st.success(f"""
+    st.success(
+        f"""
     ✅ **SUCCESS!** Container wordt correct gecached!
     - Container is maar **1x** geïnitialiseerd
     - App heeft **{st.session_state.rerun_count}x** gererun
     - **83%+ performance verbetering** bereikt
-    """)
+    """
+    )
+elif st.session_state.rerun_count == 1:
+    st.info("ℹ️ Klik op 'Force Rerun' om caching te testen")
 else:
-    if st.session_state.rerun_count == 1:
-        st.info("ℹ️ Klik op 'Force Rerun' om caching te testen")
-    else:
-        st.warning(f"""
+    st.warning(
+        f"""
         ⚠️ Container is {container.get_initialization_count()}x geïnitialiseerd
         bij {st.session_state.rerun_count} reruns (verwacht: 1x)
-        """)
+        """
+    )
 
 # Debug info expander
 with st.expander("🔍 Debug Info"):
-    st.json({
-        "container_id": id(container),
-        "init_count": container.get_initialization_count(),
-        "reruns": st.session_state.rerun_count,
-        "all_times": st.session_state.init_times,
-        "stats": stats,
-        "session_stats": session_stats
-    })
+    st.json(
+        {
+            "container_id": id(container),
+            "init_count": container.get_initialization_count(),
+            "reruns": st.session_state.rerun_count,
+            "all_times": st.session_state.init_times,
+            "stats": stats,
+            "session_stats": session_stats,
+        }
+    )
 
 # Footer
 st.markdown("---")
-st.markdown("**US-201**: ServiceContainer Caching Optimalisatie - Reduceert startup tijd van 6s naar 1s (83% verbetering)")
+st.markdown(
+    "**US-201**: ServiceContainer Caching Optimalisatie - Reduceert startup tijd van 6s naar 1s (83% verbetering)"
+)

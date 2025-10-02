@@ -1,10 +1,11 @@
 """Tests for EvaluationContext sharing between validators."""
 
+from unittest.mock import Mock, call, patch
+
 import pytest
-from unittest.mock import Mock, patch, call
 
 
-@pytest.mark.unit
+@pytest.mark.unit()
 def test_evaluation_context_dataclass_structure():
     """Test that EvaluationContext has all required fields."""
     m = pytest.importorskip(
@@ -36,8 +37,8 @@ def test_evaluation_context_dataclass_structure():
     assert context.metadata == {"key": "value"}
 
 
-@pytest.mark.unit
-@pytest.mark.asyncio
+@pytest.mark.unit()
+@pytest.mark.asyncio()
 async def test_context_computed_once_shared_across_validators():
     """Test that EvaluationContext is computed once and shared."""
     m = pytest.importorskip(
@@ -64,7 +65,7 @@ async def test_context_computed_once_shared_across_validators():
         service.cleaning_service = mock_cleaning
 
     # Patch tokenizer if it exists
-    with patch.object(service, '_tokenize', mock_tokenizer, create=True):
+    with patch.object(service, "_tokenize", mock_tokenizer, create=True):
         result = await service.validate_definition(
             begrip="test",
             text="Raw input text",
@@ -73,14 +74,16 @@ async def test_context_computed_once_shared_across_validators():
         )
 
     # Cleaning should be called exactly once
-    assert mock_cleaning.clean_text.call_count == 1, "Cleaning should happen exactly once"
+    assert (
+        mock_cleaning.clean_text.call_count == 1
+    ), "Cleaning should happen exactly once"
     mock_cleaning.clean_text.assert_called_once_with("Raw input text")
 
     # Tokenization should happen at most once (if used)
     assert mock_tokenizer.call_count <= 1, "Tokenization should happen at most once"
 
 
-@pytest.mark.unit
+@pytest.mark.unit()
 def test_context_prevents_duplicate_text_processing():
     """Test that validators receive pre-processed text via context."""
     m = pytest.importorskip(
@@ -118,14 +121,14 @@ def test_context_prevents_duplicate_text_processing():
     call_args = mock_validator.validate.call_args
 
     # Context should be passed to validator
-    passed_ctx = call_args[0][0] if call_args[0] else call_args.kwargs.get('context')
+    passed_ctx = call_args[0][0] if call_args[0] else call_args.kwargs.get("context")
     assert passed_ctx is not None
     assert passed_ctx.cleaned_text == "raw text with spaces"
     assert passed_ctx.tokens == ["raw", "text", "with", "spaces"]
 
 
-@pytest.mark.unit
-@pytest.mark.asyncio
+@pytest.mark.unit()
+@pytest.mark.asyncio()
 async def test_context_includes_correlation_id_for_tracing():
     """Test that correlation_id is properly propagated through context."""
     m = pytest.importorskip(
@@ -142,7 +145,7 @@ async def test_context_includes_correlation_id_for_tracing():
     correlation_id = "trace-abc-123"
 
     # Mock internal method to inspect context
-    original_evaluate = getattr(service, '_evaluate_rule', None)
+    original_evaluate = getattr(service, "_evaluate_rule", None)
     contexts_seen = []
 
     def capture_context(rule, context):
@@ -150,7 +153,7 @@ async def test_context_includes_correlation_id_for_tracing():
         return {"score": 0.8, "violations": []}
 
     if original_evaluate:
-        with patch.object(service, '_evaluate_rule', side_effect=capture_context):
+        with patch.object(service, "_evaluate_rule", side_effect=capture_context):
             await service.validate_definition(
                 begrip="test",
                 text="test text",
@@ -172,7 +175,7 @@ async def test_context_includes_correlation_id_for_tracing():
         assert result["system"]["correlation_id"] == correlation_id
 
 
-@pytest.mark.unit
+@pytest.mark.unit()
 def test_context_immutable_between_validators():
     """Test that EvaluationContext cannot be modified by validators."""
     m = pytest.importorskip(
@@ -206,8 +209,8 @@ def test_context_immutable_between_validators():
     assert len(context.tokens) == 1
 
 
-@pytest.mark.unit
-@pytest.mark.asyncio
+@pytest.mark.unit()
+@pytest.mark.asyncio()
 async def test_context_lazy_computation_of_optional_fields():
     """Test that optional fields like tokens are only computed when needed."""
     m = pytest.importorskip(

@@ -18,8 +18,8 @@ from typing import Any
 
 async def main(term: str) -> int:
     try:
-        from services.modern_web_lookup_service import ModernWebLookupService
         from services.interfaces import LookupRequest
+        from services.modern_web_lookup_service import ModernWebLookupService
     except Exception as e:
         print(f"Import error: {e}")
         return 2
@@ -28,7 +28,9 @@ async def main(term: str) -> int:
     print(f"Testing web lookup for term: '{term}' (timeout={timeout}s)")
 
     service = ModernWebLookupService()
-    req = LookupRequest(term=term, max_results=3, include_examples=False, timeout=timeout)
+    req = LookupRequest(
+        term=term, max_results=3, include_examples=False, timeout=timeout
+    )
     try:
         results = await service.lookup(req)
     except Exception as e:
@@ -44,7 +46,9 @@ async def main(term: str) -> int:
         title = title or getattr(r.source, "name", "")
         url = getattr(r.source, "url", "") or ""
         conf = getattr(r.source, "confidence", 0.0)
-        print(f"{i+1}. {getattr(r.source, 'name', '')} — {title} (score={conf:.2f}) {url}")
+        print(
+            f"{i+1}. {getattr(r.source, 'name', '')} — {title} (score={conf:.2f}) {url}"
+        )
 
     return 0
 

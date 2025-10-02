@@ -1,9 +1,11 @@
 """Tests voor CategoryStateManager."""
 
-import pytest
 from unittest.mock import Mock
-from src.services.category_state_manager import CategoryStateManager
+
+import pytest
+
 from models.category_models import DefinitionCategory
+from src.services.category_state_manager import CategoryStateManager
 
 
 class TestCategoryStateManager:
@@ -15,7 +17,7 @@ class TestCategoryStateManager:
         generation_result = {
             "begrip": "test",
             "determined_category": "ENT",
-            "other_data": "preserved"
+            "other_data": "preserved",
         }
 
         # Act

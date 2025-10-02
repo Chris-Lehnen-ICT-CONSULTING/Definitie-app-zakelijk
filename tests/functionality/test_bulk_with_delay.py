@@ -4,15 +4,17 @@ Test bulk generatie met delay tussen synoniemen/antoniemen.
 """
 
 import asyncio
-import sys
 import os
-import pytest
+import sys
 import time
 
+import pytest
+
 # Add src to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "src"))
 
 from dotenv import load_dotenv
+
 load_dotenv()
 
 # Skip this functionality test when no API key is configured
@@ -23,8 +25,10 @@ if not os.getenv("OPENAI_API_KEY"):
     )
 
 from voorbeelden.unified_voorbeelden import (
-    ExampleRequest, ExampleType, GenerationMode,
-    get_examples_generator
+    ExampleRequest,
+    ExampleType,
+    GenerationMode,
+    get_examples_generator,
 )
 
 
@@ -39,7 +43,7 @@ async def test_bulk_generation_with_delay():
     context_dict = {
         "organisatorisch": ["Gerechtshof"],
         "juridisch": ["Strafprocesrecht"],
-        "wettelijk": ["Wetboek van Strafvordering"]
+        "wettelijk": ["Wetboek van Strafvordering"],
     }
 
     generator = get_examples_generator()
@@ -47,12 +51,12 @@ async def test_bulk_generation_with_delay():
 
     # Define order and delays
     example_configs = [
-        (ExampleType.SENTENCE, 3, 0),          # No delay
-        (ExampleType.PRACTICAL, 3, 0),         # No delay
-        (ExampleType.COUNTER, 3, 0),           # No delay
-        (ExampleType.EXPLANATION, 1, 2),       # 2s delay before
-        (ExampleType.SYNONYMS, 5, 3),          # 3s delay before
-        (ExampleType.ANTONYMS, 5, 3),          # 3s delay before
+        (ExampleType.SENTENCE, 3, 0),  # No delay
+        (ExampleType.PRACTICAL, 3, 0),  # No delay
+        (ExampleType.COUNTER, 3, 0),  # No delay
+        (ExampleType.EXPLANATION, 1, 2),  # 2s delay before
+        (ExampleType.SYNONYMS, 5, 3),  # 3s delay before
+        (ExampleType.ANTONYMS, 5, 3),  # 3s delay before
     ]
 
     print("\n📦 Start generatie met delays...")
@@ -72,7 +76,7 @@ async def test_bulk_generation_with_delay():
             context_dict=context_dict,
             example_type=example_type,
             generation_mode=GenerationMode.RESILIENT,
-            max_examples=max_examples
+            max_examples=max_examples,
         )
 
         response = generator.generate_examples(request)
@@ -93,12 +97,12 @@ async def test_bulk_generation_with_delay():
 
     # Check results
     expected_counts = {
-        'sentence': 3,
-        'practical': 3,
-        'counter': 3,
-        'synonyms': 5,
-        'antonyms': 5,
-        'explanation': 1
+        "sentence": 3,
+        "practical": 3,
+        "counter": 3,
+        "synonyms": 5,
+        "antonyms": 5,
+        "explanation": 1,
     }
 
     print("\n📊 RESULTATEN:")
@@ -130,6 +134,7 @@ async def main():
     except Exception as e:
         print(f"\n❌ Test failed with error: {e}")
         import traceback
+
         traceback.print_exc()
 
 

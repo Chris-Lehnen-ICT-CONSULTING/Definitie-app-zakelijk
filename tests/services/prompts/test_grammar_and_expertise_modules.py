@@ -10,12 +10,19 @@ from services.prompts.modules.grammar_module import GrammarModule
 def _ctx(begrip: str = "validatie"):
     enriched = EnrichedContext(
         base_context={},
-        sources=[ContextSource(source_type="web_lookup", confidence=0.8, content="ctx")],
+        sources=[
+            ContextSource(source_type="web_lookup", confidence=0.8, content="ctx")
+        ],
         expanded_terms={},
         confidence_scores={},
         metadata={},
     )
-    return ModuleContext(begrip=begrip, enriched_context=enriched, config=UnifiedGeneratorConfig(), shared_state={})
+    return ModuleContext(
+        begrip=begrip,
+        enriched_context=enriched,
+        config=UnifiedGeneratorConfig(),
+        shared_state={},
+    )
 
 
 def test_expertise_module_wordtype_detection_and_shared_state():
@@ -64,4 +71,3 @@ def test_grammar_module_uses_shared_word_type_and_strict_mode_changes_output():
     assert out2.metadata.get("strict_mode") is True
     # Content should differ when strict mode enabled
     assert out2.content != out1.content
-

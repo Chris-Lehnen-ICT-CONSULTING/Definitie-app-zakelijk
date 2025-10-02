@@ -1,9 +1,9 @@
 import pytest
 
-
 pytestmark = pytest.mark.smoke_web_lookup
 
-@pytest.mark.asyncio
+
+@pytest.mark.asyncio()
 async def test_wetgeving_parked_attempt_propagates(monkeypatch):
     """Simuleer Wetgeving.nl 503 'parked' en controleer dat attempt info doorkomt."""
 
@@ -44,4 +44,6 @@ async def test_wetgeving_parked_attempt_propagates(monkeypatch):
     assert res == []
     debug = getattr(svc, "_last_debug", None)
     assert debug and isinstance(debug.get("attempts"), list)
-    assert any(a.get("parked") is True for a in debug["attempts"])  # parked attempt aanwezig
+    assert any(
+        a.get("parked") is True for a in debug["attempts"]
+    )  # parked attempt aanwezig

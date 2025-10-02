@@ -1,21 +1,23 @@
 """Performance baseline tests for ModularValidationService."""
 
-import pytest
-import os
-import time
-import statistics
-from typing import List, Dict
 import asyncio
+import os
+import statistics
+import time
+from typing import Dict, List
+
+import pytest
 
 
-@pytest.mark.performance
-@pytest.mark.asyncio
+@pytest.mark.performance()
+@pytest.mark.asyncio()
 async def test_performance_vs_v1_baseline():
     """Test that V2 performance meets or exceeds V1 baseline."""
     # Try to import both V1 and V2
     try:
         from services.definition_validator import DefinitionValidator
         from services.interfaces import Definition
+
         v1_available = True
     except ImportError:
         v1_available = False
@@ -41,8 +43,15 @@ async def test_performance_vs_v1_baseline():
     # Test definitions
     test_cases = [
         ("kort", "Een korte definitie."),
-        ("gemiddeld", "Een gemiddelde definitie met voldoende inhoud om verschillende validatieregels te triggeren."),
-        ("lang", "Een zeer uitgebreide definitie die alle aspecten van het concept behandelt, inclusief voorbeelden, uitzonderingen, relaties met andere concepten, historische context, praktische toepassingen, theoretische grondslagen, en mogelijke misverstanden die kunnen ontstaan bij het interpreteren van dit concept in verschillende contexten." * 2),
+        (
+            "gemiddeld",
+            "Een gemiddelde definitie met voldoende inhoud om verschillende validatieregels te triggeren.",
+        ),
+        (
+            "lang",
+            "Een zeer uitgebreide definitie die alle aspecten van het concept behandelt, inclusief voorbeelden, uitzonderingen, relaties met andere concepten, historische context, praktische toepassingen, theoretische grondslagen, en mogelijke misverstanden die kunnen ontstaan bij het interpreteren van dit concept in verschillende contexten."
+            * 2,
+        ),
     ]
 
     # Measure V1 performance
@@ -76,8 +85,9 @@ async def test_performance_vs_v1_baseline():
 
     # V2 should not be more than 20% slower than V1
     performance_ratio = v2_avg / v1_avg
-    assert performance_ratio <= 1.2, \
-        f"V2 ({v2_avg:.3f}s) is {performance_ratio:.1f}x slower than V1 ({v1_avg:.3f}s)"
+    assert (
+        performance_ratio <= 1.2
+    ), f"V2 ({v2_avg:.3f}s) is {performance_ratio:.1f}x slower than V1 ({v1_avg:.3f}s)"
 
     # Ideally V2 should be faster
     if performance_ratio < 1.0:
@@ -85,8 +95,8 @@ async def test_performance_vs_v1_baseline():
         print(f"✓ V2 is {improvement:.1f}% faster than V1")
 
 
-@pytest.mark.performance
-@pytest.mark.asyncio
+@pytest.mark.performance()
+@pytest.mark.asyncio()
 async def test_validation_latency_bounds():
     """Test that validation latency stays within acceptable bounds."""
     m = pytest.importorskip(
@@ -125,13 +135,15 @@ async def test_validation_latency_bounds():
 
         # Check 95th percentile is within bounds
         p95 = statistics.quantiles(times, n=20)[18]  # 95th percentile
-        assert p95 <= max_ms, \
-            f"{name} text: 95th percentile {p95:.1f}ms exceeds limit {max_ms}ms"
+        assert (
+            p95 <= max_ms
+        ), f"{name} text: 95th percentile {p95:.1f}ms exceeds limit {max_ms}ms"
 
         # Check median is well within bounds
         median = statistics.median(times)
-        assert median <= max_ms * 0.7, \
-            f"{name} text: median {median:.1f}ms too close to limit {max_ms}ms"
+        assert (
+            median <= max_ms * 0.7
+        ), f"{name} text: median {median:.1f}ms too close to limit {max_ms}ms"
 
 
 SKIP_TIMING = pytest.mark.skipif(
@@ -140,10 +152,13 @@ SKIP_TIMING = pytest.mark.skipif(
 )
 
 
-@pytest.mark.performance
-@pytest.mark.asyncio
+@pytest.mark.performance()
+@pytest.mark.asyncio()
 @SKIP_TIMING
-@pytest.mark.xfail(reason="Timeoutbescherming nog niet geïmplementeerd in adapter; timing-gevoelig", strict=False)
+@pytest.mark.xfail(
+    reason="Timeoutbescherming nog niet geïmplementeerd in adapter; timing-gevoelig",
+    strict=False,
+)
 async def test_rule_evaluation_overhead():
     """Test overhead of individual rule evaluation."""
     m = pytest.importorskip(
@@ -160,11 +175,13 @@ async def test_rule_evaluation_overhead():
     # Create simple test rule
     class FastRule:
         code = "FAST-01"
+
         def validate(self, context):
             return {"score": 0.8, "violations": []}
 
     class SlowRule:
         code = "SLOW-01"
+
         def validate(self, context):
             time.sleep(0.01)  # Simulate slow validation
             return {"score": 0.7, "violations": []}
@@ -190,11 +207,14 @@ async def test_rule_evaluation_overhead():
 
     # Fast rule overhead should be minimal (< 1ms)
     median_overhead = statistics.median(fast_times)
-    assert median_overhead < 1.0, f"Rule evaluation overhead {median_overhead:.2f}ms is too high"
+    assert (
+        median_overhead < 1.0
+    ), f"Rule evaluation overhead {median_overhead:.2f}ms is too high"
 
     # Test timeout protection
     class InfiniteRule:
         code = "INF-01"
+
         def validate(self, context):
             time.sleep(10)  # Way too long
             return {"score": 1.0, "violations": []}
@@ -208,10 +228,13 @@ async def test_rule_evaluation_overhead():
     assert result.get("errored", False), "Timed out rule should be marked as errored"
 
 
-@pytest.mark.performance
-@pytest.mark.asyncio
+@pytest.mark.performance()
+@pytest.mark.asyncio()
 @SKIP_TIMING
-@pytest.mark.xfail(reason="Concurrencyschaal-test is timing-gevoelig; heuristiek nog niet gestabiliseerd", strict=False)
+@pytest.mark.xfail(
+    reason="Concurrencyschaal-test is timing-gevoelig; heuristiek nog niet gestabiliseerd",
+    strict=False,
+)
 async def test_concurrent_validation_scaling():
     """Test that concurrent validations scale efficiently."""
     m = pytest.importorskip(
@@ -257,8 +280,9 @@ async def test_concurrent_validation_scaling():
         else:
             # Should be less than 50% overhead per doubling of concurrency
             expected_max = baseline_time * (1 + 0.5 * (n_concurrent - 1) / 10)
-            assert elapsed <= expected_max, \
-                f"Concurrent {n_concurrent}: {elapsed:.2f}s exceeds expected {expected_max:.2f}s"
+            assert (
+                elapsed <= expected_max
+            ), f"Concurrent {n_concurrent}: {elapsed:.2f}s exceeds expected {expected_max:.2f}s"
 
         # All results should be valid
         assert len(results) == n_concurrent
@@ -266,7 +290,7 @@ async def test_concurrent_validation_scaling():
             assert "overall_score" in result
 
 
-@pytest.mark.performance
+@pytest.mark.performance()
 def test_memory_usage_stability():
     """Test that memory usage remains stable during repeated validations."""
     m = pytest.importorskip(
@@ -278,7 +302,7 @@ def test_memory_usage_stability():
     import sys
 
     # Skip if memory profiling not available
-    if not hasattr(sys, 'getsizeof'):
+    if not hasattr(sys, "getsizeof"):
         pytest.skip("Memory profiling not available")
 
     svc = m.ModularValidationService
@@ -305,6 +329,7 @@ def test_memory_usage_stability():
 
     # Run the async function
     import asyncio
+
     asyncio.run(run_validations())
 
     # Force garbage collection
@@ -315,12 +340,13 @@ def test_memory_usage_stability():
     object_growth = final_objects - initial_objects
 
     # Allow some growth but not linear with iterations
-    assert object_growth < 1000, \
-        f"Possible memory leak: {object_growth} new objects after 100 validations"
+    assert (
+        object_growth < 1000
+    ), f"Possible memory leak: {object_growth} new objects after 100 validations"
 
 
-@pytest.mark.performance
-@pytest.mark.benchmark
+@pytest.mark.performance()
+@pytest.mark.benchmark()
 def test_validation_throughput(benchmark):
     """Benchmark validation throughput (if pytest-benchmark available)."""
     m = pytest.importorskip(
@@ -344,6 +370,7 @@ def test_validation_throughput(benchmark):
 
     # Run benchmark
     import asyncio
+
     result = benchmark(lambda: asyncio.run(validate_once()))
 
     # Verify result is valid

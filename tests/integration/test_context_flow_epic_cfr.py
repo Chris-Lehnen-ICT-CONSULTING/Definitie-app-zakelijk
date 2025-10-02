@@ -6,16 +6,17 @@ Tests all three critical user stories (canonical docs):
 - docs/backlog/EPIC-010/US-043/US-043.md (Remove Legacy Context Routes)
 """
 
-import pytest
-from unittest.mock import Mock, patch, MagicMock
 from dataclasses import dataclass
 from typing import List, Optional
+from unittest.mock import MagicMock, Mock, patch
 
-from src.services.interfaces import GenerationRequest
+import pytest
+
 from src.orchestration.definitie_agent import GenerationResult
+from src.services.container import ServiceContainer
+from src.services.interfaces import GenerationRequest
 from src.services.prompts.prompt_service_v2 import PromptServiceV2
 from src.ui.components.context_selector import ContextSelector
-from src.services.container import ServiceContainer
 
 
 class TestUS041ContextFieldMapping:
@@ -29,7 +30,7 @@ class TestUS041ContextFieldMapping:
             begrip="voorlopige hechtenis",
             organisatorische_context=["DJI", "OM", "KMAR"],
             juridische_context=["Strafrecht"],
-            wettelijke_basis=["Wetboek van Strafvordering"]
+            wettelijke_basis=["Wetboek van Strafvordering"],
         )
 
         prompt_service = PromptServiceV2()
@@ -41,7 +42,10 @@ class TestUS041ContextFieldMapping:
         assert "DJI" in prompt, "DJI should be in the generated prompt"
         assert "OM" in prompt, "OM should be in the generated prompt"
         assert "KMAR" in prompt, "KMAR should be in the generated prompt"
-        assert "Organisatorische context:" in prompt or "organisatorische_context" in prompt.lower()
+        assert (
+            "Organisatorische context:" in prompt
+            or "organisatorische_context" in prompt.lower()
+        )
 
     def test_juridische_context_passes_to_prompt(self):
         """Test that juridische_context from UI reaches the AI prompt."""
@@ -51,7 +55,7 @@ class TestUS041ContextFieldMapping:
             begrip="dwangmiddel",
             juridische_context=["Strafrecht", "Bestuursrecht"],
             organisatorische_context=["OM"],
-            wettelijke_basis=[]
+            wettelijke_basis=[],
         )
 
         prompt_service = PromptServiceV2()
@@ -61,7 +65,9 @@ class TestUS041ContextFieldMapping:
 
         # Assert
         assert "Strafrecht" in prompt, "Strafrecht should be in the generated prompt"
-        assert "Bestuursrecht" in prompt, "Bestuursrecht should be in the generated prompt"
+        assert (
+            "Bestuursrecht" in prompt
+        ), "Bestuursrecht should be in the generated prompt"
         assert "Juridische context:" in prompt or "juridische_context" in prompt.lower()
 
     def test_wettelijke_basis_passes_to_prompt(self):
@@ -70,9 +76,12 @@ class TestUS041ContextFieldMapping:
         request = GenerationRequest(
             id="test-003",
             begrip="identificatieplicht",
-            wettelijke_basis=["Wet op de Identificatieplicht", "Wetboek van Strafvordering"],
+            wettelijke_basis=[
+                "Wet op de Identificatieplicht",
+                "Wetboek van Strafvordering",
+            ],
             juridische_context=["Strafrecht"],
-            organisatorische_context=["KMAR"]
+            organisatorische_context=["KMAR"],
         )
 
         prompt_service = PromptServiceV2()
@@ -93,7 +102,7 @@ class TestUS041ContextFieldMapping:
             begrip="gedetineerde",
             organisatorische_context=["DJI", "OM"],
             juridische_context=["Strafrecht", "Bestuursrecht"],
-            wettelijke_basis=["Wetboek van Strafrecht", "Penitentiaire beginselenwet"]
+            wettelijke_basis=["Wetboek van Strafrecht", "Penitentiaire beginselenwet"],
         )
 
         prompt_service = PromptServiceV2()
@@ -107,7 +116,10 @@ class TestUS041ContextFieldMapping:
         # Juridische context
         assert "Strafrecht" in prompt and "Bestuursrecht" in prompt
         # Wettelijke basis
-        assert "Wetboek van Strafrecht" in prompt and "Penitentiaire beginselenwet" in prompt
+        assert (
+            "Wetboek van Strafrecht" in prompt
+            and "Penitentiaire beginselenwet" in prompt
+        )
 
     def test_empty_context_fields_handled_gracefully(self):
         """Test that empty context fields don't cause errors."""
@@ -117,7 +129,7 @@ class TestUS041ContextFieldMapping:
             begrip="verdachte",
             organisatorische_context=[],
             juridische_context=[],
-            wettelijke_basis=[]
+            wettelijke_basis=[],
         )
 
         prompt_service = PromptServiceV2()
@@ -135,7 +147,7 @@ class TestUS041ContextFieldMapping:
             begrip="rechtbank",
             organisatorische_context=None,
             juridische_context=None,
-            wettelijke_basis=None
+            wettelijke_basis=None,
         )
 
         prompt_service = PromptServiceV2()
@@ -149,9 +161,11 @@ class TestUS041ContextFieldMapping:
 class TestUS042AndersOptionFix:
     """Test suite for US-042: Fix 'Anders...' Custom Context Option."""
 
-    @patch('streamlit.multiselect')
-    @patch('streamlit.text_input')
-    def test_anders_option_in_organisatorische_context(self, mock_text_input, mock_multiselect):
+    @patch("streamlit.multiselect")
+    @patch("streamlit.text_input")
+    def test_anders_option_in_organisatorische_context(
+        self, mock_text_input, mock_multiselect
+    ):
         """Test that 'Anders...' option works for organisatorische context."""
         # Arrange
         mock_multiselect.return_value = ["DJI", "Anders..."]
@@ -167,9 +181,11 @@ class TestUS042AndersOptionFix:
         assert "Anders..." not in context["organisatorische_context"]
         assert "DJI" in context["organisatorische_context"]
 
-    @patch('streamlit.multiselect')
-    @patch('streamlit.text_input')
-    def test_anders_option_in_juridische_context(self, mock_text_input, mock_multiselect):
+    @patch("streamlit.multiselect")
+    @patch("streamlit.text_input")
+    def test_anders_option_in_juridische_context(
+        self, mock_text_input, mock_multiselect
+    ):
         """Test that 'Anders...' option works for juridische context."""
         # Arrange
         mock_multiselect.return_value = ["Strafrecht", "Anders..."]
@@ -185,8 +201,8 @@ class TestUS042AndersOptionFix:
         assert "Anders..." not in context["juridische_context"]
         assert "Strafrecht" in context["juridische_context"]
 
-    @patch('streamlit.multiselect')
-    @patch('streamlit.text_input')
+    @patch("streamlit.multiselect")
+    @patch("streamlit.text_input")
     def test_anders_option_in_wettelijke_basis(self, mock_text_input, mock_multiselect):
         """Test that 'Anders...' option works for wettelijke basis."""
         # Arrange
@@ -209,7 +225,7 @@ class TestUS042AndersOptionFix:
         custom_texts = [
             "Wet bijzondere opnemingen in psychiatrische ziekenhuizen (Wet Bopz)",
             "Richtlijn (EU) 2016/680 'Politie-richtlijn'",
-            "Art. 5 EVRM & Art. 15 Grondwet"
+            "Art. 5 EVRM & Art. 15 Grondwet",
         ]
 
         for custom_text in custom_texts:
@@ -219,7 +235,7 @@ class TestUS042AndersOptionFix:
     def test_multiple_anders_options_simultaneously(self):
         """Test that multiple 'Anders...' options can be used at once."""
         # Test that all three context types can have custom values simultaneously
-        pass  # Implementation depends on actual UI testing framework
+        # Implementation depends on actual UI testing framework
 
 
 class TestUS043LegacyRouteRemoval:
@@ -229,17 +245,14 @@ class TestUS043LegacyRouteRemoval:
         """Test that context is not accessed directly from session state."""
         # This test verifies that the refactored code doesn't use st.session_state directly
         # for context fields, but goes through the proper ContextManager
-        pass
 
     def test_single_context_flow_path(self):
         """Test that there's only one path from UI to prompt for context."""
         # Trace the flow and ensure no alternative paths exist
-        pass
 
     def test_legacy_v1_handlers_removed(self):
         """Test that V1 context handlers are no longer used."""
         # Verify that old handlers are deprecated or removed
-        pass
 
     def test_performance_improvement_achieved(self):
         """Test that >20% performance improvement is achieved."""
@@ -255,19 +268,22 @@ class TestUS043LegacyRouteRemoval:
 
         # Assert at least 20% improvement
         improvement = (old_time - new_time) / old_time
-        assert improvement >= 0.20, f"Performance improvement {improvement:.1%} is less than 20%"
+        assert (
+            improvement >= 0.20
+        ), f"Performance improvement {improvement:.1%} is less than 20%"
 
 
 class TestEndToEndContextFlow:
     """End-to-end integration tests for the complete context flow."""
 
-    @pytest.mark.integration
-    @patch('services.ai_service_v2.AIServiceV2.generate_definition')
+    @pytest.mark.integration()
+    @patch("services.ai_service_v2.AIServiceV2.generate_definition")
     def test_complete_context_flow_from_ui_to_generation(self, mock_generate):
         """Test the complete flow from UI input to definition generation with context."""
         # Arrange
-        from services.interfaces import AIGenerationResult
         import asyncio
+
+        from services.interfaces import AIGenerationResult
 
         # Mock the AI service to avoid actual API calls
         async def mock_ai_response(*args, **kwargs):
@@ -275,7 +291,7 @@ class TestEndToEndContextFlow:
                 text="Een voorlopige hechtenis is een maatregel waarbij...",
                 model="gpt-4",
                 tokens_used=100,
-                generation_time=1.0
+                generation_time=1.0,
             )
 
         mock_generate.side_effect = mock_ai_response
@@ -286,15 +302,14 @@ class TestEndToEndContextFlow:
         ui_context = {
             "organisatorische_context": ["DJI", "OM"],
             "juridische_context": ["Strafrecht"],
-            "wettelijke_basis": ["Wetboek van Strafvordering"]
+            "wettelijke_basis": ["Wetboek van Strafvordering"],
         }
 
         # Create request with context
         import uuid
+
         request = GenerationRequest(
-            id=str(uuid.uuid4()),
-            begrip="voorlopige hechtenis",
-            **ui_context
+            id=str(uuid.uuid4()), begrip="voorlopige hechtenis", **ui_context
         )
 
         # Act
@@ -311,17 +326,15 @@ class TestEndToEndContextFlow:
         # Verify the AI service was called
         mock_generate.assert_called_once()
 
-    @pytest.mark.integration
+    @pytest.mark.integration()
     def test_context_audit_trail_created(self):
         """Test that context decisions are logged for ASTRA compliance."""
         # Verify that audit trail is created when context is used
-        pass
 
-    @pytest.mark.integration
+    @pytest.mark.integration()
     def test_context_validation_rules_applied(self):
         """Test that context-specific validation rules are applied correctly."""
         # Verify that the right validation rules are triggered based on context
-        pass
 
 
 class TestContextTypeValidation:
@@ -330,17 +343,14 @@ class TestContextTypeValidation:
     def test_context_fields_must_be_lists(self):
         """Test that context fields are validated to be lists."""
         # Test type validation
-        pass
 
     def test_string_context_converted_to_list(self):
         """Test that string values are automatically converted to lists."""
         # Legacy support: string should become single-item list
-        pass
 
     def test_null_context_becomes_empty_list(self):
         """Test that null/None values become empty lists."""
         # Null safety
-        pass
 
 
 if __name__ == "__main__":

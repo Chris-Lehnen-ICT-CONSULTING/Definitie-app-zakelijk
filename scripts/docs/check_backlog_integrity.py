@@ -12,9 +12,8 @@ Exit code 1 on violations.
 from __future__ import annotations
 
 import re
-import sys
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Iterable
 
 ROOT = Path(__file__).resolve().parents[2]
 DOCS = ROOT / "docs"
@@ -47,7 +46,11 @@ def parse_frontmatter(text: str) -> tuple[str | None, bool]:
 
 
 def is_external_link(href: str) -> bool:
-    return href.startswith("http://") or href.startswith("https://") or href.startswith("mailto:")
+    return (
+        href.startswith("http://")
+        or href.startswith("https://")
+        or href.startswith("mailto:")
+    )
 
 
 def resolve_link(md_path: Path, href: str) -> Path:
@@ -86,7 +89,7 @@ def main() -> int:
 
         # Link checks (only repo/local links)
         for m in MD_LINK_RE.finditer(text):
-            href = m.group(1).strip().strip('"\'')
+            href = m.group(1).strip().strip("\"'")
             if is_external_link(href):
                 continue
             target = resolve_link(md, href)

@@ -2,28 +2,32 @@
 Tests voor DataAggregationService.
 """
 
-import pytest
 from datetime import datetime
-from unittest.mock import Mock, MagicMock
+from unittest.mock import MagicMock, Mock
+
+import pytest
 
 from database.definitie_repository import DefinitieRecord, DefinitieRepository
-from services.data_aggregation_service import DataAggregationService, DefinitieExportData
+from services.data_aggregation_service import (
+    DataAggregationService,
+    DefinitieExportData,
+)
 
 
 class TestDataAggregationService:
     """Test cases voor DataAggregationService."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def mock_repository(self):
         """Create mock repository."""
         return Mock(spec=DefinitieRepository)
 
-    @pytest.fixture
+    @pytest.fixture()
     def service(self, mock_repository):
         """Create service instance."""
         return DataAggregationService(mock_repository)
 
-    @pytest.fixture
+    @pytest.fixture()
     def sample_definitie_record(self):
         """Create sample definitie record."""
         record = Mock(spec=DefinitieRecord)
@@ -37,7 +41,7 @@ class TestDataAggregationService:
         record.context = {
             "organisatorisch": ["OM", "ZM"],
             "juridisch": ["Strafrecht"],
-            "wettelijk": ["Wetboek van Strafvordering"]
+            "wettelijk": ["Wetboek van Strafvordering"],
         }
         record.created_at = datetime.now()
         record.updated_at = datetime.now()
@@ -46,7 +50,9 @@ class TestDataAggregationService:
         record.juridische_context = "Strafrecht"
         return record
 
-    def test_aggregate_definitie_for_export_with_record(self, service, sample_definitie_record):
+    def test_aggregate_definitie_for_export_with_record(
+        self, service, sample_definitie_record
+    ):
         """Test export aggregatie met definitie record."""
         # Act
         result = service.aggregate_definitie_for_export(
@@ -64,7 +70,9 @@ class TestDataAggregationService:
         assert result.context_dict == sample_definitie_record.context
         assert result.created_at == sample_definitie_record.created_at
 
-    def test_aggregate_definitie_for_export_with_id(self, service, mock_repository, sample_definitie_record):
+    def test_aggregate_definitie_for_export_with_id(
+        self, service, mock_repository, sample_definitie_record
+    ):
         """Test export aggregatie met definitie ID."""
         # Arrange
         mock_repository.get_definitie.return_value = sample_definitie_record
@@ -102,13 +110,12 @@ class TestDataAggregationService:
             "toetsresultaten": {"score": 0.85},
             "ketenpartners": ["ZM", "OM"],
             "marker": "proces",
-            "prompt_text": "test prompt"
+            "prompt_text": "test prompt",
         }
 
         # Act
         result = service.aggregate_definitie_for_export(
-            definitie_record=sample_definitie_record,
-            additional_data=additional_data
+            definitie_record=sample_definitie_record, additional_data=additional_data
         )
 
         # Assert
@@ -140,7 +147,7 @@ class TestDataAggregationService:
             toelichting="toelichting",
             synoniemen="syn1",
             voorkeursterm="pref",
-            expert_review="review"
+            expert_review="review",
         )
 
         # Act
@@ -175,18 +182,12 @@ class TestDataAggregationService:
             "antoniemen": "ant1",
             "bronnen": ["bron1", "bron2"],
             "toetsresultaten": {"violations": []},
-            "marker": "proces"
+            "marker": "proces",
         }
 
-        context_dict = {
-            "organisatorisch": ["OM"],
-            "juridisch": ["Strafrecht"]
-        }
+        context_dict = {"organisatorisch": ["OM"], "juridisch": ["Strafrecht"]}
 
-        metadata = {
-            "generated_by": "AI",
-            "model": "GPT-4"
-        }
+        metadata = {"generated_by": "AI", "model": "GPT-4"}
 
         # Act
         result = service.aggregate_from_generation_result(

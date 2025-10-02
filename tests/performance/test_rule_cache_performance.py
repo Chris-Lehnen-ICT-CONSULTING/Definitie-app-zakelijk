@@ -6,14 +6,16 @@ dan het oude systeem dat files steeds opnieuw laadt.
 """
 
 import time
-import pytest
-from unittest.mock import patch, MagicMock
 from pathlib import Path
+from unittest.mock import MagicMock, patch
+
+import pytest
+
+from toetsregels.cached_manager import CachedToetsregelManager
+from toetsregels.manager import ToetsregelManager
 
 # Import the implementations
 from toetsregels.rule_cache import RuleCache, get_rule_cache
-from toetsregels.cached_manager import CachedToetsregelManager
-from toetsregels.manager import ToetsregelManager
 
 
 class TestRuleCachePerformance:
@@ -75,7 +77,11 @@ class TestRuleCachePerformance:
                 "HIGH-01": {"id": "HIGH-01", "prioriteit": "hoog"},
                 "MID-01": {"id": "MID-01", "prioriteit": "midden"},
                 "LOW-01": {"id": "LOW-01", "prioriteit": "laag"},
-                "CUSTOM-01": {"id": "CUSTOM-01", "prioriteit": "midden", "weight": 0.85},
+                "CUSTOM-01": {
+                    "id": "CUSTOM-01",
+                    "prioriteit": "midden",
+                    "weight": 0.85,
+                },
             }
 
             weights = cache.get_rule_weights()
@@ -143,6 +149,7 @@ class TestRuleCachePerformance:
 
                         # Call the cached function directly
                         from toetsregels.rule_cache import _load_all_rules_cached
+
                         rules = _load_all_rules_cached(str(cache.regels_dir))
 
                         # Verify dat alleen essentiële velden zijn opgeslagen

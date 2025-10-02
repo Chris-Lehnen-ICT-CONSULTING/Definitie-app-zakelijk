@@ -7,7 +7,7 @@ Bevat een minimale CON01Validator die compatibel is met tests die
 
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import Any
 
 from . import ValidationContext, ValidationOutput, ValidationResult
 
@@ -22,12 +22,13 @@ class CON01Validator:
 
     code = "CON-01"
 
-    def __init__(self, config: Dict[str, Any] | None = None) -> None:
+    def __init__(self, config: dict[str, Any] | None = None) -> None:
         self.config = config or {}
 
     def validate(self, context: ValidationContext) -> ValidationOutput:
-        return ValidationOutput(rule_id=self.code, result=ValidationResult.PASS, message="OK")
+        return ValidationOutput(
+            rule_id=self.code, result=ValidationResult.PASS, message="OK"
+        )
 
 
 __all__ = ["CON01Validator"]
-

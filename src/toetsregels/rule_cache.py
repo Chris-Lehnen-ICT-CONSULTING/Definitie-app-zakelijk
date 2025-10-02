@@ -12,7 +12,8 @@ import logging
 from pathlib import Path
 from typing import Any
 
-from utils.cache import cached, clear_cache as _global_cache_clear
+from utils.cache import cached
+from utils.cache import clear_cache as _global_cache_clear
 
 logger = logging.getLogger(__name__)
 
@@ -54,10 +55,18 @@ def _load_all_rules_cached(regels_dir: str) -> dict[str, dict[str, Any]]:
                     "prioriteit": regel_data.get("prioriteit", "midden"),
                     "aanbeveling": regel_data.get("aanbeveling", "optioneel"),
                     "herkenbaar_patronen": regel_data.get("herkenbaar_patronen", []),
-                    "herkenbaar_patronen_type": regel_data.get("herkenbaar_patronen_type", []),
-                    "herkenbaar_patronen_particulier": regel_data.get("herkenbaar_patronen_particulier", []),
-                    "herkenbaar_patronen_proces": regel_data.get("herkenbaar_patronen_proces", []),
-                    "herkenbaar_patronen_resultaat": regel_data.get("herkenbaar_patronen_resultaat", []),
+                    "herkenbaar_patronen_type": regel_data.get(
+                        "herkenbaar_patronen_type", []
+                    ),
+                    "herkenbaar_patronen_particulier": regel_data.get(
+                        "herkenbaar_patronen_particulier", []
+                    ),
+                    "herkenbaar_patronen_proces": regel_data.get(
+                        "herkenbaar_patronen_proces", []
+                    ),
+                    "herkenbaar_patronen_resultaat": regel_data.get(
+                        "herkenbaar_patronen_resultaat", []
+                    ),
                     "weight": regel_data.get("weight"),  # Als aanwezig
                 }
         except Exception as e:
@@ -168,8 +177,7 @@ class RuleCache:
         """
         all_rules = self.get_all_rules()
         return [
-            rule for rule in all_rules.values()
-            if rule.get("prioriteit") == priority
+            rule for rule in all_rules.values() if rule.get("prioriteit") == priority
         ]
 
     def get_rule_weights(self) -> dict[str, float]:

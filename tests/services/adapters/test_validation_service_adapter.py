@@ -12,10 +12,12 @@ class FakeSyncValidationService:
         # Keep track of what we received
         self.last_definition = definition
         # Return a minimal valid result
-        return ValidationResult(is_valid=True, definition_text=definition.definitie, score=0.9)
+        return ValidationResult(
+            is_valid=True, definition_text=definition.definitie, score=0.9
+        )
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_validation_service_adapter_builds_definition_and_validates():
     fake = FakeSyncValidationService()
     adapter = ValidationServiceAdapterV1toV2(fake)
@@ -35,7 +37,7 @@ async def test_validation_service_adapter_builds_definition_and_validates():
     assert fake.last_definition.ontologische_categorie == "juridisch concept"
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_validation_service_adapter_batch_validate_processes_all():
     fake = FakeSyncValidationService()
     adapter = ValidationServiceAdapterV1toV2(fake)
@@ -44,4 +46,3 @@ async def test_validation_service_adapter_batch_validate_processes_all():
     results = await adapter.batch_validate(items)
     assert len(results) == 2
     assert all(isinstance(r, ValidationResult) for r in results)
-
