@@ -1,3 +1,18 @@
+---
+id: US-437
+epic: EPIC-003
+titel: Provider Health Metrics
+status: open
+prioriteit: P2
+story_points: 5
+aangemaakt: 2025-09-30
+bijgewerkt: 2025-09-30
+owner: tbd
+applies_to: definitie-app@current
+canonical: false
+last_verified: 2025-09-30
+---
+
 id: US-437
 titel: Provider health & metrics (success rate, latency, error mix)
 

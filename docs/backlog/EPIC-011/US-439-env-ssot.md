@@ -1,3 +1,18 @@
+---
+id: US-439
+epic: EPIC-011
+titel: Environment SSOT
+status: open
+prioriteit: P2
+story_points: 5
+aangemaakt: 2025-09-30
+bijgewerkt: 2025-09-30
+owner: tbd
+applies_to: definitie-app@current
+canonical: false
+last_verified: 2025-09-30
+---
+
 id: US-439
 titel: Environment SSOT (container vs config consistentie)
 
