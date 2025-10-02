@@ -790,6 +790,50 @@
       "rendered_url": "rendered/planning/AGENT_ANALYSIS_SUMMARY.html"
     },
     {
+      "id": "SPRINT-1-REPORT",
+      "type": "DOC",
+      "title": "EPIC-025 Sprint 1 Completion Report",
+      "path": "../planning/EPIC-025-SPRINT-1-COMPLETION-REPORT.md",
+      "url": "../planning/EPIC-025-SPRINT-1-COMPLETION-REPORT.md",
+      "status": "completed",
+      "prioriteit": null,
+      "owner": "bmad-master",
+      "canonical": true,
+      "last_verified": "2025-09-30",
+      "applies_to": "definitie-app@epic-025",
+      "category": null,
+      "sprint": "1",
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": 1,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-025-SPRINT-1-COMPLETION-REPORT.md",
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-201",
+          "US-417",
+          "US-426",
+          "US-427",
+          "US-428",
+          "US-429",
+          "US-430",
+          "US-431",
+          "US-435"
+        ],
+        "epic": [
+          "EPIC-025",
+          "EPIC-026"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/planning/EPIC-025-SPRINT-1-COMPLETION-REPORT.html"
+    },
+    {
       "id": null,
       "type": "DOC",
       "title": "Implementatieplan: Auto-load Gegenereerde Definitie in Bewerk Tab",
@@ -35500,7 +35544,7 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 508,
+      "DOC": 509,
       "ARCH": 24,
       "COMP": 5,
       "TEST": 33,
@@ -35510,7 +35554,7 @@
       "US": 255,
       "BUG": 18
     },
-    "generated_at": "2025-10-02T07:49:08Z"
+    "generated_at": "2025-10-02T07:50:50Z"
   },
   "sources": [
     "docs"
