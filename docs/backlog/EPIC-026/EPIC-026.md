@@ -8,7 +8,7 @@ id: EPIC-026
 last_verified: 2025-09-30
 owner: code-architect
 prioriteit: P1
-status: proposed
+status: active
 target_release: v2.2
 titel: God Object Refactoring (Architectural Debt Resolution)
 vereisten:
