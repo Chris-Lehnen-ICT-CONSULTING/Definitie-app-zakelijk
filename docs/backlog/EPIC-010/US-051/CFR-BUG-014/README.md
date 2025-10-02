@@ -2,10 +2,13 @@
 id: CFR-BUG-014
 epic: EPIC-010
 titel: Synoniemen en Antoniemen Generatie Incorrect
-prioriteit: HOOG
 status: RESOLVED
+prioriteit: HOOG
 aangemaakt: 2025-09-10
 bijgewerkt: 2025-09-11
+owner: development-team
+applies_to: definitie-app@current
+last_verified: 2025-10-02
 gevonden_in: v1.0.1
 component: voorbeelden_service
 ---

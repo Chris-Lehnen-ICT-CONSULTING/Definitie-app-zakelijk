@@ -2,8 +2,11 @@
 id: US-300-ANALYSIS
 epic: EPIC-014
 title: Implementation Analysis Report - UFO Classification (Single-User Focus)
-date: 2025-09-23
 status: REVISED
+owner: development-team
+applies_to: definitie-app@current
+last_verified: 2025-10-02
+date: 2025-09-23
 focus: QUALITY_OVER_PERFORMANCE
 ---
 

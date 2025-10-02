@@ -1,4 +1,7 @@
 ---
+owner: development-team
+applies_to: definitie-app@current
+last_verified: 2025-10-02
 generated: 2025-09-12 09:40:32
 source: docs/backlog/requirements/REQUIREMENTS_AND_FEATURES_COMPLETE.md
 method: refined mapping (domain→EPIC + fuzzy titelmatch + force-cover)
