@@ -1,12 +1,15 @@
 ---
 id: BUSINESS-KNOWLEDGE-022
+epic: EPIC-022
 titel: Business Kennis uit External Sources Implementatie
 type: knowledge-document
-epic: EPIC-022
 status: Preserved
 aangemaakt: 2025-09-29
-reden: Code wordt verwijderd maar business kennis moet behouden blijven
+owner: development-team
+applies_to: definitie-app@current
 canonical: true
+last_verified: 2025-10-02
+reden: Code wordt verwijderd maar business kennis moet behouden blijven
 ---
 
 # Business Kennis uit External Sources Implementatie

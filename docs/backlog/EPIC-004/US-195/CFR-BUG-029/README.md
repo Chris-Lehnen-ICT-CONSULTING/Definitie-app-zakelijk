@@ -1,13 +1,14 @@
 ---
 id: CFR-BUG-029
 titel: Generator‑tab — ‘Minstens 1 context’ niet afgedwongen (kan genereren zonder context)
-status: OPEN
+status: open
+owner: frontend-team
+applies_to: definitie-app@current
+canonical: false
+last_verified: 2025-10-02
 severity: HIGH
 component: ui-generator
-owner: frontend-team
 gevonden_op: 2025-09-22
-canonical: false
-applies_to: definitie-app@current
 ---
 
 # CFR-BUG-029: Generator‑tab respecteert ‘minstens 1 context’ niet

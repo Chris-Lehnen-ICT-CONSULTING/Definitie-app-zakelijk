@@ -1,13 +1,13 @@
 ---
 id: EPIC-020
-titel: "Operation Phoenix: Performance & Architecture Refactoring Roadmap"
-status: READY
+titel: Operation Phoenix: Performance & Architecture Refactoring Roadmap
+status: active
 priority: CRITICAL
-epic_type: TECHNICAL_DEBT
-start_datum: 2025-01-20
-eind_datum: 2025-02-14
 sprint: Sprint 2025-Q1
-eigenaar: Tech Lead
+owner: product-owner
+applies_to: definitie-app@current
+canonical: true
+last_verified: 2025-10-02
 stakeholders:
   - Product Owner
   - Development Team
@@ -18,6 +18,10 @@ tags:
   - technical-debt
   - architecture
   - quick-wins
+epic_type: TECHNICAL_DEBT
+start_datum: 2025-01-20
+eind_datum: 2025-02-14
+eigenaar: Tech Lead
 created_date: 2025-01-18
 updated_date: 2025-01-18
 version: 1.0

@@ -2,9 +2,12 @@
 id: US-300-IMPLEMENTATION
 epic: EPIC-014
 titel: UFO Classification Service - Technisch Implementatieplan
-status: DRAFT
-owner: developer-implementer
+status: open
 created: 2025-01-23
+owner: developer-implementer
+applies_to: definitie-app@current
+canonical: false
+last_verified: 2025-10-02
 ---
 
 # UFO Classification Service - Technisch Implementatieplan

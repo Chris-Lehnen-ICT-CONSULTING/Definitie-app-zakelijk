@@ -1,13 +1,14 @@
 ---
 id: CFR-BUG-030
 titel: Expert Review‑tab omzeilt gate — ‘Minstens 1 context’ niet afgedwongen bij vaststellen
-status: OPEN
+status: open
+owner: frontend-team
+applies_to: definitie-app@current
+canonical: false
+last_verified: 2025-10-02
 severity: CRITICAL
 component: ui-expert-review
-owner: frontend-team
 gevonden_op: 2025-09-22
-canonical: false
-applies_to: definitie-app@current
 ---
 
 # CFR-BUG-030: Expert Review omzeilt GatePolicy (minstens één context)

@@ -1,13 +1,16 @@
 ---
+id: EPIC-011
+titel: Documentatie Completering & Kwaliteitsverbetering
+status: active
+prioriteit: HOOG
 aangemaakt: 06-09-2025
 bijgewerkt: 06-09-2025
-id: EPIC-011
 owner: Documentation Team
-prioriteit: HOOG
+applies_to: definitie-app@current
+canonical: true
+last_verified: 2025-10-02
 progress: 0%
-status: TE_DOEN
 target_release: v1.4
-titel: Documentatie Completering & Kwaliteitsverbetering
 ---
 
 

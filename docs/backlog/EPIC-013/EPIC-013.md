@@ -1,46 +1,46 @@
 ---
 id: EPIC-013
-applies_to: definitie-app@current
+titel: Centrale Documentatie‑Portal (Interactief & Auto‑sync)
+status: active
+prioriteit: HOOG
 aangemaakt: 11-09-2025
 bijgewerkt: 11-09-2025
-canonical: true
 owner: architecture
-prioriteit: HOOG
-status: IN_UITVOERING
-completion: 10%
+applies_to: definitie-app@current
+canonical: true
 last_verified: 13-09-2025
-stakeholders:
-- Product (PO)
-- Architectuur
-- Documentation-team
-- DevOps/CI
-stories:
-- US-090
-- US-091
-- US-092
-- US-093
-- US-094
-- US-095
-- US-096
-- US-097
-- US-098
-- US-099
-- US-100
-- US-101
-- US-102
-- US-103
-- US-104
-- US-105
-- US-106
-- US-107
-- US-168
-- US-169
-target_release: v1.5
-titel: Centrale Documentatie‑Portal (Interactief & Auto‑sync)
 vereisten:
-- REQ-088
-- REQ-089
-- REQ-090
+  - REQ-088
+  - REQ-089
+  - REQ-090
+stories:
+  - US-090
+  - US-091
+  - US-092
+  - US-093
+  - US-094
+  - US-095
+  - US-096
+  - US-097
+  - US-098
+  - US-099
+  - US-100
+  - US-101
+  - US-102
+  - US-103
+  - US-104
+  - US-105
+  - US-106
+  - US-107
+  - US-168
+  - US-169
+stakeholders:
+  - Product (PO)
+  - Architectuur
+  - Documentation-team
+  - DevOps/CI
+completion: 10%
+target_release: v1.5
 ---
 
 # EPIC-013: Centrale Documentatie‑Portal (Interactief & Auto‑sync)

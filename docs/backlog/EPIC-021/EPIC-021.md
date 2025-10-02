@@ -2,13 +2,14 @@
 id: EPIC-021
 titel: Definitie Geschiedenis & Audit Trail Management
 type: epic
-status: Open
+status: proposed
 prioriteit: HIGH
-business_value: HIGH
-geschat_effort: 40
 aangemaakt: 2025-09-29
 bijgewerkt: 2025-09-29
 owner: product-owner
+applies_to: definitie-app@current
+canonical: true
+last_verified: 2025-10-02
 stakeholders:
   - compliance-officer
   - juridisch-professional
@@ -20,11 +21,12 @@ tags:
   - history
   - versioning
   - data-governance
+business_value: HIGH
+geschat_effort: 40
 dependencies:
   - EPIC-004 (UI Components)
   - EPIC-016 (Validation & Approval)
 successors: []
-canonical: true
 ---
 
 # EPIC-021: Definitie Geschiedenis & Audit Trail Management

@@ -1,46 +1,46 @@
 ---
-aangemaakt: 01-01-2025
-applies_to: definitie-app@current
-astra_compliance: true
-bijgewerkt: 22-09-2025
-canonical: true
-completion: 30%
 id: EPIC-004
-last_verified: 05-09-2025
-owner: business-analyst
-prioriteit: GEMIDDELD
-status: IN_UITVOERING
-stories:
-- US-020
-- US-021
-- US-022
-- US-023
-- US-024
-- US-025
-- US-064
-- US-067
-- US-068
-- US-153
-- US-154
-- US-071
-- US-110
-- US-235
-- US-236
-target_release: v1.2
 titel: User Interface
+status: active
+prioriteit: GEMIDDELD
+aangemaakt: 01-01-2025
+bijgewerkt: 22-09-2025
+owner: business-analyst
+applies_to: definitie-app@current
+canonical: true
+last_verified: 05-09-2025
 vereisten:
-- REQ-021
-- REQ-048
-- REQ-049
-- REQ-050
-- REQ-051
-- REQ-052
-- REQ-053
-- REQ-054
-- REQ-055
-- REQ-056
-- REQ-057
-- REQ-075
+  - REQ-021
+  - REQ-048
+  - REQ-049
+  - REQ-050
+  - REQ-051
+  - REQ-052
+  - REQ-053
+  - REQ-054
+  - REQ-055
+  - REQ-056
+  - REQ-057
+  - REQ-075
+stories:
+  - US-020
+  - US-021
+  - US-022
+  - US-023
+  - US-024
+  - US-025
+  - US-064
+  - US-067
+  - US-068
+  - US-153
+  - US-154
+  - US-071
+  - US-110
+  - US-235
+  - US-236
+astra_compliance: true
+completion: 30%
+target_release: v1.2
 ---
 
 

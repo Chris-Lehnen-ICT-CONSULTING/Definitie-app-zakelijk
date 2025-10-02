@@ -1,11 +1,14 @@
 ---
 id: CFR-BUG-015
 epic: EPIC-010
-titel: Compat web lookup gebruikt niet‑bestaand attribuut 'title'
+titel: Compat web lookup gebruikt niet‑bestaand attribuut 'title
+status: open
 prioriteit: HOOG
-status: OPEN
 aangemaakt: 2025-09-10
 bijgewerkt: 2025-09-10
+owner: development-team
+applies_to: definitie-app@current
+last_verified: 2025-10-02
 component: services.definition_generator_context (compat web lookup)
 severity: Medium-High
 impact: Exceptions in contextverrijking; potentieel blokkeren van generatieflow
