@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Technical Debt Inventory - DefinitieAgent</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>Technical Debt Inventory - DefinitieAgent</h1>
+
+<p><strong>Generated:</strong> 2025-09-29</p>
+<p><strong>Total Files Analyzed:</strong> 500+ Python files</p>
+<p><strong>Overall Debt Score:</strong> 72/100 (High Risk)</p>
+
+<h2>Executive Summary</h2>
+
+<p>The codebase contains significant technical debt across multiple categories:</p>
+<ul>
+<li>**262 files** with multi-line commented code blocks</li>
+<li>**119 pass statements** indicating incomplete implementations</li>
+<li>**8 NotImplementedError** raises marking unfinished features</li>
+<li>**31 skipped tests** for unimplemented features</li>
+<li>**12 instances** of old-style string formatting</li>
+<li>**V1 legacy code** still present despite deprecation</li>
+<li>**1 file** violating root directory policies</li>
+</ul>
+
+<h2>1. TODO/FIXME/HACK Markers (FORBIDDEN per quality-gates.yaml)</h2>
+
+<h3>Critical Violations</h3>
+<p>While most TODO markers are in scripts/docs (allowed), the following production code violations exist:</p>
+
+<p>| File | Line | Type | Comment | Priority |</p>
+<p>|------|------|------|---------|----------|</p>
+<p>| examples/ufo_classifier_integration.py | 267 | TODO | Implementeer database opslag via DefinitionRepository | HIGH |</p>
+
+<p><strong>Impact:</strong> Violates quality-gates.yaml forbidden patterns</p>
+<p><strong>Effort:</strong> 2 hours</p>
+<p><strong>Risk:</strong> Policy violation - should be immediate fix</p>
+
+<h2>2. Dead Code Analysis</h2>
+
+<h3>2.1 Commented Code Blocks (262 files affected)</h3>
+<ul>
+<li>**Location:** Widespread across src/ directory</li>
+<li>**Pattern:** Multi-line commented code (3+ consecutive lines)</li>
+<li>**Worst Offenders:**</li>
+<li> - src/services/: 40+ files</li>
+<li> - src/ui/components/: 30+ files</li>
+<li> - src/toetsregels/: 100+ validator files with identical patterns</li>
+</ul>
+
+<h3>2.2 Empty Implementations (119 pass statements)</h3>
+<p>Notable clusters:</p>
+<ul>
+<li>**UI error handling:** 45 instances of silent exception swallowing</li>
+<li>**Validator placeholders:** 48 identical pass statements in toetsregels validators</li>
+<li>**Service factory:** 8 pass statements in initialization logic</li>
+</ul>
+
+<h3>2.3 NotImplementedError Raises (8 instances)</h3>
+<p>| File | Line | Method | Status |</p>
+<p>|------|------|--------|--------|</p>
+<p>| ui/tabbed_interface.py | 1738-1748 | 3 methods | Stub implementations |</p>
+<p>| services/export_service.py | 105, 117, 160 | Export formats | Missing implementations |</p>
+<p>| services/service_factory.py | 677 | Service creation | Incomplete factory |</p>
+<p>| services/prompts/prompt_service_v2.py | 408 | Prompt method | Missing logic |</p>
+
+<p><strong>Impact:</strong> Features advertised but not working</p>
+<p><strong>Effort:</strong> 20-40 hours total</p>
+<p><strong>Priority:</strong> HIGH - user-facing failures</p>
+
+<h2>3. Legacy V1 Code</h2>
+
+<h3>3.1 V1 References (50+ occurrences)</h3>
+<ul>
+<li>**Feature flags:** ENABLE_V1_ORCHESTRATOR still present (deprecated)</li>
+<li>**Config extraction:** extract_v1_config() in validation/config.py</li>
+<li>**Test compatibility:** V1 payload validation tests</li>
+<li>**AI Service:** V1-compatible caching still active</li>
+</ul>
+
+<h3>3.2 Deprecated Code Still Active</h3>
+<p>| Component | Status | Files | Effort |</p>
+<p>|-----------|--------|-------|--------|</p>
+<p>| V1 Orchestrator | DEPRECATED flag set | 5 files | 8 hours |</p>
+<p>| Unified Generator | Marked deprecated | services/__init__.py | 4 hours |</p>
+<p>| V1 Context Handlers | Tests verify removal | 3 test files | 2 hours |</p>
+<p>| Legacy prompt service | Shadow mode remnants | 2 files | 4 hours |</p>
+
+<p><strong>Total V1 Cleanup Effort:</strong> 18 hours</p>
+<p><strong>Risk:</strong> Medium - backwards compatibility code causing complexity</p>
+
+<h2>4. Obsolete Patterns</h2>
+
+<h3>4.1 Old String Formatting (12 instances)</h3>
+<ul>
+<li>**Files affected:** 6 files using .format() or %</li>
+<li>**Locations:**</li>
+<li> - tools/definitie_manager.py (7 instances)</li>
+<li> - config/config_manager.py (1 instance)</li>
+<li> - main.py (1 instance)</li>
+</ul>
+
+<h3>4.2 Print Statements in Production (30+ instances)</h3>
+<ul>
+<li>**validation/input_validator.py:** Lines 784-834 (debug prints)</li>
+<li>**validation/definitie_validator.py:** Lines 992-1048 (test output)</li>
+<li>**validation/dutch_text_validator.py:** Lines 703-704</li>
+</ul>
+
+<p><strong>Impact:</strong> Console pollution, unprofessional</p>
+<p><strong>Effort:</strong> 2 hours to convert to logging</p>
+<p><strong>Priority:</strong> MEDIUM</p>
+
+<h2>5. Incomplete Implementations</h2>
+
+<h3>5.1 Skipped Tests (31 tests)</h3>
+<p>| Test Suite | Count | Reason | US Reference |</p>
+<p>|------------|-------|--------|--------------|</p>
+<p>| test_feature_flags_context_flow.py | 9 | Not implemented | US-041/042/043 |</p>
+<p>| test_context_payload_schema.py | 9 | Not implemented | US-041/042/043 |</p>
+<p>| test_context_flow_performance.py | 8 | Module missing | US-041/042/043 |</p>
+<p>| test_cache_system.py | 3 | Components unavailable | - |</p>
+<p>| test_service_factory.py | 1 | UI layer migration | US-043 |</p>
+
+<p><strong>Impact:</strong> 31 untested features</p>
+<p><strong>Risk:</strong> HIGH - no test coverage for planned features</p>
+
+<h3>5.2 Empty Exception Handlers</h3>
+<ul>
+<li>**Pattern:** `except: pass` or `except Exception: pass`</li>
+<li>**Count:** 15+ instances</li>
+<li>**Risk:** Silent failures, debugging nightmare</li>
+</ul>
+
+<h2>6. Configuration Debt</h2>
+
+<h3>6.1 Files in Wrong Locations</h3>
+<p>| File | Current Location | Should Be | Priority |</p>
+<p>|------|------------------|-----------|----------|</p>
+<p>| UI_UX_INTEGRATION_ANALYSIS_REPORT.md | docs/reports/ | docs/reports/ | ✅ Resolved |</p>
+<p>| old.db, new.db | data/old_databases/ | Should be deleted | MEDIUM |</p>
+
+<h3>6.2 Hardcoded Values</h3>
+<ul>
+<li>Database paths scattered across 10+ files</li>
+<li>API endpoints in service files</li>
+<li>Timeout values in multiple locations</li>
+</ul>
+
+<h2>7. Module Risk Assessment</h2>
+
+<h3>High Risk Modules (Score 80-100)</h3>
+<p>| Module | Score | Issues | Effort |</p>
+<p>|--------|-------|--------|--------|</p>
+<p>| ui/tabbed_interface.py | 95 | NotImplementedError, 1700+ lines | 16h |</p>
+<p>| services/service_factory.py | 85 | Complex init, legacy code, 700+ lines | 12h |</p>
+<p>| validation/input_validator.py | 80 | Print statements, complex validation | 8h |</p>
+
+<h3>Medium Risk Modules (Score 60-79)</h3>
+<p>| Module | Score | Issues | Effort |</p>
+<p>|--------|-------|--------|--------|</p>
+<p>| ui/components/definition_generator_tab.py | 75 | 17 pass statements, 1800+ lines | 12h |</p>
+<p>| services/modern_web_lookup_service.py | 70 | Empty handlers, complex retry logic | 8h |</p>
+<p>| database/definitie_repository.py | 68 | Pass statements, 1600+ lines | 10h |</p>
+
+<h3>Low Risk Modules (Score 40-59)</h3>
+<ul>
+<li>Most toetsregels validators (identical structure, low complexity)</li>
+<li>Simple utility modules</li>
+<li>Well-tested service modules</li>
+</ul>
+
+<h2>8. Debt by Category</h2>
+
+<h3>Category Breakdown</h3>
+<p>| Category | Count | Effort (hours) | Priority |</p>
+<p>|----------|-------|----------------|----------|</p>
+<p>| Empty implementations | 127 | 40 | HIGH |</p>
+<p>| Legacy V1 code | 50+ refs | 18 | HIGH |</p>
+<p>| Skipped tests | 31 | 24 | HIGH |</p>
+<p>| Print statements | 30+ | 2 | MEDIUM |</p>
+<p>| Old string formatting | 12 | 1 | LOW |</p>
+<p>| File location violations | 3 | 0.5 | HIGH |</p>
+<p>| Commented code blocks | 262 files | 20 | MEDIUM |</p>
+
+<p><strong>Total Estimated Effort:</strong> 105.5 hours (~3 sprints)</p>
+
+<h2>9. Immediate Actions Required</h2>
+
+<h3>Week 1 - Critical Fixes (16 hours)</h3>
+<ol>
+<li>Remove TODO marker from examples/ufo_classifier_integration.py</li>
+<li>(Done) UI_UX_INTEGRATION_ANALYSIS_REPORT.md verplaatst naar docs/reports/</li>
+<li>Implement NotImplementedError methods in export_service.py</li>
+<li>Remove print statements from validation modules</li>
+</ol>
+
+<h3>Week 2 - V1 Cleanup (18 hours)</h3>
+<ol>
+<li>Remove V1 orchestrator feature flag</li>
+<li>Delete deprecated unified generator references</li>
+<li>Clean up V1 compatibility code in AI service</li>
+<li>Remove extract_v1_config functions</li>
+</ol>
+
+<h3>Week 3 - Test Coverage (24 hours)</h3>
+<ol>
+<li>Implement or remove skipped context flow tests</li>
+<li>Create missing context module implementations</li>
+<li>Fix cache system availability issues</li>
+<li>Complete service factory test coverage</li>
+</ol>
+
+<h2>10. Long-term Refactoring Plan</h2>
+
+<h3>Phase 1: Stabilization (1 month)</h3>
+<ul>
+<li>Eliminate all NotImplementedError</li>
+<li>Remove all empty except blocks</li>
+<li>Convert prints to logging</li>
+<li>Fix file locations</li>
+</ul>
+
+<h3>Phase 2: Modernization (2 months)</h3>
+<ul>
+<li>Remove all V1 legacy code</li>
+<li>Update string formatting to f-strings</li>
+<li>Consolidate configuration</li>
+<li>Reduce god objects (service_factory, tabbed_interface)</li>
+</ul>
+
+<h3>Phase 3: Quality Gates (1 month)</h3>
+<ul>
+<li>Implement all skipped tests</li>
+<li>Remove commented code blocks</li>
+<li>Add missing error handling</li>
+<li>Achieve 80% test coverage</li>
+</ul>
+
+<h2>Risk Matrix</h2>
+
+<p>| Risk Level | Modules | Impact | Likelihood |</p>
+<p>|------------|---------|--------|------------|</p>
+<p>| CRITICAL | export_service, tabbed_interface | System failure | High |</p>
+<p>| HIGH | service_factory, validation modules | Feature failures | Medium |</p>
+<p>| MEDIUM | V1 legacy code, commented blocks | Maintenance burden | High |</p>
+<p>| LOW | String formatting, file locations | Code quality | Low |</p>
+
+<h2>Metrics Summary</h2>
+
+<ul>
+<li>**Total Technical Debt Score:** 72/100 (High)</li>
+<li>**Estimated Total Effort:** 105.5 hours</li>
+<li>**Critical Issues:** 8 NotImplementedError, 31 skipped tests</li>
+<li>**Policy Violations:** 1 TODO in production, 3 file location violations</li>
+<li>**Code Smell Density:** 262 files with commented blocks</li>
+<li>**Legacy Code Burden:** 50+ V1 references</li>
+<li>**Test Coverage Gap:** 31 unimplemented test scenarios</li>
+</ul>
+
+<h2>Recommendations</h2>
+
+<ol>
+<li>**Immediate:** Fix policy violations (TODO, file locations)</li>
+<li>**Sprint 1:** Address NotImplementedError and critical bugs</li>
+<li>**Sprint 2:** V1 legacy cleanup</li>
+<li>**Sprint 3:** Test implementation and coverage</li>
+<li>**Ongoing:** Refactor large modules, remove commented code</li>
+</ol>
+
+<p>---</p>
+
+<p><em>This inventory should be reviewed monthly and updated after each sprint.</em></p>
+
+  </div>
+</body>
+</html>

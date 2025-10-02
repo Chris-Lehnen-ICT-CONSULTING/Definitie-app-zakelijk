@@ -558,6 +558,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "History Tab Removal - Complete Summary",
+      "path": "../technisch/history_tab_removal_summary.md",
+      "url": "../technisch/history_tab_removal_summary.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/technisch/history_tab_removal_summary.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Technical Root Cause Analysis - \"Anders...\" Option State Management Issue",
       "path": "../technisch/ANDERS-OPTION-ROOT-CAUSE-ANALYSIS.md",
       "url": "../technisch/ANDERS-OPTION-ROOT-CAUSE-ANALYSIS.md",
@@ -718,6 +749,48 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Agent Analysis Summary: Brownfield Cleanup Investigation",
+      "path": "../planning/AGENT_ANALYSIS_SUMMARY.md",
+      "url": "../planning/AGENT_ANALYSIS_SUMMARY.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-201",
+          "US-202",
+          "US-203",
+          "US-204",
+          "US-205",
+          "US-417",
+          "US-425"
+        ],
+        "epic": [
+          "EPIC-002",
+          "EPIC-003"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/planning/AGENT_ANALYSIS_SUMMARY.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Implementatieplan: Auto-load Gegenereerde Definitie in Bewerk Tab",
       "path": "../planning/IMPLEMENTATION-PLAN-AUTO-LOAD-EDIT-TAB.md",
       "url": "../planning/IMPLEMENTATION-PLAN-AUTO-LOAD-EDIT-TAB.md",
@@ -807,6 +880,53 @@
         "req": []
       },
       "rendered_url": "rendered/planning/V2_VALIDATOR_VOLLEDIG_IMPLEMENTATIEPLAN.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Sprint Change Proposal: Brownfield Cleanup & Quality Infrastructure",
+      "path": "../planning/SPRINT_CHANGE_PROPOSAL_BROWNFIELD_CLEANUP.md",
+      "url": "../planning/SPRINT_CHANGE_PROPOSAL_BROWNFIELD_CLEANUP.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-201",
+          "US-205",
+          "US-417",
+          "US-426",
+          "US-427",
+          "US-428",
+          "US-429",
+          "US-430",
+          "US-431",
+          "US-432",
+          "US-433",
+          "US-434"
+        ],
+        "epic": [
+          "EPIC-017",
+          "EPIC-025"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/planning/SPRINT_CHANGE_PROPOSAL_BROWNFIELD_CLEANUP.html"
     },
     {
       "id": null,
@@ -13573,6 +13693,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Validation Orchestrator V2 — Implementatie Guide",
+      "path": "../archief/2025-09/development/validation_orchestrator_implementation.md",
+      "url": "../archief/2025-09/development/validation_orchestrator_implementation.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/archief/2025-09/development/validation_orchestrator_implementation.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "DefinitionRepository Fix Plan",
       "path": "../archief/bulk-archive-2025-08-18/fixes/DEFINITION_REPOSITORY_FIX_PLAN.md",
       "url": "../archief/bulk-archive-2025-08-18/fixes/DEFINITION_REPOSITORY_FIX_PLAN.md",
@@ -23046,6 +23197,55 @@
       "rendered_url": "rendered/backlog/EPIC-012/EPIC-012.html"
     },
     {
+      "id": "EPIC-024",
+      "type": "EPIC",
+      "title": "API Monitoring & Performance Dashboard",
+      "path": "../backlog/EPIC-024/EPIC-024.md",
+      "url": "../backlog/EPIC-024/EPIC-024.md",
+      "status": "Active",
+      "prioriteit": "HIGH",
+      "owner": "technical-lead",
+      "canonical": true,
+      "last_verified": null,
+      "applies_to": "definitie-app@current",
+      "category": "epic",
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 1
+      },
+      "parent_epic": "EPIC-024.md",
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-425",
+          "US-426",
+          "US-427",
+          "US-428",
+          "US-429",
+          "US-430",
+          "US-431",
+          "US-432"
+        ],
+        "epic": [
+          "EPIC-024"
+        ],
+        "req": [
+          "REQ-113",
+          "REQ-114",
+          "REQ-115",
+          "REQ-116"
+        ]
+      },
+      "rendered_url": "rendered/backlog/EPIC-024/EPIC-024.html",
+      "linked_reqs": null,
+      "linked_stories": null
+    },
+    {
       "id": null,
       "type": "DOC",
       "title": "Traceability Matrix - EPIC-023: Quality Control & System Health Dashboard",
@@ -23234,6 +23434,55 @@
         "req": []
       },
       "rendered_url": "rendered/backlog/EPIC-022/BUSINESS-KNOWLEDGE.html"
+    },
+    {
+      "id": "EPIC-025",
+      "type": "EPIC",
+      "title": "Brownfield Cleanup & Quality Infrastructure",
+      "path": "../backlog/EPIC-025/EPIC-025.md",
+      "url": "../backlog/EPIC-025/EPIC-025.md",
+      "status": "active",
+      "prioriteit": "P0",
+      "owner": "architecture",
+      "canonical": true,
+      "last_verified": "2025-09-30",
+      "applies_to": "definitie-app@current",
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": "0%",
+      "target_release": "v2.1",
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 1
+      },
+      "parent_epic": "EPIC-025.md",
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-426",
+          "US-427",
+          "US-428",
+          "US-429",
+          "US-430",
+          "US-431",
+          "US-432",
+          "US-433",
+          "US-434"
+        ],
+        "epic": [
+          "EPIC-017",
+          "EPIC-025"
+        ],
+        "req": [
+          "REQ-089",
+          "REQ-090"
+        ]
+      },
+      "rendered_url": "rendered/backlog/EPIC-025/EPIC-025.html",
+      "linked_reqs": null,
+      "linked_stories": null
     },
     {
       "id": "EPIC-013",
@@ -25254,6 +25503,335 @@
         "req": []
       },
       "rendered_url": "rendered/backlog/EPIC-013/US-098/US-098.html",
+      "linked_reqs": null
+    },
+    {
+      "id": "US-429",
+      "type": "US",
+      "title": "Implement CI Quality Gates",
+      "path": "../backlog/EPIC-025/US-429/US-429.md",
+      "url": "../backlog/EPIC-025/US-429/US-429.md",
+      "status": "pending",
+      "prioriteit": "P0",
+      "owner": "process-guardian",
+      "canonical": false,
+      "last_verified": "2025-09-30",
+      "applies_to": "definitie-app@current",
+      "category": null,
+      "sprint": "2",
+      "story_points": "5",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": 2,
+        "priority_rank": 5,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-025",
+      "parent_us": "US-429.md",
+      "_refs": {
+        "us": [
+          "US-429"
+        ],
+        "epic": [
+          "EPIC-025"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-025/US-429/US-429.html",
+      "linked_reqs": null
+    },
+    {
+      "id": "US-427",
+      "type": "US",
+      "title": "Split Gigantic UI Components",
+      "path": "../backlog/EPIC-025/US-427/US-427.md",
+      "url": "../backlog/EPIC-025/US-427/US-427.md",
+      "status": "pending",
+      "prioriteit": "P0",
+      "owner": "code-architect",
+      "canonical": false,
+      "last_verified": "2025-09-30",
+      "applies_to": "definitie-app@current",
+      "category": null,
+      "sprint": "1",
+      "story_points": "13",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": 1,
+        "priority_rank": 5,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-025",
+      "parent_us": "US-427.md",
+      "_refs": {
+        "us": [
+          "US-427",
+          "US-433"
+        ],
+        "epic": [
+          "EPIC-025"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-025/US-427/US-427.html",
+      "linked_reqs": null
+    },
+    {
+      "id": "US-426",
+      "type": "US",
+      "title": "Fix Documentation Critical Issues",
+      "path": "../backlog/EPIC-025/US-426/US-426.md",
+      "url": "../backlog/EPIC-025/US-426/US-426.md",
+      "status": "pending",
+      "prioriteit": "P0",
+      "owner": "doc-auditor",
+      "canonical": false,
+      "last_verified": "2025-09-30",
+      "applies_to": "definitie-app@current",
+      "category": null,
+      "sprint": "1",
+      "story_points": "8",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": 1,
+        "priority_rank": 5,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-025",
+      "parent_us": "US-426.md",
+      "_refs": {
+        "us": [
+          "US-201",
+          "US-417",
+          "US-425",
+          "US-426"
+        ],
+        "epic": [
+          "EPIC-003",
+          "EPIC-025"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-025/US-426/US-426.html",
+      "linked_reqs": null
+    },
+    {
+      "id": "US-428",
+      "type": "US",
+      "title": "Resolve Agent Instruction Conflicts",
+      "path": "../backlog/EPIC-025/US-428/US-428.md",
+      "url": "../backlog/EPIC-025/US-428/US-428.md",
+      "status": "pending",
+      "prioriteit": "P1",
+      "owner": "process-guardian",
+      "canonical": false,
+      "last_verified": "2025-09-30",
+      "applies_to": "definitie-app@current",
+      "category": null,
+      "sprint": "1",
+      "story_points": "1",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": 1,
+        "priority_rank": 5,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-025",
+      "parent_us": "US-428.md",
+      "_refs": {
+        "us": [
+          "US-428"
+        ],
+        "epic": [
+          "EPIC-025"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-025/US-428/US-428.html",
+      "linked_reqs": null
+    },
+    {
+      "id": "US-432",
+      "type": "US",
+      "title": "Update Architecture Documents",
+      "path": "../backlog/EPIC-025/US-432/US-432.md",
+      "url": "../backlog/EPIC-025/US-432/US-432.md",
+      "status": "pending",
+      "prioriteit": "P0",
+      "owner": "architecture-coherence",
+      "canonical": false,
+      "last_verified": "2025-09-30",
+      "applies_to": "definitie-app@current",
+      "category": null,
+      "sprint": "3",
+      "story_points": "13",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": 3,
+        "priority_rank": 5,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-025",
+      "parent_us": "US-432.md",
+      "_refs": {
+        "us": [
+          "US-432"
+        ],
+        "epic": [
+          "EPIC-025"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-025/US-432/US-432.html",
+      "linked_reqs": null
+    },
+    {
+      "id": "US-433",
+      "type": "US",
+      "title": "Consolidate Code Duplicatie",
+      "path": "../backlog/EPIC-025/US-433/US-433.md",
+      "url": "../backlog/EPIC-025/US-433/US-433.md",
+      "status": "pending",
+      "prioriteit": "P1",
+      "owner": "code-architect",
+      "canonical": false,
+      "last_verified": "2025-09-30",
+      "applies_to": "definitie-app@current",
+      "category": null,
+      "sprint": "3",
+      "story_points": "8",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": 3,
+        "priority_rank": 5,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-025",
+      "parent_us": "US-433.md",
+      "_refs": {
+        "us": [
+          "US-433"
+        ],
+        "epic": [
+          "EPIC-025"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-025/US-433/US-433.html",
+      "linked_reqs": null
+    },
+    {
+      "id": "US-434",
+      "type": "US",
+      "title": "Create Brownfield Cleanup PRD",
+      "path": "../backlog/EPIC-025/US-434/US-434.md",
+      "url": "../backlog/EPIC-025/US-434/US-434.md",
+      "status": "pending",
+      "prioriteit": "P1",
+      "owner": "doc-auditor",
+      "canonical": false,
+      "last_verified": "2025-09-30",
+      "applies_to": "definitie-app@current",
+      "category": null,
+      "sprint": "3",
+      "story_points": "3",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": 3,
+        "priority_rank": 5,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-025",
+      "parent_us": "US-434.md",
+      "_refs": {
+        "us": [
+          "US-434"
+        ],
+        "epic": [
+          "EPIC-025"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-025/US-434/US-434.html",
+      "linked_reqs": null
+    },
+    {
+      "id": "US-431",
+      "type": "US",
+      "title": "Workflow Validation Automation",
+      "path": "../backlog/EPIC-025/US-431/US-431.md",
+      "url": "../backlog/EPIC-025/US-431/US-431.md",
+      "status": "pending",
+      "prioriteit": "P1",
+      "owner": "process-guardian",
+      "canonical": false,
+      "last_verified": "2025-09-30",
+      "applies_to": "definitie-app@current",
+      "category": null,
+      "sprint": "2",
+      "story_points": "5",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": 2,
+        "priority_rank": 5,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-025",
+      "parent_us": "US-431.md",
+      "_refs": {
+        "us": [
+          "US-431"
+        ],
+        "epic": [
+          "EPIC-025"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-025/US-431/US-431.html",
+      "linked_reqs": null
+    },
+    {
+      "id": "US-430",
+      "type": "US",
+      "title": "Extend Pre-commit Hooks",
+      "path": "../backlog/EPIC-025/US-430/US-430.md",
+      "url": "../backlog/EPIC-025/US-430/US-430.md",
+      "status": "pending",
+      "prioriteit": "P1",
+      "owner": "code-architect",
+      "canonical": false,
+      "last_verified": "2025-09-30",
+      "applies_to": "definitie-app@current",
+      "category": null,
+      "sprint": "2",
+      "story_points": "3",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": 2,
+        "priority_rank": 5,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-025",
+      "parent_us": "US-430.md",
+      "_refs": {
+        "us": [
+          "US-430"
+        ],
+        "epic": [
+          "EPIC-025"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-025/US-430/US-430.html",
       "linked_reqs": null
     },
     {
@@ -34728,17 +35306,17 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 503,
+      "DOC": 507,
       "ARCH": 24,
       "COMP": 5,
       "TEST": 32,
       "GUIDE": 12,
-      "EPIC": 21,
+      "EPIC": 23,
       "REQ": 110,
-      "US": 246,
+      "US": 255,
       "BUG": 18
     },
-    "generated_at": "2025-09-29T15:05:23Z"
+    "generated_at": "2025-10-02T07:02:38Z"
   },
   "sources": [
     "docs"
