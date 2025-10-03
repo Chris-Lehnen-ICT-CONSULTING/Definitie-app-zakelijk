@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>EPIC-028: Feature Cleanup & UI Simplification</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>EPIC-028: Feature Cleanup & UI Simplification</h1>
+
+<p><strong>Epic Owner:</strong> Product Owner</p>
+<p><strong>Created:</strong> 2025-10-03</p>
+<p><strong>Status:</strong> 🟢 READY</p>
+<p><strong>Priority:</strong> HIGH</p>
+<p><strong>Effort:</strong> 13 story points</p>
+
+<p>---</p>
+
+<h2>📋 Epic Doel</h2>
+
+<p>Verwijder afleidende en redundante features uit DefinitieAgent om focus te leggen op core functionaliteit: betere definities genereren en betrouwbaar toetsen.</p>
+
+<p>---</p>
+
+<h2>🎯 Business Value</h2>
+
+<p><strong>Probleem:</strong></p>
+<ul>
+<li>Applicatie heeft 8 tabs → verwarrend voor gebruikers</li>
+<li>2,030 LOC bloat code → moeilijk te onderhouden</li>
+<li>Features overlappen → onduidelijk welke te gebruiken</li>
+<li>Developer velocity laag → veel complexiteit</li>
+</ul>
+
+<p><strong>Oplossing:</strong></p>
+<ul>
+<li>Reduceer naar 4 core tabs</li>
+<li>Verwijder 5 redundante features</li>
+<li>Verhoog focus op waarde-creërende functionaliteit</li>
+</ul>
+
+<p><strong>Impact:</strong></p>
+<ul>
+<li>50% minder UI complexity</li>
+<li>37% LOC reductie in UI layer</li>
+<li>Snellere development velocity</li>
+<li>Betere user experience</li>
+</ul>
+
+<p>---</p>
+
+<h2>🔍 Scope</h2>
+
+<h3>✂️ Te Verwijderen Features</h3>
+
+<ol>
+<li>**Orchestration Tab** — Deprecated, V2 orchestrator doet dit</li>
+<li>**Duplicate Context Selectors** — 3 implementaties, keep 1</li>
+<li>**Monitoring Tab** — Developer tool, niet voor eindgebruikers</li>
+<li>**Web Lookup Tab** — Redundant, al geïntegreerd</li>
+<li>**Category Regeneration Service** — Redundant workflow</li>
+</ol>
+
+<h3>✅ Te Behouden Features</h3>
+
+<ul>
+<li>Definitie Generatie Tab</li>
+<li>Edit Tab</li>
+<li>Expert Review Tab</li>
+<li>Import/Export/Beheer Tab</li>
+<li>Validation Rules System</li>
+<li>Ontological Analyzer (CORE - blijft compleet)</li>
+<li>Document Upload & Hybrid Context</li>
+<li>Voorbeelden Generation</li>
+<li>UFO Categories</li>
+</ul>
+
+<p>---</p>
+
+<h2>📊 User Stories</h2>
+
+<p>| ID | Story | Priority | Effort |</p>
+<p>|----|-------|----------|--------|</p>
+<p>| US-441 | Remove Orchestration Tab | HIGH | 2 SP |</p>
+<p>| US-442 | Remove Duplicate Context Selectors | HIGH | 2 SP |</p>
+<p>| US-443 | Remove Monitoring Tab | HIGH | 2 SP |</p>
+<p>| US-444 | Remove Web Lookup Tab | MEDIUM | 2 SP |</p>
+<p>| US-445 | Remove Regeneration Service | HIGH | 3 SP |</p>
+<p>| US-446 | Integration Testing Post-Removal | HIGH | 2 SP |</p>
+
+<p><strong>Total:</strong> 13 story points</p>
+
+<p>---</p>
+
+<h2>✅ Acceptance Criteria (Epic Level)</h2>
+
+<ul>
+<li>[ ] Alle 5 features volledig verwijderd</li>
+<li>[ ] UI heeft nog 4 tabs (Generator, Edit, Expert Review, Import/Export)</li>
+<li>[ ] Alle bestaande tests blijven groen</li>
+<li>[ ] Geen broken imports of references</li>
+<li>[ ] Feature flags opgeruimd</li>
+<li>[ ] ~2,030 LOC verwijderd</li>
+<li>[ ] Documentatie bijgewerkt</li>
+</ul>
+
+<p>---</p>
+
+<h2>🚧 Risks & Mitigations</h2>
+
+<p>| Risk | Probability | Impact | Mitigation |</p>
+<p>|------|-------------|--------|------------|</p>
+<p>| Broken dependencies | MEDIUM | HIGH | Pre-scan imports, run tests after elk removal |</p>
+<p>| Lost functionality | LOW | HIGH | User verification: alle kept features werken |</p>
+<p>| Test failures | MEDIUM | MEDIUM | Fix incrementeel, één feature tegelijk |</p>
+
+<p>---</p>
+
+<h2>📅 Timeline</h2>
+
+<p><strong>Duration:</strong> 1 sprint (2-3 dagen)</p>
+
+<p><strong>Phase 1:</strong> User Stories (Dag 1)</p>
+<p><strong>Phase 2:</strong> Execution (Dag 1-2)</p>
+<p><strong>Phase 3:</strong> Testing & Verification (Dag 2-3)</p>
+
+<p>---</p>
+
+<h2>📎 Related Epics</h2>
+
+<ul>
+<li>**EPIC-027:** Multi-LLM Support (volgt na cleanup)</li>
+<li>**EPIC-025:** Process Enforcement (parallel track)</li>
+</ul>
+
+<p>---</p>
+
+<h2>📝 Notes</h2>
+
+<p>Deze cleanup maakt de codebase klaar voor EPIC-027 (Multi-LLM Support). Door complexity te verlagen, kunnen we sneller itereren op core features.</p>
+
+  </div>
+</body>
+</html>

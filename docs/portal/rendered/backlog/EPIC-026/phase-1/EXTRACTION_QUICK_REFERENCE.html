@@ -1,0 +1,425 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Business Logic Extraction - Quick Reference Card</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>id: EPIC-026-EXTRACTION-QUICK-REFERENCE</p>
+<p>epic: EPIC-026</p>
+<p>phase: 1</p>
+<p>created: 2025-10-02</p>
+<p>type: quick-reference-card</p>
+<p>---</p>
+
+<h1>Business Logic Extraction - Quick Reference Card</h1>
+
+<p><strong>Print this and keep it at your desk during extraction!</strong></p>
+
+<p>---</p>
+
+<h2>🎯 Your Mission</h2>
+
+<p><strong>Extract ALL business logic from 83,319 LOC codebase before rebuild</strong></p>
+
+<p><strong>Zero knowledge loss = Success</strong></p>
+
+<p>---</p>
+
+<h2>📋 Daily Checklist</h2>
+
+<pre><code>Morning:
+□ What am I extracting today? (check timeline)
+□ Do I have the right template? (see Templates below)
+□ Do I have test data ready? (42 baseline definitions)
+
+During extraction:
+□ Document WHAT the logic does (business purpose)
+□ Document WHY it exists (rationale)
+□ Document HOW it works (algorithm)
+□ Extract ALL hardcoded values (patterns, thresholds, magic numbers)
+□ Note ANY ambiguities (ask domain expert)
+
+End of day:
+□ Test extracted logic against baseline (42 definitions)
+□ Commit documentation with clear message
+□ Update progress tracker
+□ Note blockers for tomorrow</code></pre>
+
+<p>---</p>
+
+<h2>📍 Critical Hotspots (Where to Look)</h2>
+
+<h3>🔥 Top 5 God Objects</h3>
+<ol>
+<li>**definition_generator_tab.py** - 2,525 LOC, 60 methods</li>
+</ol>
+<ul>
+<li>  - Rule reasoning logic (L1771-1835)</li>
+<li>  - Regeneration workflows (L2008-2438)</li>
+<li>  - Validation rendering (L1527-1697)</li>
+</ul>
+
+<ol>
+<li>**tabbed_interface.py** - 1,793 LOC, 39 methods</li>
+</ol>
+<ul>
+<li>  - Ontological categorization (L272-419) ← HARDCODED 3x!</li>
+<li>  - Generation orchestration (L821-1201) ← 380 LOC god method!</li>
+<li>  - Document processing (L1207-1497)</li>
+</ul>
+
+<ol>
+<li>**definitie_repository.py** - 1,815 LOC, 41 methods</li>
+</ol>
+<ul>
+<li>  - Duplicate detection (L192-305) ← 70% threshold</li>
+<li>  - Voorbeelden persistence (L254-464)</li>
+<li>  - Status transitions</li>
+</ul>
+
+<ol>
+<li>**definition_orchestrator_v2.py** - 984 LOC</li>
+</ol>
+<ul>
+<li>  - Full generation orchestration</li>
+<li>  - Service coordination</li>
+</ul>
+
+<ol>
+<li>**validation_orchestrator_v2.py** - Unknown LOC</li>
+</ol>
+<ul>
+<li>  - 46 rules orchestration</li>
+<li>  - Approval gate policy</li>
+</ul>
+
+<h3>🎯 Hardcoded Pattern Locations</h3>
+<pre><code># Find ALL hardcoded logic
+grep -r "HARDCODED\|TODO\|FIXME\|pattern\|threshold" src/
+
+# Ontological patterns (CRITICAL!)
+src/ui/tabbed_interface.py:354-418  # DUPLICATED 3x!
+
+# Validation thresholds
+src/toetsregels/regels/ARAI-01.py  # 50-500 chars
+src/ui/components/definition_generator_tab.py:223-228  # 0.8/0.5 confidence
+src/database/definitie_repository.py:192  # 70% similarity
+
+# Rule reasoning
+src/ui/components/definition_generator_tab.py:1771-1835  # 7 rules DUPLICATED!</code></pre>
+
+<p>---</p>
+
+<h2>🗂️ Templates (Copy These!)</h2>
+
+<h3>Validation Rule Template</h3>
+<pre><code># Validation Rule: {RULE-ID}
+
+## Metadata
+- ID: {RULE-ID}
+- Category: ARAI|CON|ESS|INT|SAM|STR|VER
+- Priority: high|medium|low
+
+## Business Purpose
+- What: {what does it check}
+- Why: {why important}
+- When: {when applied}
+
+## Implementation
+- Algorithm: {pseudocode}
+- Thresholds: {values + rationale}
+- Patterns: {regex patterns}
+
+## Examples
+- Good: {examples that pass}
+- Bad: {examples that fail}
+
+## Tests
+- Test 1: {input} → {output}</code></pre>
+
+<h3>Workflow Template</h3>
+<pre><code># Workflow: {Name}
+
+## Steps
+1. Step 1: {action} → {result}
+2. Step 2: {action} → {result}
+
+## Business Rules
+- Rule 1: {description}
+
+## Diagram
+[Mermaid sequence diagram]
+
+## Tests
+- Happy path: {scenario}
+- Error path: {scenario}</code></pre>
+
+<p>---</p>
+
+<h2>🧪 Testing Commands</h2>
+
+<h3>Export Baseline</h3>
+<pre><code># Export 42 definitions
+python -c "
+from database.definitie_repository import get_definitie_repository
+import json
+
+repo = get_definitie_repository()
+defs = repo.search_definities(query='', limit=100)
+
+with open('baseline_42.json', 'w') as f:
+    json.dump([d.to_dict() for d in defs], f, indent=2, ensure_ascii=False)
+"</code></pre>
+
+<h3>Test Validation Rules</h3>
+<pre><code># Test all 46 rules against baseline
+pytest tests/business-logic/test_validation_rules_baseline.py -v
+
+# Test specific rule
+pytest tests/business-logic/test_validation_rules_baseline.py::test_ARAI_01</code></pre>
+
+<h3>Find Hardcoded Values</h3>
+<pre><code># All hardcoded patterns
+rg "0\.[0-9]+|[0-9]+\s*(chars|seconds|minutes)" src/
+
+# Magic numbers
+rg "\b(50|500|0\.8|0\.5|0\.7|70)\b" src/ --type py
+
+# Pattern definitions
+rg "patterns\s*=\s*\{|pattern_list|herkenbaar_patronen" src/</code></pre>
+
+<p>---</p>
+
+<h2>📊 Progress Tracking</h2>
+
+<h3>Week 1 Goals</h3>
+<ul>
+<li>[ ] Day 1-2: 46 validation rules documented</li>
+<li>[ ] Day 3: Baseline tests passing</li>
+<li>[ ] Day 4: Ontological patterns extracted</li>
+<li>[ ] Day 5: Generation workflow documented</li>
+</ul>
+
+<h3>Week 2 Goals</h3>
+<ul>
+<li>[ ] Day 6-7: Duplicate detection algorithm</li>
+<li>[ ] Day 8-9: Regeneration state machine</li>
+<li>[ ] Day 10: Voorbeelden transaction logic</li>
+</ul>
+
+<h3>Week 3 Goals</h3>
+<ul>
+<li>[ ] Day 11-12: UI hardcoded logic</li>
+<li>[ ] Day 13: Workflow status management</li>
+<li>[ ] Day 14-15: Prompt building</li>
+<li>[ ] Day 16: Final validation</li>
+</ul>
+
+<p>---</p>
+
+<h2>🚨 When to Escalate</h2>
+
+<p><strong>Escalate immediately if:</strong></p>
+<ol>
+<li>❌ Logic is ambiguous - can't determine exact behavior</li>
+<li>❌ Baseline test fails - extracted logic doesn't match OLD system</li>
+<li>❌ Missing domain knowledge - don't understand Dutch legal terminology</li>
+<li>❌ Time overrun - task taking 2x expected time</li>
+<li>❌ Conflicting logic - found duplicated/inconsistent rules</li>
+</ol>
+
+<p><strong>How to escalate:</strong></p>
+<ol>
+<li>Document the issue clearly</li>
+<li>Show specific code location</li>
+<li>Show what you tried</li>
+<li>Ask specific question</li>
+<li>Tag domain expert or project lead</li>
+</ol>
+
+<p>---</p>
+
+<h2>🎓 Extraction Tips</h2>
+
+<h3>DO's ✅</h3>
+<ul>
+<li>✅ Document EVERY threshold value (even "obvious" ones)</li>
+<li>✅ Test extracted logic against baseline IMMEDIATELY</li>
+<li>✅ Note ANY assumptions you make</li>
+<li>✅ Extract patterns to config files (not hardcoded)</li>
+<li>✅ Create diagrams for complex workflows</li>
+<li>✅ Cross-reference related logic (e.g., rule in validator + UI)</li>
+</ul>
+
+<h3>DON'Ts ❌</h3>
+<ul>
+<li>❌ Skip "trivial" logic - extract EVERYTHING</li>
+<li>❌ Assume business rules - verify with tests</li>
+<li>❌ Leave ambiguities undocumented</li>
+<li>❌ Forget to commit daily</li>
+<li>❌ Work in isolation - ask questions!</li>
+<li>❌ Trust memory - write it down!</li>
+</ul>
+
+<p>---</p>
+
+<h2>🔍 Common Extraction Patterns</h2>
+
+<h3>Pattern 1: Hardcoded Threshold</h3>
+<pre><code># OLD (in code)
+if len(definitie) &gt; 500:
+    return "Too long"
+
+# NEW (extract to config)
+# config/validation_thresholds.yaml
+ARAI-01:
+  max_length: 500
+  rationale: "Readability limit per ASTRA guidelines"</code></pre>
+
+<h3>Pattern 2: Duplicated Logic</h3>
+<pre><code># FOUND: Same patterns in 3 files!
+# tabbed_interface.py L354
+# tabbed_interface.py L408
+# Quick analyzer L42
+
+# ACTION: Extract to single config
+# config/ontological_patterns.yaml
+categories:
+  proces:
+    patterns: ["atie", "eren", "ing"]</code></pre>
+
+<h3>Pattern 3: Implicit Business Rule</h3>
+<pre><code># OLD (implicit)
+if confidence &gt; 0.8:
+    color = "green"
+
+# NEW (explicit)
+# Document in business_rules_catalog.csv:
+# BR-042,UI,Confidence,High confidence threshold,&gt;0.8,User experience,Green color</code></pre>
+
+<p>---</p>
+
+<h2>📞 Who to Ask</h2>
+
+<p>| Question Type | Ask |</p>
+<p>|--------------|-----|</p>
+<p>| <strong>Dutch legal terminology</strong> | Domain expert / original developer |</p>
+<p>| <strong>ASTRA compliance</strong> | Legal consultant / ASTRA documentation |</p>
+<p>| <strong>Validation rules</strong> | Check ASTRA links in rule JSON |</p>
+<p>| <strong>Technical ambiguity</strong> | Code architect / senior developer |</p>
+<p>| <strong>Timeline concerns</strong> | Project manager |</p>
+<p>| <strong>Test failures</strong> | QA / test engineer |</p>
+
+<p>---</p>
+
+<h2>🏆 Success Metrics</h2>
+
+<p><strong>Daily:</strong></p>
+<ul>
+<li>Documents created: {target per day}</li>
+<li>Baseline tests passing: {percentage}</li>
+<li>Config files updated: {count}</li>
+</ul>
+
+<p><strong>Weekly:</strong></p>
+<ul>
+<li>Week 1: 46 rules + categorization + orchestration ✅</li>
+<li>Week 2: Duplicate + regeneration + voorbeelden ✅</li>
+<li>Week 3: UI logic + workflow + prompt + validation ✅</li>
+</ul>
+
+<p><strong>Final:</strong></p>
+<ul>
+<li>100% of MUST items extracted ✅</li>
+<li>90%+ of SHOULD items extracted ✅</li>
+<li>42 baseline - 100% validation match ✅</li>
+<li>42 baseline - 100% category match ✅</li>
+<li>Completeness checklist 100% ✅</li>
+</ul>
+
+<p>---</p>
+
+<h2>🛠️ Useful Commands</h2>
+
+<h3>Count LOC</h3>
+<pre><code>wc -l src/ui/components/definition_generator_tab.py
+wc -l src/ui/tabbed_interface.py</code></pre>
+
+<h3>Find God Methods</h3>
+<pre><code># Methods &gt; 100 LOC
+rg "^\s*def " src/ -A 100 | grep -B 1 "^\s*def "</code></pre>
+
+<h3>Extract Rule IDs</h3>
+<pre><code># List all validation rules
+ls src/toetsregels/regels/*.json | sed 's/.*\///' | sed 's/\.json//'</code></pre>
+
+<h3>Search for Patterns</h3>
+<pre><code># Find all pattern definitions
+rg "pattern|PATTERN|herkenbaar_patronen" src/toetsregels/</code></pre>
+
+<p>---</p>
+
+<h2>📚 Required Reading</h2>
+
+<p><strong>Before starting:</strong></p>
+<ol>
+<li>`BUSINESS_LOGIC_EXTRACTION_PLAN.md` (full 33-page plan)</li>
+<li>`EXTRACTION_PLAN_SUMMARY.md` (executive summary)</li>
+<li>Current responsibility maps:</li>
+</ol>
+<ul>
+<li>  - `definition_generator_tab_responsibility_map.md`</li>
+<li>  - `tabbed_interface_responsibility_map.md`</li>
+<li>  - `definitie_repository_responsibility_map.md`</li>
+</ul>
+
+<p><strong>Daily reference:</strong></p>
+<ul>
+<li>This quick reference card</li>
+<li>Relevant template (validation/workflow/algorithm)</li>
+<li>Baseline test results</li>
+</ul>
+
+<p>---</p>
+
+<h2>🎯 Remember</h2>
+
+<p><strong>The rebuild team depends on YOUR extraction quality!</strong></p>
+
+<p><strong>If you don't extract it, we lose it forever.</strong></p>
+
+<p><strong>When in doubt:</strong></p>
+<ol>
+<li>Extract it anyway (better too much than too little)</li>
+<li>Document the ambiguity</li>
+<li>Test against baseline</li>
+<li>Ask for help</li>
+</ol>
+
+<p><strong>Your mantra:</strong></p>
+<blockquote>"Zero knowledge loss. Document everything. Test everything. Extract everything."</blockquote>
+
+<p>---</p>
+
+<p><strong>Print Date:</strong> 2025-10-02</p>
+<p><strong>Version:</strong> 1.0</p>
+<p><strong>Owner:</strong> Business Logic Extraction Team</p>
+
+  </div>
+</body>
+</html>

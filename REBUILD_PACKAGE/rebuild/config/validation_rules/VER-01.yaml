@@ -1,0 +1,32 @@
+id: VER_01
+name: Term in enkelvoud
+description: De te definiëren term moet in het enkelvoud staan, tenzij deze alleen
+  in het meervoud bestaat.
+explanation: Gebruik het enkelvoud als lemma. Sommige woorden – zoals 'kosten', 'hersenen'
+  – zijn 'plurale tantum' en mogen als uitzondering in meervoud blijven.
+test_question: Is de term in het enkelvoud (of een erkende plurale-tantum)?
+metadata:
+  priority: hoog
+  recommendation: verplicht
+  validity: lemma/term
+  status: definitief
+  type: term
+  theme: verschijningsvorm
+  source_document: ASTRA
+validation:
+  patterns:
+  - \b(\w+en)\b
+  good_examples:
+  - gegeven
+  - voertuig
+  bad_examples:
+  - gegevens
+  - voertuigen
+references:
+- fulltext: Term in enkelvoud
+  fullurl: https://www.astraonline.nl/index.php/Term_in_enkelvoud
+implementation_details:
+  implementation: python
+  source_file: src/toetsregels/regels/VER-01.py
+  validation_logic: See Python implementation for complex validation
+  validation_description: 'Validator voor VER-01: Versie-onafhankelijk.'

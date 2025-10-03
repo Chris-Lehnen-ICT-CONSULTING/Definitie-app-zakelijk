@@ -62,15 +62,6 @@ class FeatureFlags:
         ),
     )
 
-    ENABLE_LEGACY_TAB = FeatureFlag(
-        name="legacy_tab",
-        description="Enable legacy definition generation tab",
-        status=FeatureStatus.DEPRECATED,
-        default_enabled=False,
-        env_var="ENABLE_LEGACY_TAB",
-        deprecation_message="Legacy tab is deprecated. Please use the new unified interface.",
-    )
-
     ENABLE_V1_ORCHESTRATOR = FeatureFlag(
         name="v1_orchestrator",
         description="Enable V1 validation orchestrator",

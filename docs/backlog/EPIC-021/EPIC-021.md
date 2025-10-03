@@ -1,6 +1,6 @@
 ---
 id: EPIC-021
-titel: Definitie Geschiedenis & Audit Trail Management
+titel: "EPIC-021: Geschiedenis & Audit Trail - Version control, rollback, compliance reporting en tamper-proof logging (40 SP)"
 type: epic
 status: proposed
 prioriteit: HIGH

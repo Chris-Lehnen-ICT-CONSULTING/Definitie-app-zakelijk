@@ -1,0 +1,48 @@
+id: INT_07
+name: Alleen toegankelijke afkortingen
+description: In een definitie gebruikte afkortingen zijn voorzien van een voor de
+  doelgroep direct toegankelijke referentie.
+explanation: Het vermijden van onverklaarde afkortingen bevordert leesbaarheid. Elke
+  afkorting moet in de definitie direct worden toegelicht(bijv. DJI (Dienst Justitiële
+  Inrichtingen), OM (Openbaar Ministerie)), of worden aangeboden als hyperlink of
+  Wiki-link.
+test_question: 'Bevat de definitie afkortingen? Zo ja: zijn deze in hetzelfde stuk
+  tekst uitgelegd of gelinkt?'
+metadata:
+  priority: midden
+  recommendation: verplicht
+  validity: alle
+  status: definitief
+  type: gehele definitie
+  theme: interne kwaliteit van de definitie
+  source_document: MAS
+validation:
+  patterns:
+  - \b[A-Z]{2,6}\b
+  - \bDJI\b
+  - \bOM\b
+  - \bICT\b
+  - \bAVG\b
+  - \bWpg\b
+  - \bGGZ\b
+  - \bNCTV\b
+  - \bKvK\b
+  good_examples:
+  - Dienst Justitiële Inrichtingen (DJI)
+  - OM (Openbaar Ministerie)
+  - AVG (Algemene verordening gegevensbescherming)
+  - KvK (Kamer van Koophandel)
+  - '[[Algemene verordening gegevensbescherming]]'
+  bad_examples:
+  - DJI voert toezicht uit.
+  - De AVG vereist naleving.
+  - OM is bevoegd tot vervolging.
+  - KvK registreert bedrijven.
+references:
+- fulltext: Geen ontoegankelijke achtergrondkennis nodig
+  fullurl: https://www.astraonline.nl/index.php/Geen_ontoegankelijke_achtergrondkennis_nodig
+implementation_details:
+  implementation: python
+  source_file: src/toetsregels/regels/INT-07.py
+  validation_logic: See Python implementation for complex validation
+  validation_description: 'Validator voor INT-07: Alleen toegankelijke afkortingen.'

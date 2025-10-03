@@ -1,6 +1,6 @@
 ---
 id: EPIC-022
-titel: Externe Bronnen Integratie & Import
+titel: "EPIC-022: Externe Bronnen Import - Adapter framework voor bulk import met validatie (DEFERRED: 95% overlap Export)"
 type: epic
 status: deferred
 prioriteit: LOW

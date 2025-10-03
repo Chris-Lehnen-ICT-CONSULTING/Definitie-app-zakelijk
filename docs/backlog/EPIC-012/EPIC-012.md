@@ -1,9 +1,13 @@
-# EPIC-012: Legacy Orchestrator Refactoring
+# EPIC-012: Legacy Orchestrator Refactoring - Consolidatie 8 legacy bestanden met behoud business kennis (82 SP)
+
+> **Statusupdate (2025-10-03):** Deze epic is samengevoegd met [EPIC-026: God Object Refactoring](../EPIC-026/EPIC-026-REVISED.md). Alle gerelateerde gebruikersverhalen zijn verplaatst naar `docs/backlog/EPIC-026/`. Dit document blijft alleen bestaan als historisch naslagwerk.
+
+
 
 ## Epic Overview
 **ID**: EPIC-012
 **Titel**: Refactor legacy orchestrators met behoud van business kennis
-**Status**: TODO
+**Status**: Superseded (zie EPIC-026)
 **Priority**: HIGH - NEXT UP
 **Created**: 2025-01-10
 **Updated**: 2025-09-11
@@ -82,7 +86,7 @@ De applicatie bevat waardevolle business logica verspreid over 8 legacy bestande
 | US-075 | Centraliseer async/sync-bridging | HIGH | 5 | TODO |
 | US-076 | Validators JSON-first + basisklasse | MEDIUM | 8 | TODO |
 | US-078 | Test-hygiëne, scheiding bron/test | LOW | 2 | TODO |
-| [US-170](../EPIC-017/US-170/US-170.md) | Koppel Orchestration-tab aan V2 Orchestrator (UI wiring) | HIGH | 5 | TODO | (Verplaatst naar EPIC‑017) |
+| [US-170](../EPIC-026/US-170/US-170.md) | Koppel Orchestration-tab aan V2 Orchestrator (UI wiring) | HIGH | 5 | TODO | (Verplaatst naar EPIC‑017) |
 
 **Totaal Story Points**: 51 (was 29) + 31 (US-071..US-076, US-078) = 82
 

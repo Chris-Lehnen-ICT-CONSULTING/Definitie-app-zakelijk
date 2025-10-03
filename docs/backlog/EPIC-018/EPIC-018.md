@@ -19,7 +19,7 @@ stories:
 - US-232
 - US-233
 target_release: v1.3
-titel: Document Context Integratie (Upload, Extractie, Promptgebruik)
+titel: "EPIC-018: Document Context Integratie - Upload DOCX/PDF met extractie, aggregatie en prompt-injectie (<2s/5s)"
 vereisten:
 - REQ-022
 ---

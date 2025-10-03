@@ -1,0 +1,18 @@
+id: VAL-LEN-001
+name: Minimale lengte (woorden/tekens)
+description: De definitie moet een minimale lengte hebben om betekenisvol te zijn.
+explanation: null
+test_question: Bevat de definitie voldoende woorden en tekens?
+metadata:
+  priority: midden
+  recommendation: verplicht
+  validity: null
+  status: null
+  type: structuur
+  theme: lengte
+  source_document: null
+validation:
+  patterns: []
+  good_examples: []
+  bad_examples: []
+references: []

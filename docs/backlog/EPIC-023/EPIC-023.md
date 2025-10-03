@@ -1,6 +1,6 @@
 ---
 id: EPIC-023
-titel: Quality Control & System Health Dashboard
+titel: "EPIC-023: Quality Control Dashboard - Toetsregels analyse, consistency checks en health monitoring (DEFERRED)"
 type: epic
 status: deferred
 prioriteit: LOW

@@ -1,6 +1,6 @@
 ---
 id: EPIC-019
-titel: Prompt Compact & Dedup (Token Efficiency)
+titel: "EPIC-019: Prompt Compactie - 60-80% token reductie via dedup, Top-N regels en context normalisatie"
 canonical: true
 status: proposed
 priority: HIGH

@@ -1,0 +1,221 @@
+# Ontological Category Patterns Configuration
+# Purpose: Patterns for determining ontological categories of legal definitions
+version: "1.0"
+created: "2025-10-02"
+description: |
+  Extracted from tabbed_interface.py L354-418 (DUPLICATED 3x in original code).
+  Defines patterns for 4 ontological categories: proces, type, resultaat, exemplaar.
+  Used by 6-step protocol with 3-level fallback logic.
+
+# Category definitions with patterns
+# Extracted from hardcoded patterns in _generate_category_reasoning() and _legacy_pattern_matching()
+categories:
+  proces:
+    label: "Proces"
+    description: "Activiteiten, handelingen, procedures"
+    weight: 1.0
+    priority: 1
+
+    # Suffix patterns (verb endings indicating process)
+    suffixes:
+      - "atie"
+      - "eren"
+      - "ing"
+
+    # Keywords indicating process
+    keywords:
+      - "verificatie"
+      - "authenticatie"
+      - "validatie"
+      - "controle"
+      - "check"
+      - "beoordeling"
+      - "analyse"
+      - "behandeling"
+      - "vaststelling"
+      - "bepaling"
+      - "registratie"
+      - "identificatie"
+
+    indicators:
+      - "proces waarbij"
+      - "handeling waarbij"
+      - "procedure voor"
+      - "methode om"
+
+  type:
+    label: "Type"
+    description: "Soorten objecten, middelen, instrumenten"
+    weight: 1.0
+    priority: 2
+
+    keywords:
+      - "bewijs"
+      - "document"
+      - "middel"
+      - "systeem"
+      - "methode"
+      - "tool"
+      - "instrument"
+      - "gegeven"
+      - "kenmerk"
+      - "eigenschap"
+
+    indicators:
+      - "soort van"
+      - "type van"
+      - "categorie van"
+      - "vorm van"
+
+  resultaat:
+    label: "Resultaat"
+    description: "Uitkomsten, besluiten, conclusies"
+    weight: 1.0
+    priority: 3
+
+    keywords:
+      - "besluit"
+      - "uitslag"
+      - "rapport"
+      - "conclusie"
+      - "bevinding"
+      - "resultaat"
+      - "uitkomst"
+      - "advies"
+      - "oordeel"
+
+    indicators:
+      - "uitkomst van"
+      - "resultaat van"
+      - "gevolg van"
+      - "eindproduct van"
+
+  exemplaar:
+    label: "Exemplaar"
+    description: "Specifieke instanties, individuele gevallen"
+    weight: 1.0
+    priority: 4
+
+    keywords:
+      - "specifiek"
+      - "individueel"
+      - "uniek"
+      - "persoon"
+      - "zaak"
+      - "instantie"
+      - "geval"
+      - "situatie"
+
+    indicators:
+      - "specifiek geval van"
+      - "individuele"
+      - "concrete"
+      - "bepaalde"
+
+# 6-step protocol configuration
+protocol:
+  six_step:
+    enabled: true
+    description: "Primary method - full ontological analysis using AI"
+    timeout_seconds: 30
+    model: "gpt-4o-mini"  # From config_development.yaml
+    temperature: 0.0
+    max_tokens: 300
+
+    steps:
+      - name: "Analyze context"
+        description: "Examine organizational, juridical, and legal context"
+      - name: "Extract core meaning"
+        description: "Identify core semantic meaning of begrip"
+      - name: "Pattern matching"
+        description: "Match against category patterns"
+      - name: "Score categories"
+        description: "Calculate score for each category"
+      - name: "Select best match"
+        description: "Choose highest scoring category"
+      - name: "Generate reasoning"
+        description: "Explain why category was chosen"
+
+  quick_analyzer:
+    enabled: true
+    description: "Secondary fallback - fast pattern-based matching"
+    timeout_seconds: 5
+
+  legacy_patterns:
+    enabled: true
+    description: "Tertiary fallback - ultra-simple pattern matching"
+    timeout_seconds: 1
+
+# Fallback chain configuration (3-level fallback logic)
+fallback:
+  chain:
+    - method: "six_step_protocol"
+      timeout: 30
+      on_failure: "quick_analyzer"
+
+    - method: "quick_analyzer"
+      timeout: 5
+      on_failure: "legacy_patterns"
+
+    - method: "legacy_patterns"
+      timeout: 1
+      on_failure: "default_category"
+
+  default_category: "proces"
+  default_reasoning: "Standaard categorie (geen specifieke patronen gedetecteerd)"
+
+# Scoring algorithm configuration
+scoring:
+  algorithm: "pattern_count"
+  description: "Count matching patterns per category, highest wins"
+
+  weights:
+    suffix_match: 2.0    # Suffix matches weighted higher
+    keyword_match: 1.0   # Keyword matches standard weight
+    indicator_match: 0.5 # Indicator matches lower weight
+
+  min_score_threshold: 0.0  # No minimum required
+  tie_breaker: "priority"    # Use category priority on tie
+
+# Reasoning generation configuration
+reasoning:
+  format: "detected_patterns"
+  include_score: true
+
+  templates:
+    with_patterns: "Gedetecteerde patronen: {patterns} (score: {score})"
+    no_patterns_default: "Standaard categorie (geen specifieke patronen gedetecteerd)"
+    highest_score: "Hoogste score voor {category} categorie (score: {score})"
+
+# Test validation settings
+validation:
+  test_against_baseline: true
+  baseline_definitions_count: 42
+  expected_match_rate: 1.0  # 100% match with current system
+
+# Pattern matching configuration
+matching:
+  case_sensitive: false
+  partial_match: true
+  word_boundaries: true
+  unicode_support: true
+
+# Performance settings
+performance:
+  cache_enabled: true
+  cache_ttl_seconds: 3600
+  max_concurrent: 5
+
+# Environment overrides
+overrides:
+  development:
+    protocol:
+      six_step:
+        timeout_seconds: 60  # More time in dev for debugging
+
+  production:
+    protocol:
+      six_step:
+        timeout_seconds: 20  # Faster in production
+    performance:
+      cache_ttl_seconds: 7200  # Longer cache

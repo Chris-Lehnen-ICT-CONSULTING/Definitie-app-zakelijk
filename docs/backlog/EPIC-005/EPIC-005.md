@@ -17,7 +17,7 @@ stories:
 - US-062
 - US-065
 target_release: v1.3
-titel: Export & Import
+titel: "EPIC-005: Export & Import - Multi-format data portability (JSON, PDF, DOCX, XML, CSV) met batch processing en validatie"
 vereisten:
 - REQ-022
 - REQ-042

@@ -1,0 +1,310 @@
+
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>EPIC-007 - EPIC-007-performance-scaling</title>
+  <link rel="stylesheet" href="../assets/style.css" />
+</head>
+<body>
+  <div class="container">
+    <div class="breadcrumbs"><a href="../index.html">Requirements</a> / <span>EPIC-007</span></div>
+    <h1>EPIC-007: EPIC-007-performance-scaling</h1>
+    <div><h1>EPIC-007: Prestaties & Scaling</h1>
+
+<h2>Managementsamenvatting</h2>
+
+<p>System efficiency and cost optimization through Prestaties improvements and scalability enhancements. This epic addresses KRITIEK Prestaties issues including 6x service initialization, 7,250 token prompts, and 45x rule reloading.</p>
+
+<p>**Business Case:** The Dutch justitieketen processes thousands of legal documents daily across multiple organizations. OM processes require near real-time definition generation for case preparation, DJI needs rapid responses for detentie decisions, and Rechtspraak requires support for multiple concurrent users during rechtbank sessions. Current Prestaties issues (6x initialization overhead, excessive token usage) create bottlenecks that delay KRITIEK justice processes and increase operational costs. With upcoming chain-wide integration, the system must handle 10x current load while maintaining sub-5-second response times required by ASTRA Prestaties standards.</p>
+
+<h2>Bedrijfswaarde</h2>
+
+<ul>
+<li>**Primary Value**: Reduce operational costs and improve user experience</li>
+<li>**Cost Savings**: 50% reduction in OpenAI API costs (€100K/year savings)</li>
+<li>**User Experience**: < 5 second response times for justice professionals</li>
+<li>**Scalability**: Support for 100+ concurrent users across justitieketen</li>
+<li>**Chain Impact**: Enable real-time definition sharing between OM/DJI/Rechtspraak</li>
+<li>**Peak Load Support**: Handle month-end reporting peaks (10x normal load)</li>
+<li>**Measurable Outcomes**:</li>
+<li>50% reduction in user wait time</li>
+<li>0% timeout errors during peak hours</li>
+<li>99.9% availability SLA for justitieketen</li>
+<li>80% reduction in memory footprint</li>
+</ul>
+
+<h2>Succesmetrieken (SMART)</h2>
+
+<ul>
+<li>[ ] **Specifiek**: < 5 second definition generation for 95th percentile</li>
+<li>[ ] **Meetbaar**: < 3,000 tokens per prompt (currently 7,250)</li>
+<li>[ ] **Haalbaar**: 1x service initialization (currently 6x)</li>
+<li>[ ] **Relevant**: < 1 second validation for ASTRA compliance</li>
+<li>[ ] **Tijdgebonden**: < 100ms service access by Q1 2025</li>
+<li>[ ] **Justice-specific**: Support 500 OM concurrent users</li>
+<li>[ ] **Chain-validatied**: Meet DJI real-time vereisten (< 2s)</li>
+<li>[ ] **Rechtspraak-ready**: Handle 50 judges simultaneously</li>
+</ul>
+
+<h2>Current Prestaties Issues</h2>
+
+<h3>KRITIEK Problems Identified</h3>
+<p>1. **Service Initialization**: Services initialized 6x due to Streamlit reruns</p>
+<p>2. **Prompt Tokens**: 7,250 tokens with duplications and all 45 rules</p>
+<p>3. **validatieregels**: 45x reload per session without caching</p>
+<p>4. **Memory Leaks**: Uncached services accumulating in memory</p>
+<p>5. **Circular Afhankelijkheden**: ServiceContainer has circular references</p>
+
+<h2>Gebruikersverhalen Overzicht</h2>
+
+<h3>US-028: Service Initialization Caching</h3>
+<p>**Status:** Nog te bepalen</p>
+<p>**Prioriteit:** HOOG</p>
+<p>**Verhaalpunten:** 5</p>
+<p>**Target:** 1x initialization</p>
+
+<p>**Gebruikersverhaal:**</p>
+<p>Als ontwikkelaar binnen de justitieketen</p>
+<p>wil ik service initialization to happen only once</p>
+<p>zodat application startup is fast and memory efficient</p>
+
+<p>**Technical Solution:**</p>
+<ul>
+<li>Use `@st.cache_resource` on ServiceContainer</li>
+<li>Implement singleton pattern properly</li>
+<li>Add cache invalidation controls</li>
+</ul>
+
+<h3>US-029: Prompt Token Optimization</h3>
+<p>**Status:** Nog te bepalen</p>
+<p>**Prioriteit:** HOOG</p>
+<p>**Verhaalpunten:** 8</p>
+<p>**Target:** < 3,000 tokens</p>
+
+<p>**Gebruikersverhaal:**</p>
+<p>As a product owner</p>
+<p>wil ik to minimize OpenAI API token usage</p>
+<p>zodat operational costs are reduced while maintaining quality</p>
+
+<p>**Optimization Strategy:**</p>
+<p>1. Include only relevant validatieregels</p>
+<p>2. Implement prompt template caching</p>
+<p>3. Remove duplicate instructions</p>
+<p>4. Compress context information</p>
+<p>5. Use dynamic prompt building</p>
+
+<h3>US-030: validatieregels Caching</h3>
+<p>**Status:** Nog te bepalen</p>
+<p>**Prioriteit:** HOOG</p>
+<p>**Verhaalpunten:** 5</p>
+<p>**Target:** < 10ms access</p>
+
+<p>**Gebruikersverhaal:**</p>
+<p>Als ontwikkelaar binnen de justitieketen</p>
+<p>wil ik validatieregels loaded once per session</p>
+<p>zodat validation Prestaties is optimal</p>
+
+<p>**Implementatie:**</p>
+<ul>
+<li>Use `@st.cache_data` with TTL</li>
+<li>Implement rule Versieing</li>
+<li>Add cache warming on startup</li>
+<li>Monitor cache hit rates</li>
+</ul>
+
+<h3>US-031: ServiceContainer Circular Dependency Resolution</h3>
+<p>**Status:** Nog te bepalen</p>
+<p>**Prioriteit:** GEMIDDELD</p>
+<p>**Verhaalpunten:** 8</p>
+
+<p>**Gebruikersverhaal:**</p>
+<p>Als ontwikkelaar binnen de justitieketen</p>
+<p>wil ik clean afhankelijkheid injection without circular references</p>
+<p>zodat the codebase is maintainable and testable</p>
+
+<p>**Refactoring Plan:**</p>
+<p>1. Map current Afhankelijkheden</p>
+<p>2. Identify circular references</p>
+<p>3. Implement lazy loading</p>
+<p>4. Use factory pattern where needed</p>
+<p>5. ValiDatum with afhankelijkheid tools</p>
+
+<h3>US-032: Context Window Optimization</h3>
+<p>**Status:** Nog te bepalen</p>
+<p>**Prioriteit:** GEMIDDELD</p>
+<p>**Verhaalpunten:** 5</p>
+<p>**Afhankelijkheden:** US-029</p>
+
+<p>**Gebruikersverhaal:**</p>
+<p>As a user</p>
+<p>wil ik fast definition generation</p>
+<p>zodat I can work efficiently without delays</p>
+
+<p>**Optimization Areas:**</p>
+<ul>
+<li>Selective context inclusion</li>
+<li>Context compression</li>
+<li>Graceful degradation</li>
+<li>Token budget management</li>
+</ul>
+
+<h3>US-033: V1 to V2 Migration ✅</h3>
+<p>**Status:** GEREED</p>
+<p>**Prioriteit:** HOOG</p>
+<p>**Verhaalpunten:** 13</p>
+
+<p>**Implementatie:**</p>
+<ul>
+<li>V2 orchestrator fully deployed</li>
+<li>V1 code removed from production</li>
+<li>No dual system overhead</li>
+</ul>
+
+<h3>US-034: Service Container Optimization ✅</h3>
+<p>**Status:** GEREED</p>
+<p>**Prioriteit:** HOOG</p>
+<p>**Verhaalpunten:** 8</p>
+
+<p>**Implementatie:**</p>
+<ul>
+<li>Basic optimization started</li>
+<li>Lazy loading geïmplementeerd</li>
+<li>Further caching needed (US-028)</li>
+</ul>
+
+<h2>Prestaties Architecture</h2>
+
+<h3>Current State</h3>
+<pre class=code><code>
+Request → Streamlit Rerun (6x)
+           ↓
+    ServiceContainer Init (6x)
+           ↓
+    Load All Rules (45x)
+           ↓
+    Build Full Prompt (7,250 tokens)
+           ↓
+    API Call
+           ↓
+    Response
+</code></pre>
+
+<h3>Target State</h3>
+<pre class=code><code>
+Request → Cached Services (1x)
+           ↓
+    Cached Rules (0x reload)
+           ↓
+    Optimized Prompt (&lt; 3,000 tokens)
+           ↓
+    API Call
+           ↓
+    Response
+</code></pre>
+
+<h2>Prestaties Benchmarks</h2>
+
+<h3>Current Prestaties</h3>
+<ul>
+<li>Service Init: 600ms x 6 = 3.6s</li>
+<li>Rule Loading: 50ms x 45 = 2.25s</li>
+<li>Prompt Build: 200ms</li>
+<li>API Call: 3-5s</li>
+<li>Total: 9-11 seconds</li>
+</ul>
+
+<h3>Target Prestaties</h3>
+<ul>
+<li>Service Init: 100ms x 1 = 0.1s</li>
+<li>Rule Loading: 10ms (cached)</li>
+<li>Prompt Build: 50ms</li>
+<li>API Call: 2-3s</li>
+<li>Total: < 5 seconds</li>
+</ul>
+
+<h2>Cost Analysis</h2>
+
+<h3>Current Costs</h3>
+<ul>
+<li>Tokens per request: 7,250</li>
+<li>Cost per request: $0.29</li>
+<li>Daily requests: 1,000</li>
+<li>Daily cost: $290</li>
+<li>Monthly cost: $8,700</li>
+</ul>
+
+<h3>Target Costs</h3>
+<ul>
+<li>Tokens per request: 3,000</li>
+<li>Cost per request: $0.12</li>
+<li>Daily requests: 1,000</li>
+<li>Daily cost: $120</li>
+<li>Monthly cost: $3,600</li>
+<li>**Savings: $5,100/month (59%)**</li>
+</ul>
+
+<h2>Afhankelijkheden</h2>
+
+<ul>
+<li>Streamlit caching mechanisms</li>
+<li>Memory profiling tools</li>
+<li>Prestaties monitoring</li>
+<li>Load testing infrastructure</li>
+</ul>
+
+<h2>Risico's & Mitigaties</h2>
+
+<p>| Risk | Impact | Mitigation |</p>
+<p>|------|--------|------------|</p>
+<p>| Cache Invalidation | HOOG | Versie-based cache keys |</p>
+<p>| Memory Growth | HOOG | Cache size limits, TTL |</p>
+<p>| Prompt Quality | GEMIDDELD | A/B testing, quality metrics |</p>
+<p>| Breaking Wijzigingen | HOOG | Feature flags, gradual rollout |</p>
+
+<h2>Definitie van Gereed</h2>
+
+<ul>
+<li>[ ] < 5 second response time achieved</li>
+<li>[ ] < 3,000 token prompts</li>
+<li>[ ] 1x service initialization</li>
+<li>[ ] All caching geïmplementeerd</li>
+<li>[ ] Prestaties tests passing</li>
+<li>[ ] Memory leaks fixed</li>
+<li>[ ] Cost reduction verified</li>
+<li>[ ] Monitoring dashboards ready</li>
+</ul>
+
+<h2>Wijzigingslog</h2>
+
+<p>| Datum | Versie | Wijzigingen |</p>
+<p>|------|---------|---------|</p>
+<p>| 01-01-2025 | 1.0 | Episch Verhaal aangemaakt |</p>
+<p>| 05-09-2025 | 1.x | Vertaald naar Nederlands met justitie context |</p>
+<p>| 04-09-2025 | 1.1 | V1→V2 migration complete |</p>
+<p>| 05-09-2025 | 1.2 | Prestaties analysis added |</p>
+
+<h2>Gerelateerde Documentatie</h2>
+
+<ul>
+<li>Prestaties Testen Plan</li>
+<li>Caching Strategy</li>
+<li>Cost Optimization Guide</li>
+</ul>
+
+<h2>Stakeholder Goedkeuring</h2>
+
+<ul>
+<li>Technisch Lead: ⏳ In progress</li>
+<li>Product Eigenaar: ⏳ Reviewing costs</li>
+<li>Operations Team: ⏳ Monitoring setup</li>
+<li>Finance: ❌ Awaiting cost analysis</li>
+</ul>
+
+
+<p>*This epic is part of the DefinitieAgent project and folLAAGs ASTRA/NORA/BIR guidelines for justice domain systems.*</p></div>
+    <p class="muted">Bron: <a href="/Users/chrislehnen/Projecten/Definitie-app/docs/backlog/EPIC-007/EPIC-007.md">docs/backlog/epics/EPIC-007-performance-scaling.md</a></p>
+  </div>
+</body>
+</html>

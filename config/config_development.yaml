@@ -1,6 +1,6 @@
 api:
   default_max_tokens: 300
-  default_model: gpt-4.1
+  default_model: gpt-4o-mini
   default_temperature: 0.9
   max_retries: 5
   model_settings:
@@ -12,7 +12,7 @@ api:
       cost_per_token: 3.0e-05
       max_tokens: 300
       temperature: 0.0
-  openai_api_key: your-api-key-here
+  openai_api_key: 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
   request_timeout: 60.0
   retry_backoff_factor: 1.5
 cache:
@@ -32,7 +32,7 @@ logging:
   file_enabled: true
   format: '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
   level: DEBUG
-  log_file: log/definitie_agent_dev.log
+  log_file: logs/definitie_agent_dev.log
   max_log_size: 10485760
   module_levels:
     definitie_agent: DEBUG
@@ -59,7 +59,7 @@ paths:
   config_dir: config
   context_mapping_file: config/context_wet_mapping.json
   exports_dir: exports
-  logs_dir: log
+  logs_dir: logs
   rate_limit_history_file: cache/rate_limit_history.json
   reports_dir: reports
   toetsregels_file: src/toetsregels/regels

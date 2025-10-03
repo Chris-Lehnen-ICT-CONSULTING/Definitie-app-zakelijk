@@ -1,0 +1,41 @@
+id: ARAI04
+name: Vermijd modale hulpwerkwoorden
+description: Definities vermijden het gebruik van modale hulpwerkwoorden zoals 'kunnen',
+  'mogen', 'moeten' of 'zullen'.
+explanation: Modale hulpwerkwoorden impliceren mogelijkheid, verplichting of verwachting
+  en zijn daarom niet geschikt voor afbakenende definities. Ze maken de betekenis
+  vaag of afhankelijk van context. Een definitie moet beschrijven wat iets *is*, niet
+  wat het zou kunnen zijn of moet doen.
+test_question: Bevat de definitie modale hulpwerkwoorden die wijzen op mogelijkheid,
+  plicht of wenselijkheid?
+metadata:
+  priority: midden
+  recommendation: optioneel
+  validity: gehele definitie
+  status: conceptueel
+  type: formulering
+  theme: duidelijkheid en afbakening
+  source_document: Afgeleide AI-regel op basis van ASTRA en terminologische richtlijnen
+validation:
+  patterns:
+  - \bkan\b
+  - \bkunnen\b
+  - \bmoet\b
+  - \bmoeten\b
+  - \bmogen\b
+  - \bzou\b
+  - \bzullen\b
+  good_examples:
+  - maatregel die toegang beperkt tot bevoegde personen
+  - procedure die leidt tot besluitvorming
+  bad_examples:
+  - maatregel die toegang kan beperken
+  - procedure die tot besluitvorming zou kunnen leiden
+references:
+- fulltext: Definitie bevat geen toelichting
+  fullurl: https://www.astraonline.nl/index.php/Definitie_bevat_geen_toelichting
+implementation_details:
+  implementation: python
+  source_file: src/toetsregels/regels/ARAI-04.py
+  validation_logic: See Python implementation for complex validation
+  validation_description: Validator voor ARAI04.
