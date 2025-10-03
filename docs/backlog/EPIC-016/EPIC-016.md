@@ -1,6 +1,6 @@
 ---
 id: EPIC-016
-titel: Beheer & Configuratie Console
+titel: "EPIC-016: Beheer & Configuratie Console - UI-beheer voor gate-policy, validatieregels, context en audit met hot-reload"
 status: active
 prioriteit: HOOG
 owner: product-owner

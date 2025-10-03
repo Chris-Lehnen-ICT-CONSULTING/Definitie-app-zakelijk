@@ -1,0 +1,443 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>US-209: title: Separate validation logic from prompt hints</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>id: US-209</p>
+<p>titel: "US-209: title: Separate validation logic from prompt hints"</p>
+<p>epic: EPIC-026</p>
+<p>title: Separate validation logic from prompt hints</p>
+<p>status: open</p>
+<p>priority: HIGH</p>
+<p>created: 2025-01-18</p>
+<p>updated: 2025-01-18</p>
+<p>owner: development-team</p>
+<p>applies_to: definitie-app@current</p>
+<p>canonical: false</p>
+<p>last_verified: 2025-10-02</p>
+<p>tags:</p>
+<ul>
+<li> - phoenix</li>
+<li> - validation</li>
+<li> - prompts</li>
+<li> - ai</li>
+<li> - separation-of-concerns</li>
+<p>estimated_hours: 12</p>
+<p>actual_hours: 0</p>
+<p>---</p>
+</ul>
+
+<h1>US-209: Separate validation logic from prompt hints</h1>
+
+<h2>User Story</h2>
+<p>Als een <strong>AI engineer</strong> wil ik <strong>validatie logica gescheiden van prompt hints</strong> zodat ik <strong>prompts kan optimaliseren zonder validatie regels te breken</strong>.</p>
+
+<h2>Context</h2>
+<p>Het huidige systeem mixt validatie logica met AI prompt instructies:</p>
+<ul>
+<li>Validatie regels bevatten prompt hints</li>
+<li>Prompt service haalt hints uit validatie modules</li>
+<li>Wijzigingen in prompts kunnen validatie beïnvloeden</li>
+<li>Moeilijk om prompts te A/B testen</li>
+<li>Geen centrale plek voor prompt management</li>
+</ul>
+
+<p>Dit veroorzaakt:</p>
+<ul>
+<li>Tight coupling tussen validatie en AI generatie</li>
+<li>Inconsistente prompt formuleringen</li>
+<li>Moeilijk te optimaliseren prompts</li>
+<li>Geen versie controle op prompts</li>
+<li>Duplicatie van instructies</li>
+</ul>
+
+<h2>Acceptance Criteria</h2>
+
+<ol>
+<li>**Clear Separation**</li>
+</ol>
+<ul>
+<li>  - [ ] Validatie logica bevat GEEN prompt-specifieke code</li>
+<li>  - [ ] Prompt hints in aparte configuratie/modules</li>
+<li>  - [ ] Duidelijke interface tussen validatie en prompts</li>
+</ul>
+
+<ol>
+<li>**Prompt Hint System**</li>
+</ol>
+<ul>
+<li>  - [ ] Centralized prompt hint repository</li>
+<li>  - [ ] Versioning voor prompt hints</li>
+<li>  - [ ] Mapping tussen regel IDs en prompt hints</li>
+<li>  - [ ] Support voor meerdere prompt varianten (A/B testing)</li>
+</ul>
+
+<ol>
+<li>**Integration Points**</li>
+</ol>
+<ul>
+<li>  - [ ] PromptServiceV2 haalt hints uit nieuwe repository</li>
+<li>  - [ ] Validation rules kunnen hint IDs exposen (optional)</li>
+<li>  - [ ] Backwards compatible met huidige prompt generation</li>
+</ul>
+
+<ol>
+<li>**Prompt Management**</li>
+</ol>
+<ul>
+<li>  - [ ] CRUD operations voor prompt hints</li>
+<li>  - [ ] Prompt template system</li>
+<li>  - [ ] Context-aware hint selection</li>
+<li>  - [ ] Performance metrics per prompt variant</li>
+</ul>
+
+<ol>
+<li>**Migration**</li>
+</ol>
+<ul>
+<li>  - [ ] Alle bestaande prompt hints geëxtraheerd</li>
+<li>  - [ ] Prompt hints gecategoriseerd en geoptimaliseerd</li>
+<li>  - [ ] Legacy prompt code verwijderd uit validation modules</li>
+</ul>
+
+<h2>Technical Design</h2>
+
+<h3>Prompt Hint Repository Structure</h3>
+<pre><code># src/prompts/hints/validation_hints.py
+from dataclasses import dataclass
+from typing import Dict, List, Optional
+from enum import Enum
+
+class HintType(Enum):
+    INSTRUCTION = "instruction"
+    WARNING = "warning"
+    EXAMPLE = "example"
+    CONTEXT = "context"
+
+@dataclass
+class PromptHint:
+    """Individual prompt hint for AI generation."""
+    id: str
+    rule_id: Optional[str]  # Link to validation rule if applicable
+    type: HintType
+    content: str
+    priority: int = 5
+    active: bool = True
+    version: str = "1.0"
+    variants: Dict[str, str] = None  # A/B test variants
+
+class ValidationPromptHints:
+    """Repository of all validation-related prompt hints."""
+
+    # Structure hints (STR category)
+    STR_HINTS = {
+        "STR-01": PromptHint(
+            id="hint_str_01_lowercase",
+            rule_id="STR-01",
+            type=HintType.INSTRUCTION,
+            content="Begin de definitie ALTIJD met een kleine letter, tenzij het een eigennaam betreft",
+            priority=8,
+            variants={
+                "a": "Begin de definitie ALTIJD met een kleine letter, tenzij het een eigennaam betreft",
+                "b": "Start definities met kleine letter (uitgezonderd eigennamen)",
+                "c": "Gebruik geen hoofdletter aan het begin van de definitie"
+            }
+        ),
+        "STR-02": PromptHint(
+            id="hint_str_02_no_period",
+            rule_id="STR-02",
+            type=HintType.WARNING,
+            content="Eindig de definitie NOOIT met een punt",
+            priority=7
+        ),
+        # ... more STR hints
+    }
+
+    # Integrity hints (INT category)
+    INT_HINTS = {
+        "INT-01": PromptHint(
+            id="hint_int_01_circular",
+            rule_id="INT-01",
+            type=HintType.WARNING,
+            content="Vermijd cirkelredeneringen - gebruik het te definiëren begrip NIET in de definitie zelf",
+            priority=9,
+            variants={
+                "a": "Vermijd cirkelredeneringen - gebruik het te definiëren begrip NIET in de definitie zelf",
+                "b": "De definitie mag het begrip zelf niet bevatten (geen cirkelredenering)",
+                "c": "Definieer zonder het woord zelf te gebruiken"
+            }
+        ),
+        # ... more INT hints
+    }
+
+    # Essential hints (ESS category)
+    ESS_HINTS = {
+        "ESS-01": PromptHint(
+            id="hint_ess_01_genre_differentia",
+            rule_id="ESS-01",
+            type=HintType.INSTRUCTION,
+            content="Gebruik de genus-differentia structuur: [overkoepelend begrip] + [onderscheidend kenmerk]",
+            priority=10
+        ),
+        # ... more ESS hints
+    }
+
+    def get_hints_for_rule(self, rule_id: str, variant: Optional[str] = None) -&gt; List[PromptHint]:
+        """Get all hints for a specific validation rule."""
+        # Implementation
+        pass
+
+    def get_hints_by_type(self, hint_type: HintType) -&gt; List[PromptHint]:
+        """Get all hints of a specific type."""
+        # Implementation
+        pass
+
+    def get_active_variant(self, hint_id: str, context: Dict = None) -&gt; str:
+        """Get the active variant for a hint (for A/B testing)."""
+        # Implementation
+        pass</code></pre>
+
+<h3>Prompt Builder Integration</h3>
+<pre><code># src/prompts/builders/definition_prompt_builder.py
+from typing import List, Dict, Optional
+from src.prompts.hints.validation_hints import ValidationPromptHints, HintType
+
+class DefinitionPromptBuilder:
+    """Builds prompts for definition generation."""
+
+    def __init__(self):
+        self.hint_repository = ValidationPromptHints()
+        self.template_engine = PromptTemplateEngine()
+
+    def build_generation_prompt(
+        self,
+        term: str,
+        context: Dict,
+        include_hints: bool = True,
+        hint_variant: Optional[str] = None
+    ) -&gt; str:
+        """Build a complete prompt for definition generation."""
+
+        # Base prompt template
+        prompt = self.template_engine.get_template("definition_generation")
+
+        # Add term and context
+        prompt = prompt.format(term=term, context=context.get("description", ""))
+
+        # Add validation hints if requested
+        if include_hints:
+            instructions = self._build_instruction_section(hint_variant)
+            warnings = self._build_warning_section(hint_variant)
+            examples = self._build_example_section(hint_variant)
+
+            prompt += f"\n\n## Instructies\n{instructions}"
+            prompt += f"\n\n## Let op\n{warnings}"
+            prompt += f"\n\n## Voorbeelden\n{examples}"
+
+        return prompt
+
+    def _build_instruction_section(self, variant: Optional[str] = None) -&gt; str:
+        """Build instruction section from hints."""
+        hints = self.hint_repository.get_hints_by_type(HintType.INSTRUCTION)
+        instructions = []
+
+        for hint in sorted(hints, key=lambda h: h.priority, reverse=True):
+            if hint.active:
+                content = self.hint_repository.get_active_variant(hint.id, {"variant": variant})
+                instructions.append(f"- {content}")
+
+        return "\n".join(instructions)
+
+    def _build_warning_section(self, variant: Optional[str] = None) -&gt; str:
+        """Build warning section from hints."""
+        # Similar implementation
+        pass
+
+    def _build_example_section(self, variant: Optional[str] = None) -&gt; str:
+        """Build example section from hints."""
+        # Similar implementation
+        pass</code></pre>
+
+<h3>Configuration Management</h3>
+<pre><code># config/prompt_hints.yaml
+version: "2.0"
+active_variant: "a"  # For A/B testing
+
+categories:
+  structure:
+    description: "Hints voor structurele validatie regels"
+    hints:
+      - id: "hint_str_01_lowercase"
+        rule_id: "STR-01"
+        type: "instruction"
+        content: "Begin de definitie ALTIJD met een kleine letter"
+        priority: 8
+        active: true
+
+  integrity:
+    description: "Hints voor integriteit validatie regels"
+    hints:
+      - id: "hint_int_01_circular"
+        rule_id: "INT-01"
+        type: "warning"
+        content: "Vermijd cirkelredeneringen"
+        priority: 9
+        active: true
+
+  essential:
+    description: "Hints voor essentiële validatie regels"
+    hints:
+      - id: "hint_ess_01_genre_differentia"
+        rule_id: "ESS-01"
+        type: "instruction"
+        content: "Gebruik genus-differentia structuur"
+        priority: 10
+        active: true
+
+# A/B test configurations
+experiments:
+  - id: "exp_001_instruction_style"
+    hints: ["hint_str_01_lowercase", "hint_int_01_circular"]
+    variants: ["a", "b", "c"]
+    metrics: ["generation_quality", "validation_score"]
+    active: true</code></pre>
+
+<h3>Metrics and Tracking</h3>
+<pre><code># src/prompts/metrics/hint_metrics.py
+class PromptHintMetrics:
+    """Track performance of different prompt hints."""
+
+    def track_generation(
+        self,
+        hint_ids: List[str],
+        variant: str,
+        validation_score: float,
+        user_feedback: Optional[str] = None
+    ):
+        """Track metrics for a generation using specific hints."""
+        # Log to database or analytics service
+        pass
+
+    def get_performance_report(self, hint_id: str) -&gt; Dict:
+        """Get performance metrics for a specific hint."""
+        return {
+            "hint_id": hint_id,
+            "total_uses": 1000,
+            "avg_validation_score": 8.5,
+            "variants": {
+                "a": {"uses": 400, "avg_score": 8.3},
+                "b": {"uses": 400, "avg_score": 8.7},
+                "c": {"uses": 200, "avg_score": 8.5}
+            },
+            "recommendation": "Use variant 'b' for best results"
+        }</code></pre>
+
+<h2>Implementation Notes</h2>
+
+<ol>
+<li>**Migration Strategy**</li>
+</ol>
+<ul>
+<li>  - Extract hints from existing validation modules</li>
+<li>  - Create mapping between rule IDs and hint IDs</li>
+<li>  - Gradual migration with feature flags</li>
+<li>  - Maintain backwards compatibility during transition</li>
+</ul>
+
+<ol>
+<li>**Performance Considerations**</li>
+</ol>
+<ul>
+<li>  - Cache compiled prompts</li>
+<li>  - Lazy load hint repository</li>
+<li>  - Minimize database queries for hint retrieval</li>
+</ul>
+
+<ol>
+<li>**Testing Requirements**</li>
+</ol>
+<ul>
+<li>  - Unit tests for hint repository</li>
+<li>  - Integration tests with prompt builder</li>
+<li>  - A/B test framework validation</li>
+<li>  - Regression tests for prompt quality</li>
+</ul>
+
+<ol>
+<li>**Monitoring & Analytics**</li>
+</ol>
+<ul>
+<li>  - Track hint usage frequency</li>
+<li>  - Monitor validation scores per hint variant</li>
+<li>  - User feedback correlation analysis</li>
+<li>  - Automatic variant selection based on performance</li>
+</ul>
+
+<h2>Dependencies</h2>
+<ul>
+<li>Existing validation rule system (US-208)</li>
+<li>PromptServiceV2</li>
+<li>Configuration management system</li>
+<li>Optional: Analytics/metrics service</li>
+</ul>
+
+<h2>Risks & Mitigations</h2>
+<ul>
+<li>**Risk**: Prompt quality degradation during migration</li>
+<li> - **Mitigation**: Extensive testing, gradual rollout, rollback plan</li>
+</ul>
+
+<ul>
+<li>**Risk**: Increased complexity in prompt management</li>
+<li> - **Mitigation**: Clear documentation, UI for hint management</li>
+</ul>
+
+<ul>
+<li>**Risk**: Performance overhead from hint lookup</li>
+<li> - **Mitigation**: Caching, optimized data structures</li>
+</ul>
+
+<h2>Definition of Done</h2>
+<ul>
+<li>[ ] Prompt hints extracted from all validation modules</li>
+<li>[ ] Hint repository implemented with full CRUD operations</li>
+<li>[ ] Prompt builder integrated with hint repository</li>
+<li>[ ] A/B testing framework operational</li>
+<li>[ ] Migration script tested and executed</li>
+<li>[ ] Legacy prompt code removed from validation modules</li>
+<li>[ ] Unit tests for hint system (>85% coverage)</li>
+<li>[ ] Integration tests with PromptServiceV2</li>
+<li>[ ] Performance benchmarks show <100ms overhead</li>
+<li>[ ] Documentation for hint management</li>
+<li>[ ] Admin UI for hint configuration (optional)</li>
+<li>[ ] Metrics dashboard for hint performance</li>
+<li>[ ] Code review completed</li>
+<li>[ ] Successful test in staging environment</li>
+</ul>
+
+<h2>Notes</h2>
+<ul>
+<li>Coordinate met US-208 voor clean validation interfaces</li>
+<li>Consider future ML-based hint optimization</li>
+<li>Prepare for multi-language support in hints</li>
+<li>This enables future prompt engineering workflows</li>
+</ul>
+  </div>
+</body>
+</html>

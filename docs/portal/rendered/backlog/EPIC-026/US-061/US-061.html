@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>US-061: - 5-staps prioritering algoritme</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>id: US-061</p>
+<p>epic: EPIC-026</p>
+<p>titel: "US-061: - 5-staps prioritering algoritme"</p>
+<p>status: open</p>
+<p>prioriteit: P2</p>
+<p>story_points: 5</p>
+<p>aangemaakt: 2025-09-30</p>
+<p>bijgewerkt: 2025-09-30</p>
+<p>owner: tbd</p>
+<p>applies_to: definitie-app@current</p>
+<p>canonical: false</p>
+<p>last_verified: 2025-09-30</p>
+<p>---</p>
+
+<h1>US-061: Extract en documenteer business kennis uit legacy</h1>
+
+<h2>User Story</h2>
+<p><strong>Als</strong> ontwikkelaar  </p>
+<p><strong>Wil ik</strong> alle business kennis uit legacy code gedocumenteerd hebben  </p>
+<p><strong>Zodat</strong> deze behouden blijft tijdens refactoring  </p>
+
+<h2>Status</h2>
+<p><strong>Status</strong>: ✅ <strong>COMPLETED</strong>  </p>
+<p><strong>Completion Date</strong>: 2025-09-11  </p>
+<p><strong>Priority</strong>: CRITICAL  </p>
+<p><strong>Story Points</strong>: 5  </p>
+<p><strong>Epic</strong>: <a href="../../EPIC-012/EPIC-012.md" target="_blank">EPIC-012: Legacy Orchestrator Refactoring</a>  </p>
+
+<h2>Deliverables</h2>
+<p>✅ <strong><a href="./BUSINESS_KNOWLEDGE_EXTRACTION.md" target="_blank">Business Knowledge Extraction Document</a></strong> - Complete documentatie van alle geëxtraheerde business logic</p>
+
+<h2>Business Context</h2>
+<p>Deze story is CRITICAL omdat het verlies van business kennis tijdens refactoring kan leiden tot:</p>
+<ul>
+<li>Regressie in functionaliteit</li>
+<li>Verlies van 3+ jaar aan optimalisaties</li>
+<li>Herimplementatie van al opgeloste problemen</li>
+</ul>
+
+<h2>Acceptance Criteria</h2>
+<p>✅ <strong>COMPLETED</strong> - Alle criteria voldaan:</p>
+<ul>
+<li>✅ FeedbackBuilder algoritmes gedocumenteerd</li>
+<li>✅ Status bepaling regels vastgelegd</li>
+<li>✅ Iterative improvement logica beschreven</li>
+<li>✅ Performance optimalisaties geïdentificeerd</li>
+<li>✅ Alle thresholds en constraints gedocumenteerd</li>
+<li>✅ Enhancement strategieën geanalyseerd</li>
+<li>✅ Validation business rules geëxtraheerd</li>
+</ul>
+
+<h2>Extracted Knowledge Summary</h2>
+
+<h3>1. FeedbackBuilder Algoritmes</h3>
+<ul>
+<li>5-staps prioritering algoritme</li>
+<li>Violation-to-feedback mapping (11+ mappings)</li>
+<li>Iteratie-bewuste feedback</li>
+<li>Stagnatie detectie</li>
+</ul>
+
+<h3>2. Status Bepaling</h3>
+<ul>
+<li>3-staps acceptatie criteria</li>
+<li>Weighted scoring algoritme</li>
+<li>Severity multipliers</li>
+</ul>
+
+<h3>3. Iterative Improvement</h3>
+<ul>
+<li>Max 3 iteraties, 0.05 threshold</li>
+<li>Voorbeelden caching optimalisatie</li>
+<li>Best iteration tracking</li>
+<li>Feedback history FIFO</li>
+</ul>
+
+<h3>4. Critical Thresholds</h3>
+<pre><code>acceptance = {"overall": 0.8, "critical": 0, "category": 0.75}
+iteration = {"max": 3, "threshold": 0.05, "feedback": 5}
+enhancement = {"max": 3, "confidence": 0.6, "vagueness": 0.3}</code></pre>
+
+<h2>Follow-up</h2>
+<p>De geëxtraheerde business kennis is vertaald naar concrete implementatie stories in:</p>
+<p>→ <strong><a href="../../EPIC-014/EPIC-014.md" target="_blank">EPIC-014: Business Logic Refactoring Implementation</a></strong></p>
+
+<p>Dit EPIC bevat 15 user stories (US-107 t/m US-121) voor de daadwerkelijke implementatie van alle gedocumenteerde business logic.</p>
+
+<h2>Dependencies</h2>
+<ul>
+<li>Toegang tot alle legacy service files ✅</li>
+<li>Begrip van huidige architectuur ✅</li>
+</ul>
+
+<h2>Testing</h2>
+<p>N/A - Documentatie taak</p>
+
+<h2>Notes</h2>
+<ul>
+<li>Geen code wijzigingen gemaakt tijdens extractie</li>
+<li>Alle business logic behouden voor implementatie</li>
+<li>Sommige patterns mogelijk achterhaald door EPIC-010 improvements</li>
+</ul>
+  </div>
+</body>
+</html>

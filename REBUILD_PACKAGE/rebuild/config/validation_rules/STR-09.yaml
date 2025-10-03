@@ -1,0 +1,35 @@
+id: STR_09
+name: Dubbelzinnige 'of' is verboden
+description: Een definitie bevat geen 'of' die onduidelijk maakt of beide mogelijkheden
+  gelden of slechts één van de twee.
+explanation: Het gebruik van 'of' kan leiden tot verwarring als niet duidelijk is
+  of beide alternatieven toegestaan zijn (inclusief of) of slechts één (exclusief
+  of). In definities moet dit expliciet zijn.
+test_question: Is het gebruik van 'of' in de definitie ondubbelzinnig? Is het duidelijk
+  of het gaat om een inclusieve of exclusieve keuze?
+metadata:
+  priority: midden
+  recommendation: verplicht
+  validity: alle
+  status: definitief
+  type: gehele definitie
+  theme: structuur van de definitie
+  source_document: ASTRA
+validation:
+  patterns:
+  - \bof\b
+  - \b(paspoort|identiteitskaart)\b.*\bof\b.*\b(paspoort|identiteitskaart)\b
+  - \bofwel\b
+  good_examples:
+  - Een persoon met een paspoort of, indien niet beschikbaar, een identiteitskaart
+  bad_examples:
+  - Een persoon met een paspoort of identiteitskaart
+  - Een verdachte is iemand die een misdrijf beraamt of uitvoert
+references:
+- fulltext: Dubbelzinnige 'of' is verboden
+  fullurl: https://www.astraonline.nl/index.php/Dubbelzinnige_'of'_is_verboden
+implementation_details:
+  implementation: python
+  source_file: src/toetsregels/regels/STR-09.py
+  validation_logic: See Python implementation for complex validation
+  validation_description: Validator voor STR-09.

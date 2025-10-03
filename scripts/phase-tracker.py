@@ -21,24 +21,24 @@ import argparse
 import re
 import subprocess
 import sys
-from datetime import datetime
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Optional
+from typing import ClassVar
 
 
 class PhaseTracker:
     """Tracks TDD workflow phases"""
 
-    VALID_PHASES = ["RED", "GREEN", "REFACTOR"]
-    PHASE_FILE = ".tdd-phase"
-    PHASE_LOG = ".tdd-phase-log"
+    VALID_PHASES: ClassVar[list[str]] = ["RED", "GREEN", "REFACTOR"]
+    PHASE_FILE: ClassVar[str] = ".tdd-phase"
+    PHASE_LOG: ClassVar[str] = ".tdd-phase-log"
 
     def __init__(self):
         self.project_root = Path.cwd()
         self.phase_file = self.project_root / self.PHASE_FILE
         self.log_file = self.project_root / self.PHASE_LOG
 
-    def get_current_phase(self) -> Optional[str]:
+    def get_current_phase(self) -> str | None:
         """Get current TDD phase"""
         if self.phase_file.exists():
             return self.phase_file.read_text().strip()
@@ -72,24 +72,21 @@ class PhaseTracker:
 
         return True
 
-    def auto_detect_phase(self) -> Optional[str]:
+    def auto_detect_phase(self) -> str | None:
         """Auto-detect phase from git diff"""
         try:
             # Get git diff
             result = subprocess.run(
-                ["git", "diff", "--stat"],
-                capture_output=True,
-                text=True,
-                check=True
+                ["git", "diff", "--stat"], capture_output=True, text=True, check=True
             )
 
             diff_output = result.stdout
 
             # Check for test files
-            has_test_changes = bool(re.search(r'test_.*\.py', diff_output))
+            has_test_changes = bool(re.search(r"test_.*\.py", diff_output))
 
             # Check for implementation files
-            has_impl_changes = bool(re.search(r'src/.*\.py', diff_output))
+            has_impl_changes = bool(re.search(r"src/.*\.py", diff_output))
 
             # Detect phase
             if has_test_changes and not has_impl_changes:
@@ -121,16 +118,14 @@ class PhaseTracker:
         else:
             print("📊 No TDD phase set")
             print()
-            print("Set phase with: python scripts/phase-tracker.py set [RED|GREEN|REFACTOR]")
+            print(
+                "Set phase with: python scripts/phase-tracker.py set [RED|GREEN|REFACTOR]"
+            )
             print("Auto-detect: python scripts/phase-tracker.py auto")
 
     def _display_phase(self, phase: str):
         """Display phase with icon and color"""
-        icons = {
-            "RED": "🔴",
-            "GREEN": "🟢",
-            "REFACTOR": "🔵"
-        }
+        icons = {"RED": "🔴", "GREEN": "🟢", "REFACTOR": "🔵"}
 
         print()
         print(f"{icons.get(phase, '⚪')} Current TDD Phase: {phase}")
@@ -156,7 +151,7 @@ Next steps:
   1. Improve code quality (no new functionality)
   2. Run tests to ensure they still pass
   3. Commit changes, then transition to RED: python scripts/phase-tracker.py set RED
-            """
+            """,
         }
 
         print(help_text.get(phase, "").strip())
@@ -167,19 +162,19 @@ Next steps:
         valid_transitions = {
             "RED": ["GREEN"],
             "GREEN": ["REFACTOR", "RED"],  # RED if test failed
-            "REFACTOR": ["RED", "GREEN"]   # Back to RED for next feature
+            "REFACTOR": ["RED", "GREEN"],  # Back to RED for next feature
         }
 
         return to_phase in valid_transitions.get(from_phase, [])
 
-    def _log_transition(self, from_phase: Optional[str], to_phase: str):
+    def _log_transition(self, from_phase: str | None, to_phase: str):
         """Log phase transition"""
-        timestamp = datetime.now().isoformat()
+        timestamp = datetime.now(UTC).isoformat()
         transition = f"{from_phase or 'NONE'} → {to_phase}"
 
         log_entry = f"{timestamp} | {transition}\n"
 
-        with self.log_file.open('a') as f:
+        with self.log_file.open("a") as f:
             f.write(log_entry)
 
 
@@ -191,13 +186,9 @@ def main():
         nargs="?",
         default="show",
         choices=["show", "set", "auto"],
-        help="Action to perform"
+        help="Action to perform",
     )
-    parser.add_argument(
-        "phase",
-        nargs="?",
-        help="Phase to set (RED, GREEN, REFACTOR)"
-    )
+    parser.add_argument("phase", nargs="?", help="Phase to set (RED, GREEN, REFACTOR)")
 
     args = parser.parse_args()
 
@@ -208,7 +199,9 @@ def main():
     elif args.action == "set":
         if not args.phase:
             print("❌ Phase argument required for 'set' action")
-            print(f"Usage: python scripts/phase-tracker.py set [{'|'.join(PhaseTracker.VALID_PHASES)}]")
+            print(
+                f"Usage: python scripts/phase-tracker.py set [{'|'.join(PhaseTracker.VALID_PHASES)}]"
+            )
             sys.exit(1)
         success = tracker.set_phase(args.phase)
         sys.exit(0 if success else 1)

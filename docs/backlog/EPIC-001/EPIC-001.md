@@ -1,6 +1,6 @@
 ---
 id: EPIC-001
-titel: Basis Definitie Generatie
+titel: "EPIC-001: Basis Definitie Generatie - AI-gestuurde juridische definitiegeneratie met GPT-4"
 status: completed
 prioriteit: HOOG
 aangemaakt: 01-01-2025

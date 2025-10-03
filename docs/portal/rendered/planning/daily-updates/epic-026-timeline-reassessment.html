@@ -1,0 +1,1305 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>EPIC-026 Timeline Reassessment Report</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>id: EPIC-026-TIMELINE-REASSESSMENT</p>
+<p>epic: EPIC-026</p>
+<p>phase: 1-completion</p>
+<p>datum: 2025-10-02</p>
+<p>owner: project-manager</p>
+<p>status: critical</p>
+<p>escalation: required</p>
+<p>---</p>
+
+<h1>EPIC-026 Timeline Reassessment Report</h1>
+
+<p><strong>Date:</strong> 2025-10-02</p>
+<p><strong>Prepared By:</strong> Technical Project Manager</p>
+<p><strong>Escalation Level:</strong> CRITICAL - Executive Decision Required</p>
+
+<p>---</p>
+
+<h2>Executive Summary</h2>
+
+<h3>Reality Check</h3>
+
+<p><strong>Original Estimate:</strong> 11-16 days for entire EPIC-026 (3 God Objects refactoring)</p>
+<p><strong>Day 2 Reality:</strong> <strong>10 weeks estimated for JUST 3 files</strong> (definitie_repository, definition_generator_tab, tabbed_interface)</p>
+<p><strong>Remaining Files:</strong> 2 more files still to analyze (web_lookup_service.py, validation_orchestrator_v2.py)</p>
+
+<h3>Critical Gap Analysis</h3>
+
+<p>| Metric | Original Estimate | Current Reality | Variance |</p>
+<p>|--------|------------------|-----------------|----------|</p>
+<p>| <strong>Timeline</strong> | 11-16 days | 10+ weeks | <strong>350-400% OVER</strong> |</p>
+<p>| <strong>Scope</strong> | 3 files, simple split | 3 files, architectural refactor | <strong>Fundamentally different work</strong> |</p>
+<p>| <strong>LOC to refactor</strong> | ~6,000 LOC | 6,133 LOC (confirmed) | On target |</p>
+<p>| <strong>Services to extract</strong> | 6-8 services | 21+ services (3 files only!) | <strong>3x more complex</strong> |</p>
+<p>| <strong>Test coverage prep</strong> | Assumed good | 52 tests (good) vs 1 test (poor) vs 0 tests (none) | <strong>High risk areas</strong> |</p>
+
+<h3>Root Cause of Estimate Failure</h3>
+
+<p><strong>The original estimate made 5 CRITICAL ASSUMPTIONS that proved FALSE:</strong></p>
+
+<ol>
+<li>**ASSUMPTION:** Files could be "split" by moving methods around</li>
+</ol>
+<ul>
+<li>  - **REALITY:** Files require full architectural refactoring with service boundaries, dependency injection, and clean interfaces</li>
+</ul>
+
+<ol>
+<li>**ASSUMPTION:** Boundaries were already clear and just needed extraction</li>
+</ol>
+<ul>
+<li>  - **REALITY:** Hidden orchestrators discovered (regeneration 500 LOC, generation 380 LOC), hardcoded business logic, God methods</li>
+</ul>
+
+<ol>
+<li>**ASSUMPTION:** Test coverage was adequate for safe refactoring</li>
+</ol>
+<ul>
+<li>  - **REALITY:** definition_generator_tab (1 test for 2,525 LOC), tabbed_interface (0 tests for 1,793 LOC)</li>
+</ul>
+
+<ol>
+<li>**ASSUMPTION:** Each file = 2-3 days extraction</li>
+</ol>
+<ul>
+<li>  - **REALITY:** Each file requires:</li>
+<li>    - Preparation phase (tests, config extraction): 1 week</li>
+<li>    - Service extraction (LOW → CRITICAL): 3-4 weeks</li>
+<li>    - Thin UI layer: 1 week</li>
+<li>    - **Total: 5-6 weeks PER FILE**</li>
+</ul>
+
+<ol>
+<li>**ASSUMPTION:** Linear effort scaling (3 files = 3x work)</li>
+</ol>
+<ul>
+<li>  - **REALITY:** Exponential complexity (orchestrators span multiple files, session state coupling, async/sync mixing)</li>
+</ul>
+
+<p>---</p>
+
+<h2>Detailed Findings (Day 1-2)</h2>
+
+<h3>File 1: definitie_repository.py (Day 1)</h3>
+
+<p><strong>Statistics:</strong></p>
+<ul>
+<li>LOC: 1,815</li>
+<li>Methods: 41</li>
+<li>Services: 6 proposed</li>
+<li>Importers: 20+ files</li>
+<li>Test Coverage: **EXCELLENT** (51 tests)</li>
+<li>Complexity: MEDIUM</li>
+</ul>
+
+<p><strong>Key Findings:</strong></p>
+<ul>
+<li>✅ Clear boundaries (READ/WRITE/DUPLICATE/BULK/VOORBEELDEN)</li>
+<li>✅ Excellent test safety net</li>
+<li>⚠️ 20+ importers = gradual migration needed</li>
+<li>⚠️ Complex duplicate detection (3 matching strategies)</li>
+</ul>
+
+<p><strong>Realistic Effort:</strong> 2-3 weeks (not 2-3 days)</p>
+<ul>
+<li>Week 1: Preparation (additional tests, config extraction)</li>
+<li>Week 2: Extract services (LOW → HIGH risk)</li>
+<li>Week 3: Thin facade, gradual migration of 20+ importers</li>
+</ul>
+
+<p>---</p>
+
+<h3>File 2: definition_generator_tab.py (Day 2)</h3>
+
+<p><strong>Statistics:</strong></p>
+<ul>
+<li>LOC: 2,525</li>
+<li>Methods: 60</li>
+<li>Services: 8 proposed</li>
+<li>Importers: 1 (easy migration!)</li>
+<li>Test Coverage: **POOR** (1 test file)</li>
+<li>Complexity: HIGH</li>
+</ul>
+
+<p><strong>Key Findings:</strong></p>
+<ul>
+<li>❌ God Object (5x over threshold)</li>
+<li>❌ UI/Business Logic mixing (database in rendering!)</li>
+<li>❌ Hidden orchestrator (regeneration 500 LOC in UI layer!)</li>
+<li>❌ Hardcoded business logic (rule reasoning NOT data-driven)</li>
+<li>✅ Single importer (facade pattern easy)</li>
+</ul>
+
+<p><strong>CRITICAL DISCOVERY:</strong> Regeneration orchestration service (500 LOC) was NOT identified in original estimate!</p>
+
+<p><strong>Realistic Effort:</strong> 4-5 weeks (not 3-4 days)</p>
+<ul>
+<li>Week 1: Preparation (integration tests, document state schema, extract hardcoded config)</li>
+<li>Week 2: Extract LOW-MEDIUM services (Context Guards, Rule Reasoning, Validation Presentation)</li>
+<li>Week 3: Extract HIGH services (Duplicate Check, Generation Results, Examples Persistence)</li>
+<li>Week 4: Extract CRITICAL service (Regeneration Orchestrator 500 LOC)</li>
+<li>Week 5: Thin UI layer (<300 LOC)</li>
+</ul>
+
+<p>---</p>
+
+<h3>File 3: tabbed_interface.py (Day 2)</h3>
+
+<p><strong>Statistics:</strong></p>
+<ul>
+<li>LOC: 1,793</li>
+<li>Methods: 39 (33 real + 6 stubs)</li>
+<li>Services: 7 proposed</li>
+<li>Importers: 1 (main.py)</li>
+<li>Test Coverage: **ZERO** (no tests!)</li>
+<li>Complexity: VERY HIGH</li>
+</ul>
+
+<p><strong>Key Findings:</strong></p>
+<ul>
+<li>❌ Central orchestrator for ENTIRE UI</li>
+<li>❌ God method: `_handle_definition_generation()` (380 LOC single method!)</li>
+<li>❌ Hardcoded category patterns (duplicated 3 places)</li>
+<li>❌ Async/sync mixing (category determination, generation)</li>
+<li>❌ Zero test coverage = HIGH regression risk</li>
+<li>❌ 8 dead stub methods (code smell)</li>
+<li>✅ Single importer (facade easy)</li>
+</ul>
+
+<p><strong>CRITICAL DISCOVERY:</strong> Definition generation orchestration (380 LOC god method) was NOT identified in original estimate!</p>
+
+<p><strong>Realistic Effort:</strong> 5-6 weeks (not 2-3 days)</p>
+<ul>
+<li>Week 1: Preparation (integration tests, remove stubs, extract patterns to config, document session state)</li>
+<li>Week 2: Extract LOW services (Context Management, Duplicate Check)</li>
+<li>Week 3: Extract MEDIUM services (Document Context, Ontological Category - make data-driven)</li>
+<li>Week 4-5: Extract CRITICAL service (Definition Generation Orchestrator 380 LOC god method)</li>
+<li>Week 6: Thin UI coordinator (<200 LOC)</li>
+</ul>
+
+<p>---</p>
+
+<h3>Combined Statistics (3 Files)</h3>
+
+<p>| Metric | definitie_repository | definition_generator_tab | tabbed_interface | <strong>TOTAL</strong> |</p>
+<p>|--------|---------------------|--------------------------|-----------------|-----------|</p>
+<p>| <strong>LOC</strong> | 1,815 | 2,525 | 1,793 | <strong>6,133</strong> |</p>
+<p>| <strong>Methods</strong> | 41 | 60 | 39 | <strong>140</strong> |</p>
+<p>| <strong>Services</strong> | 6 | 8 | 7 | <strong>21</strong> |</p>
+<p>| <strong>Importers</strong> | 20+ | 1 | 1 | <strong>22+</strong> |</p>
+<p>| <strong>Tests</strong> | 51 | 1 | 0 | <strong>52</strong> |</p>
+<p>| <strong>Complexity</strong> | MEDIUM | HIGH | VERY HIGH | <strong>HIGH</strong> |</p>
+<p>| <strong>Effort (realistic)</strong> | 2-3 weeks | 4-5 weeks | 5-6 weeks | <strong>11-14 weeks</strong> |</p>
+
+<p><strong>Still Remaining (Day 3):</strong></p>
+<ul>
+<li>web_lookup_service.py (est. 800 LOC, 15+ methods)</li>
+<li>validation_orchestrator_v2.py (est. 600 LOC, 12+ methods)</li>
+</ul>
+
+<p><strong>Estimated Additional:</strong> 2-3 weeks</p>
+
+<p><strong>TOTAL REALISTIC ESTIMATE: 13-17 WEEKS (not 11-16 DAYS!)</strong></p>
+
+<p>---</p>
+
+<h2>Revised Effort Estimates</h2>
+
+<h3>Best Case Scenario (Optimistic)</h3>
+<p><strong>13 weeks</strong> (65 working days)</p>
+
+<p><strong>Assumptions:</strong></p>
+<ul>
+<li>No major blockers discovered in remaining 2 files</li>
+<li>Test creation goes smoothly</li>
+<li>No hidden orchestrators in web_lookup or validation_orchestrator_v2</li>
+<li>Parallel work possible on independent services</li>
+<li>Single developer, full-time focus</li>
+</ul>
+
+<p><strong>Breakdown:</strong></p>
+<ul>
+<li>Phase 1 (Design): 5 days (CURRENT - 40% complete)</li>
+<li>definitie_repository: 2 weeks</li>
+<li>definition_generator_tab: 4 weeks</li>
+<li>tabbed_interface: 5 weeks</li>
+<li>web_lookup_service: 1 week</li>
+<li>validation_orchestrator_v2: 1 week</li>
+</ul>
+
+<p>---</p>
+
+<h3>Likely Case Scenario (Realistic)</h3>
+<p><strong>15 weeks</strong> (75 working days)</p>
+
+<p><strong>Assumptions:</strong></p>
+<ul>
+<li>Normal discovery of additional complexity</li>
+<li>Test creation requires iteration</li>
+<li>Minor unexpected dependencies found</li>
+<li>Some learning curve on async patterns</li>
+<li>Single developer, 80% time allocation (context switching)</li>
+</ul>
+
+<p><strong>Breakdown:</strong></p>
+<ul>
+<li>Phase 1 (Design): 1 week (5 days remaining after Day 2)</li>
+<li>Preparation phase (all files): 2 weeks (tests, config extraction, docs)</li>
+<li>definitie_repository: 2.5 weeks</li>
+<li>definition_generator_tab: 4.5 weeks</li>
+<li>tabbed_interface: 5.5 weeks</li>
+<li>web_lookup_service: 1.5 weeks</li>
+<li>validation_orchestrator_v2: 1.5 weeks</li>
+<li>Buffer: 1 week (unexpected issues)</li>
+</ul>
+
+<p>---</p>
+
+<h3>Worst Case Scenario (Risk-Adjusted)</h3>
+<p><strong>20 weeks</strong> (100 working days)</p>
+
+<p><strong>Assumptions:</strong></p>
+<ul>
+<li>Additional hidden orchestrators discovered</li>
+<li>Circular dependencies require rework</li>
+<li>Test creation reveals missing coverage</li>
+<li>Async/sync boundary issues require refactoring</li>
+<li>Session state schema changes cascade</li>
+<li>Learning curve steeper than expected</li>
+<li>Single developer, 60% time allocation (interruptions)</li>
+</ul>
+
+<p><strong>Breakdown:</strong></p>
+<ul>
+<li>Phase 1 (Design): 1.5 weeks (complexity in remaining files)</li>
+<li>Preparation phase: 3 weeks (comprehensive test coverage)</li>
+<li>definitie_repository: 3 weeks (20+ importer migration)</li>
+<li>definition_generator_tab: 6 weeks (regeneration orchestrator complexity)</li>
+<li>tabbed_interface: 7 weeks (generation orchestrator + async refactoring)</li>
+<li>web_lookup_service: 2 weeks (unknown complexity)</li>
+<li>validation_orchestrator_v2: 2 weeks (unknown complexity)</li>
+<li>Buffer: 2 weeks (rollback, rework, learning)</li>
+</ul>
+
+<p>---</p>
+
+<h2>Why Original Estimate Failed</h2>
+
+<h3>1. Scope Misunderstanding</h3>
+<p><strong>Original assumption:</strong> "Split large files into smaller files"</p>
+<p><strong>Reality:</strong> "Architect proper service boundaries with dependency injection, clean interfaces, and orchestration patterns"</p>
+
+<p><strong>Example:</strong></p>
+<ul>
+<li>Original: "Move 60 methods from definition_generator_tab into 8 files" (2 days)</li>
+<li>Reality: "Extract 8 services with proper boundaries, create facade pattern, write integration tests, extract hardcoded config, refactor 500 LOC hidden orchestrator, reduce UI to <300 LOC" (4-5 weeks)</li>
+</ul>
+
+<p>---</p>
+
+<h3>2. Hidden Complexity Not Discovered Until Analysis</h3>
+<p><strong>Discoveries that changed estimates:</strong></p>
+
+<ol>
+<li>**Hidden Orchestrators** (NOT in original scope):</li>
+</ol>
+<ul>
+<li>  - Regeneration orchestrator: 500 LOC in definition_generator_tab</li>
+<li>  - Generation orchestrator: 380 LOC god method in tabbed_interface</li>
+<li>  - **Impact:** +3-4 weeks effort</li>
+</ul>
+
+<ol>
+<li>**Test Coverage Gaps** (assumed adequate):</li>
+</ol>
+<ul>
+<li>  - definition_generator_tab: 1 test for 2,525 LOC</li>
+<li>  - tabbed_interface: 0 tests for 1,793 LOC</li>
+<li>  - **Impact:** +2 weeks for test creation before refactor</li>
+</ul>
+
+<ol>
+<li>**Hardcoded Business Logic** (assumed config-driven):</li>
+</ol>
+<ul>
+<li>  - Rule reasoning in UI (NOT data-driven)</li>
+<li>  - Category patterns duplicated 3 places</li>
+<li>  - **Impact:** +1 week to extract to config first</li>
+</ul>
+
+<ol>
+<li>**Async/Sync Mixing** (not identified):</li>
+</ol>
+<ul>
+<li>  - Category determination async in sync UI</li>
+<li>  - Complex run_async() bridge patterns</li>
+<li>  - **Impact:** +1-2 weeks for clean async boundaries</li>
+</ul>
+
+<ol>
+<li>**Session State Coupling** (underestimated):</li>
+</ol>
+<ul>
+<li>  - 50+ SessionStateManager calls in tabbed_interface</li>
+<li>  - 30+ calls in definition_generator_tab</li>
+<li>  - **Impact:** +1 week for state schema documentation and refactoring</li>
+</ul>
+
+<p><strong>Total Hidden Complexity:</strong> +8-10 weeks effort</p>
+
+<p>---</p>
+
+<h3>3. Linear vs Exponential Complexity</h3>
+<p><strong>Original assumption:</strong> 3 files = 3x work (linear)</p>
+<p><strong>Reality:</strong> 3 files = exponential complexity due to:</p>
+
+<ul>
+<li>Orchestrators SPAN multiple files (regeneration logic in both generator_tab AND tabbed_interface)</li>
+<li>Session state SHARED across all components</li>
+<li>Async/sync boundaries CROSS multiple layers</li>
+<li>Database transactions START in UI, END in repository</li>
+<li>Navigation logic COORDINATES between tabs</li>
+</ul>
+
+<p><strong>Example:</strong></p>
+<ul>
+<li>definitie_repository (alone): 2-3 weeks</li>
+<li>definition_generator_tab (alone): 4-5 weeks</li>
+<li>tabbed_interface (alone): 5-6 weeks</li>
+<li>**If independent:** 11-14 weeks (sum)</li>
+<li>**Actually interdependent:** 15-17 weeks (coordination overhead)</li>
+</ul>
+
+<p>---</p>
+
+<h3>4. Underestimated Preparation Phase</h3>
+<p><strong>Original assumption:</strong> Start extracting immediately</p>
+<p><strong>Reality:</strong> Must prepare BEFORE extraction:</p>
+
+<p><strong>Required Preparation (per file):</strong></p>
+<ol>
+<li>Integration test suite (current behavior baseline)</li>
+<li>Session state schema documentation</li>
+<li>Generation result dict schema documentation</li>
+<li>Extract hardcoded config to data/YAML</li>
+<li>Remove dead code (stubs)</li>
+<li>Map all database transaction boundaries</li>
+<li>Document async/sync boundaries</li>
+</ol>
+
+<p><strong>Time Required:</strong> 1 week PER FILE (not in original estimate!)</p>
+<p><strong>Total Impact:</strong> +3 weeks for 3 files</p>
+
+<p>---</p>
+
+<h3>5. Test Coverage Quality vs Quantity</h3>
+<p><strong>Original assumption:</strong> "51 tests for definitie_repository = adequate"</p>
+<p><strong>Reality:</strong> Test distribution is CRITICAL:</p>
+
+<p>| File | LOC | Tests | Coverage | Risk |</p>
+<p>|------|-----|-------|----------|------|</p>
+<p>| definitie_repository | 1,815 | 51 | Excellent | LOW |</p>
+<p>| definition_generator_tab | 2,525 | 1 | Poor | HIGH |</p>
+<p>| tabbed_interface | 1,793 | 0 | None | CRITICAL |</p>
+
+<p><strong>Impact:</strong></p>
+<ul>
+<li>definitie_repository: Can refactor safely (test safety net exists)</li>
+<li>definition_generator_tab: Must write tests FIRST (add 1-2 weeks)</li>
+<li>tabbed_interface: Must write comprehensive tests FIRST (add 2-3 weeks)</li>
+</ul>
+
+<p><strong>Total Impact:</strong> +3-5 weeks for test creation</p>
+
+<p>---</p>
+
+<h2>Phased Delivery Options</h2>
+
+<h3>Option 1: Full EPIC-026 Scope (13-20 weeks)</h3>
+
+<p><strong>Scope:</strong> All 5 files refactored, all God Objects eliminated</p>
+
+<p><strong>Timeline:</strong></p>
+<ul>
+<li>Best case: 13 weeks</li>
+<li>Likely case: 15 weeks</li>
+<li>Worst case: 20 weeks</li>
+</ul>
+
+<p><strong>Pros:</strong></p>
+<ul>
+<li>Complete architectural cleanup</li>
+<li>All technical debt resolved</li>
+<li>Sustainable codebase foundation</li>
+<li>Future velocity gains (+40%)</li>
+</ul>
+
+<p><strong>Cons:</strong></p>
+<ul>
+<li>Long timeline (3-5 months!)</li>
+<li>High opportunity cost (blocks other work)</li>
+<li>Risk accumulation over time</li>
+<li>Stakeholder patience required</li>
+</ul>
+
+<p><strong>ROI Payback:</strong> 4-6 months after completion</p>
+
+<p>---</p>
+
+<h3>Option 2: Minimal Viable Refactoring (MVR) (4-6 weeks)</h3>
+
+<p><strong>Scope:</strong> Refactor ONLY definitie_repository.py + critical prep work</p>
+
+<p><strong>Timeline:</strong></p>
+<ul>
+<li>Week 1: Complete Phase 1 design (all 5 files)</li>
+<li>Week 2: Preparation (tests, config extraction for repository)</li>
+<li>Week 3-4: Extract definitie_repository services (6 services)</li>
+<li>Week 5: Migrate 20+ importers gradually</li>
+<li>Week 6: Validation, documentation</li>
+</ul>
+
+<p><strong>Deliverables:</strong></p>
+<ul>
+<li>definitie_repository split into 6 services (<500 LOC each)</li>
+<li>All 51 tests passing</li>
+<li>20+ importers migrated</li>
+<li>Zero regressions</li>
+</ul>
+
+<p><strong>Defer to Future:</strong></p>
+<ul>
+<li>definition_generator_tab (4-5 weeks)</li>
+<li>tabbed_interface (5-6 weeks)</li>
+<li>web_lookup_service (1-2 weeks)</li>
+<li>validation_orchestrator_v2 (1-2 weeks)</li>
+</ul>
+
+<p><strong>Pros:</strong></p>
+<ul>
+<li>Fastest delivery (4-6 weeks)</li>
+<li>Lowest risk (excellent test coverage)</li>
+<li>Immediate value (repository is heavily used)</li>
+<li>Proof of concept for approach</li>
+<li>Unblocks other work sooner</li>
+</ul>
+
+<p><strong>Cons:</strong></p>
+<ul>
+<li>Partial debt resolution (still 4 God Objects remain)</li>
+<li>Must revisit later (context switching cost)</li>
+<li>Some technical debt persists</li>
+</ul>
+
+<p><strong>ROI Payback:</strong> 2-3 months</p>
+
+<p>---</p>
+
+<h3>Option 3: Hybrid Approach - Critical Path Only (8-10 weeks)</h3>
+
+<p><strong>Scope:</strong> definitie_repository + tabbed_interface (God Method critical path)</p>
+
+<p><strong>Timeline:</strong></p>
+<ul>
+<li>Week 1: Complete Phase 1 design (all 5 files)</li>
+<li>Week 2-3: Preparation (tests for both files)</li>
+<li>Week 4-5: Extract definitie_repository (6 services)</li>
+<li>Week 6-10: Extract tabbed_interface (focus on 380 LOC god method first)</li>
+</ul>
+
+<p><strong>Rationale:</strong></p>
+<ul>
+<li>definitie_repository: Most used (20+ importers), good tests, clear boundaries</li>
+<li>tabbed_interface: Central orchestrator, 380 LOC god method is CRITICAL bottleneck</li>
+</ul>
+
+<p><strong>Defer to Future:</strong></p>
+<ul>
+<li>definition_generator_tab (can work around with current state)</li>
+<li>web_lookup_service (lower priority)</li>
+<li>validation_orchestrator_v2 (lower priority)</li>
+</ul>
+
+<p><strong>Pros:</strong></p>
+<ul>
+<li>Balanced timeline (2-2.5 months)</li>
+<li>Addresses CRITICAL bottleneck (god method)</li>
+<li>Significant value delivery</li>
+<li>Reasonable risk</li>
+</ul>
+
+<p><strong>Cons:</strong></p>
+<ul>
+<li>Still 3 God Objects remain</li>
+<li>Must revisit later</li>
+</ul>
+
+<p><strong>ROI Payback:</strong> 3-4 months</p>
+
+<p>---</p>
+
+<h2>Critical Path Analysis</h2>
+
+<h3>Independent Work Streams (Potential Parallelization)</h3>
+
+<p><strong>Stream 1: definitie_repository</strong> (can run standalone)</p>
+<ul>
+<li>Preparation: Week 1</li>
+<li>Extraction: Week 2-3</li>
+<li>Migration: Week 4</li>
+<li>**Duration:** 4 weeks</li>
+<li>**Blocking:** Nothing</li>
+<li>**Blocked by:** Nothing</li>
+</ul>
+
+<p><strong>Stream 2: definition_generator_tab</strong> (depends on tabbed_interface design)</p>
+<ul>
+<li>Preparation: Week 1</li>
+<li>Extraction: Week 2-5</li>
+<li>Thin UI: Week 6</li>
+<li>**Duration:** 6 weeks</li>
+<li>**Blocking:** Nothing</li>
+<li>**Blocked by:** Regeneration service interface design</li>
+</ul>
+
+<p><strong>Stream 3: tabbed_interface</strong> (central orchestrator - CRITICAL PATH)</p>
+<ul>
+<li>Preparation: Week 1</li>
+<li>Extraction: Week 2-6</li>
+<li>Thin coordinator: Week 7</li>
+<li>**Duration:** 7 weeks</li>
+<li>**Blocking:** definition_generator_tab (regeneration interface)</li>
+<li>**Blocked by:** Nothing</li>
+</ul>
+
+<p><strong>Stream 4: web_lookup_service</strong> (can run standalone)</p>
+<ul>
+<li>Preparation: Week 1</li>
+<li>Extraction: Week 2</li>
+<li>**Duration:** 2 weeks</li>
+<li>**Blocking:** Nothing</li>
+<li>**Blocked by:** Nothing</li>
+</ul>
+
+<p><strong>Stream 5: validation_orchestrator_v2</strong> (can run standalone)</p>
+<ul>
+<li>Preparation: Week 1</li>
+<li>Extraction: Week 2</li>
+<li>**Duration:** 2 weeks</li>
+<li>**Blocking:** Nothing</li>
+<li>**Blocked by:** Nothing</li>
+</ul>
+
+<h3>Critical Path Identified</h3>
+
+<p><strong>CRITICAL PATH:</strong> tabbed_interface → definition_generator_tab</p>
+
+<p><strong>Why Critical:</strong></p>
+<ol>
+<li>tabbed_interface contains generation orchestration (380 LOC god method)</li>
+<li>definition_generator_tab contains regeneration orchestration (500 LOC)</li>
+<li>These two orchestrators INTERACT (regeneration calls generation)</li>
+<li>Cannot refactor independently - must design interfaces together</li>
+</ol>
+
+<p><strong>Timeline Impact:</strong></p>
+<ul>
+<li>Sequential: 7 weeks (tabbed_interface) + 6 weeks (generator_tab) = **13 weeks**</li>
+<li>With overlap: Design together, extract in parallel = **10 weeks** (if 2 developers)</li>
+</ul>
+
+<h3>Parallelization Opportunities</h3>
+
+<p><strong>With 2 developers:</strong></p>
+<ul>
+<li>Developer 1: definitie_repository (4 weeks) → web_lookup_service (2 weeks) → validation_orchestrator_v2 (2 weeks)</li>
+<li>Developer 2: tabbed_interface (7 weeks) → definition_generator_tab (6 weeks)</li>
+<li>**Total:** 13 weeks (vs 15 weeks sequential)</li>
+<li>**Savings:** 2 weeks (13% faster)</li>
+</ul>
+
+<p><strong>With 1 developer (realistic):</strong></p>
+<ul>
+<li>Week 1-4: definitie_repository</li>
+<li>Week 5-11: tabbed_interface</li>
+<li>Week 12-17: definition_generator_tab</li>
+<li>Week 18-19: web_lookup_service</li>
+<li>Week 20-21: validation_orchestrator_v2</li>
+<li>**Total:** 21 weeks (worst case with full scope)</li>
+</ul>
+
+<p><strong>Recommendation:</strong> Single developer should focus on Critical Path FIRST:</p>
+<ol>
+<li>definitie_repository (4 weeks) - quick win, unblocks other work</li>
+<li>tabbed_interface (7 weeks) - critical path, god method</li>
+<li>STOP and reassess - MVR delivered in 11 weeks</li>
+</ol>
+
+<p>---</p>
+
+<h2>Resource Planning</h2>
+
+<h3>Single Developer (Current Reality)</h3>
+
+<p><strong>Capacity:</strong></p>
+<ul>
+<li>5 days/week</li>
+<li>6-7 hours/day effective coding time</li>
+<li>Context switching overhead: 20%</li>
+<li>**Effective capacity:** 4 days/week productive refactoring</li>
+</ul>
+
+<p><strong>Timeline Impact:</strong></p>
+<ul>
+<li>Best case (13 weeks): 16.25 calendar weeks (4 months)</li>
+<li>Likely case (15 weeks): 18.75 calendar weeks (4.5 months)</li>
+<li>Worst case (20 weeks): 25 calendar weeks (6+ months)</li>
+</ul>
+
+<p><strong>Recommendations:</strong></p>
+<ol>
+<li>**Protect focus time:** Block 2-day sprints for uninterrupted refactoring</li>
+<li>**Limit context switching:** No new features during refactoring sprints</li>
+<li>**Weekly checkpoints:** Assess progress, adjust plan</li>
+<li>**Test-first approach:** Write integration tests BEFORE extraction (safety net)</li>
+</ol>
+
+<p>---</p>
+
+<h3>Two Developers (Ideal)</h3>
+
+<p><strong>Parallelization Strategy:</strong></p>
+<ul>
+<li>Developer A: Critical Path (tabbed_interface + definition_generator_tab)</li>
+<li>Developer B: Support Path (definitie_repository + web_lookup + validation_orchestrator_v2)</li>
+</ul>
+
+<p><strong>Timeline Impact:</strong></p>
+<ul>
+<li>Best case: 9 weeks (vs 13 weeks)</li>
+<li>Likely case: 11 weeks (vs 15 weeks)</li>
+<li>Worst case: 15 weeks (vs 20 weeks)</li>
+<li>**Savings:** 25-30% faster</li>
+</ul>
+
+<p><strong>Coordination Overhead:</strong></p>
+<ul>
+<li>Daily sync (15 min)</li>
+<li>Shared test suite maintenance</li>
+<li>Interface contract reviews</li>
+<li>Code review cycles</li>
+</ul>
+
+<p><strong>Recommendation:</strong> If budget allows, bring in second developer for Critical Path extraction (weeks 5-11)</p>
+
+<p>---</p>
+
+<h2>Risk-Adjusted Timeline</h2>
+
+<h3>Confidence Levels</h3>
+
+<p><strong>13 weeks (Best Case):</strong> 15% confidence</p>
+<ul>
+<li>Requires perfect execution</li>
+<li>No unexpected discoveries</li>
+<li>No blockers</li>
+<li>Single developer, 100% focus</li>
+<li>**HIGH RISK - Do NOT commit to this timeline**</li>
+</ul>
+
+<p><strong>15 weeks (Likely Case):</strong> 60% confidence</p>
+<ul>
+<li>Normal discovery rate</li>
+<li>Minor blockers handled</li>
+<li>Single developer, 80% focus</li>
+<li>Test creation goes smoothly</li>
+<li>**MODERATE RISK - Realistic with good execution**</li>
+</ul>
+
+<p><strong>20 weeks (Worst Case):</strong> 95% confidence</p>
+<ul>
+<li>Buffer for unexpected issues</li>
+<li>Learning curve included</li>
+<li>Rework time included</li>
+<li>Single developer, 60% focus</li>
+<li>**LOW RISK - Safe commitment timeline**</li>
+</ul>
+
+<h3>Risk Mitigation Timeline</h3>
+
+<p><strong>Recommended Commitment:</strong></p>
+<ul>
+<li>**External stakeholders:** 20 weeks (worst case - safe commitment)</li>
+<li>**Internal planning:** 15 weeks (likely case - realistic target)</li>
+<li>**Team goal:** 13 weeks (best case - stretch goal)</li>
+</ul>
+
+<p><strong>Buffer Management:</strong></p>
+<ul>
+<li>Weeks 1-5: Burn 0 weeks of buffer (planning phase)</li>
+<li>Weeks 6-10: Burn 1-2 weeks of buffer (first extraction complexity)</li>
+<li>Weeks 11-15: Burn 1-2 weeks of buffer (critical path challenges)</li>
+<li>Weeks 16-20: Reserve 2 weeks of buffer (final validation, unexpected rework)</li>
+</ul>
+
+<p>---</p>
+
+<h2>Go/No-Go Decision Framework</h2>
+
+<h3>Decision Point 1: End of Day 3 (Tomorrow)</h3>
+<p><strong>Trigger:</strong> Complete Phase 1 design (map web_lookup_service, validation_orchestrator_v2)</p>
+
+<p><strong>GO Criteria:</strong></p>
+<ul>
+<li>✅ All 5 responsibility maps complete</li>
+<li>✅ Clear service boundaries identified across ALL files</li>
+<li>✅ Extraction order defined (LOW → CRITICAL complexity)</li>
+<li>✅ No circular dependencies discovered</li>
+<li>✅ Test strategy viable</li>
+</ul>
+
+<p><strong>NO-GO Criteria:</strong></p>
+<ul>
+<li>❌ Cannot identify clear service boundaries in any file</li>
+<li>❌ Circular dependencies discovered that cannot be resolved</li>
+<li>❌ Test coverage so poor that safety net is impossible</li>
+<li>❌ Complexity exceeds 20+ weeks (diminishing returns)</li>
+</ul>
+
+<p><strong>Decision:</strong></p>
+<ul>
+<li>**GO:** Proceed to Phase 2 (extraction) with selected scope (Full/MVR/Hybrid)</li>
+<li>**NO-GO:** Abort EPIC-026, replan with alternative approach (feature freeze, staged migration, etc.)</li>
+</ul>
+
+<p>---</p>
+
+<h3>Decision Point 2: End of Week 4 (definitie_repository extraction)</h3>
+<p><strong>Trigger:</strong> First file extraction complete</p>
+
+<p><strong>GO Criteria:</strong></p>
+<ul>
+<li>✅ definitie_repository split into 6 services (<500 LOC each)</li>
+<li>✅ All 51 tests passing</li>
+<li>✅ Zero regressions observed</li>
+<li>✅ Performance baseline maintained</li>
+<li>✅ 20+ importers migrated successfully</li>
+<li>✅ Timeline on track (4 weeks or less)</li>
+</ul>
+
+<p><strong>PIVOT Criteria:</strong></p>
+<ul>
+<li>⚠️ Timeline exceeded by >20% (5+ weeks actual)</li>
+<li>⚠️ Major unexpected complexity discovered</li>
+<li>⚠️ Test failures difficult to resolve</li>
+</ul>
+
+<p><strong>NO-GO Criteria:</strong></p>
+<ul>
+<li>❌ Cannot achieve zero regressions</li>
+<li>❌ Performance degradation >20%</li>
+<li>❌ Timeline exceeded by >50% (6+ weeks actual)</li>
+</ul>
+
+<p><strong>Decision:</strong></p>
+<ul>
+<li>**GO:** Continue to tabbed_interface extraction (Critical Path)</li>
+<li>**PIVOT:** Deliver MVR (repository only), defer rest to future epic</li>
+<li>**NO-GO:** Rollback, abort EPIC-026, revert to original code</li>
+</ul>
+
+<p>---</p>
+
+<h3>Decision Point 3: End of Week 11 (Critical Path complete)</h3>
+<p><strong>Trigger:</strong> definitie_repository + tabbed_interface extraction complete</p>
+
+<p><strong>GO Criteria:</strong></p>
+<ul>
+<li>✅ definitie_repository extraction successful (from Decision Point 2)</li>
+<li>✅ tabbed_interface reduced to <200 LOC coordinator</li>
+<li>✅ 380 LOC god method extracted to service</li>
+<li>✅ All integration tests passing</li>
+<li>✅ Zero regressions observed</li>
+<li>✅ Timeline on track (11 weeks or less)</li>
+</ul>
+
+<p><strong>PIVOT Criteria:</strong></p>
+<ul>
+<li>⚠️ Timeline exceeded by >20% (13+ weeks actual)</li>
+<li>⚠️ Significant complexity remains in definition_generator_tab</li>
+</ul>
+
+<p><strong>Decision:</strong></p>
+<ul>
+<li>**GO:** Continue to definition_generator_tab extraction (complete Full Scope)</li>
+<li>**PIVOT:** Deliver Hybrid Scope (repository + interface), defer generator_tab to future</li>
+<li>**STOP:** Deliver MVR+ (repository + interface), reassess ROI for remaining work</li>
+</ul>
+
+<p>---</p>
+
+<h2>Stakeholder Communication Template</h2>
+
+<h3>Initial Communication (Today)</h3>
+
+<p><strong>Subject:</strong> EPIC-026 Timeline Reassessment - Critical Update</p>
+
+<p><strong>Message:</strong></p>
+
+<p>Dear [Stakeholder],</p>
+
+<p>After completing Day 1-2 detailed analysis of EPIC-026 (God Object Refactoring), I need to update you on a significant timeline variance.</p>
+
+<p><strong>Original Estimate:</strong> 11-16 days (2-3 weeks)</p>
+<p><strong>Revised Estimate:</strong> 13-20 weeks (3-5 months)</p>
+
+<p><strong>Root Cause:</strong></p>
+<p>The original estimate assumed simple file splitting. Day 1-2 analysis revealed the actual work is architectural refactoring with:</p>
+<ul>
+<li>Hidden orchestrators discovered (880 LOC not identified in original scope)</li>
+<li>Test coverage gaps requiring 2-3 weeks of test creation BEFORE refactoring</li>
+<li>Hardcoded business logic requiring extraction to config</li>
+<li>Complex async/sync boundaries requiring careful redesign</li>
+<li>21+ services to extract (vs 6-8 originally estimated)</li>
+</ul>
+
+<p><strong>Options for Your Decision:</strong></p>
+
+<ol>
+<li>**Full Scope** (15-20 weeks): Complete architectural cleanup, all debt resolved</li>
+</ol>
+<ul>
+<li>  - Pros: Sustainable codebase, +40% velocity long-term</li>
+<li>  - Cons: Long timeline, blocks other work</li>
+</ul>
+
+<ol>
+<li>**Minimal Viable Refactoring** (4-6 weeks): Refactor definitie_repository only</li>
+</ol>
+<ul>
+<li>  - Pros: Quick win, lowest risk, proof of concept</li>
+<li>  - Cons: Partial debt resolution, must revisit later</li>
+</ul>
+
+<ol>
+<li>**Hybrid Approach** (8-10 weeks): Repository + Critical Path (god method)</li>
+</ol>
+<ul>
+<li>  - Pros: Balanced, addresses critical bottleneck</li>
+<li>  - Cons: Still 3 God Objects remain</li>
+</ul>
+
+<p><strong>Recommended Decision Point:</strong></p>
+<ul>
+<li>Tomorrow (Day 3): Complete design phase, make GO/NO-GO decision</li>
+<li>Options remain open until then</li>
+</ul>
+
+<p><strong>What I need from you:</strong></p>
+<ol>
+<li>Review options above</li>
+<li>Identify constraints (timeline, budget, other priorities)</li>
+<li>Attend brief decision meeting (Day 3 end)</li>
+</ol>
+
+<p><strong>Next Steps:</strong></p>
+<ul>
+<li>Today: Complete analysis of remaining 2 files (web_lookup, validation_orchestrator_v2)</li>
+<li>Tomorrow morning: Present final options with detailed cost/benefit</li>
+<li>Tomorrow afternoon: Decision meeting → select scope and commit</li>
+</ul>
+
+<p>Best regards,</p>
+<p>[Your Name]</p>
+
+<p>---</p>
+
+<h3>Progress Updates (Weekly)</h3>
+
+<p><strong>Subject:</strong> EPIC-026 Week [X] Progress Update</p>
+
+<p><strong>Template:</strong></p>
+
+<p><strong>Progress This Week:</strong></p>
+<ul>
+<li>[Completed work]</li>
+<li>[Tests passing]</li>
+<li>[Metrics: LOC reduced, services extracted, tests added]</li>
+</ul>
+
+<p><strong>Status:</strong></p>
+<ul>
+<li>✅ On track / ⚠️ Minor delays / ❌ Blocked</li>
+<li>Timeline: [X] weeks complete, [Y] weeks remaining</li>
+<li>Buffer: [Z] weeks consumed</li>
+</ul>
+
+<p><strong>Blockers:</strong></p>
+<ul>
+<li>[Issue 1 + mitigation]</li>
+<li>[Issue 2 + mitigation]</li>
+</ul>
+
+<p><strong>Next Week Plan:</strong></p>
+<ul>
+<li>[Planned work]</li>
+<li>[Deliverables]</li>
+<li>[Risks to watch]</li>
+</ul>
+
+<p><strong>Decision Needed:</strong></p>
+<ul>
+<li>[Any decisions required from stakeholders]</li>
+</ul>
+
+<p>---</p>
+
+<h3>Decision Point Communication</h3>
+
+<p><strong>Subject:</strong> EPIC-026 Decision Point [X] - GO/NO-GO</p>
+
+<p><strong>Template:</strong></p>
+
+<p><strong>Decision Point:</strong> [Name]</p>
+<p><strong>Trigger:</strong> [What triggered this decision point]</p>
+
+<p><strong>Criteria Assessment:</strong></p>
+<ul>
+<li>✅ GO Criteria: [Met/Not Met]</li>
+<li>⚠️ PIVOT Criteria: [Met/Not Met]</li>
+<li>❌ NO-GO Criteria: [Met/Not Met]</li>
+</ul>
+
+<p><strong>Recommendation:</strong> [GO / PIVOT / NO-GO]</p>
+
+<p><strong>Rationale:</strong></p>
+<ul>
+<li>[Why this recommendation]</li>
+<li>[Evidence from metrics]</li>
+<li>[Risk assessment]</li>
+</ul>
+
+<p><strong>If GO:</strong></p>
+<ul>
+<li>[Next phase work]</li>
+<li>[Timeline to next decision point]</li>
+<li>[Resources required]</li>
+</ul>
+
+<p><strong>If PIVOT:</strong></p>
+<ul>
+<li>[Alternative approach]</li>
+<li>[What we deliver now]</li>
+<li>[What we defer]</li>
+</ul>
+
+<p><strong>If NO-GO:</strong></p>
+<ul>
+<li>[Rollback plan]</li>
+<li>[Lessons learned]</li>
+<li>[Alternative approach]</li>
+</ul>
+
+<p><strong>Decision Needed By:</strong> [Date/Time]</p>
+
+<p>---</p>
+
+<h2>Recommendations</h2>
+
+<h3>Immediate Actions (Today)</h3>
+
+<ol>
+<li>✅ **Complete Day 3 analysis** (web_lookup_service, validation_orchestrator_v2)</li>
+</ol>
+<ul>
+<li>  - Map responsibilities</li>
+<li>  - Assess complexity</li>
+<li>  - Update total effort estimate</li>
+</ul>
+
+<ol>
+<li>✅ **Prepare decision meeting** (end of Day 3)</li>
+</ol>
+<ul>
+<li>  - Present 3 options (Full/MVR/Hybrid)</li>
+<li>  - Cost/benefit analysis</li>
+<li>  - Risk assessment</li>
+<li>  - Timeline commitments</li>
+</ul>
+
+<ol>
+<li>✅ **Communicate with stakeholders** (today)</li>
+</ol>
+<ul>
+<li>  - Send initial timeline reassessment</li>
+<li>  - Set expectations for decision meeting</li>
+<li>  - Request constraint identification</li>
+</ul>
+
+<p>---</p>
+
+<h3>Strategic Recommendation: Hybrid Approach (8-10 weeks)</h3>
+
+<p><strong>Why Hybrid:</strong></p>
+
+<ol>
+<li>**Balanced Timeline** (2-2.5 months vs 3-5 months Full Scope)</li>
+</ol>
+<ul>
+<li>  - Faster than Full Scope</li>
+<li>  - More value than MVR</li>
+<li>  - Reasonable stakeholder patience</li>
+</ul>
+
+<ol>
+<li>**Addresses Critical Bottleneck**</li>
+</ol>
+<ul>
+<li>  - 380 LOC god method in tabbed_interface is CRITICAL PATH</li>
+<li>  - Unblocks future feature development</li>
+<li>  - Eliminates highest-risk code</li>
+</ul>
+
+<ol>
+<li>**Immediate Value + Foundation**</li>
+</ol>
+<ul>
+<li>  - definitie_repository refactored (most used, 20+ importers)</li>
+<li>  - Central orchestrator cleaned up</li>
+<li>  - Proof of concept for remaining work</li>
+</ul>
+
+<ol>
+<li>**Manageable Risk**</li>
+</ol>
+<ul>
+<li>  - 2 files (not 5) = lower coordination complexity</li>
+<li>  - Clear critical path</li>
+<li>  - Test coverage adequate (51 tests repository, 0 tests interface - must write)</li>
+</ul>
+
+<ol>
+<li>**Future Flexibility**</li>
+</ol>
+<ul>
+<li>  - Remaining 3 files can be tackled later</li>
+<li>  - Proven approach from Hybrid delivery</li>
+<li>  - Can prioritize based on pain points</li>
+</ul>
+
+<p><strong>Hybrid Scope Delivery:</strong></p>
+<ul>
+<li>**Week 1:** Complete Phase 1 design (all 5 files)</li>
+<li>**Week 2-3:** Preparation (tests, config extraction)</li>
+<li>**Week 4-5:** Extract definitie_repository (6 services)</li>
+<li>**Week 6-10:** Extract tabbed_interface (7 services, focus on god method)</li>
+<li>**Week 10 checkpoint:** Reassess remaining work (generator_tab, web_lookup, validation_orchestrator_v2)</li>
+</ul>
+
+<p><strong>Decision to continue or STOP:</strong></p>
+<ul>
+<li>If velocity gains observed: Continue to definition_generator_tab (4-5 weeks)</li>
+<li>If fatigue sets in: Deliver Hybrid, defer rest to EPIC-027 (later)</li>
+</ul>
+
+<p>---</p>
+
+<h3>Lessons for Future Estimation</h3>
+
+<ol>
+<li>**Never estimate refactoring without deep analysis**</li>
+</ol>
+<ul>
+<li>  - 2 days of detailed analysis revealed 10-15 week variance</li>
+<li>  - Original estimate was "educated guess" (proved wrong)</li>
+<li>  - **Learning:** Always do Phase 1 design BEFORE committing to timeline</li>
+</ul>
+
+<ol>
+<li>**Hidden complexity is the norm, not exception**</li>
+</ol>
+<ul>
+<li>  - Orchestrators hidden in UI layers</li>
+<li>  - Hardcoded logic not in config</li>
+<li>  - Test coverage gaps not visible</li>
+<li>  - Async/sync mixing not documented</li>
+<li>  - **Learning:** Assume 2-3x complexity multiplier for God Objects</li>
+</ul>
+
+<ol>
+<li>**Test coverage quality > quantity**</li>
+</ol>
+<ul>
+<li>  - 51 tests for 1 file = EXCELLENT</li>
+<li>  - 1 test for 1 file = POOR</li>
+<li>  - 0 tests for 1 file = CRITICAL RISK</li>
+<li>  - **Learning:** Assess test DISTRIBUTION, not total count</li>
+</ul>
+
+<ol>
+<li>**Preparation phase is mandatory**</li>
+</ol>
+<ul>
+<li>  - Cannot refactor without tests</li>
+<li>  - Cannot refactor without config extraction</li>
+<li>  - Cannot refactor without state schema docs</li>
+<li>  - **Learning:** Budget 1 week preparation PER FILE</li>
+</ul>
+
+<ol>
+<li>**Linear scaling does NOT apply to God Objects**</li>
+</ol>
+<ul>
+<li>  - 3 files ≠ 3x work</li>
+<li>  - Orchestrators span files</li>
+<li>  - Session state couples all components</li>
+<li>  - **Learning:** Assess interdependencies FIRST, then estimate</li>
+</ul>
+
+<p>---</p>
+
+<h2>Appendices</h2>
+
+<h3>Appendix A: Detailed Effort Breakdown (Likely Case - 15 weeks)</h3>
+
+<p>| Phase | Duration | Tasks |</p>
+<p>|-------|----------|-------|</p>
+<p>| <strong>Phase 1: Design</strong> | 1 week | Complete Day 3, create service boundaries, migration plan |</p>
+<p>| <strong>Preparation</strong> | 2 weeks | Integration tests (all files), config extraction, state schema docs |</p>
+<p>| <strong>definitie_repository</strong> | 2.5 weeks | Extract 6 services, migrate 20+ importers |</p>
+<p>| <strong>tabbed_interface</strong> | 5.5 weeks | Extract 7 services, focus on 380 LOC god method |</p>
+<p>| <strong>definition_generator_tab</strong> | 4.5 weeks | Extract 8 services, focus on 500 LOC orchestrator |</p>
+<p>| <strong>web_lookup_service</strong> | 1.5 weeks | Extract 3-4 services |</p>
+<p>| <strong>validation_orchestrator_v2</strong> | 1.5 weeks | Extract 2-3 services |</p>
+<p>| <strong>Buffer</strong> | 1 week | Unexpected issues, rework |</p>
+<p>| <strong>TOTAL</strong> | <strong>20 weeks</strong> | <strong>Worst case</strong> |</p>
+
+<p><strong>Hybrid Scope (8-10 weeks):</strong></p>
+<ul>
+<li>Phase 1: 1 week</li>
+<li>Preparation: 2 weeks</li>
+<li>definitie_repository: 2.5 weeks</li>
+<li>tabbed_interface: 5.5 weeks</li>
+<li>**TOTAL: 11 weeks** (includes buffer)</li>
+</ul>
+
+<p>---</p>
+
+<h3>Appendix B: Risk Register</h3>
+
+<p>| Risk ID | Risk | Likelihood | Impact | Mitigation | Contingency |</p>
+<p>|---------|------|------------|--------|------------|-------------|</p>
+<p>| R1 | Test creation reveals missing coverage | HIGH | HIGH | Write tests BEFORE extraction | Add 2 weeks buffer |</p>
+<p>| R2 | Async/sync boundary refactoring complex | MEDIUM | HIGH | Design async interfaces first | Consult expert |</p>
+<p>| R3 | Session state changes cascade | MEDIUM | MEDIUM | Document schema thoroughly | Incremental migration |</p>
+<p>| R4 | Circular dependencies discovered | LOW | CRITICAL | Early detection in design | Abort, replan |</p>
+<p>| R5 | Performance degradation | LOW | HIGH | Benchmark before/after | Rollback extraction |</p>
+<p>| R6 | Timeline overrun >50% | MEDIUM | CRITICAL | Weekly checkpoints, pivot early | Deliver MVR/Hybrid |</p>
+<p>| R7 | Hidden orchestrators in remaining files | MEDIUM | MEDIUM | Complete Day 3 analysis | Reassess estimate |</p>
+<p>| R8 | Developer burnout | MEDIUM | HIGH | Protect focus time, limit sprints | Extend timeline |</p>
+
+<p>---</p>
+
+<h3>Appendix C: Success Metrics</h3>
+
+<p><strong>Quantitative Metrics:</strong></p>
+<ul>
+<li>Max file size: <500 LOC (from 2,525 LOC max)</li>
+<li>Files >500 LOC: 0 (from 5)</li>
+<li>God Object count: 0 (from 3-5)</li>
+<li>Test coverage: >=80% for services (from 0-100% varied)</li>
+<li>Circular dependencies: 0</li>
+<li>Services extracted: 21+ (3 files) or 30+ (all files)</li>
+</ul>
+
+<p><strong>Qualitative Metrics:</strong></p>
+<ul>
+<li>✅ Each service has single clear responsibility</li>
+<li>✅ Dependencies injected, not hardcoded</li>
+<li>✅ Unit tests possible for all services</li>
+<li>✅ Parallel feature development enabled</li>
+<li>✅ Onboarding time reduced 50%</li>
+<li>✅ Business logic data-driven (not hardcoded)</li>
+</ul>
+
+<p><strong>Velocity Metrics (post-refactoring):</strong></p>
+<ul>
+<li>Feature development time: -40% (faster)</li>
+<li>Regression rate: -70% (fewer bugs)</li>
+<li>Onboarding time: -50% (easier to understand)</li>
+<li>Code review time: -30% (smaller PRs)</li>
+</ul>
+
+<p>---</p>
+
+<h2>Conclusion</h2>
+
+<p><strong>The Hard Truth:</strong></p>
+<p>EPIC-026 is 10-15x more complex than originally estimated (11-16 days → 13-20 weeks). This is not due to poor execution but rather fundamentally different work than assumed.</p>
+
+<p><strong>The Good News:</strong></p>
+<ul>
+<li>Clear path forward identified (3 options)</li>
+<li>Day 1-2 analysis validated approach (clear boundaries exist)</li>
+<li>Test coverage adequate for repository (51 tests = safety net)</li>
+<li>Single importers for 2 files = easy facade pattern migration</li>
+<li>Proof of concept possible with MVR (4-6 weeks)</li>
+</ul>
+
+<p><strong>The Decision:</strong></p>
+<p>Tomorrow (Day 3), after completing analysis of remaining 2 files, we must choose:</p>
+<ol>
+<li>**Full Scope** (15-20 weeks): Complete cleanup, long-term ROI</li>
+<li>**MVR** (4-6 weeks): Quick win, partial debt resolution</li>
+<li>**Hybrid** (8-10 weeks): **RECOMMENDED** - balanced approach, critical path</li>
+</ol>
+
+<p><strong>Recommended Path:</strong></p>
+<p><strong>Hybrid Approach (8-10 weeks)</strong> - Refactor definitie_repository + tabbed_interface (god method critical path), defer rest to future based on velocity gains observed.</p>
+
+<p><strong>Next Actions:</strong></p>
+<ol>
+<li>Complete Day 3 analysis (web_lookup, validation_orchestrator_v2)</li>
+<li>Present final options with cost/benefit to stakeholders</li>
+<li>Decision meeting (end of Day 3)</li>
+<li>Commit to selected scope</li>
+<li>Begin Phase 2 (extraction) or ABORT and replan</li>
+</ol>
+
+<p>---</p>
+
+<p><strong>Status:</strong> AWAITING DECISION</p>
+<p><strong>Escalation:</strong> CRITICAL - Executive approval required for timeline variance</p>
+<p><strong>Decision Deadline:</strong> End of Day 3 (2025-10-02)</p>
+
+<p>---</p>
+
+<p><strong>Prepared By:</strong> Technical Project Manager</p>
+<p><strong>Date:</strong> 2025-10-02</p>
+<p><strong>Epic:</strong> EPIC-026</p>
+<p><strong>Phase:</strong> 1 (Design) - 40% complete</p>
+
+  </div>
+</body>
+</html>

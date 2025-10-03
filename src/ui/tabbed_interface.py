@@ -18,7 +18,6 @@ from typing import Any  # Type hints voor betere code documentatie
 
 import streamlit as st  # Streamlit web interface framework
 
-from config.feature_flags import FeatureFlags  # Feature flags voor legacy routes
 from database.definitie_repository import (  # Database toegang factory
     get_definitie_repository,
 )
@@ -61,11 +60,8 @@ from ui.components.monitoring_tab import MonitoringTab  # Monitoring en statisti
 # Geconsolideerde import/export/beheer tab (vervangt Export en Management tabs)
 from ui.components.tabs.import_export_beheer import ImportExportBeheerTab
 
-# TIJDELIJK UITGESCHAKELD - OrchestrationTab heeft compatibility issues
-# from ui.components.orchestration_tab import (  # Orchestratie en automatisering
-#     OrchestrationTab,
-# )
 # Quality Control tab verwijderd - functionaliteit gedocumenteerd in EPIC-023
+# Orchestration tab verwijderd - functionaliteit gedocumenteerd in EPIC-028
 from ui.components.web_lookup_tab import WebLookupTab  # Web lookup interface
 
 # Importeer core services en utilities
@@ -189,15 +185,6 @@ class TabbedInterface:
         # External Sources tab verwijderd - 95% overlap met Export tab
         self.monitoring_tab = MonitoringTab(self.repository)
         self.web_lookup_tab = WebLookupTab(self.repository)
-        # Legacy OrchestrationTab - alleen laden als feature flag aan staat
-        self.orchestration_tab = None
-        if FeatureFlags.ENABLE_LEGACY_TAB.is_enabled():
-            try:
-                from ui.components.orchestration_tab import OrchestrationTab
-
-                self.orchestration_tab = OrchestrationTab(self.repository)
-            except ImportError:
-                st.warning("OrchestrationTab module not available")
 
         # Tab configuration
         self.tab_config = {
@@ -243,12 +230,7 @@ class TabbedInterface:
                 "icon": "🔍",
                 "description": "Zoek definities en bronnen, valideer duplicaten",
             },
-            # TIJDELIJK UITGESCHAKELD - OrchestrationTab heeft compatibility issues
-            # "orchestration": {
-            #     "title": "🤖 Orchestratie",
-            #     "icon": "🤖",
-            #     "description": "Intelligente definitie orchestratie en iteratieve verbetering",
-            # },
+            # Orchestration tab verwijderd - zie EPIC-028
             # Management tab geconsolideerd in import_export_beheer
         }
 
@@ -1591,18 +1573,8 @@ class TabbedInterface:
 
     def _render_main_tabs(self):
         """Render de hoofdtabbladen met radio-gestuurde navigatie."""
-        # Stel beschikbare keys samen (inclusief optionele legacy orchestratie)
+        # Stel beschikbare keys samen
         tab_keys = list(self.tab_config.keys())
-        if FeatureFlags.ENABLE_LEGACY_TAB.is_enabled() and self.orchestration_tab:
-            export_index = (
-                tab_keys.index("export") if "export" in tab_keys else len(tab_keys)
-            )
-            tab_keys.insert(export_index + 1, "orchestration")
-            self.tab_config["orchestration"] = {
-                "title": "🎭 Orchestration (Legacy)",
-                "icon": "🎭",
-                "description": "Legacy orchestratie - deprecated",
-            }
 
         # Actieve tab uit session of default
         default_key = SessionStateManager.get_value("active_tab", "generator")
@@ -1665,12 +1637,7 @@ class TabbedInterface:
                 self.monitoring_tab.render()
             elif tab_key == "web_lookup":
                 self.web_lookup_tab.render()
-            elif tab_key == "orchestration":
-                # Legacy orchestration tab - only if enabled and loaded
-                if self.orchestration_tab:
-                    self.orchestration_tab.render()
-                else:
-                    st.info("Legacy orchestration tab is not available.")
+            # Orchestration tab verwijderd - zie EPIC-028
             # Management tab geconsolideerd in import_export_beheer
         except Exception as e:
             # Log de echte error voor debugging

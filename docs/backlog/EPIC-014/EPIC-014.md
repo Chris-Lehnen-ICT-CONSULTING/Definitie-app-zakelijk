@@ -1,7 +1,7 @@
-# EPIC-014: Business Logic Refactoring Implementation
+# EPIC-014: Business Logic Implementatie - Implementeer 15 geëxtraheerde algoritmes (FeedbackBuilder, Iteratie, Acceptatie) in V2 (58 SP)
 
 ## Epic Overview
-**ID**: EPIC-014  
+**ID**: EPIC-014
 **Titel**: Implementeer geëxtraheerde business logic in moderne architectuur  
 **Status**: TODO  
 **Priority**: HIGH  
@@ -18,7 +18,7 @@ Op basis van de geëxtraheerde business kennis uit US-061, implementeren we alle
 - **Testbare business rules** met duidelijke ownership
 
 ## Context
-Dit EPIC is gebaseerd op de business kennis extractie uit [US-061 – Extract en documenteer business kennis](../EPIC-012/US-061/US-061.md) en het bijbehorende [Business Knowledge Extraction document](../EPIC-012/US-061/BUSINESS_KNOWLEDGE_EXTRACTION.md). Sommige geëxtraheerde patterns zijn mogelijk achterhaald door EPIC-010 improvements.
+Dit EPIC is gebaseerd op de business kennis extractie uit [US-061 – Extract en documenteer business kennis](../EPIC-026/US-061/US-061.md) en het bijbehorende [Business Knowledge Extraction document](../EPIC-026/US-061/BUSINESS_KNOWLEDGE_EXTRACTION.md). Sommige geëxtraheerde patterns zijn mogelijk achterhaald door EPIC-010 improvements.
 
 ## Scope
 ### In Scope

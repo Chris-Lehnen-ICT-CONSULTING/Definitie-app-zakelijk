@@ -1,0 +1,139 @@
+id: "ARAI-02SUB1"
+category: "ARAI"
+priority: "medium"
+enabled: true
+
+metadata:
+  naam: "Lexicale containerbegrippen vermijden"
+  uitleg: |
+    Vermijd algemene termen als 'aspect', 'ding', 'iets' of 'element' in definities.
+    Dergelijke termen zijn te vaag en voegen onvoldoende betekenis toe.
+  version: "1.0"
+  last_updated: "2025-10-02"
+  author: "Extracted from legacy system"
+
+  rule_type: "semantic"
+  parent_rule: "ARAI-02"
+  applies_to:
+    categories: ["ENT", "ACT", "REL", "ATT", "AUT", "STA", "OTH"]
+    contexts: []
+
+implementation:
+  type: "regex"
+  patterns:
+    forbidden:
+      - pattern: '\baspect\b'
+        description: "Lexical container term 'aspect'"
+        case_sensitive: false
+
+      - pattern: '\bding\b'
+        description: "Lexical container term 'ding'"
+        case_sensitive: false
+
+      - pattern: '\biets\b'
+        description: "Lexical container term 'iets'"
+        case_sensitive: false
+
+      - pattern: '\belement\b'
+        description: "Lexical container term 'element'"
+        case_sensitive: false
+
+      - pattern: '\bfactor\b'
+        description: "Lexical container term 'factor'"
+        case_sensitive: false
+
+  logic_description: |
+    1. Search for lexical container terms
+    2. Collect all matches
+    3. Compare with good/bad examples
+    4. Return validation result
+
+  legacy_reference: "src/toetsregels/regels/ARAI-02SUB1.py"
+
+validation:
+  input_fields:
+    - name: "definitie"
+      type: "string"
+      required: true
+
+    - name: "begrip"
+      type: "string"
+      required: true
+
+    - name: "context"
+      type: "dict"
+      required: false
+
+  output:
+    success:
+      type: "boolean"
+      description: "Whether validation passed"
+
+    message:
+      type: "string"
+      description: "Human-readable validation message"
+
+    score:
+      type: "float"
+      min: 0.0
+      max: 1.0
+      description: "Validation score"
+
+examples:
+  good:
+    - input:
+        definitie: "maatregel die gericht is op risicobeheersing"
+        begrip: "risicobeheersmaatregel"
+      expected:
+        success: true
+        score: 1.0
+
+    - input:
+        definitie: "gegeven dat betrekking heeft op de identiteit van een persoon"
+        begrip: "identiteitsgegeven"
+      expected:
+        success: true
+        score: 1.0
+
+  bad:
+    - input:
+        definitie: "iets dat helpt bij het beheersen van risico's"
+        begrip: "risicohulpmiddel"
+      expected:
+        success: false
+        score: 0.0
+
+    - input:
+        definitie: "element dat informatie bevat"
+        begrip: "informatie-element"
+      expected:
+        success: false
+        score: 0.0
+
+generation_hints:
+  - "Gebruik specifieke, concrete termen in plaats van vage woorden"
+  - "Vervang 'iets' door een specifiek zelfstandig naamwoord"
+  - "Vervang 'aspect/element' door concrete kenmerken"
+  - "Geef directe, meetbare eigenschappen"
+
+test_cases:
+  - name: "valid_specific_term"
+    input:
+      definitie: "maatregel die de toegang tot gegevens beperkt"
+      begrip: "toegangsbeperking"
+    expected:
+      success: true
+      score: 1.0
+
+  - name: "invalid_vague_container"
+    input:
+      definitie: "aspect van de beveiliging dat belangrijk is"
+      begrip: "beveiligingsaspect"
+    expected:
+      success: false
+      score: 0.0
+
+performance:
+  max_execution_time_ms: 50
+  complexity: "O(n)"
+  memory_usage: "O(1)"

@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>US-074: Als QA‑team wil ik een acceptance test skeleton met kernscenario’s, zodat feature‑acceptatie herhaalbaar en traceerba...</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>id: US-074</p>
+<p>epic: EPIC-026</p>
+<p>titel: "US-074: Als QA‑team wil ik een acceptance test skeleton met kernscenario’s, zodat feature‑acceptatie herhaalbaar en traceerba..."</p>
+<p>status: Nog te bepalen</p>
+<p>prioriteit: HOOG</p>
+<p>story_points: 5</p>
+<p>sprint: sprint-38</p>
+<p>owner: qa-team</p>
+<p>applies_to: definitie-app@current</p>
+<p>canonical: false</p>
+<p>last_verified: 2025-09-12</p>
+<p>links:</p>
+<ul>
+<li> - docs/backlog/DEEP_DIVE_IMPROVEMENT_PLAN.md#testing--cicd</li>
+<p>---</p>
+</ul>
+
+<h1>US-074: UAT/acceptance tests skeleton + smoke flows (tests/acceptance)</h1>
+
+<h2>Gebruikersverhaal</h2>
+<p>Als QA‑team wil ik een acceptance test skeleton met kernscenario’s, zodat feature‑acceptatie herhaalbaar en traceerbaar is tegen REQs.</p>
+
+<h2>Acceptatiecriteria (SMART)</h2>
+<ul>
+<li>Specifiek: directory `tests/acceptance/` met minimaal 3 smoke scenarios (basis generatie, context flow, export). Mapping naar REQs in docstring.</li>
+<li>Meetbaar: draait in CI met tag `-m acceptance`; slaagt deterministisch.</li>
+<li>Tijdgebonden: sprint‑38.</li>
+</ul>
+
+<h2>Testplan</h2>
+<ul>
+<li>smoke_basic_generation.py, smoke_context_flow.py, smoke_export.py (geen echte API‑calls; mocks).</li>
+</ul>
+
+<h2>Definition of Done</h2>
+<ul>
+<li>UAT dashboard toevoeging in `docs/backlog/dashboard/` (optioneel) en README verwijzing.</li>
+</ul>
+
+
+  </div>
+</body>
+</html>

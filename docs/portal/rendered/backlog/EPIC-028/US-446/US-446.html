@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>US-446: Integration Testing Post-Removal</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>US-446: Integration Testing Post-Removal</h1>
+
+<p><strong>Epic:</strong> EPIC-028 - Feature Cleanup & UI Simplification</p>
+<p><strong>Priority:</strong> HIGH</p>
+<p><strong>Effort:</strong> 2 story points</p>
+<p><strong>Status:</strong> 🔵 TODO</p>
+
+<p>---</p>
+
+<h2>📖 User Story</h2>
+
+<p><strong>Als</strong> developer</p>
+<p><strong>Wil ik</strong> comprehensive tests draaien na feature removal</p>
+<p><strong>Zodat</strong> ik zeker weet dat alle functionaliteit nog steeds werkt</p>
+
+<p>---</p>
+
+<h2>🎯 Acceptance Criteria</h2>
+
+<ul>
+<li>[ ] Alle unit tests groen</li>
+<li>[ ] Alle integration tests groen</li>
+<li>[ ] Manual smoke tests uitgevoerd</li>
+<li>[ ] UI volledig functioneel</li>
+<li>[ ] Geen broken imports</li>
+<li>[ ] Geen console errors</li>
+<li>[ ] Feature set verified</li>
+</ul>
+
+<p>---</p>
+
+<h2>🔧 Testing Tasks</h2>
+
+<h3>1. Unit Tests</h3>
+<pre><code># Run all unit tests
+pytest tests/unit/ -v --tb=short
+
+# Check coverage
+pytest tests/unit/ --cov=src --cov-report=term-missing</code></pre>
+
+<p><strong>Expected:</strong></p>
+<ul>
+<li>All tests pass</li>
+<li>No import errors</li>
+<li>Coverage stable or improved</li>
+</ul>
+
+<h3>2. Integration Tests</h3>
+<pre><code># Run all integration tests
+pytest tests/integration/ -v --tb=short
+
+# Focus on core flows
+pytest tests/integration/test_definition_validation_flow.py -v
+pytest tests/integration/test_context_flow*.py -v</code></pre>
+
+<p><strong>Expected:</strong></p>
+<ul>
+<li>All tests pass</li>
+<li>Definition generation works</li>
+<li>Validation works</li>
+<li>Context selection works</li>
+</ul>
+
+<h3>3. Smoke Tests</h3>
+<pre><code># Critical path tests
+pytest tests/smoke/ -v
+
+# Or create new smoke test suite
+pytest tests/smoke/test_critical_paths.py -v</code></pre>
+
+<h3>4. Manual UI Testing</h3>
+
+<p><strong>Test Checklist:</strong></p>
+
+<h4>Tab Navigation</h4>
+<ul>
+<li>[ ] Generator tab loads</li>
+<li>[ ] Edit tab loads</li>
+<li>[ ] Expert Review tab loads</li>
+<li>[ ] Import/Export/Beheer tab loads</li>
+<li>[ ] Only 4 tabs visible (no Orchestration, Monitoring, Web Lookup)</li>
+</ul>
+
+<h4>Generator Tab</h4>
+<ul>
+<li>[ ] Can enter begrip</li>
+<li>[ ] Can select organisatorische context</li>
+<li>[ ] Can select juridische context</li>
+<li>[ ] Can select wettelijke basis</li>
+<li>[ ] Can upload documents</li>
+<li>[ ] Document upload works</li>
+<li>[ ] Can generate definitie</li>
+<li>[ ] Generation includes web sources</li>
+<li>[ ] Validation results appear</li>
+<li>[ ] Voorbeelden appear</li>
+<li>[ ] Can change ontological category</li>
+<li>[ ] Regeneration works (via normal flow)</li>
+</ul>
+
+<h4>Edit Tab</h4>
+<ul>
+<li>[ ] Can load definitie</li>
+<li>[ ] Can edit definitie</li>
+<li>[ ] Auto-save works</li>
+<li>[ ] Version history works</li>
+<li>[ ] Validation on edit works</li>
+</ul>
+
+<h4>Expert Review Tab</h4>
+<ul>
+<li>[ ] Can view definities</li>
+<li>[ ] Can approve/reject</li>
+<li>[ ] Workflow transitions work</li>
+</ul>
+
+<h4>Import/Export Tab</h4>
+<ul>
+<li>[ ] Can export to CSV</li>
+<li>[ ] Can export to JSON</li>
+<li>[ ] Can export to XML</li>
+<li>[ ] Can import from CSV</li>
+<li>[ ] Database stats visible</li>
+</ul>
+
+<h3>5. Console Error Check</h3>
+
+<p><strong>Run app and check:</strong></p>
+<pre><code>streamlit run src/main.py</code></pre>
+
+<p><strong>Monitor for:</strong></p>
+<ul>
+<li>[ ] No import errors in startup</li>
+<li>[ ] No errors when loading tabs</li>
+<li>[ ] No errors when generating definitie</li>
+<li>[ ] No errors in browser console (F12)</li>
+</ul>
+
+<h3>6. Code Quality Checks</h3>
+
+<p><strong>Linting:</strong></p>
+<pre><code>ruff check src/ config/</code></pre>
+
+<p><strong>Type checking (if enabled):</strong></p>
+<pre><code>mypy src/ --ignore-missing-imports</code></pre>
+
+<p><strong>Unused imports:</strong></p>
+<pre><code># Check for orphaned imports
+ruff check --select F401 src/</code></pre>
+
+<h3>7. Database Integrity</h3>
+
+<p><strong>Verify:</strong></p>
+<pre><code>sqlite3 data/definities.db "PRAGMA integrity_check;"
+sqlite3 data/definities.db "SELECT COUNT(*) FROM definities;"</code></pre>
+
+<p><strong>Expected:</strong></p>
+<ul>
+<li>Integrity check: ok</li>
+<li>Definition count: unchanged</li>
+</ul>
+
+<h3>8. Performance Baseline</h3>
+
+<p><strong>Measure:</strong></p>
+<ul>
+<li>App startup time</li>
+<li>Definition generation time</li>
+<li>Tab switch time</li>
+</ul>
+
+<p><strong>Compare to baseline (should be faster or same)</strong></p>
+
+<p>---</p>
+
+<h2>📋 Post-Test Verification Checklist</h2>
+
+<h3>Code Health</h3>
+<ul>
+<li>[ ] No broken imports detected</li>
+<li>[ ] No unused imports detected</li>
+<li>[ ] Linting passes</li>
+<li>[ ] All tests green</li>
+</ul>
+
+<h3>Functionality</h3>
+<ul>
+<li>[ ] All 4 core tabs work</li>
+<li>[ ] Definition generation works end-to-end</li>
+<li>[ ] Validation works</li>
+<li>[ ] Document upload works</li>
+<li>[ ] Hybrid context works</li>
+<li>[ ] Export works</li>
+<li>[ ] Import works</li>
+</ul>
+
+<h3>User Experience</h3>
+<ul>
+<li>[ ] UI is cleaner (only 4 tabs)</li>
+<li>[ ] No confusing removed features visible</li>
+<li>[ ] All workflows intuitive</li>
+<li>[ ] No regression in functionality</li>
+</ul>
+
+<h3>Documentation</h3>
+<ul>
+<li>[ ] EPIC-028 marked as DONE</li>
+<li>[ ] All US-441 through US-446 marked DONE</li>
+<li>[ ] Changelog updated</li>
+<li>[ ] README updated (if needed)</li>
+</ul>
+
+<p>---</p>
+
+<h2>📊 Success Metrics</h2>
+
+<p><strong>Before Cleanup:</strong></p>
+<ul>
+<li>8 tabs</li>
+<li>~2,030 LOC bloat</li>
+<li>Complex workflows</li>
+</ul>
+
+<p><strong>After Cleanup:</strong></p>
+<ul>
+<li>4 tabs ✅</li>
+<li>~2,030 LOC removed ✅</li>
+<li>Simpler workflows ✅</li>
+</ul>
+
+<p><strong>Quality Gates:</strong></p>
+<ul>
+<li>All tests pass ✅</li>
+<li>No functional regression ✅</li>
+<li>Performance stable/improved ✅</li>
+</ul>
+
+<p>---</p>
+
+<h2>🔗 Dependencies</h2>
+
+<ul>
+<li>**After:** US-441, US-442, US-443, US-444, US-445 (all removals complete)</li>
+</ul>
+
+<p>---</p>
+
+<h2>📝 Test Results Documentation</h2>
+
+<p>Create file: <code>docs/testing/EPIC-028-test-results.md</code></p>
+
+<pre><code># EPIC-028 Test Results
+
+**Date:** [DATE]
+**Tester:** [NAME]
+
+## Unit Tests
+- Total: X tests
+- Passed: X
+- Failed: 0
+- Coverage: X%
+
+## Integration Tests
+- Total: X tests
+- Passed: X
+- Failed: 0
+
+## Smoke Tests
+- Generator flow: ✅
+- Edit flow: ✅
+- Review flow: ✅
+- Import/Export: ✅
+
+## Manual UI Tests
+[Complete checklist results]
+
+## Performance
+- Startup: X seconds (baseline: Y seconds)
+- Generation: X seconds (baseline: Y seconds)
+- Tab switch: X ms (baseline: Y ms)
+
+## Issues Found
+[None or list issues]
+
+## Conclusion
+✅ All tests passed. Ready for production.</code></pre>
+
+<p>---</p>
+
+<h2>📝 Notes</h2>
+
+<ul>
+<li>This is the final story in EPIC-028</li>
+<li>Comprehensive testing ensures no regression</li>
+<li>Document all test results for audit trail</li>
+<li>If tests fail, fix before closing epic</li>
+</ul>
+
+  </div>
+</body>
+</html>

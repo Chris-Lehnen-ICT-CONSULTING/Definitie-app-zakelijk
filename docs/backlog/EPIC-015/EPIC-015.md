@@ -1,6 +1,6 @@
 ---
 id: EPIC-015
-titel: Multi-User & Externalisatie
+titel: "EPIC-015: Multi-User & Externalisatie - SSO auth, RBAC, REST API, observability en publiceerbare portal"
 status: active
 prioriteit: GEMIDDELD
 owner: architecture

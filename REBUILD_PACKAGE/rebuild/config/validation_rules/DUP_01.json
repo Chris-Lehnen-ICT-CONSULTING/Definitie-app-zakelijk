@@ -1,0 +1,24 @@
+{
+  "id": "DUP_01",
+  "naam": "Geen duplicaat definities in database",
+  "uitleg": "Controleer of er geen identieke of zeer vergelijkbare definitie al bestaat in de database voor hetzelfde begrip.",
+  "toelichting": "Voorkom dat dezelfde definitie meerdere keren wordt opgeslagen. Dit verbetert de datakwaliteit en voorkomt inconsistenties bij latere wijzigingen.",
+  "toetsvraag": "Bestaat deze definitie nog niet in de database?",
+  "herkenbaar_patronen": [],
+  "goede_voorbeelden": [
+    "Een nieuwe unieke definitie voor het begrip 'sanctie' die nog niet bestaat",
+    "Een definitie met substantiële verschillen ten opzichte van bestaande versies"
+  ],
+  "foute_voorbeelden": [
+    "Exact dezelfde definitie die al bestaat voor dit begrip",
+    "Een minimaal gewijzigde versie (alleen interpunctie) van een bestaande definitie"
+  ],
+  "prioriteit": "hoog",
+  "aanbeveling": "verplicht",
+  "geldigheid": "alle",
+  "status": "definitief",
+  "type": "database",
+  "thema": "datakwaliteit",
+  "brondocument": "Interne richtlijn",
+  "relatie": []
+}

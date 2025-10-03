@@ -1,0 +1,143 @@
+
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>REQ ↔ EPIC Graph</title>
+  <link rel="stylesheet" href="assets/style.css" />
+  <style>
+    svg { width: 100%; height: 80vh; border: 1px solid #e5e7eb; background: #fff; }
+    .node text { font-size: 12px; }
+    .epic circle { fill: #1d4ed8; }
+    .req circle { fill: #16a34a; }
+    .edge { stroke: #9ca3af; stroke-width: 1; opacity: 0.5; }
+    .highlight { stroke: #111827 !important; opacity: 0.9 !important; }
+    .hidden { display: none; }
+  </style>
+  </head>
+  <body>
+  <div class="container">
+    <div class="breadcrumbs"><a href="index.html">Requirements</a> / <span>Graph</span></div>
+    <h1>REQ ↔ EPIC Graph</h1>
+    <p class="muted">Bipartite weergave: EPICs links, REQs rechts. Zoek en hover om verbindingen te highlighten.</p>
+    <div style="margin: 12px 0 16px">
+      <input id="search" type="search" placeholder="Zoek op ID of titel (REQ of EPIC)" />
+      <label style="margin-left: 12px; font-size: 14px"><input type="checkbox" id="hideOrphans" /> Verberg orphan REQs/EPICs</label>
+    </div>
+    <svg id="graph"></svg>
+  </div>
+  <script>
+  const DATA = {"epics": [{"id": "EPIC-001", "title": "EPIC-001-basis-definitie-generatie"}, {"id": "EPIC-002", "title": "EPIC-002-kwaliteitstoetsing"}, {"id": "EPIC-003", "title": "EPIC-003-content-verrijking-web-lookup"}, {"id": "EPIC-004", "title": "EPIC-004-user-interface"}, {"id": "EPIC-005", "title": "EPIC-005-export-import"}, {"id": "EPIC-006", "title": "EPIC-006-security-auth"}, {"id": "EPIC-007", "title": "EPIC-007-performance-scaling"}, {"id": "EPIC-009", "title": "EPIC-009-advanced-features"}, {"id": "EPIC-010", "title": "EPIC-010-context-flow-refactoring"}, {"id": "EPIC-011", "title": "EPIC-011-documentatie-completering"}, {"id": "<!-- BROKEN LINK: EPIC-008 -->", "title": "<!-- BROKEN LINK: EPIC-008 -->"}], "requirements": [{"id": "REQ-001", "title": "authenticatie & autorisatie", "epics": ["EPIC-006"], "path": "docs/backlog/requirements/REQ-001.md"}, {"id": "REQ-002", "title": "API Key beveiliging", "epics": ["EPIC-006"], "path": "docs/backlog/requirements/REQ-002.md"}, {"id": "REQ-003", "title": "Input validatie beveiliging", "epics": ["EPIC-002", "EPIC-006"], "path": "docs/backlog/requirements/REQ-003.md"}, {"id": "REQ-004", "title": "XSS Prevention", "epics": ["EPIC-004", "EPIC-006"], "path": "docs/backlog/requirements/REQ-004.md"}, {"id": "REQ-005", "title": "SQL Injection Prevention", "epics": ["EPIC-001", "EPIC-006"], "path": "docs/backlog/requirements/REQ-005.md"}, {"id": "REQ-006", "title": "OWASP Top 10 compliance", "epics": ["<!-- BROKEN LINK: EPIC-008 -->"], "path": "docs/backlog/requirements/REQ-006.md"}, {"id": "REQ-007", "title": "Data Encryption at Rest", "epics": ["<!-- BROKEN LINK: EPIC-008 -->"], "path": "docs/backlog/requirements/REQ-007.md"}, {"id": "REQ-008", "title": "Response Time < 5s", "epics": ["EPIC-007"], "path": "docs/backlog/requirements/REQ-008.md"}, {"id": "REQ-009", "title": "UI Responsiveness < 200ms", "epics": ["EPIC-004", "EPIC-007"], "path": "docs/backlog/requirements/REQ-009.md"}, {"id": "REQ-010", "title": "validatie Time < 1s", "epics": ["EPIC-002", "EPIC-007"], "path": "docs/backlog/requirements/REQ-010.md"}, {"id": "REQ-011", "title": "Token Usage Optimization", "epics": ["EPIC-001", "EPIC-007"], "path": "docs/backlog/requirements/REQ-011.md"}, {"id": "REQ-012", "title": "Cache Implementatie", "epics": ["EPIC-007"], "path": "docs/backlog/requirements/REQ-012.md"}, {"id": "REQ-013", "title": "ASTRA Naleving", "epics": ["EPIC-002"], "path": "docs/backlog/requirements/REQ-013.md"}, {"id": "REQ-014", "title": "NORA StEnaarden", "epics": ["EPIC-001", "EPIC-003"], "path": "docs/backlog/requirements/REQ-014.md"}, {"id": "REQ-015", "title": "justitiesector Integratie", "epics": ["EPIC-006", "EPIC-009"], "path": "docs/backlog/requirements/REQ-015.md"}, {"id": "REQ-016", "title": "NederlEnse Juridische Terminologie", "epics": ["EPIC-002"], "path": "docs/backlog/requirements/REQ-016.md"}, {"id": "REQ-017", "title": "45 Validatieregels", "epics": ["EPIC-002", "EPIC-003"], "path": "docs/backlog/requirements/REQ-017.md"}, {"id": "REQ-018", "title": "Core Definition Generation", "epics": ["EPIC-001"], "path": "docs/backlog/requirements/REQ-018.md"}, {"id": "REQ-019", "title": "Context FLAAG Integration (PER-007)", "epics": ["EPIC-007"], "path": "docs/backlog/requirements/REQ-019.md"}, {"id": "REQ-020", "title": "validatie Orchestrator V2", "epics": ["EPIC-003"], "path": "docs/backlog/requirements/REQ-020.md"}, {"id": "REQ-021", "title": "Web Lookup Integration", "epics": ["EPIC-004"], "path": "docs/backlog/requirements/REQ-021.md"}, {"id": "REQ-022", "title": "Export Functionality", "epics": ["EPIC-005"], "path": "docs/backlog/requirements/REQ-022.md"}, {"id": "REQ-023", "title": "ARAI validatieregels Implementatie", "epics": ["EPIC-002"], "path": "docs/backlog/requirements/REQ-023.md"}, {"id": "REQ-024", "title": "CON validatieregels Implementatie", "epics": ["EPIC-002"], "path": "docs/backlog/requirements/REQ-024.md"}, {"id": "REQ-025", "title": "ESS validatieregels Implementatie", "epics": ["EPIC-002"], "path": "docs/backlog/requirements/REQ-025.md"}, {"id": "REQ-026", "title": "INT validatieregels Implementatie", "epics": ["EPIC-002"], "path": "docs/backlog/requirements/REQ-026.md"}, {"id": "REQ-027", "title": "SAM validatieregels Implementatie", "epics": ["EPIC-002"], "path": "docs/backlog/requirements/REQ-027.md"}, {"id": "REQ-028", "title": "STR validatieregels Implementatie", "epics": ["EPIC-002"], "path": "docs/backlog/requirements/REQ-028.md"}, {"id": "REQ-029", "title": "VER validatieregels Implementatie", "epics": ["EPIC-002"], "path": "docs/backlog/requirements/REQ-029.md"}, {"id": "REQ-030", "title": "Rule Prioriteit System", "epics": ["EPIC-002"], "path": "docs/backlog/requirements/REQ-030.md"}, {"id": "REQ-031", "title": "validatie Result Caching", "epics": ["EPIC-007"], "path": "docs/backlog/requirements/REQ-031.md"}, {"id": "REQ-032", "title": "validatie Orchestration FLAAG", "epics": ["EPIC-002"], "path": "docs/backlog/requirements/REQ-032.md"}, {"id": "REQ-033", "title": "Rule Conflict Resolution", "epics": ["EPIC-002"], "path": "docs/backlog/requirements/REQ-033.md"}, {"id": "REQ-034", "title": "Custom Rule Configuration", "epics": ["EPIC-002", "EPIC-009"], "path": "docs/backlog/requirements/REQ-034.md"}, {"id": "REQ-035", "title": "validatie Prestaties Monitoring", "epics": ["EPIC-007"], "path": "docs/backlog/requirements/REQ-035.md"}, {"id": "REQ-036", "title": "Context-Aware validatie", "epics": ["EPIC-007"], "path": "docs/backlog/requirements/REQ-036.md"}, {"id": "REQ-037", "title": "Batch validatie Processing", "epics": ["EPIC-009"], "path": "docs/backlog/requirements/REQ-037.md"}, {"id": "REQ-038", "title": "OpenAI GPT-4 Integration", "epics": ["EPIC-001"], "path": "docs/backlog/requirements/REQ-038.md"}, {"id": "REQ-039", "title": "Wikipedia API Integration", "epics": ["EPIC-003"], "path": "docs/backlog/requirements/REQ-039.md"}, {"id": "REQ-040", "title": "SRU (Search/Retrieve via URL) Integration", "epics": ["EPIC-003"], "path": "docs/backlog/requirements/REQ-040.md"}, {"id": "REQ-041", "title": "Database Connection Management", "epics": ["EPIC-007"], "path": "docs/backlog/requirements/REQ-041.md"}, {"id": "REQ-042", "title": "Export to Multiple Formats", "epics": ["EPIC-005"], "path": "docs/backlog/requirements/REQ-042.md"}, {"id": "REQ-043", "title": "Import from External Sources", "epics": ["EPIC-005"], "path": "docs/backlog/requirements/REQ-043.md"}, {"id": "REQ-044", "title": "Justice SSO Integration", "epics": ["EPIC-006"], "path": "docs/backlog/requirements/REQ-044.md"}, {"id": "REQ-045", "title": "Audit Logging System", "epics": ["EPIC-006"], "path": "docs/backlog/requirements/REQ-045.md"}, {"id": "REQ-046", "title": "Monitoring en Metrics Collection", "epics": ["EPIC-007"], "path": "docs/backlog/requirements/REQ-046.md"}, {"id": "REQ-047", "title": "Backup en Restore Functionality", "epics": ["EPIC-006"], "path": "docs/backlog/requirements/REQ-047.md"}, {"id": "REQ-048", "title": "Responsive Web Design", "epics": ["EPIC-004"], "path": "docs/backlog/requirements/REQ-048.md"}, {"id": "REQ-049", "title": "Dark Mode Support", "epics": ["EPIC-004"], "path": "docs/backlog/requirements/REQ-049.md"}, {"id": "REQ-050", "title": "Accessibility WCAG 2.1 AA compliance", "epics": ["EPIC-004"], "path": "docs/backlog/requirements/REQ-050.md"}, {"id": "REQ-051", "title": "Multi-language Support", "epics": ["EPIC-004"], "path": "docs/backlog/requirements/REQ-051.md"}, {"id": "REQ-052", "title": "Real-time validatie Feedback", "epics": ["EPIC-004"], "path": "docs/backlog/requirements/REQ-052.md"}, {"id": "REQ-053", "title": "Progress Indicators", "epics": ["EPIC-004"], "path": "docs/backlog/requirements/REQ-053.md"}, {"id": "REQ-054", "title": "Clear Error Messaging", "epics": ["EPIC-004"], "path": "docs/backlog/requirements/REQ-054.md"}, {"id": "REQ-055", "title": "Inline Help Documentation", "epics": ["EPIC-004"], "path": "docs/backlog/requirements/REQ-055.md"}, {"id": "REQ-056", "title": "Keyboard Navigation Support", "epics": ["EPIC-004"], "path": "docs/backlog/requirements/REQ-056.md"}, {"id": "REQ-057", "title": "Mobile Responsive Interface", "epics": ["EPIC-004"], "path": "docs/backlog/requirements/REQ-057.md"}, {"id": "REQ-058", "title": "Logging Configuration System", "epics": ["EPIC-007"], "path": "docs/backlog/requirements/REQ-058.md"}, {"id": "REQ-059", "title": "Environment-based Configuration", "epics": ["EPIC-001"], "path": "docs/backlog/requirements/REQ-059.md"}, {"id": "REQ-060", "title": "Health Check Endpoints", "epics": ["EPIC-007"], "path": "docs/backlog/requirements/REQ-060.md"}, {"id": "REQ-061", "title": "Graceful Degradation", "epics": ["EPIC-007"], "path": "docs/backlog/requirements/REQ-061.md"}, {"id": "REQ-062", "title": "Circuit Breaker Pattern", "epics": ["EPIC-007"], "path": "docs/backlog/requirements/REQ-062.md"}, {"id": "REQ-063", "title": "Rate Limiting Per User", "epics": ["EPIC-006"], "path": "docs/backlog/requirements/REQ-063.md"}, {"id": "REQ-064", "title": "Scheduled Maintenance Mode", "epics": ["EPIC-007"], "path": "docs/backlog/requirements/REQ-064.md"}, {"id": "REQ-065", "title": "Database Migration System", "epics": ["EPIC-007"], "path": "docs/backlog/requirements/REQ-065.md"}, {"id": "REQ-066", "title": "Configuration Hot-reload", "epics": ["EPIC-007"], "path": "docs/backlog/requirements/REQ-066.md"}, {"id": "REQ-067", "title": "Service Monitoring Dashboard", "epics": ["EPIC-007"], "path": "docs/backlog/requirements/REQ-067.md"}, {"id": "REQ-068", "title": "Unit testdekking", "epics": ["EPIC-002"], "path": "docs/backlog/requirements/REQ-068.md"}, {"id": "REQ-069", "title": "Integration Testen", "epics": ["EPIC-002"], "path": "docs/backlog/requirements/REQ-069.md"}, {"id": "REQ-070", "title": "Prestaties Testen", "epics": ["EPIC-007"], "path": "docs/backlog/requirements/REQ-070.md"}, {"id": "REQ-071", "title": "beveiliging Testen", "epics": ["EPIC-006"], "path": "docs/backlog/requirements/REQ-071.md"}, {"id": "REQ-072", "title": "Test Data Management", "epics": ["EPIC-002"], "path": "docs/backlog/requirements/REQ-072.md"}, {"id": "REQ-073", "title": "Continuous Integration Testen", "epics": ["EPIC-007"], "path": "docs/backlog/requirements/REQ-073.md"}, {"id": "REQ-074", "title": "Test Automation Framework", "epics": ["EPIC-002"], "path": "docs/backlog/requirements/REQ-074.md"}, {"id": "REQ-075", "title": "User Acceptance Testen", "epics": ["EPIC-004"], "path": "docs/backlog/requirements/REQ-075.md"}, {"id": "REQ-076", "title": "Regression Test Suite", "epics": ["EPIC-002"], "path": "docs/backlog/requirements/REQ-076.md"}, {"id": "REQ-077", "title": "Test Reporting en Analytics", "epics": ["EPIC-007"], "path": "docs/backlog/requirements/REQ-077.md"}, {"id": "REQ-078", "title": "Data Model Definition", "epics": ["EPIC-001"], "path": "docs/backlog/requirements/REQ-078.md"}, {"id": "REQ-079", "title": "Data validatie en Integrity", "epics": ["EPIC-001"], "path": "docs/backlog/requirements/REQ-079.md"}, {"id": "REQ-080", "title": "Data Versieing System", "epics": ["EPIC-009"], "path": "docs/backlog/requirements/REQ-080.md"}, {"id": "REQ-081", "title": "Data Archival Strategy", "epics": ["EPIC-006"], "path": "docs/backlog/requirements/REQ-081.md"}, {"id": "REQ-082", "title": "Data Search en Indexing", "epics": ["EPIC-001"], "path": "docs/backlog/requirements/REQ-082.md"}, {"id": "REQ-083", "title": "Data Export Formats", "epics": ["EPIC-005"], "path": "docs/backlog/requirements/REQ-083.md"}, {"id": "REQ-084", "title": "Data Import validatie", "epics": ["EPIC-005"], "path": "docs/backlog/requirements/REQ-084.md"}, {"id": "REQ-085", "title": "PostgreSQL Migration", "epics": ["EPIC-009"], "path": "docs/backlog/requirements/REQ-085.md"}, {"id": "REQ-086", "title": "Multi-tenant Data Isolation", "epics": ["EPIC-009"], "path": "docs/backlog/requirements/REQ-086.md"}, {"id": "REQ-087", "title": "Data Analytics en Reporting", "epics": ["EPIC-009"], "path": "docs/backlog/requirements/REQ-087.md"}, {"id": "REQ-088", "title": "Validatie UI Guide Documentatie", "epics": ["EPIC-011"], "path": "docs/backlog/requirements/REQ-088.md"}, {"id": "REQ-089", "title": "Result Display Pattern Library", "epics": ["EPIC-011"], "path": "docs/backlog/requirements/REQ-089.md"}, {"id": "REQ-090", "title": "Accessibility Richtlijnen WCAG 2.1 AA", "epics": ["EPIC-011"], "path": "docs/backlog/requirements/REQ-090.md"}, {"id": "REQ-091", "title": "Provider Integration Guide", "epics": ["EPIC-011"], "path": "docs/backlog/requirements/REQ-091.md"}, {"id": "REQ-092", "title": "External Sources Governance Policy", "epics": ["EPIC-011"], "path": "docs/backlog/requirements/REQ-092.md"}]};
+  const svg = document.getElementById('graph');
+  const NS = 'http://www.w3.org/2000/svg';
+  const W = svg.clientWidth || svg.parentElement.clientWidth;
+  const H = svg.clientHeight || 600;
+  const LEFT_X = 180, RIGHT_X = Math.max(W - 220, 700);
+  const TOP_PAD = 30, ROW = 28;
+
+  (function(){
+    const data = DATA;
+    const epics = data.epics.slice().sort((a,b)=> a.id.localeCompare(b.id));
+    const reqs = data.requirements.slice().sort((a,b)=> a.id.localeCompare(b.id));
+
+    // Layout
+    epics.forEach((e, i) => { e.x = LEFT_X; e.y = TOP_PAD + i*ROW; });
+    reqs.forEach((r, i) => { r.x = RIGHT_X; r.y = TOP_PAD + i*ROW; });
+
+    // Index for lookups
+    const epicById = Object.fromEntries(epics.map(e => [e.id, e]));
+
+    // Draw helpers
+    const make = (name, attrs={}) => { const el = document.createElementNS(NS, name); for (const [k,v] of Object.entries(attrs)) el.setAttribute(k, v); return el; };
+
+    // Draw edges first
+    const edges = [];
+    reqs.forEach(r => {
+      (r.epics || []).forEach(eid => {
+        const e = epicById[eid];
+        if (!e) return;
+        const line = make('line', { x1: e.x, y1: e.y, x2: r.x, y2: r.y, class: 'edge' });
+        line.dataset.source = r.id; line.dataset.target = e.id;
+        svg.appendChild(line);
+        edges.push(line);
+      });
+    });
+
+    // Draw epic nodes
+    epics.forEach(e => {
+      const g = make('g', { class: 'node epic' });
+      const c = make('circle', { cx: e.x, cy: e.y, r: 6 });
+      const t = make('text', { x: e.x + 10, y: e.y + 4 });
+      t.textContent = e.id + '  ' + (e.title || '');
+      g.appendChild(c); g.appendChild(t); svg.appendChild(g);
+      g.addEventListener('mouseenter', () => highlightEpic(e.id, true));
+      g.addEventListener('mouseleave', () => highlightEpic(e.id, false));
+      g.addEventListener('click', () => { window.location.href = `epics/${e.id}.html`; });
+      g.dataset.id = e.id;
+    });
+
+    // Draw requirement nodes
+    reqs.forEach(r => {
+      const g = make('g', { class: 'node req' });
+      const c = make('circle', { cx: r.x, cy: r.y, r: 6 });
+      const t = make('text', { x: r.x + 10, y: r.y + 4 });
+      t.textContent = r.id + '  ' + (r.title || '');
+      g.appendChild(c); g.appendChild(t); svg.appendChild(g);
+      g.addEventListener('mouseenter', () => highlightReq(r.id, true));
+      g.addEventListener('mouseleave', () => highlightReq(r.id, false));
+      g.addEventListener('click', () => {
+        let p = r.path || '';
+        if (p.startsWith('docs/')) p = p.substring(5);
+        window.location.href = `../../${p}`;
+      });
+      g.dataset.id = r.id;
+    });
+
+    function highlightEpic(eid, on){
+      for (const edge of edges){
+        if (edge.dataset.target === eid){ edge.classList.toggle('highlight', on); }
+      }
+    }
+    function highlightReq(rid, on){
+      for (const edge of edges){
+        if (edge.dataset.source === rid){ edge.classList.toggle('highlight', on); }
+      }
+    }
+
+    // Search filter
+    const search = document.getElementById('search');
+    const hideOrphans = document.getElementById('hideOrphans');
+    function applyFilter(){
+      const q = (search.value || '').toLowerCase();
+      const connectedEpic = new Set(edges.map(e => e.dataset.target));
+      const connectedReq = new Set(edges.map(e => e.dataset.source));
+
+      // Nodes
+      for (const g of svg.querySelectorAll('g.node.epic')){
+        const id = g.dataset.id; const label = g.textContent.toLowerCase();
+        const matches = label.includes(q);
+        const orphan = !connectedEpic.has(id);
+        g.classList.toggle('hidden', !(matches || (!q && (!hideOrphans.checked || !orphan))));
+      }
+      for (const g of svg.querySelectorAll('g.node.req')){
+        const id = g.dataset.id; const label = g.textContent.toLowerCase();
+        const matches = label.includes(q);
+        const orphan = !connectedReq.has(id);
+        g.classList.toggle('hidden', !(matches || (!q && (!hideOrphans.checked || !orphan))));
+      }
+      // Edges obey node visibility
+      for (const e of edges){
+        const s = e.dataset.source, t = e.dataset.target;
+        const sHidden = svg.querySelector(`g.node.req[data-id="${s}"]`).classList.contains('hidden');
+        const tHidden = svg.querySelector(`g.node.epic[data-id="${t}"]`).classList.contains('hidden');
+        e.classList.toggle('hidden', sHidden || tHidden);
+      }
+    }
+    search.addEventListener('input', applyFilter);
+    hideOrphans.addEventListener('change', applyFilter);
+    applyFilter();
+  })();
+  </script>
+  </body>
+  </html>

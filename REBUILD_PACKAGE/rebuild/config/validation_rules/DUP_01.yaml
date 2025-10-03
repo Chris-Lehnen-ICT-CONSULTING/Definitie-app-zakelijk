@@ -1,0 +1,29 @@
+id: DUP_01
+name: Geen duplicaat definities in database
+description: Controleer of er geen identieke of zeer vergelijkbare definitie al bestaat
+  in de database voor hetzelfde begrip.
+explanation: Voorkom dat dezelfde definitie meerdere keren wordt opgeslagen. Dit verbetert
+  de datakwaliteit en voorkomt inconsistenties bij latere wijzigingen.
+test_question: Bestaat deze definitie nog niet in de database?
+metadata:
+  priority: hoog
+  recommendation: verplicht
+  validity: alle
+  status: definitief
+  type: database
+  theme: datakwaliteit
+  source_document: Interne richtlijn
+validation:
+  patterns: []
+  good_examples:
+  - Een nieuwe unieke definitie voor het begrip 'sanctie' die nog niet bestaat
+  - Een definitie met substantiële verschillen ten opzichte van bestaande versies
+  bad_examples:
+  - Exact dezelfde definitie die al bestaat voor dit begrip
+  - Een minimaal gewijzigde versie (alleen interpunctie) van een bestaande definitie
+references: []
+implementation_details:
+  implementation: python
+  source_file: src/toetsregels/regels/DUP_01.py
+  validation_logic: See Python implementation for complex validation
+  validation_description: Detecteer duplicate definities in database.

@@ -1,0 +1,36 @@
+id: STR_08
+name: Dubbelzinnige 'en' is verboden
+description: Een definitie bevat geen 'en' die onduidelijk maakt of beide kenmerken
+  vereist zijn of slechts één van beide.
+explanation: Wanneer 'en' wordt gebruikt in een opsomming van kenmerken of voorwaarden,
+  moet duidelijk zijn of het om een cumulatieve eis (beide) of een alternatieve (één
+  van beide) gaat. Onduidelijkheid kan leiden tot verkeerde interpretatie.
+test_question: Is het gebruik van 'en' in de definitie ondubbelzinnig? Is het duidelijk
+  of beide elementen vereist zijn of slechts één?
+metadata:
+  priority: midden
+  recommendation: verplicht
+  validity: alle
+  status: definitief
+  type: gehele definitie
+  theme: structuur van de definitie
+  source_document: ASTRA
+validation:
+  patterns:
+  - \ben\b.+\b(of)?\b
+  - \b(en)\s+.*\s+en\s+.*
+  - \b(vereist.*en.*)\b
+  good_examples:
+  - Toegang is beperkt tot personen met een geldig toegangspasje en een schriftelijke
+    toestemming
+  bad_examples:
+  - Toegang is beperkt tot personen met een pasje en toestemming
+  - Het systeem vereist login en verificatie
+references:
+- fulltext: Dubbelzinnige 'en' is verboden
+  fullurl: https://www.astraonline.nl/index.php/Dubbelzinnige_'en'_is_verboden
+implementation_details:
+  implementation: python
+  source_file: src/toetsregels/regels/STR-08.py
+  validation_logic: See Python implementation for complex validation
+  validation_description: Validator voor STR-08.

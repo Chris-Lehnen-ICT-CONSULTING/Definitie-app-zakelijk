@@ -21,7 +21,7 @@ stories:
 - US-433
 - US-434
 target_release: v2.1
-titel: Brownfield Cleanup & Quality Infrastructure
+titel: "EPIC-025: Brownfield Cleanup - 60→90% doc/code alignment, 10+ CI gates, zero architecture violations (3 sprints)"
 vereisten:
 - REQ-089
 - REQ-090

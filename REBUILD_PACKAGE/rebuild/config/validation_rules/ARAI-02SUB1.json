@@ -1,0 +1,29 @@
+{
+  "id": "ARAI02SUB1",
+  "naam": "Lexicale containerbegrippen vermijden",
+  "uitleg": "Vermijd algemene termen als 'aspect', 'ding', 'iets' of 'element' in definities.",
+  "toelichting": "Dergelijke termen zijn te vaag en voegen onvoldoende betekenis toe. Een goede definitie gebruikt specifieke en informatieve termen.",
+  "toetsvraag": "Bevat de definitie algemene containertermen die geen concrete of specifieke betekenis toevoegen?",
+  "herkenbaar_patronen": [
+    "\\baspect\\b",
+    "\\bding\\b",
+    "\\biets\\b",
+    "\\belement\\b",
+    "\\bfactor\\b"
+  ],
+  "goede_voorbeelden": [
+    "maatregel die gericht is op risicobeheersing",
+    "gegeven dat betrekking heeft op de identiteit van een persoon"
+  ],
+  "foute_voorbeelden": [
+    "iets dat helpt bij het beheersen van risico’s",
+    "element dat informatie bevat"
+  ],
+  "prioriteit": "midden",
+  "aanbeveling": "optioneel",
+  "geldigheid": "gehele definitie",
+  "status": "conceptueel",
+  "type": "inhoud",
+  "thema": "begripszuiverheid",
+  "brondocument": "Subsidieregel van ARAI02"
+}

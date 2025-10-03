@@ -1,0 +1,474 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>EPIC-026: Architecture Comparison - Visual Guide</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>EPIC-026: Architecture Comparison - Visual Guide</h1>
+
+<p><strong>Date:</strong> 2025-10-03</p>
+<p><strong>Purpose:</strong> Visual comparison of proposed vs alternative refactoring approaches</p>
+
+<p>---</p>
+
+<h2>Current State (Before Refactoring)</h2>
+
+<pre><code>┌─────────────────────────────────────────────────────────────┐
+│                     UI Layer (Streamlit)                     │
+├─────────────────────────────────────────────────────────────┤
+│                                                               │
+│  tabbed_interface.py (1,793 LOC)                             │
+│  ├─ 385 LOC god method: _handle_definition_generation        │
+│  ├─ 260 LOC category determination (hardcoded patterns)      │
+│  ├─ 350 LOC document processing                              │
+│  ├─ 50+ SessionStateManager calls                            │
+│  └─ 8 dead stub methods                                      │
+│                                                               │
+│  definition_generator_tab.py (2,525 LOC)                     │
+│  ├─ 500 LOC regeneration orchestration                       │
+│  ├─ 368 LOC generation results rendering                     │
+│  ├─ 180 LOC rule reasoning (hardcoded)                       │
+│  ├─ 180 LOC examples persistence (direct DB)                 │
+│  └─ 30+ SessionStateManager calls                            │
+│                                                               │
+│  definitie_repository.py (1,815 LOC)                         │
+│  ├─ 51 tests ✅                                              │
+│  ├─ Complexity: 4.7 (good)                                   │
+│  └─ Well-structured: READ/WRITE/BULK/VOORBEELDEN             │
+│                                                               │
+├─────────────────────────────────────────────────────────────┤
+│                    Service Layer (89 services)                │
+├─────────────────────────────────────────────────────────────┤
+│  DefinitionOrchestratorV2 ✅                                 │
+│  ValidationOrchestratorV2 ✅                                 │
+│  ModernWebLookupService ✅                                   │
+│  CategoryService ✅                                          │
+│  RegenerationService ✅                                      │
+│  ... (84 more services)                                      │
+├─────────────────────────────────────────────────────────────┤
+│                        Data Layer                             │
+├─────────────────────────────────────────────────────────────┤
+│  SQLite Database (definities.db)                             │
+└─────────────────────────────────────────────────────────────┘
+
+PROBLEMS:
+- ❌ God methods in UI (385, 368, 500 LOC)
+- ❌ Business logic in UI layer
+- ❌ Direct DB access in UI
+- ❌ Hardcoded patterns (duplicated 3x)
+- ❌ Poor test coverage (1 test for 4,318 LOC UI)</code></pre>
+
+<p>---</p>
+
+<h2>Proposed Approach: Orchestrator-First (9 weeks)</h2>
+
+<pre><code>┌─────────────────────────────────────────────────────────────┐
+│                 UI Layer (Thin, &lt;1,200 LOC)                  │
+├─────────────────────────────────────────────────────────────┤
+│  tabbed_interface.py (&lt;400 LOC)                              │
+│  ├─ Tab routing                                              │
+│  ├─ Service initialization                                   │
+│  └─ Context selector delegation                              │
+│                                                               │
+│  definition_generator_tab.py (&lt;800 LOC)                      │
+│  ├─ DuplicateCheckRenderer (200 LOC)                         │
+│  ├─ GenerationResultsRenderer (400 LOC)                      │
+│  └─ ValidationResultsRenderer (200 LOC)                      │
+│                                                               │
+├─────────────────────────────────────────────────────────────┤
+│          NEW: Orchestration Layer (880 LOC)                  │  ← NEW LAYER
+├─────────────────────────────────────────────────────────────┤
+│  DefinitionGenerationOrchestrator (380 LOC) ← NEW            │
+│  ├─ Validates context                                        │
+│  ├─ Determines category                                      │
+│  ├─ Integrates documents                                     │
+│  ├─ Calls generation                                         │
+│  └─ Stores results                                           │
+│                                                               │
+│  RegenerationOrchestrator (500 LOC) ← NEW                    │
+│  ├─ Analyzes category change                                 │
+│  ├─ Triggers regeneration                                    │
+│  ├─ Compares results                                         │
+│  └─ Manages workflow                                         │
+│                                                               │
+├─────────────────────────────────────────────────────────────┤
+│        Service Layer (96 services = 89 + 7 NEW)              │
+├─────────────────────────────────────────────────────────────┤
+│  OntologicalCategoryService (260 LOC) ← NEW                  │
+│  ├─ 6-step protocol                                          │
+│  ├─ Quick analysis                                           │
+│  ├─ Pattern matching (still hardcoded!)                      │
+│  └─ Score calculation                                        │
+│                                                               │
+│  DocumentContextService (350 LOC) ← NEW                      │
+│  ├─ Upload handling                                          │
+│  ├─ Text extraction                                          │
+│  ├─ Context aggregation                                      │
+│  └─ Snippet extraction                                       │
+│                                                               │
+│  RuleReasoningService (180 LOC) ← NEW                        │
+│  ExamplesPersistenceService (180 LOC) ← NEW                  │
+│  + 3 more new services                                       │
+│                                                               │
+│  DefinitionOrchestratorV2 ✅ (existing)                      │
+│  ValidationOrchestratorV2 ✅ (existing)                      │
+│  ... (84 existing services)                                  │
+│                                                               │
+├─────────────────────────────────────────────────────────────┤
+│            Data Layer (Split into 6 services)                │
+├─────────────────────────────────────────────────────────────┤
+│  definitie_repository/ ← SPLIT                               │
+│  ├── ReadService                                             │
+│  ├── WriteService                                            │
+│  ├── DuplicateDetectionService                              │
+│  ├── BulkOperationsService                                  │
+│  ├── VoorbeeldenService                                     │
+│  └── ConnectionService                                       │
+│                                                               │
+│  SQLite Database (definities.db)                             │
+└─────────────────────────────────────────────────────────────┘
+
+STATS:
+- 📊 Layers: 4 (UI → Orchestration → Service → Data)
+- 📦 Services: 96 (89 existing + 7 new)
+- ⏱️ Timeline: 9 weeks (45 days)
+- 💰 Cost: ~$36k dev time (@$800/day)
+
+PROS:
+- ✅ Thin UI layer
+- ✅ Business logic in services
+- ✅ Clear separation
+
+CONS:
+- ❌ 4 layers (unnecessary indirection)
+- ❌ Service proliferation (96 services)
+- ❌ Patterns still hardcoded
+- ❌ Long timeline (9 weeks)
+- ❌ Duplicates existing services (DocumentProcessor)</code></pre>
+
+<p>---</p>
+
+<h2>Alternative Approach: Pragmatic Hybrid (4-5 weeks)</h2>
+
+<pre><code>┌─────────────────────────────────────────────────────────────┐
+│                 UI Layer (Thin, &lt;1,200 LOC)                  │
+├─────────────────────────────────────────────────────────────┤
+│  tabbed_interface.py (&lt;400 LOC)                              │
+│  ├─ Tab routing                                              │
+│  ├─ Service initialization (via DI)                          │
+│  └─ Delegates to DefinitionCoordinator                       │
+│                                                               │
+│  definition_generator_tab.py (&lt;800 LOC)                      │
+│  ├─ DuplicateCheckRenderer (200 LOC)                         │
+│  ├─ GenerationResultsRenderer (400 LOC)                      │
+│  └─ ValidationResultsRenderer (200 LOC)                      │
+│                                                               │
+├─────────────────────────────────────────────────────────────┤
+│      Service Layer (91 services = 89 + 2 NEW)                │
+├─────────────────────────────────────────────────────────────┤
+│  DefinitionGenerationCoordinator (380 LOC) ← NEW             │
+│  ├─ Uses DefinitionOrchestratorV2 pattern                    │
+│  ├─ Delegates to CategoryService                             │
+│  ├─ Delegates to DocumentProcessor (existing)                │
+│  └─ Manages workflow                                         │
+│                                                               │
+│  RuleReasoningService (180 LOC) ← NEW                        │
+│  ├─ Generate pass reasons                                    │
+│  ├─ Calculate metrics                                        │
+│  └─ Format explanations                                      │
+│                                                               │
+│  CategoryService ✅ ENHANCED (was existing)                  │
+│  ├─ Reads from config/ontological_patterns.yaml             │
+│  ├─ 6-step protocol                                          │
+│  ├─ Pattern matching (DATA-DRIVEN)                           │
+│  └─ Score calculation                                        │
+│                                                               │
+│  RegenerationService ✅ ENHANCED (was existing)              │
+│  ├─ Category change logic                                    │
+│  ├─ Impact analysis                                          │
+│  └─ Regeneration coordination                                │
+│                                                               │
+│  DocumentProcessor ✅ USE EXISTING                           │
+│  ├─ get_document_processor() already exists!                 │
+│  ├─ Upload handling                                          │
+│  └─ Text extraction                                          │
+│                                                               │
+│  DefinitionOrchestratorV2 ✅ (existing)                      │
+│  ValidationOrchestratorV2 ✅ (existing)                      │
+│  ... (84 existing services)                                  │
+│                                                               │
+├─────────────────────────────────────────────────────────────┤
+│          Data Layer (Keep as-is, refactor later)             │
+├─────────────────────────────────────────────────────────────┤
+│  definitie_repository.py (1,815 LOC) ✅ INTACT               │
+│  ├─ Complexity 4.7 (good)                                    │
+│  ├─ 51 tests (excellent)                                     │
+│  └─ Well-structured (not a god object)                       │
+│                                                               │
+│  SQLite Database (definities.db)                             │
+└─────────────────────────────────────────────────────────────┘
+
+CONFIG:
+┌─────────────────────────────────────────────────────────────┐
+│  config/ontological_patterns.yaml ← NEW                      │
+├─────────────────────────────────────────────────────────────┤
+│  proces:                                                      │
+│    - atie, eren, ing, verificatie, validatie                 │
+│  type:                                                        │
+│    - bewijs, document, middel, systeem                       │
+│  resultaat:                                                   │
+│    - besluit, uitslag, rapport, conclusie                    │
+│  exemplaar:                                                   │
+│    - specifiek, individueel, persoon, zaak                   │
+└─────────────────────────────────────────────────────────────┘
+
+STATS:
+- 📊 Layers: 3 (UI → Service → Data)
+- 📦 Services: 91 (89 existing + 2 new)
+- ⏱️ Timeline: 4-5 weeks (25 days)
+- 💰 Cost: ~$20k dev time (@$800/day)
+
+PROS:
+- ✅ Thin UI layer (same as proposed)
+- ✅ Business logic in services
+- ✅ DATA-DRIVEN patterns (config)
+- ✅ Reuses existing services
+- ✅ 44% faster (25 vs 45 days)
+- ✅ 44% cheaper ($20k vs $36k)
+- ✅ Simpler (3 layers, not 4)
+
+CONS:
+- ⚠️ Requires discipline (don't create unnecessary services)</code></pre>
+
+<p>---</p>
+
+<h2>Side-by-Side Comparison</h2>
+
+<h3>Week-by-Week Breakdown</h3>
+
+<p>| Week | Proposed (9 weeks) | Alternative (4-5 weeks) |</p>
+<p>|------|-------------------|------------------------|</p>
+<p>| <strong>1</strong> | Preparation (5d): Tests, config, docs | Foundation (7d): Tests, config, <strong>pattern extraction</strong>, state wrappers |</p>
+<p>| <strong>2</strong> | Extract OntologicalCategoryService (5d) | Business logic to <strong>existing</strong> services (5d) |</p>
+<p>| <strong>3</strong> | Extract DocumentContextService (5d) | UI component splitting (5d) |</p>
+<p>| <strong>4</strong> | Extract DefinitionGenerationOrchestrator (5d) | Orchestration extraction (5d) |</p>
+<p>| <strong>5</strong> | Continue orchestrator extraction (5d) | Cleanup & docs (3d) |</p>
+<p>| <strong>6</strong> | Extract RegenerationOrchestrator (5d) | ✅ DONE |</p>
+<p>| <strong>7</strong> | Continue regeneration extraction (5d) | ✅ DONE |</p>
+<p>| <strong>8</strong> | Thin UI layer (5d) | ✅ DONE |</p>
+<p>| <strong>9</strong> | Cleanup & docs (5d) | ✅ DONE |</p>
+
+<p><strong>Total:</strong> 45 days vs 25 days = <strong>44% faster</strong></p>
+
+<h3>Service Creation Comparison</h3>
+
+<p>| Service | Proposed | Alternative | Justification |</p>
+<p>|---------|----------|-------------|---------------|</p>
+<p>| DefinitionGenerationOrchestrator | ✅ Create new | ✅ Create (justified) | Core orchestration logic |</p>
+<p>| RegenerationOrchestrator | ✅ Create new | ❌ Enhance existing | Use RegenerationService |</p>
+<p>| OntologicalCategoryService | ✅ Create new | ❌ Enhance existing | Use CategoryService + config |</p>
+<p>| DocumentContextService | ✅ Create new | ❌ Use existing | get_document_processor() exists |</p>
+<p>| RuleReasoningService | ✅ Create new | ✅ Create (justified) | No existing equivalent |</p>
+<p>| ExamplesPersistenceService | ✅ Create new | ❌ Move to UI service | Not reused elsewhere |</p>
+<p>| <strong>TOTAL NEW</strong> | <strong>7 services</strong> | <strong>2 services</strong> | 71% reduction |</p>
+
+<h3>Cost-Benefit Analysis</h3>
+
+<p>| Metric | Proposed | Alternative | Difference |</p>
+<p>|--------|----------|-------------|------------|</p>
+<p>| <strong>Dev Days</strong> | 45 | 25 | -20 days (-44%) |</p>
+<p>| <strong>Dev Cost</strong> | $36,000 | $20,000 | -$16,000 (-44%) |</p>
+<p>| <strong>New Services</strong> | 7 | 2 | -5 services (-71%) |</p>
+<p>| <strong>Total Services</strong> | 96 | 91 | -5 services (-5%) |</p>
+<p>| <strong>Layers</strong> | 4 | 3 | -1 layer (-25%) |</p>
+<p>| <strong>Hardcoded Patterns</strong> | Still exist | Config-driven | ✅ Fixed |</p>
+<p>| <strong>UI LOC</strong> | <1,200 | <1,200 | Same |</p>
+<p>| <strong>Test Coverage</strong> | Good | Good | Same |</p>
+<p>| <strong>Maintainability</strong> | Medium | High | ✅ Better |</p>
+
+<p><strong>ROI:</strong> Alternative approach achieves <strong>same UI thinning</strong> with <strong>44% less cost</strong> and <strong>better maintainability</strong>.</p>
+
+<p>---</p>
+
+<h2>Decision Tree</h2>
+
+<pre><code>┌─────────────────────────────────────────────────────────────┐
+│           Should we refactor the god objects?                │
+│                                                               │
+│                     YES (6,133 LOC)                           │
+│                           ↓                                   │
+├─────────────────────────────────────────────────────────────┤
+│         Which files are TRUE god objects?                    │
+│                                                               │
+│  ✅ definition_generator_tab.py (complexity 116)             │
+│  ✅ tabbed_interface.py (385 LOC god method)                 │
+│  ❌ definitie_repository.py (well-structured)                │
+│                           ↓                                   │
+├─────────────────────────────────────────────────────────────┤
+│         What's the root cause?                               │
+│                                                               │
+│  ❌ File size (symptom)                                      │
+│  ✅ Business logic in UI (violation)                         │
+│  ✅ Hardcoded patterns (not data-driven)                     │
+│  ✅ Missing orchestration layer                              │
+│                           ↓                                   │
+├─────────────────────────────────────────────────────────────┤
+│         Which approach addresses root cause?                 │
+│                                                               │
+│  Proposed: Move logic to services (still hardcoded)          │
+│  Alternative: Extract to config + enhance services           │
+│                           ↓                                   │
+│            Alternative ✅ (data-driven)                       │
+│                           ↓                                   │
+├─────────────────────────────────────────────────────────────┤
+│         How many new services do we need?                    │
+│                                                               │
+│  Proposed: 7 (some duplicate existing)                       │
+│  Alternative: 2 (reuse existing)                             │
+│                           ↓                                   │
+│            Alternative ✅ (less abstraction)                  │
+│                           ↓                                   │
+├─────────────────────────────────────────────────────────────┤
+│         What's the timeline?                                 │
+│                                                               │
+│  Proposed: 9 weeks (orchestrator-first)                      │
+│  Alternative: 4-5 weeks (pragmatic)                          │
+│                           ↓                                   │
+│            Alternative ✅ (44% faster)                        │
+│                           ↓                                   │
+├─────────────────────────────────────────────────────────────┤
+│         RECOMMENDATION: ALTERNATIVE APPROACH                  │
+│                                                               │
+│  - 4-5 weeks (vs 9)                                          │
+│  - 2 new services (vs 7)                                     │
+│  - 3 layers (vs 4)                                           │
+│  - Config-driven (vs hardcoded)                              │
+│  - $20k cost (vs $36k)                                       │
+│                                                               │
+│         ⚠️ APPROVE WITH MAJOR REVISIONS                      │
+└─────────────────────────────────────────────────────────────┘</code></pre>
+
+<p>---</p>
+
+<h2>Visual Impact: Before & After</h2>
+
+<h3>UI Layer Complexity</h3>
+
+<pre><code>BEFORE:
+┌────────────────────────────────────────┐
+│ tabbed_interface.py: ████████████████ │ 1,793 LOC
+│ definition_generator_tab.py: ████████ │ 2,525 LOC
+└────────────────────────────────────────┘
+Total: 4,318 LOC
+
+AFTER (Both Approaches):
+┌────────────────────────────────────────┐
+│ tabbed_interface.py: ████             │ &lt;400 LOC
+│ definition_generator_tab.py: ████████ │ &lt;800 LOC
+└────────────────────────────────────────┘
+Total: &lt;1,200 LOC (72% reduction ✅)</code></pre>
+
+<h3>Service Layer Complexity</h3>
+
+<pre><code>PROPOSED:
+┌────────────────────────────────────────┐
+│ Existing services: ██████████████████ │ 89 services
+│ New services: ███████                 │ +7 services
+└────────────────────────────────────────┘
+Total: 96 services
+
+ALTERNATIVE:
+┌────────────────────────────────────────┐
+│ Existing services: ██████████████████ │ 89 services
+│ New services: ██                      │ +2 services
+└────────────────────────────────────────┘
+Total: 91 services (5% increase vs 8% ✅)</code></pre>
+
+<h3>Architecture Layers</h3>
+
+<pre><code>PROPOSED:
+┌─────────────┐
+│     UI      │ Layer 1
+├─────────────┤
+│ Orchestrate │ Layer 2 ← NEW
+├─────────────┤
+│   Service   │ Layer 3
+├─────────────┤
+│    Data     │ Layer 4
+└─────────────┘
+4 layers
+
+ALTERNATIVE:
+┌─────────────┐
+│     UI      │ Layer 1
+├─────────────┤
+│   Service   │ Layer 2
+├─────────────┤
+│    Data     │ Layer 3
+└─────────────┘
+3 layers ✅ (simpler)</code></pre>
+
+<p>---</p>
+
+<h2>Key Takeaways</h2>
+
+<h3>✅ What Both Approaches Achieve</h3>
+
+<ol>
+<li>**Thin UI layer** (<1,200 LOC total)</li>
+<li>**Business logic in services** (not UI)</li>
+<li>**Testable architecture** (90%+ coverage)</li>
+<li>**Clear separation of concerns**</li>
+</ol>
+
+<h3>⚠️ Where They Differ</h3>
+
+<p>| Aspect | Proposed | Alternative |</p>
+<p>|--------|----------|-------------|</p>
+<p>| <strong>Timeline</strong> | 9 weeks | 4-5 weeks ✅ |</p>
+<p>| <strong>Cost</strong> | $36k | $20k ✅ |</p>
+<p>| <strong>New Services</strong> | 7 | 2 ✅ |</p>
+<p>| <strong>Layers</strong> | 4 | 3 ✅ |</p>
+<p>| <strong>Hardcoded Patterns</strong> | Still exist | Config-driven ✅ |</p>
+<p>| <strong>Abstraction</strong> | High | Medium ✅ |</p>
+
+<h3>🎯 Recommendation</h3>
+
+<p><strong>Use Alternative Approach:</strong></p>
+<ul>
+<li>Same outcome (thin UI)</li>
+<li>44% faster delivery</li>
+<li>44% lower cost</li>
+<li>Simpler architecture (3 layers)</li>
+<li>Data-driven (not hardcoded)</li>
+<li>Less maintenance burden</li>
+</ul>
+
+<p>---</p>
+
+<p><strong>Status:</strong> READY FOR STAKEHOLDER REVIEW</p>
+<p><strong>Next Step:</strong> Architecture review meeting</p>
+<p><strong>Decision Required:</strong> Approve revised plan or proceed with original?</p>
+
+<p>---</p>
+
+<p><strong>Prepared by:</strong> Technical Architecture Analyst (Agent 2)</p>
+<p><strong>Date:</strong> 2025-10-03</p>
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,30 @@
+{
+  "id": "ARAI02SUB2",
+  "naam": "Ambtelijke containerbegrippen vermijden",
+  "uitleg": "Vermijd vaagtaal zoals ‘proces’, ‘voorziening’ of ‘activiteit’ als deze niet worden gespecificeerd.",
+  "toelichting": "Deze termen zijn te generiek om een begrip duidelijk af te bakenen. Zonder specificatie zijn ze niet toetsbaar en verwarrend.",
+  "toetsvraag": "Bevat de definitie containerbegrippen die onvoldoende duidelijk maken wat het begrip inhoudt?",
+  "herkenbaar_patronen": [
+    "\\bproces\\b",
+    "\\baspect\\b",
+    "\\belement\\b",
+    "\\bvoorziening\\b",
+    "\\bactiviteit\\b",
+    "\\bding(en)?\\b"
+  ],
+  "goede_voorbeelden": [
+    "systeem: geautomatiseerd hulpmiddel dat beslissingen registreert",
+    "voorziening: softwarecomponent die inloggegevens valideert"
+  ],
+  "foute_voorbeelden": [
+    "voorziening die iets mogelijk maakt",
+    "element dat hoort bij het systeem"
+  ],
+  "prioriteit": "midden",
+  "aanbeveling": "optioneel",
+  "geldigheid": "gehele definitie",
+  "status": "conceptueel",
+  "type": "formulering",
+  "thema": "begripszuiverheid",
+  "brondocument": "Subsidieregel van ARAI02"
+}

@@ -1,7 +1,7 @@
 ---
 id: US-237
 epic: EPIC-004
-titel: Reset Examples to DB
+titel: "US-237: - In de Expert Review‑tab een knop aanbieden waarmee de reviewer alle voorbeelden (voorbeeldzinnen, praktijkvoorbeeld..."
 status: open
 prioriteit: P2
 story_points: 5

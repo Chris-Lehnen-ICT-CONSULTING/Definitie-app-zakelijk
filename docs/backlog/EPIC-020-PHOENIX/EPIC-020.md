@@ -1,7 +1,7 @@
 ---
 id: EPIC-020
-titel: Operation Phoenix: Performance & Architecture Refactoring Roadmap
-status: active
+titel: "EPIC-020: Operation Phoenix - 4-week refactoring: 80% snelheid ↑, 75% kosten ↓, 50% complexity ↓ (97 SP) [Superseded]"
+status: superseded
 priority: CRITICAL
 sprint: Sprint 2025-Q1
 owner: product-owner
@@ -28,6 +28,10 @@ version: 1.0
 ---
 
 # EPIC-020: Operation Phoenix - Performance & Architecture Refactoring Roadmap
+
+> **Statusupdate (2025-10-03):** Operation Phoenix is samengevoegd met [EPIC-026: God Object Refactoring](../EPIC-026/EPIC-026-REVISED.md). Alle refactoring stories zijn verhuisd naar die epic; dit plan blijft als historisch referentiemateriaal.
+
+
 
 ## Executive Summary
 

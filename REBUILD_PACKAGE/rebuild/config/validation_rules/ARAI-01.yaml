@@ -1,0 +1,33 @@
+id: ARAI01
+name: geen werkwoord als kern (afgeleid)
+description: De kern van de definitie mag geen werkwoord zijn, om verwarring tussen
+  handelingen en concepten te voorkomen.
+explanation: Een definitie moet beschrijven wat iets is, niet wat het doet. Werkwoorden
+  als kern kunnen leiden tot onduidelijkheid over de aard van het begrip. Deze regel
+  is afgeleid van de ASTRA-aanbeveling 'Definitie ≠ beschrijving van gedrag'.
+test_question: Is de kern van de definitie een zelfstandig naamwoord (en geen werkwoord)?
+metadata:
+  priority: midden
+  recommendation: optioneel
+  validity: alle
+  status: conceptueel
+  type: gehele definitie
+  theme: interne logica en leesbaarheid
+  source_document: Afgeleide AI-regel op basis van ASTRA
+validation:
+  patterns:
+  - \b(is|zijn|doet|kan|heeft|hebben|wordt|vormt|creëert)\b
+  good_examples:
+  - proces dat beslissers identificeert
+  - instelling die zorg verleent
+  bad_examples:
+  - Een systeem dat registreert...
+  - Een functie die uitvoert...
+references:
+- fulltext: Definitie ≠ beschrijving van gedrag
+  fullurl: https://www.astraonline.nl/index.php/Definitie_≠_beschrijving_van_gedrag
+implementation_details:
+  implementation: python
+  source_file: src/toetsregels/regels/ARAI-01.py
+  validation_logic: See Python implementation for complex validation
+  validation_description: Validator voor ARAI01.

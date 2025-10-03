@@ -1,0 +1,144 @@
+
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>REQ ↔ EPIC Graph</title>
+  <link rel="stylesheet" href="assets/style.css" />
+  <style>
+    svg { width: 100%; height: 80vh; border: 1px solid #e5e7eb; background: #fff; }
+    .node text { font-size: 12px; }
+    .epic circle { fill: #1d4ed8; }
+    .req circle { fill: #16a34a; }
+    .edge { stroke: #9ca3af; stroke-width: 1; opacity: 0.5; }
+    .highlight { stroke: #111827 !important; opacity: 0.9 !important; }
+    .hidden { display: none; }
+  </style>
+  </head>
+  <body>
+  <div class="container">
+    <div class="breadcrumbs"><a href="index.html">Requirements</a> / <span>Graph</span></div>
+    <h1>REQ ↔ EPIC Graph</h1>
+    <p class="muted">Bipartite weergave: EPICs links, REQs rechts. Zoek en hover om verbindingen te highlighten.</p>
+    <div style="margin: 12px 0 16px">
+      <input id="search" type="search" placeholder="Zoek op ID of titel (REQ of EPIC)" />
+      <label style="margin-left: 12px; font-size: 14px"><input type="checkbox" id="hideOrphans" /> Verberg orphan REQs/EPICs</label>
+    </div>
+    <svg id="graph"></svg>
+  </div>
+  <script>
+  const DATA = {"epics": [], "requirements": []};
+  const svg = document.getElementById('graph');
+  const NS = 'http://www.w3.org/2000/svg';
+  const W = svg.clientWidth || svg.parentElement.clientWidth;
+  const H = svg.clientHeight || 600;
+  const LEFT_X = 180, RIGHT_X = Math.max(W - 220, 700);
+  const TOP_PAD = 30, ROW = 28;
+
+  (function(){
+    const data = DATA;
+    const epics = data.epics.slice().sort((a,b)=> a.id.localeCompare(b.id));
+    const reqs = data.requirements.slice().sort((a,b)=> a.id.localeCompare(b.id));
+
+    // Layout
+    epics.forEach((e, i) => { e.x = LEFT_X; e.y = TOP_PAD + i*ROW; });
+    reqs.forEach((r, i) => { r.x = RIGHT_X; r.y = TOP_PAD + i*ROW; });
+
+    // Index for lookups
+    const epicById = Object.fromEntries(epics.map(e => [e.id, e]));
+
+    // Draw helpers
+    const make = (name, attrs={}) => { const el = document.createElementNS(NS, name); for (const [k,v] of Object.entries(attrs)) el.setAttribute(k, v); return el; };
+
+    // Draw edges first
+    const edges = [];
+    reqs.forEach(r => {
+      (r.epics || []).forEach(eid => {
+        const e = epicById[eid];
+        if (!e) return;
+        const line = make('line', { x1: e.x, y1: e.y, x2: r.x, y2: r.y, class: 'edge' });
+        line.dataset.source = r.id; line.dataset.target = e.id;
+        svg.appendChild(line);
+        edges.push(line);
+      });
+    });
+
+    // Draw epic nodes
+    epics.forEach(e => {
+      const g = make('g', { class: 'node epic' });
+      const c = make('circle', { cx: e.x, cy: e.y, r: 6 });
+      const t = make('text', { x: e.x + 10, y: e.y + 4 });
+      t.textContent = e.id + '  ' + (e.title || '');
+      g.appendChild(c); g.appendChild(t); svg.appendChild(g);
+      g.addEventListener('mouseenter', () => highlightEpic(e.id, true));
+      g.addEventListener('mouseleave', () => highlightEpic(e.id, false));
+      g.addEventListener('click', () => { window.location.href = `epics/${e.id}.html`; });
+      g.dataset.id = e.id;
+    });
+
+    // Draw requirement nodes
+    reqs.forEach(r => {
+      const g = make('g', { class: 'node req' });
+      const c = make('circle', { cx: r.x, cy: r.y, r: 6 });
+      const t = make('text', { x: r.x + 10, y: r.y + 4 });
+      t.textContent = r.id + '  ' + (r.title || '');
+      g.appendChild(c); g.appendChild(t); svg.appendChild(g);
+      g.addEventListener('mouseenter', () => highlightReq(r.id, true));
+      g.addEventListener('mouseleave', () => highlightReq(r.id, false));
+      g.addEventListener('click', () => {
+        let p = r.path || '';
+        if (p.startsWith('docs/')) p = p.substring(5);
+        window.location.href = `../../${p}`;
+      });
+      g.dataset.id = r.id;
+    });
+
+    function highlightEpic(eid, on){
+      for (const edge of edges){
+        if (edge.dataset.target === eid){ edge.classList.toggle('highlight', on); }
+      }
+    }
+    function highlightReq(rid, on){
+      for (const edge of edges){
+        if (edge.dataset.source === rid){ edge.classList.toggle('highlight', on); }
+      }
+    }
+
+    // Search filter
+    const search = document.getElementById('search');
+    const hideOrphans = document.getElementById('hideOrphans');
+    function applyFilter(){
+      const q = (search.value || '').toLowerCase();
+      const connectedEpic = new Set(edges.map(e => e.dataset.target));
+      const connectedReq = new Set(edges.map(e => e.dataset.source));
+
+      // Nodes
+      for (const g of svg.querySelectorAll('g.node.epic')){
+        const id = g.dataset.id; const label = g.textContent.toLowerCase();
+        const matches = label.includes(q);
+        const orphan = !connectedEpic.has(id);
+        g.classList.toggle('hidden', !(matches || (!q && (!hideOrphans.checked || !orphan))));
+      }
+      for (const g of svg.querySelectorAll('g.node.req')){
+        const id = g.dataset.id; const label = g.textContent.toLowerCase();
+        const matches = label.includes(q);
+        const orphan = !connectedReq.has(id);
+        g.classList.toggle('hidden', !(matches || (!q && (!hideOrphans.checked || !orphan))));
+      }
+      // Edges obey node visibility
+      for (const e of edges){
+        const s = e.dataset.source, t = e.dataset.target;
+        const sHidden = svg.querySelector(`g.node.req[data-id="${s}"]`).classList.contains('hidden');
+        const tHidden = svg.querySelector(`g.node.epic[data-id="${t}"]`).classList.contains('hidden');
+        e.classList.toggle('hidden', sHidden || tHidden);
+      }
+    }
+    search.addEventListener('input', applyFilter);
+    hideOrphans.addEventListener('change', applyFilter);
+    applyFilter();
+  })();
+  </script>
+  </body>
+  </html>
+    

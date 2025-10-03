@@ -1,0 +1,1490 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>EPIC-026: God Object Refactoring (Architectural Debt Resolution)</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>aangemaakt: 2025-09-30</p>
+<p>bijgewerkt: 2025-10-03</p>
+<p>applies_to: definitie-app@current</p>
+<p>canonical: true</p>
+<p>completion: 0%</p>
+<p>id: EPIC-026</p>
+<p>last_verified: 2025-10-03</p>
+<p>owner: code-architect</p>
+<p>prioriteit: P2</p>
+<p>status: pending-approval</p>
+<p>target_release: v2.3</p>
+<p>revision: 2.0</p>
+<p>revised_by: 5-agent-analysis-2025-10-03</p>
+<p>vereisten:</p>
+<ul>
+<li>REQ-091</li>
+<p>---</p>
+</ul>
+
+<h1>EPIC-026: God Object Refactoring (Architectural Debt Resolution)</h1>
+
+<p><strong>🔄 REVISION 2.0</strong> - Based on comprehensive 5-agent analysis (2025-10-03)</p>
+
+<p><strong>⚠️ CRITICAL CHANGES FROM v1.0:</strong></p>
+<ul>
+<li>Timeline: 11-16 days → **10-12 weeks** (Hybrid Staged Approach)</li>
+<li>Cost: €12.8k → **€43-67k** (includes mandatory Phase 0)</li>
+<li>User Stories: 13 → **17 stories** (added Phase 0 + missing orchestrators)</li>
+<li>Risk Profile: 3 documented → **17 identified** (6 critical)</li>
+<li>Scope: 3 files → **2 files prioritized** (definitie_repository deferred)</li>
+</ul>
+
+<p>---</p>
+
+<h2>Epic Overview</h2>
+
+<p><strong>ID:</strong> EPIC-026</p>
+
+<blockquote>**Consolidatie-update (2025-10-03):** EPIC-026 bundelt nu alle refactoringscope uit EPIC-010, EPIC-012, EPIC-020-PHOENIX en losstaande stories. Onderstaande mapping maakt zichtbaar welke verhalen zijn opgenomen.</blockquote>
+
+<p>| Oorspronkelijk epic | Gebruikersverhalen nu onder EPIC-026 |</p>
+<p>|---|---|</p>
+<p>| EPIC-010 Context Flow Refactoring | US-171, US-172 |</p>
+<p>| EPIC-012 Legacy Orchestrator Refactoring | US-061, US-072, US-074, US-152, US-159, US-170, US-175 |</p>
+<p>| EPIC-020 Operation Phoenix | US-201 t/m US-212 |</p>
+<p>| EPIC-004 UI (refactor story) | US-177 |</p>
+
+<p><strong>Titel:</strong> God Object Refactoring (Architectural Debt Resolution)</p>
+<p><strong>Status:</strong> PENDING APPROVAL (Revision 2.0)</p>
+<p><strong>Priority:</strong> P2 (downgraded from P1 - not blocking, important)</p>
+<p><strong>Created:</strong> 2025-09-30</p>
+<p><strong>Revised:</strong> 2025-10-03</p>
+<p><strong>Owner:</strong> Code Architect Team</p>
+<p><strong>Target Release:</strong> v2.3</p>
+<p><strong>Predecessor:</strong> EPIC-025 (Brownfield Cleanup)</p>
+
+<p><strong>Revision Rationale:</strong></p>
+<p>Multi-agent analysis (5 agents, ~200 pages) revealed:</p>
+<ol>
+<li>Original 11-16 day estimate was based on "file splitting" assumption</li>
+<li>Reality: Architectural refactoring with 880 LOC hidden orchestrators</li>
+<li>Test coverage crisis: 0-5% coverage on god objects (vs assumed 73 tests)</li>
+<li>6 critical risks undocumented in v1.0</li>
+</ol>
+
+<p>---</p>
+
+<h2>Problem Statement</h2>
+
+<h3>Verified God Objects (2 of 3)</h3>
+
+<p>US-427 discovery and subsequent code analysis revealed that <strong>2 critical files</strong> (4,318 LOC) suffer from <strong>God Object anti-pattern</strong>:</p>
+
+<h4>✅ Confirmed God Objects</h4>
+
+<p>| File | LOC | Complexity | Tests | Verdict |</p>
+<p>|------|-----|------------|-------|---------|</p>
+<p>| <code>definition_generator_tab.py</code> | 2,525 | 116 (CRITICAL) | 1 test | ☢️ <strong>TRUE god object</strong> |</p>
+<p>| <code>tabbed_interface.py</code> | 1,793 | 59 (HIGH) | 0 tests | 🔴 <strong>TRUE god object</strong> |</p>
+
+<h4>❌ False Positive (Deferred)</h4>
+
+<p>| File | LOC | Complexity | Tests | Verdict |</p>
+<p>|------|-----|------------|-------|---------|</p>
+<p>| <code>definitie_repository.py</code> | 1,815 | 4.7 (NORMAL) | 51 tests | ✅ <strong>Well-structured, DEFER</strong> |</p>
+
+<p><strong>Deferral Rationale:</strong> definitie_repository.py has:</p>
+<ul>
+<li>Low complexity (4.7 avg cyclomatic complexity)</li>
+<li>Clear boundaries (READ/WRITE/BULK separation)</li>
+<li>Excellent test coverage (100%, 51 tests)</li>
+<li>**Not a god object** - postpone to future epic</li>
+</ul>
+
+<p>---</p>
+
+<h3>Hidden Complexity Discovered</h3>
+
+<p><strong>880 LOC Hidden Orchestrators</strong> (not in original scope):</p>
+
+<ol>
+<li>**Generation Orchestrator** (380 LOC god method)</li>
+</ol>
+<ul>
+<li>  - Location: `tabbed_interface.py::_handle_definition_generation()`</li>
+<li>  - Complexity: 10-step workflow, 15+ state mutations, 6 early exits</li>
+<li>  - Services coordinated: 5+ (Definition, Regeneration, Document, Category, Checker)</li>
+<li>  - **Impact:** CRITICAL - this IS the application's core workflow</li>
+</ul>
+
+<ol>
+<li>**Regeneration Orchestrator** (500 LOC across 8 methods)</li>
+</ol>
+<ul>
+<li>  - Location: `definition_generator_tab.py::_trigger_regeneration_with_category()` + 7 helpers</li>
+<li>  - Complexity: 3 regeneration modes (direct/manual/keep), category change analysis</li>
+<li>  - Hardcoded rules: 4 category pairs with special handling</li>
+<li>  - **Impact:** HIGH - category change is key feature</li>
+</ul>
+
+<p><strong>610 LOC Hidden Services</strong> (in UI layer):</p>
+<ul>
+<li>OntologicalCategoryService (260 LOC) - category determination logic</li>
+<li>DocumentContextService (350 LOC) - document processing logic</li>
+</ul>
+
+<p><strong>Total hidden complexity:</strong> 1,490 LOC business logic masquerading as UI code</p>
+
+<p>---</p>
+
+<h3>Test Coverage Crisis</h3>
+
+<p><strong>Current Coverage State:</strong></p>
+
+<pre><code>definition_generator_tab.py:  2,525 LOC,  1 test,  ~5% coverage  🔴 CRITICAL
+tabbed_interface.py:          1,793 LOC,  0 tests,  0% coverage  ☢️ CATASTROPHIC
+
+Combined god objects:         4,318 LOC,  1 test,  ~0.02% coverage</code></pre>
+
+<p><strong>Regression Risk Scores:</strong></p>
+<ul>
+<li>definition_generator_tab: **2,847** (CRITICAL - dangerous to refactor)</li>
+<li>tabbed_interface: **3,156** (CATASTROPHIC - suicidal without tests)</li>
+</ul>
+
+<p><strong>Original assumption:</strong> "Test coverage >= 73 tests"</p>
+<p><strong>Reality:</strong> 73 tests exist in CODEBASE, but 0-1 tests for god objects being refactored</p>
+
+<p>---</p>
+
+<h3>Impact</h3>
+
+<p><strong>Technical Debt:</strong></p>
+<ul>
+<li>4,318 LOC unmaintainable code (380 LOC god method!)</li>
+<li>880 LOC orchestrators hidden in UI layer</li>
+<li>208 occurrences of `st.session_state` (coupling)</li>
+<li>0% test coverage (regression risk)</li>
+</ul>
+
+<p><strong>Business Impact:</strong></p>
+<ul>
+<li>Blocked feature development (cannot safely extend)</li>
+<li>High regression risk (changes cascade unpredictably)</li>
+<li>Long debugging cycles (complex state management)</li>
+<li>Developer frustration (code is "scary to touch")</li>
+</ul>
+
+<p><strong>Root Cause:</strong></p>
+<p>Not just file size, but:</p>
+<ol>
+<li>**Business logic leakage** into UI layer (architecture violation)</li>
+<li>**Hardcoded rules** (not data-driven)</li>
+<li>**Missing orchestration layer** (god methods do everything)</li>
+</ol>
+
+<p>---</p>
+
+<h2>Business Value</h2>
+
+<h3>Revised ROI Analysis</h3>
+
+<p><strong>Original Claim (v1.0):</strong></p>
+<ul>
+<li>Cost: €12.8k (11-16 days)</li>
+<li>ROI: 4-6 month payback via 40% velocity gain</li>
+<li>Benefit: +200% maintainability, zero regression risk</li>
+</ul>
+
+<p><strong>Reality Check (v2.0):</strong></p>
+
+<p>| Scenario | Timeline | Cost | Velocity Gain | ROI (3yr) | Realistic? |</p>
+<p>|----------|----------|------|---------------|-----------|------------|</p>
+<p>| v1.0 Claim | 16 days | €12.8k | 40% | +341% | ❌ NO |</p>
+<p>| Optimistic | 10 weeks | €40k | 40% | +112% | ⚠️ MAYBE |</p>
+<p>| <strong>Realistic</strong> | <strong>12 weeks</strong> | <strong>€67k</strong> | <strong>20%</strong> | <strong>+89%</strong> | ✅ <strong>YES</strong> |</p>
+<p>| Conservative | 14 weeks | €67k | 10% | -13% | ⚠️ RISK |</p>
+
+<p><strong>Revised Business Case (Hybrid Approach):</strong></p>
+<ul>
+<li>**Investment:** €67k (12 weeks: Phase 0 + Phase 1 + Phase 2)</li>
+<li>**Payback:** 9-12 months (conservative 20% velocity gain)</li>
+<li>**3-year ROI:** +89% to +157% (positive)</li>
+<li>**Risk-adjusted:** MEDIUM (acceptable with Phase 0)</li>
+</ul>
+
+<p>---</p>
+
+<h3>Direct Benefits (Evidence-Based)</h3>
+
+<h4>1. Code Quality (Measurable)</h4>
+<ul>
+<li>**Before:** 2,525 LOC file, complexity 116</li>
+<li>**After:** Multiple files <500 LOC, complexity <10 each</li>
+<li>**Metric:** Maintainability Index (MI) from 20 → 70 (industry standard)</li>
+<li>**Evidence:** ✅ File size reduction is quantifiable</li>
+</ul>
+
+<h4>2. Test Coverage (Critical)</h4>
+<ul>
+<li>**Before:** 0-1 tests for 4,318 LOC (0.02%)</li>
+<li>**After:** 436+ tests (85% coverage)</li>
+<li>**Metric:** Branch coverage >= 85%</li>
+<li>**Evidence:** ✅ Phase 0 Test Recovery Plan</li>
+</ul>
+
+<h4>3. Development Velocity (Measured)</h4>
+<ul>
+<li>**Baseline:** Establish in Phase 1 (features/week)</li>
+<li>**Target:** 15-20% improvement (realistic, not 40%)</li>
+<li>**Metric:** Track feature completion rate for 3 months post-refactor</li>
+<li>**Evidence:** ⚠️ Will be measured, not assumed</li>
+</ul>
+
+<h4>4. Regression Risk (Reduced)</h4>
+<ul>
+<li>**Before:** HIGH (0% test coverage)</li>
+<li>**After:** LOW (85% coverage + integration tests)</li>
+<li>**Metric:** Regression bugs per month (track for 6 months)</li>
+<li>**Evidence:** ✅ Phase 0 addresses directly</li>
+</ul>
+
+<p>---</p>
+
+<h3>Risk Reduction</h3>
+
+<p>| Risk | Before Epic | After Epic | Mitigation |</p>
+<p>|------|-------------|------------|------------|</p>
+<p>| <strong>Breaking changes</strong> | CRITICAL | LOW | Phase 0 tests + golden baseline |</p>
+<p>| <strong>Business logic loss</strong> | CRITICAL | MEDIUM | Business logic extraction doc |</p>
+<p>| <strong>State management</strong> | CRITICAL | MEDIUM | State audit + schema |</p>
+<p>| <strong>Single developer</strong> | CRITICAL | MEDIUM | Backup dev + knowledge transfer |</p>
+<p>| <strong>Production regression</strong> | HIGH | LOW | Golden baseline (42 definitions) |</p>
+
+<p>---</p>
+
+<h2>Scope</h2>
+
+<h3>✅ In Scope (Hybrid Staged Approach - 12 weeks)</h3>
+
+<h4>**Phase 0: Test Foundation** (5 weeks, €25k) - MANDATORY</h4>
+
+<p><strong>Week 1: Test Infrastructure</strong></p>
+<ul>
+<li>Set up Streamlit test harness (pytest-playwright)</li>
+<li>Create golden master testing framework</li>
+<li>Build async test patterns</li>
+<li>**Deliverable:** Test infrastructure operational</li>
+</ul>
+
+<p><strong>Week 2-3: Critical Path Tests</strong></p>
+<ul>
+<li>368 tests for orchestrators (generation + regeneration workflows)</li>
+<li>50+ integration test scenarios (was 10 in v1.0)</li>
+<li>State mutation tests (15+ mutations per workflow)</li>
+<li>**Deliverable:** 368 tests, 70%+ coverage</li>
+</ul>
+
+<p><strong>Week 4: Coverage Gap Tests</strong></p>
+<ul>
+<li>68 tests for UI rendering, navigation, error paths</li>
+<li>Edge case coverage (category changes, duplicates)</li>
+<li>**Deliverable:** 85%+ total coverage</li>
+</ul>
+
+<p><strong>Week 5: Validation & Refinement</strong></p>
+<ul>
+<li>Fix flaky tests (<5% flakiness threshold)</li>
+<li>Performance baseline benchmarks</li>
+<li>Golden baseline export (42 definitions)</li>
+<li>**Deliverable:** 436+ tests, GREEN suite, golden baseline</li>
+</ul>
+
+<p><strong>Gate:</strong> Cannot proceed to Phase 1 without 85% coverage + 436 tests</p>
+
+<p>---</p>
+
+<h4>**Phase 1: Repository Safe Refactor** (3 weeks, €18k)</h4>
+
+<p><strong>REVISED SCOPE:</strong> Extract definitie_repository ONLY (deferred from critical path due to low priority)</p>
+
+<p><strong>Week 6: Extract READ Service</strong></p>
+<ul>
+<li>Move all read operations to `definitie_repository_read.py`</li>
+<li>Maintain backward compatibility (facade pattern)</li>
+<li>**Tests:** 25 tests for READ service</li>
+</ul>
+
+<p><strong>Week 7: Extract WRITE Service</strong></p>
+<ul>
+<li>Move all write operations to `definitie_repository_write.py`</li>
+<li>Transaction handling preserved</li>
+<li>**Tests:** 15 tests for WRITE service</li>
+</ul>
+
+<p><strong>Week 8: Extract BULK Service</strong></p>
+<ul>
+<li>Move bulk operations to `definitie_repository_bulk.py`</li>
+<li>Performance optimization maintained</li>
+<li>**Tests:** 11 tests for BULK service</li>
+</ul>
+
+<p><strong>Deliverable:</strong> definitie_repository split into 3 services, all 51+ tests passing</p>
+
+<p><strong>Gate:</strong> GO to Phase 2 only if velocity improvement >= 10% observed</p>
+
+<p>---</p>
+
+<h4>**Phase 2: Critical Path UI** (4 weeks, €24k) - OPTIONAL</h4>
+
+<p><strong>REVISED SCOPE:</strong> tabbed_interface + definition_generator_tab orchestrators</p>
+
+<p><strong>Week 9-10: Extract Generation Orchestrator</strong></p>
+<ul>
+<li>Extract 380 LOC god method to `GenerationOrchestrator` service</li>
+<li>Clean async patterns (no asyncio.run nesting)</li>
+<li>7-step workflow preserved</li>
+<li>**Tests:** 95%+ coverage for orchestrator</li>
+</ul>
+
+<p><strong>Week 11-12: Extract Regeneration Orchestrator</strong></p>
+<ul>
+<li>Extract 500 LOC regeneration logic to `RegenerationOrchestrator` service</li>
+<li>3 modes (direct/manual/keep) implemented</li>
+<li>Category change rules → config-driven</li>
+<li>**Tests:** 90%+ coverage for orchestrator</li>
+</ul>
+
+<p><strong>Week 13: Thin UI Layer</strong></p>
+<ul>
+<li>Reduce tabbed_interface.py to <400 LOC</li>
+<li>Reduce definition_generator_tab.py to <800 LOC</li>
+<li>Remove all business logic from UI</li>
+<li>**Tests:** All integration tests GREEN</li>
+</ul>
+
+<p><strong>Deliverable:</strong> UI thinned by 74%, orchestrators extracted, all tests passing</p>
+
+<p><strong>Gate:</strong> GO to production only if golden baseline 100% match</p>
+
+<p>---</p>
+
+<h3>❌ Out of Scope</h3>
+
+<p><strong>Deferred to future epics:</strong></p>
+<ul>
+<li>~~definitie_repository refactoring~~ → Move to Phase 1 (low priority)</li>
+<li>web_lookup_service refactoring (2-3 weeks)</li>
+<li>validation_orchestrator_v2 refactoring (2-3 weeks)</li>
+<li>Performance optimization (separate epic)</li>
+<li>New features (no functionality changes)</li>
+<li>UI redesign (Streamlit structure unchanged)</li>
+<li>Database migration (SQLite schema unchanged)</li>
+</ul>
+
+<p>---</p>
+
+<h3>Scope Flexibility</h3>
+
+<p><strong>Decision Framework:</strong></p>
+
+<pre><code>minimum_viable:
+  scope: "Phase 0 only (tests)"
+  duration: 5 weeks
+  cost: €25k
+  value: "Tests protect existing code, no refactoring"
+  trigger: "If stakeholders reject Phase 1"
+
+hybrid_staged:
+  scope: "Phase 0 + Phase 1 (repository)"
+  duration: 8 weeks
+  cost: €43k
+  value: "30% of epic value, LOW risk"
+  trigger: "Default commitment"
+
+hybrid_full:
+  scope: "Phase 0 + Phase 1 + Phase 2 (UI)"
+  duration: 12 weeks
+  cost: €67k
+  value: "70% of epic value, MEDIUM risk"
+  trigger: "If Phase 1 shows &gt;= 10% velocity gain"
+
+full_scope:
+  scope: "All 5 god objects (add 4-8 weeks)"
+  duration: 16-20 weeks
+  cost: €100-150k
+  value: "100% value, MEDIUM-HIGH risk"
+  trigger: "If hybrid successful + roadmap requires it"</code></pre>
+
+<p>---</p>
+
+<h2>Goals & Success Criteria</h2>
+
+<h3>Phase 0 Success Criteria (MANDATORY)</h3>
+
+<p><strong>Gate 1: Week 5 Checkpoint</strong></p>
+
+<ul>
+<li>[ ] **Test count:** >= 436 tests created</li>
+<li>[ ] **Coverage:** >= 85% for god objects (definition_generator_tab, tabbed_interface)</li>
+<li>[ ] **Flaky tests:** < 5% flakiness rate</li>
+<li>[ ] **Integration tests:** >= 50 scenarios (not 10!)</li>
+<li>[ ] **Golden baseline:** 42 definitions exported with validation results</li>
+<li>[ ] **Test infrastructure:** Streamlit test harness operational</li>
+<li>[ ] **Performance baseline:** Benchmarks recorded</li>
+</ul>
+
+<p><strong>Decision:</strong> GO to Phase 1 only if ALL criteria met</p>
+
+<p><strong>Abort scenarios:</strong></p>
+<ul>
+<li>Coverage < 70% after Week 5 → Extend Phase 0 by 2 weeks OR abort epic</li>
+<li>Coverage < 60% after Week 7 → Abort epic, accept technical debt</li>
+</ul>
+
+<p>---</p>
+
+<h3>Phase 1 Success Criteria</h3>
+
+<p><strong>Gate 2: Week 8 Checkpoint</strong></p>
+
+<ul>
+<li>[ ] **Service extraction:** definitie_repository split into READ/WRITE/BULK</li>
+<li>[ ] **Tests passing:** All 51 existing tests + 51 new service tests (102 total)</li>
+<li>[ ] **No breaking changes:** All 20+ importers still work</li>
+<li>[ ] **Backward compatibility:** Facade pattern maintains API</li>
+<li>[ ] **Velocity baseline:** Feature completion rate measured (baseline established)</li>
+<li>[ ] **Code review:** Architecture team approval</li>
+</ul>
+
+<p><strong>Decision:</strong> GO to Phase 2 only if:</p>
+<ol>
+<li>All tests GREEN</li>
+<li>Velocity improvement >= 10% observed (measure over 2 weeks)</li>
+<li>Stakeholder approves Phase 2 budget (€24k)</li>
+</ol>
+
+<p><strong>Abort scenarios:</strong></p>
+<ul>
+<li>Velocity improvement < 5% → STOP, focus on features for 6 months</li>
+<li>Velocity degrades → Rollback, investigate root cause</li>
+</ul>
+
+<p>---</p>
+
+<h3>Phase 2 Success Criteria</h3>
+
+<p><strong>Gate 3: Week 13 Checkpoint</strong></p>
+
+<ul>
+<li>[ ] **Generation Orchestrator:** 380 LOC god method extracted to service</li>
+<li>[ ] **Regeneration Orchestrator:** 500 LOC extracted to service</li>
+<li>[ ] **UI thinned:** tabbed_interface <400 LOC, generator_tab <800 LOC</li>
+<li>[ ] **Golden baseline match:** 100% match for all 42 definitions</li>
+<li>[ ] **Integration tests:** All 50+ scenarios GREEN</li>
+<li>[ ] **Async patterns:** Clean (no asyncio.run nesting)</li>
+<li>[ ] **State management:** Centralized via SessionStateManager</li>
+<li>[ ] **Performance:** Benchmarks >= baseline (no degradation)</li>
+</ul>
+
+<p><strong>Decision:</strong> GO to production only if:</p>
+<ol>
+<li>Golden baseline 100% match</li>
+<li>All integration tests GREEN</li>
+<li>Performance maintained</li>
+</ol>
+
+<p><strong>Abort scenarios:</strong></p>
+<ul>
+<li>Golden baseline < 95% match → STOP deployment, debug</li>
+<li>Integration tests > 2 failures → Rollback to Week 12</li>
+</ul>
+
+<p>---</p>
+
+<h3>Quantitative Targets (Revised)</h3>
+
+<p>| Metric | Baseline | Target (Hybrid) | Validation |</p>
+<p>|--------|----------|-----------------|------------|</p>
+<p>| <strong>Max file size</strong> | 2,525 LOC | <800 LOC (74% reduction) | <code>find src -exec wc -l</code> |</p>
+<p>| <strong>God method size</strong> | 380 LOC | <50 LOC (87% reduction) | Code review |</p>
+<p>| <strong>Test count</strong> | 1 test | 436+ tests | pytest --count |</p>
+<p>| <strong>Test coverage</strong> | 0.02% | 85%+ | pytest --cov |</p>
+<p>| <strong>God Object count</strong> | 2 | 0 (UI thinned) | Architecture review |</p>
+<p>| <strong>Circular dependencies</strong> | Unknown | 0 | Import graph check |</p>
+<p>| <strong>Flaky tests</strong> | N/A | <5% | CI metrics |</p>
+<p>| <strong>Regression bugs</strong> | Baseline | <1/month | Track 6 months |</p>
+
+<p>---</p>
+
+<h2>Timeline</h2>
+
+<h3>Duration: 8-12 weeks (Hybrid Staged Approach)</h3>
+
+<p><strong>Committed:</strong> 8 weeks (Phase 0 + Phase 1)</p>
+<p><strong>Optional:</strong> +4 weeks (Phase 2, if Phase 1 successful)</p>
+<p><strong>Maximum:</strong> 14 weeks (with 2-week contingency buffer)</p>
+
+<p>---</p>
+
+<h3>Detailed Timeline</h3>
+
+<h4>**Phase 0: Test Foundation** (Week 1-5)</h4>
+
+<pre><code>Week 1: Test Infrastructure Setup
+├─ Day 1-2: pytest-playwright setup, Streamlit test harness
+├─ Day 3-4: Golden master framework, async test patterns
+└─ Day 5: Test 10 integration scenarios (proof of concept)
+
+Week 2: Critical Path Tests (Generation)
+├─ Day 6-7: 150 tests for generation orchestrator (380 LOC god method)
+├─ Day 8-9: 100 tests for category determination (260 LOC)
+└─ Day 10: 50 tests for document context (350 LOC)
+
+Week 3: Critical Path Tests (Regeneration)
+├─ Day 11-12: 118 tests for regeneration orchestrator (500 LOC)
+├─ Day 13-14: Edge cases, error paths
+└─ Day 15: Integration tests (20 scenarios)
+
+Week 4: Coverage Gaps
+├─ Day 16-17: 68 UI tests (rendering, navigation, state)
+├─ Day 18-19: 30 integration tests (duplicate check, validation)
+└─ Day 20: Mutation testing (validate tests catch bugs)
+
+Week 5: Validation &amp; Golden Baseline
+├─ Day 21-22: Fix flaky tests (&lt;5% threshold)
+├─ Day 23: Performance benchmarks
+├─ Day 24: Export golden baseline (42 definitions)
+└─ Day 25: CHECKPOINT - Gate 1 review</code></pre>
+
+<p><strong>Deliverable:</strong> 436+ tests, 85%+ coverage, golden baseline</p>
+
+<p>---</p>
+
+<h4>**Phase 1: Repository Safe Refactor** (Week 6-8)</h4>
+
+<pre><code>Week 6: Extract READ Service
+├─ Day 26-27: Move read methods to definitie_repository_read.py
+├─ Day 28: Create 25 tests for READ service
+├─ Day 29: Integration testing
+└─ Day 30: Code review + merge
+
+Week 7: Extract WRITE Service
+├─ Day 31-32: Move write methods to definitie_repository_write.py
+├─ Day 33: Create 15 tests for WRITE service
+├─ Day 34: Transaction testing
+└─ Day 35: Code review + merge
+
+Week 8: Extract BULK Service + Validation
+├─ Day 36-37: Move bulk methods to definitie_repository_bulk.py
+├─ Day 38: Create 11 tests for BULK service
+├─ Day 39: Full regression testing (102 tests)
+└─ Day 40: CHECKPOINT - Gate 2 review, measure velocity</code></pre>
+
+<p><strong>Deliverable:</strong> definitie_repository split, 102 tests passing, velocity measured</p>
+
+<p><strong>Decision Point:</strong> Continue to Phase 2? (Requires >= 10% velocity gain + budget approval)</p>
+
+<p>---</p>
+
+<h4>**Phase 2: Critical Path UI** (Week 9-13) - OPTIONAL</h4>
+
+<pre><code>Week 9-10: Extract Generation Orchestrator
+├─ Day 41-43: Extract 380 LOC god method to service
+├─ Day 44-45: Clean async patterns, 7-step workflow
+├─ Day 46-48: 150 tests for orchestrator (95% coverage)
+└─ Day 49-50: Integration testing, golden baseline validation
+
+Week 11-12: Extract Regeneration Orchestrator
+├─ Day 51-53: Extract 500 LOC regeneration logic to service
+├─ Day 54-55: 3 modes (direct/manual/keep), config-driven rules
+├─ Day 56-58: 118 tests for orchestrator (90% coverage)
+└─ Day 59-60: Integration testing, state migration validation
+
+Week 13: Thin UI Layer + Validation
+├─ Day 61-62: Reduce tabbed_interface to &lt;400 LOC
+├─ Day 63: Reduce generator_tab to &lt;800 LOC
+├─ Day 64: Full regression suite (50+ integration scenarios)
+└─ Day 65: CHECKPOINT - Gate 3 review, golden baseline 100% match</code></pre>
+
+<p><strong>Deliverable:</strong> UI thinned by 74%, orchestrators extracted, golden baseline match</p>
+
+<p><strong>Decision Point:</strong> Deploy to production? (Requires 100% golden baseline match)</p>
+
+<p>---</p>
+
+<h3>Milestones</h3>
+
+<p>| Week | Milestone | Gate | Criteria |</p>
+<p>|------|-----------|------|----------|</p>
+<p>| <strong>Week 5</strong> | Phase 0 Complete | Gate 1 | 436 tests, 85% coverage |</p>
+<p>| <strong>Week 8</strong> | Phase 1 Complete | Gate 2 | 102 tests, velocity >=10% |</p>
+<p>| <strong>Week 13</strong> | Phase 2 Complete | Gate 3 | Golden baseline 100% match |</p>
+<p>| <strong>Week 14</strong> | Production Deploy | Final | All tests GREEN, no regressions |</p>
+
+<p>---</p>
+
+<h3>Contingency Timeline</h3>
+
+<p><strong>Best Case:</strong> 10 weeks (Phase 0: 4 weeks, Phase 1: 3 weeks, Phase 2: 3 weeks)</p>
+<p><strong>Likely Case:</strong> 12 weeks (as planned)</p>
+<p><strong>Worst Case:</strong> 14 weeks (2-week buffer for Phase 0 issues)</p>
+<p><strong>Abort Case:</strong> 16 weeks (if > 14 weeks, abort and deliver what's complete)</p>
+
+<p>---</p>
+
+<h2>User Stories</h2>
+
+<h3>Phase 0: Test Foundation (5 stories, 5 weeks)</h3>
+
+<ul>
+<li>**US-640:** Set up Test Infrastructure (Test Engineer, 1w)</li>
+<li> - pytest-playwright, Streamlit harness, golden master framework</li>
+<li>**US-454:** Create Generation Orchestrator Tests (Test Engineer, 2w)</li>
+<li> - 368 tests for generation + category + document workflows</li>
+<li>**US-455:** Create Regeneration Orchestrator Tests (Test Engineer, 1w)</li>
+<li> - 118 tests for regeneration workflows</li>
+<li>**US-456:** Create Coverage Gap Tests (Test Engineer, 0.5w)</li>
+<li> - 68 tests for UI, edge cases, error paths</li>
+<li>**US-457:** Validate & Create Golden Baseline (Test Engineer, 0.5w)</li>
+<li> - Fix flaky tests, export 42 definitions baseline</li>
+</ul>
+
+<p>---</p>
+
+<h3>Phase 1: Repository Refactor (3 stories, 3 weeks)</h3>
+
+<ul>
+<li>**US-444:** Extract READ Service (Code Architect, 1w)</li>
+<li> - Move read methods to definitie_repository_read.py, 25 tests</li>
+<li>**US-445:** Extract WRITE Service (Code Architect, 1w)</li>
+<li> - Move write methods to definitie_repository_write.py, 15 tests</li>
+<li>**US-446:** Extract BULK Service (Code Architect, 1w)</li>
+<li> - Move bulk methods to definitie_repository_bulk.py, 11 tests</li>
+</ul>
+
+<p>---</p>
+
+<h3>Phase 2: Critical Path UI (4 stories, 4 weeks) - OPTIONAL</h3>
+
+<ul>
+<li>**US-447:** Extract Generation Orchestrator (Code Architect, 2w)</li>
+<li> - Extract 380 LOC god method, 150 tests, 95% coverage</li>
+<li>**US-458:** Extract Regeneration Orchestrator (Code Architect, 2w)</li>
+<li> - Extract 500 LOC regeneration logic, 118 tests, 90% coverage</li>
+<li>**US-451:** Thin UI Layer (Code Architect, 0.5w)</li>
+<li> - Reduce UI files by 74%, remove business logic</li>
+<li>**US-453:** Final Validation & Review (Code Architect, 0.5w)</li>
+<li> - Golden baseline 100% match, full regression</li>
+</ul>
+
+<p>---</p>
+
+<h3>Phase 1 (Design - REMOVED from new structure)</h3>
+
+<p><strong>Rationale:</strong> Design work already completed in EPIC-026 Phase 1:</p>
+<ul>
+<li>✅ 3 responsibility maps exist (Day 1-2 analysis)</li>
+<li>✅ RECOMMENDATION.md (9-week extraction plan)</li>
+<li>✅ BUSINESS_LOGIC_EXTRACTION_PLAN.md (comprehensive)</li>
+</ul>
+
+<p><strong>No need to repeat design phase - proceed directly to Phase 0 (tests)</strong></p>
+
+<p>---</p>
+
+<h3>Total User Stories: 15 stories</h3>
+
+<p><strong>Phase 0:</strong> 5 stories (5 weeks)</p>
+<p><strong>Phase 1:</strong> 3 stories (3 weeks)</p>
+<p><strong>Phase 2:</strong> 4 stories (4 weeks) - optional</p>
+<p><strong>Removed:</strong> 3 design stories (already complete)</p>
+
+<p>---</p>
+
+<h2>Dependencies</h2>
+
+<h3>External Prerequisites (Must complete before start)</h3>
+
+<ul>
+<li>✅ **EPIC-025 Sprint 1 complete** (US-426, US-428 done)</li>
+<li>✅ **Phase 1 Design complete** (responsibility maps, RECOMMENDATION.md)</li>
+<li>✅ **US-427 coverage baseline** established (73 tests documented)</li>
+<li>⚠️ **5-agent analysis reviewed** (stakeholders read this revision)</li>
+</ul>
+
+<p>---</p>
+
+<h3>Internal Prerequisites (Week 0 - Before Phase 0)</h3>
+
+<p><strong>Critical (Must complete before GO decision):</strong></p>
+
+<ol>
+<li>**Stakeholder Approval**</li>
+</ol>
+<ul>
+<li>  - [ ] Phase 0 approved (5 weeks, €25k)</li>
+<li>  - [ ] Hybrid Staged Approach accepted (8-12 weeks, €43-67k)</li>
+<li>  - [ ] Timeline realistic (not 11-16 days)</li>
+<li>  - [ ] Risk profile acceptable (6 critical risks identified)</li>
+</ul>
+
+<ol>
+<li>**Resource Allocation**</li>
+</ol>
+<ul>
+<li>  - [ ] Test engineer assigned (5 weeks full-time, Phase 0)</li>
+<li>  - [ ] Code architect available (7 weeks, Phase 1-2)</li>
+<li>  - [ ] Backup developer identified (bus factor mitigation)</li>
+</ul>
+
+<ol>
+<li>**Technical Preparation**</li>
+</ol>
+<ul>
+<li>  - [ ] Business logic extraction document created (1 week)</li>
+<li>  - [ ] State audit completed (208 st.session_state usages inventoried)</li>
+<li>  - [ ] Git tagging infrastructure set up (automated hooks)</li>
+<li>  - [ ] Golden baseline directory created (`data/golden_baseline_epic026/`)</li>
+</ul>
+
+<ol>
+<li>**Knowledge Transfer**</li>
+</ol>
+<ul>
+<li>  - [ ] Backup developer onboarded (shadow Week 0)</li>
+<li>  - [ ] Architecture decision records (ADR) template created</li>
+<li>  - [ ] Weekly review cadence established</li>
+</ul>
+
+<p><strong>Gate 0 (Week 0 End):</strong> Cannot start Phase 0 without ALL prerequisites complete</p>
+
+<p>---</p>
+
+<h3>Per-Phase Dependencies</h3>
+
+<p><strong>Phase 1 depends on:</strong></p>
+<ul>
+<li>[ ] Phase 0 complete (436 tests, 85% coverage)</li>
+<li>[ ] Gate 1 passed (all Phase 0 criteria met)</li>
+<li>[ ] Integration test suite GREEN</li>
+</ul>
+
+<p><strong>Phase 2 depends on:</strong></p>
+<ul>
+<li>[ ] Phase 1 complete (repository refactored)</li>
+<li>[ ] Velocity improvement >= 10% measured</li>
+<li>[ ] Stakeholder approves Phase 2 budget (€24k)</li>
+<li>[ ] Gate 2 passed (all Phase 1 criteria met)</li>
+</ul>
+
+<p>---</p>
+
+<h3>Blocks (What this epic unlocks)</h3>
+
+<p><strong>Immediate (after Phase 0):</strong></p>
+<ul>
+<li>Safe refactoring of ANY module (test safety net)</li>
+<li>CI/CD pipeline improvements (test automation)</li>
+</ul>
+
+<p><strong>After Phase 1:</strong></p>
+<ul>
+<li>Database schema changes (repository layer isolated)</li>
+<li>New data sources (clean repository interface)</li>
+<li>Parallel repository work (clear service boundaries)</li>
+</ul>
+
+<p><strong>After Phase 2:</strong></p>
+<ul>
+<li>UI redesign (business logic decoupled)</li>
+<li>New workflows (orchestrators are services)</li>
+<li>Feature flags (orchestrators are injectable)</li>
+</ul>
+
+<p>---</p>
+
+<h2>Risks & Mitigation</h2>
+
+<h3>Risk Summary</h3>
+
+<p><strong>Total Risks Identified:</strong> 17 (was 3 in v1.0)</p>
+
+<p><strong>Risk Distribution:</strong></p>
+<ul>
+<li>🔴 **CRITICAL:** 6 risks (Phase 0 mandatory to mitigate)</li>
+<li>🟠 **HIGH:** 5 risks (mitigations in Phase 0-1)</li>
+<li>🟡 **MEDIUM:** 6 risks (monitor & mitigate)</li>
+</ul>
+
+<p><strong>Residual Risk (after mitigations):</strong> MEDIUM (acceptable)</p>
+
+<p>---</p>
+
+<h3>Critical Risks (🔴 Require Phase 0)</h3>
+
+<h4>**R1: Breaking Changes During Extraction**</h4>
+
+<p><strong>Likelihood:</strong> HIGH (without Phase 0) → MEDIUM (with Phase 0)</p>
+<p><strong>Impact:</strong> CRITICAL (application breaks, features fail)</p>
+
+<p><strong>Root Cause:</strong></p>
+<ul>
+<li>0% test coverage on tabbed_interface.py</li>
+<li>1 test for definition_generator_tab.py (2,525 LOC)</li>
+<li>380 LOC god method with 15 state mutations, 6 early exits</li>
+</ul>
+
+<p><strong>Original Mitigation (v1.0):</strong> "Test after each step" ❌ INSUFFICIENT (no tests exist!)</p>
+
+<p><strong>Enhanced Mitigation (v2.0):</strong></p>
+<ol>
+<li>✅ **Phase 0 mandatory:** 436 tests before any refactoring</li>
+<li>✅ **Golden master testing:** Record current behavior, compare post-refactor</li>
+<li>✅ **Integration tests:** 50+ scenarios (not 10)</li>
+<li>✅ **Mutation testing:** Validate tests catch bugs</li>
+<li>✅ **Staged rollout:** Feature flag, parallel run for 1 week</li>
+</ol>
+
+<p><strong>Contingency:</strong> If tests fail post-refactor → Git rollback to last checkpoint</p>
+
+<p>---</p>
+
+<h4>**R9: Business Logic Loss During Extraction** (NEW in v2.0)</h4>
+
+<p><strong>Likelihood:</strong> HIGH (70%)</p>
+<p><strong>Impact:</strong> CRITICAL (lost domain knowledge, silent bugs)</p>
+
+<p><strong>Root Cause:</strong></p>
+<ul>
+<li>880 LOC orchestrators contain implicit business rules</li>
+<li>Hardcoded category change logic (not documented)</li>
+<li>6-step ontological protocol (no workflow diagram)</li>
+<li>Regeneration modes (3 modes, decision tree in code)</li>
+</ul>
+
+<p><strong>Mitigation:</strong></p>
+<ol>
+<li>✅ **Business logic extraction doc** (Week 0, before Phase 0)</li>
+</ol>
+<ul>
+<li>  - Extract ALL hardcoded rules from orchestrators</li>
+<li>  - Create decision trees for workflows</li>
+<li>  - Document implicit assumptions</li>
+</ul>
+<ol>
+<li>✅ **Domain expert review:** Legal/compliance validation</li>
+<li>✅ **Golden master testing:** Record behavior for all 42 definitions</li>
+<li>✅ **Config-driven rules:** Move hardcoded rules to YAML</li>
+</ol>
+
+<p><strong>Deliverable:</strong> <code>docs/business-logic/EPIC-026-extracted-rules.md</code> (Week 0)</p>
+
+<p><strong>Contingency:</strong> If logic is lost → Silent bugs in production, months to debug</p>
+
+<p>---</p>
+
+<h4>**R10: Test Coverage Catastrophe** (NEW in v2.0)</h4>
+
+<p><strong>Likelihood:</strong> CERTAIN (100% without Phase 0)</p>
+<p><strong>Impact:</strong> CRITICAL (blind refactoring, guaranteed regressions)</p>
+
+<p><strong>Current State:</strong></p>
+<pre><code>tabbed_interface.py:         0 tests,  1,793 LOC  (Regression Risk: 3,156 ☢️)
+definition_generator_tab.py: 1 test,   2,525 LOC  (Regression Risk: 2,847 🔴)</code></pre>
+
+<p><strong>Mitigation:</strong></p>
+<p>✅ <strong>Phase 0 Test Recovery Plan (5 weeks, 436 tests)</strong></p>
+<ul>
+<li>Week 1: Infrastructure (pytest-playwright, golden master)</li>
+<li>Week 2-3: Critical path tests (368 tests for orchestrators)</li>
+<li>Week 4: Coverage gaps (68 tests for UI)</li>
+<li>Week 5: Validation (fix flaky tests, golden baseline)</li>
+</ul>
+
+<p><strong>Success Criteria:</strong> 85%+ coverage, <5% flaky tests</p>
+
+<p><strong>Contingency:</strong></p>
+<ul>
+<li>If coverage < 70% after Week 5 → Extend Phase 0 by 2 weeks</li>
+<li>If coverage < 60% after Week 7 → Abort epic, accept technical debt</li>
+</ul>
+
+<p>---</p>
+
+<h4>**R12: Single Developer (Bus Factor = 1)** (NEW in v2.0)</h4>
+
+<p><strong>Likelihood:</strong> HIGH (70% for 12-week project)</p>
+<p><strong>Impact:</strong> CRITICAL (project failure if developer leaves)</p>
+
+<p><strong>Evidence:</strong></p>
+<ul>
+<li>5 contributors ever, recent commits dominated by 1-2 authors</li>
+<li>Ownership: code-architect agent (single role)</li>
+<li>No pair programming or code review process mentioned</li>
+</ul>
+
+<p><strong>Mitigation:</strong></p>
+<ol>
+<li>✅ **Backup developer onboarded** (Week 0, shadow Phase 0)</li>
+<li>✅ **Knowledge transfer:** Weekly ADRs, documentation reviews</li>
+<li>✅ **Mandatory code review:** No self-approvals</li>
+<li>✅ **Contingency plan:** If unavailable >3 days → Pause project</li>
+</ol>
+
+<p><strong>Abort Trigger:</strong> If primary developer leaves at Week 8 → Options:</p>
+<ul>
+<li>Pause, find replacement (2-4 weeks hiring + onboarding)</li>
+<li>Rollback to last checkpoint</li>
+<li>Cancel epic, accept technical debt</li>
+</ul>
+
+<p>---</p>
+
+<h4>**R17: State Migration Errors** (NEW in v2.0)</h4>
+
+<p><strong>Likelihood:</strong> HIGH (70%)</p>
+<p><strong>Impact:</strong> CRITICAL (broken workflows, data loss)</p>
+
+<p><strong>Root Cause:</strong></p>
+<ul>
+<li>208 occurrences of `st.session_state` across 28 files</li>
+<li>15+ state mutations in generation orchestrator alone</li>
+<li>No schema validation (what keys are valid? what types?)</li>
+</ul>
+
+<p><strong>Mitigation:</strong></p>
+<ol>
+<li>✅ **State audit** (Week 0): Inventory all 208 usages</li>
+<li>✅ **State schema:** Create `config/session_state_schema.yaml`</li>
+<li>✅ **Enforce validation:** Runtime checks in SessionStateManager</li>
+<li>✅ **Gradual migration:** Add schema to current code before refactoring</li>
+</ol>
+
+<p><strong>Deliverable:</strong> <code>docs/technical/EPIC-026-state-audit.md</code> (Week 0)</p>
+
+<p><strong>Contingency:</strong> If migration fails → UI doesn't update, workflows freeze</p>
+
+<p>---</p>
+
+<h4>**R4: Breaking Generation Workflow**</h4>
+
+<p><strong>Likelihood:</strong> MEDIUM (with Phase 0)</p>
+<p><strong>Impact:</strong> CRITICAL (core app functionality broken)</p>
+
+<p><strong>Root Cause:</strong> 380 LOC god method orchestrates 5+ services, 10-step workflow</p>
+
+<p><strong>Mitigation:</strong></p>
+<ol>
+<li>✅ Phase 0 integration tests (50+ scenarios)</li>
+<li>✅ Golden baseline (42 definitions, 100% match required)</li>
+<li>✅ Incremental extraction (one step at a time)</li>
+<li>✅ Rollback checkpoints (weekly git tags)</li>
+</ol>
+
+<p>---</p>
+
+<h3>High Risks (🟠 Significant Mitigation)</h3>
+
+<h4>**R11: Production Data Regression** (NEW)</h4>
+
+<p><strong>Likelihood:</strong> MEDIUM (40%)</p>
+<p><strong>Impact:</strong> HIGH (incorrect definitions, legal liability)</p>
+
+<p><strong>Mitigation:</strong></p>
+<ol>
+<li>✅ Export 42 definitions pre-refactor</li>
+<li>✅ Re-generate all 42 post-refactor, compare (0% tolerance)</li>
+<li>✅ Feature flag: `USE_REFACTORED_ORCHESTRATORS=false` (default)</li>
+<li>✅ Parallel run: Old + new code for 1 week</li>
+</ol>
+
+<p>---</p>
+
+<h4>**R13: Git Rollback Failure** (NEW)</h4>
+
+<p><strong>Likelihood:</strong> MEDIUM (40%)</p>
+<p><strong>Impact:</strong> HIGH (cannot revert, stuck with broken code)</p>
+
+<p><strong>Mitigation:</strong></p>
+<ol>
+<li>✅ Git tags at EVERY checkpoint (automated hooks)</li>
+<li>✅ Granular commits (1 service = 1 commit)</li>
+<li>✅ Branch strategy (epic026/week1, epic026/week2, etc.)</li>
+<li>✅ Rollback playbook (test rollback in Week 1)</li>
+</ol>
+
+<p>---</p>
+
+<h4>**R16: Integration Test False Positives** (NEW)</h4>
+
+<p><strong>Likelihood:</strong> HIGH (60%)</p>
+<p><strong>Impact:</strong> HIGH (tests pass but code is broken)</p>
+
+<p><strong>Mitigation:</strong></p>
+<ol>
+<li>✅ Mutation testing (inject bugs, verify tests catch them)</li>
+<li>✅ Golden master baseline (record ACTUAL behavior, not mocked)</li>
+<li>✅ Parallel testing (old code + new code in production)</li>
+<li>✅ Flaky test quarantine (<5% threshold)</li>
+</ol>
+
+<p>---</p>
+
+<h3>Medium Risks (🟡 Monitor)</h3>
+
+<h4>**R2/R7: Timeline Overrun**</h4>
+
+<p><strong>Original:</strong> 11→20 days</p>
+<p><strong>Revised:</strong> 8→14 weeks (2-week contingency buffer)</p>
+
+<p><strong>Mitigation:</strong></p>
+<ol>
+<li>✅ Realistic baseline (12 weeks, not 2.5 weeks)</li>
+<li>✅ Weekly checkpoints (Go/No-Go every week)</li>
+<li>✅ Scope flex (can stop at Phase 1 if needed)</li>
+<li>✅ Abort trigger: <50% progress at Week 10</li>
+</ol>
+
+<p>---</p>
+
+<h4>**R5: Async/Sync Boundary Issues**</h4>
+
+<p><strong>Mitigation:</strong> Clean async design, async_bridge exists (proven pattern)</p>
+
+<h4>**R6: State Management Bugs**</h4>
+
+<p><strong>Mitigation:</strong> State schema + type-safe wrappers (enhanced with R17 mitigation)</p>
+
+<h4>**R14: Circular Dependencies**</h4>
+
+<p><strong>Mitigation:</strong> CI check script (trivial to add)</p>
+
+<h4>**R15: Performance Degradation**</h4>
+
+<p><strong>Mitigation:</strong> Benchmark baselines (Phase 0 Week 5)</p>
+
+<p>---</p>
+
+<h3>Rollback Plan</h3>
+
+<p><strong>Trigger Scenarios:</strong></p>
+
+<p>| Trigger | Week | Action | Rollback Target |</p>
+<p>|---------|------|--------|-----------------|</p>
+<p>| Phase 0 < 70% coverage | 5 | Extend 2 weeks OR abort | N/A (no code changes yet) |</p>
+<p>| Integration tests fail | 6-13 | Rollback to last week | Previous week tag |</p>
+<p>| Golden baseline < 95% match | 13 | STOP deployment | Week 12 (pre-validation) |</p>
+<p>| <50% progress at Week 10 | 10 | Abort, deliver partial | Depends (Phase 1 or abort) |</p>
+<p>| Developer unavailable >3 days | Any | Pause project | Current week |</p>
+
+<p><strong>Rollback Procedures:</strong> See <code>docs/operations/EPIC-026-rollback-playbook.md</code> (to be created Week 0)</p>
+
+<p>---</p>
+
+<h2>Acceptance Criteria</h2>
+
+<h3>Phase 0 Definition of Done (Gate 1)</h3>
+
+<ul>
+<li>[ ] 436+ tests created (85%+ coverage)</li>
+<li>[ ] Test infrastructure operational (pytest-playwright, golden master)</li>
+<li>[ ] Integration test suite: 50+ scenarios, all GREEN</li>
+<li>[ ] Flaky tests: <5% of total tests</li>
+<li>[ ] Golden baseline exported: 42 definitions with validation results</li>
+<li>[ ] Performance benchmarks recorded</li>
+<li>[ ] Business logic extraction document complete</li>
+<li>[ ] State audit complete (208 usages inventoried)</li>
+</ul>
+
+<p><strong>Gate 1 Decision:</strong> GO to Phase 1 only if ALL criteria met</p>
+
+<p>---</p>
+
+<h3>Phase 1 Definition of Done (Gate 2)</h3>
+
+<ul>
+<li>[ ] definitie_repository split into READ/WRITE/BULK services</li>
+<li>[ ] All 51 existing tests passing</li>
+<li>[ ] 51 new service tests created (102 total)</li>
+<li>[ ] Backward compatibility maintained (facade pattern)</li>
+<li>[ ] No circular dependencies (CI check GREEN)</li>
+<li>[ ] Velocity baseline established (features/week measured)</li>
+<li>[ ] Velocity improvement >= 10% observed (2-week measurement)</li>
+<li>[ ] Code review approved by architecture team</li>
+</ul>
+
+<p><strong>Gate 2 Decision:</strong> GO to Phase 2 only if velocity >= 10% + stakeholder approval</p>
+
+<p>---</p>
+
+<h3>Phase 2 Definition of Done (Gate 3)</h3>
+
+<ul>
+<li>[ ] Generation Orchestrator extracted (380 LOC → <50 LOC in UI)</li>
+<li>[ ] Regeneration Orchestrator extracted (500 LOC → service)</li>
+<li>[ ] UI files thinned: tabbed_interface <400 LOC, generator_tab <800 LOC</li>
+<li>[ ] 74% LOC reduction in UI layer</li>
+<li>[ ] All 436+ tests passing (100% GREEN)</li>
+<li>[ ] Integration tests: 50+ scenarios GREEN</li>
+<li>[ ] Golden baseline: 100% match for all 42 definitions</li>
+<li>[ ] Performance benchmarks >= baseline (no degradation)</li>
+<li>[ ] Async patterns clean (no asyncio.run nesting)</li>
+<li>[ ] State management centralized (SessionStateManager only)</li>
+<li>[ ] No circular dependencies</li>
+<li>[ ] Code review approved</li>
+</ul>
+
+<p><strong>Gate 3 Decision:</strong> GO to production only if golden baseline 100% match</p>
+
+<p>---</p>
+
+<h3>Final Epic Definition of Done</h3>
+
+<ul>
+<li>[ ] All 3 phases complete (or Phase 1-2 if Phase 3 skipped)</li>
+<li>[ ] All quantitative targets met (see Goals section)</li>
+<li>[ ] All tests GREEN (436+ tests minimum)</li>
+<li>[ ] Golden baseline 100% match (production validation)</li>
+<li>[ ] Documentation updated:</li>
+<li> - [ ] Architecture diagrams (service boundaries)</li>
+<li> - [ ] Rollback playbook</li>
+<li> - [ ] Business logic extraction document</li>
+<li> - [ ] State audit document</li>
+<li> - [ ] Migration guide</li>
+<li>[ ] Team trained on new architecture</li>
+<li>[ ] Production deployment successful (no regressions for 1 week)</li>
+<li>[ ] Velocity improvement >= 15% sustained (3-month measurement)</li>
+</ul>
+
+<p>---</p>
+
+<h2>Budget & Resource Allocation</h2>
+
+<h3>Detailed Cost Breakdown</h3>
+
+<p><strong>Phase 0: Test Foundation (5 weeks)</strong></p>
+<ul>
+<li>Test Engineer: 5 weeks × €5,000/week = €25,000</li>
+<li>Infrastructure: pytest-playwright, golden master framework = (included)</li>
+<li>**Total Phase 0:** €25,000</li>
+</ul>
+
+<p><strong>Phase 1: Repository Refactor (3 weeks)</strong></p>
+<ul>
+<li>Code Architect: 3 weeks × €6,000/week = €18,000</li>
+<li>**Total Phase 1:** €18,000</li>
+</ul>
+
+<p><strong>Phase 2: Critical Path UI (4 weeks)</strong> - OPTIONAL</p>
+<ul>
+<li>Code Architect: 4 weeks × €6,000/week = €24,000</li>
+<li>**Total Phase 2:** €24,000</li>
+</ul>
+
+<p><strong>Week 0: Prerequisites</strong></p>
+<ul>
+<li>Business logic extraction: 1 week × €6,000 = €6,000</li>
+<li>State audit: 3 days × €6,000/week = €2,500</li>
+<li>Backup developer onboarding: 2 days × €5,000/week = €1,500</li>
+<li>**Total Week 0:** €10,000</li>
+</ul>
+
+<p>---</p>
+
+<h3>Investment Scenarios</h3>
+
+<p>| Scenario | Phases | Duration | Cost | ROI (3yr) | Recommendation |</p>
+<p>|----------|--------|----------|------|-----------|----------------|</p>
+<p>| <strong>Minimum</strong> | Phase 0 only | 5 weeks | €25k | N/A (tests only) | If Phase 1 rejected |</p>
+<p>| <strong>Hybrid Staged</strong> | Phase 0 + 1 | 8 weeks | €43k | +89% | Default commitment |</p>
+<p>| <strong>Hybrid Full</strong> | Phase 0 + 1 + 2 | 12 weeks | €67k | +157% | If Phase 1 successful |</p>
+<p>| <strong>Full Scope</strong> | Add 3 more files | 16-20 weeks | €100-150k | +112% | If roadmap requires |</p>
+
+<p><strong>Recommended Investment:</strong> €67k (Hybrid Full) - Best ROI with manageable risk</p>
+
+<p>---</p>
+
+<h3>Resource Requirements</h3>
+
+<p><strong>Phase 0 (Weeks 1-5):</strong></p>
+<ul>
+<li>Test Engineer: 100% (40 hrs/week)</li>
+<li>Code Architect: 20% (8 hrs/week - advisory)</li>
+</ul>
+
+<p><strong>Phase 1 (Weeks 6-8):</strong></p>
+<ul>
+<li>Code Architect: 100% (40 hrs/week)</li>
+<li>Test Engineer: 20% (8 hrs/week - test maintenance)</li>
+</ul>
+
+<p><strong>Phase 2 (Weeks 9-13):</strong></p>
+<ul>
+<li>Code Architect: 100% (40 hrs/week)</li>
+<li>Test Engineer: 20% (8 hrs/week - integration testing)</li>
+</ul>
+
+<p><strong>Continuous (Weeks 0-13):</strong></p>
+<ul>
+<li>Backup Developer: 10% (4 hrs/week - knowledge transfer)</li>
+<li>Product Owner: 5% (2 hrs/week - checkpoint reviews)</li>
+</ul>
+
+<p>---</p>
+
+<h2>Notes</h2>
+
+<h3>Related Documentation</h3>
+
+<p><strong>Phase 1 Analysis (Already Complete):</strong></p>
+<ul>
+<li>✅ `docs/backlog/EPIC-026/phase-1/definitie_repository_responsibility_map.md`</li>
+<li>✅ `docs/backlog/EPIC-026/phase-1/definition_generator_tab_responsibility_map.md`</li>
+<li>✅ `docs/backlog/EPIC-026/phase-1/tabbed_interface_responsibility_map.md`</li>
+<li>✅ `docs/backlog/EPIC-026/phase-1/RECOMMENDATION.md` (9-week orchestrator-first plan)</li>
+<li>✅ `docs/backlog/EPIC-026/phase-1/BUSINESS_LOGIC_EXTRACTION_PLAN.md` (comprehensive)</li>
+</ul>
+
+<p><strong>5-Agent Analysis (2025-10-03):</strong></p>
+<ul>
+<li>Agent 1: Business Impact & ROI Analysis (~40 pages)</li>
+<li>Agent 2: Technical Architecture Analysis (~40 pages)</li>
+<li>Agent 3: User Stories Quality Audit (~40 pages)</li>
+<li>Agent 4: Timeline & Resource Planning (~40 pages)</li>
+<li>Agent 5: Risk & Mitigation Strategy (~50 pages)</li>
+<li>**Total:** ~210 pages comprehensive analysis</li>
+</ul>
+
+<p><strong>To Be Created (Week 0):</strong></p>
+<ul>
+<li>`docs/business-logic/EPIC-026-extracted-rules.md` (business logic extraction)</li>
+<li>`docs/technical/EPIC-026-state-audit.md` (208 session_state usages)</li>
+<li>`docs/operations/EPIC-026-rollback-playbook.md` (rollback procedures)</li>
+<li>`config/session_state_schema.yaml` (state validation schema)</li>
+</ul>
+
+<p><strong>Original v1.0:</strong></p>
+<ul>
+<li>`docs/backlog/EPIC-025/US-427/US-427-REFACTORING-STRATEGY.md`</li>
+<li>`docs/testing/US-427-coverage-baseline.md`</li>
+</ul>
+
+<p>---</p>
+
+<h3>Key Principles (Revised)</h3>
+
+<ol>
+<li>**Test-First, Refactor-Second** (not incremental without tests)</li>
+<li>**Golden Master Protection** (record behavior, validate match)</li>
+<li>**One Responsibility per Module** (SRP - unchanged)</li>
+<li>**Dependency Injection** (testability - unchanged)</li>
+<li>**Honest Estimates** (12 weeks, not 11-16 days)</li>
+<li>**Checkpoints Every Week** (Go/No-Go decisions)</li>
+<li>**Scope Flexibility** (can stop at Phase 1 if needed)</li>
+<li>**Risk-First Approach** (address critical risks in Phase 0)</li>
+</ol>
+
+<p>---</p>
+
+<h3>Lessons Learned from v1.0</h3>
+
+<p><strong>What Went Wrong:</strong></p>
+<ol>
+<li>❌ Assumed "file splitting" (reality: architectural refactoring)</li>
+<li>❌ Assumed tests existed (reality: 0-1 tests for god objects)</li>
+<li>❌ Underestimated hidden complexity (880 LOC orchestrators)</li>
+<li>❌ No Phase 0 (test creation not scoped)</li>
+<li>❌ Optimistic timeline (11-16 days vs 12 weeks reality)</li>
+</ol>
+
+<p><strong>What v2.0 Fixes:</strong></p>
+<ol>
+<li>✅ Phase 0 mandatory (5 weeks test creation)</li>
+<li>✅ Realistic timeline (12 weeks with contingency)</li>
+<li>✅ All risks documented (17 risks, 6 critical)</li>
+<li>✅ Scope flexibility (can stop at Phase 1)</li>
+<li>✅ Checkpoints every week (early abort if needed)</li>
+</ol>
+
+<p>---</p>
+
+<h3>Alternative Approaches Considered</h3>
+
+<p><strong>Option A: No Refactoring</strong> (Rejected)</p>
+<ul>
+<li>Keep god objects, accept technical debt</li>
+<li>Pros: €0 cost, no risk</li>
+<li>Cons: Velocity degrades over time, bugs accumulate</li>
+<li>**Verdict:** REJECTED - technical debt compounds</li>
+</ul>
+
+<p><strong>Option B: Minimal Viable Refactoring</strong> (Fallback)</p>
+<ul>
+<li>Phase 0 + Phase 1 only (repository)</li>
+<li>8 weeks, €43k, 30% value</li>
+<li>**Verdict:** ACCEPTABLE FALLBACK if Phase 2 rejected</li>
+</ul>
+
+<p><strong>Option C: Full Scope (All 5 Files)</strong> (Future)</p>
+<ul>
+<li>Add web_lookup + validation_orchestrator (4-8 more weeks)</li>
+<li>16-20 weeks, €100-150k, 100% value</li>
+<li>**Verdict:** DEFER to future epic, only if hybrid proves ROI</li>
+</ul>
+
+<p><strong>Option D: Rewrite Instead of Refactor</strong> (Nuclear)</p>
+<ul>
+<li>Throw away, rebuild from scratch</li>
+<li>6-12 months, €200-500k</li>
+<li>**Verdict:** REJECTED - too risky, lose domain knowledge</li>
+</ul>
+
+<p><strong>Chosen: Hybrid Staged Approach</strong> (v2.0)</p>
+<ul>
+<li>Phase 0 (tests) + Phase 1 (repository) + Phase 2 (UI orchestrators)</li>
+<li>12 weeks, €67k, 70% value, MEDIUM risk</li>
+<li>**Verdict:** BEST BALANCE of value, cost, risk, timeline</li>
+</ul>
+
+<p>---</p>
+
+<h2>Stakeholder Communication</h2>
+
+<h3>What Changed from v1.0 → v2.0?</h3>
+
+<p><strong>Timeline:</strong></p>
+<ul>
+<li>v1.0: 11-16 days</li>
+<li>v2.0: 8-12 weeks (Hybrid Staged)</li>
+<li>**Change:** 5-8x longer (but realistic)</li>
+</ul>
+
+<p><strong>Cost:</strong></p>
+<ul>
+<li>v1.0: €12.8k</li>
+<li>v2.0: €43-67k (Hybrid)</li>
+<li>**Change:** 3-5x higher (includes Phase 0 tests)</li>
+</ul>
+
+<p><strong>Scope:</strong></p>
+<ul>
+<li>v1.0: 3 files (all god objects)</li>
+<li>v2.0: 2 files (deferred repository, focus on UI)</li>
+<li>**Change:** Narrower scope, higher impact</li>
+</ul>
+
+<p><strong>Risk:</strong></p>
+<ul>
+<li>v1.0: 3 risks documented</li>
+<li>v2.0: 17 risks identified (6 critical)</li>
+<li>**Change:** Honest assessment, mitigations defined</li>
+</ul>
+
+<p>---</p>
+
+<h3>Why Accept v2.0?</h3>
+
+<p><strong>ROI Improves Despite Higher Cost:</strong></p>
+<ul>
+<li>v1.0: +341% ROI (unrealistic)</li>
+<li>v2.0: +89% to +157% ROI (realistic, evidence-based)</li>
+</ul>
+
+<p><strong>Risk Decreases Despite More Risks Identified:</strong></p>
+<ul>
+<li>v1.0: HIGH risk (no tests, blind refactoring)</li>
+<li>v2.0: MEDIUM risk (Phase 0 provides safety net)</li>
+</ul>
+
+<p><strong>Value Delivery Earlier:</strong></p>
+<ul>
+<li>v1.0: All-or-nothing at Week 3</li>
+<li>v2.0: Incremental value (tests Week 5, repository Week 8, UI Week 13)</li>
+</ul>
+
+<p><strong>Abort Options:</strong></p>
+<ul>
+<li>v1.0: No safe abort points</li>
+<li>v2.0: Can stop at Phase 1 (30% value) or Phase 2 (70% value)</li>
+</ul>
+
+<p>---</p>
+
+<h3>What's the ROI?</h3>
+
+<p><strong>Investment:</strong> €67k (12 weeks, Hybrid Full)</p>
+
+<p><strong>Benefits (3-year horizon):</strong></p>
+<ul>
+<li>Velocity gain: 15-20% (realistic, measured)</li>
+<li>20 additional features/year × €1,500/feature = €30k/year</li>
+<li>Reduced debugging: 10 hours/month × €100/hr × 12 months = €12k/year</li>
+<li>**Total annual benefit:** €42k/year</li>
+</ul>
+
+<p><strong>Payback:</strong> €67k / €42k = 1.6 years (19 months)</p>
+
+<p><strong>3-Year ROI:</strong> (€42k × 3 - €67k) / €67k = <strong>+89%</strong></p>
+
+<p>---</p>
+
+<h3>Decision Needed</h3>
+
+<p><strong>Option 1:</strong> Approve Hybrid Staged Approach (Recommended)</p>
+<ul>
+<li>Phase 0 (5 weeks, €25k) → Phase 1 (3 weeks, €18k) → Phase 2 (4 weeks, €24k)</li>
+<li>Total: 12 weeks, €67k</li>
+<li>ROI: +89% to +157% (positive)</li>
+</ul>
+
+<p><strong>Option 2:</strong> Approve Minimum Viable (Fallback)</p>
+<ul>
+<li>Phase 0 (5 weeks, €25k) → Phase 1 (3 weeks, €18k)</li>
+<li>Total: 8 weeks, €43k</li>
+<li>ROI: +30% to +50% (lower but safer)</li>
+</ul>
+
+<p><strong>Option 3:</strong> Reject Epic (Abort)</p>
+<ul>
+<li>Accept technical debt</li>
+<li>Focus on new features</li>
+<li>Revisit in 6-12 months</li>
+</ul>
+
+<p><strong>Deadline for Decision:</strong> End of Week 0 (after prerequisites complete)</p>
+
+<p>---</p>
+
+<p><strong>Status:</strong> PENDING APPROVAL (Revision 2.0)</p>
+<p><strong>Next Action:</strong> Stakeholder review of 5-agent analysis + this revised epic</p>
+<p><strong>Decision Required:</strong></p>
+<ol>
+<li>Approve Hybrid Staged Approach (€67k, 12 weeks)?</li>
+<li>Approve prerequisites (Week 0, €10k)?</li>
+<li>Assign resources (test engineer, backup developer)?</li>
+</ol>
+
+<p>---</p>
+
+<p><strong>Prepared By:</strong> Code Architect Team</p>
+<p><strong>Contributors:</strong> 5-Agent Analysis (Business, Architecture, Stories, Timeline, Risk)</p>
+<p><strong>Date:</strong> 2025-10-03</p>
+<p><strong>Version:</strong> 2.0 (Major Revision)</p>
+<p><strong>Approvers Needed:</strong> Product Owner, Tech Lead, Stakeholders</p>
+
+  </div>
+</body>
+</html>

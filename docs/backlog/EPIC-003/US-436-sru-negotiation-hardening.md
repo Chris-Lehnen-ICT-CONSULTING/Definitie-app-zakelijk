@@ -1,7 +1,7 @@
 ---
 id: US-436
 epic: EPIC-003
-titel: SRU Negotiation Hardening
+titel: "US-436: - Robuuste SRU-integratie met oai_dc → srw_dc → dc schema-ladder en correcte content negotiation (Accept/httpAccept/r..."
 status: open
 prioriteit: P2
 story_points: 5

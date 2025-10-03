@@ -1,0 +1,34 @@
+{
+  "id": "ARAI05",
+  "naam": "Vermijd impliciete aannames",
+  "uitleg": "Een definitie bevat geen impliciete aannames die alleen met voorkennis begrepen kunnen worden.",
+  "toelichting": "Definities moeten zelfstandig begrijpelijk zijn. Formuleringen die gebaseerd zijn op aannames zoals 'gebruikelijk is', 'het systeem', of verwijzen naar onbekende contexten zorgen voor interpretatieproblemen. Een goede definitie maakt expliciet wat bedoeld wordt, zonder impliciete verwijzingen.",
+  "toetsvraag": "Bevat de definitie formuleringen die impliciet verwijzen naar aannames, gewoonten of contexten die niet worden toegelicht?",
+  "herkenbaar_patronen": [
+    "\\bzoals gebruikelijk\\b",
+    "\\bzoals bekend\\b",
+    "\\bin het systeem\\b",
+    "\\bde standaard\\b",
+    "\\bbekende procedure\\b"
+  ],
+  "goede_voorbeelden": [
+    "procedure: vastgelegde reeks stappen die wordt uitgevoerd bij het registreren van incidenten"
+  ],
+  "foute_voorbeelden": [
+    "procedure: zoals gebruikelijk uitgevoerd binnen het systeem",
+    "gegeven: informatie zoals bekend in de registratiepraktijk"
+  ],
+  "prioriteit": "midden",
+  "aanbeveling": "optioneel",
+  "geldigheid": "gehele definitie",
+  "status": "conceptueel",
+  "type": "begrijpelijkheid",
+  "thema": "zelfstandige leesbaarheid",
+  "brondocument": "Afgeleide AI-regel op basis van ASTRA",
+  "relatie": [
+    {
+      "fulltext": "Geen ontoegankelijke achtergrondkennis nodig",
+      "fullurl": "https://www.astraonline.nl/index.php/Geen_ontoegankelijke_achtergrondkennis_nodig"
+    }
+  ]
+}

@@ -1,0 +1,74 @@
+
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Requirements Dashboard</title>
+  <link rel="stylesheet" href="assets/style.css" />
+  <style>
+    th.sortable { cursor: pointer; user-select: none; }
+    th.sortable::after { content: '\2195'; font-size: 11px; margin-left: 6px; color: #9ca3af; }
+    th.sortable[data-sort=asc]::after { content: '\2191'; color: #111827; }
+    th.sortable[data-sort=desc]::after { content: '\2193'; color: #111827; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Requirements Dashboard</h1>
+    <p class="muted">Overzicht van alle requirements en links naar epics en bronbestanden.</p>
+    <p><a href="graph.html">↗️ Grafisch overzicht (REQ ↔ EPIC)</a></p>
+    <div style="margin: 12px 0 20px">
+      <input id="search" type="search" placeholder="Zoek (ID, titel, type, status, epic)" />
+    </div>
+    <table id="req-table">
+      <thead>
+        <tr>
+          <th class="sortable">ID</th>
+          <th class="sortable">Titel</th>
+          <th class="sortable">Type</th>
+          <th class="sortable">Prioriteit</th>
+          <th class="sortable">Status</th>
+          <th class="sortable">Epics</th>
+        </tr>
+      </thead>
+      <tbody>
+        
+      </tbody>
+    </table>
+  </div>
+  <script>
+    const input = document.getElementById('search');
+    const tbody = document.querySelector('#req-table tbody');
+    const thead = document.querySelector('#req-table thead');
+    input.addEventListener('input', () => {
+      const q = input.value.toLowerCase();
+      for (const tr of tbody.querySelectorAll('tr')) {
+        const text = tr.innerText.toLowerCase();
+        tr.style.display = text.includes(q) ? '' : 'none';
+      }
+    });
+
+    // Column sorting (natural compare)
+    const natCmp = (a, b) => a.localeCompare(b, undefined, {numeric: true, sensitivity: 'base'});
+    thead.addEventListener('click', (ev) => {
+      const th = ev.target.closest('th.sortable');
+      if (!th) return;
+      const ths = Array.from(thead.querySelectorAll('th'));
+      const idx = ths.indexOf(th);
+      const dir = th.dataset.sort === 'asc' ? 'desc' : 'asc';
+      for (const t of thead.querySelectorAll('th.sortable')) t.removeAttribute('data-sort');
+      th.setAttribute('data-sort', dir);
+      const rows = Array.from(tbody.querySelectorAll('tr'));
+      rows.sort((r1, r2) => {
+        const a = (r1.children[idx]?.innerText || '').trim();
+        const b = (r2.children[idx]?.innerText || '').trim();
+        const cmp = natCmp(a, b);
+        return dir === 'asc' ? cmp : -cmp;
+      });
+      rows.forEach(r => tbody.appendChild(r));
+    });
+  </script>
+</body>
+</html>
+    

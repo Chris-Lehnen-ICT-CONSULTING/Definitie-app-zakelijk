@@ -1,0 +1,1144 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Responsibility Map: tabbed_interface.py</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>id: EPIC-026-RESPONSIBILITY-MAP-TABBED-INTERFACE</p>
+<p>epic: EPIC-026</p>
+<p>phase: 1</p>
+<p>day: 2</p>
+<p>analyzed_file: src/ui/tabbed_interface.py</p>
+<p>created: 2025-10-02</p>
+<p>owner: code-architect</p>
+<p>status: complete</p>
+<p>---</p>
+
+<h1>Responsibility Map: tabbed_interface.py</h1>
+
+<p><strong>Analysis Date:</strong> 2025-10-02</p>
+<p><strong>File Path:</strong> <code>src/ui/tabbed_interface.py</code></p>
+<p><strong>File Size:</strong> 1,793 LOC</p>
+<p><strong>Methods Count:</strong> 39 methods (33 real + 6 stub + 4 module-level)</p>
+<p><strong>Complexity:</strong> <strong>VERY HIGH</strong> (Orchestration God Object)</p>
+
+<p>---</p>
+
+<h2>Executive Summary</h2>
+
+<h3>Key Findings</h3>
+
+<ul>
+<li>**Orchestration God Object:** 1,793 LOC als centrale controller voor ALLE UI functionaliteit</li>
+<li>**7 Service Boundaries** geïdentificeerd (UI orchestration, Generation, Context, Document, etc.)</li>
+<li>**ZERO Test Coverage:** Geen directe tests voor tabbed_interface.py</li>
+<li>**Single Importer:** Alleen `main.py` gebruikt deze class (goed voor refactoring!)</li>
+<li>**Mixed Concerns:** Tab routing, business logic, async orchestration, document processing - **ALLES in één class**</li>
+<li>**8 No-Op Stub Methods:** Pragma: no cover stubs die niets doen (code smell)</li>
+</ul>
+
+<h3>Refactoring Complexity: **VERY HIGH**</h3>
+
+<p><strong>Factors increasing complexity:</strong></p>
+<ul>
+<li>Central orchestrator for ENTIRE UI</li>
+<li>Async/sync mixing (ontological category determination)</li>
+<li>Direct service instantiation in __init__</li>
+<li>Multiple tab component coordination</li>
+<li>Document processing integration</li>
+<li>Session state management (50+ calls)</li>
+<li>Complex category scoring logic (hardcoded)</li>
+</ul>
+
+<p><strong>Factors supporting refactoring:</strong></p>
+<ul>
+<li>Single importer (main.py) - easy migration</li>
+<li>Clear tab delegation pattern</li>
+<li>Service abstraction already exists (get_definition_service)</li>
+<li>Tab components are separate classes</li>
+<li>No circular dependencies</li>
+</ul>
+
+<p>---</p>
+
+<h2>File Statistics</h2>
+
+<h3>Code Metrics</h3>
+<p>| Metric | Value | Threshold | Status |</p>
+<p>|--------|-------|-----------|--------|</p>
+<p>| <strong>Total LOC</strong> | 1,793 | <500 | ❌ CRITICAL (3.6x over) |</p>
+<p>| <strong>Real Methods</strong> | 33 | <20 | ❌ CRITICAL (1.7x over) |</p>
+<p>| <strong>Stub Methods</strong> | 6 | 0 | ❌ Dead code |</p>
+<p>| <strong>Module Functions</strong> | 4 | N/A | ℹ️ Helper functions |</p>
+<p>| <strong>Importers</strong> | 1 (main.py) | N/A | ✅ Good |</p>
+<p>| <strong>Test Files</strong> | 0 | N/A | ❌ NO coverage |</p>
+
+<h3>Dependency Analysis</h3>
+
+<p><strong>Direct Imports (30+):</strong></p>
+<pre><code># External
+import asyncio, os, json, re, logging, importlib.util
+from datetime import datetime, UTC
+from typing import Any
+import streamlit as st
+
+# Database
+from database.definitie_repository import get_definitie_repository
+
+# Domain
+from domain.ontological_categories import OntologischeCategorie
+
+# Document Processing
+from document_processing.document_extractor import supported_file_types
+from document_processing.document_processor import get_document_processor
+
+# Services
+from services import get_definition_service
+from services.regeneration_service import RegenerationService
+
+# UI Components (9 tabs!)
+from ui.components.definition_edit_tab import DefinitionEditTab
+from ui.components.definition_generator_tab import DefinitionGeneratorTab
+from ui.components.enhanced_context_manager_selector import EnhancedContextManagerSelector
+from ui.components.expert_review_tab import ExpertReviewTab
+from ui.components.monitoring_tab import MonitoringTab
+from ui.components.tabs.import_export_beheer import ImportExportBeheerTab
+from ui.components.web_lookup_tab import WebLookupTab
+from ui.components.prompt_debug_section import capture_voorbeelden_prompts
+from ui.components.context_state_cleaner import init_context_cleaner
+
+# Config &amp; Utils
+from config.feature_flags import FeatureFlags
+from ui.session_state import SessionStateManager
+from utils.container_manager import get_cached_container
+from utils.type_helpers import ensure_dict
+from integration.definitie_checker import CheckAction, DefinitieChecker</code></pre>
+
+<p><strong>Importers (1 file):</strong></p>
+<pre><code>src/main.py</code></pre>
+
+<p><strong>Test Coverage:</strong></p>
+<pre><code>NONE - No direct tests found</code></pre>
+
+<p>---</p>
+
+<h2>Method Inventory (39 Methods)</h2>
+
+<h3>A. Class Methods - TabbedInterface (33 methods)</h3>
+
+<h4>1. Initialization (1 method)</h4>
+<pre><code>__init__()                                                         # L97   - Initialize interface with ALL services</code></pre>
+
+<h4>2. Main Rendering (2 methods)</h4>
+<pre><code>render()                                                           # L255  - Main entry point, renders entire UI
+_render_main_tabs()                                                # L1592 - Render tab navigation
+_render_tab_content(tab_key)                                       # L1627 - Delegate to tab component</code></pre>
+
+<h4>3. Header & Footer (2 methods)</h4>
+<pre><code>_render_header()                                                   # L516  - App title and branding
+_render_footer()                                                   # L1693 - System info and diagnostics</code></pre>
+
+<h4>4. Ontological Category Determination (3 methods - ASYNC!)</h4>
+<pre><code>_determine_ontological_category(begrip, org_ctx, jur_ctx)         # L272  - ASYNC 6-step protocol
+_legacy_pattern_matching(begrip: str) -&gt; str                       # L334  - Fallback pattern matching
+_generate_category_reasoning(begrip, category, scores) -&gt; str      # L347  - Generate explanation
+_get_category_scores(begrip: str) -&gt; dict[str, int]               # L420  - Calculate category scores</code></pre>
+
+<h4>5. Global Context Management (3 methods)</h4>
+<pre><code>_render_global_context()                                           # L615  - Global context selector
+_render_simplified_context_selector() -&gt; dict[str, Any]            # L680  - Simplified context UI
+_render_context_summary(context_data)                              # L1394 - Display context summary</code></pre>
+
+<h4>6. Metadata & Status (2 methods)</h4>
+<pre><code>_render_metadata_fields()                                          # L702  - Metadata input fields
+_render_status_indicator()                                         # L602  - System status display</code></pre>
+
+<h4>7. Definition Generation Workflow (2 methods)</h4>
+<pre><code>_render_quick_generate_button(begrip, context_data)                # L787  - Quick generate button
+_handle_definition_generation(begrip, context_data)                # L821  - MAIN ORCHESTRATOR (380 LOC!)</code></pre>
+
+<h4>8. Document Context Processing (5 methods)</h4>
+<pre><code>_get_document_context() -&gt; dict[str, Any] | None                   # L1207 - Get doc context
+_build_document_context_summary(aggregated) -&gt; str                 # L1226 - Build summary
+_build_document_snippets(begrip, doc_ids, ...) -&gt; list[dict]       # L1260 - Extract snippets
+_render_document_upload_section()                                  # L1416 - Upload UI
+_process_uploaded_files(uploaded_files)                            # L1452 - Process uploads
+_render_uploaded_documents_list()                                  # L1497 - List uploaded docs</code></pre>
+
+<h4>9. Duplicate Check (1 method)</h4>
+<pre><code>_handle_duplicate_check(begrip, context_data)                      # L1349 - Duplicate checking</code></pre>
+
+<h4>10. Utility Methods (3 methods)</h4>
+<pre><code>_clear_all_fields()                                                # L1380 - Clear session state
+_dbg(label: str) -&gt; None                                           # L500  - Debug logging</code></pre>
+
+<h4>11. NO-OP STUB METHODS (8 methods - pragma: no cover)</h4>
+<pre><code>_handle_file_upload() -&gt; bool                                      # L1725 - Empty stub
+_handle_export()                                                   # L1729 - Empty stub
+_validate_inputs() -&gt; bool                                         # L1733 - Empty stub
+_update_progress() -&gt; dict                                         # L1737 - Empty stub
+_handle_user_interaction()                                         # L1741 - Empty stub
+_process_large_data() -&gt; bool                                      # L1745 - Empty stub
+_sync_backend_state() -&gt; dict                                      # L1749 - Empty stub
+_integrate_with_backend()                                          # L1753 - Empty stub</code></pre>
+
+<h3>B. Module-Level Functions (4 functions)</h3>
+
+<pre><code>render_tabbed_interface()                                          # L1758 - Main render wrapper
+initialize_session_state()                                         # L1768 - Init session state
+generate_definition(*args, **kwargs)                               # L1781 - Patch target for tests
+process_uploaded_file(*args, **kwargs)                             # L1786 - Patch target for tests
+export_to_txt(*args, **kwargs)                                     # L1791 - Patch target for tests</code></pre>
+
+<p>---</p>
+
+<h2>Responsibility Boundaries (7 Services)</h2>
+
+<h3>1️⃣ **UI ORCHESTRATION & TAB ROUTING Service** (~350 LOC)</h3>
+
+<p><strong>Purpose:</strong> Main controller for UI navigation and tab coordination</p>
+
+<p><strong>Methods (7):</strong></p>
+<ul>
+<li>`__init__()` - Initialize ALL services and tab components</li>
+<li>`render()` - Main entry point</li>
+<li>`_render_header()` - App branding</li>
+<li>`_render_footer()` - System info</li>
+<li>`_render_status_indicator()` - Status display</li>
+<li>`_render_main_tabs()` - Tab navigation</li>
+<li>`_render_tab_content(tab_key)` - Delegate to tabs</li>
+</ul>
+
+<p><strong>Tab Components Managed:</strong></p>
+<ul>
+<li>DefinitionGeneratorTab</li>
+<li>DefinitionEditTab</li>
+<li>ExpertReviewTab</li>
+<li>ImportExportBeheerTab</li>
+<li>MonitoringTab</li>
+<li>WebLookupTab</li>
+<li>OrchestrationTab (optional, legacy)</li>
+</ul>
+
+<p><strong>Dependencies:</strong></p>
+<ul>
+<li>ALL tab components (9 imports!)</li>
+<li>SessionStateManager (state persistence)</li>
+<li>ServiceContainer (cached services)</li>
+<li>DefinitieChecker, DefinitieRepository</li>
+</ul>
+
+<p><strong>Business Logic:</strong></p>
+<ul>
+<li>Tab visibility logic (feature flags)</li>
+<li>Service initialization orchestration</li>
+<li>Dummy service fallback (for tests)</li>
+<li>Context cleaner initialization (force_clean=True)</li>
+</ul>
+
+<p><strong>Complexity:</strong> MEDIUM-HIGH</p>
+<ul>
+<li>Central initialization of ALL services</li>
+<li>Tab lifecycle management</li>
+<li>Feature flag coordination</li>
+<li>Fallback logic for missing services</li>
+</ul>
+
+<p>---</p>
+
+<h3>2️⃣ **ONTOLOGICAL CATEGORY DETERMINATION Service** (~260 LOC)</h3>
+
+<p><strong>Purpose:</strong> Determine ontological category for begrip (async 6-step protocol)</p>
+
+<p><strong>Methods (4):</strong></p>
+<ul>
+<li>`_determine_ontological_category(begrip, org, jur)` - **ASYNC** main logic</li>
+<li>`_legacy_pattern_matching(begrip)` - Fallback patterns</li>
+<li>`_generate_category_reasoning(begrip, category, scores)` - Explanation generation</li>
+<li>`_get_category_scores(begrip)` - Score calculation</li>
+</ul>
+
+<p><strong>Dependencies:</strong></p>
+<ul>
+<li>`OntologischeAnalyzer` (6-step protocol)</li>
+<li>`QuickOntologischeAnalyzer` (quick fallback)</li>
+<li>Hardcoded category patterns (type, proces, resultaat, exemplaar)</li>
+</ul>
+
+<p><strong>Business Logic:</strong></p>
+<ul>
+<li>6-step ontological analysis (async)</li>
+<li>Fallback to quick analyzer</li>
+<li>Ultra-fallback to pattern matching</li>
+<li>Pattern detection:</li>
+<li> - **Proces:** atie, eren, ing, verificatie, validatie, etc.</li>
+<li> - **Type:** bewijs, document, middel, systeem, etc.</li>
+<li> - **Resultaat:** besluit, uitslag, rapport, conclusie, etc.</li>
+<li> - **Exemplaar:** specifiek, individueel, persoon, zaak, etc.</li>
+<li>Score calculation (count pattern matches)</li>
+<li>Reasoning generation from patterns</li>
+</ul>
+
+<p><strong>Complexity:</strong> <strong>VERY HIGH</strong></p>
+<ul>
+<li>Async orchestration in sync UI context</li>
+<li>Multiple fallback layers (3 levels!)</li>
+<li>Hardcoded business rules (NOT data-driven)</li>
+<li>Pattern duplicated across 3 methods</li>
+</ul>
+
+<p><strong>⚠️ CRITICAL ISSUES:</strong></p>
+<ol>
+<li>**Hardcoded patterns** - Same patterns in 3 places (_generate_category_reasoning, _get_category_scores, _legacy_pattern_matching)</li>
+<li>**Async/Sync mixing** - Async method called from sync render context</li>
+<li>**Business logic in UI** - Category determination should be in domain/services layer</li>
+</ol>
+
+<p>---</p>
+
+<h3>3️⃣ **DEFINITION GENERATION ORCHESTRATION Service** (~380 LOC)</h3>
+
+<p><strong>Purpose:</strong> Main orchestrator for definition generation workflow</p>
+
+<p><strong>Methods (2):</strong></p>
+<ul>
+<li>`_render_quick_generate_button(begrip, context_data)` - Generate button UI</li>
+<li>`_handle_definition_generation(begrip, context_data)` - **MAIN ORCHESTRATOR**</li>
+</ul>
+
+<p><strong>The _handle_definition_generation method is a MASSIVE orchestrator (380 LOC!) that:</strong></p>
+<ol>
+<li>Validates context (min 1 of org/jur/wet)</li>
+<li>Determines ontological category (async call!)</li>
+<li>Gets document context</li>
+<li>Builds document snippets</li>
+<li>Gets regeneration context</li>
+<li>Calls definition service (async)</li>
+<li>Stores results in session state</li>
+<li>Prepares edit tab state</li>
+<li>Clears regeneration context</li>
+<li>Shows success message</li>
+</ol>
+
+<p><strong>Dependencies:</strong></p>
+<ul>
+<li>`get_definition_service()` - Definition generation</li>
+<li>`RegenerationService` - Regeneration context</li>
+<li>`get_document_processor()` - Document processing</li>
+<li>`SessionStateManager` - State storage (15+ calls!)</li>
+<li>`run_async()` - Async bridge</li>
+<li>`capture_voorbeelden_prompts()` - Debug prompts</li>
+</ul>
+
+<p><strong>Business Logic:</strong></p>
+<ul>
+<li>Context validation (min 1 required)</li>
+<li>Ontological category determination</li>
+<li>Document context aggregation</li>
+<li>Snippet extraction (max 2 snippets, 280 char window)</li>
+<li>Regeneration context handling</li>
+<li>Result formatting and storage</li>
+<li>Edit tab preparation</li>
+<li>Debug logging (DEBUG_EXAMPLES env var)</li>
+</ul>
+
+<p><strong>Complexity:</strong> <strong>CRITICAL</strong></p>
+<ul>
+<li>380 LOC in SINGLE method!</li>
+<li>Orchestrates 5+ services</li>
+<li>Complex async/sync coordination</li>
+<li>Extensive session state mutations</li>
+<li>Multiple error handling paths</li>
+<li>Debug instrumentation throughout</li>
+</ul>
+
+<p><strong>⚠️ THIS IS THE CORE GOD METHOD - HIGHEST REFACTORING PRIORITY!</strong></p>
+
+<p>---</p>
+
+<h3>4️⃣ **DOCUMENT CONTEXT PROCESSING Service** (~350 LOC)</h3>
+
+<p><strong>Purpose:</strong> Handle document upload, processing, and context extraction</p>
+
+<p><strong>Methods (6):</strong></p>
+<ul>
+<li>`_get_document_context()` - Get aggregated doc context</li>
+<li>`_build_document_context_summary(aggregated)` - Build summary</li>
+<li>`_build_document_snippets(begrip, doc_ids, ...)` - Extract snippets</li>
+<li>`_render_document_upload_section()` - Upload UI</li>
+<li>`_process_uploaded_files(uploaded_files)` - Process uploads</li>
+<li>`_render_uploaded_documents_list()` - List uploaded docs</li>
+</ul>
+
+<p><strong>Dependencies:</strong></p>
+<ul>
+<li>`get_document_processor()` - Document processor service</li>
+<li>`supported_file_types()` - Supported formats</li>
+<li>`SessionStateManager` - Doc storage</li>
+</ul>
+
+<p><strong>Business Logic:</strong></p>
+<ul>
+<li>Document upload handling (TXT, PDF, DOCX, MD, CSV, JSON, HTML, RTF)</li>
+<li>Text extraction per format</li>
+<li>Aggregated context building:</li>
+<li> - Keywords (top 10)</li>
+<li> - Concepts (top 5)</li>
+<li> - Legal refs (top 5)</li>
+<li> - Context hints (top 3)</li>
+<li>Snippet extraction with citation:</li>
+<li> - PDF: page numbers (p. X)</li>
+<li> - DOCX: paragraph numbers (¶ X)</li>
+<li> - Max 2 snippets per doc</li>
+<li> - 280 char window around begrip</li>
+<li>Progress bar UI</li>
+<li>Error handling per document</li>
+</ul>
+
+<p><strong>Complexity:</strong> MEDIUM-HIGH</p>
+<ul>
+<li>Multi-format document handling</li>
+<li>Citation extraction logic</li>
+<li>Aggregation and limiting</li>
+<li>Snippet windowing algorithm</li>
+</ul>
+
+<p>---</p>
+
+<h3>5️⃣ **CONTEXT MANAGEMENT Service** (~180 LOC)</h3>
+
+<p><strong>Purpose:</strong> Manage global context (org/jur/wet) selection and display</p>
+
+<p><strong>Methods (3):</strong></p>
+<ul>
+<li>`_render_global_context()` - Global context selector</li>
+<li>`_render_simplified_context_selector()` - Simplified UI</li>
+<li>`_render_context_summary(context_data)` - Display summary</li>
+</ul>
+
+<p><strong>Dependencies:</strong></p>
+<ul>
+<li>`ContextSelector` (EnhancedContextManagerSelector)</li>
+<li>`SessionStateManager` - Context storage</li>
+<li>Streamlit UI components</li>
+</ul>
+
+<p><strong>Business Logic:</strong></p>
+<ul>
+<li>Context selection UI (org, juridisch, wettelijk)</li>
+<li>Context summary formatting</li>
+<li>Global context availability for all tabs</li>
+</ul>
+
+<p><strong>Complexity:</strong> LOW-MEDIUM</p>
+<ul>
+<li>Delegated to ContextSelector component</li>
+<li>Simple display logic</li>
+<li>Clear separation of concerns</li>
+</ul>
+
+<p>---</p>
+
+<h3>6️⃣ **DUPLICATE CHECK Service** (~30 LOC)</h3>
+
+<p><strong>Purpose:</strong> Check for duplicate definitions before generation</p>
+
+<p><strong>Methods (1):</strong></p>
+<ul>
+<li>`_handle_duplicate_check(begrip, context_data)` - Duplicate check</li>
+</ul>
+
+<p><strong>Dependencies:</strong></p>
+<ul>
+<li>`DefinitieChecker` - Duplicate detection service</li>
+<li>`SessionStateManager` - Result storage</li>
+</ul>
+
+<p><strong>Business Logic:</strong></p>
+<ul>
+<li>Context normalization (JSON sorted arrays)</li>
+<li>Duplicate check via checker service</li>
+<li>Result storage for UI display</li>
+</ul>
+
+<p><strong>Complexity:</strong> LOW</p>
+<ul>
+<li>Simple delegation to checker</li>
+<li>Minimal logic</li>
+</ul>
+
+<p>---</p>
+
+<h3>7️⃣ **UTILITY & METADATA Service** (~90 LOC)</h3>
+
+<p><strong>Purpose:</strong> Metadata fields, utilities, debugging</p>
+
+<p><strong>Methods (4 real + 8 stubs):</strong></p>
+<ul>
+<li>`_render_metadata_fields()` - Metadata input</li>
+<li>`_clear_all_fields()` - Clear session state</li>
+<li>`_dbg(label)` - Debug logging</li>
+<li>**8 NO-OP STUBS** (pragma: no cover)</li>
+</ul>
+
+<p><strong>Dependencies:</strong></p>
+<ul>
+<li>`SessionStateManager` - State management</li>
+</ul>
+
+<p><strong>Business Logic:</strong></p>
+<ul>
+<li>Metadata input fields (organisatie, categorie, etc.)</li>
+<li>Session state clearing (6 fields)</li>
+<li>Debug output</li>
+</ul>
+
+<p><strong>Complexity:</strong> LOW</p>
+<ul>
+<li>Simple utilities</li>
+<li>**Code smell: 8 empty stub methods**</li>
+</ul>
+
+<p><strong>⚠️ ISSUE:</strong> 8 stub methods with <code>pragma: no cover</code> - DEAD CODE to remove</p>
+
+<p>---</p>
+
+<h2>Cross-Cutting Concerns</h2>
+
+<h3>1. Session State Management</h3>
+<p><strong>Usage:</strong> Pervasive throughout ALL methods (50+ calls)</p>
+<ul>
+<li>Context storage (org/jur/wet)</li>
+<li>Generation results</li>
+<li>Document context</li>
+<li>Regeneration state</li>
+<li>Navigation state</li>
+<li>Edit tab preparation</li>
+<li>Debug flags</li>
+</ul>
+
+<p><strong>Risk:</strong> Tight coupling to session state structure</p>
+
+<h3>2. Async/Sync Mixing</h3>
+<p><strong>Async operations in sync UI:</strong></p>
+<ul>
+<li>`_determine_ontological_category()` is ASYNC</li>
+<li>Called from sync `_handle_definition_generation()`</li>
+<li>Uses `run_async()` bridge for `definition_service.generate_definition()`</li>
+</ul>
+
+<p><strong>Risk:</strong> Concurrency issues, complex error handling</p>
+
+<h3>3. Service Orchestration</h3>
+<p><strong>Multiple service coordination:</strong></p>
+<ul>
+<li>DefinitionService</li>
+<li>RegenerationService</li>
+<li>DocumentProcessor</li>
+<li>DefinitieChecker</li>
+<li>OntologischeAnalyzer</li>
+<li>ValidationOrchestratorV2</li>
+</ul>
+
+<p><strong>Risk:</strong> Complex initialization, dependency management</p>
+
+<h3>4. Hardcoded Business Logic</h3>
+<p><strong>Pattern detection duplicated:</strong></p>
+<ul>
+<li>`_generate_category_reasoning()` - patterns dict</li>
+<li>`_get_category_scores()` - indicator lists</li>
+<li>`_legacy_pattern_matching()` - patterns</li>
+</ul>
+
+<p><strong>Risk:</strong> Duplication, inconsistency, not data-driven</p>
+
+<h3>5. Error Handling</h3>
+<p><strong>Error patterns:</strong></p>
+<ul>
+<li>Try/except blocks everywhere</li>
+<li>Silent failures (pass in except)</li>
+<li>Fallback chains (3 levels for category determination)</li>
+<li>Dummy service for missing API key</li>
+</ul>
+
+<h3>6. Debug Instrumentation</h3>
+<p><strong>Debug code throughout:</strong></p>
+<ul>
+<li>`DEBUG_EXAMPLES` env var checks</li>
+<li>`_dbg()` method calls</li>
+<li>Extensive logging</li>
+<li>Debug checkboxes in UI</li>
+</ul>
+
+<p>---</p>
+
+<h2>Tab Component Architecture</h2>
+
+<h3>Managed Tab Components (7 active + 1 legacy)</h3>
+
+<pre><code># Active tabs
+self.definition_tab = DefinitionGeneratorTab(self.checker)
+self.edit_tab = DefinitionEditTab(validation_service)
+self.expert_tab = ExpertReviewTab(self.repository)
+self.import_export_beheer_tab = ImportExportBeheerTab(self.repository)
+self.monitoring_tab = MonitoringTab(self.repository)
+self.web_lookup_tab = WebLookupTab(self.repository)
+
+# Legacy (feature flagged)
+self.orchestration_tab = OrchestrationTab(self.repository)  # if ENABLE_LEGACY_TAB</code></pre>
+
+<h3>Tab Configuration Structure</h3>
+<pre><code>self.tab_config = {
+    "generator": {...},
+    "edit": {...},
+    "expert": {...},
+    "import_export_beheer": {...},
+    "monitoring": {...},
+    "web_lookup": {...},
+    # "orchestration": {...}  # DISABLED
+}</code></pre>
+
+<h3>Tab Delegation Pattern</h3>
+<ul>
+<li>`_render_main_tabs()` - Creates tab UI</li>
+<li>`_render_tab_content(tab_key)` - Delegates to tab.render()</li>
+<li>Tab components are self-contained (good!)</li>
+<li>TabbedInterface just coordinates (less good - still too much logic)</li>
+</ul>
+
+<p>---</p>
+
+<h2>Service Boundary Design (Proposed)</h2>
+
+<h3>🎯 Target Architecture</h3>
+
+<pre><code>tabbed_interface.py (UI COORDINATOR ONLY - ~200 LOC)
+├── Tab routing logic (~50 LOC)
+├── Service initialization (~50 LOC)
+├── Header/Footer rendering (~50 LOC)
+└── Context selector delegation (~50 LOC)
+
+NEW Services:
+├── OntologicalCategoryService (~260 LOC) **CRITICAL**
+│   ├── 6-step protocol
+│   ├── Quick analysis
+│   ├── Pattern matching
+│   └── Score calculation
+│   └── NOTE: Extract patterns to config/data
+│
+├── DefinitionGenerationOrchestratorService (~380 LOC) **CRITICAL**
+│   ├── Context validation
+│   ├── Category determination (delegates to OntologicalCategoryService)
+│   ├── Document context integration
+│   ├── Snippet extraction
+│   ├── Regeneration handling
+│   ├── Service coordination
+│   └── Result storage
+│
+├── DocumentContextService (~350 LOC)
+│   ├── Upload handling
+│   ├── Text extraction
+│   ├── Context aggregation
+│   ├── Snippet extraction
+│   └── Citation formatting
+│
+├── ContextManagementPresentationService (~180 LOC)
+│   ├── Context selector UI
+│   ├── Summary formatting
+│   └── Global context coordination
+│
+└── DuplicateCheckService (~30 LOC)
+    └── Duplicate detection (already abstracted via DefinitieChecker)</code></pre>
+
+<p>---</p>
+
+<h2>Migration Complexity Assessment</h2>
+
+<h3>Complexity Rating: **VERY HIGH** (9/10)</h3>
+
+<p><strong>Factors Supporting Migration:</strong></p>
+<p>✅ Single importer (only main.py)</p>
+<p>✅ Tab components already separated</p>
+<p>✅ Service abstraction exists (get_definition_service)</p>
+<p>✅ No circular dependencies</p>
+<p>✅ Clear orchestration pattern</p>
+
+<p><strong>Factors Increasing Complexity:</strong></p>
+<p>❌ Central orchestrator for ENTIRE UI (1,793 LOC)</p>
+<p>❌ _handle_definition_generation is 380 LOC GOD METHOD</p>
+<p>❌ Async/sync mixing (category determination, generation)</p>
+<p>❌ Hardcoded business logic (patterns in 3 places)</p>
+<p>❌ Pervasive session state usage (50+ calls)</p>
+<p>❌ Zero test coverage</p>
+<p>❌ 8 dead stub methods (code smell)</p>
+<p>❌ Complex service initialization with fallbacks</p>
+<p>❌ Document processing integration</p>
+<p>❌ Regeneration context coordination</p>
+
+<h3>Migration Risk Areas</h3>
+
+<ol>
+<li>**God Method Refactoring**</li>
+</ol>
+<ul>
+<li>  - `_handle_definition_generation()` is 380 LOC</li>
+<li>  - Orchestrates 5+ services</li>
+<li>  - Risk: Breaking complex workflow</li>
+</ul>
+
+<ol>
+<li>**Async/Sync Boundary**</li>
+</ol>
+<ul>
+<li>  - Category determination is async in sync UI</li>
+<li>  - `run_async()` bridge usage</li>
+<li>  - Risk: Concurrency issues</li>
+</ul>
+
+<ol>
+<li>**Hardcoded Patterns**</li>
+</ol>
+<ul>
+<li>  - Category patterns in 3 places</li>
+<li>  - Risk: Inconsistency, duplication</li>
+</ul>
+
+<ol>
+<li>**Session State Coupling**</li>
+</ol>
+<ul>
+<li>  - 50+ SessionStateManager calls</li>
+<li>  - Risk: Breaking state contracts</li>
+</ul>
+
+<ol>
+<li>**Service Initialization**</li>
+</ol>
+<ul>
+<li>  - Complex __init__ with fallbacks</li>
+<li>  - Risk: Initialization failures</li>
+</ul>
+
+<p>---</p>
+
+<h2>Recommended Extraction Order</h2>
+
+<h3>Phase 1: PREPARATION (Week 1)</h3>
+<p><strong>Before ANY extraction:</strong></p>
+<ol>
+<li>Create integration tests for current behavior</li>
+<li>Document session state schema</li>
+<li>Document tab coordination protocol</li>
+<li>Extract hardcoded patterns to config</li>
+<li>Remove 8 dead stub methods</li>
+</ol>
+
+<h3>Phase 2: LOW-RISK Extractions (Week 2)</h3>
+<ol>
+<li>**Context Management Service** (LOW, 3 methods, ~180 LOC)</li>
+</ol>
+<ul>
+<li>  - Already delegated to ContextSelector</li>
+<li>  - Simple presentation logic</li>
+<li>  - Easy to test</li>
+</ul>
+
+<ol>
+<li>**Duplicate Check Service** (LOW, 1 method, ~30 LOC)</li>
+</ol>
+<ul>
+<li>  - Already abstracted via DefinitieChecker</li>
+<li>  - Minimal logic</li>
+<li>  - Quick win</li>
+</ul>
+
+<h3>Phase 3: MEDIUM-RISK Extractions (Week 3)</h3>
+<ol>
+<li>**Document Context Service** (MEDIUM-HIGH, 6 methods, ~350 LOC)</li>
+</ol>
+<ul>
+<li>  - Self-contained processing logic</li>
+<li>  - Clear inputs/outputs</li>
+<li>  - Some complexity (snippets, citations)</li>
+</ul>
+
+<ol>
+<li>**Ontological Category Service** (HIGH, 4 methods, ~260 LOC)</li>
+</ol>
+<ul>
+<li>  - Extract patterns to config FIRST</li>
+<li>  - Then extract service logic</li>
+<li>  - Complex async/sync boundary</li>
+<li>  - Multiple fallback layers</li>
+</ul>
+
+<h3>Phase 4: CRITICAL Extraction (Week 4-5)</h3>
+<ol>
+<li>**Definition Generation Orchestrator Service** ⚠️ (VERY HIGH, 2 methods, ~380 LOC)</li>
+</ol>
+<ul>
+<li>  - **MOST COMPLEX!**</li>
+<li>  - God method with 380 LOC</li>
+<li>  - Orchestrates 5+ services</li>
+<li>  - Async/sync coordination</li>
+<li>  - Extensive state management</li>
+<li>  - **REQUIRES extensive testing**</li>
+</ul>
+
+<h3>Phase 5: THIN UI LAYER (Week 6)</h3>
+<ol>
+<li>Reduce TabbedInterface to pure coordinator (~200 LOC)</li>
+</ol>
+<ul>
+<li>  - Tab routing only</li>
+<li>  - Service initialization</li>
+<li>  - Header/Footer</li>
+<li>  - Delegate everything else to services</li>
+</ul>
+
+<p>---</p>
+
+<h2>Testing Strategy</h2>
+
+<h3>Current Coverage: **ZERO**</h3>
+<ul>
+<li>No direct tests for tabbed_interface.py</li>
+<li>Indirect coverage via UI tests only</li>
+<li>High risk for regressions</li>
+</ul>
+
+<h3>Required Test Coverage</h3>
+
+<p><strong>Priority 1 (Before Refactor):</strong></p>
+<ol>
+<li>Integration tests for full generation flow</li>
+</ol>
+<ul>
+<li>  - Context validation</li>
+<li>  - Category determination</li>
+<li>  - Document context integration</li>
+<li>  - Generation orchestration</li>
+<li>  - Result storage</li>
+</ul>
+
+<p><strong>Priority 2 (During Refactor):</strong></p>
+<ol>
+<li>Unit tests for each extracted service</li>
+</ol>
+<ul>
+<li>  - OntologicalCategoryService: 90%+ (business logic)</li>
+<li>  - DefinitionGenerationOrchestrator: 95%+ (critical path)</li>
+<li>  - DocumentContextService: 85%+ (processing logic)</li>
+<li>  - ContextManagementService: 80%+ (presentation)</li>
+</ul>
+
+<p><strong>Priority 3 (After Refactor):</strong></p>
+<ol>
+<li>UI coordinator tests</li>
+</ol>
+<ul>
+<li>  - Tab routing</li>
+<li>  - Service initialization</li>
+<li>  - Error fallbacks</li>
+</ul>
+
+<h3>Test Data Requirements</h3>
+<ul>
+<li>Mock DefinitieChecker</li>
+<li>Mock DefinitionService</li>
+<li>Mock DocumentProcessor</li>
+<li>Mock OntologischeAnalyzer</li>
+<li>Sample generation results</li>
+<li>Sample document uploads</li>
+<li>Mock session state</li>
+</ul>
+
+<p>---</p>
+
+<h2>Dependencies & Side Effects</h2>
+
+<h3>External Dependencies</h3>
+<ol>
+<li>**Streamlit** - Heavy UI dependency</li>
+<li>**SessionStateManager** - Pervasive (50+ calls)</li>
+<li>**Service Layer** (6 services):</li>
+</ol>
+<ul>
+<li>  - DefinitionService</li>
+<li>  - RegenerationService</li>
+<li>  - DocumentProcessor</li>
+<li>  - DefinitieChecker</li>
+<li>  - OntologischeAnalyzer</li>
+<li>  - ValidationOrchestratorV2</li>
+</ul>
+
+<h3>Side Effects</h3>
+
+<p><strong>Session State Mutations:</strong></p>
+<ul>
+<li>last_generation_result</li>
+<li>editing_definition_id</li>
+<li>edit_*_context (3 fields)</li>
+<li>regeneration_* (3 fields)</li>
+<li>generation_options</li>
+<li>selected_documents</li>
+<li>documents_updated</li>
+</ul>
+
+<p><strong>Async Operations:</strong></p>
+<ul>
+<li>Category determination (asyncio)</li>
+<li>Definition generation (run_async)</li>
+</ul>
+
+<p><strong>Service Initialization:</strong></p>
+<ul>
+<li>Container initialization (cached)</li>
+<li>Tab component creation (7 tabs)</li>
+<li>Service fallback logic (dummy services)</li>
+</ul>
+
+<p><strong>UI Navigation:</strong></p>
+<ul>
+<li>Tab switching</li>
+<li>State preparation for other tabs</li>
+</ul>
+
+<p>---</p>
+
+<h2>Key Insights & Recommendations</h2>
+
+<h3>🚨 Critical Issues</h3>
+
+<ol>
+<li>**God Method Anti-Pattern**</li>
+</ol>
+<ul>
+<li>  - `_handle_definition_generation()` is 380 LOC - **URGENT refactoring**</li>
+<li>  - Violates Single Responsibility Principle severely</li>
+</ul>
+
+<ol>
+<li>**Hardcoded Business Logic**</li>
+</ol>
+<ul>
+<li>  - Category patterns in 3 different methods</li>
+<li>  - NOT data-driven, NOT configurable</li>
+<li>  - Duplication risk</li>
+</ul>
+
+<ol>
+<li>**Async/Sync Mixing**</li>
+</ol>
+<ul>
+<li>  - Async category determination in sync UI</li>
+<li>  - `run_async()` bridge complexity</li>
+<li>  - Error handling challenges</li>
+</ul>
+
+<ol>
+<li>**Zero Test Coverage**</li>
+</ol>
+<ul>
+<li>  - No direct tests for 1,793 LOC</li>
+<li>  - High regression risk</li>
+</ul>
+
+<ol>
+<li>**Dead Code**</li>
+</ol>
+<ul>
+<li>  - 8 stub methods with pragma: no cover</li>
+<li>  - Should be removed immediately</li>
+</ul>
+
+<h3>✅ Positive Findings</h3>
+
+<ol>
+<li>**Single Importer**</li>
+</ol>
+<ul>
+<li>  - Only main.py uses TabbedInterface</li>
+<li>  - Easy migration with facade pattern</li>
+</ul>
+
+<ol>
+<li>**Tab Component Separation**</li>
+</ol>
+<ul>
+<li>  - Tab logic already in separate classes</li>
+<li>  - Good foundation for further separation</li>
+</ul>
+
+<ol>
+<li>**Service Abstraction**</li>
+</ol>
+<ul>
+<li>  - Already using service factories</li>
+<li>  - Can extract more services easily</li>
+</ul>
+
+<ol>
+<li>**Clear Orchestration Pattern**</li>
+</ol>
+<ul>
+<li>  - Tab routing is clean</li>
+<li>  - Delegation pattern works well</li>
+</ul>
+
+<h3>📋 Immediate Actions</h3>
+
+<p><strong>Before Refactoring:</strong></p>
+<ol>
+<li>✅ Remove 8 dead stub methods</li>
+<li>✅ Extract hardcoded patterns to config/data</li>
+<li>✅ Create integration test suite</li>
+<li>✅ Document session state schema</li>
+<li>✅ Document tab coordination protocol</li>
+</ol>
+
+<p><strong>During Refactoring:</strong></p>
+<ol>
+<li>✅ Extract OntologicalCategoryService (make data-driven)</li>
+<li>✅ Split _handle_definition_generation into orchestrator service</li>
+<li>✅ Extract DocumentContextService</li>
+<li>✅ Use Facade pattern for backwards compatibility</li>
+<li>✅ Test after EVERY extraction</li>
+</ol>
+
+<p><strong>After Refactoring:</strong></p>
+<ol>
+<li>✅ Reduce TabbedInterface to <200 LOC</li>
+<li>✅ Remove all business logic from UI</li>
+<li>✅ Verify main.py still works</li>
+<li>✅ Remove facade</li>
+<li>✅ Final test pass</li>
+</ol>
+
+<p>---</p>
+
+<h2>Comparative Analysis: tabbed_interface.py vs definition_generator_tab.py</h2>
+
+<h3>Size Comparison</h3>
+<p>| Metric | tabbed_interface.py | definition_generator_tab.py |</p>
+<p>|--------|---------------------|----------------------------|</p>
+<p>| LOC | 1,793 | 2,525 |</p>
+<p>| Methods | 39 (33 real + 6 stubs) | 60 |</p>
+<p>| Services | 7 | 8 |</p>
+<p>| Complexity | VERY HIGH | VERY HIGH |</p>
+
+<h3>Key Differences</h3>
+<ol>
+<li>**Purpose:**</li>
+</ol>
+<ul>
+<li>  - TabbedInterface: **Orchestrator** (coordinates entire UI)</li>
+<li>  - DefinitionGeneratorTab: **Renderer** (displays generation results)</li>
+</ul>
+
+<ol>
+<li>**Critical Methods:**</li>
+</ol>
+<ul>
+<li>  - TabbedInterface: `_handle_definition_generation()` (380 LOC god method)</li>
+<li>  - DefinitionGeneratorTab: `_render_generation_results()` (800 LOC total across 13 methods)</li>
+</ul>
+
+<ol>
+<li>**Business Logic:**</li>
+</ol>
+<ul>
+<li>  - TabbedInterface: Category determination, generation orchestration, document processing</li>
+<li>  - DefinitionGeneratorTab: Validation formatting, rule reasoning, regeneration UI</li>
+</ul>
+
+<ol>
+<li>**Dependencies:**</li>
+</ol>
+<ul>
+<li>  - TabbedInterface: 30+ imports, 7 tab components, 6 services</li>
+<li>  - DefinitionGeneratorTab: 14 imports, heavy session state, database access</li>
+</ul>
+
+<h3>Combined Refactoring Impact</h3>
+<ul>
+<li>**Total LOC to refactor:** 4,318 (1,793 + 2,525)</li>
+<li>**Total methods to split:** 99 (39 + 60)</li>
+<li>**Total services to extract:** 15 unique services</li>
+<li>**Estimated effort:** 8-10 weeks full-time</li>
+</ul>
+
+<p>---</p>
+
+<h2>Migration Checklist</h2>
+
+<h3>Pre-Migration</h3>
+<ul>
+<li>[ ] Remove 8 dead stub methods</li>
+<li>[ ] Extract hardcoded category patterns to config</li>
+<li>[ ] Create integration test suite (generation flow, tab routing, document processing)</li>
+<li>[ ] Document session state schema</li>
+<li>[ ] Document tab coordination protocol</li>
+<li>[ ] Map all service dependencies</li>
+</ul>
+
+<h3>Service Extraction (6 weeks)</h3>
+<ul>
+<li>[ ] Week 1: Context Management Service (3 days)</li>
+<li>[ ] Week 1: Duplicate Check Service (2 days)</li>
+<li>[ ] Week 2: Document Context Service (5 days)</li>
+<li>[ ] Week 3: Ontological Category Service (5 days)</li>
+<li>[ ] Week 4-5: Definition Generation Orchestrator Service (10 days) ⚠️</li>
+<li>[ ] Week 6: Reduce TabbedInterface to <200 LOC (5 days)</li>
+</ul>
+
+<h3>Post-Migration</h3>
+<ul>
+<li>[ ] All integration tests pass</li>
+<li>[ ] TabbedInterface reduced to <200 LOC</li>
+<li>[ ] main.py works unchanged</li>
+<li>[ ] Remove facade pattern</li>
+<li>[ ] Update architecture documentation</li>
+<li>[ ] Test coverage >80% for services</li>
+</ul>
+
+<h3>Success Criteria</h3>
+<ul>
+<li>✅ Zero regressions in UI behavior</li>
+<li>✅ TabbedInterface <200 LOC (pure coordinator)</li>
+<li>✅ All business logic in services</li>
+<li>✅ No hardcoded patterns (data-driven)</li>
+<li>✅ Test coverage >80%</li>
+<li>✅ No async/sync mixing (clean boundaries)</li>
+</ul>
+
+<p>---</p>
+
+<p><strong>Analysis Complete</strong></p>
+<p><strong>Next Steps:</strong> Create Day 2 standup report</p>
+
+<p>---</p>
+
+<p><strong>Analyst:</strong> Code Architect Agent</p>
+<p><strong>Date:</strong> 2025-10-02</p>
+<p><strong>Phase:</strong> EPIC-026 Phase 1 (Design)</p>
+<p><strong>Day:</strong> 2 of 5</p>
+
+  </div>
+</body>
+</html>

@@ -1,6 +1,6 @@
 ---
 id: EPIC-013
-titel: Centrale Documentatie‑Portal (Interactief & Auto‑sync)
+titel: "EPIC-013: Centrale Documentatie Portal - Interactieve backlog browser met auto-sync en herbruikbare generator"
 status: active
 prioriteit: HOOG
 aangemaakt: 11-09-2025
@@ -84,4 +84,4 @@ Eén centrale, interactieve portalpagina (browser) voor de héle backlog én rel
 - Richtlijnen: `docs/guidelines/CANONICAL_LOCATIONS.md`, `DOCUMENTATION_POLICY.md`
 - Architectuur: `docs/architectuur/*ARCHITECTURE.md`
 - Traceability: `docs/traceability.json`, `docs/backlog/requirements/REQ-REGISTRY.json`
- - Broninput (business kennis): [US-061 – Extract en documenteer business kennis](../EPIC-012/US-061/US-061.md)
+ - Broninput (business kennis): [US-061 – Extract en documenteer business kennis](../EPIC-026/US-061/US-061.md)

@@ -1,0 +1,647 @@
+# UFO Classifier Rules Configuration
+# =================================
+# Complete rule set voor Nederlandse juridische UFO classificatie
+# Focus: CORRECTHEID (95% precisie) boven SNELHEID
+# Alle 16 UFO categorieën volledig geconfigureerd
+
+version: "1.0.0"
+description: "Nederlandse juridische UFO/OntoUML classificatie regels"
+
+# Classificatie parameters
+classification:
+  # Voer ALTIJD alle 9 stappen uit (geen shortcuts)
+  complete_analysis: true
+
+  # Confidence thresholds
+  high_confidence_threshold: 0.8
+  medium_confidence_threshold: 0.6
+  low_confidence_threshold: 0.4
+
+  # Verplichte manual review bij lage confidence
+  require_manual_review_below: 0.6
+
+  # Performance targets (single-user)
+  max_classification_time_ms: 500
+
+  # Precisie target
+  target_precision: 0.95
+
+# UFO Categorieën met complete regel sets
+categories:
+
+  # ============= PRIMAIRE CATEGORIEËN =============
+
+  kind:
+    name: "Kind"
+    description: "Zelfstandige entiteit die onafhankelijk kan bestaan"
+    priority: 1
+    patterns:
+      - pattern: '\b(?:een|de|het)\s+(\w+)\s+(?:is|zijn|betreft)'
+        weight: 0.8
+      - pattern: '(?:natuurlijk|rechts)persoon'
+        weight: 1.0
+      - pattern: '(?:organisatie|instantie|orgaan|lichaam)'
+        weight: 0.9
+      - pattern: '(?:zaak|goed|object|voorwerp)\b'
+        weight: 0.7
+      - pattern: '(?:document|akte|stuk|dossier)\b'
+        weight: 0.8
+      - pattern: '(?:gebouw|pand|onroerend goed|perceel)\b'
+        weight: 0.9
+      - pattern: '(?:voertuig|auto|schip|vliegtuig)\b'
+        weight: 0.9
+    keywords:
+      - persoon
+      - mens
+      - individu
+      - organisatie
+      - bedrijf
+      - instelling
+      - zaak
+      - ding
+      - object
+      - entiteit
+      - document
+      - gebouw
+      - voertuig
+      - systeem
+      - apparaat
+    legal_domains:
+      - algemeen_juridisch
+      - civiel_recht
+
+  event:
+    name: "Event"
+    description: "Tijdsgebonden gebeurtenis of proces"
+    priority: 2
+    patterns:
+      - pattern: '(?:tijdens|gedurende|na afloop van|voorafgaand aan)'
+        weight: 0.9
+      - pattern: '(?:proces|procedure|handeling|gebeurtenis)\b'
+        weight: 0.8
+      - pattern: '\b\w+(?:ing|atie|itie)\b'
+        weight: 0.6
+        description: "Nominalisaties"
+      - pattern: '(?:aanvang|begin|einde|afloop|verloop)'
+        weight: 0.7
+      - pattern: '(?:uitvoer|voltrek|verricht|plaats\s?vind)'
+        weight: 0.8
+      - pattern: '(?:start|stop|duur|periode|termijn)'
+        weight: 0.6
+    keywords:
+      - arrestatie
+      - aanhouding
+      - zitting
+      - procedure
+      - proces
+      - behandeling
+      - onderzoek
+      - verhoor
+      - uitspraak
+      - vonnis
+      - gebeurtenis
+      - handeling
+      - actie
+      - operatie
+      - transactie
+    legal_domains:
+      - strafrecht
+      - bestuursrecht
+
+  role:
+    name: "Role"
+    description: "Contextuele rol die een entiteit kan aannemen"
+    priority: 3
+    patterns:
+      - pattern: '(?:in de hoedanigheid van|in de rol van|als)\s+\w+'
+        weight: 1.0
+      - pattern: '(?:optreedt?|handel\w+|fungeer\w+)\s+als'
+        weight: 0.9
+      - pattern: '(?:verdachte|beklaagde|getuige|aangever)\b'
+        weight: 0.9
+      - pattern: '(?:koper|verkoper|huurder|verhuurder)\b'
+        weight: 0.8
+      - pattern: '(?:werkgever|werknemer|opdrachtgever|opdrachtnemer)\b'
+        weight: 0.8
+    keywords:
+      - verdachte
+      - dader
+      - slachtoffer
+      - getuige
+      - rechter
+      - officier
+      - advocaat
+      - notaris
+      - deurwaarder
+      - curator
+      - eigenaar
+      - gebruiker
+      - bewoner
+      - bestuurder
+      - aandeelhouder
+    legal_domains:
+      - strafrecht
+      - civiel_recht
+
+  phase:
+    name: "Phase"
+    description: "Levensfase of stadium van een entiteit"
+    priority: 4
+    patterns:
+      - pattern: '(?:in\s+)?(?:onderzoek|behandeling|beraad)'
+        weight: 0.8
+      - pattern: '(?:voorlopig|definitief|concept|ontwerp)'
+        weight: 0.9
+      - pattern: '(?:actief|inactief|gesloten|gearchiveerd)'
+        weight: 0.8
+      - pattern: '(?:lopend|afgerond|gestart|beëindigd)'
+        weight: 0.7
+      - pattern: '(?:status|staat|toestand|fase|stadium)'
+        weight: 0.6
+    keywords:
+      - onderzoek
+      - voorlopig
+      - definitief
+      - concept
+      - ontwerp
+      - actief
+      - inactief
+      - lopend
+      - afgerond
+      - gesloten
+      - nieuw
+      - oud
+      - huidig
+      - voormalig
+      - toekomstig
+    legal_domains:
+      - algemeen_juridisch
+
+  relator:
+    name: "Relator"
+    description: "Medieert een relatie tussen twee of meer entiteiten"
+    priority: 5
+    patterns:
+      - pattern: '(?:overeenkomst|contract|verbintenis|afspraak)'
+        weight: 0.9
+      - pattern: '(?:huwelijk|partnerschap|relatie|verhouding)'
+        weight: 0.8
+      - pattern: '(?:vergunning|machtiging|mandaat|volmacht)'
+        weight: 0.8
+      - pattern: '(?:tussen|met|jegens|tegenover)\s+\w+'
+        weight: 0.5
+      - pattern: '(?:partijen|contractanten|partners)'
+        weight: 0.6
+    keywords:
+      - overeenkomst
+      - contract
+      - huwelijk
+      - verbintenis
+      - relatie
+      - vergunning
+      - mandaat
+      - volmacht
+      - licentie
+      - concessie
+      - dagvaarding
+      - beschikking
+      - vonnis
+      - arrest
+      - uitspraak
+    legal_domains:
+      - civiel_recht
+      - bestuursrecht
+
+  mode:
+    name: "Mode"
+    description: "Intrinsieke eigenschap die een drager vereist"
+    priority: 6
+    patterns:
+      - pattern: '(?:eigenschap|kenmerk|attribuut|karakteristiek)'
+        weight: 0.7
+      - pattern: '(?:toestand|conditie|gesteldheid)'
+        weight: 0.7
+      - pattern: '(?:van|behorend bij|eigen aan)\s+\w+'
+        weight: 0.5
+      - pattern: '(?:gezondheid|locatie|positie|status)'
+        weight: 0.8
+      - pattern: '(?:kleur|grootte|vorm|gewicht)'
+        weight: 0.6
+    keywords:
+      - gezondheid
+      - locatie
+      - adres
+      - woonplaats
+      - nationaliteit
+      - gemoedstoestand
+      - geestestoestand
+      - lichamelijke toestand
+      - vermogen
+      - inkomen
+      - bezit
+      - eigenschap
+      - kwaliteit
+    legal_domains:
+      - algemeen_juridisch
+
+  quantity:
+    name: "Quantity"
+    description: "Meetbare grootheid"
+    priority: 7
+    patterns:
+      - pattern: '\d+\s*(?:euro|EUR|€|\$|dollar)'
+        weight: 1.0
+      - pattern: '\d+\s*(?:%|procent|percent)'
+        weight: 0.9
+      - pattern: '\d+\s*(?:meter|km|cm|mm|m²|m³)'
+        weight: 0.8
+      - pattern: '\d+\s*(?:kilo|gram|kg|g|ton)'
+        weight: 0.8
+      - pattern: '\d+\s*(?:liter|ml|cl|dl)'
+        weight: 0.8
+      - pattern: '(?:aantal|hoeveelheid|bedrag|som|totaal)'
+        weight: 0.6
+    keywords:
+      - bedrag
+      - aantal
+      - hoeveelheid
+      - percentage
+      - tarief
+      - prijs
+      - kosten
+      - omzet
+      - winst
+      - verlies
+      - afstand
+      - oppervlakte
+      - inhoud
+      - gewicht
+      - duur
+    legal_domains:
+      - civiel_recht
+
+  quality:
+    name: "Quality"
+    description: "Kwalitatieve eigenschap"
+    priority: 8
+    patterns:
+      - pattern: '(?:kwaliteit|hoedanigheid|graad|niveau)'
+        weight: 0.7
+      - pattern: '(?:goed|slecht|hoog|laag|zwaar|licht)'
+        weight: 0.5
+      - pattern: '(?:ernstig|eenvoudig|complex|simpel)'
+        weight: 0.6
+      - pattern: '(?:betrouwbaar|onbetrouwbaar|waarschijnlijk)'
+        weight: 0.7
+      - pattern: '(?:mate van|graad van|niveau van)'
+        weight: 0.8
+    keywords:
+      - ernst
+      - zwaarte
+      - kwaliteit
+      - betrouwbaarheid
+      - waarschijnlijkheid
+      - complexiteit
+      - moeilijkheidsgraad
+      - urgentie
+      - prioriteit
+      - belangrijkheid
+      - relevantie
+      - geschiktheid
+      - toepasbaarheid
+    legal_domains:
+      - algemeen_juridisch
+
+  # ============= SUBCATEGORIEËN =============
+
+  subkind:
+    name: "Subkind"
+    description: "Subtype dat essentie van parent behoudt"
+    priority: 9
+    patterns:
+      - pattern: '(?:soort|type|variant|vorm)\s+van'
+        weight: 0.9
+      - pattern: '(?:specifieke|bijzondere|speciale)\s+\w+'
+        weight: 0.7
+      - pattern: '(?:sub|onder|deel)\w+'
+        weight: 0.6
+      - pattern: 'is een\s+\w+\s+die'
+        weight: 0.8
+    keywords:
+      - subtype
+      - subcategorie
+      - deelgroep
+      - variant
+      - vorm
+      - soort
+      - type
+      - klasse
+      - categorie
+      - groep
+
+  category:
+    name: "Category"
+    description: "Rigide type met essentiële eigenschappen"
+    priority: 10
+    patterns:
+      - pattern: '(?:categorie|klasse|groep|verzameling)'
+        weight: 0.7
+      - pattern: '(?:alle|elke|iedere)\s+\w+'
+        weight: 0.6
+      - pattern: '(?:behoort tot|valt onder|deel van)'
+        weight: 0.5
+    keywords:
+      - categorie
+      - klasse
+      - groep
+      - verzameling
+      - collectie
+      - type
+      - soort
+      - classificatie
+      - indeling
+      - rubricering
+
+  mixin:
+    name: "Mixin"
+    description: "Non-sortal met gedeelde eigenschappen"
+    priority: 11
+    patterns:
+      - pattern: '(?:gemeenschappelijk|gedeeld|gezamenlijk)'
+        weight: 0.7
+      - pattern: '(?:kenmerk|eigenschap)\s+van\s+(?:verschillende|meerdere)'
+        weight: 0.6
+      - pattern: '(?:onafhankelijk van|los van)\s+\w+'
+        weight: 0.5
+    keywords:
+      - gemeenschappelijk
+      - gedeeld
+      - gezamenlijk
+      - collectief
+      - algemeen
+      - universeel
+      - generiek
+      - abstract
+
+  rolemixin:
+    name: "RoleMixin"
+    description: "Gedeelde rol-eigenschappen"
+    priority: 12
+    patterns:
+      - pattern: 'rol-gerelateerd\w*'
+        weight: 0.8
+      - pattern: '(?:verschillende rollen|meerdere functies)'
+        weight: 0.6
+      - pattern: '(?:ongeacht|los van)\s+(?:rol|functie)'
+        weight: 0.5
+    keywords:
+      - rolpatroon
+      - functiepatroon
+      - gedragspatroon
+      - rolmodel
+
+  phasemixin:
+    name: "PhaseMixin"
+    description: "Gedeelde fase-eigenschappen"
+    priority: 13
+    patterns:
+      - pattern: 'fase-gerelateerd\w*'
+        weight: 0.8
+      - pattern: '(?:verschillende fasen|meerdere stadia)'
+        weight: 0.6
+      - pattern: '(?:gedurende|tijdens)\s+(?:verschillende|alle)\s+fasen'
+        weight: 0.5
+    keywords:
+      - fasepatroon
+      - stadiumpatroon
+      - levenscycluspatroon
+
+  # ============= COLLECTIES =============
+
+  collective:
+    name: "Collective"
+    description: "Verzameling met uniforme structuur"
+    priority: 14
+    patterns:
+      - pattern: '(?:groep|collectie|verzameling|set)\s+van'
+        weight: 0.8
+      - pattern: '(?:team|ploeg|commissie|raad|college)'
+        weight: 0.9
+      - pattern: '(?:samen|gezamenlijk|collectief)'
+        weight: 0.6
+      - pattern: '(?:leden|deelnemers|participanten)'
+        weight: 0.7
+    keywords:
+      - groep
+      - team
+      - commissie
+      - raad
+      - college
+      - vereniging
+      - collectief
+      - gemeenschap
+      - samenwerking
+      - consortium
+      - alliantie
+      - coalitie
+      - federatie
+    legal_domains:
+      - algemeen_juridisch
+      - bestuursrecht
+
+  variablecollection:
+    name: "VariableCollection"
+    description: "Verzameling met variabel aantal leden"
+    priority: 15
+    patterns:
+      - pattern: '(?:wisselend|variabel|veranderlijk)\s+aantal'
+        weight: 0.9
+      - pattern: '(?:groeiende|krimpende|fluctuerende)\s+groep'
+        weight: 0.8
+      - pattern: '(?:dynamische|flexibele)\s+verzameling'
+        weight: 0.7
+    keywords:
+      - dynamisch
+      - variabel
+      - flexibel
+      - wisselend
+      - veranderlijk
+
+  fixedcollection:
+    name: "FixedCollection"
+    description: "Verzameling met vast aantal leden"
+    priority: 16
+    patterns:
+      - pattern: '(?:vast|bepaald|gefixeerd)\s+aantal'
+        weight: 0.9
+      - pattern: '(?:onveranderlijke|statische)\s+groep'
+        weight: 0.8
+      - pattern: '(?:vaste|permanente)\s+samenstelling'
+        weight: 0.7
+    keywords:
+      - vast
+      - bepaald
+      - gefixeerd
+      - statisch
+      - permanent
+      - onveranderlijk
+      - definitief
+
+# Disambiguatie regels voor complexe termen
+disambiguation:
+
+  zaak:
+    - pattern: '(?:rechts|straf|civiele)\s*zaak'
+      category: Event
+      confidence_boost: 0.2
+    - pattern: 'zaak\s+(?:voor|bij)\s+de\s+rechter'
+      category: Event
+      confidence_boost: 0.2
+    - pattern: '(?:roerende|onroerende)\s+zaak'
+      category: Kind
+      confidence_boost: 0.3
+    - pattern: 'zaak\s+(?:als|zoals)\s+(?:auto|gebouw|voorwerp)'
+      category: Kind
+      confidence_boost: 0.2
+    - pattern: 'de\s+zaak\s+van\s+(?:verdachte|eisende partij)'
+      category: Abstract
+      confidence_boost: 0.1
+
+  huwelijk:
+    - pattern: '(?:sluiten|voltrekken|aangaan)\s+(?:van\s+)?(?:een\s+)?huwelijk'
+      category: Event
+      confidence_boost: 0.3
+    - pattern: 'huwelijks(?:voltrekking|sluiting|ceremonie)'
+      category: Event
+      confidence_boost: 0.3
+    - pattern: '(?:staat|band|verbintenis)\s+van\s+het\s+huwelijk'
+      category: Relator
+      confidence_boost: 0.3
+    - pattern: 'huwelijk\s+tussen'
+      category: Relator
+      confidence_boost: 0.2
+    - pattern: 'gehuwd\s+(?:zijn|paar|stel)'
+      category: Relator
+      confidence_boost: 0.2
+
+  overeenkomst:
+    - pattern: '(?:sluiten|aangaan|tekenen)\s+(?:van\s+)?(?:een\s+)?overeenkomst'
+      category: Event
+      confidence_boost: 0.3
+    - pattern: 'overeenkomst\s+(?:komt\s+)?tot\s+stand'
+      category: Event
+      confidence_boost: 0.2
+    - pattern: '(?:koop|huur|arbeids)overeenkomst'
+      category: Relator
+      confidence_boost: 0.3
+    - pattern: 'overeenkomst\s+tussen\s+partijen'
+      category: Relator
+      confidence_boost: 0.2
+    - pattern: 'document\s+van\s+de\s+overeenkomst'
+      category: Kind
+      confidence_boost: 0.2
+
+  procedure:
+    - pattern: '(?:start|begin|aanvang)\s+(?:van\s+)?(?:de\s+)?procedure'
+      category: Event
+      confidence_boost: 0.3
+    - pattern: 'procedure\s+(?:duurt|neemt|vergt)'
+      category: Event
+      confidence_boost: 0.2
+    - pattern: '(?:bezwaar|beroeps|klacht)procedure'
+      category: Event
+      confidence_boost: 0.3
+    - pattern: 'volgens\s+de\s+procedure'
+      category: Kind
+      confidence_boost: 0.1
+    - pattern: 'procedurele\s+(?:regel|voorschrift)'
+      category: Kind
+      confidence_boost: 0.1
+
+  vergunning:
+    - pattern: '(?:aanvragen|verlenen|verstrekken)\s+(?:van\s+)?(?:een\s+)?vergunning'
+      category: Event
+      confidence_boost: 0.3
+    - pattern: 'vergunning(?:verlening|aanvraag)'
+      category: Event
+      confidence_boost: 0.3
+    - pattern: '(?:bouw|milieu|omgevings)vergunning'
+      category: Relator
+      confidence_boost: 0.3
+    - pattern: 'vergunning\s+voor'
+      category: Relator
+      confidence_boost: 0.2
+    - pattern: 'document\s+van\s+de\s+vergunning'
+      category: Kind
+      confidence_boost: 0.2
+
+  besluit:
+    - pattern: '(?:nemen|maken)\s+(?:van\s+)?(?:een\s+)?besluit'
+      category: Event
+      confidence_boost: 0.3
+    - pattern: 'besluitvorming(?:sproces)?'
+      category: Event
+      confidence_boost: 0.3
+    - pattern: '(?:bestuurs|rechterlijk)\s+besluit'
+      category: Relator
+      confidence_boost: 0.2
+    - pattern: 'besluit\s+(?:van|door)\s+(?:het\s+)?(?:bestuur|rechter)'
+      category: Relator
+      confidence_boost: 0.2
+    - pattern: 'schriftelijk\s+besluit'
+      category: Kind
+      confidence_boost: 0.2
+
+# Conflict resolution regels
+conflict_resolution:
+  # Bij conflicterende categorieën
+  priority_order:
+    - Kind        # Hoogste prioriteit voor concrete entiteiten
+    - Event       # Gebeurtenissen zijn duidelijk herkenbaar
+    - Role        # Rollen zijn context-specifiek
+    - Phase       # Fasen zijn vaak duidelijk
+    - Relator     # Relaties tussen entiteiten
+    - Mode        # Eigenschappen met drager
+    - Quantity    # Meetbare grootheden
+    - Quality     # Kwalitatieve eigenschappen
+    - Collective  # Verzamelingen
+    - Subkind     # Subtypes
+    - Category    # Categorieën
+    - Mixin       # Mixins
+    - RoleMixin   # Rol mixins
+    - PhaseMixin  # Fase mixins
+    - VariableCollection  # Variabele verzamelingen
+    - FixedCollection     # Vaste verzamelingen
+
+  # Minimaal aantal matches voor zekerheid
+  minimum_matches_for_confidence:
+    high: 5
+    medium: 3
+    low: 1
+
+# Audit en logging configuratie
+audit:
+  enabled: true
+  log_all_classifications: true
+  log_low_confidence: true
+  log_disambiguation: true
+  log_decision_path: true
+  exclude_pii: true
+
+# Validatie settings
+validation:
+  # Voer altijd complete analyse uit
+  require_all_steps: true
+
+  # Check alle categorieën
+  check_all_categories: true
+
+  # Minimale matches voor classificatie
+  minimum_pattern_matches: 1
+
+  # Maximale classificatie tijd (ms)
+  max_classification_time: 500
+
+  # Batch processing
+  batch_size: 100
+  batch_progress_interval: 10
