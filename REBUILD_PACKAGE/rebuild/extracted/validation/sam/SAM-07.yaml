@@ -1,0 +1,29 @@
+id: "SAM-07"
+category: "SAM"
+priority: "medium"
+enabled: true
+
+metadata:
+  naam: "SAM-07 Rule"
+  uitleg: "Validation rule SAM-07"
+  version: "1.0"
+  last_updated: "2025-10-02"
+  author: "Extracted from legacy system"
+  rule_type: "semantic"
+
+implementation:
+  type: "logic"
+  legacy_reference: "src/toetsregels/regels/SAM-07.py"
+
+validation:
+  input_fields:
+    - {name: "definitie", type: "string", required: true}
+    - {name: "begrip", type: "string", required: true}
+  output:
+    success: {type: "boolean"}
+    message: {type: "string"}
+    score: {type: "float", min: 0.0, max: 1.0}
+
+performance:
+  max_execution_time_ms: 50
+  complexity: "O(n)"

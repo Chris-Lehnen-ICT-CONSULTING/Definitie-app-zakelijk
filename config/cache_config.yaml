@@ -1,0 +1,256 @@
+# Cache Configuration
+# Purpose: Caching strategy, TTL settings, and cache invalidation rules
+version: "1.0"
+created: "2025-10-02"
+description: "Configuration for application-wide caching including Redis, file cache, and memory cache"
+
+# Cache strategy selection
+strategy: "file_based"  # Options: redis, file_based, memory, hybrid
+description_strategy: |
+  - redis: Use Redis for distributed caching (requires Redis server)
+  - file_based: Use file system for cache (simple, no external deps)
+  - memory: In-memory cache (fast but not persistent)
+  - hybrid: Combination of memory + file/redis for tiered caching
+
+# Global cache settings
+global:
+  enabled: true
+  default_ttl: 600  # 10 minutes default
+  max_cache_size: 500  # Maximum number of cache entries
+  cleanup_interval: 120  # Cleanup stale entries every 2 minutes
+
+# Cache directory settings (for file-based caching)
+file_cache:
+  cache_dir: "cache"
+  structure: "flat"  # flat or hierarchical
+  file_extension: ".cache"
+  compression: false
+  encryption: false
+
+# Memory cache settings
+memory_cache:
+  max_size_mb: 100
+  eviction_policy: "lru"  # lru, lfu, fifo
+  track_stats: true
+
+# Redis settings (if using Redis strategy)
+redis:
+  enabled: false
+  host: "localhost"
+  port: 6379
+  db: 0
+  password: null
+  ssl: false
+  socket_timeout: 5
+  socket_connect_timeout: 5
+  max_connections: 50
+
+  # Redis key prefixes
+  key_prefix: "definitie_app:"
+  key_separator: ":"
+
+# Resource-specific TTL settings
+# Extracted from config_development.yaml
+resource_ttl:
+  # AI-generated content
+  definitions:
+    ttl: 3600  # 1 hour
+    description: "Generated definitions cache"
+    invalidate_on_edit: true
+
+  examples:
+    ttl: 1800  # 30 minutes
+    description: "Generated examples (voorbeelden)"
+    invalidate_on_edit: true
+
+  synonyms:
+    ttl: 7200  # 2 hours
+    description: "Synonym suggestions"
+    invalidate_on_edit: false
+
+  # Validation results
+  validation_results:
+    ttl: 900  # 15 minutes
+    description: "Validation results cache"
+    invalidate_on_definition_change: true
+
+  # Web lookup results
+  web_lookup:
+    ttl: 3600  # 1 hour
+    description: "Web lookup provider results"
+    per_provider:
+      wikipedia:
+        ttl: 7200  # 2 hours (stable content)
+      sru_overheid:
+        ttl: 3600  # 1 hour (legal content)
+      wikidata:
+        ttl: 3600  # 1 hour
+      dbpedia:
+        ttl: 3600  # 1 hour
+
+  # Service responses
+  ai_responses:
+    ttl: 600  # 10 minutes
+    description: "AI service responses"
+    deterministic_only: true  # Only cache deterministic prompts
+
+  # Configuration and rules
+  validation_rules:
+    ttl: 3600  # 1 hour
+    description: "Loaded validation rules"
+    invalidate_on_restart: true
+
+  category_patterns:
+    ttl: 7200  # 2 hours
+    description: "Ontological category patterns"
+
+  # Database query results
+  db_queries:
+    ttl: 300  # 5 minutes
+    description: "Database query results"
+    invalidate_on_write: true
+
+# Cache invalidation rules
+invalidation:
+  # Automatic invalidation triggers
+  triggers:
+    on_definition_save:
+      invalidate:
+        - "definitions"
+        - "validation_results"
+        - "examples"
+
+    on_rule_update:
+      invalidate:
+        - "validation_rules"
+        - "validation_results"
+
+    on_config_change:
+      invalidate:
+        - "category_patterns"
+        - "validation_rules"
+
+  # Manual invalidation patterns
+  patterns:
+    by_prefix: true
+    by_pattern: true
+    by_tag: true
+
+  # Cascade invalidation
+  cascade:
+    enabled: true
+    max_depth: 3
+
+# Stale-while-revalidate strategy
+stale_while_revalidate:
+  enabled: true
+  grace_period: 300  # 5 minutes
+  description: "Serve stale content while revalidating in background"
+
+  applicable_to:
+    - "web_lookup"
+    - "ai_responses"
+    - "validation_results"
+
+# Cache warming
+warming:
+  enabled: false
+  on_startup: false
+  scheduled: false
+
+  # Items to pre-cache
+  items:
+    - "validation_rules"
+    - "category_patterns"
+
+# Cache statistics and monitoring
+monitoring:
+  enabled: true
+  track_hit_rate: true
+  track_miss_rate: true
+  track_evictions: true
+  log_statistics: true
+  statistics_interval: 300  # 5 minutes
+
+  # Alerts
+  alerts:
+    low_hit_rate_threshold: 0.5  # Alert if < 50% hit rate
+    high_miss_rate_threshold: 0.7  # Alert if > 70% miss rate
+    cache_full_threshold: 0.9  # Alert if > 90% full
+
+# Cache key generation
+keys:
+  algorithm: "sha256"  # Hash algorithm for key generation
+  include_version: true
+  include_timestamp: false
+
+  # Key components
+  components:
+    user_id: false  # Don't include user in key (single user app)
+    session_id: false
+    request_params: true
+    content_hash: true
+
+# Serialization
+serialization:
+  format: "json"  # json, pickle, msgpack
+  compression: false
+  pretty_print: false
+
+# Cache partitioning
+partitioning:
+  enabled: false
+  by_user: false  # Not needed for single-user app
+  by_type: true
+  by_date: false
+
+# Cleanup and maintenance
+maintenance:
+  auto_cleanup: true
+  cleanup_schedule: "0 2 * * *"  # 2 AM daily
+  compact_on_cleanup: true
+  remove_expired: true
+  remove_unused: true
+  unused_threshold_days: 7
+
+# Performance settings
+performance:
+  async_writes: true
+  batch_operations: true
+  batch_size: 100
+  connection_pooling: true
+
+# Environment-specific overrides
+overrides:
+  development:
+    global:
+      default_ttl: 60  # Shorter TTL in dev
+      cleanup_interval: 30
+    monitoring:
+      log_statistics: true
+    resource_ttl:
+      definitions:
+        ttl: 300  # 5 minutes in dev
+      validation_results:
+        ttl: 180  # 3 minutes in dev
+
+  production:
+    global:
+      default_ttl: 3600  # Longer TTL in prod
+      max_cache_size: 1000
+    redis:
+      enabled: false  # Can enable when Redis is available
+    resource_ttl:
+      definitions:
+        ttl: 7200  # 2 hours in prod
+      web_lookup:
+        ttl: 14400  # 4 hours in prod
+    monitoring:
+      alerts:
+        low_hit_rate_threshold: 0.7  # Higher expectations in prod
+
+  testing:
+    global:
+      enabled: false  # Disable cache in tests for deterministic results
+    memory_cache:
+      max_size_mb: 10  # Small cache in tests

@@ -1,0 +1,40 @@
+id: STR_01
+name: definitie start met zelfstandig naamwoord
+description: De definitie moet starten met een zelfstandig naamwoord of naamwoordgroep,
+  niet met een werkwoord.
+explanation: De definitie moet uitdrukken wat het begrip *is*, niet wat het *doet*.
+  Daarom moet de zin beginnen met een zelfstandig naamwoord (de 'kick-off term').
+  Beginnen met een werkwoord leidt tot verwarring over de aard van het begrip.
+test_question: Begint de definitie met een zelfstandig naamwoord of naamwoordgroep,
+  en niet met een werkwoord?
+metadata:
+  priority: hoog
+  recommendation: verplicht
+  validity: alle
+  status: definitief
+  type: gehele definitie
+  theme: structuur van de definitie
+  source_document: ASTRA
+validation:
+  patterns:
+  - ^is\b
+  - ^zijn\b
+  - ^heeft\b
+  - ^hebben\b
+  - ^wordt\b
+  - ^kan\b
+  - ^doet\b
+  good_examples:
+  - proces dat beslissers identificeert...
+  - maatregel die recidive voorkomt...
+  bad_examples:
+  - is een maatregel die recidive voorkomt
+  - wordt toegepast in het gevangeniswezen
+references:
+- fulltext: Structuur van definities
+  fullurl: https://www.astraonline.nl/index.php/Structuur_van_definities
+implementation_details:
+  implementation: python
+  source_file: src/toetsregels/regels/STR-01.py
+  validation_logic: See Python implementation for complex validation
+  validation_description: Validator voor STR-01.

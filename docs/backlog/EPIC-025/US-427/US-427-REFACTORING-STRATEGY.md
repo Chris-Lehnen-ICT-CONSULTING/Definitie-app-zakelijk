@@ -1,7 +1,7 @@
 ---
 id: US-427-STRATEGY
 epic: EPIC-025
-titel: US-427 God Object Refactoring Strategy
+titel: "US-427: **Status:** ✅ Coverage baseline complete | ⚠️ **Execution DEFERRED to EPIC-026**"
 status: deferred
 prioriteit: P0
 aangemaakt: 2025-09-30

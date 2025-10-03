@@ -27,7 +27,7 @@ stories:
 - US-012
 - US-013
 target_release: v1.0
-titel: Kwaliteitstoetsing
+titel: "EPIC-002: Kwaliteitstoetsing - 45 validatieregels voor juridische definities met <1s responstijd en 98% nauwkeurigheid"
 vereisten:
 - REQ-016
 - REQ-017

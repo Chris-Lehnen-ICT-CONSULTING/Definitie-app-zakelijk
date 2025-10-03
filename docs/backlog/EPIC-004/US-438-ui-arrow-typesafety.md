@@ -1,7 +1,7 @@
 ---
 id: US-438
 epic: EPIC-004
-titel: UI DataFrame Type-Safety
+titel: "US-438: - Dtypes afdwingen (kolom 'status' e.a.) vóór Streamlit render om ArrowTypeError te voorkomen."
 status: open
 prioriteit: P2
 story_points: 5

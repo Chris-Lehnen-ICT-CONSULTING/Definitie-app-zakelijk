@@ -23,7 +23,7 @@ stories:
 - US-046
 - US-060
 target_release: v2.0
-titel: Advanced Features
+titel: "EPIC-009: Advanced Features - Enterprise capabilities met REST API, PostgreSQL, multi-tenant en collaborative editing"
 vereisten:
 - REQ-034
 - REQ-037

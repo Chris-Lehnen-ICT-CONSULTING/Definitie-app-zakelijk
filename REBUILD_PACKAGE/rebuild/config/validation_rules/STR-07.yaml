@@ -1,0 +1,33 @@
+id: STR_07
+name: Geen dubbele ontkenning
+description: Een definitie bevat geen dubbele ontkenning.
+explanation: Dubbele ontkenningen zijn verwarrend en vermoeilijken het begrijpen van
+  een definitie. Formuleringen zoals 'niet zonder' of 'onmogelijk om niet te' zorgen
+  voor ambiguïteit.
+test_question: Bevat de definitie een dubbele ontkenning die de begrijpelijkheid schaadt?
+metadata:
+  priority: midden
+  recommendation: verplicht
+  validity: alle
+  status: definitief
+  type: gehele definitie
+  theme: structuur van de definitie
+  source_document: ASTRA
+validation:
+  patterns:
+  - niet\s+zonder
+  - onmogelijk\s+om\s+niet
+  - niet\s+onmogelijk
+  - zonder\s+geen
+  good_examples:
+  - 'Beveiliging: maatregelen die toegang beperken tot bevoegde personen'
+  bad_examples:
+  - 'Beveiliging: maatregelen die het niet onmogelijk maken om geen toegang te verkrijgen'
+references:
+- fulltext: Geen dubbele ontkenning
+  fullurl: https://www.astraonline.nl/index.php/Geen_dubbele_ontkenning
+implementation_details:
+  implementation: python
+  source_file: src/toetsregels/regels/STR-07.py
+  validation_logic: See Python implementation for complex validation
+  validation_description: Validator voor STR-07.

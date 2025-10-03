@@ -1,0 +1,18 @@
+id: CON-CIRC-001
+name: Geen circulaire definitie
+description: De definitie mag het begrip zelf niet letterlijk bevatten.
+explanation: null
+test_question: Komt het begrip zelf niet letterlijk voor in de definitie?
+metadata:
+  priority: midden
+  recommendation: verplicht
+  validity: null
+  status: null
+  type: samenhang
+  theme: circulair
+  source_document: null
+validation:
+  patterns: []
+  good_examples: []
+  bad_examples: []
+references: []

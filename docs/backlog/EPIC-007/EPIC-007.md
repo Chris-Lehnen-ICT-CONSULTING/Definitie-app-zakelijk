@@ -1,6 +1,6 @@
 ---
 id: EPIC-007
-titel: Prestaties & Scaling
+titel: "EPIC-007: Performance & Scaling - 59% kostenreductie met <5s responstijd, 1x service init en 3000-token prompts"
 status: active
 prioriteit: HOOG
 aangemaakt: 01-01-2025

@@ -1,0 +1,145 @@
+id: "INT-02"
+category: "INT"
+priority: "medium"
+enabled: true
+
+metadata:
+  naam: "Geen beslisregel"
+  uitleg: |
+    Een definitie bevat geen beslisregels of voorwaarden. Een definitie beschrijft wat iets ís,
+    niet wat ermee moet gebeuren of onder welke voorwaarden het geldig is.
+  version: "1.0"
+  last_updated: "2025-10-02"
+  author: "Extracted from legacy system"
+
+  rule_type: "semantic"
+  applies_to:
+    categories: ["ENT", "ACT", "REL", "ATT", "AUT", "STA", "OTH"]
+    contexts: []
+
+implementation:
+  type: "regex"
+  patterns:
+    forbidden:
+      - pattern: '\bindien\b'
+        description: "Conditional 'indien'"
+        case_sensitive: false
+
+      - pattern: '\bmits\b'
+        description: "Conditional 'mits'"
+        case_sensitive: false
+
+      - pattern: '\balleen als\b'
+        description: "Conditional 'alleen als'"
+        case_sensitive: false
+
+      - pattern: '\btenzij\b'
+        description: "Exception 'tenzij'"
+        case_sensitive: false
+
+      - pattern: '\bvoor zover\b'
+        description: "Conditional 'voor zover'"
+        case_sensitive: false
+
+      - pattern: '\bop voorwaarde dat\b'
+        description: "Conditional 'op voorwaarde dat'"
+        case_sensitive: false
+
+      - pattern: '\bin geval dat\b'
+        description: "Conditional 'in geval dat'"
+        case_sensitive: false
+
+  logic_description: |
+    1. Search for conditional/decision rule patterns
+    2. Collect all matches
+    3. Return validation result
+
+  legacy_reference: "src/toetsregels/regels/INT-02.py"
+
+validation:
+  input_fields:
+    - name: "definitie"
+      type: "string"
+      required: true
+
+    - name: "begrip"
+      type: "string"
+      required: true
+
+    - name: "context"
+      type: "dict"
+      required: false
+
+  output:
+    success:
+      type: "boolean"
+      description: "Whether validation passed"
+
+    message:
+      type: "string"
+      description: "Human-readable validation message"
+
+    score:
+      type: "float"
+      min: 0.0
+      max: 1.0
+      description: "Validation score"
+
+examples:
+  good:
+    - input:
+        definitie: "eis die een organisatie ondersteunt om migratie mogelijk te maken"
+        begrip: "transitie-eis"
+      expected:
+        success: true
+        score: 1.0
+
+    - input:
+        definitie: "toestemming verleend door een bevoegde autoriteit om een systeem te gebruiken"
+        begrip: "toegang"
+      expected:
+        success: true
+        score: 1.0
+
+  bad:
+    - input:
+        definitie: "toestemming verleend door een bevoegde autoriteit, indien alle voorwaarden zijn vervuld"
+        begrip: "toegang"
+      expected:
+        success: false
+        score: 0.0
+
+    - input:
+        definitie: "schriftelijk besluit, mits de aanvraag compleet is ingediend"
+        begrip: "beschikking"
+      expected:
+        success: false
+        score: 0.0
+
+generation_hints:
+  - "Beschrijf WAT iets is, niet wanneer of onder welke voorwaarden"
+  - "Vermijd voorwaardelijke formuleringen: indien, mits, tenzij"
+  - "Houd definities zuiver beschrijvend, niet normatief"
+  - "Beslisregels horen in regelgeving, niet in definities"
+
+test_cases:
+  - name: "valid_no_conditions"
+    input:
+      definitie: "officiële inschrijving in een openbaar register door een bevoegde instantie"
+      begrip: "register"
+    expected:
+      success: true
+      score: 1.0
+
+  - name: "invalid_with_condition"
+    input:
+      definitie: "inschrijving in een register, tenzij er bezwaar ligt"
+      begrip: "register"
+    expected:
+      success: false
+      score: 0.0
+
+performance:
+  max_execution_time_ms: 50
+  complexity: "O(n)"
+  memory_usage: "O(1)"

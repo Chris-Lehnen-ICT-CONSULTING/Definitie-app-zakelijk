@@ -1,0 +1,51 @@
+id: ESS_04
+name: Toetsbaarheid
+description: Een definitie bevat objectief toetsbare elementen (harde deadlines, aantallen,
+  percentages, meetbare criteria).
+explanation: 'Zonder toetsbare criteria kan een lezer niet objectief vaststellen of
+  iets onder de definitie valt. Voorbeelden van *niet*-toetsbaar: ‘zo snel mogelijk’,
+  ‘zo veel mogelijk’. Wél-toetsbaar: ‘binnen 3 dagen’, ‘tenminste 80%’, ‘uiterlijk
+  na 1 week’.'
+test_question: Bevat de definitie elementen waarmee je objectief kunt vaststellen
+  of iets wel of niet onder het begrip valt?
+metadata:
+  priority: midden
+  recommendation: verplicht
+  validity: alle
+  status: definitief
+  type: element in de definitie
+  theme: toepasbaarheid
+  source_document: ASTRA
+validation:
+  patterns:
+  - \bbinnen\s+\d+\s+dagen?\b
+  - \buiterlijk\s+na\s+\d+\s+(dagen?|weken?)\b
+  - \btenminste\s+\d+%\b
+  - \bminimaal\s+\d+%\b
+  - \bmaximaal\s+\d+%\b
+  - \b\d+\s+%\b
+  - \baan de hand van\b
+  - \bobjectieve criteria\b
+  - \bbevat\b
+  - \bomvat\b
+  - \bheeft als eigenschap\b
+  - \bwordt gekenmerkt door\b
+  - \bcontrole op\b
+  - \bwaarneembare\b
+  - \btoetsbaar\b
+  good_examples:
+  - …binnen 3 dagen nadat het verzoek is ingediend…
+  - …tenminste 80% van de steekproef voldoet…
+  - …uiterlijk na 1 week na ontvangst…
+  bad_examples:
+  - …zo snel mogelijk na ontvangst…
+  - …zo veel mogelijk resultaten…
+  - …moet zo mogelijk conform…
+references:
+- fulltext: Toetsbaarheid
+  fullurl: https://www.astraonline.nl/index.php/Toetsbaarheid
+implementation_details:
+  implementation: python
+  source_file: src/toetsregels/regels/ESS-04.py
+  validation_logic: See Python implementation for complex validation
+  validation_description: 'Validator voor ESS-04: Toetsbaarheid.'

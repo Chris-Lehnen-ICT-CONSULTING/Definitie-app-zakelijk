@@ -1,0 +1,80 @@
+version: '3.8'
+
+services:
+  # FastAPI backend (Week 2+)
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: definitie-agent-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/definitie_agent
+      - REDIS_URL=redis://redis:6379/0
+      - ENVIRONMENT=development
+    volumes:
+      - ./app:/app/app
+      - ./tests:/app/tests
+    depends_on:
+      - db
+      - redis
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    networks:
+      - definitie-network
+
+  # PostgreSQL database (Week 2+, Optional - can use SQLite)
+  db:
+    image: postgres:16-alpine
+    container_name: definitie-agent-db
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=definitie_agent
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - definitie-network
+
+  # Redis cache (Week 2+, HIGH value for 70% cost savings)
+  redis:
+    image: redis:7-alpine
+    container_name: definitie-agent-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - definitie-network
+
+  # Streamlit UI (Current system, Week 7 migration)
+  # OPTIONAL: Keep running alongside FastAPI during hybrid migration
+  streamlit:
+    build:
+      context: .
+      dockerfile: Dockerfile.streamlit
+    container_name: definitie-agent-streamlit
+    ports:
+      - "8501:8501"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - BACKEND_URL=http://backend:8000
+    volumes:
+      - ./src:/app/src
+      - ./data:/app/data
+    depends_on:
+      - backend
+    command: streamlit run src/main.py --server.port=8501 --server.address=0.0.0.0
+    networks:
+      - definitie-network
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  definitie-network:
+    driver: bridge

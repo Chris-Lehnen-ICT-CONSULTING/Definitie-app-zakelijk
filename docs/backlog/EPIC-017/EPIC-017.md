@@ -4,7 +4,10 @@ status: active
 owner: architecture
 last_verified: 2025-09-15
 applies_to: definitie-app@current
+titel: "EPIC-017: Iteratieve Verbeteringen - V2 feedback-loop met max 3 iteraties, FeedbackBuilder en stopcriteria (0.05 threshold)"
 ---
+
+> **Statusupdate (2025-10-03):** Story US-170 is verplaatst naar [EPIC-026](../EPIC-026/US-170/US-170.md) en leeft daar verder als refactor-item.
 
 # EPIC-017: Iteratieve Verbeteringen (V2 Orchestrator)
 
@@ -17,7 +20,6 @@ Created: 2025-09-15
 Updated: 2025-09-15
 Owner: Architecture/Engineering
 stories:
-- US-170
 - US-188
 - US-189
 
@@ -57,7 +59,7 @@ Doel: de iteratieve verbeteringscyclus (feedbackloop) realiseren bovenop de V2�
 - UI: grafieken voor score per iteratie, violations per severiteit, diff t.o.v. vorige iteratie.
 
 Bronnen:
-- US‑061 Business Knowledge Extraction: `docs/backlog/EPIC-012/US-061/BUSINESS_KNOWLEDGE_EXTRACTION.md`
+- US‑061 Business Knowledge Extraction: `docs/backlog/EPIC-026/US-061/BUSINESS_KNOWLEDGE_EXTRACTION.md`
 - EPIC‑012 (context en verwijzingen): `docs/backlog/EPIC-012/EPIC-012.md`
 
 ## Acceptatiecriteria (Epic)

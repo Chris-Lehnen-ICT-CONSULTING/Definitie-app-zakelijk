@@ -1,0 +1,36 @@
+id: STR_04
+name: Kick-off vervolgen met toespitsing
+description: Een definitie moet na de algemene opening meteen toespitsen op het specifieke
+  begrip.
+explanation: De 'kick-off' (bijv. 'proces', 'activiteit', 'gegeven') moet onmiddellijk
+  gevolgd worden door een toespitsing die uitlegt welk soort proces of activiteit
+  bedoeld wordt. Te algemene definities zonder verdere specificatie zijn ontoereikend.
+test_question: Volgt na de algemene opening direct een toespitsing die uitlegt welk
+  soort proces of element bedoeld wordt?
+metadata:
+  priority: hoog
+  recommendation: verplicht
+  validity: alle
+  status: definitief
+  type: gehele definitie
+  theme: structuur van de definitie
+  source_document: ASTRA
+validation:
+  patterns:
+  - ^\s*(proces|gegeven|activiteit|maatregel|functie|instantie|persoon)\s*(\.|$)
+  - ^\s*(proces|gegeven|activiteit|maatregel|functie|instantie|persoon)\s+die\s*$
+  good_examples:
+  - proces dat beslissers informeert
+  - gegeven over de verblijfplaats van een betrokkene
+  bad_examples:
+  - proces
+  - gegeven
+  - activiteit die plaatsvindt
+references:
+- fulltext: Kick-off vervolgen met toespitsing
+  fullurl: https://www.astraonline.nl/index.php/Kick-off_vervolgen_met_toespitsing
+implementation_details:
+  implementation: python
+  source_file: src/toetsregels/regels/STR-04.py
+  validation_logic: See Python implementation for complex validation
+  validation_description: Validator voor STR-04.

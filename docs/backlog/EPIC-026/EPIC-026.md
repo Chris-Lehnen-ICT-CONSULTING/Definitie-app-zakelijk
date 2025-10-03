@@ -1,18 +1,35 @@
 ---
 aangemaakt: 2025-09-30
 applies_to: definitie-app@current
-bijgewerkt: 2025-09-30
-canonical: true
+bijgewerkt: 2025-10-03
+canonical: false
 completion: 0%
 id: EPIC-026
-last_verified: 2025-09-30
+last_verified: 2025-10-03
 owner: code-architect
-prioriteit: P1
-status: active
-target_release: v2.2
-titel: God Object Refactoring (Architectural Debt Resolution)
+prioriteit: P2
+status: needs-revision
+target_release: v2.3
+titel: "EPIC-026: God Object Refactoring - Refactor 3 files (5872 LOC) naar modulaire architectuur met DI (10-12 weken)"
 vereisten:
 - REQ-091
+revision_note: "v1.0 superseded by EPIC-026-REVISED.md (v2.0) - see 5-agent analysis 2025-10-03"
+---
+
+# ⚠️ SUPERSEDED BY EPIC-026-REVISED.md
+
+**This is version 1.0 - OUTDATED**
+
+**Current version:** `EPIC-026-REVISED.md` (v2.0)
+
+**Why revised:**
+- Timeline: 11-16 days → 10-12 weeks (realistic)
+- Cost: €12.8k → €43-67k (includes Phase 0 tests)
+- Risk: 3 documented → 17 identified (honest assessment)
+- Scope: 3 files → 2 files (repository deferred)
+
+**See:** `docs/backlog/EPIC-026/EPIC-026-REVISED.md` for current version
+
 ---
 
 # EPIC-026: God Object Refactoring (Architectural Debt Resolution)

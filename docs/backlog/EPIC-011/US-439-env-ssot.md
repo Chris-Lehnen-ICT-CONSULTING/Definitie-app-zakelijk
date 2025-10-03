@@ -1,7 +1,7 @@
 ---
 id: US-439
 epic: EPIC-011
-titel: Environment SSOT
+titel: "US-439: - Eén bron van waarheid voor environment; container_manager en config_manager rapporteren dezelfde omgeving."
 status: open
 prioriteit: P2
 story_points: 5

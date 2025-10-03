@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>US-170: titel: Koppel Orchestration-tab aan V2 Orchestrator (productiepad)</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>id: US-170</p>
+<p>epic: EPIC-026</p>
+<p>titel: "US-170: titel: Koppel Orchestration-tab aan V2 Orchestrator (productiepad)"</p>
+<p>status: open</p>
+<p>prioriteit: P2</p>
+<p>story_points: 5</p>
+<p>aangemaakt: 2025-09-30</p>
+<p>bijgewerkt: 2025-09-30</p>
+<p>owner: tbd</p>
+<p>applies_to: definitie-app@current</p>
+<p>canonical: false</p>
+<p>last_verified: 2025-09-30</p>
+<p>---</p>
+
+<h1>US-170: Koppel Orchestration-tab aan V2 Orchestrator (productiepad)</h1>
+
+<h2>User Story</h2>
+<p><strong>Als</strong> product owner  </p>
+<p><strong>Wil ik</strong> dat de Orchestration-tab de V2 orchestrator echt aanstuurt  </p>
+<p><strong>Zodat</strong> we iteratieve verbetering, validatie en opslag met gate‑enforcement kunnen demonstreren en bedienen vanuit de UI.</p>
+
+<h2>Status</h2>
+<p><strong>Status</strong>: TODO  </p>
+<p><strong>Priority</strong>: HIGH  </p>
+<p><strong>Story Points</strong>: 5  </p>
+<p><strong>Epic</strong>: <a href="../../EPIC-012/EPIC-012.md" target="_blank">EPIC-012: Legacy Orchestrator Refactoring</a>  </p>
+
+<h2>Context</h2>
+<p>De huidige Orchestration-tab is een demo (gesimuleerd) en staat achter een feature flag. Voor volwassen gebruik willen we deze koppelen aan de V2 orchestrator flow (11 fasen) met echte generatie/validatie, inclusief gate‑policy en veilige foutafhandeling.</p>
+
+<h2>Scope</h2>
+<h3>In Scope</h3>
+<ul>
+<li>UI wiring: Orchestration-tab → `DefinitionOrchestratorV2`</li>
+<li>Async-bridge gebruik (UI) i.p.v. `asyncio.run` in services</li>
+<li>Validatie/gate‑enforcement met policy (`approval_gate.yaml`)</li>
+<li>Veilige foutafhandeling + duidelijke UI feedback (override flow)</li>
+<li>Respecteer V2 UI‑contract (UIResponseDict) overal</li>
+</ul>
+
+<h3>Out of Scope</h3>
+<ul>
+<li>Business‑algoritme wijzigingen (blijven zoals V2)</li>
+<li>Nieuwe features in de orchestrator</li>
+<li>Document import/pipeline (alleen gebruiken indien al aanwezig)</li>
+</ul>
+
+<h2>Acceptatiecriteria</h2>
+<ul>
+<li>[ ] Orchestration-tab roept V2 orchestrator aan (geen demo data)</li>
+<li>[ ] Geen `best_iteration`/legacy objecten; V2 dict‑contract in UI</li>
+<li>[ ] Gate‑preview en approve/override gedrag zichtbaar in UI en consistent met policy</li>
+<li>[ ] Echte validatie/violations worden getoond (mapping naar UI)</li>
+<li>[ ] Robuuste foutmeldingen (network/API error → non‑blocking UI)</li>
+<li>[ ] Geen `asyncio.run` in services; UI gebruikt bridge of event loop</li>
+</ul>
+
+<h2>Technisch ontwerp (samenvatting)</h2>
+<ul>
+<li>UI: vervang `_simulate_agent_run(...)` door async call naar `DefinitionOrchestratorV2.create_definition(...)` via `ui.helpers.async_bridge`.</li>
+<li>Injection: verkrijg orchestrator via DI container (`ServiceContainer.orchestrator()`).</li>
+<li>Context: gebruik V2 context dict (`organisatorisch[]`, `juridisch[]`, `wettelijk[]`).</li>
+<li>Gate: toon `validation_details` en gate‑status; bij override ask‑for‑reason.</li>
+<li>Response: normaliseer naar UIResponseDict (indien orchestrator al conform is → pass‑through).</li>
+<li>Errors: try/except rond AI/validatie; toon non‑blocking status + retry mogelijkheid.</li>
+</ul>
+
+<h2>Beveiliging & Privacy</h2>
+<ul>
+<li>Vereist `OPENAI_API_KEY` (gebruik dev‑key lokaal); nooit loggen.</li>
+<li>Respecteer DPIA/AVG redactie (security service hook aanwezig in V2; activeer indien beschikbaar).</li>
+</ul>
+
+<h2>Testplan</h2>
+<ul>
+<li>Unit: UI normalisatie → V2 contract (mock orchestrator responses)</li>
+<li>Integratie: happy path (gate pass), override‑pad (override_required), blocked‑pad (blocked)</li>
+<li>Negatief: netwerkfout/timeout → UI toont melding, geen crash</li>
+</ul>
+
+<h2>Checklist Implementatie</h2>
+<ul>
+<li>[ ] Async‑bridge gebruiken voor orchestrator calls (geen `asyncio.run`)</li>
+<li>[ ] UI response normaliseren naar UIResponseDict (indien nodig)</li>
+<li>[ ] Gate‑status/reden(en) tonen en override‑reden afdwingen</li>
+<li>[ ] Logging: zonder secrets, met correlation id waar mogelijk</li>
+<li>[ ] Feature flag: tab blijft achter ENV `ENABLE_LEGACY_TAB=true`</li>
+</ul>
+
+<h2>Dependencies</h2>
+<ul>
+<li>V2 orchestrator operationeel (`DefinitionOrchestratorV2`)</li>
+<li>Gate‑policy loader (`GatePolicyService`) beschikbaar</li>
+</ul>
+
+<h2>Notes</h2>
+<ul>
+<li>Tab blijft standaard verborgen (flag), zodat demo/experimentele functionaliteit gescheiden blijft van hoofdflow (Generator‑tab).</li>
+</ul>
+
+  </div>
+</body>
+</html>

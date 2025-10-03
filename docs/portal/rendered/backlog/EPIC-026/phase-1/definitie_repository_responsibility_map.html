@@ -1,0 +1,1415 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>definitie_repository.py Responsibility Map</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>id: EPIC-026-RESP-MAP-001</p>
+<p>epic: EPIC-026</p>
+<p>phase: 1</p>
+<p>titel: definitie_repository.py Responsibility Map</p>
+<p>status: complete</p>
+<p>aangemaakt: 2025-10-02</p>
+<p>owner: code-architect</p>
+<p>canonical: true</p>
+<p>applies_to: definitie-app@epic-026</p>
+<p>last_verified: 2025-10-02</p>
+<p>---</p>
+
+<h1>definitie_repository.py Responsibility Map</h1>
+
+<p><strong>Analysis Date:</strong> 2025-10-02</p>
+<p><strong>Phase:</strong> EPIC-026 Phase 1 - Design</p>
+<p><strong>Day:</strong> 1 of 5</p>
+<p><strong>Agent:</strong> Code Architect</p>
+
+<p>---</p>
+
+<h2>Executive Summary</h2>
+
+<p><strong>File:</strong> <code>src/database/definitie_repository.py</code></p>
+<p><strong>LOC:</strong> 1,815 lines</p>
+<p><strong>Methods:</strong> 41 methods</p>
+<p><strong>Classes:</strong> 5 (DefinitieStatus, SourceType, DefinitieRecord, VoorbeeldenRecord, DuplicateMatch, DefinitieRepository)</p>
+<p><strong>Primary Responsibilities:</strong> Complete database abstraction layer for definition management system</p>
+
+<p><strong>Assessment:</strong> <strong>MEDIUM-HIGH complexity</strong> God Object with clear internal structure and excellent test coverage (51 tests). Boundaries are identifiable but extraction requires careful dependency management.</p>
+
+<p><strong>Migration Complexity:</strong> <strong>MEDIUM</strong> - Clear READ/WRITE/BULK/VOORBEELDEN boundaries exist, good test coverage provides safety net, but complex duplicate detection and transaction logic needs careful handling.</p>
+
+<p>---</p>
+
+<h2>Overview</h2>
+
+<h3>Purpose</h3>
+<p>DefinitieRepository provides a complete database abstraction layer for all definitie (definition) management operations, including:</p>
+<ul>
+<li>CRUD operations for definitions</li>
+<li>Duplicate detection (exact + fuzzy + synonym matching)</li>
+<li>Voorbeelden (examples) management (sentences, practical, counter, synonyms, antonyms)</li>
+<li>Import/Export functionality (JSON)</li>
+<li>Search and filtering</li>
+<li>Status management and approval workflow</li>
+<li>History/audit logging</li>
+</ul>
+
+<h3>God Object Indicators</h3>
+<ul>
+<li>**Size:** 1,815 LOC (target: <500)</li>
+<li>**Method count:** 41 methods</li>
+<li>**Multiple responsibilities:** Database access, duplicate detection, validation, import/export, logging, similarity calculation</li>
+<li>**Mixed concerns:** Data access, business logic (duplicate rules), utility functions (similarity)</li>
+</ul>
+
+<p>---</p>
+
+<h2>Method Inventory (41 Methods)</h2>
+
+<h3>Responsibility 1: DATABASE CONNECTION & INITIALIZATION (~150 LOC)</h3>
+
+<p><strong>Methods:</strong></p>
+<ol>
+<li>`__init__(db_path)` - Initialize repository with database connection</li>
+</ol>
+<ul>
+<li>  - LOC: ~5</li>
+<li>  - Dependencies: Path, logging</li>
+<li>  - Returns: None</li>
+<li>  - Purpose: Set up database path and initialize schema</li>
+</ul>
+
+<ol>
+<li>`_get_connection(timeout)` - Create database connection with proper settings</li>
+</ol>
+<ul>
+<li>  - LOC: ~23</li>
+<li>  - Dependencies: sqlite3</li>
+<li>  - Returns: sqlite3.Connection</li>
+<li>  - Purpose: Provide configured connection with WAL mode, pragmas, row factory</li>
+<li>  - **Cross-cutting:** Used by ALL database operations</li>
+</ul>
+
+<ol>
+<li>`_init_database()` - Initialize database schema</li>
+</ol>
+<ul>
+<li>  - LOC: ~56</li>
+<li>  - Dependencies: Path, schema.sql, logging</li>
+<li>  - Returns: None</li>
+<li>  - Purpose: Create tables if not exist, load schema from schema.sql</li>
+<li>  - **Complexity:** Handles both schema file and fallback creation</li>
+</ul>
+
+<ol>
+<li>`_has_legacy_columns()` - Check if database has legacy columns</li>
+</ol>
+<ul>
+<li>  - LOC: ~6</li>
+<li>  - Dependencies: _get_connection</li>
+<li>  - Returns: bool</li>
+<li>  - Purpose: Detect if datum_voorstel, ketenpartners columns exist</li>
+</ul>
+
+<ol>
+<li>`_has_legacy_columns_in_conn(conn)` - Static version using existing connection</li>
+</ol>
+<ul>
+<li>  - LOC: ~5</li>
+<li>  - Dependencies: sqlite3.Connection</li>
+<li>  - Returns: bool</li>
+<li>  - Purpose: Check legacy columns without creating new connection</li>
+</ul>
+
+<ol>
+<li>`_build_insert_columns(record, wb_value, include_legacy)` - Compose insert columns/values</li>
+</ol>
+<ul>
+<li>  - LOC: ~65</li>
+<li>  - Dependencies: DefinitieRecord</li>
+<li>  - Returns: tuple[list[str], list[Any]]</li>
+<li>  - Purpose: Build column list and values for INSERT statement</li>
+<li>  - **Static method** - No instance state</li>
+</ul>
+
+<ol>
+<li>`_split_sql_statements(sql)` - Split SQL file into individual statements</li>
+</ol>
+<ul>
+<li>  - LOC: ~40</li>
+<li>  - Dependencies: None</li>
+<li>  - Returns: list[str]</li>
+<li>  - Purpose: Parse SQL file for executescript fallback</li>
+<li>  - **Utility function** - Could be extracted</li>
+</ul>
+
+<p>---</p>
+
+<h3>Responsibility 2: READ OPERATIONS (Queries, Retrieval) (~350 LOC)</h3>
+
+<p><strong>Methods:</strong></p>
+<ol>
+<li>`get_definitie(definitie_id)` - Retrieve single definition by ID</li>
+</ol>
+<ul>
+<li>  - LOC: ~18</li>
+<li>  - Dependencies: _get_connection, _row_to_record</li>
+<li>  - Returns: DefinitieRecord | None</li>
+<li>  - Purpose: Simple ID lookup</li>
+<li>  - **Tests:** Covered by test_definition_repository.py</li>
+</ul>
+
+<ol>
+<li>`find_definitie(begrip, org_context, jur_context, status, categorie, wettelijke_basis)` - Find definition by context</li>
+</ol>
+<ul>
+<li>  - LOC: ~107</li>
+<li>  - Dependencies: _get_connection, _row_to_record, json</li>
+<li>  - Returns: DefinitieRecord | None</li>
+<li>  - Purpose: Context-aware lookup with synonym fallback</li>
+<li>  - **Complexity:** Two-stage query (exact + synonym), wettelijke_basis normalization</li>
+<li>  - **Business logic:** Synonym matching, context matching rules</li>
+</ul>
+
+<ol>
+<li>`search_definities(query, categorie, org_context, status, limit)` - Search with filters</li>
+</ol>
+<ul>
+<li>   - LOC: ~58</li>
+<li>   - Dependencies: _get_connection, _row_to_record</li>
+<li>   - Returns: list[DefinitieRecord]</li>
+<li>   - Purpose: Flexible search with LIKE queries</li>
+<li>   - **Security:** Validates limit parameter</li>
+</ul>
+
+<ol>
+<li>`get_statistics()` - Retrieve database statistics</li>
+</ol>
+<ul>
+<li>   - LOC: ~37</li>
+<li>   - Dependencies: _get_connection</li>
+<li>   - Returns: dict[str, Any]</li>
+<li>   - Purpose: Aggregated counts by status, category, avg validation score</li>
+<li>   - **Read-only** - No side effects</li>
+</ul>
+
+<ol>
+<li>`_row_to_record(row)` - Convert database row to DefinitieRecord</li>
+</ol>
+<ul>
+<li>   - LOC: ~55</li>
+<li>   - Dependencies: sqlite3.Row, datetime, DefinitieRecord</li>
+<li>   - Returns: DefinitieRecord</li>
+<li>   - Purpose: Map SQLite row to dataclass with datetime parsing</li>
+<li>   - **Cross-cutting:** Used by all READ operations</li>
+</ul>
+
+<p>---</p>
+
+<h3>Responsibility 3: WRITE OPERATIONS (Insert, Update, Delete) (~400 LOC)</h3>
+
+<p><strong>Methods:</strong></p>
+<ol>
+<li>`create_definitie(record, allow_duplicate)` - Create new definition</li>
+</ol>
+<ul>
+<li>   - LOC: ~67</li>
+<li>   - Dependencies: _get_connection, find_duplicates, _build_insert_columns, _log_geschiedenis</li>
+<li>   - Returns: int (new ID)</li>
+<li>   - Purpose: Insert new definition with duplicate check</li>
+<li>   - **Business logic:** Duplicate gate (unless allow_duplicate=True)</li>
+<li>   - **Side effects:** Logs history, sets timestamps</li>
+<li>   - **Tests:** 51 tests cover this path</li>
+</ul>
+
+<ol>
+<li>`update_definitie(definitie_id, updates, updated_by)` - Update existing definition</li>
+</ol>
+<ul>
+<li>   - LOC: ~101</li>
+<li>   - Dependencies: _get_connection, get_definitie, _log_geschiedenis</li>
+<li>   - Returns: bool</li>
+<li>   - Purpose: Update definition fields with whitelist validation</li>
+<li>   - **Security:** Field whitelist prevents SQL injection</li>
+<li>   - **Business logic:** Optimistic locking with version_number</li>
+<li>   - **Side effects:** Increments version, logs history</li>
+</ul>
+
+<ol>
+<li>`change_status(definitie_id, new_status, changed_by, notes)` - Change definition status</li>
+</ol>
+<ul>
+<li>   - LOC: ~41</li>
+<li>   - Dependencies: update_definitie, _log_geschiedenis</li>
+<li>   - Returns: bool</li>
+<li>   - Purpose: Status transition with approval metadata</li>
+<li>   - **Business logic:** Sets approved_by/approved_at when status=ESTABLISHED</li>
+<li>   - **Workflow:** Part of approval process</li>
+</ul>
+
+<ol>
+<li>`_log_geschiedenis(definitie_id, wijziging_type, gewijzigd_door, reden)` - Log change history</li>
+</ol>
+<ul>
+<li>   - LOC: ~23</li>
+<li>   - Dependencies: _get_connection</li>
+<li>   - Returns: None</li>
+<li>   - Purpose: Audit trail for all changes</li>
+<li>   - **Cross-cutting:** Called by create, update, change_status</li>
+</ul>
+
+<p>---</p>
+
+<h3>Responsibility 4: DUPLICATE DETECTION (Business Logic) (~250 LOC)</h3>
+
+<p><strong>Methods:</strong></p>
+<ol>
+<li>`find_duplicates(begrip, org_context, jur_context, categorie, wettelijke_basis)` - Find potential duplicates</li>
+</ol>
+<ul>
+<li>   - LOC: ~113</li>
+<li>   - Dependencies: _get_connection, _row_to_record, _calculate_similarity, json</li>
+<li>   - Returns: list[DuplicateMatch]</li>
+<li>   - Purpose: Multi-stage duplicate detection (exact + synonym + fuzzy)</li>
+<li>   - **Business logic:** Three matching strategies:</li>
+</ul>
+<ol>
+<li>Exact match: begrip + context</li>
+<li>Synonym match: via definitie_voorbeelden join</li>
+<li>Fuzzy match: LIKE query + similarity threshold (70%)</li>
+</ol>
+<ul>
+<li>   - **Complexity:** HIGH - Normalized wettelijke_basis comparison, multiple queries</li>
+<li>   - **Tests:** Critical for duplicate prevention</li>
+</ul>
+
+<ol>
+<li>`count_exact_by_context(begrip, org_context, jur_context, wettelijke_basis)` - Count exact matches</li>
+</ol>
+<ul>
+<li>   - LOC: ~30</li>
+<li>   - Dependencies: _get_connection, json</li>
+<li>   - Returns: int</li>
+<li>   - Purpose: Fast count for validation rules (CON-01)</li>
+<li>   - **Business logic:** Same normalization as find_duplicates</li>
+<li>   - **Use case:** Pre-insert duplicate check</li>
+</ul>
+
+<ol>
+<li>`_calculate_similarity(str1, str2)` - Calculate similarity score</li>
+</ol>
+<ul>
+<li>   - LOC: ~17</li>
+<li>   - Dependencies: None</li>
+<li>   - Returns: float</li>
+<li>   - Purpose: Jaccard similarity for fuzzy matching</li>
+<li>   - **Algorithm:** Set intersection / union of words</li>
+<li>   - **Utility function** - Could be extracted to utils</li>
+</ul>
+
+<p>---</p>
+
+<h3>Responsibility 5: BULK OPERATIONS (Import/Export) (~180 LOC)</h3>
+
+<p><strong>Methods:</strong></p>
+<ol>
+<li>`export_to_json(file_path, filters)` - Export definitions to JSON</li>
+</ol>
+<ul>
+<li>   - LOC: ~49</li>
+<li>   - Dependencies: search_definities, json, datetime, Path, _log_import_export</li>
+<li>   - Returns: int (count exported)</li>
+<li>   - Purpose: Export filtered definitions with metadata</li>
+<li>   - **Format:** Includes export_info (timestamp, count, filters)</li>
+<li>   - **Side effects:** Writes file, logs export operation</li>
+</ul>
+
+<ol>
+<li>`import_from_json(file_path, import_by)` - Import definitions from JSON</li>
+</ol>
+<ul>
+<li>   - LOC: ~56</li>
+<li>   - Dependencies: json, DefinitieRecord, create_definitie, _log_import_export</li>
+<li>   - Returns: tuple[int, int, list[str]] (successful, failed, errors)</li>
+<li>   - Purpose: Bulk import with error collection</li>
+<li>   - **Business logic:** Sets source_type=IMPORTED, clears ID/timestamps</li>
+<li>   - **Error handling:** Per-record try/except, collects errors</li>
+<li>   - **Side effects:** Logs import operation</li>
+</ul>
+
+<ol>
+<li>`_log_import_export(operatie_type, bestand_pad, verwerkt, succesvol, gefaald)` - Log import/export</li>
+</ol>
+<ul>
+<li>   - LOC: ~20</li>
+<li>   - Dependencies: _get_connection, datetime</li>
+<li>   - Returns: None</li>
+<li>   - Purpose: Audit trail for bulk operations</li>
+<li>   - **Cross-cutting:** Called by export_to_json, import_from_json</li>
+</ul>
+
+<p>---</p>
+
+<h3>Responsibility 6: VOORBEELDEN MANAGEMENT (~550 LOC)</h3>
+
+<p><strong>Methods:</strong></p>
+<ol>
+<li>`save_voorbeelden(definitie_id, voorbeelden_dict, generation_model, generation_params, gegenereerd_door, voorkeursterm)` - Save examples</li>
+</ol>
+<ul>
+<li>   - LOC: ~210</li>
+<li>   - Dependencies: _get_connection, VoorbeeldenRecord, json, logging</li>
+<li>   - Returns: list[int] (saved IDs)</li>
+<li>   - Purpose: Upsert examples by type (sentence, practical, counter, synonyms, antonyms)</li>
+<li>   - **Business logic:**</li>
+<li>     - Deactivates old examples (soft delete)</li>
+<li>     - Normalizes voorbeeld_type (voorbeeldzinnen → sentence)</li>
+<li>     - Handles voorkeursterm (single source: definities.voorkeursterm)</li>
+<li>     - Upsert logic (update existing or insert new)</li>
+<li>   - **Complexity:** HIGH - Transaction, type normalization, voorkeursterm logic</li>
+<li>   - **Safety guard:** Skips if no new examples provided (prevents accidental wipe)</li>
+</ul>
+
+<ol>
+<li>`get_voorbeelden(definitie_id, voorbeeld_type, actief_only)` - Retrieve examples</li>
+</ol>
+<ul>
+<li>   - LOC: ~72</li>
+<li>   - Dependencies: _get_connection, VoorbeeldenRecord, datetime</li>
+<li>   - Returns: list[VoorbeeldenRecord]</li>
+<li>   - Purpose: Query examples with filters</li>
+<li>   - **Flexibility:** Filter by type, active status</li>
+</ul>
+
+<ol>
+<li>`get_voorbeelden_by_type(definitie_id)` - Get examples grouped by type</li>
+</ol>
+<ul>
+<li>   - LOC: ~18</li>
+<li>   - Dependencies: get_voorbeelden</li>
+<li>   - Returns: dict[str, list[str]]</li>
+<li>   - Purpose: Convenience method for UI display</li>
+<li>   - **Format:** {"sentence": [...], "practical": [...], ...}</li>
+</ul>
+
+<ol>
+<li>`get_voorkeursterm(definitie_id)` - Get preferred term</li>
+</ol>
+<ul>
+<li>   - LOC: ~18</li>
+<li>   - Dependencies: _get_connection</li>
+<li>   - Returns: str | None</li>
+<li>   - Purpose: Retrieve single source voorkeursterm from definities table</li>
+<li>   - **Business rule:** Single source of truth in definities.voorkeursterm column</li>
+</ul>
+
+<ol>
+<li>`beoordeel_voorbeeld(voorbeeld_id, beoordeeling, beoordeeling_notities, beoordeeld_door)` - Rate example</li>
+</ol>
+<ul>
+<li>   - LOC: ~48</li>
+<li>   - Dependencies: _get_connection, logging</li>
+<li>   - Returns: bool</li>
+<li>   - Purpose: Expert review of examples</li>
+<li>   - **Validation:** beoordeeling must be 'goed', 'matig', 'slecht'</li>
+<li>   - **Workflow:** Part of quality assurance process</li>
+</ul>
+
+<ol>
+<li>`delete_voorbeelden(definitie_id, voorbeeld_type)` - Delete examples</li>
+</ol>
+<ul>
+<li>   - LOC: ~36</li>
+<li>   - Dependencies: _get_connection, logging</li>
+<li>   - Returns: int (deleted count)</li>
+<li>   - Purpose: Hard delete examples (vs soft delete in save_voorbeelden)</li>
+</ul>
+
+<p>---</p>
+
+<h3>Responsibility 7: UTILITY FUNCTIONS & HELPERS (~80 LOC)</h3>
+
+<p><strong>Methods:</strong></p>
+<ol>
+<li>`get_definitie_repository(db_path)` - Factory function (module-level)</li>
+</ol>
+<ul>
+<li>   - LOC: ~8</li>
+<li>   - Dependencies: Path, DefinitieRepository</li>
+<li>   - Returns: DefinitieRepository</li>
+<li>   - Purpose: Convenience factory with default path</li>
+</ul>
+
+<p><strong>Dataclass Helper Methods:</strong></p>
+
+<p>30-33. <strong>DefinitieRecord helper methods:</strong></p>
+<ul>
+<li>   - `to_dict()` - Convert to dict with datetime ISO strings (13 LOC)</li>
+<li>   - `get_validation_issues_list()` - Parse JSON validation issues (9 LOC)</li>
+<li>   - `set_validation_issues(issues)` - Store validation issues as JSON (4 LOC)</li>
+<li>   - `get_wettelijke_basis_list()` - Parse JSON wettelijke basis (8 LOC)</li>
+<li>   - `set_wettelijke_basis(basis)` - Store wettelijke basis as JSON with normalization (9 LOC)</li>
+<li>   - `get_export_destinations_list()` - Parse JSON export destinations (9 LOC)</li>
+<li>   - `add_export_destination(destination)` - Add export destination (9 LOC)</li>
+<li>   - `get_ketenpartners_list()` - Parse JSON ketenpartners (8 LOC)</li>
+<li>   - `set_ketenpartners(partners)` - Store ketenpartners as JSON (3 LOC)</li>
+</ul>
+
+<p>34-36. <strong>VoorbeeldenRecord helper methods:</strong></p>
+<ul>
+<li>   - `to_dict()` - Convert to dict with datetime ISO strings (9 LOC)</li>
+<li>   - `get_generation_parameters_dict()` - Parse JSON generation params (8 LOC)</li>
+<li>   - `set_generation_parameters(params)` - Store generation params as JSON (4 LOC)</li>
+</ul>
+
+<p>---</p>
+
+<h2>Responsibility Grouping Analysis</h2>
+
+<h3>Primary Responsibilities (Proposed Service Boundaries)</h3>
+
+<h4>**1. READ Service (~400 LOC)**</h4>
+<p><strong>Purpose:</strong> All SELECT queries, data retrieval, search</p>
+
+<p><strong>Methods:</strong></p>
+<ul>
+<li>`get_definitie(id)` - Single record lookup</li>
+<li>`find_definitie(...)` - Context-aware search with synonym fallback</li>
+<li>`search_definities(...)` - Multi-filter search</li>
+<li>`get_statistics()` - Aggregated queries</li>
+<li>`_row_to_record(row)` - Row mapping (shared utility)</li>
+</ul>
+
+<p><strong>Dependencies:</strong></p>
+<ul>
+<li>Database connection (inject)</li>
+<li>Logger (inject)</li>
+<li>datetime parsing</li>
+<li>JSON parsing (for wettelijke_basis)</li>
+</ul>
+
+<p><strong>Complexity:</strong> MEDIUM</p>
+<ul>
+<li>Synonym matching logic</li>
+<li>Wettelijke_basis normalization</li>
+<li>Multiple query strategies</li>
+</ul>
+
+<p><strong>Tests:</strong> ~20 tests in test_definition_repository.py</p>
+
+<p>---</p>
+
+<h4>**2. WRITE Service (~450 LOC)**</h4>
+<p><strong>Purpose:</strong> All INSERT/UPDATE/DELETE operations, status changes</p>
+
+<p><strong>Methods:</strong></p>
+<ul>
+<li>`create_definitie(record)` - INSERT with duplicate check</li>
+<li>`update_definitie(id, updates)` - UPDATE with optimistic locking</li>
+<li>`change_status(id, status)` - Status transition with approval</li>
+<li>`_log_geschiedenis(...)` - Audit logging (shared utility)</li>
+</ul>
+
+<p><strong>Dependencies:</strong></p>
+<ul>
+<li>Database connection (inject)</li>
+<li>Logger (inject)</li>
+<li>DuplicateDetectionService (for create_definitie duplicate check)</li>
+<li>datetime for timestamps</li>
+</ul>
+
+<p><strong>Business Logic:</strong></p>
+<ul>
+<li>Duplicate gate on insert</li>
+<li>Field whitelist validation</li>
+<li>Optimistic locking with version_number</li>
+<li>Approval workflow (ESTABLISHED status)</li>
+</ul>
+
+<p><strong>Complexity:</strong> MEDIUM-HIGH</p>
+<ul>
+<li>Transaction management</li>
+<li>Optimistic locking</li>
+<li>Duplicate prevention</li>
+</ul>
+
+<p><strong>Tests:</strong> ~15 tests in test_definitie_repository_insert_payload.py, test_definition_repository_error_handling.py</p>
+
+<p>---</p>
+
+<h4>**3. DUPLICATE Detection Service (~250 LOC)**</h4>
+<p><strong>Purpose:</strong> All duplicate detection and matching logic</p>
+
+<p><strong>Methods:</strong></p>
+<ul>
+<li>`find_duplicates(...)` - Multi-stage matching</li>
+<li>`count_exact_by_context(...)` - Fast exact count</li>
+<li>`_calculate_similarity(str1, str2)` - Similarity algorithm</li>
+</ul>
+
+<p><strong>Business Logic:</strong></p>
+<ul>
+<li>**Stage 1:** Exact match (begrip + context)</li>
+<li>**Stage 2:** Synonym match (via voorbeelden join)</li>
+<li>**Stage 3:** Fuzzy match (LIKE + similarity threshold)</li>
+<li>Wettelijke_basis normalization (sorted, unique, stripped)</li>
+</ul>
+
+<p><strong>Dependencies:</strong></p>
+<ul>
+<li>Database connection (inject)</li>
+<li>Logger (inject)</li>
+<li>JSON for wettelijke_basis comparison</li>
+<li>Similarity algorithm (Jaccard)</li>
+</ul>
+
+<p><strong>Complexity:</strong> HIGH</p>
+<ul>
+<li>Three matching strategies</li>
+<li>Complex JOIN queries</li>
+<li>Normalization logic</li>
+<li>Threshold tuning (70%)</li>
+</ul>
+
+<p><strong>Tests:</strong> ~8 tests in test_duplicate_check_*.py</p>
+
+<p>---</p>
+
+<h4>**4. BULK Operations Service (~180 LOC)**</h4>
+<p><strong>Purpose:</strong> Import/Export functionality</p>
+
+<p><strong>Methods:</strong></p>
+<ul>
+<li>`export_to_json(file_path, filters)` - JSON export</li>
+<li>`import_from_json(file_path, import_by)` - JSON import</li>
+<li>`_log_import_export(...)` - Bulk operation logging</li>
+</ul>
+
+<p><strong>Dependencies:</strong></p>
+<ul>
+<li>Database connection (inject)</li>
+<li>Logger (inject)</li>
+<li>File I/O (Path, json)</li>
+<li>ReadService (for export filtering)</li>
+<li>WriteService (for import inserts)</li>
+</ul>
+
+<p><strong>Complexity:</strong> MEDIUM</p>
+<ul>
+<li>File I/O error handling</li>
+<li>Batch processing</li>
+<li>Per-record error collection</li>
+</ul>
+
+<p><strong>Tests:</strong> ~5 tests in test_import_export_beheer_tab.py</p>
+
+<p>---</p>
+
+<h4>**5. VOORBEELDEN (Examples) Service (~550 LOC)**</h4>
+<p><strong>Purpose:</strong> All example/synonym management</p>
+
+<p><strong>Methods:</strong></p>
+<ul>
+<li>`save_voorbeelden(...)` - Upsert examples with type normalization</li>
+<li>`get_voorbeelden(...)` - Retrieve examples</li>
+<li>`get_voorbeelden_by_type(...)` - Grouped retrieval</li>
+<li>`get_voorkeursterm(...)` - Get preferred term</li>
+<li>`beoordeel_voorbeeld(...)` - Rate example</li>
+<li>`delete_voorbeelden(...)` - Delete examples</li>
+</ul>
+
+<p><strong>Business Logic:</strong></p>
+<ul>
+<li>Type normalization (voorbeeldzinnen → sentence)</li>
+<li>Soft delete (actief flag) vs hard delete</li>
+<li>Voorkeursterm single source (definities.voorkeursterm)</li>
+<li>Upsert logic (update existing or insert)</li>
+</ul>
+
+<p><strong>Dependencies:</strong></p>
+<ul>
+<li>Database connection (inject)</li>
+<li>Logger (inject)</li>
+<li>JSON for generation_parameters</li>
+<li>VoorbeeldenRecord dataclass</li>
+</ul>
+
+<p><strong>Complexity:</strong> MEDIUM-HIGH</p>
+<ul>
+<li>Transaction management</li>
+<li>Type normalization mapping</li>
+<li>Upsert logic</li>
+<li>Voorkeursterm persistence</li>
+</ul>
+
+<p><strong>Tests:</strong> ~8 tests in voorbeelden_functionality_tests.py, test_voorkeursterm_text_source.py</p>
+
+<p>---</p>
+
+<h4>**6. CONNECTION & SCHEMA Service (~150 LOC)**</h4>
+<p><strong>Purpose:</strong> Database initialization, connection management, schema</p>
+
+<p><strong>Methods:</strong></p>
+<ul>
+<li>`__init__(db_path)` - Repository initialization</li>
+<li>`_get_connection(timeout)` - Connection factory</li>
+<li>`_init_database()` - Schema initialization</li>
+<li>`_has_legacy_columns()` - Schema introspection</li>
+<li>`_has_legacy_columns_in_conn(conn)` - Static introspection</li>
+<li>`_build_insert_columns(...)` - INSERT builder</li>
+<li>`_split_sql_statements(sql)` - SQL parser</li>
+</ul>
+
+<p><strong>Purpose:</strong> Infrastructure, not business logic</p>
+
+<p><strong>Dependencies:</strong></p>
+<ul>
+<li>sqlite3</li>
+<li>schema.sql file</li>
+<li>Path, logging</li>
+</ul>
+
+<p><strong>Complexity:</strong> LOW-MEDIUM</p>
+<ul>
+<li>Schema loading</li>
+<li>Legacy column detection</li>
+<li>Pragma configuration</li>
+</ul>
+
+<p><strong>Tests:</strong> Indirect (via all other tests)</p>
+
+<p>---</p>
+
+<h2>Cross-Cutting Concerns</h2>
+
+<h3>Logging</h3>
+<p><strong>Pattern:</strong> <code>logger.info()</code>, <code>logger.warning()</code>, <code>logger.error()</code>, <code>logger.debug()</code></p>
+
+<p><strong>Used in:</strong></p>
+<ul>
+<li>ALL create/update/delete operations</li>
+<li>Import/export operations</li>
+<li>Error handling</li>
+<li>Database initialization</li>
+<li>Voorbeelden operations</li>
+</ul>
+
+<p><strong>Recommendation:</strong> Inject logger via constructor</p>
+
+<p>---</p>
+
+<h3>Error Handling</h3>
+<p><strong>Pattern:</strong> <code>try/except</code> with specific exceptions</p>
+
+<p><strong>Used in:</strong></p>
+<ul>
+<li>Database operations (sqlite3.Error)</li>
+<li>JSON parsing (json.JSONDecodeError)</li>
+<li>File I/O (Exception)</li>
+<li>Import operations (per-record error collection)</li>
+</ul>
+
+<p><strong>Recommendation:</strong> Consistent error handling strategy across all services</p>
+
+<p>---</p>
+
+<h3>Transaction Management</h3>
+<p><strong>Pattern:</strong> <code>with self._get_connection() as conn:</code> (context manager)</p>
+
+<p><strong>Used in:</strong></p>
+<ul>
+<li>ALL database operations</li>
+<li>Autocommit mode (`isolation_level=None`) for most operations</li>
+<li>Explicit `conn.commit()` in complex operations (save_voorbeelden)</li>
+</ul>
+
+<p><strong>Recommendation:</strong> Connection injection + transaction decorator for multi-step operations</p>
+
+<p>---</p>
+
+<h3>JSON Serialization</h3>
+<p><strong>Pattern:</strong> <code>json.dumps(data, ensure_ascii=False)</code>, <code>json.loads(data)</code></p>
+
+<p><strong>Used in:</strong></p>
+<ul>
+<li>wettelijke_basis (normalized, sorted)</li>
+<li>validation_issues</li>
+<li>export_destinations</li>
+<li>ketenpartners</li>
+<li>generation_parameters</li>
+</ul>
+
+<p><strong>Recommendation:</strong> Utility module or dataclass property methods</p>
+
+<p>---</p>
+
+<h3>Datetime Handling</h3>
+<p><strong>Pattern:</strong> <code>datetime.now(UTC)</code>, <code>datetime.fromisoformat()</code></p>
+
+<p><strong>Used in:</strong></p>
+<ul>
+<li>created_at, updated_at timestamps</li>
+<li>approved_at, validation_date</li>
+<li>Export metadata</li>
+<li>Row to record conversion</li>
+</ul>
+
+<p><strong>Recommendation:</strong> Utility module for consistent datetime operations</p>
+
+<p>---</p>
+
+<h2>Dependencies</h2>
+
+<h3>Direct Imports</h3>
+<ul>
+<li>**Standard Library:**</li>
+<li> - `json` - JSON encoding/decoding (metadata, wettelijke_basis, voorbeelden)</li>
+<li> - `logging` - Logging throughout</li>
+<li> - `sqlite3` - Database interface</li>
+<li> - `dataclasses` - DefinitieRecord, VoorbeeldenRecord, DuplicateMatch</li>
+<li> - `datetime` - Timestamps, UTC handling</li>
+<li> - `enum` - DefinitieStatus, SourceType</li>
+<li> - `pathlib.Path` - File path manipulation</li>
+<li> - `typing.Any` - Type hints</li>
+</ul>
+
+<ul>
+<li>**Domain Models:**</li>
+<li> - `domain.ontological_categories.OntologischeCategorie` - Category enum</li>
+</ul>
+
+<h3>This File Is Imported By (20+ files)</h3>
+
+<p><strong>UI Components (13 files):</strong></p>
+<ul>
+<li>`src/ui/tabbed_interface.py` - Main interface (imports factory)</li>
+<li>`src/ui/components/tabs/import_export_beheer/*.py` - Import/Export tab (6 files)</li>
+<li>`src/ui/components/definition_edit_tab.py` - Edit tab</li>
+<li>`src/ui/components/orchestration_tab.py` - Orchestration tab</li>
+<li>`src/ui/components/expert_review_tab.py` - Review tab</li>
+<li>`src/ui/components/web_lookup_tab.py` - Lookup tab</li>
+<li>`src/ui/components/definition_generator_tab.py` - Generator tab</li>
+<li>`src/ui/components/monitoring_tab.py` - Monitoring tab</li>
+<li>`src/ui/helpers/examples.py` - Example helpers</li>
+<li>`src/ui/services/definition_ui_service.py` - UI service layer</li>
+</ul>
+
+<p><strong>Tools (3 files):</strong></p>
+<ul>
+<li>`src/tools/setup_database.py` - Database setup scripts</li>
+<li>`src/tools/definitie_manager.py` - CLI manager</li>
+<li>`src/integration/definitie_checker.py` - Integration tool</li>
+</ul>
+
+<p><strong>Tests (20+ files):</strong></p>
+<ul>
+<li>`tests/services/test_definition_repository.py` - **46 tests** ✅</li>
+<li>`tests/unit/test_definitie_repository_insert_payload.py` - **2 tests** ✅</li>
+<li>`tests/unit/test_definition_repository_error_handling.py` - **3 tests** ✅</li>
+<li>`tests/unit/voorbeelden_functionality_tests.py` - Voorbeelden tests</li>
+<li>`tests/integration/test_duplicate_check_*.py` - Duplicate detection tests (3 files)</li>
+<li>`tests/integration/test_voorkeursterm_text_source.py` - Voorkeursterm tests</li>
+<li>`tests/integration/test_import_export_beheer_tab.py` - Import/Export tests</li>
+<li>`tests/services/test_export_service.py` - Export service tests</li>
+<li>`tests/services/test_data_aggregation_service.py` - Aggregation tests</li>
+<li>Plus 10+ other test files</li>
+</ul>
+
+<p><strong>Test Coverage:</strong> <strong>EXCELLENT</strong> (51 tests directly, 20+ test files)</p>
+
+<p>---</p>
+
+<h2>Data Flow</h2>
+
+<h3>Input Paths</h3>
+
+<p><strong>1. Direct API Calls:</strong></p>
+<ul>
+<li>UI components call repository methods directly</li>
+<li>Tools (CLI) call repository methods</li>
+<li>Service layer wraps some repository methods</li>
+</ul>
+
+<p><strong>2. Import Operations:</strong></p>
+<ul>
+<li>JSON file → `import_from_json()` → `create_definitie()` → database</li>
+</ul>
+
+<p><strong>3. User Actions (via UI):</strong></p>
+<ul>
+<li>Generate definition → `create_definitie()`</li>
+<li>Edit definition → `update_definitie()`</li>
+<li>Approve definition → `change_status()`</li>
+<li>Add examples → `save_voorbeelden()`</li>
+</ul>
+
+<h3>Output Paths</h3>
+
+<p><strong>1. Query Results:</strong></p>
+<ul>
+<li>`get_definitie()` → DefinitieRecord → UI display</li>
+<li>`search_definities()` → list[DefinitieRecord] → UI table</li>
+<li>`find_duplicates()` → list[DuplicateMatch] → duplicate warning</li>
+</ul>
+
+<p><strong>2. Export Operations:</strong></p>
+<ul>
+<li>`export_to_json()` → JSON file → external systems</li>
+</ul>
+
+<p><strong>3. Statistics:</strong></p>
+<ul>
+<li>`get_statistics()` → dict → monitoring dashboard</li>
+</ul>
+
+<h3>State Changes</h3>
+
+<p><strong>Database State:</strong></p>
+<ul>
+<li>`create_definitie()` → INSERT into definities + definitie_geschiedenis</li>
+<li>`update_definitie()` → UPDATE definities + version increment + geschiedenis</li>
+<li>`change_status()` → UPDATE definities.status + approval metadata</li>
+<li>`save_voorbeelden()` → UPSERT definitie_voorbeelden (soft delete old + insert new)</li>
+</ul>
+
+<p><strong>No In-Memory State:</strong></p>
+<ul>
+<li>Repository is stateless (except db_path)</li>
+<li>No caching</li>
+<li>No session management</li>
+<li>Each method call is independent</li>
+</ul>
+
+<p>---</p>
+
+<h2>Circular Dependency Analysis</h2>
+
+<h3>Current Structure</h3>
+<pre><code>DefinitieRepository (self-contained)
+    ↓ imports
+domain.ontological_categories.OntologischeCategorie</code></pre>
+
+<p><strong>No circular dependencies within this file.</strong></p>
+
+<h3>Potential Risks When Splitting</h3>
+
+<p><strong>Risk 1: ReadService ← WriteService (create_definitie duplicate check)</strong></p>
+<ul>
+<li>`create_definitie()` calls `find_duplicates()` (read operation)</li>
+<li>**Mitigation:** DuplicateService as separate dependency</li>
+</ul>
+
+<p><strong>Risk 2: BulkService → ReadService + WriteService</strong></p>
+<ul>
+<li>`export_to_json()` calls `search_definities()` (read)</li>
+<li>`import_from_json()` calls `create_definitie()` (write)</li>
+<li>**Mitigation:** Inject both services, no circular dependency</li>
+</ul>
+
+<p><strong>Risk 3: VoorbeeldenService → WriteService (voorkeursterm update)</strong></p>
+<ul>
+<li>`save_voorbeelden()` updates `definities.voorkeursterm` (write operation)</li>
+<li>**Mitigation:** Extract voorkeursterm update to WriteService, VoorbeeldenService calls it</li>
+</ul>
+
+<p><strong>No circular dependencies expected if proper dependency injection is used.</strong></p>
+
+<p>---</p>
+
+<h2>Recommendations for Service Boundaries</h2>
+
+<h3>Proposed Structure</h3>
+
+<pre><code>src/database/definitie_repository/
+├── __init__.py                     # Facade pattern (backwards compatible)
+├── connection_service.py           # ~150 LOC - Database connection &amp; schema
+├── read_service.py                 # ~400 LOC - All queries (get, find, search)
+├── write_service.py                # ~450 LOC - Insert, update, delete, status
+├── duplicate_detection_service.py  # ~250 LOC - Duplicate matching logic
+├── bulk_operations_service.py      # ~180 LOC - Import/Export
+├── voorbeelden_service.py          # ~550 LOC - Examples management
+├── models.py                       # ~200 LOC - Move dataclasses here
+└── utils.py                        # ~100 LOC - Shared utilities (similarity, JSON)</code></pre>
+
+<p><strong>Total:</strong> ~2,280 LOC (includes dataclasses, currently external)</p>
+
+<p>---</p>
+
+<h3>Service Boundary Definitions</h3>
+
+<h4>**1. ConnectionService**</h4>
+<p><strong>Responsibility:</strong> Database connection lifecycle, schema initialization</p>
+
+<p><strong>Public API:</strong></p>
+<ul>
+<li>`get_connection(timeout=30.0) -> sqlite3.Connection`</li>
+<li>`init_database() -> None`</li>
+<li>`has_legacy_columns() -> bool`</li>
+</ul>
+
+<p><strong>Injected Into:</strong> All other services</p>
+
+<p><strong>Complexity:</strong> LOW</p>
+
+<p>---</p>
+
+<h4>**2. ReadService**</h4>
+<p><strong>Responsibility:</strong> All SELECT queries, no side effects</p>
+
+<p><strong>Public API:</strong></p>
+<ul>
+<li>`get_by_id(definitie_id: int) -> DefinitieRecord | None`</li>
+<li>`find_by_context(...) -> DefinitieRecord | None`</li>
+<li>`search(query, filters) -> list[DefinitieRecord]`</li>
+<li>`get_statistics() -> dict[str, Any]`</li>
+</ul>
+
+<p><strong>Dependencies:</strong></p>
+<ul>
+<li>ConnectionService (injected)</li>
+<li>Logger (injected)</li>
+</ul>
+
+<p><strong>Complexity:</strong> MEDIUM</p>
+
+<p>---</p>
+
+<h4>**3. WriteService**</h4>
+<p><strong>Responsibility:</strong> All INSERT/UPDATE/DELETE, status management</p>
+
+<p><strong>Public API:</strong></p>
+<ul>
+<li>`create(record: DefinitieRecord, allow_duplicate=False) -> int`</li>
+<li>`update(definitie_id: int, updates: dict) -> bool`</li>
+<li>`change_status(definitie_id: int, new_status: DefinitieStatus) -> bool`</li>
+<li>`update_voorkeursterm(definitie_id: int, voorkeursterm: str | None) -> bool`</li>
+</ul>
+
+<p><strong>Dependencies:</strong></p>
+<ul>
+<li>ConnectionService (injected)</li>
+<li>DuplicateDetectionService (injected, for create duplicate check)</li>
+<li>Logger (injected)</li>
+</ul>
+
+<p><strong>Complexity:</strong> MEDIUM-HIGH</p>
+
+<p>---</p>
+
+<h4>**4. DuplicateDetectionService**</h4>
+<p><strong>Responsibility:</strong> Duplicate matching logic, similarity calculation</p>
+
+<p><strong>Public API:</strong></p>
+<ul>
+<li>`find_duplicates(begrip, context, ...) -> list[DuplicateMatch]`</li>
+<li>`count_exact(begrip, context, ...) -> int`</li>
+<li>`calculate_similarity(str1, str2) -> float`</li>
+</ul>
+
+<p><strong>Dependencies:</strong></p>
+<ul>
+<li>ConnectionService (injected)</li>
+<li>Logger (injected)</li>
+</ul>
+
+<p><strong>Complexity:</strong> HIGH</p>
+
+<p>---</p>
+
+<h4>**5. BulkOperationsService**</h4>
+<p><strong>Responsibility:</strong> Import/Export operations</p>
+
+<p><strong>Public API:</strong></p>
+<ul>
+<li>`export_to_json(file_path, filters) -> int`</li>
+<li>`import_from_json(file_path, import_by) -> tuple[int, int, list[str]]`</li>
+</ul>
+
+<p><strong>Dependencies:</strong></p>
+<ul>
+<li>ConnectionService (injected)</li>
+<li>ReadService (injected, for export filtering)</li>
+<li>WriteService (injected, for import inserts)</li>
+<li>Logger (injected)</li>
+</ul>
+
+<p><strong>Complexity:</strong> MEDIUM</p>
+
+<p>---</p>
+
+<h4>**6. VoorbeeldenService**</h4>
+<p><strong>Responsibility:</strong> Examples (voorbeelden) management</p>
+
+<p><strong>Public API:</strong></p>
+<ul>
+<li>`save(definitie_id, voorbeelden_dict, ...) -> list[int]`</li>
+<li>`get(definitie_id, type, actief_only) -> list[VoorbeeldenRecord]`</li>
+<li>`get_by_type(definitie_id) -> dict[str, list[str]]`</li>
+<li>`get_voorkeursterm(definitie_id) -> str | None`</li>
+<li>`beoordeel(voorbeeld_id, beoordeeling, ...) -> bool`</li>
+<li>`delete(definitie_id, type) -> int`</li>
+</ul>
+
+<p><strong>Dependencies:</strong></p>
+<ul>
+<li>ConnectionService (injected)</li>
+<li>WriteService (injected, for voorkeursterm update)</li>
+<li>Logger (injected)</li>
+</ul>
+
+<p><strong>Complexity:</strong> MEDIUM-HIGH</p>
+
+<p>---</p>
+
+<h3>Shared Dependencies</h3>
+
+<p><strong>Models Module:</strong></p>
+<ul>
+<li>`DefinitieRecord` (dataclass)</li>
+<li>`VoorbeeldenRecord` (dataclass)</li>
+<li>`DuplicateMatch` (dataclass)</li>
+<li>`DefinitieStatus` (enum)</li>
+<li>`SourceType` (enum)</li>
+</ul>
+
+<p><strong>Utils Module:</strong></p>
+<ul>
+<li>`calculate_similarity(str1, str2) -> float` (Jaccard)</li>
+<li>`normalize_wettelijke_basis(basis: list[str]) -> str` (JSON normalization)</li>
+<li>`parse_datetime(dt_str: str) -> datetime | None`</li>
+<li>`format_datetime(dt: datetime) -> str`</li>
+</ul>
+
+<p>---</p>
+
+<h3>Facade Pattern (Backwards Compatibility)</h3>
+
+<p><strong><code>__init__.py</code> exports:</strong></p>
+<pre><code># Backwards compatibility facade
+from .models import DefinitieRecord, VoorbeeldenRecord, DuplicateMatch, DefinitieStatus, SourceType
+from .read_service import ReadService
+from .write_service import WriteService
+from .duplicate_detection_service import DuplicateDetectionService
+from .bulk_operations_service import BulkOperationsService
+from .voorbeelden_service import VoorbeeldenService
+from .connection_service import ConnectionService
+
+class DefinitieRepository:
+    """Facade maintaining backwards compatibility."""
+    def __init__(self, db_path="data/definities.db"):
+        self.connection_service = ConnectionService(db_path)
+        self.read_service = ReadService(self.connection_service)
+        self.duplicate_service = DuplicateDetectionService(self.connection_service)
+        self.write_service = WriteService(self.connection_service, self.duplicate_service)
+        self.bulk_service = BulkOperationsService(self.connection_service, self.read_service, self.write_service)
+        self.voorbeelden_service = VoorbeeldenService(self.connection_service, self.write_service)
+
+    # Delegate all methods to respective services
+    def get_definitie(self, definitie_id): return self.read_service.get_by_id(definitie_id)
+    def create_definitie(self, record, allow_duplicate=False): return self.write_service.create(record, allow_duplicate)
+    # ... etc</code></pre>
+
+<p><strong>Migration Strategy:</strong></p>
+<ol>
+<li>Create new service modules</li>
+<li>Implement facade in `__init__.py`</li>
+<li>All existing imports continue to work</li>
+<li>Gradually migrate callers to use services directly</li>
+<li>Remove facade when usage = 0</li>
+</ol>
+
+<p>---</p>
+
+<h2>Migration Complexity Assessment</h2>
+
+<h3>Complexity Rating: **MEDIUM**</h3>
+
+<p><strong>Factors Supporting Low Complexity:</strong></p>
+<ul>
+<li>✅ Clear responsibility boundaries</li>
+<li>✅ Excellent test coverage (51 tests)</li>
+<li>✅ No circular dependencies in current file</li>
+<li>✅ Stateless design (no in-memory state)</li>
+<li>✅ Well-defined interfaces (method signatures)</li>
+</ul>
+
+<p><strong>Factors Increasing Complexity:</strong></p>
+<ul>
+<li>⚠️ 41 methods to split</li>
+<li>⚠️ 20+ files import this module</li>
+<li>⚠️ Complex duplicate detection logic (3 matching strategies)</li>
+<li>⚠️ Transaction management in save_voorbeelden</li>
+<li>⚠️ Voorkeursterm persistence (cross-service coordination)</li>
+</ul>
+
+<p><strong>Risk Areas:</strong></p>
+<ol>
+<li>**Duplicate detection** - Complex business logic, must preserve exact behavior</li>
+<li>**save_voorbeelden** - Transaction with voorkeursterm update (cross-service)</li>
+<li>**create_definitie** - Calls find_duplicates (cross-service)</li>
+<li>**Import callers** - 20+ files need gradual migration</li>
+</ol>
+
+<p><strong>Mitigation:</strong></p>
+<ul>
+<li>Use facade pattern for backwards compatibility</li>
+<li>Extract services incrementally (one at a time)</li>
+<li>Run tests after EACH extraction</li>
+<li>Keep original file until 100% migrated</li>
+</ul>
+
+<p>---</p>
+
+<h2>Test Coverage Analysis</h2>
+
+<h3>Direct Tests (51 tests)</h3>
+
+<p><strong>test_definition_repository.py:</strong> 46 tests</p>
+<ul>
+<li>CRUD operations</li>
+<li>Duplicate detection</li>
+<li>Search functionality</li>
+<li>Status changes</li>
+<li>Voorbeelden operations</li>
+</ul>
+
+<p><strong>test_definitie_repository_insert_payload.py:</strong> 2 tests</p>
+<ul>
+<li>INSERT payload validation</li>
+<li>Legacy column handling</li>
+</ul>
+
+<p><strong>test_definition_repository_error_handling.py:</strong> 3 tests</p>
+<ul>
+<li>Error scenarios</li>
+<li>Exception handling</li>
+</ul>
+
+<h3>Indirect Tests (20+ test files)</h3>
+
+<p><strong>Integration Tests:</strong></p>
+<ul>
+<li>`test_duplicate_check_three_contexts.py` - Duplicate detection</li>
+<li>`test_duplicate_check_synonyms.py` - Synonym matching</li>
+<li>`test_voorkeursterm_text_source.py` - Voorkeursterm persistence</li>
+<li>`test_import_export_beheer_tab.py` - Import/Export workflow</li>
+</ul>
+
+<p><strong>Functionality Tests:</strong></p>
+<ul>
+<li>`voorbeelden_functionality_tests.py` - Examples management</li>
+</ul>
+
+<p><strong>Service Tests:</strong></p>
+<ul>
+<li>`test_export_service.py` - Export operations</li>
+<li>`test_data_aggregation_service.py` - Aggregation queries</li>
+</ul>
+
+<h3>Coverage Quality: **EXCELLENT**</h3>
+
+<p><strong>Strengths:</strong></p>
+<ul>
+<li>All major operations covered</li>
+<li>Edge cases tested (duplicate detection, error handling)</li>
+<li>Integration tests for complex workflows</li>
+<li>Good separation of unit vs integration tests</li>
+</ul>
+
+<p><strong>Gaps:</strong></p>
+<ul>
+<li>Fuzzy matching threshold (70%) not explicitly tested</li>
+<li>SQL injection tests (field whitelist validation)</li>
+<li>Legacy column migration edge cases</li>
+</ul>
+
+<p>---</p>
+
+<h2>Recommendations</h2>
+
+<h3>1. Extraction Order (Lowest Risk First)</h3>
+
+<p><strong>Phase 2a: Extract ReadService (Day 1-2)</strong></p>
+<ul>
+<li>**Why first:** No side effects, stateless, well-tested</li>
+<li>**Risk:** LOW</li>
+<li>**Tests:** 20+ tests cover read operations</li>
+</ul>
+
+<p><strong>Phase 2b: Extract DuplicateDetectionService (Day 2-3)</strong></p>
+<ul>
+<li>**Why second:** Independent logic, clear interface</li>
+<li>**Risk:** MEDIUM (complex logic)</li>
+<li>**Tests:** 8+ tests cover duplicate detection</li>
+</ul>
+
+<p><strong>Phase 2c: Extract WriteService (Day 3-4)</strong></p>
+<ul>
+<li>**Why third:** Depends on DuplicateService, core operations</li>
+<li>**Risk:** MEDIUM-HIGH (duplicate check dependency)</li>
+<li>**Tests:** 15+ tests cover write operations</li>
+</ul>
+
+<p><strong>Phase 2d: Extract VoorbeeldenService (Day 4-5)</strong></p>
+<ul>
+<li>**Why fourth:** Depends on WriteService (voorkeursterm)</li>
+<li>**Risk:** MEDIUM-HIGH (transaction logic)</li>
+<li>**Tests:** 8+ tests cover voorbeelden</li>
+</ul>
+
+<p><strong>Phase 2e: Extract BulkOperationsService (Day 5-6)</strong></p>
+<ul>
+<li>**Why last:** Depends on Read + Write services</li>
+<li>**Risk:** MEDIUM</li>
+<li>**Tests:** 5+ tests cover import/export</li>
+</ul>
+
+<p><strong>Phase 2f: Extract ConnectionService + Utils (Day 6)</strong></p>
+<ul>
+<li>**Why last:** Shared infrastructure, all other services depend on it</li>
+<li>**Risk:** LOW (refactor only)</li>
+</ul>
+
+<p>---</p>
+
+<h3>2. Shared Dependencies Strategy</h3>
+
+<p><strong>ConnectionService:</strong></p>
+<ul>
+<li>Extract first as separate module</li>
+<li>Inject into all other services</li>
+<li>No circular dependencies</li>
+</ul>
+
+<p><strong>Logger:</strong></p>
+<ul>
+<li>Inject via constructor in all services</li>
+<li>Use `logging.getLogger(__name__)` in each module</li>
+</ul>
+
+<p><strong>Utils Module:</strong></p>
+<ul>
+<li>`calculate_similarity()` - Pure function, easy extract</li>
+<li>`normalize_wettelijke_basis()` - Pure function</li>
+<li>Datetime helpers - Pure functions</li>
+</ul>
+
+<p>---</p>
+
+<h3>3. Testing Strategy</h3>
+
+<p><strong>For Each Service Extraction:</strong></p>
+<ol>
+<li>Create new service module</li>
+<li>Move methods from DefinitieRepository</li>
+<li>Update facade to delegate to new service</li>
+<li>Run ALL 51 tests - must pass</li>
+<li>Run integration tests - must pass</li>
+<li>Commit checkpoint (rollback point)</li>
+</ol>
+
+<p><strong>Acceptance Criteria:</strong></p>
+<ul>
+<li>✅ All 51 tests pass</li>
+<li>✅ All integration tests pass</li>
+<li>✅ No new warnings/errors</li>
+<li>✅ Coverage >= baseline</li>
+</ul>
+
+<p>---</p>
+
+<h3>4. Rollback Strategy</h3>
+
+<p><strong>Checkpoints:</strong></p>
+<ul>
+<li>After each service extraction (6 checkpoints)</li>
+<li>Git commit with message: "Extract [ServiceName] - tests passing"</li>
+</ul>
+
+<p><strong>Rollback Trigger:</strong></p>
+<ul>
+<li>Tests fail after extraction</li>
+<li>Import errors in production code</li>
+<li>Performance degradation</li>
+</ul>
+
+<p><strong>Rollback Command:</strong></p>
+<pre><code>git revert HEAD  # Undo last extraction
+pytest -q       # Verify tests pass</code></pre>
+
+<p>---</p>
+
+<h2>Next Steps (Day 2)</h2>
+
+<p><strong>Tomorrow's Tasks:</strong></p>
+<ol>
+<li>Map `definition_generator_tab.py` (2339 LOC, 46 methods)</li>
+<li>Map `tabbed_interface.py` (1733 LOC, 38 methods)</li>
+<li>Create responsibility maps for both files</li>
+</ol>
+
+<p><strong>Deliverables:</strong></p>
+<ul>
+<li>`definition_generator_tab_responsibility_map.md`</li>
+<li>`tabbed_interface_responsibility_map.md`</li>
+</ul>
+
+<p><strong>Checkpoint 1 (End of Day 2):</strong></p>
+<ul>
+<li>Are all 3 responsibility maps complete?</li>
+<li>Are boundaries clear for all files?</li>
+<li>**GO/NO-GO decision:** Proceed to Day 3 or need more analysis?</li>
+</ul>
+
+<p>---</p>
+
+<h2>Conclusion</h2>
+
+<p><strong>definitie_repository.py</strong> is a well-structured God Object with clear internal boundaries and excellent test coverage. The file exhibits classic God Object symptoms (1815 LOC, 41 methods, multiple responsibilities), but the code quality is high and responsibilities are identifiable.</p>
+
+<p><strong>Key Findings:</strong></p>
+<ul>
+<li>✅ **Clear boundaries:** READ/WRITE/DUPLICATE/BULK/VOORBEELDEN responsibilities are distinct</li>
+<li>✅ **Good tests:** 51 tests provide excellent safety net</li>
+<li>✅ **No circular deps:** File is self-contained</li>
+<li>⚠️ **Migration complexity:** MEDIUM - 20+ importers, complex duplicate logic</li>
+<li>⚠️ **Cross-service calls:** create_definitie → find_duplicates, save_voorbeelden → update voorkeursterm</li>
+</ul>
+
+<p><strong>Migration is FEASIBLE with proper planning and incremental approach.</strong></p>
+
+<p><strong>Recommended Strategy:</strong></p>
+<ol>
+<li>Extract services incrementally (6 phases)</li>
+<li>Use facade pattern for backwards compatibility</li>
+<li>Test after EACH extraction</li>
+<li>Migrate callers gradually (20+ files)</li>
+<li>Remove facade when usage = 0</li>
+</ol>
+
+<p><strong>Timeline Estimate:</strong> 2-3 days (as per EPIC-026 plan)</p>
+
+<p>---</p>
+
+<p><strong>Status:</strong> ✅ COMPLETE</p>
+<p><strong>Date:</strong> 2025-10-02</p>
+<p><strong>Agent:</strong> Code Architect</p>
+<p><strong>Next:</strong> Map definition_generator_tab.py (Day 2)</p>
+
+  </div>
+</body>
+</html>

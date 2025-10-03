@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>US-443: Remove Monitoring Tab</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>US-443: Remove Monitoring Tab</h1>
+
+<p><strong>Epic:</strong> EPIC-028 - Feature Cleanup & UI Simplification</p>
+<p><strong>Priority:</strong> HIGH</p>
+<p><strong>Effort:</strong> 2 story points</p>
+<p><strong>Status:</strong> 🔵 TODO</p>
+
+<p>---</p>
+
+<h2>📖 User Story</h2>
+
+<p><strong>Als</strong> eindgebruiker</p>
+<p><strong>Wil ik</strong> geen developer/ops tools in de UI zien</p>
+<p><strong>Zodat</strong> ik focus kan houden op definitie generatie en review</p>
+
+<p>---</p>
+
+<h2>🎯 Acceptance Criteria</h2>
+
+<ul>
+<li>[ ] `src/ui/components/monitoring_tab.py` verwijderd (400 LOC)</li>
+<li>[ ] Tab registration verwijderd uit `tabbed_interface.py`</li>
+<li>[ ] Import statements verwijderd</li>
+<li>[ ] Tab verschijnt niet meer in UI (was 8 tabs → nu 6 tabs)</li>
+<li>[ ] Monitoring functionaliteit verplaatst naar external tools (logs, APM)</li>
+<li>[ ] Tests blijven groen</li>
+</ul>
+
+<p>---</p>
+
+<h2>🔧 Technical Tasks</h2>
+
+<h3>1. Remove Files</h3>
+<pre><code>rm src/ui/components/monitoring_tab.py</code></pre>
+
+<h3>2. Update `src/ui/tabbed_interface.py`</h3>
+
+<p><strong>Remove import (line ~59):</strong></p>
+<pre><code>from ui.components.monitoring_tab import MonitoringTab</code></pre>
+
+<p><strong>Remove initialization (line ~190):</strong></p>
+<pre><code>self.monitoring_tab = MonitoringTab(self.repository)</code></pre>
+
+<p><strong>Remove tab config (lines ~236-240):</strong></p>
+<pre><code>"monitoring": {
+    "title": "📈 Monitoring",
+    "icon": "📈",
+    "description": "Performance monitoring en API cost tracking",
+},</code></pre>
+
+<p><strong>Remove render call (lines ~1664-1665):</strong></p>
+<pre><code>elif tab_key == "monitoring":
+    self.monitoring_tab.render()</code></pre>
+
+<h3>3. Alternative Monitoring (Documentation)</h3>
+
+<p>Create note for ops/developers:</p>
+
+<pre><code># Monitoring Vervangen
+
+De Monitoring Tab is verwijderd uit de UI. Gebruik deze alternatieven:
+
+## API Costs
+- Check `logs/api_calls.json` voor cost tracking
+- Gebruik `CostCalculator` service direct in scripts
+
+## Performance
+- Check application logs in `logs/`
+- Gebruik external APM tools (Datadog, New Relic, etc.)
+
+## System Health
+- Database stats via `repository.get_statistics()`
+- Service health via health check endpoints</code></pre>
+
+<h3>4. Scan for References</h3>
+<pre><code>grep -r "monitoring_tab\|MonitoringTab" src/ --include="*.py"</code></pre>
+
+<h3>5. Run Tests</h3>
+<pre><code>pytest tests/ -v</code></pre>
+
+<p>---</p>
+
+<h2>📋 Testing Checklist</h2>
+
+<ul>
+<li>[ ] UI loads zonder errors</li>
+<li>[ ] Tab menu toont 6 tabs (geen Monitoring meer)</li>
+<li>[ ] Geen import errors</li>
+<li>[ ] Definition generation werkt nog steeds</li>
+<li>[ ] All existing tests pass</li>
+<li>[ ] No broken references</li>
+</ul>
+
+<p>---</p>
+
+<h2>📊 Impact</h2>
+
+<p><strong>Before:</strong> 8 tabs (incl. Monitoring)</p>
+<p><strong>After:</strong> 6 tabs</p>
+
+<p><strong>LOC Removed:</strong> ~400</p>
+<p><strong>Files Removed:</strong> 1</p>
+
+<p>---</p>
+
+<h2>🔗 Dependencies</h2>
+
+<ul>
+<li>**After:** US-441, US-442</li>
+</ul>
+
+<p>---</p>
+
+<h2>📝 Notes</h2>
+
+<ul>
+<li>Monitoring Tab was developer tool, niet voor eindgebruikers</li>
+<li>Cost tracking blijft beschikbaar via logs</li>
+<li>Performance metrics via external tools is standaard practice</li>
+</ul>
+
+  </div>
+</body>
+</html>

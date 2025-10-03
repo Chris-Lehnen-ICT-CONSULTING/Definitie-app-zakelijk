@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>US-152: titel: Refactor FeedbackBuilder naar moderne service</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>id: US-152</p>
+<p>epic: EPIC-026</p>
+<p>titel: "US-152: titel: Refactor FeedbackBuilder naar moderne service"</p>
+<p>status: open</p>
+<p>prioriteit: P2</p>
+<p>story_points: 5</p>
+<p>aangemaakt: 2025-09-30</p>
+<p>bijgewerkt: 2025-09-30</p>
+<p>owner: tbd</p>
+<p>applies_to: definitie-app@current</p>
+<p>canonical: false</p>
+<p>last_verified: 2025-09-30</p>
+<p>---</p>
+
+<h1>US-152: Refactor FeedbackBuilder naar moderne service</h1>
+
+<h2>User Story</h2>
+<p><strong>Als</strong> ontwikkelaar  </p>
+<p><strong>Wil ik</strong> de FeedbackBuilder logica in een moderne V2 service  </p>
+<p><strong>Zodat</strong> feedback generatie testbaar, onderhoudbaar en herbruikbaar wordt  </p>
+
+<h2>Status</h2>
+<p><strong>Status</strong>: TODO  </p>
+<p><strong>Priority</strong>: CRITICAL  </p>
+<p><strong>Story Points</strong>: 8  </p>
+<p><strong>Epic</strong>: <a href="../../EPIC-012/EPIC-012.md" target="_blank">EPIC-012: Legacy Orchestrator Refactoring</a>  </p>
+<p><strong>Created</strong>: 2025-09-11  </p>
+<p><strong>Sprint Planning</strong>: Week 2 September 2025  </p>
+
+<h2>Business Context</h2>
+<p>De FeedbackBuilder bevat kritieke business intelligence voor het genereren van actionable feedback tijdens definitie iteraties. Deze logica zit nu verweven in de legacy <code>definitie_agent.py</code> (1034 regels) en moet gemoderniseerd worden zonder functionaliteitsverlies.</p>
+
+<h3>Kritieke Business Value</h3>
+<ul>
+<li>**45 violation-to-feedback mappings** voor concrete verbeterinstructies (11 gedocumenteerd, rest te extraheren)</li>
+<li>**Intelligente prioritering** die voorkomt dat AI overwhelmed raakt</li>
+<li>**Iteratie-bewuste feedback** die stagnatie voorkomt</li>
+<li>**3+ jaar aan optimalisaties** in feedback effectiviteit</li>
+<li>**Directe waarde** ook zonder edit/import features door huidige validatie output te verbeteren</li>
+</ul>
+
+<h3>Waarom Nu Refactoren?</h3>
+<ol>
+<li>**Huidige validatie output is technisch en onbegrijpelijk** voor gebruikers</li>
+<li>**FeedbackBuilder werkt als vertaallaag** tussen technische validation en menselijke feedback</li>
+<li>**Geen duplicatie maar aanvulling** op bestaande validation services</li>
+<li>**Voorbereid voor toekomstige edit feature** (US-064) maar niet afhankelijk ervan</li>
+</ol>
+
+<h2>Acceptance Criteria</h2>
+<ul>
+<li>[ ] FeedbackServiceV2 geïmplementeerd met alle legacy functionaliteit</li>
+<li>[ ] Minimaal 11 validation rules hebben feedback mappings (Fase 1); uitbreiden via mapping‑config richting 45</li>
+<li>[ ] Prioritering algoritme identiek aan legacy (Kritiek → Suggesties → Overig)</li>
+<li>[ ] Maximum 5 feedback items per iteratie gerespecteerd</li>
+<li>[ ] Stagnatie detectie werkend (threshold: 0.05)</li>
+<li>[ ] Iteratie-aware feedback (verschillend per iteratie 1/2/3)</li>
+<li>[ ] FIFO history management (max 10 items)</li>
+<li>[ ] Deduplicatie van feedback items</li>
+<li>[ ] Integratie met bestaande validation services (geen duplicatie)</li>
+<li>[ ] UI toont zowel technische als menselijke feedback</li>
+<li>[ ] Single import: geïmporteerde definitie levert deterministische, geprioriteerde top‑5 feedback</li>
+<li>[ ] Bulk import: CSV/Excel per definitie (score + top‑3 feedback) en samenvattingsmetrics (acceptatie‑ratio, top violations, p95 duur)</li>
+<li>[ ] Test coverage >95%</li>
+<li>[ ] Performance <100ms response time</li>
+<li>[ ] Geen regressie in feedback kwaliteit</li>
+<li>[ ] API design klaar voor US-064 (edit interface)</li>
+</ul>
+
+<h2>Technical Details</h2>
+
+<h3>Architectuur: FeedbackBuilder als Vertaallaag</h3>
+<pre><code>ValidationService (bestaand) → [Technische Output] → FeedbackServiceV2 (nieuw) → [Menselijke Feedback]</code></pre>
+
+<p><strong>Kernprincipe:</strong> FeedbackBuilder is een AANVULLING, geen vervanging. Het vertaalt technische validation output naar actionable menselijke instructies.</p>
+
+<h3>Integratie Strategie (DefinitionOrchestratorV2, post‑validatie – Aanbevolen)</h3>
+<pre><code># Schematisch, async V2 voorbeeld
+class DefinitionOrchestratorV2:
+    async def create_definition(self, request, context=None):
+        validation_result = await self.validation_service.validate_text(
+            begrip=request.begrip,
+            text=cleaned_text,
+            ontologische_categorie=request.ontologische_categorie,
+            context=validation_context,
+        )
+
+        if getattr(self.config, "enable_feedback_loop", True) and self.feedback_engine:
+            suggestions = await self.feedback_engine.process_validation_feedback(
+                definition_id=generation_id,
+                validation_result=validation_result,
+                original_request=request,
+            )
+            validation_result["improvement_suggestions"] = suggestions
+        return definition_response</code></pre>
+
+<h3>Kern Functionaliteit te Migreren</h3>
+<ol>
+<li>**Feedback Prioritering**</li>
+</ol>
+<ul>
+<li>  - Max 3 kritieke issues tegelijk (voorkomt overwhelming)</li>
+<li>  - Groepering per violation type</li>
+<li>  - Volgorde: Critical → High → Medium → Low</li>
+</ul>
+
+<ol>
+<li>**Iteratie Strategieën** </li>
+</ol>
+<ul>
+<li>  - Iteratie 1: Directe instructies ("Vermijd X")</li>
+<li>  - Iteratie 2: Alternatieve suggesties ("Probeer Y in plaats van X")</li>
+<li>  - Iteratie 3: Fundamentele herformulering ("Overweeg complete herstructurering")</li>
+</ul>
+
+<ol>
+<li>**Intelligentie Features**</li>
+</ol>
+<ul>
+<li>  - Stagnatie detectie (<0.05 verbetering)</li>
+<li>  - Regressie detectie (huidige < vorige score)</li>
+<li>  - Context-aware suggesties per violation type</li>
+</ul>
+
+<h3>Service Interface (Edit-Ready Design)</h3>
+<pre><code>@dataclass
+class FeedbackItem:
+    message: str           # Menselijke instructie
+    violation_code: str    # Link naar technische regel
+    priority: Priority     # CRITICAL/HIGH/MEDIUM/LOW
+    suggestion: str | None # Concrete tekstsuggestie
+    
+class FeedbackServiceV2:
+    def generate_feedback(
+        self, 
+        violations: list[Violation],
+        context: FeedbackContext
+    ) -&gt; list[FeedbackItem]:
+        """Vertaal violations naar menselijke feedback"""
+        
+    def get_edit_suggestion(
+        self,
+        text: str,
+        violation: Violation  
+    ) -&gt; str:
+        """Genereer concrete tekst verbetering (voor US-064)"""
+        
+    def detect_stagnation(
+        self,
+        score_history: list[float]
+    ) -&gt; tuple[bool, str]:
+        """Detecteer stagnatie met advies"""</code></pre>
+
+<h2>Implementation Plan</h2>
+<p>📄 <strong><a href="./IMPLEMENTATION_PLAN.md" target="_blank">Gedetailleerd Implementation Plan</a></strong></p>
+
+<h2>Dependencies</h2>
+
+<h3>Direct Dependencies</h3>
+<ul>
+<li>ValidationOrchestratorV2 moet violations kunnen leveren (`services/orchestrators/validation_orchestrator_v2.py`)</li>
+<li>ServiceContainer voor dependency injection  </li>
+<li>Validation interfaces voor data types (`services/validation/interfaces.py`)</li>
+<li>Minimaal 11 validation rules voor eerste mappings; mapping‑config voor uitbreiding</li>
+</ul>
+
+<h3>Feature Dependencies voor Volledige Waarde</h3>
+<p>| Dependency | User Story | Priority | Impact |</p>
+<p>|------------|------------|----------|---------|</p>
+<p>| <strong>Edit Interface</strong> | US-064 | HIGH | Maakt feedback actionable |</p>
+<p>| Import Validation | US-027 | HIGH | Feedback voor imports |</p>
+<p>| Bulk Import | US-062 | HIGH | Batch feedback |</p>
+
+<p><strong>⚠️ Kritiek:</strong> US-064 (Edit Interface) bepaalt of feedback van informatief naar actionable gaat</p>
+
+<h2>Use Cases & Waarde</h2>
+
+<h3>Directe Waarde (zonder dependencies)</h3>
+<ol>
+<li>**Generatie Flow**: Gebruiker past prompt aan op basis van feedback</li>
+<li>**Validatie Verbetering**: Technische errors worden begrijpelijk</li>
+<li>**History Learning**: Gebruikers leren van eerdere pogingen</li>
+</ol>
+
+<h3>Toekomstige Waarde (met US-064)</h3>
+<ol>
+<li>**Real-time Coaching**: Feedback tijdens het editten</li>
+<li>**Iteratieve Verbetering**: Stap-voor-stap definitie verbeteren</li>
+</ol>
+
+<h2>Testing Requirements</h2>
+<ul>
+<li>Unit tests voor alle publieke methods</li>
+<li>Integration tests met orchestrator</li>
+<li>A/B testing feedback kwaliteit vs legacy</li>
+<li>Performance benchmarks (<100ms)</li>
+<li>Business rules validation tests</li>
+<li>UI integration tests (feedback display)</li>
+<li>Edit-ready API tests (voor US-064)</li>
+</ul>
+
+<h2>Definition of Done</h2>
+<ul>
+<li>[ ] Code geïmplementeerd volgens V2 patterns</li>
+<li>[ ] Alle tests groen</li>
+<li>[ ] Code review completed</li>
+<li>[ ] Business logica behouden (geverifieerd)</li>
+<li>[ ] Performance targets gehaald</li>
+<li>[ ] Documentatie updated</li>
+<li>[ ] Integration met orchestrator werkend</li>
+<li>[ ] Legacy code gearchiveerd (niet verwijderd)</li>
+</ul>
+
+<h2>Risks</h2>
+<p>| Risk | Impact | Mitigation |</p>
+<p>|------|--------|------------|</p>
+<p>| Verlies business logica | HIGH | Side-by-side testing, extensive validation |</p>
+<p>| Performance degradatie | MEDIUM | Benchmarks, profiling, caching |</p>
+<p>| Integration complexiteit | MEDIUM | Phased rollout, feature flags |</p>
+
+<h2>Notes</h2>
+<ul>
+<li>Legacy code bevat 3+ jaar aan iteratieve verbeteringen - wees voorzichtig</li>
+<li>FeedbackBuilder is kritiek voor definitie acceptatie rates</li>
+<li>Prioritering algoritme is fine-tuned over honderden definities</li>
+<li>Test uitgebreid met echte validatie scenarios</li>
+</ul>
+
+<h2>Related Documentation</h2>
+<ul>
+<li>[Business Knowledge Extraction](../US-061/BUSINESS_KNOWLEDGE_EXTRACTION.md)</li>
+<li>[EPIC-012 Overview](../../EPIC-012/EPIC-012.md)</li>
+<li>Legacy code: `src/orchestration/definitie_agent.py:299-544`</li>
+</ul>
+
+  </div>
+</body>
+</html>

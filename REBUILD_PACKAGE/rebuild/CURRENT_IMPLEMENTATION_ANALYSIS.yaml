@@ -1,0 +1,1588 @@
+# CURRENT IMPLEMENTATION ANALYSIS - DefinitieAgent
+# Agent 3 Mission: Complete Implementation Reality Check
+# Date: 2025-10-02
+# Total Source LOC: ~83,319 (321 Python files)
+
+current_implementation:
+
+  code_metrics:
+    total_loc: 83319
+    total_python_files: 321
+    service_loc: 27685
+    ui_loc: 8500
+    validation_rules_loc: 4800
+
+    god_objects:
+      - file: "src/ui/components/definition_generator_tab.py"
+        loc: 2525
+        business_logic: "Complete definition generation workflow, validation display, UI state management, context selection, web lookup integration, examples rendering"
+        complexity: CRITICAL
+        violations:
+          - "Single Responsibility violation - handles generation, validation, display, state"
+          - "Contains business logic that should be in services"
+          - "Direct session state manipulation"
+          - "Multiple concerns mixed: UI, workflow, data transformation"
+
+      - file: "src/ui/components/definition_edit_tab.py"
+        loc: 1578
+        business_logic: "Definition editing, status workflow transitions, validation gates, approval logic"
+        complexity: HIGH
+        violations:
+          - "Business logic in UI layer (status transitions)"
+          - "Workflow rules embedded in UI"
+          - "Direct repository access from UI"
+
+      - file: "src/ui/components/expert_review_tab.py"
+        loc: 1402
+        business_logic: "Expert review workflow, validation review, approval decisions, quality assessment"
+        complexity: HIGH
+        violations:
+          - "Review workflow logic in UI"
+          - "Validation logic mixed with display logic"
+
+      - file: "src/services/interfaces.py"
+        loc: 1205
+        business_logic: "All service interfaces, dataclasses, type definitions"
+        complexity: MEDIUM
+        note: "Not a god object per se, but very large interface file"
+
+      - file: "src/services/validation/modular_validation_service.py"
+        loc: 1638
+        business_logic: "Complete validation orchestration, rule execution, scoring, acceptability determination"
+        complexity: HIGH
+        note: "Core validation engine with 45+ rules integration"
+
+      - file: "src/services/ufo_pattern_matcher.py"
+        loc: 1641
+        business_logic: "UFO/OntoUML pattern matching, ontological classification"
+        complexity: HIGH
+
+      - file: "src/services/modern_web_lookup_service.py"
+        loc: 1019
+        business_logic: "External source integration (Wikipedia, SRU, Rechtspraak, Wiktionary), content ranking, provenance tracking"
+        complexity: HIGH
+
+      - file: "src/services/orchestrators/definition_orchestrator_v2.py"
+        loc: 984
+        business_logic: "11-phase definition generation orchestration, service coordination, error handling"
+        complexity: HIGH
+        note: "This is acceptable complexity for an orchestrator"
+
+  validation_rules:
+    total: 46
+    categories:
+      ARAI:  # Aanwijzingen Regelgeving en Interpretatie
+        count: 9
+        rules:
+          - id: "ARAI-01"
+            naam: "Algemene formulering"
+            file: "src/toetsregels/regels/ARAI-01.py"
+            logic: "Checks for general formulation without specific references"
+          - id: "ARAI-02"
+            naam: "Gebruik van 'een' of 'de'"
+            file: "src/toetsregels/regels/ARAI-02.py"
+            logic: "Article usage validation"
+          - id: "ARAI-02SUB1"
+            naam: "Subcriterium artikel gebruik"
+            file: "src/toetsregels/regels/ARAI-02SUB1.py"
+            logic: "Sub-rule for article usage"
+          - id: "ARAI-02SUB2"
+            naam: "Alternatief artikel gebruik"
+            file: "src/toetsregels/regels/ARAI-02SUB2.py"
+            logic: "Alternative article usage patterns"
+          - id: "ARAI-03"
+            naam: "Afwijzing negatieve formulering"
+            file: "src/toetsregels/regels/ARAI-03.py"
+            logic: "Rejects negative formulations"
+          - id: "ARAI-04"
+            naam: "Vermijden woorden 'alle' en 'geen'"
+            file: "src/toetsregels/regels/ARAI-04.py"
+            logic: "Avoids absolute quantifiers"
+          - id: "ARAI-04SUB1"
+            naam: "Subcriterium kwantificatie"
+            file: "src/toetsregels/regels/ARAI-04SUB1.py"
+            logic: "Sub-rule for quantification"
+          - id: "ARAI-05"
+            naam: "Enkelvoudig gebruik begrip"
+            file: "src/toetsregels/regels/ARAI-05.py"
+            logic: "Singular term usage"
+          - id: "ARAI-06"
+            naam: "Vermijden 'anders dan'"
+            file: "src/toetsregels/regels/ARAI-06.py"
+            logic: "Avoids 'anders dan' constructions"
+
+      CON:  # Context
+        count: 2
+        rules:
+          - id: "CON-01"
+            naam: "Contextspecifieke formulering zonder expliciete benoeming"
+            file: "src/toetsregels/regels/CON-01.py"
+            logic: "Context-aware without explicit context naming"
+            dependencies:
+              - "DefinitieRepository (optional for duplicate checking)"
+          - id: "CON-02"
+            naam: "Gebruik synoniemen i.p.v. begrip"
+            file: "src/toetsregels/regels/CON-02.py"
+            logic: "Prefers synonyms over term repetition"
+
+      DUP:  # Duplicatie
+        count: 1
+        rules:
+          - id: "DUP_01"
+            naam: "Duplicaatdetectie"
+            file: "src/toetsregels/regels/DUP_01.py"
+            logic: "Detects duplicate definitions using repository"
+            dependencies:
+              - "DefinitieRepository (required)"
+
+      ESS:  # Essentie
+        count: 5
+        rules:
+          - id: "ESS-01"
+            naam: "Niet-lege definitie"
+            file: "src/toetsregels/regels/ESS-01.py"
+            logic: "Validates non-empty definition"
+          - id: "ESS-02"
+            naam: "Genus-differentia structuur"
+            file: "src/toetsregels/regels/ESS-02.py"
+            logic: "Checks for genus-differentia pattern"
+          - id: "ESS-03"
+            naam: "Onderscheidende kenmerken"
+            file: "src/toetsregels/regels/ESS-03.py"
+            logic: "Validates distinguishing characteristics"
+          - id: "ESS-04"
+            naam: "Voldoende specificiteit"
+            file: "src/toetsregels/regels/ESS-04.py"
+            logic: "Checks specificity level"
+          - id: "ESS-05"
+            naam: "Inhoudelijke volledigheid"
+            file: "src/toetsregels/regels/ESS-05.py"
+            logic: "Content completeness validation"
+
+      INT:  # Integriteit
+        count: 10
+        rules:
+          - id: "INT-01"
+            naam: "Gesloten definitieset"
+            file: "src/toetsregels/regels/INT-01.py"
+            logic: "Validates closed definition set"
+          - id: "INT-02"
+            naam: "Geen circulaire definities"
+            file: "src/toetsregels/regels/INT-02.py"
+            logic: "Detects circular references"
+          - id: "INT-03"
+            naam: "Consistente terminologie"
+            file: "src/toetsregels/regels/INT-03.py"
+            logic: "Checks terminology consistency"
+          - id: "INT-04"
+            naam: "Correcte referenties"
+            file: "src/toetsregels/regels/INT-04.py"
+            logic: "Validates references"
+          - id: "INT-06"
+            naam: "Logische samenhang"
+            file: "src/toetsregels/regels/INT-06.py"
+            logic: "Checks logical coherence"
+          - id: "INT-07"
+            naam: "Ondubbelzinnigheid"
+            file: "src/toetsregels/regels/INT-07.py"
+            logic: "Validates unambiguity"
+          - id: "INT-08"
+            naam: "Begrijpelijkheid"
+            file: "src/toetsregels/regels/INT-08.py"
+            logic: "Readability check"
+          - id: "INT-09"
+            naam: "Taalkundige correctheid"
+            file: "src/toetsregels/regels/INT-09.py"
+            logic: "Grammar and language validation"
+          - id: "INT-10"
+            naam: "Stijlconsistentie"
+            file: "src/toetsregels/regels/INT-10.py"
+            logic: "Style consistency check"
+
+      SAM:  # Samenhang
+        count: 8
+        rules:
+          - id: "SAM-01"
+            naam: "Taxonomische samenhang"
+            file: "src/toetsregels/regels/SAM-01.py"
+            logic: "Taxonomic coherence"
+          - id: "SAM-02"
+            naam: "Hiërarchische consistentie"
+            file: "src/toetsregels/regels/SAM-02.py"
+            logic: "Hierarchical consistency"
+          - id: "SAM-03"
+            naam: "Partitieve relaties"
+            file: "src/toetsregels/regels/SAM-03.py"
+            logic: "Part-whole relationships"
+          - id: "SAM-04"
+            naam: "Semantische relaties"
+            file: "src/toetsregels/regels/SAM-04.py"
+            logic: "Semantic relationships"
+          - id: "SAM-05"
+            naam: "Cross-referentie validatie"
+            file: "src/toetsregels/regels/SAM-05.py"
+            logic: "Cross-reference validation"
+          - id: "SAM-06"
+            naam: "Domein consistentie"
+            file: "src/toetsregels/regels/SAM-06.py"
+            logic: "Domain consistency"
+          - id: "SAM-07"
+            naam: "Context consistentie"
+            file: "src/toetsregels/regels/SAM-07.py"
+            logic: "Context consistency across definitions"
+          - id: "SAM-08"
+            naam: "Begrippen netwerk integriteit"
+            file: "src/toetsregels/regels/SAM-08.py"
+            logic: "Term network integrity"
+
+      STR:  # Structuur
+        count: 9
+        rules:
+          - id: "STR-01"
+            naam: "Enkelvoudige zin"
+            file: "src/toetsregels/regels/STR-01.py"
+            logic: "Single sentence structure"
+          - id: "STR-02"
+            naam: "Correcte interpunctie"
+            file: "src/toetsregels/regels/STR-02.py"
+            logic: "Punctuation validation"
+          - id: "STR-03"
+            naam: "Geen opsomming in definitie"
+            file: "src/toetsregels/regels/STR-03.py"
+            logic: "Avoids enumerations in definition"
+          - id: "STR-04"
+            naam: "Geen voorbeelden in definitie"
+            file: "src/toetsregels/regels/STR-04.py"
+            logic: "No examples in definition text"
+          - id: "STR-05"
+            naam: "Beknoptheid"
+            file: "src/toetsregels/regels/STR-05.py"
+            logic: "Conciseness check"
+          - id: "STR-06"
+            naam: "Zinsbouw helderheid"
+            file: "src/toetsregels/regels/STR-06.py"
+            logic: "Sentence structure clarity"
+          - id: "STR-07"
+            naam: "Woordkeuze precisie"
+            file: "src/toetsregels/regels/STR-07.py"
+            logic: "Word choice precision"
+          - id: "STR-08"
+            naam: "Grammaticale correctheid"
+            file: "src/toetsregels/regels/STR-08.py"
+            logic: "Grammar correctness"
+          - id: "STR-09"
+            naam: "Formattering regels"
+            file: "src/toetsregels/regels/STR-09.py"
+            logic: "Formatting rules validation"
+
+      VER:  # Verwijzingen
+        count: 3
+        rules:
+          - id: "VER-01"
+            naam: "Wettelijke basis aanwezigheid"
+            file: "src/toetsregels/regels/VER-01.py"
+            logic: "Legal basis presence"
+          - id: "VER-02"
+            naam: "Correcte bronvermelding"
+            file: "src/toetsregels/regels/VER-02.py"
+            logic: "Correct source citation"
+          - id: "VER-03"
+            naam: "Externe referentie validiteit"
+            file: "src/toetsregels/regels/VER-03.py"
+            logic: "External reference validity"
+
+  services_architecture:
+
+    core_orchestrators:
+      - service: "DefinitionOrchestratorV2"
+        file: "src/services/orchestrators/definition_orchestrator_v2.py"
+        loc: 984
+        responsibility: "11-phase definition generation orchestration"
+        business_logic:
+          - "Request validation and preprocessing"
+          - "Prompt building via PromptServiceV2"
+          - "AI generation via AIServiceV2"
+          - "Definition cleaning"
+          - "Validation orchestration"
+          - "Enhancement and enrichment"
+          - "Security and compliance checks"
+          - "Web lookup integration"
+          - "Response assembly"
+          - "Error handling and fallback"
+          - "Monitoring and telemetry"
+        dependencies:
+          - PromptServiceV2
+          - AIServiceV2
+          - ValidationOrchestratorV2
+          - CleaningServiceInterface
+          - DefinitionRepositoryInterface
+          - ModernWebLookupService (optional)
+          - EnhancementService (optional)
+          - SecurityService (optional)
+          - MonitoringService (optional)
+          - FeedbackEngine (optional)
+        status: production
+
+      - service: "ValidationOrchestratorV2"
+        file: "src/services/orchestrators/validation_orchestrator_v2.py"
+        loc: 251
+        responsibility: "Sequential validation orchestration with optional pre-cleaning"
+        business_logic:
+          - "Text validation with pre-cleaning"
+          - "Definition object validation"
+          - "Batch validation (sequential)"
+          - "Context enrichment for validation"
+          - "Error handling and degraded results"
+        dependencies:
+          - ValidationServiceInterface (ModularValidationService)
+          - CleaningServiceInterface
+        status: production
+
+    validation_services:
+      - service: "ModularValidationService"
+        file: "src/services/validation/modular_validation_service.py"
+        loc: 1638
+        responsibility: "Core validation engine executing 45+ rules"
+        business_logic:
+          - "Rule loading and caching via ToetsregelManager"
+          - "Baseline internal rules (VAL-EMP-001, VAL-LEN-001, etc.)"
+          - "JSON-based external rules integration"
+          - "Category-specific rule filtering"
+          - "Weighted scoring calculation"
+          - "Acceptability determination"
+          - "Detailed validation result assembly"
+          - "Error isolation per rule"
+        dependencies:
+          - ToetsregelManager (cached)
+          - ValidationConfig (YAML)
+          - DefinitionRepositoryInterface (for duplicate checks)
+        key_features:
+          - "Deterministic results"
+          - "Schema-compliant output"
+          - "Individual rule error isolation"
+          - "Contract version tracking"
+        status: production
+
+      - service: "ToetsregelManager (cached)"
+        file: "toetsregels/cached_manager.py"
+        responsibility: "100x performance improvement via caching"
+        business_logic:
+          - "Lazy loading of validation rules"
+          - "Rule caching with TTL"
+          - "Dynamic rule discovery"
+          - "Config-based rule filtering"
+        performance_impact: "Critical - prevents 45x rule reload per validation"
+        status: production
+
+    ai_services:
+      - service: "AIServiceV2"
+        file: "src/services/ai_service_v2.py"
+        loc: 322
+        responsibility: "Native async AI/GPT-4 integration"
+        business_logic:
+          - "Async definition generation via AsyncGPTClient"
+          - "Rate limiting (60 req/min, 3000 req/hour)"
+          - "Token counting via tiktoken"
+          - "V1-compatible caching"
+          - "Batch generation with concurrency control"
+          - "Error wrapping (RateLimitError, TimeoutError, ServiceError)"
+          - "Retry logic with exponential backoff"
+        dependencies:
+          - AsyncGPTClient
+          - OpenAI API
+          - config_manager
+        key_features:
+          - "Full async/await support"
+          - "Configurable model selection"
+          - "Temperature control"
+          - "Max tokens limiting"
+        status: production
+
+      - service: "PromptServiceV2"
+        file: "src/services/prompts/prompt_service_v2.py"
+        loc: 544
+        responsibility: "Category-aware prompt generation"
+        business_logic:
+          - "Ontological category template selection (fixes bug)"
+          - "Context enrichment via HybridContextManager"
+          - "Modular prompt building"
+          - "Web lookup context integration"
+          - "Token counting and optimization"
+          - "Feedback history integration"
+          - "Component tracking for debugging"
+        dependencies:
+          - UnifiedPromptBuilder
+          - HybridContextManager
+          - ModularPromptBuilder
+        key_features:
+          - "Max 10,000 token limit"
+          - "Cache-enabled (TTL: 3600s)"
+          - "Feedback integration"
+        status: production
+
+      - service: "UnifiedPromptBuilder"
+        file: "src/services/definition_generator_prompts.py"
+        loc: 141
+        responsibility: "Advanced prompt construction"
+        business_logic:
+          - "Multi-module prompt assembly"
+          - "Rule-specific instructions"
+          - "Category-aware templates"
+          - "Context-sensitive generation"
+        modules:
+          - expertise_module
+          - definition_task_module
+          - context_awareness_module
+          - grammar_module
+          - structure_rules_module
+          - integrity_rules_module
+          - error_prevention_module
+          - output_specification_module
+        status: production
+
+    web_lookup_services:
+      - service: "ModernWebLookupService"
+        file: "src/services/modern_web_lookup_service.py"
+        loc: 1019
+        responsibility: "External source integration and enrichment"
+        business_logic:
+          - "Multi-source content fetching (Wikipedia, SRU, Rechtspraak, Wiktionary)"
+          - "Source weighting and ranking"
+          - "Content sanitization and extraction"
+          - "Provenance tracking"
+          - "Betrouwbaarheid (reliability) calculation"
+          - "Async concurrent lookups"
+          - "Error isolation per source"
+          - "Debug tracing"
+        supported_sources:
+          - name: "Wikipedia"
+            weight: 0.8
+            api_type: "mediawiki"
+          - name: "SRU Overheid"
+            weight: 1.0
+            api_type: "sru"
+          - name: "Rechtspraak ECLI"
+            weight: 0.95
+            api_type: "rest"
+          - name: "Wiktionary"
+            weight: 0.9
+            api_type: "mediawiki"
+          - name: "Wetgeving.nl"
+            weight: 0.9
+            api_type: "scraping"
+        dependencies:
+          - WikipediaService
+          - SRUService
+          - RechtspraakRestService
+          - WiktionaryService
+          - BetrouwbaarheidsCalculator (domain)
+        key_features:
+          - "Strangler Fig pattern implementation"
+          - "Configurable provider weights"
+          - "Timeout and retry handling"
+          - "Juridical reference extraction"
+        status: production
+
+    data_services:
+      - service: "DefinitionRepository"
+        file: "src/services/definition_repository.py"
+        loc: 789
+        responsibility: "Database operations for definitions"
+        business_logic:
+          - "CRUD operations on definities table"
+          - "SQLite database management"
+          - "Duplicate detection via DuplicateDetectionService"
+          - "Search and filtering"
+          - "Status management"
+          - "Versioning support"
+          - "Audit trail via geschiedenis table"
+          - "JSON field serialization (context, wettelijke_basis)"
+        database: "data/definities.db"
+        schema_entities:
+          - definities
+          - definitie_geschiedenis
+          - definitie_tags
+          - definitie_voorbeelden
+          - externe_bronnen
+          - import_export_logs
+        key_operations:
+          - save_definition()
+          - get_definition()
+          - update_definition()
+          - delete_definition()
+          - search_definitions()
+          - get_by_status()
+          - check_duplicates()
+        dependencies:
+          - DuplicateDetectionService
+        status: production
+
+      - service: "DuplicateDetectionService"
+        file: "src/services/duplicate_detection_service.py"
+        loc: 256
+        responsibility: "Semantic duplicate detection"
+        business_logic:
+          - "Similarity scoring (threshold: 0.7)"
+          - "Text normalization"
+          - "Context-aware matching"
+          - "Fuzzy matching algorithms"
+        status: production
+
+    workflow_services:
+      - service: "DefinitionWorkflowService"
+        file: "src/services/definition_workflow_service.py"
+        loc: 671
+        responsibility: "Workflow state transitions and approval gates"
+        business_logic:
+          - "Status transitions (draft → review → established)"
+          - "Approval gate validation via GatePolicyService"
+          - "Event bus integration (pending)"
+          - "Audit logging (pending)"
+          - "Business rule enforcement"
+        states:
+          - imported
+          - draft
+          - review
+          - established
+          - archived
+        dependencies:
+          - WorkflowService
+          - DefinitionRepositoryInterface
+          - GatePolicyService
+        key_features:
+          - "Validation-gated transitions"
+          - "Configurable approval thresholds"
+        status: production
+
+      - service: "GatePolicyService (EPIC-016)"
+        file: "src/services/policies/approval_gate_policy.py"
+        loc: 164
+        responsibility: "Centralized approval gate policy management"
+        business_logic:
+          - "YAML-based policy configuration"
+          - "Lazy TTL caching"
+          - "Mode selection (strict/lenient)"
+          - "Threshold configuration"
+          - "Required fields validation"
+          - "UI-configurable policies"
+        config_file: "config/approval_gate.yaml"
+        key_features:
+          - "Audit trail support"
+          - "Hot reload capability"
+        status: production (EPIC-016)
+
+      - service: "WorkflowService"
+        file: "src/services/workflow_service.py"
+        loc: 703
+        responsibility: "Generic workflow state machine"
+        business_logic:
+          - "State transition rules"
+          - "Transition validation"
+          - "State history tracking"
+        status: production
+
+    cleaning_services:
+      - service: "CleaningService"
+        file: "src/services/cleaning_service.py"
+        loc: 266
+        responsibility: "Text and definition cleaning"
+        business_logic:
+          - "Whitespace normalization"
+          - "Punctuation correction"
+          - "Quote standardization"
+          - "Change tracking"
+          - "Original preservation"
+        status: production
+
+    import_export_services:
+      - service: "ExportService"
+        file: "src/services/export_service.py"
+        loc: 375
+        responsibility: "Definition export to multiple formats"
+        business_logic:
+          - "Multi-format export (JSON, CSV, DOCX, XML)"
+          - "Validation gate enforcement (optional)"
+          - "Batch export"
+          - "Data aggregation via DataAggregationService"
+        supported_formats:
+          - json
+          - csv
+          - docx
+          - xml
+        status: production
+
+      - service: "DefinitionImportService"
+        file: "src/services/definition_import_service.py"
+        loc: 419
+        responsibility: "CSV batch import helper"
+        business_logic:
+          - "CSV parsing"
+          - "Field mapping"
+          - "Validation per row"
+          - "Batch insertion"
+          - "Error reporting"
+        dependencies:
+          - DefinitionRepositoryInterface
+          - ValidationOrchestratorV2
+        status: production
+
+      - service: "DataAggregationService"
+        file: "src/services/data_aggregation_service.py"
+        loc: 396
+        responsibility: "Data aggregation for reporting"
+        business_logic:
+          - "Statistics calculation"
+          - "Grouping and filtering"
+          - "Export data preparation"
+        status: production
+
+    supporting_services:
+      - service: "CategoryService"
+        file: "src/services/category_service.py"
+        loc: 167
+        responsibility: "Ontological category management"
+        business_logic:
+          - "Category classification"
+          - "UFO pattern matching integration"
+        status: production
+
+      - service: "UFOPatternMatcher"
+        file: "src/services/ufo_pattern_matcher.py"
+        loc: 1641
+        responsibility: "UFO/OntoUML ontological classification"
+        business_logic:
+          - "Pattern-based classification"
+          - "UFO-A/B/C support"
+          - "Multi-level categorization"
+          - "Confidence scoring"
+        categories:
+          - Kind
+          - Event
+          - Role
+          - Phase
+          - Relator
+          - Mode
+          - Quantity
+          - Quality
+          - Subkind
+          - Category
+          - Mixin
+          - RoleMixin
+          - PhaseMixin
+        status: production
+
+      - service: "UFOClassifierService"
+        file: "src/services/ufo_classifier_service.py"
+        loc: 425
+        responsibility: "UFO classification coordination"
+        status: production
+
+      - service: "FeatureFlags"
+        file: "src/services/feature_flags.py"
+        loc: 227
+        responsibility: "Feature toggle management"
+        status: production
+
+      - service: "RegenerationService"
+        file: "src/services/regeneration_service.py"
+        loc: 129
+        responsibility: "Definition regeneration with feedback"
+        status: production
+
+    container:
+      - service: "ServiceContainer"
+        file: "src/services/container.py"
+        loc: 599
+        responsibility: "Dependency injection and service lifecycle"
+        business_logic:
+          - "Singleton service management"
+          - "Lazy initialization"
+          - "Configuration loading"
+          - "Service factory methods"
+        managed_services:
+          - generator (DefinitionOrchestratorV2)
+          - orchestrator (DefinitionOrchestratorV2)
+          - validation_orchestrator (ValidationOrchestratorV2)
+          - repository (DefinitionRepository)
+          - web_lookup (ModernWebLookupService)
+          - duplicate_detector (DuplicateDetectionService)
+          - workflow (WorkflowService)
+          - definition_workflow_service (DefinitionWorkflowService)
+          - cleaning_service (CleaningService)
+          - gate_policy (GatePolicyService)
+          - export_service (ExportService)
+          - import_service (DefinitionImportService)
+          - data_aggregation_service (DataAggregationService)
+        key_features:
+          - "Environment-specific configs (dev/test/prod)"
+          - "Initialization count tracking"
+          - "Config hot reload"
+        status: production
+
+  ui_implementation:
+
+    main_interface:
+      - component: "TabbedInterface"
+        file: "src/ui/tabbed_interface.py"
+        loc: 450
+        responsibility: "Main UI controller and tab orchestration"
+        tabs_managed:
+          - Definitie Genereren (DefinitionGeneratorTab)
+          - Definitie Bewerken (DefinitionEditTab)
+          - Expert Review (ExpertReviewTab)
+          - Import/Export/Beheer (ImportExportBeheerTab)
+          - Web Lookup (WebLookupTab)
+          - Monitoring (MonitoringTab)
+        business_logic_violations:
+          - "Direct service initialization"
+          - "Document processing in UI"
+          - "File upload handling"
+        status: production
+
+    tabs:
+      - tab: "DefinitionGeneratorTab"
+        file: "src/ui/components/definition_generator_tab.py"
+        loc: 2525
+        features:
+          - "Term input and context selection"
+          - "Ontological category selection"
+          - "Web lookup toggle"
+          - "Definition generation trigger"
+          - "Real-time validation display"
+          - "Examples rendering (7 types)"
+          - "Generated definition editing"
+          - "Source provenance display"
+          - "Status workflow actions (Save, Submit for Review)"
+          - "Approval workflow"
+        business_logic_in_ui: YES
+        violations:
+          - "Complete generation workflow in UI"
+          - "Validation result interpretation"
+          - "Status transitions"
+          - "Session state management"
+          - "Service coordination"
+        complexity: CRITICAL
+        refactor_priority: HIGH
+        status: production
+
+      - tab: "DefinitionEditTab"
+        file: "src/ui/components/definition_edit_tab.py"
+        loc: 1578
+        features:
+          - "Definition search and selection"
+          - "Field editing (all definition fields)"
+          - "Status management (draft/review/established/archived)"
+          - "Validation re-run"
+          - "History viewing"
+          - "Workflow transitions"
+          - "Approval actions"
+        business_logic_in_ui: YES
+        violations:
+          - "Status transition logic"
+          - "Approval gate checks"
+          - "Direct repository access"
+        complexity: HIGH
+        refactor_priority: HIGH
+        status: production
+
+      - tab: "ExpertReviewTab"
+        file: "src/ui/components/expert_review_tab.py"
+        loc: 1402
+        features:
+          - "Pending reviews list"
+          - "Definition comparison"
+          - "Validation results review"
+          - "Approval/rejection workflow"
+          - "Review notes"
+          - "Quality assessment"
+        business_logic_in_ui: YES
+        violations:
+          - "Review workflow logic"
+          - "Approval decisions"
+        complexity: HIGH
+        refactor_priority: MEDIUM
+        status: production
+
+      - tab: "ImportExportBeheerTab"
+        file: "src/ui/components/tabs/import_export_beheer/"
+        components:
+          - orchestrator.py
+          - csv_importer.py
+          - format_exporter.py
+          - bulk_operations.py
+          - database_manager.py
+        features:
+          - "CSV import with validation"
+          - "Multi-format export"
+          - "Bulk operations (delete, status change)"
+          - "Database backup/restore"
+          - "Statistics viewing"
+        business_logic_in_ui: PARTIAL
+        complexity: MEDIUM
+        status: production
+
+      - tab: "WebLookupTab"
+        file: "src/ui/components/web_lookup_tab.py"
+        loc: 800
+        features:
+          - "Manual web lookup testing"
+          - "Source preview"
+          - "Provider configuration"
+          - "Debug information"
+        business_logic_in_ui: NO
+        complexity: LOW
+        status: production
+
+      - tab: "MonitoringTab"
+        file: "src/ui/components/monitoring_tab.py"
+        loc: 650
+        features:
+          - "System statistics"
+          - "Performance metrics"
+          - "Service health"
+          - "Database statistics"
+        business_logic_in_ui: NO
+        complexity: LOW
+        status: production
+
+    supporting_components:
+      - component: "ContextSelector"
+        file: "src/ui/components/enhanced_context_manager_selector.py"
+        loc: 270
+        responsibility: "Context selection UI (organisatorisch, juridisch, wettelijk)"
+        status: production
+
+      - component: "ValidationView"
+        file: "src/ui/components/validation_view.py"
+        loc: 290
+        responsibility: "Validation results display"
+        features:
+          - "Overall score display"
+          - "Rule violations list"
+          - "Passed rules list"
+          - "Detailed scores per category"
+        status: production
+
+      - component: "ExamplesRenderer"
+        file: "src/ui/components/examples_renderer.py"
+        loc: 130
+        responsibility: "Examples display"
+        example_types:
+          - sentence (voorbeeldzin)
+          - practical (praktijkvoorbeeld)
+          - counter (tegenvoorbeeld)
+          - synonyms (synoniemen)
+          - antonyms (antoniemen)
+          - explanation (toelichting)
+          - voorkeursterm
+        status: production
+
+      - component: "SessionStateManager"
+        file: "src/ui/session_state.py"
+        responsibility: "Streamlit session state initialization and management"
+        key_state_variables:
+          - generated_definition
+          - validation_results
+          - voorbeelden
+          - service_container
+          - selected_tab
+          - current_definitie
+        status: production
+
+  data_layer:
+
+    database:
+      engine: SQLite
+      file: "data/definities.db"
+      schema_file: "src/database/schema.sql"
+
+      schema_entities:
+        - table: "definities"
+          columns: 34
+          key_fields:
+            - id (PRIMARY KEY)
+            - begrip (VARCHAR(255))
+            - definitie (TEXT)
+            - categorie (VARCHAR(50))
+            - status (VARCHAR(50))
+          context_fields:
+            - organisatorische_context (TEXT/JSON)
+            - juridische_context (TEXT/JSON)
+            - wettelijke_basis (TEXT/JSON)
+          ontology_fields:
+            - ontologische_categorie (legacy: type/proces/resultaat/exemplaar)
+            - ufo_categorie (OntoUML categories)
+          workflow_fields:
+            - status (imported/draft/review/established/archived)
+            - version_number
+            - previous_version_id
+          validation_fields:
+            - validation_score (DECIMAL)
+            - validation_date (TIMESTAMP)
+            - validation_issues (TEXT/JSON)
+          metadata_fields:
+            - created_at, updated_at
+            - created_by, updated_by
+            - approved_by, approved_at
+            - approval_notes
+          source_tracking:
+            - source_type (generated/imported/manual)
+            - source_reference
+            - imported_from
+          export_tracking:
+            - last_exported_at
+            - export_destinations (TEXT/JSON)
+          voorkeursterm_field:
+            - voorkeursterm (TEXT) - single source of truth
+
+        - table: "definitie_geschiedenis"
+          responsibility: "Audit trail for definition changes"
+          key_fields:
+            - definitie_id (FK)
+            - wijziging_type (created/updated/status_changed/approved/archived/auto_save)
+            - definitie_oude_waarde
+            - definitie_nieuwe_waarde
+            - context_snapshot (JSON)
+
+        - table: "definitie_tags"
+          responsibility: "Flexible tagging system"
+          key_fields:
+            - definitie_id (FK)
+            - tag_naam
+            - tag_waarde
+
+        - table: "definitie_voorbeelden"
+          responsibility: "Generated examples storage"
+          key_fields:
+            - definitie_id (FK)
+            - voorbeeld_type (sentence/practical/counter/synonyms/antonyms/explanation)
+            - voorbeeld_tekst
+            - voorbeeld_volgorde
+          metadata:
+            - gegenereerd_door
+            - generation_model
+            - actief, beoordeeld
+
+        - table: "externe_bronnen"
+          responsibility: "External source configuration"
+          key_fields:
+            - bron_naam
+            - bron_type (database/api/file/manual)
+            - bron_url
+            - api_key_encrypted
+
+        - table: "import_export_logs"
+          responsibility: "Import/export operation logging"
+          key_fields:
+            - operatie_type (import/export)
+            - aantal_verwerkt, aantal_succesvol, aantal_gefaald
+            - bestand_pad, formaat
+
+      views:
+        - actieve_definities (status != 'archived')
+        - vastgestelde_definities (status = 'established')
+        - definitie_statistieken (aggregated stats)
+
+      triggers:
+        - update_definities_timestamp (auto updated_at)
+        - log_definitie_changes (auto audit trail)
+        - update_voorbeelden_timestamp
+
+    repositories:
+      - class: "DefinitionRepository"
+        file: "src/services/definition_repository.py"
+        interface: "DefinitionRepositoryInterface"
+        operations:
+          - save_definition(definition)
+          - get_definition(id)
+          - update_definition(id, updates)
+          - delete_definition(id)
+          - search_definitions(criteria)
+          - get_by_status(status)
+          - get_by_context(org_context, jur_context)
+          - check_duplicates(begrip, text)
+          - get_history(definitie_id)
+          - add_tag(definitie_id, tag)
+          - get_statistics()
+        business_logic:
+          - JSON serialization for context fields
+          - Duplicate detection integration
+          - Status validation
+          - Versioning support
+
+    domain_models:
+      - model: "Definition"
+        file: "src/services/interfaces.py"
+        fields:
+          - begrip: str
+          - definitie: str
+          - categorie: str
+          - ontologische_categorie: str | None
+          - ufo_categorie: str | None
+          - organisatorische_context: list[str]
+          - juridische_context: list[str]
+          - wettelijke_basis: list[str]
+          - status: str
+          - validation_score: float | None
+          - toelichting_proces: str | None
+          - voorkeursterm: str | None
+          - synoniemen: list[str]
+          - gerelateerde_begrippen: list[str]
+          - metadata: dict
+
+      - model: "ValidationResult"
+        file: "src/services/validation/interfaces.py"
+        fields:
+          - is_acceptable: bool
+          - overall_score: float
+          - violations: list[RuleViolation]
+          - passed_rules: list[RulePassed]
+          - detailed_scores: dict[str, CategoryScore]
+          - metadata: dict
+
+      - model: "DefinitionResponseV2"
+        file: "src/services/interfaces.py"
+        fields:
+          - success: bool
+          - definitie_origineel: str
+          - definitie_gecorrigeerd: str
+          - final_score: float
+          - validation_details: ValidationResult
+          - voorbeelden: dict
+          - metadata: dict
+          - sources: list[WebSource]
+          - error_message: str | None
+
+  implemented_features:
+
+    core_generation:
+      - feature: "AI-powered definition generation"
+        location: "src/services/orchestrators/definition_orchestrator_v2.py"
+        business_logic:
+          - "GPT-4 based generation with temperature control"
+          - "Ontological category-aware prompt selection"
+          - "Context-enriched prompts (organizational, legal, legislative)"
+          - "Multi-phase orchestration (11 phases)"
+        dependencies:
+          - AIServiceV2
+          - PromptServiceV2
+        status: production
+        value: HIGH
+
+      - feature: "45-rule validation system"
+        location: "src/services/validation/modular_validation_service.py"
+        business_logic:
+          - "Modular rule execution"
+          - "Category-specific filtering (ARAI, CON, ESS, INT, SAM, STR, VER)"
+          - "Weighted scoring with configurable weights"
+          - "Acceptability determination"
+          - "Detailed violation reporting"
+        dependencies:
+          - ToetsregelManager
+          - 46 rule implementations
+        status: production
+        value: CRITICAL
+
+      - feature: "External source enrichment"
+        location: "src/services/modern_web_lookup_service.py"
+        business_logic:
+          - "Wikipedia, SRU, Rechtspraak, Wiktionary integration"
+          - "Source weighting and ranking"
+          - "Provenance tracking"
+          - "Betrouwbaarheid calculation"
+        status: production
+        value: HIGH
+
+      - feature: "Definition cleaning"
+        location: "src/services/cleaning_service.py"
+        business_logic:
+          - "Whitespace normalization"
+          - "Punctuation correction"
+          - "Quote standardization"
+          - "Change tracking"
+        status: production
+        value: MEDIUM
+
+    workflow_management:
+      - feature: "Status workflow (draft → review → established)"
+        location: "src/services/definition_workflow_service.py"
+        business_logic:
+          - "State machine implementation"
+          - "Transition validation"
+          - "Approval gates"
+        status: production
+        value: HIGH
+
+      - feature: "Approval gate policy (EPIC-016)"
+        location: "src/services/policies/approval_gate_policy.py"
+        business_logic:
+          - "YAML-based policy configuration"
+          - "Mode selection (strict/lenient)"
+          - "Threshold enforcement"
+          - "Required fields validation"
+        config_file: "config/approval_gate.yaml"
+        status: production
+        value: HIGH
+
+      - feature: "Audit trail"
+        location: "database: definitie_geschiedenis table"
+        business_logic:
+          - "Change logging via trigger"
+          - "Context snapshots"
+          - "User attribution"
+        status: production
+        value: MEDIUM
+
+    data_management:
+      - feature: "Duplicate detection"
+        location: "src/services/duplicate_detection_service.py"
+        business_logic:
+          - "Semantic similarity scoring"
+          - "Fuzzy matching"
+          - "Threshold-based detection (0.7)"
+        status: production
+        value: HIGH
+
+      - feature: "Multi-format export"
+        location: "src/services/export_service.py"
+        business_logic:
+          - "JSON, CSV, DOCX, XML export"
+          - "Validation gate enforcement (optional)"
+          - "Batch export"
+        status: production
+        value: MEDIUM
+
+      - feature: "CSV import"
+        location: "src/services/definition_import_service.py"
+        business_logic:
+          - "Field mapping"
+          - "Row validation"
+          - "Batch insertion"
+          - "Error reporting"
+        status: production
+        value: MEDIUM
+
+    ui_features:
+      - feature: "Interactive definition generation"
+        location: "src/ui/components/definition_generator_tab.py"
+        workflow:
+          - "Term input"
+          - "Context selection (org, legal, legislative)"
+          - "Category selection"
+          - "Web lookup toggle"
+          - "Generate button"
+          - "Validation display"
+          - "Examples display (7 types)"
+          - "Edit and save"
+        status: production
+        value: CRITICAL
+
+      - feature: "Definition editing and review"
+        location: "src/ui/components/definition_edit_tab.py"
+        workflow:
+          - "Search definitions"
+          - "Edit all fields"
+          - "Status transitions"
+          - "Re-validate"
+          - "View history"
+        status: production
+        value: HIGH
+
+      - feature: "Expert review workflow"
+        location: "src/ui/components/expert_review_tab.py"
+        workflow:
+          - "Review queue"
+          - "Side-by-side comparison"
+          - "Approve/reject actions"
+          - "Review notes"
+        status: production
+        value: HIGH
+
+      - feature: "Import/Export/Beheer"
+        location: "src/ui/components/tabs/import_export_beheer/"
+        features:
+          - CSV_import
+          - Multi-format_export
+          - Bulk_operations
+          - Database_backup
+        status: production
+        value: MEDIUM
+
+      - feature: "Web lookup testing"
+        location: "src/ui/components/web_lookup_tab.py"
+        features:
+          - Manual_lookup
+          - Source_preview
+          - Provider_config
+        status: production
+        value: LOW
+
+      - feature: "Monitoring dashboard"
+        location: "src/ui/components/monitoring_tab.py"
+        features:
+          - Statistics
+          - Performance_metrics
+          - Service_health
+        status: production
+        value: LOW
+
+    ontology_features:
+      - feature: "UFO/OntoUML classification"
+        location: "src/services/ufo_pattern_matcher.py"
+        business_logic:
+          - "Pattern-based classification"
+          - "16 UFO categories support"
+          - "Confidence scoring"
+        status: production
+        value: MEDIUM
+
+      - feature: "Ontological category support"
+        location: "Multiple (prompts, validation, UI)"
+        business_logic:
+          - "Category-aware template selection"
+          - "Category-specific rule filtering"
+        categories:
+          - ENT (Entiteit)
+          - ACT (Activiteit)
+          - REL (Relatie)
+          - ATT (Attribuut)
+          - AUT (Autorisatie)
+          - STA (Status)
+          - OTH (Overig)
+        status: production
+        value: MEDIUM
+
+    configuration_management:
+      - feature: "Multi-environment configuration"
+        location: "config/"
+        configs:
+          - config_development.yaml
+          - config_testing.yaml
+          - config_production.yaml
+        status: production
+        value: MEDIUM
+
+      - feature: "Web lookup configuration"
+        location: "config/web_lookup_defaults.yaml"
+        settings:
+          - Provider weights
+          - Timeouts
+          - Retry policies
+          - Prompt augmentation
+        status: production
+        value: LOW
+
+      - feature: "Validation rule configuration"
+        location: "src/config/validation_rules.yaml"
+        settings:
+          - Rule weights
+          - Category filters
+          - Acceptability thresholds
+        status: production
+        value: MEDIUM
+
+  critical_business_logic:
+
+    validation_scoring:
+      - location: "src/services/validation/aggregation.py"
+        logic: "Weighted validation scoring algorithm"
+        complexity: HIGH
+        description: |
+          - Calculates weighted average across 46 rules
+          - Category-specific weights (ARAI, CON, ESS, INT, SAM, STR, VER)
+          - Acceptability threshold determination
+          - Priority-based rule weighting (high/medium/low)
+
+    approval_gates:
+      - location: "src/services/policies/approval_gate_policy.py"
+        logic: "Approval gate enforcement"
+        complexity: MEDIUM
+        description: |
+          - Strict mode: requires validation_score >= threshold
+          - Lenient mode: warnings only
+          - Required field checks
+          - Configurable thresholds per status transition
+
+    duplicate_detection:
+      - location: "src/services/duplicate_detection_service.py"
+        logic: "Semantic duplicate detection"
+        complexity: HIGH
+        description: |
+          - Text normalization (lowercase, whitespace)
+          - Fuzzy string matching
+          - Context-aware comparison
+          - Similarity threshold: 0.7
+          - Repository integration for cross-checking
+
+    context_enrichment:
+      - location: "src/services/definition_generator_context.py"
+        logic: "Hybrid context enrichment"
+        complexity: HIGH
+        description: |
+          - Multi-source context building
+          - Web lookup integration
+          - Historical context
+          - Organizational context mapping
+          - Legal context interpretation
+
+    prompt_construction:
+      - location: "src/services/prompts/prompt_service_v2.py + modules"
+        logic: "Multi-module prompt assembly"
+        complexity: HIGH
+        description: |
+          - 10+ prompt modules
+          - Category-aware template selection
+          - Token optimization
+          - Context-sensitive generation instructions
+          - Rule-specific guidance
+
+    source_ranking:
+      - location: "src/services/web_lookup/ranking.py"
+        logic: "Source reliability and ranking"
+        complexity: MEDIUM
+        description: |
+          - Provider weight application
+          - Content quality scoring
+          - Juridical source prioritization
+          - Recency weighting
+
+    circular_reference_detection:
+      - location: "src/toetsregels/regels/INT-02.py (CON-CIRC-001)"
+        logic: "Circular definition detection"
+        complexity: HIGH
+        description: |
+          - Term self-reference detection
+          - Transitive circularity detection
+          - Repository-based graph analysis
+
+    taxonomy_coherence:
+      - location: "src/toetsregels/regels/SAM-01.py"
+        logic: "Taxonomic coherence validation"
+        complexity: HIGH
+        description: |
+          - Hierarchical relationship validation
+          - Parent-child consistency
+          - Classification coherence
+
+  performance_considerations:
+
+    known_bottlenecks:
+      - issue: "Service initialization (6x)"
+        location: "src/services/container.py"
+        impact: "Startup time"
+        solution: "Implemented: @st.cache_resource via get_cached_container()"
+        status: RESOLVED (US-201)
+
+      - issue: "Validation rules reload (45x per session)"
+        location: "toetsregels/"
+        impact: "Validation latency"
+        solution: "Implemented: ToetsregelManager caching (100x improvement)"
+        status: RESOLVED (US-202)
+
+      - issue: "Prompt token duplication (7,250 tokens)"
+        location: "src/services/prompts/"
+        impact: "API costs, latency"
+        solution: "Needs: prompt caching and deduplication"
+        status: OPEN
+
+      - issue: "God object UI components"
+        location: "src/ui/components/definition_generator_tab.py (2525 LOC)"
+        impact: "Maintainability, testability"
+        solution: "Needs: decomposition into smaller components"
+        status: OPEN
+
+    optimization_opportunities:
+      - "Async batch validation (currently sequential)"
+      - "Prompt template caching"
+      - "Validation result caching"
+      - "Web lookup result caching"
+      - "Database query optimization (indexes)"
+
+  technical_debt:
+
+    architectural_debt:
+      - item: "Business logic in UI layer"
+        severity: CRITICAL
+        files:
+          - "src/ui/components/definition_generator_tab.py"
+          - "src/ui/components/definition_edit_tab.py"
+          - "src/ui/components/expert_review_tab.py"
+        impact: "Testability, reusability, maintainability"
+        effort: HIGH
+
+      - item: "God objects (2500+ LOC components)"
+        severity: HIGH
+        files:
+          - "src/ui/components/definition_generator_tab.py"
+        impact: "Complexity, coupling, single responsibility violations"
+        effort: HIGH
+
+      - item: "Direct session state access outside SessionStateManager"
+        severity: MEDIUM
+        impact: "State management consistency"
+        effort: MEDIUM
+
+    code_quality_debt:
+      - item: "Missing type hints in legacy modules"
+        severity: LOW
+        effort: MEDIUM
+
+      - item: "Inconsistent error handling patterns"
+        severity: MEDIUM
+        effort: MEDIUM
+
+      - item: "Mixed Dutch/English naming"
+        severity: LOW
+        effort: HIGH
+
+    testing_debt:
+      - item: "Low test coverage in UI components"
+        current_coverage: "<10%"
+        target_coverage: "60%+"
+        severity: HIGH
+        effort: HIGH
+
+      - item: "Integration tests mostly deleted"
+        deleted_tests: 41
+        severity: HIGH
+        impact: "Regression risk"
+        effort: VERY_HIGH
+
+  key_integrations:
+
+    external_apis:
+      - name: "OpenAI GPT-4"
+        purpose: "Definition generation"
+        service: "AIServiceV2"
+        status: production
+
+      - name: "Wikipedia API"
+        purpose: "Term lookup and context"
+        service: "WikipediaService"
+        status: production
+
+      - name: "SRU Overheid"
+        purpose: "Government document lookup"
+        service: "SRUService"
+        status: production
+
+      - name: "Rechtspraak.nl REST API"
+        purpose: "Legal case law lookup"
+        service: "RechtspraakRestService"
+        status: production
+
+      - name: "Wiktionary API"
+        purpose: "Dictionary definitions"
+        service: "WiktionaryService"
+        status: production
+
+    internal_integrations:
+      - name: "ToetsregelManager"
+        purpose: "Validation rule loading and caching"
+        performance: "100x improvement via caching"
+        status: production
+
+      - name: "HybridContextManager"
+        purpose: "Unified context enrichment"
+        status: production
+
+      - name: "SessionStateManager"
+        purpose: "Streamlit state management"
+        status: production
+
+  configuration_files:
+
+    core_config:
+      - file: "config/config_development.yaml"
+        purpose: "Development environment settings"
+      - file: "config/config_testing.yaml"
+        purpose: "Test environment settings"
+      - file: "config/config_production.yaml"
+        purpose: "Production environment settings"
+      - file: "config/config_default.yaml"
+        purpose: "Default fallback settings"
+
+    feature_config:
+      - file: "config/approval_gate.yaml"
+        purpose: "Approval gate policy (EPIC-016)"
+        business_logic: "Validation thresholds, required fields"
+
+      - file: "config/web_lookup_defaults.yaml"
+        purpose: "Web lookup provider configuration"
+        settings:
+          - provider_weights
+          - timeouts
+          - retry_policies
+          - prompt_augmentation
+
+      - file: "src/config/validation_rules.yaml"
+        purpose: "Validation rule weights and filters"
+        settings:
+          - rule_weights
+          - category_filters
+          - acceptability_thresholds
+
+      - file: "config/toetsregels/toetsregels_config.yaml"
+        purpose: "Validation rule set configuration"
+
+      - file: "config/ufo_rules.yaml"
+        purpose: "UFO/OntoUML classification rules"
+
+      - file: "config/ontology/category_patterns.yaml"
+        purpose: "Ontological category patterns"
+
+      - file: "config/cache_config.yaml"
+        purpose: "Caching configuration"
+
+      - file: "config/logging_config.yaml"
+        purpose: "Logging configuration"
+
+      - file: "config/openai_config.yaml"
+        purpose: "OpenAI API configuration"
+
+  summary:
+    total_features_implemented: 35+
+    production_services: 25+
+    validation_rules: 46
+    ui_tabs: 6
+    god_objects_count: 3
+    critical_business_logic_locations: 8
+
+    strengths:
+      - "Comprehensive 46-rule validation system"
+      - "Clean V2 orchestrator architecture"
+      - "Multi-source web lookup integration"
+      - "Workflow management with approval gates"
+      - "Ontological category support"
+      - "Audit trail and versioning"
+      - "Performance optimizations (caching)"
+
+    weaknesses:
+      - "Business logic in UI layer (god objects)"
+      - "Low test coverage"
+      - "Complex UI components (2500+ LOC)"
+      - "Inconsistent error handling"
+      - "Technical debt accumulation"
+
+    refactor_priorities:
+      - priority: 1
+        task: "Extract business logic from DefinitionGeneratorTab"
+        impact: "Testability, maintainability"
+
+      - priority: 2
+        task: "Decompose god object UI components"
+        impact: "Complexity reduction"
+
+      - priority: 3
+        task: "Restore integration test suite"
+        impact: "Regression prevention"
+
+      - priority: 4
+        task: "Standardize error handling"
+        impact: "Reliability"
+
+      - priority: 5
+        task: "Implement prompt caching"
+        impact: "Performance, cost"
+
+# END OF CURRENT IMPLEMENTATION ANALYSIS

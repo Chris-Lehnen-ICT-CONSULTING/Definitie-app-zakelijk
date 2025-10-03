@@ -1,0 +1,299 @@
+
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>EPIC-006 - EPIC-006-security-auth</title>
+  <link rel="stylesheet" href="../assets/style.css" />
+</head>
+<body>
+  <div class="container">
+    <div class="breadcrumbs"><a href="../index.html">Requirements</a> / <span>EPIC-006</span></div>
+    <h1>EPIC-006: EPIC-006-security-auth</h1>
+    <div><h1>EPIC-006: beveiliging & Auth</h1>
+
+<h2>Managementsamenvatting</h2>
+
+<p>beveiliging compliance and data protection for the DefinitieAgent system. This epic ensures the application meets justitiesector beveiliging vereisten, protects sensitive data, and implements proper authenticatie and authorization.</p>
+
+<h2>Bedrijfswaarde</h2>
+
+<ul>
+<li>**Primary Value**: Protect sensitive legal data and definitions</li>
+<li>**Compliance**: Meet AVG/GDPR and justitiesector vereisten</li>
+<li>**Trust**: Build user confidence through beveiliging</li>
+<li>**Risk Mitigation**: Prevent data breaches and unauthorized access</li>
+</ul>
+
+<h2>Succesmetrieken</h2>
+
+<ul>
+<li>✅ Zero exposed API keys in code</li>
+<li>✅ 100% environment-based configuration</li>
+<li>[ ] API key validation on startup</li>
+<li>[ ] Complete audit trail</li>
+<li>[ ] Justice SSO integration</li>
+<li>[ ] Zero beveiliging vulnerabilities (OWASP top 10)</li>
+</ul>
+
+<h2>Gebruikersverhalen Overzicht</h2>
+
+<h3>US-024: API Key Validation at Startup</h3>
+<p>**Status:** Nog te bepalen</p>
+<p>**Prioriteit:** HOOG</p>
+<p>**Verhaalpunten:** 3</p>
+
+<p>**Gebruikersverhaal:**</p>
+<p>Als systeembeheerder binnen de justitieketen</p>
+<p>wil ik API keys validatied at application startup</p>
+<p>zodat configuration errors are caught early and don't cause runtime failures</p>
+
+<p>**Acceptatiecriteria:**</p>
+<p>1. gegeven the application starts</p>
+<p>   wanneer OpenAI API key is configured</p>
+<p>   dan the key is validatied via test API call</p>
+<p>2. gegeven an invalid API key is detected</p>
+<p>   wanneer application initialization occurs</p>
+<p>   dan clear error message is shown and startup is halted</p>
+<p>3. gegeven a valid API key</p>
+<p>   wanneer application starts</p>
+<p>   dan initialization continues normally</p>
+
+<p>**Domeinregels:**</p>
+<ul>
+<li>Comply with NORA beveiliging guidelines for credential management</li>
+<li>FolLAAG ASTRA patterns for configuration validation</li>
+<li>No sensitive data in error messages or logs</li>
+</ul>
+
+<p>**Implementatie Notes:**</p>
+<ul>
+<li>beveiliging: Never log full API keys (only last 4 chars)</li>
+<li>Privacy: No API key in error tracking</li>
+<li>Prestaties: Validation timeout of 5 seconds</li>
+<li>Location: Add to `src/services/container.py` initialization</li>
+</ul>
+
+<h3>US-025: API Key beveiliging Fix ✅</h3>
+<p>**Status:** GEREED</p>
+<p>**Prioriteit:** KRITIEK</p>
+<p>**Verhaalpunten:** 5</p>
+
+<p>**Implementatie:**</p>
+<ul>
+<li>Removed all hardcoded API keys</li>
+<li>Moved to environment variables</li>
+<li>Added .env.example file</li>
+<li>UpDatumd documentation</li>
+</ul>
+
+<h3>US-026: Environment Variable Configuration ✅</h3>
+<p>**Status:** GEREED</p>
+<p>**Prioriteit:** HOOG</p>
+<p>**Verhaalpunten:** 3</p>
+
+<p>**Implementatie:**</p>
+<ul>
+<li>All sensitive config via env vars</li>
+<li>ConfigManager for centralized access</li>
+<li>Validation of required variables</li>
+<li>Default values for non-sensitive config</li>
+</ul>
+
+<h3>US-027: Component-specific AI Configuration beveiliging ✅</h3>
+<p>**Status:** GEREED</p>
+<p>**Prioriteit:** GEMIDDELD</p>
+<p>**Verhaalpunten:** 5</p>
+
+<p>**Implementatie:**</p>
+<ul>
+<li>Separate config per component</li>
+<li>No API keys in component configs</li>
+<li>Encrypted storage for sensitive data</li>
+<li>Access control via ServiceContainer</li>
+</ul>
+
+<h2>beveiliging Architecture</h2>
+
+<h3>Authenticatie FLAAG</h3>
+<pre class=code><code>
+User Access
+    ↓
+Justice SSO (Planned)
+    ↓
+Token Validation
+    ↓
+Session Creation
+    ↓
+Role Assignment
+    ↓
+Access Granted
+</code></pre>
+
+<h3>Authorization Model</h3>
+<pre class=code><code>
+Resources
+    ├── Definitions (CRUD)
+    ├── validatieregels (Read)
+    ├── Web Lookup (Execute)
+    ├── Export (Execute)
+    └── Admin Functions (Admin only)
+
+Roles
+    ├── Viewer (Read only)
+    ├── Editor (CRUD definitions)
+    ├── Validator (Run validations)
+    └── Admin (All permissions)
+</code></pre>
+
+<h2>beveiliging Controls</h2>
+
+<h3>Application beveiliging</h3>
+<ul>
+<li>✅ API key protection</li>
+<li>✅ Environment-based config</li>
+<li>✅ Input validation</li>
+<li>⏳ SQL injection prevention</li>
+<li>⏳ XSS protection</li>
+<li>❌ CSRF tokens</li>
+<li>❌ Rate limiting</li>
+<li>❌ Session management</li>
+</ul>
+
+<h3>Data beveiliging</h3>
+<ul>
+<li>✅ Encrypted API communication</li>
+<li>⏳ Database encryption at rest</li>
+<li>⏳ Backup encryption</li>
+<li>❌ Field-level encryption for PII</li>
+<li>❌ Data retention policies</li>
+<li>❌ Secure deletion</li>
+</ul>
+
+<h3>Infrastructure beveiliging</h3>
+<ul>
+<li>✅ HTTPS only</li>
+<li>⏳ beveiliging headers</li>
+<li>⏳ Content beveiliging Policy</li>
+<li>❌ Web Application Firewall</li>
+<li>❌ DDoS protection</li>
+<li>❌ Intrusion detection</li>
+</ul>
+
+<h2>Audit vereisten</h2>
+
+<h3>Events to Log</h3>
+<ul>
+<li>User authenticatie (success/failure)</li>
+<li>Definition CRUD operations</li>
+<li>Validation executions</li>
+<li>Export/Import operations</li>
+<li>Configuration Wijzigingen</li>
+<li>beveiliging events</li>
+</ul>
+
+<h3>Log Format</h3>
+<pre class=code><code>
+{
+  "timestamp": "ISO 8601",
+  "event_type": "string",
+  "user_id": "uuid",
+  "session_id": "uuid",
+  "resource": "string",
+  "action": "string",
+  "result": "success|failure",
+  "metadata": {}
+}
+</code></pre>
+
+<h2>Afhankelijkheden</h2>
+
+<ul>
+<li>Justice SSO system integration</li>
+<li>Audit logging infrastructure</li>
+<li>beveiliging scanning tools</li>
+<li>Penetration testing resources</li>
+</ul>
+
+<h2>Risico's & Mitigaties</h2>
+
+<p>| Risk | Impact | Mitigation |</p>
+<p>|------|--------|------------|</p>
+<p>| API Key Exposure | KRITIEK | Environment variables, key rotation |</p>
+<p>| Data Breach | KRITIEK | Encryption, access controls |</p>
+<p>| Insider Threat | HOOG | Audit logging, least privilege |</p>
+<p>| Supply Chain | GEMIDDELD | Dependency scanning, vendoring |</p>
+
+<h2>Compliance vereisten</h2>
+
+<h3>AVG/GDPR</h3>
+<ul>
+<li>⏳ Privacy by design</li>
+<li>⏳ Data minimization</li>
+<li>❌ Right to erasure</li>
+<li>❌ Data portability</li>
+<li>❌ Consent management</li>
+</ul>
+
+<h3>justitiesector</h3>
+<ul>
+<li>❌ Justid integration</li>
+<li>❌ Chain authorization</li>
+<li>❌ beveiliging baseline justice</li>
+<li>❌ Incident response plan</li>
+</ul>
+
+<h3>NORA/ASTRA</h3>
+<ul>
+<li>✅ Configuration management</li>
+<li>⏳ beveiliging architecture</li>
+<li>⏳ Identity management</li>
+<li>❌ beveiliging monitoring</li>
+</ul>
+
+<h2>Definitie van Gereed</h2>
+
+<ul>
+<li>[ ] All API keys secured</li>
+<li>[ ] Startup validation geïmplementeerd</li>
+<li>[ ] SSO integration complete</li>
+<li>[ ] Audit logging operational</li>
+<li>[ ] beveiliging scan passed</li>
+<li>[ ] Penetration test passed</li>
+<li>[ ] Compliance review Goedgekeurd</li>
+<li>[ ] Incident response plan ready</li>
+</ul>
+
+<h2>Wijzigingslog</h2>
+
+<p>| Datum | Versie | Wijzigingen |</p>
+<p>|------|---------|---------|</p>
+<p>| 01-01-2025 | 1.0 | Episch Verhaal aangemaakt |</p>
+<p>| 05-09-2025 | 1.x | Vertaald naar Nederlands met justitie context |</p>
+<p>| 04-09-2025 | 1.1 | API keys secured |</p>
+<p>| 05-09-2025 | 1.2 | Status: 40% complete |</p>
+
+<h2>Gerelateerde Documentatie</h2>
+
+<ul>
+<li>beveiliging Architecture</li>
+<li>Audit Logging Design</li>
+<li>Justice SSO Integration</li>
+</ul>
+
+<h2>Stakeholder Goedkeuring</h2>
+
+<ul>
+<li>beveiliging Officer: ⏳ In progress</li>
+<li>Privacy Officer: ❌ Not started</li>
+<li>Compliance Officer: ❌ Not started</li>
+<li>Operations Team: ⏳ In progress</li>
+</ul>
+
+
+<p>*This epic is part of the DefinitieAgent project and folLAAGs ASTRA/NORA/BIR guidelines for justice domain systems.*</p></div>
+    <p class="muted">Bron: <a href="/Users/chrislehnen/Projecten/Definitie-app/docs/backlog/EPIC-006/EPIC-006.md">docs/backlog/epics/EPIC-006-security-auth.md</a></p>
+  </div>
+</body>
+</html>

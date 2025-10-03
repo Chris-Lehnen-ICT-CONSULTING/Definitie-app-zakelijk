@@ -1,0 +1,262 @@
+
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>EPIC-005 - EPIC-005-export-import</title>
+  <link rel="stylesheet" href="../assets/style.css" />
+</head>
+<body>
+  <div class="container">
+    <div class="breadcrumbs"><a href="../index.html">Requirements</a> / <span>EPIC-005</span></div>
+    <h1>EPIC-005: EPIC-005-export-import</h1>
+    <div><h1>EPIC-005: Export & Import</h1>
+
+<h2>Managementsamenvatting</h2>
+
+<p>Data portability and integration capabilities for the DefinitieAgent system. This epic enables users to export definitions in multiple formats and import existing definitions for validation and enrichment.</p>
+
+<h2>Bedrijfswaarde</h2>
+
+<ul>
+<li>**Primary Value**: Enable data exchange with other justice systems</li>
+<li>**Interoperability**: Support standard justice domain formats</li>
+<li>**Productivity**: Batch processing capabilities</li>
+<li>**Compliance**: Meet data portability vereisten</li>
+</ul>
+
+<h2>Succesmetrieken</h2>
+
+<ul>
+<li>[ ] 5+ export formats supported</li>
+<li>[ ] < 2 second export time for single definition</li>
+<li>[ ] < 30 second batch export for 100 definitions</li>
+<li>[ ] 99% import success rate for valid data</li>
+<li>[ ] Zero data loss during import/export</li>
+</ul>
+
+<h2>Gebruikersverhalen Overzicht</h2>
+
+<h3>US-021: Export Formats</h3>
+<p>**Status:** Nog te bepalen</p>
+<p>**Prioriteit:** GEMIDDELD</p>
+<p>**Verhaalpunten:** 8</p>
+
+<p>**Gebruikersverhaal:**</p>
+<p>Als juridisch medewerker bij het OM/DJI/Rechtspraak</p>
+<p>wil ik to export definitions in multiple formats</p>
+<p>zodat I can use them in different systems and documents</p>
+
+<p>**Planned Formats:**</p>
+<ul>
+<li>JSON (structured data exchange)</li>
+<li>PDF (official documents)</li>
+<li>DOCX (Word documents)</li>
+<li>XML (system integration)</li>
+<li>CSV (bulk analysis)</li>
+<li>TXT (simple text) ✅ (basic Implementatie exists)</li>
+</ul>
+
+<p>**Acceptatiecriteria:**</p>
+<p>1. Each format preserves all definition metadata</p>
+<p>2. Formatting appropriate for target format</p>
+<p>3. Batch export capability for multiple definitions</p>
+<p>4. Export includes validation results optionally</p>
+
+<h3>US-022: Import Validation</h3>
+<p>**Status:** Nog te bepalen</p>
+<p>**Prioriteit:** HOOG</p>
+<p>**Verhaalpunten:** 5</p>
+
+<p>**Gebruikersverhaal:**</p>
+<p>Als systeembeheerder binnen de justitieketen</p>
+<p>wil ik imported data validatied</p>
+<p>zodat only quality definitions enter the system</p>
+
+<p>**Acceptatiecriteria:**</p>
+<p>1. Schema validation for all import formats</p>
+<p>2. Automatic validatieregel execution</p>
+<p>3. Import preview with validation results</p>
+<p>4. Selective import based on validation scores</p>
+<p>5. Duplicate detection and handling</p>
+
+<h3>US-023: Batch Operations</h3>
+<p>**Status:** Nog te bepalen</p>
+<p>**Prioriteit:** LAAG</p>
+<p>**Verhaalpunten:** 8</p>
+
+<p>**Gebruikersverhaal:**</p>
+<p>As a data manager</p>
+<p>wil ik to process multiple definitions at once</p>
+<p>zodat I can efficiently manage large datasets</p>
+
+<p>**Capabilities:**</p>
+<ul>
+<li>Batch import with progress tracking</li>
+<li>Batch export with filtering</li>
+<li>Batch validation and scoring</li>
+<li>Batch enrichment via web lookup</li>
+<li>Scheduled batch operations</li>
+</ul>
+
+<h2>Technische Architectuur</h2>
+
+<h3>Export Pipeline</h3>
+<pre class=code><code>
+Definition Selection
+        ↓
+    Format Converter
+        ↓
+    Apply Templates
+        ↓
+    Add Metadata
+        ↓
+    ValiDatum Output
+        ↓
+    Write to File/Stream
+        ↓
+    Return Download
+</code></pre>
+
+<h3>Import Pipeline</h3>
+<pre class=code><code>
+Upload File
+        ↓
+    Detect Format
+        ↓
+    Parse &amp; ValiDatum Schema
+        ↓
+    Extract Definitions
+        ↓
+    Run validatieregels
+        ↓
+    Preview Results
+        ↓
+    User Confirmation
+        ↓
+    Database Import
+        ↓
+    Generate Report
+</code></pre>
+
+<h2>Format Specifications</h2>
+
+<h3>JSON Export Schema</h3>
+<pre class=code><code>
+{
+  "Versie": "1.0",
+  "exported": "2025-09-05T10:00:00Z",
+  "definitions": [{
+    "id": "uuid",
+    "term": "string",
+    "definition": "string",
+    "context": {
+      "juridisch": [],
+      "organisatorisch": [],
+      "wettelijk": []
+    },
+    "validation": {
+      "score": 95,
+      "rules": []
+    },
+    "metadata": {}
+  }]
+}
+</code></pre>
+
+<h3>Import vereisten</h3>
+<ul>
+<li>Maximum file size: 10MB</li>
+<li>Maximum definitions per import: 1000</li>
+<li>Supported encodings: UTF-8, UTF-16</li>
+<li>Validation timeout: 60 seconds</li>
+</ul>
+
+<h2>Afhankelijkheden</h2>
+
+<ul>
+<li>Document generation libraries (PDF, DOCX)</li>
+<li>Schema validation frameworks</li>
+<li>Batch processing infrastructure</li>
+<li>File storage system</li>
+</ul>
+
+<h2>Risico's & Mitigaties</h2>
+
+<p>| Risk | Impact | Mitigation |</p>
+<p>|------|--------|------------|</p>
+<p>| Large File Processing | HOOG | Streaming and chunking |</p>
+<p>| Format Compatibility | GEMIDDELD | Extensive format testing |</p>
+<p>| Data Loss | HOOG | Validation and previews |</p>
+<p>| Prestaties Impact | GEMIDDELD | Background processing |</p>
+
+<h2>Compliance Notities</h2>
+
+<h3>ASTRA vereisten</h3>
+<ul>
+<li>✅ Standard data exchange formats</li>
+<li>⏳ System integration patterns</li>
+<li>⏳ Batch processing guidelines</li>
+<li>❌ Audit trail for imports/exports</li>
+</ul>
+
+<h3>NORA Standards</h3>
+<ul>
+<li>⏳ Government data standards</li>
+<li>⏳ Metadata vereisten</li>
+<li>❌ Archival formats</li>
+<li>❌ Long-term preservation</li>
+</ul>
+
+<h3>Justice Domain Specific</h3>
+<ul>
+<li>❌ ECLI export format</li>
+<li>❌ Justid metadata compatibility</li>
+<li>❌ Chain system integration formats</li>
+</ul>
+
+<h2>Definitie van Gereed</h2>
+
+<ul>
+<li>[ ] All 6 export formats geïmplementeerd</li>
+<li>[ ] Import validation for all formats</li>
+<li>[ ] Batch operations functional</li>
+<li>[ ] Prestaties benchmarks met</li>
+<li>[ ] Error handling complete</li>
+<li>[ ] User documentation ready</li>
+<li>[ ] Integration tests passing</li>
+<li>[ ] beveiliging review Goedgekeurd</li>
+</ul>
+
+<h2>Wijzigingslog</h2>
+
+<p>| Datum | Versie | Wijzigingen |</p>
+<p>|------|---------|---------|</p>
+<p>| 01-01-2025 | 1.0 | Episch Verhaal aangemaakt |</p>
+<p>| 05-09-2025 | 1.x | Vertaald naar Nederlands met justitie context |</p>
+<p>| 05-09-2025 | 1.1 | Basic TXT export exists |</p>
+
+<h2>Gerelateerde Documentatie</h2>
+
+<ul>
+<li>Export Format Specifications</li>
+<li>Import validatieregels</li>
+<li>Batch Processing Guide</li>
+</ul>
+
+<h2>Stakeholder Goedkeuring</h2>
+
+<ul>
+<li>Business Eigenaar: ❌ Not started</li>
+<li>Technisch Lead: ❌ Not started</li>
+<li>Data Governance: ❌ Not started</li>
+<li>Integration Team: ❌ Not started</li>
+</ul>
+
+
+<p>*This epic is part of the DefinitieAgent project and folLAAGs ASTRA/NORA/BIR guidelines for justice domain systems.*</p></div>
+    <p class="muted">Bron: <a href="/Users/chrislehnen/Projecten/Definitie-app/docs/backlog/EPIC-005/EPIC-005.md">docs/backlog/epics/EPIC-005-export-import.md</a></p>
+  </div>
+</body>
+</html>

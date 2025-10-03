@@ -1,0 +1,127 @@
+id: "ESS-03"
+category: "ESS"
+priority: "high"
+enabled: true
+
+metadata:
+  naam: "Instanties uniek onderscheidbaar (telbaarheid)"
+  uitleg: |
+    Een definitie moet criterium(en) bevatten waarmee afzonderlijke instanties uniek herkenbaar
+    en telbaar zijn. Bij telbare zelfstandige naamwoorden moet de definitie unieke kenmerken
+    of identificatoren noemen (zoals serienummer, kenteken, VIN, ISBN).
+  version: "1.0"
+  last_updated: "2025-10-02"
+  author: "Extracted from legacy system"
+
+  rule_type: "semantic"
+  applies_to:
+    categories: ["ENT", "ATT", "OTH"]
+    contexts: []
+
+implementation:
+  type: "regex"
+  patterns:
+    required:
+      - pattern: '\b(serienummer|serie?nummer|kenteken|vin|isbn|document-?id|identificatienummer|registratienummer|objectnummer|inventarisnummer)\b'
+        description: "Unique identifier term"
+        case_sensitive: false
+
+      - pattern: '\buniek(e)?\b'
+        description: "Uniqueness indicator"
+        case_sensitive: false
+
+  logic_description: |
+    1. Check for unique identification criteria
+    2. Verify countability support
+    3. Compare with good/bad examples
+    4. Return validation result
+
+  legacy_reference: "src/toetsregels/regels/ESS-03.py"
+
+validation:
+  input_fields:
+    - name: "definitie"
+      type: "string"
+      required: true
+
+    - name: "begrip"
+      type: "string"
+      required: true
+
+    - name: "context"
+      type: "dict"
+      required: false
+
+  output:
+    success:
+      type: "boolean"
+      description: "Whether validation passed"
+
+    message:
+      type: "string"
+      description: "Human-readable validation message"
+
+    score:
+      type: "float"
+      min: 0.0
+      max: 1.0
+      description: "Validation score"
+
+examples:
+  good:
+    - input:
+        definitie: "vierwielig motorvoertuig met een uniek chassisnummer (VIN) en kenteken"
+        begrip: "auto"
+      expected:
+        success: true
+        score: 1.0
+
+    - input:
+        definitie: "fysiek gebonden exemplaar van een titel met eigen ISBN en inventarisnummer"
+        begrip: "boekexemplaar"
+      expected:
+        success: true
+        score: 1.0
+
+  bad:
+    - input:
+        definitie: "vervoermiddel op vier wielen met een motor"
+        begrip: "auto"
+      expected:
+        success: false
+        score: 0.0
+
+    - input:
+        definitie: "verzameling pagina's met tekst gebonden in een omslag"
+        begrip: "boek"
+      expected:
+        success: false
+        score: 0.0
+
+generation_hints:
+  - "Noem unieke identificatoren zoals: serienummer, kenteken, ID"
+  - "Maak instanties telbaar en onderscheidbaar"
+  - "Geef criteria voor unieke herkenning"
+  - "Denk aan: wat maakt elk exemplaar uniek?"
+
+test_cases:
+  - name: "valid_with_unique_identifier"
+    input:
+      definitie: "document met uniek registratienummer"
+      begrip: "officieel document"
+    expected:
+      success: true
+      score: 1.0
+
+  - name: "invalid_no_uniqueness_criterion"
+    input:
+      definitie: "stuk papier met tekst"
+      begrip: "document"
+    expected:
+      success: false
+      score: 0.0
+
+performance:
+  max_execution_time_ms: 50
+  complexity: "O(n)"
+  memory_usage: "O(1)"

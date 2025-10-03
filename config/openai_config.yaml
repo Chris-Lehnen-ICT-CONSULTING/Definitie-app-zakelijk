@@ -1,0 +1,254 @@
+# OpenAI API Configuration
+# Purpose: OpenAI API settings, model configuration, and rate limiting
+version: "1.0"
+created: "2025-10-02"
+description: "Configuration for OpenAI API integration, model settings, temperature control, and retry logic"
+
+# Default model settings
+defaults:
+  model: "gpt-4o-mini"
+  temperature: 0.7
+  max_tokens: 500
+  timeout_seconds: 60.0
+
+# Model-specific configurations
+# Extracted from config_development.yaml and ai_service_v2.py
+models:
+  gpt-4:
+    display_name: "GPT-4"
+    max_tokens: 300
+    temperature: 0.01  # Highly deterministic
+    cost_per_token: 0.00003
+    context_window: 8192
+    use_for:
+      - "critical_definitions"
+      - "complex_reasoning"
+
+  gpt-4.1:
+    display_name: "GPT-4.1"
+    max_tokens: 300
+    temperature: 0.0  # Fully deterministic
+    cost_per_token: 0.00003
+    context_window: 8192
+    use_for:
+      - "validation"
+      - "consistency_checks"
+
+  gpt-4o-mini:
+    display_name: "GPT-4o Mini"
+    max_tokens: 500
+    temperature: 0.7  # Balanced creativity
+    cost_per_token: 0.000015
+    context_window: 16384
+    use_for:
+      - "general_definitions"
+      - "example_generation"
+      - "category_classification"
+
+# Component-specific temperature settings
+# Different components use different creativity levels
+component_temperatures:
+  definition_generator: 0.7
+  example_generator: 0.9
+  category_classifier: 0.0
+  validation_reasoning: 0.0
+  web_lookup_augmentation: 0.5
+
+# Rate limiting configuration
+rate_limiting:
+  enabled: true
+
+  # Requests per time period
+  requests_per_minute: 120
+  requests_per_hour: 5000
+  tokens_per_second: 2.0
+
+  # Concurrent requests
+  max_concurrent: 15
+
+  # Token bucket settings
+  bucket_capacity: 15
+  refill_rate: 10.0
+
+  # Adaptive rate limiting
+  adjustment_factor: 0.2
+  min_rate: 0.1
+  max_rate: 10.0
+  target_response_time: 3.0
+
+  # Priority weights for different request types
+  priority_weights:
+    critical: 1.0
+    high: 0.8
+    normal: 0.6
+    low: 0.4
+    background: 0.2
+
+# Retry configuration
+retry:
+  enabled: true
+  max_retries: 5
+  strategy: "exponential_backoff"
+
+  # Exponential backoff settings
+  base_delay: 0.5
+  max_delay: 15.0
+  backoff_factor: 1.5
+
+  # Retry on these error types
+  retry_on:
+    - "rate_limit_error"
+    - "timeout"
+    - "connection_error"
+    - "server_error"
+
+  # Don't retry on these
+  no_retry_on:
+    - "authentication_error"
+    - "invalid_request"
+    - "content_policy_violation"
+
+# Response timeout settings
+timeouts:
+  default: 60.0
+  definition_generation: 90.0
+  example_generation: 45.0
+  validation: 30.0
+  category_classification: 20.0
+
+# Token estimation and tracking
+tokens:
+  # Token estimation when tiktoken not available
+  estimation_method: "character_based"
+  chars_per_token_estimate: 4
+  min_token_estimate: 10
+
+  # Token tracking
+  track_usage: true
+  log_token_usage: true
+  warn_on_high_usage: true
+  high_usage_threshold: 7000  # Warn if prompt > 7000 tokens
+
+# Caching configuration for AI responses
+caching:
+  enabled: true
+  strategy: "deterministic_prompts"
+
+  # Cache settings
+  default_ttl: 600
+  definition_ttl: 3600
+  examples_ttl: 1800
+  synonyms_ttl: 7200
+  validation_ttl: 900
+
+  # Cache behavior
+  use_stale_on_error: true
+  stale_grace_period: 300
+
+# Cost tracking
+cost_tracking:
+  enabled: true
+  calculate_interval: 120
+
+  # Cost thresholds
+  daily_threshold: 5.0
+  monthly_threshold: 50.0
+  warn_on_threshold: true
+
+  # Pricing (EUR per 1K tokens)
+  pricing:
+    gpt-4: 0.03
+    gpt-4.1: 0.03
+    gpt-4o-mini: 0.015
+
+# Health monitoring
+monitoring:
+  enabled: true
+  health_check_interval: 15
+  metrics_interval: 30
+
+  # Health thresholds
+  degraded_threshold: 0.9
+  unhealthy_threshold: 0.7
+
+  # What to monitor
+  track:
+    - "response_time"
+    - "error_rate"
+    - "token_usage"
+    - "cost"
+    - "cache_hit_rate"
+
+# Resilience configuration
+resilience:
+  enabled: true
+  failure_threshold: 2
+  recovery_timeout: 15.0
+
+  # Fallback behavior
+  enable_fallback: true
+  fallback_cache_duration: 300.0
+
+  # Circuit breaker
+  circuit_breaker:
+    enabled: true
+    failure_threshold: 5
+    timeout: 60
+    half_open_max_calls: 3
+
+# API security
+security:
+  api_key_validation: true
+  require_api_key: true
+  rotate_key_days: 90
+  mask_key_in_logs: true
+
+# Prompt configuration
+prompts:
+  max_prompt_length: 15000
+  truncate_on_overflow: true
+  warn_on_truncation: true
+
+  # Prompt optimization
+  deduplication: true
+  compression: false
+  template_caching: true
+
+# Environment-specific overrides
+overrides:
+  development:
+    defaults:
+      model: "gpt-4o-mini"
+      temperature: 0.9  # More creative in dev
+    rate_limiting:
+      enabled: false  # Disable in dev
+    retry:
+      max_retries: 3
+    timeouts:
+      default: 120.0  # More time in dev
+
+  production:
+    defaults:
+      model: "gpt-4.1"
+      temperature: 0.0  # Deterministic in prod
+    rate_limiting:
+      enabled: true
+      requests_per_minute: 100  # Stricter in prod
+    retry:
+      max_retries: 5
+    timeouts:
+      default: 45.0  # Faster in prod
+    cost_tracking:
+      daily_threshold: 3.0  # Stricter budget
+
+  testing:
+    defaults:
+      model: "gpt-4o-mini"
+      temperature: 0.0  # Deterministic tests
+    rate_limiting:
+      enabled: false
+    retry:
+      max_retries: 1
+    caching:
+      enabled: true
+      default_ttl: 86400  # Long cache in tests

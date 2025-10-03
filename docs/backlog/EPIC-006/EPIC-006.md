@@ -1,6 +1,6 @@
 ---
 id: EPIC-006
-titel: beveiliging & Auth
+titel: "EPIC-006: Security & Auth - AVG/GDPR compliance met SSO integratie, API key beveiliging en complete audit trail"
 status: active
 prioriteit: KRITIEK
 aangemaakt: 01-01-2025

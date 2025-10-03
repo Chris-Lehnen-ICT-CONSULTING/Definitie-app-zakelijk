@@ -1,0 +1,82 @@
+
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Per-Epic Overzicht</title>
+  <link rel="stylesheet" href="assets/style.css" />
+  <style>
+    details { border: 1px solid #e5e7eb; border-radius: 6px; padding: 8px 12px; margin: 10px 0; background: #fff; }
+    summary { cursor: pointer; }
+    .toolbar { display:flex; gap:12px; align-items:center; margin: 8px 0 12px; flex-wrap: wrap; }
+    .filters { display:flex; gap:16px; align-items:center; flex-wrap: wrap; }
+    .filter-group { display:flex; gap:8px; align-items:center; flex-wrap: wrap; }
+    .toolbar button { padding: 6px 10px; border:1px solid #e5e7eb; background:#f8fafc; border-radius:6px; cursor:pointer; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="breadcrumbs"><a href="index.html">Requirements</a> / <span>Per-epic</span></div>
+    <h1>Per-Epic Overzicht</h1>
+    <p class="muted">Inklapbare blokken per epic met gekoppelde requirements.</p>
+    <div class="toolbar">
+      <input id="filter" type="search" placeholder="Filter op REQ of titel" />
+      <div class="filters">
+        <div class="filter-group">
+          <span class="muted">Status:</span>
+          <span class='muted'>—</span>
+        </div>
+        <div class="filter-group">
+          <span class="muted">Prioriteit:</span>
+          <span class='muted'>—</span>
+        </div>
+        <label class="filter-group"><input type="checkbox" id="expandMatched" checked> Alleen matches uitklappen</label>
+      </div>
+      <button id="expand">Alles uitklappen</button>
+      <button id="collapse">Alles inklappen</button>
+    </div>
+    <div id="container">
+      
+    </div>
+  </div>
+  <script>
+    const filter = document.getElementById('filter');
+    const container = document.getElementById('container');
+    const expandBtn = document.getElementById('expand');
+    const collapseBtn = document.getElementById('collapse');
+    const expandMatched = document.getElementById('expandMatched');
+    const statusBoxes = Array.from(document.querySelectorAll('input[name="statusFilter"]'));
+    const prioBoxes = Array.from(document.querySelectorAll('input[name="prioFilter"]'));
+    function applyFilter() {
+      const q = (filter.value || '').toLowerCase();
+      const activeStatus = new Set(statusBoxes.filter(b => b.checked).map(b => b.value.toLowerCase()));
+      const activePrio = new Set(prioBoxes.filter(b => b.checked).map(b => b.value.toLowerCase()));
+      for (const det of container.querySelectorAll('details')) {
+        let visible = false;
+        for (const li of det.querySelectorAll('li')) {
+          const txt = li.innerText.toLowerCase();
+          const st = (li.getAttribute('data-status') || '').toLowerCase();
+          const pr = (li.getAttribute('data-priority') || '').toLowerCase();
+          const matchesText = !q || txt.includes(q);
+          const matchesStatus = activeStatus.size === 0 || activeStatus.has(st);
+          const matchesPrio = activePrio.size === 0 || activePrio.has(pr);
+          const show = matchesText && matchesStatus && matchesPrio;
+          li.style.display = show ? '' : 'none';
+          if (show) visible = true;
+        }
+        det.style.display = visible ? '' : 'none';
+        if (expandMatched && expandMatched.checked) det.open = visible;
+      }
+    }
+    filter.addEventListener('input', applyFilter);
+    statusBoxes.forEach(b => b.addEventListener('change', applyFilter));
+    prioBoxes.forEach(b => b.addEventListener('change', applyFilter));
+    if (expandMatched) expandMatched.addEventListener('change', applyFilter);
+    expandBtn.addEventListener('click', () => { for (const d of container.querySelectorAll('details')) d.open = true; });
+    collapseBtn.addEventListener('click', () => { for (const d of container.querySelectorAll('details')) d.open = false; });
+    applyFilter();
+  </script>
+</body>
+</html>
+    

@@ -1,0 +1,36 @@
+id: SAM_03
+name: Definitieteksten niet nesten
+description: Een definitie van een begrip of een belangrijk deel daarvan mag niet
+  letterlijk herhaald worden in de definitie van een ander begrip.
+explanation: De betekenis van een begrip moet op één plek vastliggen. Herhaling van
+  (een deel van) de definitie van het ene begrip in de definitie van een ander begrip
+  leidt tot onderhoudsproblemen en verwarring. Verwijs in plaats daarvan naar het
+  andere begrip of definieer begrippen afzonderlijk.
+test_question: Bevat de definitie letterlijk een andere definitietekst of deel daarvan?
+metadata:
+  priority: hoog
+  recommendation: verplicht
+  validity: gehele definitie
+  status: definitief
+  type: gehele definitie
+  theme: samenhang binnen domein
+  source_document: ASTRA
+validation:
+  patterns:
+  - \bzie definitie van\b
+  - \bzoals gedefinieerd in\b
+  - \bzoals omschreven bij\b
+  good_examples:
+  - 'procesmodel: model van een proces'
+  - 'procesmodel: schematisch model van een proces'
+  bad_examples:
+  - 'procesmodel: doelgerichte abstractie van een aantal activiteiten die samen een
+    bepaalde gewenste uitkomst oplevert'
+references:
+- fulltext: Definitieteksten niet nesten
+  fullurl: https://www.astraonline.nl/index.php/Definitieteksten_niet_nesten
+implementation_details:
+  implementation: python
+  source_file: src/toetsregels/regels/SAM-03.py
+  validation_logic: See Python implementation for complex validation
+  validation_description: 'Validator voor SAM-03: Geen tautologie.'

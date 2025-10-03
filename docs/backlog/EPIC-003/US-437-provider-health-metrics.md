@@ -1,7 +1,7 @@
 ---
 id: US-437
 epic: EPIC-003
-titel: Provider Health Metrics
+titel: "US-437: - Inzicht in beschikbaarheid en prestaties per web lookup provider met eenvoudige health-checks en metrics."
 status: open
 prioriteit: P2
 story_points: 5

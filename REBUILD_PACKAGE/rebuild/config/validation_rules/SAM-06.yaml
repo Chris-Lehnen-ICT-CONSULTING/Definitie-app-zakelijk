@@ -1,0 +1,25 @@
+id: SAM_06
+name: Één synoniem krijgt voorkeur
+description: Kies per begrip één voorkeurs-term (lemma).
+explanation: null
+test_question: Heeft de gebruiker een voorkeurs-term geselecteerd?
+metadata:
+  priority: midden
+  recommendation: verplicht
+  validity: termniveau
+  status: definitief
+  type: samenhang van termen
+  theme: begripsafbakening
+  source_document: ASTRA
+validation:
+  patterns: []
+  good_examples: []
+  bad_examples: []
+references:
+- fulltext: Één synoniem krijgt voorkeur
+  fullurl: https://www.astraonline.nl/index.php/Één_synoniem_krijgt_voorkeur
+implementation_details:
+  implementation: python
+  source_file: src/toetsregels/regels/SAM-06.py
+  validation_logic: See Python implementation for complex validation
+  validation_description: 'Validator voor SAM-06: Voorkeursterm consistent gebruiken.'

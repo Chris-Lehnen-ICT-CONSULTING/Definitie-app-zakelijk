@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ontbrekende testbestanden/fixtures voor ModernWebLookupService en providers</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>id: CFR-BUG-028</p>
+<p>titel: Ontbrekende testbestanden/fixtures voor ModernWebLookupService en providers</p>
+<p>status: open</p>
+<p>owner: qa-team</p>
+<p>applies_to: definitie-app@v2</p>
+<p>canonical: false</p>
+<p>last_verified: 2025-09-19</p>
+<p>severity: MEDIUM</p>
+<p>component: testing</p>
+<p>gevonden_op: 2025-09-19</p>
+<p>---</p>
+
+<h1>CFR-BUG-028: Ontbrekende testbestanden/fixtures (Web Lookup)</h1>
+
+<h2>Beschrijving</h2>
+<p>Er ontbreken unit/integratietests en mock‑fixtures voor Web Lookup, waardoor regressies onopgemerkt blijven en documentatie verwijzingen naar tests (coverage) niet aansluiten op de feitelijke projectstructuur.</p>
+
+<h2>Verwacht gedrag</h2>
+<p>Volwaardige tests en fixtures voor <code>ModernWebLookupService</code> en providers (Wikipedia, SRU, …) met gemockte I/O en duidelijke performance/assertie‑criteria.</p>
+
+<h2>Oplossing</h2>
+<ul>
+<li>Voeg directorystructuur toe zoals in docs beschreven (unit/integration)</li>
+<li>Maak reusable fixtures/mocks (timeouts, errors, parallelisme)</li>
+<li>Dekking >80% voor Web Lookup modules</li>
+</ul>
+
+<h2>Acceptatiecriteria</h2>
+<ul>
+<li>Unit: parallel lookup, timeout‑budget, error handling</li>
+<li>Integratie: end‑to‑end flow met gemockte providers</li>
+<li>Performance: eenvoudige tijdslimiet (<2s) in gemockte omgeving</li>
+</ul>
+
+<h2>Relatie</h2>
+<ul>
+<li>US-325 (Basic Web Lookup Test Coverage)</li>
+<li>US-074 (Import‑hygiëne) voor padconsistentie</li>
+</ul>
+
+<h2>Tests</h2>
+<ul>
+<li>pytest markers voor performance, unit, integration</li>
+<li>Geen netwerk‑calls in tests (volledig gemockt)</li>
+</ul>
+
+
+  </div>
+</body>
+</html>

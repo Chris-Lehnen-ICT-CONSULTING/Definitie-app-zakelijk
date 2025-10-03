@@ -21,12 +21,10 @@ Exit codes:
 """
 
 import argparse
-import os
 import re
 import subprocess
 import sys
 from pathlib import Path
-from typing import List, Tuple
 
 
 class WorkflowGuard:
@@ -71,27 +69,28 @@ class WorkflowGuard:
                 ["git", "diff", "--name-only", "main...HEAD"],
                 capture_output=True,
                 text=True,
-                check=True
+                check=True,
             )
 
-            changed_files = result.stdout.strip().split('\n')
+            changed_files = result.stdout.strip().split("\n")
 
             # Separate test files and implementation files
-            test_files = [f for f in changed_files if '/test_' in f or f.startswith('test_')]
-            impl_files = [f for f in changed_files
-                         if f.endswith('.py') and f not in test_files]
+            test_files = [
+                f for f in changed_files if "/test_" in f or f.startswith("test_")
+            ]
+            impl_files = [
+                f for f in changed_files if f.endswith(".py") and f not in test_files
+            ]
 
             # For each implementation file, check if corresponding test exists
             for impl_file in impl_files:
-                if impl_file.startswith('src/'):
+                if impl_file.startswith("src/"):
                     # Expected test file location
                     module_name = Path(impl_file).stem
                     test_file = f"tests/unit/test_{module_name}.py"
 
                     if test_file not in test_files and not Path(test_file).exists():
-                        self.warnings.append(
-                            f"⚠️  No test file found for {impl_file}"
-                        )
+                        self.warnings.append(f"⚠️  No test file found for {impl_file}")
 
         except subprocess.CalledProcessError:
             # Not in a git branch or no changes
@@ -113,7 +112,7 @@ class WorkflowGuard:
                     content = story_file.read_text()
 
                     # If status is completed, check for review doc
-                    if re.search(r'status:\s*(completed|done)', content, re.IGNORECASE):
+                    if re.search(r"status:\s*(completed|done)", content, re.IGNORECASE):
                         review_files = list(us_dir.glob("review-*.md"))
 
                         if not review_files:
@@ -144,18 +143,21 @@ class WorkflowGuard:
                 ["pytest", "--co", "-q"],
                 capture_output=True,
                 text=True,
-                timeout=5
+                timeout=5,
+                check=False,
             )
 
             # Count test files
-            test_count = result.stdout.count('test session starts')
+            test_count = result.stdout.count("test session starts")
 
             if test_count == 0:
-                self.warnings.append(
-                    "⚠️  No tests found - are you in TDD RED phase?"
-                )
+                self.warnings.append("⚠️  No tests found - are you in TDD RED phase?")
 
-        except (subprocess.CalledProcessError, subprocess.TimeoutExpired, FileNotFoundError):
+        except (
+            subprocess.CalledProcessError,
+            subprocess.TimeoutExpired,
+            FileNotFoundError,
+        ):
             # pytest not available or failed - skip check
             pass
 
@@ -181,7 +183,9 @@ class WorkflowGuard:
         if not self.violations and not self.warnings:
             print("✅ No workflow violations detected")
         else:
-            print(f"📊 Summary: {len(self.violations)} violations, {len(self.warnings)} warnings")
+            print(
+                f"📊 Summary: {len(self.violations)} violations, {len(self.warnings)} warnings"
+            )
 
             if self.strict and self.violations:
                 print()
@@ -193,9 +197,7 @@ def main():
     """Main entry point"""
     parser = argparse.ArgumentParser(description="TDD Workflow Guard")
     parser.add_argument(
-        "--strict",
-        action="store_true",
-        help="Enforce all rules (blocks on violations)"
+        "--strict", action="store_true", help="Enforce all rules (blocks on violations)"
     )
 
     args = parser.parse_args()
