@@ -1,6 +1,6 @@
 ---
 id: EPIC-011
-titel: Documentatie Completering & Kwaliteitsverbetering
+titel: "EPIC-011: Documentatie Completering - 5 essentiële guides (WCAG 2.1 AA, UI patterns, provider integration)"
 status: active
 prioriteit: HOOG
 aangemaakt: 06-09-2025

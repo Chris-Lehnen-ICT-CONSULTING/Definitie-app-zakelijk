@@ -1,0 +1,132 @@
+id: "INT-01"
+category: "INT"
+priority: "medium"
+enabled: true
+
+metadata:
+  naam: "Compacte en begrijpelijke zin"
+  uitleg: |
+    Een definitie is compact en in één enkele zin geformuleerd. De definitie bevat geen complexe
+    bijzinnen, opsommingen of complexe structuren die de begrijpelijkheid verminderen.
+  version: "1.0"
+  last_updated: "2025-10-02"
+  author: "Extracted from legacy system"
+
+  rule_type: "structural"
+  applies_to:
+    categories: ["ENT", "ACT", "REL", "ATT", "AUT", "STA", "OTH"]
+    contexts: []
+
+implementation:
+  type: "regex"
+  patterns:
+    forbidden:
+      - pattern: ','
+        description: "Comma indicating complexity"
+        case_sensitive: false
+
+      - pattern: ';'
+        description: "Semicolon indicating multiple clauses"
+        case_sensitive: false
+
+      - pattern: '\bwaarvan\b'
+        description: "Subordinate clause indicator 'waarvan'"
+        case_sensitive: false
+
+      - pattern: '\bwaarbij\b'
+        description: "Subordinate clause indicator 'waarbij'"
+        case_sensitive: false
+
+      - pattern: '\bwelke\b'
+        description: "Subordinate clause indicator 'welke'"
+        case_sensitive: false
+
+      - pattern: '\balsmede\b'
+        description: "Enumeration indicator 'alsmede'"
+        case_sensitive: false
+
+      - pattern: '\bindien\b'
+        description: "Conditional indicator 'indien'"
+        case_sensitive: false
+
+  logic_description: |
+    1. Check for complexity indicators (commas, subordinate clauses)
+    2. Count complexity markers
+    3. Calculate score based on complexity level
+    4. Return validation result
+
+  legacy_reference: "src/toetsregels/regels/INT-01.py"
+
+validation:
+  input_fields:
+    - name: "definitie"
+      type: "string"
+      required: true
+
+    - name: "begrip"
+      type: "string"
+      required: true
+
+    - name: "context"
+      type: "dict"
+      required: false
+
+  output:
+    success:
+      type: "boolean"
+      description: "Whether validation passed"
+
+    message:
+      type: "string"
+      description: "Human-readable validation message"
+
+    score:
+      type: "float"
+      min: 0.0
+      max: 1.0
+      description: "Validation score (decreases with complexity)"
+
+examples:
+  good:
+    - input:
+        definitie: "systematische controle van identiteitsgegevens tegen authentieke bronnen"
+        begrip: "verificatie"
+      expected:
+        success: true
+        score: 1.0
+
+  bad:
+    - input:
+        definitie: "controle waarbij gegevens worden geverifieerd, en indien nodig, worden gecorrigeerd, alsmede worden gedocumenteerd"
+        begrip: "verificatie"
+      expected:
+        success: false
+        score: 0.0
+
+generation_hints:
+  - "Formuleer de definitie in één enkele, heldere zin"
+  - "Vermijd complexe bijzinnen en opsommingen"
+  - "Gebruik geen puntkomma's of meerdere komma's"
+  - "Vermijd woorden zoals 'waarbij', 'welke', 'alsmede', 'indien'"
+
+test_cases:
+  - name: "valid_simple_sentence"
+    input:
+      definitie: "proces dat gegevens verwerkt volgens vastgestelde regels"
+      begrip: "verwerkingsproces"
+    expected:
+      success: true
+      score: 0.9
+
+  - name: "invalid_complex_sentence"
+    input:
+      definitie: "proces waarbij gegevens, indien beschikbaar, worden verwerkt"
+      begrip: "verwerkingsproces"
+    expected:
+      success: false
+      score: 0.4
+
+performance:
+  max_execution_time_ms: 50
+  complexity: "O(n)"
+  memory_usage: "O(1)"

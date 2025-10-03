@@ -1,0 +1,18 @@
+id: STR-TERM-001
+name: Consistente terminologie (koppelteken)
+description: Gebruik correcte terminologie en interpunctie (bijv. 'HTTP-protocol').
+explanation: null
+test_question: Zijn termen correct gespeld en gevormd?
+metadata:
+  priority: laag
+  recommendation: aanbevolen
+  validity: null
+  status: null
+  type: structuur
+  theme: terminologie
+  source_document: null
+validation:
+  patterns: []
+  good_examples: []
+  bad_examples: []
+references: []

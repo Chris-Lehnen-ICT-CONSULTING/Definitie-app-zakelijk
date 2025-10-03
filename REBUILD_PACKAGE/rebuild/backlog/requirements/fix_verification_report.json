@@ -1,0 +1,585 @@
+{
+  "summary": {
+    "total_requirements": 88,
+    "requirements_with_issues": 16,
+    "total_issues": 21,
+    "success_rate": 81.81818181818183
+  },
+  "issue_breakdown": {
+    "Missing source files": 20,
+    "Missing domain context": 1
+  },
+  "status_breakdown": {
+    "Backlog": 32,
+    "In": 26,
+    "Done": 23,
+    "Unknown": 7
+  },
+  "details": [
+    {
+      "id": "REQ-000",
+      "status": "Backlog",
+      "issues": [],
+      "issue_count": 0
+    },
+    {
+      "id": "REQ-001",
+      "status": "In",
+      "issues": [],
+      "issue_count": 0
+    },
+    {
+      "id": "REQ-002",
+      "status": "Done",
+      "issues": [],
+      "issue_count": 0
+    },
+    {
+      "id": "REQ-003",
+      "status": "Done",
+      "issues": [],
+      "issue_count": 0
+    },
+    {
+      "id": "REQ-004",
+      "status": "In",
+      "issues": [],
+      "issue_count": 0
+    },
+    {
+      "id": "REQ-005",
+      "status": "Done",
+      "issues": [],
+      "issue_count": 0
+    },
+    {
+      "id": "REQ-006",
+      "status": "In",
+      "issues": [
+        "Missing source file: src/ui/sidebar_components.py"
+      ],
+      "issue_count": 1
+    },
+    {
+      "id": "REQ-007",
+      "status": "Backlog",
+      "issues": [],
+      "issue_count": 0
+    },
+    {
+      "id": "REQ-008",
+      "status": "In",
+      "issues": [],
+      "issue_count": 0
+    },
+    {
+      "id": "REQ-009",
+      "status": "In",
+      "issues": [],
+      "issue_count": 0
+    },
+    {
+      "id": "REQ-010",
+      "status": "Done",
+      "issues": [],
+      "issue_count": 0
+    },
+    {
+      "id": "REQ-011",
+      "status": "In",
+      "issues": [],
+      "issue_count": 0
+    },
+    {
+      "id": "REQ-012",
+      "status": "In",
+      "issues": [],
+      "issue_count": 0
+    },
+    {
+      "id": "REQ-013",
+      "status": "In",
+      "issues": [],
+      "issue_count": 0
+    },
+    {
+      "id": "REQ-014",
+      "status": "In",
+      "issues": [
+        "Missing domain context for domain requirement"
+      ],
+      "issue_count": 1
+    },
+    {
+      "id": "REQ-015",
+      "status": "Backlog",
+      "issues": [],
+      "issue_count": 0
+    },
+    {
+      "id": "REQ-016",
+      "status": "Unknown",
+      "issues": [],
+      "issue_count": 0
+    },
+    {
+      "id": "REQ-017",
+      "status": "Unknown",
+      "issues": [],
+      "issue_count": 0
+    },
+    {
+      "id": "REQ-018",
+      "status": "Unknown",
+      "issues": [],
+      "issue_count": 0
+    },
+    {
+      "id": "REQ-019",
+      "status": "Unknown",
+      "issues": [],
+      "issue_count": 0
+    },
+    {
+      "id": "REQ-020",
+      "status": "Unknown",
+      "issues": [],
+      "issue_count": 0
+    },
+    {
+      "id": "REQ-021",
+      "status": "Unknown",
+      "issues": [],
+      "issue_count": 0
+    },
+    {
+      "id": "REQ-022",
+      "status": "Unknown",
+      "issues": [],
+      "issue_count": 0
+    },
+    {
+      "id": "REQ-023",
+      "status": "Done",
+      "issues": [],
+      "issue_count": 0
+    },
+    {
+      "id": "REQ-024",
+      "status": "Done",
+      "issues": [],
+      "issue_count": 0
+    },
+    {
+      "id": "REQ-025",
+      "status": "Done",
+      "issues": [],
+      "issue_count": 0
+    },
+    {
+      "id": "REQ-026",
+      "status": "Done",
+      "issues": [],
+      "issue_count": 0
+    },
+    {
+      "id": "REQ-027",
+      "status": "Done",
+      "issues": [],
+      "issue_count": 0
+    },
+    {
+      "id": "REQ-028",
+      "status": "Done",
+      "issues": [],
+      "issue_count": 0
+    },
+    {
+      "id": "REQ-029",
+      "status": "Done",
+      "issues": [],
+      "issue_count": 0
+    },
+    {
+      "id": "REQ-030",
+      "status": "Done",
+      "issues": [
+        "Missing source file: config/toetsregels/toetsregels_config.yaml"
+      ],
+      "issue_count": 1
+    },
+    {
+      "id": "REQ-031",
+      "status": "In",
+      "issues": [],
+      "issue_count": 0
+    },
+    {
+      "id": "REQ-032",
+      "status": "Done",
+      "issues": [],
+      "issue_count": 0
+    },
+    {
+      "id": "REQ-033",
+      "status": "Backlog",
+      "issues": [],
+      "issue_count": 0
+    },
+    {
+      "id": "REQ-034",
+      "status": "Backlog",
+      "issues": [
+        "Missing source file: config/toetsregels/toetsregels_config.yaml"
+      ],
+      "issue_count": 1
+    },
+    {
+      "id": "REQ-035",
+      "status": "In",
+      "issues": [
+        "Missing source file: logs/ (runtime generated)"
+      ],
+      "issue_count": 1
+    },
+    {
+      "id": "REQ-036",
+      "status": "Backlog",
+      "issues": [
+        "Missing source file: src/prompts/prompt_service.py"
+      ],
+      "issue_count": 1
+    },
+    {
+      "id": "REQ-037",
+      "status": "Backlog",
+      "issues": [],
+      "issue_count": 0
+    },
+    {
+      "id": "REQ-038",
+      "status": "Done",
+      "issues": [],
+      "issue_count": 0
+    },
+    {
+      "id": "REQ-039",
+      "status": "Done",
+      "issues": [],
+      "issue_count": 0
+    },
+    {
+      "id": "REQ-040",
+      "status": "In",
+      "issues": [],
+      "issue_count": 0
+    },
+    {
+      "id": "REQ-041",
+      "status": "Done",
+      "issues": [],
+      "issue_count": 0
+    },
+    {
+      "id": "REQ-042",
+      "status": "Backlog",
+      "issues": [],
+      "issue_count": 0
+    },
+    {
+      "id": "REQ-043",
+      "status": "Backlog",
+      "issues": [],
+      "issue_count": 0
+    },
+    {
+      "id": "REQ-044",
+      "status": "Backlog",
+      "issues": [],
+      "issue_count": 0
+    },
+    {
+      "id": "REQ-045",
+      "status": "In",
+      "issues": [
+        "Missing source file: src/config/logging_config.py",
+        "Missing source file: logs/ (runtime generated)"
+      ],
+      "issue_count": 2
+    },
+    {
+      "id": "REQ-046",
+      "status": "Backlog",
+      "issues": [],
+      "issue_count": 0
+    },
+    {
+      "id": "REQ-047",
+      "status": "Backlog",
+      "issues": [],
+      "issue_count": 0
+    },
+    {
+      "id": "REQ-048",
+      "status": "In",
+      "issues": [],
+      "issue_count": 0
+    },
+    {
+      "id": "REQ-049",
+      "status": "Backlog",
+      "issues": [
+        "Missing source file: src/ui/components/settings_tab.py"
+      ],
+      "issue_count": 1
+    },
+    {
+      "id": "REQ-050",
+      "status": "In",
+      "issues": [],
+      "issue_count": 0
+    },
+    {
+      "id": "REQ-051",
+      "status": "Backlog",
+      "issues": [],
+      "issue_count": 0
+    },
+    {
+      "id": "REQ-052",
+      "status": "Done",
+      "issues": [
+        "Missing source file: src/ui/components/validatie_tab.py"
+      ],
+      "issue_count": 1
+    },
+    {
+      "id": "REQ-053",
+      "status": "Done",
+      "issues": [
+        "Missing source file: src/ui/components/progress_components.py",
+        "Missing source file: src/ui/components/generate_tab.py"
+      ],
+      "issue_count": 2
+    },
+    {
+      "id": "REQ-054",
+      "status": "In",
+      "issues": [
+        "Missing source file: src/utils/error_handlers.py",
+        "Missing source file: src/utils/error_handlers.py"
+      ],
+      "issue_count": 2
+    },
+    {
+      "id": "REQ-055",
+      "status": "Backlog",
+      "issues": [],
+      "issue_count": 0
+    },
+    {
+      "id": "REQ-056",
+      "status": "In",
+      "issues": [],
+      "issue_count": 0
+    },
+    {
+      "id": "REQ-057",
+      "status": "Backlog",
+      "issues": [],
+      "issue_count": 0
+    },
+    {
+      "id": "REQ-058",
+      "status": "Done",
+      "issues": [
+        "Missing source file: src/config/logging_config.py",
+        "Missing source file: config/logging_config.yaml"
+      ],
+      "issue_count": 2
+    },
+    {
+      "id": "REQ-059",
+      "status": "Done",
+      "issues": [],
+      "issue_count": 0
+    },
+    {
+      "id": "REQ-060",
+      "status": "Backlog",
+      "issues": [],
+      "issue_count": 0
+    },
+    {
+      "id": "REQ-061",
+      "status": "In",
+      "issues": [],
+      "issue_count": 0
+    },
+    {
+      "id": "REQ-062",
+      "status": "Backlog",
+      "issues": [],
+      "issue_count": 0
+    },
+    {
+      "id": "REQ-063",
+      "status": "Backlog",
+      "issues": [],
+      "issue_count": 0
+    },
+    {
+      "id": "REQ-064",
+      "status": "Backlog",
+      "issues": [],
+      "issue_count": 0
+    },
+    {
+      "id": "REQ-065",
+      "status": "In",
+      "issues": [],
+      "issue_count": 0
+    },
+    {
+      "id": "REQ-066",
+      "status": "Backlog",
+      "issues": [],
+      "issue_count": 0
+    },
+    {
+      "id": "REQ-067",
+      "status": "Backlog",
+      "issues": [],
+      "issue_count": 0
+    },
+    {
+      "id": "REQ-068",
+      "status": "In",
+      "issues": [],
+      "issue_count": 0
+    },
+    {
+      "id": "REQ-069",
+      "status": "In",
+      "issues": [],
+      "issue_count": 0
+    },
+    {
+      "id": "REQ-070",
+      "status": "In",
+      "issues": [],
+      "issue_count": 0
+    },
+    {
+      "id": "REQ-071",
+      "status": "Backlog",
+      "issues": [],
+      "issue_count": 0
+    },
+    {
+      "id": "REQ-072",
+      "status": "In",
+      "issues": [],
+      "issue_count": 0
+    },
+    {
+      "id": "REQ-073",
+      "status": "Done",
+      "issues": [],
+      "issue_count": 0
+    },
+    {
+      "id": "REQ-074",
+      "status": "In",
+      "issues": [
+        "Missing source file: tests/conftest.py (exists)",
+        "Missing source file: tests/base.py"
+      ],
+      "issue_count": 2
+    },
+    {
+      "id": "REQ-075",
+      "status": "Backlog",
+      "issues": [
+        "Missing source file: tests/acceptance/ (UAT tests)"
+      ],
+      "issue_count": 1
+    },
+    {
+      "id": "REQ-076",
+      "status": "In",
+      "issues": [],
+      "issue_count": 0
+    },
+    {
+      "id": "REQ-077",
+      "status": "Backlog",
+      "issues": [
+        "Missing source file: tests/reports/ (test reports)"
+      ],
+      "issue_count": 1
+    },
+    {
+      "id": "REQ-078",
+      "status": "Done",
+      "issues": [
+        "Missing source file: src/models/definitions.py"
+      ],
+      "issue_count": 1
+    },
+    {
+      "id": "REQ-079",
+      "status": "Done",
+      "issues": [],
+      "issue_count": 0
+    },
+    {
+      "id": "REQ-080",
+      "status": "Backlog",
+      "issues": [],
+      "issue_count": 0
+    },
+    {
+      "id": "REQ-081",
+      "status": "Backlog",
+      "issues": [],
+      "issue_count": 0
+    },
+    {
+      "id": "REQ-082",
+      "status": "In",
+      "issues": [],
+      "issue_count": 0
+    },
+    {
+      "id": "REQ-083",
+      "status": "Backlog",
+      "issues": [],
+      "issue_count": 0
+    },
+    {
+      "id": "REQ-084",
+      "status": "Backlog",
+      "issues": [],
+      "issue_count": 0
+    },
+    {
+      "id": "REQ-085",
+      "status": "Backlog",
+      "issues": [],
+      "issue_count": 0
+    },
+    {
+      "id": "REQ-086",
+      "status": "Backlog",
+      "issues": [],
+      "issue_count": 0
+    },
+    {
+      "id": "REQ-087",
+      "status": "Backlog",
+      "issues": [],
+      "issue_count": 0
+    }
+  ]
+}

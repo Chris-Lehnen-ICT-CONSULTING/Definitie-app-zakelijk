@@ -1,6 +1,6 @@
 ---
 id: EPIC-024
-titel: API Monitoring & Performance Dashboard
+titel: "EPIC-024: API Monitoring Dashboard - Real-time performance, kosten tracking, alerts en 30% cache optimalisatie ✅"
 type: epic
 status: active
 prioriteit: HIGH

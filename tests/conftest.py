@@ -68,7 +68,8 @@ except Exception:
     pass
 
 # Import all fixtures from v2_service_mocks to make them globally available
-from fixtures.v2_service_mocks import *
+# DISABLED: fixtures directory was removed, will restore incrementally as needed
+# from fixtures.v2_service_mocks import *
 
 
 # Configure asyncio for testing

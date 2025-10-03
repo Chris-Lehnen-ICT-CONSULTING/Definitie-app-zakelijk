@@ -1,6 +1,6 @@
 ---
 id: EPIC-004
-titel: User Interface
+titel: "EPIC-004: User Interface - Moderne, toegankelijke UI met 10 tabs, <200ms responstijd en WCAG 2.1 AA compliance"
 status: active
 prioriteit: GEMIDDELD
 aangemaakt: 01-01-2025

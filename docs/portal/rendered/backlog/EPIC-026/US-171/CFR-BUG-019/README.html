@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sync-bridges aanwezig in services (event-loop bridging)</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>id: CFR-BUG-019</p>
+<p>titel: Sync-bridges aanwezig in services (event-loop bridging)</p>
+<p>status: RESOLVED</p>
+<p>owner: development-team</p>
+<p>applies_to: definitie-app@current</p>
+<p>last_verified: 2025-10-02</p>
+<p>severity: HIGH</p>
+<p>gevonden_op: 2025-09-15</p>
+<p>component: services</p>
+<p>---</p>
+
+<h1>CFR-BUG-019: Sync-bridges aanwezig in services (event-loop bridging)</h1>
+
+<h2>Beschrijving</h2>
+<p>Historisch waren er sync‑wrappers met eigen event loops/threads in services. Deze zijn verwijderd.</p>
+
+<p>Huidige situatie (gecontroleerd):</p>
+<ul>
+<li>Geen `run_coroutine_threadsafe`, `new_event_loop`, `run_until_complete`, of `asyncio.run(` in `src/services/**`.</li>
+<li>`PromptServiceV2.build_prompt` (sync) geeft `NotImplementedError` met instructie om async‑pad te gebruiken via UI‑bridge.</li>
+</ul>
+
+<h2>Verwacht Gedrag</h2>
+<p>Service‑laag is async-only; UI gebruikt <code>ui/helpers/async_bridge.py</code> indien sync nodig is.</p>
+
+<h2>Reproduceren</h2>
+<p>Controle:</p>
+<p><code>rg -n "(run_coroutine_threadsafe|new_event_loop|run_until_complete|asyncio\.run\()" src/services</code> → geen hits</p>
+
+<h2>Oplossing</h2>
+<p>Onderdeel van <a href="../US-171.md" target="_blank">US-171</a>: wrappers verwijderd; services zijn async‑only, UI gebruikt async‑bridge.</p>
+
+<h2>Tests</h2>
+<p>Bewijs</p>
+<ul>
+<li>Legacy‑gates en regex‑check: geen hits in `src/services/**`.</li>
+<li>`scripts/check-legacy-patterns.sh`: Services Architecture Check (asyncio.run in services) → PASS.</li>
+</ul>
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,96 @@
+
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>EPIC-016 - Beheer & Configuratie Console</title>
+  <link rel="stylesheet" href="../assets/style.css" />
+</head>
+<body>
+  <div class="container">
+    <div class="breadcrumbs"><a href="../index.html">Requirements</a> / <span>EPIC-016</span></div>
+    <h1>EPIC-016: Beheer & Configuratie Console</h1>
+    <div><h1>EPIC-016: Beheer & Configuratie Console</h1>
+
+<h2>Doel</h2>
+<p>Één centrale, beheerder‑gerichte UI‑tab om alle belangrijke variabelen en policies te beheren zonder codewijziging: gate‑policy, validatieregels, contextopties, audit en import/export. Veranderingen zijn auditeerbaar, versioneerbaar en direct effectief binnen de V2‑architectuur.</p>
+
+<h2>Business Value</h2>
+<ul>
+<li>Verkort doorlooptijd van configuratiewijzigingen (geen code‑deploy nodig).</li>
+<li>Auditability/compliance: elke wijziging is traceerbaar en terug te draaien.</li>
+<li>Betere kwaliteitsbewaking via centrale gate‑ en regels‑configuratie.</li>
+</ul>
+
+<h2>Scope</h2>
+<h3>In Scope</h3>
+<ul>
+<li>UI‑tab “⚙️ Beheer” met subsections: Gate‑policy, Validatieregels, Contextopties, Audit, Import/Export, Autorisatie.</li>
+<li>Configuratieopslag in DB met audit + versies; hot‑reload voor services.</li>
+<li>Minimal‑auth: beheerderrol via flag/env (voor nu), audit van alle beheeracties.</li>
+</ul>
+
+<h3>Out of Scope</h3>
+<ul>
+<li>Volledige identity & access management (OIDC/SAML) integratie (valt onder EPIC‑006).</li>
+<li>Nieuwe database migraties buiten de noodzakelijke configtabellen (schema.sql blijft bron; configtabellen kunnen separaat worden beheerd indien al aanwezig).</li>
+</ul>
+
+<h2>Dependencies</h2>
+<ul>
+<li>EPIC‑004 (UI): layout, navigatie, componenten.</li>
+<li>EPIC‑012 (orchestrator/validation): integratie om live config te lezen.</li>
+<li>GatePolicyService en ModularValidationService bestaan reeds (loader/TTL‑cache) en worden hergebruikt (src/services/policies/approval_gate_policy.py, container wiring).</li>
+</ul>
+
+<h2>Non‑Functionals & Constraints</h2>
+<ul>
+<li>Respecteer CLAUDE.md: canonical locaties, geen backwards‑compat paden, services async‑puur (UI doet bridging).</li>
+<li>Veiligheid: geen secrets loggen; export/import zonder PII; audit verplicht.</li>
+<li>Performance: hot‑reload zonder app‑restart; UI reactietijd < 300ms voor lijstweergaves bij 1k regels.</li>
+</ul>
+
+<h2>Acceptatiecriteria (Epic)</h2>
+<ul>
+<li>Alle subsections bedienbaar in UI; wijzigingen worden in DB opgeslagen met audit én versie.</li>
+<li>Services lezen actuele config (TTL‑cache, invalidatie bij wijzigingen) – zichtbaar effect zonder herstart.</li>
+<li>Import/Export JSON/YAML met diff‑preview; rollback naar vorige versies mogelijk.</li>
+<li>Autorisatie: beheer‑tab en mutaties alleen voor beheerderrol (flag‑based in deze iteratie) met audit van acties.</li>
+</ul>
+
+<h2>Definition of Done (Epic)</h2>
+<ul>
+<li>US‑171..US‑177 gerealiseerd en groen getest (unit/integratie).</li>
+<li>Documentatie bijgewerkt (README secties, referentie naar GatePolicy/validatieregelsbeheer).</li>
+<li>CI‑gates en smoke checks dekken critical paths (geen Streamlit in services, V2‑contracten onveranderd).</li>
+</ul>
+
+<h2>Risks & Mitigations</h2>
+<p>| Risk | Impact | Probability | Mitigation |</p>
+<p>|------|--------|-------------|------------|</p>
+<p>| Onjuiste config blokkeert vaststellen | Hoog | Medium | Preview/validatie, soft‑gate fallback, rollback |</p>
+<p>| Inconsistentie cache vs DB | Medium | Low | TTL‑cache + expliciete invalidatie bij update |</p>
+<p>| Te veel toggles → onvoorspelbaar gedrag | Medium | Medium | Audit, testprotocol bij wijziging, export snapshot |</p>
+
+<h2>Implementation Plan (Fases)</h2>
+<p>1) US‑181 UI‑skelet Beheer‑tab (navigatie, secties, geen mutaties).</p>
+<p>2) US‑182 Gate‑policy beheer (CRUD + audit + hot‑reload; DI in workflow).</p>
+<p>3) US‑183 Validatieregelsbeheer (gewichten/drempels/actief + audit + reload).</p>
+<p>4) US‑184 Contextopties (CRUD lijsten; hot‑reload in ContextManager).</p>
+<p>5) US‑185 Auditlog & versiebeheer (diff/rollback, retentiebeleid).</p>
+<p>6) US‑186 Import/Export JSON/YAML (preview/diff, atomic apply).</p>
+<p>7) US‑187 Autorisatie voor Beheer (flag‑gebaseerde rol, server‑side checks).</p>
+
+<h2>Traceability</h2>
+<ul>
+<li>REQ‑093/US‑160: Gate‑policy integratie in workflow.</li>
+<li>REQ‑094: Validatieregels beheerbaar maken.</li>
+<li>REQ‑095: Contextopties centraal beheer.</li>
+<li>REQ‑097: Gate‑afhankelijkheden m.b.t. iteratieve acceptatie (alleen policy‑zijde; iteraties zijn EPIC‑017).</li>
+</ul></div>
+    <p class="muted">Bron: <a href="../../rebuild/backlog/EPIC-016/EPIC-016.md">rebuild/backlog/EPIC-016/EPIC-016.md</a></p>
+  </div>
+</body>
+</html>
+        

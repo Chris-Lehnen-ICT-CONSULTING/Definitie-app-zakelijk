@@ -1,0 +1,38 @@
+id: VER_02
+name: Definitie in enkelvoud
+description: De definitie is geformuleerd in het enkelvoud.
+explanation: Net als de term, moet ook de definitie zoveel mogelijk in het enkelvoud
+  geformuleerd worden. Dit verhoogt de helderheid, precisie en logische consistentie
+  van definities. Uitzonderingen zijn mogelijk, maar slechts bij gemotiveerde noodzaak.
+test_question: Is de formulering van de definitie in het enkelvoud?
+metadata:
+  priority: midden
+  recommendation: verplicht
+  validity: gehele definitie
+  status: definitief
+  type: formulering
+  theme: verwoording van de definitie
+  source_document: ASTRA
+validation:
+  patterns:
+  - \bgegevens zijn\b
+  - \bmaatregelen zijn\b
+  - \bvoertuigen zijn\b
+  - \bsystemen zijn\b
+  - \bactiviteiten zijn\b
+  - \b\w+en zijn\b
+  good_examples:
+  - 'gegeven: feitelijke eenheid van informatie die kan worden vastgelegd'
+  - 'maatregel: actie die is genomen om een doel te bereiken'
+  - natuurlijke persoon die wordt vertegenwoordigd
+  bad_examples:
+  - gegevens zijn feiten en getallen die zijn verzameld voor analyse
+  - maatregelen zijn acties die genomen worden om een doel te bereiken
+references:
+- fulltext: Definitie in enkelvoud
+  fullurl: https://www.astraonline.nl/index.php/Definitie_in_enkelvoud
+implementation_details:
+  implementation: python
+  source_file: src/toetsregels/regels/VER-02.py
+  validation_logic: See Python implementation for complex validation
+  validation_description: 'Validator voor VER-02: Geen tijdsgebonden formuleringen.'

@@ -1,6 +1,6 @@
 ---
 id: EPIC-003
-titel: Content Verrijking / Web Lookup
+titel: "EPIC-003: Content Verrijking / Web Lookup - Externe bronintegratie (Wikipedia, SRU) voor definitieverrijking met <3s responstijd"
 status: active
 prioriteit: HOOG
 aangemaakt: 01-01-2025

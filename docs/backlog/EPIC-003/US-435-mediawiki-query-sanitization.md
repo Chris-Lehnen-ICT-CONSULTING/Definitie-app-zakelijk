@@ -1,7 +1,7 @@
 ---
 id: US-435
 epic: EPIC-003
-titel: MediaWiki Query Sanitization
+titel: "US-435: - Pariteit met SRU-pad: verwijder organisatorische tokens (OM, DJI, ZM, Justid, e.d.) en normaliseer juridische/wet-t..."
 status: open
 prioriteit: P2
 story_points: 5

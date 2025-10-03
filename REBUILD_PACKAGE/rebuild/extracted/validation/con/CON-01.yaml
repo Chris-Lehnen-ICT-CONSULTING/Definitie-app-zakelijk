@@ -1,0 +1,144 @@
+id: "CON-01"
+category: "CON"
+priority: "high"
+enabled: true
+
+metadata:
+  naam: "Eigen definitie voor elke context - Contextspecifieke formulering zonder expliciete benoeming"
+  uitleg: |
+    Formuleer de definitie zó dat deze past binnen de opgegeven context(en), zonder deze expliciet
+    te benoemen. De context moet impliciet doorklinken in de formulering. Tijdens generatie vindt
+    een duplicate-controle plaats op begrip en synoniemen met gelijke context.
+  version: "1.0"
+  last_updated: "2025-10-02"
+  author: "Extracted from legacy system"
+
+  rule_type: "contextual"
+  applies_to:
+    categories: ["ENT", "ACT", "REL", "ATT", "AUT", "STA", "OTH"]
+    contexts: []
+
+implementation:
+  type: "hybrid"
+  patterns:
+    forbidden:
+      - pattern: '\b(in de context van)\b'
+        description: "Explicit context reference"
+        case_sensitive: false
+
+      - pattern: '\b(in het kader van)\b'
+        description: "Explicit context frame reference"
+        case_sensitive: false
+
+      - pattern: '\bbinnen de context\b'
+        description: "Explicit context scope"
+        case_sensitive: false
+
+      - pattern: '\bjuridisch(e)?\b'
+        description: "Explicit juridical context"
+        case_sensitive: false
+
+      - pattern: '\b(Dienst Justiti[eë]le Inrichtingen|DJI|Openbaar Ministerie|OM|ZM|KMAR)\b'
+        description: "Explicit organization name"
+        case_sensitive: false
+
+      - pattern: '\bcontext\b'
+        description: "Word 'context' itself"
+        case_sensitive: false
+
+  logic_description: |
+    1. Check for explicit context references in definition
+    2. Check for organization names
+    3. Check for duplicate definitions with same context (begrip + context combination)
+    4. Compare with good/bad examples
+    5. Return validation result
+
+  legacy_reference: "src/toetsregels/regels/CON-01.py"
+
+validation:
+  input_fields:
+    - name: "definitie"
+      type: "string"
+      required: true
+
+    - name: "begrip"
+      type: "string"
+      required: true
+
+    - name: "context"
+      type: "dict"
+      required: false
+
+  output:
+    success:
+      type: "boolean"
+      description: "Whether validation passed"
+
+    message:
+      type: "string"
+      description: "Human-readable validation message"
+
+    score:
+      type: "float"
+      min: 0.0
+      max: 1.0
+      description: "Validation score"
+
+examples:
+  good:
+    - input:
+        definitie: "systematisch volgen van handelingen om te beoordelen of ze voldoen aan vastgestelde normen"
+        begrip: "toezicht"
+      expected:
+        success: true
+        score: 1.0
+
+    - input:
+        definitie: "formeel vastleggen van gegevens in een geautoriseerd systeem"
+        begrip: "registratie"
+      expected:
+        success: true
+        score: 1.0
+
+  bad:
+    - input:
+        definitie: "controle uitgevoerd door DJI in juridische context, op basis van het Wetboek van Strafvordering"
+        begrip: "toezicht"
+      expected:
+        success: false
+        score: 0.0
+
+    - input:
+        definitie: "het vastleggen van persoonsgegevens binnen de organisatie DJI, in strafrechtelijke context"
+        begrip: "registratie"
+      expected:
+        success: false
+        score: 0.0
+
+generation_hints:
+  - "Formuleer contextneutraal zonder expliciete verwijzingen"
+  - "Vermijd termen zoals: 'binnen de context van', 'juridisch', 'beleidsmatig'"
+  - "Vermijd organisatienamen zoals: DJI, OM, KMAR"
+  - "Laat de context impliciet doorklinken in de formulering"
+
+test_cases:
+  - name: "valid_implicit_context"
+    input:
+      definitie: "opgelegde beperking bij vastgestelde overtredingen"
+      begrip: "maatregel"
+    expected:
+      success: true
+      score: 0.9
+
+  - name: "invalid_explicit_organization"
+    input:
+      definitie: "controle door DJI"
+      begrip: "DJI-controle"
+    expected:
+      success: false
+      score: 0.0
+
+performance:
+  max_execution_time_ms: 100
+  complexity: "O(n)"
+  memory_usage: "O(1)"

@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>US-203: title: Reduce Prompt Token Count from 7250 to 3000 Through Optimization</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>id: US-203</p>
+<p>titel: "US-203: title: Reduce Prompt Token Count from 7250 to 3000 Through Optimization"</p>
+<p>epic: EPIC-026</p>
+<p>title: Reduce Prompt Token Count from 7250 to 3000 Through Optimization</p>
+<p>status: open</p>
+<p>priority: CRITICAL</p>
+<p>story_points: 5</p>
+<p>created: 2025-01-18</p>
+<p>updated: 2025-01-18</p>
+<p>owner: development-team</p>
+<p>applies_to: definitie-app@current</p>
+<p>canonical: false</p>
+<p>last_verified: 2025-10-02</p>
+<p>tags: [performance, optimization, tokens, ai, cost-reduction]</p>
+<p>---</p>
+
+<h1>US-203: Reduce Prompt Token Count from 7250 to 3000 Through Optimization</h1>
+
+<h2>User Story</h2>
+<p><strong>Als</strong> product owner</p>
+<p><strong>Wil ik</strong> dat de prompt tokens gereduceerd worden van 7250 naar 3000</p>
+<p><strong>Zodat</strong> de API kosten met 60% dalen en de response tijd significant verbetert</p>
+
+<h2>Probleem</h2>
+<p>Huidige prompt inefficiënties:</p>
+<ul>
+<li>**7250 tokens** per definitie generatie</li>
+<li>**Duplicated context** in meerdere prompt secties</li>
+<li>**Onnodige voorbeelden** die niet relevant zijn</li>
+<li>**Verbose instructies** die gecomprimeerd kunnen worden</li>
+<li>**Kosten**: €0.15 per generatie → Target: €0.06</li>
+</ul>
+
+<h2>Acceptance Criteria</h2>
+
+<h3>Must Have</h3>
+<ul>
+<li>[ ] Token count ≤3000 voor standaard definitie generatie</li>
+<li>[ ] Behoud van definitie kwaliteit (geen regressie)</li>
+<li>[ ] Dynamische prompt assembly based on context</li>
+<li>[ ] Token usage tracking en reporting</li>
+</ul>
+
+<h3>Should Have</h3>
+<ul>
+<li>[ ] Prompt caching voor herhaalde patronen</li>
+<li>[ ] Context-aware prompt pruning</li>
+<li>[ ] Token budget allocation per prompt sectie</li>
+</ul>
+
+<h3>Performance Targets</h3>
+<ul>
+<li>**Current**: 7250 tokens average</li>
+<li>**Target**: 3000 tokens maximum</li>
+<li>**Cost reduction**: 60% (€0.09 per generatie besparing)</li>
+<li>**Response time**: -40% (minder tokens = snellere response)</li>
+</ul>
+
+<h2>Technical Implementation</h2>
+
+<h3>1. Prompt Deduplication</h3>
+<pre><code># src/services/prompt/optimized_prompt_builder.py
+class OptimizedPromptBuilder:
+    def __init__(self):
+        self.base_context = self._compress_base_context()
+        self.example_cache = {}
+
+    def build_prompt(self, context: DefinitionContext) -&gt; str:
+        """Build optimized prompt with minimal tokens."""
+        sections = []
+
+        # Core instruction (compressed)
+        sections.append(self._get_compressed_instruction())
+
+        # Dynamic examples (only relevant ones)
+        relevant_examples = self._select_relevant_examples(context, max_tokens=500)
+        sections.append(relevant_examples)
+
+        # Context (deduplicated)
+        unique_context = self._deduplicate_context(context)
+        sections.append(unique_context)
+
+        # Target structure (minimal)
+        sections.append(self._get_minimal_structure())
+
+        return "\n".join(sections)
+
+    def _compress_base_context(self) -&gt; str:
+        """Compress base instructions using abbreviations and references."""
+        # Original: 2000 tokens → Compressed: 500 tokens
+        return """
+        TASK: Genereer juridische definitie
+        STIJL: NL wetgeving, actief, geen afkortingen
+        STRUCTUUR: [Term] = [genus] + [differentia]
+        REGELS: Zie REF#1
+        """</code></pre>
+
+<h3>2. Dynamic Example Selection</h3>
+<pre><code>class ExampleSelector:
+    def __init__(self, embeddings_model):
+        self.embeddings = embeddings_model
+        self.example_db = self._load_examples()
+
+    def select_relevant(self, term: str, max_tokens: int = 500) -&gt; List[str]:
+        """Select only most relevant examples based on semantic similarity."""
+        term_embedding = self.embeddings.encode(term)
+
+        similarities = []
+        for example in self.example_db:
+            sim = cosine_similarity(term_embedding, example.embedding)
+            similarities.append((sim, example))
+
+        # Sort by relevance and select within token budget
+        similarities.sort(reverse=True)
+        selected = []
+        token_count = 0
+
+        for sim, example in similarities:
+            example_tokens = count_tokens(example.text)
+            if token_count + example_tokens &lt;= max_tokens:
+                selected.append(example.text)
+                token_count += example_tokens
+            else:
+                break
+
+        return selected</code></pre>
+
+<h3>3. Context Compression</h3>
+<pre><code>class ContextCompressor:
+    def compress(self, context: Dict) -&gt; Dict:
+        """Compress context by removing redundancy."""
+        compressed = {}
+
+        # Remove empty fields
+        compressed = {k: v for k, v in context.items() if v}
+
+        # Merge similar fields
+        if 'wetsartikel' in compressed and 'juridische_context' in compressed:
+            compressed['context'] = f"{compressed['wetsartikel']}: {compressed['juridische_context']}"
+            del compressed['wetsartikel']
+            del compressed['juridische_context']
+
+        # Abbreviate long texts
+        for key, value in compressed.items():
+            if isinstance(value, str) and len(value) &gt; 200:
+                compressed[key] = self._smart_truncate(value, 200)
+
+        return compressed
+
+    def _smart_truncate(self, text: str, max_length: int) -&gt; str:
+        """Truncate text while preserving meaning."""
+        if len(text) &lt;= max_length:
+            return text
+        # Find natural break point
+        sentences = text.split('.')
+        truncated = ""
+        for sentence in sentences:
+            if len(truncated) + len(sentence) &lt;= max_length:
+                truncated += sentence + "."
+            else:
+                break
+        return truncated + "..."</code></pre>
+
+<h3>4. Prompt Caching Strategy</h3>
+<pre><code>@lru_cache(maxsize=100)
+def get_cached_prompt_section(section_type: str, params_hash: str) -&gt; str:
+    """Cache frequently used prompt sections."""
+    # Cache common sections like instructions, structures
+    pass
+
+class PromptCache:
+    def __init__(self):
+        self.cache = {}
+        self.hit_rate = 0
+        self.total_requests = 0
+
+    def get_or_generate(self, key: str, generator_fn: Callable) -&gt; str:
+        """Get cached prompt or generate new one."""
+        self.total_requests += 1
+
+        if key in self.cache:
+            self.hit_rate += 1
+            return self.cache[key]
+
+        result = generator_fn()
+        self.cache[key] = result
+        return result
+
+    def get_stats(self) -&gt; Dict:
+        """Return cache statistics."""
+        return {
+            'hit_rate': self.hit_rate / max(self.total_requests, 1),
+            'cache_size': len(self.cache),
+            'memory_usage': sum(len(v) for v in self.cache.values())
+        }</code></pre>
+
+<h2>Token Budget Allocation</h2>
+
+<p>| Section | Current | Target | Reduction |</p>
+<p>|---------|---------|---------|-----------|</p>
+<p>| Base Instructions | 2000 | 500 | 75% |</p>
+<p>| Examples | 2500 | 800 | 68% |</p>
+<p>| Context | 1500 | 700 | 53% |</p>
+<p>| Structure Template | 800 | 300 | 62% |</p>
+<p>| Validation Rules | 450 | 200 | 55% |</p>
+<p>| <strong>Total</strong> | <strong>7250</strong> | <strong>2500</strong> | <strong>65%</strong> |</p>
+
+<h2>Test Scenarios</h2>
+
+<h3>Quality Assurance Tests</h3>
+<pre><code>def test_definition_quality_maintained():
+    """Ensure optimized prompts produce same quality."""
+    test_terms = ["Verweerder", "Rechtspersoon", "Dwangsom"]
+
+    for term in test_terms:
+        original = generate_with_original_prompt(term)
+        optimized = generate_with_optimized_prompt(term)
+
+        # Quality metrics
+        assert similarity_score(original, optimized) &gt; 0.85
+        assert passes_validation(optimized)
+        assert token_count(optimized_prompt) &lt; 3000
+
+def test_token_counting_accuracy():
+    """Verify token counting matches OpenAI's tokenizer."""
+    prompt = build_optimized_prompt(sample_context)
+    our_count = count_tokens(prompt)
+    openai_count = tiktoken.encoding_for_model("gpt-4").encode(prompt)
+    assert abs(our_count - len(openai_count)) &lt; 50  # Within margin</code></pre>
+
+<h2>Key Files to Modify</h2>
+<ol>
+<li>`src/services/prompt/prompt_service_v2.py` - Core prompt building</li>
+<li>`src/services/ai/ai_service_v2.py` - Token counting integration</li>
+<li>`config/prompts/` - Prompt templates</li>
+<li>`src/utils/token_counter.py` - New token utilities</li>
+</ol>
+
+<h2>Definition of Done</h2>
+
+<ul>
+<li>[ ] Token count consistently ≤3000 for all definition types</li>
+<li>[ ] Quality metrics show no degradation (>85% similarity)</li>
+<li>[ ] Token usage tracking implemented and visible in UI</li>
+<li>[ ] Cost reduction verified through API usage logs</li>
+<li>[ ] Response time improvement measured and documented</li>
+<li>[ ] Prompt caching shows >50% hit rate in production</li>
+<li>[ ] A/B testing completed comparing original vs optimized</li>
+</ul>
+
+<h2>Dependencies</h2>
+<ul>
+<li>US-201 and US-202 should be completed for accurate performance measurement</li>
+</ul>
+
+<h2>Risks & Mitigations</h2>
+<p>| Risk | Impact | Mitigation |</p>
+<p>|------|---------|------------|</p>
+<p>| Quality degradation | HIGH | A/B testing, gradual rollout |</p>
+<p>| Edge cases missing context | MEDIUM | Fallback to expanded prompt if needed |</p>
+<p>| Token counting inaccuracy | LOW | Use official tiktoken library |</p>
+
+<h2>Cost Impact Analysis</h2>
+<ul>
+<li>**Current monthly cost**: ~€450 (3000 definitions × €0.15)</li>
+<li>**Target monthly cost**: ~€180 (3000 definitions × €0.06)</li>
+<li>**Monthly savings**: €270</li>
+<li>**Annual savings**: €3240</li>
+</ul>
+
+<h2>Notes</h2>
+<ul>
+<li>Most critical optimization for cost reduction</li>
+<li>Consider implementing progressive enhancement (start minimal, add if needed)</li>
+<li>Future: Implement prompt fine-tuning for even better compression</li>
+<li>Monitor quality metrics closely during rollout</li>
+</ul>
+
+<h2>Implementation Phases</h2>
+<ol>
+<li>**Phase 1**: Deduplication and compression (Week 1)</li>
+<li>**Phase 2**: Dynamic example selection (Week 1-2)</li>
+<li>**Phase 3**: Caching layer implementation (Week 2)</li>
+<li>**Phase 4**: A/B testing and quality validation (Week 2)</li>
+</ol>
+
+<h2>Progress Tracking</h2>
+<ul>
+<li>[ ] Token analysis completed</li>
+<li>[ ] Optimization strategy approved</li>
+<li>[ ] Implementation started</li>
+<li>[ ] Unit tests written</li>
+<li>[ ] Quality benchmarks established</li>
+<li>[ ] A/B testing framework ready</li>
+<li>[ ] Gradual rollout plan defined</li>
+<li>[ ] Production metrics dashboard ready</li>
+</ul>
+  </div>
+</body>
+</html>

@@ -1,0 +1,549 @@
+# UFO Classification Rules Configuration
+# Nederlandse juridische context specifieke regels
+
+metadata:
+  version: "1.0.0"
+  description: "UFO/OntoUML classificatie regels voor Nederlandse juridische begrippen"
+  last_updated: "2025-01-23"
+
+# Regel prioriteiten:
+# 10 = Hoogste prioriteit (sterkste indicatoren)
+# 5 = Medium prioriteit
+# 1 = Laagste prioriteit (zwakke indicatoren)
+
+rules:
+  # ============================================
+  # KIND RULES - Zelfstandige entiteiten
+  # ============================================
+
+  - id: kind_juridisch_persoon
+    category: Kind
+    description: "Juridische persoon of rechtspersoon"
+    priority: 10
+    weight: 3.0
+    conditions:
+      - type: keyword
+        keywords:
+          - "natuurlijk persoon"
+          - "natuurlijke persoon"
+          - "rechtspersoon"
+          - "publiekrechtelijke rechtspersoon"
+          - "privaatrechtelijke rechtspersoon"
+        match: any
+      - type: feature
+        feature: requires_bearer
+        operator: "=="
+        value: false
+
+  - id: kind_organisatie
+    category: Kind
+    description: "Organisatie of instantie"
+    priority: 9
+    weight: 2.5
+    conditions:
+      - type: keyword
+        keywords:
+          - "organisatie"
+          - "instantie"
+          - "instelling"
+          - "bedrijf"
+          - "onderneming"
+          - "vennootschap"
+          - "stichting"
+          - "vereniging"
+        match: any
+      - type: feature
+        feature: requires_bearer
+        operator: "=="
+        value: false
+
+  - id: kind_juridisch_object
+    category: Kind
+    description: "Juridisch object of zaak"
+    priority: 9
+    weight: 2.5
+    conditions:
+      - type: keyword
+        keywords:
+          - "zaak"
+          - "goed"
+          - "roerende zaak"
+          - "onroerende zaak"
+          - "vermogensrecht"
+          - "eigendom"
+        match: any
+      - type: pattern
+        pattern: "\\b(recht op|eigendom van|bezit van)\\b"
+
+  - id: kind_document
+    category: Kind
+    description: "Document of dossier"
+    priority: 8
+    weight: 2.0
+    conditions:
+      - type: keyword
+        keywords:
+          - "document"
+          - "dossier"
+          - "akte"
+          - "bescheid"
+          - "stuk"
+          - "proces-verbaal"
+          - "verklaring"
+        match: any
+      - type: feature
+        feature: has_noun
+        value: true
+
+  # ============================================
+  # EVENT RULES - Gebeurtenissen/processen
+  # ============================================
+
+  - id: event_juridisch_proces
+    category: Event
+    description: "Juridisch proces of procedure"
+    priority: 10
+    weight: 3.0
+    conditions:
+      - type: keyword
+        keywords:
+          - "procedure"
+          - "proces"
+          - "behandeling"
+          - "geding"
+          - "rechtsgeding"
+          - "rechtsgang"
+        match: any
+      - type: feature
+        feature: has_temporal
+        value: true
+
+  - id: event_juridische_handeling
+    category: Event
+    description: "Juridische handeling of gebeurtenis"
+    priority: 10
+    weight: 3.0
+    conditions:
+      - type: keyword
+        keywords:
+          - "zitting"
+          - "hoorzitting"
+          - "verhoor"
+          - "arrestatie"
+          - "aanhouding"
+          - "inverzekeringstelling"
+          - "veroordeling"
+          - "vrijspraak"
+        match: any
+      - type: feature
+        feature: has_verb
+        value: true
+
+  - id: event_bestuurshandeling
+    category: Event
+    description: "Bestuursrechtelijke handeling"
+    priority: 9
+    weight: 2.5
+    conditions:
+      - type: keyword
+        keywords:
+          - "beschikken"
+          - "besluit nemen"
+          - "vaststellen"
+          - "verlenen"
+          - "weigeren"
+          - "intrekken"
+        match: any
+      - type: pattern
+        pattern: "\\b(het|een)\\s+(nemen|geven|verlenen|weigeren)\\s+van\\b"
+
+  - id: event_temporal_indicator
+    category: Event
+    description: "Proces met tijdsaanduiding"
+    priority: 8
+    weight: 2.0
+    conditions:
+      - type: feature
+        feature: has_temporal
+        value: true
+      - type: pattern
+        pattern: "\\b(doorlooptijd|termijn|periode|duur van|tijdstip|moment van)\\b"
+
+  # ============================================
+  # ROLE RULES - Rollen in context
+  # ============================================
+
+  - id: role_juridische_rol
+    category: Role
+    description: "Juridische rol of functie"
+    priority: 10
+    weight: 3.0
+    conditions:
+      - type: keyword
+        keywords:
+          - "verdachte"
+          - "beklaagde"
+          - "gedaagde"
+          - "eiser"
+          - "verweerder"
+          - "getuige"
+          - "benadeelde"
+          - "slachtoffer"
+        match: any
+      - type: feature
+        feature: requires_bearer
+        value: true
+
+  - id: role_procespartij
+    category: Role
+    description: "Partij in juridisch proces"
+    priority: 9
+    weight: 2.5
+    conditions:
+      - type: keyword
+        keywords:
+          - "procespartij"
+          - "partij"
+          - "appellant"
+          - "geïntimeerde"
+          - "verzoeker"
+          - "belanghebbende"
+        match: any
+      - type: pattern
+        pattern: "\\b(in de hoedanigheid van|als\\s+\\w+|in de rol van)\\b"
+
+  - id: role_functionaris
+    category: Role
+    description: "Juridische functionaris"
+    priority: 9
+    weight: 2.5
+    conditions:
+      - type: keyword
+        keywords:
+          - "rechter"
+          - "officier van justitie"
+          - "advocaat"
+          - "raadsman"
+          - "notaris"
+          - "deurwaarder"
+          - "curator"
+          - "bewindvoerder"
+        match: any
+      - type: feature
+        feature: has_role_indicator
+        value: true
+
+  # ============================================
+  # PHASE RULES - Levensfasen
+  # ============================================
+
+  - id: phase_procesfase
+    category: Phase
+    description: "Fase in juridisch proces"
+    priority: 9
+    weight: 2.5
+    conditions:
+      - type: keyword
+        keywords:
+          - "vooronderzoek"
+          - "opsporingsfase"
+          - "vervolgingsfase"
+          - "onderzoek ter terechtzitting"
+          - "beraadslaging"
+          - "uitspraak"
+        match: any
+      - type: feature
+        feature: has_temporal
+        value: true
+
+  - id: phase_status_document
+    category: Phase
+    description: "Status of fase van document"
+    priority: 8
+    weight: 2.0
+    conditions:
+      - type: keyword
+        keywords:
+          - "concept"
+          - "voorlopig"
+          - "definitief"
+          - "onherroepelijk"
+          - "rechtskrachtig"
+        match: any
+      - type: pattern
+        pattern: "\\b(status|fase|stadium)\\s+(van|in)\\b"
+
+  - id: phase_lifecycle
+    category: Phase
+    description: "Levenscyclus stadium"
+    priority: 7
+    weight: 1.8
+    conditions:
+      - type: keyword
+        keywords:
+          - "actief"
+          - "inactief"
+          - "lopend"
+          - "afgerond"
+          - "gesloten"
+          - "gearchiveerd"
+          - "vervallen"
+        match: any
+
+  # ============================================
+  # RELATOR RULES - Bindende objecten
+  # ============================================
+
+  - id: relator_overeenkomst
+    category: Relator
+    description: "Overeenkomst tussen partijen"
+    priority: 10
+    weight: 3.0
+    conditions:
+      - type: keyword
+        keywords:
+          - "overeenkomst"
+          - "contract"
+          - "convenant"
+          - "akkoord"
+          - "schikking"
+          - "vaststellingsovereenkomst"
+        match: any
+      - type: feature
+        feature: has_multiple_participants
+        value: true
+    conflicts_with: [kind_juridisch_object]
+
+  - id: relator_vergunning
+    category: Relator
+    description: "Vergunning of machtiging"
+    priority: 10
+    weight: 3.0
+    conditions:
+      - type: keyword
+        keywords:
+          - "vergunning"
+          - "ontheffing"
+          - "machtiging"
+          - "mandaat"
+          - "volmacht"
+          - "licentie"
+          - "concessie"
+        match: any
+      - type: pattern
+        pattern: "\\b(verleend door|afgegeven door|tussen.*?en)\\b"
+
+  - id: relator_arbeidsovereenkomst
+    category: Relator
+    description: "Arbeidsrechtelijke overeenkomst"
+    priority: 9
+    weight: 2.8
+    conditions:
+      - type: keyword
+        keywords:
+          - "arbeidsovereenkomst"
+          - "arbeidscontract"
+          - "aanstelling"
+          - "dienstverband"
+          - "detachering"
+        match: any
+      - type: pattern
+        pattern: "\\b(werkgever.*?werknemer|tussen.*?partijen)\\b"
+
+  - id: relator_juridische_binding
+    category: Relator
+    description: "Juridische binding"
+    priority: 9
+    weight: 2.5
+    conditions:
+      - type: keyword
+        keywords:
+          - "dagvaarding"
+          - "exploot"
+          - "sommatie"
+          - "ingebrekestelling"
+          - "aanmaning"
+        match: any
+      - type: feature
+        feature: has_relation_indicator
+        value: true
+
+  # ============================================
+  # MODE RULES - Afhankelijke eigenschappen
+  # ============================================
+
+  - id: mode_juridische_status
+    category: Mode
+    description: "Juridische status of toestand"
+    priority: 8
+    weight: 2.0
+    conditions:
+      - type: keyword
+        keywords:
+          - "rechtspositie"
+          - "rechtstoestand"
+          - "hoedanigheid"
+          - "bevoegdheid"
+          - "bekwaamheid"
+          - "handelingsbekwaamheid"
+        match: any
+      - type: feature
+        feature: requires_bearer
+        value: true
+
+  - id: mode_locatie
+    category: Mode
+    description: "Locatie of plaats"
+    priority: 7
+    weight: 1.8
+    conditions:
+      - type: keyword
+        keywords:
+          - "woonplaats"
+          - "vestigingsplaats"
+          - "verblijfplaats"
+          - "adres"
+          - "domicilie"
+        match: any
+      - type: pattern
+        pattern: "\\b(plaats|locatie|adres)\\s+(van|waar)\\b"
+
+  - id: mode_toestand
+    category: Mode
+    description: "Algemene toestand of conditie"
+    priority: 6
+    weight: 1.5
+    conditions:
+      - type: keyword
+        keywords:
+          - "toestand"
+          - "conditie"
+          - "situatie"
+          - "omstandigheid"
+          - "gesteldheid"
+        match: any
+      - type: feature
+        feature: requires_bearer
+        value: true
+
+  # ============================================
+  # QUANTITY RULES - Meetbare grootheden
+  # ============================================
+
+  - id: quantity_geldsom
+    category: Quantity
+    description: "Geldbedrag of financiële grootheid"
+    priority: 9
+    weight: 2.5
+    conditions:
+      - type: pattern
+        pattern: "\\b(€|euro|EUR|bedrag|som|kosten|schade|boete)\\b"
+      - type: feature
+        feature: has_quantity_indicator
+        value: true
+
+  - id: quantity_termijn
+    category: Quantity
+    description: "Termijn of tijdsduur"
+    priority: 8
+    weight: 2.2
+    conditions:
+      - type: keyword
+        keywords:
+          - "termijn"
+          - "periode"
+          - "duur"
+          - "doorlooptijd"
+          - "verjaringstermijn"
+          - "beroepstermijn"
+        match: any
+      - type: pattern
+        pattern: "\\b\\d+\\s+(dag|week|maand|jaar|uur|minuut)\\b"
+
+  - id: quantity_aantal
+    category: Quantity
+    description: "Aantal of hoeveelheid"
+    priority: 7
+    weight: 1.8
+    conditions:
+      - type: keyword
+        keywords:
+          - "aantal"
+          - "hoeveelheid"
+          - "percentage"
+          - "ratio"
+          - "verhouding"
+        match: any
+      - type: pattern
+        pattern: "\\b\\d+\\s*(%|procent|stuks?|keer|maal)\\b"
+
+  # ============================================
+  # QUALITY RULES - Kwalitatieve eigenschappen
+  # ============================================
+
+  - id: quality_juridische_waardering
+    category: Quality
+    description: "Juridische waardering of beoordeling"
+    priority: 8
+    weight: 2.0
+    conditions:
+      - type: keyword
+        keywords:
+          - "schuldig"
+          - "onschuldig"
+          - "aansprakelijk"
+          - "verwijtbaar"
+          - "rechtmatig"
+          - "onrechtmatig"
+          - "geoorloofd"
+          - "ongeoorloofd"
+        match: any
+
+  - id: quality_ernst
+    category: Quality
+    description: "Ernst of zwaarte"
+    priority: 7
+    weight: 1.8
+    conditions:
+      - type: keyword
+        keywords:
+          - "ernst"
+          - "zwaarte"
+          - "gradatie"
+          - "mate van"
+          - "niveau van"
+        match: any
+      - type: pattern
+        pattern: "\\b(licht|matig|ernstig|zwaar|zeer ernstig)\\b"
+
+  - id: quality_betrouwbaarheid
+    category: Quality
+    description: "Betrouwbaarheid of kwaliteit"
+    priority: 7
+    weight: 1.8
+    conditions:
+      - type: keyword
+        keywords:
+          - "betrouwbaarheid"
+          - "geloofwaardigheid"
+          - "waarschijnlijkheid"
+          - "kwaliteit"
+          - "relevantie"
+        match: any
+      - type: feature
+        feature: has_quality_indicator
+        value: true
+
+# Conflict resolution rules
+conflicts:
+  - group: kind_vs_relator
+    rules: [kind_juridisch_object, relator_overeenkomst]
+    resolution: prefer_higher_weight
+
+  - group: event_vs_phase
+    rules: [event_juridisch_proces, phase_procesfase]
+    resolution: check_temporal_dominance
+
+  - group: role_vs_kind
+    rules: [role_juridische_rol, kind_juridisch_persoon]
+    resolution: check_bearer_requirement

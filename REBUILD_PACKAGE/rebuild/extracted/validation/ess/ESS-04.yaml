@@ -1,0 +1,147 @@
+id: "ESS-04"
+category: "ESS"
+priority: "medium"
+enabled: true
+
+metadata:
+  naam: "Toetsbaarheid"
+  uitleg: |
+    Een definitie bevat objectief toetsbare elementen (harde deadlines, aantallen, percentages,
+    meetbare criteria). Zonder toetsbare criteria kan een lezer niet objectief vaststellen
+    of iets onder de definitie valt.
+  version: "1.0"
+  last_updated: "2025-10-02"
+  author: "Extracted from legacy system"
+
+  rule_type: "semantic"
+  applies_to:
+    categories: ["ENT", "ACT", "REL", "ATT", "AUT", "STA", "OTH"]
+    contexts: []
+
+implementation:
+  type: "regex"
+  patterns:
+    good_testable:
+      - pattern: '\bbinnen\s+\d+\s+dagen?\b'
+        description: "Specific deadline in days"
+        case_sensitive: false
+
+      - pattern: '\buiterlijk\s+na\s+\d+\s+(dagen?|weken?)\b'
+        description: "Specific deadline"
+        case_sensitive: false
+
+      - pattern: '\btenminste\s+\d+%\b'
+        description: "Minimum percentage"
+        case_sensitive: false
+
+      - pattern: '\b\d+\s+%\b'
+        description: "Specific percentage"
+        case_sensitive: false
+
+      - pattern: '\bobjectieve criteria\b'
+        description: "Objective criteria mentioned"
+        case_sensitive: false
+
+    bad_non_testable:
+      - pattern: '\bzo snel mogelijk\b'
+        description: "Non-testable: 'zo snel mogelijk'"
+        case_sensitive: false
+
+      - pattern: '\bzo veel mogelijk\b'
+        description: "Non-testable: 'zo veel mogelijk'"
+        case_sensitive: false
+
+  logic_description: |
+    1. Search for testable criteria (numbers, percentages, deadlines)
+    2. Check for non-testable vague formulations
+    3. Return validation result
+
+  legacy_reference: "src/toetsregels/regels/ESS-04.py"
+
+validation:
+  input_fields:
+    - name: "definitie"
+      type: "string"
+      required: true
+
+    - name: "begrip"
+      type: "string"
+      required: true
+
+    - name: "context"
+      type: "dict"
+      required: false
+
+  output:
+    success:
+      type: "boolean"
+      description: "Whether validation passed"
+
+    message:
+      type: "string"
+      description: "Human-readable validation message"
+
+    score:
+      type: "float"
+      min: 0.0
+      max: 1.0
+      description: "Validation score"
+
+examples:
+  good:
+    - input:
+        definitie: "controle binnen 3 dagen nadat het verzoek is ingediend"
+        begrip: "snelle controle"
+      expected:
+        success: true
+        score: 1.0
+
+    - input:
+        definitie: "proces waarbij tenminste 80% van de steekproef voldoet"
+        begrip: "kwaliteitsproces"
+      expected:
+        success: true
+        score: 1.0
+
+  bad:
+    - input:
+        definitie: "controle zo snel mogelijk na ontvangst"
+        begrip: "snelle controle"
+      expected:
+        success: false
+        score: 0.0
+
+    - input:
+        definitie: "proces dat zo veel mogelijk resultaten oplevert"
+        begrip: "effectief proces"
+      expected:
+        success: false
+        score: 0.0
+
+generation_hints:
+  - "Gebruik specifieke aantallen, percentages, deadlines"
+  - "Vermijd: 'zo snel mogelijk', 'zo veel mogelijk'"
+  - "Geef objectieve, meetbare criteria"
+  - "Denk aan: kan iemand dit objectief toetsen?"
+
+test_cases:
+  - name: "valid_specific_deadline"
+    input:
+      definitie: "reactie binnen 5 werkdagen"
+      begrip: "tijdige reactie"
+    expected:
+      success: true
+      score: 1.0
+
+  - name: "invalid_vague_timeframe"
+    input:
+      definitie: "reactie zo spoedig mogelijk"
+      begrip: "snelle reactie"
+    expected:
+      success: false
+      score: 0.0
+
+performance:
+  max_execution_time_ms: 50
+  complexity: "O(n)"
+  memory_usage: "O(1)"

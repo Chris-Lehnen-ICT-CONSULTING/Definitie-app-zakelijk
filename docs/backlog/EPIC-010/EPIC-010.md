@@ -1,6 +1,6 @@
 ---
 id: EPIC-010
-titel: Context FLAAG Refactoring
+titel: "EPIC-010: Context Flow Refactoring - Fix context propagatie UI→AI met ASTRA compliance en 100% traceability ✅"
 status: completed
 prioriteit: KRITIEK
 aangemaakt: 04-09-2025
@@ -39,6 +39,8 @@ nora_compliance: COMPLIANT
 risk_level: RESOLVED
 target_release: v1.0.1
 ---
+
+> **Nota (2025-10-03):** Alle resterende context/refactor stories zijn samengevoegd in [EPIC-026](../EPIC-026/EPIC-026-REVISED.md). Dit epic blijft als archief van de afgeronde verbetering.
 
 
 

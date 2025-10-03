@@ -1,0 +1,1054 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Responsibility Map: definition_generator_tab.py</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>id: EPIC-026-RESPONSIBILITY-MAP-GENERATOR-TAB</p>
+<p>epic: EPIC-026</p>
+<p>phase: 1</p>
+<p>day: 2</p>
+<p>analyzed_file: src/ui/components/definition_generator_tab.py</p>
+<p>created: 2025-10-02</p>
+<p>owner: code-architect</p>
+<p>status: complete</p>
+<p>---</p>
+
+<h1>Responsibility Map: definition_generator_tab.py</h1>
+
+<p><strong>Analysis Date:</strong> 2025-10-02</p>
+<p><strong>File Path:</strong> <code>src/ui/components/definition_generator_tab.py</code></p>
+<p><strong>File Size:</strong> 2,525 LOC</p>
+<p><strong>Methods Count:</strong> 60 methods</p>
+<p><strong>Complexity:</strong> <strong>VERY HIGH</strong> (God Object anti-pattern)</p>
+
+<p>---</p>
+
+<h2>Executive Summary</h2>
+
+<h3>Key Findings</h3>
+
+<ul>
+<li>**God Object Alert:** 2,525 LOC met 60 methods in één klasse - **KRITIEKE refactoring kandidaat**</li>
+<li>**8 Duidelijke Service Boundaries** geïdentificeerd (UI Rendering, Business Logic, State Management, etc.)</li>
+<li>**Minimale Test Coverage:** Slechts 1 test file (`test_definition_generator_context_per007.py`)</li>
+<li>**Single Importer:** Alleen `tabbed_interface.py` gebruikt deze class (isolatie voordeel!)</li>
+<li>**Mixed Concerns:** UI rendering, business logic, database access, validation - **ALLES in één class**</li>
+</ul>
+
+<h3>Refactoring Complexity: **HIGH**</h3>
+
+<p><strong>Factors increasing complexity:</strong></p>
+<ul>
+<li>60 methods across 8 different responsibilities</li>
+<li>Direct database access mixed with UI rendering</li>
+<li>Complex state management via SessionStateManager</li>
+<li>Tight coupling met generation_result dict structure</li>
+<li>Mixed async/sync execution patterns</li>
+</ul>
+
+<p><strong>Factors supporting refactoring:</strong></p>
+<ul>
+<li>Single importer (easy migration path)</li>
+<li>Clear responsibility boundaries identified</li>
+<li>Stateless design (state in SessionStateManager)</li>
+<li>No circular dependencies within file</li>
+</ul>
+
+<p>---</p>
+
+<h2>File Statistics</h2>
+
+<h3>Code Metrics</h3>
+<p>| Metric | Value | Threshold | Status |</p>
+<p>|--------|-------|-----------|--------|</p>
+<p>| <strong>Total LOC</strong> | 2,525 | <500 | ❌ CRITICAL (5x over) |</p>
+<p>| <strong>Methods</strong> | 60 | <20 | ❌ CRITICAL (3x over) |</p>
+<p>| <strong>Classes</strong> | 1 (+ 1 nested) | N/A | ⚠️ God Object |</p>
+<p>| <strong>Importers</strong> | 1 | N/A | ✅ Good (easy migration) |</p>
+<p>| <strong>Test Files</strong> | 1 | N/A | ❌ Poor coverage |</p>
+
+<h3>Dependency Analysis</h3>
+
+<p><strong>Direct Imports (14):</strong></p>
+<pre><code># External
+import json, logging, os, re
+from datetime import UTC
+from pathlib import Path
+from typing import Any
+import streamlit as st
+
+# Internal
+from database.definitie_repository import DefinitieRecord, get_definitie_repository
+from integration.definitie_checker import CheckAction, DefinitieChecker
+from services.category_service import CategoryService
+from services.category_state_manager import CategoryStateManager
+from services.regeneration_service import RegenerationService
+from services.workflow_service import WorkflowService
+from ui.session_state import SessionStateManager
+from utils.dict_helpers import safe_dict_get
+from utils.type_helpers import ensure_dict, ensure_string</code></pre>
+
+<p><strong>Importers (1 file):</strong></p>
+<pre><code>src/ui/tabbed_interface.py</code></pre>
+
+<p><strong>Test Coverage:</strong></p>
+<pre><code>tests/services/test_definition_generator_context_per007.py</code></pre>
+
+<p>---</p>
+
+<h2>Method Inventory (60 Methods)</h2>
+
+<h3>1. Initialization (1 method)</h3>
+<pre><code>__init__(checker: DefinitieChecker)                                # L32   - Initialize tab with dependencies</code></pre>
+
+<h3>2. Main Rendering (2 methods)</h3>
+<pre><code>render()                                                           # L47   - Main tab render entry point
+_render_results_section()                                          # L56   - Render results from session state</code></pre>
+
+<h3>3. Duplicate Check Results Rendering (4 methods)</h3>
+<pre><code>_render_duplicate_check_results(check_result)                      # L77   - Render duplicate check results
+_render_existing_definition(definitie: DefinitieRecord)            # L108  - Render existing definition details
+_render_duplicate_matches(duplicates)                              # L171  - Render list of duplicate matches
+_format_record_context(def_record: DefinitieRecord)                # L201  - Format context fields for display</code></pre>
+
+<h3>4. Context Guards (2 methods)</h3>
+<pre><code>_get_global_context_lists() -&gt; dict[str, list[str]]               # L231  - Read global UI context
+_has_min_one_context() -&gt; bool                                     # L246  - Check if minimum context exists</code></pre>
+
+<h3>5. Generation Results Rendering (13 methods)</h3>
+<pre><code>_render_generation_results(generation_result)                      # L258  - Main generation results renderer
+_render_ontological_category_section(category, gen_result)         # L627  - Render ontological category
+_render_ufo_category_selector(generation_result)                   # L699  - Render UFO category selector
+_generate_category_reasoning(category: str) -&gt; str                 # L954  - Generate category explanation
+_render_category_selector(current_category, generation_result)     # L966  - Render category change selector
+_update_category(new_category, generation_result)                  # L1009 - Update definition category
+_render_sources_section(gen_result, agent_result, saved_record)    # L1167 - Render source references
+_get_provider_label(provider: str) -&gt; str                          # L1466 - Get provider display label
+_log_generation_result_debug(generation_result, agent_result)      # L1476 - Debug logging
+_render_generation_status(agent_result)                            # L1496 - Render success/warning status
+_extract_score_from_result(agent_result) -&gt; float                  # L1519 - Extract validation score
+_render_voorbeelden_section(voorbeelden)                           # L1957 - Render examples section
+_render_category_change_preview(state, gen_result, saved_record)   # L2438 - Render category change preview</code></pre>
+
+<h3>6. Validation Results Rendering (8 methods)</h3>
+<pre><code>_build_detailed_assessment(validation_result) -&gt; list[str]         # L1527 - Build assessment details
+_calculate_validation_stats(violations, passed_rules) -&gt; dict      # L1551 - Calculate validation stats
+_format_validation_summary(stats) -&gt; str                           # L1575 - Format validation summary
+_format_violations(violations) -&gt; list[str]                        # L1582 - Format violation messages
+_get_severity_emoji(severity: str) -&gt; str                          # L1610 - Get emoji for severity
+_format_passed_rules(passed_ids) -&gt; list[str]                      # L1619 - Format passed rules
+_render_validation_results(validation_result)                      # L1634 - Main validation renderer
+_extract_rule_id_from_line(line: str) -&gt; str                       # L1653 - Extract rule ID from text
+_rule_sort_key(rule_id: str)                                       # L1663 - Sort key for rules
+_build_rule_hint_markdown(rule_id: str) -&gt; str                     # L1697 - Build rule hint tooltip</code></pre>
+
+<h3>7. Rule Reasoning & Pass Explanations (3 methods)</h3>
+<pre><code>_get_current_text_and_begrip() -&gt; tuple[str, str]                 # L1752 - Get current definition text
+_compute_text_metrics(text: str) -&gt; dict[str, int]                # L1763 - Compute text statistics
+_build_pass_reason(rule_id, text, begrip) -&gt; str                  # L1771 - Build pass explanation
+_get_rule_display_and_explanation(rule_id) -&gt; tuple[str, str]     # L1836 - Get rule display info</code></pre>
+
+<h3>8. Action Handlers (4 methods)</h3>
+<pre><code>_use_existing_definition(definitie: DefinitieRecord)               # L1747 - Use existing definition
+_edit_existing_definition(definitie: DefinitieRecord)              # L1877 - Edit existing definition
+_edit_definition(definitie: DefinitieRecord)                       # L1885 - Edit definition (alias)
+_submit_for_review(definitie: DefinitieRecord)                     # L1889 - Submit for review
+_export_definition(definitie: DefinitieRecord)                     # L1923 - Export definition</code></pre>
+
+<h3>9. Example Persistence (2 methods)</h3>
+<pre><code>_maybe_persist_examples(definitie_id, agent_result)                # L779  - Auto-persist examples to DB
+_persist_examples_manual(definitie_id, agent_result) -&gt; bool       # L887  - Force persist examples</code></pre>
+
+<h3>10. Regeneration & Category Change (8 methods)</h3>
+<pre><code>_trigger_regeneration_with_category(begrip, new_cat, old_cat, rec) # L2008 - Trigger regeneration
+_render_regeneration_preview(begrip, def, old_cat, new_cat, ...)   # L2049 - Render regeneration preview
+_get_category_display_name(category: str) -&gt; str                   # L2136 - Get category display name
+_analyze_regeneration_impact(old_category, new_category)           # L2153 - Analyze regeneration impact
+_direct_regenerate_definition(begrip, new_cat, old_cat, rec, ...)  # L2192 - Direct regeneration
+_extract_context_from_generation_result(generation_result)         # L2345 - Extract context from result
+_render_definition_comparison(old_def, new_result, old_cat, new_cat) # L2370 - Compare definitions
+_extract_definition_from_result(generation_result) -&gt; str          # L2412 - Extract definition text</code></pre>
+
+<h3>11. Utility Methods (3 methods)</h3>
+<pre><code>_clear_results()                                                   # L2428 - Clear all results
+_show_settings_modal()                                             # L2434 - Show settings (placeholder)</code></pre>
+
+<h3>12. Nested Helper Functions (in methods - 3 total)</h3>
+<pre><code>_parse(val) -&gt; list[str]                                          # L209  - Inside _format_record_context
+_persist_ufo_selection(key, def_id)                               # L752  - Inside _render_ufo_category_selector
+_as_list(v: Any) -&gt; list[str]                                     # L816/907 - Inside persistence methods (2x)
+_norm(d) -&gt; dict[str, set[str]]                                   # L846  - Inside _maybe_persist_examples
+_v_key(v)                                                         # L1586 - Inside _format_violations</code></pre>
+
+<p>---</p>
+
+<h2>Responsibility Boundaries (8 Services)</h2>
+
+<h3>1️⃣ **DUPLICATE CHECK RENDERING Service** (~450 LOC)</h3>
+
+<p><strong>Purpose:</strong> Render duplicate check results and existing definition details</p>
+
+<p><strong>Methods (4):</strong></p>
+<ul>
+<li>`_render_duplicate_check_results(check_result)` - Main duplicate results display</li>
+<li>`_render_existing_definition(definitie)` - Show existing definition with actions</li>
+<li>`_render_duplicate_matches(duplicates)` - List potential duplicates</li>
+<li>`_format_record_context(def_record)` - Format context for display</li>
+</ul>
+
+<p><strong>Dependencies:</strong></p>
+<ul>
+<li>`DefinitieRecord` (database model)</li>
+<li>`CheckAction` (enum)</li>
+<li>`SessionStateManager` (state access)</li>
+<li>Streamlit UI components</li>
+</ul>
+
+<p><strong>Business Logic:</strong></p>
+<ul>
+<li>Confidence scoring display (>0.8 green, >0.5 orange, else red)</li>
+<li>Action buttons: Use, Edit, Generate New</li>
+<li>Force generation flag management</li>
+<li>Context display logic (org/jur/wet)</li>
+</ul>
+
+<p><strong>Complexity:</strong> MEDIUM</p>
+<ul>
+<li>Mixed UI + business logic (confidence thresholds)</li>
+<li>State mutations (force_generate flags)</li>
+<li>Direct session state access</li>
+</ul>
+
+<p>---</p>
+
+<h3>2️⃣ **GENERATION RESULTS RENDERING Service** (~800 LOC)</h3>
+
+<p><strong>Purpose:</strong> Render AI generation results, categories, sources, examples</p>
+
+<p><strong>Methods (13):</strong></p>
+<ul>
+<li>`_render_generation_results(generation_result)` - Main results coordinator</li>
+<li>`_render_ontological_category_section(...)` - Ontological category display</li>
+<li>`_render_ufo_category_selector(...)` - UFO category selection</li>
+<li>`_generate_category_reasoning(category)` - Generate category explanation</li>
+<li>`_render_category_selector(...)` - Category change UI</li>
+<li>`_update_category(new_category, ...)` - Handle category updates</li>
+<li>`_render_sources_section(...)` - Show source references</li>
+<li>`_get_provider_label(provider)` - Provider display name</li>
+<li>`_log_generation_result_debug(...)` - Debug logging</li>
+<li>`_render_generation_status(agent_result)` - Status indicators</li>
+<li>`_extract_score_from_result(agent_result)` - Score extraction</li>
+<li>`_render_voorbeelden_section(voorbeelden)` - Examples rendering</li>
+<li>`_render_category_change_preview(...)` - Category change preview</li>
+</ul>
+
+<p><strong>Dependencies:</strong></p>
+<ul>
+<li>`DefinitieRecord`, `CategoryService`, `CategoryStateManager`</li>
+<li>`SessionStateManager` (heavy usage)</li>
+<li>`PromptDebugSection` (UI component)</li>
+<li>`render_examples_expandable` (UI helper)</li>
+</ul>
+
+<p><strong>Business Logic:</strong></p>
+<ul>
+<li>Category determination (type/proces/resultaat/exemplaar)</li>
+<li>Score calculations and thresholds</li>
+<li>Document context handling (EPIC-018)</li>
+<li>Opschoning display logic (origineel vs gecorrigeerd)</li>
+<li>Provider-specific formatting (Wikipedia, SRU, etc.)</li>
+</ul>
+
+<p><strong>Complexity:</strong> HIGH</p>
+<ul>
+<li>Complex nested data structures (generation_result dict)</li>
+<li>Multiple conditional rendering paths</li>
+<li>Mixed concerns: display + data extraction + business rules</li>
+</ul>
+
+<p>---</p>
+
+<h3>3️⃣ **VALIDATION RESULTS RENDERING Service** (~250 LOC)</h3>
+
+<p><strong>Purpose:</strong> Display validation results, violations, passed rules</p>
+
+<p><strong>Methods (8):</strong></p>
+<ul>
+<li>`_build_detailed_assessment(validation_result)` - Build assessment</li>
+<li>`_calculate_validation_stats(violations, passed_rules)` - Calculate stats</li>
+<li>`_format_validation_summary(stats)` - Summary formatting</li>
+<li>`_format_violations(violations)` - Violation formatting</li>
+<li>`_get_severity_emoji(severity)` - Severity icons</li>
+<li>`_format_passed_rules(passed_ids)` - Passed rules formatting</li>
+<li>`_render_validation_results(validation_result)` - Main renderer</li>
+<li>`_extract_rule_id_from_line(line)` - Parse rule IDs</li>
+<li>`_rule_sort_key(rule_id)` - Sort rules</li>
+<li>`_build_rule_hint_markdown(rule_id)` - Build tooltips</li>
+</ul>
+
+<p><strong>Dependencies:</strong></p>
+<ul>
+<li>Validation result dict structure</li>
+<li>Rule metadata (severity, categories)</li>
+<li>Streamlit UI components</li>
+</ul>
+
+<p><strong>Business Logic:</strong></p>
+<ul>
+<li>Severity categorization (high/medium/low)</li>
+<li>Rule sorting (violations first, by severity, then by ID)</li>
+<li>Category grouping (ARAI, CON, ESS, INT, SAM, STR, VER)</li>
+<li>Pass reason generation with metrics</li>
+</ul>
+
+<p><strong>Complexity:</strong> MEDIUM-HIGH</p>
+<ul>
+<li>Complex sorting and grouping logic</li>
+<li>String parsing for rule IDs</li>
+<li>Multiple formatting transformations</li>
+</ul>
+
+<p>---</p>
+
+<h3>4️⃣ **RULE REASONING Service** (~180 LOC)</h3>
+
+<p><strong>Purpose:</strong> Generate explanations for passed rules using text metrics</p>
+
+<p><strong>Methods (4):</strong></p>
+<ul>
+<li>`_get_current_text_and_begrip()` - Get current text</li>
+<li>`_compute_text_metrics(text)` - Calculate text stats</li>
+<li>`_build_pass_reason(rule_id, text, begrip)` - Build explanation</li>
+<li>`_get_rule_display_and_explanation(rule_id)` - Get rule info</li>
+</ul>
+
+<p><strong>Dependencies:</strong></p>
+<ul>
+<li>`SessionStateManager` (text/begrip access)</li>
+<li>Hardcoded rule knowledge (mapping rule_id → explanation)</li>
+</ul>
+
+<p><strong>Business Logic:</strong></p>
+<ul>
+<li>Text metrics: word count, char count, sentence count, avg word length</li>
+<li>Rule-specific pass reasoning:</li>
+<li> - ARAI-001: Lengte check (50-500 chars)</li>
+<li> - CON-001: Begrip occurrence check</li>
+<li> - ESS-002: Structure check</li>
+<li> - INT-001: Abbreviation check</li>
+<li> - SAM-001: Sentence count check</li>
+<li> - STR-001: Bullet/numbering check</li>
+<li> - VER-001: Length adequacy</li>
+</ul>
+
+<p><strong>Complexity:</strong> MEDIUM</p>
+<ul>
+<li>Hardcoded business rules (NOT data-driven!)</li>
+<li>Text analysis logic</li>
+<li>Rule ID → logic mapping</li>
+</ul>
+
+<p><strong>⚠️ RISK:</strong> Hardcoded rule logic duplicates config/toetsregels system</p>
+
+<p>---</p>
+
+<h3>5️⃣ **ACTION HANDLERS Service** (~150 LOC)</h3>
+
+<p><strong>Purpose:</strong> Handle user actions on definitions (use, edit, review, export)</p>
+
+<p><strong>Methods (5):</strong></p>
+<ul>
+<li>`_use_existing_definition(definitie)` - Load existing into session</li>
+<li>`_edit_existing_definition(definitie)` - Navigate to edit</li>
+<li>`_edit_definition(definitie)` - Alias for edit</li>
+<li>`_submit_for_review(definitie)` - Submit for review workflow</li>
+<li>`_export_definition(definitie)` - Export to file</li>
+</ul>
+
+<p><strong>Dependencies:</strong></p>
+<ul>
+<li>`DefinitieRecord`, `WorkflowService`</li>
+<li>`SessionStateManager` (navigation state)</li>
+<li>Streamlit navigation (`st.switch_page`)</li>
+</ul>
+
+<p><strong>Business Logic:</strong></p>
+<ul>
+<li>Navigation logic (tab switching)</li>
+<li>State preparation for other tabs</li>
+<li>Workflow state transitions (submit for review)</li>
+<li>Export file generation (JSON/DOCX/PDF)</li>
+</ul>
+
+<p><strong>Complexity:</strong> MEDIUM</p>
+<ul>
+<li>Navigation coordination</li>
+<li>State synchronization between tabs</li>
+<li>Workflow service integration</li>
+</ul>
+
+<p>---</p>
+
+<h3>6️⃣ **EXAMPLES PERSISTENCE Service** (~180 LOC)</h3>
+
+<p><strong>Purpose:</strong> Save generated examples to database</p>
+
+<p><strong>Methods (2):</strong></p>
+<ul>
+<li>`_maybe_persist_examples(definitie_id, agent_result)` - Auto-persist</li>
+<li>`_persist_examples_manual(definitie_id, agent_result)` - Force persist</li>
+</ul>
+
+<p><strong>Dependencies:</strong></p>
+<ul>
+<li>`get_definitie_repository()` (database access)</li>
+<li>`SessionStateManager` (deduplication flags)</li>
+<li>`canonicalize_examples` (helper)</li>
+</ul>
+
+<p><strong>Business Logic:</strong></p>
+<ul>
+<li>Deduplication via generation_id flags</li>
+<li>Canonicalization (voorbeeldzinnen, praktijkvoorbeelden, etc.)</li>
+<li>Change detection (compare with current DB state)</li>
+<li>Automatic voorkeursterm handling</li>
+</ul>
+
+<p><strong>Complexity:</strong> MEDIUM-HIGH</p>
+<ul>
+<li>Complex deduplication logic</li>
+<li>Data normalization (lists vs strings)</li>
+<li>Database comparison logic</li>
+<li>Transaction handling</li>
+</ul>
+
+<p>---</p>
+
+<h3>7️⃣ **REGENERATION & CATEGORY CHANGE Service** (~500 LOC)</h3>
+
+<p><strong>Purpose:</strong> Handle definition regeneration when category changes</p>
+
+<p><strong>Methods (8):</strong></p>
+<ul>
+<li>`_trigger_regeneration_with_category(...)` - Setup regeneration</li>
+<li>`_render_regeneration_preview(...)` - Show preview</li>
+<li>`_get_category_display_name(category)` - Category display</li>
+<li>`_analyze_regeneration_impact(old_cat, new_cat)` - Impact analysis</li>
+<li>`_direct_regenerate_definition(...)` - Execute regeneration</li>
+<li>`_extract_context_from_generation_result(...)` - Context extraction</li>
+<li>`_render_definition_comparison(...)` - Compare old/new</li>
+<li>`_extract_definition_from_result(...)` - Extract definition text</li>
+</ul>
+
+<p><strong>Dependencies:</strong></p>
+<ul>
+<li>`RegenerationService`, `CategoryService`</li>
+<li>`get_definition_service()` (dynamic import)</li>
+<li>`run_async` (async bridge)</li>
+<li>`SessionStateManager` (state coordination)</li>
+</ul>
+
+<p><strong>Business Logic:</strong></p>
+<ul>
+<li>Category change impact analysis (type↔proces transitions)</li>
+<li>Regeneration context preparation</li>
+<li>Async definition generation</li>
+<li>Result comparison and preview</li>
+<li>UI navigation coordination</li>
+</ul>
+
+<p><strong>Complexity:</strong> <strong>VERY HIGH</strong></p>
+<ul>
+<li>Async execution patterns</li>
+<li>Complex state management</li>
+<li>Multiple service orchestration</li>
+<li>Error handling and rollback logic</li>
+<li>UI/business logic mixing</li>
+</ul>
+
+<p><strong>⚠️ CRITICAL:</strong> This is essentially a WORKFLOW ORCHESTRATOR hidden in a UI component!</p>
+
+<p>---</p>
+
+<h3>8️⃣ **CONTEXT GUARDS & UTILITIES Service** (~65 LOC)</h3>
+
+<p><strong>Purpose:</strong> Context validation, UI utilities, result clearing</p>
+
+<p><strong>Methods (5):</strong></p>
+<ul>
+<li>`_get_global_context_lists()` - Read global context</li>
+<li>`_has_min_one_context()` - Validate context exists</li>
+<li>`_clear_results()` - Clear session results</li>
+<li>`_show_settings_modal()` - Settings placeholder</li>
+</ul>
+
+<p><strong>Dependencies:</strong></p>
+<ul>
+<li>`SessionStateManager` (context access)</li>
+<li>`ensure_dict` (type helper)</li>
+</ul>
+
+<p><strong>Business Logic:</strong></p>
+<ul>
+<li>Context requirement validation (min 1 of org/jur/wet)</li>
+<li>Safe context parsing (handle None, empty lists)</li>
+<li>Result cleanup</li>
+</ul>
+
+<p><strong>Complexity:</strong> LOW</p>
+<ul>
+<li>Simple guard logic</li>
+<li>State access patterns</li>
+</ul>
+
+<p>---</p>
+
+<h2>Cross-Cutting Concerns</h2>
+
+<h3>1. Session State Management</h3>
+<p><strong>Usage:</strong> Heavy reliance on <code>SessionStateManager</code> across ALL services</p>
+<ul>
+<li>Generation results storage</li>
+<li>Navigation state</li>
+<li>Context storage</li>
+<li>Deduplication flags</li>
+<li>UI state (show_category_selector, etc.)</li>
+</ul>
+
+<p><strong>Risk:</strong> Tight coupling to session state structure</p>
+
+<h3>2. Database Access</h3>
+<p><strong>Direct DB calls in UI component:</strong></p>
+<ul>
+<li>`get_definitie_repository()` calls in rendering methods</li>
+<li>Example persistence (save_voorbeelden)</li>
+<li>UFO category updates (update_definitie)</li>
+</ul>
+
+<p><strong>Violation:</strong> UI should NOT access database directly!</p>
+
+<h3>3. Async/Sync Mixing</h3>
+<ul>
+<li>`run_async()` bridge for async calls in sync UI</li>
+<li>Progress bar updates during async operations</li>
+<li>Error handling complexity</li>
+</ul>
+
+<h3>4. Error Handling</h3>
+<ul>
+<li>Try/except blocks everywhere (50+ occurrences)</li>
+<li>Silent failures (pass in except blocks)</li>
+<li>Inconsistent error messaging</li>
+</ul>
+
+<p>---</p>
+
+<h2>Service Boundary Design (Proposed)</h2>
+
+<h3>🎯 Target Architecture</h3>
+
+<pre><code>definition_generator_tab.py (UI ONLY - ~300 LOC)
+├── DuplicateCheckRenderer (~150 LOC)
+├── GenerationResultsRenderer (~150 LOC)
+└── (delegates to services)
+
+NEW Services:
+├── DuplicateCheckPresentationService (~200 LOC)
+│   └── Format duplicate results for display
+│
+├── GenerationResultsPresentationService (~400 LOC)
+│   ├── Format generation results
+│   ├── Category display logic
+│   └── Source formatting
+│
+├── ValidationResultsPresentationService (~250 LOC)
+│   ├── Format validation results
+│   ├── Build assessments
+│   └── Rule explanations
+│
+├── RuleReasoningService (~180 LOC)
+│   ├── Text metrics calculation
+│   ├── Pass reason generation
+│   └── Rule metadata access
+│
+├── DefinitionActionService (~150 LOC)
+│   ├── Use existing
+│   ├── Edit/Review workflows
+│   └── Export operations
+│
+├── ExamplesPersistenceService (~180 LOC)
+│   ├── Auto-persist logic
+│   ├── Deduplication
+│   └── Database operations
+│
+└── RegenerationOrchestratorService (~500 LOC) **CRITICAL**
+    ├── Category change impact analysis
+    ├── Regeneration coordination
+    ├── Async execution management
+    └── Result comparison</code></pre>
+
+<p>---</p>
+
+<h2>Migration Complexity Assessment</h2>
+
+<h3>Complexity Rating: **HIGH** (8/10)</h3>
+
+<p><strong>Factors Supporting Migration:</strong></p>
+<p>✅ Single importer (only <code>tabbed_interface.py</code>)</p>
+<p>✅ Clear responsibility boundaries identified (8 services)</p>
+<p>✅ Stateless design (state in SessionStateManager)</p>
+<p>✅ No circular dependencies</p>
+
+<p><strong>Factors Increasing Complexity:</strong></p>
+<p>❌ 60 methods across 2,525 LOC (5x threshold)</p>
+<p>❌ God Object with 8 different concerns</p>
+<p>❌ Direct database access in UI layer</p>
+<p>❌ Complex async/sync mixing</p>
+<p>❌ Tight coupling to generation_result dict structure</p>
+<p>❌ Heavy session state dependencies</p>
+<p>❌ Minimal test coverage (1 test file)</p>
+<p>❌ Hardcoded business logic (rule reasoning)</p>
+
+<h3>Migration Risk Areas</h3>
+
+<ol>
+<li>**Session State Structure Changes**</li>
+</ol>
+<ul>
+<li>  - 30+ SessionStateManager calls</li>
+<li>  - Risk: Breaking state contracts with other components</li>
+</ul>
+
+<ol>
+<li>**generation_result Dict Structure**</li>
+</ol>
+<ul>
+<li>  - Deep nested access patterns everywhere</li>
+<li>  - Risk: Schema changes break multiple methods</li>
+</ul>
+
+<ol>
+<li>**Async Execution Patterns**</li>
+</ol>
+<ul>
+<li>  - `run_async()` bridge in UI context</li>
+<li>  - Risk: Concurrency issues, error handling</li>
+</ul>
+
+<ol>
+<li>**Database Transaction Boundaries**</li>
+</ol>
+<ul>
+<li>  - Direct repository calls in UI</li>
+<li>  - Risk: Transaction isolation, error recovery</li>
+</ul>
+
+<p>---</p>
+
+<h2>Recommended Extraction Order</h2>
+
+<h3>Phase 1: LOW-RISK Services (Week 1)</h3>
+<ol>
+<li>**Context Guards Service** (LOW complexity, 5 methods, ~65 LOC)</li>
+</ol>
+<ul>
+<li>  - Clear boundaries</li>
+<li>  - Minimal dependencies</li>
+<li>  - Easy to test</li>
+</ul>
+
+<ol>
+<li>**Rule Reasoning Service** (MEDIUM complexity, 4 methods, ~180 LOC)</li>
+</ol>
+<ul>
+<li>  - Self-contained logic</li>
+<li>  - Clear inputs/outputs</li>
+<li>  - Can be data-driven later</li>
+</ul>
+
+<h3>Phase 2: MEDIUM-RISK Services (Week 2)</h3>
+<ol>
+<li>**Validation Results Presentation Service** (MEDIUM-HIGH, 8 methods, ~250 LOC)</li>
+</ol>
+<ul>
+<li>  - Clear formatting logic</li>
+<li>  - Independent of other services</li>
+<li>  - Testable transformations</li>
+</ul>
+
+<ol>
+<li>**Duplicate Check Presentation Service** (MEDIUM, 4 methods, ~450 LOC)</li>
+</ol>
+<ul>
+<li>  - Isolated rendering logic</li>
+<li>  - Clear dependencies</li>
+</ul>
+
+<h3>Phase 3: HIGH-RISK Services (Week 3)</h3>
+<ol>
+<li>**Generation Results Presentation Service** (HIGH, 13 methods, ~800 LOC)</li>
+</ol>
+<ul>
+<li>  - Complex nested structures</li>
+<li>  - Multiple dependencies</li>
+<li>  - Needs careful state management</li>
+</ul>
+
+<ol>
+<li>**Examples Persistence Service** (MEDIUM-HIGH, 2 methods, ~180 LOC)</li>
+</ol>
+<ul>
+<li>  - Database operations</li>
+<li>  - Deduplication complexity</li>
+<li>  - Transaction boundaries</li>
+</ul>
+
+<h3>Phase 4: CRITICAL Services (Week 4)</h3>
+<ol>
+<li>**Definition Action Service** (MEDIUM, 5 methods, ~150 LOC)</li>
+</ol>
+<ul>
+<li>  - Navigation coordination</li>
+<li>  - Workflow integration</li>
+<li>  - State synchronization</li>
+</ul>
+
+<ol>
+<li>**Regeneration Orchestrator Service** ⚠️ (VERY HIGH, 8 methods, ~500 LOC)</li>
+</ol>
+<ul>
+<li>  - **MOST COMPLEX!**</li>
+<li>  - Async orchestration</li>
+<li>  - Multiple service coordination</li>
+<li>  - Critical business logic</li>
+</ul>
+
+<p>---</p>
+
+<h2>Testing Strategy</h2>
+
+<h3>Current Coverage: **POOR**</h3>
+<ul>
+<li>Only 1 test file: `test_definition_generator_context_per007.py`</li>
+<li>Focus: Context validation only</li>
+<li>Missing: All rendering, formatting, persistence, regeneration logic</li>
+</ul>
+
+<h3>Required Test Coverage</h3>
+
+<p><strong>Priority 1 (Before Refactor):</strong></p>
+<ol>
+<li>Create integration tests for current behavior</li>
+</ol>
+<ul>
+<li>  - Duplicate check rendering</li>
+<li>  - Generation results rendering</li>
+<li>  - Validation results rendering</li>
+<li>  - Category change flow</li>
+</ul>
+
+<p><strong>Priority 2 (During Refactor):</strong></p>
+<ol>
+<li>Unit tests for each extracted service</li>
+</ol>
+<ul>
+<li>  - Context Guards: 100% coverage (simple logic)</li>
+<li>  - Rule Reasoning: 90%+ coverage (business logic)</li>
+<li>  - Validation Presentation: 80%+ coverage</li>
+<li>  - Examples Persistence: 90%+ coverage (data integrity)</li>
+</ul>
+
+<p><strong>Priority 3 (After Refactor):</strong></p>
+<ol>
+<li>UI component tests</li>
+</ol>
+<ul>
+<li>  - Streamlit rendering tests</li>
+<li>  - User interaction flows</li>
+<li>  - Navigation logic</li>
+</ul>
+
+<h3>Test Data Requirements</h3>
+<ul>
+<li>Sample generation_result fixtures</li>
+<li>Sample validation_result fixtures</li>
+<li>Mock DefinitieRecord instances</li>
+<li>Mock session state configurations</li>
+</ul>
+
+<p>---</p>
+
+<h2>Dependencies & Side Effects</h2>
+
+<h3>External Dependencies</h3>
+<ol>
+<li>**Streamlit** - Heavy UI dependency (st.* calls everywhere)</li>
+<li>**SessionStateManager** - State management (30+ calls)</li>
+<li>**DefinitieRepository** - Database access (6+ direct calls)</li>
+<li>**Service Layer**:</li>
+</ol>
+<ul>
+<li>  - CategoryService</li>
+<li>  - CategoryStateManager</li>
+<li>  - RegenerationService</li>
+<li>  - WorkflowService</li>
+</ul>
+
+<h3>Side Effects</h3>
+
+<p><strong>Database Writes:</strong></p>
+<ul>
+<li>`save_voorbeelden()` in _maybe_persist_examples</li>
+<li>`update_definitie()` in UFO category selection</li>
+<li>Workflow state changes in _submit_for_review</li>
+</ul>
+
+<p><strong>Session State Mutations:</strong></p>
+<ul>
+<li>generation_options modification</li>
+<li>Navigation state updates</li>
+<li>Result storage</li>
+<li>Deduplication flags</li>
+</ul>
+
+<p><strong>Navigation Side Effects:</strong></p>
+<ul>
+<li>`st.switch_page()` in action handlers</li>
+<li>`st.rerun()` in category selector</li>
+<li>Tab state changes</li>
+</ul>
+
+<p><strong>Async Operations:</strong></p>
+<ul>
+<li>`run_async()` for definition generation</li>
+<li>Progress bar updates during execution</li>
+</ul>
+
+<p>---</p>
+
+<h2>Recommended Refactoring Strategy</h2>
+
+<h3>1. **Preparation Phase** (3 days)</h3>
+<ul>
+<li>✅ Create comprehensive integration tests for current behavior</li>
+<li>✅ Document all session state contracts</li>
+<li>✅ Map generation_result dict schema</li>
+<li>✅ Identify all database transaction boundaries</li>
+</ul>
+
+<h3>2. **Facade Pattern** (2 days)</h3>
+<ul>
+<li>✅ Create `DefinitionGeneratorFacade` to maintain backwards compatibility</li>
+<li>✅ Delegate to new services internally</li>
+<li>✅ Keep `tabbed_interface.py` working with zero changes</li>
+</ul>
+
+<h3>3. **Service Extraction** (4 weeks - see Extraction Order above)</h3>
+<ul>
+<li>✅ Extract services one-by-one</li>
+<li>✅ Test after EACH extraction (integration tests must pass)</li>
+<li>✅ Update facade to delegate to new services</li>
+<li>✅ Keep original methods as thin wrappers initially</li>
+</ul>
+
+<h3>4. **Thin UI Layer** (1 week)</h3>
+<ul>
+<li>✅ Reduce tab to pure rendering logic (<300 LOC)</li>
+<li>✅ Remove all business logic</li>
+<li>✅ Remove all database access</li>
+<li>✅ Delegate everything to services</li>
+</ul>
+
+<h3>5. **Cleanup Phase** (2 days)</h3>
+<ul>
+<li>✅ Remove facade pattern</li>
+<li>✅ Update `tabbed_interface.py` to use services directly</li>
+<li>✅ Final test pass</li>
+<li>✅ Documentation update</li>
+</ul>
+
+<p>---</p>
+
+<h2>Key Insights & Recommendations</h2>
+
+<h3>🚨 Critical Issues</h3>
+
+<ol>
+<li>**God Object Anti-Pattern**</li>
+</ol>
+<ul>
+<li>  - 2,525 LOC, 60 methods - **URGENT refactoring needed**</li>
+<li>  - Violates Single Responsibility Principle severely</li>
+</ul>
+
+<ol>
+<li>**UI/Business Logic Mixing**</li>
+</ol>
+<ul>
+<li>  - Database operations in rendering methods</li>
+<li>  - Business rules hardcoded in UI (rule reasoning)</li>
+<li>  - Workflow orchestration in UI component (regeneration)</li>
+</ul>
+
+<ol>
+<li>**Hidden Orchestrator**</li>
+</ol>
+<ul>
+<li>  - Regeneration logic is essentially a complex workflow orchestrator</li>
+<li>  - Should be a separate service, NOT in UI layer</li>
+</ul>
+
+<ol>
+<li>**Test Coverage Gap**</li>
+</ol>
+<ul>
+<li>  - Only 1 test file for 2,525 LOC</li>
+<li>  - High risk for regressions during refactor</li>
+</ul>
+
+<h3>✅ Positive Findings</h3>
+
+<ol>
+<li>**Single Importer Advantage**</li>
+</ol>
+<ul>
+<li>  - Only `tabbed_interface.py` uses this class</li>
+<li>  - Easy migration path with facade pattern</li>
+</ul>
+
+<ol>
+<li>**Clear Boundaries**</li>
+</ol>
+<ul>
+<li>  - 8 distinct service responsibilities identified</li>
+<li>  - Can extract incrementally</li>
+</ul>
+
+<ol>
+<li>**Stateless Design**</li>
+</ol>
+<ul>
+<li>  - No in-memory state (all in SessionStateManager)</li>
+<li>  - Services can be stateless</li>
+</ul>
+
+<h3>📋 Immediate Actions</h3>
+
+<p><strong>Before Starting Refactor:</strong></p>
+<ol>
+<li>✅ Create comprehensive integration test suite</li>
+<li>✅ Document session state contracts</li>
+<li>✅ Map all database operations and transactions</li>
+<li>✅ Create generation_result schema documentation</li>
+</ol>
+
+<p><strong>During Refactor:</strong></p>
+<ol>
+<li>✅ Use Facade pattern for backwards compatibility</li>
+<li>✅ Extract LOW-RISK services first</li>
+<li>✅ Test after EVERY extraction</li>
+<li>✅ Keep original class working until very end</li>
+</ol>
+
+<p><strong>After Refactor:</strong></p>
+<ol>
+<li>✅ Verify all 1 importer still works</li>
+<li>✅ Remove facade pattern</li>
+<li>✅ Reduce tab to <300 LOC pure UI</li>
+<li>✅ Document new service architecture</li>
+</ol>
+
+<p>---</p>
+
+<h2>Migration Checklist</h2>
+
+<h3>Pre-Migration</h3>
+<ul>
+<li>[ ] Create integration test suite (duplicate check, generation, validation, regeneration)</li>
+<li>[ ] Document session state schema</li>
+<li>[ ] Document generation_result dict schema</li>
+<li>[ ] Map all database operations</li>
+<li>[ ] Create rollback plan</li>
+</ul>
+
+<h3>Service Extraction</h3>
+<ul>
+<li>[ ] Extract Context Guards Service (3 days)</li>
+<li>[ ] Extract Rule Reasoning Service (4 days)</li>
+<li>[ ] Extract Validation Presentation Service (5 days)</li>
+<li>[ ] Extract Duplicate Check Presentation Service (5 days)</li>
+<li>[ ] Extract Generation Results Presentation Service (7 days)</li>
+<li>[ ] Extract Examples Persistence Service (5 days)</li>
+<li>[ ] Extract Definition Action Service (4 days)</li>
+<li>[ ] Extract Regeneration Orchestrator Service (10 days) ⚠️ CRITICAL</li>
+</ul>
+
+<h3>Post-Migration</h3>
+<ul>
+<li>[ ] Reduce tab to <300 LOC pure UI</li>
+<li>[ ] Remove facade pattern</li>
+<li>[ ] Update tabbed_interface.py</li>
+<li>[ ] Final integration test pass</li>
+<li>[ ] Update architecture documentation</li>
+</ul>
+
+<h3>Success Criteria</h3>
+<ul>
+<li>✅ All integration tests pass</li>
+<li>✅ Zero regressions in UI behavior</li>
+<li>✅ Tab reduced to <300 LOC</li>
+<li>✅ All business logic in services</li>
+<li>✅ No direct database access in UI</li>
+<li>✅ Test coverage >80% for services</li>
+</ul>
+
+<p>---</p>
+
+<h2>Appendix: Method Categories</h2>
+
+<h3>UI Rendering (29 methods)</h3>
+<p>Duplicate Check, Generation Results, Validation Results, Category UI, Sources, Examples</p>
+
+<h3>Business Logic (15 methods)</h3>
+<p>Category reasoning, Impact analysis, Rule reasoning, Pass explanations, Metrics</p>
+
+<h3>Data Operations (7 methods)</h3>
+<p>Examples persistence, Context extraction, Definition extraction, UFO persistence</p>
+
+<h3>Workflow Orchestration (6 methods)</h3>
+<p>Regeneration trigger, Direct regeneration, Category updates, Navigation</p>
+
+<h3>Utilities (3 methods)</h3>
+<p>Clear results, Settings, Debug logging</p>
+
+<p>---</p>
+
+<p><strong>Analysis Complete</strong></p>
+<p><strong>Next Steps:</strong> Begin Day 2 Task 2 - Map <code>tabbed_interface.py</code></p>
+
+<p>---</p>
+
+<p><strong>Analyst:</strong> Code Architect Agent</p>
+<p><strong>Date:</strong> 2025-10-02</p>
+<p><strong>Phase:</strong> EPIC-026 Phase 1 (Design)</p>
+<p><strong>Day:</strong> 2 of 5</p>
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,35 @@
+id: ARAI02SUB1
+name: Lexicale containerbegrippen vermijden
+description: Vermijd algemene termen als 'aspect', 'ding', 'iets' of 'element' in
+  definities.
+explanation: Dergelijke termen zijn te vaag en voegen onvoldoende betekenis toe. Een
+  goede definitie gebruikt specifieke en informatieve termen.
+test_question: Bevat de definitie algemene containertermen die geen concrete of specifieke
+  betekenis toevoegen?
+metadata:
+  priority: midden
+  recommendation: optioneel
+  validity: gehele definitie
+  status: conceptueel
+  type: inhoud
+  theme: begripszuiverheid
+  source_document: Subsidieregel van ARAI02
+validation:
+  patterns:
+  - \baspect\b
+  - \bding\b
+  - \biets\b
+  - \belement\b
+  - \bfactor\b
+  good_examples:
+  - maatregel die gericht is op risicobeheersing
+  - gegeven dat betrekking heeft op de identiteit van een persoon
+  bad_examples:
+  - iets dat helpt bij het beheersen van risico’s
+  - element dat informatie bevat
+references: []
+implementation_details:
+  implementation: python
+  source_file: src/toetsregels/regels/ARAI-02SUB1.py
+  validation_logic: See Python implementation for complex validation
+  validation_description: Validator voor ARAI02SUB1.

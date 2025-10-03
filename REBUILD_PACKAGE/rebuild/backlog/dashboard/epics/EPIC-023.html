@@ -1,0 +1,220 @@
+
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>EPIC-023 - Quality Control & System Health Dashboard</title>
+  <link rel="stylesheet" href="../assets/style.css" />
+</head>
+<body>
+  <div class="container">
+    <div class="breadcrumbs"><a href="../index.html">Requirements</a> / <span>EPIC-023</span></div>
+    <h1>EPIC-023: Quality Control & System Health Dashboard</h1>
+    <div><h1>EPIC-023: Quality Control & System Health Dashboard</h1>
+
+<h2>Executive Summary</h2>
+
+<p>Een comprehensive quality control systeem voor het monitoren, analyseren en rapporteren van de kwaliteit van toetsregels, validaties en systeem gezondheid binnen de DefinitieAgent applicatie.</p>
+
+<h2>Business Value</h2>
+
+<h3>Probleemstelling</h3>
+<ul>
+<li>Geen centraal overzicht van toetsregels performance en coverage</li>
+<li>Ontbrekende system health monitoring voor kritieke componenten</li>
+<li>Geen geautomatiseerde consistency checks tussen JSON en Python implementaties</li>
+<li>Beperkte export mogelijkheden voor compliance rapportage</li>
+</ul>
+
+<h3>Oplossing</h3>
+<p>Een geïntegreerd quality control dashboard dat real-time inzicht geeft in:</p>
+<ul>
+<li>Toetsregels gebruik en coverage</li>
+<li>Systeem gezondheid en performance</li>
+<li>Validatie consistency en betrouwbaarheid</li>
+<li>Export mogelijkheden voor audit en compliance</li>
+</ul>
+
+<h3>Verwachte Baten</h3>
+<ul>
+<li>**Verhoogde betrouwbaarheid**: Direct inzicht in systeem issues</li>
+<li>**Betere compliance**: Geautomatiseerde rapportage voor audits</li>
+<li>**Snellere troubleshooting**: Centrale monitoring van alle componenten</li>
+<li>**Kwaliteitsborging**: Continue monitoring van validatie consistency</li>
+</ul>
+
+<h2>Scope</h2>
+
+<h3>In Scope</h3>
+<ul>
+<li>Toetsregels analyse en monitoring</li>
+<li>System health dashboard</li>
+<li>Validation consistency checks</li>
+<li>Rule coverage analysis</li>
+<li>Export functionaliteit voor rapporten</li>
+<li>Cache management voor analyses</li>
+</ul>
+
+<h3>Out of Scope</h3>
+<ul>
+<li>Performance tuning van individuele regels</li>
+<li>Automatische regel generatie</li>
+<li>External monitoring tools integratie</li>
+</ul>
+
+<h2>User Stories</h2>
+
+<h3>Core Functionality</h3>
+<ul>
+<li>**US-413**: Toetsregels Usage Analysis - Inzicht in actieve regels</li>
+<li>**US-414**: System Health Monitoring - Real-time gezondheid checks</li>
+<li>**US-415**: Validation Consistency Checker - JSON-Python sync validatie</li>
+<li>**US-416**: Rule Coverage Analysis - Coverage metrics en gaps</li>
+<li>**US-417**: Quality Report Export - Export voor audit/compliance</li>
+</ul>
+
+<h2>Technical Requirements</h2>
+
+<h3>Architecture</h3>
+<pre class=code><code>
+Quality Control System
+├── Analysis Engine
+│   ├── Toetsregels Analyzer
+│   ├── Coverage Calculator
+│   └── Consistency Checker
+├── Monitoring Service
+│   ├── Health Checks
+│   ├── Metric Collection
+│   └── Alert Manager
+├── Reporting Module
+│   ├── Report Generator
+│   ├── Export Service
+│   └── Template Engine
+└── UI Components
+    ├── Dashboard Widget
+    ├── Analysis Views
+    └── Export Interface
+</code></pre>
+
+<h3>Key Components</h3>
+<p>1. **QualityControlTab**: Main UI component</p>
+<p>2. **ValidationAnalyzer**: Core analysis service</p>
+<p>3. **SystemHealthMonitor**: Health check service</p>
+<p>4. **ReportExporter**: Export functionality</p>
+
+<h3>Dependencies</h3>
+<ul>
+<li>V2 Validation Service (EPIC-002)</li>
+<li>ServiceContainer architecture</li>
+<li>SessionStateManager for caching</li>
+</ul>
+
+<h2>Success Criteria</h2>
+
+<h3>Functional</h3>
+<ul>
+<li>[ ] All toetsregels kunnen geanalyseerd worden</li>
+<li>[ ] System health real-time monitoring werkt</li>
+<li>[ ] Consistency checks zijn 100% accuraat</li>
+<li>[ ] Coverage analysis toont alle gaps</li>
+<li>[ ] Export genereert valide rapporten</li>
+</ul>
+
+<h3>Non-Functional</h3>
+<ul>
+<li>[ ] Analysis compleet binnen 5 seconden</li>
+<li>[ ] Dashboard update elke 30 seconden</li>
+<li>[ ] Export binnen 2 seconden</li>
+<li>[ ] Cache invalidation werkt correct</li>
+</ul>
+
+<h2>Risk Assessment</h2>
+
+<p>| Risk | Impact | Probability | Mitigation |</p>
+<p>|------|--------|-------------|------------|</p>
+<p>| Performance impact monitoring | High | Medium | Implement efficient caching |</p>
+<p>| Complex rule dependencies | Medium | High | Create dependency maps |</p>
+<p>| Export format compatibility | Low | Medium | Support multiple formats |</p>
+
+<h2>Implementation Phases</h2>
+
+<h3>Phase 1: Core Monitoring (Sprint 1)</h3>
+<ul>
+<li>Basic toetsregels analysis</li>
+<li>Simple health checks</li>
+<li>Manual refresh</li>
+</ul>
+
+<h3>Phase 2: Advanced Analysis (Sprint 2)</h3>
+<ul>
+<li>Coverage calculation</li>
+<li>Consistency validation</li>
+<li>Automated analysis</li>
+</ul>
+
+<h3>Phase 3: Reporting (Sprint 3)</h3>
+<ul>
+<li>Export functionality</li>
+<li>Report templates</li>
+<li>Historical data</li>
+</ul>
+
+<h3>Phase 4: Polish (Sprint 4)</h3>
+<ul>
+<li>Real-time updates</li>
+<li>Alert system</li>
+<li>Performance optimization</li>
+</ul>
+
+<h2>Acceptance Criteria</h2>
+
+<ul>
+<li>Quality control tab fully functional</li>
+<li>All analyses produce accurate results</li>
+<li>Export generates valid reports</li>
+<li>System health monitoring active</li>
+<li>Documentation complete</li>
+</ul>
+
+<h2>Notes</h2>
+
+<ul>
+<li>Builds on existing V2 validation infrastructure</li>
+<li>Should integrate with future monitoring solutions</li>
+<li>Consider adding API endpoints for external monitoring</li>
+<li>May need performance optimization for large rule sets</li>
+</ul>
+
+<h2>Status Update - 2025-09-29</h2>
+
+<h3>Implementatie Verwijderd</h3>
+<p>De Quality Control tab implementatie is verwijderd uit de codebase omdat:</p>
+<p>1. Er is momenteel geen behoefte aan deze functionaliteit</p>
+<p>2. De focus ligt op andere prioriteiten</p>
+<p>3. De functionaliteit kan later opnieuw worden geïmplementeerd indien nodig</p>
+
+<h3>Wat is gedocumenteerd</h3>
+<ul>
+<li>Volledige requirements (REQ-110, REQ-111, REQ-112)</li>
+<li>User stories (US-420 t/m US-424)</li>
+<li>Traceability matrix met 100% dekking</li>
+<li>BUG-001: Export functionaliteit issue (opgelost voordat tab werd verwijderd)</li>
+</ul>
+
+<h3>Verwijderde bestanden</h3>
+<ul>
+<li>`src/ui/components/quality_control_tab.py` (420 regels code)</li>
+<li>Verwijzingen uit `src/ui/tabbed_interface.py`</li>
+</ul>
+
+<h3>Toekomstige implementatie</h3>
+<p>Als de Quality Control functionaliteit in de toekomst nodig is:</p>
+<p>1. Gebruik de gedocumenteerde requirements als basis</p>
+<p>2. Implementeer volgens de user stories</p>
+<p>3. Refereer aan de traceability matrix voor complete dekking</p></div>
+    <p class="muted">Bron: <a href="../../rebuild/backlog/EPIC-023/EPIC-023.md">rebuild/backlog/EPIC-023/EPIC-023.md</a></p>
+  </div>
+</body>
+</html>
+        

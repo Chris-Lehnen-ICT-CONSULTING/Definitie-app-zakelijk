@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>US-445: Remove Category Regeneration Service</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>US-445: Remove Category Regeneration Service</h1>
+
+<p><strong>Epic:</strong> EPIC-028 - Feature Cleanup & UI Simplification</p>
+<p><strong>Priority:</strong> HIGH</p>
+<p><strong>Effort:</strong> 3 story points</p>
+<p><strong>Status:</strong> 🔵 TODO</p>
+
+<p>---</p>
+
+<h2>📖 User Story</h2>
+
+<p><strong>Als</strong> gebruiker</p>
+<p><strong>Wil ik</strong> een simpele workflow om definities te regenereren</p>
+<p><strong>Zodat</strong> ik niet verward raak door complexe cross-tab regeneration flows</p>
+
+<p>---</p>
+
+<h2>🎯 Acceptance Criteria</h2>
+
+<ul>
+<li>[ ] `src/services/regeneration_service.py` verwijderd (130 LOC)</li>
+<li>[ ] Regeneration code verwijderd uit `definition_generator_tab.py` (~200 LOC)</li>
+<li>[ ] Regeneration code verwijderd uit `tabbed_interface.py`</li>
+<li>[ ] Session state cleanup voor regeneration markers</li>
+<li>[ ] Users kunnen nog steeds regenereren via normale flow</li>
+<li>[ ] Tab count blijft 5 (alleen service removal, geen tab)</li>
+<li>[ ] Tests blijven groen</li>
+</ul>
+
+<p>---</p>
+
+<h2>🎯 Alternative Workflow (Simpler)</h2>
+
+<p><strong>OLD (Complex):</strong></p>
+<pre><code>Definition tab → Wijzig categorie → Set regeneration context
+  → Navigate to Generator → Pre-filled → Generate → Clear context</code></pre>
+
+<p><strong>NEW (Simple):</strong></p>
+<pre><code>Generator tab → Wijzig categorie dropdown → Druk "Genereer Definitie"</code></pre>
+
+<p>---</p>
+
+<h2>🔧 Technical Tasks</h2>
+
+<h3>1. Remove Service File</h3>
+<pre><code>rm src/services/regeneration_service.py</code></pre>
+
+<h3>2. Update `src/ui/tabbed_interface.py`</h3>
+
+<p><strong>Remove import (lines ~154-156):</strong></p>
+<pre><code>from services.regeneration_service import RegenerationService</code></pre>
+
+<p><strong>Remove service initialization (lines ~161):</strong></p>
+<pre><code>self.regeneration_service = RegenerationService(prompt_builder)</code></pre>
+
+<p><strong>Remove regeneration check in generation flow (lines ~932-957):</strong></p>
+<pre><code># Check voor actieve regeneration context (GVI Rode Kabel)
+regeneration_context = self.regeneration_service.get_active_context()
+if regeneration_context:
+    # Override categorie met nieuwe categorie uit regeneration context
+    auto_categorie_original = auto_categorie
+    try:
+        # Convert string to OntologischeCategorie if needed
+        if isinstance(regeneration_context.new_category, str):
+            auto_categorie = OntologischeCategorie(
+                regeneration_context.new_category.lower()
+            )
+        else:
+            auto_categorie = regeneration_context.new_category
+
+        logger.info(
+            f"Regeneration actief: categorie override {auto_categorie_original.value} -&gt; {auto_categorie.value}"
+        )
+
+        # Update category reasoning voor UI feedback
+        category_reasoning = f"Regeneratie: aangepast van {auto_categorie_original.value} naar {auto_categorie.value}"
+
+    except Exception as e:
+        logger.warning(
+            f"Could not apply regeneration category override: {e}"
+        )
+        auto_categorie = auto_categorie_original</code></pre>
+
+<p><strong>Remove regeneration context passing (line ~1015):</strong></p>
+<pre><code># Pass regeneration context for GVI feedback loop
+regeneration_context=regeneration_context,</code></pre>
+
+<p><strong>Remove regeneration cleanup (lines ~1172-1181):</strong></p>
+<pre><code># Clear regeneration context after successful generation (GVI cleanup)
+if regeneration_context:
+    self.regeneration_service.clear_context()
+    logger.info(
+        f"Regeneration context cleared after successful generation for '{begrip}'"
+    )
+
+    # Also clear UI session state markers
+    SessionStateManager.clear_value("regeneration_active")
+    SessionStateManager.clear_value("regeneration_begrip")
+    SessionStateManager.clear_value("regeneration_category")</code></pre>
+
+<h3>3. Update `src/ui/components/definition_generator_tab.py`</h3>
+
+<p><strong>Remove method <code>_trigger_regeneration_with_category</code> (lines ~2008-2048):</strong></p>
+<pre><code>def _trigger_regeneration_with_category(
+    self,
+    begrip: str,
+    new_category: str,
+    old_category: str,
+    saved_record: DefinitieRecord,
+):
+    # ... entire method</code></pre>
+
+<p><strong>Remove method <code>_render_regeneration_preview</code> (lines ~2049-2089+):</strong></p>
+<pre><code>def _render_regeneration_preview(
+    self,
+    begrip: str,
+    current_definition: str,
+    old_category: str,
+    new_category: str,
+    generation_result: dict[str, Any],
+    saved_record: Any,
+):
+    # ... entire method</code></pre>
+
+<p><strong>Remove regeneration service initialization:</strong></p>
+<pre><code>grep -n "RegenerationService\|regeneration_service" src/ui/components/definition_generator_tab.py</code></pre>
+
+<p><strong>Remove any calls to:</strong></p>
+<ul>
+<li>`set_regeneration_context()`</li>
+<li>`get_active_context()`</li>
+<li>`clear_context()`</li>
+</ul>
+
+<h3>4. Clean Session State References</h3>
+
+<p><strong>Remove session state keys:</strong></p>
+<pre><code># In tabbed_interface.py or definition_generator_tab.py
+SessionStateManager.clear_value("regeneration_active")
+SessionStateManager.clear_value("regeneration_begrip")
+SessionStateManager.clear_value("regeneration_category")</code></pre>
+
+<h3>5. Remove Test Files</h3>
+<pre><code>rm tests/manual_test_regeneration.py</code></pre>
+
+<h3>6. Scan for All References</h3>
+<pre><code>grep -r "RegenerationService\|regeneration_service\|regeneration_context" src/ --include="*.py"
+grep -r "regeneration_active\|regeneration_begrip" src/ --include="*.py"</code></pre>
+
+<h3>7. Run Tests</h3>
+<pre><code>pytest tests/ -v</code></pre>
+
+<p>---</p>
+
+<h2>📋 Testing Checklist</h2>
+
+<p><strong>Functionality:</strong></p>
+<ul>
+<li>[ ] Can change categorie dropdown in Generator tab</li>
+<li>[ ] Can generate definitie with different categorie</li>
+<li>[ ] No regeneration prompts appear</li>
+<li>[ ] Category override works via normal dropdown</li>
+</ul>
+
+<p><strong>Technical:</strong></p>
+<ul>
+<li>[ ] No import errors</li>
+<li>[ ] No references to RegenerationService remain</li>
+<li>[ ] Session state clean (no regeneration_* keys)</li>
+<li>[ ] All tests pass</li>
+<li>[ ] No broken code paths</li>
+</ul>
+
+<p>---</p>
+
+<h2>📊 Impact</h2>
+
+<p><strong>Before:</strong></p>
+<ul>
+<li>Complex cross-tab regeneration flow</li>
+<li>Dual state management (service + session)</li>
+<li>~330 LOC regeneration code</li>
+</ul>
+
+<p><strong>After:</strong></p>
+<ul>
+<li>Simple regeneration: change dropdown + generate</li>
+<li>No cross-tab navigation needed</li>
+<li>Cleaner state management</li>
+</ul>
+
+<p><strong>LOC Removed:</strong> ~330</p>
+<p><strong>Files Removed:</strong> 1 + test file</p>
+
+<p>---</p>
+
+<h2>🔗 Dependencies</h2>
+
+<ul>
+<li>**After:** US-444 (web lookup tab removal)</li>
+</ul>
+
+<p>---</p>
+
+<h2>📝 Notes</h2>
+
+<ul>
+<li>Users can still regenerate: just change category dropdown and click "Genereer Definitie"</li>
+<li>No functionality loss, just simpler UX</li>
+<li>Regeneration service was over-engineered for edge case</li>
+<li>State management complexity was highest risk</li>
+</ul>
+
+  </div>
+</body>
+</html>

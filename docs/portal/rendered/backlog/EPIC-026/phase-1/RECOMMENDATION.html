@@ -1,0 +1,664 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>EPIC-026 Extraction Strategy - Team Recommendation</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>id: EPIC-026-EXTRACTION-RECOMMENDATION</p>
+<p>epic: EPIC-026</p>
+<p>phase: 1</p>
+<p>created: 2025-10-02</p>
+<p>owner: code-architect</p>
+<p>status: ready-for-approval</p>
+<p>---</p>
+
+<h1>EPIC-026 Extraction Strategy - Team Recommendation</h1>
+
+<p><strong>Date:</strong> 2025-10-02</p>
+<p><strong>Decision Required:</strong> Orchestrator-first vs UI-first extraction strategy</p>
+<p><strong>Deadline:</strong> End of Day 3 (to stay on Phase 1 schedule)</p>
+
+<p>---</p>
+
+<h2>🎯 Executive Summary</h2>
+
+<p>After 2 days of detailed code analysis (Day 1-2 of Phase 1), we have discovered <strong>880 LOC of hidden orchestration logic</strong> in the UI layer, masquerading as presentation code.</p>
+
+<p><strong>Critical Finding:</strong> Two massive orchestrators are hiding in plain sight:</p>
+<ol>
+<li>**Generation Orchestrator** (380 LOC god method in `tabbed_interface.py`)</li>
+<li>**Regeneration Orchestrator** (500 LOC across 8 methods in `definition_generator_tab.py`)</li>
+</ol>
+
+<p><strong>Strategic Question:</strong> Should we extract orchestrators FIRST, or split UI components first?</p>
+
+<p><strong>Recommendation:</strong> <strong>EXTRACT ORCHESTRATORS FIRST</strong> ✅</p>
+
+<p>---</p>
+
+<h2>📊 The Data</h2>
+
+<h3>Files Analyzed (Day 1-2)</h3>
+
+<p>| File | LOC | Methods | Hidden Orchestrators | Hidden Services |</p>
+<p>|------|-----|---------|---------------------|-----------------|</p>
+<p>| <code>definitie_repository.py</code> | 1,815 | 41 | 0 | 0 |</p>
+<p>| <code>tabbed_interface.py</code> | 1,793 | 39 | <strong>1 (380 LOC)</strong> | <strong>2 (610 LOC)</strong> |</p>
+<p>| <code>definition_generator_tab.py</code> | 2,525 | 60 | <strong>1 (500 LOC)</strong> | 0 |</p>
+<p>| <strong>TOTAL</strong> | <strong>6,133</strong> | <strong>140</strong> | <strong>2 (880 LOC)</strong> | <strong>2 (610 LOC)</strong> |</p>
+
+<h3>Hidden Complexity Breakdown</h3>
+
+<pre><code>Total UI LOC: 4,318
+  - Actual UI logic: ~1,500 LOC (35%)
+  - Hidden orchestrators: 880 LOC (20%)
+  - Hidden services: 610 LOC (14%)
+  - Hardcoded business logic: 180 LOC (4%)
+  - Mixed concerns: ~1,200 LOC (27%)
+
+Business Logic in UI Layer: 1,670 LOC (39% of UI!)</code></pre>
+
+<p><strong>This is why the UI is unmaintainable.</strong></p>
+
+<p>---</p>
+
+<h2>🚨 Why This Matters</h2>
+
+<h3>The Generation Orchestrator (380 LOC God Method)</h3>
+
+<p><strong>Location:</strong> <code>tabbed_interface.py::_handle_definition_generation()</code></p>
+
+<p><strong>What it does (in order):</strong></p>
+<ol>
+<li>Validates context (min 1 of org/jur/wet required)</li>
+<li>Determines ontological category (async 6-step protocol + fallbacks)</li>
+<li>Checks for duplicates (stops generation if found, shows user choice)</li>
+<li>Integrates document context (uploads → processing → snippet extraction)</li>
+<li>Handles regeneration override (category changes)</li>
+<li>Orchestrates definition generation (async via run_async bridge)</li>
+<li>Stores results in 15+ session state keys</li>
+<li>Prepares edit tab state</li>
+<li>Cleans up regeneration context</li>
+<li>Shows success message</li>
+</ol>
+
+<p><strong>Services coordinated:</strong> 5+ (Definition, Regeneration, Document, Category, Checker)</p>
+<p><strong>State mutations:</strong> 15+ session state keys</p>
+<p><strong>Async operations:</strong> 2 (category + generation)</p>
+<p><strong>Early exits:</strong> 6 different return paths</p>
+<p><strong>Error handling:</strong> 8+ try/except blocks</p>
+
+<p><strong>Why it's critical:</strong></p>
+<ul>
+<li>Contains CORE business logic for entire app</li>
+<li>Breaking this breaks EVERYTHING</li>
+<li>Impossible to test in isolation</li>
+<li>Violates EVERY SOLID principle</li>
+</ul>
+
+<p>---</p>
+
+<h3>The Regeneration Orchestrator (500 LOC, 8 Methods)</h3>
+
+<p><strong>Location:</strong> <code>definition_generator_tab.py</code> (lines 2008-2370)</p>
+
+<p><strong>What it does:</strong></p>
+<ol>
+<li>Analyzes category change impact (hardcoded rules for 4 category pairs)</li>
+<li>Triggers regeneration in 3 modes:</li>
+</ol>
+<ul>
+<li>  - **Direct:** Execute regeneration immediately with progress tracking</li>
+<li>  - **Manual:** Navigate to generator with pre-filled state</li>
+<li>  - **Keep:** Update category only, keep definition</li>
+</ul>
+<ol>
+<li>Executes definition generation (async via run_async bridge)</li>
+<li>Extracts context from original generation result</li>
+<li>Compares old vs new definitions</li>
+<li>Manages navigation state for manual mode</li>
+</ol>
+
+<p><strong>Services coordinated:</strong> 4+ (Regeneration, Category, Definition, Workflow)</p>
+<p><strong>State mutations:</strong> 7 session state keys</p>
+<p><strong>Async operations:</strong> 1 (generation via run_async)</p>
+<p><strong>Workflow modes:</strong> 3 (direct, manual, keep)</p>
+
+<p><strong>Why it's critical:</strong></p>
+<ul>
+<li>Category change is a key feature</li>
+<li>Complex workflow with 3 different paths</li>
+<li>Hardcoded business rules (not data-driven)</li>
+<li>Scattered across 8 methods in UI component</li>
+</ul>
+
+<p>---</p>
+
+<h2>💡 The Strategic Choice</h2>
+
+<h3>Option A: Extract Orchestrators FIRST ✅ **RECOMMENDED**</h3>
+
+<p><strong>Approach:</strong></p>
+<pre><code>Week 1:  Preparation (integration tests, pattern config, state docs)
+Week 2:  Extract OntologicalCategoryService (~260 LOC from UI)
+Week 3:  Extract DocumentContextService (~350 LOC from UI)
+Week 4-5: Extract DefinitionGenerationOrchestrator (~380 LOC from UI)
+Week 6-7: Extract RegenerationOrchestrator (~500 LOC from UI)
+Week 8:  Thin UI layer (reduce to &lt;1,200 LOC total)
+Week 9:  Cleanup &amp; documentation
+
+Total: 9 weeks (6 weeks active extraction, 3 weeks prep/cleanup)</code></pre>
+
+<p><strong>Pros:</strong></p>
+<ul>
+<li>✅ **Preserves business logic integrity** - Orchestrators extracted as coherent units</li>
+<li>✅ **Reduces risk** - Clear service boundaries, easier rollback</li>
+<li>✅ **Immediate impact** - 74% LOC reduction in UI after Week 8</li>
+<li>✅ **Enables testing** - Orchestrators testable in isolation from day 1</li>
+<li>✅ **Better architecture** - Services become source of truth</li>
+<li>✅ **Parallel work** - After Week 5, UI and services can evolve independently</li>
+<li>✅ **Shorter timeline** - 9 weeks vs 11+ weeks for UI-first</li>
+</ul>
+
+<p><strong>Cons:</strong></p>
+<ul>
+<li>⚠️ Requires comprehensive integration tests upfront (Week 1)</li>
+<li>⚠️ Async pattern refactoring complexity (Week 4-5)</li>
+<li>⚠️ State management migration (all weeks)</li>
+</ul>
+
+<p><strong>Risk Level:</strong> MEDIUM (with mitigation)</p>
+
+<p>---</p>
+
+<h3>Option B: Split UI Components FIRST ❌ **NOT RECOMMENDED**</h3>
+
+<p><strong>Approach:</strong></p>
+<pre><code>Week 1-2:  Split tabbed_interface.py into 7 tab components
+Week 3-4:  Split definition_generator_tab.py into 8 rendering components
+Week 5-8:  Extract orchestrators from split components (harder now!)
+Week 9-10: Extract remaining services
+Week 11:   Cleanup &amp; documentation
+
+Total: 11 weeks (longer due to double refactoring)</code></pre>
+
+<p><strong>Pros:</strong></p>
+<ul>
+<li>✅ Smaller, more manageable files earlier</li>
+<li>✅ Clear tab boundaries from start</li>
+</ul>
+
+<p><strong>Cons:</strong></p>
+<ul>
+<li>❌ **Scatters orchestration logic** - 380 LOC god method split across components</li>
+<li>❌ **Harder to preserve business logic** - Workflow gets fragmented</li>
+<li>❌ **Double refactoring** - Split UI, THEN extract orchestrators</li>
+<li>❌ **Longer timeline** - 11+ weeks vs 9 weeks</li>
+<li>❌ **More risk** - Breaking workflows during UI split</li>
+<li>❌ **Delays testability** - Can't test orchestrators until Week 5+</li>
+<li>❌ **Architecture debt** - UI components still contain business logic weeks 1-8</li>
+</ul>
+
+<p><strong>Risk Level:</strong> HIGH</p>
+
+<p>---</p>
+
+<h2>🎯 Recommendation: Option A (Orchestrators First)</h2>
+
+<h3>Why This Is The Right Choice</h3>
+
+<ol>
+<li>**Business Logic Integrity**</li>
+</ol>
+<ul>
+<li>  - Orchestrators contain the CORE workflows</li>
+<li>  - Extracting them preserves the logic as coherent units</li>
+<li>  - Splitting UI first fragments the workflows</li>
+</ul>
+
+<ol>
+<li>**Risk Reduction**</li>
+</ol>
+<ul>
+<li>  - Integration tests protect existing behavior</li>
+<li>  - Rollback points every week</li>
+<li>  - Service boundaries are clear once extracted</li>
+</ul>
+
+<ol>
+<li>**Architectural Excellence**</li>
+</ol>
+<ul>
+<li>  - Services layer becomes source of truth</li>
+<li>  - UI becomes thin presentation layer</li>
+<li>  - Clean separation of concerns</li>
+</ul>
+
+<ol>
+<li>**Testability**</li>
+</ol>
+<ul>
+<li>  - Orchestrators testable in isolation from Week 4</li>
+<li>  - 90%+ coverage target achievable</li>
+<li>  - Business logic no longer trapped in UI</li>
+</ul>
+
+<ol>
+<li>**Faster Delivery**</li>
+</ol>
+<ul>
+<li>  - 9 weeks vs 11+ weeks</li>
+<li>  - Parallel work after Week 5</li>
+<li>  - Immediate value (UI reduction after Week 8)</li>
+</ul>
+
+<p>---</p>
+
+<h2>📋 Deliverables (Created Today)</h2>
+
+<p><strong>Analysis Documents:</strong></p>
+<ol>
+<li>✅ `orchestrator_extraction_plan.md` (40+ pages, complete extraction guide)</li>
+<li>✅ `orchestrator_extraction_summary.md` (executive summary)</li>
+<li>✅ `orchestrator_extraction_visual.md` (visual diagrams and flow charts)</li>
+<li>✅ `RECOMMENDATION.md` (this document)</li>
+</ol>
+
+<p><strong>Supporting Analysis (Day 1-2):</strong></p>
+<ol>
+<li>✅ `definitie_repository_responsibility_map.md`</li>
+<li>✅ `definition_generator_tab_responsibility_map.md`</li>
+<li>✅ `tabbed_interface_responsibility_map.md`</li>
+</ol>
+
+<p><strong>Total Documentation:</strong> 7 comprehensive documents, ~150 pages</p>
+
+<p>---</p>
+
+<h2>🗺️ The Roadmap (if Approved)</h2>
+
+<h3>Phase 1: Design (Current) - Day 1-5</h3>
+
+<ul>
+<li>**Day 1:** ✅ Map definitie_repository.py</li>
+<li>**Day 2:** ✅ Map definition_generator_tab.py + tabbed_interface.py</li>
+<li>**Day 3:** Map web_lookup_service.py + validation_orchestrator_v2.py</li>
+<li>**Day 4:** Service boundary design across all 5 files</li>
+<li>**Day 5:** Extraction plan + migration strategy</li>
+</ul>
+
+<p><strong>Checkpoint 1 (End Day 5):</strong> Approve extraction strategy</p>
+
+<p>---</p>
+
+<h3>Phase 2: Extraction (if Approved) - Week 1-9</h3>
+
+<p><strong>Week 1: Preparation</strong></p>
+<ul>
+<li>Create 10+ integration tests (full generation flow, duplicate check, regeneration)</li>
+<li>Extract patterns to `config/ontological_patterns.yaml`</li>
+<li>Document session state contracts</li>
+<li>Create type-safe state wrappers</li>
+</ul>
+
+<p><strong>Week 2: OntologicalCategoryService</strong></p>
+<ul>
+<li>Extract 260 LOC from tabbed_interface.py</li>
+<li>3-layer fallback (6-step → quick → pattern)</li>
+<li>90%+ unit test coverage</li>
+</ul>
+
+<p><strong>Week 3: DocumentContextService</strong></p>
+<ul>
+<li>Extract 350 LOC from tabbed_interface.py</li>
+<li>Context aggregation + snippet extraction</li>
+<li>85%+ unit test coverage</li>
+</ul>
+
+<p><strong>Week 4-5: DefinitionGenerationOrchestrator ⚠️ CRITICAL</strong></p>
+<ul>
+<li>Extract 380 LOC god method</li>
+<li>7-step workflow implementation</li>
+<li>Clean async patterns (no asyncio.run nesting)</li>
+<li>95%+ unit test coverage</li>
+</ul>
+
+<p><strong>Week 6-7: RegenerationOrchestrator ⚠️ CRITICAL</strong></p>
+<ul>
+<li>Extract 500 LOC regeneration logic</li>
+<li>3 modes (direct, manual, keep)</li>
+<li>Impact analysis (data-driven)</li>
+<li>90%+ unit test coverage</li>
+</ul>
+
+<p><strong>Week 8: Thin UI Layer</strong></p>
+<ul>
+<li>Reduce tabbed_interface.py to <400 LOC</li>
+<li>Reduce definition_generator_tab.py to <800 LOC</li>
+<li>Remove all business logic</li>
+<li>Total UI: <1,200 LOC (74% reduction!)</li>
+</ul>
+
+<p><strong>Week 9: Cleanup & Documentation</strong></p>
+<ul>
+<li>Remove scaffolding</li>
+<li>Update architecture diagrams</li>
+<li>Write migration guide</li>
+<li>Final test pass</li>
+</ul>
+
+<p><strong>Checkpoint 2 (End Week 9):</strong> Phase 2 complete, ready for Phase 3 (Validation)</p>
+
+<p>---</p>
+
+<h3>Phase 3: Validation (Future) - Week 10-12</h3>
+
+<ul>
+<li>Integration testing at scale</li>
+<li>Performance benchmarking</li>
+<li>UI regression testing</li>
+<li>Documentation finalization</li>
+<li>Team training</li>
+</ul>
+
+<p>---</p>
+
+<h2>✅ Success Criteria</h2>
+
+<h3>Quantitative</h3>
+
+<ul>
+<li>[ ] UI layer reduced from 4,318 → <1,200 LOC (74% reduction)</li>
+<li>[ ] Largest method reduced from 380 → <50 LOC (87% reduction)</li>
+<li>[ ] Test coverage for orchestrators: 90%+</li>
+<li>[ ] All integration tests GREEN</li>
+<li>[ ] Zero functional regressions</li>
+</ul>
+
+<h3>Qualitative</h3>
+
+<ul>
+<li>[ ] UI is pure presentation (no business logic)</li>
+<li>[ ] Orchestrators are testable in isolation</li>
+<li>[ ] Service boundaries are clear and documented</li>
+<li>[ ] Async patterns are clean (no hacks/bridges)</li>
+<li>[ ] State management is centralized</li>
+<li>[ ] Code is maintainable (future devs understand)</li>
+</ul>
+
+<p>---</p>
+
+<h2>⚠️ Risk Management</h2>
+
+<h3>Mitigation Strategies</h3>
+
+<p>| Risk | Mitigation | Owner |</p>
+<p>|------|-----------|-------|</p>
+<p>| <strong>Breaking generation workflow</strong> | Comprehensive integration tests Week 1 | code-architect |</p>
+<p>| <strong>Async/sync boundary issues</strong> | Clean async design, proper wrappers | code-architect |</p>
+<p>| <strong>State management bugs</strong> | Type-safe wrappers, schema validation | code-architect |</p>
+<p>| <strong>Timeline slip</strong> | 2-week contingency buffer (11 weeks max) | project-manager |</p>
+<p>| <strong>Team availability</strong> | Parallel work after Week 5 | project-manager |</p>
+
+<h3>Rollback Strategy</h3>
+
+<ul>
+<li>**Git tags** at end of each week</li>
+<li>**Integration tests** must be GREEN before proceeding</li>
+<li>**Maximum rollback window:** 2 weeks (to previous checkpoint)</li>
+<li>**Data loss risk:** NONE (no DB schema changes)</li>
+</ul>
+
+<p>---</p>
+
+<h2>🏁 Decision Point</h2>
+
+<h3>What We Need From The Team</h3>
+
+<p><strong>Decision Required:</strong> Approve orchestrator-first extraction strategy</p>
+
+<p><strong>Options:</strong></p>
+<ol>
+<li>✅ **APPROVE** - Proceed with Option A (orchestrators first, 9 weeks)</li>
+<li>❌ **REVISE** - Choose Option B (UI-first, 11+ weeks) or alternative approach</li>
+<li>⏸️ **DEFER** - More analysis needed (Day 6 deep dive)</li>
+</ol>
+
+<p><strong>Timeline Impact:</strong></p>
+<ul>
+<li>Approve today (Day 2): Start Week 1 prep on Day 4-5, extraction Week 2</li>
+<li>Revise today: Adjust plan Day 3-5, extraction Week 2</li>
+<li>Defer: Add Day 6 analysis, extraction Week 3 (1 week slip)</li>
+</ul>
+
+<p>---</p>
+
+<h2>📞 Next Steps (if Approved)</h2>
+
+<h3>Immediate (Day 3)</h3>
+<ol>
+<li>Complete remaining responsibility maps (web_lookup_service, validation_orchestrator_v2)</li>
+<li>Team review of this recommendation</li>
+<li>**DECISION:** Approve orchestrator-first strategy</li>
+</ol>
+
+<h3>Day 4-5 (Prep for Week 1)</h3>
+<ol>
+<li>Set up project tracking (EPIC-026 Phase 2, user stories per week)</li>
+<li>Set up CI/CD for integration tests</li>
+<li>Assign owners for Week 1 tasks</li>
+</ol>
+
+<h3>Week 1 (if approved)</h3>
+<ol>
+<li>Create integration test suite (10+ scenarios)</li>
+<li>Extract patterns to config</li>
+<li>Document state contracts</li>
+<li>Create type-safe wrappers</li>
+</ol>
+
+<h3>Week 2+ (Execution)</h3>
+<ol>
+<li>Execute extraction plan week-by-week</li>
+<li>Daily standups for progress tracking</li>
+<li>Weekly reviews for risk assessment</li>
+<li>Adjust as needed (stay within 11-week buffer)</li>
+</ol>
+
+<p>---</p>
+
+<h2>💬 Questions & Answers</h2>
+
+<h3>Q: Why can't we do UI splitting and orchestrator extraction in parallel?</h3>
+
+<p><strong>A:</strong> The 380 LOC god method contains the orchestration logic. If we split the UI first, we have to decide:</p>
+<ul>
+<li>Duplicate the orchestration logic across split components? (duplication debt)</li>
+<li>Keep it in one component? (still a god object, just in a different file)</li>
+<li>Split the orchestration logic? (fragments the workflow, harder to extract later)</li>
+</ul>
+
+<p>Extracting orchestrators FIRST means we remove the complexity before splitting, making UI splitting trivial.</p>
+
+<p>---</p>
+
+<h3>Q: What if the integration tests reveal unknown dependencies?</h3>
+
+<p><strong>A:</strong> Week 1 is specifically for discovering these issues. If we find unexpected dependencies:</p>
+<ol>
+<li>Document them</li>
+<li>Adjust extraction plan (might add 1-2 weeks)</li>
+<li>Still better than discovering mid-extraction</li>
+</ol>
+
+<p>This is why Week 1 prep is CRITICAL.</p>
+
+<p>---</p>
+
+<h3>Q: How confident are you in the 9-week estimate?</h3>
+
+<p><strong>A:</strong> Confidence level: <strong>MEDIUM-HIGH</strong></p>
+
+<p><strong>Conservative estimate:</strong></p>
+<ul>
+<li>2 weeks contingency built in (11 weeks max)</li>
+<li>Based on detailed LOC analysis (not guessing)</li>
+<li>Clear checkpoints for reassessment</li>
+</ul>
+
+<p><strong>Risks to timeline:</strong></p>
+<ul>
+<li>Week 4-5 (Generation Orchestrator) is most complex - might need extra week</li>
+<li>Week 6-7 (Regeneration Orchestrator) might need extra week</li>
+<li>If both slip: 11 weeks total (still acceptable)</li>
+</ul>
+
+<p><strong>Acceleration opportunities:</strong></p>
+<ul>
+<li>Parallel work after Week 5 could save 1-2 weeks</li>
+<li>If services extract cleanly, could finish Week 8 early</li>
+</ul>
+
+<p>---</p>
+
+<h3>Q: What's the biggest risk?</h3>
+
+<p><strong>A:</strong> <strong>Breaking the generation workflow during orchestrator extraction (Week 4-5).</strong></p>
+
+<p><strong>Why it's risky:</strong></p>
+<ul>
+<li>380 LOC god method with 15+ state mutations</li>
+<li>Complex async/sync mixing</li>
+<li>Touches 5+ services</li>
+<li>Core business logic for entire app</li>
+</ul>
+
+<p><strong>Mitigation:</strong></p>
+<ul>
+<li>Week 1: Comprehensive integration tests (10+ scenarios)</li>
+<li>Week 4-5: Incremental extraction (one step at a time)</li>
+<li>Daily testing after each change</li>
+<li>Rollback checkpoints every 2 days</li>
+<li>2-week buffer in timeline</li>
+</ul>
+
+<p>---</p>
+
+<h3>Q: What if we need to pause mid-extraction?</h3>
+
+<p><strong>A:</strong> Every week is a safe rollback checkpoint:</p>
+
+<ul>
+<li>Week 1: Can pause with tests in place, no code changes</li>
+<li>Week 2: Can pause with Category service extracted, UI still works</li>
+<li>Week 3: Can pause with Document service extracted, UI still works</li>
+<li>Week 5: Can pause with Generation Orchestrator extracted, UI still works</li>
+<li>Week 7: Can pause with Regeneration Orchestrator extracted, UI still works</li>
+</ul>
+
+<p><strong>We NEVER leave code in a broken state.</strong></p>
+
+<p>---</p>
+
+<h2>🎯 The Bottom Line</h2>
+
+<h3>We have 880 LOC of business logic hiding in UI components.</h3>
+
+<p><strong>This is why:</strong></p>
+<ul>
+<li>UI is unmaintainable (god objects)</li>
+<li>Testing is impossible (logic trapped in UI)</li>
+<li>Features are hard to add (everything is coupled)</li>
+<li>Bugs are frequent (complex state management)</li>
+</ul>
+
+<p><strong>The solution:</strong></p>
+<ul>
+<li>Extract orchestrators FIRST (Week 4-7)</li>
+<li>Extract services (Week 2-3)</li>
+<li>Thin UI layer (Week 8)</li>
+<li>Clean architecture (Week 9)</li>
+</ul>
+
+<p><strong>The result:</strong></p>
+<ul>
+<li>74% LOC reduction in UI</li>
+<li>90%+ test coverage for orchestrators</li>
+<li>Clean, maintainable, testable code</li>
+<li>Faster feature development</li>
+</ul>
+
+<p>---</p>
+
+<h2>📋 Approval Checklist</h2>
+
+<p><strong>Before approving, confirm:</strong></p>
+<ul>
+<li>[ ] Team has reviewed all 4 extraction documents</li>
+<li>[ ] Questions answered</li>
+<li>[ ] Risks understood and acceptable</li>
+<li>[ ] Timeline is realistic (9-11 weeks)</li>
+<li>[ ] Resources available (code-architect lead, team support)</li>
+<li>[ ] Stakeholders informed</li>
+</ul>
+
+<p><strong>If all checked, recommend:</strong> ✅ <strong>APPROVE ORCHESTRATOR-FIRST STRATEGY</strong></p>
+
+<p>---</p>
+
+<p><strong>Status:</strong> ✅ READY FOR TEAM DECISION</p>
+<p><strong>Deadline:</strong> End of Day 3</p>
+<p><strong>Fallback:</strong> If not approved, add Day 6 for alternative approach</p>
+
+<p>---</p>
+
+<p><strong>Prepared by:</strong> Code Architect</p>
+<p><strong>Date:</strong> 2025-10-02</p>
+<p><strong>EPIC:</strong> EPIC-026 Phase 1 (Design)</p>
+<p><strong>Phase:</strong> Day 2 of 5 (40% complete)</p>
+
+<p>---</p>
+
+<h2>📚 Appendix: Document Index</h2>
+
+<p><strong>Analysis Documents (Day 2):</strong></p>
+<ol>
+<li>`orchestrator_extraction_plan.md` - Complete 9-week extraction guide (40+ pages)</li>
+<li>`orchestrator_extraction_summary.md` - Executive summary (15 pages)</li>
+<li>`orchestrator_extraction_visual.md` - Visual diagrams and flows (20 pages)</li>
+<li>`RECOMMENDATION.md` - This document (team decision)</li>
+</ol>
+
+<p><strong>Responsibility Maps (Day 1-2):</strong></p>
+<ol>
+<li>`definitie_repository_responsibility_map.md` (Day 1)</li>
+<li>`definition_generator_tab_responsibility_map.md` (Day 2)</li>
+<li>`tabbed_interface_responsibility_map.md` (Day 2)</li>
+</ol>
+
+<p><strong>To be created (Day 3):</strong></p>
+<ol>
+<li>`web_lookup_service_responsibility_map.md`</li>
+<li>`validation_orchestrator_v2_responsibility_map.md`</li>
+</ol>
+
+<p><strong>All documents available in:</strong> <code>/docs/backlog/EPIC-026/phase-1/</code></p>
+
+  </div>
+</body>
+</html>
