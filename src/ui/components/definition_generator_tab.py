@@ -17,7 +17,6 @@ from database.definitie_repository import DefinitieRecord, get_definitie_reposit
 from integration.definitie_checker import CheckAction, DefinitieChecker
 from services.category_service import CategoryService
 from services.category_state_manager import CategoryStateManager
-from services.regeneration_service import RegenerationService
 from services.workflow_service import WorkflowService
 from ui.session_state import SessionStateManager
 from utils.dict_helpers import safe_dict_get
@@ -36,13 +35,8 @@ class DefinitionGeneratorTab:
         self.workflow_service = WorkflowService()  # Business logic voor status workflow
 
         # Injectie via dependency injection volgt wanneer beschikbaar
-        from services.definition_generator_config import UnifiedGeneratorConfig
-        from services.definition_generator_prompts import UnifiedPromptBuilder
 
         # Basic config voor regeneration service
-        config = UnifiedGeneratorConfig()
-        prompt_builder = UnifiedPromptBuilder(config)
-        self.regeneration_service = RegenerationService(prompt_builder)
 
     def render(self):
         """Render definitie generatie tab."""

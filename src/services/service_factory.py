@@ -367,25 +367,10 @@ class ServiceAdapter:
         }
 
     def _handle_regeneration_context(self, begrip: str, kwargs: dict) -> str:
-        """Handle regeneration context enhancement if present."""
-        regeneration_context = safe_dict_get(kwargs, "regeneration_context")
+        """Handle regeneration context enhancement if present (deprecated - always returns base instructions)."""
         extra_instructions = ensure_string(
             safe_dict_get(kwargs, "extra_instructies", "")
         )
-
-        if not regeneration_context:
-            return extra_instructions
-
-        from services.regeneration_service import RegenerationService
-
-        # Create temporary service to enhance prompt
-        temp_service = RegenerationService(
-            None
-        )  # No prompt builder needed for enhancement
-        extra_instructions = temp_service.enhance_prompt_with_context(
-            extra_instructions or "", regeneration_context
-        )
-        logger.info(f"Enhanced prompt with regeneration context for '{begrip}'")
         return extra_instructions
 
     def to_ui_response(self, response, agent_result: dict) -> dict:

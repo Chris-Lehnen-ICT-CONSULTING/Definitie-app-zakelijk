@@ -10,7 +10,9 @@ import streamlit as st
 
 # Import after mocking streamlit
 with patch("streamlit.multiselect"), patch("streamlit.text_input"):
-    from src.ui.components.context_selector import ContextSelector
+    from src.ui.components.enhanced_context_manager_selector import (
+        EnhancedContextManagerSelector as ContextSelector,
+    )
 
 
 class TestAndersOptionFix:
