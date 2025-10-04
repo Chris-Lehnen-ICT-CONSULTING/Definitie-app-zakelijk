@@ -46,13 +46,29 @@ class ExpertReviewTab:
         st.markdown("### 📋 Review Wachtrij")
 
         try:
-            # Haal pending reviews op
+            # Status filter: Review of Gearchiveerd
+            status_options = {
+                "Review": DefinitieStatus.REVIEW,
+                "Gearchiveerd": DefinitieStatus.ARCHIVED,
+            }
+
+            selected_status_label = st.selectbox(
+                "📊 Status filter",
+                options=list(status_options.keys()),
+                index=0,  # Default: Review
+                key="review_status_filter",
+                help="Toon definities met status Review of Gearchiveerd"
+            )
+
+            selected_status = status_options[selected_status_label]
+
+            # Haal definities op met geselecteerde status
             pending_reviews = self.repository.search_definities(
-                status=DefinitieStatus.REVIEW, limit=50
+                status=selected_status, limit=50
             )
 
             if not pending_reviews:
-                st.info("✅ Geen definities wachten op review")
+                st.info(f"✅ Geen definities met status '{selected_status_label}'")
                 return
 
             # Verzamel unieke contextopties uit wachtrij (geparseerde lijsten)
