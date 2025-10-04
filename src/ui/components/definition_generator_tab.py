@@ -2006,39 +2006,11 @@ class DefinitionGeneratorTab:
         old_category: str,
         saved_record: DefinitieRecord,
     ):
-        """Trigger nieuwe definitie generatie met aangepaste categorie."""
-        st.warning(
-            f"🔄 Nieuwe definitie genereren voor categorie: {self.category_service.get_category_display_name(new_category)}"
-        )
-
-        # Set regeneration context in service layer (conform GVI architectuur)
-        self.regeneration_service.set_regeneration_context(
-            begrip=begrip,
-            old_category=old_category,
-            new_category=new_category,
-            previous_definition=saved_record.definitie if saved_record else None,
-            reason="Gebruiker heeft categorie handmatig aangepast",
-        )
-
-        # Ook in session voor UI navigation (temporary bridge)
-        SessionStateManager.set_value("regeneration_active", True)
-        SessionStateManager.set_value("regeneration_begrip", begrip)
-        SessionStateManager.set_value("regeneration_category", new_category)
-
-        # Informeer gebruiker
+        """Deprecated: Regeneration service removed (US-445). Use category dropdown + generate."""
         st.info(
-            f"""
-        📝 **Regeneratie geactiveerd**:
-        - Ga naar het hoofdscherm
-        - Het begrip '{begrip}' wordt automatisch ingevuld
-        - Categorie '{new_category}' wordt gebruikt
-        - De generator zal rekening houden met de nieuwe categorie
-        """
+            f"💡 Om te regenereren met categorie '{new_category}': "
+            f"Ga naar Generator tab, wijzig categorie dropdown, en klik 'Genereer Definitie'"
         )
-
-        # Show navigation button
-        if st.button("🏠 Ga naar Generator", key="nav_to_generator"):
-            st.switch_page("app.py")
 
     def _render_regeneration_preview(
         self,
@@ -2191,150 +2163,12 @@ class DefinitionGeneratorTab:
         saved_record: Any,
         generation_result: dict[str, Any],
     ):
-        """Voer directe definitie regeneration uit zonder navigation."""
-        st.markdown("---")
-        st.markdown("### 🚀 Directe Regeneration Gestart")
+        """Deprecated: Regeneration service removed (US-445). Use category dropdown + generate."""
+        st.info(
+            f"💡 Om te regenereren met categorie '{new_category}': "
+            f"Ga naar Generator tab, wijzig categorie dropdown, en klik 'Genereer Definitie'"
+        )
 
-        # Progress indicator
-        progress_bar = st.progress(0)
-        status_text = st.empty()
-
-        try:
-            # Step 1: Set regeneration context
-            status_text.text("🔄 Setting regeneration context...")
-            progress_bar.progress(20)
-
-            self.regeneration_service.set_regeneration_context(
-                begrip=begrip,
-                old_category=old_category,
-                new_category=new_category,
-                previous_definition=saved_record.definitie,
-                reason="Direct regeneration na category wijziging",
-            )
-
-            # Step 2: Get definition service
-            status_text.text("⚙️ Initializing definition service...")
-            progress_bar.progress(40)
-
-            # Import here to avoid circular imports
-            from services import get_definition_service
-
-            definition_service = get_definition_service()
-
-            # Step 3: Prepare generation context
-            status_text.text("📝 Preparing generation context...")
-            progress_bar.progress(60)
-
-            # Extract context from original generation result
-            context_dict = self._extract_context_from_generation_result(
-                generation_result
-            )
-
-            # Combine met globale UI‑context en voer guard uit
-            try:
-                ui_ctx = self._get_global_context_lists()
-                org_combined = list(ui_ctx.get("organisatorische_context", [])) or list(
-                    context_dict.get("organisatorisch", [])
-                )
-                jur_combined = list(ui_ctx.get("juridische_context", [])) or list(
-                    context_dict.get("juridisch", [])
-                )
-                wet_combined = list(ui_ctx.get("wettelijke_basis", [])) or list(
-                    context_dict.get("wettelijk", [])
-                )
-                if not (org_combined or jur_combined or wet_combined):
-                    progress_bar.empty()
-                    status_text.empty()
-                    st.error(
-                        "Context vereist: voeg minimaal één context toe (organisatorisch of juridisch of wettelijk) voordat je regenereert."
-                    )
-                    return
-            except Exception:
-                progress_bar.empty()
-                status_text.empty()
-                st.error(
-                    "Kon context niet bepalen. Voeg minimaal één context toe en probeer opnieuw."
-                )
-                return
-
-            # Step 4: Generate new definition
-            status_text.text("🤖 Generating new definition...")
-            progress_bar.progress(80)
-
-            from domain.ontological_categories import OntologischeCategorie
-
-            # Gebruik async_bridge voor async uitvoering
-            from ui.helpers.async_bridge import run_async
-
-            service_result = run_async(
-                definition_service.generate_definition(
-                    begrip=begrip,
-                    context_dict=context_dict,
-                    organisatie=generation_result.get("organisatie", ""),
-                    categorie=OntologischeCategorie(new_category.lower()),
-                    regeneration_context=self.regeneration_service.get_active_context(),
-                ),
-                timeout=120,
-            )
-
-            # Step 5: Update UI with results
-            status_text.text("✅ Processing results...")
-            progress_bar.progress(100)
-
-            # Store new results in session state
-            from datetime import datetime
-
-            from ui.session_state import SessionStateManager
-
-            SessionStateManager.set_value(
-                "last_generation_result",
-                {
-                    "begrip": begrip,
-                    "check_result": None,
-                    "agent_result": service_result,
-                    "saved_record": None,  # Will be created if user saves
-                    "determined_category": new_category,
-                    "category_reasoning": f"Direct regeneration: {old_category} → {new_category}",
-                    "category_scores": {
-                        new_category: 1.0
-                    },  # Perfect score for manual selection
-                    "timestamp": datetime.now(UTC),
-                    "regeneration_used": True,
-                    "direct_regeneration": True,
-                },
-            )
-
-            # Clear regeneration context
-            self.regeneration_service.clear_context()
-
-            # Show success and results
-            progress_bar.empty()
-            status_text.empty()
-
-            st.success("🎉 Nieuwe definitie succesvol gegenereerd!")
-
-            # Show comparison
-            self._render_definition_comparison(
-                old_definition=saved_record.definitie,
-                new_result=service_result,
-                old_category=old_category,
-                new_category=new_category,
-            )
-
-            # Auto-navigation option
-            st.info("💡 De nieuwe definitie staat klaar in het Generator tabblad")
-            if st.button("👀 Bekijk Resultaat", key="view_new_result"):
-                st.switch_page("app.py")
-
-        except Exception as e:
-            progress_bar.empty()
-            status_text.empty()
-
-            st.error(f"❌ Regeneration mislukt: {e}")
-            st.info("Probeer de handmatige aanpassing optie.")
-
-            # Clear any partial context
-            self.regeneration_service.clear_context()
 
     def _extract_context_from_generation_result(
         self, generation_result: dict[str, Any]
