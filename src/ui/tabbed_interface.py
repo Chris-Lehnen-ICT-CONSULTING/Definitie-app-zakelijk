@@ -523,42 +523,6 @@ class TabbedInterface:
             self._render_status_indicator()
         self._dbg("Header")
 
-        # -- Debug/Rescue: Quick Actions bovenaan --
-        with st.expander("⚡ Quick Actions (Top)", expanded=False):
-            self._dbg("Header Quick Actions")
-            begrip_top = SessionStateManager.get_value("begrip", "")
-            ctx_top = SessionStateManager.get_value(
-                "global_context",
-                {
-                    "organisatorische_context": [],
-                    "juridische_context": [],
-                    "wettelijke_basis": [],
-                },
-            )
-            col_a, col_b = st.columns([2, 1])
-            with col_a:
-                if st.button(
-                    "🚀 Genereer met huidige context (Top)",
-                    key="top_generate_btn",
-                    type="primary",
-                ):
-                    if begrip_top.strip():
-                        try:
-                            self._handle_definition_generation(begrip_top, ctx_top)
-                        except Exception as e:
-                            logger.error(
-                                f"Top quick generate failed: {e}", exc_info=True
-                            )
-                            st.error(f"❌ Genereren mislukt: {e!s}")
-                    else:
-                        st.error(
-                            "❌ Voer eerst een begrip in (bovenaan bij Definitie Aanvraag)"
-                        )
-            with col_b:
-                if st.button("🗑️ Wis velden (Top)", key="top_clear_btn"):
-                    self._clear_all_fields()
-                    st.rerun()
-
     def _render_status_indicator(self):
         """Render systeem status indicator."""
         # Simple health check
@@ -629,7 +593,7 @@ class TabbedInterface:
 
         # Genereer definitie knop direct na context
         st.markdown("---")
-        self._dbg("Quick Actions (Generate/Check/Clear)")
+        self._dbg("Generate/Check/Clear Buttons")
         try:
             self._render_quick_generate_button(begrip, context_data)
             st.success("✅ Quick generate button succesvol geladen")
