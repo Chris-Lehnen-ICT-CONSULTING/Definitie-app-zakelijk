@@ -46,18 +46,18 @@ class ExpertReviewTab:
         st.markdown("### 📋 Review Wachtrij")
 
         try:
-            # Status filter: Review of Gearchiveerd
+            # Status filter: In review of Gearchiveerd
             status_options = {
-                "Review": DefinitieStatus.REVIEW,
+                "In review": DefinitieStatus.REVIEW,
                 "Gearchiveerd": DefinitieStatus.ARCHIVED,
             }
 
             selected_status_label = st.selectbox(
                 "📊 Status filter",
                 options=list(status_options.keys()),
-                index=0,  # Default: Review
+                index=0,  # Default: In review
                 key="review_status_filter",
-                help="Toon definities met status Review of Gearchiveerd"
+                help="Toon definities met status 'In review' of 'Gearchiveerd'"
             )
 
             selected_status = status_options[selected_status_label]
