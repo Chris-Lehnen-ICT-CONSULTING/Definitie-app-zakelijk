@@ -25,7 +25,9 @@ from unittest.mock import MagicMock, Mock, patch
 
 import pytest
 
-from src.ui.components.context_selector import ContextSelector
+from src.ui.components.enhanced_context_manager_selector import (
+    EnhancedContextManagerSelector as ContextSelector,
+)
 
 
 class TestMaliciousInputPrevention:
