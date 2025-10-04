@@ -37,7 +37,6 @@ from integration.definitie_checker import (  # Definitie integratie controle
 
 # Nieuwe services imports
 from services import get_definition_service
-from services.regeneration_service import RegenerationService
 from ui.components.context_state_cleaner import init_context_cleaner
 from ui.components.definition_edit_tab import (  # Edit interface voor definities
     DefinitionEditTab,
@@ -55,15 +54,13 @@ from ui.components.enhanced_context_manager_selector import (
 from ui.components.expert_review_tab import (  # Expert review en validatie tab
     ExpertReviewTab,
 )
-from ui.components.monitoring_tab import MonitoringTab  # Monitoring en statistieken
 
 # Geconsolideerde import/export/beheer tab (vervangt Export en Management tabs)
 from ui.components.tabs.import_export_beheer import ImportExportBeheerTab
 
 # Quality Control tab verwijderd - functionaliteit gedocumenteerd in EPIC-023
 # Orchestration tab verwijderd - functionaliteit gedocumenteerd in EPIC-028
-from ui.components.web_lookup_tab import WebLookupTab  # Web lookup interface
-
+# Web Lookup tab verwijderd - functionaliteit is automatic via ModernWebLookupService
 # Importeer core services en utilities
 from ui.session_state import (  # Sessie state management voor UI persistentie
     SessionStateManager,
@@ -147,15 +144,6 @@ class TabbedInterface:
             # V2 service heeft get_service_info methode
             self.checker._definition_service = self.definition_service
 
-        # Initialiseer RegenerationService voor category regeneration (GVI Rode Kabel)
-        from services.definition_generator_config import UnifiedGeneratorConfig
-        from services.definition_generator_prompts import UnifiedPromptBuilder
-
-        # Basic config voor regeneration service
-        config = UnifiedGeneratorConfig()
-        prompt_builder = UnifiedPromptBuilder(config)
-        self.regeneration_service = RegenerationService(prompt_builder)
-
         self.context_selector = (
             ContextSelector()
         )  # Initialiseer context selector component
@@ -183,8 +171,7 @@ class TabbedInterface:
         self.import_export_beheer_tab = ImportExportBeheerTab(self.repository)
         # Quality Control tab verwijderd - zie EPIC-023 voor toekomstige implementatie
         # External Sources tab verwijderd - 95% overlap met Export tab
-        self.monitoring_tab = MonitoringTab(self.repository)
-        self.web_lookup_tab = WebLookupTab(self.repository)
+        # Web Lookup tab verwijderd - zie EPIC-028, automatic via ModernWebLookupService
 
         # Tab configuration
         self.tab_config = {
@@ -220,16 +207,7 @@ class TabbedInterface:
             #     "icon": "🔌",
             #     "description": "Import van externe definitie bronnen",
             # },
-            "monitoring": {
-                "title": "📈 Monitoring",
-                "icon": "📈",
-                "description": "Performance monitoring en API cost tracking",
-            },
-            "web_lookup": {
-                "title": "🔍 Web Lookup",
-                "icon": "🔍",
-                "description": "Zoek definities en bronnen, valideer duplicaten",
-            },
+            # Web Lookup tab verwijderd - zie EPIC-028
             # Orchestration tab verwijderd - zie EPIC-028
             # Management tab geconsolideerd in import_export_beheer
         }
@@ -911,33 +889,6 @@ class TabbedInterface:
                         "🔄 Hybrid context activief - combineer document en web context..."
                     )
 
-                # Check voor actieve regeneration context (GVI Rode Kabel)
-                regeneration_context = self.regeneration_service.get_active_context()
-                if regeneration_context:
-                    # Override categorie met nieuwe categorie uit regeneration context
-                    auto_categorie_original = auto_categorie
-                    try:
-                        # Convert string to OntologischeCategorie if needed
-                        if isinstance(regeneration_context.new_category, str):
-                            auto_categorie = OntologischeCategorie(
-                                regeneration_context.new_category.lower()
-                            )
-                        else:
-                            auto_categorie = regeneration_context.new_category
-
-                        logger.info(
-                            f"Regeneration actief: categorie override {auto_categorie_original.value} -> {auto_categorie.value}"
-                        )
-
-                        # Update category reasoning voor UI feedback
-                        category_reasoning = f"Regeneratie: aangepast van {auto_categorie_original.value} naar {auto_categorie.value}"
-
-                    except Exception as e:
-                        logger.warning(
-                            f"Could not apply regeneration category override: {e}"
-                        )
-                        auto_categorie = auto_categorie_original
-
                 # Altijd V2-servicepad gebruiken (geen legacy fallback)
                 from ui.helpers.async_bridge import run_async
 
@@ -993,8 +944,6 @@ class TabbedInterface:
                         # EPIC-018: doorgeven aan service
                         document_context=doc_summary,
                         document_snippets=doc_snippets,
-                        # Pass regeneration context for GVI feedback loop
-                        regeneration_context=regeneration_context,
                     ),
                     timeout=120,
                 )
@@ -1079,7 +1028,6 @@ class TabbedInterface:
                         "document_context": document_context,
                         "voorbeelden_prompts": voorbeelden_prompts,
                         "timestamp": datetime.now(UTC),
-                        "regeneration_used": regeneration_context is not None,
                     },
                 )
 
@@ -1149,18 +1097,6 @@ class TabbedInterface:
                         SessionStateManager.set_value("generation_options", options)
                 except Exception:
                     pass
-
-                # Clear regeneration context after successful generation (GVI cleanup)
-                if regeneration_context:
-                    self.regeneration_service.clear_context()
-                    logger.info(
-                        f"Regeneration context cleared after successful generation for '{begrip}'"
-                    )
-
-                    # Also clear UI session state markers
-                    SessionStateManager.clear_value("regeneration_active")
-                    SessionStateManager.clear_value("regeneration_begrip")
-                    SessionStateManager.clear_value("regeneration_category")
 
                 # V2 validation is already included in agent_result.validation_details
                 # The beoordeling_gen will be generated from V2 ValidationDetailsDict in the UI
@@ -1633,10 +1569,7 @@ class TabbedInterface:
             # External Sources tab verwijderd
             # elif tab_key == "external":
             #     self.external_tab.render()
-            elif tab_key == "monitoring":
-                self.monitoring_tab.render()
-            elif tab_key == "web_lookup":
-                self.web_lookup_tab.render()
+            # Web Lookup tab verwijderd - zie EPIC-028
             # Orchestration tab verwijderd - zie EPIC-028
             # Management tab geconsolideerd in import_export_beheer
         except Exception as e:
