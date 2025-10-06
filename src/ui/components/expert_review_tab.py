@@ -57,7 +57,7 @@ class ExpertReviewTab:
                 options=list(status_options.keys()),
                 index=0,  # Default: In review
                 key="review_status_filter",
-                help="Toon definities met status 'In review' of 'Gearchiveerd'"
+                help="Toon definities met status 'In review' of 'Gearchiveerd'",
             )
 
             selected_status = status_options[selected_status_label]

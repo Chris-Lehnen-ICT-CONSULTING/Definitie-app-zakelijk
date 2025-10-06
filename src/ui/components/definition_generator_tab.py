@@ -7,7 +7,6 @@ import json
 import logging
 import os
 import re
-from datetime import UTC
 from pathlib import Path
 from typing import Any
 
@@ -2168,7 +2167,6 @@ class DefinitionGeneratorTab:
             f"💡 Om te regenereren met categorie '{new_category}': "
             f"Ga naar Generator tab, wijzig categorie dropdown, en klik 'Genereer Definitie'"
         )
-
 
     def _extract_context_from_generation_result(
         self, generation_result: dict[str, Any]
