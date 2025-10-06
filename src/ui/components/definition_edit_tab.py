@@ -768,85 +768,96 @@ class DefinitionEditTab:
             logger.debug(f"Could not show voorkeursterm status: {e}")
 
     def _render_metadata_panel(self):
-        """Render metadata panel."""
-        st.markdown("### 📊 Metadata")
-
+        """Render compact metadata panel."""
         definition = SessionStateManager.get_value("editing_definition")
         if not definition:
             return
 
-        # Display metadata
         metadata = definition.metadata or {}
-
-        # Version info
         version = metadata.get("version_number", 1)
-        st.metric("Versie", f"v{version}")
 
-        # Timestamps
-        if definition.created_at:
-            st.caption(
-                f"**Aangemaakt:** {self._format_datetime(definition.created_at)}"
-            )
-        if definition.updated_at:
-            st.caption(
-                f"**Laatst bewerkt:** {self._format_datetime(definition.updated_at)}"
-            )
+        # Compact summary line
+        updated = (
+            self._format_datetime(definition.updated_at)
+            if definition.updated_at
+            else "Nooit"
+        )
+        st.caption(f"**Versie v{version}** • Laatst bewerkt: {updated}")
 
-        # Created/Updated by
-        if metadata.get("created_by"):
-            st.caption(f"**Aangemaakt door:** {metadata['created_by']}")
-        if metadata.get("updated_by"):
-            st.caption(f"**Bewerkt door:** {metadata['updated_by']}")
+        # Full metadata in collapsed expander
+        with st.expander("📊 Volledige metadata", expanded=False):
+            # Timestamps
+            if definition.created_at:
+                st.caption(
+                    f"**Aangemaakt:** {self._format_datetime(definition.created_at)}"
+                )
+            if definition.updated_at:
+                st.caption(
+                    f"**Laatst bewerkt:** {self._format_datetime(definition.updated_at)}"
+                )
 
-        # Validation score
-        if metadata.get("validation_score"):
-            score = metadata["validation_score"]
-            color = "green" if score > 0.8 else "orange" if score > 0.6 else "red"
-            st.markdown(f"**Validatie Score:** :{color}[{score:.2f}]")
+            # Created/Updated by
+            if metadata.get("created_by"):
+                st.caption(f"**Aangemaakt door:** {metadata['created_by']}")
+            if metadata.get("updated_by"):
+                st.caption(f"**Bewerkt door:** {metadata['updated_by']}")
 
-        # Source info
-        if metadata.get("source_type"):
-            st.caption(f"**Bron Type:** {metadata['source_type']}")
-        if definition.bron:
-            st.caption(f"**Bron Referentie:** {definition.bron}")
+            # Validation score
+            if metadata.get("validation_score"):
+                score = metadata["validation_score"]
+                color = "green" if score > 0.8 else "orange" if score > 0.6 else "red"
+                st.markdown(f"**Validatie Score:** :{color}[{score:.2f}]")
+
+            # Source info
+            if metadata.get("source_type"):
+                st.caption(f"**Bron Type:** {metadata['source_type']}")
+            if definition.bron:
+                st.caption(f"**Bron Referentie:** {definition.bron}")
 
     def _render_version_history(self):
-        """Render version history panel."""
-        st.markdown("### 📜 Versiegeschiedenis")
-
+        """Render compact version history panel."""
         definition_id = SessionStateManager.get_value("editing_definition_id")
         if not definition_id:
             return
 
-        # Get history
+        # Get history (excluding auto-saves)
         history = self.edit_service.get_version_history(definition_id, limit=10)
 
         if not history:
-            st.info("Geen geschiedenis beschikbaar.")
+            st.caption("📜 Geen versiegeschiedenis beschikbaar")
             return
 
-        # Display history entries
-        for entry in history:
-            with st.expander(
-                f"{entry.get('summary', 'Wijziging')} - {entry.get('gewijzigd_op_readable', '')}",
-                expanded=False,
-            ):
-                # Change details
-                if entry.get("wijziging_reden"):
-                    st.caption(f"**Reden:** {entry['wijziging_reden']}")
+        # Show count summary
+        st.caption(f"📜 **{len(history)} versie(s)** beschikbaar")
 
-                # Show old vs new if available
-                if entry.get("definitie_oude_waarde"):
-                    st.caption("**Oude waarde:**")
-                    st.text(entry["definitie_oude_waarde"][:200] + "...")
+        # History in collapsed expander
+        with st.expander("Bekijk versiegeschiedenis", expanded=False):
+            for entry in history:
+                with st.container():
+                    # Compact header
+                    col1, col2 = st.columns([3, 1])
+                    with col1:
+                        st.caption(
+                            f"**{entry.get('wijziging_type', 'Wijziging')}** - {entry.get('gewijzigd_op_readable', '')}"
+                        )
+                    with col2:
+                        if st.button(
+                            "↩️ Herstel",
+                            key=f"revert_{entry.get('id')}",
+                            use_container_width=True,
+                        ):
+                            self._revert_to_version(entry.get("id"))
 
-                if entry.get("definitie_nieuwe_waarde"):
-                    st.caption("**Nieuwe waarde:**")
-                    st.text(entry["definitie_nieuwe_waarde"][:200] + "...")
+                    # Change details (collapsed)
+                    if entry.get("wijziging_reden"):
+                        st.caption(f"Reden: {entry['wijziging_reden']}")
 
-                # Revert button
-                if st.button("↩️ Herstel", key=f"revert_{entry.get('id')}"):
-                    self._revert_to_version(entry.get("id"))
+                    # Show preview of changes
+                    if entry.get("definitie_nieuwe_waarde"):
+                        preview = entry["definitie_nieuwe_waarde"][:100]
+                        st.caption(f"_{preview}..._")
+
+                    st.divider()
 
     def _render_auto_save_status(self):
         """Render auto-save status indicator."""
@@ -947,11 +958,20 @@ class DefinitionEditTab:
                 )
                 SessionStateManager.set_value("edit_session", session)
 
-                # Check for auto-save en bied herstelknop
+                # Check for auto-save draft en bied herstelknop
                 if session.get("auto_save"):
-                    st.info("💾 Auto-save gevonden voor deze definitie.")
-                    if st.button("Herstel auto-save", key="restore_auto_save_btn"):
+                    timestamp = session["auto_save"].get(
+                        "auto_save_timestamp", "onbekend"
+                    )
+                    st.warning(f"💾 Niet-opgeslagen concept gevonden ({timestamp})")
+
+                    # Show buttons without columns (already in column context from selector)
+                    if st.button("↩️ Herstel concept", key="restore_auto_save_btn"):
                         self._restore_auto_save(session["auto_save"])
+                        st.rerun()
+                    if st.button("🗑️ Negeer concept", key="ignore_auto_save_btn"):
+                        # Just continue with current definition state
+                        pass
 
                 # ID-gescope widget-keys zorgen dat de juiste waarden direct getoond worden
 

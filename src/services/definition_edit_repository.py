@@ -39,19 +39,21 @@ class DefinitionEditRepository(DefinitionRepository):
         """
         Haal versie geschiedenis op voor een definitie.
 
+        Filtert auto_save entries uit - deze zitten nu in definitie_drafts tabel.
+
         Args:
             definitie_id: ID van de definitie
             limit: Maximum aantal versies om op te halen
 
         Returns:
-            Lijst met versie geschiedenis entries
+            Lijst met versie geschiedenis entries (exclusief auto-saves)
         """
         try:
             with self._get_connection() as conn:
                 cursor = conn.cursor()
                 cursor.execute(
                     """
-                    SELECT 
+                    SELECT
                         id,
                         begrip,
                         definitie_oude_waarde,
@@ -62,7 +64,7 @@ class DefinitionEditRepository(DefinitionRepository):
                         gewijzigd_op,
                         context_snapshot
                     FROM definitie_geschiedenis
-                    WHERE definitie_id = ?
+                    WHERE definitie_id = ? AND wijziging_type != 'auto_save'
                     ORDER BY gewijzigd_op DESC
                     LIMIT ?
                 """,
@@ -179,6 +181,9 @@ class DefinitionEditRepository(DefinitionRepository):
         """
         Auto-save draft versie van definitie.
 
+        Gebruikt INSERT OR REPLACE om max 1 draft per definitie te behouden.
+        Dit voorkomt clutter in de versiegeschiedenis UI.
+
         Args:
             definitie_id: ID van de definitie
             draft_content: Draft content om op te slaan
@@ -190,22 +195,18 @@ class DefinitionEditRepository(DefinitionRepository):
             with self._get_connection() as conn:
                 cursor = conn.cursor()
 
-                # Store draft in history with special type
+                # Store draft in dedicated drafts table (replaces previous draft)
                 cursor.execute(
                     """
-                    INSERT INTO definitie_geschiedenis (
-                        definitie_id, 
-                        begrip,
-                        definitie_nieuwe_waarde,
-                        wijziging_type,
-                        gewijzigd_door,
-                        context_snapshot
-                    ) VALUES (?, ?, ?, 'auto_save', 'system', ?)
+                    INSERT OR REPLACE INTO definitie_drafts (
+                        definitie_id,
+                        draft_content,
+                        saved_at,
+                        saved_by
+                    ) VALUES (?, ?, CURRENT_TIMESTAMP, 'system')
                 """,
                     (
                         definitie_id,
-                        draft_content.get("begrip", ""),
-                        draft_content.get("definitie", ""),
                         json.dumps(draft_content),
                     ),
                 )
@@ -232,11 +233,9 @@ class DefinitionEditRepository(DefinitionRepository):
                 cursor = conn.cursor()
                 cursor.execute(
                     """
-                    SELECT context_snapshot, gewijzigd_op
-                    FROM definitie_geschiedenis
-                    WHERE definitie_id = ? AND wijziging_type = 'auto_save'
-                    ORDER BY gewijzigd_op DESC
-                    LIMIT 1
+                    SELECT draft_content, saved_at
+                    FROM definitie_drafts
+                    WHERE definitie_id = ?
                 """,
                     (definitie_id,),
                 )
