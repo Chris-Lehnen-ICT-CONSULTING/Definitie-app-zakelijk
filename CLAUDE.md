@@ -240,16 +240,19 @@ De applicatie gebruikt Streamlit's session state uitgebreid. Belangrijke state v
 
 ### Bekende Problemen (Open)
 
-1. **Service Initialisatie**: Services worden 2-3x geïnitialiseerd door Streamlit reruns
-   - Symptoom: ServiceContainer #1 (cached) + #2 (custom config)
-   - Root cause: Dubbele cache mechanismen (`get_cached_container` vs `get_container_with_config`)
-   - Oplossing: Consolideer naar single singleton pattern
+1. ~~**Service Initialisatie**: Services worden 2-3x geïnitialiseerd door Streamlit reruns~~ ✅ **OPGELOST (US-202, Oct 7 2025)**
+   - Was: ServiceContainer #1 (cached) + #2 (custom config)
+   - Oorzaak: Dubbele cache mechanismen zonder cache_key unificatie
+   - Nu: Single singleton met unified cache_key (commits `c2c8633c`, `49848881`)
    - Zie: `docs/analyses/DOUBLE_CONTAINER_ANALYSIS.md`
-2. **PromptOrchestrator**: 2x initialisatie met 16 modules elk
-   - Symptoom: Alle prompt modules worden dubbel geregistreerd
-   - Impact: ~200-400ms extra startup, ~500KB extra memory
-   - Oplossing: Implementeer singleton pattern voor orchestrator
+
+2. ~~**PromptOrchestrator**: 2x initialisatie met 16 modules elk~~ ✅ **OPGELOST (US-202, Oct 7 2025)**
+   - Was: 2x initialisatie door duplicate container initialization
+   - Oorzaak: PATH 2 was ServiceContainer duplication (fixed by `c2c8633c`, `49848881`)
+   - Nu: 1x initialization tijdens app startup
+   - Bewijs: Log analysis Oct 7, 2025
    - Zie: `docs/reports/prompt-orchestrator-duplication-analysis.md`
+
 3. **Prompt Tokens**: 7.250 tokens met duplicaties
    - Oplossing: Implementeer prompt caching en deduplicatie (nog niet geïmplementeerd)
 

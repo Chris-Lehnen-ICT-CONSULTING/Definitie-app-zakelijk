@@ -44,7 +44,7 @@ class OutputSpecificationModule(BasePromptModule):
         self.default_min_chars = config.get("default_min_chars", 150)
         self.default_max_chars = config.get("default_max_chars", 350)
         self._initialized = True
-        logger.info(
+        logger.debug(
             f"OutputSpecificationModule geïnitialiseerd "
             f"(min={self.default_min_chars}, max={self.default_max_chars})"
         )

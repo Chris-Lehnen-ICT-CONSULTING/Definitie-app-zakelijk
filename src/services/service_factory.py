@@ -29,26 +29,6 @@ logger = logging.getLogger(__name__)
 _SERVICE_ADAPTER_CACHE: dict[tuple, "ServiceAdapter"] = {}
 
 
-def get_container(config: dict | None = None) -> ServiceContainer:
-    """Compatibility shim for tests expecting get_container in this module.
-
-    Returns the singleton cached container. Custom config is DEPRECATED since US-202
-    and will be ignored to prevent duplicate container initialization.
-
-    Args:
-        config: DEPRECATED - ignored, only for backward compatibility
-
-    Returns:
-        Singleton ServiceContainer instance
-    """
-    if config is not None:
-        logger.warning(
-            "Custom config passed to get_container() is IGNORED (US-202). "
-            "Using singleton container to prevent duplicate initialization."
-        )
-    return get_cached_container()
-
-
 def _freeze_config(value: Any) -> Any:
     """Maak een hashbare representatie van (mogelijk geneste) configstructuren.
 
@@ -739,28 +719,25 @@ class ServiceFactory:
         return self._adapter.get_stats()
 
 
-def get_definition_service(
-    use_container_config: dict | None = None,
-):
+def get_definition_service():
     """
     Get the V2 service (always returns V2 container).
 
     Legacy routes removed per US-043. V2 is now the only path.
     Feature toggles should be handled in UI layer only.
     """
-    # V2 only - no legacy fallback
-    config = use_container_config or _get_environment_config()
-
-    # Bepaal cache key op basis van bevroren config (disabled under pytest)
-    key = _freeze_config(config)
+    # V2 only - no legacy fallback - singleton container only
     is_pytest = os.getenv("PYTEST_CURRENT_TEST") is not None
+
+    # Single cache key since we only use singleton container now
+    key = "singleton"
     if not is_pytest:
         cached = safe_dict_get(_SERVICE_ADAPTER_CACHE, key)
         if cached is not None:
             return cached
 
-    # US-201: Gebruik cached container via lokale shim (test‑friendly)
-    container = get_container(config)
+    # Get singleton container directly (no config parameter)
+    container = get_cached_container()
 
     adapter = ServiceAdapter(container)
     if not is_pytest:

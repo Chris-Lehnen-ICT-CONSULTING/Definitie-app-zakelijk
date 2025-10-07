@@ -54,7 +54,7 @@ class SemanticCategorisationModule(BasePromptModule):
         self._config = config
         self.detailed_guidance_enabled = config.get("detailed_guidance", True)
         self._initialized = True
-        logger.info(
+        logger.debug(
             f"SemanticCategorisationModule geïnitialiseerd "
             f"(detailed_guidance={self.detailed_guidance_enabled})"
         )

@@ -45,7 +45,7 @@ class DefinitionTaskModule(BasePromptModule):
         self.include_quality_control = config.get("include_quality_control", True)
         self.include_metadata = config.get("include_metadata", True)
         self._initialized = True
-        logger.info(
+        logger.debug(
             f"DefinitionTaskModule geïnitialiseerd "
             f"(quality_control={self.include_quality_control}, metadata={self.include_metadata})"
         )

@@ -1,0 +1,11 @@
+cache_monitoring:
+  enabled: true
+  track_operations: true
+  log_slow_ops: true
+  slow_threshold_ms: 100
+
+  caches:
+    - name: RuleCache
+      enabled: true
+    - name: ServiceContainer
+      enabled: true
