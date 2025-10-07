@@ -17,6 +17,15 @@ from utils.cache import clear_cache as _global_cache_clear
 
 logger = logging.getLogger(__name__)
 
+# Import monitoring infrastructure
+try:
+    from monitoring.cache_monitoring import CacheMonitor
+
+    MONITORING_AVAILABLE = True
+except ImportError:
+    MONITORING_AVAILABLE = False
+    logger.warning("Cache monitoring not available, continuing without monitoring")
+
 
 @cached(ttl=3600)
 def _load_all_rules_cached(regels_dir: str) -> dict[str, dict[str, Any]]:
@@ -133,7 +142,15 @@ class RuleCache:
             "get_single_calls": 0,
         }
 
-        logger.info(f"RuleCache geïnitialiseerd met directory: {self.regels_dir}")
+        # Initialize monitoring
+        if MONITORING_AVAILABLE:
+            self._monitor = CacheMonitor("RuleCache", enabled=True)
+            logger.info(f"RuleCache geïnitialiseerd met monitoring: {self.regels_dir}")
+        else:
+            self._monitor = None
+            logger.info(
+                f"RuleCache geïnitialiseerd zonder monitoring: {self.regels_dir}"
+            )
 
     def get_all_rules(self) -> dict[str, dict[str, Any]]:
         """
@@ -143,7 +160,26 @@ class RuleCache:
             Dictionary met alle regels
         """
         self.stats["get_all_calls"] += 1
-        return _load_all_rules_cached(str(self.regels_dir))
+
+        # Track operation if monitoring is enabled
+        if self._monitor:
+            with self._monitor.track_operation("get_all", "all_rules") as result:
+                # Check if this is a cache hit or miss
+                # Since we're using @cached decorator, we can't directly detect
+                # but we can track the call
+                rules = _load_all_rules_cached(str(self.regels_dir))
+
+                # Heuristic: if this is the first call, it's a miss
+                if self.stats["get_all_calls"] == 1:
+                    result["result"] = "miss"
+                    result["source"] = "disk"
+                else:
+                    result["result"] = "hit"
+                    result["source"] = "memory"
+
+                return rules
+        else:
+            return _load_all_rules_cached(str(self.regels_dir))
 
     def get_rule(self, regel_id: str) -> dict[str, Any] | None:
         """
@@ -157,13 +193,32 @@ class RuleCache:
         """
         self.stats["get_single_calls"] += 1
 
-        # Probeer eerst uit de bulk cache
-        all_rules = self.get_all_rules()
-        if regel_id in all_rules:
-            return all_rules[regel_id]
+        if self._monitor:
+            with self._monitor.track_operation("get_single", regel_id) as result:
+                # Probeer eerst uit de bulk cache
+                all_rules = self.get_all_rules()
+                if regel_id in all_rules:
+                    result["result"] = "hit"
+                    result["source"] = "memory"
+                    return all_rules[regel_id]
 
-        # Fallback naar single rule loading
-        return _load_single_rule_cached(str(self.regels_dir), regel_id)
+                # Fallback naar single rule loading
+                rule = _load_single_rule_cached(str(self.regels_dir), regel_id)
+                if rule:
+                    result["result"] = "miss"
+                    result["source"] = "disk"
+                else:
+                    result["result"] = "miss"
+                    result["source"] = "not_found"
+                return rule
+        else:
+            # Probeer eerst uit de bulk cache
+            all_rules = self.get_all_rules()
+            if regel_id in all_rules:
+                return all_rules[regel_id]
+
+            # Fallback naar single rule loading
+            return _load_single_rule_cached(str(self.regels_dir), regel_id)
 
     def get_rules_by_priority(self, priority: str) -> list[dict[str, Any]]:
         """
@@ -212,20 +267,44 @@ class RuleCache:
         Let op: gebruikt de globale cachefacade en kan ook andere
         decorator‑caches legen, conform eerdere Streamlit‑clear semantiek.
         """
-        try:
-            _global_cache_clear()
-        except Exception:
-            pass
-        logger.info("Rule cache gecleared (global cache cleared)")
+        if self._monitor:
+            with self._monitor.track_operation("clear", "cache") as result:
+                try:
+                    _global_cache_clear()
+                    result["result"] = "evict"
+                    result["source"] = "all"
+                except Exception:
+                    result["result"] = "error"
+                    result["source"] = "all"
+                logger.info("Rule cache gecleared (global cache cleared)")
+        else:
+            try:
+                _global_cache_clear()
+            except Exception:
+                pass
+            logger.info("Rule cache gecleared (global cache cleared)")
 
     def get_stats(self) -> dict[str, Any]:
         """Haal cache statistieken op."""
         all_rules = self.get_all_rules()
-        return {
+        stats = {
             **self.stats,
             "total_rules_cached": len(all_rules),
             "cache_dir": str(self.regels_dir),
         }
+
+        # Add monitoring snapshot if available
+        if self._monitor:
+            snapshot = self._monitor.get_snapshot()
+            stats["monitoring"] = {
+                "hit_rate": snapshot.hit_rate,
+                "avg_operation_ms": snapshot.avg_operation_ms,
+                "hits": snapshot.hits,
+                "misses": snapshot.misses,
+                "total_operations": snapshot.total_entries,
+            }
+
+        return stats
 
 
 # Global singleton instance

@@ -52,7 +52,9 @@ class PromptOrchestrator:
         self.max_workers = max_workers
         self._execution_metadata: dict[str, Any] = {}
         self._custom_module_order = module_order or self._get_default_module_order()
-        logger.info(f"PromptOrchestrator initialized met {max_workers} workers")
+        logger.info(
+            f"PromptOrchestrator: {len(self.modules)} modules, {max_workers} workers"
+        )
 
     def register_module(self, module: BasePromptModule) -> None:
         """
@@ -72,7 +74,7 @@ class PromptOrchestrator:
         dependencies = module.get_dependencies()
         self.dependency_graph[module.module_id] = set(dependencies)
 
-        logger.info(
+        logger.debug(
             f"Module '{module.module_id}' geregistreerd met {len(dependencies)} dependencies"
         )
 
@@ -87,7 +89,7 @@ class PromptOrchestrator:
             module_config = config.get(module_id, {})
             try:
                 module.initialize(module_config)
-                logger.info(f"Module '{module_id}' succesvol geïnitialiseerd")
+                logger.debug(f"Module '{module_id}' succesvol geïnitialiseerd")
             except Exception as e:
                 logger.error(f"Fout bij initialiseren module '{module_id}': {e}")
                 raise
@@ -135,7 +137,7 @@ class PromptOrchestrator:
                     if module_id in self.dependency_graph[dependent]:
                         in_degree[dependent] -= 1
 
-        logger.info(f"Execution order bepaald: {len(batches)} batches")
+        logger.debug(f"Execution order bepaald: {len(batches)} batches")
         return batches
 
     def build_prompt(
@@ -173,7 +175,7 @@ class PromptOrchestrator:
         all_outputs: dict[str, ModuleOutput] = {}
 
         for batch_idx, batch in enumerate(execution_batches):
-            logger.info(f"Executing batch {batch_idx + 1}: {batch}")
+            logger.debug(f"Executing batch {batch_idx + 1}: {batch}")
 
             if len(batch) == 1:
                 # Single module - execute sequentially
@@ -340,7 +342,7 @@ class PromptOrchestrator:
             module_order: Lijst met module IDs in gewenste volgorde
         """
         self._custom_module_order = module_order
-        logger.info(f"Module volgorde aangepast: {module_order}")
+        logger.debug(f"Module volgorde aangepast: {module_order}")
 
     def _get_default_module_order(self) -> list[str]:
         """

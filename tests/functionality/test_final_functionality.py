@@ -162,7 +162,7 @@ async def test_definition_generation():
     print("=" * 60)
 
     # Get V2 container and orchestrator
-    container = get_container({})
+    container = get_container()
     orchestrator = container.orchestrator()
 
     import uuid

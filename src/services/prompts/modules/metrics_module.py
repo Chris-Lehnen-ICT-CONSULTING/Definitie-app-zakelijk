@@ -46,7 +46,7 @@ class MetricsModule(BasePromptModule):
         self.include_detailed_metrics = config.get("include_detailed_metrics", True)
         self.track_history = config.get("track_history", False)
         self._initialized = True
-        logger.info(
+        logger.debug(
             f"MetricsModule geïnitialiseerd "
             f"(detailed={self.include_detailed_metrics}, history={self.track_history})"
         )

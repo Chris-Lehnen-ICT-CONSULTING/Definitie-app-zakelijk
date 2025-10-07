@@ -65,48 +65,44 @@ class TestGetDefinitionService:
 
     def test_get_v2_service_default(self):
         """Test dat V2 service altijd wordt gebruikt (legacy removed per US-043)."""
-        with (
-            patch("services.service_factory.get_container") as mock_get_container,
-            patch("services.service_factory._get_environment_config") as mock_config,
-        ):
+        with patch(
+            "services.service_factory.get_cached_container"
+        ) as mock_get_container:
 
             # Setup
-            mock_config.return_value = {"test": "config"}
             mock_container = Mock()
             mock_get_container.return_value = mock_container
 
             # Execute
             result = get_definition_service()
 
-            # Verify - always returns V2 ServiceAdapter
+            # Verify - always returns V2 ServiceAdapter, singleton container
             assert isinstance(result, ServiceAdapter)
-            mock_config.assert_called_once()
-            mock_get_container.assert_called_once_with({"test": "config"})
+            mock_get_container.assert_called_once()
 
     def test_get_v2_service_no_streamlit_dependency(self):
         """Test V2 service without Streamlit dependency (per US-043)."""
-        with (
-            patch("services.service_factory.get_container") as mock_get_container,
-            patch("services.service_factory._get_environment_config") as mock_config,
-        ):
+        with patch(
+            "services.service_factory.get_cached_container"
+        ) as mock_get_container:
 
             # Setup
-            mock_config.return_value = {"test": "config"}
             mock_container = Mock()
             mock_get_container.return_value = mock_container
 
             # Execute - no Streamlit involved
             result = get_definition_service()
 
-            # Verify - V2 only
+            # Verify - V2 only, singleton container
             assert isinstance(result, ServiceAdapter)
-            mock_config.assert_called_once()
-            mock_get_container.assert_called_once_with({"test": "config"})
+            mock_get_container.assert_called_once()
 
     def test_get_v2_service_ignores_legacy_env_var(self):
         """Test V2 service ignores USE_NEW_SERVICES env var (always V2 per US-043)."""
         with (
-            patch("services.service_factory.get_container") as mock_get_container,
+            patch(
+                "services.service_factory.get_cached_container"
+            ) as mock_get_container,
             patch.dict(os.environ, {"USE_NEW_SERVICES": "false"}),
         ):
 
@@ -117,36 +113,38 @@ class TestGetDefinitionService:
             # Execute - even with env var false, still gets V2
             result = get_definition_service()
 
-            # Verify - still returns V2
+            # Verify - still returns V2, singleton container
             assert isinstance(result, ServiceAdapter)
             mock_get_container.assert_called_once()
 
     def test_get_v2_service_with_custom_config(self):
-        """Test V2 service met custom container configuratie (US-202: ignored)."""
-        with patch("services.service_factory.get_container") as mock_get_container:
+        """Test V2 service uses singleton (custom config no longer supported)."""
+        with patch(
+            "services.service_factory.get_cached_container"
+        ) as mock_get_container:
 
             # Setup
-            custom_config = {"custom": "config"}
             mock_container = Mock()
             mock_get_container.return_value = mock_container
 
-            # Execute
-            result = get_definition_service(use_container_config=custom_config)
+            # Execute - no config parameter anymore
+            result = get_definition_service()
 
-            # Verify - V2 with custom config (US-202: config is passed but ignored by get_container)
+            # Verify - V2 always uses singleton container (US-202)
             assert isinstance(result, ServiceAdapter)
-            # get_container() is called with config, but internally ignores it and uses singleton
-            mock_get_container.assert_called_once_with(custom_config)
+            mock_get_container.assert_called_once()
 
     def test_no_legacy_fallback(self):
         """Test no legacy fallback exists (removed per US-043)."""
-        with patch("services.service_factory.get_container") as mock_get_container:
+        with patch(
+            "services.service_factory.get_cached_container"
+        ) as mock_get_container:
 
             # Setup
             mock_container = Mock()
             mock_get_container.return_value = mock_container
 
-            # Execute - always V2, no legacy path
+            # Execute - always V2, no legacy path, singleton container
             result = get_definition_service()
 
             # Verify - V2 only, no legacy imports attempted
@@ -1111,9 +1109,11 @@ class TestIntegrationScenarios:
 
     def test_v2_only_no_switching(self):
         """Test V2 only - no legacy switching (per US-043)."""
-        with patch("services.service_factory.get_container") as mock_get_container:
+        with patch(
+            "services.service_factory.get_cached_container"
+        ) as mock_get_container:
 
-            # Always V2 services
+            # Always V2 services, singleton container
             mock_container = Mock()
             mock_get_container.return_value = mock_container
 
@@ -1121,7 +1121,7 @@ class TestIntegrationScenarios:
             assert isinstance(service1, ServiceAdapter)
             assert service1.container == mock_container
 
-            # Second call also V2 (no switching possible)
+            # Second call also V2 (no switching possible, singleton)
             service2 = get_definition_service()
             assert isinstance(service2, ServiceAdapter)
             assert service2.container == mock_container

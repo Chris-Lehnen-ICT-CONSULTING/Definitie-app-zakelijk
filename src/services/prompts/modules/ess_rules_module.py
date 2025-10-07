@@ -49,7 +49,7 @@ class EssRulesModule(BasePromptModule):
         # Load toetsregels from JSON
         try:
             self._toetsregels = load_toetsregels().get("regels", {})
-            logger.info(
+            logger.debug(
                 f"EssRulesModule geïnitialiseerd (examples={self.include_examples})"
             )
         except Exception as e:

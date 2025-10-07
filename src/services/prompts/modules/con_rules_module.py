@@ -49,7 +49,7 @@ class ConRulesModule(BasePromptModule):
         # Load toetsregels from JSON
         try:
             self._toetsregels = load_toetsregels().get("regels", {})
-            logger.info(
+            logger.debug(
                 f"ConRulesModule geïnitialiseerd (examples={self.include_examples})"
             )
         except Exception as e:

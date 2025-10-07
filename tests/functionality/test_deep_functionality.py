@@ -222,7 +222,7 @@ async def test_orchestrator_v2():
     print("\n📝 Genereer definitie met alle voorbeelden...")
 
     # Get V2 container and orchestrator
-    container = get_container({})
+    container = get_container()
     orchestrator = container.orchestrator()
 
     import uuid

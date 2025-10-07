@@ -1,0 +1,85 @@
+# Structured Logging Configuration
+# Purpose: Configuration for JSON-formatted structured logging
+# Status: Disabled by default (enable via STRUCTURED_LOGGING environment variable)
+# Created: 2025-10-07
+
+structured_logging:
+  # Enable/disable structured JSON logging
+  # Set STRUCTURED_LOGGING=true in environment to enable
+  enabled: false  # Set to true to enable JSON logging
+
+  # Output file for JSON logs (newline-delimited JSON)
+  output_file: logs/app.json.log
+
+  # Base fields included in all log records
+  fields:
+    - timestamp      # ISO 8601 UTC timestamp
+    - level          # Log level (DEBUG/INFO/WARNING/ERROR/CRITICAL)
+    - logger         # Logger name (dot-separated namespace)
+    - message        # Human-readable message
+    - component      # Component/service name (from extra parameter)
+    - module         # Python module name
+    - function       # Function name
+    - line           # Line number
+    - thread         # Thread name
+    - process        # Process ID
+    - environment    # Deployment environment (dev/prod/testing)
+
+  # Context fields (optional, added via 'extra' parameter)
+  context_fields:
+    - request_id     # Request correlation ID
+    - session_id     # User session ID
+    - operation      # Operation name
+    - duration_ms    # Operation duration in milliseconds
+    - success        # Operation success flag
+
+  # Service-specific field patterns
+  service_patterns:
+    service_container:
+      - init_count
+      - service_name
+      - config_hash
+
+    ai_service:
+      - model
+      - temperature
+      - max_tokens
+      - tokens_used
+      - cost
+      - cached
+
+    validation:
+      - rule_id
+      - rule_category
+      - validation_passed
+      - score
+
+    web_lookup:
+      - source
+      - term
+      - results_count
+      - api_type
+      - cache_hit
+
+# Usage Examples:
+#
+# Basic structured logging:
+#   logger.info("ServiceContainer initialized", extra={
+#       "component": "service_container",
+#       "init_count": 1
+#   })
+#
+# With context fields:
+#   logger.info("Definition generated", extra={
+#       "component": "orchestrator",
+#       "operation": "generate_definition",
+#       "duration_ms": 1234,
+#       "success": True
+#   })
+#
+# Error logging:
+#   logger.error("Validation failed", extra={
+#       "component": "validation",
+#       "rule_id": "ARAI-01",
+#       "error_type": "ValidationError"
+#   })
