@@ -6,6 +6,7 @@ PromptOrchestrator + modules systeem wordt gebruikt.
 """
 
 import logging
+import threading
 from typing import Any
 
 from services.definition_generator_config import UnifiedGeneratorConfig
@@ -32,6 +33,59 @@ from .modules import (
 )
 
 logger = logging.getLogger(__name__)
+
+# Singleton orchestrator cache
+_global_orchestrator: PromptOrchestrator | None = None
+_orchestrator_lock = threading.Lock()
+
+
+def get_cached_orchestrator() -> PromptOrchestrator:
+    """
+    Get or create singleton PromptOrchestrator.
+    Thread-safe lazy initialization.
+
+    Returns:
+        Cached PromptOrchestrator instance
+    """
+    global _global_orchestrator
+
+    if _global_orchestrator is None:
+        with _orchestrator_lock:
+            # Double-check locking pattern
+            if _global_orchestrator is None:
+                logger.info("🎯 Creating singleton PromptOrchestrator")
+                orchestrator = PromptOrchestrator(max_workers=4)
+
+                # Register all 16 modules
+                modules = [
+                    ExpertiseModule(),
+                    OutputSpecificationModule(),
+                    GrammarModule(),
+                    ContextAwarenessModule(),
+                    SemanticCategorisationModule(),
+                    TemplateModule(),
+                    # Regel modules - elke categorie eigen module
+                    AraiRulesModule(),  # ARAI regels
+                    ConRulesModule(),  # CON regels
+                    EssRulesModule(),  # ESS regels
+                    IntegrityRulesModule(),  # INT regels
+                    SamRulesModule(),  # SAM regels
+                    StructureRulesModule(),  # STR regels
+                    VerRulesModule(),  # VER regels
+                    ErrorPreventionModule(),
+                    MetricsModule(),
+                    DefinitionTaskModule(),
+                ]
+
+                for module in modules:
+                    orchestrator.register_module(module)
+
+                logger.info(
+                    f"✅ PromptOrchestrator cached: {len(orchestrator.modules)} modules registered"
+                )
+                _global_orchestrator = orchestrator
+
+    return _global_orchestrator
 
 
 class ModularPromptAdapter:
@@ -65,41 +119,19 @@ class ModularPromptAdapter:
 
     def _setup_orchestrator(self) -> None:
         """Setup de PromptOrchestrator met alle modules."""
-        # Maak orchestrator
-        self._orchestrator = PromptOrchestrator(max_workers=4)
-
-        # Registreer alle modules
-        modules = [
-            ExpertiseModule(),
-            OutputSpecificationModule(),
-            GrammarModule(),
-            ContextAwarenessModule(),
-            SemanticCategorisationModule(),
-            TemplateModule(),
-            # Regel modules - elke categorie eigen module
-            AraiRulesModule(),  # ARAI regels
-            ConRulesModule(),  # CON regels
-            EssRulesModule(),  # ESS regels
-            IntegrityRulesModule(),  # INT regels (bestaand)
-            SamRulesModule(),  # SAM regels
-            StructureRulesModule(),  # STR regels (bestaand)
-            VerRulesModule(),  # VER regels
-            ErrorPreventionModule(),
-            MetricsModule(),
-            DefinitionTaskModule(),
-        ]
-
-        for module in modules:
-            self._orchestrator.register_module(module)
+        # Use cached singleton
+        self._orchestrator = get_cached_orchestrator()
 
         # Converteer component config naar module configs
         module_configs = self._convert_config_to_module_configs()
 
-        # Initialize modules
+        # Initialize modules met this adapter's config
         self._orchestrator.initialize_modules(module_configs)
         self._initialized = True
 
-        logger.debug(f"Orchestrator setup compleet met {len(modules)} modules")
+        logger.debug(
+            f"Adapter using cached orchestrator with {len(self._orchestrator.modules)} modules"
+        )
 
     def _convert_config_to_module_configs(self) -> dict[str, dict[str, Any]]:
         """
