@@ -13,8 +13,18 @@ from dataclasses import dataclass  # Dataklassen voor gestructureerde configurat
 from functools import wraps  # Decorator utilities voor resilience wrappers
 from typing import Any  # Type hints voor betere code documentatie
 
-from monitoring.api_monitor import record_api_call  # Monitoring en metrics collectie
-from monitoring.api_monitor import get_metrics_collector
+# Lazy import for monitoring to avoid import errors during testing
+try:
+    from monitoring.api_monitor import get_metrics_collector, record_api_call
+except (ImportError, ModuleNotFoundError):
+    # Fallback: monitoring niet beschikbaar (bijv. tijdens tests)
+    def record_api_call(*args, **kwargs):  # type: ignore
+        """Dummy record_api_call when monitoring unavailable."""
+
+    def get_metrics_collector():  # type: ignore
+        """Dummy get_metrics_collector when monitoring unavailable."""
+        return
+
 
 # Importeer alle resilience componenten voor geïntegreerd systeem
 from utils.enhanced_retry import RetryConfig  # Adaptieve retry management
