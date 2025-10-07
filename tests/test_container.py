@@ -51,9 +51,9 @@ def test_service_creation():
     assert generator1 is generator2  # Singleton check
     print("✅ Generator service (singleton)")
 
-    # Test validator
-    validator = container.validator()
-    print("✅ Validator service")
+    # Test validation orchestrator (V2)
+    validator = container.validation_orchestrator()
+    print("✅ Validation orchestrator service")
 
     # Test repository
     repository = container.repository()

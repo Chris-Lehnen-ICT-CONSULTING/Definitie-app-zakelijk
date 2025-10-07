@@ -61,11 +61,18 @@ class ServiceContainer:
         """
         self.config = config or {}
         self._instances = {}
+        self._lazy_instances = {}  # Cache for lazy-loaded services
         self._initialization_count = 0  # Track init count voor debugging
         self._load_configuration()
         self._initialization_count += 1
+        # Use structured logging with extra fields (backward compatible)
         logger.info(
-            f"ServiceContainer geïnitialiseerd (init count: {self._initialization_count})"
+            "ServiceContainer geïnitialiseerd",
+            extra={
+                "component": "service_container",
+                "init_count": self._initialization_count,
+                "environment": self.config.get("environment", "unknown"),
+            },
         )
 
     def _load_configuration(self):
@@ -140,7 +147,7 @@ class ServiceContainer:
             # V2 orchestrator is de enige generator implementatie
             orchestrator_instance = self.orchestrator()
             self._instances["generator"] = orchestrator_instance
-            logger.info("DefinitionOrchestratorV2 instance aangemaakt als generator")
+            logger.debug("DefinitionOrchestratorV2 instance aangemaakt als generator")
         return self._instances["generator"]
 
     # Legacy validator() method removed - validation now handled by V2 orchestrator
@@ -168,19 +175,19 @@ class ServiceContainer:
             if use_database:
                 repository = DefinitionRepository(self.db_path)
 
-                # Inject duplicate service if enabled
-                if self.config.get("use_new_duplicate_detection", True):
-                    repository.set_duplicate_service(self.duplicate_detector())
+                # NOTE: Duplicate service is NOT injected here during init to keep repository eager-loaded
+                # It will be injected lazily when edit functionality is accessed via UI
+                # See duplicate_detector() for lazy loading implementation
 
                 self._instances["repository"] = repository
-                logger.info(
+                logger.debug(
                     f"DefinitionRepository instance aangemaakt met db: {self.db_path}"
                 )
             else:
                 from services.null_repository import NullDefinitionRepository
 
                 self._instances["repository"] = NullDefinitionRepository()
-                logger.info(
+                logger.debug(
                     "NullDefinitionRepository instance aangemaakt (no database)"
                 )
 
@@ -265,7 +272,7 @@ class ServiceContainer:
                 # Epic 3: inject ModernWebLookupService so enrichment and provenance work
                 web_lookup_service=self.web_lookup(),
             )
-            logger.info("DefinitionOrchestratorV2 instance created")
+            logger.debug("DefinitionOrchestratorV2 instance created")
 
         return self._instances["orchestrator"]
 
@@ -308,39 +315,53 @@ class ServiceContainer:
 
     def duplicate_detector(self) -> DuplicateDetectionService:
         """
-        Get of create DuplicateDetectionService instance.
+        Get of create DuplicateDetectionService instance (LAZY-LOADED).
+
+        Only loaded when edit functionality is accessed.
+        Automatically injects into repository on first access.
 
         Returns:
             Singleton instance van DuplicateDetectionService
         """
-        if "duplicate_detector" not in self._instances:
+        if "duplicate_detector" not in self._lazy_instances:
             similarity_threshold = self.config.get(
                 "duplicate_similarity_threshold", 0.7
             )
-            self._instances["duplicate_detector"] = DuplicateDetectionService(
+            self._lazy_instances["duplicate_detector"] = DuplicateDetectionService(
                 similarity_threshold=similarity_threshold
             )
             logger.info(
-                f"DuplicateDetectionService instance aangemaakt met threshold {similarity_threshold}"
+                f"⚡ DuplicateDetectionService lazy-loaded (threshold={similarity_threshold})"
             )
-        return self._instances["duplicate_detector"]
+
+            # Inject into repository if enabled
+            if self.config.get("use_new_duplicate_detection", True):
+                repo = self.repository()
+                repo.set_duplicate_service(self._lazy_instances["duplicate_detector"])
+                logger.info("⚡ DuplicateDetectionService injected into repository")
+
+        return self._lazy_instances["duplicate_detector"]
 
     # ===== Approval Gate Policy (US-160) =====
     def gate_policy(self):
         """
-        Get or create GatePolicyService instance.
+        Get or create GatePolicyService instance (LAZY-LOADED).
 
+        Only loaded when validation gates or workflow transitions are accessed.
         Loads approval gate policy (YAML) with lazy TTL caching.
+
+        Returns:
+            Singleton instance van GatePolicyService
         """
-        if "gate_policy" not in self._instances:
+        if "gate_policy" not in self._lazy_instances:
             from services.policies.approval_gate_policy import GatePolicyService
 
             base_path = self.config.get(
                 "approval_gate_config_path", "config/approval_gate.yaml"
             )
-            self._instances["gate_policy"] = GatePolicyService(base_path)
-            logger.info("GatePolicyService instance aangemaakt (config: %s)", base_path)
-        return self._instances["gate_policy"]
+            self._lazy_instances["gate_policy"] = GatePolicyService(base_path)
+            logger.info("⚡ GatePolicyService lazy-loaded (config: %s)", base_path)
+        return self._lazy_instances["gate_policy"]
 
     def workflow(self) -> WorkflowService:
         """
@@ -351,20 +372,22 @@ class ServiceContainer:
         """
         if "workflow" not in self._instances:
             self._instances["workflow"] = WorkflowService()
-            logger.info("WorkflowService instance aangemaakt")
+            logger.debug("WorkflowService instance aangemaakt")
         return self._instances["workflow"]
 
     def definition_workflow_service(self):
         """
-        Get of create DefinitionWorkflowService instance.
+        Get of create DefinitionWorkflowService instance (LAZY-LOADED).
 
         US-072: Deze service combineert workflow en repository acties
         zodat UI geen losse services hoeft te coördineren.
 
+        Only loaded when Expert Review tab or workflow actions are accessed.
+
         Returns:
             Singleton instance van DefinitionWorkflowService
         """
-        if "definition_workflow_service" not in self._instances:
+        if "definition_workflow_service" not in self._lazy_instances:
             from services.definition_workflow_service import DefinitionWorkflowService
 
             # Use existing services
@@ -376,17 +399,19 @@ class ServiceContainer:
             audit_logger = (
                 None  # Pending: integrate Audit Trail when US-068 is delivered
             )
-            gate_policy_service = self.gate_policy()
+            gate_policy_service = self.gate_policy()  # Lazy - will trigger lazy load
 
-            self._instances["definition_workflow_service"] = DefinitionWorkflowService(
-                workflow_service=workflow_service,
-                repository=repository,
-                event_bus=event_bus,
-                audit_logger=audit_logger,
-                gate_policy_service=gate_policy_service,
+            self._lazy_instances["definition_workflow_service"] = (
+                DefinitionWorkflowService(
+                    workflow_service=workflow_service,
+                    repository=repository,
+                    event_bus=event_bus,
+                    audit_logger=audit_logger,
+                    gate_policy_service=gate_policy_service,
+                )
             )
-            logger.info("DefinitionWorkflowService instance aangemaakt (US-072)")
-        return self._instances["definition_workflow_service"]
+            logger.info("⚡ DefinitionWorkflowService lazy-loaded (US-072)")
+        return self._lazy_instances["definition_workflow_service"]
 
     def cleaning_service(self) -> CleaningServiceInterface:
         """
@@ -399,43 +424,52 @@ class ServiceContainer:
             from services.cleaning_service import CleaningService
 
             self._instances["cleaning_service"] = CleaningService(self.cleaning_config)
-            logger.info("CleaningService instance aangemaakt")
+            logger.debug("CleaningService instance aangemaakt")
         return self._instances["cleaning_service"]
 
     def data_aggregation_service(self) -> "DataAggregationService":
         """
-        Get of create DataAggregationService instance.
+        Get of create DataAggregationService instance (LAZY-LOADED).
+
+        Only loaded when export actions are triggered.
 
         Returns:
             Singleton instance van DataAggregationService
         """
-        if "data_aggregation_service" not in self._instances:
+        if "data_aggregation_service" not in self._lazy_instances:
             from services.data_aggregation_service import DataAggregationService
 
             # Use existing repository instance
             repo = self.repository()
-            self._instances["data_aggregation_service"] = DataAggregationService(repo)
-            logger.info("DataAggregationService instance aangemaakt")
-        return self._instances["data_aggregation_service"]
+            self._lazy_instances["data_aggregation_service"] = DataAggregationService(
+                repo
+            )
+            logger.info("⚡ DataAggregationService lazy-loaded")
+        return self._lazy_instances["data_aggregation_service"]
 
     def export_service(self) -> "ExportService":
         """
-        Get of create ExportService instance.
+        Get of create ExportService instance (LAZY-LOADED).
+
+        Only loaded when export actions are triggered.
+        Lazy-loads data_aggregation_service as dependency.
 
         Returns:
             Singleton instance van ExportService
         """
-        if "export_service" not in self._instances:
+        if "export_service" not in self._lazy_instances:
             from services.export_service import ExportService
 
             # Use existing services
             repo = self.repository()
-            data_agg_service = self.data_aggregation_service()
+            data_agg_service = (
+                self.data_aggregation_service()
+            )  # Lazy - will trigger lazy load
 
             # Get export directory from config
             export_dir = self.config.get("export_dir", "exports")
 
-            self._instances["export_service"] = ExportService(
+            self._lazy_instances["export_service"] = ExportService(
                 repository=repo,
                 data_aggregation_service=data_agg_service,
                 export_dir=export_dir,
@@ -444,35 +478,38 @@ class ServiceContainer:
                     "enable_export_validation_gate", False
                 ),
             )
-            logger.info("ExportService instance aangemaakt")
-        return self._instances["export_service"]
+            logger.info("⚡ ExportService lazy-loaded")
+        return self._lazy_instances["export_service"]
 
     def import_service(self):
         """
-        Get or create DefinitionImportService instance (CSV batch helper).
+        Get or create DefinitionImportService instance (CSV batch helper) (LAZY-LOADED).
+
+        Only loaded when import actions are triggered.
 
         Returns:
             Singleton instance van DefinitionImportService
         """
-        if "import_service" not in self._instances:
+        if "import_service" not in self._lazy_instances:
             from services.definition_import_service import DefinitionImportService
 
             repo = self.repository()
             validator = self.validation_orchestrator()
-            self._instances["import_service"] = DefinitionImportService(
+            self._lazy_instances["import_service"] = DefinitionImportService(
                 repository=repo, validation_orchestrator=validator
             )
-            logger.info("DefinitionImportService instance aangemaakt (CSV helper)")
-        return self._instances["import_service"]
+            logger.info("⚡ DefinitionImportService lazy-loaded (CSV helper)")
+        return self._lazy_instances["import_service"]
 
     # UI-services worden niet in de servicescontainer opgebouwd. Gebruik UI-container.
 
     # Utility methods
 
     def reset(self):
-        """Reset alle service instances."""
+        """Reset alle service instances (eager and lazy)."""
         self._instances.clear()
-        logger.info("Alle service instances gereset")
+        self._lazy_instances.clear()
+        logger.debug("Alle service instances gereset (eager + lazy)")
 
     def get_service(self, name: str):
         """
@@ -521,27 +558,29 @@ class ServiceContainer:
         self.config.update(config)
         self._load_configuration()
         self.reset()
-        logger.info("Container configuratie geüpdatet")
+        logger.debug("Container configuratie geüpdatet")
 
 
 # Globale container instance (optioneel)
 _default_container: ServiceContainer | None = None
 
 
-def get_container(config: dict[str, Any] | None = None) -> ServiceContainer:
+def get_container() -> ServiceContainer:
     """
-    Get de default container instance.
+    Get de singleton container instance.
 
-    Args:
-        config: Optionele configuratie voor nieuwe container
+    No config parameter allowed - container is initialized once with
+    default configuration. This prevents duplicate initialization.
 
     Returns:
-        ServiceContainer instance
+        ServiceContainer instance (singleton)
     """
     global _default_container
 
-    if _default_container is None or config is not None:
-        _default_container = ServiceContainer(config)
+    if _default_container is None:
+        # Initialize with None to use sensible defaults from _load_configuration()
+        # which pulls from environment variables and ConfigManager
+        _default_container = ServiceContainer(None)
 
     return _default_container
 

@@ -44,7 +44,7 @@ class ErrorPreventionModule(BasePromptModule):
         self.include_validation_matrix = config.get("include_validation_matrix", True)
         self.extended_forbidden_list = config.get("extended_forbidden_list", True)
         self._initialized = True
-        logger.info(
+        logger.debug(
             f"ErrorPreventionModule geïnitialiseerd "
             f"(matrix={self.include_validation_matrix}, extended={self.extended_forbidden_list})"
         )

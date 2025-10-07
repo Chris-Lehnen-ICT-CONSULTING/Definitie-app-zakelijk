@@ -44,7 +44,7 @@ class GrammarModule(BasePromptModule):
         self.include_examples = config.get("include_examples", True)
         self.strict_mode = config.get("strict_mode", False)
         self._initialized = True
-        logger.info(
+        logger.debug(
             f"GrammarModule geïnitialiseerd "
             f"(examples={self.include_examples}, strict={self.strict_mode})"
         )

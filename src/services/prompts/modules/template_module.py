@@ -44,7 +44,7 @@ class TemplateModule(BasePromptModule):
         self.include_examples = config.get("include_examples", True)
         self.detailed_templates = config.get("detailed_templates", True)
         self._initialized = True
-        logger.info(
+        logger.debug(
             f"TemplateModule geïnitialiseerd "
             f"(examples={self.include_examples}, detailed={self.detailed_templates})"
         )
