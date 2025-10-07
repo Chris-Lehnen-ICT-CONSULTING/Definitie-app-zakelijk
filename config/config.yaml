@@ -1,0 +1,294 @@
+# DefinitieAgent - Single Production Configuration
+# Purpose: Complete application configuration for production use
+# Version: 2.0 - Simplified single-config architecture
+# Created: 2025-01-07
+#
+# IMPORTANT: This replaces config_production.yaml, config_development.yaml, and openai_config.yaml
+# All settings are optimized for single-user, production use with real data
+
+# ================================================================================
+# API CONFIGURATION - OpenAI Integration
+# ================================================================================
+api:
+  # API Key: MUST be set via environment variable OPENAI_API_KEY
+  # NEVER hardcode API keys in this file!
+  openai_api_key: null  # Read from OPENAI_API_KEY env variable
+
+  # Model Selection
+  default_model: "gpt-4.1"  # Stable, high-quality model for legal definitions
+
+  # Default AI Parameters
+  default_temperature: 0.1  # Very low for consistent legal output
+  default_max_tokens: 300   # Concise definitions
+
+  # Request Configuration
+  request_timeout: 30.0     # Seconds
+  max_retries: 3            # Conservative for production
+  retry_backoff_factor: 1.5 # Exponential backoff
+
+  # Model-Specific Settings
+  model_settings:
+    gpt-4:
+      max_tokens: 300
+      temperature: 0.01       # Highly deterministic
+      cost_per_token: 0.00003
+      context_window: 8192
+
+    gpt-4.1:
+      max_tokens: 300
+      temperature: 0.0        # Fully deterministic
+      cost_per_token: 0.00003
+      context_window: 8192
+
+    gpt-4o-mini:
+      max_tokens: 500
+      temperature: 0.7        # More creative (for examples)
+      cost_per_token: 0.000015
+      context_window: 16384
+
+# ================================================================================
+# PROMPT TEMPERATURE SETTINGS - Per Prompt Type
+# ================================================================================
+# These control the creativity/consistency of each AI prompt type
+# 0.0-0.2 = Very consistent (best for legal definitions)
+# 0.3-0.5 = Balanced
+# 0.6-0.9 = More creative (good for examples)
+prompt_temperatures:
+  # Core definition generation (most important!)
+  definition: 0.1           # Very consistent for legal definitions
+
+  # Example generation (can be more creative)
+  voorbeeldzinnen: 0.5      # Example sentences
+  praktijkvoorbeelden: 0.6  # Practice examples
+  tegenvoorbeelden: 0.6     # Counter-examples
+
+  # Linguistic elements (very consistent)
+  synoniemen: 0.2           # Synonyms
+  antoniemen: 0.2           # Antonyms
+
+  # Explanation (balanced)
+  toelichting: 0.3          # Explanation/clarification
+
+  # Validation and classification (deterministic)
+  validation: 0.0           # Validation reasoning
+  classification: 0.0       # Category classification
+
+  # Web lookup augmentation
+  web_lookup: 0.5           # Web context enrichment
+
+# ================================================================================
+# CACHE CONFIGURATION
+# ================================================================================
+cache:
+  enabled: true
+  cache_dir: "cache"
+  default_ttl: 3600         # 1 hour default
+  max_cache_size: 2000      # Entries
+  cleanup_interval: 600     # 10 minutes
+
+  # Operation-specific TTLs (seconds)
+  definition_ttl: 7200      # 2 hours (definitions are stable)
+  examples_ttl: 1800        # 30 minutes
+  synonyms_ttl: 7200        # 2 hours
+  validation_ttl: 900       # 15 minutes
+
+# ================================================================================
+# LOGGING CONFIGURATION
+# ================================================================================
+logging:
+  level: "DEBUG"            # Detailed logging for single-user
+  console_enabled: true     # Show logs in terminal
+  file_enabled: true        # Also save to file
+  log_file: "logs/app.log"  # Simple filename
+  rotation: "daily"
+  retention_days: 30
+
+  # Module-specific log levels
+  module_levels:
+    openai: "INFO"          # See OpenAI calls
+    cache: "INFO"           # Cache operations
+    validation: "DEBUG"     # Detailed validation info
+    database: "INFO"        # DB operations
+
+# ================================================================================
+# MONITORING & COST TRACKING
+# ================================================================================
+monitoring:
+  enabled: true
+
+  # Cost thresholds (adjust to your budget)
+  cost_threshold_daily: 20.0     # €20 per day
+  cost_threshold_monthly: 500.0  # €500 per month
+
+  # Performance thresholds
+  response_time_threshold: 10.0  # Seconds
+  error_rate_threshold: 0.05     # 5% error rate
+
+  # Metrics collection
+  collect_metrics: true
+  metrics_interval: 60           # Seconds
+  metrics_retention_days: 90
+
+# ================================================================================
+# RATE LIMITING - Adjusted for Single User
+# ================================================================================
+rate_limiting:
+  enabled: true
+
+  # Higher limits for single user (not shared)
+  requests_per_minute: 60        # 60 req/min (was 30)
+  requests_per_hour: 1000        # Conservative
+  tokens_per_second: 2.0         # Faster responses
+
+  # Concurrent requests
+  max_concurrent: 10             # More parallelism
+
+  # Backoff strategy
+  backoff_factor: 1.5
+  max_retries: 3
+
+# ================================================================================
+# VALIDATION CONFIGURATION
+# ================================================================================
+validation:
+  # Quality gates (IMPORTANT - keep strict!)
+  strict_mode: true              # Enforce all rules
+  max_validation_errors: 5       # Maximum errors before rejection
+
+  # Definition constraints
+  max_definition_length: 300     # Keep concise
+  min_definition_length: 10      # Minimum viable definition
+
+  # Validation behavior
+  auto_validate: true
+  show_all_errors: true
+  fail_fast: false               # Check all rules
+
+# ================================================================================
+# SECURITY CONFIGURATION
+# ================================================================================
+security:
+  enabled: true
+
+  # Input validation
+  max_input_length: 8000         # Characters
+  validate_inputs: true
+  sanitize_inputs: true
+
+  # PII protection
+  redact_pii: true
+  pii_patterns_file: "config/pii_patterns.yaml"
+
+# ================================================================================
+# UI CONFIGURATION - Context Options
+# ================================================================================
+ui:
+  page_title: "DefinitieAgent"
+  page_icon: "🧠"
+  sidebar_width: 300
+
+  # Organizational contexts
+  organizational_contexts:
+    - "OM"
+    - "ZM"
+    - "Reclassering"
+    - "DJI"
+    - "NP"
+    - "Justid"
+    - "KMAR"
+    - "FIOD"
+    - "CJIB"
+    - "Strafrechtketen"
+    - "Migratieketen"
+    - "Justitie en Veiligheid"
+    - "Anders..."
+
+  # Legal contexts
+  legal_contexts:
+    - "Strafrecht"
+    - "Civiel recht"
+    - "Bestuursrecht"
+    - "Internationaal recht"
+    - "Anders..."
+
+  # Common laws for UI selection
+  common_laws:
+    - "Wetboek van Strafvordering (huidig)"
+    - "Wetboek van Strafvordering (toekomstig)"
+    - "Wet op de Identificatieplicht"
+    - "Wet op de politiegegevens"
+    - "Wetboek van Strafrecht"
+    - "Algemene verordening gegevensbescherming"
+    - "Anders..."
+
+  # Ketenpartners
+  ketenpartners:
+    - "ZM"
+    - "DJI"
+    - "KMAR"
+    - "CJIB"
+    - "JUSTID"
+    - "OM"
+    - "Politie"
+    - "Reclassering"
+    - "Halt"
+    - "Raad voor de Kinderbescherming"
+
+  # Abbreviations mapping
+  afkortingen:
+    "OM": "Openbaar Ministerie"
+    "ZM": "Zittende Magistratuur"
+    "3RO": "Samenwerkingsverband Reclasseringsorganisaties"
+    "DJI": "Dienst Justitiële Inrichtingen"
+    "NP": "Nederlands Politie"
+    "FIOD": "Fiscale Inlichtingen- en Opsporingsdienst"
+    "Justid": "Dienst Justitiële Informatievoorziening"
+    "KMAR": "Koninklijke Marechaussee"
+    "CJIB": "Centraal Justitieel Incassobureau"
+    "AVG": "Algemene verordening gegevensbescherming"
+
+# ================================================================================
+# PATHS CONFIGURATION
+# ================================================================================
+paths:
+  base_dir: "."
+  cache_dir: "cache"
+  exports_dir: "exports"
+  logs_dir: "logs"
+  config_dir: "config"
+  reports_dir: "reports"
+
+  # Specific files
+  toetsregels_file: "config/toetsregels.json"
+  verboden_woorden_file: "config/verboden_woorden.json"
+  context_mapping_file: "config/context_wet_mapping.json"
+  rate_limit_history_file: "cache/rate_limit_history.json"
+
+# ================================================================================
+# RESILIENCE CONFIGURATION
+# ================================================================================
+resilience:
+  # Circuit breaker
+  circuit_breaker:
+    enabled: true
+    failure_threshold: 5
+    success_threshold: 2
+    timeout: 60.0
+
+  # Health checks
+  health_check:
+    enabled: true
+    interval: 300
+    timeout: 10.0
+
+  # Retry strategies
+  retry_strategies:
+    api_call:
+      max_attempts: 3
+      backoff_factor: 1.5
+      max_delay: 15.0
+
+    database:
+      max_attempts: 2
+      backoff_factor: 1.0
+      max_delay: 5.0
