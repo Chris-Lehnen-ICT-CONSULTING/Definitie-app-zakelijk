@@ -23,13 +23,11 @@ logger = logging.getLogger(__name__)  # Logger instantie voor deze module
 class Environment(Enum):
     """Environment types for application configuration.
 
-    Determines which config file to load and which defaults to apply.
-    Can be set via APP_ENV environment variable.
+    SIMPLIFIED: Single production config for single-user application.
+    Environment enum kept for backwards compatibility but only PRODUCTION is used.
     """
 
-    DEVELOPMENT = "development"
-    PRODUCTION = "production"
-    TESTING = "testing"
+    PRODUCTION = "production"  # Only supported environment
 
 
 class ConfigSection(Enum):
@@ -278,6 +276,37 @@ class MonitoringConfig:
 
 
 @dataclass
+class PromptTemperaturesConfig:
+    """Temperature settings for different prompt types.
+
+    Controls AI creativity/consistency per prompt type.
+    Lower = more consistent, higher = more creative.
+    """
+
+    # Core definition generation (most important!)
+    definition: float = 0.1  # Very consistent for legal definitions
+
+    # Example generation (can be more creative)
+    voorbeeldzinnen: float = 0.5  # Example sentences
+    praktijkvoorbeelden: float = 0.6  # Practice examples
+    tegenvoorbeelden: float = 0.6  # Counter-examples
+
+    # Linguistic elements (very consistent)
+    synoniemen: float = 0.2  # Synonyms
+    antoniemen: float = 0.2  # Antonyms
+
+    # Explanation (balanced)
+    toelichting: float = 0.3  # Explanation/clarification
+
+    # Validation and classification (deterministic)
+    validation: float = 0.0  # Validation reasoning
+    classification: float = 0.0  # Category classification
+
+    # Web lookup augmentation
+    web_lookup: float = 0.5  # Web context enrichment
+
+
+@dataclass
 class LoggingConfig:
     """Logging configuration settings."""
 
@@ -393,22 +422,16 @@ class ConfigManager:
         environment: Environment | None = None,
         config_dir: str = "config",
     ):
-        # Bepaal environment: expliciet > APP_ENV > default (production)
-        if environment is None:
-            env_name = os.getenv("APP_ENV", "production").lower()
-            try:
-                environment = Environment(env_name)
-            except ValueError:
-                logger.warning(
-                    f"Invalid APP_ENV='{env_name}', defaulting to production. "
-                    f"Valid values: {[e.value for e in Environment]}"
-                )
-                environment = Environment.PRODUCTION
+        # SIMPLIFIED: Always use PRODUCTION for single-user application
+        # Environment parameter kept for backwards compatibility but ignored
+        environment = Environment.PRODUCTION
 
         self.environment = environment
         self.config_dir = Path(config_dir)
-        self.config_file = self.config_dir / f"config_{self.environment.value}.yaml"
-        self.default_config_file = self.config_dir / "config_default.yaml"
+        # Use single config.yaml instead of environment-specific files
+        self.config_file = self.config_dir / "config.yaml"
+        # No default config needed - everything in config.yaml
+        self.default_config_file = None
 
         # Configuration sections
         self.api: APIConfig = APIConfig()
@@ -421,8 +444,9 @@ class ConfigManager:
         self.rate_limiting: RateLimitingConfig = RateLimitingConfig()
         self.resilience: ResilienceConfig = ResilienceConfig()
         self.security: SecurityConfig = SecurityConfig()
+        self.prompt_temperatures: PromptTemperaturesConfig = PromptTemperaturesConfig()
 
-        # Component-specific AI configurations
+        # Component-specific AI configurations (deprecated, use prompt_temperatures instead)
         self.ai_components: dict = {}
 
         # Load configuration
@@ -447,19 +471,18 @@ class ConfigManager:
         self._validate_configuration()
 
     def _load_from_yaml(self):
-        """Load configuration from YAML files."""
+        """Load configuration from single config.yaml file."""
         try:
-            # Load default configuration
-            if self.default_config_file.exists():
-                with open(self.default_config_file) as f:
-                    default_config = yaml.safe_load(f)
-                    self._apply_config_dict(default_config)
-
-            # Load environment-specific configuration
+            # Load single production config
             if self.config_file.exists():
                 with open(self.config_file) as f:
-                    env_config = yaml.safe_load(f)
-                    self._apply_config_dict(env_config)
+                    config = yaml.safe_load(f)
+                    self._apply_config_dict(config)
+                logger.info(f"Configuration loaded from {self.config_file}")
+            else:
+                logger.warning(
+                    f"Config file {self.config_file} not found. Using defaults."
+                )
 
         except Exception as e:
             logger.warning(f"Failed to load YAML configuration: {e}")
@@ -512,8 +535,13 @@ class ConfigManager:
         """
         for section_name, section_config in config_dict.items():
             if section_name == "ai_components":
-                # Speciale behandeling voor ai_components
+                # Deprecated: Speciale behandeling voor ai_components
                 self.ai_components = section_config
+            elif section_name == "prompt_temperatures":
+                # Apply prompt temperature settings
+                for key, value in section_config.items():
+                    if hasattr(self.prompt_temperatures, key):
+                        setattr(self.prompt_temperatures, key, value)
             elif hasattr(self, section_name):
                 section_obj = getattr(self, section_name)
                 for key, value in section_config.items():
@@ -721,6 +749,33 @@ def get_default_temperature() -> float:
     """Get the default temperature from configuration."""
     api_config: APIConfig = get_config(ConfigSection.API)
     return api_config.default_temperature
+
+
+def get_prompt_temperature(prompt_type: str) -> float:
+    """Get temperature for specific prompt type.
+
+    Args:
+        prompt_type: Type of prompt (e.g. 'definition', 'voorbeeldzinnen', 'synoniemen')
+
+    Returns:
+        Temperature value for that prompt type
+
+    Example:
+        >>> temp = get_prompt_temperature('definition')  # Returns 0.1
+        >>> temp = get_prompt_temperature('praktijkvoorbeelden')  # Returns 0.6
+    """
+    config = get_config_manager()
+
+    if hasattr(config, "prompt_temperatures"):
+        if hasattr(config.prompt_temperatures, prompt_type):
+            return getattr(config.prompt_temperatures, prompt_type)
+
+    # Fallback to default if prompt type not found
+    logger.warning(
+        f"Prompt type '{prompt_type}' not found in prompt_temperatures, "
+        f"using default temperature {config.api.default_temperature}"
+    )
+    return config.api.default_temperature
 
 
 def fill_ai_defaults(**kwargs) -> dict:
