@@ -280,6 +280,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Ontologische Classificatie Integratie Guide",
+      "path": "../technisch/ontology_classification_integration.md",
+      "url": "../technisch/ontology_classification_integration.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/technisch/ontology_classification_integration.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Performance Tracking Quick Reference Guide",
       "path": "../technisch/performance-tracking-guide.md",
       "url": "../technisch/performance-tracking-guide.md",
@@ -653,6 +684,37 @@
         "req": []
       },
       "rendered_url": "rendered/technisch/ANDERS-OPTION-ROOT-CAUSE-ANALYSIS.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Ontological Classifier - Quick Reference Cheatsheet",
+      "path": "../quick-reference/ontological_classifier_cheatsheet.md",
+      "url": "../quick-reference/ontological_classifier_cheatsheet.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/quick-reference/ontological_classifier_cheatsheet.html"
     },
     {
       "id": null,
@@ -1361,6 +1423,37 @@
     {
       "id": null,
       "type": "ARCH",
+      "title": "Ontology Classification Implementation Roadmap",
+      "path": "../architectuur/ontology_classification_implementation_roadmap.md",
+      "url": "../architectuur/ontology_classification_implementation_roadmap.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/architectuur/ontology_classification_implementation_roadmap.html"
+    },
+    {
+      "id": null,
+      "type": "ARCH",
       "title": "Performance Baseline Tracking System - Architecture Diagrams",
       "path": "../architectuur/performance-baseline-tracking-architecture.md",
       "url": "../architectuur/performance-baseline-tracking-architecture.md",
@@ -1559,6 +1652,37 @@
     {
       "id": null,
       "type": "ARCH",
+      "title": "Ontological Classifier - Executive Summary",
+      "path": "../architectuur/ONTOLOGICAL_CLASSIFIER_SUMMARY.md",
+      "url": "../architectuur/ONTOLOGICAL_CLASSIFIER_SUMMARY.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/architectuur/ONTOLOGICAL_CLASSIFIER_SUMMARY.html"
+    },
+    {
+      "id": null,
+      "type": "ARCH",
       "title": "Lazy Loading Design voor Non-Critical Services",
       "path": "../architectuur/lazy-loading-design.md",
       "url": "../architectuur/lazy-loading-design.md",
@@ -1624,6 +1748,37 @@
         "req": []
       },
       "rendered_url": "rendered/architectuur/TECHNICAL_ARCHITECTURE.html"
+    },
+    {
+      "id": null,
+      "type": "ARCH",
+      "title": "Ontological Classifier - Standalone Architecture",
+      "path": "../architectuur/ontological_classifier_standalone_architecture.md",
+      "url": "../architectuur/ontological_classifier_standalone_architecture.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/architectuur/ontological_classifier_standalone_architecture.html"
     },
     {
       "id": null,
@@ -5381,6 +5536,68 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Ontology Classification - Quick Start Guide",
+      "path": "../guides/ONTOLOGY_CLASSIFICATION_QUICKSTART.md",
+      "url": "../guides/ONTOLOGY_CLASSIFICATION_QUICKSTART.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/guides/ONTOLOGY_CLASSIFICATION_QUICKSTART.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "UI Classificatie Flows - Implementation Guide",
+      "path": "../examples/UI_CLASSIFICATION_FLOWS.md",
+      "url": "../examples/UI_CLASSIFICATION_FLOWS.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/examples/UI_CLASSIFICATION_FLOWS.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Implementatieplan: Synoniemen/Antoniemen & Context Flow Fixes",
       "path": "../implementation/synoniemen-antoniemen-fix-plan.md",
       "url": "../implementation/synoniemen-antoniemen-fix-plan.md",
@@ -5732,6 +5949,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Classification Pre-Processing - Implementation Code Examples",
+      "path": "../analyses/CLASSIFICATION_IMPLEMENTATION_CODE_EXAMPLES.md",
+      "url": "../analyses/CLASSIFICATION_IMPLEMENTATION_CODE_EXAMPLES.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/CLASSIFICATION_IMPLEMENTATION_CODE_EXAMPLES.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Configuration & Environment Verification Report",
       "path": "../analyses/CONFIG_ENVIRONMENT_VERIFICATION_REPORT.md",
       "url": "../analyses/CONFIG_ENVIRONMENT_VERIFICATION_REPORT.md",
@@ -5759,6 +6007,39 @@
         "req": []
       },
       "rendered_url": "rendered/analyses/CONFIG_ENVIRONMENT_VERIFICATION_REPORT.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Master Improvement Plan - DefinitieAgent Codebase",
+      "path": "../analyses/MASTER_IMPROVEMENT_PLAN.md",
+      "url": "../analyses/MASTER_IMPROVEMENT_PLAN.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-202"
+        ],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/MASTER_IMPROVEMENT_PLAN.html"
     },
     {
       "id": null,
@@ -5866,6 +6147,70 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Level Classifier - Modulaire Refactoring Plan (Optie B)",
+      "path": "../analyses/LEVEL_CLASSIFIER_REFACTORING_PLAN.md",
+      "url": "../analyses/LEVEL_CLASSIFIER_REFACTORING_PLAN.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [
+          "EPIC-028"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/LEVEL_CLASSIFIER_REFACTORING_PLAN.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Classification Pipeline Patterns - Visual Comparison",
+      "path": "../analyses/CLASSIFICATION_PIPELINE_COMPARISON.md",
+      "url": "../analyses/CLASSIFICATION_PIPELINE_COMPARISON.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/CLASSIFICATION_PIPELINE_COMPARISON.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "ServiceContainer Fix - Implementation Guide",
       "path": "../analyses/CONTAINER_FIX_IMPLEMENTATION.md",
       "url": "../analyses/CONTAINER_FIX_IMPLEMENTATION.md",
@@ -5895,6 +6240,43 @@
         "req": []
       },
       "rendered_url": "rendered/analyses/CONTAINER_FIX_IMPLEMENTATION.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Level Classifier Integration - Executive Summary",
+      "path": "../analyses/LEVEL_CLASSIFIER_EXECUTIVE_SUMMARY.md",
+      "url": "../analyses/LEVEL_CLASSIFIER_EXECUTIVE_SUMMARY.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-441",
+          "US-445",
+          "US-446"
+        ],
+        "epic": [
+          "EPIC-028"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/LEVEL_CLASSIFIER_EXECUTIVE_SUMMARY.html"
     },
     {
       "id": null,
@@ -5966,6 +6348,68 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Ontological Category Classification - Flow Diagram",
+      "path": "../analyses/LEVEL_CLASSIFIER_FLOW_DIAGRAM.md",
+      "url": "../analyses/LEVEL_CLASSIFIER_FLOW_DIAGRAM.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/LEVEL_CLASSIFIER_FLOW_DIAGRAM.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Strategic Analysis: Pre-Processing Pattern voor Ontologische Classificatie",
+      "path": "../analyses/ONTOLOGICAL_CLASSIFICATION_PRE_PROCESSING_PATTERN_ANALYSIS.md",
+      "url": "../analyses/ONTOLOGICAL_CLASSIFICATION_PRE_PROCESSING_PATTERN_ANALYSIS.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/ONTOLOGICAL_CLASSIFICATION_PRE_PROCESSING_PATTERN_ANALYSIS.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Configuration & Environment: Complete Analysis & Remediation Plan",
       "path": "../analyses/CONFIG_ENVIRONMENT_MASTERPLAN.md",
       "url": "../analyses/CONFIG_ENVIRONMENT_MASTERPLAN.md",
@@ -6001,6 +6445,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "FINAL ARCHITECTURE DECISION: Ontologische Classificatie",
+      "path": "../analyses/FINAL_CLASSIFICATION_ARCHITECTURE_DECISION.md",
+      "url": "../analyses/FINAL_CLASSIFICATION_ARCHITECTURE_DECISION.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/FINAL_CLASSIFICATION_ARCHITECTURE_DECISION.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "ServiceContainer Call Flow Diagram",
       "path": "../analyses/container_call_flow.md",
       "url": "../analyses/container_call_flow.md",
@@ -6032,6 +6507,44 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Level Classifier Integration Gap Analysis",
+      "path": "../analyses/LEVEL_CLASSIFIER_INTEGRATION_GAP_ANALYSIS.md",
+      "url": "../analyses/LEVEL_CLASSIFIER_INTEGRATION_GAP_ANALYSIS.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-441",
+          "US-445",
+          "US-446"
+        ],
+        "epic": [
+          "EPIC-027",
+          "EPIC-028"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/LEVEL_CLASSIFIER_INTEGRATION_GAP_ANALYSIS.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Configuration Environment Analysis - Executive Summary",
       "path": "../analyses/VERIFICATION_EXECUTIVE_SUMMARY.md",
       "url": "../analyses/VERIFICATION_EXECUTIVE_SUMMARY.md",
@@ -6059,6 +6572,37 @@
         "req": []
       },
       "rendered_url": "rendered/analyses/VERIFICATION_EXECUTIVE_SUMMARY.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "UFO Classifier - Grondige Debug Analyse",
+      "path": "../analyses/UFO_CLASSIFIER_DEBUG_ANALYSIS.md",
+      "url": "../analyses/UFO_CLASSIFIER_DEBUG_ANALYSIS.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/UFO_CLASSIFIER_DEBUG_ANALYSIS.html"
     },
     {
       "id": null,
@@ -6123,6 +6667,37 @@
         "req": []
       },
       "rendered_url": "rendered/analyses/CONFIG_DEPENDENCY_GRAPH.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "UFO Classifier - Concrete Fixes voor Geïdentificeerde Bugs",
+      "path": "../analyses/UFO_CLASSIFIER_FIXES.md",
+      "url": "../analyses/UFO_CLASSIFIER_FIXES.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/UFO_CLASSIFIER_FIXES.html"
     },
     {
       "id": null,
@@ -7504,6 +8079,37 @@
         "req": []
       },
       "rendered_url": "rendered/reviews/TEST_SUITE_CODE_REVIEW.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Architectural Review: Ontological Classification Decoupling",
+      "path": "../reviews/ONTOLOGICAL_CLASSIFICATION_ARCHITECTURE_REVIEW.md",
+      "url": "../reviews/ONTOLOGICAL_CLASSIFICATION_ARCHITECTURE_REVIEW.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/reviews/ONTOLOGICAL_CLASSIFICATION_ARCHITECTURE_REVIEW.html"
     },
     {
       "id": null,
@@ -38422,8 +39028,8 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 560,
-      "ARCH": 33,
+      "DOC": 576,
+      "ARCH": 36,
       "COMP": 5,
       "TEST": 33,
       "GUIDE": 12,
@@ -38432,7 +39038,7 @@
       "US": 276,
       "BUG": 18
     },
-    "generated_at": "2025-10-07T19:20:56Z"
+    "generated_at": "2025-10-07T21:56:34Z"
   },
   "sources": [
     "docs"

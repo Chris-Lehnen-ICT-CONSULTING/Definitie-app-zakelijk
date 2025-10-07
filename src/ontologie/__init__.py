@@ -1,10 +1,11 @@
 """
-Ontologie Module - Implementatie van wetenschappelijke ontologische analyse.
+Ontologie Module - Verbeterde ontologische classificatie.
 
-Dit module implementeert het 6-stappen ontologisch protocol voor accurate
-begripsclassificatie, met integratie van weblookup functionaliteit.
+Implementeert context-aware pattern matching voor accurate begripsclassificatie
+met 3-context support (organisatorisch, juridisch, wettelijk).
 """
 
-from .ontological_analyzer import OntologischeAnalyzer, QuickOntologischeAnalyzer
+from .improved_classifier import QuickOntologischeAnalyzer  # Backward compatibility
+from .improved_classifier import ImprovedOntologyClassifier
 
-__all__ = ["OntologischeAnalyzer", "QuickOntologischeAnalyzer"]
+__all__ = ["ImprovedOntologyClassifier", "QuickOntologischeAnalyzer"]
