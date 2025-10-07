@@ -25,6 +25,17 @@ repos:
         args: ["--profile", "black"]
         types: [python]
 
+  # Gitleaks - Secret detection
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.25.0
+    hooks:
+      - id: gitleaks
+        name: Detect hardcoded secrets (gitleaks)
+        entry: gitleaks protect --verbose --redact --staged
+        language: golang
+        pass_filenames: false
+        stages: [pre-commit]
+
   # Local custom hooks
   - repo: local
     hooks:

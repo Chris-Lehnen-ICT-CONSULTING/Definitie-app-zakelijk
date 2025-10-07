@@ -1,0 +1,123 @@
+# Gitleaks Configuration for DefinitieAgent
+# Version: 8.25.0 (2025)
+# See: https://github.com/gitleaks/gitleaks
+
+title = "DefinitieAgent Secret Detection Configuration"
+
+# Use default Gitleaks rules (100+ patterns)
+# This includes: OpenAI, AWS, GitHub, Google, Azure, JWT, private keys, etc.
+[extend]
+useDefault = true
+
+# Global allowlist (higher precedence than rule-specific)
+[[allowlists]]
+description = "Ignore example keys and test fixtures"
+paths = [
+  '''tests/fixtures/.*''',
+  '''tests/data/.*''',
+  '''.*_test\.py''',
+  '''.*test_.*\.py''',
+  '''docs/examples/.*'''
+]
+regexes = [
+  '''sk-proj-EXAMPLE''',
+  '''AKIAIOSFODNN7EXAMPLE''',
+  '''ghp_EXAMPLE''',
+  '''sk-ant-api03-EXAMPLE'''
+]
+
+[[allowlists]]
+description = "Ignore README documentation examples"
+paths = [
+  '''README\.md''',
+  '''CLAUDE\.md''',
+  '''docs/.*\.md'''
+]
+# Only allow example keys in docs that are clearly marked as examples
+regexes = [
+  '''sk-\.\.\.$''',
+  '''api_key.*example''',
+  '''<your-api-key>''',
+  '''YOUR_API_KEY'''
+]
+
+[[allowlists]]
+description = "Ignore encrypted or hashed values"
+regexes = [
+  # Hashed values (SHA256, bcrypt, etc.)
+  '''\$2[ayb]\$.{56}''',
+  '''[a-fA-F0-9]{64}''',  # SHA256 hex
+]
+
+# Custom rules for project-specific patterns
+[[rules]]
+id = "openai-api-key-new-format"
+description = "OpenAI API key (new sk-proj- format)"
+regex = '''sk-proj-[A-Za-z0-9_-]{48,}'''
+entropy = 3.5
+keywords = ["sk-proj"]
+tags = ["api-key", "openai", "high-risk"]
+
+[[rules]]
+id = "anthropic-claude-api-key"
+description = "Anthropic Claude API key"
+regex = '''sk-ant-api03-[A-Za-z0-9_-]{95,}'''
+entropy = 4.0
+keywords = ["sk-ant"]
+tags = ["api-key", "anthropic", "high-risk"]
+
+[[rules]]
+id = "generic-high-entropy-string"
+description = "Generic high-entropy string (potential secret)"
+regex = '''(?i)(api[_-]?key|secret|token|password)[\"'\s]*[:=][\"'\s]*([A-Za-z0-9_-]{32,})'''
+entropy = 4.5
+keywords = ["api", "key", "secret", "token", "password"]
+tags = ["generic-secret", "medium-risk"]
+
+# Rule-specific allowlist for generic pattern (reduce false positives)
+[[rules.allowlists]]
+description = "Ignore common non-secret patterns"
+regexes = [
+  '''(?i)api[_-]?key[\"'\s]*[:=][\"'\s]*(true|false|null|none|test|example)''',
+  '''(?i)password[\"'\s]*[:=][\"'\s]*(test|example|demo)'''
+]
+
+# Environment variable exposure
+[[rules]]
+id = "env-file-exposure"
+description = "Prevent committing .env files"
+path = '''^\.env.*$'''
+tags = ["env-file", "high-risk"]
+
+# Database connection strings
+[[rules]]
+id = "database-connection-string"
+description = "Database connection string with credentials"
+regex = '''(postgres|mysql|mongodb|redis)://[^:]+:[^@]+@[^/\s'"]+'''
+keywords = ["postgres", "mysql", "mongodb", "redis"]
+tags = ["database", "high-risk"]
+
+# Private keys
+[[rules]]
+id = "private-key-pem"
+description = "PEM-encoded private key"
+regex = '''-----BEGIN ((EC|PGP|DSA|RSA|OPENSSH) )?PRIVATE KEY( BLOCK)?-----'''
+keywords = ["BEGIN", "PRIVATE", "KEY"]
+tags = ["private-key", "critical-risk"]
+
+# JWT tokens
+[[rules]]
+id = "jwt-token"
+description = "JSON Web Token (JWT)"
+regex = '''eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}'''
+entropy = 3.0
+keywords = ["eyJ"]
+tags = ["jwt", "medium-risk"]
+
+# GitHub tokens
+[[rules]]
+id = "github-pat"
+description = "GitHub Personal Access Token"
+regex = '''gh[pousr]_[A-Za-z0-9_]{36,}'''
+keywords = ["ghp_", "gho_", "ghu_", "ghs_", "ghr_"]
+tags = ["github", "high-risk"]

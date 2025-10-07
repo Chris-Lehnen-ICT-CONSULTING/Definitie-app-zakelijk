@@ -605,9 +605,8 @@ class ContainerConfigs:
             "db_path": "data/definities.db",
             # Model en temperature worden uit centrale config gehaald
             "enable_monitoring": True,
-            "enable_auto_save": False,  # Geen auto-save in dev
             "enable_ontology": True,  # Test ontologie in dev
-            "min_quality_score": 0.5,  # Lagere threshold voor dev
+            # Dead code verwijderd: enable_auto_save, min_quality_score (never used)
         }
 
     @staticmethod
@@ -617,11 +616,9 @@ class ContainerConfigs:
             "db_path": ":memory:",  # In-memory database
             # Model wordt uit centrale config gehaald
             "enable_monitoring": False,
-            "enable_auto_save": False,
-            "enable_validation": True,
-            "enable_enrichment": False,  # Skip enrichment in tests
             "enable_ontology": False,  # Skip ontologie in tests voor snelheid
             "use_json_rules": False,  # Gebruik interne regels voor voorspelbare golden-acceptatie
+            # Dead code verwijderd: enable_auto_save, enable_validation, enable_enrichment (never used)
         }
 
     @staticmethod
@@ -631,8 +628,6 @@ class ContainerConfigs:
             "db_path": "data/definities.db",
             # Model en temperature worden uit centrale config gehaald
             "enable_monitoring": True,
-            "enable_auto_save": True,
-            "enable_all_rules": True,
             "enable_ontology": True,  # Volledige ontologie in productie
-            "min_quality_score": 0.7,  # Hogere kwaliteitseis
+            # Dead code verwijderd: enable_auto_save, enable_all_rules, min_quality_score (never used)
         }
