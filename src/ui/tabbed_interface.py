@@ -229,65 +229,41 @@ class TabbedInterface:
         self._render_footer()
 
     async def _determine_ontological_category(self, begrip, org_context, jur_context):
-        """Bepaal automatisch de ontologische categorie via 6-stappen protocol."""
+        """
+        Bepaal automatisch de ontologische categorie.
+
+        VERBETERD: Gebruikt ImprovedOntologyClassifier met 3-context support.
+        """
+        from ontologie.improved_classifier import ImprovedOntologyClassifier
+
         try:
-            # Importeer de nieuwe ontologische analyzer
-            from ontologie.ontological_analyzer import (
-                OntologischeAnalyzer,
-                QuickOntologischeAnalyzer,
+            classifier = ImprovedOntologyClassifier()
+
+            # Classificeer met alle 3 contexten (org, jur, wet)
+            # Wet context kunnen we later toevoegen aan UI
+            result = classifier.classify(
+                begrip=begrip,
+                org_context=org_context,
+                jur_context=jur_context,
+                wet_context="",  # Wettelijke context: optioneel via UI uitbreiding
             )
 
-            # Probeer eerst de volledige 6-stappen analyse
-            try:
-                analyzer = OntologischeAnalyzer()
-                (
-                    categorie,
-                    analyse_resultaat,
-                ) = await analyzer.bepaal_ontologische_categorie(
-                    begrip, org_context, jur_context
-                )
+            logger.info(
+                f"Ontologische classificatie voor '{begrip}': {result.categorie.value} "
+                f"(scores: {result.test_scores})"
+            )
 
-                # Haal de redenering en scores uit het analyse resultaat
-                reasoning = analyse_resultaat.get(
-                    "reasoning", "Ontologische analyse voltooid"
-                )
-                test_scores = analyse_resultaat.get("categorie_resultaat", {}).get(
-                    "test_scores", {}
-                )
-
-                logger.info(
-                    f"6-stappen ontologische analyse voor '{begrip}': {categorie.value}"
-                )
-                return categorie, reasoning, test_scores
-
-            except Exception as e:
-                logger.warning(f"6-stappen analyse mislukt voor '{begrip}': {e}")
-
-                # Fallback naar quick analyzer
-                quick_analyzer = QuickOntologischeAnalyzer()
-                categorie, reasoning = quick_analyzer.quick_categoriseer(begrip)
-
-                logger.info(
-                    f"Quick ontologische analyse voor '{begrip}': {categorie.value}"
-                )
-                # Genereer dummy scores voor quick analyzer
-                quick_scores = {
-                    cat: 0.5 if cat == categorie.value else 0.0
-                    for cat in ["type", "proces", "resultaat", "exemplaar"]
-                }
-                return categorie, f"Quick analyse - {reasoning}", quick_scores
+            return result.categorie, result.reasoning, result.test_scores
 
         except Exception as e:
-            logger.error(f"Ontologische analyse volledig mislukt voor '{begrip}': {e}")
+            logger.error(f"Ontologische classificatie mislukt voor '{begrip}': {e}")
 
-            # Ultieme fallback naar oude pattern matching
-            reasoning = self._legacy_pattern_matching(begrip)
-            # Genereer dummy scores voor legacy fallback
-            legacy_scores = {"type": 0, "proces": 1, "resultaat": 0, "exemplaar": 0}
+            # Fallback: PROCES (meest voorkomend in tests: 43%)
+            fallback_scores = {"type": 0, "proces": 1, "resultaat": 0, "exemplaar": 0}
             return (
                 OntologischeCategorie.PROCES,
-                f"Legacy fallback - {reasoning}",
-                legacy_scores,
+                f"Fallback naar PROCES (error: {str(e)[:50]})",
+                fallback_scores,
             )
 
     def _legacy_pattern_matching(self, begrip: str) -> str:
