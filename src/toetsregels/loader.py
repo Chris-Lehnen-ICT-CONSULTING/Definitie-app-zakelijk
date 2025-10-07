@@ -3,40 +3,37 @@ Toetsregels loader - vervangt de oude config_loader.
 
 Deze module laadt toetsregels uit individuele JSON bestanden
 in plaats van het monolithische toetsregels.json.
+
+Gebruikt CachedToetsregelManager voor optimale performance (US-202).
 """
 
 import logging
 
-from .manager import get_toetsregel_manager
+from .cached_manager import get_cached_toetsregel_manager
 
 logger = logging.getLogger(__name__)
 
 
 def load_toetsregels() -> dict[str, dict]:
     """
-    Laadt alle toetsregels uit individuele JSON bestanden.
+    Laadt alle toetsregels uit individuele JSON bestanden (GECACHED).
 
     Dit is een vervanging voor de oude laad_toetsregels() functie
     die het monolithische toetsregels.json gebruikte.
 
+    Gebruikt nu CachedToetsregelManager die RuleCache gebruikt voor
+    snelle bulk loading (1x i.p.v. 10x).
+
     Returns:
         Dictionary met alle toetsregels, key is regel ID
     """
-    manager = get_toetsregel_manager()
+    # Gebruik gecachte manager voor optimale performance
+    manager = get_cached_toetsregel_manager()
 
-    # Haal alle beschikbare regel IDs op
-    regel_ids = manager.get_available_regels()
+    # get_all_regels() is GECACHED - laadt slechts 1x per sessie
+    toetsregels = manager.get_all_regels()
 
-    # Laad elke regel
-    toetsregels = {}
-    for regel_id in regel_ids:
-        regel_data = manager.load_regel(regel_id)
-        if regel_data:
-            # Zorg dat ID in de data zit voor backward compatibility
-            regel_data["id"] = regel_id
-            toetsregels[regel_id] = regel_data
-
-    logger.info(f"Geladen {len(toetsregels)} toetsregels uit individuele bestanden")
+    logger.info(f"Geladen {len(toetsregels)} toetsregels uit cache")
 
     return {"regels": toetsregels}  # Wrap in "regels" voor compatibility
 
