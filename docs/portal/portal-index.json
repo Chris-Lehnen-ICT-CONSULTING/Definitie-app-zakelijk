@@ -5357,6 +5357,42 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "ServiceContainer Duplication - Root Cause Analysis",
+      "path": "../analyses/CONTAINER_DUPLICATION_ROOT_CAUSE.md",
+      "url": "../analyses/CONTAINER_DUPLICATION_ROOT_CAUSE.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-201",
+          "US-202"
+        ],
+        "epic": [
+          "EPIC-026"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/CONTAINER_DUPLICATION_ROOT_CAUSE.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "ServiceContainer Dubbele Initialisatie - Executive Summary",
       "path": "../analyses/CONTAINER_ISSUE_SUMMARY.md",
       "url": "../analyses/CONTAINER_ISSUE_SUMMARY.md",
@@ -5393,6 +5429,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Container Duplication Fix - Implementation Plan",
+      "path": "../analyses/CONTAINER_FIX_IMPLEMENTATION_PLAN.md",
+      "url": "../analyses/CONTAINER_FIX_IMPLEMENTATION_PLAN.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/CONTAINER_FIX_IMPLEMENTATION_PLAN.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "ServiceContainer Fix - Implementation Guide",
       "path": "../analyses/CONTAINER_FIX_IMPLEMENTATION.md",
       "url": "../analyses/CONTAINER_FIX_IMPLEMENTATION.md",
@@ -5422,6 +5489,37 @@
         "req": []
       },
       "rendered_url": "rendered/analyses/CONTAINER_FIX_IMPLEMENTATION.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Container Cache Key Problem - Visual Analysis",
+      "path": "../analyses/CONTAINER_CACHE_KEY_PROBLEM.md",
+      "url": "../analyses/CONTAINER_CACHE_KEY_PROBLEM.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/CONTAINER_CACHE_KEY_PROBLEM.html"
     },
     {
       "id": null,
@@ -33093,6 +33191,42 @@
       "linked_reqs": null
     },
     {
+      "id": null,
+      "type": "DOC",
+      "title": "US-202: ServiceContainer Cache Key Duplication Fix",
+      "path": "../backlog/EPIC-026/US-202/US-202-CACHE-KEY-FIX-REPORT.md",
+      "url": "../backlog/EPIC-026/US-202/US-202-CACHE-KEY-FIX-REPORT.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-026",
+      "parent_us": "US-202-CACHE-KEY-FIX-REPORT.md",
+      "_refs": {
+        "us": [
+          "US-201",
+          "US-202"
+        ],
+        "epic": [
+          "EPIC-026"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-026/US-202/US-202-CACHE-KEY-FIX-REPORT.html"
+    },
+    {
       "id": "US-454",
       "type": "US",
       "title": "US-454: titel: Create Generation Orchestrator Tests (Phase 0)",
@@ -37356,7 +37490,7 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 537,
+      "DOC": 541,
       "ARCH": 24,
       "COMP": 5,
       "TEST": 33,
@@ -37366,7 +37500,7 @@
       "US": 276,
       "BUG": 18
     },
-    "generated_at": "2025-10-07T08:53:35Z"
+    "generated_at": "2025-10-07T09:54:03Z"
   },
   "sources": [
     "docs"
