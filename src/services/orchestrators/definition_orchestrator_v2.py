@@ -451,13 +451,20 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             # =====================================
             # PHASE 4: AI Generation with Retry Logic
             # =====================================
+            # Get temperature from config (0.1 for consistent legal definitions)
+            from config.config_manager import get_prompt_temperature
+
+            temperature = (
+                safe_dict_get(sanitized_request.options, "temperature")
+                if sanitized_request.options
+                else None
+            )
+            if temperature is None:
+                temperature = get_prompt_temperature("definition")
+
             generation_result = await self.ai_service.generate_definition(
                 prompt=prompt_result.text,
-                temperature=(
-                    safe_dict_get(sanitized_request.options, "temperature", 0.7)
-                    if sanitized_request.options
-                    else 0.7
-                ),
+                temperature=temperature,
                 max_tokens=(
                     safe_dict_get(sanitized_request.options, "max_tokens", 500)
                     if sanitized_request.options
