@@ -1,0 +1,459 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Performance Baseline Tracking System - Quick Reference</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>Performance Baseline Tracking System - Quick Reference</h1>
+
+<p><strong>Full Design:</strong> <a href="./performance-baseline-tracking-design.md" target="_blank">performance-baseline-tracking-design.md</a></p>
+<p><strong>Date:</strong> 2025-10-07</p>
+<p><strong>Status:</strong> DESIGN APPROVED</p>
+
+<p>---</p>
+
+<h2>TL;DR</h2>
+
+<p><strong>What:</strong> Automated system to track performance baselines, detect regressions, and alert on slowdowns.</p>
+
+<p><strong>Why:</strong> Catch performance issues early (e.g., double container init, prompt token bloat) before they impact users.</p>
+
+<p><strong>How:</strong> Lightweight instrumentation (<50ms overhead) + SQLite storage + Statistical regression detection + UI dashboard</p>
+
+<p><strong>When:</strong> Implement in 5 phases over 4-5 weeks (core functionality in 4-5 days)</p>
+
+<p>---</p>
+
+<h2>Quick Stats</h2>
+
+<p>| Metric | Value |</p>
+<p>|--------|-------|</p>
+<p>| <strong>Implementation Effort</strong> | 4-5 days (core), 7-8 days (with UI) |</p>
+<p>| <strong>Performance Overhead</strong> | <50ms (<1.25% of startup time) |</p>
+<p>| <strong>Database Size Growth</strong> | ~300KB/month (compressed) |</p>
+<p>| <strong>Memory Footprint</strong> | <100KB (negligible) |</p>
+<p>| <strong>Metrics Tracked</strong> | 13 core + 8 secondary = 21 total |</p>
+<p>| <strong>Complexity</strong> | MEDIUM (manageable) |</p>
+
+<p>---</p>
+
+<h2>Core Metrics (13)</h2>
+
+<ol>
+<li>**APP-001:** Application Startup Time (target: <500ms)</li>
+<li>**SVC-001:** ServiceContainer Init Count (target: 1x only)</li>
+<li>**SVC-002:** Service Init Time (target: <200ms)</li>
+<li>**VAL-001:** Single Validation Time (target: <1s)</li>
+<li>**VAL-002:** Rule Loading Time (target: <100ms)</li>
+<li>**VAL-003:** Rule Cache Hit Rate (target: >90%)</li>
+<li>**GEN-001:** Definition Generation Time (target: <5s)</li>
+<li>**API-001:** API Call Duration (target: <3s)</li>
+<li>**API-002:** Prompt Token Count (target: <3000)</li>
+<li>**API-003:** API Cost per Request (target: <$0.01)</li>
+<li>**EXP-001:** Export Operation Time (target: <2s)</li>
+<li>**MEM-001:** Peak Memory Usage (target: <500MB)</li>
+<li>**MEM-002:** Memory Growth Rate (target: <10MB/hour)</li>
+</ol>
+
+<p>---</p>
+
+<h2>Key Features</h2>
+
+<h3>1. Baseline Calculation</h3>
+<ul>
+<li>**Method:** Rolling median of last 20 successful runs</li>
+<li>**Confidence:** Low (0-0.3), Medium (0.3-0.7), High (0.7-1.0)</li>
+<li>**Update:** Every 10 new measurements</li>
+</ul>
+
+<h3>2. Regression Detection (3 Tiers)</h3>
+<ul>
+<li>**Tier 1:** Threshold-based (simple: >target?)</li>
+<li>**Tier 2:** Statistical (z-score: >1 std dev?)</li>
+<li>**Tier 3:** Trend analysis (getting worse over time?)</li>
+</ul>
+
+<h3>3. Alerting</h3>
+<ul>
+<li>**Severity:** info, warning, error, critical</li>
+<li>**Thresholds:** Warning at +10%, Error at +20%</li>
+<li>**Output:** Terminal, logs, database, UI dashboard</li>
+</ul>
+
+<h3>4. Storage</h3>
+<ul>
+<li>**Database:** SQLite (existing `data/definities.db`)</li>
+<li>**Tables:** `performance_baselines`, `performance_alerts`, `performance_targets`</li>
+<li>**Retention:** 30 days raw, 365 days aggregated</li>
+</ul>
+
+<p>---</p>
+
+<h2>Implementation Phases</h2>
+
+<h3>Phase 1: Foundation (4 hours) - SIMPLE ✅</h3>
+<ul>
+<li>Create database tables</li>
+<li>Implement `PerformanceTracker` class</li>
+<li>Add startup timing</li>
+<li>Record to database</li>
+</ul>
+
+<p><strong>Deliverable:</strong> Basic tracking without alerts</p>
+
+<p>---</p>
+
+<h3>Phase 2: Metrics (2 days) - MEDIUM</h3>
+<ul>
+<li>Instrument all core operations</li>
+<li>Implement baseline calculation</li>
+<li>Add `@measure_performance` decorator</li>
+<li>Handle cold starts</li>
+</ul>
+
+<p><strong>Deliverable:</strong> All metrics tracked with baselines</p>
+
+<p>---</p>
+
+<h3>Phase 3: Regression Detection (2 days) - MEDIUM</h3>
+<ul>
+<li>Implement 3-tier detection</li>
+<li>Create alert logic</li>
+<li>Add terminal/log output</li>
+<li>CLI commands</li>
+</ul>
+
+<p><strong>Deliverable:</strong> Automated regression alerts</p>
+
+<p>---</p>
+
+<h3>Phase 4: Visualization (3 days) - COMPLEX</h3>
+<ul>
+<li>Build Streamlit dashboard</li>
+<li>Metric cards + trend charts</li>
+<li>Alert table</li>
+<li>Export functionality</li>
+</ul>
+
+<p><strong>Deliverable:</strong> UI for performance monitoring</p>
+
+<p>---</p>
+
+<h3>Phase 5: CI/CD Integration (1 day) - MEDIUM</h3>
+<ul>
+<li>GitHub Actions workflow</li>
+<li>PR comment with results</li>
+<li>Fail CI on critical regression</li>
+</ul>
+
+<p><strong>Deliverable:</strong> Automated performance testing</p>
+
+<p>---</p>
+
+<h2>Instrumentation Points</h2>
+
+<p>| Location | What to Measure | Metric ID |</p>
+<p>|----------|----------------|-----------|</p>
+<p>| <code>main.py</code> | Startup time | APP-001 |</p>
+<p>| <code>container.py</code> | Init count + time | SVC-001, SVC-002 |</p>
+<p>| <code>validation_orchestrator_v2.py</code> | Validation time | VAL-001 |</p>
+<p>| <code>definition_orchestrator_v2.py</code> | Generation time | GEN-001 |</p>
+<p>| <code>rule_cache.py</code> | Loading time + hit rate | VAL-002, VAL-003 |</p>
+<p>| <code>ai_service_v2.py</code> | API time + tokens + cost | API-001/002/003 |</p>
+<p>| <code>export_service.py</code> | Export time | EXP-001 |</p>
+<p>| <code>psutil.Process</code> | Memory usage | MEM-001/002 |</p>
+
+<p>---</p>
+
+<h2>Example Output</h2>
+
+<h3>Terminal (on every startup)</h3>
+
+<pre><code>🚀 DefinitieAgent Startup Performance
+────────────────────────────────────────────────────────────
+⏱️  Startup Time:        387ms  ✅ (target: 500ms)
+🔧 Container Init:       1x     ✅ (target: 1x)
+📊 Validation Ready:     142ms  ✅ (target: 1000ms)
+💾 Memory Usage:         328MB  ✅ (target: 500MB)
+🎯 Performance Index:    94/100 ✅
+
+⚠️  WARNINGS:
+  • Prompt tokens: 4,123 (target: 3,000) ⚠️
+  • Container cache miss detected (investigate)
+
+📈 Trend: Performance improving (+3% vs 7-day avg)
+────────────────────────────────────────────────────────────</code></pre>
+
+<h3>CLI Commands</h3>
+
+<pre><code># Quick status
+python -m scripts.monitoring.performance_cli status
+
+# Detailed report
+python -m scripts.monitoring.performance_cli report --days 7
+
+# Compare commits
+python -m scripts.monitoring.performance_cli compare abc123 def456
+
+# Export data
+python -m scripts.monitoring.performance_cli export --format csv</code></pre>
+
+<h3>GitHub PR Comment</h3>
+
+<pre><code>## 📊 Performance Report
+
+**Branch:** `feature/optimize-validation`
+**Baseline:** `main`
+
+| Metric | Current | Baseline | Change | Status |
+|--------|---------|----------|--------|--------|
+| Startup Time | 412ms | 387ms | +6.5% | ⚠️ Warning |
+| Container Init | 1x | 2x | -50% | ✅ Improved |
+| Validation Time | 892ms | 1042ms | -14.4% | ✅ Improved |
+| Prompt Tokens | 3,245 | 4,123 | -21.3% | ✅ Improved |
+
+**Summary:** ✅ 3 improved, ⚠️ 1 regressed (acceptable)</code></pre>
+
+<p>---</p>
+
+<h2>Code Examples</h2>
+
+<h3>Basic Usage</h3>
+
+<pre><code>from monitoring.performance_tracker import PerformanceTracker
+
+def main():
+    tracker = PerformanceTracker.get_instance()
+    tracker.start_operation('app_startup')
+
+    # ... do work ...
+
+    tracker.stop_operation('app_startup')
+    tracker.record_baseline_snapshot()</code></pre>
+
+<h3>Decorator Usage</h3>
+
+<pre><code>from monitoring.decorators import measure_performance
+
+class ValidationService:
+    @measure_performance('validation', 'VAL-001')
+    async def validate(self, text: str) -&gt; dict:
+        # Implementation
+        pass</code></pre>
+
+<h3>Manual Metrics</h3>
+
+<pre><code>tracker = PerformanceTracker.get_instance()
+tracker.record_metric('prompt_token_count', 4123)
+tracker.record_metric('api_cost_cents', 1.23)</code></pre>
+
+<p>---</p>
+
+<h2>Database Schema (Simplified)</h2>
+
+<h3>performance_baselines</h3>
+
+<p>| Column | Type | Description |</p>
+<p>|--------|------|-------------|</p>
+<p>| id | INTEGER | Primary key |</p>
+<p>| timestamp | TIMESTAMP | When measured |</p>
+<p>| session_id | TEXT | Unique session |</p>
+<p>| git_commit | TEXT | Git SHA |</p>
+<p>| startup_time_ms | REAL | APP-001 |</p>
+<p>| container_init_count | INTEGER | SVC-001 |</p>
+<p>| validation_time_ms | REAL | VAL-001 |</p>
+<p>| ... | ... | 20+ other metrics |</p>
+
+<h3>performance_alerts</h3>
+
+<p>| Column | Type | Description |</p>
+<p>|--------|------|-------------|</p>
+<p>| id | INTEGER | Primary key |</p>
+<p>| triggered_at | TIMESTAMP | When alerted |</p>
+<p>| severity | TEXT | info/warning/error/critical |</p>
+<p>| metric_id | TEXT | e.g., 'APP-001' |</p>
+<p>| current_value | REAL | Measured value |</p>
+<p>| expected_value | REAL | Baseline/target |</p>
+<p>| deviation_percent | REAL | How much off |</p>
+
+<h3>performance_targets</h3>
+
+<p>| Column | Type | Description |</p>
+<p>|--------|------|-------------|</p>
+<p>| metric_id | TEXT | e.g., 'APP-001' |</p>
+<p>| target_value | REAL | Target (500 for APP-001) |</p>
+<p>| warning_threshold | REAL | Warn at +10% |</p>
+<p>| error_threshold | REAL | Error at +20% |</p>
+
+<p>---</p>
+
+<h2>Decision Tree: Should I Alert?</h2>
+
+<pre><code>Current Value vs Target
+    │
+    ├─ Within 10% → ✅ OK
+    │
+    ├─ 10-20% over → ⚠️ WARNING
+    │   │
+    │   ├─ Within 1 std dev → Info only
+    │   │
+    │   └─ &gt;1 std dev → Warning alert
+    │
+    └─ &gt;20% over → ❌ ERROR
+        │
+        ├─ &gt;2 std devs → Error alert
+        │
+        └─ &gt;3 std devs → 🚨 Critical alert</code></pre>
+
+<p>---</p>
+
+<h2>Success Criteria</h2>
+
+<h3>After 30 Days</h3>
+<ul>
+<li>[ ] 100% of starts record baselines</li>
+<li>[ ] 80% of operations instrumented</li>
+<li>[ ] 50+ baselines per metric (high confidence)</li>
+<li>[ ] 10+ alerts triggered (system working)</li>
+</ul>
+
+<h3>After 60 Days</h3>
+<ul>
+<li>[ ] 3+ regressions caught early</li>
+<li>[ ] 2+ optimizations driven by data</li>
+<li>[ ] 20% API cost reduction</li>
+<li>[ ] 0 critical issues missed</li>
+</ul>
+
+<p>---</p>
+
+<h2>Known Issues Detected</h2>
+
+<p>Based on existing analysis:</p>
+
+<p>| Issue | Metric | Current | Target | Status |</p>
+<p>|-------|--------|---------|--------|--------|</p>
+<p>| Double Container | SVC-001 | 2-3x | 1x | 🔴 Active |</p>
+<p>| Prompt Duplication | API-002 | 7,250 | 3,000 | 🔴 Active |</p>
+<p>| Rule Loading | VAL-002 | 200ms | 100ms | 🟡 Improving |</p>
+
+<p><strong>This system will track fixes for these issues!</strong></p>
+
+<p>---</p>
+
+<h2>Risks & Mitigations</h2>
+
+<p>| Risk | Impact | Probability | Mitigation |</p>
+<p>|------|--------|-------------|------------|</p>
+<p>| Overhead too high | Performance regression | Low | Batch writes, measure first |</p>
+<p>| False positives | Alert fatigue | Medium | Tune thresholds, confidence levels |</p>
+<p>| Database bloat | Storage issues | Low | Archive to aggregates after 30d |</p>
+<p>| Test isolation | Flaky tests | Medium | Clear cache in test setup |</p>
+
+<p>---</p>
+
+<h2>Integration Points</h2>
+
+<h3>Existing Systems to Leverage</h3>
+
+<ol>
+<li>**api_monitor.py:** Pull API metrics (cost, tokens, timing)</li>
+<li>**performance_monitor.py:** Use for basic timing</li>
+<li>**rule_cache.py:** Pull cache hit rates</li>
+<li>**definitie_repository.py:** Use existing DB connection</li>
+</ol>
+
+<h3>New Dependencies</h3>
+
+<ul>
+<li>✅ None! (Pure stdlib: time, json, sqlite3, logging)</li>
+<li>Optional: `numpy` for statistics (already in requirements.txt)</li>
+<li>Optional: `matplotlib`/`plotly` for charts (Phase 4)</li>
+</ul>
+
+<p>---</p>
+
+<h2>Next Steps</h2>
+
+<h3>Immediate Actions</h3>
+<ol>
+<li>✅ Review this design document</li>
+<li>⏳ Create user story (US-203: Performance Baseline Tracking)</li>
+<li>⏳ Prototype Phase 1 (4 hours)</li>
+<li>⏳ Measure actual overhead vs estimate</li>
+</ol>
+
+<h3>This Week</h3>
+<ol>
+<li>⏳ Implement Phase 2 (all core metrics)</li>
+<li>⏳ Implement Phase 3 (regression detection)</li>
+<li>⏳ Iterate on thresholds based on real data</li>
+</ol>
+
+<h3>Next Month</h3>
+<ol>
+<li>⏳ Implement Phase 4 (UI dashboard)</li>
+<li>⏳ Implement Phase 5 (CI/CD integration)</li>
+<li>⏳ Retrospective + adjust</li>
+</ol>
+
+<p>---</p>
+
+<h2>Related Documents</h2>
+
+<ul>
+<li>**Full Design:** [performance-baseline-tracking-design.md](./performance-baseline-tracking-design.md)</li>
+<li>**Performance Goals:** [CLAUDE.md](../../CLAUDE.md) (Section: Performance Goals)</li>
+<li>**Container Issue:** [CONTAINER_ISSUE_SUMMARY.md](../analyses/CONTAINER_ISSUE_SUMMARY.md)</li>
+<li>**Historical Issues:** [PERFORMANCE-ISSUES-DOCUMENTATION-REPORT.md](../reports/PERFORMANCE-ISSUES-DOCUMENTATION-REPORT.md)</li>
+<li>**US-202:** [toetsregels-caching-fix.md](../reports/toetsregels-caching-fix.md) (77% faster!)</li>
+</ul>
+
+<p>---</p>
+
+<h2>FAQ</h2>
+
+<h3>Q: Why not use external APM (DataDog, New Relic)?</h3>
+<p><strong>A:</strong> Overkill + cost ($50-200/month) for single-user app. This is simpler and free.</p>
+
+<h3>Q: Will this slow down my app?</h3>
+<p><strong>A:</strong> No! Overhead <50ms (<1.25% of startup). Negligible impact.</p>
+
+<h3>Q: Can I disable tracking?</h3>
+<p><strong>A:</strong> Yes! Set <code>DISABLE_PERFORMANCE_TRACKING=1</code> env var. (But why?)</p>
+
+<h3>Q: How do I acknowledge an alert?</h3>
+<p><strong>A:</strong> <code>python -m scripts.monitoring.performance_cli alerts ack --id 42 --notes "Fixed"</code></p>
+
+<h3>Q: Where is data stored?</h3>
+<p><strong>A:</strong> SQLite database: <code>data/definities.db</code> (same as definitions)</p>
+
+<h3>Q: Can I export data for analysis?</h3>
+<p><strong>A:</strong> Yes! CSV/JSON export via CLI or UI dashboard</p>
+
+<h3>Q: What if I want to track custom metrics?</h3>
+<p><strong>A:</strong> Use <code>tracker.record_metric('my_metric_id', value)</code> - it's flexible!</p>
+
+<p>---</p>
+
+<p><strong>Ready to implement?</strong> Start with Phase 1 (4 hours) and iterate from there!</p>
+
+<p><strong>Questions?</strong> See full design document or ask in #performance Slack channel.</p>
+
+  </div>
+</body>
+</html>

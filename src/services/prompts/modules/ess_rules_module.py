@@ -10,8 +10,6 @@ Deze module is verantwoordelijk voor:
 import logging
 from typing import Any
 
-from toetsregels.loader import load_toetsregels
-
 from .base_module import BasePromptModule, ModuleContext, ModuleOutput
 
 logger = logging.getLogger(__name__)
@@ -33,7 +31,6 @@ class EssRulesModule(BasePromptModule):
             priority=75,  # Hoge prioriteit - essentie is cruciaal
         )
         self.include_examples = True
-        self._toetsregels = None
 
     def initialize(self, config: dict[str, Any]) -> None:
         """
@@ -45,16 +42,9 @@ class EssRulesModule(BasePromptModule):
         self._config = config
         self.include_examples = config.get("include_examples", True)
         self._initialized = True
-
-        # Load toetsregels from JSON
-        try:
-            self._toetsregels = load_toetsregels().get("regels", {})
-            logger.debug(
-                f"EssRulesModule geïnitialiseerd (examples={self.include_examples})"
-            )
-        except Exception as e:
-            logger.error(f"Fout bij laden toetsregels: {e}")
-            self._toetsregels = {}
+        logger.debug(
+            f"EssRulesModule geïnitialiseerd (examples={self.include_examples})"
+        )
 
     def validate_input(self, context: ModuleContext) -> tuple[bool, str | None]:
         """Deze module draait altijd."""
@@ -66,10 +56,14 @@ class EssRulesModule(BasePromptModule):
             sections = []
             sections.append("### 🎯 Essentie Regels (ESS):")
 
+            # Load toetsregels on-demand from cached singleton
+            from toetsregels.cached_manager import get_cached_toetsregel_manager
+
+            manager = get_cached_toetsregel_manager()
+            all_rules = manager.get_all_regels()
+
             # Filter alleen ESS regels
-            ess_rules = {
-                k: v for k, v in self._toetsregels.items() if k.startswith("ESS-")
-            }
+            ess_rules = {k: v for k, v in all_rules.items() if k.startswith("ESS-")}
 
             # Sorteer regels
             sorted_rules = sorted(ess_rules.items())
