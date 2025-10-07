@@ -182,19 +182,25 @@ class TestServiceContainer:
         dev_config = ContainerConfigs.development()
         # Model wordt nu uit centrale config gehaald
         assert dev_config["db_path"] == "data/definities.db"
-        assert dev_config["enable_auto_save"] is False
-        assert dev_config["min_quality_score"] == 0.5
+        assert dev_config["enable_monitoring"] is True
+        assert dev_config["enable_ontology"] is True
+        # Dead code verwijderd: enable_auto_save, min_quality_score
 
         # Test testing config
         test_config = ContainerConfigs.testing()
         assert test_config["db_path"] == ":memory:"
         assert test_config["enable_monitoring"] is False
+        assert test_config["enable_ontology"] is False
+        assert test_config["use_json_rules"] is False
+        # Dead code verwijderd: enable_auto_save, enable_validation, enable_enrichment
 
         # Test production config
         prod_config = ContainerConfigs.production()
         # Model wordt nu uit centrale config gehaald
-        assert prod_config["enable_auto_save"] is True
-        assert prod_config["min_quality_score"] == 0.7
+        assert prod_config["db_path"] == "data/definities.db"
+        assert prod_config["enable_monitoring"] is True
+        assert prod_config["enable_ontology"] is True
+        # Dead code verwijderd: enable_auto_save, enable_all_rules, min_quality_score
 
     def test_lazy_loading_generator(self):
         """Test lazy loading van generator service."""

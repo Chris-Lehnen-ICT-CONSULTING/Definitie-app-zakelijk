@@ -21,13 +21,15 @@ logger = logging.getLogger(__name__)  # Logger instantie voor deze module
 
 
 class Environment(Enum):
-    """Omgevingstype (vast: development).
+    """Environment types for application configuration.
 
-    Historisch was dit dynamisch via ENVIRONMENT; we hanteren nu één omgeving
-    zodat gedrag voorspelbaar is. De enum blijft bestaan voor type-compatibiliteit.
+    Determines which config file to load and which defaults to apply.
+    Can be set via APP_ENV environment variable.
     """
 
     DEVELOPMENT = "development"
+    PRODUCTION = "production"
+    TESTING = "testing"
 
 
 class ConfigSection(Enum):
@@ -388,11 +390,22 @@ class ConfigManager:
 
     def __init__(
         self,
-        environment: Environment = Environment.DEVELOPMENT,
+        environment: Environment | None = None,
         config_dir: str = "config",
     ):
-        # Forceer vaste omgeving (development) ongeacht ENVIRONMENT variabele
-        self.environment = Environment.DEVELOPMENT
+        # Bepaal environment: expliciet > APP_ENV > default (production)
+        if environment is None:
+            env_name = os.getenv("APP_ENV", "production").lower()
+            try:
+                environment = Environment(env_name)
+            except ValueError:
+                logger.warning(
+                    f"Invalid APP_ENV='{env_name}', defaulting to production. "
+                    f"Valid values: {[e.value for e in Environment]}"
+                )
+                environment = Environment.PRODUCTION
+
+        self.environment = environment
         self.config_dir = Path(config_dir)
         self.config_file = self.config_dir / f"config_{self.environment.value}.yaml"
         self.default_config_file = self.config_dir / "config_default.yaml"
@@ -662,12 +675,28 @@ _config_manager: ConfigManager | None = None
 
 
 def get_config_manager(environment: Environment | None = None) -> ConfigManager:
-    """Get or create global configuration manager."""
+    """Get or create global configuration manager.
+
+    Args:
+        environment: Explicit environment (None = read from APP_ENV)
+
+    Returns:
+        Global ConfigManager singleton
+
+    Note:
+        First call determines the environment. Subsequent calls with different
+        environments will log a warning but return the existing instance.
+    """
     global _config_manager
 
     if _config_manager is None:
-        # Eén vaste omgeving; negeer meegegeven/omgevingswaarde
-        _config_manager = ConfigManager(Environment.DEVELOPMENT)
+        # Create with environment parameter (None = read from APP_ENV)
+        _config_manager = ConfigManager(environment)
+    elif environment is not None and environment != _config_manager.environment:
+        logger.warning(
+            f"ConfigManager already initialized as {_config_manager.environment.value}, "
+            f"ignoring request for {environment.value}"
+        )
 
     return _config_manager
 
@@ -745,20 +774,9 @@ def save_config():
     get_config_manager().save_configuration()
 
 
-# Environment detection helpers
-def is_development() -> bool:
-    """Check if running in development environment."""
-    return get_config_manager().environment == Environment.DEVELOPMENT
-
-
-def is_production() -> bool:
-    """Check if running in production environment."""
-    return get_config_manager().environment == Environment.PRODUCTION
-
-
-def is_testing() -> bool:
-    """Check if running in testing environment."""
-    return get_config_manager().environment == Environment.TESTING
+# Environment detection helpers removed (dead code - never called)
+# Was: is_development(), is_production(), is_testing()
+# Use get_config_manager().environment == Environment.XXX directly if needed
 
 
 if __name__ == "__main__":
