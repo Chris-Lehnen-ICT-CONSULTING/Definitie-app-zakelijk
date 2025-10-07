@@ -40,8 +40,12 @@ class TestContainerCacheSingleton:
         container3 = get_cached_container()
 
         # Assert - Exact same object in memory
-        assert container1 is container2, "Container 1 en 2 moeten dezelfde instance zijn"
-        assert container2 is container3, "Container 2 en 3 moeten dezelfde instance zijn"
+        assert (
+            container1 is container2
+        ), "Container 1 en 2 moeten dezelfde instance zijn"
+        assert (
+            container2 is container3
+        ), "Container 2 en 3 moeten dezelfde instance zijn"
         assert id(container1) == id(container2), "Container IDs moeten identiek zijn"
         assert id(container2) == id(container3), "Container IDs moeten identiek zijn"
 
@@ -253,7 +257,7 @@ class TestContainerCacheEdgeCases:
         assert results[0] == results[-1], "Eerste en laatste ID moeten gelijk zijn"
 
 
-@pytest.mark.integration
+@pytest.mark.integration()
 class TestContainerIntegration:
     """Integration tests voor container met andere services."""
 
