@@ -5980,6 +5980,39 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Solo Developer Re-Analysis: Wat Verandert Er Fundamenteel?",
+      "path": "../analyses/SOLO_DEVELOPER_REANALYSIS.md",
+      "url": "../analyses/SOLO_DEVELOPER_REANALYSIS.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [
+          "EPIC-016"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/SOLO_DEVELOPER_REANALYSIS.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Configuration & Environment Verification Report",
       "path": "../analyses/CONFIG_ENVIRONMENT_VERIFICATION_REPORT.md",
       "url": "../analyses/CONFIG_ENVIRONMENT_VERIFICATION_REPORT.md",
@@ -39189,7 +39222,7 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 579,
+      "DOC": 580,
       "ARCH": 36,
       "COMP": 5,
       "TEST": 33,
@@ -39199,7 +39232,7 @@
       "US": 276,
       "BUG": 18
     },
-    "generated_at": "2025-10-07T22:05:47Z"
+    "generated_at": "2025-10-07T22:32:14Z"
   },
   "sources": [
     "docs"
