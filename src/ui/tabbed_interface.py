@@ -685,14 +685,32 @@ class TabbedInterface:
                 jur_context = context_data.get("juridische_context", [])
                 wet_context = context_data.get("wettelijke_basis", [])
 
-                # Bepaal automatisch de ontologische categorie
-                primary_org = org_context[0] if org_context else ""
-                primary_jur = jur_context[0] if jur_context else ""
-                auto_categorie, category_reasoning, category_scores = asyncio.run(
-                    self._determine_ontological_category(
-                        begrip, primary_org, primary_jur
+                # Check eerst of er een handmatige categorie override bestaat
+                manual_category = SessionStateManager.get_value("manual_ontological_category")
+
+                if manual_category:
+                    # Gebruik handmatige override
+                    from domain.ontological_categories import OntologischeCategorie
+                    # Converteer string naar OntologischeCategorie enum
+                    category_map = {
+                        "type": OntologischeCategorie.TYPE,
+                        "proces": OntologischeCategorie.PROCES,
+                        "resultaat": OntologischeCategorie.RESULTAAT,
+                        "exemplaar": OntologischeCategorie.EXEMPLAAR,
+                    }
+                    auto_categorie = category_map.get(manual_category.lower(), OntologischeCategorie.PROCES)
+                    category_reasoning = f"Handmatig gekozen door gebruiker: {manual_category}"
+                    category_scores = {"manual_override": 1.0}
+                    logger.info(f"Gebruik handmatige categorie override: {manual_category}")
+                else:
+                    # Bepaal automatisch de ontologische categorie
+                    primary_org = org_context[0] if org_context else ""
+                    primary_jur = jur_context[0] if jur_context else ""
+                    auto_categorie, category_reasoning, category_scores = asyncio.run(
+                        self._determine_ontological_category(
+                            begrip, primary_org, primary_jur
+                        )
                     )
-                )
 
                 # Krijg document context en selected document IDs
                 document_context = self._get_document_context()
@@ -1197,6 +1215,7 @@ class TabbedInterface:
             "wet_basis",
             "last_generation_result",
             "last_check_result",
+            "manual_ontological_category",  # Wis ook handmatige categorie override
         ]
 
         for field in fields_to_clear:

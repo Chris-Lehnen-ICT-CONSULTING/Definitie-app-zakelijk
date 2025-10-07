@@ -1030,6 +1030,9 @@ class DefinitionGeneratorTab:
             CategoryStateManager.update_generation_result_category(
                 generation_result, new_category
             )
+            # Bewaar handmatige override in session state zodat deze niet wordt overschreven bij volgende generatie
+            SessionStateManager.set_value("manual_ontological_category", new_category)
+            logger.info(f"Handmatige categorie override gezet: {new_category}")
 
         # Toon workflow resultaat
         if result.success:
