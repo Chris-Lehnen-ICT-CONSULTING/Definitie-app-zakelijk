@@ -280,6 +280,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Performance Tracking Quick Reference Guide",
+      "path": "../technisch/performance-tracking-guide.md",
+      "url": "../technisch/performance-tracking-guide.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/technisch/performance-tracking-guide.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "🚨 TECHNICAL DEBT ASSESSMENT - DefinitieAgent Project",
       "path": "../technisch/TECHNICAL_DEBT_ASSESSMENT_2025.md",
       "url": "../technisch/TECHNICAL_DEBT_ASSESSMENT_2025.md",
@@ -836,6 +867,39 @@
       "rendered_url": "rendered/planning/epic-026-test-recovery-plan.html"
     },
     {
+      "id": null,
+      "type": "DOC",
+      "title": "Performance Optimization Masterplan",
+      "path": "../planning/PERFORMANCE_OPTIMIZATION_MASTERPLAN.md",
+      "url": "../planning/PERFORMANCE_OPTIMIZATION_MASTERPLAN.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-202"
+        ],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/planning/PERFORMANCE_OPTIMIZATION_MASTERPLAN.html"
+    },
+    {
       "id": "EPIC-026-TIMELINE-RESOURCE-ANALYSIS",
       "type": "DOC",
       "title": "EPIC-026 Timeline & Resource Analysis - Agent 4 Report",
@@ -1266,6 +1330,101 @@
     {
       "id": null,
       "type": "ARCH",
+      "title": "Structured Logging Architecture Design",
+      "path": "../architectuur/structured-logging-architecture.md",
+      "url": "../architectuur/structured-logging-architecture.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/architectuur/structured-logging-architecture.html"
+    },
+    {
+      "id": null,
+      "type": "ARCH",
+      "title": "Performance Baseline Tracking System - Architecture Diagrams",
+      "path": "../architectuur/performance-baseline-tracking-architecture.md",
+      "url": "../architectuur/performance-baseline-tracking-architecture.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/architectuur/performance-baseline-tracking-architecture.html"
+    },
+    {
+      "id": null,
+      "type": "ARCH",
+      "title": "Performance Baseline Tracking - Implementation Checklist",
+      "path": "../architectuur/performance-baseline-tracking-checklist.md",
+      "url": "../architectuur/performance-baseline-tracking-checklist.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-203"
+        ],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/architectuur/performance-baseline-tracking-checklist.html"
+    },
+    {
+      "id": null,
+      "type": "ARCH",
       "title": "Context Model V2 (Canoniek)",
       "path": "../architectuur/CONTEXT_MODEL_V2.md",
       "url": "../architectuur/CONTEXT_MODEL_V2.md",
@@ -1324,6 +1483,116 @@
         "req": []
       },
       "rendered_url": "rendered/architectuur/SOLUTION_ARCHITECTURE.html"
+    },
+    {
+      "id": null,
+      "type": "ARCH",
+      "title": "Cache Monitoring System - Executive Summary",
+      "path": "../architectuur/CACHE_MONITORING_SUMMARY.md",
+      "url": "../architectuur/CACHE_MONITORING_SUMMARY.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-201",
+          "US-202",
+          "US-203"
+        ],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/architectuur/CACHE_MONITORING_SUMMARY.html"
+    },
+    {
+      "id": null,
+      "type": "ARCH",
+      "title": "Performance Baseline Tracking System - Architectural Design",
+      "path": "../architectuur/performance-baseline-tracking-design.md",
+      "url": "../architectuur/performance-baseline-tracking-design.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-201",
+          "US-202",
+          "US-203"
+        ],
+        "epic": [
+          "EPIC-026"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/architectuur/performance-baseline-tracking-design.html"
+    },
+    {
+      "id": null,
+      "type": "ARCH",
+      "title": "Lazy Loading Design voor Non-Critical Services",
+      "path": "../architectuur/lazy-loading-design.md",
+      "url": "../architectuur/lazy-loading-design.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-060",
+          "US-068",
+          "US-202",
+          "US-203"
+        ],
+        "epic": [
+          "EPIC-026"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/architectuur/lazy-loading-design.html"
     },
     {
       "id": null,
@@ -1390,6 +1659,43 @@
     {
       "id": null,
       "type": "ARCH",
+      "title": "Cache Monitoring System - Architectural Design",
+      "path": "../architectuur/cache-monitoring-design.md",
+      "url": "../architectuur/cache-monitoring-design.md",
+      "status": "design",
+      "prioriteit": null,
+      "owner": "development-team",
+      "canonical": false,
+      "last_verified": "2025-10-07",
+      "applies_to": "definitie-app@current",
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-201",
+          "US-202",
+          "US-203"
+        ],
+        "epic": [
+          "EPIC-026"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/architectuur/cache-monitoring-design.html"
+    },
+    {
+      "id": null,
+      "type": "ARCH",
       "title": "ENTERPRISE ARCHITECTURE - DEFINITIEAPP",
       "path": "../architectuur/ENTERPRISE_ARCHITECTURE.md",
       "url": "../architectuur/ENTERPRISE_ARCHITECTURE.md",
@@ -1450,6 +1756,75 @@
         "req": []
       },
       "rendered_url": "rendered/architectuur/v2_validator_enhancement_proposal.html"
+    },
+    {
+      "id": null,
+      "type": "ARCH",
+      "title": "Performance Baseline Tracking System - Quick Reference",
+      "path": "../architectuur/performance-baseline-tracking-summary.md",
+      "url": "../architectuur/performance-baseline-tracking-summary.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-202",
+          "US-203"
+        ],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/architectuur/performance-baseline-tracking-summary.html"
+    },
+    {
+      "id": null,
+      "type": "ARCH",
+      "title": "Cache Monitoring - Quick Reference Card",
+      "path": "../architectuur/cache-monitoring-quick-reference.md",
+      "url": "../architectuur/cache-monitoring-quick-reference.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-201",
+          "US-202",
+          "US-203"
+        ],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/architectuur/cache-monitoring-quick-reference.html"
     },
     {
       "id": null,
@@ -6266,6 +6641,40 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Logging Optimization Implementation Report",
+      "path": "../reports/logging-optimization-implementation-report.md",
+      "url": "../reports/logging-optimization-implementation-report.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-072",
+          "US-202"
+        ],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/reports/logging-optimization-implementation-report.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "UI/UX and Integration Layer Analysis Report",
       "path": "../reports/UI_UX_INTEGRATION_ANALYSIS_REPORT.md",
       "url": "../reports/UI_UX_INTEGRATION_ANALYSIS_REPORT.md",
@@ -6350,11 +6759,48 @@
       "parent_epic": null,
       "parent_us": null,
       "_refs": {
-        "us": [],
+        "us": [
+          "US-202"
+        ],
         "epic": [],
         "req": []
       },
       "rendered_url": "rendered/reports/prompt-orchestrator-duplication-analysis.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Performance Optimization Masterplan - Execution Summary",
+      "path": "../reports/MASTERPLAN_EXECUTION_SUMMARY.md",
+      "url": "../reports/MASTERPLAN_EXECUTION_SUMMARY.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-202",
+          "US-203",
+          "US-204"
+        ],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/reports/MASTERPLAN_EXECUTION_SUMMARY.html"
     },
     {
       "id": null,
@@ -6390,6 +6836,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Performance Baseline Tracking - Phase 1 Implementation Report",
+      "path": "../reports/performance-baseline-tracking-implementation.md",
+      "url": "../reports/performance-baseline-tracking-implementation.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/reports/performance-baseline-tracking-implementation.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "PER-007 Context Flow Fix - Validation Report",
       "path": "../reports/PER-007-validation-report.md",
       "url": "../reports/PER-007-validation-report.md",
@@ -6417,6 +6894,74 @@
         "req": []
       },
       "rendered_url": "rendered/reports/PER-007-validation-report.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Lazy Loading Implementation Report",
+      "path": "../reports/lazy-loading-implementation-report.md",
+      "url": "../reports/lazy-loading-implementation-report.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-072",
+          "US-202",
+          "US-203"
+        ],
+        "epic": [
+          "EPIC-026"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/reports/lazy-loading-implementation-report.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Cache Monitoring Foundation - Implementation Report",
+      "path": "../reports/cache-monitoring-implementation-report.md",
+      "url": "../reports/cache-monitoring-implementation-report.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/reports/cache-monitoring-implementation-report.html"
     },
     {
       "id": null,
@@ -11302,6 +11847,39 @@
         "req": []
       },
       "rendered_url": "rendered/archief/architecture/multi-agent-root-cause-analysis.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "PromptOrchestrator Duplication Analysis",
+      "path": "../archief/resolved-issues/prompt-orchestrator-duplication-analysis.md",
+      "url": "../archief/resolved-issues/prompt-orchestrator-duplication-analysis.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-202"
+        ],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/archief/resolved-issues/prompt-orchestrator-duplication-analysis.html"
     },
     {
       "id": null,
@@ -37490,8 +38068,8 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 541,
-      "ARCH": 24,
+      "DOC": 549,
+      "ARCH": 33,
       "COMP": 5,
       "TEST": 33,
       "GUIDE": 12,
@@ -37500,7 +38078,7 @@
       "US": 276,
       "BUG": 18
     },
-    "generated_at": "2025-10-07T09:54:03Z"
+    "generated_at": "2025-10-07T13:56:20Z"
   },
   "sources": [
     "docs"
