@@ -5357,6 +5357,175 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "ServiceContainer Dubbele Initialisatie - Executive Summary",
+      "path": "../analyses/CONTAINER_ISSUE_SUMMARY.md",
+      "url": "../analyses/CONTAINER_ISSUE_SUMMARY.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-201",
+          "US-202"
+        ],
+        "epic": [
+          "EPIC-026"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/CONTAINER_ISSUE_SUMMARY.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "ServiceContainer Fix - Implementation Guide",
+      "path": "../analyses/CONTAINER_FIX_IMPLEMENTATION.md",
+      "url": "../analyses/CONTAINER_FIX_IMPLEMENTATION.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-043"
+        ],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/CONTAINER_FIX_IMPLEMENTATION.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Container Dubbele Initialisatie - Analysis Package",
+      "path": "../analyses/README.md",
+      "url": "../analyses/README.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-201",
+          "US-202"
+        ],
+        "epic": [
+          "EPIC-026"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/README.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "ServiceContainer Call Flow Diagram",
+      "path": "../analyses/container_call_flow.md",
+      "url": "../analyses/container_call_flow.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/container_call_flow.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Analyse: Dubbele ServiceContainer Initialisatie",
+      "path": "../analyses/DOUBLE_CONTAINER_ANALYSIS.md",
+      "url": "../analyses/DOUBLE_CONTAINER_ANALYSIS.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [
+          "EPIC-026"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/DOUBLE_CONTAINER_ANALYSIS.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Migration Guide: ValidationResult Changes",
       "path": "../api/migration-guide-validation-result.md",
       "url": "../api/migration-guide-validation-result.md",
@@ -5840,6 +6009,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Toetsregels Loading - Visual Analysis",
+      "path": "../reports/toetsregels-loading-diagram.md",
+      "url": "../reports/toetsregels-loading-diagram.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/reports/toetsregels-loading-diagram.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Documentation Link Fixes Compliance Report",
       "path": "../reports/LINK_FIXES_COMPLIANCE_REPORT.md",
       "url": "../reports/LINK_FIXES_COMPLIANCE_REPORT.md",
@@ -6030,6 +6230,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "PromptOrchestrator Duplication Analysis",
+      "path": "../reports/prompt-orchestrator-duplication-analysis.md",
+      "url": "../reports/prompt-orchestrator-duplication-analysis.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/reports/prompt-orchestrator-duplication-analysis.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Prestaties Issues Documentation Report",
       "path": "../reports/PERFORMANCE-ISSUES-DOCUMENTATION-REPORT.md",
       "url": "../reports/PERFORMANCE-ISSUES-DOCUMENTATION-REPORT.md",
@@ -6154,6 +6385,39 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Toetsregels Caching Fix - Implementatie Rapport",
+      "path": "../reports/toetsregels-caching-fix.md",
+      "url": "../reports/toetsregels-caching-fix.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-202"
+        ],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/reports/toetsregels-caching-fix.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "CSV Import Timeout Fix Report",
       "path": "../reports/CSV_IMPORT_FIX_REPORT.md",
       "url": "../reports/CSV_IMPORT_FIX_REPORT.md",
@@ -6181,6 +6445,37 @@
         "req": []
       },
       "rendered_url": "rendered/reports/CSV_IMPORT_FIX_REPORT.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Toetsregels 10x Loading Analysis Report",
+      "path": "../reports/toetsregels-loading-analysis.md",
+      "url": "../reports/toetsregels-loading-analysis.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/reports/toetsregels-loading-analysis.html"
     },
     {
       "id": null,
@@ -37061,7 +37356,7 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 528,
+      "DOC": 537,
       "ARCH": 24,
       "COMP": 5,
       "TEST": 33,
@@ -37071,7 +37366,7 @@
       "US": 276,
       "BUG": 18
     },
-    "generated_at": "2025-10-06T06:31:59Z"
+    "generated_at": "2025-10-07T08:29:45Z"
   },
   "sources": [
     "docs"

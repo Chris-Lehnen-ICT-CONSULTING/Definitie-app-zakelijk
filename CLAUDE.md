@@ -201,6 +201,12 @@ Het validatiesysteem gebruikt een duaal JSON+Python formaat:
 - Python modules in `src/toetsregels/regels/` implementeren validatie logica
 - Regels zijn georganiseerd per categorie: ARAI, CON, ESS, INT, SAM, STR, VER
 
+**Caching Strategie (US-202):**
+- **RuleCache** (`src/toetsregels/rule_cache.py`): Bulk loading met `@cached` decorator (TTL: 3600s)
+- **CachedToetsregelManager** (`src/toetsregels/cached_manager.py`): Singleton manager met RuleCache
+- **loader.py**: Gebruikt `get_cached_toetsregel_manager()` voor 1x loading i.p.v. 10x
+- **Performance**: 77% sneller, 81% minder memory voor regel loading
+
 ### State Management
 
 De applicatie gebruikt Streamlit's session state uitgebreid. Belangrijke state variabelen:
@@ -224,14 +230,28 @@ De applicatie gebruikt Streamlit's session state uitgebreid. Belangrijke state v
 
 ## Kritieke Performance Overwegingen
 
-### Bekende Problemen
+### Opgeloste Problemen ✅
 
-1. **Service Initialisatie**: Services worden 6x geïnitialiseerd door Streamlit reruns
-   - Oplossing: Gebruik `@st.cache_resource` op ServiceContainer
-2. **Prompt Tokens**: 7.250 tokens met duplicaties
-   - Oplossing: Implementeer prompt caching en deduplicatie
-3. **Validatieregels**: 45x herladen per sessie
-   - Oplossing: Gebruik `@st.cache_data` voor regel laden
+1. **Validatieregels**: ~~45x herladen per sessie~~ → ✅ **OPGELOST** (US-202, 2025-10-06)
+   - Was: 10x laden tijdens startup (900% overhead)
+   - Nu: 1x laden + cache reuse via `CachedToetsregelManager` en `RuleCache`
+   - Verbetering: 77% sneller, 81% minder memory
+   - Zie: `docs/reports/toetsregels-caching-fix.md`
+
+### Bekende Problemen (Open)
+
+1. **Service Initialisatie**: Services worden 2-3x geïnitialiseerd door Streamlit reruns
+   - Symptoom: ServiceContainer #1 (cached) + #2 (custom config)
+   - Root cause: Dubbele cache mechanismen (`get_cached_container` vs `get_container_with_config`)
+   - Oplossing: Consolideer naar single singleton pattern
+   - Zie: `docs/analyses/DOUBLE_CONTAINER_ANALYSIS.md`
+2. **PromptOrchestrator**: 2x initialisatie met 16 modules elk
+   - Symptoom: Alle prompt modules worden dubbel geregistreerd
+   - Impact: ~200-400ms extra startup, ~500KB extra memory
+   - Oplossing: Implementeer singleton pattern voor orchestrator
+   - Zie: `docs/reports/prompt-orchestrator-duplication-analysis.md`
+3. **Prompt Tokens**: 7.250 tokens met duplicaties
+   - Oplossing: Implementeer prompt caching en deduplicatie (nog niet geïmplementeerd)
 
 ### Performance Doelen
 
