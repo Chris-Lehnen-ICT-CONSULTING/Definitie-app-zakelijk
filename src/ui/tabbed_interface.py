@@ -222,6 +222,17 @@ class TabbedInterface:
         # Global context selector (boven tabs)
         self._render_global_context()
 
+        # Check of er een auto-generatie trigger is gezet
+        if SessionStateManager.get_value("trigger_auto_generation", False):
+            # Wis de trigger flag
+            SessionStateManager.clear_value("trigger_auto_generation")
+            # Haal begrip en context op
+            begrip = SessionStateManager.get_value("begrip", "")
+            context_data = SessionStateManager.get_value("global_context", {})
+            if begrip.strip():
+                # Trigger generatie
+                self._handle_definition_generation(begrip, context_data)
+
         # Main tabs
         self._render_main_tabs()
 
@@ -686,11 +697,14 @@ class TabbedInterface:
                 wet_context = context_data.get("wettelijke_basis", [])
 
                 # Check eerst of er een handmatige categorie override bestaat
-                manual_category = SessionStateManager.get_value("manual_ontological_category")
+                manual_category = SessionStateManager.get_value(
+                    "manual_ontological_category"
+                )
 
                 if manual_category:
                     # Gebruik handmatige override
                     from domain.ontological_categories import OntologischeCategorie
+
                     # Converteer string naar OntologischeCategorie enum
                     category_map = {
                         "type": OntologischeCategorie.TYPE,
@@ -698,10 +712,16 @@ class TabbedInterface:
                         "resultaat": OntologischeCategorie.RESULTAAT,
                         "exemplaar": OntologischeCategorie.EXEMPLAAR,
                     }
-                    auto_categorie = category_map.get(manual_category.lower(), OntologischeCategorie.PROCES)
-                    category_reasoning = f"Handmatig gekozen door gebruiker: {manual_category}"
+                    auto_categorie = category_map.get(
+                        manual_category.lower(), OntologischeCategorie.PROCES
+                    )
+                    category_reasoning = (
+                        f"Handmatig gekozen door gebruiker: {manual_category}"
+                    )
                     category_scores = {"manual_override": 1.0}
-                    logger.info(f"Gebruik handmatige categorie override: {manual_category}")
+                    logger.info(
+                        f"Gebruik handmatige categorie override: {manual_category}"
+                    )
                 else:
                     # Bepaal automatisch de ontologische categorie
                     primary_org = org_context[0] if org_context else ""

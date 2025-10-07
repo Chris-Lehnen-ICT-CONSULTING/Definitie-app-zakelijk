@@ -145,7 +145,7 @@ class DefinitionGeneratorTab:
                     key=f"new_{definitie.id}",
                     disabled=not can_generate,
                 ):
-                    # Forceer nieuwe generatie: zet flag en wis duplicate‑resultaat; geen directe call naar TabbedInterface‑methode
+                    # Forceer nieuwe generatie: zet flag en trigger automatische generatie
                     options = ensure_dict(
                         SessionStateManager.get_value("generation_options", {})
                     )
@@ -157,9 +157,9 @@ class DefinitionGeneratorTab:
                         SessionStateManager.clear_value("selected_definition")
                     except Exception:
                         pass
-                    st.info(
-                        "Forceer‑generatie geactiveerd. Klik bovenaan op ‘🚀 Genereer Definitie’ om door te gaan."
-                    )
+                    # Trigger automatische generatie bij volgende render
+                    SessionStateManager.set_value("trigger_auto_generation", True)
+                    st.rerun()
 
     def _render_duplicate_matches(self, duplicates):
         """Render lijst van mogelijke duplicates."""
