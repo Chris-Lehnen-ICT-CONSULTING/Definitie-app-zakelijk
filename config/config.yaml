@@ -96,19 +96,21 @@ cache:
 # LOGGING CONFIGURATION
 # ================================================================================
 logging:
-  level: "DEBUG"            # Detailed logging for single-user
-  console_enabled: true     # Show logs in terminal
+  level: "DEBUG"            # Detailed logging for single-user (was INFO)
+  console_enabled: true     # Show logs in terminal (was false)
   file_enabled: true        # Also save to file
-  log_file: "logs/app.log"  # Simple filename
+  log_file: "logs/app.log"  # Simple filename (was log/definitie_agent_prod.log)
   rotation: "daily"
   retention_days: 30
 
   # Module-specific log levels
   module_levels:
-    openai: "INFO"          # See OpenAI calls
+    openai: "INFO"          # See OpenAI calls (was ERROR)
     cache: "INFO"           # Cache operations
     validation: "DEBUG"     # Detailed validation info
     database: "INFO"        # DB operations
+    urllib3: "WARNING"      # Reduce noise from HTTP library
+    requests: "WARNING"     # Reduce noise from requests library
 
 # ================================================================================
 # MONITORING & COST TRACKING
@@ -116,13 +118,14 @@ logging:
 monitoring:
   enabled: true
 
-  # Cost thresholds (adjust to your budget)
-  cost_threshold_daily: 20.0     # €20 per day
-  cost_threshold_monthly: 500.0  # €500 per month
+  # Cost thresholds (ADJUST TO YOUR BUDGET!)
+  # Realistic usage with temp=0.1: ~€2-5/day for 50 definitions
+  cost_threshold_daily: 10.0     # €10 per day (conservative)
+  cost_threshold_monthly: 200.0  # €200 per month (conservative)
 
   # Performance thresholds
   response_time_threshold: 10.0  # Seconds
-  error_rate_threshold: 0.05     # 5% error rate
+  error_rate_threshold: 0.05     # 5% error rate (strict)
 
   # Metrics collection
   collect_metrics: true
@@ -130,18 +133,18 @@ monitoring:
   metrics_retention_days: 90
 
 # ================================================================================
-# RATE LIMITING - Adjusted for Single User
+# RATE LIMITING - Optimized for Single User
 # ================================================================================
 rate_limiting:
   enabled: true
 
-  # Higher limits for single user (not shared)
-  requests_per_minute: 60        # 60 req/min (was 30)
-  requests_per_hour: 1000        # Conservative
-  tokens_per_second: 2.0         # Faster responses
+  # Higher limits for single user (not shared with others)
+  requests_per_minute: 60        # Increased from 30 for single-user
+  requests_per_hour: 1000        # Conservative but sufficient
+  tokens_per_second: 2.0         # Increased from 0.5 for faster responses
 
   # Concurrent requests
-  max_concurrent: 10             # More parallelism
+  max_concurrent: 10             # Increased from 5 for more parallelism
 
   # Backoff strategy
   backoff_factor: 1.5
