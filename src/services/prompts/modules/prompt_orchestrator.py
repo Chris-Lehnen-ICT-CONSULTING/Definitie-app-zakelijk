@@ -52,9 +52,9 @@ class PromptOrchestrator:
         self.max_workers = max_workers
         self._execution_metadata: dict[str, Any] = {}
         self._custom_module_order = module_order or self._get_default_module_order()
-        logger.info(
-            f"PromptOrchestrator: {len(self.modules)} modules, {max_workers} workers"
-        )
+
+        # Log after modules are registered instead
+        logger.debug(f"PromptOrchestrator created with {max_workers} workers")
 
     def register_module(self, module: BasePromptModule) -> None:
         """
