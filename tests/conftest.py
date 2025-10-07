@@ -11,7 +11,12 @@ from pathlib import Path
 
 import pytest
 
-# 'src' staat al op PYTHONPATH via pytest.ini; dubbele insert niet nodig.
+# Ensure src directory is on sys.path for imports
+# This is redundant with pytest.ini but ensures it's available during collection
+project_root = Path(__file__).parent.parent
+src_path = project_root / "src"
+if str(src_path) not in sys.path:
+    sys.path.insert(0, str(src_path))
 
 # Install a minimal Streamlit mock BEFORE importing modules that might reference it
 # Ensure tests directory is on sys.path to import our mock module

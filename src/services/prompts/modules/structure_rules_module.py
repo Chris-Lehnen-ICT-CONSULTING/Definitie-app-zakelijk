@@ -42,7 +42,7 @@ class StructureRulesModule(BasePromptModule):
         self._config = config
         self.include_examples = config.get("include_examples", True)
         self._initialized = True
-        logger.info(
+        logger.debug(
             f"StructureRulesModule geïnitialiseerd (examples={self.include_examples})"
         )
 

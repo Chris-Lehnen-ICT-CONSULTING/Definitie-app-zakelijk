@@ -53,7 +53,7 @@ class ContextAwarenessModule(BasePromptModule):
         self.confidence_indicators = config.get("confidence_indicators", True)
         self.include_abbreviations = config.get("include_abbreviations", True)
         self._initialized = True
-        logger.info(
+        logger.debug(
             f"Enhanced ContextAwarenessModule geïnitialiseerd "
             f"(adaptive={self.adaptive_formatting}, confidence={self.confidence_indicators})"
         )

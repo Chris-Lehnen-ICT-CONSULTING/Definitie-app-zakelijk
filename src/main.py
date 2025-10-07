@@ -7,7 +7,9 @@ handling initialization, configuration, and launching the main user interface.
 """
 
 import logging
+import os
 import sys
+import time
 from pathlib import Path
 
 # Add src directory to Python path for proper imports
@@ -21,7 +23,13 @@ from ui.session_state import SessionStateManager  # Sessie status beheer
 from ui.tabbed_interface import TabbedInterface  # Hoofd gebruikersinterface
 from utils.exceptions import log_and_display_error  # Foutafhandeling utilities
 
-# Configureer basis logging
+# Setup structured logging if enabled via environment variable
+from utils.structured_logging import setup_structured_logging
+
+if os.getenv("STRUCTURED_LOGGING", "false").lower() == "true":
+    setup_structured_logging(enable_json=True, log_file="logs/app.json.log")
+
+# Configureer basis logging (fallback als structured logging niet enabled is)
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
@@ -48,6 +56,9 @@ st.set_page_config(
 
 # Let op: geen .env-bestand laden; vertrouw op systeem-omgeving
 
+# Track startup performance - Meet applicatie opstarttijd
+_startup_start = time.perf_counter()
+
 
 def main():
     """Hoofd applicatie functie.
@@ -66,12 +77,54 @@ def main():
         interface = TabbedInterface()  # Instantieer de tabbed interface controller
         interface.render()  # Render de complete gebruikersinterface
 
+        # Track startup performance na eerste render
+        _track_startup_performance()
+
     except Exception as e:
         # Log en toon startup fouten - Log en toon opstartfouten
         logger.error(f"Applicatie fout: {e!s}")  # Log fout voor debugging
         st.error(
             log_and_display_error(e, "applicatie opstarten")
         )  # Toon gebruikersvriendelijke fout
+
+
+def _track_startup_performance():
+    """Track applicatie startup performance en check voor regressies.
+
+    Deze functie meet de startup tijd en vergelijkt deze met de baseline.
+    Bij significante regressies wordt een warning gelogd.
+    """
+    try:
+        from monitoring.performance_tracker import get_tracker
+
+        startup_time_ms = (time.perf_counter() - _startup_start) * 1000
+
+        # Track metric met version metadata
+        tracker = get_tracker()
+        tracker.track_metric(
+            "app_startup_ms",
+            startup_time_ms,
+            metadata={"version": "2.0", "platform": sys.platform},
+        )
+
+        # Check voor performance regressie
+        alert = tracker.check_regression("app_startup_ms", startup_time_ms)
+        if alert == "CRITICAL":
+            logger.warning(
+                f"CRITICAL startup regressie: {startup_time_ms:.1f}ms "
+                f"(>20% slechter dan baseline)"
+            )
+        elif alert == "WARNING":
+            logger.warning(
+                f"WARNING startup regressie: {startup_time_ms:.1f}ms "
+                f"(>10% slechter dan baseline)"
+            )
+        else:
+            logger.info(f"Startup tijd: {startup_time_ms:.1f}ms")
+
+    except Exception as e:
+        # Performance tracking mag nooit de applicatie breken
+        logger.debug(f"Performance tracking fout (non-critical): {e}")
 
 
 if __name__ == "__main__":

@@ -40,7 +40,7 @@ class ExpertiseModule(BasePromptModule):
         """
         self._config = config
         self._initialized = True
-        logger.info("ExpertiseModule geïnitialiseerd")
+        logger.debug("ExpertiseModule geïnitialiseerd")
 
     def validate_input(self, context: ModuleContext) -> tuple[bool, str | None]:
         """
