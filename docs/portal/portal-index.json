@@ -5935,6 +5935,41 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Configuration & Environment: Complete Analysis & Remediation Plan",
+      "path": "../analyses/CONFIG_ENVIRONMENT_MASTERPLAN.md",
+      "url": "../analyses/CONFIG_ENVIRONMENT_MASTERPLAN.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-202"
+        ],
+        "epic": [
+          "EPIC-016"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/CONFIG_ENVIRONMENT_MASTERPLAN.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "ServiceContainer Call Flow Diagram",
       "path": "../analyses/container_call_flow.md",
       "url": "../analyses/container_call_flow.md",
@@ -5962,6 +5997,39 @@
         "req": []
       },
       "rendered_url": "rendered/analyses/container_call_flow.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "ConfigManager Environment Handling Analysis",
+      "path": "../analyses/CONFIG_MANAGER_ENVIRONMENT_ANALYSIS.md",
+      "url": "../analyses/CONFIG_MANAGER_ENVIRONMENT_ANALYSIS.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-202"
+        ],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/CONFIG_MANAGER_ENVIRONMENT_ANALYSIS.html"
     },
     {
       "id": null,
@@ -6482,6 +6550,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "PromptOrchestrator Singleton Implementation - Completion Checklist",
+      "path": "../reports/prompt-orchestrator-singleton-checklist.md",
+      "url": "../reports/prompt-orchestrator-singleton-checklist.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/reports/prompt-orchestrator-singleton-checklist.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Toetsregels Loading - Visual Analysis",
       "path": "../reports/toetsregels-loading-diagram.md",
       "url": "../reports/toetsregels-loading-diagram.md",
@@ -6540,6 +6639,39 @@
         "req": []
       },
       "rendered_url": "rendered/reports/LINK_FIXES_COMPLIANCE_REPORT.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Performance Optimization Summary - US-201",
+      "path": "../reports/PERFORMANCE_OPTIMIZATION_SUMMARY.md",
+      "url": "../reports/PERFORMANCE_OPTIMIZATION_SUMMARY.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-201"
+        ],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/reports/PERFORMANCE_OPTIMIZATION_SUMMARY.html"
     },
     {
       "id": null,
@@ -6737,6 +6869,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "PromptOrchestrator Singleton Caching - Quick Summary",
+      "path": "../reports/prompt-orchestrator-singleton-summary.md",
+      "url": "../reports/prompt-orchestrator-singleton-summary.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/reports/prompt-orchestrator-singleton-summary.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "PromptOrchestrator Duplication Analysis",
       "path": "../reports/prompt-orchestrator-duplication-analysis.md",
       "url": "../reports/prompt-orchestrator-duplication-analysis.md",
@@ -6863,6 +7026,37 @@
         "req": []
       },
       "rendered_url": "rendered/reports/performance-baseline-tracking-implementation.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "PromptOrchestrator Singleton Caching Implementation",
+      "path": "../reports/prompt-orchestrator-singleton-implementation.md",
+      "url": "../reports/prompt-orchestrator-singleton-implementation.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/reports/prompt-orchestrator-singleton-implementation.html"
     },
     {
       "id": null,
@@ -7061,6 +7255,40 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Performance Optimization Verification - FINAL REPORT",
+      "path": "../reports/PERFORMANCE_VERIFICATION_FINAL.md",
+      "url": "../reports/PERFORMANCE_VERIFICATION_FINAL.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-201",
+          "US-202"
+        ],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/reports/PERFORMANCE_VERIFICATION_FINAL.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "CSV Import Timeout Fix Report",
       "path": "../reports/CSV_IMPORT_FIX_REPORT.md",
       "url": "../reports/CSV_IMPORT_FIX_REPORT.md",
@@ -7119,6 +7347,39 @@
         "req": []
       },
       "rendered_url": "rendered/reports/toetsregels-loading-analysis.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Performance Optimization Verification Report",
+      "path": "../reports/performance-optimization-verification.md",
+      "url": "../reports/performance-optimization-verification.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-201"
+        ],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/reports/performance-optimization-verification.html"
     },
     {
       "id": null,
@@ -38068,7 +38329,7 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 549,
+      "DOC": 557,
       "ARCH": 33,
       "COMP": 5,
       "TEST": 33,
@@ -38078,7 +38339,7 @@
       "US": 276,
       "BUG": 18
     },
-    "generated_at": "2025-10-07T13:56:20Z"
+    "generated_at": "2025-10-07T15:07:00Z"
   },
   "sources": [
     "docs"
