@@ -292,6 +292,70 @@ class ServiceContainer:
             return self._instances["validation_orchestrator"]
         raise RuntimeError("Validation orchestrator not available")
 
+    def ontology_classifier(self):
+        """
+        Get of create OntologyClassifierService instance.
+
+        Returns:
+            Singleton instance van OntologyClassifierService
+        """
+        if "ontology_classifier" not in self._instances:
+            from services.ai_service_v2 import AIServiceV2
+            from services.classification.ontology_classifier import (
+                OntologyClassifierService,
+            )
+
+            # Reuse AI service
+            ai_service = AIServiceV2(
+                default_model=self.generator_config.gpt.model, use_cache=True
+            )
+
+            self._instances["ontology_classifier"] = OntologyClassifierService(
+                ai_service
+            )
+            logger.debug("OntologyClassifierService instance created")
+
+        return self._instances["ontology_classifier"]
+
+    def ontological_classifier(self):
+        """
+        Get of create OntologicalClassifier instance (standalone U/F/O classifier).
+
+        Dit is de STANDALONE classifier die VOOR definitie generatie wordt gebruikt.
+        Verschil met ontology_classifier:
+            - ontological_classifier: Standalone, gebruikt LevelClassifier, voor UI + batch
+            - ontology_classifier: Legacy service (OntologyClassifierService)
+
+        Returns:
+            Singleton instance van OntologicalClassifier
+
+        Usage:
+            # In UI
+            classifier = container.ontological_classifier()
+            result = classifier.classify(begrip, org_ctx, jur_ctx)
+            request.ontologische_categorie = result.to_string_level()
+
+            # Batch processing
+            results = classifier.classify_batch(begrippen_list)
+        """
+        if "ontological_classifier" not in self._instances:
+            from services.ai_service_v2 import AIServiceV2
+            from services.classification.ontological_classifier import (
+                OntologicalClassifier,
+            )
+
+            # Reuse AI service with same config as generator
+            ai_service = AIServiceV2(
+                default_model=self.generator_config.gpt.model, use_cache=True
+            )
+
+            self._instances["ontological_classifier"] = OntologicalClassifier(
+                ai_service
+            )
+            logger.info("OntologicalClassifier (standalone) initialized")
+
+        return self._instances["ontological_classifier"]
+
     def web_lookup(self) -> WebLookupServiceInterface:
         """
         Get of create ModernWebLookupService instance.
