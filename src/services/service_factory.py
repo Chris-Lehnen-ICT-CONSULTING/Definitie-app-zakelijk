@@ -32,14 +32,21 @@ _SERVICE_ADAPTER_CACHE: dict[tuple, "ServiceAdapter"] = {}
 def get_container(config: dict | None = None) -> ServiceContainer:
     """Compatibility shim for tests expecting get_container in this module.
 
-    Delegates to the cached container manager; honors optional custom config by
-    creating a separately cached instance.
-    """
-    if config is None:
-        return get_cached_container()
-    from utils.container_manager import get_container_with_config
+    Returns the singleton cached container. Custom config is DEPRECATED since US-202
+    and will be ignored to prevent duplicate container initialization.
 
-    return get_container_with_config(config)
+    Args:
+        config: DEPRECATED - ignored, only for backward compatibility
+
+    Returns:
+        Singleton ServiceContainer instance
+    """
+    if config is not None:
+        logger.warning(
+            "Custom config passed to get_container() is IGNORED (US-202). "
+            "Using singleton container to prevent duplicate initialization."
+        )
+    return get_cached_container()
 
 
 def _freeze_config(value: Any) -> Any:

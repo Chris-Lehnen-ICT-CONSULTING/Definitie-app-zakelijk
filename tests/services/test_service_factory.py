@@ -122,7 +122,7 @@ class TestGetDefinitionService:
             mock_get_container.assert_called_once()
 
     def test_get_v2_service_with_custom_config(self):
-        """Test V2 service met custom container configuratie."""
+        """Test V2 service met custom container configuratie (US-202: ignored)."""
         with patch("services.service_factory.get_container") as mock_get_container:
 
             # Setup
@@ -133,8 +133,9 @@ class TestGetDefinitionService:
             # Execute
             result = get_definition_service(use_container_config=custom_config)
 
-            # Verify - V2 with custom config
+            # Verify - V2 with custom config (US-202: config is passed but ignored by get_container)
             assert isinstance(result, ServiceAdapter)
+            # get_container() is called with config, but internally ignores it and uses singleton
             mock_get_container.assert_called_once_with(custom_config)
 
     def test_no_legacy_fallback(self):

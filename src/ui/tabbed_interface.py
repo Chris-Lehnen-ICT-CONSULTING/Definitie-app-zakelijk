@@ -13,7 +13,6 @@ from datetime import datetime  # Datum en tijd functionaliteit
 from datetime import UTC
 
 UTC = UTC  # Voor Python 3.10 compatibility  # noqa: PLW0127
-import contextlib
 from typing import Any  # Type hints voor betere code documentatie
 
 import streamlit as st  # Streamlit web interface framework
@@ -457,22 +456,6 @@ class TabbedInterface:
             logger.warning(f"Failed to calculate category scores: {e}")
             return {"proces": 0, "type": 0, "resultaat": 0, "exemplaar": 0}
 
-    def _dbg(self, label: str) -> None:
-        """Render a small debug marker if enabled via sidebar toggle."""
-        try:
-            if SessionStateManager.get_value("ui_debug_markers", False):
-                st.markdown(
-                    f"""
-                    <div style="padding:6px; margin:10px 0; border-left: 4px solid #ffcc00;
-                                background:#fff7cc; color:#333; font-size: 12px;">
-                        DEBUG: {label}
-                    </div>
-                    """,
-                    unsafe_allow_html=True,
-                )
-        except Exception:
-            pass
-
     def _render_header(self):
         """Render applicatie header."""
 
@@ -484,14 +467,6 @@ class TabbedInterface:
             from ui.helpers.feature_toggle import render_feature_flag_toggle
 
             render_feature_flag_toggle()
-
-            # UI debug markers toggle
-            with contextlib.suppress(Exception):
-                st.checkbox(
-                    "UI debug markers",
-                    key="ui_debug_markers",
-                    help="Toon debug-markers per sectie op de pagina",
-                )
 
             st.markdown("---")
 
@@ -521,7 +496,6 @@ class TabbedInterface:
         # Status indicator
         with col3:
             self._render_status_indicator()
-        self._dbg("Header")
 
     def _render_status_indicator(self):
         """Render systeem status indicator."""
@@ -538,7 +512,6 @@ class TabbedInterface:
 
     def _render_global_context(self):
         """Render globale context selector."""
-        self._dbg("Global Context - Begin")
         # Begrip invoer als eerste
         st.markdown("### 📝 Definitie Aanvraag")
         begrip = st.text_input(
@@ -557,12 +530,10 @@ class TabbedInterface:
         # Context selector - gebruik de officiële ContextSelector component
         try:
             context_data = self.context_selector.render()
-            self._dbg("Global Context - Selector OK")
             st.success("✅ Context selector succesvol geladen")
         except Exception as e:
             logger.error(f"Context selector crashed: {e}", exc_info=True)
             st.error(f"❌ Context selector fout: {type(e).__name__}: {e!s}")
-            self._dbg("Global Context - Selector FAILED, trying simplified version")
             # Fallback naar simplified versie
             try:
                 context_data = self._render_simplified_context_selector()
@@ -582,7 +553,6 @@ class TabbedInterface:
             self._render_context_summary(context_data)
 
         # Metadata velden (legacy restoration)
-        self._dbg("Metadata")
         st.markdown("### 📝 Metadata")
         try:
             self._render_metadata_fields()
@@ -593,7 +563,6 @@ class TabbedInterface:
 
         # Genereer definitie knop direct na context
         st.markdown("---")
-        self._dbg("Generate/Check/Clear Buttons")
         try:
             self._render_quick_generate_button(begrip, context_data)
             st.success("✅ Quick generate button succesvol geladen")
@@ -1556,7 +1525,6 @@ class TabbedInterface:
 
     def _render_footer(self):
         """Render applicatie footer."""
-        self._dbg("Footer")
         st.markdown("---")
 
         col1, col2, col3 = st.columns([1, 2, 1])

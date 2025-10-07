@@ -6,10 +6,9 @@ door een proces‑lokale LRU‑cache (singleton) te gebruiken. Dit reduceert
 opstarttijd en houdt het systeem UI‑agnostisch (geen Streamlit‑afhankelijkheid).
 
 US‑201: Optimaliseer ServiceContainer caching
+US-202: Remove custom config support - singleton only
 """
 
-import hashlib
-import json
 import logging
 import os
 from functools import lru_cache
@@ -20,28 +19,9 @@ from services.container import ContainerConfigs, ServiceContainer
 logger = logging.getLogger(__name__)
 
 
-# Kleine LRU-cache voor custom containers op basis van config-hash
-@lru_cache(maxsize=8)
-def _create_custom_container(_hash: str, _config_json: str) -> ServiceContainer:
-    import json as _json
-
-    logger.info(f"🔧 Maak custom ServiceContainer (hash: {_hash[:8]}...)")
-    return ServiceContainer(_json.loads(_config_json))
-
-
-def _get_config_hash(config: dict[str, Any]) -> str:
-    """
-    Genereer een hash van de configuratie voor cache invalidatie.
-
-    Args:
-        config: Service container configuratie
-
-    Returns:
-        SHA256 hash van de configuratie
-    """
-    # Sorteer keys voor consistente hashing
-    config_str = json.dumps(config, sort_keys=True, default=str)
-    return hashlib.sha256(config_str.encode()).hexdigest()[:16]
+# Custom container functions removed (US-202):
+# Multiple cache mechanisms caused duplicate container initialization.
+# Use get_cached_container() singleton for all cases.
 
 
 @lru_cache(maxsize=1)
@@ -85,33 +65,9 @@ def get_cached_container(_config_hash: str | None = None) -> ServiceContainer:
     return container
 
 
-def get_container_with_config(config: dict[str, Any] | None = None) -> ServiceContainer:
-    """
-    Get een ServiceContainer met optionele custom configuratie.
-
-    Als geen configuratie wordt meegegeven, wordt de standaard environment
-    configuratie gebruikt. Custom configuraties zorgen voor een nieuwe cache entry.
-
-    Args:
-        config: Optionele custom configuratie
-
-    Returns:
-        ServiceContainer instance
-    """
-    if config is None:
-        # Gebruik standaard environment-based configuratie
-        return get_cached_container()
-
-    # Voor custom config, genereer hash voor cache key
-    config_hash = _get_config_hash(config)
-
-    # Maak nieuwe container met custom config (aparte cache entry)
-    # Gebruik een kleine LRU-cache op basis van hash en een JSON snapshot
-    import json as _json
-
-    return _create_custom_container(
-        config_hash, _json.dumps(config, sort_keys=True, default=str)
-    )
+# get_container_with_config() removed (US-202):
+# This function caused duplicate container initialization by creating
+# separate cache entries. All code now uses get_cached_container() singleton.
 
 
 def clear_container_cache():
@@ -123,13 +79,9 @@ def clear_container_cache():
     """
     logger.info("🗑️ Clear ServiceContainer cache")
 
-    # Clear de caches voor containers
+    # Clear de singleton cache
     try:
         get_cached_container.cache_clear()
-    except Exception:
-        pass
-    try:
-        _create_custom_container.cache_clear()
     except Exception:
         pass
 
@@ -231,7 +183,6 @@ def debug_container_state():
 # Backward compatibility exports
 __all__ = [
     "get_cached_container",
-    "get_container_with_config",
     "clear_container_cache",
     "get_container_stats",
     "get_cached_orchestrator",

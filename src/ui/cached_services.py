@@ -5,6 +5,7 @@ Deze module gebruikt de nieuwe container_manager om caching te centraliseren.
 Dit voorkomt dat services 6x per sessie worden geïnitialiseerd.
 
 Update: Gebruikt nu utils.container_manager voor gecentraliseerde caching.
+US-202: Simplified to singleton-only - custom config removed.
 """
 
 import logging
@@ -12,27 +13,30 @@ from typing import Any
 
 from ui.session_state import SessionStateManager
 from utils.container_manager import clear_container_cache as clear_manager_cache
-from utils.container_manager import get_cached_container, get_container_with_config
+from utils.container_manager import get_cached_container
 
 logger = logging.getLogger(__name__)
 
 
-def get_cached_service_container(config: dict[str, Any] | None = None):
+def get_cached_service_container(config: dict | None = None):
     """
-    Get of maak een gecachte ServiceContainer instance.
+    Get de gecachte ServiceContainer singleton instance.
 
-    Deze functie is een wrapper rond container_manager voor backward compatibility.
+    Deze functie is een simple wrapper rond get_cached_container() voor
+    backward compatibility. Custom config wordt genegeerd sinds US-202.
 
     Args:
-        config: Optionele configuratie voor de container
+        config: DEPRECATED - wordt genegeerd, alleen voor backward compatibility
 
     Returns:
         Singleton ServiceContainer instance
     """
-    if config is None:
-        return get_cached_container()
-    else:
-        return get_container_with_config(config)
+    if config is not None:
+        logger.warning(
+            "Custom config passed to get_cached_service_container() is IGNORED (US-202). "
+            "Using singleton container."
+        )
+    return get_cached_container()
 
 
 def initialize_services_once():
