@@ -1,12 +1,15 @@
 """
 Async voorbeelden (examples) generation for DefinitieAgent.
 Provides concurrent generation of all example types for improved performance.
+
+Temperature settings are now loaded from config.yaml for consistency.
 """
 
 import logging
 from collections.abc import Callable
 from dataclasses import dataclass
 
+from config.config_manager import get_prompt_temperature
 from utils.async_api import async_cached, async_gpt_call
 
 logger = logging.getLogger(__name__)
@@ -49,7 +52,10 @@ class AsyncExampleGenerator:
 
         try:
             response = await async_gpt_call(
-                prompt=prompt, model=None, temperature=0.5, max_tokens=200
+                prompt=prompt,
+                model=None,
+                temperature=get_prompt_temperature("voorbeeldzinnen"),
+                max_tokens=200,
             )
 
             # Parse response into separate sentences
@@ -85,7 +91,10 @@ class AsyncExampleGenerator:
 
         try:
             response = await async_gpt_call(
-                prompt=prompt, model="gpt-4", temperature=0.6, max_tokens=400
+                prompt=prompt,
+                model="gpt-4",
+                temperature=get_prompt_temperature("praktijkvoorbeelden"),
+                max_tokens=400,
             )
 
             # Parse response into separate examples
@@ -119,7 +128,10 @@ class AsyncExampleGenerator:
 
         try:
             response = await async_gpt_call(
-                prompt=prompt, model="gpt-4", temperature=0.6, max_tokens=300
+                prompt=prompt,
+                model="gpt-4",
+                temperature=get_prompt_temperature("tegenvoorbeelden"),
+                max_tokens=300,
             )
 
             # Parse response into separate counter-examples
@@ -154,7 +166,10 @@ class AsyncExampleGenerator:
 
         try:
             return await async_gpt_call(
-                prompt=prompt, model="gpt-4", temperature=0.2, max_tokens=150
+                prompt=prompt,
+                model="gpt-4",
+                temperature=get_prompt_temperature("synoniemen"),
+                max_tokens=150,
             )
         except Exception as e:
             self.logger.error(f"Error generating synonyms: {e!s}")
@@ -176,7 +191,10 @@ class AsyncExampleGenerator:
 
         try:
             return await async_gpt_call(
-                prompt=prompt, model="gpt-4", temperature=0.2, max_tokens=150
+                prompt=prompt,
+                model="gpt-4",
+                temperature=get_prompt_temperature("antoniemen"),
+                max_tokens=150,
             )
         except Exception as e:
             self.logger.error(f"Error generating antonyms: {e!s}")
@@ -198,7 +216,10 @@ class AsyncExampleGenerator:
 
         try:
             return await async_gpt_call(
-                prompt=prompt, model="gpt-4", temperature=0.3, max_tokens=200
+                prompt=prompt,
+                model="gpt-4",
+                temperature=get_prompt_temperature("toelichting"),
+                max_tokens=200,
             )
         except Exception as e:
             self.logger.error(f"Error generating explanation: {e!s}")
