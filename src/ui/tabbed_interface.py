@@ -459,23 +459,7 @@ class TabbedInterface:
     def _render_header(self):
         """Render applicatie header."""
 
-        # Sidebar voor settings
-        with st.sidebar:
-            st.markdown("### ⚙️ Instellingen")
-
-            # Feature flag toggle voor nieuwe services
-            from ui.helpers.feature_toggle import render_feature_flag_toggle
-
-            render_feature_flag_toggle()
-
-            st.markdown("---")
-
-            # Service info
-            if hasattr(self.definition_service, "get_service_info"):
-                info = self.definition_service.get_service_info()
-                st.info(
-                    f"**Service Mode:** {info['service_mode']}\n**Architecture:** {info['architecture']}"
-                )
+        # Sidebar voor settings (reserved for future use)
 
         # Header met logo en titel
         col1, col2, col3 = st.columns([1, 2, 1])

@@ -21,18 +21,6 @@ def get_definition_service(*args, **kwargs):
     return _get_service(*args, **kwargs)
 
 
-def render_feature_flag_toggle(*args, **kwargs):
-    # Moved to UI layer - services should not have UI dependencies
-    # This stub is kept for backward compatibility but does nothing
-    import logging
-
-    logger = logging.getLogger(__name__)
-    logger.warning(
-        "render_feature_flag_toggle called from services - use the UI feature toggle helper in the UI layer"
-    )
-    return True
-
-
 # Export alle belangrijke classes
 __all__ = [
     "ContainerConfigs",
@@ -44,7 +32,6 @@ __all__ = [
     "UnifiedGeneratorConfig",
     "get_container",
     "get_definition_service",
-    "render_feature_flag_toggle",
     # Optional direct access to web lookup service
     "ModernWebLookupService",
 ]
