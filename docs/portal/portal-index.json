@@ -6894,6 +6894,37 @@
     {
       "id": null,
       "type": "GUIDE",
+      "title": "Recommended Ruff Configuration Update",
+      "path": "../guidelines/RECOMMENDED_RUFF_CONFIG.md",
+      "url": "../guidelines/RECOMMENDED_RUFF_CONFIG.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/guidelines/RECOMMENDED_RUFF_CONFIG.html"
+    },
+    {
+      "id": null,
+      "type": "GUIDE",
       "title": "Documentation Policy - DefinitieAgent",
       "path": "../guidelines/DOCUMENTATION_POLICY.md",
       "url": "../guidelines/DOCUMENTATION_POLICY.md",
@@ -7022,6 +7053,37 @@
         "req": []
       },
       "rendered_url": "rendered/guidelines/README.html"
+    },
+    {
+      "id": null,
+      "type": "GUIDE",
+      "title": "Quick Quality Decision Card",
+      "path": "../guidelines/QUICK_QUALITY_DECISIONS.md",
+      "url": "../guidelines/QUICK_QUALITY_DECISIONS.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/guidelines/QUICK_QUALITY_DECISIONS.html"
     },
     {
       "id": null,
@@ -7311,6 +7373,39 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "TIER 0 Action Plan - Fix These 20 Issues NOW",
+      "path": "../reports/TIER0_ACTION_PLAN.md",
+      "url": "../reports/TIER0_ACTION_PLAN.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [
+          "EPIC-016"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/reports/TIER0_ACTION_PLAN.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Performance Optimization Summary - US-201",
       "path": "../reports/PERFORMANCE_OPTIMIZATION_SUMMARY.md",
       "url": "../reports/PERFORMANCE_OPTIMIZATION_SUMMARY.md",
@@ -7502,6 +7597,39 @@
         "req": []
       },
       "rendered_url": "rendered/reports/UI_UX_INTEGRATION_ANALYSIS_REPORT.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Pragmatic Improvement Roadmap - DefinitieAgent",
+      "path": "../reports/PRAGMATIC_IMPROVEMENT_ROADMAP.md",
+      "url": "../reports/PRAGMATIC_IMPROVEMENT_ROADMAP.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [
+          "EPIC-016"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/reports/PRAGMATIC_IMPROVEMENT_ROADMAP.html"
     },
     {
       "id": null,
@@ -8015,6 +8143,39 @@
         "req": []
       },
       "rendered_url": "rendered/reports/toetsregels-loading-analysis.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Code Quality Improvement - Documentation Index",
+      "path": "../reports/CODE_QUALITY_INDEX.md",
+      "url": "../reports/CODE_QUALITY_INDEX.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [
+          "EPIC-016"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/reports/CODE_QUALITY_INDEX.html"
     },
     {
       "id": null,
@@ -39028,17 +39189,17 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 576,
+      "DOC": 579,
       "ARCH": 36,
       "COMP": 5,
       "TEST": 33,
-      "GUIDE": 12,
+      "GUIDE": 14,
       "EPIC": 25,
       "REQ": 110,
       "US": 276,
       "BUG": 18
     },
-    "generated_at": "2025-10-07T21:56:34Z"
+    "generated_at": "2025-10-07T22:05:47Z"
   },
   "sources": [
     "docs"
