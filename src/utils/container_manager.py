@@ -25,16 +25,21 @@ logger = logging.getLogger(__name__)
 
 
 @lru_cache(maxsize=1)
-def get_cached_container(_config_hash: str | None = None) -> ServiceContainer:
+def get_cached_container() -> ServiceContainer:
     """
-    Get of create een gecachede ServiceContainer instance.
+    Get of create een gecachede ServiceContainer instance (singleton).
 
-    Deze functie gebruikt Streamlit's cache_resource decorator om ervoor te zorgen
-    dat de ServiceContainer maar 1x wordt geïnitialiseerd per sessie. De container
-    blijft in geheugen tussen reruns.
+    Deze functie gebruikt Python's lru_cache om ervoor te zorgen dat de
+    ServiceContainer maar 1x wordt geïnitialiseerd. De container blijft
+    in geheugen als singleton instance.
 
-    Args:
-        _config_hash: Hash van de configuratie (voor cache busting)
+    BELANGRIJK: Deze functie accepteert GEEN parameters. Dit is cruciaal voor
+    correct cache gedrag omdat lru_cache func() en func(None) als verschillende
+    cache keys behandelt, wat leidt tot dubbele initialisatie.
+
+    Fix: US-202 - Remove cache key parameter to ensure true singleton behavior.
+    Voorheen: func() en func(None) maakten 2 verschillende containers.
+    Nu: func() maakt altijd dezelfde singleton container.
 
     Returns:
         Singleton ServiceContainer instance
