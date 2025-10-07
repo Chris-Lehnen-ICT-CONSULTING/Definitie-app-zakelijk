@@ -22,7 +22,6 @@ except Exception as e:
 
 try:
     from services import get_definition_service
-    from ui.helpers.feature_toggle import render_feature_flag_toggle
 
     print("✅ Service factory imports OK")
 except Exception as e:
