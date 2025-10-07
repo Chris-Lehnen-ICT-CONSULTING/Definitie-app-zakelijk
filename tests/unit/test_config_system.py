@@ -33,18 +33,31 @@ class TestConfigManager:
     """Test suite for ConfigManager class."""
 
     def test_environment_detection(self):
-        """Environment is fixed to development regardless of ENVIRONMENT var."""
+        """ConfigManager respects APP_ENV environment variable."""
+        # Without APP_ENV, defaults to production
         with patch.dict(os.environ, {}, clear=True):
             config_manager = ConfigManager()
-            assert config_manager.environment == Environment.DEVELOPMENT
+            assert config_manager.environment == Environment.PRODUCTION
 
-        with patch.dict(os.environ, {"ENVIRONMENT": "production"}):
+        # With APP_ENV=development
+        with patch.dict(os.environ, {"APP_ENV": "development"}):
             config_manager = ConfigManager()
             assert config_manager.environment == Environment.DEVELOPMENT
 
-        with patch.dict(os.environ, {"ENVIRONMENT": "testing"}):
+        # With APP_ENV=testing
+        with patch.dict(os.environ, {"APP_ENV": "testing"}):
             config_manager = ConfigManager()
-            assert config_manager.environment == Environment.DEVELOPMENT
+            assert config_manager.environment == Environment.TESTING
+
+        # With APP_ENV=production (explicit)
+        with patch.dict(os.environ, {"APP_ENV": "production"}):
+            config_manager = ConfigManager()
+            assert config_manager.environment == Environment.PRODUCTION
+
+        # With invalid APP_ENV, defaults to production
+        with patch.dict(os.environ, {"APP_ENV": "invalid"}):
+            config_manager = ConfigManager()
+            assert config_manager.environment == Environment.PRODUCTION
 
     def test_config_loading_hierarchy(self):
         """Test configuration loading hierarchy (default -> env -> env vars)."""
@@ -106,17 +119,19 @@ class TestConfigManager:
 
     def test_environment_info(self):
         """Test environment information retrieval."""
-        config_manager = ConfigManager()
-        env_info = config_manager.get_environment_info()
+        # Test with explicit environment
+        with patch.dict(os.environ, {"APP_ENV": "development"}):
+            config_manager = ConfigManager()
+            env_info = config_manager.get_environment_info()
 
-        assert "environment" in env_info
-        assert "config_loaded" in env_info
-        assert "config_file" in env_info
-        assert "api_key_configured" in env_info
-        assert "directories_created" in env_info
+            assert "environment" in env_info
+            assert "config_loaded" in env_info
+            assert "config_file" in env_info
+            assert "api_key_configured" in env_info
+            assert "directories_created" in env_info
 
-        assert env_info["environment"] == "development"
-        assert isinstance(env_info["config_loaded"], bool)
+            assert env_info["environment"] == "development"
+            assert isinstance(env_info["config_loaded"], bool)
 
 
 class TestConfigurationSections:
@@ -329,10 +344,16 @@ class TestConfigurationErrorHandling:
     """Test suite for configuration error handling."""
 
     def test_invalid_environment_variable(self):
-        """ENVIRONMENT is ignored; always development."""
-        with patch.dict(os.environ, {"ENVIRONMENT": "invalid_env"}):
+        """Invalid APP_ENV defaults to production."""
+        with patch.dict(os.environ, {"APP_ENV": "invalid_env"}):
             config_manager = ConfigManager()
-            assert config_manager.environment == Environment.DEVELOPMENT
+            assert config_manager.environment == Environment.PRODUCTION
+
+        # Old ENVIRONMENT variable is no longer used
+        with patch.dict(os.environ, {"ENVIRONMENT": "development"}):
+            config_manager = ConfigManager()
+            # Should still default to production (ENVIRONMENT is ignored)
+            assert config_manager.environment == Environment.PRODUCTION
 
     def test_missing_config_file(self):
         """Test handling of missing configuration files."""
