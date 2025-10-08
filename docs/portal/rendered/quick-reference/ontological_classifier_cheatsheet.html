@@ -1,0 +1,499 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ontological Classifier - Quick Reference Cheatsheet</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>Ontological Classifier - Quick Reference Cheatsheet</h1>
+
+<p><strong>Voor developers die snel aan de slag willen</strong></p>
+
+<p>---</p>
+
+<h2>Installation</h2>
+
+<pre><code># Already done! OntologicalClassifier is in ServiceContainer
+# No pip install needed</code></pre>
+
+<p>---</p>
+
+<h2>Basic Usage (UI)</h2>
+
+<h3>1. Get Classifier from DI</h3>
+
+<pre><code>container = st.session_state.service_container
+classifier = container.ontological_classifier()</code></pre>
+
+<h3>2. Classify Single Term</h3>
+
+<pre><code>result = classifier.classify(
+    begrip="Overeenkomst",
+    organisatorische_context="Gemeente administratie",
+    juridische_context="Burgerlijk wetboek"
+)
+
+# Result attributes:
+result.level                 # OntologicalLevel (U/F/O enum)
+result.confidence            # float (0.0-1.0)
+result.confidence_level      # ClassificationConfidence (HIGH/MEDIUM/LOW)
+result.rationale            # str (waarom dit niveau?)
+result.scores               # dict {"U": 0.08, "F": 0.89, "O": 0.03}
+result.is_reliable          # bool (confidence &gt;= 60%)
+result.to_string_level()    # str ("U"/"F"/"O") voor GenerationRequest</code></pre>
+
+<h3>3. Use in Generation Request</h3>
+
+<pre><code>request = GenerationRequest(
+    begrip="Overeenkomst",
+    ontologische_categorie=result.to_string_level(),  # ← SET THIS
+    organisatorische_context="...",
+    juridische_context="...",
+    # ... rest
+)
+
+response = await orchestrator.create_definition(request)</code></pre>
+
+<p>---</p>
+
+<h2>Complete UI Flow Example</h2>
+
+<pre><code>def handle_generate_definition():
+    """Complete flow: classify → show → generate"""
+
+    # Step 1: Get services
+    container = st.session_state.service_container
+    classifier = container.ontological_classifier()
+    orchestrator = container.orchestrator()
+
+    # Step 2: Classify
+    classification = classifier.classify(
+        begrip=begrip,
+        organisatorische_context=org_context,
+        juridische_context=jur_context
+    )
+
+    # Step 3: Show classification to user
+    st.info(
+        f"🔶 Geclassificeerd als: **{classification.level.value}** "
+        f"(confidence: {classification.confidence:.1%})"
+    )
+
+    # Step 4: Check reliability
+    if not classification.is_reliable:
+        st.warning("⚠️ Lage betrouwbaarheid")
+
+        # Optional: Allow manual override
+        if st.checkbox("Handmatig niveau selecteren?"):
+            level = st.radio("Kies niveau:", ["U", "F", "O"])
+            # Override classification.level here
+
+    # Step 5: Build request with classification
+    request = GenerationRequest(
+        begrip=begrip,
+        ontologische_categorie=classification.to_string_level(),
+        organisatorische_context=org_context,
+        juridische_context=jur_context,
+        # ... rest
+    )
+
+    # Step 6: Generate definition
+    with st.spinner("Genereer definitie..."):
+        response = await orchestrator.create_definition(request)
+
+    # Step 7: Show results
+    if response.success:
+        st.success("✅ Definitie gegenereerd!")
+        st.write(response.definition_text)</code></pre>
+
+<p>---</p>
+
+<h2>Batch Processing</h2>
+
+<h3>Classify Multiple Terms</h3>
+
+<pre><code># Input
+begrippen = ["Overeenkomst", "Perceel", "Rechtspersoon"]
+
+# Classify batch
+classifier = container.ontological_classifier()
+results = classifier.classify_batch(
+    begrippen=begrippen,
+    shared_context=("Gemeente", "BW")  # Optional
+)
+
+# Results is dict[str, ClassificationResult]
+for begrip, result in results.items():
+    print(f"{begrip}: {result.level.value} ({result.confidence:.1%})")</code></pre>
+
+<h3>Export to CSV</h3>
+
+<pre><code>import pandas as pd
+
+# Convert results to DataFrame
+df = pd.DataFrame([
+    {
+        "begrip": begrip,
+        "niveau": result.level.value,
+        "confidence": f"{result.confidence:.1%}",
+        "betrouwbaar": "Ja" if result.is_reliable else "Nee"
+    }
+    for begrip, result in results.items()
+])
+
+# Save to CSV
+df.to_csv("classificatie_resultaten.csv", index=False)</code></pre>
+
+<p>---</p>
+
+<h2>Validation of Existing Definitions</h2>
+
+<h3>Single Validation</h3>
+
+<pre><code>classifier = container.ontological_classifier()
+
+is_correct, reason = classifier.validate_existing_definition(
+    begrip="Overeenkomst",
+    claimed_level="F",
+    definition_text="Een overeenkomst is..."
+)
+
+if not is_correct:
+    print(f"❌ Mismatch: {reason}")
+else:
+    print("✅ Classificatie correct")</code></pre>
+
+<h3>Batch Validation</h3>
+
+<pre><code># Get all definitions from DB
+repo = container.repository()
+definitions = repo.get_all()
+
+# Validate each
+classifier = container.ontological_classifier()
+mismatches = []
+
+for definition in definitions:
+    is_correct, reason = classifier.validate_existing_definition(
+        begrip=definition.begrip,
+        claimed_level=definition.ontologische_categorie,
+        definition_text=definition.definitie
+    )
+
+    if not is_correct:
+        mismatches.append({
+            "begrip": definition.begrip,
+            "claimed": definition.ontologische_categorie,
+            "reason": reason
+        })
+
+# Report
+print(f"Found {len(mismatches)} mismatches:")
+for m in mismatches:
+    print(f"  {m['begrip']}: {m['reason']}")</code></pre>
+
+<p>---</p>
+
+<h2>ServiceAdapter (Optional Convenience)</h2>
+
+<h3>Auto-Classify + Generate</h3>
+
+<pre><code># Get adapter
+adapter = container.service_adapter()
+
+# One call does classify + generate
+response, classification = await adapter.generate_with_auto_classification(
+    begrip="Overeenkomst",
+    organisatorische_context="...",
+    juridische_context="...",
+    # ... rest
+)
+
+# Use results
+print(f"Classification: {classification.level.value}")
+print(f"Definition: {response.definition_text}")</code></pre>
+
+<h3>Manual Classification + Generate</h3>
+
+<pre><code>adapter = container.service_adapter()
+
+# Step 1: Classify only
+classification = adapter.classify_only(
+    begrip="Overeenkomst",
+    organisatorische_context="..."
+)
+
+# Step 2: Show to user, allow override
+print(f"Classification: {classification.level.value}")
+# ... user interaction
+
+# Step 3: Generate with (possibly modified) classification
+response = await adapter.generate_with_classification(
+    classification=classification,
+    begrip="Overeenkomst",
+    organisatorische_context="...",
+    # ... rest
+)</code></pre>
+
+<p>---</p>
+
+<h2>Common Patterns</h2>
+
+<h3>Pattern 1: Simple UI Integration</h3>
+
+<pre><code># Minimal changes to existing flow
+classifier = container.ontological_classifier()
+classification = classifier.classify(begrip, org_ctx, jur_ctx)
+
+request.ontologische_categorie = classification.to_string_level()
+response = await orchestrator.create_definition(request)</code></pre>
+
+<h3>Pattern 2: Show Classification with Details</h3>
+
+<pre><code>classification = classifier.classify(...)
+
+# Show level
+emoji = {"U": "🔷", "F": "🔶", "O": "🟠"}[classification.level.value]
+st.success(f"{emoji} Niveau: {classification.level.value}")
+
+# Show confidence
+st.write(f"Confidence: {classification.confidence:.1%}")
+
+# Show rationale
+with st.expander("Waarom dit niveau?"):
+    st.write(classification.rationale)</code></pre>
+
+<h3>Pattern 3: Allow Manual Override</h3>
+
+<pre><code>classification = classifier.classify(...)
+
+if not classification.is_reliable:
+    st.warning("Lage betrouwbaarheid")
+
+    if st.checkbox("Handmatig kiezen?"):
+        chosen_level = st.radio("Niveau:", ["U", "F", "O"],
+                                index=["U", "F", "O"].index(classification.level.value))
+
+        # Create new classification with chosen level
+        from src.toetsregels.level_classifier import OntologicalLevel
+        classification.level = OntologicalLevel(chosen_level)</code></pre>
+
+<h3>Pattern 4: Batch with Progress</h3>
+
+<pre><code>import streamlit as st
+
+begrippen = ["Term1", "Term2", "Term3", ...]
+
+progress_bar = st.progress(0)
+results = {}
+
+for i, begrip in enumerate(begrippen):
+    result = classifier.classify(begrip)
+    results[begrip] = result
+
+    progress_bar.progress((i + 1) / len(begrippen))
+
+st.success(f"✅ {len(results)} begrippen geclassificeerd!")</code></pre>
+
+<p>---</p>
+
+<h2>Testing</h2>
+
+<h3>Unit Test</h3>
+
+<pre><code>import pytest
+from unittest.mock import Mock
+
+def test_classify():
+    mock_ai_service = Mock()
+    classifier = OntologicalClassifier(mock_ai_service)
+
+    result = classifier.classify("Overeenkomst")
+
+    assert result.level in [OntologicalLevel.UNIVERSEEL,
+                            OntologicalLevel.FUNCTIONEEL,
+                            OntologicalLevel.OPERATIONEEL]
+    assert 0.0 &lt;= result.confidence &lt;= 1.0</code></pre>
+
+<h3>Integration Test</h3>
+
+<pre><code>@pytest.mark.integration
+async def test_full_flow():
+    container = ServiceContainer()
+    classifier = container.ontological_classifier()
+    orchestrator = container.orchestrator()
+
+    # Classify
+    classification = classifier.classify("Overeenkomst")
+
+    # Generate
+    request = GenerationRequest(
+        begrip="Overeenkomst",
+        ontologische_categorie=classification.to_string_level()
+    )
+
+    response = await orchestrator.create_definition(request)
+
+    assert response.success</code></pre>
+
+<p>---</p>
+
+<h2>Error Handling</h2>
+
+<h3>Handle Classification Errors</h3>
+
+<pre><code>try:
+    result = classifier.classify(begrip, org_ctx, jur_ctx)
+
+except ValueError as e:
+    # Empty begrip
+    st.error(f"Invalid input: {e}")
+
+except RuntimeError as e:
+    # Classification failed
+    st.error(f"Classification failed: {e}")
+    # Fallback: ask user to manually select level</code></pre>
+
+<h3>Handle Low Confidence</h3>
+
+<pre><code>result = classifier.classify(...)
+
+if not result.is_reliable:
+    st.warning(
+        f"⚠️ Lage betrouwbaarheid ({result.confidence:.1%}). "
+        "Voeg meer context toe of kies handmatig."
+    )
+
+    # Option 1: Stop and ask for more context
+    if st.button("Voeg context toe"):
+        # Return to context input
+
+    # Option 2: Allow manual override
+    if st.button("Kies handmatig niveau"):
+        # Show manual level selector</code></pre>
+
+<p>---</p>
+
+<h2>Debugging</h2>
+
+<h3>Enable Debug Logging</h3>
+
+<pre><code>import logging
+
+logging.getLogger("services.classification").setLevel(logging.DEBUG)
+logging.getLogger("src.toetsregels.level_classifier").setLevel(logging.DEBUG)</code></pre>
+
+<h3>Inspect Classification Details</h3>
+
+<pre><code>result = classifier.classify(...)
+
+# Print all details
+print(f"Level: {result.level.value}")
+print(f"Confidence: {result.confidence:.2f}")
+print(f"Confidence Level: {result.confidence_level.value}")
+print(f"Rationale: {result.rationale}")
+print(f"Scores: {result.scores}")
+print(f"Metadata: {result.metadata}")
+print(f"Is Reliable: {result.is_reliable}")</code></pre>
+
+<p>---</p>
+
+<h2>CLI Usage (Future)</h2>
+
+<pre><code># Single term
+python -m scripts.classify_term "Overeenkomst" \
+    --org-context "Gemeente" \
+    --jur-context "BW"
+
+# Batch
+python -m scripts.classify_batch \
+    --input begrippen.csv \
+    --output results.csv</code></pre>
+
+<p>---</p>
+
+<h2>Quick Reference Table</h2>
+
+<p>| Use Case | Method | Returns |</p>
+<p>|----------|--------|---------|</p>
+<p>| Single term | <code>classify(begrip, ...)</code> | <code>ClassificationResult</code> |</p>
+<p>| Multiple terms | <code>classify_batch(begrippen, ...)</code> | <code>dict[str, ClassificationResult]</code> |</p>
+<p>| Validate existing | <code>validate_existing_definition(...)</code> | <code>(bool, Optional[str])</code> |</p>
+<p>| Auto classify + generate | <code>adapter.generate_with_auto_classification(...)</code> | <code>(GenerationResponse, ClassificationResult)</code> |</p>
+<p>| Manual classify + generate | <code>adapter.generate_with_classification(classification, ...)</code> | <code>GenerationResponse</code> |</p>
+
+<p>---</p>
+
+<h2>Common Issues</h2>
+
+<h3>Issue: Import Error</h3>
+
+<pre><code># ❌ Wrong
+from services.ontological_classifier import OntologicalClassifier
+
+# ✅ Correct
+from services.classification import OntologicalClassifier</code></pre>
+
+<h3>Issue: Classification Not Used in Generation</h3>
+
+<pre><code># ❌ Wrong - classification not used
+classification = classifier.classify(begrip)
+request = GenerationRequest(begrip=begrip)  # Missing ontologische_categorie!
+
+# ✅ Correct - use classification result
+classification = classifier.classify(begrip)
+request = GenerationRequest(
+    begrip=begrip,
+    ontologische_categorie=classification.to_string_level()
+)</code></pre>
+
+<h3>Issue: Classifier Not in Container</h3>
+
+<pre><code># ❌ Wrong - direct instantiation
+classifier = OntologicalClassifier(ai_service)
+
+# ✅ Correct - via DI container
+container = st.session_state.service_container
+classifier = container.ontological_classifier()</code></pre>
+
+<p>---</p>
+
+<h2>Tips & Best Practices</h2>
+
+<ol>
+<li>**Always classify BEFORE generation** - Niveau bepaalt prompt template</li>
+<li>**Use DI container** - Don't instantiate classifier directly</li>
+<li>**Show classification to user** - Transparency builds trust</li>
+<li>**Allow override for low confidence** - User knows context better</li>
+<li>**Cache results in session state** - Avoid re-classification on rerun</li>
+<li>**Log all classifications** - Useful for analysis and improvement</li>
+<li>**Test with real terms** - Mock tests are good, but test with real data too</li>
+</ol>
+
+<p>---</p>
+
+<h2>See Also</h2>
+
+<ul>
+<li>**Full Architecture**: `docs/architectuur/ontological_classifier_standalone_architecture.md`</li>
+<li>**Executive Summary**: `docs/architectuur/ONTOLOGICAL_CLASSIFIER_SUMMARY.md`</li>
+<li>**UI Examples**: `docs/examples/classifier_integration_ui.py`</li>
+<li>**Adapter Examples**: `docs/examples/service_adapter_with_classifier.py`</li>
+</ul>
+
+  </div>
+</body>
+</html>

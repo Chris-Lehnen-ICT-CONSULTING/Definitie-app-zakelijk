@@ -56,9 +56,6 @@ st.set_page_config(
 
 # Let op: geen .env-bestand laden; vertrouw op systeem-omgeving
 
-# Track startup performance - Meet applicatie opstarttijd
-_startup_start = time.perf_counter()
-
 
 def main():
     """Hoofd applicatie functie.
@@ -69,6 +66,11 @@ def main():
     Raises:
         Exception: Alle onverwachte fouten worden gelogd en getoond aan gebruiker
     """
+    # Track rerun performance - Meet Streamlit rerun tijd
+    # BELANGRIJK: Timer moet binnen main() staan, niet op module niveau
+    # Streamlit importeert de module EENMAAL en roept main() meerdere keren aan
+    rerun_start = time.perf_counter()
+
     try:
         # Initialiseer sessie status - Stel Streamlit sessie status in
         SessionStateManager.initialize_session_state()  # Stel standaardwaarden in voor UI status
@@ -77,8 +79,8 @@ def main():
         interface = TabbedInterface()  # Instantieer de tabbed interface controller
         interface.render()  # Render de complete gebruikersinterface
 
-        # Track startup performance na eerste render
-        _track_startup_performance()
+        # Track rerun performance na render
+        _track_rerun_performance(rerun_start)
 
     except Exception as e:
         # Log en toon startup fouten - Log en toon opstartfouten
@@ -88,39 +90,50 @@ def main():
         )  # Toon gebruikersvriendelijke fout
 
 
-def _track_startup_performance():
-    """Track applicatie startup performance en check voor regressies.
+def _track_rerun_performance(start_time: float):
+    """Track Streamlit rerun performance en check voor regressies.
 
-    Deze functie meet de startup tijd en vergelijkt deze met de baseline.
-    Bij significante regressies wordt een warning gelogd.
+    Deze functie meet de tijd voor een Streamlit rerun (UI framework overhead).
+    Dit is NIET de tijd voor definitie generatie of andere business operaties.
+
+    Args:
+        start_time: perf_counter() value at start of main()
+
+    Note:
+        Metric naam is "streamlit_rerun_ms" omdat we reruns meten, niet cold startup.
+        Typische waarden: 10-100ms voor normale reruns.
+        Lange tijden (>1s) duiden op probleem in UI rendering, niet in business logica.
     """
     try:
         from monitoring.performance_tracker import get_tracker
 
-        startup_time_ms = (time.perf_counter() - _startup_start) * 1000
+        rerun_time_ms = (time.perf_counter() - start_time) * 1000
 
-        # Track metric met version metadata
+        # Track metric met session metadata
         tracker = get_tracker()
         tracker.track_metric(
-            "app_startup_ms",
-            startup_time_ms,
-            metadata={"version": "2.0", "platform": sys.platform},
+            "streamlit_rerun_ms",
+            rerun_time_ms,
+            metadata={
+                "session_id": id(st.session_state),
+                "platform": sys.platform,
+            },
         )
 
         # Check voor performance regressie
-        alert = tracker.check_regression("app_startup_ms", startup_time_ms)
+        alert = tracker.check_regression("streamlit_rerun_ms", rerun_time_ms)
         if alert == "CRITICAL":
             logger.warning(
-                f"CRITICAL startup regressie: {startup_time_ms:.1f}ms "
+                f"CRITICAL rerun regressie: {rerun_time_ms:.1f}ms "
                 f"(>20% slechter dan baseline)"
             )
         elif alert == "WARNING":
             logger.warning(
-                f"WARNING startup regressie: {startup_time_ms:.1f}ms "
+                f"WARNING rerun regressie: {rerun_time_ms:.1f}ms "
                 f"(>10% slechter dan baseline)"
             )
         else:
-            logger.info(f"Startup tijd: {startup_time_ms:.1f}ms")
+            logger.info(f"Rerun tijd: {rerun_time_ms:.1f}ms")
 
     except Exception as e:
         # Performance tracking mag nooit de applicatie breken

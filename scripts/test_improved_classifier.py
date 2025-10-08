@@ -170,9 +170,7 @@ def test_edge_cases():
 
     # Test 2: Onbekend begrip
     result = classifier.classify(begrip="xyzabcdef")
-    print(
-        f"✅ Unknown begrip handled: {result.categorie.value} " f"(fallback gebruikt)"
-    )
+    print(f"✅ Unknown begrip handled: {result.categorie.value} (fallback gebruikt)")
 
     # Test 3: Speciale karakters
     result = classifier.classify(begrip="test-validatie_2.0")

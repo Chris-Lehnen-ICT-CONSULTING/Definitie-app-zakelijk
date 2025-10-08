@@ -362,6 +362,110 @@ class PerformanceTracker:
             logger.error(f"Fout bij ophalen recente metrics voor {metric_name}: {e}")
             return []
 
+    def rename_metric(self, old_name: str, new_name: str) -> bool:
+        """Rename een metric (voor migrations).
+
+        Deze functie hernoemt een metric in BOTH de metrics table EN de baselines table.
+        Gebruikt transactie om consistentie te garanderen.
+
+        Args:
+            old_name: Oude metric naam
+            new_name: Nieuwe metric naam
+
+        Returns:
+            True als succesvol, False bij fout
+
+        Example:
+            tracker.rename_metric("app_startup_ms", "streamlit_rerun_ms")
+        """
+        try:
+            with sqlite3.connect(self.db_path) as conn:
+                # Check of oude metric bestaat
+                cursor = conn.execute(
+                    "SELECT COUNT(*) FROM performance_metrics WHERE metric_name = ?",
+                    (old_name,),
+                )
+                old_count = cursor.fetchone()[0]
+
+                if old_count == 0:
+                    logger.info(
+                        f"Geen data gevonden voor metric '{old_name}', skip rename"
+                    )
+                    return True
+
+                # Check of nieuwe naam al bestaat
+                cursor = conn.execute(
+                    "SELECT COUNT(*) FROM performance_metrics WHERE metric_name = ?",
+                    (new_name,),
+                )
+                new_count = cursor.fetchone()[0]
+
+                if new_count > 0:
+                    logger.warning(
+                        f"Metric '{new_name}' bestaat al met {new_count} records, "
+                        f"oude data wordt verwijderd"
+                    )
+                    # Verwijder oude data met nieuwe naam om duplicaten te voorkomen
+                    conn.execute(
+                        "DELETE FROM performance_metrics WHERE metric_name = ?",
+                        (new_name,),
+                    )
+                    conn.execute(
+                        "DELETE FROM performance_baselines WHERE metric_name = ?",
+                        (new_name,),
+                    )
+
+                # Rename in beide tables (transactie garandeert atomicity)
+                conn.execute(
+                    "UPDATE performance_metrics SET metric_name = ? WHERE metric_name = ?",
+                    (new_name, old_name),
+                )
+
+                conn.execute(
+                    "UPDATE performance_baselines SET metric_name = ? WHERE metric_name = ?",
+                    (new_name, old_name),
+                )
+
+                conn.commit()
+
+                logger.info(
+                    f"Metric renamed: '{old_name}' -> '{new_name}' ({old_count} records)"
+                )
+                return True
+
+        except sqlite3.Error as e:
+            logger.error(f"Fout bij renaming metric '{old_name}' -> '{new_name}': {e}")
+            return False
+
+    def delete_metric(self, metric_name: str) -> bool:
+        """Verwijder alle data voor een metric.
+
+        Args:
+            metric_name: Naam van metric om te verwijderen
+
+        Returns:
+            True als succesvol, False bij fout
+        """
+        try:
+            with sqlite3.connect(self.db_path) as conn:
+                # Verwijder uit beide tables
+                conn.execute(
+                    "DELETE FROM performance_metrics WHERE metric_name = ?",
+                    (metric_name,),
+                )
+                conn.execute(
+                    "DELETE FROM performance_baselines WHERE metric_name = ?",
+                    (metric_name,),
+                )
+                conn.commit()
+
+                logger.info(f"Metric data verwijderd: '{metric_name}'")
+                return True
+
+        except sqlite3.Error as e:
+            logger.error(f"Fout bij verwijderen metric '{metric_name}': {e}")
+            return False
+
 
 # Global tracker instance (singleton pattern)
 _tracker: PerformanceTracker | None = None

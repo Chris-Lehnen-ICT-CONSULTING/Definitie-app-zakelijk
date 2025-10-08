@@ -1,0 +1,768 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Level Classifier Integration Gap Analysis</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>Level Classifier Integration Gap Analysis</h1>
+
+<p><strong>Datum:</strong> 2025-10-07</p>
+<p><strong>Epic:</strong> EPIC-028 - Feature Cleanup & UI Simplification</p>
+<p><strong>Context:</strong> Analyseer implementatie gap tussen beoogde <code>level_classifier.py</code> en bestaande ontologische categorisatie</p>
+
+<p>---</p>
+
+<h2>Executive Summary</h2>
+
+<p><strong>KRITIEKE BEVINDING:</strong> Er bestaat GEEN <code>level_classifier.py</code> implementatie in de codebase. De vraagstelling is gebaseerd op een misvatting.</p>
+
+<p><strong>HUIDIGE STAAT:</strong></p>
+<ul>
+<li>✅ Werkende ontologische categorisatie via `OntologischeAnalyzer` (6-stappen protocol)</li>
+<li>✅ Werkende fallback via `QuickOntologischeAnalyzer` (pattern matching)</li>
+<li>✅ Scores worden al gegenereerd in stap 3 van het 6-stappen protocol</li>
+<li>✅ Integratie met UI, prompt modules, en database is compleet</li>
+</ul>
+
+<p><strong>CONCLUSIE:</strong> Er is GEEN "nieuwe implementatie" die geïntegreerd moet worden. De bestaande implementatie is volledig functioneel.</p>
+
+<p>---</p>
+
+<h2>1. Huidige Implementatie Status</h2>
+
+<h3>1.1 Bestaande Componenten</h3>
+
+<p>| Component | Locatie | Status | Functionaliteit |</p>
+<p>|-----------|---------|--------|----------------|</p>
+<p>| <strong>OntologischeAnalyzer</strong> | <code>src/ontologie/ontological_analyzer.py</code> | ✅ LIVE | 6-stappen protocol met score generatie |</p>
+<p>| <strong>QuickOntologischeAnalyzer</strong> | <code>src/ontologie/ontological_analyzer.py</code> | ✅ LIVE | Fallback pattern matching |</p>
+<p>| <strong>OntologischeCategorie Enum</strong> | <code>src/domain/ontological_categories.py</code> | ✅ LIVE | TYPE, PROCES, RESULTAAT, EXEMPLAAR |</p>
+<p>| <strong>UI Integration</strong> | <code>src/ui/tabbed_interface.py</code> | ✅ LIVE | <code>_determine_ontological_category()</code> |</p>
+<p>| <strong>Prompt Module</strong> | <code>src/services/prompts/modules/semantic_categorisation_module.py</code> | ✅ LIVE | ESS-02 categorie instructies |</p>
+<p>| <strong>Database Storage</strong> | <code>src/database/definitie_repository.py</code> | ✅ LIVE | Categorie wordt opgeslagen |</p>
+
+<h3>1.2 Bestaande Score Generatie</h3>
+
+<p><strong>In <code>OntologischeAnalyzer._stap3_formele_categorietoets()</code>:</strong></p>
+
+<pre><code>async def _stap3_formele_categorietoets(
+    self,
+    begrip: str,
+    semantisch_profiel: dict[str, Any],
+    context_map: dict[str, Any],
+) -&gt; dict[str, Any]:
+    """Stap 3: Formele Categorietoets - AI-gedreven classificatie."""
+
+    # Categorieën met testvragen
+    categorie_tests = {
+        "type": self._test_type,
+        "proces": self._test_proces,
+        "resultaat": self._test_resultaat,
+        "exemplaar": self._test_exemplaar,
+    }
+
+    # Voer tests uit per categorie
+    test_resultaten = {}
+    for categorie, test_func in categorie_tests.items():
+        score = await test_func(begrip, semantisch_profiel, context_map)
+        test_resultaten[categorie] = score
+
+    # Bepaal primaire categorie
+    primaire_categorie = max(test_resultaten, key=test_resultaten.get)
+
+    return {
+        "primaire_categorie": primaire_categorie,
+        "secundaire_aspecten": secundaire_aspecten,
+        "test_scores": test_resultaten,  # ← SCORES WORDEN HIER GEGENEREERD
+        "confidence": test_resultaten[primaire_categorie],
+    }</code></pre>
+
+<p><strong>Scores Flow:</strong></p>
+<pre><code>OntologischeAnalyzer.bepaal_ontologische_categorie()
+  → _stap3_formele_categorietoets()
+    → _test_type(), _test_proces(), _test_resultaat(), _test_exemplaar()
+      → Returns: {"type": 0.8, "proces": 0.3, "resultaat": 0.1, "exemplaar": 0.2}
+  → Returns: (OntologischeCategorie.TYPE, {analyse_resultaat_met_scores})</code></pre>
+
+<h3>1.3 UI Integration Flow</h3>
+
+<p><strong>In <code>tabbed_interface.py._determine_ontological_category()</code>:</strong></p>
+
+<pre><code>async def _determine_ontological_category(self, begrip, org_context, jur_context):
+    """Bepaal automatisch de ontologische categorie via 6-stappen protocol."""
+    analyzer = OntologischeAnalyzer()
+    categorie, analyse_resultaat = await analyzer.bepaal_ontologische_categorie(
+        begrip, org_context, jur_context
+    )
+
+    # Haal de scores uit het analyse resultaat
+    test_scores = analyse_resultaat.get("categorie_resultaat", {}).get("test_scores", {})
+
+    return categorie, reasoning, test_scores  # ← SCORES NAAR UI</code></pre>
+
+<p><strong>UI Gebruik:</strong></p>
+<pre><code># In _generate_definition_with_hybrid_context() - L715
+auto_categorie, category_reasoning, category_scores = asyncio.run(
+    self._determine_ontological_category(begrip, primary_org, primary_jur)
+)</code></pre>
+
+<p>---</p>
+
+<h2>2. Veronderstellingen in de Vraag</h2>
+
+<h3>2.1 "Nieuwe level_classifier.py implementatie"</h3>
+
+<p><strong>VERONDERSTELLING:</strong> Er zou een nieuwe <code>level_classifier.py</code> module zijn met:</p>
+<pre><code>classify_level(
+    scores: Dict[str, float],  # {"type": 0.3, "proces": 0.7, ...}
+    text_context: Optional[str] = None,
+    policy_name: str = "gebalanceerd"
+)</code></pre>
+
+<p><strong>WERKELIJKHEID:</strong></p>
+<ul>
+<li>❌ Deze file bestaat NIET in de codebase</li>
+<li>❌ `find` commando retourneert geen resultaten</li>
+<li>❌ `grep` voor "LevelClassifier" retourneert geen resultaten</li>
+</ul>
+
+<h3>2.2 "Missing Link - Wie moet scores genereren?"</h3>
+
+<p><strong>VERONDERSTELLING:</strong> De nieuwe implementatie verwacht scores als INPUT maar die worden nergens gegenereerd.</p>
+
+<p><strong>WERKELIJKHEID:</strong></p>
+<ul>
+<li>✅ Scores worden AL gegenereerd in `OntologischeAnalyzer._stap3_formele_categorietoets()`</li>
+<li>✅ Elke test functie (`_test_type()`, etc.) retourneert een score tussen 0.0 en 1.0</li>
+<li>✅ Scores worden doorgegeven aan UI via return tuple</li>
+</ul>
+
+<p>---</p>
+
+<h2>3. Analyse: Huidige Implementatie vs. Hypothetische "Nieuwe" Implementatie</h2>
+
+<h3>3.1 Functionaliteit Vergelijking</h3>
+
+<p>| Functie | Huidige OntologischeAnalyzer | Hypothetische level_classifier |</p>
+<p>|---------|------------------------------|-------------------------------|</p>
+<p>| <strong>Score Generatie</strong> | ✅ Ja - in stap 3 via test functies | ❓ Verwacht scores als INPUT |</p>
+<p>| <strong>Categorie Bepaling</strong> | ✅ Ja - max(test_scores) | ❓ Mogelijk policy-based threshold logic |</p>
+<p>| <strong>Context Gebruik</strong> | ✅ Ja - org/jur context in stap 2 | ❓ Optional text_context parameter |</p>
+<p>| <strong>Policy Support</strong> | ❌ Nee - hard-coded logic | ❓ Ja - "gebalanceerd" policy parameter |</p>
+<p>| <strong>6-Stappen Protocol</strong> | ✅ Ja - volledig geïmplementeerd | ❌ Nee - alleen classificatie |</p>
+
+<h3>3.2 Architecturaal Verschil</h3>
+
+<p><strong>HUIDIGE AANPAK (All-in-one):</strong></p>
+<pre><code>Input: begrip + org_context + jur_context
+  ↓
+OntologischeAnalyzer
+  ├─ Stap 1: Lexicale verkenning (web lookup)
+  ├─ Stap 2: Context analyse (juridische lookup)
+  ├─ Stap 3: Score generatie + classificatie  ← SCORES HIER
+  ├─ Stap 4: Identiteit/persistentie
+  ├─ Stap 5: Rol analyse
+  └─ Stap 6: Documentatie
+  ↓
+Output: (OntologischeCategorie, analyse_resultaat_met_scores)</code></pre>
+
+<p><strong>HYPOTHETISCHE AANPAK (Modular):</strong></p>
+<pre><code>Input: begrip + context
+  ↓
+??? Score Generator Service (ONTBREEKT)
+  ↓
+scores: {"type": 0.8, "proces": 0.3, ...}
+  ↓
+level_classifier.classify_level(scores, policy="gebalanceerd")
+  ↓
+Output: OntologischeCategorie</code></pre>
+
+<h3>3.3 Kritieke Gap in Hypothetische Implementatie</h3>
+
+<p><strong>PROBLEEM:</strong> Als <code>level_classifier.py</code> zou bestaan zoals beschreven:</p>
+
+<ol>
+<li>**Wie genereert de scores?**</li>
+</ol>
+<ul>
+<li>  - De huidige `OntologischeAnalyzer` genereert ze intern in stap 3</li>
+<li>  - Een standalone `level_classifier` verwacht ze als input</li>
+<li>  - Er zou een nieuwe "Score Generator Service" nodig zijn</li>
+</ul>
+
+<ol>
+<li>**Dubbele verantwoordelijkheid?**</li>
+</ol>
+<ul>
+<li>  - Score generatie zit NU in stap 3 van het 6-stappen protocol</li>
+<li>  - Als we dat splitsen, welke stappen blijven bij analyzer?</li>
+</ul>
+
+<ol>
+<li>**Context verlies?**</li>
+</ol>
+<ul>
+<li>  - Stap 1-2 verzamelen context uit web lookup</li>
+<li>  - Die context wordt gebruikt in stap 3 voor betere scores</li>
+<li>  - Als `level_classifier` alleen scores krijgt, verlies je die context</li>
+</ul>
+
+<p>---</p>
+
+<h2>4. Waarom Deze Vraag Gesteld Werd</h2>
+
+<h3>4.1 Mogelijke Oorsprong</h3>
+
+<ol>
+<li>**EPIC-028 Context:**</li>
+</ol>
+<ul>
+<li>  - Epic focust op cleanup en simplificatie</li>
+<li>  - Mogelijk was er een PLAN om `level_classifier.py` te bouwen</li>
+<li>  - Plan is nooit geïmplementeerd</li>
+</ul>
+
+<ol>
+<li>**US-445 Context:**</li>
+</ol>
+<ul>
+<li>  - US-445 verwijdert "Category Regeneration Service"</li>
+<li>  - Mogelijk verwarring tussen regeneration en classificatie</li>
+</ul>
+
+<ol>
+<li>**Modulaire Architectuur Discussie:**</li>
+</ol>
+<ul>
+<li>  - Er is mogelijk gesproken over het opsplitsen van `OntologischeAnalyzer`</li>
+<li>  - Score generatie vs. classificatie logica scheiden</li>
+<li>  - Nooit daadwerkelijk uitgevoerd</li>
+</ul>
+
+<h3>4.2 Wat er WEL Is</h3>
+
+<p><strong>Bestaande Modulaire Componenten:</strong></p>
+<ul>
+<li>✅ `SemanticCategorisationModule` - Prompt instructies per categorie</li>
+<li>✅ `OntologischeCategorie` enum - Shared type definitie</li>
+<li>✅ `OntologischeAnalyzer` - Volledige 6-stappen analyse</li>
+<li>✅ `QuickOntologischeAnalyzer` - Snelle fallback</li>
+</ul>
+
+<p><strong>Deze zijn AL geïntegreerd en werken:</strong></p>
+<ul>
+<li>UI gebruikt `_determine_ontological_category()`</li>
+<li>Prompt service injecteert categorie-specifieke guidance via `SemanticCategorisationModule`</li>
+<li>Database slaat categorie op</li>
+<li>Validatie gebruikt categorie voor context-aware checks</li>
+</ul>
+
+<p>---</p>
+
+<h2>5. Mogelijke Acties (Als dit een PLAN was)</h2>
+
+<h3>5.1 Optie A: Status Quo Behouden ✅ AANBEVOLEN</h3>
+
+<p><strong>Rationale:</strong></p>
+<ul>
+<li>Huidige implementatie werkt volledig</li>
+<li>Voldoet aan alle requirements</li>
+<li>Scores worden gegenereerd en gebruikt</li>
+<li>Geen broken gap</li>
+</ul>
+
+<p><strong>Voordelen:</strong></p>
+<ul>
+<li>Geen refactoring risico</li>
+<li>Geen regressie risico</li>
+<li>Focus op EPIC-028 cleanup blijft intact</li>
+</ul>
+
+<p><strong>Nadelen:</strong></p>
+<ul>
+<li>Geen policy-based threshold logic</li>
+<li>Geen herbruikbare score generator</li>
+</ul>
+
+<h3>5.2 Optie B: Implementeer Modulaire Architectuur</h3>
+
+<p><strong>Als je toch wilt refactoren:</strong></p>
+
+<pre><code># src/services/ontology/score_generator.py
+class OntologicalScoreGenerator:
+    """Genereer scores voor ontologische categorieën."""
+
+    async def generate_scores(
+        self,
+        begrip: str,
+        semantic_profile: dict,
+        context_map: dict
+    ) -&gt; dict[str, float]:
+        """
+        Genereer scores voor alle categorieën.
+
+        Returns:
+            {"type": 0.8, "proces": 0.3, "resultaat": 0.1, "exemplaar": 0.2}
+        """
+        scores = {}
+        scores["type"] = await self._test_type(begrip, semantic_profile, context_map)
+        scores["proces"] = await self._test_proces(begrip, semantic_profile, context_map)
+        scores["resultaat"] = await self._test_resultaat(begrip, semantic_profile, context_map)
+        scores["exemplaar"] = await self._test_exemplaar(begrip, semantic_profile, context_map)
+        return scores
+
+# src/services/ontology/level_classifier.py
+class OntologicalLevelClassifier:
+    """Policy-based classificatie op basis van scores."""
+
+    def classify_level(
+        self,
+        scores: dict[str, float],
+        text_context: str | None = None,
+        policy_name: str = "gebalanceerd"
+    ) -&gt; OntologischeCategorie:
+        """
+        Classificeer op basis van scores en policy.
+
+        Policies:
+        - "gebalanceerd": max(scores)
+        - "streng": require score &gt; 0.7
+        - "conservatief": prefer TYPE bij ambiguity
+        """
+        policy = self._get_policy(policy_name)
+        return policy.apply(scores)
+
+# src/ontologie/ontological_analyzer.py (REFACTORED)
+class OntologischeAnalyzer:
+    """6-stappen protocol - NU met geïnjecteerde services."""
+
+    def __init__(self, score_generator, level_classifier):
+        self.score_generator = score_generator
+        self.level_classifier = level_classifier
+
+    async def bepaal_ontologische_categorie(
+        self, begrip: str, org_context: str, jur_context: str
+    ) -&gt; tuple[OntologischeCategorie, dict]:
+        # Stap 1-2: Context verzameling (unchanged)
+        semantic_profile = await self._stap1_lexicale_verkenning(begrip)
+        context_map = await self._stap2_context_analyse(begrip, org_context, jur_context)
+
+        # Stap 3: DELEGEER naar score generator
+        test_scores = await self.score_generator.generate_scores(
+            begrip, semantic_profile, context_map
+        )
+
+        # DELEGEER naar level classifier
+        primaire_categorie = self.level_classifier.classify_level(
+            scores=test_scores,
+            text_context=begrip,
+            policy_name="gebalanceerd"
+        )
+
+        # Stap 4-6: Unchanged
+        # ...</code></pre>
+
+<p><strong>Voordelen:</strong></p>
+<ul>
+<li>✅ Score generator is herbruikbaar</li>
+<li>✅ Policy-based classificatie is configureerbaar</li>
+<li>✅ Betere testbaarheid (mock score generator)</li>
+<li>✅ Duidelijkere separation of concerns</li>
+</ul>
+
+<p><strong>Nadelen:</strong></p>
+<ul>
+<li>❌ Complexiteit stijgt (3 classes ipv 1)</li>
+<li>❌ Refactoring risico tijdens EPIC-028 cleanup</li>
+<li>❌ Extra DI configuratie nodig</li>
+<li>❌ Mogelijk performance overhead (extra object creations)</li>
+</ul>
+
+<h3>5.3 Optie C: Hybrid - Voeg Policy Support Toe Aan Bestaande Code</h3>
+
+<p><strong>Minimale wijziging:</strong></p>
+
+<pre><code># In OntologischeAnalyzer._stap3_formele_categorietoets()
+def _determine_category_from_scores(
+    self,
+    test_scores: dict[str, float],
+    policy: str = "gebalanceerd"
+) -&gt; str:
+    """Bepaal categorie op basis van scores en policy."""
+
+    if policy == "gebalanceerd":
+        # Huidige logica
+        return max(test_scores, key=test_scores.get)
+
+    elif policy == "streng":
+        # Require high confidence
+        max_cat = max(test_scores, key=test_scores.get)
+        if test_scores[max_cat] &lt; 0.7:
+            return "type"  # Conservative fallback
+        return max_cat
+
+    elif policy == "conservatief":
+        # Prefer TYPE bij ambiguity
+        max_score = max(test_scores.values())
+        candidates = [cat for cat, score in test_scores.items() if score &gt;= max_score - 0.1]
+        return "type" if "type" in candidates else candidates[0]
+
+    return max(test_scores, key=test_scores.get)</code></pre>
+
+<p><strong>Voordelen:</strong></p>
+<ul>
+<li>✅ Minimale code wijziging</li>
+<li>✅ Geen architecturele refactoring</li>
+<li>✅ Policy support toegevoegd</li>
+<li>✅ Backwards compatible</li>
+</ul>
+
+<p><strong>Nadelen:</strong></p>
+<ul>
+<li>❌ Score generatie blijft gekoppeld aan analyzer</li>
+<li>❌ Niet herbruikbaar buiten 6-stappen protocol</li>
+</ul>
+
+<p>---</p>
+
+<h2>6. Integratierisico's (Als Optie B Gekozen Wordt)</h2>
+
+<h3>6.1 Database Layer</h3>
+
+<p><strong>Huidige staat:</strong></p>
+<pre><code># definitie_repository.py
+definitie.ontological_category = categorie.value  # OntologischeCategorie enum</code></pre>
+
+<p><strong>Risico:</strong> GEEN - enum blijft hetzelfde</p>
+
+<h3>6.2 UI Layer</h3>
+
+<p><strong>Huidige staat:</strong></p>
+<pre><code># tabbed_interface.py
+auto_categorie, category_reasoning, category_scores = asyncio.run(
+    self._determine_ontological_category(begrip, primary_org, primary_jur)
+)</code></pre>
+
+<p><strong>Wijziging nodig:</strong></p>
+<pre><code># Nieuwe flow met modulaire services
+analyzer = OntologischeAnalyzer(score_generator, level_classifier)
+auto_categorie, category_reasoning, category_scores = asyncio.run(
+    analyzer.bepaal_ontologische_categorie(begrip, primary_org, primary_jur)
+)</code></pre>
+
+<p><strong>Risico:</strong> LAAG - interface blijft hetzelfde, alleen DI verandert</p>
+
+<h3>6.3 Prompt Module</h3>
+
+<p><strong>Huidige staat:</strong></p>
+<pre><code># SemanticCategorisationModule
+categorie = context.get_metadata("ontologische_categorie")
+context.set_shared("ontological_category", categorie)
+content = self._build_ess02_section(categorie)</code></pre>
+
+<p><strong>Risico:</strong> GEEN - categorie blijft enum value string</p>
+
+<h3>6.4 Service Container</h3>
+
+<p><strong>Huidige staat:</strong></p>
+<pre><code># container.py
+# OntologischeAnalyzer wordt direct geïnstantieerd in UI</code></pre>
+
+<p><strong>Wijziging nodig:</strong></p>
+<pre><code>def ontological_analyzer(self):
+    if "ontological_analyzer" not in self._instances:
+        score_generator = OntologicalScoreGenerator()
+        level_classifier = OntologicalLevelClassifier()
+        self._instances["ontological_analyzer"] = OntologischeAnalyzer(
+            score_generator, level_classifier
+        )
+    return self._instances["ontological_analyzer"]</code></pre>
+
+<p><strong>Risico:</strong> MEDIUM - nieuwe services toevoegen aan DI container</p>
+
+<h3>6.5 Testing</h3>
+
+<p><strong>Huidige tests:</strong></p>
+<pre><code># tests/ui/test_ui_scores.py
+await interface._determine_ontological_category(begrip, org, jur)</code></pre>
+
+<p><strong>Risico:</strong> MEDIUM - mocking wordt complexer (3 services ipv 1)</p>
+
+<p>---</p>
+
+<h2>7. Implementatieplan (Als Optie B Gekozen)</h2>
+
+<h3>7.1 Fase 1: Extract Score Generator (2 SP)</h3>
+
+<p><strong>Tasks:</strong></p>
+<ol>
+<li>Create `src/services/ontology/score_generator.py`</li>
+<li>Move test functions from `OntologischeAnalyzer` to `OntologicalScoreGenerator`</li>
+<li>Add unit tests for score generator</li>
+<li>Update `OntologischeAnalyzer` to use score generator</li>
+</ol>
+
+<p><strong>Acceptance:</strong></p>
+<ul>
+<li>[ ] All score generation logic in separate class</li>
+<li>[ ] Original functionality unchanged</li>
+<li>[ ] All tests pass</li>
+</ul>
+
+<h3>7.2 Fase 2: Create Level Classifier (2 SP)</h3>
+
+<p><strong>Tasks:</strong></p>
+<ol>
+<li>Create `src/services/ontology/level_classifier.py`</li>
+<li>Implement policy-based classification logic</li>
+<li>Add policy configurations (gebalanceerd, streng, conservatief)</li>
+<li>Add unit tests for all policies</li>
+<li>Update `OntologischeAnalyzer` to use level classifier</li>
+</ol>
+
+<p><strong>Acceptance:</strong></p>
+<ul>
+<li>[ ] Policy-based classification works</li>
+<li>[ ] All 3 policies tested</li>
+<li>[ ] Original max() logic preserved as "gebalanceerd"</li>
+</ul>
+
+<h3>7.3 Fase 3: Update Service Container (1 SP)</h3>
+
+<p><strong>Tasks:</strong></p>
+<ol>
+<li>Add score_generator() method to ServiceContainer</li>
+<li>Add level_classifier() method to ServiceContainer</li>
+<li>Update ontological_analyzer() to inject dependencies</li>
+<li>Update UI to use container for analyzer instantiation</li>
+</ol>
+
+<p><strong>Acceptance:</strong></p>
+<ul>
+<li>[ ] DI container provides all 3 services</li>
+<li>[ ] UI uses container instead of direct instantiation</li>
+<li>[ ] No broken dependencies</li>
+</ul>
+
+<h3>7.4 Fase 4: Integration Testing (2 SP)</h3>
+
+<p><strong>Tasks:</strong></p>
+<ol>
+<li>Update integration tests</li>
+<li>Test all 3 policies end-to-end</li>
+<li>Verify UI integration</li>
+<li>Verify prompt module integration</li>
+<li>Verify database storage</li>
+</ol>
+
+<p><strong>Acceptance:</strong></p>
+<ul>
+<li>[ ] All integration tests pass</li>
+<li>[ ] Manual UI testing successful</li>
+<li>[ ] No regressions</li>
+</ul>
+
+<p><strong>Total Effort:</strong> 7 story points</p>
+
+<p>---</p>
+
+<h2>8. Aanbeveling</h2>
+
+<h3>8.1 Voor EPIC-028 Cleanup Context</h3>
+
+<p><strong>AANBEVELING: Optie A - Status Quo Behouden</strong></p>
+
+<p><strong>Rationale:</strong></p>
+<ol>
+<li>EPIC-028 focust op VERWIJDEREN van complexiteit, niet TOEVOEGEN</li>
+<li>Huidige implementatie werkt volledig en voldoet aan requirements</li>
+<li>Er is GEEN "missing link" - scores worden al gegenereerd</li>
+<li>Modulaire refactoring (Optie B) is 7 SP EXTRA werk</li>
+<li>Risico op regressie tijdens cleanup fase is ONACCEPTABEL</li>
+</ol>
+
+<p><strong>Acties:</strong></p>
+<ul>
+<li>✅ GEEN wijzigingen aan ontologische categorisatie</li>
+<li>✅ Focus op US-441 t/m US-446 (feature removal)</li>
+<li>✅ Documenteer huidige implementatie (dit document)</li>
+</ul>
+
+<h3>8.2 Voor Toekomstige Epics</h3>
+
+<p><strong>OVERWEEG: Optie B of C voor latere refactoring</strong></p>
+
+<p><strong>Timing:</strong> Na EPIC-028, mogelijk in EPIC-027 of aparte tech debt epic</p>
+
+<p><strong>Voorwaarden:</strong></p>
+<ol>
+<li>EPIC-028 cleanup succesvol afgerond</li>
+<li>Alle tests groen</li>
+<li>Code coverage > 80%</li>
+<li>Team bandwidth beschikbaar</li>
+</ol>
+
+<p><strong>Business value:</strong></p>
+<ul>
+<li>Policy-based classification = meer controle voor power users</li>
+<li>Herbruikbare score generator = potentieel voor andere use cases</li>
+<li>Betere testbaarheid = snellere development velocity</li>
+</ul>
+
+<p>---</p>
+
+<h2>9. Conclusie</h2>
+
+<p><strong>ER IS GEEN IMPLEMENTATIE GAP.</strong></p>
+
+<p>De vraag is gebaseerd op een misvatting dat er een nieuwe <code>level_classifier.py</code> zou zijn. Deze bestaat niet. De huidige <code>OntologischeAnalyzer</code> implementatie:</p>
+
+<p>✅ <strong>Genereert scores</strong> in stap 3 via test functies</p>
+<p>✅ <strong>Classificeert</strong> op basis van max(scores)</p>
+<p>✅ <strong>Integreert</strong> met UI, prompt modules, en database</p>
+<p>✅ <strong>Werkt volledig</strong> zonder missing links</p>
+
+<p><strong>Voor EPIC-028:</strong> Geen actie nodig op ontologische categorisatie. Focus op feature removal (US-441 t/m US-446).</p>
+
+<p><strong>Voor toekomst:</strong> Overweeg modulaire refactoring (Optie B) als tech debt improvement, maar niet tijdens cleanup epic.</p>
+
+<p>---</p>
+
+<h2>Appendix A: Huidige Score Generatie Details</h2>
+
+<h3>Test Functies in OntologischeAnalyzer</h3>
+
+<p><strong>1. _test_type()</strong> - L426-462</p>
+<pre><code>async def _test_type(self, begrip: str, profiel: dict, context: dict) -&gt; float:
+    score = 0.0
+
+    # Lexicale indicatoren
+    type_woorden = ["type", "soort", "klasse", "categorie", ...]
+    for woord in type_woorden:
+        if woord in begrip.lower():
+            score += 0.3
+
+    # Sterke type woorden
+    sterke_type_woorden = ["toets", "test", "document", ...]
+    for woord in sterke_type_woorden:
+        if woord in begrip.lower():
+            score += 0.5
+
+    # Semantische kenmerken
+    kenmerken = profiel.get("semantische_kenmerken", {})
+    if kenmerken.get("is_abstract", False):
+        score += 0.2
+    if kenmerken.get("is_concreet", False):
+        score += 0.3
+
+    return min(score, 1.0)</code></pre>
+
+<p><strong>2. _test_proces()</strong> - L464-496</p>
+<pre><code>async def _test_proces(self, begrip: str, profiel: dict, context: dict) -&gt; float:
+    score = 0.0
+
+    # Lexicale indicatoren - proces eindingen
+    proces_eindingen = ["atie", "tie", "ing", "eren", "ering"]
+    for eind in proces_eindingen:
+        if begrip.lower().endswith(eind):
+            score += 0.4
+            break
+
+    # Proces woorden
+    proces_woorden = ["proces", "handeling", "actie", ...]
+    for woord in proces_woorden:
+        if woord in begrip.lower():
+            score += 0.3
+
+    # Semantische kenmerken
+    if kenmerken.get("gebeurt_in_tijd", False):
+        score += 0.4
+
+    return min(score, 1.0)</code></pre>
+
+<p><strong>3. _test_resultaat()</strong> - L498-514</p>
+<pre><code>async def _test_resultaat(self, begrip: str, profiel: dict, context: dict) -&gt; float:
+    score = 0.0
+
+    # Lexicale indicatoren
+    resultaat_woorden = ["resultaat", "uitkomst", "gevolg", ...]
+    if any(woord in begrip.lower() for woord in resultaat_woorden):
+        score += 0.4
+
+    # Semantische kenmerken
+    if kenmerken.get("is_uitkomst", False):
+        score += 0.4
+
+    return min(score, 1.0)</code></pre>
+
+<p><strong>4. _test_exemplaar()</strong> - L516-532</p>
+<pre><code>async def _test_exemplaar(self, begrip: str, profiel: dict, context: dict) -&gt; float:
+    score = 0.0
+
+    # Lexicale indicatoren
+    exemplaar_woorden = ["specifiek", "individueel", "concreet", "bepaald"]
+    if any(woord in begrip.lower() for woord in exemplaar_woorden):
+        score += 0.4
+
+    # Semantische kenmerken
+    if kenmerken.get("is_specifiek", False):
+        score += 0.4
+
+    return min(score, 1.0)</code></pre>
+
+<h3>Score Aggregatie</h3>
+
+<p><strong>In _stap3_formele_categorietoets():</strong></p>
+<pre><code>test_resultaten = {}
+for categorie, test_func in categorie_tests.items():
+    score = await test_func(begrip, semantisch_profiel, context_map)
+    test_resultaten[categorie] = score
+
+# Voorbeeld output:
+# {
+#     "type": 0.8,
+#     "proces": 0.3,
+#     "resultaat": 0.1,
+#     "exemplaar": 0.2
+# }
+
+# Bepaal primaire categorie
+primaire_categorie = max(test_resultaten, key=test_resultaten.get)  # → "type"</code></pre>
+
+<p>---</p>
+
+<h2>Appendix B: Bestandslocaties</h2>
+
+<p>| Component | Pad |</p>
+<p>|-----------|-----|</p>
+<p>| Ontologische Analyzer | <code>src/ontologie/ontological_analyzer.py</code> |</p>
+<p>| Categorie Enum | <code>src/domain/ontological_categories.py</code> |</p>
+<p>| UI Integration | <code>src/ui/tabbed_interface.py</code> (L231-291) |</p>
+<p>| Prompt Module | <code>src/services/prompts/modules/semantic_categorisation_module.py</code> |</p>
+<p>| Database Repository | <code>src/database/definitie_repository.py</code> |</p>
+<p>| Service Container | <code>src/services/container.py</code> |</p>
+<p>| Test File | <code>tests/ui/test_ui_scores.py</code> |</p>
+
+<p>---</p>
+
+<p><strong>Document Version:</strong> 1.0</p>
+<p><strong>Auteur:</strong> Claude Code</p>
+<p><strong>Review Status:</strong> Ready for Review</p>
+
+  </div>
+</body>
+</html>

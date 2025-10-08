@@ -78,3 +78,14 @@ web_lookup:
     section_header: "### Contextinformatie uit bronnen:"
     snippet_separator: "\n- "
     position: "after_context"  # one of: prepend, after_context, before_examples
+
+  sru:
+    circuit_breaker:
+      enabled: true
+      consecutive_empty_threshold: 2  # Stop after 2 consecutive empty results
+      # Provider-specific overrides (optional)
+      providers:
+        overheid: 2
+        rechtspraak: 3  # Legal docs might need more attempts
+        wetgeving_nl: 2
+        overheid_zoek: 2

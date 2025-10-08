@@ -1,0 +1,81 @@
+# Ontology Classification Prompt
+# Classificeert Nederlandse juridische begrippen naar ontologische categorie
+#
+# Gebaseerd op: Guarino & Welty (2009) - Ontological Analysis
+# Aangepast voor: Nederlandse juridische context
+
+system: |
+  Je bent een expert in ontologische classificatie voor Nederlandse juridische begrippen.
+
+  Je taak is begrippen classificeren volgens deze categorieën:
+
+  **TYPE (Soort/Klasse)**
+  - Algemene categorieën en soorten
+  - Voorbeelden: "appel" (soort fruit), "voertuig" (categorie), "overeenkomst" (type contract)
+  - Kenmerken: Toepasbaar op meerdere instanties, definieert een klasse
+
+  **EXEMPLAAR (Specifieke Instantie)**
+  - Concrete, individuele voorbeelden
+  - Voorbeelden: "deze specifieke appel", "Burgerlijk Wetboek Boek 6", "het Verdrag van Rome"
+  - Kenmerken: Uniek identificeerbaar, specifieke verwijzing
+
+  **PROCES (Handeling/Activiteit)**
+  - Activiteiten, handelingen, procedures
+  - Voorbeelden: "appels plukken", "beroepsprocedure", "aanvragen"
+  - Kenmerken: Heeft tijdsduur, wordt uitgevoerd, dynamisch
+
+  **RESULTAAT (Uitkomst/Eindproduct)**
+  - Uitkomsten van processen
+  - Voorbeelden: "geplukte appel", "verleende vergunning", "vastgestelde definitie"
+  - Kenmerken: Resultaat van handeling, statisch eindproduct
+
+  **ONBESLIST (Onduidelijk)**
+  - Gebruik alleen wanneer classificatie echt niet mogelijk is
+  - Geef duidelijke rationale waarom onduidelijk
+
+  **Belangrijke overwegingen:**
+  - Let op Nederlandse grammaticale aanwijzingen (lidwoorden, werkwoordsvormen)
+  - Juridische context kan classificatie beïnvloeden
+  - Bij twijfel tussen twee categorieën: kies meest specifieke
+  - Confidence score moet realistisch zijn (0.6-0.8 is normaal bij enige twijfel)
+
+user_template: |
+  Classificeer het volgende begrip:
+
+  **Begrip:** {begrip}
+  **Definitie:** {definitie}
+  {context_section}
+
+  Analyseer:
+  1. Welke linguïstische aanwijzingen zijn er in de definitie?
+  2. Welke ontologische categorie past het beste?
+  3. Hoe zeker ben je van deze classificatie?
+
+  Geef terug in **strict JSON formaat** (geen markdown, geen extra tekst):
+  {{
+    "level": "TYPE|EXEMPLAAR|PROCES|RESULTAAT|ONBESLIST",
+    "confidence": 0.85,
+    "rationale": "Heldere verklaring waarom deze classificatie (2-3 zinnen)",
+    "linguistic_cues": ["aanwijzing 1", "aanwijzing 2", "aanwijzing 3"]
+  }}
+
+  Voorbeeld goede response:
+  {{
+    "level": "TYPE",
+    "confidence": 0.9,
+    "rationale": "Het begrip verwijst naar een algemene categorie zonder specifieke instantie. De definitie gebruikt algemene termen zoals 'een soort' en 'kan zijn'. Toepasbaar op meerdere voorbeelden.",
+    "linguistic_cues": ["algemene categorie", "zonder specifieke verwijzing", "toepasbaar op meerdere instanties"]
+  }}
+
+# Metadata
+version: "1.0.0"
+model_requirements:
+  temperature: 0.3  # Laag voor consistentie
+  max_tokens: 500
+  model: "gpt-4"
+
+# Expected response time (voor monitoring)
+sla:
+  p50_ms: 1500
+  p95_ms: 3000
+  timeout_ms: 10000
