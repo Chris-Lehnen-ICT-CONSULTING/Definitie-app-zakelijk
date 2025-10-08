@@ -3,10 +3,41 @@ import re
 
 from openai import OpenAI, OpenAIError
 
+# Importeer context afkortingen mapping
+from services.definition_generator_context import CONTEXT_AFKORTINGEN
+
 # ✅ Initialiseer de OpenAI-client met de api_key uit de omgeving
 _client = OpenAI(
     api_key=(os.getenv("OPENAI_API_KEY") or os.getenv("OPENAI_API_KEY_PROD"))
 )
+
+
+def _expand_context_abbreviations(context_items: list[str]) -> str:
+    """
+    Expandeer afkortingen in context items naar volledige namen.
+
+    Args:
+        context_items: Liste van context items (mogelijk met afkortingen)
+
+    Returns:
+        String met geëxpandeerde context items, gescheiden door komma's
+
+    Voorbeeld:
+        ["ZM", "OM"] -> "ZM (Zittende Magistratuur), OM (Openbaar Ministerie)"
+    """
+    if not context_items:
+        return "geen"
+
+    expanded_items = []
+    for item in context_items:
+        # Check of het item een bekende afkorting is
+        if item in CONTEXT_AFKORTINGEN:
+            # Toon zowel afkorting als volledige naam
+            expanded_items.append(f"{item} ({CONTEXT_AFKORTINGEN[item]})")
+        else:
+            expanded_items.append(item)
+
+    return ", ".join(expanded_items)
 
 
 def genereer_voorbeeld_zinnen(
@@ -17,9 +48,9 @@ def genereer_voorbeeld_zinnen(
         "op een duidelijke manier wordt gebruikt.\n"
         "Gebruik onderstaande contexten alleen als achtergrond, maar noem ze niet letterlijk:\n\n"
         f"Definitie ter referentie: {definitie}\n"
-        f"Organisatorische context: {', '.join(context_dict.get('organisatorisch', [])) or 'geen'}\n"
-        f"Juridische context:      {', '.join(context_dict.get('juridisch', [])) or 'geen'}\n"
-        f"Wettelijke basis:        {', '.join(context_dict.get('wettelijk', [])) or 'geen'}"
+        f"Organisatorische context: {_expand_context_abbreviations(context_dict.get('organisatorisch', []))}\n"
+        f"Juridische context:      {_expand_context_abbreviations(context_dict.get('juridisch', []))}\n"
+        f"Wettelijke basis:        {_expand_context_abbreviations(context_dict.get('wettelijk', []))}"
     )
     try:
         resp = _client.chat.completions.create(
@@ -57,9 +88,9 @@ def genereer_praktijkvoorbeelden(
         "Zorg dat elk voorbeeld:\n"
         "  • Alle onderdelen uit de definitie concreet invult (dus alle variabelen).\n"
         "  • De organisatie-, juridische- en wettelijke context duidelijk bevat.\n\n"
-        f"Organisatorische context: {', '.join(context_dict.get('organisatorisch', [])) or 'geen'}\n"
-        f"Juridische context:      {', '.join(context_dict.get('juridisch', [])) or 'geen'}\n"
-        f"Wettelijke basis:        {', '.join(context_dict.get('wettelijk', [])) or 'geen'}"
+        f"Organisatorische context: {_expand_context_abbreviations(context_dict.get('organisatorisch', []))}\n"
+        f"Juridische context:      {_expand_context_abbreviations(context_dict.get('juridisch', []))}\n"
+        f"Wettelijke basis:        {_expand_context_abbreviations(context_dict.get('wettelijk', []))}"
     )
     try:
         resp = _client.chat.completions.create(
@@ -103,9 +134,9 @@ def genereer_tegenvoorbeelden(
         f"Geef {aantal} korte tegenvoorbeelden voor het begrip '{begrip}' met definitie:\n"
         f'  "{definitie.strip()}"\n'
         "Elk voorbeeld moet kort aangeven **welke** variabelen of contextregels **niet** worden gevolgd.\n\n"
-        f"Organisatorische context: {', '.join(context_dict.get('organisatorisch', [])) or 'geen'}\n"
-        f"Juridische context:      {', '.join(context_dict.get('juridisch', [])) or 'geen'}\n"
-        f"Wettelijke basis:        {', '.join(context_dict.get('wettelijk', [])) or 'geen'}"
+        f"Organisatorische context: {_expand_context_abbreviations(context_dict.get('organisatorisch', []))}\n"
+        f"Juridische context:      {_expand_context_abbreviations(context_dict.get('juridisch', []))}\n"
+        f"Wettelijke basis:        {_expand_context_abbreviations(context_dict.get('wettelijk', []))}"
     )
     try:
         resp = _client.chat.completions.create(
@@ -144,7 +175,11 @@ def genereer_synoniemen(
         f"Geef {aantal} synoniemen of naambeschrijvingen voor het begrip '{begrip}'.\n"
         f"Definitie: {definitie.strip()}\n"
         "Beperk je tot termen die in juridische/overheidscontext gangbaar zijn.\n"
-        "Geef één term per regel, zonder nummering of uitleg."
+        "Geef één term per regel, zonder nummering of uitleg.\n\n"
+        f"Context ter referentie:\n"
+        f"Organisatorische context: {_expand_context_abbreviations(context_dict.get('organisatorisch', []))}\n"
+        f"Juridische context:      {_expand_context_abbreviations(context_dict.get('juridisch', []))}\n"
+        f"Wettelijke basis:        {_expand_context_abbreviations(context_dict.get('wettelijk', []))}"
     )
     try:
         resp = _client.chat.completions.create(
@@ -172,7 +207,11 @@ def genereer_antoniemen(
     prompt = (
         f"Geef {aantal} antoniemen of contrasterende termen bij '{begrip}'.\n"
         f"Definitie: {definitie.strip()}\n"
-        "Alleen juridische/overheidsrelevante tegenhangers. Eén term per regel, geen uitleg."
+        "Alleen juridische/overheidsrelevante tegenhangers. Eén term per regel, geen uitleg.\n\n"
+        f"Context ter referentie:\n"
+        f"Organisatorische context: {_expand_context_abbreviations(context_dict.get('organisatorisch', []))}\n"
+        f"Juridische context:      {_expand_context_abbreviations(context_dict.get('juridisch', []))}\n"
+        f"Wettelijke basis:        {_expand_context_abbreviations(context_dict.get('wettelijk', []))}"
     )
     try:
         resp = _client.chat.completions.create(
@@ -196,11 +235,15 @@ def genereer_antoniemen(
 def genereer_toelichting(
     begrip: str, definitie: str, context_dict: dict[str, list[str]], max_zinnen: int = 3
 ) -> str:
-    """Genereer een korte toelichting (2–3 zinnen) bij de definitie."""
+    """Genereer een korte toelichting (2-3 zinnen) bij de definitie."""
     prompt = (
         f"Schrijf een korte toelichting (max {max_zinnen} zinnen) bij de definitie van '{begrip}'.\n"
         f"Definitie: {definitie.strip()}\n"
-        "Toelichting moet bondig zijn, geen herhaling van de definitie, en toepasbaarheid verduidelijken."
+        "Toelichting moet bondig zijn, geen herhaling van de definitie, en toepasbaarheid verduidelijken.\n\n"
+        f"Context ter referentie:\n"
+        f"Organisatorische context: {_expand_context_abbreviations(context_dict.get('organisatorisch', []))}\n"
+        f"Juridische context:      {_expand_context_abbreviations(context_dict.get('juridisch', []))}\n"
+        f"Wettelijke basis:        {_expand_context_abbreviations(context_dict.get('wettelijk', []))}"
     )
     try:
         resp = _client.chat.completions.create(
