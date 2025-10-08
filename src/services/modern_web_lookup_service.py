@@ -484,7 +484,7 @@ class ModernWebLookupService(WebLookupServiceInterface):
                     except Exception:
                         continue
 
-                # Heuristische fallbacks indien nog niets gevonden (hyphen/titlecase/suffix‑strip)
+                # Heuristische fallbacks indien nog niets gevonden (hyphen/titlecase/suffix-strip)
                 if not (result and result.success):
                     fallbacks: list[str] = []
                     if " " in t and "-" not in t:
@@ -492,10 +492,39 @@ class ModernWebLookupService(WebLookupServiceInterface):
                         fallbacks.append(t.title().replace(" ", "-"))
                     if t.lower().endswith("tekst") and len(t) > 6:
                         fallbacks.append(t[: -len("tekst")])
-                    if t.lower() == "vonnistekst":
+
+                    # UITGEBREIDE JURIDISCHE SYNONIEMEN
+                    # Map juridische termen naar hun synoniemen voor betere Wikipedia coverage
+                    t_lower = t.lower()
+                    if "vonnis" in t_lower:
+                        # "onherroepelijk vonnis" → "vonnis", "uitspraak", "arrest"
+                        base_term = (
+                            t.replace("vonnis", "").replace("Vonnis", "").strip()
+                        )
                         fallbacks.extend(
-                            ["vonnis", "uitspraak"]
-                        )  # juridische synoniemen
+                            [
+                                "vonnis",
+                                "uitspraak",
+                                "arrest",
+                                f"{base_term} uitspraak" if base_term else "",
+                                "rechterlijke uitspraak",
+                            ]
+                        )
+                    if "vonnistekst" in t_lower:
+                        fallbacks.extend(["vonnis", "uitspraak"])
+                    if "onherroepelijk" in t_lower:
+                        fallbacks.extend(
+                            [
+                                "onherroepelijk",
+                                "onherroepelijkheid",
+                                "kracht van gewijsde",
+                                "rechtskracht",
+                            ]
+                        )
+                    if "hoger beroep" in t_lower or "appel" in t_lower:
+                        fallbacks.extend(["hoger beroep", "appèl", "beroep"])
+                    if "cassatie" in t_lower:
+                        fallbacks.extend(["cassatie", "Hoge Raad"])
 
                     seen: set[str] = set()
                     for fb in fallbacks:
@@ -514,6 +543,7 @@ class ModernWebLookupService(WebLookupServiceInterface):
                                     "api_type": "mediawiki",
                                     "term": fbq,
                                     "fallback": True,
+                                    "synonym_of": t,
                                     "success": bool(fb_res and fb_res.success),
                                 }
                             )

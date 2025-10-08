@@ -252,26 +252,29 @@ class TestSRUSchemaConfiguration:
             config.record_schema == "gzd"
         ), "Overheid.nl Zoekservice moet GZD schema gebruiken (fix voor 'dc not supported' error)"
 
-    def test_wetgeving_nl_uses_oai_dc_schema(self):
-        """Test dat Wetgeving.nl OAI_DC schema gebruikt."""
+    def test_wetgeving_nl_uses_gzd_schema(self):
+        """Test dat Wetgeving.nl GZD schema gebruikt (FIX 2025-10-08)."""
         svc = SRUService()
 
         assert "wetgeving_nl" in svc.endpoints
         config = svc.endpoints["wetgeving_nl"]
 
+        # CHANGED: oai_dc → gzd (matches working Overheid.nl config)
         assert (
-            config.record_schema == "oai_dc"
-        ), "Wetgeving.nl moet OAI_DC schema gebruiken"
+            config.record_schema == "gzd"
+        ), "Wetgeving.nl moet GZD schema gebruiken (na schema fix)"
         assert config.sru_version == "2.0", "Wetgeving.nl gebruikt SRU 2.0"
 
-    def test_rechtspraak_uses_dc_schema(self):
-        """Test dat Rechtspraak.nl DC schema gebruikt."""
+    def test_rechtspraak_sru_disabled(self):
+        """Test dat Rechtspraak.nl SRU endpoint is disabled (nu REST only)."""
         svc = SRUService()
 
-        assert "rechtspraak" in svc.endpoints
-        config = svc.endpoints["rechtspraak"]
-
-        assert config.record_schema == "dc", "Rechtspraak.nl moet DC schema gebruiken"
+        # Rechtspraak is nu commented out in sru_service.py (DNS failure)
+        # Gebruik in plaats daarvan rechtspraak_rest_service.py met REST API
+        assert "rechtspraak" not in svc.endpoints, (
+            "Rechtspraak SRU moet disabled zijn (zoeken.rechtspraak.nl bestaat niet meer). "
+            "Gebruik rechtspraak_rest_service.py voor ECLI lookups."
+        )
 
 
 class TestSRUDiagnosticLogging:
