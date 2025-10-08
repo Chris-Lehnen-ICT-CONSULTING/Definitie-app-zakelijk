@@ -71,14 +71,15 @@ class SRUService:
         }
 
         # Circuit breaker configuration
+        # VERHOOGD: van 2→4 voor betere recall bij multi-word juridische termen
         self.circuit_breaker_config = circuit_breaker_config or {
             "enabled": True,
-            "consecutive_empty_threshold": 2,
+            "consecutive_empty_threshold": 4,
             "providers": {
-                "overheid": 2,
-                "rechtspraak": 3,
-                "wetgeving_nl": 2,
-                "overheid_zoek": 2,
+                "overheid": 4,
+                "rechtspraak": 5,
+                "wetgeving_nl": 4,
+                "overheid_zoek": 4,
             },
         }
 
@@ -93,25 +94,24 @@ class SRUService:
                 confidence_weight=1.0,
                 is_juridical=True,
             ),
-            "rechtspraak": SRUConfig(
-                name="Rechtspraak.nl",
-                # Primair werkend SRU‑endpoint (Search)
-                base_url="https://zoeken.rechtspraak.nl/SRU/Search",
-                default_collection="",  # Rechtspraak heeft geen collectie parameter
-                record_schema="dc",
-                confidence_weight=0.95,
-                is_juridical=True,
-                alt_base_urls=[
-                    # Alleen case‑variant als fallback; data.rechtspraak endpoint verwijderd (404‑ruis)
-                    "https://zoeken.rechtspraak.nl/sru/Search",
-                ],
-            ),
+            # DEPRECATED: Rechtspraak.nl SRU endpoint bestaat niet meer (DNS failure)
+            # Gebruik in plaats daarvan rechtspraak_rest_service.py met data.rechtspraak.nl REST API
+            # "rechtspraak": SRUConfig(
+            #     name="Rechtspraak.nl",
+            #     base_url="https://zoeken.rechtspraak.nl/SRU/Search",  # ← DNS FAILS
+            #     default_collection="",
+            #     record_schema="dc",
+            #     confidence_weight=0.95,
+            #     is_juridical=True,
+            #     alt_base_urls=[],
+            # ),
             # Basiswettenbestand (BWB) via Zoekservice SRU (x-connection=BWB)
+            # SCHEMA FIX (2025-10-08): Changed oai_dc → gzd (matches Overheid.nl working config)
             "wetgeving_nl": SRUConfig(
                 name="Wetgeving.nl",
                 base_url="https://zoekservice.overheid.nl/sru/Search",
                 default_collection="",
-                record_schema="oai_dc",
+                record_schema="gzd",  # FIX: Was oai_dc, changed to gzd per consensus analysis
                 sru_version="2.0",
                 confidence_weight=0.9,
                 is_juridical=True,
@@ -210,35 +210,8 @@ class SRUService:
             # Helper om 1 query (string) tegen alle endpoints te proberen
             parked_503 = False
 
-            # Rechtspraak.nl: snelle DNS preflight om network issues vroeg te detecteren
-            try:
-                if endpoint == "rechtspraak":
-                    from urllib.parse import urlparse as _urlparse
-
-                    host = _urlparse(config.base_url).hostname or ""
-                    if host:
-                        loop = asyncio.get_running_loop()
-                        # Prefer IPv4 if SRU_FORCE_IPV4 is set
-                        fam = (
-                            socket.AF_INET
-                            if (self.family or 0) == socket.AF_INET
-                            else socket.AF_UNSPEC
-                        )
-                        await loop.getaddrinfo(host, 443, family=fam)
-            except Exception as ex:
-                # Record a single preflight failure and skip provider gracefully
-                self._attempts.append(
-                    {
-                        "endpoint": config.name,
-                        "url": None,
-                        "query": None,
-                        "strategy": "dns_preflight",
-                        "status": None,
-                        "error": f"dns_preflight_failed: {ex}",
-                    }
-                )
-                logger.warning("SRU DNS preflight failed for %s: %s", config.name, ex)
-                return []
+            # DNS preflight check verwijderd - rechtspraak SRU endpoint is deprecated
+            # (zoeken.rechtspraak.nl bestaat niet meer, gebruik REST API via rechtspraak_rest_service.py)
 
             async def _try_query(query_str: str, strategy: str) -> list[LookupResult]:
                 from urllib.parse import quote_plus, urlencode
@@ -552,6 +525,36 @@ class SRUService:
                 prefix = base[:6]
                 wc_query = f'cql.serverChoice any "{prefix}*"'
                 results = await _try_query(wc_query, strategy="prefix_wildcard")
+                if results:
+                    return results
+                if parked_503 and config.name == "Wetgeving.nl":
+                    return []
+
+            empty_result_count += 1
+            if cb_enabled and empty_result_count >= cb_threshold:
+                logger.info(
+                    f"Circuit breaker triggered for {config.name}: "
+                    f"{empty_result_count} consecutive empty results after {query_count} queries",
+                    extra={
+                        "provider": endpoint,
+                        "empty_count": empty_result_count,
+                        "query_count": query_count,
+                        "circuit_breaker_threshold": cb_threshold,
+                    },
+                )
+                return []
+
+            # Query 6: Partial word match (OR tussen woorden) - NIEUWE STRATEGIE
+            # Voor multi-word termen: "onherroepelijk vonnis" → "onherroepelijk" OR "vonnis"
+            # Dit verhoogt recall voor moeilijk vindbare juridische termen
+            query_count += 1
+            words = [w.strip() for w in base.split() if len(w.strip()) >= 4]
+            if len(words) >= 2:
+                # Escape quotes in woorden
+                escaped_words = [w.replace('"', '\\"') for w in words]
+                word_queries = [f'cql.serverChoice any "{w}"' for w in escaped_words]
+                or_query = " OR ".join(word_queries)
+                results = await _try_query(or_query, strategy="partial_words")
                 if results:
                     return results
                 if parked_503 and config.name == "Wetgeving.nl":
