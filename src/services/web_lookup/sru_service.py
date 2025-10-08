@@ -79,7 +79,7 @@ class SRUService:
                 "rechtspraak": 3,
                 "wetgeving_nl": 2,
                 "overheid_zoek": 2,
-            }
+            },
         }
 
     def _setup_endpoints(self) -> dict[str, SRUConfig]:
@@ -89,7 +89,7 @@ class SRUService:
                 name="Overheid.nl",
                 base_url="https://repository.overheid.nl/sru",
                 default_collection="rijksoverheid",
-                record_schema="dc",
+                record_schema="gzd",  # FIX: Government Zoek Dublin Core (dc niet ondersteund)
                 confidence_weight=1.0,
                 is_juridical=True,
             ),
@@ -138,26 +138,25 @@ class SRUService:
         # DNS-resolver hardening: enable DNS cache and threaded resolver; optional IPv4 preference via env
         try:
             from aiohttp import resolver as _resolver  # type: ignore
+
             _threaded = getattr(_resolver, "ThreadedResolver", None)
         except Exception:
             _threaded = None
 
-        family = 0
+        self.family = 0
         try:
             if str(os.getenv("SRU_FORCE_IPV4", "")).lower() in {"1", "true", "yes"}:
-                family = socket.AF_INET
+                self.family = socket.AF_INET
         except Exception:
-            family = 0
+            self.family = 0
 
         connector = aiohttp.TCPConnector(
             ttl_dns_cache=300,
             resolver=_threaded() if _threaded else None,
-            family=family or 0,
+            family=self.family or 0,
         )
         # SRU-servers verwachten XML responses
-        self.headers.setdefault(
-            "Accept", "application/xml, text/xml;q=0.9, */*;q=0.8"
-        )
+        self.headers.setdefault("Accept", "application/xml, text/xml;q=0.9, */*;q=0.8")
         self.session = aiohttp.ClientSession(
             headers=self.headers,
             timeout=aiohttp.ClientTimeout(total=30),
@@ -220,7 +219,11 @@ class SRUService:
                     if host:
                         loop = asyncio.get_running_loop()
                         # Prefer IPv4 if SRU_FORCE_IPV4 is set
-                        fam = socket.AF_INET if (family or 0) == socket.AF_INET else socket.AF_UNSPEC
+                        fam = (
+                            socket.AF_INET
+                            if (self.family or 0) == socket.AF_INET
+                            else socket.AF_UNSPEC
+                        )
                         await loop.getaddrinfo(host, 443, family=fam)
             except Exception as ex:
                 # Record a single preflight failure and skip provider gracefully
@@ -239,6 +242,7 @@ class SRUService:
 
             async def _try_query(query_str: str, strategy: str) -> list[LookupResult]:
                 from urllib.parse import quote_plus, urlencode
+
                 nonlocal parked_503
 
                 # Primary URL
@@ -266,11 +270,14 @@ class SRUService:
 
                 last_status: int | None = None
                 last_text: str | None = None
+
                 # Parse subset van SRU diagnostics voor betere logging
                 def _extract_diag(xml_text: str) -> dict:
                     try:
                         r = ET.fromstring(xml_text)
-                        ns = {"srw": "http://docs.oasis-open.org/ns/search-ws/sruResponse"}
+                        ns = {
+                            "srw": "http://docs.oasis-open.org/ns/search-ws/sruResponse"
+                        }
                         d = r.find(".//srw:diagnostics", ns)
                         if d is None:
                             return {}
@@ -280,6 +287,7 @@ class SRUService:
                             break
                         if first is None:
                             return {}
+
                         # Probeer message/details/uri te lezen (namespaces tolerant)
                         def _txt(tag: str) -> str | None:
                             el = first.find(f"srw:{tag}", ns)
@@ -308,7 +316,7 @@ class SRUService:
                     urls: list[str] = [
                         f"{config.base_url}?{urlencode(params, quote_via=quote_plus)}"
                     ]
-                    for alt in (config.alt_base_urls or []):
+                    for alt in config.alt_base_urls or []:
                         try:
                             urls.append(
                                 f"{alt}?{urlencode(params, quote_via=quote_plus)}"
@@ -344,7 +352,26 @@ class SRUService:
                                             txt = await response.text()
                                             last_text = txt[:200]
                                             attempt_rec["body_preview"] = last_text
-                                            attempt_rec.update(_extract_diag(txt))
+
+                                            # Extract and log diagnostics
+                                            diag = _extract_diag(txt)
+                                            if diag:
+                                                logger.warning(
+                                                    f"SRU diagnostic from {config.name}: {diag.get('diag_message', 'Unknown error')}",
+                                                    extra={
+                                                        "diagnostic_uri": diag.get(
+                                                            "diag_uri"
+                                                        ),
+                                                        "diagnostic_details": diag.get(
+                                                            "diag_details"
+                                                        ),
+                                                        "endpoint": config.name,
+                                                        "query": query_str,
+                                                        "status": response.status,
+                                                        "recordSchema": schema,
+                                                    },
+                                                )
+                                                attempt_rec.update(diag)
                                         except Exception:
                                             last_text = None
                                         self._attempts.append(attempt_rec)
@@ -360,12 +387,9 @@ class SRUService:
                                             parked_503 = True
                                             return []
                                         # Bij 406 en SRU 2.0: probeer volgende schema
-                                        if (
-                                            response.status == 406
-                                            and (config.sru_version or "").startswith(
-                                                "2"
-                                            )
-                                        ):
+                                        if response.status == 406 and (
+                                            config.sru_version or ""
+                                        ).startswith("2"):
                                             break  # switch schema
                                     break  # geen retry nodig bij HTTP-status
                             except Exception as ex:
@@ -394,7 +418,9 @@ class SRUService:
 
             # ECLI quick path voor Rechtspraak (sneller en preciezer)
             try:
-                if endpoint == "rechtspraak" and re.search(r"ECLI:[A-Z0-9:]+", term or ""):
+                if endpoint == "rechtspraak" and re.search(
+                    r"ECLI:[A-Z0-9:]+", term or ""
+                ):
                     ecli_escaped = term.replace('"', '\\"')
                     ecli_query = f'cql.serverChoice any "{ecli_escaped}"'
                     results = await _try_query(ecli_query, strategy="ecli")
@@ -407,7 +433,9 @@ class SRUService:
 
             # Circuit breaker configuration
             cb_enabled = self.circuit_breaker_config.get("enabled", True)
-            cb_threshold = self.circuit_breaker_config.get("consecutive_empty_threshold", 2)
+            cb_threshold = self.circuit_breaker_config.get(
+                "consecutive_empty_threshold", 2
+            )
 
             # Provider-specific threshold override
             provider_thresholds = self.circuit_breaker_config.get("providers", {})
@@ -420,7 +448,9 @@ class SRUService:
 
             # Query 1: onze standaard DC-velden (exact/contains per server-choice)
             query_count += 1
-            base_query = self._build_cql_query(term, collection or config.default_collection)
+            base_query = self._build_cql_query(
+                term, collection or config.default_collection
+            )
             results = await _try_query(base_query, strategy="dc")
             if results:
                 return results
@@ -435,7 +465,7 @@ class SRUService:
                         "empty_count": empty_result_count,
                         "query_count": query_count,
                         "circuit_breaker_threshold": cb_threshold,
-                    }
+                    },
                 )
                 return []
 
@@ -459,7 +489,7 @@ class SRUService:
                         "empty_count": empty_result_count,
                         "query_count": query_count,
                         "circuit_breaker_threshold": cb_threshold,
-                    }
+                    },
                 )
                 return []
 
@@ -467,7 +497,8 @@ class SRUService:
             query_count += 1
             if " " in term and "-" not in term:
                 hyphen = term.replace(" ", "-")
-                hy_query = f'cql.serverChoice all "{hyphen.replace("\"", "\\\"")}"'
+                escaped_hyphen = hyphen.replace('"', '\\"')
+                hy_query = f'cql.serverChoice all "{escaped_hyphen}"'
                 results = await _try_query(hy_query, strategy="hyphen")
             else:
                 results = []
@@ -486,7 +517,7 @@ class SRUService:
                         "empty_count": empty_result_count,
                         "query_count": query_count,
                         "circuit_breaker_threshold": cb_threshold,
-                    }
+                    },
                 )
                 return []
 
@@ -509,14 +540,14 @@ class SRUService:
                         "empty_count": empty_result_count,
                         "query_count": query_count,
                         "circuit_breaker_threshold": cb_threshold,
-                    }
+                    },
                 )
                 return []
 
             # Query 5: prefix wildcard (ruimer, laatste redmiddel)
             # Gebruik een conservatieve prefix (eerste 6 letters) om ruis te beperken
             query_count += 1
-            base = term.strip().replace("\"", "").replace("'", "")
+            base = term.strip().replace('"', "").replace("'", "")
             if len(base) >= 6:
                 prefix = base[:6]
                 wc_query = f'cql.serverChoice any "{prefix}*"'
@@ -534,7 +565,7 @@ class SRUService:
                     "empty_count": empty_result_count + 1,
                     "query_count": query_count,
                     "all_queries_exhausted": True,
-                }
+                },
             )
             return []
 
@@ -595,7 +626,11 @@ class SRUService:
             t = (text or "").lower()
             variants: list[str] = []
             # Voluit namen en gebruikelijke afkortingen
-            if ("wetboek van strafvordering" in t) or (" sv" in f" {t}") or ("strafvordering" in t):
+            if (
+                ("wetboek van strafvordering" in t)
+                or (" sv" in f" {t}")
+                or ("strafvordering" in t)
+            ):
                 variants.extend(["Wetboek van Strafvordering", "Sv"])
             if ("wetboek van strafrecht" in t) or (" sr" in f" {t}"):
                 variants.extend(["Wetboek van Strafrecht", "Sr"])
@@ -645,9 +680,11 @@ class SRUService:
         # Als we wet‑context hebben, bouw een AND/OR query met serverChoice any
         if wet_variants:
             term_block = f'cql.serverChoice any "{_escape(base_term)}"'
-            wet_block_parts = [f'cql.serverChoice any "{_escape(w)}"' for w in wet_variants]
+            wet_block_parts = [
+                f'cql.serverChoice any "{_escape(w)}"' for w in wet_variants
+            ]
             wet_block = " OR ".join(wet_block_parts)
-            query = f'({term_block}) AND ({wet_block})'
+            query = f"({term_block}) AND ({wet_block})"
             # Voeg collectie filter toe indien aanwezig (alleen voor overheid.nl verzameling)
             if collection:
                 query = f'{query} AND overheidnl.collection="{_escape(collection)}"'
@@ -655,12 +692,69 @@ class SRUService:
 
         # Geen herkende wet‑context ⇒ val terug op eerdere DC‑velden‑query (behaviour‑preserving)
         escaped_term = _escape(term)
-        base_query = (
-            f'(dc.title="{escaped_term}" OR dc.subject="{escaped_term}" OR dc.description="{escaped_term}")'
-        )
+        base_query = f'(dc.title="{escaped_term}" OR dc.subject="{escaped_term}" OR dc.description="{escaped_term}")'
         if collection:
-            base_query = f'{base_query} AND overheidnl.collection="{_escape(collection)}"'
+            base_query = (
+                f'{base_query} AND overheidnl.collection="{_escape(collection)}"'
+            )
         return base_query
+
+    def _extract_diag_from_response(self, xml_text: str) -> dict:
+        """Extract SRU diagnostics uit XML response.
+
+        Helper method voor het extraheren van SRU diagnostic messages.
+        Ondersteunt beide SRU 1.2 en 2.0 namespaces.
+        """
+        try:
+            r = ET.fromstring(xml_text)
+            # Probeer beide namespace varianten (SRU 1.2 en 2.0)
+            namespace_variants = [
+                {
+                    "srw": "http://docs.oasis-open.org/ns/search-ws/sruResponse"
+                },  # SRU 2.0
+                {"srw": "http://www.loc.gov/zing/srw/"},  # SRU 1.2
+            ]
+
+            d = None
+            for ns in namespace_variants:
+                d = r.find(".//srw:diagnostics", ns)
+                if d is not None:
+                    break
+
+            if d is None:
+                return {}
+
+            first = None
+            for n in d:
+                first = n
+                break
+            if first is None:
+                return {}
+
+            # Probeer message/details/uri te lezen (namespaces tolerant)
+            def _txt(tag: str) -> str | None:
+                # Probeer met namespace
+                for ns in namespace_variants:
+                    el = first.find(f"srw:{tag}", ns)
+                    if el is not None and el.text:
+                        return el.text.strip()
+
+                # Fallback: zonder namespace
+                for e in first:
+                    t = e.tag
+                    if "}" in t:
+                        t = t.split("}", 1)[1]
+                    if t.lower() == tag and e.text:
+                        return e.text.strip()
+                return None
+
+            return {
+                "diag_uri": _txt("uri"),
+                "diag_message": _txt("message"),
+                "diag_details": _txt("details"),
+            }
+        except Exception:
+            return {}
 
     # === Legal metadata extraction ===
     _ART_RE = re.compile(r"(?i)\b(?:artikel|art\.)\s+(\d+[a-z]?)\b")
@@ -712,13 +806,25 @@ class SRUService:
         law_code: str | None = None
         law_title: str | None = None
 
-        if ("wetboek van strafvordering" in low) or (" sv" in f" {low}") or ("strafvordering" in low):
+        if (
+            ("wetboek van strafvordering" in low)
+            or (" sv" in f" {low}")
+            or ("strafvordering" in low)
+        ):
             law_code = "Sv"
             law_title = "Wetboek van Strafvordering"
-        elif ("wetboek van strafrecht" in low) or (" sr" in f" {low}") or ("strafrecht" in low):
+        elif (
+            ("wetboek van strafrecht" in low)
+            or (" sr" in f" {low}")
+            or ("strafrecht" in low)
+        ):
             law_code = "Sr"
             law_title = "Wetboek van Strafrecht"
-        elif ("algemene wet bestuursrecht" in low) or (" awb" in f" {low}") or ("awb" in low):
+        elif (
+            ("algemene wet bestuursrecht" in low)
+            or (" awb" in f" {low}")
+            or ("awb" in low)
+        ):
             law_code = "Awb"
             law_title = "Algemene wet bestuursrecht"
         elif ("burgerlijke rechtsvordering" in low) or (" rv" in f" {low}"):
@@ -745,17 +851,63 @@ class SRUService:
         try:
             root = ET.fromstring(xml_content)
 
-            # SRU namespace handling (tolerant: probeer bekende namespaces en fallback op local-name)
-            namespaces = {
-                "srw": "http://www.loc.gov/zing/srw/",
-                "dc": "http://purl.org/dc/elements/1.1/",
-                "dcterms": "http://purl.org/dc/terms/",
-                # 'gzd' schema voor Overheid.nl Zoekservice - URI varieert; we gebruiken desnoods local-name fallback
-                "gzd": "http://overheid.nl/gzd",
-            }
+            # SRU namespace variants (support voor SRU 1.2 en 2.0)
+            namespace_variants = [
+                {
+                    "srw": "http://www.loc.gov/zing/srw/",  # SRU 1.2
+                    "dc": "http://purl.org/dc/elements/1.1/",
+                    "dcterms": "http://purl.org/dc/terms/",
+                    "gzd": "http://overheid.nl/gzd",
+                },
+                {
+                    "srw": "http://docs.oasis-open.org/ns/search-ws/sruResponse",  # SRU 2.0
+                    "dc": "http://purl.org/dc/elements/1.1/",
+                    "dcterms": "http://purl.org/dc/terms/",
+                    "gzd": "http://overheid.nl/gzd",
+                },
+            ]
 
-            # Find records
-            records = root.findall(".//srw:record", namespaces)
+            # Probeer beide namespaces (SRU 1.2 en 2.0 auto-detect)
+            records = []
+            namespaces = None
+            for ns_variant in namespace_variants:
+                records = root.findall(".//srw:record", ns_variant)
+                if records:
+                    namespaces = ns_variant
+                    logger.debug(
+                        f"Found {len(records)} records using namespace: {ns_variant['srw']}"
+                    )
+                    break
+
+            if not records:
+                logger.warning(
+                    f"No records found in SRU response from {config.name}",
+                    extra={
+                        "xml_length": len(xml_content),
+                        "xml_preview": (
+                            xml_content[:500] if len(xml_content) > 500 else xml_content
+                        ),
+                        "endpoint": config.name,
+                        "term": term,
+                    },
+                )
+
+                # Check for diagnostics in XML
+                diag = self._extract_diag_from_response(xml_content)
+                if diag:
+                    logger.error(
+                        f"SRU diagnostic found: {diag.get('diag_message', 'Unknown')}",
+                        extra={
+                            "endpoint": config.name,
+                            "term": term,
+                            "diagnostic_uri": diag.get("diag_uri"),
+                            "diagnostic_message": diag.get("diag_message"),
+                            "diagnostic_details": diag.get("diag_details"),
+                        },
+                    )
+
+                return []
+
             results = []
 
             for record in records:

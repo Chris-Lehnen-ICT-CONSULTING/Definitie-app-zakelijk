@@ -7,7 +7,6 @@ om te identificeren waarom bepaalde SRU endpoints geen resultaten opleveren.
 """
 
 import xml.etree.ElementTree as ET
-from typing import Dict, List
 
 # Verschillende SRU response formats die we kunnen tegenkomen
 SRU_12_RESPONSE = """<?xml version="1.0" encoding="UTF-8"?>
@@ -84,7 +83,7 @@ ERROR_RESPONSE = """<?xml version="1.0" encoding="UTF-8"?>
 </srw:searchRetrieveResponse>"""
 
 
-def test_current_parsing_logic(xml_content: str, test_name: str) -> Dict:
+def test_current_parsing_logic(xml_content: str, test_name: str) -> dict:
     """
     Test de huidige parsing logica zoals geïmplementeerd in sru_service.py.
 
@@ -105,7 +104,7 @@ def test_current_parsing_logic(xml_content: str, test_name: str) -> Dict:
         "records_found": 0,
         "issues": [],
         "namespaces_detected": {},
-        "record_data": []
+        "record_data": [],
     }
 
     try:
@@ -114,14 +113,14 @@ def test_current_parsing_logic(xml_content: str, test_name: str) -> Dict:
         # Detecteer namespaces in de XML
         # Element.tag format: {namespace}localname
         for elem in root.iter():
-            if '}' in elem.tag:
-                ns, local = elem.tag.split('}')
+            if "}" in elem.tag:
+                ns, local = elem.tag.split("}")
                 ns = ns[1:]  # Remove leading {
                 if ns not in result["namespaces_detected"]:
                     result["namespaces_detected"][ns] = []
                 result["namespaces_detected"][ns].append(local)
 
-        print(f"\nNamespaces gedetecteerd:")
+        print("\nNamespaces gedetecteerd:")
         for ns, tags in result["namespaces_detected"].items():
             print(f"  {ns}: {set(tags)}")
 
@@ -133,19 +132,19 @@ def test_current_parsing_logic(xml_content: str, test_name: str) -> Dict:
             "gzd": "http://overheid.nl/gzd",
         }
 
-        print(f"\nNamespaces in code:")
+        print("\nNamespaces in code:")
         for prefix, uri in namespaces.items():
             print(f"  {prefix}: {uri}")
 
         # Test of we records kunnen vinden
-        print(f"\nZoeken naar records...")
+        print("\nZoeken naar records...")
         records = root.findall(".//srw:record", namespaces)
         result["records_found"] = len(records)
         print(f"  Gevonden met namespace prefix: {len(records)} records")
 
         # Alternatieve zoektechniek zonder namespace (fallback)
         all_records = root.findall(".//*")
-        record_tags = [elem for elem in all_records if elem.tag.endswith('record')]
+        record_tags = [elem for elem in all_records if elem.tag.endswith("record")]
         print(f"  Gevonden zonder namespace (fallback): {len(record_tags)} records")
 
         # Probeer ook met verschillende SRU 2.0 namespace
@@ -154,7 +153,9 @@ def test_current_parsing_logic(xml_content: str, test_name: str) -> Dict:
         print(f"  Gevonden met SRU 2.0 namespace: {len(records_20)} records")
 
         # Parse elk record
-        for i, record in enumerate(records if records else (records_20 if records_20 else record_tags)):
+        for i, record in enumerate(
+            records if records else (records_20 if records_20 else record_tags)
+        ):
             print(f"\n  Record {i+1}:")
 
             # Test huidige _find_text_local logica
@@ -165,7 +166,7 @@ def test_current_parsing_logic(xml_content: str, test_name: str) -> Dict:
                         el = element.find(f".//{ns}:{local}", namespaces)
                         if el is not None and el.text:
                             return el.text.strip()
-                    except Exception as e:
+                    except Exception:
                         continue
 
                 # 2) Fallback: loop alle subelements en match op lokale tagnaam
@@ -189,14 +190,18 @@ def test_current_parsing_logic(xml_content: str, test_name: str) -> Dict:
             print(f"    identifier: {identifier or '(NIET GEVONDEN)'}")
 
             if title or description:
-                result["record_data"].append({
-                    "title": title,
-                    "description": description,
-                    "identifier": identifier
-                })
+                result["record_data"].append(
+                    {
+                        "title": title,
+                        "description": description,
+                        "identifier": identifier,
+                    }
+                )
 
         if result["records_found"] == 0 and len(record_tags) > 0:
-            result["issues"].append("Records gevonden zonder namespace, maar niet met namespace prefix")
+            result["issues"].append(
+                "Records gevonden zonder namespace, maar niet met namespace prefix"
+            )
 
         if result["records_found"] > 0:
             result["parsed_successfully"] = True
@@ -214,14 +219,14 @@ def test_current_parsing_logic(xml_content: str, test_name: str) -> Dict:
         # Probeer verschillende namespace varianten
         for diag_ns in [
             {"srw": "http://www.loc.gov/zing/srw/"},
-            {"srw": "http://docs.oasis-open.org/ns/search-ws/sruResponse"}
+            {"srw": "http://docs.oasis-open.org/ns/search-ws/sruResponse"},
         ]:
             diagnostics = root.find(".//srw:diagnostics", diag_ns)
             if diagnostics is not None:
-                print(f"\n⚠️  SRU DIAGNOSTICS gevonden:")
+                print("\n⚠️  SRU DIAGNOSTICS gevonden:")
                 for child in diagnostics:
                     for elem in child:
-                        tag = elem.tag.split('}')[1] if '}' in elem.tag else elem.tag
+                        tag = elem.tag.split("}")[1] if "}" in elem.tag else elem.tag
                         if elem.text:
                             print(f"    {tag}: {elem.text}")
                 result["issues"].append("SRU diagnostics aanwezig")
@@ -245,7 +250,7 @@ def test_current_parsing_logic(xml_content: str, test_name: str) -> Dict:
 def main():
     """Run parsing tests voor verschillende SRU response formats."""
     print("SRU XML PARSING DEBUG TOOL")
-    print("="*60)
+    print("=" * 60)
 
     tests = [
         (SRU_12_RESPONSE, "SRU 1.2 Response (Dublin Core)"),
@@ -261,9 +266,9 @@ def main():
         results.append(result)
 
     # Final summary
-    print("\n\n" + "="*60)
+    print("\n\n" + "=" * 60)
     print("SAMENVATTING VAN ALLE TESTS")
-    print("="*60)
+    print("=" * 60)
 
     for result in results:
         status = "✓ OK" if result["parsed_successfully"] else "❌ FAIL"
@@ -275,11 +280,12 @@ def main():
                 print(f"    ⚠️  {issue}")
 
     # Aanbevelingen
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("AANBEVELINGEN VOOR VERBETERING")
-    print("="*60)
+    print("=" * 60)
 
-    print("""
+    print(
+        """
 1. NAMESPACE MISMATCH PROBLEEM:
    - SRU 1.2 gebruikt: http://www.loc.gov/zing/srw/
    - SRU 2.0 gebruikt: http://docs.oasis-open.org/ns/search-ws/sruResponse
@@ -304,7 +310,8 @@ def main():
    - Deze worden nu geparst maar niet gelogd in main flow
 
    OPLOSSING: Log diagnostics op WARNING level voor betere debugging
-""")
+"""
+    )
 
 
 if __name__ == "__main__":
