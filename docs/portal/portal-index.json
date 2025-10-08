@@ -249,6 +249,68 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Juridische Synoniemen & Query Optimization",
+      "path": "../technisch/web_lookup_synoniemen.md",
+      "url": "../technisch/web_lookup_synoniemen.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/technisch/web_lookup_synoniemen.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Implementation Summary: Juridische Synoniemen & Query Optimization",
+      "path": "../technisch/IMPLEMENTATION_SUMMARY_SYNONIEMEN.md",
+      "url": "../technisch/IMPLEMENTATION_SUMMARY_SYNONIEMEN.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/technisch/IMPLEMENTATION_SUMMARY_SYNONIEMEN.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "VOLLEDIG PYTHON BESTANDEN OVERZICHT - DefinitieAgent",
       "path": "../technisch/python-bestanden-overzicht.md",
       "url": "../technisch/python-bestanden-overzicht.md",
@@ -4893,6 +4955,37 @@
     {
       "id": null,
       "type": "TEST",
+      "title": "Test Summary: Web Lookup Improvements",
+      "path": "../testing/web-lookup-improvements-test-summary.md",
+      "url": "../testing/web-lookup-improvements-test-summary.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/testing/web-lookup-improvements-test-summary.html"
+    },
+    {
+      "id": null,
+      "type": "TEST",
       "title": "Final Architecture Consolidation Validation Report",
       "path": "../testing/FINAL_CONSOLIDATION_VALIDATION.md",
       "url": "../testing/FINAL_CONSOLIDATION_VALIDATION.md",
@@ -5291,6 +5384,37 @@
         "req": []
       },
       "rendered_url": "rendered/testing/LEGACY_TEST_MAPPING.html"
+    },
+    {
+      "id": null,
+      "type": "TEST",
+      "title": "Web Lookup Tests - Quick Reference Guide",
+      "path": "../testing/web-lookup-test-quick-reference.md",
+      "url": "../testing/web-lookup-test-quick-reference.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/testing/web-lookup-test-quick-reference.html"
     },
     {
       "id": null,
@@ -7846,6 +7970,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Rechtspraak.nl Scraping - Executive Summary",
+      "path": "../reports/rechtspraak-scraping-executive-summary.md",
+      "url": "../reports/rechtspraak-scraping-executive-summary.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/reports/rechtspraak-scraping-executive-summary.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "PromptOrchestrator Singleton Implementation - Completion Checklist",
       "path": "../reports/prompt-orchestrator-singleton-checklist.md",
       "url": "../reports/prompt-orchestrator-singleton-checklist.md",
@@ -7904,6 +8059,37 @@
         "req": []
       },
       "rendered_url": "rendered/reports/toetsregels-loading-diagram.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Wikipedia/Overheid.nl Improvements - FINAL IMPLEMENTATION REPORT",
+      "path": "../reports/wikipedia-improvements-final-report.md",
+      "url": "../reports/wikipedia-improvements-final-report.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/reports/wikipedia-improvements-final-report.html"
     },
     {
       "id": null,
@@ -8390,6 +8576,39 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Rechtspraak.nl Begrippen Scraping - Technische Haalbaarheidsanalyse",
+      "path": "../reports/rechtspraak-scraping-feasibility-analysis.md",
+      "url": "../reports/rechtspraak-scraping-feasibility-analysis.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-014"
+        ],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/reports/rechtspraak-scraping-feasibility-analysis.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "PromptOrchestrator Duplication Analysis",
       "path": "../reports/prompt-orchestrator-duplication-analysis.md",
       "url": "../reports/prompt-orchestrator-duplication-analysis.md",
@@ -8646,6 +8865,68 @@
         "req": []
       },
       "rendered_url": "rendered/reports/cache-monitoring-implementation-report.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "CONSENSUS ADVIES: Rechtspraak.nl Juridische Begrippen Integratie",
+      "path": "../reports/rechtspraak-scraping-consensus-advies.md",
+      "url": "../reports/rechtspraak-scraping-consensus-advies.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/reports/rechtspraak-scraping-consensus-advies.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Rechtspraak.nl Integration - Approach Comparison Matrix",
+      "path": "../reports/rechtspraak-approach-comparison.md",
+      "url": "../reports/rechtspraak-approach-comparison.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/reports/rechtspraak-approach-comparison.html"
     },
     {
       "id": null,
@@ -39914,17 +40195,17 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 602,
+      "DOC": 609,
       "ARCH": 36,
       "COMP": 5,
-      "TEST": 33,
+      "TEST": 35,
       "GUIDE": 14,
       "EPIC": 25,
       "REQ": 110,
       "US": 276,
       "BUG": 18
     },
-    "generated_at": "2025-10-08T18:12:42Z"
+    "generated_at": "2025-10-08T21:35:20Z"
   },
   "sources": [
     "docs"

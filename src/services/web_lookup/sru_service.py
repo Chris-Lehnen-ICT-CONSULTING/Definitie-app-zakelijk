@@ -60,7 +60,9 @@ class SRUService:
     - zoekoperatie.overheid.nl (zoekservice)
     """
 
-    def __init__(self, circuit_breaker_config: dict | None = None):
+    def __init__(
+        self, circuit_breaker_config: dict | None = None, enable_synonyms: bool = True
+    ):
         self.session: aiohttp.ClientSession | None = None
         self.endpoints = self._setup_endpoints()
         self._attempts: list[dict] = []
@@ -82,6 +84,19 @@ class SRUService:
                 "overheid_zoek": 4,
             },
         }
+
+        # Synoniemen service voor juridische begrippen (optioneel)
+        self.enable_synonyms = enable_synonyms
+        self._synonym_service = None
+        if enable_synonyms:
+            try:
+                from .synonym_service import get_synonym_service
+
+                self._synonym_service = get_synonym_service()
+                logger.info("SRU synoniemen expansion ingeschakeld")
+            except Exception as e:
+                logger.warning(f"Kon synoniemen service niet laden voor SRU: {e}")
+                self._synonym_service = None
 
     def _setup_endpoints(self) -> dict[str, SRUConfig]:
         """Configureer alle SRU endpoints."""
@@ -418,6 +433,45 @@ class SRUService:
             # Circuit breaker state
             empty_result_count = 0
             query_count = 0
+
+            # Query 0: JURIDISCHE SYNONIEMEN EXPANSION (NIEUWE STRATEGIE)
+            # Probeer juridische synoniemen EERST voor hogere precision bij juridische begrippen
+            if self._synonym_service and self._synonym_service.has_synoniemen(term):
+                query_count += 1
+                logger.info(f"Query 0: Juridische synoniemen expansion voor '{term}'")
+
+                # Expand term met max 3 synoniemen
+                expanded_terms = self._synonym_service.expand_query_terms(
+                    term, max_synonyms=3
+                )
+
+                # Bouw OR-query met alle termen (origineel + synoniemen)
+                escaped_terms = [t.replace('"', '\\"') for t in expanded_terms]
+                syn_queries = [f'cql.serverChoice any "{t}"' for t in escaped_terms]
+                syn_query = " OR ".join(syn_queries)
+
+                logger.debug(f"Synoniemen query: {syn_query[:200]}...")
+                results = await _try_query(syn_query, strategy="juridisch_synonym")
+
+                if results:
+                    logger.info(
+                        f"Synoniemen query SUCCESS: {len(results)} resultaten voor '{term}'"
+                    )
+                    return results
+
+                empty_result_count += 1
+                if cb_enabled and empty_result_count >= cb_threshold:
+                    logger.info(
+                        f"Circuit breaker triggered for {config.name}: "
+                        f"{empty_result_count} consecutive empty results after {query_count} queries",
+                        extra={
+                            "provider": endpoint,
+                            "empty_count": empty_result_count,
+                            "query_count": query_count,
+                            "circuit_breaker_threshold": cb_threshold,
+                        },
+                    )
+                    return []
 
             # Query 1: onze standaard DC-velden (exact/contains per server-choice)
             query_count += 1
