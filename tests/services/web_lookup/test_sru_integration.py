@@ -93,7 +93,7 @@ class TestSRUCircuitBreakerIntegration:
 
         async with service:
             # Search rechtspraak
-            results = await service.search(
+            await service.search(
                 term="xyzabc123nonexistent999", endpoint="rechtspraak", max_records=3
             )
 
@@ -108,3 +108,58 @@ class TestSRUCircuitBreakerIntegration:
             assert (
                 len(strategies) <= 4
             ), "Rechtspraak threshold=3 allows max 4 strategies"
+
+    @pytest.mark.asyncio()
+    async def test_sru_20_namespace_compatibility(self):
+        """
+        Integration test: Verify SRU 2.0 namespace wordt correct ondersteund.
+
+        Dit test de fix voor SRU 2.0 responses die niet geparsed werden door
+        namespace mismatch (http://docs.oasis-open.org/ns/search-ws/sruResponse).
+        """
+        from src.services.web_lookup.sru_service import SRUService
+
+        service = SRUService()
+
+        # Verify wetgeving_nl endpoint is configured for SRU 2.0
+        config = service.get_endpoint_config("wetgeving_nl")
+        assert config is not None, "wetgeving_nl endpoint moet geconfigureerd zijn"
+        assert config.sru_version == "2.0", "wetgeving_nl moet SRU 2.0 gebruiken"
+        assert (
+            config.record_schema == "oai_dc"
+        ), "wetgeving_nl moet oai_dc schema gebruiken"
+
+        print("\nSRU 2.0 namespace compatibility test:")
+        print(f"  Endpoint: {config.name}")
+        print(f"  SRU Version: {config.sru_version}")
+        print(f"  Record Schema: {config.record_schema}")
+
+    def test_schema_configuration_per_endpoint(self):
+        """
+        Test dat verschillende endpoints correcte schema's gebruiken.
+
+        Dit test de fix voor schema configuratie:
+        - overheid: gzd (fix voor 'dc not supported')
+        - overheid_zoek: gzd
+        - wetgeving_nl: oai_dc (SRU 2.0)
+        - rechtspraak: dc
+        """
+        from src.services.web_lookup.sru_service import SRUService
+
+        service = SRUService()
+
+        # Test alle endpoint configuraties
+        test_cases = [
+            ("overheid", "gzd", "Overheid.nl repository moet GZD gebruiken"),
+            ("overheid_zoek", "gzd", "Overheid.nl Zoekservice moet GZD gebruiken"),
+            ("wetgeving_nl", "oai_dc", "Wetgeving.nl moet OAI_DC gebruiken (SRU 2.0)"),
+            ("rechtspraak", "dc", "Rechtspraak.nl moet DC gebruiken"),
+        ]
+
+        print("\nSchema configuration per endpoint:")
+        for endpoint, expected_schema, description in test_cases:
+            config = service.get_endpoint_config(endpoint)
+            assert config is not None, f"{endpoint} moet geconfigureerd zijn"
+            actual_schema = config.record_schema
+            print(f"  {endpoint}: {actual_schema} (expected: {expected_schema})")
+            assert actual_schema == expected_schema, description
