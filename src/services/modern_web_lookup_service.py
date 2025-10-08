@@ -300,6 +300,30 @@ class ModernWebLookupService(WebLookupServiceInterface):
                     f"Context filtering applied: {len(ranked)} results scored with context relevance"
                 )
 
+            # JURIDISCHE RANKING BOOST (NIEUWE FEATURE)
+            # Boost juridische content met keywords, artikel-referenties, etc.
+            try:
+                from .web_lookup.juridisch_ranker import boost_juridische_resultaten
+
+                # Extract context tokens voor juridische ranking
+                context_tokens = None
+                if request.context:
+                    org, jur, wet = self._classify_context_tokens(request.context)
+                    # Combineer juridische en wettelijke tokens
+                    context_tokens = jur + wet
+
+                # Boost valid_results (LookupResult objecten) VOOR conversie naar ranked dicts
+                valid_results = boost_juridische_resultaten(
+                    valid_results, context=context_tokens
+                )
+                logger.info(
+                    f"Juridische ranking boost applied to {len(valid_results)} results"
+                )
+
+            except Exception as e:
+                logger.warning(f"Juridische ranking boost gefaald: {e}")
+                # Continue zonder boost
+
             # Reorder/filter original results according to ranked unique set
             final_results: list[LookupResult] = []
             # Index by canonical URL or content hash

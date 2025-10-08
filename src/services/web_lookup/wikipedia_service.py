@@ -20,8 +20,6 @@ except ImportError:
 
 from datetime import UTC, datetime
 
-UTC = UTC  # Python 3.10 compatibility
-
 from ..interfaces import LookupResult, WebSource
 
 logger = logging.getLogger(__name__)
@@ -35,7 +33,7 @@ class WikipediaService:
     als proof of concept voor het vervangen van legacy scrapers.
     """
 
-    def __init__(self, language: str = "nl"):
+    def __init__(self, language: str = "nl", enable_synonyms: bool = True):
         self.language = language
         self.base_url = f"https://{language}.wikipedia.org"
         self.api_url = f"{self.base_url}/w/api.php"
@@ -46,6 +44,19 @@ class WikipediaService:
         self.headers = {
             "User-Agent": "DefinitieApp/1.0 (https://github.com/definitie-app; support@definitie-app.nl)"
         }
+
+        # Synoniemen service voor fallback (optioneel)
+        self.enable_synonyms = enable_synonyms
+        self._synonym_service = None
+        if enable_synonyms:
+            try:
+                from .synonym_service import get_synonym_service
+
+                self._synonym_service = get_synonym_service()
+                logger.info("Wikipedia synoniemen fallback ingeschakeld")
+            except Exception as e:
+                logger.warning(f"Kon synoniemen service niet laden: {e}")
+                self._synonym_service = None
 
     async def __aenter__(self):
         """Async context manager entry."""
@@ -92,8 +103,29 @@ class WikipediaService:
             # Zoek naar pagina met beste match (kwaliteit > generieke hits)
             page_info = await self._search_page(term)
 
+            # SYNONYM FALLBACK: Als primaire search faalt, probeer synoniemen
+            if not page_info and self._synonym_service:
+                logger.info(
+                    f"Primaire Wikipedia search gefaald, probeer synoniemen voor: {term}"
+                )
+                synoniemen = self._synonym_service.expand_query_terms(
+                    term, max_synonyms=3
+                )
+
+                # Probeer elk synoniem (skip originele term, die hebben we al geprobeerd)
+                for synonym in synoniemen[1:]:
+                    logger.debug(f"Wikipedia synonym fallback: probeer '{synonym}'")
+                    page_info = await self._search_page(synonym)
+                    if page_info:
+                        logger.info(
+                            f"Wikipedia match gevonden via synoniem: '{synonym}' voor '{term}'"
+                        )
+                        break
+
             if not page_info:
-                logger.info(f"Geen Wikipedia pagina gevonden voor: {term}")
+                logger.info(
+                    f"Geen Wikipedia pagina gevonden voor: {term} (inclusief synoniemen)"
+                )
                 return None
 
             # Haal pagina details op

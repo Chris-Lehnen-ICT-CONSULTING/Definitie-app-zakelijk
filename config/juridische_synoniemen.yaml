@@ -1,0 +1,325 @@
+# Juridische Synoniemen Database voor Verbeterde Term Matching
+# ================================================================
+#
+# Dit bestand bevat juridische begrippen en hun synoniemen voor verbeterde
+# Wikipedia en Overheid.nl lookup. Synoniemen worden bidirectioneel gematcht:
+# zoeken naar "onherroepelijk" vindt ook "kracht van gewijsde" en vice versa.
+#
+# Format:
+#   hoofdterm:
+#     - synoniem1
+#     - synoniem2
+#
+# Categorieën:
+# - Strafrecht (Sr, Sv)
+# - Bestuursrecht (Awb)
+# - Burgerlijk recht (BW, Rv)
+# - Procesrecht
+# - Algemene juridische begrippen
+
+# === STRAFRECHT (Sv/Sr) ===
+
+onherroepelijk:
+  - kracht van gewijsde
+  - rechtskracht
+  - in kracht van gewijsde
+  - definitieve uitspraak
+  - finale uitspraak
+  - onherroepelijke veroordeling
+
+voorlopige_hechtenis:
+  - voorarrest
+  - bewaring
+  - inverzekeringstelling
+  - preventieve detentie
+  - voorlopige vrijheidsbeneming
+  - gevangenhouding
+
+verdachte:
+  - beklaagde
+  - beschuldigde
+  - aangeklaagde
+  - gedetineerde (in context)
+  - verdacht persoon
+
+dagvaarding:
+  - oproeping
+  - gerechtelijke oproeping
+  - procesinleiding
+  - dagvaardingsexploot
+
+aanhouding:
+  - arrestatie
+  - vrijheidsberoving
+  - staandehouding
+  - inverzekeringstelling (in context)
+
+schorsing:
+  - opschorting
+  - tijdelijke opschorting
+  - voorwaardelijke opschorting
+
+schuldig:
+  - schuldigverklaring
+  - veroordeling
+  - strafrechtelijke aansprakelijkheid
+  - strafrechtelijke verantwoordelijkheid
+
+strafbaar_feit:
+  - delict
+  - misdrijf
+  - overtreding
+  - strafbaar handelen
+  - criminele gedraging
+
+# === PROCESRECHT ===
+
+hoger_beroep:
+  - appel
+  - appelprocedure
+  - beroepsinstantie
+  - hogere voorziening
+
+cassatie:
+  - hogere voorziening
+  - cassatieberoep
+  - vernietiging
+  - cassatieprocedure
+
+vonnis:
+  - uitspraak
+  - rechterlijke beslissing
+  - gerechtelijke uitspraak
+  - arrest (hoger beroep)
+
+getuige:
+  - getuigenis
+  - getuigenbewijs
+  - testimonium
+  - verklaring onder ede
+
+bewijs:
+  - bewijsvoering
+  - bewijsmiddel
+  - bewijsmateriaal
+  - bewijsstuk
+
+procesdossier:
+  - processtukken
+  - gerechtelijk dossier
+  - rechtbankdossier
+
+# === BESTUURSRECHT (Awb) ===
+
+beschikking:
+  - besluit
+  - bestuursrechtelijk besluit
+  - overheidsbesluit
+  - ambtelijke beschikking
+
+bezwaar:
+  - bezwaarschrift
+  - bezwaarprocedure
+  - administratief beroep
+  - primair rechtsmiddel
+
+beroep:
+  - beroepsprocedure
+  - bestuursrechtelijke procedure
+  - rechterlijk beroep
+
+belanghebbende:
+  - derde-belanghebbende
+  - rechtstreeks belanghebbende
+  - procespartij
+  - benadeelde
+
+horen:
+  - hoorzitting
+  - gehoor
+  - recht op horen
+  - auditu et altera parte
+
+# === BURGERLIJK RECHT (BW/Rv) ===
+
+overeenkomst:
+  - contract
+  - verbintenis
+  - contractuele afspraak
+  - zakelijke overeenkomst
+
+wanprestatie:
+  - contractbreuk
+  - tekortkoming
+  - niet-nakoming
+  - schending overeenkomst
+
+schadevergoeding:
+  - smartengeld
+  - compensatie
+  - materiële schade
+  - immateriële schade
+  - vergoeding
+
+onrechtmatige_daad:
+  - tort
+  - onrechtmatig handelen
+  - civielrechtelijke aansprakelijkheid
+
+eigendom:
+  - bezit
+  - eigendomsrecht
+  - zakelijk recht
+  - vermogensrecht
+
+wilsbekwaamheid:
+  - handelingsbekwaamheid
+  - rechtsbevoegdheid
+  - meerderjarigheid
+
+# === JURIDISCHE PROCEDURES ===
+
+rechter:
+  - magistraat
+  - rechterlijke macht
+  - zittingsrechter
+  - kantonrechter
+  - voorzieningenrechter
+
+advocaat:
+  - raadsman
+  - juridisch vertegenwoordiger
+  - rechtsbijstand
+  - procureur (België)
+
+openbaar_ministerie:
+  - OM
+  - officier van justitie
+  - parket
+  - vervolgingsinstantie
+
+rechtbank:
+  - gerecht
+  - gerechtshof
+  - justitieel orgaan
+
+# === STRAFFEN & MAATREGELEN ===
+
+gevangenisstraf:
+  - vrijheidsstraf
+  - onvoorwaardelijke gevangenisstraf
+  - detentie
+  - opsluiting
+
+taakstraf:
+  - werkstraf
+  - dienstverlening
+  - alternatieve straf
+
+voorwaardelijke_straf:
+  - voorwaardelijk opleggen
+  - straf met proeftijd
+  - voorwaarden gestelde straf
+
+geldboete:
+  - boete
+  - geldelijke straf
+  - pecuniaire sanctie
+
+# === JEUGDRECHT ===
+
+jeugddetentie:
+  - PIJ-maatregel
+  - jeugdgevangenis
+  - jeugdinrichting
+  - juveniele detentie
+
+kinderrechter:
+  - jeugdrechter
+  - kinderrechterlijke macht
+
+# === ALGEMENE JURIDISCHE BEGRIPPEN ===
+
+rechtspersoon:
+  - juridische persoon
+  - rechtspersoonlijkheid
+  - vennootschap
+  - stichting (in context)
+
+verjaring:
+  - verjaringstermijn
+  - bevrijdende verjaring
+  - verjaringsgrond
+
+redelijkheid:
+  - redelijkheid en billijkheid
+  - goede trouw
+  - deugdelijkheid
+
+opzet:
+  - intentie
+  - moedwilligheid
+  - opzettelijk handelen
+  - dolus
+
+schuld:
+  - culpa
+  - nalatigheid
+  - verwijtbaarheid
+
+rechtsmiddel:
+  - remedie
+  - beroepsmogelijkheid
+  - rechtsherstel
+
+uitvoerbaar_bij_voorraad:
+  - provisioneel
+  - voorlopige uitvoerbaarheid
+  - onmiddellijke tenuitvoerlegging
+
+# === SPECIFIEKE WETTELIJKE BEGRIPPEN ===
+
+# Strafrecht specifiek
+recidive:
+  - herhaling
+  - wederom strafbaar feit
+  - terugval
+
+medeplegen:
+  - medeplichtigheid
+  - deelneming
+  - medeplichtige
+
+# Bestuursrecht specifiek
+mandaat:
+  - volmacht
+  - delegatie
+  - bevoegdheidsoverdracht
+
+deugdelijke_motivering:
+  - motiveringsplicht
+  - zorgvuldigheidsbeginsel
+  - behoorlijk bestuur
+
+# Procesrecht specifiek
+comparitie:
+  - comparitie van partijen
+  - voorlopige zitting
+  - verschijning
+
+wraking:
+  - wrakingsverzoek
+  - rechter-wraking
+  - onpartijdigheid
+
+# === EUROPEES RECHT ===
+
+richtlijn:
+  - EU-richtlijn
+  - Europese richtlijn
+  - implementatieverplichting
+
+verordening:
+  - EU-verordening
+  - Europese verordening
+  - rechtstreekse werking
