@@ -129,10 +129,30 @@ class RechtspraakRESTService:
 
 
 async def rechtspraak_lookup(term: str) -> LookupResult | None:
-    """ECLI-gedreven lookup; retourneert None als geen ECLI in term."""
+    """
+    ECLI-gedreven lookup; retourneert None als geen ECLI in term.
+
+    BELANGRIJK: Rechtspraak.nl REST API heeft GEEN full-text search.
+    Deze functie werkt ALLEEN voor expliciete ECLI's (bijv. "ECLI:NL:HR:2023:1234").
+
+    Voor algemene juridische begrippen (bijv. "onherroepelijk vonnis") retourneert
+    deze functie None, omdat de API dan random recente uitspraken zou geven
+    die NIET relevant zijn voor definitiegeneratie.
+
+    Use case: User vraagt specifieke uitspraak op basis van ECLI.
+    NOT for: Algemene begripsuitleg (gebruik Wikipedia/Overheid.nl hiervoor).
+    """
     m = ECLI_RE.search(term or "")
     if not m:
+        # Geen ECLI gevonden - skip Rechtspraak (geen nuttige results zonder full-text search)
+        logger.debug(
+            f"Rechtspraak lookup skipped voor '{term}': geen ECLI gedetecteerd. "
+            "API ondersteunt geen full-text search."
+        )
         return None
+
+    # ECLI gevonden - haal specifieke uitspraak op
     ecli = m.group(0).upper()
+    logger.info(f"Rechtspraak ECLI lookup: {ecli}")
     async with RechtspraakRESTService() as svc:
         return await svc.fetch_by_ecli(ecli)
