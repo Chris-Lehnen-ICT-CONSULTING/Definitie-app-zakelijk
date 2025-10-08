@@ -56,7 +56,7 @@ class TestSRUCircuitBreakerIntegration:
 
             # Get query attempts
             attempts = service.get_attempts()
-            strategies = set(a.get("strategy") for a in attempts if a.get("strategy"))
+            strategies = {a.get("strategy") for a in attempts if a.get("strategy")}
             print(f"  Strategies attempted: {strategies}")
             print(f"  Total attempts: {len(attempts)}")
 
@@ -98,7 +98,7 @@ class TestSRUCircuitBreakerIntegration:
             )
 
             attempts = service.get_attempts()
-            strategies = set(a.get("strategy") for a in attempts if a.get("strategy"))
+            strategies = {a.get("strategy") for a in attempts if a.get("strategy")}
 
             print("\nRechtspraak threshold test:")
             print(f"  Strategies attempted: {strategies}")
@@ -125,9 +125,10 @@ class TestSRUCircuitBreakerIntegration:
         config = service.get_endpoint_config("wetgeving_nl")
         assert config is not None, "wetgeving_nl endpoint moet geconfigureerd zijn"
         assert config.sru_version == "2.0", "wetgeving_nl moet SRU 2.0 gebruiken"
+        # UPDATED 2025-10-08: schema changed oai_dc → gzd (matches Overheid.nl working config)
         assert (
-            config.record_schema == "oai_dc"
-        ), "wetgeving_nl moet oai_dc schema gebruiken"
+            config.record_schema == "gzd"
+        ), "wetgeving_nl moet gzd schema gebruiken (na schema fix)"
 
         print("\nSRU 2.0 namespace compatibility test:")
         print(f"  Endpoint: {config.name}")
@@ -152,13 +153,21 @@ class TestSRUCircuitBreakerIntegration:
         test_cases = [
             ("overheid", "gzd", "Overheid.nl repository moet GZD gebruiken"),
             ("overheid_zoek", "gzd", "Overheid.nl Zoekservice moet GZD gebruiken"),
-            ("wetgeving_nl", "oai_dc", "Wetgeving.nl moet OAI_DC gebruiken (SRU 2.0)"),
-            ("rechtspraak", "dc", "Rechtspraak.nl moet DC gebruiken"),
+            # UPDATED 2025-10-08: wetgeving schema changed oai_dc → gzd
+            ("wetgeving_nl", "gzd", "Wetgeving.nl moet GZD gebruiken (schema fix)"),
+            # REMOVED: rechtspraak (SRU disabled, now REST only)
         ]
 
         print("\nSchema configuration per endpoint:")
         for endpoint, expected_schema, description in test_cases:
             config = service.get_endpoint_config(endpoint)
+            if endpoint == "rechtspraak":
+                # Rechtspraak SRU is disabled (commented out)
+                assert (
+                    config is None
+                ), "Rechtspraak SRU moet disabled zijn (REST only now)"
+                print(f"  {endpoint}: DISABLED (use rechtspraak_rest_service.py)")
+                continue
             assert config is not None, f"{endpoint} moet geconfigureerd zijn"
             actual_schema = config.record_schema
             print(f"  {endpoint}: {actual_schema} (expected: {expected_schema})")

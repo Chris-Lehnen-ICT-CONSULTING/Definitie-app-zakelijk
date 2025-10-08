@@ -47,11 +47,13 @@ async def test_sru_wetgeving():
                 if results:
                     logger.info(f"✅ SUCCESS: {len(results)} results gevonden")
                     for i, result in enumerate(results, 1):
-                        logger.info(f"  {i}. {result.source.name}: {result.definition[:100]}...")
+                        logger.info(
+                            f"  {i}. {result.source.name}: {result.definition[:100]}..."
+                        )
                         logger.info(f"     URL: {result.source.url}")
                         logger.info(f"     Confidence: {result.source.confidence:.2f}")
                 else:
-                    logger.warning(f"❌ FAIL: Geen resultaten gevonden")
+                    logger.warning("❌ FAIL: Geen resultaten gevonden")
 
                 # Log query attempts
                 attempts = sru.get_attempts()
@@ -81,14 +83,18 @@ async def test_sru_overheid():
         for term in test_terms:
             logger.info(f"\n--- Testing term: '{term}' ---")
             try:
-                results = await sru.search(term=term, endpoint="overheid", max_records=3)
+                results = await sru.search(
+                    term=term, endpoint="overheid", max_records=3
+                )
 
                 if results:
                     logger.info(f"✅ SUCCESS: {len(results)} results gevonden")
                     for i, result in enumerate(results, 1):
-                        logger.info(f"  {i}. {result.source.name}: {result.definition[:100]}...")
+                        logger.info(
+                            f"  {i}. {result.source.name}: {result.definition[:100]}..."
+                        )
                 else:
-                    logger.warning(f"❌ FAIL: Geen resultaten gevonden")
+                    logger.warning("❌ FAIL: Geen resultaten gevonden")
 
             except Exception as e:
                 logger.error(f"❌ ERROR: {e}", exc_info=True)
@@ -111,10 +117,10 @@ async def test_rechtspraak_rest():
     try:
         result = await rechtspraak_lookup(ecli_term)
         if result:
-            logger.info(f"✅ SUCCESS: ECLI lookup werkt")
+            logger.info("✅ SUCCESS: ECLI lookup werkt")
             logger.info(f"   Definition: {result.definition[:100]}...")
         else:
-            logger.info(f"⚠️  ECLI niet gevonden (mogelijk ongeldig test ECLI)")
+            logger.info("⚠️  ECLI niet gevonden (mogelijk ongeldig test ECLI)")
     except Exception as e:
         logger.error(f"❌ ERROR: {e}", exc_info=True)
 
@@ -176,12 +182,12 @@ async def test_modern_web_lookup_integrated():
                         logger.info(f"     {i}. {r.definition[:80]}...")
                         logger.info(f"        Confidence: {r.source.confidence:.2f}")
             else:
-                logger.warning(f"❌ FAIL: Geen resultaten")
+                logger.warning("❌ FAIL: Geen resultaten")
 
             # Debug info
             debug = service._last_debug
             if debug:
-                logger.info(f"\nDebug info:")
+                logger.info("\nDebug info:")
                 logger.info(f"  Selected sources: {debug.get('selected_sources', [])}")
                 logger.info(f"  Total attempts: {len(debug.get('attempts', []))}")
 
