@@ -235,5 +235,85 @@ def reset_all():
         sys.exit(1)
 
 
+@performance.command()
+@click.argument("old_name")
+@click.argument("new_name")
+def rename_metric(old_name: str, new_name: str):
+    """Rename een performance metric (voor migrations).
+
+    Dit hernoemt de metric in BOTH metrics en baselines tables.
+
+    \b
+    Example:
+        python -m src.cli.performance_cli rename-metric app_startup_ms streamlit_rerun_ms
+    """
+    tracker = get_tracker()
+
+    click.echo(f"Renaming metric '{old_name}' -> '{new_name}'...")
+
+    success = tracker.rename_metric(old_name, new_name)
+
+    if success:
+        click.echo("✅ Metric succesvol hernoemd.")
+
+        # Toon nieuwe baseline
+        baseline = tracker.get_baseline(new_name)
+        if baseline:
+            click.echo(
+                f"\nNieuwe baseline: {new_name} = {baseline.baseline_value:.1f} "
+                f"(confidence={baseline.confidence:.0%}, n={baseline.sample_count})"
+            )
+    else:
+        click.echo("❌ Fout bij renaming metric.", err=True)
+        sys.exit(1)
+
+
+@performance.command()
+def migrate_startup_metric():
+    """Migrate oude 'app_startup_ms' metric naar nieuwe 'streamlit_rerun_ms'.
+
+    Deze command is safe om meerdere keren te runnen - het checkt eerst of migratie nodig is.
+
+    Context:
+        De oude app_startup_ms metric mat cumulative tijd door een module-level timer.
+        De nieuwe streamlit_rerun_ms metric meet correcte per-rerun tijd.
+    """
+    tracker = get_tracker()
+
+    # Check of oude metric bestaat
+    old_baseline = tracker.get_baseline("app_startup_ms")
+
+    if not old_baseline:
+        click.echo("✅ Geen oude 'app_startup_ms' data gevonden - migratie niet nodig.")
+        return
+
+    click.echo(
+        f"Gevonden oude metric 'app_startup_ms': "
+        f"baseline={old_baseline.baseline_value:.1f}ms, "
+        f"samples={old_baseline.sample_count}"
+    )
+
+    # BELANGRIJK: We VERWIJDEREN oude data in plaats van renamen
+    # Reden: Oude data is incorrect (cumulative tijd), niet bruikbaar voor nieuwe metric
+    if click.confirm(
+        "\nOude data is INCORRECT (cumulative tijd).\n"
+        "Wil je oude data VERWIJDEREN en opnieuw beginnen met schone baseline?",
+        default=True,
+    ):
+        success = tracker.delete_metric("app_startup_ms")
+
+        if success:
+            click.echo("✅ Oude incorrecte data verwijderd.")
+            click.echo(
+                "\nNieuwe 'streamlit_rerun_ms' baseline wordt automatisch opgebouwd "
+                "na enkele app runs."
+            )
+        else:
+            click.echo("❌ Fout bij verwijderen oude data.", err=True)
+            sys.exit(1)
+    else:
+        click.echo("Migratie geannuleerd.")
+
+
 if __name__ == "__main__":
     performance()

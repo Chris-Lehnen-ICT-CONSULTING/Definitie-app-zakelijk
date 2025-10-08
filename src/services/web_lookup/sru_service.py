@@ -60,7 +60,7 @@ class SRUService:
     - zoekoperatie.overheid.nl (zoekservice)
     """
 
-    def __init__(self):
+    def __init__(self, circuit_breaker_config: dict | None = None):
         self.session: aiohttp.ClientSession | None = None
         self.endpoints = self._setup_endpoints()
         self._attempts: list[dict] = []
@@ -68,6 +68,18 @@ class SRUService:
         # User agent voor SRU requests
         self.headers = {
             "User-Agent": "DefinitieApp-SRU/1.0 (https://github.com/definitie-app; support@definitie-app.nl)"
+        }
+
+        # Circuit breaker configuration
+        self.circuit_breaker_config = circuit_breaker_config or {
+            "enabled": True,
+            "consecutive_empty_threshold": 2,
+            "providers": {
+                "overheid": 2,
+                "rechtspraak": 3,
+                "wetgeving_nl": 2,
+                "overheid_zoek": 2,
+            }
         }
 
     def _setup_endpoints(self) -> dict[str, SRUConfig]:
@@ -393,13 +405,42 @@ class SRUService:
 
             # BWB titel-index alleen gebruiken indien expliciet ondersteund (niet zonder explain)
 
+            # Circuit breaker configuration
+            cb_enabled = self.circuit_breaker_config.get("enabled", True)
+            cb_threshold = self.circuit_breaker_config.get("consecutive_empty_threshold", 2)
+
+            # Provider-specific threshold override
+            provider_thresholds = self.circuit_breaker_config.get("providers", {})
+            if endpoint in provider_thresholds:
+                cb_threshold = provider_thresholds[endpoint]
+
+            # Circuit breaker state
+            empty_result_count = 0
+            query_count = 0
+
             # Query 1: onze standaard DC-velden (exact/contains per server-choice)
+            query_count += 1
             base_query = self._build_cql_query(term, collection or config.default_collection)
             results = await _try_query(base_query, strategy="dc")
             if results:
                 return results
 
+            empty_result_count += 1
+            if cb_enabled and empty_result_count >= cb_threshold:
+                logger.info(
+                    f"Circuit breaker triggered for {config.name}: "
+                    f"{empty_result_count} consecutive empty results after {query_count} queries",
+                    extra={
+                        "provider": endpoint,
+                        "empty_count": empty_result_count,
+                        "query_count": query_count,
+                        "circuit_breaker_threshold": cb_threshold,
+                    }
+                )
+                return []
+
             # Query 2: serverChoice (breder) — verhoogt trefkans bij Rechtspraak
+            query_count += 1
             escaped = term.replace('"', '\\"')
             sc_query = f'cql.serverChoice all "{escaped}"'
             results = await _try_query(sc_query, strategy="serverChoice")
@@ -408,17 +449,49 @@ class SRUService:
             if parked_503 and config.name == "Wetgeving.nl":
                 return []
 
+            empty_result_count += 1
+            if cb_enabled and empty_result_count >= cb_threshold:
+                logger.info(
+                    f"Circuit breaker triggered for {config.name}: "
+                    f"{empty_result_count} consecutive empty results after {query_count} queries",
+                    extra={
+                        "provider": endpoint,
+                        "empty_count": empty_result_count,
+                        "query_count": query_count,
+                        "circuit_breaker_threshold": cb_threshold,
+                    }
+                )
+                return []
+
             # Query 3: hyphen-variant bij samengestelde termen
+            query_count += 1
             if " " in term and "-" not in term:
                 hyphen = term.replace(" ", "-")
                 hy_query = f'cql.serverChoice all "{hyphen.replace("\"", "\\\"")}"'
                 results = await _try_query(hy_query, strategy="hyphen")
+            else:
+                results = []
             if results:
                 return results
             if parked_503 and config.name == "Wetgeving.nl":
                 return []
 
+            empty_result_count += 1
+            if cb_enabled and empty_result_count >= cb_threshold:
+                logger.info(
+                    f"Circuit breaker triggered for {config.name}: "
+                    f"{empty_result_count} consecutive empty results after {query_count} queries",
+                    extra={
+                        "provider": endpoint,
+                        "empty_count": empty_result_count,
+                        "query_count": query_count,
+                        "circuit_breaker_threshold": cb_threshold,
+                    }
+                )
+                return []
+
             # Query 4: serverChoice any (OR i.p.v. AND)
+            query_count += 1
             any_query = f'cql.serverChoice any "{escaped}"'
             results = await _try_query(any_query, strategy="serverChoice_any")
             if results:
@@ -426,8 +499,23 @@ class SRUService:
             if parked_503 and config.name == "Wetgeving.nl":
                 return []
 
+            empty_result_count += 1
+            if cb_enabled and empty_result_count >= cb_threshold:
+                logger.info(
+                    f"Circuit breaker triggered for {config.name}: "
+                    f"{empty_result_count} consecutive empty results after {query_count} queries",
+                    extra={
+                        "provider": endpoint,
+                        "empty_count": empty_result_count,
+                        "query_count": query_count,
+                        "circuit_breaker_threshold": cb_threshold,
+                    }
+                )
+                return []
+
             # Query 5: prefix wildcard (ruimer, laatste redmiddel)
             # Gebruik een conservatieve prefix (eerste 6 letters) om ruis te beperken
+            query_count += 1
             base = term.strip().replace("\"", "").replace("'", "")
             if len(base) >= 6:
                 prefix = base[:6]
@@ -438,7 +526,16 @@ class SRUService:
                 if parked_503 and config.name == "Wetgeving.nl":
                     return []
 
-            # Geen resultaten
+            # Geen resultaten - log final state
+            logger.info(
+                f"SRU search completed with no results for {config.name}",
+                extra={
+                    "provider": endpoint,
+                    "empty_count": empty_result_count + 1,
+                    "query_count": query_count,
+                    "all_queries_exhausted": True,
+                }
+            )
             return []
 
         except Exception as e:
@@ -859,6 +956,19 @@ class SRUService:
     def get_endpoint_config(self, endpoint: str) -> SRUConfig | None:
         """Geef configuratie voor een specifiek endpoint."""
         return self.endpoints.get(endpoint)
+
+    def get_circuit_breaker_threshold(self, endpoint: str) -> int:
+        """Get circuit breaker threshold for a specific endpoint."""
+        if not self.circuit_breaker_config.get("enabled", True):
+            return 999  # Effectively disabled
+
+        # Provider-specific threshold override
+        provider_thresholds = self.circuit_breaker_config.get("providers", {})
+        if endpoint in provider_thresholds:
+            return provider_thresholds[endpoint]
+
+        # Default threshold
+        return self.circuit_breaker_config.get("consecutive_empty_threshold", 2)
 
 
 # Standalone functies voor gebruik in bestaande code

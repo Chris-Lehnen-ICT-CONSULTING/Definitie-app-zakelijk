@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Level Classifier Integration - Executive Summary</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>Level Classifier Integration - Executive Summary</h1>
+
+<p><strong>Datum:</strong> 2025-10-07</p>
+<p><strong>Auteur:</strong> Claude Code</p>
+<p><strong>Review:</strong> Ready</p>
+
+<p>---</p>
+
+<h2>TL;DR</h2>
+
+<p><strong>ER IS GEEN IMPLEMENTATIE GAP.</strong></p>
+
+<p>De "nieuwe <code>level_classifier.py</code>" bestaat NIET. De vraag is gebaseerd op een misvatting.</p>
+
+<p>---</p>
+
+<h2>Huidige Staat: VOLLEDIG FUNCTIONEEL ✅</h2>
+
+<pre><code>Input: begrip + org_context + jur_context
+  ↓
+OntologischeAnalyzer (6-stappen protocol)
+  ├─ Stap 1: Web lookup → semantisch profiel
+  ├─ Stap 2: Juridische lookup → context map
+  ├─ Stap 3: Score generatie + classificatie
+  │   ├─ _test_type(begrip, profiel, context) → 0.8
+  │   ├─ _test_proces(begrip, profiel, context) → 0.3
+  │   ├─ _test_resultaat(begrip, profiel, context) → 0.1
+  │   └─ _test_exemplaar(begrip, profiel, context) → 0.2
+  │   └─ primaire_categorie = max(scores) → TYPE
+  ├─ Stap 4-6: Identiteit, rol, documentatie
+  └─ Output: (OntologischeCategorie.TYPE, {scores, reasoning})</code></pre>
+
+<p><strong>Alle componenten werken:</strong></p>
+<ul>
+<li>✅ Score generatie in `OntologischeAnalyzer._stap3_formele_categorietoets()`</li>
+<li>✅ Classificatie via `max(test_scores)`</li>
+<li>✅ UI integratie via `_determine_ontological_category()`</li>
+<li>✅ Prompt injection via `SemanticCategorisationModule`</li>
+<li>✅ Database opslag via `DefinitionRepository`</li>
+</ul>
+
+<p>---</p>
+
+<h2>Verwarringsoorsprong</h2>
+
+<p><strong>Mogelijke bronnen:</strong></p>
+<ol>
+<li>EPIC-028 cleanup discussies → plan om te refactoren nooit uitgevoerd</li>
+<li>US-445 "Remove Regeneration Service" → verwarring regeneration vs classificatie</li>
+<li>Theoretische discussie over modulaire architectuur → nooit geïmplementeerd</li>
+</ol>
+
+<p>---</p>
+
+<h2>Antwoorden op Kritieke Vragen</h2>
+
+<h3>1. Wat is de missing link?</h3>
+
+<p><strong>ANTWOORD:</strong> Er IS geen missing link. Scores worden al gegenereerd in stap 3.</p>
+
+<h3>2. Kan bestaande pattern matching worden gebruikt?</h3>
+
+<p><strong>ANTWOORD:</strong> Pattern matching WORDT al gebruikt in de test functies (<code>_test_type()</code>, etc.)</p>
+
+<h3>3. Wat moet er gebeuren met OntologischeCategorie enum?</h3>
+
+<p><strong>ANTWOORD:</strong> NIETS - blijft zoals het is. Werkt perfect.</p>
+
+<h3>4. Is dit een DROP-IN replacement?</h3>
+
+<p><strong>ANTWOORD:</strong> Er IS geen "nieuwe implementatie" om te vervangen.</p>
+
+<h3>5. Wat zijn de integratierisico's?</h3>
+
+<p><strong>ANTWOORD:</strong> GEEN - omdat er niets te integreren valt.</p>
+
+<p>---</p>
+
+<h2>Aanbeveling: GEEN ACTIE NODIG</h2>
+
+<p><strong>Voor EPIC-028 Cleanup:</strong></p>
+<ul>
+<li>✅ Behoud status quo voor ontologische categorisatie</li>
+<li>✅ Focus op US-441 t/m US-446 (feature removal)</li>
+<li>✅ GEEN wijzigingen aan score generatie</li>
+<li>✅ GEEN nieuwe level_classifier.py bouwen</li>
+</ul>
+
+<p><strong>Rationale:</strong></p>
+<ol>
+<li>Huidige implementatie is volledig functioneel</li>
+<li>EPIC-028 gaat over VERWIJDEREN van complexity, niet TOEVOEGEN</li>
+<li>Geen business value in refactoring tijdens cleanup</li>
+<li>Regressie risico is ONACCEPTABEL in cleanup fase</li>
+</ol>
+
+<p>---</p>
+
+<h2>Toekomstige Overweging (Post-EPIC-028)</h2>
+
+<p><strong>ALS je toch wilt refactoren naar modulair design:</strong></p>
+
+<pre><code># Optie B: Modulaire Architectuur (7 SP effort)
+
+# 1. Extract score generator
+class OntologicalScoreGenerator:
+    async def generate_scores(begrip, profiel, context) -&gt; dict[str, float]:
+        return {"type": 0.8, "proces": 0.3, ...}
+
+# 2. Create policy-based classifier
+class OntologicalLevelClassifier:
+    def classify_level(scores, policy="gebalanceerd") -&gt; OntologischeCategorie:
+        # Policy: gebalanceerd, streng, conservatief
+        return max(scores, key=scores.get)
+
+# 3. Refactor analyzer to use DI
+class OntologischeAnalyzer:
+    def __init__(self, score_generator, level_classifier):
+        self.score_generator = score_generator
+        self.level_classifier = level_classifier</code></pre>
+
+<p><strong>Voordelen:</strong></p>
+<ul>
+<li>Policy-based classification (meer controle)</li>
+<li>Herbruikbare score generator</li>
+<li>Betere testbaarheid</li>
+</ul>
+
+<p><strong>Nadelen:</strong></p>
+<ul>
+<li>+3 classes, +7 SP effort</li>
+<li>Complexiteit stijgt</li>
+<li>Geen directe business value</li>
+</ul>
+
+<p><strong>Timing:</strong> Aparte tech debt epic, NA EPIC-028</p>
+
+<p>---</p>
+
+<h2>Bestandslocaties</h2>
+
+<p>| Component | Pad |</p>
+<p>|-----------|-----|</p>
+<p>| <strong>VOLLEDIG RAPPORT</strong> | <code>docs/analyses/LEVEL_CLASSIFIER_INTEGRATION_GAP_ANALYSIS.md</code> |</p>
+<p>| Huidige Implementatie | <code>src/ontologie/ontological_analyzer.py</code> |</p>
+<p>| UI Integration | <code>src/ui/tabbed_interface.py</code> (L231-291) |</p>
+<p>| Prompt Module | <code>src/services/prompts/modules/semantic_categorisation_module.py</code> |</p>
+
+<p>---</p>
+
+<p><strong>CONCLUSIE:</strong> GEEN actie nodig. Huidige implementatie werkt volledig. Focus op EPIC-028 feature cleanup.</p>
+
+  </div>
+</body>
+</html>
