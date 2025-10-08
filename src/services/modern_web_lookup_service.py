@@ -273,6 +273,7 @@ class ModernWebLookupService(WebLookupServiceInterface):
 
         # Ranking & dedup volgens Epic 3
         try:
+            from .web_lookup.context_filter import ContextFilter
             from .web_lookup.ranking import rank_and_dedup
 
             # Convert to contract-like dicts for ranking
@@ -281,6 +282,23 @@ class ModernWebLookupService(WebLookupServiceInterface):
             ]
             # Provider keys mapping based on source names
             ranked = rank_and_dedup(prepared, self._provider_weights)
+
+            # COMPREHENSIVE FIX B: Context filtering en relevance scoring
+            # Pas context filtering toe NA ranking maar VOOR limitering
+            if request.context:
+                org, jur, wet = self._classify_context_tokens(request.context)
+                context_filter = ContextFilter()
+                # Filter met min_score=0.0 (keep all, maar voeg relevance score toe)
+                ranked = context_filter.filter_results(
+                    ranked,
+                    org_context=org if org else None,
+                    jur_context=jur if jur else None,
+                    wet_context=wet if wet else None,
+                    min_score=0.0,  # Keep all results, maar rank by relevance
+                )
+                logger.info(
+                    f"Context filtering applied: {len(ranked)} results scored with context relevance"
+                )
 
             # Reorder/filter original results according to ranked unique set
             final_results: list[LookupResult] = []
@@ -623,15 +641,12 @@ class ModernWebLookupService(WebLookupServiceInterface):
                     getattr(request, "context", None)
                 )
                 stages: list[tuple[str, list[str]]] = []
-                # Voor Rechtspraak: term‑only eerst (context verlaagt recall)
-                if endpoint == "rechtspraak":
-                    stages.append(("no_ctx", []))
-                # Voor overige SRU‑providers: wet‑only eerst, dan no_ctx
-                if endpoint != "rechtspraak" and wet:
-                    stages.append(("wet_only", wet))
-                # Voeg altijd een no_ctx fallback toe
-                if ("no_ctx", []) not in stages:
-                    stages.append(("no_ctx", []))
+                # QUICK FIX A: Voor ALLE SRU-providers: term-only eerst (context pollution vermijden)
+                # Context verlaagt recall dramatisch - simpele queries werken beter
+                stages.append(("no_ctx", []))
+                # DISABLED: wet-only stage veroorzaakt context pollution
+                # if endpoint != "rechtspraak" and wet:
+                #     stages.append(("wet_only", wet))
 
                 base = (term or "").strip()
                 for stage_name, toks in stages:
