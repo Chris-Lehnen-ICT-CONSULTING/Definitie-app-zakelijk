@@ -6242,6 +6242,68 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "SRU XML Parsing Analysis",
+      "path": "../analyses/sru-parsing-analysis.md",
+      "url": "../analyses/sru-parsing-analysis.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/sru-parsing-analysis.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Prompt Engineering vs Parsing: Ontological Category Analysis",
+      "path": "../analyses/PROMPT_VS_PARSING_ANALYSIS.md",
+      "url": "../analyses/PROMPT_VS_PARSING_ANALYSIS.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/PROMPT_VS_PARSING_ANALYSIS.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Level Classifier - Modulaire Refactoring Plan (Optie B)",
       "path": "../analyses/LEVEL_CLASSIFIER_REFACTORING_PLAN.md",
       "url": "../analyses/LEVEL_CLASSIFIER_REFACTORING_PLAN.md",
@@ -6602,6 +6664,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "EXECUTIVE SUMMARY: Definitie Display Bug",
+      "path": "../analyses/DEFINITION_DISPLAY_BUG_EXECUTIVE_SUMMARY.md",
+      "url": "../analyses/DEFINITION_DISPLAY_BUG_EXECUTIVE_SUMMARY.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/DEFINITION_DISPLAY_BUG_EXECUTIVE_SUMMARY.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "ServiceContainer Call Flow Diagram",
       "path": "../analyses/container_call_flow.md",
       "url": "../analyses/container_call_flow.md",
@@ -6702,6 +6795,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "ROOT CAUSE ANALYSIS: Definitie Weergave Bevat Ongewenste Metadata",
+      "path": "../analyses/ROOT_CAUSE_ANALYSIS_DEFINITION_DISPLAY_BUG.md",
+      "url": "../analyses/ROOT_CAUSE_ANALYSIS_DEFINITION_DISPLAY_BUG.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/ROOT_CAUSE_ANALYSIS_DEFINITION_DISPLAY_BUG.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "UFO Classifier - Grondige Debug Analyse",
       "path": "../analyses/UFO_CLASSIFIER_DEBUG_ANALYSIS.md",
       "url": "../analyses/UFO_CLASSIFIER_DEBUG_ANALYSIS.md",
@@ -6793,6 +6917,37 @@
         "req": []
       },
       "rendered_url": "rendered/analyses/CONFIG_DEPENDENCY_GRAPH.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "SRU Lookup Failure - Root Cause Analysis",
+      "path": "../analyses/SRU_LOOKUP_FAILURE_ROOT_CAUSE_ANALYSIS.md",
+      "url": "../analyses/SRU_LOOKUP_FAILURE_ROOT_CAUSE_ANALYSIS.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/SRU_LOOKUP_FAILURE_ROOT_CAUSE_ANALYSIS.html"
     },
     {
       "id": null,
@@ -39346,7 +39501,7 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 584,
+      "DOC": 589,
       "ARCH": 36,
       "COMP": 5,
       "TEST": 33,
@@ -39356,7 +39511,7 @@
       "US": 276,
       "BUG": 18
     },
-    "generated_at": "2025-10-08T09:38:49Z"
+    "generated_at": "2025-10-08T10:25:30Z"
   },
   "sources": [
     "docs"

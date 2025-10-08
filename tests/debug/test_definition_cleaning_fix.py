@@ -21,9 +21,9 @@ Vervoersverbod: maatregel die een persoon verbiedt zich met een vervoermiddel bi
     result = extract_definition_from_gpt_response(gpt_output_with_dash)
 
     # Should remove the "- Ontologische categorie:" line
-    assert "Ontologische categorie" not in result, (
-        f"Header should be removed! Got: {result}"
-    )
+    assert (
+        "Ontologische categorie" not in result
+    ), f"Header should be removed! Got: {result}"
     print("✅ Test 1 PASSED: Markdown dash header removed")
 
     # Test case 2: Without markdown dash (should still work)
@@ -32,9 +32,9 @@ Vervoersverbod: maatregel die een persoon verbiedt zich met een vervoermiddel bi
 
     result2 = extract_definition_from_gpt_response(gpt_output_no_dash)
 
-    assert "Ontologische categorie" not in result2, (
-        f"Header should be removed! Got: {result2}"
-    )
+    assert (
+        "Ontologische categorie" not in result2
+    ), f"Header should be removed! Got: {result2}"
     print("✅ Test 2 PASSED: Regular header removed")
 
 
@@ -48,20 +48,20 @@ Vervoersverbod: maatregel die een persoon verbiedt zich met een vervoermiddel bi
     result = opschonen_enhanced(gpt_output, "vervoersverbod", handle_gpt_format=True)
 
     # Should remove BOTH header AND term prefix
-    assert "Ontologische categorie" not in result, (
-        f"Metadata header should be removed! Got: {result}"
-    )
-    assert not result.lower().startswith("vervoersverbod"), (
-        f"Term prefix should be removed! Got: {result}"
-    )
+    assert (
+        "Ontologische categorie" not in result
+    ), f"Metadata header should be removed! Got: {result}"
+    assert not result.lower().startswith(
+        "vervoersverbod"
+    ), f"Term prefix should be removed! Got: {result}"
 
     # Should start with "Maatregel" (capitalized first word)
-    assert result.startswith("Maatregel"), (
-        f"Should start with 'Maatregel', got: {result}"
-    )
+    assert result.startswith(
+        "Maatregel"
+    ), f"Should start with 'Maatregel', got: {result}"
 
-    print(f"✅ Test 3 PASSED: Full cleaning works correctly")
-    print(f"   Input:  'Vervoersverbod: maatregel die...'")
+    print("✅ Test 3 PASSED: Full cleaning works correctly")
+    print("   Input:  'Vervoersverbod: maatregel die...'")
     print(f"   Output: '{result[:50]}...'")
 
 
@@ -81,7 +81,9 @@ Vonnis: rechterlijke uitspraak waarmee een procedure wordt afgesloten"""
     print(f"   Full (opschonen_enhanced):    '{full_result}'")
 
     # Full cleaning should remove more
-    assert len(full_result) < len(partial_result), "Full cleaning should be more thorough"
+    assert len(full_result) < len(
+        partial_result
+    ), "Full cleaning should be more thorough"
     assert "Vonnis:" not in full_result, "Full cleaning should remove term prefix"
 
     print("✅ Test 4 PASSED: Full cleaning is more thorough than partial")
