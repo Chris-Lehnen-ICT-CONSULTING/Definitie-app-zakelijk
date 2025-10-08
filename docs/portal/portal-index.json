@@ -6011,6 +6011,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Web Lookup Analyse - Overzicht",
+      "path": "../analyses/web-lookup-analyse-readme.md",
+      "url": "../analyses/web-lookup-analyse-readme.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/web-lookup-analyse-readme.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Solo Developer Re-Analysis: Wat Verandert Er Fundamenteel?",
       "path": "../analyses/SOLO_DEVELOPER_REANALYSIS.md",
       "url": "../analyses/SOLO_DEVELOPER_REANALYSIS.md",
@@ -6300,6 +6331,37 @@
         "req": []
       },
       "rendered_url": "rendered/analyses/PROMPT_VS_PARSING_ANALYSIS.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Web Lookup Provider Failure Analysis",
+      "path": "../analyses/web-lookup-provider-failure-analysis.md",
+      "url": "../analyses/web-lookup-provider-failure-analysis.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/web-lookup-provider-failure-analysis.html"
     },
     {
       "id": null,
@@ -6923,6 +6985,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Web Lookup Consensus Analyse Rapport",
+      "path": "../analyses/web-lookup-consensus-rapport.md",
+      "url": "../analyses/web-lookup-consensus-rapport.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/web-lookup-consensus-rapport.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "UFO Classifier - Grondige Debug Analyse",
       "path": "../analyses/UFO_CLASSIFIER_DEBUG_ANALYSIS.md",
       "url": "../analyses/UFO_CLASSIFIER_DEBUG_ANALYSIS.md",
@@ -6983,6 +7076,37 @@
         "req": []
       },
       "rendered_url": "rendered/analyses/CONFIG_MANAGER_ENVIRONMENT_ANALYSIS.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Web Lookup Implementatie - Finale Rapport",
+      "path": "../analyses/web-lookup-implementatie-final.md",
+      "url": "../analyses/web-lookup-implementatie-final.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/web-lookup-implementatie-final.html"
     },
     {
       "id": null,
@@ -7658,6 +7782,39 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Web Lookup Fix Implementation Plan",
+      "path": "../reports/web-lookup-fix-implementation-plan.md",
+      "url": "../reports/web-lookup-fix-implementation-plan.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [
+          "EPIC-003"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/reports/web-lookup-fix-implementation-plan.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Performance Tracking Metric Fix - Implementation Summary",
       "path": "../reports/performance_tracking_metric_fix.md",
       "url": "../reports/performance_tracking_metric_fix.md",
@@ -7976,6 +8133,39 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Web Lookup Analyse - Executive Summary",
+      "path": "../reports/web-lookup-analysis-executive-summary.md",
+      "url": "../reports/web-lookup-analysis-executive-summary.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [
+          "EPIC-003"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/reports/web-lookup-analysis-executive-summary.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Logging Optimization Implementation Report",
       "path": "../reports/logging-optimization-implementation-report.md",
       "url": "../reports/logging-optimization-implementation-report.md",
@@ -8163,6 +8353,39 @@
         "req": []
       },
       "rendered_url": "rendered/reports/comprehensive-fix-b-implementation.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Web Lookup Analysis - Document Index",
+      "path": "../reports/README-WEB-LOOKUP-ANALYSIS.md",
+      "url": "../reports/README-WEB-LOOKUP-ANALYSIS.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [
+          "EPIC-003"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/reports/README-WEB-LOOKUP-ANALYSIS.html"
     },
     {
       "id": null,
@@ -8614,6 +8837,37 @@
         "req": []
       },
       "rendered_url": "rendered/reports/toetsregels-loading-analysis.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Web Lookup Cleanup: Rechtspraak Text Search Verwijderd",
+      "path": "../reports/web-lookup-cleanup-rechtspraak-text-search.md",
+      "url": "../reports/web-lookup-cleanup-rechtspraak-text-search.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/reports/web-lookup-cleanup-rechtspraak-text-search.html"
     },
     {
       "id": null,
@@ -39660,7 +39914,7 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 594,
+      "DOC": 602,
       "ARCH": 36,
       "COMP": 5,
       "TEST": 33,
@@ -39670,7 +39924,7 @@
       "US": 276,
       "BUG": 18
     },
-    "generated_at": "2025-10-08T14:08:57Z"
+    "generated_at": "2025-10-08T15:30:58Z"
   },
   "sources": [
     "docs"

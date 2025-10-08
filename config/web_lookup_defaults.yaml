@@ -28,11 +28,14 @@ web_lookup:
       min_score: 0.4
 
     wetgeving_nl:
-      enabled: true
+      enabled: false  # DISABLED (2025-10-08): 0% hit rate - BWB niet queryable voor concepten
       weight: 0.9
       timeout: 5
       cache_ttl: 3600
       min_score: 0.4
+      # NOTE: Schema fix (oai_dc → gzd) heeft niet geholpen
+      # BWB indexeert per artikel, niet per juridisch concept
+      # Overheid.nl + Rechtspraak.nl leveren voldoende juridische content
 
     rechtspraak_ecli:
       enabled: true
