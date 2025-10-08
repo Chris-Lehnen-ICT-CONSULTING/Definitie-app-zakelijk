@@ -1,6 +1,19 @@
 web_lookup:
   enabled: true
 
+  # Juridische synoniemen voor verbeterde recall (NIEUW - Oct 2025)
+  synonyms:
+    enabled: true
+    config_path: "config/juridische_synoniemen.yaml"
+    max_synonyms_per_query: 3  # Limiteer aantal synoniemen per query
+    # Juridische ranking boost factoren
+    juridical_boost:
+      juridische_bron: 1.2       # Boost voor rechtspraak.nl, overheid.nl
+      keyword_per_match: 1.1     # Boost per juridisch keyword (max 1.3x)
+      artikel_referentie: 1.15   # Boost voor artikel-referenties
+      lid_referentie: 1.05       # Boost voor lid-referenties
+      context_match: 1.1         # Boost voor context token matches
+
   cache:
     strategy: "stale-while-revalidate"
     grace_period: 300
