@@ -1,0 +1,630 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ROOT CAUSE ANALYSIS: Definitie Weergave Bevat Ongewenste Metadata</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>ROOT CAUSE ANALYSIS: Definitie Weergave Bevat Ongewenste Metadata</h1>
+
+<p><strong>Datum:</strong> 2025-10-07</p>
+<p><strong>Status:</strong> CRITICAL BUG</p>
+<p><strong>Impacted Component:</strong> UI Display → GPT Generation → Text Cleaning Pipeline</p>
+
+<p>---</p>
+
+<h2>EXECUTIVE SUMMARY</h2>
+
+<p>The UI is displaying unwanted metadata in the definition output:</p>
+<ul>
+<li>**Problem 1:** "Ontologische categorie: soort" header still visible (should be removed)</li>
+<li>**Problem 2:** "Vervoersverbod:" term prefix NOW visible (REGRESSION - was not there before)</li>
+</ul>
+
+<p><strong>Root Cause:</strong> The prompt <strong>explicitly instructs GPT-4 to include the term</strong> in its output, then the cleaning pipeline fails to remove it properly.</p>
+
+<p>---</p>
+
+<h2>OBSERVED BEHAVIOR</h2>
+
+<h3>Current (BROKEN) Output:</h3>
+<pre><code>Ontologische categorie: soord
+Vervoersverbod: maatregel die een persoon verbiedt zich met een vervoermiddel binnen een bepaald gebied of tussen specifieke locaties te verplaatsen</code></pre>
+
+<h3>Expected Output:</h3>
+<pre><code>Maatregel die een persoon verbiedt zich met een vervoermiddel binnen een bepaald gebied of tussen specifieke locaties te verplaatsen</code></pre>
+
+<p>---</p>
+
+<h2>COMPLETE DATA FLOW ANALYSIS</h2>
+
+<h3>1. PROMPT GENERATION (What GPT-4 Receives)</h3>
+
+<p><strong>File:</strong> <code>src/services/prompts/modules/definition_task_module.py</code></p>
+
+<h4>Line 253: Ontological Marker Instruction</h4>
+<pre><code>def _build_ontological_marker(self) -&gt; str:
+    """Bouw ontologische marker instructie."""
+    return """---
+
+📋 **Ontologische marker (lever als eerste regel):**
+- Ontologische categorie: kies uit [soort, exemplaar, proces, resultaat]"""</code></pre>
+
+<p><strong>PROBLEM 1:</strong> This instructs GPT to output "Ontologische categorie: [type]" as the <strong>first line</strong>.</p>
+
+<h4>Line 256: Final Instruction</h4>
+<pre><code>def _build_final_instruction(self, begrip: str) -&gt; str:
+    """Bouw finale definitie instructie."""
+    return f"✏️ Geef nu de definitie van het begrip **{begrip}** in één enkele zin, zonder toelichting."</code></pre>
+
+<p><strong>PROBLEM 2:</strong> This asks GPT to provide the definition of the <strong>term</strong> ("begrip"), which GPT interprets as:</p>
+<ul>
+<li>Including the term name as a prefix: "Vervoersverbod: [definition]"</li>
+<li>This is a reasonable interpretation given the instruction pattern</li>
+</ul>
+
+<p><strong>Prompt Example for "Vervoersverbod":</strong></p>
+<pre><code>### 🎯 FINALE INSTRUCTIES:
+
+#### ✏️ Definitieopdracht:
+Formuleer nu de definitie van **vervoersverbod** volgens deze specificaties:
+
+[... checklist, quality control ...]
+
+---
+
+📋 **Ontologische marker (lever als eerste regel):**
+- Ontologische categorie: kies uit [soort, exemplaar, proces, resultaat]
+
+✏️ Geef nu de definitie van het begrip **vervoersverbod** in één enkele zin, zonder toelichting.</code></pre>
+
+<p><strong>What GPT-4 Generates (Based on These Instructions):</strong></p>
+<pre><code>Ontologische categorie: resultaat
+Vervoersverbod: maatregel die een persoon verbiedt zich met een vervoermiddel binnen een bepaald gebied of tussen specifieke locaties te verplaatsen</code></pre>
+
+<p>GPT follows instructions perfectly:</p>
+<ol>
+<li>First line: "Ontologische categorie: resultaat"</li>
+<li>Second line: Definition of the term "vervoersverbod" (including the term as context)</li>
+</ol>
+
+<p>---</p>
+
+<h3>2. TEXT CLEANING PIPELINE (Processing GPT Output)</h3>
+
+<p><strong>File:</strong> <code>src/services/orchestrators/definition_orchestrator_v2.py</code></p>
+
+<h4>Lines 578-597: Cleaning Process</h4>
+<pre><code># V2 cleaning service (always available through adapter)
+raw_gpt_output = (
+    generation_result.text
+    if hasattr(generation_result, "text")
+    else str(generation_result)
+)
+cleaning_result = await self.cleaning_service.clean_text(
+    raw_gpt_output,
+    sanitized_request.begrip,
+)
+cleaned_text = cleaning_result.cleaned_text
+
+# Extract definition without metadata headers for "origineel" display
+# This removes "Ontologische categorie:" prefix but keeps the unprocessed definition
+from opschoning.opschoning_enhanced import (
+    extract_definition_from_gpt_response,
+)
+
+definitie_zonder_header = extract_definition_from_gpt_response(
+    raw_gpt_output
+)</code></pre>
+
+<p><strong>File:</strong> <code>src/opschoning/opschoning_enhanced.py</code></p>
+
+<h4>Lines 42-84: extract_definition_from_gpt_response()</h4>
+<pre><code>def extract_definition_from_gpt_response(text: str) -&gt; str:
+    """
+    Extract de werkelijke definitie uit een GPT response.
+
+    Deze functie verwijdert:
+    - Ontologische categorie headers (bijv. "Ontologische categorie: proces")
+    - Lege regels aan het begin
+    - Andere metadata regels
+    """
+    lines = text.strip().split("\n")
+
+    # Filter regels die metadata bevatten
+    filtered_lines = []
+    for line in lines:
+        line_lower = line.lower().strip()
+        # Skip ontologische categorie regels
+        if line_lower.startswith("ontologische categorie:"):
+            continue
+        # Skip lege regels
+        if not line.strip():
+            continue
+        # Voeg toe aan gefilterde regels
+        filtered_lines.append(line)
+
+    # Join de overgebleven regels
+    return "\n".join(filtered_lines).strip()</code></pre>
+
+<p><strong>CRITICAL FLAW:</strong> This function:</p>
+<ul>
+<li>✅ **DOES** remove "Ontologische categorie: resultaat" line</li>
+<li>❌ **DOES NOT** remove the term prefix "Vervoersverbod:" from the definition line</li>
+</ul>
+
+<p><strong>After extract_definition_from_gpt_response():</strong></p>
+<pre><code>Vervoersverbod: maatregel die een persoon verbiedt zich met een vervoermiddel binnen een bepaald gebied of tussen specifieke locaties te verplaatsen</code></pre>
+
+<p>The "Ontologische categorie:" line is gone, but <strong>"Vervoersverbod:"</strong> remains!</p>
+
+<p>---</p>
+
+<h4>Lines 87-127: opschonen_enhanced()</h4>
+<pre><code>def opschonen_enhanced(
+    definitie: str, begrip: str, handle_gpt_format: bool = True
+) -&gt; str:
+    # Stap 1: Handle GPT format indien nodig
+    if handle_gpt_format:
+        definitie = extract_definition_from_gpt_response(definitie)
+
+    # Stap 2: Gebruik de originele opschonen functie
+    result: str = opschonen(definitie, begrip)
+    return result</code></pre>
+
+<p><strong>Flow:</strong></p>
+<ol>
+<li>Calls `extract_definition_from_gpt_response()` → removes "Ontologische categorie:" line</li>
+<li>Calls `opschonen()` → should remove "Vervoersverbod:" prefix</li>
+</ol>
+
+<p><strong>File:</strong> <code>src/opschoning/opschoning.py</code></p>
+
+<h4>Lines 33-142: opschonen() Function</h4>
+<pre><code>def opschonen(definitie: str, begrip: str) -&gt; str:
+    """
+    Verwijdert herhaaldelijk alle verboden beginconstructies uit definitie.
+
+    OPSCHONINGSREGELS IN DETAIL:
+
+    1. VERBODEN WOORDEN (uit verboden_woorden.json)
+    2. DRIE OPSCHONINGSPATRONEN:
+       A. Woord aan begin: "is een proces" → "proces"
+       B. Circulaire definitie: "Vonnis is een uitspraak" → "uitspraak"
+       C. Begrip met leesteken: "Vonnis: een uitspraak" → "uitspraak"
+    """
+    # [... setup code ...]
+
+    # Patroon 3c: Extra patroon voor begrip gevolgd door dubbelepunt of streepje
+    # Voorbeelden: 'Vonnis:', 'vonnis -', 'vonnis: '
+    # Regex: ^vonnis\s*[:\-]?\s* (\s* = nul of meer spaties, [:\-]? = optioneel : of -)
+    regex_lijst.append(rf"^{begrip_esc}\s*[:\-]?\s*")
+
+    # ✅ 4. Verwijder alle opeenvolgende verboden prefixes
+    while True:
+        for patroon in regex_lijst:
+            if re.match(patroon, d, flags=re.IGNORECASE):
+                d = re.sub(patroon, "", d, flags=re.IGNORECASE, count=1)
+                d = d.lstrip(" ,:-")
+                break
+        else:
+            # ✅ Geen patroon meer gevonden
+            break</code></pre>
+
+<p><strong>Expected Behavior:</strong> Pattern 3c should match "Vervoersverbod:" and remove it.</p>
+
+<p><strong>Regex Pattern:</strong></p>
+<pre><code>begrip_esc = re.escape("vervoersverbod".strip().lower())
+# Pattern: ^vervoersverbod\s*[:\-]?\s*</code></pre>
+
+<p>This pattern <strong>SHOULD</strong> match "Vervoersverbod:" at the start of the line!</p>
+
+<p><strong>WHY IS IT NOT WORKING?</strong></p>
+
+<p>Let me trace through with the actual input:</p>
+
+<pre><code>Input to opschonen(): "Vervoersverbod: maatregel die..."
+begrip: "vervoersverbod"
+Pattern: ^vervoersverbod\s*[:\-]?\s*
+Match: YES (case-insensitive)
+Action: Remove "Vervoersverbod: "
+Result: "maatregel die..."</code></pre>
+
+<p><strong>WAIT!</strong> The logic <strong>should work</strong>. Let me check if there's a different issue...</p>
+
+<p>---</p>
+
+<h3>3. ACTUAL PROBLEM DISCOVERY</h3>
+
+<p>Looking at the UI display code:</p>
+
+<p><strong>File:</strong> <code>src/ui/components/definition_generator_tab.py</code></p>
+
+<h4>Lines 381-385: UI Display</h4>
+<pre><code># Toon ALTIJD beide versies
+st.subheader("1️⃣ Originele AI Definitie")
+st.info(agent_result["definitie_origineel"])
+
+st.subheader("2️⃣ Finale Definitie")
+st.info(agent_result["definitie_gecorrigeerd"])</code></pre>
+
+<p><strong>File:</strong> <code>src/services/orchestrators/definition_orchestrator_v2.py</code></p>
+
+<h4>Lines 762-767: Metadata Storage</h4>
+<pre><code># Store original definition without metadata headers (for UI display)
+# This is the GPT output with "Ontologische categorie:" header removed
+"definitie_origineel": definitie_zonder_header,</code></pre>
+
+<p><strong>KEY INSIGHT:</strong> The "definitie_origineel" field is set to <code>definitie_zonder_header</code>, which comes from <code>extract_definition_from_gpt_response()</code>.</p>
+
+<p><strong>This function only removes the "Ontologische categorie:" line, NOT the term prefix!</strong></p>
+
+<p>---</p>
+
+<h2>ROOT CAUSE SUMMARY</h2>
+
+<h3>Problem 1: "Ontologische categorie: soort" Still Visible</h3>
+
+<p><strong>Status:</strong> PARTIALLY FIXED (typo in user report: "soord" vs "soort")</p>
+
+<p><strong>Cause:</strong> The <code>extract_definition_from_gpt_response()</code> function correctly removes lines starting with "ontologische categorie:", but if there's a typo or variant, it might not match.</p>
+
+<p><strong>Evidence:</strong></p>
+<pre><code>if line_lower.startswith("ontologische categorie:"):
+    continue</code></pre>
+
+<p>This should work for "Ontologische categorie: soort" but user reported "soord" (typo).</p>
+
+<p><strong>Hypothesis:</strong> Either:</p>
+<ol>
+<li>User has a typo in their report ("soord" instead of "soort")</li>
+<li>The line is displayed from a different source (not from `definitie_origineel`)</li>
+</ol>
+
+<h3>Problem 2: "Vervoersverbod:" Prefix NOW Visible (REGRESSION)</h3>
+
+<p><strong>Status:</strong> CRITICAL - NEW BUG INTRODUCED</p>
+
+<p><strong>Root Cause:</strong> The prompt explicitly asks GPT to "define the term <strong>vervoersverbod</strong>", which GPT interprets as including the term in the output.</p>
+
+<p><strong>Why It's a Regression:</strong></p>
+<ul>
+<li>**Before:** The `opschonen()` function was called on the full GPT output</li>
+<li>**After:** The `extract_definition_from_gpt_response()` function is called FIRST, which preserves the term prefix line intact</li>
+<li>The term prefix "Vervoersverbod:" is **not** removed because:</li>
+<li> - `extract_definition_from_gpt_response()` only removes lines starting with "ontologische categorie:"</li>
+<li> - The term prefix is part of the definition line itself, not a separate metadata line</li>
+</ul>
+
+<p><strong>Example:</strong></p>
+<pre><code>GPT Output:
+Ontologische categorie: resultaat
+Vervoersverbod: maatregel die een persoon verbiedt...
+
+After extract_definition_from_gpt_response():
+Vervoersverbod: maatregel die een persoon verbiedt...
+
+Expected after opschonen():
+Maatregel die een persoon verbiedt...</code></pre>
+
+<p>---</p>
+
+<h2>WHY THE FIX FAILED</h2>
+
+<h3>Original Fix (definition_orchestrator_v2.py lines 589-597)</h3>
+
+<p>The fix added <code>extract_definition_from_gpt_response()</code> to remove the "Ontologische categorie:" header, but:</p>
+
+<ol>
+<li>**It only removes that specific header line**</li>
+<li>**It does NOT remove the term prefix from the definition line**</li>
+<li>**The `definitie_origineel` field is set to the result of this function**, which still contains "Vervoersverbod:"</li>
+</ol>
+
+<h3>Why opschonen() Isn't Being Called on definitie_origineel</h3>
+
+<p><strong>Line 767:</strong></p>
+<pre><code>"definitie_origineel": definitie_zonder_header,</code></pre>
+
+<p>This bypasses the full cleaning pipeline! The <code>opschonen()</code> function (which removes term prefixes) is only called via <code>cleaning_service.clean_text()</code>, which produces <code>cleaned_text</code> (not used for "definitie_origineel").</p>
+
+<p><strong>The "definitie_origineel" should show the RAW GPT output (minus metadata headers), so this might be by design.</strong></p>
+
+<p>But the UI is showing this field to users, who expect a clean definition!</p>
+
+<p>---</p>
+
+<h2>COMPLETE TRANSFORMATION CHAIN</h2>
+
+<pre><code>┌─────────────────────────────────────────────────────────────────┐
+│ PHASE 1: PROMPT GENERATION                                      │
+├─────────────────────────────────────────────────────────────────┤
+│ definition_task_module.py:                                      │
+│ - Line 253: "📋 **Ontologische marker (lever als eerste regel):**" │
+│ - Line 256: "✏️ Geef nu de definitie van het begrip **{begrip}**" │
+└─────────────────────────────────────────────────────────────────┘
+                              ↓
+┌─────────────────────────────────────────────────────────────────┐
+│ PHASE 2: GPT-4 GENERATION                                       │
+├─────────────────────────────────────────────────────────────────┤
+│ Output from GPT-4:                                              │
+│                                                                 │
+│   Ontologische categorie: resultaat                             │
+│   Vervoersverbod: maatregel die een persoon verbiedt...         │
+│                                                                 │
+│ GPT follows instructions perfectly!                             │
+└─────────────────────────────────────────────────────────────────┘
+                              ↓
+┌─────────────────────────────────────────────────────────────────┐
+│ PHASE 3: TEXT CLEANING (definition_orchestrator_v2.py)         │
+├─────────────────────────────────────────────────────────────────┤
+│ Line 583: cleaning_result = await cleaning_service.clean_text() │
+│   ↓ (calls opschoning_enhanced → opschonen)                    │
+│   Result: "Maatregel die een persoon verbiedt..."              │
+│   (stored in cleaned_text, used for "definitie_gecorrigeerd")  │
+│                                                                 │
+│ Line 595: definitie_zonder_header = extract_definition_...()   │
+│   ↓ (only removes "Ontologische categorie:" line)              │
+│   Result: "Vervoersverbod: maatregel die een persoon verbiedt..."│
+│   (stored in definitie_zonder_header)                          │
+└─────────────────────────────────────────────────────────────────┘
+                              ↓
+┌─────────────────────────────────────────────────────────────────┐
+│ PHASE 4: METADATA STORAGE (line 767)                           │
+├─────────────────────────────────────────────────────────────────┤
+│ "definitie_origineel": definitie_zonder_header                  │
+│   → "Vervoersverbod: maatregel die..."                         │
+│                                                                 │
+│ "definitie_gecorrigeerd": cleaned_text                          │
+│   → "Maatregel die..."                                         │
+└─────────────────────────────────────────────────────────────────┘
+                              ↓
+┌─────────────────────────────────────────────────────────────────┐
+│ PHASE 5: UI DISPLAY (definition_generator_tab.py:381-385)      │
+├─────────────────────────────────────────────────────────────────┤
+│ st.subheader("1️⃣ Originele AI Definitie")                      │
+│ st.info(agent_result["definitie_origineel"])                    │
+│   → Shows: "Vervoersverbod: maatregel die..."                  │
+│                                                                 │
+│ st.subheader("2️⃣ Finale Definitie")                            │
+│ st.info(agent_result["definitie_gecorrigeerd"])                 │
+│   → Shows: "Maatregel die..."                                  │
+└─────────────────────────────────────────────────────────────────┘</code></pre>
+
+<p>---</p>
+
+<h2>SOLUTIONS</h2>
+
+<h3>Option 1: Fix extract_definition_from_gpt_response() (RECOMMENDED)</h3>
+
+<p><strong>Change:</strong> Make <code>extract_definition_from_gpt_response()</code> also remove term prefixes.</p>
+
+<p><strong>Implementation:</strong></p>
+<pre><code>def extract_definition_from_gpt_response(text: str, begrip: str = None) -&gt; str:
+    """
+    Extract de werkelijke definitie uit een GPT response.
+
+    Verwijdert:
+    - Ontologische categorie headers
+    - Term prefix (bijv. "Vervoersverbod:")
+    - Lege regels
+    """
+    lines = text.strip().split("\n")
+
+    filtered_lines = []
+    for line in lines:
+        line_lower = line.lower().strip()
+
+        # Skip ontologische categorie regels
+        if line_lower.startswith("ontologische categorie:"):
+            continue
+
+        # Skip lege regels
+        if not line.strip():
+            continue
+
+        # Remove term prefix if present
+        if begrip and line_lower.startswith(begrip.lower() + ":"):
+            line = line.split(":", 1)[1].strip()
+
+        filtered_lines.append(line)
+
+    return "\n".join(filtered_lines).strip()</code></pre>
+
+<p><strong>Pros:</strong></p>
+<ul>
+<li>Minimal change</li>
+<li>Handles the specific case of "term: definition" format</li>
+<li>Backward compatible</li>
+</ul>
+
+<p><strong>Cons:</strong></p>
+<ul>
+<li>Requires passing `begrip` parameter to the function</li>
+<li>Only handles simple "term:" prefix (not "term -" or other variants)</li>
+</ul>
+
+<h3>Option 2: Use cleaned_text for definitie_origineel</h3>
+
+<p><strong>Change:</strong> Store <code>cleaned_text</code> instead of <code>definitie_zonder_header</code> for "definitie_origineel".</p>
+
+<p><strong>Implementation:</strong></p>
+<pre><code># Line 767 in definition_orchestrator_v2.py
+"definitie_origineel": cleaned_text,  # Instead of definitie_zonder_header</code></pre>
+
+<p><strong>Pros:</strong></p>
+<ul>
+<li>Simplest fix</li>
+<li>Reuses existing cleaning logic</li>
+<li>No new code needed</li>
+</ul>
+
+<p><strong>Cons:</strong></p>
+<ul>
+<li>"Originele AI Definitie" is now misleading (it's already cleaned)</li>
+<li>Loses the ability to show truly raw GPT output for debugging</li>
+</ul>
+
+<h3>Option 3: Update Prompt to Not Include Term Prefix</h3>
+
+<p><strong>Change:</strong> Modify the prompt to explicitly tell GPT NOT to include the term in its output.</p>
+
+<p><strong>Implementation:</strong></p>
+<pre><code>def _build_final_instruction(self, begrip: str) -&gt; str:
+    """Bouw finale definitie instructie."""
+    return f"""✏️ Geef nu de definitie van het begrip **{begrip}** in één enkele zin, zonder toelichting.
+
+⚠️ BELANGRIJK: Begin DIRECT met de definitie. Gebruik NIET het begrip zelf of een dubbele punt aan het begin.
+
+FOUT: "Vervoersverbod: maatregel die..."
+GOED: "Maatregel die een persoon verbiedt..."
+"""</code></pre>
+
+<p><strong>Pros:</strong></p>
+<ul>
+<li>Prevents the problem at the source</li>
+<li>Aligns GPT output with expected format</li>
+<li>More robust long-term solution</li>
+</ul>
+
+<p><strong>Cons:</strong></p>
+<ul>
+<li>Increases prompt size</li>
+<li>May not be 100% reliable (GPT might still add prefix)</li>
+<li>Requires testing to ensure it works</li>
+</ul>
+
+<h3>Option 4: Full opschonen() on definitie_origineel</h3>
+
+<p><strong>Change:</strong> Apply full <code>opschonen()</code> cleaning to <code>definitie_zonder_header</code> before storing.</p>
+
+<p><strong>Implementation:</strong></p>
+<pre><code># Lines 595-597 in definition_orchestrator_v2.py
+definitie_zonder_header = extract_definition_from_gpt_response(
+    raw_gpt_output
+)
+
+# Apply full cleaning to remove term prefix
+from opschoning.opschoning import opschonen
+definitie_zonder_header = opschonen(definitie_zonder_header, sanitized_request.begrip)</code></pre>
+
+<p><strong>Pros:</strong></p>
+<ul>
+<li>Reuses existing `opschonen()` logic</li>
+<li>Handles all term prefix variants (":". "-", etc.)</li>
+<li>Consistent with existing cleaning approach</li>
+</ul>
+
+<p><strong>Cons:</strong></p>
+<ul>
+<li>May over-clean the "origineel" version</li>
+<li>Double cleaning (once for origineel, once for gecorrigeerd)</li>
+</ul>
+
+<p>---</p>
+
+<h2>RECOMMENDED SOLUTION</h2>
+
+<p><strong>Hybrid Approach: Option 1 + Option 3</strong></p>
+
+<ol>
+<li>**Short-term fix:** Update `extract_definition_from_gpt_response()` to remove simple term prefixes (Option 1)</li>
+<li>**Long-term fix:** Update prompt to explicitly instruct GPT not to include term prefix (Option 3)</li>
+</ol>
+
+<p><strong>Rationale:</strong></p>
+<ul>
+<li>Option 1 fixes the immediate bug with minimal code change</li>
+<li>Option 3 prevents future occurrences by fixing the root cause (prompt design)</li>
+<li>Both changes are complementary and provide defense-in-depth</li>
+</ul>
+
+<p>---</p>
+
+<h2>FILES REQUIRING CHANGES</h2>
+
+<h3>1. src/opschoning/opschoning_enhanced.py</h3>
+<ul>
+<li>Update `extract_definition_from_gpt_response()` to accept `begrip` parameter</li>
+<li>Add logic to remove "term:" prefix from definition lines</li>
+</ul>
+
+<h3>2. src/services/orchestrators/definition_orchestrator_v2.py</h3>
+<ul>
+<li>Line 595: Pass `begrip` to `extract_definition_from_gpt_response()`</li>
+</ul>
+
+<h3>3. src/services/prompts/modules/definition_task_module.py</h3>
+<ul>
+<li>Line 256: Update `_build_final_instruction()` to explicitly prohibit term prefix in output</li>
+</ul>
+
+<p>---</p>
+
+<h2>TESTING REQUIREMENTS</h2>
+
+<h3>Test Cases:</h3>
+
+<ol>
+<li>**Test normal case:**</li>
+</ol>
+<ul>
+<li>  - Input: "vervoersverbod"</li>
+<li>  - Expected output: No "Vervoersverbod:" prefix in definitie_origineel</li>
+</ul>
+
+<ol>
+<li>**Test ontological header removal:**</li>
+</ol>
+<ul>
+<li>  - Verify "Ontologische categorie: resultaat" line is removed</li>
+<li>  - Verify typos like "Ontologische categorie: soord" are also removed</li>
+</ul>
+
+<ol>
+<li>**Test term prefix variants:**</li>
+</ol>
+<ul>
+<li>  - "Vervoersverbod: definition"</li>
+<li>  - "Vervoersverbod - definition"</li>
+<li>  - "Vervoersverbod definition" (no separator)</li>
+</ul>
+
+<ol>
+<li>**Test edge cases:**</li>
+</ol>
+<ul>
+<li>  - Multi-word terms: "elektronisch toezicht"</li>
+<li>  - Terms with special characters</li>
+<li>  - Terms that are substrings of other words</li>
+</ul>
+
+<p>---</p>
+
+<h2>CONCLUSION</h2>
+
+<p>The bug is caused by a <strong>prompt design issue</strong> where GPT is explicitly instructed to "define the term X", which it interprets as including the term in the output. The cleaning pipeline has two paths:</p>
+
+<ol>
+<li>**definitie_gecorrigeerd:** Full cleaning via `opschonen()` → WORKS correctly</li>
+<li>**definitie_origineel:** Partial cleaning via `extract_definition_from_gpt_response()` → FAILS to remove term prefix</li>
+</ol>
+
+<p>The fix is straightforward: enhance <code>extract_definition_from_gpt_response()</code> to also remove term prefixes, and optionally update the prompt to prevent GPT from adding them in the first place.</p>
+
+  </div>
+</body>
+</html>
