@@ -559,6 +559,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "SRU Circuit Breaker Implementation",
+      "path": "../technisch/sru_circuit_breaker_implementation.md",
+      "url": "../technisch/sru_circuit_breaker_implementation.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/technisch/sru_circuit_breaker_implementation.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Technical Analysis: Prompt Generation Implementatie Issues",
       "path": "../technisch/TECHNICAL_ANALYSIS_PROMPT_GENERATION.md",
       "url": "../technisch/TECHNICAL_ANALYSIS_PROMPT_GENERATION.md",
@@ -7371,6 +7402,37 @@
         "req": []
       },
       "rendered_url": "rendered/migration/synoniemen-migratie-strategie.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Performance Tracking Metric Fix - Implementation Summary",
+      "path": "../reports/performance_tracking_metric_fix.md",
+      "url": "../reports/performance_tracking_metric_fix.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/reports/performance_tracking_metric_fix.html"
     },
     {
       "id": null,
@@ -39284,7 +39346,7 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 582,
+      "DOC": 584,
       "ARCH": 36,
       "COMP": 5,
       "TEST": 33,
@@ -39294,7 +39356,7 @@
       "US": 276,
       "BUG": 18
     },
-    "generated_at": "2025-10-08T09:14:49Z"
+    "generated_at": "2025-10-08T09:31:14Z"
   },
   "sources": [
     "docs"
