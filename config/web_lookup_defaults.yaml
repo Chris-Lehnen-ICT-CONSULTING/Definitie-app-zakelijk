@@ -82,10 +82,10 @@ web_lookup:
   sru:
     circuit_breaker:
       enabled: true
-      consecutive_empty_threshold: 2  # Stop after 2 consecutive empty results
+      consecutive_empty_threshold: 4  # Stop after 4 consecutive empty results (was 2)
       # Provider-specific overrides (optional)
       providers:
-        overheid: 2
+        overheid: 4
         rechtspraak: 3  # Legal docs might need more attempts
-        wetgeving_nl: 2
-        overheid_zoek: 2
+        wetgeving_nl: 4
+        overheid_zoek: 4

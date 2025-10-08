@@ -6602,6 +6602,41 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "SRU DC Prefix Validation Report",
+      "path": "../analyses/sru-dc-prefix-validation.md",
+      "url": "../analyses/sru-dc-prefix-validation.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-436"
+        ],
+        "epic": [
+          "EPIC-003"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/sru-dc-prefix-validation.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "FINAL ARCHITECTURE DECISION: Ontologische Classificatie",
       "path": "../analyses/FINAL_CLASSIFICATION_ARCHITECTURE_DECISION.md",
       "url": "../analyses/FINAL_CLASSIFICATION_ARCHITECTURE_DECISION.md",
@@ -6726,6 +6761,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "SRU Lookup Failures - Quick Reference Guide",
+      "path": "../analyses/sru-failure-quick-reference.md",
+      "url": "../analyses/sru-failure-quick-reference.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/sru-failure-quick-reference.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Level Classifier Integration Gap Analysis",
       "path": "../analyses/LEVEL_CLASSIFIER_INTEGRATION_GAP_ANALYSIS.md",
       "url": "../analyses/LEVEL_CLASSIFIER_INTEGRATION_GAP_ANALYSIS.md",
@@ -6760,6 +6826,37 @@
         "req": []
       },
       "rendered_url": "rendered/analyses/LEVEL_CLASSIFIER_INTEGRATION_GAP_ANALYSIS.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "SRU Web Lookup Failure Analysis",
+      "path": "../analyses/sru-web-lookup-failure-analysis.md",
+      "url": "../analyses/sru-web-lookup-failure-analysis.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/sru-web-lookup-failure-analysis.html"
     },
     {
       "id": null,
@@ -7817,6 +7914,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "URGENT DEBUG ANALYSIS: \"unknown prefix dc\" Error After Quick Fix A",
+      "path": "../reports/debug_dc_prefix_error_analysis.md",
+      "url": "../reports/debug_dc_prefix_error_analysis.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/reports/debug_dc_prefix_error_analysis.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Code Simplification Analysis & Implementation Summary",
       "path": "../reports/SIMPLIFICATION_SUMMARY.md",
       "url": "../reports/SIMPLIFICATION_SUMMARY.md",
@@ -8004,6 +8132,37 @@
         "req": []
       },
       "rendered_url": "rendered/reports/prompt-orchestrator-singleton-summary.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Comprehensive Fix B: Post-Query Context Filtering & Relevance Scoring",
+      "path": "../reports/comprehensive-fix-b-implementation.md",
+      "url": "../reports/comprehensive-fix-b-implementation.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/reports/comprehensive-fix-b-implementation.html"
     },
     {
       "id": null,
@@ -39501,7 +39660,7 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 589,
+      "DOC": 594,
       "ARCH": 36,
       "COMP": 5,
       "TEST": 33,
@@ -39511,7 +39670,7 @@
       "US": 276,
       "BUG": 18
     },
-    "generated_at": "2025-10-08T10:25:30Z"
+    "generated_at": "2025-10-08T14:08:57Z"
   },
   "sources": [
     "docs"

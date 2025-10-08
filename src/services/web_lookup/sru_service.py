@@ -687,16 +687,16 @@ class SRUService:
             query = f"({term_block}) AND ({wet_block})"
             # Voeg collectie filter toe indien aanwezig (alleen voor overheid.nl verzameling)
             if collection:
-                query = f'{query} AND overheidnl.collection="{_escape(collection)}"'
+                query = f'{query} AND c.product-area="{_escape(collection)}"'
             return query
 
-        # Geen herkende wet‑context ⇒ val terug op eerdere DC‑velden‑query (behaviour‑preserving)
+        # Geen herkende wet‑context ⇒ gebruik schema-agnostic serverChoice
+        # FIX A.1: DC fields falen met gzd schema ("unknown prefix dc")
+        # serverChoice werkt met alle schemas (gzd, dc, oai_dc)
         escaped_term = _escape(term)
-        base_query = f'(dc.title="{escaped_term}" OR dc.subject="{escaped_term}" OR dc.description="{escaped_term}")'
+        base_query = f'cql.serverChoice any "{escaped_term}"'
         if collection:
-            base_query = (
-                f'{base_query} AND overheidnl.collection="{_escape(collection)}"'
-            )
+            base_query = f'{base_query} AND c.product-area="{_escape(collection)}"'
         return base_query
 
     def _extract_diag_from_response(self, xml_text: str) -> dict:
@@ -978,14 +978,33 @@ class SRUService:
             # Build URL (gebruik identifier als beschikbaar)
             url = identifier if identifier.startswith(("http://", "https://")) else ""
 
-            # Build definitie tekst
+            # Build definitie tekst (uitgebreid met meer context)
             definition_parts = []
-            if description:
+
+            # Primair: gebruik title als start (meestal meest informatief)
+            if title:
+                definition_parts.append(title)
+
+            # Voeg description toe (vaak de hoofdcontent)
+            if description and description not in (title or ""):
                 definition_parts.append(description)
-            if subject and subject not in description:
+
+            # Voeg subject toe als extra context (tenzij al in vorige velden)
+            combined_text = " ".join(definition_parts).lower()
+            if subject and (subject.lower() not in combined_text):
                 definition_parts.append(f"Onderwerp: {subject}")
 
-            definition = ". ".join(definition_parts) if definition_parts else title
+            # Voeg document type toe als het informatief is
+            if doc_type and len(definition_parts) < 2:
+                doc_type_lower = doc_type.lower()
+                if doc_type_lower not in ("document", "text", "resource"):
+                    definition_parts.append(f"Type: {doc_type}")
+
+            # Fallback naar identifier als er weinig info is
+            if len(definition_parts) == 0:
+                definition_parts.append(identifier or "Geen beschrijving beschikbaar")
+
+            definition = " — ".join(definition_parts)
 
             # Build metadata
             from datetime import datetime
