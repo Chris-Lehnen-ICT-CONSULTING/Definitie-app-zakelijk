@@ -6077,6 +6077,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "MONITORING BUG ANALYSIS - App Startup Metric Measuring Wrong Duration",
+      "path": "../analyses/MONITORING_BUG_ANALYSIS_STARTUP_METRIC.md",
+      "url": "../analyses/MONITORING_BUG_ANALYSIS_STARTUP_METRIC.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/MONITORING_BUG_ANALYSIS_STARTUP_METRIC.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "ServiceContainer Duplication - Root Cause Analysis",
       "path": "../analyses/CONTAINER_DUPLICATION_ROOT_CAUSE.md",
       "url": "../analyses/CONTAINER_DUPLICATION_ROOT_CAUSE.md",
@@ -6505,6 +6536,37 @@
         "req": []
       },
       "rendered_url": "rendered/analyses/FINAL_CLASSIFICATION_ARCHITECTURE_DECISION.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Duplicate Web Lookup Bug - Fix Summary",
+      "path": "../analyses/DUPLICATE_WEB_LOOKUP_FIX_SUMMARY.md",
+      "url": "../analyses/DUPLICATE_WEB_LOOKUP_FIX_SUMMARY.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/DUPLICATE_WEB_LOOKUP_FIX_SUMMARY.html"
     },
     {
       "id": null,
@@ -39222,7 +39284,7 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 580,
+      "DOC": 582,
       "ARCH": 36,
       "COMP": 5,
       "TEST": 33,
@@ -39232,7 +39294,7 @@
       "US": 276,
       "BUG": 18
     },
-    "generated_at": "2025-10-07T22:32:14Z"
+    "generated_at": "2025-10-08T09:14:49Z"
   },
   "sources": [
     "docs"
