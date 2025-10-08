@@ -640,6 +640,11 @@ class DefinitieRepository:
                 juridische_context,
             ]
 
+            # Add categorie filter if provided
+            if categorie is not None:
+                query += " AND categorie = ?"
+                params.append(categorie)
+
             # Wettelijke basis (als lijst meegegeven): vergelijk als exact JSON string
             if wettelijke_basis is not None:
                 try:
@@ -679,6 +684,11 @@ class DefinitieRepository:
                 juridische_context,
                 juridische_context,
             ]
+
+            # Add categorie filter if provided
+            if categorie is not None:
+                syn_query += " AND d.categorie = ?"
+                syn_params.append(categorie)
 
             if wettelijke_basis is not None:
                 try:
@@ -742,6 +752,11 @@ class DefinitieRepository:
                 juridische_context,
             ]
 
+            # Add categorie filter if provided
+            if categorie is not None:
+                exact_query += " AND categorie = ?"
+                exact_params.append(categorie)
+
             if wettelijke_basis is not None:
                 try:
                     norm = sorted({str(x).strip() for x in (wettelijke_basis or [])})
@@ -781,6 +796,12 @@ class DefinitieRepository:
                 juridische_context,
                 juridische_context,
             ]
+
+            # Add categorie filter if provided
+            if categorie is not None:
+                syn_query += " AND d.categorie = ?"
+                syn_params.append(categorie)
+
             if wettelijke_basis is not None:
                 try:
                     norm = sorted({str(x).strip() for x in (wettelijke_basis or [])})
@@ -809,6 +830,11 @@ class DefinitieRepository:
                     AND status != 'archived'
                 """
                 fuzzy_params = [f"%{begrip}%", organisatorische_context]
+
+                # Add categorie filter if provided
+                if categorie is not None:
+                    fuzzy_query += " AND categorie = ?"
+                    fuzzy_params.append(categorie)
 
                 if wettelijke_basis is not None:
                     try:
