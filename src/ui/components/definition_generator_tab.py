@@ -302,7 +302,7 @@ class DefinitionGeneratorTab:
         # Ontologische categorie sectie - prominent weergeven
         if determined_category:
             self._render_ontological_category_section(
-                determined_category, generation_result
+                determined_category, generation_result, saved_record
             )
 
         # UFO-categorie selector (onder ontologische categorie)
@@ -600,13 +600,6 @@ class DefinitionGeneratorTab:
             # Never break the page on debug issues
             logger.debug(f"Prompt debug section render skipped: {e}")
 
-        # Category change regeneration preview (op logische locatie)
-        category_change_state = generation_result.get("category_change_state")
-        if category_change_state and category_change_state.show_regeneration_preview:
-            self._render_category_change_preview(
-                category_change_state, generation_result, saved_record
-            )
-
         # Saved record info
         if saved_record:
             st.markdown("#### 💾 Database Record")
@@ -618,7 +611,10 @@ class DefinitionGeneratorTab:
             col1, col2, col3 = st.columns(3)
 
     def _render_ontological_category_section(
-        self, determined_category: str, generation_result: dict[str, Any]
+        self,
+        determined_category: str,
+        generation_result: dict[str, Any],
+        saved_record: Any = None,
     ):
         """Render ontologische categorie sectie met uitleg en aanpassingsmogelijkheid."""
         st.markdown("#### 🎯 Ontologische Categorie")
@@ -688,6 +684,13 @@ class DefinitionGeneratorTab:
         # Toon categorie selector als gevraagd
         if SessionStateManager.get_value("show_category_selector", False):
             self._render_category_selector(determined_category, generation_result)
+
+        # Category change regeneration preview (direct onder categorie sectie)
+        category_change_state = generation_result.get("category_change_state")
+        if category_change_state and category_change_state.show_regeneration_preview:
+            self._render_category_change_preview(
+                category_change_state, generation_result, saved_record
+            )
 
     def _render_ufo_category_selector(self, generation_result: dict[str, Any]) -> None:
         """Render de UFO-categorie selectie en opslagknop.
@@ -2165,11 +2168,32 @@ class DefinitionGeneratorTab:
         saved_record: Any,
         generation_result: dict[str, Any],
     ):
-        """Deprecated: Regeneration service removed (US-445). Use category dropdown + generate."""
-        st.info(
-            f"💡 Om te regenereren met categorie '{new_category}': "
-            f"Ga naar Generator tab, wijzig categorie dropdown, en klik 'Genereer Definitie'"
-        )
+        """Trigger direct regeneration with new ontological category.
+
+        Note: Duplicate check will run with the new category. If a definition with
+        the same begrip + context + new_category already exists, user will be warned.
+        """
+        from ui.session_state import SessionStateManager
+
+        # Set manual category override
+        SessionStateManager.set_value("manual_ontological_category", new_category)
+
+        # Clear any previous generation results
+        SessionStateManager.clear_value("last_generation_result")
+        SessionStateManager.clear_value("selected_definition")
+        SessionStateManager.clear_value("last_check_result")
+
+        # Clear force flags - let duplicate check run normally with new category
+        options = SessionStateManager.get_value("generation_options", {})
+        options.pop("force_generate", None)
+        options.pop("force_duplicate", None)
+        SessionStateManager.set_value("generation_options", options)
+
+        # Trigger auto-generation
+        SessionStateManager.set_value("trigger_auto_generation", True)
+
+        st.success(f"✅ Regeneratie gestart met categorie '{new_category}'!")
+        st.rerun()
 
     def _extract_context_from_generation_result(
         self, generation_result: dict[str, Any]

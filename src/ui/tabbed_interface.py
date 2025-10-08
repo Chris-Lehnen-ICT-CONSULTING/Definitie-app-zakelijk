@@ -696,6 +696,10 @@ class TabbedInterface:
                 jur_context = context_data.get("juridische_context", [])
                 wet_context = context_data.get("wettelijke_basis", [])
 
+                # Extract primary context items (needed for both manual and auto paths)
+                primary_org = org_context[0] if org_context else ""
+                primary_jur = jur_context[0] if jur_context else ""
+
                 # Check eerst of er een handmatige categorie override bestaat
                 manual_category = SessionStateManager.get_value(
                     "manual_ontological_category"
@@ -724,8 +728,6 @@ class TabbedInterface:
                     )
                 else:
                     # Bepaal automatisch de ontologische categorie
-                    primary_org = org_context[0] if org_context else ""
-                    primary_jur = jur_context[0] if jur_context else ""
                     auto_categorie, category_reasoning, category_scores = asyncio.run(
                         self._determine_ontological_category(
                             begrip, primary_org, primary_jur
