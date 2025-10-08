@@ -71,8 +71,11 @@ def extract_definition_from_gpt_response(text: str) -> str:
     filtered_lines = []
     for line in lines:
         line_lower = line.lower().strip()
-        # Skip ontologische categorie regels
-        if line_lower.startswith("ontologische categorie:"):
+        # Skip ontologische categorie regels (met of zonder markdown dash)
+        # Matches: "Ontologische categorie: type"
+        # Matches: "- Ontologische categorie: type"
+        # Matches: "  - Ontologische categorie: type"
+        if line_lower.lstrip("- ").startswith("ontologische categorie:"):
             continue
         # Skip lege regels
         if not line.strip():

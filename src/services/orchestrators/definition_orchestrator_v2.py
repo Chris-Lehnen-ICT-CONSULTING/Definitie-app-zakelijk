@@ -586,14 +586,15 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             )
             cleaned_text = cleaning_result.cleaned_text
 
-            # Extract definition without metadata headers for "origineel" display
-            # This removes "Ontologische categorie:" prefix but keeps the unprocessed definition
-            from opschoning.opschoning_enhanced import (
-                extract_definition_from_gpt_response,
-            )
+            # Extract clean definition for "origineel" display
+            # Uses full cleaning to remove ALL unwanted patterns:
+            # - "Ontologische categorie:" metadata header
+            # - "[term]:" prefix (e.g., "Vervoersverbod:")
+            # - Forbidden words, circular definitions, etc.
+            from opschoning.opschoning_enhanced import opschonen_enhanced
 
-            definitie_zonder_header = extract_definition_from_gpt_response(
-                raw_gpt_output
+            definitie_zonder_header = opschonen_enhanced(
+                raw_gpt_output, sanitized_request.begrip, handle_gpt_format=True
             )
 
             logger.info(f"Generation {generation_id}: Text cleaned with V2 service")
