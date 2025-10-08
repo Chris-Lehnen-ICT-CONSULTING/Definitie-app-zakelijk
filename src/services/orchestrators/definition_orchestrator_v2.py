@@ -353,7 +353,7 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                 except TimeoutError:
                     logger.warning(
                         f"Generation {generation_id}: Web lookup timeout after {WEB_LOOKUP_TIMEOUT} seconds - "
-                        f"proceeding WITHOUT external context"
+                        f"prompt service will use cached lookup results or proceed without"
                     )
                     web_lookup_status = "timeout"
                     # Continue without web context - definition generation proceeds
@@ -575,15 +575,27 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             # PHASE 6: Text Cleaning & Normalization
             # =====================================
             # V2 cleaning service (always available through adapter)
+            raw_gpt_output = (
+                generation_result.text
+                if hasattr(generation_result, "text")
+                else str(generation_result)
+            )
             cleaning_result = await self.cleaning_service.clean_text(
-                (
-                    generation_result.text
-                    if hasattr(generation_result, "text")
-                    else str(generation_result)
-                ),
+                raw_gpt_output,
                 sanitized_request.begrip,
             )
             cleaned_text = cleaning_result.cleaned_text
+
+            # Extract definition without metadata headers for "origineel" display
+            # This removes "Ontologische categorie:" prefix but keeps the unprocessed definition
+            from opschoning.opschoning_enhanced import (
+                extract_definition_from_gpt_response,
+            )
+
+            definitie_zonder_header = extract_definition_from_gpt_response(
+                raw_gpt_output
+            )
+
             logger.info(f"Generation {generation_id}: Text cleaned with V2 service")
 
             # =====================================
@@ -750,6 +762,9 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                     # Store the prompt text for debug UI
                     "prompt_text": prompt_result.text if prompt_result else "",
                     "prompt_template": prompt_result.text if prompt_result else "",
+                    # Store original definition without metadata headers (for UI display)
+                    # This is the GPT output with "Ontologische categorie:" header removed
+                    "definitie_origineel": definitie_zonder_header,
                     # Doorgeven van force_duplicate voor downstream repository
                     "force_duplicate": (
                         bool(

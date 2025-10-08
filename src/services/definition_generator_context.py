@@ -105,59 +105,13 @@ class HybridContextManager:
 
     def __init__(self, config: ContextConfig):
         self.config = config
-        self._web_lookup = None
         self._hybrid_engine = None
         self._context_cache = {}
 
         # Initialize components
-        self._init_web_lookup()
         self._init_hybrid_engine()
 
         logger.info("HybridContextManager geïnitialiseerd")
-
-    def _init_web_lookup(self):
-        """Initialiseer web lookup component."""
-        # Web lookup always initialized when available - no flag
-        try:
-            # Legacy import replaced with modern service
-            # from web_lookup import zoek_definitie_combinatie  # DEPRECATED
-            from services.modern_web_lookup_service import ModernWebLookupService
-
-            # Create compatibility wrapper for legacy interface
-            async def web_lookup_wrapper(term: str) -> str:
-                """Wrapper to maintain legacy interface"""
-                from services.interfaces import LookupRequest
-
-                service = ModernWebLookupService()
-                request = LookupRequest(term=term, max_results=5)
-                results = await service.lookup(request)
-
-                # Format results as string for legacy compatibility
-                if results:
-                    labels: list[str] = []
-                    for r in results[:3]:
-                        meta = getattr(r, "metadata", {}) or {}
-                        label = (
-                            meta.get("wikipedia_title")
-                            or meta.get("dc_title")
-                            or getattr(r, "term", None)
-                            or (
-                                meta.get("title")
-                                if isinstance(meta.get("title"), str)
-                                else None
-                            )
-                            or r.source.name
-                        )
-                        labels.append(f"{label} ({r.source.name})")
-
-                    return f"Web informatie voor {term}: " + "; ".join(labels)
-                return ""
-
-            self._web_lookup = web_lookup_wrapper
-            logger.info("Web lookup component geïnitialiseerd")
-        except ImportError:
-            logger.warning("Web lookup niet beschikbaar")
-            self._web_lookup = None
 
     def _init_hybrid_engine(self):
         """Initialiseer hybrid context engine."""
@@ -192,12 +146,8 @@ class HybridContextManager:
         sources = []
         confidence_scores = {}
 
-        # Web lookup bron (always when service available - no flag)
-        if self._web_lookup:
-            web_source = await self._get_web_context(request.begrip)
-            if web_source:
-                sources.append(web_source)
-                confidence_scores["web_lookup"] = web_source.confidence
+        # Web lookup is handled by orchestrator - results passed via enriched context metadata
+        # HybridContextManager no longer performs web lookup directly
 
         # Hybrid context bron (generation pattern)
         if self._hybrid_engine:
@@ -237,7 +187,6 @@ class HybridContextManager:
                     if confidence_scores
                     else 0.0
                 ),
-                "web_lookup_available": self._web_lookup is not None,
                 "hybrid_engine_available": self._hybrid_engine is not None,
             },
         )
@@ -356,23 +305,6 @@ class HybridContextManager:
                         expanded[clean_word] = abbreviations[clean_word]
 
         return expanded
-
-    async def _get_web_context(self, begrip: str) -> ContextSource | None:
-        """Verkrijg web context via web lookup."""
-        try:
-            if self._web_lookup:
-                web_info = await self._web_lookup(begrip)
-                if web_info and len(web_info.strip()) > 10:  # Minimale content check
-                    return ContextSource(
-                        source_type="web_lookup",
-                        confidence=0.8,
-                        content=web_info[:500],  # Limit content length
-                        metadata={"lookup_time": "current", "source": "web_scraping"},
-                    )
-        except Exception as e:
-            logger.warning(f"Web lookup mislukt voor '{begrip}': {e}")
-
-        return None
 
     async def _get_hybrid_context(
         self, request: GenerationRequest
