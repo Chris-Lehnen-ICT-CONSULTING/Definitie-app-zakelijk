@@ -1029,6 +1029,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Perplexity API vs. Alternatives - Quick Reference",
+      "path": "../quick-reference/perplexity-vs-alternatives.md",
+      "url": "../quick-reference/perplexity-vs-alternatives.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/quick-reference/perplexity-vs-alternatives.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Codebase Deep Dive en Verbeterplan",
       "path": "../backlog/DEEP_DIVE_IMPROVEMENT_PLAN.md",
       "url": "../backlog/DEEP_DIVE_IMPROVEMENT_PLAN.md",
@@ -6352,6 +6383,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Perplexity API Decision Summary",
+      "path": "../analyses/PERPLEXITY_DECISION_SUMMARY.md",
+      "url": "../analyses/PERPLEXITY_DECISION_SUMMARY.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/PERPLEXITY_DECISION_SUMMARY.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Web Lookup Analyse - Overzicht",
       "path": "../analyses/web-lookup-analyse-readme.md",
       "url": "../analyses/web-lookup-analyse-readme.md",
@@ -7257,6 +7319,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Provider Optimization Implementation Guide",
+      "path": "../analyses/PROVIDER_OPTIMIZATION_IMPLEMENTATION.md",
+      "url": "../analyses/PROVIDER_OPTIMIZATION_IMPLEMENTATION.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/PROVIDER_OPTIMIZATION_IMPLEMENTATION.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Level Classifier Integration Gap Analysis",
       "path": "../analyses/LEVEL_CLASSIFIER_INTEGRATION_GAP_ANALYSIS.md",
       "url": "../analyses/LEVEL_CLASSIFIER_INTEGRATION_GAP_ANALYSIS.md",
@@ -7357,6 +7450,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Perplexity API Haalbaarheidsanalyse voor Nederlandse Juridische Definitie Lookup",
+      "path": "../analyses/PERPLEXITY_API_FEASIBILITY_ANALYSIS.md",
+      "url": "../analyses/PERPLEXITY_API_FEASIBILITY_ANALYSIS.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/PERPLEXITY_API_FEASIBILITY_ANALYSIS.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "ROOT CAUSE ANALYSIS: Definitie Weergave Bevat Ongewenste Metadata",
       "path": "../analyses/ROOT_CAUSE_ANALYSIS_DEFINITION_DISPLAY_BUG.md",
       "url": "../analyses/ROOT_CAUSE_ANALYSIS_DEFINITION_DISPLAY_BUG.md",
@@ -7384,6 +7508,37 @@
         "req": []
       },
       "rendered_url": "rendered/analyses/ROOT_CAUSE_ANALYSIS_DEFINITION_DISPLAY_BUG.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Provider Prioriteit Strategie voor Nederlandse Juridische Term Lookup",
+      "path": "../analyses/PROVIDER_PRIORITY_STRATEGY.md",
+      "url": "../analyses/PROVIDER_PRIORITY_STRATEGY.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/PROVIDER_PRIORITY_STRATEGY.html"
     },
     {
       "id": null,
@@ -40536,7 +40691,7 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 620,
+      "DOC": 625,
       "ARCH": 36,
       "COMP": 5,
       "TEST": 35,
@@ -40546,7 +40701,7 @@
       "US": 276,
       "BUG": 18
     },
-    "generated_at": "2025-10-09T08:23:16Z"
+    "generated_at": "2025-10-09T08:41:27Z"
   },
   "sources": [
     "docs"

@@ -273,10 +273,11 @@ class SynonymReviewTab:
                 st.markdown("**Rationale:**")
                 st.info(suggestion.rationale)
 
-                # Context data (if available)
+                # Context data (if available) - displayed directly to avoid nested expanders
                 context = suggestion.get_context_dict()
                 if context:
-                    with st.expander("📋 Context Data", expanded=False):
+                    st.markdown("**📋 Context Data:**")
+                    with st.container():
                         st.json(context)
 
             with col2:
