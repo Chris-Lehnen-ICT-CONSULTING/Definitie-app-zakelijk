@@ -35,36 +35,62 @@ web_lookup:
     max_snippet_length: 500
 
   providers:
+    # === TIER 1: HIGH QUALITY (Primary Sources) ===
+    # Gebaseerd op observed performance Oct 2025
+
     wikipedia:
       enabled: true
-      weight: 0.7
+      weight: 0.85  # BOOST (was 0.7): synoniemen bewezen effectief ("onherroepelijk" → "kracht van gewijsde")
       timeout: 5
       cache_ttl: 7200
       min_score: 0.3
+      # Rationale: juridische synoniemen database (476 lines) zorgt voor betere recall dan verwacht
 
     sru_overheid:
       enabled: true
-      weight: 1.0  # Highest for juridisch
+      weight: 1.0  # KEEP: hoogste autoriteit, 100% hit rate observed
       timeout: 5
       cache_ttl: 3600
       min_score: 0.4
+      # Rationale: Officiële overheidsbron, bewezen betrouwbaar in alle tests
+
+    rechtspraak_ecli:
+      enabled: true
+      weight: 0.95  # BOOST (was 0.9): text search + ECLI beide 100% hit rate
+      timeout: 5
+      cache_ttl: 3600
+      min_score: 0.4
+      # Rationale: Primaire bron voor jurisprudentie, REST implementatie succesvol
+
+    # === TIER 2: PROBLEMATIC (Lower Priority / Disabled) ===
+
+    brave_search:
+      enabled: false  # DISABLED (2025-10-09): MCP tool niet werkend, geen observed resultaten
+      weight: 0.70  # LOWER (was 0.85): fallback priority wanneer MCP fixed
+      timeout: 10
+      cache_ttl: 3600
+      min_score: 0.3
+      max_results: 5
+      # Rationale: MCP dependency blocker, re-enable als MCP fixed OF implement direct API call
+
+    wiktionary:
+      enabled: true  # MONITOR: track hit rate gedurende 1 week
+      weight: 0.65  # LOWER (was 0.9): lage visibility in logs, mogelijk lage hit rate
+      timeout: 5
+      cache_ttl: 3600
+      min_score: 0.3
+      # Rationale: Geen observed hits in recent testing, weight moet reflecteren performance
+      # Action: Disable als < 5% hit rate na 1 week monitoring
 
     wetgeving_nl:
-      enabled: false  # DISABLED (2025-10-08): 0% hit rate - BWB niet queryable voor concepten
-      weight: 0.9
+      enabled: false  # DISABLED (2025-10-08): 0% hit rate, 76% snelheidswinst bij disablen
+      weight: 0.0  # ZERO (was 0.9): niet bruikbaar in huidige configuratie
       timeout: 5
       cache_ttl: 3600
       min_score: 0.4
       # NOTE: Schema fix (oai_dc → gzd) heeft niet geholpen
       # BWB indexeert per artikel, niet per juridisch concept
       # Overheid.nl + Rechtspraak.nl leveren voldoende juridische content
-
-    rechtspraak_ecli:
-      enabled: true
-      weight: 0.9
-      timeout: 5
-      cache_ttl: 3600
-      min_score: 0.4
 
     eur_lex:
       enabled: true
