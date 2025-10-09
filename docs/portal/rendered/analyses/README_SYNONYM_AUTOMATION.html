@@ -1,0 +1,416 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Synonym Automation Research - Document Index</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>Synonym Automation Research - Document Index</h1>
+
+<p><strong>Research Completed</strong>: 8 oktober 2025</p>
+<p><strong>Status</strong>: Ready for stakeholder review and implementation</p>
+
+<p>---</p>
+
+<h2>Document Overview</h2>
+
+<p>This folder contains comprehensive research and analysis on automating synonym suggestions for the DefinitieAgent application. Three documents provide different levels of detail:</p>
+
+<h3>1. Full Analysis (53KB, 1,689 lines)</h3>
+<p><strong>File</strong>: <code>SYNONYM_AUTOMATION_ANALYSIS.md</code></p>
+
+<p><strong>Target Audience</strong>: Technical architects, senior developers, product owners</p>
+
+<p><strong>Contents</strong>:</p>
+<ul>
+<li>5 detailed approaches with pros/cons/implementation complexity</li>
+<li>Cost analysis and ROI calculations</li>
+<li>Sample implementation pseudo-code (800+ lines)</li>
+<li>Risk mitigation strategies</li>
+<li>Comprehensive comparison matrices</li>
+<li>Research findings from NLP tools (Open Dutch WordNet, Wikipedia API, Wiktionary, EUROVOC)</li>
+</ul>
+
+<p><strong>Read this if</strong>: You need to understand the complete technical landscape, evaluate alternatives, or implement the solution.</p>
+
+<p>---</p>
+
+<h3>2. Executive Summary (7.1KB, 236 lines)</h3>
+<p><strong>File</strong>: <code>SYNONYM_AUTOMATION_SUMMARY.md</code></p>
+
+<p><strong>Target Audience</strong>: Product managers, stakeholders, technical leads</p>
+
+<p><strong>Contents</strong>:</p>
+<ul>
+<li>Problem statement and recommended solution</li>
+<li>Key metrics and expected impact</li>
+<li>Cost analysis (one-time + ongoing)</li>
+<li>Implementation roadmap (3-4 weeks)</li>
+<li>Comparison matrix of all approaches</li>
+<li>Risk mitigation overview</li>
+</ul>
+
+<p><strong>Read this if</strong>: You need to make a GO/NO-GO decision, approve budget, or understand high-level strategy.</p>
+
+<p>---</p>
+
+<h3>3. Developer Quick Reference (13KB, 512 lines)</h3>
+<p><strong>File</strong>: <code>SYNONYM_AUTOMATION_QUICKREF.md</code></p>
+
+<p><strong>Target Audience</strong>: Developers implementing the solution</p>
+
+<p><strong>Contents</strong>:</p>
+<ul>
+<li>Phase-by-phase implementation checklist</li>
+<li>Code snippets for all components</li>
+<li>Database schema and migrations</li>
+<li>Configuration examples</li>
+<li>Testing strategy</li>
+<li>Troubleshooting guide</li>
+<li>Quick commands reference</li>
+</ul>
+
+<p><strong>Read this if</strong>: You are implementing the solution and need practical, copy-paste-ready guidance.</p>
+
+<p>---</p>
+
+<h2>Recommended Reading Path</h2>
+
+<h3>For Decision Makers (15 min read)</h3>
+<ol>
+<li>**Executive Summary** - Understand problem, solution, costs</li>
+<li>**Comparison Matrix** (in Summary) - Evaluate alternatives</li>
+<li>**Decision**: Approve/reject recommended approach</li>
+</ol>
+
+<h3>For Technical Architects (45 min read)</h3>
+<ol>
+<li>**Executive Summary** - Context and overview</li>
+<li>**Full Analysis** - Detailed evaluation of approaches</li>
+<li>**Implementation Roadmap** - Timeline and phases</li>
+<li>**Risk Mitigation** - Technical challenges</li>
+</ol>
+
+<h3>For Developers (30 min read)</h3>
+<ol>
+<li>**Quick Reference** - Implementation checklist</li>
+<li>**Full Analysis** - Sample pseudo-code (Benadering 2 section)</li>
+<li>**Testing Strategy** (Quick Reference) - Test approach</li>
+</ol>
+
+<p>---</p>
+
+<h2>Key Findings Summary</h2>
+
+<h3>Problem</h3>
+<ul>
+<li>Current manual curation (50 termen, 184 synoniemen) doesn't scale</li>
+<li>Need 150+ terms with 3-5 synoniemen each for 90% web lookup coverage</li>
+<li>Handmatig onderhoud kost 2h/week</li>
+</ul>
+
+<h3>Recommended Solution</h3>
+<p><strong>GPT-4 Suggest + Human Approve Workflow</strong></p>
+
+<p><strong>Why</strong>:</p>
+<ul>
+<li>Best balance: quality (90-95%), scalability (150+ terms), maintenance (30 min/week)</li>
+<li>Context-aware (uses database definitions)</li>
+<li>Very cost-efficient ($3 one-time, $0.30/month)</li>
+<li>Human-in-the-loop prevents hallucinations</li>
+<li>Reuses existing GPT-4 integration</li>
+</ul>
+
+<p><strong>Expected Impact</strong>:</p>
+<ul>
+<li>200% meer synoniemen (50 → 150 termen)</li>
+<li>75% minder onderhoud (2h → 30min/week)</li>
+<li>10% hogere coverage (80% → 90%)</li>
+<li>Total cost: $6.60/jaar</li>
+</ul>
+
+<p><strong>Implementation Timeline</strong>: 3-4 weeks (15-18 days effort)</p>
+
+<p>---</p>
+
+<h2>Research Methods</h2>
+
+<p>This analysis was based on:</p>
+
+<h3>1. Current Implementation Review</h3>
+<ul>
+<li>Analyzed `config/juridische_synoniemen.yaml` (50 terms, 184 synonyms)</li>
+<li>Reviewed `src/services/web_lookup/synonym_service.py` implementation</li>
+<li>Examined database schema (`data/definities.db`, 66 definitions)</li>
+<li>Evaluated test coverage (`tests/services/web_lookup/test_synonym_service.py`)</li>
+</ul>
+
+<h3>2. Web Research</h3>
+<ul>
+<li>Open Dutch WordNet (Cornetto) - 117K synsets, 92K synonyms</li>
+<li>Wikipedia API (redirects + disambiguation pages)</li>
+<li>Wiktionary API + Wiktextract tool</li>
+<li>EUROVOC thesaurus (EU multilingual legal terms)</li>
+<li>JuridischWoordenboek.nl (10K+ definitions)</li>
+<li>GPT-4 capabilities for Dutch legal term processing</li>
+</ul>
+
+<h3>3. Cost Analysis</h3>
+<ul>
+<li>OpenAI API pricing (GPT-4 Turbo, embeddings)</li>
+<li>Estimated token counts for Dutch legal terms</li>
+<li>ROI calculations (one-time + ongoing maintenance)</li>
+</ul>
+
+<h3>4. Technical Feasibility</h3>
+<ul>
+<li>Prototype-ability assessment for each approach</li>
+<li>Integration complexity with existing architecture</li>
+<li>Required dependencies and tools</li>
+<li>Performance implications</li>
+</ul>
+
+<p>---</p>
+
+<h2>Five Approaches Evaluated</h2>
+
+<h3>1. Wikipedia Redirects Mining ✅ Quick Win</h3>
+<ul>
+<li>**Coverage**: 30-40% improvement</li>
+<li>**Precision**: 85-90%</li>
+<li>**Cost**: FREE</li>
+<li>**Complexity**: Low (3-5 days)</li>
+<li>**Verdict**: Implement as Phase 1 quick win</li>
+</ul>
+
+<h3>2. GPT-4 Suggest + Human Approve ✅ PRIMARY</h3>
+<ul>
+<li>**Coverage**: 100-150% improvement</li>
+<li>**Precision**: 90-95%</li>
+<li>**Cost**: $3 one-time, $0.30/month</li>
+<li>**Complexity**: Medium (5-8 days)</li>
+<li>**Verdict**: PRIMARY recommended approach</li>
+</ul>
+
+<h3>3. Open Dutch WordNet ❌</h3>
+<ul>
+<li>**Coverage**: 20-30% improvement</li>
+<li>**Precision**: 60-70% (not juridical-specific)</li>
+<li>**Cost**: FREE</li>
+<li>**Complexity**: Low (3-4 days)</li>
+<li>**Verdict**: Supplementary only, not recommended as primary</li>
+</ul>
+
+<h3>4. Wiktionary + EUROVOC Thesaurus ❌</h3>
+<ul>
+<li>**Coverage**: 40-60% improvement</li>
+<li>**Precision**: 70-80%</li>
+<li>**Cost**: FREE</li>
+<li>**Complexity**: Very High (8-12 days)</li>
+<li>**Verdict**: Too complex for current scope</li>
+</ul>
+
+<h3>5. Database Mining + Embeddings ✅ Validation</h3>
+<ul>
+<li>**Coverage**: 15-25% improvement (limited to DB terms)</li>
+<li>**Precision**: 60-70%</li>
+<li>**Cost**: <$1</li>
+<li>**Complexity**: Medium (4-6 days)</li>
+<li>**Verdict**: Use for quality assurance in Phase 3</li>
+</ul>
+
+<p>---</p>
+
+<h2>Implementation Phases</h2>
+
+<h3>Phase 1: Quick Win (Week 1-2)</h3>
+<p><strong>Wikipedia Redirects Extraction</strong></p>
+<ul>
+<li>Implement `WikipediaSynonymExtractor` service</li>
+<li>Batch process 50 existing terms</li>
+<li>Expected: +30-40 synoniemen</li>
+</ul>
+
+<h3>Phase 2: Scaling (Week 3-4)</h3>
+<p><strong>GPT-4 Suggest + Approve Workflow</strong></p>
+<ul>
+<li>Implement `GPT4SynonymSuggester` service</li>
+<li>Database schema update</li>
+<li>Streamlit review UI</li>
+<li>YAML auto-update</li>
+<li>Expected: +100-150 synoniemen (pending review)</li>
+</ul>
+
+<h3>Phase 3: Quality Assurance (Week 5-6)</h3>
+<p><strong>Database Mining + Validation</strong></p>
+<ul>
+<li>Embeddings-based similarity</li>
+<li>Quality report generation</li>
+<li>Auto-detect missing synoniemen</li>
+<li>Expected: +20-30 validated synoniemen</li>
+</ul>
+
+<p>---</p>
+
+<h2>Key Components to Implement</h2>
+
+<h3>1. GPT4SynonymSuggester Service</h3>
+<pre><code>class GPT4SynonymSuggester:
+    async def suggest_synonyms(
+        self, term: str, definitie: str = None, context: list[str] = None
+    ) -&gt; list[SynonymSuggestion]:
+        # Generate 5-8 synonym candidates with confidence + rationale</code></pre>
+
+<h3>2. Database Schema</h3>
+<pre><code>CREATE TABLE synonym_suggestions (
+    hoofdterm TEXT, synoniem TEXT, confidence DECIMAL,
+    rationale TEXT, status TEXT, reviewed_by TEXT
+);</code></pre>
+
+<h3>3. Streamlit Review UI</h3>
+<pre><code>def render_synonym_review_tab():
+    # List pending suggestions
+    # Approve/Reject/Edit buttons
+    # Bulk operations</code></pre>
+
+<h3>4. YAML Auto-Update</h3>
+<pre><code>class YAMLConfigUpdater:
+    async def add_synonym(self, hoofdterm: str, synoniem: str):
+        # Backup → Load → Validate → Write → Commit</code></pre>
+
+<h3>5. Workflow Orchestration</h3>
+<pre><code>class SynonymWorkflow:
+    async def batch_suggest(self, terms: list[str]):
+        # Generate suggestions → Save to DB → Queue for review
+
+    async def approve_synonym(self, suggestion_id: int):
+        # Update DB → Update YAML</code></pre>
+
+<p>---</p>
+
+<h2>Success Metrics</h2>
+
+<h3>Quality Gates</h3>
+<ul>
+<li>✅ Precision > 80% (approved / total suggested)</li>
+<li>✅ Curator review time < 30 sec per suggestion</li>
+<li>✅ Coverage improvement: 80% → 90%</li>
+<li>✅ Manual audit: 20 random suggestions validated</li>
+</ul>
+
+<h3>Monitoring</h3>
+<ul>
+<li>Weekly precision tracking</li>
+<li>Monthly coverage reports</li>
+<li>Quarterly feedback loop (rejected → prompt improvement)</li>
+</ul>
+
+<p>---</p>
+
+<h2>Cost Breakdown</h2>
+
+<h3>One-time Setup</h3>
+<ul>
+<li>200 terms × $0.015 = **$3.00**</li>
+</ul>
+
+<h3>Ongoing Maintenance</h3>
+<ul>
+<li>20 nieuwe termen/maand × $0.015 = **$0.30/maand**</li>
+</ul>
+
+<h3>Annual Total</h3>
+<ul>
+<li>Year 1: $3.00 + (12 × $0.30) = **$6.60**</li>
+<li>Year 2+: **$3.60/jaar**</li>
+</ul>
+
+<p><strong>Extremely cost-efficient for expected ROI!</strong></p>
+
+<p>---</p>
+
+<h2>Risk Mitigation</h2>
+
+<p>| Risk | Mitigation |</p>
+<p>|------|------------|</p>
+<p>| GPT-4 hallucinations | Human approval required, low temperature, confidence scoring |</p>
+<p>| Maintenance burden | Bulk operations, auto-approve threshold (>0.95) |</p>
+<p>| YAML corruption | Automated backup, validation, version control |</p>
+<p>| API cost overruns | Batch limits, cost monitoring, caching |</p>
+
+<p>---</p>
+
+<h2>Next Steps</h2>
+
+<h3>This Week</h3>
+<ol>
+<li>**Stakeholder Review** - Review executive summary, approve strategy</li>
+<li>**Budget Approval** - Approve $5-10 for GPT-4 API</li>
+<li>**Prototype** - Test GPT-4 prompt with 5 sample terms (Days 1-2)</li>
+<li>**Decision Point** - GO/NO-GO based on prototype (Day 3)</li>
+</ol>
+
+<h3>Implementation (Weeks 1-6)</h3>
+<ol>
+<li>**Week 1-2**: Wikipedia Redirects (Quick Win)</li>
+<li>**Week 3-4**: GPT-4 Suggest + Approve (Primary)</li>
+<li>**Week 5-6**: Database Mining (Validation)</li>
+</ol>
+
+<p>---</p>
+
+<h2>Related Documentation</h2>
+
+<h3>Current Implementation</h3>
+<ul>
+<li>**Service**: `src/services/web_lookup/synonym_service.py`</li>
+<li>**Config**: `config/juridische_synoniemen.yaml`</li>
+<li>**Tests**: `tests/services/web_lookup/test_synonym_service.py`</li>
+<li>**Tech Docs**: `docs/technisch/web_lookup_synoniemen.md`</li>
+</ul>
+
+<h3>Architecture</h3>
+<ul>
+<li>**Web Lookup Architecture**: `docs/technisch/web_lookup_config.md`</li>
+<li>**Service Container**: `src/services/container.py`</li>
+<li>**Database Schema**: `src/database/schema.sql`</li>
+</ul>
+
+<h3>Recent Changes</h3>
+<ul>
+<li>**Implementation Summary**: `docs/technisch/IMPLEMENTATION_SUMMARY_SYNONIEMEN.md`</li>
+<li>**Test Summary**: `docs/testing/web-lookup-improvements-test-summary.md`</li>
+</ul>
+
+<p>---</p>
+
+<h2>Contact & Support</h2>
+
+<p><strong>Questions?</strong> Contact DefinitieAgent development team</p>
+
+<p><strong>Issues?</strong> Create ticket in project management system</p>
+
+<p><strong>Feedback?</strong> Update this analysis with learnings post-implementation</p>
+
+<p>---</p>
+
+<p><strong>Document Status</strong>: ✅ Complete - Ready for review</p>
+<p><strong>Last Updated</strong>: 8 oktober 2025</p>
+<p><strong>Maintainer</strong>: DefinitieAgent AI Research Team</p>
+
+  </div>
+</body>
+</html>

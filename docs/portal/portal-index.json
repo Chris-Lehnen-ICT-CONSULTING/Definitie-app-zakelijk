@@ -280,6 +280,130 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Juridische Synoniemen Validator - Implementation Summary",
+      "path": "../technisch/SYNONYM_VALIDATOR_IMPLEMENTATION.md",
+      "url": "../technisch/SYNONYM_VALIDATOR_IMPLEMENTATION.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/technisch/SYNONYM_VALIDATOR_IMPLEMENTATION.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Wikipedia Synonym Extraction",
+      "path": "../technisch/wikipedia_synonym_extraction.md",
+      "url": "../technisch/wikipedia_synonym_extraction.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/technisch/wikipedia_synonym_extraction.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Juridisch Ranker Migratie naar YAML Configuratie",
+      "path": "../technisch/juridisch_ranker_migration.md",
+      "url": "../technisch/juridisch_ranker_migration.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/technisch/juridisch_ranker_migration.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Juridisch Ranker YAML Migration - Summary",
+      "path": "../technisch/MIGRATION_SUMMARY_JURIDISCH_RANKER.md",
+      "url": "../technisch/MIGRATION_SUMMARY_JURIDISCH_RANKER.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/technisch/MIGRATION_SUMMARY_JURIDISCH_RANKER.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Implementation Summary: Juridische Synoniemen & Query Optimization",
       "path": "../technisch/IMPLEMENTATION_SUMMARY_SYNONIEMEN.md",
       "url": "../technisch/IMPLEMENTATION_SUMMARY_SYNONIEMEN.md",
@@ -493,6 +617,37 @@
         "req": []
       },
       "rendered_url": "rendered/technisch/agent-workflow-analysis.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Semantic Clusters voor Juridische Synoniemen",
+      "path": "../technisch/semantic_clusters.md",
+      "url": "../technisch/semantic_clusters.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/technisch/semantic_clusters.html"
     },
     {
       "id": null,
@@ -714,6 +869,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Weighted Synonyms System (v2.0)",
+      "path": "../technisch/weighted_synonyms.md",
+      "url": "../technisch/weighted_synonyms.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/technisch/weighted_synonyms.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "History Tab Removal - Complete Summary",
       "path": "../technisch/history_tab_removal_summary.md",
       "url": "../technisch/history_tab_removal_summary.md",
@@ -741,6 +927,37 @@
         "req": []
       },
       "rendered_url": "rendered/technisch/history_tab_removal_summary.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Juridisch Ranker - Quick Reference",
+      "path": "../technisch/juridisch_ranker_quick_reference.md",
+      "url": "../technisch/juridisch_ranker_quick_reference.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/technisch/juridisch_ranker_quick_reference.html"
     },
     {
       "id": null,
@@ -6397,6 +6614,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Synonym Automation Research - Document Index",
+      "path": "../analyses/README_SYNONYM_AUTOMATION.md",
+      "url": "../analyses/README_SYNONYM_AUTOMATION.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/README_SYNONYM_AUTOMATION.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "SRU XML Parsing Analysis",
       "path": "../analyses/sru-parsing-analysis.md",
       "url": "../analyses/sru-parsing-analysis.md",
@@ -6978,6 +7226,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Synonym Automation - Developer Quick Reference",
+      "path": "../analyses/SYNONYM_AUTOMATION_QUICKREF.md",
+      "url": "../analyses/SYNONYM_AUTOMATION_QUICKREF.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/SYNONYM_AUTOMATION_QUICKREF.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Level Classifier Integration Gap Analysis",
       "path": "../analyses/LEVEL_CLASSIFIER_INTEGRATION_GAP_ANALYSIS.md",
       "url": "../analyses/LEVEL_CLASSIFIER_INTEGRATION_GAP_ANALYSIS.md",
@@ -7136,6 +7415,37 @@
         "req": []
       },
       "rendered_url": "rendered/analyses/web-lookup-consensus-rapport.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Automated Synonym Suggestion Analysis voor DefinitieAgent",
+      "path": "../analyses/SYNONYM_AUTOMATION_ANALYSIS.md",
+      "url": "../analyses/SYNONYM_AUTOMATION_ANALYSIS.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/SYNONYM_AUTOMATION_ANALYSIS.html"
     },
     {
       "id": null,
@@ -7324,6 +7634,37 @@
         "req": []
       },
       "rendered_url": "rendered/analyses/UFO_CLASSIFIER_FIXES.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Automated Synonym Suggestion - Executive Summary",
+      "path": "../analyses/SYNONYM_AUTOMATION_SUMMARY.md",
+      "url": "../analyses/SYNONYM_AUTOMATION_SUMMARY.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/SYNONYM_AUTOMATION_SUMMARY.html"
     },
     {
       "id": null,
@@ -40195,7 +40536,7 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 609,
+      "DOC": 620,
       "ARCH": 36,
       "COMP": 5,
       "TEST": 35,
@@ -40205,7 +40546,7 @@
       "US": 276,
       "BUG": 18
     },
-    "generated_at": "2025-10-08T21:35:20Z"
+    "generated_at": "2025-10-09T07:32:02Z"
   },
   "sources": [
     "docs"

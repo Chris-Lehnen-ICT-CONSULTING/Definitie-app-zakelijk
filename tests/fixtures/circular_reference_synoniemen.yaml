@@ -1,0 +1,16 @@
+# Invalid: Circular references (hoofdterm appears as synonym)
+# Should fail validation
+
+onherroepelijk:
+  - kracht van gewijsde
+  - rechtskracht
+  - vonnis  # Circular: 'vonnis' is also a hoofdterm
+
+vonnis:
+  - uitspraak
+  - arrest
+  - onherroepelijk  # Circular: 'onherroepelijk' is also a hoofdterm
+
+verdachte:
+  - beklaagde
+  - beschuldigde

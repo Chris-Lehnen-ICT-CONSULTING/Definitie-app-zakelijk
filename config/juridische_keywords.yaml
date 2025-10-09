@@ -1,0 +1,75 @@
+# Juridische Keywords Database
+# ======================================
+# Deze file bevat alle juridische keywords georganiseerd per categorie
+# voor juridisch ranker boost algoritme.
+#
+# Gebruik:
+#   - Keywords worden case-insensitive gematcht met word boundaries
+#   - Duplicaten worden automatisch gefilterd
+#   - Categorieën zijn informatief en kunnen gebruikt worden voor specifieke boosts
+#
+# Laatste update: 2025-10-09
+# Gemigreerd van: src/services/web_lookup/juridisch_ranker.py
+
+# Algemene juridische termen
+algemeen:
+  - wetboek
+  - artikel
+  - wet
+  - recht
+  - rechter
+  - vonnis
+  - uitspraak
+  - rechtspraak
+  - juridisch
+  - wettelijk
+  - strafbaar
+  - rechtbank
+  - gerechtshof
+  - hoge raad
+
+# Strafrecht specifieke termen
+strafrecht:
+  - strafrecht
+  - verdachte
+  - beklaagde
+  - dagvaarding
+  - veroordeling
+  - vrijspraak
+  - schuldig
+  - delict
+  - misdrijf
+  - overtreding
+
+# Burgerlijk recht specifieke termen
+burgerlijk:
+  - burgerlijk
+  - civiel
+  - overeenkomst
+  - contract
+  - schadevergoeding
+  - aansprakelijkheid
+
+# Bestuursrecht specifieke termen
+bestuursrecht:
+  - bestuursrecht
+  - beschikking
+  - besluit
+  - bezwaar
+  - beroep
+  - awb
+
+# Procesrecht specifieke termen
+procesrecht:
+  - procedure
+  - proces
+  - hoger beroep
+  - cassatie
+  - appel
+
+# Wetten (afkortingen)
+wetten:
+  - sr   # Wetboek van Strafrecht
+  - sv   # Wetboek van Strafvordering
+  - rv   # Wetboek van Burgerlijke Rechtsvordering
+  - bw   # Burgerlijk Wetboek

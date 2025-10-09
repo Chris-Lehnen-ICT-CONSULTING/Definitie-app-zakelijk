@@ -12,65 +12,332 @@ Gebruik:
     boosted = boost_juridische_resultaten(results, context=["Sv", "strafrecht"])
 """
 
+from __future__ import annotations
+
 import logging
+import os
 import re
+from pathlib import Path
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from services.web_lookup.modern_web_lookup import LookupResult
+
+try:
+    import yaml
+
+    YAML_AVAILABLE = True
+except ImportError:
+    YAML_AVAILABLE = False
+    print(
+        "Warning: PyYAML niet beschikbaar - juridisch ranker werkt met fallback keywords"
+    )
 
 logger = logging.getLogger(__name__)
 
-# Juridische keywords voor content analysis
-JURIDISCHE_KEYWORDS = {
-    # Algemeen juridisch
-    "wetboek",
-    "artikel",
-    "wet",
-    "recht",
-    "rechter",
-    "vonnis",
-    "uitspraak",
-    "rechtspraak",  # Note: duplicate removed (was on line 36)
-    "juridisch",
-    "wettelijk",
-    "strafbaar",
-    "rechtbank",
-    "gerechtshof",
-    "hoge raad",
-    # Strafrecht
-    "strafrecht",
-    "verdachte",
-    "beklaagde",
-    "dagvaarding",
-    "veroordeling",
-    "vrijspraak",
-    "schuldig",
-    "delict",
-    "misdrijf",
-    "overtreding",
-    # Burgerlijk recht
-    "burgerlijk",
-    "civiel",
-    "overeenkomst",
-    "contract",
-    "schadevergoeding",
-    "aansprakelijkheid",
-    # Bestuursrecht
-    "bestuursrecht",
-    "beschikking",
-    "besluit",
-    "bezwaar",
-    "beroep",
-    "awb",
-    # Procesrecht
-    "procedure",
-    "proces",
-    "hoger beroep",
-    "cassatie",
-    "appel",
-    # Wetten (afkortingen)
-    "sr",
-    "sv",
-    "rv",
-    "bw",
-}
+
+class JuridischRankerConfig:
+    """
+    Configuration manager voor juridisch ranker.
+
+    Laadt keywords en boost factoren uit YAML configuratie bestanden.
+    Gebruikt singleton pattern voor hergebruik.
+    """
+
+    def __init__(
+        self,
+        keywords_path: str | None = None,
+        defaults_path: str | None = None,
+    ):
+        """
+        Initialiseer ranker config.
+
+        Args:
+            keywords_path: Pad naar juridische_keywords.yaml (optioneel)
+            defaults_path: Pad naar web_lookup_defaults.yaml (optioneel)
+        """
+        # Bepaal config paden
+        if keywords_path:
+            self.keywords_path = Path(keywords_path)
+        else:
+            # Zoek config relatief aan project root
+            current = Path(__file__).parent.parent.parent.parent
+            self.keywords_path = current / "config" / "juridische_keywords.yaml"
+
+        if defaults_path:
+            self.defaults_path = Path(defaults_path)
+        else:
+            current = Path(__file__).parent.parent.parent.parent
+            self.defaults_path = current / "config" / "web_lookup_defaults.yaml"
+
+        # Keywords database (normalized)
+        self.keywords: set[str] = set()
+
+        # Boost factors
+        self.boost_factors = {
+            "juridische_bron": 1.2,
+            "keyword_per_match": 1.1,
+            "keyword_max_boost": 1.3,
+            "artikel_referentie": 1.15,
+            "lid_referentie": 1.05,
+            "context_match": 1.1,
+            "context_max_boost": 1.3,
+            "juridical_flag": 1.15,
+        }
+
+        # Load configuratie
+        self._load_keywords()
+        self._load_boost_factors()
+
+        logger.info(
+            f"Juridisch ranker config geïnitialiseerd: "
+            f"{len(self.keywords)} keywords, {len(self.boost_factors)} boost factors"
+        )
+
+    def _normalize_term(self, term: str) -> str:
+        """
+        Normaliseer term voor consistente lookup.
+
+        Conversies:
+        - Lowercase
+        - Strip whitespace
+        - Vervang underscores met spaties
+        """
+        return term.lower().strip().replace("_", " ")
+
+    def _load_keywords(self) -> None:
+        """
+        Laad juridische keywords uit YAML config.
+
+        YAML format:
+            categorie:
+              - keyword1
+              - keyword2
+        """
+        if not YAML_AVAILABLE:
+            logger.warning("PyYAML niet beschikbaar - gebruik fallback keywords")
+            self._load_fallback_keywords()
+            return
+
+        if not self.keywords_path.exists():
+            logger.warning(
+                f"Keywords config niet gevonden: {self.keywords_path}. "
+                f"Gebruik fallback keywords."
+            )
+            self._load_fallback_keywords()
+            return
+
+        try:
+            with open(self.keywords_path, encoding="utf-8") as f:
+                data = yaml.safe_load(f)
+
+            if not data:
+                logger.warning("Lege keywords config - gebruik fallback")
+                self._load_fallback_keywords()
+                return
+
+            # Extract keywords uit alle categorieën
+            for _category, keywords_list in data.items():
+                # Skip comments/metadata
+                if not isinstance(keywords_list, list):
+                    continue
+
+                # Normaliseer en voeg toe
+                for keyword in keywords_list:
+                    if isinstance(keyword, str):
+                        normalized = self._normalize_term(keyword)
+                        if normalized:
+                            self.keywords.add(normalized)
+
+            logger.info(
+                f"Geladen: {len(self.keywords)} juridische keywords "
+                f"uit {self.keywords_path}"
+            )
+
+        except yaml.YAMLError as e:
+            logger.error(f"YAML parse error in {self.keywords_path}: {e}")
+            self._load_fallback_keywords()
+        except Exception as e:
+            logger.error(f"Fout bij laden keywords uit {self.keywords_path}: {e}")
+            self._load_fallback_keywords()
+
+    def _load_fallback_keywords(self) -> None:
+        """
+        Laad hardcoded fallback keywords (voor backwards compatibility).
+        """
+        self.keywords = {
+            # Algemeen juridisch
+            "wetboek",
+            "artikel",
+            "wet",
+            "recht",
+            "rechter",
+            "vonnis",
+            "uitspraak",
+            "rechtspraak",
+            "juridisch",
+            "wettelijk",
+            "strafbaar",
+            "rechtbank",
+            "gerechtshof",
+            "hoge raad",
+            # Strafrecht
+            "strafrecht",
+            "verdachte",
+            "beklaagde",
+            "dagvaarding",
+            "veroordeling",
+            "vrijspraak",
+            "schuldig",
+            "delict",
+            "misdrijf",
+            "overtreding",
+            # Burgerlijk recht
+            "burgerlijk",
+            "civiel",
+            "overeenkomst",
+            "contract",
+            "schadevergoeding",
+            "aansprakelijkheid",
+            # Bestuursrecht
+            "bestuursrecht",
+            "beschikking",
+            "besluit",
+            "bezwaar",
+            "beroep",
+            "awb",
+            # Procesrecht
+            "procedure",
+            "proces",
+            "hoger beroep",
+            "cassatie",
+            "appel",
+            # Wetten
+            "sr",
+            "sv",
+            "rv",
+            "bw",
+        }
+        logger.info(f"Geladen: {len(self.keywords)} fallback keywords")
+
+    def _load_boost_factors(self) -> None:
+        """
+        Laad boost factoren uit web_lookup_defaults.yaml.
+        """
+        if not YAML_AVAILABLE:
+            logger.warning("PyYAML niet beschikbaar - gebruik default boost factors")
+            return
+
+        if not self.defaults_path.exists():
+            logger.warning(
+                f"Defaults config niet gevonden: {self.defaults_path}. "
+                f"Gebruik default boost factors."
+            )
+            return
+
+        try:
+            with open(self.defaults_path, encoding="utf-8") as f:
+                data = yaml.safe_load(f)
+
+            if not data or "web_lookup" not in data:
+                logger.warning("web_lookup sectie niet gevonden in defaults")
+                return
+
+            web_lookup = data["web_lookup"]
+            if "juridical_boost" not in web_lookup:
+                logger.warning("juridical_boost sectie niet gevonden")
+                return
+
+            # Update boost factors
+            boost_config = web_lookup["juridical_boost"]
+            for key, value in boost_config.items():
+                if key in self.boost_factors:
+                    self.boost_factors[key] = float(value)
+
+            logger.info(
+                f"Geladen boost factors uit {self.defaults_path}: "
+                f"{self.boost_factors}"
+            )
+
+        except yaml.YAMLError as e:
+            logger.error(f"YAML parse error in {self.defaults_path}: {e}")
+        except Exception as e:
+            logger.error(f"Fout bij laden boost factors uit {self.defaults_path}: {e}")
+
+
+# Module-level singleton
+_config_singleton: JuridischRankerConfig | None = None
+
+
+def get_ranker_config(
+    keywords_path: str | None = None,
+    defaults_path: str | None = None,
+) -> JuridischRankerConfig:
+    """
+    Haal singleton ranker config op.
+
+    Args:
+        keywords_path: Optioneel custom keywords config pad
+        defaults_path: Optioneel custom defaults config pad
+
+    Returns:
+        JuridischRankerConfig instance
+    """
+    global _config_singleton
+
+    # Check voor env var override
+    env_keywords_path = os.getenv("JURIDISCH_KEYWORDS_CONFIG")
+    env_defaults_path = os.getenv("WEB_LOOKUP_CONFIG")
+
+    if env_keywords_path:
+        keywords_path = env_keywords_path
+    if env_defaults_path:
+        defaults_path = env_defaults_path
+
+    # Hergebruik singleton tenzij custom paden opgegeven
+    if _config_singleton is None or keywords_path or defaults_path:
+        _config_singleton = JuridischRankerConfig(keywords_path, defaults_path)
+
+    return _config_singleton
+
+
+# Backward compatibility: expose keywords as module-level variable
+# This is loaded lazily when first accessed to maintain backwards compatibility
+# DEPRECATED: Direct use of JURIDISCHE_KEYWORDS is deprecated, use get_ranker_config().keywords
+_keywords_cache: set[str] | None = None
+
+
+def _get_legacy_keywords() -> set[str]:
+    """
+    Helper: Haal keywords op voor legacy JURIDISCHE_KEYWORDS constant.
+
+    Returns cached keywords to avoid reloading config on every access.
+    """
+    global _keywords_cache
+    if _keywords_cache is None:
+        _keywords_cache = get_ranker_config().keywords
+    return _keywords_cache
+
+
+# Create a module-level set that acts like the old JURIDISCHE_KEYWORDS constant
+# This maintains backwards compatibility for code that does: "keyword in JURIDISCHE_KEYWORDS"
+class _KeywordsProxy:
+    """Proxy class to make JURIDISCHE_KEYWORDS behave like a set."""
+
+    def __contains__(self, item):
+        return item in _get_legacy_keywords()
+
+    def __iter__(self):
+        return iter(_get_legacy_keywords())
+
+    def __len__(self):
+        return len(_get_legacy_keywords())
+
+    def __repr__(self):
+        return repr(_get_legacy_keywords())
+
+
+JURIDISCHE_KEYWORDS = _KeywordsProxy()
 
 # Juridische domeinen voor URL filtering
 JURIDISCHE_DOMEINEN = {
@@ -108,12 +375,7 @@ def is_juridische_bron(url: str) -> bool:
         return False
 
     url_lower = url.lower()
-
-    for domein in JURIDISCHE_DOMEINEN:
-        if domein in url_lower:
-            return True
-
-    return False
+    return any(domein in url_lower for domein in JURIDISCHE_DOMEINEN)
 
 
 def count_juridische_keywords(text: str) -> int:
@@ -132,7 +394,11 @@ def count_juridische_keywords(text: str) -> int:
     text_lower = text.lower()
     count = 0
 
-    for keyword in JURIDISCHE_KEYWORDS:
+    # Haal keywords uit config
+    config = get_ranker_config()
+    keywords = config.keywords
+
+    for keyword in keywords:
         # Word boundary matching om false positives te vermijden
         # "recht" moet match in "strafrecht" maar niet in "achtrecht"
         pattern = r"\b" + re.escape(keyword) + r"\b"
@@ -175,17 +441,17 @@ def contains_lid_referentie(text: str) -> bool:
 
 
 def calculate_juridische_boost(
-    result: "LookupResult", context: list[str] | None = None
+    result: LookupResult, context: list[str] | None = None
 ) -> float:
     """
     Bereken juridische boost factor voor een result.
 
-    Boost factoren:
-    - Juridische bron (rechtspraak.nl, overheid.nl): 1.2x
-    - Juridische keywords in definitie: 1.1x per keyword (max 1.3x)
-    - Artikel-referentie in definitie: 1.15x
-    - Lid-referentie: 1.05x
-    - Context match (optioneel): 1.1x
+    Boost factoren worden geladen uit config/web_lookup_defaults.yaml:
+    - Juridische bron (rechtspraak.nl, overheid.nl): configurable (default 1.2x)
+    - Juridische keywords in definitie: configurable per keyword (default 1.1x, max 1.3x)
+    - Artikel-referentie in definitie: configurable (default 1.15x)
+    - Lid-referentie: configurable (default 1.05x)
+    - Context match (optioneel): configurable (default 1.1x, max 1.3x)
 
     Args:
         result: LookupResult om te boosten
@@ -194,39 +460,53 @@ def calculate_juridische_boost(
     Returns:
         Boost factor (> 1.0 voor juridische content, 1.0 voor neutrale content)
     """
+    config = get_ranker_config()
+    boost_factors = config.boost_factors
     boost = 1.0
 
     # 1. Juridische bron boost
-    if hasattr(result, "source") and hasattr(result.source, "url"):
-        if is_juridische_bron(result.source.url):
-            boost *= 1.2
-            logger.debug(f"Juridische bron boost 1.2x: {result.source.url}")
+    if (
+        hasattr(result, "source")
+        and hasattr(result.source, "url")
+        and is_juridische_bron(result.source.url)
+    ):
+        bron_boost = boost_factors["juridische_bron"]
+        boost *= bron_boost
+        logger.debug(f"Juridische bron boost {bron_boost}x: {result.source.url}")
 
     # Alternative: check source.is_juridical flag
-    if hasattr(result, "source") and getattr(result.source, "is_juridical", False):
-        if boost == 1.0:  # Alleen als niet al geboosted via URL
-            boost *= 1.15
-            logger.debug("Juridische bron flag boost 1.15x")
+    if (
+        hasattr(result, "source")
+        and getattr(result.source, "is_juridical", False)
+        and boost == 1.0  # Alleen als niet al geboosted via URL
+    ):
+        flag_boost = boost_factors["juridical_flag"]
+        boost *= flag_boost
+        logger.debug(f"Juridische bron flag boost {flag_boost}x")
 
     # 2. Juridische keywords in definitie
     definitie = getattr(result, "definition", "") or ""
     keyword_count = count_juridische_keywords(definitie)
 
     if keyword_count > 0:
-        # Cap bij 1.3x (max 3 keywords = 1.1^3 ≈ 1.33)
-        keyword_boost = min(1.1**keyword_count, 1.3)
+        # Cap bij keyword_max_boost (configurable)
+        keyword_per_match = boost_factors["keyword_per_match"]
+        keyword_max = boost_factors["keyword_max_boost"]
+        keyword_boost = min(keyword_per_match**keyword_count, keyword_max)
         boost *= keyword_boost
         logger.debug(f"Keyword boost {keyword_boost:.2f}x ({keyword_count} keywords)")
 
     # 3. Artikel-referentie boost
     if contains_artikel_referentie(definitie):
-        boost *= 1.15
-        logger.debug("Artikel-referentie boost 1.15x")
+        artikel_boost = boost_factors["artikel_referentie"]
+        boost *= artikel_boost
+        logger.debug(f"Artikel-referentie boost {artikel_boost}x")
 
     # 4. Lid-referentie boost
     if contains_lid_referentie(definitie):
-        boost *= 1.05
-        logger.debug("Lid-referentie boost 1.05x")
+        lid_boost = boost_factors["lid_referentie"]
+        boost *= lid_boost
+        logger.debug(f"Lid-referentie boost {lid_boost}x")
 
     # 5. Context match boost (optioneel)
     if context:
@@ -237,8 +517,10 @@ def calculate_juridische_boost(
         matches = sum(1 for c in context_lower if c in definitie_lower)
 
         if matches > 0:
-            # 1.1x per context match (max 1.3x voor 3+ matches)
-            context_boost = min(1.1**matches, 1.3)
+            # context_match^matches, capped bij context_max_boost
+            context_per_match = boost_factors["context_match"]
+            context_max = boost_factors["context_max_boost"]
+            context_boost = min(context_per_match**matches, context_max)
             boost *= context_boost
             logger.debug(
                 f"Context match boost {context_boost:.2f}x ({matches} matches)"
@@ -248,8 +530,8 @@ def calculate_juridische_boost(
 
 
 def boost_juridische_resultaten(
-    results: list["LookupResult"], context: list[str] | None = None
-) -> list["LookupResult"]:
+    results: list[LookupResult], context: list[str] | None = None
+) -> list[LookupResult]:
     """
     Boost confidence van juridische resultaten.
 
@@ -309,7 +591,7 @@ def boost_juridische_resultaten(
     return boosted_results
 
 
-def get_juridische_score(result: "LookupResult") -> float:
+def get_juridische_score(result: LookupResult) -> float:
     """
     Bereken hoe 'juridisch' een result is (0.0 - 1.0).
 
