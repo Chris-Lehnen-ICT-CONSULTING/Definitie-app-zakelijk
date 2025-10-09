@@ -58,73 +58,73 @@ st.info(
 
 st.markdown("---")
 
-# Generate section
-with st.expander("🚀 Genereer Nieuwe Synoniemen", expanded=False):
-    st.markdown("**Genereer AI-gestuurde synonym suggesties voor juridische termen**")
+# Generate section (NO expander to avoid nesting issues with suggestion cards below)
+st.markdown("## 🚀 Genereer Nieuwe Synoniemen")
+st.markdown("**Genereer AI-gestuurde synonym suggesties voor juridische termen**")
 
-    col1, col2 = st.columns([3, 1])
+col1, col2 = st.columns([3, 1])
 
-    with col1:
-        term = st.text_input(
-            "Juridische term",
-            placeholder="bijv. verdachte, getuige, rechter...",
-            help="Voer een juridische term in waarvoor synoniemen gegenereerd moeten worden",
-        )
+with col1:
+    term = st.text_input(
+        "Juridische term",
+        placeholder="bijv. verdachte, getuige, rechter...",
+        help="Voer een juridische term in waarvoor synoniemen gegenereerd moeten worden",
+    )
 
-    with col2:
-        confidence = st.slider(
-            "Min. Confidence",
-            min_value=0.0,
-            max_value=1.0,
-            value=0.6,
-            step=0.1,
-            help="Alleen suggesties met minimaal deze confidence score",
-        )
+with col2:
+    confidence = st.slider(
+        "Min. Confidence",
+        min_value=0.0,
+        max_value=1.0,
+        value=0.6,
+        step=0.1,
+        help="Alleen suggesties met minimaal deze confidence score",
+    )
 
-    if st.button("🤖 Genereer Suggesties", type="primary", use_container_width=True):
-        if not term or not term.strip():
-            st.error("❌ Voer eerst een term in")
-        else:
-            with st.spinner(f"🔄 GPT-4 genereert synoniemen voor '{term}'..."):
-                try:
-                    workflow = SynonymWorkflow()
+if st.button("🤖 Genereer Suggesties", type="primary", use_container_width=True):
+    if not term or not term.strip():
+        st.error("❌ Voer eerst een term in")
+    else:
+        with st.spinner(f"🔄 GPT-4 genereert synoniemen voor '{term}'..."):
+            try:
+                workflow = SynonymWorkflow()
 
-                    # Run async function
-                    suggestions = asyncio.run(
-                        workflow.suggest_synonyms(
-                            hoofdterm=term.strip(), confidence_threshold=confidence
-                        )
+                # Run async function
+                suggestions = asyncio.run(
+                    workflow.suggest_synonyms(
+                        hoofdterm=term.strip(), confidence_threshold=confidence
+                    )
+                )
+
+                if suggestions:
+                    st.success(
+                        f"✅ {len(suggestions)} suggesties gegenereerd en opgeslagen!"
                     )
 
-                    if suggestions:
-                        st.success(
-                            f"✅ {len(suggestions)} suggesties gegenereerd en opgeslagen!"
+                    # Show preview
+                    st.markdown("**Preview:**")
+                    for sug in suggestions[:5]:  # Show max 5
+                        st.write(
+                            f"- **{sug.synoniem}** (confidence: {sug.confidence:.2f})"
                         )
 
-                        # Show preview
-                        st.markdown("**Preview:**")
-                        for sug in suggestions[:5]:  # Show max 5
-                            st.write(
-                                f"- **{sug.synoniem}** (confidence: {sug.confidence:.2f})"
-                            )
+                    if len(suggestions) > 5:
+                        st.caption(f"... en {len(suggestions) - 5} meer")
 
-                        if len(suggestions) > 5:
-                            st.caption(f"... en {len(suggestions) - 5} meer")
+                    st.info(
+                        "💡 Scroll naar beneden om de suggesties te reviewen en goed te keuren"
+                    )
 
-                        st.info(
-                            "💡 Scroll naar beneden om de suggesties te reviewen en goed te keuren"
-                        )
+                    # Rerun to refresh the review table with new suggestions
+                    st.rerun()
+                else:
+                    st.warning(
+                        f"⚠️ Geen suggesties gevonden voor '{term}' met confidence ≥ {confidence}"
+                    )
 
-                        # Rerun to refresh the review table with new suggestions
-                        st.rerun()
-                    else:
-                        st.warning(
-                            f"⚠️ Geen suggesties gevonden voor '{term}' met confidence ≥ {confidence}"
-                        )
-
-                except Exception as e:
-                    st.error(f"❌ Fout bij genereren: {e}")
-                    st.exception(e)
+            except Exception as e:
+                st.error(f"❌ Fout bij genereren: {e}")
+                st.exception(e)
 
 st.markdown("---")
 
