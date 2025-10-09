@@ -251,7 +251,11 @@ class JuridischRankerConfig:
             # Update boost factors
             boost_config = web_lookup["juridical_boost"]
             for key, value in boost_config.items():
-                if key in self.boost_factors:
+                # Store nested dicts directly (e.g., quality_gate)
+                if isinstance(value, dict):
+                    self.boost_factors[key] = value
+                # Convert scalar values to float and update if key exists
+                elif key in self.boost_factors:
                     self.boost_factors[key] = float(value)
 
             logger.info(
@@ -446,67 +450,115 @@ def calculate_juridische_boost(
     """
     Bereken juridische boost factor voor een result.
 
+    FASE 3 FIX: Quality-gated boost ensures only high-quality juridical
+    sources receive full boost. This prevents low-quality juridical sources
+    from outranking high-quality relevant sources.
+
+    Quality Gate Logic:
+    - If base_score >= min_base_score: Full boost applied
+    - If base_score < min_base_score: Reduced boost (configurable factor)
+    - Content-based boosts (keywords, artikel, lid) apply regardless of gate
+
     Boost factoren worden geladen uit config/web_lookup_defaults.yaml:
     - Juridische bron (rechtspraak.nl, overheid.nl): configurable (default 1.2x)
     - Juridische keywords in definitie: configurable per keyword (default 1.1x, max 1.3x)
     - Artikel-referentie in definitie: configurable (default 1.15x)
     - Lid-referentie: configurable (default 1.05x)
     - Context match (optioneel): configurable (default 1.1x, max 1.3x)
+    - Quality gate: configurable threshold and reduction factor
 
     Args:
         result: LookupResult om te boosten
         context: Optionele context tokens (bijv. ["Sv", "strafrecht"])
 
     Returns:
-        Boost factor (> 1.0 voor juridische content, 1.0 voor neutrale content)
+        Boost factor (>= 1.0)
     """
     config = get_ranker_config()
     boost_factors = config.boost_factors
+
+    # Load quality gate settings (FASE 3 FIX)
+    quality_gate_config = boost_factors.get("quality_gate", {})
+    quality_gate_enabled = quality_gate_config.get("enabled", True)
+    min_base_score = quality_gate_config.get("min_base_score", 0.65)
+    reduced_factor = quality_gate_config.get("reduced_boost_factor", 0.5)
+
+    # Get base score BEFORE any boosting
+    base_score = float(getattr(result.source, "confidence", 0.5))
+
+    # Determine quality multiplier for source-based boosts
+    if quality_gate_enabled and base_score < min_base_score:
+        # Low quality source - apply reduced boost
+        quality_multiplier = reduced_factor
+        logger.debug(
+            f"Quality gate ACTIVE: base_score={base_score:.2f} < threshold={min_base_score:.2f}, "
+            f"applying {quality_multiplier:.0%} source boost"
+        )
+    else:
+        # High quality source OR gate disabled - apply full boost
+        quality_multiplier = 1.0
+        if quality_gate_enabled:
+            logger.debug(
+                f"Quality gate PASS: base_score={base_score:.2f} >= threshold={min_base_score:.2f}"
+            )
+
     boost = 1.0
 
-    # 1. Juridische bron boost
+    # 1. Juridische bron boost (URL-based, QUALITY GATED)
     if (
         hasattr(result, "source")
         and hasattr(result.source, "url")
         and is_juridische_bron(result.source.url)
     ):
-        bron_boost = boost_factors["juridische_bron"]
-        boost *= bron_boost
-        logger.debug(f"Juridische bron boost {bron_boost}x: {result.source.url}")
+        bron_boost = float(boost_factors.get("juridische_bron", 1.2))
+        # Apply quality gate: interpolate between 1.0 and bron_boost
+        effective_boost = 1.0 + (bron_boost - 1.0) * quality_multiplier
+        boost *= effective_boost
+        logger.debug(
+            f"Juridische bron boost {effective_boost:.3f}x "
+            f"(base={bron_boost:.2f}, gate={quality_multiplier:.2f}): {result.source.url}"
+        )
 
-    # Alternative: check source.is_juridical flag
+    # Alternative: check source.is_juridical flag (QUALITY GATED)
     if (
         hasattr(result, "source")
         and getattr(result.source, "is_juridical", False)
         and boost == 1.0  # Alleen als niet al geboosted via URL
     ):
-        flag_boost = boost_factors["juridical_flag"]
-        boost *= flag_boost
-        logger.debug(f"Juridische bron flag boost {flag_boost}x")
+        flag_boost = float(boost_factors.get("juridical_flag", 1.15))
+        effective_boost = 1.0 + (flag_boost - 1.0) * quality_multiplier
+        boost *= effective_boost
+        logger.debug(
+            f"Juridische flag boost {effective_boost:.3f}x "
+            f"(base={flag_boost:.2f}, gate={quality_multiplier:.2f})"
+        )
+
+    # 2-5: Content-based boosts (NOT GATED - measure intrinsic relevance)
+    # These apply to all sources regardless of quality gate
+    definitie = getattr(result, "definition", "") or ""
 
     # 2. Juridische keywords in definitie
-    definitie = getattr(result, "definition", "") or ""
     keyword_count = count_juridische_keywords(definitie)
 
     if keyword_count > 0:
         # Cap bij keyword_max_boost (configurable)
-        keyword_per_match = boost_factors["keyword_per_match"]
-        keyword_max = boost_factors["keyword_max_boost"]
+        keyword_per_match = float(boost_factors.get("keyword_per_match", 1.1))
+        keyword_max = float(boost_factors.get("keyword_max_boost", 1.3))
         keyword_boost = min(keyword_per_match**keyword_count, keyword_max)
         boost *= keyword_boost
-        logger.debug(f"Keyword boost {keyword_boost:.2f}x ({keyword_count} keywords)")
+        logger.debug(f"Keyword boost {keyword_boost:.3f}x ({keyword_count} keywords)")
 
     # 3. Artikel-referentie boost
     if contains_artikel_referentie(definitie):
-        artikel_boost = boost_factors["artikel_referentie"]
+        artikel_boost = float(boost_factors.get("artikel_referentie", 1.15))
         boost *= artikel_boost
-        logger.debug(f"Artikel-referentie boost {artikel_boost}x")
+        logger.debug(f"Artikel-referentie boost {artikel_boost:.3f}x")
 
     # 4. Lid-referentie boost
     if contains_lid_referentie(definitie):
-        lid_boost = boost_factors["lid_referentie"]
+        lid_boost = float(boost_factors.get("lid_referentie", 1.05))
         boost *= lid_boost
-        logger.debug(f"Lid-referentie boost {lid_boost}x")
+        logger.debug(f"Lid-referentie boost {lid_boost:.3f}x")
 
     # 5. Context match boost (optioneel)
     if context:
@@ -518,14 +570,15 @@ def calculate_juridische_boost(
 
         if matches > 0:
             # context_match^matches, capped bij context_max_boost
-            context_per_match = boost_factors["context_match"]
-            context_max = boost_factors["context_max_boost"]
+            context_per_match = float(boost_factors.get("context_match", 1.1))
+            context_max = float(boost_factors.get("context_max_boost", 1.3))
             context_boost = min(context_per_match**matches, context_max)
             boost *= context_boost
             logger.debug(
-                f"Context match boost {context_boost:.2f}x ({matches} matches)"
+                f"Context match boost {context_boost:.3f}x ({matches} matches)"
             )
 
+    logger.debug(f"Total boost factor: {boost:.3f}x (base_score={base_score:.2f})")
     return boost
 
 

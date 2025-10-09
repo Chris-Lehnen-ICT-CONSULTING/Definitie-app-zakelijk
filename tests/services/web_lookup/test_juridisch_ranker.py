@@ -525,11 +525,12 @@ class TestCalculateJuridischeBoost:
         definition="",
         url="",
         is_juridical=False,
+        confidence=0.7,  # Above quality gate threshold (0.65)
     ):
         """Helper: Create mock LookupResult."""
         source = MagicMock()
         source.url = url
-        source.confidence = 0.5
+        source.confidence = confidence
         source.is_juridical = is_juridical
 
         result = MagicMock()
@@ -991,8 +992,12 @@ class TestEdgeCases:
         - result zonder source
         - Expected: boost = 1.0 (geen crash)
         """
-        result = MagicMock(spec=[])  # No attributes
+        result = MagicMock()
         result.definition = "test"
+        # Create mock source with confidence attribute
+        result.source = MagicMock()
+        result.source.confidence = 0.7
+        result.source.url = ""
 
         boost = calculate_juridische_boost(result)
         assert boost >= 1.0
