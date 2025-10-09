@@ -14,14 +14,26 @@ web_lookup:
 
   # Juridische ranking boost factoren
   juridical_boost:
-    juridische_bron: 1.2       # Boost voor rechtspraak.nl, overheid.nl
+    # Quality gate settings (FASE 3 FIX - Oct 2025)
+    # Prevents low-quality juridical sources from outranking high-quality relevant sources
+    # Rationale: "Autoriteit moet verdient worden met kwaliteit"
+    quality_gate:
+      enabled: true
+      min_base_score: 0.65          # Only boost sources with score >= 0.65
+      reduced_boost_factor: 0.5     # Apply 50% boost if below threshold
+      # Example: BES wetgeving (0.6) should not beat relevant Wikipedia (0.8)
+
+    # Source-based boosts (applied after quality gate)
+    juridische_bron: 1.2       # Boost voor rechtspraak.nl, overheid.nl (GATED)
+    juridical_flag: 1.15       # Boost voor is_juridical flag (GATED)
+
+    # Content-based boosts (NOT gated - measure intrinsic relevance)
     keyword_per_match: 1.1     # Boost per juridisch keyword (max 1.3x)
     keyword_max_boost: 1.3     # Maximum keyword boost cap
     artikel_referentie: 1.15   # Boost voor artikel-referenties
     lid_referentie: 1.05       # Boost voor lid-referenties
     context_match: 1.1         # Boost voor context token matches
     context_max_boost: 1.3     # Maximum context boost cap
-    juridical_flag: 1.15       # Boost voor is_juridical flag
 
   cache:
     strategy: "stale-while-revalidate"
