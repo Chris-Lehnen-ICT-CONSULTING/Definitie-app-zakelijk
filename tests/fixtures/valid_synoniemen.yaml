@@ -1,0 +1,22 @@
+# Valid test fixture for juridische_synoniemen.yaml
+# All validations should pass
+
+onherroepelijk:
+  - kracht van gewijsde
+  - rechtskracht
+  - definitieve uitspraak
+
+voorlopige_hechtenis:
+  - voorarrest
+  - bewaring
+  - preventieve detentie
+
+verdachte:
+  - beklaagde
+  - beschuldigde
+  - aangeklaagde
+
+hoger_beroep:
+  - appel
+  - appelprocedure
+  - beroepsinstantie

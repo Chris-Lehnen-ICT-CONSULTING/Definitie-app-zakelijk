@@ -6,13 +6,22 @@ web_lookup:
     enabled: true
     config_path: "config/juridische_synoniemen.yaml"
     max_synonyms_per_query: 3  # Limiteer aantal synoniemen per query
-    # Juridische ranking boost factoren
-    juridical_boost:
-      juridische_bron: 1.2       # Boost voor rechtspraak.nl, overheid.nl
-      keyword_per_match: 1.1     # Boost per juridisch keyword (max 1.3x)
-      artikel_referentie: 1.15   # Boost voor artikel-referenties
-      lid_referentie: 1.05       # Boost voor lid-referenties
-      context_match: 1.1         # Boost voor context token matches
+
+  # Juridische keywords database (NIEUW - Oct 2025)
+  keywords:
+    enabled: true
+    config_path: "config/juridische_keywords.yaml"
+
+  # Juridische ranking boost factoren
+  juridical_boost:
+    juridische_bron: 1.2       # Boost voor rechtspraak.nl, overheid.nl
+    keyword_per_match: 1.1     # Boost per juridisch keyword (max 1.3x)
+    keyword_max_boost: 1.3     # Maximum keyword boost cap
+    artikel_referentie: 1.15   # Boost voor artikel-referenties
+    lid_referentie: 1.05       # Boost voor lid-referenties
+    context_match: 1.1         # Boost voor context token matches
+    context_max_boost: 1.3     # Maximum context boost cap
+    juridical_flag: 1.15       # Boost voor is_juridical flag
 
   cache:
     strategy: "stale-while-revalidate"

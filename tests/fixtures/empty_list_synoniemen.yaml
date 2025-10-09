@@ -1,0 +1,11 @@
+# Invalid: Empty synonym list
+# Should fail validation
+
+onherroepelijk:
+  - kracht van gewijsde
+  - rechtskracht
+
+empty_term: []
+
+verdachte:
+  - beklaagde
