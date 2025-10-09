@@ -296,10 +296,58 @@ class SynonymReviewTab:
                     st.markdown("**Rejection Reason:**")
                     st.error(suggestion.rejection_reason)
 
-            # Actions (only for pending)
+            # Actions based on status
+            st.markdown("---")
             if suggestion.status == SuggestionStatus.PENDING.value:
-                st.markdown("---")
+                # Pending: show approve/reject
                 self._render_suggestion_actions(suggestion)
+            else:
+                # Approved/Rejected: show revert button
+                self._render_revert_action(suggestion)
+
+    def _render_revert_action(self, suggestion: SynonymSuggestionRecord):
+        """Render revert button voor approved/rejected suggestion."""
+        # Show info about what revert will do
+        if suggestion.status == SuggestionStatus.APPROVED.value:
+            st.info(
+                "💡 Revert zet deze suggestion terug naar Pending "
+                "en **verwijdert het synoniem uit de YAML config**."
+            )
+        else:  # REJECTED
+            st.info(
+                "💡 Revert zet deze suggestion terug naar Pending "
+                "zodat je opnieuw kan reviewen."
+            )
+
+        # Revert button
+        if st.button(
+            "↩️ Revert to Pending",
+            key=f"revert_{suggestion.id}",
+            help="Zet terug naar pending status voor nieuwe review",
+        ):
+            # Toon bevestiging dialog
+            st.session_state[f"confirm_revert_{suggestion.id}"] = True
+            st.rerun()
+
+        # Confirmation dialog (if triggered)
+        if st.session_state.get(f"confirm_revert_{suggestion.id}", False):
+            st.warning(
+                f"⚠️ Weet je zeker dat je '{suggestion.synoniem}' terug wilt zetten naar Pending?"
+            )
+
+            if suggestion.status == SuggestionStatus.APPROVED.value:
+                st.warning(
+                    "**Let op:** Dit synoniem wordt verwijderd uit de YAML config!"
+                )
+
+            col1, col2 = st.columns(2)
+            with col1:
+                if st.button("Ja, Revert", key=f"confirm_revert_yes_{suggestion.id}"):
+                    self._revert_suggestion(suggestion)
+            with col2:
+                if st.button("Annuleer", key=f"confirm_revert_no_{suggestion.id}"):
+                    st.session_state[f"confirm_revert_{suggestion.id}"] = False
+                    st.rerun()
 
     def _render_suggestion_actions(self, suggestion: SynonymSuggestionRecord):
         """Render approve/reject acties voor pending suggestion."""
@@ -488,6 +536,40 @@ class SynonymReviewTab:
         except Exception as e:
             st.error(f"❌ Bulk approve fout: {e}")
             logger.error(f"Bulk approve error: {e}", exc_info=True)
+
+    def _revert_suggestion(self, suggestion: SynonymSuggestionRecord):
+        """Revert een approved/rejected suggestion via workflow."""
+        try:
+            user = st.session_state.get("user", "reviewer")
+
+            # Use workflow for revert (handles YAML removal for approved)
+            success = self.workflow.revert_to_pending(suggestion.id, user)
+
+            if success:
+                if suggestion.status == SuggestionStatus.APPROVED.value:
+                    st.success(
+                        f"↩️ Suggestion reverted to Pending & removed from YAML: "
+                        f"'{suggestion.hoofdterm}' → '{suggestion.synoniem}'"
+                    )
+                    st.toast(f"↩️ Reverted & removed: {suggestion.synoniem}", icon="↩️")
+                else:
+                    st.success(
+                        f"↩️ Suggestion reverted to Pending: "
+                        f"'{suggestion.hoofdterm}' → '{suggestion.synoniem}'"
+                    )
+                    st.toast(f"↩️ Reverted: {suggestion.synoniem}", icon="↩️")
+
+                # Clear confirmation dialog
+                if f"confirm_revert_{suggestion.id}" in st.session_state:
+                    del st.session_state[f"confirm_revert_{suggestion.id}"]
+
+                st.rerun()
+            else:
+                st.error("❌ Kon suggestion niet reverten")
+
+        except Exception as e:
+            st.error(f"❌ Fout bij reverten: {e}")
+            logger.error(f"Revert suggestion error: {e}", exc_info=True)
 
     def _bulk_reject(self, suggestions: list[SynonymSuggestionRecord], reason: str):
         """Bulk reject multiple suggestions via workflow."""

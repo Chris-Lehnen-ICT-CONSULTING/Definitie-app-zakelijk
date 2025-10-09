@@ -249,6 +249,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "FASE 2: Ranking Flow Bug Fix - Implementation Plan",
+      "path": "../implementation-plans/fase2-ranking-fix-implementation.md",
+      "url": "../implementation-plans/fase2-ranking-fix-implementation.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/implementation-plans/fase2-ranking-fix-implementation.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Juridische Synoniemen & Query Optimization",
       "path": "../technisch/web_lookup_synoniemen.md",
       "url": "../technisch/web_lookup_synoniemen.md",
@@ -40691,7 +40722,7 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 625,
+      "DOC": 626,
       "ARCH": 36,
       "COMP": 5,
       "TEST": 35,
@@ -40701,7 +40732,7 @@
       "US": 276,
       "BUG": 18
     },
-    "generated_at": "2025-10-09T08:41:27Z"
+    "generated_at": "2025-10-09T09:01:43Z"
   },
   "sources": [
     "docs"
