@@ -87,3 +87,10 @@ repos:
         pass_filenames: false
         files: ^docs/(?!portal/).+\.md$
         stages: [pre-commit]
+      - id: validate-juridische-synoniemen
+        name: Validate juridische_synoniemen.yaml
+        entry: python3 scripts/validate_synonyms.py
+        language: system
+        pass_filenames: false
+        files: ^config/juridische_synoniemen\.yaml$
+        stages: [pre-commit]
