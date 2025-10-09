@@ -1,0 +1,16 @@
+# Warnings: Normalization consistency issues
+# Should pass validation but show warnings
+
+# Hoofdterm with spaces (should use underscores)
+kracht van gewijsde:
+  - onherroepelijk
+  - rechtskracht
+
+onherroepelijk:
+  - rechtskracht
+  - definitieve_uitspraak  # Synonym with underscore (should use spaces)
+  - " finale uitspraak "  # Leading/trailing whitespace
+
+verdachte:
+  - beklaagde
+  - "  beschuldigde"  # Leading whitespace

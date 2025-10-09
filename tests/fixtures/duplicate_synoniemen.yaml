@@ -1,0 +1,12 @@
+# Invalid: Duplicate synonyms within same hoofdterm
+# Should fail validation
+
+onherroepelijk:
+  - kracht van gewijsde
+  - rechtskracht
+  - kracht_van_gewijsde  # Duplicate after normalization
+  - definitieve uitspraak
+
+verdachte:
+  - beklaagde
+  - beklaagde  # Exact duplicate

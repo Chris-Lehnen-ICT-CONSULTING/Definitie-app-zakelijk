@@ -1,0 +1,7 @@
+# Invalid YAML syntax
+# Should fail to parse
+
+onherroepelijk:
+  - kracht van gewijsde
+  - rechtskracht
+  - [this is invalid YAML structure

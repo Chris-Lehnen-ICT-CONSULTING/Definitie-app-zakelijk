@@ -191,10 +191,13 @@ voorlopige_hechtenis:
         assert "onherroepelijk" in service.synoniemen
         assert "voorlopige hechtenis" in service.synoniemen
 
-        # Verify synoniemen lists
-        assert "kracht van gewijsde" in service.synoniemen["onherroepelijk"]
-        assert "rechtskracht" in service.synoniemen["onherroepelijk"]
-        assert "voorarrest" in service.synoniemen["voorlopige hechtenis"]
+        # Verify synoniemen lists (now WeightedSynonym objects)
+        onherr_syns = [ws.term for ws in service.synoniemen["onherroepelijk"]]
+        assert "kracht van gewijsde" in onherr_syns
+        assert "rechtskracht" in onherr_syns
+
+        voorl_syns = [ws.term for ws in service.synoniemen["voorlopige hechtenis"]]
+        assert "voorarrest" in voorl_syns
 
         # Verify reverse index
         assert "kracht van gewijsde" in service.reverse_index
@@ -295,11 +298,12 @@ test:
 
         service = JuridischeSynoniemlService(config_path=str(config_path))
 
-        # Only valid synoniemen should be loaded
-        synoniemen = service.synoniemen.get("test", [])
-        assert "synoniem1" in synoniemen
-        assert "synoniem2" in synoniemen
-        assert len(synoniemen) == 2  # Only 2 valid entries
+        # Only valid synoniemen should be loaded (now WeightedSynonym objects)
+        weighted_syns = service.synoniemen.get("test", [])
+        syn_terms = [ws.term for ws in weighted_syns]
+        assert "synoniem1" in syn_terms
+        assert "synoniem2" in syn_terms
+        assert len(weighted_syns) == 2  # Only 2 valid entries
 
 
 class TestGetSynoniemen:

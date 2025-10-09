@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Juridisch Ranker - Quick Reference</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>Juridisch Ranker - Quick Reference</h1>
+
+<h2>TL;DR</h2>
+
+<p>Keywords and boost factors are now in YAML config files. Old code still works, but use the new pattern for new code.</p>
+
+<h2>Quick Start</h2>
+
+<h3>Old Way (Still Works)</h3>
+<pre><code>from services.web_lookup.juridisch_ranker import JURIDISCHE_KEYWORDS
+
+if "wetboek" in JURIDISCHE_KEYWORDS:
+    print("Juridisch keyword")</code></pre>
+
+<h3>New Way (Recommended)</h3>
+<pre><code>from services.web_lookup.juridisch_ranker import get_ranker_config
+
+config = get_ranker_config()
+keywords = config.keywords  # set of 45 keywords
+boost = config.boost_factors["juridische_bron"]  # 1.2</code></pre>
+
+<h2>Configuration Files</h2>
+
+<h3>Keywords: `config/juridische_keywords.yaml`</h3>
+<pre><code>algemeen:        # 14 keywords
+strafrecht:      # 10 keywords
+burgerlijk:      # 6 keywords
+bestuursrecht:   # 6 keywords
+procesrecht:     # 5 keywords
+wetten:          # 4 keywords (sr, sv, rv, bw)</code></pre>
+<p><strong>Total:</strong> 45 keywords</p>
+
+<h3>Boost Factors: `config/web_lookup_defaults.yaml`</h3>
+<pre><code>juridical_boost:
+  juridische_bron: 1.2       # rechtspraak.nl, overheid.nl
+  keyword_per_match: 1.1     # per juridisch keyword
+  keyword_max_boost: 1.3     # max keyword boost
+  artikel_referentie: 1.15   # Art. X, Artikel Y
+  lid_referentie: 1.05       # lid 2, tweede lid
+  context_match: 1.1         # per context token
+  context_max_boost: 1.3     # max context boost
+  juridical_flag: 1.15       # is_juridical flag</code></pre>
+
+<h2>Environment Variables</h2>
+
+<pre><code># Override keywords config
+export JURIDISCH_KEYWORDS_CONFIG="/path/to/keywords.yaml"
+
+# Override defaults (including boost factors)
+export WEB_LOOKUP_CONFIG="/path/to/defaults.yaml"</code></pre>
+
+<h2>Common Tasks</h2>
+
+<h3>Add New Keywords</h3>
+<ol>
+<li>Edit `config/juridische_keywords.yaml`</li>
+<li>Add to appropriate category</li>
+<li>Restart app (or wait for hot reload in future)</li>
+</ol>
+
+<h3>Adjust Boost Factors</h3>
+<ol>
+<li>Edit `config/web_lookup_defaults.yaml`</li>
+<li>Modify values in `juridical_boost` section</li>
+<li>Restart app</li>
+</ol>
+
+<h3>Check Current Config</h3>
+<pre><code>config = get_ranker_config()
+print(f"Keywords: {len(config.keywords)}")  # 45
+print(f"Factors: {config.boost_factors}")</code></pre>
+
+<h3>Validate Migration</h3>
+<pre><code>python scripts/validate_juridisch_keywords_migration.py</code></pre>
+
+<h2>API Reference</h2>
+
+<h3>`get_ranker_config()`</h3>
+<p>Returns singleton config instance.</p>
+
+<p><strong>Parameters:</strong></p>
+<ul>
+<li>`keywords_path` (str, optional): Custom keywords YAML path</li>
+<li>`defaults_path` (str, optional): Custom defaults YAML path</li>
+</ul>
+
+<p><strong>Returns:</strong> <code>JuridischRankerConfig</code></p>
+
+<h3>`JuridischRankerConfig`</h3>
+
+<p><strong>Attributes:</strong></p>
+<ul>
+<li>`keywords` (set[str]): 45 normalized juridische keywords</li>
+<li>`boost_factors` (dict): 8 configurable boost factors</li>
+</ul>
+
+<p><strong>Methods:</strong></p>
+<ul>
+<li>`_normalize_term(term)`: Normalize term (lowercase, strip, underscore→space)</li>
+</ul>
+
+<h3>Module-level Functions</h3>
+
+<p><strong>Unchanged APIs (use config internally):</strong></p>
+<ul>
+<li>`is_juridische_bron(url: str) -> bool`</li>
+<li>`count_juridische_keywords(text: str) -> int`</li>
+<li>`contains_artikel_referentie(text: str) -> bool`</li>
+<li>`contains_lid_referentie(text: str) -> bool`</li>
+<li>`calculate_juridische_boost(result, context=None) -> float`</li>
+<li>`boost_juridische_resultaten(results, context=None) -> list`</li>
+<li>`get_juridische_score(result) -> float`</li>
+</ul>
+
+<h2>Troubleshooting</h2>
+
+<h3>Config Not Loading?</h3>
+<p>Check logs for warnings:</p>
+<pre><code>WARNING: Keywords config niet gevonden: ...
+INFO: Geladen: 45 fallback keywords</code></pre>
+
+<h3>Performance Issues?</h3>
+<p>Config is singleton - loaded once at startup (~10-20ms).</p>
+
+<h3>Keywords Not Working?</h3>
+<p>Verify normalization (lowercase, no underscores):</p>
+<pre><code>config = get_ranker_config()
+print("wetboek" in config.keywords)  # True
+print("Wetboek" in config.keywords)  # False (not normalized)</code></pre>
+
+<h2>Testing</h2>
+
+<p>Run tests:</p>
+<pre><code>pytest tests/services/web_lookup/test_juridisch_ranker.py -v</code></pre>
+
+<p>Run validation:</p>
+<pre><code>python scripts/validate_juridisch_keywords_migration.py</code></pre>
+
+<h2>Migration Status</h2>
+
+<p>✅ All 64 tests passing</p>
+<p>✅ All validation checks passed</p>
+<p>✅ 100% backwards compatible</p>
+<p>✅ Zero breaking changes</p>
+
+<h2>See Also</h2>
+
+<ul>
+<li>**Full Documentation:** `docs/technisch/juridisch_ranker_migration.md`</li>
+<li>**Migration Summary:** `docs/technisch/MIGRATION_SUMMARY_JURIDISCH_RANKER.md`</li>
+<li>**Similar Pattern:** `src/services/web_lookup/synonym_service.py`</li>
+</ul>
+
+  </div>
+</body>
+</html>

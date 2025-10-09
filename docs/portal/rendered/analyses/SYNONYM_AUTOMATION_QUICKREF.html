@@ -1,0 +1,504 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Synonym Automation - Developer Quick Reference</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>Synonym Automation - Developer Quick Reference</h1>
+
+<p><strong>Last Updated</strong>: 8 oktober 2025</p>
+<p><strong>Full Analysis</strong>: <code>docs/analyses/SYNONYM_AUTOMATION_ANALYSIS.md</code></p>
+
+<p>---</p>
+
+<h2>TL;DR</h2>
+
+<p><strong>Recommended</strong>: GPT-4 Suggest + Human Approve workflow</p>
+<p><strong>Cost</strong>: $3 one-time, $0.30/month</p>
+<p><strong>Timeline</strong>: 5-8 days implementation</p>
+<p><strong>Expected Impact</strong>: 50 → 150 termen, 184 → 450 synoniemen</p>
+
+<p>---</p>
+
+<h2>Implementation Checklist</h2>
+
+<h3>Phase 1: GPT-4 Suggester Service (Days 1-2)</h3>
+
+<pre><code># File: src/services/synonym_automation/gpt4_suggester.py
+
+class GPT4SynonymSuggester:
+    PROMPT_TEMPLATE = """
+    Je bent een expert in Nederlands juridisch taalgebruik.
+    Genereer synoniemen voor: {term}
+
+    Context: {context}
+    Definitie: {definitie}
+
+    Output (JSON):
+    {{"synoniemen": [{{"term": "...", "confidence": 0.95, "rationale": "..."}}]}}
+    """
+
+    async def suggest_synonyms(
+        self,
+        term: str,
+        definitie: str = None,
+        context: list[str] = None
+    ) -&gt; list[SynonymSuggestion]:
+        # 1. Build prompt
+        # 2. Call GPT-4 (temp=0.3, max_tokens=500)
+        # 3. Parse JSON response
+        # 4. Filter low confidence (&lt;0.6)
+        # 5. Return suggestions</code></pre>
+
+<p><strong>Dependencies</strong>: <code>AIServiceV2</code> (already in project)</p>
+
+<p>---</p>
+
+<h3>Phase 2: Database Schema (Day 3)</h3>
+
+<pre><code>-- File: src/database/migrations/XXX_add_synonym_suggestions.sql
+
+CREATE TABLE synonym_suggestions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    hoofdterm TEXT NOT NULL,
+    synoniem TEXT NOT NULL,
+    confidence DECIMAL(3,2),
+    rationale TEXT,
+    status TEXT CHECK (status IN ('pending', 'approved', 'rejected')),
+    reviewed_by TEXT,
+    reviewed_at TIMESTAMP,
+    rejection_reason TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_suggestions_status ON synonym_suggestions(status);
+CREATE INDEX idx_suggestions_hoofdterm ON synonym_suggestions(hoofdterm);</code></pre>
+
+<p><strong>Migration</strong>: <code>python src/database/migrate_database.py</code></p>
+
+<p>---</p>
+
+<h3>Phase 3: Repository Layer (Day 4)</h3>
+
+<pre><code># File: src/repositories/synonym_repository.py
+
+class SynonymRepository:
+    async def save_suggestion(
+        self, hoofdterm: str, synoniem: str,
+        confidence: float, rationale: str
+    ) -&gt; int:
+        """Save suggestion voor human review."""
+
+    async def get_pending_suggestions(
+        self, hoofdterm_filter: str = None,
+        min_confidence: float = 0.0
+    ) -&gt; list[SynonymSuggestion]:
+        """Get all pending suggestions."""
+
+    async def update_status(
+        self, suggestion_id: int, status: str,
+        reviewed_by: str, rejection_reason: str = None
+    ) -&gt; None:
+        """Update suggestion status."""</code></pre>
+
+<p>---</p>
+
+<h3>Phase 4: YAML Auto-Update (Day 5)</h3>
+
+<pre><code># File: src/services/synonym_automation/yaml_updater.py
+
+class YAMLConfigUpdater:
+    def __init__(self, yaml_path: str = "config/juridische_synoniemen.yaml"):
+        self.yaml_path = Path(yaml_path)
+
+    async def add_synonym(self, hoofdterm: str, synoniem: str) -&gt; None:
+        # 1. Backup existing YAML
+        # 2. Load current data
+        # 3. Add synoniem (normalize hoofdterm: spaces → underscores)
+        # 4. Validate (no duplicates)
+        # 5. Write back
+        # 6. Git commit (optional)</code></pre>
+
+<p><strong>Backup strategy</strong>: <code>config/juridische_synoniemen.yaml.backup.YYYYMMDD-HHMMSS</code></p>
+
+<p>---</p>
+
+<h3>Phase 5: Streamlit Review UI (Days 6-7)</h3>
+
+<pre><code># File: src/ui/tabs/synonym_review.py
+
+def render_synonym_review_tab():
+    st.title("✅ Synoniemen Review")
+
+    # Sidebar: Statistics
+    with st.sidebar:
+        stats = get_stats()
+        st.metric("Pending", stats['pending'])
+        st.metric("Approved", stats['approved'])
+        st.metric("Approval Rate", f"{stats['approval_rate']:.1%}")
+
+    # Main: Review interface
+    suggestions = load_pending_suggestions(
+        min_confidence=st.slider("Min confidence", 0.0, 1.0, 0.6)
+    )
+
+    for suggestion in suggestions:
+        with st.expander(f"{suggestion.hoofdterm} → {suggestion.synoniem}"):
+            st.info(suggestion.rationale)
+
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                if st.button("✅ Approve"):
+                    approve_synonym(suggestion.id)
+            with col2:
+                if st.button("❌ Reject"):
+                    reject_synonym(suggestion.id)
+            with col3:
+                if st.button("✏️ Edit"):
+                    edit_synonym(suggestion.id)</code></pre>
+
+<p><strong>Navigation</strong>: Add to <code>src/ui/tabs/__init__.py</code> → <code>TABS</code> dict</p>
+
+<p>---</p>
+
+<h3>Phase 6: Workflow Orchestration (Day 8)</h3>
+
+<pre><code># File: src/services/synonym_automation/workflow.py
+
+class SynonymWorkflow:
+    def __init__(
+        self,
+        suggester: GPT4SynonymSuggester,
+        repository: SynonymRepository,
+        yaml_updater: YAMLConfigUpdater
+    ):
+        self.suggester = suggester
+        self.repository = repository
+        self.yaml_updater = yaml_updater
+
+    async def batch_suggest(self, terms: list[str]) -&gt; dict:
+        """Batch process synonym suggestions."""
+        for term in terms:
+            # Get context from database
+            context = await self._get_db_context(term)
+
+            # Generate suggestions
+            suggestions = await self.suggester.suggest_synonyms(
+                term=term,
+                definitie=context.get('definitie'),
+                context=context.get('juridische_context')
+            )
+
+            # Save for review
+            for s in suggestions:
+                await self.repository.save_suggestion(
+                    hoofdterm=term,
+                    synoniem=s.term,
+                    confidence=s.confidence,
+                    rationale=s.rationale
+                )
+
+    async def approve_synonym(self, suggestion_id: int, curator_id: str):
+        """Approve + update YAML."""
+        suggestion = await self.repository.get_suggestion(suggestion_id)
+
+        # Update DB status
+        await self.repository.update_status(
+            suggestion_id, 'approved', curator_id
+        )
+
+        # Update YAML
+        await self.yaml_updater.add_synonym(
+            suggestion.hoofdterm, suggestion.synoniem
+        )</code></pre>
+
+<p>---</p>
+
+<h2>Batch Processing Script</h2>
+
+<pre><code># File: scripts/batch_suggest_synonyms.py
+
+python scripts/batch_suggest_synonyms.py \
+    --source database \           # or: file, manual
+    --terms-file terms.txt \      # Optional: specific terms
+    --max-terms 50 \              # Batch limit
+    --min-confidence 0.6          # Filter threshold</code></pre>
+
+<p><strong>Output</strong>: Suggestions saved in DB → review in UI</p>
+
+<p>---</p>
+
+<h2>Testing Strategy</h2>
+
+<h3>Unit Tests</h3>
+
+<pre><code># tests/services/synonym_automation/test_gpt4_suggester.py
+
+@pytest.mark.asyncio
+async def test_suggest_synonyms_with_context():
+    suggester = GPT4SynonymSuggester(mock_ai_service)
+
+    suggestions = await suggester.suggest_synonyms(
+        term="voorlopige hechtenis",
+        definitie="Tijdelijke vrijheidsbeneming...",
+        context=["Sv", "strafrecht"]
+    )
+
+    assert len(suggestions) &gt; 0
+    assert all(s.confidence &gt;= 0.6 for s in suggestions)
+    assert all(s.rationale for s in suggestions)</code></pre>
+
+<h3>Integration Tests</h3>
+
+<pre><code># tests/integration/test_synonym_workflow.py
+
+@pytest.mark.integration
+async def test_end_to_end_workflow():
+    workflow = SynonymWorkflow(...)
+
+    # 1. Batch suggest
+    stats = await workflow.batch_suggest(["verdachte", "vonnis"])
+    assert stats['suggestions_created'] &gt; 0
+
+    # 2. Approve
+    suggestions = await workflow.repository.get_pending_suggestions()
+    await workflow.approve_synonym(suggestions[0].id, "curator_1")
+
+    # 3. Verify YAML updated
+    yaml_data = load_yaml_config()
+    assert suggestions[0].synoniem in yaml_data['verdachte']</code></pre>
+
+<p>---</p>
+
+<h2>Configuration</h2>
+
+<pre><code># config/web_lookup_defaults.yaml
+
+web_lookup:
+  synonyms:
+    automation:
+      enabled: true
+      gpt4:
+        model: "gpt-4-turbo"
+        temperature: 0.3
+        max_tokens: 500
+        max_synonyms_per_term: 8
+        min_confidence: 0.6
+      batch:
+        max_terms_per_run: 50
+        daily_limit: 100
+      approval:
+        auto_approve_threshold: 0.95  # Auto-approve if confidence &gt; 0.95
+        require_rationale: true</code></pre>
+
+<p>---</p>
+
+<h2>API Cost Monitoring</h2>
+
+<pre><code># File: src/services/synonym_automation/cost_tracker.py
+
+class CostTracker:
+    def __init__(self):
+        self.costs = []
+
+    def track_request(
+        self,
+        input_tokens: int,
+        output_tokens: int,
+        model: str = "gpt-4-turbo"
+    ):
+        # GPT-4-turbo pricing (as of Oct 2025)
+        PRICES = {
+            "gpt-4-turbo": {
+                "input": 0.01 / 1000,   # $0.01 per 1K tokens
+                "output": 0.03 / 1000   # $0.03 per 1K tokens
+            }
+        }
+
+        cost = (
+            input_tokens * PRICES[model]["input"] +
+            output_tokens * PRICES[model]["output"]
+        )
+
+        self.costs.append({
+            'timestamp': datetime.now(),
+            'input_tokens': input_tokens,
+            'output_tokens': output_tokens,
+            'cost': cost
+        })
+
+    def get_daily_cost(self) -&gt; float:
+        today = datetime.now().date()
+        return sum(
+            c['cost'] for c in self.costs
+            if c['timestamp'].date() == today
+        )</code></pre>
+
+<p><strong>Dashboard</strong>: Integrate in Streamlit sidebar</p>
+
+<p>---</p>
+
+<h2>Troubleshooting</h2>
+
+<h3>Issue: GPT-4 returns malformed JSON</h3>
+
+<p><strong>Solution</strong>: Add JSON validation + retry logic</p>
+
+<pre><code>async def suggest_synonyms(self, term: str) -&gt; list[SynonymSuggestion]:
+    for attempt in range(3):  # Max 3 retries
+        try:
+            response = await self.ai_service.generate(prompt)
+            suggestions = self._parse_json(response)
+            return suggestions
+        except json.JSONDecodeError:
+            if attempt == 2:
+                raise
+            continue  # Retry</code></pre>
+
+<p>---</p>
+
+<h3>Issue: Low-quality suggestions</h3>
+
+<p><strong>Solution</strong>: Improve prompt with examples</p>
+
+<pre><code>PROMPT_TEMPLATE = """
+...
+
+VOORBEELDEN VAN GOEDE SYNONIEMEN:
+- "voorlopige hechtenis" → "voorarrest", "bewaring" (hoge confidence)
+- "onherroepelijk" → "kracht van gewijsde", "rechtskracht"
+
+VOORBEELDEN VAN SLECHTE SYNONIEMEN (VERMIJD):
+- "voorlopige hechtenis" → "gevangenis" (te algemeen)
+- "verdachte" → "crimineel" (pejoratief, niet juridisch)
+
+...
+"""</code></pre>
+
+<p>---</p>
+
+<h3>Issue: YAML corruption</h3>
+
+<p><strong>Solution</strong>: Validate before commit</p>
+
+<pre><code>async def add_synonym(self, hoofdterm: str, synoniem: str):
+    # 1. Backup
+    self._create_backup()
+
+    # 2. Load + modify
+    data = self._load_yaml()
+    data[hoofdterm].append(synoniem)
+
+    # 3. Validate
+    try:
+        yaml.safe_load(yaml.dump(data))
+    except yaml.YAMLError as e:
+        self._restore_backup()
+        raise ValueError(f"YAML validation failed: {e}")
+
+    # 4. Write
+    self._write_yaml(data)</code></pre>
+
+<p>---</p>
+
+<h2>Performance Optimization</h2>
+
+<h3>Cache GPT-4 Responses</h3>
+
+<pre><code>class CachedGPT4Suggester(GPT4SynonymSuggester):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.cache = {}  # {term: suggestions}
+
+    async def suggest_synonyms(self, term: str, **kwargs) -&gt; list[SynonymSuggestion]:
+        cache_key = (term, frozenset(kwargs.items()))
+
+        if cache_key in self.cache:
+            return self.cache[cache_key]
+
+        suggestions = await super().suggest_synonyms(term, **kwargs)
+        self.cache[cache_key] = suggestions
+
+        return suggestions</code></pre>
+
+<p>---</p>
+
+<h2>Monitoring & Alerts</h2>
+
+<pre><code># File: src/services/synonym_automation/monitoring.py
+
+class SynonymWorkflowMonitor:
+    def check_daily_limits(self):
+        """Alert if daily API limits exceeded."""
+        daily_cost = cost_tracker.get_daily_cost()
+        if daily_cost &gt; 1.0:  # $1 daily limit
+            send_alert(f"Daily cost exceeded: ${daily_cost:.2f}")
+
+    def check_approval_rate(self):
+        """Alert if approval rate drops below threshold."""
+        rate = repository.get_approval_rate(last_n_days=7)
+        if rate &lt; 0.7:  # 70% threshold
+            send_alert(f"Low approval rate: {rate:.1%}")</code></pre>
+
+<p><strong>Cron</strong>: Run daily checks via <code>scripts/monitor_synonyms.py</code></p>
+
+<p>---</p>
+
+<h2>Quick Commands</h2>
+
+<pre><code># Generate suggestions for all database terms
+python scripts/batch_suggest_synonyms.py --source database
+
+# Generate for specific terms
+python scripts/batch_suggest_synonyms.py --terms "verdachte,vonnis,cassatie"
+
+# Export pending suggestions to CSV
+python scripts/export_suggestions.py --status pending --output pending.csv
+
+# Backup YAML config
+cp config/juridische_synoniemen.yaml config/juridische_synoniemen.yaml.backup.$(date +%Y%m%d)
+
+# Validate YAML syntax
+python -c "import yaml; yaml.safe_load(open('config/juridische_synoniemen.yaml'))"
+
+# Monitor costs
+python scripts/monitor_synonyms.py --check-costs
+
+# Generate quality report
+python scripts/generate_synonym_quality_report.py --output docs/reports/synonym_quality.md</code></pre>
+
+<p>---</p>
+
+<h2>Resources</h2>
+
+<ul>
+<li>**Full Analysis**: `docs/analyses/SYNONYM_AUTOMATION_ANALYSIS.md` (100+ pages)</li>
+<li>**Summary**: `docs/analyses/SYNONYM_AUTOMATION_SUMMARY.md` (executive summary)</li>
+<li>**Current Implementation**: `src/services/web_lookup/synonym_service.py`</li>
+<li>**Config**: `config/juridische_synoniemen.yaml`</li>
+<li>**Tests**: `tests/services/web_lookup/test_synonym_service.py`</li>
+</ul>
+
+<p>---</p>
+
+<p><strong>Status</strong>: Ready for implementation</p>
+<p><strong>Estimated Effort</strong>: 5-8 days</p>
+<p><strong>Expected ROI</strong>: 200% more synonyms, 75% less maintenance</p>
+
+  </div>
+</body>
+</html>

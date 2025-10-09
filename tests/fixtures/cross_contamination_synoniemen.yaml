@@ -1,0 +1,20 @@
+# Invalid: Cross-contamination (synonym under multiple hoofdtermen)
+# Should fail validation
+
+onherroepelijk:
+  - kracht van gewijsde
+  - rechtskracht
+  - definitieve uitspraak
+
+vonnis:
+  - uitspraak
+  - definitieve_uitspraak  # Cross-contamination with onherroepelijk
+  - arrest
+
+cassatie:
+  - hogere voorziening
+  - vernietiging
+
+hoger_beroep:
+  - appel
+  - hogere_voorziening  # Cross-contamination with cassatie
