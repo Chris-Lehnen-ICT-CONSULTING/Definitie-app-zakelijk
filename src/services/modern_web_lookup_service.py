@@ -99,6 +99,9 @@ class ModernWebLookupService(WebLookupServiceInterface):
                 "wetgeving": float(
                     providers.get("wetgeving_nl", {}).get("weight", 0.9)
                 ),
+                "brave_search": float(
+                    providers.get("brave_search", {}).get("weight", 0.85)
+                ),
             }
         except Exception as e:
             logger.warning(f"Web lookup config not loaded, using defaults: {e}")
@@ -108,6 +111,7 @@ class ModernWebLookupService(WebLookupServiceInterface):
                 "wiktionary": 0.9,
                 "overheid": 1.0,
                 "rechtspraak": 0.95,
+                "brave_search": 0.85,
             }
 
         # Helper om enabled-vlag te lezen uit config
@@ -170,6 +174,14 @@ class ModernWebLookupService(WebLookupServiceInterface):
                 confidence_weight=self._provider_weights.get("overheid", 0.9),
                 is_juridical=True,
                 enabled=_is_enabled("sru_overheid", True),
+            ),
+            "brave_search": SourceConfig(
+                name="Brave Search",
+                base_url="https://search.brave.com",
+                api_type="brave_mcp",
+                confidence_weight=self._provider_weights.get("brave_search", 0.85),
+                is_juridical=False,  # Mixed content - kan juridisch zijn
+                enabled=_is_enabled("brave_search", True),
             ),
         }
 
@@ -409,12 +421,13 @@ class ModernWebLookupService(WebLookupServiceInterface):
                 "overheid",
                 "rechtspraak",
                 "overheid_zoek",
+                "brave_search",
                 "wikipedia",
                 "wiktionary",
             ]
 
-        # Voor algemene termen, start met encyclopedische bronnen
-        return ["wikipedia", "wiktionary", "overheid", "rechtspraak"]
+        # Voor algemene termen, start met encyclopedische bronnen + Brave Search
+        return ["brave_search", "wikipedia", "wiktionary", "overheid", "rechtspraak"]
 
     async def _lookup_source(
         self, term: str, source_name: str, request: LookupRequest
@@ -439,6 +452,8 @@ class ModernWebLookupService(WebLookupServiceInterface):
                 result = await self._lookup_rest(term, source_config, request)
             elif source_config.api_type == "scraping":
                 result = await self._lookup_scraping(term, source_config, request)
+            elif source_config.api_type == "brave_mcp":
+                result = await self._lookup_brave(term, source_config, request)
             else:
                 logger.warning(f"Unknown API type: {source_config.api_type}")
                 result = None
@@ -819,6 +834,80 @@ class ModernWebLookupService(WebLookupServiceInterface):
             attempt["duration_ms"] = int((_t.time() - start) * 1000)
             self._debug_attempts.append(attempt)
 
+    async def _lookup_brave(
+        self, term: str, source: SourceConfig, request: LookupRequest
+    ) -> LookupResult | None:
+        """Lookup via Brave Search MCP tool."""
+        logger.info(f"Brave Search lookup for {term}")
+
+        try:
+            # Import BraveSearchService
+            from .web_lookup.brave_search_service import BraveSearchService
+
+            # Wrap MCP function voor dependency injection
+            async def mcp_search_wrapper(query: str, count: int):
+                """Wrapper om MCP tool te gebruiken."""
+                try:
+                    # Gebruik de MCP tool direct
+                    # Import hier om circular dependency te voorkomen
+                    import sys
+
+                    # Check if MCP brave search is available in globals
+                    brave_search_func = None
+                    if "mcp__brave-search__brave_web_search" in dir(
+                        sys.modules.get("__main__", {})
+                    ):
+                        brave_search_func = getattr(
+                            sys.modules["__main__"],
+                            "mcp__brave-search__brave_web_search",
+                            None,
+                        )
+
+                    # Fallback: try direct import (werkt alleen als MCP beschikbaar is)
+                    if not brave_search_func:
+                        # In runtime wordt de MCP tool beschikbaar gemaakt via de caller
+                        # Voor nu retourneren we een stub response
+                        logger.warning(
+                            "Brave Search MCP tool not directly accessible, using service fallback"
+                        )
+                        return []
+
+                    # Call MCP tool
+                    results = await brave_search_func(query=query, count=count)
+
+                    # Parse results naar list format
+                    if hasattr(results, "__iter__"):
+                        return list(results)
+                    return [results] if results else []
+
+                except Exception as e:
+                    logger.error(f"MCP brave search wrapper failed: {e}")
+                    return []
+
+            # Create service instance met MCP wrapper
+            async with BraveSearchService(
+                count=5,
+                enable_synonyms=True,
+                mcp_search_function=mcp_search_wrapper,
+            ) as brave_service:
+                result = await asyncio.wait_for(
+                    brave_service.lookup(term),
+                    timeout=float(getattr(request, "timeout", 30) or 30),
+                )
+
+                if result and result.success:
+                    result.source.confidence *= source.confidence_weight
+                    return result
+
+                return None
+
+        except ImportError as e:
+            logger.warning(f"Brave Search service niet beschikbaar: {e}")
+        except Exception as e:
+            logger.error(f"Brave Search lookup error: {e}")
+
+        return None
+
     async def _legacy_fallback(
         self, term: str, source_name: str, request: LookupRequest
     ) -> LookupResult | None:
@@ -1002,6 +1091,8 @@ class ModernWebLookupService(WebLookupServiceInterface):
             return "overheid"
         if "wetgeving" in name:
             return "wetgeving"
+        if "brave" in name or "search" in name:
+            return "brave_search"
         return name or "unknown"
 
     def _determine_source_type(self, text: str) -> BronType:

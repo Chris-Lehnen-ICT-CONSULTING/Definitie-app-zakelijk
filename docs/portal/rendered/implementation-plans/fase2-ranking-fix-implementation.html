@@ -1,0 +1,658 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FASE 2: Ranking Flow Bug Fix - Implementation Plan</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>FASE 2: Ranking Flow Bug Fix - Implementation Plan</h1>
+
+<h2>Executive Summary</h2>
+
+<p><strong>Problem:</strong> Juridical boost is applied AFTER <code>rank_and_dedup()</code>, then ignored during result assembly.</p>
+
+<p><strong>Root Cause:</strong> Confidence values are frozen in <code>ranked</code> list before boost is applied, resulting in pre-boost ordering.</p>
+
+<p><strong>Solution:</strong> Move <code>boost_juridische_resultaten()</code> BEFORE <code>rank_and_dedup()</code> to ensure boosted confidence values affect sort order.</p>
+
+<p><strong>Effort:</strong> 2.5 hours</p>
+<p><strong>Risk:</strong> Low</p>
+<p><strong>Impact:</strong> High (juridical content will correctly rank higher)</p>
+
+<p>---</p>
+
+<h2>1. PROBLEM ANALYSIS</h2>
+
+<h3>1.1 Current Flow (BUGGY)</h3>
+
+<pre><code># Line 292-293: Convert to contract dicts
+prepared = [self._to_contract_dict(r) for r in valid_results]
+
+# Line 296: Rank BEFORE boost
+ranked = rank_and_dedup(prepared, self._provider_weights)
+
+# Line 328-330: Boost AFTER ranking (TOO LATE!)
+valid_results = boost_juridische_resultaten(valid_results, context=context_tokens)
+
+# Line 340-366: Build final_results from `ranked` (pre-boost order!)
+for item in ranked:
+    key = ...
+    picked = index.get(key)
+    if picked is not None:
+        final_results.append(picked)</code></pre>
+
+<h3>1.2 Why This Is Wrong</h3>
+
+<ol>
+<li>**`rank_and_dedup()` uses `score` from contract dict**</li>
+</ol>
+<ul>
+<li>  - Score = `result.source.confidence` (pre-boost)</li>
+<li>  - Results are sorted by this pre-boost confidence</li>
+</ul>
+
+<ol>
+<li>**`boost_juridische_resultaten()` updates original confidence values**</li>
+</ol>
+<ul>
+<li>  - Updates `valid_results` list AFTER ranking</li>
+<li>  - Boosted values NOT propagated to `ranked` list</li>
+</ul>
+
+<ol>
+<li>**Final assembly uses `ranked` order**</li>
+</ol>
+<ul>
+<li>  - Order is based on pre-boost scores</li>
+<li>  - Juridical boost effectively ignored</li>
+</ul>
+
+<h3>1.3 Confidence Flow Trace</h3>
+
+<pre><code>LookupResult.source.confidence (0.5)
+    ↓
+_to_contract_dict() → dict["score"] = 0.5
+    ↓
+rank_and_dedup() → sorts by score=0.5
+    ↓
+ranked list (ORDER FROZEN at score=0.5)
+    ↓
+boost_juridische_resultaten() → updates confidence to 0.69
+    ↓
+final_results → uses ranked ORDER (wrong!) + boosted VALUES (ignored for ordering)</code></pre>
+
+<p>---</p>
+
+<h2>2. SOLUTION DESIGN</h2>
+
+<h3>2.1 Core Fix</h3>
+
+<p><strong>Move <code>boost_juridische_resultaten()</code> BEFORE <code>rank_and_dedup()</code></strong></p>
+
+<pre><code># NEW FLOW:
+# 1. Boost confidence values
+valid_results = boost_juridische_resultaten(valid_results, context=context_tokens)
+
+# 2. Convert boosted results to contract dicts
+prepared = [self._to_contract_dict(r) for r in valid_results]
+
+# 3. Rank with boosted scores
+ranked = rank_and_dedup(prepared, self._provider_weights)</code></pre>
+
+<h3>2.2 Implementation Details</h3>
+
+<p><strong>File:</strong> <code>src/services/modern_web_lookup_service.py</code></p>
+<p><strong>Lines to modify:</strong> 286-340</p>
+
+<p><strong>BEFORE:</strong></p>
+<pre><code># Ranking &amp; dedup volgens Epic 3
+try:
+    from .web_lookup.context_filter import ContextFilter
+    from .web_lookup.ranking import rank_and_dedup
+
+    # Convert to contract-like dicts for ranking
+    prepared = [
+        self._to_contract_dict(r) for r in valid_results if r is not None
+    ]
+    ranked = rank_and_dedup(prepared, self._provider_weights)
+
+    # Context filtering...
+    if request.context:
+        # ...
+
+    # JURIDISCHE RANKING BOOST (BUG: TOO LATE!)
+    try:
+        from .web_lookup.juridisch_ranker import boost_juridische_resultaten
+        # Extract context tokens...
+        valid_results = boost_juridische_resultaten(
+            valid_results, context=context_tokens
+        )</code></pre>
+
+<p><strong>AFTER:</strong></p>
+<pre><code># Ranking &amp; dedup volgens Epic 3
+try:
+    from .web_lookup.context_filter import ContextFilter
+    from .web_lookup.ranking import rank_and_dedup
+
+    # PHASE 1: JURIDISCHE RANKING BOOST (MOVED UP!)
+    # CRITICAL: Boost MUST happen BEFORE ranking to affect sort order
+    try:
+        from .web_lookup.juridisch_ranker import boost_juridische_resultaten
+
+        # Extract context tokens voor juridische ranking
+        context_tokens = None
+        if request.context:
+            org, jur, wet = self._classify_context_tokens(request.context)
+            context_tokens = jur + wet
+
+        # Boost valid_results BEFORE conversion
+        valid_results = boost_juridische_resultaten(
+            valid_results, context=context_tokens
+        )
+        logger.info(
+            f"Juridische ranking boost applied to {len(valid_results)} results"
+        )
+    except Exception as e:
+        logger.warning(f"Juridische ranking boost gefaald: {e}")
+
+    # PHASE 2: Convert BOOSTED results to contract dicts
+    prepared = [
+        self._to_contract_dict(r) for r in valid_results if r is not None
+    ]
+
+    # PHASE 3: Rank with boosted scores
+    ranked = rank_and_dedup(prepared, self._provider_weights)
+
+    # PHASE 4: Context filtering (AFTER ranking, as before)
+    if request.context:
+        org, jur, wet = self._classify_context_tokens(request.context)
+        context_filter = ContextFilter()
+        ranked = context_filter.filter_results(
+            ranked,
+            org_context=org if org else None,
+            jur_context=jur if jur else None,
+            wet_context=wet if wet else None,
+            min_score=0.0,
+        )</code></pre>
+
+<p>---</p>
+
+<h2>3. SIDE EFFECTS ANALYSIS</h2>
+
+<h3>3.1 Impact on Other Components</h3>
+
+<p>| Component | Impact | Analysis | Mitigation |</p>
+<p>|-----------|--------|----------|------------|</p>
+<p>| <strong>Context Filter</strong> | Low | Runs AFTER boost (no conflict) | None needed |</p>
+<p>| <strong>UI Tabs</strong> | Medium | Result order changes | Test all tabs |</p>
+<p>| <strong>Prompt Augmentation</strong> | High | Top results change | Verify prompts use juridical content |</p>
+<p>| <strong>Caching</strong> | None | No caching at this level | None needed |</p>
+<p>| <strong>Tests</strong> | High | Order assertions fail | Update tests |</p>
+
+<h3>3.2 Breaking Changes</h3>
+
+<ul>
+<li>❌ **Result order WILL change** (this is the intended fix!)</li>
+<li>❌ **Tests asserting specific order will fail** (need updates)</li>
+<li>✅ **API contract unchanged** (same data structure)</li>
+<li>✅ **No config changes needed**</li>
+<li>✅ **No database migrations needed**</li>
+</ul>
+
+<h3>3.3 Edge Cases</h3>
+
+<h4>3.3.1 Empty Results</h4>
+<pre><code>valid_results = []
+boost_juridische_resultaten([])  # Returns []
+# No impact, safe</code></pre>
+
+<h4>3.3.2 All Non-Juridical Content</h4>
+<pre><code># All results get boost=1.0 (no change)
+# Relative order unchanged
+# Safe</code></pre>
+
+<h4>3.3.3 Confidence Capping</h4>
+<pre><code># Original confidence: 0.9
+# Boost: 1.3x → 1.17
+# Capped at: 1.0 (max confidence)
+# Expected behavior (juridical content should max out)</code></pre>
+
+<h4>3.3.4 Context Filter Re-ordering</h4>
+<pre><code># Context filter applies AFTER juridical boost
+# Both boosts are ADDITIVE (desired)
+# Juridical + context match = highest rank</code></pre>
+
+<p>---</p>
+
+<h2>4. VALIDATION STRATEGY</h2>
+
+<h3>4.1 Unit Test (New)</h3>
+
+<p><strong>File:</strong> <code>tests/services/test_modern_web_lookup_juridical_boost_integration.py</code></p>
+
+<pre><code>"""Integration test: Verify juridical boost affects ranking."""
+
+import pytest
+from unittest.mock import AsyncMock
+from src.services.modern_web_lookup_service import ModernWebLookupService
+from src.services.interfaces import LookupRequest, LookupResult, WebSource
+
+@pytest.mark.asyncio
+async def test_juridical_boost_affects_ranking_order():
+    """
+    Test: Juridical boost is applied BEFORE ranking.
+
+    Setup:
+    - Wikipedia: confidence 0.8 (no boost) → final 0.8 * 0.7 = 0.56
+    - Rechtspraak: confidence 0.5 (1.38x boost) → final 0.69 * 1.0 = 0.69
+    - Expected: Rechtspraak ranks #1
+    """
+    service = ModernWebLookupService()
+
+    wiki_result = LookupResult(
+        term="voorlopige hechtenis",
+        source=WebSource(
+            name="Wikipedia",
+            url="https://nl.wikipedia.org/wiki/Voorlopige_hechtenis",
+            confidence=0.8,
+            is_juridical=False,
+        ),
+        definition="Wikipedia definitie zonder juridische keywords",
+        success=True,
+    )
+
+    rechtspraak_result = LookupResult(
+        term="voorlopige hechtenis",
+        source=WebSource(
+            name="Rechtspraak.nl",
+            url="https://www.rechtspraak.nl/uitspraken/123",
+            confidence=0.5,
+            is_juridical=True,
+        ),
+        definition="Volgens Artikel 63 Sv kan voorlopige hechtenis worden toegepast",
+        success=True,
+    )
+
+    async def mock_lookup(term, source_name, request):
+        if "wikipedia" in source_name:
+            return wiki_result
+        elif "rechtspraak" in source_name:
+            return rechtspraak_result
+        return None
+
+    service._lookup_source = AsyncMock(side_effect=mock_lookup)
+
+    request = LookupRequest(
+        term="voorlopige hechtenis",
+        context="Sv|strafrecht",
+        max_results=5,
+    )
+
+    results = await service.lookup(request)
+
+    # CRITICAL ASSERTION: Juridical result ranks FIRST
+    assert len(results) &gt;= 2
+    assert results[0].source.name == "Rechtspraak.nl"
+    assert results[0].source.confidence &gt; 0.56  # Higher than Wikipedia</code></pre>
+
+<h3>4.2 Manual Test Scenarios</h3>
+
+<p><strong>Test 1: Juridical vs Non-Juridical</strong></p>
+<pre><code># Term: "voorlopige hechtenis"
+# Context: "Sv|strafrecht"
+# Expected: Rechtspraak.nl &gt; Wikipedia</code></pre>
+
+<p><strong>Test 2: Artikel Reference Boost</strong></p>
+<pre><code># Term: "strafbaar feit"
+# Context: "Wetboek van Strafrecht"
+# Expected: Results with "Artikel X" rank higher</code></pre>
+
+<p><strong>Test 3: Context Token Matching</strong></p>
+<pre><code># Term: "onherroepelijk vonnis"
+# Context: "strafrecht"
+# Expected: Results mentioning "strafrecht" rank higher</code></pre>
+
+<h3>4.3 Regression Tests</h3>
+
+<p><strong>Update existing tests:</strong></p>
+<ul>
+<li>`tests/services/test_modern_web_lookup_service_unit.py`</li>
+<li>`tests/integration/test_improved_web_lookup.py`</li>
+</ul>
+
+<p><strong>Expected failures (to fix):</strong></p>
+<ul>
+<li>Any test asserting "Wikipedia ranks first" for juridical terms</li>
+<li>Order-dependent assertions</li>
+</ul>
+
+<p>---</p>
+
+<h2>5. RISK ANALYSIS</h2>
+
+<h3>5.1 Risk Matrix</h3>
+
+<p>| Risk | Probability | Impact | Severity | Mitigation |</p>
+<p>|------|------------|--------|----------|------------|</p>
+<p>| UI breaks | Low | Medium | <strong>LOW</strong> | Test all tabs |</p>
+<p>| Tests fail | High | Low | <strong>LOW</strong> | Update tests |</p>
+<p>| Over-boosting | Low | Low | <strong>LOW</strong> | Monitor confidence values |</p>
+<p>| Performance | Very Low | Low | <strong>VERY LOW</strong> | Boost is O(n) |</p>
+<p>| Rollback needed | Low | Medium | <strong>LOW</strong> | Clean git revert |</p>
+
+<h3>5.2 Rollback Plan</h3>
+
+<p><strong>Trigger:</strong> UI shows empty results OR tests fail >50%</p>
+
+<p><strong>Procedure:</strong></p>
+<pre><code># Identify commit hash
+git log --oneline -5
+
+# Revert
+git revert &lt;commit-hash&gt;
+git push origin main
+
+# Verify
+pytest tests/services/test_modern_web_lookup_service_unit.py -v
+bash scripts/run_app.sh</code></pre>
+
+<p><strong>Fallback:</strong> Feature flag (NOT recommended for this fix)</p>
+
+<p>---</p>
+
+<h2>6. IMPLEMENTATION STEPS</h2>
+
+<h3>6.1 Execution Plan</h3>
+
+<p><strong>Step 1: Create Branch</strong></p>
+<pre><code>git checkout -b fix/juridical-boost-ranking-order</code></pre>
+
+<p><strong>Step 2: Implement Fix</strong></p>
+<ul>
+<li>Edit `src/services/modern_web_lookup_service.py` lines 286-340</li>
+<li>Move juridical boost block BEFORE ranking</li>
+<li>Add inline comment explaining fix</li>
+</ul>
+
+<p><strong>Step 3: Add Integration Test</strong></p>
+<ul>
+<li>Create `tests/services/test_modern_web_lookup_juridical_boost_integration.py`</li>
+<li>Implement test from Section 4.1</li>
+</ul>
+
+<p><strong>Step 4: Update Existing Tests</strong></p>
+<pre><code># Run tests to find failures
+pytest tests/services/test_modern_web_lookup_service_unit.py -v
+
+# Update assertions for new order
+# Example: Change "assert results[0].source.name == 'Wikipedia'"
+#          to "assert results[0].source.name == 'Rechtspraak.nl'"</code></pre>
+
+<p><strong>Step 5: Manual Testing</strong></p>
+<pre><code># Start app
+bash scripts/run_app.sh
+
+# Test scenarios from Section 4.2
+# Verify result order in UI</code></pre>
+
+<p><strong>Step 6: Commit</strong></p>
+<pre><code>git add .
+git commit -m "fix(web-lookup): apply juridical boost BEFORE ranking
+
+PROBLEM:
+- Juridical boost was applied AFTER rank_and_dedup()
+- Boosted confidence values were ignored in ordering
+- Juridical sources ranked lower than expected
+
+SOLUTION:
+- Move boost_juridische_resultaten() BEFORE rank_and_dedup()
+- Boosted confidence now affects sort order
+- Juridical sources (rechtspraak.nl, overheid.nl) rank higher
+
+IMPACT:
+- Result order changes (juridical content ranks higher)
+- Updated tests to reflect expected behavior
+- No API contract changes
+
+Fixes: FASE 2 Ranking Flow Bug
+"</code></pre>
+
+<p><strong>Step 7: Push & Merge</strong></p>
+<pre><code>git push origin fix/juridical-boost-ranking-order
+git checkout main
+git merge fix/juridical-boost-ranking-order
+git push origin main</code></pre>
+
+<h3>6.2 Timeline</h3>
+
+<p>| Task | Duration |</p>
+<p>|------|----------|</p>
+<p>| Implement fix | 15 min |</p>
+<p>| Add integration test | 30 min |</p>
+<p>| Update existing tests | 45 min |</p>
+<p>| Manual testing | 30 min |</p>
+<p>| Documentation | 15 min |</p>
+<p>| <strong>TOTAL</strong> | <strong>2.5 hours</strong> |</p>
+
+<p>---</p>
+
+<h2>7. SUCCESS METRICS</h2>
+
+<h3>7.1 Before vs After</h3>
+
+<p><strong>BEFORE Fix:</strong></p>
+<pre><code>Term: "voorlopige hechtenis"
+Context: "Sv|strafrecht"
+
+Results:
+1. Wikipedia (conf: 0.8 * 0.7 = 0.56)
+2. Overheid.nl (conf: 0.55 * 1.0 = 0.55)
+3. Rechtspraak (conf: 0.5 * 1.0 = 0.5)  ← Should be #1!</code></pre>
+
+<p><strong>AFTER Fix:</strong></p>
+<pre><code>Term: "voorlopige hechtenis"
+Context: "Sv|strafrecht"
+
+Results:
+1. Rechtspraak (conf: 0.69 * 1.0 = 0.69)  ← Now #1! ✅
+   - Base: 0.5
+   - Boost: 1.15 (is_juridical) * 1.2 (keyword "Artikel") = 1.38
+   - Final: min(0.5 * 1.38, 1.0) = 0.69
+2. Overheid.nl (conf: 0.66 * 1.0 = 0.66)
+   - Base: 0.55
+   - Boost: 1.2 (is_juridical)
+   - Final: 0.55 * 1.2 = 0.66
+3. Wikipedia (conf: 0.8 * 0.7 = 0.56)
+   - No boost (not juridical)</code></pre>
+
+<h3>7.2 Validation Checks</h3>
+
+<p><strong>Immediate (0-15 min):</strong></p>
+<ul>
+<li>[ ] App starts without errors</li>
+<li>[ ] Lookup returns results</li>
+<li>[ ] Juridical content ranks higher than Wikipedia</li>
+<li>[ ] No crashes in logs</li>
+</ul>
+
+<p><strong>Short-term (1 hour):</strong></p>
+<ul>
+<li>[ ] Full test suite passes</li>
+<li>[ ] 5-10 manual test terms</li>
+<li>[ ] UI displays results correctly</li>
+<li>[ ] Performance < 5s per lookup</li>
+</ul>
+
+<p><strong>Long-term (1 day):</strong></p>
+<ul>
+<li>[ ] Error rate = 0%</li>
+<li>[ ] Result quality verified</li>
+<li>[ ] No user complaints</li>
+</ul>
+
+<p>---</p>
+
+<h2>8. DOCUMENTATION UPDATES</h2>
+
+<h3>8.1 Inline Comments</h3>
+
+<p><strong>Add in <code>modern_web_lookup_service.py</code>:</strong></p>
+<pre><code># CRITICAL ORDER: Juridical boost MUST happen BEFORE ranking!
+# Reason: boost_juridische_resultaten() updates result.source.confidence
+# which is used by rank_and_dedup() for sorting.
+# If boost happens AFTER ranking, boosted scores are ignored.
+# Bug fix: Moved from line 328 to line 290 (2025-10-09)
+valid_results = boost_juridische_resultaten(valid_results, context=context_tokens)</code></pre>
+
+<h3>8.2 Architecture Docs</h3>
+
+<p><strong>Update <code>docs/architectuur/TECHNICAL_ARCHITECTURE.md</code>:</strong></p>
+
+<pre><code>## Web Lookup Ranking Pipeline
+
+### Execution Order (Fixed: 2025-10-09)
+
+1. **Fetch** results from providers
+2. **Juridical Boost** ⬅️ MUST BE FIRST!
+   - Apply `boost_juridische_resultaten()`
+   - Updates `result.source.confidence`
+3. **Convert** to contract dicts (`_to_contract_dict()`)
+   - Extract boosted confidence as `score`
+4. **Rank &amp; Dedup** (`rank_and_dedup()`)
+   - Sort by weighted score
+   - Dedup by URL/content hash
+5. **Context Filter** (optional)
+   - Additional relevance scoring
+6. **Limit** to max_results and return
+
+**CRITICAL:** Steps must execute in this order!</code></pre>
+
+<h3>8.3 Changelog</h3>
+
+<p><strong>Add to <code>CHANGELOG.md</code>:</strong></p>
+<pre><code>## [Unreleased]
+
+### Fixed
+- **Web Lookup Ranking:** Juridical boost now correctly affects result order
+  - Moved `boost_juridische_resultaten()` before `rank_and_dedup()`
+  - Juridical sources (rechtspraak.nl, overheid.nl) now rank higher
+  - Fixes: FASE 2 Ranking Flow Bug</code></pre>
+
+<p>---</p>
+
+<h2>9. APPENDIX</h2>
+
+<h3>A. Complete Code Change</h3>
+
+<p><strong>File:</strong> <code>src/services/modern_web_lookup_service.py</code></p>
+<p><strong>Lines:</strong> 286-340</p>
+
+<pre><code># Ranking &amp; dedup volgens Epic 3
+try:
+    from .web_lookup.context_filter import ContextFilter
+    from .web_lookup.ranking import rank_and_dedup
+
+    # PHASE 1: JURIDISCHE RANKING BOOST (MOVED UP!)
+    # CRITICAL: Boost MUST happen BEFORE ranking to affect sort order
+    # Bug fix: Previously at line 328 (after ranking) - moved to line 290
+    # Reason: boost updates result.source.confidence which is used for sorting
+    try:
+        from .web_lookup.juridisch_ranker import boost_juridische_resultaten
+
+        # Extract context tokens voor juridische ranking
+        context_tokens = None
+        if request.context:
+            org, jur, wet = self._classify_context_tokens(request.context)
+            # Combineer juridische en wettelijke tokens
+            context_tokens = jur + wet
+
+        # Boost valid_results (LookupResult objecten) VOOR conversie naar dicts
+        valid_results = boost_juridische_resultaten(
+            valid_results, context=context_tokens
+        )
+        logger.info(
+            f"Juridische ranking boost applied to {len(valid_results)} results"
+        )
+
+    except Exception as e:
+        logger.warning(f"Juridische ranking boost gefaald: {e}")
+        # Continue zonder boost
+
+    # PHASE 2: Convert BOOSTED results to contract-like dicts for ranking
+    # NOW confidence values reflect juridical boost!
+    prepared = [
+        self._to_contract_dict(r) for r in valid_results if r is not None
+    ]
+
+    # PHASE 3: Rank with boosted scores
+    # Provider keys mapping based on source names
+    ranked = rank_and_dedup(prepared, self._provider_weights)
+
+    # PHASE 4: Context filtering en relevance scoring
+    # Pas context filtering toe NA ranking maar VOOR limitering
+    if request.context:
+        org, jur, wet = self._classify_context_tokens(request.context)
+        context_filter = ContextFilter()
+        # Filter met min_score=0.0 (keep all, maar voeg relevance score toe)
+        ranked = context_filter.filter_results(
+            ranked,
+            org_context=org if org else None,
+            jur_context=jur if jur else None,
+            wet_context=wet if wet else None,
+            min_score=0.0,  # Keep all results, maar rank by relevance
+        )
+        logger.info(
+            f"Context filtering applied: {len(ranked)} results scored with context relevance"
+        )
+
+    # Reorder/filter original results according to ranked unique set
+    # (Rest of code unchanged...)</code></pre>
+
+<h3>B. Test Example Output</h3>
+
+<pre><code>BEFORE FIX:
+===========
+Term: voorlopige hechtenis
+Context: Sv|strafrecht
+
+Results:
+  #1 Wikipedia (0.56) - "Voorlopige hechtenis is een maatregel..."
+  #2 Overheid.nl (0.55) - "Definitie voorlopige hechtenis..."
+  #3 Rechtspraak.nl (0.50) - "Artikel 63 Sv: Voorlopige hechtenis..."
+
+AFTER FIX:
+==========
+Term: voorlopige hechtenis
+Context: Sv|strafrecht
+
+Results:
+  #1 Rechtspraak.nl (0.69) - "Artikel 63 Sv: Voorlopige hechtenis..." ✅
+  #2 Overheid.nl (0.66) - "Definitie voorlopige hechtenis..."
+  #3 Wikipedia (0.56) - "Voorlopige hechtenis is een maatregel..."</code></pre>
+
+<p>---</p>
+
+<h2>READY FOR IMPLEMENTATION ✅</h2>
+
+<p><strong>Reviewed:</strong> 2025-10-09</p>
+<p><strong>Approved:</strong> Self-approved (single-user app)</p>
+<p><strong>Estimated completion:</strong> 2.5 hours</p>
+<p><strong>Risk level:</strong> LOW</p>
+<p><strong>Impact:</strong> HIGH (improved result quality)</p>
+
+  </div>
+</body>
+</html>

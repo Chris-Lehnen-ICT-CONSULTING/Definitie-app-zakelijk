@@ -1,475 +1,361 @@
-# Juridische Synoniemen Database voor Verbeterde Term Matching
-# ================================================================
-#
-# Dit bestand bevat juridische begrippen en hun synoniemen voor verbeterde
-# Wikipedia en Overheid.nl lookup. Synoniemen worden bidirectioneel gematcht:
-# zoeken naar "onherroepelijk" vindt ook "kracht van gewijsde" en vice versa.
-#
-# Format (v2.0 - Weighted Synonyms):
-# ----------------------------------
-#   # Legacy format (plain strings, weight defaults to 1.0):
-#   hoofdterm:
-#     - synoniem1
-#     - synoniem2
-#
-#   # Enhanced format (with confidence weights):
-#   hoofdterm:
-#     - synoniem: synoniem1
-#       weight: 0.95    # Nearly exact synonym
-#     - synoniem: synoniem2
-#       weight: 0.85    # Strong synonym
-#     - synoniem3       # Legacy format, weight = 1.0
-#
-# Weight Guidelines:
-#   1.0      = Exact/perfect synonym (default)
-#   0.95     = Nearly exact (minimal semantic difference)
-#   0.85-0.90 = Strong synonym (interchangeable in most contexts)
-#   0.70-0.80 = Good synonym (suitable for query expansion)
-#   0.50-0.65 = Weak/contextual synonym (use with caution)
-#   < 0.50   = Questionable (not recommended)
-#
-# Categorieën:
-# - Strafrecht (Sr, Sv)
-# - Bestuursrecht (Awb)
-# - Burgerlijk recht (BW, Rv)
-# - Procesrecht
-# - Algemene juridische begrippen
-
-# === STRAFRECHT (Sv/Sr) ===
-
 onherroepelijk:
-  - synoniem: kracht van gewijsde
-    weight: 0.95  # Nearly exact - legal technical term
-  - synoniem: rechtskracht
-    weight: 0.90  # Strong synonym
-  - synoniem: in kracht van gewijsde
-    weight: 0.95  # Nearly exact - full legal phrase
-  - synoniem: definitieve uitspraak
-    weight: 0.85  # Strong but more general
-  - synoniem: finale uitspraak
-    weight: 0.80  # Good synonym
-  - synoniem: onherroepelijke veroordeling
-    weight: 0.75  # Good but specific to convictions
-
+- synoniem: kracht van gewijsde
+  weight: 0.95
+- synoniem: rechtskracht
+  weight: 0.9
+- synoniem: in kracht van gewijsde
+  weight: 0.95
+- synoniem: definitieve uitspraak
+  weight: 0.85
+- synoniem: finale uitspraak
+  weight: 0.8
+- synoniem: onherroepelijke veroordeling
+  weight: 0.75
+- synoniem: definitief
+  weight: 0.9
+- synoniem: bindend
+  weight: 0.85
+- synoniem: onbetwistbaar
+  weight: 0.8
+- synoniem: onaantastbaar
+  weight: 0.8
+- synoniem: onveranderlijk
+  weight: 0.8
+- synoniem: onwrikbaar
+  weight: 0.75
 voorlopige_hechtenis:
-  - synoniem: voorarrest
-    weight: 0.95  # Nearly exact - official term
-  - synoniem: bewaring
-    weight: 0.90  # Strong synonym
-  - synoniem: inverzekeringstelling
-    weight: 0.85  # Strong but includes initial phase
-  - synoniem: preventieve detentie
-    weight: 0.80  # Good synonym
-  - synoniem: voorlopige vrijheidsbeneming
-    weight: 0.85  # Strong synonym
-  - synoniem: gevangenhouding
-    weight: 0.70  # Contextual synonym
-
+- synoniem: voorarrest
+  weight: 0.95
+- synoniem: bewaring
+  weight: 0.9
+- synoniem: inverzekeringstelling
+  weight: 0.85
+- synoniem: preventieve detentie
+  weight: 0.8
+- synoniem: voorlopige vrijheidsbeneming
+  weight: 0.85
+- synoniem: gevangenhouding
+  weight: 0.7
 verdachte:
-  - synoniem: beklaagde
-    weight: 0.90  # Strong synonym - different procedure phase
-  - synoniem: beschuldigde
-    weight: 0.90  # Strong synonym
-  - synoniem: aangeklaagde
-    weight: 0.85  # Strong but more formal
-  - synoniem: gedetineerde
-    weight: 0.60  # Weak - only in specific context
-  - synoniem: verdacht persoon
-    weight: 0.80  # Good synonym
-
+- synoniem: beklaagde
+  weight: 0.9
+- synoniem: beschuldigde
+  weight: 0.9
+- synoniem: aangeklaagde
+  weight: 0.85
+- synoniem: gedetineerde
+  weight: 0.6
+- synoniem: verdacht persoon
+  weight: 0.8
 dagvaarding:
-  - synoniem: oproeping
-    weight: 0.85  # Strong but more general
-  - synoniem: gerechtelijke oproeping
-    weight: 0.90  # Strong synonym
-  - synoniem: procesinleiding
-    weight: 0.75  # Good but broader meaning
-  - synoniem: dagvaardingsexploot
-    weight: 0.95  # Nearly exact - technical term
-
+- synoniem: oproeping
+  weight: 0.85
+- synoniem: gerechtelijke oproeping
+  weight: 0.9
+- synoniem: procesinleiding
+  weight: 0.75
+- synoniem: dagvaardingsexploot
+  weight: 0.95
 aanhouding:
-  - synoniem: arrestatie
-    weight: 0.95  # Nearly exact
-  - synoniem: vrijheidsberoving
-    weight: 0.80  # Good but broader concept
-  - synoniem: staandehouding
-    weight: 0.85  # Strong - initial phase
-
+- synoniem: arrestatie
+  weight: 0.95
+- synoniem: vrijheidsberoving
+  weight: 0.8
+- synoniem: staandehouding
+  weight: 0.85
 schorsing:
-  - opschorting
-  - tijdelijke opschorting
-  - voorwaardelijke opschorting
-
+- opschorting
+- tijdelijke opschorting
+- voorwaardelijke opschorting
 schuldig:
-  - schuldigverklaring
-  - veroordeling
-  - strafrechtelijke aansprakelijkheid
-  - strafrechtelijke verantwoordelijkheid
-
+- schuldigverklaring
+- veroordeling
+- strafrechtelijke aansprakelijkheid
+- strafrechtelijke verantwoordelijkheid
 strafbaar_feit:
-  - delict
-  - misdrijf
-  - overtreding
-  - strafbaar handelen
-  - criminele gedraging
-
-# === PROCESRECHT ===
-
+- delict
+- misdrijf
+- overtreding
+- strafbaar handelen
+- criminele gedraging
 hoger_beroep:
-  - synoniem: appel
-    weight: 0.95  # Nearly exact - common legal term
-  - synoniem: appelprocedure
-    weight: 0.90  # Strong synonym
-  - synoniem: beroepsinstantie
-    weight: 0.70  # Contextual - refers to court, not procedure
-
+- synoniem: appel
+  weight: 0.95
+- synoniem: appelprocedure
+  weight: 0.9
+- synoniem: beroepsinstantie
+  weight: 0.7
 cassatie:
-  - synoniem: hogere voorziening
-    weight: 0.85  # Strong synonym - broader term
-  - synoniem: cassatieberoep
-    weight: 0.95  # Nearly exact
-  - synoniem: vernietiging
-    weight: 0.60  # Weak - refers to outcome, not procedure
-  - synoniem: cassatieprocedure
-    weight: 0.90  # Strong synonym
-
+- synoniem: hogere voorziening
+  weight: 0.85
+- synoniem: cassatieberoep
+  weight: 0.95
+- synoniem: vernietiging
+  weight: 0.6
+- synoniem: cassatieprocedure
+  weight: 0.9
 vonnis:
-  - synoniem: uitspraak
-    weight: 0.90  # Strong synonym - general term
-  - synoniem: rechterlijke beslissing
-    weight: 0.85  # Strong synonym
-  - synoniem: gerechtelijke uitspraak
-    weight: 0.90  # Strong synonym
-  - synoniem: arrest
-    weight: 0.85  # Strong but specific to hoger beroep
-
+- synoniem: uitspraak
+  weight: 0.9
+- synoniem: rechterlijke beslissing
+  weight: 0.85
+- synoniem: gerechtelijke uitspraak
+  weight: 0.9
+- synoniem: arrest
+  weight: 0.85
 getuige:
-  - getuigenis
-  - getuigenbewijs
-  - testimonium
-  - verklaring onder ede
-
+- getuigenis
+- getuigenbewijs
+- testimonium
+- verklaring onder ede
+- synoniem: getuigenis afleggende persoon
+  weight: 0.95
+- synoniem: verklarende
+  weight: 0.9
+- synoniem: bewijsleverende persoon
+  weight: 0.9
+- synoniem: ooggetuige
+  weight: 0.85
+- synoniem: verschijnende
+  weight: 0.85
+- synoniem: informant
+  weight: 0.8
 bewijs:
-  - bewijsvoering
-  - bewijsmiddel
-  - bewijsmateriaal
-  - bewijsstuk
-
+- bewijsvoering
+- bewijsmiddel
+- bewijsmateriaal
+- bewijsstuk
 procesdossier:
-  - processtukken
-  - gerechtelijk dossier
-  - rechtbankdossier
-
-# === BESTUURSRECHT (Awb) ===
-
+- processtukken
+- gerechtelijk dossier
+- rechtbankdossier
 beschikking:
-  - synoniem: besluit
-    weight: 0.90  # Strong synonym - general administrative law term
-  - synoniem: bestuursrechtelijk besluit
-    weight: 0.95  # Nearly exact
-  - synoniem: overheidsbesluit
-    weight: 0.85  # Strong synonym
-  - synoniem: ambtelijke beschikking
-    weight: 0.90  # Strong synonym
-
+- synoniem: besluit
+  weight: 0.9
+- synoniem: bestuursrechtelijk besluit
+  weight: 0.95
+- synoniem: overheidsbesluit
+  weight: 0.85
+- synoniem: ambtelijke beschikking
+  weight: 0.9
 bezwaar:
-  - synoniem: bezwaarschrift
-    weight: 0.90  # Strong synonym - written form
-  - synoniem: bezwaarprocedure
-    weight: 0.95  # Nearly exact
-  - synoniem: administratief beroep
-    weight: 0.80  # Good synonym - broader concept
-  - synoniem: primair rechtsmiddel
-    weight: 0.75  # Good but very general
-
+- synoniem: bezwaarschrift
+  weight: 0.9
+- synoniem: bezwaarprocedure
+  weight: 0.95
+- synoniem: administratief beroep
+  weight: 0.8
+- synoniem: primair rechtsmiddel
+  weight: 0.75
 beroep:
-  - synoniem: beroepsprocedure
-    weight: 0.95  # Nearly exact
-  - synoniem: bestuursrechtelijke procedure
-    weight: 0.90  # Strong synonym
-  - synoniem: rechterlijk beroep
-    weight: 0.85  # Strong synonym
-
+- synoniem: beroepsprocedure
+  weight: 0.95
+- synoniem: bestuursrechtelijke procedure
+  weight: 0.9
+- synoniem: rechterlijk beroep
+  weight: 0.85
 belanghebbende:
-  - synoniem: derde-belanghebbende
-    weight: 0.85  # Strong but specific type
-  - synoniem: rechtstreeks belanghebbende
-    weight: 0.90  # Strong synonym
-  - synoniem: procespartij
-    weight: 0.75  # Good but broader
-  - synoniem: benadeelde
-    weight: 0.70  # Contextual - specific situation
-
+- synoniem: derde-belanghebbende
+  weight: 0.85
+- synoniem: rechtstreeks belanghebbende
+  weight: 0.9
+- synoniem: procespartij
+  weight: 0.75
+- synoniem: benadeelde
+  weight: 0.7
 horen:
-  - hoorzitting
-  - gehoor
-  - recht op horen
-  - auditu et altera parte
-
-# === BURGERLIJK RECHT (BW/Rv) ===
-
+- hoorzitting
+- gehoor
+- recht op horen
+- auditu et altera parte
 overeenkomst:
-  - synoniem: contract
-    weight: 0.95  # Nearly exact - common term
-  - synoniem: verbintenis
-    weight: 0.85  # Strong but broader legal concept
-  - synoniem: contractuele afspraak
-    weight: 0.90  # Strong synonym
-  - synoniem: zakelijke overeenkomst
-    weight: 0.80  # Good but specific type
-
+- synoniem: contract
+  weight: 0.95
+- synoniem: verbintenis
+  weight: 0.85
+- synoniem: contractuele afspraak
+  weight: 0.9
+- synoniem: zakelijke overeenkomst
+  weight: 0.8
 wanprestatie:
-  - synoniem: contractbreuk
-    weight: 0.90  # Strong synonym
-  - synoniem: tekortkoming
-    weight: 0.95  # Nearly exact - legal term
-  - synoniem: niet-nakoming
-    weight: 0.90  # Strong synonym
-  - synoniem: schending overeenkomst
-    weight: 0.85  # Strong synonym
-
+- synoniem: contractbreuk
+  weight: 0.9
+- synoniem: tekortkoming
+  weight: 0.95
+- synoniem: niet-nakoming
+  weight: 0.9
+- synoniem: schending overeenkomst
+  weight: 0.85
 schadevergoeding:
-  - smartengeld
-  - compensatie
-  - materiële schade
-  - immateriële schade
-  - vergoeding
-
+- smartengeld
+- compensatie
+- materiële schade
+- immateriële schade
+- vergoeding
 onrechtmatige_daad:
-  - tort
-  - onrechtmatig handelen
-  - civielrechtelijke aansprakelijkheid
-
+- tort
+- onrechtmatig handelen
+- civielrechtelijke aansprakelijkheid
 eigendom:
-  - bezit
-  - eigendomsrecht
-  - zakelijk recht
-  - vermogensrecht
-
+- bezit
+- eigendomsrecht
+- zakelijk recht
+- vermogensrecht
 wilsbekwaamheid:
-  - handelingsbekwaamheid
-  - rechtsbevoegdheid
-  - meerderjarigheid
-
-# === JURIDISCHE PROCEDURES ===
-
+- handelingsbekwaamheid
+- rechtsbevoegdheid
+- meerderjarigheid
 rechter:
-  - magistraat
-  - rechterlijke macht
-  - zittingsrechter
-  - kantonrechter
-  - voorzieningenrechter
-
+- magistraat
+- rechterlijke macht
+- zittingsrechter
+- kantonrechter
+- voorzieningenrechter
 advocaat:
-  - raadsman
-  - juridisch vertegenwoordiger
-  - rechtsbijstand
-  - procureur (België)
-
+- raadsman
+- juridisch vertegenwoordiger
+- rechtsbijstand
+- procureur (België)
 openbaar_ministerie:
-  - OM
-  - officier van justitie
-  - parket
-  - vervolgingsinstantie
-
+- OM
+- officier van justitie
+- parket
+- vervolgingsinstantie
 rechtbank:
-  - gerecht
-  - gerechtshof
-  - justitieel orgaan
-
-# === STRAFFEN & MAATREGELEN ===
-
+- gerecht
+- gerechtshof
+- justitieel orgaan
 gevangenisstraf:
-  - vrijheidsstraf
-  - onvoorwaardelijke gevangenisstraf
-  - detentie
-  - opsluiting
-
+- vrijheidsstraf
+- onvoorwaardelijke gevangenisstraf
+- detentie
+- opsluiting
 taakstraf:
-  - werkstraf
-  - dienstverlening
-  - alternatieve straf
-
+- werkstraf
+- dienstverlening
+- alternatieve straf
 voorwaardelijke_straf:
-  - voorwaardelijk opleggen
-  - straf met proeftijd
-  - voorwaarden gestelde straf
-
+- voorwaardelijk opleggen
+- straf met proeftijd
+- voorwaarden gestelde straf
 geldboete:
-  - boete
-  - geldelijke straf
-  - pecuniaire sanctie
-
-# === JEUGDRECHT ===
-
+- boete
+- geldelijke straf
+- pecuniaire sanctie
 jeugddetentie:
-  - PIJ-maatregel
-  - jeugdgevangenis
-  - jeugdinrichting
-  - juveniele detentie
-
+- PIJ-maatregel
+- jeugdgevangenis
+- jeugdinrichting
+- juveniele detentie
 kinderrechter:
-  - jeugdrechter
-  - kinderrechterlijke macht
-
-# === ALGEMENE JURIDISCHE BEGRIPPEN ===
-
+- jeugdrechter
+- kinderrechterlijke macht
 rechtspersoon:
-  - juridische persoon
-  - rechtspersoonlijkheid
-  - vennootschap
-  - stichting (in context)
-
+- juridische persoon
+- rechtspersoonlijkheid
+- vennootschap
+- stichting (in context)
 verjaring:
-  - verjaringstermijn
-  - bevrijdende verjaring
-  - verjaringsgrond
-
+- verjaringstermijn
+- bevrijdende verjaring
+- verjaringsgrond
 redelijkheid:
-  - redelijkheid en billijkheid
-  - goede trouw
-  - deugdelijkheid
-
+- redelijkheid en billijkheid
+- goede trouw
+- deugdelijkheid
 opzet:
-  - intentie
-  - moedwilligheid
-  - opzettelijk handelen
-  - dolus
-
+- intentie
+- moedwilligheid
+- opzettelijk handelen
+- dolus
 schuld:
-  - culpa
-  - nalatigheid
-  - verwijtbaarheid
-
+- culpa
+- nalatigheid
+- verwijtbaarheid
 rechtsmiddel:
-  - remedie
-  - beroepsmogelijkheid
-  - rechtsherstel
-
+- remedie
+- beroepsmogelijkheid
+- rechtsherstel
 uitvoerbaar_bij_voorraad:
-  - provisioneel
-  - voorlopige uitvoerbaarheid
-  - onmiddellijke tenuitvoerlegging
-
-# === SEMANTIC CLUSTERS ===
-# Semantic clusters groeperen gerelateerde (maar NIET synonieme) juridische begrippen.
-# Clusters worden gebruikt voor:
-# - Cascade fallback (als "hoger beroep" geen resultaten oplevert, probeer "cassatie")
-# - Gerelateerde suggesties ("Je zou ook kunnen zoeken naar: cassatie, verzet")
-# - Context expansion voor prompts
-#
-# REGELS:
-# - Termen in clusters zijn GERELATEERD, niet synoniem
-# - Elk term kan slechts in ÉÉN cluster zitten (exclusief lidmaatschap)
-# - Cluster namen zijn beschrijvend (bijv. "rechtsmiddelen" niet "cluster1")
-# - Clusters zijn optioneel - backwards compatible met bestaande code
-
+- provisioneel
+- voorlopige uitvoerbaarheid
+- onmiddellijke tenuitvoerlegging
 _clusters:
-  # Rechtsmiddelen - Legal remedies and appeal procedures
   rechtsmiddelen:
-    - rechtsmiddel
-    - hoger_beroep
-    - cassatie
-    - verzet
-    - herziening
-
-  # Straffen - Criminal penalties and sanctions
+  - rechtsmiddel
+  - hoger_beroep
+  - cassatie
+  - verzet
+  - herziening
   straffen:
-    - gevangenisstraf
-    - taakstraf
-    - geldboete
-    - voorwaardelijke_straf
-    - jeugddetentie
-
-  # Procedureel Strafrecht - Criminal procedure concepts
+  - gevangenisstraf
+  - taakstraf
+  - geldboete
+  - voorwaardelijke_straf
+  - jeugddetentie
   procedureel_strafrecht:
-    - voorlopige_hechtenis
-    - aanhouding
-    - schorsing
-    - dagvaarding
-    - wraking
-
-  # Partijen Strafrecht - Criminal procedure parties
+  - voorlopige_hechtenis
+  - aanhouding
+  - schorsing
+  - dagvaarding
+  - wraking
   partijen_strafrecht:
-    - verdachte
-    - advocaat
-    - rechter
-    - openbaar_ministerie
-
-  # Bestuursrecht Procedures - Administrative law procedures
+  - verdachte
+  - advocaat
+  - rechter
+  - openbaar_ministerie
   bestuursrecht_procedures:
-    - beschikking
-    - bezwaar
-    - beroep
-    - horen
-    - belanghebbende
-
-  # Burgerlijk Procedures - Civil law procedures and concepts
+  - beschikking
+  - bezwaar
+  - beroep
+  - horen
+  - belanghebbende
   burgerlijk_procedures:
-    - overeenkomst
-    - wanprestatie
-    - schadevergoeding
-    - vonnis
-    - onrechtmatige_daad
-
-  # Juridische Bewijsvoering - Evidence and proof concepts
+  - overeenkomst
+  - wanprestatie
+  - schadevergoeding
+  - vonnis
+  - onrechtmatige_daad
   juridische_bewijsvoering:
-    - bewijs
-    - getuige
-    - procesdossier
-
-  # Strafrechtelijke Verantwoordelijkheid - Criminal liability concepts
+  - bewijs
+  - getuige
+  - procesdossier
   strafrechtelijke_verantwoordelijkheid:
-    - schuldig
-    - strafbaar_feit
-    - opzet
-    - schuld
-    - recidive
-    - medeplegen
-
-# === SPECIFIEKE WETTELIJKE BEGRIPPEN ===
-
-# Strafrecht specifiek
+  - schuldig
+  - strafbaar_feit
+  - opzet
+  - schuld
+  - recidive
+  - medeplegen
 recidive:
-  - herhaling
-  - wederom strafbaar feit
-  - terugval
-
+- herhaling
+- wederom strafbaar feit
+- terugval
 medeplegen:
-  - medeplichtigheid
-  - deelneming
-  - medeplichtige
-
-# Bestuursrecht specifiek
+- medeplichtigheid
+- deelneming
+- medeplichtige
 mandaat:
-  - volmacht
-  - delegatie
-  - bevoegdheidsoverdracht
-
+- volmacht
+- delegatie
+- bevoegdheidsoverdracht
 deugdelijke_motivering:
-  - motiveringsplicht
-  - zorgvuldigheidsbeginsel
-  - behoorlijk bestuur
-
-# Procesrecht specifiek
+- motiveringsplicht
+- zorgvuldigheidsbeginsel
+- behoorlijk bestuur
 comparitie:
-  - comparitie van partijen
-  - voorlopige zitting
-  - verschijning
-
+- comparitie van partijen
+- voorlopige zitting
+- verschijning
 wraking:
-  - wrakingsverzoek
-  - rechter-wraking
-  - onpartijdigheid
-
-# === EUROPEES RECHT ===
-
+- wrakingsverzoek
+- rechter-wraking
+- onpartijdigheid
 richtlijn:
-  - EU-richtlijn
-  - Europese richtlijn
-  - implementatieverplichting
-
+- EU-richtlijn
+- Europese richtlijn
+- implementatieverplichting
 verordening:
-  - EU-verordening
-  - Europese verordening
-  - rechtstreekse werking
+- EU-verordening
+- Europese verordening
+- rechtstreekse werking

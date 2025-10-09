@@ -167,7 +167,8 @@ class SynonymRepository:
         """
         # Validate confidence range
         if not (0.0 <= confidence <= 1.0):
-            raise ValueError(f"Confidence moet tussen 0.0 en 1.0 zijn: {confidence}")
+            msg = f"Confidence moet tussen 0.0 en 1.0 zijn: {confidence}"
+            raise ValueError(msg)
 
         with self._get_connection() as conn:
             # Check for duplicates
@@ -180,9 +181,8 @@ class SynonymRepository:
             )
             existing = cursor.fetchone()
             if existing:
-                raise ValueError(
-                    f"Suggestion '{hoofdterm}' → '{synoniem}' bestaat al (ID: {existing[0]})"
-                )
+                msg = f"Suggestion '{hoofdterm}' → '{synoniem}' bestaat al (ID: {existing[0]})"
+                raise ValueError(msg)
 
             # Convert context to JSON
             context_json = json.dumps(context, ensure_ascii=False) if context else None
@@ -327,7 +327,8 @@ class SynonymRepository:
             True als succesvol rejected
         """
         if not rejection_reason.strip():
-            raise ValueError("Rejection reason is verplicht")
+            msg = "Rejection reason is verplicht"
+            raise ValueError(msg)
 
         return self._update_status(
             suggestion_id,
@@ -335,6 +336,54 @@ class SynonymRepository:
             reviewed_by,
             rejection_reason=rejection_reason,
         )
+
+    def revert_to_pending(self, suggestion_id: int, reverted_by: str) -> bool:
+        """
+        Revert een approved/rejected suggestion terug naar pending.
+
+        Args:
+            suggestion_id: ID van de suggestion
+            reverted_by: Wie de revert uitvoert
+
+        Returns:
+            True als succesvol gerevert
+
+        Note:
+            Dit reset ook reviewed_by, reviewed_at en rejection_reason naar NULL.
+        """
+        with self._get_connection() as conn:
+            # Check if suggestion exists
+            existing = self.get_suggestion(suggestion_id)
+            if not existing:
+                logger.warning(f"Suggestion {suggestion_id} not found")
+                return False
+
+            # Check if not already pending
+            if existing.status == SuggestionStatus.PENDING.value:
+                logger.info(f"Suggestion {suggestion_id} is already pending")
+                return True
+
+            # Update status back to pending and clear review metadata
+            cursor = conn.execute(
+                """
+                UPDATE synonym_suggestions
+                SET status = ?,
+                    reviewed_by = NULL,
+                    reviewed_at = NULL,
+                    rejection_reason = NULL
+                WHERE id = ?
+                """,
+                (SuggestionStatus.PENDING.value, suggestion_id),
+            )
+
+            success = cursor.rowcount > 0
+
+            if success:
+                logger.info(
+                    f"Reverted suggestion {suggestion_id} to pending by {reverted_by}"
+                )
+
+            return success
 
     def _update_status(
         self,

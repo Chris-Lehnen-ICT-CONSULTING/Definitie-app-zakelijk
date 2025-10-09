@@ -215,13 +215,12 @@ class SynonymWorkflow:
                     f"'{suggestion.hoofdterm}' → '{suggestion.synoniem}'"
                 )
                 return True
-            else:
-                # This shouldn't happen, but handle gracefully
-                logger.error(
-                    f"Database update failed for suggestion {suggestion_id} "
-                    f"after YAML update"
-                )
-                return False
+            # This shouldn't happen, but handle gracefully
+            logger.error(
+                f"Database update failed for suggestion {suggestion_id} "
+                f"after YAML update"
+            )
+            return False
 
         except YAMLUpdateError as e:
             # YAML update failed - don't update database
@@ -379,6 +378,91 @@ class SynonymWorkflow:
             min_confidence=min_confidence,
             limit=limit,
         )
+
+    def revert_to_pending(self, suggestion_id: int, reverted_by: str) -> bool:
+        """
+        Revert een approved/rejected suggestion terug naar pending.
+
+        Voor APPROVED suggestions:
+        - Verwijder synoniem uit YAML config
+        - Reset status naar pending in database
+
+        Voor REJECTED suggestions:
+        - Reset status naar pending in database
+
+        Args:
+            suggestion_id: ID van de suggestion
+            reverted_by: Wie de revert uitvoert
+
+        Returns:
+            True als succesvol gerevert
+
+        Raises:
+            SynonymWorkflowError: Bij niet-bestaande suggestion of fouten
+        """
+        logger.info(f"Reverting suggestion {suggestion_id} to pending by {reverted_by}")
+
+        # Haal suggestion op
+        suggestion = self.repository.get_suggestion(suggestion_id)
+        if not suggestion:
+            error_msg = f"Suggestion {suggestion_id} not found"
+            logger.error(error_msg)
+            raise SynonymWorkflowError(error_msg)
+
+        # Check if already pending
+        if suggestion.status == SuggestionStatus.PENDING.value:
+            logger.info(f"Suggestion {suggestion_id} is already pending")
+            return True
+
+        # If approved, remove from YAML first
+        if suggestion.status == SuggestionStatus.APPROVED.value:
+            logger.info(
+                f"Suggestion {suggestion_id} was approved, removing from YAML config"
+            )
+            try:
+                yaml_removed = self.yaml_updater.remove_synonym(
+                    hoofdterm=suggestion.hoofdterm,
+                    synoniem=suggestion.synoniem,
+                )
+
+                if yaml_removed:
+                    logger.info(
+                        f"Removed '{suggestion.synoniem}' from YAML for '{suggestion.hoofdterm}'"
+                    )
+                else:
+                    logger.warning(
+                        f"Synoniem '{suggestion.synoniem}' not found in YAML "
+                        f"(may have been manually removed), continuing with revert"
+                    )
+
+            except YAMLUpdateError as e:
+                error_msg = (
+                    f"Failed to remove synonym from YAML during revert "
+                    f"for suggestion {suggestion_id}: {e}"
+                )
+                logger.error(error_msg)
+                raise SynonymWorkflowError(error_msg) from e
+
+        # Revert status to pending in database
+        try:
+            success = self.repository.revert_to_pending(
+                suggestion_id=suggestion_id,
+                reverted_by=reverted_by,
+            )
+
+            if success:
+                logger.info(
+                    f"Successfully reverted suggestion {suggestion_id} to pending: "
+                    f"'{suggestion.hoofdterm}' → '{suggestion.synoniem}'"
+                )
+                return True
+            logger.error(f"Database revert failed for suggestion {suggestion_id}")
+            return False
+
+        except Exception as e:
+            error_msg = f"Failed to revert suggestion {suggestion_id}: {e}"
+            logger.error(error_msg)
+            raise SynonymWorkflowError(error_msg) from e
 
     def get_statistics(self) -> dict[str, Any]:
         """
