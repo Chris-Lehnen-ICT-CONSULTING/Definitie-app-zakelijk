@@ -288,32 +288,9 @@ class ModernWebLookupService(WebLookupServiceInterface):
             from .web_lookup.context_filter import ContextFilter
             from .web_lookup.ranking import rank_and_dedup
 
-            # Convert to contract-like dicts for ranking
-            prepared = [
-                self._to_contract_dict(r) for r in valid_results if r is not None
-            ]
-            # Provider keys mapping based on source names
-            ranked = rank_and_dedup(prepared, self._provider_weights)
-
-            # COMPREHENSIVE FIX B: Context filtering en relevance scoring
-            # Pas context filtering toe NA ranking maar VOOR limitering
-            if request.context:
-                org, jur, wet = self._classify_context_tokens(request.context)
-                context_filter = ContextFilter()
-                # Filter met min_score=0.0 (keep all, maar voeg relevance score toe)
-                ranked = context_filter.filter_results(
-                    ranked,
-                    org_context=org if org else None,
-                    jur_context=jur if jur else None,
-                    wet_context=wet if wet else None,
-                    min_score=0.0,  # Keep all results, maar rank by relevance
-                )
-                logger.info(
-                    f"Context filtering applied: {len(ranked)} results scored with context relevance"
-                )
-
-            # JURIDISCHE RANKING BOOST (NIEUWE FEATURE)
-            # Boost juridische content met keywords, artikel-referenties, etc.
+            # FASE 2 FIX: JURIDISCHE RANKING BOOST EERST
+            # Boost juridische content VOOR ranking
+            # zodat confidence boost wordt meegenomen
             try:
                 from .web_lookup.juridisch_ranker import boost_juridische_resultaten
 
@@ -324,7 +301,8 @@ class ModernWebLookupService(WebLookupServiceInterface):
                     # Combineer juridische en wettelijke tokens
                     context_tokens = jur + wet
 
-                # Boost valid_results (LookupResult objecten) VOOR conversie naar ranked dicts
+                # Boost valid_results (LookupResult objecten)
+                # VOOR conversie naar ranked dicts
                 valid_results = boost_juridische_resultaten(
                     valid_results, context=context_tokens
                 )
@@ -335,6 +313,33 @@ class ModernWebLookupService(WebLookupServiceInterface):
             except Exception as e:
                 logger.warning(f"Juridische ranking boost gefaald: {e}")
                 # Continue zonder boost
+
+            # Convert to contract-like dicts for ranking
+            # Nu met gebooste confidence values!
+            prepared = [
+                self._to_contract_dict(r) for r in valid_results if r is not None
+            ]
+            # Provider keys mapping based on source names
+            ranked = rank_and_dedup(prepared, self._provider_weights)
+
+            # FASE 2 FIX: Context filtering met min_score=0.1
+            # Filter irrelevante resultaten (softer threshold)
+            # Pas context filtering toe NA ranking maar VOOR limitering
+            if request.context:
+                org, jur, wet = self._classify_context_tokens(request.context)
+                context_filter = ContextFilter()
+                # Filter met min_score=0.1 (10% threshold - softer filtering)
+                ranked = context_filter.filter_results(
+                    ranked,
+                    org_context=org if org else None,
+                    jur_context=jur if jur else None,
+                    wet_context=wet if wet else None,
+                    min_score=0.1,  # CHANGED: 0.0 → 0.3 → 0.1
+                )
+                logger.info(
+                    f"Context filtering applied: {len(ranked)} results "
+                    f"scored with context relevance"
+                )
 
             # Reorder/filter original results according to ranked unique set
             final_results: list[LookupResult] = []
@@ -593,7 +598,8 @@ class ModernWebLookupService(WebLookupServiceInterface):
                             continue
 
                 if result and result.success:
-                    result.source.confidence *= source.confidence_weight
+                    # NOTE: Provider weight applied in ranking, not here
+                    # to avoid double-weighting (Oct 2025)
                     return result
 
             elif source.name == "Wiktionary":
@@ -671,7 +677,8 @@ class ModernWebLookupService(WebLookupServiceInterface):
                             continue
 
                 if result and result.success:
-                    result.source.confidence *= source.confidence_weight
+                    # NOTE: Provider weight applied in ranking, not here
+                    # to avoid double-weighting (Oct 2025)
                     return result
 
         except ImportError as e:
@@ -748,7 +755,8 @@ class ModernWebLookupService(WebLookupServiceInterface):
 
                     if results:
                         r = results[0]
-                        r.source.confidence *= source.confidence_weight
+                        # NOTE: Provider weight applied in ranking, not here
+                        # to avoid double-weighting (Oct 2025)
                         return r
 
                 # Heuristische extra fallbacks op basis van term (na stages)
@@ -775,7 +783,9 @@ class ModernWebLookupService(WebLookupServiceInterface):
                     )
                     if results:
                         r = results[0]
-                        r.source.confidence *= source.confidence_weight * 0.95
+                        # NOTE: Provider weight applied in ranking, not here
+                        # Apply fallback penalty (0.95) to base confidence instead
+                        r.source.confidence *= 0.95
                         return r
 
                 return None
@@ -818,7 +828,8 @@ class ModernWebLookupService(WebLookupServiceInterface):
                     timeout=float(getattr(request, "timeout", 30) or 30),
                 )
                 if res and res.success:
-                    res.source.confidence *= source.confidence_weight
+                    # NOTE: Provider weight applied in ranking, not here
+                    # to avoid double-weighting (Oct 2025)
                     attempt["success"] = True
                     attempt["url"] = getattr(res.source, "url", "")
                     attempt["confidence"] = getattr(res.source, "confidence", 0.0)
@@ -896,7 +907,8 @@ class ModernWebLookupService(WebLookupServiceInterface):
                 )
 
                 if result and result.success:
-                    result.source.confidence *= source.confidence_weight
+                    # NOTE: Provider weight applied in ranking, not here
+                    # to avoid double-weighting (Oct 2025)
                     return result
 
                 return None

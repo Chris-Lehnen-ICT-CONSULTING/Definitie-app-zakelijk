@@ -1303,6 +1303,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "WEEK 1: UUR-VOOR-UUR IMPLEMENTATIE SCHEDULE",
+      "path": "../planning/week-1-hourly-schedule.md",
+      "url": "../planning/week-1-hourly-schedule.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/planning/week-1-hourly-schedule.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Performance Optimization Masterplan",
       "path": "../planning/PERFORMANCE_OPTIMIZATION_MASTERPLAN.md",
       "url": "../planning/PERFORMANCE_OPTIMIZATION_MASTERPLAN.md",
@@ -1615,6 +1646,68 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "CONCREET IMPLEMENTATIEPLAN: SYNONIEMEN-OPTIMALISATIE",
+      "path": "../planning/synonym-optimization-implementation-plan.md",
+      "url": "../planning/synonym-optimization-implementation-plan.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/planning/synonym-optimization-implementation-plan.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "CODE EXAMPLES: TOP 3 FEATURES SYNONIEMEN-OPTIMALISATIE",
+      "path": "../planning/synonym-optimization-code-examples.md",
+      "url": "../planning/synonym-optimization-code-examples.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/planning/synonym-optimization-code-examples.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Sprint Change Proposal: Brownfield Cleanup & Quality Infrastructure",
       "path": "../planning/SPRINT_CHANGE_PROPOSAL_BROWNFIELD_CLEANUP.md",
       "url": "../planning/SPRINT_CHANGE_PROPOSAL_BROWNFIELD_CLEANUP.md",
@@ -1760,6 +1853,37 @@
         "req": []
       },
       "rendered_url": "rendered/workflows/validation_orchestrator_rollout.html"
+    },
+    {
+      "id": null,
+      "type": "ARCH",
+      "title": "Provider Weighting Architecture - Visual Diagrams",
+      "path": "../architectuur/provider-weighting-diagrams.md",
+      "url": "../architectuur/provider-weighting-diagrams.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/architectuur/provider-weighting-diagrams.html"
     },
     {
       "id": null,
@@ -2223,6 +2347,68 @@
     {
       "id": null,
       "type": "ARCH",
+      "title": "Provider Weighting Architecture - Executive Summary",
+      "path": "../architectuur/provider-weighting-executive-summary.md",
+      "url": "../architectuur/provider-weighting-executive-summary.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/architectuur/provider-weighting-executive-summary.html"
+    },
+    {
+      "id": null,
+      "type": "ARCH",
+      "title": "Provider Weighting Architecture Design",
+      "path": "../architectuur/provider-weighting-architecture-design.md",
+      "url": "../architectuur/provider-weighting-architecture-design.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/architectuur/provider-weighting-architecture-design.html"
+    },
+    {
+      "id": null,
+      "type": "ARCH",
       "title": "ENTERPRISE ARCHITECTURE - DEFINITIEAPP",
       "path": "../architectuur/ENTERPRISE_ARCHITECTURE.md",
       "url": "../architectuur/ENTERPRISE_ARCHITECTURE.md",
@@ -2252,6 +2438,37 @@
         "req": []
       },
       "rendered_url": "rendered/architectuur/ENTERPRISE_ARCHITECTURE.html"
+    },
+    {
+      "id": null,
+      "type": "ARCH",
+      "title": "Synonym Management Architecture Design",
+      "path": "../architectuur/synonym-management-architecture-design.md",
+      "url": "../architectuur/synonym-management-architecture-design.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/architectuur/synonym-management-architecture-design.html"
     },
     {
       "id": null,
@@ -6414,6 +6631,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "UNIFIED SOLUTION: \"BEST OF 3 WORLDS\" SYNONIEMEN OPTIMALISATIE",
+      "path": "../analyses/synoniemen-optimalisatie-unified-solution.md",
+      "url": "../analyses/synoniemen-optimalisatie-unified-solution.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/synoniemen-optimalisatie-unified-solution.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Perplexity API Decision Summary",
       "path": "../analyses/PERPLEXITY_DECISION_SUMMARY.md",
       "url": "../analyses/PERPLEXITY_DECISION_SUMMARY.md",
@@ -6676,6 +6924,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Double-Weighting Bug: Comprehensive Solution Analysis",
+      "path": "../analyses/double-weighting-comprehensive-solution.md",
+      "url": "../analyses/double-weighting-comprehensive-solution.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/double-weighting-comprehensive-solution.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Container Duplication Fix - Implementation Plan",
       "path": "../analyses/CONTAINER_FIX_IMPLEMENTATION_PLAN.md",
       "url": "../analyses/CONTAINER_FIX_IMPLEMENTATION_PLAN.md",
@@ -6831,6 +7110,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "UNIFIED SOLUTION: \"BEST OF 3 WORLDS\" SYNONIEMEN OPTIMALISATIE",
+      "path": "../analyses/unified-synonym-solution.md",
+      "url": "../analyses/unified-synonym-solution.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/unified-synonym-solution.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Level Classifier - Modulaire Refactoring Plan (Optie B)",
       "path": "../analyses/LEVEL_CLASSIFIER_REFACTORING_PLAN.md",
       "url": "../analyses/LEVEL_CLASSIFIER_REFACTORING_PLAN.md",
@@ -6928,6 +7238,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "🔴 PARANOID RISK ANALYSIS: Synoniemen-Optimalisatie Solution",
+      "path": "../analyses/synonym-optimization-risk-analysis.md",
+      "url": "../analyses/synonym-optimization-risk-analysis.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/synonym-optimization-risk-analysis.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Level Classifier Integration - Executive Summary",
       "path": "../analyses/LEVEL_CLASSIFIER_EXECUTIVE_SUMMARY.md",
       "url": "../analyses/LEVEL_CLASSIFIER_EXECUTIVE_SUMMARY.md",
@@ -6992,6 +7333,37 @@
         "req": []
       },
       "rendered_url": "rendered/analyses/CONTAINER_CACHE_KEY_PROBLEM.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Double-Weighting Bug: Deep Root Cause Analysis",
+      "path": "../analyses/double-weighting-bug-root-cause-analysis.md",
+      "url": "../analyses/double-weighting-bug-root-cause-analysis.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/double-weighting-bug-root-cause-analysis.html"
     },
     {
       "id": null,
@@ -7125,6 +7497,37 @@
         "req": []
       },
       "rendered_url": "rendered/analyses/CONFIG_ENVIRONMENT_MASTERPLAN.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "ACTION PLAN: Double-Weighting Follow-up",
+      "path": "../analyses/ACTION_PLAN_double_weighting_followup.md",
+      "url": "../analyses/ACTION_PLAN_double_weighting_followup.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/ACTION_PLAN_double_weighting_followup.html"
     },
     {
       "id": null,
@@ -7315,6 +7718,41 @@
         "req": []
       },
       "rendered_url": "rendered/analyses/sru-failure-quick-reference.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Double-Weighting Bug Analysis - Quality Gate Implementation",
+      "path": "../analyses/double-weighting-bug-analysis.md",
+      "url": "../analyses/double-weighting-bug-analysis.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-151"
+        ],
+        "epic": [
+          "EPIC-003"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/double-weighting-bug-analysis.html"
     },
     {
       "id": null,
@@ -7570,6 +8008,37 @@
         "req": []
       },
       "rendered_url": "rendered/analyses/PROVIDER_PRIORITY_STRATEGY.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Multi-Agent Consensus: Overengineered or Future-Proof?",
+      "path": "../analyses/multi-agent-consensus-single-dev-context.md",
+      "url": "../analyses/multi-agent-consensus-single-dev-context.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/multi-agent-consensus-single-dev-context.html"
     },
     {
       "id": null,
@@ -7851,6 +8320,37 @@
         "req": []
       },
       "rendered_url": "rendered/analyses/SYNONYM_AUTOMATION_SUMMARY.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Synonym Management System - Edge Case & Bug Analysis",
+      "path": "../analyses/synonym-system-edge-case-analysis.md",
+      "url": "../analyses/synonym-system-edge-case-analysis.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/synonym-system-edge-case-analysis.html"
     },
     {
       "id": null,
@@ -8913,6 +9413,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Multi-Agent Consensus Report: Web Lookup Ranking Fix",
+      "path": "../reports/MULTI_AGENT_CONSENSUS_REPORT.md",
+      "url": "../reports/MULTI_AGENT_CONSENSUS_REPORT.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/reports/MULTI_AGENT_CONSENSUS_REPORT.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "UI/UX and Integration Layer Analysis Report",
       "path": "../reports/UI_UX_INTEGRATION_ANALYSIS_REPORT.md",
       "url": "../reports/UI_UX_INTEGRATION_ANALYSIS_REPORT.md",
@@ -9235,6 +9766,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Web Lookup Ranking Flow: Visual Analysis",
+      "path": "../reports/web-lookup-ranking-flow-diagram.md",
+      "url": "../reports/web-lookup-ranking-flow-diagram.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/reports/web-lookup-ranking-flow-diagram.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Performance Baseline Tracking - Phase 1 Implementation Report",
       "path": "../reports/performance-baseline-tracking-implementation.md",
       "url": "../reports/performance-baseline-tracking-implementation.md",
@@ -9427,6 +9989,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Web Lookup Ranking Fix - Code Snippets",
+      "path": "../reports/ranking-fix-code-snippets.md",
+      "url": "../reports/ranking-fix-code-snippets.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/reports/ranking-fix-code-snippets.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Rechtspraak.nl Integration - Approach Comparison Matrix",
       "path": "../reports/rechtspraak-approach-comparison.md",
       "url": "../reports/rechtspraak-approach-comparison.md",
@@ -9454,6 +10047,37 @@
         "req": []
       },
       "rendered_url": "rendered/reports/rechtspraak-approach-comparison.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Web Lookup Ranking Debug Analysis - Executive Summary",
+      "path": "../reports/RANKING_DEBUG_SUMMARY.md",
+      "url": "../reports/RANKING_DEBUG_SUMMARY.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/reports/RANKING_DEBUG_SUMMARY.html"
     },
     {
       "id": null,
@@ -9676,6 +10300,37 @@
         "req": []
       },
       "rendered_url": "rendered/reports/web-lookup-cleanup-rechtspraak-text-search.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Web Lookup Ranking Debug Report",
+      "path": "../reports/web-lookup-ranking-debug-report.md",
+      "url": "../reports/web-lookup-ranking-debug-report.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/reports/web-lookup-ranking-debug-report.html"
     },
     {
       "id": null,
@@ -40722,8 +41377,8 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 626,
-      "ARCH": 36,
+      "DOC": 643,
+      "ARCH": 40,
       "COMP": 5,
       "TEST": 35,
       "GUIDE": 14,
@@ -40732,7 +41387,7 @@
       "US": 276,
       "BUG": 18
     },
-    "generated_at": "2025-10-09T09:01:43Z"
+    "generated_at": "2025-10-09T14:31:24Z"
   },
   "sources": [
     "docs"
