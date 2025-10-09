@@ -114,6 +114,9 @@ with st.expander("🚀 Genereer Nieuwe Synoniemen", expanded=False):
                         st.info(
                             "💡 Scroll naar beneden om de suggesties te reviewen en goed te keuren"
                         )
+
+                        # Rerun to refresh the review table with new suggestions
+                        st.rerun()
                     else:
                         st.warning(
                             f"⚠️ Geen suggesties gevonden voor '{term}' met confidence ≥ {confidence}"
