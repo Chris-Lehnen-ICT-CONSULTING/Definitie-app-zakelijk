@@ -25,12 +25,10 @@ if not os.getenv("OPENAI_API_KEY"):
     )
 
 # Import test modules
-from voorbeelden.unified_voorbeelden import (
-    GenerationMode,
-    genereer_alle_voorbeelden,
-    genereer_antoniemen,
-    genereer_synoniemen,
-)
+from voorbeelden.unified_voorbeelden import (GenerationMode,
+                                             genereer_alle_voorbeelden,
+                                             genereer_antoniemen,
+                                             genereer_synoniemen)
 
 
 def test_synoniemen_antoniemen():

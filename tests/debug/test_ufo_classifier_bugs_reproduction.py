@@ -18,11 +18,9 @@ from typing import List, Tuple
 
 import pytest
 
-from src.services.ufo_classifier_service import (
-    UFOCategory,
-    UFOClassificationResult,
-    UFOClassifierService,
-)
+from src.services.ufo_classifier_service import (UFOCategory,
+                                                 UFOClassificationResult,
+                                                 UFOClassifierService)
 
 # ============================================================================
 # BUG REPRODUCTIONS

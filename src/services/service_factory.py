@@ -315,9 +315,8 @@ class ServiceAdapter:
 
         # Prefer schema-compliant adapter for dataclass/TypedDict
         try:
-            from services.validation.mappers import (
-                ensure_schema_compliance,  # lazy import
-            )
+            from services.validation.mappers import \
+                ensure_schema_compliance  # lazy import
 
             schema = ensure_schema_compliance(result)
             # Derive score robustly: prefer schema value, otherwise fallback extract

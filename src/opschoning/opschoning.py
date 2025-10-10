@@ -22,9 +22,8 @@ Voorbeelden van opschoning:
 
 import re  # Reguliere expressies voor patroon matching
 
-from config.verboden_woorden import (
-    laad_verboden_woorden,  # Verboden woorden configuratie
-)
+from config.verboden_woorden import \
+    laad_verboden_woorden  # Verboden woorden configuratie
 
 # Geïsoleerde module voor opschoning van GPT-gegenereerde definities
 # Verwijdert alle verboden aanhefconstructies, dwingt hoofdletter en punt af

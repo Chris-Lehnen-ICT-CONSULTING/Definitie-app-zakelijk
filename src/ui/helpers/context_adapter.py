@@ -10,11 +10,8 @@ from typing import Any
 
 import streamlit as st
 
-from services.context.context_manager import (
-    ContextManager,
-    ContextSource,
-    get_context_manager,
-)
+from services.context.context_manager import (ContextManager, ContextSource,
+                                              get_context_manager)
 
 logger = logging.getLogger(__name__)
 

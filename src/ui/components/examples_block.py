@@ -94,9 +94,8 @@ def render_examples_block(
 
                     with st.spinner("🧠 Voorbeelden genereren met AI..."):
                         from ui.helpers.async_bridge import run_async
-                        from voorbeelden.unified_voorbeelden import (
-                            genereer_alle_voorbeelden_async,
-                        )
+                        from voorbeelden.unified_voorbeelden import \
+                            genereer_alle_voorbeelden_async
 
                         result = run_async(
                             genereer_alle_voorbeelden_async(
@@ -296,7 +295,8 @@ def render_examples_block(
                     if current_voorkeursterm:
                         target = current_voorkeursterm
                     else:
-                        from ui.session_state import SessionStateManager as _SSM
+                        from ui.session_state import \
+                            SessionStateManager as _SSM
 
                         sess_vt = _SSM.get_value("voorkeursterm", "")
                         target = sess_vt or None

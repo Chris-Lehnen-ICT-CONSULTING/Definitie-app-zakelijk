@@ -106,7 +106,8 @@ class TestImportStructure(unittest.TestCase):
     def test_logs_module_resolution(self):
         """Test dat logs module correct wordt opgelost (optioneel)."""
         try:
-            from logs.application.log_definitie import get_logger, log_definitie
+            from logs.application.log_definitie import (get_logger,
+                                                        log_definitie)
 
             logger_instance = get_logger("test")
             self.assertIsNotNone(logger_instance)
@@ -334,10 +335,8 @@ class TestCoreFunctionality(unittest.TestCase):
     def test_definitie_repository_basic_operations(self):
         """Test basis database operaties."""
         try:
-            from database.definitie_repository import (
-                DefinitieRecord,
-                DefinitieRepository,
-            )
+            from database.definitie_repository import (DefinitieRecord,
+                                                       DefinitieRepository)
 
             # Gebruik tijdelijke database voor tests
             with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as tmp:
@@ -489,7 +488,8 @@ class TestModernWebLookupIntegration(unittest.TestCase):
         """Test dat moderne web lookup service correct werkt."""
         try:
             from services.interfaces import LookupRequest
-            from services.modern_web_lookup_service import ModernWebLookupService
+            from services.modern_web_lookup_service import \
+                ModernWebLookupService
 
             # Test basis functionaliteit
             service = ModernWebLookupService()
@@ -511,7 +511,8 @@ class TestModernWebLookupIntegration(unittest.TestCase):
             mock_get.side_effect = Exception("Network error")
 
             # Test dat error handling werkt
-            from services.modern_web_lookup_service import ModernWebLookupService
+            from services.modern_web_lookup_service import \
+                ModernWebLookupService
 
             service = ModernWebLookupService()
             # Dit zou graceful moeten falen zonder de hele applicatie te crashen
@@ -627,7 +628,6 @@ class TestRegressionSpecific(unittest.TestCase):
         try:
             # Test verschillende manieren van logs importeren
             import os
-
             # Test vanuit verschillende modules
             import sys
 

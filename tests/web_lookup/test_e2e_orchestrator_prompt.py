@@ -81,9 +81,8 @@ class _StubWebLookupService:
 @pytest.mark.asyncio()
 async def test_e2e_orchestrator_prompt_augmentation(monkeypatch):
     from services.interfaces import GenerationRequest, OrchestratorConfig
-    from services.orchestrators.definition_orchestrator_v2 import (
-        DefinitionOrchestratorV2,
-    )
+    from services.orchestrators.definition_orchestrator_v2 import \
+        DefinitionOrchestratorV2
     from services.prompts.prompt_service_v2 import PromptServiceV2
 
     # Force prompt augmentation enabled with deterministic builder

@@ -24,11 +24,8 @@ logging.basicConfig(
 
 # Import de container manager
 from ui.cached_services import get_service_stats
-from utils.container_manager import (
-    clear_container_cache,
-    get_cached_container,
-    get_container_stats,
-)
+from utils.container_manager import (clear_container_cache,
+                                     get_cached_container, get_container_stats)
 
 st.set_page_config(
     page_title="US-201 Container Caching Test", page_icon="🚀", layout="wide"

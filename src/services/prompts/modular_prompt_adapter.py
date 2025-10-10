@@ -12,25 +12,13 @@ from typing import Any
 from services.definition_generator_config import UnifiedGeneratorConfig
 from services.definition_generator_context import EnrichedContext
 
-from .modules import (
-    AraiRulesModule,
-    ConRulesModule,
-    ContextAwarenessModule,
-    DefinitionTaskModule,
-    ErrorPreventionModule,
-    EssRulesModule,
-    ExpertiseModule,
-    GrammarModule,
-    IntegrityRulesModule,
-    MetricsModule,
-    OutputSpecificationModule,
-    PromptOrchestrator,
-    SamRulesModule,
-    SemanticCategorisationModule,
-    StructureRulesModule,
-    TemplateModule,
-    VerRulesModule,
-)
+from .modules import (AraiRulesModule, ConRulesModule, ContextAwarenessModule,
+                      DefinitionTaskModule, ErrorPreventionModule,
+                      EssRulesModule, ExpertiseModule, GrammarModule,
+                      IntegrityRulesModule, MetricsModule,
+                      OutputSpecificationModule, PromptOrchestrator,
+                      SamRulesModule, SemanticCategorisationModule,
+                      StructureRulesModule, TemplateModule, VerRulesModule)
 
 logger = logging.getLogger(__name__)
 

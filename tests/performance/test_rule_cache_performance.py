@@ -13,7 +13,6 @@ import pytest
 
 from toetsregels.cached_manager import CachedToetsregelManager
 from toetsregels.manager import ToetsregelManager
-
 # Import the implementations
 from toetsregels.rule_cache import RuleCache, get_rule_cache
 
@@ -148,7 +147,8 @@ class TestRuleCachePerformance:
                         }
 
                         # Call the cached function directly
-                        from toetsregels.rule_cache import _load_all_rules_cached
+                        from toetsregels.rule_cache import \
+                            _load_all_rules_cached
 
                         rules = _load_all_rules_cached(str(cache.regels_dir))
 

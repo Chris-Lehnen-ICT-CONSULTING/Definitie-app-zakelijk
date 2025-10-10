@@ -21,13 +21,10 @@ from unittest.mock import AsyncMock, Mock, patch
 import pytest
 
 from services.container import ServiceContainer
-from services.interfaces import (
-    Definition,
-    DefinitionResponseV2,
-    GenerationRequest,
-    ValidationResult,
-)
-from services.orchestrators.definition_orchestrator_v2 import DefinitionOrchestratorV2
+from services.interfaces import (Definition, DefinitionResponseV2,
+                                 GenerationRequest, ValidationResult)
+from services.orchestrators.definition_orchestrator_v2 import \
+    DefinitionOrchestratorV2
 
 
 class TestStory24RegressionSuite:
@@ -424,9 +421,8 @@ class TestStory24RegressionEdgeCases:
     @pytest.mark.asyncio()
     async def test_empty_text_validation_regression(self):
         """Regression test: Empty text validation should still work."""
-        from services.orchestrators.validation_orchestrator_v2 import (
-            ValidationOrchestratorV2,
-        )
+        from services.orchestrators.validation_orchestrator_v2 import \
+            ValidationOrchestratorV2
 
         mock_service = AsyncMock()
         mock_service.validate_definition.return_value = {
@@ -449,9 +445,8 @@ class TestStory24RegressionEdgeCases:
     @pytest.mark.asyncio()
     async def test_unicode_handling_regression(self):
         """Regression test: Unicode text handling should remain consistent."""
-        from services.orchestrators.validation_orchestrator_v2 import (
-            ValidationOrchestratorV2,
-        )
+        from services.orchestrators.validation_orchestrator_v2 import \
+            ValidationOrchestratorV2
 
         mock_service = AsyncMock()
         mock_service.validate_definition.return_value = {
@@ -478,9 +473,8 @@ class TestStory24RegressionEdgeCases:
     @pytest.mark.asyncio()
     async def test_concurrent_validation_regression(self):
         """Regression test: Concurrent validation should still work properly."""
-        from services.orchestrators.validation_orchestrator_v2 import (
-            ValidationOrchestratorV2,
-        )
+        from services.orchestrators.validation_orchestrator_v2 import \
+            ValidationOrchestratorV2
 
         mock_service = AsyncMock()
         mock_service.validate_definition.return_value = {

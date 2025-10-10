@@ -64,16 +64,16 @@ class BraveSearchService:
                 frame = inspect.currentframe()
                 # MCP functies zijn beschikbaar in de globals van de caller
                 # maar voor testbaarheid accepteren we het ook via constructor
-                pass
             except Exception:
                 pass
         return self
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         """Async context manager exit - no cleanup needed for MCP."""
-        pass
 
-    async def lookup(self, term: str, include_snippet: bool = True) -> LookupResult | None:
+    async def lookup(
+        self, term: str, include_snippet: bool = True
+    ) -> LookupResult | None:
         """
         Zoek een term op via Brave Search.
 

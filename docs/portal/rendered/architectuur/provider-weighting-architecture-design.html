@@ -1,0 +1,1190 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Provider Weighting Architecture Design</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>Provider Weighting Architecture Design</h1>
+
+<p><strong>Date</strong>: 2025-10-09</p>
+<p><strong>Author</strong>: Claude Code (Solution Design)</p>
+<p><strong>Status</strong>: DESIGN PROPOSAL</p>
+<p><strong>Related</strong>: <code>docs/analyses/double-weighting-bug-analysis.md</code></p>
+
+<h2>Executive Summary</h2>
+
+<p>This document proposes a <strong>robust, future-proof architecture</strong> for provider weighting in the DefinitieAgent web lookup system. The design prevents double-weighting bugs through:</p>
+
+<ol>
+<li>**Clear separation of concerns** - Intrinsic confidence vs extrinsic weights</li>
+<li>**Type safety** - Explicit types prevent accidental re-weighting</li>
+<li>**Single application point** - Weights applied ONLY in ranking module</li>
+<li>**Configuration validation** - Schema ensures correct usage</li>
+<li>**Test strategy** - Catches regressions at compile and runtime</li>
+</ol>
+
+<p>---</p>
+
+<h2>1. Architecture Decision Record (ADR)</h2>
+
+<h3>ADR-001: Weight Only in Ranking Module</h3>
+
+<p><strong>Status</strong>: RECOMMENDED</p>
+<p><strong>Date</strong>: 2025-10-09</p>
+<p><strong>Context</strong>: Double-weighting bug occurred when provider weights were applied in both lookup methods and ranking module.</p>
+
+<h4>Decision</h4>
+
+<p>Provider weights SHALL be applied <strong>exclusively in the ranking module</strong> (<code>src/services/web_lookup/ranking.py</code>). Lookup methods SHALL return <strong>raw confidence scores</strong> without weight application.</p>
+
+<h4>Rationale</h4>
+
+<p>| Criterion | Lookup Layer | Ranking Layer | Winner |</p>
+<p>|-----------|--------------|---------------|--------|</p>
+<p>| <strong>Single Responsibility</strong> | Fetch + Score = 2 concerns | Compare sources = 1 concern | Ranking ✅ |</p>
+<p>| <strong>Testability</strong> | Must mock weights | Pure score testing | Ranking ✅ |</p>
+<p>| <strong>Debugging</strong> | Hard to trace transformations | Explicit transformation point | Ranking ✅ |</p>
+<p>| <strong>Cross-source Comparison</strong> | No context of other sources | Natural place for comparison | Ranking ✅ |</p>
+<p>| <strong>Configuration</strong> | Duplicated weight config | Centralized config | Ranking ✅ |</p>
+
+<h4>Consequences</h4>
+
+<p><strong>Positive</strong>:</p>
+<ul>
+<li>Single source of truth for provider weighting</li>
+<li>Easier to debug (inspect raw scores before ranking)</li>
+<li>Clearer data flow (fetch → boost → rank → weight)</li>
+<li>No hidden transformations in lookup layer</li>
+</ul>
+
+<p><strong>Negative</strong>:</p>
+<ul>
+<li>Breaking change (if code relied on weighted confidence in lookup results)</li>
+<li>Must document that `LookupResult.source.confidence` is raw, not weighted</li>
+</ul>
+
+<p><strong>Mitigation</strong>:</p>
+<ul>
+<li>Clear documentation in code comments</li>
+<li>Type system enforcement (see Section 2)</li>
+<li>Integration tests verify single application (see Section 5)</li>
+</ul>
+
+<p>---</p>
+
+<h2>2. Interface Design</h2>
+
+<h3>2.1 Core Types</h3>
+
+<p>We propose a <strong>three-layer confidence model</strong> that makes transformations explicit:</p>
+
+<pre><code>from dataclasses import dataclass, field
+from typing import Literal
+
+@dataclass(frozen=True)  # Immutable - prevents accidental mutation
+class RawConfidence:
+    """
+    Raw confidence from provider API (0.0 - 1.0).
+
+    Represents intrinsic relevance score from the source:
+    - Wikipedia relevance score
+    - SRU result ranking score
+    - API confidence metric
+
+    This value is NEVER weighted by provider authority.
+    """
+    value: float  # 0.0 - 1.0
+
+    def __post_init__(self):
+        if not 0.0 &lt;= self.value &lt;= 1.0:
+            raise ValueError(f"Confidence must be 0-1, got {self.value}")
+
+    def __float__(self) -&gt; float:
+        return self.value
+
+    def __str__(self) -&gt; str:
+        return f"Raw({self.value:.2f})"
+
+
+@dataclass(frozen=True)
+class BoostedConfidence:
+    """
+    Confidence after juridical content boost (&gt;= raw confidence).
+
+    Boosts applied:
+    - Juridical source boost (quality-gated, from config)
+    - Keyword matches (juridische_keywords.yaml)
+    - Article references (Art. 123)
+    - Context matches (user-provided context)
+
+    Provider weight NOT applied yet.
+    """
+    raw: RawConfidence
+    boost_factor: float  # &gt;= 1.0
+
+    @property
+    def value(self) -&gt; float:
+        """Boosted value (clamped to 1.0)."""
+        return min(self.raw.value * self.boost_factor, 1.0)
+
+    def __post_init__(self):
+        if self.boost_factor &lt; 1.0:
+            raise ValueError(f"Boost must be &gt;= 1.0, got {self.boost_factor}")
+
+    def __float__(self) -&gt; float:
+        return self.value
+
+    def __str__(self) -&gt; str:
+        return f"Boosted({self.value:.2f}=raw:{self.raw.value:.2f}×{self.boost_factor:.2f})"
+
+
+@dataclass(frozen=True)
+class WeightedScore:
+    """
+    Final score after provider weight application (ranking layer only).
+
+    This is the ONLY place where provider weights are applied.
+    Formula: boosted_confidence × provider_weight
+
+    Example:
+        Wikipedia: 0.8 (raw) × 1.1 (boost) × 0.85 (weight) = 0.748 (final)
+        Overheid:  0.6 (raw) × 1.0 (boost) × 1.0 (weight)  = 0.600 (final)
+    """
+    boosted: BoostedConfidence
+    provider_weight: float  # 0.0 - 1.0 (typically 0.5 - 1.0)
+
+    @property
+    def value(self) -&gt; float:
+        """Final weighted score."""
+        return self.boosted.value * self.provider_weight
+
+    def __post_init__(self):
+        if not 0.0 &lt;= self.provider_weight &lt;= 1.0:
+            raise ValueError(f"Weight must be 0-1, got {self.provider_weight}")
+
+    def __float__(self) -&gt; float:
+        return self.value
+
+    def __str__(self) -&gt; str:
+        return (
+            f"Weighted({self.value:.2f}="
+            f"boosted:{self.boosted.value:.2f}×weight:{self.provider_weight:.2f})"
+        )
+
+    @property
+    def breakdown(self) -&gt; dict[str, float]:
+        """Full breakdown for debugging."""
+        return {
+            "raw": self.boosted.raw.value,
+            "boost_factor": self.boosted.boost_factor,
+            "boosted": self.boosted.value,
+            "provider_weight": self.provider_weight,
+            "final": self.value,
+        }</code></pre>
+
+<h3>2.2 Updated Interfaces</h3>
+
+<pre><code>from dataclasses import dataclass
+from typing import Any
+
+@dataclass
+class WebSource:
+    """Web source metadata."""
+    name: str
+    url: str
+    confidence: RawConfidence  # CHANGED: Was float, now RawConfidence
+    api_type: str
+    is_juridical: bool = False
+
+
+@dataclass
+class LookupResult:
+    """
+    Result from a single lookup operation.
+
+    IMPORTANT: confidence is RAW, not weighted by provider authority.
+    Provider weights are applied in ranking module only.
+    """
+    term: str
+    source: WebSource
+    definition: str
+    success: bool
+    context: str | None = None
+    metadata: dict[str, Any] | None = None
+
+    @property
+    def raw_confidence(self) -&gt; float:
+        """Raw confidence from API (convenience accessor)."""
+        return float(self.source.confidence)</code></pre>
+
+<h3>2.3 Migration Path</h3>
+
+<p><strong>Phase 1: Non-breaking addition</strong> (current state - already done)</p>
+<pre><code># Lookup methods return float confidence (raw, no weight)
+result.source.confidence = 0.8  # No weight applied ✅
+
+# Ranking applies weight
+final_score = 0.8 × 0.85  # Single application ✅</code></pre>
+
+<p><strong>Phase 2: Type safety (future enhancement)</strong></p>
+<pre><code># Lookup methods return RawConfidence
+result.source.confidence = RawConfidence(0.8)
+
+# Boost layer returns BoostedConfidence
+boosted_confidence = BoostedConfidence(raw=RawConfidence(0.8), boost_factor=1.1)
+
+# Ranking layer returns WeightedScore
+final_score = WeightedScore(boosted=boosted_confidence, provider_weight=0.85)
+
+# Type system PREVENTS double-weighting:
+# ❌ Cannot multiply WeightedScore by weight again (type error)
+# ❌ Cannot pass BoostedConfidence to lookup (type error)</code></pre>
+
+<p>---</p>
+
+<h2>3. Configuration Design</h2>
+
+<h3>3.1 Current Config Structure</h3>
+
+<p><strong>File</strong>: <code>config/web_lookup_defaults.yaml</code></p>
+
+<pre><code>web_lookup:
+  providers:
+    wikipedia:
+      enabled: true
+      weight: 0.85        # APPLIED IN: ranking module ONLY
+      timeout: 5
+      min_score: 0.3
+
+    sru_overheid:
+      enabled: true
+      weight: 1.0         # APPLIED IN: ranking module ONLY
+      timeout: 5
+      min_score: 0.4
+
+  juridical_boost:
+    # Quality gate (controls WHEN boost is applied)
+    quality_gate:
+      enabled: true
+      min_base_score: 0.65
+      reduced_boost_factor: 0.5
+
+    # Boost factors (APPLIED IN: boost layer, before ranking)
+    juridische_bron: 1.2       # NOT a provider weight!
+    keyword_per_match: 1.1
+    artikel_referentie: 1.15</code></pre>
+
+<h3>3.2 Proposed Config Schema with Validation</h3>
+
+<pre><code>web_lookup:
+  # EXPLICIT SECTION: Provider authority weights (ranking layer)
+  provider_weights:
+    _metadata:
+      description: "Provider authority weights - APPLIED IN RANKING MODULE ONLY"
+      application_layer: "ranking"  # Explicit declaration
+      valid_range: [0.0, 1.0]
+
+    wikipedia: 0.85
+    sru_overheid: 1.0
+    rechtspraak_ecli: 0.95
+    wiktionary: 0.65
+    brave_search: 0.70
+
+  # EXPLICIT SECTION: Content boost factors (boost layer)
+  juridical_boost:
+    _metadata:
+      description: "Content-based boost factors - APPLIED IN BOOST LAYER"
+      application_layer: "boost"
+      valid_range: [1.0, 2.0]  # Boost factors must be &gt;= 1.0
+
+    quality_gate:
+      enabled: true
+      min_base_score: 0.65
+      reduced_boost_factor: 0.5
+
+    # Source-based boosts (quality-gated)
+    juridische_bron: 1.2
+    juridical_flag: 1.15
+
+    # Content-based boosts (not gated)
+    keyword_per_match: 1.1
+    keyword_max_boost: 1.3
+    artikel_referentie: 1.15
+    lid_referentie: 1.05
+    context_match: 1.1
+    context_max_boost: 1.3</code></pre>
+
+<h3>3.3 Config Validation</h3>
+
+<pre><code>from dataclasses import dataclass
+from typing import Literal
+
+@dataclass
+class ConfigMetadata:
+    """Metadata for config validation."""
+    description: str
+    application_layer: Literal["lookup", "boost", "ranking"]
+    valid_range: tuple[float, float]
+
+
+class WebLookupConfigValidator:
+    """Validates web lookup configuration."""
+
+    def validate(self, config: dict) -&gt; list[str]:
+        """
+        Validate config structure and values.
+
+        Returns:
+            List of validation errors (empty if valid)
+        """
+        errors = []
+
+        # Validate provider weights
+        weights = config.get("web_lookup", {}).get("provider_weights", {})
+        for provider, weight in weights.items():
+            if provider == "_metadata":
+                continue
+
+            if not isinstance(weight, (int, float)):
+                errors.append(f"provider_weights.{provider}: must be numeric")
+            elif not 0.0 &lt;= weight &lt;= 1.0:
+                errors.append(
+                    f"provider_weights.{provider}: {weight} not in [0.0, 1.0]"
+                )
+
+        # Validate boost factors
+        boost = config.get("web_lookup", {}).get("juridical_boost", {})
+        for key, value in boost.items():
+            if key in ("_metadata", "quality_gate"):
+                continue
+
+            if not isinstance(value, (int, float)):
+                errors.append(f"juridical_boost.{key}: must be numeric")
+            elif value &lt; 1.0:
+                errors.append(
+                    f"juridical_boost.{key}: {value} &lt; 1.0 (boost must be &gt;= 1.0)"
+                )
+
+        return errors
+
+    def validate_no_overlap(self, config: dict) -&gt; list[str]:
+        """
+        Validate that provider weights are not used as boost factors.
+
+        This prevents confusion where same config key is used in multiple layers.
+        """
+        errors = []
+
+        weights = set(
+            config.get("web_lookup", {}).get("provider_weights", {}).keys()
+        )
+        boost_keys = set(
+            config.get("web_lookup", {}).get("juridical_boost", {}).keys()
+        )
+
+        overlap = weights &amp; boost_keys - {"_metadata"}
+        if overlap:
+            errors.append(
+                f"Config keys appear in both provider_weights AND juridical_boost: {overlap}"
+            )
+
+        return errors</code></pre>
+
+<p>---</p>
+
+<h2>4. Data Flow Architecture</h2>
+
+<h3>4.1 Pipeline Stages</h3>
+
+<pre><code>┌────────────────────────────────────────────────────────────────┐
+│ STAGE 1: LOOKUP (Fetch Raw Data)                              │
+│ Location: src/services/modern_web_lookup_service.py           │
+│ Output: LookupResult with RawConfidence                        │
+├────────────────────────────────────────────────────────────────┤
+│ Wikipedia: 0.8 (raw relevance from API)                       │
+│ Overheid:  0.6 (raw relevance from SRU)                       │
+│                                                                 │
+│ ⚠️ NO PROVIDER WEIGHTS APPLIED                                 │
+└────────────────────────────────────────────────────────────────┘
+                              ↓
+┌────────────────────────────────────────────────────────────────┐
+│ STAGE 2: BOOST (Content-Based Scoring)                        │
+│ Location: src/services/web_lookup/juridisch_ranker.py         │
+│ Output: LookupResult with BoostedConfidence                    │
+├────────────────────────────────────────────────────────────────┤
+│ Wikipedia: 0.8 (no boost, not juridical)                      │
+│ Overheid:  0.6 × 1.1 (juridical boost) = 0.66                 │
+│                                                                 │
+│ Quality Gate Applied:                                          │
+│   - Only sources with base_score &gt;= 0.65 get full boost       │
+│   - Overheid 0.6 &lt; 0.65 → reduced boost (50%)                 │
+│   - Result: 0.6 × (1.0 + (1.1-1.0)×0.5) = 0.63               │
+│                                                                 │
+│ ⚠️ NO PROVIDER WEIGHTS APPLIED                                 │
+└────────────────────────────────────────────────────────────────┘
+                              ↓
+┌────────────────────────────────────────────────────────────────┐
+│ STAGE 3: RANKING (Cross-Source Comparison)                    │
+│ Location: src/services/web_lookup/ranking.py                  │
+│ Output: Ranked list with WeightedScore                         │
+├────────────────────────────────────────────────────────────────┤
+│ Wikipedia: 0.8 × 0.85 (provider weight) = 0.68                │
+│ Overheid:  0.63 × 1.0 (provider weight) = 0.63                │
+│                                                                 │
+│ Final Ranking: Wikipedia (0.68) &gt; Overheid (0.63) ✅           │
+│                                                                 │
+│ ✅ PROVIDER WEIGHTS APPLIED ONCE (ONLY HERE)                   │
+└────────────────────────────────────────────────────────────────┘</code></pre>
+
+<h3>4.2 Code Flow</h3>
+
+<pre><code># STAGE 1: LOOKUP
+async def _lookup_wikipedia(term, source, request):
+    # Fetch from API
+    result = await wikipedia_lookup(term)
+
+    # Return RAW confidence (no weight)
+    result.source.confidence = RawConfidence(0.8)  # From API relevance
+
+    # ✅ CORRECT: No provider weight applied
+    return result
+
+
+# STAGE 2: BOOST
+def boost_juridische_resultaten(results, context):
+    for result in results:
+        # Calculate boost based on content
+        boost_factor = calculate_juridische_boost(result, context)
+
+        # Apply boost to confidence
+        raw = result.source.confidence  # RawConfidence
+        result.source.confidence = BoostedConfidence(
+            raw=raw,
+            boost_factor=boost_factor
+        )
+
+    # ✅ CORRECT: No provider weight applied
+    return results
+
+
+# STAGE 3: RANKING
+def rank_and_dedup(items, provider_weights):
+    def _final_score(item):
+        provider = item.get("provider", "")
+        weight = provider_weights.get(provider, 1.0)
+        boosted = float(item.get("score", 0.0))  # BoostedConfidence
+
+        # ✅ CORRECT: Provider weight applied ONLY here
+        return WeightedScore(
+            boosted=BoostedConfidence(
+                raw=RawConfidence(item["raw_score"]),
+                boost_factor=item["boost_factor"]
+            ),
+            provider_weight=weight
+        )
+
+    return sorted(items, key=_final_score, reverse=True)</code></pre>
+
+<p>---</p>
+
+<h2>5. Test Strategy</h2>
+
+<h3>5.1 Unit Tests - Lookup Layer</h3>
+
+<p><strong>Goal</strong>: Verify lookup returns RAW confidence (no weight applied)</p>
+
+<pre><code># File: tests/services/test_modern_web_lookup_service_unit.py
+
+import pytest
+from services.modern_web_lookup_service import ModernWebLookupService
+
+
+@pytest.mark.asyncio
+async def test_wikipedia_lookup_returns_raw_confidence():
+    """Wikipedia lookup should return UN-weighted confidence."""
+    service = ModernWebLookupService()
+
+    # Mock Wikipedia API to return 0.8 relevance
+    with patch("services.web_lookup.wikipedia_service.wikipedia_lookup") as mock:
+        mock_result = LookupResult(
+            term="test",
+            source=WebSource(
+                name="Wikipedia",
+                url="https://nl.wikipedia.org/wiki/Test",
+                confidence=RawConfidence(0.8),  # Raw score from API
+                api_type="mediawiki"
+            ),
+            definition="Test definition",
+            success=True
+        )
+        mock.return_value = mock_result
+
+        # Lookup
+        result = await service._lookup_mediawiki(
+            "test",
+            service.sources["wikipedia"],
+            LookupRequest(term="test")
+        )
+
+        # Verify: confidence is RAW (0.8), NOT weighted (0.8 × 0.85 = 0.68)
+        assert result.source.confidence.value == 0.8  # ✅ Raw
+        assert result.source.confidence.value != 0.68  # ✅ Not weighted
+
+
+@pytest.mark.asyncio
+async def test_sru_lookup_returns_raw_confidence():
+    """SRU lookup should return UN-weighted confidence."""
+    service = ModernWebLookupService()
+
+    with patch("services.web_lookup.sru_service.SRUService") as MockSRU:
+        mock_sru = MockSRU.return_value.__aenter__.return_value
+        mock_sru.search.return_value = [
+            LookupResult(
+                term="test",
+                source=WebSource(
+                    name="Overheid.nl",
+                    url="https://overheid.nl/test",
+                    confidence=RawConfidence(0.6),  # Raw SRU score
+                    api_type="sru",
+                    is_juridical=True
+                ),
+                definition="Test definition",
+                success=True
+            )
+        ]
+
+        result = await service._lookup_sru(
+            "test",
+            service.sources["overheid"],
+            LookupRequest(term="test")
+        )
+
+        # Verify: confidence is RAW (0.6), NOT weighted (0.6 × 1.0 = 0.6)
+        # (same value, but semantically different - it's raw, not weighted)
+        assert result.source.confidence.value == 0.6
+        assert isinstance(result.source.confidence, RawConfidence)</code></pre>
+
+<h3>5.2 Unit Tests - Boost Layer</h3>
+
+<p><strong>Goal</strong>: Verify boost applied without provider weight</p>
+
+<pre><code># File: tests/services/web_lookup/test_juridisch_ranker.py
+
+def test_boost_juridische_bron_without_provider_weight():
+    """Juridical boost should NOT include provider weight."""
+    result = LookupResult(
+        term="test",
+        source=WebSource(
+            name="Overheid.nl",
+            url="https://wetten.overheid.nl/test",
+            confidence=RawConfidence(0.6),  # Raw confidence
+            api_type="sru",
+            is_juridical=True
+        ),
+        definition="Artikel 123: Test definitie",
+        success=True
+    )
+
+    # Calculate boost (should be content-based only)
+    boost_factor = calculate_juridische_boost(result, context=None)
+
+    # Boost includes: juridical source (1.2×), artikel ref (1.15×)
+    # Expected: 1.2 × 1.15 = 1.38
+    assert 1.35 &lt;= boost_factor &lt;= 1.40
+
+    # Apply boost
+    boosted = BoostedConfidence(
+        raw=result.source.confidence,
+        boost_factor=boost_factor
+    )
+
+    # Verify: boosted value is 0.6 × 1.38 = 0.828 (clamped to 0.828)
+    # NOT multiplied by provider weight (1.0)
+    assert 0.82 &lt;= boosted.value &lt;= 0.84
+    assert boosted.value != 0.6  # Changed from raw
+    assert boosted.value != 0.828 * 1.0  # Not weighted yet
+
+
+def test_quality_gate_reduces_boost_for_low_quality():
+    """Quality gate should reduce boost for base_score &lt; threshold."""
+    # Low quality source (0.5 &lt; 0.65 threshold)
+    result = LookupResult(
+        term="test",
+        source=WebSource(
+            name="Overheid.nl",
+            url="https://overheid.nl/test",
+            confidence=RawConfidence(0.5),  # Below threshold
+            api_type="sru",
+            is_juridical=True
+        ),
+        definition="Test definitie",
+        success=True
+    )
+
+    # Calculate boost with quality gate
+    boost_factor = calculate_juridische_boost(result, context=None)
+
+    # Expected: reduced boost (50% of 1.2×) = 1.0 + (1.2-1.0)×0.5 = 1.1
+    assert 1.08 &lt;= boost_factor &lt;= 1.12</code></pre>
+
+<h3>5.3 Integration Tests - End-to-End</h3>
+
+<p><strong>Goal</strong>: Verify single weight application through entire pipeline</p>
+
+<pre><code># File: tests/integration/test_web_lookup_weighting.py
+
+@pytest.mark.asyncio
+async def test_provider_weight_applied_once_in_ranking():
+    """
+    Integration test: Provider weight applied ONCE in ranking.
+
+    Scenario:
+        Wikipedia: 0.8 raw, 0.85 weight → 0.68 final
+        Overheid:  0.6 raw, 1.0 weight  → 0.6 final (no boost due to low quality)
+
+    Expected: Wikipedia wins (0.68 &gt; 0.6)
+    """
+    service = ModernWebLookupService()
+
+    # Mock lookups
+    with patch.multiple(
+        service,
+        _lookup_mediawiki=AsyncMock(return_value=LookupResult(
+            term="test",
+            source=WebSource(
+                name="Wikipedia",
+                url="https://nl.wikipedia.org/wiki/Test",
+                confidence=RawConfidence(0.8),  # Raw
+                api_type="mediawiki"
+            ),
+            definition="High quality relevant definition",
+            success=True
+        )),
+        _lookup_sru=AsyncMock(return_value=LookupResult(
+            term="test",
+            source=WebSource(
+                name="Overheid.nl",
+                url="https://overheid.nl/test",
+                confidence=RawConfidence(0.6),  # Raw
+                api_type="sru",
+                is_juridical=True
+            ),
+            definition="Low quality juridical definition",
+            success=True
+        ))
+    ):
+        # Execute full lookup pipeline
+        results = await service.lookup(
+            LookupRequest(term="test", max_results=5)
+        )
+
+        # Verify ranking
+        assert len(results) &gt;= 2
+
+        # Top result should be Wikipedia (0.68 &gt; 0.6)
+        top = results[0]
+        assert "wikipedia" in top.source.url.lower()
+
+        # Verify confidence values
+        # NOTE: After ranking, confidence is weighted
+        wikipedia_result = next(r for r in results if "wikipedia" in r.source.url.lower())
+        overheid_result = next(r for r in results if "overheid" in r.source.url.lower())
+
+        # Wikipedia: 0.8 × 0.85 = 0.68
+        assert 0.67 &lt;= float(wikipedia_result.source.confidence) &lt;= 0.69
+
+        # Overheid: 0.6 × 1.0 = 0.6 (no boost due to quality gate)
+        assert 0.59 &lt;= float(overheid_result.source.confidence) &lt;= 0.61
+
+        # Verify no double-weighting occurred
+        # If double-weighted: 0.8 × 0.85 × 0.85 = 0.578 (wrong)
+        assert float(wikipedia_result.source.confidence) &gt;= 0.65  # Not 0.578
+
+
+@pytest.mark.asyncio
+async def test_quality_gate_prevents_low_quality_juridical_outranking():
+    """
+    Quality gate should prevent low-quality juridical from outranking
+    high-quality relevant sources.
+
+    Scenario:
+        Wikipedia: 0.8 raw, no boost, 0.85 weight → 0.68 final
+        Overheid:  0.5 raw (low quality), 1.1× boost (reduced), 1.0 weight → 0.55 final
+
+    Expected: Wikipedia wins (0.68 &gt; 0.55)
+    """
+    service = ModernWebLookupService()
+
+    # ... (similar setup as above, but Overheid has 0.5 raw score)
+
+    results = await service.lookup(LookupRequest(term="test"))
+
+    # Wikipedia should win despite Overheid being juridical
+    assert "wikipedia" in results[0].source.url.lower()</code></pre>
+
+<h3>5.4 Property-Based Tests</h3>
+
+<p><strong>Goal</strong>: Verify mathematical properties hold under all conditions</p>
+
+<pre><code># File: tests/properties/test_weighting_properties.py
+
+from hypothesis import given, strategies as st
+
+@given(
+    raw_confidence=st.floats(min_value=0.0, max_value=1.0),
+    boost_factor=st.floats(min_value=1.0, max_value=2.0),
+    provider_weight=st.floats(min_value=0.0, max_value=1.0)
+)
+def test_weighting_is_monotonic(raw_confidence, boost_factor, provider_weight):
+    """
+    Property: Higher raw confidence → Higher final score (all else equal).
+    """
+    score1 = WeightedScore(
+        boosted=BoostedConfidence(
+            raw=RawConfidence(raw_confidence),
+            boost_factor=boost_factor
+        ),
+        provider_weight=provider_weight
+    )
+
+    # Higher raw confidence
+    score2 = WeightedScore(
+        boosted=BoostedConfidence(
+            raw=RawConfidence(min(raw_confidence + 0.1, 1.0)),
+            boost_factor=boost_factor
+        ),
+        provider_weight=provider_weight
+    )
+
+    assert score2.value &gt;= score1.value
+
+
+@given(
+    raw_confidence=st.floats(min_value=0.0, max_value=1.0),
+    boost_factor=st.floats(min_value=1.0, max_value=2.0),
+    provider_weight=st.floats(min_value=0.0, max_value=1.0)
+)
+def test_weighting_is_bounded(raw_confidence, boost_factor, provider_weight):
+    """
+    Property: Final score always in [0, 1] regardless of inputs.
+    """
+    score = WeightedScore(
+        boosted=BoostedConfidence(
+            raw=RawConfidence(raw_confidence),
+            boost_factor=boost_factor
+        ),
+        provider_weight=provider_weight
+    )
+
+    assert 0.0 &lt;= score.value &lt;= 1.0
+
+
+@given(
+    raw_confidence=st.floats(min_value=0.0, max_value=1.0),
+    boost_factor=st.floats(min_value=1.0, max_value=2.0)
+)
+def test_boost_never_decreases_confidence(raw_confidence, boost_factor):
+    """
+    Property: Boost factor &gt;= 1.0 → Boosted &gt;= Raw.
+    """
+    boosted = BoostedConfidence(
+        raw=RawConfidence(raw_confidence),
+        boost_factor=boost_factor
+    )
+
+    assert boosted.value &gt;= raw_confidence</code></pre>
+
+<p>---</p>
+
+<h2>6. Migration & Validation Plan</h2>
+
+<h3>6.1 Current State Validation</h3>
+
+<p>The fix has been applied. Verify completeness:</p>
+
+<h4>Checklist: All Weight Applications Removed from Lookup</h4>
+
+<ul>
+<li>[ ] **`_lookup_mediawiki` (Wikipedia branch)**: Line ~602</li>
+<li> - Check: No `result.source.confidence *= source.confidence_weight`</li>
+<li> - Comment: "Provider weight applied in ranking, not here"</li>
+</ul>
+
+<ul>
+<li>[ ] **`_lookup_mediawiki` (Wiktionary branch)**: Line ~680</li>
+<li> - Check: No weight application</li>
+<li> - Comment: Present</li>
+</ul>
+
+<ul>
+<li>[ ] **`_lookup_sru` (Main stage loop)**: Line ~758</li>
+<li> - Check: No weight application</li>
+<li> - Comment: Present</li>
+</ul>
+
+<ul>
+<li>[ ] **`_lookup_sru` (Fallback loop)**: Line ~785</li>
+<li> - Check: Only 0.95 penalty (intrinsic quality), NOT provider weight</li>
+<li> - Comment: Distinguishes fallback penalty from provider weight</li>
+</ul>
+
+<ul>
+<li>[ ] **`_lookup_rest` (Rechtspraak lookup)**: Line ~828</li>
+<li> - Check: No weight application</li>
+<li> - Comment: Present</li>
+</ul>
+
+<ul>
+<li>[ ] **`_lookup_brave` (Brave Search lookup)**: Line ~906</li>
+<li> - Check: No weight application</li>
+<li> - Comment: Present</li>
+</ul>
+
+<h4>Verification Commands</h4>
+
+<pre><code># Search for any remaining weight applications in lookup methods
+grep -n "confidence_weight" src/services/modern_web_lookup_service.py
+
+# Expected: Only in __init__ (line 52, 134, etc.) for config loading
+# NOT in _lookup_* methods
+
+# Verify comments are present
+grep -B2 -A2 "Provider weight applied in ranking" src/services/modern_web_lookup_service.py
+
+# Expected: 6 occurrences (one per lookup method)</code></pre>
+
+<h3>6.2 Performance Testing</h3>
+
+<p><strong>Goal</strong>: Verify fix doesn't impact performance</p>
+
+<pre><code># Benchmark lookup performance
+pytest tests/performance/test_lookup_benchmarks.py -v
+
+# Expected metrics:
+# - Lookup time: &lt; 5 seconds (unchanged)
+# - Boost time: &lt; 100ms (unchanged)
+# - Ranking time: &lt; 50ms (unchanged)</code></pre>
+
+<pre><code># File: tests/performance/test_lookup_benchmarks.py
+
+import time
+import pytest
+
+@pytest.mark.asyncio
+async def test_lookup_performance_baseline():
+    """Verify lookup performance unchanged after fix."""
+    service = ModernWebLookupService()
+
+    start = time.time()
+    results = await service.lookup(
+        LookupRequest(term="voorlopige hechtenis", max_results=5)
+    )
+    duration = time.time() - start
+
+    assert len(results) &gt; 0
+    assert duration &lt; 5.0  # Max 5 seconds for lookup
+
+    # Log for tracking
+    print(f"Lookup duration: {duration:.2f}s for {len(results)} results")</code></pre>
+
+<h3>6.3 Regression Prevention</h3>
+
+<p><strong>Add to CI pipeline</strong>:</p>
+
+<pre><code># .github/workflows/ci.yml
+
+- name: Run weighting regression tests
+  run: |
+    # Unit tests - verify raw confidence in lookups
+    pytest tests/services/test_modern_web_lookup_service_unit.py \
+      -k "raw_confidence" -v
+
+    # Integration tests - verify single weight application
+    pytest tests/integration/test_web_lookup_weighting.py \
+      -k "weight_applied_once" -v
+
+    # Property tests - verify mathematical properties
+    pytest tests/properties/test_weighting_properties.py -v
+
+    # Fail if any test fails
+    if [ $? -ne 0 ]; then
+      echo "❌ Weighting regression detected!"
+      exit 1
+    fi
+
+    echo "✅ All weighting tests passed"</code></pre>
+
+<p>---</p>
+
+<h2>7. Documentation Updates</h2>
+
+<h3>7.1 Code Comments</h3>
+
+<p><strong>Add to <code>src/services/modern_web_lookup_service.py</code></strong>:</p>
+
+<pre><code>class ModernWebLookupService:
+    """
+    Modern web lookup service with single-responsibility layers.
+
+    ARCHITECTURE: Provider Weighting
+    ================================
+
+    Provider weights are applied EXCLUSIVELY in the ranking module.
+    Lookup methods return RAW confidence scores (0-1) from APIs.
+
+    Data Flow:
+        1. Lookup → RawConfidence (no weight)
+        2. Boost  → BoostedConfidence (content-based, no weight)
+        3. Ranking → WeightedScore (provider weight applied ONCE)
+
+    WHY: This prevents double-weighting bugs where provider weights
+    were accidentally applied in both lookup AND ranking layers.
+
+    See: docs/architectuur/provider-weighting-architecture-design.md
+    """</code></pre>
+
+<h3>7.2 ADR Documentation</h3>
+
+<p><strong>Create</strong>: <code>docs/architectuur/ADR-001-weight-only-in-ranking.md</code></p>
+
+<pre><code># ADR-001: Weight Provider Authority Only in Ranking Module
+
+**Status**: Accepted
+**Date**: 2025-10-09
+**Supersedes**: None
+
+## Context
+
+Provider weights were applied in both lookup methods and ranking module,
+causing double-weighting bug (Epic 3, Oct 2025).
+
+## Decision
+
+Provider weights SHALL be applied exclusively in ranking module.
+
+## Consequences
+
+- Lookup methods return raw confidence (easier to debug)
+- Single source of truth for weighting (prevents bugs)
+- Breaking change for code relying on weighted lookup results
+
+## Compliance
+
+Verify with:</code></pre>
+<p>grep -n "confidence_weight" src/services/modern_web_lookup_service.py</p>
+<h1>Should NOT appear in _lookup_* methods</h1>
+<pre><code></code></pre>
+
+<h3>7.3 Architecture Documentation</h3>
+
+<p><strong>Update</strong>: <code>docs/architectuur/TECHNICAL_ARCHITECTURE.md</code></p>
+
+<p>Add section:</p>
+
+<pre><code>## Web Lookup Confidence Scoring
+
+### Three-Layer Model
+
+1. **Raw Confidence** (Lookup Layer)
+   - Source: API relevance score (Wikipedia, SRU, etc.)
+   - Range: 0.0 - 1.0
+   - Location: `result.source.confidence` (type: `RawConfidence`)
+
+2. **Boosted Confidence** (Boost Layer)
+   - Source: Juridical content analysis
+   - Factors: Keywords, article refs, context matches
+   - Range: &gt;= Raw confidence (capped at 1.0)
+   - Location: Applied by `boost_juridische_resultaten()`
+
+3. **Weighted Score** (Ranking Layer)
+   - Source: Provider authority weighting
+   - Factors: Provider trust level (wikipedia=0.85, overheid=1.0)
+   - Range: 0.0 - 1.0
+   - Location: Applied by `rank_and_dedup()`
+
+### Quality Gate
+
+Prevents low-quality juridical sources from outranking high-quality
+relevant sources:
+
+- Threshold: `min_base_score = 0.65` (configurable)
+- Below threshold: Reduced boost (50% of nominal)
+- Above threshold: Full boost applied
+
+Example:</code></pre>
+<p>Overheid.nl: 0.6 raw < 0.65 threshold</p>
+<p>→ Reduced boost: 1.0 + (1.2-1.0)×0.5 = 1.1</p>
+<p>→ Boosted: 0.6 × 1.1 = 0.66</p>
+<p>→ Weighted: 0.66 × 1.0 = 0.66</p>
+
+<p>Wikipedia: 0.8 raw (no boost, not juridical)</p>
+<p>→ Weighted: 0.8 × 0.85 = 0.68</p>
+
+<p>Result: Wikipedia wins (0.68 > 0.66) ✅</p>
+<pre><code></code></pre>
+
+<p>---</p>
+
+<h2>8. Future Enhancements</h2>
+
+<h3>8.1 Type Safety (Phase 2)</h3>
+
+<p><strong>Goal</strong>: Compile-time prevention of double-weighting</p>
+
+<p><strong>Implementation</strong>:</p>
+
+<ol>
+<li>Introduce `RawConfidence`, `BoostedConfidence`, `WeightedScore` types</li>
+<li>Update all function signatures to use explicit types</li>
+<li>Add type checking to CI pipeline</li>
+</ol>
+
+<p><strong>Benefit</strong>: TypeErrors prevent double-weighting at development time.</p>
+
+<h3>8.2 Observability</h3>
+
+<p><strong>Goal</strong>: Debug weighting issues in production</p>
+
+<p><strong>Implementation</strong>:</p>
+
+<pre><code>@dataclass
+class ConfidenceTrace:
+    """Audit trail for confidence transformations."""
+    raw: float
+    boost_factor: float
+    boosted: float
+    provider_weight: float
+    final: float
+    transformations: list[str]  # ["raw → boosted", "boosted → weighted"]
+
+    def to_json(self) -&gt; dict:
+        return {
+            "raw": self.raw,
+            "boost_factor": self.boost_factor,
+            "boosted": self.boosted,
+            "provider_weight": self.provider_weight,
+            "final": self.final,
+            "transformations": self.transformations
+        }
+
+
+# Attach to LookupResult
+result.metadata["confidence_trace"] = ConfidenceTrace(
+    raw=0.8,
+    boost_factor=1.0,
+    boosted=0.8,
+    provider_weight=0.85,
+    final=0.68,
+    transformations=["raw (0.8)", "no boost (×1.0)", "weighted (×0.85 = 0.68)"]
+)</code></pre>
+
+<p><strong>Benefit</strong>: Full visibility into score calculation for debugging.</p>
+
+<h3>8.3 Configuration UI</h3>
+
+<p><strong>Goal</strong>: Allow non-technical users to adjust provider weights</p>
+
+<p><strong>Implementation</strong>:</p>
+
+<ul>
+<li>Admin panel in Streamlit app</li>
+<li>Live preview of ranking changes</li>
+<li>Validation prevents invalid configs</li>
+</ul>
+
+<p><strong>Benefit</strong>: Easier weight tuning without code changes.</p>
+
+<p>---</p>
+
+<h2>9. Appendix: Bug Prevention Checklist</h2>
+
+<p>Use this checklist when adding new providers:</p>
+
+<h3>New Provider Implementation Checklist</h3>
+
+<ul>
+<li>[ ] **Lookup method returns RAW confidence**</li>
+<li> - [ ] No `result.source.confidence *= weight`</li>
+<li> - [ ] Add comment: "Provider weight applied in ranking, not here"</li>
+</ul>
+
+<ul>
+<li>[ ] **Provider weight added to config**</li>
+<li> - [ ] Add to `config/web_lookup_defaults.yaml` under `provider_weights`</li>
+<li> - [ ] Value in range [0.0, 1.0]</li>
+<li> - [ ] Add comment explaining authority level</li>
+</ul>
+
+<ul>
+<li>[ ] **Provider key added to ranking**</li>
+<li> - [ ] Update `self._provider_weights` in `ModernWebLookupService.__init__`</li>
+<li> - [ ] Update `_infer_provider_key()` method</li>
+</ul>
+
+<ul>
+<li>[ ] **Tests added**</li>
+<li> - [ ] Unit test: Lookup returns raw confidence</li>
+<li> - [ ] Integration test: Verify single weight application</li>
+<li> - [ ] End-to-end test: Verify correct ranking vs existing providers</li>
+</ul>
+
+<ul>
+<li>[ ] **Documentation updated**</li>
+<li> - [ ] Add provider to architecture docs</li>
+<li> - [ ] Document authority level reasoning</li>
+</ul>
+
+<p>---</p>
+
+<h2>10. Conclusion</h2>
+
+<p>This architecture design provides <strong>robust protection</strong> against double-weighting bugs through:</p>
+
+<ol>
+<li>**Clear separation of concerns** - Lookup fetches, boost enhances, ranking weights</li>
+<li>**Type safety** (future) - Compile-time prevention of re-weighting</li>
+<li>**Single application point** - Provider weights ONLY in ranking module</li>
+<li>**Configuration validation** - Schema prevents invalid configs</li>
+<li>**Comprehensive testing** - Unit, integration, and property tests</li>
+<li>**Excellent observability** - Trace transformations for debugging</li>
+</ol>
+
+<p>The design is <strong>future-proof</strong> and <strong>extensible</strong> - new providers can be added safely by following the checklist, and the type system (Phase 2) will catch errors at compile time.</p>
+
+<p><strong>Recommended Next Steps</strong>:</p>
+
+<ol>
+<li>✅ **Immediate**: Validate fix completeness (Section 6.1)</li>
+<li>✅ **Short-term**: Add integration tests (Section 5.3)</li>
+<li>🔄 **Medium-term**: Implement type safety (Section 8.1)</li>
+<li>🔄 **Long-term**: Add observability (Section 8.2)</li>
+</ol>
+
+<p>---</p>
+
+<p><strong>References</strong>:</p>
+<ul>
+<li>Bug Analysis: `docs/analyses/double-weighting-bug-analysis.md`</li>
+<li>Config: `config/web_lookup_defaults.yaml`</li>
+<li>Implementation: `src/services/modern_web_lookup_service.py`</li>
+<li>Ranking: `src/services/web_lookup/ranking.py`</li>
+<li>Boost: `src/services/web_lookup/juridisch_ranker.py`</li>
+</ul>
+
+  </div>
+</body>
+</html>

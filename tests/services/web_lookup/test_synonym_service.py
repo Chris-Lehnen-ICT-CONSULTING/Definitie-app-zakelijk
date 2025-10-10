@@ -23,9 +23,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from src.services.web_lookup.synonym_service import (
-    JuridischeSynoniemlService,
-    get_synonym_service,
-)
+    JuridischeSynoniemlService, get_synonym_service)
 
 
 class TestJuridischeSynoniemlServiceInitialization:

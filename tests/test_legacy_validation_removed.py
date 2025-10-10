@@ -9,19 +9,15 @@ from unittest.mock import AsyncMock, Mock, patch
 import pytest
 
 from services.container import ServiceContainer
-from services.interfaces import (
-    CleaningServiceInterface,
-    Definition,
-    ValidationServiceInterface,
-)
-from services.orchestrators.validation_orchestrator_v2 import ValidationOrchestratorV2
+from services.interfaces import (CleaningServiceInterface, Definition,
+                                 ValidationServiceInterface)
+from services.orchestrators.validation_orchestrator_v2 import \
+    ValidationOrchestratorV2
 from services.service_factory import ServiceAdapter as ServiceFactory
-from services.validation.interfaces import (
-    ValidationContext,
-    ValidationOrchestratorInterface,
-    ValidationRequest,
-    ValidationResult,
-)
+from services.validation.interfaces import (ValidationContext,
+                                            ValidationOrchestratorInterface,
+                                            ValidationRequest,
+                                            ValidationResult)
 
 
 class TestLegacyValidationRemoval:
@@ -211,9 +207,8 @@ class TestIntegrationWithoutLegacyValidator:
 
         # Create a mock response from orchestrator
         with patch.object(factory.orchestrator, "generate_definition") as mock_generate:
-            from services.orchestrators.definition_orchestrator_v2 import (
-                DefinitionResponse,
-            )
+            from services.orchestrators.definition_orchestrator_v2 import \
+                DefinitionResponse
 
             mock_generate.return_value = asyncio.coroutine(
                 lambda: DefinitionResponse(

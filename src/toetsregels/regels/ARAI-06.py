@@ -9,7 +9,8 @@ import logging
 import re
 
 # Import van verboden woorden functionaliteit
-from config.verboden_woorden import genereer_verboden_startregex, laad_verboden_woorden
+from config.verboden_woorden import (genereer_verboden_startregex,
+                                     laad_verboden_woorden)
 
 logger = logging.getLogger(__name__)
 

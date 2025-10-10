@@ -16,11 +16,9 @@ from typing import Any
 
 import streamlit as st
 
-from src.services.ufo_classifier_service import (
-    UFOCategory,
-    UFOClassificationResult,
-    get_ufo_classifier,
-)
+from src.services.ufo_classifier_service import (UFOCategory,
+                                                 UFOClassificationResult,
+                                                 get_ufo_classifier)
 
 
 class UFOClassifierIntegration:

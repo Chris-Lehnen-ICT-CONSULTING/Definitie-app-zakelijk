@@ -6,15 +6,10 @@ Ondersteunt PDF, DOCX, TXT en andere documentformaten voor tekstextractie.
 """
 
 from .document_extractor import (  # Tekst extractie functionaliteit
-    extract_text_from_file,
-    supported_file_types,
-)
-
+    extract_text_from_file, supported_file_types)
 # Importeer document processing componenten voor bestandsverwerking
 from .document_processor import (  # Document processor en resultaat klassen
-    DocumentProcessor,
-    ProcessedDocument,
-)
+    DocumentProcessor, ProcessedDocument)
 
 # Exporteer publieke interface - alle document processing componenten
 __all__ = [

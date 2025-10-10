@@ -1,0 +1,510 @@
+# Synonym Pages Bug Impact Diagram
+
+## Bug Flow Analysis
+
+### Critical Bug #1: Non-Existent API Method
+
+```
+User loads synonym_admin.py
+         ↓
+Page calls registry.get_all_groups()
+         ↓
+    ❌ CRASH ❌
+AttributeError: 'SynonymRegistry' object has no attribute 'get_all_groups'
+         ↓
+Streamlit shows error traceback
+         ↓
+Page unusable
+```
+
+**Impact:** **BLOCKER** - Page cannot load at all
+
+---
+
+### Critical Bug #2: N+1 Query Problem
+
+```
+Current Implementation (100 groups):
+
+registry.get_all_groups()                    [Query #1]    ~50ms
+  ↓
+Loop starts:
+  registry.get_group_members(group_1)        [Query #2]    ~20ms
+  registry.get_group_members(group_2)        [Query #3]    ~20ms
+  registry.get_group_members(group_3)        [Query #4]    ~20ms
+  ... (97 more queries)
+  registry.get_group_members(group_100)      [Query #101]  ~20ms
+  ↓
+Total: 101 queries = ~2050ms (2 seconds!)
+
+─────────────────────────────────────────────────────────────
+
+Optimized Implementation:
+
+registry.get_all_members_filtered()          [Query #1]    ~100ms
+  ↓
+Total: 1 query = ~100ms
+
+─────────────────────────────────────────────────────────────
+
+Performance Improvement: 20x faster (2050ms → 100ms)
+```
+
+**Impact:** **CRITICAL** - Unacceptable performance with realistic data
+
+---
+
+### Critical Bug #3: Statistics Key Mismatch
+
+```
+Metrics Tab Rendering Flow:
+
+get_statistics() returns:
+{
+  'members_by_status': {
+    'ai_pending': 50,
+    'active': 200,
+    'rejected_auto': 30
+  }
+}
+         ↓
+Code tries: stats.get('by_status', {})
+         ↓
+    Returns: {} (empty dict!)
+         ↓
+    .get('ai_pending', 0)
+         ↓
+    Returns: 0
+         ↓
+Dashboard shows: "⏳ AI Pending: 0" (WRONG!)
+                "✅ Active: 0" (WRONG!)
+                "❌ Rejected: 0" (WRONG!)
+```
+
+**Impact:** **HIGH** - Misleading data, users can't make informed decisions
+
+---
+
+## Query Performance Comparison
+
+### Current (Broken) Implementation
+
+```
+Scenario: 100 groups, 500 members, user filters by "ai_pending"
+
+Step 1: Get all groups
+┌─────────────────────────────────────┐
+│ SELECT * FROM synonym_groups        │
+│ Returns: 100 rows                   │
+│ Time: 50ms                          │
+└─────────────────────────────────────┘
+         ↓
+Step 2-101: Get members per group (100 iterations!)
+┌────────────────────────────────────────────────────┐
+│ SELECT * FROM synonym_group_members                │
+│ WHERE group_id = ? AND status = 'ai_pending'      │
+│ Returns: ~5 rows per query                        │
+│ Time: ~20ms × 100 = 2000ms                        │
+└────────────────────────────────────────────────────┘
+         ↓
+Step 102: Client-side term filtering (Python)
+┌────────────────────────────────────────────────────┐
+│ if term_search.lower() in m.term.lower()          │
+│ Processes: 500 members in memory                  │
+│ Time: ~50ms                                        │
+└────────────────────────────────────────────────────┘
+
+Total Time: 2100ms (2.1 seconds)
+Total Queries: 101
+Memory: Load all 500 members, then filter
+```
+
+---
+
+### Optimized Implementation
+
+```
+Scenario: Same dataset (100 groups, 500 members, "ai_pending" filter)
+
+Step 1: Single filtered query
+┌────────────────────────────────────────────────────┐
+│ SELECT * FROM synonym_group_members                │
+│ WHERE status = 'ai_pending'                        │
+│   AND term LIKE '%search%'                         │
+│ ORDER BY weight DESC                               │
+│ LIMIT 20 OFFSET 0                                  │
+│ Returns: 20 rows (only current page!)             │
+│ Time: 100ms                                        │
+└────────────────────────────────────────────────────┘
+
+Total Time: 100ms
+Total Queries: 1
+Memory: Load only 20 members (current page)
+
+Performance Gain: 21x faster, 101x fewer queries
+```
+
+---
+
+## Data Flow Architecture
+
+### Correct Flow (After Fixes)
+
+```
+┌─────────────────────────────────────────────────┐
+│           Streamlit UI Layer                    │
+│         (synonym_admin.py)                      │
+│                                                 │
+│  ┌──────────────┐  ┌──────────────┐           │
+│  │ Filter UI    │  │ Pagination   │           │
+│  │ - Status     │  │ - Page 1-10  │           │
+│  │ - Term       │  │ - 20/page    │           │
+│  │ - Weight     │  │              │           │
+│  └──────┬───────┘  └──────┬───────┘           │
+│         │                 │                    │
+└─────────┼─────────────────┼────────────────────┘
+          ↓                 ↓
+┌─────────────────────────────────────────────────┐
+│      Dependency Injection Container             │
+│         (ServiceContainer)                      │
+│                                                 │
+│  registry = container.synonym_registry()        │
+│  orchestrator = container.synonym_orchestrator()│
+└─────────┬───────────────────────────────────────┘
+          ↓
+┌─────────────────────────────────────────────────┐
+│       Business Logic Layer                      │
+│      (SynonymOrchestrator)                      │
+│                                                 │
+│  - TTL caching (3600s)                         │
+│  - Governance policy (strict/pragmatic)        │
+│  - Cache invalidation callbacks                │
+└─────────┬───────────────────────────────────────┘
+          ↓
+┌─────────────────────────────────────────────────┐
+│         Data Access Layer                       │
+│       (SynonymRegistry)                         │
+│                                                 │
+│  get_all_members_filtered(                     │
+│    statuses=['ai_pending'],                    │
+│    term_search='verdachte',                    │
+│    min_weight=0.7,                             │
+│    limit=20,                                   │
+│    offset=0                                    │
+│  )                                             │
+└─────────┬───────────────────────────────────────┘
+          ↓
+┌─────────────────────────────────────────────────┐
+│            Database Layer                       │
+│              (SQLite)                           │
+│                                                 │
+│  Tables:                                       │
+│  - synonym_groups                              │
+│  - synonym_group_members                       │
+│                                                 │
+│  Single efficient query with:                  │
+│  - JOIN (if needed)                            │
+│  - WHERE (status, weight, LIKE)                │
+│  - ORDER BY (weight DESC)                      │
+│  - LIMIT/OFFSET (pagination)                   │
+└─────────────────────────────────────────────────┘
+```
+
+---
+
+## Error Cascade Analysis
+
+### What Happens When Bugs Hit Production?
+
+```
+User Action: Visit /synonym_admin
+         ↓
+Bug #1 Triggers: get_all_groups() not found
+         ↓
+    ❌ Page Crash
+         ↓
+User sees: Streamlit error traceback (scary!)
+         ↓
+User Action: Reports bug to admin
+         ↓
+Admin Action: Checks logs, finds AttributeError
+         ↓
+Time to Diagnosis: 5 minutes (obvious bug)
+         ↓
+Fix Required: Add missing method
+         ↓
+Downtime: Until fix deployed (30-60 min)
+         ↓
+User Trust: Damaged ⚠️
+
+═══════════════════════════════════════════════════
+
+Alternative Flow (If Bug #1 Fixed But #2 Remains):
+
+User Action: Visit /synonym_admin
+         ↓
+Bug #2 Triggers: N+1 queries execute
+         ↓
+Database: 101 queries in 2 seconds
+         ↓
+Page: Loads slowly (user sees spinner)
+         ↓
+User: Tries filter change
+         ↓
+Database: Another 101 queries
+         ↓
+Page: Hangs for 2+ seconds again
+         ↓
+User Experience: "This is too slow!" ⚠️
+         ↓
+With 1000 groups: 1001 queries = 20+ seconds
+         ↓
+Page: Timeout! ❌
+         ↓
+User: Gives up, stops using feature
+
+═══════════════════════════════════════════════════
+
+Alternative Flow (If Bug #3 Remains):
+
+User Action: Visit /synonym_metrics
+         ↓
+Bug #3 Triggers: Wrong statistics keys
+         ↓
+Dashboard Shows:
+  - AI Pending: 0 (actual: 50)
+  - Active: 0 (actual: 200)
+  - Rejected: 0 (actual: 30)
+         ↓
+User: "System has no data?" 🤔
+         ↓
+User: Generates new synonyms via admin page
+         ↓
+User: Returns to metrics
+         ↓
+Dashboard: Still shows 0 for everything
+         ↓
+User: "Data is not saving!" ⚠️
+         ↓
+User Confidence: Lost
+         ↓
+Time to Diagnosis: Hours (data exists, keys wrong)
+```
+
+---
+
+## Testing Gap Analysis
+
+### What Tests Would Catch These Bugs?
+
+```
+Bug #1: Non-Existent Method
+┌────────────────────────────────────────────┐
+│ Test: test_registry_get_all_groups()      │
+│                                            │
+│ def test_registry_get_all_groups():       │
+│     registry = SynonymRegistry()          │
+│     groups = registry.get_all_groups()    │
+│     assert isinstance(groups, list)       │
+│                                            │
+│ Status: ❌ Test does not exist            │
+│ Would catch: YES - import error           │
+└────────────────────────────────────────────┘
+
+Bug #2: N+1 Queries
+┌────────────────────────────────────────────┐
+│ Test: test_admin_page_query_count()       │
+│                                            │
+│ def test_query_efficiency():              │
+│     with QueryCounter() as counter:       │
+│         load_admin_page(100_groups)       │
+│     assert counter.count <= 5  # not 101! │
+│                                            │
+│ Status: ❌ Test does not exist            │
+│ Would catch: YES - performance regression │
+└────────────────────────────────────────────┘
+
+Bug #3: Statistics Keys
+┌────────────────────────────────────────────┐
+│ Test: test_metrics_statistics_display()   │
+│                                            │
+│ def test_metrics_display():               │
+│     registry.add_member(..., status='ai') │
+│     stats = registry.get_statistics()     │
+│     tab = SynonymMetricsTab()             │
+│     rendered = tab.render_approval()      │
+│     assert "AI Pending: 1" in rendered    │
+│                                            │
+│ Status: ❌ Test does not exist            │
+│ Would catch: YES - wrong data displayed   │
+└────────────────────────────────────────────┘
+
+Bug #4: Wrong Parameter Type
+┌────────────────────────────────────────────┐
+│ Test: test_get_group_members_params()     │
+│                                            │
+│ def test_order_by_validation():           │
+│     with pytest.raises(ValueError):       │
+│         registry.get_group_members(       │
+│             group_id=1,                   │
+│             order_by=['weight']  # list!  │
+│         )                                 │
+│                                            │
+│ Status: ⚠️ Partial - validates str only  │
+│ Would catch: MAYBE - depends on test data │
+└────────────────────────────────────────────┘
+```
+
+---
+
+## Risk Assessment Matrix
+
+```
+┌──────────────────────────────────────────────────────────┐
+│                    IMPACT vs LIKELIHOOD                  │
+├──────────────────────────────────────────────────────────┤
+│                                                          │
+│  High │                    │ Bug #1 (Crash)             │
+│       │                    │ Bug #2 (Slow)              │
+│       │                    │                            │
+│   │   ├────────────────────┼────────────────────────────┤
+│ I │   │                    │                            │
+│ M │   │                    │                            │
+│ P │   │                    │                            │
+│ A Med │                    │ Bug #3 (Wrong Data)        │
+│ C │   │                    │                            │
+│ T │   │                    │                            │
+│   │   ├────────────────────┼────────────────────────────┤
+│   │   │                    │                            │
+│       │                    │                            │
+│  Low  │                    │                            │
+│       │                    │                            │
+└───────┴────────────────────┴────────────────────────────┘
+           Low              Med             High
+                      LIKELIHOOD
+
+Bug #1: High Impact + High Likelihood = CRITICAL
+Bug #2: High Impact + High Likelihood = CRITICAL
+Bug #3: Med Impact + High Likelihood = HIGH
+Bug #4: Low Impact + Med Likelihood = MEDIUM
+```
+
+---
+
+## Recommended Fix Order
+
+```
+Priority 1: MUST FIX BEFORE ANY DEPLOYMENT
+┌─────────────────────────────────────────────────┐
+│ 1. Add get_all_groups() to SynonymRegistry     │
+│    Effort: 15 minutes                          │
+│    Blocks: Everything                          │
+│                                                 │
+│ 2. Add get_all_members_filtered() to Registry  │
+│    Effort: 30 minutes                          │
+│    Blocks: Performance                         │
+│                                                 │
+│ 3. Update admin page to use new methods        │
+│    Effort: 20 minutes                          │
+│    Blocks: Functionality                       │
+│                                                 │
+│ 4. Fix statistics keys in metrics tab          │
+│    Effort: 10 minutes                          │
+│    Blocks: Correct data display                │
+└─────────────────────────────────────────────────┘
+Total: ~75 minutes (1.25 hours)
+
+Priority 2: SHOULD FIX BEFORE USER TESTING
+┌─────────────────────────────────────────────────┐
+│ 5. Add async error handling                    │
+│    Effort: 20 minutes                          │
+│    Impact: Better error messages               │
+│                                                 │
+│ 6. Add database schema validation              │
+│    Effort: 15 minutes                          │
+│    Impact: Graceful degradation                │
+└─────────────────────────────────────────────────┘
+Total: ~35 minutes
+
+Priority 3: NICE TO HAVE
+┌─────────────────────────────────────────────────┐
+│ 7. Extract status display utilities            │
+│    Effort: 30 minutes                          │
+│    Impact: Code maintainability                │
+│                                                 │
+│ 8. Add progress indicators                     │
+│    Effort: 20 minutes                          │
+│    Impact: Better UX for bulk ops              │
+└─────────────────────────────────────────────────┘
+Total: ~50 minutes
+
+═════════════════════════════════════════════════════
+Grand Total: ~2.5 hours (focused work)
+```
+
+---
+
+## Post-Fix Validation Checklist
+
+```
+┌──────────────────────────────────────────────────┐
+│ Manual Testing Checklist                        │
+├──────────────────────────────────────────────────┤
+│ [ ] Page loads without errors                   │
+│ [ ] Statistics show correct counts              │
+│ [ ] Filters work correctly:                     │
+│     [ ] Status filter (All, AI Pending, etc.)   │
+│     [ ] Term search (partial match)             │
+│     [ ] Weight threshold slider                 │
+│ [ ] Pagination works:                           │
+│     [ ] Correct page count calculation          │
+│     [ ] Navigation between pages                │
+│     [ ] Items per page = 20                     │
+│ [ ] GPT-4 generation:                           │
+│     [ ] Successful generation                   │
+│     [ ] Timeout handling                        │
+│     [ ] Error messages clear                    │
+│ [ ] Single approve/reject:                      │
+│     [ ] Updates status correctly                │
+│     [ ] Cache invalidated                       │
+│     [ ] UI updates immediately                  │
+│ [ ] Bulk operations:                            │
+│     [ ] Confirmation dialog shows               │
+│     [ ] Count matches visible items             │
+│     [ ] Progress indicator (if added)           │
+│     [ ] Success message accurate                │
+│ [ ] Performance:                                │
+│     [ ] Page load < 500ms (100 groups)          │
+│     [ ] Filter change < 500ms                   │
+│     [ ] No N+1 query logs                       │
+│ [ ] Metrics dashboard:                          │
+│     [ ] Cache stats accurate                    │
+│     [ ] Approval stats accurate                 │
+│     [ ] Charts render correctly                 │
+│     [ ] Top usage table shows data              │
+└──────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────┐
+│ Automated Testing Checklist                     │
+├──────────────────────────────────────────────────┤
+│ [ ] Unit tests pass:                            │
+│     [ ] test_registry_get_all_groups()          │
+│     [ ] test_registry_get_all_members_filtered()│
+│     [ ] test_count_members_filtered()           │
+│ [ ] Integration tests pass:                     │
+│     [ ] test_admin_page_loads()                 │
+│     [ ] test_approve_workflow()                 │
+│     [ ] test_bulk_operations()                  │
+│ [ ] Performance tests pass:                     │
+│     [ ] Query count <= 5 per page load          │
+│     [ ] Response time < 500ms (100 groups)      │
+│ [ ] Code quality:                               │
+│     [ ] ruff check passes                       │
+│     [ ] black format passes                     │
+│     [ ] mypy type check passes                  │
+└──────────────────────────────────────────────────┘
+```
+
+---
+
+**Next Steps:** See detailed fix implementations in `synonym-pages-technical-review.md`

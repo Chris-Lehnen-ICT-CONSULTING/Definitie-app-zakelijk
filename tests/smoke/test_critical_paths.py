@@ -52,7 +52,8 @@ def test_database_connection():
 # ==============================================================================
 def test_validation_rules_load():
     """ModularValidationService loads all 45 toetsregels."""
-    from services.validation.modular_validation_service import ModularValidationService
+    from services.validation.modular_validation_service import \
+        ModularValidationService
 
     service = ModularValidationService()
 
@@ -111,7 +112,8 @@ def test_category_service():
 async def test_validation_runs():
     """Validation service can validate sample definition."""
     from services.interfaces import Definition
-    from services.validation.modular_validation_service import ModularValidationService
+    from services.validation.modular_validation_service import \
+        ModularValidationService
 
     service = ModularValidationService()
 

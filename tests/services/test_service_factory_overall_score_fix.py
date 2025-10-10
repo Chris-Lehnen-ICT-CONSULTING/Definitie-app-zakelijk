@@ -10,7 +10,6 @@ This test suite validates all edge cases and ensures production-ready error hand
 
 import asyncio
 import os
-
 # Import the actual modules
 import sys
 from typing import Any, Dict, Optional, Union
@@ -20,12 +19,8 @@ import pytest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../src"))
 
-from services.interfaces import (
-    Definition,
-    DefinitionResponse,
-    GenerationRequest,
-    ValidationResult,
-)
+from services.interfaces import (Definition, DefinitionResponse,
+                                 GenerationRequest, ValidationResult)
 from services.service_factory import ServiceAdapter
 
 

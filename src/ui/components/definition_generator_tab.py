@@ -12,7 +12,8 @@ from typing import Any
 
 import streamlit as st
 
-from database.definitie_repository import DefinitieRecord, get_definitie_repository
+from database.definitie_repository import (DefinitieRecord,
+                                           get_definitie_repository)
 from integration.definitie_checker import CheckAction, DefinitieChecker
 from services.category_service import CategoryService
 from services.category_state_manager import CategoryStateManager
@@ -412,6 +413,15 @@ class DefinitionGeneratorTab:
 
         # Bronverantwoording: toon gebruikte web bronnen indien beschikbaar
         self._render_sources_section(generation_result, agent_result, saved_record)
+
+        # PHASE 3.2: Synonym Review UI (Architecture v3.1)
+        try:
+            from ui.components.synonym_review import SynonymReviewComponent
+
+            synonym_reviewer = SynonymReviewComponent()
+            synonym_reviewer.render_synonym_metadata(generation_result)
+        except Exception as e:
+            logger.debug(f"Synonym review UI skipped: {e}")
 
         # Generation details
         with st.expander("📊 Generatie Details", expanded=False):
@@ -1096,7 +1106,8 @@ class DefinitionGeneratorTab:
                             "💾 Bewaar als concept en bewerk", disabled=not can_save
                         ):
                             from services.interfaces import Definition
-                            from utils.container_manager import get_cached_container
+                            from utils.container_manager import \
+                                get_cached_container
 
                             container = get_cached_container()
                             repo = container.repository()
@@ -1634,7 +1645,8 @@ class DefinitionGeneratorTab:
         """Render validation resultaten via gedeelde renderer (V2 dict)."""
         st.markdown("#### ✅ Kwaliteitstoetsing")
         try:
-            from ui.components.validation_view import render_validation_detailed_list
+            from ui.components.validation_view import \
+                render_validation_detailed_list
 
             render_validation_detailed_list(
                 validation_result,

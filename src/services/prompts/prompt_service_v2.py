@@ -13,8 +13,10 @@ import uuid
 from dataclasses import dataclass
 from typing import Any
 
-from services.definition_generator_config import ContextConfig, UnifiedGeneratorConfig
-from services.definition_generator_context import EnrichedContext, HybridContextManager
+from services.definition_generator_config import (ContextConfig,
+                                                  UnifiedGeneratorConfig)
+from services.definition_generator_context import (EnrichedContext,
+                                                   HybridContextManager)
 from services.definition_generator_prompts import UnifiedPromptBuilder
 from services.interfaces import GenerationRequest
 from services.web_lookup.config_loader import load_web_lookup_config

@@ -11,26 +11,16 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 # Import security modules
-from security.security_middleware import (
-    SecurityLevel,
-    SecurityMiddleware,
-    ThreatType,
-    ValidationRequest,
-    ValidationResponse,
-    get_security_middleware,
-    security_middleware_decorator,
-)
+from security.security_middleware import (SecurityLevel, SecurityMiddleware,
+                                          ThreatType, ValidationRequest,
+                                          ValidationResponse,
+                                          get_security_middleware,
+                                          security_middleware_decorator)
 from validation.input_validator import ValidationSeverity, get_validator
-from validation.sanitizer import (
-    ContentSanitizer,
-    ContentType,
-    SanitizationLevel,
-    detect_threats,
-    get_sanitizer,
-    sanitize_content,
-    sanitize_for_definition,
-    sanitize_user_input,
-)
+from validation.sanitizer import (ContentSanitizer, ContentType,
+                                  SanitizationLevel, detect_threats,
+                                  get_sanitizer, sanitize_content,
+                                  sanitize_for_definition, sanitize_user_input)
 
 
 class TestSecurityMiddleware:

@@ -3,10 +3,8 @@
 import re
 
 from services.definition_generator_context import EnrichedContext
-from services.prompts.modular_prompt_builder import (
-    ModularPromptBuilder,
-    PromptComponentConfig,
-)
+from services.prompts.modular_prompt_builder import (ModularPromptBuilder,
+                                                     PromptComponentConfig)
 
 
 def create_test_context(category="proces"):

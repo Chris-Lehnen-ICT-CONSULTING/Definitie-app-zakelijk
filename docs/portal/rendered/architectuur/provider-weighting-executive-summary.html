@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Provider Weighting Architecture - Executive Summary</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>Provider Weighting Architecture - Executive Summary</h1>
+
+<p><strong>Date</strong>: 2025-10-09</p>
+<p><strong>Status</strong>: DESIGN COMPLETE, IMPLEMENTATION VALIDATED</p>
+<p><strong>Related Documents</strong>:</p>
+<ul>
+<li>Full Design: `docs/architectuur/provider-weighting-architecture-design.md`</li>
+<li>Bug Analysis: `docs/analyses/double-weighting-bug-analysis.md`</li>
+<li>Validation Script: `scripts/validate_provider_weighting.py`</li>
+</ul>
+
+<p>---</p>
+
+<h2>Problem Statement</h2>
+
+<p><strong>Double-weighting bug occurred</strong>: Provider weights were applied in <strong>two separate places</strong>:</p>
+
+<pre><code># LOCATION 1: Lookup methods (❌ REMOVED)
+result.source.confidence *= source.confidence_weight  # 0.8 × 0.85 = 0.68
+
+# LOCATION 2: Ranking module (✅ KEPT)
+final_score = provider_weight × base_score  # 0.68 × 0.85 = 0.578 (wrong!)</code></pre>
+
+<p><strong>Impact</strong>: Wikipedia results penalized 38% more than intended (0.7225× instead of 0.85×).</p>
+
+<p>---</p>
+
+<h2>Solution: Single Application Architecture</h2>
+
+<h3>Core Principle</h3>
+
+<blockquote>**Provider weights SHALL be applied exclusively in the ranking module.**</blockquote>
+
+<h3>Three-Layer Pipeline</h3>
+
+<pre><code>┌────────────────────────────────────────┐
+│ 1. LOOKUP: Fetch Raw Confidence       │
+│    Wikipedia: 0.8 (API relevance)     │
+│    ⚠️ NO WEIGHTS APPLIED               │
+└────────────────────────────────────────┘
+                  ↓
+┌────────────────────────────────────────┐
+│ 2. BOOST: Content-Based Scoring       │
+│    Wikipedia: 0.8 (no boost)          │
+│    Overheid:  0.6 × 1.1 = 0.66        │
+│    ⚠️ NO WEIGHTS APPLIED               │
+└────────────────────────────────────────┘
+                  ↓
+┌────────────────────────────────────────┐
+│ 3. RANKING: Apply Provider Weights    │
+│    Wikipedia: 0.8 × 0.85 = 0.68       │
+│    Overheid:  0.66 × 1.0 = 0.66       │
+│    ✅ WEIGHTS APPLIED ONCE (HERE)      │
+└────────────────────────────────────────┘</code></pre>
+
+<p>---</p>
+
+<h2>Architectural Decisions</h2>
+
+<h3>ADR-001: Weight Only in Ranking</h3>
+
+<p><strong>Decision</strong>: Provider weights applied exclusively in <code>ranking.py</code>.</p>
+
+<p><strong>Why Ranking?</strong></p>
+<ul>
+<li>Natural place for cross-source comparison</li>
+<li>Single responsibility (lookup = fetch, ranking = compare)</li>
+<li>Easier to debug (inspect raw scores before weighting)</li>
+<li>Testable in isolation</li>
+</ul>
+
+<p><strong>Why NOT Lookup?</strong></p>
+<ul>
+<li>Lookup methods have no context of other sources</li>
+<li>Mixed responsibility (fetch + score)</li>
+<li>Harder to test (must mock weights)</li>
+</ul>
+
+<p>---</p>
+
+<h2>Key Design Features</h2>
+
+<h3>1. Type Safety (Future Phase)</h3>
+
+<pre><code>@dataclass(frozen=True)  # Immutable
+class RawConfidence:
+    """Raw API confidence - NEVER weighted."""
+    value: float  # 0.0 - 1.0
+
+@dataclass(frozen=True)
+class BoostedConfidence:
+    """After content boost - NO provider weight yet."""
+    raw: RawConfidence
+    boost_factor: float  # &gt;= 1.0
+
+@dataclass(frozen=True)
+class WeightedScore:
+    """Final score - provider weight applied ONCE."""
+    boosted: BoostedConfidence
+    provider_weight: float  # 0.0 - 1.0
+
+    # ✅ Type system PREVENTS double-weighting
+    # ❌ Cannot multiply WeightedScore × weight (type error)</code></pre>
+
+<h3>2. Configuration Separation</h3>
+
+<pre><code># EXPLICIT: Provider authority weights (ranking layer)
+provider_weights:
+  _metadata:
+    application_layer: "ranking"  # ✅ Explicit declaration
+  wikipedia: 0.85
+  sru_overheid: 1.0
+
+# EXPLICIT: Content boost factors (boost layer)
+juridical_boost:
+  _metadata:
+    application_layer: "boost"  # ✅ Separate section
+  juridische_bron: 1.2
+  keyword_per_match: 1.1</code></pre>
+
+<h3>3. Quality Gate</h3>
+
+<p>Prevents low-quality juridical sources from outranking high-quality relevant sources:</p>
+
+<pre><code>quality_gate:
+  enabled: true
+  min_base_score: 0.65        # Threshold
+  reduced_boost_factor: 0.5   # Penalty below threshold</code></pre>
+
+<p><strong>Example</strong>:</p>
+<pre><code>Overheid.nl: 0.5 raw &lt; 0.65 threshold
+→ Reduced boost: 1.0 + (1.2-1.0)×0.5 = 1.1 (not 1.2)
+→ Prevents low-quality juridical from beating high-quality relevant</code></pre>
+
+<p>---</p>
+
+<h2>Validation & Testing</h2>
+
+<h3>Automated Validation</h3>
+
+<pre><code># Run architecture validation
+python scripts/validate_provider_weighting.py
+
+# Expected output:
+# ✅ ALL CHECKS PASSED - Provider weighting architecture is valid!</code></pre>
+
+<p><strong>Validates</strong>:</p>
+<ul>
+<li>✅ No weight applications in lookup methods</li>
+<li>✅ Documentation comments present</li>
+<li>✅ Ranking module applies weights</li>
+<li>✅ Config structure valid</li>
+</ul>
+
+<h3>Test Strategy</h3>
+
+<p><strong>Unit Tests</strong> (Lookup Layer):</p>
+<pre><code>def test_lookup_returns_raw_confidence():
+    """Verify lookup returns RAW confidence (no weight)."""
+    result = await service._lookup_wikipedia("test")
+    assert result.source.confidence == 0.8  # Raw, NOT 0.68</code></pre>
+
+<p><strong>Integration Tests</strong> (End-to-End):</p>
+<pre><code>def test_weight_applied_once():
+    """Verify provider weight applied ONCE in ranking."""
+    results = await service.lookup(request)
+    # Wikipedia: 0.8 × 0.85 = 0.68 (not 0.8 × 0.85 × 0.85 = 0.578)
+    assert results[0].source.confidence == 0.68</code></pre>
+
+<p><strong>Property Tests</strong> (Mathematical):</p>
+<pre><code>@given(confidence=floats(0.0, 1.0), weight=floats(0.0, 1.0))
+def test_weighting_is_bounded(confidence, weight):
+    """Final score always in [0, 1]."""
+    score = WeightedScore(confidence, weight)
+    assert 0.0 &lt;= score.value &lt;= 1.0</code></pre>
+
+<p>---</p>
+
+<h2>Migration Checklist (New Providers)</h2>
+
+<p>When adding a new provider:</p>
+
+<ul>
+<li>[ ] Lookup method returns **raw confidence** (no weight)</li>
+<li>[ ] Add comment: `"Provider weight applied in ranking, not here"`</li>
+<li>[ ] Add provider weight to `config/web_lookup_defaults.yaml`</li>
+<li>[ ] Update `_infer_provider_key()` in ranking</li>
+<li>[ ] Write unit test: Verify raw confidence returned</li>
+<li>[ ] Write integration test: Verify single weight application</li>
+</ul>
+
+<p>---</p>
+
+<h2>Impact Analysis</h2>
+
+<h3>Before Fix (Double-Weighted)</h3>
+
+<pre><code>Wikipedia:   0.8 × 0.85 × 0.85 = 0.578 (38% penalty!)
+Overheid.nl: 0.6 × 1.0 × 1.0  = 0.6
+Result: Overheid wins (incorrect)</code></pre>
+
+<h3>After Fix (Single-Weighted)</h3>
+
+<pre><code>Wikipedia:   0.8 × 0.85 = 0.68 (15% penalty - intended)
+Overheid.nl: 0.6 × 1.0  = 0.6
+Result: Wikipedia wins (correct) ✅</code></pre>
+
+<p>---</p>
+
+<h2>Benefits</h2>
+
+<h3>Immediate</h3>
+<ul>
+<li>✅ Bug fixed (double-weighting eliminated)</li>
+<li>✅ Simpler code (single responsibility per layer)</li>
+<li>✅ Easier debugging (inspect raw scores before weighting)</li>
+<li>✅ Validated architecture (automated checks)</li>
+</ul>
+
+<h3>Long-Term</h3>
+<ul>
+<li>🔄 Type safety (Phase 2) - Compile-time prevention</li>
+<li>🔄 Observability (Phase 2) - Trace transformations</li>
+<li>🔄 Configuration UI (Phase 3) - Non-technical weight tuning</li>
+</ul>
+
+<p>---</p>
+
+<h2>References</h2>
+
+<p>| Document | Purpose |</p>
+<p>|----------|---------|</p>
+<p>| <code>provider-weighting-architecture-design.md</code> | Full technical design |</p>
+<p>| <code>double-weighting-bug-analysis.md</code> | Bug investigation & fix |</p>
+<p>| <code>scripts/validate_provider_weighting.py</code> | Automated validation |</p>
+<p>| <code>ADR-001-weight-only-in-ranking.md</code> | Architecture decision record |</p>
+
+<p>---</p>
+
+<h2>Quick Commands</h2>
+
+<pre><code># Validate architecture
+python scripts/validate_provider_weighting.py
+
+# Run weighting tests
+pytest tests/services/test_modern_web_lookup_service_unit.py -k "confidence"
+pytest tests/integration/test_web_lookup_weighting.py
+
+# Check for weight applications (should be NONE in lookup methods)
+grep -n "confidence_weight" src/services/modern_web_lookup_service.py</code></pre>
+
+<p>---</p>
+
+<h2>Status: ✅ VALIDATED</h2>
+
+<ul>
+<li>Architecture validated: 2025-10-09</li>
+<li>All checks passed: 4/4</li>
+<li>Implementation complete: Yes</li>
+<li>Tests passing: Yes (existing tests updated)</li>
+<li>Documentation complete: Yes</li>
+</ul>
+
+<p><strong>Recommendation</strong>: Architecture is production-ready. Consider Phase 2 type safety for additional compile-time protection.</p>
+
+  </div>
+</body>
+</html>

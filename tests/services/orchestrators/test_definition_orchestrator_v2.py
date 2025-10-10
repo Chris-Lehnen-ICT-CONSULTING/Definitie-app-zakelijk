@@ -15,17 +15,12 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from services.interfaces import (
-    Definition,
-    DefinitionResponseV2,
-    GenerationRequest,
-    OrchestratorConfig,
-    PromptResult,
-    ValidationResult,
-    ValidationSeverity,
-    ValidationViolation,
-)
-from services.orchestrators.definition_orchestrator_v2 import DefinitionOrchestratorV2
+from services.interfaces import (Definition, DefinitionResponseV2,
+                                 GenerationRequest, OrchestratorConfig,
+                                 PromptResult, ValidationResult,
+                                 ValidationSeverity, ValidationViolation)
+from services.orchestrators.definition_orchestrator_v2 import \
+    DefinitionOrchestratorV2
 
 
 class TestDefinitionOrchestratorV2:

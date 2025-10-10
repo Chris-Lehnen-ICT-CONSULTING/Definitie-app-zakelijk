@@ -5,11 +5,8 @@ Focust op aanwezigheid van patronen en vocabulaire.
 
 import pytest
 
-from src.services.ufo_pattern_matcher import (
-    PatternMatcher,
-    UFOCategory,
-    get_pattern_matcher,
-)
+from src.services.ufo_pattern_matcher import (PatternMatcher, UFOCategory,
+                                              get_pattern_matcher)
 
 
 @pytest.mark.unit()

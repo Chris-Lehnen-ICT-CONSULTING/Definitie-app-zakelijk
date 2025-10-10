@@ -9,28 +9,21 @@ import logging
 import os
 from typing import TYPE_CHECKING, Any
 
-from config.config_manager import (
-    get_component_config,
-    get_default_model,
-    get_default_temperature,
-)
+from config.config_manager import (get_component_config, get_default_model,
+                                   get_default_temperature)
 from services.definition_generator_config import UnifiedGeneratorConfig
 from services.definition_repository import DefinitionRepository
-
 # Legacy DefinitionValidator removed - using V2 orchestrator for validation
 from services.duplicate_detection_service import DuplicateDetectionService
-from services.interfaces import (
-    CleaningServiceInterface,
-    DefinitionGeneratorInterface,
-    DefinitionOrchestratorInterface,
-    DefinitionRepositoryInterface,
-    WebLookupServiceInterface,
-)
+from services.interfaces import (CleaningServiceInterface,
+                                 DefinitionGeneratorInterface,
+                                 DefinitionOrchestratorInterface,
+                                 DefinitionRepositoryInterface,
+                                 WebLookupServiceInterface)
 from services.modern_web_lookup_service import ModernWebLookupService
-
 # V2 Architecture imports
-from services.orchestrators.definition_orchestrator_v2 import DefinitionOrchestratorV2
-
+from services.orchestrators.definition_orchestrator_v2 import \
+    DefinitionOrchestratorV2
 # UnifiedDefinitionGenerator vervangen door DefinitionOrchestrator
 # from services.unified_definition_generator import UnifiedDefinitionGenerator
 from services.workflow_service import WorkflowService
@@ -38,6 +31,11 @@ from services.workflow_service import WorkflowService
 if TYPE_CHECKING:
     from services.data_aggregation_service import DataAggregationService
     from services.export_service import ExportService
+    from src.repositories.synonym_registry import SynonymRegistry
+    from src.services.gpt4_synonym_suggester import GPT4SynonymSuggester
+    from src.services.synonym_orchestrator import SynonymOrchestrator
+    from src.services.web_lookup.synonym_service_refactored import \
+        JuridischeSynoniemService
 
 logger = logging.getLogger(__name__)
 
@@ -85,11 +83,9 @@ class ServiceContainer:
         )
 
         # Service specifieke configuratie - Use default and override via sub-configs
-        from services.definition_generator_config import (
-            GPTConfig,
-            MonitoringConfig,
-            QualityConfig,
-        )
+        from services.definition_generator_config import (GPTConfig,
+                                                          MonitoringConfig,
+                                                          QualityConfig)
 
         # Gebruik centrale configuratie voor definition generator
         definition_config = get_component_config("definition_generator")
@@ -202,21 +198,19 @@ class ServiceContainer:
         """
         if "orchestrator" not in self._instances:
             # V2 is now the only orchestrator
-            from services.adapters.cleaning_service_adapter import (
-                CleaningServiceAdapterV1toV2,
-            )
+            from services.adapters.cleaning_service_adapter import \
+                CleaningServiceAdapterV1toV2
             from services.ai_service_v2 import AIServiceV2
-            from services.interfaces import OrchestratorConfig as V2OrchestratorConfig
+            from services.interfaces import \
+                OrchestratorConfig as V2OrchestratorConfig
             from services.prompts.prompt_service_v2 import PromptServiceV2
             from services.validation.config import ValidationConfig
-
             # Validation service: cutover to modular V2 implementation
-            from services.validation.modular_validation_service import (
-                ModularValidationService,
-            )
-
+            from services.validation.modular_validation_service import \
+                ModularValidationService
             # US-202: Use cached manager voor 100x betere performance
-            from toetsregels.cached_manager import get_cached_toetsregel_manager
+            from toetsregels.cached_manager import \
+                get_cached_toetsregel_manager
 
             v2_config = V2OrchestratorConfig()
 
@@ -244,9 +238,8 @@ class ServiceContainer:
             cleaning_service = CleaningServiceAdapterV1toV2(self.cleaning_service())
 
             # Create ValidationOrchestratorV2 wrapping ModularValidationService
-            from services.orchestrators.validation_orchestrator_v2 import (
-                ValidationOrchestratorV2,
-            )
+            from services.orchestrators.validation_orchestrator_v2 import \
+                ValidationOrchestratorV2
 
             validation_orchestrator = ValidationOrchestratorV2(
                 validation_service=modular_validation_service,
@@ -254,6 +247,17 @@ class ServiceContainer:
             )
             # Expose validation orchestrator separately for services that need direct validation
             self._instances["validation_orchestrator"] = validation_orchestrator
+
+            # Architecture v3.1: Get synonym orchestrator for enrichment
+            try:
+                synonym_orch = self.synonym_orchestrator()
+            except Exception:
+                # If synonym orchestrator fails, log warning and continue without
+                logger.warning(
+                    "Synonym orchestrator initialization failed - "
+                    "definition generation will proceed without synonym enrichment"
+                )
+                synonym_orch = None
 
             self._instances["orchestrator"] = DefinitionOrchestratorV2(
                 # Required V2 services
@@ -271,6 +275,8 @@ class ServiceContainer:
                 config=v2_config,
                 # Epic 3: inject ModernWebLookupService so enrichment and provenance work
                 web_lookup_service=self.web_lookup(),
+                # Architecture v3.1: inject SynonymOrchestrator for synonym enrichment
+                synonym_orchestrator=synonym_orch,
             )
             logger.debug("DefinitionOrchestratorV2 instance created")
 
@@ -301,9 +307,8 @@ class ServiceContainer:
         """
         if "ontology_classifier" not in self._instances:
             from services.ai_service_v2 import AIServiceV2
-            from services.classification.ontology_classifier import (
-                OntologyClassifierService,
-            )
+            from services.classification.ontology_classifier import \
+                OntologyClassifierService
 
             # Reuse AI service
             ai_service = AIServiceV2(
@@ -340,9 +345,8 @@ class ServiceContainer:
         """
         if "ontological_classifier" not in self._instances:
             from services.ai_service_v2 import AIServiceV2
-            from services.classification.ontological_classifier import (
-                OntologicalClassifier,
-            )
+            from services.classification.ontological_classifier import \
+                OntologicalClassifier
 
             # Reuse AI service with same config as generator
             ai_service = AIServiceV2(
@@ -376,6 +380,114 @@ class ServiceContainer:
                 )
                 self._instances["web_lookup"] = None
         return self._instances["web_lookup"]
+
+    def synonym_registry(self) -> "SynonymRegistry":
+        """
+        Get or create SynonymRegistry instance.
+
+        Returns:
+            Singleton instance van SynonymRegistry
+        """
+        if "synonym_registry" not in self._instances:
+            from src.repositories.synonym_registry import SynonymRegistry
+
+            self._instances["synonym_registry"] = SynonymRegistry(self.db_path)
+            logger.info(f"SynonymRegistry initialized with db: {self.db_path}")
+
+        return self._instances["synonym_registry"]
+
+    def gpt4_synonym_suggester(self) -> "GPT4SynonymSuggester":
+        """
+        Get or create GPT4SynonymSuggester instance.
+
+        Returns:
+            Singleton instance van GPT4SynonymSuggester (placeholder mode)
+        """
+        if "gpt4_synonym_suggester" not in self._instances:
+            from src.services.gpt4_synonym_suggester import \
+                GPT4SynonymSuggester
+
+            try:
+                # Initialize suggester (placeholder implementation)
+                # API key validation will be added when GPT-4 integration is implemented
+                self._instances["gpt4_synonym_suggester"] = GPT4SynonymSuggester()
+                logger.info(
+                    "GPT4SynonymSuggester initialized (placeholder mode - no actual API calls)"
+                )
+            except Exception as e:
+                logger.warning(
+                    f"GPT4SynonymSuggester initialization warning: {e}. "
+                    "Synonym enrichment will not be available."
+                )
+                # Don't fail hard - allow app to start without enrichment
+                self._instances["gpt4_synonym_suggester"] = None
+
+        return self._instances["gpt4_synonym_suggester"]
+
+    def synonym_orchestrator(self) -> "SynonymOrchestrator":
+        """
+        Get or create SynonymOrchestrator instance.
+
+        Wires registry + GPT-4 suggester + cache invalidation callbacks.
+
+        Returns:
+            Singleton instance van SynonymOrchestrator
+        """
+        if "synonym_orchestrator" not in self._instances:
+            from src.services.synonym_orchestrator import SynonymOrchestrator
+
+            # Get dependencies
+            registry = self.synonym_registry()
+            gpt4_suggester = self.gpt4_synonym_suggester()
+
+            # Handle case where suggester failed to initialize
+            if gpt4_suggester is None:
+                logger.warning(
+                    "GPT4SynonymSuggester not available - "
+                    "creating dummy suggester for orchestrator"
+                )
+                # Create a dummy suggester that always returns empty results
+                from src.services.gpt4_synonym_suggester import \
+                    GPT4SynonymSuggester
+
+                gpt4_suggester = GPT4SynonymSuggester()
+
+            # Create orchestrator
+            orchestrator = SynonymOrchestrator(
+                registry=registry, gpt4_suggester=gpt4_suggester
+            )
+
+            # Wire cache invalidation callbacks
+            # When registry data changes, orchestrator cache must be invalidated
+            registry.register_invalidation_callback(orchestrator.invalidate_cache)
+
+            self._instances["synonym_orchestrator"] = orchestrator
+            logger.info(
+                "SynonymOrchestrator initialized with TTL cache and invalidation callbacks wired"
+            )
+
+        return self._instances["synonym_orchestrator"]
+
+    def synonym_service(self) -> "JuridischeSynoniemService":
+        """
+        Get or create JuridischeSynoniemService instance (façade).
+
+        Provides backward compatible API over SynonymOrchestrator.
+
+        Returns:
+            Singleton instance van JuridischeSynoniemService
+        """
+        if "synonym_service" not in self._instances:
+            from src.services.web_lookup.synonym_service_refactored import \
+                JuridischeSynoniemService
+
+            # Get orchestrator dependency
+            orchestrator = self.synonym_orchestrator()
+
+            self._instances["synonym_service"] = JuridischeSynoniemService(orchestrator)
+            logger.info("JuridischeSynoniemService initialized as orchestrator façade")
+
+        return self._instances["synonym_service"]
 
     def duplicate_detector(self) -> DuplicateDetectionService:
         """
@@ -418,7 +530,8 @@ class ServiceContainer:
             Singleton instance van GatePolicyService
         """
         if "gate_policy" not in self._lazy_instances:
-            from services.policies.approval_gate_policy import GatePolicyService
+            from services.policies.approval_gate_policy import \
+                GatePolicyService
 
             base_path = self.config.get(
                 "approval_gate_config_path", "config/approval_gate.yaml"
@@ -452,7 +565,8 @@ class ServiceContainer:
             Singleton instance van DefinitionWorkflowService
         """
         if "definition_workflow_service" not in self._lazy_instances:
-            from services.definition_workflow_service import DefinitionWorkflowService
+            from services.definition_workflow_service import \
+                DefinitionWorkflowService
 
             # Use existing services
             workflow_service = self.workflow()
@@ -501,7 +615,8 @@ class ServiceContainer:
             Singleton instance van DataAggregationService
         """
         if "data_aggregation_service" not in self._lazy_instances:
-            from services.data_aggregation_service import DataAggregationService
+            from services.data_aggregation_service import \
+                DataAggregationService
 
             # Use existing repository instance
             repo = self.repository()
@@ -555,7 +670,8 @@ class ServiceContainer:
             Singleton instance van DefinitionImportService
         """
         if "import_service" not in self._lazy_instances:
-            from services.definition_import_service import DefinitionImportService
+            from services.definition_import_service import \
+                DefinitionImportService
 
             repo = self.repository()
             validator = self.validation_orchestrator()
@@ -597,6 +713,10 @@ class ServiceContainer:
             "gate_policy": self.gate_policy,
             "definition_workflow_service": self.definition_workflow_service,
             "import_service": self.import_service,
+            "synonym_registry": self.synonym_registry,
+            "gpt4_synonym_suggester": self.gpt4_synonym_suggester,
+            "synonym_orchestrator": self.synonym_orchestrator,
+            "synonym_service": self.synonym_service,
         }
 
         if name in service_map:

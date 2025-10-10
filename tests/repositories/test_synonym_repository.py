@@ -16,11 +16,9 @@ from pathlib import Path
 
 import pytest
 
-from src.repositories.synonym_repository import (
-    SuggestionStatus,
-    SynonymRepository,
-    SynonymSuggestionRecord,
-)
+from src.repositories.synonym_repository import (SuggestionStatus,
+                                                 SynonymRepository,
+                                                 SynonymSuggestionRecord)
 
 
 class TestSynonymSuggestionRecord:

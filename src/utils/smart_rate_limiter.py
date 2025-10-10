@@ -13,13 +13,9 @@ import time  # Tijd functies voor token bucket timing
 from collections import deque  # Efficiënte queue implementatie
 from collections.abc import Callable
 from dataclasses import (  # Dataklassen voor gestructureerde configuratie
-    dataclass,
-    field,
-)
+    dataclass, field)
 from datetime import (  # Datum en tijd functionaliteit voor timestamps, timezone
-    UTC,
-    datetime,
-)
+    UTC, datetime)
 from enum import Enum  # Enumeraties voor prioriteit levels
 from pathlib import Path  # Object-georiënteerde pad manipulatie
 from typing import Any  # Type hints voor betere code documentatie

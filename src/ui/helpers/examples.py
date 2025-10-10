@@ -177,7 +177,8 @@ def resolve_examples(
         ):
             # Gebruik meegegeven repository indien beschikbaar, anders shared repo
             if repository is None:
-                from database.definitie_repository import get_definitie_repository
+                from database.definitie_repository import \
+                    get_definitie_repository
 
                 repo = get_definitie_repository()
             else:

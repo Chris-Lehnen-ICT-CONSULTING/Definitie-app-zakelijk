@@ -16,20 +16,11 @@ from unittest.mock import MagicMock, Mock, patch
 
 import pytest
 
-from utils.cache import (
-    CacheConfig,
-    CacheManager,
-    FileCache,
-    cache_async_result,
-    cache_definition_generation,
-    cache_example_generation,
-    cache_gpt_call,
-    cache_synonym_generation,
-    cached,
-    clear_cache,
-    configure_cache,
-    get_cache_stats,
-)
+from utils.cache import (CacheConfig, CacheManager, FileCache,
+                         cache_async_result, cache_definition_generation,
+                         cache_example_generation, cache_gpt_call,
+                         cache_synonym_generation, cached, clear_cache,
+                         configure_cache, get_cache_stats)
 
 
 class TestCacheConfig:

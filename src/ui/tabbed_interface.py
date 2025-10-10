@@ -17,56 +17,39 @@ from typing import Any  # Type hints voor betere code documentatie
 
 import streamlit as st  # Streamlit web interface framework
 
-from database.definitie_repository import (  # Database toegang factory
-    get_definitie_repository,
-)
-from document_processing.document_extractor import (  # Ondersteunde bestandstypen
-    supported_file_types,
-)
-from document_processing.document_processor import (  # Document processor factory
-    get_document_processor,
-)
-from domain.ontological_categories import (
-    OntologischeCategorie,  # Ontologische categorieën
-)
+from database.definitie_repository import \
+    get_definitie_repository  # Database toegang factory
+from document_processing.document_extractor import \
+    supported_file_types  # Ondersteunde bestandstypen
+from document_processing.document_processor import \
+    get_document_processor  # Document processor factory
+from domain.ontological_categories import \
+    OntologischeCategorie  # Ontologische categorieën
 from integration.definitie_checker import (  # Definitie integratie controle
-    CheckAction,
-    DefinitieChecker,
-)
-
+    CheckAction, DefinitieChecker)
 # Nieuwe services imports
 from services import get_definition_service
 from ui.components.context_state_cleaner import init_context_cleaner
-from ui.components.definition_edit_tab import (  # Edit interface voor definities
-    DefinitionEditTab,
-)
-from ui.components.definition_generator_tab import (  # Hoofdtab voor definitie generatie
-    DefinitionGeneratorTab,
-)
-
+from ui.components.definition_edit_tab import \
+    DefinitionEditTab  # Edit interface voor definities
+from ui.components.definition_generator_tab import \
+    DefinitionGeneratorTab  # Hoofdtab voor definitie generatie
 # Importeer alle UI tab componenten voor de verschillende functionaliteiten
-from ui.components.enhanced_context_manager_selector import (
-    EnhancedContextManagerSelector as ContextSelector,
-)
-
+from ui.components.enhanced_context_manager_selector import \
+    EnhancedContextManagerSelector as ContextSelector
 # Context selectie component via ContextManager
-from ui.components.expert_review_tab import (  # Expert review en validatie tab
-    ExpertReviewTab,
-)
-
+from ui.components.expert_review_tab import \
+    ExpertReviewTab  # Expert review en validatie tab
 # Geconsolideerde import/export/beheer tab (vervangt Export en Management tabs)
 from ui.components.tabs.import_export_beheer import ImportExportBeheerTab
-
 # Quality Control tab verwijderd - functionaliteit gedocumenteerd in EPIC-023
 # Orchestration tab verwijderd - functionaliteit gedocumenteerd in EPIC-028
 # Web Lookup tab verwijderd - functionaliteit is automatic via ModernWebLookupService
 # Importeer core services en utilities
-from ui.session_state import (  # Sessie state management voor UI persistentie
-    SessionStateManager,
-)
-from utils.container_manager import (
-    get_cached_container,  # Gebruik nieuwe cached container manager
-)
+from ui.session_state import \
+    SessionStateManager  # Sessie state management voor UI persistentie
+from utils.container_manager import \
+    get_cached_container  # Gebruik nieuwe cached container manager
 from utils.type_helpers import ensure_dict
 
 # Hybrid context imports - optionele module voor hybride context verrijking
@@ -547,9 +530,8 @@ class TabbedInterface:
         Verwijderd: fallback naar legacy session_state implementatie.
         """
         try:
-            from ui.components.enhanced_context_manager_selector import (
-                render_context_selector,
-            )
+            from ui.components.enhanced_context_manager_selector import \
+                render_context_selector
 
             return render_context_selector()
         except Exception as e:
@@ -707,7 +689,8 @@ class TabbedInterface:
 
                 if manual_category:
                     # Gebruik handmatige override
-                    from domain.ontological_categories import OntologischeCategorie
+                    from domain.ontological_categories import \
+                        OntologischeCategorie
 
                     # Converteer string naar OntologischeCategorie enum
                     category_map = {
@@ -899,9 +882,8 @@ class TabbedInterface:
                     or agent_result.get("definitie")
                 ):
                     try:
-                        from ui.components.prompt_debug_section import (
-                            capture_voorbeelden_prompts,
-                        )
+                        from ui.components.prompt_debug_section import \
+                            capture_voorbeelden_prompts
 
                         # Create context_dict for prompt debug
                         context_dict = {
