@@ -24,12 +24,9 @@ if not os.getenv("OPENAI_API_KEY"):
         allow_module_level=True,
     )
 
-from voorbeelden.unified_voorbeelden import (
-    ExampleRequest,
-    ExampleType,
-    GenerationMode,
-    get_examples_generator,
-)
+from voorbeelden.unified_voorbeelden import (ExampleRequest, ExampleType,
+                                             GenerationMode,
+                                             get_examples_generator)
 
 
 async def test_bulk_generation_with_delay():

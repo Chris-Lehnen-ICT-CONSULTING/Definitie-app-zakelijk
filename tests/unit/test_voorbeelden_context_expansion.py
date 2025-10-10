@@ -9,12 +9,10 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from src.voorbeelden.voorbeelden import (
-    _expand_context_abbreviations,
-    genereer_praktijkvoorbeelden,
-    genereer_tegenvoorbeelden,
-    genereer_voorbeeld_zinnen,
-)
+from src.voorbeelden.voorbeelden import (_expand_context_abbreviations,
+                                         genereer_praktijkvoorbeelden,
+                                         genereer_tegenvoorbeelden,
+                                         genereer_voorbeeld_zinnen)
 
 
 class TestContextAbbreviationExpansion:

@@ -17,17 +17,10 @@ import pytest
 
 # render_feature_flag_toggle removed - moved to UI layer
 from services.container import ContainerConfigs, ServiceContainer
-from services.interfaces import (
-    Definition,
-    DefinitionResponse,
-    GenerationRequest,
-    ValidationResult,
-)
-from services.service_factory import (
-    ServiceAdapter,
-    _get_environment_config,
-    get_definition_service,
-)
+from services.interfaces import (Definition, DefinitionResponse,
+                                 GenerationRequest, ValidationResult)
+from services.service_factory import (ServiceAdapter, _get_environment_config,
+                                      get_definition_service)
 
 
 @pytest.fixture()

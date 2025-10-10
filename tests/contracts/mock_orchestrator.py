@@ -4,13 +4,11 @@ from collections.abc import Iterable
 from uuid import uuid4
 
 from services.interfaces import Definition
-from services.validation.interfaces import (
-    CONTRACT_VERSION,
-    ValidationContext,
-    ValidationOrchestratorInterface,
-    ValidationRequest,
-    ValidationResult,
-)
+from services.validation.interfaces import (CONTRACT_VERSION,
+                                            ValidationContext,
+                                            ValidationOrchestratorInterface,
+                                            ValidationRequest,
+                                            ValidationResult)
 
 
 class MockValidationOrchestrator(ValidationOrchestratorInterface):

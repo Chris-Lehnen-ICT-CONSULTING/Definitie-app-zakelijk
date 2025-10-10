@@ -6,17 +6,14 @@ import hashlib  # Hash functionaliteit voor unieke document identifiers
 import json  # JSON verwerking voor metadata opslag
 import logging  # Logging faciliteiten voor debug en monitoring
 from dataclasses import (  # Dataklassen voor gestructureerde document data
-    asdict,
-    dataclass,
-)
-from datetime import UTC, datetime  # Datum en tijd functionaliteit voor timestamps
+    asdict, dataclass)
+from datetime import (UTC,  # Datum en tijd functionaliteit voor timestamps
+                      datetime)
 from pathlib import Path  # Object-georiënteerde pad manipulatie
 from typing import Any  # Type hints voor betere code documentatie
 
 from .document_extractor import (  # Importeer tekst extractie functionaliteit
-    extract_text_from_file,
-    get_file_info,
-)
+    extract_text_from_file, get_file_info)
 
 logger = logging.getLogger(__name__)  # Logger instantie voor document processing module
 

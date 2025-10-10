@@ -51,7 +51,8 @@ try:  # pragma: no cover - integration convenience
     from config import get_api_config as _compat_get_api_config
     from config import get_cache_config as _compat_get_cache_config
     from config import get_default_model as _compat_get_default_model
-    from config import get_default_temperature as _compat_get_default_temperature
+    from config import \
+        get_default_temperature as _compat_get_default_temperature
     from config import get_paths_config as _compat_get_paths_config
 
     builtins.get_api_config = getattr(  # type: ignore[attr-defined]
@@ -108,6 +109,57 @@ def test_db_path(tmp_path):
 def in_memory_db():
     """Provide in-memory database configuration."""
     return ":memory:"
+
+
+@pytest.fixture()
+def initialized_synonym_db(tmp_path):
+    """
+    Provide a database with full schema + synonym tables initialized.
+
+    This fixture:
+    1. Creates a temp SQLite database file
+    2. Applies the full schema (schema.sql) for definities tables
+    3. Applies the synonym_groups migration (006_synonym_groups_tables.sql)
+    4. Returns the database path for use with ServiceContainer
+
+    Use this fixture when testing SynonymOrchestrator or SynonymRegistry
+    to ensure ALL tables exist before queries run.
+    """
+    import sqlite3
+
+    # Use tmp file instead of :memory: so we can pass path to ServiceContainer
+    db_path = tmp_path / "test_synonyms.db"
+
+    # Read main schema SQL
+    schema_path = Path(__file__).parent.parent / "src" / "database" / "schema.sql"
+
+    # Read migration SQL for synonym tables
+    migration_path = (
+        Path(__file__).parent.parent
+        / "src"
+        / "database"
+        / "migrations"
+        / "006_synonym_groups_tables.sql"
+    )
+
+    # Initialize database with full schema + migration
+    conn = sqlite3.connect(str(db_path))
+    try:
+        # First: Apply main schema (definities tables)
+        with open(schema_path, encoding="utf-8") as f:
+            schema_sql = f.read()
+        conn.executescript(schema_sql)
+
+        # Second: Apply synonym migration (synonym_groups tables)
+        with open(migration_path, encoding="utf-8") as f:
+            migration_sql = f.read()
+        conn.executescript(migration_sql)
+
+        conn.commit()
+    finally:
+        conn.close()
+
+    return str(db_path)
 
 
 # Marker-registratie is gecentreerd in pytest.ini (strict-markers).

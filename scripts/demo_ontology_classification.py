@@ -17,7 +17,8 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 import json
 from unittest.mock import Mock
 
-from src.services.classification.ontology_classifier import OntologyClassifierService
+from src.services.classification.ontology_classifier import \
+    OntologyClassifierService
 
 
 def create_demo_classifier():

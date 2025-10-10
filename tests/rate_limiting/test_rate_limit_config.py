@@ -8,11 +8,8 @@ import pytest
 
 sys.path.insert(0, "src")
 
-from config.rate_limit_config import (
-    get_all_endpoints,
-    get_endpoint_timeout,
-    get_rate_limit_config,
-)
+from config.rate_limit_config import (get_all_endpoints, get_endpoint_timeout,
+                                      get_rate_limit_config)
 from utils.smart_rate_limiter import get_smart_limiter
 
 pytestmark = [pytest.mark.integration]

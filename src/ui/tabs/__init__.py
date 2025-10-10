@@ -1,10 +1,11 @@
 """
 UI Tabs Module - All tab components for the Streamlit interface.
+
+Architecture v3.1: Using SynonymRegistry + SynonymOrchestrator
 """
 
-from .synonym_review_tab import SynonymReviewTab, render_synonym_review_tab
+from .synonym_metrics_tab import SynonymMetricsTab
 
 __all__ = [
-    "SynonymReviewTab",
-    "render_synonym_review_tab",
+    "SynonymMetricsTab",
 ]

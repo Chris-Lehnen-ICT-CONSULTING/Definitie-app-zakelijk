@@ -14,7 +14,8 @@ from typing import Any
 
 # Import bestaande repository voor backward compatibility
 from database.definitie_repository import DefinitieRecord
-from database.definitie_repository import DefinitieRepository as LegacyRepository
+from database.definitie_repository import \
+    DefinitieRepository as LegacyRepository
 from database.definitie_repository import DefinitieStatus, SourceType
 from services.interfaces import Definition, DefinitionRepositoryInterface
 

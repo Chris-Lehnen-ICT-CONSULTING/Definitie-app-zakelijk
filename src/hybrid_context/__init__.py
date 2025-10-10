@@ -6,13 +6,11 @@ Voorziet in intelligente bron selectie en context fusie voor verbeterde definiti
 """
 
 from .context_fusion import ContextFusion  # Context fusie en samenvoeging
-
 # Importeer hybrid context componenten voor intelligente context verrijking
 from .hybrid_context_engine import (  # Hoofdengine en context container
-    HybridContext,
-    HybridContextEngine,
-)
-from .smart_source_selector import SmartSourceSelector  # Intelligente bron selectie
+    HybridContext, HybridContextEngine)
+from .smart_source_selector import \
+    SmartSourceSelector  # Intelligente bron selectie
 
 # Exporteer publieke interface - alle hybrid context componenten
 __all__ = [

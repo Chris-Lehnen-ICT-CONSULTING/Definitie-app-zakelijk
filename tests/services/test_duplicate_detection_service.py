@@ -9,10 +9,8 @@ from datetime import datetime
 
 import pytest
 
-from services.duplicate_detection_service import (
-    DuplicateDetectionService,
-    DuplicateMatch,
-)
+from services.duplicate_detection_service import (DuplicateDetectionService,
+                                                  DuplicateMatch)
 from services.interfaces import Definition
 
 

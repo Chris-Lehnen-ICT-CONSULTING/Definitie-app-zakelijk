@@ -116,7 +116,8 @@ class HybridContextManager:
     def _init_hybrid_engine(self):
         """Initialiseer hybrid context engine."""
         try:
-            from hybrid_context.hybrid_context_engine import get_hybrid_context_engine
+            from hybrid_context.hybrid_context_engine import \
+                get_hybrid_context_engine
 
             self._hybrid_engine = get_hybrid_context_engine()
             logger.info("Hybrid context engine geïnitialiseerd")

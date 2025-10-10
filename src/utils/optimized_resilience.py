@@ -17,10 +17,10 @@ from functools import wraps
 from typing import Any
 
 from monitoring.api_monitor import get_metrics_collector, record_api_call
-
 # Import existing components
 from utils.enhanced_retry import AdaptiveRetryManager, RetryConfig
-from utils.smart_rate_limiter import RateLimitConfig, RequestPriority, SmartRateLimiter
+from utils.smart_rate_limiter import (RateLimitConfig, RequestPriority,
+                                      SmartRateLimiter)
 
 logger = logging.getLogger(__name__)
 

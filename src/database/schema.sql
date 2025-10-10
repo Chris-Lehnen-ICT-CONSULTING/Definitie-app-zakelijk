@@ -342,3 +342,102 @@ INSERT INTO definitie_tags (definitie_id, tag_naam, tag_waarde, toegevoegd_door)
 (1, 'thema', 'identiteit', 'admin'),
 (2, 'prioriteit', 'medium', 'admin'),
 (2, 'thema', 'data_management', 'admin');
+
+-- ========================================
+-- SYNONYM SYSTEM (GRAPH-BASED)
+-- ========================================
+-- Architecture: Synonym Orchestrator Architecture v3.1
+-- Purpose: Unified graph-based synonym registry
+-- Related: docs/architectuur/synonym-orchestrator-architecture-v3.1.md
+
+-- Synonym Groups (expliciete groepering van gerelateerde termen)
+CREATE TABLE synonym_groups (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+    -- Core Information
+    canonical_term TEXT NOT NULL UNIQUE,  -- "Voorkeurs" term voor display
+    domain TEXT,                           -- "strafrecht", "civielrecht", etc. (optional)
+
+    -- Metadata
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_by TEXT
+);
+
+-- Synonym Group Members (alle synoniemen als peers - geen hiërarchie!)
+CREATE TABLE synonym_group_members (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+    -- Group Relationship
+    group_id INTEGER NOT NULL,
+    term TEXT NOT NULL,
+
+    -- Weighting & Priority
+    weight REAL DEFAULT 1.0 CHECK(weight >= 0.0 AND weight <= 1.0),
+    is_preferred BOOLEAN DEFAULT FALSE,  -- Top-5 priority flag
+
+    -- Lifecycle Status
+    status TEXT NOT NULL DEFAULT 'active' CHECK(status IN (
+        'active',         -- In gebruik, beschikbaar voor queries
+        'ai_pending',     -- GPT-4 suggestie, wacht op approval
+        'rejected_auto',  -- Afgewezen door reviewer
+        'deprecated'      -- Niet meer gebruikt (manual edit removed)
+    )),
+
+    -- Source Tracking
+    source TEXT NOT NULL CHECK(source IN (
+        'db_seed',        -- Initiële migratie vanuit oude DB
+        'manual',         -- Handmatig toegevoegd door gebruiker
+        'ai_suggested',   -- GPT-4 suggestie
+        'imported_yaml'   -- Migratie vanuit juridische_synoniemen.yaml (legacy)
+    )),
+
+    -- Context & Rationale
+    context_json TEXT,  -- JSON: {"rationale": "...", "model": "gpt-4", "temperature": 0.3}
+
+    -- Scoping (global vs per-definitie)
+    definitie_id INTEGER,  -- NULL = global, anders scoped to definitie
+
+    -- Analytics
+    usage_count INTEGER DEFAULT 0,
+    last_used_at TIMESTAMP,
+
+    -- Audit Trail
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_by TEXT,
+    reviewed_by TEXT,
+    reviewed_at TIMESTAMP,
+
+    -- Constraints
+    FOREIGN KEY(group_id) REFERENCES synonym_groups(id) ON DELETE CASCADE,
+    FOREIGN KEY(definitie_id) REFERENCES definities(id) ON DELETE CASCADE,
+    UNIQUE(group_id, term)  -- Een term kan maar 1x per groep
+);
+
+-- Indexes voor performance (bidirectionele lookups)
+CREATE INDEX idx_sgm_group ON synonym_group_members(group_id);
+CREATE INDEX idx_sgm_term ON synonym_group_members(term);
+CREATE INDEX idx_sgm_status ON synonym_group_members(status);
+CREATE INDEX idx_sgm_preferred ON synonym_group_members(is_preferred);
+CREATE INDEX idx_sgm_definitie ON synonym_group_members(definitie_id);
+CREATE INDEX idx_sgm_usage ON synonym_group_members(usage_count DESC);
+CREATE INDEX idx_sgm_term_status ON synonym_group_members(term, status);
+CREATE INDEX idx_sgm_group_status ON synonym_group_members(group_id, status);
+
+-- Triggers voor automatische timestamps
+CREATE TRIGGER update_synonym_groups_timestamp
+    AFTER UPDATE ON synonym_groups
+    FOR EACH ROW
+    WHEN NEW.updated_at = OLD.updated_at
+BEGIN
+    UPDATE synonym_groups SET updated_at = CURRENT_TIMESTAMP WHERE id = NEW.id;
+END;
+
+CREATE TRIGGER update_synonym_group_members_timestamp
+    AFTER UPDATE ON synonym_group_members
+    FOR EACH ROW
+    WHEN NEW.updated_at = OLD.updated_at
+BEGIN
+    UPDATE synonym_group_members SET updated_at = CURRENT_TIMESTAMP WHERE id = NEW.id;
+END;

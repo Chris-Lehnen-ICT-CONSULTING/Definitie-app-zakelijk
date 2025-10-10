@@ -106,9 +106,8 @@ def test_no_validator_in_service_factory_source():
 
 def test_validation_orchestrator_v2_exists():
     """Verify V2 validation orchestrator is available."""
-    from services.orchestrators.validation_orchestrator_v2 import (
-        ValidationOrchestratorV2,
-    )
+    from services.orchestrators.validation_orchestrator_v2 import \
+        ValidationOrchestratorV2
 
     # Should be importable
     assert ValidationOrchestratorV2 is not None

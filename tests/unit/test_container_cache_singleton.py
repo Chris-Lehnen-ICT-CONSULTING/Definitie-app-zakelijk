@@ -14,11 +14,8 @@ from unittest.mock import patch
 
 import pytest
 
-from utils.container_manager import (
-    clear_container_cache,
-    get_cached_container,
-    get_container_stats,
-)
+from utils.container_manager import (clear_container_cache,
+                                     get_cached_container, get_container_stats)
 
 
 class TestContainerCacheSingleton:
@@ -272,11 +269,9 @@ class TestContainerIntegration:
     def test_lazy_service_loading(self):
         """Verify lazy loading works correctly with cached container."""
         # Arrange
-        from utils.container_manager import (
-            get_cached_orchestrator,
-            get_cached_repository,
-            get_cached_web_lookup,
-        )
+        from utils.container_manager import (get_cached_orchestrator,
+                                             get_cached_repository,
+                                             get_cached_web_lookup)
 
         clear_container_cache()
 

@@ -4,11 +4,9 @@ from datetime import datetime
 
 import pytest
 
-from src.models.category_models import (
-    CategoryChangeResult,
-    CategoryUpdateEvent,
-    DefinitionCategory,
-)
+from src.models.category_models import (CategoryChangeResult,
+                                        CategoryUpdateEvent,
+                                        DefinitionCategory)
 
 
 class TestCategoryModels:

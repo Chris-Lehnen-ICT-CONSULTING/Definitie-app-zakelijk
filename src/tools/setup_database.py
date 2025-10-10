@@ -10,14 +10,16 @@ from pathlib import Path  # Object-georiënteerde pad manipulatie
 # Voeg src directory toe aan Python path voor module imports
 sys.path.insert(0, str(Path(__file__).parent.parent))  # Relatief pad naar src directory
 
-from generation.definitie_generator import (  # Ontologische categorieën
-    OntologischeCategorie,
-)
+from generation.definitie_generator import \
+    OntologischeCategorie  # Ontologische categorieën
 
 # Importeer database componenten voor setup en initialisatie
-from database.definitie_repository import DefinitieRecord  # Repository en data modellen
-from database.definitie_repository import SourceType  # Status en bron type enumeraties
-from database.definitie_repository import DefinitieStatus, get_definitie_repository
+from database.definitie_repository import \
+    DefinitieRecord  # Repository en data modellen
+from database.definitie_repository import \
+    SourceType  # Status en bron type enumeraties
+from database.definitie_repository import (DefinitieStatus,
+                                           get_definitie_repository)
 
 # Setup logging configuratie voor database setup script
 logging.basicConfig(

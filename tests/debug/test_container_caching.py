@@ -34,12 +34,10 @@ def test_container_initialization():
     print("=" * 80)
 
     # Import de container manager
-    from utils.container_manager import (
-        clear_container_cache,
-        debug_container_state,
-        get_cached_container,
-        get_container_stats,
-    )
+    from utils.container_manager import (clear_container_cache,
+                                         debug_container_state,
+                                         get_cached_container,
+                                         get_container_stats)
 
     # Clear cache voor schone test
     print("\n1. Clear bestaande cache...")
@@ -112,12 +110,10 @@ def test_lazy_loading():
     print("Lazy Loading Test")
     print("=" * 80)
 
-    from utils.container_manager import (
-        get_cached_container,
-        get_cached_orchestrator,
-        get_cached_repository,
-        get_cached_web_lookup,
-    )
+    from utils.container_manager import (get_cached_container,
+                                         get_cached_orchestrator,
+                                         get_cached_repository,
+                                         get_cached_web_lookup)
 
     # Get container
     container = get_cached_container()

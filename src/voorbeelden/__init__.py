@@ -6,44 +6,34 @@ Genereert praktijkvoorbeelden, tegenvoorbeelden, synoniemen, antoniemen en toeli
 """
 
 # Importeer van geünificeerd voorbeelden systeem
-from .unified_voorbeelden import (
-    ExampleRequest,  # Request container voor voorbeeld generatie
-)
-from .unified_voorbeelden import (
-    ExampleResponse,  # Response container met gegenereerde voorbeelden
-)
-from .unified_voorbeelden import (
-    ExampleType,  # Type van voorbeeld (praktijk, tegen, synoniem, etc.)
-)
-from .unified_voorbeelden import (
-    GenerationMode,  # Generatie modus (sync, async, cached, resilient)
-)
-from .unified_voorbeelden import (
-    UnifiedExamplesGenerator,  # Geünificeerde generator voor alle voorbeelden
-)
-from .unified_voorbeelden import (
-    genereer_alle_voorbeelden,  # Synchrone batch generatie van alle voorbeelden
-)
-from .unified_voorbeelden import (
-    genereer_alle_voorbeelden_async,  # Asynchrone batch generatie voor performance
-)
-from .unified_voorbeelden import genereer_antoniemen  # Genereert antoniemen van de term
-from .unified_voorbeelden import (
-    genereer_praktijkvoorbeelden,  # Genereert praktische gebruiksvoorbeelden
-)
-from .unified_voorbeelden import genereer_synoniemen  # Genereert synoniemen van de term
-from .unified_voorbeelden import (
-    genereer_tegenvoorbeelden,  # Genereert tegenvoorbeelden ter verduidelijking
-)
-from .unified_voorbeelden import (
-    genereer_toelichting,  # Genereert uitgebreide toelichting
-)
-from .unified_voorbeelden import (
-    genereer_voorbeeld_zinnen,  # Genereert voorbeeld zinnen met de term
-)
-from .unified_voorbeelden import (
-    get_examples_generator,  # Hoofdklassen voor voorbeeld generatie; Convenience functies voor directe voorbeeld generatie; Batch functies voor efficiënte bulk generatie; Utility functies voor generator management; Factory functie voor generator instanties
-)
+from .unified_voorbeelden import \
+    ExampleRequest  # Request container voor voorbeeld generatie
+from .unified_voorbeelden import \
+    ExampleResponse  # Response container met gegenereerde voorbeelden
+from .unified_voorbeelden import \
+    ExampleType  # Type van voorbeeld (praktijk, tegen, synoniem, etc.)
+from .unified_voorbeelden import \
+    GenerationMode  # Generatie modus (sync, async, cached, resilient)
+from .unified_voorbeelden import \
+    UnifiedExamplesGenerator  # Geünificeerde generator voor alle voorbeelden
+from .unified_voorbeelden import \
+    genereer_alle_voorbeelden  # Synchrone batch generatie van alle voorbeelden
+from .unified_voorbeelden import \
+    genereer_alle_voorbeelden_async  # Asynchrone batch generatie voor performance
+from .unified_voorbeelden import \
+    genereer_antoniemen  # Genereert antoniemen van de term
+from .unified_voorbeelden import \
+    genereer_praktijkvoorbeelden  # Genereert praktische gebruiksvoorbeelden
+from .unified_voorbeelden import \
+    genereer_synoniemen  # Genereert synoniemen van de term
+from .unified_voorbeelden import \
+    genereer_tegenvoorbeelden  # Genereert tegenvoorbeelden ter verduidelijking
+from .unified_voorbeelden import \
+    genereer_toelichting  # Genereert uitgebreide toelichting
+from .unified_voorbeelden import \
+    genereer_voorbeeld_zinnen  # Genereert voorbeeld zinnen met de term
+from .unified_voorbeelden import \
+    get_examples_generator  # Hoofdklassen voor voorbeeld generatie; Convenience functies voor directe voorbeeld generatie; Batch functies voor efficiënte bulk generatie; Utility functies voor generator management; Factory functie voor generator instanties
 
 # Achterwaartse compatibiliteit - check voor legacy bestanden zonder import side-effects
 # Gebruik find_spec om te voorkomen dat er een OpenAI client wordt geinstantieerd tijdens test collection

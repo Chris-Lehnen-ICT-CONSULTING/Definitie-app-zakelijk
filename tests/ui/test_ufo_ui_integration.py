@@ -12,12 +12,10 @@ from unittest.mock import MagicMock, Mock, call, patch
 import pytest
 import streamlit as st
 
-from src.services.ufo_classifier_service import (
-    UFOCategory,
-    UFOClassificationResult,
-    UFOClassifierService,
-    get_ufo_classifier,
-)
+from src.services.ufo_classifier_service import (UFOCategory,
+                                                 UFOClassificationResult,
+                                                 UFOClassifierService,
+                                                 get_ufo_classifier)
 
 
 class TestGeneratorTabIntegration:

@@ -154,7 +154,8 @@ def test_prompt_generation():
     try:
         from services.definition_generator_config import UnifiedGeneratorConfig
         from services.definition_generator_context import EnrichedContext
-        from services.prompts.modular_prompt_adapter import ModularPromptAdapter
+        from services.prompts.modular_prompt_adapter import \
+            ModularPromptAdapter
 
         # Create adapter
         adapter = ModularPromptAdapter()

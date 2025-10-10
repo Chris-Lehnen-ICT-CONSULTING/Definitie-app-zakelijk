@@ -29,9 +29,8 @@ async def test_story_2_4_integration():
     )
 
     # Check that it's the right type
-    from services.orchestrators.validation_orchestrator_v2 import (
-        ValidationOrchestratorV2,
-    )
+    from services.orchestrators.validation_orchestrator_v2 import \
+        ValidationOrchestratorV2
 
     assert isinstance(
         orchestrator.validation_service, ValidationOrchestratorV2

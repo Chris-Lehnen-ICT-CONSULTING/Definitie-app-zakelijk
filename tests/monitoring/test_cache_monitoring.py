@@ -4,7 +4,8 @@ import time
 
 import pytest
 
-from monitoring.cache_monitoring import CacheMonitor, CacheOperation, CacheSnapshot
+from monitoring.cache_monitoring import (CacheMonitor, CacheOperation,
+                                         CacheSnapshot)
 
 
 def test_cache_monitor_tracks_operations():

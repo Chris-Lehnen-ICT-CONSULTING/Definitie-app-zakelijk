@@ -11,22 +11,18 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from src.services.interfaces import (
-    CleaningResult,
-    CleaningServiceInterface,
-    Definition,
-    DefinitionOrchestratorInterface,
-    DefinitionResponse,
-    EnhancementServiceInterface,
-    FeedbackEngineInterface,
-    GenerationRequest,
-    MonitoringServiceInterface,
-    PromptResult,
-    PromptServiceInterface,
-    SecurityServiceInterface,
-    ValidationResult,
-    ValidationServiceInterface,
-)
+from src.services.interfaces import (CleaningResult, CleaningServiceInterface,
+                                     Definition,
+                                     DefinitionOrchestratorInterface,
+                                     DefinitionResponse,
+                                     EnhancementServiceInterface,
+                                     FeedbackEngineInterface,
+                                     GenerationRequest,
+                                     MonitoringServiceInterface, PromptResult,
+                                     PromptServiceInterface,
+                                     SecurityServiceInterface,
+                                     ValidationResult,
+                                     ValidationServiceInterface)
 
 
 class TestPromptServiceInterface:

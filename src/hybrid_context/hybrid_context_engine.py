@@ -4,23 +4,21 @@ Combineert web lookup met document processing voor optimale definitie generatie.
 """
 
 import logging  # Logging faciliteiten voor debug en monitoring
-from dataclasses import dataclass  # Dataklassen voor gestructureerde context data
+from dataclasses import \
+    dataclass  # Dataklassen voor gestructureerde context data
 from datetime import (  # Datum en tijd functionaliteit voor timestamps, timezone
-    UTC,
-    datetime,
-)
+    UTC, datetime)
 from typing import Any  # Type hints voor betere code documentatie
 
-from document_processing.document_processor import (  # Document processor factory
-    get_document_processor,
-)
-
+from document_processing.document_processor import \
+    get_document_processor  # Document processor factory
 # Legacy web_lookup import replaced with modern service
 # from web_lookup.lookup import zoek_definitie_combinatie  # DEPRECATED
 from services.modern_web_lookup_service import ModernWebLookupService
 
 from .context_fusion import ContextFusion  # Context fusie en samenvoeging
-from .smart_source_selector import SmartSourceSelector  # Intelligente bron selectie
+from .smart_source_selector import \
+    SmartSourceSelector  # Intelligente bron selectie
 
 # Create modern service instance
 _web_lookup_service = ModernWebLookupService()

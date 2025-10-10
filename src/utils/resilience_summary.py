@@ -8,13 +8,11 @@ import logging
 import time
 
 from monitoring.api_monitor import get_metrics_collector
-from utils.integrated_resilience import (
-    IntegratedConfig,
-    IntegratedResilienceSystem,
-    with_background_resilience,
-    with_critical_resilience,
-    with_full_resilience,
-)
+from utils.integrated_resilience import (IntegratedConfig,
+                                         IntegratedResilienceSystem,
+                                         with_background_resilience,
+                                         with_critical_resilience,
+                                         with_full_resilience)
 from utils.smart_rate_limiter import RequestPriority
 
 logger = logging.getLogger(__name__)

@@ -23,14 +23,12 @@ UTC = UTC  # Python 3.10 compatibility  # noqa: PLW0127
 from typing import TYPE_CHECKING, Any, Optional
 
 from services.interfaces import AIServiceInterface as IntelligentAIService
-from services.interfaces import (
-    CleaningServiceInterface,
-    Definition,
-    DefinitionOrchestratorInterface,
-    DefinitionRepositoryInterface,
-    DefinitionResponseV2,
-)
-from services.interfaces import EnhancementServiceInterface as EnhancementService
+from services.interfaces import (CleaningServiceInterface, Definition,
+                                 DefinitionOrchestratorInterface,
+                                 DefinitionRepositoryInterface,
+                                 DefinitionResponseV2)
+from services.interfaces import \
+    EnhancementServiceInterface as EnhancementService
 from services.interfaces import FeedbackEngineInterface as FeedbackEngine
 from services.interfaces import GenerationRequest
 from services.interfaces import MonitoringServiceInterface as MonitoringService
@@ -48,6 +46,7 @@ logger = logging.getLogger(__name__)
 if TYPE_CHECKING:
     # Forward-declared interfaces for type checking without import errors
     from services.interfaces import PromptResult, WebLookupServiceInterface
+    from src.services.synonym_orchestrator import SynonymOrchestrator
 
 
 class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
@@ -80,6 +79,8 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
         config: OrchestratorConfig | None = None,
         # Web lookup (Epic 3)
         web_lookup_service: Optional["WebLookupServiceInterface"] = None,
+        # Synonym enrichment (Architecture v3.1)
+        synonym_orchestrator: Optional["SynonymOrchestrator"] = None,
     ):
         """
         Clean dependency injection - no session state access.
@@ -125,11 +126,15 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
         # Epic 3: optional web lookup service
         self.web_lookup_service = web_lookup_service
 
+        # Architecture v3.1: optional synonym enrichment
+        self.synonym_orchestrator = synonym_orchestrator
+
         logger.info(
             "DefinitionOrchestratorV2 initialized with configuration: "
             f"feedback_loop={self.config.enable_feedback_loop}, "
             f"enhancement={self.config.enable_enhancement}, "
-            f"caching={self.config.enable_caching}"
+            f"caching={self.config.enable_caching}, "
+            f"synonym_enrichment={'enabled' if synonym_orchestrator else 'disabled'}"
         )
 
     def get_service_info(self) -> dict:
@@ -231,6 +236,58 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             else:
                 logger.debug(
                     f"Generation {generation_id}: Feedback system disabled or unavailable"
+                )
+
+            # =====================================
+            # PHASE 2.4: Synonym Enrichment (Architecture v3.1)
+            # =====================================
+            enriched_synonyms = []
+            ai_pending_count = 0
+            synonym_enrichment_status = "not_available"
+
+            if self.synonym_orchestrator:
+                logger.info(
+                    f"Generation {generation_id}: Starting synonym enrichment for term: {sanitized_request.begrip}"
+                )
+                try:
+                    # Build context for synonym enrichment
+                    synonym_context = {
+                        "organisatorisch": sanitized_request.organisatorische_context
+                        or [],
+                        "juridisch": sanitized_request.juridische_context or [],
+                        "wettelijk": sanitized_request.wettelijke_basis or [],
+                    }
+
+                    # Ensure synonyms (GPT-4 enrichment if needed)
+                    # min_count=5 matches architecture specification (line 613)
+                    enriched_synonyms, ai_pending_count = (
+                        await self.synonym_orchestrator.ensure_synonyms(
+                            term=sanitized_request.begrip,
+                            min_count=5,
+                            context=synonym_context,
+                        )
+                    )
+
+                    logger.info(
+                        f"Generation {generation_id}: Synonym enrichment complete - "
+                        f"found {len(enriched_synonyms)} synonyms "
+                        f"({ai_pending_count} AI-pending for review)"
+                    )
+                    synonym_enrichment_status = (
+                        "success" if enriched_synonyms else "no_synonyms"
+                    )
+
+                except Exception as e:
+                    logger.error(
+                        f"Generation {generation_id}: Synonym enrichment failed: {type(e).__name__}: {e!s} - "
+                        f"proceeding without synonym expansion"
+                    )
+                    synonym_enrichment_status = "error"
+                    # Continue without synonyms - definition generation proceeds
+            else:
+                logger.debug(
+                    f"Generation {generation_id}: Synonym orchestrator not available - "
+                    f"proceeding without synonym enrichment"
                 )
 
             # =====================================
@@ -484,9 +541,8 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             voorbeelden = {}
             try:
                 from utils.voorbeelden_debug import DEBUG_ENABLED, debugger
-                from voorbeelden.unified_voorbeelden import (
-                    genereer_alle_voorbeelden_async,
-                )
+                from voorbeelden.unified_voorbeelden import \
+                    genereer_alle_voorbeelden_async
 
                 # Build context_dict for voorbeelden generation (V2-only fields)
                 voorbeelden_context = {
@@ -646,7 +702,8 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             )
             # Normalize to schema-conform dict for internal decisions
             try:
-                from services.validation.mappers import ensure_schema_compliance
+                from services.validation.mappers import \
+                    ensure_schema_compliance
 
                 validation_result = ensure_schema_compliance(raw_validation)
             except Exception:
@@ -708,7 +765,8 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                     context=enhanced_context,
                 )
                 try:
-                    from services.validation.mappers import ensure_schema_compliance
+                    from services.validation.mappers import \
+                        ensure_schema_compliance
 
                     validation_result = ensure_schema_compliance(raw_validation)
                 except Exception:
@@ -758,6 +816,20 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                     "web_sources_count": len(provenance_sources),
                     "web_lookup_debug": debug_info,
                     "web_lookup_debug_available": debug_info is not None,
+                    # Architecture v3.1: Synonym enrichment metadata
+                    "synonym_enrichment_status": synonym_enrichment_status,
+                    "synonym_enrichment_available": self.synonym_orchestrator
+                    is not None,
+                    "enriched_synonyms_count": len(enriched_synonyms),
+                    "ai_pending_synonyms_count": ai_pending_count,
+                    "enriched_synonyms": (
+                        [
+                            {"term": ws.term, "weight": ws.weight}
+                            for ws in enriched_synonyms
+                        ]
+                        if enriched_synonyms
+                        else []
+                    ),
                     # Add voorbeelden to metadata so UI can display them
                     "voorbeelden": voorbeelden if voorbeelden else {},
                     # Store the prompt text for debug UI
@@ -863,6 +935,10 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                     "web_lookup_status": web_lookup_status,
                     "web_lookup_available": self.web_lookup_service is not None,
                     "web_sources_count": len(provenance_sources),
+                    # Synonym enrichment status for transparency (Architecture v3.1)
+                    "synonym_enrichment_status": synonym_enrichment_status,
+                    "enriched_synonyms_count": len(enriched_synonyms),
+                    "ai_pending_synonyms_count": ai_pending_count,
                 },
             )
 

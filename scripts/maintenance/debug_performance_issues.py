@@ -181,7 +181,8 @@ def monkey_patch_services(tracker: InitializationTracker):
 
     # Patch PromptOrchestrator
     try:
-        from services.prompts.modules.prompt_orchestrator import PromptOrchestrator
+        from services.prompts.modules.prompt_orchestrator import \
+            PromptOrchestrator
 
         original_init = PromptOrchestrator.__init__
 
@@ -196,7 +197,8 @@ def monkey_patch_services(tracker: InitializationTracker):
 
     # Patch ModularPromptAdapter
     try:
-        from services.prompts.modular_prompt_adapter import ModularPromptAdapter
+        from services.prompts.modular_prompt_adapter import \
+            ModularPromptAdapter
 
         original_init = ModularPromptAdapter.__init__
 
@@ -287,10 +289,8 @@ def analyze_cache_implementation():
 
     # Check for @lru_cache usage
     try:
-        from utils.container_manager import (
-            _create_custom_container,
-            get_cached_container,
-        )
+        from utils.container_manager import (_create_custom_container,
+                                             get_cached_container)
 
         # Check cache info
         if hasattr(get_cached_container, "cache_info"):

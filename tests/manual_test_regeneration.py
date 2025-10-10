@@ -22,7 +22,8 @@ sys.path.insert(0, str(project_root))
 from domain.ontological_categories import OntologischeCategorie
 from services.definition_generator_config import UnifiedGeneratorConfig
 from services.definition_generator_prompts import UnifiedPromptBuilder
-from services.regeneration_service import RegenerationContext, RegenerationService
+from services.regeneration_service import (RegenerationContext,
+                                           RegenerationService)
 
 # Set up logging
 logging.basicConfig(

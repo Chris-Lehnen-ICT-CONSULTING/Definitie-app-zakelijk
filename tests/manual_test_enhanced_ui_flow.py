@@ -72,7 +72,8 @@ def test_category_display_names():
     try:
         from database.definitie_repository import get_definitie_repository
         from integration.definitie_checker import DefinitieChecker
-        from ui.components.definition_generator_tab import DefinitionGeneratorTab
+        from ui.components.definition_generator_tab import \
+            DefinitionGeneratorTab
 
         # Create instance (mocked)
         mock_checker = Mock()
@@ -111,7 +112,8 @@ def test_impact_analysis():
     print("=" * 50)
 
     try:
-        from ui.components.definition_generator_tab import DefinitionGeneratorTab
+        from ui.components.definition_generator_tab import \
+            DefinitionGeneratorTab
 
         mock_checker = Mock()
         tab = DefinitionGeneratorTab(mock_checker)
@@ -176,7 +178,8 @@ def test_context_extraction():
     print("=" * 50)
 
     try:
-        from ui.components.definition_generator_tab import DefinitionGeneratorTab
+        from ui.components.definition_generator_tab import \
+            DefinitionGeneratorTab
 
         mock_checker = Mock()
         tab = DefinitionGeneratorTab(mock_checker)
@@ -230,7 +233,8 @@ def test_definition_comparison_logic():
     print("=" * 50)
 
     try:
-        from ui.components.definition_generator_tab import DefinitionGeneratorTab
+        from ui.components.definition_generator_tab import \
+            DefinitionGeneratorTab
 
         mock_checker = Mock()
         tab = DefinitionGeneratorTab(mock_checker)
@@ -371,7 +375,8 @@ def test_error_handling():
     print("=" * 50)
 
     try:
-        from ui.components.definition_generator_tab import DefinitionGeneratorTab
+        from ui.components.definition_generator_tab import \
+            DefinitionGeneratorTab
 
         mock_checker = Mock()
         tab = DefinitionGeneratorTab(mock_checker)

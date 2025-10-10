@@ -15,13 +15,10 @@ import time
 
 import pytest
 
-from src.monitoring.performance_tracker import (
-    PerformanceBaseline,
-    PerformanceMetric,
-    PerformanceTracker,
-    get_tracker,
-    reset_tracker,
-)
+from src.monitoring.performance_tracker import (PerformanceBaseline,
+                                                PerformanceMetric,
+                                                PerformanceTracker,
+                                                get_tracker, reset_tracker)
 
 
 @pytest.fixture()
