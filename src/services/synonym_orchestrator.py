@@ -20,10 +20,10 @@ from collections import OrderedDict
 from datetime import UTC, datetime
 from typing import Any
 
-from src.config.synonym_config import SynonymPolicy, get_synonym_config
-from src.models.synonym_models import WeightedSynonym
-from src.repositories.synonym_registry import SynonymRegistry
-from src.services.gpt4_synonym_suggester import GPT4SynonymSuggester
+from config.synonym_config import SynonymPolicy, get_synonym_config
+from models.synonym_models import WeightedSynonym
+from repositories.synonym_registry import SynonymRegistry
+from services.gpt4_synonym_suggester import GPT4SynonymSuggester
 
 logger = logging.getLogger(__name__)
 enrichment_logger = logging.getLogger("synonym_enrichment")

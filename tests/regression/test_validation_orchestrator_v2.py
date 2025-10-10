@@ -29,8 +29,9 @@ async def test_validation_orchestrator_v2():
     print(f"   ✓ ValidationOrchestrator type: {type(validation_orchestrator).__name__}")
 
     # Verify it's the right type
-    from services.orchestrators.validation_orchestrator_v2 import \
-        ValidationOrchestratorV2
+    from services.orchestrators.validation_orchestrator_v2 import (
+        ValidationOrchestratorV2,
+    )
 
     assert isinstance(
         validation_orchestrator, ValidationOrchestratorV2

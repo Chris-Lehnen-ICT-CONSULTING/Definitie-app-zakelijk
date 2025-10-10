@@ -103,7 +103,9 @@ async def test_sru_overheid():
 async def test_rechtspraak_rest():
     """Test Rechtspraak.nl REST API."""
     from services.web_lookup.rechtspraak_rest_service import (
-        RechtspraakRESTService, rechtspraak_lookup)
+        RechtspraakRESTService,
+        rechtspraak_lookup,
+    )
 
     logger.info("\n" + "=" * 80)
     logger.info("TEST 3: Rechtspraak.nl (REST API)")

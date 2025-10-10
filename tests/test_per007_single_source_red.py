@@ -131,7 +131,9 @@ class TestSingleSourceOfTruth:
 
         # Check for multiple ways to create context
         from services.definition_generator_context import (
-            EnrichedContext, HybridContextManager)
+            EnrichedContext,
+            HybridContextManager,
+        )
 
         # Method 1: Direct EnrichedContext creation
         try:

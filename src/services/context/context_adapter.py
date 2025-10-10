@@ -8,8 +8,11 @@ For Streamlit integration, use ui/helpers/context_adapter.py instead.
 import logging
 from typing import Any
 
-from services.context.context_manager import (ContextManager, ContextSource,
-                                              get_context_manager)
+from services.context.context_manager import (
+    ContextManager,
+    ContextSource,
+    get_context_manager,
+)
 
 logger = logging.getLogger(__name__)
 

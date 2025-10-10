@@ -26,16 +26,17 @@ if not os.getenv("OPENAI_API_KEY"):
 
 from services.container import ServiceContainer, get_container
 from services.interfaces import GenerationRequest, OrchestratorConfig
-from services.orchestrators.definition_orchestrator_v2 import \
-    DefinitionOrchestratorV2
-from voorbeelden.unified_voorbeelden import (GenerationMode,
-                                             genereer_alle_voorbeelden,
-                                             genereer_antoniemen,
-                                             genereer_praktijkvoorbeelden,
-                                             genereer_synoniemen,
-                                             genereer_tegenvoorbeelden,
-                                             genereer_toelichting,
-                                             genereer_voorbeeld_zinnen)
+from services.orchestrators.definition_orchestrator_v2 import DefinitionOrchestratorV2
+from voorbeelden.unified_voorbeelden import (
+    GenerationMode,
+    genereer_alle_voorbeelden,
+    genereer_antoniemen,
+    genereer_praktijkvoorbeelden,
+    genereer_synoniemen,
+    genereer_tegenvoorbeelden,
+    genereer_toelichting,
+    genereer_voorbeeld_zinnen,
+)
 
 
 def test_individual_generation():

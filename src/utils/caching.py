@@ -70,12 +70,12 @@ def get_cached_validation_rules():
         List van validation rules
     """
     try:
-        from toetsregels.manager import \
-            get_toetsregel_manager  # canonical path
+        from toetsregels.manager import get_toetsregel_manager  # canonical path
     except Exception:
         # Fallback voor oude padnamen
-        from toetsregels.toetsregel_manager import \
-            get_toetsregel_manager  # type: ignore
+        from toetsregels.toetsregel_manager import (
+            get_toetsregel_manager,  # type: ignore
+        )
 
     logger.info("Loading validation rules into cache...")
     manager = get_toetsregel_manager()

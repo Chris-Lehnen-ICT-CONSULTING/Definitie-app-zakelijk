@@ -13,8 +13,8 @@ from typing import Any
 
 import streamlit as st
 
-from src.repositories.synonym_registry import SynonymRegistry
-from src.services.container import get_container
+from repositories.synonym_registry import SynonymRegistry
+from services.container import get_container
 from utils.dict_helpers import safe_dict_get
 
 logger = logging.getLogger(__name__)

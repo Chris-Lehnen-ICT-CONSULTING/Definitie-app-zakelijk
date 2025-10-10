@@ -1,11 +1,9 @@
 import pytest
 
 from services.definition_generator_config import UnifiedGeneratorConfig
-from services.definition_generator_context import (ContextSource,
-                                                   EnrichedContext)
+from services.definition_generator_context import ContextSource, EnrichedContext
 from services.prompts.modules.base_module import ModuleContext
-from services.prompts.modules.context_awareness_module import \
-    ContextAwarenessModule
+from services.prompts.modules.context_awareness_module import ContextAwarenessModule
 
 
 def _ctx(base_items=0, sources=0, expanded=0, confidences=None):

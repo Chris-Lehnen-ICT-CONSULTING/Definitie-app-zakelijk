@@ -17,9 +17,12 @@ if not os.getenv("OPENAI_API_KEY"):
         allow_module_level=True,
     )
 
-from voorbeelden.unified_voorbeelden import (ExampleRequest, ExampleType,
-                                             GenerationMode,
-                                             genereer_alle_voorbeelden_async)
+from voorbeelden.unified_voorbeelden import (
+    ExampleRequest,
+    ExampleType,
+    GenerationMode,
+    genereer_alle_voorbeelden_async,
+)
 
 
 async def test_voorbeelden_generatie():
@@ -100,8 +103,7 @@ async def test_voorbeelden_generatie():
         async def generate_with_timing(req, etype):
             start = time.time()
             try:
-                from voorbeelden.unified_voorbeelden import \
-                    get_examples_generator
+                from voorbeelden.unified_voorbeelden import get_examples_generator
 
                 generator = get_examples_generator()
                 result = await generator.generate_examples_async(req)

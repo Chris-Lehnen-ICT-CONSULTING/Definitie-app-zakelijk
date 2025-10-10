@@ -4,8 +4,7 @@ import pytest
 @pytest.mark.unit()
 @pytest.mark.asyncio()
 async def test_informal_language_violation_blocks_acceptance():
-    from services.validation.modular_validation_service import \
-        ModularValidationService
+    from services.validation.modular_validation_service import ModularValidationService
 
     svc = ModularValidationService()
     begrip = "computer"
@@ -20,8 +19,7 @@ async def test_informal_language_violation_blocks_acceptance():
 @pytest.mark.unit()
 @pytest.mark.asyncio()
 async def test_mixed_language_violation_blocks_acceptance():
-    from services.validation.modular_validation_service import \
-        ModularValidationService
+    from services.validation.modular_validation_service import ModularValidationService
 
     svc = ModularValidationService()
     begrip = "framework"
@@ -36,8 +34,7 @@ async def test_mixed_language_violation_blocks_acceptance():
 @pytest.mark.unit()
 @pytest.mark.asyncio()
 async def test_too_minimal_structure_violation_blocks_acceptance():
-    from services.validation.modular_validation_service import \
-        ModularValidationService
+    from services.validation.modular_validation_service import ModularValidationService
 
     svc = ModularValidationService()
     begrip = "test"
@@ -52,8 +49,7 @@ async def test_too_minimal_structure_violation_blocks_acceptance():
 @pytest.mark.unit()
 @pytest.mark.asyncio()
 async def test_soft_accept_minimal_ok_without_blocking_errors():
-    from services.validation.modular_validation_service import \
-        ModularValidationService
+    from services.validation.modular_validation_service import ModularValidationService
 
     svc = ModularValidationService()
     begrip = "databank"

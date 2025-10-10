@@ -57,8 +57,7 @@ class VerRulesModule(BasePromptModule):
             sections.append("### 📐 Vorm Regels (VER):")
 
             # Load toetsregels on-demand from cached singleton
-            from toetsregels.cached_manager import \
-                get_cached_toetsregel_manager
+            from toetsregels.cached_manager import get_cached_toetsregel_manager
 
             manager = get_cached_toetsregel_manager()
             all_rules = manager.get_all_regels()

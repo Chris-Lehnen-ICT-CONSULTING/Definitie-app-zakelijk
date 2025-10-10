@@ -6,10 +6,12 @@ import pytest
 @pytest.mark.unit()
 def test_container_orchestrator_exists_and_is_validation_orchestrator_v2():
     from services.container import ContainerConfigs, ServiceContainer
-    from services.orchestrators.definition_orchestrator_v2 import \
-        DefinitionOrchestratorV2
-    from services.orchestrators.validation_orchestrator_v2 import \
-        ValidationOrchestratorV2
+    from services.orchestrators.definition_orchestrator_v2 import (
+        DefinitionOrchestratorV2,
+    )
+    from services.orchestrators.validation_orchestrator_v2 import (
+        ValidationOrchestratorV2,
+    )
 
     container = ServiceContainer(ContainerConfigs.testing())
     orch = container.orchestrator()
@@ -30,8 +32,9 @@ def test_container_uses_modular_validation_service_once_cutover_is_done():
     the V1 adapter.
     """
     from services.container import ContainerConfigs, ServiceContainer
-    from services.orchestrators.validation_orchestrator_v2 import \
-        ValidationOrchestratorV2
+    from services.orchestrators.validation_orchestrator_v2 import (
+        ValidationOrchestratorV2,
+    )
 
     # Try to import the modular service; skip test early if the class/module is absent.
     m = pytest.importorskip(

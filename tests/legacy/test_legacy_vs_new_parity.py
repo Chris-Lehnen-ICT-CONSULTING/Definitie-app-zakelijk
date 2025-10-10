@@ -21,6 +21,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
 # Import service factory for both legacy and new services
 from services.interfaces import Definition, GenerationRequest, ValidationResult
+
 # Nieuwe services via factory
 from services.service_factory import ServiceAdapter, get_definition_service
 

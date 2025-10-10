@@ -7,7 +7,9 @@ Tests that both bugs are resolved:
 """
 
 from opschoning.opschoning_enhanced import (
-    extract_definition_from_gpt_response, opschonen_enhanced)
+    extract_definition_from_gpt_response,
+    opschonen_enhanced,
+)
 
 
 def test_markdown_dash_removal():

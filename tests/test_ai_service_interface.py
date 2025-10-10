@@ -11,9 +11,14 @@ from typing import Any
 
 import pytest
 
-from src.services.interfaces import (AIBatchRequest, AIGenerationResult,
-                                     AIRateLimitError, AIServiceError,
-                                     AIServiceInterface, AITimeoutError)
+from src.services.interfaces import (
+    AIBatchRequest,
+    AIGenerationResult,
+    AIRateLimitError,
+    AIServiceError,
+    AIServiceInterface,
+    AITimeoutError,
+)
 
 
 class TestAIGenerationResult:
