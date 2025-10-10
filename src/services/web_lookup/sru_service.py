@@ -74,14 +74,16 @@ class SRUService:
 
         # Circuit breaker configuration
         # VERHOOGD: van 2→4 voor betere recall bij multi-word juridische termen
+        # Threshold = 4 allows 4 query attempts before giving up (out of 6 total strategies)
+        # This balances recall (finding rare terms) with latency (fast failures)
         self.circuit_breaker_config = circuit_breaker_config or {
             "enabled": True,
-            "consecutive_empty_threshold": 4,
+            "consecutive_empty_threshold": 4,  # Optimal: prevents 2 slowest queries (prefix wildcard, partial words)
             "providers": {
-                "overheid": 4,
-                "rechtspraak": 5,
-                "wetgeving_nl": 4,
-                "overheid_zoek": 4,
+                "overheid": 4,  # Standard: tries 4/6 strategies
+                "rechtspraak": 5,  # Higher: rechtspraak has better coverage for complex terms
+                "wetgeving_nl": 4,  # Standard: wetgeving has fewer edge cases
+                "overheid_zoek": 4,  # Standard: zoekservice is comprehensive
             },
         }
 

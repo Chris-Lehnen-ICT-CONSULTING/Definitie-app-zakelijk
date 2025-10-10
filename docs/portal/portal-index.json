@@ -2820,6 +2820,37 @@
     },
     {
       "id": null,
+      "type": "ARCH",
+      "title": "Voorbeelden Parallel Execution Architecture",
+      "path": "../architectuur/voorbeelden-parallel-execution.md",
+      "url": "../architectuur/voorbeelden-parallel-execution.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/architectuur/voorbeelden-parallel-execution.html"
+    },
+    {
+      "id": null,
       "type": "DOC",
       "title": "Logische Prompt Blokken - Business Perspectief",
       "path": "../archief/LOGICAL_PROMPT_BLOCKS_BUSINESS_VIEW.md",
@@ -9245,6 +9276,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Timer Measurement Bug Fix",
+      "path": "../reports/timer-measurement-fix.md",
+      "url": "../reports/timer-measurement-fix.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/reports/timer-measurement-fix.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Rechtspraak.nl Scraping - Executive Summary",
       "path": "../reports/rechtspraak-scraping-executive-summary.md",
       "url": "../reports/rechtspraak-scraping-executive-summary.md",
@@ -9272,6 +9334,37 @@
         "req": []
       },
       "rendered_url": "rendered/reports/rechtspraak-scraping-executive-summary.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Parallel Voorbeelden Generation - Performance Report",
+      "path": "../reports/parallel-voorbeelden-performance.md",
+      "url": "../reports/parallel-voorbeelden-performance.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/reports/parallel-voorbeelden-performance.html"
     },
     {
       "id": null,
@@ -9396,6 +9489,39 @@
         "req": []
       },
       "rendered_url": "rendered/reports/PHASE-3-COMPLETION-REPORT.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "TabbedInterface Caching Optimization",
+      "path": "../reports/tabbed-interface-caching-optimization.md",
+      "url": "../reports/tabbed-interface-caching-optimization.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-202"
+        ],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/reports/tabbed-interface-caching-optimization.html"
     },
     {
       "id": null,
@@ -9563,6 +9689,39 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Multi-Agent Performance Fixes - Complete Implementation Report",
+      "path": "../reports/multi-agent-performance-fixes-2025-10-10.md",
+      "url": "../reports/multi-agent-performance-fixes-2025-10-10.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-202"
+        ],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/reports/multi-agent-performance-fixes-2025-10-10.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "URGENT DEBUG ANALYSIS: \"unknown prefix dc\" Error After Quick Fix A",
       "path": "../reports/debug_dc_prefix_error_analysis.md",
       "url": "../reports/debug_dc_prefix_error_analysis.md",
@@ -9590,6 +9749,37 @@
         "req": []
       },
       "rendered_url": "rendered/reports/debug_dc_prefix_error_analysis.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Timer Measurement Fix: Before vs After Comparison",
+      "path": "../reports/timer-fix-comparison.md",
+      "url": "../reports/timer-fix-comparison.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/reports/timer-fix-comparison.html"
     },
     {
       "id": null,
@@ -10361,6 +10551,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "🚀 BIG WIN: Parallel Voorbeelden Execution",
+      "path": "../reports/PARALLEL_VOORBEELDEN_SUMMARY.md",
+      "url": "../reports/PARALLEL_VOORBEELDEN_SUMMARY.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/reports/PARALLEL_VOORBEELDEN_SUMMARY.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Web Lookup Ranking Fix - Code Snippets",
       "path": "../reports/ranking-fix-code-snippets.md",
       "url": "../reports/ranking-fix-code-snippets.md",
@@ -10388,6 +10609,42 @@
         "req": []
       },
       "rendered_url": "rendered/reports/ranking-fix-code-snippets.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "US-202: Eliminate Duplicate ServiceContainer Initialization",
+      "path": "../reports/US-202-container-singleton-fix.md",
+      "url": "../reports/US-202-container-singleton-fix.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": "US-202-container-singleton-fix.md",
+      "_refs": {
+        "us": [
+          "US-201",
+          "US-202"
+        ],
+        "epic": [
+          "EPIC-007"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/reports/US-202-container-singleton-fix.html"
     },
     {
       "id": null,
@@ -42028,8 +42285,8 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 663,
-      "ARCH": 41,
+      "DOC": 670,
+      "ARCH": 42,
       "COMP": 5,
       "TEST": 35,
       "GUIDE": 14,
@@ -42038,7 +42295,7 @@
       "US": 276,
       "BUG": 18
     },
-    "generated_at": "2025-10-10T10:59:42Z"
+    "generated_at": "2025-10-10T14:27:17Z"
   },
   "sources": [
     "docs"

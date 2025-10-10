@@ -368,7 +368,11 @@ class SynonymRegistry:
         created_by: str = "system",
     ) -> int:
         """
-        Voeg member toe aan groep.
+        Voeg member toe aan groep (idempotent operation).
+
+        IDEMPOTENT BEHAVIOR:
+        Als member (group_id, term) al bestaat, wordt het bestaande member_id
+        geretourneerd zonder error. Dit voorkomt sync errors bij duplicate adds.
 
         Args:
             group_id: ID van de groep
@@ -381,10 +385,10 @@ class SynonymRegistry:
             created_by: Wie voegt member toe
 
         Returns:
-            ID van nieuw toegevoegde member
+            member_id - existing ID if already in group, new ID if created
 
         Raises:
-            ValueError: Bij ongeldige parameters of duplicate (group_id, term)
+            ValueError: Bij ongeldige parameters (niet bij duplicates)
         """
         # Validate parameters
         if not term or not term.strip():
@@ -413,7 +417,7 @@ class SynonymRegistry:
                 msg = f"Group {group_id} bestaat niet"
                 raise ValueError(msg)
 
-            # Check for duplicate (group_id, term) constraint
+            # Check for duplicate (group_id, term) constraint - IDEMPOTENT
             cursor = conn.execute(
                 """
                 SELECT id FROM synonym_group_members
@@ -423,8 +427,12 @@ class SynonymRegistry:
             )
             existing = cursor.fetchone()
             if existing:
-                msg = f"Member '{term}' bestaat al in groep {group_id} (ID: {existing[0]})"
-                raise ValueError(msg)
+                existing_id = existing[0]
+                logger.warning(
+                    f"Member '{term}' already in group {group_id}, "
+                    f"returning existing ID {existing_id} (idempotent)"
+                )
+                return existing_id
 
             # Insert member
             now = datetime.now(UTC)
@@ -621,6 +629,140 @@ class SynonymRegistry:
                 )
                 # Trigger cache invalidation
                 self._trigger_invalidation(member.term)
+
+            return success
+
+    def update_member(
+        self,
+        member_id: int,
+        weight: float | None = None,
+        is_preferred: bool | None = None,
+        status: str | None = None,
+        reviewed_by: str | None = None,
+    ) -> bool:
+        """
+        Update member properties (weight, is_preferred, status).
+
+        Args:
+            member_id: ID van de member
+            weight: Nieuw gewicht (0.0-1.0) of None om te behouden
+            is_preferred: Nieuwe preferred flag of None om te behouden
+            status: Nieuwe status of None om te behouden
+            reviewed_by: Wie de wijziging uitvoert
+
+        Returns:
+            True als succesvol geupdate
+
+        Raises:
+            ValueError: Bij ongeldige parameters
+        """
+        # Validate weight if provided
+        if weight is not None and not (0.0 <= weight <= 1.0):
+            msg = f"weight moet tussen 0.0 en 1.0 zijn: {weight}"
+            raise ValueError(msg)
+
+        # Validate status if provided
+        if status is not None:
+            valid_statuses = {"active", "ai_pending", "rejected_auto", "deprecated"}
+            if status not in valid_statuses:
+                msg = f"status moet een van {valid_statuses} zijn: {status}"
+                raise ValueError(msg)
+
+        with self._get_connection() as conn:
+            # Check if member exists
+            member = self.get_member(member_id)
+            if not member:
+                logger.warning(f"Member {member_id} niet gevonden")
+                return False
+
+            # Build dynamic UPDATE query
+            updates = []
+            params = []
+
+            if weight is not None:
+                updates.append("weight = ?")
+                params.append(weight)
+
+            if is_preferred is not None:
+                updates.append("is_preferred = ?")
+                params.append(is_preferred)
+
+            if status is not None:
+                updates.append("status = ?")
+                params.append(status)
+
+            if reviewed_by is not None:
+                updates.append("reviewed_by = ?")
+                params.append(reviewed_by)
+                updates.append("reviewed_at = ?")
+                params.append(datetime.now(UTC))
+
+            # Always update updated_at
+            updates.append("updated_at = ?")
+            params.append(datetime.now(UTC))
+
+            if not updates:
+                logger.warning("No fields to update")
+                return False
+
+            # Add WHERE clause parameter
+            params.append(member_id)
+
+            # Execute update
+            query = (
+                f"UPDATE synonym_group_members SET {', '.join(updates)} WHERE id = ?"
+            )
+            cursor = conn.execute(query, params)
+
+            success = cursor.rowcount > 0
+
+            if success:
+                logger.info(
+                    f"Updated member {member_id} ('{member.term}'): "
+                    f"weight={weight}, is_preferred={is_preferred}, status={status}"
+                )
+                # Trigger cache invalidation
+                self._trigger_invalidation(member.term)
+
+            return success
+
+    def delete_member(self, member_id: int) -> bool:
+        """
+        Verwijder member volledig uit database.
+
+        Args:
+            member_id: ID van member om te verwijderen
+
+        Returns:
+            True als succesvol verwijderd
+
+        Raises:
+            ValueError: Als member niet bestaat
+        """
+        with self._get_connection() as conn:
+            # Check if member exists
+            member = self.get_member(member_id)
+            if not member:
+                msg = f"Member {member_id} bestaat niet"
+                raise ValueError(msg)
+
+            term = member.term
+            group_id = member.group_id
+
+            # Delete member
+            cursor = conn.execute(
+                "DELETE FROM synonym_group_members WHERE id = ?",
+                (member_id,),
+            )
+
+            success = cursor.rowcount > 0
+
+            if success:
+                logger.info(
+                    f"Deleted member {member_id} ('{term}') from group {group_id}"
+                )
+                # Trigger cache invalidation
+                self._trigger_invalidation(term)
 
             return success
 

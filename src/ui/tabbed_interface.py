@@ -8,11 +8,10 @@ met ondersteuning voor meerdere tabs en complete workflow beheer.
 """
 
 import asyncio  # Asynchrone programmering voor ontologische analyse
+import logging  # Logging faciliteiten voor debug en monitoring
 import os
 from datetime import datetime  # Datum en tijd functionaliteit
 from datetime import UTC
-
-UTC = UTC  # Voor Python 3.10 compatibility  # noqa: PLW0127
 from typing import Any  # Type hints voor betere code documentatie
 
 import streamlit as st  # Streamlit web interface framework
@@ -64,9 +63,8 @@ from ui.components.tabs.import_export_beheer import ImportExportBeheerTab
 from ui.session_state import (
     SessionStateManager,  # Sessie state management voor UI persistentie
 )
-from utils.container_manager import (
-    get_cached_container,  # Gebruik nieuwe cached container manager
-)
+
+# US-202: Removed direct import of get_cached_container - use session state instead
 from utils.type_helpers import ensure_dict
 
 # Hybrid context imports - optionele module voor hybride context verrijking
@@ -78,7 +76,9 @@ try:
     )
 except ImportError:
     HYBRID_CONTEXT_AVAILABLE = False  # Hybride context niet beschikbaar
-import logging  # Logging faciliteiten voor debug en monitoring
+
+# Module-level constants
+UTC = UTC  # Voor Python 3.10 compatibility  # noqa: PLW0127
 
 logger = logging.getLogger(__name__)  # Logger instantie voor deze module
 
@@ -88,9 +88,12 @@ class TabbedInterface:
 
     def __init__(self):
         """Initialiseer tabbed interface met alle benodigde services."""
-        # Use cached container for better performance (prevents 6x reinit)
-        # US-201: Gebruik nieuwe container manager met @st.cache_resource
-        self.container = get_cached_container()
+        # US-202 FIX: Get container via session state singleton to prevent duplicate initialization
+        # Previously: direct get_cached_container() call bypassed session state cache
+        # Now: use session_state container (initialized in SessionStateManager.initialize_session_state)
+        from ui.cached_services import get_cached_service_container
+
+        self.container = get_cached_service_container()
 
         self.repository = (
             get_definitie_repository()
