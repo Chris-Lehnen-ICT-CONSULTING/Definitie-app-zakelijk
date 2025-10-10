@@ -10138,6 +10138,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Python 3.13 Compatibility Analysis Report",
+      "path": "../reports/python-3.13-compatibility-analysis-2025-10-10.md",
+      "url": "../reports/python-3.13-compatibility-analysis-2025-10-10.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/reports/python-3.13-compatibility-analysis-2025-10-10.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "PER-007 Context Flow Fix - Validation Report",
       "path": "../reports/PER-007-validation-report.md",
       "url": "../reports/PER-007-validation-report.md",
@@ -41997,7 +42028,7 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 662,
+      "DOC": 663,
       "ARCH": 41,
       "COMP": 5,
       "TEST": 35,
@@ -42007,7 +42038,7 @@
       "US": 276,
       "BUG": 18
     },
-    "generated_at": "2025-10-10T10:26:00Z"
+    "generated_at": "2025-10-10T10:59:42Z"
   },
   "sources": [
     "docs"

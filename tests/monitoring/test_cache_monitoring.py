@@ -4,7 +4,7 @@ import time
 
 import pytest
 
-from monitoring.cache_monitoring import CacheMonitor, CacheOperation, CacheSnapshot
+from src.monitoring.cache_monitoring import CacheMonitor, CacheOperation, CacheSnapshot
 
 
 def test_cache_monitor_tracks_operations():
@@ -231,7 +231,7 @@ def test_cache_monitor_handles_unknown_result():
     """Test handling of operations without explicit result."""
     monitor = CacheMonitor("TestCache")
 
-    with monitor.track_operation("get", "key1") as result:
+    with monitor.track_operation("get", "key1"):
         # Don't set result
         pass
 
@@ -243,10 +243,11 @@ def test_cache_monitor_context_manager_exception():
     """Test that monitor handles exceptions in tracked code."""
     monitor = CacheMonitor("TestCache")
 
+    msg = "Test exception"
     try:
         with monitor.track_operation("get", "key1") as result:
             result["result"] = "hit"
-            raise ValueError("Test exception")
+            raise ValueError(msg)
     except ValueError:
         pass  # Expected
 

@@ -30,10 +30,10 @@ if str(src_path) not in sys.path:
 
 import streamlit as st
 
-from repositories.synonym_registry import SynonymRegistry
-from services.container import get_container
-from services.gpt4_synonym_suggester import GPT4SynonymSuggester
-from services.synonym_orchestrator import SynonymOrchestrator
+from src.repositories.synonym_registry import SynonymRegistry
+from src.services.container import get_container
+from src.services.gpt4_synonym_suggester import GPT4SynonymSuggester
+from src.services.synonym_orchestrator import SynonymOrchestrator
 
 logger = logging.getLogger(__name__)
 
@@ -219,7 +219,7 @@ if st.button("🤖 Genereer Suggesties", type="primary", use_container_width=Tru
                     st.rerun()
                 else:
                     st.info(
-                        f"ℹ️ Term '{term}' heeft al voldoende synoniemen ({len(synonyms)} found)"
+                        f"Term '{term}' heeft al voldoende synoniemen ({len(synonyms)} found)"
                     )
 
             except Exception as e:
