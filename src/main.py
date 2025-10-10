@@ -22,7 +22,6 @@ import streamlit as st  # Web applicatie framework voor de gebruikersinterface
 from ui.session_state import SessionStateManager  # Sessie status beheer
 from ui.tabbed_interface import TabbedInterface  # Hoofd gebruikersinterface
 from utils.exceptions import log_and_display_error  # Foutafhandeling utilities
-
 # Setup structured logging if enabled via environment variable
 from utils.structured_logging import setup_structured_logging
 

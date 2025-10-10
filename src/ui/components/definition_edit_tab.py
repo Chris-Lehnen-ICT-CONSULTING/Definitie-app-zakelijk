@@ -14,7 +14,8 @@ import streamlit as st
 from config.config_manager import ConfigSection, get_config
 from services.definition_edit_repository import DefinitionEditRepository
 from services.definition_edit_service import DefinitionEditService
-from services.validation.modular_validation_service import ModularValidationService
+from services.validation.modular_validation_service import \
+    ModularValidationService
 from ui.session_state import SessionStateManager
 
 logger = logging.getLogger(__name__)
@@ -747,7 +748,8 @@ class DefinitionEditTab:
                     else:
                         # Consistent met generator-tab: als gebruiker 'begrip' selecteert is er geen DB-flag.
                         try:
-                            from ui.session_state import SessionStateManager as _SSM
+                            from ui.session_state import \
+                                SessionStateManager as _SSM
 
                             sess_vt = _SSM.get_value("voorkeursterm", "")
                             if sess_vt and str(sess_vt).strip() == str(
@@ -1168,7 +1170,8 @@ class DefinitionEditTab:
         v2 = results.get("raw_v2") if isinstance(results, dict) else None
         if isinstance(v2, dict):
             st.markdown("#### ✅ Kwaliteitstoetsing")
-            from ui.components.validation_view import render_validation_detailed_list
+            from ui.components.validation_view import \
+                render_validation_detailed_list
 
             # Gebruik ID-gescope key_prefix voor stabiele togglestate per definitie
             def_id = SessionStateManager.get_value("editing_definition_id")

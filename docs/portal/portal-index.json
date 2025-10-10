@@ -39,6 +39,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "PHASE 2.1 Summary: SynonymOrchestrator Implementation",
+      "path": "../phase-2.1-summary.md",
+      "url": "../phase-2.1-summary.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/phase-2.1-summary.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Definitie-app Documentatie",
       "path": "../README.md",
       "url": "../README.md",
@@ -373,6 +404,68 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Synonym Cache Race Condition Fix",
+      "path": "../technisch/synonym-cache-race-condition-fix.md",
+      "url": "../technisch/synonym-cache-race-condition-fix.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/technisch/synonym-cache-race-condition-fix.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "SynonymOrchestrator LRU Cache Optimization",
+      "path": "../technisch/synonym-orchestrator-lru-optimization.md",
+      "url": "../technisch/synonym-orchestrator-lru-optimization.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/technisch/synonym-orchestrator-lru-optimization.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Juridisch Ranker Migratie naar YAML Configuratie",
       "path": "../technisch/juridisch_ranker_migration.md",
       "url": "../technisch/juridisch_ranker_migration.md",
@@ -528,6 +621,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "JuridischeSynoniemService Façade Refactoring",
+      "path": "../technisch/synonym-service-facade-refactoring.md",
+      "url": "../technisch/synonym-service-facade-refactoring.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/technisch/synonym-service-facade-refactoring.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Performance Tracking Quick Reference Guide",
       "path": "../technisch/performance-tracking-guide.md",
       "url": "../technisch/performance-tracking-guide.md",
@@ -617,6 +741,37 @@
         "req": []
       },
       "rendered_url": "rendered/technisch/geextraheerde-validatie-regels.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Synonym System Container Wiring - Implementation Summary",
+      "path": "../technisch/synonym-container-wiring.md",
+      "url": "../technisch/synonym-container-wiring.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/technisch/synonym-container-wiring.html"
     },
     {
       "id": null,
@@ -745,6 +900,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Synonym Migration Guide - PHASE 1.4",
+      "path": "../technisch/synonym-migration-guide.md",
+      "url": "../technisch/synonym-migration-guide.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/technisch/synonym-migration-guide.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Error Catalog - Validation Services",
       "path": "../technisch/error_catalog_validation.md",
       "url": "../technisch/error_catalog_validation.md",
@@ -772,6 +958,37 @@
         "req": []
       },
       "rendered_url": "rendered/technisch/error_catalog_validation.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "PHASE 2.2: JuridischeSynoniemService Façade - Completion Report",
+      "path": "../technisch/phase-2-2-facade-completion-report.md",
+      "url": "../technisch/phase-2-2-facade-completion-report.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/technisch/phase-2-2-facade-completion-report.html"
     },
     {
       "id": null,
@@ -1029,6 +1246,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "PHASE 1.4 Completion Report - Synonym Migration Script",
+      "path": "../technisch/phase-1.4-completion-report.md",
+      "url": "../technisch/phase-1.4-completion-report.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/technisch/phase-1.4-completion-report.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Ontological Classifier - Quick Reference Cheatsheet",
       "path": "../quick-reference/ontological_classifier_cheatsheet.md",
       "url": "../quick-reference/ontological_classifier_cheatsheet.md",
@@ -1149,6 +1397,37 @@
         "req": []
       },
       "rendered_url": "rendered/backlog/brief.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "SynonymOrchestrator Integration Guide",
+      "path": "../integration/synonym_orchestrator_integration.md",
+      "url": "../integration/synonym_orchestrator_integration.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/integration/synonym_orchestrator_integration.html"
     },
     {
       "id": null,
@@ -1646,68 +1925,6 @@
     {
       "id": null,
       "type": "DOC",
-      "title": "CONCREET IMPLEMENTATIEPLAN: SYNONIEMEN-OPTIMALISATIE",
-      "path": "../planning/synonym-optimization-implementation-plan.md",
-      "url": "../planning/synonym-optimization-implementation-plan.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
-      "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
-      "category": null,
-      "sprint": null,
-      "story_points": null,
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 5,
-        "type_rank": 9
-      },
-      "parent_epic": null,
-      "parent_us": null,
-      "_refs": {
-        "us": [],
-        "epic": [],
-        "req": []
-      },
-      "rendered_url": "rendered/planning/synonym-optimization-implementation-plan.html"
-    },
-    {
-      "id": null,
-      "type": "DOC",
-      "title": "CODE EXAMPLES: TOP 3 FEATURES SYNONIEMEN-OPTIMALISATIE",
-      "path": "../planning/synonym-optimization-code-examples.md",
-      "url": "../planning/synonym-optimization-code-examples.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
-      "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
-      "category": null,
-      "sprint": null,
-      "story_points": null,
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 5,
-        "type_rank": 9
-      },
-      "parent_epic": null,
-      "parent_us": null,
-      "_refs": {
-        "us": [],
-        "epic": [],
-        "req": []
-      },
-      "rendered_url": "rendered/planning/synonym-optimization-code-examples.html"
-    },
-    {
-      "id": null,
-      "type": "DOC",
       "title": "Sprint Change Proposal: Brownfield Cleanup & Quality Infrastructure",
       "path": "../planning/SPRINT_CHANGE_PROPOSAL_BROWNFIELD_CLEANUP.md",
       "url": "../planning/SPRINT_CHANGE_PROPOSAL_BROWNFIELD_CLEANUP.md",
@@ -1946,6 +2163,37 @@
         "req": []
       },
       "rendered_url": "rendered/architectuur/ontology_classification_implementation_roadmap.html"
+    },
+    {
+      "id": null,
+      "type": "ARCH",
+      "title": "Synonym Orchestrator Architecture v3.1",
+      "path": "../architectuur/synonym-orchestrator-architecture-v3.1.md",
+      "url": "../architectuur/synonym-orchestrator-architecture-v3.1.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/architectuur/synonym-orchestrator-architecture-v3.1.html"
     },
     {
       "id": null,
@@ -9121,6 +9369,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "PHASE 3 COMPLETION REPORT: Synonym Orchestrator v3.1",
+      "path": "../reports/PHASE-3-COMPLETION-REPORT.md",
+      "url": "../reports/PHASE-3-COMPLETION-REPORT.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/reports/PHASE-3-COMPLETION-REPORT.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Documentation Link Fixes Compliance Report",
       "path": "../reports/LINK_FIXES_COMPLIANCE_REPORT.md",
       "url": "../reports/LINK_FIXES_COMPLIANCE_REPORT.md",
@@ -9890,6 +10169,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Synonym Schema Migration - PHASE 1.1 Implementation Report",
+      "path": "../reports/synonym_schema_migration_phase1.1.md",
+      "url": "../reports/synonym_schema_migration_phase1.1.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/reports/synonym_schema_migration_phase1.1.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Lazy Loading Implementation Report",
       "path": "../reports/lazy-loading-implementation-report.md",
       "url": "../reports/lazy-loading-implementation-report.md",
@@ -9923,6 +10233,37 @@
         "req": []
       },
       "rendered_url": "rendered/reports/lazy-loading-implementation-report.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "PHASE 2.1 Implementation Report: SynonymOrchestrator",
+      "path": "../reports/phase-2.1-implementation-report.md",
+      "url": "../reports/phase-2.1-implementation-report.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/reports/phase-2.1-implementation-report.html"
     },
     {
       "id": null,
@@ -10207,6 +10548,37 @@
         "req": []
       },
       "rendered_url": "rendered/reports/PERFORMANCE_VERIFICATION_FINAL.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "CRITICAL & HIGH PRIORITY FIXES APPLIED",
+      "path": "../reports/CRITICAL-FIXES-APPLIED.md",
+      "url": "../reports/CRITICAL-FIXES-APPLIED.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/reports/CRITICAL-FIXES-APPLIED.html"
     },
     {
       "id": null,
@@ -10592,6 +10964,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Technical Implementation Review: Synonym Management Pages v3.1",
+      "path": "../reviews/synonym-pages-technical-review.md",
+      "url": "../reviews/synonym-pages-technical-review.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/reviews/synonym-pages-technical-review.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "🔬 Pytest Test Failure Analysis Report",
       "path": "../reviews/TEST_FAILURE_ANALYSIS.md",
       "url": "../reviews/TEST_FAILURE_ANALYSIS.md",
@@ -10654,6 +11057,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Synonym Pages Review - Executive Summary",
+      "path": "../reviews/synonym-pages-review-summary.md",
+      "url": "../reviews/synonym-pages-review-summary.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/reviews/synonym-pages-review-summary.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Code Review: Episch Verhaal/Story Management System Proposal",
       "path": "../reviews/epic-story-management-code-review.md",
       "url": "../reviews/epic-story-management-code-review.md",
@@ -10685,6 +11119,37 @@
         "req": []
       },
       "rendered_url": "rendered/reviews/epic-story-management-code-review.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Synonym Pages Bug Impact Diagram",
+      "path": "../reviews/synonym-pages-bug-impact-diagram.md",
+      "url": "../reviews/synonym-pages-bug-impact-diagram.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/reviews/synonym-pages-bug-impact-diagram.html"
     },
     {
       "id": null,
@@ -15592,6 +16057,99 @@
         "req": []
       },
       "rendered_url": "rendered/archief/adr-history/ADR-005-service-refactoring.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Legacy Synonym Workflow v2 - Archived Documentation",
+      "path": "../archief/legacy-synonym-workflow-v2/README.md",
+      "url": "../archief/legacy-synonym-workflow-v2/README.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/archief/legacy-synonym-workflow-v2/README.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "CONCREET IMPLEMENTATIEPLAN: SYNONIEMEN-OPTIMALISATIE",
+      "path": "../archief/legacy-synonym-workflow-v2/synonym-optimization-implementation-plan.md",
+      "url": "../archief/legacy-synonym-workflow-v2/synonym-optimization-implementation-plan.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/archief/legacy-synonym-workflow-v2/synonym-optimization-implementation-plan.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "CODE EXAMPLES: TOP 3 FEATURES SYNONIEMEN-OPTIMALISATIE",
+      "path": "../archief/legacy-synonym-workflow-v2/synonym-optimization-code-examples.md",
+      "url": "../archief/legacy-synonym-workflow-v2/synonym-optimization-code-examples.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/archief/legacy-synonym-workflow-v2/synonym-optimization-code-examples.html"
     },
     {
       "id": null,
@@ -28882,6 +29440,68 @@
       "rendered_url": "rendered/backlog/EPIC-014/EPIC-014.html"
     },
     {
+      "id": null,
+      "type": "DOC",
+      "title": "PHASE 1.2 Implementation Report: SynonymRegistry Data Access Layer",
+      "path": "../backlog/EPIC-XXX/US-XXX/PHASE_1_2_IMPLEMENTATION_REPORT.md",
+      "url": "../backlog/EPIC-XXX/US-XXX/PHASE_1_2_IMPLEMENTATION_REPORT.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-XXX/US-XXX/PHASE_1_2_IMPLEMENTATION_REPORT.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "PHASE 1.2 Design Decisions",
+      "path": "../backlog/EPIC-XXX/US-XXX/PHASE_1_2_DESIGN_DECISIONS.md",
+      "url": "../backlog/EPIC-XXX/US-XXX/PHASE_1_2_DESIGN_DECISIONS.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-XXX/US-XXX/PHASE_1_2_DESIGN_DECISIONS.html"
+    },
+    {
       "id": "US-108",
       "type": "US",
       "title": "US-108: titel: Implementeer Violation-to-Feedback Mapping Service",
@@ -41377,8 +41997,8 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 643,
-      "ARCH": 40,
+      "DOC": 662,
+      "ARCH": 41,
       "COMP": 5,
       "TEST": 35,
       "GUIDE": 14,
@@ -41387,7 +42007,7 @@
       "US": 276,
       "BUG": 18
     },
-    "generated_at": "2025-10-09T14:31:24Z"
+    "generated_at": "2025-10-10T10:04:50Z"
   },
   "sources": [
     "docs"

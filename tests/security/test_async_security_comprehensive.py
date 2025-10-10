@@ -16,13 +16,11 @@ import pytest
 
 # Import async security components
 try:
-    from security.security_middleware import (
-        SecurityMiddleware,
-        ValidationRequest,
-        ValidationResponse,
-        get_security_middleware,
-        security_middleware_decorator,
-    )
+    from security.security_middleware import (SecurityMiddleware,
+                                              ValidationRequest,
+                                              ValidationResponse,
+                                              get_security_middleware,
+                                              security_middleware_decorator)
     from validation.input_validator import get_validator
     from validation.sanitizer import get_sanitizer
 

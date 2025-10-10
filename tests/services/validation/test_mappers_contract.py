@@ -5,11 +5,9 @@ import pytest
 from services.interfaces import ValidationResult as DCValidationResult
 from services.interfaces import ValidationSeverity, ValidationViolation
 from services.validation.interfaces import CONTRACT_VERSION
-from services.validation.mappers import (
-    DEFAULT_PASSED_RULES,
-    dataclass_to_schema_dict,
-    ensure_schema_compliance,
-)
+from services.validation.mappers import (DEFAULT_PASSED_RULES,
+                                         dataclass_to_schema_dict,
+                                         ensure_schema_compliance)
 
 
 def test_dataclass_to_schema_minimal_maps_core_fields():

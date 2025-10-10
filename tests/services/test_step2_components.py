@@ -9,18 +9,16 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from services.definition_generator_config import (
-    ContextConfig,
-    MonitoringConfig,
-    QualityConfig,
-    UnifiedGeneratorConfig,
-)
-from services.definition_generator_context import EnrichedContext, HybridContextManager
-from services.definition_generator_enhancement import (
-    DefinitionEnhancer,
-    EnhancementType,
-)
-from services.definition_generator_monitoring import GenerationMonitor, MetricType
+from services.definition_generator_config import (ContextConfig,
+                                                  MonitoringConfig,
+                                                  QualityConfig,
+                                                  UnifiedGeneratorConfig)
+from services.definition_generator_context import (EnrichedContext,
+                                                   HybridContextManager)
+from services.definition_generator_enhancement import (DefinitionEnhancer,
+                                                       EnhancementType)
+from services.definition_generator_monitoring import (GenerationMonitor,
+                                                      MetricType)
 from services.definition_generator_prompts import UnifiedPromptBuilder
 from services.interfaces import Definition, GenerationRequest
 

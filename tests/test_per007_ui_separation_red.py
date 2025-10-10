@@ -7,7 +7,8 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from services.definition_generator_context import EnrichedContext, HybridContextManager
+from services.definition_generator_context import (EnrichedContext,
+                                                   HybridContextManager)
 from services.interfaces import GenerationRequest
 from services.prompts.prompt_service_v2 import PromptServiceV2
 
@@ -70,7 +71,8 @@ class TestUIPreviewRejection:
         ui_string = "📋 Org: OM, DJI | ⚖️ Juridisch: Strafrecht"
 
         # WHEN: Trying to reverse-parse it
-        from services.ui.formatters import ContextFormatter  # Doesn't exist yet
+        from services.ui.formatters import \
+            ContextFormatter  # Doesn't exist yet
 
         formatter = ContextFormatter()
 
