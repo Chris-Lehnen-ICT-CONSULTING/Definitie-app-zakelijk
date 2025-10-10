@@ -254,9 +254,9 @@ if view_mode == "Groepen Browser":
     with col1:
         group_search = st.text_input(
             "🔍 Zoek Groep",
-            placeholder="bijv. voorarrest, getuige, onherroepelijk...",
+            placeholder="bijv. voorarrest, getuige, imitatie...",
             key="group_search",
-            help="Zoek op begrip/canonical term",
+            help="Zoek op canonical term OF op een synonym binnen de groep",
         )
 
     with col2:
@@ -296,10 +296,18 @@ if view_mode == "Groepen Browser":
             """
             params = []
 
-            # Apply search filter
+            # Apply search filter (bidirectional: canonical_term OR member term)
             if group_search and group_search.strip():
-                query += " AND g.canonical_term LIKE ?"
-                params.append(f"%{group_search.strip()}%")
+                query += """ AND (
+                    g.canonical_term LIKE ?
+                    OR g.id IN (
+                        SELECT group_id FROM synonym_group_members
+                        WHERE term LIKE ?
+                    )
+                )"""
+                search_pattern = f"%{group_search.strip()}%"
+                params.append(search_pattern)
+                params.append(search_pattern)
 
             query += " GROUP BY g.id"
 
@@ -365,129 +373,126 @@ if view_mode == "Groepen Browser":
                             if m.status not in ["active", "ai_pending"]
                         ]
 
-                        # Helper function to render interactive member cards
-                        def render_member_card(m, status_emoji):
-                            """Render expandable member card with edit/delete options."""
-                            confidence_pct = m.weight * 100
-                            preferred_flag = " ⭐" if m.is_preferred else ""
+                        # Helper functions to render member cards (refactored for complexity)
+                        def render_member_properties(m):
+                            """Render member properties section."""
+                            st.markdown("**📋 Properties:**")
+                            st.write(f"• Status: {m.status}")
+                            st.write(f"• Weight: {m.weight:.3f}")
+                            st.write(f"• Preferred: {'✅' if m.is_preferred else '❌'}")
+                            st.write(f"• Source: {m.source}")
+                            st.write(f"• Usage: {m.usage_count}x")
+                            if m.created_at:
+                                st.caption(
+                                    f"Created: {m.created_at.strftime('%Y-%m-%d %H:%M')}"
+                                )
+                            if m.context_json:
+                                try:
+                                    context = json.loads(m.context_json)
+                                    with st.expander("📄 Context", expanded=False):
+                                        st.json(context)
+                                except Exception:
+                                    pass
 
-                            with st.expander(
-                                f"{status_emoji} {m.term}{preferred_flag} (weight: {confidence_pct:.0f}%)",
-                                expanded=False,
-                            ):
-                                col1, col2 = st.columns([2, 1])
+                        def render_member_edit_controls(m):
+                            """Render member edit controls and return new values."""
+                            st.markdown("**✏️ Edit:**")
+                            status_options = [
+                                "active",
+                                "ai_pending",
+                                "rejected_auto",
+                                "deprecated",
+                            ]
+                            new_weight = st.slider(
+                                "Weight",
+                                min_value=0.0,
+                                max_value=1.0,
+                                value=float(m.weight),
+                                step=0.05,
+                                key=f"edit_weight_{m.id}",
+                            )
+                            new_is_preferred = st.checkbox(
+                                "Preferred",
+                                value=bool(m.is_preferred),
+                                key=f"edit_preferred_{m.id}",
+                            )
+                            new_status = st.selectbox(
+                                "Status",
+                                status_options,
+                                index=status_options.index(m.status),
+                                key=f"edit_status_{m.id}",
+                            )
+                            return new_weight, new_is_preferred, new_status
 
-                                with col1:
-                                    st.markdown("**📋 Properties:**")
-                                    st.write(f"• Status: {m.status}")
-                                    st.write(f"• Weight: {m.weight:.3f}")
-                                    st.write(f"• Preferred: {'✅' if m.is_preferred else '❌'}")
-                                    st.write(f"• Source: {m.source}")
-                                    st.write(f"• Usage: {m.usage_count}x")
-                                    if m.created_at:
-                                        st.caption(
-                                            f"Created: {m.created_at.strftime('%Y-%m-%d %H:%M')}"
+                        def handle_member_actions(
+                            m, new_weight, new_is_preferred, new_status
+                        ):
+                            """Handle save/delete actions for a member."""
+                            col1, col2 = st.columns(2)
+
+                            with col1:
+                                if st.button(
+                                    "💾 Opslaan", key=f"save_{m.id}", type="primary"
+                                ):
+                                    try:
+                                        registry.update_member(
+                                            m.id,
+                                            weight=new_weight,
+                                            is_preferred=new_is_preferred,
+                                            status=new_status,
+                                            reviewed_by="admin",
                                         )
+                                        orchestrator.invalidate_cache(m.term)
+                                        st.success("✅ Opgeslagen!")
+                                        st.rerun()
+                                    except Exception as e:
+                                        st.error(f"Fout: {e}")
 
-                                    if m.context_json:
-                                        try:
-                                            context = json.loads(m.context_json)
-                                            with st.expander("📄 Context", expanded=False):
-                                                st.json(context)
-                                        except Exception:
-                                            pass
-
-                                with col2:
-                                    st.markdown("**✏️ Edit:**")
-
-                                    new_weight = st.slider(
-                                        "Weight",
-                                        min_value=0.0,
-                                        max_value=1.0,
-                                        value=float(m.weight),
-                                        step=0.05,
-                                        key=f"edit_weight_{m.id}",
-                                    )
-
-                                    new_is_preferred = st.checkbox(
-                                        "Preferred",
-                                        value=bool(m.is_preferred),
-                                        key=f"edit_preferred_{m.id}",
-                                    )
-
-                                    new_status = st.selectbox(
-                                        "Status",
-                                        [
-                                            "active",
-                                            "ai_pending",
-                                            "rejected_auto",
-                                            "deprecated",
-                                        ],
-                                        index=[
-                                            "active",
-                                            "ai_pending",
-                                            "rejected_auto",
-                                            "deprecated",
-                                        ].index(m.status),
-                                        key=f"edit_status_{m.id}",
-                                    )
-
-                                st.markdown("---")
-                                col1, col2, col3 = st.columns(3)
-
-                                with col1:
-                                    if st.button(
-                                        "💾 Opslaan", key=f"save_{m.id}", type="primary"
+                            with col2:
+                                if st.button("🗑️ Verwijder", key=f"delete_m_{m.id}"):
+                                    if st.session_state.get(
+                                        f"confirm_delete_m_{m.id}", False
                                     ):
                                         try:
-                                            registry.update_member(
-                                                m.id,
-                                                weight=new_weight,
-                                                is_preferred=new_is_preferred,
-                                                status=new_status,
-                                                reviewed_by="admin",
-                                            )
+                                            registry.delete_member(m.id)
                                             orchestrator.invalidate_cache(m.term)
-                                            st.success("✅ Opgeslagen!")
+                                            st.success("✅ Verwijderd!")
                                             st.rerun()
                                         except Exception as e:
                                             st.error(f"Fout: {e}")
+                                    else:
+                                        st.session_state[f"confirm_delete_m_{m.id}"] = (
+                                            True
+                                        )
+                                        st.warning(
+                                            "⚠️ Klik nogmaals om definitief te verwijderen"
+                                        )
+
+                        def render_member_card(m, status_emoji):
+                            """Render member card with edit/delete options (no nested expander)."""
+                            confidence_pct = m.weight * 100
+                            preferred_flag = " ⭐" if m.is_preferred else ""
+
+                            # Use container with border instead of expander to avoid nesting
+                            with st.container(border=True):
+                                st.markdown(
+                                    f"**{status_emoji} {m.term}{preferred_flag}** (weight: {confidence_pct:.0f}%)"
+                                )
+
+                                col1, col2 = st.columns([2, 1])
+
+                                with col1:
+                                    render_member_properties(m)
 
                                 with col2:
-                                    if st.button("🔗 Ontkoppel", key=f"unlink_{m.id}"):
-                                        if st.session_state.get(
-                                            f"confirm_unlink_{m.id}", False
-                                        ):
-                                            try:
-                                                registry.delete_member(m.id)
-                                                orchestrator.invalidate_cache(m.term)
-                                                st.success("✅ Ontkoppeld!")
-                                                st.rerun()
-                                            except Exception as e:
-                                                st.error(f"Fout: {e}")
-                                        else:
-                                            st.session_state[f"confirm_unlink_{m.id}"] = (
-                                                True
-                                            )
-                                            st.warning("Klik nogmaals")
+                                    new_weight, new_is_preferred, new_status = (
+                                        render_member_edit_controls(m)
+                                    )
 
-                                with col3:
-                                    if st.button("🗑️ Verwijder", key=f"delete_m_{m.id}"):
-                                        if st.session_state.get(
-                                            f"confirm_delete_m_{m.id}", False
-                                        ):
-                                            try:
-                                                registry.delete_member(m.id)
-                                                orchestrator.invalidate_cache(m.term)
-                                                st.success("✅ Verwijderd!")
-                                                st.rerun()
-                                            except Exception as e:
-                                                st.error(f"Fout: {e}")
-                                        else:
-                                            st.session_state[f"confirm_delete_m_{m.id}"] = (
-                                                True
-                                            )
-                                            st.warning("Klik nogmaals")
+                                st.markdown("---")
+                                handle_member_actions(
+                                    m, new_weight, new_is_preferred, new_status
+                                )
 
                         # Render active members
                         if active_members:
