@@ -7,11 +7,9 @@ from typing import List
 import pytest
 
 from services.validation.interfaces import CONTRACT_VERSION
-from services.validation.mappers import (
-    create_degraded_result,
-    dataclass_to_schema_dict,
-    ensure_schema_compliance,
-)
+from services.validation.mappers import (create_degraded_result,
+                                         dataclass_to_schema_dict,
+                                         ensure_schema_compliance)
 
 
 @dataclass

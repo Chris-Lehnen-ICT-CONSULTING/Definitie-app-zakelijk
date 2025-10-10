@@ -5,11 +5,10 @@ Deze interfaces definiëren de contracten voor de verschillende services
 in de applicatie. Ze maken dependency injection en testing mogelijk.
 """
 
-from abc import ABC, abstractmethod  # Abstract Base Classes voor interface definitie
+from abc import (ABC,  # Abstract Base Classes voor interface definitie
+                 abstractmethod)
 from dataclasses import (  # Dataclass decorators voor gestructureerde data
-    dataclass,
-    field,
-)
+    dataclass, field)
 from datetime import datetime  # Datum/tijd functionaliteit voor timestamps
 from enum import Enum  # Enumeratie types voor constante waarden
 from typing import Any, TypedDict  # Type hints voor flexibele type definities

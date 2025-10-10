@@ -1,0 +1,86 @@
+# Synonym Orchestrator Configuration
+#
+# Centralized configuration for synonym management system.
+#
+# Architecture Reference:
+#   docs/architectuur/synonym-orchestrator-architecture-v3.1.md
+#
+# Configuration Version: 1.0
+# Last Updated: 2025-10-09
+
+synonym_configuration:
+  # ========================================
+  # GOVERNANCE POLICY
+  # ========================================
+
+  # Policy for synonym usage in weblookup and definition generation
+  #
+  # Options:
+  #   - strict: Only approved synonyms (status='active') are used
+  #   - pragmatic: AI-pending synonyms are also allowed for weblookup
+  #
+  # Recommendation: Use 'strict' for compliance-critical environments,
+  #                 'pragmatic' for development/testing
+  policy: strict
+
+  # ========================================
+  # ENRICHMENT SETTINGS
+  # ========================================
+
+  # Minimum synonyms threshold before GPT-4 enrichment is triggered
+  # If a term has fewer than this many synonyms, GPT-4 will be called
+  # to suggest additional synonyms during definition generation
+  #
+  # Range: >= 1
+  # Default: 5
+  min_synonyms: 5
+
+  # Timeout for GPT-4 API calls (in seconds)
+  # How long to wait for GPT-4 synonym suggestions before giving up
+  #
+  # Range: 5-300 seconds (5s min, 5 min max)
+  # Default: 30
+  gpt4_timeout: 30
+
+  # Maximum retry attempts for GPT-4 API failures
+  # How many times to retry if GPT-4 call fails
+  #
+  # Range: 0-10
+  # Default: 3
+  gpt4_max_retries: 3
+
+  # ========================================
+  # CACHING SETTINGS
+  # ========================================
+
+  # Time-to-live for cache entries (in seconds)
+  # How long to keep synonym lookups in cache before re-querying database
+  #
+  # Range: 60-86400 seconds (1 min - 24 hours)
+  # Default: 3600 (1 hour)
+  cache_ttl: 3600
+
+  # Maximum number of cache entries
+  # Prevents unbounded memory growth
+  #
+  # Range: 10-100000
+  # Default: 1000
+  cache_max_size: 1000
+
+  # ========================================
+  # WEIGHT THRESHOLDS
+  # ========================================
+
+  # Minimum weight for synonyms to be included in weblookup
+  # Synonyms with weight below this threshold are excluded
+  #
+  # Range: 0.0-1.0
+  # Default: 0.7
+  min_weight: 0.7
+
+  # Weight threshold for marking synonyms as "preferred"
+  # Synonyms with weight >= this value get is_preferred flag
+  #
+  # Range: 0.0-1.0 (must be >= min_weight)
+  # Default: 0.95
+  preferred_threshold: 0.95

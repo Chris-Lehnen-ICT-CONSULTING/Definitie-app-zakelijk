@@ -2,7 +2,8 @@
 Quick debug test for UFO Classifier issues
 """
 
-from src.services.ufo_classifier_service import UFOCategory, UFOClassifierService
+from src.services.ufo_classifier_service import (UFOCategory,
+                                                 UFOClassifierService)
 
 
 def test_input_validation():

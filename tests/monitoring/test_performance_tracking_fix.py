@@ -16,11 +16,8 @@ from unittest.mock import MagicMock, Mock, patch
 
 import pytest
 
-from src.monitoring.performance_tracker import (
-    PerformanceTracker,
-    get_tracker,
-    reset_tracker,
-)
+from src.monitoring.performance_tracker import (PerformanceTracker,
+                                                get_tracker, reset_tracker)
 
 
 @pytest.fixture()

@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 """
-Batch Synonym Suggestion CLI Script
+Batch Synonym Suggestion CLI Script (v3.1)
 
-Process multiple juridische hoofdtermen en genereer GPT-4 synonym suggestions.
-Suggestions worden opgeslagen in de database en geëxporteerd naar CSV.
+Process multiple juridische hoofdtermen en genereer GPT-4 synonym suggestions
+via SynonymOrchestrator architecture.
+
+Architecture v3.1: Uses SynonymOrchestrator.ensure_synonyms() → ai_pending members
 
 Usage Examples:
     # Process from CSV file
@@ -25,28 +27,26 @@ Input CSV Format:
     rechter
 
 Output CSV Format:
-    hoofdterm,synoniem,confidence,rationale,status
-    verdachte,beschuldigde,0.85,"In strafrecht context...",pending
+    hoofdterm,synoniem,weight,rationale,status
+    verdachte,beschuldigde,0.85,"In strafrecht context...",ai_pending
 """
 
 import argparse
 import asyncio
 import csv
+import json
 import logging
 import sys
 from pathlib import Path
 from time import sleep
-from typing import List
 
 # Add src to Python path
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root / "src"))
 
-from repositories.synonym_repository import SynonymRepository, get_synonym_repository
-from services.synonym_automation.gpt4_suggester import (
-    GPT4SynonymSuggester,
-    SynonymSuggestion,
-)
+from repositories.synonym_registry import SynonymRegistry
+from services.container import get_container
+from services.synonym_orchestrator import SynonymOrchestrator
 
 # Configure logging
 logging.basicConfig(
@@ -57,65 +57,99 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-class BatchProcessor:
-    """Batch processor voor synonym suggestions."""
+class BatchProcessorV3:
+    """
+    Batch processor voor synonym suggestions (Architecture v3.1).
+
+    Uses SynonymOrchestrator.ensure_synonyms() to generate and save
+    suggestions as ai_pending members in synonym_groups tables.
+    """
 
     def __init__(
         self,
-        suggester: GPT4SynonymSuggester,
-        repository: SynonymRepository | None = None,
+        orchestrator: SynonymOrchestrator,
+        registry: SynonymRegistry,
         rate_limit: float = 1.0,
         dry_run: bool = False,
+        min_count: int = 5,
     ):
         """
         Initialize batch processor.
 
         Args:
-            suggester: GPT4SynonymSuggester instance
-            repository: SynonymRepository instance (None for dry-run)
+            orchestrator: SynonymOrchestrator instance
+            registry: SynonymRegistry instance
             rate_limit: Seconds to wait between API calls (0 = no limit)
-            dry_run: If True, don't save to database
+            dry_run: If True, only query existing (no GPT-4 enrichment)
+            min_count: Minimum synonyms to ensure per term
         """
-        self.suggester = suggester
-        self.repository = repository
+        self.orchestrator = orchestrator
+        self.registry = registry
         self.rate_limit = rate_limit
         self.dry_run = dry_run
+        self.min_count = min_count
 
-    async def process_term(self, term: str) -> List[SynonymSuggestion]:
+    async def process_term(self, term: str) -> list[dict]:
         """
-        Process single term and generate suggestions.
+        Process single term and generate suggestions via orchestrator.
 
         Args:
             term: Hoofdterm to process
 
         Returns:
-            List of SynonymSuggestion objects
+            List of synonym result dictionaries
         """
         try:
-            suggestions = await self.suggester.suggest_synonyms(term)
+            if self.dry_run:
+                # Dry run: only query existing (no GPT-4 enrichment)
+                synonyms = self.orchestrator.get_synonyms_for_lookup(
+                    term, max_results=20
+                )
+                ai_pending_count = 0
+            else:
+                # Live mode: trigger GPT-4 enrichment if needed
+                synonyms, ai_pending_count = await self.orchestrator.ensure_synonyms(
+                    term=term, min_count=self.min_count, context=None
+                )
 
-            # Save to database (unless dry-run)
-            if not self.dry_run and self.repository:
-                for suggestion in suggestions:
+            if ai_pending_count > 0:
+                logger.info(
+                    f"  ✓ {ai_pending_count} new AI suggestions generated for '{term}'"
+                )
+
+            # Convert to result dicts
+            results = []
+            for syn in synonyms:
+                # Extract rationale from context if available
+                rationale = ""
+                if hasattr(syn, "context") and syn.context:
                     try:
-                        self.repository.save_suggestion(
-                            hoofdterm=suggestion.hoofdterm,
-                            synoniem=suggestion.synoniem,
-                            confidence=suggestion.confidence,
-                            rationale=suggestion.rationale,
-                            context=suggestion.context_used,
+                        context_dict = (
+                            json.loads(syn.context)
+                            if isinstance(syn.context, str)
+                            else syn.context
                         )
-                    except ValueError as e:
-                        # Duplicate suggestion - log and continue
-                        logger.warning(f"Skipping duplicate: {e}")
+                        rationale = context_dict.get("rationale", "")
+                    except Exception:
+                        pass
 
-            return suggestions
+                results.append(
+                    {
+                        "hoofdterm": term,
+                        "synoniem": syn.term,
+                        "weight": syn.weight,
+                        "rationale": rationale,
+                        "status": syn.status if hasattr(syn, "status") else "unknown",
+                    }
+                )
+
+            return results
 
         except Exception as e:
-            logger.error(f"Error processing '{term}': {e}")
+            logger.error(f"Error processing '{term}': {e}", exc_info=True)
             return []
 
-    async def process_terms(self, terms: List[str]) -> List[dict]:
+    async def process_terms(self, terms: list[str]) -> list[dict]:
         """
         Process multiple terms with progress feedback.
 
@@ -131,22 +165,13 @@ class BatchProcessor:
         for i, term in enumerate(terms, 1):
             print(f"\n[{i}/{total}] Processing: {term}")
 
-            suggestions = await self.process_term(term)
+            term_results = await self.process_term(term)
 
-            if suggestions:
-                print(f"  ✓ Found {len(suggestions)} suggestions")
-                for suggestion in suggestions:
-                    results.append(
-                        {
-                            "hoofdterm": suggestion.hoofdterm,
-                            "synoniem": suggestion.synoniem,
-                            "confidence": suggestion.confidence,
-                            "rationale": suggestion.rationale,
-                            "status": "pending",
-                        }
-                    )
+            if term_results:
+                print(f"  ✓ Found {len(term_results)} synonyms")
+                results.extend(term_results)
             else:
-                print(f"  ✗ No suggestions generated")
+                print("  ✗ No synonyms found")
 
             # Rate limiting (except for last term)
             if self.rate_limit > 0 and i < total:
@@ -155,7 +180,7 @@ class BatchProcessor:
         return results
 
 
-def load_terms_from_csv(csv_path: Path) -> List[str]:
+def load_terms_from_csv(csv_path: Path) -> list[str]:
     """
     Load hoofdtermen from CSV file.
 
@@ -173,7 +198,7 @@ def load_terms_from_csv(csv_path: Path) -> List[str]:
         raise FileNotFoundError(f"CSV file not found: {csv_path}")
 
     terms = []
-    with open(csv_path, "r", encoding="utf-8") as f:
+    with open(csv_path, encoding="utf-8") as f:
         reader = csv.DictReader(f)
 
         # Validate column
@@ -192,7 +217,7 @@ def load_terms_from_csv(csv_path: Path) -> List[str]:
     return terms
 
 
-def export_to_csv(results: List[dict], output_path: Path):
+def export_to_csv(results: list[dict], output_path: Path):
     """
     Export results to CSV file.
 
@@ -208,18 +233,18 @@ def export_to_csv(results: List[dict], output_path: Path):
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
     with open(output_path, "w", newline="", encoding="utf-8") as f:
-        fieldnames = ["hoofdterm", "synoniem", "confidence", "rationale", "status"]
+        fieldnames = ["hoofdterm", "synoniem", "weight", "rationale", "status"]
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(results)
 
-    logger.info(f"Exported {len(results)} suggestions to {output_path}")
+    logger.info(f"Exported {len(results)} synonyms to {output_path}")
 
 
 async def main():
     """Main entry point."""
     parser = argparse.ArgumentParser(
-        description="Batch process synonym suggestions voor juridische termen",
+        description="Batch process synonym suggestions voor juridische termen (v3.1)",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=__doc__,
     )
@@ -239,12 +264,6 @@ async def main():
 
     # Configuration options
     parser.add_argument(
-        "--confidence",
-        type=float,
-        default=0.6,
-        help="Minimum confidence threshold (default: 0.6)",
-    )
-    parser.add_argument(
         "--output",
         type=Path,
         default=Path("data/synonym_suggestions.csv"),
@@ -259,19 +278,13 @@ async def main():
     parser.add_argument(
         "--dry-run",
         action="store_true",
-        help="Preview without saving to database",
+        help="Query existing only (no GPT-4 enrichment)",
     )
     parser.add_argument(
-        "--model",
-        type=str,
-        default="gpt-4-turbo",
-        help="GPT model to use (default: gpt-4-turbo)",
-    )
-    parser.add_argument(
-        "--max-synonyms",
+        "--min-count",
         type=int,
-        default=8,
-        help="Maximum synonyms per term (default: 8)",
+        default=5,
+        help="Minimum synonyms to ensure per term (default: 5)",
     )
 
     args = parser.parse_args()
@@ -291,32 +304,27 @@ async def main():
         logger.error("No terms to process")
         sys.exit(1)
 
-    logger.info(f"Processing {len(terms)} terms with GPT-4")
+    logger.info(f"Processing {len(terms)} terms with SynonymOrchestrator v3.1")
     if args.dry_run:
-        logger.info("DRY RUN: Results will not be saved to database")
+        logger.info("DRY RUN: Only querying existing synonyms (no GPT-4 enrichment)")
 
-    # Initialize services
-    suggester = GPT4SynonymSuggester(
-        model=args.model,
-        min_confidence=args.confidence,
-        max_synonyms=args.max_synonyms,
-    )
-
-    repository = None
-    if not args.dry_run:
-        try:
-            repository = get_synonym_repository()
-            logger.info("Connected to synonym repository")
-        except Exception as e:
-            logger.error(f"Failed to connect to database: {e}")
-            sys.exit(1)
+    # Initialize services via container
+    try:
+        container = get_container()
+        orchestrator = container.synonym_orchestrator()
+        registry = container.synonym_registry()
+        logger.info("Connected to SynonymOrchestrator + SynonymRegistry (v3.1)")
+    except Exception as e:
+        logger.error(f"Failed to initialize services: {e}", exc_info=True)
+        sys.exit(1)
 
     # Process terms
-    processor = BatchProcessor(
-        suggester=suggester,
-        repository=repository,
+    processor = BatchProcessorV3(
+        orchestrator=orchestrator,
+        registry=registry,
         rate_limit=args.rate_limit,
         dry_run=args.dry_run,
+        min_count=args.min_count,
     )
 
     try:
@@ -325,17 +333,17 @@ async def main():
         # Export results
         if results:
             export_to_csv(results, args.output)
-            print(f"\n✓ Success: Generated {len(results)} suggestions")
+            print(f"\n✓ Success: Generated {len(results)} synonym entries")
             print(f"  Output: {args.output}")
 
             if not args.dry_run:
-                print(f"  Database: Updated with new suggestions")
+                print("  Database: Updated with new ai_pending members (v3.1)")
             else:
-                print(f"  Database: NOT updated (dry-run mode)")
+                print("  Database: Only queried existing (no enrichment)")
 
             sys.exit(0)
         else:
-            print(f"\n✗ No suggestions generated")
+            print("\n✗ No synonyms generated")
             sys.exit(1)
 
     except KeyboardInterrupt:

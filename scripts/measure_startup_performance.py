@@ -90,10 +90,8 @@ def test_orchestrator_singleton():
 
 def test_config_caching():
     """Test web lookup config caching."""
-    from services.web_lookup.config_loader import (
-        clear_config_cache,
-        load_web_lookup_config,
-    )
+    from services.web_lookup.config_loader import (clear_config_cache,
+                                                   load_web_lookup_config)
 
     logger.info("\n" + "=" * 70)
     logger.info("TEST 2: Web Lookup Config Caching")

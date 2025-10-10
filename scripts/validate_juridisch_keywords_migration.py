@@ -189,10 +189,8 @@ def validate_runtime_loading():
     print("=" * 60)
 
     try:
-        from services.web_lookup.juridisch_ranker import (
-            JURIDISCHE_KEYWORDS,
-            get_ranker_config,
-        )
+        from services.web_lookup.juridisch_ranker import (JURIDISCHE_KEYWORDS,
+                                                          get_ranker_config)
 
         # Test config loading
         config = get_ranker_config()

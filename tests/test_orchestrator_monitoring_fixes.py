@@ -6,9 +6,8 @@ from unittest.mock import AsyncMock, Mock
 import pytest
 
 from src.services.interfaces import GenerationRequest, OrchestratorConfig
-from src.services.orchestrators.definition_orchestrator_v2 import (
-    DefinitionOrchestratorV2,
-)
+from src.services.orchestrators.definition_orchestrator_v2 import \
+    DefinitionOrchestratorV2
 
 
 class MonitoringStub:

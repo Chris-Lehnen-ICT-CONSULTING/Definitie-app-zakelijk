@@ -10,17 +10,15 @@ import json  # JSON encoding en decoding voor metadata opslag
 import logging  # Logging functionaliteit voor debug en monitoring
 import sqlite3  # SQLite database interface voor lokale database opslag
 from dataclasses import (  # Dataclass decorators voor gestructureerde data
-    asdict,
-    dataclass,
-)
-from datetime import UTC, datetime  # Datum en tijd functionaliteit voor timestamps
+    asdict, dataclass)
+from datetime import (UTC,  # Datum en tijd functionaliteit voor timestamps
+                      datetime)
 from enum import Enum  # Enumeratie types voor constante waarden
 from pathlib import Path  # Object-georiënteerde pad manipulatie
 from typing import Any  # Type hints voor betere code documentatie
 
-from domain.ontological_categories import (
-    OntologischeCategorie,  # Import ontologische categorieën voor classificatie
-)
+from domain.ontological_categories import \
+    OntologischeCategorie  # Import ontologische categorieën voor classificatie
 
 logger = logging.getLogger(__name__)  # Maak logger instantie voor database module
 
@@ -426,12 +424,19 @@ class DefinitieRepository:
         schema_path = Path(__file__).parent / "schema.sql"
         if schema_path.exists():
             with self._get_connection() as conn:
-                # Check if tables already exist before running schema
+                # Check if database is already initialized
+                # Check for BOTH definities AND synonym_groups tables
+                # (synonym_groups might be created by migration before definities exists)
                 cursor = conn.execute(
-                    "SELECT name FROM sqlite_master WHERE type='table' AND name='definities'"
+                    """
+                    SELECT COUNT(*) FROM sqlite_master
+                    WHERE type='table' AND name IN ('definities', 'synonym_groups')
+                    """
                 )
-                if not cursor.fetchone():
-                    # Tables don't exist, create them
+                table_count = cursor.fetchone()[0]
+
+                if table_count == 0:
+                    # No tables exist - create full schema
                     with open(schema_path, encoding="utf-8") as f:
                         schema_sql = f.read()
                         try:
@@ -442,8 +447,9 @@ class DefinitieRepository:
                             logger.warning(f"Schema execution warning: {e}")
                             # Fallback to individual statements if executescript fails
                 else:
+                    # At least one table exists - skip schema creation to avoid conflicts
                     logger.debug(
-                        "Database tables already exist, skipping schema creation"
+                        f"Database tables already exist ({table_count} found), skipping schema creation"
                     )
         else:
             # Fallback schema creation if schema.sql not found
@@ -1597,6 +1603,19 @@ class DefinitieRepository:
                 except Exception:
                     # Soft-fail: laat eerdere per‑row set gelden
                     pass
+
+                # PHASE 3.3: Sync synoniemen naar registry (Architecture v3.1)
+                synoniemen = voorbeelden_dict.get("synoniemen", [])
+                if synoniemen:
+                    try:
+                        self._sync_synonyms_to_registry(
+                            definitie_id=definitie_id,
+                            synoniemen=synoniemen,
+                            edited_by=gegenereerd_door,
+                        )
+                    except Exception as e:
+                        logger.warning(f"Synonym sync to registry failed: {e}")
+
                 logger.info(f"Successfully saved {len(saved_ids)} voorbeelden")
                 return saved_ids
 
@@ -1828,6 +1847,165 @@ class DefinitieRepository:
                 f"Deleted {deleted_count} voorbeelden voor definitie {definitie_id}"
             )
             return deleted_count
+
+    def _sync_synonyms_to_registry(
+        self, definitie_id: int, synoniemen: list[str], edited_by: str
+    ):
+        """
+        Sync manual synoniemen naar registry (scoped to definitie_id).
+
+        Logic (Architecture v3.1, PHASE 3.3):
+        1. Find/create group voor definitie.begrip
+        2. Add/update synoniemen als active (source=manual, definitie_id=X)
+        3. Deprecate synoniemen in group met definitie_id=X maar NIET in input
+        4. Cache invalidation (automatic via callbacks)
+
+        FIXES APPLIED:
+        - CRI-01: Transaction rollback voor atomicity
+        - HIGH-02: Error handling voor registry initialization
+        - HIGH-03: Input validation (empty, length, duplicates)
+
+        Args:
+            definitie_id: ID van de definitie
+            synoniemen: Lijst van synoniem termen
+            edited_by: Wie de synoniemen heeft bewerkt
+
+        Raises:
+            Exception: Bij registry initialization failure (caught by caller in save_voorbeelden)
+        """
+        from src.services.container import get_container
+
+        # Haal definitie op om begrip te krijgen (BEFORE getting registry)
+        definitie = self.get_definitie(definitie_id)
+        if not definitie:
+            logger.warning(f"Definitie {definitie_id} niet gevonden - sync skipped")
+            return
+
+        # HIGH-02 FIX: Add error handling voor registry initialization
+        try:
+            container = get_container()
+            registry = container.synonym_registry()
+        except Exception as e:
+            logger.error(f"Failed to get synonym registry: {e}")
+            raise  # Re-raise to caller (save_voorbeelden will catch and log warning)
+
+        # HIGH-03 FIX: Input validation
+        input_terms = set()
+        skipped_terms = []
+        validated_synonyms = []
+
+        for syn in synoniemen:
+            syn_normalized = syn.strip().lower()
+
+            # Validation 1: Empty check
+            if not syn_normalized:
+                skipped_terms.append(f"empty: '{syn}'")
+                continue
+
+            # Validation 2: Length check (prevent database errors)
+            if len(syn_normalized) > 255:
+                skipped_terms.append(
+                    f"too long ({len(syn_normalized)} chars): '{syn_normalized[:50]}...'"
+                )
+                continue
+
+            # Validation 3: Duplicate check (case-insensitive within input)
+            if syn_normalized in input_terms:
+                skipped_terms.append(f"duplicate: '{syn}'")
+                continue
+
+            # Validation 4: Special characters warning (not blocking)
+            if not syn_normalized.replace(" ", "").replace("-", "").isalnum():
+                logger.debug(f"Synonym contains special characters: '{syn_normalized}'")
+
+            input_terms.add(syn_normalized)
+            validated_synonyms.append(syn_normalized)
+
+        # Log skipped terms
+        if skipped_terms:
+            logger.warning(
+                f"Skipped {len(skipped_terms)} invalid synonyms for definitie {definitie_id}: "
+                f"{', '.join(skipped_terms[:5])}"
+            )
+
+        # Early return if no valid synonyms
+        if not validated_synonyms:
+            logger.info(f"No valid synonyms to sync for definitie {definitie_id}")
+            return
+
+        # CRI-01: Use registry methods directly (they handle their own transactions)
+        # NO manual transaction management - let registry handle commits per operation
+        try:
+            # Get/create group voor dit begrip
+            group = registry.get_or_create_group(
+                canonical_term=definitie.begrip, created_by=edited_by
+            )
+
+            # Get existing manual members voor deze definitie
+            existing = registry.get_group_members(
+                group_id=group.id,
+                filters={"definitie_id": definitie_id, "source": "manual"},
+            )
+
+            existing_terms = {m.term: m for m in existing}
+
+            # Counters for logging
+            added_count = 0
+            reactivated_count = 0
+            deprecated_count = 0
+
+            # Add/update from validated input
+            for syn_normalized in validated_synonyms:
+                if syn_normalized in existing_terms:
+                    # Reactivate if deprecated
+                    member = existing_terms[syn_normalized]
+                    if member.status == "deprecated":
+                        registry.update_member_status(
+                            member_id=member.id,
+                            new_status="active",
+                            reviewed_by=edited_by,
+                        )
+                        reactivated_count += 1
+                        logger.debug(
+                            f"Reactivated synonym '{syn_normalized}' for definitie {definitie_id}"
+                        )
+                else:
+                    # Add new synonym
+                    registry.add_group_member(
+                        group_id=group.id,
+                        term=syn_normalized,
+                        weight=1.0,  # Manual = high confidence
+                        status="active",
+                        source="manual",
+                        definitie_id=definitie_id,  # SCOPED!
+                        created_by=edited_by,
+                    )
+                    added_count += 1
+                    logger.debug(
+                        f"Added manual synonym '{syn_normalized}' for definitie {definitie_id}"
+                    )
+
+            # Deprecate removed (NOT in validated input)
+            for term, member in existing_terms.items():
+                if term not in input_terms and member.status == "active":
+                    registry.update_member_status(
+                        member_id=member.id,
+                        new_status="deprecated",
+                        reviewed_by=edited_by,
+                    )
+                    deprecated_count += 1
+                    logger.debug(
+                        f"Deprecated synonym '{term}' for definitie {definitie_id}"
+                    )
+
+            logger.info(
+                f"Synced {len(validated_synonyms)} manual synonyms for definitie {definitie_id} "
+                f"(added: {added_count}, reactivated: {reactivated_count}, deprecated: {deprecated_count})"
+            )
+
+        except Exception as e:
+            logger.error(f"Synonym sync failed for definitie {definitie_id}: {e}")
+            raise  # Re-raise to caller (save_voorbeelden will catch and log warning)
 
 
 # Convenience functions

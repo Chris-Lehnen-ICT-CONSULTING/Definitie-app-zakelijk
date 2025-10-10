@@ -10,11 +10,9 @@ from typing import Any
 import streamlit as st
 
 from config.config_manager import ConfigSection, get_config
-from config.verboden_woorden import (
-    laad_verboden_woorden,
-    log_test_verboden_woord,
-    sla_verboden_woorden_op,
-)
+from config.verboden_woorden import (laad_verboden_woorden,
+                                     log_test_verboden_woord,
+                                     sla_verboden_woorden_op)
 from ui.session_state import SessionStateManager
 from utils.exceptions import log_and_display_error
 

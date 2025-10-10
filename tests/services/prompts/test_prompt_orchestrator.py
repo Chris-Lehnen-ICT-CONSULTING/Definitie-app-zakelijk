@@ -1,12 +1,10 @@
 import pytest
 
 from services.definition_generator_config import UnifiedGeneratorConfig
-from services.definition_generator_context import ContextSource, EnrichedContext
-from services.prompts.modules.base_module import (
-    BasePromptModule,
-    ModuleContext,
-    ModuleOutput,
-)
+from services.definition_generator_context import (ContextSource,
+                                                   EnrichedContext)
+from services.prompts.modules.base_module import (BasePromptModule,
+                                                  ModuleContext, ModuleOutput)
 from services.prompts.modules.prompt_orchestrator import PromptOrchestrator
 
 

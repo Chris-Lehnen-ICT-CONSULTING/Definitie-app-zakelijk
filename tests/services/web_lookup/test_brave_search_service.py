@@ -16,7 +16,7 @@ from services.interfaces import LookupResult, WebSource
 from services.web_lookup.brave_search_service import BraveSearchService
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_brave_search_successful_lookup():
     """Test succesvolle Brave Search lookup met mock MCP functie."""
 
@@ -43,7 +43,7 @@ async def test_brave_search_successful_lookup():
         assert "wikipedia.org" in result.source.url
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_brave_search_confidence_scoring():
     """Test confidence scoring op basis van positie en match kwaliteit."""
 
@@ -77,7 +77,7 @@ async def test_brave_search_confidence_scoring():
         assert result.source.url == "https://example.com/1"
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_brave_search_juridical_detection():
     """Test detectie van juridische bronnen."""
 
@@ -100,7 +100,7 @@ async def test_brave_search_juridical_detection():
         assert "overheid.nl" in result.source.url
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_brave_search_non_juridical():
     """Test niet-juridische bronnen."""
 
@@ -122,7 +122,7 @@ async def test_brave_search_non_juridical():
         assert result.source.is_juridical is False
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_brave_search_no_results():
     """Test handling van lege resultaten."""
 
@@ -137,7 +137,7 @@ async def test_brave_search_no_results():
         assert result is None
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_brave_search_error_handling():
     """Test error handling bij MCP failures."""
 
@@ -153,7 +153,7 @@ async def test_brave_search_error_handling():
         assert result is None
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_brave_search_metadata():
     """Test metadata in results."""
 
@@ -180,7 +180,7 @@ async def test_brave_search_metadata():
         assert result.metadata["search_engine"] == "brave"
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_brave_search_context():
     """Test context field formatting."""
 
@@ -202,7 +202,7 @@ async def test_brave_search_context():
         assert result.context == "Brave Search: Rechtspersoon volgens CBS"
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_brave_search_cbs_juridical_detection():
     """Test dat CBS wordt herkend als juridische bron."""
 
@@ -225,7 +225,7 @@ async def test_brave_search_cbs_juridical_detection():
         assert "cbs.nl" in result.source.url
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_brave_search_position_confidence_decay():
     """Test dat confidence afneemt per positie."""
 
@@ -247,7 +247,7 @@ async def test_brave_search_position_confidence_decay():
         assert result.source.confidence >= 0.85
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_brave_search_juridical_keyword_detection():
     """Test detectie van juridische keywords in title/description."""
 
@@ -270,7 +270,7 @@ async def test_brave_search_juridical_keyword_detection():
         assert result.source.is_juridical is True
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_brave_search_standalone_function():
     """Test standalone brave_search_lookup functie."""
     from services.web_lookup.brave_search_service import brave_search_lookup
@@ -293,7 +293,7 @@ async def test_brave_search_standalone_function():
     assert result.term == "test"
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_brave_search_without_mcp_function():
     """Test graceful degradation zonder MCP functie."""
 
@@ -305,7 +305,7 @@ async def test_brave_search_without_mcp_function():
         assert result is None
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_brave_search_confidence_boost_for_title_prefix():
     """Test confidence boost voor title prefix matches."""
 
@@ -328,7 +328,7 @@ async def test_brave_search_confidence_boost_for_title_prefix():
         assert result.source.confidence >= 0.95
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_brave_search_confidence_for_description_match():
     """Test confidence voor term in description."""
 

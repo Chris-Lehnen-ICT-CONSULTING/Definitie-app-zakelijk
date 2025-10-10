@@ -91,9 +91,8 @@ class _StubWebLookupService:
 @pytest.mark.asyncio()
 async def test_orchestrator_includes_provenance_sources_in_metadata():
     from services.interfaces import GenerationRequest, OrchestratorConfig
-    from services.orchestrators.definition_orchestrator_v2 import (
-        DefinitionOrchestratorV2,
-    )
+    from services.orchestrators.definition_orchestrator_v2 import \
+        DefinitionOrchestratorV2
 
     orch = DefinitionOrchestratorV2(
         prompt_service=_StubPromptService(),
