@@ -471,104 +471,126 @@ class ServiceAdapter:
         Deze methode is sync om legacy UI compatibility te behouden.
         """
         from services.interfaces import GenerationRequest
+        from ui.session_state import SessionStateManager
 
-        # Handle regeneration context
-        extra_instructions = self._handle_regeneration_context(begrip, kwargs)
+        # Set generation flag BEFORE operation starts
+        try:
+            SessionStateManager.set_value("generating_definition", True)
+        except Exception:
+            pass  # Soft-fail if session state unavailable (e.g., in tests)
 
-        # Converteer legacy context_dict naar GenerationRequest
-        # Extract ontologische categorie uit kwargs
-        categorie = safe_dict_get(kwargs, "categorie")
-        ontologische_categorie = None
-        if categorie:
-            # Converteer OntologischeCategorie enum naar string
-            if hasattr(categorie, "value"):
-                ontologische_categorie = categorie.value
-            else:
-                ontologische_categorie = str(categorie)
+        try:
+            # Handle regeneration context
+            extra_instructions = self._handle_regeneration_context(begrip, kwargs)
 
-        import uuid
+            # Converteer legacy context_dict naar GenerationRequest
+            # Extract ontologische categorie uit kwargs
+            categorie = safe_dict_get(kwargs, "categorie")
+            ontologische_categorie = None
+            if categorie:
+                # Converteer OntologischeCategorie enum naar string
+                if hasattr(categorie, "value"):
+                    ontologische_categorie = categorie.value
+                else:
+                    ontologische_categorie = str(categorie)
 
-        # Map legacy dictionary to V2 fields and keep legacy string fields populated for compatibility
-        org_list = ensure_list(safe_dict_get(context_dict, "organisatorisch", []))
-        context_text = (
-            ", ".join(org_list) if isinstance(org_list, list) else str(org_list or "")
-        )
-        # EPIC-010: domein field verwijderd - gebruik juridische_context
+            import uuid
 
-        # Collect options (feature flags etc.)
-        opts = ensure_dict(safe_dict_get(kwargs, "options", {}))
+            # Map legacy dictionary to V2 fields and keep legacy string fields populated for compatibility
+            org_list = ensure_list(safe_dict_get(context_dict, "organisatorisch", []))
+            context_text = (
+                ", ".join(org_list)
+                if isinstance(org_list, list)
+                else str(org_list or "")
+            )
+            # EPIC-010: domein field verwijderd - gebruik juridische_context
 
-        # Document context (EPIC-018): compacte samenvatting door UI aangeleverd
-        doc_context = ensure_string(
-            safe_dict_get(kwargs, "document_context", "")
-        ).strip()
+            # Collect options (feature flags etc.)
+            opts = ensure_dict(safe_dict_get(kwargs, "options", {}))
 
-        request = GenerationRequest(
-            id=str(uuid.uuid4()),  # Generate unique ID for tracking
-            begrip=begrip,
-            # CRITICAL FIX: Use the new list fields for V2 context mapping
-            organisatorische_context=org_list,
-            juridische_context=ensure_list(
-                safe_dict_get(context_dict, "juridisch", [])
-            ),
-            wettelijke_basis=ensure_list(safe_dict_get(context_dict, "wettelijk", [])),
-            # Standard fields
-            organisatie=ensure_string(safe_dict_get(kwargs, "organisatie", "")),
-            extra_instructies=extra_instructions,
-            ontologische_categorie=ontologische_categorie,  # Categorie uit 6-stappen protocol
-            ufo_categorie=ensure_string(safe_dict_get(kwargs, "ufo_categorie", ""))
-            or None,
-            actor="legacy_ui",  # Track that this comes from legacy UI
-            legal_basis="legitimate_interest",  # Default legal basis for DPIA compliance
-            # Populate legacy string context for compatibility with tests/UI
-            context=context_text,
-            options=opts or None,
-            document_context=(doc_context or None),
-        )
+            # Document context (EPIC-018): compacte samenvatting door UI aangeleverd
+            doc_context = ensure_string(
+                safe_dict_get(kwargs, "document_context", "")
+            ).strip()
 
-        # Compose additional context (documents/web lookup augmentation, etc.)
-        extra_context: dict[str, Any] = {}
-        # EPIC-018: document snippets meegeven aan orchestrator context
-        doc_snippets_kw = safe_dict_get(kwargs, "document_snippets", None)
-        if doc_snippets_kw:
+            request = GenerationRequest(
+                id=str(uuid.uuid4()),  # Generate unique ID for tracking
+                begrip=begrip,
+                # CRITICAL FIX: Use the new list fields for V2 context mapping
+                organisatorische_context=org_list,
+                juridische_context=ensure_list(
+                    safe_dict_get(context_dict, "juridisch", [])
+                ),
+                wettelijke_basis=ensure_list(
+                    safe_dict_get(context_dict, "wettelijk", [])
+                ),
+                # Standard fields
+                organisatie=ensure_string(safe_dict_get(kwargs, "organisatie", "")),
+                extra_instructies=extra_instructions,
+                ontologische_categorie=ontologische_categorie,  # Categorie uit 6-stappen protocol
+                ufo_categorie=ensure_string(safe_dict_get(kwargs, "ufo_categorie", ""))
+                or None,
+                actor="legacy_ui",  # Track that this comes from legacy UI
+                legal_basis="legitimate_interest",  # Default legal basis for DPIA compliance
+                # Populate legacy string context for compatibility with tests/UI
+                context=context_text,
+                options=opts or None,
+                document_context=(doc_context or None),
+            )
+
+            # Compose additional context (documents/web lookup augmentation, etc.)
+            extra_context: dict[str, Any] = {}
+            # EPIC-018: document snippets meegeven aan orchestrator context
+            doc_snippets_kw = safe_dict_get(kwargs, "document_snippets", None)
+            if doc_snippets_kw:
+                try:
+                    # Ensure list of dicts (gebruik module-level helpers)
+                    snippets_list = [
+                        ensure_dict(x) for x in ensure_list(doc_snippets_kw)
+                    ]
+                    if snippets_list:
+                        extra_context["documents"] = {"snippets": snippets_list}
+                except Exception:
+                    pass
+
+            # Handle V2 orchestrator async call properly
+            response = await self.orchestrator.create_definition(
+                request, context=extra_context or None
+            )
+
+            # Early return for failure case
+            if not response.success or not response.definition:
+                return self._create_failure_response(response)
+
+            # Convert to canonical UI format using normalization
+            ui_response = self.to_ui_response(response, {})
+
+            # Add minimal legacy compatibility fields
+            result_dict = {
+                **ui_response,
+                "success": True,
+                "final_definitie": ui_response[
+                    "definitie_gecorrigeerd"
+                ],  # Legacy alias
+                "marker": ensure_string(
+                    safe_dict_get(response.definition.metadata, "marker", "")
+                ),
+                "validation_score": ui_response["final_score"],  # Legacy alias
+                # Ensure prompt fields are available for debug
+                "prompt_text": ensure_string(
+                    safe_dict_get(ui_response["metadata"], "prompt_text", "")
+                ),
+                "prompt_template": safe_dict_get(
+                    ui_response["metadata"], "prompt_template", ""
+                ),
+            }
+            return result_dict
+        finally:
+            # ALWAYS clear flag after operation (even on error)
             try:
-                # Ensure list of dicts (gebruik module-level helpers)
-                snippets_list = [ensure_dict(x) for x in ensure_list(doc_snippets_kw)]
-                if snippets_list:
-                    extra_context["documents"] = {"snippets": snippets_list}
+                SessionStateManager.set_value("generating_definition", False)
             except Exception:
-                pass
-
-        # Handle V2 orchestrator async call properly
-        response = await self.orchestrator.create_definition(
-            request, context=extra_context or None
-        )
-
-        # Early return for failure case
-        if not response.success or not response.definition:
-            return self._create_failure_response(response)
-
-        # Convert to canonical UI format using normalization
-        ui_response = self.to_ui_response(response, {})
-
-        # Add minimal legacy compatibility fields
-        result_dict = {
-            **ui_response,
-            "success": True,
-            "final_definitie": ui_response["definitie_gecorrigeerd"],  # Legacy alias
-            "marker": ensure_string(
-                safe_dict_get(response.definition.metadata, "marker", "")
-            ),
-            "validation_score": ui_response["final_score"],  # Legacy alias
-            # Ensure prompt fields are available for debug
-            "prompt_text": ensure_string(
-                safe_dict_get(ui_response["metadata"], "prompt_text", "")
-            ),
-            "prompt_template": safe_dict_get(
-                ui_response["metadata"], "prompt_template", ""
-            ),
-        }
-        return result_dict
+                pass  # Soft-fail if session state unavailable
 
     def _create_failure_response(self, response: Any) -> dict:
         """Create a standardized failure response."""
