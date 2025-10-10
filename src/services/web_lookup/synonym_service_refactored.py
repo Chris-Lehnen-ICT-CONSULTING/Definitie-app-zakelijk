@@ -30,7 +30,7 @@ Backward Compatibility:
 import logging
 from typing import Any
 
-from services.synonym_orchestrator import SynonymOrchestrator
+from src.services.synonym_orchestrator import SynonymOrchestrator
 
 logger = logging.getLogger(__name__)
 
@@ -411,7 +411,7 @@ def get_synonym_service(
     if orchestrator is None:
         # Try to get from ServiceContainer
         try:
-            from services.container import ServiceContainer
+            from src.services.container import ServiceContainer
 
             container = ServiceContainer.get_instance()
             orchestrator = container.get_synonym_orchestrator()
@@ -421,9 +421,8 @@ def get_synonym_service(
                 f"Cannot create JuridischeSynoniemService without orchestrator: {e}. "
                 f"Please provide orchestrator parameter or ensure ServiceContainer is initialized."
             )
-            raise ValueError(
-                "orchestrator parameter is required (ServiceContainer not available)"
-            ) from e
+            msg = "orchestrator parameter is required (ServiceContainer not available)"
+            raise ValueError(msg) from e
 
     # Create singleton if needed
     if _singleton is None:
