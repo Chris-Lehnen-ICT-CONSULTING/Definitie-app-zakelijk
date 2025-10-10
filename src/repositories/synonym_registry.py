@@ -15,7 +15,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-from models.synonym_models import SynonymGroup, SynonymGroupMember, WeightedSynonym
+from src.models.synonym_models import SynonymGroup, SynonymGroupMember, WeightedSynonym
 
 logger = logging.getLogger(__name__)
 
