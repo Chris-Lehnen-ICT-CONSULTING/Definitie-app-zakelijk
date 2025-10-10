@@ -535,63 +535,82 @@ class DefinitieRepository:
         Returns:
             ID van nieuw aangemaakte record
         """
-        with self._get_connection() as conn:
-            # Check voor duplicates: permit indien expliciet toegestaan
-            if not allow_duplicate:
-                duplicates = self.find_duplicates(
-                    record.begrip,
-                    record.organisatorische_context,
-                    record.juridische_context or "",
-                    categorie=None,  # categorie is geen onderdeel van duplicate-criteria
-                    wettelijke_basis=(
-                        json.loads(record.wettelijke_basis)
-                        if record.wettelijke_basis
-                        else []
-                    ),
+        # Set database save flag BEFORE operation starts
+        try:
+            from ui.session_state import SessionStateManager
+
+            SessionStateManager.set_value("saving_to_database", True)
+        except Exception:
+            pass  # Soft-fail if session state unavailable (e.g., in tests)
+
+        try:
+            with self._get_connection() as conn:
+                # Check voor duplicates: permit indien expliciet toegestaan
+                if not allow_duplicate:
+                    duplicates = self.find_duplicates(
+                        record.begrip,
+                        record.organisatorische_context,
+                        record.juridische_context or "",
+                        categorie=None,  # categorie is geen onderdeel van duplicate-criteria
+                        wettelijke_basis=(
+                            json.loads(record.wettelijke_basis)
+                            if record.wettelijke_basis
+                            else []
+                        ),
+                    )
+
+                    if duplicates and any(
+                        d.definitie_record.status != DefinitieStatus.ARCHIVED.value
+                        for d in duplicates
+                    ):
+                        msg = f"Definitie voor '{record.begrip}' bestaat al in deze context"
+                        raise ValueError(msg)
+
+                # Set timestamps
+                now = datetime.now(UTC)
+                record.created_at = now
+                record.updated_at = now
+
+                # Insert record - check which columns exist
+                # Ensure NOT NULL columns receive defaults where appropriate
+                wb_value = (
+                    record.wettelijke_basis
+                    if record.wettelijke_basis is not None
+                    else "[]"
                 )
 
-                if duplicates and any(
-                    d.definitie_record.status != DefinitieStatus.ARCHIVED.value
-                    for d in duplicates
-                ):
-                    msg = f"Definitie voor '{record.begrip}' bestaat al in deze context"
-                    raise ValueError(msg)
+                include_legacy = self._has_legacy_columns_in_conn(conn)
+                columns, values = self._build_insert_columns(
+                    record, wb_value, include_legacy
+                )
+                column_sql = ", ".join(columns)
+                placeholders = ", ".join("?" for _ in columns)
 
-            # Set timestamps
-            now = datetime.now(UTC)
-            record.created_at = now
-            record.updated_at = now
+                cursor = conn.execute(
+                    f"INSERT INTO definities ({column_sql}) VALUES ({placeholders})",
+                    tuple(values),
+                )
 
-            # Insert record - check which columns exist
-            # Ensure NOT NULL columns receive defaults where appropriate
-            wb_value = (
-                record.wettelijke_basis if record.wettelijke_basis is not None else "[]"
-            )
+                record_id = cursor.lastrowid
 
-            include_legacy = self._has_legacy_columns_in_conn(conn)
-            columns, values = self._build_insert_columns(
-                record, wb_value, include_legacy
-            )
-            column_sql = ", ".join(columns)
-            placeholders = ", ".join("?" for _ in columns)
+                # Log creation
+                self._log_geschiedenis(
+                    record_id,
+                    "created",
+                    record.created_by,
+                    f"Nieuwe definitie aangemaakt voor '{record.begrip}'",
+                )
 
-            cursor = conn.execute(
-                f"INSERT INTO definities ({column_sql}) VALUES ({placeholders})",
-                tuple(values),
-            )
+                logger.info(f"Created definitie {record_id} voor '{record.begrip}'")
+                return record_id
+        finally:
+            # ALWAYS clear flag after operation (even on error)
+            try:
+                from ui.session_state import SessionStateManager
 
-            record_id = cursor.lastrowid
-
-            # Log creation
-            self._log_geschiedenis(
-                record_id,
-                "created",
-                record.created_by,
-                f"Nieuwe definitie aangemaakt voor '{record.begrip}'",
-            )
-
-            logger.info(f"Created definitie {record_id} voor '{record.begrip}'")
-            return record_id
+                SessionStateManager.set_value("saving_to_database", False)
+            except Exception:
+                pass  # Soft-fail if session state unavailable
 
     def get_definitie(self, definitie_id: int) -> DefinitieRecord | None:
         """
@@ -1972,20 +1991,48 @@ class DefinitieRepository:
                             f"Reactivated synonym '{syn_normalized}' for definitie {definitie_id}"
                         )
                 else:
-                    # Add new synonym
-                    registry.add_group_member(
+                    # Check if term exists in ANY group (prevents cross-definitie duplicates)
+                    # FIX: Query ALL members for this term across all groups to detect duplicates
+                    all_members_for_term = registry.get_group_members(
                         group_id=group.id,
-                        term=syn_normalized,
-                        weight=1.0,  # Manual = high confidence
-                        status="active",
-                        source="manual",
-                        definitie_id=definitie_id,  # SCOPED!
-                        created_by=edited_by,
+                        filters={"source": "manual"},  # Only check manual entries
                     )
-                    added_count += 1
-                    logger.debug(
-                        f"Added manual synonym '{syn_normalized}' for definitie {definitie_id}"
+                    term_exists_in_group = any(
+                        m.term == syn_normalized for m in all_members_for_term
                     )
+
+                    if term_exists_in_group:
+                        # Term already exists in group but not in our scoped query
+                        # Log warning and skip (prevents duplicate error)
+                        logger.warning(
+                            f"Synonym '{syn_normalized}' already exists in group {group.id}, "
+                            f"skipping duplicate add for definitie {definitie_id}"
+                        )
+                        continue
+
+                    # Add new synonym (safe now - no duplicates)
+                    try:
+                        registry.add_group_member(
+                            group_id=group.id,
+                            term=syn_normalized,
+                            weight=1.0,  # Manual = high confidence
+                            status="active",
+                            source="manual",
+                            definitie_id=definitie_id,  # SCOPED!
+                            created_by=edited_by,
+                        )
+                        added_count += 1
+                        logger.debug(
+                            f"Added manual synonym '{syn_normalized}' for definitie {definitie_id}"
+                        )
+                    except ValueError as e:
+                        # Handle residual duplicate errors gracefully
+                        if "bestaat al" in str(e):
+                            logger.warning(
+                                f"Duplicate synonym '{syn_normalized}' detected during add: {e}"
+                            )
+                        else:
+                            raise
 
             # Deprecate removed (NOT in validated input)
             for term, member in existing_terms.items():

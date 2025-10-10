@@ -44,7 +44,7 @@ def get_cached_container() -> ServiceContainer:
     Returns:
         Singleton ServiceContainer instance
     """
-    logger.info("🚀 Initialiseer ServiceContainer (gebeurt 1x per sessie)")
+    logger.info("🚀 Creating singleton ServiceContainer (cache miss - first request)")
 
     # Bepaal environment configuratie
     env = os.getenv("APP_ENV", "production")
@@ -65,7 +65,11 @@ def get_cached_container() -> ServiceContainer:
     container = ServiceContainer(config)
 
     # Verificatie log dat services maar 1x worden aangemaakt
-    logger.info("✅ ServiceContainer succesvol geïnitialiseerd en gecached")
+    # Log container ID voor debugging van duplicate containers
+    container_id = container.get_container_id()
+    logger.info(
+        f"✅ ServiceContainer succesvol geïnitialiseerd en gecached (ID: {container_id})"
+    )
 
     return container
 

@@ -69,13 +69,21 @@ class ServiceContainer:
         self._initialization_count = 0  # Track init count voor debugging
         self._load_configuration()
         self._initialization_count += 1
+
+        # US-202: Add unique container ID for tracking multiple instances
+        import uuid
+
+        self._container_id = str(uuid.uuid4())[:8]
+
         # Use structured logging with extra fields (backward compatible)
         logger.info(
-            "ServiceContainer geïnitialiseerd",
+            "ServiceContainer instance initialized (lazy service loading will occur on first access)",
             extra={
                 "component": "service_container",
+                "container_id": self._container_id,
                 "init_count": self._initialization_count,
                 "environment": self.config.get("environment", "unknown"),
+                "db_path": self.db_path,
             },
         )
 
@@ -739,6 +747,15 @@ class ServiceContainer:
             Aantal initialisaties (voor debugging van caching issues)
         """
         return getattr(self, "_initialization_count", 1)
+
+    def get_container_id(self) -> str:
+        """
+        Get het unieke ID van deze container instance.
+
+        Returns:
+            Container ID (8-char UUID voor debugging van duplicate containers)
+        """
+        return getattr(self, "_container_id", "UNKNOWN")
 
     def update_config(self, config: dict[str, Any]):
         """

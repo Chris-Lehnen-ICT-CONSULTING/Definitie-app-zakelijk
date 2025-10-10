@@ -76,6 +76,14 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
             else str(uuid.uuid4())
         )
 
+        # Set validation flag BEFORE operation starts
+        try:
+            from ui.session_state import SessionStateManager
+
+            SessionStateManager.set_value("validating_definition", True)
+        except Exception:
+            pass  # Soft-fail if session state unavailable (e.g., in tests)
+
         try:
             cleaned_text = text
             if self.cleaning_service is not None:
@@ -116,6 +124,14 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
             return create_degraded_result(
                 error=str(e), correlation_id=correlation_id, begrip=begrip
             )
+        finally:
+            # ALWAYS clear flag after operation (even on error)
+            try:
+                from ui.session_state import SessionStateManager
+
+                SessionStateManager.set_value("validating_definition", False)
+            except Exception:
+                pass  # Soft-fail if session state unavailable
 
     async def validate_definition(
         self,
@@ -137,6 +153,14 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
             if context and context.correlation_id
             else str(uuid.uuid4())
         )
+
+        # Set validation flag BEFORE operation starts
+        try:
+            from ui.session_state import SessionStateManager
+
+            SessionStateManager.set_value("validating_definition", True)
+        except Exception:
+            pass  # Soft-fail if session state unavailable (e.g., in tests)
 
         try:
             text = definition.definitie
@@ -175,6 +199,14 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
             return create_degraded_result(
                 error=str(e), correlation_id=correlation_id, begrip=definition.begrip
             )
+        finally:
+            # ALWAYS clear flag after operation (even on error)
+            try:
+                from ui.session_state import SessionStateManager
+
+                SessionStateManager.set_value("validating_definition", False)
+            except Exception:
+                pass  # Soft-fail if session state unavailable
 
     async def batch_validate(
         self, items: Iterable[ValidationRequest], max_concurrency: int = 1

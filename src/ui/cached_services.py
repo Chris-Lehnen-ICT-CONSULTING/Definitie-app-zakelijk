@@ -50,9 +50,8 @@ def initialize_services_once():
         logger.info("📦 Initializing service container in session state")
 
         # Gebruik de gecachte container
-        SessionStateManager.set_value(
-            "service_container", get_cached_service_container()
-        )
+        container = get_cached_service_container()
+        SessionStateManager.set_value("service_container", container)
 
         # Track initialization stats
         if SessionStateManager.get_value("service_init_count") is None:
@@ -60,12 +59,18 @@ def initialize_services_once():
         current_count = SessionStateManager.get_value("service_init_count")
         SessionStateManager.set_value("service_init_count", current_count + 1)
 
+        # US-202: Log container ID for duplicate detection
+        container_id = container.get_container_id()
         logger.info(
-            f"✅ Services initialized (count: {SessionStateManager.get_value('service_init_count')})"
+            f"✅ Services initialized (count: {SessionStateManager.get_value('service_init_count')}, container_id: {container_id})"
         )
     else:
         # Container bestaat al, log alleen als debug
-        logger.debug("Service container already exists in session state")
+        container = SessionStateManager.get_value("service_container")
+        container_id = container.get_container_id() if container else "UNKNOWN"
+        logger.debug(
+            f"Service container already exists in session state (ID: {container_id})"
+        )
 
 
 def get_service(service_name: str):
