@@ -9,8 +9,7 @@ from datetime import UTC, datetime, timezone
 
 import pytest
 
-from services.workflow_service import (DefinitionStatus, StatusChange,
-                                       WorkflowService)
+from services.workflow_service import DefinitionStatus, StatusChange, WorkflowService
 
 
 class TestWorkflowService:

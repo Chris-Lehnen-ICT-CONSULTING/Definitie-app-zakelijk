@@ -84,7 +84,9 @@ class TestASTRACompliance:
         # THEN: Should exist
         try:
             from services.validation.astra_validator import (
-                ASTRA_ORGANIZATIONS, validate_organization)
+                ASTRA_ORGANIZATIONS,
+                validate_organization,
+            )
 
             # Check it has expected organizations
             assert "OM" in ASTRA_ORGANIZATIONS

@@ -10,10 +10,14 @@ from unittest.mock import Mock, patch
 import pytest
 
 from src.services.classification.ontology_classifier import (
-    ClassificationResult, OntologyClassifierService)
+    ClassificationResult,
+    OntologyClassifierService,
+)
 from src.services.classification.ontology_validator import OntologyValidator
 from src.ui.components.ontology_classification_display import (
-    OntologyClassificationDisplay, display_ontology_classification)
+    OntologyClassificationDisplay,
+    display_ontology_classification,
+)
 
 
 @pytest.fixture()

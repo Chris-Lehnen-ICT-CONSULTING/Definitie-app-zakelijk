@@ -22,10 +22,18 @@ from unittest.mock import MagicMock
 import pytest
 
 from src.services.web_lookup.juridisch_ranker import (
-    ARTIKEL_PATTERN, JURIDISCHE_DOMEINEN, JURIDISCHE_KEYWORDS, LID_PATTERN,
-    boost_juridische_resultaten, calculate_juridische_boost,
-    contains_artikel_referentie, contains_lid_referentie,
-    count_juridische_keywords, get_juridische_score, is_juridische_bron)
+    ARTIKEL_PATTERN,
+    JURIDISCHE_DOMEINEN,
+    JURIDISCHE_KEYWORDS,
+    LID_PATTERN,
+    boost_juridische_resultaten,
+    calculate_juridische_boost,
+    contains_artikel_referentie,
+    contains_lid_referentie,
+    count_juridische_keywords,
+    get_juridische_score,
+    is_juridische_bron,
+)
 
 
 class TestIsJuridischeBron:

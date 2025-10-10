@@ -475,8 +475,7 @@ class WorkflowService:
             if definition_id:
                 # Delegeer naar CategoryService voor database update
                 # Dit is waar we normaal dependency injection zouden gebruiken
-                from database.definitie_repository import \
-                    get_definitie_repository
+                from database.definitie_repository import get_definitie_repository
                 from services.category_service import CategoryService
 
                 repo = get_definitie_repository()
@@ -515,10 +514,8 @@ class WorkflowService:
             preview_data = None
             if requires_regeneration:
                 # Gebruik DataAggregationService voor clean state management
-                from database.definitie_repository import \
-                    get_definitie_repository
-                from services.data_aggregation_service import \
-                    DataAggregationService
+                from database.definitie_repository import get_definitie_repository
+                from services.data_aggregation_service import DataAggregationService
 
                 data_service = DataAggregationService(get_definitie_repository())
 

@@ -15,8 +15,10 @@ from pathlib import Path
 from typing import Any
 
 from database.definitie_repository import DefinitieRecord, DefinitieRepository
-from services.data_aggregation_service import (DataAggregationService,
-                                               DefinitieExportData)
+from services.data_aggregation_service import (
+    DataAggregationService,
+    DefinitieExportData,
+)
 
 logger = logging.getLogger(__name__)
 

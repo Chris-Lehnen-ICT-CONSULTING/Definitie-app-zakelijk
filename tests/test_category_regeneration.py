@@ -5,8 +5,7 @@ from unittest.mock import MagicMock, Mock, patch
 import pytest
 import streamlit as st
 
-from src.ui.components.category_regeneration_helper import \
-    CategoryRegenerationHelper
+from src.ui.components.category_regeneration_helper import CategoryRegenerationHelper
 from src.ui.components.definition_generator_tab import DefinitionGeneratorTab
 
 

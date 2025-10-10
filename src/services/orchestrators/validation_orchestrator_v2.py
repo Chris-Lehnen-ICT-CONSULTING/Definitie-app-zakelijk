@@ -11,14 +11,18 @@ import logging
 import uuid
 from collections.abc import Iterable
 
-from services.interfaces import (CleaningServiceInterface, Definition,
-                                 ValidationServiceInterface)
-from services.validation.interfaces import (ValidationContext,
-                                            ValidationOrchestratorInterface,
-                                            ValidationRequest,
-                                            ValidationResult)
-from services.validation.mappers import (create_degraded_result,
-                                         ensure_schema_compliance)
+from services.interfaces import (
+    CleaningServiceInterface,
+    Definition,
+    ValidationServiceInterface,
+)
+from services.validation.interfaces import (
+    ValidationContext,
+    ValidationOrchestratorInterface,
+    ValidationRequest,
+    ValidationResult,
+)
+from services.validation.mappers import create_degraded_result, ensure_schema_compliance
 
 logger = logging.getLogger(__name__)
 

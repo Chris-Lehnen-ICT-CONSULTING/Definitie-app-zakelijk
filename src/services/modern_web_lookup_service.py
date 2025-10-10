@@ -10,15 +10,19 @@ import logging
 from dataclasses import dataclass
 from typing import Any
 
-from .interfaces import (JuridicalReference, LookupRequest, LookupResult,
-                         WebLookupServiceInterface, WebSource)
+from .interfaces import (
+    JuridicalReference,
+    LookupRequest,
+    LookupResult,
+    WebLookupServiceInterface,
+    WebSource,
+)
 
 logger = logging.getLogger(__name__)
 
 # Domein imports met error handling voor development
 try:
-    from domain.autoriteit.betrouwbaarheid import (BetrouwbaarheidsCalculator,
-                                                   BronType)
+    from domain.autoriteit.betrouwbaarheid import BetrouwbaarheidsCalculator, BronType
 
     DOMAIN_AVAILABLE = True
 except ImportError:
@@ -288,8 +292,7 @@ class ModernWebLookupService(WebLookupServiceInterface):
             # Boost juridische content VOOR ranking
             # zodat confidence boost wordt meegenomen
             try:
-                from .web_lookup.juridisch_ranker import \
-                    boost_juridische_resultaten
+                from .web_lookup.juridisch_ranker import boost_juridische_resultaten
 
                 # Extract context tokens voor juridische ranking
                 context_tokens = None
@@ -818,8 +821,7 @@ class ModernWebLookupService(WebLookupServiceInterface):
         }
         try:
             if "rechtspraak" in source.name.lower():
-                from .web_lookup.rechtspraak_rest_service import \
-                    rechtspraak_lookup
+                from .web_lookup.rechtspraak_rest_service import rechtspraak_lookup
 
                 res = await asyncio.wait_for(
                     rechtspraak_lookup(term),

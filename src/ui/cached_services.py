@@ -12,8 +12,7 @@ import logging
 from typing import Any
 
 from ui.session_state import SessionStateManager
-from utils.container_manager import \
-    clear_container_cache as clear_manager_cache
+from utils.container_manager import clear_container_cache as clear_manager_cache
 from utils.container_manager import get_cached_container
 
 logger = logging.getLogger(__name__)

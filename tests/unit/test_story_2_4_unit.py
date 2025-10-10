@@ -18,13 +18,14 @@ from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
 
-from services.orchestrators.validation_orchestrator_v2 import \
-    ValidationOrchestratorV2
-from services.validation.interfaces import (CONTRACT_VERSION,
-                                            ValidationContext,
-                                            ValidationOrchestratorInterface,
-                                            ValidationRequest,
-                                            ValidationResult)
+from services.orchestrators.validation_orchestrator_v2 import ValidationOrchestratorV2
+from services.validation.interfaces import (
+    CONTRACT_VERSION,
+    ValidationContext,
+    ValidationOrchestratorInterface,
+    ValidationRequest,
+    ValidationResult,
+)
 
 
 class TestValidationOrchestratorV2Unit:

@@ -11,11 +11,17 @@ import pytest
 # Voeg src toe aan path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
-from services.container import (ContainerConfigs, ServiceContainer,
-                                get_container, reset_container)
-from services.interfaces import (DefinitionGeneratorInterface,
-                                 DefinitionOrchestratorInterface,
-                                 DefinitionRepositoryInterface)
+from services.container import (
+    ContainerConfigs,
+    ServiceContainer,
+    get_container,
+    reset_container,
+)
+from services.interfaces import (
+    DefinitionGeneratorInterface,
+    DefinitionOrchestratorInterface,
+    DefinitionRepositoryInterface,
+)
 
 
 class TestServiceContainer:

@@ -7,9 +7,11 @@ import threading
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-from src.services.ufo_classifier_service import (UFOClassifierService,
-                                                 create_ufo_classifier_service,
-                                                 get_ufo_classifier)
+from src.services.ufo_classifier_service import (
+    UFOClassifierService,
+    create_ufo_classifier_service,
+    get_ufo_classifier,
+)
 
 
 def test_singleton_thread_safety():

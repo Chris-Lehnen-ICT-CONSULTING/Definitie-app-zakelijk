@@ -12,9 +12,12 @@ UTC = UTC  # Python 3.10 compatibility
 from typing import Any
 
 from services.interfaces import ValidationResult as DataclassResult
-from services.validation.interfaces import (CONTRACT_VERSION,
-                                            ImprovementSuggestion,
-                                            RuleViolation, SystemMetadata)
+from services.validation.interfaces import (
+    CONTRACT_VERSION,
+    ImprovementSuggestion,
+    RuleViolation,
+    SystemMetadata,
+)
 from services.validation.interfaces import ValidationResult as TypedDictResult
 from services.validation.interfaces import ViolationLocation
 

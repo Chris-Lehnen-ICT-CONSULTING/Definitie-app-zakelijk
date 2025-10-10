@@ -13,9 +13,11 @@ import psutil
 import pytest
 
 # Import the classifier (adjust path as needed)
-from src.services.ufo_classifier_service import (DutchLegalLexicon,
-                                                 UFOCategory,
-                                                 UFOClassifierService)
+from src.services.ufo_classifier_service import (
+    DutchLegalLexicon,
+    UFOCategory,
+    UFOClassifierService,
+)
 
 
 class TestEdgeCasesEmptyAndWhitespace:

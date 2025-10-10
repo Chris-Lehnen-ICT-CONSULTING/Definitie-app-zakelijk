@@ -13,10 +13,15 @@ import pytest
 @pytest.mark.integration()
 @pytest.mark.asyncio()
 async def test_enhancement_applied_leads_to_successful_validation_and_save():
-    from services.interfaces import (AIGenerationResult, CleaningResult,
-                                     GenerationRequest, OrchestratorConfig)
-    from services.orchestrators.definition_orchestrator_v2 import \
-        DefinitionOrchestratorV2
+    from services.interfaces import (
+        AIGenerationResult,
+        CleaningResult,
+        GenerationRequest,
+        OrchestratorConfig,
+    )
+    from services.orchestrators.definition_orchestrator_v2 import (
+        DefinitionOrchestratorV2,
+    )
 
     prompt_service = AsyncMock()
     ai_service = AsyncMock()

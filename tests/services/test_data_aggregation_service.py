@@ -8,8 +8,10 @@ from unittest.mock import MagicMock, Mock
 import pytest
 
 from database.definitie_repository import DefinitieRecord, DefinitieRepository
-from services.data_aggregation_service import (DataAggregationService,
-                                               DefinitieExportData)
+from services.data_aggregation_service import (
+    DataAggregationService,
+    DefinitieExportData,
+)
 
 
 class TestDataAggregationService:

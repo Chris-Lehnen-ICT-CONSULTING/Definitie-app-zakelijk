@@ -16,7 +16,10 @@ import logging
 
 from services.classification import ClassificationResult, OntologicalClassifier
 from services.orchestrators.definition_orchestrator_v2 import (
-    DefinitionOrchestratorV2, GenerationRequest, GenerationResponse)
+    DefinitionOrchestratorV2,
+    GenerationRequest,
+    GenerationResponse,
+)
 
 logger = logging.getLogger(__name__)
 

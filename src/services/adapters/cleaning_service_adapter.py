@@ -9,8 +9,7 @@ from __future__ import annotations
 
 import asyncio
 
-from services.interfaces import (CleaningResult, CleaningServiceInterface,
-                                 Definition)
+from services.interfaces import CleaningResult, CleaningServiceInterface, Definition
 
 
 class CleaningServiceAdapterV1toV2(CleaningServiceInterface):

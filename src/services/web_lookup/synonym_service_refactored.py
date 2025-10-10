@@ -30,7 +30,7 @@ Backward Compatibility:
 import logging
 from typing import Any
 
-from src.services.synonym_orchestrator import SynonymOrchestrator
+from services.synonym_orchestrator import SynonymOrchestrator
 
 logger = logging.getLogger(__name__)
 
@@ -411,7 +411,7 @@ def get_synonym_service(
     if orchestrator is None:
         # Try to get from ServiceContainer
         try:
-            from src.services.container import ServiceContainer
+            from services.container import ServiceContainer
 
             container = ServiceContainer.get_instance()
             orchestrator = container.get_synonym_orchestrator()

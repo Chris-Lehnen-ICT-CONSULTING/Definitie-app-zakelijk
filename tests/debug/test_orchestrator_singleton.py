@@ -21,8 +21,10 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
 
-from services.prompts.modular_prompt_adapter import (ModularPromptAdapter,
-                                                     get_cached_orchestrator)
+from services.prompts.modular_prompt_adapter import (
+    ModularPromptAdapter,
+    get_cached_orchestrator,
+)
 
 print("\n" + "=" * 80)
 print("TEST: PromptOrchestrator Singleton Caching")

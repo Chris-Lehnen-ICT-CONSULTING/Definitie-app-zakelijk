@@ -11,13 +11,20 @@ from unittest.mock import AsyncMock, MagicMock, Mock
 
 import pytest
 
-from src.services.interfaces import (AIGenerationResult, CleaningResult,
-                                     Definition, DefinitionResponseV2,
-                                     GenerationRequest, OrchestratorConfig,
-                                     PromptResult, ValidationResult,
-                                     ValidationViolation)
-from src.services.orchestrators.definition_orchestrator_v2 import \
-    DefinitionOrchestratorV2
+from src.services.interfaces import (
+    AIGenerationResult,
+    CleaningResult,
+    Definition,
+    DefinitionResponseV2,
+    GenerationRequest,
+    OrchestratorConfig,
+    PromptResult,
+    ValidationResult,
+    ValidationViolation,
+)
+from src.services.orchestrators.definition_orchestrator_v2 import (
+    DefinitionOrchestratorV2,
+)
 
 
 @pytest.fixture()

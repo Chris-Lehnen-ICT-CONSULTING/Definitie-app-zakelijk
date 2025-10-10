@@ -13,9 +13,11 @@ import tempfile
 
 import pytest
 
-from src.database.definitie_repository import (DefinitieRecord,
-                                               DefinitieRepository,
-                                               VoorbeeldenRecord)
+from src.database.definitie_repository import (
+    DefinitieRecord,
+    DefinitieRepository,
+    VoorbeeldenRecord,
+)
 
 
 @pytest.fixture()

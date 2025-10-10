@@ -12,10 +12,12 @@ en Python validators voor maximale flexibiliteit en onderhoudbaarheid.
 
 # Importeer van nieuwe modulaire architectuur
 from .modular_toetser import (  # Modulaire toetser implementatie
-    ModularToetser, toets_definitie)
+    ModularToetser,
+    toets_definitie,
+)
+
 # Importeer hoofdklasse voor AI toetsing functionaliteit
-from .toetser import \
-    Toetser  # OO-wrapper klasse voor verboden woorden toetsing
+from .toetser import Toetser  # OO-wrapper klasse voor verboden woorden toetsing
 
 # Exporteer publieke interface - alle toetsing componenten
 __all__ = [
