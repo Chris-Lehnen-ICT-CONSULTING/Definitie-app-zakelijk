@@ -9,8 +9,7 @@ import pytest
 
 sys.path.insert(0, "src")
 
-from utils.integrated_resilience import (get_integrated_system,
-                                         with_full_resilience)
+from utils.integrated_resilience import get_integrated_system, with_full_resilience
 from utils.smart_rate_limiter import RequestPriority
 
 pytestmark = [pytest.mark.performance, pytest.mark.integration, pytest.mark.slow]

@@ -17,8 +17,12 @@ from .config_manager import CacheConfig as _CacheCfg
 from .config_manager import ConfigSection
 from .config_manager import PathsConfig as _PathsCfg
 from .config_manager import ValidationConfig as _ValCfg
-from .config_manager import (get_config, get_config_manager, get_default_model,
-                             get_default_temperature)
+from .config_manager import (
+    get_config,
+    get_config_manager,
+    get_default_model,
+    get_default_temperature,
+)
 
 
 class APIConfigAdapter:

@@ -29,11 +29,13 @@ from unittest.mock import MagicMock, Mock, mock_open, patch
 import pytest
 import yaml
 
-from src.services.ufo_classifier_service import (UFOCategory,
-                                                 UFOClassificationResult,
-                                                 UFOClassifierService,
-                                                 create_ufo_classifier_service,
-                                                 get_ufo_classifier)
+from src.services.ufo_classifier_service import (
+    UFOCategory,
+    UFOClassificationResult,
+    UFOClassifierService,
+    create_ufo_classifier_service,
+    get_ufo_classifier,
+)
 
 
 class TestUFOCategory:

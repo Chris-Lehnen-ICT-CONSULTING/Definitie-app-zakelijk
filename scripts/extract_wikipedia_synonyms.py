@@ -43,7 +43,9 @@ except ImportError:
     print("Warning: tqdm niet geïnstalleerd (geen progress bar). Run: pip install tqdm")
 
 from services.web_lookup.wikipedia_synonym_extractor import (
-    SynonymCandidate, WikipediaSynonymExtractor)
+    SynonymCandidate,
+    WikipediaSynonymExtractor,
+)
 
 # Configure logging
 logging.basicConfig(

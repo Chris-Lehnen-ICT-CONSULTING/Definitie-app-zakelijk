@@ -13,10 +13,15 @@ import pytest
 @pytest.mark.integration()
 @pytest.mark.asyncio()
 async def test_orchestrator_failure_flow_with_enhancement_and_feedback():
-    from services.interfaces import (AIGenerationResult, CleaningResult,
-                                     GenerationRequest, OrchestratorConfig)
-    from services.orchestrators.definition_orchestrator_v2 import \
-        DefinitionOrchestratorV2
+    from services.interfaces import (
+        AIGenerationResult,
+        CleaningResult,
+        GenerationRequest,
+        OrchestratorConfig,
+    )
+    from services.orchestrators.definition_orchestrator_v2 import (
+        DefinitionOrchestratorV2,
+    )
 
     # Mocks for services
     prompt_service = AsyncMock()

@@ -25,7 +25,9 @@ import pytest
 
 from src.models.synonym_models import WeightedSynonym
 from src.services.web_lookup.synonym_service_refactored import (
-    JuridischeSynoniemService, get_synonym_service)
+    JuridischeSynoniemService,
+    get_synonym_service,
+)
 
 
 class TestJuridischeSynoniemServiceFacade:

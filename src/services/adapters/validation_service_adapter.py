@@ -10,8 +10,7 @@ from __future__ import annotations
 import asyncio
 from typing import Any
 
-from services.interfaces import (Definition, ValidationResult,
-                                 ValidationServiceInterface)
+from services.interfaces import Definition, ValidationResult, ValidationServiceInterface
 
 
 class ValidationServiceAdapterV1toV2(ValidationServiceInterface):

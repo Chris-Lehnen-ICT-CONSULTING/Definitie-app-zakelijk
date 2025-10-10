@@ -4,8 +4,7 @@ import types
 
 import pytest
 
-from services.policies.approval_gate_policy import (DEFAULT_POLICY,
-                                                    GatePolicyService)
+from services.policies.approval_gate_policy import DEFAULT_POLICY, GatePolicyService
 
 
 class _StubYAML:

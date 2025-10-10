@@ -3,10 +3,12 @@
 import sqlite3
 from pathlib import Path
 
-from database.migrate_database import (_create_definitie_voorbeelden_table,
-                                       _create_definities_table,
-                                       _ensure_definitie_voorbeelden_indexes,
-                                       _ensure_definities_indexes)
+from database.migrate_database import (
+    _create_definitie_voorbeelden_table,
+    _create_definities_table,
+    _ensure_definitie_voorbeelden_indexes,
+    _ensure_definities_indexes,
+)
 
 
 def _get_columns(conn: sqlite3.Connection, table: str) -> list[str]:

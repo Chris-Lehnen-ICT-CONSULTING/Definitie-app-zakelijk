@@ -16,7 +16,10 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 
 from services.web_lookup.wikipedia_synonym_extractor import (
-    SynonymCandidate, WikipediaSynonymExtractor, extract_wikipedia_synonyms)
+    SynonymCandidate,
+    WikipediaSynonymExtractor,
+    extract_wikipedia_synonyms,
+)
 
 
 @pytest.fixture()

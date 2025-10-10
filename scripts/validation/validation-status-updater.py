@@ -37,8 +37,9 @@ class ValidationStatusChecker:
         """Test de ModularValidationService."""
         try:
             from services.validation.config import ValidationConfig
-            from services.validation.modular_validation_service import \
-                ModularValidationService
+            from services.validation.modular_validation_service import (
+                ModularValidationService,
+            )
 
             # Test configuratie laden
             config_path = Path("src/config/validation_rules.yaml")

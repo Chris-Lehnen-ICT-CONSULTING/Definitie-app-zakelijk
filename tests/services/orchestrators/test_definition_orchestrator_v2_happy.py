@@ -15,10 +15,15 @@ import pytest
 @pytest.mark.integration()
 @pytest.mark.asyncio()
 async def test_orchestrator_happy_path_minimal():
-    from services.interfaces import (AIGenerationResult, CleaningResult,
-                                     Definition, GenerationRequest)
-    from services.orchestrators.definition_orchestrator_v2 import \
-        DefinitionOrchestratorV2
+    from services.interfaces import (
+        AIGenerationResult,
+        CleaningResult,
+        Definition,
+        GenerationRequest,
+    )
+    from services.orchestrators.definition_orchestrator_v2 import (
+        DefinitionOrchestratorV2,
+    )
 
     # Mocks for services
     prompt_service = AsyncMock()

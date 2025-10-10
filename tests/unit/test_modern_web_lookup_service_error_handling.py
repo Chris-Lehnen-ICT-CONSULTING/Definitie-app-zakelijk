@@ -3,8 +3,7 @@
 import pytest
 
 from services.interfaces import LookupRequest, LookupResult, WebSource
-from services.modern_web_lookup_service import (ModernWebLookupService,
-                                                SourceConfig)
+from services.modern_web_lookup_service import ModernWebLookupService, SourceConfig
 
 
 class _BadMeta(dict):

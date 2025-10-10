@@ -18,13 +18,14 @@ from unittest.mock import MagicMock
 import pytest
 
 from src.database.definitie_repository import DefinitieRecord
-from src.services.definition_repository import \
-    DefinitionRepository  # Use services repository
+from src.services.definition_repository import (
+    DefinitionRepository,  # Use services repository
+)
 from src.services.interfaces import Definition, GenerationRequest
-from src.services.orchestrators.definition_orchestrator_v2 import \
-    DefinitionOrchestratorV2
-from src.services.synonym_orchestrator import (SynonymOrchestrator,
-                                               WeightedSynonym)
+from src.services.orchestrators.definition_orchestrator_v2 import (
+    DefinitionOrchestratorV2,
+)
+from src.services.synonym_orchestrator import SynonymOrchestrator, WeightedSynonym
 
 logger = logging.getLogger(__name__)
 

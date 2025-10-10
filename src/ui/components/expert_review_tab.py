@@ -7,9 +7,11 @@ from datetime import datetime
 import streamlit as st
 
 from config.config_manager import ConfigSection, get_config
-from database.definitie_repository import (DefinitieRecord,
-                                           DefinitieRepository,
-                                           DefinitieStatus)
+from database.definitie_repository import (
+    DefinitieRecord,
+    DefinitieRepository,
+    DefinitieStatus,
+)
 from ui.session_state import SessionStateManager
 
 
@@ -894,8 +896,9 @@ class ExpertReviewTab:
                     SessionStateManager.set_value(vkey, v2)
 
             if v2:
-                from ui.components.validation_view import \
-                    render_validation_detailed_list
+                from ui.components.validation_view import (
+                    render_validation_detailed_list,
+                )
 
                 st.markdown("#### ✅ Kwaliteitstoetsing")
                 render_validation_detailed_list(

@@ -2,8 +2,7 @@ import asyncio
 
 import pytest
 
-from services.adapters.cleaning_service_adapter import \
-    CleaningServiceAdapterV1toV2
+from services.adapters.cleaning_service_adapter import CleaningServiceAdapterV1toV2
 from services.interfaces import CleaningResult, Definition
 
 

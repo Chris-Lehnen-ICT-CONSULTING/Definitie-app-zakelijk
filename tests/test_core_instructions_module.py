@@ -14,8 +14,10 @@ import pytest
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from src.services.definition_generator_context import EnrichedContext
-from src.services.prompts.modular_prompt_builder import (ModularPromptBuilder,
-                                                         PromptComponentConfig)
+from src.services.prompts.modular_prompt_builder import (
+    ModularPromptBuilder,
+    PromptComponentConfig,
+)
 
 
 class TestCoreInstructionsModule:

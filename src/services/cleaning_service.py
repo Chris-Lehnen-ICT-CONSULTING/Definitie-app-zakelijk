@@ -12,8 +12,7 @@ from datetime import UTC, datetime
 UTC = UTC  # Python 3.10 compatibility
 
 from opschoning.opschoning_enhanced import opschonen_enhanced
-from services.interfaces import (CleaningResult, CleaningServiceInterface,
-                                 Definition)
+from services.interfaces import CleaningResult, CleaningServiceInterface, Definition
 
 logger = logging.getLogger(__name__)
 

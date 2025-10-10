@@ -8,10 +8,13 @@ Target: 95% precisie validatie
 import pytest
 
 # Assume imports from the actual implementation
-from src.services.ufo_classifier_service import (DutchLegalLexicon,
-                                                 PatternMatcher, UFOCategory,
-                                                 UFOClassificationResult,
-                                                 UFOClassifierService)
+from src.services.ufo_classifier_service import (
+    DutchLegalLexicon,
+    PatternMatcher,
+    UFOCategory,
+    UFOClassificationResult,
+    UFOClassifierService,
+)
 
 
 class TestUFOClassifierCorrectness:
@@ -655,8 +658,7 @@ class TestIntegration:
 
     def test_service_container_integration(self):
         """Test integratie met ServiceContainer pattern."""
-        from src.services.ufo_classifier_service import \
-            create_ufo_classifier_service
+        from src.services.ufo_classifier_service import create_ufo_classifier_service
 
         # Test factory functie
         service = create_ufo_classifier_service()

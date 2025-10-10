@@ -13,12 +13,16 @@ import yaml
 # Add scripts directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "scripts"))
 
-from validate_synonyms import (Colors, load_yaml_file, normalize_term,
-                               validate_circular_references,
-                               validate_cross_contamination,
-                               validate_duplicates_within_hoofdterm,
-                               validate_empty_lists,
-                               validate_normalization_consistency)
+from validate_synonyms import (
+    Colors,
+    load_yaml_file,
+    normalize_term,
+    validate_circular_references,
+    validate_cross_contamination,
+    validate_duplicates_within_hoofdterm,
+    validate_empty_lists,
+    validate_normalization_consistency,
+)
 
 
 @pytest.fixture()

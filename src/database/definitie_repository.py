@@ -10,15 +10,17 @@ import json  # JSON encoding en decoding voor metadata opslag
 import logging  # Logging functionaliteit voor debug en monitoring
 import sqlite3  # SQLite database interface voor lokale database opslag
 from dataclasses import (  # Dataclass decorators voor gestructureerde data
-    asdict, dataclass)
-from datetime import (UTC,  # Datum en tijd functionaliteit voor timestamps
-                      datetime)
+    asdict,
+    dataclass,
+)
+from datetime import UTC, datetime  # Datum en tijd functionaliteit voor timestamps
 from enum import Enum  # Enumeratie types voor constante waarden
 from pathlib import Path  # Object-georiënteerde pad manipulatie
 from typing import Any  # Type hints voor betere code documentatie
 
-from domain.ontological_categories import \
-    OntologischeCategorie  # Import ontologische categorieën voor classificatie
+from domain.ontological_categories import (
+    OntologischeCategorie,  # Import ontologische categorieën voor classificatie
+)
 
 logger = logging.getLogger(__name__)  # Maak logger instantie voor database module
 

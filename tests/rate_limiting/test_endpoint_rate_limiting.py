@@ -10,8 +10,11 @@ import pytest
 sys.path.insert(0, "src")
 
 from utils.integrated_resilience import get_integrated_system
-from utils.smart_rate_limiter import (RequestPriority, get_smart_limiter,
-                                      with_smart_rate_limit)
+from utils.smart_rate_limiter import (
+    RequestPriority,
+    get_smart_limiter,
+    with_smart_rate_limit,
+)
 
 
 @pytest.mark.performance()

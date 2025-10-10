@@ -21,11 +21,17 @@ Usage:
     context_dict = adapter.get_from_session_state()
 """
 
-from services.context.context_adapter import (ServiceContextAdapter,
-                                              get_service_context_adapter)
-from services.context.context_manager import (ContextAuditEntry, ContextData,
-                                              ContextManager, ContextSource,
-                                              get_context_manager)
+from services.context.context_adapter import (
+    ServiceContextAdapter,
+    get_service_context_adapter,
+)
+from services.context.context_manager import (
+    ContextAuditEntry,
+    ContextData,
+    ContextManager,
+    ContextSource,
+    get_context_manager,
+)
 
 __all__ = [
     # Manager

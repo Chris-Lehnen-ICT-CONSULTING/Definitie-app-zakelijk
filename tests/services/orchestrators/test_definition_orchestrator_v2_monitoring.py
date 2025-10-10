@@ -13,10 +13,14 @@ import pytest
 @pytest.mark.integration()
 @pytest.mark.asyncio()
 async def test_orchestrator_monitoring_token_count_and_components():
-    from services.interfaces import (AIGenerationResult, CleaningResult,
-                                     GenerationRequest)
-    from services.orchestrators.definition_orchestrator_v2 import \
-        DefinitionOrchestratorV2
+    from services.interfaces import (
+        AIGenerationResult,
+        CleaningResult,
+        GenerationRequest,
+    )
+    from services.orchestrators.definition_orchestrator_v2 import (
+        DefinitionOrchestratorV2,
+    )
 
     prompt_service = AsyncMock()
     ai_service = AsyncMock()

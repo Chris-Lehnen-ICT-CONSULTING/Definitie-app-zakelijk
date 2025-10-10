@@ -15,13 +15,16 @@ from typing import Any  # Type hints voor betere code documentatie
 
 # Database en core component imports
 from database.definitie_repository import SourceType  # Data modellen en enums
-from database.definitie_repository import \
-    get_definitie_repository  # Repository toegang en factory
-from database.definitie_repository import (DefinitieRecord,
-                                           DefinitieRepository,
-                                           DefinitieStatus, DuplicateMatch)
-from domain.ontological_categories import \
-    OntologischeCategorie  # Generatie componenten
+from database.definitie_repository import (
+    get_definitie_repository,  # Repository toegang en factory
+)
+from database.definitie_repository import (
+    DefinitieRecord,
+    DefinitieRepository,
+    DefinitieStatus,
+    DuplicateMatch,
+)
+from domain.ontological_categories import OntologischeCategorie  # Generatie componenten
 
 # Integrated service imports verplaatst naar functie niveau om circulaire imports te voorkomen
 

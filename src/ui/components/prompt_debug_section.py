@@ -188,9 +188,12 @@ def capture_voorbeelden_prompts(
     Returns:
         Dictionary met prompts per voorbeeld type
     """
-    from voorbeelden.unified_voorbeelden import (DEFAULT_EXAMPLE_COUNTS,
-                                                 ExampleRequest, ExampleType,
-                                                 UnifiedExamplesGenerator)
+    from voorbeelden.unified_voorbeelden import (
+        DEFAULT_EXAMPLE_COUNTS,
+        ExampleRequest,
+        ExampleType,
+        UnifiedExamplesGenerator,
+    )
 
     generator = UnifiedExamplesGenerator()
     prompts = {}

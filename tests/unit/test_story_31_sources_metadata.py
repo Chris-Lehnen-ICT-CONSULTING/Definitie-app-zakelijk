@@ -17,9 +17,11 @@ src_path = Path(__file__).parent.parent.parent / "src"
 sys.path.insert(0, str(src_path))
 
 from services.service_factory import LegacyGenerationResult, ServiceAdapter
-from services.web_lookup.provenance import (_extract_legal_metadata,
-                                            _get_provider_label,
-                                            build_provenance)
+from services.web_lookup.provenance import (
+    _extract_legal_metadata,
+    _get_provider_label,
+    build_provenance,
+)
 
 
 class TestLegacyGenerationResultSources:

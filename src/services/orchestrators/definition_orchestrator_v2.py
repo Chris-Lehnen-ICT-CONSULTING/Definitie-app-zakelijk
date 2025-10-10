@@ -23,12 +23,14 @@ UTC = UTC  # Python 3.10 compatibility  # noqa: PLW0127
 from typing import TYPE_CHECKING, Any, Optional
 
 from services.interfaces import AIServiceInterface as IntelligentAIService
-from services.interfaces import (CleaningServiceInterface, Definition,
-                                 DefinitionOrchestratorInterface,
-                                 DefinitionRepositoryInterface,
-                                 DefinitionResponseV2)
-from services.interfaces import \
-    EnhancementServiceInterface as EnhancementService
+from services.interfaces import (
+    CleaningServiceInterface,
+    Definition,
+    DefinitionOrchestratorInterface,
+    DefinitionRepositoryInterface,
+    DefinitionResponseV2,
+)
+from services.interfaces import EnhancementServiceInterface as EnhancementService
 from services.interfaces import FeedbackEngineInterface as FeedbackEngine
 from services.interfaces import GenerationRequest
 from services.interfaces import MonitoringServiceInterface as MonitoringService
@@ -541,8 +543,9 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             voorbeelden = {}
             try:
                 from utils.voorbeelden_debug import DEBUG_ENABLED, debugger
-                from voorbeelden.unified_voorbeelden import \
-                    genereer_alle_voorbeelden_async
+                from voorbeelden.unified_voorbeelden import (
+                    genereer_alle_voorbeelden_async,
+                )
 
                 # Build context_dict for voorbeelden generation (V2-only fields)
                 voorbeelden_context = {
@@ -702,8 +705,7 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             )
             # Normalize to schema-conform dict for internal decisions
             try:
-                from services.validation.mappers import \
-                    ensure_schema_compliance
+                from services.validation.mappers import ensure_schema_compliance
 
                 validation_result = ensure_schema_compliance(raw_validation)
             except Exception:
@@ -765,8 +767,7 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                     context=enhanced_context,
                 )
                 try:
-                    from services.validation.mappers import \
-                        ensure_schema_compliance
+                    from services.validation.mappers import ensure_schema_compliance
 
                     validation_result = ensure_schema_compliance(raw_validation)
                 except Exception:

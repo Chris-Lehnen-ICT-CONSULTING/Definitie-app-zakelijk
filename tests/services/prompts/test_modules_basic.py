@@ -1,17 +1,16 @@
 import pytest
 
 from services.definition_generator_config import UnifiedGeneratorConfig
-from services.definition_generator_context import (ContextSource,
-                                                   EnrichedContext)
+from services.definition_generator_context import ContextSource, EnrichedContext
 from services.prompts.modules.base_module import ModuleContext
-from services.prompts.modules.definition_task_module import \
-    DefinitionTaskModule
-from services.prompts.modules.output_specification_module import \
-    OutputSpecificationModule
-from services.prompts.modules.semantic_categorisation_module import \
-    SemanticCategorisationModule
-from services.prompts.modules.structure_rules_module import \
-    StructureRulesModule
+from services.prompts.modules.definition_task_module import DefinitionTaskModule
+from services.prompts.modules.output_specification_module import (
+    OutputSpecificationModule,
+)
+from services.prompts.modules.semantic_categorisation_module import (
+    SemanticCategorisationModule,
+)
+from services.prompts.modules.structure_rules_module import StructureRulesModule
 
 
 def _make_context(

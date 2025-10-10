@@ -10,12 +10,16 @@ import csv  # CSV export functionaliteit voor rapportage
 import json  # JSON verwerking voor data serialisatie
 import logging  # Logging faciliteiten voor debug en monitoring
 import time  # Tijd functies voor prestatie metingen
-from collections import (  # Efficiënte data structuren voor metrics
-    defaultdict, deque)
+from collections import defaultdict, deque  # Efficiënte data structuren voor metrics
 from dataclasses import (  # Dataklassen voor gestructureerde monitoring data
-    asdict, dataclass)
+    asdict,
+    dataclass,
+)
 from datetime import (  # Datum en tijd functionaliteit voor timestamps, timezone
-    UTC, datetime, timedelta)
+    UTC,
+    datetime,
+    timedelta,
+)
 from enum import Enum  # Enumeraties voor monitoring types en severity levels
 from pathlib import Path  # Object-georiënteerde pad manipulatie
 from typing import Any  # Type hints voor betere code documentatie

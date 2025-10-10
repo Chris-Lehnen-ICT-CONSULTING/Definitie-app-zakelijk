@@ -11,7 +11,10 @@ import pytest
 
 from src.services.ai_service_v2 import AIServiceV2
 from src.services.classification.ontology_classifier import (
-    ClassificationResult, OntologyClassifierService, OntologyLevel)
+    ClassificationResult,
+    OntologyClassifierService,
+    OntologyLevel,
+)
 
 
 @pytest.fixture()

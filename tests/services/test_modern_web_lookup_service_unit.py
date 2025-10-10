@@ -10,8 +10,7 @@ from services.modern_web_lookup_service import ModernWebLookupService
 @pytest.mark.asyncio()
 async def test_parallel_lookup_concurrency_and_timeout(monkeypatch):
     # Patch providers with small delays
-    from tests.fixtures.web_lookup_mocks import (SRUServiceStub,
-                                                 wikipedia_lookup_stub)
+    from tests.fixtures.web_lookup_mocks import SRUServiceStub, wikipedia_lookup_stub
 
     async def slow_wiki(term: str, language: str = "nl"):
         await asyncio.sleep(0.3)

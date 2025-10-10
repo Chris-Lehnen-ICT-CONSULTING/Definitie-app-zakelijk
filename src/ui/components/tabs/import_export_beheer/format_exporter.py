@@ -11,9 +11,11 @@ from datetime import datetime
 import pandas as pd
 import streamlit as st
 
-from database.definitie_repository import (DefinitieRecord,
-                                           DefinitieRepository,
-                                           DefinitieStatus)
+from database.definitie_repository import (
+    DefinitieRecord,
+    DefinitieRepository,
+    DefinitieStatus,
+)
 
 logger = logging.getLogger(__name__)
 
