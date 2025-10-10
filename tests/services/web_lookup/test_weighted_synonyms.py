@@ -23,7 +23,9 @@ from pathlib import Path
 import pytest
 
 from src.services.web_lookup.synonym_service import (
-    JuridischeSynoniemlService, WeightedSynonym)
+    JuridischeSynoniemlService,
+    WeightedSynonym,
+)
 
 
 class TestWeightedSynonym:

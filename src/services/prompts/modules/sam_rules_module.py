@@ -57,8 +57,7 @@ class SamRulesModule(BasePromptModule):
             sections.append("### 🔗 Samenhang Regels (SAM):")
 
             # Load toetsregels on-demand from cached singleton
-            from toetsregels.cached_manager import \
-                get_cached_toetsregel_manager
+            from toetsregels.cached_manager import get_cached_toetsregel_manager
 
             manager = get_cached_toetsregel_manager()
             all_rules = manager.get_all_regels()

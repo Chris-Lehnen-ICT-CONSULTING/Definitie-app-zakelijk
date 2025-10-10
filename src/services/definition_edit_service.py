@@ -11,8 +11,7 @@ from typing import Any
 
 from services.definition_edit_repository import DefinitionEditRepository
 from services.interfaces import Definition
-from services.validation.modular_validation_service import \
-    ModularValidationService
+from services.validation.modular_validation_service import ModularValidationService
 
 logger = logging.getLogger(__name__)
 

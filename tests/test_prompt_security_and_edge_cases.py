@@ -16,8 +16,10 @@ import pytest
 from services.definition_generator_config import UnifiedGeneratorConfig
 from services.definition_generator_context import EnrichedContext
 from services.definition_generator_prompts import UnifiedPromptBuilder
-from services.prompts.modular_prompt_builder import (ModularPromptBuilder,
-                                                     PromptComponentConfig)
+from services.prompts.modular_prompt_builder import (
+    ModularPromptBuilder,
+    PromptComponentConfig,
+)
 
 
 def create_test_context(category="proces", org_context=None, domain=None):

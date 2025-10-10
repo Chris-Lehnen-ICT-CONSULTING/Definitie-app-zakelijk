@@ -51,8 +51,7 @@ try:  # pragma: no cover - integration convenience
     from config import get_api_config as _compat_get_api_config
     from config import get_cache_config as _compat_get_cache_config
     from config import get_default_model as _compat_get_default_model
-    from config import \
-        get_default_temperature as _compat_get_default_temperature
+    from config import get_default_temperature as _compat_get_default_temperature
     from config import get_paths_config as _compat_get_paths_config
 
     builtins.get_api_config = getattr(  # type: ignore[attr-defined]

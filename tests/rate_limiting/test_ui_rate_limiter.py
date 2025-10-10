@@ -41,8 +41,7 @@ with col2:
     )
 
 if st.button("🚀 Start Test"):
-    from utils.integrated_resilience import (get_integrated_system,
-                                             with_full_resilience)
+    from utils.integrated_resilience import get_integrated_system, with_full_resilience
     from utils.smart_rate_limiter import RequestPriority
 
     async def run_test():

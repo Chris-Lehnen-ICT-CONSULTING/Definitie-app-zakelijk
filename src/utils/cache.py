@@ -12,8 +12,11 @@ import os  # Operating system interface voor bestandsoperaties
 import pickle  # Python object serialisatie voor cache data
 from collections import OrderedDict
 from collections.abc import Callable
-from datetime import (UTC,  # Datum en tijd voor TTL management, timezone
-                      datetime, timedelta)
+from datetime import (  # Datum en tijd voor TTL management, timezone
+    UTC,
+    datetime,
+    timedelta,
+)
 from functools import wraps  # Decorator utilities voor cache functionaliteit
 from pathlib import Path  # Object-georiënteerde pad manipulatie
 from typing import Any  # Type hints voor betere code documentatie

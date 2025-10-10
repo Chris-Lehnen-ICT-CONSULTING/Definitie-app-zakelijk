@@ -35,8 +35,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 from src.config.synonym_config import SynonymConfiguration, SynonymPolicy
 from src.models.synonym_models import WeightedSynonym
 from src.repositories.synonym_registry import SynonymRegistry
-from src.services.gpt4_synonym_suggester import (GPT4SynonymSuggester,
-                                                 SynonymSuggestion)
+from src.services.gpt4_synonym_suggester import GPT4SynonymSuggester, SynonymSuggestion
 from src.services.synonym_orchestrator import SynonymOrchestrator
 
 # ========================================

@@ -22,8 +22,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 
 # Import services
-from src.services.web_lookup.juridisch_ranker import \
-    boost_juridische_resultaten
+from src.services.web_lookup.juridisch_ranker import boost_juridische_resultaten
 from src.services.web_lookup.synonym_service import JuridischeSynoniemlService
 
 

@@ -24,11 +24,13 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from src.services.ufo_classifier_service import (UFOCategory,
-                                                 UFOClassificationResult,
-                                                 UFOClassifierService,
-                                                 create_ufo_classifier_service,
-                                                 get_ufo_classifier)
+from src.services.ufo_classifier_service import (
+    UFOCategory,
+    UFOClassificationResult,
+    UFOClassifierService,
+    create_ufo_classifier_service,
+    get_ufo_classifier,
+)
 
 
 class TestInputValidation:
