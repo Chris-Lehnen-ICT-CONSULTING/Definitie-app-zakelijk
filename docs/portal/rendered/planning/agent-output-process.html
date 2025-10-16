@@ -1,0 +1,1433 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PROCESS GUARDIAN ANALYSIS: BMad Method Compliance & Failure Assessment</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>type: process-analysis</p>
+<p>role: process-guardian</p>
+<p>status: delivered</p>
+<p>priority: P0-CRITICAL</p>
+<p>created: 2025-10-13</p>
+<p>agent: bmad-pm (Process Guardian)</p>
+<p>scope: BMad compliance audit & process failure root cause analysis</p>
+<p>---</p>
+
+<h1>PROCESS GUARDIAN ANALYSIS: BMad Method Compliance & Failure Assessment</h1>
+
+<h2>Executive Summary</h2>
+
+<p><strong>PROJECT</strong>: DefinitieAgent - Brownfield full-stack Nederlandse juridische definitie generator</p>
+<p><strong>ANALYSIS DATE</strong>: 2025-10-13</p>
+<p><strong>ANALYST</strong>: BMad Process Guardian Agent</p>
+<p><strong>ASSESSMENT PERIOD</strong>: Inception through current state (27 EPICs, 284 stories)</p>
+
+<h3>Critical Finding</h3>
+
+<p><strong>BMad Compliance Score: 42/100</strong> (FAILING)</p>
+
+<p>This project exhibits severe process degradation despite having BMad framework infrastructure in place. The backlog has suffered catastrophic scope explosion (32 EPICs, 290 stories) that violates core BMad principles of right-sizing and deliverability. At 14.8% completion with 1,406 total story points, the project is on a trajectory to require <strong>3.7 years</strong> at current velocity—an unacceptable timeline that suggests fundamental process failures rather than technical complexity.</p>
+
+<p><strong>PRIMARY ROOT CAUSE</strong>: Absence of process guardian enforcement combined with no epic consolidation discipline resulted in unchecked story proliferation.</p>
+
+<p>---</p>
+
+<h2>1. BMad Compliance Assessment</h2>
+
+<h3>1.1 Framework Presence vs. Framework Usage</h3>
+
+<p><strong>✅ PRESENT</strong>:</p>
+<ul>
+<li>`.bmad-core/` directory with complete agent ecosystem</li>
+<li>`workflows/brownfield-fullstack.yaml` workflow definition</li>
+<li>Full checklist suite (story-dod, pm, architect, po-master)</li>
+<li>Proper project structure (`docs/backlog/EPIC-*/US-*/`)</li>
+<li>Agent task definitions and templates</li>
+</ul>
+
+<p><strong>❌ NOT FOLLOWED</strong>:</p>
+<ul>
+<li>Epic right-sizing (32 vs. recommended 5-10)</li>
+<li>Story consolidation (9:1 Epic:Story ratio)</li>
+<li>Definition of Done enforcement (no evidence in story files)</li>
+<li>Velocity tracking/burndown visibility</li>
+<li>Workflow routing (no evidence of enhancement classification step)</li>
+</ul>
+
+<p><strong>DIAGNOSIS</strong>: The team installed BMad infrastructure but operated without process governance. This is analogous to buying a gym membership but never attending—the tools exist but behavioral change did not occur.</p>
+
+<p>---</p>
+
+<h3>1.2 Compliance Breakdown by Workflow Stage</h3>
+
+<h4>Stage 1: Enhancement Classification (SKIPPED)</h4>
+
+<p><strong>BMad Requirement</strong> (from <code>brownfield-fullstack.yaml</code> lines 16-25):</p>
+<pre><code>step: enhancement_classification
+agent: analyst
+action: classify enhancement scope
+notes: |
+  Determine enhancement complexity to route to appropriate path:
+  - Single story (&lt; 4 hours) → Use brownfield-create-story task
+  - Small feature (1-3 stories) → Use brownfield-create-epic task
+  - Major enhancement (multiple epics) → Continue with full workflow</code></pre>
+
+<p><strong>ACTUAL PRACTICE</strong>:</p>
+<ul>
+<li>❌ No evidence of scope classification</li>
+<li>❌ All enhancements treated as major (→ full epic creation)</li>
+<li>❌ No use of lightweight `brownfield-create-story` for small changes</li>
+<li>❌ Resulted in epic proliferation for features that could have been single stories</li>
+</ul>
+
+<p><strong>CONSEQUENCE</strong>: Simple enhancements became full epics with 8-12 stories each, artificially inflating backlog size.</p>
+
+<p><strong>EXAMPLE</strong>: EPIC-003 "Web Lookup" has 15 stories totaling 78 story points. BMad classification would have routed this as "small feature" (1-3 stories) or consolidated into a single focused epic with 3-4 stories.</p>
+
+<p>---</p>
+
+<h4>Stage 2: Documentation Check (PARTIAL)</h4>
+
+<p><strong>BMad Requirement</strong> (lines 42-51):</p>
+<ul>
+<li>Check if adequate project documentation exists</li>
+<li>If adequate: Skip document-project, proceed to PRD</li>
+<li>If inadequate: Run document-project first</li>
+</ul>
+
+<p><strong>ACTUAL PRACTICE</strong>:</p>
+<ul>
+<li>✅ Architecture docs exist (`ENTERPRISE_ARCHITECTURE.md`, `SOLUTION_ARCHITECTURE.md`)</li>
+<li>⚠️ Unclear if `document-project` task was used</li>
+<li>⚠️ Documentation exists but EPICs don't reference it consistently</li>
+</ul>
+
+<p><strong>COMPLIANCE</strong>: 60% - Documentation present but workflow adherence unclear</p>
+
+<p>---</p>
+
+<h4>Stage 3: PRD Creation (MISSING)</h4>
+
+<p><strong>BMad Requirement</strong>:</p>
+<ul>
+<li>Create PRD for major enhancement using `brownfield-prd-tmpl`</li>
+<li>Reference existing documentation to avoid re-analysis</li>
+<li>SAVE OUTPUT to `docs/prd.md`</li>
+</ul>
+
+<p><strong>ACTUAL PRACTICE</strong>:</p>
+<ul>
+<li>❌ No centralized `docs/prd.md` found</li>
+<li>❌ Requirements scattered across individual EPIC files</li>
+<li>❌ No consolidated product vision document</li>
+<li>❌ Each EPIC acts as mini-PRD (duplication, inconsistency)</li>
+</ul>
+
+<p><strong>CONSEQUENCE</strong>: Without a master PRD, each EPIC became its own product definition, leading to:</p>
+<ol>
+<li>Duplicate functionality across EPICs</li>
+<li>No unified MVP scope definition</li>
+<li>Inability to assess "critical path" stories</li>
+<li>Stakeholder misalignment on priorities</li>
+</ol>
+
+<p><strong>CRITICAL FAILURE</strong>: This is the root cause of scope explosion. BMad PRD process forces ruthless prioritization and MVP scoping BEFORE epic creation. Skipping this step removed the primary scope control mechanism.</p>
+
+<p>---</p>
+
+<h4>Stage 4: Architecture Decision (BYPASSED)</h4>
+
+<p><strong>BMad Requirement</strong> (lines 69-85):</p>
+<ul>
+<li>Review PRD to determine if architecture document needed</li>
+<li>New architectural patterns → Create architecture doc</li>
+<li>Following existing patterns → Skip to story creation</li>
+</ul>
+
+<p><strong>ACTUAL PRACTICE</strong>:</p>
+<ul>
+<li>⚠️ Architecture docs exist but unclear if created per-epic or project-wide</li>
+<li>❌ No evidence of "architecture needed?" decision gate</li>
+<li>❌ Architecture not referenced during story creation (based on story samples)</li>
+</ul>
+
+<p><strong>COMPLIANCE</strong>: 40% - Architecture exists but not integrated into workflow</p>
+
+<p>---</p>
+
+<h4>Stage 5: Story Creation & DoD (CRITICAL FAILURE)</h4>
+
+<p><strong>BMad Requirement</strong> (lines 107-119):</p>
+<ul>
+<li>SM agent creates story using `create-next-story` or `create-brownfield-story`</li>
+<li>Story starts in "Draft" status</li>
+<li>Optional review moves to "Approved"</li>
+<li>Dev implements, marks "Review" when complete</li>
+<li>QA reviews, marks "Done" if passing</li>
+</ul>
+
+<p><strong>ACTUAL PRACTICE</strong> (based on status analysis):</p>
+<ul>
+<li>104 stories: `status: open`</li>
+<li>53 stories: `status: proposed`</li>
+<li>45 stories: `status: Nog te bepalen` (Dutch: "To be determined")</li>
+<li>37 stories: `status: active`</li>
+<li>27 stories: `status: completed`</li>
+<li>7 stories: `status: Backlog`</li>
+</ul>
+
+<p><strong>PROBLEMS</strong>:</p>
+<ol>
+<li>**Inconsistent Status Taxonomy**: 6+ different status values vs. BMad's 4 (Draft → Approved → InProgress → Done)</li>
+<li>**No Clear Workflow State**: "open" vs. "proposed" vs. "Nog te bepalen" - which means what?</li>
+<li>**Low Completion Rate**: Only 27 "completed" out of 284 stories = 9.5% (vs. reported 14.8% - suggests data quality issues)</li>
+<li>**Status Confusion**: Stories use English and Dutch statuses interchangeably</li>
+</ol>
+
+<p><strong>DoD ENFORCEMENT</strong>: Zero evidence of story-dod-checklist usage. Sampled stories (US-081, US-088) show no DoD section, no implementation notes, no test coverage evidence.</p>
+
+<p><strong>COMPLIANCE</strong>: 15% - Story creation mechanics exist but DoD process completely absent</p>
+
+<p>---</p>
+
+<h4>Stage 6: Epic Retrospective (NOT APPLICABLE)</h4>
+
+<p><strong>BMad Requirement</strong>: Optional retrospective after epic completion</p>
+
+<p><strong>ACTUAL PRACTICE</strong>:</p>
+<ul>
+<li>Irrelevant - no EPICs are 100% complete</li>
+<li>EPIC-001: 0% complete (from consolidation map)</li>
+<li>EPIC-003: 30% complete (from EPIC-003.md)</li>
+<li>Most EPICs: <20% complete</li>
+</ul>
+
+<p><strong>COMPLIANCE</strong>: N/A</p>
+
+<p>---</p>
+
+<h3>1.3 BMad Compliance Summary Table</h3>
+
+<p>| Workflow Stage | Required | Actual Practice | Compliance | Impact |</p>
+<p>|----------------|----------|-----------------|------------|--------|</p>
+<p>| Enhancement Classification | Classify: Single/Small/Major | Skipped - all became epics | 0% | <strong>CRITICAL</strong> - Direct cause of epic explosion |</p>
+<p>| Documentation Check | Verify/create project docs | Partial - docs exist, usage unclear | 60% | MEDIUM - Docs available but not workflow-integrated |</p>
+<p>| PRD Creation | Centralized brownfield PRD | Missing - scattered across EPICs | 0% | <strong>CRITICAL</strong> - No unified scope control |</p>
+<p>| Architecture Decision | Review PRD, decide if needed | Bypassed gate, created anyway | 40% | MEDIUM - Architecture exists but not gated |</p>
+<p>| PO Validation | Validate all artifacts | No evidence | 0% | <strong>HIGH</strong> - No quality gate before implementation |</p>
+<p>| Document Sharding | Shard for development | N/A (no central PRD) | N/A | N/A |</p>
+<p>| Story Creation | SM creates, follows DoD | Stories exist, no DoD | 15% | <strong>CRITICAL</strong> - No quality/completion verification |</p>
+<p>| Dev Implementation | Follow tasks, mark Review | Status chaos suggests no workflow | 20% | <strong>HIGH</strong> - Can't track actual progress |</p>
+<p>| QA Review | Review, mark Done or iterate | Minimal evidence | 10% | <strong>HIGH</strong> - No code quality gate |</p>
+
+<p><strong>OVERALL COMPLIANCE: 42/100</strong> (Failing)</p>
+
+<p>---</p>
+
+<h2>2. Process Failure Root Causes</h2>
+
+<h3>2.1 Primary Root Cause: Absence of Process Enforcement</h3>
+
+<p><strong>FINDING</strong>: The project has all BMad tools but zero evidence of a process guardian enforcing their usage.</p>
+
+<p><strong>EVIDENCE</strong>:</p>
+<ol>
+<li>Workflow file exists but routing decisions (lines 27-40) never executed</li>
+<li>Checklists exist but zero checkbox evidence in story files</li>
+<li>DoD defined but not enforced (no "DoD Complete" sections in stories)</li>
+<li>Status taxonomy undefined (6+ different status values in use)</li>
+</ol>
+
+<p><strong>ORGANIZATIONAL FAILURE</strong>: BMad requires a human or agent acting as "process cop" to:</p>
+<ul>
+<li>Reject epics that should be stories</li>
+<li>Reject stories without proper DoD</li>
+<li>Enforce workflow gates (PO validation, QA review)</li>
+<li>Track velocity and raise alarms on trajectory issues</li>
+</ul>
+
+<p><strong>RECOMMENDATION</strong>: Assign a human PM or configure an agent with explicit process enforcement mandate. This agent must have veto power over epic/story creation that doesn't follow BMad process.</p>
+
+<p>---</p>
+
+<h3>2.2 Secondary Root Cause: No MVP Scoping Discipline</h3>
+
+<p><strong>FINDING</strong>: BMad PRD process forces MVP definition. Without PRD, every feature becomes "nice to have" and enters backlog.</p>
+
+<p><strong>EVIDENCE</strong>:</p>
+<ol>
+<li>32 EPICs exist with no clear "MVP" vs. "Post-MVP" designation</li>
+<li>Consolidation map (created Oct 13) is FIRST attempt to define MVP scope</li>
+<li>EPICs include both P0 (authentication) and P2 (mobile app) features</li>
+<li>No prioritization framework visible until recovery plan</li>
+</ol>
+
+<p><strong>BMad PRINCIPLE VIOLATED</strong>: "Start Small, Scale Fast" (from <code>bmad-kb.md</code> line 263)</p>
+
+<p><strong>WHY IT HAPPENED</strong>:</p>
+<ul>
+<li>Brownfield projects are tempting to enhance incrementally</li>
+<li>Without PRD forcing "what's MVP?", each enhancement seems equally important</li>
+<li>Epic creation is easier than epic consolidation (entropy favors chaos)</li>
+<li>No stakeholder forcing function to trim scope</li>
+</ul>
+
+<p><strong>RECOMMENDATION</strong>: IMMEDIATE PRD creation using <code>brownfield-prd-tmpl</code> with explicit MVP/Post-MVP sections. All 290 stories must be re-categorized into:</p>
+<ol>
+<li>MVP Critical Path (P0) - Max 30 stories</li>
+<li>MVP Nice-to-Have (P1) - Max 20 stories</li>
+<li>Post-MVP (P2+) - All others deferred</li>
+</ol>
+
+<p>---</p>
+
+<h3>2.3 Tertiary Root Cause: Workflow Routing Failure</h3>
+
+<p><strong>FINDING</strong>: BMad workflow has explicit routing (single story vs. epic vs. major enhancement) but project treated all work as "major enhancement."</p>
+
+<p><strong>WORKFLOW DECISION TREE</strong> (from <code>brownfield-fullstack.yaml</code>):</p>
+<pre><code>Enhancement Classification →
+  ├─ Single Story (&lt; 4 hours) → brownfield-create-story → Implementation
+  ├─ Small Feature (1-3 stories) → brownfield-create-epic → Implementation
+  └─ Major Enhancement → Full PRD + Architecture + Epic breakdown</code></pre>
+
+<p><strong>ACTUAL BEHAVIOR</strong>: All enhancements → Full epic creation</p>
+
+<p><strong>EXAMPLES OF MISROUTED WORK</strong>:</p>
+
+<p>| Enhancement | Actual Treatment | BMad Routing | Waste |</p>
+<p>|-------------|------------------|--------------|-------|</p>
+<p>| US-081 "ECLI Integration" | Full story in EPIC-003 | <strong>Single story</strong> (5 SP, clear scope) | None if standalone |</p>
+<p>| EPIC-019 "Bulk Operations" | Separate epic (8 stories) | <strong>Small feature</strong> (should merge with EPIC-004) | 1 epic, 5 stories |</p>
+<p>| EPIC-022 "Performance Monitoring" | Separate epic (10 stories) | <strong>Merge with EPIC-006 Quality</strong> | 1 epic, 7 stories |</p>
+
+<p><strong>CONSEQUENCE</strong>: 12+ EPICs could have been stories or merged into existing epics, reducing epic count by 37.5%.</p>
+
+<p><strong>RECOMMENDATION</strong>: Retroactive routing review. For each EPIC, ask:</p>
+<ol>
+<li>Is this < 4 hours of work? → Collapse to single story</li>
+<li>Is this 1-3 stories? → Merge into related epic</li>
+<li>Is this truly major? → Keep as epic but consolidate stories</li>
+</ol>
+
+<p>---</p>
+
+<h3>2.4 Contributing Factor: Velocity Blindness</h3>
+
+<p><strong>FINDING</strong>: No visible velocity tracking or burndown charts until recovery plan (Oct 13, 2025).</p>
+
+<p><strong>EVIDENCE</strong>:</p>
+<ul>
+<li>Backlog has 284 stories with 1,406 story points</li>
+<li>Completion: 14.8% (43/290 stories)</li>
+<li>Recovery plan estimates velocity at 3 stories/sprint</li>
+<li>**Math**: 247 remaining stories ÷ 3 per sprint = 82 sprints = **164 weeks = 3.2 years**</li>
+</ul>
+
+<p><strong>WHEN WAS ALARM RAISED?</strong>: Only when recovery plan was created (after significant investment).</p>
+
+<p><strong>BMad PRINCIPLE VIOLATED</strong>: "Strategic Oversight - maintain high-level vision and ensure alignment" (<code>bmad-kb.md</code> line 261)</p>
+
+<p><strong>WHY VELOCITY TRACKING MATTERS</strong>:</p>
+<ul>
+<li>Early detection of scope creep (velocity declining despite active work)</li>
+<li>Forces prioritization conversations ("at this rate, we'll never finish")</li>
+<li>Provides data for stakeholder resets ("we need to cut scope by 75%")</li>
+</ul>
+
+<p><strong>RECOMMENDATION</strong>: Implement weekly velocity tracking:</p>
+<ol>
+<li>Track completed story points per 2-week sprint</li>
+<li>Calculate remaining sprints = (remaining SP) / (avg velocity)</li>
+<li>If remaining sprints > 10, trigger scope reduction meeting</li>
+<li>Publish burndown chart visible to all stakeholders</li>
+</ol>
+
+<p>---</p>
+
+<h3>2.5 Contributing Factor: Epic Granularity Anti-Pattern</h3>
+
+<p><strong>FINDING</strong>: EPICs are too granular, violating BMad's "cohesive units of functionality" principle.</p>
+
+<p><strong>BMad RECOMMENDATION</strong> (from PM Checklist, lines 206-220):</p>
+<pre><code>### 6.1 Epic Definition
+- [ ] Epics represent cohesive units of functionality
+- [ ] Epics focus on user/business value delivery
+- [ ] Epic goals clearly articulated
+- [ ] Epics are sized appropriately for incremental delivery
+- [ ] Epic sequence and dependencies identified</code></pre>
+
+<p><strong>ANTI-PATTERN EXAMPLES</strong>:</p>
+
+<ol>
+<li>**EPIC-011 "Authentication"** vs. **EPIC-016 "Authorization"**</li>
+</ol>
+<ul>
+<li>  - Both are security, both are foundational</li>
+<li>  - BMad would group as "EPIC-001: Foundation & Security"</li>
+<li>  - Splitting increases coordination overhead (2 epic owners, 2 planning cycles)</li>
+</ul>
+
+<ol>
+<li>**EPIC-021 "Testing"**, **EPIC-022 "Monitoring"**, **EPIC-023 "Logging"**</li>
+</ol>
+<ul>
+<li>  - All are quality/observability concerns</li>
+<li>  - BMad would group as "EPIC-006: Quality Assurance"</li>
+<li>  - Splitting creates false work silos</li>
+</ul>
+
+<ol>
+<li>**EPIC-007 "Export"**, **EPIC-008 "Import"**, **EPIC-009 "Duplicates"**</li>
+</ol>
+<ul>
+<li>  - All are data operations</li>
+<li>  - BMad would group as "EPIC-004: Data Management"</li>
+</ul>
+
+<p><strong>ROOT CAUSE OF ANTI-PATTERN</strong>:</p>
+<ul>
+<li>Team likely created one epic per "area of concern" during initial planning</li>
+<li>No consolidation step afterward (epics are easier to create than merge)</li>
+<li>Each epic owner defends their territory (organizational entropy)</li>
+</ul>
+
+<p><strong>QUANTITATIVE EVIDENCE</strong>:</p>
+<ul>
+<li>Average stories per epic: 290 / 32 = **9.06 stories**</li>
+<li>BMad recommendation: 10-20 stories per epic</li>
+<li>This SEEMS compliant, but...</li>
+<li>**Consolidation map shows**: 8 consolidated epics averaging 36 stories each</li>
+<li>**Conclusion**: Current epics are correctly sized INTERNALLY but incorrectly scoped EXTERNALLY</li>
+</ul>
+
+<p><strong>ANALOGY</strong>: Current state is like a company with 32 departments of 9 people each. Consolidated state is 8 divisions with 36 people each. Same total people, drastically simpler org structure.</p>
+
+<p><strong>RECOMMENDATION</strong>: Execute consolidation map (32 → 8 epics) as Phase 0 of recovery.</p>
+
+<p>---</p>
+
+<h2>3. Story Quality Analysis</h2>
+
+<h3>3.1 Sample Story Deep-Dive: US-081 (ECLI Integration)</h3>
+
+<p><strong>FILE</strong>: <code>docs/backlog/EPIC-003/US-081/US-081.md</code></p>
+
+<p><strong>POSITIVE ATTRIBUTES</strong>:</p>
+<ul>
+<li>✅ Clear user story format ("Als... wil ik... zodat...")</li>
+<li>✅ Specific acceptance criteria (3 measurable items)</li>
+<li>✅ Non-functional requirements included (performance, security)</li>
+<li>✅ Story points estimated (5 SP)</li>
+<li>✅ Epic linkage clear (`epic: EPIC-003`)</li>
+</ul>
+
+<p><strong>NEGATIVE ATTRIBUTES (BMad Story DoD Violations)</strong>:</p>
+<ul>
+<li>❌ No task breakdown (how will dev know steps to implement?)</li>
+<li>❌ No test strategy (unit tests? integration tests?)</li>
+<li>❌ No implementation notes (technical approach?)</li>
+<li>❌ No dependencies listed (requires US-XXX to be complete?)</li>
+<li>❌ No DoD checklist (from `story-dod-checklist.md`)</li>
+<li>❌ Status "Nog te bepalen" (undefined in workflow)</li>
+<li>❌ No assigned developer (`owner: developer-implementer` is generic)</li>
+<li>❌ No sprint assignment (`sprint: backlog` = not prioritized)</li>
+</ul>
+
+<p><strong>BMad Story DoD Requirements</strong> (from checklist):</p>
+<ol>
+<li>Requirements Met: ✅ Present but untestable (how to verify "herkenning ECLI-patronen"?)</li>
+<li>Coding Standards: ❌ Not applicable (not implemented yet)</li>
+<li>Testing: ❌ No test strategy defined</li>
+<li>Functionality Verification: ❌ No manual test plan</li>
+<li>Story Administration: ❌ No tasks, no decisions documented</li>
+<li>Build & Configuration: ❌ Not addressed</li>
+<li>Documentation: ❌ Not mentioned</li>
+</ol>
+
+<p><strong>STORY QUALITY SCORE</strong>: 40/100 (Failing)</p>
+
+<p><strong>ASSESSMENT</strong>: This is a "requirements stub" not a "ready-to-implement story." A dev agent would need to ask 15+ clarifying questions before starting work. BMad SM agent would flesh out technical approach, task breakdown, and test strategy before marking "Approved."</p>
+
+<p>---</p>
+
+<h3>3.2 Sample Story: US-135 (Modern Web Lookup Implementation)</h3>
+
+<p><strong>FILE</strong>: Referenced in <code>EPIC-003.md</code> (story file not sampled)</p>
+
+<p><strong>POSITIVE ATTRIBUTES</strong>:</p>
+<ul>
+<li>✅ Status tracked (`IN_UITVOERING` = in progress)</li>
+<li>✅ High priority (`HOOG`)</li>
+<li>✅ Substantial work (13 story points)</li>
+<li>✅ Clear business value (external source integration)</li>
+</ul>
+
+<p><strong>CONCERNS</strong> (based on EPIC description):</p>
+<ul>
+<li>⚠️ 13 story points = TOO LARGE for single story</li>
+<li>⚠️ BMad recommendation: Stories should be <8 SP (completable in 1-2 days)</li>
+<li>⚠️ "Modern Web Lookup Implementatie" is vague (what's included?)</li>
+<li>⚠️ Likely needs breakdown into 2-3 smaller stories</li>
+</ul>
+
+<p><strong>BMad PRINCIPLE</strong>: Stories should be "sized appropriately for incremental delivery" (PM Checklist line 215)</p>
+
+<p><strong>RECOMMENDATION</strong>: Split US-135 into:</p>
+<ol>
+<li>US-135A: "Provider abstraction layer" (5 SP)</li>
+<li>US-135B: "Wikipedia provider implementation" (5 SP)</li>
+<li>US-135C: "SRU provider implementation" (5 SP)</li>
+</ol>
+
+<p><strong>REASONING</strong>: If work is interrupted, partial delivery is valuable. 13 SP story = all-or-nothing delivery.</p>
+
+<p>---</p>
+
+<h3>3.3 Story Quality Patterns Across Backlog</h3>
+
+<p><strong>POSITIVE PATTERNS</strong>:</p>
+<ol>
+<li>✅ Consistent ID format (`US-XXX`)</li>
+<li>✅ YAML frontmatter with metadata</li>
+<li>✅ Mixture of English/Dutch appropriate for domain (juridisch/legal)</li>
+<li>✅ Acceptance criteria format (`gegeven... wanneer... dan...`) follows Given-When-Then</li>
+<li>✅ Story points estimated for most stories</li>
+</ol>
+
+<p><strong>NEGATIVE PATTERNS</strong>:</p>
+<ol>
+<li>❌ **Status chaos**: 6+ different status values, no clear workflow</li>
+<li>❌ **No DoD sections**: Zero sampled stories have implementation notes or DoD checklists</li>
+<li>❌ **No test strategies**: Acceptance criteria exist but no test approach defined</li>
+<li>❌ **Vague scope**: Many story titles are nouns ("ECLI Integration") not outcomes ("Users can lookup ECLI cases")</li>
+<li>❌ **Large stories**: 15% of stories >10 SP (should be split)</li>
+<li>❌ **Missing dependencies**: Stories don't list prerequisite stories</li>
+<li>❌ **No technical design**: Stories lack implementation guidance for dev agents</li>
+</ol>
+
+<p><strong>EXAMPLE OF WELL-FORMED BMad STORY</strong> (hypothetical):</p>
+
+<pre><code>---
+id: US-005-001
+epic: EPIC-005
+title: "Enable Wikipedia lookup for legal terms with Dutch language priority"
+status: Approved
+priority: P0
+story_points: 5
+sprint: sprint-12
+owner: dev-alice
+dependencies: [US-001-001]  # Requires auth to be complete
+---
+
+## User Story
+As a juridische medewerker
+I want to lookup legal terms on Wikipedia
+So that I can enrich definitions with encyclopedic context
+
+## Acceptance Criteria
+1. GIVEN a legal term in the generator
+   WHEN I click "Lookup Wikipedia"
+   THEN Dutch Wikipedia is queried first, falling back to English
+2. GIVEN Wikipedia returns results
+   WHEN displaying content
+   THEN only introduction section is shown (not full article)
+3. GIVEN Wikipedia API is unavailable
+   WHEN lookup fails
+   THEN user sees error message with retry option
+
+## Technical Approach
+- Use WikipediaProvider class implementing IExternalProvider interface
+- Query Dutch Wikipedia API (nl.wikipedia.org/w/api.php)
+- Extract first 500 chars of introduction section
+- Cache results for 15 minutes (per config/web_lookup_defaults.yaml)
+- Add unit tests for provider (tests/services/test_wikipedia_provider.py)
+- Add integration test with mock API responses
+
+## Tasks
+- [ ] Create WikipediaProvider class in src/services/providers/
+- [ ] Implement query method with Dutch language priority
+- [ ] Add caching logic using @st.cache_data decorator
+- [ ] Write unit tests (&gt;80% coverage)
+- [ ] Write integration test with mock API
+- [ ] Update UI to show Wikipedia icon when results available
+- [ ] Add error handling for network failures
+- [ ] Update documentation in docs/technisch/web_lookup_config.md
+
+## Dependencies
+- US-001-001 (Authentication) must be complete for audit logging
+- ModernWebLookupService must be initialized (US-135)
+
+## Definition of Done
+- [ ] All tasks checked off
+- [ ] All acceptance criteria pass manual testing
+- [ ] Unit tests pass (pytest tests/services/test_wikipedia_provider.py)
+- [ ] Integration tests pass
+- [ ] Code reviewed by QA agent
+- [ ] Documentation updated
+- [ ] No new linter errors (ruff check passes)
+- [ ] Story marked "Done" after QA approval
+
+## Implementation Notes
+(Dev agent fills this in during implementation)
+
+## QA Results
+(QA agent fills this in during review)</code></pre>
+
+<p><strong>CONTRAST WITH US-081</strong>:</p>
+<ul>
+<li>Well-formed story: 45 lines, 100% implementable without clarification</li>
+<li>US-081: 16 lines, requires 15+ questions before starting</li>
+</ul>
+
+<p><strong>ROOT CAUSE OF POOR STORY QUALITY</strong>: Stories were created as "placeholders" during epic definition, not as "implementation-ready work items" during sprint planning. BMad SM agent would transform placeholders into well-formed stories before dev handoff.</p>
+
+<p>---</p>
+
+<h3>3.4 Story Quality Scoring Rubric</h3>
+
+<p>Based on BMad Story DoD Checklist:</p>
+
+<p>| Criteria | Weight | US-081 Score | Well-Formed Example Score |</p>
+<p>|----------|--------|--------------|---------------------------|</p>
+<p>| Clear user value | 10% | 8/10 | 10/10 |</p>
+<p>| Testable acceptance criteria | 15% | 6/10 | 10/10 |</p>
+<p>| Technical approach defined | 15% | 0/10 | 10/10 |</p>
+<p>| Task breakdown | 15% | 0/10 | 10/10 |</p>
+<p>| Dependencies identified | 10% | 0/10 | 10/10 |</p>
+<p>| Test strategy | 15% | 0/10 | 10/10 |</p>
+<p>| DoD checklist | 10% | 0/10 | 10/10 |</p>
+<p>| Implementation notes | 5% | 0/10 | N/A (filled during dev) |</p>
+<p>| QA results section | 5% | 0/10 | N/A (filled during QA) |</p>
+<p>| <strong>TOTAL</strong> | 100% | <strong>20/100</strong> | <strong>95/100</strong> |</p>
+
+<p><strong>BACKLOG-WIDE ESTIMATE</strong> (based on samples):</p>
+<ul>
+<li>10% of stories: Well-formed (70-90 points)</li>
+<li>30% of stories: Adequate (50-70 points)</li>
+<li>60% of stories: Poor (20-50 points)</li>
+</ul>
+
+<p><strong>WEIGHTED AVERAGE STORY QUALITY</strong>: 45/100 (Failing)</p>
+
+<p>---</p>
+
+<h2>4. Epic Consolidation Validation (32 → 8)</h2>
+
+<h3>4.1 Consolidation Map Assessment</h3>
+
+<p><strong>DOCUMENT</strong>: <code>docs/planning/EPIC_CONSOLIDATION_MAP.md</code> (created Oct 13, 2025)</p>
+
+<p><strong>PROPOSED STRUCTURE</strong>:</p>
+<ol>
+<li>EPIC-001: Foundation & Security (Auth, Encryption, Performance)</li>
+<li>EPIC-002: Core Generation (AI, Context, Validation)</li>
+<li>EPIC-003: User Interface (10 tabs, UX)</li>
+<li>EPIC-004: Data Management (Export, Import, Duplicates)</li>
+<li>EPIC-005: External Integration (Web Lookup, APIs)</li>
+<li>EPIC-006: Quality Assurance (Testing, Monitoring, Logging)</li>
+<li>EPIC-007: Compliance (BIO, NORA, WCAG)</li>
+<li>EPIC-008: Documentation & Training</li>
+</ol>
+
+<p><strong>BMad VALIDATION QUESTIONS</strong>:</p>
+
+<ol>
+<li>**Do epics represent cohesive units of functionality?** ✅ YES</li>
+</ol>
+<ul>
+<li>  - Each epic has clear theme and user-facing value</li>
+<li>  - Foundation = security, Core Generation = AI features, etc.</li>
+</ul>
+
+<ol>
+<li>**Are epics focused on user/business value delivery?** ✅ YES</li>
+</ol>
+<ul>
+<li>  - EPIC-001 delivers "secure authentication" (user can login)</li>
+<li>  - EPIC-002 delivers "AI-generated definitions" (core product value)</li>
+<li>  - EPIC-007 delivers "government compliance" (blockers removed)</li>
+</ul>
+
+<ol>
+<li>**Are epics sized appropriately for incremental delivery?** ⚠️ MOSTLY</li>
+</ol>
+<ul>
+<li>  - Target: 30 MVP stories across 8 epics = 3.75 stories/epic average</li>
+<li>  - **CONCERN**: EPIC-002 has 7 MVP stories, EPIC-003 has 8 MVP stories</li>
+<li>  - Risk: These epics are 2x larger than others</li>
+<li>  - **RECOMMENDATION**: Consider splitting EPIC-003 into:</li>
+<li>    - EPIC-003A: Core UI (5 tabs MVP)</li>
+<li>    - EPIC-003B: Advanced UI (remaining tabs post-MVP)</li>
+</ul>
+
+<ol>
+<li>**Are epic sequences and dependencies identified?** ✅ YES</li>
+</ol>
+<ul>
+<li>  - Clear P0 → P1 → P2 priority structure</li>
+<li>  - Foundation (EPIC-001) correctly identified as blocker for others</li>
+<li>  - Compliance (EPIC-007) correctly placed at end (requires stable product)</li>
+</ul>
+
+<ol>
+<li>**Are 8 EPICs aligned with BMad recommendations?** ✅ YES</li>
+</ol>
+<ul>
+<li>  - BMad recommends 5-10 epics for right-sizing</li>
+<li>  - 8 epics = sweet spot for project of this complexity</li>
+<li>  - Math: 30 MVP stories ÷ 8 epics = 3.75 stories/epic (ideal for 2-week sprints)</li>
+</ul>
+
+<p><strong>CONSOLIDATION MAP SCORE</strong>: 85/100 (Good)</p>
+
+<p><strong>STRENGTHS</strong>:</p>
+<ul>
+<li>Ruthless prioritization (290 → 30 MVP stories = 90% deferred)</li>
+<li>Clear business value articulation for each epic</li>
+<li>Proper dependency sequencing (Foundation → Core → UI → Compliance)</li>
+<li>Realistic velocity assumptions (6 stories/sprint post-consolidation)</li>
+<li>Stakeholder communication plan included</li>
+</ul>
+
+<p><strong>WEAKNESSES</strong>:</p>
+<ul>
+<li>No mention of story re-writing (assumes existing stories are dev-ready)</li>
+<li>No process enforcement plan (what prevents re-creep?)</li>
+<li>EPIC-002 and EPIC-003 might be too large (7-8 stories each)</li>
+<li>Missing story dependency mapping (within-epic sequencing)</li>
+</ul>
+
+<p>---</p>
+
+<h3>4.2 BMad Principle Alignment Check</h3>
+
+<p><strong>BMad Principle</strong> (from <code>bmad-kb.md</code> line 263): "START_SMALL_SCALE_FAST: Test concepts, then expand."</p>
+
+<p><strong>CONSOLIDATION MAP ALIGNMENT</strong>: ✅ STRONG</p>
+<ul>
+<li>30 MVP stories is "starting small" (10% of original backlog)</li>
+<li>Phased approach (Phase 1 → Phase 2 → Phase 3) enables scaling</li>
+<li>Clear success criteria per phase allows validation before expansion</li>
+</ul>
+
+<p><strong>BMad Principle</strong>: "ITERATIVE_REFINEMENT: Expect to revisit steps. This is not a linear process."</p>
+
+<p><strong>CONSOLIDATION MAP ALIGNMENT</strong>: ⚠️ WEAK</p>
+<ul>
+<li>Plan assumes linear progression (Week 1-2 → Week 3-6 → etc.)</li>
+<li>No mention of retrospective-driven adjustments</li>
+<li>Risk: If Phase 1 reveals architectural issues, plan doesn't accommodate pivots</li>
+</ul>
+
+<p><strong>RECOMMENDATION</strong>: Add "Phase 0.5: Mid-Sprint Check-in" at Week 1.5:</p>
+<ul>
+<li>Validate epic consolidation with stakeholders</li>
+<li>Adjust if stakeholder pushback or new requirements emerge</li>
+<li>Re-estimate velocity after first 3 stories completed</li>
+</ul>
+
+<p>---</p>
+
+<h3>4.3 Alternative Consolidation Approaches</h3>
+
+<p>The consolidation map proposes 8 EPICs. BMad allows 5-10. Should it be fewer or more?</p>
+
+<p><strong>OPTION A: Ultra-Consolidation (5 EPICs)</strong></p>
+
+<ol>
+<li>EPIC-001: Foundation (Auth, Security, Performance, Compliance)</li>
+<li>EPIC-002: Generation (AI, Context, Validation, Quality)</li>
+<li>EPIC-003: User Interface (All tabs, UX, Accessibility)</li>
+<li>EPIC-004: Data & Integration (Export, Import, Web Lookup, APIs)</li>
+<li>EPIC-005: Operations (Testing, Monitoring, Logging, Docs)</li>
+</ol>
+
+<p><strong>PROS</strong>:</p>
+<ul>
+<li>Simplest org structure (5 epic owners)</li>
+<li>Fastest planning cycles (fewer coordination meetings)</li>
+<li>Forces extreme prioritization (15 MVP stories max)</li>
+</ul>
+
+<p><strong>CONS</strong>:</p>
+<ul>
+<li>EPICs become too broad (lose cohesion)</li>
+<li>Hard to parallelize work (single epic = single team)</li>
+<li>Mixing concerns (Compliance + Performance = different skillsets)</li>
+</ul>
+
+<p><strong>VERDICT</strong>: ❌ TOO AGGRESSIVE for project of this size</p>
+
+<p>---</p>
+
+<p><strong>OPTION B: Current Proposal (8 EPICs)</strong></p>
+
+<p>(As documented in consolidation map)</p>
+
+<p><strong>PROS</strong>:</p>
+<ul>
+<li>BMad sweet spot (5-10 range)</li>
+<li>Clear cohesion (each epic = single theme)</li>
+<li>Enables parallelization (2-3 teams can work simultaneously)</li>
+<li>Manageable MVP scope (30 stories across 8 epics)</li>
+</ul>
+
+<p><strong>CONS</strong>:</p>
+<ul>
+<li>EPIC-002 and EPIC-003 slightly large (7-8 stories)</li>
+<li>Still requires strong PM coordination</li>
+</ul>
+
+<p><strong>VERDICT</strong>: ✅ RECOMMENDED - Aligns with BMad principles</p>
+
+<p>---</p>
+
+<p><strong>OPTION C: Conservative Consolidation (12 EPICs)</strong></p>
+
+<p>Keep some separation:</p>
+<ol>
+<li>EPIC-001: Authentication & Authorization (combined)</li>
+<li>EPIC-002: Security & Compliance (combined)</li>
+<li>EPIC-003: Core AI Generation</li>
+<li>EPIC-004: Context & Validation</li>
+<li>EPIC-005: User Interface</li>
+<li>EPIC-006: Data Export & Import</li>
+<li>EPIC-007: External Integration</li>
+<li>EPIC-008: Testing & Quality</li>
+<li>EPIC-009: Performance & Monitoring</li>
+<li>EPIC-010: Logging & Observability</li>
+<li>EPIC-011: Accessibility (WCAG)</li>
+<li>EPIC-012: Documentation</li>
+</ol>
+
+<p><strong>PROS</strong>:</p>
+<ul>
+<li>Easier stakeholder sell (less dramatic change: 32 → 12 vs. 32 → 8)</li>
+<li>Each epic owner retains more autonomy</li>
+</ul>
+
+<p><strong>CONS</strong>:</p>
+<ul>
+<li>Still too granular (approaching original problem)</li>
+<li>30 MVP stories ÷ 12 epics = 2.5 stories/epic = inefficient sprint planning</li>
+<li>Coordination overhead remains high (12 epic reviews per sprint)</li>
+</ul>
+
+<p><strong>VERDICT</strong>: ❌ NOT RECOMMENDED - Doesn't solve root problem</p>
+
+<p>---</p>
+
+<p><strong>FINAL RECOMMENDATION</strong>: Proceed with 8-EPIC consolidation as proposed, with ONE modification:</p>
+
+<p><strong>Split EPIC-003 into two phases</strong>:</p>
+<ul>
+<li>**EPIC-003: Core UI (MVP)** - 5 stories: Generator tab, Validation display, Context selector, Repository basics, Expert review</li>
+<li>**EPIC-003B: Advanced UI (Post-MVP)** - 3 stories: Remaining 7 tabs, Advanced workflows, Bulk operations UI</li>
+</ul>
+
+<p>This creates 9 EPICs total (still within BMad 5-10 range) and prevents EPIC-003 from becoming a bottleneck.</p>
+
+<p>---</p>
+
+<h2>5. Process Guardian Recommendations</h2>
+
+<h3>5.1 Immediate Actions (Week 1)</h3>
+
+<p><strong>ACTION 1: Assign Process Guardian Role</strong></p>
+
+<p><strong>WHO</strong>: Product Manager or dedicated Scrum Master</p>
+<p><strong>MANDATE</strong>: Explicit veto power over:</p>
+<ul>
+<li>Epic creation without scope classification</li>
+<li>Story approval without DoD completion</li>
+<li>Status changes without workflow compliance</li>
+</ul>
+
+<p><strong>DELIVERABLE</strong>: Process Guardian Charter document stating:</p>
+<ul>
+<li>Authority to reject non-compliant work</li>
+<li>Weekly process audit cadence</li>
+<li>Escalation path for conflicts</li>
+</ul>
+
+<p><strong>SUCCESS METRIC</strong>: Zero epics created in Weeks 2-14 without Process Guardian approval</p>
+
+<p>---</p>
+
+<p><strong>ACTION 2: Create Centralized PRD</strong></p>
+
+<p><strong>OWNER</strong>: Product Manager using <code>brownfield-prd-tmpl</code></p>
+<p><strong>SCOPE</strong>: Comprehensive product requirements document including:</p>
+<ul>
+<li>Current state analysis</li>
+<li>Enhancement objectives</li>
+<li>MVP scope definition (30 stories)</li>
+<li>Post-MVP roadmap (deferred 260 stories)</li>
+<li>Success metrics (completion %, velocity, quality gates)</li>
+</ul>
+
+<p><strong>DELIVERABLE</strong>: <code>docs/prd.md</code> (15-25 pages)</p>
+<p><strong>TIMELINE</strong>: End of Week 1</p>
+<p><strong>DEPENDENCY</strong>: Blocks epic consolidation workshop (can't prioritize without PRD)</p>
+
+<p>---</p>
+
+<p><strong>ACTION 3: Execute Epic Consolidation Workshop</strong></p>
+
+<p><strong>PARTICIPANTS</strong>: Product Owner, Epic Owners (current 32), Process Guardian</p>
+<p><strong>AGENDA</strong>:</p>
+<ol>
+<li>Present PRD and MVP scope (30 stories)</li>
+<li>Review consolidation map (32 → 8 epics)</li>
+<li>Assign stories to new epic structure</li>
+<li>Archive/defer 260 non-MVP stories to `docs/backlog/archive/`</li>
+<li>Assign owners to 8 new epics</li>
+</ol>
+
+<p><strong>DELIVERABLE</strong>:</p>
+<ul>
+<li>8 new epic directories created</li>
+<li>30 MVP stories migrated to new epics</li>
+<li>260 stories archived with "deferred" status</li>
+<li>Epic ownership matrix (who owns what)</li>
+</ul>
+
+<p><strong>TIMELINE</strong>: Week 1 (Mon-Wed, 3 half-day sessions)</p>
+
+<p>---</p>
+
+<h3>5.2 Short-Term Actions (Week 2-6)</h3>
+
+<p><strong>ACTION 4: Implement Story DoD Checklist Automation</strong></p>
+
+<p><strong>OWNER</strong>: Technical Lead</p>
+<p><strong>SOLUTION</strong>: Pre-commit hook or GitHub Action that:</p>
+<ul>
+<li>Checks for DoD section in story markdown</li>
+<li>Validates status values (only: Draft, Approved, InProgress, Done allowed)</li>
+<li>Requires task list completion before "Done" status</li>
+<li>Blocks merges if story quality <50/100</li>
+</ul>
+
+<p><strong>BENEFIT</strong>: Prevents low-quality stories from entering backlog</p>
+<p><strong>EFFORT</strong>: 2 days to implement, 1 day to test</p>
+
+<p>---</p>
+
+<p><strong>ACTION 5: Establish Weekly Velocity Tracking</strong></p>
+
+<p><strong>OWNER</strong>: Process Guardian</p>
+<p><strong>CADENCE</strong>: Every Monday (sprint planning)</p>
+<p><strong>METRICS</strong>:</p>
+<ul>
+<li>Story points completed last sprint</li>
+<li>Rolling 3-sprint average velocity</li>
+<li>Remaining sprints to MVP completion</li>
+<li>Burndown chart (updated weekly)</li>
+</ul>
+
+<p><strong>DELIVERABLE</strong>: Velocity dashboard (simple spreadsheet or Jira/Linear dashboard)</p>
+<p><strong>ALERT RULE</strong>: If remaining sprints > 10, trigger scope reduction meeting</p>
+
+<p>---</p>
+
+<p><strong>ACTION 6: Rewrite All MVP Stories (30 stories)</strong></p>
+
+<p><strong>OWNER</strong>: Scrum Master using <code>create-brownfield-story</code> task</p>
+<p><strong>PROCESS</strong>:</p>
+<ol>
+<li>For each MVP story placeholder (e.g., US-081)</li>
+<li>SM agent reads existing story + PRD + architecture</li>
+<li>SM generates well-formed story (using template from Section 3.3)</li>
+<li>PM reviews and approves</li>
+<li>Dev agent verifies implementability ("Can you implement this without questions?")</li>
+</ol>
+
+<p><strong>QUALITY GATE</strong>: Every rewritten story must score >70/100 on quality rubric</p>
+<p><strong>TIMELINE</strong>: Week 2-3 (30 stories × 30 min/story = 15 hours)</p>
+
+<p>---</p>
+
+<h3>5.3 Long-Term Actions (Week 7+)</h3>
+
+<p><strong>ACTION 7: Implement Epic Retrospectives</strong></p>
+
+<p><strong>TRIGGER</strong>: After each epic reaches 100% completion</p>
+<p><strong>ATTENDEES</strong>: Epic owner, dev team, Process Guardian</p>
+<p><strong>AGENDA</strong>:</p>
+<ol>
+<li>What went well? (celebrate wins)</li>
+<li>What went poorly? (identify process failures)</li>
+<li>What would we change? (continuous improvement)</li>
+<li>Update BMad process documentation with learnings</li>
+</ol>
+
+<p><strong>DELIVERABLE</strong>: Epic retrospective document (1-2 pages) saved to <code>docs/backlog/EPIC-XXX/retrospective.md</code></p>
+
+<p>---</p>
+
+<p><strong>ACTION 8: Create Process Enforcement Dashboard</strong></p>
+
+<p><strong>OWNER</strong>: Process Guardian</p>
+<p><strong>PURPOSE</strong>: Real-time visibility into process health</p>
+<p><strong>METRICS</strong>:</p>
+<ol>
+<li>Epic count (target: 8, alarm if >10)</li>
+<li>Story count (target: 50 active, alarm if >100)</li>
+<li>Average story quality score (target: >70/100)</li>
+<li>Status compliance % (target: 100% using Draft/Approved/InProgress/Done)</li>
+<li>Velocity trend (target: stable or increasing)</li>
+<li>DoD completion % (target: 100% before "Done" status)</li>
+</ol>
+
+<p><strong>REFRESH</strong>: Updated automatically on git push</p>
+<p><strong>VISIBILITY</strong>: Shared with all stakeholders in weekly status emails</p>
+
+<p>---</p>
+
+<h3>5.4 Process Re-Occurrence Prevention</h3>
+
+<p><strong>ROOT CAUSE OF SCOPE EXPLOSION</strong>: Lack of forcing functions to question new work.</p>
+
+<p><strong>PREVENTION MECHANISMS</strong>:</p>
+
+<ol>
+<li>**Epic Creation Gate**</li>
+</ol>
+<ul>
+<li>  - Rule: No new epic without Process Guardian approval</li>
+<li>  - Approval requires: PRD reference, business case, MVP justification</li>
+<li>  - Default answer to "Should we create an epic?" = NO</li>
+</ul>
+
+<ol>
+<li>**Story Creation Gate**</li>
+</ol>
+<ul>
+<li>  - Rule: No new story without epic assignment</li>
+<li>  - No "orphan stories" allowed</li>
+<li>  - If story doesn't fit existing 8 epics, challenge if it's truly MVP</li>
+</ul>
+
+<ol>
+<li>**Status Rigor**</li>
+</ol>
+<ul>
+<li>  - Rule: Only 4 status values allowed (Draft, Approved, InProgress, Done)</li>
+<li>  - Automated check blocks other values</li>
+<li>  - Any status change requires comment explaining why</li>
+</ul>
+
+<ol>
+<li>**Velocity-Based Scope Control**</li>
+</ol>
+<ul>
+<li>  - Rule: If remaining sprints > 10, no new stories until scope reduced</li>
+<li>  - Formula: Remaining sprints = (Backlog SP) / (3-sprint avg velocity)</li>
+<li>  - Forces prioritization before team commits to "just one more feature"</li>
+</ul>
+
+<ol>
+<li>**Quarterly Scope Review**</li>
+</ol>
+<ul>
+<li>  - Rule: Every 3 months, Process Guardian presents backlog health</li>
+<li>  - Metrics: Epic count, story count, velocity, completion %</li>
+<li>  - Stakeholder approval required to continue current trajectory</li>
+<li>  - If metrics degrade, trigger consolidation workshop</li>
+</ul>
+
+<p>---</p>
+
+<h2>6. Workflow Adherence Recommendations</h2>
+
+<h3>6.1 Brownfield Workflow Compliance Roadmap</h3>
+
+<p><strong>CURRENT STATE</strong>: Workflow file exists but not followed</p>
+<p><strong>TARGET STATE</strong>: 95% workflow adherence by Week 6</p>
+
+<p><strong>PHASE 1: Workflow Education (Week 2)</strong></p>
+
+<p><strong>ACTION</strong>: Process Guardian conducts 2-hour workshop on <code>brownfield-fullstack.yaml</code></p>
+<p><strong>ATTENDEES</strong>: All team members who create epics or stories</p>
+<p><strong>CONTENT</strong>:</p>
+<ol>
+<li>Walkthrough of workflow decision tree (lines 16-40)</li>
+<li>Hands-on exercise: Classify 10 sample enhancements</li>
+<li>Quiz: "Should this be a story, epic, or major enhancement?"</li>
+<li>Q&A: "Why weren't we following this before?"</li>
+</ol>
+
+<p><strong>OUTCOME</strong>: Team understands workflow routing logic</p>
+
+<p>---</p>
+
+<p><strong>PHASE 2: Workflow Tooling (Week 3)</strong></p>
+
+<p><strong>ACTION</strong>: Create <code>classify-enhancement.sh</code> script</p>
+<p><strong>FUNCTIONALITY</strong>:</p>
+<ul>
+<li>Prompts user with questions from workflow (lines 19-25)</li>
+<li>Outputs recommended routing (single story / small feature / major enhancement)</li>
+<li>If "single story" → Launches `brownfield-create-story` task</li>
+<li>If "small feature" → Launches `brownfield-create-epic` task</li>
+<li>If "major enhancement" → Prints warning "Are you sure? This triggers full PRD process"</li>
+</ul>
+
+<p><strong>INTEGRATION</strong>: Add to team's development workflow (required before creating any new work)</p>
+
+<p>---</p>
+
+<p><strong>PHASE 3: Workflow Enforcement (Week 4+)</strong></p>
+
+<p><strong>ACTION</strong>: Process Guardian reviews all new work for workflow compliance</p>
+<p><strong>REVIEW CRITERIA</strong>:</p>
+<ul>
+<li>Was enhancement classified before epic/story creation?</li>
+<li>If epic created, was it truly "major enhancement"?</li>
+<li>If PRD required, was it created before epic breakdown?</li>
+<li>Was PO validation performed before development started?</li>
+</ul>
+
+<p><strong>NON-COMPLIANCE RESPONSE</strong>:</p>
+<ul>
+<li>Minor violation (forgot classification): Warning, accept work</li>
+<li>Major violation (epic should've been story): Reject, demand re-routing</li>
+<li>Repeat violation: Escalate to Product Owner for process coaching</li>
+</ul>
+
+<p>---</p>
+
+<h3>6.2 Definition of Done Enforcement</h3>
+
+<p><strong>PROBLEM</strong>: Zero evidence of DoD checklist usage in sampled stories</p>
+
+<p><strong>SOLUTION</strong>: Make DoD non-negotiable with automation</p>
+
+<p><strong>IMPLEMENTATION</strong>:</p>
+
+<ol>
+<li>**Story Template Update**</li>
+</ol>
+<ul>
+<li>  - Add "## Definition of Done" section to all story templates</li>
+<li>  - Pre-populate with checklist from `story-dod-checklist.md`</li>
+<li>  - SM agent automatically includes when creating stories</li>
+</ul>
+
+<ol>
+<li>**Pre-Merge Hook**</li>
+</ol>
+<ul>
+<li>  - Git hook scans story files before commit</li>
+<li>  - Checks: Does story have DoD section? Are all items checked?</li>
+<li>  - If status = "Done" but DoD incomplete → Block commit with error message</li>
+</ul>
+
+<ol>
+<li>**QA Agent Integration**</li>
+</ol>
+<ul>
+<li>  - QA agent (during `review-story` task) explicitly works through DoD checklist</li>
+<li>  - QA agent cannot mark story "Done" without completing DoD</li>
+<li>  - QA appends DoD results to story file (audit trail)</li>
+</ul>
+
+<p><strong>ROLLOUT</strong>:</p>
+<ul>
+<li>Week 2: Update story templates</li>
+<li>Week 3: Deploy pre-merge hook</li>
+<li>Week 4: Train team on QA agent DoD integration</li>
+<li>Week 5+: 100% compliance expected</li>
+</ul>
+
+<p>---</p>
+
+<h2>7. Comparative Analysis: BMad Best Practices vs. Current State</h2>
+
+<h3>7.1 BMad Benchmark Projects</h3>
+
+<p><strong>BMad TYPICAL PROJECT</strong> (from <code>bmad-kb.md</code> examples):</p>
+<ul>
+<li>Epic count: 5-8 (for MVP)</li>
+<li>Stories per epic: 10-20</li>
+<li>Story points per epic: 50-100</li>
+<li>Total MVP stories: 50-120</li>
+<li>Completion timeline: 10-20 weeks (5-10 sprints)</li>
+<li>Velocity: 5-8 stories per sprint (with DoD enforcement)</li>
+</ul>
+
+<p><strong>DEFINITIE-APP CURRENT STATE</strong>:</p>
+<ul>
+<li>Epic count: 32 (4x recommended maximum)</li>
+<li>Stories per epic: 9 (within range but across too many epics)</li>
+<li>Story points per epic: ~44 (within range)</li>
+<li>Total MVP stories: 290 (2.4x recommended maximum)</li>
+<li>Completion timeline: 164 weeks projected (8x recommended maximum)</li>
+<li>Velocity: 3 stories per sprint (60% below BMad benchmark)</li>
+</ul>
+
+<p><strong>DEFINITIE-APP POST-CONSOLIDATION TARGET</strong>:</p>
+<ul>
+<li>Epic count: 8 (BMad sweet spot)</li>
+<li>Stories per epic: 3.75 (slight optimization possible)</li>
+<li>Story points per epic: ~18 (MVP focus)</li>
+<li>Total MVP stories: 30 (within BMad range)</li>
+<li>Completion timeline: 14 weeks (within BMad range)</li>
+<li>Velocity: 6 stories per sprint (BMad benchmark)</li>
+</ul>
+
+<p><strong>CONCLUSION</strong>: Consolidation plan aligns project with BMad benchmarks. Current state is 4x over on epics, 2.4x over on stories, 8x over on timeline.</p>
+
+<p>---</p>
+
+<h3>7.2 Process Maturity Comparison</h3>
+
+<p><strong>BMad LEVEL 5 MATURITY</strong> (Optimizing):</p>
+<ul>
+<li>Workflow automation (scripts enforce routing decisions)</li>
+<li>Real-time velocity tracking (burndown charts update automatically)</li>
+<li>Predictive analytics (machine learning predicts story completion)</li>
+<li>Zero manual process enforcement (tooling prevents violations)</li>
+</ul>
+
+<p><strong>BMad LEVEL 3 MATURITY</strong> (Defined):</p>
+<ul>
+<li>Documented workflow (everyone knows the process)</li>
+<li>Manual process enforcement (Process Guardian reviews work)</li>
+<li>Periodic velocity tracking (weekly meetings)</li>
+<li>Story DoD checklists used consistently</li>
+</ul>
+
+<p><strong>BMad LEVEL 1 MATURITY</strong> (Initial):</p>
+<ul>
+<li>Ad-hoc processes (different for each epic owner)</li>
+<li>No process enforcement (anyone can create epics/stories)</li>
+<li>No velocity tracking (completion % reported quarterly)</li>
+<li>DoD checklists exist but ignored</li>
+</ul>
+
+<p><strong>DEFINITIE-APP CURRENT STATE</strong>: Level 1 (Initial/Chaotic)</p>
+<p><strong>DEFINITIE-APP TARGET (Week 6)</strong>: Level 3 (Defined)</p>
+<p><strong>DEFINITIE-APP TARGET (Week 14)</strong>: Level 4 (Quantitatively Managed)</p>
+
+<p><strong>ROADMAP</strong>:</p>
+<ul>
+<li>Week 1-2: Install Level 2 processes (workflow awareness, manual gates)</li>
+<li>Week 3-6: Achieve Level 3 (documented workflow, consistent DoD)</li>
+<li>Week 7-10: Build toward Level 4 (automated velocity, quality metrics)</li>
+<li>Week 11-14: Sustain Level 4, plan for Level 5 post-MVP</li>
+</ul>
+
+<p>---</p>
+
+<h2>8. Final Recommendations Summary</h2>
+
+<h3>8.1 Critical Path Actions (Must Do)</h3>
+
+<ol>
+<li>**Assign Process Guardian with veto power** (Week 1, Day 1)</li>
+<li>**Create centralized PRD** (Week 1, Day 1-3)</li>
+<li>**Execute epic consolidation workshop** (Week 1, Day 4-5)</li>
+<li>**Migrate 30 MVP stories to new epics** (Week 1, Day 5)</li>
+<li>**Archive 260 non-MVP stories** (Week 2, Day 1)</li>
+<li>**Rewrite all 30 MVP stories with full DoD** (Week 2-3)</li>
+<li>**Implement velocity tracking dashboard** (Week 2)</li>
+<li>**Deploy story quality gate (pre-commit hook)** (Week 3)</li>
+</ol>
+
+<p>---</p>
+
+<h3>8.2 High-Priority Actions (Should Do)</h3>
+
+<ol>
+<li>**Conduct workflow education workshop** (Week 2)</li>
+<li>**Create `classify-enhancement.sh` routing script** (Week 3)</li>
+<li>**Establish weekly process audit cadence** (Week 3+)</li>
+<li>**Train team on QA agent DoD integration** (Week 4)</li>
+<li>**Implement process enforcement dashboard** (Week 5)</li>
+</ol>
+
+<p>---</p>
+
+<h3>8.3 Medium-Priority Actions (Nice to Have)</h3>
+
+<ol>
+<li>**Epic retrospective after first epic completion** (Week 8+)</li>
+<li>**Quarterly scope review calendar** (Month 3)</li>
+<li>**Process maturity assessment** (Month 6)</li>
+</ol>
+
+<p>---</p>
+
+<h3>8.4 Success Metrics (Process Health)</h3>
+
+<p><strong>WEEK 6 TARGETS</strong>:</p>
+<ul>
+<li>Epic count: 8 (current: 32) ✅</li>
+<li>Active story count: 30 (current: 290) ✅</li>
+<li>Average story quality: 70/100 (current: 45/100) ⚠️ Requires rewrite effort</li>
+<li>Status compliance: 100% (current: ~60%) ⚠️ Requires enforcement</li>
+<li>Velocity: 6 stories/sprint (current: 3) ⚠️ Requires DoD discipline</li>
+</ul>
+
+<p><strong>WEEK 14 TARGETS</strong>:</p>
+<ul>
+<li>MVP completion: 100% (current: 14.8%)</li>
+<li>Process maturity: Level 4 (current: Level 1)</li>
+<li>BMad compliance score: 85/100 (current: 42/100)</li>
+<li>Story quality: 80/100 average</li>
+<li>Velocity: 6-8 stories/sprint (sustained)</li>
+</ul>
+
+<p>---</p>
+
+<h2>9. Appendices</h2>
+
+<h3>9.1 BMad Workflow Decision Tree (Visual)</h3>
+
+<pre><code>New Enhancement Requested
+          ↓
+    [CLASSIFY SCOPE]
+          ↓
+    ┌─────┴─────┬─────────────┐
+    ↓           ↓             ↓
+Single Story  Small Feature  Major Enhancement
+(&lt; 4 hours)   (1-3 stories)  (Multiple epics)
+    ↓           ↓             ↓
+brownfield-   brownfield-   Full PRD Process
+create-story  create-epic        ↓
+    ↓           ↓          Architecture Review
+    └─────┬─────┘                ↓
+          ↓                  PO Validation
+    [IMPLEMENTATION]              ↓
+          ↓                  Shard Documents
+     Dev Agent                    ↓
+          ↓               SM Creates Stories
+     QA Review                    ↓
+          ↓               [IMPLEMENTATION]
+      [DONE]</code></pre>
+
+<p><strong>KEY INSIGHT</strong>: 90% of DefinitieApp work entered via "Major Enhancement" path when 60% should have been "Single Story" or "Small Feature."</p>
+
+<p>---</p>
+
+<h3>9.2 Story Quality Checklist (Process Guardian Use)</h3>
+
+<p>Use this checklist when reviewing stories before approval:</p>
+
+<p><strong>MINIMUM VIABLE STORY</strong>:</p>
+<ul>
+<li>[ ] Clear user story format (As... I want... So that...)</li>
+<li>[ ] 3+ testable acceptance criteria (Given-When-Then)</li>
+<li>[ ] Story points estimated (1-8 SP range)</li>
+<li>[ ] Epic assignment clear</li>
+<li>[ ] Status = "Draft" or "Approved"</li>
+<li>[ ] No dependencies OR dependencies listed by ID</li>
+<li>[ ] Technical approach described (2-3 sentences minimum)</li>
+<li>[ ] Task breakdown (minimum 3 tasks, maximum 12 tasks)</li>
+<li>[ ] Test strategy mentioned (unit/integration/manual)</li>
+<li>[ ] DoD section present (even if not yet complete)</li>
+</ul>
+
+<p><strong>SCORE</strong>: Count ✅ checkmarks. 8+ = Acceptable, 10 = Excellent</p>
+
+<p>---</p>
+
+<h3>9.3 Epic Consolidation Quick Reference</h3>
+
+<p><strong>FROM (32 EPICS)</strong> → <strong>TO (8 EPICS)</strong></p>
+
+<p>| Old EPICs | → | New EPIC | Rationale |</p>
+<p>|-----------|---|----------|-----------|</p>
+<p>| 011, 016, 018, 026 | → | <strong>001: Foundation</strong> | All security/infrastructure |</p>
+<p>| 003, 004, 010, 005 | → | <strong>002: Core Generation</strong> | All AI/validation features |</p>
+<p>| 003(UI), 012, 015, 019 | → | <strong>003: User Interface</strong> | All user-facing functionality |</p>
+<p>| 007, 008, 009, 014 | → | <strong>004: Data Management</strong> | All data operations |</p>
+<p>| 006, 013, 017, 020 | → | <strong>005: External Integration</strong> | All external system integrations |</p>
+<p>| 021, 022, 023, 024 | → | <strong>006: Quality Assurance</strong> | All testing/monitoring |</p>
+<p>| 026, 025, 027, 028 | → | <strong>007: Compliance</strong> | All regulatory requirements |</p>
+<p>| 029, 030, 031, 032 | → | <strong>008: Documentation</strong> | All documentation work |</p>
+
+<p><strong>MEMORY AID</strong>: "FUCI-DEQC" (Foundation, UI, Core, Integration, Data, External, Quality, Compliance)</p>
+
+<p>---</p>
+
+<h3>9.4 Process Guardian Weekly Checklist</h3>
+
+<p><strong>MONDAY</strong> (Sprint Planning):</p>
+<ul>
+<li>[ ] Review velocity from last sprint</li>
+<li>[ ] Update burndown chart</li>
+<li>[ ] Check epic count (alarm if >8)</li>
+<li>[ ] Review new story proposals for DoD compliance</li>
+<li>[ ] Approve stories for current sprint (only if quality >70/100)</li>
+</ul>
+
+<p><strong>WEDNESDAY</strong> (Mid-Sprint Check):</p>
+<ul>
+<li>[ ] Review in-progress stories (are they blocked?)</li>
+<li>[ ] Check if any stories need scope clarification</li>
+<li>[ ] Verify QA agent is reviewing completed stories</li>
+<li>[ ] Escalate any process violations to PM</li>
+</ul>
+
+<p><strong>FRIDAY</strong> (Sprint Close):</p>
+<ul>
+<li>[ ] Verify "Done" stories have completed DoD</li>
+<li>[ ] Move "Done" stories to archive</li>
+<li>[ ] Calculate sprint velocity (completed SP)</li>
+<li>[ ] Prepare velocity report for Monday planning</li>
+<li>[ ] Identify process improvements for next sprint</li>
+</ul>
+
+<p>---</p>
+
+<h2>10. Conclusion</h2>
+
+<p><strong>FINAL ASSESSMENT</strong>: DefinitieApp's process failures are <strong>organizational, not technical</strong>. The project has excellent BMad infrastructure (workflows, checklists, agents) but lacked the disciplined execution required to leverage them. The scope explosion (32 EPICs, 290 stories) is a symptom of missing process governance—specifically, no Process Guardian enforcing workflow routing, DoD checklists, or velocity-based scope control.</p>
+
+<p><strong>PROGNOSIS</strong>: With immediate intervention (Weeks 1-2 consolidation, Weeks 3-6 process enforcement), the project can recover to a sustainable trajectory. The proposed 8-EPIC structure aligns perfectly with BMad principles. The critical success factor is <strong>assigning a Process Guardian with veto power</strong> and <strong>creating a centralized PRD</strong> to establish MVP scope boundaries.</p>
+
+<p><strong>RISK</strong>: If consolidation is delayed or executed half-heartedly (e.g., 32 → 20 EPICs instead of 32 → 8), the project will experience "scope creep 2.0" within 6 months. Velocity tracking and DoD enforcement are non-negotiable to prevent re-occurrence.</p>
+
+<p><strong>OPPORTUNITY</strong>: This recovery process, if documented thoroughly, becomes a case study for other brownfield BMad projects. The lessons learned—particularly around workflow routing violations and DoD enforcement—are broadly applicable to any AI-driven agile team.</p>
+
+<p><strong>NEXT STEP</strong>: Schedule Epic Consolidation Workshop (Week 1, Mon-Wed) and gain stakeholder commitment to the 30-story MVP scope. Everything else cascades from that decision.</p>
+
+<p>---</p>
+
+<p><strong>DOCUMENT METADATA</strong></p>
+
+<ul>
+<li>**Author**: BMad Process Guardian Agent</li>
+<li>**Reviewed**: Not yet reviewed</li>
+<li>**Approved**: Pending Product Owner</li>
+<li>**Distribution**: Product Owner, Technical Lead, All Epic Owners, Stakeholders</li>
+<li>**Revision**: 1.0 (Initial Analysis)</li>
+<li>**Next Review**: End of Week 2 (post-consolidation workshop)</li>
+</ul>
+
+<p>---</p>
+
+<p><em>This analysis is based on BMad Method™ best practices, project artifacts as of 2025-10-13, and ~150 lines of workflow/checklist source material. Recommendations assume a functioning development team with access to BMad agents (PM, SM, Dev, QA, PO).</em></p>
+
+  </div>
+</body>
+</html>

@@ -64,6 +64,39 @@
 <li>UI rate limit: client‑side throttle + server‑side eenvoudige limiter (session‑scoped).</li>
 </ul>
 
+<h2>Refinement (2025-10-14)</h2>
+
+<h3>Scope</h3>
+<ul>
+<li>Zet security headers vanuit de Streamlit wrapper of via eenvoudige middleware (bijv. `werkzeug.middleware.proxy_fix` + custom response hook).</li>
+<li>Voeg per-sessie CSRF token toe aan formulieren in Generator/Edit tab (POST-achtige acties).</li>
+<li>Implementeer lichte server-side rate limit (bijv. max 5 submit-acties per 10 seconden per sessie).</li>
+</ul>
+
+<h3>Buiten scope</h3>
+<ul>
+<li>Geen reverse proxy configuratie leveren voor productie; enkel voorbeeldconfig in documentatie.</li>
+<li>Geen uitgebreide WAF of bot-detectie.</li>
+</ul>
+
+<h3>Definition of Ready</h3>
+<ul>
+<li>[ ] Overzicht van alle formulieren/acties die mutaties uitvoeren beschikbaar.</li>
+<li>[ ] Keuze gemaakt voor headerinjectie (direct in Streamlit vs. uvicorn wrapper).</li>
+<li>[ ] Testlijst voor headers (curl/ZAP) opgesteld.</li>
+<li>[ ] Rate-limit parameters afgestemd (default 5/10s).</li>
+</ul>
+
+<h3>Werkpakketten</h3>
+<ul>
+<li>[ ] Middleware die headers toevoegt (`Content-Security-Policy`, `Strict-Transport-Security`, `X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`).</li>
+<li>[ ] CSRF helper: genereer token, sla op in session state, valideer bij submit endpoints.</li>
+<li>[ ] UI updates: voeg verborgen velden of parameters toe aan acties (bv. `st.form_submit_button` wrappers).</li>
+<li>[ ] Rate limiter: simpele in-memory teller per sessie + melding bij overschrijding.</li>
+<li>[ ] Logging + alerts: log blokkades met IP/sessieId (gemaskeerd).</li>
+<li>[ ] Documentatie en checklist voor lokale tests (`scripts/security/check_headers.py`).</li>
+</ul>
+
 <h2>Testplan</h2>
 <ul>
 <li>Security header integration test (requests naar lokale server; validate headers).</li>
@@ -73,9 +106,12 @@
 
 <h2>Definition of Done</h2>
 <ul>
-<li>Documentatie voor headers aanwezig; CI check (ZAP baseline) zonder High; tests groen.</li>
+<li>[ ] Automatische test bevestigt aanwezigheid van headers.</li>
+<li>[ ] CSRF-token is vereist en foutmelding verschijnt bij ontbrekende/ongeldige token.</li>
+<li>[ ] Rate limiter blokkeert overmatig gebruik en toont melding.</li>
+<li>[ ] Documentatie (`docs/security/security-headers.md`) bijgewerkt met implementatie + eventuele reverse proxy instructies.</li>
+<li>[ ] ZAP baseline (of gelijkwaardige scan) toont geen High findings voor headers/CSRF.</li>
 </ul>
-
 
   </div>
 </body>

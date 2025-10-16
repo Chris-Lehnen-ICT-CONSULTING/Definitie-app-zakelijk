@@ -1,0 +1,510 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>EPIC CONSOLIDATION MAP: 32 → 8</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>type: consolidation-map</p>
+<p>status: proposed</p>
+<p>priority: P0-CRITICAL</p>
+<p>created: 2025-10-13</p>
+<p>owner: product-management</p>
+<p>phase: Phase-0</p>
+<p>---</p>
+
+<h1>EPIC CONSOLIDATION MAP: 32 → 8</h1>
+
+<h2>Consolidation Strategy</h2>
+
+<p><strong>BEFORE</strong>: 32 EPICs, 290 User Stories (9:1 ratio) = Over-granulated backlog</p>
+<p><strong>AFTER</strong>: 8 Core EPICs, ~30 MVP Stories (4:1 ratio) = Deliverable scope</p>
+
+<p>---</p>
+
+<h2>🎯 TARGET EPIC STRUCTURE (8 Core Epics)</h2>
+
+<h3>EPIC-001: Foundation & Security</h3>
+<p><strong>Focus</strong>: Authentication, Authorization, Encryption</p>
+<p><strong>Priority</strong>: P0 (Blocker for production)</p>
+<p><strong>Stories</strong>: 4 MVP stories</p>
+
+<p><strong>Consolidates From</strong>:</p>
+<ul>
+<li>EPIC-011: Authentication</li>
+<li>EPIC-016: Authorization & Approval Gates</li>
+<li>EPIC-018: Security & Encryption</li>
+<li>Parts of EPIC-026: Infrastructure</li>
+</ul>
+
+<p><strong>Key Deliverables</strong>:</p>
+<ul>
+<li>OIDC authentication</li>
+<li>Role-based access control</li>
+<li>Database encryption at rest</li>
+<li>Secure session management</li>
+</ul>
+
+<p>---</p>
+
+<h3>EPIC-002: Core Generation</h3>
+<p><strong>Focus</strong>: AI-powered definition generation with validation</p>
+<p><strong>Priority</strong>: P0 (Core value proposition)</p>
+<p><strong>Stories</strong>: 7 MVP stories</p>
+
+<p><strong>Consolidates From</strong>:</p>
+<ul>
+<li>EPIC-003: Basic Definition Generation</li>
+<li>EPIC-004: Quality Validation (45 rules)</li>
+<li>EPIC-010: Context Flow & Enrichment</li>
+<li>EPIC-005: Validation Orchestration</li>
+</ul>
+
+<p><strong>Key Deliverables</strong>:</p>
+<ul>
+<li>GPT-4 integration with optimized prompts</li>
+<li>45 validation rules active</li>
+<li>Context flow (3/3 fields)</li>
+<li>95% first-time-right quality</li>
+</ul>
+
+<p>---</p>
+
+<h3>EPIC-003: User Interface</h3>
+<p><strong>Focus</strong>: Complete 10-tab Streamlit UI</p>
+<p><strong>Priority</strong>: P1 (User experience)</p>
+<p><strong>Stories</strong>: 8 MVP stories</p>
+
+<p><strong>Consolidates From</strong>:</p>
+<ul>
+<li>Parts of EPIC-003: UI tabs</li>
+<li>EPIC-012: Context Selector enhancements</li>
+<li>EPIC-015: Expert Review workflows</li>
+<li>EPIC-019: Bulk operations UI</li>
+</ul>
+
+<p><strong>Key Deliverables</strong>:</p>
+<ul>
+<li>10 functional tabs (currently 3)</li>
+<li>Enhanced context selector</li>
+<li>Expert review interface</li>
+<li>Bulk export/import UI</li>
+</ul>
+
+<p>---</p>
+
+<h3>EPIC-004: Data Management</h3>
+<p><strong>Focus</strong>: Repository, Export, Import, Duplicates</p>
+<p><strong>Priority</strong>: P1 (Data operations)</p>
+<p><strong>Stories</strong>: 3 MVP stories</p>
+
+<p><strong>Consolidates From</strong>:</p>
+<ul>
+<li>EPIC-007: Export functionality</li>
+<li>EPIC-008: Import functionality</li>
+<li>EPIC-009: Duplicate detection</li>
+<li>EPIC-014: Repository management</li>
+</ul>
+
+<p><strong>Key Deliverables</strong>:</p>
+<ul>
+<li>Bulk export (JSON, Excel, Markdown)</li>
+<li>Bulk import with validation</li>
+<li>Advanced duplicate detection</li>
+<li>Data integrity checks</li>
+</ul>
+
+<p>---</p>
+
+<h3>EPIC-005: External Integration</h3>
+<p><strong>Focus</strong>: Web Lookup, Wikipedia, SRU, External Sources</p>
+<p><strong>Priority</strong>: P1 (Content enrichment)</p>
+<p><strong>Stories</strong>: 2 MVP stories</p>
+
+<p><strong>Consolidates From</strong>:</p>
+<ul>
+<li>EPIC-006: Web Lookup Service</li>
+<li>EPIC-013: Wikipedia integration</li>
+<li>EPIC-017: SRU integration</li>
+<li>EPIC-020: External source management</li>
+</ul>
+
+<p><strong>Key Deliverables</strong>:</p>
+<ul>
+<li>Wikipedia lookup integration</li>
+<li>SRU (KB) integration</li>
+<li>Source metadata display</li>
+<li>Provider-neutral references</li>
+</ul>
+
+<p>---</p>
+
+<h3>EPIC-006: Quality Assurance</h3>
+<p><strong>Focus</strong>: Testing, Monitoring, Logging, Performance</p>
+<p><strong>Priority</strong>: P1 (Production readiness)</p>
+<p><strong>Stories</strong>: 3 MVP stories</p>
+
+<p><strong>Consolidates From</strong>:</p>
+<ul>
+<li>EPIC-021: Test coverage</li>
+<li>EPIC-022: Performance monitoring</li>
+<li>EPIC-023: Structured logging</li>
+<li>EPIC-024: Error handling</li>
+</ul>
+
+<p><strong>Key Deliverables</strong>:</p>
+<ul>
+<li>85% test coverage</li>
+<li>Real-time monitoring dashboard</li>
+<li>Structured logging (JSON)</li>
+<li>Performance <3s average</li>
+</ul>
+
+<p>---</p>
+
+<h3>EPIC-007: Compliance & Governance</h3>
+<p><strong>Focus</strong>: BIO, NORA, WCAG, Audit trails</p>
+<p><strong>Priority</strong>: P0 (Government requirement)</p>
+<p><strong>Stories</strong>: 2 MVP stories</p>
+
+<p><strong>Consolidates From</strong>:</p>
+<ul>
+<li>Parts of EPIC-026: ASTRA/NORA compliance</li>
+<li>EPIC-025: Audit logging</li>
+<li>EPIC-027: WCAG accessibility</li>
+<li>EPIC-028: AVG/GDPR compliance</li>
+</ul>
+
+<p><strong>Key Deliverables</strong>:</p>
+<ul>
+<li>BIO compliance certified</li>
+<li>NORA principles validated</li>
+<li>WCAG 2.1 AA compliance</li>
+<li>Complete audit trails</li>
+</ul>
+
+<p>---</p>
+
+<h3>EPIC-008: Documentation & Training</h3>
+<p><strong>Focus</strong>: User docs, API docs, Training materials</p>
+<p><strong>Priority</strong>: P2 (Post-MVP)</p>
+<p><strong>Stories</strong>: 1 MVP story</p>
+
+<p><strong>Consolidates From</strong>:</p>
+<ul>
+<li>EPIC-029: User documentation</li>
+<li>EPIC-030: API documentation</li>
+<li>EPIC-031: Training materials</li>
+<li>EPIC-032: Knowledge base</li>
+</ul>
+
+<p><strong>Key Deliverables</strong>:</p>
+<ul>
+<li>User manual</li>
+<li>API documentation</li>
+<li>Training videos</li>
+<li>FAQ / Knowledge base</li>
+</ul>
+
+<p>---</p>
+
+<h2>📊 Consolidation Metrics</h2>
+
+<h3>Epic Reduction</h3>
+<pre><code>Before: 32 EPICs
+After:  8 Core EPICs
+Reduction: 75% (24 EPICs archived/deferred)</code></pre>
+
+<h3>Story Reduction (MVP Focus)</h3>
+<pre><code>Before: 290 User Stories (all epics)
+MVP Focus: ~30 User Stories (critical path)
+Reduction: 90% (260 stories deferred to post-MVP)</code></pre>
+
+<h3>Delivery Impact</h3>
+<pre><code>At Current Velocity (3 stories/sprint):
+- 290 stories = 96 sprints = 192 weeks (3.7 YEARS)
+- 30 MVP stories = 10 sprints = 20 weeks (5 MONTHS)
+
+Improvement: 87% faster to deliverable product</code></pre>
+
+<p>---</p>
+
+<h2>🗂️ EPIC MAPPING DETAIL</h2>
+
+<h3>EPIC-001: Foundation & Security</h3>
+
+<p>| Old EPIC | Stories | Keep/Merge | New Location |</p>
+<p>|----------|---------|------------|--------------|</p>
+<p>| EPIC-011 (Auth) | 12 | Keep 2 MVP | US-001-001, US-001-002 |</p>
+<p>| EPIC-016 (Authz) | 8 | Keep 1 MVP | US-001-003 |</p>
+<p>| EPIC-018 (Security) | 15 | Keep 1 MVP | US-001-004 |</p>
+<p>| EPIC-026 (Infra) | 10 | Defer | Post-MVP |</p>
+
+<p><strong>MVP Stories (4)</strong>:</p>
+<ol>
+<li>US-001-001: OIDC Authentication</li>
+<li>US-001-002: Database Encryption</li>
+<li>US-001-003: Role-Based Access Control</li>
+<li>US-001-004: Secure Session Management</li>
+</ol>
+
+<p>---</p>
+
+<h3>EPIC-002: Core Generation</h3>
+
+<p>| Old EPIC | Stories | Keep/Merge | New Location |</p>
+<p>|----------|---------|------------|--------------|</p>
+<p>| EPIC-003 (Basic Gen) | 18 | Keep 3 MVP | US-002-001, 002, 003 |</p>
+<p>| EPIC-004 (Validation) | 25 | Keep 2 MVP | US-002-004, 005 |</p>
+<p>| EPIC-010 (Context) | 30 | Keep 2 MVP | US-002-006, 007 |</p>
+
+<p><strong>MVP Stories (7)</strong>:</p>
+<ol>
+<li>US-002-001: GPT-4 Integration</li>
+<li>US-002-002: Prompt Optimization (<2k tokens)</li>
+<li>US-002-003: Context Flow (3/3 fields)</li>
+<li>US-002-004: Validation Rules Consolidation (45 rules)</li>
+<li>US-002-005: Validation Orchestrator V2</li>
+<li>US-002-006: Definition Quality (95% first-time-right)</li>
+<li>US-002-007: Error Feedback Loop</li>
+</ol>
+
+<p>---</p>
+
+<h3>EPIC-003: User Interface</h3>
+
+<p>| Old EPIC | Stories | Keep/Merge | New Location |</p>
+<p>|----------|---------|------------|--------------|</p>
+<p>| EPIC-003 (UI) | 15 | Keep 5 MVP | US-003-001 to 005 |</p>
+<p>| EPIC-012 (Context UI) | 10 | Keep 2 MVP | US-003-006, 007 |</p>
+<p>| EPIC-015 (Review) | 8 | Keep 1 MVP | US-003-008 |</p>
+
+<p><strong>MVP Stories (8)</strong>:</p>
+<ol>
+<li>US-003-001: Complete 10 Tabs</li>
+<li>US-003-002: Generator Tab Enhancement</li>
+<li>US-003-003: Validation Results Display</li>
+<li>US-003-004: Expert Review Workflow</li>
+<li>US-003-005: Context Selector V2</li>
+<li>US-003-006: Source Metadata Display</li>
+<li>US-003-007: Bulk Operations UI</li>
+<li>US-003-008: Responsive Design</li>
+</ol>
+
+<p>---</p>
+
+<h3>EPIC-004: Data Management</h3>
+
+<p>| Old EPIC | Stories | Keep/Merge | New Location |</p>
+<p>|----------|---------|------------|--------------|</p>
+<p>| EPIC-007 (Export) | 12 | Keep 1 MVP | US-004-001 |</p>
+<p>| EPIC-008 (Import) | 10 | Keep 1 MVP | US-004-002 |</p>
+<p>| EPIC-009 (Duplicates) | 8 | Keep 1 MVP | US-004-003 |</p>
+
+<p><strong>MVP Stories (3)</strong>:</p>
+<ol>
+<li>US-004-001: Bulk Export (JSON, Excel, Markdown)</li>
+<li>US-004-002: Bulk Import with Validation</li>
+<li>US-004-003: Duplicate Detection & Merge</li>
+</ol>
+
+<p>---</p>
+
+<h3>EPIC-005: External Integration</h3>
+
+<p>| Old EPIC | Stories | Keep/Merge | New Location |</p>
+<p>|----------|---------|------------|--------------|</p>
+<p>| EPIC-006 (Web Lookup) | 20 | Keep 1 MVP | US-005-001 |</p>
+<p>| EPIC-013 (Wikipedia) | 8 | Merge | US-005-001 |</p>
+<p>| EPIC-017 (SRU) | 12 | Keep 1 MVP | US-005-002 |</p>
+
+<p><strong>MVP Stories (2)</strong>:</p>
+<ol>
+<li>US-005-001: Web Lookup Integration (Wikipedia)</li>
+<li>US-005-002: SRU Integration (Koninklijke Bibliotheek)</li>
+</ol>
+
+<p>---</p>
+
+<h3>EPIC-006: Quality Assurance</h3>
+
+<p>| Old EPIC | Stories | Keep/Merge | New Location |</p>
+<p>|----------|---------|------------|--------------|</p>
+<p>| EPIC-021 (Testing) | 15 | Keep 1 MVP | US-006-001 |</p>
+<p>| EPIC-022 (Monitoring) | 10 | Keep 1 MVP | US-006-002 |</p>
+<p>| EPIC-023 (Logging) | 8 | Keep 1 MVP | US-006-003 |</p>
+
+<p><strong>MVP Stories (3)</strong>:</p>
+<ol>
+<li>US-006-001: Test Coverage (85% target)</li>
+<li>US-006-002: Monitoring Dashboard</li>
+<li>US-006-003: Structured Logging</li>
+</ol>
+
+<p>---</p>
+
+<h3>EPIC-007: Compliance</h3>
+
+<p>| Old EPIC | Stories | Keep/Merge | New Location |</p>
+<p>|----------|---------|------------|--------------|</p>
+<p>| EPIC-026 (ASTRA/NORA) | 10 | Keep 1 MVP | US-007-001 |</p>
+<p>| EPIC-027 (WCAG) | 8 | Keep 1 MVP | US-007-002 |</p>
+
+<p><strong>MVP Stories (2)</strong>:</p>
+<ol>
+<li>US-007-001: BIO/NORA Compliance Audit</li>
+<li>US-007-002: WCAG 2.1 AA Certification</li>
+</ol>
+
+<p>---</p>
+
+<h3>EPIC-008: Documentation</h3>
+
+<p>| Old EPIC | Stories | Keep/Merge | New Location |</p>
+<p>|----------|---------|------------|--------------|</p>
+<p>| EPIC-029 (User Docs) | 6 | Keep 1 MVP | US-008-001 |</p>
+<p>| Others | 15 | Defer | Post-MVP |</p>
+
+<p><strong>MVP Stories (1)</strong>:</p>
+<ol>
+<li>US-008-001: User Manual & Quick Start Guide</li>
+</ol>
+
+<p>---</p>
+
+<h2>✅ Consolidation Checklist</h2>
+
+<h3>Phase 0 Actions (Week 1-2)</h3>
+
+<ul>
+<li>[ ] **Week 1 Day 1-2**: Epic Consolidation Workshop</li>
+<li> - Review old 32 EPICs with stakeholders</li>
+<li> - Validate new 8-EPIC structure</li>
+<li> - Gain consensus on priorities</li>
+</ul>
+
+<ul>
+<li>[ ] **Week 1 Day 3-4**: Story Identification</li>
+<li> - Map 290 stories to 8 new EPICs</li>
+<li> - Identify 30 MVP stories</li>
+<li> - Archive/defer remaining 260 stories</li>
+</ul>
+
+<ul>
+<li>[ ] **Week 1 Day 5**: Stakeholder Communication</li>
+<li> - Present consolidation plan</li>
+<li> - Reset expectations on timeline</li>
+<li> - Communicate realistic MVP scope</li>
+</ul>
+
+<ul>
+<li>[ ] **Week 2**: Implementation Prep</li>
+<li> - Update backlog in tracking system</li>
+<li> - Create new EPIC directories</li>
+<li> - Migrate relevant story files</li>
+<li> - Archive old EPICs to `docs/backlog/archive/`</li>
+</ul>
+
+<p>---</p>
+
+<h2>🚨 Deferred Stories (Post-MVP)</h2>
+
+<p><strong>260 stories deferred to Phase 4+ (post-MVP)</strong>:</p>
+<ul>
+<li>Advanced analytics features</li>
+<li>Multi-language support</li>
+<li>AI model fine-tuning</li>
+<li>Advanced collaboration features</li>
+<li>Mobile app development</li>
+<li>External system integrations (GCOS, TRIAS, NSCR)</li>
+<li>Experimental AI features</li>
+<li>Nice-to-have enhancements</li>
+</ul>
+
+<p><strong>Rationale</strong>: Focus on delivering core value first, validate with users, then iterate</p>
+
+<p>---</p>
+
+<h2>📋 Migration Steps</h2>
+
+<h3>Step 1: Create New EPIC Structure</h3>
+<pre><code># Create 8 new EPIC directories
+mkdir -p docs/backlog/EPIC-FOUNDATION
+mkdir -p docs/backlog/EPIC-GENERATION
+mkdir -p docs/backlog/EPIC-UI
+mkdir -p docs/backlog/EPIC-DATA
+mkdir -p docs/backlog/EPIC-INTEGRATION
+mkdir -p docs/backlog/EPIC-QUALITY
+mkdir -p docs/backlog/EPIC-COMPLIANCE
+mkdir -p docs/backlog/EPIC-DOCS</code></pre>
+
+<h3>Step 2: Archive Old EPICs</h3>
+<pre><code># Move old EPICs to archive
+mkdir -p docs/backlog/archive/pre-consolidation-2025-10-13
+mv docs/backlog/EPIC-* docs/backlog/archive/pre-consolidation-2025-10-13/</code></pre>
+
+<h3>Step 3: Create MVP Stories</h3>
+<pre><code># Use BMad tasks to create new consolidated stories
+*task brownfield-create-story  # For each of the 30 MVP stories</code></pre>
+
+<h3>Step 4: Update Tracking</h3>
+<ul>
+<li>Update project management tool (if any)</li>
+<li>Update INDEX.md with new structure</li>
+<li>Update architecture docs with new EPICs</li>
+<li>Communicate changes to team</li>
+</ul>
+
+<p>---</p>
+
+<h2>🎯 Success Metrics</h2>
+
+<h3>Immediate (Week 2)</h3>
+<ul>
+<li>✅ 8 EPICs documented</li>
+<li>✅ 30 MVP stories identified</li>
+<li>✅ 260 stories archived</li>
+<li>✅ Stakeholder approval obtained</li>
+</ul>
+
+<h3>Short-term (Week 6)</h3>
+<ul>
+<li>✅ 50% MVP stories complete</li>
+<li>✅ New EPIC structure adopted by team</li>
+<li>✅ Velocity improved (3 → 6 stories/sprint)</li>
+</ul>
+
+<h3>Long-term (Week 14)</h3>
+<ul>
+<li>✅ 100% MVP stories complete</li>
+<li>✅ Production deployment successful</li>
+<li>✅ Post-MVP roadmap defined</li>
+</ul>
+
+<p>---</p>
+
+<p><strong>NEXT STEPS</strong>:</p>
+<ol>
+<li>Schedule Epic Consolidation Workshop (Week 1 Mon-Tue)</li>
+<li>Prepare old EPIC review materials</li>
+<li>Assign consolidation leads for each new EPIC</li>
+<li>Begin stakeholder communication draft</li>
+</ol>
+
+  </div>
+</body>
+</html>

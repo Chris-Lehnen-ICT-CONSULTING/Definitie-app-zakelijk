@@ -59,6 +59,38 @@
 <li>Key‑rotatieproces documenteren.</li>
 </ul>
 
+<h2>Refinement (2025-10-14)</h2>
+
+<h3>Scope</h3>
+<ul>
+<li>Quick win: versleutel SQLite via SQLCipher (indien beschikbaar) of fallback field-level encryptie voor teksten (definitie, context).</li>
+<li>Zorg dat sleutel via environment variable wordt aangeleverd en nooit in code/logs terechtkomt.</li>
+<li>Bied eenvoudige migratie voor bestaande database (export → import).</li>
+</ul>
+
+<h3>Buiten scope</h3>
+<ul>
+<li>Geen geautomatiseerd key-rotatiesysteem; alleen beschreven procedure.</li>
+<li>Geen enterprise HSM-integratie.</li>
+</ul>
+
+<h3>Definition of Ready</h3>
+<ul>
+<li>[ ] Beslissing genomen: SQLCipher beschikbaar? (check `brew install sqlcipher` op dev machine).</li>
+<li>[ ] Bibliotheek keuze gemaakt (`pysqlcipher3` of fallback `cryptography`).</li>
+<li>[ ] Migratieplan (stappen + rollback) uitgewerkt.</li>
+</ul>
+
+<h3>Werkpakketten</h3>
+<ul>
+<li>[ ] Abstractielaag in `DefinitionRepository` die transparant encrypt/decrypt toepast.</li>
+<li>[ ] Initialisatie: laad key uit `ENCRYPTION_KEY` env; valideer sterkte (min 32 chars).</li>
+<li>[ ] Migratiescript `scripts/migrations/encrypt_database.py` (export -> encrypt -> import).</li>
+<li>[ ] Tests: unit (encrypt/decrypt), integratie (CRUD met sleutel, failure zonder sleutel).</li>
+<li>[ ] Monitoring/logging: waarschuwing indien key ontbreekt of fout; blokkeer start.</li>
+<li>[ ] Documentatie: runbook voor sleutelbeheer en backup/herstel.</li>
+</ul>
+
 <h2>Testplan</h2>
 <ul>
 <li>Unit/integration: schrijven/lezen met en zonder juiste sleutel.</li>
@@ -67,9 +99,12 @@
 
 <h2>Definition of Done</h2>
 <ul>
-<li>Encryptie actief; documentatie en runbooks aanwezig; CI smoke test voor verbinding.</li>
+<li>[ ] Applicatie start niet zonder sleutel en logt duidelijke fout.</li>
+<li>[ ] Data op schijf is versleuteld (handmatige inspectie toont geen platte tekst).</li>
+<li>[ ] Tests dekken lezen/schrijven + foutscenario zonder sleutel.</li>
+<li>[ ] Runbook/documentatie beschikbaar voor migratie en herstel.</li>
+<li>[ ] Opslag van sleutel buiten repo (ENV of secrets store) bevestigd.</li>
 </ul>
-
 
   </div>
 </body>

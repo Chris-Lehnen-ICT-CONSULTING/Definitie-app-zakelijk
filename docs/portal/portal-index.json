@@ -39,6 +39,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Definitie‑app — Stabilization MVP PRD (Concept)",
+      "path": "../prd.md",
+      "url": "../prd.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/prd.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "PHASE 2.1 Summary: SynonymOrchestrator Implementation",
       "path": "../phase-2.1-summary.md",
       "url": "../phase-2.1-summary.md",
@@ -145,6 +176,37 @@
         ]
       },
       "rendered_url": "rendered/INDEX.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Vibe Coding Codex — Hoofdstukken 1 t/m 4 (Boekversie)",
+      "path": "../Vibe_Coding_Codex_H1-H4_Boekversie.md",
+      "url": "../Vibe_Coding_Codex_H1-H4_Boekversie.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/Vibe_Coding_Codex_H1-H4_Boekversie.html"
     },
     {
       "id": null,
@@ -1401,6 +1463,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "UFO Relationship Management - Design Voorstel",
+      "path": "../backlog/UFO_RELATIONSHIP_MANAGEMENT_DESIGN.md",
+      "url": "../backlog/UFO_RELATIONSHIP_MANAGEMENT_DESIGN.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/UFO_RELATIONSHIP_MANAGEMENT_DESIGN.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "SynonymOrchestrator Integration Guide",
       "path": "../integration/synonym_orchestrator_integration.md",
       "url": "../integration/synonym_orchestrator_integration.md",
@@ -1463,6 +1556,150 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "PROCESS GUARDIAN ANALYSIS: BMad Method Compliance & Failure Assessment",
+      "path": "../planning/agent-output-process.md",
+      "url": "../planning/agent-output-process.md",
+      "status": "delivered",
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": "process-analysis",
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-001",
+          "US-005",
+          "US-081",
+          "US-088",
+          "US-135"
+        ],
+        "epic": [
+          "EPIC-001",
+          "EPIC-002",
+          "EPIC-003",
+          "EPIC-004",
+          "EPIC-005",
+          "EPIC-006",
+          "EPIC-007",
+          "EPIC-008",
+          "EPIC-009",
+          "EPIC-010",
+          "EPIC-011",
+          "EPIC-012",
+          "EPIC-016",
+          "EPIC-019",
+          "EPIC-021",
+          "EPIC-022",
+          "EPIC-023"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/planning/agent-output-process.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Product Manager Crisis Analysis: DefinitieAgent Brownfield Recovery",
+      "path": "../planning/agent-output-product.md",
+      "url": "../planning/agent-output-product.md",
+      "status": "final",
+      "prioriteit": null,
+      "owner": "senior-product-manager",
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": "product-management-analysis",
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [
+          "EPIC-001",
+          "EPIC-002",
+          "EPIC-003",
+          "EPIC-004",
+          "EPIC-005",
+          "EPIC-006",
+          "EPIC-007",
+          "EPIC-008"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/planning/agent-output-product.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "BROWNFIELD RECOVERY PLAN - MULTI-AGENT CONSENSUS",
+      "path": "../planning/BROWNFIELD_RECOVERY_CONSENSUS.md",
+      "url": "../planning/BROWNFIELD_RECOVERY_CONSENSUS.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-202"
+        ],
+        "epic": [
+          "EPIC-001",
+          "EPIC-002",
+          "EPIC-003",
+          "EPIC-004",
+          "EPIC-005",
+          "EPIC-006",
+          "EPIC-007",
+          "EPIC-009",
+          "EPIC-010",
+          "EPIC-012",
+          "EPIC-015",
+          "EPIC-020",
+          "EPIC-022",
+          "EPIC-023",
+          "EPIC-026"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/planning/BROWNFIELD_RECOVERY_CONSENSUS.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Agent Analysis Summary: Brownfield Cleanup Investigation",
       "path": "../planning/AGENT_ANALYSIS_SUMMARY.md",
       "url": "../planning/AGENT_ANALYSIS_SUMMARY.md",
@@ -1501,6 +1738,39 @@
         "req": []
       },
       "rendered_url": "rendered/planning/AGENT_ANALYSIS_SUMMARY.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "QUALITY & RISK - ACTION PLAN (QUICK REFERENCE)",
+      "path": "../planning/QUALITY_RISK_ACTION_PLAN.md",
+      "url": "../planning/QUALITY_RISK_ACTION_PLAN.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [
+          "EPIC-026"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/planning/QUALITY_RISK_ACTION_PLAN.html"
     },
     {
       "id": "SPRINT-1-REPORT",
@@ -1547,6 +1817,39 @@
       "rendered_url": "rendered/planning/EPIC-025-SPRINT-1-COMPLETION-REPORT.html"
     },
     {
+      "id": null,
+      "type": "DOC",
+      "title": "ULTRA-DEEP TECHNICAL ANALYSIS: DefinitieApp Brownfield Recovery",
+      "path": "../planning/agent_output_technical.md",
+      "url": "../planning/agent_output_technical.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-202"
+        ],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/planning/agent_output_technical.html"
+    },
+    {
       "id": "EPIC-026-TEST-RECOVERY-PLAN",
       "type": "DOC",
       "title": "EPIC-026 Test Coverage Crisis - Recovery Plan",
@@ -1578,6 +1881,224 @@
         "req": []
       },
       "rendered_url": "rendered/planning/epic-026-test-recovery-plan.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "🛠️ DEVELOPER PERSPECTIVE: Technical Feasibility Assessment",
+      "path": "../planning/agent-output-technical.md",
+      "url": "../planning/agent-output-technical.md",
+      "status": "assessment-complete",
+      "prioriteit": null,
+      "owner": "technical-lead",
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": "definitie-app@brownfield-recovery",
+      "category": "technical-analysis",
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-001",
+          "US-202"
+        ],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/planning/agent-output-technical.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "🚨 BROWNFIELD RECOVERY PLAN - EXECUTIVE SUMMARY",
+      "path": "../planning/README_RECOVERY_PLAN.md",
+      "url": "../planning/README_RECOVERY_PLAN.md",
+      "status": "active",
+      "prioriteit": null,
+      "owner": "product-management",
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": "recovery-index",
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-001"
+        ],
+        "epic": [
+          "EPIC-001",
+          "EPIC-002",
+          "EPIC-003",
+          "EPIC-004",
+          "EPIC-005",
+          "EPIC-006",
+          "EPIC-007",
+          "EPIC-008"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/planning/README_RECOVERY_PLAN.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "EPIC CONSOLIDATION MAP: 32 → 8",
+      "path": "../planning/EPIC_CONSOLIDATION_MAP.md",
+      "url": "../planning/EPIC_CONSOLIDATION_MAP.md",
+      "status": "proposed",
+      "prioriteit": null,
+      "owner": "product-management",
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": "consolidation-map",
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-001",
+          "US-002",
+          "US-003",
+          "US-004",
+          "US-005",
+          "US-006",
+          "US-007",
+          "US-008"
+        ],
+        "epic": [
+          "EPIC-001",
+          "EPIC-002",
+          "EPIC-003",
+          "EPIC-004",
+          "EPIC-005",
+          "EPIC-006",
+          "EPIC-007",
+          "EPIC-008",
+          "EPIC-009",
+          "EPIC-010",
+          "EPIC-011",
+          "EPIC-012",
+          "EPIC-013",
+          "EPIC-014",
+          "EPIC-015",
+          "EPIC-016",
+          "EPIC-017",
+          "EPIC-018",
+          "EPIC-019",
+          "EPIC-020",
+          "EPIC-021",
+          "EPIC-022",
+          "EPIC-023",
+          "EPIC-024",
+          "EPIC-025",
+          "EPIC-026",
+          "EPIC-027",
+          "EPIC-028",
+          "EPIC-029",
+          "EPIC-030",
+          "EPIC-031",
+          "EPIC-032"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/planning/EPIC_CONSOLIDATION_MAP.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "QUALITY & RISK ANALYSIS - EXECUTIVE SUMMARY",
+      "path": "../planning/QUALITY_RISK_EXECUTIVE_SUMMARY.md",
+      "url": "../planning/QUALITY_RISK_EXECUTIVE_SUMMARY.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [
+          "EPIC-026"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/planning/QUALITY_RISK_EXECUTIVE_SUMMARY.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "QUALITY & RISK ANALYSIS - DefinitieAgent Brownfield Project",
+      "path": "../planning/QUALITY_RISK_ANALYSIS.md",
+      "url": "../planning/QUALITY_RISK_ANALYSIS.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-202"
+        ],
+        "epic": [
+          "EPIC-016",
+          "EPIC-026"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/planning/QUALITY_RISK_ANALYSIS.html"
     },
     {
       "id": null,
@@ -1840,6 +2361,39 @@
       "rendered_url": "rendered/planning/EPIC-026-PHASE-1-KICKOFF.html"
     },
     {
+      "id": null,
+      "type": "DOC",
+      "title": "RISK & QUALITY ANALYSIS - DefinitieApp Brownfield Recovery",
+      "path": "../planning/agent_output_risk_quality.md",
+      "url": "../planning/agent_output_risk_quality.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-202"
+        ],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/planning/agent_output_risk_quality.html"
+    },
+    {
       "id": "PARALLEL-TRACK-COORD",
       "type": "DOC",
       "title": "Parallel Track Coordination (Sprint 2 + EPIC-026 Prep)",
@@ -1884,6 +2438,83 @@
       "rendered_url": "rendered/planning/PARALLEL-TRACK-COORDINATION.html"
     },
     {
+      "id": null,
+      "type": "DOC",
+      "title": "📐 BMAD METHOD - PROJECT STRUCTURE",
+      "path": "../planning/BMAD_STRUCTURE.md",
+      "url": "../planning/BMAD_STRUCTURE.md",
+      "status": "active",
+      "prioriteit": null,
+      "owner": "process-guardian",
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": "bmad-structure",
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-001",
+          "US-002"
+        ],
+        "epic": [
+          "EPIC-003",
+          "EPIC-004",
+          "EPIC-005"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/planning/BMAD_STRUCTURE.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "📅 WEEKLY ACTION PLAN - Brownfield Recovery",
+      "path": "../planning/WEEKLY_ACTION_PLAN.md",
+      "url": "../planning/WEEKLY_ACTION_PLAN.md",
+      "status": "proposed",
+      "prioriteit": null,
+      "owner": "product-management",
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": "action-plan",
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-001",
+          "US-002",
+          "US-004",
+          "US-005",
+          "US-006",
+          "US-007",
+          "US-008"
+        ],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/planning/WEEKLY_ACTION_PLAN.html"
+    },
+    {
       "id": "EPIC-026-REVIEW-BRIEF",
       "type": "DOC",
       "title": "EPIC-026 Stakeholder Review Brief",
@@ -1921,6 +2552,72 @@
         "req": []
       },
       "rendered_url": "rendered/planning/EPIC-026-STAKEHOLDER-REVIEW-BRIEF.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Technical Architecture Analysis: DefinitieAgent",
+      "path": "../planning/agent-output-architecture.md",
+      "url": "../planning/agent-output-architecture.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-202"
+        ],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/planning/agent-output-architecture.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "ARCHITECTURE DEEP-DIVE ANALYSIS - DEFINITIEAPP BROWNFIELD RECOVERY",
+      "path": "../planning/agent_output_architecture.md",
+      "url": "../planning/agent_output_architecture.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-202"
+        ],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/planning/agent_output_architecture.html"
     },
     {
       "id": null,
@@ -2008,6 +2705,127 @@
       "rendered_url": "rendered/planning/EPIC-025-SPRINT-2-COMPLETION-REPORT.html"
     },
     {
+      "id": null,
+      "type": "DOC",
+      "title": "RISK & QUALITY ANALYSIS - BROWNFIELD RECOVERY PLAN",
+      "path": "../planning/agent-output-risk-quality.md",
+      "url": "../planning/agent-output-risk-quality.md",
+      "status": "final",
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": "definitie-app@brownfield-recovery",
+      "category": "risk-quality-analysis",
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-001",
+          "US-002",
+          "US-003",
+          "US-005",
+          "US-007"
+        ],
+        "epic": [],
+        "req": [
+          "REQ-001"
+        ]
+      },
+      "rendered_url": "rendered/planning/agent-output-risk-quality.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "🤝 MULTI-AGENT CONSENSUS VALIDATION",
+      "path": "../planning/MULTI_AGENT_CONSENSUS_VALIDATION.md",
+      "url": "../planning/MULTI_AGENT_CONSENSUS_VALIDATION.md",
+      "status": "proposed",
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": "consensus-validation",
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/planning/MULTI_AGENT_CONSENSUS_VALIDATION.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "🤝 MULTI-AGENT CONSENSUS RECOVERY PLAN",
+      "path": "../planning/MULTI_AGENT_CONSENSUS_RECOVERY_PLAN.md",
+      "url": "../planning/MULTI_AGENT_CONSENSUS_RECOVERY_PLAN.md",
+      "status": "final",
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": "consensus-recovery-plan",
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-001",
+          "US-002",
+          "US-003",
+          "US-004",
+          "US-005",
+          "US-006",
+          "US-007",
+          "US-008",
+          "US-202"
+        ],
+        "epic": [
+          "EPIC-001",
+          "EPIC-002",
+          "EPIC-003",
+          "EPIC-004",
+          "EPIC-005",
+          "EPIC-006",
+          "EPIC-007",
+          "EPIC-008",
+          "EPIC-016"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/planning/MULTI_AGENT_CONSENSUS_RECOVERY_PLAN.html"
+    },
+    {
       "id": "EPIC-026-TEST-IMPLEMENTATION-GUIDE",
       "type": "DOC",
       "title": "EPIC-026 Test Implementation Guide",
@@ -2039,6 +2857,192 @@
         "req": []
       },
       "rendered_url": "rendered/planning/epic-026-test-implementation-guide.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "BMad Method Process Analysis & Recovery Prescription",
+      "path": "../planning/agent_output_process.md",
+      "url": "../planning/agent_output_process.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-006",
+          "US-135"
+        ],
+        "epic": [
+          "EPIC-001",
+          "EPIC-002",
+          "EPIC-003",
+          "EPIC-004",
+          "EPIC-005",
+          "EPIC-006",
+          "EPIC-007",
+          "EPIC-009",
+          "EPIC-010",
+          "EPIC-011",
+          "EPIC-012",
+          "EPIC-013",
+          "EPIC-014",
+          "EPIC-015",
+          "EPIC-016",
+          "EPIC-017",
+          "EPIC-018",
+          "EPIC-019",
+          "EPIC-020",
+          "EPIC-021",
+          "EPIC-022",
+          "EPIC-023",
+          "EPIC-024",
+          "EPIC-025",
+          "EPIC-026",
+          "EPIC-028"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/planning/agent_output_process.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Product Strategy Analysis: DefinitieApp Brownfield Recovery",
+      "path": "../planning/agent_output_product.md",
+      "url": "../planning/agent_output_product.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-015",
+          "US-016",
+          "US-017",
+          "US-019",
+          "US-020",
+          "US-021",
+          "US-022",
+          "US-024",
+          "US-025",
+          "US-026",
+          "US-027",
+          "US-033",
+          "US-034",
+          "US-063",
+          "US-064",
+          "US-135",
+          "US-136",
+          "US-140",
+          "US-141",
+          "US-142",
+          "US-143",
+          "US-144",
+          "US-155"
+        ],
+        "epic": [
+          "EPIC-001",
+          "EPIC-002",
+          "EPIC-003",
+          "EPIC-004",
+          "EPIC-005",
+          "EPIC-006",
+          "EPIC-007",
+          "EPIC-009",
+          "EPIC-010",
+          "EPIC-011",
+          "EPIC-013",
+          "EPIC-015",
+          "EPIC-016",
+          "EPIC-018",
+          "EPIC-019",
+          "EPIC-021",
+          "EPIC-022",
+          "EPIC-023",
+          "EPIC-024",
+          "EPIC-025",
+          "EPIC-026"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/planning/agent_output_product.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "🚨 BROWNFIELD RECOVERY PLAN - DefinitieApp",
+      "path": "../planning/BROWNFIELD_RECOVERY_PLAN.md",
+      "url": "../planning/BROWNFIELD_RECOVERY_PLAN.md",
+      "status": "proposed",
+      "prioriteit": null,
+      "owner": "product-management",
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": "definitie-app@brownfield-recovery",
+      "category": "recovery-plan",
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-001",
+          "US-002",
+          "US-003",
+          "US-004",
+          "US-005",
+          "US-006",
+          "US-007"
+        ],
+        "epic": [
+          "EPIC-001",
+          "EPIC-002",
+          "EPIC-003",
+          "EPIC-004",
+          "EPIC-005",
+          "EPIC-006",
+          "EPIC-007",
+          "EPIC-008"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/planning/BROWNFIELD_RECOVERY_PLAN.html"
     },
     {
       "id": null,
@@ -3313,6 +4317,41 @@
         "req": []
       },
       "rendered_url": "rendered/archief/REORGANIZATION_PLAN.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "🚀 What I'm Working On",
+      "path": "../archief/WORKING.md",
+      "url": "../archief/WORKING.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-202"
+        ],
+        "epic": [
+          "EPIC-016"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/archief/WORKING.html"
     },
     {
       "id": null,
@@ -8572,6 +9611,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Ontology Classifier Comparison Analysis",
+      "path": "../analyses/classifier-comparison.md",
+      "url": "../analyses/classifier-comparison.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/classifier-comparison.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Automated Synonym Suggestion - Executive Summary",
       "path": "../analyses/SYNONYM_AUTOMATION_SUMMARY.md",
       "url": "../analyses/SYNONYM_AUTOMATION_SUMMARY.md",
@@ -9526,6 +10596,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Ontological Classifier - Complete Deliverable",
+      "path": "../reports/ONTOLOGICAL_CLASSIFIER_DELIVERABLE.md",
+      "url": "../reports/ONTOLOGICAL_CLASSIFIER_DELIVERABLE.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/reports/ONTOLOGICAL_CLASSIFIER_DELIVERABLE.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Documentation Link Fixes Compliance Report",
       "path": "../reports/LINK_FIXES_COMPLIANCE_REPORT.md",
       "url": "../reports/LINK_FIXES_COMPLIANCE_REPORT.md",
@@ -9553,6 +10654,83 @@
         "req": []
       },
       "rendered_url": "rendered/reports/LINK_FIXES_COMPLIANCE_REPORT.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Data Integrity Fix: Idempotent add_group_member()",
+      "path": "../reports/DATA_INTEGRITY_FIX_SUMMARY.md",
+      "url": "../reports/DATA_INTEGRITY_FIX_SUMMARY.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/reports/DATA_INTEGRITY_FIX_SUMMARY.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "BMAD Method Implementation Analysis - DefinitieAgent Brownfield Project",
+      "path": "../reports/BMAD_IMPLEMENTATION_ANALYSIS.md",
+      "url": "../reports/BMAD_IMPLEMENTATION_ANALYSIS.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-060",
+          "US-160",
+          "US-181",
+          "US-182",
+          "US-183",
+          "US-184",
+          "US-185",
+          "US-186",
+          "US-187",
+          "US-202"
+        ],
+        "epic": [
+          "EPIC-001",
+          "EPIC-016",
+          "EPIC-032"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/reports/BMAD_IMPLEMENTATION_ANALYSIS.html"
     },
     {
       "id": null,
@@ -9586,6 +10764,39 @@
         "req": []
       },
       "rendered_url": "rendered/reports/TIER0_ACTION_PLAN.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "TabbedInterface Caching Optimization - Implementation Summary",
+      "path": "../reports/IMPLEMENTATION_SUMMARY.md",
+      "url": "../reports/IMPLEMENTATION_SUMMARY.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-202"
+        ],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/reports/IMPLEMENTATION_SUMMARY.html"
     },
     {
       "id": null,
@@ -9815,6 +11026,39 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "🚀 Performance Optimization Wins - US-201",
+      "path": "../reports/PERFORMANCE_WINS.md",
+      "url": "../reports/PERFORMANCE_WINS.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-201"
+        ],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/reports/PERFORMANCE_WINS.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Web Lookup Analyse - Executive Summary",
       "path": "../reports/web-lookup-analysis-executive-summary.md",
       "url": "../reports/web-lookup-analysis-executive-summary.md",
@@ -9844,6 +11088,37 @@
         "req": []
       },
       "rendered_url": "rendered/reports/web-lookup-analysis-executive-summary.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Performance Fixes - Executive Summary",
+      "path": "../reports/PERFORMANCE_FIXES_SUMMARY.md",
+      "url": "../reports/PERFORMANCE_FIXES_SUMMARY.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/reports/PERFORMANCE_FIXES_SUMMARY.html"
     },
     {
       "id": null,
@@ -10132,6 +11407,37 @@
         "req": []
       },
       "rendered_url": "rendered/reports/rechtspraak-scraping-feasibility-analysis.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "SRU Circuit Breaker Implementation - Delivery Summary",
+      "path": "../reports/SRU_CIRCUIT_BREAKER_IMPLEMENTATION_SUMMARY.md",
+      "url": "../reports/SRU_CIRCUIT_BREAKER_IMPLEMENTATION_SUMMARY.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/reports/SRU_CIRCUIT_BREAKER_IMPLEMENTATION_SUMMARY.html"
     },
     {
       "id": null,
@@ -10551,6 +11857,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Ontology Classification Implementation - Samenvatting",
+      "path": "../reports/ONTOLOGY_CLASSIFICATION_IMPLEMENTATION_SUMMARY.md",
+      "url": "../reports/ONTOLOGY_CLASSIFICATION_IMPLEMENTATION_SUMMARY.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/reports/ONTOLOGY_CLASSIFICATION_IMPLEMENTATION_SUMMARY.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "🚀 BIG WIN: Parallel Voorbeelden Execution",
       "path": "../reports/PARALLEL_VOORBEELDEN_SUMMARY.md",
       "url": "../reports/PARALLEL_VOORBEELDEN_SUMMARY.md",
@@ -10609,6 +11946,37 @@
         "req": []
       },
       "rendered_url": "rendered/reports/ranking-fix-code-snippets.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "✅ COMPLETED: Parallel Voorbeelden Generation",
+      "path": "../reports/PARALLEL_VOORBEELDEN_IMPLEMENTATION.md",
+      "url": "../reports/PARALLEL_VOORBEELDEN_IMPLEMENTATION.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/reports/PARALLEL_VOORBEELDEN_IMPLEMENTATION.html"
     },
     {
       "id": null,
@@ -10995,6 +12363,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Session State Flags Implementation Summary",
+      "path": "../reports/session_state_flags_implementation.md",
+      "url": "../reports/session_state_flags_implementation.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/reports/session_state_flags_implementation.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Code Quality Improvement - Documentation Index",
       "path": "../reports/CODE_QUALITY_INDEX.md",
       "url": "../reports/CODE_QUALITY_INDEX.md",
@@ -11150,6 +12549,37 @@
         "req": []
       },
       "rendered_url": "rendered/reviews/CODE_REVIEW-2025-09-16.html"
+    },
+    {
+      "id": "REVIEW-002",
+      "type": "DOC",
+      "title": "Term-Based Classification Specification Review",
+      "path": "../reviews/term-classifier-spec-review.md",
+      "url": "../reviews/term-classifier-spec-review.md",
+      "status": "draft",
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": "ontology-classification-system",
+      "category": "architecture-review",
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/reviews/term-classifier-spec-review.html"
     },
     {
       "id": null,
@@ -22578,9 +24008,7 @@
           "US-110",
           "US-136",
           "US-153",
-          "US-154",
-          "US-235",
-          "US-236"
+          "US-154"
         ],
         "epic": [
           "EPIC-004"
@@ -22725,7 +24153,6 @@
       "parent_us": null,
       "_refs": {
         "us": [
-          "US-062",
           "US-065",
           "US-137",
           "US-138",
@@ -23075,7 +24502,6 @@
       "_refs": {
         "us": [
           "US-225",
-          "US-227",
           "US-228",
           "US-229",
           "US-230",
@@ -23888,31 +25314,34 @@
       "rendered_url": "rendered/backlog/EPIC-017/EPIC-017.html"
     },
     {
-      "id": null,
+      "id": "EPIC-028",
       "type": "EPIC",
-      "title": "EPIC-028: Feature Cleanup & UI Simplification",
+      "title": "EPIC-028: Single-User Werkruimte - Focus op kernflows en overzichtelijke UI",
       "path": "../backlog/EPIC-028/EPIC-028.md",
       "url": "../backlog/EPIC-028/EPIC-028.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
-      "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
+      "status": "ready",
+      "prioriteit": "HOOG",
+      "owner": "product-owner",
+      "canonical": true,
+      "last_verified": "2025-10-14",
+      "applies_to": "definitie-app@current",
       "category": null,
       "sprint": null,
       "story_points": null,
       "completion": null,
-      "target_release": null,
+      "target_release": "v1.1",
       "planning": {
         "sprint_number": null,
-        "priority_rank": 5,
+        "priority_rank": 2,
         "type_rank": 1
       },
       "parent_epic": "EPIC-028.md",
       "parent_us": null,
       "_refs": {
         "us": [
+          "US-028",
+          "US-235",
+          "US-236",
           "US-441",
           "US-442",
           "US-443",
@@ -23927,7 +25356,9 @@
         ],
         "req": []
       },
-      "rendered_url": "rendered/backlog/EPIC-028/EPIC-028.html"
+      "rendered_url": "rendered/backlog/EPIC-028/EPIC-028.html",
+      "linked_reqs": null,
+      "linked_stories": null
     },
     {
       "id": "EPIC-010",
@@ -28783,7 +30214,7 @@
     {
       "id": null,
       "type": "DOC",
-      "title": "README",
+      "title": "Backlog Dashboard – Single-User Focus",
       "path": "../backlog/dashboard/README.md",
       "url": "../backlog/dashboard/README.md",
       "status": null,
@@ -28805,185 +30236,54 @@
       "parent_epic": null,
       "parent_us": null,
       "_refs": {
-        "us": [],
+        "us": [
+          "US-015",
+          "US-017",
+          "US-028",
+          "US-029",
+          "US-030",
+          "US-031",
+          "US-032",
+          "US-033",
+          "US-035",
+          "US-137",
+          "US-140",
+          "US-143",
+          "US-195",
+          "US-227",
+          "US-235",
+          "US-236",
+          "US-301",
+          "US-302"
+        ],
         "epic": [
           "EPIC-001",
           "EPIC-002",
           "EPIC-003",
-          "EPIC-004",
           "EPIC-005",
           "EPIC-006",
           "EPIC-007",
           "EPIC-009",
-          "EPIC-011"
+          "EPIC-010",
+          "EPIC-011",
+          "EPIC-015",
+          "EPIC-028",
+          "EPIC-030"
         ],
         "req": [
-          "REQ-001",
           "REQ-002",
-          "REQ-003",
-          "REQ-004",
-          "REQ-005",
           "REQ-006",
-          "REQ-007",
-          "REQ-008",
-          "REQ-009",
-          "REQ-010",
-          "REQ-011",
-          "REQ-012",
-          "REQ-013",
-          "REQ-014",
-          "REQ-015",
-          "REQ-016",
-          "REQ-017",
-          "REQ-018",
-          "REQ-019",
-          "REQ-020",
           "REQ-021",
           "REQ-022",
-          "REQ-023",
-          "REQ-024",
-          "REQ-025",
-          "REQ-026",
-          "REQ-027",
-          "REQ-028",
-          "REQ-029",
-          "REQ-030",
-          "REQ-031",
-          "REQ-032",
-          "REQ-033",
-          "REQ-034",
-          "REQ-035",
-          "REQ-036",
-          "REQ-037",
           "REQ-038",
-          "REQ-039",
-          "REQ-040",
-          "REQ-041",
-          "REQ-042",
-          "REQ-043",
-          "REQ-044",
-          "REQ-045",
-          "REQ-046",
-          "REQ-047",
           "REQ-048",
-          "REQ-049",
-          "REQ-050",
-          "REQ-051",
           "REQ-052",
-          "REQ-053",
-          "REQ-054",
-          "REQ-055",
-          "REQ-056",
-          "REQ-057",
-          "REQ-058",
-          "REQ-059",
-          "REQ-060",
           "REQ-061",
-          "REQ-062",
-          "REQ-063",
-          "REQ-064",
-          "REQ-065",
-          "REQ-066",
-          "REQ-067",
-          "REQ-068",
-          "REQ-069",
-          "REQ-070",
-          "REQ-071",
-          "REQ-072",
           "REQ-073",
-          "REQ-074",
-          "REQ-075",
-          "REQ-076",
-          "REQ-077",
-          "REQ-078",
-          "REQ-079",
-          "REQ-080",
-          "REQ-081",
-          "REQ-082",
-          "REQ-083",
-          "REQ-084",
-          "REQ-085",
-          "REQ-086",
-          "REQ-087",
-          "REQ-088",
-          "REQ-089",
-          "REQ-090",
-          "REQ-091",
-          "REQ-092"
+          "REQ-082"
         ]
       },
       "rendered_url": "rendered/backlog/dashboard/README.html"
-    },
-    {
-      "id": "EPIC-009",
-      "type": "EPIC",
-      "title": "EPIC-009: Advanced Features - Enterprise capabilities met REST API, PostgreSQL, multi-tenant en collaborative editing",
-      "path": "../backlog/EPIC-009/EPIC-009.md",
-      "url": "../backlog/EPIC-009/EPIC-009.md",
-      "status": "Nog te bepalen",
-      "prioriteit": "LAAG",
-      "owner": "business-analyst",
-      "canonical": true,
-      "last_verified": "05-09-2025",
-      "applies_to": "definitie-app@current",
-      "category": null,
-      "sprint": null,
-      "story_points": null,
-      "completion": "5%",
-      "target_release": "v2.0",
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 4,
-        "type_rank": 1
-      },
-      "parent_epic": "EPIC-009.md",
-      "parent_us": null,
-      "_refs": {
-        "us": [
-          "US-035",
-          "US-036",
-          "US-037",
-          "US-038",
-          "US-039",
-          "US-040",
-          "US-043",
-          "US-044",
-          "US-045",
-          "US-046",
-          "US-060"
-        ],
-        "epic": [
-          "EPIC-009"
-        ],
-        "req": [
-          "REQ-034",
-          "REQ-037",
-          "REQ-080",
-          "REQ-085",
-          "REQ-086",
-          "REQ-087"
-        ]
-      },
-      "rendered_url": "rendered/backlog/EPIC-009/EPIC-009.html",
-      "linked_reqs": [
-        "REQ-015",
-        "REQ-034",
-        "REQ-037",
-        "REQ-080",
-        "REQ-085",
-        "REQ-086",
-        "REQ-087"
-      ],
-      "linked_stories": [
-        "US-036",
-        "US-037",
-        "US-038",
-        "US-039",
-        "US-040",
-        "US-044",
-        "US-045",
-        "US-046"
-      ]
     },
     {
       "id": "EPIC-007",
@@ -29151,33 +30451,34 @@
     {
       "id": "EPIC-006",
       "type": "EPIC",
-      "title": "EPIC-006: Security & Auth - AVG/GDPR compliance met SSO integratie, API key beveiliging en complete audit trail",
+      "title": "EPIC-006: Security Baseline - Minimale safeguards voor single-user deployments",
       "path": "../backlog/EPIC-006/EPIC-006.md",
       "url": "../backlog/EPIC-006/EPIC-006.md",
       "status": "active",
-      "prioriteit": "KRITIEK",
-      "owner": "business-analyst",
+      "prioriteit": "HOOG",
+      "owner": "product-development",
       "canonical": true,
       "last_verified": "05-09-2025",
       "applies_to": "definitie-app@current",
       "category": null,
       "sprint": null,
       "story_points": null,
-      "completion": "40%",
-      "target_release": "v1.0",
+      "completion": "10%",
+      "target_release": "v1.1",
       "planning": {
         "sprint_number": null,
-        "priority_rank": 1,
+        "priority_rank": 2,
         "type_rank": 1
       },
       "parent_epic": "EPIC-006.md",
       "parent_us": null,
       "_refs": {
         "us": [
-          "US-026",
-          "US-027",
-          "US-140",
-          "US-141"
+          "US-029",
+          "US-030",
+          "US-031",
+          "US-032",
+          "US-140"
         ],
         "epic": [
           "EPIC-006"
@@ -29186,9 +30487,7 @@
           "REQ-044",
           "REQ-045",
           "REQ-047",
-          "REQ-063",
-          "REQ-071",
-          "REQ-081"
+          "REQ-063"
         ]
       },
       "rendered_url": "rendered/backlog/EPIC-006/EPIC-006.html",
@@ -29214,49 +30513,44 @@
       ]
     },
     {
-      "id": "EPIC-015",
+      "id": "EPIC-030",
       "type": "EPIC",
-      "title": "EPIC-015: Multi-User & Externalisatie - SSO auth, RBAC, REST API, observability en publiceerbare portal",
-      "path": "../backlog/EPIC-015/EPIC-015.md",
-      "url": "../backlog/EPIC-015/EPIC-015.md",
+      "title": "EPIC-030: Prompt & Definitiekwaliteit - Minder tokens, rijkere context en dubbele definities voorkomen",
+      "path": "../backlog/EPIC-030/EPIC-030.md",
+      "url": "../backlog/EPIC-030/EPIC-030.md",
       "status": "active",
-      "prioriteit": "GEMIDDELD",
-      "owner": "architecture",
+      "prioriteit": "HOOG",
+      "owner": "product-development",
       "canonical": true,
-      "last_verified": "2025-09-11",
+      "last_verified": "2025-10-14",
       "applies_to": "definitie-app@current",
       "category": null,
       "sprint": null,
       "story_points": null,
-      "completion": null,
-      "target_release": null,
+      "completion": "0%",
+      "target_release": "v1.1",
       "planning": {
         "sprint_number": null,
-        "priority_rank": 3,
+        "priority_rank": 2,
         "type_rank": 1
       },
-      "parent_epic": "EPIC-015.md",
+      "parent_epic": "EPIC-030.md",
       "parent_us": null,
       "_refs": {
         "us": [
-          "US-125",
-          "US-126",
-          "US-127",
-          "US-128",
-          "US-129",
-          "US-130",
-          "US-131",
-          "US-132",
-          "US-133",
-          "US-134",
-          "US-158"
+          "US-015",
+          "US-143",
+          "US-195",
+          "US-227"
         ],
         "epic": [
-          "EPIC-015"
+          "EPIC-006",
+          "EPIC-028",
+          "EPIC-030"
         ],
         "req": []
       },
-      "rendered_url": "rendered/backlog/EPIC-015/EPIC-015.html",
+      "rendered_url": "rendered/backlog/EPIC-030/EPIC-030.html",
       "linked_reqs": null,
       "linked_stories": null
     },
@@ -29788,6 +31082,1205 @@
         "req": []
       },
       "rendered_url": "rendered/backlog/EPIC-XXX/US-XXX/PHASE_1_2_DESIGN_DECISIONS.html"
+    },
+    {
+      "id": "US-203",
+      "type": "DOC",
+      "title": "US-203: title: Reduce Prompt Token Count from 7250 to 3000 Through Optimization",
+      "path": "../backlog/_archive/duplicates/US-203/US-203.md",
+      "url": "../backlog/_archive/duplicates/US-203/US-203.md",
+      "status": "archived",
+      "prioriteit": null,
+      "owner": "development-team",
+      "canonical": false,
+      "last_verified": "2025-10-14",
+      "applies_to": "definitie-app@current",
+      "category": null,
+      "sprint": null,
+      "story_points": "5",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": "US-203.md",
+      "_refs": {
+        "us": [
+          "US-143",
+          "US-201",
+          "US-202",
+          "US-203"
+        ],
+        "epic": [
+          "EPIC-030"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/_archive/duplicates/US-203/US-203.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "US-203: Token Reductie Onderzoeksrapport",
+      "path": "../backlog/_archive/duplicates/US-203/TOKEN_ANALYSIS_REPORT.md",
+      "url": "../backlog/_archive/duplicates/US-203/TOKEN_ANALYSIS_REPORT.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": "US-203",
+      "_refs": {
+        "us": [
+          "US-203"
+        ],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/_archive/duplicates/US-203/TOKEN_ANALYSIS_REPORT.html"
+    },
+    {
+      "id": "US-139",
+      "type": "DOC",
+      "title": "US-139: Batch Operations - Async bulk import/export voor 100+ definities met progress tracking en transacties",
+      "path": "../backlog/_archive/bulk-operations/US-139/US-139.md",
+      "url": "../backlog/_archive/bulk-operations/US-139/US-139.md",
+      "status": "archived",
+      "prioriteit": "LAAG",
+      "owner": "developer-implementer",
+      "canonical": false,
+      "last_verified": "2025-10-14",
+      "applies_to": "definitie-app@current",
+      "category": "feature",
+      "sprint": "backlog",
+      "story_points": "8",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 4,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": "US-139.md",
+      "_refs": {
+        "us": [
+          "US-021",
+          "US-022",
+          "US-035",
+          "US-139"
+        ],
+        "epic": [
+          "EPIC-005"
+        ],
+        "req": [
+          "REQ-075",
+          "REQ-076"
+        ]
+      },
+      "rendered_url": "rendered/backlog/_archive/bulk-operations/US-139/US-139.html"
+    },
+    {
+      "id": "US-138",
+      "type": "DOC",
+      "title": "US-138: Import Validatie - Format detectie, schema validatie en 45-regel businessvalidatie met duplicate detection",
+      "path": "../backlog/_archive/bulk-operations/US-138/US-138.md",
+      "url": "../backlog/_archive/bulk-operations/US-138/US-138.md",
+      "status": "archived",
+      "prioriteit": "HOOG",
+      "owner": "developer-implementer",
+      "canonical": false,
+      "last_verified": "2025-10-14",
+      "applies_to": "definitie-app@current",
+      "category": "feature",
+      "sprint": "backlog",
+      "story_points": "5",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 2,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": "US-138.md",
+      "_refs": {
+        "us": [
+          "US-021",
+          "US-062",
+          "US-138"
+        ],
+        "epic": [
+          "EPIC-005"
+        ],
+        "req": [
+          "REQ-073",
+          "REQ-074"
+        ]
+      },
+      "rendered_url": "rendered/backlog/_archive/bulk-operations/US-138/US-138.html"
+    },
+    {
+      "id": "US-423",
+      "type": "DOC",
+      "title": "US-423: titel: Background Export Queue Management",
+      "path": "../backlog/_archive/bulk-operations/US-423/US-423.md",
+      "url": "../backlog/_archive/bulk-operations/US-423/US-423.md",
+      "status": "archived",
+      "prioriteit": "LOW",
+      "owner": "backend-developer",
+      "canonical": false,
+      "last_verified": "2025-10-14",
+      "applies_to": "definitie-app@current",
+      "category": "feature",
+      "sprint": "backlog",
+      "story_points": "8",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": "US-423.md",
+      "_refs": {
+        "us": [
+          "US-423"
+        ],
+        "epic": [
+          "EPIC-005"
+        ],
+        "req": [
+          "REQ-022",
+          "REQ-042",
+          "REQ-084"
+        ]
+      },
+      "rendered_url": "rendered/backlog/_archive/bulk-operations/US-423/US-423.html"
+    },
+    {
+      "id": "US-062",
+      "type": "DOC",
+      "title": "US-062: titel: Implement Bulk Import Functionality",
+      "path": "../backlog/_archive/bulk-operations/US-062/US-062.md",
+      "url": "../backlog/_archive/bulk-operations/US-062/US-062.md",
+      "status": "archived",
+      "prioriteit": "HIGH",
+      "owner": "developer",
+      "canonical": false,
+      "last_verified": "2025-10-14",
+      "applies_to": "definitie-app@current",
+      "category": "feature",
+      "sprint": "backlog",
+      "story_points": "8",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": "US-062.md",
+      "_refs": {
+        "us": [
+          "US-023",
+          "US-062"
+        ],
+        "epic": [
+          "EPIC-005"
+        ],
+        "req": [
+          "REQ-083"
+        ]
+      },
+      "rendered_url": "rendered/backlog/_archive/bulk-operations/US-062/US-062.html"
+    },
+    {
+      "id": "US-021",
+      "type": "DOC",
+      "title": "US-021: Tab Activation - 10 functionele UI tabs (Generator, Validatie, Export, Voorbeelden, Grammatica, Context, Bronnen, History, Settings, Help)",
+      "path": "../backlog/_archive/superseded/US-021/US-021.md",
+      "url": "../backlog/_archive/superseded/US-021/US-021.md",
+      "status": "archived",
+      "prioriteit": "GEMIDDELD",
+      "owner": "developer-implementer",
+      "canonical": false,
+      "last_verified": "05-09-2025",
+      "applies_to": "definitie-app@current",
+      "category": "feature",
+      "sprint": "current",
+      "story_points": "8",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 3,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": "US-021.md",
+      "_refs": {
+        "us": [
+          "US-018",
+          "US-019",
+          "US-020",
+          "US-021"
+        ],
+        "epic": [
+          "EPIC-004",
+          "EPIC-028"
+        ],
+        "req": [
+          "REQ-048",
+          "REQ-052",
+          "REQ-055"
+        ]
+      },
+      "rendered_url": "rendered/backlog/_archive/superseded/US-021/US-021.html"
+    },
+    {
+      "id": "US-026",
+      "type": "DOC",
+      "title": "US-026: Role-Based Access Control - RBAC met rollen (Viewer, Editor, Validator, Admin) voor resource permissions",
+      "path": "../backlog/_archive/enterprise/US-026/US-026.md",
+      "url": "../backlog/_archive/enterprise/US-026/US-026.md",
+      "status": "archived",
+      "prioriteit": "GEMIDDELD",
+      "owner": "development-team",
+      "canonical": false,
+      "last_verified": "2025-10-02",
+      "applies_to": "definitie-app@current",
+      "category": null,
+      "sprint": "backlog",
+      "story_points": "8",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 3,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": "US-026.md",
+      "_refs": {
+        "us": [
+          "US-026"
+        ],
+        "epic": [
+          "EPIC-006",
+          "EPIC-015"
+        ],
+        "req": [
+          "REQ-044",
+          "REQ-045",
+          "REQ-071"
+        ]
+      },
+      "rendered_url": "rendered/backlog/_archive/enterprise/US-026/US-026.html"
+    },
+    {
+      "id": "US-027",
+      "type": "DOC",
+      "title": "US-027: Audit Logging - Complete audit trail voor alle CRUD operaties met JSON event logging en 7-jaar retentie",
+      "path": "../backlog/_archive/enterprise/US-027/US-027.md",
+      "url": "../backlog/_archive/enterprise/US-027/US-027.md",
+      "status": "archived",
+      "prioriteit": "GEMIDDELD",
+      "owner": "development-team",
+      "canonical": false,
+      "last_verified": "2025-10-02",
+      "applies_to": "definitie-app@current",
+      "category": null,
+      "sprint": "backlog",
+      "story_points": "5",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 3,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": "US-027.md",
+      "_refs": {
+        "us": [
+          "US-027"
+        ],
+        "epic": [
+          "EPIC-006",
+          "EPIC-015"
+        ],
+        "req": [
+          "REQ-044",
+          "REQ-045",
+          "REQ-071"
+        ]
+      },
+      "rendered_url": "rendered/backlog/_archive/enterprise/US-027/US-027.html"
+    },
+    {
+      "id": "US-141",
+      "type": "DOC",
+      "title": "US-141: User Authenticatie - SSO integratie voor justitieketen met session management en OAuth 2.0",
+      "path": "../backlog/_archive/enterprise/US-141/US-141.md",
+      "url": "../backlog/_archive/enterprise/US-141/US-141.md",
+      "status": "archived",
+      "prioriteit": "P2",
+      "owner": "tbd",
+      "canonical": false,
+      "last_verified": "2025-09-30",
+      "applies_to": "definitie-app@current",
+      "category": null,
+      "sprint": null,
+      "story_points": "5",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": "US-141.md",
+      "_refs": {
+        "us": [
+          "US-141"
+        ],
+        "epic": [
+          "EPIC-006",
+          "EPIC-015"
+        ],
+        "req": [
+          "REQ-044",
+          "REQ-045",
+          "REQ-071"
+        ]
+      },
+      "rendered_url": "rendered/backlog/_archive/enterprise/US-141/US-141.html"
+    },
+    {
+      "id": "EPIC-009",
+      "type": "EPIC",
+      "title": "EPIC-009: Advanced Features - Enterprise capabilities met REST API, PostgreSQL, multi-tenant en collaborative editing",
+      "path": "../backlog/_archive/enterprise/EPIC-009/EPIC-009.md",
+      "url": "../backlog/_archive/enterprise/EPIC-009/EPIC-009.md",
+      "status": "archived",
+      "prioriteit": "LAAG",
+      "owner": "business-analyst",
+      "canonical": true,
+      "last_verified": "05-09-2025",
+      "applies_to": "definitie-app@current",
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": "5%",
+      "target_release": "v2.0",
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 4,
+        "type_rank": 1
+      },
+      "parent_epic": "EPIC-009.md",
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-035",
+          "US-036",
+          "US-037",
+          "US-038",
+          "US-039",
+          "US-040",
+          "US-043",
+          "US-044",
+          "US-045",
+          "US-046",
+          "US-060"
+        ],
+        "epic": [
+          "EPIC-009"
+        ],
+        "req": [
+          "REQ-034",
+          "REQ-037",
+          "REQ-080",
+          "REQ-085",
+          "REQ-086",
+          "REQ-087"
+        ]
+      },
+      "rendered_url": "rendered/backlog/_archive/enterprise/EPIC-009/EPIC-009.html",
+      "linked_reqs": [
+        "REQ-015",
+        "REQ-034",
+        "REQ-037",
+        "REQ-080",
+        "REQ-085",
+        "REQ-086",
+        "REQ-087"
+      ],
+      "linked_stories": [
+        "US-036",
+        "US-037",
+        "US-038",
+        "US-039",
+        "US-040",
+        "US-044",
+        "US-045",
+        "US-046"
+      ]
+    },
+    {
+      "id": "EPIC-015",
+      "type": "EPIC",
+      "title": "EPIC-015: Multi-User & Externalisatie - SSO auth, RBAC, REST API, observability en publiceerbare portal",
+      "path": "../backlog/_archive/enterprise/EPIC-015/EPIC-015.md",
+      "url": "../backlog/_archive/enterprise/EPIC-015/EPIC-015.md",
+      "status": "archived",
+      "prioriteit": "GEMIDDELD",
+      "owner": "architecture",
+      "canonical": true,
+      "last_verified": "2025-09-11",
+      "applies_to": "definitie-app@current",
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 3,
+        "type_rank": 1
+      },
+      "parent_epic": "EPIC-015.md",
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-125",
+          "US-126",
+          "US-127",
+          "US-128",
+          "US-129",
+          "US-130",
+          "US-131",
+          "US-132",
+          "US-133",
+          "US-134",
+          "US-158"
+        ],
+        "epic": [
+          "EPIC-015"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/_archive/enterprise/EPIC-015/EPIC-015.html",
+      "linked_reqs": null,
+      "linked_stories": null
+    },
+    {
+      "id": "US-130",
+      "type": "US",
+      "title": "US-130: titel: Portal Publicatie/Hosting",
+      "path": "../backlog/_archive/enterprise/EPIC-015/US-130/US-130.md",
+      "url": "../backlog/_archive/enterprise/EPIC-015/US-130/US-130.md",
+      "status": "open",
+      "prioriteit": "LAAG",
+      "owner": "platform",
+      "canonical": false,
+      "last_verified": "2025-09-11",
+      "applies_to": "definitie-app@current",
+      "category": "feature",
+      "sprint": null,
+      "story_points": "3",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 4,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-015",
+      "parent_us": "US-130.md",
+      "_refs": {
+        "us": [
+          "US-130"
+        ],
+        "epic": [
+          "EPIC-015"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/_archive/enterprise/EPIC-015/US-130/US-130.html",
+      "linked_reqs": null
+    },
+    {
+      "id": "US-131",
+      "type": "US",
+      "title": "US-131: titel: Hub Aggregator (Multi‑Repo)",
+      "path": "../backlog/_archive/enterprise/EPIC-015/US-131/US-131.md",
+      "url": "../backlog/_archive/enterprise/EPIC-015/US-131/US-131.md",
+      "status": "open",
+      "prioriteit": "LAAG",
+      "owner": "platform",
+      "canonical": false,
+      "last_verified": "2025-09-11",
+      "applies_to": "definitie-app@current",
+      "category": "feature",
+      "sprint": null,
+      "story_points": "5",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 4,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-015",
+      "parent_us": "US-131.md",
+      "_refs": {
+        "us": [
+          "US-131"
+        ],
+        "epic": [
+          "EPIC-015"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/_archive/enterprise/EPIC-015/US-131/US-131.html",
+      "linked_reqs": null
+    },
+    {
+      "id": "US-125",
+      "type": "US",
+      "title": "US-125: titel: Role-Based Access Control (RBAC)",
+      "path": "../backlog/_archive/enterprise/EPIC-015/US-125/US-125.md",
+      "url": "../backlog/_archive/enterprise/EPIC-015/US-125/US-125.md",
+      "status": "open",
+      "prioriteit": "GEMIDDELD",
+      "owner": "platform",
+      "canonical": false,
+      "last_verified": "2025-09-11",
+      "applies_to": "definitie-app@current",
+      "category": "feature",
+      "sprint": null,
+      "story_points": "5",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 3,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-015",
+      "parent_us": "US-125.md",
+      "_refs": {
+        "us": [
+          "US-125"
+        ],
+        "epic": [
+          "EPIC-015"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/_archive/enterprise/EPIC-015/US-125/US-125.html",
+      "linked_reqs": null
+    },
+    {
+      "id": "US-134",
+      "type": "US",
+      "title": "US-134: titel: Custom Workflows (Engine)",
+      "path": "../backlog/_archive/enterprise/EPIC-015/US-134/US-134.md",
+      "url": "../backlog/_archive/enterprise/EPIC-015/US-134/US-134.md",
+      "status": "open",
+      "prioriteit": "LAAG",
+      "owner": "platform",
+      "canonical": false,
+      "last_verified": "2025-09-11",
+      "applies_to": "definitie-app@current",
+      "category": "feature",
+      "sprint": null,
+      "story_points": "13",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 4,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-015",
+      "parent_us": "US-134.md",
+      "_refs": {
+        "us": [
+          "US-134"
+        ],
+        "epic": [
+          "EPIC-015"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/_archive/enterprise/EPIC-015/US-134/US-134.html",
+      "linked_reqs": null
+    },
+    {
+      "id": "US-133",
+      "type": "US",
+      "title": "US-133: titel: Observability Stack (Metrics/Dashboards)",
+      "path": "../backlog/_archive/enterprise/EPIC-015/US-133/US-133.md",
+      "url": "../backlog/_archive/enterprise/EPIC-015/US-133/US-133.md",
+      "status": "open",
+      "prioriteit": "LAAG",
+      "owner": "platform",
+      "canonical": false,
+      "last_verified": "2025-09-11",
+      "applies_to": "definitie-app@current",
+      "category": "feature",
+      "sprint": null,
+      "story_points": "5",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 4,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-015",
+      "parent_us": "US-133.md",
+      "_refs": {
+        "us": [
+          "US-133"
+        ],
+        "epic": [
+          "EPIC-015"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/_archive/enterprise/EPIC-015/US-133/US-133.html",
+      "linked_reqs": null
+    },
+    {
+      "id": "US-158",
+      "type": "US",
+      "title": "US-158: - Gebruikersidentiteiten beheren voor gedeelde omgevingen.",
+      "path": "../backlog/_archive/enterprise/EPIC-015/US-158/US-158.md",
+      "url": "../backlog/_archive/enterprise/EPIC-015/US-158/US-158.md",
+      "status": "open",
+      "prioriteit": "GEMIDDELD",
+      "owner": "platform",
+      "canonical": false,
+      "last_verified": "2025-09-11",
+      "applies_to": "definitie-app@current",
+      "category": "feature",
+      "sprint": null,
+      "story_points": "5",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 3,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-015",
+      "parent_us": "US-158.md",
+      "_refs": {
+        "us": [
+          "US-158"
+        ],
+        "epic": [
+          "EPIC-015"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/_archive/enterprise/EPIC-015/US-158/US-158.html",
+      "linked_reqs": null
+    },
+    {
+      "id": "US-132",
+      "type": "US",
+      "title": "US-132: titel: Audit Trail + PII Scanner (Tooling)",
+      "path": "../backlog/_archive/enterprise/EPIC-015/US-132/US-132.md",
+      "url": "../backlog/_archive/enterprise/EPIC-015/US-132/US-132.md",
+      "status": "open",
+      "prioriteit": "GEMIDDELD",
+      "owner": "platform",
+      "canonical": false,
+      "last_verified": "2025-09-11",
+      "applies_to": "definitie-app@current",
+      "category": "feature",
+      "sprint": null,
+      "story_points": "8",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 3,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-015",
+      "parent_us": "US-132.md",
+      "_refs": {
+        "us": [
+          "US-132"
+        ],
+        "epic": [
+          "EPIC-015"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/_archive/enterprise/EPIC-015/US-132/US-132.html",
+      "linked_reqs": null
+    },
+    {
+      "id": "US-126",
+      "type": "US",
+      "title": "US-126: titel: API Key Management",
+      "path": "../backlog/_archive/enterprise/EPIC-015/US-126/US-126.md",
+      "url": "../backlog/_archive/enterprise/EPIC-015/US-126/US-126.md",
+      "status": "open",
+      "prioriteit": "GEMIDDELD",
+      "owner": "platform",
+      "canonical": false,
+      "last_verified": "2025-09-11",
+      "applies_to": "definitie-app@current",
+      "category": "feature",
+      "sprint": null,
+      "story_points": "3",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 3,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-015",
+      "parent_us": "US-126.md",
+      "_refs": {
+        "us": [
+          "US-126"
+        ],
+        "epic": [
+          "EPIC-015"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/_archive/enterprise/EPIC-015/US-126/US-126.html",
+      "linked_reqs": null
+    },
+    {
+      "id": "US-128",
+      "type": "US",
+      "title": "US-128: titel: Collaboration (Comments/Mentions)",
+      "path": "../backlog/_archive/enterprise/EPIC-015/US-128/US-128.md",
+      "url": "../backlog/_archive/enterprise/EPIC-015/US-128/US-128.md",
+      "status": "open",
+      "prioriteit": "LAAG",
+      "owner": "platform",
+      "canonical": false,
+      "last_verified": "2025-09-11",
+      "applies_to": "definitie-app@current",
+      "category": "feature",
+      "sprint": null,
+      "story_points": "8",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 4,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-015",
+      "parent_us": "US-128.md",
+      "_refs": {
+        "us": [
+          "US-128"
+        ],
+        "epic": [
+          "EPIC-015"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/_archive/enterprise/EPIC-015/US-128/US-128.html",
+      "linked_reqs": null
+    },
+    {
+      "id": "US-129",
+      "type": "US",
+      "title": "US-129: titel: Version Control (Diff/History)",
+      "path": "../backlog/_archive/enterprise/EPIC-015/US-129/US-129.md",
+      "url": "../backlog/_archive/enterprise/EPIC-015/US-129/US-129.md",
+      "status": "open",
+      "prioriteit": "LAAG",
+      "owner": "platform",
+      "canonical": false,
+      "last_verified": "2025-09-11",
+      "applies_to": "definitie-app@current",
+      "category": "feature",
+      "sprint": null,
+      "story_points": "8",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 4,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-015",
+      "parent_us": "US-129.md",
+      "_refs": {
+        "us": [
+          "US-129"
+        ],
+        "epic": [
+          "EPIC-015"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/_archive/enterprise/EPIC-015/US-129/US-129.html",
+      "linked_reqs": null
+    },
+    {
+      "id": "US-127",
+      "type": "US",
+      "title": "US-127: titel: Externe API (REST)",
+      "path": "../backlog/_archive/enterprise/EPIC-015/US-127/US-127.md",
+      "url": "../backlog/_archive/enterprise/EPIC-015/US-127/US-127.md",
+      "status": "open",
+      "prioriteit": "GEMIDDELD",
+      "owner": "platform",
+      "canonical": false,
+      "last_verified": "2025-09-11",
+      "applies_to": "definitie-app@current",
+      "category": "feature",
+      "sprint": null,
+      "story_points": "8",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 3,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-015",
+      "parent_us": "US-127.md",
+      "_refs": {
+        "us": [
+          "US-127"
+        ],
+        "epic": [
+          "EPIC-015"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/_archive/enterprise/EPIC-015/US-127/US-127.html",
+      "linked_reqs": null
+    },
+    {
+      "id": "US-147",
+      "type": "US",
+      "title": "US-147: titel: Load Testen & Benchmarking",
+      "path": "../backlog/_archive/enterprise/EPIC-009/US-147/US-147.md",
+      "url": "../backlog/_archive/enterprise/EPIC-009/US-147/US-147.md",
+      "status": "open",
+      "prioriteit": "P2",
+      "owner": "tbd",
+      "canonical": false,
+      "last_verified": "2025-09-30",
+      "applies_to": "definitie-app@current",
+      "category": null,
+      "sprint": null,
+      "story_points": "5",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-009",
+      "parent_us": "US-147.md",
+      "_refs": {
+        "us": [
+          "US-147"
+        ],
+        "epic": [
+          "EPIC-007",
+          "EPIC-009"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/_archive/enterprise/EPIC-009/US-147/US-147.html",
+      "linked_reqs": null
+    },
+    {
+      "id": "US-149",
+      "type": "US",
+      "title": "US-149: titel: Collaborative Editing",
+      "path": "../backlog/_archive/enterprise/EPIC-009/US-149/US-149.md",
+      "url": "../backlog/_archive/enterprise/EPIC-009/US-149/US-149.md",
+      "status": "open",
+      "prioriteit": "P2",
+      "owner": "tbd",
+      "canonical": false,
+      "last_verified": "2025-09-30",
+      "applies_to": "definitie-app@current",
+      "category": null,
+      "sprint": null,
+      "story_points": "5",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-009",
+      "parent_us": "US-149.md",
+      "_refs": {
+        "us": [
+          "US-149"
+        ],
+        "epic": [
+          "EPIC-009"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/_archive/enterprise/EPIC-009/US-149/US-149.html",
+      "linked_reqs": null
+    },
+    {
+      "id": "US-148",
+      "type": "US",
+      "title": "US-148: titel: Versie History",
+      "path": "../backlog/_archive/enterprise/EPIC-009/US-148/US-148.md",
+      "url": "../backlog/_archive/enterprise/EPIC-009/US-148/US-148.md",
+      "status": "open",
+      "prioriteit": "P2",
+      "owner": "tbd",
+      "canonical": false,
+      "last_verified": "2025-09-30",
+      "applies_to": "definitie-app@current",
+      "category": null,
+      "sprint": null,
+      "story_points": "5",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-009",
+      "parent_us": "US-148.md",
+      "_refs": {
+        "us": [
+          "US-148"
+        ],
+        "epic": [
+          "EPIC-009"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/_archive/enterprise/EPIC-009/US-148/US-148.html",
+      "linked_reqs": null
+    },
+    {
+      "id": "US-060",
+      "type": "US",
+      "title": "US-060: titel: Implement Event Bus Architecture",
+      "path": "../backlog/_archive/enterprise/EPIC-009/US-060/US-060.md",
+      "url": "../backlog/_archive/enterprise/EPIC-009/US-060/US-060.md",
+      "status": "proposed",
+      "prioriteit": "MEDIUM",
+      "owner": "architect",
+      "canonical": false,
+      "last_verified": "2025-09-11",
+      "applies_to": "definitie-app@current",
+      "category": "technical-improvement",
+      "sprint": "backlog",
+      "story_points": "8",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-009",
+      "parent_us": "US-060.md",
+      "_refs": {
+        "us": [
+          "US-060"
+        ],
+        "epic": [
+          "EPIC-009"
+        ],
+        "req": [
+          "REQ-015"
+        ]
+      },
+      "rendered_url": "rendered/backlog/_archive/enterprise/EPIC-009/US-060/US-060.html",
+      "linked_reqs": null
+    },
+    {
+      "id": "US-066",
+      "type": "US",
+      "title": "US-066: titel: Implement AI Enhancement for Definitions",
+      "path": "../backlog/_archive/enterprise/EPIC-009/US-066/US-066.md",
+      "url": "../backlog/_archive/enterprise/EPIC-009/US-066/US-066.md",
+      "status": "proposed",
+      "prioriteit": "MEDIUM",
+      "owner": "architect",
+      "canonical": false,
+      "last_verified": "2025-09-11",
+      "applies_to": "definitie-app@current",
+      "category": "feature-enhancement",
+      "sprint": "backlog",
+      "story_points": "5",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-009",
+      "parent_us": "US-066.md",
+      "_refs": {
+        "us": [
+          "US-066"
+        ],
+        "epic": [
+          "EPIC-009"
+        ],
+        "req": [
+          "REQ-015"
+        ]
+      },
+      "rendered_url": "rendered/backlog/_archive/enterprise/EPIC-009/US-066/US-066.html",
+      "linked_reqs": null
+    },
+    {
+      "id": "US-040",
+      "type": "US",
+      "title": "US-040: titel: Advanced Search",
+      "path": "../backlog/_archive/enterprise/EPIC-009/US-040/US-040.md",
+      "url": "../backlog/_archive/enterprise/EPIC-009/US-040/US-040.md",
+      "status": "open",
+      "prioriteit": "P2",
+      "owner": "tbd",
+      "canonical": false,
+      "last_verified": "2025-09-30",
+      "applies_to": "definitie-app@current",
+      "category": null,
+      "sprint": null,
+      "story_points": "5",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-009",
+      "parent_us": "US-040.md",
+      "_refs": {
+        "us": [
+          "US-040"
+        ],
+        "epic": [
+          "EPIC-009"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/_archive/enterprise/EPIC-009/US-040/US-040.html",
+      "linked_reqs": null
+    },
+    {
+      "id": "US-151",
+      "type": "US",
+      "title": "US-151: titel: Batch Processing",
+      "path": "../backlog/_archive/enterprise/EPIC-009/US-151/US-151.md",
+      "url": "../backlog/_archive/enterprise/EPIC-009/US-151/US-151.md",
+      "status": "open",
+      "prioriteit": "P2",
+      "owner": "tbd",
+      "canonical": false,
+      "last_verified": "2025-09-30",
+      "applies_to": "definitie-app@current",
+      "category": null,
+      "sprint": null,
+      "story_points": "5",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-009",
+      "parent_us": "US-151.md",
+      "_refs": {
+        "us": [
+          "US-151"
+        ],
+        "epic": [
+          "EPIC-009"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/_archive/enterprise/EPIC-009/US-151/US-151.html",
+      "linked_reqs": null
+    },
+    {
+      "id": "US-150",
+      "type": "US",
+      "title": "US-150: aangemaakt: 2025-09-30",
+      "path": "../backlog/_archive/enterprise/EPIC-009/US-150/US-150.md",
+      "url": "../backlog/_archive/enterprise/EPIC-009/US-150/US-150.md",
+      "status": "open",
+      "prioriteit": "P2",
+      "owner": "tbd",
+      "canonical": false,
+      "last_verified": "2025-09-30",
+      "applies_to": "definitie-app@current",
+      "category": null,
+      "sprint": null,
+      "story_points": "5",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-009",
+      "parent_us": "US-150.md",
+      "_refs": {
+        "us": [
+          "US-150"
+        ],
+        "epic": [
+          "EPIC-009"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/_archive/enterprise/EPIC-009/US-150/US-150.html",
+      "linked_reqs": null
     },
     {
       "id": "US-108",
@@ -32416,520 +34909,192 @@
       "rendered_url": "rendered/backlog/EPIC-023/US-424/BUG-001/BUG-001.html"
     },
     {
-      "id": "US-130",
+      "id": "US-015",
       "type": "US",
-      "title": "US-130: titel: Portal Publicatie/Hosting",
-      "path": "../backlog/EPIC-015/US-130/US-130.md",
-      "url": "../backlog/EPIC-015/US-130/US-130.md",
-      "status": "open",
-      "prioriteit": "LAAG",
-      "owner": "platform",
-      "canonical": false,
-      "last_verified": "2025-09-11",
-      "applies_to": "definitie-app@current",
-      "category": "feature",
-      "sprint": null,
-      "story_points": "3",
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 4,
-        "type_rank": 2
-      },
-      "parent_epic": "EPIC-015",
-      "parent_us": "US-130.md",
-      "_refs": {
-        "us": [
-          "US-130"
-        ],
-        "epic": [
-          "EPIC-015"
-        ],
-        "req": []
-      },
-      "rendered_url": "rendered/backlog/EPIC-015/US-130/US-130.html",
-      "linked_reqs": null
-    },
-    {
-      "id": "US-131",
-      "type": "US",
-      "title": "US-131: titel: Hub Aggregator (Multi‑Repo)",
-      "path": "../backlog/EPIC-015/US-131/US-131.md",
-      "url": "../backlog/EPIC-015/US-131/US-131.md",
-      "status": "open",
-      "prioriteit": "LAAG",
-      "owner": "platform",
-      "canonical": false,
-      "last_verified": "2025-09-11",
-      "applies_to": "definitie-app@current",
-      "category": "feature",
-      "sprint": null,
-      "story_points": "5",
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 4,
-        "type_rank": 2
-      },
-      "parent_epic": "EPIC-015",
-      "parent_us": "US-131.md",
-      "_refs": {
-        "us": [
-          "US-131"
-        ],
-        "epic": [
-          "EPIC-015"
-        ],
-        "req": []
-      },
-      "rendered_url": "rendered/backlog/EPIC-015/US-131/US-131.html",
-      "linked_reqs": null
-    },
-    {
-      "id": "US-125",
-      "type": "US",
-      "title": "US-125: titel: Role-Based Access Control (RBAC)",
-      "path": "../backlog/EPIC-015/US-125/US-125.md",
-      "url": "../backlog/EPIC-015/US-125/US-125.md",
-      "status": "open",
-      "prioriteit": "GEMIDDELD",
-      "owner": "platform",
-      "canonical": false,
-      "last_verified": "2025-09-11",
-      "applies_to": "definitie-app@current",
-      "category": "feature",
-      "sprint": null,
-      "story_points": "5",
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 3,
-        "type_rank": 2
-      },
-      "parent_epic": "EPIC-015",
-      "parent_us": "US-125.md",
-      "_refs": {
-        "us": [
-          "US-125"
-        ],
-        "epic": [
-          "EPIC-015"
-        ],
-        "req": []
-      },
-      "rendered_url": "rendered/backlog/EPIC-015/US-125/US-125.html",
-      "linked_reqs": null
-    },
-    {
-      "id": "US-134",
-      "type": "US",
-      "title": "US-134: titel: Custom Workflows (Engine)",
-      "path": "../backlog/EPIC-015/US-134/US-134.md",
-      "url": "../backlog/EPIC-015/US-134/US-134.md",
-      "status": "open",
-      "prioriteit": "LAAG",
-      "owner": "platform",
-      "canonical": false,
-      "last_verified": "2025-09-11",
-      "applies_to": "definitie-app@current",
-      "category": "feature",
-      "sprint": null,
-      "story_points": "13",
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 4,
-        "type_rank": 2
-      },
-      "parent_epic": "EPIC-015",
-      "parent_us": "US-134.md",
-      "_refs": {
-        "us": [
-          "US-134"
-        ],
-        "epic": [
-          "EPIC-015"
-        ],
-        "req": []
-      },
-      "rendered_url": "rendered/backlog/EPIC-015/US-134/US-134.html",
-      "linked_reqs": null
-    },
-    {
-      "id": "US-133",
-      "type": "US",
-      "title": "US-133: titel: Observability Stack (Metrics/Dashboards)",
-      "path": "../backlog/EPIC-015/US-133/US-133.md",
-      "url": "../backlog/EPIC-015/US-133/US-133.md",
-      "status": "open",
-      "prioriteit": "LAAG",
-      "owner": "platform",
-      "canonical": false,
-      "last_verified": "2025-09-11",
-      "applies_to": "definitie-app@current",
-      "category": "feature",
-      "sprint": null,
-      "story_points": "5",
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 4,
-        "type_rank": 2
-      },
-      "parent_epic": "EPIC-015",
-      "parent_us": "US-133.md",
-      "_refs": {
-        "us": [
-          "US-133"
-        ],
-        "epic": [
-          "EPIC-015"
-        ],
-        "req": []
-      },
-      "rendered_url": "rendered/backlog/EPIC-015/US-133/US-133.html",
-      "linked_reqs": null
-    },
-    {
-      "id": "US-158",
-      "type": "US",
-      "title": "US-158: - Gebruikersidentiteiten beheren voor gedeelde omgevingen.",
-      "path": "../backlog/EPIC-015/US-158/US-158.md",
-      "url": "../backlog/EPIC-015/US-158/US-158.md",
-      "status": "open",
-      "prioriteit": "GEMIDDELD",
-      "owner": "platform",
-      "canonical": false,
-      "last_verified": "2025-09-11",
-      "applies_to": "definitie-app@current",
-      "category": "feature",
-      "sprint": null,
-      "story_points": "5",
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 3,
-        "type_rank": 2
-      },
-      "parent_epic": "EPIC-015",
-      "parent_us": "US-158.md",
-      "_refs": {
-        "us": [
-          "US-158"
-        ],
-        "epic": [
-          "EPIC-015"
-        ],
-        "req": []
-      },
-      "rendered_url": "rendered/backlog/EPIC-015/US-158/US-158.html",
-      "linked_reqs": null
-    },
-    {
-      "id": "US-132",
-      "type": "US",
-      "title": "US-132: titel: Audit Trail + PII Scanner (Tooling)",
-      "path": "../backlog/EPIC-015/US-132/US-132.md",
-      "url": "../backlog/EPIC-015/US-132/US-132.md",
-      "status": "open",
-      "prioriteit": "GEMIDDELD",
-      "owner": "platform",
-      "canonical": false,
-      "last_verified": "2025-09-11",
-      "applies_to": "definitie-app@current",
-      "category": "feature",
-      "sprint": null,
-      "story_points": "8",
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 3,
-        "type_rank": 2
-      },
-      "parent_epic": "EPIC-015",
-      "parent_us": "US-132.md",
-      "_refs": {
-        "us": [
-          "US-132"
-        ],
-        "epic": [
-          "EPIC-015"
-        ],
-        "req": []
-      },
-      "rendered_url": "rendered/backlog/EPIC-015/US-132/US-132.html",
-      "linked_reqs": null
-    },
-    {
-      "id": "US-126",
-      "type": "US",
-      "title": "US-126: titel: API Key Management",
-      "path": "../backlog/EPIC-015/US-126/US-126.md",
-      "url": "../backlog/EPIC-015/US-126/US-126.md",
-      "status": "open",
-      "prioriteit": "GEMIDDELD",
-      "owner": "platform",
-      "canonical": false,
-      "last_verified": "2025-09-11",
-      "applies_to": "definitie-app@current",
-      "category": "feature",
-      "sprint": null,
-      "story_points": "3",
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 3,
-        "type_rank": 2
-      },
-      "parent_epic": "EPIC-015",
-      "parent_us": "US-126.md",
-      "_refs": {
-        "us": [
-          "US-126"
-        ],
-        "epic": [
-          "EPIC-015"
-        ],
-        "req": []
-      },
-      "rendered_url": "rendered/backlog/EPIC-015/US-126/US-126.html",
-      "linked_reqs": null
-    },
-    {
-      "id": "US-128",
-      "type": "US",
-      "title": "US-128: titel: Collaboration (Comments/Mentions)",
-      "path": "../backlog/EPIC-015/US-128/US-128.md",
-      "url": "../backlog/EPIC-015/US-128/US-128.md",
-      "status": "open",
-      "prioriteit": "LAAG",
-      "owner": "platform",
-      "canonical": false,
-      "last_verified": "2025-09-11",
-      "applies_to": "definitie-app@current",
-      "category": "feature",
-      "sprint": null,
-      "story_points": "8",
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 4,
-        "type_rank": 2
-      },
-      "parent_epic": "EPIC-015",
-      "parent_us": "US-128.md",
-      "_refs": {
-        "us": [
-          "US-128"
-        ],
-        "epic": [
-          "EPIC-015"
-        ],
-        "req": []
-      },
-      "rendered_url": "rendered/backlog/EPIC-015/US-128/US-128.html",
-      "linked_reqs": null
-    },
-    {
-      "id": "US-129",
-      "type": "US",
-      "title": "US-129: titel: Version Control (Diff/History)",
-      "path": "../backlog/EPIC-015/US-129/US-129.md",
-      "url": "../backlog/EPIC-015/US-129/US-129.md",
-      "status": "open",
-      "prioriteit": "LAAG",
-      "owner": "platform",
-      "canonical": false,
-      "last_verified": "2025-09-11",
-      "applies_to": "definitie-app@current",
-      "category": "feature",
-      "sprint": null,
-      "story_points": "8",
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 4,
-        "type_rank": 2
-      },
-      "parent_epic": "EPIC-015",
-      "parent_us": "US-129.md",
-      "_refs": {
-        "us": [
-          "US-129"
-        ],
-        "epic": [
-          "EPIC-015"
-        ],
-        "req": []
-      },
-      "rendered_url": "rendered/backlog/EPIC-015/US-129/US-129.html",
-      "linked_reqs": null
-    },
-    {
-      "id": "US-127",
-      "type": "US",
-      "title": "US-127: titel: Externe API (REST)",
-      "path": "../backlog/EPIC-015/US-127/US-127.md",
-      "url": "../backlog/EPIC-015/US-127/US-127.md",
-      "status": "open",
-      "prioriteit": "GEMIDDELD",
-      "owner": "platform",
-      "canonical": false,
-      "last_verified": "2025-09-11",
-      "applies_to": "definitie-app@current",
-      "category": "feature",
-      "sprint": null,
-      "story_points": "8",
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 3,
-        "type_rank": 2
-      },
-      "parent_epic": "EPIC-015",
-      "parent_us": "US-127.md",
-      "_refs": {
-        "us": [
-          "US-127"
-        ],
-        "epic": [
-          "EPIC-015"
-        ],
-        "req": []
-      },
-      "rendered_url": "rendered/backlog/EPIC-015/US-127/US-127.html",
-      "linked_reqs": null
-    },
-    {
-      "id": "US-028",
-      "type": "US",
-      "title": "US-028: titel: SecurityService adapter + DPIA/AVG‑sanitization en injectie in V2 orchestrator",
-      "path": "../backlog/EPIC-006/US-028/US-028.md",
-      "url": "../backlog/EPIC-006/US-028/US-028.md",
+      "title": "US-015: Wikipedia API Integratie - NL encyclopedische content voor definitieverrijking met intro/juridische secties",
+      "path": "../backlog/EPIC-030/US-015/US-015.md",
+      "url": "../backlog/EPIC-030/US-015/US-015.md",
       "status": "Nog te bepalen",
-      "prioriteit": "KRITIEK",
-      "owner": "security-engineer",
+      "prioriteit": "HOOG",
+      "owner": "developer-implementer",
       "canonical": false,
-      "last_verified": "2025-09-12",
+      "last_verified": "2025-09-11",
       "applies_to": "definitie-app@current",
-      "category": null,
-      "sprint": "sprint-37",
-      "story_points": "5",
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": 37,
-        "priority_rank": 1,
-        "type_rank": 2
-      },
-      "parent_epic": "EPIC-006",
-      "parent_us": "US-028.md",
-      "_refs": {
-        "us": [
-          "US-028"
-        ],
-        "epic": [
-          "EPIC-006",
-          "EPIC-012"
-        ],
-        "req": [
-          "REQ-006",
-          "REQ-045"
-        ]
-      },
-      "rendered_url": "rendered/backlog/EPIC-006/US-028/US-028.html",
-      "linked_reqs": null
-    },
-    {
-      "id": "US-026",
-      "type": "US",
-      "title": "US-026: Role-Based Access Control - RBAC met rollen (Viewer, Editor, Validator, Admin) voor resource permissions",
-      "path": "../backlog/EPIC-006/US-026/US-026.md",
-      "url": "../backlog/EPIC-006/US-026/US-026.md",
-      "status": "Nog te bepalen",
-      "prioriteit": "GEMIDDELD",
-      "owner": "development-team",
-      "canonical": false,
-      "last_verified": "2025-10-02",
-      "applies_to": "definitie-app@current",
-      "category": null,
-      "sprint": "backlog",
-      "story_points": "8",
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 3,
-        "type_rank": 2
-      },
-      "parent_epic": "EPIC-006",
-      "parent_us": "US-026.md",
-      "_refs": {
-        "us": [
-          "US-026"
-        ],
-        "epic": [
-          "EPIC-006"
-        ],
-        "req": [
-          "REQ-044",
-          "REQ-045",
-          "REQ-071"
-        ]
-      },
-      "rendered_url": "rendered/backlog/EPIC-006/US-026/US-026.html",
-      "linked_reqs": null
-    },
-    {
-      "id": "US-027",
-      "type": "US",
-      "title": "US-027: Audit Logging - Complete audit trail voor alle CRUD operaties met JSON event logging en 7-jaar retentie",
-      "path": "../backlog/EPIC-006/US-027/US-027.md",
-      "url": "../backlog/EPIC-006/US-027/US-027.md",
-      "status": "Nog te bepalen",
-      "prioriteit": "GEMIDDELD",
-      "owner": "development-team",
-      "canonical": false,
-      "last_verified": "2025-10-02",
-      "applies_to": "definitie-app@current",
-      "category": null,
+      "category": "feature",
       "sprint": "backlog",
       "story_points": "5",
       "completion": null,
       "target_release": null,
       "planning": {
         "sprint_number": null,
-        "priority_rank": 3,
+        "priority_rank": 2,
         "type_rank": 2
       },
-      "parent_epic": "EPIC-006",
-      "parent_us": "US-027.md",
+      "parent_epic": "EPIC-030",
+      "parent_us": "US-015.md",
       "_refs": {
         "us": [
-          "US-027"
+          "US-015"
         ],
         "epic": [
-          "EPIC-006"
+          "EPIC-030"
         ],
         "req": [
-          "REQ-044",
-          "REQ-045",
-          "REQ-071"
+          "REQ-021"
         ]
       },
-      "rendered_url": "rendered/backlog/EPIC-006/US-027/US-027.html",
+      "rendered_url": "rendered/backlog/EPIC-030/US-015/US-015.html",
+      "linked_reqs": [
+        "REQ-039"
+      ]
+    },
+    {
+      "id": "US-227",
+      "type": "US",
+      "title": "US-227: Als gebruiker wil ik dat de door mij geselecteerde documenten daadwerkelijk worden gebruikt in de prompt, zodat de de...",
+      "path": "../backlog/EPIC-030/US-227/US-227.md",
+      "url": "../backlog/EPIC-030/US-227/US-227.md",
+      "status": "proposed",
+      "prioriteit": "HOOG",
+      "owner": "architecture",
+      "canonical": false,
+      "last_verified": "2025-09-22",
+      "applies_to": "definitie-app@current",
+      "category": null,
+      "sprint": null,
+      "story_points": "5",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 2,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-030",
+      "parent_us": "US-227.md",
+      "_refs": {
+        "us": [
+          "US-227"
+        ],
+        "epic": [
+          "EPIC-030"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-030/US-227/US-227.html",
       "linked_reqs": null
+    },
+    {
+      "id": "US-195",
+      "type": "US",
+      "title": "US-195: title: Duplicate‑gate bij genereren definitie met 3‑contextkeuze",
+      "path": "../backlog/EPIC-030/US-195/US-195.md",
+      "url": "../backlog/EPIC-030/US-195/US-195.md",
+      "status": "active",
+      "prioriteit": "hoog",
+      "owner": "development",
+      "canonical": false,
+      "last_verified": "2025-10-02",
+      "applies_to": "definitie-app@current",
+      "category": null,
+      "sprint": null,
+      "story_points": "5",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 2,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-030",
+      "parent_us": "US-195.md",
+      "_refs": {
+        "us": [
+          "US-195"
+        ],
+        "epic": [
+          "EPIC-030"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-030/US-195/US-195.html",
+      "linked_reqs": null
+    },
+    {
+      "id": "US-143",
+      "type": "US",
+      "title": "US-143: Prompt Token Optimalisatie - 60% reductie (7250→3000 tokens) via slimme regel selectie en template caching",
+      "path": "../backlog/EPIC-030/US-143/US-143.md",
+      "url": "../backlog/EPIC-030/US-143/US-143.md",
+      "status": "open",
+      "prioriteit": "high",
+      "owner": "development-team",
+      "canonical": false,
+      "last_verified": "2025-10-02",
+      "applies_to": "definitie-app@current",
+      "category": null,
+      "sprint": "current",
+      "story_points": "8",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-030",
+      "parent_us": "US-143.md",
+      "_refs": {
+        "us": [
+          "US-030",
+          "US-143"
+        ],
+        "epic": [
+          "EPIC-007",
+          "EPIC-030"
+        ],
+        "req": [
+          "REQ-061",
+          "REQ-065",
+          "REQ-073"
+        ]
+      },
+      "rendered_url": "rendered/backlog/EPIC-030/US-143/US-143.html",
+      "linked_reqs": null
+    },
+    {
+      "id": "CFR-BUG-029",
+      "type": "BUG",
+      "title": "Generator‑tab — ‘Minstens 1 context’ niet afgedwongen (kan genereren zonder context)",
+      "path": "../backlog/EPIC-030/US-195/CFR-BUG-029/README.md",
+      "url": "../backlog/EPIC-030/US-195/CFR-BUG-029/README.md",
+      "status": "open",
+      "prioriteit": null,
+      "owner": "frontend-team",
+      "canonical": false,
+      "last_verified": "2025-10-02",
+      "applies_to": "definitie-app@current",
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 3
+      },
+      "parent_epic": "EPIC-030",
+      "parent_us": "US-195",
+      "_refs": {
+        "us": [
+          "US-160",
+          "US-195"
+        ],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-030/US-195/CFR-BUG-029/README.html"
     },
     {
       "id": "US-029",
@@ -33045,46 +35210,6 @@
         "req": []
       },
       "rendered_url": "rendered/backlog/EPIC-006/US-176/US-176.html",
-      "linked_reqs": null
-    },
-    {
-      "id": "US-141",
-      "type": "US",
-      "title": "US-141: User Authenticatie - SSO integratie voor justitieketen met session management en OAuth 2.0",
-      "path": "../backlog/EPIC-006/US-141/US-141.md",
-      "url": "../backlog/EPIC-006/US-141/US-141.md",
-      "status": "open",
-      "prioriteit": "P2",
-      "owner": "tbd",
-      "canonical": false,
-      "last_verified": "2025-09-30",
-      "applies_to": "definitie-app@current",
-      "category": null,
-      "sprint": null,
-      "story_points": "5",
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 5,
-        "type_rank": 2
-      },
-      "parent_epic": "EPIC-006",
-      "parent_us": "US-141.md",
-      "_refs": {
-        "us": [
-          "US-141"
-        ],
-        "epic": [
-          "EPIC-006"
-        ],
-        "req": [
-          "REQ-044",
-          "REQ-045",
-          "REQ-071"
-        ]
-      },
-      "rendered_url": "rendered/backlog/EPIC-006/US-141/US-141.html",
       "linked_reqs": null
     },
     {
@@ -33785,47 +35910,6 @@
       "linked_reqs": null
     },
     {
-      "id": "US-143",
-      "type": "US",
-      "title": "US-143: Prompt Token Optimalisatie - 60% reductie (7250→3000 tokens) via slimme regel selectie en template caching",
-      "path": "../backlog/EPIC-007/US-143/US-143.md",
-      "url": "../backlog/EPIC-007/US-143/US-143.md",
-      "status": "open",
-      "prioriteit": "high",
-      "owner": "development-team",
-      "canonical": false,
-      "last_verified": "2025-10-02",
-      "applies_to": "definitie-app@current",
-      "category": null,
-      "sprint": "current",
-      "story_points": "8",
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 5,
-        "type_rank": 2
-      },
-      "parent_epic": "EPIC-007",
-      "parent_us": "US-143.md",
-      "_refs": {
-        "us": [
-          "US-030",
-          "US-143"
-        ],
-        "epic": [
-          "EPIC-007"
-        ],
-        "req": [
-          "REQ-061",
-          "REQ-065",
-          "REQ-073"
-        ]
-      },
-      "rendered_url": "rendered/backlog/EPIC-007/US-143/US-143.html",
-      "linked_reqs": null
-    },
-    {
       "id": "US-142",
       "type": "US",
       "title": "US-142: Service Init Caching - 1x service initialisatie (was 6x) met @st.cache_resource en singleton pattern",
@@ -34086,299 +36170,6 @@
         "req": []
       },
       "rendered_url": "rendered/backlog/EPIC-007/US-036/US-036.html",
-      "linked_reqs": null
-    },
-    {
-      "id": "US-147",
-      "type": "US",
-      "title": "US-147: titel: Load Testen & Benchmarking",
-      "path": "../backlog/EPIC-009/US-147/US-147.md",
-      "url": "../backlog/EPIC-009/US-147/US-147.md",
-      "status": "open",
-      "prioriteit": "P2",
-      "owner": "tbd",
-      "canonical": false,
-      "last_verified": "2025-09-30",
-      "applies_to": "definitie-app@current",
-      "category": null,
-      "sprint": null,
-      "story_points": "5",
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 5,
-        "type_rank": 2
-      },
-      "parent_epic": "EPIC-009",
-      "parent_us": "US-147.md",
-      "_refs": {
-        "us": [
-          "US-147"
-        ],
-        "epic": [
-          "EPIC-007",
-          "EPIC-009"
-        ],
-        "req": []
-      },
-      "rendered_url": "rendered/backlog/EPIC-009/US-147/US-147.html",
-      "linked_reqs": null
-    },
-    {
-      "id": "US-149",
-      "type": "US",
-      "title": "US-149: titel: Collaborative Editing",
-      "path": "../backlog/EPIC-009/US-149/US-149.md",
-      "url": "../backlog/EPIC-009/US-149/US-149.md",
-      "status": "open",
-      "prioriteit": "P2",
-      "owner": "tbd",
-      "canonical": false,
-      "last_verified": "2025-09-30",
-      "applies_to": "definitie-app@current",
-      "category": null,
-      "sprint": null,
-      "story_points": "5",
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 5,
-        "type_rank": 2
-      },
-      "parent_epic": "EPIC-009",
-      "parent_us": "US-149.md",
-      "_refs": {
-        "us": [
-          "US-149"
-        ],
-        "epic": [
-          "EPIC-009"
-        ],
-        "req": []
-      },
-      "rendered_url": "rendered/backlog/EPIC-009/US-149/US-149.html",
-      "linked_reqs": null
-    },
-    {
-      "id": "US-148",
-      "type": "US",
-      "title": "US-148: titel: Versie History",
-      "path": "../backlog/EPIC-009/US-148/US-148.md",
-      "url": "../backlog/EPIC-009/US-148/US-148.md",
-      "status": "open",
-      "prioriteit": "P2",
-      "owner": "tbd",
-      "canonical": false,
-      "last_verified": "2025-09-30",
-      "applies_to": "definitie-app@current",
-      "category": null,
-      "sprint": null,
-      "story_points": "5",
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 5,
-        "type_rank": 2
-      },
-      "parent_epic": "EPIC-009",
-      "parent_us": "US-148.md",
-      "_refs": {
-        "us": [
-          "US-148"
-        ],
-        "epic": [
-          "EPIC-009"
-        ],
-        "req": []
-      },
-      "rendered_url": "rendered/backlog/EPIC-009/US-148/US-148.html",
-      "linked_reqs": null
-    },
-    {
-      "id": "US-060",
-      "type": "US",
-      "title": "US-060: titel: Implement Event Bus Architecture",
-      "path": "../backlog/EPIC-009/US-060/US-060.md",
-      "url": "../backlog/EPIC-009/US-060/US-060.md",
-      "status": "proposed",
-      "prioriteit": "MEDIUM",
-      "owner": "architect",
-      "canonical": false,
-      "last_verified": "2025-09-11",
-      "applies_to": "definitie-app@current",
-      "category": "technical-improvement",
-      "sprint": "backlog",
-      "story_points": "8",
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 5,
-        "type_rank": 2
-      },
-      "parent_epic": "EPIC-009",
-      "parent_us": "US-060.md",
-      "_refs": {
-        "us": [
-          "US-060"
-        ],
-        "epic": [
-          "EPIC-009"
-        ],
-        "req": [
-          "REQ-015"
-        ]
-      },
-      "rendered_url": "rendered/backlog/EPIC-009/US-060/US-060.html",
-      "linked_reqs": null
-    },
-    {
-      "id": "US-066",
-      "type": "US",
-      "title": "US-066: titel: Implement AI Enhancement for Definitions",
-      "path": "../backlog/EPIC-009/US-066/US-066.md",
-      "url": "../backlog/EPIC-009/US-066/US-066.md",
-      "status": "proposed",
-      "prioriteit": "MEDIUM",
-      "owner": "architect",
-      "canonical": false,
-      "last_verified": "2025-09-11",
-      "applies_to": "definitie-app@current",
-      "category": "feature-enhancement",
-      "sprint": "backlog",
-      "story_points": "5",
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 5,
-        "type_rank": 2
-      },
-      "parent_epic": "EPIC-009",
-      "parent_us": "US-066.md",
-      "_refs": {
-        "us": [
-          "US-066"
-        ],
-        "epic": [
-          "EPIC-009"
-        ],
-        "req": [
-          "REQ-015"
-        ]
-      },
-      "rendered_url": "rendered/backlog/EPIC-009/US-066/US-066.html",
-      "linked_reqs": null
-    },
-    {
-      "id": "US-040",
-      "type": "US",
-      "title": "US-040: titel: Advanced Search",
-      "path": "../backlog/EPIC-009/US-040/US-040.md",
-      "url": "../backlog/EPIC-009/US-040/US-040.md",
-      "status": "open",
-      "prioriteit": "P2",
-      "owner": "tbd",
-      "canonical": false,
-      "last_verified": "2025-09-30",
-      "applies_to": "definitie-app@current",
-      "category": null,
-      "sprint": null,
-      "story_points": "5",
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 5,
-        "type_rank": 2
-      },
-      "parent_epic": "EPIC-009",
-      "parent_us": "US-040.md",
-      "_refs": {
-        "us": [
-          "US-040"
-        ],
-        "epic": [
-          "EPIC-009"
-        ],
-        "req": []
-      },
-      "rendered_url": "rendered/backlog/EPIC-009/US-040/US-040.html",
-      "linked_reqs": null
-    },
-    {
-      "id": "US-151",
-      "type": "US",
-      "title": "US-151: titel: Batch Processing",
-      "path": "../backlog/EPIC-009/US-151/US-151.md",
-      "url": "../backlog/EPIC-009/US-151/US-151.md",
-      "status": "open",
-      "prioriteit": "P2",
-      "owner": "tbd",
-      "canonical": false,
-      "last_verified": "2025-09-30",
-      "applies_to": "definitie-app@current",
-      "category": null,
-      "sprint": null,
-      "story_points": "5",
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 5,
-        "type_rank": 2
-      },
-      "parent_epic": "EPIC-009",
-      "parent_us": "US-151.md",
-      "_refs": {
-        "us": [
-          "US-151"
-        ],
-        "epic": [
-          "EPIC-009"
-        ],
-        "req": []
-      },
-      "rendered_url": "rendered/backlog/EPIC-009/US-151/US-151.html",
-      "linked_reqs": null
-    },
-    {
-      "id": "US-150",
-      "type": "US",
-      "title": "US-150: aangemaakt: 2025-09-30",
-      "path": "../backlog/EPIC-009/US-150/US-150.md",
-      "url": "../backlog/EPIC-009/US-150/US-150.md",
-      "status": "open",
-      "prioriteit": "P2",
-      "owner": "tbd",
-      "canonical": false,
-      "last_verified": "2025-09-30",
-      "applies_to": "definitie-app@current",
-      "category": null,
-      "sprint": null,
-      "story_points": "5",
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 5,
-        "type_rank": 2
-      },
-      "parent_epic": "EPIC-009",
-      "parent_us": "US-150.md",
-      "_refs": {
-        "us": [
-          "US-150"
-        ],
-        "epic": [
-          "EPIC-009"
-        ],
-        "req": []
-      },
-      "rendered_url": "rendered/backlog/EPIC-009/US-150/US-150.html",
       "linked_reqs": null
     },
     {
@@ -35423,6 +37214,46 @@
       "rendered_url": "rendered/backlog/EPIC-010/US-043/CFR-BUG-031/README.html"
     },
     {
+      "id": "US-028",
+      "type": "US",
+      "title": "US-028: titel: SecurityService adapter + DPIA/AVG‑sanitization en injectie in V2 orchestrator",
+      "path": "../backlog/EPIC-028/US-028/US-028.md",
+      "url": "../backlog/EPIC-028/US-028/US-028.md",
+      "status": "Nog te bepalen",
+      "prioriteit": "KRITIEK",
+      "owner": "security-engineer",
+      "canonical": false,
+      "last_verified": "2025-09-12",
+      "applies_to": "definitie-app@current",
+      "category": null,
+      "sprint": "sprint-37",
+      "story_points": "5",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": 37,
+        "priority_rank": 1,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-028",
+      "parent_us": "US-028.md",
+      "_refs": {
+        "us": [
+          "US-028"
+        ],
+        "epic": [
+          "EPIC-012",
+          "EPIC-028"
+        ],
+        "req": [
+          "REQ-006",
+          "REQ-045"
+        ]
+      },
+      "rendered_url": "rendered/backlog/EPIC-028/US-028/US-028.html",
+      "linked_reqs": null
+    },
+    {
       "id": null,
       "type": "US",
       "title": "US-445: Remove Category Regeneration Service",
@@ -35570,6 +37401,42 @@
       "rendered_url": "rendered/backlog/EPIC-028/US-444/US-444.html"
     },
     {
+      "id": "US-236",
+      "type": "US",
+      "title": "US-236: titel: Gedeelde Validatie‑weergave (V2) voor Generatie, Bewerk en Expert Review",
+      "path": "../backlog/EPIC-028/US-236/US-236.md",
+      "url": "../backlog/EPIC-028/US-236/US-236.md",
+      "status": "proposed",
+      "prioriteit": "HOOG",
+      "owner": "product",
+      "canonical": false,
+      "last_verified": "2025-09-22",
+      "applies_to": "definitie-app@current",
+      "category": null,
+      "sprint": null,
+      "story_points": "5",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 2,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-028",
+      "parent_us": "US-236.md",
+      "_refs": {
+        "us": [
+          "US-236"
+        ],
+        "epic": [
+          "EPIC-028"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-028/US-236/US-236.html",
+      "linked_reqs": null
+    },
+    {
       "id": null,
       "type": "US",
       "title": "US-441: Remove Orchestration Tab",
@@ -35643,6 +37510,42 @@
         "req": []
       },
       "rendered_url": "rendered/backlog/EPIC-028/US-446/US-446.html"
+    },
+    {
+      "id": "US-235",
+      "type": "US",
+      "title": "US-235: titel: Per-onderdeel “↻ Vernieuw” knoppen voor voorbeelden in Bewerk‑tab",
+      "path": "../backlog/EPIC-028/US-235/US-235.md",
+      "url": "../backlog/EPIC-028/US-235/US-235.md",
+      "status": "proposed",
+      "prioriteit": "GEMIDDELD",
+      "owner": "product",
+      "canonical": false,
+      "last_verified": "2025-09-22",
+      "applies_to": "definitie-app@current",
+      "category": null,
+      "sprint": null,
+      "story_points": "3",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 3,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-028",
+      "parent_us": "US-235.md",
+      "_refs": {
+        "us": [
+          "US-235"
+        ],
+        "epic": [
+          "EPIC-028"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-028/US-235/US-235.html",
+      "linked_reqs": null
     },
     {
       "id": "US-170-ARCHIVE",
@@ -38060,77 +39963,6 @@
       "linked_reqs": null
     },
     {
-      "id": "US-203",
-      "type": "US",
-      "title": "US-203: title: Reduce Prompt Token Count from 7250 to 3000 Through Optimization",
-      "path": "../backlog/EPIC-026/US-203/US-203.md",
-      "url": "../backlog/EPIC-026/US-203/US-203.md",
-      "status": "open",
-      "prioriteit": null,
-      "owner": "development-team",
-      "canonical": false,
-      "last_verified": "2025-10-02",
-      "applies_to": "definitie-app@current",
-      "category": null,
-      "sprint": null,
-      "story_points": "5",
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 5,
-        "type_rank": 2
-      },
-      "parent_epic": "EPIC-026",
-      "parent_us": "US-203.md",
-      "_refs": {
-        "us": [
-          "US-201",
-          "US-202",
-          "US-203"
-        ],
-        "epic": [
-          "EPIC-026"
-        ],
-        "req": []
-      },
-      "rendered_url": "rendered/backlog/EPIC-026/US-203/US-203.html",
-      "linked_reqs": null
-    },
-    {
-      "id": null,
-      "type": "DOC",
-      "title": "US-203: Token Reductie Onderzoeksrapport",
-      "path": "../backlog/EPIC-026/US-203/TOKEN_ANALYSIS_REPORT.md",
-      "url": "../backlog/EPIC-026/US-203/TOKEN_ANALYSIS_REPORT.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
-      "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
-      "category": null,
-      "sprint": null,
-      "story_points": null,
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 5,
-        "type_rank": 9
-      },
-      "parent_epic": "EPIC-026",
-      "parent_us": "US-203",
-      "_refs": {
-        "us": [
-          "US-203"
-        ],
-        "epic": [],
-        "req": []
-      },
-      "rendered_url": "rendered/backlog/EPIC-026/US-203/TOKEN_ANALYSIS_REPORT.html"
-    },
-    {
       "id": null,
       "type": "DOC",
       "title": "US-204: V1 to V2 Migration - Status Report",
@@ -38556,42 +40388,6 @@
         "req": []
       },
       "rendered_url": "rendered/backlog/EPIC-018/US-229/US-229.html",
-      "linked_reqs": null
-    },
-    {
-      "id": "US-227",
-      "type": "US",
-      "title": "US-227: Als gebruiker wil ik dat de door mij geselecteerde documenten daadwerkelijk worden gebruikt in de prompt, zodat de de...",
-      "path": "../backlog/EPIC-018/US-227/US-227.md",
-      "url": "../backlog/EPIC-018/US-227/US-227.md",
-      "status": "proposed",
-      "prioriteit": "HOOG",
-      "owner": "architecture",
-      "canonical": false,
-      "last_verified": "2025-09-22",
-      "applies_to": "definitie-app@current",
-      "category": null,
-      "sprint": null,
-      "story_points": "5",
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 2,
-        "type_rank": 2
-      },
-      "parent_epic": "EPIC-018",
-      "parent_us": "US-227.md",
-      "_refs": {
-        "us": [
-          "US-227"
-        ],
-        "epic": [
-          "EPIC-018"
-        ],
-        "req": []
-      },
-      "rendered_url": "rendered/backlog/EPIC-018/US-227/US-227.html",
       "linked_reqs": null
     },
     {
@@ -39849,48 +41645,6 @@
       "rendered_url": "rendered/backlog/EPIC-002/US-192/CFR-BUG-025/README.html"
     },
     {
-      "id": "US-139",
-      "type": "US",
-      "title": "US-139: Batch Operations - Async bulk import/export voor 100+ definities met progress tracking en transacties",
-      "path": "../backlog/EPIC-005/US-139/US-139.md",
-      "url": "../backlog/EPIC-005/US-139/US-139.md",
-      "status": "active",
-      "prioriteit": "LAAG",
-      "owner": "developer-implementer",
-      "canonical": false,
-      "last_verified": "06-10-2025",
-      "applies_to": "definitie-app@current",
-      "category": "feature",
-      "sprint": "backlog",
-      "story_points": "8",
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 4,
-        "type_rank": 2
-      },
-      "parent_epic": "EPIC-005",
-      "parent_us": "US-139.md",
-      "_refs": {
-        "us": [
-          "US-021",
-          "US-022",
-          "US-035",
-          "US-139"
-        ],
-        "epic": [
-          "EPIC-005"
-        ],
-        "req": [
-          "REQ-075",
-          "REQ-076"
-        ]
-      },
-      "rendered_url": "rendered/backlog/EPIC-005/US-139/US-139.html",
-      "linked_reqs": null
-    },
-    {
       "id": "US-137",
       "type": "US",
       "title": "US-137: Multi-Format Export - JSON/PDF/DOCX export met metadata preservatie en ASTRA compliance",
@@ -39932,126 +41686,6 @@
       "linked_reqs": null
     },
     {
-      "id": "US-138",
-      "type": "US",
-      "title": "US-138: Import Validatie - Format detectie, schema validatie en 45-regel businessvalidatie met duplicate detection",
-      "path": "../backlog/EPIC-005/US-138/US-138.md",
-      "url": "../backlog/EPIC-005/US-138/US-138.md",
-      "status": "active",
-      "prioriteit": "HOOG",
-      "owner": "developer-implementer",
-      "canonical": false,
-      "last_verified": "06-10-2025",
-      "applies_to": "definitie-app@current",
-      "category": "feature",
-      "sprint": "backlog",
-      "story_points": "5",
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 2,
-        "type_rank": 2
-      },
-      "parent_epic": "EPIC-005",
-      "parent_us": "US-138.md",
-      "_refs": {
-        "us": [
-          "US-021",
-          "US-062",
-          "US-138"
-        ],
-        "epic": [
-          "EPIC-005"
-        ],
-        "req": [
-          "REQ-073",
-          "REQ-074"
-        ]
-      },
-      "rendered_url": "rendered/backlog/EPIC-005/US-138/US-138.html",
-      "linked_reqs": null
-    },
-    {
-      "id": "US-423",
-      "type": "US",
-      "title": "US-423: titel: Background Export Queue Management",
-      "path": "../backlog/EPIC-005/US-423/US-423.md",
-      "url": "../backlog/EPIC-005/US-423/US-423.md",
-      "status": "proposed",
-      "prioriteit": "LOW",
-      "owner": "backend-developer",
-      "canonical": false,
-      "last_verified": "2025-01-29",
-      "applies_to": "definitie-app@current",
-      "category": "feature",
-      "sprint": "backlog",
-      "story_points": "8",
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 5,
-        "type_rank": 2
-      },
-      "parent_epic": "EPIC-005",
-      "parent_us": "US-423.md",
-      "_refs": {
-        "us": [
-          "US-423"
-        ],
-        "epic": [
-          "EPIC-005"
-        ],
-        "req": [
-          "REQ-022",
-          "REQ-042",
-          "REQ-084"
-        ]
-      },
-      "rendered_url": "rendered/backlog/EPIC-005/US-423/US-423.html",
-      "linked_reqs": null
-    },
-    {
-      "id": "US-062",
-      "type": "US",
-      "title": "US-062: titel: Implement Bulk Import Functionality",
-      "path": "../backlog/EPIC-005/US-062/US-062.md",
-      "url": "../backlog/EPIC-005/US-062/US-062.md",
-      "status": "active",
-      "prioriteit": "HIGH",
-      "owner": "developer",
-      "canonical": false,
-      "last_verified": "06-10-2025",
-      "applies_to": "definitie-app@current",
-      "category": "feature",
-      "sprint": "backlog",
-      "story_points": "8",
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 5,
-        "type_rank": 2
-      },
-      "parent_epic": "EPIC-005",
-      "parent_us": "US-062.md",
-      "_refs": {
-        "us": [
-          "US-023",
-          "US-062"
-        ],
-        "epic": [
-          "EPIC-005"
-        ],
-        "req": [
-          "REQ-083"
-        ]
-      },
-      "rendered_url": "rendered/backlog/EPIC-005/US-062/US-062.html",
-      "linked_reqs": null
-    },
-    {
       "id": "US-065",
       "type": "US",
       "title": "US-065: titel: Implement Email Export and Scheduled Exports",
@@ -40087,49 +41721,6 @@
         ]
       },
       "rendered_url": "rendered/backlog/EPIC-005/US-065/US-065.html",
-      "linked_reqs": null
-    },
-    {
-      "id": "US-021",
-      "type": "US",
-      "title": "US-021: Tab Activation - 10 functionele UI tabs (Generator, Validatie, Export, Voorbeelden, Grammatica, Context, Bronnen, History, Settings, Help)",
-      "path": "../backlog/EPIC-004/US-021/US-021.md",
-      "url": "../backlog/EPIC-004/US-021/US-021.md",
-      "status": "active",
-      "prioriteit": "GEMIDDELD",
-      "owner": "developer-implementer",
-      "canonical": false,
-      "last_verified": "05-09-2025",
-      "applies_to": "definitie-app@current",
-      "category": "feature",
-      "sprint": "current",
-      "story_points": "8",
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 3,
-        "type_rank": 2
-      },
-      "parent_epic": "EPIC-004",
-      "parent_us": "US-021.md",
-      "_refs": {
-        "us": [
-          "US-018",
-          "US-019",
-          "US-020",
-          "US-021"
-        ],
-        "epic": [
-          "EPIC-004"
-        ],
-        "req": [
-          "REQ-048",
-          "REQ-052",
-          "REQ-055"
-        ]
-      },
-      "rendered_url": "rendered/backlog/EPIC-004/US-021/US-021.html",
       "linked_reqs": null
     },
     {
@@ -40361,42 +41952,6 @@
         ]
       },
       "rendered_url": "rendered/backlog/EPIC-004/US-067/US-067.html",
-      "linked_reqs": null
-    },
-    {
-      "id": "US-236",
-      "type": "US",
-      "title": "US-236: titel: Gedeelde Validatie‑weergave (V2) voor Generatie, Bewerk en Expert Review",
-      "path": "../backlog/EPIC-004/US-236/US-236.md",
-      "url": "../backlog/EPIC-004/US-236/US-236.md",
-      "status": "proposed",
-      "prioriteit": "HOOG",
-      "owner": "product",
-      "canonical": false,
-      "last_verified": "2025-09-22",
-      "applies_to": "definitie-app@current",
-      "category": null,
-      "sprint": null,
-      "story_points": "5",
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 2,
-        "type_rank": 2
-      },
-      "parent_epic": "EPIC-004",
-      "parent_us": "US-236.md",
-      "_refs": {
-        "us": [
-          "US-236"
-        ],
-        "epic": [
-          "EPIC-004"
-        ],
-        "req": []
-      },
-      "rendered_url": "rendered/backlog/EPIC-004/US-236/US-236.html",
       "linked_reqs": null
     },
     {
@@ -40749,42 +42304,6 @@
       "linked_reqs": null
     },
     {
-      "id": "US-195",
-      "type": "US",
-      "title": "US-195: title: Duplicate‑gate bij genereren definitie met 3‑contextkeuze",
-      "path": "../backlog/EPIC-004/US-195/US-195.md",
-      "url": "../backlog/EPIC-004/US-195/US-195.md",
-      "status": "active",
-      "prioriteit": "hoog",
-      "owner": "development",
-      "canonical": false,
-      "last_verified": "2025-10-02",
-      "applies_to": "definitie-app@current",
-      "category": null,
-      "sprint": null,
-      "story_points": "5",
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 2,
-        "type_rank": 2
-      },
-      "parent_epic": "EPIC-004",
-      "parent_us": "US-195.md",
-      "_refs": {
-        "us": [
-          "US-195"
-        ],
-        "epic": [
-          "EPIC-004"
-        ],
-        "req": []
-      },
-      "rendered_url": "rendered/backlog/EPIC-004/US-195/US-195.html",
-      "linked_reqs": null
-    },
-    {
       "id": "US-110",
       "type": "US",
       "title": "US-110: titel: Persistente bronverantwoording (web sources) en generatie‑metadata voor definities",
@@ -41005,76 +42524,6 @@
         "req": []
       },
       "rendered_url": "rendered/backlog/EPIC-004/US-064/IMPLEMENTATION_PLAN.html"
-    },
-    {
-      "id": "US-235",
-      "type": "US",
-      "title": "US-235: titel: Per-onderdeel “↻ Vernieuw” knoppen voor voorbeelden in Bewerk‑tab",
-      "path": "../backlog/EPIC-004/US-235/US-235.md",
-      "url": "../backlog/EPIC-004/US-235/US-235.md",
-      "status": "proposed",
-      "prioriteit": "GEMIDDELD",
-      "owner": "product",
-      "canonical": false,
-      "last_verified": "2025-09-22",
-      "applies_to": "definitie-app@current",
-      "category": null,
-      "sprint": null,
-      "story_points": "3",
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 3,
-        "type_rank": 2
-      },
-      "parent_epic": "EPIC-004",
-      "parent_us": "US-235.md",
-      "_refs": {
-        "us": [
-          "US-235"
-        ],
-        "epic": [
-          "EPIC-004"
-        ],
-        "req": []
-      },
-      "rendered_url": "rendered/backlog/EPIC-004/US-235/US-235.html",
-      "linked_reqs": null
-    },
-    {
-      "id": "CFR-BUG-029",
-      "type": "BUG",
-      "title": "Generator‑tab — ‘Minstens 1 context’ niet afgedwongen (kan genereren zonder context)",
-      "path": "../backlog/EPIC-004/US-195/CFR-BUG-029/README.md",
-      "url": "../backlog/EPIC-004/US-195/CFR-BUG-029/README.md",
-      "status": "open",
-      "prioriteit": null,
-      "owner": "frontend-team",
-      "canonical": false,
-      "last_verified": "2025-10-02",
-      "applies_to": "definitie-app@current",
-      "category": null,
-      "sprint": null,
-      "story_points": null,
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 5,
-        "type_rank": 3
-      },
-      "parent_epic": "EPIC-004",
-      "parent_us": "US-195",
-      "_refs": {
-        "us": [
-          "US-160",
-          "US-195"
-        ],
-        "epic": [],
-        "req": []
-      },
-      "rendered_url": "rendered/backlog/EPIC-004/US-195/CFR-BUG-029/README.html"
     },
     {
       "id": "CFR-BUG-030",
@@ -41797,46 +43246,6 @@
       "linked_reqs": null
     },
     {
-      "id": "US-015",
-      "type": "US",
-      "title": "US-015: Wikipedia API Integratie - NL encyclopedische content voor definitieverrijking met intro/juridische secties",
-      "path": "../backlog/EPIC-003/US-015/US-015.md",
-      "url": "../backlog/EPIC-003/US-015/US-015.md",
-      "status": "Nog te bepalen",
-      "prioriteit": "HOOG",
-      "owner": "developer-implementer",
-      "canonical": false,
-      "last_verified": "2025-09-11",
-      "applies_to": "definitie-app@current",
-      "category": "feature",
-      "sprint": "backlog",
-      "story_points": "5",
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 2,
-        "type_rank": 2
-      },
-      "parent_epic": "EPIC-003",
-      "parent_us": "US-015.md",
-      "_refs": {
-        "us": [
-          "US-015"
-        ],
-        "epic": [
-          "EPIC-003"
-        ],
-        "req": [
-          "REQ-021"
-        ]
-      },
-      "rendered_url": "rendered/backlog/EPIC-003/US-015/US-015.html",
-      "linked_reqs": [
-        "REQ-039"
-      ]
-    },
-    {
       "id": "US-079",
       "type": "US",
       "title": "US-079: titel: Implement Wiktionary Integration",
@@ -42285,17 +43694,17 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 670,
+      "DOC": 716,
       "ARCH": 42,
       "COMP": 5,
       "TEST": 35,
       "GUIDE": 14,
-      "EPIC": 25,
+      "EPIC": 26,
       "REQ": 110,
-      "US": 276,
+      "US": 267,
       "BUG": 18
     },
-    "generated_at": "2025-10-10T14:41:43Z"
+    "generated_at": "2025-10-16T07:41:18Z"
   },
   "sources": [
     "docs"

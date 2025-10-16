@@ -11,7 +11,6 @@ prioriteit: HOOG
 status: Nog te bepalen
 stories:
 - US-225
-- US-227
 - US-228
 - US-229
 - US-230
@@ -77,4 +76,3 @@ Gebruikers kunnen documenten (DOCX/PDF/TXT/…) uploaden voor context. De applic
 - [ ] UI toont indicator en logging bevestigt contextverwerking
 - [ ] Unit + integratietests groen in CI
 - [ ] Documentatie up‑to‑date (handleiding + troubleshooting)
-

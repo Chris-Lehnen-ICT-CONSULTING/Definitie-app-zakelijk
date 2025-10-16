@@ -15,7 +15,6 @@ vereisten:
   - REQ-040
 stories:
   - US-135
-  - US-015
   - US-016
   - US-017
   - US-018

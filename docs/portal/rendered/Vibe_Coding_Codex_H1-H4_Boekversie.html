@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Vibe Coding Codex — Hoofdstukken 1 t/m 4 (Boekversie)</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>Vibe Coding Codex — Hoofdstukken 1 t/m 4 (Boekversie)</h1>
+
+<blockquote>**Context**: Dit document bundelt de complete **boekversie** van de Vibe Coding Codex, **Hoofdstuk 1 t/m 4**.  </blockquote>
+<blockquote>Focus: professioneel toepasbaar, strak gestructureerd, zonder chatruis.  </blockquote>
+<blockquote>Taal: **Nederlands**, met Engelstalige citaten waar relevant.  </blockquote>
+<blockquote>Doel: direct inzetbaar in Cursor/ChatGPT/Claude, en bruikbaar als werkhandboek.</blockquote>
+
+<p><strong>Inhoud</strong></p>
+<ul>
+<li>Hoofdstuk 1 — De Fundering (Spec-Driven, PM Framework, Minimal Stack & MCP)</li>
+<li>Hoofdstuk 2 — De 21 Vibe Coding Tips (volledige uitwerking)</li>
+<li>Hoofdstuk 3 — Vibe Design & UI Blueprint</li>
+<li>Hoofdstuk 4 — Scale, Ship & Lifecycle</li>
+</ul>
+
+<h2>Hoofdstuk 1 — De Fundering van Vibe Coding</h2>
+
+<p>Vibe coding is <strong>intuïtief bouwen met AI</strong>, maar altijd gegrond in <strong>intentie en structuur</strong>.  </p>
+<p>Zonder fundament wordt AI een chaosversterker; met fundament wordt AI jouw <strong>co‑founder</strong>.</p>
+
+<h3>1.1 Spec‑Driven Development (Intentie vóór Code)</h3>
+<p><strong>Kernidee</strong>: AI bouwt pas goed als jij het <em>waarom</em> en <em>wat</em> helder definieert.  </p>
+<p>Een <strong>Mini‑Spec</strong> van 1 pagina volstaat.</p>
+
+<p><strong>Mini‑Spec sjabloon</strong></p>
+<pre><code># Mini‑Spec — [Naam Feature / Module]
+
+## 🎯 Probleem / Doel
+Wat moet dit oplossen? Voor wie?
+
+## 👤 Gebruiker(s)
+Wie gebruikt dit? Kennisniveau?
+
+## 🛠 Functionaliteit (MVP)
+Welke acties / functies zijn nodig?
+
+## ✅ Definition of Done
+- [ ] Voorwaarde 1
+- [ ] Voorwaarde 2
+- [ ] Test(s) aanwezig
+
+## 🧪 Testcases / Voorbeelden
+Input → Verwacht resultaat</code></pre>
+
+<p><strong>AI‑prompt (Spec‑review)</strong></p>
+<pre><code>Ik werk spec‑driven. Dit is mijn Mini‑Spec:
+[PLAATS SPEC]
+
+Lees als lead engineer:
+- Waar is de spec incompleet?
+- Voorstel architectuur (modules/functies)
+- Vraag mijn GO voor implementatie</code></pre>
+
+<h3>1.2 Product Manager Framework (AI als Co‑Founder)</h3>
+<p><strong>Doel</strong>: laat AI eerst denken als <strong>PM</strong>: probleem, doelgroep, use‑cases, kritische output, risico’s.</p>
+
+<p><strong>PM‑kader</strong></p>
+<pre><code>1) Probleem: wat lossen we op?
+2) Doelgroep: voor wie?
+3) Use‑cases: 1–2 scenario’s
+4) Kritische output: wat móet bestaan?
+5) Risico’s/edge cases</code></pre>
+
+<p><strong>AI‑prompt (PM‑modus)</strong></p>
+<pre><code>Denk als Product Manager. Beantwoord 1‑5 hierboven.
+Geen code totdat we akkoord zijn.</code></pre>
+
+<h3>1.3 Minimal Stack & MCP‑discipline</h3>
+<p><strong>Minimal Stack</strong> = maximaal 3 kerntools (AI coder, PM/tickets, optioneel design).  </p>
+<p><strong>MCP (Model Context Protocol) discipline</strong> = één centrale “ruggengraat” (Linear/Notion) waar élke feature als ticket leeft.</p>
+
+<p><strong>Regels</strong></p>
+<ul>
+<li>Niets bouwen buiten het ticket</li>
+<li>Context (spec + PM) hoort in het ticket</li>
+<li>AI verwijst naar ticket en vraagt om GO</li>
+</ul>
+
+<p><strong>AI‑prompt (MCP‑modus)</strong></p>
+<pre><code>We werken MCP‑driven. Ticket/spec:
+[PLAATS TICKET/SPEC]
+
+Lees context, stel ontbrekende vragen, doe een ontwerpvoorstel.
+Bouw nooit buiten deze scope.</code></pre>
+
+<h2>Hoofdstuk 2 — De 21 Vibe Coding Tips (Volledig Uitgewerkt)</h2>
+
+<p><strong>Overzicht secties</strong></p>
+<ul>
+<li>2.1 Flow & Intentie (Tips 4–7)</li>
+<li>2.2 Architectuur & Structuur (Tips 8–12)</li>
+<li>2.3 Refactor & Debug Discipline (Tips 13–15)</li>
+<li>2.4 Versneller Prompts — Top 1% (Tips 16–18)</li>
+<li>2.5 Self‑Healing & Polishing (Tips 19–21)</li>
+</ul>
+
+<blockquote>*Opmerking*: de nummering sluit aan op eerdere communicatie. Tip 1–3 zijn de fundamenten uit Hoofdstuk 1.</blockquote>
+
+<h3>2.1 Flow & Intentie (Tips 4–7)</h3>
+
+<p><strong>Tip 4 — Conversational Warmup</strong>  </p>
+<p>Warm AI op met context. Laat het <strong>terugvertellen</strong> wat jij bouwt, vóór code.</p>
+<pre><code>Contextbriefing: [project, doelgroep, huidige taak]
+Begripscheck: Leg in je eigen woorden uit wat ik nu wil bouwen.
+Wacht op mijn GO.</code></pre>
+
+<p><strong>Tip 5 — Break the Monolith</strong>  </p>
+<p>Bouw in micro‑loops: 1) scaffold 2) implement 3) validate.</p>
+<pre><code>STAP 1 alleen: maak skeleton (signatures + docstrings). Geen implementatie.
+Vraag om GO voor STAP 2.</code></pre>
+
+<p><strong>Tip 6 — Chain of Thought (CoT)</strong>  </p>
+<p>Forceer “hardop denken”: doel, randvoorwaarden, risico’s → dan pas code.</p>
+<pre><code>Denk hardop: doel, randgevallen, risico’s. Schrijf daarna pas de implementatie.</code></pre>
+
+<p><strong>Tip 7 — Confirm Understanding</strong>  </p>
+<p>Laat AI de opdracht samenvatten en wachten op jouw GO.</p>
+<pre><code>Vat samen wat je gaat bouwen en waarom. Wacht op mijn GO.</code></pre>
+
+<h3>2.2 Architectuur & Structuur (Tips 8–12)</h3>
+
+<p><strong>Tip 8 — Architect First, Code Second</strong></p>
+<pre><code>Architect‑modus:
+1) Mappenstructuur
+2) Modules/functies
+3) Dataflow
+4) Risico’s
+Geen code. Vraag om GO.</code></pre>
+
+<p><strong>Tip 9 — Plan the Data Flow</strong></p>
+<pre><code>Beschrijf: input → transformatie → output → logging/fouten.
+Schrijf daarna pas code.</code></pre>
+
+<p><strong>Tip 10 — Force Documentation Inline</strong>  </p>
+<p>Elke functie krijgt docstring (doel, randgevallen, returns).</p>
+
+<p><strong>Tip 11 — AI as Risk Engineer</strong></p>
+<pre><code>Noem 3 risico’s/edge cases en geef mitigaties. Pas daarna implementatie.</code></pre>
+
+<p><strong>Tip 12 — Modularity Pact</strong>  </p>
+<p>Eén verantwoordelijkheid per module (core vs ui vs logging strikt gescheiden).</p>
+<pre><code>Zorg dat core/ui/logging gescheiden blijven. Vraag GO als je wil combineren.</code></pre>
+
+<h3>2.3 Refactor & Debug Discipline (Tips 13–15)</h3>
+
+<p><strong>Tip 13 — Refactor‑First, Implement‑Second</strong></p>
+<pre><code>Refactor deze code:
+- Verwijder duplicatie
+- Docstrings
+- Leesbaarheid/modulariteit
+Gedrag ongewijzigd.</code></pre>
+
+<p><strong>Tip 14 — Debug Detective</strong></p>
+<pre><code>Analyseer als debug‑expert:
+1) Mogelijke runtime fouten
+2) Logische fouten/edge cases
+3) Fixvoorstellen
+Nog geen code.</code></pre>
+
+<p><strong>Tip 15 — Add Test Harness</strong></p>
+<pre><code>Schrijf unit tests (pytest-stijl):
+- Positief
+- Negatief
+- Edge cases</code></pre>
+
+<h3>2.4 Versneller Prompts — Top 1% (Tips 16–18)</h3>
+
+<p><strong>Tip 16 — Parallel Prompts (A/B/C)</strong></p>
+<pre><code>Geef 3 verschillende oplossingen:
+A) Minimalistisch
+B) Robuust/Redundant
+C) Creatief/Out‑of‑the‑box</code></pre>
+
+<p><strong>Tip 17 — Synthesis Command</strong></p>
+<pre><code>Combineer de beste elementen van A/B/C tot één finale versie.</code></pre>
+
+<p><strong>Tip 18 — Auto‑Polish Loop</strong></p>
+<pre><code>Voer polish‑pass uit:
+- Leesbaarheid
+- Naming‑conventies
+- Foutafhandeling
+- Docstrings
+Toon alleen verbeterde versie.</code></pre>
+
+<h3>2.5 Self‑Healing & Polishing (Tips 19–21)</h3>
+
+<p><strong>Tip 19 — Self‑Healing Code</strong></p>
+<pre><code>Self‑check:
+- Ongebruikte variabelen
+- Kwetsbare patronen
+- TODO‑fixes als comments</code></pre>
+<p>Vervolgens “auto‑fix mode” op gemarkeerde punten.</p>
+
+<p><strong>Tip 20 — Self‑Healing UI</strong></p>
+<pre><code>UI‑audit op: spacing/padding, typografie‑hiërarchie, alignment, toegankelijkheid (contrast).
+Lever verbeterde layout.</code></pre>
+
+<p><strong>Tip 21 — Continuous Polish Loop</strong></p>
+<pre><code>Evalueer codekwaliteit:
+- Naamgeving
+- Structuur
+- Generaliseerbaarheid
+Pas verbeteringen toe zonder scope te wijzigen.</code></pre>
+
+<h2>Hoofdstuk 3 — Vibe Design & UI Blueprint</h2>
+
+<p><strong>Doel</strong>: zonder designer toch een <strong>professionele, consistente UI</strong> leveren.</p>
+
+<h3>3.1 The Vibe Design Blueprint (4 zones)</h3>
+<p>1) <strong>Header/Hero</strong> — context & doel (wat is dit, voor wie?)  </p>
+<p>2) <strong>Core Action Zone</strong> — inputs & primaire acties  </p>
+<p>3) <strong>Feedback Zone</strong> — resultaten, validatie, errors  </p>
+<p>4) <strong>Trust/Info Support</strong> — hulpteksten, status, links</p>
+
+<p><strong>Prompt</strong></p>
+<pre><code>Ontwerp een UI met 4 zones (Header, Actie, Feedback, Info).
+Geef 3 variaties (A minimalistisch, B dashboard, C conversational).
+Geen code, alleen layout.</code></pre>
+
+<h3>3.2 De 3‑Varianten Methode</h3>
+<p>A (minimalistisch), B (structureel), C (creatief). Daarna <strong>synthese</strong> (Tip 17).</p>
+
+<h3>3.3 Polish & Heuristic Review</h3>
+<p>Heuristieken: <strong>Contrast, Alignment, Consistency, Feedback</strong>.  </p>
+<pre><code>UI‑audit: spacing/padding consistentie, typografie‑hiërarchie, contrast.
+Verbeter alleen visuele structuur. Lever verbeterde variant.</code></pre>
+
+<h3>3.4 Light Design System (Tokens)</h3>
+<p>Maak <strong>design tokens</strong> die AI overal toepast (kleur, typografie, spacing, radii).</p>
+
+<p><strong>Prompt</strong></p>
+<pre><code>Genereer een Light Design System (tokens):
+- Kleuren: primary/secondary/error/background
+- Typografie: h1/h2/body/caption
+- Spacing: sm/md/lg
+- Component style: buttons/cards
+
+Lever tabel + code‑constanten.</code></pre>
+
+<h3>3.5 Visual Prompt Library (UI)</h3>
+<ul>
+<li>**Layout Architect** (structuur in tekst/ASCII)  </li>
+<li>**UX Copywriter** (microcopy, foutmeldingen)  </li>
+<li>**Visual Polish** (consistentie & toegankelijkheid)  </li>
+<li>**Component Generator** (herbruikbare blokken)  </li>
+<li>**Responsive/Mobile Check** (stacking, touch targets)</li>
+</ul>
+
+<h2>Hoofdstuk 4 — Scale, Ship & Product Lifecycle</h2>
+
+<p>AI inzetten om <strong>gericht te leveren</strong> (ship), kwaliteit te bewaren (regressie) en continu te verbeteren.</p>
+
+<h3>4.1 Roadmap Discipline</h3>
+<p><strong>Niveaus</strong>: Epic → Feature → Task. Alles leeft in je MCP‑systeem (Linear/Notion).</p>
+
+<p><strong>Prompt</strong></p>
+<pre><code>Maak een roadmap voor deze feature:
+- Epic (doel)
+- Features (subdoelen)
+- Tasks (concrete acties)
+- Blockers
+Lever als Markdown tabel.</code></pre>
+
+<h3>4.2 Ship Loops</h3>
+<p><strong>Ship = Product.</strong> Elke oplevering bevat changelog, release note, documentatie‑update.</p>
+
+<p><strong>Prompt</strong></p>
+<pre><code>Maak ship‑afronding:
+- Changelog (wat is nieuw)
+- Release note (voor gebruiker)
+- Documentatie update (README/handboek)</code></pre>
+
+<h3>4.3 Regression Shield</h3>
+<p>Bescherm tegen “zombie bugs” met regressietests en audits.</p>
+
+<p><strong>Prompt</strong></p>
+<pre><code>Regression‑audit:
+1) Zijn eerdere edge cases behouden?
+2) Zijn oude tests nog geldig?
+3) Maak regressietests waar nodig.</code></pre>
+
+<h3>4.4 Continuous AI Co‑Founder</h3>
+<p>Gebruik AI na oplevering voor <strong>ideeën, simulaties, performance‑checks, doc‑reviews</strong>.</p>
+
+<p><strong>Prompt</strong></p>
+<pre><code>Beoordeel dit onderdeel als product‑coach:
+- Wat kan beter?
+- Wat mist de gebruiker?
+- Performance/UX‑risico’s?
+Stel 3 verbetercycli voor.</code></pre>
+
+<p>---</p>
+
+<h3>Bijlage — Snelle Prompt Index</h3>
+<ul>
+<li>**Spec‑review** · **PM‑modus** · **MCP‑modus**  </li>
+<li>**Architect‑modus** · **Dataflow** · **Docstrings** · **Risicoanalyse** · **Modularity Pact**  </li>
+<li>**Refactor‑first** · **Debug detective** · **Unit tests**  </li>
+<li>**Parallel prompts** · **Synthese** · **Auto‑polish**  </li>
+<li>**Self‑healing code/UI** · **Continuous polish**  </li>
+<li>**Roadmap** · **Ship loop** · **Regression shield** · **Product‑coach**</li>
+</ul>
+
+<blockquote>*Hoofdstuk 5 (Promptbibliotheek) wordt separaat aangeleverd wanneer compleet.*</blockquote>
+
+  </div>
+</body>
+</html>

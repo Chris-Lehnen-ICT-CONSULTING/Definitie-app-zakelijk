@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>US-195: title: Duplicate‑gate bij genereren definitie met 3‑contextkeuze</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>id: US-195</p>
+<p>titel: "US-195: title: Duplicate‑gate bij genereren definitie met 3‑contextkeuze"</p>
+<p>epic: EPIC-030</p>
+<p>title: Duplicate‑gate bij genereren definitie met 3‑contextkeuze</p>
+<p>status: active</p>
+<p>prioriteit: hoog</p>
+<p>story_points: 5</p>
+<p>owner: development</p>
+<p>applies_to: definitie-app@current</p>
+<p>canonical: false</p>
+<p>last_verified: 2025-10-02</p>
+<p>last_updated: 2025-09-22</p>
+<p>---</p>
+
+<h1>US-195 — Duplicate‑gate bij genereren definitie met 3‑contextkeuze</h1>
+
+<p>Als gebruiker wil ik dat de definitiegenerator direct stopt wanneer er al een definitie bestaat met dezelfde context (begrip + organisatorische, juridische én wettelijke context), zodat ik expliciet kan kiezen tussen het hergebruiken van de bestaande definitie of het bewust genereren van een nieuwe (met duidelijke waarschuwing).</p>
+
+<h2>Context & Rationale</h2>
+<ul>
+<li>Duplicate‑criterium is canoniek: begrip + drie contextlijsten (organisatorisch, juridisch, wettelijk). Categorie maakt geen deel uit van de duplicate‑check.</li>
+<li>Bij duplicate moet de UI niet door‑genereren maar de gebruiker eerst 2 keuzes bieden.</li>
+<li>Bij “Genereer nieuwe” moet de validator (CON‑01) de situatie zichtbaar markeren (error/high); gates blijven drempel‑gedreven.</li>
+</ul>
+
+<h2>Scope</h2>
+<ul>
+<li>UI (EPIC‑004): duplicate pre‑check vóór generatie + dialoog met 2 knoppen.</li>
+<li>Services/DB (alignering): DB‑filtering op `wettelijke_basis` (JSON), checker‑laag borgt orde‑onafhankelijkheid.</li>
+<li>Migrator: normalisatie van `wettelijke_basis` naar unieke, gesorteerde JSON‑array zodat SQL‑vergelijkingen betrouwbaar zijn.</li>
+<li>- Preconditie (CFR‑BUG‑029 opgelost op 2025‑09‑22): in de Generator‑tab is minimaal één context (organisatorisch of juridisch of wettelijk) vereist vóór genereren of opslaan als concept.</li>
+</ul>
+
+<h2>Refinement (2025-10-14)</h2>
+
+<h3>Doelen</h3>
+<ul>
+<li>Duplicate-detectie vóór API-call met begrip + drie contextlijsten.</li>
+<li>Heldere keuze-UI die hergebruik stimuleert maar geforceerde generatie mogelijk maakt.</li>
+<li>Gedeelde normalisatie-implementatie tussen database, services en validator.</li>
+</ul>
+
+<h3>Buiten scope</h3>
+<ul>
+<li>Geen uitbreiding van businessregels (categorie blijft buiten duplicate).</li>
+<li>Geen versiebeheer- of audittrailwijzigingen; notificatie volstaat.</li>
+<li>Geen introductie van background jobs of queues.</li>
+</ul>
+
+<h3>Definition of Ready</h3>
+<ul>
+<li>[ ] UX-schets (wireframe of screenshot) van de dialoog is beschikbaar.</li>
+<li>[ ] Lijst van bestaande doublures (min. 5 voorbeelden) aangeleverd voor testdata.</li>
+<li>[ ] Besluit bevestigd dat geforceerde generatie zichtbaar blijft met CON-01 violation.</li>
+<li>[ ] Database backup/restore procedure ready voor migratie.</li>
+</ul>
+
+<h3>Werkpakketten</h3>
+<ul>
+<li>[ ] Normalisatie helper + migratiescript (`scripts/migrations/normalize_wettelijke_basis.py`) met unit tests.</li>
+<li>[ ] Repository/service update voor orde-onafhankelijke duplicate check.</li>
+<li>[ ] UI dialoog en state management in `definition_generator_tab` inclusief disabling van generate-knop.</li>
+<li>[ ] Validator-aanpassing voor CON-01 metadata (`existing_definition_id`, `status`) + logging.</li>
+<li>[ ] Observability: metric `duplicate_prevented_total` en structured log entries voor beslissingen.</li>
+</ul>
+
+<h2>Definitie van Gereed</h2>
+<ul>
+<li>[ ] Dialoog verschijnt vóórdat de OpenAI-call wordt aangeroepen.</li>
+<li>[ ] Bestaande definitie wordt leesbaar weergegeven (tekst + 3 contexten + status).</li>
+<li>[ ] Geforceerde generatie registreert CON-01 violation met metadata en logging.</li>
+<li>[ ] Duplicate matching blijft identiek bij permutaties van `wettelijke_basis` (unit + integratie test).</li>
+<li>[ ] Migratiescript is uitgevoerd en idempotent (tweede run levert 0 wijzigingen).</li>
+<li>[ ] Telemetry toont teller `duplicate_prevented_total` en sample log met hergebruikbeslissing.</li>
+</ul>
+
+<h2>Acceptatiecriteria</h2>
+<ul>
+<li>AC1: Voor een bestaande definitie met exact dezelfde (begrip, org, jur, wet) verschijnt de keuze‑UI, en er wordt nog niets gegenereerd.</li>
+<li>AC2: “Toon bestaande definitie” toont definitietekst, status en alle 3 contexten (leesbaar) in de UI.</li>
+<li>AC3: “Genereer nieuwe definitie” maakt een nieuw record; validator bevat CON‑01 violation (error/high) met metadata `existing_definition_id` en `status`.</li>
+<li>AC4: Variatie alleen in `wettelijke_basis` (overige gelijk) resulteert in PROCEED (géén duplicate‑UI).</li>
+<li>AC5: De volgorde van items in `wettelijke_basis` mag het resultaat niet beïnvloeden (orde‑onafhankelijk).</li>
+<li>AC6: Migratiescript normaliseert bestaande `wettelijke_basis` waarden; herhaald draaien is idempotent.</li>
+</ul>
+
+<h2>Niet‑functioneel</h2>
+<ul>
+<li>Pre‑check moet < 100 ms blijven bij een database tot ~10k records (lokale SQLite). SQL filter + normalisatie minimaliseren IO.</li>
+<li>Geen netwerkafhankelijkheden in de pre‑check‑flow.</li>
+</ul>
+
+<h2>Implementatie (korte samenvatting)</h2>
+<ul>
+<li>UI: `src/ui/tabbed_interface.py`</li>
+<li> - Duplicate‑gate vóór generatie; knoppen “Toon bestaande” en “Genereer nieuwe”.</li>
+<li>Checker: `src/integration/definitie_checker.py`</li>
+<li> - `check_before_generation(..., wettelijke_basis=[])` verwerkt alle 3 lijsten; categorie genegeerd.</li>
+<li>DB‑laag: `src/database/definitie_repository.py`</li>
+<li> - `find_definitie`/`find_duplicates` accepteren `wettelijke_basis` en filteren op de JSON‑string; categorie‑filter verwijderd.</li>
+<li> - `set_wettelijke_basis()` normaliseert naar unieke, gesorteerde JSON.</li>
+<li>Migrator: `src/database/migrate_database.py`</li>
+<li> - Normaliseert bestaande `wettelijke_basis` waarden (uniek + gesorteerd).</li>
+<li>Validator: `src/services/validation/modular_validation_service.py`</li>
+<li> - CON‑01 duplicate‑violation: bij geforceerde generatie `severity=error`, `severity_level=high` (bewust geen ‘critical’ gate change in deze US).</li>
+</ul>
+
+<h2>Testplan</h2>
+<ul>
+<li>Unit/integration: `tests/integration/test_duplicate_check_three_contexts.py`</li>
+<li> - test_exact_match_requires_all_three_lists_equal_order_independent</li>
+<li> - test_mismatch_wettelijke_basis_does_not_count_as_exact_or_duplicate</li>
+<li> - test_draft_status_returns_update_existing_when_all_three_match</li>
+<li>Handmatig in UI:</li>
+<p>  1) Maak definitie A (begrip X, org=OM, jur=Strafrecht, wet=[Art. 27 Sv]).</p>
+<p>  2) Genereer opnieuw met exact dezelfde context → duplicate‑UI (AC1/AC2).</p>
+<p>  3) Varieer wet (bijv. [Art. 67 Sv]) → geen duplicate‑UI, wel generatie mogelijk (AC4).</p>
+<p>  4) Forceer “Genereer nieuwe definitie” → CON‑01 error zichtbaar met metadata (AC3).</p>
+</ul>
+
+<h2>Traceability</h2>
+<ul>
+<li>REQ: Koppeling met UI‑use‑cases (REQ‑052, REQ‑049) en kwaliteitstoetsing (REQ‑072) — zie Portal Traceability.</li>
+<li>EPIC: EPIC‑004 (User Interface)</li>
+</ul>
+
+<h2>Open Besluiten</h2>
+<ul>
+<li>Of CON‑01 bij geforceerde duplicate ‘critical’ moet worden (gate‑block) blijft een optionele vervolgstap (niet in deze US).</li>
+</ul>
+
+  </div>
+</body>
+</html>
