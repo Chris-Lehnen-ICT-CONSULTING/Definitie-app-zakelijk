@@ -1,0 +1,384 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>QUALITY & RISK - ACTION PLAN (QUICK REFERENCE)</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>QUALITY & RISK - ACTION PLAN (QUICK REFERENCE)</h1>
+
+<p><strong>Project:</strong> DefinitieAgent</p>
+<p><strong>Date:</strong> 2025-10-13</p>
+<p><strong>Purpose:</strong> Quick reference for implementing quality improvements</p>
+
+<p>---</p>
+
+<h2>WEEK-BY-WEEK ACTION PLAN</h2>
+
+<h3>WEEK 1-2: CRITICAL QUALITY (Phase 1)</h3>
+
+<h4>Day 1: Database Backups (CRITICAL)</h4>
+
+<pre><code># Task: Automate daily backups
+# Owner: Developer
+# Priority: P0 (CRITICAL)
+
+# Implementation:
+1. Create scripts/maintenance/auto_backup.sh
+2. Add to crontab (daily 2am)
+3. Configure 30-day retention
+4. Test restore procedure
+5. Document in README
+
+# Success Criteria:
+✅ Backup runs daily
+✅ 30-day retention works
+✅ Restore tested successfully
+✅ CI checks backup freshness</code></pre>
+
+<p><strong>Files to Create/Modify:</strong></p>
+<ul>
+<li>`scripts/maintenance/auto_backup.sh` (NEW)</li>
+<li>`scripts/maintenance/restore_backup.sh` (NEW)</li>
+<li>`.github/workflows/backup-check.yml` (NEW)</li>
+<li>`README.md` (UPDATE: Add backup section)</li>
+</ul>
+
+<p>---</p>
+
+<h4>Day 2-6: UI Integration Tests (CRITICAL)</h4>
+
+<pre><code># Task: Create 15-20 UI integration tests
+# Owner: Developer
+# Priority: P0 (CRITICAL)
+
+# Implementation:
+1. Create tests/integration/test_ui_definition_flow.py
+2. Test: Generate definition (happy path)
+3. Test: Generate definition (validation fails)
+4. Test: Generate definition (API error)
+5. Test: Edit definition and save
+6. Test: Approval gate blocks low score
+7. Test: Voorbeelden regeneration
+8. Test: Category change triggers regeneration
+9. Test: Session state persistence
+10. Test: Multiple definitions in session
+11. Test: Export definition (PDF/JSON)
+12. Test: Import definition (CSV)
+13. Test: Search definitions
+14. Test: Filter by status
+15. Test: Bulk operations
+
+# Success Criteria:
+✅ 15+ integration tests created
+✅ All tests passing
+✅ UI coverage &gt;60%
+✅ CI runs tests on every PR</code></pre>
+
+<p><strong>Files to Create/Modify:</strong></p>
+<ul>
+<li>`tests/integration/test_ui_definition_flow.py` (NEW)</li>
+<li>`tests/integration/test_ui_edit_flow.py` (NEW)</li>
+<li>`tests/integration/test_ui_approval_gate.py` (NEW)</li>
+<li>`tests/integration/test_ui_voorbeelden.py` (NEW)</li>
+<li>`tests/integration/test_ui_import_export.py` (NEW)</li>
+<li>`.github/workflows/test.yml` (UPDATE: Add UI test job)</li>
+</ul>
+
+<p>---</p>
+
+<h4>Day 7: Story DoD Template (HIGH)</h4>
+
+<pre><code># Task: Create Story DoD checklist template
+# Owner: Developer
+# Priority: P1 (HIGH)
+
+# Implementation:
+1. Create docs/guidelines/STORY_DOD_TEMPLATE.md
+2. Update all existing US-XXX.md with DoD section
+3. Create scripts/bmad/verify_story_dod.py
+4. Document in README
+
+# Success Criteria:
+✅ DoD template created
+✅ 10 existing stories updated (sample)
+✅ Verification script works
+✅ Documentation complete</code></pre>
+
+<p><strong>Files to Create/Modify:</strong></p>
+<ul>
+<li>`docs/guidelines/STORY_DOD_TEMPLATE.md` (NEW)</li>
+<li>`scripts/bmad/verify_story_dod.py` (NEW)</li>
+<li>`docs/backlog/EPIC-XXX/US-XXX/US-XXX.md` (UPDATE: 10 samples)</li>
+<li>`README.md` (UPDATE: Add DoD section)</li>
+</ul>
+
+<p>---</p>
+
+<h3>WEEK 3-8: ESSENTIAL QUALITY (Phase 2)</h3>
+
+<h4>Week 3-7: God Object Refactoring (CRITICAL)</h4>
+
+<p><strong>Follow EPIC-026 Pragmatic Plan:</strong></p>
+
+<p><strong>Week 3:</strong> Foundation</p>
+<ul>
+<li>Remove 8 dead stub methods</li>
+<li>Extract patterns to `config/ontological_patterns.yaml`</li>
+<li>Create 15-20 integration tests (DONE in Week 1-2)</li>
+<li>Document state contracts</li>
+<li>Create type-safe state wrappers</li>
+</ul>
+
+<p><strong>Week 4:</strong> Business Logic to Services</p>
+<ul>
+<li>Enhance `CategoryService` (config-driven patterns)</li>
+<li>Enhance `RegenerationService` (category change logic)</li>
+<li>Create `RuleReasoningService` (new)</li>
+<li>Tests: 90%+ coverage</li>
+</ul>
+
+<p><strong>Week 5:</strong> UI Component Splitting</p>
+<ul>
+<li>Split `definition_generator_tab.py` into 3 renderers</li>
+<li>Remove direct DB access</li>
+<li>Use services via DI</li>
+<li>Tests: UI rendering</li>
+</ul>
+
+<p><strong>Week 6-7:</strong> Orchestration Extraction</p>
+<ul>
+<li>Extract `_handle_definition_generation` to coordinator</li>
+<li>Reduce `tabbed_interface.py` to <400 LOC</li>
+<li>Use existing `DefinitionOrchestratorV2` pattern</li>
+<li>Final integration test pass</li>
+</ul>
+
+<p><strong>Success Criteria:</strong></p>
+<p>✅ <code>definition_generator_tab.py</code>: 2,387 → <800 LOC</p>
+<p>✅ <code>tabbed_interface.py</code>: 1,629 → <400 LOC</p>
+<p>✅ Max complexity: 116 → <50</p>
+<p>✅ All integration tests green</p>
+
+<p><strong>Files to Create/Modify:</strong></p>
+<ul>
+<li>See EPIC-026 detailed plan</li>
+</ul>
+
+<p>---</p>
+
+<h4>Week 8: Hardcoded Patterns + DoD Automation</h4>
+
+<p><strong>Day 1-3: Extract Hardcoded Patterns</strong></p>
+
+<pre><code># Task: Move patterns to config YAML
+# Priority: P1 (HIGH)
+
+# Implementation:
+1. Create config/ontological_patterns.yaml
+2. Update CategoryService to read from config
+3. Remove hardcoded patterns (3 locations)
+4. Update tests
+5. Verify no duplication
+
+# Success Criteria:
+✅ Patterns in YAML (not code)
+✅ 3 hardcoded locations eliminated
+✅ Tests updated and passing
+✅ No pattern duplication</code></pre>
+
+<p><strong>Day 4-5: DoD Automation</strong></p>
+
+<pre><code># Task: CI enforcement of Story DoD
+# Priority: P1 (HIGH)
+
+# Implementation:
+1. Create .github/workflows/story-dod-check.yml
+2. Create scripts/bmad/verify_ac_tests.py
+3. Test on 5 sample stories
+4. Enable blocking on PR
+
+# Success Criteria:
+✅ CI checks DoD on every PR
+✅ Blocks merge if DoD incomplete
+✅ AC → Test traceability verified
+✅ Documentation updated</code></pre>
+
+<p>---</p>
+
+<h3>WEEK 9+: CONTINUOUS IMPROVEMENT (Phase 3)</h3>
+
+<h4>Ongoing: Quality Monitoring</h4>
+
+<pre><code># Task: Implement quality dashboards
+# Priority: P2 (MEDIUM)
+
+# Implementation:
+1. Complexity trend dashboard
+2. Coverage trend dashboard
+3. AI accuracy monitoring
+4. Performance regression tests
+5. Risk dashboard automation
+
+# Success Criteria:
+⚙️ Weekly quality reports
+⚙️ Automated alerts on degradation
+⚙️ Trend analysis available
+⚙️ Performance baselines enforced</code></pre>
+
+<p>---</p>
+
+<h2>CHECKLIST: QUICK DAILY TASKS</h2>
+
+<h3>EVERY COMMIT</h3>
+
+<pre><code>- [ ] Pre-commit hooks pass (Ruff, Black, Gitleaks)
+- [ ] Tests run locally (all pass)
+- [ ] No new TODO/FIXME added
+- [ ] Commit message references US-XXX
+- [ ] Self-review completed</code></pre>
+
+<h3>EVERY PR</h3>
+
+<pre><code>- [ ] CI/CD green (all workflows pass)
+- [ ] Story DoD checklist completed
+- [ ] Acceptance criteria tests exist
+- [ ] Documentation updated
+- [ ] No new god methods (complexity &lt;50, LOC &lt;100)</code></pre>
+
+<h3>EVERY WEEK</h3>
+
+<pre><code>- [ ] Risk register reviewed
+- [ ] Quality metrics checked (coverage, complexity)
+- [ ] Backlog prioritized (32 epics → focus top 5)
+- [ ] Database backup verified
+- [ ] Performance baselines met</code></pre>
+
+<p>---</p>
+
+<h2>CRITICAL FILES TO PROTECT</h2>
+
+<p><strong>These files are CRITICAL - extra care required:</strong></p>
+
+<pre><code># Core Business Logic
+src/services/validation/modular_validation_service.py (1,638 LOC)
+src/services/orchestrators/definition_orchestrator_v2.py (1,084 LOC)
+src/database/definitie_repository.py (2,068 LOC)
+
+# Critical Configuration
+config/toetsregels.json (validation rules)
+config/web_lookup_defaults.yaml (web lookup config)
+src/database/schema.sql (database schema)
+
+# Critical Data
+data/definities.db (41.7 MB, MUST BACKUP)
+
+# Quality Gates
+.pre-commit-config.yaml (11 hooks)
+.github/workflows/*.yml (17 workflows)</code></pre>
+
+<p><strong>Protection Rules:</strong></p>
+<ul>
+<li>Always run tests before modifying</li>
+<li>Create backup before schema changes</li>
+<li>Review diffs carefully (no accidental deletions)</li>
+<li>Never commit database files to git</li>
+</ul>
+
+<p>---</p>
+
+<h2>EMERGENCY CONTACTS & RESOURCES</h2>
+
+<h3>Key Documents</h3>
+
+<pre><code># Quality &amp; Risk
+docs/planning/QUALITY_RISK_ANALYSIS.md (Full 67KB report)
+docs/planning/QUALITY_RISK_EXECUTIVE_SUMMARY.md (Quick summary)
+docs/planning/QUALITY_RISK_ACTION_PLAN.md (This document)
+
+# Architecture
+docs/backlog/EPIC-026/EPIC-026-EXECUTIVE-SUMMARY.md (God object plan)
+docs/backlog/EPIC-026/EPIC-026-RISK-HEATMAP.md (Risk analysis)
+CLAUDE.md (Project instructions)
+
+# Guidelines
+docs/guidelines/CANONICAL_LOCATIONS.md (File locations)
+docs/guidelines/DOCUMENTATION_POLICY.md (Doc standards)</code></pre>
+
+<h3>Useful Commands</h3>
+
+<pre><code># Quality Checks
+make lint           # Run Ruff + Black
+make test           # Run fast test subset
+make test-cov       # Run with coverage
+make test-smoke     # Run smoke tests only
+
+# Database
+scripts/maintenance/auto_backup.sh      # Manual backup
+scripts/maintenance/restore_backup.sh   # Restore from backup
+
+# BMad Workflows
+scripts/bmad/verify_story_dod.py US-XXX    # Check DoD
+scripts/bmad/verify_ac_tests.py US-XXX     # Check AC tests</code></pre>
+
+<p>---</p>
+
+<h2>SUCCESS TRACKING</h2>
+
+<h3>Phase 1 (Week 1-2) - CRITICAL QUALITY</h3>
+
+<pre><code>Week 1:
+  Day 1: [ ] Database backups automated
+  Day 2: [ ] UI test infrastructure setup
+  Day 3: [ ] 5 UI integration tests created
+  Day 4: [ ] 10 UI integration tests created
+  Day 5: [ ] 15 UI integration tests created
+  Day 6: [ ] All tests passing in CI
+  Day 7: [ ] Story DoD template created
+
+Milestone: [ ] Phase 1 Complete (2 critical risks mitigated)</code></pre>
+
+<h3>Phase 2 (Week 3-8) - ESSENTIAL QUALITY</h3>
+
+<pre><code>Week 3: [ ] Foundation (dead code removed, patterns extracted)
+Week 4: [ ] Business logic to services
+Week 5: [ ] UI component splitting
+Week 6: [ ] Orchestration extraction (part 1)
+Week 7: [ ] Orchestration extraction (part 2)
+Week 8: [ ] Hardcoded patterns eliminated, DoD automation
+
+Milestone: [ ] Phase 2 Complete (4 critical risks mitigated)</code></pre>
+
+<h3>Phase 3 (Week 9+) - CONTINUOUS IMPROVEMENT</h3>
+
+<pre><code>Month 3: [ ] Complexity dashboard
+Month 4: [ ] Coverage dashboard
+Month 5: [ ] AI accuracy monitoring
+Month 6: [ ] Performance regression suite
+
+Milestone: [ ] Phase 3 Complete (0 critical risks)</code></pre>
+
+<p>---</p>
+
+<p><strong>Last Updated:</strong> 2025-10-13</p>
+<p><strong>Owner:</strong> Developer (Quality & Risk Specialist)</p>
+<p><strong>Status:</strong> READY FOR EXECUTION</p>
+
+<p><strong>Next Review:</strong> End of Week 2 (assess Phase 1 completion)</p>
+
+  </div>
+</body>
+</html>

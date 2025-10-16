@@ -29,7 +29,6 @@ vereisten:
   - REQ-077
 stories:
   - US-142
-  - US-143
   - US-144
   - US-145
   - US-146

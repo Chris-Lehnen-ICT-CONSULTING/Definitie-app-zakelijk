@@ -17,15 +17,14 @@ from src.services.classification.ontology_classifier import (
 )
 
 
-@pytest.fixture()
+@pytest.fixture
 def mock_ai_service():
     """Mock AI service die JSON responses teruggeeft."""
     # Geen spec zodat we attributes kunnen toevoegen
-    service = Mock()
-    return service
+    return Mock()
 
 
-@pytest.fixture()
+@pytest.fixture
 def classifier(mock_ai_service):
     """Classifier instance met mocked AI service."""
     classifier = OntologyClassifierService(mock_ai_service)
@@ -42,6 +41,8 @@ class TestOntologyClassifierService:
 
     def test_init_loads_prompt_template(self, mock_ai_service, tmp_path):
         """Test dat initialisatie prompt template laadt."""
+        from src.services.classification.config import OntologyClassifierConfig
+
         # Create temp prompt file
         prompt_file = tmp_path / "test_prompt.yaml"
         prompt_file.write_text(
@@ -51,16 +52,12 @@ user_template: "Test template {begrip}"
 """
         )
 
-        # Mock prompt path
-        original_path = OntologyClassifierService.PROMPT_PATH
-        OntologyClassifierService.PROMPT_PATH = prompt_file
+        # Use custom config with temp prompt path
+        config = OntologyClassifierConfig(prompt_path=prompt_file)
+        classifier = OntologyClassifierService(mock_ai_service, config)
 
-        try:
-            classifier = OntologyClassifierService(mock_ai_service)
-            assert classifier.system_prompt == "Test system"
-            assert "Test template" in classifier.user_template
-        finally:
-            OntologyClassifierService.PROMPT_PATH = original_path
+        assert classifier.system_prompt == "Test system"
+        assert "Test template" in classifier.user_template
 
     def test_classify_type_successful(self, classifier, mock_ai_service):
         """Test succesvolle TYPE classificatie."""
