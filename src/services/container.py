@@ -308,49 +308,12 @@ class ServiceContainer:
         msg = "Validation orchestrator not available"
         raise RuntimeError(msg)
 
-    def ontology_classifier(self):
-        """
-        Get of create OntologyClassifierService instance.
-
-        Uses environment-based configuration from OntologyClassifierConfig.
-        Respects ONTOLOGY_* environment variables for runtime configuration.
-
-        Returns:
-            Singleton instance van OntologyClassifierService
-        """
-        if "ontology_classifier" not in self._instances:
-            from services.ai_service_v2 import AIServiceV2
-            from services.classification.config import OntologyClassifierConfig
-            from services.classification.ontology_classifier import \
-                OntologyClassifierService
-
-            # Reuse AI service
-            ai_service = AIServiceV2(
-                default_model=self.generator_config.gpt.model, use_cache=True
-            )
-
-            # Load config from environment (respects ONTOLOGY_* env vars)
-            config = OntologyClassifierConfig()
-
-            self._instances["ontology_classifier"] = OntologyClassifierService(
-                ai_service, config
-            )
-            logger.debug(
-                "OntologyClassifierService created with config: "
-                f"temp={config.temperature}, max_tokens={config.max_tokens}, "
-                f"fallback={config.fallback_level}"
-            )
-
-        return self._instances["ontology_classifier"]
-
     def ontological_classifier(self):
         """
-        Get of create OntologicalClassifier instance (standalone U/F/O classifier).
+        Get of create OntologicalClassifier instance (U/F/O classifier).
 
-        Dit is de STANDALONE classifier die VOOR definitie generatie wordt gebruikt.
-        Verschil met ontology_classifier:
-            - ontological_classifier: Standalone, gebruikt LevelClassifier, voor UI + batch
-            - ontology_classifier: Legacy service (OntologyClassifierService)
+        Dit is de classifier die VOOR definitie generatie wordt gebruikt om
+        begrippen te classificeren als Universals, Functionals, of Objects.
 
         Returns:
             Singleton instance van OntologicalClassifier
