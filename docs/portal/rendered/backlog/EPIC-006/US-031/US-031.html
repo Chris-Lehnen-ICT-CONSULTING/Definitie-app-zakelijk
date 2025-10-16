@@ -58,6 +58,38 @@
 <li>baseline file voor detect‑secrets in repo om false positives te whitelisten.</li>
 </ul>
 
+<h2>Refinement (2025-10-14)</h2>
+
+<h3>Doelen</h3>
+<ul>
+<li>Automatiseer secrets-scan en dependency-audit in de bestaande CI (GitHub Actions of lokaal `make ci`).</li>
+<li>Bied een lokale command (`make security-check`) zodat ontwikkelaar issues kan oplossen vóór commit.</li>
+<li>Bewaar rapporten zodat regressies traceerbaar zijn.</li>
+</ul>
+
+<h3>Buiten scope</h3>
+<ul>
+<li>Geen container image scans (kan later).</li>
+<li>Geen SAST/DAST tooling toevoegen binnen deze story.</li>
+</ul>
+
+<h3>Definition of Ready</h3>
+<ul>
+<li>[ ] Bestaande CI workflow geïdentificeerd (trunk/git actions) en klaar voor uitbreiding.</li>
+<li>[ ] Versies gekozen: `detect-secrets` en `pip-audit` (of `safety`).</li>
+<li>[ ] Baseline whitelist afgesproken (minimaal seeds).</li>
+</ul>
+
+<h3>Werkpakketten</h3>
+<ul>
+<li>[ ] Voeg GitHub Actions job `security` toe met stappen: install tools, run `detect-secrets scan --baseline .secrets.baseline`, run `pip-audit --output-format json`.</li>
+<li>[ ] Maak `make security-check` en `scripts/security/run_ci_checks.sh` voor lokale uitvoering.</li>
+<li>[ ] Configureer `.secrets.baseline` (geüpdatet via `detect-secrets audit`) en voeg documentatie toe hoe te onderhouden.</li>
+<li>[ ] Zorg dat audit resultaten opgeslagen worden als artifact (`pip-audit.json`).</li>
+<li>[ ] Voeg README sectie “Security Pipeline” met instructies.</li>
+<li>[ ] Update `CONTRIBUTING.md` met pre-commit hook instructie (optioneel).</li>
+</ul>
+
 <h2>Testplan</h2>
 <ul>
 <li>E2E: maak een testbranch met dummy secret → job moet falen.</li>
@@ -66,9 +98,12 @@
 
 <h2>Definition of Done</h2>
 <ul>
-<li>Jobs draaien op PR en main; badge/README sectie “Security Status” geüpdatet.</li>
+<li>[ ] CI job faalt bij gedetecteerde secret of high-risk dependency.</li>
+<li>[ ] Artefacten beschikbaar (scanrapport).</li>
+<li>[ ] `make security-check` draait lokaal zonder handmatig setup.</li>
+<li>[ ] Documentatie (README/CONTRIBUTING) bijgewerkt met stappen.</li>
+<li>[ ] Badge of statusnotitie toegevoegd aan README.</li>
 </ul>
-
 
   </div>
 </body>

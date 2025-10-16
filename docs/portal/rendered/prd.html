@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>[GEARCHIVEERD] DefinitieAgent Brownfield Enhancement PRD</title>
+  <title>Definitie‑app — Stabilization MVP PRD (Concept)</title>
   <link rel="stylesheet" href="../portal.css" />
   <style>
     .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
@@ -18,311 +18,155 @@
 <body>
   <div class="doc">
     <a class="back" href="../../index.html">← Terug naar Portal</a>
-    <p>---</p>
-<p>aangemaakt: '08-09-2025'</p>
-<p>applies_to: definitie-app@v2</p>
-<p>bijgewerkt: '08-09-2025'</p>
-<p>canonical: false</p>
-<p>last_verified: 02-09-2025</p>
-<p>owner: product</p>
-<p>prioriteit: medium</p>
-<p>status: archived</p>
+    <h1>Definitie‑app — Stabilization MVP PRD (Concept)</h1>
+
+<ul>
+<li>Versie: 0.1</li>
+<li>Datum: 2025-10-13</li>
+<li>Auteur: Product Manager (PM)</li>
+<li>Status: Concept/Voorstel</li>
+</ul>
+
+<h2>1. Samenvatting</h2>
+<p>Brownfield project is functioneel maar uit de hand gelopen: overvolle/chaotische backlog, aanwezige god‑objecten die werken maar uitbreidbaarheid blokkeren. Doel van dit Stabilization MVP is focus te herstellen, levercadans terug te brengen (wekelijkse release), en toekomstige verbeteringen mogelijk te maken zonder big‑bang refactors. Security is expliciet geen prioriteit voor dit MVP.</p>
+
+<h2>2. Context en Probleemdefinitie</h2>
+<ul>
+<li>Single developer, single user applicatie.</li>
+<li>Backlog is de grootste bottleneck: te veel items, onduidelijke prioriteit, context switching.</li>
+<li>God‑objecten bestaan; huidige functionaliteit werkt maar is fragiel bij uitbreiding.</li>
+<li>Security: buiten scope voor dit MVP.</li>
+</ul>
+
+<h2>3. Doelen en KPI’s</h2>
+<ul>
+<li>Doel: Stabilisatie + voorspelbare levering met minimale ingreep.</li>
+<li>KPI’s (MVP):</li>
+<li> - KPI1 Lead time per story ≤ 2 dagen door WIP=1.</li>
+<li> - KPI2 Minimaal 1 release per week.</li>
+<li> - KPI3 Regressie: 0 kritieke regressies per release (gedekt door smoke/contract tests).</li>
+<li> - KPI4 Backlog: 80% van Inbox getriaged in week 1; Ready‑kolom ≤ 3.</li>
+</ul>
+
+<h2>4. Scope</h2>
+<ul>
+<li>In scope (MVP):</li>
+<li> - Backlog Reset: Inbox → Triage → Ready(≤3) → Doing(1) → Done workflow.</li>
+<li> - God‑Object Containment: introductie van kleinst mogelijke `Facade/Service` laag rond kritieke god‑object(en).</li>
+<li> - Verticale slice via nieuwe facade (één betekenisvolle gebruikersflow).</li>
+<li> - Lichtgewicht testbasis: smoke + contracttests bij de facadegrenzen.</li>
+<li> - Release‑cadans + changelog per release.</li>
+<li>Buiten scope (MVP):</li>
+<li> - Big‑bang herschrijvingen.</li>
+<li> - Nieuwe grote features die niet bijdragen aan stabilisatie/doorknippen van koppelingen.</li>
+<li> - Security hardening/pen‑tests; performance‑tuning buiten noodzakelijke randvoorwaarden.</li>
+</ul>
+
+<h2>5. Doelgebruiker en Use‑Cases (MVP)</h2>
+<ul>
+<li>Doelgebruiker: interne single user (ontwikkelaar/product). </li>
+<li>Primaire use‑cases voor MVP:</li>
+<li> - UC1 Dagelijks kunnen werken zonder regressies in bestaande kernflow(s).</li>
+<li> - UC2 Snel kunnen leveren (kleine stories, WIP=1) met duidelijke release‑notities.</li>
+<li> - UC3 Nieuwe code kan aangesloten worden op een stabiele facade zonder direct god‑objecten te raken.</li>
+</ul>
+
+<h2>6. Epics (MVP‑scope)</h2>
+<ul>
+<li>E1 Backlog Reset en Workflow</li>
+<li>E2 God‑Object Containment via Facade + Seams</li>
+<li>E3 Verticale Slice door de Facade</li>
+<li>E4 Release‑cadans en Basis Validaties</li>
+</ul>
+
+<h2>7. Functionele Requirements (FR)</h2>
+<ul>
+<li>FR1: Bestaande kernfunctionaliteit blijft werken met ongewijzigd gedrag (backward compatible).</li>
+<li>FR2: Een `Facade/Service` abstraction levert de minimaal benodigde use‑cases voor de eerste verticale slice.</li>
+<li>FR3: Nieuwe/gewijzigde code gebruikt uitsluitend de facade i.p.v. direct god‑objecten.</li>
+<li>FR4: Board/flow aanwezig: Inbox, Triage, Ready(≤3), Doing(1), Done.</li>
+<li>FR5: Release per afgeronde story met korte changelog.</li>
+</ul>
+
+<h2>8. Niet‑Functionele Requirements (NFR)</h2>
+<ul>
+<li>NFR1: Prestatie‑impact van de facade ≤ 10% t.o.v. huidige hot‑paths.</li>
+<li>NFR2: Minimale testset: smoke tests op kritieke flows + contracttests op de facade.</li>
+<li>NFR3: Observability: basislogregels op de facade‑grenzen (start/stop/foutgevallen).</li>
+<li>NFR4: Security: buiten scope voor MVP (geen nieuwe eisen, geen blockers).</li>
+</ul>
+
+<h2>9. Compatibiliteitseisen (CR)</h2>
+<ul>
+<li>CR1: Externe API’s/CLI/UI blijven backward compatible (geen brekende wijzigingen).</li>
+<li>CR2: Database‑schema ongewijzigd voor MVP.</li>
+<li>CR3: Bestands‑/config‑locaties blijven stabiel.</li>
+<li>CR4: Integraties met bestaande modules blijven werken via de facade.</li>
+</ul>
+
+<h2>10. Architectuur & Implementatie‑Aanpak</h2>
+<ul>
+<li>Principe: “Contain, don’t rewrite”. Gebruik Strangler/Seams‑patroon.</li>
+<li>Stap‑voor‑stap:</li>
+<p>  1) Snapshot huidig gedrag van de god‑object‑use‑cases via contracttests.</p>
+<p>  2) Introduceer <code>Facade/Service</code> die exact deze use‑cases exposeert (geen extra scope).</p>
+<p>  3) Leid nieuwe en aangepaste code om via de facade (enkel deze laag mag god‑objecten benaderen).</p>
+<p>  4) Per story: micro‑refactor achter de facade (extract method/pure function/kleine klasse).</p>
+<p>  5) Geen big‑bang; geleidelijke strangling van god‑objecten.</p>
+<li>Codeorganisatie (voorstel, project‑agnostisch):</li>
+<li> - Nieuwe module/namespace: `.../facade` of `.../services` met duidelijke contracten (interfaces/public API).</li>
+<li> - Tests: `tests/.../test_facade_contract.*` + rooktests voor kernflows.</li>
+<li>Releaseproces:</li>
+<li> - Wekelijkse release, of sneller per story zodra tests groen zijn.</li>
+<li> - Changelog per release; tag/versienummering incrementeel.</li>
+</ul>
+
+<h2>11. Planning & Mijlpalen</h2>
+<ul>
+<li>Fase 0 (0,5 dag): Freeze + mini‑oriëntatie; noteer pijnpunten; bepaal eerste verticale slice.</li>
+<li>Fase 1 (0,5 dag): Artefacten (dit PRD), workflow/board, DoR/DoD.</li>
+<li>Fase 2 (1 dag): Backlog Reset (kill/park/keep), Ready maximaal 3.</li>
+<li>Sprint 1 (1 week): </li>
+<li> - Deliverable: 1 verticale slice via facade + contracttests + release + changelog.</li>
+<li>Doorlopend: WIP=1, weekly release, micro‑refactors in de seam (10–20% tijd per story).</li>
+</ul>
+
+<h2>12. Acceptatiecriteria MVP</h2>
+<ul>
+<li>AC1: Board actief met kolommen en WIP‑regels; Ready ≤ 3, Doing = 1.</li>
+<li>AC2: Facade aanwezig en gebruikt door eerste verticale slice; tests groen.</li>
+<li>AC3: Minstens 1 release live met changelog en 0 kritieke regressies.</li>
+<li>AC4: Backlog getriaged; ≥ 80% Inbox opgeschoond.</li>
+</ul>
+
+<h2>13. Risico’s en Mitigaties</h2>
+<ul>
+<li>R1 Scope creep → M1 Strikt MVP, Ready ≤ 3, WIP=1, timeboxing.</li>
+<li>R2 Verborgen koppelingen in god‑objecten → M2 Contracttests + kleine stappen + observability.</li>
+<li>R3 Tijdsdruk single dev → M3 Verticale slices, geen big‑bang, kleine increments.</li>
+<li>R4 Regressies → M4 Smoke + contracttests, release na groen.</li>
+</ul>
+
+<h2>14. Assumpties en Open Vragen</h2>
+<ul>
+<li>Assumpties:</li>
+<li> - A1 Single user context blijft gelden gedurende MVP.</li>
+<li> - A2 Geen nieuwe externe integraties in MVP.</li>
+<li>Open vragen (in te vullen):</li>
+<li> - OV1 Welke specifieke gebruikersflow is de eerste verticale slice? </li>
+<li> - OV2 Welke god‑object(en) prioriteren we voor de eerste facade? </li>
+<li> - OV3 Zijn er kritieke data‑/rapportagepaden die absoluut niet mogen veranderen?</li>
+</ul>
+
+<h2>15. Bijlagen/Referenties</h2>
+<ul>
+<li>Brownfield Recovery plan(nen) in `docs/planning/`.</li>
+<li>Eventuele eerdere PRD’s in `docs/archief/`.</li>
+</ul>
+
 <p>---</p>
 
-
-
-<h1>[GEARCHIVEERD] DefinitieAgent Brownfield Enhancement PRD</h1>
-
-<p>Deze PRD is gearchiveerd. Voor de actuele architectuur en implementatiestatus:</p>
-<ul>
-<li>Canoniek: `docs/architectuur/SOLUTION_ARCHITECTURE.md`</li>
-<li>Validatie V2: `docs/backlog/stories/epic-2-story-2.4-integration-migration.md`</li>
-<li>Health/Status: `reports/status/validation-status.json`</li>
-</ul>
-
-<h2>Intro Project Analysis and Context</h2>
-
-<h3>Analysis Source</h3>
-<p>Document-project output available at: <code>docs/architectuur/V2_AI_SERVICE_MIGRATIE_BROWNFIELD.md</code></p>
-
-<h3>Current Project State</h3>
-<p>DefinitieAgent is een juridische definitie generatie service met een hybride architectuur:</p>
-<ul>
-<li>**V1 Orchestrator**: Monolithische sync implementatie (490+ regels, productie-klaar)</li>
-<li>**V2 Orchestrator**: 11-fase gestructureerde async flow met **legacy fallbacks**</li>
-<li>**AsyncGPTClient**: Volledig geïmplementeerde async OpenAI wrapper (rate limiting, caching, retries)</li>
-<li>**AI Service**: Sync service laag met moderne interface maar geen async ondersteuning</li>
-</ul>
-
-<h3>Available Documentation Analysis</h3>
-<p>Document-project analysis available - using existing technical documentation:</p>
-<ul>
-<li>✅ Tech Stack Documentatie</li>
-<li>✅ Source Tree/Architectuur</li>
-<li>✅ API Documentatie</li>
-<li>✅ Externe API Documentatie</li>
-<li>✅ Technische Schuld Documentatie</li>
-</ul>
-
-<h3>Enhancement Scope Definition</h3>
-
-<p><strong>Enhancement Type</strong>: ☑️ Integratie met Nieuwe Systemen (AsyncGPTClient → V2 Orchestrator)</p>
-
-<p><strong>Enhancement Description</strong>:</p>
-<p>Implementatie van AIServiceV2 OM de legacy fallback mechanismen in V2 orchestrator te vervangen door native async AI calls via bestaande AsyncGPTClient infrastructuur.</p>
-
-<p><strong>Impact Assessment</strong>: ☑️ Gemiddelde Impact (enkele bestaande code wijzigingen)</p>
-<ul>
-<li>Nieuwe AIServiceV2 klasse toevoegen</li>
-<li>V2 orchestrator legacy fallback vervangen</li>
-<li>Interface definitie toevoegen aan interfaces.py</li>
-<li>V1 orchestrator blijft ongewijzigd</li>
-</ul>
-
-<h3>Goals and Background Context</h3>
-
-<p><strong>Goals</strong>:</p>
-<p>• Elimineer legacy sync fallbacks in V2 orchestrator</p>
-<p>• Integreer bestaande AsyncGPTClient in service laag</p>
-<p>• Behoud 100% backward compatibility met V1 flows</p>
-<p>• Realiseer 3-5x performance verbetering voor batch operaties</p>
-
-<p><strong>Background Context</strong>:</p>
-<p>De V2 orchestrator is gebouwd voor async AI verwerking maar valt terug op sync legacy calls vanwege ontbrekende AIServiceInterface implementatie. AsyncGPTClient bestaat al volledig met rate limiting, caching en retry logic, maar wordt niet gebruikt door de orchestrator laag. Deze migratie combineert bestaande technische componenten zonder nieuwe external afhankelijkheden.</p>
-
-<p><strong>Change Log</strong>:</p>
-<p>| Wijziging | Datum | Versie | Beschrijving | Auteur |</p>
-<p>|-----------|-------|--------|--------------|---------|</p>
-<p>| Initial PRD | 28-08-2025 | 1.0 | V2 AI Service migratie vereistes | PM John |</p>
-<p>| Codex Updates | 28-08-2025 | 1.1 | Codex cross-validation: FR6, NFR6-7, story updates | PM John |</p>
-<p>| Strategic Pivot | 28-08-2025 | 2.0 | V1 elimination strategy: Remove compatibility vereistes, add validation vereistes | PM John |</p>
-
-<h2>Vereisten</h2>
-
-<h3>Functionele Vereisten</h3>
-
-<p><strong>FR1</strong>: De V2 orchestrator moet native async AI calls kunnen maken via AIServiceV2 zonder legacy fallbacks</p>
-
-<p><strong>FR2</strong>: AIServiceV2 moet AsyncGPTClient hergebruiken voor rate limiting, caching, en retry logic</p>
-
-<p><strong>FR3</strong>: AIServiceInterface moet gedefinieerd worden in interfaces.py met async generate_definition() en batch_generate() methoden</p>
-
-<p><strong>FR4</strong>: <strong>[V1 ELIMINATION]</strong> V1 orchestrator code moet volledig gedeactiveerd en verwijderd worden uit service container routing</p>
-
-<p><strong>FR5</strong>: <strong>[V1 ELIMINATION]</strong> Legacy functions (<code>stuur_prompt_naar_gpt()</code>) moeten gedepreceerd en verwijderd worden</p>
-
-<p><strong>FR8</strong>: <strong>[ARCHITECT]</strong> Interface moet explicit batch support bevatten met AIGenerationResult structured response inclusief generation_time, cached status, en retry_count</p>
-
-<p><strong>FR9</strong>: <strong>[ARCHITECT]</strong> Error taxonomie moet geharmoniseerd worden naar AIServiceError wrapper als facade over OpenAI errors</p>
-
-<p><strong>FR6</strong>: <strong>[CODEX]</strong> AIServiceV2 moet OpenAI errors (OpenAIError, RateLimitError) wrappen naar AIServiceError voor consistent error handling</p>
-
-<p><strong>FR7</strong>: <strong>[ARCHITECT REQUIREMENT]</strong> Emergency rollback procedure moet gedocumenteerd zijn voor V1 restoration indien nodig</p>
-
-<h3>Niet-Functionele Vereisten</h3>
-
-<p><strong>NFR1</strong>: AIServiceV2 moet 3-5x performance verbetering leveren voor batch operaties vergeleken met legacy sync calls (throughput ≥ 3x V1 bij parallelle prompts)</p>
-
-<p><strong>NFR2</strong>: <strong>[ARCHITECT KRITIEK]</strong> V2 orchestrator met AIServiceV2 moet performance parity behouden met V1 baseline voor single requests (p95 latency ≤ V1 ±10%)</p>
-
-<p><strong>NFR3</strong>: <strong>[PRE-MORTEM]</strong> AsyncGPTClient rate limiter moet thread-safe zijn onder concurrent load (min 50 requests/sec)</p>
-
-<p><strong>NFR4</strong>: <strong>[PRE-MORTEM]</strong> AIServiceV2 moet gebruik maken van dezelfde cache keys als legacy AI service voor consistency, met thread-pool execution voor sync cache calls in async context</p>
-
-<p><strong>NFR5</strong>: <strong>[PRE-MORTEM]</strong> V2 orchestrator met AIServiceV2 moet minimaal gelijke performance hebben als V1 voor single requests</p>
-
-<p><strong>NFR6</strong>: <strong>[CODEX REVISED]</strong> AIServiceV2 token counting implementeert heuristiek (tiktoken) met ≥90% accuracy of rapportage met 'tokens_estimated' flag totdat per-call usage beschikbaar</p>
-
-<p><strong>NFR7</strong>: <strong>[CODEX]</strong> AIServiceV2 moet RateLimitConfig centraliseren via config_manager i.p.v. eigen configuratie OM conflicten te voorkomen</p>
-
-<p><strong>NFR10</strong>: <strong>[ARCHITECT]</strong> Observability metrics moeten minimaal bevatten: generation_time, tokens_used/tokens_estimated, model, retry_count, cache_hit</p>
-
-<p><strong>NFR11</strong>: <strong>[ARCHITECT]</strong> Logging moet eenduidige, parsebare logs genereren (JSON of gestructureerde velden) voor alle AI calls</p>
-
-<p><strong>NFR8</strong>: <strong>[ARCHITECT MANDATORY]</strong> Comprehensive performance benchmarking suite moet V1 vs V2+AIServiceV2 vergelijking uitvoeren voor validation (single request p95 ≤ +10%, batch throughput ≥ 3x)</p>
-
-<p><strong>NFR9</strong>: <strong>[ARCHITECT MANDATORY]</strong> AsyncGPTClient stability testing moet concurrent load scenarios valideren (50 rps gedurende 30-60 min voor rate limiter stabiliteit)</p>
-
-<h3>Compatibiliteit Vereisten</h3>
-
-<p><strong>CR1</strong>: AIServiceV2 moet implementeren van AIServiceInterface voor type safety in V2 orchestrator</p>
-
-<p><strong>CR2</strong>: Database schema compatibility - geen database wijzigingen vereist voor migratie</p>
-
-<p><strong>CR3</strong>: UI/UX consistency - eindgebruiker ervaart geen verschil tussen V1 en V2 orchestrator responses (UI/endpoint compatibiliteit ongewijzigd)</p>
-
-<p><strong>CR4</strong>: <strong>[V1 ELIMINATION]</strong> Alle definitie generation requests moeten exclusief via V2 orchestrator worden gerouteerd</p>
-
-<p><strong>CR5</strong>: <strong>[ARCHITECT REQUIREMENT]</strong> Error handling completeness - alle V1 error scenarios moeten gemapped zijn naar V2 equivalenten</p>
-
-<p><strong>CR6</strong>: <strong>[ARCHITECT]</strong> Voorbeelden-generatie functionaliteit moet gelijkwaardig of beter zijn dan V1 baseline</p>
-
-<h2>Technische Constraints en Integratie Vereisten</h2>
-
-<h3>Bestaande Technology Stack</h3>
-
-<p><strong>Talen</strong>: Python 3.x</p>
-<p><strong>Frameworks</strong>: FastAPI, AsyncIO</p>
-<p><strong>Database</strong>: SQLite (definitie opslag)</p>
-<p><strong>Infrastructuur</strong>: Service container architectuur met afhankelijkheid injection</p>
-<p><strong>Externe Afhankelijkheden</strong>: OpenAI API via AsyncGPTClient, bestaande cache systeem</p>
-
-<h3>Integratie Benadering</h3>
-
-<p><strong>Database Integratie Strategie</strong>: Geen database wijzigingen - AIServiceV2 gebruikt bestaande cache tabellen en configuratie</p>
-
-<p><strong>API Integratie Strategie</strong>: AIServiceV2 wordt geïnjecteerd via service container, V2 orchestrator krijgt AIServiceInterface i.p.v. legacy fallback</p>
-
-<p><strong>Frontend Integratie Strategie</strong>: Transparant - eindgebruiker ziet geen verschil tussen V1/V2 orchestrator responses</p>
-
-<p><strong>Testen Integratie Strategie</strong>: Uitbreiding bestaande test suite met async AI service tests, V1/V2 compatibility tests</p>
-
-<h3>Code Organisatie en Standards</h3>
-
-<p><strong>File Structure Benadering</strong>: Nieuwe AIServiceV2 in <code>src/services/ai_service_v2.py</code>, interface toevoegen aan <code>src/services/interfaces.py</code></p>
-
-<p><strong>Naming Conventions</strong>: Volgen bestaande patterns - AIServiceV2, AsyncAIService, generate_definition_async()</p>
-
-<p><strong>Coding Standards</strong>: Consistente error handling met bestaande AIServiceError, async/await patterns zoals AsyncGPTClient</p>
-
-<p><strong>Documentatie Standards</strong>: Docstrings met type hints, README updates voor nieuwe V2 configuratie</p>
-
-<h3>Uitrol en Operations</h3>
-
-<p><strong>Build Process Integratie</strong>: Geen wijzigingen - AIServiceV2 wordt geimporteerd zoals bestaande services</p>
-
-<p><strong>Uitrol Strategie</strong>: Direct V2-only replacement - V1 orchestrator volledig gedeactiveerd, geen dual-mode ondersteuning</p>
-
-<p><strong>Monitoring en Logging</strong>: Hergebruik bestaande logging patterns, uitbreiding met async performance metrics</p>
-
-<p><strong>Configuration Management</strong>: Centraal via config_manager zoals bestaande services, AsyncGPTClient configuratie integratie</p>
-
-<h3>Risico Beoordeling en Mitigatie</h3>
-
-<p><strong>Technische Risico's</strong>: AsyncGPTClient concurrency bugs, cache consistency issues, V2 performance regression vs V1 baseline</p>
-
-<p><strong>Integratie Risico's</strong>: Error handling gaps in V2, token counting inaccuracy impact, production stability zonder fallback</p>
-
-<p><strong>Uitrol Risico's</strong>: V1 elimination zonder adequate rollback testing, performance regression detection delay</p>
-
-<p><strong>Mitigatie Strategieën</strong>: Mandatory performance benchmarking, AsyncGPTClient stability testing, emergency rollback procedures, comprehensive V2-only testing</p>
-
-<h2>Episch Verhaal en Story Structuur</h2>
-
-<h3>Episch Verhaal Benadering</h3>
-
-<p><strong>Episch Verhaal Structure Beslissing</strong>: Enkele comprehensive epic met rationale - De V2 AI Service migratie vereist gecoördineerde wijzigingen over meerdere service lagen (interfaces, implementatie, container wiring) die samen één coherente feature leveren. Multiple epics zouden onnodige complexiteit toevoegen voor wat essentieel een integratie taak is.</p>
-
-<h2>Episch Verhaal 1: V2 AI Service - Complete V1 Elimination</h2>
-
-<p><strong>Episch Verhaal Goal</strong>: Complete eliminatie van V1 orchestrator en implementatie van pure async V2 architecture met native AIServiceV2, resulting in clean production-ready codebase zonder legacy afhankelijkheden</p>
-
-<p><strong>Integratie Vereisten</strong>: Volledige V1 code removal, AsyncGPTClient native integration, performance validation voor production readiness, emergency rollback capability voor risk mitigation</p>
-
-<h3>Story 1.1: AIServiceInterface Definitie</h3>
-
-<p>Als een <strong>ontwikkelaar</strong>,</p>
-<p>Wil ik <strong>een gedefinieerde AIServiceInterface in interfaces.py</strong>,</p>
-<p>Zodat <strong>V2 orchestrator type-safe async AI calls kan maken</strong>.</p>
-
-<h4>Acceptatiecriteria</h4>
-<ol>
-<li>AIServiceInterface gedefinieerd met async generate_definition() methode</li>
-<li>Interface bevat batch_generate() methode voor parallelle verwerking</li>
-<li>Interface definieert AIGenerationResult met text, model, tokens_used, generation_time, cached, retry_count, metadata fields</li>
-<li>Type hints consistent met bestaande service interfaces</li>
-<li>Interface ondersteunt optionele parameters (model, temperature, max_tokens, system_prompt, timeout_seconds)</li>
-<li>Error taxonomie geharmoniseerd naar AIServiceError wrapper voor OpenAI errors</li>
-</ol>
-
-<h4>Integratie Verificatie</h4>
-<p><strong>IV1</strong>: Bestaande import statements in V2 orchestrator blijven werken zonder wijzigingen</p>
-<p><strong>IV2</strong>: IDE type checking rapporteert geen errors voor AIServiceInterface usage</p>
-<p><strong>IV3</strong>: Bestaande services kunnen interface implementeren zonder breaking changes</p>
-
-<h3>Story 1.2: AIServiceV2 Core Implementatie</h3>
-
-<p>Als een <strong>V2 orchestrator</strong>,</p>
-<p>Wil ik <strong>een native async AI service die AsyncGPTClient hergebruikt</strong>,</p>
-<p>Zodat <strong>ik echte async AI calls kan maken zonder legacy fallbacks</strong>.</p>
-
-<h4>Acceptatiecriteria</h4>
-<ol>
-<li>AIServiceV2 implementeert AIServiceInterface volledig met batch_generate() ondersteuning</li>
-<li>Hergebruik AsyncGPTClient voor rate limiting, retries en caching</li>
-<li>Structured AIGenerationResult objecten met heuristiek token counting (≥90% accuracy of 'tokens_estimated' flag)</li>
-<li>OpenAI errors (OpenAIError, RateLimitError) gewrapped naar AIServiceError</li>
-<li>RateLimitConfig gecentraliseerd via config_manager</li>
-<li>Zelfde cache keys als V1 voor compatibility</li>
-<li>Timeouts/retries/rate limiting aantoonbaar actief via logs/metrics</li>
-</ol>
-
-<h4>Integratie Verificatie</h4>
-<p><strong>IV1</strong>: AsyncGPTClient rate limiter werkt correct onder concurrent requests</p>
-<p><strong>IV2</strong>: Cache integratie gebruikt dezelfde keys als legacy AI service met thread-pool voor sync calls</p>
-<p><strong>IV3</strong>: Prestaties voor single requests minimaal gelijk aan legacy service</p>
-<p><strong>IV4</strong>: Error consistency - OpenAI errors correct gewrapped naar AIServiceError</p>
-
-<h3>Story 1.3: V1 Orchestrator Elimination</h3>
-
-<p>Als een <strong>development team</strong>,</p>
-<p>Wil ik <strong>alle V1 orchestrator code volledig verwijderen</strong>,</p>
-<p>Zodat <strong>we een clean async-only architecture hebben voor production</strong>.</p>
-
-<h4>Acceptatiecriteria</h4>
-<ol>
-<li>V1 orchestrator (`src/services/definition_orchestrator.py`) gedeactiveerd in service container</li>
-<li>Legacy functions (`stuur_prompt_naar_gpt()`) verwijderd uit codebase</li>
-<li>V2 orchestrator legacy fallback methods (`_get_legacy_ai_service()`) geëlimineerd</li>
-<li>Service container routing exclusief via V2 orchestrator</li>
-<li>Dual-path test coverage geconsolideerd naar async-only test suite</li>
-</ol>
-
-<h4>Integratie Verificatie</h4>
-<p><strong>IV1</strong>: Alle definition generation requests lopen via V2 orchestrator only</p>
-<p><strong>IV2</strong>: Zero legacy fallback code paths in production</p>
-<p><strong>IV3</strong>: Emergency rollback procedure gedocumenteerd en getest</p>
-
-<h3>Story 1.4: Prestaties Validation & Benchmarking</h3>
-
-<p>Als een <strong>development team</strong>,</p>
-<p>Wil ik <strong>comprehensive performance validation van V2-only architecture</strong>,</p>
-<p>Zodat <strong>we kunnen garanderen dat performance parity wordt behaald</strong>.</p>
-
-<h4>Acceptatiecriteria</h4>
-<ol>
-<li>Prestaties benchmarking suite ontwikkeld voor V1 vs V2+AIServiceV2 vergelijking</li>
-<li>Single request latency validation (p95 ≤ V1 ±10%)</li>
-<li>Batch operation throughput confirmation (≥3x V1 bij parallelle prompts)</li>
-<li>AsyncGPTClient concurrent load testing (50 rps gedurende 30-60 min)</li>
-<li>Cache consistency verification onder load scenarios</li>
-<li>Rate limiter stabiliteit, foutpercentages, geheugenverbruik geverifieerd</li>
-</ol>
-
-<h4>Integratie Verificatie</h4>
-<p><strong>IV1</strong>: V2 orchestrator behaalt performance parity met V1 baseline</p>
-<p><strong>IV2</strong>: Async batch operations tonen 3-5x performance improvement</p>
-<p><strong>IV3</strong>: No performance regressions detected onder production-like load</p>
-
-<h3>Story 1.5: V2-Only Production Readiness</h3>
-
-<p>Als een <strong>QA engineer</strong>,</p>
-<p>Wil ik <strong>comprehensive testing van V2-only architecture</strong>,</p>
-<p>Zodat <strong>production launch succesvol verloopt zonder V1 afhankelijkheden</strong>.</p>
-
-<h4>Acceptatiecriteria</h4>
-<ol>
-<li>Async-only test suite voor V2 orchestrator + AIServiceV2 integration</li>
-<li>Error handling completeness testing (alle V1 scenarios mapped naar V2)</li>
-<li>Production readiness validation (zero legacy afhankelijkheden)</li>
-<li>Emergency rollback testing en procedure validation</li>
-<li>Load testing onder production-like scenarios</li>
-</ol>
-
-<h4>Integratie Verificatie</h4>
-<p><strong>IV1</strong>: V2-only architecture slaagt voor alle production readiness criteria</p>
-<p><strong>IV2</strong>: Error scenarios gehandled consistent zonder V1 fallback afhankelijkheden</p>
-<p><strong>IV3</strong>: Rollback procedures gevalideerd en gedocumenteerd voor emergency use</p>
+<p>Dit document is een voorstel (Concept). Na beantwoording van de open vragen en bevestiging van de scope worden epics en stories uitgewerkt door PO/SM en ingepland volgens WIP=1 en weekly release.</p>
 
   </div>
 </body>

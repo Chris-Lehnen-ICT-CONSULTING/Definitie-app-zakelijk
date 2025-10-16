@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Generator‑tab — ‘Minstens 1 context’ niet afgedwongen (kan genereren zonder context)</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>id: CFR-BUG-029</p>
+<p>titel: Generator‑tab — ‘Minstens 1 context’ niet afgedwongen (kan genereren zonder context)</p>
+<p>status: open</p>
+<p>owner: frontend-team</p>
+<p>applies_to: definitie-app@current</p>
+<p>canonical: false</p>
+<p>last_verified: 2025-10-02</p>
+<p>severity: HIGH</p>
+<p>component: ui-generator</p>
+<p>gevonden_op: 2025-09-22</p>
+<p>---</p>
+
+<h1>CFR-BUG-029: Generator‑tab respecteert ‘minstens 1 context’ niet</h1>
+
+<h2>Beschrijving</h2>
+<p>In de Definition Generator‑tab kan de gebruiker definities genereren terwijl alle drie contextvelden leeg zijn (organisatorische_context, juridische_context, wettelijke_basis). Volgens het gate‑beleid en de handover moet “minstens 1 context” verplicht zijn. Het ontbreken van deze vroege afdwinging leidt tot inconsistente UX (pas bij vaststellen wordt geblokkeerd) en tot definities zonder duidelijke context.</p>
+
+<h2>Verwacht gedrag</h2>
+<ul>
+<li>De generator‑actie is geblokkeerd zolang alle drie contextlijsten leeg zijn.</li>
+<li>De UI toont een duidelijke melding bij de contextselectie: “Minstens één context is vereist (organisatorisch of juridisch of wettelijk).”</li>
+<li>Zodra minimaal één lijst een waarde bevat, wordt de actie weer ingeschakeld.</li>
+</ul>
+
+<h2>Huidig gedrag</h2>
+<ul>
+<li>De gebruiker kan zonder context door naar generatie (en zelfs opslaan als concept) vanuit de Generator‑tab.</li>
+<li>Pas in de gate bij vaststellen (US‑160) wordt “minstens één context” afgedwongen.</li>
+</ul>
+
+<h2>Reproduceren</h2>
+<p>1) Open de Definition Generator‑tab.</p>
+<p>2) Zorg dat de globale context leeg is (geen waarden in alle drie contexten).</p>
+<p>3) Start een generatie (of kies “Bewaar als concept en bewerk”).</p>
+<p>4) Observeer dat de actie niet wordt tegengehouden en er geen waarschuwing verschijnt.</p>
+
+<h2>Scope fix</h2>
+<ul>
+<li>UI (Generator‑tab):</li>
+<li> - Disable/guard de knoppen voor genereren en “Bewaar als concept en bewerk” wanneer `organisatorische_context`, `juridische_context` en `wettelijke_basis` alle drie leeg zijn.</li>
+<li> - Toon een korte waarschuwing naast de contextselector.</li>
+<li>Optioneel service‑guard: early‑return met nette melding wanneer toch zonder context wordt aangeroepen (defensief), zonder gatepolicy te dupliceren.</li>
+</ul>
+
+<h2>Acceptatiecriteria</h2>
+<ul>
+<li>[ ] Knoppen voor genereren/opslaan zijn disabled zolang alle contextlijsten leeg zijn.</li>
+<li>[ ] Duidelijke NL‑melding zichtbaar bij lege context (minstens één vereist).</li>
+<li>[ ] Zodra minimaal één context is ingevuld, verdwijnt de melding en worden acties mogelijk.</li>
+<li>[ ] Regressie: duplicate‑precheck (US‑195) blijft werken wanneer contexten wel ingevuld zijn.</li>
+</ul>
+
+<h2>Technische referenties</h2>
+<ul>
+<li>Generator‑tab component: `src/ui/components/definition_generator_tab.py`</li>
+<li>Contextbron (UI): `SessionStateManager.get_value("global_context", ...)`</li>
+<li>Gate‑policy (ter referentie): `config/approval_gate.yaml` (`min_one_context_required: true`)</li>
+</ul>
+
+<h2>Relatie</h2>
+<ul>
+<li>US-195 — Duplicate‑gate bij genereren definitie met 3‑contextkeuze (zelfde flow, eerdere check)</li>
+<li>US-160 — Validatie‑gate bij Vaststellen (Option B) (harde afdwinging bij vaststellen)</li>
+</ul>
+
+<h2>Testen</h2>
+<ul>
+<li>UI/integratie: scenario “alle contexten leeg → genereer disabled + melding”.</li>
+<li>Positief: bij één ingevulde context is genereren weer mogelijk en loopt de duplicate‑precheck.</li>
+</ul>
+
+
+  </div>
+</body>
+</html>

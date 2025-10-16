@@ -24,7 +24,6 @@ vereisten:
   - REQ-075
 stories:
   - US-020
-  - US-021
   - US-022
   - US-023
   - US-024
@@ -36,8 +35,6 @@ stories:
   - US-154
   - US-071
   - US-110
-  - US-235
-  - US-236
 astra_compliance: true
 completion: 30%
 target_release: v1.2
