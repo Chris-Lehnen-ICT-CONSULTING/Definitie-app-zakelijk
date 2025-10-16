@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>US-423: titel: Background Export Queue Management</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>id: US-423</p>
+<p>epic: EPIC-005</p>
+<p>titel: "US-423: titel: Background Export Queue Management"</p>
+<p>type: feature</p>
+<p>status: archived</p>
+<p>prioriteit: LOW</p>
+<p>story_points: 8</p>
+<p>sprint: backlog</p>
+<p>aangemaakt: 2025-01-29</p>
+<p>bijgewerkt: 2025-01-29</p>
+<p>owner: backend-developer</p>
+<p>applies_to: definitie-app@current</p>
+<p>canonical: false</p>
+<p>last_verified: 2025-10-14</p>
+<p>vereisten:</p>
+<ul>
+<li> - REQ-022</li>
+<li> - REQ-042</li>
+<li> - REQ-084</li>
+<p>toegewezen_aan: development-team</p>
+<p>archived_reason: "Background queueing alleen relevant bij grote batch exports"</p>
+<p>---</p>
+</ul>
+
+<h1>US-423: Background Export Queue Management</h1>
+
+<p><strong>Epic:</strong> EPIC-005 - Export & Import</p>
+
+<h2>Gebruikersverhaal</h2>
+
+<p><strong>Als een</strong> juridisch professional met grote datasets</p>
+<p><strong>wil ik</strong> exports in de achtergrond kunnen laten uitvoeren</p>
+<p><strong>zodat</strong> ik door kan werken terwijl grote exports worden verwerkt</p>
+
+<h2>Probleembeschrijving</h2>
+
+<p>Momenteel blokkeren grote exports (>1000 definities) de UI tijdens verwerking. Dit leidt tot:</p>
+<ul>
+<li>UI freeze bij exports > 30 seconden</li>
+<li>WebSocket timeouts bij zeer grote datasets</li>
+<li>Geen mogelijkheid om export te annuleren</li>
+<li>Geen progress feedback tijdens export</li>
+<li>Verloren werk als browser crasht</li>
+</ul>
+
+<p>Een queue-based aanpak biedt:</p>
+<ul>
+<li>Non-blocking export processing</li>
+<li>Progress tracking</li>
+<li>Cancel/retry mogelijkheden</li>
+<li>Crash recovery</li>
+<li>Parallelle export jobs</li>
+</ul>
+
+<h2>Acceptatiecriteria</h2>
+
+<h3>Functionele Criteria</h3>
+<ul>
+<li>[ ] Export jobs worden in background queue geplaatst</li>
+<li>[ ] Real-time progress indicator (percentage + items)</li>
+<li>[ ] Cancel running export mogelijk</li>
+<li>[ ] Retry failed exports</li>
+<li>[ ] Queue status overview (pending/running/completed/failed)</li>
+<li>[ ] Download notification wanneer klaar</li>
+<li>[ ] Automatische cleanup oude exports (>7 dagen)</li>
+<li>[ ] Maximum 5 gelijktijdige export jobs</li>
+</ul>
+
+<h3>Technische Criteria</h3>
+<ul>
+<li>[ ] Async queue processing met Celery/RQ of asyncio</li>
+<li>[ ] WebSocket/SSE voor real-time updates</li>
+<li>[ ] Persistent queue storage (SQLite/Redis)</li>
+<li>[ ] Graceful shutdown (jobs worden hervat)</li>
+<li>[ ] Memory-efficient streaming voor grote datasets</li>
+<li>[ ] Compression voor storage efficiency</li>
+</ul>
+
+<h3>UI Criteria</h3>
+<ul>
+<li>[ ] Export queue status indicator in header</li>
+<li>[ ] Dedicated queue management sectie</li>
+<li>[ ] Progress bars voor active jobs</li>
+<li>[ ] One-click download voor completed jobs</li>
+<li>[ ] Clear error messages voor failed jobs</li>
+<li>[ ] Bulk actions (cancel all, retry all failed)</li>
+</ul>
+
+<h2>Implementatie Details</h2>
+
+<h3>Export Queue Service</h3>
+<pre><code>class ExportQueueService:
+    """Manage background export jobs."""
+
+    def __init__(self):
+        self.queue = AsyncQueue()
+        self.active_jobs = {}
+        self.max_concurrent = 5
+
+    async def enqueue_export(self,
+                            export_request: ExportRequest,
+                            user_id: str) -&gt; str:
+        """Add export job to queue."""
+        job = ExportJob(
+            id=str(uuid.uuid4()),
+            request=export_request,
+            user_id=user_id,
+            status=JobStatus.PENDING,
+            created_at=datetime.now(UTC),
+            progress=0
+        )
+
+        await self.queue.put(job)
+        await self._persist_job(job)
+
+        # Start worker if not running
+        if len(self.active_jobs) &lt; self.max_concurrent:
+            asyncio.create_task(self._process_queue())
+
+        return job.id
+
+    async def _process_queue(self):
+        """Process jobs from queue."""
+        while not self.queue.empty():
+            job = await self.queue.get()
+
+            if job.id in self.active_jobs:
+                continue  # Already processing
+
+            self.active_jobs[job.id] = job
+            job.status = JobStatus.RUNNING
+
+            try:
+                await self._execute_export(job)
+                job.status = JobStatus.COMPLETED
+            except Exception as e:
+                job.status = JobStatus.FAILED
+                job.error = str(e)
+            finally:
+                del self.active_jobs[job.id]
+                await self._persist_job(job)
+
+    async def _execute_export(self, job: ExportJob):
+        """Execute export with progress tracking."""
+        total_items = await self._count_items(job.request)
+        processed = 0
+
+        async for batch in self._export_batches(job.request):
+            if job.cancelled:
+                raise ExportCancelledException()
+
+            await self._write_batch(job, batch)
+            processed += len(batch)
+
+            # Update progress
+            job.progress = int((processed / total_items) * 100)
+            await self._notify_progress(job)
+
+        # Generate final file
+        job.output_path = await self._finalize_export(job)
+
+    async def cancel_job(self, job_id: str) -&gt; bool:
+        """Cancel a running or pending job."""
+        if job_id in self.active_jobs:
+            self.active_jobs[job_id].cancelled = True
+            return True
+
+        # Remove from queue if pending
+        return await self._remove_from_queue(job_id)
+
+    async def get_job_status(self, job_id: str) -&gt; JobStatus:
+        """Get current job status."""
+        if job_id in self.active_jobs:
+            return self.active_jobs[job_id]
+
+        return await self._load_job(job_id)
+
+    async def retry_job(self, job_id: str) -&gt; str:
+        """Retry a failed job."""
+        original_job = await self._load_job(job_id)
+
+        if original_job.status != JobStatus.FAILED:
+            raise ValueError("Can only retry failed jobs")
+
+        # Create new job with same parameters
+        return await self.enqueue_export(
+            original_job.request,
+            original_job.user_id
+        )</code></pre>
+
+<h3>Progress Notification</h3>
+<pre><code>class ExportProgressNotifier:
+    """Real-time progress notifications."""
+
+    def __init__(self):
+        self.connections = {}  # WebSocket connections
+
+    async def notify_progress(self, job: ExportJob):
+        """Send progress update to client."""
+        message = {
+            "type": "export_progress",
+            "job_id": job.id,
+            "progress": job.progress,
+            "status": job.status.value,
+            "eta": self._estimate_completion(job)
+        }
+
+        if job.user_id in self.connections:
+            await self.connections[job.user_id].send_json(message)
+
+    def _estimate_completion(self, job: ExportJob) -&gt; Optional[datetime]:
+        """Estimate completion time based on progress."""
+        if job.progress == 0:
+            return None
+
+        elapsed = (datetime.now(UTC) - job.started_at).total_seconds()
+        rate = job.progress / elapsed
+        remaining = (100 - job.progress) / rate
+
+        return datetime.now(UTC) + timedelta(seconds=remaining)</code></pre>
+
+<h3>Queue Storage Schema</h3>
+<pre><code>-- Queue persistence table
+CREATE TABLE export_queue (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL,
+    request_json TEXT NOT NULL,
+    status TEXT NOT NULL,
+    progress INTEGER DEFAULT 0,
+    output_path TEXT,
+    error_message TEXT,
+    created_at TIMESTAMP NOT NULL,
+    started_at TIMESTAMP,
+    completed_at TIMESTAMP,
+    cancelled BOOLEAN DEFAULT FALSE,
+
+    INDEX idx_user_status (user_id, status),
+    INDEX idx_created (created_at)
+);
+
+-- Cleanup old jobs
+DELETE FROM export_queue
+WHERE completed_at &lt; datetime('now', '-7 days')
+  AND status IN ('COMPLETED', 'FAILED');</code></pre>
+
+<h3>UI Component</h3>
+<pre><code>def render_export_queue():
+    """Render export queue status."""
+    st.markdown("### 📊 Export Queue")
+
+    queue_service = st.session_state.get('export_queue_service')
+    jobs = queue_service.get_user_jobs(st.session_state.user_id)
+
+    if not jobs:
+        st.info("No export jobs in queue")
+        return
+
+    for job in jobs:
+        col1, col2, col3, col4 = st.columns([3, 2, 1, 1])
+
+        with col1:
+            st.write(f"**{job.request.description}**")
+            if job.status == JobStatus.RUNNING:
+                st.progress(job.progress / 100)
+            elif job.status == JobStatus.COMPLETED:
+                st.success("✅ Completed")
+            elif job.status == JobStatus.FAILED:
+                st.error(f"❌ Failed: {job.error}")
+
+        with col2:
+            st.caption(f"Status: {job.status.value}")
+            if job.eta:
+                st.caption(f"ETA: {job.eta.strftime('%H:%M')}")
+
+        with col3:
+            if job.status == JobStatus.COMPLETED:
+                st.download_button(
+                    "📥 Download",
+                    data=job.get_file_data(),
+                    file_name=job.output_filename
+                )
+            elif job.status == JobStatus.RUNNING:
+                if st.button("❌ Cancel", key=f"cancel_{job.id}"):
+                    queue_service.cancel_job(job.id)
+
+        with col4:
+            if job.status == JobStatus.FAILED:
+                if st.button("🔄 Retry", key=f"retry_{job.id}"):
+                    queue_service.retry_job(job.id)</code></pre>
+
+<h2>Definition of Done</h2>
+
+<ul>
+<li>[ ] Export queue service geïmplementeerd</li>
+<li>[ ] Background job processing</li>
+<li>[ ] Real-time progress notifications</li>
+<li>[ ] Queue persistence in database</li>
+<li>[ ] UI queue management component</li>
+<li>[ ] Cancel/retry functionaliteit</li>
+<li>[ ] Automatic cleanup oude jobs</li>
+<li>[ ] WebSocket/SSE integratie</li>
+<li>[ ] Unit tests (>90% coverage)</li>
+<li>[ ] Integration tests met mock exports</li>
+<li>[ ] Performance test (100 concurrent jobs)</li>
+<li>[ ] Error recovery scenarios getest</li>
+<li>[ ] Gebruikersdocumentatie</li>
+</ul>
+
+<h2>Risico's</h2>
+
+<p>| Risico | Impact | Kans | Mitigatie |</p>
+<p>|--------|--------|------|-----------|</p>
+<p>| Memory overflow grote exports | High | Low | Streaming, chunked processing |</p>
+<p>| Queue persistence failure | High | Low | Fallback naar in-memory queue |</p>
+<p>| WebSocket disconnects | Medium | Medium | Reconnect logic, polling fallback |</p>
+<p>| Orphaned jobs | Low | Medium | Timeout + cleanup routine |</p>
+<p>| Race conditions | Medium | Low | Proper locking, atomic operations |</p>
+
+<h2>Dependencies</h2>
+
+<ul>
+<li>AsyncIO of Celery voor queue management</li>
+<li>WebSocket/SSE library voor notifications</li>
+<li>Background job framework</li>
+<li>File compression library</li>
+<li>Progress tracking utilities</li>
+</ul>
+
+<h2>Notes</h2>
+
+<ul>
+<li>Start met in-memory queue, voeg persistence later toe</li>
+<li>Implementeer eerst basis queue, dan advanced features</li>
+<li>Consider Redis voor productie queue storage</li>
+<li>Mogelijk toekomstige email notifications bij completion</li>
+<li>Integratie met cloud storage voor grote exports</li>
+</ul>
+
+<h2>Mockups</h2>
+
+<pre><code>┌─────────────────────────────────────────┐
+│ 📊 Export Queue (2 active, 1 pending)   │
+├─────────────────────────────────────────┤
+│                                         │
+│ ┌─────────────────────────────────┐    │
+│ │ All definitions Q1 2025          │    │
+│ │ ▓▓▓▓▓▓▓▓▓░░░░░░░░ 65%           │    │
+│ │ Status: Running | ETA: 14:32     │    │
+│ │                    [❌ Cancel]    │    │
+│ └─────────────────────────────────┘    │
+│                                         │
+│ ┌─────────────────────────────────┐    │
+│ │ Established only - Excel         │    │
+│ │ ▓▓▓░░░░░░░░░░░░░ 23%            │    │
+│ │ Status: Running | ETA: 14:45     │    │
+│ │                    [❌ Cancel]    │    │
+│ └─────────────────────────────────┘    │
+│                                         │
+│ ┌─────────────────────────────────┐    │
+│ │ Archive 2024                     │    │
+│ │ ⏳ Pending in queue...            │    │
+│ │ Status: Pending | Position: 1    │    │
+│ │                    [❌ Cancel]    │    │
+│ └─────────────────────────────────┘    │
+│                                         │
+│ [🔄 Refresh] [📋 History]              │
+└─────────────────────────────────────────┘</code></pre>
+
+  </div>
+</body>
+</html>

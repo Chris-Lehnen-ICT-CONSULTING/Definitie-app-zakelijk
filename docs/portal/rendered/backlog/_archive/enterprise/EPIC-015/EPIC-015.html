@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>EPIC-015: Multi-User & Externalisatie - SSO auth, RBAC, REST API, observability en publiceerbare portal</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>id: EPIC-015</p>
+<p>titel: "EPIC-015: Multi-User & Externalisatie - SSO auth, RBAC, REST API, observability en publiceerbare portal"</p>
+<p>status: archived</p>
+<p>prioriteit: GEMIDDELD</p>
+<p>owner: architecture</p>
+<p>applies_to: definitie-app@current</p>
+<p>canonical: true</p>
+<p>last_verified: 2025-09-11</p>
+<p>archived_reason: "Enterprise-scope functionaliteit buiten single-user visie"</p>
+<p>stories:</p>
+<ul>
+<li> - US-158</li>
+<li> - US-125</li>
+<li> - US-126</li>
+<li> - US-127</li>
+<li> - US-128</li>
+<li> - US-129</li>
+<li> - US-130</li>
+<li> - US-131</li>
+<li> - US-132</li>
+<li> - US-133</li>
+<li> - US-134</li>
+<p>---</p>
+</ul>
+
+<h1>EPIC-015: Multi-User & Externalisatie</h1>
+
+<p>Deze EPIC groepeert functionaliteit die buiten de single‑user scope valt: multi‑user, externe interfaces en platform‑uitbreidingen.</p>
+
+<h2>Doelen</h2>
+<ul>
+<li>Meerdere gebruikers veilig ondersteunen (auth, RBAC, keys)</li>
+<li>Externe integratie via stabiele API‑laag (met versiebeleid)</li>
+<li>Publiceerbare Portal en multi‑repo aggregatie</li>
+<li>Auditeerbaarheid en privacy‑borging bij uitrol (PII‑tooling)</li>
+<li>Inzicht in prestaties via metrics/dashboards</li>
+<li>Werkstromen parametriseerbaar maken (custom workflows)</li>
+</ul>
+
+<h2>Non‑goals</h2>
+<ul>
+<li>Geen verandering aan single‑user UX/flows (blijft werken zonder auth)</li>
+<li>Geen vendor‑afhankelijk monitoring/hosting lock‑ins (neutraal ontwerp)</li>
+</ul>
+
+<h2>Scope</h2>
+<ul>
+<li>Authenticatie (US‑124), RBAC (US‑125), API‑keys (US‑126)</li>
+<li>Externe API (US‑127), Collaboration (US‑128), Versioning (US‑129)</li>
+<li>Portal hosting (US‑130), Hub/aggregator (US‑131)</li>
+<li>Audit trail + PII‑scanner (US‑132)</li>
+<li>Observability (US‑133)</li>
+<li>Custom workflows (US‑134)</li>
+</ul>
+
+<h2>Succesmetrieken</h2>
+<ul>
+<li>API uptime ≥ 99.5% met rate limiting en versiebeleid</li>
+<li>Auth events en RBAC decisions gelogd (0 high‑risk findings)</li>
+<li>Portal publiek/artefact: reproduceerbaar via CI (≤ 5 min)</li>
+<li>PII‑scanner detecteert en maskeert 100% testcases</li>
+<li>Metrics zichtbaar (lateny/errors) voor top 3 kritieke paden</li>
+</ul>
+
+<h2>Mijlpalen</h2>
+<p>1) Auth + RBAC + Keys (US‑124..126)</p>
+<p>2) Externe API + versioning (US‑127/US‑129)</p>
+<p>3) Portal hosting + Hub (US‑130/US‑131)</p>
+<p>4) Audit/PII + Observability (US‑132/US‑133)</p>
+<p>5) Custom workflows (US‑134)</p>
+
+<h2>Risico's</h2>
+<ul>
+<li>Privacy/compliance: mitigeren via PII‑scanner, logsanitisatie</li>
+<li>API breuk: mitigeren via versioning/contract tests</li>
+<li>Scope creep: faseren + duidelijke Non‑goals</li>
+</ul>
+
+<h2>Traceability</h2>
+<ul>
+<li>Security: REQ‑001, REQ‑004, REQ‑015 (ketenintegratie), REQ‑050/079/086</li>
+<li>Observability: interne NFR’s</li>
+</ul>
+
+  </div>
+</body>
+</html>

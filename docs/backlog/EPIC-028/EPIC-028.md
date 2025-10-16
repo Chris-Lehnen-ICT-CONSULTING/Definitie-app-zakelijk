@@ -1,4 +1,20 @@
-# EPIC-028: Feature Cleanup & UI Simplification
+---
+id: EPIC-028
+titel: "EPIC-028: Single-User Werkruimte - Focus op kernflows en overzichtelijke UI"
+status: ready
+prioriteit: HOOG
+owner: product-owner
+applies_to: definitie-app@current
+canonical: true
+last_verified: 2025-10-14
+stories:
+  - US-235
+  - US-236
+  - US-028
+target_release: v1.1
+---
+
+# EPIC-028: Single-User Werkruimte
 
 **Epic Owner:** Product Owner
 **Created:** 2025-10-03
@@ -23,9 +39,9 @@ Verwijder afleidende en redundante features uit DefinitieAgent om focus te legge
 - Developer velocity laag → veel complexiteit
 
 **Oplossing:**
-- Reduceer naar 4 core tabs
-- Verwijder 5 redundante features
-- Verhoog focus op waarde-creërende functionaliteit
+- Reduceer naar 4 core tabs (Generator, Bewerken, Review, Beheer)
+- Verwijder of verplaats 5 redundante developer-features
+- Verhoog focus op waarde-creërende functionaliteit (voorbeelden, validatie, context)
 
 **Impact:**
 - 50% minder UI complexity

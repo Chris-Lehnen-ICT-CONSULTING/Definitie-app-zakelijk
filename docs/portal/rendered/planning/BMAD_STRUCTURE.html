@@ -1,0 +1,594 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>📐 BMAD METHOD - PROJECT STRUCTURE</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>type: bmad-structure</p>
+<p>status: active</p>
+<p>created: 2025-10-13</p>
+<p>owner: process-guardian</p>
+<p>---</p>
+
+<h1>📐 BMAD METHOD - PROJECT STRUCTURE</h1>
+
+<h2>BMad-Compliant Directory Structure</h2>
+
+<pre><code>definitie-app/
+├── .bmad-core/                          # BMad Method core resources
+│   ├── agents/                          # BMad agent definitions
+│   ├── checklists/                      # Quality gate checklists
+│   │   ├── story-dod-checklist.md      # ✅ MANDATORY per story
+│   │   ├── pm-checklist.md             # ✅ WEEKLY execution
+│   │   └── architect-checklist.md      # ✅ EPIC boundaries
+│   ├── data/
+│   │   └── bmad-kb.md                  # BMad knowledge base
+│   ├── tasks/                           # BMad task templates
+│   │   ├── brownfield-create-story.md
+│   │   ├── create-next-story.md
+│   │   ├── review-story.md
+│   │   └── validate-next-story.md
+│   ├── templates/                       # Document templates
+│   │   ├── story-tmpl.yaml
+│   │   └── brownfield-prd-tmpl.yaml
+│   ├── workflows/                       # BMad workflows
+│   │   └── brownfield-fullstack.yaml   # ✅ PRIMARY workflow
+│   └── core-config.yaml                # Project configuration
+│
+├── docs/
+│   ├── planning/                        # 🆕 RECOVERY PLANNING
+│   │   ├── README_RECOVERY_PLAN.md     # ← START HERE
+│   │   ├── BROWNFIELD_RECOVERY_PLAN.md # Master plan
+│   │   ├── EPIC_CONSOLIDATION_MAP.md   # 32→8 Epic mapping
+│   │   ├── WEEKLY_ACTION_PLAN.md       # Day-by-day guide
+│   │   ├── MULTI_AGENT_CONSENSUS_VALIDATION.md
+│   │   └── BMAD_STRUCTURE.md           # This document
+│   │
+│   ├── backlog/                         # BMad backlog structure
+│   │   ├── EPIC-FOUNDATION/            # 🆕 Epic 1 (Auth, Security, Performance)
+│   │   │   ├── EPIC-FOUNDATION.md
+│   │   │   ├── US-001-001/             # Story: OIDC Auth
+│   │   │   │   ├── US-001-001.md
+│   │   │   │   ├── tasks.md
+│   │   │   │   └── acceptance.md
+│   │   │   ├── US-001-002/             # Story: DB Encryption
+│   │   │   ├── US-001-003/             # Story: Service Caching
+│   │   │   └── US-001-004/             # Story: Prompt Optimization
+│   │   │
+│   │   ├── EPIC-GENERATION/            # 🆕 Epic 2 (Core AI Generation)
+│   │   │   ├── EPIC-GENERATION.md
+│   │   │   ├── US-002-001/             # Story: GPT-4 Integration
+│   │   │   ├── US-002-002/             # Story: Context Flow
+│   │   │   ├── US-002-003/             # Story: Validation Rules
+│   │   │   └── [US-002-004 to 007]
+│   │   │
+│   │   ├── EPIC-UI/                    # 🆕 Epic 3 (User Interface)
+│   │   ├── EPIC-DATA/                  # 🆕 Epic 4 (Data Management)
+│   │   ├── EPIC-INTEGRATION/           # 🆕 Epic 5 (External Integration)
+│   │   ├── EPIC-QUALITY/               # 🆕 Epic 6 (QA, Testing, Monitoring)
+│   │   ├── EPIC-COMPLIANCE/            # 🆕 Epic 7 (BIO, NORA, WCAG)
+│   │   ├── EPIC-DOCS/                  # 🆕 Epic 8 (Documentation)
+│   │   │
+│   │   └── archive/                    # 📦 Old 32 EPICs archived
+│   │       └── pre-consolidation-2025-10-13/
+│   │           ├── EPIC-003/           # Old epic structure
+│   │           ├── EPIC-004/
+│   │           └── [EPIC-005 to 032]
+│   │
+│   ├── architectuur/                    # Architecture documents
+│   ├── guidelines/                      # Process guidelines
+│   └── reports/                         # Status reports
+│
+├── src/                                 # Source code
+└── tests/                               # Test suites</code></pre>
+
+<p>---</p>
+
+<h2>🎯 BMad Workflow: Brownfield Recovery</h2>
+
+<h3>Phase 0: Epic Consolidation (Week 1-2)</h3>
+
+<p><strong>Commands to Use</strong>:</p>
+<pre><code># Review old EPICs
+ls docs/backlog/EPIC-*/
+
+# Create new Epic structure
+*task document-project  # Update docs with new structure
+
+# Archive old EPICs
+mkdir -p docs/backlog/archive/pre-consolidation-2025-10-13
+mv docs/backlog/EPIC-* docs/backlog/archive/pre-consolidation-2025-10-13/
+
+# Create 8 new EPICs
+mkdir -p docs/backlog/EPIC-FOUNDATION
+mkdir -p docs/backlog/EPIC-GENERATION
+# ... (repeat for all 8)</code></pre>
+
+<p>---</p>
+
+<h3>Phase 1-3: Story Creation & Execution</h3>
+
+<h4>Creating New Stories (BMad Method)</h4>
+
+<p><strong>Command</strong>:</p>
+<pre><code>*task brownfield-create-story</code></pre>
+
+<p><strong>Follow Template</strong>:</p>
+<pre><code># docs/backlog/EPIC-XXX/US-XXX-XXX/US-XXX-XXX.md
+---
+type: user-story
+epic: EPIC-XXX
+story_id: US-XXX-XXX
+title: [Story Title]
+priority: P0|P1|P2
+status: pending|in_progress|completed
+created: YYYY-MM-DD
+assigned_to: [Name]
+---
+
+## User Story
+As a [role], I want [feature] so that [benefit].
+
+## Acceptance Criteria
+- [ ] Criterion 1
+- [ ] Criterion 2
+- [ ] Criterion 3
+
+## Tasks
+See tasks.md
+
+## Definition of Done
+Execute: *execute-checklist story-dod-checklist</code></pre>
+
+<p>---</p>
+
+<h4>Story DoD Checklist (MANDATORY)</h4>
+
+<p><strong>Command</strong>:</p>
+<pre><code>*execute-checklist story-dod-checklist</code></pre>
+
+<p><strong>Checklist Items</strong> (from <code>.bmad-core/checklists/story-dod-checklist.md</code>):</p>
+<ul>
+<li>[ ] All acceptance criteria met</li>
+<li>[ ] Unit tests written & passing (80%+ coverage)</li>
+<li>[ ] Integration tests added</li>
+<li>[ ] Code reviewed (2 approvers)</li>
+<li>[ ] Documentation updated</li>
+<li>[ ] Performance requirements met</li>
+<li>[ ] Security considerations addressed</li>
+<li>[ ] No regressions introduced</li>
+<li>[ ] Stakeholder demo completed</li>
+<li>[ ] Story deployed to staging</li>
+</ul>
+
+<p><strong>❌ CANNOT mark story "done" until ALL checklist items ✅</strong></p>
+
+<p>---</p>
+
+<h2>📋 Quality Gates</h2>
+
+<h3>Weekly: PM Checklist</h3>
+
+<p><strong>Command</strong>:</p>
+<pre><code>*execute-checklist pm-checklist</code></pre>
+
+<p><strong>Review</strong>:</p>
+<ul>
+<li>[ ] Velocity tracking (actual vs target)</li>
+<li>[ ] Scope freeze enforced</li>
+<li>[ ] Stakeholder communication sent</li>
+<li>[ ] Sprint retrospective held</li>
+<li>[ ] Blocker resolution</li>
+<li>[ ] Risk register updated</li>
+</ul>
+
+<p>---</p>
+
+<h3>Epic Boundaries: Architect Checklist</h3>
+
+<p><strong>Command</strong>:</p>
+<pre><code>*execute-checklist architect-checklist</code></pre>
+
+<p><strong>Review</strong> (at Week 6, 10, 14):</p>
+<ul>
+<li>[ ] Architecture principles followed</li>
+<li>[ ] Technical debt addressed</li>
+<li>[ ] Performance targets met</li>
+<li>[ ] Security requirements validated</li>
+<li>[ ] Code quality gates passed</li>
+<li>[ ] Documentation updated</li>
+<li>[ ] Architecture review board approval</li>
+</ul>
+
+<p>---</p>
+
+<h2>🗂️ Story Structure Template</h2>
+
+<h3>Minimal Story Structure</h3>
+
+<pre><code>docs/backlog/EPIC-XXX/US-XXX-XXX/
+├── US-XXX-XXX.md           # Story definition (YAML frontmatter + markdown)
+├── tasks.md                # Task breakdown (T001, T002, ...)
+├── acceptance.md           # Acceptance criteria &amp; test scenarios
+├── notes.md                # Implementation notes (optional)
+└── BUG-XXX/                # Bugs discovered during story (if any)
+    ├── BUG-XXX.md
+    └── fix.md</code></pre>
+
+<h3>Example: US-001-001 (OIDC Authentication)</h3>
+
+<pre><code>docs/backlog/EPIC-FOUNDATION/US-001-001/
+├── US-001-001.md
+   ---
+   type: user-story
+   epic: EPIC-FOUNDATION
+   story_id: US-001-001
+   title: Implement OIDC Authentication
+   priority: P0
+   status: pending
+   effort: 5 days
+   assigned_to: Developer-1
+   ---
+
+   ## User Story
+   As a government user, I want to login via OIDC (Azure AD) so that I can securely access the DefinitieApp.
+
+   ## Acceptance Criteria
+   - [ ] Users can login via Azure AD OIDC
+   - [ ] Sessions persist securely
+   - [ ] Logout clears session
+   - [ ] Failed login shows error message
+   - [ ] Session timeout after 30 min inactivity
+
+   ## Technical Notes
+   - Use `python-oidc` library
+   - Azure AD tenant: [tenant-id]
+   - Callback URL: https://app.definitie.nl/callback
+
+   ## Definition of Done
+   Execute: *execute-checklist story-dod-checklist
+
+├── tasks.md
+   ## Tasks for US-001-001
+
+   ### T001: Research OIDC Providers
+   - Review Azure AD documentation
+   - Select python-oidc library
+   - Estimate: 2 hours
+
+   ### T002: Setup Azure AD Test Tenant
+   - Create test tenant
+   - Configure app registration
+   - Estimate: 3 hours
+
+   ### T003: Implement OIDC Client
+   - Install python-oidc
+   - Configure client
+   - Implement auth flow
+   - Estimate: 8 hours
+
+   ### T004: Add Session Management
+   - Implement session store
+   - Add timeout logic
+   - Estimate: 4 hours
+
+   ### T005: Write Unit Tests
+   - Mock OIDC provider
+   - Test auth flow
+   - Test session management
+   - Estimate: 4 hours
+
+   ### T006: Integration Testing
+   - Test with real Azure AD
+   - Test logout
+   - Test timeout
+   - Estimate: 3 hours
+
+   ### T007: Documentation
+   - Update user manual
+   - Update architecture docs
+   - Estimate: 2 hours
+
+   Total Estimate: 26 hours (~3.5 days)
+
+├── acceptance.md
+   ## Acceptance Test Scenarios
+
+   ### Scenario 1: Successful Login
+   **Given**: User not authenticated
+   **When**: User clicks "Login" and enters valid credentials
+   **Then**: User redirected to dashboard, session created
+
+   ### Scenario 2: Failed Login
+   **Given**: User not authenticated
+   **When**: User enters invalid credentials
+   **Then**: Error message displayed, no session created
+
+   ### Scenario 3: Session Timeout
+   **Given**: User authenticated 30 min ago
+   **When**: User attempts action
+   **Then**: Redirected to login, session expired message
+
+   ### Scenario 4: Logout
+   **Given**: User authenticated
+   **When**: User clicks "Logout"
+   **Then**: Session cleared, redirected to login</code></pre>
+
+<p>---</p>
+
+<h2>🔄 Story Workflow</h2>
+
+<h3>1. Story Creation</h3>
+<pre><code>*task brownfield-create-story
+
+# Follow prompts:
+# - Epic: EPIC-FOUNDATION
+# - Story ID: US-001-001
+# - Title: Implement OIDC Authentication
+# - Priority: P0</code></pre>
+
+<h3>2. Story Planning</h3>
+<ul>
+<li>Define acceptance criteria</li>
+<li>Break down into tasks</li>
+<li>Estimate effort</li>
+<li>Assign to developer</li>
+</ul>
+
+<h3>3. Story Execution</h3>
+<ul>
+<li>Move status to `in_progress`</li>
+<li>Work through tasks (T001, T002, ...)</li>
+<li>Write tests as you go (TDD)</li>
+<li>Update notes.md with learnings</li>
+</ul>
+
+<h3>4. Story Review</h3>
+<pre><code># Before marking done, execute DoD checklist
+*execute-checklist story-dod-checklist</code></pre>
+
+<h3>5. Story Completion</h3>
+<ul>
+<li>All checklist items ✅</li>
+<li>Move status to `completed`</li>
+<li>Demo to stakeholders</li>
+<li>Update velocity metrics</li>
+</ul>
+
+<p>---</p>
+
+<h2>📊 Velocity Tracking</h2>
+
+<h3>Weekly Metrics File</h3>
+
+<pre><code># docs/backlog/velocity.yaml
+---
+sprints:
+  - sprint: 1
+    week: 3-4
+    planned: 2 stories (US-001-001, US-001-002)
+    completed: 2 stories
+    velocity: 2
+    notes: "Good sprint, auth working"
+
+  - sprint: 2
+    week: 5-6
+    planned: 3 stories (US-001-003, US-001-004, US-002-001)
+    completed: 2 stories (blocked on US-002-001)
+    velocity: 2
+    notes: "GPT-4 API issues, resolved Day 9"
+
+cumulative:
+  total_sprints: 2
+  total_stories_completed: 4
+  average_velocity: 2
+  target_velocity: 6
+  status: "Below target, need improvement"</code></pre>
+
+<p>---</p>
+
+<h2>🎯 Epic Progress Tracking</h2>
+
+<h3>Epic Status File</h3>
+
+<pre><code># docs/backlog/EPIC-FOUNDATION/EPIC-FOUNDATION.md
+---
+type: epic
+epic_id: EPIC-FOUNDATION
+title: Foundation &amp; Security
+priority: P0
+status: in_progress
+started: 2025-10-XX
+target_completion: 2025-10-XX (Week 6)
+---
+
+## Epic Goal
+Implement authentication, encryption, and performance optimizations to make app production-ready.
+
+## Stories (4 total)
+- [x] US-001-001: OIDC Authentication (✅ Week 3)
+- [x] US-001-002: Database Encryption (✅ Week 4)
+- [ ] US-001-003: Service Caching (🔄 Week 4)
+- [ ] US-001-004: Prompt Optimization (⏳ Week 5)
+
+## Completion: 50% (2/4 stories)
+
+## Success Criteria
+- [ ] Users can login via OIDC
+- [ ] Database encrypted at rest
+- [ ] Service init &lt;500ms
+- [ ] Prompt tokens &lt;2,000
+
+## Architecture Review
+Status: Pending (Week 6)
+Checklist: *execute-checklist architect-checklist</code></pre>
+
+<p>---</p>
+
+<h2>🚀 Quick Start Commands</h2>
+
+<h3>For Product Manager</h3>
+<pre><code># Weekly PM review
+*execute-checklist pm-checklist
+
+# Review all EPICs
+ls docs/backlog/EPIC-*/EPIC-*.md
+
+# Check velocity
+cat docs/backlog/velocity.yaml</code></pre>
+
+<h3>For Developer</h3>
+<pre><code># Create new story
+*task brownfield-create-story
+
+# Review story DoD
+*execute-checklist story-dod-checklist
+
+# Validate next story
+*task validate-next-story</code></pre>
+
+<h3>For Architect</h3>
+<pre><code># Epic boundary review (Week 6, 10, 14)
+*execute-checklist architect-checklist
+
+# Review architecture
+cat docs/architectuur/ENTERPRISE_ARCHITECTURE.md</code></pre>
+
+<p>---</p>
+
+<h2>📚 BMad Resources</h2>
+
+<h3>Core Files</h3>
+<ul>
+<li>`.bmad-core/core-config.yaml` - Project configuration</li>
+<li>`.bmad-core/workflows/brownfield-fullstack.yaml` - Primary workflow</li>
+<li>`.bmad-core/data/bmad-kb.md` - Knowledge base (*kb command)</li>
+</ul>
+
+<h3>Checklists (MANDATORY)</h3>
+<ul>
+<li>`.bmad-core/checklists/story-dod-checklist.md` - Story completion</li>
+<li>`.bmad-core/checklists/pm-checklist.md` - Weekly PM review</li>
+<li>`.bmad-core/checklists/architect-checklist.md` - Epic boundaries</li>
+</ul>
+
+<h3>Tasks</h3>
+<ul>
+<li>`.bmad-core/tasks/brownfield-create-story.md` - Create story</li>
+<li>`.bmad-core/tasks/review-story.md` - Review existing story</li>
+<li>`.bmad-core/tasks/validate-next-story.md` - Pre-implementation validation</li>
+</ul>
+
+<p>---</p>
+
+<h2>✅ BMad Compliance Checklist</h2>
+
+<h3>Project Setup</h3>
+<ul>
+<li>[x] `.bmad-core/` directory present</li>
+<li>[x] `core-config.yaml` configured</li>
+<li>[x] Brownfield workflow selected</li>
+<li>[x] Epic structure defined (8 epics)</li>
+<li>[ ] Velocity tracking setup (Week 1)</li>
+</ul>
+
+<h3>Story Management</h3>
+<ul>
+<li>[ ] Stories follow template (Week 1+)</li>
+<li>[ ] Story IDs consistent (US-XXX-XXX)</li>
+<li>[ ] Acceptance criteria defined</li>
+<li>[ ] Tasks broken down (T001, T002, ...)</li>
+<li>[ ] DoD checklist enforced</li>
+</ul>
+
+<h3>Quality Gates</h3>
+<ul>
+<li>[ ] Story DoD: Every story completion</li>
+<li>[ ] PM Checklist: Weekly (Friday 16:00)</li>
+<li>[ ] Architect Checklist: Epic boundaries (Week 6, 10, 14)</li>
+<li>[ ] Code review: 2 approvers per PR</li>
+<li>[ ] Test coverage: 80%+ per story</li>
+</ul>
+
+<h3>Velocity & Metrics</h3>
+<ul>
+<li>[ ] Velocity tracked weekly</li>
+<li>[ ] Burndown chart updated</li>
+<li>[ ] Epic progress monitored</li>
+<li>[ ] Risk register maintained</li>
+</ul>
+
+<p>---</p>
+
+<h2>🎓 BMad Best Practices</h2>
+
+<h3>Story Sizing</h3>
+<ul>
+<li>**Too Small**: <2 hours → Combine into larger story</li>
+<li>**Right-Sized**: 2-5 days → ✅ IDEAL</li>
+<li>**Too Large**: >5 days → Break down into smaller stories</li>
+</ul>
+
+<h3>Epic Sizing</h3>
+<ul>
+<li>**Too Small**: <10 stories → Combine with related epic</li>
+<li>**Right-Sized**: 3-10 stories → ✅ IDEAL</li>
+<li>**Too Large**: >10 stories → Split into multiple epics</li>
+</ul>
+
+<h3>Velocity Guidelines</h3>
+<ul>
+<li>**Starting Velocity**: 2-3 stories/sprint (2 weeks)</li>
+<li>**Target Velocity**: 5-7 stories/sprint (mature team)</li>
+<li>**Warning**: Velocity drop >20% → Escalate to PM</li>
+</ul>
+
+<p>---</p>
+
+<h2>📞 Support & Help</h2>
+
+<h3>BMad Knowledge Base</h3>
+<pre><code>*kb  # Toggle KB mode, ask questions about BMad Method</code></pre>
+
+<h3>Common Questions</h3>
+<ul>
+<li>"How do I create a story?" → `*task brownfield-create-story`</li>
+<li>"What's in the DoD checklist?" → `*execute-checklist story-dod-checklist`</li>
+<li>"How do I track velocity?" → Edit `docs/backlog/velocity.yaml`</li>
+<li>"When do I run architect checklist?" → Week 6, 10, 14 (Epic boundaries)</li>
+</ul>
+
+<p>---</p>
+
+<p><strong>STATUS</strong>: ✅ BMad structure ready for Week 1 implementation</p>
+
+<p><strong>NEXT ACTIONS</strong>:</p>
+<ol>
+<li>Week 1 Day 1: Create EPIC-FOUNDATION directory</li>
+<li>Week 1 Day 2: Create first story (US-001-001)</li>
+<li>Week 1 Day 5: Setup velocity tracking</li>
+<li>Week 2: Begin story execution</li>
+</ol>
+
+<p>---</p>
+
+<p><em>BMad Method Version: 1.0 | Project: DefinitieApp | Status: Recovery Mode</em></p>
+
+  </div>
+</body>
+</html>

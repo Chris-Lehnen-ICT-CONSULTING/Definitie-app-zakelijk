@@ -52,8 +52,6 @@
 <p><strong>zodat</strong> configuration errors are detected early en users receive immediate feedback about auDanticatie issues</p>
 
 <h2>Acceptatiecriteria</h2>
-
-
 <h3>SMART Acceptatiecriteria</h3>
 
 <ul>
@@ -112,6 +110,39 @@
 <li>Uses minimal API quota</li>
 <li>Runs asynchronously to not block UI</li>
 <li>Caches results for session duration</li>
+</ul>
+
+<h2>Refinement (2025-10-14)</h2>
+
+<h3>Doelen</h3>
+<ul>
+<li>Startup blokkeert wanneer geen geldige OpenAI-sleutel aanwezig is; gebruiker krijgt directe feedback.</li>
+<li>Handig her-proberen na sleutelupdate zonder volledige herstart.</li>
+<li>Logging en metrics leveren inzicht in configuratiefouten zonder secrets te lekken.</li>
+</ul>
+
+<h3>Buiten scope</h3>
+<ul>
+<li>Geen sleutelbeheer UI of rotatieworkflow; enkel validatie.</li>
+<li>Geen integratie met secret managers; blijft bij environment variables.</li>
+</ul>
+
+<h3>Definition of Ready</h3>
+<ul>
+<li>[ ] Beslisboom voor errorcodes (missing/invalid/auth_failed/network) akkoord.</li>
+<li>[ ] Test API call bepaald (list models of lightweight `client.models.list()`).</li>
+<li>[ ] UI-bibliotheek voor banners beschikbaar (Streamlit alert component).</li>
+<li>[ ] Requirements.txt bevat `openai` clientversie die call ondersteunt.</li>
+</ul>
+
+<h3>Werkpakketten</h3>
+<ul>
+<li>[ ] Bouw `APIKeyValidator` met methoden `validate()` en `retry()`, inclusief key masking helper.</li>
+<li>[ ] Voeg startup hook toe in `ServiceContainer` die validatie uitvoert en status opslaat in singleton `ValidationState`.</li>
+<li>[ ] UI: toon waarschuwing bovenaan hoofdscherm met call-to-action bij fout; bied link naar documentatie.</li>
+<li>[ ] CLI/command: `scripts/diagnostics/check_api_key.py` voor handmatige controle.</li>
+<li>[ ] Logging + metrics: schrijf events naar `logs/security.log` en exporteer telwaarde `api_key_validation_failures_total`.</li>
+<li>[ ] Tests: unit (happy/fail/network), integratie (start zonder key → blok), UI snapshot voor banner.</li>
 </ul>
 
 <h2>Domain vereisten</h2>
@@ -194,19 +225,12 @@
 </ul>
 
 <h2>Definitie van Gereed</h2>
-
 <ul>
-<li>[ ] API key validator geïmplementeerd</li>
-<li>[ ] Startup validatie integrated</li>
-<li>[ ] Error UI components aangemaakt</li>
-<li>[ ] Retry mechanism functional</li>
-<li>[ ] Caching geïmplementeerd</li>
-<li>[ ] Unit tests >90% coverage</li>
-<li>[ ] Integration tests passing</li>
-<li>[ ] Prestaties vereisten met</li>
-<li>[ ] beveiliging review Voltooid</li>
-<li>[ ] Documentation bijgewerkt</li>
-<li>[ ] Error messages user-friendly</li>
+<li>[ ] Validatie faalt zichtbaar zonder de app verder te laten draaien.</li>
+<li>[ ] Gebruiker kan vanuit UI een retry triggeren nadat ENV is gewijzigd.</li>
+<li>[ ] Logs tonen gemaskeerde sleutel (laatste 4 tekens) + foutcode.</li>
+<li>[ ] Unit/integratie tests gedraaid; script `check_api_key.py` documenteert output.</li>
+<li>[ ] Documentatie (`docs/security/api-key-validation.md`) beschrijft setup en foutcodes.</li>
 </ul>
 
 <h2>Links</h2>

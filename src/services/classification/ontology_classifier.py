@@ -10,15 +10,13 @@ Hybrid approach:
 import json
 import logging
 from dataclasses import dataclass
-from pathlib import Path
-from typing import Literal
 
 from src.services.ai_service_v2 import AIServiceV2
+from src.services.classification.config import (OntologyClassifierConfig,
+                                                OntologyLevel)
 from src.services.classification.ontology_validator import OntologyValidator
 
 logger = logging.getLogger(__name__)
-
-OntologyLevel = Literal["TYPE", "EXEMPLAAR", "PROCES", "RESULTAAT", "ONBESLIST"]
 
 
 @dataclass
@@ -50,29 +48,47 @@ class OntologyClassifierService:
     Service voor ontologische classificatie van begrippen.
 
     Gebruikt LLM (GPT-4) voor primaire classificatie met rules-based validatie.
+
+    Args:
+        ai_service: AI service voor LLM interactie
+        config: Optionele configuratie (gebruikt defaults indien niet opgegeven)
+
+    Example:
+        >>> # Met default config
+        >>> classifier = OntologyClassifierService(ai_service)
+        >>>
+        >>> # Met custom config
+        >>> config = OntologyClassifierConfig(temperature=0.5)
+        >>> classifier = OntologyClassifierService(ai_service, config)
     """
 
-    PROMPT_PATH = Path("config/prompts/ontology_classification.yaml")
-
-    def __init__(self, ai_service: AIServiceV2):
+    def __init__(
+        self,
+        ai_service: AIServiceV2,
+        config: OntologyClassifierConfig | None = None,
+    ):
         self.ai_service = ai_service
+        self.config = config or OntologyClassifierConfig()
         self.validator = OntologyValidator()
         self._load_prompt_template()
 
     def _load_prompt_template(self):
-        """Laad prompt template uit YAML config."""
+        """
+        Laad prompt template uit YAML config.
+
+        Gebruikt self.config.prompt_path voor locatie.
+        """
         import yaml
 
-        if not self.PROMPT_PATH.exists():
-            raise FileNotFoundError(
-                f"Ontology classification prompt niet gevonden: {self.PROMPT_PATH}"
-            )
+        if not self.config.prompt_path.exists():
+            msg = f"Ontology classification prompt niet gevonden: {self.config.prompt_path}"
+            raise FileNotFoundError(msg)
 
-        with open(self.PROMPT_PATH, encoding="utf-8") as f:
-            config = yaml.safe_load(f)
+        with open(self.config.prompt_path, encoding="utf-8") as f:
+            prompt_config = yaml.safe_load(f)
 
-        self.system_prompt = config["system"]
-        self.user_template = config["user_template"]
+        self.system_prompt = prompt_config["system"]
+        self.user_template = prompt_config["user_template"]
 
     def classify(
         self,
@@ -114,8 +130,8 @@ class OntologyClassifierService:
             response = self.ai_service.generate_completion(
                 prompt=user_prompt,
                 system_prompt=self.system_prompt,
-                temperature=0.3,  # Lager voor consistentie
-                max_tokens=500,
+                temperature=self.config.temperature,
+                max_tokens=self.config.max_tokens,
             )
 
             # Parse JSON response
@@ -145,9 +161,9 @@ class OntologyClassifierService:
 
         except Exception as e:
             logger.error(f"Fout bij classificatie: {e}", exc_info=True)
-            # Fallback naar ONBESLIST
+            # Fallback naar configured fallback level
             return ClassificationResult(
-                level="ONBESLIST",
+                level=self.config.fallback_level,
                 confidence=0.0,
                 rationale=f"Classificatie gefaald: {e!s}",
                 linguistic_cues=[],
@@ -173,23 +189,27 @@ class OntologyClassifierService:
             required = ["level", "confidence", "rationale"]
             for field in required:
                 if field not in data:
-                    raise ValueError(f"Ontbrekend veld in LLM response: {field}")
+                    msg = f"Ontbrekend veld in LLM response: {field}"
+                    raise ValueError(msg)
 
             # Valideer level waarde
             valid_levels = ["TYPE", "EXEMPLAAR", "PROCES", "RESULTAAT", "ONBESLIST"]
             if data["level"] not in valid_levels:
-                raise ValueError(f"Ongeldige level: {data['level']}")
+                msg = f"Ongeldige level: {data['level']}"
+                raise ValueError(msg)
 
             # Valideer confidence range
             conf = float(data["confidence"])
             if not 0.0 <= conf <= 1.0:
-                raise ValueError(f"Confidence buiten range: {conf}")
+                msg = f"Confidence buiten range: {conf}"
+                raise ValueError(msg)
 
             return data
 
         except json.JSONDecodeError as e:
             logger.error(f"JSON parse fout: {e}\nResponse: {response}")
-            raise ValueError(f"Ongeldige JSON response van LLM: {e}")
+            msg = f"Ongeldige JSON response van LLM: {e}"
+            raise ValueError(msg) from e
 
     def classify_batch(self, items: list[dict[str, str]]) -> list[ClassificationResult]:
         """

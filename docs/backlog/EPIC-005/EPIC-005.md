@@ -12,9 +12,6 @@ prioriteit: LAAG
 status: Nog te bepalen
 stories:
 - US-137
-- US-138
-- US-139
-- US-062
 - US-065
 target_release: v1.3
 titel: "EPIC-005: Export & Import - Multi-format data portability (JSON, PDF, DOCX, XML, CSV) met batch processing en validatie"

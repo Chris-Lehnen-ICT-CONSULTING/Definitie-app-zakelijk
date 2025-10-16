@@ -1,11 +1,11 @@
 ---
 id: EPIC-006
-titel: "EPIC-006: Security & Auth - AVG/GDPR compliance met SSO integratie, API key beveiliging en complete audit trail"
+titel: "EPIC-006: Security Baseline - Minimale safeguards voor single-user deployments"
 status: active
-prioriteit: KRITIEK
+prioriteit: HOOG
 aangemaakt: 01-01-2025
 bijgewerkt: 05-09-2025
-owner: business-analyst
+owner: product-development
 applies_to: definitie-app@current
 canonical: true
 last_verified: 05-09-2025
@@ -14,151 +14,58 @@ vereisten:
   - REQ-045
   - REQ-047
   - REQ-063
-  - REQ-071
-  - REQ-081
 stories:
   - US-140
-  - US-141
-  - US-026
-  - US-027
+  - US-029
+  - US-030
+  - US-031
+  - US-032
 astra_compliance: true
-completion: 40%
-target_release: v1.0
+completion: 10%
+target_release: v1.1
 ---
 
 
 
-# EPIC-006: beveiliging & Auth
+# EPIC-006: Security Baseline
 
 ## Managementsamenvatting
 
-beveiliging compliance and data protection for the DefinitieAgent system. This epic ensures the application meets justitiesector beveiliging vereisten, protects sensitive data, and implements proper authenticatie and authorization.
+Deze epic borgt de minimale beveiligingsmaatregelen die nodig zijn voor een single-user/single-developer setup. Focuspunten: direct falen bij ontbrekende of ongeldige API-sleutels, standaard HTTP-beveiligingsheaders, privacyvriendelijke logging en routinele dependency/secrets-scans. Zwaardere enterprise-controls (RBAC, SSO, uitgebreide audittrail) zijn naar het archief verplaatst.
 
 ## Bedrijfswaarde
-
-- **Primary Value**: Protect sensitive legal data and definitions
-- **Compliance**: Meet AVG/GDPR and justitiesector vereisten
-- **Trust**: Build user confidence through beveiliging
-- **Risk Mitigation**: Prevent data breaches and unauthorized access
+- **Snelle detectie van misconfiguraties**: gebruiker ziet meteen wat hij moet herstellen
+- **Privacybescherming**: gevoelige data komt niet in logs of exports terecht
+- **Beheersbare risico’s**: regressies in dependencies of lekken worden vroegtijdig gesignaleerd
 
 ## Succesmetrieken
+- [ ] Startup blokkeert binnen 3s bij ongeldige API key (US-140)
+- [ ] Alle responses bevatten beveiligingsheaders (CSP, HSTS, X-Frame, X-Content) en request rate-limiting (US-029)
+- [ ] Logs tonen geen PII of secrets; retentie ≤ 30 dagen (US-030)
+- [ ] CI-pipeline draait dependency audit + secrets-scan op main en feature branches (US-031)
+- [ ] Encryptie-at-rest geconfigureerd of aantoonbaar niet nodig voor lokale opslag (US-032 – stretch)
 
-- ✅ Zero exposed API keys in code
-- ✅ 100% environment-based configuration
-- [ ] API key validation on startup
-- [ ] Complete audit trail
-- [ ] Justice SSO integration
-- [ ] Zero beveiliging vulnerabilities (OWASP top 10)
+## Story-overzicht
+- **US-140 – API key validatie bij startup**  
+  Minimalistische health-check met duidelijke foutmeldingen en optionele retry zonder herstart.
+- **US-029 – Security headers & rate limiting**  
+  Streamlit/fastapi config uitbreiden met standaard headers, throttling en baseline tests.
+- **US-030 – Logging redactie & retentie**  
+  Introduceer central logging helper die PII maskt en logretentie/rotatie afdwingt.
+- **US-031 – Secrets/dependency audits in CI**  
+  Automatiseer `pip-audit`, `safety` en `detect-secrets` of alternatief script; rapportage in pipeline-artifacts.
+- **US-032 – Encryptie at rest (stretch)**  
+  Onderzoek SQLite + dossierencryptie; markeer als optioneel wanneer opslag op vertrouwde laptop blijft.
 
-## Gebruikersverhalen Overzicht
+## Afbakening
+- Geen user management, RBAC of SSO (verplaatst naar `_archive/enterprise/`)
+- Audit trail en forensische logging vallen buiten dit baseline bereik
+- Geen hosting-specifieke hardening (infrastructurele maatregelen liggen bij toekomstige opschalingsstappen)
 
-### US-140: API Key Validation at Startup
-**Status:** Nog te bepalen
-**Prioriteit:** HOOG
-**Verhaalpunten:** 3
-
-**Gebruikersverhaal:**
-Als systeembeheerder binnen de justitieketen
-wil ik API keys validatied at application startup
-zodat configuration errors are caught early and don't cause runtime failures
-
-**Acceptatiecriteria:**
-1. gegeven the application starts
-   wanneer OpenAI API key is configured
-   dan the key is validatied via test API call
-2. gegeven an invalid API key is detected
-   wanneer application initialization occurs
-   dan clear error message is shown and startup is halted
-3. gegeven a valid API key
-   wanneer application starts
-   dan initialization continues normally
-
-**Domeinregels:**
-- Comply with NORA beveiliging guidelines for credential management
-- FolLAAG ASTRA patterns for configuration validation
-- No sensitive data in error messages or logs
-
-**Implementatie Notes:**
-- beveiliging: Never log full API keys (only last 4 chars)
-- Privacy: No API key in error tracking
-- Prestaties: Validation timeout of 5 seconds
-- Location: Add to `src/services/container.py` initialization
-
-### US-141: API Key beveiliging Fix ✅
-**Status:** GEREED
-**Prioriteit:** KRITIEK
-**Verhaalpunten:** 5
-
-**Implementatie:**
-- Removed all hardcoded API keys
-- Moved to environment variables
-- Added .env.example file
-- UpDatumd documentation
-
-### US-026: Environment Variable Configuration ✅
-**Status:** GEREED
-**Prioriteit:** HOOG
-**Verhaalpunten:** 3
-
-**Implementatie:**
-- All sensitive config via env vars
-- ConfigManager for centralized access
-- Validation of required variables
-- Default values for non-sensitive config
-
-### US-027: Component-specific AI Configuration beveiliging ✅
-**Status:** GEREED
-**Prioriteit:** GEMIDDELD
-**Verhaalpunten:** 5
-
-**Implementatie:**
-- Separate config per component
-- No API keys in component configs
-- Encrypted storage for sensitive data
-- Access control via ServiceContainer
-
-## beveiliging Architecture
-
-### Authenticatie FLAAG
-```
-User Access
-    ↓
-Justice SSO (Planned)
-    ↓
-Token Validation
-    ↓
-Session Creation
-    ↓
-Role Assignment
-    ↓
-Access Granted
-```
-
-### Authorization Model
-```
-Resources
-    ├── Definitions (CRUD)
-    ├── validatieregels (Read)
-    ├── Web Lookup (Execute)
-    ├── Export (Execute)
-    └── Admin Functions (Admin only)
-
-Roles
-    ├── Viewer (Read only)
-    ├── Editor (CRUD definitions)
-    ├── Validator (Run validations)
-    └── Admin (All permissions)
-```
-
-## beveiliging Controls
-
-### Application beveiliging
-- ✅ API key protection
-- ✅ Environment-based config
-- ✅ Input validation
-- ⏳ SQL injection prevention
-- ⏳ XSS protection
-- ❌ CSRF tokens
+## Deliverables
+1. Checklist “Security Baseline” opgenomen in releaseproces
+2. Tests/scripts voor headers, logging en scans toegevoegd aan `scripts/security/`
+3. Documentatie in `docs/security-baseline.md` (nieuw) met configuratie-instructies voor lokale omgevingen
 - ❌ Rate limiting
 - ❌ Session management
 
