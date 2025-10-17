@@ -16,54 +16,37 @@ from typing import Any  # Type hints voor betere code documentatie
 
 import streamlit as st  # Streamlit web interface framework
 
-from database.definitie_repository import (
-    get_definitie_repository,  # Database toegang factory
-)
-from document_processing.document_extractor import (
-    supported_file_types,  # Ondersteunde bestandstypen
-)
-from document_processing.document_processor import (
-    get_document_processor,  # Document processor factory
-)
-from domain.ontological_categories import (
-    OntologischeCategorie,  # Ontologische categorieën
-)
+from database.definitie_repository import \
+    get_definitie_repository  # Database toegang factory
+from document_processing.document_extractor import \
+    supported_file_types  # Ondersteunde bestandstypen
+from document_processing.document_processor import \
+    get_document_processor  # Document processor factory
+from domain.ontological_categories import \
+    OntologischeCategorie  # Ontologische categorieën
 from integration.definitie_checker import (  # Definitie integratie controle
-    CheckAction,
-    DefinitieChecker,
-)
-
+    CheckAction, DefinitieChecker)
 # Nieuwe services imports
 from services import get_definition_service
 from ui.components.context_state_cleaner import init_context_cleaner
-from ui.components.definition_edit_tab import (
-    DefinitionEditTab,  # Edit interface voor definities
-)
-from ui.components.definition_generator_tab import (
-    DefinitionGeneratorTab,  # Hoofdtab voor definitie generatie
-)
-
+from ui.components.definition_edit_tab import \
+    DefinitionEditTab  # Edit interface voor definities
+from ui.components.definition_generator_tab import \
+    DefinitionGeneratorTab  # Hoofdtab voor definitie generatie
 # Importeer alle UI tab componenten voor de verschillende functionaliteiten
-from ui.components.enhanced_context_manager_selector import (
-    EnhancedContextManagerSelector as ContextSelector,
-)
-
+from ui.components.enhanced_context_manager_selector import \
+    EnhancedContextManagerSelector as ContextSelector
 # Context selectie component via ContextManager
-from ui.components.expert_review_tab import (
-    ExpertReviewTab,  # Expert review en validatie tab
-)
-
+from ui.components.expert_review_tab import \
+    ExpertReviewTab  # Expert review en validatie tab
 # Geconsolideerde import/export/beheer tab (vervangt Export en Management tabs)
 from ui.components.tabs.import_export_beheer import ImportExportBeheerTab
-
 # Quality Control tab verwijderd - functionaliteit gedocumenteerd in EPIC-023
 # Orchestration tab verwijderd - functionaliteit gedocumenteerd in EPIC-028
 # Web Lookup tab verwijderd - functionaliteit is automatic via ModernWebLookupService
 # Importeer core services en utilities
-from ui.session_state import (
-    SessionStateManager,  # Sessie state management voor UI persistentie
-)
-
+from ui.session_state import \
+    SessionStateManager  # Sessie state management voor UI persistentie
 # US-202: Removed direct import of get_cached_container - use session state instead
 from utils.type_helpers import ensure_dict
 
@@ -353,7 +336,9 @@ class TabbedInterface:
                         )
 
                         # Sla op in session state
-                        SessionStateManager.set_value("determined_category", auto_categorie.value)
+                        SessionStateManager.set_value(
+                            "determined_category", auto_categorie.value
+                        )
                         SessionStateManager.set_value("category_reasoning", reasoning)
                         SessionStateManager.set_value("category_scores", scores)
 
@@ -681,9 +666,8 @@ class TabbedInterface:
         Verwijderd: fallback naar legacy session_state implementatie.
         """
         try:
-            from ui.components.enhanced_context_manager_selector import (
-                render_context_selector,
-            )
+            from ui.components.enhanced_context_manager_selector import \
+                render_context_selector
 
             return render_context_selector()
         except Exception as e:
@@ -841,7 +825,8 @@ class TabbedInterface:
 
                 if manual_category:
                     # Gebruik handmatige override
-                    from domain.ontological_categories import OntologischeCategorie
+                    from domain.ontological_categories import \
+                        OntologischeCategorie
 
                     # Converteer string naar OntologischeCategorie enum
                     category_map = {
@@ -861,46 +846,44 @@ class TabbedInterface:
                         f"Gebruik handmatige categorie override: {manual_category}"
                     )
                 else:
-                    # DEF-36: Check voor pre-geclassificeerde categorie (MEDIUM priority)
+                    # DEF-36: Check voor pre-geclassificeerde categorie (REQUIRED)
                     determined_category = SessionStateManager.get_value(
                         "determined_category"
                     )
 
-                    if determined_category:
-                        # Gebruik pre-geclassificeerde categorie uit on_change event
-                        from domain.ontological_categories import OntologischeCategorie
+                    if not determined_category:
+                        # ERROR: Geen categorie bepaald, stop generatie
+                        st.error(
+                            "❌ Geen ontologische categorie bepaald. Vul eerst begrip en context in."
+                        )
+                        logger.error(
+                            "DEF-36: Geen pre-geclassificeerde categorie beschikbaar; generatie gestopt"
+                        )
+                        return
 
-                        # Converteer string naar OntologischeCategorie enum
-                        category_map = {
-                            "TYPE": OntologischeCategorie.TYPE,
-                            "PROCES": OntologischeCategorie.PROCES,
-                            "RESULTAAT": OntologischeCategorie.RESULTAAT,
-                            "EXEMPLAAR": OntologischeCategorie.EXEMPLAAR,
-                        }
-                        auto_categorie = category_map.get(
-                            determined_category, OntologischeCategorie.PROCES
-                        )
-                        category_reasoning = SessionStateManager.get_value(
-                            "category_reasoning", ""
-                        )
-                        category_scores = SessionStateManager.get_value(
-                            "category_scores", {}
-                        )
-                        logger.info(
-                            f"DEF-36: Gebruik pre-geclassificeerde categorie: {determined_category}"
-                        )
-                    else:
-                        # FALLBACK: Bepaal automatisch de ontologische categorie (realtime)
-                        auto_categorie, category_reasoning, category_scores = (
-                            asyncio.run(
-                                self._determine_ontological_category(
-                                    begrip, primary_org, primary_jur
-                                )
-                            )
-                        )
-                        logger.info(
-                            "DEF-36: Geen pre-classificatie beschikbaar, gebruik realtime classificatie"
-                        )
+                    # Gebruik pre-geclassificeerde categorie uit on_change event
+                    from domain.ontological_categories import \
+                        OntologischeCategorie
+
+                    # Converteer string naar OntologischeCategorie enum
+                    category_map = {
+                        "TYPE": OntologischeCategorie.TYPE,
+                        "PROCES": OntologischeCategorie.PROCES,
+                        "RESULTAAT": OntologischeCategorie.RESULTAAT,
+                        "EXEMPLAAR": OntologischeCategorie.EXEMPLAAR,
+                    }
+                    auto_categorie = category_map.get(
+                        determined_category, OntologischeCategorie.PROCES
+                    )
+                    category_reasoning = SessionStateManager.get_value(
+                        "category_reasoning", ""
+                    )
+                    category_scores = SessionStateManager.get_value(
+                        "category_scores", {}
+                    )
+                    logger.info(
+                        f"DEF-36: Gebruik pre-geclassificeerde categorie: {determined_category}"
+                    )
 
                 # Krijg document context en selected document IDs
                 document_context = self._get_document_context()
@@ -1067,9 +1050,8 @@ class TabbedInterface:
                     or agent_result.get("definitie")
                 ):
                     try:
-                        from ui.components.prompt_debug_section import (
-                            capture_voorbeelden_prompts,
-                        )
+                        from ui.components.prompt_debug_section import \
+                            capture_voorbeelden_prompts
 
                         # Create context_dict for prompt debug
                         context_dict = {
