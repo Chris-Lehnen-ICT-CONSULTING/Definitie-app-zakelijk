@@ -1,0 +1,1181 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Vibe Coding Workflow for DefinitieAgent with Claude Code</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>aangemaakt: 2025-10-17</p>
+<p>applies_to: definitie-app@current</p>
+<p>bijgewerkt: 2025-10-17</p>
+<p>canonical: true</p>
+<p>last_verified: 2025-10-17</p>
+<p>owner: development</p>
+<p>prioriteit: high</p>
+<p>status: active</p>
+<p>type: workflow-guide</p>
+<p>---</p>
+
+<h1>Vibe Coding Workflow for DefinitieAgent with Claude Code</h1>
+
+<p><strong>Purpose:</strong> Optimize development workflow using Vibe Coding methodology with Claude Code as primary tool.</p>
+
+<p><strong>Target Audience:</strong> Solo developer using Claude Code for DefinitieAgent development.</p>
+
+<p><strong>Key Principle:</strong> Right workflow for the right task. No over-engineering, no under-engineering.</p>
+
+<h2>Table of Contents</h2>
+
+<ol>
+<li>[Quick Decision Tree](#quick-decision-tree)</li>
+<li>[Workflow Sequences](#workflow-sequences)</li>
+<li>[Session Management](#session-management)</li>
+<li>[Tool Integration](#tool-integration)</li>
+<li>[Practical Examples](#practical-examples)</li>
+<li>[Handoff Protocols](#handoff-protocols)</li>
+</ol>
+
+<p>---</p>
+
+<h2>Quick Decision Tree</h2>
+
+<pre><code>┌─ Is this ONLY documentation? ──YES──&gt; DOCUMENT workflow
+│
+├─ Is this urgent production bug? ──YES──&gt; HOTFIX workflow
+│
+├─ Do I know WHAT to build? ──NO──&gt; ANALYSIS workflow
+│
+├─ Is there existing code to review? ──YES──&gt; REVIEW workflow
+│
+├─ Am I improving code quality only? ──YES──&gt; REFACTOR workflow
+│
+└─ Am I building a new feature? ──YES──&gt; FULL_TDD workflow</code></pre>
+
+<p><strong>Rule of Thumb:</strong></p>
+<ul>
+<li>**< 50 lines, no tests needed** → HOTFIX</li>
+<li>**Documentation only** → DOCUMENT</li>
+<li>**Need to understand first** → ANALYSIS</li>
+<li>**Quality improvement** → REFACTOR or REVIEW</li>
+<li>**New feature** → FULL_TDD</li>
+</ul>
+
+<p>---</p>
+
+<h2>Workflow Sequences</h2>
+
+<h3>1. ANALYSIS Workflow (Vibe Coding: 5-Step Discovery)</h3>
+
+<p><strong>When:</strong> Starting from user request, unclear requirements, or new feature planning.</p>
+
+<p><strong>Vibe Template:</strong> 5-Step Structured Discovery</p>
+
+<p><strong>Sequence:</strong></p>
+<pre><code>USER REQUEST
+    ↓
+[1] CLARIFY - Ask targeted questions
+    ↓
+[2] RESEARCH - Explore codebase context
+    ↓
+[3] DESIGN - Draft solution approach
+    ↓
+[4] VALIDATE - Confirm with user
+    ↓
+[5] DOCUMENT - Create User Story + Architecture</code></pre>
+
+<p><strong>Claude Code Tools:</strong></p>
+<pre><code>Step 1 (Clarify):
+  - AskUserQuestion tool
+  - Read: CLAUDE.md, PRD, EPIC files
+
+Step 2 (Research):
+  - Grep: Find similar patterns
+  - Glob: Locate relevant modules
+  - Read: Service files, config files
+
+Step 3 (Design):
+  - Read: Architecture docs (EA/SA/TA)
+  - Write: Draft design doc
+
+Step 4 (Validate):
+  - AskUserQuestion: Confirm approach
+
+Step 5 (Document):
+  - Write: User Story (EPIC-XXX/US-XXX/US-XXX.md)
+  - Edit: Update EPIC file
+  - Write: Architecture notes</code></pre>
+
+<p><strong>Output Artifacts:</strong></p>
+<ul>
+<li>`docs/backlog/EPIC-XXX/US-XXX/US-XXX.md` (User Story)</li>
+<li>`docs/architectuur/<component>-design.md` (if needed)</li>
+<li>Session handoff notes</li>
+</ul>
+
+<p><strong>Exit Criteria:</strong></p>
+<ul>
+<li>[ ] User Story has globally unique ID</li>
+<li>[ ] SMART criteria defined</li>
+<li>[ ] Acceptance criteria in BDD format</li>
+<li>[ ] Design approach validated</li>
+<li>[ ] Ready for implementation</li>
+</ul>
+
+<p><strong>Typical Duration:</strong> 15-30 minutes</p>
+
+<p>---</p>
+
+<h3>2. FULL_TDD Workflow (Vibe Coding: 8-Step Implementation)</h3>
+
+<p><strong>When:</strong> Building new feature with known requirements.</p>
+
+<p><strong>Vibe Template:</strong> 8-Step RED-GREEN-REFACTOR</p>
+
+<p><strong>Sequence:</strong></p>
+<pre><code>USER STORY READY
+    ↓
+[1] UNDERSTAND - Read story, identify test cases
+    ↓
+[2] TEST-RED - Write failing tests
+    ↓
+[3] COMMIT - test(US-XXX): add failing tests
+    ↓
+[4] IMPLEMENT - Minimal code to pass
+    ↓
+[5] TEST-GREEN - All tests pass
+    ↓
+[6] COMMIT - feat(US-XXX): implement feature
+    ↓
+[7] REFACTOR - Improve code quality
+    ↓
+[8] VERIFY - Run full test suite</code></pre>
+
+<p><strong>Claude Code Tools:</strong></p>
+<pre><code>Step 1 (Understand):
+  - Read: User story file
+  - Grep: Find similar implementations
+  - Read: Relevant service files
+
+Step 2 (Test-RED):
+  - Read: Existing test patterns
+  - Write: New test file(s)
+  - Bash: pytest &lt;new_test&gt; (should fail)
+
+Step 3 (Commit):
+  - Bash: git add tests/
+  - Bash: git commit -m "test(US-XXX): ..."
+
+Step 4-5 (Implement):
+  - Edit: Service/module files
+  - Bash: pytest (watch tests turn green)
+
+Step 6 (Commit):
+  - Bash: git add src/
+  - Bash: git commit -m "feat(US-XXX): ..."
+
+Step 7 (Refactor):
+  - Edit: Improve code structure
+  - Bash: pytest (ensure still green)
+
+Step 8 (Verify):
+  - Bash: pytest --cov=src
+  - Bash: ruff check src
+  - Bash: black src</code></pre>
+
+<p><strong>Critical Rules:</strong></p>
+<ul>
+<li>**NO implementation before tests fail**</li>
+<li>**Complete feature in ONE session**</li>
+<li>**Maintain test coverage ≥ 60%**</li>
+<li>**Follow CLAUDE.md refactor rules**</li>
+</ul>
+
+<p><strong>Output Artifacts:</strong></p>
+<ul>
+<li>New/modified source files (`src/`)</li>
+<li>Test files (`tests/`)</li>
+<li>Git commits (semantic format)</li>
+<li>Coverage report</li>
+</ul>
+
+<p><strong>Exit Criteria:</strong></p>
+<ul>
+<li>[ ] All tests green</li>
+<li>[ ] Coverage ≥ 60%</li>
+<li>[ ] No linting errors</li>
+<li>[ ] Semantic commits made</li>
+<li>[ ] Ready for review</li>
+</ul>
+
+<p><strong>Typical Duration:</strong> 30-90 minutes</p>
+
+<p>---</p>
+
+<h3>3. HOTFIX Workflow (Vibe Coding: 3-Step Emergency)</h3>
+
+<p><strong>When:</strong> Production bug, urgent fix needed.</p>
+
+<p><strong>Vibe Template:</strong> 3-Step Emergency Response</p>
+
+<p><strong>Sequence:</strong></p>
+<pre><code>BUG REPORTED
+    ↓
+[1] REPRODUCE - Identify exact issue
+    ↓
+[2] PATCH - Minimal fix + test
+    ↓
+[3] DEPLOY - Fast track to production</code></pre>
+
+<p><strong>Claude Code Tools:</strong></p>
+<pre><code>Step 1 (Reproduce):
+  - Read: Error logs
+  - Grep: Find bug location
+  - Bash: Reproduce locally
+
+Step 2 (Patch):
+  - Edit: Minimal fix
+  - Write: Regression test
+  - Bash: pytest &lt;test&gt;
+
+Step 3 (Deploy):
+  - Bash: git commit -m "fix(HOTFIX-XXX): ..."
+  - Bash: git push
+  - Monitor: Check production</code></pre>
+
+<p><strong>Critical Rules:</strong></p>
+<ul>
+<li>**Minimal scope** - Fix ONE thing</li>
+<li>**No feature creep**</li>
+<li>**Add regression test**</li>
+<li>**Document in commit message**</li>
+</ul>
+
+<p><strong>Output Artifacts:</strong></p>
+<ul>
+<li>Patch commit</li>
+<li>Regression test</li>
+<li>Brief incident note</li>
+</ul>
+
+<p><strong>Exit Criteria:</strong></p>
+<ul>
+<li>[ ] Bug fixed and verified</li>
+<li>[ ] Regression test added</li>
+<li>[ ] Production deployed</li>
+<li>[ ] Post-mortem scheduled (if needed)</li>
+</ul>
+
+<p><strong>Typical Duration:</strong> 10-30 minutes</p>
+
+<p>---</p>
+
+<h3>4. REFACTOR Workflow (Vibe Coding: 4-Step Quality)</h3>
+
+<p><strong>When:</strong> Improving code quality without changing behavior.</p>
+
+<p><strong>Vibe Template:</strong> 4-Step Safe Refactor</p>
+
+<p><strong>Sequence:</strong></p>
+<pre><code>CODE QUALITY ISSUE
+    ↓
+[1] BASELINE - Establish test coverage
+    ↓
+[2] REFACTOR - Small, atomic improvements
+    ↓
+[3] VERIFY - Tests still green
+    ↓
+[4] DOCUMENT - Update refactor log</code></pre>
+
+<p><strong>Claude Code Tools:</strong></p>
+<pre><code>Step 1 (Baseline):
+  - Bash: pytest --cov=src/&lt;module&gt;
+  - Read: Current code
+
+Step 2 (Refactor):
+  - Edit: Extract functions
+  - Edit: Rename variables
+  - Edit: Simplify logic
+
+Step 3 (Verify):
+  - Bash: pytest (ensure green)
+  - Bash: pytest --cov=src (maintain coverage)
+
+Step 4 (Document):
+  - Edit: docs/refactor-log.md
+  - Bash: git commit -m "refactor(US-XXX): ..."</code></pre>
+
+<p><strong>Critical Rules:</strong></p>
+<ul>
+<li>**Preserve exact behavior**</li>
+<li>**Keep tests green**</li>
+<li>**Micro-refactors only** (per CLAUDE.md)</li>
+<li>**Update refactor log**</li>
+</ul>
+
+<p><strong>Output Artifacts:</strong></p>
+<ul>
+<li>Refactored code</li>
+<li>Entry in `docs/refactor-log.md`</li>
+<li>Commit</li>
+</ul>
+
+<p><strong>Exit Criteria:</strong></p>
+<ul>
+<li>[ ] All tests still green</li>
+<li>[ ] Coverage maintained</li>
+<li>[ ] Behavior unchanged</li>
+<li>[ ] Refactor log updated</li>
+</ul>
+
+<p><strong>Typical Duration:</strong> 15-30 minutes</p>
+
+<p>---</p>
+
+<h3>5. REVIEW Workflow (Vibe Coding: 2-Step Audit)</h3>
+
+<p><strong>When:</strong> Code exists, need structured review.</p>
+
+<p><strong>Vibe Template:</strong> 2-Step Code Audit</p>
+
+<p><strong>Sequence:</strong></p>
+<pre><code>CODE TO REVIEW
+    ↓
+[1] AUDIT - Comprehensive review
+    ↓
+[2] REPORT - Document findings</code></pre>
+
+<p><strong>Claude Code Tools:</strong></p>
+<pre><code>Step 1 (Audit):
+  - Read: Code to review
+  - Grep: Find related code
+  - Check: Security, performance, style
+
+Step 2 (Report):
+  - Write: docs/reviews/&lt;ID&gt;-review.md
+  - Categorize: Critical/Recommendations/Good</code></pre>
+
+<p><strong>Review Checklist:</strong></p>
+<ul>
+<li>[ ] Correctness & Logic</li>
+<li>[ ] Test Coverage</li>
+<li>[ ] Security & Privacy</li>
+<li>[ ] Performance</li>
+<li>[ ] Code Style</li>
+<li>[ ] Documentation</li>
+<li>[ ] Domain Compliance</li>
+</ul>
+
+<p><strong>Output Artifacts:</strong></p>
+<ul>
+<li>Review report (`docs/reviews/<ID>-review.md`)</li>
+<li>Verdict: APPROVED / APPROVED WITH CONDITIONS / CHANGES REQUESTED</li>
+</ul>
+
+<p><strong>Exit Criteria:</strong></p>
+<ul>
+<li>[ ] Complete review report</li>
+<li>[ ] No critical blockers</li>
+<li>[ ] Concrete suggestions</li>
+</ul>
+
+<p><strong>Typical Duration:</strong> 15-30 minutes</p>
+
+<p>---</p>
+
+<h3>6. DOCUMENT Workflow (Vibe Coding: 3-Step Cleanup)</h3>
+
+<p><strong>When:</strong> Documentation only work.</p>
+
+<p><strong>Vibe Template:</strong> 3-Step Doc Maintenance</p>
+
+<p><strong>Sequence:</strong></p>
+<pre><code>DOCS NEED UPDATE
+    ↓
+[1] AUDIT - Find issues
+    ↓
+[2] FIX - Update docs
+    ↓
+[3] VERIFY - Validate links/structure</code></pre>
+
+<p><strong>Claude Code Tools:</strong></p>
+<pre><code>Step 1 (Audit):
+  - Grep: Find broken references
+  - Read: Existing docs
+
+Step 2 (Fix):
+  - Edit: Update content
+  - Write: New docs (if needed)
+  - Edit: Add frontmatter
+
+Step 3 (Verify):
+  - Bash: Check markdown links
+  - Read: Verify canonical locations</code></pre>
+
+<p><strong>Critical Rules:</strong></p>
+<ul>
+<li>**Follow CANONICAL_LOCATIONS.md**</li>
+<li>**Add proper frontmatter**</li>
+<li>**Update INDEX.md if needed**</li>
+<li>**No code changes**</li>
+</ul>
+
+<p><strong>Output Artifacts:</strong></p>
+<ul>
+<li>Updated documentation</li>
+<li>Git commit</li>
+</ul>
+
+<p><strong>Exit Criteria:</strong></p>
+<ul>
+<li>[ ] Canonical locations correct</li>
+<li>[ ] Frontmatter present</li>
+<li>[ ] No broken links</li>
+<li>[ ] INDEX.md updated</li>
+</ul>
+
+<p><strong>Typical Duration:</strong> 5-20 minutes</p>
+
+<p>---</p>
+
+<h2>Session Management</h2>
+
+<h3>Session Continuity Strategy</h3>
+
+<p><strong>Problem:</strong> Claude Code sessions don't persist context between conversations.</p>
+
+<p><strong>Solution:</strong> Use handoff documents and session notes.</p>
+
+<h3>1. Session Start Checklist</h3>
+
+<pre><code>Every new Claude Code session:
+  - Read: CLAUDE.md (project instructions)
+  - Read: Current EPIC/US file (if working on story)
+  - Bash: git status (understand current state)
+  - Bash: git log --oneline -5 (recent changes)
+  - Read: Any handoff notes from previous session</code></pre>
+
+<h3>2. Session End Protocol</h3>
+
+<pre><code>Before ending session:
+  - Create handoff note if work incomplete
+  - Commit any changes
+  - Update User Story status
+  - Document next steps</code></pre>
+
+<p><strong>Handoff Note Template:</strong></p>
+<pre><code>## Session Handoff - [YYYY-MM-DD HH:MM]
+
+**Work Unit:** US-XXX / EPIC-XXX
+**Current Phase:** TEST-RED / DEV-GREEN / etc.
+**Progress:** 40% complete
+
+### What I Did
+- Implemented X
+- Fixed Y
+- Created Z
+
+### What's Next
+- Need to implement A
+- Test B
+- Review C
+
+### Context Notes
+- Important decision: chose pattern X because Y
+- Watch out for: Z dependency
+- Files modified: list here
+
+### Blockers
+- None / Waiting for X</code></pre>
+
+<p><strong>Location:</strong> <code>docs/backlog/EPIC-XXX/US-XXX/HANDOFF-NOTES.md</code></p>
+
+<h3>3. Context Preservation</h3>
+
+<p><strong>Use Git commits as checkpoints:</strong></p>
+<pre><code># Small checkpoint commit
+git commit -m "WIP(US-XXX): partial implementation of X"
+
+# Session end commit
+git commit -m "chore(US-XXX): session checkpoint - 40% complete"</code></pre>
+
+<p><strong>Use session state files:</strong></p>
+<pre><code>Location: docs/backlog/EPIC-XXX/US-XXX/SESSION-STATE.json
+
+{
+  "last_session": "2025-10-17T14:30:00Z",
+  "current_phase": "DEV-GREEN",
+  "progress_percent": 40,
+  "files_modified": ["src/services/x.py", "tests/test_x.py"],
+  "next_actions": [
+    "Complete implementation of feature Y",
+    "Add integration test for Z"
+  ],
+  "blockers": []
+}</code></pre>
+
+<p>---</p>
+
+<h2>Tool Integration</h2>
+
+<h3>Git Integration</h3>
+
+<p><strong>Commit Message Format:</strong></p>
+<pre><code>&lt;type&gt;(&lt;scope&gt;): &lt;description&gt;
+
+[optional body]
+[optional footer]
+
+Examples:
+test(US-042): add failing tests for validation rule
+feat(US-042): implement validation rule SAM-002
+fix(US-042): resolve edge case in validator
+refactor(US-042): extract validation helper
+docs(US-042): update architecture notes
+chore(US-042): session checkpoint</code></pre>
+
+<p><strong>Types:</strong></p>
+<ul>
+<li>`feat`: New feature</li>
+<li>`fix`: Bug fix</li>
+<li>`test`: Test changes</li>
+<li>`refactor`: Code restructure</li>
+<li>`docs`: Documentation</li>
+<li>`chore`: Maintenance</li>
+<li>`perf`: Performance</li>
+<li>`style`: Formatting</li>
+</ul>
+
+<h3>Testing Integration</h3>
+
+<p><strong>Pytest Commands:</strong></p>
+<pre><code># Run specific test file
+pytest tests/services/test_definition_generator.py
+
+# Run with coverage
+pytest --cov=src --cov-report=html
+
+# Run specific test category
+pytest -m unit
+pytest -m integration
+pytest -m smoke
+
+# Run fast tests only
+pytest -m "not slow"
+
+# Run specific test
+pytest tests/services/test_x.py::test_function_name</code></pre>
+
+<p><strong>High-Coverage Modules (Verify After Changes):</strong></p>
+<pre><code>pytest tests/services/test_definition_generator.py    # 99%
+pytest tests/services/test_definition_validator.py    # 98%
+pytest tests/services/test_definition_repository.py   # 100%</code></pre>
+
+<h3>Code Quality Integration</h3>
+
+<p><strong>Pre-Commit Workflow:</strong></p>
+<pre><code># Run all pre-commit hooks
+pre-commit run --all-files
+
+# Run specific hook
+pre-commit run ruff --all-files
+pre-commit run black --all-files
+
+# Install hooks (one-time)
+pre-commit install</code></pre>
+
+<p><strong>Manual Quality Checks:</strong></p>
+<pre><code># Linting
+ruff check src config
+
+# Formatting
+black src config
+
+# Type checking (if enabled)
+mypy src</code></pre>
+
+<h3>Development Server</h3>
+
+<p><strong>Start Application:</strong></p>
+<pre><code># Recommended method (auto env mapping)
+bash scripts/run_app.sh
+
+# Alternative
+make dev
+
+# Direct run
+OPENAI_API_KEY="$OPENAI_API_KEY_PROD" streamlit run src/main.py</code></pre>
+
+<p>---</p>
+
+<h2>Practical Examples</h2>
+
+<h3>Example 1: Adding New Validation Rule</h3>
+
+<p><strong>Scenario:</strong> User wants new validation rule for synonym consistency.</p>
+
+<p><strong>Workflow Selection:</strong> FULL_TDD (new feature)</p>
+
+<p><strong>Step-by-Step:</strong></p>
+
+<pre><code>┌─ SESSION START ────────────────────────────────────┐
+│ Read: CLAUDE.md                                    │
+│ Read: docs/backlog/EPIC-002/EPIC-002.md           │
+│ Bash: git status                                   │
+└────────────────────────────────────────────────────┘
+
+┌─ STEP 1: UNDERSTAND ───────────────────────────────┐
+│ Read: docs/backlog/EPIC-002/US-XXX/US-XXX.md      │
+│ Grep: "class.*ValidationRule" (find pattern)      │
+│ Read: config/toetsregels/regels/SAM-001.json      │
+│ Read: src/toetsregels/regels/SAM_001.py           │
+└────────────────────────────────────────────────────┘
+
+┌─ STEP 2: TEST-RED ─────────────────────────────────┐
+│ Write: tests/toetsregels/test_SAM_003.py          │
+│       def test_synonym_consistency_fail():         │
+│           # Arrange: definition with inconsistent  │
+│           # Act: validate                          │
+│           # Assert: should fail                    │
+│                                                    │
+│ Bash: pytest tests/toetsregels/test_SAM_003.py    │
+│       → 1 failed ✓ (RED state confirmed)          │
+└────────────────────────────────────────────────────┘
+
+┌─ STEP 3: COMMIT TEST ──────────────────────────────┐
+│ Bash: git add tests/toetsregels/test_SAM_003.py   │
+│ Bash: git commit -m "test(US-XXX): add failing    │
+│       tests for synonym consistency rule"          │
+└────────────────────────────────────────────────────┘
+
+┌─ STEP 4: IMPLEMENT ────────────────────────────────┐
+│ Write: config/toetsregels/regels/SAM-003.json     │
+│ Write: src/toetsregels/regels/SAM_003.py          │
+│       class SynonymConsistencyRule(ValidationRule):│
+│           def validate(self, definition): ...      │
+└────────────────────────────────────────────────────┘
+
+┌─ STEP 5: TEST-GREEN ───────────────────────────────┐
+│ Bash: pytest tests/toetsregels/test_SAM_003.py    │
+│       → All tests passed ✓ (GREEN state)          │
+└────────────────────────────────────────────────────┘
+
+┌─ STEP 6: COMMIT FEATURE ───────────────────────────┐
+│ Bash: git add config/toetsregels/ src/toetsregels/│
+│ Bash: git commit -m "feat(US-XXX): implement      │
+│       synonym consistency validation rule SAM-003" │
+└────────────────────────────────────────────────────┘
+
+┌─ STEP 7: REFACTOR ─────────────────────────────────┐
+│ Edit: Extract common validation pattern           │
+│ Bash: pytest (ensure still green)                 │
+│ Edit: docs/refactor-log.md                        │
+└────────────────────────────────────────────────────┘
+
+┌─ STEP 8: VERIFY ───────────────────────────────────┐
+│ Bash: pytest --cov=src/toetsregels               │
+│       → Coverage: 98% ✓                           │
+│ Bash: ruff check src/toetsregels                 │
+│       → No issues ✓                               │
+│ Bash: make validation-status                     │
+│       → All rules loaded ✓                        │
+└────────────────────────────────────────────────────┘
+
+┌─ SESSION END ──────────────────────────────────────┐
+│ Update: US-XXX status → "Ready for Review"        │
+│ No handoff needed (work complete)                 │
+└────────────────────────────────────────────────────┘</code></pre>
+
+<p><strong>Duration:</strong> ~45 minutes</p>
+
+<p>---</p>
+
+<h3>Example 2: Refactoring Service Module</h3>
+
+<p><strong>Scenario:</strong> <code>src/services/validation_service.py</code> is 800 lines (should be < 500).</p>
+
+<p><strong>Workflow Selection:</strong> REFACTOR</p>
+
+<p><strong>Step-by-Step:</strong></p>
+
+<pre><code>┌─ STEP 1: BASELINE ─────────────────────────────────┐
+│ Bash: wc -l src/services/validation_service.py    │
+│       → 823 lines                                  │
+│ Bash: pytest tests/services/test_validation*.py   │
+│       --cov=src/services/validation_service.py    │
+│       → Coverage: 94% (baseline)                  │
+└────────────────────────────────────────────────────┘
+
+┌─ STEP 2: ANALYZE ──────────────────────────────────┐
+│ Read: src/services/validation_service.py          │
+│ Identify: 3 logical groups                        │
+│   - Rule loading (200 lines)                      │
+│   - Validation execution (400 lines)              │
+│   - Result formatting (223 lines)                 │
+└────────────────────────────────────────────────────┘
+
+┌─ STEP 3: REFACTOR (Atomic) ────────────────────────┐
+│ Edit: Extract rule loading                        │
+│   Create: src/services/validation/rule_loader.py │
+│   Move: Rule loading logic                        │
+│   Update: validation_service.py imports          │
+│                                                    │
+│ Bash: pytest tests/services/test_validation*.py   │
+│       → All tests green ✓                         │
+│                                                    │
+│ Bash: git commit -m "refactor: extract rule       │
+│       loader from validation service (200 lines)" │
+└────────────────────────────────────────────────────┘
+
+┌─ STEP 4: REFACTOR (Atomic) ────────────────────────┐
+│ Edit: Extract result formatting                   │
+│   Create: src/services/validation/formatter.py   │
+│   Move: Result formatting logic                   │
+│                                                    │
+│ Bash: pytest tests/services/test_validation*.py   │
+│       → All tests green ✓                         │
+│                                                    │
+│ Bash: git commit -m "refactor: extract result     │
+│       formatter from validation service (223)"    │
+└────────────────────────────────────────────────────┘
+
+┌─ STEP 5: VERIFY ───────────────────────────────────┐
+│ Bash: wc -l src/services/validation_service.py    │
+│       → 400 lines ✓                               │
+│ Bash: pytest --cov=src/services/validation*.py    │
+│       → Coverage: 94% (maintained) ✓              │
+│ Bash: ruff check src/services/                    │
+│       → No issues ✓                               │
+└────────────────────────────────────────────────────┘
+
+┌─ STEP 6: DOCUMENT ─────────────────────────────────┐
+│ Edit: docs/refactor-log.md                        │
+│   Add: Entry for validation service split         │
+│   Rationale: Reduce file size, improve modularity │
+│   Files affected: 3                               │
+└────────────────────────────────────────────────────┘</code></pre>
+
+<p><strong>Duration:</strong> ~30 minutes</p>
+
+<p>---</p>
+
+<h3>Example 3: Designing New UI Feature</h3>
+
+<p><strong>Scenario:</strong> User wants new "Export to JSON" button in UI.</p>
+
+<p><strong>Workflow Selection:</strong> ANALYSIS → FULL_TDD</p>
+
+<p><strong>Step-by-Step (ANALYSIS Phase):</strong></p>
+
+<pre><code>┌─ SESSION 1: ANALYSIS ──────────────────────────────┐
+│                                                    │
+│ STEP 1: CLARIFY                                   │
+│ AskUserQuestion:                                   │
+│   - Which tab should have this button?           │
+│   - What data to export?                          │
+│   - Any specific JSON structure?                  │
+│                                                    │
+│ User answers:                                      │
+│   - Tab: "Definitie Generatie"                    │
+│   - Data: Current definition + metadata           │
+│   - Structure: Standard DefinitionResponseV2      │
+│                                                    │
+│ STEP 2: RESEARCH                                   │
+│ Grep: "export.*json" (find similar patterns)     │
+│ Read: src/ui/tabs/definitie_generatie.py         │
+│ Read: src/models/definition_response_v2.py       │
+│ Glob: src/utils/*export*.py (check existing)     │
+│                                                    │
+│ STEP 3: DESIGN                                     │
+│ Design decision:                                   │
+│   - Add button to existing button row            │
+│   - Use st.download_button with JSON bytes       │
+│   - Leverage existing DefinitionResponseV2.dict() │
+│   - No new service needed                        │
+│                                                    │
+│ STEP 4: VALIDATE                                   │
+│ AskUserQuestion:                                   │
+│   "Proposed design: Add download button next to   │
+│    existing buttons, export current definition    │
+│    as JSON using existing response model.         │
+│    Confirm?"                                       │
+│                                                    │
+│ User: ✓ Approved                                  │
+│                                                    │
+│ STEP 5: DOCUMENT                                   │
+│ Write: docs/backlog/EPIC-004/US-440/US-440.md    │
+│   Title: Export Definition to JSON                │
+│   Story: As a user, I want to export...          │
+│   AC: Given definition generated, When I click... │
+│   Design: Use st.download_button...              │
+│                                                    │
+│ Edit: docs/backlog/EPIC-004/EPIC-004.md          │
+│   Add: - US-440 to stories list                  │
+└────────────────────────────────────────────────────┘
+
+Duration: 20 minutes
+Exit: User Story ready for implementation</code></pre>
+
+<p><strong>Step-by-Step (IMPLEMENTATION Phase):</strong></p>
+
+<pre><code>┌─ SESSION 2: FULL_TDD ──────────────────────────────┐
+│                                                    │
+│ STEP 1: UNDERSTAND                                 │
+│ Read: docs/backlog/EPIC-004/US-440/US-440.md     │
+│ Read: src/ui/tabs/definitie_generatie.py         │
+│                                                    │
+│ STEP 2: TEST-RED                                   │
+│ Write: tests/ui/test_export_json.py              │
+│   def test_export_button_appears():              │
+│   def test_export_json_structure():              │
+│                                                    │
+│ Bash: pytest tests/ui/test_export_json.py        │
+│       → 2 failed ✓                                │
+│                                                    │
+│ STEP 3: COMMIT TEST                               │
+│ Bash: git commit -m "test(US-440): add failing   │
+│       tests for JSON export"                      │
+│                                                    │
+│ STEP 4-5: IMPLEMENT                               │
+│ Edit: src/ui/tabs/definitie_generatie.py         │
+│   Add: st.download_button for JSON export        │
+│   Add: Helper function to format JSON            │
+│                                                    │
+│ Bash: pytest tests/ui/test_export_json.py        │
+│       → All tests passed ✓                        │
+│                                                    │
+│ STEP 6: COMMIT FEATURE                            │
+│ Bash: git commit -m "feat(US-440): add JSON      │
+│       export button to definitie generatie tab"   │
+│                                                    │
+│ STEP 7-8: VERIFY                                  │
+│ Bash: streamlit run src/main.py (manual test)    │
+│       → Button works, JSON downloads ✓            │
+│ Bash: pytest --cov=src/ui                        │
+│       → Coverage maintained ✓                     │
+└────────────────────────────────────────────────────┘
+
+Duration: 30 minutes
+Total: 50 minutes (both sessions)</code></pre>
+
+<p>---</p>
+
+<h3>Example 4: Fixing Complex Bug</h3>
+
+<p><strong>Scenario:</strong> Validation rule SAM-002 incorrectly flags valid definitions.</p>
+
+<p><strong>Workflow Selection:</strong> HOTFIX (if urgent) or FULL_TDD (if not urgent)</p>
+
+<p><strong>Using HOTFIX Workflow:</strong></p>
+
+<pre><code>┌─ STEP 1: REPRODUCE ────────────────────────────────┐
+│ Read: Bug report / error logs                     │
+│ Read: src/toetsregels/regels/SAM_002.py          │
+│ Read: tests/toetsregels/test_SAM_002.py          │
+│                                                    │
+│ Create reproduction test:                         │
+│ Edit: tests/toetsregels/test_SAM_002.py          │
+│   def test_false_positive_bug():                  │
+│       # Arrange: valid definition                │
+│       # Act: validate                             │
+│       # Assert: should pass but currently fails  │
+│                                                    │
+│ Bash: pytest tests/toetsregels/test_SAM_002.py:: │
+│       test_false_positive_bug                     │
+│       → Failed ✓ (bug reproduced)                │
+└────────────────────────────────────────────────────┘
+
+┌─ STEP 2: PATCH ────────────────────────────────────┐
+│ Analyze:                                           │
+│   Root cause: Regex pattern too strict           │
+│                                                    │
+│ Edit: src/toetsregels/regels/SAM_002.py          │
+│   Fix: Update regex pattern                       │
+│                                                    │
+│ Bash: pytest tests/toetsregels/test_SAM_002.py   │
+│       → All tests passed ✓                        │
+│                                                    │
+│ Bash: pytest tests/toetsregels/ (regression)     │
+│       → All tests passed ✓                        │
+└────────────────────────────────────────────────────┘
+
+┌─ STEP 3: DEPLOY ───────────────────────────────────┐
+│ Bash: git add .                                    │
+│ Bash: git commit -m "fix(SAM-002): correct       │
+│       regex pattern causing false positives       │
+│                                                    │
+│       - Updated pattern to allow X                │
+│       - Added regression test                     │
+│       - Fixes #123"                               │
+│                                                    │
+│ Bash: git push                                     │
+│                                                    │
+│ Optional: Create brief incident note              │
+│ Write: docs/incidents/2025-10-17-SAM-002-fix.md  │
+└────────────────────────────────────────────────────┘
+
+Duration: 20 minutes</code></pre>
+
+<p>---</p>
+
+<h2>Handoff Protocols</h2>
+
+<h3>Between Workflow Phases</h3>
+
+<p><strong>ANALYSIS → FULL_TDD:</strong></p>
+<pre><code>Handoff Artifact: User Story (US-XXX.md)
+
+Required Content:
+  - User Story with ID
+  - SMART criteria
+  - Acceptance criteria (BDD format)
+  - Design notes (if complex)
+
+Verification:
+  - Read: US-XXX.md in new session
+  - Confirm: All acceptance criteria clear
+  - Identify: Test cases from AC</code></pre>
+
+<p><strong>FULL_TDD → REVIEW:</strong></p>
+<pre><code>Handoff Artifact: Git commits + changed files
+
+Required Content:
+  - Semantic commits (test, feat, refactor)
+  - All tests passing
+  - No linting errors
+
+Verification:
+  - Bash: git log --oneline -5
+  - Bash: git diff main
+  - Bash: pytest &amp;&amp; ruff check src</code></pre>
+
+<p><strong>REVIEW → REFACTOR:</strong></p>
+<pre><code>Handoff Artifact: Review report
+
+Required Content:
+  - docs/reviews/&lt;ID&gt;-review.md
+  - Categorized findings
+  - Verdict
+
+Verification:
+  - Read: Review report
+  - Identify: Refactor opportunities
+  - Prioritize: High-impact improvements</code></pre>
+
+<h3>Between Sessions (Same Developer)</h3>
+
+<p><strong>Session End Checklist:</strong></p>
+<pre><code>If work NOT complete:
+  - [ ] Create HANDOFF-NOTES.md
+  - [ ] Commit WIP changes
+  - [ ] Update US-XXX status
+  - [ ] Document blockers (if any)
+
+If work complete:
+  - [ ] Update US-XXX status → "Ready for Review"
+  - [ ] Ensure all commits pushed
+  - [ ] Update CHANGELOG.md (if needed)
+  - [ ] No handoff needed</code></pre>
+
+<p><strong>Session Start Checklist:</strong></p>
+<pre><code>Always:
+  - [ ] Read: CLAUDE.md
+  - [ ] Bash: git status
+  - [ ] Bash: git log --oneline -5
+
+If continuing work:
+  - [ ] Read: HANDOFF-NOTES.md (if exists)
+  - [ ] Read: US-XXX.md
+  - [ ] Review: Last commit messages
+
+If new work:
+  - [ ] Read: EPIC-XXX.md
+  - [ ] Identify: Next US to work on
+  - [ ] Read: US-XXX.md</code></pre>
+
+<h3>Between Agent Roles (BMad Method)</h3>
+
+<p><strong>When using BMad Method agents (Codex):</strong></p>
+
+<pre><code>Claude Code (Analysis) → Codex (BMad PM):
+  Handoff: Draft User Story
+  Tool: Write US-XXX.md draft
+  Next: Codex PM validates and finalizes
+
+Codex (BMad Architect) → Claude Code (Implementation):
+  Handoff: Architecture design docs
+  Tool: Read architecture docs in Claude
+  Next: Claude implements following design
+
+Claude Code (Implementation) → Codex (BMad QA):
+  Handoff: Code + commits
+  Tool: Git repo state
+  Next: Codex QA reviews using *review command</code></pre>
+
+<p><strong>Agent Mapping Reference:</strong></p>
+<p>| Claude Code Mode | Codex BMad Agent | Purpose |</p>
+<p>|------------------|------------------|---------|</p>
+<p>| Analysis mode | bmad-analyst | Research, planning |</p>
+<p>| Design mode | bmad-architect | Architecture design |</p>
+<p>| Implementation | bmad-dev | Code implementation |</p>
+<p>| Review mode | bmad-reviewer | Code review |</p>
+<p>| Workflow mode | bmad-pm | Process coordination |</p>
+
+<p>---</p>
+
+<h2>Advanced Patterns</h2>
+
+<h3>Pattern 1: Multi-Session Feature Development</h3>
+
+<p><strong>Scenario:</strong> Large feature requiring multiple sessions.</p>
+
+<p><strong>Strategy:</strong></p>
+<ol>
+<li>**Session 1 (ANALYSIS):** Create User Story</li>
+<li>**Session 2 (FULL_TDD Part 1):** Implement core logic</li>
+<li>**Session 3 (FULL_TDD Part 2):** Implement UI integration</li>
+<li>**Session 4 (REVIEW + REFACTOR):** Polish and optimize</li>
+</ol>
+
+<p><strong>Session Boundaries:</strong></p>
+<pre><code>Use US-XXX subtasks:
+  - [ ] Task 1: Core service logic
+  - [ ] Task 2: UI integration
+  - [ ] Task 3: Tests and validation
+
+Complete one subtask per session
+Commit between sessions
+Use HANDOFF-NOTES.md</code></pre>
+
+<h3>Pattern 2: Parallel Work Streams</h3>
+
+<p><strong>Scenario:</strong> Working on bug fix while designing new feature.</p>
+
+<p><strong>Strategy:</strong></p>
+<pre><code>Workflow A (HOTFIX): Bug fix in progress
+  - Branch: hotfix/SAM-002-fix
+  - Session: 20 minutes
+  - Complete and merge
+
+Workflow B (ANALYSIS): New feature design
+  - Branch: feature/US-450-analysis
+  - Session: 30 minutes
+  - Continue later
+
+Git branching:
+  main
+   ├── hotfix/SAM-002-fix (active)
+   └── feature/US-450-analysis (paused)</code></pre>
+
+<p><strong>Session Management:</strong></p>
+<ul>
+<li>Use git branches to isolate work</li>
+<li>One workflow per session (no context switching)</li>
+<li>HANDOFF-NOTES.md per branch if needed</li>
+</ul>
+
+<h3>Pattern 3: Emergency Context Switch</h3>
+
+<p><strong>Scenario:</strong> Working on feature, production bug reported.</p>
+
+<p><strong>Strategy:</strong></p>
+<pre><code>1. Current State Snapshot:
+   - Bash: git stash save "WIP: US-XXX partial implementation"
+   - Write: Quick HANDOFF-NOTES.md
+
+2. Switch to HOTFIX:
+   - Bash: git checkout main
+   - Bash: git checkout -b hotfix/emergency-fix
+   - Execute HOTFIX workflow
+
+3. Return to Feature:
+   - Bash: git checkout feature/US-XXX
+   - Bash: git stash pop
+   - Read: HANDOFF-NOTES.md
+   - Continue FULL_TDD workflow</code></pre>
+
+<p>---</p>
+
+<h2>Cheat Sheet</h2>
+
+<h3>Quick Workflow Selection</h3>
+
+<p>| Situation | Workflow | Duration |</p>
+<p>|-----------|----------|----------|</p>
+<p>| "What should I build?" | ANALYSIS | 15-30 min |</p>
+<p>| "Build new feature" | FULL_TDD | 30-90 min |</p>
+<p>| "Production is broken" | HOTFIX | 10-30 min |</p>
+<p>| "Code is messy" | REFACTOR | 15-30 min |</p>
+<p>| "Need code review" | REVIEW | 15-30 min |</p>
+<p>| "Fix the docs" | DOCUMENT | 5-20 min |</p>
+
+<h3>Essential Commands</h3>
+
+<pre><code># Session Start
+git status
+git log --oneline -5
+
+# Testing
+pytest tests/path/to/test.py
+pytest --cov=src --cov-report=html
+pytest -m unit
+
+# Quality
+ruff check src
+black src
+pre-commit run --all-files
+
+# Development
+bash scripts/run_app.sh
+make dev
+
+# Session End
+git add .
+git commit -m "type(scope): description"
+git push</code></pre>
+
+<h3>File Locations Quick Reference</h3>
+
+<pre><code>User Stories:       docs/backlog/EPIC-XXX/US-XXX/US-XXX.md
+Architecture:       docs/architectuur/
+Reviews:            docs/reviews/&lt;ID&gt;-review.md
+Refactor Log:       docs/refactor-log.md
+Session Handoffs:   docs/backlog/EPIC-XXX/US-XXX/HANDOFF-NOTES.md
+Tests:              tests/ (mirror src/ structure)
+Source:             src/</code></pre>
+
+<p>---</p>
+
+<h2>References</h2>
+
+<ul>
+<li>**CLAUDE.md:** Project-specific instructions</li>
+<li>**UNIFIED_INSTRUCTIONS.md:** ~/.ai-agents/UNIFIED_INSTRUCTIONS.md</li>
+<li>**TDD_TO_DEPLOYMENT_WORKFLOW.md:** Full TDD workflow details</li>
+<li>**WORKFLOW_LIBRARY.md:** All available workflows</li>
+<li>**CANONICAL_LOCATIONS.md:** File organization rules</li>
+</ul>
+
+<p>---</p>
+
+<p><strong>Last Updated:</strong> 2025-10-17</p>
+<p><strong>Status:</strong> Active</p>
+<p><strong>Owner:</strong> Development</p>
+<p><strong>Next Review:</strong> 2025-11-17</p>
+
+  </div>
+</body>
+</html>
