@@ -390,7 +390,7 @@ class UnifiedExamplesGenerator:
     @with_full_resilience(
         endpoint_name="examples_generation_sentence",
         priority=RequestPriority.NORMAL,
-        timeout=10.0,
+        timeout=20.0,  # Verhoogd van 10s naar 20s voor parallelle processing
         model=None,
         expected_tokens=200,
     )
@@ -401,7 +401,7 @@ class UnifiedExamplesGenerator:
     @with_full_resilience(
         endpoint_name="examples_generation_practical",
         priority=RequestPriority.NORMAL,
-        timeout=10.0,
+        timeout=20.0,  # Verhoogd van 10s naar 20s voor parallelle processing
         model=None,
         expected_tokens=200,
     )
@@ -412,7 +412,7 @@ class UnifiedExamplesGenerator:
     @with_full_resilience(
         endpoint_name="examples_generation_counter",
         priority=RequestPriority.NORMAL,
-        timeout=10.0,
+        timeout=20.0,  # Verhoogd van 10s naar 20s voor parallelle processing
         model=None,
         expected_tokens=200,
     )
@@ -423,7 +423,7 @@ class UnifiedExamplesGenerator:
     @with_full_resilience(
         endpoint_name="examples_generation_synonyms",
         priority=RequestPriority.NORMAL,
-        timeout=10.0,
+        timeout=30.0,  # Verhoogd van 10s naar 30s (5 items + parallel processing)
         model=None,
         expected_tokens=200,
     )
@@ -434,7 +434,7 @@ class UnifiedExamplesGenerator:
     @with_full_resilience(
         endpoint_name="examples_generation_antonyms",
         priority=RequestPriority.NORMAL,
-        timeout=10.0,
+        timeout=30.0,  # Verhoogd van 10s naar 30s (5 items + parallel processing)
         model=None,
         expected_tokens=200,
     )
@@ -445,7 +445,7 @@ class UnifiedExamplesGenerator:
     @with_full_resilience(
         endpoint_name="examples_generation_explanation",
         priority=RequestPriority.NORMAL,
-        timeout=10.0,
+        timeout=30.0,  # Verhoogd van 10s naar 30s voor parallelle processing
         model=None,
         expected_tokens=200,
     )

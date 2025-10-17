@@ -373,6 +373,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "DEF-19 & DEF-20 Implementation Guide",
+      "path": "../implementation-plans/DEF-19-20-IMPLEMENTATION-GUIDE.md",
+      "url": "../implementation-plans/DEF-19-20-IMPLEMENTATION-GUIDE.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/implementation-plans/DEF-19-20-IMPLEMENTATION-GUIDE.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Juridische Synoniemen & Query Optimization",
       "path": "../technisch/web_lookup_synoniemen.md",
       "url": "../technisch/web_lookup_synoniemen.md",
@@ -7980,6 +8011,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "DEF-19 & DEF-20: Confidence Scoring & Test Suite Analysis",
+      "path": "../analyses/DEF-19-20-PRACTICAL-ANALYSIS.md",
+      "url": "../analyses/DEF-19-20-PRACTICAL-ANALYSIS.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/DEF-19-20-PRACTICAL-ANALYSIS.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Perplexity API Decision Summary",
       "path": "../analyses/PERPLEXITY_DECISION_SUMMARY.md",
       "url": "../analyses/PERPLEXITY_DECISION_SUMMARY.md",
@@ -8007,6 +8069,37 @@
         "req": []
       },
       "rendered_url": "rendered/analyses/PERPLEXITY_DECISION_SUMMARY.html"
+    },
+    {
+      "id": "DECISION-MATRIX-DEF-17-18",
+      "type": "DOC",
+      "title": "DEF-17/18 Decision Matrix: NLP vs Heuristics",
+      "path": "../analyses/DEF-17-18-decision-matrix.md",
+      "url": "../analyses/DEF-17-18-decision-matrix.md",
+      "status": "approved",
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": "decision-record",
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/DEF-17-18-decision-matrix.html"
     },
     {
       "id": null,
@@ -8166,6 +8259,37 @@
         "req": []
       },
       "rendered_url": "rendered/analyses/MONITORING_BUG_ANALYSIS_STARTUP_METRIC.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "DEF-15 & DEF-16: Implementation Checklist",
+      "path": "../analyses/DEF-15-16-IMPLEMENTATION-CHECKLIST.md",
+      "url": "../analyses/DEF-15-16-IMPLEMENTATION-CHECKLIST.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/DEF-15-16-IMPLEMENTATION-CHECKLIST.html"
     },
     {
       "id": null,
@@ -8492,6 +8616,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "DEF-19 & DEF-20 Executive Summary",
+      "path": "../analyses/DEF-19-20-EXECUTIVE-SUMMARY.md",
+      "url": "../analyses/DEF-19-20-EXECUTIVE-SUMMARY.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/DEF-19-20-EXECUTIVE-SUMMARY.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Classification Pipeline Patterns - Visual Comparison",
       "path": "../analyses/CLASSIFICATION_PIPELINE_COMPARISON.md",
       "url": "../analyses/CLASSIFICATION_PIPELINE_COMPARISON.md",
@@ -8556,6 +8711,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "DEF-15 & DEF-16: Term-Based Classifier Analysis - Documentation Guide",
+      "path": "../analyses/DEF-15-16-README.md",
+      "url": "../analyses/DEF-15-16-README.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/DEF-15-16-README.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "🔴 PARANOID RISK ANALYSIS: Synoniemen-Optimalisatie Solution",
       "path": "../analyses/synonym-optimization-risk-analysis.md",
       "url": "../analyses/synonym-optimization-risk-analysis.md",
@@ -8583,6 +8769,37 @@
         "req": []
       },
       "rendered_url": "rendered/analyses/synonym-optimization-risk-analysis.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "DEF-15 & DEF-16: Executive Summary",
+      "path": "../analyses/DEF-15-16-EXECUTIVE-SUMMARY.md",
+      "url": "../analyses/DEF-15-16-EXECUTIVE-SUMMARY.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/DEF-15-16-EXECUTIVE-SUMMARY.html"
     },
     {
       "id": null,
@@ -8620,6 +8837,37 @@
         "req": []
       },
       "rendered_url": "rendered/analyses/LEVEL_CLASSIFIER_EXECUTIVE_SUMMARY.html"
+    },
+    {
+      "id": "ANALYSIS-DEF-17-18",
+      "type": "DOC",
+      "title": "DEF-17 & DEF-18 Pragmatic Analysis: Compound Heads & Instance Markers",
+      "path": "../analyses/DEF-17-18-pragmatic-analysis.md",
+      "url": "../analyses/DEF-17-18-pragmatic-analysis.md",
+      "status": "final",
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": "term-based-ontology-classifier",
+      "category": "technical-analysis",
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/DEF-17-18-pragmatic-analysis.html"
     },
     {
       "id": null,
@@ -9237,6 +9485,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "DEF-15 & DEF-16: Pragmatic Term-Based Classifier Analysis",
+      "path": "../analyses/DEF-15-16-PRAGMATIC-ANALYSIS.md",
+      "url": "../analyses/DEF-15-16-PRAGMATIC-ANALYSIS.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/DEF-15-16-PRAGMATIC-ANALYSIS.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Perplexity API Haalbaarheidsanalyse voor Nederlandse Juridische Definitie Lookup",
       "path": "../analyses/PERPLEXITY_API_FEASIBILITY_ANALYSIS.md",
       "url": "../analyses/PERPLEXITY_API_FEASIBILITY_ANALYSIS.md",
@@ -9611,6 +9890,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "RESULTAAT Promptinjectie - Gedetailleerde Analyse",
+      "path": "../analyses/RESULTAAT_PROMPT_INJECTION_ANALYSIS.md",
+      "url": "../analyses/RESULTAAT_PROMPT_INJECTION_ANALYSIS.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/RESULTAAT_PROMPT_INJECTION_ANALYSIS.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Ontology Classifier Comparison Analysis",
       "path": "../analyses/classifier-comparison.md",
       "url": "../analyses/classifier-comparison.md",
@@ -9669,6 +9979,37 @@
         "req": []
       },
       "rendered_url": "rendered/analyses/SYNONYM_AUTOMATION_SUMMARY.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "DEF-15 & DEF-16: Spec vs Reality Comparison",
+      "path": "../analyses/DEF-15-16-COMPARISON.md",
+      "url": "../analyses/DEF-15-16-COMPARISON.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/DEF-15-16-COMPARISON.html"
     },
     {
       "id": null,
@@ -43694,7 +44035,7 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 716,
+      "DOC": 727,
       "ARCH": 42,
       "COMP": 5,
       "TEST": 35,
@@ -43704,7 +44045,7 @@
       "US": 267,
       "BUG": 18
     },
-    "generated_at": "2025-10-16T07:48:55Z"
+    "generated_at": "2025-10-17T09:40:58Z"
   },
   "sources": [
     "docs"
