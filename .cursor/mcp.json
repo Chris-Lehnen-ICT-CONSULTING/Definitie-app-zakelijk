@@ -1,0 +1,18 @@
+{
+  "mcpServers": {
+    "perplexity": {
+      "command": "/bin/bash",
+      "args": [
+        "/Users/chrislehnen/Projecten/Definitie-app/scripts/mcp/perplexity-mcp.sh"
+      ],
+      "env": {}
+    },
+    "context7": {
+      "command": "/bin/bash",
+      "args": [
+        "/Users/chrislehnen/Projecten/Definitie-app/scripts/mcp/context7-mcp.sh"
+      ],
+      "env": {}
+    }
+  }
+}

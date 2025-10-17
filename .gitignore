@@ -161,3 +161,7 @@ reports/
 # BMAD (local only)
 .bmad-core/
 .bmad-*/
+
+# Portal generated HTML (build artifacts)
+docs/portal/rendered/
+docs/portal/portal-index.json
