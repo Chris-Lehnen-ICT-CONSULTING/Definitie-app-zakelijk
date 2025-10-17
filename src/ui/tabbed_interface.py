@@ -329,8 +329,45 @@ class TabbedInterface:
 
         DEF-36: Preview van pre-geclassificeerde categorie voor gebruiker, met override optie.
         """
-        determined_category = SessionStateManager.get_value("determined_category")
+        # DEF-36 FIX: Trigger classificatie HIER (na context selector render)
+        begrip = SessionStateManager.get_value("begrip", "")
+        if begrip.strip():
+            determined_category = SessionStateManager.get_value("determined_category")
 
+            # Als nog geen classificatie gedaan, doe het nu (met huidige context)
+            if not determined_category:
+                context_data = SessionStateManager.get_value("global_context", {})
+                org_context = context_data.get("organisatorische_context", [])
+                jur_context = context_data.get("juridische_context", [])
+
+                # Alleen classificeren als we context hebben
+                if org_context or jur_context:
+                    primary_org = org_context[0] if org_context else ""
+                    primary_jur = jur_context[0] if jur_context else ""
+
+                    try:
+                        auto_categorie, reasoning, scores = asyncio.run(
+                            self._determine_ontological_category(
+                                begrip, primary_org, primary_jur
+                            )
+                        )
+
+                        # Sla op in session state
+                        SessionStateManager.set_value("determined_category", auto_categorie.value)
+                        SessionStateManager.set_value("category_reasoning", reasoning)
+                        SessionStateManager.set_value("category_scores", scores)
+
+                        logger.info(
+                            f"DEF-36: Pre-classificatie voor '{begrip}': {auto_categorie.value} "
+                            f"(scores: {scores})"
+                        )
+
+                        determined_category = auto_categorie.value
+                    except Exception as e:
+                        logger.warning(f"Auto-classificatie mislukt: {e}")
+                        return
+
+        determined_category = SessionStateManager.get_value("determined_category")
         if not determined_category:
             return
 
