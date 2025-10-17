@@ -7749,6 +7749,39 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "CI Failures Analysis & Fix Plan",
+      "path": "../analyses/CI_FAILURES_ANALYSIS.md",
+      "url": "../analyses/CI_FAILURES_ANALYSIS.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [
+          "EPIC-010"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/CI_FAILURES_ANALYSIS.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Ontological Category Classification - Flow Diagram",
       "path": "../analyses/LEVEL_CLASSIFIER_FLOW_DIAGRAM.md",
       "url": "../analyses/LEVEL_CLASSIFIER_FLOW_DIAGRAM.md",
@@ -55608,7 +55641,7 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 919,
+      "DOC": 920,
       "ARCH": 42,
       "COMP": 5,
       "TEST": 35,
@@ -55618,7 +55651,7 @@
       "BUG": 28,
       "REQ": 110
     },
-    "generated_at": "2025-10-17T13:47:17Z"
+    "generated_at": "2025-10-17T14:08:05Z"
   },
   "sources": [
     "docs"
