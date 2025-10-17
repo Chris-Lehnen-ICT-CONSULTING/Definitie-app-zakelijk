@@ -280,6 +280,128 @@ class TabbedInterface:
                 fallback_scores,
             )
 
+    def _classify_term_on_change(self):
+        """Classificeer term zodra begrip + context compleet zijn.
+
+        DEF-36: Pre-classificatie bij on_change event van begrip input.
+        Resultaten worden opgeslagen in session state voor gebruik tijdens generatie.
+        """
+        begrip = SessionStateManager.get_value("begrip", "")
+        if not begrip.strip():
+            # Wis determined category als begrip leeg is
+            SessionStateManager.clear_value("determined_category")
+            SessionStateManager.clear_value("category_reasoning")
+            SessionStateManager.clear_value("category_scores")
+            return
+
+        context_data = SessionStateManager.get_value("global_context", {})
+        org_context = context_data.get("organisatorische_context", [])
+        jur_context = context_data.get("juridische_context", [])
+
+        primary_org = org_context[0] if org_context else ""
+        primary_jur = jur_context[0] if jur_context else ""
+
+        # Classificeer
+        try:
+            auto_categorie, reasoning, scores = asyncio.run(
+                self._determine_ontological_category(begrip, primary_org, primary_jur)
+            )
+
+            # Sla op in session state voor gebruik tijdens generatie
+            SessionStateManager.set_value("determined_category", auto_categorie.value)
+            SessionStateManager.set_value("category_reasoning", reasoning)
+            SessionStateManager.set_value("category_scores", scores)
+
+            logger.info(
+                f"DEF-36: Pre-classificatie voor '{begrip}': {auto_categorie.value} "
+                f"(scores: {scores})"
+            )
+
+        except Exception as e:
+            logger.warning(f"Auto-classificatie mislukt tijdens on_change: {e}")
+            # Bij fout: clear determined category (fallback naar realtime tijdens generatie)
+            SessionStateManager.clear_value("determined_category")
+            SessionStateManager.clear_value("category_reasoning")
+            SessionStateManager.clear_value("category_scores")
+
+    def _render_category_preview(self):
+        """Toon voorgestelde ontologische categorie met mogelijkheid tot override.
+
+        DEF-36: Preview van pre-geclassificeerde categorie voor gebruiker, met override optie.
+        """
+        # DEF-36 FIX: Trigger classificatie HIER (na context selector render)
+        begrip = SessionStateManager.get_value("begrip", "")
+        if begrip.strip():
+            determined_category = SessionStateManager.get_value("determined_category")
+
+            # Als nog geen classificatie gedaan, doe het nu (met huidige context)
+            if not determined_category:
+                context_data = SessionStateManager.get_value("global_context", {})
+                org_context = context_data.get("organisatorische_context", [])
+                jur_context = context_data.get("juridische_context", [])
+
+                # Alleen classificeren als we context hebben
+                if org_context or jur_context:
+                    primary_org = org_context[0] if org_context else ""
+                    primary_jur = jur_context[0] if jur_context else ""
+
+                    try:
+                        auto_categorie, reasoning, scores = asyncio.run(
+                            self._determine_ontological_category(
+                                begrip, primary_org, primary_jur
+                            )
+                        )
+
+                        # Sla op in session state
+                        SessionStateManager.set_value("determined_category", auto_categorie.value)
+                        SessionStateManager.set_value("category_reasoning", reasoning)
+                        SessionStateManager.set_value("category_scores", scores)
+
+                        logger.info(
+                            f"DEF-36: Pre-classificatie voor '{begrip}': {auto_categorie.value} "
+                            f"(scores: {scores})"
+                        )
+
+                        determined_category = auto_categorie.value
+                    except Exception as e:
+                        logger.warning(f"Auto-classificatie mislukt: {e}")
+                        return
+
+        determined_category = SessionStateManager.get_value("determined_category")
+        if not determined_category:
+            return
+
+        st.markdown("#### 🎯 Ontologische Categorie")
+
+        col1, col2 = st.columns([2, 1])
+
+        with col1:
+            # Toon voorgestelde categorie met confidence
+            reasoning = SessionStateManager.get_value("category_reasoning", "")
+            scores = SessionStateManager.get_value("category_scores", {})
+
+            st.info(f"**Voorgesteld:** {determined_category}")
+            with st.expander("ℹ️ Waarom deze categorie?"):
+                st.write(reasoning)
+                if scores:
+                    st.write("**Scores:**", scores)
+
+        with col2:
+            # Mogelijkheid tot override
+            manual_override = st.selectbox(
+                "Aanpassen?",
+                options=["", "TYPE", "EXEMPLAAR", "PROCES", "RESULTAAT"],
+                index=0,
+                key="manual_category_override",
+                help="Laat leeg om voorgestelde categorie te gebruiken",
+            )
+
+            if manual_override:
+                SessionStateManager.set_value(
+                    "manual_ontological_category", manual_override
+                )
+                st.success(f"✓ Gebruik {manual_override}")
+
     def _legacy_pattern_matching(self, begrip: str) -> str:
         """Legacy pattern matching voor fallback situaties."""
         begrip_lower = begrip.lower()
@@ -493,6 +615,8 @@ class TabbedInterface:
             value=SessionStateManager.get_value("begrip", ""),
             placeholder="bijv. authenticatie, verificatie, identiteitsvaststelling...",
             help="Het centrale begrip waarvoor een definitie gegenereerd wordt",
+            on_change=self._classify_term_on_change,  # DEF-36: Pre-classificatie trigger
+            key="begrip_input",  # DEF-36: Unique key voor on_change
         )
         SessionStateManager.set_value("begrip", begrip)
 
@@ -534,6 +658,13 @@ class TabbedInterface:
         except Exception as e:
             logger.error(f"Metadata fields crashed: {e}", exc_info=True)
             st.error(f"❌ Metadata velden fout: {type(e).__name__}: {e!s}")
+
+        # DEF-36: Toon category preview VOOR generatie button
+        try:
+            self._render_category_preview()
+        except Exception as e:
+            logger.error(f"Category preview crashed: {e}", exc_info=True)
+            st.error(f"❌ Category preview fout: {type(e).__name__}: {e!s}")
 
         # Genereer definitie knop direct na context
         st.markdown("---")
@@ -730,12 +861,46 @@ class TabbedInterface:
                         f"Gebruik handmatige categorie override: {manual_category}"
                     )
                 else:
-                    # Bepaal automatisch de ontologische categorie
-                    auto_categorie, category_reasoning, category_scores = asyncio.run(
-                        self._determine_ontological_category(
-                            begrip, primary_org, primary_jur
-                        )
+                    # DEF-36: Check voor pre-geclassificeerde categorie (MEDIUM priority)
+                    determined_category = SessionStateManager.get_value(
+                        "determined_category"
                     )
+
+                    if determined_category:
+                        # Gebruik pre-geclassificeerde categorie uit on_change event
+                        from domain.ontological_categories import OntologischeCategorie
+
+                        # Converteer string naar OntologischeCategorie enum
+                        category_map = {
+                            "TYPE": OntologischeCategorie.TYPE,
+                            "PROCES": OntologischeCategorie.PROCES,
+                            "RESULTAAT": OntologischeCategorie.RESULTAAT,
+                            "EXEMPLAAR": OntologischeCategorie.EXEMPLAAR,
+                        }
+                        auto_categorie = category_map.get(
+                            determined_category, OntologischeCategorie.PROCES
+                        )
+                        category_reasoning = SessionStateManager.get_value(
+                            "category_reasoning", ""
+                        )
+                        category_scores = SessionStateManager.get_value(
+                            "category_scores", {}
+                        )
+                        logger.info(
+                            f"DEF-36: Gebruik pre-geclassificeerde categorie: {determined_category}"
+                        )
+                    else:
+                        # FALLBACK: Bepaal automatisch de ontologische categorie (realtime)
+                        auto_categorie, category_reasoning, category_scores = (
+                            asyncio.run(
+                                self._determine_ontological_category(
+                                    begrip, primary_org, primary_jur
+                                )
+                            )
+                        )
+                        logger.info(
+                            "DEF-36: Geen pre-classificatie beschikbaar, gebruik realtime classificatie"
+                        )
 
                 # Krijg document context en selected document IDs
                 document_context = self._get_document_context()
@@ -1241,6 +1406,10 @@ class TabbedInterface:
             "last_generation_result",
             "last_check_result",
             "manual_ontological_category",  # Wis ook handmatige categorie override
+            # DEF-36: Wis ook determined category variabelen
+            "determined_category",
+            "category_reasoning",
+            "category_scores",
         ]
 
         for field in fields_to_clear:

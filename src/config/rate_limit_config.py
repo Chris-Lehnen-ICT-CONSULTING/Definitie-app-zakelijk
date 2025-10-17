@@ -26,46 +26,46 @@ class EndpointConfig:
 ENDPOINT_CONFIGS: dict[str, EndpointConfig] = {
     # Voorbeelden generatie endpoints - hogere rate limits voor parallel processing
     "examples_generation_sentence": EndpointConfig(
-        tokens_per_second=3.0,  # 3 requests per seconde
-        bucket_capacity=15,  # Grotere bucket voor bursts
-        burst_capacity=10,  # Meer burst capacity
-        target_response_time=2.0,  # Target response tijd
-        timeout=15.0,  # Langere timeout
+        tokens_per_second=5.0,  # Verhoogd van 3.0 naar 5.0 voor snellere parallel processing
+        bucket_capacity=20,  # Verhoogd van 15 naar 20 voor grotere bursts
+        burst_capacity=12,  # Verhoogd van 10 naar 12
+        target_response_time=2.0,
+        timeout=20.0,  # Sync met decorator timeout
     ),
     "examples_generation_practical": EndpointConfig(
-        tokens_per_second=3.0,
-        bucket_capacity=15,
-        burst_capacity=10,
+        tokens_per_second=5.0,  # Verhoogd van 3.0 naar 5.0
+        bucket_capacity=20,  # Verhoogd van 15 naar 20
+        burst_capacity=12,  # Verhoogd van 10 naar 12
         target_response_time=2.0,
-        timeout=15.0,
+        timeout=20.0,  # Sync met decorator timeout
     ),
     "examples_generation_counter": EndpointConfig(
-        tokens_per_second=3.0,
-        bucket_capacity=15,
-        burst_capacity=10,
+        tokens_per_second=5.0,  # Verhoogd van 3.0 naar 5.0
+        bucket_capacity=20,  # Verhoogd van 15 naar 20
+        burst_capacity=12,  # Verhoogd van 10 naar 12
         target_response_time=2.0,
-        timeout=15.0,
+        timeout=20.0,  # Sync met decorator timeout
     ),
     "examples_generation_synonyms": EndpointConfig(
-        tokens_per_second=3.0,
-        bucket_capacity=15,
-        burst_capacity=10,
+        tokens_per_second=5.0,  # Verhoogd van 3.0 naar 5.0
+        bucket_capacity=20,  # Verhoogd van 15 naar 20
+        burst_capacity=12,  # Verhoogd van 10 naar 12
         target_response_time=2.0,
-        timeout=20.0,  # Verhoogde timeout voor 5 items
+        timeout=30.0,  # Sync met decorator timeout (5 items)
     ),
     "examples_generation_antonyms": EndpointConfig(
-        tokens_per_second=3.0,
-        bucket_capacity=15,
-        burst_capacity=10,
+        tokens_per_second=5.0,  # Verhoogd van 3.0 naar 5.0
+        bucket_capacity=20,  # Verhoogd van 15 naar 20
+        burst_capacity=12,  # Verhoogd van 10 naar 12
         target_response_time=2.0,
-        timeout=20.0,  # Verhoogde timeout voor 5 items
+        timeout=30.0,  # Sync met decorator timeout (5 items)
     ),
     "examples_generation_explanation": EndpointConfig(
-        tokens_per_second=1.5,
-        bucket_capacity=8,
-        burst_capacity=4,
+        tokens_per_second=3.0,  # Verhoogd van 1.5 naar 3.0
+        bucket_capacity=12,  # Verhoogd van 8 naar 12
+        burst_capacity=6,  # Verhoogd van 4 naar 6
         target_response_time=3.0,
-        timeout=20.0,
+        timeout=30.0,  # Sync met decorator timeout
     ),
     # Definitie generatie endpoints - normale rate limits
     "definition_generation": EndpointConfig(
