@@ -12,6 +12,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent / "src"))
 
 import re
+
 # Simuleer level_classifier.py (inlined hier omdat het een extern gegeven bestand is)
 from dataclasses import dataclass
 from typing import Dict, List, Optional, Tuple
@@ -24,19 +25,25 @@ ONBESLIST = "ONBESLIST"
 
 ALL_LABELS = [TYPE, EXEMPLAAR, PROCES, RESULTAAT]
 
+
 @dataclass(frozen=True)
 class Policy:
     min_winner_score: float
     min_margin: float
     tie_break_bonus: float
 
-POLICIES: Dict[str, Policy] = {
-    "conservatief": Policy(min_winner_score=0.40, min_margin=0.15, tie_break_bonus=0.05),
-    "gebalanceerd": Policy(min_winner_score=0.30, min_margin=0.12, tie_break_bonus=0.06),
-    "gevoelig":     Policy(min_winner_score=0.20, min_margin=0.08, tie_break_bonus=0.08),
+
+POLICIES: dict[str, Policy] = {
+    "conservatief": Policy(
+        min_winner_score=0.40, min_margin=0.15, tie_break_bonus=0.05
+    ),
+    "gebalanceerd": Policy(
+        min_winner_score=0.30, min_margin=0.12, tie_break_bonus=0.06
+    ),
+    "gevoelig": Policy(min_winner_score=0.20, min_margin=0.08, tie_break_bonus=0.08),
 }
 
-CUES: Dict[str, List[re.Pattern]] = {
+CUES: dict[str, list[re.Pattern]] = {
     TYPE: [
         re.compile(r"\bsoort(en)?\b", re.I),
         re.compile(r"\btype(n)?\b", re.I),
@@ -55,20 +62,28 @@ CUES: Dict[str, List[re.Pattern]] = {
     ],
 }
 
-def _coerce_scores(scores: Dict[str, float]) -> Dict[str, float]:
-    base = {k: float(scores.get(k, 0.0)) for k in ["type", "exemplaar", "proces", "resultaat"]}
+
+def _coerce_scores(scores: dict[str, float]) -> dict[str, float]:
+    base = {
+        k: float(scores.get(k, 0.0))
+        for k in ["type", "exemplaar", "proces", "resultaat"]
+    }
     for k in base:
-        if base[k] < 0.0: base[k] = 0.0
-        if base[k] > 1.0: base[k] = 1.0
+        if base[k] < 0.0:
+            base[k] = 0.0
+        if base[k] > 1.0:
+            base[k] = 1.0
     return base
 
-def _softmax01(d: Dict[str, float]) -> Dict[str, float]:
+
+def _softmax01(d: dict[str, float]) -> dict[str, float]:
     s = sum(d.values())
     if s <= 0.0:
-        return {k: 1.0/4.0 for k in d}
+        return {k: 1.0 / 4.0 for k in d}
     return {k: (v / s) for k, v in d.items()}
 
-def _find_winner(norm: Dict[str, float]) -> Tuple[str, float, str, float, float]:
+
+def _find_winner(norm: dict[str, float]) -> tuple[str, float, str, float, float]:
     mapped = {
         TYPE: norm["type"],
         EXEMPLAAR: norm["exemplaar"],
@@ -80,7 +95,8 @@ def _find_winner(norm: Dict[str, float]) -> Tuple[str, float, str, float, float]
     margin = win_score - ru_score
     return win_label, win_score, ru_label, ru_score, margin
 
-def _tie_break(label: str, text: Optional[str]) -> bool:
+
+def _tie_break(label: str, text: str | None) -> bool:
     if not text:
         return False
     for pat in CUES[label]:
@@ -88,18 +104,22 @@ def _tie_break(label: str, text: Optional[str]) -> bool:
             return True
     return False
 
+
 def _confidence(win_score: float, margin: float) -> float:
     m_part = min(1.0, margin / 0.5)
     c = 0.6 * win_score + 0.4 * m_part
-    if c < 0.0: c = 0.0
-    if c > 1.0: c = 1.0
+    if c < 0.0:
+        c = 0.0
+    if c > 1.0:
+        c = 1.0
     return c
 
+
 def classify_level(
-    scores: Dict[str, float],
-    text_context: Optional[str] = None,
+    scores: dict[str, float],
+    text_context: str | None = None,
     policy_name: str = "gebalanceerd",
-) -> Dict[str, object]:
+) -> dict[str, object]:
     """Vierwaardige classificatie."""
     sc = _coerce_scores(scores)
     norm = _softmax01(sc)
@@ -123,7 +143,9 @@ def classify_level(
         if _tie_break(win_label, text_context):
             tie_used = True
             meets_margin = True
-            rationale_parts.append(f"Tie-breaker: positieve linguïstische cue voor {win_label} in context.")
+            rationale_parts.append(
+                f"Tie-breaker: positieve linguïstische cue voor {win_label} in context."
+            )
         else:
             rationale_parts.append("Tie-breaker: geen ondersteunende cue gevonden.")
 
@@ -139,7 +161,9 @@ def classify_level(
         if not meets_margin:
             rationale_parts.append("Marge onder minimale drempel.")
         if tie_used:
-            rationale_parts.append("Tie-breaker toegepast maar drempels blijven onvoldoende.")
+            rationale_parts.append(
+                "Tie-breaker toegepast maar drempels blijven onvoldoende."
+            )
 
     return {
         "level": level,
@@ -156,23 +180,47 @@ def classify_level(
         },
     }
 
+
 # Nu test met ECHTE scores uit de huidige implementatie
 def main():
-    print("\n" + "="*80)
+    print("\n" + "=" * 80)
     print("🧪 TEST: level_classifier.py met scores uit OntologischeAnalyzer")
-    print("="*80 + "\n")
+    print("=" * 80 + "\n")
 
     # Haal test scores uit de eerdere test
     test_cases = [
         # (begrip, scores uit current analyzer, verwachte categorie)
-        ("validatie", {"type": 0.30, "proces": 0.80, "resultaat": 0.00, "exemplaar": 0.00}, "PROCES"),
-        ("toets", {"type": 1.00, "proces": 0.00, "resultaat": 0.00, "exemplaar": 0.00}, "TYPE"),
-        ("besluit", {"type": 0.30, "proces": 0.00, "resultaat": 0.80, "exemplaar": 0.00}, "RESULTAAT"),
-        ("sanctie", {"type": 0.30, "proces": 0.40, "resultaat": 0.00, "exemplaar": 0.00}, "PROCES"),  # Problematisch
-
+        (
+            "validatie",
+            {"type": 0.30, "proces": 0.80, "resultaat": 0.00, "exemplaar": 0.00},
+            "PROCES",
+        ),
+        (
+            "toets",
+            {"type": 1.00, "proces": 0.00, "resultaat": 0.00, "exemplaar": 0.00},
+            "TYPE",
+        ),
+        (
+            "besluit",
+            {"type": 0.30, "proces": 0.00, "resultaat": 0.80, "exemplaar": 0.00},
+            "RESULTAAT",
+        ),
+        (
+            "sanctie",
+            {"type": 0.30, "proces": 0.40, "resultaat": 0.00, "exemplaar": 0.00},
+            "PROCES",
+        ),  # Problematisch
         # Edge cases
-        ("onbekend", {"type": 0.25, "proces": 0.25, "resultaat": 0.25, "exemplaar": 0.25}, "ONBESLIST?"),
-        ("systeem", {"type": 0.50, "proces": 0.00, "resultaat": 0.00, "exemplaar": 0.00}, "TYPE"),
+        (
+            "onbekend",
+            {"type": 0.25, "proces": 0.25, "resultaat": 0.25, "exemplaar": 0.25},
+            "ONBESLIST?",
+        ),
+        (
+            "systeem",
+            {"type": 0.50, "proces": 0.00, "resultaat": 0.00, "exemplaar": 0.00},
+            "TYPE",
+        ),
     ]
 
     successes = []
@@ -187,29 +235,35 @@ def main():
         # Classificeer met level_classifier
         result = classify_level(scores, text_context=begrip, policy_name="gebalanceerd")
 
-        print(f"   level_classifier: {result['level']} (conf={result['confidence']:.3f})")
+        print(
+            f"   level_classifier: {result['level']} (conf={result['confidence']:.3f})"
+        )
         print(f"   Rationale: {result['rationale']}")
 
         # Vergelijk
-        if result['level'] == verwacht:
-            print(f"   ✅ MATCH")
+        if result["level"] == verwacht:
+            print("   ✅ MATCH")
             successes.append(begrip)
-        elif "ONBESLIST" in verwacht and result['level'] == "ONBESLIST":
-            print(f"   ✅ MATCH (onbeslist)")
+        elif "ONBESLIST" in verwacht and result["level"] == "ONBESLIST":
+            print("   ✅ MATCH (onbeslist)")
             successes.append(begrip)
-        elif result['level'] == "ONBESLIST":
-            print(f"   ⚠️  VERBETERING: level_classifier zegt ONBESLIST (was: {verwacht})")
-            improvements.append((begrip, verwacht, result['level'], result['confidence']))
+        elif result["level"] == "ONBESLIST":
+            print(
+                f"   ⚠️  VERBETERING: level_classifier zegt ONBESLIST (was: {verwacht})"
+            )
+            improvements.append(
+                (begrip, verwacht, result["level"], result["confidence"])
+            )
         else:
             print(f"   ❌ VERSCHIL: verwacht {verwacht}, kreeg {result['level']}")
-            failures.append((begrip, verwacht, result['level'], result['confidence']))
+            failures.append((begrip, verwacht, result["level"], result["confidence"]))
 
         print()
 
     # Samenvatting
-    print("="*80)
+    print("=" * 80)
     print("📊 SAMENVATTING")
-    print("="*80)
+    print("=" * 80)
     print(f"Successen: {len(successes)}/{len(test_cases)}")
     print(f"Verbeteringen (ONBESLIST): {len(improvements)}")
     print(f"Failures: {len(failures)}")
@@ -222,11 +276,13 @@ def main():
     if failures:
         print("\n❌ FAILURES:")
         for begrip, verwacht, kreeg, conf in failures:
-            print(f"   • {begrip}: verwacht {verwacht}, kreeg {kreeg} (conf={conf:.3f})")
+            print(
+                f"   • {begrip}: verwacht {verwacht}, kreeg {kreeg} (conf={conf:.3f})"
+            )
 
-    print("\n" + "="*80)
+    print("\n" + "=" * 80)
     print("🔍 CONCLUSIE")
-    print("="*80)
+    print("=" * 80)
 
     total_ok = len(successes) + len(improvements)
     if total_ok == len(test_cases):
@@ -235,7 +291,10 @@ def main():
     elif failures:
         print(f"❌ level_classifier.py heeft {len(failures)} incompatibiliteiten")
     else:
-        print("⚠️  level_classifier.py werkt maar gedraagt zich anders (meer conservatief)")
+        print(
+            "⚠️  level_classifier.py werkt maar gedraagt zich anders (meer conservatief)"
+        )
+
 
 if __name__ == "__main__":
     main()

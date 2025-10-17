@@ -13226,6 +13226,41 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Vibe Coding Quick Reference for DefinitieAgent",
+      "path": "../workflows/vibe-coding-quick-reference.md",
+      "url": "../workflows/vibe-coding-quick-reference.md",
+      "status": "active",
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [
+          "EPIC-002",
+          "EPIC-003",
+          "EPIC-004"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/workflows/vibe-coding-quick-reference.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Validation Orchestrator V2 - Rollout Runbook",
       "path": "../workflows/validation_orchestrator_rollout.md",
       "url": "../workflows/validation_orchestrator_rollout.md",
@@ -13945,6 +13980,70 @@
         "req": []
       },
       "rendered_url": "rendered/architectuur/templates/TECHNICAL_ARCHITECTURE_TEMPLATE.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Vibe Coding Consensus Analysis - Executive Summary",
+      "path": "../methodologies/vibe-coding/CONSENSUS_ANALYSIS_EXECUTIVE_SUMMARY.md",
+      "url": "../methodologies/vibe-coding/CONSENSUS_ANALYSIS_EXECUTIVE_SUMMARY.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [
+          "EPIC-016"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/methodologies/vibe-coding/CONSENSUS_ANALYSIS_EXECUTIVE_SUMMARY.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Vibe Coding: Definitief Implementatievoorstel voor DefinitieAgent",
+      "path": "../methodologies/vibe-coding/VOORSTEL_IMPLEMENTATIE.md",
+      "url": "../methodologies/vibe-coding/VOORSTEL_IMPLEMENTATIE.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/methodologies/vibe-coding/VOORSTEL_IMPLEMENTATIE.html"
     },
     {
       "id": null,
@@ -41351,6 +41450,39 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Vibe Coding Methodology - Deep Analysis Report",
+      "path": "../analyses/VIBE_CODING_METHODOLOGY_DEEP_ANALYSIS.md",
+      "url": "../analyses/VIBE_CODING_METHODOLOGY_DEEP_ANALYSIS.md",
+      "status": "completed",
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [
+          "EPIC-002"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/VIBE_CODING_METHODOLOGY_DEEP_ANALYSIS.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Migration Guide: ValidationResult Changes",
       "path": "../api/migration-guide-validation-result.md",
       "url": "../api/migration-guide-validation-result.md",
@@ -44522,7 +44654,7 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 778,
+      "DOC": 782,
       "EPIC": 26,
       "US": 267,
       "BUG": 18,
@@ -44532,7 +44664,7 @@
       "TEST": 13,
       "COMP": 5
     },
-    "generated_at": "2025-10-17T10:47:40Z"
+    "generated_at": "2025-10-17T11:48:47Z"
   },
   "sources": [
     "docs"
