@@ -1,0 +1,593 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>BMad Method + Vibe Coding Integration Analysis</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>BMad Method + Vibe Coding Integration Analysis</h1>
+
+<p><strong>Date</strong>: 2025-01-17</p>
+<p><strong>Context</strong>: DefinitieAgent already uses BMad Method. This analysis examines how Vibe Coding can complement (not replace) BMad.</p>
+<p><strong>Critical Insight</strong>: Avoid methodology overload - integrate strategically, not comprehensively.</p>
+
+<p>---</p>
+
+<h2>Executive Summary</h2>
+
+<p><strong>Recommendation</strong>: Use <strong>Vibe Coding as tactical implementation guidance</strong> within BMad's strategic workflow framework. BMad provides structure (planning → execution → quality gates), while Vibe Coding provides AI prompting techniques for better code generation quality.</p>
+
+<p><strong>Integration Pattern</strong>: BMad = "What to Build" | Vibe Coding = "How to Prompt AI to Build It"</p>
+
+<p>---</p>
+
+<h2>1. Gap Analysis: What BMad Lacks That Vibe Coding Provides</h2>
+
+<h3>1.1 AI Prompting Techniques (MAJOR GAP)</h3>
+
+<p><strong>BMad Approach</strong>:</p>
+<ul>
+<li>Dev agent receives story with tasks/subtasks</li>
+<li>Implements sequentially with minimal prompting guidance</li>
+<li>Focus on **what** to build, not **how** to prompt AI</li>
+</ul>
+
+<p><strong>Vibe Coding Strength</strong>:</p>
+<ul>
+<li>**21 specialized prompting patterns** (Warmup, Chain of Thought, Parallel Prompts, etc.)</li>
+<li>Explicit prompt structures for different scenarios</li>
+<li>**AI-first workflow optimization** (spec-driven, PM framework, MCP discipline)</li>
+</ul>
+
+<p><strong>Impact</strong>: BMad developers could benefit from Vibe Coding's prompting techniques during implementation.</p>
+
+<p>---</p>
+
+<h3>1.2 Mini-Spec Pattern (MODERATE GAP)</h3>
+
+<p><strong>BMad Approach</strong>:</p>
+<ul>
+<li>Full PRD → Architecture → Sharded Epics → Stories</li>
+<li>Heavy upfront planning (excellent for complex projects)</li>
+<li>Stories contain detailed Dev Notes section</li>
+</ul>
+
+<p><strong>Vibe Coding Strength</strong>:</p>
+<ul>
+<li>**Mini-Spec**: 1-page lightweight specification for rapid iteration</li>
+<li>PM Framework: 5-question rapid problem definition</li>
+<li>Faster for small features/prototypes</li>
+</ul>
+
+<p><strong>Impact</strong>: BMad could adopt Mini-Spec for <strong>rapid prototyping</strong> or <strong>spike tasks</strong> before committing to full epic workflow.</p>
+
+<p>---</p>
+
+<h3>1.3 UI/UX Specific Guidance (MODERATE GAP)</h3>
+
+<p><strong>BMad Approach</strong>:</p>
+<ul>
+<li>UX Expert agent (Sally) creates front-end specs</li>
+<li>General UI generation task (`generate-ai-frontend-prompt`)</li>
+</ul>
+
+<p><strong>Vibe Coding Strength</strong>:</p>
+<ul>
+<li>**Vibe Design Blueprint** (4-zone UI structure)</li>
+<li>**3-Varianten Methode** (A/B/C approach + synthesis)</li>
+<li>**Light Design System** (tokens for consistency)</li>
+<li>**Visual Prompt Library** (5 specialized UI prompts)</li>
+</ul>
+
+<p><strong>Impact</strong>: BMad's UX Expert could integrate Vibe Coding's structured UI design patterns.</p>
+
+<p>---</p>
+
+<h3>1.4 Self-Healing & Polish Loops (MODERATE GAP)</h3>
+
+<p><strong>BMad Approach</strong>:</p>
+<ul>
+<li>QA agent (Quinn) performs comprehensive review post-development</li>
+<li>Binary quality gates (PASS/CONCERNS/FAIL)</li>
+</ul>
+
+<p><strong>Vibe Coding Strength</strong>:</p>
+<ul>
+<li>**Continuous Polish Loop** (iterative code improvement during development)</li>
+<li>**Self-Healing Code/UI** (automated quality checks)</li>
+<li>**Auto-Polish prompts** (proactive refinement)</li>
+</ul>
+
+<p><strong>Impact</strong>: BMad could add "polish checkpoints" during development, not just at QA review stage.</p>
+
+<p>---</p>
+
+<h2>2. Overlap Analysis: Redundancies to Eliminate</h2>
+
+<h3>2.1 Planning Workflows (HIGH OVERLAP)</h3>
+
+<p>| <strong>Aspect</strong> | <strong>BMad Method</strong> | <strong>Vibe Coding</strong> | <strong>Redundancy Level</strong> |</p>
+<p>|------------|-----------------|-----------------|----------------------|</p>
+<p>| Requirements | PRD (full) + Architecture | Mini-Spec (1 page) | <strong>HIGH</strong> - Both define requirements |</p>
+<p>| Epic/Story Breakdown | SM agent creates stories from epics | Not formalized | <strong>PARTIAL</strong> - BMad is comprehensive |</p>
+<p>| PM Framework | Product Manager agent (Ruth) | 5-question PM prompt | <strong>HIGH</strong> - Both define problem/user/use-cases |</p>
+<p>| Architecture | Architect agent (Alex) + templates | "Architect-modus" prompt | <strong>MODERATE</strong> - BMad more formal |</p>
+
+<p><strong>Recommendation</strong>:</p>
+<ul>
+<li>**Keep BMad for structured projects** (multi-epic, long-term)</li>
+<li>**Adopt Vibe Mini-Spec for spike tasks** (quick experiments, prototypes)</li>
+<li>**Do NOT run both workflows in parallel** (causes duplication)</li>
+</ul>
+
+<p>---</p>
+
+<h3>2.2 Quality Assurance (MODERATE OVERLAP)</h3>
+
+<p>| <strong>Aspect</strong> | <strong>BMad Method</strong> | <strong>Vibe Coding</strong> | <strong>Redundancy Level</strong> |</p>
+<p>|------------|-----------------|-----------------|----------------------|</p>
+<p>| Testing Strategy | QA agent <code><em>risk</code>, <code></em>design</code>, <code><em>trace</code>, <code></em>nfr</code> | "Add Test Harness" prompt | <strong>MODERATE</strong> - BMad more systematic |</p>
+<p>| Code Review | QA agent <code>*review</code> (comprehensive) | "Refactor-First, Implement-Second" | <strong>MODERATE</strong> - Different timing |</p>
+<p>| Quality Gates | PASS/CONCERNS/FAIL with gate files | No formal gates | <strong>LOW</strong> - BMad unique |</p>
+<p>| Continuous Improvement | Post-review QA fixes | Continuous Polish Loop | <strong>HIGH</strong> - Same goal, different timing |</p>
+
+<p><strong>Recommendation</strong>:</p>
+<ul>
+<li>**Keep BMad's QA workflow** (systematic, auditable)</li>
+<li>**Add Vibe Coding's polish prompts** to dev workflow (before QA review)</li>
+<li>**Result**: Better code reaches QA, fewer review cycles</li>
+</ul>
+
+<p>---</p>
+
+<h3>2.3 Development Execution (LOW OVERLAP)</h3>
+
+<p>| <strong>Aspect</strong> | <strong>BMad Method</strong> | <strong>Vibe Coding</strong> | <strong>Redundancy Level</strong> |</p>
+<p>|------------|-----------------|-----------------|----------------------|</p>
+<p>| Implementation Workflow | Dev agent sequential task execution | No formal workflow | <strong>LOW</strong> - BMad structured |</p>
+<p>| AI Prompting Techniques | Minimal guidance | 21 prompting tips | <strong>NONE</strong> - Complementary |</p>
+<p>| Code Standards | Story Dev Notes + Architecture docs | Inline documentation forcing | <strong>LOW</strong> - Different focus |</p>
+
+<p><strong>Recommendation</strong>: <strong>100% complementary</strong> - integrate Vibe Coding prompts into BMad dev workflow.</p>
+
+<p>---</p>
+
+<h2>3. Agent Role Mapping: BMad ↔ Vibe Coding</h2>
+
+<h3>3.1 Direct Mapping</h3>
+
+<p>| <strong>BMad Agent</strong> | <strong>Vibe Coding Equivalent</strong> | <strong>Integration Strategy</strong> |</p>
+<p>|----------------|----------------------------|--------------------------|</p>
+<p>| <strong>Product Manager (Ruth)</strong> | PM Framework (5 questions) | Enhance BMad PM with Vibe's rapid PM prompts |</p>
+<p>| <strong>Architect (Alex)</strong> | Architect-modus prompt | Add Vibe's "Architect First, Code Second" to BMad architect |</p>
+<p>| <strong>Dev (James)</strong> | 21 Vibe Coding Tips | <strong>PRIMARY INTEGRATION POINT</strong> - Teach BMad dev Vibe prompting |</p>
+<p>| <strong>UX Expert (Sally)</strong> | Vibe Design Blueprint + Visual Prompt Library | Integrate Vibe's 4-zone UI structure into Sally's workflow |</p>
+<p>| <strong>QA (Quinn)</strong> | Refactor/Debug/Polish prompts | Add Vibe's polish loops to dev workflow (pre-QA) |</p>
+<p>| <strong>Scrum Master (Bob)</strong> | No equivalent | Keep BMad (Vibe Coding has no story management) |</p>
+<p>| <strong>Product Owner (Morgan)</strong> | No equivalent | Keep BMad (Vibe Coding has no backlog management) |</p>
+
+<h3>3.2 No Vibe Coding Equivalent (BMad Unique)</h3>
+
+<ul>
+<li>**Scrum Master (Bob)**: Story creation, task breakdown</li>
+<li>**Product Owner (Morgan)**: Backlog management, sharding, prioritization</li>
+<li>**QA (Quinn)**: Systematic quality gates, risk profiling, requirements tracing</li>
+</ul>
+
+<p><strong>Insight</strong>: BMad's <strong>process agents</strong> (SM/PO/QA) are unique and should remain untouched.</p>
+
+<p>---</p>
+
+<h2>4. Complementary Usage Scenarios</h2>
+
+<h3>Scenario 1: Greenfield Feature (Full BMad + Vibe Prompting)</h3>
+
+<p><strong>Workflow</strong>:</p>
+<ol>
+<li>**Planning** (BMad): PM creates PRD → Architect designs → PO validates</li>
+<li>**Sharding** (BMad): PO shards epics/stories → SM drafts story</li>
+<li>**Development** (BMad + Vibe):</li>
+</ol>
+<ul>
+<li>  - Dev reads story (BMad)</li>
+<li>  - **Uses Vibe prompts during implementation**:</li>
+<li>    - Warmup AI with context (Vibe Tip 4)</li>
+<li>    - Break into skeleton → implement → validate (Vibe Tip 5)</li>
+<li>    - Force Chain of Thought reasoning (Vibe Tip 6)</li>
+<li>    - Architect-First before coding (Vibe Tip 8)</li>
+</ul>
+<ol>
+<li>**Quality** (BMad + Vibe):</li>
+</ol>
+<ul>
+<li>  - Dev runs Vibe polish loops before marking "Ready for Review"</li>
+<li>  - QA performs comprehensive review (BMad)</li>
+</ul>
+
+<p><strong>Result</strong>: BMad structure + Vibe AI prompting = Better quality, faster iterations</p>
+
+<p>---</p>
+
+<h3>Scenario 2: Rapid Prototype/Spike (Vibe Mini-Spec Only)</h3>
+
+<p><strong>When to Use</strong>:</p>
+<ul>
+<li>Exploring new technology</li>
+<li>Proof-of-concept for stakeholder demo</li>
+<li>Quick experiment before committing to full epic</li>
+</ul>
+
+<p><strong>Workflow</strong>:</p>
+<ol>
+<li>**Skip BMad Planning** (too heavy for spike)</li>
+<li>**Use Vibe Mini-Spec** (1-page definition)</li>
+<li>**Use Vibe Coding Tips** for rapid AI-driven implementation</li>
+<li>**If successful** → Convert to BMad epic for production implementation</li>
+</ol>
+
+<p><strong>Result</strong>: Avoid BMad overhead for experiments</p>
+
+<p>---</p>
+
+<h3>Scenario 3: UI Design (BMad UX Expert + Vibe Design Patterns)</h3>
+
+<p><strong>Enhanced Workflow for Sally (UX Expert)</strong>:</p>
+<ol>
+<li>**Sally activated** (BMad): `@ux-expert create-front-end-spec`</li>
+<li>**Sally uses Vibe patterns**:</li>
+</ol>
+<ul>
+<li>  - Apply **Vibe Design Blueprint** (4 zones: Header/Action/Feedback/Info)</li>
+<li>  - Generate **3 Varianten** (A minimalist, B dashboard, C conversational)</li>
+<li>  - Use **Synthesis Command** to combine best elements</li>
+<li>  - Create **Light Design System** (tokens for consistency)</li>
+</ul>
+<ol>
+<li>**Sally outputs** (BMad): Front-End Spec (standard BMad template)</li>
+<li>**Sally generates AI prompt** (BMad): `generate-ui-prompt` for Lovable/v0</li>
+</ol>
+
+<p><strong>Result</strong>: Structured UI design process with Vibe Coding's proven patterns</p>
+
+<p>---</p>
+
+<h3>Scenario 4: Brownfield Refactoring (BMad QA + Vibe Polish)</h3>
+
+<p><strong>Workflow</strong>:</p>
+<ol>
+<li>**BMad QA Risk Assessment**: `@qa *risk {story}` (identify regression risks)</li>
+<li>**Dev Implementation** (BMad story execution):</li>
+</ol>
+<ul>
+<li>  - **Add Vibe refactor prompts**:</li>
+<li>    - "Refactor-First, Implement-Second" (Vibe Tip 13)</li>
+<li>    - "Debug Detective" analysis (Vibe Tip 14)</li>
+<li>    - "Self-Healing Code" audit (Vibe Tip 19)</li>
+</ul>
+<ol>
+<li>**BMad QA Review**: `@qa *review {story}` (comprehensive validation)</li>
+</ol>
+
+<p><strong>Result</strong>: Safer refactoring with Vibe's quality-first prompts + BMad's systematic QA</p>
+
+<p>---</p>
+
+<h2>5. Workflow Fusion Proposal</h2>
+
+<h3>5.1 Enhanced BMad Dev Workflow (with Vibe Integration)</h3>
+
+<p><strong>Current BMad Dev Workflow</strong>:</p>
+<pre><code>develop-story:
+  order-of-execution: 'Read task → Implement → Write tests → Execute validations → Update checkbox → Repeat'</code></pre>
+
+<p><strong>Proposed Enhanced Workflow</strong> (with Vibe Coding prompts):</p>
+<pre><code>develop-story-enhanced:
+  order-of-execution:
+    1. READ TASK (BMad)
+    2. WARMUP AI (Vibe Tip 4)
+       - Prompt: "Context: [project, task, constraints]. Explain what we're building."
+    3. ARCHITECT FIRST (Vibe Tip 8)
+       - Prompt: "Architect-modus: structure, modules, dataflow, risks. No code yet."
+    4. CONFIRM UNDERSTANDING (Vibe Tip 7)
+       - AI summarizes → User approves
+    5. IMPLEMENT WITH COT (Vibe Tip 6)
+       - Prompt: "Think out loud: goal, edge cases, risks → then implement."
+    6. POLISH LOOP (Vibe Tip 21)
+       - Prompt: "Self-review: naming, structure, error handling. Auto-fix."
+    7. WRITE TESTS (BMad)
+    8. EXECUTE VALIDATIONS (BMad)
+    9. UPDATE CHECKBOX (BMad)
+    10. REPEAT</code></pre>
+
+<p><strong>Impact</strong>:</p>
+<ul>
+<li>Better AI code quality</li>
+<li>Fewer QA review cycles</li>
+<li>Maintains BMad's systematic structure</li>
+</ul>
+
+<p>---</p>
+
+<h3>5.2 Enhanced BMad UX Workflow (with Vibe Design Patterns)</h3>
+
+<p><strong>Add to Sally (UX Expert) commands</strong>:</p>
+<pre><code>commands:
+  - create-front-end-spec: # Existing
+      enhanced-with: Vibe Design Blueprint (4 zones)
+  - generate-ui-variants: # NEW
+      description: Generate 3 UI variations (A/B/C) using Vibe 3-Varianten Methode
+      prompt: "Generate 3 UI approaches: A (minimal), B (structured), C (creative)"
+  - synthesize-ui: # NEW
+      description: Combine best elements from A/B/C variants
+      prompt: "Synthesis Command: merge best of A/B/C into final design"
+  - create-design-tokens: # NEW
+      description: Generate Light Design System
+      prompt: "Generate design tokens: colors, typography, spacing, components"
+  - generate-ui-prompt: # Existing - keep as-is</code></pre>
+
+<p>---</p>
+
+<h3>5.3 New: Spike/Prototype Mode (Vibe-Only Workflow)</h3>
+
+<p><strong>Add to BMad PM agent (Ruth)</strong>:</p>
+<pre><code>commands:
+  - create-spike-spec: # NEW
+      description: Create lightweight Mini-Spec for rapid prototyping
+      template: vibe-mini-spec-tmpl.yaml
+      workflow:
+        - Skip full PRD/Architecture
+        - Use Vibe PM Framework (5 questions)
+        - Output: 1-page spec with Definition of Done
+        - If successful → convert to full epic</code></pre>
+
+<p><strong>When to use</strong>: Experiments, POCs, tech spikes, rapid validation</p>
+
+<p>---</p>
+
+<h2>6. Practical Integration Examples</h2>
+
+<h3>Example 1: Implementing a BMad Story with Vibe Prompts</h3>
+
+<p><strong>Story</strong>: <code>docs/stories/epic-003.story-045.add-export-feature.md</code></p>
+
+<p><strong>BMad Standard Approach</strong>:</p>
+<pre><code>@dev Implement story 045
+&gt; Dev reads tasks, implements sequentially, writes tests, marks complete</code></pre>
+
+<p><strong>Enhanced with Vibe Coding</strong>:</p>
+<pre><code>@dev Implement story 045 using Vibe prompting techniques
+
+Dev workflow:
+1. WARMUP: "We're adding CSV/PDF export to DefinitieAgent. Users need to export
+   validated definitions. Explain this feature back to me."
+
+2. ARCHITECT: "Design export architecture:
+   - Module structure
+   - Data flow (definition → formatter → file)
+   - Risk analysis (memory, file size, encoding)
+   No code yet. Wait for GO."
+
+3. IMPLEMENT: "Chain of Thought:
+   - Goal: Support CSV and PDF formats
+   - Edge cases: Empty definitions, special characters, large datasets
+   - Risks: UTF-8 encoding, PDF library dependencies
+   Now implement ExportService with error handling."
+
+4. POLISH: "Self-healing check:
+   - Naming conventions consistent?
+   - Error handling complete?
+   - Docstrings present?
+   Auto-fix and show improved version."
+
+5. TEST: (Standard BMad)
+
+6. VALIDATE: (Standard BMad)</code></pre>
+
+<p><strong>Result</strong>: Same BMad structure, better AI collaboration via Vibe prompts.</p>
+
+<p>---</p>
+
+<h3>Example 2: Creating a Front-End Spec with Vibe Design Patterns</h3>
+
+<p><strong>BMad Standard</strong>:</p>
+<pre><code>@ux-expert create-front-end-spec
+&gt; Sally creates spec using standard template</code></pre>
+
+<p><strong>Enhanced with Vibe Coding</strong>:</p>
+<pre><code>@ux-expert create-front-end-spec for definition validation dashboard
+
+Sally's enhanced workflow:
+1. Apply Vibe Design Blueprint (4 zones):
+   - Header: "Definition Validator - Powered by AI"
+   - Core Action Zone: Upload/input definition, validation controls
+   - Feedback Zone: Validation results, error messages, suggestions
+   - Trust/Info Support: Help text, validation rule explanations
+
+2. Generate 3 Variants:
+   - A (Minimalist): Single-column, clean forms, subtle feedback
+   - B (Dashboard): Multi-panel, metrics cards, real-time indicators
+   - C (Conversational): Chat-style interface, AI assistant persona
+
+3. Synthesis: "Combine:
+   - A's clean forms
+   - B's real-time validation indicators
+   - C's friendly error messages"
+
+4. Create Design Tokens:
+   - Colors: primary=#1A73E8, error=#D32F2F, success=#34A853
+   - Typography: h1=32px, body=16px, caption=12px
+   - Spacing: sm=8px, md=16px, lg=24px
+
+5. Output Front-End Spec (BMad template) + Design Tokens file</code></pre>
+
+<p><strong>Result</strong>: Systematic UI design with proven Vibe patterns.</p>
+
+<p>---</p>
+
+<h2>7. Recommendation: Integration Strategy</h2>
+
+<h3>7.1 DO Integrate (High Value, Low Conflict)</h3>
+
+<p>✅ <strong>Vibe Coding Prompting Techniques</strong> → BMad Dev Workflow</p>
+<ul>
+<li>Add Vibe's 21 tips as "Dev Best Practices" document in `.bmad-core/data/`</li>
+<li>Teach BMad dev agent to use Warmup, CoT, Architect-First, Polish Loop</li>
+</ul>
+
+<p>✅ <strong>Vibe Design Patterns</strong> → BMad UX Expert (Sally)</p>
+<ul>
+<li>Integrate Vibe Design Blueprint into Sally's workflow</li>
+<li>Add 3-Varianten Methode as Sally's default UI generation approach</li>
+<li>Create Light Design System template in `.bmad-core/templates/`</li>
+</ul>
+
+<p>✅ <strong>Mini-Spec for Spikes</strong> → New BMad Command</p>
+<ul>
+<li>Add `create-spike-spec` command to PM agent (Ruth)</li>
+<li>Use when full PRD is overkill (experiments, POCs)</li>
+</ul>
+
+<p>✅ <strong>Continuous Polish Loops</strong> → BMad Dev Workflow</p>
+<ul>
+<li>Add polish checkpoints before "Ready for Review"</li>
+<li>Reduces QA review cycles</li>
+</ul>
+
+<p>---</p>
+
+<h3>7.2 DO NOT Integrate (High Conflict, Low Value)</h3>
+
+<p>❌ <strong>Vibe Coding "8-Step Method"</strong> (if it replaces BMad planning)</p>
+<ul>
+<li>BMad's PRD → Architecture → Stories is more comprehensive</li>
+<li>Only use Vibe's rapid planning for spikes/prototypes</li>
+</ul>
+
+<p>❌ <strong>Vibe Coding "Planning Systeem"</strong> (if it duplicates BMad agents)</p>
+<ul>
+<li>Keep BMad's SM/PO/QA agents (no Vibe equivalent)</li>
+<li>Vibe Coding lacks systematic backlog/quality management</li>
+</ul>
+
+<p>❌ <strong>Vibe Coding as Separate Workflow</strong> (causes duplication)</p>
+<ul>
+<li>Don't run BMad AND Vibe Coding in parallel</li>
+<li>Integrate Vibe techniques INTO BMad workflow</li>
+</ul>
+
+<p>---</p>
+
+<h3>7.3 Implementation Roadmap</h3>
+
+<p><strong>Phase 1: Pilot Integration (1-2 sprints)</strong></p>
+<ol>
+<li>Create `vibe-coding-prompts.md` in `.bmad-core/data/`</li>
+<li>Update Dev agent (James) to reference Vibe prompts</li>
+<li>Test on 2-3 stories, measure quality improvement</li>
+</ol>
+
+<p><strong>Phase 2: UX Enhancement (1 sprint)</strong></p>
+<ol>
+<li>Create Vibe Design System templates</li>
+<li>Update UX Expert (Sally) with Vibe patterns</li>
+<li>Test on 1 UI feature, gather feedback</li>
+</ol>
+
+<p><strong>Phase 3: Spike Mode (1 sprint)</strong></p>
+<ol>
+<li>Create Mini-Spec template in `.bmad-core/templates/`</li>
+<li>Add `create-spike-spec` to PM agent (Ruth)</li>
+<li>Use for next prototype/experiment</li>
+</ol>
+
+<p><strong>Phase 4: Full Integration (ongoing)</strong></p>
+<ol>
+<li>Update `.bmad-core/user-guide.md` with Vibe integration notes</li>
+<li>Train team on enhanced workflows</li>
+<li>Collect metrics (QA review cycles, code quality scores)</li>
+</ol>
+
+<p>---</p>
+
+<h2>8. Conclusion</h2>
+
+<h3>Key Insights</h3>
+
+<ol>
+<li>**BMad = Strategic Framework** (what to build, when, and how to organize)</li>
+<li>**Vibe Coding = Tactical Prompting** (how to get AI to build it well)</li>
+<li>**Integration Pattern**: Embed Vibe prompting techniques into BMad's dev/UX workflows</li>
+<li>**Avoid Duplication**: Don't run both methodologies in parallel - fuse them</li>
+</ol>
+
+<h3>Success Metrics</h3>
+
+<ul>
+<li>**QA Review Cycles**: Reduce from avg 2-3 to 1-2 per story (Vibe polish improves quality)</li>
+<li>**Code Quality Scores**: Improve naming, structure, documentation (Vibe self-healing)</li>
+<li>**UI Consistency**: Design token adoption rate (Vibe Design System)</li>
+<li>**Spike Success Rate**: % of spikes that convert to full epics (Vibe Mini-Spec)</li>
+</ul>
+
+<h3>Final Recommendation</h3>
+
+<p><strong>Integrate Vibe Coding as "BMad Dev Best Practices"</strong>, not as a separate methodology. Teach BMad agents to use Vibe's proven AI prompting techniques while maintaining BMad's systematic planning and quality assurance workflows.</p>
+
+<p><strong>Result</strong>: Best of both worlds - BMad's structure + Vibe's AI collaboration excellence.</p>
+
+<p>---</p>
+
+<h2>Appendix: Quick Reference</h2>
+
+<h3>Vibe Coding Techniques to Integrate</h3>
+
+<p>| <strong>Vibe Tip</strong> | <strong>BMad Agent</strong> | <strong>When to Use</strong> |</p>
+<p>|--------------|----------------|-----------------|</p>
+<p>| Warmup AI (Tip 4) | Dev | Start of every task |</p>
+<p>| Architect First (Tip 8) | Dev | Before implementation |</p>
+<p>| Chain of Thought (Tip 6) | Dev | Complex logic/algorithms |</p>
+<p>| Parallel Prompts (Tip 16-17) | Dev, Architect | When exploring options |</p>
+<p>| Polish Loop (Tip 21) | Dev | Before marking "Ready for Review" |</p>
+<p>| Vibe Design Blueprint | UX Expert | Every UI design task |</p>
+<p>| 3-Varianten Methode | UX Expert | New UI components |</p>
+<p>| Mini-Spec | PM | Spikes/prototypes only |</p>
+
+<h3>BMad Agents to Keep Untouched</h3>
+
+<ul>
+<li>**Scrum Master (Bob)**: Story creation, task breakdown</li>
+<li>**Product Owner (Morgan)**: Backlog management, sharding</li>
+<li>**QA (Quinn)**: Quality gates, risk profiling, requirements tracing</li>
+</ul>
+
+<h3>Integration Files to Create</h3>
+
+<ol>
+<li>`.bmad-core/data/vibe-coding-prompts.md` - 21 Vibe tips as BMad reference</li>
+<li>`.bmad-core/templates/vibe-mini-spec-tmpl.yaml` - Lightweight spec for spikes</li>
+<li>`.bmad-core/templates/vibe-design-tokens-tmpl.yaml` - Design system template</li>
+<li>`docs/guidelines/VIBE-BMAD-INTEGRATION-GUIDE.md` - Team playbook</li>
+</ol>
+
+<p>---</p>
+
+<p><strong>Document Owner</strong>: Process Integration Specialist</p>
+<p><strong>Last Updated</strong>: 2025-01-17</p>
+<p><strong>Status</strong>: Draft - Awaiting Review</p>
+
+  </div>
+</body>
+</html>

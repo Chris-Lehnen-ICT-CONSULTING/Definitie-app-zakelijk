@@ -1,0 +1,712 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Vibe Coding Integration Summary</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>aangemaakt: 2025-10-17</p>
+<p>applies_to: definitie-app@current</p>
+<p>bijgewerkt: 2025-10-17</p>
+<p>canonical: true</p>
+<p>type: executive-summary</p>
+<p>---</p>
+
+<h1>Vibe Coding Integration Summary</h1>
+
+<p><strong>Executive Summary:</strong> Complete workflow design for DefinitieAgent development using Vibe Coding methodology with Claude Code.</p>
+
+<p>---</p>
+
+<h2>What Was Delivered</h2>
+
+<h3>1. Complete Workflow Design</h3>
+<p><strong>File:</strong> <code>VIBE_CODING_WORKFLOW.md</code> (1000+ lines)</p>
+
+<p>Comprehensive guide covering:</p>
+<ul>
+<li>6 specialized workflows (ANALYSIS, FULL_TDD, HOTFIX, REFACTOR, REVIEW, DOCUMENT)</li>
+<li>Step-by-step execution sequences for each workflow</li>
+<li>Claude Code tool integration for every step</li>
+<li>Session management strategy</li>
+<li>4 detailed practical examples</li>
+<li>Handoff protocols between workflows and sessions</li>
+</ul>
+
+<h3>2. Quick Reference Card</h3>
+<p><strong>File:</strong> <code>VIBE_CODING_QUICK_REFERENCE.md</code> (400+ lines)</p>
+
+<p>One-page reference for immediate decisions:</p>
+<ul>
+<li>Visual decision flowchart</li>
+<li>Workflow cheat sheets</li>
+<li>Essential commands</li>
+<li>Critical rules reminder</li>
+<li>Common patterns</li>
+<li>Emergency procedures</li>
+</ul>
+
+<h3>3. Integration Points Identified</h3>
+<ul>
+<li>Git workflow (semantic commits, branching)</li>
+<li>Testing integration (pytest commands, coverage)</li>
+<li>Code quality (pre-commit, ruff, black)</li>
+<li>Development server (streamlit)</li>
+<li>BMad Method agent handoffs</li>
+</ul>
+
+<p>---</p>
+
+<h2>Key Design Decisions</h2>
+
+<h3>1. Workflow Selection Based on Task Type</h3>
+
+<p><strong>Not One-Size-Fits-All:</strong></p>
+<ul>
+<li>Rejected: Single "universal" workflow</li>
+<li>Chosen: 6 specialized workflows matching task complexity</li>
+<li>Rationale: Solo developer needs efficiency, not bureaucracy</li>
+</ul>
+
+<p><strong>Decision Tree:</strong></p>
+<pre><code>Documentation only → DOCUMENT (5-20 min)
+Emergency bug → HOTFIX (10-30 min)
+Unclear requirements → ANALYSIS (15-30 min)
+Code review needed → REVIEW (15-30 min)
+Quality improvement → REFACTOR (15-30 min)
+New feature → FULL_TDD (30-90 min)</code></pre>
+
+<h3>2. Session Management for Claude Code</h3>
+
+<p><strong>Problem Identified:</strong></p>
+<ul>
+<li>Claude Code doesn't persist context between sessions</li>
+<li>Long features require multiple sessions</li>
+<li>Context loss = wasted time</li>
+</ul>
+
+<p><strong>Solution Implemented:</strong></p>
+<ul>
+<li>Session Start Checklist (always read CLAUDE.md, git status, handoff notes)</li>
+<li>Session End Protocol (create handoff notes if incomplete)</li>
+<li>HANDOFF-NOTES.md template</li>
+<li>SESSION-STATE.json for complex work</li>
+<li>Git commits as checkpoints</li>
+</ul>
+
+<p><strong>Example Handoff Note:</strong></p>
+<pre><code>## Session Handoff - [YYYY-MM-DD HH:MM]
+Work Unit: US-XXX
+Progress: 40%
+What I did: ...
+What's next: ...
+Context notes: ...
+Blockers: ...</code></pre>
+
+<h3>3. Integration with Existing DefinitieAgent Workflows</h3>
+
+<p><strong>Aligned With:</strong></p>
+<ul>
+<li>BMad Method (agent role mapping)</li>
+<li>TDD_TO_DEPLOYMENT_WORKFLOW.md (8-phase process)</li>
+<li>WORKFLOW_LIBRARY.md (6 workflow types)</li>
+<li>UNIFIED_INSTRUCTIONS.md (approval ladder, forbidden patterns)</li>
+<li>CLAUDE.md (project-specific rules)</li>
+</ul>
+
+<p><strong>Vibe Coding Templates Mapped:</strong></p>
+<ul>
+<li>5-Step Discovery → ANALYSIS workflow</li>
+<li>8-Step RED-GREEN-REFACTOR → FULL_TDD workflow</li>
+<li>3-Step Emergency → HOTFIX workflow</li>
+<li>4-Step Quality → REFACTOR workflow</li>
+<li>2-Step Audit → REVIEW workflow</li>
+<li>3-Step Cleanup → DOCUMENT workflow</li>
+</ul>
+
+<h3>4. Tool Integration Strategy</h3>
+
+<p><strong>Claude Code Tools Utilized:</strong></p>
+<ul>
+<li>**Read:** Project instructions, code files, documentation</li>
+<li>**Edit:** Modify existing files (services, tests)</li>
+<li>**Write:** Create new files (tests, docs, handoffs)</li>
+<li>**Grep:** Search codebase for patterns</li>
+<li>**Glob:** Find files by pattern</li>
+<li>**Bash:** Run tests, git commands, dev server</li>
+<li>**AskUserQuestion:** Clarify requirements</li>
+</ul>
+
+<p><strong>Tool Usage Per Workflow:</strong></p>
+<p>| Workflow | Primary Tools | Secondary Tools |</p>
+<p>|----------|---------------|-----------------|</p>
+<p>| ANALYSIS | Read, AskUserQuestion, Write | Grep, Glob |</p>
+<p>| FULL_TDD | Edit, Write, Bash (tests) | Read, Grep |</p>
+<p>| HOTFIX | Edit, Bash (tests), Bash (git) | Read |</p>
+<p>| REFACTOR | Edit, Bash (tests) | Read |</p>
+<p>| REVIEW | Read, Write (report) | Grep |</p>
+<p>| DOCUMENT | Edit, Write | Read |</p>
+
+<p>---</p>
+
+<h2>Practical Examples Provided</h2>
+
+<h3>Example 1: Adding New Validation Rule</h3>
+<p><strong>Workflow:</strong> FULL_TDD (8-step)</p>
+<p><strong>Duration:</strong> ~45 minutes</p>
+<p><strong>Files Created:</strong></p>
+<ul>
+<li>`config/toetsregels/regels/SAM-003.json`</li>
+<li>`src/toetsregels/regels/SAM_003.py`</li>
+<li>`tests/toetsregels/test_SAM_003.py`</li>
+<p><strong>Key Steps:</strong></p>
+</ul>
+<ol>
+<li>Understand requirements from User Story</li>
+<li>Write failing tests (RED)</li>
+<li>Commit tests</li>
+<li>Implement minimal code (GREEN)</li>
+<li>Commit feature</li>
+<li>Refactor for quality</li>
+<li>Verify coverage and lint</li>
+<li>Mark User Story complete</li>
+</ol>
+
+<h3>Example 2: Refactoring Service Module</h3>
+<p><strong>Workflow:</strong> REFACTOR (4-step)</p>
+<p><strong>Duration:</strong> ~30 minutes</p>
+<p><strong>Problem:</strong> <code>validation_service.py</code> at 823 lines (should be <500)</p>
+<p><strong>Solution:</strong></p>
+<ol>
+<li>Baseline coverage (94%)</li>
+<li>Extract rule_loader.py (200 lines)</li>
+<li>Extract formatter.py (223 lines)</li>
+<li>Result: 400 lines, coverage maintained</li>
+<p><strong>Key Insight:</strong> Atomic commits per extraction, tests always green</p>
+</ol>
+
+<h3>Example 3: Designing New UI Feature</h3>
+<p><strong>Workflow:</strong> ANALYSIS → FULL_TDD (two sessions)</p>
+<p><strong>Duration:</strong> 20 min analysis + 30 min implementation = 50 min total</p>
+<p><strong>Feature:</strong> Export to JSON button</p>
+<p><strong>Session 1 (ANALYSIS):</strong></p>
+<ul>
+<li>Clarify requirements with user</li>
+<li>Research existing patterns</li>
+<li>Design solution (use st.download_button)</li>
+<li>Validate design with user</li>
+<li>Create User Story (US-440.md)</li>
+<p><strong>Session 2 (FULL_TDD):</strong></p>
+<li>Write failing tests</li>
+<li>Implement feature</li>
+<li>Verify functionality</li>
+<li>Mark complete</li>
+</ul>
+
+<h3>Example 4: Fixing Complex Bug</h3>
+<p><strong>Workflow:</strong> HOTFIX (3-step)</p>
+<p><strong>Duration:</strong> ~20 minutes</p>
+<p><strong>Bug:</strong> Validation rule SAM-002 false positives</p>
+<p><strong>Steps:</strong></p>
+<ol>
+<li>Reproduce with test (test_false_positive_bug)</li>
+<li>Patch: Update regex pattern</li>
+<li>Deploy: Commit, push, monitor</li>
+<p><strong>Key Insight:</strong> Regression test prevents recurrence</p>
+</ol>
+
+<p>---</p>
+
+<h2>Integration with Git Workflow</h2>
+
+<h3>Semantic Commit Format</h3>
+<pre><code>type(scope): description
+
+Types:
+  - feat: New feature
+  - fix: Bug fix
+  - test: Test changes
+  - refactor: Code restructure
+  - docs: Documentation
+  - chore: Maintenance
+  - perf: Performance
+
+Scope: US-XXX or module name
+
+Examples:
+  - test(US-042): add failing tests for validation
+  - feat(US-042): implement validation rule
+  - fix(SAM-002): correct regex false positives
+  - refactor(US-160): extract rule loader</code></pre>
+
+<h3>Branching Strategy</h3>
+<pre><code>main
+ ├── feature/US-XXX (new features)
+ ├── hotfix/issue-name (emergency fixes)
+ └── refactor/component-name (quality improvements)
+
+Session Management:
+ - One workflow per branch
+ - Git stash for context switches
+ - Handoff notes per branch if needed</code></pre>
+
+<p>---</p>
+
+<h2>Session Management Patterns</h2>
+
+<h3>Pattern 1: Single-Session Feature</h3>
+<pre><code>Session (60 min):
+  1. Read CLAUDE.md + US-XXX.md
+  2. Execute FULL_TDD workflow (steps 1-8)
+  3. Mark US-XXX complete
+  4. No handoff needed
+
+Exit: Feature complete, pushed</code></pre>
+
+<h3>Pattern 2: Multi-Session Feature</h3>
+<pre><code>Session 1 (30 min):
+  1. Read CLAUDE.md + US-XXX.md
+  2. Execute steps 1-5 (UNDERSTAND → TEST-GREEN)
+  3. Commit: "feat(US-XXX): partial implementation"
+  4. Create HANDOFF-NOTES.md
+
+Session 2 (30 min):
+  1. Read HANDOFF-NOTES.md + git log
+  2. Execute steps 6-8 (REFACTOR → VERIFY)
+  3. Mark US-XXX complete
+  4. Delete HANDOFF-NOTES.md
+
+Exit: Feature complete, pushed</code></pre>
+
+<h3>Pattern 3: Emergency Context Switch</h3>
+<pre><code>Working on Feature:
+  - Branch: feature/US-450
+  - Progress: 60%
+
+Production Bug Reported:
+  1. git stash save "WIP: US-450 partial"
+  2. Create HANDOFF-NOTES.md (quick)
+  3. git checkout main
+  4. git checkout -b hotfix/critical-bug
+  5. Execute HOTFIX workflow (20 min)
+  6. git checkout feature/US-450
+  7. git stash pop
+  8. Read HANDOFF-NOTES.md
+  9. Continue FULL_TDD workflow
+
+Exit: Bug fixed + feature resumed</code></pre>
+
+<p>---</p>
+
+<h2>Handoff Protocols</h2>
+
+<h3>Between Workflows</h3>
+<pre><code>ANALYSIS → FULL_TDD:
+  Artifact: User Story (US-XXX.md)
+  Verification: Read US-XXX.md, confirm AC clear
+
+FULL_TDD → REVIEW:
+  Artifact: Git commits + code
+  Verification: git log, pytest, ruff check
+
+REVIEW → REFACTOR:
+  Artifact: Review report
+  Verification: Read report, identify improvements</code></pre>
+
+<h3>Between Sessions</h3>
+<pre><code>Work Incomplete:
+  1. Create HANDOFF-NOTES.md
+  2. Commit WIP changes
+  3. Update US-XXX status
+  4. Document blockers
+
+Work Complete:
+  1. Update US-XXX status → "Ready for Review"
+  2. Ensure commits pushed
+  3. Update CHANGELOG (if needed)
+  4. No handoff needed</code></pre>
+
+<h3>Between Agent Roles (BMad Method)</h3>
+<pre><code>Claude Code (Analysis) → Codex (BMad PM):
+  Handoff: Draft User Story
+  Next: Validate and finalize
+
+Codex (BMad Architect) → Claude Code (Implement):
+  Handoff: Architecture docs
+  Next: Implement following design
+
+Claude Code (Implement) → Codex (BMad QA):
+  Handoff: Code + commits
+  Next: Review using *review command</code></pre>
+
+<p><strong>Agent Mapping:</strong></p>
+<p>| Claude Code | BMad Agent | Purpose |</p>
+<p>|-------------|------------|---------|</p>
+<p>| Analysis mode | bmad-analyst | Research |</p>
+<p>| Design mode | bmad-architect | Architecture |</p>
+<p>| Implementation | bmad-dev | Coding |</p>
+<p>| Review mode | bmad-reviewer | Quality |</p>
+<p>| Workflow mode | bmad-pm | Coordination |</p>
+
+<p>---</p>
+
+<h2>Quality Gates</h2>
+
+<h3>Per-Workflow Quality Gates</h3>
+
+<p><strong>ANALYSIS:</strong></p>
+<ul>
+<li>[ ] User Story has globally unique ID</li>
+<li>[ ] SMART criteria defined</li>
+<li>[ ] Acceptance criteria in BDD format</li>
+<li>[ ] Design validated by user</li>
+</ul>
+
+<p><strong>FULL_TDD:</strong></p>
+<ul>
+<li>[ ] Tests written before implementation</li>
+<li>[ ] All tests green</li>
+<li>[ ] Coverage ≥ 60% (target 80%)</li>
+<li>[ ] No linting errors</li>
+<li>[ ] Semantic commits</li>
+</ul>
+
+<p><strong>HOTFIX:</strong></p>
+<ul>
+<li>[ ] Bug reproduced with test</li>
+<li>[ ] Minimal scope (no feature creep)</li>
+<li>[ ] Regression test added</li>
+<li>[ ] Production verified</li>
+</ul>
+
+<p><strong>REFACTOR:</strong></p>
+<ul>
+<li>[ ] Baseline coverage established</li>
+<li>[ ] Behavior unchanged</li>
+<li>[ ] Tests still green</li>
+<li>[ ] Refactor log updated</li>
+</ul>
+
+<p><strong>REVIEW:</strong></p>
+<ul>
+<li>[ ] Complete 7-point checklist</li>
+<li>[ ] No critical blockers</li>
+<li>[ ] Concrete suggestions</li>
+<li>[ ] Verdict stated</li>
+</ul>
+
+<p><strong>DOCUMENT:</strong></p>
+<ul>
+<li>[ ] Canonical locations correct</li>
+<li>[ ] Frontmatter present</li>
+<li>[ ] No broken links</li>
+<li>[ ] INDEX.md updated</li>
+</ul>
+
+<p>---</p>
+
+<h2>Critical Rules Enforcement</h2>
+
+<h3>From CLAUDE.md</h3>
+
+<p><strong>FORBIDDEN:</strong></p>
+<ul>
+<li>Creating files in project root (except README, CLAUDE.md, etc.)</li>
+<li>Backwards compatibility code (refactor instead)</li>
+<li>God objects / catch-all helpers</li>
+<li>Direct `st.session_state` access (use SessionStateManager)</li>
+<li>`import streamlit` in `services/` layer</li>
+</ul>
+
+<p><strong>REQUIRED:</strong></p>
+<ul>
+<li>RED before GREEN (tests fail before implementation)</li>
+<li>Files < 500 LOC (split if larger)</li>
+<li>Semantic commits</li>
+<li>Coverage ≥ 60%</li>
+<li>Refactor log updates</li>
+</ul>
+
+<h3>From UNIFIED_INSTRUCTIONS.md</h3>
+
+<p><strong>APPROVAL REQUIRED:</strong></p>
+<ul>
+<li>> 100 lines changed</li>
+<li>> 5 files modified</li>
+<li>Network calls</li>
+<li>Database schema changes</li>
+<li>Git push/merge/rebase</li>
+</ul>
+
+<p><strong>AUTO-APPROVED:</strong></p>
+<ul>
+<li>Read/search operations</li>
+<li>Test execution (< 10 files)</li>
+<li>Lint/format existing files</li>
+<li>Documentation (< 100 lines, no structure changes)</li>
+</ul>
+
+<p>---</p>
+
+<h2>Metrics & Success Criteria</h2>
+
+<h3>Workflow Efficiency Metrics</h3>
+
+<p>| Workflow | Target Duration | Success Rate Target |</p>
+<p>|----------|----------------|---------------------|</p>
+<p>| ANALYSIS | 15-30 min | >90% (clear User Story) |</p>
+<p>| FULL_TDD | 30-90 min | >80% (feature complete) |</p>
+<p>| HOTFIX | 10-30 min | >95% (bug fixed) |</p>
+<p>| REFACTOR | 15-30 min | >90% (quality improved) |</p>
+<p>| REVIEW | 15-30 min | >90% (thorough review) |</p>
+<p>| DOCUMENT | 5-20 min | >95% (docs updated) |</p>
+
+<h3>Code Quality Metrics</h3>
+
+<p>| Metric | Target | Command |</p>
+<p>|--------|--------|---------|</p>
+<p>| Test Coverage | ≥ 60% (target 80%) | <code>pytest --cov=src</code> |</p>
+<p>| File Size | < 500 LOC | <code>wc -l <file></code> |</p>
+<p>| Lint Errors | 0 | <code>ruff check src</code> |</p>
+<p>| Tests Passing | 100% | <code>pytest</code> |</p>
+
+<h3>Session Management Metrics</h3>
+
+<p>| Metric | Target | Measure |</p>
+<p>|--------|--------|---------|</p>
+<p>| Context Loss | < 5 min recovery | Time to resume work |</p>
+<p>| Handoff Quality | Complete info | Handoff note completeness |</p>
+<p>| Session Duration | < 90 min | Timer |</p>
+
+<p>---</p>
+
+<h2>Usage Guidelines</h2>
+
+<h3>For Solo Developer (Primary Use Case)</h3>
+
+<p><strong>Daily Workflow:</strong></p>
+<ol>
+<li>Start session: Read CLAUDE.md, check git status</li>
+<li>Select workflow based on task (use decision tree)</li>
+<li>Execute workflow steps sequentially</li>
+<li>End session: Commit or create handoff</li>
+<li>Repeat</li>
+</ol>
+
+<p><strong>Weekly Review:</strong></p>
+<ul>
+<li>Check metrics (coverage, file sizes)</li>
+<li>Review refactor log</li>
+<li>Update User Stories status</li>
+<li>Plan next week's priorities</li>
+</ul>
+
+<h3>For Team Collaboration (Future)</h3>
+
+<p><strong>Cross-Developer Handoffs:</strong></p>
+<ul>
+<li>Use HANDOFF-NOTES.md for work transfer</li>
+<li>Include context notes</li>
+<li>Document decisions made</li>
+<li>Highlight blockers</li>
+</ul>
+
+<p><strong>Code Reviews:</strong></p>
+<ul>
+<li>Use REVIEW workflow</li>
+<li>Create review report</li>
+<li>Share with team</li>
+<li>Track resolution</li>
+</ul>
+
+<p>---</p>
+
+<h2>Next Steps & Recommendations</h2>
+
+<h3>Immediate Actions (Week 1)</h3>
+
+<ol>
+<li>**Print Quick Reference Card**</li>
+</ol>
+<ul>
+<li>  - Keep visible during development</li>
+<li>  - Reference decision tree frequently</li>
+</ul>
+
+<ol>
+<li>**Practice Workflows**</li>
+</ol>
+<ul>
+<li>  - Start with DOCUMENT workflow (simplest)</li>
+<li>  - Progress to FULL_TDD</li>
+<li>  - Master session management</li>
+</ul>
+
+<ol>
+<li>**Create First Handoff Note**</li>
+</ol>
+<ul>
+<li>  - Template provided in workflow guide</li>
+<li>  - Practice session continuity</li>
+</ul>
+
+<h3>Short-Term Improvements (Month 1)</h3>
+
+<ol>
+<li>**Track Workflow Metrics**</li>
+</ol>
+<ul>
+<li>  - Record durations</li>
+<li>  - Measure success rates</li>
+<li>  - Identify bottlenecks</li>
+</ul>
+
+<ol>
+<li>**Refine Templates**</li>
+</ol>
+<ul>
+<li>  - Adjust based on experience</li>
+<li>  - Simplify if too complex</li>
+<li>  - Add project-specific patterns</li>
+</ul>
+
+<ol>
+<li>**Automate Common Patterns**</li>
+</ol>
+<ul>
+<li>  - Create shell scripts for common sequences</li>
+<li>  - Add make targets for workflows</li>
+<li>  - Generate session reports</li>
+</ul>
+
+<h3>Long-Term Evolution (Quarter 1)</h3>
+
+<ol>
+<li>**Workflow Optimization**</li>
+</ol>
+<ul>
+<li>  - Analyze metrics</li>
+<li>  - Identify pain points</li>
+<li>  - Streamline processes</li>
+</ul>
+
+<ol>
+<li>**Tool Integration**</li>
+</ol>
+<ul>
+<li>  - Enhance git hooks</li>
+<li>  - Improve pre-commit checks</li>
+<li>  - Add workflow validators</li>
+</ul>
+
+<ol>
+<li>**Documentation Updates**</li>
+</ol>
+<ul>
+<li>  - Keep workflows current</li>
+<li>  - Add new patterns discovered</li>
+<li>  - Archive obsolete practices</li>
+</ul>
+
+<p>---</p>
+
+<h2>Troubleshooting</h2>
+
+<h3>Common Issues</h3>
+
+<p><strong>Issue: "I'm not sure which workflow to use"</strong></p>
+<p>Solution: Use decision tree in Quick Reference, default to ANALYSIS if unclear</p>
+
+<p><strong>Issue: "Lost context between sessions"</strong></p>
+<p>Solution: Always create HANDOFF-NOTES.md, read git log --oneline -5</p>
+
+<p><strong>Issue: "Tests won't pass in FULL_TDD"</strong></p>
+<p>Solution: Verify you're in correct phase (RED before GREEN), check test setup</p>
+
+<p><strong>Issue: "File too large (>500 LOC)"</strong></p>
+<p>Solution: Use REFACTOR workflow to split into smaller modules</p>
+
+<p><strong>Issue: "Production bug during feature work"</strong></p>
+<p>Solution: Use emergency context switch pattern (git stash, HOTFIX workflow, return)</p>
+
+<p>---</p>
+
+<h2>References</h2>
+
+<h3>Primary Documents</h3>
+<ul>
+<li>**VIBE_CODING_WORKFLOW.md:** Complete workflow guide (1000+ lines)</li>
+<li>**VIBE_CODING_QUICK_REFERENCE.md:** One-page cheat sheet (400+ lines)</li>
+</ul>
+
+<h3>Supporting Documents</h3>
+<ul>
+<li>**CLAUDE.md:** Project-specific instructions</li>
+<li>**UNIFIED_INSTRUCTIONS.md:** Cross-project rules (~/.ai-agents/)</li>
+<li>**TDD_TO_DEPLOYMENT_WORKFLOW.md:** Full TDD workflow details</li>
+<li>**WORKFLOW_LIBRARY.md:** All available workflows</li>
+<li>**CANONICAL_LOCATIONS.md:** File organization rules</li>
+</ul>
+
+<h3>External Resources</h3>
+<ul>
+<li>Vibe Coding methodology documentation</li>
+<li>Claude Code tool documentation</li>
+<li>BMad Method agent guides</li>
+</ul>
+
+<p>---</p>
+
+<h2>Version History</h2>
+
+<p><strong>v1.0 (2025-10-17):</strong></p>
+<ul>
+<li>Initial release</li>
+<li>6 workflows defined</li>
+<li>Session management strategy</li>
+<li>4 practical examples</li>
+<li>Integration with existing DefinitieAgent workflows</li>
+</ul>
+
+<p><strong>Next Review:</strong> 2025-11-17</p>
+
+<p>---</p>
+
+<h2>Conclusion</h2>
+
+<p>This Vibe Coding integration provides:</p>
+
+<p>✅ <strong>Right-sized workflows</strong> for different task types</p>
+<p>✅ <strong>Session management</strong> for Claude Code's stateless nature</p>
+<p>✅ <strong>Practical examples</strong> for common scenarios</p>
+<p>✅ <strong>Tool integration</strong> for every workflow step</p>
+<p>✅ <strong>Quality gates</strong> to maintain standards</p>
+<p>✅ <strong>Handoff protocols</strong> for continuity</p>
+
+<p><strong>Result:</strong> Efficient, consistent development workflow optimized for solo developer using Claude Code with DefinitieAgent project.</p>
+
+<p><strong>Status:</strong> Ready for immediate use. Start with Quick Reference Card and DOCUMENT workflow for simplest entry.</p>
+
+<p>---</p>
+
+<p><strong>Prepared by:</strong> Claude Code (Workflow Architect mode)</p>
+<p><strong>Date:</strong> 2025-10-17</p>
+<p><strong>Document Status:</strong> Canonical, Active</p>
+
+  </div>
+</body>
+</html>
