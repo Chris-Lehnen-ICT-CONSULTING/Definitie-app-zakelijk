@@ -41320,6 +41320,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "BMad Method + Vibe Coding Integration Analysis",
+      "path": "../analyses/BMAD-VIBE-CODING-INTEGRATION-ANALYSIS.md",
+      "url": "../analyses/BMAD-VIBE-CODING-INTEGRATION-ANALYSIS.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/BMAD-VIBE-CODING-INTEGRATION-ANALYSIS.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Migration Guide: ValidationResult Changes",
       "path": "../api/migration-guide-validation-result.md",
       "url": "../api/migration-guide-validation-result.md",
@@ -41413,6 +41444,48 @@
         "req": []
       },
       "rendered_url": "rendered/guidelines/DATABASE_GUIDELINES.html"
+    },
+    {
+      "id": "VIBE-BROWNFIELD-GUIDE",
+      "type": "GUIDE",
+      "title": "Vibe Coding Brownfield Adaptation Guide - DefinitieAgent",
+      "path": "../guidelines/VIBE_CODING_BROWNFIELD_ADAPTATION.md",
+      "url": "../guidelines/VIBE_CODING_BROWNFIELD_ADAPTATION.md",
+      "status": "active",
+      "prioriteit": null,
+      "owner": "architecture",
+      "canonical": true,
+      "last_verified": "2025-10-17",
+      "applies_to": "definitie-app@current",
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-181",
+          "US-182",
+          "US-183",
+          "US-184",
+          "US-185",
+          "US-186",
+          "US-187",
+          "US-202"
+        ],
+        "epic": [
+          "EPIC-016"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/guidelines/VIBE_CODING_BROWNFIELD_ADAPTATION.html"
     },
     {
       "id": null,
@@ -41545,6 +41618,39 @@
     {
       "id": null,
       "type": "GUIDE",
+      "title": "Vibe Coding Quick Reference Card",
+      "path": "../guidelines/VIBE_CODING_QUICK_REFERENCE.md",
+      "url": "../guidelines/VIBE_CODING_QUICK_REFERENCE.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": true,
+      "last_verified": null,
+      "applies_to": "definitie-app@current",
+      "category": "quick-reference",
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-042"
+        ],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/guidelines/VIBE_CODING_QUICK_REFERENCE.html"
+    },
+    {
+      "id": null,
+      "type": "GUIDE",
       "title": "TDD to Uitrol Werkstroom",
       "path": "../guidelines/TDD_TO_DEPLOYMENT_WORKFLOW.md",
       "url": "../guidelines/TDD_TO_DEPLOYMENT_WORKFLOW.md",
@@ -41638,6 +41744,44 @@
         "req": []
       },
       "rendered_url": "rendered/guidelines/README.html"
+    },
+    {
+      "id": null,
+      "type": "GUIDE",
+      "title": "Vibe Coding Workflow for DefinitieAgent with Claude Code",
+      "path": "../guidelines/VIBE_CODING_WORKFLOW.md",
+      "url": "../guidelines/VIBE_CODING_WORKFLOW.md",
+      "status": "active",
+      "prioriteit": "high",
+      "owner": "development",
+      "canonical": true,
+      "last_verified": "2025-10-17",
+      "applies_to": "definitie-app@current",
+      "category": "workflow-guide",
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-042",
+          "US-440",
+          "US-450"
+        ],
+        "epic": [
+          "EPIC-002",
+          "EPIC-004"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/guidelines/VIBE_CODING_WORKFLOW.html"
     },
     {
       "id": null,
@@ -41737,6 +41881,73 @@
         "req": []
       },
       "rendered_url": "rendered/guidelines/CANONICAL_LOCATIONS.html"
+    },
+    {
+      "id": null,
+      "type": "GUIDE",
+      "title": "Vibe Coding Integration Summary",
+      "path": "../guidelines/VIBE_CODING_INTEGRATION_SUMMARY.md",
+      "url": "../guidelines/VIBE_CODING_INTEGRATION_SUMMARY.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": true,
+      "last_verified": null,
+      "applies_to": "definitie-app@current",
+      "category": "executive-summary",
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-042",
+          "US-160",
+          "US-440",
+          "US-450"
+        ],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/guidelines/VIBE_CODING_INTEGRATION_SUMMARY.html"
+    },
+    {
+      "id": null,
+      "type": "GUIDE",
+      "title": "Vibe Coding Template Optimization Guide for Claude Code & DefinitieAgent",
+      "path": "../guidelines/VIBE_CODING_TEMPLATE_OPTIMIZATION_GUIDE.md",
+      "url": "../guidelines/VIBE_CODING_TEMPLATE_OPTIMIZATION_GUIDE.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/guidelines/VIBE_CODING_TEMPLATE_OPTIMIZATION_GUIDE.html"
     },
     {
       "id": null,
@@ -42024,6 +42235,37 @@
         "req": []
       },
       "rendered_url": "rendered/reports/performance_tracking_metric_fix.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Vibe Coding Prompt Template Quality Assessment",
+      "path": "../reports/VIBE_CODING_QUALITY_ASSESSMENT.md",
+      "url": "../reports/VIBE_CODING_QUALITY_ASSESSMENT.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/reports/VIBE_CODING_QUALITY_ASSESSMENT.html"
     },
     {
       "id": null,
@@ -43446,6 +43688,39 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Vibe Coding Architecture Analysis Report",
+      "path": "../reports/vibe-coding-architecture-analysis.md",
+      "url": "../reports/vibe-coding-architecture-analysis.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [
+          "EPIC-016"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/reports/vibe-coding-architecture-analysis.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "PHASE 2.1 Implementation Report: SynonymOrchestrator",
       "path": "../reports/phase-2.1-implementation-report.md",
       "url": "../reports/phase-2.1-implementation-report.md",
@@ -44247,17 +44522,17 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 775,
+      "DOC": 778,
       "EPIC": 26,
       "US": 267,
       "BUG": 18,
-      "GUIDE": 14,
+      "GUIDE": 19,
       "REQ": 110,
       "ARCH": 22,
       "TEST": 13,
       "COMP": 5
     },
-    "generated_at": "2025-10-17T09:56:22Z"
+    "generated_at": "2025-10-17T10:47:40Z"
   },
   "sources": [
     "docs"
