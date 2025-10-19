@@ -69,6 +69,19 @@
 - **[🔍 Vertaling Analyse Rapport](./archief/2025-09/VERTALING-ANALYSE-RAPPORT.md)** 🆕 - Taalstatus & compliance analyse *(gearchiveerd)*
 - **[🗺️ Traceability Matrix](./archief/2025-09/TRACEABILITY-MATRIX.md)** 🆕 - Vereisten ↔ Epische Verhalen ↔ Stories mapping *(gearchiveerd)*
 
+### 🔧 CI/CD & GitHub Workflow Management
+- **[📊 CI Failures Analysis](./analyses/CI_FAILURES_ANALYSIS.md)** 🔥 **NIEUW (Oct 2025)** - Systematische CI failure analyse & roadmap
+  - ✅ **Phase 1 Complete:** Security workflow (gitleaks + pip-audit) gefixt
+  - 📊 **Status:** 4/8 workflows passing (was 2/8)
+  - 🎯 **Next:** Phase 2 (Core tests), Phase 3 (Quality gates), Phase 4 (Documentation)
+- **[🚀 GitHub Best Practices](./analyses/GITHUB_BEST_PRACTICES.md)** 🔥 **NIEUW (Oct 2025)** - Complete GitHub optimization guide
+  - Branch protection strategies
+  - Dependabot configuration ✅ DONE
+  - Issue templates ✅ DONE
+  - PR automation & workflow optimization
+  - Success metrics & monitoring
+- **[📋 CLAUDE.md - CI/CD Sectie](../CLAUDE.md#cicd-pipeline--github-workflow-management)** - Systematische aanpak voor agents
+
 ### 🗄️ Database
 - **[Database Richtlijnen](./guidelines/DATABASE_GUIDELINES.md)** 🆕 – Enige actieve DB: `data/definities.db`, init/migratie via schema.sql
 
