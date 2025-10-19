@@ -102,7 +102,7 @@ def check_sharepoint_rest_api(base_url: str):
                 print(f"  Content-Type: {response.headers.get('Content-Type')}")
                 print(f"  Size: {len(response.text)} bytes")
                 return True
-            elif response.status_code == 401:
+            if response.status_code == 401:
                 print("  ⚠️  Authentication required")
             elif response.status_code == 403:
                 print("  ❌ Forbidden")
@@ -143,8 +143,7 @@ def check_search_functionality(base_url: str):
                 if "onherroepelijk" in response.text.lower():
                     print("  ✅ Search works! Found results")
                     return True
-                else:
-                    print("  ⚠️  Endpoint works but no results")
+                print("  ⚠️  Endpoint works but no results")
             else:
                 print(f"  ❌ Status {response.status_code}")
         except Exception as e:

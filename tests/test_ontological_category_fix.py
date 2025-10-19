@@ -21,7 +21,7 @@ class TestOntologicalCategoryFix:
         """Setup test dependencies."""
         self.prompt_service = PromptServiceV2()
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_prompt_service_v2_uses_ontological_category(self):
         """Test dat PromptServiceV2 ontological category gebruikt voor template selectie."""
 
@@ -33,7 +33,7 @@ class TestOntologicalCategoryFix:
             ("exemplaar", "contract", "Specifiek exemplaar van een overeenkomst"),
         ]
 
-        for category, begrip, expected_context in test_cases:
+        for category, begrip, _expected_context in test_cases:
             request = GenerationRequest(
                 id="test-001",
                 begrip=begrip,
@@ -54,7 +54,7 @@ class TestOntologicalCategoryFix:
             # Verificeer dat prompt category-specifieke elementen bevat
             assert category in result.text.lower() or begrip in result.text.lower()
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_orchestrator_v2_with_prompt_service_v2(self):
         """Test dat DefinitionOrchestratorV2 correct werkt met PromptServiceV2."""
 
@@ -149,7 +149,7 @@ class TestOntologicalCategoryFix:
         ]
         assert enriched_context.base_context["domein"] == ["Rechtspraak"]
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_category_specific_template_selection(self):
         """Test dat verschillende categories leiden tot verschillende prompts."""
 
@@ -186,7 +186,7 @@ class TestOntologicalCategoryFix:
             assert len(prompt_text) > 0
             # Deze test kan worden uitgebreid met meer specifieke checks
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_fallback_when_no_category_provided(self):
         """Test dat service correct werkt zonder ontological category."""
 

@@ -7,6 +7,7 @@ Implements comprehensive translation with domain-specific terminology
 import logging
 import re
 import shutil
+import sys
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
@@ -281,7 +282,6 @@ class DocumentTranslator:
     def apply_translations(self, content: str) -> tuple[str, int]:
         """Apply all translations to content"""
         changes = 0
-        original = content
 
         # 1. Translate headers (exact match)
         for eng, nl in self.terminology.HEADERS.items():
@@ -411,14 +411,13 @@ class DocumentTranslator:
             flags=re.IGNORECASE,
         )
 
-        content = re.sub(
+        return re.sub(
             r"vermindert?\s+(\w+)",
             r"vermindert \1 met minimaal 30%",
             content,
             flags=re.IGNORECASE,
         )
 
-        return content
 
     def determine_priority(self, file_path: Path) -> Priority:
         """Determine translation priority based on file type and location"""
@@ -731,4 +730,4 @@ def main():
 
 
 if __name__ == "__main__":
-    exit(main())
+    sys.exit(main())

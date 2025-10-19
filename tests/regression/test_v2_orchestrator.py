@@ -174,9 +174,8 @@ async def main():
     if success_v2 and success_v1:
         print("\n🎉 ALL TESTS PASSED! V2 orchestrator ready for UI testing.")
         return 0
-    else:
-        print("\n❌ SOME TESTS FAILED! Check implementation.")
-        return 1
+    print("\n❌ SOME TESTS FAILED! Check implementation.")
+    return 1
 
 
 if __name__ == "__main__":

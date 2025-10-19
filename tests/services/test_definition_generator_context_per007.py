@@ -25,7 +25,8 @@ def test_base_context_includes_all_three_lists():
     # Test de interne mapping functie direct (geen async afhankelijkheden nodig)
     base = ctx._build_base_context(request)
 
-    assert "DJI" in base["organisatorisch"] and "OM" in base["organisatorisch"]
+    assert "DJI" in base["organisatorisch"]
+    assert "OM" in base["organisatorisch"]
     assert "Strafrecht" in base["juridisch"]
     assert "Art. 27 Sv" in base["wettelijk"]
 
@@ -71,9 +72,12 @@ def test_context_awareness_module_renders_all_sections():
 
     # Verwacht categorie labels en waarden (format uit get_all_context_text)
     assert "Organisatorisch" in text
-    assert "DJI" in text and "OM" in text
-    assert "Juridisch" in text and "Strafrecht" in text
-    assert "Wettelijk" in text and "Art. 27 Sv" in text
+    assert "DJI" in text
+    assert "OM" in text
+    assert "Juridisch" in text
+    assert "Strafrecht" in text
+    assert "Wettelijk" in text
+    assert "Art. 27 Sv" in text
 
 
 def test_legacy_context_ignored_when_structured_present():

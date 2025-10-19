@@ -12,7 +12,8 @@ class _BadIterable:
     """Helper die iteratie forceert om te falen."""
 
     def __iter__(self):
-        raise ValueError("cannot iterate")
+        msg = "cannot iterate"
+        raise ValueError(msg)
 
 
 def _make_repo() -> DefinitionRepository:
@@ -58,7 +59,8 @@ def test_get_stats_logs_when_query_fails(caplog):
 
     @contextmanager
     def _failing_connection():
-        raise sqlite3.Error("boom")
+        msg = "boom"
+        raise sqlite3.Error(msg)
         yield
 
     repo._get_connection = _failing_connection  # type: ignore[attr-defined]

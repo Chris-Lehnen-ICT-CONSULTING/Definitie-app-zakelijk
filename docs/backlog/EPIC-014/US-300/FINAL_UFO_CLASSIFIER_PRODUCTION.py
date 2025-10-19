@@ -283,12 +283,14 @@ class UFOClassifierService:
     def _validate_and_normalize(self, text: str, field_name: str) -> str:
         """Valideer en normaliseer input (fix voor Unicode issues)."""
         if not text or not isinstance(text, str):
-            raise ValueError(f"{field_name} moet een niet-lege string zijn")
+            msg = f"{field_name} moet een niet-lege string zijn"
+            raise ValueError(msg)
 
         # Trim whitespace
         text = text.strip()
         if not text:
-            raise ValueError(f"{field_name} mag niet leeg zijn")
+            msg = f"{field_name} mag niet leeg zijn"
+            raise ValueError(msg)
 
         # Unicode normalisatie voor Nederlandse tekst
         text = unicodedata.normalize("NFC", text)

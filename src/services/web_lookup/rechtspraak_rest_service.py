@@ -41,7 +41,8 @@ class RechtspraakRESTService:
 
     async def __aenter__(self):
         if not AIOHTTP_AVAILABLE:  # pragma: no cover
-            raise RuntimeError("aiohttp vereist voor Rechtspraak REST service")
+            msg = "aiohttp vereist voor Rechtspraak REST service"
+            raise RuntimeError(msg)
         self.session = aiohttp.ClientSession(
             headers=self.headers,
             timeout=aiohttp.ClientTimeout(total=20),
@@ -55,7 +56,8 @@ class RechtspraakRESTService:
 
     async def fetch_by_ecli(self, ecli: str) -> LookupResult | None:
         if not self.session:
-            raise RuntimeError("Service moet gebruikt worden als async context manager")
+            msg = "Service moet gebruikt worden als async context manager"
+            raise RuntimeError(msg)
 
         # Content endpoint; META retourneert vooral metadata
         url = f"{self.base_url}/uitspraken/content"

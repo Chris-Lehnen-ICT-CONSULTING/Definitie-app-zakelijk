@@ -16,7 +16,7 @@ from services.prompts.prompt_service_v2 import PromptServiceV2
 class TestAntiPatterns:
     """Tests that ensure bad patterns are permanently blocked"""
 
-    @pytest.mark.antipattern()
+    @pytest.mark.antipattern
     def test_never_parse_ui_emoji_strings(self):
         """Emojis in data layer should always fail"""
         # GIVEN: Attempt to put emojis in structured data
@@ -33,7 +33,7 @@ class TestAntiPatterns:
                 metadata={},
             )
 
-    @pytest.mark.antipattern()
+    @pytest.mark.antipattern
     def test_never_concatenate_then_split(self):
         """Concatenate-then-split pattern must be blocked"""
         # GIVEN: List of organizations
@@ -51,7 +51,7 @@ class TestAntiPatterns:
                 warnings.warn(
                     "Detected concatenate-then-split anti-pattern. "
                     "Use structured lists throughout.",
-                    DeprecationWarning,
+                    DeprecationWarning, stacklevel=2,
                 )
 
             # Should have warning
@@ -59,7 +59,7 @@ class TestAntiPatterns:
             assert issubclass(w[0].category, DeprecationWarning)
             assert "concatenate-then-split" in str(w[0].message)
 
-    @pytest.mark.antipattern()
+    @pytest.mark.antipattern
     def test_never_mix_ui_and_data_logic(self):
         """UI logic in business layer must fail"""
         # GIVEN: Prompt service (business layer)
@@ -81,7 +81,7 @@ class TestAntiPatterns:
                 service, method
             ), f"UI method '{method}' found in business layer PromptServiceV2"
 
-    @pytest.mark.antipattern()
+    @pytest.mark.antipattern
     def test_never_use_string_context_field(self):
         """Legacy string context field must be ignored when structured fields present"""
         # GIVEN: Request with both old and new style context
@@ -98,7 +98,7 @@ class TestAntiPatterns:
 
         # THEN: Old string context should NOT appear anywhere
         all_values = []
-        for key, values in context.items():
+        for _key, values in context.items():
             if isinstance(values, list):
                 all_values.extend(values)
 
@@ -113,7 +113,7 @@ class TestAntiPatterns:
         assert "OM" in context["organisatorisch"]
         assert "Strafrecht" in context["juridisch"]
 
-    @pytest.mark.antipattern()
+    @pytest.mark.antipattern
     def test_never_process_ui_strings_as_data(self):
         """UI strings should never be processable as data"""
         # GIVEN: A UI preview string
@@ -144,7 +144,7 @@ class TestAntiPatterns:
         assert "⚖️" not in all_text, "Emoji leaked into context"
         assert "📜" not in all_text, "Emoji leaked into context"
 
-    @pytest.mark.antipattern()
+    @pytest.mark.antipattern
     def test_never_store_formatted_strings_in_database(self):
         """Database should only store structured data, not formatted strings"""
         # GIVEN: Context data to be saved
@@ -162,11 +162,13 @@ class TestAntiPatterns:
             """Validate data is structured, not formatted"""
             if isinstance(data, str):
                 if any(emoji in data for emoji in ["📋", "⚖️", "📜"]):
+                    msg = "Formatted UI strings cannot be stored in database"
                     raise ValueError(
-                        "Formatted UI strings cannot be stored in database"
+                        msg
                     )
                 if " | " in data and ": " in data:
-                    raise ValueError("Detected UI formatting in storage data")
+                    msg = "Detected UI formatting in storage data"
+                    raise ValueError(msg)
             return True
 
         # Good storage should pass
@@ -176,11 +178,10 @@ class TestAntiPatterns:
         with pytest.raises(ValueError, match="cannot be stored in database"):
             validate_storage_format(bad_storage)
 
-    @pytest.mark.antipattern()
+    @pytest.mark.antipattern
     def test_never_reverse_engineer_from_display(self):
         """Should never try to reverse-engineer data from display format"""
         # GIVEN: A display string
-        display = "Organisatorische context: OM, DJI, Rechtspraak"
 
         # THEN: No method should exist to parse this back
         manager = HybridContextManager()
@@ -192,7 +193,7 @@ class TestAntiPatterns:
         assert not hasattr(service, "context_from_display")
         assert not hasattr(service, "reverse_format")
 
-    @pytest.mark.antipattern()
+    @pytest.mark.antipattern
     def test_never_use_display_strings_in_prompts(self):
         """Prompts should use structured data, not display strings"""
         # GIVEN: A prompt service
@@ -219,7 +220,7 @@ class TestAntiPatterns:
             assert " | " not in context_str
             assert "⚖️" not in context_str
 
-    @pytest.mark.antipattern()
+    @pytest.mark.antipattern
     def test_never_couple_tests_to_ui_format(self):
         """Tests should verify data, not UI format"""
         # GIVEN: Test data
@@ -243,7 +244,7 @@ class TestAntiPatterns:
         assert "📋" in source, "Example should show bad pattern"
         assert "# BAD" in source, "Should be marked as bad pattern"
 
-    @pytest.mark.antipattern()
+    @pytest.mark.antipattern
     def test_never_pass_enriched_context_to_ui(self):
         """UI should only receive formatted strings, not EnrichedContext objects"""
         # GIVEN: EnrichedContext object
@@ -259,9 +260,12 @@ class TestAntiPatterns:
         def ui_component_signature(data):
             """Simulated UI component"""
             if isinstance(data, EnrichedContext):
-                raise TypeError(
+                msg = (
                     "UI components should not receive EnrichedContext objects. "
                     "Use ContextFormatter to create display strings."
+                )
+                raise TypeError(
+                    msg
                 )
             return True
 

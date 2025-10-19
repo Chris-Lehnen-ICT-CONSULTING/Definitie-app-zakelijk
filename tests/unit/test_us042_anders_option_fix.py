@@ -34,7 +34,7 @@ from src.ui.components.context_selector import ContextSelector
 class TestAndersOptionBasicFunctionality:
     """Test basic Anders... option functionality."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def mock_streamlit(self):
         """Mock Streamlit components."""
         with (
@@ -93,18 +93,18 @@ class TestAndersOptionBasicFunctionality:
         def multiselect_side_effect(label, options, *args, **kwargs):
             if "Organisatorische" in label:
                 return ["DJI", "Anders..."]
-            elif "Juridische" in label:
+            if "Juridische" in label:
                 return ["Strafrecht", "Anders..."]
-            elif "Wettelijke" in label:
+            if "Wettelijke" in label:
                 return ["Wetboek van Strafrecht", "Anders..."]
             return []
 
         def text_input_side_effect(label, *args, **kwargs):
             if "organisatorische" in label.lower():
                 return "Custom Org"
-            elif "juridische" in label.lower():
+            if "juridische" in label.lower():
                 return "Custom Juridisch"
-            elif "wettelijke" in label.lower():
+            if "wettelijke" in label.lower():
                 return "Custom Wet"
             return ""
 
@@ -123,7 +123,7 @@ class TestAndersOptionBasicFunctionality:
 class TestAndersSpecialCharacters:
     """Test Anders... option with special characters and edge cases."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def mock_streamlit(self):
         with (
             patch("streamlit.multiselect") as mock_multiselect,
@@ -202,7 +202,7 @@ class TestAndersSpecialCharacters:
 class TestAndersStatePersistence:
     """Test that Anders... selections persist correctly in session state."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def mock_session_state(self):
         """Mock Streamlit session state."""
         with patch.object(st, "session_state", create=True) as mock_state:
@@ -234,7 +234,7 @@ class TestAndersStatePersistence:
             )
 
             # Second render should maintain the value
-            result2 = selector.render()
+            selector.render()
             # Value should still be available
 
     def test_anders_cleared_when_deselected(self):
@@ -297,7 +297,7 @@ class TestAndersUIBehavior:
             call_kwargs = (
                 mock_text_input.call_args[1] if mock_text_input.call_args else {}
             )
-            placeholder = call_kwargs.get("placeholder", "")
+            call_kwargs.get("placeholder", "")
             # Placeholder should give examples or guidance
 
     def test_anders_option_always_last(self):

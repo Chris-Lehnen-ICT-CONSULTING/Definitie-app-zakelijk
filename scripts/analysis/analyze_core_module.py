@@ -53,7 +53,7 @@ class CoreModuleAnalyzer:
         logger.info(f"Analyseren van begrip: {begrip}")
 
         # Create context
-        context = EnrichedContext(
+        EnrichedContext(
             base_context=context_data.get("base_context", {}),
             sources=[],
             expanded_terms=context_data.get("expanded_terms", {}),
@@ -156,7 +156,7 @@ class CoreModuleAnalyzer:
         """Genereer een samenvattend rapport."""
         successful = [r for r in self.results if r.get("success", False)]
 
-        report = {
+        return {
             "total_cases": len(self.results),
             "successful": len(successful),
             "failed": len(self.results) - len(successful),
@@ -170,7 +170,6 @@ class CoreModuleAnalyzer:
             "detailed_results": self.results,
         }
 
-        return report
 
     def _find_common_sections(self, results: list[dict[str, Any]]) -> list[str]:
         """Vind secties die in alle outputs voorkomen."""

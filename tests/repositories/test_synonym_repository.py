@@ -88,7 +88,7 @@ class TestSynonymSuggestionRecord:
 class TestSynonymRepository:
     """Tests voor SynonymRepository."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def repo(self, test_db_path):
         """Create repository with test database and apply migration."""
         # Apply synonym_suggestions migration
@@ -265,7 +265,7 @@ class TestSynonymRepository:
         id1 = repo.save_suggestion("t1", "s1", 0.95, "r1")
         id2 = repo.save_suggestion("t2", "s2", 0.90, "r2")
         id3 = repo.save_suggestion("t3", "s3", 0.85, "r3")
-        id4 = repo.save_suggestion("t4", "s4", 0.80, "r4")
+        repo.save_suggestion("t4", "s4", 0.80, "r4")
 
         repo.approve_suggestion(id1, "curator1")
         repo.approve_suggestion(id2, "curator1")
@@ -366,7 +366,7 @@ class TestSynonymRepository:
 class TestIntegration:
     """Integration tests voor complete workflow."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def repo(self, test_db_path):
         """Create repository with test database and apply migration."""
         # Apply synonym_suggestions migration

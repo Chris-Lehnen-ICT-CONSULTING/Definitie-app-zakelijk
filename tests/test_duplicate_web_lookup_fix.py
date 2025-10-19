@@ -20,7 +20,7 @@ from services.interfaces import GenerationRequest
 class TestDuplicateWebLookupFix:
     """Test suite voor verificatie van web lookup fix."""
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_hybrid_context_manager_no_web_lookup(self):
         """
         Verificatie: HybridContextManager voert GEEN web lookup uit.
@@ -47,7 +47,7 @@ class TestDuplicateWebLookupFix:
 
         print("✅ HybridContextManager has no web lookup components")
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_context_manager_builds_without_web_lookup(self):
         """
         Verificatie: build_enriched_context werkt zonder web lookup.
@@ -90,7 +90,7 @@ class TestDuplicateWebLookupFix:
 
         print("✅ HybridContextManager builds context WITHOUT calling web lookup")
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_prompt_service_uses_orchestrator_web_lookup_data(self):
         """
         Verificatie: PromptServiceV2 gebruikt web lookup data van orchestrator.
@@ -153,7 +153,7 @@ class TestDuplicateWebLookupFix:
             enable_rule_interpretation=False, context_abbreviations={}
         )
 
-        manager = HybridContextManager(config)
+        HybridContextManager(config)
 
         # Build minimal enriched context
         from services.definition_generator_context import EnrichedContext

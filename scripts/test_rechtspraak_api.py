@@ -33,24 +33,23 @@ async def test_endpoint(name: str, url: str) -> dict:
     }
 
     try:
-        async with aiohttp.ClientSession() as session:
-            async with session.get(
-                url, timeout=aiohttp.ClientTimeout(total=30)
-            ) as resp:
-                result["status"] = resp.status
-                text = await resp.text()
-                result["response_preview"] = text[:500]
+        async with aiohttp.ClientSession() as session, session.get(
+            url, timeout=aiohttp.ClientTimeout(total=30)
+        ) as resp:
+            result["status"] = resp.status
+            text = await resp.text()
+            result["response_preview"] = text[:500]
 
-                print(f"Status: {resp.status}")
+            print(f"Status: {resp.status}")
 
-                if resp.status == 200:
-                    result["success"] = True
-                    print("✅ SUCCESS")
-                    print(f"Response preview: {text[:200]}")
-                else:
-                    result["error"] = f"HTTP {resp.status}"
-                    print(f"❌ HTTP {resp.status}")
-                    print(f"Response preview: {text[:200]}")
+            if resp.status == 200:
+                result["success"] = True
+                print("✅ SUCCESS")
+                print(f"Response preview: {text[:200]}")
+            else:
+                result["error"] = f"HTTP {resp.status}"
+                print(f"❌ HTTP {resp.status}")
+                print(f"Response preview: {text[:200]}")
 
     except TimeoutError:
         result["error"] = "Timeout"

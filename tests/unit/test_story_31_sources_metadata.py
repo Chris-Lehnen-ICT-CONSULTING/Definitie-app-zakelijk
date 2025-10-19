@@ -141,7 +141,6 @@ class TestProviderNeutralReferences:
 
         # Expected: prompt should contain "Bron 1:" and "Bron 2:" not provider names
         # This will be implemented in the prompt service
-        expected_prompt_snippet = "Bron 1: Test content 1"
 
         # Act - Simulate the augmentation (this represents the desired behavior)
         augmented_lines = []

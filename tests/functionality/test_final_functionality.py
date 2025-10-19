@@ -195,9 +195,8 @@ async def test_definition_generation():
             print(f"  - voorbeelden: {count} items")
 
         return True
-    else:
-        print(f"\n❌ Generatie mislukt: {result.error}")
-        return False
+    print(f"\n❌ Generatie mislukt: {result.error}")
+    return False
 
 
 async def main():

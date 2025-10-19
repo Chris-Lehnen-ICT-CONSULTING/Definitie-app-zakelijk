@@ -299,7 +299,7 @@ def demonstrate_improved_module(begrip: str) -> str:
 
     Dit is een voorbeeld van hoe we de module kunnen verbeteren.
     """
-    improved_template = f"""Je bent een ervaren Nederlandse expert in het opstellen van beleidsmatige en juridische definities voor de Nederlandse overheid.
+    return f"""Je bent een ervaren Nederlandse expert in het opstellen van beleidsmatige en juridische definities voor de Nederlandse overheid.
 
 **Je opdracht**: Formuleer een heldere, eenduidige definitie voor het begrip '{begrip}'.
 
@@ -322,7 +322,6 @@ def demonstrate_improved_module(begrip: str) -> str:
 
 BELANGRIJK: Focus op precisie en helderheid. De definitie moet juridisch houdbaar zijn."""
 
-    return improved_template
 
 
 def main():

@@ -18,6 +18,7 @@ Datum: Juli 2025
 """
 
 import asyncio
+import contextlib
 import importlib
 import inspect
 import logging
@@ -77,17 +78,13 @@ class TestImportStructure(unittest.TestCase):
         for module_name in self.core_modules:
             try:
                 module = importlib.import_module(module_name)
-                self.assertIsNotNone(
-                    module, f"Module {module_name} importeert als None"
-                )
+                assert module is not None, f"Module {module_name} importeert als None"
                 logger.info(f"✅ {module_name} import succesvol")
             except Exception as e:
                 failed_imports.append((module_name, str(e)))
                 logger.error(f"❌ {module_name} import gefaald: {e}")
 
-        self.assertEqual(
-            len(failed_imports), 0, f"Core modules faalden bij import: {failed_imports}"
-        )
+        assert len(failed_imports) == 0, f"Core modules faalden bij import: {failed_imports}"
 
     def test_optional_modules_graceful_degradation(self):
         """Test dat optionele modules graceful degradation hebben."""
@@ -109,7 +106,7 @@ class TestImportStructure(unittest.TestCase):
             from logs.application.log_definitie import get_logger, log_definitie
 
             logger_instance = get_logger("test")
-            self.assertIsNotNone(logger_instance)
+            assert logger_instance is not None
             logger.info("✅ Logs module import succesvol")
         except ImportError:
             self.skipTest("logs.application.log_definitie niet aanwezig (optioneel)")
@@ -129,11 +126,7 @@ class TestImportStructure(unittest.TestCase):
                     if "__pycache__" not in str(directory):
                         missing_init_files.append(str(directory.relative_to(src_path)))
 
-        self.assertEqual(
-            len(missing_init_files),
-            0,
-            f"Ontbrekende __init__.py bestanden in: {missing_init_files}",
-        )
+        assert len(missing_init_files) == 0, f"Ontbrekende __init__.py bestanden in: {missing_init_files}"
 
 
 class TestNederlandseCommentaren(unittest.TestCase):
@@ -222,11 +215,7 @@ class TestNederlandseCommentaren(unittest.TestCase):
             except Exception as e:
                 logger.warning(f"Kon {py_file} niet lezen: {e}")
 
-        self.assertLess(
-            len(non_dutch_files),
-            len(self.python_files) * 0.1,
-            f"Te veel bestanden zonder Nederlandse docstrings: {non_dutch_files[:5]}",
-        )
+        assert len(non_dutch_files) < len(self.python_files) * 0.1, f"Te veel bestanden zonder Nederlandse docstrings: {non_dutch_files[:5]}"
 
     def test_inline_comments_are_dutch(self):
         """Test dat inline commentaren grotendeels in het Nederlands zijn."""
@@ -268,11 +257,7 @@ class TestNederlandseCommentaren(unittest.TestCase):
             except Exception as e:
                 logger.warning(f"Kon {py_file} niet analyseren: {e}")
 
-        self.assertLess(
-            len(files_with_poor_dutch_comments),
-            5,
-            f"Te veel bestanden met onvoldoende Nederlandse commentaren: {files_with_poor_dutch_comments}",
-        )
+        assert len(files_with_poor_dutch_comments) < 5, f"Te veel bestanden met onvoldoende Nederlandse commentaren: {files_with_poor_dutch_comments}"
 
     def test_function_documentation_completeness(self):
         """Test dat belangrijke functies Nederlandse documentatie hebben."""
@@ -309,11 +294,7 @@ class TestNederlandseCommentaren(unittest.TestCase):
 
         # Verwacht dat minder dan 20% van de functies ongedocumenteerd is
         total_functions = len(undocumented_functions) + 100  # Geschatte totaal
-        self.assertLess(
-            len(undocumented_functions) / total_functions,
-            0.3,
-            f"Te veel ongedocumenteerde functies: {undocumented_functions[:10]}",
-        )
+        assert len(undocumented_functions) / total_functions < 0.3, f"Te veel ongedocumenteerde functies: {undocumented_functions[:10]}"
 
 
 class TestCoreFunctionality(unittest.TestCase):
@@ -360,16 +341,16 @@ class TestCoreFunctionality(unittest.TestCase):
                 )
 
                 created_id = repo.create_definitie(test_record)
-                self.assertIsNotNone(created_id)
+                assert created_id is not None
 
                 # Test read
                 retrieved = repo.get_definitie(created_id)
-                self.assertIsNotNone(retrieved)
-                self.assertEqual(retrieved.begrip, "test_begrip")
+                assert retrieved is not None
+                assert retrieved.begrip == "test_begrip"
 
                 # Test search
                 results = repo.search_definities(query="test_begrip")
-                self.assertGreater(len(results), 0)
+                assert len(results) > 0
 
                 logger.info("✅ Database operaties succesvol getest")
 
@@ -377,10 +358,8 @@ class TestCoreFunctionality(unittest.TestCase):
                 # Cleanup tijdelijke database
                 import os
 
-                try:
+                with contextlib.suppress(FileNotFoundError):
                     os.unlink(tmp_db_path)
-                except FileNotFoundError:
-                    pass
 
         except Exception as e:
             self.fail(f"Database test gefaald: {e}")
@@ -392,21 +371,21 @@ class TestCoreFunctionality(unittest.TestCase):
             from toetsregels.loader import load_toetsregels
 
             toetsregels = load_toetsregels().get("regels", {})
-            self.assertIsInstance(toetsregels, dict)
-            self.assertGreater(len(toetsregels), 0)
+            assert isinstance(toetsregels, dict)
+            assert len(toetsregels) > 0
 
             # Valideer toetsregel structuur
-            for regel_id, regel_data in toetsregels.items():
-                self.assertIn("uitleg", regel_data)
-                self.assertIsInstance(regel_data["uitleg"], str)
-                self.assertGreater(len(regel_data["uitleg"]), 10)
+            for _regel_id, regel_data in toetsregels.items():
+                assert "uitleg" in regel_data
+                assert isinstance(regel_data["uitleg"], str)
+                assert len(regel_data["uitleg"]) > 10
 
             # Test config manager - minder kritiek voor core functionaliteit
             try:
                 from config.config_manager import ConfigManager
 
                 config_manager = ConfigManager()
-                self.assertIsNotNone(config_manager)
+                assert config_manager is not None
             except ImportError:
                 logger.info(
                     "⚠️ Config manager niet beschikbaar, maar toetsregels werken"
@@ -439,14 +418,14 @@ class TestCoreFunctionality(unittest.TestCase):
             }
 
             result = toets_definitie(test_definitie, test_toetsregels, test_begrip)
-            self.assertIsNotNone(result)
+            assert result is not None
 
             # Test optionele validator klasse
             try:
                 from ai_toetser.modular_toetser import ModularToetser
 
                 validator = ModularToetser()
-                self.assertIsNotNone(validator)
+                assert validator is not None
             except ImportError:
                 logger.info(
                     "⚠️ ModularToetser klasse niet beschikbaar, maar toets_definitie werkt"
@@ -474,7 +453,7 @@ class TestCoreFunctionality(unittest.TestCase):
             from services.service_factory import get_definition_service
 
             service = get_definition_service()
-            self.assertIsNotNone(service)
+            assert service is not None
 
             logger.info("✅ AI integratie mock test succesvol")
 
@@ -493,8 +472,8 @@ class TestModernWebLookupIntegration(unittest.TestCase):
 
             # Test basis functionaliteit
             service = ModernWebLookupService()
-            self.assertTrue(hasattr(service, "lookup"))
-            self.assertTrue(hasattr(service, "validate_source"))
+            assert hasattr(service, "lookup")
+            assert hasattr(service, "validate_source")
 
             logger.info("✅ Modern web lookup service check succesvol")
 
@@ -513,7 +492,7 @@ class TestModernWebLookupIntegration(unittest.TestCase):
             # Test dat error handling werkt
             from services.modern_web_lookup_service import ModernWebLookupService
 
-            service = ModernWebLookupService()
+            ModernWebLookupService()
             # Dit zou graceful moeten falen zonder de hele applicatie te crashen
 
             logger.info("✅ Error handling test succesvol")
@@ -539,7 +518,7 @@ class TestPerformanceAndMemory(unittest.TestCase):
         import_time = time.time() - start_time
 
         # Verwacht dat imports binnen 5 seconden lukken
-        self.assertLess(import_time, 5.0, f"Import tijd te lang: {import_time:.2f}s")
+        assert import_time < 5.0, f"Import tijd te lang: {import_time:.2f}s"
 
         logger.info(f"✅ Import performance: {import_time:.2f}s")
 
@@ -561,9 +540,7 @@ class TestPerformanceAndMemory(unittest.TestCase):
             memory_increase = final_memory - initial_memory
 
             # Verwacht dat memory increase onder 100MB blijft
-            self.assertLess(
-                memory_increase, 100, f"Memory gebruik te hoog: {memory_increase:.1f}MB"
-            )
+            assert memory_increase < 100, f"Memory gebruik te hoog: {memory_increase:.1f}MB"
 
             logger.info(f"✅ Memory usage: +{memory_increase:.1f}MB")
 
@@ -583,7 +560,7 @@ class TestErrorHandlingAndRobustness(unittest.TestCase):
 
                 config_manager = ConfigManager()
                 # Zou niet moeten crashen, maar defaults gebruiken
-                self.assertIsNotNone(config_manager)
+                assert config_manager is not None
 
             logger.info("✅ Missing config handling succesvol")
 
@@ -606,12 +583,12 @@ class TestErrorHandlingAndRobustness(unittest.TestCase):
 
             # Test met lege input
             result = toets_definitie("", test_toetsregels, "")
-            self.assertIsNotNone(result)
+            assert result is not None
 
             # Test met zeer lange input
             long_text = "x" * 10000
             result = toets_definitie(long_text, test_toetsregels, "test")
-            self.assertIsNotNone(result)
+            assert result is not None
 
             logger.info("✅ Invalid input handling succesvol")
 
@@ -639,7 +616,7 @@ class TestRegressionSpecific(unittest.TestCase):
             from logs.application.log_definitie import log_definitie
 
             logger_instance = get_logger("regression_test")
-            self.assertIsNotNone(logger_instance)
+            assert logger_instance is not None
 
             logger.info("✅ Logs import regressie test succesvol")
 
@@ -690,9 +667,7 @@ class TestRegressionSpecific(unittest.TestCase):
             if not file_path.exists():
                 missing_files.append(init_file)
 
-        self.assertEqual(
-            len(missing_files), 0, f"Ontbrekende __init__.py bestanden: {missing_files}"
-        )
+        assert len(missing_files) == 0, f"Ontbrekende __init__.py bestanden: {missing_files}"
 
         logger.info("✅ Alle verwachte __init__.py bestanden aanwezig")
 

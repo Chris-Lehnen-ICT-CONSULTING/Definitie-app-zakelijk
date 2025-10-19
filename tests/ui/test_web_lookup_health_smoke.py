@@ -3,7 +3,7 @@ import pytest
 pytestmark = pytest.mark.smoke_web_lookup
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_web_lookup_health_smoke(monkeypatch):
     """Headless smoketest voor Web Lookup Health Check met mocks (geen netwerk).
 
@@ -82,9 +82,12 @@ async def test_web_lookup_health_smoke(monkeypatch):
     for p in providers:
         req = LookupRequest(term=terms[p], sources=[p], max_results=1)
         res = await svc.lookup(req)
-        assert res and len(res) == 1
+        assert res
+        assert len(res) == 1
         r = res[0]
         assert r.success is True
-        assert r.source and r.source.name
+        assert r.source
+        assert r.source.name
         # URL en confidence ingevuld door stub
-        assert r.source.url and r.source.confidence > 0.0
+        assert r.source.url
+        assert r.source.confidence > 0.0

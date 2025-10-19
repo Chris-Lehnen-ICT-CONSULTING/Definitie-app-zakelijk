@@ -111,7 +111,8 @@ def load_json(path: Path) -> list[dict[str, Any]]:
     if isinstance(data, dict):
         # Enkel object → als lijst behandelen
         return [data]
-    raise ValueError("Onbekend JSON-formaat voor export")
+    msg = "Onbekend JSON-formaat voor export"
+    raise ValueError(msg)
 
 
 def load_csv(path: Path) -> list[dict[str, Any]]:

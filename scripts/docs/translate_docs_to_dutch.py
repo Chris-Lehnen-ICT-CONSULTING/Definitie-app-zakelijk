@@ -132,12 +132,11 @@ def add_justice_context(content: str) -> str:
         content = content.replace("ASTRA/NORA", "ASTRA/NORA/BIR")
 
     # Voeg systeem integraties toe
-    content = content.replace(
+    return content.replace(
         "integrate with existing systems",
         "integreren met OM Proza, DJI TULP, Rechtspraak GPS, CJIB systemen",
     )
 
-    return content
 
 
 def translate_file(file_path: Path) -> bool:
@@ -193,9 +192,8 @@ def translate_file(file_path: Path) -> bool:
                 f.write(content)
             print(f"  ✓ {file_path.name} - Vertaald")
             return True
-        else:
-            print(f"  - {file_path.name} - Geen wijzigingen")
-            return False
+        print(f"  - {file_path.name} - Geen wijzigingen")
+        return False
 
     except Exception as e:
         print(f"  ✗ {file_path.name} - Fout: {e}")

@@ -253,11 +253,10 @@ if __name__ == "__main__":
         if not remaining_refs:
             print("  ✓ No History Tab references found")
             return True, []
-        else:
-            print(f"  ⚠ Found {len(remaining_refs)} possible remaining references:")
-            for ref in remaining_refs[:5]:  # Show first 5
-                print(f"    - {ref}")
-            return False, remaining_refs
+        print(f"  ⚠ Found {len(remaining_refs)} possible remaining references:")
+        for ref in remaining_refs[:5]:  # Show first 5
+            print(f"    - {ref}")
+        return False, remaining_refs
 
     def test_syntax(self) -> bool:
         """Test Python syntax of modified files"""

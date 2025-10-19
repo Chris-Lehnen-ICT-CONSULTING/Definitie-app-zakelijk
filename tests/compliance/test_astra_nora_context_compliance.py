@@ -36,7 +36,7 @@ from src.services.interfaces import GenerationRequest
 class TestAuditTrailCompliance:
     """Test ASTRA audit trail requirements."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def audit_logger(self):
         """Mock audit logger."""
         with patch("src.services.audit.audit_logger.AuditLogger") as mock_logger:
@@ -54,20 +54,12 @@ class TestAuditTrailCompliance:
         # Process request
         container = ServiceContainer()
         prompt_service = container.prompt_service()
-        prompt = prompt_service.build_prompt(request)
+        prompt_service.build_prompt(request)
 
         # Verify audit log created
         audit_logger.assert_called()
 
         # Check log contains required fields
-        expected_fields = [
-            "timestamp",
-            "user_id",
-            "action",
-            "context_data",
-            "result",
-            "session_id",
-        ]
 
     def test_audit_log_immutability(self):
         """Audit logs must be immutable once written."""
@@ -108,7 +100,7 @@ class TestAuditTrailCompliance:
             mock_log.side_effect = lambda e: events.append(e)
 
             # Simulate complete flow
-            request = GenerationRequest(
+            GenerationRequest(
                 begrip="test",
                 organisatorische_context=["DJI"],
                 juridische_context=["Strafrecht"],
@@ -116,13 +108,6 @@ class TestAuditTrailCompliance:
             )
 
             # Expected audit events
-            expected_events = [
-                "context_request_received",
-                "context_validation_started",
-                "context_validation_completed",
-                "prompt_generation_started",
-                "prompt_generation_completed",
-            ]
 
             # This test documents the requirement
 
@@ -179,24 +164,14 @@ class TestPrivacyCompliance:
     def test_purpose_limitation(self):
         """Context data must only be used for stated purpose."""
         # This test documents the requirement
-        allowed_purposes = [
-            "definition_generation",
-            "validation",
-            "quality_improvement",
-        ]
 
         # Context should not be used for other purposes
-        forbidden_purposes = ["marketing", "profiling", "third_party_sharing"]
 
     def test_data_encryption_at_rest(self):
         """Sensitive context data should be encrypted at rest."""
         # This test documents the requirement
-        with patch("src.services.storage.encrypt") as mock_encrypt:
-            context = {
-                "organisatorische_context": ["DJI"],
-                "juridische_context": ["Strafrecht"],
-                "wettelijke_basis": ["Test wet"],
-            }
+        with patch("src.services.storage.encrypt"):
+            pass
 
             # When storing context
             # mock_encrypt should be called
@@ -227,20 +202,8 @@ class TestInteroperabilityStandards:
     def test_semantic_interoperability(self):
         """Context fields must use standardized vocabularies."""
         # Standard organization codes
-        valid_organizations = {
-            "DJI": "Dienst Justitiële Inrichtingen",
-            "OM": "Openbaar Ministerie",
-            "Rechtspraak": "De Rechtspraak",
-            "KMAR": "Koninklijke Marechaussee",
-            "CJIB": "Centraal Justitieel Incassobureau",
-        }
 
         # Standard legal domains
-        valid_domains = {
-            "Strafrecht": "Criminal Law",
-            "Bestuursrecht": "Administrative Law",
-            "Civiel recht": "Civil Law",
-        }
 
         # This test documents the vocabulary requirement
 
@@ -265,7 +228,7 @@ class TestSecurityRequirements:
 
     def test_input_validation(self):
         """All context inputs must be validated."""
-        manager = ContextManager()
+        ContextManager()
 
         # Test invalid inputs are rejected
         invalid_contexts = [
@@ -275,7 +238,7 @@ class TestSecurityRequirements:
             {"unknown_field": ["value"]},  # Unknown field
         ]
 
-        for invalid in invalid_contexts:
+        for _invalid in invalid_contexts:
             # Should validate and reject/sanitize
             pass  # Implementation dependent
 
@@ -304,7 +267,6 @@ class TestSecurityRequirements:
     def test_access_control(self):
         """Context access must be properly controlled."""
         # This test documents the requirement
-        required_permissions = ["context.read", "context.write", "context.delete"]
 
         # Access should be role-based
 
@@ -335,11 +297,6 @@ class TestTransparencyRequirements:
     def test_decision_explainability(self):
         """Context-based decisions must be explainable."""
         # Document which context influenced which part
-        explanation = {
-            "organisatorische_context_impact": "Determined terminology style",
-            "juridische_context_impact": "Selected legal framework",
-            "wettelijke_basis_impact": "Provided legal references",
-        }
 
         # This documents the requirement
 
@@ -350,7 +307,7 @@ class TestTransparencyRequirements:
         with patch("src.services.monitoring.track_lineage") as mock_track:
             mock_track.side_effect = lambda x: lineage.append(x)
 
-            request = GenerationRequest(begrip="test", organisatorische_context=["DJI"])
+            GenerationRequest(begrip="test", organisatorische_context=["DJI"])
 
             # Process through system
             # Lineage should be tracked
@@ -366,22 +323,11 @@ class TestAccessibilityCompliance:
     def test_context_ui_accessibility(self):
         """Context selection UI must be accessible."""
         # Requirements from WCAG 2.1 Level AA
-        requirements = [
-            "keyboard_navigable",
-            "screen_reader_compatible",
-            "sufficient_contrast",
-            "clear_labels",
-            "error_identification",
-        ]
 
         # This documents UI requirements
 
     def test_multilingual_support(self):
         """Support for Dutch and English contexts."""
-        contexts = [
-            {"language": "nl", "organisatorische_context": ["DJI"]},
-            {"language": "en", "organisatorische_context": ["DJI"]},
-        ]
 
         # Should handle both languages
 
@@ -395,38 +341,19 @@ class TestDataGovernance:
 
     def test_data_ownership_clear(self):
         """Data ownership must be clearly defined."""
-        context_ownership = {
-            "organisatorische_context": "user_provided",
-            "juridische_context": "user_provided",
-            "wettelijke_basis": "user_provided",
-            "generated_prompt": "system_generated",
-        }
 
         # Ownership should be tracked
 
     def test_data_quality_validation(self):
         """Context data quality must be validated."""
-        quality_checks = ["completeness", "accuracy", "consistency", "timeliness"]
 
-        manager = ContextManager()
-        context = {
-            "organisatorische_context": ["DJI"],
-            "juridische_context": ["Strafrecht"],
-            "wettelijke_basis": ["Wetboek van Strafrecht"],
-        }
+        ContextManager()
 
         # Should validate quality
         # This documents the requirement
 
     def test_metadata_standards(self):
         """Context must include standard metadata."""
-        required_metadata = [
-            "created_at",
-            "modified_at",
-            "version",
-            "source",
-            "classification",
-        ]
 
         # This documents metadata requirements
 
@@ -440,7 +367,7 @@ class TestComplianceReporting:
 
     def test_generate_compliance_report(self):
         """System must generate compliance reports."""
-        report = {
+        {
             "astra_compliance": {
                 "audit_trail": "compliant",
                 "security": "compliant",
@@ -464,13 +391,9 @@ class TestComplianceReporting:
 
     def test_compliance_alerts(self):
         """Alert on compliance violations."""
-        with patch("src.services.alerts.send") as mock_alert:
+        with patch("src.services.alerts.send"):
             # Simulate violation
-            violation = {
-                "type": "audit_trail_missing",
-                "severity": "high",
-                "context": {"action": "context_update"},
-            }
+            pass
 
             # Should trigger alert
             # mock_alert.assert_called()
@@ -485,38 +408,19 @@ class TestJusticeDomainSpecific:
 
     def test_legal_context_validation(self):
         """Legal context must use official terminology."""
-        valid_legal_terms = [
-            "Strafrecht",
-            "Bestuursrecht",
-            "Civiel recht",
-            "Penitentiair recht",
-        ]
 
-        invalid_terms = ["Criminal stuff", "Admin law", "Civil"]
 
         # Should validate against official terms
 
     def test_chain_of_custody(self):
         """Maintain chain of custody for legal contexts."""
-        custody_chain = []
 
         # Each context modification should be tracked
-        events = [
-            {"actor": "user", "action": "create", "context": {}},
-            {"actor": "system", "action": "validate", "context": {}},
-            {"actor": "system", "action": "enrich", "context": {}},
-        ]
 
         # Chain must be unbroken
 
     def test_legal_retention_requirements(self):
         """Meet specific legal retention requirements."""
-        retention_matrix = {
-            "Strafrecht": 20,  # years
-            "Bestuursrecht": 10,
-            "Civiel recht": 10,
-            "Jeugdrecht": 30,
-        }
 
         # Should apply correct retention
 

@@ -7,13 +7,13 @@ behoudt een kleine memory footprint en is direct integreerbaar met
 ModularValidationService — zonder UI/Streamlit‑afhankelijkheid.
 """
 
+import contextlib
 import json
 import logging
 from pathlib import Path
 from typing import Any
 
-from utils.cache import cached
-from utils.cache import clear_cache as _global_cache_clear
+from utils.cache import cached, clear_cache as _global_cache_clear
 
 logger = logging.getLogger(__name__)
 
@@ -278,10 +278,8 @@ class RuleCache:
                     result["source"] = "all"
                 logger.info("Rule cache gecleared (global cache cleared)")
         else:
-            try:
+            with contextlib.suppress(Exception):
                 _global_cache_clear()
-            except Exception:
-                pass
             logger.info("Rule cache gecleared (global cache cleared)")
 
     def get_stats(self) -> dict[str, Any]:

@@ -212,7 +212,7 @@ class TestCoverageAnalyzer:
         print("-" * 40)
 
         # Find source files without tests
-        untested_files = [f for f in source_files.keys() if f not in mapping]
+        untested_files = [f for f in source_files if f not in mapping]
 
         print(f"\n❌ Source files WITHOUT test files ({len(untested_files)}):")
         for file in sorted(untested_files)[:30]:

@@ -5,6 +5,7 @@ This service orchestrates the edit operations and provides
 business logic for the definition edit interface.
 """
 
+import contextlib
 import logging
 from datetime import datetime, timedelta
 from typing import Any
@@ -97,7 +98,7 @@ class DefinitionEditService:
         definitie_id: int,
         updates: dict[str, Any],
         user: str = "system",
-        reason: str = None,
+        reason: str | None = None,
         validate: bool = True,
     ) -> dict[str, Any]:
         """
@@ -356,7 +357,7 @@ class DefinitionEditService:
         search_term: str,
         replace_term: str,
         field: str = "definitie",
-        filters: dict[str, Any] = None,
+        filters: dict[str, Any] | None = None,
         user: str = "system",
     ) -> dict[str, Any]:
         """
@@ -556,7 +557,7 @@ class DefinitionEditService:
                 issues_attr = getattr(results, "issues", []) or []
                 normalized_issues = []
                 for issue in issues_attr:
-                    try:
+                    with contextlib.suppress(Exception):
                         normalized_issues.append(
                             {
                                 "rule": getattr(issue, "regel_code", None)
@@ -565,8 +566,6 @@ class DefinitionEditService:
                                 "severity": getattr(issue, "severity", "warning"),
                             }
                         )
-                    except Exception:
-                        pass
                 return {
                     "valid": getattr(results, "overall_status", "") == "success",
                     "score": getattr(results, "validation_score", 0.0) or 0.0,
@@ -600,16 +599,15 @@ class DefinitionEditService:
             delta = datetime.now() - timestamp
             if delta.days > 7:
                 return timestamp.strftime("%d-%m-%Y %H:%M")
-            elif delta.days > 0:
+            if delta.days > 0:
                 return f"{delta.days} dagen geleden"
-            elif delta.seconds > 3600:
+            if delta.seconds > 3600:
                 hours = delta.seconds // 3600
                 return f"{hours} uur geleden"
-            elif delta.seconds > 60:
+            if delta.seconds > 60:
                 minutes = delta.seconds // 60
                 return f"{minutes} minuten geleden"
-            else:
-                return "Zojuist"
+            return "Zojuist"
 
         return str(timestamp)
 
@@ -645,11 +643,11 @@ class DefinitionEditService:
             **(definition.metadata if definition.metadata else {}),
         }
 
-    def _clear_cache(self, definitie_id: int = None) -> None:
+    def _clear_cache(self, definitie_id: int | None = None) -> None:
         """Clear cache entries."""
         if definitie_id:
             # Clear specific definition cache
-            keys_to_remove = [k for k in self._cache.keys() if str(definitie_id) in k]
+            keys_to_remove = [k for k in self._cache if str(definitie_id) in k]
             for key in keys_to_remove:
                 del self._cache[key]
         else:

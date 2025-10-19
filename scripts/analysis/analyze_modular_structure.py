@@ -58,9 +58,9 @@ def analyze_component_output():
 
         try:
             # Roep de method aan met juiste parameters
-            if i == 1 or i == 6:  # Methods die begrip nodig hebben
+            if i in {1, 6}:  # Methods die begrip nodig hebben
                 output = method(begrip) if i == 1 else method(begrip, context)
-            elif i == 3 or i == 5:  # Methods die context nodig hebben
+            elif i in {3, 5}:  # Methods die context nodig hebben
                 output = method(context)
             else:  # Component 2 en 4
                 output = method(context) if i == 2 else method()

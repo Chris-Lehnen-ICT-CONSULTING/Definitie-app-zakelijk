@@ -171,14 +171,13 @@ def _make_hashable(obj: Any) -> Any:
     """
     if isinstance(obj, dict):
         return tuple(sorted((k, _make_hashable(v)) for k, v in obj.items()))
-    elif isinstance(obj, list):
+    if isinstance(obj, list):
         return tuple(_make_hashable(item) for item in obj)
-    elif isinstance(obj, set):
+    if isinstance(obj, set):
         return tuple(sorted(_make_hashable(item) for item in obj))
-    elif hasattr(obj, "__dict__"):
+    if hasattr(obj, "__dict__"):
         return _make_hashable(obj.__dict__)
-    else:
-        return obj
+    return obj
 
 
 def _cleanup_cache(cache: dict, ttl: int):
@@ -226,8 +225,7 @@ class ValidationCache:
             value, timestamp = self._cache[key]
             if time.time() - timestamp < self._ttl:
                 return value
-            else:
-                del self._cache[key]
+            del self._cache[key]
         return None
 
     def set(self, key: str, value: Any):

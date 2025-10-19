@@ -42,7 +42,7 @@ class TestSingleContextFlowPath:
     def test_no_alternative_context_routes(self):
         """Ensure no alternative paths exist for context flow."""
         # Get all methods that might handle context
-        container = ServiceContainer()
+        ServiceContainer()
         prompt_service = PromptServiceV2()
 
         # Check that context flows through standard interfaces only
@@ -57,7 +57,7 @@ class TestSingleContextFlowPath:
         with patch.object(
             prompt_service, "build_prompt", wraps=prompt_service.build_prompt
         ) as mock_build:
-            prompt = prompt_service.build_prompt(request)
+            prompt_service.build_prompt(request)
 
             # Should be called exactly once
             assert mock_build.call_count == 1
@@ -79,7 +79,7 @@ class TestSingleContextFlowPath:
         }
 
         # Should have single entry point
-        result = manager.set_context(context_data)
+        manager.set_context(context_data)
         retrieved = manager.get_context()
 
         # ContextData object comparison
@@ -112,7 +112,7 @@ class TestSingleContextFlowPath:
 class TestPerformanceImprovement:
     """Verify >20% performance improvement target is achieved."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def legacy_context_flow(self):
         """Simulate legacy context flow timing."""
 
@@ -133,7 +133,7 @@ class TestPerformanceImprovement:
 
         return legacy_flow
 
-    @pytest.fixture()
+    @pytest.fixture
     def modern_context_flow(self):
         """Modern streamlined context flow."""
 
@@ -186,7 +186,7 @@ class TestPerformanceImprovement:
         prompt_service = PromptServiceV2()
 
         start = time.perf_counter()
-        prompt = prompt_service.build_prompt(request)
+        prompt_service.build_prompt(request)
         elapsed = (time.perf_counter() - start) * 1000  # Convert to ms
 
         assert (
@@ -206,7 +206,7 @@ class TestPerformanceImprovement:
             )
 
             prompt_service = PromptServiceV2()
-            prompt = prompt_service.build_prompt(request)
+            prompt_service.build_prompt(request)
 
             # Format should be called at most once per context type
             assert (
@@ -223,19 +223,14 @@ class TestLegacyCodeRemoval:
         try:
             from src.services.context_handler_v1 import ContextHandlerV1
 
-            assert False, "V1 context handler still exists"
+            msg = "V1 context handler still exists"
+            raise AssertionError(msg)
         except ImportError:
             pass  # Expected
 
     def test_no_direct_session_state_context_access(self):
         """No direct st.session_state context access should exist."""
         # Scan codebase for direct session state access patterns
-        forbidden_patterns = [
-            "st.session_state['organisatorische_context']",
-            "st.session_state.organisatorische_context",
-            "session_state.get('juridische_context')",
-            "session_state['wettelijke_basis']",
-        ]
 
         # This test documents the requirement
         # In practice, would scan actual codebase
@@ -274,7 +269,7 @@ class TestSessionStateEncapsulation:
             # Context should go through proper interfaces
             from src.services.context.context_manager import ContextManager
 
-            manager = ContextManager()
+            ContextManager()
             # Should use manager methods, not direct access
             # Direct session state access should be prevented
 
@@ -351,11 +346,11 @@ class TestMemoryEfficiency:
         import sys
 
         # Get memory size
-        context_size = sys.getsizeof(request.organisatorische_context)
+        sys.getsizeof(request.organisatorische_context)
 
         # Pass through service
         prompt_service = PromptServiceV2()
-        prompt = prompt_service.build_prompt(request)
+        prompt_service.build_prompt(request)
 
         # Should not significantly increase memory
         # (This is a simplified test, real implementation would be more thorough)
@@ -416,7 +411,7 @@ class TestCodeMaintainability:
             "wettelijke_basis": ["Test wet"],
         }
 
-        assert validator.validate(valid_context) == True
+        assert validator.validate(valid_context)
 
         # Invalid context
         invalid_context = {
@@ -425,7 +420,7 @@ class TestCodeMaintainability:
             "wettelijke_basis": 123,  # Wrong type
         }
 
-        assert validator.validate(invalid_context) == False
+        assert not validator.validate(invalid_context)
 
     def test_clear_context_flow_documentation(self):
         """Context flow should be clearly documented."""
@@ -457,11 +452,6 @@ class TestRegressionPrevention:
     def test_no_nested_context_extraction(self):
         """Context extraction should not be deeply nested."""
         # Check for nested attribute access
-        bad_patterns = [
-            "request.context.organisatorische_context",
-            "data['context']['fields']['organisatorische']",
-            "getattr(getattr(request, 'context'), 'org')",
-        ]
 
         # This test documents the anti-pattern
 
@@ -476,7 +466,7 @@ class TestRegressionPrevention:
 
         # All context fields should be lists
         assert all(
-            isinstance(getattr(request, field), (list, type(None)))
+            isinstance(getattr(request, field), list | type(None))
             for field in [
                 "organisatorische_context",
                 "juridische_context",
@@ -497,12 +487,12 @@ class TestFeatureFlags:
 
         from src.services.feature_flags import is_feature_enabled
 
-        assert is_feature_enabled("modern_context_flow") == True
+        assert is_feature_enabled("modern_context_flow")
 
         # Test with flag disabled
         os.environ["USE_MODERN_CONTEXT_FLOW"] = "false"
 
-        assert is_feature_enabled("modern_context_flow") == False
+        assert not is_feature_enabled("modern_context_flow")
 
     def test_gradual_rollout_percentage(self):
         """Support percentage-based rollout."""
@@ -528,7 +518,7 @@ class TestMonitoring:
 
     def test_context_flow_metrics(self):
         """Context flow should emit metrics."""
-        with patch("src.services.monitoring.metrics.record") as mock_metrics:
+        with patch("src.services.monitoring.metrics.record"):
             request = GenerationRequest(
                 begrip="test",
                 organisatorische_context=["DJI"],
@@ -537,7 +527,7 @@ class TestMonitoring:
             )
 
             prompt_service = PromptServiceV2()
-            prompt = prompt_service.build_prompt(request)
+            prompt_service.build_prompt(request)
 
             # Should record metrics
             # This test documents the requirement
@@ -546,7 +536,7 @@ class TestMonitoring:
         """Context flow should be traceable."""
         import logging
 
-        with patch.object(logging.Logger, "debug") as mock_log:
+        with patch.object(logging.Logger, "debug"):
             request = GenerationRequest(
                 begrip="test",
                 organisatorische_context=["DJI"],
@@ -555,7 +545,7 @@ class TestMonitoring:
             )
 
             prompt_service = PromptServiceV2()
-            prompt = prompt_service.build_prompt(request)
+            prompt_service.build_prompt(request)
 
             # Should log flow for debugging
             # This test documents the requirement

@@ -25,6 +25,8 @@ def get_definition_service(*args, **kwargs):
 __all__ = [
     "ContainerConfigs",
     "DefinitionGeneratorCache",
+    # Optional direct access to web lookup service
+    "ModernWebLookupService",
     # Container en Factory
     "ServiceContainer",
     # Unified Generator (DEPRECATED - vervangen door DefinitionOrchestrator)
@@ -32,6 +34,4 @@ __all__ = [
     "UnifiedGeneratorConfig",
     "get_container",
     "get_definition_service",
-    # Optional direct access to web lookup service
-    "ModernWebLookupService",
 ]

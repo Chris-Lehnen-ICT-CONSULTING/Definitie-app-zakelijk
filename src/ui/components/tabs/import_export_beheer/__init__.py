@@ -12,6 +12,6 @@ Deze module bevat de volgende componenten:
 from .orchestrator import ImportExportBeheerTab, ImportExportOrchestrator
 
 __all__ = [
-    "ImportExportOrchestrator",
     "ImportExportBeheerTab",  # Backward compatibility
+    "ImportExportOrchestrator",
 ]

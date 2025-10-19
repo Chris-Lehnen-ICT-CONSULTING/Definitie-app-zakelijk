@@ -41,7 +41,7 @@ def create_demo_classifier():
                     ],
                 }
             )
-        elif "verificatie" in prompt.lower() or "verifiëren" in prompt.lower():
+        if "verificatie" in prompt.lower() or "verifiëren" in prompt.lower():
             return json.dumps(
                 {
                     "level": "PROCES",
@@ -55,7 +55,7 @@ def create_demo_classifier():
                     ],
                 }
             )
-        elif "verleende vergunning" in prompt.lower():
+        if "verleende vergunning" in prompt.lower():
             return json.dumps(
                 {
                     "level": "RESULTAAT",
@@ -68,7 +68,7 @@ def create_demo_classifier():
                     ],
                 }
             )
-        elif "dit specifieke document" in prompt.lower():
+        if "dit specifieke document" in prompt.lower():
             return json.dumps(
                 {
                     "level": "EXEMPLAAR",
@@ -81,15 +81,14 @@ def create_demo_classifier():
                     ],
                 }
             )
-        else:
-            return json.dumps(
-                {
-                    "level": "ONBESLIST",
-                    "confidence": 0.3,
-                    "rationale": "Het begrip is niet eenduidig te classificeren zonder meer context.",
-                    "linguistic_cues": ["ambigue betekenis"],
-                }
-            )
+        return json.dumps(
+            {
+                "level": "ONBESLIST",
+                "confidence": 0.3,
+                "rationale": "Het begrip is niet eenduidig te classificeren zonder meer context.",
+                "linguistic_cues": ["ambigue betekenis"],
+            }
+        )
 
     ai_service.generate_completion.side_effect = mock_generate
 

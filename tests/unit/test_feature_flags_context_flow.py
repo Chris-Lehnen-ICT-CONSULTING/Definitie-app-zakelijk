@@ -33,7 +33,7 @@ from src.services.interfaces import GenerationRequest
 class TestFeatureFlagConfiguration:
     """Test feature flag configuration and management."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def feature_flags(self):
         """Create FeatureFlags instance."""
         return FeatureFlags()
@@ -63,12 +63,12 @@ class TestFeatureFlagConfiguration:
         os.environ["FF_MODERN_CONTEXT_FLOW"] = "true"
 
         flags = FeatureFlags()
-        assert flags.is_enabled("modern_context_flow") == True
+        assert flags.is_enabled("modern_context_flow")
 
         # Test disable
         os.environ["FF_MODERN_CONTEXT_FLOW"] = "false"
         flags = FeatureFlags()  # Reinitialize
-        assert flags.is_enabled("modern_context_flow") == False
+        assert not flags.is_enabled("modern_context_flow")
 
         # Cleanup
         del os.environ["FF_MODERN_CONTEXT_FLOW"]
@@ -100,7 +100,7 @@ class TestFeatureFlagConfiguration:
 class TestPercentageRollout:
     """Test percentage-based feature rollouts."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def feature_flags(self):
         return FeatureFlags()
 
@@ -212,7 +212,7 @@ class TestABTesting:
             )
 
             # Check flag
-            enabled = flags.is_enabled_for_user("modern_context_flow", user_id)
+            flags.is_enabled_for_user("modern_context_flow", user_id)
 
             # Should track the check
             mock_track.assert_called()
@@ -231,7 +231,7 @@ class TestABTesting:
         flags.configure_ab_test("multi_variant_test", variants)
 
         # Count variant assignments
-        counts = {variant: 0 for variant in variants}
+        counts = dict.fromkeys(variants, 0)
 
         for i in range(10000):
             user_id = f"user_{i}"
@@ -293,10 +293,10 @@ class TestFallbackMechanisms:
             circuit_breaker.record_failure()
 
         # Circuit should open
-        assert circuit_breaker.is_open() == True
+        assert circuit_breaker.is_open()
 
         # Feature should be disabled
-        assert flags.is_enabled("modern_context_flow") == False
+        assert not flags.is_enabled("modern_context_flow")
 
     def test_automatic_recovery(self):
         """Test automatic recovery after failures resolve."""
@@ -307,7 +307,7 @@ class TestFallbackMechanisms:
         for _ in range(5):
             circuit_breaker.record_failure()
 
-        assert circuit_breaker.is_open() == True
+        assert circuit_breaker.is_open()
 
         # Wait for half-open state
         import time
@@ -318,7 +318,7 @@ class TestFallbackMechanisms:
         circuit_breaker.record_success()
 
         # Should recover
-        assert circuit_breaker.is_open() == False
+        assert not circuit_breaker.is_open()
 
 
 @pytest.mark.skip(
@@ -339,9 +339,9 @@ class TestFlagOverrides:
         flags.add_to_whitelist("modern_context_flow", "special_user")
 
         # Should be enabled for whitelisted user
-        assert flags.is_enabled_for_user("modern_context_flow", "special_user") == True
+        assert flags.is_enabled_for_user("modern_context_flow", "special_user")
         # But not for others
-        assert flags.is_enabled_for_user("modern_context_flow", "regular_user") == False
+        assert not flags.is_enabled_for_user("modern_context_flow", "regular_user")
 
     def test_user_blacklist_override(self):
         """Blacklisted users never get the feature."""
@@ -356,11 +356,10 @@ class TestFlagOverrides:
 
         # Should be disabled for blacklisted user
         assert (
-            flags.is_enabled_for_user("modern_context_flow", "problematic_user")
-            == False
+            not flags.is_enabled_for_user("modern_context_flow", "problematic_user")
         )
         # But enabled for others
-        assert flags.is_enabled_for_user("modern_context_flow", "regular_user") == True
+        assert flags.is_enabled_for_user("modern_context_flow", "regular_user")
 
     def test_organization_override(self):
         """Organization-level overrides."""
@@ -375,8 +374,8 @@ class TestFlagOverrides:
 
         request_om = GenerationRequest(begrip="test", organisatorische_context=["OM"])
 
-        assert flags.is_enabled_for_request("modern_context_flow", request_dji) == True
-        assert flags.is_enabled_for_request("modern_context_flow", request_om) == False
+        assert flags.is_enabled_for_request("modern_context_flow", request_dji)
+        assert not flags.is_enabled_for_request("modern_context_flow", request_om)
 
 
 @pytest.mark.skip(
@@ -440,7 +439,7 @@ class TestMultiFlagInteractions:
         flags.set_flag("modern_context_flow", False)
         flags.set_flag("anders_option_fix", True)
 
-        assert flags.is_enabled("anders_option_fix") == False
+        assert not flags.is_enabled("anders_option_fix")
 
     def test_mutually_exclusive_flags(self):
         """Test mutually exclusive flags."""
@@ -489,10 +488,10 @@ class TestMultiFlagInteractions:
         ]
 
         for combo in valid_combinations:
-            assert flags.validate_combination(combo) == True
+            assert flags.validate_combination(combo)
 
         for combo in invalid_combinations:
-            assert flags.validate_combination(combo) == False
+            assert not flags.validate_combination(combo)
 
 
 @pytest.mark.skip(
@@ -579,7 +578,7 @@ class TestFlagMigration:
         flags.rollback_to_checkpoint("before_issue")
 
         # Should be disabled
-        assert flags.is_enabled("modern_context_flow") == False
+        assert not flags.is_enabled("modern_context_flow")
 
 
 if __name__ == "__main__":
