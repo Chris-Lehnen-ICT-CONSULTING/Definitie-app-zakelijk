@@ -344,13 +344,105 @@ Refactor, geen backwards compatibility:
 - Verwijder verouderde paden zodra het nieuwe pad klaar is
 - Behoud en documenteer businesslogica tijdens refactor
 
-## CI/CD Pipeline
+## CI/CD Pipeline & GitHub Workflow Management
 
-GitHub Actions workflows:
+### 🔄 Systematische Aanpak voor CI/CD Fixes
 
+**Principe:** Behandel CI failures als technical debt met prioritering en fasering
+
+**Proces (zie `docs/analyses/CI_FAILURES_ANALYSIS.md`):**
+
+1. **Analyse Fase**
+   - Documenteer alle CI failures systematisch
+   - Categoriseer per priority: HIGH (security, core), MEDIUM (quality), LOW (docs)
+   - Identificeer pre-existing vs nieuwe issues
+   - Schat effort per fix (uren)
+
+2. **Prioritering & Planning**
+   - **Phase 1 (Week 1):** Security (gitleaks, pip-audit) - KRITIEK
+   - **Phase 2 (Week 1-2):** Core tests & compatibility - BELANGRIJK  
+   - **Phase 3 (Week 2):** Quality gates - NICE TO HAVE
+   - **Phase 4 (Week 2-3):** Documentation & non-blocking - OPTIONEEL
+
+3. **Systematisch Fixen**
+   - Werk per fase, niet random
+   - Fix related issues samen (bijv. alle script paths in één PR)
+   - Update analysis document met progress
+   - Commit messages met context: `fix(security): ...`, `fix(ci): ...`
+
+4. **Documentatie & Preventie**
+   - Update `CI_FAILURES_ANALYSIS.md` met completed phases
+   - Documenteer lessons learned in `GITHUB_BEST_PRACTICES.md`
+   - Implementeer preventieve maatregelen (Dependabot, branch protection)
+   - Track metrics (% workflows passing, avg CI time)
+
+### 📋 GitHub Best Practices Framework
+
+**Document:** `docs/analyses/GITHUB_BEST_PRACTICES.md`
+
+**Quick Wins (Do First):**
+1. Branch protection voor `main` (30 min)
+2. Dependabot setup (20 min) ✅ DONE
+3. Issue templates (1 uur) ✅ DONE
+4. Auto-labeling (10 min)
+
+**Prioriteiten:**
+- 🔴 HIGH: Branch protection, required status checks, Dependabot
+- 🟡 MEDIUM: Issue templates, PR automation, workflow optimization
+- 🟢 LOW: Release automation, project boards, advanced metrics
+
+**Success Metrics:**
+- % workflows passing (target: 80%+)
+- Average CI time (target: < 5 min)
+- Time to patch vulnerabilities (target: < 7 days)
+- PR size (target: < 500 lines)
+
+### 🤖 Geautomatiseerde Workflows
+
+**Dependabot:** `.github/dependabot.yml`
+- Weekly updates (Maandag 09:00 Python, 10:00 GitHub Actions)
+- Grouped updates voor efficient review
+- Auto-assign naar reviewer
+- Conventional commits: `build(deps):` / `ci(deps):`
+
+**Issue Templates:** `.github/ISSUE_TEMPLATE/`
+- Bug reports (structured YAML)
+- Feature requests (met impact assessment)
+- Template chooser configuration
+
+**GitHub Actions:**
 - **CI**: Python 3.11, smoke tests, coverage rapportage
+- **Security**: Gitleaks, pip-audit (REQUIRED to pass)
+- **Quality Gates**: Pre-commit, linting, pattern detection
 - **Architecture Sync**: Documentatie consistentie checks
 - **Feature Status**: Geautomatiseerde voortgang tracking
+
+### 🎯 CI/CD Checklist voor Nieuwe Features
+
+**Voor elke nieuwe feature/fix:**
+- [ ] Branch protection configured (main branch)
+- [ ] Required status checks defined (Security, CI)
+- [ ] PR template gebruikt
+- [ ] Conventional commits (`feat:`, `fix:`, `docs:`, `ci:`)
+- [ ] Tests toegevoegd/updated
+- [ ] CI passing before merge
+- [ ] Security scans clean
+- [ ] Documentation updated
+
+**Bij CI failures:**
+- [ ] Check `docs/analyses/CI_FAILURES_ANALYSIS.md` voor bekende issues
+- [ ] Determine: pre-existing of nieuwe issue?
+- [ ] Pre-existing → Add to backlog, not blocking
+- [ ] Nieuwe issue → Fix immediately, don't merge broken CI
+- [ ] Update analysis document met nieuwe findings
+
+### 📚 Belangrijke CI/CD Documenten
+
+- **`docs/analyses/CI_FAILURES_ANALYSIS.md`** - Complete CI failures analyse & roadmap
+- **`docs/analyses/GITHUB_BEST_PRACTICES.md`** - GitHub optimization guide
+- **`.github/dependabot.yml`** - Dependency update automation
+- **`.github/ISSUE_TEMPLATE/`** - Issue templates voor consistentie
+- **`.github/workflows/`** - All CI/CD workflow definitions
 
 ## Snelle Fixes voor Veelvoorkomende Problemen
 
