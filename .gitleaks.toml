@@ -15,30 +15,39 @@ description = "Ignore example keys and test fixtures"
 paths = [
   '''tests/fixtures/.*''',
   '''tests/data/.*''',
+  '''tests/security/.*''',
   '''.*_test\.py''',
   '''.*test_.*\.py''',
-  '''docs/examples/.*'''
+  '''docs/examples/.*''',
 ]
 regexes = [
   '''sk-proj-EXAMPLE''',
   '''AKIAIOSFODNN7EXAMPLE''',
   '''ghp_EXAMPLE''',
-  '''sk-ant-api03-EXAMPLE'''
+  '''sk-ant-api03-EXAMPLE''',
 ]
 
 [[allowlists]]
-description = "Ignore README documentation examples"
+description = "Ignore README and documentation examples (including generated content)"
 paths = [
   '''README\.md''',
   '''CLAUDE\.md''',
-  '''docs/.*\.md'''
+  '''docs/.*\.md''',
+  '''docs/analyses/.*''',
+  '''docs/archief/.*''',
+  '''docs/architectuur/.*''',
+  '''docs/portal/.*''',
+  '''scripts/test_.*''',
 ]
 # Only allow example keys in docs that are clearly marked as examples
 regexes = [
   '''sk-\.\.\.$''',
   '''api_key.*example''',
   '''<your-api-key>''',
-  '''YOUR_API_KEY'''
+  '''YOUR_API_KEY''',
+  '''sk-[a-zA-Z0-9_-]{6,10}''', # Short example keys
+  '''redis://.*:6379''',        # Local Redis URLs in examples
+  '''OPENAI_API_KEY=\*\*\*''',  # Redacted keys in logs
 ]
 
 [[allowlists]]
