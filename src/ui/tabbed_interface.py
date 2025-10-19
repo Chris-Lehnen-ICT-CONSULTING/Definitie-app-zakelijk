@@ -280,50 +280,6 @@ class TabbedInterface:
                 fallback_scores,
             )
 
-    def _classify_term_on_change(self):
-        """Classificeer term zodra begrip + context compleet zijn.
-
-        DEF-36: Pre-classificatie bij on_change event van begrip input.
-        Resultaten worden opgeslagen in session state voor gebruik tijdens generatie.
-        """
-        begrip = SessionStateManager.get_value("begrip", "")
-        if not begrip.strip():
-            # Wis determined category als begrip leeg is
-            SessionStateManager.clear_value("determined_category")
-            SessionStateManager.clear_value("category_reasoning")
-            SessionStateManager.clear_value("category_scores")
-            return
-
-        context_data = SessionStateManager.get_value("global_context", {})
-        org_context = context_data.get("organisatorische_context", [])
-        jur_context = context_data.get("juridische_context", [])
-
-        primary_org = org_context[0] if org_context else ""
-        primary_jur = jur_context[0] if jur_context else ""
-
-        # Classificeer
-        try:
-            auto_categorie, reasoning, scores = asyncio.run(
-                self._determine_ontological_category(begrip, primary_org, primary_jur)
-            )
-
-            # Sla op in session state voor gebruik tijdens generatie
-            SessionStateManager.set_value("determined_category", auto_categorie.value)
-            SessionStateManager.set_value("category_reasoning", reasoning)
-            SessionStateManager.set_value("category_scores", scores)
-
-            logger.info(
-                f"DEF-36: Pre-classificatie voor '{begrip}': {auto_categorie.value} "
-                f"(scores: {scores})"
-            )
-
-        except Exception as e:
-            logger.warning(f"Auto-classificatie mislukt tijdens on_change: {e}")
-            # Bij fout: clear determined category (fallback naar realtime tijdens generatie)
-            SessionStateManager.clear_value("determined_category")
-            SessionStateManager.clear_value("category_reasoning")
-            SessionStateManager.clear_value("category_scores")
-
     def _render_category_preview(self):
         """Toon voorgestelde ontologische categorie met mogelijkheid tot override.
 
@@ -404,172 +360,6 @@ class TabbedInterface:
                 )
                 st.success(f"✓ Gebruik {manual_override}")
 
-    def _legacy_pattern_matching(self, begrip: str) -> str:
-        """Legacy pattern matching voor fallback situaties."""
-        begrip_lower = begrip.lower()
-
-        # Eenvoudige patronen
-        if any(begrip_lower.endswith(p) for p in ["atie", "ing", "eren"]):
-            return "Proces patroon gedetecteerd"
-        if any(w in begrip_lower for w in ["document", "bewijs", "systeem"]):
-            return "Type patroon gedetecteerd"
-        if any(w in begrip_lower for w in ["resultaat", "uitkomst", "besluit"]):
-            return "Resultaat patroon gedetecteerd"
-        return "Geen duidelijke patronen gedetecteerd"
-
-    def _generate_category_reasoning(
-        self, begrip: str, category: str, scores: dict[str, int]
-    ) -> str:
-        """Genereer uitleg waarom deze categorie gekozen is."""
-        begrip_lower = begrip.lower()
-
-        # Patronen per categorie
-        patterns = {
-            "proces": [
-                "atie",
-                "eren",
-                "ing",
-                "verificatie",
-                "authenticatie",
-                "validatie",
-                "controle",
-                "check",
-                "beoordeling",
-                "analyse",
-                "behandeling",
-                "vaststelling",
-                "bepaling",
-                "registratie",
-                "identificatie",
-            ],
-            "type": [
-                "bewijs",
-                "document",
-                "middel",
-                "systeem",
-                "methode",
-                "tool",
-                "instrument",
-                "gegeven",
-                "kenmerk",
-                "eigenschap",
-            ],
-            "resultaat": [
-                "besluit",
-                "uitslag",
-                "rapport",
-                "conclusie",
-                "bevinding",
-                "resultaat",
-                "uitkomst",
-                "advies",
-                "oordeel",
-            ],
-            "exemplaar": [
-                "specifiek",
-                "individueel",
-                "uniek",
-                "persoon",
-                "zaak",
-                "instantie",
-                "geval",
-                "situatie",
-            ],
-        }
-
-        # Zoek gedetecteerde patronen
-        detected_patterns = []
-        for pattern in patterns.get(category, []):
-            if pattern in begrip_lower:
-                detected_patterns.append(pattern)
-
-        if detected_patterns:
-            pattern_text = ", ".join(f"'{p}'" for p in detected_patterns)
-            return f"Gedetecteerde patronen: {pattern_text} (score: {scores[category]})"
-        if category == "proces" and scores[category] == 0:
-            return "Standaard categorie (geen specifieke patronen gedetecteerd)"
-        return f"Hoogste score voor {category} categorie (score: {scores[category]})"
-
-    def _get_category_scores(self, begrip: str) -> dict[str, int]:
-        """Herbereken de categorie scores voor display."""
-        try:
-            begrip_lower = begrip.lower()
-
-            # Dezelfde patronen als in _determine_ontological_category
-            proces_indicators = [
-                "atie",
-                "eren",
-                "ing",
-                "verificatie",
-                "authenticatie",
-                "validatie",
-                "controle",
-                "check",
-                "beoordeling",
-                "analyse",
-                "behandeling",
-                "vaststelling",
-                "bepaling",
-                "registratie",
-                "identificatie",
-            ]
-
-            type_indicators = [
-                "bewijs",
-                "document",
-                "middel",
-                "systeem",
-                "methode",
-                "tool",
-                "instrument",
-                "gegeven",
-                "kenmerk",
-                "eigenschap",
-            ]
-
-            resultaat_indicators = [
-                "besluit",
-                "uitslag",
-                "rapport",
-                "conclusie",
-                "bevinding",
-                "resultaat",
-                "uitkomst",
-                "advies",
-                "oordeel",
-            ]
-
-            exemplaar_indicators = [
-                "specifiek",
-                "individueel",
-                "uniek",
-                "persoon",
-                "zaak",
-                "instantie",
-                "geval",
-                "situatie",
-            ]
-
-            # Score per categorie
-            return {
-                "proces": sum(
-                    1 for indicator in proces_indicators if indicator in begrip_lower
-                ),
-                "type": sum(
-                    1 for indicator in type_indicators if indicator in begrip_lower
-                ),
-                "resultaat": sum(
-                    1 for indicator in resultaat_indicators if indicator in begrip_lower
-                ),
-                "exemplaar": sum(
-                    1 for indicator in exemplaar_indicators if indicator in begrip_lower
-                ),
-            }
-
-        except Exception as e:
-            logger.warning(f"Failed to calculate category scores: {e}")
-            return {"proces": 0, "type": 0, "resultaat": 0, "exemplaar": 0}
-
     def _render_header(self):
         """Render applicatie header."""
 
@@ -617,8 +407,7 @@ class TabbedInterface:
             value=SessionStateManager.get_value("begrip", ""),
             placeholder="bijv. authenticatie, verificatie, identiteitsvaststelling...",
             help="Het centrale begrip waarvoor een definitie gegenereerd wordt",
-            on_change=self._classify_term_on_change,  # DEF-36: Pre-classificatie trigger
-            key="begrip_input",  # DEF-36: Unique key voor on_change
+            key="begrip_input",
         )
         SessionStateManager.set_value("begrip", begrip)
 
@@ -832,20 +621,21 @@ class TabbedInterface:
                 jur_context = context_data.get("juridische_context", [])
                 wet_context = context_data.get("wettelijke_basis", [])
 
-                # Extract primary context items (needed for both manual and auto paths)
+                # Extract primary context items
                 primary_org = org_context[0] if org_context else ""
                 primary_jur = jur_context[0] if jur_context else ""
 
-                # Check eerst of er een handmatige categorie override bestaat
+                # SINGLE PATH: Validate that classification was performed
+                # Classification must happen in _render_category_preview() before generation
+                from domain.ontological_categories import OntologischeCategorie
+
+                # Check voor handmatige override (hoogste prioriteit)
                 manual_category = SessionStateManager.get_value(
                     "manual_ontological_category"
                 )
 
                 if manual_category:
                     # Gebruik handmatige override
-                    from domain.ontological_categories import OntologischeCategorie
-
-                    # Converteer string naar OntologischeCategorie enum
                     category_map = {
                         "type": OntologischeCategorie.TYPE,
                         "proces": OntologischeCategorie.PROCES,
@@ -863,46 +653,42 @@ class TabbedInterface:
                         f"Gebruik handmatige categorie override: {manual_category}"
                     )
                 else:
-                    # DEF-36: Check voor pre-geclassificeerde categorie (MEDIUM priority)
+                    # Gebruik pre-geclassificeerde categorie (REQUIRED)
                     determined_category = SessionStateManager.get_value(
                         "determined_category"
                     )
 
-                    if determined_category:
-                        # Gebruik pre-geclassificeerde categorie uit on_change event
-                        from domain.ontological_categories import OntologischeCategorie
+                    if not determined_category:
+                        # GEEN FALLBACK: Pre-classificatie is VERPLICHT
+                        st.error(
+                            "❌ Ontologische categorie is niet bepaald. "
+                            "Scroll naar boven om de categorie te zien/aanpassen voordat je genereert."
+                        )
+                        logger.error(
+                            "Generatie geblokkeerd: geen pre-classificatie beschikbaar. "
+                            "Gebruiker moet categorie preview zien voordat generatie."
+                        )
+                        return
 
-                        # Converteer string naar OntologischeCategorie enum
-                        category_map = {
-                            "TYPE": OntologischeCategorie.TYPE,
-                            "PROCES": OntologischeCategorie.PROCES,
-                            "RESULTAAT": OntologischeCategorie.RESULTAAT,
-                            "EXEMPLAAR": OntologischeCategorie.EXEMPLAAR,
-                        }
-                        auto_categorie = category_map.get(
-                            determined_category, OntologischeCategorie.PROCES
-                        )
-                        category_reasoning = SessionStateManager.get_value(
-                            "category_reasoning", ""
-                        )
-                        category_scores = SessionStateManager.get_value(
-                            "category_scores", {}
-                        )
-                        logger.info(
-                            f"DEF-36: Gebruik pre-geclassificeerde categorie: {determined_category}"
-                        )
-                    else:
-                        # FALLBACK: Bepaal automatisch de ontologische categorie (realtime)
-                        auto_categorie, category_reasoning, category_scores = (
-                            asyncio.run(
-                                self._determine_ontological_category(
-                                    begrip, primary_org, primary_jur
-                                )
-                            )
-                        )
-                        logger.info(
-                            "DEF-36: Geen pre-classificatie beschikbaar, gebruik realtime classificatie"
-                        )
+                    # Converteer string naar OntologischeCategorie enum
+                    category_map = {
+                        "TYPE": OntologischeCategorie.TYPE,
+                        "PROCES": OntologischeCategorie.PROCES,
+                        "RESULTAAT": OntologischeCategorie.RESULTAAT,
+                        "EXEMPLAAR": OntologischeCategorie.EXEMPLAAR,
+                    }
+                    auto_categorie = category_map.get(
+                        determined_category, OntologischeCategorie.PROCES
+                    )
+                    category_reasoning = SessionStateManager.get_value(
+                        "category_reasoning", ""
+                    )
+                    category_scores = SessionStateManager.get_value(
+                        "category_scores", {}
+                    )
+                    logger.info(
+                        f"Gebruik pre-geclassificeerde categorie: {determined_category}"
+                    )
 
                 # Krijg document context en selected document IDs
                 document_context = self._get_document_context()
@@ -1399,7 +1185,7 @@ class TabbedInterface:
             logger.error(f"Global duplicate check failed: {e}")
 
     def _clear_all_fields(self):
-        """Wis alle velden."""
+        """Wis alle velden inclusief classificatie state."""
         fields_to_clear = [
             "begrip",
             "org_context",
@@ -1407,8 +1193,7 @@ class TabbedInterface:
             "wet_basis",
             "last_generation_result",
             "last_check_result",
-            "manual_ontological_category",  # Wis ook handmatige categorie override
-            # DEF-36: Wis ook determined category variabelen
+            "manual_ontological_category",
             "determined_category",
             "category_reasoning",
             "category_scores",

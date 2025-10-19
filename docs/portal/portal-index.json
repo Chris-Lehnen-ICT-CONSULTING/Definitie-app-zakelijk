@@ -52977,6 +52977,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Classification Refactoring - Visual Overview",
+      "path": "../reports/classification-refactor-visual.md",
+      "url": "../reports/classification-refactor-visual.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/reports/classification-refactor-visual.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Toetsregels Loading - Visual Analysis",
       "path": "../reports/toetsregels-loading-diagram.md",
       "url": "../reports/toetsregels-loading-diagram.md",
@@ -53403,6 +53434,37 @@
         "req": []
       },
       "rendered_url": "rendered/reports/CHANGELOG.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Classification Single-Path Implementation",
+      "path": "../reports/classification-single-path-implementation.md",
+      "url": "../reports/classification-single-path-implementation.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/reports/classification-single-path-implementation.html"
     },
     {
       "id": null,
@@ -55703,7 +55765,7 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 922,
+      "DOC": 924,
       "EPIC": 35,
       "US": 375,
       "BUG": 28,
@@ -55713,7 +55775,7 @@
       "TEST": 35,
       "COMP": 5
     },
-    "generated_at": "2025-10-19T08:16:47Z"
+    "generated_at": "2025-10-19T08:24:00Z"
   },
   "sources": [
     "docs"
