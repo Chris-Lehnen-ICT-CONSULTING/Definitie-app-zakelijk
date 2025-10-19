@@ -16,10 +16,10 @@ os.environ["DEV_MODE"] = "true"
 def test_management_tab_uses_v2_in_dev_mode():
     """Controleer dat DEV_MODE actief is en UI components importeerbaar zijn."""
     # Test that we can import key UI components (validation_view is always present)
-    from ui.components.validation_view import render_validation_view
+    from ui.components.validation_view import render_v2_validation_details
 
     # Verify function is callable
-    assert callable(render_validation_view)
+    assert callable(render_v2_validation_details)
 
     # DEV_MODE moet actief zijn
     assert os.getenv("DEV_MODE", "false").lower() == "true"
