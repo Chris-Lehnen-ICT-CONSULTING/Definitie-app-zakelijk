@@ -226,7 +226,6 @@ def calculate_confidence_safe(
     return max(0.0, min(1.0, confidence))
 
 
-
 # FIX #4: Memory-efficient batch processing
 class BatchProcessor:
     """Memory-efficient batch processing with chunking and streaming."""

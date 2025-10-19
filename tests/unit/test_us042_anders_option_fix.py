@@ -34,7 +34,7 @@ from src.ui.components.context_selector import ContextSelector
 class TestAndersOptionBasicFunctionality:
     """Test basic Anders... option functionality."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def mock_streamlit(self):
         """Mock Streamlit components."""
         with (
@@ -123,7 +123,7 @@ class TestAndersOptionBasicFunctionality:
 class TestAndersSpecialCharacters:
     """Test Anders... option with special characters and edge cases."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def mock_streamlit(self):
         with (
             patch("streamlit.multiselect") as mock_multiselect,
@@ -202,7 +202,7 @@ class TestAndersSpecialCharacters:
 class TestAndersStatePersistence:
     """Test that Anders... selections persist correctly in session state."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def mock_session_state(self):
         """Mock Streamlit session state."""
         with patch.object(st, "session_state", create=True) as mock_state:

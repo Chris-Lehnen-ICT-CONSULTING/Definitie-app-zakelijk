@@ -54,7 +54,6 @@ def _redact_text(text: str) -> str:
     return re.sub(r"(?i)\bbsn\s*[:=]?\s*\d{8,9}\b", "bsn=" + REDACTED, s)
 
 
-
 class PIIRedactingFilter(logging.Filter):
     """Logging filter die gevoelige gegevens maskeert in logrecords."""
 

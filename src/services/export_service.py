@@ -102,9 +102,7 @@ class ExportService:
         # Validatiegate alleen via async pad ondersteund
         if self.enable_validation_gate and self.validation_orchestrator is not None:
             msg = "Export validatiegate vereist async pad. Roep export_definitie_async aan vanuit de UI via async_bridge."
-            raise NotImplementedError(
-                msg
-            )
+            raise NotImplementedError(msg)
 
         # Export naar gekozen formaat
         if format == ExportFormat.TXT:
@@ -148,9 +146,7 @@ class ExportService:
                 raise ValueError(msg)
             if not isinstance(result, dict) or not result.get("is_acceptable", False):
                 msg = "Export geblokkeerd: definitie niet acceptabel volgens validatiegate"
-                raise ValueError(
-                    msg
-                )
+                raise ValueError(msg)
 
         # Export uitvoeren
         if format == ExportFormat.TXT:

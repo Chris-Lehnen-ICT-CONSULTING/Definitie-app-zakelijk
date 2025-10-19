@@ -304,9 +304,7 @@ class TestPromptPerformance:
                 org_context=[f"org{j}" for j in range(10)],
                 domain=[f"domain{j}" for j in range(10)],
             )
-            builder.build_prompt(
-                f"begrip{i}", context, UnifiedGeneratorConfig()
-            )
+            builder.build_prompt(f"begrip{i}", context, UnifiedGeneratorConfig())
 
             # Ensure no memory leaks in builder
             if i % 100 == 0:
