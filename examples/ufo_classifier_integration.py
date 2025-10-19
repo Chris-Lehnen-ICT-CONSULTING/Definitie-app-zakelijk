@@ -100,7 +100,6 @@ class UFOClassifierIntegration:
             "matched_patterns": result.matched_patterns,
         }
 
-
     def classify_batch_for_review(self, definitions: list) -> list:
         """
         Batch classificatie voor Expert Review Tab.
@@ -178,7 +177,6 @@ class UFOClassifierIntegration:
                 result, validation_context
             ),
         }
-
 
     def streamlit_ui_component(self) -> None:
         """

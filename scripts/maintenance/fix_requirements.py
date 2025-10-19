@@ -55,7 +55,6 @@ def fix_source_files(content: str) -> str:
     )
 
 
-
 def fix_story_references(content: str) -> str:
     """Fix story references."""
     for old_story, new_story in STORY_MAPPINGS.items():

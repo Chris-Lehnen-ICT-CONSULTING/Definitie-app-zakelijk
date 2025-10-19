@@ -20,24 +20,24 @@ from services.export_service import ExportFormat, ExportService
 class TestExportService:
     """Test cases voor ExportService."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def mock_repository(self):
         """Create mock repository."""
         return Mock(spec=DefinitieRepository)
 
-    @pytest.fixture
+    @pytest.fixture()
     def mock_data_aggregation_service(self):
         """Create mock data aggregation service."""
         return Mock(spec=DataAggregationService)
 
-    @pytest.fixture
+    @pytest.fixture()
     def temp_export_dir(self, tmp_path):
         """Create temporary export directory."""
         export_dir = tmp_path / "exports"
         export_dir.mkdir()
         return str(export_dir)
 
-    @pytest.fixture
+    @pytest.fixture()
     def service(self, mock_repository, mock_data_aggregation_service, temp_export_dir):
         """Create service instance with mocks."""
         return ExportService(
@@ -46,7 +46,7 @@ class TestExportService:
             export_dir=temp_export_dir,
         )
 
-    @pytest.fixture
+    @pytest.fixture()
     def sample_export_data(self):
         """Create sample export data."""
         return DefinitieExportData(

@@ -9,8 +9,8 @@ class _BoomRule:
         raise RuntimeError(msg)
 
 
-@pytest.mark.unit
-@pytest.mark.asyncio
+@pytest.mark.unit()
+@pytest.mark.asyncio()
 async def test_module_adapter_catches_rule_exceptions_and_marks_errored():
     m = pytest.importorskip(
         "services.validation.module_adapter",

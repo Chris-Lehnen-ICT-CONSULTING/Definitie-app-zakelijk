@@ -34,7 +34,7 @@ jobs:
         env:
           ENFORCE_GREP_GATE: "true"
         run: |
-          bash scripts/grep_gate.sh
+          bash scripts/maintenance/grep_gate.sh
 
       - name: Run smoke test with coverage
         env:

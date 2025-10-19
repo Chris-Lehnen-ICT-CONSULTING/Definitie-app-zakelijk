@@ -13,9 +13,7 @@ def check_file_exists(file_path: str) -> bool:
     """Check if a source file actually exists."""
     if "TODO" in file_path or file_path in {"all", "<bestand>"}:
         return True
-    if (
-        file_path.startswith(("docs/", "logs/", "tests/"))
-    ):
+    if file_path.startswith(("docs/", "logs/", "tests/")):
         full_path = BASE_PATH / file_path
         return full_path.exists() or full_path.parent.exists()
     full_path = BASE_PATH / file_path

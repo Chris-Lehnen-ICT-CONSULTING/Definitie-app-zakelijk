@@ -20,7 +20,6 @@ class ContextStateCleaner:
         """
         # Basis opties voor validatie
 
-
         base_wet_options = [
             "Wetboek van Strafvordering (huidig)",
             "Wetboek van Strafvordering (toekomstig)",
@@ -43,9 +42,7 @@ class ContextStateCleaner:
         if "jur_context_values" in st.session_state:
             original = st.session_state.jur_context_values.copy()
             # Verwijder "Anders..." en test waardes
-            cleaned = [
-                v for v in original if v not in {"Anders...", "en nu", ""}
-            ]
+            cleaned = [v for v in original if v not in {"Anders...", "en nu", ""}]
             if cleaned != original:
                 logger.info(f"Cleaned jur_context_values: {original} -> {cleaned}")
                 st.session_state.jur_context_values = cleaned

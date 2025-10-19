@@ -362,7 +362,6 @@ class JuridischeSynoniemlService:
             # Verwijder de originele term uit resultaat (niet jezelf als synoniem)
             return [s for s in synoniemen if s != normalized]
 
-
         # Case 3: Niet gevonden
         return []
 

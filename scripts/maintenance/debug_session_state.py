@@ -110,9 +110,7 @@ if "org_context_values" in st.session_state:
 # Check juridische context
 if "jur_context_values" in st.session_state:
     invalid_jur = [
-        v
-        for v in st.session_state.jur_context_values
-        if v in {"Anders...", "en nu"}
+        v for v in st.session_state.jur_context_values if v in {"Anders...", "en nu"}
     ]
     if invalid_jur:
         st.error(f"❌ Ongeldige waardes in Juridische context: {invalid_jur}")
@@ -121,9 +119,7 @@ if "jur_context_values" in st.session_state:
 # Check wettelijke basis
 if "wet_basis_values" in st.session_state:
     invalid_wet = [
-        v
-        for v in st.session_state.wet_basis_values
-        if v in {"Anders...", "toetsen"}
+        v for v in st.session_state.wet_basis_values if v in {"Anders...", "toetsen"}
     ]
     if invalid_wet:
         st.error(f"❌ Ongeldige waardes in Wettelijke basis: {invalid_wet}")

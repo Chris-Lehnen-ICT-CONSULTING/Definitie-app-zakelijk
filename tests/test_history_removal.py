@@ -149,9 +149,7 @@ class TestHistoryTabRemoval:
             # Get the column names to understand what's required
             cursor.execute("PRAGMA table_info(definities)")
             columns = cursor.fetchall()
-            [
-                col[1] for col in columns if col[3] == 1
-            ]  # col[3] is notnull flag
+            [col[1] for col in columns if col[3] == 1]  # col[3] is notnull flag
 
             # Insert test record with all required fields
             # Note: categorie field appears to be required based on error

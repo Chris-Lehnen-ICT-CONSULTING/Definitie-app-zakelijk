@@ -88,7 +88,7 @@ class TestSynonymSuggestionRecord:
 class TestSynonymRepository:
     """Tests voor SynonymRepository."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def repo(self, test_db_path):
         """Create repository with test database and apply migration."""
         # Apply synonym_suggestions migration
@@ -366,7 +366,7 @@ class TestSynonymRepository:
 class TestIntegration:
     """Integration tests voor complete workflow."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def repo(self, test_db_path):
         """Create repository with test database and apply migration."""
         # Apply synonym_suggestions migration

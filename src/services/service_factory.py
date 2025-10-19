@@ -355,9 +355,7 @@ class ServiceAdapter:
 
     def _handle_regeneration_context(self, begrip: str, kwargs: dict) -> str:
         """Handle regeneration context enhancement if present (deprecated - always returns base instructions)."""
-        return ensure_string(
-            safe_dict_get(kwargs, "extra_instructies", "")
-        )
+        return ensure_string(safe_dict_get(kwargs, "extra_instructies", ""))
 
     def to_ui_response(self, response, agent_result: dict) -> dict:
         """Convert orchestrator response to canonical UI format.
@@ -729,9 +727,7 @@ class ServiceFactory:
             "genereer_definitie (sync) is verwijderd uit services. "
             "Roep de async methode aan via ui.helpers.async_bridge.generate_definition_sync"
         )
-        raise NotImplementedError(
-            msg
-        )
+        raise NotImplementedError(msg)
 
     # Modern wrapper
     def generate_definition(self, begrip: str, context_dict: dict, **kwargs):

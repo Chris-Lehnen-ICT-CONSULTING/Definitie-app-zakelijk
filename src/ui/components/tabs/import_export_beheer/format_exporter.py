@@ -109,9 +109,7 @@ class FormatExporter:
                 st.download_button(
                     label=f"📥 Download {format} ({len(definitions)} definities)",
                     data=(
-                        output
-                        if isinstance(output, str | bytes)
-                        else output.getvalue()
+                        output if isinstance(output, str | bytes) else output.getvalue()
                     ),
                     file_name=filename,
                     mime=mime_type,

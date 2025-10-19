@@ -65,9 +65,7 @@ def first_heading(text: str) -> str | None:
 
 
 def is_external_link(href: str) -> bool:
-    return (
-        href.startswith(("http://", "https://", "mailto:"))
-    )
+    return href.startswith(("http://", "https://", "mailto:"))
 
 
 def resolve_link(md_path: Path, href: str) -> Path:

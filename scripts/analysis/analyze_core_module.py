@@ -170,7 +170,6 @@ class CoreModuleAnalyzer:
             "detailed_results": self.results,
         }
 
-
     def _find_common_sections(self, results: list[dict[str, Any]]) -> list[str]:
         """Vind secties die in alle outputs voorkomen."""
         if not results:

@@ -409,9 +409,7 @@ class PromptServiceV2:
             "build_prompt (sync) is verwijderd. Gebruik de async methode "
             "build_generation_prompt vanuit de UI via ui.helpers.async_bridge.run_async"
         )
-        raise NotImplementedError(
-            msg
-        )
+        raise NotImplementedError(msg)
 
     def _maybe_augment_with_web_context(  # noqa: PLR0911, PLR0915
         self, prompt_text: str, enriched_context: EnrichedContext

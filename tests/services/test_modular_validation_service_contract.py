@@ -4,8 +4,8 @@ from typing import Any
 import pytest
 
 
-@pytest.mark.unit
-@pytest.mark.contract
+@pytest.mark.unit()
+@pytest.mark.contract()
 def test_modular_validation_service_import_and_interface():
     """
     Contract: the ModularValidationService exists and exposes the V2 async interface.
@@ -25,9 +25,9 @@ def test_modular_validation_service_import_and_interface():
     assert hasattr(svc_cls, "validate_definition"), "validate_definition is required"
 
 
-@pytest.mark.unit
-@pytest.mark.contract
-@pytest.mark.asyncio
+@pytest.mark.unit()
+@pytest.mark.contract()
+@pytest.mark.asyncio()
 async def test_validate_definition_returns_schema_like_result():
     """
     Contract: validate_definition returns a dict-shaped result with required keys.
@@ -78,9 +78,9 @@ async def test_validate_definition_returns_schema_like_result():
     assert "correlation_id" in result["system"]
 
 
-@pytest.mark.unit
-@pytest.mark.contract
-@pytest.mark.asyncio
+@pytest.mark.unit()
+@pytest.mark.contract()
+@pytest.mark.asyncio()
 async def test_deterministic_results_simple():
     """Simple determinism test: two identical calls produce identical results."""
     m = pytest.importorskip(

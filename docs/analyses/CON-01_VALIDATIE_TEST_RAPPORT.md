@@ -430,3 +430,4 @@ AND (juridische_context = ? OR (juridische_context IS NULL AND ? = ''))
 **Einde Rapport**
 
 **Overall Status:** 🟢 **EXCELLENT** - Validatie werkt correct met minor bug fix
+

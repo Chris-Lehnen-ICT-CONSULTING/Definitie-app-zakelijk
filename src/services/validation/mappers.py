@@ -17,9 +17,9 @@ from services.validation.interfaces import (
     ImprovementSuggestion,
     RuleViolation,
     SystemMetadata,
-    ValidationResult as TypedDictResult,
-    ViolationLocation,
 )
+from services.validation.interfaces import ValidationResult as TypedDictResult
+from services.validation.interfaces import ViolationLocation
 
 # Default passed rules configuration
 DEFAULT_PASSED_RULES = ["BASIC-001", "BASIC-002", "BASIC-003"]

@@ -27,7 +27,7 @@ from src.services.orchestrators.definition_orchestrator_v2 import (
 )
 
 
-@pytest.fixture
+@pytest.fixture()
 def mock_services():
     """Create mock services voor V2 orchestrator testing."""
     # AI Service
@@ -136,7 +136,7 @@ def mock_services():
     }
 
 
-@pytest.fixture
+@pytest.fixture()
 def v2_orchestrator(mock_services):
     """Create V2 orchestrator met mock services."""
     config = OrchestratorConfig(
@@ -162,7 +162,7 @@ def v2_orchestrator(mock_services):
 class TestV2OrchestratorIntegration:
     """Test suite voor V2 orchestrator met alle service interfaces."""
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_complete_flow_with_all_services(self, v2_orchestrator):
         """Test complete V2 flow met alle services."""
         orchestrator, services = v2_orchestrator
@@ -225,7 +225,7 @@ class TestV2OrchestratorIntegration:
         services["monitoring_service"].start_generation.assert_called()
         services["monitoring_service"].complete_generation.assert_called()
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_enhancement_flow_on_validation_failure(self, v2_orchestrator):
         """Test enhancement flow wanneer validatie faalt."""
         orchestrator, services = v2_orchestrator
@@ -260,7 +260,7 @@ class TestV2OrchestratorIntegration:
         assert isinstance(call_args[0][1], list)  # violations
         assert call_args[1]["context"] == request  # context kwarg
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_error_handling_and_monitoring(self, v2_orchestrator):
         """Test error handling en monitoring integratie."""
         orchestrator, services = v2_orchestrator
@@ -285,7 +285,7 @@ class TestV2OrchestratorIntegration:
         assert "test-789" in str(error_call[0][0])  # generation_id
         assert isinstance(error_call[0][1], Exception)  # error
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_feedback_integration(self, v2_orchestrator):
         """Test feedback engine integration in V2 flow."""
         orchestrator, services = v2_orchestrator
@@ -315,7 +315,7 @@ class TestV2OrchestratorIntegration:
         assert len(feedback_history) == 2
         assert feedback_history[0]["type"] == "quality"
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_cleaning_service_async_await(self, v2_orchestrator):
         """Specifieke test voor async/await van cleaning service."""
         orchestrator, services = v2_orchestrator

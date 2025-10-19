@@ -176,9 +176,7 @@ class FeatureFlags:
                 f"Required feature '{feature_flag.name}' is disabled. "
                 f"Enable it by setting {feature_flag.env_var}=true"
             )
-            raise RuntimeError(
-                msg
-            )
+            raise RuntimeError(msg)
         return True
 
 

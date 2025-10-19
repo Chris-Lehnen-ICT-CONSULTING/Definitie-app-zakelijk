@@ -5,7 +5,7 @@ from unittest.mock import Mock, call, patch
 import pytest
 
 
-@pytest.mark.unit
+@pytest.mark.unit()
 def test_evaluation_context_dataclass_structure():
     """Test that EvaluationContext has all required fields."""
     m = pytest.importorskip(
@@ -37,8 +37,8 @@ def test_evaluation_context_dataclass_structure():
     assert context.metadata == {"key": "value"}
 
 
-@pytest.mark.unit
-@pytest.mark.asyncio
+@pytest.mark.unit()
+@pytest.mark.asyncio()
 async def test_context_computed_once_shared_across_validators():
     """Test that EvaluationContext is computed once and shared."""
     m = pytest.importorskip(
@@ -83,7 +83,7 @@ async def test_context_computed_once_shared_across_validators():
     assert mock_tokenizer.call_count <= 1, "Tokenization should happen at most once"
 
 
-@pytest.mark.unit
+@pytest.mark.unit()
 def test_context_prevents_duplicate_text_processing():
     """Test that validators receive pre-processed text via context."""
     m = pytest.importorskip(
@@ -127,8 +127,8 @@ def test_context_prevents_duplicate_text_processing():
     assert passed_ctx.tokens == ["raw", "text", "with", "spaces"]
 
 
-@pytest.mark.unit
-@pytest.mark.asyncio
+@pytest.mark.unit()
+@pytest.mark.asyncio()
 async def test_context_includes_correlation_id_for_tracing():
     """Test that correlation_id is properly propagated through context."""
     m = pytest.importorskip(
@@ -175,7 +175,7 @@ async def test_context_includes_correlation_id_for_tracing():
         assert result["system"]["correlation_id"] == correlation_id
 
 
-@pytest.mark.unit
+@pytest.mark.unit()
 def test_context_immutable_between_validators():
     """Test that EvaluationContext cannot be modified by validators."""
     m = pytest.importorskip(
@@ -209,8 +209,8 @@ def test_context_immutable_between_validators():
     assert len(context.tokens) == 1
 
 
-@pytest.mark.unit
-@pytest.mark.asyncio
+@pytest.mark.unit()
+@pytest.mark.asyncio()
 async def test_context_lazy_computation_of_optional_fields():
     """Test that optional fields like tokens are only computed when needed."""
     pytest.importorskip(

@@ -102,8 +102,6 @@ class TestAndersOptionFix:
         """Test all three context types with 'Anders...' selected."""
         # All three context types have "Anders..." selected
 
-
-
         # Process all three
         final_org = ["DJI", "Custom Org"]
         final_jur = ["Strafrecht", "Militair Recht"]
