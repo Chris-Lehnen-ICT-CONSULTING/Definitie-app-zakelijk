@@ -113,7 +113,6 @@ tqdm==4.67.1
 typing-inspection==0.4.1
 typing_extensions==4.14.0
 tzdata==2025.2
-UNKNOWN==0.0.0
 urllib3==2.5.0
 virtualenv==20.34.0
 watchdog==6.0.0
