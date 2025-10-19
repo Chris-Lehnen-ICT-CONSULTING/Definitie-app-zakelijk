@@ -88,7 +88,7 @@ class _StubWebLookupService:
         return [r2, r1]  # Already ranked
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_orchestrator_includes_provenance_sources_in_metadata():
     from services.interfaces import GenerationRequest, OrchestratorConfig
     from services.orchestrators.definition_orchestrator_v2 import (
@@ -110,8 +110,10 @@ async def test_orchestrator_includes_provenance_sources_in_metadata():
     )
     resp = await orch.create_definition(req, context={})
 
-    assert resp.success and resp.definition is not None
+    assert resp.success
+    assert resp.definition is not None
     sources = resp.definition.metadata.get("sources", [])
-    assert isinstance(sources, list) and len(sources) >= 2
+    assert isinstance(sources, list)
+    assert len(sources) >= 2
     # First item should be marked used_in_prompt due to top_k=1
     assert sources[0].get("used_in_prompt") is True

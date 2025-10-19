@@ -294,8 +294,7 @@ def simple_markdown_to_html(md: str) -> str:
 
     flush_code()
     flush_list()
-    out = "\n".join(x for x in html_lines)
-    return out
+    return "\n".join(x for x in html_lines)
 
 
 def write_rendered_markdown(md_path: Path, title: str) -> Path:
@@ -396,9 +395,9 @@ def scan_docs() -> list[dict]:
                 parent_us = ppart
 
         # Extract ID-like references for simple traceability (best-effort)
-        found_us_ids = sorted(set(m.group(0) for m in US_ID_RE.finditer(text)))
-        found_epic_ids = sorted(set(m.group(0) for m in EPIC_ID_RE.finditer(text)))
-        found_req_ids = sorted(set(m.group(0) for m in REQ_ID_RE.finditer(text)))
+        found_us_ids = sorted({m.group(0) for m in US_ID_RE.finditer(text)})
+        found_epic_ids = sorted({m.group(0) for m in EPIC_ID_RE.finditer(text)})
+        found_req_ids = sorted({m.group(0) for m in REQ_ID_RE.finditer(text)})
 
         item = {
             "id": fm.get("id") or None,
@@ -409,7 +408,7 @@ def scan_docs() -> list[dict]:
             "status": fm.get("status") or None,
             "prioriteit": prioriteit or None,
             "owner": fm.get("owner") or None,
-            "canonical": True if str(fm.get("canonical")).lower() == "true" else False,
+            "canonical": str(fm.get("canonical")).lower() == "true",
             "last_verified": fm.get("last_verified") or None,
             "applies_to": fm.get("applies_to") or None,
             "category": fm_type or None,
@@ -515,7 +514,7 @@ def main() -> int:
             it["linked_stories"] = sorted(set(epic_to_us.get(iid, []))) or None
         elif t == "US" and iid:
             # derive linked REQs by inversion of req_to_us
-            linked = sorted(set(r for r, us in req_to_us.items() if iid in us))
+            linked = sorted({r for r, us in req_to_us.items() if iid in us})
             it["linked_reqs"] = linked or None
 
     # Optional top-level relations summary

@@ -54,7 +54,7 @@ def test_validation_rules_load():
     """ModularValidationService loads all 45 toetsregels."""
     from services.validation.modular_validation_service import ModularValidationService
 
-    service = ModularValidationService()
+    ModularValidationService()
 
     # Should have loaded rules
     # (exact count depends on config, but should be >40)
@@ -107,7 +107,7 @@ def test_category_service():
 # ==============================================================================
 # SMOKE TEST 7: Validation can run on sample definition
 # ==============================================================================
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_validation_runs():
     """Validation service can validate sample definition."""
     from services.interfaces import Definition

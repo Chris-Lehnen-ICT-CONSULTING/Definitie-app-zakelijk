@@ -6,6 +6,7 @@ Automatisch corrigeren van gedetecteerde taalfouten in documentatie
 
 import argparse
 import re
+import sys
 from pathlib import Path
 
 # Vertaal mappings voor systematische fouten
@@ -209,4 +210,4 @@ def main():
 
 
 if __name__ == "__main__":
-    exit(main())
+    sys.exit(main())

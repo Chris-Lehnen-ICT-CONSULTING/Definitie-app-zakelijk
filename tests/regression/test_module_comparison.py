@@ -134,7 +134,7 @@ def test_with_metadata():
 
         # Check voor waarschuwing
         if "⚠️" in output:
-            warning_line = [line for line in output.split("\n") if "⚠️" in line][0]
+            warning_line = next(line for line in output.split("\n") if "⚠️" in line)
             print(f"Waarschuwing: {warning_line}")
         else:
             print("Geen waarschuwing (voldoende ruimte)")

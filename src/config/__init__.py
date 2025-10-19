@@ -12,12 +12,12 @@ from typing import Any
 
 # Legacy loaders kept for back-compat (used by some docs/tools)
 from .config_loader import laad_toetsregels, laad_verboden_woorden
-from .config_manager import APIConfig
-from .config_manager import CacheConfig as _CacheCfg
-from .config_manager import ConfigSection
-from .config_manager import PathsConfig as _PathsCfg
-from .config_manager import ValidationConfig as _ValCfg
 from .config_manager import (
+    APIConfig,
+    CacheConfig as _CacheCfg,
+    ConfigSection,
+    PathsConfig as _PathsCfg,
+    ValidationConfig as _ValCfg,
     get_config,
     get_config_manager,
     get_default_model,
@@ -73,7 +73,8 @@ class APIConfigAdapter:
         key = self.config.openai_api_key or ""
         if not key:
             # In tests it's acceptable to raise
-            raise ValueError("OPENAI_API_KEY not configured")
+            msg = "OPENAI_API_KEY not configured"
+            raise ValueError(msg)
         return key
 
 
@@ -151,7 +152,8 @@ def get_paths_config() -> PathsConfigAdapter:
 def get_openai_api_key() -> str:
     cfg = get_config(ConfigSection.API)
     if not cfg.openai_api_key:
-        raise ValueError("OPENAI_API_KEY not configured")
+        msg = "OPENAI_API_KEY not configured"
+        raise ValueError(msg)
     return cfg.openai_api_key
 
 
@@ -170,18 +172,18 @@ def get_validation_config() -> ValidationConfigAdapter:
 
 
 __all__ = [
-    # Legacy
-    "laad_toetsregels",
-    "laad_verboden_woorden",
     # Adapters
     "get_api_config",
     "get_cache_config",
-    "get_paths_config",
-    "get_validation_config",
+    "get_config",
     # Direct config helpers
     "get_config_manager",
-    "get_config",
     "get_default_model",
     "get_default_temperature",
     "get_openai_api_key",
+    "get_paths_config",
+    "get_validation_config",
+    # Legacy
+    "laad_toetsregels",
+    "laad_verboden_woorden",
 ]

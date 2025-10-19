@@ -14,6 +14,7 @@ Test Coverage:
 - Browser compatibility scenarios
 """
 
+import contextlib
 import gc
 import html
 import json
@@ -33,7 +34,7 @@ from src.ui.components.enhanced_context_manager_selector import (
 class TestMaliciousInputPrevention:
     """Test protection against malicious input in Anders fields."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def mock_streamlit(self):
         with (
             patch("streamlit.multiselect") as mock_multiselect,
@@ -73,7 +74,7 @@ class TestMaliciousInputPrevention:
         assert malicious_input in result.get("organisatorische_context", [])
 
         # When displayed, it should be escaped
-        escaped = html.escape(malicious_input)
+        html.escape(malicious_input)
         # This is what should be shown to user
 
     @pytest.mark.parametrize(
@@ -125,7 +126,7 @@ class TestMaliciousInputPrevention:
 class TestExtremeLengthInputs:
     """Test handling of extremely long inputs."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def mock_streamlit(self):
         with (
             patch("streamlit.multiselect") as mock_multiselect,
@@ -258,7 +259,7 @@ class TestConcurrencyAndRaceConditions:
 class TestUnicodeAndEncodingEdgeCases:
     """Test Unicode and encoding edge cases."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def mock_streamlit(self):
         with (
             patch("streamlit.multiselect") as mock_multiselect,
@@ -350,7 +351,7 @@ class TestMemoryStress:
                 mock_text_input.return_value = f"Memory test {i}" * 100
 
                 selector = ContextSelector()
-                result = selector.render()
+                selector.render()
 
                 if i % 100 == 0:
                     gc.collect()
@@ -360,7 +361,7 @@ class TestMemoryStress:
             snapshot2 = tracemalloc.take_snapshot()
 
             # Check memory growth
-            stats = snapshot2.compare_to(snapshot1, "lineno")
+            snapshot2.compare_to(snapshot1, "lineno")
 
             # Memory growth should be minimal
             # This is a simplified check
@@ -388,7 +389,7 @@ class TestMemoryStress:
 class TestBoundaryConditions:
     """Test boundary conditions and limits."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def mock_streamlit(self):
         with (
             patch("streamlit.multiselect") as mock_multiselect,
@@ -444,7 +445,7 @@ class TestBoundaryConditions:
             selector = ContextSelector()
             # Should handle without crashing
             try:
-                result = selector.render()
+                selector.render()
             except:
                 pytest.fail("Null byte caused crash")
 
@@ -541,7 +542,8 @@ class TestErrorRecovery:
                     multiselect_side_effect.calls = 0
                 multiselect_side_effect.calls += 1
                 if multiselect_side_effect.calls == 1:
-                    raise Exception("Render failed")
+                    msg = "Render failed"
+                    raise Exception(msg)
                 # Subsequent calls: return valid lists for each multiselect
                 return (
                     ["DJI", "Anders..."]
@@ -554,10 +556,8 @@ class TestErrorRecovery:
             selector = ContextSelector()
 
             # First attempt
-            try:
-                result1 = selector.render()
-            except:
-                pass
+            with contextlib.suppress(Exception):
+                selector.render()
 
             # Should recover on second attempt
             result2 = selector.render()

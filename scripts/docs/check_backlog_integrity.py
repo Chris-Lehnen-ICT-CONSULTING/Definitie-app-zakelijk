@@ -47,9 +47,7 @@ def parse_frontmatter(text: str) -> tuple[str | None, bool]:
 
 def is_external_link(href: str) -> bool:
     return (
-        href.startswith("http://")
-        or href.startswith("https://")
-        or href.startswith("mailto:")
+        href.startswith(("http://", "https://", "mailto:"))
     )
 
 
@@ -84,7 +82,7 @@ def main() -> int:
         fid = fid or ""
         if fid.startswith("US-"):
             us_ids.setdefault(fid, []).append(str(md.relative_to(ROOT)))
-        elif fid.startswith("BUG-") or fid.startswith("CFR-BUG-"):
+        elif fid.startswith(("BUG-", "CFR-BUG-")):
             bug_ids.setdefault(fid, []).append(str(md.relative_to(ROOT)))
 
         # Link checks (only repo/local links)

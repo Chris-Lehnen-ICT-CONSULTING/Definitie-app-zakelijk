@@ -110,7 +110,7 @@ class FormatExporter:
                     label=f"📥 Download {format} ({len(definitions)} definities)",
                     data=(
                         output
-                        if isinstance(output, (str, bytes))
+                        if isinstance(output, str | bytes)
                         else output.getvalue()
                     ),
                     file_name=filename,

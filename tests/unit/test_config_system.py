@@ -271,7 +271,7 @@ class TestConfigurationAdapters:
         temperature = get_default_temperature()
 
         assert isinstance(model, str)
-        assert isinstance(temperature, (int, float))
+        assert isinstance(temperature, int | float)
         assert temperature >= 0.0
         assert temperature <= 2.0
 
@@ -313,7 +313,7 @@ class TestConfigurationPersistence:
         config_manager = ConfigManager()
 
         # Get initial value
-        initial_temp = config_manager.get_config(ConfigSection.API).default_temperature
+        config_manager.get_config(ConfigSection.API).default_temperature
 
         # Change value
         config_manager.set_config(ConfigSection.API, "default_temperature", 0.7)
@@ -335,7 +335,7 @@ class TestEnvironmentSpecificConfiguration:
         config_manager = ConfigManager()
         # Values come from development config; ensure types are sensible
         api_config = config_manager.get_config(ConfigSection.API)
-        assert isinstance(api_config.default_temperature, (int, float))
+        assert isinstance(api_config.default_temperature, int | float)
         logging_config = config_manager.get_config(ConfigSection.LOGGING)
         assert isinstance(logging_config.level, str)
 
@@ -386,7 +386,7 @@ class TestConfigurationIntegration:
     def test_full_configuration_cycle(self):
         """Test complete configuration lifecycle."""
         # Initialize configuration
-        config_manager = get_config_manager()
+        get_config_manager()
 
         # Test all sections load correctly
         for section in ConfigSection:
@@ -424,7 +424,7 @@ class TestConfigurationIntegration:
         """No isolation check: single environment only (development)."""
         config_manager = ConfigManager()
         api_config = config_manager.get_config(ConfigSection.API)
-        assert isinstance(api_config.default_temperature, (int, float))
+        assert isinstance(api_config.default_temperature, int | float)
 
 
 if __name__ == "__main__":

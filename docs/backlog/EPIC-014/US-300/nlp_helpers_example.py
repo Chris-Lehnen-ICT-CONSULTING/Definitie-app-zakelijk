@@ -279,7 +279,7 @@ def extract_legal_references(text: str) -> list[dict[str, str]]:
     return references
 
 
-def identify_legal_domain(text: str, context: list[str] = None) -> str:
+def identify_legal_domain(text: str, context: list[str] | None = None) -> str:
     """Identify the legal domain of the text.
 
     Args:

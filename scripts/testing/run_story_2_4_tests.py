@@ -32,7 +32,7 @@ class Story24TestRunner:
         self.test_results: dict[str, Any] = {}
 
     def run_test_suite(
-        self, suite_name: str, test_pattern: str, markers: list[str] = None
+        self, suite_name: str, test_pattern: str, markers: list[str] | None = None
     ) -> bool:
         """Run a specific test suite and capture results."""
         print(f"\n{'='*60}")
@@ -154,9 +154,8 @@ class Story24TestRunner:
             "tests/integration/test_story_2_4_interface_migration.py",
             ["golden"],
         )
-        overall_success = overall_success and success
+        return overall_success and success
 
-        return overall_success
 
     def print_final_report(self):
         """Print final test execution report."""

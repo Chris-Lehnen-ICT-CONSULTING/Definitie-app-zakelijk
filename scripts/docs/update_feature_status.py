@@ -5,6 +5,7 @@ Synchroniseert feature status van GitHub Issues/Projects naar de architectuur HT
 """
 
 import os
+import sys
 from datetime import datetime
 from pathlib import Path
 
@@ -100,9 +101,8 @@ def fetch_github_issues():
 
         if response.status_code == 200:
             return response.json()
-        else:
-            print(f"Error fetching GitHub data: {response.status_code}")
-            return None
+        print(f"Error fetching GitHub data: {response.status_code}")
+        return None
 
     except Exception as e:
         print(f"Error: {e}")
@@ -319,10 +319,9 @@ def main():
     if update_html_file(features_by_epic):
         print("✅ Feature status successfully updated!")
         return 0
-    else:
-        print("❌ Failed to update HTML file")
-        return 1
+    print("❌ Failed to update HTML file")
+    return 1
 
 
 if __name__ == "__main__":
-    exit(main())
+    sys.exit(main())

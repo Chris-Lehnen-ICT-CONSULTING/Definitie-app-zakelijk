@@ -36,7 +36,7 @@ def run_async(coro: Coroutine[Any, Any, T], timeout: float | None = None) -> T:
 
     # Check if we're in the main thread with a running event loop (Streamlit)
     try:
-        loop = asyncio.get_running_loop()
+        asyncio.get_running_loop()
         # We're in an async context with a running loop
         # Use a thread pool to run the coroutine in isolation
         with ThreadPoolExecutor(max_workers=1) as executor:

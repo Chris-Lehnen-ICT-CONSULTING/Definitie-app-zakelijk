@@ -163,12 +163,11 @@ class ValidationStatusChecker:
                     "message": "Contract tests passed",
                     "output": result.stdout[-500:],  # Last 500 chars
                 }
-            else:
-                return {
-                    "status": "error",
-                    "message": "Contract tests failed",
-                    "output": result.stderr[-500:],
-                }
+            return {
+                "status": "error",
+                "message": "Contract tests failed",
+                "output": result.stderr[-500:],
+            }
 
         except Exception as e:
             logger.error(f"Test suite execution failed: {e}")

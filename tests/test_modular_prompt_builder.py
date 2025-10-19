@@ -18,9 +18,9 @@ from services.prompts.modular_prompt_builder import (
 
 
 def create_test_context(
-    ontologische_categorie: str = None,
-    organisatorisch: list = None,
-    domein: list = None,
+    ontologische_categorie: str | None = None,
+    organisatorisch: list | None = None,
+    domein: list | None = None,
 ) -> EnrichedContext:
     """Helper function om test context te maken."""
 

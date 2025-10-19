@@ -166,14 +166,13 @@ class ValidationComparer:
         """Determine severity based on score difference."""
         if score_diff >= self.SEVERITY_THRESHOLDS["critical"]:
             return "critical"
-        elif score_diff >= self.SEVERITY_THRESHOLDS["high"]:
+        if score_diff >= self.SEVERITY_THRESHOLDS["high"]:
             return "high"
-        elif score_diff >= self.SEVERITY_THRESHOLDS["medium"]:
+        if score_diff >= self.SEVERITY_THRESHOLDS["medium"]:
             return "medium"
-        elif score_diff >= self.SEVERITY_THRESHOLDS["low"]:
+        if score_diff >= self.SEVERITY_THRESHOLDS["low"]:
             return "low"
-        else:
-            return "none"
+        return "none"
 
     def generate_console_report(self) -> str:
         """Generate console-friendly text report."""

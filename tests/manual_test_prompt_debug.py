@@ -89,14 +89,13 @@ def test_prompt_storage():
     prompt_location = None
 
     # Check metadata eerst (zoals de UI fix doet)
-    if hasattr(agent_result, "metadata") and agent_result.metadata:
-        if (
-            isinstance(agent_result.metadata, dict)
-            and "prompt_template" in agent_result.metadata
-        ):
-            prompt_found = True
-            prompt_location = "metadata.prompt_template"
-            prompt_preview = agent_result.metadata["prompt_template"][:200] + "..."
+    if hasattr(agent_result, "metadata") and agent_result.metadata and (
+        isinstance(agent_result.metadata, dict)
+        and "prompt_template" in agent_result.metadata
+    ):
+        prompt_found = True
+        prompt_location = "metadata.prompt_template"
+        prompt_preview = agent_result.metadata["prompt_template"][:200] + "..."
 
     # Check direct attribuut
     if not prompt_found and hasattr(agent_result, "prompt_template"):
@@ -119,7 +118,7 @@ def test_prompt_storage():
             self.metadata = metadata
 
     if result.metadata and "prompt_template" in result.metadata:
-        saved_record = MockSavedRecord(result.metadata)
+        MockSavedRecord(result.metadata)
         print("   ✅ Saved record zou prompt_template bevatten")
     else:
         print("   ❌ Saved record zou GEEN prompt_template bevatten")

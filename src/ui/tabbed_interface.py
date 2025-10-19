@@ -10,8 +10,10 @@ met ondersteuning voor meerdere tabs en complete workflow beheer.
 import asyncio  # Asynchrone programmering voor ontologische analyse
 import logging  # Logging faciliteiten voor debug en monitoring
 import os
-from datetime import datetime  # Datum en tijd functionaliteit
-from datetime import UTC
+from datetime import (
+    UTC,
+    datetime,  # Datum en tijd functionaliteit
+)
 from typing import Any  # Type hints voor betere code documentatie
 
 import streamlit as st  # Streamlit web interface framework
@@ -353,7 +355,9 @@ class TabbedInterface:
                         )
 
                         # Sla op in session state
-                        SessionStateManager.set_value("determined_category", auto_categorie.value)
+                        SessionStateManager.set_value(
+                            "determined_category", auto_categorie.value
+                        )
                         SessionStateManager.set_value("category_reasoning", reasoning)
                         SessionStateManager.set_value("category_scores", scores)
 
@@ -1105,7 +1109,7 @@ class TabbedInterface:
                             else "missing"
                         ),
                         {
-                            k: len(v) if isinstance(v, (list, str)) else "INVALID"
+                            k: len(v) if isinstance(v, list | str) else "INVALID"
                             for k, v in (
                                 agent_result.get("voorbeelden", {})
                                 if isinstance(agent_result, dict)

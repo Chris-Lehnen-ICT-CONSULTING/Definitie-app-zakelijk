@@ -55,7 +55,8 @@ class DatabaseBackupManager:
 
         # Validate database exists
         if not self.db_path.exists():
-            raise FileNotFoundError(f"Database not found: {self.db_path}")
+            msg = f"Database not found: {self.db_path}"
+            raise FileNotFoundError(msg)
 
     def create_backup(self, description: str = "") -> Path:
         """
@@ -112,10 +113,10 @@ class DatabaseBackupManager:
                     f"Backup size: {backup_path.stat().st_size / 1024 / 1024:.2f} MB"
                 )
                 return backup_path
-            else:
-                logger.error("Backup verification failed")
-                backup_path.unlink()
-                raise RuntimeError("Backup verification failed")
+            logger.error("Backup verification failed")
+            backup_path.unlink()
+            msg = "Backup verification failed"
+            raise RuntimeError(msg)
 
         except Exception as e:
             logger.error(f"Failed to create backup: {e}")
@@ -137,7 +138,8 @@ class DatabaseBackupManager:
             True if restore successful
         """
         if not backup_path.exists():
-            raise FileNotFoundError(f"Backup not found: {backup_path}")
+            msg = f"Backup not found: {backup_path}"
+            raise FileNotFoundError(msg)
 
         logger.info(f"Restoring from backup: {backup_path}")
 
@@ -177,9 +179,8 @@ class DatabaseBackupManager:
             if self._verify_database(self.db_path):
                 logger.info("Database restored successfully")
                 return True
-            else:
-                logger.error("Restored database verification failed")
-                return False
+            logger.error("Restored database verification failed")
+            return False
 
         except Exception as e:
             logger.error(f"Failed to restore backup: {e}")
@@ -259,7 +260,7 @@ class DatabaseBackupManager:
 
         deleted_count = 0
 
-        for i, (backup_path, timestamp, size) in enumerate(backups):
+        for i, (backup_path, timestamp, _size) in enumerate(backups):
             # Keep minimum number of recent backups
             if i < keep_minimum:
                 logger.debug(f"Keeping recent backup: {backup_path.name}")
@@ -299,9 +300,8 @@ class DatabaseBackupManager:
             if result and result[0] == "ok":
                 logger.debug(f"Database integrity check passed: {db_path}")
                 return True
-            else:
-                logger.error(f"Database integrity check failed: {result}")
-                return False
+            logger.error(f"Database integrity check failed: {result}")
+            return False
 
         except sqlite3.Error as e:
             logger.error(f"Database verification failed: {e}")
@@ -449,7 +449,7 @@ Examples:
                 sys.exit(1)
 
         elif args.action == "clean":
-            deleted = manager.clean_old_backups(
+            manager.clean_old_backups(
                 days=args.days, keep_minimum=args.keep_minimum, dry_run=args.dry_run
             )
             sys.exit(0)

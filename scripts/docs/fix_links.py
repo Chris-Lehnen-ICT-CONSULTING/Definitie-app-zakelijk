@@ -50,8 +50,7 @@ def canonical_req_path(req_id: str) -> Path:
 
 def normalize_href(href: str) -> str:
     # strip anchors/queries for existence checks
-    core = href.split("#", 1)[0].split("?", 1)[0]
-    return core
+    return href.split("#", 1)[0].split("?", 1)[0]
 
 
 def replace_in_text(text: str, base: Path, us_lookup: dict[str, Path]) -> str:
@@ -85,8 +84,7 @@ def replace_in_text(text: str, base: Path, us_lookup: dict[str, Path]) -> str:
         return f'href="{new_href}"'
 
     text = MD_LINK.sub(replace_md, text)
-    text = HTML_HREF.sub(replace_html, text)
-    return text
+    return HTML_HREF.sub(replace_html, text)
 
 
 def rel_from(to_path: Path, base: Path) -> str:

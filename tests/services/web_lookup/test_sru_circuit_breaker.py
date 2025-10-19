@@ -21,7 +21,7 @@ from src.services.web_lookup.sru_service import SRUService
 class TestCircuitBreaker:
     """Test circuit breaker behavior in SRU service."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def sru_service(self):
         """Create SRU service with default circuit breaker config."""
         config = {
@@ -36,7 +36,7 @@ class TestCircuitBreaker:
         }
         return SRUService(circuit_breaker_config=config)
 
-    @pytest.fixture()
+    @pytest.fixture
     def sru_service_disabled(self):
         """Create SRU service with circuit breaker disabled."""
         config = {
@@ -45,7 +45,7 @@ class TestCircuitBreaker:
         }
         return SRUService(circuit_breaker_config=config)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_circuit_breaker_triggers_after_threshold(self, sru_service):
         """
         Test: Circuit breaker triggers after N consecutive empty results.
@@ -111,7 +111,7 @@ class TestCircuitBreaker:
         assert sru_service.circuit_breaker_config["providers"]["rechtspraak"] == 3
         assert sru_service.circuit_breaker_config["providers"]["overheid"] == 2
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_provider_specific_threshold(self, sru_service):
         """
         Test: Provider-specific thresholds are respected.
@@ -135,7 +135,7 @@ class TestCircuitBreaker:
         )
         assert threshold_unknown == 2
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_circuit_breaker_disabled(self, sru_service_disabled):
         """
         Test: Circuit breaker can be disabled.
@@ -173,7 +173,7 @@ class TestCircuitBreaker:
             # Note: actual count depends on implementation details
             assert sru_service_disabled.session.get.call_count > 0
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_performance_improvement_with_circuit_breaker(
         self, sru_service, sru_service_disabled
     ):
@@ -200,8 +200,7 @@ class TestCircuitBreaker:
                 return mock_resp
 
             async def slow_context_manager():
-                resp = await slow_response()
-                return resp
+                return await slow_response()
 
             service.session.get = MagicMock()
             service.session.get.return_value.__aenter__ = slow_response
@@ -263,7 +262,7 @@ class TestCircuitBreaker:
         # Verify wetgeving_nl is in endpoints
         assert "wetgeving_nl" in sru_service.endpoints
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_circuit_breaker_logging(self, sru_service, caplog):
         """
         Test: Circuit breaker logs when triggered.
@@ -306,7 +305,7 @@ class TestCircuitBreaker:
         ), "Circuit breaker should log when triggered"
         assert any("consecutive empty results" in msg for msg in circuit_breaker_logs)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_query_count_tracking(self, sru_service):
         """
         Test: Query count is tracked correctly.
@@ -338,7 +337,7 @@ class TestCircuitBreaker:
         attempts = sru_service.get_attempts()
         # With circuit breaker threshold=2, should have max 2 queries
         # Each query might have multiple URL attempts (primary + fallback)
-        query_strategies = set(attempt.get("strategy") for attempt in attempts)
+        query_strategies = {attempt.get("strategy") for attempt in attempts}
 
         # Should not execute all 5 strategies
         assert (

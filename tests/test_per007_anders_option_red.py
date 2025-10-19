@@ -15,7 +15,7 @@ from services.interfaces import GenerationRequest
 class TestAndersOption:
     """Tests for custom 'Anders...' option - MUST fail initially"""
 
-    @pytest.mark.red_phase()
+    @pytest.mark.red_phase
     def test_anders_in_organisatorische_context(self):
         """MUST FAIL: Anders option currently crashes"""
         # GIVEN: User selects "Anders..." and enters custom text
@@ -36,7 +36,7 @@ class TestAndersOption:
             "Anders..." not in context["organisatorisch"]
         ), "Anders... marker should be removed after processing"
 
-    @pytest.mark.red_phase()
+    @pytest.mark.red_phase
     def test_anders_with_empty_custom_value(self):
         """MUST FAIL: Empty Anders value currently crashes"""
         # GIVEN: Anders selected but no custom value entered
@@ -54,7 +54,7 @@ class TestAndersOption:
         assert "" not in context["juridisch"], "Empty strings should be filtered out"
         assert "Strafrecht" in context["juridisch"], "Valid values should remain"
 
-    @pytest.mark.red_phase()
+    @pytest.mark.red_phase
     def test_anders_preserves_order(self):
         """MUST FAIL: Order not preserved with Anders option"""
         # GIVEN: Specific order with Anders in middle
@@ -74,7 +74,7 @@ class TestAndersOption:
             context["organisatorisch"] == expected
         ), f"Order not preserved. Got {context['organisatorisch']}, expected {expected}"
 
-    @pytest.mark.red_phase()
+    @pytest.mark.red_phase
     def test_anders_with_multiple_custom_entries(self):
         """MUST FAIL: Multiple custom entries not handled"""
         # GIVEN: Multiple Anders entries
@@ -101,7 +101,7 @@ class TestAndersOption:
             context["juridisch"] == expected
         ), "Multiple custom entries not handled correctly"
 
-    @pytest.mark.red_phase()
+    @pytest.mark.red_phase
     def test_anders_preserves_session_state(self):
         """MUST FAIL: Custom entries not preserved in session"""
         # GIVEN: Custom entry via Anders
@@ -117,7 +117,7 @@ class TestAndersOption:
         )
 
         manager = HybridContextManager()
-        context = manager._build_base_context(request)
+        manager._build_base_context(request)
 
         # THEN: Custom org should be saved to session
         # This will FAIL - session persistence not implemented
@@ -130,7 +130,7 @@ class TestAndersOption:
             "preserved_custom_orgs", []
         ), "Custom org not available for reuse"
 
-    @pytest.mark.red_phase()
+    @pytest.mark.red_phase
     def test_anders_deduplication(self):
         """MUST FAIL: Duplicates with Anders not handled"""
         # GIVEN: Duplicate entries with Anders
@@ -150,7 +150,7 @@ class TestAndersOption:
             "DJI",
         ], "Deduplication failed or order not preserved"
 
-    @pytest.mark.red_phase()
+    @pytest.mark.red_phase
     def test_anders_in_all_three_context_types(self):
         """MUST FAIL: Anders not supported in all context types"""
         # GIVEN: Anders in all three context types
@@ -180,7 +180,7 @@ class TestAndersOption:
                 all_values.extend(values)
         assert "Anders..." not in all_values, "Anders... marker still present in output"
 
-    @pytest.mark.red_phase()
+    @pytest.mark.red_phase
     def test_anders_with_special_characters(self):
         """MUST FAIL: Special characters in custom entries not handled"""
         # GIVEN: Custom entry with special characters
@@ -199,7 +199,7 @@ class TestAndersOption:
             "Org-with-dashes & symbols!" in context["organisatorisch"]
         ), "Special characters not handled"
 
-    @pytest.mark.red_phase()
+    @pytest.mark.red_phase
     def test_anders_validation_warnings(self):
         """MUST FAIL: No validation warnings for custom entries"""
         # GIVEN: Custom organization via Anders
@@ -211,7 +211,7 @@ class TestAndersOption:
         manager = HybridContextManager()
 
         with patch("logging.Logger.info") as mock_info:
-            context = manager._build_base_context(request)
+            manager._build_base_context(request)
 
             # THEN: Should log custom entry for tracking
             # This will FAIL - no tracking implemented

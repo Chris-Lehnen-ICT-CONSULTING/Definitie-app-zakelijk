@@ -127,7 +127,7 @@ def test_lazy_loading():
     # Load orchestrator
     print("\n2. Laad orchestrator service...")
     start_time = time.time()
-    orchestrator = get_cached_orchestrator()
+    get_cached_orchestrator()
     load_time = time.time() - start_time
     services_after_orchestrator = len(container._instances)
     print(f"   ✅ Orchestrator geladen in {load_time:.2f}s")
@@ -136,7 +136,7 @@ def test_lazy_loading():
     # Load repository
     print("\n3. Laad repository service...")
     start_time = time.time()
-    repository = get_cached_repository()
+    get_cached_repository()
     load_time = time.time() - start_time
     services_after_repository = len(container._instances)
     print(f"   ✅ Repository geladen in {load_time:.2f}s")
@@ -145,7 +145,7 @@ def test_lazy_loading():
     # Load web lookup
     print("\n4. Laad web lookup service...")
     start_time = time.time()
-    web_lookup = get_cached_web_lookup()
+    get_cached_web_lookup()
     load_time = time.time() - start_time
     services_after_web = len(container._instances)
     print(f"   ✅ Web lookup geladen in {load_time:.2f}s")

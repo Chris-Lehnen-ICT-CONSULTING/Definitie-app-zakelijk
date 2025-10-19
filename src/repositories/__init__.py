@@ -7,7 +7,7 @@ from .synonym_repository import (
 )
 
 __all__ = [
+    "SuggestionStatus",
     "SynonymRepository",
     "SynonymSuggestionRecord",
-    "SuggestionStatus",
 ]

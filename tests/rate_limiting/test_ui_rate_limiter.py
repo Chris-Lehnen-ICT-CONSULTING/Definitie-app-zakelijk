@@ -128,7 +128,7 @@ if st.button("🚀 Start Test"):
         def color_status(val):
             if val == "✅":
                 return "color: green"
-            elif val == "❌":
+            if val == "❌":
                 return "color: red"
             return ""
 

@@ -83,7 +83,7 @@ class TestContextFieldTypes:
 class TestPromptServiceV2Integration:
     """Test PromptServiceV2 correctly handles context fields."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def prompt_service(self):
         """Create PromptServiceV2 instance."""
         return PromptServiceV2()
@@ -213,7 +213,7 @@ class TestPromptServiceV2Integration:
 class TestContextPropagationFlow:
     """Test context flows correctly through entire system."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def service_container(self):
         """Create ServiceContainer with mocked dependencies."""
         with patch(
@@ -258,7 +258,7 @@ class TestContextPropagationFlow:
 class TestJusticeDomainSpecificScenarios:
     """Test justice-specific context scenarios."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def prompt_service(self):
         return PromptServiceV2()
 
@@ -340,7 +340,7 @@ class TestContextAuditCompliance:
 
     def test_context_logged_for_audit(self):
         """Verify context decisions are logged for audit trail."""
-        with patch("logging.Logger.info") as mock_log:
+        with patch("logging.Logger.info"):
             request = GenerationRequest(
                 id="test-014",
                 begrip="test",
@@ -358,7 +358,7 @@ class TestContextAuditCompliance:
 
     def test_context_included_in_metadata(self):
         """Context should be included in result metadata for traceability."""
-        request = GenerationRequest(
+        GenerationRequest(
             id="test-015",
             begrip="test",
             organisatorische_context=["DJI"],
@@ -372,17 +372,8 @@ class TestContextAuditCompliance:
     def test_context_validation_against_whitelist(self):
         """Context values should be validated against allowed values."""
         # Valid organizations
-        valid_orgs = ["DJI", "OM", "Rechtspraak", "KMAR", "CJIB", "RvdK", "NFI"]
 
         # Valid legal contexts
-        valid_juridisch = [
-            "Strafrecht",
-            "Bestuursrecht",
-            "Civiel recht",
-            "Penitentiair recht",
-            "Jeugdrecht",
-            "Vreemdelingenrecht",
-        ]
 
         # This test documents the requirement for validation
         # Implementation should validate against these lists
@@ -391,7 +382,7 @@ class TestContextAuditCompliance:
 class TestEdgeCases:
     """Test edge cases and error conditions."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def prompt_service(self):
         return PromptServiceV2()
 

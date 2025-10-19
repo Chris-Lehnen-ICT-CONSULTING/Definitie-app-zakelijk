@@ -99,9 +99,8 @@ def test_config_sections():
         logger.info(f"\n{status}: Config has expected structure")
 
         return {"success": success, "sections": list(config.keys())}
-    else:
-        logger.warning("⚠️  Config format may be different than expected")
-        return {"success": True, "sections": list(config.keys())}  # Accept for now
+    logger.warning("⚠️  Config format may be different than expected")
+    return {"success": True, "sections": list(config.keys())}  # Accept for now
 
 
 def test_toetsregels_loading():

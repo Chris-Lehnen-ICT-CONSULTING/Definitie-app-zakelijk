@@ -31,9 +31,8 @@ def safe_dict_get(
 
     value = dictionary.get(key, default)
 
-    if expected_type and value is not None:
-        if not isinstance(value, expected_type):
-            return default
+    if expected_type and value is not None and not isinstance(value, expected_type):
+        return default
 
     return value
 

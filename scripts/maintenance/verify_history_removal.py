@@ -66,8 +66,7 @@ class RemovalVerifier:
 
         if result.returncode == 0:
             return True, "Python syntax is valid"
-        else:
-            return False, f"Syntax error: {result.stderr}"
+        return False, f"Syntax error: {result.stderr}"
 
     def check_imports(self) -> tuple[bool, str]:
         """Verify all imports work"""
@@ -86,8 +85,7 @@ print("Import successful")
 
         if result.returncode == 0:
             return True, "All imports work correctly"
-        else:
-            return False, f"Import error: {result.stderr}"
+        return False, f"Import error: {result.stderr}"
 
     def check_no_orphaned_files(self) -> tuple[bool, str]:
         """Check that history_tab files have been removed"""
@@ -106,8 +104,7 @@ print("Import successful")
 
         if found_files:
             return False, f"Found orphaned files: {', '.join(found_files)}"
-        else:
-            return True, "No orphaned History Tab files"
+        return True, "No orphaned History Tab files"
 
     def check_tab_count(self) -> tuple[bool, str]:
         """Verify correct number of tabs in config"""
@@ -121,24 +118,11 @@ print("Import successful")
 
         # Expected tabs (without history)
         # Note: There are 11 tabs including the legacy orchestration tab
-        expected_tabs = [
-            "generate",
-            "edit",
-            "expert",
-            "export",
-            "quality",
-            "external",
-            "monitoring",
-            "web_lookup",
-            "management",
-            "legacy_orchestration",  # Legacy tab at line 1549
-        ]
 
         # Accept 11-12 (12 includes a document title in a different context)
         if tab_count in [11, 12]:
             return True, f"Correct number of tabs: {tab_count}"
-        else:
-            return False, f"Unexpected tab count: {tab_count} (expected 11-12)"
+        return False, f"Unexpected tab count: {tab_count} (expected 11-12)"
 
     def check_streamlit_start(self) -> tuple[bool, str]:
         """Try to start Streamlit app briefly"""
@@ -170,8 +154,7 @@ except Exception as e:
 
         if result.returncode == 0:
             return True, "Application can be imported"
-        else:
-            return False, f"Startup error: {result.stderr[:200]}"
+        return False, f"Startup error: {result.stderr[:200]}"
 
     def run_all_checks(self) -> bool:
         """Run all verification checks"""

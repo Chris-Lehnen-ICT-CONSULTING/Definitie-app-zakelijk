@@ -1134,7 +1134,8 @@ class UFOClassifierService:
 
         # Basis validatie
         if not term or not definition:
-            raise ValueError("Term en definitie zijn verplicht")
+            msg = "Term en definitie zijn verplicht"
+            raise ValueError(msg)
 
         logger.info(f"Start classificatie van: {term}")
 
@@ -1149,7 +1150,7 @@ class UFOClassifierService:
         # Stap 1: Vind ALLE matches voor ALLE categorieën
         all_matches = self.pattern_matcher.find_all_matches(f"{term}. {definition}")
         result.matched_patterns = []
-        for category, patterns in all_matches.items():
+        for _category, patterns in all_matches.items():
             result.matched_patterns.extend(patterns)
 
         # Stap 2: Pas de volledige 9-staps beslislogica toe
@@ -1381,19 +1382,17 @@ class UFOClassifierService:
         if "groep" in text or "verzameling" in text or "team" in text:
             if "vast" in text or "bepaald" in text:
                 return UFOCategory.FIXEDCOLLECTION
-            elif "variabel" in text or "wisselend" in text:
+            if "variabel" in text or "wisselend" in text:
                 return UFOCategory.VARIABLECOLLECTION
-            else:
-                return UFOCategory.COLLECTIVE
+            return UFOCategory.COLLECTIVE
 
         # Check voor mixins
         if "gemeenschappelijk" in text or "gedeeld" in text:
             if "rol" in text:
                 return UFOCategory.ROLEMIXIN
-            elif "fase" in text:
+            if "fase" in text:
                 return UFOCategory.PHASEMIXIN
-            else:
-                return UFOCategory.MIXIN
+            return UFOCategory.MIXIN
 
         # Check voor subtypes
         if "soort van" in text or "type van" in text:

@@ -49,8 +49,6 @@ class TestAndersOptionFix:
         options = ["DJI", "OM", "KMAR", "Anders..."]
 
         # User selects "Anders..." and adds custom
-        selected = ["DJI", "Anders..."]
-        custom = "Custom Org"
 
         # Final list after processing (Anders... removed, custom added)
         final = ["DJI", "Custom Org"]
@@ -75,7 +73,6 @@ class TestAndersOptionFix:
 
         for custom_text in test_cases:
             # Remove "Anders..." and add custom text
-            original = ["DJI", "Anders..."]
             processed = ["DJI", custom_text]
 
             assert "Anders..." not in processed
@@ -83,8 +80,6 @@ class TestAndersOptionFix:
 
     def test_empty_custom_text_ignored(self):
         """Test that empty custom text input is ignored."""
-        selected = ["OM", "Anders..."]
-        custom = ""  # Empty string
 
         # Should only have OM, not empty string
         final = ["OM"]
@@ -95,8 +90,6 @@ class TestAndersOptionFix:
 
     def test_whitespace_custom_text_ignored(self):
         """Test that whitespace-only custom text is ignored."""
-        selected = ["KMAR", "Anders..."]
-        custom = "   "  # Only whitespace
 
         # Should only have KMAR
         final = ["KMAR"]
@@ -108,14 +101,8 @@ class TestAndersOptionFix:
     def test_multiple_anders_simultaneously(self):
         """Test all three context types with 'Anders...' selected."""
         # All three context types have "Anders..." selected
-        org_selected = ["DJI", "Anders..."]
-        org_custom = "Custom Org"
 
-        jur_selected = ["Strafrecht", "Anders..."]
-        jur_custom = "Militair Recht"
 
-        wet_selected = ["Wetboek van Strafrecht", "Anders..."]
-        wet_custom = "Europese Richtlijn 2016/680"
 
         # Process all three
         final_org = ["DJI", "Custom Org"]
@@ -156,9 +143,6 @@ class TestMultiselectStateFix:
         options_copy = original_options.copy()
 
         # Process selection
-        selected = ["DJI", "Anders..."]
-        custom = "Custom"
-        final = ["DJI", "Custom"]
 
         # Original options should remain unchanged
         assert original_options == options_copy

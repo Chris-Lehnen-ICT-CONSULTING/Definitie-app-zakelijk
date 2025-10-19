@@ -148,9 +148,8 @@ def test_bug_2_config_loading():
     if not has_config_usage:
         print("  BUG CLAIM: TRUE - Config parameter accepted but never used")
         return True
-    else:
-        print("  BUG CLAIM: FALSE - Config is used")
-        return False
+    print("  BUG CLAIM: FALSE - Config is used")
+    return False
 
 
 def test_bug_3_singleton_race_condition():
@@ -198,7 +197,7 @@ def test_bug_3_singleton_race_condition():
             print(f"  Thread {thread_id}: {error}")
 
     # Check if all instances are the same
-    unique_ids = set(inst_id for _, inst_id in instances)
+    unique_ids = {inst_id for _, inst_id in instances}
     print(f"Unique instance IDs: {len(unique_ids)}")
 
     if len(unique_ids) > 1:
@@ -225,9 +224,8 @@ def test_bug_3_singleton_race_condition():
     if has_race_condition:
         print("  BUG CLAIM: TRUE - Race condition exists")
         return True
-    else:
-        print("  BUG CLAIM: FALSE - Singleton is thread-safe")
-        return False
+    print("  BUG CLAIM: FALSE - Singleton is thread-safe")
+    return False
 
 
 def test_bug_4_memory_leak():
@@ -303,12 +301,11 @@ def test_bug_4_memory_leak():
     if has_memory_leak:
         print("  BUG CLAIM: TRUE - Memory leak via per-instance compilation")
         return True
-    elif patterns_per_instance:
+    if patterns_per_instance:
         print("  BUG CLAIM: PARTIAL - Patterns per instance, but limited growth")
         return False
-    else:
-        print("  BUG CLAIM: FALSE - No memory leak detected")
-        return False
+    print("  BUG CLAIM: FALSE - No memory leak detected")
+    return False
 
 
 def test_bug_5_edge_case_failures():
@@ -380,12 +377,11 @@ def test_bug_5_edge_case_failures():
     if abs(num_failed - claimed_failures) <= 2:  # Allow small variance
         print("  BUG CLAIM: TRUE - Significant test failures")
         return True
-    elif num_failed > 5:
+    if num_failed > 5:
         print("  BUG CLAIM: PARTIAL - Some failures, but not as many as claimed")
         return True
-    else:
-        print("  BUG CLAIM: FALSE - Most tests pass")
-        return False
+    print("  BUG CLAIM: FALSE - Most tests pass")
+    return False
 
 
 def main():
@@ -435,7 +431,6 @@ def main():
 
     confirmed_bugs = []
     false_positives = []
-    partial_bugs = []
 
     bug_names = {
         "bug1_empty_input": "Empty/None input handling",

@@ -2,6 +2,7 @@
 Expert Review Tab - Interface voor expert review en approval workflow.
 """
 
+import contextlib
 from datetime import datetime
 
 import streamlit as st
@@ -443,7 +444,7 @@ class ExpertReviewTab:
                     )
                 except Exception:
                     ufo_default_index = 0
-                ufo_selected = st.selectbox(
+                st.selectbox(
                     "Selecteer UFO‑categorie",
                     options=ufo_opties,
                     index=ufo_default_index,
@@ -456,7 +457,7 @@ class ExpertReviewTab:
                 toelichting_proces_val = (
                     getattr(definitie, "toelichting_proces", "") or ""
                 )
-                toelichting_proces = st.text_area(
+                st.text_area(
                     "Procesmatige opmerkingen/notities",
                     value=toelichting_proces_val,
                     height=100,
@@ -863,7 +864,7 @@ class ExpertReviewTab:
                     # Map DB issues → V2 violations
                     mapped = []
                     for it in issues:
-                        try:
+                        with contextlib.suppress(Exception):
                             mapped.append(
                                 {
                                     "code": it.get("code") or it.get("rule_id") or "",
@@ -880,8 +881,6 @@ class ExpertReviewTab:
                                     "category": it.get("category", "system"),
                                 }
                             )
-                        except Exception:
-                            pass
                     v2 = {
                         "version": "1.0.0",
                         "overall_score": score,

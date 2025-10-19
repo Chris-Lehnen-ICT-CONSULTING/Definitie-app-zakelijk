@@ -34,8 +34,7 @@ def fix_epic_format(content: str) -> str:
     # Fix single digit epics
     content = re.sub(r"\bEPIC-(\d)\b", lambda m: f"EPIC-00{m.group(1)}", content)
     # Ensure all are 3 digits
-    content = re.sub(r"\bEPIC-(\d{2})\b", lambda m: f"EPIC-0{m.group(1)}", content)
-    return content
+    return re.sub(r"\bEPIC-(\d{2})\b", lambda m: f"EPIC-0{m.group(1)}", content)
 
 
 def fix_source_files(content: str) -> str:
@@ -49,13 +48,12 @@ def fix_source_files(content: str) -> str:
                 content = content.replace(old_path, new_path)
 
     # Fix toetsregels references
-    content = re.sub(
+    return re.sub(
         r"config/toetsregels/regels/(\w+)\.json",
         r"src/toetsregels/regels/\1.py",
         content,
     )
 
-    return content
 
 
 def fix_story_references(content: str) -> str:
@@ -171,7 +169,7 @@ def generate_smart_criteria(req_id: str, title: str) -> str:
 - **Time-bound**: Implementation within current sprint cycle"""
         )
 
-    elif req_num <= 22:  # Domain requirements
+    if req_num <= 22:  # Domain requirements
         return (
             """- **Specific**: Full implementation of """
             + title.lower()
@@ -182,7 +180,7 @@ def generate_smart_criteria(req_id: str, title: str) -> str:
 - **Time-bound**: Complete before production release"""
         )
 
-    elif req_num <= 35:  # Validation requirements
+    if req_num <= 35:  # Validation requirements
         return (
             """- **Specific**: Validation rule for """
             + title.lower()
@@ -193,7 +191,7 @@ def generate_smart_criteria(req_id: str, title: str) -> str:
 - **Time-bound**: Implementation within validation epic timeline"""
         )
 
-    elif req_num <= 50:  # UI requirements
+    if req_num <= 50:  # UI requirements
         return (
             """- **Specific**: User interface for """
             + title.lower()
@@ -204,7 +202,7 @@ def generate_smart_criteria(req_id: str, title: str) -> str:
 - **Time-bound**: Aligned with UI epic completion milestone"""
         )
 
-    elif req_num <= 70:  # Integration requirements
+    if req_num <= 70:  # Integration requirements
         return (
             """- **Specific**: Integration with """
             + title.lower()
@@ -215,16 +213,16 @@ def generate_smart_criteria(req_id: str, title: str) -> str:
 - **Time-bound**: Based on chain partner availability schedule"""
         )
 
-    else:  # Performance requirements
-        return (
-            """- **Specific**: Performance optimization for """
-            + title.lower()
-            + """
+    # Performance requirements
+    return (
+        """- **Specific**: Performance optimization for """
+        + title.lower()
+        + """
 - **Measurable**: Meet defined SLA targets (response time, throughput)
 - **Achievable**: Through caching, optimization, and scaling
 - **Relevant**: Ensures system meets production requirements
 - **Time-bound**: Before production deployment"""
-        )
+    )
 
 
 def add_domain_context(content: str, req_id: str) -> str:
@@ -280,8 +278,7 @@ def process_requirement_file(file_path: Path) -> tuple[bool, str]:
             with open(file_path, "w", encoding="utf-8") as f:
                 f.write(content)
             return True, f"Fixed {req_id}"
-        else:
-            return False, f"No changes needed for {req_id}"
+        return False, f"No changes needed for {req_id}"
 
     except Exception as e:
         return False, f"Error processing {file_path.name}: {e!s}"

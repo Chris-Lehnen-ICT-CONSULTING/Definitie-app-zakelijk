@@ -125,7 +125,7 @@ def examine_prompt_structure(filename):
     # Find major sections
     sections = []
     for line in content.split("\n"):
-        if line.strip() and (line.startswith("#") or line.startswith("🔹")):
+        if line.strip() and (line.startswith(("#", "🔹"))):
             sections.append(line.strip())
 
     print("Major sections found:")

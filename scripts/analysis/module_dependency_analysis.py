@@ -172,7 +172,7 @@ def analyze_coupling(analysis: dict[str, dict[str, any]]) -> dict[str, any]:
         if visited is None:
             visited = []
         if module in visited:
-            return [visited + [module]]  # Circular dependency
+            return [[*visited, module]]  # Circular dependency
 
         visited.append(module)
         chains = []

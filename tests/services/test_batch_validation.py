@@ -7,8 +7,8 @@ from typing import List
 import pytest
 
 
-@pytest.mark.unit()
-@pytest.mark.asyncio()
+@pytest.mark.unit
+@pytest.mark.asyncio
 async def test_batch_validate_interface():
     """Test that batch_validate method exists and works."""
     m = pytest.importorskip(
@@ -44,8 +44,8 @@ async def test_batch_validate_interface():
         assert "violations" in result, f"Result {i} missing violations"
 
 
-@pytest.mark.unit()
-@pytest.mark.asyncio()
+@pytest.mark.unit
+@pytest.mark.asyncio
 async def test_batch_validate_order_preservation():
     """Test that batch results are returned in same order as input."""
     m = pytest.importorskip(
@@ -82,8 +82,8 @@ async def test_batch_validate_order_preservation():
     assert results[3]["is_acceptable"] is True, "Perfect definition should pass"
 
 
-@pytest.mark.unit()
-@pytest.mark.asyncio()
+@pytest.mark.unit
+@pytest.mark.asyncio
 async def test_batch_validate_with_max_concurrency():
     """Test batch validation with concurrency control."""
     m = pytest.importorskip(
@@ -121,8 +121,8 @@ async def test_batch_validate_with_max_concurrency():
         ), f"Item {i}: scores differ between sequential and parallel"
 
 
-@pytest.mark.unit()
-@pytest.mark.asyncio()
+@pytest.mark.unit
+@pytest.mark.asyncio
 async def test_batch_validate_individual_failure_handling():
     """Test that individual failures don't crash entire batch."""
     m = pytest.importorskip(
@@ -166,8 +166,8 @@ async def test_batch_validate_individual_failure_handling():
         assert results[3]["system"]["error"] is not None, "Error should be recorded"
 
 
-@pytest.mark.unit()
-@pytest.mark.asyncio()
+@pytest.mark.unit
+@pytest.mark.asyncio
 async def test_batch_validate_with_validation_request_objects():
     """Test batch validation using ValidationRequest dataclass."""
     m = pytest.importorskip(
@@ -221,8 +221,8 @@ async def test_batch_validate_with_validation_request_objects():
             assert result["system"]["correlation_id"] == "batch-123"
 
 
-@pytest.mark.unit()
-@pytest.mark.asyncio()
+@pytest.mark.unit
+@pytest.mark.asyncio
 async def test_batch_validate_empty_input():
     """Test batch validation with empty input list."""
     m = pytest.importorskip(
@@ -251,8 +251,8 @@ SKIP_TIMING = pytest.mark.skipif(
 )
 
 
-@pytest.mark.unit()
-@pytest.mark.asyncio()
+@pytest.mark.unit
+@pytest.mark.asyncio
 @SKIP_TIMING
 async def test_batch_validate_performance_benefit():
     """Test that batch validation is more efficient than sequential calls."""

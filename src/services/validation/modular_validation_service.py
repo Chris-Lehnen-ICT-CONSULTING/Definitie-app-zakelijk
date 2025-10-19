@@ -333,7 +333,7 @@ class ModularValidationService:
                 if code in self._baseline_internal:
                     weights[code] = 0.0
                 elif (
-                    cu.startswith("ARAI") or cu.startswith("AR-") or cu.startswith("AR")
+                    cu.startswith(("ARAI", "AR-", "AR"))
                 ):
                     # Beperk tot ARAI‑familie; AR‑prefix meegenomen voor compat
                     weights[code] = 0.0
@@ -1456,7 +1456,7 @@ class ModularValidationService:
             return "juridisch"
         if c.startswith("SAM-"):
             return "samenhang"
-        if c.startswith("ARAI") or c.startswith("ARAI-"):
+        if c.startswith(("ARAI", "ARAI-")):
             return "taal"
         if c.startswith("INT-"):
             return "structuur"
@@ -1502,10 +1502,7 @@ class ModularValidationService:
                 ru = r.upper()
                 # Skip interne regels en ARAI* bij categorie-aggregatie
                 if (
-                    r in self._baseline_internal
-                    or ru.startswith("ARAI")
-                    or ru.startswith("AR-")
-                    or ru.startswith("AR")
+                    r in self._baseline_internal or ru.startswith(("ARAI", "AR-", "AR"))
                 ):
                     continue
                 cat = self._category_for(r)

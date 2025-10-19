@@ -34,13 +34,13 @@ from services.context.context_manager import (
 )
 
 __all__ = [
+    "ContextAuditEntry",
+    "ContextData",
     # Manager
     "ContextManager",
-    "get_context_manager",
-    "ContextData",
     "ContextSource",
-    "ContextAuditEntry",
     # Service Adapter (framework-neutral)
     "ServiceContextAdapter",
+    "get_context_manager",
     "get_service_context_adapter",
 ]

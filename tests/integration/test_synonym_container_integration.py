@@ -16,7 +16,7 @@ from src.services.container import ServiceContainer
 class TestSynonymContainerIntegration:
     """Test synonym system integration with ServiceContainer."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def container(self):
         """Create a test container with in-memory database."""
         config = {
@@ -155,9 +155,9 @@ class TestSynonymContainerIntegration:
     def test_container_reset(self, container):
         """Test that container reset clears synonym services."""
         # Initialize all services
-        registry = container.synonym_registry()
-        suggester = container.gpt4_synonym_suggester()
-        orchestrator = container.synonym_orchestrator()
+        container.synonym_registry()
+        container.gpt4_synonym_suggester()
+        container.synonym_orchestrator()
         service = container.synonym_service()
 
         # Verify they're cached

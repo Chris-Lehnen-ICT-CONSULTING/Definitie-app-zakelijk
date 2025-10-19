@@ -50,7 +50,7 @@ async def measure_search_performance(
 
         # Get attempt metadata
         attempts = service.get_attempts()
-        strategies = set(a.get("strategy") for a in attempts if a.get("strategy"))
+        strategies = {a.get("strategy") for a in attempts if a.get("strategy")}
 
         return {
             "term": term,

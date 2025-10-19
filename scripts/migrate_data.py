@@ -66,7 +66,8 @@ class DataMigrator:
 
         # Validate source database exists
         if not self.source_db.exists():
-            raise FileNotFoundError(f"Source database not found: {self.source_db}")
+            msg = f"Source database not found: {self.source_db}"
+            raise FileNotFoundError(msg)
 
     def create_backup(self) -> Path | None:
         """Create backup of target database if it exists."""
@@ -512,12 +513,11 @@ class DataMigrator:
                 if total_failed > 0:
                     logger.warning("\nMigration completed with errors")
                     return 2  # Partial success
-                elif not all_match:
+                if not all_match:
                     logger.warning("\nMigration completed but verification failed")
                     return 2
-                else:
-                    logger.info("\nMigration completed successfully!")
-                    return 0
+                logger.info("\nMigration completed successfully!")
+                return 0
 
             finally:
                 source_conn.close()

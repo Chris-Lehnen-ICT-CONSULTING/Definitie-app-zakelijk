@@ -96,14 +96,13 @@ def test_real_import():
     if result is None:
         print("   ✗ Result is None (timeout)")
         return False
-    else:
-        print(f"   Success: {result.success}")
-        if result.definition_id:
-            print(f"   Definition ID: {result.definition_id}")
-        if result.error:
-            print(f"   Error: {result.error}")
-        print("   ✓ Import service test completed")
-        return True
+    print(f"   Success: {result.success}")
+    if result.definition_id:
+        print(f"   Definition ID: {result.definition_id}")
+    if result.error:
+        print(f"   Error: {result.error}")
+    print("   ✓ Import service test completed")
+    return True
 
 
 # Test 4: Concurrent imports

@@ -121,7 +121,8 @@ class PerformanceTracker:
             metadata: Optionele context (bijv. {"version": "2.0"})
         """
         if value < 0:
-            raise ValueError(f"Value must be non-negative, got {value}")
+            msg = f"Value must be non-negative, got {value}"
+            raise ValueError(msg)
 
         try:
             with sqlite3.connect(self.db_path) as conn:
@@ -249,7 +250,7 @@ class PerformanceTracker:
                         f"({ratio:.1%})"
                     )
                     return "CRITICAL"
-                elif ratio >= self.WARNING_THRESHOLD:
+                if ratio >= self.WARNING_THRESHOLD:
                     logger.warning(
                         f"WARNING regression voor {metric_name}: "
                         f"{current_value:.1f} vs baseline {baseline:.1f} "

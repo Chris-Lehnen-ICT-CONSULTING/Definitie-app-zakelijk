@@ -247,7 +247,7 @@ def test_global_state_mutation():
     # Check if IDs are consistent
     id_pairs = [(r[0], r[1]) for r in all_results if r[0] != "error"]
     if id_pairs:
-        unique_ids = set([id for pair in id_pairs for id in pair])
+        unique_ids = {id for pair in id_pairs for id in pair}
         print(f"Unique instance IDs created: {len(unique_ids)}")
         print(
             "WARNING: Thread safety issue!"

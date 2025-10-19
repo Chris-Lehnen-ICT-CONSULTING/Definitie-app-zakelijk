@@ -754,10 +754,9 @@ class ModernWebLookupService(WebLookupServiceInterface):
                         )
 
                     if results:
-                        r = results[0]
+                        return results[0]
                         # NOTE: Provider weight applied in ranking, not here
                         # to avoid double-weighting (Oct 2025)
-                        return r
 
                 # Heuristische extra fallbacks op basis van term (na stages)
                 extra_terms: list[str] = []

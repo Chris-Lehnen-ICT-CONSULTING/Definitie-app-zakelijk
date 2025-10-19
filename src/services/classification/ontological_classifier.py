@@ -136,7 +136,8 @@ class OntologicalClassifier:
             RuntimeError: Als classificatie faalt
         """
         if not begrip or not begrip.strip():
-            raise ValueError("Begrip mag niet leeg zijn")
+            msg = "Begrip mag niet leeg zijn"
+            raise ValueError(msg)
 
         logger.info(f"Classifying '{begrip}'")
 
@@ -208,7 +209,8 @@ Geef antwoord in JSON formaat:
 
         except Exception as e:
             logger.error(f"Classification failed for '{begrip}': {e}", exc_info=True)
-            raise RuntimeError(f"Classificatie gefaald voor '{begrip}': {e}") from e
+            msg = f"Classificatie gefaald voor '{begrip}': {e}"
+            raise RuntimeError(msg) from e
 
     async def classify_batch(
         self, begrippen: list[str], shared_context: tuple[str, str] | None = None
@@ -283,7 +285,6 @@ Geef antwoord in JSON formaat:
         """Bepaal confidence level op basis van score"""
         if score >= 0.80:
             return ClassificationConfidence.HIGH
-        elif score >= 0.60:
+        if score >= 0.60:
             return ClassificationConfidence.MEDIUM
-        else:
-            return ClassificationConfidence.LOW
+        return ClassificationConfidence.LOW

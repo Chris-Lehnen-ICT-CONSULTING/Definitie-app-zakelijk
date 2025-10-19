@@ -26,7 +26,7 @@ from services.modern_web_lookup_service import ModernWebLookupService
 pytestmark = pytest.mark.skip(reason="Fixtures removed, will restore incrementally")
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_parallel_lookup_mediawiki_and_sru(monkeypatch):
     """Lookup uses both MediaWiki and SRU providers concurrently and returns results."""
     # Patch MediaWiki wikipedia lookup
@@ -57,7 +57,7 @@ async def test_parallel_lookup_mediawiki_and_sru(monkeypatch):
     assert all((r.source.confidence or 0.0) > 0 for r in results)
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_error_in_sru_does_not_break_other_providers(monkeypatch):
     """SRU error is handled; MediaWiki result is still returned."""
     # MediaWiki ok
@@ -84,7 +84,7 @@ async def test_error_in_sru_does_not_break_other_providers(monkeypatch):
     assert any(r.source.name == "Wikipedia" for r in results)
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_lookup_single_source(monkeypatch):
     """lookup_single_source returns a single LookupResult for the requested provider."""
     monkeypatch.setattr(

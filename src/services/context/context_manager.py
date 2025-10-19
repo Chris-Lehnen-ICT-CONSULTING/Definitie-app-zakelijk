@@ -309,15 +309,17 @@ class ContextManager:
                 # Convert single string to list
                 validated[field] = [value] if value.strip() else []
             else:
+                msg = f"Invalid type for {field}: expected list or string, got {type(value)}"
                 raise ValueError(
-                    f"Invalid type for {field}: expected list or string, got {type(value)}"
+                    msg
                 )
 
         # Validate metadata
         metadata = context_data.get("metadata", {})
         if not isinstance(metadata, dict):
+            msg = f"Invalid metadata type: expected dict, got {type(metadata)}"
             raise ValueError(
-                f"Invalid metadata type: expected dict, got {type(metadata)}"
+                msg
             )
         validated["metadata"] = metadata
 

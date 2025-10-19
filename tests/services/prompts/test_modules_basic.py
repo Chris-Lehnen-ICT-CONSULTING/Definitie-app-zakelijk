@@ -45,7 +45,8 @@ def test_definition_task_module_validate_and_execute():
     # validate requires begrip
     invalid_ctx = _make_context(begrip="")
     ok, err = mod.validate_input(invalid_ctx)
-    assert ok is False and "Begrip is vereist" in (err or "")
+    assert ok is False
+    assert "Begrip is vereist" in (err or "")
 
     # execute builds expected sections and metadata
     ctx = _make_context(begrip="authenticatie")
@@ -68,7 +69,8 @@ def test_structure_rules_module_execute_contains_rules():
     mod.initialize({"include_examples": True})
     out = mod.execute(_make_context())
     assert out.success is True
-    assert "STR-01" in out.content and "STR-09" in out.content
+    assert "STR-01" in out.content
+    assert "STR-09" in out.content
     assert out.metadata.get("rules_count") == 9
 
 
@@ -81,7 +83,9 @@ def test_output_specification_module_limit_warning_and_shared():
     assert out.metadata.get("has_limit_warning") is True
     # shared state contains character_limit_warning
     clw = ctx.get_shared("character_limit_warning")
-    assert isinstance(clw, dict) and clw["min"] == 120 and clw["max"] == 300
+    assert isinstance(clw, dict)
+    assert clw["min"] == 120
+    assert clw["max"] == 300
     assert "KARAKTER LIMIET WAARSCHUWING" in out.content
 
 

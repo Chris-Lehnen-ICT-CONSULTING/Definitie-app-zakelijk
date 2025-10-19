@@ -303,7 +303,7 @@ class TestConfigurationPerformance:
         measurement = self.monitor.start_measurement("config_loading")
 
         # Load configuration multiple times
-        for i in range(50):
+        for _i in range(50):
             config_manager = get_config_manager()
             api_config = get_api_config()
             assert config_manager is not None
@@ -327,7 +327,7 @@ class TestConfigurationPerformance:
         measurement = self.monitor.start_measurement("toetsregels_loading")
 
         # Load toetsregels multiple times
-        for i in range(20):
+        for _i in range(20):
             regels = load_toetsregels().get("regels", {})
             assert isinstance(regels, dict)
             assert len(regels) > 0
@@ -417,7 +417,7 @@ class TestDocumentProcessingPerformance:
 
         results = []
         for content in test_contents:
-            for i in range(10):  # Extract each size 10 times
+            for _i in range(10):  # Extract each size 10 times
                 result = extract_text_from_file(content, f"test_{len(content)}.txt")
                 results.append(result)
 
@@ -481,7 +481,7 @@ class TestResiliencePerformance:
         # Test normal operation performance
         measurement = self.monitor.start_measurement("circuit_breaker_normal")
 
-        for i in range(100):
+        for _i in range(100):
             result = resilience.execute_with_resilience(test_operation)
             assert result == "success"
 
@@ -502,7 +502,7 @@ class TestResiliencePerformance:
         measurement = self.monitor.start_measurement("rate_limiter")
 
         allowed_requests = 0
-        for i in range(50):
+        for _i in range(50):
             if rate_limiter.allow_request("test_key"):
                 allowed_requests += 1
 
@@ -533,7 +533,7 @@ class TestSystemPerformanceIntegration:
 
         # 2. Initialize components
         toetser = ModularToetser()
-        sanitizer = get_sanitizer()
+        get_sanitizer()
 
         # 3. Process content
         test_content = "Authenticatie is het proces van identiteitsverificatie in Nederlandse systemen."

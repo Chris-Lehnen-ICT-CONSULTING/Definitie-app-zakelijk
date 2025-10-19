@@ -175,7 +175,7 @@ def test_direct_page_with_context():
     elements_with_data = soup.find_all(
         attrs=lambda x: x
         and isinstance(x, dict)
-        and any(k.startswith("data-") and "content" in k.lower() for k in x.keys())
+        and any(k.startswith("data-") and "content" in k.lower() for k in x)
     )
     print(f"\n\nElements with data-content attributes: {len(elements_with_data)}")
 

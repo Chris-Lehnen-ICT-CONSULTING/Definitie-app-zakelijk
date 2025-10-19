@@ -262,7 +262,7 @@ class TestFileCache:
 
     def test_delete_nonexistent_entry(self):
         """Test deleting nonexistent entry."""
-        with patch("utils.cache.logger") as mock_logger:
+        with patch("utils.cache.logger"):
             self.cache._delete_entry("nonexistent")
             # Should not raise error, just log warning if any issue
 
@@ -304,12 +304,11 @@ class TestFileCache:
         """Test clear with deletion errors."""
         self.cache.set("test_key", "test_value")
 
-        with patch("utils.cache.logger") as mock_logger:
-            with patch.object(
-                self.cache, "_delete_entry", side_effect=Exception("Delete error")
-            ):
-                self.cache.clear()
-                mock_logger.error.assert_called()
+        with patch("utils.cache.logger") as mock_logger, patch.object(
+            self.cache, "_delete_entry", side_effect=Exception("Delete error")
+        ):
+            self.cache.clear()
+            mock_logger.error.assert_called()
 
     def test_get_stats_empty(self):
         """Test getting stats for empty cache."""
@@ -470,7 +469,7 @@ class TestSpecializedCacheDecorators:
 class TestAsyncCache:
     """Test async cache functionality."""
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_cache_async_result(self):
         """Test async caching decorator."""
         call_count = 0
@@ -728,10 +727,11 @@ class TestEdgeCases:
         def test_func(return_type):
             if return_type == "list":
                 return []
-            elif return_type == "dict":
+            if return_type == "dict":
                 return {}
-            elif return_type == "string":
+            if return_type == "string":
                 return ""
+            return None
 
         # Empty values should be cached
         result1 = test_func("list")

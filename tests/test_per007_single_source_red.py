@@ -12,7 +12,7 @@ import pytest
 class TestSingleSourceOfTruth:
     """Tests that MUST fail initially - proving multiple paths exist"""
 
-    @pytest.mark.red_phase()
+    @pytest.mark.red_phase
     def test_only_one_context_processing_path_exists(self):
         """MUST FAIL: Currently multiple paths exist for context processing"""
         # GIVEN: The application's context processing components
@@ -23,7 +23,7 @@ class TestSingleSourceOfTruth:
         src_path = "src"
 
         # Scan for context processing functions
-        for root, dirs, files in os.walk(src_path):
+        for root, _dirs, files in os.walk(src_path):
             for file in files:
                 if file.endswith(".py"):
                     filepath = os.path.join(root, file)
@@ -53,7 +53,7 @@ class TestSingleSourceOfTruth:
             f"Multiple context routes exist: {context_paths[:5]}"
         )
 
-    @pytest.mark.red_phase()
+    @pytest.mark.red_phase
     def test_legacy_context_manager_is_blocked(self):
         """MUST FAIL: Legacy context_manager should be blocked"""
         # GIVEN: Attempt to use legacy context manager
@@ -63,14 +63,14 @@ class TestSingleSourceOfTruth:
 
             # If it imports, it should raise DeprecationWarning
             with pytest.warns(DeprecationWarning):
-                manager = LegacyContextManager()
+                LegacyContextManager()
         except ImportError:
             # Good - legacy manager doesn't exist
             pass
         else:
             pytest.fail("Legacy context manager still accessible without deprecation")
 
-    @pytest.mark.red_phase()
+    @pytest.mark.red_phase
     def test_prompt_context_legacy_path_blocked(self):
         """MUST FAIL: Legacy prompt_context path should be blocked"""
         # Check for legacy prompt building paths
@@ -92,7 +92,7 @@ class TestSingleSourceOfTruth:
         # This will FAIL if legacy methods still exist
         assert len(legacy_methods) == 0, f"Legacy methods still exist: {legacy_methods}"
 
-    @pytest.mark.red_phase()
+    @pytest.mark.red_phase
     def test_no_direct_context_string_processing(self):
         """MUST FAIL: No service should directly process context strings"""
         # GIVEN: Services that might process context
@@ -123,7 +123,7 @@ class TestSingleSourceOfTruth:
             len(string_processors) == 0
         ), f"Direct string processors still active: {string_processors}"
 
-    @pytest.mark.red_phase()
+    @pytest.mark.red_phase
     def test_context_flow_has_single_entry_point(self):
         """MUST FAIL: Context should have single entry point"""
         # GIVEN: All possible entry points for context
@@ -137,7 +137,7 @@ class TestSingleSourceOfTruth:
 
         # Method 1: Direct EnrichedContext creation
         try:
-            context = EnrichedContext(
+            EnrichedContext(
                 base_context={},
                 sources=[],
                 expanded_terms={},
@@ -150,7 +150,7 @@ class TestSingleSourceOfTruth:
 
         # Method 2: HybridContextManager
         try:
-            manager = HybridContextManager()
+            HybridContextManager()
             entry_points.append("HybridContextManager")
         except:
             pass
@@ -167,7 +167,7 @@ class TestSingleSourceOfTruth:
             len(entry_points) == 1
         ), f"Multiple context entry points: {entry_points}. Should only be HybridContextManager"
 
-    @pytest.mark.red_phase()
+    @pytest.mark.red_phase
     def test_no_context_manipulation_in_ui_layer(self):
         """MUST FAIL: UI should not manipulate context data"""
         # GIVEN: UI components
@@ -179,7 +179,7 @@ class TestSingleSourceOfTruth:
         ui_path = "src/ui"
 
         if os.path.exists(ui_path):
-            for root, dirs, files in os.walk(ui_path):
+            for root, _dirs, files in os.walk(ui_path):
                 for file in files:
                     if file.endswith(".py"):
                         filepath = os.path.join(root, file)

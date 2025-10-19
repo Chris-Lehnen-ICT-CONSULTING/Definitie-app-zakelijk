@@ -53,7 +53,7 @@ def analyze_html_structure(url: str):
     data_attrs = []
     for element in soup.find_all():
         if hasattr(element, "attrs") and isinstance(element.attrs, dict):
-            if any(k.startswith("data-") for k in element.attrs.keys()):
+            if any(k.startswith("data-") for k in element.attrs):
                 data_attrs.append(element)
     print(f"Elements with data-* attributes: {len(data_attrs)}")
 

@@ -128,10 +128,9 @@ class ProjectVernederlandser:
         if result.returncode == 0:
             print("✅ Alle tests slagen in huidige staat")
             return True
-        else:
-            print("❌ Tests falen in huidige staat!")
-            print(result.stdout)
-            return False
+        print("❌ Tests falen in huidige staat!")
+        print(result.stdout)
+        return False
 
     def vind_alle_referenties(self, oude_naam: str) -> dict[str, list[tuple[int, str]]]:
         """Vind alle referenties naar een bestandsnaam"""
@@ -217,7 +216,7 @@ class ProjectVernederlandser:
 
         if test_bestanden:
             result = subprocess.run(
-                ["pytest", "--tb=short", "-q"] + test_bestanden,
+                ["pytest", "--tb=short", "-q", *test_bestanden],
                 cwd=self.project_root,
                 capture_output=True,
                 text=True,
@@ -227,10 +226,9 @@ class ProjectVernederlandser:
             if result.returncode == 0:
                 print("    ✅ Tests slagen")
                 return True
-            else:
-                print("    ❌ Tests falen")
-                print(result.stdout[-500:])  # Laatste 500 chars
-                return False
+            print("    ❌ Tests falen")
+            print(result.stdout[-500:])  # Laatste 500 chars
+            return False
 
         print("    ⚠️  Geen tests gevonden voor deze module")
         return True
@@ -430,16 +428,14 @@ def main():
     vernederlandser = ProjectVernederlandser(project_root)
 
     # Maak backup
-    if not args.skip_backup and args.execute:
-        if not vernederlandser.maak_backup():
-            print("❌ Kan niet doorgaan zonder backup")
-            return 1
+    if not args.skip_backup and args.execute and not vernederlandser.maak_backup():
+        print("❌ Kan niet doorgaan zonder backup")
+        return 1
 
     # Test huidige staat
-    if not args.skip_tests:
-        if not vernederlandser.test_huidige_staat():
-            print("❌ Tests moeten eerst slagen voordat we kunnen migreren")
-            return 1
+    if not args.skip_tests and not vernederlandser.test_huidige_staat():
+        print("❌ Tests moeten eerst slagen voordat we kunnen migreren")
+        return 1
 
     # Voer migratie uit
     vernederlandser.voer_module_migratie_uit(args.module, dry_run=not args.execute)

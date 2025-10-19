@@ -51,9 +51,8 @@ def _redact_text(text: str) -> str:
     s = re.sub(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}", REDACTED, s)
 
     # 6) BSN-tags (voorkom over-masking; alleen wanneer expliciet gelabeld)
-    s = re.sub(r"(?i)\bbsn\s*[:=]?\s*\d{8,9}\b", "bsn=" + REDACTED, s)
+    return re.sub(r"(?i)\bbsn\s*[:=]?\s*\d{8,9}\b", "bsn=" + REDACTED, s)
 
-    return s
 
 
 class PIIRedactingFilter(logging.Filter):
@@ -86,7 +85,7 @@ class PIIRedactingFilter(logging.Filter):
                 k: (_redact_text(v) if isinstance(v, str) else v)
                 for k, v in args.items()
             }
-        if isinstance(args, (list, tuple)):
+        if isinstance(args, list | tuple):
             red = [(_redact_text(v) if isinstance(v, str) else v) for v in args]
             return type(args)(red)
         if isinstance(args, str):

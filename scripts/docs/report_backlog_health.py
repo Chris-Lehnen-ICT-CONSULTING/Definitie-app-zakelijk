@@ -66,9 +66,7 @@ def first_heading(text: str) -> str | None:
 
 def is_external_link(href: str) -> bool:
     return (
-        href.startswith("http://")
-        or href.startswith("https://")
-        or href.startswith("mailto:")
+        href.startswith(("http://", "https://", "mailto:"))
     )
 
 
@@ -117,7 +115,7 @@ def scan() -> Health:
         fid = str(fm.get("id") or "")
         if fid.startswith("US-"):
             us_ids.setdefault(fid, []).append(str(md.relative_to(ROOT)))
-        if fid.startswith("BUG-") or fid.startswith("CFR-BUG-"):
+        if fid.startswith(("BUG-", "CFR-BUG-")):
             bug_ids.setdefault(fid, []).append(str(md.relative_to(ROOT)))
 
         # link scan

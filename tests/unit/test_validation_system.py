@@ -434,12 +434,12 @@ class TestSecurityMiddleware:
     def test_rate_limiting(self):
         """Test rate limiting functionality."""
         # Test normal request rate
-        for i in range(10):
+        for _i in range(10):
             result = self.middleware.check_rate_limit("192.168.1.1")
             assert result.allowed is True
 
         # Test excessive request rate
-        for i in range(100):
+        for _i in range(100):
             result = self.middleware.check_rate_limit("192.168.1.1")
 
         # Should eventually be rate limited

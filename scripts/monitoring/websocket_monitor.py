@@ -47,7 +47,7 @@ class WebSocketMonitor:
         if elapsed > self.timeout_threshold:
             self.warnings_issued += 1
             return False, f"⚠️ WebSocket timeout risk! No update for {elapsed:.1f}s"
-        elif elapsed > self.timeout_threshold * 0.7:
+        if elapsed > self.timeout_threshold * 0.7:
             return True, f"⚠️ WebSocket warning: {elapsed:.1f}s since last update"
 
         return True, None

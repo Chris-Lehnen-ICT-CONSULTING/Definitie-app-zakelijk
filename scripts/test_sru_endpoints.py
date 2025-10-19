@@ -40,57 +40,56 @@ async def test_endpoint(name: str, url: str, query: str, extra_info: str = "") -
     }
 
     try:
-        async with aiohttp.ClientSession() as session:
-            async with session.get(
-                url, timeout=aiohttp.ClientTimeout(total=30)
-            ) as resp:
-                result["status"] = resp.status
-                text = await resp.text()
+        async with aiohttp.ClientSession() as session, session.get(
+            url, timeout=aiohttp.ClientTimeout(total=30)
+        ) as resp:
+            result["status"] = resp.status
+            text = await resp.text()
 
-                print(f"Status: {resp.status}")
+            print(f"Status: {resp.status}")
 
-                if resp.status == 200:
-                    # Parse voor records
-                    import xml.etree.ElementTree as ET
+            if resp.status == 200:
+                # Parse voor records
+                import xml.etree.ElementTree as ET
 
-                    try:
-                        root = ET.fromstring(text)
-                        # Try different namespace variants
-                        namespaces = [
-                            {"srw": "http://www.loc.gov/zing/srw/"},  # SRU 1.2
-                            {
-                                "srw": "http://docs.oasis-open.org/ns/search-ws/sruResponse"
-                            },  # SRU 2.0
-                        ]
+                try:
+                    root = ET.fromstring(text)
+                    # Try different namespace variants
+                    namespaces = [
+                        {"srw": "http://www.loc.gov/zing/srw/"},  # SRU 1.2
+                        {
+                            "srw": "http://docs.oasis-open.org/ns/search-ws/sruResponse"
+                        },  # SRU 2.0
+                    ]
 
-                        records = []
-                        for ns in namespaces:
-                            records = root.findall(".//srw:record", ns)
-                            if records:
-                                break
+                    records = []
+                    for ns in namespaces:
+                        records = root.findall(".//srw:record", ns)
+                        if records:
+                            break
 
-                        result["records"] = len(records)
-                        result["success"] = True
-                        print(f"✅ SUCCESS - Found {len(records)} records")
+                    result["records"] = len(records)
+                    result["success"] = True
+                    print(f"✅ SUCCESS - Found {len(records)} records")
 
-                        # Check diagnostics
-                        for ns in namespaces:
-                            diag = root.find(".//srw:diagnostics", ns)
-                            if diag is not None:
-                                msg_el = diag.find(".//srw:message", ns)
-                                if msg_el is not None and msg_el.text:
-                                    result["diagnostics"] = msg_el.text
-                                    print(f"⚠️  Diagnostic: {msg_el.text}")
-                                break
+                    # Check diagnostics
+                    for ns in namespaces:
+                        diag = root.find(".//srw:diagnostics", ns)
+                        if diag is not None:
+                            msg_el = diag.find(".//srw:message", ns)
+                            if msg_el is not None and msg_el.text:
+                                result["diagnostics"] = msg_el.text
+                                print(f"⚠️  Diagnostic: {msg_el.text}")
+                            break
 
-                    except ET.ParseError as e:
-                        result["error"] = f"XML parse error: {e}"
-                        print(f"❌ XML parse error: {e}")
-                        print(f"Response preview: {text[:500]}")
-                else:
-                    result["error"] = f"HTTP {resp.status}"
-                    print(f"❌ HTTP {resp.status}")
+                except ET.ParseError as e:
+                    result["error"] = f"XML parse error: {e}"
+                    print(f"❌ XML parse error: {e}")
                     print(f"Response preview: {text[:500]}")
+            else:
+                result["error"] = f"HTTP {resp.status}"
+                print(f"❌ HTTP {resp.status}")
+                print(f"Response preview: {text[:500]}")
 
     except TimeoutError:
         result["error"] = "Timeout"

@@ -45,14 +45,13 @@ class DependencyAnalyzer:
         """Determine which architecture layer a module belongs to."""
         if module.startswith("ui"):
             return "UI"
-        elif module.startswith("services"):
+        if module.startswith("services"):
             return "Services"
-        elif module.startswith("database") or module.startswith("repository"):
+        if module.startswith(("database", "repository")):
             return "Repository"
-        elif module.startswith("models"):
+        if module.startswith("models"):
             return "Models"
-        else:
-            return "Other"
+        return "Other"
 
     def analyze_all(self):
         """Analyze all Python files in the source directory."""
@@ -110,7 +109,7 @@ class DependencyAnalyzer:
             if node in rec_stack:
                 # Found a cycle
                 cycle_start = path.index(node)
-                cycle = path[cycle_start:] + [node]
+                cycle = [*path[cycle_start:], node]
                 cycles.append(cycle)
                 return
 

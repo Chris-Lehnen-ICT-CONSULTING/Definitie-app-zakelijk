@@ -178,11 +178,11 @@ async def test_rate_limiting():
 
         # Acquire tokens before executing
         await limiter.token_bucket.acquire(1)
-        
+
         # Simuleer API call
         await asyncio.sleep(0.1)
         result = f"Result from {endpoint} #{index}"
-        
+
         duration = time.time() - start
         return endpoint, index, duration, result
 
@@ -198,7 +198,7 @@ async def test_rate_limiting():
 
     # Analyseer resultaten
     endpoint_times = {}
-    for endpoint, index, duration, result in results:
+    for endpoint, _index, duration, _result in results:
         if endpoint not in endpoint_times:
             endpoint_times[endpoint] = []
         endpoint_times[endpoint].append(duration)

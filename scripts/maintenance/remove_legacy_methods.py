@@ -81,9 +81,8 @@ def verify_removal():
     if found_methods:
         print(f"❌ ERROR: Legacy methods still found: {found_methods}")
         return False
-    else:
-        print("✅ All legacy methods successfully removed")
-        return True
+    print("✅ All legacy methods successfully removed")
+    return True
 
 
 if __name__ == "__main__":

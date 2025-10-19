@@ -15,7 +15,7 @@ from services.interfaces import GenerationRequest
 class TestASTRACompliance:
     """ASTRA compliance tests - MUST fail initially"""
 
-    @pytest.mark.red_phase()
+    @pytest.mark.red_phase
     def test_invalid_org_gives_warning_not_error(self):
         """MUST FAIL: Currently blocks on invalid orgs"""
         # GIVEN: Invalid organization name
@@ -47,7 +47,7 @@ class TestASTRACompliance:
             ), "Invalid org should still be included with warning"
             assert "OM" in context["organisatorisch"], "Valid org should be included"
 
-    @pytest.mark.red_phase()
+    @pytest.mark.red_phase
     def test_fuzzy_matching_suggestions(self):
         """MUST FAIL: No fuzzy matching implemented"""
         # GIVEN: Misspelled organization
@@ -67,7 +67,7 @@ class TestASTRACompliance:
             manager = HybridContextManager()
 
             with patch("logging.Logger.warning") as mock_warn:
-                context = manager._build_base_context(request)
+                manager._build_base_context(request)
 
                 # THEN: Should suggest correct spelling
                 # This will FAIL - no fuzzy matching
@@ -76,7 +76,7 @@ class TestASTRACompliance:
                     f"Did you mean: {correct}" in msg for msg in warning_messages
                 ), f"No suggestion for {misspelled} -> {correct}"
 
-    @pytest.mark.red_phase()
+    @pytest.mark.red_phase
     def test_astra_validator_exists(self):
         """MUST FAIL: ASTRA validator not implemented"""
         # GIVEN: Need for ASTRA validation
@@ -96,7 +96,7 @@ class TestASTRACompliance:
         except ImportError:
             pytest.fail("ASTRA validator not implemented")
 
-    @pytest.mark.red_phase()
+    @pytest.mark.red_phase
     def test_telemetry_tracks_custom_entries(self):
         """MUST FAIL: Telemetry not implemented"""
         # GIVEN: Custom organization entry
@@ -109,7 +109,7 @@ class TestASTRACompliance:
 
         # Mock telemetry service
         with patch("services.telemetry.track_custom_entry") as mock_track:
-            context = manager._build_base_context(request)
+            manager._build_base_context(request)
 
             # THEN: Should track for reporting
             # This will FAIL - telemetry not implemented
@@ -119,7 +119,7 @@ class TestASTRACompliance:
                 metadata={"source": "user_input"},
             )
 
-    @pytest.mark.red_phase()
+    @pytest.mark.red_phase
     def test_astra_compliance_report_generation(self):
         """MUST FAIL: No compliance reporting"""
         # GIVEN: Request with mixed valid/invalid orgs
@@ -130,7 +130,7 @@ class TestASTRACompliance:
 
         # WHEN: Processing and generating report
         manager = HybridContextManager()
-        context = manager._build_base_context(request)
+        manager._build_base_context(request)
 
         # THEN: Should generate compliance report
         # This will FAIL - no compliance reporting
@@ -146,7 +146,7 @@ class TestASTRACompliance:
         assert report["invalid_organizations"] == ["InvalidOrg"]
         assert report["custom_organizations"] == ["CustomOrg"]
 
-    @pytest.mark.red_phase()
+    @pytest.mark.red_phase
     def test_astra_warning_levels(self):
         """MUST FAIL: No warning level differentiation"""
         # GIVEN: Different types of issues
@@ -165,7 +165,7 @@ class TestASTRACompliance:
 
         with patch("logging.Logger.warning") as mock_warn:
             with patch("logging.Logger.info") as mock_info:
-                context = manager._build_base_context(request)
+                manager._build_base_context(request)
 
                 # THEN: Different warning levels
                 # This will FAIL - no differentiation
@@ -181,7 +181,7 @@ class TestASTRACompliance:
                     "unknown" in msg.lower() for msg in warn_calls
                 ), "No warning for unknown org"
 
-    @pytest.mark.red_phase()
+    @pytest.mark.red_phase
     def test_astra_allows_abbreviations_and_full_names(self):
         """MUST FAIL: Both abbreviations and full names not accepted"""
         # GIVEN: Mix of abbreviations and full names
@@ -211,7 +211,7 @@ class TestASTRACompliance:
                 "DJI",
             ], "Full names not mapped to abbreviations"
 
-    @pytest.mark.red_phase()
+    @pytest.mark.red_phase
     def test_astra_chain_contexts_recognized(self):
         """MUST FAIL: Chain contexts not recognized"""
         # GIVEN: Justice chain contexts
@@ -233,7 +233,7 @@ class TestASTRACompliance:
             assert "Strafrechtketen" in context["organisatorisch"]
             assert "Jeugdketen" in context["organisatorisch"]
 
-    @pytest.mark.red_phase()
+    @pytest.mark.red_phase
     def test_astra_metadata_enrichment(self):
         """MUST FAIL: No metadata enrichment for organizations"""
         # GIVEN: Valid ASTRA organization

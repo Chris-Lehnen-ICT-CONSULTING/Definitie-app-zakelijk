@@ -4,6 +4,7 @@ Document Cleanup Script voor DefinitieAgent Project
 Voert complete normalisatie, fixes en compliance checks uit.
 """
 
+import contextlib
 import json
 import re
 import shutil
@@ -80,10 +81,8 @@ class DocumentCleanup:
             if content.startswith("---"):
                 parts = content.split("---", 2)
                 if len(parts) >= 3:
-                    try:
+                    with contextlib.suppress(Exception):
                         frontmatter = yaml.safe_load(parts[1])
-                    except:
-                        pass
                     content = parts[2]
 
             return {

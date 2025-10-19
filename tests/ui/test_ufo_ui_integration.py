@@ -23,7 +23,7 @@ from src.services.ufo_classifier_service import (
 class TestGeneratorTabIntegration:
     """Test UFO integration in Generator tab"""
 
-    @pytest.fixture()
+    @pytest.fixture
     def mock_streamlit(self):
         """Mock Streamlit components"""
         mock_st = Mock()
@@ -40,7 +40,7 @@ class TestGeneratorTabIntegration:
         mock_st.spinner = Mock()
         return mock_st
 
-    @pytest.fixture()
+    @pytest.fixture
     def classifier(self):
         return UFOClassifierService()
 
@@ -106,7 +106,7 @@ class TestGeneratorTabIntegration:
             mock_streamlit.session_state["ufo_manual"] = selected_category
             mock_streamlit.session_state["ufo_source"] = "manual"
 
-        assert mock_streamlit.session_state.get("ufo_override") == True
+        assert mock_streamlit.session_state.get("ufo_override")
         assert mock_streamlit.session_state.get("ufo_source") == "manual"
 
     def test_explanation_modal(self, classifier, mock_streamlit):
@@ -151,13 +151,13 @@ class TestGeneratorTabIntegration:
 
         if result.confidence < 0.6:
             mock_streamlit.warning.assert_called_once()
-            assert mock_streamlit.session_state.get("require_manual_ufo") == True
+            assert mock_streamlit.session_state.get("require_manual_ufo")
 
 
 class TestEditTabIntegration:
     """Test UFO integration in Edit tab"""
 
-    @pytest.fixture()
+    @pytest.fixture
     def mock_ui_components(self):
         """Mock UI components for Edit tab"""
         components = Mock()
@@ -167,7 +167,7 @@ class TestEditTabIntegration:
         components.form_submit_button = Mock(return_value=False)
         return components
 
-    @pytest.fixture()
+    @pytest.fixture
     def classifier(self):
         return UFOClassifierService()
 
@@ -279,11 +279,11 @@ class TestEditTabIntegration:
 class TestExpertReviewTabIntegration:
     """Test UFO integration in Expert Review tab"""
 
-    @pytest.fixture()
+    @pytest.fixture
     def classifier(self):
         return UFOClassifierService()
 
-    @pytest.fixture()
+    @pytest.fixture
     def mock_expert_ui(self):
         """Mock Expert Review UI components"""
         ui = Mock()
@@ -323,7 +323,7 @@ class TestExpertReviewTabIntegration:
                 categories = [
                     cat.value for cat in UFOCategory if cat != UFOCategory.UNKNOWN
                 ]
-                expert_category = mock_expert_ui.radio(
+                mock_expert_ui.radio(
                     "Expert Oordeel",
                     options=categories,
                     index=categories.index(review_item["ufo_suggestion"]),
@@ -376,7 +376,7 @@ class TestExpertReviewTabIntegration:
         mock_expert_ui.subheader(f"📋 Bulk Review Queue ({len(review_queue)} items)")
 
         # Display review table
-        for idx, item in enumerate(review_queue):
+        for _idx, item in enumerate(review_queue):
             with mock_expert_ui.container:
                 col1, col2, col3 = mock_expert_ui.columns([3, 2, 1])
 
@@ -390,7 +390,7 @@ class TestExpertReviewTabIntegration:
                         cat.value for cat in UFOCategory if cat != UFOCategory.UNKNOWN
                     ]
 
-                    selected = mock_expert_ui.selectbox(
+                    mock_expert_ui.selectbox(
                         "Categorie",
                         options=categories,
                         index=(
@@ -437,11 +437,11 @@ class TestExpertReviewTabIntegration:
 class TestMigrationUI:
     """Test UI for migrating existing definitions"""
 
-    @pytest.fixture()
+    @pytest.fixture
     def classifier(self):
         return UFOClassifierService()
 
-    @pytest.fixture()
+    @pytest.fixture
     def mock_migration_ui(self):
         """Mock migration UI components"""
         ui = Mock()
@@ -500,7 +500,7 @@ class TestMigrationUI:
 
         # Display options
         mock_migration_ui.checkbox = Mock()
-        show_all = mock_migration_ui.checkbox("Show all results", value=False)
+        mock_migration_ui.checkbox("Show all results", value=False)
         show_low_conf = mock_migration_ui.checkbox(
             "Show only low confidence", value=True
         )
@@ -527,7 +527,7 @@ class TestMigrationUI:
 class TestUIPerformance:
     """Test UI performance considerations"""
 
-    @pytest.fixture()
+    @pytest.fixture
     def classifier(self):
         return UFOClassifierService()
 
@@ -600,7 +600,7 @@ class TestUIPerformance:
 class TestAuditUI:
     """Test audit trail UI for UFO changes"""
 
-    @pytest.fixture()
+    @pytest.fixture
     def mock_audit_ui(self):
         """Mock audit UI components"""
         ui = Mock()
@@ -649,8 +649,8 @@ class TestAuditUI:
         )
 
         mock_audit_ui.date_input = Mock()
-        date_from = mock_audit_ui.date_input("From date")
-        date_to = mock_audit_ui.date_input("To date")
+        mock_audit_ui.date_input("From date")
+        mock_audit_ui.date_input("To date")
 
         # Apply filters (mock)
         filtered_audit = [{"source": "manual", "timestamp": "2024-01-01T11:00:00"}]
