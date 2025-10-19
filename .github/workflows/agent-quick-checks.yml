@@ -2,7 +2,7 @@ name: Agent Quick Checks (EPIC-010)
 
 on:
   pull_request:
-    branches: [ main, develop ]
+    branches: [main, develop]
     # Optional path filtering (uncomment to enable selective runs)
     # paths:
     #   - 'src/services/**'
@@ -24,7 +24,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: "3.11"
 
       - name: Install ripgrep
         run: |
@@ -41,4 +41,3 @@ jobs:
       - name: Run quick checks
         run: |
           bash scripts/testing/agent_quick_checks.sh
-
