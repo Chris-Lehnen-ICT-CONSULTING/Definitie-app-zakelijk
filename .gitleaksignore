@@ -1,2 +1,14 @@
 docs/portal/rendered/analyses/CONFIG_ENVIRONMENT_MASTERPLAN.html
 docs/portal/rendered/analyses/CONFIG_ENVIRONMENT_VERIFICATION_REPORT.html
+docs/portal/rendered/analyses/SECURITY_AUDIT_REPORT.html:generic-api-key:195
+docs/portal/rendered/analyses/SECURITY_AUDIT_REPORT.html:generic-api-key:267
+docs/portal/rendered/analyses/SECURITY_AUDIT_REPORT.html:generic-api-key:314
+docs/portal/rendered/analyses/SECURITY_AUDIT_REPORT.html:generic-api-key:344
+docs/portal/rendered/analyses/SECURITY_AUDIT_REPORT.html:generic-api-key:345
+docs/portal/rendered/analyses/SECURITY_AUDIT_REPORT.html:generic-api-key:346
+docs/portal/rendered/analyses/SECURITY_AUDIT_REPORT.html:generic-api-key:349
+84b3cc9c1fbabe6de1a7a51d089c64cc559ffd26:config/config.yaml:openai-api-key-new-format:22
+84b3cc9c1fbabe6de1a7a51d089c64cc559ffd26:config/config.yaml:openai-api-key:22
+84b3cc9c1fbabe6de1a7a51d089c64cc559ffd26:docs/analyses/CONFIG_ENVIRONMENT_VERIFICATION_REPORT.md:generic-api-key:122
+84b3cc9c1fbabe6de1a7a51d089c64cc559ffd26:docs/analyses/CONFIG_ENVIRONMENT_VERIFICATION_REPORT.md:generic-api-key:138
+84b3cc9c1fbabe6de1a7a51d089c64cc559ffd26:docs/analyses/CONFIG_ENVIRONMENT_VERIFICATION_REPORT.md:generic-api-key:146
