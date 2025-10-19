@@ -40,7 +40,8 @@ class WiktionaryService:
 
     async def __aenter__(self):
         if not AIOHTTP_AVAILABLE:
-            raise RuntimeError("aiohttp vereist voor WiktionaryService")
+            msg = "aiohttp vereist voor WiktionaryService"
+            raise RuntimeError(msg)
         self.session = aiohttp.ClientSession(
             headers=self.headers, timeout=aiohttp.ClientTimeout(total=30)
         )
@@ -63,7 +64,8 @@ class WiktionaryService:
             )
 
         if not self.session:
-            raise RuntimeError("Service moet gebruikt worden als async context manager")
+            msg = "Service moet gebruikt worden als async context manager"
+            raise RuntimeError(msg)
 
         try:
             page = await self._search_page(term)
@@ -204,10 +206,7 @@ class WiktionaryService:
             text = str(wtxt)
             lower = text.lower()
             start = lower.find("== nederlands ==")
-            if start != -1:
-                segment = text[start:]
-            else:
-                segment = text
+            segment = text[start:] if start != -1 else text
 
             # Pak eerste regel die met '# ' begint (definitie)
             first_def: str | None = None

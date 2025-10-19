@@ -29,7 +29,7 @@ class DUP01:
             )
             self.repository = None
 
-    def check(self, definitie: str, begrip: str = "", context: dict = None) -> dict:
+    def check(self, definitie: str, begrip: str = "", context: dict | None = None) -> dict:
         """
         Check voor duplicate definities in database.
 
@@ -123,8 +123,7 @@ class DUP01:
         while normalized and normalized[-1] in ".,;:!?":
             normalized = normalized[:-1].strip()
         # Collapse whitespace
-        normalized = " ".join(normalized.split())
-        return normalized
+        return " ".join(normalized.split())
 
     def _calculate_similarity(self, text1: str, text2: str) -> float:
         """

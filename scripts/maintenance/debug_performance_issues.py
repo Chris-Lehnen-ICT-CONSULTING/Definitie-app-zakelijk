@@ -74,7 +74,7 @@ class InitializationTracker:
                 ),
                 "duration_span": times[-1] - times[0] if len(times) > 1 else 0,
                 "unique_stacks": len(
-                    set(tuple(s) for s in self.call_stacks[class_name])
+                    {tuple(s) for s in self.call_stacks[class_name]}
                 ),
             }
         return report
@@ -379,7 +379,7 @@ async def simulate_user_flow():
 
     # Simulate Streamlit rerun
     logger.info("Step 2: Simulate Streamlit rerun...")
-    container2 = get_cached_container()
+    get_cached_container()
     memory_profiler.take_snapshot("after_rerun")
 
     # Get orchestrator (triggers PromptOrchestrator init)
@@ -403,7 +403,7 @@ async def simulate_user_flow():
         )
 
         # This would trigger prompt service initialization
-        result = await orchestrator.generate_definition(request)
+        await orchestrator.generate_definition(request)
         memory_profiler.take_snapshot("after_generation")
     except Exception as e:
         logger.error(f"Generation failed: {e}")

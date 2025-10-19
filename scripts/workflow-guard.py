@@ -57,9 +57,7 @@ class WorkflowGuard:
         self._report_results()
 
         # Determine exit code
-        if self.strict and self.violations:
-            return False
-        return True
+        return not (self.strict and self.violations)
 
     def _check_test_first(self):
         """Check if tests were written before implementation"""

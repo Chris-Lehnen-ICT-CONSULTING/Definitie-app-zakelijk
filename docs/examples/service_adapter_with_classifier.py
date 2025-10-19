@@ -99,7 +99,8 @@ class ServiceAdapter:
             RuntimeError: Als classificatie of generatie faalt
         """
         if not begrip or not begrip.strip():
-            raise ValueError("Begrip mag niet leeg zijn")
+            msg = "Begrip mag niet leeg zijn"
+            raise ValueError(msg)
 
         logger.info(f"Auto-classify + generate for '{begrip}'")
 
@@ -118,7 +119,8 @@ class ServiceAdapter:
 
         except Exception as e:
             logger.error(f"Classification failed: {e}", exc_info=True)
-            raise RuntimeError(f"Classificatie gefaald: {e}") from e
+            msg = f"Classificatie gefaald: {e}"
+            raise RuntimeError(msg) from e
 
         # Stap 2: Genereer met geclassificeerd niveau
         try:
@@ -136,7 +138,8 @@ class ServiceAdapter:
 
         except Exception as e:
             logger.error(f"Generation failed after classification: {e}", exc_info=True)
-            raise RuntimeError(f"Generatie gefaald: {e}") from e
+            msg = f"Generatie gefaald: {e}"
+            raise RuntimeError(msg) from e
 
     async def generate_with_classification(
         self,
@@ -199,7 +202,8 @@ class ServiceAdapter:
 
         except Exception as e:
             logger.error(f"Generation failed: {e}", exc_info=True)
-            raise RuntimeError(f"Generatie gefaald: {e}") from e
+            msg = f"Generatie gefaald: {e}"
+            raise RuntimeError(msg) from e
 
     def classify_only(
         self,

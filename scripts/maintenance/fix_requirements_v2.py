@@ -11,12 +11,10 @@ REQUIREMENTS_PATH = BASE_PATH / "docs" / "requirements"
 
 def check_file_exists(file_path: str) -> bool:
     """Check if a source file actually exists."""
-    if "TODO" in file_path or file_path == "all" or file_path == "<bestand>":
+    if "TODO" in file_path or file_path in {"all", "<bestand>"}:
         return True
     if (
-        file_path.startswith("docs/")
-        or file_path.startswith("logs/")
-        or file_path.startswith("tests/")
+        file_path.startswith(("docs/", "logs/", "tests/"))
     ):
         full_path = BASE_PATH / file_path
         return full_path.exists() or full_path.parent.exists()
@@ -265,8 +263,7 @@ def process_requirement_file(file_path: Path) -> tuple[bool, str]:
             with open(file_path, "w", encoding="utf-8") as f:
                 f.write(content)
             return True, f"Fixed {req_id}"
-        else:
-            return False, f"No changes needed for {req_id}"
+        return False, f"No changes needed for {req_id}"
 
     except Exception as e:
         return False, f"Error processing {file_path.name}: {e!s}"

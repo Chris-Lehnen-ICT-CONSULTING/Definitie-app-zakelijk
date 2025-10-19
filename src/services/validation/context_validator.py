@@ -166,7 +166,7 @@ class ContextValidator:
             if value is None:
                 continue  # None is allowed (will be converted to empty list)
 
-            if not isinstance(value, (list, str)):
+            if not isinstance(value, list | str):
                 errors.append(
                     ValidationError(
                         field=field,

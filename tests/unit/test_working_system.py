@@ -69,7 +69,7 @@ class TestConfigurationSystem:
         temperature = get_default_temperature()
 
         assert isinstance(model, str)
-        assert isinstance(temperature, (int, float))
+        assert isinstance(temperature, int | float)
         assert 0.0 <= temperature <= 2.0
 
 
@@ -111,14 +111,14 @@ class TestCacheSystem:
             return x * 2
 
         # First call
-        result1 = test_function(5)
+        test_function(5)
         assert call_count == 1
 
         # Wait for expiration
         time.sleep(0.2)
 
         # Should call function again
-        result2 = test_function(5)
+        test_function(5)
         assert call_count == 2
 
     def test_cache_stats_format(self):
@@ -275,8 +275,8 @@ class TestSystemIntegration:
         assert config_manager is not None
 
         # 2. Get settings
-        api_config = get_api_config()
-        cache_config = get_cache_config()
+        get_api_config()
+        get_cache_config()
 
         # 3. Use cache
         @cached(ttl=60)
@@ -310,7 +310,8 @@ class TestErrorHandling:
 
         @cached(ttl=60)
         def error_function():
-            raise ValueError("Test error")
+            msg = "Test error"
+            raise ValueError(msg)
 
         # Should propagate error, not cache it
         with pytest.raises(ValueError):
@@ -327,7 +328,7 @@ class TestErrorHandling:
         # Test with invalid inputs
         try:
             # This should handle None gracefully or raise clear error
-            result = toetser.validate_definition(definitie=None, toetsregels={})
+            toetser.validate_definition(definitie=None, toetsregels={})
         except Exception as e:
             # Should fail with clear error message
             assert isinstance(e, Exception)
@@ -340,7 +341,7 @@ class TestPerformanceBasics:
         """Test that config loading is reasonably fast."""
         start = time.time()
         for _ in range(10):
-            config_manager = get_config_manager()
+            get_config_manager()
         end = time.time()
 
         # Should complete quickly
@@ -372,8 +373,8 @@ class TestPerformanceBasics:
             initial = process.memory_info().rss
 
             # Do some operations
-            config_manager = get_config_manager()
-            cache_config = get_cache_config()
+            get_config_manager()
+            get_cache_config()
 
             @cached(ttl=60)
             def memory_test(x):

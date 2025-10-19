@@ -15,7 +15,7 @@ from toetsregels.manager import RegelPrioriteit
 class TestToetsregelsGolden:
     """Golden tests voor kritieke toetsregels."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def toetser(self):
         """Create toetser instance."""
         return ModularToetser()
@@ -295,13 +295,13 @@ class TestGoldenDefinitions:
         },
     }
 
-    @pytest.fixture()
+    @pytest.fixture
     def toetser(self):
         """Create toetser instance."""
         return ModularToetser()
 
     @pytest.mark.parametrize(
-        "term,definition_type",
+        ("term", "definition_type"),
         [
             ("hypotheek", "good"),
             ("eigendom", "good"),
@@ -324,7 +324,7 @@ class TestGoldenDefinitions:
         assert passing / total > 0.7, "Good definition should have >70% rules passing"
 
     @pytest.mark.parametrize(
-        "term,definition_type",
+        ("term", "definition_type"),
         [
             ("hypotheek", "bad_circular"),
             ("hypotheek", "bad_short"),

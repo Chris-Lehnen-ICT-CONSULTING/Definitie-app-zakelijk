@@ -5,6 +5,7 @@ Fixes patterns like "OM (Openbaar Ministerie (OM) (OM))" to "OM (Openbaar Minist
 """
 
 import re
+import sys
 from pathlib import Path
 
 
@@ -15,7 +16,8 @@ def find_docs_directory() -> Path:
     docs_dir = project_root / "docs"
 
     if not docs_dir.exists():
-        raise FileNotFoundError(f"Docs directory not found at {docs_dir}")
+        msg = f"Docs directory not found at {docs_dir}"
+        raise FileNotFoundError(msg)
 
     return docs_dir
 
@@ -107,4 +109,4 @@ def main():
 
 
 if __name__ == "__main__":
-    exit(main())
+    sys.exit(main())

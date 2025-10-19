@@ -35,10 +35,10 @@ def test_build_provenance_records_structure_and_ordering():
     ]
 
     prov = build_provenance(inputs)
-    assert isinstance(prov, list) and len(prov) == 2
+    assert isinstance(prov, list)
+    assert len(prov) == 2
     for item in prov:
-        assert set(
-            [
+        assert {
                 "provider",
                 "title",
                 "url",
@@ -46,8 +46,7 @@ def test_build_provenance_records_structure_and_ordering():
                 "score",
                 "used_in_prompt",
                 "retrieved_at",
-            ]
-        ).issubset(item.keys())
+            }.issubset(item.keys())
 
     # Ordering: highest score first
     assert prov[0]["score"] >= prov[1]["score"]

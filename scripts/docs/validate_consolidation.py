@@ -83,14 +83,13 @@ def main():
         print("✅ CONSOLIDATION VALIDATED")
         print("Minor issues detected - review skipped/failed tests")
         return 0
-    elif pass_rate >= 60:
+    if pass_rate >= 60:
         print("⚠️  CONSOLIDATION PARTIALLY VALIDATED")
         print("Several issues need attention")
         return 1
-    else:
-        print("❌ CONSOLIDATION VALIDATION FAILED")
-        print("Critical issues require immediate attention")
-        return 2
+    print("❌ CONSOLIDATION VALIDATION FAILED")
+    print("Critical issues require immediate attention")
+    return 2
 
 
 if __name__ == "__main__":

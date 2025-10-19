@@ -36,7 +36,7 @@ from src.services.ufo_classifier_service import (
 class TestInputValidation:
     """Test input validation and sanitization."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def classifier(self):
         return UFOClassifierService()
 
@@ -181,7 +181,7 @@ class TestInputValidation:
 class TestUnicodeHandling:
     """Test Unicode normalization and Dutch diacritics."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def classifier(self):
         return UFOClassifierService()
 
@@ -244,7 +244,7 @@ class TestUnicodeHandling:
 class TestPerformanceAndMemory:
     """Test performance boundaries and memory management."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def classifier(self):
         return UFOClassifierService()
 
@@ -318,7 +318,7 @@ class TestPerformanceAndMemory:
 class TestConcurrency:
     """Test thread safety and concurrent operations."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def classifier(self):
         return UFOClassifierService()
 
@@ -388,7 +388,7 @@ class TestConcurrency:
 class TestErrorHandling:
     """Test error handling and recovery."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def classifier(self):
         return UFOClassifierService()
 
@@ -449,7 +449,7 @@ class TestErrorHandling:
 class TestCategoryClassification:
     """Test correct classification of each UFO category."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def classifier(self):
         return UFOClassifierService()
 
@@ -518,7 +518,7 @@ class TestCategoryClassification:
 class TestDisambiguation:
     """Test disambiguation of ambiguous terms."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def classifier(self):
         return UFOClassifierService()
 
@@ -585,7 +585,7 @@ class TestIntegration:
 class TestRegressionPrevention:
     """Tests to prevent regression of previously fixed bugs."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def classifier(self):
         return UFOClassifierService()
 
@@ -622,7 +622,7 @@ class TestRegressionPrevention:
     def test_abstract_category_removed(self, classifier):
         """Test that ABSTRACT category is no longer in enum."""
         # Check enum doesn't have ABSTRACT
-        categories = [c for c in UFOCategory]
+        categories = list(UFOCategory)
         category_names = [c.name for c in categories]
 
         assert "ABSTRACT" not in category_names, "ABSTRACT should not be in enum"
@@ -634,7 +634,7 @@ class TestRegressionPrevention:
         assert len(classifier.compiled_patterns) > 0
 
         # Check they're compiled regex objects
-        for category, patterns in classifier.compiled_patterns.items():
+        for _category, patterns in classifier.compiled_patterns.items():
             assert isinstance(patterns, list)
             for pattern in patterns:
                 assert isinstance(pattern, re.Pattern)

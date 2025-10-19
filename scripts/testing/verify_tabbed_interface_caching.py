@@ -131,7 +131,7 @@ def verify_caching():
     print("Expected calls: 6\n")
 
     # Verify all instances are the same object
-    unique_instances = len(set(id(inst) for inst, _ in instances))
+    unique_instances = len({id(inst) for inst, _ in instances})
     print(f"Unique instance IDs: {unique_instances}")
     print("Expected unique IDs: 1")
     print(f"Result: {'✅ PASS' if unique_instances == 1 else '❌ FAIL'}\n")

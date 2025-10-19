@@ -61,7 +61,7 @@ class BraveSearchService:
                 # Dynamic import om circular dependency te voorkomen
                 import inspect
 
-                frame = inspect.currentframe()
+                inspect.currentframe()
                 # MCP functies zijn beschikbaar in de globals van de caller
                 # maar voor testbaarheid accepteren we het ook via constructor
             except Exception:
@@ -325,10 +325,7 @@ class BraveSearchService:
         ]
 
         combined_text = f"{title} {description}".lower()
-        if any(keyword in combined_text for keyword in juridical_keywords):
-            return True
-
-        return False
+        return bool(any(keyword in combined_text for keyword in juridical_keywords))
 
 
 # Standalone functie voor gebruik in bestaande code

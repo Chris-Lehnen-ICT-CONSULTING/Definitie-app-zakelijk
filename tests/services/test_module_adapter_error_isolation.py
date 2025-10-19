@@ -5,11 +5,12 @@ class _BoomRule:
     code = "TST_999"
 
     def validate(self, ctx):  # sync rule that raises
-        raise RuntimeError("boom")
+        msg = "boom"
+        raise RuntimeError(msg)
 
 
-@pytest.mark.unit()
-@pytest.mark.asyncio()
+@pytest.mark.unit
+@pytest.mark.asyncio
 async def test_module_adapter_catches_rule_exceptions_and_marks_errored():
     m = pytest.importorskip(
         "services.validation.module_adapter",

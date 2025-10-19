@@ -9,6 +9,7 @@ Shared Examples Block for Edit and Expert tabs.
 
 from __future__ import annotations
 
+import contextlib
 import re
 from typing import Any
 
@@ -155,10 +156,8 @@ def render_examples_block(
 
     # Get voorkeursterm from DB if available
     if repository is not None and definition.id:
-        try:
+        with contextlib.suppress(Exception):
             voorkeursterm_display = repository.get_voorkeursterm(definition.id)
-        except Exception:
-            pass
 
     # Fallback naar session‑keuze voor directe feedback (zoals generator-tab)
     try:
@@ -270,10 +269,8 @@ def render_examples_block(
 
             # Get current voorkeursterm from DB
             if repository is not None and definition.id:
-                try:
+                with contextlib.suppress(Exception):
                     current_voorkeursterm = repository.get_voorkeursterm(definition.id)
-                except Exception:
-                    pass
 
             selected_voorkeursterm = None
             # Toon selector als er synoniemen zijn, met zelfde gedrag als Generator-tab:

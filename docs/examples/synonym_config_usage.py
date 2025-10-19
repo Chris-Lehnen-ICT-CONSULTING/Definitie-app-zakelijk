@@ -180,7 +180,7 @@ def example_env_override():
     # Config will be loaded from custom path
     from config.synonym_config import get_synonym_config
 
-    config = get_synonym_config()
+    get_synonym_config()
     print(f"Loaded from: {os.environ['SYNONYM_CONFIG_PATH']}")
 
 
@@ -197,13 +197,11 @@ def example_weight_thresholds():
 
     # Check if preferred
     if synonym_weight >= config.preferred_weight_threshold:
-        is_preferred = True
         print(
             f"✅ Synonym weight {synonym_weight} >= {config.preferred_weight_threshold}"
         )
         print("   → Marked as preferred (is_preferred=TRUE)")
     else:
-        is_preferred = False
         print(
             f"❌ Synonym weight {synonym_weight} < {config.preferred_weight_threshold}"
         )

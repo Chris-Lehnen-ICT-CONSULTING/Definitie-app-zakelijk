@@ -21,9 +21,8 @@ def measure_container_init() -> float:
     start = time.perf_counter()
     from services.container import ServiceContainer
 
-    container = ServiceContainer()
-    elapsed = (time.perf_counter() - start) * 1000
-    return elapsed
+    ServiceContainer()
+    return (time.perf_counter() - start) * 1000
 
 
 def measure_generator_scenario() -> dict[str, float]:
@@ -125,8 +124,8 @@ def run_benchmark(name: str, func, iterations: int = 5) -> dict[str, float]:
 
     # Calculate averages
     avg_result = {}
-    for key in results[0].keys():
-        if isinstance(results[0][key], (int, float)):
+    for key in results[0]:
+        if isinstance(results[0][key], int | float):
             avg_result[key] = sum(r[key] for r in results) / len(results)
         else:
             avg_result[key] = results[0][key]  # Use first value for non-numeric

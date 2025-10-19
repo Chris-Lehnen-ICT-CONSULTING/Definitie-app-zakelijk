@@ -8,6 +8,7 @@ import json
 import logging
 import re
 import shutil
+import sys
 from collections import defaultdict
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -137,12 +138,11 @@ class TraceabilityAnalyzer:
         """Determine document type from filename"""
         if "EPIC-" in file_path.name:
             return DocumentType.EPIC
-        elif "US-" in file_path.name:
+        if "US-" in file_path.name:
             return DocumentType.STORY
-        elif "REQ-" in file_path.name:
+        if "REQ-" in file_path.name:
             return DocumentType.REQUIREMENT
-        else:
-            return DocumentType.UNKNOWN
+        return DocumentType.UNKNOWN
 
     def extract_references(self, content: str) -> set[str]:
         """Extract all document references from content"""
@@ -349,19 +349,17 @@ class TraceabilityAnalyzer:
         # Return epic with highest score, or default to EPIC-001
         if scores:
             return max(scores, key=scores.get)
-        else:
-            # Try to guess based on story number
-            story_num = int(re.search(r"US-(\d+)", story.doc_id).group(1))
-            if story_num <= 10:
-                return "EPIC-001"
-            elif story_num <= 20:
-                return "EPIC-002"
-            elif story_num <= 30:
-                return "EPIC-003"
-            elif story_num <= 35:
-                return "EPIC-004"
-            else:
-                return "EPIC-001"
+        # Try to guess based on story number
+        story_num = int(re.search(r"US-(\d+)", story.doc_id).group(1))
+        if story_num <= 10:
+            return "EPIC-001"
+        if story_num <= 20:
+            return "EPIC-002"
+        if story_num <= 30:
+            return "EPIC-003"
+        if story_num <= 35:
+            return "EPIC-004"
+        return "EPIC-001"
 
     def check_circular_dependencies(self):
         """Check for circular dependency chains"""
@@ -372,7 +370,7 @@ class TraceabilityAnalyzer:
             """DFS to find circular dependencies"""
             if doc_id in path:
                 cycle_start = path.index(doc_id)
-                return path[cycle_start:] + [doc_id]
+                return [*path[cycle_start:], doc_id]
 
             if doc_id in visited:
                 return None
@@ -905,4 +903,4 @@ def main():
 
 
 if __name__ == "__main__":
-    exit(main())
+    sys.exit(main())

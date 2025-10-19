@@ -67,9 +67,8 @@ class ContextMappingFixer:
             for issue in issues:
                 print(f"   - {issue}")
             return True
-        else:
-            print("✅ No context mapping issues detected")
-            return False
+        print("✅ No context mapping issues detected")
+        return False
 
     def create_backup(self) -> bool:
         """Create backup of the original file."""

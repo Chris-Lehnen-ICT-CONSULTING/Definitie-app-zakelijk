@@ -349,7 +349,7 @@ def generate_story_file(story):
     elif "context-flow" in story["epic"]:
         requirements = ["REQ-020", "REQ-032", "REQ-033"]
 
-    content = f"""---
+    return f"""---
 id: {story['id']}
 epic: {story['epic']}
 title: {story['title']}
@@ -406,7 +406,6 @@ requirements: {requirements}
 - {"[x]" if story['status'] == "done" else "[ ]"} Documentation updated
 - {"[x]" if story['status'] == "done" else "[ ]"} Acceptance criteria met
 """
-    return content
 
 
 def main():

@@ -35,7 +35,7 @@ logger = logging.getLogger(__name__)
 # ============================================================================
 
 
-@pytest.fixture()
+@pytest.fixture
 def container(initialized_synonym_db):
     """Create a test container with initialized synonym database."""
     from src.services.container import ServiceContainer, reset_container
@@ -67,8 +67,8 @@ def container(initialized_synonym_db):
 # ============================================================================
 
 
-@pytest.mark.asyncio()
-@pytest.mark.integration()
+@pytest.mark.asyncio
+@pytest.mark.integration
 async def test_definition_generation_with_synonym_enrichment_e2e(container):
     """
     E2E: Definitiegeneratie → enrichment → weblookup → review.
@@ -134,7 +134,7 @@ async def test_definition_generation_with_synonym_enrichment_e2e(container):
             assert "term" in syn
             assert "weight" in syn
             assert isinstance(syn["term"], str)
-            assert isinstance(syn["weight"], (int, float))
+            assert isinstance(syn["weight"], int | float)
 
     # Verify synonym group exists in registry (created by ensure_synonyms)
     group = registry.find_group_by_term("voorlopige hechtenis")
@@ -191,7 +191,7 @@ async def test_definition_generation_with_synonym_enrichment_e2e(container):
 # ============================================================================
 
 
-@pytest.mark.integration()
+@pytest.mark.integration
 def test_manual_edit_sync_to_registry(container):
     """
     E2E: Manual edit in definitie-editor → registry sync (PHASE 3.3).
@@ -233,7 +233,7 @@ def test_manual_edit_sync_to_registry(container):
     synoniemen = ["manueel_syn1", "manueel_syn2", "manueel_syn3"]
 
     # Use legacy_repo for save_voorbeelden (services repo doesn't expose it)
-    saved_ids = repo.legacy_repo.save_voorbeelden(
+    repo.legacy_repo.save_voorbeelden(
         definitie_id=definitie_id,
         voorbeelden_dict={"synoniemen": synoniemen},
         gegenereerd_door="test_user",
@@ -323,7 +323,7 @@ def test_manual_edit_sync_to_registry(container):
 # ============================================================================
 
 
-@pytest.mark.integration()
+@pytest.mark.integration
 def test_synonym_cache_invalidation_after_approval(container):
     """
     Verify cache invalidation after synonym approval (PHASE 3 cache behavior).

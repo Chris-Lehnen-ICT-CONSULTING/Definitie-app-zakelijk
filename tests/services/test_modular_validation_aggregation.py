@@ -3,7 +3,7 @@
 import pytest
 
 
-@pytest.mark.unit()
+@pytest.mark.unit
 def test_weighted_sum_aggregation_formula():
     """Test the weighted sum aggregation: Σ(weight × score) / Σ(weights)."""
     m = pytest.importorskip(
@@ -20,7 +20,7 @@ def test_weighted_sum_aggregation_formula():
     weights = {"rule1": 1.0, "rule2": 1.0, "rule3": 1.0}
 
     result = calculate_weighted_score(scores, weights)
-    expected = (0.8 * 1.0 + 0.6 * 1.0 + 1.0 * 1.0) / (
+    (0.8 * 1.0 + 0.6 * 1.0 + 1.0 * 1.0) / (
         1.0 + 1.0 + 1.0
     )  # = 2.4 / 3.0 = 0.8
     assert result == pytest.approx(0.80, abs=0.01)
@@ -30,7 +30,7 @@ def test_weighted_sum_aggregation_formula():
     weights = {"rule1": 2.0, "rule2": 1.0, "rule3": 0.5}
 
     result = calculate_weighted_score(scores, weights)
-    expected = (0.5 * 2.0 + 0.8 * 1.0 + 1.0 * 0.5) / (
+    (0.5 * 2.0 + 0.8 * 1.0 + 1.0 * 0.5) / (
         2.0 + 1.0 + 0.5
     )  # = 2.3 / 3.5 = 0.657
     assert result == pytest.approx(0.66, abs=0.01)  # Rounded to 2 decimals
@@ -40,7 +40,7 @@ def test_weighted_sum_aggregation_formula():
     weights = {"rule1": 1.0, "rule2": 1.0, "rule3": 0.0}
 
     result = calculate_weighted_score(scores, weights)
-    expected = (0.5 * 1.0 + 0.8 * 1.0) / (1.0 + 1.0)  # = 1.3 / 2.0 = 0.65
+    (0.5 * 1.0 + 0.8 * 1.0) / (1.0 + 1.0)  # = 1.3 / 2.0 = 0.65
     assert result == pytest.approx(0.65, abs=0.01)
 
     # Test case 4: All zero weights (edge case)
@@ -51,7 +51,7 @@ def test_weighted_sum_aggregation_formula():
     assert result == 0.0  # Default when no weights
 
 
-@pytest.mark.unit()
+@pytest.mark.unit
 def test_aggregation_two_decimal_rounding():
     """Test that aggregated scores are rounded to exactly 2 decimal places."""
     m = pytest.importorskip(
@@ -85,8 +85,8 @@ def test_aggregation_two_decimal_rounding():
         assert result == round(result, 2)
 
 
-@pytest.mark.unit()
-@pytest.mark.asyncio()
+@pytest.mark.unit
+@pytest.mark.asyncio
 async def test_category_aggregation():
     """Test aggregation per category (taal, juridisch, structuur, samenhang)."""
     m = pytest.importorskip(
@@ -118,7 +118,7 @@ async def test_category_aggregation():
         ), f"Category {category} not rounded to 2 decimals: {score}"
 
 
-@pytest.mark.unit()
+@pytest.mark.unit
 def test_aggregation_with_missing_rules():
     """Test aggregation when some rules are missing or errored."""
     m = pytest.importorskip(
@@ -145,7 +145,7 @@ def test_aggregation_with_missing_rules():
     result = aggregate_rule_results(rule_results)
 
     # Errored rule should be excluded from aggregation
-    expected_score = (0.8 * 1.0 + 0.7 * 2.0) / (1.0 + 2.0)  # = 2.2 / 3.0 = 0.733...
+    (0.8 * 1.0 + 0.7 * 2.0) / (1.0 + 2.0)  # = 2.2 / 3.0 = 0.733...
     assert result["overall_score"] == pytest.approx(0.73, abs=0.01)
 
     # Check that errored rules are tracked
@@ -153,7 +153,7 @@ def test_aggregation_with_missing_rules():
     assert "CON-01" in result["errored_rules"]
 
 
-@pytest.mark.unit()
+@pytest.mark.unit
 def test_aggregation_acceptability_threshold():
     """Test is_acceptable based on overall_score >= threshold (default 0.75)."""
     m = pytest.importorskip(
@@ -183,7 +183,7 @@ def test_aggregation_acceptability_threshold():
         ), f"Score {score} with threshold {threshold} should be acceptable={expected}"
 
 
-@pytest.mark.unit()
+@pytest.mark.unit
 def test_category_minimum_thresholds():
     """Test that category minimums can override overall acceptability."""
     m = pytest.importorskip(

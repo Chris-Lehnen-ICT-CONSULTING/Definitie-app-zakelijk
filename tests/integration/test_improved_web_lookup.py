@@ -43,11 +43,11 @@ class MockLookupResult:
         self.source.is_juridical = False
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 class TestWikipediaSynonymFallback:
     """Test Wikipedia synonym fallback functionaliteit."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def synonym_service(self, tmp_path):
         """Create synonym service with test data."""
         yaml_content = """
@@ -74,7 +74,7 @@ voorlopige_hechtenis:
         async def mock_wikipedia_search(term: str):
             if term == "voorlopige hechtenis":
                 return []  # Empty results → trigger fallback
-            elif term == "voorarrest":
+            if term == "voorarrest":
                 return [
                     MockLookupResult(
                         term="voorarrest",
@@ -174,7 +174,7 @@ voorlopige_hechtenis:
         assert results[0].term == "bewaring"
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 class TestSRUQueryZeroExecution:
     """Test nieuwe SRU Query 0 strategie."""
 
@@ -249,7 +249,7 @@ class TestSRUQueryZeroExecution:
         assert results[0].definition == "Definitie uit Query 0"
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 class TestJuridischeRankingIntegration:
     """Test juridische ranking in volledige pipeline."""
 
@@ -332,11 +332,11 @@ class TestJuridischeRankingIntegration:
         assert boosted[0].source.confidence > 0.5
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 class TestEndToEndPipeline:
     """Test volledige pipeline: synonym expansion → lookup → ranking."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def synonym_service(self, tmp_path):
         """Create synonym service with test data."""
         yaml_content = """
@@ -454,7 +454,7 @@ voorlopige_hechtenis:
         assert metrics["fallback_triggered"] is True
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 class TestCoverageImprovement:
     """Test coverage improvement met nieuwe features."""
 
@@ -539,7 +539,7 @@ class TestCoverageImprovement:
         assert juridische_result.source.confidence > 0.5
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 class TestErrorHandling:
     """Test error handling in integration scenarios."""
 

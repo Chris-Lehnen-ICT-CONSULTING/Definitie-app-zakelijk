@@ -84,8 +84,7 @@ def test_orchestrator_singleton():
             "speedup": time1 / time2 if time2 > 0 else 0,
             "success": is_singleton and module_count == 16,
         }
-    else:
-        return {"success": False, "error": err1 or err2}
+    return {"success": False, "error": err1 or err2}
 
 
 def test_config_caching():
@@ -134,8 +133,7 @@ def test_config_caching():
             "speedup": time1 / time2 if time2 > 0 else 0,
             "success": is_cached and section_count > 0,
         }
-    else:
-        return {"success": False, "error": err1 or err2}
+    return {"success": False, "error": err1 or err2}
 
 
 def test_container_initialization():
@@ -164,8 +162,7 @@ def test_container_initialization():
             "meets_stretch": time_ms < 200,
             "success": True,
         }
-    else:
-        return {"success": False, "error": err}
+    return {"success": False, "error": err}
 
 
 def main():

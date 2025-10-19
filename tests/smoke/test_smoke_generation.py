@@ -52,9 +52,8 @@ async def smoke_test():
                 logger.info(f"  Voorbeelden types: {list(voorbeelden.keys())}")
 
             return True
-        else:
-            logger.error(f"❌ Generation failed: {result}")
-            return False
+        logger.error(f"❌ Generation failed: {result}")
+        return False
 
     except Exception as e:
         logger.error(f"❌ Smoke test failed with error: {e}")

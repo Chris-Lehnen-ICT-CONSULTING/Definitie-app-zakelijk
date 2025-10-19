@@ -132,7 +132,7 @@ class LinkFixer:
 
         for link_text, link_url, line_num in links:
             # Skip external links
-            if link_url.startswith("http") or link_url.startswith("#"):
+            if link_url.startswith(("http", "#")):
                 continue
 
             # Check if link is broken

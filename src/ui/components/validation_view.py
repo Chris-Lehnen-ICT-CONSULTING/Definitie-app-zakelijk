@@ -154,7 +154,7 @@ def _build_detailed_assessment(validation_result: dict) -> list[str]:
         s = (sev or "").lower()
         if s in {"critical", "error", "high"}:
             return "❌"
-        elif s in {"warning", "medium", "low"}:
+        if s in {"warning", "medium", "low"}:
             return "⚠️"
         return "📋"
 
@@ -272,12 +272,11 @@ def render_validation_detailed_list(
 
     # Toggle + details
     details_key = f"{key_prefix}_show_validation_details"
-    if show_toggle:
-        if st.button(
-            "📊 Toon/verberg gedetailleerde toetsresultaten", key=f"btn_{details_key}"
-        ):
-            current_state = SessionStateManager.get_value(details_key, False)
-            SessionStateManager.set_value(details_key, not current_state)
+    if show_toggle and st.button(
+        "📊 Toon/verberg gedetailleerde toetsresultaten", key=f"btn_{details_key}"
+    ):
+        current_state = SessionStateManager.get_value(details_key, False)
+        SessionStateManager.set_value(details_key, not current_state)
 
     # Default to expanded on first render after validation
     if show_toggle and SessionStateManager.get_value(details_key, None) is None:

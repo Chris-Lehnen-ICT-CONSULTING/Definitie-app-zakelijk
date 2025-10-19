@@ -82,7 +82,8 @@ class AIServiceStub:
         )
 
         if self.should_fail:
-            raise TimeoutError("AI service timeout")
+            msg = "AI service timeout"
+            raise TimeoutError(msg)
 
         # Return AIGenerationResult-like object
         return type(
@@ -160,7 +161,7 @@ class ValidationStub:
         )()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_monitoring_success_flow():
     """Test monitoring calls in success flow."""
     # Setup
@@ -196,7 +197,7 @@ async def test_monitoring_success_flow():
     assert len(mon.calls["error"]) == 0
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_monitoring_error_tracking():
     """Test that errors are tracked with Exception object, not string."""
     # Setup
@@ -234,7 +235,7 @@ async def test_monitoring_error_tracking():
     assert error_call["error_type"] == "TimeoutError"
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_monitoring_disabled():
     """Test orchestrator works without monitoring service."""
     # Setup without monitoring
@@ -258,7 +259,7 @@ async def test_monitoring_disabled():
     assert result.definition is not None
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_token_count_none_handling():
     """Test handling of None token count."""
     # Setup with None tokens
@@ -299,7 +300,7 @@ async def test_token_count_none_handling():
     assert mon.calls["complete"][0]["token_count"] is None
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_token_count_float_conversion():
     """Test that float token counts are converted to int."""
     # Setup with float tokens

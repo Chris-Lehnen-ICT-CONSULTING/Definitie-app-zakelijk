@@ -78,7 +78,7 @@ class _StubWebLookupService:
         return [r1, r2]
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_e2e_orchestrator_prompt_augmentation(monkeypatch):
     from services.interfaces import GenerationRequest, OrchestratorConfig
     from services.orchestrators.definition_orchestrator_v2 import (
@@ -138,7 +138,8 @@ async def test_e2e_orchestrator_prompt_augmentation(monkeypatch):
     resp = await orch.create_definition(req, context={})
 
     # Response OK
-    assert resp.success and resp.definition is not None
+    assert resp.success
+    assert resp.definition is not None
 
     # Provenance present and first two marked used_in_prompt
     sources = resp.definition.metadata.get("sources", [])

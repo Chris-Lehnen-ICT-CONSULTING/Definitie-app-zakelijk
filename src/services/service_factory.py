@@ -158,7 +158,7 @@ class ServiceAdapter:
         # Map to canonical values
         if severity in ["error", "critical", "high"]:
             return "high"
-        elif severity in ["warning", "medium"]:
+        if severity in ["warning", "medium"]:
             return "medium"
         return "low"
 
@@ -355,10 +355,9 @@ class ServiceAdapter:
 
     def _handle_regeneration_context(self, begrip: str, kwargs: dict) -> str:
         """Handle regeneration context enhancement if present (deprecated - always returns base instructions)."""
-        extra_instructions = ensure_string(
+        return ensure_string(
             safe_dict_get(kwargs, "extra_instructies", "")
         )
-        return extra_instructions
 
     def to_ui_response(self, response, agent_result: dict) -> dict:
         """Convert orchestrator response to canonical UI format.
@@ -566,7 +565,7 @@ class ServiceAdapter:
             ui_response = self.to_ui_response(response, {})
 
             # Add minimal legacy compatibility fields
-            result_dict = {
+            return {
                 **ui_response,
                 "success": True,
                 "final_definitie": ui_response[
@@ -584,7 +583,6 @@ class ServiceAdapter:
                     ui_response["metadata"], "prompt_template", ""
                 ),
             }
-            return result_dict
         finally:
             # ALWAYS clear flag after operation (even on error)
             try:
@@ -677,7 +675,7 @@ class ServiceAdapter:
 
         filename = os.path.basename(export_path) if export_path else None
         return {
-            "success": True if export_path else False,
+            "success": bool(export_path),
             "path": export_path,
             "filename": filename,
             "message": (
@@ -727,9 +725,12 @@ class ServiceFactory:
         self, begrip: str, context: str | dict | None = None, **kwargs
     ):
         """Sync wrapper is verwijderd. Gebruik UI async_bridge vanuit de UI-laag."""
-        raise NotImplementedError(
+        msg = (
             "genereer_definitie (sync) is verwijderd uit services. "
             "Roep de async methode aan via ui.helpers.async_bridge.generate_definition_sync"
+        )
+        raise NotImplementedError(
+            msg
         )
 
     # Modern wrapper

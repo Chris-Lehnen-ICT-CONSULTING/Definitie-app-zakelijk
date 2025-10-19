@@ -37,7 +37,8 @@ def test_ensure_schema_compliance_converts_dataclass_result():
     out = ensure_schema_compliance(dc, correlation_id=str(uuid.uuid4()))
     assert isinstance(out, dict)
     assert "version" in out
-    assert "system" in out and "correlation_id" in out["system"]
+    assert "system" in out
+    assert "correlation_id" in out["system"]
 
 
 def test_create_degraded_result_schema_conform():

@@ -476,7 +476,7 @@ class DefinitionGeneratorTab:
                         ),
                         "present" if voorbeelden else "missing",
                         {
-                            k: len(v) if isinstance(v, (list, str)) else "INVALID"
+                            k: len(v) if isinstance(v, list | str) else "INVALID"
                             for k, v in (voorbeelden or {}).items()
                         },
                     )
@@ -849,7 +849,7 @@ class DefinitionGeneratorTab:
             current = repo.get_voorbeelden_by_type(definitie_id)
 
             def _norm(d: dict[str, list[str]]) -> dict[str, set[str]]:
-                return {k: set([str(x).strip() for x in (d.get(k) or [])]) for k in d}
+                return {k: {str(x).strip() for x in (d.get(k) or [])} for k in d}
 
             # Map DB keys naar canonical UI keys voor vergelijking
             # DB keys zijn al canonicalized in helpers.resolve_examples pad, maar hier gebruiken we direct:
@@ -1324,9 +1324,9 @@ class DefinitionGeneratorTab:
                                 continue
                         if rows:
                             try:
-                                import pandas as _pd  # type: ignore
+                                import pandas as pd  # type: ignore
 
-                                st.dataframe(_pd.DataFrame(rows))
+                                st.dataframe(pd.DataFrame(rows))
                             except Exception:
                                 # Fallback zonder pandas
                                 for r in rows:
@@ -1619,10 +1619,9 @@ class DefinitionGeneratorTab:
         """Get emoji for severity level."""
         if severity in {"critical", "error", "high"}:
             return "❌"
-        elif severity in {"warning", "medium", "low"}:
+        if severity in {"warning", "medium", "low"}:
             return "⚠️"
-        else:
-            return "📋"
+        return "📋"
 
     def _format_passed_rules(self, passed_ids: list[str]) -> list[str]:
         """Format passed rule lines, inclusief 'Wat toetst' en 'Waarom'."""

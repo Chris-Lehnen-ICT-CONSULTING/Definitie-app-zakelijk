@@ -7,6 +7,7 @@ Ensures EA and SA documents stay synchronized while maintaining separation
 import hashlib
 import json
 import re
+import sys
 from dataclasses import asdict, dataclass
 from datetime import datetime
 from pathlib import Path
@@ -44,7 +45,7 @@ class SyncReport:
 class ArchitectureSync:
     """Manages synchronization between EA and SA documents"""
 
-    def __init__(self, project_root: Path = None):
+    def __init__(self, project_root: Path | None = None):
         self.project_root = project_root or Path.cwd()
         self.arch_root = self.project_root / "docs" / "architectuur"
         self.sync_config_path = self.arch_root / "sync-config.yaml"
@@ -393,10 +394,9 @@ class ArchitectureSync:
         clean_content = re.sub(r"```[\s\S]*?```", "", content)
         clean_content = re.sub(r"^#+.*$", "", clean_content, flags=re.MULTILINE)
 
-        paragraphs = [
+        return [
             p.strip() for p in clean_content.split("\n\n") if len(p.strip()) > 50
         ]
-        return paragraphs
 
     def _has_cross_reference(self, ea_doc: dict, sa_doc: dict, req_ref: dict) -> bool:
         """Check if required cross-reference exists"""
@@ -411,7 +411,7 @@ class ArchitectureSync:
         """Generate HTML dashboard for sync status"""
         report = self.sync_all()
 
-        html = f"""
+        return f"""
 <!DOCTYPE html>
 <html>
 <head>
@@ -452,7 +452,6 @@ class ArchitectureSync:
 </html>
         """
 
-        return html
 
     def _generate_details_html(self, report: SyncReport) -> str:
         """Generate detailed HTML for sync report"""
@@ -472,7 +471,7 @@ class ArchitectureSync:
 
         return html
 
-    def save_report(self, report: SyncReport, output_file: Path = None):
+    def save_report(self, report: SyncReport, output_file: Path | None = None):
         """Save sync report to file"""
         if output_file is None:
             output_file = self.arch_root / "sync-report.json"
@@ -533,11 +532,11 @@ def main():
 
         # Exit with appropriate code
         if report.status == "error":
-            exit(1)
+            sys.exit(1)
         elif report.status == "warning":
-            exit(2)
+            sys.exit(2)
         else:
-            exit(0)
+            sys.exit(0)
 
 
 if __name__ == "__main__":

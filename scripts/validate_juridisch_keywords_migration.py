@@ -110,7 +110,7 @@ def validate_yaml_keywords():
 
     # Extract alle keywords uit YAML
     yaml_keywords = set()
-    for category, keywords_list in data.items():
+    for _category, keywords_list in data.items():
         if isinstance(keywords_list, list):
             for keyword in keywords_list:
                 if isinstance(keyword, str):
@@ -264,7 +264,7 @@ def validate_keyword_categorization():
         "wetten",
     }
 
-    actual_categories = {k for k in data.keys() if isinstance(data[k], list)}
+    actual_categories = {k for k in data if isinstance(data[k], list)}
 
     missing_categories = expected_categories - actual_categories
     extra_categories = actual_categories - expected_categories
@@ -323,10 +323,9 @@ def main():
         print("🎉 ALLE VALIDATIES GESLAAGD!")
         print("Migratie is succesvol voltooid.")
         return 0
-    else:
-        print("❌ SOMMIGE VALIDATIES GEFAALD")
-        print("Controleer de fouten hierboven.")
-        return 1
+    print("❌ SOMMIGE VALIDATIES GEFAALD")
+    print("Controleer de fouten hierboven.")
+    return 1
 
 
 if __name__ == "__main__":

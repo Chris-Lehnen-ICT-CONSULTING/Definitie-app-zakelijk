@@ -20,7 +20,7 @@ from services.validation.interfaces import (
 class TestValidationOrchestratorV2:
     """Test suite for ValidationOrchestratorV2."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def mock_validation_service(self):
         """Create a mock validation service."""
         service = Mock()
@@ -46,7 +46,7 @@ class TestValidationOrchestratorV2:
         )
         return service
 
-    @pytest.fixture()
+    @pytest.fixture
     def mock_cleaning_service(self):
         """Create a mock cleaning service."""
         service = Mock()
@@ -56,12 +56,12 @@ class TestValidationOrchestratorV2:
         )
         return service
 
-    @pytest.fixture()
+    @pytest.fixture
     def orchestrator(self, mock_validation_service):
         """Create orchestrator with mock validation service."""
         return ValidationOrchestratorV2(validation_service=mock_validation_service)
 
-    @pytest.fixture()
+    @pytest.fixture
     def orchestrator_with_cleaning(
         self, mock_validation_service, mock_cleaning_service
     ):
@@ -76,7 +76,7 @@ class TestValidationOrchestratorV2:
         with pytest.raises(ValueError, match="validation_service is vereist"):
             ValidationOrchestratorV2(validation_service=None)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_validate_text_basic(self, orchestrator, mock_validation_service):
         """Test basic text validation."""
         result = await orchestrator.validate_text(
@@ -99,7 +99,7 @@ class TestValidationOrchestratorV2:
             context={"profile": "standard"},
         )
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_validate_text_without_context(
         self, orchestrator, mock_validation_service
     ):
@@ -118,12 +118,12 @@ class TestValidationOrchestratorV2:
             context=None,
         )
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_validate_text_with_cleaning(
         self, orchestrator_with_cleaning, mock_validation_service, mock_cleaning_service
     ):
         """Test text validation with cleaning service."""
-        result = await orchestrator_with_cleaning.validate_text(
+        await orchestrator_with_cleaning.validate_text(
             begrip="test_begrip", text="dirty text"
         )
 
@@ -140,7 +140,7 @@ class TestValidationOrchestratorV2:
             context=None,
         )
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_validate_definition(self, orchestrator, mock_validation_service):
         """Test definition validation."""
         definition = Definition(
@@ -165,14 +165,14 @@ class TestValidationOrchestratorV2:
             context={"profile": "advanced"},
         )
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_validate_definition_with_cleaning(
         self, orchestrator_with_cleaning, mock_validation_service, mock_cleaning_service
     ):
         """Test definition validation with cleaning."""
         definition = Definition(begrip="test_begrip", definitie="dirty definitie")
 
-        result = await orchestrator_with_cleaning.validate_definition(
+        await orchestrator_with_cleaning.validate_definition(
             definition=definition
         )
 
@@ -187,7 +187,7 @@ class TestValidationOrchestratorV2:
             context=None,
         )
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_batch_validate_sequential(self, orchestrator):
         """Test batch validation processes sequentially."""
         requests = [
@@ -208,7 +208,7 @@ class TestValidationOrchestratorV2:
         # Verify each was processed
         assert orchestrator.validation_service.validate_definition.call_count == 3
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_batch_validate_preserves_order(
         self, orchestrator, mock_validation_service
     ):
@@ -239,7 +239,7 @@ class TestValidationOrchestratorV2:
         assert results[1]["overall_score"] == 0.8
         assert results[2]["overall_score"] == 0.7
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_batch_validate_ignores_max_concurrency(self, orchestrator):
         """Test that max_concurrency is ignored in v2.2."""
         requests = [ValidationRequest(begrip="test", text="text") for _ in range(2)]
@@ -252,7 +252,7 @@ class TestValidationOrchestratorV2:
         # Both should have made sequential calls
         assert orchestrator.validation_service.validate_definition.call_count == 4
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_validate_text_handles_service_exception(
         self, mock_validation_service
     ):
@@ -286,7 +286,7 @@ class TestValidationOrchestratorV2:
         assert "correlation_id" in result["system"]
         assert result["system"]["error"] == "Service unavailable"
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_validate_definition_handles_cleaning_exception(
         self, mock_validation_service, mock_cleaning_service
     ):
@@ -310,7 +310,7 @@ class TestValidationOrchestratorV2:
         assert result["overall_score"] == 0.0
         assert any("Cleaning failed" in v["message"] for v in result["violations"])
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_context_propagation_with_all_fields(
         self, orchestrator, mock_validation_service
     ):

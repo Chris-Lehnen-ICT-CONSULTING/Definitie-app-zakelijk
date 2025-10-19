@@ -21,23 +21,22 @@ from services.definition_repository import DefinitionRepository
 from services.interfaces import Definition
 
 
-@pytest.fixture()
+@pytest.fixture
 def mock_legacy_repo():
     """Mock voor de legacy DefinitieRepository."""
     return Mock()
 
 
-@pytest.fixture()
+@pytest.fixture
 def repository(mock_legacy_repo):
     """DefinitionRepository instance met gemockte legacy repo."""
     with patch(
         "services.definition_repository.LegacyRepository", return_value=mock_legacy_repo
     ):
-        repo = DefinitionRepository(db_path=":memory:")
-        return repo
+        return DefinitionRepository(db_path=":memory:")
 
 
-@pytest.fixture()
+@pytest.fixture
 def sample_definition():
     """Sample Definition voor tests."""
     return Definition(
@@ -55,7 +54,7 @@ def sample_definition():
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def sample_record():
     """Sample DefinitieRecord voor tests."""
     record = DefinitieRecord()
@@ -130,7 +129,7 @@ class TestDefinitionRepository:
         # Verify it was called with ID and an update payload (record or dict)
         call_args = mock_legacy_repo.update_definitie.call_args[0]
         assert call_args[0] == 456
-        assert isinstance(call_args[1], (DefinitieRecord, dict))
+        assert isinstance(call_args[1], DefinitieRecord | dict)
         mock_legacy_repo.create_definitie.assert_not_called()
 
     def test_save_error_handling(self, repository, mock_legacy_repo, sample_definition):
@@ -264,7 +263,7 @@ class TestDefinitionRepository:
         # Verify the update parameter (record or dict)
         call_args = mock_legacy_repo.update_definitie.call_args[0]
         assert call_args[0] == 123  # ID
-        assert isinstance(call_args[1], (DefinitieRecord, dict))
+        assert isinstance(call_args[1], DefinitieRecord | dict)
 
     def test_update_error_handling(
         self, repository, mock_legacy_repo, sample_definition
@@ -777,7 +776,7 @@ class TestDefinitionRepositoryIntegration:
 class TestDraftManagement:
     """Test suite for draft management functionality (US-064)."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def repository_with_db(self, tmp_path):
         """Create repository with actual SQLite database for draft tests."""
         # Create a temporary database
@@ -974,7 +973,7 @@ class TestDraftManagement:
                 def failing_connection():
                     conn = sqlite3.connect(repository_with_db.db_path)
                     conn.row_factory = sqlite3.Row
-                    original_execute = conn.cursor().execute
+                    conn.cursor().execute
 
                     class MockCursor:
                         def __init__(self, real_cursor):
@@ -982,7 +981,8 @@ class TestDraftManagement:
 
                         def execute(self, query, params=None):
                             if "INSERT INTO" in query:
-                                raise sqlite3.IntegrityError("UNIQUE constraint failed")
+                                msg = "UNIQUE constraint failed"
+                                raise sqlite3.IntegrityError(msg)
                             return self._cursor.execute(query, params)
 
                         def fetchone(self):
