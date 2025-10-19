@@ -34,6 +34,30 @@ Dit bestand biedt richtlijnen aan Claude Code bij het werken met code in deze re
 - Cross-platform documentatie
 - Workflow referenties
 
+## 🔗 UNIFIED Cross-Reference Guide
+
+**Voor algemene cross-project regels, zie `~/.ai-agents/UNIFIED_INSTRUCTIONS.md`:**
+
+| Onderwerp | UNIFIED Sectie | Wat je daar vindt |
+|-----------|---------------|-------------------|
+| **Approval Thresholds** | 🎯 APPROVAL LADDER | Duidelijke thresholds: >100 lines, >5 files, network calls, schema changes |
+| **Workflow Selection** | 🔄 WORKFLOW SELECTION MATRIX | ANALYSIS, DOCUMENT, HOTFIX, FULL_TDD workflows met selectie logic |
+| **Canonical Naming** | 📝 NAMING CONVENTIONS | Verplichte namen: `organisatorische_context`, `ValidationOrchestratorV2`, etc. |
+| **Forbidden Imports** | 🚫 FORBIDDEN PATTERNS | Service layer imports (geen `streamlit` in `services/`) |
+| **Code Duplication** | 🚫 FORBIDDEN PATTERNS | Check-before-create regels, SSoT matrix |
+| **Agent Tool Mappings** | 🔄 AGENT TOOL MAPPINGS | TodoWrite vs update_plan, Edit vs apply_patch |
+| **Preflight Checks** | 🛡️ PREFLIGHT CHECKS | Mandatory checks voor elke wijziging |
+
+**Dit document (CLAUDE.md) voegt toe:**
+- DefinitieAgent-specifieke architectuur
+- Project root beleid (strikt!)
+- Database locaties en migraties
+- CI/CD workflows en GitHub automation
+- Performance overwegingen en caching
+- Development commando's en debugging
+
+**Bij conflicten:** UNIFIED > CLAUDE.md (zoals gespecificeerd in Instruction Priority hierboven)
+
 ## Project Overzicht
 
 DefinitieAgent is een AI-gestuurde Nederlandse juridische definitiegenerator die GPT-4 gebruikt met 45+ kwaliteitsvalidatieregels. De applicatie gebruikt Streamlit voor de UI en volgt een service-georiënteerde architectuur met dependency injection.
@@ -81,6 +105,11 @@ DefinitieAgent is een AI-gestuurde Nederlandse juridische definitiegenerator die
 - **Business logica documenteren tijdens refactoring proces**
 
 ### 🚫 VERBODEN PATTERNS - ANTI-PATTERNS
+
+> **📚 Voor algemene forbidden patterns (service layer imports, code duplication), zie:**
+> `~/.ai-agents/UNIFIED_INSTRUCTIONS.md` → sectie "FORBIDDEN PATTERNS"
+
+**DefinitieAgent-specifieke anti-patterns:**
 
 #### GOD OBJECT / CATCH-ALL HELPERS
 - **VERBODEN: `dry_helpers.py` of vergelijkbare "alles-in-één" utility modules**
@@ -265,14 +294,22 @@ De applicatie gebruikt Streamlit's session state uitgebreid. Belangrijke state v
 
 ## Development Richtlijnen
 
+> **📚 Voor workflow selectie, approval thresholds en agent tool mappings, zie:**
+> `~/.ai-agents/UNIFIED_INSTRUCTIONS.md` → secties "WORKFLOW SELECTION MATRIX" en "APPROVAL LADDER"
+
 ### Code Stijl
 
+> **📝 Voor canonical naming conventions, zie:**
+> `~/.ai-agents/UNIFIED_INSTRUCTIONS.md` → sectie "NAMING CONVENTIONS"
+
+**DefinitieAgent code stijl:**
 - Python 3.11+ met type hints verplicht
 - Ruff + Black formatting (88 karakter regels)
 - Nederlandse commentaren voor business logica
 - Engelse commentaren voor technische code
 - GEEN kale except clausules
 - Import volgorde: standard library, third-party, lokaal
+- Gebruik ALTIJD canonical names (zie UNIFIED voor lijst)
 
 ### Test Vereisten
 
@@ -338,11 +375,17 @@ SKIP_PRE_COMMIT        # Sla pre-commit hooks over (alleen noodgevallen)
 
 ## Werken met Legacy Code
 
+> **📚 Voor refactor workflow selectie, zie:**
+> `~/.ai-agents/UNIFIED_INSTRUCTIONS.md` → sectie "WORKFLOW SELECTION MATRIX" (REFACTOR workflow)
+
+**DefinitieAgent refactor principes:**
+
 Refactor, geen backwards compatibility:
 
 - Geen feature flags of parallelle V1/V2 paden
 - Verwijder verouderde paden zodra het nieuwe pad klaar is
 - Behoud en documenteer businesslogica tijdens refactor
+- Gebruik UNIFIED approval ladder voor impact assessment (>100 lines = vraag toestemming)
 
 ## CI/CD Pipeline & GitHub Workflow Management
 

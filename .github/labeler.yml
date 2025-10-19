@@ -1,0 +1,107 @@
+# Auto-labeling configuration for pull requests
+# Labels are automatically applied based on file paths
+
+# Type labels
+'type: documentation':
+  - changed-files:
+    - any-glob-to-any-file: 
+      - 'docs/**/*'
+      - '**/*.md'
+      - 'README.md'
+      - 'CLAUDE.md'
+      - 'CONTRIBUTING.md'
+
+'type: tests':
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'tests/**/*'
+      - '**/test_*.py'
+      - '**/*_test.py'
+
+'type: ci':
+  - changed-files:
+    - any-glob-to-any-file:
+      - '.github/**/*'
+      - 'scripts/**/*'
+      - '.pre-commit-config.yaml'
+      - 'pytest.ini'
+      - 'pyproject.toml'
+
+'type: configuration':
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'config/**/*'
+      - '*.yaml'
+      - '*.yml'
+      - '*.toml'
+      - '*.ini'
+      - 'requirements*.txt'
+
+# Area labels
+'area: security':
+  - changed-files:
+    - any-glob-to-any-file:
+      - '**/security/**'
+      - '.gitleaks.toml'
+      - 'requirements*.txt'
+      - '**/auth/**'
+
+'area: database':
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'src/database/**/*'
+      - 'data/**/*.db'
+      - '**/*schema.sql'
+      - '**/migrations/**'
+
+'area: ui':
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'src/ui/**/*'
+      - '**/components/**'
+      - '**/tabs/**'
+
+'area: services':
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'src/services/**/*'
+      - '**/orchestrators/**'
+
+'area: validation':
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'src/toetsregels/**/*'
+      - 'src/validation/**/*'
+      - 'src/services/validation/**/*'
+      - 'config/toetsregels/**/*'
+
+# Priority labels (based on certain critical files)
+'priority: high':
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'src/main.py'
+      - 'src/services/container.py'
+      - '.github/workflows/security.yml'
+      - 'requirements.txt'
+
+# Dependencies
+'dependencies':
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'requirements*.txt'
+      - 'pyproject.toml'
+      - '.github/dependabot.yml'
+
+# Backlog/Planning
+'backlog':
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'docs/backlog/**/*'
+
+# Architecture
+'architecture':
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'docs/architectuur/**/*'
+      - 'docs/architecture/**/*'
+
