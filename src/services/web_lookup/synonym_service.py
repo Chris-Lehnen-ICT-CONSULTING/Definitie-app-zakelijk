@@ -360,9 +360,8 @@ class JuridischeSynoniemlService:
                 synoniemen.insert(0, hoofdterm)
 
             # Verwijder de originele term uit resultaat (niet jezelf als synoniem)
-            synoniemen = [s for s in synoniemen if s != normalized]
+            return [s for s in synoniemen if s != normalized]
 
-            return synoniemen
 
         # Case 3: Niet gevonden
         return []

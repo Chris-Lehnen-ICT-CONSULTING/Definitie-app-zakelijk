@@ -131,7 +131,7 @@ class FeatureFlags:
     def log_feature_status(cls):
         """Log the status of all feature flags."""
         logger.info("=== Feature Flags Status ===")
-        for name, flag in cls.get_all_flags().items():
+        for _name, flag in cls.get_all_flags().items():
             status = "ENABLED" if flag.is_enabled() else "DISABLED"
             logger.info(f"  {flag.name}: {status} ({flag.status.value})")
             if flag.deprecation_message and flag.is_enabled():
@@ -172,9 +172,12 @@ class FeatureFlags:
                     f"{feature_flag.deprecation_message}"
                 )
                 return False
-            raise RuntimeError(
+            msg = (
                 f"Required feature '{feature_flag.name}' is disabled. "
                 f"Enable it by setting {feature_flag.env_var}=true"
+            )
+            raise RuntimeError(
+                msg
             )
         return True
 

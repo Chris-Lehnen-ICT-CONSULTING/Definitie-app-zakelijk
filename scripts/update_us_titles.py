@@ -16,8 +16,8 @@ def extract_description(content: str, us_id: str) -> str:
     description = ""
 
     # Check for "Als ... wil ik ..." pattern
-    for i, line in enumerate(lines):
-        if line.startswith("Als ") or line.startswith("## Als "):
+    for _i, line in enumerate(lines):
+        if line.startswith(("Als ", "## Als ")):
             # Extract user story format
             story_line = line.replace("## ", "").strip()
             if len(story_line) > 10 and len(story_line) < 150:

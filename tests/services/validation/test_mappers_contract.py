@@ -2,8 +2,11 @@ import re
 
 import pytest
 
-from services.interfaces import ValidationResult as DCValidationResult
-from services.interfaces import ValidationSeverity, ValidationViolation
+from services.interfaces import (
+    ValidationResult as DCValidationResult,
+    ValidationSeverity,
+    ValidationViolation,
+)
 from services.validation.interfaces import CONTRACT_VERSION
 from services.validation.mappers import (
     DEFAULT_PASSED_RULES,
@@ -41,7 +44,8 @@ def test_violation_mapping_and_defaults():
 
     assert mapped["version"] == CONTRACT_VERSION
     assert mapped["is_acceptable"] is False
-    assert isinstance(mapped["violations"], list) and mapped["violations"]
+    assert isinstance(mapped["violations"], list)
+    assert mapped["violations"]
     mv = mapped["violations"][0]
     assert mv["rule_id"] == "STR-01"
     # Code defaults when absent

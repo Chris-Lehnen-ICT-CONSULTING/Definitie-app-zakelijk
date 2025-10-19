@@ -5,7 +5,7 @@ from unittest.mock import Mock, call, patch
 import pytest
 
 
-@pytest.mark.unit()
+@pytest.mark.unit
 def test_evaluation_context_dataclass_structure():
     """Test that EvaluationContext has all required fields."""
     m = pytest.importorskip(
@@ -37,8 +37,8 @@ def test_evaluation_context_dataclass_structure():
     assert context.metadata == {"key": "value"}
 
 
-@pytest.mark.unit()
-@pytest.mark.asyncio()
+@pytest.mark.unit
+@pytest.mark.asyncio
 async def test_context_computed_once_shared_across_validators():
     """Test that EvaluationContext is computed once and shared."""
     m = pytest.importorskip(
@@ -66,7 +66,7 @@ async def test_context_computed_once_shared_across_validators():
 
     # Patch tokenizer if it exists
     with patch.object(service, "_tokenize", mock_tokenizer, create=True):
-        result = await service.validate_definition(
+        await service.validate_definition(
             begrip="test",
             text="Raw input text",
             ontologische_categorie=None,
@@ -83,7 +83,7 @@ async def test_context_computed_once_shared_across_validators():
     assert mock_tokenizer.call_count <= 1, "Tokenization should happen at most once"
 
 
-@pytest.mark.unit()
+@pytest.mark.unit
 def test_context_prevents_duplicate_text_processing():
     """Test that validators receive pre-processed text via context."""
     m = pytest.importorskip(
@@ -114,7 +114,7 @@ def test_context_prevents_duplicate_text_processing():
     mock_validator.validate = Mock(return_value={"score": 0.8, "violations": []})
 
     # Validator should receive the context with pre-processed data
-    result = adapter.evaluate_sync(mock_validator, ctx)
+    adapter.evaluate_sync(mock_validator, ctx)
 
     # Verify validator was called with the context
     mock_validator.validate.assert_called_once()
@@ -127,8 +127,8 @@ def test_context_prevents_duplicate_text_processing():
     assert passed_ctx.tokens == ["raw", "text", "with", "spaces"]
 
 
-@pytest.mark.unit()
-@pytest.mark.asyncio()
+@pytest.mark.unit
+@pytest.mark.asyncio
 async def test_context_includes_correlation_id_for_tracing():
     """Test that correlation_id is properly propagated through context."""
     m = pytest.importorskip(
@@ -175,7 +175,7 @@ async def test_context_includes_correlation_id_for_tracing():
         assert result["system"]["correlation_id"] == correlation_id
 
 
-@pytest.mark.unit()
+@pytest.mark.unit
 def test_context_immutable_between_validators():
     """Test that EvaluationContext cannot be modified by validators."""
     m = pytest.importorskip(
@@ -209,11 +209,11 @@ def test_context_immutable_between_validators():
     assert len(context.tokens) == 1
 
 
-@pytest.mark.unit()
-@pytest.mark.asyncio()
+@pytest.mark.unit
+@pytest.mark.asyncio
 async def test_context_lazy_computation_of_optional_fields():
     """Test that optional fields like tokens are only computed when needed."""
-    m = pytest.importorskip(
+    pytest.importorskip(
         "services.validation.modular_validation_service",
         reason="ModularValidationService not implemented yet",
     )

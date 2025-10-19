@@ -47,9 +47,11 @@ def validate_input(term: str, definition: str) -> tuple[str, str]:
     """
     # Check for None
     if term is None:
-        raise ValueError("Term mag niet None zijn")
+        msg = "Term mag niet None zijn"
+        raise ValueError(msg)
     if definition is None:
-        raise ValueError("Definitie mag niet None zijn")
+        msg = "Definitie mag niet None zijn"
+        raise ValueError(msg)
 
     # Strip whitespace
     term = term.strip()
@@ -57,15 +59,19 @@ def validate_input(term: str, definition: str) -> tuple[str, str]:
 
     # Check for empty after stripping
     if not term:
-        raise ValueError("Term is verplicht en mag niet leeg zijn")
+        msg = "Term is verplicht en mag niet leeg zijn"
+        raise ValueError(msg)
     if not definition:
-        raise ValueError("Definitie is verplicht en mag niet leeg zijn")
+        msg = "Definitie is verplicht en mag niet leeg zijn"
+        raise ValueError(msg)
 
     # Check minimum length
     if len(term) < 2:
-        raise ValueError("Term moet minimaal 2 karakters bevatten")
+        msg = "Term moet minimaal 2 karakters bevatten"
+        raise ValueError(msg)
     if len(definition) < 5:
-        raise ValueError("Definitie moet minimaal 5 karakters bevatten")
+        msg = "Definitie moet minimaal 5 karakters bevatten"
+        raise ValueError(msg)
 
     # Check for suspicious patterns (basic injection protection)
     suspicious_patterns = [
@@ -81,7 +87,8 @@ def validate_input(term: str, definition: str) -> tuple[str, str]:
     combined = f"{term} {definition}".lower()
     for pattern in suspicious_patterns:
         if re.search(pattern, combined, re.IGNORECASE):
-            raise ValueError(f"Verdachte input gedetecteerd: {pattern}")
+            msg = f"Verdachte input gedetecteerd: {pattern}"
+            raise ValueError(msg)
 
     return term, definition
 
@@ -107,7 +114,6 @@ def normalize_dutch_text(text: str) -> str:
         "`": "'",  # Grave accent to apostrophe
         """: "'",   # Smart quote to apostrophe
         """: "'",
-        '"': '"',  # Smart quotes to regular
         '"': '"',
     }
 
@@ -217,9 +223,8 @@ def calculate_confidence_safe(
         confidence *= ambiguity_penalty
 
     # Ensure confidence stays in valid range
-    confidence = max(0.0, min(1.0, confidence))
+    return max(0.0, min(1.0, confidence))
 
-    return confidence
 
 
 # FIX #4: Memory-efficient batch processing
@@ -411,8 +416,7 @@ class SafeDisambiguation:
 
         try:
             # Apply disambiguation logic
-            result = self._apply_rules(term, definition, rules)
-            return result
+            return self._apply_rules(term, definition, rules)
         finally:
             self._call_stack.pop()
 
@@ -484,24 +488,28 @@ def test_fixes():
     print("\nTesting Fix #3: Input validation")
     try:
         validate_input("", "")
-        assert False, "Should have raised ValueError"
+        msg = "Should have raised ValueError"
+        raise AssertionError(msg)
     except ValueError:
         print("✓ Empty string rejected")
 
     try:
         validate_input("   ", "   ")
-        assert False, "Should have raised ValueError"
+        msg = "Should have raised ValueError"
+        raise AssertionError(msg)
     except ValueError:
         print("✓ Whitespace-only rejected")
 
     try:
         validate_input("DROP TABLE", "test")
-        assert False, "Should have raised ValueError"
+        msg = "Should have raised ValueError"
+        raise AssertionError(msg)
     except ValueError:
         print("✓ SQL injection pattern rejected")
 
     term, defn = validate_input("  test  ", "  definition  ")
-    assert term == "test" and defn == "definition"
+    assert term == "test"
+    assert defn == "definition"
     print("✓ Whitespace stripped")
 
     print("\nTesting Fix #5: Unicode normalization")

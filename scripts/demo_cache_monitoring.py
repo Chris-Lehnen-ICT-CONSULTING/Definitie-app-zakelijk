@@ -60,7 +60,7 @@ def main():
         rule_ids = list(rules1.keys())[:3]
         for rule_id in rule_ids:
             start = time.perf_counter()
-            rule = cache.get_rule(rule_id)
+            cache.get_rule(rule_id)
             duration = (time.perf_counter() - start) * 1000
             print(f"   get_rule('{rule_id}'): {duration:.2f}ms")
 

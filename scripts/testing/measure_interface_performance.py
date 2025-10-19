@@ -89,7 +89,7 @@ def measure_performance():
             # Measure interface instantiation time
             start = time.perf_counter()
             try:
-                interface = main.get_tabbed_interface()
+                main.get_tabbed_interface()
                 elapsed_ms = (time.perf_counter() - start) * 1000
 
                 results.append(
@@ -197,9 +197,8 @@ def measure_performance():
 
         return critical_passed
 
-    else:
-        print("⚠️  No cache hits recorded (only first call)")
-        return False
+    print("⚠️  No cache hits recorded (only first call)")
+    return False
 
 
 if __name__ == "__main__":

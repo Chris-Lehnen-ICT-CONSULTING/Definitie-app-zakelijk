@@ -84,7 +84,7 @@ def test_normalize_validation_always_includes_overall_score():
         result = adapter.normalize_validation(input_val)
         assert "overall_score" in result, f"Missing overall_score for {description}"
         assert isinstance(
-            result["overall_score"], (int, float)
+            result["overall_score"], int | float
         ), f"Invalid type for {description}"
         print(
             f"✓ normalize_validation({description}): overall_score = {result['overall_score']}"

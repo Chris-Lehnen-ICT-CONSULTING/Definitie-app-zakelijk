@@ -222,6 +222,7 @@ def _generate_key_from_args(func_name: str, *args, **kwargs) -> str:
     return hashlib.md5(content.encode()).hexdigest()
 
 
+import contextlib
 from typing import Optional
 
 
@@ -584,10 +585,8 @@ class CacheManager:
         # Remove files written by CacheManager
         try:
             for p in Path(self.cache_dir).glob("cm_*.pkl"):
-                try:
+                with contextlib.suppress(Exception):
                     p.unlink()
-                except Exception:
-                    pass
         except Exception:
             pass
 

@@ -117,12 +117,11 @@ def analyze_test_performance():
                             "CREATE TABLE",
                             "INSERT INTO",
                         ]
+                    ) and (
+                        "transaction" not in content.lower()
+                        and "rollback" not in content
                     ):
-                        if (
-                            "transaction" not in content.lower()
-                            and "rollback" not in content
-                        ):
-                            db_tests.append(test_file.relative_to(Path("tests")))
+                        db_tests.append(test_file.relative_to(Path("tests")))
             except:
                 pass
 

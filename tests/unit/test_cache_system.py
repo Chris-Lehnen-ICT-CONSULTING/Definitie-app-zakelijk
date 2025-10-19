@@ -134,13 +134,13 @@ class TestCacheDecorator:
         assert result1 == result2
         assert call_count == 1
 
-        result3 = test_function("hello", b="world")
+        test_function("hello", b="world")
         assert call_count == 2  # Different arguments
 
-        result4 = test_function("hello", "world", "extra")
+        test_function("hello", "world", "extra")
         assert call_count == 3  # Different arguments
 
-        result5 = test_function("hello", key="value")
+        test_function("hello", key="value")
         assert call_count == 4  # Different arguments
 
     def test_cache_key_generation(self):
@@ -521,7 +521,8 @@ class TestCacheIntegration:
 
         @cached(ttl=60)
         def error_function():
-            raise ValueError("Test error")
+            msg = "Test error"
+            raise ValueError(msg)
 
         # Error should not be cached
         with pytest.raises(ValueError):

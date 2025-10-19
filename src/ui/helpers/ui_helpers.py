@@ -106,7 +106,7 @@ def get_web_lookup():
 # === UI Feedback Helpers ===
 
 
-def show_result(success: bool, message: str, icon: str = None) -> None:
+def show_result(success: bool, message: str, icon: str | None = None) -> None:
     """
     Display a result message with appropriate styling.
 
@@ -206,9 +206,9 @@ def safe_operation(
 def create_action_button(
     label: str,
     action: Callable,
-    key: str = None,
+    key: str | None = None,
     type: str = "secondary",
-    confirm: str = None,
+    confirm: str | None = None,
     disabled: bool = False,
     **kwargs,
 ) -> Any:
@@ -244,7 +244,7 @@ def create_action_button(
 
 
 def validate_required_fields(
-    fields: dict[str, Any], field_names: dict[str, str] = None
+    fields: dict[str, Any], field_names: dict[str, str] | None = None
 ) -> tuple[bool, list[str]]:
     """
     Validate required fields and return validation status.
@@ -264,7 +264,7 @@ def validate_required_fields(
         display_name = field_names.get(field_key, field_key)
 
         if field_value is None or (
-            isinstance(field_value, (str, list, dict)) and not field_value
+            isinstance(field_value, str | list | dict) and not field_value
         ):
             errors.append(f"{display_name} is verplicht")
 
@@ -302,8 +302,8 @@ def create_select_box(
     options: list,
     key: str,
     default_index: int = 0,
-    format_func: Callable = None,
-    help: str = None,
+    format_func: Callable | None = None,
+    help: str | None = None,
 ) -> Any:
     """
     Create a selectbox with consistent styling and behavior.
@@ -324,7 +324,7 @@ def create_select_box(
 
 
 @contextmanager
-def create_section(title: str, expanded: bool = False, icon: str = None) -> Generator:
+def create_section(title: str, expanded: bool = False, icon: str | None = None) -> Generator:
     """
     Create a section with consistent styling.
 
@@ -341,7 +341,7 @@ def create_section(title: str, expanded: bool = False, icon: str = None) -> Gene
 
 
 def show_status_badge(
-    status: str, statuses_map: dict[str, tuple[str, str]] = None
+    status: str, statuses_map: dict[str, tuple[str, str]] | None = None
 ) -> None:
     """
     Display a status badge with color coding.
@@ -370,7 +370,7 @@ def show_status_badge(
 # === Tab Navigation ===
 
 
-def create_tab_navigation(tabs: dict[str, Callable], default_tab: str = None) -> None:
+def create_tab_navigation(tabs: dict[str, Callable], default_tab: str | None = None) -> None:
     """
     Create tab navigation with automatic state management.
 
@@ -394,7 +394,7 @@ def create_download_button(
     filename: str,
     label: str = "Download",
     mime: str = "text/plain",
-    key: str = None,
+    key: str | None = None,
 ) -> bool:
     """
     Create a download button with consistent styling.
@@ -410,7 +410,7 @@ def create_download_button(
 
 
 def initialize_tab(
-    tab_name: str, required_services: list[str] = None
+    tab_name: str, required_services: list[str] | None = None
 ) -> dict[str, Any]:
     """
     Initialize a tab with required services and session state.

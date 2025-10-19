@@ -304,7 +304,7 @@ class TestPromptPerformance:
                 org_context=[f"org{j}" for j in range(10)],
                 domain=[f"domain{j}" for j in range(10)],
             )
-            prompt = builder.build_prompt(
+            builder.build_prompt(
                 f"begrip{i}", context, UnifiedGeneratorConfig()
             )
 

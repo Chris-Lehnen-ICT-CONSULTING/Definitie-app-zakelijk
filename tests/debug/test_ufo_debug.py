@@ -54,7 +54,7 @@ def test_input_validation():
 def test_abstract_category():
     """Check if ABSTRACT category exists"""
     print("\n=== Testing ABSTRACT Category ===")
-    categories = [c for c in UFOCategory]
+    categories = list(UFOCategory)
     category_names = [c.name for c in categories]
     print(f"All categories: {category_names}")
     print(f"ABSTRACT in categories: {'ABSTRACT' in category_names}")

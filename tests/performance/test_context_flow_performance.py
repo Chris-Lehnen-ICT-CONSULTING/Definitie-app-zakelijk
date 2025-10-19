@@ -62,12 +62,12 @@ class PerformanceMetrics:
 class TestContextFlowPerformance:
     """Core performance tests for context flow."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def prompt_service(self):
         """Create PromptServiceV2 instance."""
         return PromptServiceV2()
 
-    @pytest.fixture()
+    @pytest.fixture
     def context_manager(self):
         """Create ContextManager instance."""
         return ContextManager()
@@ -314,7 +314,7 @@ class TestScalability:
                 for future in as_completed(futures):
                     times.append(future.result())
 
-            avg_time = statistics.mean(times)
+            statistics.mean(times)
             p95_time = sorted(times)[95]
 
             # Performance should degrade gracefully
@@ -451,7 +451,7 @@ class TestResourceUtilization:
         # Baseline CPU
         process.cpu_percent()  # First call to initialize
         time.sleep(0.1)
-        baseline_cpu = process.cpu_percent()
+        process.cpu_percent()
 
         # Process requests
         start_time = time.time()

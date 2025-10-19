@@ -54,7 +54,8 @@ def test_moderate_context_section_and_shared_contexts():
     assert out.metadata.get("formatting_level") in {"moderate", "rich"}
     # _share_traditional_context should set organization_contexts
     orgs = ctx.get_shared("organization_contexts")
-    assert isinstance(orgs, list) and orgs
+    assert isinstance(orgs, list)
+    assert orgs
 
 
 def test_rich_context_includes_sections_and_emojis():

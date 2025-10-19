@@ -22,17 +22,16 @@ from services.web_lookup.wikipedia_synonym_extractor import (
 )
 
 
-@pytest.fixture()
+@pytest.fixture
 def extractor():
     """Create WikipediaSynonymExtractor instance."""
     return WikipediaSynonymExtractor(language="nl", rate_limit_delay=0.1)
 
 
-@pytest.fixture()
+@pytest.fixture
 def mock_session():
     """Create mock aiohttp session."""
-    session = MagicMock()
-    return session
+    return MagicMock()
 
 
 def create_mock_response(status=200, json_data=None):
@@ -172,7 +171,7 @@ class TestWikipediaSynonymExtractor:
         confidence = extractor.calculate_confidence("similar_term", 100, 100)
         assert 0.0 <= confidence <= 1.0
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_rate_limit_enforced(self, extractor):
         """Test that rate limiting is enforced."""
         import time
@@ -187,7 +186,7 @@ class TestWikipediaSynonymExtractor:
         # Should have waited at least one delay period
         assert elapsed >= 0.2
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_get_redirects_success(self, extractor):
         """Test successful redirect extraction."""
         # Mock Wikipedia API response voor redirects
@@ -213,7 +212,7 @@ class TestWikipediaSynonymExtractor:
         assert len(redirects) >= 1
         assert any("Voorarrest" in r or "voorarrest" in r.lower() for r in redirects)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_get_redirects_filters_invalid(self, extractor):
         """Test that invalid redirects (categories, etc.) are filtered."""
         mock_response_data = {
@@ -241,7 +240,7 @@ class TestWikipediaSynonymExtractor:
         assert not any(r.startswith("Categorie:") for r in redirects)
         assert not any(r.startswith("Wikipedia:") for r in redirects)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_get_redirects_api_error(self, extractor):
         """Test handling of API errors during redirect extraction."""
         with patch("aiohttp.ClientSession") as mock_session_class:
@@ -258,7 +257,7 @@ class TestWikipediaSynonymExtractor:
 
             assert redirects == []
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_parse_disambiguation_success(self, extractor):
         """Test successful disambiguation page parsing."""
         # Mock response 1: Check if disambiguation
@@ -301,8 +300,7 @@ class TestWikipediaSynonymExtractor:
             call_count[0] += 1
             if call_count[0] == 1:
                 return create_mock_get_context(mock_cat_resp)
-            else:
-                return create_mock_get_context(mock_link_resp)
+            return create_mock_get_context(mock_link_resp)
 
         mock_session.get = MagicMock(side_effect=get_response)
 
@@ -313,7 +311,7 @@ class TestWikipediaSynonymExtractor:
         assert len(alternatives) >= 1
         assert any("Appel" in alt for alt in alternatives)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_parse_disambiguation_not_disambiguation_page(self, extractor):
         """Test parsing non-disambiguation page returns empty list."""
         # Mock response zonder disambiguation category
@@ -339,7 +337,7 @@ class TestWikipediaSynonymExtractor:
 
             assert alternatives == []
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_extract_synonyms_combines_sources(self, extractor):
         """Test that extract_synonyms combines redirects and disambiguation."""
         # Mock redirects response
@@ -368,8 +366,7 @@ class TestWikipediaSynonymExtractor:
             call_count[0] += 1
             if call_count[0] == 1:
                 return create_mock_get_context(mock_redirect_resp)
-            else:
-                return create_mock_get_context(mock_dis_resp)
+            return create_mock_get_context(mock_dis_resp)
 
         mock_session.get = MagicMock(side_effect=get_response)
 
@@ -381,7 +378,7 @@ class TestWikipediaSynonymExtractor:
         assert len(candidates) >= 1
         assert any(c.synoniem == "Voorarrest" for c in candidates)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_extract_synonyms_filters_low_confidence(self, extractor):
         """Test that low confidence candidates are filtered out."""
         # Mock redirects met zeer lange term (high length difference penalty)
@@ -422,7 +419,7 @@ class TestWikipediaSynonymExtractor:
             for candidate in candidates:
                 assert candidate.confidence >= 0.60
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_extract_synonyms_sorts_by_confidence(self, extractor):
         """Test that results are sorted by confidence (highest first)."""
         # Mock multiple redirects met verschillende confidence
@@ -467,7 +464,7 @@ class TestWikipediaSynonymExtractor:
 class TestStandaloneFunctions:
     """Tests voor standalone utility functies."""
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_extract_wikipedia_synonyms_standalone(self):
         """Test standalone extract_wikipedia_synonyms functie."""
         # Simply test that the function can be called
@@ -507,7 +504,7 @@ class TestStandaloneFunctions:
 class TestEdgeCases:
     """Tests voor edge cases en error scenarios."""
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_extract_synonyms_empty_term(self, extractor):
         """Test handling of empty term."""
         async with extractor:
@@ -516,7 +513,7 @@ class TestEdgeCases:
         # Should handle gracefully (API likely returns no results)
         assert isinstance(candidates, list)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_extract_synonyms_special_characters(self, extractor):
         """Test handling of terms with special characters."""
         mock_response = {"query": {"redirects": []}}
@@ -545,7 +542,7 @@ class TestEdgeCases:
             # Should handle gracefully
             assert isinstance(candidates, list)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_context_manager_cleanup(self):
         """Test that context manager properly cleans up session."""
         extractor = WikipediaSynonymExtractor()
@@ -560,7 +557,7 @@ class TestEdgeCases:
 class TestIntegrationScenarios:
     """Integration-achtige tests voor realistische scenarios."""
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_full_extraction_workflow(self, extractor):
         """Test volledig extraction workflow met meerdere bronnen."""
         # Mock complete workflow: redirects + disambiguation
@@ -605,10 +602,9 @@ class TestIntegrationScenarios:
             call_count[0] += 1
             if call_count[0] == 1:
                 return create_mock_get_context(mock_redirect_resp)
-            elif call_count[0] == 2:
+            if call_count[0] == 2:
                 return create_mock_get_context(mock_cat_resp)
-            else:
-                return create_mock_get_context(mock_link_resp)
+            return create_mock_get_context(mock_link_resp)
 
         mock_session.get = MagicMock(side_effect=get_response)
 

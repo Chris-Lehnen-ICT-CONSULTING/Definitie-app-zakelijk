@@ -1613,7 +1613,7 @@ class PatternMatcher:
             explanations.append(f"\n**{category.value}** ({len(cat_matches)} matches):")
 
             # Unieke matched texts
-            unique_texts = set(m.matched_text for m in cat_matches)
+            unique_texts = {m.matched_text for m in cat_matches}
             explanations.append(
                 f"  Gevonden termen: {', '.join(list(unique_texts)[:10])}"
             )
@@ -1623,7 +1623,7 @@ class PatternMatcher:
             explanations.append(f"  Gemiddelde zekerheid: {avg_confidence:.1%}")
 
             # Pattern sources
-            sources = set(m.context.get("source", "unknown") for m in cat_matches)
+            sources = {m.context.get("source", "unknown") for m in cat_matches}
             explanations.append(f"  Bronnen: {', '.join(sources)}")
 
         return "\n".join(explanations)

@@ -67,8 +67,8 @@ validation_registry = _Registry()
 
 
 __all__ = [
-    "ValidationResult",
     "ValidationContext",
     "ValidationOutput",
+    "ValidationResult",
     "validation_registry",
 ]

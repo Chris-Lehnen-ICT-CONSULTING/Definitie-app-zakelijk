@@ -98,8 +98,7 @@ def extract_frontmatter(md: str) -> dict[str, object]:
                     # stop at the next key/section at same or lesser indent
                     if re.match(r"^\s*[A-Za-z0-9_]+:\s*", nxt):
                         break
-                    else:
-                        break
+                    break
                 if items:
                     list_items = items
                     i = j - 1  # advance to last consumed
@@ -121,11 +120,9 @@ def parse_epics_from_value(val: str) -> list[str]:
         return []
     # If bracketed list
     if val.startswith("[") and val.endswith("]"):
-        ids = re.findall(r"EPIC-\w+", val)
-        return ids
+        return re.findall(r"EPIC-\w+", val)
     # Fallback: try to find single epic id
-    m = re.findall(r"EPIC-[A-Za-z0-9]+", val)
-    return m
+    return re.findall(r"EPIC-[A-Za-z0-9]+", val)
 
 
 def collect_requirements() -> list[dict[str, object]]:
@@ -220,7 +217,7 @@ def simple_markdown_to_html(md: str) -> str:
             item = re.sub(r"^\s*[-*]\s+", "", line).strip()
             html_lines.append(f"<li>{item}</li>")
             continue
-        elif in_ul:
+        if in_ul:
             html_lines.append("</ul>")
             in_ul = False
 
@@ -487,10 +484,7 @@ def render_collapsible_epic_view(
         badges = f"<span class='tag'>{rtype}</span> • <span class='muted'>{prio}</span> • <span class='muted'>{status}</span>"
         # build relative path from docs/backlog/dashboard
         p = str(path)
-        if p.startswith("docs/"):
-            p_rel = p[len("docs/") :]
-        else:
-            p_rel = p
+        p_rel = p[len("docs/"):] if p.startswith("docs/") else p
         return (
             f"<li data-status='{status}' data-priority='{prio}'>"
             f"<a href='../../{p_rel}'>{rid}</a> — {title} <span class='muted'>({badges})</span>"

@@ -23,8 +23,7 @@ def _make_validator(monkeypatch, count_return: int):
     monkeypatch.setattr(con01_mod, "DefinitieRepository", FakeRepo)
 
     # Build validator
-    validator = con01_mod.create_validator()
-    return validator
+    return con01_mod.create_validator()
 
 
 def test_con01_fails_when_multiple_definitions_same_context(monkeypatch):

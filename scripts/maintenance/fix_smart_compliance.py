@@ -7,6 +7,7 @@ Ensures all documentation meets SMART criteria standards
 import logging
 import re
 import shutil
+import sys
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
@@ -273,60 +274,54 @@ class SMARTComplianceFixer:
         """Generate specific criterion suggestion"""
         if file_type == "story":
             return "De gebruiker moet exact [ACTIE] kunnen uitvoeren met [RESULTAAT]"
-        elif file_type == "epic":
+        if file_type == "epic":
             return (
                 "Het systeem levert [COMPONENT] met [FUNCTIONALITEIT] voor [DOELGROEP]"
             )
-        else:
-            return "De requirement specificeert dat [SYSTEEM] moet [GEDRAG]"
+        return "De requirement specificeert dat [SYSTEEM] moet [GEDRAG]"
 
     def generate_measurable_suggestion(self, file_type: str) -> str:
         """Generate measurable criterion suggestion"""
         if file_type == "story":
             return "Response tijd < 2 seconden, Success rate > 99%, Gebruikerstevredenheid > 8/10"
-        elif file_type == "epic":
+        if file_type == "epic":
             return "80% reductie in verwerkingstijd, 95% gebruikersadoptie binnen 3 maanden"
-        else:
-            return "Performance: < 100ms latency, > 1000 TPS, 99.9% uptime"
+        return "Performance: < 100ms latency, > 1000 TPS, 99.9% uptime"
 
     def generate_achievable_suggestion(self, file_type: str) -> str:
         """Generate achievable criterion suggestion"""
         if file_type == "story":
             return "Implementeerbaar met bestaande Python/FastAPI stack binnen 5 story points"
-        elif file_type == "epic":
+        if file_type == "epic":
             return "Gefaseerde rollout over 3 sprints met bestaand team en budget"
-        else:
-            return "Technisch haalbaar met huidige architectuur en resources"
+        return "Technisch haalbaar met huidige architectuur en resources"
 
     def generate_relevant_suggestion(self, file_type: str) -> str:
         """Generate relevant criterion suggestion"""
         if file_type == "story":
             return "Ondersteunt juridisch medewerkers bij OM/DJI/Rechtspraak in dagelijks werk"
-        elif file_type == "epic":
+        if file_type == "epic":
             return "Strategisch doel: Digitalisering justitieketen conform Digitale Agenda 2025"
-        else:
-            return "Voldoet aan ASTRA/NORA/BIR compliance vereisten voor justitiesector"
+        return "Voldoet aan ASTRA/NORA/BIR compliance vereisten voor justitiesector"
 
     def generate_timebound_suggestion(self, file_type: str) -> str:
         """Generate time-bound criterion suggestion"""
         current_sprint = 23  # Example current sprint
         if file_type == "story":
             return f"Gereed in Sprint {current_sprint + 1}, deployment in Sprint {current_sprint + 2}"
-        elif file_type == "epic":
+        if file_type == "epic":
             return "Q1 2025: Design, Q2 2025: Development, Q3 2025: Rollout"
-        else:
-            return "Implementatie deadline: 2025-06-30, Go-live: 2025-07-01"
+        return "Implementatie deadline: 2025-06-30, Go-live: 2025-07-01"
 
     def determine_file_type(self, file_path: Path) -> str:
         """Determine the type of documentation file"""
         if "US-" in file_path.name or "story" in str(file_path).lower():
             return "story"
-        elif "EPIC-" in file_path.name or "epic" in str(file_path).lower():
+        if "EPIC-" in file_path.name or "epic" in str(file_path).lower():
             return "epic"
-        elif "REQ-" in file_path.name or "requirement" in str(file_path).lower():
+        if "REQ-" in file_path.name or "requirement" in str(file_path).lower():
             return "requirement"
-        else:
-            return "generic"
+        return "generic"
 
     def add_smart_section(
         self, content: str, file_path: Path, missing_criteria: list[SMARTCriterion]
@@ -395,7 +390,7 @@ class SMARTComplianceFixer:
         response_time = 2 if int(story_id) < 20 else 1
         success_rate = 99 if int(story_id) < 10 else 99.5
 
-        section = self.templates.STORY_TEMPLATE.format(
+        return self.templates.STORY_TEMPLATE.format(
             specific_details=f"Gebruiker story US-{story_id} implementeert specifieke functionaliteit",
             response_time=response_time,
             throughput=100 * (int(story_id) % 10 + 1),
@@ -411,7 +406,6 @@ class SMARTComplianceFixer:
             go_live_date=f"2025-{(sprint_num % 12) + 1:02d}-15",
         )
 
-        return section
 
     def generate_epic_smart_section(
         self, file_path: Path, missing_criteria: list[SMARTCriterion]
@@ -421,7 +415,7 @@ class SMARTComplianceFixer:
         epic_num = re.search(r"EPIC-(\d+)", file_path.name)
         epic_id = epic_num.group(1) if epic_num else "001"
 
-        section = self.templates.EPIC_TEMPLATE.format(
+        return self.templates.EPIC_TEMPLATE.format(
             deliverable_1=f"Core functionality for Epic {epic_id}",
             deliverable_2="Integration with existing justice systems",
             deliverable_3="Documentation and training materials",
@@ -445,7 +439,6 @@ class SMARTComplianceFixer:
             benefits_date="2025-10-01",
         )
 
-        return section
 
     def generate_requirement_smart_section(
         self, file_path: Path, missing_criteria: list[SMARTCriterion]
@@ -455,7 +448,7 @@ class SMARTComplianceFixer:
         req_num = re.search(r"REQ-(\d+)", file_path.name)
         req_id = req_num.group(1) if req_num else "001"
 
-        section = self.templates.REQUIREMENT_TEMPLATE.format(
+        return self.templates.REQUIREMENT_TEMPLATE.format(
             functional_spec=f"System must implement requirement REQ-{req_id}",
             nonfunctional_spec="Performance, Security, Usability standards",
             constraints="ASTRA/NORA/BIR compliance",
@@ -473,7 +466,6 @@ class SMARTComplianceFixer:
             release_version=f"v2.{int(req_id) // 20}",
         )
 
-        return section
 
     def generate_generic_smart_section(
         self, missing_criteria: list[SMARTCriterion]
@@ -540,16 +532,15 @@ class SMARTComplianceFixer:
 
         if criterion == SMARTCriterion.SPECIFIC:
             return self.generate_specific_suggestion(file_type)
-        elif criterion == SMARTCriterion.MEASURABLE:
+        if criterion == SMARTCriterion.MEASURABLE:
             return self.generate_measurable_suggestion(file_type)
-        elif criterion == SMARTCriterion.ACHIEVABLE:
+        if criterion == SMARTCriterion.ACHIEVABLE:
             return self.generate_achievable_suggestion(file_type)
-        elif criterion == SMARTCriterion.RELEVANT:
+        if criterion == SMARTCriterion.RELEVANT:
             return self.generate_relevant_suggestion(file_type)
-        elif criterion == SMARTCriterion.TIME_BOUND:
+        if criterion == SMARTCriterion.TIME_BOUND:
             return self.generate_timebound_suggestion(file_type)
-        else:
-            return "- [TO BE ADDED]"
+        return "- [TO BE ADDED]"
 
     def find_smart_insertion_point(self, content: str) -> str | None:
         """Find the best location to insert SMART section"""
@@ -660,7 +651,7 @@ class SMARTComplianceFixer:
             self.stats["errors"].append(error_msg)
             return SMARTAnalysis(
                 file_path=file_path,
-                criteria_met={c: False for c in SMARTCriterion},
+                criteria_met=dict.fromkeys(SMARTCriterion, False),
                 score=0,
                 missing_criteria=list(SMARTCriterion),
                 suggestions={},
@@ -737,7 +728,7 @@ class SMARTComplianceFixer:
         # Criterion-specific analysis
         report.append("CRITERION ANALYSIS")
         report.append("-" * 40)
-        criterion_stats = {c: 0 for c in SMARTCriterion}
+        criterion_stats = dict.fromkeys(SMARTCriterion, 0)
         for result in results:
             for criterion, met in result.criteria_met.items():
                 if met:
@@ -863,4 +854,4 @@ def main():
 
 
 if __name__ == "__main__":
-    exit(main())
+    sys.exit(main())

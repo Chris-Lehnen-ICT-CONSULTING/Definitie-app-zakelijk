@@ -252,7 +252,7 @@ def simplified_ui_integration_example():
         )
 
         # BESTAAND: Genereer definitie (met classificatie)
-        request = GenerationRequest(
+        GenerationRequest(
             begrip=begrip,
             ontologische_categorie=classification.to_string_level(),  # ← Enige wijziging
             organisatorische_context=org_context,
@@ -261,7 +261,7 @@ def simplified_ui_integration_example():
         )
 
         # Rest van bestaande generatie code...
-        orchestrator = container.orchestrator()
+        container.orchestrator()
         # await orchestrator.create_definition(request)
 
 

@@ -153,7 +153,7 @@ async def test_voorbeelden_generatie():
             from voorbeelden.unified_voorbeelden import get_examples_generator
 
             generator = get_examples_generator()
-            result = await generator.generate_examples_async(request)
+            await generator.generate_examples_async(request)
             elapsed = time.time() - start
             return (i, True, elapsed)
         except Exception:

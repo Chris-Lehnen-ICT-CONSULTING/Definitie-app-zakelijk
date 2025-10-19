@@ -76,7 +76,7 @@ class VoorbeeldenDebugger:
         for key, value in kwargs.items():
             if value is None:
                 logger.debug(f"[{generation_id}]   {key}: None")
-            elif isinstance(value, (list, tuple)):
+            elif isinstance(value, list | tuple):
                 logger.debug(f"[{generation_id}]   {key}: {len(value)} items")
             elif isinstance(value, dict):
                 logger.debug(f"[{generation_id}]   {key}: {len(value)} keys")
@@ -125,7 +125,7 @@ class VoorbeeldenDebugger:
                         )
                         # Log each key's count
                         for k, v in value.items():
-                            if isinstance(v, (list, tuple)):
+                            if isinstance(v, list | tuple):
                                 logger.debug(
                                     f"[{generation_id}]     - {k}: {len(v)} items"
                                 )
@@ -133,7 +133,7 @@ class VoorbeeldenDebugger:
                                 logger.debug(
                                     f"[{generation_id}]     - {k}: {len(v)} chars"
                                 )
-                    elif isinstance(value, (list, tuple)):
+                    elif isinstance(value, list | tuple):
                         logger.debug(
                             f"[{generation_id}]   st.session_state.{key}: {len(value)} items"
                         )
@@ -221,7 +221,7 @@ class VoorbeeldenDebugger:
         if results:
             logger.debug(f"[{generation_id}] Results summary:")
             for key, value in results.items():
-                if isinstance(value, (list, tuple)):
+                if isinstance(value, list | tuple):
                     logger.debug(f"[{generation_id}]   {key}: {len(value)} items")
                 elif isinstance(value, str):
                     logger.debug(f"[{generation_id}]   {key}: {len(value)} chars")

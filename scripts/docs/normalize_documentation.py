@@ -136,16 +136,11 @@ class DocumentNormalizer:
         if filepath.suffix != ".md":
             return False
         # Skip backup bestanden
-        if filepath.name.endswith(".backup") or filepath.name.endswith(
-            ".linkfix_backup"
-        ):
-            return False
-        return True
+        return not (filepath.name.endswith(".backup") or filepath.name.endswith(".linkfix_backup"))
 
     def normalize_content(self, content: str, filepath: Path) -> tuple[str, bool]:
         """Normaliseer de inhoud van een document."""
         original = content
-        modified = False
 
         # 1. Vervang Engelse termen
         for eng, nl in TRANSLATIONS.items():
@@ -166,7 +161,6 @@ class DocumentNormalizer:
                     count = content.count(eng)
                     self.stats["translations"][f"{eng} → {nl}"] += count
                     content = new_content
-                    modified = True
 
         # 2. Corrigeer typefouten
         for typo, correct in TYPO_FIXES.items():
@@ -174,7 +168,6 @@ class DocumentNormalizer:
                 count = content.count(typo)
                 content = content.replace(typo, correct)
                 self.stats["typos"][f"{typo} → {correct}"] += count
-                modified = True
 
         # 3. Harmoniseer justice terminologie
         for term, standard in JUSTICE_TERMS.items():
@@ -183,7 +176,6 @@ class DocumentNormalizer:
             if matches:
                 content = re.sub(pattern, standard, content, flags=re.IGNORECASE)
                 self.stats["justice_terms"][f"{term} → {standard}"] += len(matches)
-                modified = True
 
         # 4. Standaardiseer datum formaten
         for pattern, replacement in DATE_PATTERNS:
@@ -191,7 +183,6 @@ class DocumentNormalizer:
             if matches:
                 content = re.sub(pattern, replacement, content)
                 self.stats["date_formats"]["datum formaat"] += len(matches)
-                modified = True
 
         # 5. Specifieke epic/story normalisaties
         if "US-" in str(filepath) or "EPIC-" in str(filepath):

@@ -61,7 +61,7 @@ class TestPerformanceBenchmarks:
                 choices=[MagicMock(message=MagicMock(content="Test response"))]
             )
 
-            async_manager = AsyncGPTClient()
+            AsyncGPTClient()
 
             # Test sequential vs parallel performance
             requests = [
@@ -74,7 +74,7 @@ class TestPerformanceBenchmarks:
 
             # Sequential timing
             start_time = time.time()
-            for request in requests:
+            for _request in requests:
                 # Simulate sequential calls
                 time.sleep(0.01)  # Simulate API delay
             sequential_time = time.time() - start_time
@@ -258,23 +258,14 @@ class TestLoadTesting:
                 choices=[MagicMock(message=MagicMock(content="Test response"))]
             )
 
-            async_manager = AsyncGPTClient()
+            AsyncGPTClient()
             results = []
             errors = []
 
             def api_worker(worker_id, num_calls):
                 try:
-                    for i in range(num_calls):
+                    for _i in range(num_calls):
                         # Simulate API call
-                        request = {
-                            "model": "gpt-4",
-                            "messages": [
-                                {
-                                    "role": "user",
-                                    "content": f"Worker {worker_id} call {i}",
-                                }
-                            ],
-                        }
 
                         # This would normally be async, but we'll simulate
                         time.sleep(0.001)  # Simulate processing time
@@ -349,7 +340,7 @@ class TestLoadTesting:
             value = f"stress_value_{operations}"
 
             cache_manager.set(key, value, ttl=60)
-            retrieved = cache_manager.get(key)
+            cache_manager.get(key)
 
             operations += 1
 
@@ -415,7 +406,7 @@ class TestOptimizationEffectiveness:
 
             # Test sequential execution
             start_time = time.time()
-            for i in range(5):
+            for _i in range(5):
                 # Simulate sequential API calls
                 time.sleep(0.1)
             sequential_time = time.time() - start_time
@@ -446,7 +437,8 @@ class TestOptimizationEffectiveness:
             nonlocal failure_count
             failure_count += 1
             if failure_count < 3:
-                raise Exception("Temporary failure")
+                msg = "Temporary failure"
+                raise Exception(msg)
             return "Success"
 
         # Test resilience
@@ -468,7 +460,7 @@ class TestOptimizationEffectiveness:
         successful_requests = 0
         rejected_requests = 0
 
-        for i in range(100):
+        for _i in range(100):
             if rate_limiter.can_proceed():
                 successful_requests += 1
             else:

@@ -23,12 +23,12 @@ class TestUFOClassifierCorrectness:
     Alle 16 UFO categorieën worden getest met Nederlandse juridische voorbeelden.
     """
 
-    @pytest.fixture()
+    @pytest.fixture
     def classifier(self):
         """Maak een UFOClassifierService instance voor tests."""
         return UFOClassifierService()
 
-    @pytest.fixture()
+    @pytest.fixture
     def test_definitions(self) -> list[tuple[str, str, UFOCategory]]:
         """
         Complete set test definities met verwachte categorieën.
@@ -462,7 +462,7 @@ class TestUFOClassifierCorrectness:
         assert (
             UFOCategory.KIND in result.secondary_categories
             or UFOCategory.ROLE
-            in [result.primary_category] + result.secondary_categories
+            in [result.primary_category, *result.secondary_categories]
         )
 
     def test_legal_domain_recognition(self, classifier):
@@ -571,7 +571,7 @@ class TestUFOClassifierCorrectness:
 
         for term, definition in test_cases:
             start = time.time()
-            result = classifier.classify(term, definition)
+            classifier.classify(term, definition)
             elapsed = (time.time() - start) * 1000  # Convert to ms
             times.append(elapsed)
 
@@ -597,7 +597,7 @@ class TestUFOClassifierCorrectness:
 class TestPatternMatcher:
     """Test de PatternMatcher component."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def matcher(self):
         return PatternMatcher()
 
@@ -690,7 +690,7 @@ class TestAccuracyBenchmark:
     Gebruikt een uitgebreide set van realistische Nederlandse juridische definities.
     """
 
-    @pytest.fixture()
+    @pytest.fixture
     def benchmark_set(self) -> list[tuple[str, str, UFOCategory]]:
         """Uitgebreide benchmark set met 100+ definities."""
         return [
@@ -743,7 +743,7 @@ class TestAccuracyBenchmark:
             # Continue met meer cases...
         ]
 
-    @pytest.mark.slow()
+    @pytest.mark.slow
     def test_benchmark_accuracy(self, classifier, benchmark_set):
         """
         Test op grote benchmark set voor 95% precisie validatie.

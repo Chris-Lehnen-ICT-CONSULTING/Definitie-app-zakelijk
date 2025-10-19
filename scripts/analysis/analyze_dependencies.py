@@ -8,7 +8,7 @@ interface_users = []
 external_deps = Counter()
 
 # Parse each file
-for root, dirs, files in os.walk("src/services"):
+for root, _dirs, files in os.walk("src/services"):
     for file in files:
         if file.endswith(".py") and file != "__init__.py":
             service_name = file[:-3]
@@ -103,7 +103,7 @@ links = []
 node_set = set()
 
 # Add all services as nodes
-for service in service_imports.keys():
+for service in service_imports:
     node_set.add(service)
     for imported in service_imports[service]:
         node_set.add(imported)

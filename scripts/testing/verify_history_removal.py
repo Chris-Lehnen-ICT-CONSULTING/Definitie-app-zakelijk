@@ -9,6 +9,7 @@ Usage:
 """
 
 import argparse
+import contextlib
 import json
 import re
 import sqlite3
@@ -166,9 +167,8 @@ class HistoryRemovalVerifier:
         if not issues:
             print("  ✅ No History tab remnants found")
             return True
-        else:
-            self.results["errors"].extend(issues)
-            return False
+        self.results["errors"].extend(issues)
+        return False
 
     def _test_imports(self) -> bool:
         """Test that all imports work correctly."""
@@ -300,10 +300,9 @@ class HistoryRemovalVerifier:
                             f"History session keys: {suspicious}"
                         )
                         return False
-                    else:
-                        print(
-                            f"  ✅ Session state clean (found {len(history_keys)} legacy keys, but not tab-related)"
-                        )
+                    print(
+                        f"  ✅ Session state clean (found {len(history_keys)} legacy keys, but not tab-related)"
+                    )
                 else:
                     print("  ✅ No history keys in session state")
 
@@ -400,10 +399,8 @@ class HistoryRemovalVerifier:
         """Measure import time and memory usage."""
         # Import time
         start = time.time()
-        try:
+        with contextlib.suppress(Exception):
             from src.ui.tabbed_interface import TabbedInterface
-        except:
-            pass
         import_time = time.time() - start
 
         # Memory usage
@@ -442,12 +439,11 @@ class HistoryRemovalVerifier:
             if result.returncode == 0:
                 print("  ✅ All tests passed")
                 return True
-            else:
-                print(f"  ⚠️  Some tests failed (exit code: {result.returncode})")
-                if result.stdout:
-                    print(f"     Output: {result.stdout[:200]}...")
-                self.results["warnings"].append("Some pytest tests failed")
-                return True  # Not a hard failure
+            print(f"  ⚠️  Some tests failed (exit code: {result.returncode})")
+            if result.stdout:
+                print(f"     Output: {result.stdout[:200]}...")
+            self.results["warnings"].append("Some pytest tests failed")
+            return True  # Not a hard failure
 
         except Exception as e:
             print(f"  ⚠️  Could not run tests: {e}")

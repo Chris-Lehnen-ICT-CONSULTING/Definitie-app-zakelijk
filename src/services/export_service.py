@@ -101,8 +101,9 @@ class ExportService:
 
         # Validatiegate alleen via async pad ondersteund
         if self.enable_validation_gate and self.validation_orchestrator is not None:
+            msg = "Export validatiegate vereist async pad. Roep export_definitie_async aan vanuit de UI via async_bridge."
             raise NotImplementedError(
-                "Export validatiegate vereist async pad. Roep export_definitie_async aan vanuit de UI via async_bridge."
+                msg
             )
 
         # Export naar gekozen formaat
@@ -143,10 +144,12 @@ class ExportService:
                     context=None,
                 )
             except Exception as e:  # pragma: no cover - defensive
-                raise ValueError(f"Validatie mislukt vóór export: {e!s}")
+                msg = f"Validatie mislukt vóór export: {e!s}"
+                raise ValueError(msg)
             if not isinstance(result, dict) or not result.get("is_acceptable", False):
+                msg = "Export geblokkeerd: definitie niet acceptabel volgens validatiegate"
                 raise ValueError(
-                    "Export geblokkeerd: definitie niet acceptabel volgens validatiegate"
+                    msg
                 )
 
         # Export uitvoeren
@@ -156,7 +159,8 @@ class ExportService:
             return self._export_to_json(export_data)
         if format == ExportFormat.CSV:
             return self._export_to_csv(export_data)
-        raise NotImplementedError(f"Export formaat {format} nog niet geïmplementeerd")
+        msg = f"Export formaat {format} nog niet geïmplementeerd"
+        raise NotImplementedError(msg)
 
     def _export_to_txt(self, export_data: DefinitieExportData) -> str:
         """

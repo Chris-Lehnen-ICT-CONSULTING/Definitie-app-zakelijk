@@ -11,7 +11,8 @@ class FailingValidationService:
     async def validate_definition(
         self, begrip: str, text: str, ontologische_categorie=None, context=None
     ):
-        raise RuntimeError("boom")
+        msg = "boom"
+        raise RuntimeError(msg)
 
 
 class NoopCleaning:
@@ -25,7 +26,7 @@ class NoopCleaning:
         return True
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_orchestrator_returns_schema_compliant_degraded_result(tmp_path):
     orch: ValidationOrchestratorInterface = ValidationOrchestratorV2(
         validation_service=FailingValidationService(), cleaning_service=NoopCleaning()

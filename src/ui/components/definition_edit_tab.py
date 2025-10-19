@@ -396,7 +396,7 @@ class DefinitionEditTab:
 
         # Begrip field
         status_code = definition.metadata.get("status") if definition.metadata else None
-        disabled = True if status_code in ("established", "archived") else False
+        disabled = status_code in ("established", "archived")
 
         begrip = st.text_input(
             "Begrip",
@@ -620,7 +620,7 @@ class DefinitionEditTab:
                 status_options,
                 index=status_index,
                 key=k("status"),
-                disabled=True if disabled else False,
+                disabled=bool(disabled),
                 help="De huidige status van de definitie",
             )
 

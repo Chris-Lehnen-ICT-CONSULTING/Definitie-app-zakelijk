@@ -131,7 +131,7 @@ class TestArchitectureConsolidation:
 
             for link_text, link_target in matches:
                 # Skip external URLs and anchors
-                if link_target.startswith("http") or link_target.startswith("#"):
+                if link_target.startswith(("http", "#")):
                     continue
 
                 # Resolve relative paths
@@ -248,7 +248,7 @@ class TestArchitectureConsolidation:
 
         potential_duplicates = []
 
-        for root, dirs, files in os.walk(docs_dir):
+        for root, _dirs, files in os.walk(docs_dir):
             # Skip archive directories
             if "archief" in root or "archive" in root:
                 continue

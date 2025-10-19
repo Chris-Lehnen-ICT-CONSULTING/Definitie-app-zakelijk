@@ -9,6 +9,7 @@ Test coverage:
 - Database persistence
 """
 
+import contextlib
 import os
 import tempfile
 import time
@@ -24,7 +25,7 @@ from src.monitoring.performance_tracker import (
 )
 
 
-@pytest.fixture()
+@pytest.fixture
 def temp_db():
     """Fixture voor tijdelijke database."""
     with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as f:
@@ -33,13 +34,11 @@ def temp_db():
     yield db_path
 
     # Cleanup
-    try:
+    with contextlib.suppress(Exception):
         os.unlink(db_path)
-    except Exception:
-        pass
 
 
-@pytest.fixture()
+@pytest.fixture
 def tracker(temp_db):
     """Fixture voor performance tracker met tijdelijke database."""
     return PerformanceTracker(temp_db)
@@ -127,14 +126,14 @@ class TestPerformanceTracker:
         assert baseline.confidence == 0.25  # 5/20
 
         # 10 samples = 50% confidence
-        for i in range(5, 10):
+        for _i in range(5, 10):
             tracker.track_metric("test_metric", 100.0)
 
         baseline = tracker.get_baseline("test_metric")
         assert baseline.confidence == 0.5  # 10/20
 
         # 20 samples = 100% confidence
-        for i in range(10, 20):
+        for _i in range(10, 20):
             tracker.track_metric("test_metric", 100.0)
 
         baseline = tracker.get_baseline("test_metric")
@@ -143,7 +142,7 @@ class TestPerformanceTracker:
     def test_regression_detection_critical(self, tracker):
         """Test CRITICAL regression detection (>20% slechter)."""
         # Maak baseline van 100
-        for i in range(10):
+        for _i in range(10):
             tracker.track_metric("test_metric", 100.0)
 
         # Test waarde 25% slechter = CRITICAL
@@ -153,7 +152,7 @@ class TestPerformanceTracker:
     def test_regression_detection_warning(self, tracker):
         """Test WARNING regression detection (>10% slechter)."""
         # Maak baseline van 100
-        for i in range(10):
+        for _i in range(10):
             tracker.track_metric("test_metric", 100.0)
 
         # Test waarde 15% slechter = WARNING
@@ -163,7 +162,7 @@ class TestPerformanceTracker:
     def test_regression_detection_ok(self, tracker):
         """Test dat geen alert wordt gegeven bij acceptabele waarden."""
         # Maak baseline van 100
-        for i in range(10):
+        for _i in range(10):
             tracker.track_metric("test_metric", 100.0)
 
         # Test waarde 5% slechter = OK
@@ -177,7 +176,7 @@ class TestPerformanceTracker:
     def test_regression_no_alert_low_confidence(self, tracker):
         """Test dat geen alert wordt gegeven bij lage confidence."""
         # Maak baseline met lage confidence (8 samples = 40%)
-        for i in range(8):
+        for _i in range(8):
             tracker.track_metric("test_metric", 100.0)
 
         # Test waarde 25% slechter, maar confidence < 50%

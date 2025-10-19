@@ -140,7 +140,8 @@ class SynonymMigration:
 
         # Verify database exists
         if not self.db_path.exists():
-            raise FileNotFoundError(f"Database not found: {self.db_path}")
+            msg = f"Database not found: {self.db_path}"
+            raise FileNotFoundError(msg)
 
         self.registry = SynonymRegistry(str(self.db_path))
         self.stats = MigrationStatistics()
@@ -649,11 +650,10 @@ class SynonymMigration:
         # Fall back to comma-separated or newline-separated
         if "," in text:
             return [s.strip() for s in text.split(",") if s.strip()]
-        elif "\n" in text:
+        if "\n" in text:
             return [s.strip() for s in text.split("\n") if s.strip()]
-        else:
-            # Single term
-            return [text.strip()] if text.strip() else []
+        # Single term
+        return [text.strip()] if text.strip() else []
 
     def _validate_migration(self) -> dict[str, Any]:
         """

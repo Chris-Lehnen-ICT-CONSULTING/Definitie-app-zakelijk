@@ -7,6 +7,7 @@ Checks for overlap, validates cross-references, ensures proper separation
 import difflib
 import json
 import re
+import sys
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
@@ -39,7 +40,7 @@ class CrossReference:
 class ArchitectureValidator:
     """Validates architecture document consistency and compliance"""
 
-    def __init__(self, project_root: Path = None):
+    def __init__(self, project_root: Path | None = None):
         self.project_root = project_root or Path.cwd()
         self.arch_root = self.project_root / "docs" / "architectuur"
         self.results: list[ValidationResult] = []
@@ -394,15 +395,13 @@ class ArchitectureValidator:
         clean_content = re.sub(r"```[\s\S]*?```", "", content)
         clean_content = re.sub(r"^#+.*$", "", clean_content, flags=re.MULTILINE)
 
-        paragraphs = [
+        return [
             p.strip() for p in clean_content.split("\n\n") if len(p.strip()) > 50
         ]
-        return paragraphs
 
     def _extract_sections(self, content: str) -> list[str]:
         """Extract section headers from markdown"""
-        headers = re.findall(r"^#+\s+(.+)$", content, re.MULTILINE)
-        return headers
+        return re.findall(r"^#+\s+(.+)$", content, re.MULTILINE)
 
     def _find_cross_references(
         self, content: str, source_type: str
@@ -478,9 +477,8 @@ class ArchitectureValidator:
                 current_section = line.strip()
             elif current_section and any(
                 indicator in line.lower() for indicator in technical_indicators
-            ):
-                if current_section not in sections:
-                    sections.append(current_section)
+            ) and current_section not in sections:
+                sections.append(current_section)
 
         return sections
 
@@ -501,9 +499,8 @@ class ArchitectureValidator:
                 current_section = line.strip()
             elif current_section and any(
                 indicator in line.lower() for indicator in business_indicators
-            ):
-                if current_section not in sections:
-                    sections.append(current_section)
+            ) and current_section not in sections:
+                sections.append(current_section)
 
         return sections
 
@@ -513,7 +510,7 @@ class ArchitectureValidator:
         warnings = [r for r in self.results if r.status == "warning"]
         passed = [r for r in self.results if r.status == "pass"]
 
-        report = {
+        return {
             "timestamp": datetime.now().isoformat(),
             "summary": {
                 "total_checks": len(self.results),
@@ -529,7 +526,6 @@ class ArchitectureValidator:
             "passed": [self._result_to_dict(r) for r in passed],
         }
 
-        return report
 
     def _result_to_dict(self, result: ValidationResult) -> dict[str, any]:
         """Convert ValidationResult to dictionary"""
@@ -542,7 +538,7 @@ class ArchitectureValidator:
             "line": result.line_number,
         }
 
-    def save_report(self, report: dict[str, any], output_file: Path = None):
+    def save_report(self, report: dict[str, any], output_file: Path | None = None):
         """Save validation report to file"""
         if output_file is None:
             output_file = self.arch_root / "validation-report.json"
@@ -602,11 +598,11 @@ def main():
 
     # Exit with error code if validation failed
     if report["summary"]["overall_status"] == "error":
-        exit(1)
+        sys.exit(1)
     elif report["summary"]["overall_status"] == "warning" and not args.quiet:
-        exit(2)
+        sys.exit(2)
     else:
-        exit(0)
+        sys.exit(0)
 
 
 if __name__ == "__main__":

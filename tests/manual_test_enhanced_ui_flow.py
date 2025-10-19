@@ -233,7 +233,7 @@ def test_definition_comparison_logic():
         from ui.components.definition_generator_tab import DefinitionGeneratorTab
 
         mock_checker = Mock()
-        tab = DefinitionGeneratorTab(mock_checker)
+        DefinitionGeneratorTab(mock_checker)
 
         # Test with dict result (new service format)
         new_result_dict = {
@@ -242,7 +242,6 @@ def test_definition_comparison_logic():
             "success": True,
         }
 
-        old_definition = "Een proces waarbij documenten worden gecontroleerd"
 
         # This would normally render UI, but we can test the logic
         # by checking what would be extracted

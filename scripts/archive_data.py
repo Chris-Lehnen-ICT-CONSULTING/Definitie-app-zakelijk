@@ -49,7 +49,8 @@ class DataArchiver:
 
         # Validate source database
         if not self.source_db.exists():
-            raise FileNotFoundError(f"Source database not found: {self.source_db}")
+            msg = f"Source database not found: {self.source_db}"
+            raise FileNotFoundError(msg)
 
         # Ensure archive directory exists
         self.archive_db.parent.mkdir(parents=True, exist_ok=True)
@@ -83,7 +84,7 @@ class DataArchiver:
         source_conn: sqlite3.Connection,
         archive_conn: sqlite3.Connection,
         cutoff_date: datetime,
-        status_filter: list[str] = None,
+        status_filter: list[str] | None = None,
     ) -> tuple[int, int]:
         """
         Archive old definitions.
@@ -346,7 +347,7 @@ class DataArchiver:
         return "\n".join(report)
 
     def run(
-        self, days: int, status_filter: list[str] = None, delete_source: bool = False
+        self, days: int, status_filter: list[str] | None = None, delete_source: bool = False
     ) -> int:
         """
         Execute the archive process.

@@ -54,5 +54,5 @@ def test_lookup_error_type_contains_expected_members():
         "INVALID_RESPONSE",
     }
 
-    members = set([m.name for m in LookupErrorType])
+    members = {m.name for m in LookupErrorType}
     assert expected.issubset(members), f"Missing error types: {expected - members}"

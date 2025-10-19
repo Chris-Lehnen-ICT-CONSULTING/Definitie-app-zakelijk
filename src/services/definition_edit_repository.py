@@ -5,6 +5,7 @@ This module provides additional repository methods needed for the
 definition edit interface, including version history and optimistic locking.
 """
 
+import contextlib
 import json
 import logging
 import sqlite3
@@ -77,12 +78,10 @@ class DefinitionEditRepository(DefinitionRepository):
 
                     # Parse JSON context snapshot
                     if entry.get("context_snapshot"):
-                        try:
+                        with contextlib.suppress(json.JSONDecodeError):
                             entry["context_snapshot"] = json.loads(
                                 entry["context_snapshot"]
                             )
-                        except json.JSONDecodeError:
-                            pass
 
                     history.append(entry)
 
@@ -97,7 +96,7 @@ class DefinitionEditRepository(DefinitionRepository):
     def save_with_history(
         self,
         definition: Definition,
-        wijziging_reden: str = None,
+        wijziging_reden: str | None = None,
         gewijzigd_door: str = "system",
     ) -> int:
         """
@@ -302,13 +301,13 @@ class DefinitionEditRepository(DefinitionRepository):
 
     def search_with_filters(
         self,
-        search_term: str = None,
-        categorie: str = None,
-        status: str = None,
-        context_filter: str = None,
-        date_from: datetime = None,
-        date_to: datetime = None,
-        source_type: str = None,
+        search_term: str | None = None,
+        categorie: str | None = None,
+        status: str | None = None,
+        context_filter: str | None = None,
+        date_from: datetime | None = None,
+        date_to: datetime | None = None,
+        source_type: str | None = None,
         limit: int = 50,
     ) -> list[Definition]:
         """
@@ -515,12 +514,10 @@ class DefinitionEditRepository(DefinitionRepository):
             value = row[idx]
 
             # Convert datetime strings
-            if col_name.endswith("_op") or col_name.endswith("_at"):
+            if col_name.endswith(("_op", "_at")):
                 if value and isinstance(value, str):
-                    try:
+                    with contextlib.suppress(ValueError, TypeError):
                         value = datetime.fromisoformat(value)
-                    except (ValueError, TypeError):
-                        pass
 
             result[col_name] = value
 

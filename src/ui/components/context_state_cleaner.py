@@ -19,29 +19,7 @@ class ContextStateCleaner:
         Dit voorkomt "default not in options" errors.
         """
         # Basis opties voor validatie
-        base_org_options = [
-            "OM",
-            "ZM",
-            "Reclassering",
-            "DJI",
-            "NP",
-            "Justid",
-            "KMAR",
-            "FIOD",
-            "CJIB",
-            "Strafrechtketen",
-            "Migratieketen",
-            "Justitie en Veiligheid",
-        ]
 
-        base_jur_options = [
-            "Strafrecht",
-            "Civiel recht",
-            "Bestuursrecht",
-            "Internationaal recht",
-            "Europees recht",
-            "Migratierecht",
-        ]
 
         base_wet_options = [
             "Wetboek van Strafvordering (huidig)",
@@ -56,7 +34,7 @@ class ContextStateCleaner:
         if "org_context_values" in st.session_state:
             original = st.session_state.org_context_values.copy()
             # Verwijder "Anders..." en behoud alleen geldige waardes
-            cleaned = [v for v in original if v != "Anders..." and v != ""]
+            cleaned = [v for v in original if v not in {"Anders...", ""}]
             if cleaned != original:
                 logger.info(f"Cleaned org_context_values: {original} -> {cleaned}")
                 st.session_state.org_context_values = cleaned
@@ -66,7 +44,7 @@ class ContextStateCleaner:
             original = st.session_state.jur_context_values.copy()
             # Verwijder "Anders..." en test waardes
             cleaned = [
-                v for v in original if v != "Anders..." and v != "en nu" and v != ""
+                v for v in original if v not in {"Anders...", "en nu", ""}
             ]
             if cleaned != original:
                 logger.info(f"Cleaned jur_context_values: {original} -> {cleaned}")

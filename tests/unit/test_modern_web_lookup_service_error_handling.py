@@ -11,7 +11,8 @@ class _BadMeta(dict):
 
     def get(self, key, default=None):  # - keep dict signature
         if key in {"article_number", "law_code", "law_clause", "dc_identifier"}:
-            raise ValueError("boom")
+            msg = "boom"
+            raise ValueError(msg)
         return super().get(key, default)
 
 
@@ -28,10 +29,11 @@ class _DummySRUService:
         return []
 
     def get_attempts(self):
-        raise RuntimeError("cannot fetch attempts")
+        msg = "cannot fetch attempts"
+        raise RuntimeError(msg)
 
 
-@pytest.fixture()
+@pytest.fixture
 def service(monkeypatch):
     """Provide a ModernWebLookupService with minimal setup."""
 
@@ -46,7 +48,7 @@ def service(monkeypatch):
     return svc
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_lookup_sru_logs_attempt_failures(service, monkeypatch, caplog):
     """SRU attempt logging failures should be surfaced as debug logs."""
 

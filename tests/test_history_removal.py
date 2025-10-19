@@ -149,7 +149,7 @@ class TestHistoryTabRemoval:
             # Get the column names to understand what's required
             cursor.execute("PRAGMA table_info(definities)")
             columns = cursor.fetchall()
-            required_cols = [
+            [
                 col[1] for col in columns if col[3] == 1
             ]  # col[3] is notnull flag
 
@@ -359,7 +359,7 @@ class TestPerformanceImprovement:
         from src.ui.tabbed_interface import TabbedInterface
 
         with patch("streamlit.session_state", {}):
-            interface = TabbedInterface()
+            TabbedInterface()
 
         current, peak = tracemalloc.get_traced_memory()
         tracemalloc.stop()

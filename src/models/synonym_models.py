@@ -92,7 +92,7 @@ class SynonymGroupMember:
 
     def to_dict(self) -> dict[str, Any]:
         """Converteer naar dictionary voor serialization."""
-        result = {
+        return {
             "id": self.id,
             "group_id": self.group_id,
             "term": self.term,
@@ -112,7 +112,6 @@ class SynonymGroupMember:
             "reviewed_by": self.reviewed_by,
             "reviewed_at": self.reviewed_at.isoformat() if self.reviewed_at else None,
         }
-        return result
 
 
 @dataclass

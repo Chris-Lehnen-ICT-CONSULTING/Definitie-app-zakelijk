@@ -174,7 +174,7 @@ def test_cache_invalidation(registry):
     group = registry.get_or_create_group(
         canonical_term="test_invalidation", created_by="test_script"
     )
-    member_id = registry.add_group_member(
+    registry.add_group_member(
         group_id=group.id,
         term="test_term",
         created_by="test_script",
@@ -266,7 +266,7 @@ def main():
         group = test_group_operations(registry)
 
         # Test 3: Member Operations
-        members = test_member_operations(registry, group)
+        test_member_operations(registry, group)
 
         # Test 4: Bidirectional Lookup
         test_bidirectional_lookup(registry)

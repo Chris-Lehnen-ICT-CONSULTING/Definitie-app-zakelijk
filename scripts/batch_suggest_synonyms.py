@@ -195,7 +195,8 @@ def load_terms_from_csv(csv_path: Path) -> list[str]:
         ValueError: If CSV is malformed or missing 'hoofdterm' column
     """
     if not csv_path.exists():
-        raise FileNotFoundError(f"CSV file not found: {csv_path}")
+        msg = f"CSV file not found: {csv_path}"
+        raise FileNotFoundError(msg)
 
     terms = []
     with open(csv_path, encoding="utf-8") as f:
@@ -203,8 +204,9 @@ def load_terms_from_csv(csv_path: Path) -> list[str]:
 
         # Validate column
         if "hoofdterm" not in reader.fieldnames:
+            msg = f"CSV must have 'hoofdterm' column. Found: {reader.fieldnames}"
             raise ValueError(
-                f"CSV must have 'hoofdterm' column. Found: {reader.fieldnames}"
+                msg
             )
 
         # Extract terms

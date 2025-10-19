@@ -17,8 +17,8 @@ from utils.smart_rate_limiter import (
 )
 
 
-@pytest.mark.performance()
-@pytest.mark.integration()
+@pytest.mark.performance
+@pytest.mark.integration
 async def test_endpoint_specific_rate_limiting():
     """Test dat verschillende endpoints hun eigen rate limiting hebben."""
     print("🧪 Testing Endpoint-Specific Rate Limiting")

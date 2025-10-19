@@ -37,12 +37,12 @@ class TestRuleCachePerformance:
         # Eerste call - zou files moeten laden
         start = time.time()
         rules1 = manager.get_all_regels()
-        first_call_time = time.time() - start
+        time.time() - start
 
         # Tweede call - zou uit cache moeten komen
         start = time.time()
         rules2 = manager.get_all_regels()
-        second_call_time = time.time() - start
+        time.time() - start
 
         # Verify dat beide calls dezelfde data returnen
         assert rules1 == rules2
@@ -133,7 +133,7 @@ class TestRuleCachePerformance:
                 mock_file.stem = "TEST-01"
                 mock_glob.return_value = [mock_file]
 
-                with patch("builtins.open", create=True) as mock_open:
+                with patch("builtins.open", create=True):
                     with patch("json.load") as mock_json_load:
                         # Simuleer een regel met veel velden
                         mock_json_load.return_value = {

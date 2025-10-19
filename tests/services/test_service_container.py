@@ -66,7 +66,7 @@ class TestServiceContainer:
         assert gen1 is gen2
         # V2 orchestrator implements both interfaces
         assert isinstance(
-            gen1, (DefinitionGeneratorInterface, DefinitionOrchestratorInterface)
+            gen1, DefinitionGeneratorInterface | DefinitionOrchestratorInterface
         )
 
     def test_validator_removed(self):
@@ -130,7 +130,7 @@ class TestServiceContainer:
         # Assert
         # V2 orchestrator implements both interfaces
         assert isinstance(
-            generator, (DefinitionGeneratorInterface, DefinitionOrchestratorInterface)
+            generator, DefinitionGeneratorInterface | DefinitionOrchestratorInterface
         )
         # Legacy validator removed - should return None
         assert validator is None

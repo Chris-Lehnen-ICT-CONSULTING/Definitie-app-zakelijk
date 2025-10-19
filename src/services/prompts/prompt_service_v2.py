@@ -405,9 +405,12 @@ class PromptServiceV2:
     # ==============================
     def build_prompt(self, request: GenerationRequest) -> str:
         """Sync wrapper verwijderd. Gebruik build_generation_prompt (async) via UI async_bridge."""
-        raise NotImplementedError(
+        msg = (
             "build_prompt (sync) is verwijderd. Gebruik de async methode "
             "build_generation_prompt vanuit de UI via ui.helpers.async_bridge.run_async"
+        )
+        raise NotImplementedError(
+            msg
         )
 
     def _maybe_augment_with_web_context(  # noqa: PLR0911, PLR0915

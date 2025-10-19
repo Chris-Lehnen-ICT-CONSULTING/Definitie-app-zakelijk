@@ -44,6 +44,7 @@ class MockStreamlit:
                 if name in {"__class__", "__dict__", "__weakref__"}:
                     return super().__setattr__(name, value)
                 self[name] = value
+                return None
 
         self.session_state = _SessionState()
         # Simple message sink used by some UI tests

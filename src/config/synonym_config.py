@@ -167,7 +167,8 @@ class SynonymConfiguration:
             errors = config.validate()
             if errors:
                 error_msg = "; ".join(errors)
-                raise ValueError(f"Invalid configuration: {error_msg}")
+                msg = f"Invalid configuration: {error_msg}"
+                raise ValueError(msg)
 
             logger.info(
                 f"Configuration loaded from {path}: "
@@ -364,5 +365,5 @@ def get_policy_statuses(policy: SynonymPolicy | None = None) -> list[str]:
 
     if policy == SynonymPolicy.STRICT:
         return ["active"]
-    else:  # PRAGMATIC
-        return ["active", "ai_pending"]
+    # PRAGMATIC
+    return ["active", "ai_pending"]

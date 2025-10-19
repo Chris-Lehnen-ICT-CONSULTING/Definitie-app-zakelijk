@@ -154,9 +154,9 @@ def get_suggested_location(path):
     if extension == ".md":
         if "workflow" in filename.lower():
             return "docs/workflows/"
-        elif "architecture" in filename.lower() or "architectuur" in filename.lower():
+        if "architecture" in filename.lower() or "architectuur" in filename.lower():
             return "docs/architectuur/"
-        elif any(
+        if any(
             word in filename.lower()
             for word in [
                 "test",
@@ -169,10 +169,9 @@ def get_suggested_location(path):
             ]
         ):
             return "reports/analysis/"
-        elif "review" in filename.lower():
+        if "review" in filename.lower():
             return "docs/reviews/"
-        else:
-            return "docs/"
+        return "docs/"
 
     # Algemene Python scripts
     if extension == ".py":

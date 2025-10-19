@@ -130,9 +130,8 @@ def parse_synonym_entry(entry: any) -> tuple[str, float]:
             term = entry["synoniem"]
             weight = float(entry.get("weight", 1.0))
             return (term, weight)
-        else:
-            # Invalid dict format - return as-is for error reporting
-            return (str(entry), 1.0)
+        # Invalid dict format - return as-is for error reporting
+        return (str(entry), 1.0)
 
     # Unknown format
     return (str(entry), 1.0)

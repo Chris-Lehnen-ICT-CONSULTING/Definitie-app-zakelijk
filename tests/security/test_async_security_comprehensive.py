@@ -104,7 +104,7 @@ class TestAsyncSecurityMiddleware:
         """Setup for each test method."""
         self.harness = AsyncSecurityTestHarness()
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_async_request_validation_performance(self):
         """Test async request validation performance."""
         normal_request = await self.harness.create_test_request()
@@ -119,7 +119,7 @@ class TestAsyncSecurityMiddleware:
             perf_result["duration"] < 0.1
         ), f"Async validation too slow: {perf_result['duration']:.3f}s"
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_concurrent_request_validation(self):
         """Test concurrent request validation."""
         # Create multiple test requests
@@ -152,7 +152,7 @@ class TestAsyncSecurityMiddleware:
             throughput > 10
         ), f"Validation throughput too low: {throughput:.2f} req/sec"
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_malicious_request_detection_async(self):
         """Test async malicious request detection."""
         malicious_request = await self.harness.create_test_request(malicious=True)
@@ -169,7 +169,7 @@ class TestAsyncSecurityMiddleware:
                 # Malicious requests should be blocked or flagged
                 assert result.allowed is False or hasattr(result, "threats_detected")
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_rate_limiting_async(self):
         """Test async rate limiting functionality."""
         source_ip = "192.168.1.200"
@@ -197,7 +197,7 @@ class TestAsyncSecurityMiddleware:
             # Rate limiting is working
             assert len(successful_requests) < requests_to_send
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_async_security_pipeline(self):
         """Test complete async security pipeline."""
         test_data = {
@@ -255,7 +255,7 @@ class TestAsyncThreatDetection:
         """Setup for each test method."""
         self.harness = AsyncSecurityTestHarness()
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_concurrent_threat_detection(self):
         """Test concurrent threat detection."""
         # Create various threat scenarios
@@ -284,14 +284,13 @@ class TestAsyncThreatDetection:
                     "detected": hasattr(result, "threats_detected")
                     and len(getattr(result, "threats_detected", [])) > 0,
                 }
-            else:
-                # Mock threat detection
-                is_threat = scenario["type"] != "normal"
-                return {
-                    "scenario": scenario["type"],
-                    "result": {"threat_detected": is_threat},
-                    "detected": is_threat,
-                }
+            # Mock threat detection
+            is_threat = scenario["type"] != "normal"
+            return {
+                "scenario": scenario["type"],
+                "result": {"threat_detected": is_threat},
+                "detected": is_threat,
+            }
 
         start_time = time.time()
 
@@ -310,7 +309,7 @@ class TestAsyncThreatDetection:
         normal_scenario = next(r for r in results if r["scenario"] == "normal")
         assert normal_scenario is not None
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_adaptive_threat_response(self):
         """Test adaptive threat response under load."""
         # Simulate increasing threat levels
@@ -379,7 +378,7 @@ class TestAsyncRateLimiting:
         """Setup for each test method."""
         self.harness = AsyncSecurityTestHarness()
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_distributed_rate_limiting(self):
         """Test rate limiting across multiple sources."""
         # Simulate multiple IP sources
@@ -423,7 +422,7 @@ class TestAsyncRateLimiting:
             total_time < 5.0
         ), f"Distributed rate limiting too slow: {total_time:.3f}s"
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_burst_protection(self):
         """Test burst protection mechanisms."""
         source_ip = "192.168.4.100"
@@ -470,7 +469,7 @@ class TestAsyncSecurityIntegration:
         """Setup for each test method."""
         self.harness = AsyncSecurityTestHarness()
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_async_security_with_caching(self):
         """Test async security with caching integration."""
         # Mock async cache operations
@@ -514,7 +513,7 @@ class TestAsyncSecurityIntegration:
             second_call_time < first_call_time * 0.5
         ), "Cache not providing performance benefit"
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_async_security_error_handling(self):
         """Test async security error handling."""
         # Test various error scenarios
@@ -585,7 +584,7 @@ class TestAsyncSecurityPerformance:
         """Setup for each test method."""
         self.harness = AsyncSecurityTestHarness()
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_high_concurrency_security(self):
         """Test security under high concurrency."""
         concurrent_users = 50
@@ -640,7 +639,7 @@ class TestAsyncSecurityPerformance:
             throughput > 50
         ), f"Throughput too low under load: {throughput:.2f} req/sec"
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_security_latency_distribution(self):
         """Test security latency distribution."""
         num_requests = 100
@@ -650,10 +649,9 @@ class TestAsyncSecurityPerformance:
             request = await self.harness.create_test_request()
 
             start_time = time.time()
-            result = await self.harness.middleware.validate_request(request)
-            latency = time.time() - start_time
+            await self.harness.middleware.validate_request(request)
+            return time.time() - start_time
 
-            return latency
 
         # Measure latencies
         latency_tasks = [measure_request_latency() for _ in range(num_requests)]
@@ -663,14 +661,14 @@ class TestAsyncSecurityPerformance:
         valid_latencies = [
             l
             for l in latencies
-            if not isinstance(l, Exception) and isinstance(l, (int, float))
+            if not isinstance(l, Exception) and isinstance(l, int | float)
         ]
 
         # Calculate statistics
         if valid_latencies:
             avg_latency = sum(valid_latencies) / len(valid_latencies)
-            max_latency = max(valid_latencies)
-            min_latency = min(valid_latencies)
+            max(valid_latencies)
+            min(valid_latencies)
 
             # Sort for percentile calculation
             sorted_latencies = sorted(valid_latencies)
@@ -698,7 +696,7 @@ class TestAsyncSecurityPerformance:
             ), f"99th percentile latency too high: {p99_latency:.3f}s"
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 class TestAsyncSecurityDecorator:
     """Test async security decorator functionality."""
 
@@ -734,7 +732,8 @@ class TestAsyncSecurityDecorator:
                         hasattr(validation_result, "allowed")
                         and not validation_result.allowed
                     ):
-                        raise ValueError("Security validation failed")
+                        msg = "Security validation failed"
+                        raise ValueError(msg)
 
                     # Call original function
                     return await func(*args, **kwargs)

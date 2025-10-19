@@ -20,24 +20,25 @@ import uuid
 from datetime import UTC, datetime
 
 UTC = UTC  # Python 3.10 compatibility  # noqa: PLW0127
+import contextlib
 from typing import TYPE_CHECKING, Any, Optional
 
-from services.interfaces import AIServiceInterface as IntelligentAIService
 from services.interfaces import (
+    AIServiceInterface as IntelligentAIService,
     CleaningServiceInterface,
     Definition,
     DefinitionOrchestratorInterface,
     DefinitionRepositoryInterface,
     DefinitionResponseV2,
+    EnhancementServiceInterface as EnhancementService,
+    FeedbackEngineInterface as FeedbackEngine,
+    GenerationRequest,
+    MonitoringServiceInterface as MonitoringService,
+    OrchestratorConfig,
+    PromptServiceInterface as PromptServiceV2,
+    SecurityServiceInterface as SecurityService,
+    ValidationResult,
 )
-from services.interfaces import EnhancementServiceInterface as EnhancementService
-from services.interfaces import FeedbackEngineInterface as FeedbackEngine
-from services.interfaces import GenerationRequest
-from services.interfaces import MonitoringServiceInterface as MonitoringService
-from services.interfaces import OrchestratorConfig
-from services.interfaces import PromptServiceInterface as PromptServiceV2
-from services.interfaces import SecurityServiceInterface as SecurityService
-from services.interfaces import ValidationResult
 from services.validation.interfaces import ValidationOrchestratorInterface
 from utils.dict_helpers import safe_dict_get
 from utils.type_helpers import ensure_dict, ensure_list, ensure_string
@@ -166,10 +167,8 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
 
         # Include validation stats if available
         if hasattr(self.validation_service, "get_stats"):
-            try:
+            with contextlib.suppress(Exception):
                 stats["validation"] = self.validation_service.get_stats()
-            except Exception:
-                pass
 
         return stats
 

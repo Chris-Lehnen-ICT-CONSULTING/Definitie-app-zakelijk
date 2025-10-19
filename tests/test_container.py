@@ -19,7 +19,7 @@ def test_container_creation():
     print("\n=== Testing Container Creation ===")
 
     # Test default container
-    container = ServiceContainer()
+    ServiceContainer()
     print("✅ Default container aangemaakt")
 
     # Test met custom config
@@ -28,14 +28,14 @@ def test_container_creation():
         "generator_model": "gpt-3.5-turbo",
         "min_quality_score": 0.8,
     }
-    custom_container = ServiceContainer(custom_config)
+    ServiceContainer(custom_config)
     print("✅ Custom container aangemaakt")
 
     # Test environment configs
-    dev_container = ServiceContainer(ContainerConfigs.development())
+    ServiceContainer(ContainerConfigs.development())
     print("✅ Development container aangemaakt")
 
-    test_container = ServiceContainer(ContainerConfigs.testing())
+    ServiceContainer(ContainerConfigs.testing())
     print("✅ Test container aangemaakt")
 
 
@@ -52,15 +52,15 @@ def test_service_creation():
     print("✅ Generator service (singleton)")
 
     # Test validation orchestrator (V2)
-    validator = container.validation_orchestrator()
+    container.validation_orchestrator()
     print("✅ Validation orchestrator service")
 
     # Test repository
-    repository = container.repository()
+    container.repository()
     print("✅ Repository service")
 
     # Test orchestrator
-    orchestrator = container.orchestrator()
+    container.orchestrator()
     print("✅ Orchestrator service")
 
     # Test get_service

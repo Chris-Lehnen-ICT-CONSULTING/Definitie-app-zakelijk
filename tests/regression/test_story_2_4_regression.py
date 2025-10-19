@@ -33,12 +33,12 @@ from services.orchestrators.definition_orchestrator_v2 import DefinitionOrchestr
 class TestStory24RegressionSuite:
     """Regression tests for Story 2.4 interface migration."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def container(self):
         """Service container fixture."""
         return ServiceContainer()
 
-    @pytest.fixture()
+    @pytest.fixture
     def baseline_generation_request(self):
         """Standard generation request for consistent testing."""
         return GenerationRequest(
@@ -49,7 +49,7 @@ class TestStory24RegressionSuite:
             actor="regression-test",
         )
 
-    @pytest.fixture()
+    @pytest.fixture
     def expected_validation_result_structure(self):
         """Expected validation result structure for regression testing."""
         return {
@@ -66,8 +66,8 @@ class TestStory24RegressionSuite:
     # REGRESSION TEST 1: API RESPONSE FORMATS
     # ========================================
 
-    @pytest.mark.regression()
-    @pytest.mark.asyncio()
+    @pytest.mark.regression
+    @pytest.mark.asyncio
     async def test_definition_response_v2_format_preserved(
         self, container, baseline_generation_request
     ):
@@ -99,8 +99,8 @@ class TestStory24RegressionSuite:
 
         print("✅ DefinitionResponseV2 format regression test passed")
 
-    @pytest.mark.regression()
-    @pytest.mark.asyncio()
+    @pytest.mark.regression
+    @pytest.mark.asyncio
     async def test_validation_result_format_preserved(
         self,
         container,
@@ -125,7 +125,7 @@ class TestStory24RegressionSuite:
                     ), f"Field {field} has wrong type: {type(validation_result[field])} != {expected_type}"
 
             # Critical validation fields
-            assert isinstance(validation_result["overall_score"], (int, float))
+            assert isinstance(validation_result["overall_score"], int | float)
             assert 0.0 <= validation_result["overall_score"] <= 1.0
             assert isinstance(validation_result["is_acceptable"], bool)
 
@@ -135,8 +135,8 @@ class TestStory24RegressionSuite:
     # REGRESSION TEST 2: PERFORMANCE
     # ========================================
 
-    @pytest.mark.regression()
-    @pytest.mark.asyncio()
+    @pytest.mark.regression
+    @pytest.mark.asyncio
     async def test_no_performance_regression(
         self, container, baseline_generation_request
     ):
@@ -182,8 +182,8 @@ class TestStory24RegressionSuite:
     # REGRESSION TEST 3: BUSINESS LOGIC CONSISTENCY
     # ========================================
 
-    @pytest.mark.regression()
-    @pytest.mark.asyncio()
+    @pytest.mark.regression
+    @pytest.mark.asyncio
     async def test_business_logic_consistency(
         self, container, baseline_generation_request
     ):
@@ -216,8 +216,8 @@ class TestStory24RegressionSuite:
 
         print("✅ Business logic consistency regression test passed")
 
-    @pytest.mark.regression()
-    @pytest.mark.asyncio()
+    @pytest.mark.regression
+    @pytest.mark.asyncio
     async def test_validation_scores_consistency(self, container):
         """Regression test: Validation scoring logic must remain consistent."""
         orchestrator = container.get_orchestrator()
@@ -245,7 +245,7 @@ class TestStory24RegressionSuite:
         # Detailed scores should be consistent
         if "detailed_scores" in validation_result:
             for category, score in validation_result["detailed_scores"].items():
-                assert isinstance(score, (int, float))
+                assert isinstance(score, int | float)
                 assert 0.0 <= score <= 1.0, f"Score {score} for {category} out of range"
 
         print("✅ Validation scores consistency regression test passed")
@@ -254,8 +254,8 @@ class TestStory24RegressionSuite:
     # REGRESSION TEST 4: ERROR HANDLING
     # ========================================
 
-    @pytest.mark.regression()
-    @pytest.mark.asyncio()
+    @pytest.mark.regression
+    @pytest.mark.asyncio
     async def test_error_handling_regression(
         self, container, baseline_generation_request
     ):
@@ -286,7 +286,7 @@ class TestStory24RegressionSuite:
     # REGRESSION TEST 5: INTERFACE COMPATIBILITY
     # ========================================
 
-    @pytest.mark.regression()
+    @pytest.mark.regression
     def test_orchestrator_interface_compatibility(self, container):
         """Regression test: Orchestrator interface must remain compatible."""
         orchestrator = container.get_orchestrator()
@@ -306,7 +306,7 @@ class TestStory24RegressionSuite:
 
         print("✅ Orchestrator interface compatibility regression test passed")
 
-    @pytest.mark.regression()
+    @pytest.mark.regression
     def test_validation_service_interface_change_handled(self, container):
         """Regression test: ValidationOrchestratorInterface integration properly handled."""
         orchestrator = container.get_orchestrator()
@@ -420,8 +420,8 @@ class TestStory24RegressionSuite:
 class TestStory24RegressionEdgeCases:
     """Edge case regression tests for Story 2.4."""
 
-    @pytest.mark.regression()
-    @pytest.mark.asyncio()
+    @pytest.mark.regression
+    @pytest.mark.asyncio
     async def test_empty_text_validation_regression(self):
         """Regression test: Empty text validation should still work."""
         from services.orchestrators.validation_orchestrator_v2 import (
@@ -445,8 +445,8 @@ class TestStory24RegressionEdgeCases:
 
         print("✅ Empty text validation regression test passed")
 
-    @pytest.mark.regression()
-    @pytest.mark.asyncio()
+    @pytest.mark.regression
+    @pytest.mark.asyncio
     async def test_unicode_handling_regression(self):
         """Regression test: Unicode text handling should remain consistent."""
         from services.orchestrators.validation_orchestrator_v2 import (
@@ -474,8 +474,8 @@ class TestStory24RegressionEdgeCases:
 
         print("✅ Unicode handling regression test passed")
 
-    @pytest.mark.regression()
-    @pytest.mark.asyncio()
+    @pytest.mark.regression
+    @pytest.mark.asyncio
     async def test_concurrent_validation_regression(self):
         """Regression test: Concurrent validation should still work properly."""
         from services.orchestrators.validation_orchestrator_v2 import (

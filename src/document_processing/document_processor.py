@@ -287,9 +287,7 @@ class DocumentProcessor:
         if not text:
             return True
         t = text.strip()
-        if t.startswith("⚠️"):
-            return True
-        return False
+        return bool(t.startswith("⚠️"))
 
     def _extract_keywords(self, text: str) -> list[str]:
         """Extraheer keywords uit tekst."""
@@ -454,8 +452,7 @@ class DocumentProcessor:
 
             # Dedupliceer, normaliseer en limiteren
             cleaned = [ref.strip() for ref in references if ref and ref.strip()]
-            unique_cleaned = list(dict.fromkeys(cleaned))[:10]
-            return unique_cleaned
+            return list(dict.fromkeys(cleaned))[:10]
         except Exception:
             # Als zelfs fallback faalt, geef leeg resultaat terug
             return []

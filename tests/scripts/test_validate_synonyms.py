@@ -25,7 +25,7 @@ from validate_synonyms import (
 )
 
 
-@pytest.fixture()
+@pytest.fixture
 def fixtures_dir() -> Path:
     """Return path to test fixtures directory."""
     return Path(__file__).parent.parent / "fixtures"
@@ -184,7 +184,8 @@ class TestValidateCrossContamination:
         errors = validate_cross_contamination(data)
         assert len(errors) == 1
         assert "shared synonym" in errors[0]
-        assert "term1" in errors[0] and "term2" in errors[0]
+        assert "term1" in errors[0]
+        assert "term2" in errors[0]
 
 
 class TestValidateCircularReferences:

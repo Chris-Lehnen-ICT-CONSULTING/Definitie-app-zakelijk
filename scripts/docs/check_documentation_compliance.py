@@ -4,6 +4,7 @@ Check documentation compliance with standards defined in DOCUMENTATION_POLICY.md
 """
 
 import re
+import sys
 from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
@@ -51,7 +52,8 @@ def find_docs_directory() -> Path:
     docs_dir = project_root / "docs"
 
     if not docs_dir.exists():
-        raise FileNotFoundError(f"Docs directory not found at {docs_dir}")
+        msg = f"Docs directory not found at {docs_dir}"
+        raise FileNotFoundError(msg)
 
     return docs_dir
 
@@ -163,7 +165,7 @@ def analyze_file(file_path: Path, docs_dir: Path) -> dict:
         link_pattern = r"\[([^\]]+)\]\(([^)]+)\)"
         for match in re.finditer(link_pattern, content):
             link_text, link_url = match.groups()
-            if link_url.startswith("../") or link_url.startswith("./"):
+            if link_url.startswith(("../", "./")):
                 # Relative link - check if file exists
                 target = file_path.parent / link_url
                 if not target.exists() and not link_url.startswith("http"):
@@ -310,4 +312,4 @@ def main():
 
 
 if __name__ == "__main__":
-    exit(main())
+    sys.exit(main())

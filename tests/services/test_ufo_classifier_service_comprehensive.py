@@ -209,7 +209,7 @@ class TestUFOClassifierServiceInitialization:
         """Test dat patterns case-insensitive zijn."""
         classifier = UFOClassifierService()
 
-        for category, patterns in classifier.compiled_patterns.items():
+        for _category, patterns in classifier.compiled_patterns.items():
             for pattern in patterns:
                 assert pattern.flags & re.IGNORECASE
 
@@ -217,7 +217,7 @@ class TestUFOClassifierServiceInitialization:
 class TestClassification:
     """Test de classify methode."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def classifier(self):
         """Maak een UFOClassifierService instance."""
         return UFOClassifierService()
@@ -338,7 +338,7 @@ class TestClassification:
         times = []
         for _ in range(10):
             start = time.perf_counter()
-            result = classifier.classify("persoon", "Een natuurlijk persoon")
+            classifier.classify("persoon", "Een natuurlijk persoon")
             duration = (time.perf_counter() - start) * 1000
             times.append(duration)
 
@@ -350,7 +350,7 @@ class TestClassification:
 class TestDisambiguation:
     """Test disambiguation voor ambigue termen."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def classifier(self):
         return UFOClassifierService()
 
@@ -414,7 +414,7 @@ class TestDisambiguation:
 class TestPatternMatching:
     """Test pattern matching functionaliteit."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def classifier(self):
         return UFOClassifierService()
 
@@ -464,7 +464,7 @@ class TestPatternMatching:
 class TestConfidenceCalculation:
     """Test confidence berekening."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def classifier(self):
         return UFOClassifierService()
 
@@ -518,7 +518,7 @@ class TestConfidenceCalculation:
 class TestSecondaryCategories:
     """Test bepaling van secundaire categorieën."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def classifier(self):
         return UFOClassifierService()
 
@@ -569,7 +569,7 @@ class TestSecondaryCategories:
 class TestExplanationGeneration:
     """Test uitleg generatie."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def classifier(self):
         return UFOClassifierService()
 
@@ -602,7 +602,7 @@ class TestExplanationGeneration:
 class TestNormalization:
     """Test tekst normalisatie."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def classifier(self):
         return UFOClassifierService()
 
@@ -642,7 +642,7 @@ class TestNormalization:
 class TestBatchClassification:
     """Test batch classificatie."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def classifier(self):
         return UFOClassifierService()
 
@@ -715,7 +715,7 @@ class TestBatchClassification:
 class TestJuridicalDomain:
     """Test met Nederlandse juridische termen."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def classifier(self):
         return UFOClassifierService()
 
@@ -769,7 +769,7 @@ class TestJuridicalDomain:
 class TestFallbackBehavior:
     """Test fallback gedrag."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def classifier(self):
         return UFOClassifierService()
 
@@ -809,7 +809,7 @@ class TestFallbackBehavior:
 class TestEdgeCases:
     """Test edge cases."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def classifier(self):
         return UFOClassifierService()
 
@@ -896,7 +896,7 @@ class TestIntegration:
 class TestCompleteWorkflow:
     """Test complete workflow scenarios."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def classifier(self):
         return UFOClassifierService()
 
@@ -961,7 +961,7 @@ class TestCompleteWorkflow:
 class TestPerformanceRequirements:
     """Test performance requirements."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def classifier(self):
         return UFOClassifierService()
 
@@ -972,7 +972,7 @@ class TestPerformanceRequirements:
 
         times = []
         for _ in range(20):
-            start = time.perf_counter()
+            time.perf_counter()
             result = classifier.classify("persoon", "Een natuurlijk persoon")
             duration = result.classification_time_ms
             times.append(duration)
@@ -989,7 +989,7 @@ class TestPerformanceRequirements:
             definitions = [(f"term_{i}", f"def_{i}") for i in range(size)]
 
             start = time.perf_counter()
-            results = classifier.batch_classify(definitions)
+            classifier.batch_classify(definitions)
             duration = time.perf_counter() - start
 
             avg_per_item = (duration / size) * 1000

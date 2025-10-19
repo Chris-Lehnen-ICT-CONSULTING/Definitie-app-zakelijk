@@ -278,7 +278,6 @@ def migrate_database(db_path: str = "data/definities.db"):
             missing_columns = get_missing_columns(conn)
 
             # Altijd normalisatie uitvoeren; ook als er geen kolommen ontbreken
-            columns_added = False
             if not missing_columns:
                 logger.info("Database schema OK; voer normalisatie uit…")
             else:
@@ -302,7 +301,6 @@ def migrate_database(db_path: str = "data/definities.db"):
                         sql = f"ALTER TABLE definities ADD COLUMN {column_name} {column_type}"
                         conn.execute(sql)
                         logger.info(f"✅ Kolom toegevoegd: {column_name}")
-                        columns_added = True
 
                         # Set default waarde voor datum_voorstel
                         if column_name == "datum_voorstel":

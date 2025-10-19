@@ -195,7 +195,7 @@ class TestAIServiceInterface:
         service = ConcreteAIService()
         assert isinstance(service, AIServiceInterface)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_interface_async_methods(self):
         """Test dat interface methoden correct async zijn."""
 
@@ -253,7 +253,8 @@ class TestAIServiceExceptions:
         """Test exception catching patterns."""
 
         def raise_rate_limit():
-            raise AIRateLimitError("Too many requests")
+            msg = "Too many requests"
+            raise AIRateLimitError(msg)
 
         # Specific catch
         with pytest.raises(AIRateLimitError):
@@ -275,7 +276,7 @@ class TestAIServiceExceptions:
 class TestInterfaceIntegration:
     """Integration tests voor interface componenten."""
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_full_flow_simulation(self):
         """Test complete flow met mock implementatie."""
 
@@ -287,11 +288,14 @@ class TestInterfaceIntegration:
             ) -> AIGenerationResult:
                 # Simuleer verschillende scenarios
                 if "error" in prompt.lower():
-                    raise AIServiceError("Simulated error")
+                    msg = "Simulated error"
+                    raise AIServiceError(msg)
                 if "rate" in prompt.lower():
-                    raise AIRateLimitError("Rate limit hit")
+                    msg = "Rate limit hit"
+                    raise AIRateLimitError(msg)
                 if "timeout" in prompt.lower():
-                    raise AITimeoutError("Request timeout")
+                    msg = "Request timeout"
+                    raise AITimeoutError(msg)
 
                 return AIGenerationResult(
                     text=f"Definition for: {prompt}",

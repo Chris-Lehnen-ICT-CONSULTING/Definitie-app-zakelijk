@@ -90,7 +90,7 @@ class UFOClassifierIntegration:
             # Bereken zekerheid van de wijziging
             change_confidence = result.confidence
 
-        ui_data = {
+        return {
             "suggested_category": result.primary_category.value,
             "current_category": current_category,
             "category_changed": category_changed,
@@ -100,7 +100,6 @@ class UFOClassifierIntegration:
             "matched_patterns": result.matched_patterns,
         }
 
-        return ui_data
 
     def classify_batch_for_review(self, definitions: list) -> list:
         """
@@ -167,7 +166,7 @@ class UFOClassifierIntegration:
         result = self.classifier.classify(term, definition, context)
 
         # Combineer met validatie insights
-        enhanced_result = {
+        return {
             "category": result.primary_category.value,
             "confidence": result.confidence,
             "validation_aligned": self._check_validation_alignment(
@@ -180,7 +179,6 @@ class UFOClassifierIntegration:
             ),
         }
 
-        return enhanced_result
 
     def streamlit_ui_component(self) -> None:
         """
@@ -282,19 +280,17 @@ class UFOClassifierIntegration:
         """Bepaal kleur op basis van confidence niveau."""
         if confidence >= 0.8:
             return "green"
-        elif confidence >= 0.5:
+        if confidence >= 0.5:
             return "orange"
-        else:
-            return "red"
+        return "red"
 
     def _get_confidence_emoji(self, confidence: float) -> str:
         """Bepaal emoji op basis van confidence niveau."""
         if confidence >= 0.8:
             return "✅"
-        elif confidence >= 0.5:
+        if confidence >= 0.5:
             return "⚠️"
-        else:
-            return "❓"
+        return "❓"
 
     def _calculate_review_priority(self, result: UFOClassificationResult) -> float:
         """Bereken review prioriteit (lager = hogere prioriteit)."""
