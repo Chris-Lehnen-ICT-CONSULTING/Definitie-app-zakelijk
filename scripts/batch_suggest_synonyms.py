@@ -205,9 +205,7 @@ def load_terms_from_csv(csv_path: Path) -> list[str]:
         # Validate column
         if "hoofdterm" not in reader.fieldnames:
             msg = f"CSV must have 'hoofdterm' column. Found: {reader.fieldnames}"
-            raise ValueError(
-                msg
-            )
+            raise ValueError(msg)
 
         # Extract terms
         for row in reader:

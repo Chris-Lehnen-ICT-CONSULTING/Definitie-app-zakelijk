@@ -138,7 +138,6 @@ def add_justice_context(content: str) -> str:
     )
 
 
-
 def translate_file(file_path: Path) -> bool:
     """Vertaal een enkel bestand naar het Nederlands"""
 

@@ -27,7 +27,7 @@ class FakeSyncCleaningService:
         return True
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_cleaning_service_adapter_clean_text():
     adapter = CleaningServiceAdapterV1toV2(FakeSyncCleaningService())
     result = await adapter.clean_text("  tekst  ", "begrip")
@@ -37,7 +37,7 @@ async def test_cleaning_service_adapter_clean_text():
     assert "strip" in result.applied_rules
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_cleaning_service_adapter_clean_definition():
     adapter = CleaningServiceAdapterV1toV2(FakeSyncCleaningService())
     definition = Definition(begrip="test", definitie="a  b")

@@ -216,7 +216,9 @@ class UFOClassifierBenchmark:
             "p99_ms": statistics.quantiles(times, n=100)[98],  # 99th percentile
         }
 
-    def benchmark_batch_classification(self, batch_sizes: list[int] | None = None) -> dict:
+    def benchmark_batch_classification(
+        self, batch_sizes: list[int] | None = None
+    ) -> dict:
         """Benchmark batch classificaties."""
         if batch_sizes is None:
             batch_sizes = [10, 50, 100, 500]
@@ -368,7 +370,6 @@ class UFOClassifierBenchmark:
             "memory_usage": self.benchmark_memory_usage(),
             "caching": self.benchmark_caching_effectiveness(),
         }
-
 
     def print_report(self, results: dict):
         """Print een mooi geformateerd rapport."""

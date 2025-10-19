@@ -73,9 +73,7 @@ class InitializationTracker:
                     datetime.fromtimestamp(times[-1]).isoformat() if times else None
                 ),
                 "duration_span": times[-1] - times[0] if len(times) > 1 else 0,
-                "unique_stacks": len(
-                    {tuple(s) for s in self.call_stacks[class_name]}
-                ),
+                "unique_stacks": len({tuple(s) for s in self.call_stacks[class_name]}),
             }
         return report
 

@@ -28,9 +28,11 @@
 </ul>
 
 <h2>1. Samenvatting</h2>
+
 <p>Brownfield project is functioneel maar uit de hand gelopen: overvolle/chaotische backlog, aanwezige god‑objecten die werken maar uitbreidbaarheid blokkeren. Doel van dit Stabilization MVP is focus te herstellen, levercadans terug te brengen (wekelijkse release), en toekomstige verbeteringen mogelijk te maken zonder big‑bang refactors. Security is expliciet geen prioriteit voor dit MVP.</p>
 
 <h2>2. Context en Probleemdefinitie</h2>
+
 <ul>
 <li>Single developer, single user applicatie.</li>
 <li>Backlog is de grootste bottleneck: te veel items, onduidelijke prioriteit, context switching.</li>
@@ -39,6 +41,7 @@
 </ul>
 
 <h2>3. Doelen en KPI’s</h2>
+
 <ul>
 <li>Doel: Stabilisatie + voorspelbare levering met minimale ingreep.</li>
 <li>KPI’s (MVP):</li>
@@ -49,6 +52,7 @@
 </ul>
 
 <h2>4. Scope</h2>
+
 <ul>
 <li>In scope (MVP):</li>
 <li> - Backlog Reset: Inbox → Triage → Ready(≤3) → Doing(1) → Done workflow.</li>
@@ -63,8 +67,9 @@
 </ul>
 
 <h2>5. Doelgebruiker en Use‑Cases (MVP)</h2>
+
 <ul>
-<li>Doelgebruiker: interne single user (ontwikkelaar/product). </li>
+<li>Doelgebruiker: interne single user (ontwikkelaar/product).</li>
 <li>Primaire use‑cases voor MVP:</li>
 <li> - UC1 Dagelijks kunnen werken zonder regressies in bestaande kernflow(s).</li>
 <li> - UC2 Snel kunnen leveren (kleine stories, WIP=1) met duidelijke release‑notities.</li>
@@ -72,6 +77,7 @@
 </ul>
 
 <h2>6. Epics (MVP‑scope)</h2>
+
 <ul>
 <li>E1 Backlog Reset en Workflow</li>
 <li>E2 God‑Object Containment via Facade + Seams</li>
@@ -80,6 +86,7 @@
 </ul>
 
 <h2>7. Functionele Requirements (FR)</h2>
+
 <ul>
 <li>FR1: Bestaande kernfunctionaliteit blijft werken met ongewijzigd gedrag (backward compatible).</li>
 <li>FR2: Een `Facade/Service` abstraction levert de minimaal benodigde use‑cases voor de eerste verticale slice.</li>
@@ -89,6 +96,7 @@
 </ul>
 
 <h2>8. Niet‑Functionele Requirements (NFR)</h2>
+
 <ul>
 <li>NFR1: Prestatie‑impact van de facade ≤ 10% t.o.v. huidige hot‑paths.</li>
 <li>NFR2: Minimale testset: smoke tests op kritieke flows + contracttests op de facade.</li>
@@ -97,6 +105,7 @@
 </ul>
 
 <h2>9. Compatibiliteitseisen (CR)</h2>
+
 <ul>
 <li>CR1: Externe API’s/CLI/UI blijven backward compatible (geen brekende wijzigingen).</li>
 <li>CR2: Database‑schema ongewijzigd voor MVP.</li>
@@ -105,6 +114,7 @@
 </ul>
 
 <h2>10. Architectuur & Implementatie‑Aanpak</h2>
+
 <ul>
 <li>Principe: “Contain, don’t rewrite”. Gebruik Strangler/Seams‑patroon.</li>
 <li>Stap‑voor‑stap:</li>
@@ -122,16 +132,18 @@
 </ul>
 
 <h2>11. Planning & Mijlpalen</h2>
+
 <ul>
 <li>Fase 0 (0,5 dag): Freeze + mini‑oriëntatie; noteer pijnpunten; bepaal eerste verticale slice.</li>
 <li>Fase 1 (0,5 dag): Artefacten (dit PRD), workflow/board, DoR/DoD.</li>
 <li>Fase 2 (1 dag): Backlog Reset (kill/park/keep), Ready maximaal 3.</li>
-<li>Sprint 1 (1 week): </li>
+<li>Sprint 1 (1 week):</li>
 <li> - Deliverable: 1 verticale slice via facade + contracttests + release + changelog.</li>
 <li>Doorlopend: WIP=1, weekly release, micro‑refactors in de seam (10–20% tijd per story).</li>
 </ul>
 
 <h2>12. Acceptatiecriteria MVP</h2>
+
 <ul>
 <li>AC1: Board actief met kolommen en WIP‑regels; Ready ≤ 3, Doing = 1.</li>
 <li>AC2: Facade aanwezig en gebruikt door eerste verticale slice; tests groen.</li>
@@ -140,6 +152,7 @@
 </ul>
 
 <h2>13. Risico’s en Mitigaties</h2>
+
 <ul>
 <li>R1 Scope creep → M1 Strikt MVP, Ready ≤ 3, WIP=1, timeboxing.</li>
 <li>R2 Verborgen koppelingen in god‑objecten → M2 Contracttests + kleine stappen + observability.</li>
@@ -148,17 +161,19 @@
 </ul>
 
 <h2>14. Assumpties en Open Vragen</h2>
+
 <ul>
 <li>Assumpties:</li>
 <li> - A1 Single user context blijft gelden gedurende MVP.</li>
 <li> - A2 Geen nieuwe externe integraties in MVP.</li>
 <li>Open vragen (in te vullen):</li>
-<li> - OV1 Welke specifieke gebruikersflow is de eerste verticale slice? </li>
-<li> - OV2 Welke god‑object(en) prioriteren we voor de eerste facade? </li>
+<li> - OV1 Welke specifieke gebruikersflow is de eerste verticale slice?</li>
+<li> - OV2 Welke god‑object(en) prioriteren we voor de eerste facade?</li>
 <li> - OV3 Zijn er kritieke data‑/rapportagepaden die absoluut niet mogen veranderen?</li>
 </ul>
 
 <h2>15. Bijlagen/Referenties</h2>
+
 <ul>
 <li>Brownfield Recovery plan(nen) in `docs/planning/`.</li>
 <li>Eventuele eerdere PRD’s in `docs/archief/`.</li>

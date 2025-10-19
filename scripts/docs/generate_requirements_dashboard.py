@@ -484,7 +484,7 @@ def render_collapsible_epic_view(
         badges = f"<span class='tag'>{rtype}</span> • <span class='muted'>{prio}</span> • <span class='muted'>{status}</span>"
         # build relative path from docs/backlog/dashboard
         p = str(path)
-        p_rel = p[len("docs/"):] if p.startswith("docs/") else p
+        p_rel = p[len("docs/") :] if p.startswith("docs/") else p
         return (
             f"<li data-status='{status}' data-priority='{prio}'>"
             f"<a href='../../{p_rel}'>{rid}</a> — {title} <span class='muted'>({badges})</span>"

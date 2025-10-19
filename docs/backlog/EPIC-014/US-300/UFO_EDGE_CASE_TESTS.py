@@ -23,7 +23,7 @@ from src.services.ufo_classifier_service import (
 class TestEdgeCasesEmptyAndWhitespace:
     """Test edge cases with empty strings and whitespace."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def classifier(self):
         return UFOClassifierService()
 
@@ -61,7 +61,7 @@ class TestEdgeCasesEmptyAndWhitespace:
 class TestEdgeCasesUnicode:
     """Test Unicode edge cases specific to Dutch text."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def classifier(self):
         return UFOClassifierService()
 
@@ -131,7 +131,7 @@ class TestEdgeCasesUnicode:
 class TestEdgeCasesSpecialCharacters:
     """Test special characters and potential injection attempts."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def classifier(self):
         return UFOClassifierService()
 
@@ -193,7 +193,7 @@ class TestEdgeCasesSpecialCharacters:
 class TestEdgeCasesPerformance:
     """Test performance edge cases."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def classifier(self):
         return UFOClassifierService()
 
@@ -229,7 +229,7 @@ class TestEdgeCasesPerformance:
         assert elapsed < 0.5, f"Complex classification took {elapsed:.2f}s"
         assert len(result.matched_patterns) > 10  # Should find many patterns
 
-    @pytest.mark.slow
+    @pytest.mark.slow()
     def test_batch_memory_usage(self, classifier):
         """Test memory usage with large batches."""
         # Create large batch
@@ -256,7 +256,7 @@ class TestEdgeCasesPerformance:
 class TestEdgeCasesNumericAndMeasurements:
     """Test edge cases with numbers and measurements."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def classifier(self):
         return UFOClassifierService()
 
@@ -306,7 +306,7 @@ class TestEdgeCasesNumericAndMeasurements:
 class TestEdgeCasesDisambiguation:
     """Test disambiguation edge cases."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def classifier(self):
         return UFOClassifierService()
 
@@ -344,7 +344,7 @@ class TestEdgeCasesDisambiguation:
 class TestEdgeCasesConfidenceCalculation:
     """Test confidence calculation edge cases."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def classifier(self):
         return UFOClassifierService()
 
@@ -382,7 +382,7 @@ class TestEdgeCasesConfidenceCalculation:
 class TestEdgeCasesErrorHandling:
     """Test error handling and recovery."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def classifier(self):
         return UFOClassifierService()
 
@@ -438,7 +438,7 @@ class TestEdgeCasesErrorHandling:
 class TestEdgeCasesSecondaryCategories:
     """Test secondary category identification edge cases."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def classifier(self):
         return UFOClassifierService()
 
@@ -471,7 +471,7 @@ class TestEdgeCasesSecondaryCategories:
 class TestEdgeCasesDecisionPath:
     """Test decision path edge cases."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def classifier(self):
         return UFOClassifierService()
 
@@ -537,11 +537,11 @@ class TestEdgeCasesLexiconMemory:
 
 
 # Performance benchmark suite
-@pytest.mark.benchmark
+@pytest.mark.benchmark()
 class TestPerformanceBenchmarks:
     """Performance benchmarks to ensure 500ms target."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def classifier(self):
         return UFOClassifierService()
 

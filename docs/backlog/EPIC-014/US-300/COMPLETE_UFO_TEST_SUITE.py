@@ -23,12 +23,12 @@ class TestUFOClassifierCorrectness:
     Alle 16 UFO categorieën worden getest met Nederlandse juridische voorbeelden.
     """
 
-    @pytest.fixture
+    @pytest.fixture()
     def classifier(self):
         """Maak een UFOClassifierService instance voor tests."""
         return UFOClassifierService()
 
-    @pytest.fixture
+    @pytest.fixture()
     def test_definitions(self) -> list[tuple[str, str, UFOCategory]]:
         """
         Complete set test definities met verwachte categorieën.
@@ -459,11 +459,10 @@ class TestUFOClassifierCorrectness:
 
         # Verwacht KIND als secundair (natuurlijk persoon)
         assert len(result.secondary_categories) > 0
-        assert (
-            UFOCategory.KIND in result.secondary_categories
-            or UFOCategory.ROLE
-            in [result.primary_category, *result.secondary_categories]
-        )
+        assert UFOCategory.KIND in result.secondary_categories or UFOCategory.ROLE in [
+            result.primary_category,
+            *result.secondary_categories,
+        ]
 
     def test_legal_domain_recognition(self, classifier):
         """Test herkenning van juridische domeinen."""
@@ -597,7 +596,7 @@ class TestUFOClassifierCorrectness:
 class TestPatternMatcher:
     """Test de PatternMatcher component."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def matcher(self):
         return PatternMatcher()
 
@@ -690,7 +689,7 @@ class TestAccuracyBenchmark:
     Gebruikt een uitgebreide set van realistische Nederlandse juridische definities.
     """
 
-    @pytest.fixture
+    @pytest.fixture()
     def benchmark_set(self) -> list[tuple[str, str, UFOCategory]]:
         """Uitgebreide benchmark set met 100+ definities."""
         return [
@@ -743,7 +742,7 @@ class TestAccuracyBenchmark:
             # Continue met meer cases...
         ]
 
-    @pytest.mark.slow
+    @pytest.mark.slow()
     def test_benchmark_accuracy(self, classifier, benchmark_set):
         """
         Test op grote benchmark set voor 95% precisie validatie.

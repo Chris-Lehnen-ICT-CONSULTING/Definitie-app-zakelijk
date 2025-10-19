@@ -242,7 +242,6 @@ def test_definition_comparison_logic():
             "success": True,
         }
 
-
         # This would normally render UI, but we can test the logic
         # by checking what would be extracted
 

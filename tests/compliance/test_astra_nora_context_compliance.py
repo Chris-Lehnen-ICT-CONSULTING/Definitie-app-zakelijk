@@ -36,7 +36,7 @@ from src.services.interfaces import GenerationRequest
 class TestAuditTrailCompliance:
     """Test ASTRA audit trail requirements."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def audit_logger(self):
         """Mock audit logger."""
         with patch("src.services.audit.audit_logger.AuditLogger") as mock_logger:
@@ -408,7 +408,6 @@ class TestJusticeDomainSpecific:
 
     def test_legal_context_validation(self):
         """Legal context must use official terminology."""
-
 
         # Should validate against official terms
 

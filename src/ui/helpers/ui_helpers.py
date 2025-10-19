@@ -324,7 +324,9 @@ def create_select_box(
 
 
 @contextmanager
-def create_section(title: str, expanded: bool = False, icon: str | None = None) -> Generator:
+def create_section(
+    title: str, expanded: bool = False, icon: str | None = None
+) -> Generator:
     """
     Create a section with consistent styling.
 
@@ -370,7 +372,9 @@ def show_status_badge(
 # === Tab Navigation ===
 
 
-def create_tab_navigation(tabs: dict[str, Callable], default_tab: str | None = None) -> None:
+def create_tab_navigation(
+    tabs: dict[str, Callable], default_tab: str | None = None
+) -> None:
     """
     Create tab navigation with automatic state management.
 

@@ -195,7 +195,7 @@ class TestAIServiceInterface:
         service = ConcreteAIService()
         assert isinstance(service, AIServiceInterface)
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_interface_async_methods(self):
         """Test dat interface methoden correct async zijn."""
 
@@ -276,7 +276,7 @@ class TestAIServiceExceptions:
 class TestInterfaceIntegration:
     """Integration tests voor interface componenten."""
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_full_flow_simulation(self):
         """Test complete flow met mock implementatie."""
 

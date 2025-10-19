@@ -89,9 +89,13 @@ def test_prompt_storage():
     prompt_location = None
 
     # Check metadata eerst (zoals de UI fix doet)
-    if hasattr(agent_result, "metadata") and agent_result.metadata and (
-        isinstance(agent_result.metadata, dict)
-        and "prompt_template" in agent_result.metadata
+    if (
+        hasattr(agent_result, "metadata")
+        and agent_result.metadata
+        and (
+            isinstance(agent_result.metadata, dict)
+            and "prompt_template" in agent_result.metadata
+        )
     ):
         prompt_found = True
         prompt_location = "metadata.prompt_template"

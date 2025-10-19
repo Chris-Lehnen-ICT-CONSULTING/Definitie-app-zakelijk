@@ -43,7 +43,7 @@ from src.services.synonym_orchestrator import SynonymOrchestrator
 # ========================================
 
 
-@pytest.fixture
+@pytest.fixture()
 def mock_registry():
     """Mock SynonymRegistry voor testing."""
     mock = Mock(spec=SynonymRegistry)
@@ -55,7 +55,7 @@ def mock_registry():
     return mock
 
 
-@pytest.fixture
+@pytest.fixture()
 def mock_gpt4():
     """Mock GPT4SynonymSuggester voor testing."""
     mock = Mock(spec=GPT4SynonymSuggester)
@@ -64,7 +64,7 @@ def mock_gpt4():
     return mock
 
 
-@pytest.fixture
+@pytest.fixture()
 def strict_config():
     """Strict policy configuratie."""
     return SynonymConfiguration(
@@ -77,7 +77,7 @@ def strict_config():
     )
 
 
-@pytest.fixture
+@pytest.fixture()
 def pragmatic_config():
     """Pragmatic policy configuratie."""
     return SynonymConfiguration(
@@ -90,7 +90,7 @@ def pragmatic_config():
     )
 
 
-@pytest.fixture
+@pytest.fixture()
 def orchestrator(mock_registry, mock_gpt4, strict_config):
     """Create orchestrator met mocked dependencies en strict config."""
     with patch(
@@ -100,7 +100,7 @@ def orchestrator(mock_registry, mock_gpt4, strict_config):
         return SynonymOrchestrator(registry=mock_registry, gpt4_suggester=mock_gpt4)
 
 
-@pytest.fixture
+@pytest.fixture()
 def sample_synonyms():
     """Sample synonym data voor tests."""
     return [
@@ -496,7 +496,7 @@ class TestGovernancePolicy:
 class TestGPT4Enrichment:
     """Test GPT-4 enrichment flow."""
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_fast_path_sufficient_synonyms_no_gpt4(
         self, orchestrator, mock_registry, mock_gpt4, sample_synonyms
     ):
@@ -514,7 +514,7 @@ class TestGPT4Enrichment:
         # GPT-4 moet NIET aangeroepen worden
         mock_gpt4.suggest_synonyms.assert_not_called()
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_slow_path_gpt4_called_when_insufficient(
         self, orchestrator, mock_registry, mock_gpt4
     ):
@@ -557,7 +557,23 @@ class TestGPT4Enrichment:
         mock_registry.add_group_member.return_value = 1
 
         # Na enrichment: 4 synonyms (2 original + 2 AI)
-        enriched_synonyms = [*initial_synonyms, WeightedSynonym(term="rechtsbijstandverlener", weight=0.85, status="ai_pending", is_preferred=False, usage_count=0), WeightedSynonym(term="juridisch adviseur", weight=0.75, status="ai_pending", is_preferred=False, usage_count=0)]
+        enriched_synonyms = [
+            *initial_synonyms,
+            WeightedSynonym(
+                term="rechtsbijstandverlener",
+                weight=0.85,
+                status="ai_pending",
+                is_preferred=False,
+                usage_count=0,
+            ),
+            WeightedSynonym(
+                term="juridisch adviseur",
+                weight=0.75,
+                status="ai_pending",
+                is_preferred=False,
+                usage_count=0,
+            ),
+        ]
 
         # Setup registry mock voor verschillende calls
         call_count = 0
@@ -587,7 +603,7 @@ class TestGPT4Enrichment:
         # Members moeten toegevoegd zijn
         assert mock_registry.add_group_member.call_count == 2
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_gpt4_timeout_handling(self, orchestrator, mock_registry, mock_gpt4):
         """Test GPT-4 timeout handling."""
         # Arrange
@@ -610,7 +626,7 @@ class TestGPT4Enrichment:
         assert ai_count == 0
         assert len(result) == 0  # Existing (leeg) wordt gereturned
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_gpt4_empty_suggestions_handling(
         self, orchestrator, mock_registry, mock_gpt4
     ):
@@ -640,7 +656,7 @@ class TestGPT4Enrichment:
         # Group creation moet NIET aangeroepen worden
         mock_registry.get_or_create_group.assert_not_called()
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_gpt4_generic_exception_handling(
         self, orchestrator, mock_registry, mock_gpt4
     ):
@@ -660,7 +676,7 @@ class TestGPT4Enrichment:
         assert ai_count == 0
         assert len(result) == 0
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_empty_term_in_ensure_synonyms(self, orchestrator, mock_registry):
         """Test empty term handling in ensure_synonyms."""
         # Act & Assert

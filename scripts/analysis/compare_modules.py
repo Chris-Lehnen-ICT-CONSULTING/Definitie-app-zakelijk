@@ -323,7 +323,6 @@ def demonstrate_improved_module(begrip: str) -> str:
 BELANGRIJK: Focus op precisie en helderheid. De definitie moet juridisch houdbaar zijn."""
 
 
-
 def main():
     """Hoofdfunctie voor module vergelijking."""
     comparator = ModuleComparator()

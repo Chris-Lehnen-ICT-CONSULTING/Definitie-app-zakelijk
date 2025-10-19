@@ -1,8 +1,8 @@
 import pytest
 
 
-@pytest.mark.unit
-@pytest.mark.asyncio
+@pytest.mark.unit()
+@pytest.mark.asyncio()
 async def test_informal_language_violation_blocks_acceptance():
     from services.validation.modular_validation_service import ModularValidationService
 
@@ -16,8 +16,8 @@ async def test_informal_language_violation_blocks_acceptance():
     assert res["is_acceptable"] is False
 
 
-@pytest.mark.unit
-@pytest.mark.asyncio
+@pytest.mark.unit()
+@pytest.mark.asyncio()
 async def test_mixed_language_violation_blocks_acceptance():
     from services.validation.modular_validation_service import ModularValidationService
 
@@ -31,8 +31,8 @@ async def test_mixed_language_violation_blocks_acceptance():
     assert res["is_acceptable"] is False
 
 
-@pytest.mark.unit
-@pytest.mark.asyncio
+@pytest.mark.unit()
+@pytest.mark.asyncio()
 async def test_too_minimal_structure_violation_blocks_acceptance():
     from services.validation.modular_validation_service import ModularValidationService
 
@@ -46,8 +46,8 @@ async def test_too_minimal_structure_violation_blocks_acceptance():
     assert res["is_acceptable"] is False
 
 
-@pytest.mark.unit
-@pytest.mark.asyncio
+@pytest.mark.unit()
+@pytest.mark.asyncio()
 async def test_soft_accept_minimal_ok_without_blocking_errors():
     from services.validation.modular_validation_service import ModularValidationService
 
@@ -61,7 +61,8 @@ async def test_soft_accept_minimal_ok_without_blocking_errors():
     assert not any(
         c
         and (
-            c.startswith(("LANG-", "CON-CIRC", "VAL-EMP", "VAL-LEN-002")) or c == "STR-FORM-001"
+            c.startswith(("LANG-", "CON-CIRC", "VAL-EMP", "VAL-LEN-002"))
+            or c == "STR-FORM-001"
         )
         for c in codes
     )

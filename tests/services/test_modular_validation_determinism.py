@@ -3,8 +3,8 @@
 import pytest
 
 
-@pytest.mark.unit
-@pytest.mark.asyncio
+@pytest.mark.unit()
+@pytest.mark.asyncio()
 async def test_deterministic_results_identical_inputs():
     """Two identical runs must produce identical results."""
     m = pytest.importorskip(
@@ -66,8 +66,8 @@ async def test_deterministic_results_identical_inputs():
         ), f"Category {category} scores must be identical: {score1} != {score2}"
 
 
-@pytest.mark.unit
-@pytest.mark.asyncio
+@pytest.mark.unit()
+@pytest.mark.asyncio()
 async def test_deterministic_results_different_correlation_ids():
     """Different correlation IDs should not affect determinism of scores."""
     m = pytest.importorskip(
@@ -107,8 +107,8 @@ async def test_deterministic_results_different_correlation_ids():
     assert violations1 == violations2
 
 
-@pytest.mark.unit
-@pytest.mark.asyncio
+@pytest.mark.unit()
+@pytest.mark.asyncio()
 async def test_deterministic_violation_order():
     """Violations must always be returned in sorted order by code."""
     m = pytest.importorskip(
@@ -139,8 +139,8 @@ async def test_deterministic_violation_order():
     ), f"Violations must be sorted: {violation_codes} != {sorted_codes}"
 
 
-@pytest.mark.unit
-@pytest.mark.asyncio
+@pytest.mark.unit()
+@pytest.mark.asyncio()
 async def test_deterministic_floating_point_rounding():
     """Scores must be consistently rounded to 2 decimal places."""
     m = pytest.importorskip(
@@ -172,7 +172,7 @@ async def test_deterministic_floating_point_rounding():
         ), f"Category {category} score must be rounded to 2 decimals: {cat_score}"
 
 
-@pytest.mark.unit
+@pytest.mark.unit()
 def test_deterministic_rule_evaluation_order():
     """Rules must be evaluated in sorted order by code for determinism."""
     m = pytest.importorskip(

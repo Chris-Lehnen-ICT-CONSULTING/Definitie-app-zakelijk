@@ -84,7 +84,9 @@ class TestImportStructure(unittest.TestCase):
                 failed_imports.append((module_name, str(e)))
                 logger.error(f"❌ {module_name} import gefaald: {e}")
 
-        assert len(failed_imports) == 0, f"Core modules faalden bij import: {failed_imports}"
+        assert (
+            len(failed_imports) == 0
+        ), f"Core modules faalden bij import: {failed_imports}"
 
     def test_optional_modules_graceful_degradation(self):
         """Test dat optionele modules graceful degradation hebben."""
@@ -126,7 +128,9 @@ class TestImportStructure(unittest.TestCase):
                     if "__pycache__" not in str(directory):
                         missing_init_files.append(str(directory.relative_to(src_path)))
 
-        assert len(missing_init_files) == 0, f"Ontbrekende __init__.py bestanden in: {missing_init_files}"
+        assert (
+            len(missing_init_files) == 0
+        ), f"Ontbrekende __init__.py bestanden in: {missing_init_files}"
 
 
 class TestNederlandseCommentaren(unittest.TestCase):
@@ -215,7 +219,9 @@ class TestNederlandseCommentaren(unittest.TestCase):
             except Exception as e:
                 logger.warning(f"Kon {py_file} niet lezen: {e}")
 
-        assert len(non_dutch_files) < len(self.python_files) * 0.1, f"Te veel bestanden zonder Nederlandse docstrings: {non_dutch_files[:5]}"
+        assert (
+            len(non_dutch_files) < len(self.python_files) * 0.1
+        ), f"Te veel bestanden zonder Nederlandse docstrings: {non_dutch_files[:5]}"
 
     def test_inline_comments_are_dutch(self):
         """Test dat inline commentaren grotendeels in het Nederlands zijn."""
@@ -257,7 +263,9 @@ class TestNederlandseCommentaren(unittest.TestCase):
             except Exception as e:
                 logger.warning(f"Kon {py_file} niet analyseren: {e}")
 
-        assert len(files_with_poor_dutch_comments) < 5, f"Te veel bestanden met onvoldoende Nederlandse commentaren: {files_with_poor_dutch_comments}"
+        assert (
+            len(files_with_poor_dutch_comments) < 5
+        ), f"Te veel bestanden met onvoldoende Nederlandse commentaren: {files_with_poor_dutch_comments}"
 
     def test_function_documentation_completeness(self):
         """Test dat belangrijke functies Nederlandse documentatie hebben."""
@@ -294,7 +302,9 @@ class TestNederlandseCommentaren(unittest.TestCase):
 
         # Verwacht dat minder dan 20% van de functies ongedocumenteerd is
         total_functions = len(undocumented_functions) + 100  # Geschatte totaal
-        assert len(undocumented_functions) / total_functions < 0.3, f"Te veel ongedocumenteerde functies: {undocumented_functions[:10]}"
+        assert (
+            len(undocumented_functions) / total_functions < 0.3
+        ), f"Te veel ongedocumenteerde functies: {undocumented_functions[:10]}"
 
 
 class TestCoreFunctionality(unittest.TestCase):
@@ -540,7 +550,9 @@ class TestPerformanceAndMemory(unittest.TestCase):
             memory_increase = final_memory - initial_memory
 
             # Verwacht dat memory increase onder 100MB blijft
-            assert memory_increase < 100, f"Memory gebruik te hoog: {memory_increase:.1f}MB"
+            assert (
+                memory_increase < 100
+            ), f"Memory gebruik te hoog: {memory_increase:.1f}MB"
 
             logger.info(f"✅ Memory usage: +{memory_increase:.1f}MB")
 
@@ -667,7 +679,9 @@ class TestRegressionSpecific(unittest.TestCase):
             if not file_path.exists():
                 missing_files.append(init_file)
 
-        assert len(missing_files) == 0, f"Ontbrekende __init__.py bestanden: {missing_files}"
+        assert (
+            len(missing_files) == 0
+        ), f"Ontbrekende __init__.py bestanden: {missing_files}"
 
         logger.info("✅ Alle verwachte __init__.py bestanden aanwezig")
 

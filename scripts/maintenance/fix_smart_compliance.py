@@ -406,7 +406,6 @@ class SMARTComplianceFixer:
             go_live_date=f"2025-{(sprint_num % 12) + 1:02d}-15",
         )
 
-
     def generate_epic_smart_section(
         self, file_path: Path, missing_criteria: list[SMARTCriterion]
     ) -> str:
@@ -439,7 +438,6 @@ class SMARTComplianceFixer:
             benefits_date="2025-10-01",
         )
 
-
     def generate_requirement_smart_section(
         self, file_path: Path, missing_criteria: list[SMARTCriterion]
     ) -> str:
@@ -465,7 +463,6 @@ class SMARTComplianceFixer:
             test_sprint=21 + (int(req_id) // 10),
             release_version=f"v2.{int(req_id) // 20}",
         )
-
 
     def generate_generic_smart_section(
         self, missing_criteria: list[SMARTCriterion]

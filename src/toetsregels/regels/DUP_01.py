@@ -29,7 +29,9 @@ class DUP01:
             )
             self.repository = None
 
-    def check(self, definitie: str, begrip: str = "", context: dict | None = None) -> dict:
+    def check(
+        self, definitie: str, begrip: str = "", context: dict | None = None
+    ) -> dict:
         """
         Check voor duplicate definities in database.
 
