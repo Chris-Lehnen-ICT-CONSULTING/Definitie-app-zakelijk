@@ -112,7 +112,7 @@ class TestSingleContextFlowPath:
 class TestPerformanceImprovement:
     """Verify >20% performance improvement target is achieved."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def legacy_context_flow(self):
         """Simulate legacy context flow timing."""
 
@@ -133,7 +133,7 @@ class TestPerformanceImprovement:
 
         return legacy_flow
 
-    @pytest.fixture
+    @pytest.fixture()
     def modern_context_flow(self):
         """Modern streamlined context flow."""
 

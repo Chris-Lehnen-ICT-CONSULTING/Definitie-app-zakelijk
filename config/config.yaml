@@ -1,297 +1,214 @@
-# DefinitieAgent - Single Production Configuration
-# Purpose: Complete application configuration for production use
-# Version: 2.0 - Simplified single-config architecture
-# Created: 2025-01-07
-#
-# IMPORTANT: This replaces config_production.yaml, config_development.yaml, and openai_config.yaml
-# All settings are optimized for single-user, production use with real data
-
-# ================================================================================
-# API CONFIGURATION - OpenAI Integration
-# ================================================================================
 api:
-  # API Key: MUST be set via environment variable OPENAI_API_KEY
-  # NEVER hardcode API keys in this file!
-  openai_api_key: null  # Read from OPENAI_API_KEY env variable
-
-  # Model Selection
-  default_model: "gpt-4.1"  # Stable, high-quality model for legal definitions
-
-  # Default AI Parameters
-  default_temperature: 0.1  # Very low for consistent legal output
-  default_max_tokens: 300   # Concise definitions
-
-  # Request Configuration
-  request_timeout: 30.0     # Seconds
-  max_retries: 3            # Conservative for production
-  retry_backoff_factor: 1.5 # Exponential backoff
-
-  # Model-Specific Settings
+  default_max_tokens: 300
+  default_model: gpt-4.1
+  default_temperature: 0.9
+  max_retries: 3
   model_settings:
     gpt-4:
-      max_tokens: 300
-      temperature: 0.01       # Highly deterministic
-      cost_per_token: 0.00003
       context_window: 8192
-
+      cost_per_token: 3.0e-05
+      max_tokens: 300
+      temperature: 0.01
     gpt-4.1:
-      max_tokens: 300
-      temperature: 0.0        # Fully deterministic
-      cost_per_token: 0.00003
       context_window: 8192
-
+      cost_per_token: 3.0e-05
+      max_tokens: 300
+      temperature: 0.0
     gpt-4o-mini:
-      max_tokens: 500
-      temperature: 0.7        # More creative (for examples)
-      cost_per_token: 0.000015
       context_window: 16384
-
-# ================================================================================
-# PROMPT TEMPERATURE SETTINGS - Per Prompt Type
-# ================================================================================
-# These control the creativity/consistency of each AI prompt type
-# 0.0-0.2 = Very consistent (best for legal definitions)
-# 0.3-0.5 = Balanced
-# 0.6-0.9 = More creative (good for examples)
-prompt_temperatures:
-  # Core definition generation (most important!)
-  definition: 0.1           # Very consistent for legal definitions
-
-  # Example generation (can be more creative)
-  voorbeeldzinnen: 0.5      # Example sentences
-  praktijkvoorbeelden: 0.6  # Practice examples
-  tegenvoorbeelden: 0.6     # Counter-examples
-
-  # Linguistic elements (very consistent)
-  synoniemen: 0.2           # Synonyms
-  antoniemen: 0.2           # Antonyms
-
-  # Explanation (balanced)
-  toelichting: 0.3          # Explanation/clarification
-
-  # Validation and classification (deterministic)
-  validation: 0.0           # Validation reasoning
-  classification: 0.0       # Category classification
-
-  # Web lookup augmentation
-  web_lookup: 0.5           # Web context enrichment
-
-# ================================================================================
-# CACHE CONFIGURATION
-# ================================================================================
+      cost_per_token: 1.5e-05
+      max_tokens: 500
+      temperature: 0.7
+  openai_api_key: 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
+  request_timeout: 30.0
+  retry_backoff_factor: 1.5
 cache:
+  cache_dir: cache
+  cleanup_interval: 600
+  default_ttl: 3600
+  definition_ttl: 7200
   enabled: true
-  cache_dir: "cache"
-  default_ttl: 3600         # 1 hour default
-  max_cache_size: 2000      # Entries
-  cleanup_interval: 600     # 10 minutes
-
-  # Operation-specific TTLs (seconds)
-  definition_ttl: 7200      # 2 hours (definitions are stable)
-  examples_ttl: 1800        # 30 minutes
-  synonyms_ttl: 7200        # 2 hours
-  validation_ttl: 900       # 15 minutes
-
-# ================================================================================
-# LOGGING CONFIGURATION
-# ================================================================================
+  examples_ttl: 1800
+  max_cache_size: 2000
+  synonyms_ttl: 7200
+  validation_ttl: 900
 logging:
-  level: "DEBUG"            # Detailed logging for single-user (was INFO)
-  console_enabled: true     # Show logs in terminal (was false)
-  file_enabled: true        # Also save to file
-  log_file: "logs/app.log"  # Simple filename (was log/definitie_agent_prod.log)
-  rotation: "daily"
-  retention_days: 30
-
-  # Module-specific log levels
+  backup_count: 5
+  console_enabled: true
+  date_format: '%Y-%m-%d %H:%M:%S'
+  file_enabled: true
+  format: '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+  level: DEBUG
+  log_file: logs/app.log
+  max_log_size: 10485760
   module_levels:
-    openai: "INFO"          # See OpenAI calls (was ERROR)
-    cache: "INFO"           # Cache operations
-    validation: "DEBUG"     # Detailed validation info
-    database: "INFO"        # DB operations
-    urllib3: "WARNING"      # Reduce noise from HTTP library
-    requests: "WARNING"     # Reduce noise from requests library
-
-# ================================================================================
-# MONITORING & COST TRACKING
-# ================================================================================
+    cache: INFO
+    database: INFO
+    openai: INFO
+    requests: WARNING
+    urllib3: WARNING
+    validation: DEBUG
 monitoring:
-  enabled: true
-
-  # Cost thresholds (ADJUST TO YOUR BUDGET!)
-  # Realistic usage with temp=0.1: ~€2-5/day for 50 definitions
-  cost_threshold_daily: 10.0     # €10 per day (conservative)
-  cost_threshold_monthly: 200.0  # €200 per month (conservative)
-
-  # Performance thresholds
-  response_time_threshold: 10.0  # Seconds
-  error_rate_threshold: 0.05     # 5% error rate (strict)
-
-  # Metrics collection
   collect_metrics: true
-  metrics_interval: 60           # Seconds
-  metrics_retention_days: 90
-
-# ================================================================================
-# RATE LIMITING - Optimized for Single User
-# ================================================================================
-rate_limiting:
+  cost_calculation_interval: 300
+  cost_threshold_daily: 10.0
+  cost_threshold_monthly: 200.0
   enabled: true
-
-  # Higher limits for single user (not shared with others)
-  requests_per_minute: 60        # Increased from 30 for single-user
-  requests_per_hour: 1000        # Conservative but sufficient
-  tokens_per_second: 2.0         # Increased from 0.5 for faster responses
-
-  # Concurrent requests
-  max_concurrent: 10             # Increased from 5 for more parallelism
-
-  # Backoff strategy
-  backoff_factor: 1.5
-  max_retries: 3
-
-# ================================================================================
-# VALIDATION CONFIGURATION
-# ================================================================================
-validation:
-  # Quality gates (IMPORTANT - keep strict!)
-  strict_mode: true              # Enforce all rules
-  max_validation_errors: 5       # Maximum errors before rejection
-
-  # Definition constraints
-  max_definition_length: 300     # Keep concise
-  min_definition_length: 10      # Minimum viable definition
-
-  # Validation behavior
-  auto_validate: true
-  show_all_errors: true
-  fail_fast: false               # Check all rules
-
-# ================================================================================
-# SECURITY CONFIGURATION
-# ================================================================================
-security:
-  enabled: true
-
-  # Input validation
-  max_input_length: 8000         # Characters
-  validate_inputs: true
-  sanitize_inputs: true
-
-  # PII protection
-  redact_pii: true
-  pii_patterns_file: "config/pii_patterns.yaml"
-
-# ================================================================================
-# UI CONFIGURATION - Context Options
-# ================================================================================
-ui:
-  page_title: "DefinitieAgent"
-  page_icon: "🧠"
-  sidebar_width: 300
-
-  # Organizational contexts
-  organizational_contexts:
-    - "OM"
-    - "ZM"
-    - "Reclassering"
-    - "DJI"
-    - "NP"
-    - "Justid"
-    - "KMAR"
-    - "FIOD"
-    - "CJIB"
-    - "Strafrechtketen"
-    - "Migratieketen"
-    - "Justitie en Veiligheid"
-    - "Anders..."
-
-  # Legal contexts
-  legal_contexts:
-    - "Strafrecht"
-    - "Civiel recht"
-    - "Bestuursrecht"
-    - "Internationaal recht"
-    - "Anders..."
-
-  # Common laws for UI selection
-  common_laws:
-    - "Wetboek van Strafvordering (huidig)"
-    - "Wetboek van Strafvordering (toekomstig)"
-    - "Wet op de Identificatieplicht"
-    - "Wet op de politiegegevens"
-    - "Wetboek van Strafrecht"
-    - "Algemene verordening gegevensbescherming"
-    - "Anders..."
-
-  # Ketenpartners
-  ketenpartners:
-    - "ZM"
-    - "DJI"
-    - "KMAR"
-    - "CJIB"
-    - "JUSTID"
-    - "OM"
-    - "Politie"
-    - "Reclassering"
-    - "Halt"
-    - "Raad voor de Kinderbescherming"
-
-  # Abbreviations mapping
-  afkortingen:
-    "OM": "Openbaar Ministerie"
-    "ZM": "Zittende Magistratuur"
-    "3RO": "Samenwerkingsverband Reclasseringsorganisaties"
-    "DJI": "Dienst Justitiële Inrichtingen"
-    "NP": "Nederlands Politie"
-    "FIOD": "Fiscale Inlichtingen- en Opsporingsdienst"
-    "Justid": "Dienst Justitiële Informatievoorziening"
-    "KMAR": "Koninklijke Marechaussee"
-    "CJIB": "Centraal Justitieel Incassobureau"
-    "AVG": "Algemene verordening gegevensbescherming"
-
-# ================================================================================
-# PATHS CONFIGURATION
-# ================================================================================
+  error_rate_threshold: 0.05
+  export_metrics: false
+  health_check_interval: 30
+  metrics_interval: 60
+  openai_pricing:
+    gpt-4: 0.03
+    gpt-4.1: 0.03
+  response_time_threshold: 10.0
 paths:
-  base_dir: "."
-  cache_dir: "cache"
-  exports_dir: "exports"
-  logs_dir: "logs"
-  config_dir: "config"
-  reports_dir: "reports"
-
-  # Specific files
-  toetsregels_file: "config/toetsregels.json"
-  verboden_woorden_file: "config/verboden_woorden.json"
-  context_mapping_file: "config/context_wet_mapping.json"
-  rate_limit_history_file: "cache/rate_limit_history.json"
-
-# ================================================================================
-# RESILIENCE CONFIGURATION
-# ================================================================================
+  base_dir: .
+  cache_dir: cache
+  config_dir: config
+  context_mapping_file: config/context_wet_mapping.json
+  exports_dir: exports
+  logs_dir: logs
+  rate_limit_history_file: cache/rate_limit_history.json
+  reports_dir: reports
+  toetsregels_file: config/toetsregels.json
+  verboden_woorden_file: config/verboden_woorden.json
+rate_limiting:
+  adjustment_factor: 0.1
+  bucket_capacity: 10
+  enabled: true
+  max_concurrent: 10
+  max_rate: 10.0
+  min_rate: 0.1
+  priority_weights:
+    background: 0.2
+    critical: 1.0
+    high: 0.8
+    low: 0.4
+    normal: 0.6
+  requests_per_hour: 1000
+  requests_per_minute: 60
+  target_response_time: 2.0
+  tokens_per_second: 2.0
 resilience:
-  # Circuit breaker
-  circuit_breaker:
-    enabled: true
-    failure_threshold: 5
-    success_threshold: 2
-    timeout: 60.0
-
-  # Health checks
-  health_check:
-    enabled: true
-    interval: 300
-    timeout: 10.0
-
-  # Retry strategies
-  retry_strategies:
-    api_call:
-      max_attempts: 3
-      backoff_factor: 1.5
-      max_delay: 15.0
-
-    database:
-      max_attempts: 2
-      backoff_factor: 1.0
-      max_delay: 5.0
+  base_delay: 1.0
+  degraded_threshold: 0.8
+  enable_fallback: true
+  enabled: true
+  failure_threshold: 3
+  fallback_cache_duration: 300.0
+  health_check_interval: 30.0
+  max_delay: 30.0
+  max_retries: 3
+  persist_failed_requests: true
+  recovery_timeout: 30.0
+  retry_strategy: adaptive
+  unhealthy_threshold: 0.5
+security:
+  api_key_validation: true
+  block_duration: 300
+  detect_path_traversal: true
+  detect_sql_injection: true
+  detect_xss: true
+  enabled: true
+  max_input_length: 8000
+  require_api_key: true
+  sanitize_inputs: true
+  security_rate_limit: 100
+  validate_inputs: true
+ui:
+  afkortingen:
+    3RO: Samenwerkingsverband Reclasseringsorganisaties
+    AVG: Algemene verordening gegevensbescherming
+    CJIB: Centraal Justitieel Incassobureau
+    DJI: "Dienst Justiti\xEBle Inrichtingen"
+    FIOD: Fiscale Inlichtingen- en Opsporingsdienst
+    Justid: "Dienst Justiti\xEBle Informatievoorziening"
+    KMAR: Koninklijke Marechaussee
+    NP: Nederlands Politie
+    OM: Openbaar Ministerie
+    ZM: Zittende Magistratuur
+  common_laws:
+  - Wetboek van Strafvordering (huidig)
+  - Wetboek van Strafvordering (toekomstig)
+  - Wet op de Identificatieplicht
+  - Wet op de politiegegevens
+  - Wetboek van Strafrecht
+  - Algemene verordening gegevensbescherming
+  - Anders...
+  ketenpartners:
+  - ZM
+  - DJI
+  - KMAR
+  - CJIB
+  - JUSTID
+  - OM
+  - Politie
+  - Reclassering
+  - Halt
+  - Raad voor de Kinderbescherming
+  legal_contexts:
+  - Strafrecht
+  - Civiel recht
+  - Bestuursrecht
+  - Internationaal recht
+  - Anders...
+  organizational_contexts:
+  - OM
+  - ZM
+  - Reclassering
+  - DJI
+  - NP
+  - Justid
+  - KMAR
+  - FIOD
+  - CJIB
+  - Strafrechtketen
+  - Migratieketen
+  - Justitie en Veiligheid
+  - Anders...
+  page_icon: "\U0001F9E0"
+  page_title: DefinitieAgent
+  sidebar_width: 300
+validation:
+  allowed_toetsregels:
+  - CON-01
+  - CON-02
+  - ESS-01
+  - ESS-02
+  - ESS-04
+  - ESS-05
+  - INT-01
+  - INT-02
+  - INT-03
+  - INT-04
+  - INT-06
+  - INT-07
+  - INT-08
+  - SAM-01
+  - SAM-05
+  - SAM-07
+  - STR-01
+  - STR-02
+  - STR-03
+  - STR-04
+  - STR-05
+  - STR-06
+  - STR-07
+  - STR-08
+  - STR-09
+  - ARAI01
+  - ARAI02
+  - ARAI02SUB1
+  - ARAI02SUB2
+  - ARAI03
+  - ARAI04
+  - ARAI04SUB1
+  - ARAI05
+  - ARAI06
+  enabled: true
+  max_definition_length: 300
+  max_text_length: 10000
+  max_validation_errors: 5
+  min_definition_length: 10
+  strict_mode: true

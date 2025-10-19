@@ -347,7 +347,10 @@ class DataArchiver:
         return "\n".join(report)
 
     def run(
-        self, days: int, status_filter: list[str] | None = None, delete_source: bool = False
+        self,
+        days: int,
+        status_filter: list[str] | None = None,
+        delete_source: bool = False,
     ) -> int:
         """
         Execute the archive process.

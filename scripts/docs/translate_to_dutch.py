@@ -418,7 +418,6 @@ class DocumentTranslator:
             flags=re.IGNORECASE,
         )
 
-
     def determine_priority(self, file_path: Path) -> Priority:
         """Determine translation priority based on file type and location"""
 

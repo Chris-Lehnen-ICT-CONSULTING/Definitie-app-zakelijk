@@ -33,7 +33,7 @@ from src.services.web_lookup.synonym_service_refactored import (
 class TestJuridischeSynoniemServiceFacade:
     """Test suite voor façade backward compatibility."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def mock_orchestrator(self):
         """Create mock orchestrator with default behavior."""
         orchestrator = Mock()
@@ -56,7 +56,7 @@ class TestJuridischeSynoniemServiceFacade:
         )
         return orchestrator
 
-    @pytest.fixture
+    @pytest.fixture()
     def service(self, mock_orchestrator):
         """Create service with mock orchestrator."""
         return JuridischeSynoniemService(mock_orchestrator)

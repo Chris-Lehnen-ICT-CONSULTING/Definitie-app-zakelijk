@@ -33,7 +33,7 @@ from src.services.interfaces import GenerationRequest
 class TestFeatureFlagConfiguration:
     """Test feature flag configuration and management."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def feature_flags(self):
         """Create FeatureFlags instance."""
         return FeatureFlags()
@@ -100,7 +100,7 @@ class TestFeatureFlagConfiguration:
 class TestPercentageRollout:
     """Test percentage-based feature rollouts."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def feature_flags(self):
         return FeatureFlags()
 
@@ -355,9 +355,7 @@ class TestFlagOverrides:
         flags.add_to_blacklist("modern_context_flow", "problematic_user")
 
         # Should be disabled for blacklisted user
-        assert (
-            not flags.is_enabled_for_user("modern_context_flow", "problematic_user")
-        )
+        assert not flags.is_enabled_for_user("modern_context_flow", "problematic_user")
         # But enabled for others
         assert flags.is_enabled_for_user("modern_context_flow", "regular_user")
 

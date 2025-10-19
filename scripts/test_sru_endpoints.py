@@ -40,9 +40,10 @@ async def test_endpoint(name: str, url: str, query: str, extra_info: str = "") -
     }
 
     try:
-        async with aiohttp.ClientSession() as session, session.get(
-            url, timeout=aiohttp.ClientTimeout(total=30)
-        ) as resp:
+        async with (
+            aiohttp.ClientSession() as session,
+            session.get(url, timeout=aiohttp.ClientTimeout(total=30)) as resp,
+        ):
             result["status"] = resp.status
             text = await resp.text()
 

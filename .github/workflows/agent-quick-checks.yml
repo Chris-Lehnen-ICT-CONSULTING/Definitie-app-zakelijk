@@ -40,5 +40,5 @@ jobs:
 
       - name: Run quick checks
         run: |
-          bash scripts/agent_quick_checks.sh
+          bash scripts/testing/agent_quick_checks.sh
 

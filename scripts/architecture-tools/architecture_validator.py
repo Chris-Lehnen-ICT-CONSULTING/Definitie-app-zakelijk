@@ -395,9 +395,7 @@ class ArchitectureValidator:
         clean_content = re.sub(r"```[\s\S]*?```", "", content)
         clean_content = re.sub(r"^#+.*$", "", clean_content, flags=re.MULTILINE)
 
-        return [
-            p.strip() for p in clean_content.split("\n\n") if len(p.strip()) > 50
-        ]
+        return [p.strip() for p in clean_content.split("\n\n") if len(p.strip()) > 50]
 
     def _extract_sections(self, content: str) -> list[str]:
         """Extract section headers from markdown"""
@@ -475,9 +473,11 @@ class ArchitectureValidator:
         for line in content.split("\n"):
             if re.match(r"^#+\s+", line):
                 current_section = line.strip()
-            elif current_section and any(
-                indicator in line.lower() for indicator in technical_indicators
-            ) and current_section not in sections:
+            elif (
+                current_section
+                and any(indicator in line.lower() for indicator in technical_indicators)
+                and current_section not in sections
+            ):
                 sections.append(current_section)
 
         return sections
@@ -497,9 +497,11 @@ class ArchitectureValidator:
         for line in content.split("\n"):
             if re.match(r"^#+\s+", line):
                 current_section = line.strip()
-            elif current_section and any(
-                indicator in line.lower() for indicator in business_indicators
-            ) and current_section not in sections:
+            elif (
+                current_section
+                and any(indicator in line.lower() for indicator in business_indicators)
+                and current_section not in sections
+            ):
                 sections.append(current_section)
 
         return sections
@@ -525,7 +527,6 @@ class ArchitectureValidator:
             "warnings": [self._result_to_dict(r) for r in warnings],
             "passed": [self._result_to_dict(r) for r in passed],
         }
-
 
     def _result_to_dict(self, result: ValidationResult) -> dict[str, any]:
         """Convert ValidationResult to dictionary"""

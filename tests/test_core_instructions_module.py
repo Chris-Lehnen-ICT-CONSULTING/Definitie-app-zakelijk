@@ -123,7 +123,7 @@ class TestCoreInstructionsModule:
 class TestCoreInstructionsModuleImproved:
     """Test suite voor verbeterde versie van CoreInstructionsModule."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def improved_output(self):
         """Mock improved output voor vergelijking."""
         return """Je bent een ervaren Nederlandse expert in het opstellen van beleidsmatige en juridische definities voor de Nederlandse overheid.

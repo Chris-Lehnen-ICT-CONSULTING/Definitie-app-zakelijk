@@ -156,7 +156,6 @@ class Story24TestRunner:
         )
         return overall_success and success
 
-
     def print_final_report(self):
         """Print final test execution report."""
         print(f"\n{'='*80}")

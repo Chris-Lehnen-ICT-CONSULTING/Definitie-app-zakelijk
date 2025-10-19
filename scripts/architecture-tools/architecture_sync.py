@@ -394,9 +394,7 @@ class ArchitectureSync:
         clean_content = re.sub(r"```[\s\S]*?```", "", content)
         clean_content = re.sub(r"^#+.*$", "", clean_content, flags=re.MULTILINE)
 
-        return [
-            p.strip() for p in clean_content.split("\n\n") if len(p.strip()) > 50
-        ]
+        return [p.strip() for p in clean_content.split("\n\n") if len(p.strip()) > 50]
 
     def _has_cross_reference(self, ea_doc: dict, sa_doc: dict, req_ref: dict) -> bool:
         """Check if required cross-reference exists"""
@@ -451,7 +449,6 @@ class ArchitectureSync:
 </body>
 </html>
         """
-
 
     def _generate_details_html(self, report: SyncReport) -> str:
         """Generate detailed HTML for sync report"""

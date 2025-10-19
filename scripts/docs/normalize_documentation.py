@@ -136,7 +136,10 @@ class DocumentNormalizer:
         if filepath.suffix != ".md":
             return False
         # Skip backup bestanden
-        return not (filepath.name.endswith(".backup") or filepath.name.endswith(".linkfix_backup"))
+        return not (
+            filepath.name.endswith(".backup")
+            or filepath.name.endswith(".linkfix_backup")
+        )
 
     def normalize_content(self, content: str, filepath: Path) -> tuple[str, bool]:
         """Normaliseer de inhoud van een document."""

@@ -332,9 +332,7 @@ class ModularValidationService:
                 cu = str(code).upper()
                 if code in self._baseline_internal:
                     weights[code] = 0.0
-                elif (
-                    cu.startswith(("ARAI", "AR-", "AR"))
-                ):
+                elif cu.startswith(("ARAI", "AR-", "AR")):
                     # Beperk tot ARAI‑familie; AR‑prefix meegenomen voor compat
                     weights[code] = 0.0
         except Exception:
@@ -1501,9 +1499,7 @@ class ModularValidationService:
                 r = str(rid)
                 ru = r.upper()
                 # Skip interne regels en ARAI* bij categorie-aggregatie
-                if (
-                    r in self._baseline_internal or ru.startswith(("ARAI", "AR-", "AR"))
-                ):
+                if r in self._baseline_internal or ru.startswith(("ARAI", "AR-", "AR")):
                     continue
                 cat = self._category_for(r)
                 buckets[cat].append(float(score or 0.0))
