@@ -51,12 +51,12 @@ async def test_bulk_generation_with_delay():
 
     # Define order and delays
     example_configs = [
-        (ExampleType.SENTENCE, 3, 0),  # No delay
-        (ExampleType.PRACTICAL, 3, 0),  # No delay
-        (ExampleType.COUNTER, 3, 0),  # No delay
-        (ExampleType.EXPLANATION, 1, 2),  # 2s delay before
-        (ExampleType.SYNONYMS, 5, 3),  # 3s delay before
-        (ExampleType.ANTONYMS, 5, 3),  # 3s delay before
+        (ExampleType.VOORBEELDZINNEN, 3, 0),  # No delay
+        (ExampleType.PRAKTIJKVOORBEELDEN, 3, 0),  # No delay
+        (ExampleType.TEGENVOORBEELDEN, 3, 0),  # No delay
+        (ExampleType.TOELICHTING, 1, 2),  # 2s delay before
+        (ExampleType.SYNONIEMEN, 5, 3),  # 3s delay before
+        (ExampleType.ANTONIEMEN, 5, 3),  # 3s delay before
     ]
 
     print("\n📦 Start generatie met delays...")
