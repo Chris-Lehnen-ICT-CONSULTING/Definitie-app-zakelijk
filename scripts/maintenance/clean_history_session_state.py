@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Clean History Tab related session state keys"""
 
+import sys
+
 import streamlit as st
 
 

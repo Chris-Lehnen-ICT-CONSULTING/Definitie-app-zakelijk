@@ -1086,6 +1086,7 @@ class DefinitionGeneratorTab:
         else:
             # Geen saved_record beschikbaar: bied optie om als concept op te slaan wanneer niet acceptabel
             try:
+                agent_result = safe_dict_get(generation_result, "agent_result")
                 if isinstance(agent_result, dict):
                     vdet = agent_result.get("validation_details") or {}
                     acceptable = bool(vdet.get("is_acceptable", False))
