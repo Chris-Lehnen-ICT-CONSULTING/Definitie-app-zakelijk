@@ -4,10 +4,11 @@ UFO Classifier Critical Bug Fixes
 Immediate fixes for CRITICAL issues preventing 95% precision target
 """
 
+import datetime
 import logging
 import re
 import unicodedata
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
 from typing import Any
@@ -462,7 +463,6 @@ def identify_secondary_categories_safe(
 # Helper function for error results
 def create_error_result(term: str, definition: str, error_msg: str):
     """Create an error result for failed classification."""
-    from datetime import datetime
 
     @dataclass
     class ErrorResult:
@@ -471,7 +471,7 @@ def create_error_result(term: str, definition: str, error_msg: str):
         primary_category: str = "KIND"  # Default fallback
         confidence: float = 0.0
         error: str = ""
-        timestamp: datetime = field(default_factory=datetime.now)
+        timestamp: datetime.datetime = field(default_factory=datetime.datetime.now)
 
     return ErrorResult(term=term, definition=definition, error=error_msg)
 

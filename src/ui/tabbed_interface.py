@@ -270,15 +270,15 @@ class TabbedInterface:
             return result.categorie, result.reasoning, result.test_scores
 
         except Exception as e:
-            logger.error(f"Ontologische classificatie mislukt voor '{begrip}': {e}")
-
-            # Fallback: PROCES (meest voorkomend in tests: 43%)
-            fallback_scores = {"type": 0, "proces": 1, "resultaat": 0, "exemplaar": 0}
-            return (
-                OntologischeCategorie.PROCES,
-                f"Fallback naar PROCES (error: {str(e)[:50]})",
-                fallback_scores,
+            logger.error(
+                f"Ontologische classificatie gefaald voor '{begrip}': {e}",
+                exc_info=True,
             )
+            # GEEN FALLBACK: Propageer error zodat gebruiker weet dat classificatie mislukt is
+            raise RuntimeError(
+                f"Kan ontologische categorie niet bepalen voor '{begrip}'. "
+                f"Controleer of context compleet is."
+            ) from e
 
     def _render_category_preview(self):
         """Toon voorgestelde ontologische categorie met mogelijkheid tot override.
