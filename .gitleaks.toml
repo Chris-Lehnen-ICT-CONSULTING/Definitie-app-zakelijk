@@ -55,7 +55,16 @@ description = "Ignore encrypted or hashed values"
 regexes = [
   # Hashed values (SHA256, bcrypt, etc.)
   '''\$2[ayb]\$.{56}''',
-  '''[a-fA-F0-9]{64}''',  # SHA256 hex
+  '''[a-fA-F0-9]{64}''', # SHA256 hex
+]
+
+[[allowlists]]
+description = "Ignore localhost connection strings in source code"
+paths = ['''src/.*/.*config.*\.py''', '''src/.*/.*settings.*\.py''']
+regexes = [
+  '''redis://localhost:6379''',
+  '''redis://REDACTED:6379''',
+  '''postgres://localhost''',
 ]
 
 # Custom rules for project-specific patterns
@@ -88,7 +97,7 @@ tags = ["generic-secret", "medium-risk"]
 description = "Ignore common non-secret patterns"
 regexes = [
   '''(?i)api[_-]?key[\"'\s]*[:=][\"'\s]*(true|false|null|none|test|example)''',
-  '''(?i)password[\"'\s]*[:=][\"'\s]*(test|example|demo)'''
+  '''(?i)password[\"'\s]*[:=][\"'\s]*(test|example|demo)''',
 ]
 
 # Environment variable exposure
