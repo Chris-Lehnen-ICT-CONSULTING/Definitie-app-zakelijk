@@ -1,25 +1,16 @@
-# Portal HTML files (generated documentation)
-docs/portal/rendered/analyses/CONFIG_ENVIRONMENT_MASTERPLAN.html
-docs/portal/rendered/analyses/CONFIG_ENVIRONMENT_VERIFICATION_REPORT.html
-docs/portal/rendered/analyses/SECURITY_AUDIT_REPORT.html:generic-api-key:195
-docs/portal/rendered/analyses/SECURITY_AUDIT_REPORT.html:generic-api-key:267
-docs/portal/rendered/analyses/SECURITY_AUDIT_REPORT.html:generic-api-key:314
-docs/portal/rendered/analyses/SECURITY_AUDIT_REPORT.html:generic-api-key:344
-docs/portal/rendered/analyses/SECURITY_AUDIT_REPORT.html:generic-api-key:345
-docs/portal/rendered/analyses/SECURITY_AUDIT_REPORT.html:generic-api-key:346
-docs/portal/rendered/analyses/SECURITY_AUDIT_REPORT.html:generic-api-key:349
-
 # Config file (test/dev API key - not a real secret)
-4c71f32721e9bf52ec4f660603b45a64c9397f28:config/config.yaml:openai-api-key-new-format:22
-4c71f32721e9bf52ec4f660603b45a64c9397f28:config/config.yaml:openai-api-key:22
+# Using path:rule:line format (commit-agnostic)
+config/config.yaml:openai-api-key-new-format:22
+config/config.yaml:openai-api-key:22
 
-# Documentation files (example API keys)
-4c71f32721e9bf52ec4f660603b45a64c9397f28:docs/analyses/CONFIG_ENVIRONMENT_MASTERPLAN.md:openai-api-key:143
-4c71f32721e9bf52ec4f660603b45a64c9397f28:docs/analyses/CONFIG_ENVIRONMENT_MASTERPLAN.md:openai-api-key-new-format:143
+# Documentation files (example API keys - commit-agnostic)
+docs/analyses/CONFIG_ENVIRONMENT_MASTERPLAN.md:openai-api-key:143
+docs/analyses/CONFIG_ENVIRONMENT_MASTERPLAN.md:openai-api-key-new-format:143
+docs/analyses/CONFIG_ENVIRONMENT_VERIFICATION_REPORT.md:generic-api-key:122
+docs/analyses/CONFIG_ENVIRONMENT_VERIFICATION_REPORT.md:generic-api-key:138
+docs/analyses/CONFIG_ENVIRONMENT_VERIFICATION_REPORT.md:generic-api-key:146
 
-# Old commit fingerprints (keep for history)
-84b3cc9c1fbabe6de1a7a51d089c64cc559ffd26:config/config.yaml:openai-api-key-new-format:22
-84b3cc9c1fbabe6de1a7a51d089c64cc559ffd26:config/config.yaml:openai-api-key:22
-84b3cc9c1fbabe6de1a7a51d089c64cc559ffd26:docs/analyses/CONFIG_ENVIRONMENT_VERIFICATION_REPORT.md:generic-api-key:122
-84b3cc9c1fbabe6de1a7a51d089c64cc559ffd26:docs/analyses/CONFIG_ENVIRONMENT_VERIFICATION_REPORT.md:generic-api-key:138
-84b3cc9c1fbabe6de1a7a51d089c64cc559ffd26:docs/analyses/CONFIG_ENVIRONMENT_VERIFICATION_REPORT.md:generic-api-key:146
+# Portal HTML files (generated documentation - path-only ignores)
+docs/portal/rendered/analyses/CONFIG_ENVIRONMENT_MASTERPLAN.html:openai-api-key
+docs/portal/rendered/analyses/CONFIG_ENVIRONMENT_VERIFICATION_REPORT.html:generic-api-key
+docs/portal/rendered/analyses/SECURITY_AUDIT_REPORT.html:generic-api-key
