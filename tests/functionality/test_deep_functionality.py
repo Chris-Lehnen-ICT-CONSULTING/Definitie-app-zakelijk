@@ -164,9 +164,9 @@ async def test_rate_limiting():
     for endpoint in endpoints:
         limiter = await get_smart_limiter(endpoint)
         print(f"\n  Endpoint: {endpoint}")
-        print(f"    - Tokens beschikbaar: {limiter.rate_limiter.available_tokens:.1f}")
-        print(f"    - Bucket capacity: {limiter.rate_limiter.bucket.capacity}")
-        print(f"    - Request queue size: {limiter.request_queue.qsize()}")
+        print(f"    - Tokens beschikbaar: {limiter.token_bucket.tokens:.1f}")
+        print(f"    - Bucket capacity: {limiter.token_bucket.capacity}")
+        print(f"    - Config rate: {limiter.config.tokens_per_second}")
 
     # Test parallel requests
     print("\n\n🔄 Test parallel requests naar verschillende endpoints...")
@@ -176,11 +176,13 @@ async def test_rate_limiting():
         limiter = await get_smart_limiter(endpoint)
         start = time.time()
 
-        async def dummy_func():
-            await asyncio.sleep(0.1)  # Simuleer API call
-            return f"Result from {endpoint} #{index}"
-
-        result = await limiter.execute_with_rate_limit(dummy_func)
+        # Acquire tokens before executing
+        await limiter.token_bucket.acquire(1)
+        
+        # Simuleer API call
+        await asyncio.sleep(0.1)
+        result = f"Result from {endpoint} #{index}"
+        
         duration = time.time() - start
         return endpoint, index, duration, result
 
