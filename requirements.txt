@@ -54,7 +54,7 @@ mypy_extensions==1.1.0
 narwhals==1.42.1
 nodeenv==1.9.1
 numpy==2.3.4
-openai==1.86.0
+openai==2.6.0
 packageurl-python==0.17.5
 packaging==24.2
 pandas==2.3.3
