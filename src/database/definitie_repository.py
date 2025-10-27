@@ -1101,8 +1101,7 @@ class DefinitieRepository:
         except ValueError as e:
             valid_statuses = ", ".join([s.value for s in DefinitieStatus])
             raise ValueError(
-                f"Ongeldige status '{status}'. "
-                f"Toegestane waarden: {valid_statuses}"
+                f"Ongeldige status '{status}'. " f"Toegestane waarden: {valid_statuses}"
             ) from e
 
         return self.search_definities(status=status_enum, limit=None)
