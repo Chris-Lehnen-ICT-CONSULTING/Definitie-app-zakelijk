@@ -1088,12 +1088,24 @@ class DefinitieRepository:
         Haal definities op gefilterd op status.
 
         Args:
-            status: Status waarde (string)
+            status: Status waarde (string zoals 'draft', 'established', etc.)
 
         Returns:
             List van DefinitieRecord objecten met de gegeven status
+
+        Raises:
+            ValueError: Als status geen geldige DefinitieStatus waarde is
         """
-        return self.search_definities(status=DefinitieStatus(status), limit=None)
+        try:
+            status_enum = DefinitieStatus(status)
+        except ValueError as e:
+            valid_statuses = ", ".join([s.value for s in DefinitieStatus])
+            raise ValueError(
+                f"Ongeldige status '{status}'. "
+                f"Toegestane waarden: {valid_statuses}"
+            ) from e
+
+        return self.search_definities(status=status_enum, limit=None)
 
     def search_definities(
         self,

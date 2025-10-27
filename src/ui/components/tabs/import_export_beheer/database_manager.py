@@ -64,7 +64,7 @@ class DatabaseManager:
         try:
             total = len(self.repository.get_all())
             established = len(
-                self.repository.get_by_status(DefinitieStatus.VASTGESTELD.value)
+                self.repository.get_by_status(DefinitieStatus.ESTABLISHED.value)
             )
             draft = len(self.repository.get_by_status(DefinitieStatus.DRAFT.value))
 
