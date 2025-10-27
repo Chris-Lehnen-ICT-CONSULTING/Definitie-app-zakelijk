@@ -24,32 +24,30 @@ class CustomJsonFormatter(jsonlogger.JsonFormatter):
     Adds environment information and standardizes field names for consistency.
     """
 
-    def add_fields(
-        self, log_record: dict, record: logging.LogRecord, message_dict: dict
-    ):
+    def add_fields(self, log_data: dict, record: logging.LogRecord, message_dict: dict):
         """Add custom fields to the log record.
 
         Args:
-            log_record: The dictionary that will be serialized to JSON
+            log_data: The dictionary that will be serialized to JSON
             record: The logging.LogRecord instance
             message_dict: Additional message context
         """
-        super().add_fields(log_record, record, message_dict)
+        super().add_fields(log_data, record, message_dict)
 
         # Add environment context
-        log_record["environment"] = os.getenv("APP_ENV", "development")
+        log_data["environment"] = os.getenv("APP_ENV", "development")
 
         # Standardize field names (rename after parent processing)
-        if "levelname" in log_record:
-            log_record["level"] = log_record.pop("levelname")
-        if "name" in log_record:
-            log_record["logger"] = log_record.pop("name")
-        if "asctime" in log_record:
-            log_record["timestamp"] = log_record.pop("asctime")
+        if "levelname" in log_data:
+            log_data["level"] = log_data.pop("levelname")
+        if "name" in log_data:
+            log_data["logger"] = log_data.pop("name")
+        if "asctime" in log_data:
+            log_data["timestamp"] = log_data.pop("asctime")
 
         # Add component if available from extra parameter
         if hasattr(record, "component"):
-            log_record["component"] = record.component
+            log_data["component"] = record.component
 
 
 def setup_structured_logging(enable_json: bool = False, log_file: str | None = None):
