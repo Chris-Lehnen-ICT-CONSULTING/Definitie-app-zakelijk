@@ -134,8 +134,8 @@ class FormatExporter:
                     "context": d.organisatorische_context,
                     "status": d.status,
                     "validation_score": d.validation_score,
-                    "aangemaakt": d.aangemaakt_op,
-                    "laatst_gewijzigd": d.laatst_gewijzigd,
+                    "aangemaakt": d.created_at,
+                    "laatst_gewijzigd": d.updated_at,
                 }
             )
         return pd.DataFrame(data)
