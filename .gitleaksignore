@@ -1,5 +1,8 @@
 # Gitleaks Ignore File
 # Already-rotated keys in git history - safe to ignore
+#
+# Format: filename:ruleid:fingerprint
+# Get fingerprints from gitleaks output
 
 # OpenAI API keys (already rotated, keys are inactive)
 config/config_development.yaml:openai_api_key:0b706cc1e0a4be76782d0f0c505f99bb74072368
@@ -8,9 +11,3 @@ docs/portal/rendered/analyses/CONFIG_ENVIRONMENT_VERIFICATION_REPORT.html:generi
 
 # False positives (example code in documentation)
 docs/portal/rendered/architectuur/structured-logging-architecture.html:generic-api-key:5f02ab5a2c28c2df8ac9fd9c85a48e6eb78a517a
-
-# Generic API key patterns that are actually cache keys or test data
-**/cache_key
-**/test_api_key
-**/example_key
-**/prompt_abc123
