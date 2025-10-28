@@ -1,0 +1,55 @@
+DEFINITIE EXPORT
+================================================================================
+Aantal definities: 3
+Export niveau: COMPLEET
+Export datum: 2025-10-28 14:38:30
+================================================================================
+
+ID: 37
+Begrip: Strafrechtketen
+Definitie: "De verschillende organisaties die samenwerken in de uitvoering van het strafrechtproces."@nl
+Categorie: type
+Organisatorische context: ["Strafrechtketen"]
+Juridische context: ["Strafrecht"]
+Wettelijke basis: []
+Status: draft
+Versie: 1
+Bron type: imported
+Geïmporteerd van: single_import_ui
+Aangemaakt op: 2025-09-24 07:24:25
+Bijgewerkt op: 2025-09-24 07:24:25
+Aangemaakt door: ui_user
+--------------------------------------------------------------------------------
+
+ID: 32
+Begrip: Strafrechtketendatabank
+Definitie: "het centrale register van de identiteitsgegevens van verdachten en veroordeelden in de strafrechtsketen zoals bedoeld in art. 27b lid 4 WvSv"@nl
+Categorie: type
+Organisatorische context: ["Strafrechtketen"]
+Juridische context: ["Strafrecht"]
+Wettelijke basis: []
+Status: draft
+Versie: 1
+Bron type: imported
+Geïmporteerd van: single_import_ui
+Aangemaakt op: 2025-09-24 07:24:25
+Bijgewerkt op: 2025-09-24 07:24:25
+Aangemaakt door: ui_user
+--------------------------------------------------------------------------------
+
+ID: 10
+Begrip: Strafrechtketennummer (SKN)
+Definitie: "het nummer zoals bedoeld in art. 27b lid 1 WvSv waaronder verdachten en veroordeelden in de strafrechtketen en de SKDB uniek worden aangeduid"@nl
+Categorie: type
+Organisatorische context: ["Strafrechtketen"]
+Juridische context: ["Strafrecht"]
+Wettelijke basis: []
+UFO categorie: Quality
+Status: draft
+Versie: 1
+Bron type: imported
+Geïmporteerd van: single_import_ui
+Aangemaakt op: 2025-09-24 07:24:25
+Bijgewerkt op: 2025-09-24 07:24:25
+Aangemaakt door: ui_user
+--------------------------------------------------------------------------------
