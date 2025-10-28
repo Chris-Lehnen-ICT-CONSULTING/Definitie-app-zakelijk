@@ -465,6 +465,72 @@ class ExportService:
                 f"Bulk export voor formaat {format} nog niet geïmplementeerd"
             )
 
+    def _generate_export_path(self, format: ExportFormat) -> Path:
+        """
+        Generate timestamped export file path.
+
+        Args:
+            format: Export format (determines file extension)
+
+        Returns:
+            Path object for export file
+
+        Example:
+            >>> self._generate_export_path(ExportFormat.CSV)
+            Path("/exports/definities_export_20250128_143022.csv")
+        """
+        timestamp = datetime.now(UTC).strftime("%Y%m%d_%H%M%S")
+        filename = f"definities_export_{timestamp}.{format.value}"
+        return self.export_dir / filename
+
+    def _prepare_export_data(
+        self,
+        definitions: list[DefinitieRecord],
+        level: ExportLevel,
+    ) -> tuple[list[dict[str, Any]], list[str]]:
+        """
+        Collect and build export rows for all definitions.
+
+        Args:
+            definitions: List of DefinitieRecord to export
+            level: Export level determining which fields to include
+
+        Returns:
+            Tuple of (rows, fieldnames) where:
+            - rows: List of dictionaries with export data
+            - fieldnames: List of field names in order
+
+        Raises:
+            No exceptions raised - skips definitions with errors and logs warning
+
+        Example:
+            >>> data, fields = self._prepare_export_data(definitions, ExportLevel.BASIS)
+            >>> len(fields)  # BASIS has 17 fields
+            17
+        """
+        fields_config = EXPORT_LEVEL_FIELDS[level]
+        fieldnames = fields_config["definitie"] + fields_config["voorbeelden"]
+
+        data = []
+        for d in definitions:
+            try:
+                export_data = (
+                    self.data_aggregation_service.aggregate_definitie_for_export(
+                        definitie_record=d
+                    )
+                )
+                row = self._build_export_row(d, export_data, level)
+                data.append(row)
+            except Exception as e:
+                # Log maar skip deze definitie - geen hele export laten falen
+                logger.warning(
+                    f"Definitie {d.id} ({d.begrip}) overgeslagen bij export: {e}",
+                    exc_info=True,
+                )
+                continue
+
+        return data, fieldnames
+
     def _build_export_row(
         self,
         definitie: DefinitieRecord,
@@ -541,140 +607,108 @@ class ExportService:
         return row
 
     def _export_multiple_to_csv(
-        self, definitions: list[DefinitieRecord], level: ExportLevel = ExportLevel.BASIS
+        self,
+        definitions: list[DefinitieRecord],
+        level: ExportLevel = ExportLevel.BASIS,
     ) -> str:
         """Exporteer meerdere definities naar CSV."""
         import csv
 
-        # Genereer bestandsnaam
-        tijdstempel = datetime.now(UTC).strftime("%Y%m%d_%H%M%S")
-        bestandsnaam = f"definities_export_{tijdstempel}.csv"
-        pad = self.export_dir / bestandsnaam
+        # Prepare data using helper
+        data, fieldnames = self._prepare_export_data(definitions, level)
+        path = self._generate_export_path(ExportFormat.CSV)
 
-        # Bepaal fieldnames gebaseerd op export level
-        fields_config = EXPORT_LEVEL_FIELDS[level]
-        fieldnames = fields_config["definitie"] + fields_config["voorbeelden"]
-
-        # Schrijf CSV
-        with open(pad, "w", newline="", encoding="utf-8") as csvfile:
+        # Format-specific: CSV writing
+        with open(path, "w", newline="", encoding="utf-8") as csvfile:
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
             writer.writeheader()
 
-            for d in definitions:
-                # Aggregeer data inclusief voorbeelden
-                export_data = (
-                    self.data_aggregation_service.aggregate_definitie_for_export(
-                        definitie_record=d
-                    )
-                )
-
-                # Build row met helper
-                row = self._build_export_row(d, export_data, level)
-
-                # Voor CSV: converteer datetime naar ISO string
+            for row in data:
+                # Convert datetime to ISO string for CSV compatibility
                 for field in fieldnames:
                     if field in row and isinstance(row[field], datetime):
                         row[field] = row[field].isoformat()
-
                 writer.writerow(row)
 
         logger.info(
-            f"{len(definitions)} definities geëxporteerd naar CSV ({level.value}): {pad}"
+            f"{len(data)} definities geëxporteerd naar CSV ({level.value}): {path}"
         )
-        return str(pad)
+        return str(path)
 
     def _export_multiple_to_excel(
-        self, definitions: list[DefinitieRecord], level: ExportLevel = ExportLevel.BASIS
+        self,
+        definitions: list[DefinitieRecord],
+        level: ExportLevel = ExportLevel.BASIS,
     ) -> str:
         """Exporteer meerdere definities naar Excel."""
         import pandas as pd
 
-        # Genereer bestandsnaam
-        tijdstempel = datetime.now(UTC).strftime("%Y%m%d_%H%M%S")
-        bestandsnaam = f"definities_export_{tijdstempel}.xlsx"
-        pad = self.export_dir / bestandsnaam
+        # Prepare data using helper (datetime already timezone-naive in helper)
+        data, fieldnames = self._prepare_export_data(definitions, level)
+        path = self._generate_export_path(ExportFormat.EXCEL)
 
-        # Verzamel data
-        data = []
-        for d in definitions:
-            export_data = self.data_aggregation_service.aggregate_definitie_for_export(
-                definitie_record=d
-            )
-
-            # Build row met helper (datetime wordt al timezone-naive gemaakt in helper)
-            row = self._build_export_row(d, export_data, level)
-            data.append(row)
-
-        # Maak DataFrame met dynamische columns gebaseerd op level
-        fields_config = EXPORT_LEVEL_FIELDS[level]
-        columns = fields_config["definitie"] + fields_config["voorbeelden"]
-
-        df = pd.DataFrame(data, columns=columns)
-        df.to_excel(pad, index=False, engine="openpyxl")
+        # Format-specific: Excel writing with pandas
+        df = pd.DataFrame(data, columns=fieldnames)
+        df.to_excel(path, index=False, engine="openpyxl")
 
         logger.info(
-            f"{len(definitions)} definities geëxporteerd naar Excel ({level.value}): {pad}"
+            f"{len(data)} definities geëxporteerd naar Excel ({level.value}): {path}"
         )
-        return str(pad)
+        return str(path)
 
     def _export_multiple_to_json(
-        self, definitions: list[DefinitieRecord], level: ExportLevel = ExportLevel.BASIS
+        self,
+        definitions: list[DefinitieRecord],
+        level: ExportLevel = ExportLevel.BASIS,
     ) -> str:
         """Exporteer meerdere definities naar JSON."""
-        # Genereer bestandsnaam
-        tijdstempel = datetime.now(UTC).strftime("%Y%m%d_%H%M%S")
-        bestandsnaam = f"definities_export_{tijdstempel}.json"
-        pad = self.export_dir / bestandsnaam
+        # Prepare data using helper
+        data, _ = self._prepare_export_data(definitions, level)
+        path = self._generate_export_path(ExportFormat.JSON)
 
-        # Verzamel data
+        # Format-specific: JSON structure with metadata
         json_data = {
             "export_info": {
                 "export_timestamp": datetime.now(UTC).isoformat(),
                 "export_version": "2.0",
                 "format": "json",
                 "export_level": level.value,
-                "total_definitions": len(definitions),
+                "total_definitions": len(data),
             },
             "definities": [],
         }
 
-        for d in definitions:
-            export_data = self.data_aggregation_service.aggregate_definitie_for_export(
-                definitie_record=d
-            )
-
-            # Build row met helper
-            row = self._build_export_row(d, export_data, level)
-
-            # Converteer datetime objecten naar ISO strings voor JSON
+        # Convert datetime objects to ISO strings for JSON
+        for row in data:
             for key, value in row.items():
                 if isinstance(value, datetime):
                     row[key] = value.isoformat()
-
             json_data["definities"].append(row)
 
-        # Schrijf naar bestand
-        with open(pad, "w", encoding="utf-8") as f:
+        # Write to file
+        with open(path, "w", encoding="utf-8") as f:
             json.dump(json_data, f, ensure_ascii=False, indent=2)
 
         logger.info(
-            f"{len(definitions)} definities geëxporteerd naar JSON ({level.value}): {pad}"
+            f"{len(data)} definities geëxporteerd naar JSON ({level.value}): {path}"
         )
-        return str(pad)
+        return str(path)
 
     def _export_multiple_to_txt(
-        self, definitions: list[DefinitieRecord], level: ExportLevel = ExportLevel.BASIS
+        self,
+        definitions: list[DefinitieRecord],
+        level: ExportLevel = ExportLevel.BASIS,
     ) -> str:
         """Exporteer meerdere definities naar TXT."""
-        # Genereer bestandsnaam
-        tijdstempel = datetime.now(UTC).strftime("%Y%m%d_%H%M%S")
-        bestandsnaam = f"definities_export_{tijdstempel}.txt"
-        pad = self.export_dir / bestandsnaam
+        # Prepare data using helper
+        data, _ = self._prepare_export_data(definitions, level)
+        path = self._generate_export_path(ExportFormat.TXT)
 
+        # Format-specific: Human-readable text with headers
         lines = [
             "DEFINITIE EXPORT",
             "=" * 80,
-            f"Aantal definities: {len(definitions)}",
+            f"Aantal definities: {len(data)}",
             f"Export niveau: {level.value.upper()}",
             f"Export datum: {datetime.now(UTC).strftime('%Y-%m-%d %H:%M:%S')}",
             "=" * 80,
@@ -721,14 +755,8 @@ class ExportService:
             "toelichting": "Toelichting",
         }
 
-        for d in definitions:
-            export_data = self.data_aggregation_service.aggregate_definitie_for_export(
-                definitie_record=d
-            )
-
-            # Build row met helper
-            row = self._build_export_row(d, export_data, level)
-
+        # Format each definition
+        for row in data:
             # Toon alleen niet-lege velden
             for field, value in row.items():
                 if value:  # Skip lege strings, None, etc.
@@ -738,14 +766,14 @@ class ExportService:
 
                     label = field_labels.get(field, field.replace("_", " ").title())
 
-                    # Speciale weergave voor lijst velden (komen als " | " separated string)
+                    # Speciale weergave voor lijst velden (komen als "; " separated string)
                     if field in [
                         "voorbeeld_zinnen",
                         "praktijkvoorbeelden",
                         "tegenvoorbeelden",
                     ]:
                         lines.append(f"{label}:")
-                        items = value.split(" | ") if isinstance(value, str) else []
+                        items = value.split("; ") if isinstance(value, str) else []
                         for item in items:
                             if item:
                                 lines.append(f"  - {item}")
@@ -755,14 +783,14 @@ class ExportService:
 
             lines.extend(["-" * 80, ""])
 
-        # Schrijf naar bestand
-        with open(pad, "w", encoding="utf-8") as f:
+        # Write to file
+        with open(path, "w", encoding="utf-8") as f:
             f.write("\n".join(lines))
 
         logger.info(
-            f"{len(definitions)} definities geëxporteerd naar TXT ({level.value}): {pad}"
+            f"{len(data)} definities geëxporteerd naar TXT ({level.value}): {path}"
         )
-        return str(pad)
+        return str(path)
 
     def get_export_history(self, begrip: str | None = None) -> list[dict[str, Any]]:
         """
