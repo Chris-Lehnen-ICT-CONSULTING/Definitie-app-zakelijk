@@ -19,7 +19,7 @@ api:
       cost_per_token: 1.5e-05
       max_tokens: 500
       temperature: 0.7
-  openai_api_key: REDACTED-DEF522
+  openai_api_key: sk-proj-***REMOVED-DEF-491***
   request_timeout: 30.0
   retry_backoff_factor: 1.5
 cache:

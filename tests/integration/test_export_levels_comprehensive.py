@@ -30,7 +30,7 @@ from services.data_aggregation_service import DataAggregationService
 from services.export_service import ExportFormat, ExportLevel, ExportService
 
 
-@pytest.fixture
+@pytest.fixture()
 def populated_db(tmp_path):
     """Create SQLite DB with 10 test definitions.
 
@@ -44,7 +44,9 @@ def populated_db(tmp_path):
     db_path = tmp_path / "test_export.db"
 
     # Initialize schema
-    schema_path = Path(__file__).parent.parent.parent / "src" / "database" / "schema.sql"
+    schema_path = (
+        Path(__file__).parent.parent.parent / "src" / "database" / "schema.sql"
+    )
     with open(schema_path, encoding="utf-8") as f:
         schema_sql = f.read()
 
@@ -77,17 +79,22 @@ def populated_db(tmp_path):
     saved1_id = repo.create_definitie(record1)
 
     # Add voorbeelden for definition 1
-    repo.save_voorbeelden(saved1_id, {
-        "sentence": [
-            "De rechtspersoon heeft rechtsbevoegdheid.",
-            "Elke rechtspersoon kan in rechte optreden."
-        ],
-        "practical": ["Een BV is een rechtspersoon."],
-        "counter": ["Een eenmanszaak is geen rechtspersoon."],
-        "synonyms": ["juridische persoon"],
-        "antonyms": ["natuurlijk persoon"],
-        "explanation": ["Rechtspersonen zijn entiteiten die door de wet als rechtssubject worden erkend."]
-    })
+    repo.save_voorbeelden(
+        saved1_id,
+        {
+            "sentence": [
+                "De rechtspersoon heeft rechtsbevoegdheid.",
+                "Elke rechtspersoon kan in rechte optreden.",
+            ],
+            "practical": ["Een BV is een rechtspersoon."],
+            "counter": ["Een eenmanszaak is geen rechtspersoon."],
+            "synonyms": ["juridische persoon"],
+            "antonyms": ["natuurlijk persoon"],
+            "explanation": [
+                "Rechtspersonen zijn entiteiten die door de wet als rechtssubject worden erkend."
+            ],
+        },
+    )
 
     # Test definition 2: REVIEW with special characters in voorbeelden
     record2 = DefinitieRecord(
@@ -109,14 +116,17 @@ def populated_db(tmp_path):
     saved2_id = repo.create_definitie(record2)
 
     # Add voorbeelden with special characters (semicolons, pipes)
-    repo.save_voorbeelden(saved2_id, {
-        "sentence": [
-            "Het vonnis; definitief en bindend; is uitgesproken.",
-            "De rechter sprak een vonnis uit | Het vonnis werd vernietigd."
-        ],
-        "practical": ["Vonnis: vrijspraak wegens gebrek aan bewijs."],
-        "synonyms": ["uitspraak; rechterlijke beslissing"]
-    })
+    repo.save_voorbeelden(
+        saved2_id,
+        {
+            "sentence": [
+                "Het vonnis; definitief en bindend; is uitgesproken.",
+                "De rechter sprak een vonnis uit | Het vonnis werd vernietigd.",
+            ],
+            "practical": ["Vonnis: vrijspraak wegens gebrek aan bewijs."],
+            "synonyms": ["uitspraak; rechterlijke beslissing"],
+        },
+    )
 
     # Test definition 3: ESTABLISHED without voorbeelden
     record3 = DefinitieRecord(
@@ -150,7 +160,11 @@ def populated_db(tmp_path):
             juridische_context='["Test Recht"]',
             wettelijke_basis='["Test Wet"]',
             ufo_categorie="Kind" if i % 2 == 0 else "Event",
-            status=DefinitieStatus.DRAFT.value if i % 3 == 0 else DefinitieStatus.ESTABLISHED.value,
+            status=(
+                DefinitieStatus.DRAFT.value
+                if i % 3 == 0
+                else DefinitieStatus.ESTABLISHED.value
+            ),
             validation_score=0.7 + (i * 0.02),
             voorkeursterm=f"testbegrip{i}",
             created_by=f"User{i}",
@@ -161,15 +175,18 @@ def populated_db(tmp_path):
 
         # Add some voorbeelden
         if i % 2 == 0:
-            repo.save_voorbeelden(saved_id, {
-                "sentence": [f"Voorbeeld zin voor begrip {i}."],
-                "practical": [f"Praktijkvoorbeeld {i}."]
-            })
+            repo.save_voorbeelden(
+                saved_id,
+                {
+                    "sentence": [f"Voorbeeld zin voor begrip {i}."],
+                    "practical": [f"Praktijkvoorbeeld {i}."],
+                },
+            )
 
     return repo
 
 
-@pytest.fixture
+@pytest.fixture()
 def export_service(populated_db, tmp_path):
     """Create ExportService with temp export directory."""
     data_agg_service = DataAggregationService(repository=populated_db)
@@ -186,33 +203,38 @@ def export_service(populated_db, tmp_path):
 class TestExportLevelsFormats:
     """Test export levels × formats matrix (12 combinations)."""
 
-    @pytest.mark.parametrize("level,expected_field_count", [
-        (ExportLevel.BASIS, 17),       # 10 definitie + 7 voorbeelden
-        (ExportLevel.UITGEBREID, 25),  # 18 definitie + 7 voorbeelden
-        (ExportLevel.COMPLEET, 36),    # 29 definitie + 7 voorbeelden
-    ])
-    @pytest.mark.parametrize("format", [
-        ExportFormat.CSV,
-        ExportFormat.EXCEL,
-        ExportFormat.JSON,
-        ExportFormat.TXT,
-    ])
+    @pytest.mark.parametrize(
+        "level,expected_field_count",
+        [
+            (ExportLevel.BASIS, 17),  # 10 definitie + 7 voorbeelden
+            (ExportLevel.UITGEBREID, 25),  # 18 definitie + 7 voorbeelden
+            (ExportLevel.COMPLEET, 36),  # 29 definitie + 7 voorbeelden
+        ],
+    )
+    @pytest.mark.parametrize(
+        "format",
+        [
+            ExportFormat.CSV,
+            ExportFormat.EXCEL,
+            ExportFormat.JSON,
+            ExportFormat.TXT,
+        ],
+    )
     def test_export_level_field_count(
-        self,
-        populated_db,
-        export_service,
-        level,
-        expected_field_count,
-        format
+        self, populated_db, export_service, level, expected_field_count, format
     ):
         """Test each level exports correct number of fields for each format."""
         # Skip Excel + COMPLEET combination - known datetime timezone bug (DEF-43 follow-up)
         if format == ExportFormat.EXCEL and level == ExportLevel.COMPLEET:
-            pytest.skip("Excel COMPLEET has datetime timezone issue with approved_at/validation_date fields")
+            pytest.skip(
+                "Excel COMPLEET has datetime timezone issue with approved_at/validation_date fields"
+            )
 
         # Get all definitions from populated DB
         all_defs = populated_db.get_all()
-        assert len(all_defs) >= 10, f"Expected at least 10 test definitions, got {len(all_defs)}"
+        assert (
+            len(all_defs) >= 10
+        ), f"Expected at least 10 test definitions, got {len(all_defs)}"
 
         # Export with specified level and format
         export_path = export_service.export_multiple_definitions(
@@ -236,7 +258,9 @@ class TestExportLevelsFormats:
 
                 # Verify we have data rows
                 rows = list(reader)
-                assert len(rows) == len(all_defs), f"Expected {len(all_defs)} rows, got {len(rows)}"
+                assert len(rows) == len(
+                    all_defs
+                ), f"Expected {len(all_defs)} rows, got {len(rows)}"
 
         elif format == ExportFormat.EXCEL:
             df = pd.read_excel(export_path, engine="openpyxl")
@@ -244,7 +268,9 @@ class TestExportLevelsFormats:
                 f"Excel {level.value}: expected {expected_field_count} columns, "
                 f"got {len(df.columns)} ({list(df.columns)})"
             )
-            assert len(df) == len(all_defs), f"Expected {len(all_defs)} rows, got {len(df)}"
+            assert len(df) == len(
+                all_defs
+            ), f"Expected {len(all_defs)} rows, got {len(df)}"
 
         elif format == ExportFormat.JSON:
             with open(export_path, encoding="utf-8") as f:
@@ -357,7 +383,9 @@ class TestDatabaseIntegration:
         """Test bulk export with no definitions returns empty export gracefully."""
         # Create empty database
         db_path = tmp_path / "empty.db"
-        schema_path = Path(__file__).parent.parent.parent / "src" / "database" / "schema.sql"
+        schema_path = (
+            Path(__file__).parent.parent.parent / "src" / "database" / "schema.sql"
+        )
 
         with open(schema_path, encoding="utf-8") as f:
             schema_sql = f.read()
@@ -418,7 +446,9 @@ class TestDatabaseIntegration:
         for row in rows:
             assert row["status"] == DefinitieStatus.DRAFT.value
 
-    def test_export_retrieves_voorbeelden_from_database(self, populated_db, export_service):
+    def test_export_retrieves_voorbeelden_from_database(
+        self, populated_db, export_service
+    ):
         """Test that voorbeelden are correctly retrieved from database (DEF-43 regression test)."""
         # Get definition with known voorbeelden (Rechtspersoon)
         definitions = populated_db.get_all()
@@ -472,10 +502,7 @@ class TestFailureScenarios:
             )
 
     def test_export_handles_missing_voorbeelden_gracefully(
-        self,
-        export_service,
-        populated_db,
-        monkeypatch
+        self, export_service, populated_db, monkeypatch
     ):
         """Test export handles database errors when retrieving voorbeelden gracefully."""
         # Mock get_voorbeelden_by_type to raise exception
@@ -484,7 +511,9 @@ class TestFailureScenarios:
         def mock_get_voorbeelden_error(definitie_id):
             raise RuntimeError("Database connection failed")
 
-        monkeypatch.setattr(populated_db, "get_voorbeelden_by_type", mock_get_voorbeelden_error)
+        monkeypatch.setattr(
+            populated_db, "get_voorbeelden_by_type", mock_get_voorbeelden_error
+        )
 
         definitions = populated_db.get_all()[:1]
 
@@ -553,7 +582,7 @@ class TestExportMetadata:
         assert "updated_at" in df.columns
 
 
-@pytest.mark.slow
+@pytest.mark.slow()
 class TestLargeDataset:
     """Test large dataset performance (optional - marked as slow)."""
 
@@ -563,7 +592,9 @@ class TestLargeDataset:
 
         # Create database with 100 definitions
         db_path = tmp_path / "large_test.db"
-        schema_path = Path(__file__).parent.parent.parent / "src" / "database" / "schema.sql"
+        schema_path = (
+            Path(__file__).parent.parent.parent / "src" / "database" / "schema.sql"
+        )
 
         with open(schema_path, encoding="utf-8") as f:
             schema_sql = f.read()
@@ -581,7 +612,8 @@ class TestLargeDataset:
         for i in range(100):
             record = DefinitieRecord(
                 begrip=f"LargeBegrip{i}",
-                definitie=f"Large test definitie nummer {i} " * 10,  # Make it substantial
+                definitie=f"Large test definitie nummer {i} "
+                * 10,  # Make it substantial
                 categorie="type",
                 organisatorische_context='["Test"]',
                 juridische_context='["Test"]',
@@ -597,10 +629,10 @@ class TestLargeDataset:
 
             # Add voorbeelden to half of them
             if i % 2 == 0:
-                repo.save_voorbeelden(saved_id, {
-                    "sentence": [f"Voorbeeld {i}."],
-                    "practical": [f"Praktijk {i}."]
-                })
+                repo.save_voorbeelden(
+                    saved_id,
+                    {"sentence": [f"Voorbeeld {i}."], "practical": [f"Praktijk {i}."]},
+                )
 
         # Create service
         service = ExportService(
@@ -643,9 +675,15 @@ class TestExportHistory:
         rechtspersoon = next(d for d in definitions if d.begrip == "Rechtspersoon")
         vonnis = next(d for d in definitions if d.begrip == "Vonnis")
 
-        export_service.export_multiple_definitions([rechtspersoon], ExportFormat.CSV, ExportLevel.BASIS)
-        export_service.export_multiple_definitions([rechtspersoon], ExportFormat.JSON, ExportLevel.BASIS)
-        export_service.export_multiple_definitions([vonnis], ExportFormat.CSV, ExportLevel.BASIS)
+        export_service.export_multiple_definitions(
+            [rechtspersoon], ExportFormat.CSV, ExportLevel.BASIS
+        )
+        export_service.export_multiple_definitions(
+            [rechtspersoon], ExportFormat.JSON, ExportLevel.BASIS
+        )
+        export_service.export_multiple_definitions(
+            [vonnis], ExportFormat.CSV, ExportLevel.BASIS
+        )
 
         # Get all history
         all_history = export_service.get_export_history()
