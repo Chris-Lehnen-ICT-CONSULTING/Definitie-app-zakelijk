@@ -1,0 +1,191 @@
+begrip,definitie,categorie,organisatorische_context,juridische_context,wettelijke_basis,status,validation_score,voorkeursterm,synoniemen,antoniemen,toelichting,voorbeeld_zinnen,praktijkvoorbeelden,tegenvoorbeelden,created_at,updated_at
+Strafrechtketen,"""De verschillende organisaties die samenwerken in de uitvoering van het strafrechtproces.""@nl",type,"[""Strafrechtketen""]","[""Strafrecht""]",[],draft,,,,,,,,,2025-09-24T07:24:25.347384+00:00,2025-09-24T07:24:25.347384+00:00
+Strafrechtketendatabank,"""het centrale register van de identiteitsgegevens van verdachten en veroordeelden in de strafrechtsketen zoals bedoeld in art. 27b lid 4 WvSv""@nl",type,"[""Strafrechtketen""]","[""Strafrecht""]",[],draft,,,,,,,,,2025-09-24T07:24:25.297238+00:00,2025-09-24T07:24:25.297238+00:00
+Strafrechtketennummer (SKN),"""het nummer zoals bedoeld in art. 27b lid 1 WvSv waaronder verdachten en veroordeelden in de strafrechtketen en de SKDB uniek worden aangeduid""@nl",type,"[""Strafrechtketen""]","[""Strafrecht""]",[],draft,,,,,,,,,2025-09-24T07:24:25.090480+00:00,2025-09-24T07:24:25.090480+00:00
+VaststellingswijzeIdentificatie,"""Unieke Code voor de vaststellingswijze""@nl
+
+Toelichting: Deze code geeft in een snel overzicht de vaststellingswijze weer.",type,"[""Strafrechtketen""]","[""Strafrecht""]",[],draft,,,,,,,,,2025-09-24T07:24:25.169320+00:00,2025-09-24T07:24:25.169320+00:00
+authenticeren,"""De echtheid, oorsprong of rechtsgeldigheid van een identiteitsbewijs vaststellen""@nl
+
+Toelichting: In het algemene spraakgebruik kan dit ook betrekking hebben op andere zaken zoals bijvoorbeeld kunstvoorwerpen.",type,"[""Strafrechtketen""]","[""Strafrecht""]",[],draft,,,,,,,,,2025-09-24T07:24:25.134567+00:00,2025-09-24T07:24:25.134567+00:00
+biografisch identiteitskenmerk,"""Tekstuele gegevens die een persoon (zoveel als mogelijk) uniek beschrijven.""@nl
+
+Toelichting: Deze gegevens zijn opgenomen in basisregistraties (Basisregistratie Personen, BRP) en andere registers (Basisvoorziening Vreemdelingen, BVV) of vergelijkbare buitenlands registers. Deze gegevens zijn ook opgenomen in een wettig identiteitsbewijs.
+  
+ Zie ook ‘Identiteitskenmerk’.",type,"[""Strafrechtketen""]","[""Strafrecht""]",[],draft,,,,,,,,,2025-09-24T07:24:25.212305+00:00,2025-09-24T07:24:25.212305+00:00
+biometrie,"""Het bepalen van individualiserende kenmerken zoals fysieke kenmerken, fysiologische kenmerken of gedragskenmerken van een persoon middels een specifieke technische verwerking""@nl
+
+Toelichting: https://en.wikipedia.org/wiki/Biometrics: the technical term for body measurements and calculations; it refers to metrics related to human characteristics. Er is onderscheid in veranderlijkheid: 
+ · tamelijk veranderlijk: haarkleur, haardracht 
+ · tamelijk onveranderlijk: DNA, vingerafdrukken, geslacht, gelaatskenmerken, kleur ogen, gebitskenmerken, iris-patroon, handpalm-patroon, tatoeages, lengte
+ · Biometrische gegevens zoals vingerafdrukken zijn bijzonder individueel en kunnen dus goed gebruikt worden om personen te onderscheiden. 
+ · Deze architectuur schaart een foto ook onder de biometrische kenmerken, hoewel dit strikt genomen geen biometrie is. Pas nadat specifieke kenmerken van een gelaatsfoto middels een technische verwerking zijn omgezet in een biometrische template, is er sprake van biometrie. Een gelaatsfoto is natuurlijk wel een persoonsgegeven (zie art. 4, 6, 9 en 10 AVG en art. 3 t/m 10 RGR).",type,"[""Strafrechtketen""]","[""Strafrecht""]",[],draft,,,,,,,,,2025-09-24T07:24:25.045330+00:00,2025-09-24T07:24:25.045330+00:00
+biometrisch identiteitskenmerk,"""Een identiteitskenmerk dat door middel van biometrie wordt vastgesteld.""@nl
+
+Toelichting: Zie ook ‘Identiteitskenmerk’.",type,"[""Strafrechtketen""]","[""Strafrecht""]",[],draft,,,,,,,,,2025-09-24T07:24:25.256550+00:00,2025-09-24T07:24:25.256550+00:00
+dagvaarding,Procedure waarbij een bevoegde instantie een schriftelijk stuk uitreikt aan een persoon teneinde deze te informeren over de verplichting op een bepaald tijdstip en plaats te verschijnen in een gerechtelijke procedure.,proces,"[""OM""]","[""Strafrecht""]","[""Wetboek van Strafvordering (huidig)""]",archived,,,,,,,,,2025-10-10T11:01:06.554528+00:00,2025-10-27T08:40:54.480600+00:00
+digitaal identiteitsbewijs,"""Een door een bevoegde instantie aan een specifieke persoon uitgereikt digitaal identiteitsmiddel waarmee die persoon tegenover derden zijn identiteit kan aantonen.""@nl
+
+Toelichting: Een zelfstandig bruikbaar identiteitsbewijs met dezelfde waarde als een fysiek identiteitsbewijs bestaat nog niet. De huidige middelen c.q. bewijzen (DigiD, eHerkenning, eIDAS) zijn geschikt om je identiteit aan te tonen bij digitale diensten. Het ontbreekt bij deze middelen aan biometrie. Ze volstaan daarom niet om de identiteit van een persoon op straat vast te stellen. Dit is wel in ontwikkeling, bijvoorbeeld in de Digital Travel Credential van ICAO. Deze laatste is overigens ook altijd gekoppeld aan een fysieke component: het paspoort of een telefoon.",type,"[""Strafrechtketen""]","[""Strafrecht""]",[],draft,,,,,,,,,2025-09-24T07:24:25.129228+00:00,2025-09-24T07:24:25.129228+00:00
+digitaal identiteitsmiddel,"""Een identiteitsmiddel voor toegang tot digitale diensten dat geheel of grotendeels is gebaseerd op digitale zekerheden.""@nl
+
+Toelichting: Dit middel – voor zover het geen digitale identiteitsbewijzen zijn – worden doorgaans door personen zelf aangemaakt en gebruikt om hun identiteit aan te tonen bij digitale diensten. Voorbeelden zijn een Microsoft ID, Apple ID en soortgelijken.",type,"[""Strafrechtketen""]","[""Strafrecht""]",[],draft,,,,,,,,,2025-09-24T07:24:25.202414+00:00,2025-09-24T07:24:25.202414+00:00
+gekwalificeerd zijn van een identiteitsmiddel (voor een zeker doel),"""Een middel is gekwalificeerd voor een doel wanneer regelgeving bepaalt dat het middel voor dit doel geschikt is.""@nl
+
+Toelichting: De Wet op de Identificatieplicht bepaalt welke identiteitsmiddelen gekwalificeerd zijn voor identiteitsvaststelling op verzoek van een bevoegd ambtenaar",type,"[""Strafrechtketen""]","[""Strafrecht""]",[],draft,,,,,,,,,2025-09-24T07:24:25.184589+00:00,2025-09-24T07:24:25.184589+00:00
+getuige,"Persoon die op basis van eigen waarneming of ervaring informatie verstrekt over feiten of omstandigheden die relevant zijn voor een onderzoek, procedure of beoordeling van een gebeurtenis.",proces,"[""OM""]","[""Strafrecht""]","[""Wetboek van Strafvordering (toekomstig)""]",archived,,,,,,,,,2025-10-09T08:57:03.867341+00:00,2025-10-27T08:43:23.236047+00:00
+grondslag,"""Verdenking of veroordeling die de strafrechtketen het recht geeft identiteitsgegevens in de strafrechtketen te verwerken""@nl",type,"[""Strafrechtketen""]","[""Strafrecht""]",[],draft,,,,,,,,,2025-09-24T07:24:25.083589+00:00,2025-09-24T07:24:25.083589+00:00
+grondslagsoort,"""Typering van een grondslag""@nl
+
+Toelichting: De volgende grondslagsoorten zijn onderkend:
+ · Verdenking van een strafbaar feit,
+ · Verdenking van een strafbaar feit en twijfel over de identiteit,
+ · Verdenking van een strafbaar feit waarvoor voorlopige hechtenis is toegestaan
+ · Geen zelfstandige grondslag: gebruikt bij verrijkingen na geslaagde verificatie",type,"[""Strafrechtketen""]","[""Strafrecht""]",[],draft,,,,,,,,,2025-09-24T07:24:25.020864+00:00,2025-09-24T07:24:25.020864+00:00
+hoger beroep,Soort rechtsmiddel waarmee een beslissing van een lagere rechterlijke instantie wordt voorgelegd aan een hogere rechterlijke instantie voor een volledige herbeoordeling.,proces,"[""OM"", ""ZM""]","[""Strafrecht""]","[""Wetboek van Strafvordering (huidig)""]",archived,,,,,,,,,2025-10-08T21:34:13.879627+00:00,2025-10-27T08:45:24.822091+00:00
+identificeren,"""De activiteit waarbij de identiteit van een persoon wordt vastgesteld door middel van vergelijking met meerdere sets van identiteitsgegevens uit een register (één-op-veel-vergelijking)""@nl
+
+Toelichting: Deze definitie is gangbaar bij biometrische verwerkingen. Als zodanig is hij ook opgenomen in Europese verordeningen. In het dagelijks spraakgebruik wordt identificeren ook gebruikt voor wat we in deze definities Identiteit vaststellen noemen.",type,"[""Strafrechtketen""]","[""Strafrecht""]",[],draft,,,,,,,,,2025-09-24T07:24:25.176648+00:00,2025-09-24T07:24:25.176648+00:00
+identiteit,"Een set van persoonskenmerken waarop de persoon (uniek) onderscheiden kan worden van andere personen.
+
+Toelichting: Algemene definities:
+ 
+ · Van Dale
+ 1 Eigen karakter van een persoon
+ 2 Gelijkheid
+ Merriam Webster
+ 1 the distinguishing character or personality of an individual
+ 2 the condition of being the same with something described or asserted
+  
+ De tweede definitie sluit het beste aan bij de context van identiteitsvaststelling.",type,"[""Strafrechtketen""]","[""Strafrecht""]",[],draft,,,,,,,,,2025-09-24T07:24:25.269879+00:00,2025-10-27T12:18:47.924707+00:00
+identiteit bepalen,"""Het vaststellen van de identiteit van een persoon zonder voorgaande verwachting van de identiteit.""@nl
+
+Toelichting: Deze identiteitsvaststelling vindt doorgaans plaats bij het eerste contact in de strafrechttraject voor een bepaalde verdenking. Het is dus zeer wel mogelijk dat de persoon al bekend is in de strafrechtketen en opgenomen is in de SKDB.
+ Bij Identiteit bepalen kan gebruik worden gemaakt van Identificatie: een zoekopdracht in de SKDB of andere registers om te zien of er een match is met de identiteitsgegevens van deze persoon.",type,"[""Strafrechtketen""]","[""Strafrecht""]",[],draft,,,,,,,,,2025-09-24T07:24:25.262828+00:00,2025-09-24T07:24:25.262828+00:00
+identiteit vaststellen,"""Het proces van inwinnen van identiteitskenmerken, het controleren van deze kenmerken middels bevraging van de persoon, vergelijking met identiteitsmiddelen en/of registerbevraging, eindigend met een identiteitsvaststelling van deze persoon.""@nl",type,"[""Strafrechtketen""]","[""Strafrecht""]",[],draft,,,,,,,,,2025-09-24T07:24:25.162566+00:00,2025-09-24T07:24:25.162566+00:00
+identiteit verifiëren en verrijken,"""Proces bestaande uit verificatie en waar mogelijk aanvullen van identiteitskenmerken.""@nl
+
+Toelichting: De verificatie bepaalt of een persoon de beoogde, bekende persoon is die verwacht wordt. Indien de verificatie slaagt, worden daarna zo mogelijk nieuwe en recentere identiteitskenmerken ingewonnen.
+
+Voorbeelden van nieuwe gegevens zijn:
+ - ontbrekende vingerafdrukken,
+ - recentere foto
+ - nieuw identiteitsbewijs
+ Bij verrijken kunnen alleen gegevens ingewonnen worden die bij Identiteit bepalen ingewonnen kunnen worden. 
+ Het inwinnen van nieuwe identiteitskenmerken kan er toe leiden dat de zekerheid omtrent de identiteit van de persoon toeneemt, maar ook dat die afneemt.",type,"[""Strafrechtketen""]","[""Strafrecht""]",[],draft,,,,,,,,,2025-09-24T07:24:25.314525+00:00,2025-09-24T07:24:25.314525+00:00
+identiteitsbehandeling,"""Het geheel van activiteiten en voorzieningen in de strafrechtketen om de juiste en rechtmatige verwerking van identiteitsgegevens van verdachten en veroordeelden te borgen.""@nl",type,"[""Strafrechtketen""]","[""Strafrecht""]",[],draft,,,,,,,,,2025-09-24T07:24:25.051642+00:00,2025-09-24T07:24:25.051642+00:00
+identiteitsbewijs,"- Ontologische categorie: soort
+Echt, eigen, geldig en gekwalificeerd document met unieke identificerende persoonsgebonden kenmerken.
+
+Toelichting: De relatie met identiteitsmiddel is met deze definitie niet gelegd. Middelen zijn breder dan documenten (dit is een subset van middel).",type,"[""Strafrechtketen""]","[""Strafrecht""]",[],review,,,,,,,,,2025-09-24T09:41:34.234216+00:00,2025-09-24T10:08:35.083257+00:00
+identiteitsbewijs,"Een door een bevoegde instantie aan een specifieke persoon uitgereikt identiteitsmiddel waarmee die persoon tegenover derden zijn identiteit kan aantonen.
+
+Toelichting: Het Gegevenswoordenboek Migratieketen kent hieromtrent enkele specifieke begrippen.
+ · Biometrisch paspoort
+ · Reisdocument
+ Voor de strafrechtketen lijkt het niet nodig dit op te nemen.",type,"[""Strafrechtketen""]","[""Strafrecht""]",[],draft,,,,,,,,,2025-09-24T07:24:25.304447+00:00,2025-09-24T09:39:15.033521+00:00
+identiteitsgegeven,"representatie van een identiteitskenmerk.
+
+Toelichting: Dit is de beschrijving van identiteitskenmerken in een registratie.
+ · Identiteitsgegevens kennen verschillende mate van selectiviteit van een persoon; het ene kenmerk (‘vingerafdruk’) is met meer zekerheid te koppelen aan een specifieke persoon dan een ander kenmerk (‘haarkleur’).",type,"[""Strafrechtketen""]","[""Strafrecht""]",[],draft,,,,,,,,,2025-09-24T07:24:25.077936+00:00,2025-10-27T14:19:39.578697+00:00
+identiteitskenmerk,"biometrische of biografische eigenschap van een persoon die bijdraagt om deze persoon te onderscheiden van anderen.
+
+Toelichting: Hier gaat het om de eigenschap (bijv. gezicht) van of de toegekende beschrijving (bijv. naam) aan de persoon in de werkelijkheid.",resultaat,"[""Strafrechtketen""]","[""Strafrecht""]",[],draft,,,,,,,,,2025-09-24T07:24:25.071316+00:00,2025-10-27T14:43:23.521090+00:00
+identiteitsmiddel,"- Ontologische categorie: soort
+Informatiebevattend voorwerp dat aanwijzing geeft over de identiteit van een persoon.
+",resultaat,"[""Strafrechtketen""]","[""Strafrecht""]",[],draft,,,,,,,,,2025-09-24T08:54:31.254485+00:00,2025-09-26T12:52:15.791915+00:00
+identiteitsmiddel,"""Ieder middel dat aanwijzing kan geven over de identiteit van een persoon""@nl
+
+Toelichting: NL-paspoort, MT-paspoort, visum, rijbewijs, bankpas, zorgpas, klantenkaart, OV-kaart, Rijkspas, bibliotheekpasje, aangetekende brief aan mij, …. Identiteitsmiddelen verschillen in zeggingskracht over de identiteit: een paspoort (mits Echt en Geldig) zegt natuurlijk veel meer dan een bibliotheekpasje; deze zeggingskracht wordt uitgedrukt in een Vaststellingswijze",type,"[""Strafrechtketen""]","[""Strafrecht""]",[],draft,,,,,,,,,2025-09-24T07:24:25.277432+00:00,2025-09-24T07:24:25.277432+00:00
+identiteitsonderzoek,"""Onderzoek door aangewezen expertisecentrum naar de identiteit van een natuurlijk persoon die onbekend of onzeker is.""@nl
+
+Toelichting: De aangegeven expertisecentra zijn:
+ · Afdeling Vreemdelingenpolitie, Identificatie en Mensenhandel (AVIM) van de Nationale Politie
+ · Expertisecentrum Identiteiten en Documenten (ECID) van de Koninklijke Marechaussee.",type,"[""Strafrechtketen""]","[""Strafrecht""]",[],draft,,,,,,,,,2025-09-24T07:24:25.321495+00:00,2025-09-24T07:24:25.321495+00:00
+identiteitsvaststelling,"De beslissing van een bevoegd persoon dat een ingewonnen en gevalideerde identiteit met een bekende mate van betrouwbaarheid bij een persoon hoort.
+
+Toelichting: Bij deze beslissing weegt de ambtenaar het belang van de te nemen strafrechtelijke beslissing over de persoon tegen de kwaliteit van de ingewonnen identiteitsgegevens. Identiteitsvaststelling kent twee vormen: Identiteit bepalen en Identiteit verifiëren en verrijken. 
+De identiteitsvaststelling is traceerbaar in de strafrechtketen aan de hand van het IdentiteitsVaststellingsID (IVI)
+
+Doel van identiteitsvaststelling (SRK) is:
+ · dat functionarissen die beslissingen in strafzaken moeten nemen, kunnen beschikken over alle reeds aanwezig informatie over de verdachte of veroordeelde die zij nodig hebben (en waarvan zij mogen kennisnemen),
+ · dat de sanctie de juiste persoon treft, en
+ · dat als er gegevens over verdachten of veroordeelden worden uitgewisseld tussen functionarissen in de strafrechtsketen, zo goed mogelijk gewaarborgd is dat betrokkenen niet alleen denken dat ze dezelfde persoon bedoelen maar het ook inderdaad over dezelfde persoon hebben.
+  
+ De uitkomsten van identiteitsonderzoek zijn ook identiteitsvaststellingen.",type,"[""Strafrechtketen""]","[""Strafrecht""]",[],draft,,,,,,,,,2025-09-24T07:24:25.140689+00:00,2025-10-27T13:19:38.936176+00:00
+identiteitsvaststellingsID,"""Een in de hele strafrechtketen unieke sleutel van een identiteitsvaststelling""@nl",type,"[""Strafrechtketen""]","[""Strafrecht""]",[],draft,,,,,,,,,2025-09-24T07:24:25.328098+00:00,2025-09-24T07:24:25.328098+00:00
+inwinning identiteitskenmerken,"""Het proces van het vaststellen van identiteitskenmerken van een persoon en de weergave hiervan als identiteitsgegevens.""@nl
+
+Toelichting: De belangrijkste bronnen hiervan zijn eigen opgave, identiteitsmiddelen, biometrische afnameapparatuur en het identificeren in databanken.",type,"[""Strafrechtketen""]","[""Strafrecht""]",[],draft,,,,,,,,,2025-09-24T07:24:25.225324+00:00,2025-09-24T07:24:25.225324+00:00
+kritisch,"- Ontologische categorie: soort
+Eigenschap van een persoon of object gekenmerkt door systematische beoordeling van informatie op consistentie, relevantie en betrouwbaarheid met nadruk op het onderkennen van onvolledigheden, onjuistheden of tegenstrijdigheden.",proces,"[""DJI""]","[""Strafrecht""]",[],archived,,,,,,,,,2025-10-07T13:03:55.943974+00:00,2025-10-27T09:05:17.706621+00:00
+meest betrouwbare identiteitsgegevens,"""De identiteitsgegevens die met de hoogste waarschijnlijkheid een correcte weergave zijn van de identiteit van een natuurlijk persoon.""@nl
+
+Toelichting: Deze set kan samengesteld zijn uit verschillende identiteitsvaststellingen van deze persoon.
+
+Dit begrip is de opvolger van de Leidende Administratieve Identiteit.",type,"[""Strafrechtketen""]","[""Strafrecht""]",[],draft,,,,,,,,,2025-09-24T07:24:25.028859+00:00,2025-09-24T07:24:25.028859+00:00
+onherroepelijk,Kenmerk van een beslissing of uitspraak waarbij geen gewoon rechtsmiddel meer openstaat tegen die beslissing of uitspraak.,proces,"[""NP"", ""OM"", ""ZM""]","[""Strafrecht""]","[""Wetboek van Strafvordering (huidig)""]",archived,,,,,,,,,2025-10-08T11:54:21.057546+00:00,2025-10-27T08:47:05.750587+00:00
+onherroepelijk ,Kenmerk van een besluit of uitspraak waarbij geen gewoon of buitengewoon rechtsmiddel meer openstaat dat de tenuitvoerlegging schorst.,proces,"[""OM"", ""FIOD""]","[""Strafrecht""]",[],archived,,,,,,,,,2025-10-09T08:14:21.439118+00:00,2025-10-27T08:43:44.008947+00:00
+onherroepelijk ,Soort rechtspositie die kenmerkend is voor een beslissing waarvan geen gewoon of buitengewoon rechtsmiddel meer openstaat waardoor de beslissing definitief wordt en ten volle uitvoerbaar is.,proces,"[""OM"", ""ZM"", ""DJI""]","[""Strafrecht""]","[""Wetboek van Strafvordering (huidig)""]",archived,,,,,,,,,2025-10-08T18:11:27.362183+00:00,2025-10-27T08:45:45.547025+00:00
+onherroepelijk vonnis,Uitspraak van een rechter die het gevolg is van een rechtszaak en waartegen geen gewoon rechtsmiddel meer openstaat.,proces,"[""OM""]","[""Strafrecht""]","[""Wetboek van Strafrecht"", ""Wetboek van Strafvordering (huidig)""]",archived,,,,,,,,,2025-10-08T14:09:37.552809+00:00,2025-10-27T08:46:17.431477+00:00
+ophouden,"- Ontologische categorie: soort
+Type vrijheidsbeneming waarbij een persoon gedurende een bepaalde tijd onder toezicht wordt gehouden in verband met een strafrechtelijk onderzoek door een daartoe bevoegde instantie.",proces,"[""NP"", ""OM""]","[""Strafrecht""]","[""Wetboek van Strafvordering (huidig)""]",archived,,,,,,,,,2025-10-07T22:17:56.679445+00:00,2025-10-27T08:56:47.929981+00:00
+ophouden,"- Ontologische categorie: soort
+Ophouden: soort vrijheidsbeneming waarbij een persoon onder toezicht wordt gehouden gedurende een wettelijk bepaalde periode ter beschikking van een opsporingsinstantie.",proces,"[""NP""]","[""Strafrecht""]","[""Wetboek van Strafvordering (huidig)""]",archived,,,,,,,,,2025-10-07T21:58:09.406920+00:00,2025-10-27T08:57:07.443659+00:00
+ophouden,"- Ontologische categorie: soort
+Beperking van de bewegingsvrijheid van een persoon gedurende een afgebakende periode door een daartoe bevoegde instantie op basis van wettelijke of organisatorische gronden.",proces,"[""OM""]",[],[],archived,,,,,,,,,2025-10-07T21:56:23.152766+00:00,2025-10-27T08:58:18.658538+00:00
+persoon,"- Ontologische categorie: soort
+Uniek levend menselijk wezen met rechten en plichten.",type,"[""Strafrechtketen""]","[""Strafrecht""]",[],draft,,,,,,,,,2025-09-24T07:52:16.280841+00:00,2025-10-27T11:49:28.824040+00:00
+persoon,"Een mens van vlees en bloed
+
+Toelichting: Deze definitie beperkt zich tot natuurlijke personen",type,"[""Strafrechtketen""]","[""Strafrecht""]",[],draft,,,,,,,,,2025-09-24T07:24:25.249470+00:00,2025-10-27T11:43:42.920602+00:00
+persoonsregistratie,"""De vastlegging van gegevens van een persoon in een register""@nl",type,"[""Strafrechtketen""]","[""Strafrecht""]",[],draft,,,,,,,,,2025-09-24T07:24:25.218856+00:00,2025-09-24T07:24:25.218856+00:00
+registreren,"""Vastleggen van gegevens omtrent een persoon in een bestand (register)""@nl",type,"[""Strafrechtketen""]","[""Strafrecht""]",[],draft,,,,,,,,,2025-09-24T07:24:25.156825+00:00,2025-09-24T07:24:25.156825+00:00
+samenhang strafzaak,"Type relatie tussen strafzaken met een onderlinge verbinding op basis van feiten, betrokkenen of omstandigheden waardoor deze zaken als samenhangend worden beschouwd binnen een procedurele of organisatorische context.",proces,"[""NP"", ""OM"", ""ZM""]","[""Strafrecht""]","[""Wetboek van Strafvordering (huidig)""]",archived,,,,,,,,,2025-10-08T11:53:02.980429+00:00,2025-10-27T08:48:17.399872+00:00
+samenhang strafzaak,"Type relatie tussen afzonderlijke strafzaken gekenmerkt door een inhoudelijk, feitelijk of persoonlijk verband dat aanleiding geeft tot gezamenlijke behandeling of beoordeling.",proces,"[""ZM"", ""OM""]","[""Strafrecht""]",[],archived,,,,,,,,,2025-10-08T11:47:42.766645+00:00,2025-10-27T08:48:39.055381+00:00
+samenscholing,"- Ontologische categorie: proces
+Groepsvorming waarbij meerdere personen zich gelijktijdig en fysiek op eenzelfde locatie verzamelen en gedurende een bepaalde tijd in elkaars nabijheid verblijven.",proces,"[""DJI""]",[],[],archived,,,,,,,,,2025-10-08T08:52:11.186288+00:00,2025-10-27T08:53:05.201639+00:00
+samenscholing,"- Ontologische categorie: proces
+Groepering van meerdere personen op eenzelfde locatie gedurende een beperkte tijdsperiode waarbij fysieke nabijheid ontstaat door gelijktijdige aanwezigheid zonder voorafgaande formele organisatie of structurele samenhang.",proces,"[""DJI""]",[],[],archived,,,,,,,,,2025-10-08T08:46:53.281890+00:00,2025-10-27T08:55:04.845519+00:00
+semantiek,"- Ontologische categorie: soort
+Soort taalkundige discipline die zich richt op de systematische bestudering van de betekenis van woorden, zinnen en symbolen binnen een formeel of natuurlijk taalgebruik.",proces,"[""Justitie en Veiligheid""]",[],[],archived,,,,,,,,,2025-10-01T14:45:09.867093+00:00,2025-10-27T09:06:32.225547+00:00
+strafrechtelijke identiteit,"""De verbinding naar een natuurlijk persoon in de informatievoorziening van de strafrechtketen""@nl",type,"[""Strafrechtketen""]","[""Strafrecht""]",[],draft,,,,,,,,,2025-09-24T07:24:25.231767+00:00,2025-09-24T07:24:25.231767+00:00
+strafrechtproces,"""het proces van toepassing van het strafrecht, bestaande uit de stappen opsporen, vervolgen, berechten en tenuitvoerleggen""@nl",type,"[""Strafrechtketen""]","[""Strafrecht""]",[],draft,,,,,,,,,2025-09-24T07:24:25.095911+00:00,2025-09-24T07:24:25.095911+00:00
+synthetisch,"Materiaal of informatie met als kenmerk dat samenstelling of oorsprong het resultaat is van kunstmatige vervaardiging of nabootsing, onderscheiden van natuurlijke of authentieke varianten door gebruik van door mensen geïnitieerde processen of middelen.",proces,"[""Reclassering""]",[],[],archived,,,,,,,,,2025-10-10T14:25:42.686632+00:00,2025-10-27T08:37:58.468551+00:00
+synthetisch,"Type entiteit met een niet-natuurlijke oorsprong, gekenmerkt door totstandkoming door samenstelling, nabootsing of kunstmatige constructie van onderdelen of eigenschappen.",proces,"[""Strafrechtketen""]","[""Strafrecht""]",[],archived,,,,,,,,,2025-10-09T11:59:27.333727+00:00,2025-10-27T08:41:17.383369+00:00
+testen,"- Ontologische categorie: soort
+Categorie van gestructureerde handelingen waarbij eigenschappen of werking van een object, systeem of proces empirisch worden vastgesteld aan de hand van vooraf bepaalde criteria of specificaties.",proces,"[""ZM""]",[],[],archived,,,,,,,,,2025-10-03T09:32:19.025879+00:00,2025-10-04T07:10:34.514691+00:00
+toeslagenaffaire,"- Ontologische categorie: soort
+Categorie van bestuurlijke en politieke misstanden gekenmerkt door systematische onterechte verdenkingen van fraude met toeslagen, strikte terugvordering en rigide toepassing van regelgeving door overheidsinstanties.",proces,"[""FIOD""]",[],[],archived,,,,,,,,,2025-10-08T09:21:55.696240+00:00,2025-10-27T08:51:25.217404+00:00
+toestand,"- Ontologische categorie: soort
+Toestand: soort beschrijvende aanduiding van de op een specifiek moment geldende eigenschappen, kenmerken en verhoudingen van een object, persoon of situatie binnen een bepaald referentiekader.",proces,[],"[""Internationaal recht""]",[],archived,,,,,,,,,2025-10-07T08:48:09.477883+00:00,2025-10-27T09:05:48.939708+00:00
+toestand,"- Ontologische categorie: soort
+Type beschrijving van een situatie met als kenmerk een concreet vaststelbare combinatie van feitelijke omstandigheden, eigenschappen of parameters binnen een afgebakende tijdseenheid en context.",proces,"[""OM""]",[],[],archived,,,,,,,,,2025-10-04T08:05:36.654482+00:00,2025-10-27T09:06:04.279705+00:00
+toets,"- Ontologische categorie: soort
+Type beoordeling met een vastgestelde methodiek waarbij een deskundige of geautoriseerde functionaris een objectieve vaststelling doet van de aanwezigheid, geldigheid of juistheid van een feit, gegeven of situatie op basis van vooraf bepaalde criteria.",proces,"[""OM""]",[],[],draft,,,,,,,,,2025-09-23T21:18:11.105478+00:00,2025-09-23T21:18:11.105478+00:00
+traject,"""de gang van een individuele zaak resp. verdachte/veroordeelde door de keten naar aanleiding van een specifiek delict (of verdenking)""@nl",type,"[""Strafrechtketen""]","[""Strafrecht""]",[],draft,,,,,,,,,2025-09-24T07:24:25.038801+00:00,2025-09-24T07:24:25.038801+00:00
+valkuil,"- Ontologische categorie: soort
+Type belemmering binnen operationele of organisatorische processen met als kenmerk dat deze leidt tot onvoorzienbare complicaties of ongewenste gevolgen door een inherente kwetsbaarheid, onduidelijkheid of gebrek aan voorziene maatregelen.",proces,"[""KMAR""]",[],[],archived,,,,,,,,,2025-09-29T15:09:28.841724+00:00,2025-10-27T09:06:52.529554+00:00
+vaststelling,"- Ontologische categorie: proces
+Handeling waarbij een bevoegde functionaris of instantie een feit, rechtstoestand of gegeven formeel erkent na onderzoek van relevante informatie en bewijsstukken.",proces,"[""Justid""]","[""Civiel recht""]","[""Wetboek van Strafvordering (huidig)""]",archived,,,,,,,,,2025-10-07T21:52:35.535963+00:00,2025-10-27T08:59:16.536023+00:00
+vaststellingswijze,"""De methode gebruikt bij de inwinning en verificatie van een identiteitskenmerk""@nl
+
+Toelichting: De vaststellingswijze laat bijvoorbeeld zien of de naam is verkregen door eigen opgave, afgeleid uit een identiteitsmiddel, een (gekwalificeerd) identiteitsbewijs en of deze gegeven geverifieerd zijn in registers. 
+  
+Latere gebruikers van deze identiteitsgegevens kunnen hiermee nagaan of de betrouwbaarheid van deze gegevens hoog genoeg is voor de beslissing die zij dan moeten nemen.",type,"[""Strafrechtketen""]","[""Strafrecht""]",[],draft,,,,,,,,,2025-09-24T07:24:25.117554+00:00,2025-09-24T07:24:25.117554+00:00
+verbod,"- Ontologische categorie: resultaat
+Resultaat van een formeel besluit waarbij een bepaalde handeling of gedraging niet is toegestaan door een daartoe bevoegde instantie.",proces,"[""ZM""]",[],[],archived,,,,,,,,,2025-10-08T09:06:46.236790+00:00,2025-10-27T08:51:53.980700+00:00
+verbod,"- Ontologische categorie: soort
+Beperkende maatregel die een specifieke handeling, gedraging of situatie formeel uitsluit door middel van een bindende bepaling.",proces,"[""ZM""]",[],[],archived,,,,,,,,,2025-10-08T09:02:13.472130+00:00,2025-10-27T08:52:42.043493+00:00
+verifiëren,"""Het vergelijken van de ingewonnen identiteitsgegevens van een persoon met een andere set identiteitsgegevens in een 1-op-1-vergelijking.""@nl
+
+Toelichting: De andere set kan afkomstig zijn van een identiteitsbewijs of een specifiek record uit een register zoals de SKDB.",type,"[""Strafrechtketen""]","[""Strafrecht""]",[],draft,,,,,,,,,2025-09-24T07:24:25.123402+00:00,2025-09-24T07:24:25.123402+00:00
+versheidscontrole,"- Ontologische categorie: soort
+Versheidscontrole: categorie controlemaatregel met als kenmerk dat wordt vastgesteld of informatie, gegevens of documenten voldoen aan vooraf gestelde eisen met betrekking tot tijdigheid of actualiteit.",proces,"[""ZM""]",[],[],archived,,,,,,,,,2025-10-07T13:58:53.313393+00:00,2025-10-27T09:03:48.152377+00:00
+verticaal,"- Ontologische categorie: soort
+Soort oriëntatie die een richting aanduidt loodrecht op een vlak dat als horizontaal wordt beschouwd.",proces,"[""NP""]","[""Civiel recht""]",[],archived,,,,,,,,,2025-10-07T13:31:23.845206+00:00,2025-10-27T09:04:53.294858+00:00
+vervoersverbod,"- Ontologische categorie: soort
+Vervoersverbod: maatregel die een persoon verbiedt zich met een vervoermiddel binnen een bepaald gebied of tussen specifieke locaties te verplaatsen.",proces,"[""OM"", ""ZM""]","[""Strafrecht""]",[],archived,,,,,,,,,2025-10-08T09:38:51.980536+00:00,2025-10-27T08:48:59.903755+00:00
+voegen strafzaak,Type procedure waarbij een afzonderlijke strafzaak formeel wordt samengevoegd met een andere strafzaak tot één gezamenlijk te behandelen zaak binnen een strafrechtelijk traject.,proces,"[""OM""]",[],[],archived,,,,,,,,,2025-10-08T13:02:16.485393+00:00,2025-10-27T08:46:48.134410+00:00
+voertuig,"- Ontologische categorie: soort
+Type vervoersmiddel met een eigen constructie voor het verplaatsen van personen, dieren of goederen over land, water of door de lucht, waarbij zelfstandige voortbeweging mogelijk is door mechanische, elektrische of andere aandrijving.",proces,"[""Justid""]","[""Strafrecht""]",[],archived,,,,,,,,,2025-10-07T19:25:26.667042+00:00,2025-10-27T09:04:19.501983+00:00
