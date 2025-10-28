@@ -54680,6 +54680,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "DEF-43 Export Fix - Debug Analysis Report",
+      "path": "../reports/DEF-43_DEBUG_ANALYSIS.md",
+      "url": "../reports/DEF-43_DEBUG_ANALYSIS.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/reports/DEF-43_DEBUG_ANALYSIS.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Vibe Coding Architecture Analysis Report",
       "path": "../reports/vibe-coding-architecture-analysis.md",
       "url": "../reports/vibe-coding-architecture-analysis.md",
@@ -56176,7 +56207,7 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 937,
+      "DOC": 938,
       "EPIC": 35,
       "US": 375,
       "BUG": 28,
@@ -56186,7 +56217,7 @@
       "TEST": 35,
       "COMP": 5
     },
-    "generated_at": "2025-10-28T09:17:48Z"
+    "generated_at": "2025-10-28T14:55:59Z"
   },
   "sources": [
     "docs"
