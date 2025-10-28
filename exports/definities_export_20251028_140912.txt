@@ -1,0 +1,1932 @@
+DEFINITIE EXPORT
+================================================================================
+Aantal definities: 71
+Export datum: 2025-10-28 14:09:12
+================================================================================
+
+Begrip: Strafrechtketen
+Definitie: "De verschillende organisaties die samenwerken in de uitvoering van het strafrechtproces."@nl
+Categorie: type
+Context: ["Strafrechtketen"]
+Status: draft
+Validation score: n/a
+
+--------------------------------------------------------------------------------
+
+Begrip: Strafrechtketendatabank
+Definitie: "het centrale register van de identiteitsgegevens van verdachten en veroordeelden in de strafrechtsketen zoals bedoeld in art. 27b lid 4 WvSv"@nl
+Categorie: type
+Context: ["Strafrechtketen"]
+Status: draft
+Validation score: n/a
+
+--------------------------------------------------------------------------------
+
+Begrip: Strafrechtketennummer (SKN)
+Definitie: "het nummer zoals bedoeld in art. 27b lid 1 WvSv waaronder verdachten en veroordeelden in de strafrechtketen en de SKDB uniek worden aangeduid"@nl
+Categorie: type
+Context: ["Strafrechtketen"]
+Status: draft
+Validation score: n/a
+
+--------------------------------------------------------------------------------
+
+Begrip: VaststellingswijzeIdentificatie
+Definitie: "Unieke Code voor de vaststellingswijze"@nl
+
+Toelichting: Deze code geeft in een snel overzicht de vaststellingswijze weer.
+Categorie: type
+Context: ["Strafrechtketen"]
+Status: draft
+Validation score: n/a
+
+--------------------------------------------------------------------------------
+
+Begrip: authenticeren
+Definitie: "De echtheid, oorsprong of rechtsgeldigheid van een identiteitsbewijs vaststellen"@nl
+
+Toelichting: In het algemene spraakgebruik kan dit ook betrekking hebben op andere zaken zoals bijvoorbeeld kunstvoorwerpen.
+Categorie: type
+Context: ["Strafrechtketen"]
+Status: draft
+Validation score: n/a
+
+--------------------------------------------------------------------------------
+
+Begrip: biografisch identiteitskenmerk
+Definitie: "Tekstuele gegevens die een persoon (zoveel als mogelijk) uniek beschrijven."@nl
+
+Toelichting: Deze gegevens zijn opgenomen in basisregistraties (Basisregistratie Personen, BRP) en andere registers (Basisvoorziening Vreemdelingen, BVV) of vergelijkbare buitenlands registers. Deze gegevens zijn ook opgenomen in een wettig identiteitsbewijs.
+  
+ Zie ook ‘Identiteitskenmerk’.
+Categorie: type
+Context: ["Strafrechtketen"]
+Status: draft
+Validation score: n/a
+
+--------------------------------------------------------------------------------
+
+Begrip: biometrie
+Definitie: "Het bepalen van individualiserende kenmerken zoals fysieke kenmerken, fysiologische kenmerken of gedragskenmerken van een persoon middels een specifieke technische verwerking"@nl
+
+Toelichting: https://en.wikipedia.org/wiki/Biometrics: the technical term for body measurements and calculations; it refers to metrics related to human characteristics. Er is onderscheid in veranderlijkheid: 
+ · tamelijk veranderlijk: haarkleur, haardracht 
+ · tamelijk onveranderlijk: DNA, vingerafdrukken, geslacht, gelaatskenmerken, kleur ogen, gebitskenmerken, iris-patroon, handpalm-patroon, tatoeages, lengte
+ · Biometrische gegevens zoals vingerafdrukken zijn bijzonder individueel en kunnen dus goed gebruikt worden om personen te onderscheiden. 
+ · Deze architectuur schaart een foto ook onder de biometrische kenmerken, hoewel dit strikt genomen geen biometrie is. Pas nadat specifieke kenmerken van een gelaatsfoto middels een technische verwerking zijn omgezet in een biometrische template, is er sprake van biometrie. Een gelaatsfoto is natuurlijk wel een persoonsgegeven (zie art. 4, 6, 9 en 10 AVG en art. 3 t/m 10 RGR).
+Categorie: type
+Context: ["Strafrechtketen"]
+Status: draft
+Validation score: n/a
+
+--------------------------------------------------------------------------------
+
+Begrip: biometrisch identiteitskenmerk
+Definitie: "Een identiteitskenmerk dat door middel van biometrie wordt vastgesteld."@nl
+
+Toelichting: Zie ook ‘Identiteitskenmerk’.
+Categorie: type
+Context: ["Strafrechtketen"]
+Status: draft
+Validation score: n/a
+
+--------------------------------------------------------------------------------
+
+Begrip: dagvaarding
+Definitie: Procedure waarbij een bevoegde instantie een schriftelijk stuk uitreikt aan een persoon teneinde deze te informeren over de verplichting op een bepaald tijdstip en plaats te verschijnen in een gerechtelijke procedure.
+Categorie: proces
+Context: ["OM"]
+Status: archived
+Validation score: n/a
+
+Voorbeeld zinnen:
+  - Het Openbaar Ministerie heeft de dagvaarding uitgereikt aan de verdachte volgens het Wetboek van Strafvordering.
+  - In het strafrecht start het proces vaak met een dagvaarding door het OM.
+  - Volgens het Wetboek van Strafvordering moet de dagvaarding duidelijke informatie bevatten over de zitting waar de verdachte moet verschijnen.
+
+Praktijkvoorbeelden:
+  - Dagvaarding van een verdachte voor een strafzitting: **Voorbeeld:**
+Een persoon wordt verdacht van het plegen van een woninginbraak in Rotterdam. Het OM besluit de zaak voor de rechter te brengen. De verdachte ontvangt via een deurwaarder of politie een dagvaarding, waarin staat dat hij op een bepaalde datum en tijd bij de rechtbank Rotterdam moet verschijnen om zich te verantwoorden voor deze strafbare feit(en).
+
+---
+  - Dagvaarding van een getuige in een strafzaak: **Voorbeeld:**
+Tijdens het onderzoek naar een geweldsincident heeft het OM een buurvrouw gehoord als getuige. Omdat haar verklaring belangrijk kan zijn voor de waarheidsvinding, stuurt het OM haar een dagvaarding om op de zittingsdag als getuige te verschijnen bij de strafrechtbank, zodat zij onder ede kan worden gehoord.
+
+---
+  - Dagvaarding van een slachtoffer dat gebruik wil maken van het spreekrecht: **Voorbeeld:**
+In een strafzaak tegen een verdachte van zware mishandeling heeft het slachtoffer bij het OM aangegeven gebruik te willen maken van het spreekrecht tijdens de zitting. Het OM laat het slachtoffer officieel dagvaarden, zodat duidelijk is dat diegene op een bepaald moment en plaats voor de rechtbank mag spreken over de gevolgen van het misdrijf.
+
+---
+
+Deze voorbeelden zijn specifiek voor het Nederlandse strafrecht, met het OM als bevoegde instantie, en sluiten aan op de wettelijke procedure voor dagvaarding zoals vastgelegd in het (huidige) Wetboek van Strafvordering.
+
+Tegenvoorbeelden:
+  - Getuigenoproep: - **
+
+Toelichting: ** Een getuigenoproep is een schriftelijke mededeling van het OM of de rechtbank aan een persoon met het verzoek (en soms de verplichting) om als getuige te verschijnen op een terechtzitting.  
+   - **Geen dagvaarding omdat:** Een getuigenoproep is niet bedoeld om iemand als verdachte op te roepen, maar als getuige. Het is een andere rechtspositie, en het stuk dient niet ter inleiding van vervolging.
+  - Aanhoudingsbevel: - **
+
+Toelichting: ** Het aanhoudingsbevel is een schriftelijk bevel aan de politie om een verdachte aan te houden en eventueel over te brengen naar de rechter-commissaris.  
+   - **Geen dagvaarding omdat:** Het is geen uitnodiging maar een bevel tot vrijheidsbeneming; het initieert geen dagvaardingstraject in een procedure waarin verschijnen op een zitting het doel is.
+  - Schikkingsvoorstel OM (strafbeschikking): - **
+
+Toelichting: ** Het OM kan in lichte strafzaken zelf een straf opleggen door middel van een strafbeschikking, zonder tussenkomst van de rechter, bekendgemaakt via een brief.  
+   - **Geen dagvaarding omdat:** Er wordt geen zitting aangekondigd; de betrokken persoon wordt juist geïnformeerd over een buitengerechtelijke afdoening, niet over een verplichting om bij de rechter te verschijnen.
+
+**Samenvatting:**  
+Hoewel deze voorbeelden door het OM worden uitgevaardigd en een rol spelen in het straf(proces)recht, vallen ze niet onder 'dagvaarding' omdat zij niet gericht zijn op het verplicht laten verschijnen van een verdachte op een openbare terechtzitting in het kader van een strafrechtelijke vervolging.
+
+Toelichting: In de praktijk van het Openbaar Ministerie binnen het strafrecht, zoals geregeld in het Wetboek van Strafvordering, is een dagvaarding het officiële schriftelijke document waarmee het OM een verdachte oproept om op een bepaald moment voor de rechter te verschijnen, zodat het strafproces tegen die persoon kan starten; dit is essentieel omdat het zowel het recht op verdediging waarborgt als het strafproces formeel in gang zet, waardoor zowel de verdachte als de rechter op de hoogte zijn van de tenlastelegging en de procedurele gang van zaken.
+
+--------------------------------------------------------------------------------
+
+Begrip: digitaal identiteitsbewijs
+Definitie: "Een door een bevoegde instantie aan een specifieke persoon uitgereikt digitaal identiteitsmiddel waarmee die persoon tegenover derden zijn identiteit kan aantonen."@nl
+
+Toelichting: Een zelfstandig bruikbaar identiteitsbewijs met dezelfde waarde als een fysiek identiteitsbewijs bestaat nog niet. De huidige middelen c.q. bewijzen (DigiD, eHerkenning, eIDAS) zijn geschikt om je identiteit aan te tonen bij digitale diensten. Het ontbreekt bij deze middelen aan biometrie. Ze volstaan daarom niet om de identiteit van een persoon op straat vast te stellen. Dit is wel in ontwikkeling, bijvoorbeeld in de Digital Travel Credential van ICAO. Deze laatste is overigens ook altijd gekoppeld aan een fysieke component: het paspoort of een telefoon.
+Categorie: type
+Context: ["Strafrechtketen"]
+Status: draft
+Validation score: n/a
+
+--------------------------------------------------------------------------------
+
+Begrip: digitaal identiteitsmiddel
+Definitie: "Een identiteitsmiddel voor toegang tot digitale diensten dat geheel of grotendeels is gebaseerd op digitale zekerheden."@nl
+
+Toelichting: Dit middel – voor zover het geen digitale identiteitsbewijzen zijn – worden doorgaans door personen zelf aangemaakt en gebruikt om hun identiteit aan te tonen bij digitale diensten. Voorbeelden zijn een Microsoft ID, Apple ID en soortgelijken.
+Categorie: type
+Context: ["Strafrechtketen"]
+Status: draft
+Validation score: n/a
+
+--------------------------------------------------------------------------------
+
+Begrip: gekwalificeerd zijn van een identiteitsmiddel (voor een zeker doel)
+Definitie: "Een middel is gekwalificeerd voor een doel wanneer regelgeving bepaalt dat het middel voor dit doel geschikt is."@nl
+
+Toelichting: De Wet op de Identificatieplicht bepaalt welke identiteitsmiddelen gekwalificeerd zijn voor identiteitsvaststelling op verzoek van een bevoegd ambtenaar
+Categorie: type
+Context: ["Strafrechtketen"]
+Status: draft
+Validation score: n/a
+
+--------------------------------------------------------------------------------
+
+Begrip: getuige
+Definitie: Persoon die op basis van eigen waarneming of ervaring informatie verstrekt over feiten of omstandigheden die relevant zijn voor een onderzoek, procedure of beoordeling van een gebeurtenis.
+Categorie: proces
+Context: ["OM"]
+Status: archived
+Validation score: n/a
+
+Voorbeeld zinnen:
+  - Tijdens het strafrechtelijk onderzoek door het OM werd de getuige gehoord over de gebeurtenissen op de avond van het incident.
+  - Volgens het Wetboek van Strafvordering is de getuige verplicht om onder ede te verklaren in de rechtszaal.
+  - Het OM riep meerdere getuigen op om de feiten rondom de strafzaak nader te kunnen onderzoeken.
+
+Praktijkvoorbeelden:
+  - Hieronder drie praktische voorbeelden waarin het begrip **‘getuige’** van toepassing is binnen het **Openbaar Ministerie (OM), het strafrecht** en het (toekomstige) **Wetboek van Strafvordering**:
+  - 1. Getuige van een straatroof**
+  - > Tijdens een strafzaak tegen een verdachte van een straatroof roept het OM een voorbijganger op die het incident heeft zien gebeuren. Deze persoon wordt als getuige verhoord door de officier van justitie en later eventueel ook door de rechter-commissaris. Op basis van zijn eigen observaties beschrijft hij wat hij heeft gezien: hoe de dader de tas wegnam en welke richting hij is opgerend.
+  - 2. Getuige-deskundige in een financieel strafonderzoek**
+  - > In een complexe fraudezaak vraagt het OM een forensisch accountant als getuige-deskundige te verklaren over de onderzochte boekhoudkundige gegevens. De accountant legt tijdens de zitting uit hoe de verdachte volgens zijn bevindingen geld heeft weggesluisd, op basis van zijn eigen analyse en ervaring als deskundige. Zijn getuigenis ondersteunt de bewijsvoering.
+  - 3. Getuige in een zedenzaak**
+  - > In een strafproces rondom een zedendelict nodigt het OM de beste vriendin van het (vermeende) slachtoffer uit als getuige, omdat zij kort na het incident met het slachtoffer sprak en haar gedrag heeft waargenomen. Zij verklaart bij de rechter-commissaris wat het slachtoffer haar heeft verteld en beschrijft het gedrag van haar vriendin direct na het incident, wat helpt bij de beoordeling van de geloofwaardigheid van het verhaal.
+  - Samengevat:**
+  - In het strafrecht, onder regie van het OM en conform het Wetboek van Strafvordering, is een getuige een persoon die relevante informatie over een strafbare gebeurtenis deelt op basis van eigen waarneming of deskundigheid, en deze informatie levert een fundamentele bijdrage aan het onderzoek en de bewijsvoering.
+
+Tegenvoorbeelden:
+  - Verdachte**  
+   *Toelichting*: Een verdachte is een persoon van wie wordt vermoed dat hij een strafbaar feit heeft gepleegd. Hoewel een verdachte vaak weet heeft van relevante feiten of omstandigheden, verstrekt hij deze informatie in de eerste plaats uit eigenbelang of op grond van zijn positie als verdachte, niet puur op basis van waarneming als onafhankelijk persoon. De kern is dat de verdachte niet neutraal informatie verstrekt over een gebeurtenis, maar zelf onderwerp is van het onderzoek of de procedure.
+  - Deskundige**  
+   *Toelichting:* Een deskundige levert informatie of een oordeel op basis van specialistische kennis, bijvoorbeeld forensische experts of medisch specialisten. Zij rapporteren op grond van hun expertise, niet op basis van rechtstreekse, persoonlijke waarneming van de feiten of gebeurtenissen waar het onderzoek om draait. Ze zijn dus geen 'getuigen' in de zin van de ontologische categorie.
+  - Aangever (benadeelde partij/klager)**  
+   *Toelichting:* Een aangever doet (soms namens zichzelf als slachtoffer) aangifte van een strafbaar feit bij politie of justitie. Een aangever valt niet per se onder de definitie van 'getuige' omdat de aangifte niet altijd is gebaseerd op eigen waarneming, maar ook kan steunen op vermoedens, verklaringen van anderen of indirect bewijs. Bovendien is het doel van de aangifte formeel om het strafproces in gang te zetten, niet primair om als informant in een procedure te fungeren.
+
+Deze drie rollen zijn nauw verweven met het strafproces en de organisatie (OM), maar voldoen niet aan de omschrijving van 'getuige' uit de gestelde definitie.
+
+Toelichting: Binnen het strafrechtelijk domein van het Openbaar Ministerie, zoals geregeld in het (toekomstige) Wetboek van Strafvordering, is een getuige een persoon die op basis van eigen, directe kennis informatie geeft over feiten die van belang zijn voor het strafrechtelijk onderzoek of de beoordeling van een strafbaar feit; getuigen spelen hierbij een cruciale rol omdat hun verklaringen kunnen bijdragen aan het waarheidsvindingproces, waarmee het OM de feiten kan vaststellen en tot een rechtvaardige vervolging of beoordeling kan komen.
+
+--------------------------------------------------------------------------------
+
+Begrip: grondslag
+Definitie: "Verdenking of veroordeling die de strafrechtketen het recht geeft identiteitsgegevens in de strafrechtketen te verwerken"@nl
+Categorie: type
+Context: ["Strafrechtketen"]
+Status: draft
+Validation score: n/a
+
+--------------------------------------------------------------------------------
+
+Begrip: grondslagsoort
+Definitie: "Typering van een grondslag"@nl
+
+Toelichting: De volgende grondslagsoorten zijn onderkend:
+ · Verdenking van een strafbaar feit,
+ · Verdenking van een strafbaar feit en twijfel over de identiteit,
+ · Verdenking van een strafbaar feit waarvoor voorlopige hechtenis is toegestaan
+ · Geen zelfstandige grondslag: gebruikt bij verrijkingen na geslaagde verificatie
+Categorie: type
+Context: ["Strafrechtketen"]
+Status: draft
+Validation score: n/a
+
+--------------------------------------------------------------------------------
+
+Begrip: hoger beroep
+Definitie: Soort rechtsmiddel waarmee een beslissing van een lagere rechterlijke instantie wordt voorgelegd aan een hogere rechterlijke instantie voor een volledige herbeoordeling.
+Categorie: proces
+Context: ["OM", "ZM"]
+Status: archived
+Validation score: n/a
+
+Voorbeeld zinnen:
+  - Het Openbaar Ministerie besloot na het vonnis van de rechtbank hoger beroep in te stellen volgens het Wetboek van Strafvordering.
+  - De verdachte maakt in het strafrecht vaak gebruik van hoger beroep om de zaak opnieuw door de zittende magistratuur te laten beoordelen.
+  - Het Wetboek van Strafvordering bepaalt wanneer en op welke wijze hoger beroep binnen het strafrecht kan worden aangetekend.
+
+Praktijkvoorbeelden:
+  - 1. Hoger beroep na vonnis politierechter (OM en verdachte)**
+  - Een verdachte wordt door de politierechter veroordeeld tot een werkstraf van 60 uur wegens mishandeling. De verdachte vindt het vonnis onterecht en wil een volledige herbeoordeling van zijn zaak. Via zijn advocaat stelt hij hoger beroep in bij het Gerechtshof. Ook het OM kan besluiten in beroep te gaan, bijvoorbeeld als het OM vindt dat de straf te laag is. Het Gerechtshof zal de zaak dan opnieuw inhoudelijk behandelen.
+  - 2. Hoger beroep door het OM tegen vrijspraak rechtbank**
+  - Een verdachte van verduistering wordt vrijgesproken door de rechtbank. Het Openbaar Ministerie is het niet eens met deze uitspraak en stelt hoger beroep in. De zaak wordt vervolgens behandeld door het Gerechtshof, dat de hele zaak opnieuw beoordeelt en eventueel tot een andere uitspraak kan komen (bijvoorbeeld alsnog een veroordeling).
+  - 3. Hoger beroep na veroordeling in meervoudige strafkamer rechtbank (ernstig delict)**
+  - Een verdachte wordt door een meervoudige kamer van de rechtbank veroordeeld tot vijf jaar gevangenisstraf wegens zware mishandeling. Omdat de verdachte meent dat de opgelegde straf veel te zwaar is, laat hij zijn advocaat hoger beroep instellen bij het Gerechtshof. Ook hier zal het Hof de zaak opnieuw behandelen en kan het de straf wijzigen, verlagen of zelfs tot vrijspraak komen.
+  - Toelichting:**
+  - In al deze voorbeelden gaat het om situaties binnen het strafrecht, waarbij een uitspraak van een lagere rechter (politierechter of rechtbank) kan worden voorgelegd aan een hogere rechterlijke instantie (het Gerechtshof), zodat de zaak opnieuw en volledig bekeken wordt. Dit is geregeld in het Wetboek van Strafvordering. Zowel het OM als de verdachte kunnen van dit rechtsmiddel gebruikmaken.
+
+Tegenvoorbeelden:
+  - Hieronder drie tegenvoorbeelden uit het strafrecht die wel verwant zijn aan ‘hoger beroep’ (zelfde domein en organisaties), maar die NIET onder de ontologische definitie van ‘hoger beroep’ vallen. Bij elk voorbeeld een korte uitleg:
+  - 1. Cassatie**
+  - Uitleg*: Cassatie is het aanvechten van een uitspraak bij de Hoge Raad, waarbij enkel wordt gekeken of het recht juist is toegepast en of het proces correct is verlopen. De zaak wordt niet volledig herbeoordeeld zoals bij hoger beroep.
+  - Waarom niet hoger beroep?* De Hoge Raad toetst alleen juridische aspecten en doet geen hernieuwde feitelijke beoordeling van de zaak.
+  - 2. Verzet**
+  - Uitleg*: Verzet is een rechtsmiddel dat wordt gebruikt als iemand bij verstek (dus bij afwezigheid) is veroordeeld en alsnog wil dat de zaak inhoudelijk behandeld wordt door dezelfde rechterlijke instantie.
+  - Waarom niet hoger beroep?* De zaak komt niet bij een hogere rechterlijke instantie, maar opnieuw bij dezelfde instantie.
+  - 3. Herziening ten voordele**
+  - Uitleg*: Bij herziening ten voordele kan een onherroepelijk strafvonnis opnieuw worden bekeken indien er nieuwe feiten aan het licht komen.
+  - Waarom niet hoger beroep?* Het is geen regulier rechtsmiddel tegen een nog niet onherroepelijk vonnis en vindt plaats buiten het reguliere rechtsmiddelenstelsel om, dus buiten het traject van hoger beroep door een hogere instantie.
+
+Toelichting: In de strafrechtpraktijk van het Openbaar Ministerie (OM) en de Zittende Magistratuur (ZM) is hoger beroep een essentieel rechtsmiddel waarmee het OM of de verdachte een zaak, na een uitspraak van de rechtbank, kan voorleggen aan het gerechtshof voor een volledige herbeoordeling van zowel de feiten als het recht; dit waarborgt niet alleen de controle op de kwaliteit en juistheid van rechterlijke beslissingen, maar biedt ook partijen de mogelijkheid fouten of onvolkomenheden te laten corrigeren, zoals vastgelegd in het Wetboek van Strafvordering, en draagt zo bij aan een eerlijk en zorgvuldig strafproces.
+
+--------------------------------------------------------------------------------
+
+Begrip: identificeren
+Definitie: "De activiteit waarbij de identiteit van een persoon wordt vastgesteld door middel van vergelijking met meerdere sets van identiteitsgegevens uit een register (één-op-veel-vergelijking)"@nl
+
+Toelichting: Deze definitie is gangbaar bij biometrische verwerkingen. Als zodanig is hij ook opgenomen in Europese verordeningen. In het dagelijks spraakgebruik wordt identificeren ook gebruikt voor wat we in deze definities Identiteit vaststellen noemen.
+Categorie: type
+Context: ["Strafrechtketen"]
+Status: draft
+Validation score: n/a
+
+--------------------------------------------------------------------------------
+
+Begrip: identiteit
+Definitie: Een set van persoonskenmerken waarop de persoon (uniek) onderscheiden kan worden van andere personen.
+
+Toelichting: Algemene definities:
+ 
+ · Van Dale
+ 1 Eigen karakter van een persoon
+ 2 Gelijkheid
+ Merriam Webster
+ 1 the distinguishing character or personality of an individual
+ 2 the condition of being the same with something described or asserted
+  
+ De tweede definitie sluit het beste aan bij de context van identiteitsvaststelling.
+Categorie: type
+Context: ["Strafrechtketen"]
+Status: draft
+Validation score: n/a
+
+Voorbeeld zinnen:
+  - De identiteit van de verdachte moet binnen de strafrechtketen duidelijk worden vastgesteld.
+  - Bij het onderzoek onderzoekt de politie de identiteit van getuigen om verwarring te voorkomen.
+  - Binnen het strafrecht is het verifiëren van de identiteit van belang voor een eerlijk proces.
+
+Praktijkvoorbeelden:
+  - Context: Strafrechtketen (zoals politie, OM, rechters, gevangeniswezen)**
+  - Juridisch domein: Strafrecht**
+  - Voorbeelden waarbij het begrip 'identiteit' in de praktijk van toepassing is:**
+  - 1. Identificatie van een verdachte bij aanhouding door de politie**
+  - Wanneer de politie iemand aanhoudt op verdenking van een strafbaar feit, wordt als eerste stap de identiteit van deze persoon vastgesteld. Dit gebeurt met het tonen van een identiteitsbewijs, maar ook met het opnemen van persoonsgegevens, vingerafdrukken en het eventueel vergelijken van uiterlijke kenmerken met de signalementen uit meldingen of camerabeelden. Een correcte vaststelling van de identiteit is hierbij essentieel om de juiste persoon voor het juiste strafbaar feit te vervolgen en vergissingen te voorkomen.
+  - 2. Uitwisseling van informatie binnen de strafrechtketen**
+  - 3. Controle bij het uitvoeren van een gevangenisstraf**
+  - Als een veroordeelde zich moet melden voor een gevangenisstraf, controleren medewerkers van het gevangeniswezen nauwkeurig de identiteit van de persoon die zich meldt. Ze vergelijken bijvoorbeeld het identiteitsbewijs, persoonsgegevens en biometrische gegevens (zoals foto of vingerafdrukken) met de gegevens in het vonnis of het bevel tot gevangenhouding. Zo wordt voorkomen dat iemand anders een straf uitzit of dat een veroordeelde ten onrechte op vrije voeten blijft.
+  - Deze voorbeelden laten concreet zien hoe het begrip 'identiteit' onmisbaar is in de strafrechtketen om personen uniek te onderscheiden en te zorgen voor een juiste en rechtvaardige afhandeling van strafzaken.
+
+Tegenvoorbeelden:
+  - Uitwerking:
+  - **Definitie:**
+  - Een set van persoonskenmerken waarop de persoon (uniek) onderscheiden kan worden van andere personen.
+  - **Context:**
+  - Strafrechtketen, Strafrecht, geen wettelijke definitie
+  - **Tegenvoorbeelden die NIET onder 'identiteit' vallen, maar wel relevant zijn:**
+  - Dossiernummer van een zaak**
+  - - **Uitleg:** Een dossiernummer identificeert een zaak in het systeem van politie, justitie of rechtbank, maar niet een persoon. Het zegt niets over persoonskenmerken; het nummer volgt het dossier en niet het individu.
+  - Delict- of misdrijfcategorie (zoals diefstal, mishandeling, etc.)**
+  - - **Uitleg:** De aard van het strafbaar feit is gekoppeld aan een zaak, niet aan specifieke persoonskenmerken. Meerdere personen kunnen hetzelfde type delict hebben gepleegd; het maakt geen onderscheid tussen individuen.
+  - Rol in het strafproces (verdachte, getuige, slachtoffer)**
+  - - **Uitleg:** Deze rollen benoemen de positie van een persoon binnen één strafzaak, maar zeggen niets over unieke persoonskenmerken. Verschillende mensen kunnen dezelfde rol hebben; hiermee onderscheid je ze niet uniek van elkaar op persoonsniveau.
+  - **Samengevat:**
+  - Bovenstaande voorbeelden zijn allemaal relevant binnen de strafrechtketen, maar zeggen niets over kenmerken die een persoon uniek maken ten opzichte van anderen. Ze betreffen zaakgebonden gegevens of contextuele rollen en vallen daarom niet onder de gegeven definitie van 'identiteit'.
+
+Toelichting: Binnen de strafrechtketen verwijst 'identiteit' naar de unieke persoonskenmerken—zoals naam, geboortedatum en biometrische gegevens—waarmee een individu eenduidig kan worden herkend en onderscheiden van anderen, wat essentieel is om te waarborgen dat strafrechtelijke maatregelen, zoals opsporing, vervolging of detentie, gericht zijn op de juiste persoon en het risico op persoonsverwisseling of misbruik van procedures wordt geminimaliseerd.
+
+--------------------------------------------------------------------------------
+
+Begrip: identiteit bepalen
+Definitie: "Het vaststellen van de identiteit van een persoon zonder voorgaande verwachting van de identiteit."@nl
+
+Toelichting: Deze identiteitsvaststelling vindt doorgaans plaats bij het eerste contact in de strafrechttraject voor een bepaalde verdenking. Het is dus zeer wel mogelijk dat de persoon al bekend is in de strafrechtketen en opgenomen is in de SKDB.
+ Bij Identiteit bepalen kan gebruik worden gemaakt van Identificatie: een zoekopdracht in de SKDB of andere registers om te zien of er een match is met de identiteitsgegevens van deze persoon.
+Categorie: type
+Context: ["Strafrechtketen"]
+Status: draft
+Validation score: n/a
+
+--------------------------------------------------------------------------------
+
+Begrip: identiteit vaststellen
+Definitie: "Het proces van inwinnen van identiteitskenmerken, het controleren van deze kenmerken middels bevraging van de persoon, vergelijking met identiteitsmiddelen en/of registerbevraging, eindigend met een identiteitsvaststelling van deze persoon."@nl
+Categorie: type
+Context: ["Strafrechtketen"]
+Status: draft
+Validation score: n/a
+
+--------------------------------------------------------------------------------
+
+Begrip: identiteit verifiëren en verrijken
+Definitie: "Proces bestaande uit verificatie en waar mogelijk aanvullen van identiteitskenmerken."@nl
+
+Toelichting: De verificatie bepaalt of een persoon de beoogde, bekende persoon is die verwacht wordt. Indien de verificatie slaagt, worden daarna zo mogelijk nieuwe en recentere identiteitskenmerken ingewonnen.
+
+Voorbeelden van nieuwe gegevens zijn:
+ - ontbrekende vingerafdrukken,
+ - recentere foto
+ - nieuw identiteitsbewijs
+ Bij verrijken kunnen alleen gegevens ingewonnen worden die bij Identiteit bepalen ingewonnen kunnen worden. 
+ Het inwinnen van nieuwe identiteitskenmerken kan er toe leiden dat de zekerheid omtrent de identiteit van de persoon toeneemt, maar ook dat die afneemt.
+Categorie: type
+Context: ["Strafrechtketen"]
+Status: draft
+Validation score: n/a
+
+--------------------------------------------------------------------------------
+
+Begrip: identiteitsbehandeling
+Definitie: "Het geheel van activiteiten en voorzieningen in de strafrechtketen om de juiste en rechtmatige verwerking van identiteitsgegevens van verdachten en veroordeelden te borgen."@nl
+Categorie: type
+Context: ["Strafrechtketen"]
+Status: draft
+Validation score: n/a
+
+--------------------------------------------------------------------------------
+
+Begrip: identiteitsbewijs
+Definitie: - Ontologische categorie: soort
+Echt, eigen, geldig en gekwalificeerd document met unieke identificerende persoonsgebonden kenmerken.
+
+Toelichting: De relatie met identiteitsmiddel is met deze definitie niet gelegd. Middelen zijn breder dan documenten (dit is een subset van middel).
+Categorie: type
+Context: ["Strafrechtketen"]
+Status: review
+Validation score: n/a
+
+Voorbeeld zinnen:
+  - 📄 Voorbeeldzinnen
+  - * De politie mag in het kader van de strafrechtketen iemand staande houden en vragen om een identiteitsbewijs.
+  - * Tijdens het strafrechtelijk onderzoek werd het identiteitsbewijs van de verdachte gecontroleerd.
+  - * Zonder geldig identiteitsbewijs kan een verdachte in de strafrechtketen langer worden vastgehouden voor identificatie.
+
+Praktijkvoorbeelden:
+  - 1. Identificatie bij aanhouding door de politie**
+  - * Wanneer een persoon door de politie wordt aangehouden als verdachte van een strafbaar feit, zal de politie de identiteit van deze persoon moeten vaststellen. De verdachte wordt gevraagd om een identiteitsbewijs te tonen, bijvoorbeeld een paspoort, identiteitskaart of rijbewijs, zodat de politie zeker weet om wie het gaat. Dit is essentieel voor het opmaken van een proces-verbaal en verdere strafrechtelijke afhandeling.
+  - 1. Toegang tot het gerechtsgebouw voor verdachten en getuigen**
+  - * Voordat een verdachte, getuige of slachtoffer een gerechtsgebouw mag betreden om deel te nemen aan een strafzitting, wordt hen gevraagd zich te legitimeren met een identiteitsbewijs. Dit is om te bevestigen dat de juiste personen toegang krijgen tot de zitting en om vergissingen of verwisselingen te voorkomen.
+  - 1. Inschrijving en opneming in een huis van bewaring**
+  - * Wanneer iemand na de veroordeling of in voorlopige hechtenis wordt ingeschreven in een huis van bewaring (gevangenis of detentiecentrum), moet deze persoon zich identificeren met een identiteitsbewijs. De penitentiaire inrichting registreert de persoonsgegevens aan de hand van dit bewijs, zodat de juiste persoon wordt vastgehouden en de administratie correct blijft.
+  - * Deze voorbeelden zijn specifieke situaties binnen de strafrechtketen waar het identiteitsbewijs een cruciale rol speelt.
+
+Tegenvoorbeelden:
+  - * Dienstpas van een politieagent**
+  - Waarom geen identiteitsbewijs?
+  - Een dienstpas wordt uitgegeven door de politieorganisatie aan haar medewerkers om hun functiestatus te bewijzen, niet hun identiteit als burger tegenover derden. Het is dus geen algemeen geaccepteerd identiteitsmiddel; het toont functionele rol, geen juridische identiteit.
+  - * Patiëntenkaart van een justitiële inrichting**
+  - Een patiëntenkaart binnen een gevangenis of penitentiaire inrichting wordt afgegeven ter identificatie binnen die instelling, maar geldt niet als officieel identiteitsbewijs tegenover externe partijen. Het is een intern middel en geen wettelijk erkend document om je identiteit extern aan te tonen.
+  - * Armband met codenummer voor arrestanten**
+  - In sommige contexten krijgen arrestanten tijdelijk een armband met code ter identificatie binnen een celblok. Zo'n armband is slechts bedoeld voor interne registratie en logistiek, niet om de identiteit wettelijk of officieel aan te tonen tegenover derden.
+  - Conclusie:
+  - Deze voorbeelden zijn relevant binnen de strafrechtketen en lijken qua functie op identiteitsbewijzen (ze worden allemaal gebruikt om personen te identificeren), maar voldoen niet aan de gestelde definitie, omdat ze niet door een bevoegde instantie als officieel identiteitsbewijs tegenover derden zijn uitgegeven.
+
+Toelichting: In de strafrechtketen is een identiteitsbewijs een officieel document waarmee een persoon tegenover instanties als politie, justitie of andere partners binnen het strafrecht zijn identiteit betrouwbaar kan aantonen; dit is cruciaal omdat een correcte vaststelling van iemands identiteit essentieel is voor het nemen van gerechtelijke maatregelen, het voorkomen van persoonsverwisseling en het waarborgen van rechtszekerheid binnen het strafproces, ook al schrijft de wet in deze context geen specifiek type identiteitsbewijs voor.
+
+--------------------------------------------------------------------------------
+
+Begrip: identiteitsbewijs
+Definitie: Een door een bevoegde instantie aan een specifieke persoon uitgereikt identiteitsmiddel waarmee die persoon tegenover derden zijn identiteit kan aantonen.
+
+Toelichting: Het Gegevenswoordenboek Migratieketen kent hieromtrent enkele specifieke begrippen.
+ · Biometrisch paspoort
+ · Reisdocument
+ Voor de strafrechtketen lijkt het niet nodig dit op te nemen.
+Categorie: type
+Context: ["Strafrechtketen"]
+Status: draft
+Validation score: n/a
+
+--------------------------------------------------------------------------------
+
+Begrip: identiteitsgegeven
+Definitie: representatie van een identiteitskenmerk.
+
+Toelichting: Dit is de beschrijving van identiteitskenmerken in een registratie.
+ · Identiteitsgegevens kennen verschillende mate van selectiviteit van een persoon; het ene kenmerk (‘vingerafdruk’) is met meer zekerheid te koppelen aan een specifieke persoon dan een ander kenmerk (‘haarkleur’).
+Categorie: type
+Context: ["Strafrechtketen"]
+Status: draft
+Validation score: n/a
+
+Voorbeeld zinnen:
+  - Bij het opstellen van het proces-verbaal registreert de politie elk identiteitsgegeven van de verdachte.
+  - In de strafrechtketen is het zorgvuldig vastleggen van elk identiteitsgegeven essentieel voor een correcte dossiervorming.
+  - Het Openbaar Ministerie controleert of de identiteitsgegevens in het strafdossier overeenkomen met de officiële registraties.
+
+Praktijkvoorbeelden:
+  - Opstellen van een proces-verbaal na een aanhouding**
+  - Nadat een verdachte is aangehouden door de politie, worden in het proces-verbaal diverse identiteitsgegevens opgenomen, zoals naam, geboortedatum, geboorteplaats en adres van de verdachte. Deze identificatie is cruciaal om de juiste persoon aan een strafbaar feit te koppelen.
+  - Verificatie van identiteit bij het uitvoeren van een huiszoeking**
+  - Tijdens een huiszoeking moet de politie controleren of de aanwezige personen overeenkomen met de betrokkenen in het onderzoek. Hierbij vergelijkt men identiteitsgegevens (zoals het Burgerservicenummer of paspoortnummer) van personen ter plaatse met de gegevens in het strafdossier.
+  - Uitwisseling van verdachte-informatie tussen ketenpartners**
+  - Wanneer het Openbaar Ministerie een verdachte overdraagt aan het gevangeniswezen voor voorlopige hechtenis, worden de identiteitsgegevens (zoals signalement, foto, vingerafdrukken) van de verdachte gedeeld om verwisseling of vergissingen te voorkomen en te waarborgen dat de juiste persoon wordt vastgehouden.
+  - Deze voorbeelden laten zien hoe identiteitsgegevens binnen de strafrechtketen een centrale rol spelen bij identificatie, verificatie en uitwisseling van informatie over verdachten.
+
+Tegenvoorbeelden:
+  - Strafbladregistratie (het overzicht van eerdere veroordelingen): **
+  - - **Waarom niet?** Een strafblad betreft behaalde uitkomsten (veroordelingen) en gedragsinformatie, geen beschrijving van een kenmerk waarmee iemands identiteit wordt vastgesteld. Het is afgeleid van het handelen van een persoon, niet van diens identiteitskenmerken zoals naam, geboortedatum of BSN.
+  - Zaaknummer (van een strafproces): **
+  - - **Waarom niet?** Een zaaknummer is administratief en uniek voor een juridisch dossier, maar zegt niets over iemands identiteit of kenmerken van een persoon. Het verwijst naar een zaak, niet naar een individu of diens identiteit.
+  - Tijdstip van een delict: **
+  - - **Waarom niet?** Dit gegeven is relevant voor het reconstrueren van gebeurtenissen in een strafzaak, maar is geen kenmerk van de identiteit van een natuurlijk persoon. Het betreft feitelijke contextinformatie van een gebeurtenis, niet van een individu.
+  - **Samenvatting:**
+  - Bovenstaande voorbeelden zijn allemaal gegevens die in de strafrechtketen voorkomen en die soms dicht bij persoonsgegevens liggen, maar ze geven geen beschrijving van een identiteitskenmerk van een natuurlijk persoon en vallen dus niet onder de definitie van ‘identiteitsgegeven’.
+
+Toelichting: In de strafrechtketen verwijst het begrip 'identiteitsgegeven' naar informatie die een persoon uniek identificeert, zoals naam, geboortedatum of BSN, en die essentieel is voor het correct vaststellen, registreren en uitwisselen van persoonsgegevens binnen strafrechtelijke processen; dit is belangrijk omdat accurate en eenduidige vaststelling van iemands identiteit essentieel is voor de rechtszekerheid, fraudepreventie en een zorgvuldig verloop van opsporing, vervolging en berechting.
+
+--------------------------------------------------------------------------------
+
+Begrip: identiteitskenmerk
+Definitie: biometrische of biografische eigenschap van een persoon die bijdraagt om deze persoon te onderscheiden van anderen.
+
+Toelichting: Hier gaat het om de eigenschap (bijv. gezicht) van of de toegekende beschrijving (bijv. naam) aan de persoon in de werkelijkheid.
+Categorie: resultaat
+Context: ["Strafrechtketen"]
+Status: draft
+Validation score: n/a
+
+Voorbeeld zinnen:
+  - Binnen de strafrechtketen wordt het identiteitskenmerk gebruikt om verdachten te herkennen en te onderscheiden.
+  - Het verwerken van een identiteitskenmerk, zoals een vingerafdruk, speelt een cruciale rol binnen het strafrecht.
+  - Zonder een uniek identiteitskenmerk kan het in de strafrechtketen lastig zijn om personen betrouwbaar te identificeren.
+
+Praktijkvoorbeelden:
+  - Opnemen van vingerafdrukken bij aanhouding: **Situatie:**
+  - Wanneer een verdachte wordt aangehouden door de politie, worden diens vingerafdrukken afgenomen en opgeslagen in het opsporingssysteem (HAVANK).
+  - **
+  - Toelichting: **
+  - Vingerafdrukken zijn een biometrisch identiteitskenmerk. Hiermee kan gecontroleerd worden of de persoon eerder met politie of justitie in aanraking is geweest, en kan men de identiteit van de verdachte bevestigen of uitsluiten.
+  - ---
+  - Het controleren van persoonsgegevens in de rechtbank: **Situatie:**
+  - Bij aanvang van een rechtszaak verifieert de rechter-commissaris zorgvuldig de persoonsgegevens (zoals volledige naam, geboortedatum en -plaats, BSN) van de verdachte.
+  - **
+  - Toelichting: **
+  - Deze biografische identiteitskenmerken worden gebruikt om zeker te stellen dat men daadwerkelijk de juiste persoon voor zich heeft voordat de rechtszaak verdergaat.
+  - ---
+  - Gebruik van dna-profielen bij het oplossen van strafzaken: **Situatie:**
+  - In een zedenzaak vraagt het Openbaar Ministerie na het veiligstellen van dna-sporen op de plaats delict, om het dna-profiel van een verdachte te vergelijken met de afgenomen monsters.
+  - **
+  - Toelichting: **
+  - Dna-profielen zijn unieke biometrische identiteitskenmerken, waarmee een persoon met vrijwel absolute zekerheid geïdentificeerd of uitgesloten kan worden als betrokkene bij de zaak.
+  - ---
+  - **Samengevat:** In de strafrechtketen zijn identiteitskenmerken essentieel voor correcte identificatie van verdachten, het voorkomen van persoonsverwisseling, en het koppelen van strafbare feiten aan de juiste persoon.
+
+Tegenvoorbeelden:
+  - Registratienummer van een verdachte: - **Uitleg:** Dit is een uniek administratief nummer dat aan een verdachte wordt toegekend door politie of justitie.
+  - - **Waarom geen identiteitskenmerk:** Het registratienummer is geen biografische of biometrische eigenschap van een persoon, maar een door de organisatie toegekend gegeven. Het zegt niets over het fysieke of levensbeschrijvende profiel van een persoon.
+  - ---
+  - Zaaknummer of dossiernummer: - **Uitleg:** Dit is het nummer waaronder een specifieke strafzaak administratief wordt geregistreerd.
+  - - **Waarom geen identiteitskenmerk:** Hoewel ieder dossier aan een persoon te koppelen kan zijn, is het zaaknummer geen intrinsieke eigenschap van de persoon zelf. Het nummer hoort bij het dossier, niet bij de persoon.
+  - ---
+  - Status van voorlopige hechtenis: - **Uitleg:** Geeft aan of iemand momenteel in voorlopige hechtenis zit binnen het strafproces.
+  - - **Waarom geen identiteitskenmerk:** Dit is een juridische of procedurele status en heeft niets te maken met biologische of biografische eigenschappen van de persoon. Iedereen kan deze status krijgen, ongeacht persoonlijke kenmerken.
+  - ---
+  - #### Samenvatting:
+  - Al deze voorbeelden zijn wél belangrijk binnen de strafrechtketen om personen of zaken te traceren of administreren, maar het zijn **geen identiteitskenmerken** omdat ze niet zijn gebaseerd op biometrische of biografische eigenschappen van de persoon zelf.
+
+Toelichting: In de strafrechtketen betekent een identiteitskenmerk een persoonlijk kenmerk, zoals een vingerafdruk of geboortedatum, waarmee iemand uniek geïdentificeerd kan worden om verwisseling of vergissingen te voorkomen; dit is essentieel om ervoor te zorgen dat de juiste persoon in het strafproces wordt betrokken, omdat nauwkeurige identificatie voorkomt dat onschuldigen onterecht worden vervolgd of veroordeeld en bevordert dat strafzaken efficiënt en rechtvaardig verlopen.
+
+--------------------------------------------------------------------------------
+
+Begrip: identiteitsmiddel
+Definitie: - Ontologische categorie: soort
+Informatiebevattend voorwerp dat aanwijzing geeft over de identiteit van een persoon.
+
+Categorie: resultaat
+Context: ["Strafrechtketen"]
+Status: review
+Validation score: n/a
+
+--------------------------------------------------------------------------------
+
+Begrip: identiteitsmiddel
+Definitie: "Ieder middel dat aanwijzing kan geven over de identiteit van een persoon"@nl
+
+Toelichting: NL-paspoort, MT-paspoort, visum, rijbewijs, bankpas, zorgpas, klantenkaart, OV-kaart, Rijkspas, bibliotheekpasje, aangetekende brief aan mij, …. Identiteitsmiddelen verschillen in zeggingskracht over de identiteit: een paspoort (mits Echt en Geldig) zegt natuurlijk veel meer dan een bibliotheekpasje; deze zeggingskracht wordt uitgedrukt in een Vaststellingswijze
+Categorie: type
+Context: ["Strafrechtketen"]
+Status: draft
+Validation score: n/a
+
+--------------------------------------------------------------------------------
+
+Begrip: identiteitsonderzoek
+Definitie: "Onderzoek door aangewezen expertisecentrum naar de identiteit van een natuurlijk persoon die onbekend of onzeker is."@nl
+
+Toelichting: De aangegeven expertisecentra zijn:
+ · Afdeling Vreemdelingenpolitie, Identificatie en Mensenhandel (AVIM) van de Nationale Politie
+ · Expertisecentrum Identiteiten en Documenten (ECID) van de Koninklijke Marechaussee.
+Categorie: type
+Context: ["Strafrechtketen"]
+Status: draft
+Validation score: n/a
+
+--------------------------------------------------------------------------------
+
+Begrip: identiteitsvaststelling
+Definitie: De beslissing van een bevoegd persoon dat een ingewonnen en gevalideerde identiteit met een bekende mate van betrouwbaarheid bij een persoon hoort.
+
+Toelichting: Bij deze beslissing weegt de ambtenaar het belang van de te nemen strafrechtelijke beslissing over de persoon tegen de kwaliteit van de ingewonnen identiteitsgegevens. Identiteitsvaststelling kent twee vormen: Identiteit bepalen en Identiteit verifiëren en verrijken. 
+De identiteitsvaststelling is traceerbaar in de strafrechtketen aan de hand van het IdentiteitsVaststellingsID (IVI)
+
+Doel van identiteitsvaststelling (SRK) is:
+ · dat functionarissen die beslissingen in strafzaken moeten nemen, kunnen beschikken over alle reeds aanwezig informatie over de verdachte of veroordeelde die zij nodig hebben (en waarvan zij mogen kennisnemen),
+ · dat de sanctie de juiste persoon treft, en
+ · dat als er gegevens over verdachten of veroordeelden worden uitgewisseld tussen functionarissen in de strafrechtsketen, zo goed mogelijk gewaarborgd is dat betrokkenen niet alleen denken dat ze dezelfde persoon bedoelen maar het ook inderdaad over dezelfde persoon hebben.
+  
+ De uitkomsten van identiteitsonderzoek zijn ook identiteitsvaststellingen.
+Categorie: type
+Context: ["Strafrechtketen"]
+Status: draft
+Validation score: n/a
+
+--------------------------------------------------------------------------------
+
+Begrip: identiteitsvaststellingsID
+Definitie: "Een in de hele strafrechtketen unieke sleutel van een identiteitsvaststelling"@nl
+Categorie: type
+Context: ["Strafrechtketen"]
+Status: draft
+Validation score: n/a
+
+--------------------------------------------------------------------------------
+
+Begrip: inwinning identiteitskenmerken
+Definitie: "Het proces van het vaststellen van identiteitskenmerken van een persoon en de weergave hiervan als identiteitsgegevens."@nl
+
+Toelichting: De belangrijkste bronnen hiervan zijn eigen opgave, identiteitsmiddelen, biometrische afnameapparatuur en het identificeren in databanken.
+Categorie: type
+Context: ["Strafrechtketen"]
+Status: draft
+Validation score: n/a
+
+--------------------------------------------------------------------------------
+
+Begrip: kritisch
+Definitie: - Ontologische categorie: soort
+Eigenschap van een persoon of object gekenmerkt door systematische beoordeling van informatie op consistentie, relevantie en betrouwbaarheid met nadruk op het onderkennen van onvolledigheden, onjuistheden of tegenstrijdigheden.
+Categorie: proces
+Context: ["DJI"]
+Status: archived
+Validation score: n/a
+
+Voorbeeld zinnen:
+  - De medewerkers van DJI moeten kritisch kijken naar de rapportages om te zorgen dat er geen onjuistheden in de evaluaties van detentieomstandigheden staan.
+  - In het strafrecht is het van cruciaal belang dat rechters kritisch zijn ten aanzien van bewijsvoering om onterechte veroordelingen te voorkomen.
+  - Tijdens de interne audits van DJI is het noodzakelijk dat de beoordelaars kritisch de procedures analyseren op consistentie en betrouwbaarheid.
+
+Praktijkvoorbeelden:
+  - ### Voorbeeld 1: Beoordeling van Penitentaire Rapportages
+  - In het kader van de uitvoering van gevangenisstraffen worden rapportages over gedetineerden opgesteld, waaronder informatie over hun gedrag, deelname aan re-integratieprogramma's en medische zaken. Een kritisch team van medewerkers in de DJI moet deze rapportages systematisch beoordelen op consistentie en relevantie. Hierbij kunnen ze onvolledigheden of tegenstrijdigheden ontdekken, zoals bijvoorbeeld discrepanties tussen het rapporteergedrag en de observaties van andere medewerkers. Dit zorgt ervoor dat er geen foute conclusies worden getrokken over de rehabilitatievooruitzichten van een gedetineerde.
+  - ### Voorbeeld 2: Evaluatie van Re-integratieprogramma’s
+  - DJI biedt diverse re-integratieprogramma's aan om gedetineerden voor te bereiden op hun terugkeer in de maatschappij. Een kritisch team binnen de organisatie verzamelt en analyseert feedback van deelnemers aan deze programma's. Ze beoordelen de resultaten op basis van relevante statistieken, zoals het percentage dat succesvol terugkeert naar de samenleving, en houden rekening met de betrouwbaarheid van de gegevens. Dit kan hen in staat stellen om tekortkomingen in het programma te identificeren, zoals laag-engagement van deelnemers of onduidelijke doelstellingen, en zo verbeteringen aan te brengen.
+  - ### Voorbeeld 3: Onderzoek naar Misstanden
+  - In gevallen van meldingen van misstanden binnen de DJI, zoals geweld of schending van mensenrechten, wordt er een kritisch onderzoek ingesteld. Een team van interne onderzoeksfunctionarissen verzamelt bewijs, interviews met betrokken personeel en gedetineerden, en documentatie van incidenten. Het team beoordeelt deze informatie op consistentie en betrouwbaarheid, waarbij ze tegenstrijdige verklaringen en onvolledige dossiers moeten identificeren. Dit onderzoek levert niet alleen een grondig verslag op, maar ook aanbevelingen voor het verbeteren van de werkomstandigheden en het beschermen van de rechten van gedetineerden.
+  - In al deze voorbeelden is de kritische beoordeling van informatie essentieel voor de verbetering van de processen binnen de DJI en de uiteindelijke zekerheid dat de behandeling en het toezicht op gedetineerden veilig, rechtvaardig en effectief zijn.
+
+Tegenvoorbeelden:
+  - Ja-gezegd gedrag: - **Uitleg**: Dit verwijst naar de neiging van personeel of een organisatie om zonder kritische evaluatie in te stemmen met veelvoorkomende opvattingen of richtlijnen binnen de organisatie. Hoewel dit gedrag kan leiden tot het volgen van established practices, houdt het up-to-date blijven met de laatste informatie en een evaluatie van de effectiviteit van zulke richtlijnen in. Echter, het 'ja-gezegd' gedrag mist de systematische beoordeling van informatie die kenmerkend is voor de kritische eigenschap zoals beschreven.
+  - Routinevereisten: - **Uitleg**: Dit omvat het opvolgen van standaardprocedures en protocollen zonder aanpassing of beoordeling van deze procedures op basis van de huidige context of individu-specifieke situaties. Terwijl het belangrijk is om procedures te volgen, houdt deze routine geen kritische beoordeling in van de relevantie of effectiviteit van de procedures in specifieke gevallen of situaties. Dit gedrag sluit twijfels of alternatieven uit, wat het tegenovergestelde is van kritisch denken.
+  - Acceptatie van autoriteit: - **Uitleg**: Dit betreft het vertrouwen in de beslissingen en meningen van hogere autoriteiten binnen de organisatie (zoals leidinggevenden of beleidsmakers) zonder deze actief in twijfel te trekken. Medewerkers kunnen bijvoorbeeld besluiten om een beslissing over te nemen simpelweg omdat deze van een autoriteit komt, zonder het proces of de argumentatie critically te evalueren. Dit soort gedrag sluit dan ook de noodzakelijke kenmerken van kritisch denken uit, namelijk de zorgvuldige en systematische beoordeling van informatie.
+
+Al deze voorbeelden demonstreren een gebrek aan de systematische beoordeling die de definitie van 'kritisch' benadrukt, en ze tonen aan dat hoewel ze relevante gedragingen zijn in de context van de DJI en het strafrecht, ze niet voldoen aan de vereisten van kritisch denken.
+
+Toelichting: In de context van de organisatie DJI (Dienst Justitiële Inrichtingen) en het strafrecht, betekent 'kritisch' dat medewerkers in staat moeten zijn om informatie, zoals rapportages, gedragingen van gedetineerden en juridische documenten, systematisch te evalueren op hun consistentie en betrouwbaarheid. Dit is cruciaal omdat beslissingen die binnen deze context worden genomen directe gevolgen kunnen hebben voor de rechtsgang, de behandeling van gedetineerden, en uiteindelijk voor de veiligheid binnen en buiten de inrichting. Een kritische houding zorgt ervoor dat onvolledigheden of onjuistheden in informatie tijdig worden onderkend, wat bijdraagt aan een rechtvaardige en effectieve uitvoering van het strafrecht en het bevorderen van vertrouwen in het rechtssysteem.
+
+--------------------------------------------------------------------------------
+
+Begrip: meest betrouwbare identiteitsgegevens
+Definitie: "De identiteitsgegevens die met de hoogste waarschijnlijkheid een correcte weergave zijn van de identiteit van een natuurlijk persoon."@nl
+
+Toelichting: Deze set kan samengesteld zijn uit verschillende identiteitsvaststellingen van deze persoon.
+
+Dit begrip is de opvolger van de Leidende Administratieve Identiteit.
+Categorie: type
+Context: ["Strafrechtketen"]
+Status: draft
+Validation score: n/a
+
+--------------------------------------------------------------------------------
+
+Begrip: onherroepelijk
+Definitie: Kenmerk van een beslissing of uitspraak waarbij geen gewoon rechtsmiddel meer openstaat tegen die beslissing of uitspraak.
+Categorie: proces
+Context: ["NP", "OM", "ZM"]
+Status: archived
+Validation score: n/a
+
+Voorbeeld zinnen:
+  - De beslissing van de ZM werd onherroepelijk nadat de termijn voor hoger beroep was verstreken.
+  - Het OM kon na het onherroepelijk worden van het vonnis niet langer in cassatie gaan.
+  - Volgens het Wetboek van Strafvordering is een uitspraak onherroepelijk wanneer er geen gewoon rechtsmiddel meer openstaat.
+
+Tegenvoorbeelden:
+  - Vonnis waartegen nog hoger beroep mogelijk is: **Voorbeeld:** Een rechtbank doet uitspraak in een strafzaak; de veroordeelde partij kan nog in hoger beroep bij het gerechtshof.
+
+**Waarom niet onherroepelijk?**
+- Er staat nog een gewoon rechtsmiddel (hoger beroep) open. Pas als deze termijn is verstreken of geen beroep (meer) mogelijk is, wordt het vonnis onherroepelijk.
+
+---
+  - Uitleveringsbeslissing waartegen cassatie mogelijk is: **Voorbeeld:** De rechtbank wijst een verzoek tot uitlevering toe en partijen kunnen nog in cassatie bij de Hoge Raad.
+
+**Waarom niet onherroepelijk?**
+- De beslissing heeft nog geen definitief karakter omdat beroep in cassatie mogelijk is, dus er kan nog een juridisch inhoudelijke beoordeling volgen.
+
+---
+  - Beslagbeslissing (conservatoir beslag) tijdens het strafproces: **Voorbeeld:** Het OM legt conservatoir beslag op goederen van een verdachte, maar de verdachte kan hiertegen een klaagschrift indienen bij de rechtbank.
+
+**Waarom niet onherroepelijk?**
+- De verdachte heeft nog een rechtsmiddel (klaagschriftprocedure), waardoor de beslagbeslissing niet definitief en dus niet onherroepelijk is.
+
+---
+
+Deze beslissingen en uitspraken zijn allemaal relevant en lijken op 'onherroepelijk', omdat ze belangrijke stappen zijn in het strafproces, maar ze **vallen er niet onder zolang er nog een gewoon rechtsmiddel (beroep, cassatie, klaagschrift, etc.) openstaat**. Pas als al deze mogelijkheden zijn uitgeput of ongebruikt verstreken, is sprake van een onherroepelijke beslissing.
+
+Toelichting: In het strafrecht, zoals geregeld in het Wetboek van Strafvordering en toegepast door organisaties als de Nationale Politie (NP), het Openbaar Ministerie (OM) en de Zittende Magistratuur (ZM), betekent 'onherroepelijk' dat een beslissing of uitspraak definitief is geworden omdat er geen mogelijkheid meer bestaat om daartegen in beroep te gaan of een ander gewoon rechtsmiddel aan te wenden; dit is belangrijk omdat het rechtszekerheid biedt—zowel voor betrokken partijen als voor de handhavende en rechtsprekende instanties—en het moment bepaalt waarop een straf daadwerkelijk ten uitvoer kan worden gelegd of een zaak echt afgesloten is.
+
+--------------------------------------------------------------------------------
+
+Begrip: onherroepelijk 
+Definitie: Kenmerk van een besluit of uitspraak waarbij geen gewoon of buitengewoon rechtsmiddel meer openstaat dat de tenuitvoerlegging schorst.
+Categorie: proces
+Context: ["OM", "FIOD"]
+Status: archived
+Validation score: n/a
+
+Voorbeeld zinnen:
+  - Het door het OM opgelegde strafbeschikking is onherroepelijk geworden nu geen bezwaar meer mogelijk is.
+  - Wanneer de uitspraak van de rechtbank in de FIOD-zaak onherroepelijk is, kan de straf direct worden uitgevoerd.
+  - Na het verstrijken van de beroepstermijn is het vonnis van de strafrechter jegens de verdachten onherroepelijk.
+
+Praktijkvoorbeelden:
+  - Definitie (herhaald ter referentie):**
+  - Kenmerk van een besluit of uitspraak waarbij geen gewoon of buitengewoon rechtsmiddel meer openstaat dat de tenuitvoerlegging schorst*
+  - ### Voorbeeld 1: Onherroepelijk vonnis na hoger beroep
+  - De FIOD heeft samen met het OM een grootschalig onderzoek gedaan naar btw-fraude en een verdachte vervolgd. De rechtbank legt de verdachte een gevangenisstraf op, waartegen hij in hoger beroep gaat bij het gerechtshof. Nadat ook het hof de straf bevestigt, gaat de verdachte niet in cassatie bij de Hoge Raad. De straf is nu **onherroepelijk**: er zijn geen rechtsmiddelen meer mogelijk die de tenuitvoerlegging kunnen uitstellen. Het OM laat de straf daadwerkelijk uitvoeren – de veroordeelde moet de cel in.
+  - ### Voorbeeld 2: Onherroepelijke verbeurdverklaring van goederen
+  - Tijdens een strafzaak tegen een crimineel die verdacht wordt van witwassen, legt de rechter op verzoek van het OM beslag op diverse luxe goederen (auto’s, horloges) en verklaart deze verbeurd. Nadat de verdachte alle beschikbare rechtsmiddelen heeft benut (hoger beroep, cassatie) en zijn uitspraken niet meer aanvecht, is de verbeurdverklaring **onherroepelijk**. De FIOD mag de goederen nu daadwerkelijk (laten) verkopen of vernietigen.
+  - ### Voorbeeld 3: Onherroepelijke transactie
+  - Het OM biedt een verdachte in een fraudezaak een transactie aan: als hij een geldboete betaalt, wordt de strafzaak verder niet vervolgd. De verdachte gaat akkoord, betaalt de boete, en er is vervolgens geen mogelijkheid meer voor de verdachte (of derden) om deze transactie via een rechtsmiddel aan te vechten. Daarmee is de beslissing **onherroepelijk**; de zaak is definitief afgedaan.
+  - Samengevat**: In elk voorbeeld betekent ‘onherroepelijk’ dat zowel binnen het strafrecht (juridisch domein), als bij handelingen van OM en FIOD (organisatorische context), geen bezwaar of beroep meer mogelijk is en de beslissing definitief is.
+
+Tegenvoorbeelden:
+  - Natuurlijk! Je zoekt naar beslissingen/uitspraken binnen het strafrecht (gerelateerd aan OM/ FIOD), die niet 'onherroepelijk' zijn **maar er wel op lijken**. Dit zijn besluiten waar **nog wél een gewoon of buitengewoon rechtsmiddel openstaat** of waar tenuitvoerlegging nog geschorst kan worden. Hier volgen drie tegenvoorbeelden:
+
+---
+  - Vonnis in eerste aanleg (waar beroep mogelijk is): **Omschrijving:**  
+Een vonnis van de rechtbank in een strafzaak waartegen nog hoger beroep kan worden ingesteld.
+
+**Waarom geen 'onherroepelijk' besluit?**  
+Omdat de veroordeelde of het OM nog in hoger beroep kan gaan bij het gerechtshof; het vonnis is dus nog niet definitief.
+
+---
+  - Beslissing na bezwaar door het OM op een strafbeschikking: **Omschrijving:**  
+Nadat de verdachte bezwaar heeft gemaakt tegen een strafbeschikking, beslist het OM opnieuw. Tegen deze beslissing kan de verdachte naar de rechter.
+
+**Waarom geen 'onherroepelijk' besluit?**  
+Omdat de verdachte na deze beslissing nog het recht heeft om de zaak aan de strafrechter voor te leggen.
+
+---
+  - Gerechtshofarrest waartegen nog cassatie mogelijk is: **Omschrijving:**  
+Een arrest van het gerechtshof, waartegen nog cassatie bij de Hoge Raad kan worden ingesteld.
+
+**Waarom geen 'onherroepelijk' besluit?**  
+Omdat er nog een (buitengewoon) rechtsmiddel openstaat (cassatie), waardoor het arrest nog niet definitief is.
+
+---
+
+**Kortom:** In al deze gevallen staan nog rechtsmiddelen open **of** schorst het instellen van dat rechtsmiddel de tenuitvoerlegging nog (al dan niet automatisch); de besluiten zijn dus niet onherroepelijk.
+
+Toelichting: In de strafrechtelijke praktijk van het Openbaar Ministerie (OM) en de Fiscale Inlichtingen- en Opsporingsdienst (FIOD) betekent een 'onherroepelijk' besluit of uitspraak dat er geen mogelijkheid meer bestaat om hiertegen in beroep te gaan, waardoor het vonnis direct ten uitvoer kan worden gelegd; dit is essentieel omdat de rechtszekerheid en de definitieve afhandeling van strafzaken voor zowel de opsporingsinstanties als verdachten en slachtoffers garandeert dat er een einde komt aan procedures en handhaving daadwerkelijk kan plaatsvinden.
+
+--------------------------------------------------------------------------------
+
+Begrip: onherroepelijk 
+Definitie: Soort rechtspositie die kenmerkend is voor een beslissing waarvan geen gewoon of buitengewoon rechtsmiddel meer openstaat waardoor de beslissing definitief wordt en ten volle uitvoerbaar is.
+Categorie: proces
+Context: ["OM", "ZM", "DJI"]
+Status: archived
+Validation score: n/a
+
+Voorbeeld zinnen:
+  - De uitspraak van de strafkamer in hoger beroep werd onherroepelijk nadat geen cassatie meer mogelijk was volgens het Wetboek van Strafvordering.
+  - Het OM kan de executie van de straf pas starten zodra het vonnis onherroepelijk is geworden.
+  - Een detentie kan door de DJI pas ten volle worden uitgevoerd als het vonnis onherroepelijk is verklaard binnen het strafrechtelijke kader.
+
+Praktijkvoorbeelden:
+  - Onherroepelijke gevangenisstraf en executie door de DJI: **Situatie:**
+Iemand is door de rechtbank veroordeeld tot 5 jaar gevangenisstraf. De veroordeelde gaat in hoger beroep, maar het gerechtshof bevestigt de uitspraak. Daarna probeert de veroordeelde nog in cassatie te gaan, maar de Hoge Raad verwerpt het cassatieberoep. Nu is er geen gewoon of buitengewoon rechtsmiddel meer mogelijk.
+
+**Toepassing 'onherroepelijk':**
+De uitspraak is onherroepelijk geworden. Vanaf dat moment is de uitspraak definitief en kan de Dienst Justitiële Inrichtingen (DJI) de straf gaan uitvoeren zonder dat de veroordeelde nog rechtsmiddelen kan inzetten om de tenuitvoerlegging tegen te houden.
+
+---
+  - Onherroepelijk sepotbesluit van het Openbaar Ministerie (OM): **Situatie:**
+Het OM besluit een strafzaak te seponeren wegens gebrek aan bewijs. De betrokken verdachte wordt hiervan op de hoogte gesteld. Er wordt geen bezwaar gemaakt of beklag ingediend binnen de gestelde termijn.
+
+**Toepassing 'onherroepelijk':**
+Na het verstrijken van de termijn waarop bezwaar kon worden gemaakt, wordt het sepotbesluit onherroepelijk. Dit betekent dat het OM de zaak niet meer kan heropenen en geen vervolging meer kan instellen wegens hetzelfde feit.
+
+---
+  - Onherroepelijke vrijspraak door de strafrechter (ZM): **Situatie:**
+Een verdachte wordt na een strafzitting door de rechtbank vrijgesproken van het hem ten laste gelegde feit. Het OM overweegt hoger beroep, maar laat de termijn daartoe verlopen zonder in beroep te gaan.
+
+**Toepassing 'onherroepelijk':**
+De vrijspraak wordt onherroepelijk. Dit houdt in dat de beslissing van de rechter definitief is; de verdachte kan niet nogmaals vervolgd worden voor hetzelfde feit (ne bis in idem) en de zaak is rechtsgeldig afgedaan.
+
+---
+
+**Samenvatting kern van 'onherroepelijk':**
+In deze situaties duidt 'onherroepelijk' steeds op het moment waarop een beslissing definitief wordt, geen (gewone of buitengewone) rechtsmiddelen meer openstaan, en de uitspraak of beschikking volledig uitgevoerd kan of moet worden.
+
+Tegenvoorbeelden:
+  - 1. Vonnis waartegen nog hoger beroep mogelijk is**
+  - Voorbeeld:* Een rechtbank heeft een verdachte veroordeeld, maar de termijn om in hoger beroep te gaan is nog niet verstreken.
+  - Waarom niet onherroepelijk?**
+  - Er staat nog een gewoon rechtsmiddel (hoger beroep) open. De beslissing is dus niet definitief en uitvoerbaar bij voorraad is vaak niet mogelijk: de uitspraak kan nog worden vernietigd of gewijzigd.
+  - 2. Vonnis in hoger beroep waartegen cassatie mogelijk is**
+  - Voorbeeld:* Het gerechtshof doet uitspraak, maar partijen kunnen nog cassatie instellen bij de Hoge Raad.
+  - Zolang het rechtsmiddel van cassatie openstaat, is de uitspraak niet definitief. De rechtspositie is dus niet onherroepelijk, omdat vernietiging mogelijk is.
+  - 3. Beslissing in kort geding (voorzieningenrechter) binnen het strafproces**
+  - Voorbeeld:* Een voorlopige voorzieningsbeslissing over vrijheidsbeneming in afwachting van het strafproces.
+  - Een voorlopige voorziening is nooit een definitieve beslissing over de rechtspositie, en kan bovendien door een latere uitspraak of een gewoon rechtsmiddel worden teruggedraaid.
+  - Conclusie:**
+  - Al deze gevallen betreffen beslissingen die **niet** onherroepelijk zijn omdat er nog verandering mogelijk is door het openstaan van gewone of buitengewone rechtsmiddelen, of omdat het nog geen eindbeslissingen zijn. Zij lijken op het begrip 'onherroepelijk' (want het zijn rechtsposities na beslissingen), maar voldoen niet aan de definitie.
+
+Toelichting: In de strafrechtspraktijk van organisaties als het Openbaar Ministerie (OM), de Zittende Magistratuur (ZM) en de Dienst Justitiële Inrichtingen (DJI) betekent 'onherroepelijk' dat een rechterlijke beslissing – bijvoorbeeld een vonnis of arrest – niet langer kan worden aangevochten met gewone of buitengewone rechtsmiddelen zoals hoger beroep of cassatie, waardoor deze beslissing definitief en direct uitvoerbaar wordt; dit is van cruciaal belang omdat pas vanaf dat moment sancties daadwerkelijk ten uitvoer worden gelegd en rechtszekerheid ontstaat voor verdachten, slachtoffers en de rechtspraktijk, geheel in lijn met de bepalingen van het (huidige) Wetboek van Strafvordering.
+
+--------------------------------------------------------------------------------
+
+Begrip: onherroepelijk vonnis
+Definitie: Uitspraak van een rechter die het gevolg is van een rechtszaak en waartegen geen gewoon rechtsmiddel meer openstaat.
+Categorie: proces
+Context: ["OM"]
+Status: archived
+Validation score: n/a
+
+Voorbeeld zinnen:
+  - Het OM neemt pas maatregelen tot tenuitvoerlegging nadat er een onherroepelijk vonnis is gewezen in het strafproces.
+  - Volgens het Wetboek van Strafvordering kan het OM pas na een onherroepelijk vonnis overgaan tot executie van de straf.
+  - In het strafrecht betekent een onherroepelijk vonnis dat er geen hoger beroep of cassatie meer mogelijk is, zodat het OM het vonnis kan uitvoeren.
+
+Praktijkvoorbeelden:
+  - Executie van een gevangenisstraf na alle beroepsmogelijkheden: Een verdachte wordt door de rechtbank veroordeeld tot drie jaar gevangenisstraf voor zware mishandeling. De verdachte gaat eerst in hoger beroep bij het gerechtshof en daarna in cassatie bij de Hoge Raad, maar alle beroepsmiddelen worden verworpen. Nadat de termijn voor cassatie is verlopen zonder dat een cassatieverzoek is ingediend (of de Hoge Raad het cassatieberoep heeft afgewezen), is het vonnis **onherroepelijk**. Vanaf dat moment kan het OM daadwerkelijk overgaan tot het ten uitvoer leggen van de gevangenisstraf; de veroordeelde moet zijn straf uitzitten.
+
+---
+  - Verbeurdverklaring van in beslag genomen goederen: In een strafzaak wordt bij de rechtbank bepaald dat de auto van de veroordeelde crimineel wordt verbeurdverklaard omdat die is gebruikt bij het plegen van een misdrijf. De veroordeelde komt in hoger beroep, maar het vonnis wordt bekrachtigd. Als er geen cassatieberoep wordt ingesteld (of dit wordt afgewezen), is het vonnis onherroepelijk en kan het OM het verbeurdverklaarde bezit veilingen of vernietigen; de veroordeelde heeft geen mogelijkheid meer om het terug te krijgen via de rechter.
+
+---
+  - Registratie op het strafblad en gevolgen voor justitiële documentatie: Iemand wordt veroordeeld voor diefstal. Na uitspraak door de rechtbank maakt hij geen gebruik van de mogelijkheid tot hoger beroep, en de termijn om dit te doen verloopt. Het vonnis is nu **onherroepelijk**, wat betekent dat de veroordeling wordt opgenomen in de justitiële documentatie (strafblad). Vanaf dan kan deze veroordeling gevolgen hebben voor bijvoorbeeld een aanvraag van een Verklaring Omtrent het Gedrag (VOG) of recidiveberekeningen, omdat de straf definitief vaststaat.
+
+---
+
+**Samenvatting**:  
+In al deze situaties is voortsprake van een ‘onherroepelijk vonnis’ binnen het domein van het OM en het strafrecht: het moment waarop de rechtsmiddelen zijn uitgeput en het vonnis definitief vaststaat en ten uitvoer gelegd kan worden.
+
+Tegenvoorbeelden:
+  - Vonnis waartegen hoger beroep loopt: - *Omschrijving:* Stel een rechtbank doet uitspraak (vonnis), maar een van de partijen is in hoger beroep gegaan (bijvoorbeeld bij het Hof).
+   - *Waarom geen 'onherroepelijk vonnis':* Er staat nog een gewoon rechtsmiddel open (hoger beroep), dus het vonnis is nog niet definitief en kan worden gewijzigd.
+  - Vordering tot voorlopige hechtenis (beslissing van de rechter-commissaris): - *Omschrijving:* Een rechter kan beslissen over voorlopige hechtenis van een verdachte voorafgaand aan de inhoudelijke behandeling van de zaak.
+   - *Waarom geen 'onherroepelijk vonnis':* Dit is geen einduitspraak/uitspraak over schuld of onschuld, maar een procedurele beslissing. Tevens zijn hiertegen ook nog rechtsmiddelen mogelijk.
+  - Seponeringsbeslissing door het OM: - *Omschrijving:* Het Openbaar Ministerie kan besluiten een zaak te seponeren, dus niet verder te vervolgen.
+   - *Waarom geen 'onherroepelijk vonnis':* Er wordt geen rechterlijk vonnis uitgesproken en het is geen resultaat van een rechtszaak. Het betreft een besluit van het OM, waar géén rechter aan te pas komt.
+
+**Kortom:**  
+Al deze voorbeelden vallen niet onder de ontologische categorie 'onherroepelijk vonnis' omdat ze óf geen rechterlijke einduitspraak zijn na een rechtszaak, óf (nog) niet in rechte onaantastbaar zijn.
+
+Toelichting: Een onherroepelijk vonnis binnen het werkveld van het Openbaar Ministerie (OM) in het strafrecht betekent dat de rechterlijke uitspraak definitief is, omdat tegen deze beslissing geen gewoon rechtsmiddel, zoals hoger beroep of cassatie, meer kan worden ingesteld; dit is juridisch en organisatorisch belangrijk omdat het OM op basis van zo’n onherroepelijk vonnis mag overgaan tot de tenuitvoerlegging van de straf, waardoor duidelijkheid ontstaat over de rechtspositie van de verdachte en uitvoeringsorganisaties zekerheid hebben over welke stappen zij mogen en moeten nemen volgens het Wetboek van Strafrecht en het Wetboek van Strafvordering.
+
+--------------------------------------------------------------------------------
+
+Begrip: ophouden
+Definitie: - Ontologische categorie: soort
+Type vrijheidsbeneming waarbij een persoon gedurende een bepaalde tijd onder toezicht wordt gehouden in verband met een strafrechtelijk onderzoek door een daartoe bevoegde instantie.
+Categorie: proces
+Context: ["NP", "OM"]
+Status: archived
+Validation score: n/a
+
+Voorbeeld zinnen:
+  - Het Openbaar Ministerie kan besluiten tot het ophouden van een verdachte voor nader strafrechtelijk onderzoek.
+  - Volgens het Wetboek van Strafvordering mag de politie iemand ophouden na aanhouding door het OM.
+  - Na toestemming van de officier van justitie organiseerde de NP het ophouden van de verdachte op het bureau.
+
+Praktijkvoorbeelden:
+  - 1. Ophouden ter identificatie bij een verdenking van winkeldiefstal**
+  - **Situatie:** De politie ontvangt een melding van winkeldiefstal. Op basis van camerabeelden en een signalement wordt een verdachte aangehouden. Omdat de verdachte zich niet kan legitimeren, besluit de politie de persoon ‘op te houden’ op het politiebureau om zijn identiteit vast te stellen (maximaal 6 uur, volgens art. 61 Sv.).
+  - **Context:** NP voert dit uit, OM wordt later geïnformeerd over het onderzoek.
+  - 2. Ophouden voor verhoor na aanhouding wegens geweldsincident**
+  - **Situatie:** Na een vechtpartij op straat houdt de politie een verdachte aan op verdenking van zware mishandeling. De verdachte wordt ‘opgehouden’ op het bureau om te worden verhoord. Tijdens deze ophouding verzamelt de politie bewijsmateriaal en legt zij verklaringen vast.
+  - **Context:** NP is verantwoordelijk voor de ophouding; de inhoud van het verhoor is relevant voor het OM bij latere vervolgingsbeslissingen.
+  - 3. Ophouden wegens openbare dronkenschap om verstoring te voorkomen**
+  - **Situatie:** Iemand is op straat ernstig onder invloed van alcohol en verstoort de openbare orde. De politie neemt hem mee voor ‘ophouden’ ter bescherming van zichzelf en anderen, en om verdere verstoring te voorkomen. Tijdens de ophouding wordt beoordeeld of strafvervolging volgt.
+  - **Context:** NP voert het op basis van strafvorderlijke bevoegdheden uit; OM bepaalt later of er verdere vervolging plaatsvindt.
+  - Deze voorbeelden illustreren het gebruik van het begrip ‘ophouden’ door de politie binnen het strafrechtelijk kader, onder toezicht van en in samenspraak met het OM, overeenkomstig de bepalingen uit het Wetboek van Strafvordering.
+
+Tegenvoorbeelden:
+  - Hechtenis (in voorlopige hechtenis): - **Uitleg:** Hechtenis is een vrijheidsbeneming in een later stadium van het strafproces, waarbij een verdachte door de rechter-commissaris of rechter in voorlopige hechtenis wordt geplaatst (bv. in bewaring of gevangenhouding).
+   - **Waarom niet ‘ophouden’?** Hechtenis vindt plaats nadat het eerste politieverhoor en de fase van 'ophouden' zijn afgerond, op basis van een rechterlijke beslissing en met zwaardere waarborgen. Ophouden is een kortdurende maatregel in een (veel) eerder stadium.
+  - Staande houden: - **Uitleg:** Staande houden is het korte stilhouden van een verdachte door de politie om diens identiteit te controleren of vragen te stellen.
+   - **Waarom niet ‘ophouden’?** Er is bij staande houden geen sprake van daadwerkelijke vrijheidsbeneming; de verdachte wordt niet fysiek van zijn vrijheid beroofd en hoeft niet onder toezicht vast te worden gehouden.
+  - Inverzekeringstelling: - **Uitleg:** Dit is een verlengde vrijheidsbeneming, doorgaans na het ophouden, waarbij de verdachte maximaal drie dagen (met verlenging) door de officier van justitie in verzekering wordt gesteld voor verder onderzoek.
+   - **Waarom niet ‘ophouden’?** Inverzekeringstelling begint pas nadat de termijn van 'ophouden' is verstreken; het is een eigenstandige en formeel andere juridische maatregel met andere waarborgen.
+
+**Kortom:**  
+Alle drie bovenstaande maatregelen vinden óf vóór (staande houden), óf ná (inverzekeringstelling, hechtenis) het 'ophouden' plaats en verschillen in juridische grondslag, duur en waarborgen. Ze vallen daardoor niet onder de gegeven definitie van 'ophouden'.
+
+Toelichting: ‘Ophouden’ betekent binnen het strafrecht (zoals geregeld in het Wetboek van Strafvordering) dat een persoon tijdelijk wordt vastgehouden door bijvoorbeeld de politie (NP) of onder leiding van het Openbaar Ministerie (OM) in het kader van een strafrechtelijk onderzoek, met als doel o.a. het veiligstellen van bewijs, het vaststellen van de identiteit of het waarborgen van de openbare orde; dit is een belangrijke bevoegdheid omdat het de instanties in staat stelt snel en doeltreffend onderzoek te verrichten zonder dat de verdachte direct op vrije voeten komt, terwijl tegelijkertijd de wettelijke grenzen van vrijheidsbeneming worden gewaarborgd.
+
+--------------------------------------------------------------------------------
+
+Begrip: ophouden
+Definitie: - Ontologische categorie: soort
+Ophouden: soort vrijheidsbeneming waarbij een persoon onder toezicht wordt gehouden gedurende een wettelijk bepaalde periode ter beschikking van een opsporingsinstantie.
+Categorie: proces
+Context: ["NP"]
+Status: archived
+Validation score: n/a
+
+Voorbeeld zinnen:
+  - De politie mag de verdachte maximaal zes uur ophouden op basis van het Wetboek van Strafvordering.
+  - Het ophouden voor onderzoek wordt uitgevoerd door de Nationale Politie volgens de regels van het strafrecht.
+  - Binnen het huidige Wetboek van Strafvordering is ophouden een vorm van vrijheidsbeneming die door de opsporingsinstantie wordt toegepast.
+
+Praktijkvoorbeelden:
+  - Ophouden na aanhouding wegens verdenking van winkeldiefstal: Een persoon wordt door de politie aangehouden in een winkel op verdenking van winkeldiefstal. De verdachte wordt vervolgens overgebracht naar het politiebureau, waar hij maximaal zes uur ter beschikking van de politie wordt gehouden (‘ophouden’) om te worden verhoord en het onderzoek uit te voeren, zoals het vaststellen van de identiteit en het onderzoek naar het feitencomplex.
+
+---
+  - Ophouden voor onderzoek bij huiselijk geweld: Na een melding van huiselijk geweld komt de politie ter plaatse en treft een situatie aan waarin een van de bewoners wordt verdacht van mishandeling van een gezinslid. De verdachte wordt meegenomen naar het politiebureau en wordt daar ‘opgehouden’ voor onderzoek: in deze periode mag de politie de verdachte ondervragen, het slachtoffer horen en eventueel sporenonderzoek (bv. letselonderzoek) laten verrichten.
+
+---
+  - Ophouden bij rijden onder invloed: Tijdens een verkeerscontrole blijkt een automobilist onder invloed van alcohol of drugs te rijden. De bestuurder wordt direct aangehouden en meegenomen naar het bureau. Daar wordt hij ‘opgehouden’ voor het opmaken van het proces-verbaal, het afnemen van een bloed- of ademtest en het verzamelen van alle benodigde informatie om de zaak af te handelen volgens de wettelijke regels.
+
+---
+
+**
+
+Toelichting: **  
+In alle voorbeelden is het ‘ophouden’ een juridisch vastgelegde vrijheidsbeneming, waarbij de verdachte voor een beperkt aantal uren door de politie wordt vastgehouden voor onderzoek, onder de specifieke bepalingen van het Wetboek van Strafvordering.
+
+Tegenvoorbeelden:
+  - Inverzekeringstelling: - **Waarom geen 'ophouden'?**  
+     Bij inverzekeringstelling wordt een persoon na het ophouden verder vastgehouden op basis van een officier van justitie's toestemming, meestal tot maximaal drie dagen. Dit is een volgende stap ná het 'ophouden' en kent een andere wettelijke basis en waarborgen, en is daarom formeel géén 'ophouden'.
+  - Aanhouding/arrestatie: - **Waarom geen 'ophouden'?**
+     Aanhouding of arrestatie is het moment waarop een verdachte fysiek wordt aangehouden door de politie. Dit is een ander juridisch moment dat vóór het 'ophouden' plaatsvindt; het is de feitelijke arrestatie en nog niet de periode van onder toezicht houden die met 'ophouden' wordt bedoeld.
+  - Hechtenis (voorlopige hechtenis/gevangenhouding): - **Waarom geen 'ophouden'?**  
+     Bij voorlopige hechtenis wordt een verdachte door de rechter in bewaring gesteld, doorgaans voor langere tijd in afwachting van het proces. Dit is een juridisch en feitelijk andere medische vrijheidsbeneming dan 'ophouden', dat slechts korte tijd en zonder rechterlijke tussenkomst kan plaatsvinden.
+
+**
+
+Toelichting: **  
+Deze voorbeelden vallen niet onder 'ophouden' omdat ze óf een andere fase van het strafproces betreffen (aanhouding, hechtenis), óf juridisch en organisatorisch een ander regime en wettelijke grondslag hebben (inverzekeringstelling). Ze zijn echter duidelijk relevant binnen hetzelfde (strafrechtelijk) domein.
+
+Toelichting: Binnen het strafrecht, zoals geregeld in het huidige Wetboek van Strafvordering, betekent 'ophouden' dat een persoon van wie wordt vermoed dat hij een strafbaar feit heeft gepleegd, door een opsporingsinstantie tijdelijk zijn vrijheid wordt ontnomen om onder toezicht te worden gehouden voor verhoor of onderzoek; dit is strikt aan wettelijke termijnen gebonden en vormt een belangrijk instrument voor de politie om op een rechtmatige en gecontroleerde manier onderzoek te doen voordat eventueel tot verdere vrijheidsbenemende maatregelen wordt overgegaan.
+
+--------------------------------------------------------------------------------
+
+Begrip: ophouden
+Definitie: - Ontologische categorie: soort
+Beperking van de bewegingsvrijheid van een persoon gedurende een afgebakende periode door een daartoe bevoegde instantie op basis van wettelijke of organisatorische gronden.
+Categorie: proces
+Context: ["OM"]
+Status: archived
+Validation score: n/a
+
+Voorbeeld zinnen:
+  - De politie besloot hem tijdelijk op te houden in het bureau.
+  - Tijdens het onderzoek werd zij opgehouden door de bevoegde instantie.
+  - De wet geeft aan wanneer ophouden van een persoon is toegestaan.
+
+Praktijkvoorbeelden:
+  - 1. Op schoolkamp: toezicht op slaapvertrekken**
+  - Tijdens een schoolkamp merkt de begeleider dat een groep leerlingen na bedtijd stiekem het slaapvertrek wil verlaten. De begeleider besluit hen in hun kamer te laten blijven en zegt dat niemand de gang op mag tot de volgende ochtend. De bewegingsvrijheid van de leerlingen wordt zo tijdelijk beperkt door een daartoe bevoegd (door de situatie, niet door wetgeving) persoon, om de rust en veiligheid te waarborgen.
+  - 2. Jeugdhonk: time-out bij conflicten**
+  - In een jeugdhonk ontstaat een conflictsituatie tussen twee jongeren. De jeugdwerker, verantwoordelijk voor het verloop van de avond, vraagt één van de jongeren in een aparte ruimte af te wachten tot de gemoederen bedaard zijn. De jongere wordt hierdoor tijdelijk afgezonderd van de groep — diens bewegingsvrijheid wordt ingeperkt op basis van de organisatorische taak van de jeugdwerker, zonder wettelijk/juridisch kader.
+  - 3. Ziekte-uitbraak in studentenhuis**
+  - In een studentenhuis breekt een besmettelijke buikgriep uit. De huisoudste (informeel bevoegd als aanspreekpunt van het huis) vraagt iedereen die symptomen vertoont in hun kamer te blijven tot het besmettingsgevaar voorbij is. Deze ‘maatregel’ beperkt de bewegingsvrijheid van de zieke huisgenoten tijdelijk en is gebaseerd op het collectieve belang, niet op wet of regelgeving.
+  - Toelichting:**
+  - In alle drie de situaties is er sprake van ‘ophouden’ als soort: het beperkt iemands bewegingsvrijheid gedurende een bepaalde tijd, door een bevoegde instantie binnen de situatie (bijvoorbeeld begeleider, jeugdwerker, huisoudste), maar zonder expliciet wettelijk, organisatorisch of juridisch kader. Het voorbeeld blijft zo specifiek voor de context zonder deze beperkingen.
+  - Laat gerust weten of je voorbeelden zoekt in een andere, specifiekere context!
+
+Tegenvoorbeelden:
+  - Zeker! Hieronder drie tegenvoorbeelden die relevant zijn voor de context, lijken op 'ophouden', maar niet onder de gegeven definitie vallen:
+  - 1. Toezicht houden (surveilleren)**
+  - **Uitleg:** Hierbij wordt een persoon in de gaten gehouden door een bevoegde instantie, maar er is geen daadwerkelijke beperking van de bewegingsvrijheid. De persoon mag vrij bewegen, mits aan regels wordt voldaan.
+  - **Waarom geen ophouden:** De bewegingsvrijheid wordt niet beperkt; er is sprake van observatie in plaats van fysieke beperking.
+  - 2. Identiteitscontrole (ID-controle)**
+  - **Uitleg:** Een bevoegd persoon (bijvoorbeeld een politieagent) vraagt iemand om zich te identificeren, maar houdt de persoon daarbij niet fysiek tegen.
+  - **Waarom geen ophouden:** De persoon wordt niet tegen zijn wil vastgehouden of in zijn bewegingsvrijheid beperkt gedurende een afgebakende periode.
+  - 3. Vervoer onder begeleiding (bijvoorbeeld Van A naar B brengen)**
+  - **Uitleg:** Iemand wordt door een bevoegde instantie begeleid van de ene plek naar de andere (bijvoorbeeld een verdachte naar huis brengen), met diens toestemming.
+  - **Waarom geen ophouden:** Er is geen sprake van tegenhouden of vasthouden tegen iemands wil; het vervoer gebeurt vrijwillig, zonder essentieel verlies van bewegingsvrijheid.
+  - Deze voorbeelden illustreren situaties die op het eerste gezicht verwant lijken aan 'ophouden', maar waarin de kern – beperking van bewegingsvrijheid door bevoegde instantie op juridische/wettelijke/organisatorische grond – ontbreekt.
+
+Toelichting: 'Ophouden' betekent binnen deze context het tijdelijk beperken van de vrijheid van een persoon door een bevoegde instantie, waarbij iemand gedurende een vooraf bepaalde periode niet vrij is om zich te verplaatsen; dit gebeurt op basis van geldende regels of procedures binnen de organisatie of het domein, en het is belangrijk omdat het zorgt voor orde, veiligheid of controle, bijvoorbeeld bij het waarborgen van iemands aanwezigheid voor onderzoek of begeleiding, terwijl tegelijkertijd wordt voorkomen dat deze maatregel langer duurt dan strikt noodzakelijk.
+
+--------------------------------------------------------------------------------
+
+Begrip: persoon
+Definitie: - Ontologische categorie: soort
+Uniek levend menselijk wezen met rechten en plichten.
+Categorie: type
+Context: ["Strafrechtketen"]
+Status: draft
+Validation score: n/a
+
+Voorbeeld zinnen:
+  - In de strafrechtketen wordt elke persoon zorgvuldig geïdentificeerd om hun rechten te waarborgen.
+  - Volgens het strafrecht heeft een persoon recht op een eerlijk proces.
+  - In het strafrecht wordt bepaald welke plichten een persoon heeft ten opzichte van de samenleving.
+
+Praktijkvoorbeelden:
+  - Verdachte tijdens een strafrechtelijk onderzoek**
+  - In een politieonderzoek naar een diefstal wordt een individu als verdachte aangemerkt. Die persoon heeft specifieke rechten (zoals zwijgrecht, recht op bijstand van een advocaat) en plichten (bijvoorbeeld verschijnen bij een verhoor indien opgeroepen). Alleen een ‘persoon’ in de ontologische betekenis kan als verdachte worden aangemerkt en daarmee rechten en plichten ontlenen.
+  - Getuige tijdens een strafzitting**
+  - Bij de behandeling van een strafzaak voor de rechtbank wordt een levend mens opgeroepen als getuige. Deze persoon heeft de wettelijke plicht om te verschijnen en de waarheid te spreken onder ede. De rechten (bijvoorbeeld niet hoeven te verklaren als dit zichzelf zou belasten) en plichten komen alleen toe aan een ‘persoon’.
+  - Veroordeelde bij tenuitvoerlegging van straf**
+  - Na veroordeling tot gevangenisstraf ontvangt de dader een oproep om zich bij het huis van bewaring te melden. Deze straf kan enkel op een ‘persoon’ worden uitgevoerd, omdat de strafrechtelijke aansprakelijkheid – het dragen van verantwoordelijkheid en ondergaan van een straf – alleen aan een levend mens met rechten en plichten kan worden toegeschreven.
+  - Deze voorbeelden laten zien hoe het begrip ‘persoon’, als uniek levend mens, cruciaal is in het dagelijks functioneren van de strafrechtketen.
+
+Tegenvoorbeelden:
+  - Uitgaande van de gegeven definitie – “Uniek levend menselijk wezen met rechten en plichten” – en de context van het strafrecht (strafrechtketen), worden hieronder drie relevante tegenvoorbeelden gegeven die níet als ‘persoon’ in deze zin gelden. Deze voorbeelden komen uit het strafrechtsdomein, lijken organisatorisch of functioneel op ‘personen’, maar vallen er volgens de ontologische en juridische definitie niet onder.
+  - 1. Rechtspersoon (zoals een BV of stichting)**
+  - Uitleg:** Een rechtspersoon is een organisatievorm die volgens de wet rechten en plichten heeft, en zelfstandig kan deelnemen aan het rechtsverkeer, net als natuurlijke personen. Echter, het is géén uniek levend menselijk wezen, maar een juridische constructie. In het strafrecht kunnen rechtspersonen wel strafrechtelijk worden vervolgd, maar zij vallen niet onder de strikte definitie van ‘persoon’ zoals hierboven beschreven.
+  - 2. Overleden persoon (lijk of erflater)**
+  - Uitleg:** Een overleden mens (lijk of erflater) wordt in juridische zin niet meer als persoon gezien, aangezien deze niet langer ‘levend’ is. Rechten en plichten komen bij overlijden veelal te vervallen of gaan over op erfgenamen. In het strafrecht kan een overleden persoon bijvoorbeeld niet meer vervolgd worden.
+  - 3. Slachtoffer zonder rechtspersoonlijkheid (bijvoorbeeld een dier of ongeboren vrucht)**
+  - Uitleg:** Slachtoffers in het strafrecht kunnen theoretisch ook niet-mensen zijn, bijvoorbeeld dieren of ongeboren kinderen (foetus). Dieren hebben in Nederland sinds 2013 een beperkte rechtsbescherming, maar worden nog steeds niet als personen aangemerkt en hebben geen volledige rechten en plichten zoals een mens. Ongeboren kinderen gelden in het strafrecht niet als ‘persoon’.
+  - Samenvatting:**
+  - Rechtspersoon: geen levend mens, maar juridische entiteit
+  - Overleden persoon: geen levend mens
+  - Dier of ongeboren vrucht: geen (uniek levend) mens met rechten en plichten
+  - Deze voorbeelden zijn relevant in het strafrecht, omdat zij vergelijkbare rechten, plichten of betrokkenheid kunnen hebben, maar niet onder de strikte definitie van ‘persoon’ vallen.
+
+Toelichting: In de context van de strafrechtketen is een 'persoon' een uniek levend menselijk individu dat in het strafrecht onderwerp kan zijn van rechten en plichten, zoals het recht op een eerlijk proces of de plicht om zich aan de wet te houden; dit begrip is essentieel omdat het strafrecht uitsluitend natuurlijke, individuele mensen als verantwoordelijke en aanspreekbare entiteiten beschouwt, waarmee het bepaalt wie strafrechtelijk aansprakelijk kan worden gesteld binnen het juridische proces.
+
+--------------------------------------------------------------------------------
+
+Begrip: persoon
+Definitie: Een mens van vlees en bloed
+
+Toelichting: Deze definitie beperkt zich tot natuurlijke personen
+Categorie: type
+Context: ["Strafrechtketen"]
+Status: draft
+Validation score: n/a
+
+Voorbeeld zinnen:
+  - In de strafrechtketen wordt onderscheid gemaakt tussen een persoon en een rechtspersoon als verdachte.
+  - Een persoon kan binnen het strafrecht als getuige worden opgeroepen.
+  - De politie richt haar onderzoek in de strafrechtketen meestal op een persoon als dader.
+
+Praktijkvoorbeelden:
+  - 1. Aanhouding van een verdachte door de politie**
+  - Tijdens een opsporingsonderzoek identificeert de politie een verdachte van een diefstal. In het proces-verbaal noteert de politie dat "deze persoon" is aangehouden op verdenking van diefstal. Hier verwijst ‘persoon’ nadrukkelijk naar een mens van vlees en bloed, namelijk de verdachte die fysiek wordt vastgehouden en ondervraagd.
+  - 2. Getuigenverhoor bij de rechter-commissaris**
+  - In een strafzaak roept de rechter-commissaris een getuige op voor verhoor. In het proces-verbaal wordt vastgesteld dat ‘de betreffende persoon’ ter zitting is verschenen en onder ede is gehoord over zijn waarnemingen. Ook hier is duidelijk dat het gaat om een fysieke mens, niet om een rechtspersoon of andere entiteit.
+  - 3. Identificatie bij binnenkomst van het Huis van Bewaring**
+  - Bij binnenkomst in het Huis van Bewaring wordt een veroordeelde ‘persoon’ geïdentificeerd aan de hand van zijn identiteitsbewijs. Vervolgens wordt de persoon fysiek begeleid naar zijn cel. In deze context slaat ‘persoon’ weer op de concrete mens van vlees en bloed die fysiek wordt vastgehouden.
+  - Deze voorbeelden zijn direct herkenbaar voor medewerkers binnen de strafrechtketen, zoals politie, OM, rechters en gevangenispersoneel.
+
+Tegenvoorbeelden:
+  - Rechtspersoon (bv. een BV of stichting): - *Uitleg*: Een rechtspersoon zoals een besloten vennootschap (BV) of stichting kan in het strafrecht vervolgd worden, maar is geen "mens van vlees en bloed". Het is een juridische constructie.
+  - Overheidsinstantie (bv. gemeenten, ministeries): - *Uitleg*: Ook overheidsinstanties kunnen in bepaalde gevallen aansprakelijk worden gesteld in strafrechtelijke contexten. Zij zijn echter organisaties, geen natuurlijke personen.
+  - Groepsverband zonder rechtspersoonlijkheid (zoals een maatschap of samenwerkingsverband): - *Uitleg*: Een samenwerkingsverband zonder rechtspersoonlijkheid kan, afhankelijk van de situatie, in het strafrecht betrokken worden. Maar dit verband bestaat uit meerdere personen en is zelf geen individu van vlees en bloed.
+  - **Samenvatting:**
+  - Deze voorbeelden zijn alle relevant binnen het strafrecht en de strafrechtketen, maar vallen niet onder 'persoon' volgens de beperking tot "mens van vlees en bloed". Ze zijn ofwel juridische constructies, organisaties of collectieven, en dus géén individuele natuurlijke personen.
+
+Toelichting: Binnen de strafrechtketen verwijst het begrip 'persoon' specifiek naar een individueel mens van vlees en bloed die als verdachte, slachtoffer, verdachte of getuige betrokken kan zijn bij strafzaken; deze afbakening is belangrijk omdat het bepaalt wie juridisch als subject kan worden aangemerkt in strafrechtelijke procedures, zodat bijvoorbeeld alleen natuurlijke personen, en niet organisaties of rechtspersonen, onder bepaalde strafrechtelijke bepalingen, zoals vrijheidsstraffen of persoonlijke maatregelen, kunnen vallen.
+
+--------------------------------------------------------------------------------
+
+Begrip: persoonsregistratie
+Definitie: "De vastlegging van gegevens van een persoon in een register"@nl
+Categorie: type
+Context: ["Strafrechtketen"]
+Status: draft
+Validation score: n/a
+
+--------------------------------------------------------------------------------
+
+Begrip: registreren
+Definitie: "Vastleggen van gegevens omtrent een persoon in een bestand (register)"@nl
+Categorie: type
+Context: ["Strafrechtketen"]
+Status: draft
+Validation score: n/a
+
+--------------------------------------------------------------------------------
+
+Begrip: samenhang strafzaak
+Definitie: Type relatie tussen strafzaken met een onderlinge verbinding op basis van feiten, betrokkenen of omstandigheden waardoor deze zaken als samenhangend worden beschouwd binnen een procedurele of organisatorische context.
+Categorie: proces
+Context: ["NP", "OM", "ZM"]
+Status: archived
+Validation score: n/a
+
+Voorbeeld zinnen:
+  - Het OM heeft besloten de samenhang strafzaak met betrekking tot de woninginbraken gelijktijdig te behandelen.
+  - Binnen de context van het Wetboek van Strafvordering kan de NP verzoeken om samenvoeging van samenhang strafzaken.
+  - De ZM beoordeelt of sprake is van een samenhang strafzaak op basis van gelijke feiten en betrokkenen in het strafrechtelijk onderzoek.
+
+Praktijkvoorbeelden:
+  - Hieronder drie praktische voorbeelden waarbij het begrip 'samenhang strafzaak' van toepassing is binnen het strafrecht, georganiseerd rondom NP (Nationale Politie), OM (Openbaar Ministerie) en ZM (Zittende Magistratuur/rechtspraak):
+  - 1. Gecombineerde behandeling van zaken bij georganiseerde criminaliteit (Feiten en betrokkenen)**
+  - **Situatie:** De politie onderzoekt een drugslijn waarbij meerdere verdachten structureel samenwerken. Verspreid over diverse locaties worden afzonderlijke feiten/delicten zoals productie, opslag en transport aangetroffen en meerdere verdachten aangehouden.
+  - **Toepassing samenhang strafzaak:** Het OM kiest ervoor om deze afzonderlijke strafzaken (verdeeld over verschillende locaties e/o tijdstippen) samen te voegen en in één zitting aan te brengen bij de rechtbank, omdat ze onlosmakelijk met elkaar verbonden zijn door dezelfde criminele organisatie (feiten én betrokkenen overlappen).
+  - **Organisatorisch belang:** Efficiëntie en consistentie in bewijsvoering; betere afstemming tussen politie (NP), OM en ZM.
+  - 2. Medeverdachten die in dezelfde zaak terechtstaan (Betrokkenen)**
+  - **Situatie:** Twee personen worden verdacht van een gezamenlijke overval. Ze zijn afzonderlijk aangehouden en verhoord door de politie en er zijn twee aparte strafdossiers opgemaakt.
+  - **Toepassing samenhang strafzaak:** Het OM beschouwt deze zaken als samenhangend omdat de betrokkenen bij hetzelfde feit betrokken waren. De zaken worden gelijktijdig door één rechterlijke instantie behandeld. Dit voorkomt tegenstrijdige uitspraken en geeft een compleet beeld.
+  - **Juridisch kader:** Artikel 285 Sv geeft de mogelijkheid om zaken tegen medeverdachten samen te voegen.
+  - 3. Aangrenzende feiten bij één verdachte (Feiten/omstandigheden)**
+  - **Situatie:** Iemand wordt verdacht van diefstal tijdens meerdere inbraken in een korte periode, in dezelfde wijk. Elk feit is geconstateerd op een ander tijdstip, soms met andere slachtoffers.
+  - **Toepassing samenhang strafzaak:** De politie en het OM voegen deze zaken samen tot één zaak, omdat de feiten soortgelijk en in samenhang gepleegd zijn door dezelfde verdachte, soms onder vergelijkbare omstandigheden. Daardoor kan er één zitting plaatsvinden bij de rechtbank waarbij de schuldvraag en strafmaat voor alle feiten integraal wordt beoordeeld.
+  - **Organisatorisch voordeel:** Minder belasting voor rechters (ZM) en meer overzicht in dossierbeheer voor NP/OM.
+  - Conclusie:**
+  - Het begrip 'samenhang strafzaak' wordt met name benut in situaties waarin efficiency, consistentie en rechtsgelijkheid rondom strafrechtelijke procedures centraal staan bij organisaties als NP, OM en ZM volgens de regels van het Wetboek van Strafvordering.
+
+Tegenvoorbeelden:
+  - 1. Strafzaken met enkel soortgelijke tenlasteleggingen, maar zonder onderlinge feitelijke, persoonlijke of organisatorische verbinding**
+  - Voorbeeld:* Drie verschillende strafzaken tegen verschillende verdachten in verschillende regio's, allemaal wegens winkeldiefstal, die onafhankelijk van elkaar zijn opgepakt en behandeld worden.
+  - Waarom geen samenhang strafzaak?*
+  - Hoewel het over hetzelfde soort delict gaat, is er geen feitelijke, persoonlijke of organisatorische verbinding tussen de zaken. Ze worden puur op individuele basis behandeld en delen alleen het type feit.
+  - 2. Zaken die door dezelfde officier van justitie worden behandeld, maar zonder inhoudelijke koppeling**
+  - Voorbeeld:* Een officier van justitie behandelt op één zittingsdag zowel een verkeersdelict als een drugszaak, die geen overlap hebben qua verdachte of feiten.
+  - De organisatorische overeenkomst (dezelfde officier) is puur praktisch/operationeel en niet gebaseerd op een inhoudelijke connectie (feiten/betrokkenen/omstandigheden).
+  - 3. Geclusterd geplande zittingen voor efficiëntie, zonder inhoudelijke relatie**
+  - Voorbeeld:* De rechtbank plant diverse zaken met verschillende verdachten achter elkaar op één dag ('blokkenzitting'), bijvoorbeeld meerdere kleine zaken op een drukke dag.
+  - De clustering is organisatorisch, bedoeld voor efficiëntere planning, maar de zaken zijn inhoudelijk/feitelijk niet verbonden en voldoen niet aan de eis van een onderlinge verbinding op basis van feiten, betrokkenen of omstandigheden.
+  - In bovenstaande voorbeelden is organisatorisch of inhoudelijk wel een zekere overeenkomst of gelijkenis aan te wijzen, maar ontbreekt de feitelijke, persoonlijke of omstandigheids-‘verbinding’ volgens de definitie van samenhang strafzaak.
+
+Toelichting: 'Samenhang strafzaak' betekent binnen het strafrecht, en specifiek voor organisaties als de Nationale Politie (NP), het Openbaar Ministerie (OM) en de Zittende Magistratuur (ZM), dat verschillende strafzaken met elkaar verbonden zijn doordat ze betrekking hebben op dezelfde feiten, verdachten of omstandigheden, zoals bij groepsgewijze criminaliteit of samen gepleegde delicten; deze samenhang is belangrijk omdat het efficiëntere afdoening mogelijk maakt, zorgt voor consistente beslissingen en de coördinatie tussen betrokken partijen vereenvoudigt, zoals geregeld in het Wetboek van Strafvordering.
+
+--------------------------------------------------------------------------------
+
+Begrip: samenhang strafzaak
+Definitie: Type relatie tussen afzonderlijke strafzaken gekenmerkt door een inhoudelijk, feitelijk of persoonlijk verband dat aanleiding geeft tot gezamenlijke behandeling of beoordeling.
+Categorie: proces
+Context: ["ZM", "OM"]
+Status: archived
+Validation score: n/a
+
+Voorbeeld zinnen:
+  - Binnen het strafrecht kan de rechtbank besluiten om zaken met samenhang strafzaak gezamenlijk te behandelen.
+  - Het OM brengt meerdere verdachten voor de rechter omdat er sprake is van samenhang strafzaak.
+  - De ZM beoordeelt of het inhoudelijke verband tussen de zaken voldoende is om van samenhang strafzaak te spreken.
+
+Praktijkvoorbeelden:
+  - 1. Groepsgeweld (openbaar geweld door meerdere verdachten)**
+  - Tijdens een voetbalwedstrijd veroorzaken meerdere verdachten samen openbare geweldpleging tegen andere supporters. Hoewel elke verdachte individueel is aangehouden, blijken hun daden zodanig met elkaar verweven (feitelijk en persoonlijk verband), dat het OM besluit de zaken gezamenlijk aan te brengen bij de rechtbank. Zo kan er één zitting en één oordeel volgen waarbij rekening wordt gehouden met de rol van elke verdachte binnen het groepsgeweld. De samenhang tussen de strafzaken wordt hier benut om de zaken praktisch en inhoudelijk efficiënt te behandelen.
+  - 2. Drugsproductielocatie met diverse betrokkenen**
+  - Op een industrieterrein wordt een drugslab aangetroffen. Drie personen worden op verschillende momenten in of rond het pand aangehouden: één als eigenaar, één als leverancier van grondstoffen en één als werknemer in het lab. Hoewel hun rollen en tijdstippen verschillen, blijkt uit onderzoek een inhoudelijk en feitelijk verband – ze werkten allen samen aan de productie. Het OM en de ZM behandelen de drie afzonderlijke strafzaken als samenhangend, zodat het dossier integraal wordt bekeken en tijdens één zitting besproken kan worden.
+  - 3. Familieleden betrokken bij fraudepraktijken**
+  - Een vader, moeder en meerderjarig kind zijn allen afzonderlijk vervolgd voor betrokkenheid bij een omvangrijke uitkeringsfraude. Ieder heeft een andere rol gehad (bijvoorbeeld het indienen van valse formulieren, witwassen van opbrengsten, etc.), maar uit het onderzoek blijkt het frauduleus handelen deel uit te maken van één gezinsoperatie. Gezien het persoonlijk en inhoudelijk verband tussen de strafzaken, besluit het OM samenhang aan te brengen en deze zaken gelijktijdig te laten behandelen door de rechter.
+  - Deze voorbeelden zijn specifiek afgestemd op de praktijk van ZM en OM binnen het strafrecht, waarin 'samenhang strafzaak' ertoe leidt dat zaken gezamenlijk worden behandeld of beoordeeld vanwege een feitelijk, inhoudelijk of persoonlijk verband.
+
+Tegenvoorbeelden:
+  - Geclusterd plannen van zittingen om efficiëntie-redenen: - *
+
+Toelichting: * Soms worden strafzaken uit praktische overwegingen (zoals efficiëntie of beschikbaarheid van rechters/advocaten) op dezelfde dag of achter elkaar gepland, zónder inhoudelijk, feitelijk of persoonlijk verband. Er is geen gezamenlijk behandeling vanwege samenhang; het gaat louter om logistiek.
+   - *Waarom geen samenhang strafzaak?* Er ontbreekt een inhoudelijk, feitelijk of persoonlijk (dader, slachtoffer, feiten) verband.
+  - Meervoudige kamer-zittingen vanwege de ernst van afzonderlijke zaken: - *
+
+Toelichting: * Bepaalde strafzaken worden, vanwege hun ernst of complexiteit, behandeld door een meervoudige kamer in plaats van een politierechter. Verschillende zaken worden zo wel op dezelfde manier behandeld, maar niet gecombineerd omdat ze samenhangen.
+   - *Waarom geen samenhang strafzaak?* De behandeling op dezelfde wijze of door dezelfde kamer betekent niet dat er een inhoudelijk, feitelijk of persoonlijk verband is tussen de zaken.
+  - Afzonderlijke zaken tegen dezelfde verdachte op verschillende tijdstippen, zonder feitelijke samenhang: - *
+
+Toelichting: * Iemand wordt op verschillende momenten vervolgd voor bijvoorbeeld diefstal en, maanden later, voor huisvredebreuk. De zaken hebben geen betrekking op dezelfde feiten of dezelfde daders/slachtoffers, ze worden daarom los behandeld.
+   - *Waarom geen samenhang strafzaak?* Er is geen feitelijk of inhoudelijk verband dat gezamenlijke behandeling rechtvaardigt; louter dezelfde verdachte volstaat niet voor 'samenhang strafzaak' volgens de definitie.
+
+**Samenvatting:**  
+Elk van deze voorbeelden betreft situaties binnen het strafrecht en de strafrechtspraktijk, maar voldoet niet aan het criterium van inhoudelijk, feitelijk of persoonlijk verband tussen zaken dat 'samenhang strafzaak' juist kenmerkt. Ze illustreren relevante organisatorische en juridische praktijken zonder onder de gegeven definitie te vallen.
+
+Toelichting: In de praktijk van de Zittende Magistratuur (ZM) en het Openbaar Ministerie (OM) binnen het strafrecht betekent 'samenhang strafzaak' dat er tussen afzonderlijke strafzaken een inhoudelijk, feitelijk of persoonlijk verband bestaat, waardoor het voor een efficiënte en rechtvaardige rechtsgang wenselijk is deze zaken gezamenlijk te behandelen of te beoordelen; dit vergroot het overzicht, voorkomt tegenstrijdige uitspraken en bevordert een doelmatige afwikkeling van zaken, ondanks het ontbreken van specifieke wettelijke bepalingen hierover.
+
+--------------------------------------------------------------------------------
+
+Begrip: samenscholing
+Definitie: - Ontologische categorie: proces
+Groepsvorming waarbij meerdere personen zich gelijktijdig en fysiek op eenzelfde locatie verzamelen en gedurende een bepaalde tijd in elkaars nabijheid verblijven.
+Categorie: proces
+Context: ["DJI"]
+Status: archived
+Validation score: n/a
+
+Voorbeeld zinnen:
+  - Binnen de DJI wordt samenscholing regelmatig gemonitord ter bevordering van de orde in de inrichting.
+  - Medewerkers van de DJI signaleren samenscholing op de binnenplaats, zodat tijdig kan worden ingegrepen.
+  - Het toezicht op samenscholing is onderdeel van de dagelijkse werkzaamheden binnen de DJI.
+
+Praktijkvoorbeelden:
+  - Natuurlijk! Hier volgen **drie praktische voorbeelden** van het begrip **‘samenscholing’** binnen de context van de Dienst Justitiële Inrichtingen (DJI). De voorbeelden zijn toegespitst op situaties die specifiek in of rond penitentiaire inrichtingen, forensisch psychiatrische centra of andere onderdelen van DJI voorkomen.
+  - De recreatie-uur op een afdeling: Tijdens het dagelijks recreatiemoment verlaten de gedetineerden hun cel en begeven zich naar de gemeenschappelijke recreatieruimte. Hier zijn meerdere personen tegelijkertijd fysiek bij elkaar aanwezig, praten met elkaar, spelen tafeltennis of kijken samen televisie. Dit is een duidelijk voorbeeld van samenscholing zoals bedoeld in de definitie: het georganiseerd (of toegelaten) bijeenkomen van groeperingen binnen de muren van de inrichting.
+  - Ad-hoc samenkomst op de luchtplaats: Op de luchtplaats, waar gedetineerden op gezette tijden naar buiten mogen, vormen zich regelmatig spontane groepjes van meerdere personen die samen wandelen, roken of gesprekken voeren. Gedurende het luchten is er gedurende een bepaalde tijd sprake van aanwezigheid op dezelfde locatie, in elkaars nabijheid: een typisch voorbeeld van samenscholing in de DJI-context.
+  - Groepseducatie of therapiebijeenkomst: Binnen een tbs-kliniek of penitentiaire inrichting vinden groepssessies plaats, zoals (arbeids)therapieën, trainingen of educatieve lessen. Gedetineerden/verpleegde personen worden gelijktijdig op een locatie verzameld onder begeleiding van een medewerker of docent. Ook hier is sprake van groepsvorming waarbij mensen zich gedurende een afgesproken tijd fysiek in elkaars nabijheid bevinden, dus van samenscholing volgens de gegeven omschrijving.
+
+---
+
+*Deze voorbeelden zijn direct gekoppeld aan het dagelijkse praktijkproces binnen DJI, waar samenscholing als proces regelmatig voorkomt zonder een specifiek juridische of wettelijke invulling, maar wel als organisatorisch fenomeen gezien kan worden.*
+
+Tegenvoorbeelden:
+  - Gedetineerden die individueel wachten in een wachtruimte: **Uitleg:**  
+Hoewel de gedetineerden zich fysiek in dezelfde ruimte bevinden (bijvoorbeeld om te wachten op verhoor of transport), **vormen ze geen groep** en **is er geen interactie of gezamenlijke bedoeling** tot groepsvorming; ze verblijven simpelweg gelijktijdig in elkaars nabijheid zonder gezamenlijk doel.
+
+---
+  - Begeleide groepsactiviteiten: **Uitleg:**  
+Tijdens geplande activiteiten zoals sport, arbeid of gezamenlijke therapie is er sprake van een **begeleide, gestructureerde samenkomst onder toezicht en regie van DJI**. Dit is een formeel georganiseerde activiteit en **valt dus niet onder de spontane groepsvorming** zoals vereist in de definitie van 'samenscholing'.
+
+---
+  - Toevallige ontmoeting in wandelgangen (doorstroming): **Uitleg:**  
+Gedetineerden die elkaar kort passeren of toevallig in de gang tegenkomen tijdens verplaatsingen binnen de inrichting, **verblijven niet gedurende een bepaalde, langere tijd in elkaars nabijheid**. Er is dan ook geen sprake van procesmatige groepsvorming, maar slechts van kortstondig contact.
+
+---
+
+**Samenvatting:**  
+Deze voorbeelden illustreren situaties waarin er wel meerdere personen op dezelfde plek kunnen zijn, maar waarbij geen sprake is van het specifieke proces van groepsvorming (‘samenscholing’) zoals in de definitie omschreven.
+
+Toelichting: Binnen de Dienst Justitiële Inrichtingen (DJI) verwijst ‘samenscholing’ naar het proces waarbij gedetineerden zich in groepen fysiek bij elkaar voegen binnen een beperkte ruimte, bijvoorbeeld op de binnenplaats of in een gang, wat in de praktijk van belang is omdat het toezicht op groepsvorming essentieel is voor het handhaven van orde, veiligheid en beheersbaarheid in de inrichting, ook al is er geen specifieke juridische of wettelijke definitie die dit reguleert; het inzichtelijk maken en monitoren van samenscholing helpt incidenten en ongewenste groepsdynamieken te voorkomen.
+
+--------------------------------------------------------------------------------
+
+Begrip: samenscholing
+Definitie: - Ontologische categorie: proces
+Groepering van meerdere personen op eenzelfde locatie gedurende een beperkte tijdsperiode waarbij fysieke nabijheid ontstaat door gelijktijdige aanwezigheid zonder voorafgaande formele organisatie of structurele samenhang.
+Categorie: proces
+Context: ["DJI"]
+Status: archived
+Validation score: n/a
+
+Voorbeeld zinnen:
+  - Binnen de locaties van de DJI wordt samenscholing van gedetineerden in de gangen actief gemonitord.
+  - In de recreatieruimte kan samenscholing spontaan ontstaan wanneer meerdere DJI-inzittenden tegelijk pauzeren.
+  - Personeel van de DJI treedt op bij samenscholing op de binnenplaats om de veiligheid te waarborgen.
+
+Praktijkvoorbeelden:
+  - Definitie samenscholing (DJI-context):**
+  - Groepering van meerdere personen op eenzelfde locatie gedurende een beperkte tijdsperiode waarbij fysieke nabijheid ontstaat door gelijktijdige aanwezigheid zonder voorafgaande formele organisatie of structurele samenhang.
+  - Organisatie:** DJI (Dienst Justitiële Inrichtingen)
+  - Juridisch/Wettelijk:** geen specifieke basis
+  - ### Drie praktijkvoorbeelden binnen DJI
+  - 1. Korte samenscholing op de luchtplaats**
+  - Tijdens het dagelijks luchten in een penitentiaire inrichting kunnen meerdere gedetineerden spontaan samenkomen rond een basketbalhoepel of een bankje. Deze groep vormt zich niet op basis van een officieel programma of geplande activiteit, en kent geen structurele samenhang; het gesprek ontstaat uit toevallige ontmoeting tijdens de vrije tijd.
+  - 2. Spontane groepering bij het uitgaan van de arbeidszaal**
+  - Na afloop van de werkactiviteit verlaten gedetineerden de werkruimte. Bij de uitgang ontstaat er soms spontaan een groep, omdat mensen op elkaar wachten of in gesprek raken over de dag. Dit gebeurt zonder organisatie; het is een tijdelijke, informele samenscholing doordat ze gelijktijdig weggaan.
+  - 3. Samenscholing bij het bezoekmoment in de ontvangstruimte**
+  - Gedetineerden die op bezoek wachten, bevinden zich in de bezoekersruimte. Vanwege schema’s kan het voorkomen dat er een aantal gedetineerden samenkomt, in fysieke nabijheid, zonder dat hier sprake is van een georganiseerde activiteit of onderlinge afspraken. De samenscholing duurt slechts totdat men wordt opgehaald of het bezoek begint.
+  - Deze voorbeelden zijn specifiek afgestemd op DJI en passen bij de gegeven definitie en context.
+
+Tegenvoorbeelden:
+  - Natuurlijk! Hier volgen drie tegenvoorbeelden, specifiek passend bij de context van DJI (Dienst Justitiële Inrichtingen), die lijken op 'samenscholing', maar hier niet onder vallen op basis van de gegeven definitie:
+  - 1. Georganiseerde werkploegen (gevangenispersoneel en gedetineerden aan het werk)**
+  - Toelichting:* Wanneer gedetineerden en personeel samenkomen om bijvoorbeeld schoonmaak- of keukenwerkzaamheden te verrichten, zijn ze fysiek nabij en op dezelfde locatie aanwezig. Dit valt niet onder 'samenscholing' omdat er sprake is van **voorafgaande formele organisatie** (namelijk een werkrooster of afdelingsindeling) en structurele samenhang (werkverdeling, toezicht).
+  - 2. Sport- of recreatie-activiteiten op de binnenplaats**
+  - Toelichting:* Tijdens een door DJI gepland sportmoment begeven groepen gedetineerden zich bijvoorbeeld naar de luchtplaats om onder toezicht te sporten of te wandelen. Dit is formeel georganiseerd en structureel ingekaderd door DJI, en valt daarom niet onder 'samenscholing' zoals gedefinieerd (geen spontane, ongeorganiseerde bijeenkomst).
+  - 3. Gezamenlijke maaltijd in de eetzaal volgens rooster**
+  - Toelichting:* Gedetineerden nemen gezamenlijk hun maaltijd in een daarvoor aangewezen ruimte, volgens een strikt rooster. Hoewel ze fysiek samen zijn, is deze gebeurtenis **door DJI gepland en georganiseerd**; deze samenloop van personen is dus niet spontaan of ongeorganiseerd, en past daarom niet binnen de definitie van 'samenscholing'.
+  - Samenvatting waarom deze voorbeelden niet onder 'samenscholing' vallen:**
+  - In alle drie de gevallen is sprake van **voorafgaande formele organisatie** en/of **structurele samenhang** opgelegd door DJI, waardoor de bijeenkomsten geen 'samenscholing' in ontologische zin zijn volgens de geformuleerde definitie.
+
+Toelichting: Binnen de context van de Dienst Justitiële Inrichtingen (DJI) verwijst 'samenscholing' naar het proces waarbij gedetineerden of andere aanwezigen zich zonder formele aanleiding in groepen op eenzelfde plek begeven, wat in de praktijk relevant is omdat dergelijke ongeorganiseerde groepsvorming binnen een justitiële inrichting risico's kan opleveren voor de orde en veiligheid, zoals het ontstaan van onrust, het plannen van ongewenste acties of het bemoeilijken van toezicht door personeel; daarom wordt binnen de DJI scherp gelet op samenscholing om tijdig te kunnen ingrijpen en zo de veiligheid en het gestructureerde karakter van de inrichting te waarborgen.
+
+--------------------------------------------------------------------------------
+
+Begrip: semantiek
+Definitie: - Ontologische categorie: soort
+Soort taalkundige discipline die zich richt op de systematische bestudering van de betekenis van woorden, zinnen en symbolen binnen een formeel of natuurlijk taalgebruik.
+Categorie: proces
+Context: ["Justitie en Veiligheid"]
+Status: archived
+Validation score: n/a
+
+Voorbeeld zinnen:
+  - Binnen het ministerie van Justitie en Veiligheid wordt semantiek ingezet om de betekenis van juridische termen eenduidig vast te leggen.
+  - De afdeling communicatie bij Justitie en Veiligheid raadpleegt experts in semantiek bij het opstellen van beleidsdocumenten om misverstanden te voorkomen.
+  - Semantiek speelt een cruciale rol in de interpretatie van teksten bij Justitie en Veiligheid om ervoor te zorgen dat regels en procedures helder worden gecommuniceerd.
+
+Praktijkvoorbeelden:
+  - Betekenis van Politierapporten: **Situatie:**  
+Bij het opstellen en analyseren van politierapporten is het van belang dat termen als ‘diefstal’, ‘inbraak’, ‘vernieling’ of ‘bedreiging’ exact correct worden gebruikt.
+
+**Toepassing van semantiek:**  
+Semantiek wordt ingezet om er zeker van te zijn dat woorden eenduidig geïnterpreteerd worden. Bij onduidelijkheid in de betekenis (bijvoorbeeld: valt het openrukken van een postpakket onder ‘inbraak’ of ‘diefstal’?) raadpleegt men de formele definitie en betekenis van het begrip, zodat iedereen bij Justitie en Veiligheid hetzelfde verstaat onder deze termen.
+
+---
+  - Eenduidige communicatie bij alarmcentrales: **Situatie:**  
+Meldkamers ontvangen telefoontjes van burgers en moeten snel beslissen over de inzet van diensten op basis van de meldingen.
+
+**Toepassing van semantiek:**  
+Om misverstanden te voorkomen wordt er getraind op het juiste gebruik en de betekenis van woorden. Bijvoorbeeld: Het verschil tussen ‘geweld’ en ‘dreiging van geweld’ kan bepalend zijn voor de urgentie waarmee een incident wordt opgepakt. Semantische precisie vermindert ruis en zorgt voor een snelle, juiste inschatting van de ernst.
+
+---
+  - Vastleggen van beleidsteksten en protocollen: **Situatie:**  
+Bij het opstellen van interne regelgeving, beleidsdocumenten en protocollen (bijvoorbeeld over integriteit, omgangsvormen of taakverdelingen) binnen Justitie en Veiligheid.
+
+**Toepassing van semantiek:**  
+Het is cruciaal dat beleidsregels ondubbelzinnig zijn; woorden als ‘moeten’, ‘behoren’, ‘kunnen’, en ‘worden geacht te’ moeten door alle medewerkers op dezelfde manier geïnterpreteerd worden. Semantiek wordt benut om vast te stellen wat precies bedoeld wordt en om de gekozen terminologie in beleidsteksten vooraf te bepalen en te waarborgen.
+
+---
+
+**Samengevat**: In al deze voorbeelden draagt semantiek bij aan duidelijke, eenduidige communicatie en interpretatie van taal binnen de organisatie, hetgeen essentieel is voor het goed functioneren van Justitie en Veiligheid.
+
+Tegenvoorbeelden:
+  - Uitgaande van de definitie van ‘semantiek’ als de taalkundige discipline die zich richt op de systematische bestudering van betekenis van woorden, zinnen en symbolen, en de organisatorische context van Justitie en Veiligheid, volgen hier drie relevante tegenvoorbeelden:
+  - Forensische taalkunde: **Waarom geen semantiek?**  
+Forensische taalkunde houdt zich bezig met de toepassing van taalkundige kennis op juridische vraagstukken. Dit omvat bijvoorbeeld het identificeren van auteurs bij dreigbrieven, of het analyseren van getuigenverklaringen. De focus ligt op toepasbaarheid en niet per se op de systematische studie naar betekenis van taaluitingen zelf, en valt daarom buiten de kern van semantiek.
+
+---
+  - Taalkundige pragmatiek: **Waarom geen semantiek?**  
+Pragmatiek richt zich op de wijze waarop context bijdraagt aan de interpretatie van taal, zoals impliciete betekenissen, taalhandelingen en gespreksmaximes. Het bestudeert dus eerder het gebruik van taal in sociale situaties dan de systematische analyse van betekenis zelf. In juridische communicatie bij Justitie en Veiligheid is pragmatiek van belang, maar valt volgens de definitie niet onder semantiek.
+
+---
+  - Tekstanalyse voor opsporingsdoeleinden: **Waarom geen semantiek?**  
+In deze context worden bijvoorbeeld teksten (zoals chatberichten of e-mails) met digitale analysetechnieken onderzocht op patronen, herkomst of intentie. Tekstanalyse kan statistisch of structureel zijn zonder per se op de betekenisaspecten van individuele woorden of zinnen te focussen. Zolang de nadruk niet ligt op de studie van betekenis, valt dit soort analyse niet onder de semantiek.
+
+---  
+**Samenvatting:**  
+Deze voorbeelden lijken op semantiek omdat ze delen van de taalwetenschap betreffen of in juridische context het taalgebruik bestuderen, maar vallen er niet onder omdat ze zich niet primair of uitsluitend met de systematische bestudering van betekenis bezig houden.
+
+Toelichting: Binnen het domein van Justitie en Veiligheid is semantiek van groot belang omdat het de eenduidige interpretatie en systematische analyse van de betekenis van termen, begrippen en formuleringen binnen wetsteksten, beleid en communicatie waarborgt, zodat misverstanden en ambiguïteit kunnen worden voorkomen en besluiten op basis van heldere, gedeelde betekenisvorming genomen kunnen worden.
+
+--------------------------------------------------------------------------------
+
+Begrip: strafrechtelijke identiteit
+Definitie: "De verbinding naar een natuurlijk persoon in de informatievoorziening van de strafrechtketen"@nl
+Categorie: type
+Context: ["Strafrechtketen"]
+Status: draft
+Validation score: n/a
+
+--------------------------------------------------------------------------------
+
+Begrip: strafrechtproces
+Definitie: "het proces van toepassing van het strafrecht, bestaande uit de stappen opsporen, vervolgen, berechten en tenuitvoerleggen"@nl
+Categorie: type
+Context: ["Strafrechtketen"]
+Status: draft
+Validation score: n/a
+
+--------------------------------------------------------------------------------
+
+Begrip: synthetisch
+Definitie: Materiaal of informatie met als kenmerk dat samenstelling of oorsprong het resultaat is van kunstmatige vervaardiging of nabootsing, onderscheiden van natuurlijke of authentieke varianten door gebruik van door mensen geïnitieerde processen of middelen.
+Categorie: proces
+Context: ["Reclassering"]
+Status: archived
+Validation score: n/a
+
+Voorbeeld zinnen:
+  - Bij de reclassering wordt soms synthetisch urine gebruikt om fraude bij drugstesten te voorkomen.
+  - De reclassering wijst cliënten op het verschil tussen natuurlijke en synthetische drugs in het kader van toezicht.
+  - In trainingssessies bespreekt de reclassering het risico van synthetisch materiaal voor misleidende bewijslast.
+
+Praktijkvoorbeelden:
+  - Synthetische drugs in rapportages: In reclasseringsrapporten wordt regelmatig verwezen naar het gebruik van synthetische drugs (zoals amfetamine, XTC, of synthetische cannabinoïden) door cliënten. Hierbij is het onderscheid tussen synthetische middelen (kunstmatig gefabriceerd) en natuurlijke middelen (zoals cannabis of paddo’s) van belang voor risicotaxaties, het opstellen van behandeladviezen en het monitoren van recidivegevaar.
+  - Synthetische urine bij toezicht en controle: Bij toezicht op cliënten met een middelenverbod, komt het voor dat cliënten proberen de verplichte urinetests te manipuleren door gebruik te maken van synthetische urine. Dit is kunstmatig geproduceerde urine die qua samenstelling sterk lijkt op echte urine, bedoeld om een negatieve uitslag te simuleren en zo het toezicht te omzeilen. Reclasseringsmedewerkers moeten bekend zijn met deze kunstmatige vervangingsmiddelen om manipulatie te kunnen herkennen.
+  - Synthetische identiteit tijdens intakeprocedure: Tijdens intake en toezicht kan een cliënt zich proberen voor te doen onder een valse of synthetische identiteit, waarbij persoonsgegevens kunstmatig zijn samengesteld (bijvoorbeeld met gedeeltelijk echte en gedeeltelijk verzonnen gegevens). Reclasseringsfunctionarissen dienen alert te zijn op deze vorm van identiteitsfraude, omdat het gevolgen kan hebben voor het volgen en begeleiden van de juiste persoon in het traject.
+
+Deze voorbeelden tonen aan hoe het begrip 'synthetisch' binnen het werkveld van de reclassering praktisch relevant is—zowel in materiaalgebruik als in gedragingen die van belang zijn voor risicotaxatie en integriteit van toezicht.
+
+Tegenvoorbeelden:
+  - Antwoord:**
+  - ### 3 Tegenvoorbeelden uit de context van de Reclassering, die NIET onder 'synthetisch' vallen:
+  - #### 1. **Natuurlijk gedrag**
+  - **Uitleg:** Gedrag dat spontaan, ongepland of zonder sturing door externe (door de mens gemaakte) factoren wordt vertoond door cliënten binnen de reclassering, bijvoorbeeld een emotionele reactie tijdens een gesprek.
+  - **Waarom niet synthetisch?**: Het gedrag is niet het resultaat van kunstmatige nabootsing of vervaardiging, maar komt voort vanuit de persoon zelf, zonder menselijke sturing of manipulatie.
+  - #### 2. **Authentieke documenten**
+  - **Uitleg:** Oorspronkelijke, niet-manipuleerde documenten zoals geboorteaktes, originele identiteitsbewijzen of officiële rechtbankverslagen die door natuurlijke, legitieme instanties zijn uitgegeven.
+  - **Waarom niet synthetisch?**: Ze zijn niet kunstmatig samengesteld of nagemaakt. Hun oorsprong is natuurlijk of authentiek en niet het resultaat van vervaardiging door kunstmatige (menselijke) processen.
+  - #### 3. **Natuurlijke netwerken**
+  - **Uitleg:** Sociale netwerken of familiebanden van een cliënt die op een organische manier zijn ontstaan, dus zonder dat deze op initiatief van professionals of systemen zijn gevormd.
+  - **Waarom niet synthetisch?**: De onderlinge relaties zijn niet door een organisatie gevormd, maar door natuurlijke ontwikkeling binnen de samenleving of familie.
+  - Samengevat:**
+  - Bovengenoemde voorbeelden zijn relevant in de context van de reclassering, lijken qua functie of belang soms op ‘synthetische’ varianten (zoals kunstmatig gegenereerd gedrag, documenten of netwerken), maar vallen er niet onder omdat hun oorsprong of samenstelling natuurlijk of authentiek is en niet het resultaat van een door mensen geïnitieerd kunstmatig proces.
+
+Toelichting: In de context van de reclassering betekent 'synthetisch' dat materialen, middelen of informatie waarmee wordt gewerkt, kunstmatig zijn vervaardigd of nagebootst en dus niet direct uit de natuur afkomstig zijn; dit is belangrijk omdat reclasseringsmedewerkers in hun werk regelmatig te maken hebben met synthetische drugs of andere kunstmatig geproduceerde producten, waarvan de samenstelling, risico’s en juridische status vaak verschillen van die van natuurlijke varianten—het correct en bewust herkennen en onderscheiden van synthetische middelen is daarom essentieel voor het toezicht, de rapportages en de begeleiding van cliënten.
+
+--------------------------------------------------------------------------------
+
+Begrip: synthetisch
+Definitie: Type entiteit met een niet-natuurlijke oorsprong, gekenmerkt door totstandkoming door samenstelling, nabootsing of kunstmatige constructie van onderdelen of eigenschappen.
+Categorie: proces
+Context: ["Strafrechtketen"]
+Status: archived
+Validation score: n/a
+
+Voorbeeld zinnen:
+  - Binnen de strafrechtketen wordt regelmatig gebruikgemaakt van synthetisch bewijs, zoals nagemaakte drugs voor opsporingsoefeningen.
+  - In het strafrecht kan het onderscheid tussen natuurlijke en synthetische stoffen bepalend zijn voor de kwalificatie van het delict.
+  - De politie detecteerde een synthetisch netwerk binnen de organisatie, dat kunstmatig werd samengesteld om illegale activiteiten te maskeren.
+
+Praktijkvoorbeelden:
+  - Voorbeeld 1: Synthetische drugs in strafrechtelijke onderzoeken**
+  - In de strafrechtketen komt het begrip 'synthetisch' concreet tot uiting bij de productie, handel en het bezit van synthetische drugs zoals amfetamine (speed), MDMA (ecstasy) en GHB. Dergelijke middelen worden niet natuurlijk gewonnen, maar kunstmatig samengesteld uit (chemische) grondstoffen in illegale laboratoria. In politiedossiers, aanklachten en gerechtelijke uitspraken wordt het begrip 'synthetisch' dan ook gebruikt ter onderscheiding van natuurlijke drugs, zoals cannabis.
+  - Voorbeeld 2: Synthetisch bewijs bij digitale opsporing**
+  - Bij digitale opsporing binnen het strafrecht kan 'synthetisch bewijs' aan de orde zijn. Bijvoorbeeld als opsporingsinstanties deepfakes of nagemaakte digitale gegevens aantreffen die door verdachten zijn gecreëerd om andere personen te belasten of zichzelf vrij te pleiten. Dergelijk door software gegenereerd of samengesteld bewijsmateriaal wordt synthetisch genoemd, omdat het geen natuurlijk of authentiek bewijs betreft.
+  - Voorbeeld 3: Synthetische identiteit bij identiteitsfraude**
+  - In strafrechtelijke onderzoeken naar identiteitsfraude komt het concept 'synthetische identiteit' voor. Hierbij stellen verdachten een kunstmatige identiteit samen uit echte én fictieve persoonsgegevens, bijvoorbeeld door een bestaand burgerservicenummer te combineren met zelfverzonnen namen en adressen. Dit soort synthetische identiteiten worden gebruikt om strafbare feiten te plegen, zoals openzetten van bankrekeningen of afsluiten van contracten op naam van een niet-bestaand persoon.
+
+Tegenvoorbeelden:
+  - Getuigenverklaring: - **Uitleg:** Een getuigenverklaring is een mondeling of schriftelijk verslag van wat een persoon vanuit eigen waarneming heeft meegemaakt.
+- **Waarom niet synthetisch?**  
+  Een getuigenverklaring is geen resultaat van samenstelling, nabootsing of kunstmatige constructie; het is het natuurlijke relaas van een individu over een gebeurtenis.
+
+---
+  - Natuurlijk persoon (verdachte of slachtoffer): - **Uitleg:** Een natuurlijk persoon is een mens van vlees en bloed, bijvoorbeeld een verdachte, slachtoffer of getuige binnen de strafrechtketen.
+- **Waarom niet synthetisch?**  
+  Een natuurlijk persoon is geen type entiteit die door samenstelling of nabootsing tot stand is gekomen, maar ontstaat op natuurlijke wijze door geboorte.
+
+---
+
+Toelichting: In de strafrechtketen verwijst het begrip 'synthetisch' naar objecten, stoffen of gegevens die kunstmatig zijn vervaardigd of samengesteld en dus geen natuurlijke oorsprong hebben, zoals synthetische drugs of gefabriceerd bewijsmateriaal; het onderscheid tussen synthetische en natuurlijke entiteiten is belangrijk omdat het de juridische beoordeling en strafbaarheid beïnvloedt, bijvoorbeeld bij de vervolging van productie, bezit of handel in synthetische verdovende middelen die binnen het strafrecht strenger gereguleerd kunnen zijn dan hun natuurlijke tegenhangers.
+
+--------------------------------------------------------------------------------
+
+Begrip: testen
+Definitie: - Ontologische categorie: soort
+Categorie van gestructureerde handelingen waarbij eigenschappen of werking van een object, systeem of proces empirisch worden vastgesteld aan de hand van vooraf bepaalde criteria of specificaties.
+Categorie: proces
+Context: ["ZM"]
+Status: archived
+Validation score: n/a
+
+Voorbeeld zinnen:
+  - Bij ZM worden de nieuwe softwaretools getest om te zorgen dat ze voldoen aan de gestelde eisen.
+  - Het team bij ZM heeft een protocol ontwikkeld om de kwaliteit van de producten systematisch te testen.
+  - Voor de lancering van het project is het belangrijk dat alle processen grondig worden getest bij ZM.
+
+Praktijkvoorbeelden:
+  - ### Voorbeeld 1: Medisch Hulpmiddel Validatie
+  - In ZM wordt er gewerkt met verschillende medische hulpmiddelen, zoals bloeddrukmeters en glucosemeters. Voordat deze hulpmiddelen in de praktijk worden gebruikt, worden ze getest op nauwkeurigheid en betrouwbaarheid. Dit kan inhouden dat een aantal apparaten wordt afgenomen van patiënten om te controleren of ze dezelfde resultaten opleveren als de referentiewaarden. Het testen gebeurt aan de hand van vooraf bepaalde specificaties, zoals de acceptabele marge van fouten. Hierbij wordt empirisch vastgesteld of de medische hulpmiddelen voldoen aan de kwaliteitseisen die zijn gesteld door de organisatie.
+  - ### Voorbeeld 2: Software Testen voor Patiëntendossiers
+  - Binnen de zorginstelling maakt ZM gebruik van een elektronisch patiëntendossier (EPD) systeem. Voor de implementatie van een nieuwe versie van dit systeem worden er gebruikerstests uitgevoerd. Medewerkers in de zorg en administratie worden betrokken om de functionaliteit van het nieuwe systeem te testen. Dit omvat het invoeren van patiëntgegevens, het genereren van rapporten en het uitvoeren van administratieve taken. De testen zijn gebaseerd op vooraf gedefinieerde criteria, zoals gebruiksvriendelijkheid en snelheid van gegevensverwerking. Op basis van de resultaten worden eventuele aanpassingen of verbeteringen doorgevoerd voordat het nieuwe systeem volledig wordt uitgerold.
+  - ### Voorbeeld 3: Trainingseffectiviteit Evaluatie
+  - Binnen ZM worden er regelmatig trainingen georganiseerd voor het personeel, bijvoorbeeld over nieuwe zorgprotocollen of patiëntcommunicatie. Na elke training wordt er een test of evaluatie uitgevoerd om de effectiviteit van de training vast te stellen. Dit kan bijvoorbeeld door het afnemen van een schriftelijke toets of een praktische beoordeling bij simulaties. De testen zijn ontwikkeld op basis van de leerdoelen van de training en helpen om te bepalen in hoeverre de medewerkers het geleerde hebben begrepen en in de praktijk kunnen toepassen. De resultaten van deze testen worden gebruikt om toekomstige trainingen te verbeteren en aan te passen aan de behoeften van het personeel.
+  - Deze voorbeelden illustreren hoe testen een belangrijke rol speelt in de zorginstelling ZM, met als doel de kwaliteit van zorg en de effectiviteit van systemen en medewerkers te waarborgen.
+
+Tegenvoorbeelden:
+  - Inspectie**  
+   - **Uitleg:** Bij inspectie worden objecten of systemen beoordeeld op basis van vooraf vastgestelde normen of richtlijnen, maar dit omvat geen systematische evaluatie van de werking of prestaties aan de hand van specifieke criteria. Inspectie richt zich meer op het controleren of aan de eisen wordt voldaan, terwijl testen gericht is op het vaststellen van eigenschappen en functionaliteit door middel van specifieke experimenten of proeven.
+  - Training**  
+   - **Uitleg:** Training gaat over het onderwijzen of opleiden van medewerkers in specifieke vaardigheden of kennis. Dit proces is meer gericht op het verbeteren van de bekwaamheid van individuen binnen de organisatie en omvat niet het empirisch vaststellen van eigenschappen of prestaties van een object of systeem. Het heeft daarom een ander doel en voldoet niet aan de criteria die in de definitie van testen zijn opgesomd.
+  - Evaluatie van feedback**  
+   - **Uitleg:** Evaluatie van feedback heeft betrekking op het verzamelen en analyseren van meningen of ervaringen van gebruikers of klanten met betrekking tot een product of dienst. Dit proces is vaak kwalitatief en richt zich op gebruikerservaringen of suggesties, in plaats van op het systematische en empirische testen van de eigenschappen of prestaties van het product volgens specifieke criteria. Het voldoet daarom niet aan de definitie van testen. 
+
+Al deze voorbeelden tonen activiteiten aan die belangrijk zijn binnen een organisatie, maar die niet gericht zijn op het empirisch vaststellen van eigenschappen of prestaties zoals gespecificeerd in de testdefinitie.
+
+Toelichting: In de context van een organisatie zoals ZM verwijst 'testen' naar het systematisch evalueren van producten, diensten of processen om te bepalen of zij voldoen aan de kwaliteitsnormen en specificaties die intern zijn vastgesteld. Dit kan bijvoorbeeld inhouden dat softwareapplicaties worden getest om ervoor te zorgen dat ze functioneren zoals bedoeld, of dat interne processen worden geanalyseerd om de efficiëntie te waarborgen. Testen is van cruciaal belang voor ZM, omdat het niet alleen helpt om problemen vroegtijdig te identificeren, maar ook bijdraagt aan het vertrouwen van belanghebbenden in de kwaliteit van de geleverde prestaties. Door deze gestructureerde aanpak kan de organisatie haar waardepropositie waarborgen en continu verbeteren in een concurrerende omgeving.
+
+--------------------------------------------------------------------------------
+
+Begrip: toeslagenaffaire
+Definitie: - Ontologische categorie: soort
+Categorie van bestuurlijke en politieke misstanden gekenmerkt door systematische onterechte verdenkingen van fraude met toeslagen, strikte terugvordering en rigide toepassing van regelgeving door overheidsinstanties.
+Categorie: proces
+Context: ["FIOD"]
+Status: archived
+Validation score: n/a
+
+Voorbeeld zinnen:
+  - De FIOD kreeg tijdens de toeslagenaffaire te maken met talloze signalen van onterechte fraudeverdenkingen.
+  - Bij de opsporing van fraude rond toeslagen speelde de FIOD een centrale rol tijdens de toeslagenaffaire.
+  - De toeslagenaffaire liet zien hoe de samenwerking tussen de Belastingdienst en de FIOD tot rigide handhaving leidde.
+
+Praktijkvoorbeelden:
+  - FIOD-onderzoek naar Fraude met Kinderopvangtoeslag: **Situatie**:  
+De FIOD krijgt een signaal dat een groep ouders mogelijk fraudeert met kinderopvangtoeslag. In plaats van grondig onderzoek naar individuele situaties, wordt breed aangenomen dat vrijwel alle betrokkenen schuldig zijn. De dossiers worden collectief beoordeeld als fraudezaak, zonder voldoende bewijs per individu.
+
+**Relevantie 'toeslagenaffaire'**:  
+Dit sluit aan bij de praktijk van de toeslagenaffaire, waarbij groepen burgers systematisch als fraudeur werden bestempeld, zonder goed individueel onderzoek of bewijs, en waarbij fouten niet tijdig werden hersteld.
+
+---
+  - Rigide Terugvordering op Basis van Minimale Foutjes: **Situatie**:  
+De FIOD ondersteunt de Belastingdienst bij het terugvorderen van toeslagen bij burgers, omdat er een klein administratief foutje (bijvoorbeeld een onvolledig ingevuld formulier) geconstateerd is. Ongeacht de reden van de fout of de persoonlijke omstandigheden, wordt het gehele ontvangen bedrag teruggevorderd en als fraude behandeld.
+
+**Relevantie 'toeslagenaffaire'**:  
+Dit illustreert de rigide toepassing van regels en het automatisch koppelen van administratieve fouten aan fraude—precies wat bij de toeslagenaffaire mis ging.
+
+---
+  - Geen Maatwerk bij Opsporing en Verhoor: **Situatie**:  
+FIOD-medewerkers voeren verhoren uit over vermeende toeslagenfraude, zonder rekening te houden met individuele omstandigheden (zoals taalbarrières, psychische problemen of onwetendheid). Burgers voelen zich daardoor onheus bejegend en krijgen geen toegang tot maatwerk of bijstand.
+
+**Relevantie 'toeslagenaffaire'**:  
+Deze benadering kenmerkt zich door het ontbreken van menselijke maat en maatwerk, wat leidde tot de schrijnende gevolgen in de toeslagenaffaire.
+
+---
+
+**Samenvatting**:  
+In alle drie de voorbeelden worden praktijken binnen het FIOD-domein beschreven die typerend zijn voor de systematische fouten, het wantrouwen jegens burgers, en de strikte wetstoepassing zonder oog voor persoonlijke context—kenmerken van de toeslagenaffaire.
+
+Laat gerust weten als je de voorbeelden nog specifieker wilt maken!
+
+Tegenvoorbeelden:
+  - BTW-carrouselfraude onderzoeken: - *Beschrijving*: De FIOD onderzoekt regelmatig btw-carrouselfraude, waarbij bedrijven via complexe internationale handelsstromen btw proberen te ontduiken.
+   - *Waarom geen toeslagenaffaire?* Dit betreft het opsporen van georganiseerde fraude door ondernemingen, niet systematische, onterechte verdenkingen van fraude bij individuele burgers die toeslagen ontvangen.
+  - Onderzoek naar witwassen bij banken: - *Beschrijving*: De FIOD voert onderzoek uit naar banken die mogelijk te weinig doen om witwaspraktijken te voorkomen.
+   - *Waarom geen toeslagenaffaire?* Hier betreft het naleving van anti-witwaswetgeving en het onderzoek is gericht op financiële instellingen, niet op burgers met toeslagen of de rigide terugvordering daarvan.
+  - Opsporing van illegale handel in accijnsgoederen: - *Beschrijving*: De FIOD spoort regelmatig illegale handel op in bijvoorbeeld tabak, alcohol of brandstoffen, waarbij accijnzen worden ontdoken.
+   - *Waarom geen toeslagenaffaire?* Dit zijn strafrechtelijke onderzoeken naar belastingontduiking en smokkel, niet naar onterechte verdenking en strikte terugvordering van burgerlijke toeslagen.
+
+**Samenvatting:**  
+Deze voorbeelden vallen buiten de definitie omdat ze zich niet richten op burgers met toeslagen en geen sprake is van systematische, onterechte verdenking op fraude of rigide toepassing van terugvorderingen door de overheid. Ze tonen echter wel andere bestuurlijke of financiële misstanden binnen het domein van de FIOD.
+
+Toelichting: Binnen de context van de FIOD, die onderzoek doet naar financiële fraude, verwijst de 'toeslagenaffaire' naar een bestuurlijke en politieke misstand waarbij burgers onterecht zijn verdacht van fraude met toeslagen, wat leidde tot strenge terugvorderingen en grote persoonlijke gevolgen; dit begrip is voor de FIOD belangrijk omdat het aantoont hoe rigide en onterechte handhaving niet alleen tot grote maatschappelijke onrust leidt, maar ook de noodzaak onderstreept van zorgvuldige, proportionele en rechtvaardige fraude-opsporing binnen haar onderzoekspraktijk.
+
+--------------------------------------------------------------------------------
+
+Begrip: toestand
+Definitie: - Ontologische categorie: soort
+Toestand: soort beschrijvende aanduiding van de op een specifiek moment geldende eigenschappen, kenmerken en verhoudingen van een object, persoon of situatie binnen een bepaald referentiekader.
+Categorie: proces
+Context: []
+Status: archived
+Validation score: n/a
+
+--------------------------------------------------------------------------------
+
+Begrip: toestand
+Definitie: - Ontologische categorie: soort
+Type beschrijving van een situatie met als kenmerk een concreet vaststelbare combinatie van feitelijke omstandigheden, eigenschappen of parameters binnen een afgebakende tijdseenheid en context.
+Categorie: proces
+Context: ["OM"]
+Status: archived
+Validation score: n/a
+
+Voorbeeld zinnen:
+  - De organisatie OM verkeert momenteel in een toestand van verandering, waarbij nieuwe processen worden geïntroduceerd om de efficiëntie te verbeteren.
+  - Tijdens de evaluatie van het project bleek dat de teamleden zich in een toestand van onzekerheid bevonden over hun verantwoordelijkheden.
+  - De huidige toestand van de samenwerking tussen de afdelingen binnen OM vereist verdere afstemming om de doelstellingen te behalen.
+
+Praktijkvoorbeelden:
+  - ### Voorbeeld 1: Personeelsbezetting
+  - Toestand:** De personeelsbezetting van een team binnen het OM.
+  - Situatiebeschrijving:** Tijdens een evaluatieperiode wordt vastgesteld dat het team verantwoordelijk voor de opsporing van lichte delicten op dat moment uit vijf medewerkers bestaat, waarvan drie fulltime en twee parttime. Er zijn bovendien twee vacatures openstaat door langdurige ziekte en pensionering. Deze toestand wordt als zodanig gemeten over de periode van een maand, waarin de werkbelasting en de output van het team worden geanalyseerd. De combinatie van het aantal medewerkers, hun werkuren en de openstaande vacatures vormt een specifieke toestand die de effectiviteit van het team beïnvloedt.
+  - ### Voorbeeld 2: Projectstatus
+  - Toestand:** De status van een lopend project binnen het OM.
+  - Situatiebeschrijving:** Een projectteam van het OM werkt aan een nieuw samenwerkingsproject met externe partners voor het verbeteren van de communicatie met burgers. Aan het einde van kwartaal 2 is de toestand van het project als volgt: er zijn drie van de geplande vijf fasen voltooid, er zijn feedbacksessies gehouden met stakeholders en er zijn enkele kritische punten vastgesteld in de samenwerking. Deze toestand, bepaald op basis van de tijdspad en de gerealiseerde resultaten, stelt het management in staat om bij te sturen en prioriteiten te herzien.
+  - ### Voorbeeld 3: Informatievoorziening
+  - Toestand:** De informatievoorziening binnen de organisatie.
+  - Situatiebeschrijving:** In het kader van datamanagement heeft het OM een risicoanalyse uitgevoerd op de beschikbaarheid en de integriteit van gegevens in hun systemen. De toestand van deze data-infrastructuur wordt beoordeeld op een moment in de tijd: er zijn 200 databases, waarvan 10% verouderd is en niet meer volgens de richtlijnen van de organisatie wordt onderhouden. Tevens is 30% van de gegevens niet geverifieerd binnen het afgelopen jaar. Deze combinatie van parameters – de hoeveelheid databases, de conditie en de frequentie van dataverificatie – vormt de toestand van de informatievoorziening en heeft gevolgen voor de besluitvorming binnen de organisatie.
+  - Deze voorbeelden illustreren hoe 'toestand' in verschillende scenario's wordt toegepast binnen de context van een organisatie zoals het OM, waarbij specifieke combinaties van feitelijke omstandigheden en eigenschappen worden gemeten en geanalyseerd.
+
+Tegenvoorbeelden:
+  - Beleidsstrategie**  
+   **Uitleg:** Een beleidsstrategie is een geplande en vaak schriftelijke richtlijn voor de lange termijn die de doelstellingen en de manieren beschrijft waarop die doelstellingen bereikt moeten worden. Dit valt niet onder 'toestand' omdat het geen concrete en vaststelbare combinatie van feitelijke omstandigheden op een specifiek moment beschrijft, maar eerder een abstracte en toekomstgerichte aanpak.
+  - Operationele Procedure**  
+   **Uitleg:** Een operationele procedure beschrijft de stappen en richtlijnen die gevolgd moeten worden bij het uitvoeren van specifieke activiteiten binnen de organisatie. Dit is een richtlijn en geen toestand, omdat het geen actuele feitelijke combinatie van omgevingsfactoren of parameters op een bepaald moment belicht, maar eerder een formaat biedt voor hoe activiteiten georganiseerd moeten worden.
+  - Studie of Onderzoek**  
+   **Uitleg:** Een studie of onderzoek dat wordt uitgevoerd naar bijvoorbeeld criminaliteitstrends binnen een bepaalde regio kan waardevolle informatie opleveren, maar het geeft geen specifieke situatie weer, zoals een 'toestand'. In plaats daarvan biedt het analyses, resultaten en theoretische inzichten die over een langere periode zijn verzameld en niet een specifieke set van feitelijke omstandigheden beschrijft binnen een gedefinieerde tijdseenheid.
+
+Deze voorbeelden helpen om de grenzen van het begrip 'toestand' te verduidelijken en illustreren dat er andere belangrijke elementen binnen een organisatie bestaan die niet dezelfde karakteristieken van tijdsgebonden en feitelijke combinaties vertonen.
+
+Toelichting: In de context van een organisatie (OM) verwijst 'toestand' naar de specifieke, meetbare combinatie van feitelijke omstandigheden die de huidige operationele of strategische situatie van de organisatie beschrijft. Deze toestand kan bestaan uit aspecten zoals de personeelsbezetting, beschikbaarheid van middelen, lopende projecten of zelfs externe factoren zoals marktontwikkelingen. Het begrijpen van de huidige toestand is cruciaal voor het OM, omdat het hen in staat stelt om gefundeerde beslissingen te nemen, acties te prioriteren en de effectiviteit van hun processen te evalueren. Het biedt een helder overzicht van waar de organisatie zich momenteel bevindt en helpt bij het formuleren van toekomststrategieën, waardoor de efficiëntie en effectiviteit van de organisatie worden verbeterd.
+
+--------------------------------------------------------------------------------
+
+Begrip: toets
+Definitie: - Ontologische categorie: soort
+Type beoordeling met een vastgestelde methodiek waarbij een deskundige of geautoriseerde functionaris een objectieve vaststelling doet van de aanwezigheid, geldigheid of juistheid van een feit, gegeven of situatie op basis van vooraf bepaalde criteria.
+Categorie: proces
+Context: ["OM"]
+Status: draft
+Validation score: n/a
+
+--------------------------------------------------------------------------------
+
+Begrip: traject
+Definitie: "de gang van een individuele zaak resp. verdachte/veroordeelde door de keten naar aanleiding van een specifiek delict (of verdenking)"@nl
+Categorie: type
+Context: ["Strafrechtketen"]
+Status: draft
+Validation score: n/a
+
+--------------------------------------------------------------------------------
+
+Begrip: valkuil
+Definitie: - Ontologische categorie: soort
+Type belemmering binnen operationele of organisatorische processen met als kenmerk dat deze leidt tot onvoorzienbare complicaties of ongewenste gevolgen door een inherente kwetsbaarheid, onduidelijkheid of gebrek aan voorziene maatregelen.
+Categorie: proces
+Context: ["KMAR"]
+Status: archived
+Validation score: n/a
+
+Voorbeeld zinnen:
+  - Een valkuil binnen de KMAR is het onderschatten van de impact van onduidelijke taakverdeling bij internationale operaties.
+  - Tijdens implementatie van nieuwe IT-systemen bij de KMAR vormt inadequate training een veelvoorkomende valkuil.
+  - Het ontbreken van gestandaardiseerde procedures bij de KMAR kan als valkuil leiden tot ongecoördineerde acties tijdens crisissituaties.
+
+Praktijkvoorbeelden:
+  - Hieronder staan drie praktische, organisatie-specifieke voorbeelden van ‘valkuilen’ binnen de Koninklijke Marechaussee (KMAR):
+  - 1. Onvoldoende Kennisdeling bij Wisseling van Diensten**
+  - Valkuil:* Bij het overdragen van diensten tussen shifts wordt belangrijke operationele informatie vaak mondeling, kort en informeel doorgegeven. Door tijdsdruk of routine kunnen cruciale details over lopende incidenten of verdachte situaties niet of onduidelijk worden overgedragen.
+  - Onvoorzienbare complicatie:* Nieuwe dienstdoende teams missen essentiële informatie, waardoor er mogelijk niet accuraat wordt ingespeeld op acute situaties, met als gevolg vertraging of fouten in het optreden.
+  - 2. Onduidelijke Aanspreekpunten bij Multi-agency Samenwerking**
+  - Valkuil:* Tijdens gezamenlijke acties met andere veiligheidspartners zoals politie, douane of defensie, is het soms niet overeengekomen wie voor een specifiek onderdeel eindverantwoordelijk is.
+  - Ongewenst gevolg:* Dit leidt tot dubbel werk of juist taken die blijven liggen, omdat iedereen ervan uitgaat dat een ander het oppakt. Hierdoor ontstaan gaten in de uitvoering of onduidelijkheid bij incidentmanagement.
+  - 3. Afhankelijkheid van Verouderde IT-systemen**
+  - Valkuil:* Veel operationele processen binnen de KMAR steunen op oudere informatiesystemen. Sommige medewerkers kennen slechts de ‘work-arounds’ zonder het volledige systeem te begrijpen of up-to-date te houden.
+  - Inherente kwetsbaarheid:* Bij een plotseling technisch falen of bij migratie van data kan cruciale informatie verloren gaan of niet beschikbaar zijn, wat operationele beslissingen belemmert en mogelijk risico’s oplevert voor de veiligheid.
+  - Deze voorbeelden illustreren hoe een valkuil als belemmering in (operationele of organisatorische) processen bij de KMAR kan optreden.
+
+Tegenvoorbeelden:
+  - 1. Bewuste overtreding van procedures (overtreding/‘foute keuze’)**
+  - Uitleg:* Wanneer een medewerker bewust afwijkt van bestaande voorschriften of procedures, bijvoorbeeld door beveiligde ruimten zonder juiste toestemming te betreden.
+  - Waarom geen valkuil?* Dit is geen 'inherente kwetsbaarheid' of een gebrek aan voorziene maatregelen, maar een opzettelijke keuze. De complicaties zijn voorzienbaar en niet het gevolg van onduidelijkheid of onvoorziene zwakke plekken.
+  - 2. Externe onverwachte verstoring (bv. cyberaanval of stroomuitval)**
+  - Uitleg:* Een plotselinge cyberaanval waardoor de communicatie uitvalt.
+  - Waarom geen valkuil?* De oorzaak bevindt zich buiten het organisatorische proces en de interne procedures. Het betreft geen inherente kwetsbaarheid van het eigen systeem, maar een externe dreiging waartegen maatregelen mogelijk zijn te nemen.
+  - 3. Capaciteitsgebrek door externe taakverzwaring (bv. bijstand burgerpolitie)**
+  - Uitleg:* Door een plotseling beroep op de KMAR (zoals ondersteuning bij een landelijk evenement) ontstaat tijdelijke overbelasting.
+  - Waarom geen valkuil?* Dit is te wijten aan contextuele factoren buiten het eigen operationele proces, niet aan een tekortkoming of kwetsbaarheid in de interne KMAR-organisatie of -werkwijze.
+  - Samenvatting:**
+  - Deze voorbeelden zijn geen valkuilen, omdat ze geen gevolg zijn van een onvoorzienbare complicatie door een inherente kwetsbaarheid, onduidelijkheid of maatregelverlies binnen een eigen (operationeel/organisatorisch) proces.
+
+Toelichting: Binnen de Koninklijke Marechaussee (KMAR) verwijst een ‘valkuil’ naar een specifiek type belemmering in operationele of organisatorische processen die onverwachte complicaties of ongewenste gevolgen kan veroorzaken, vaak doordat er onduidelijkheden zijn, kwetsbaarheden niet zijn onderkend of er onvoldoende rekening is gehouden met bepaalde risico’s; het herkennen en tijdig adresseren van dergelijke valkuilen is essentieel binnen de KMAR, omdat het werk daar vaak een grote mate van verantwoordelijkheid en betrouwbaarheid vereist en onverwachte verstoringen de effectiviteit, veiligheid en integriteit van de organisatie direct kunnen raken.
+
+--------------------------------------------------------------------------------
+
+Begrip: vaststelling
+Definitie: - Ontologische categorie: proces
+Handeling waarbij een bevoegde functionaris of instantie een feit, rechtstoestand of gegeven formeel erkent na onderzoek van relevante informatie en bewijsstukken.
+Categorie: proces
+Context: ["Justid"]
+Status: archived
+Validation score: n/a
+
+Voorbeeld zinnen:
+  - De vaststelling van de identiteit van de verdachte wordt door Justid uitgevoerd op basis van artikel 27 van het Wetboek van Strafvordering.
+  - Binnen het civiel recht verzorgt Justid de vaststelling van authenticiteit van ingediende bewijsstukken.
+  - Volgens het Wetboek van Strafvordering mag Justid pas overgaan tot vaststelling van betrokkenheid na grondig onderzoek van het dossier.
+
+Praktijkvoorbeelden:
+  - Zeker! Hieronder drie praktische, contextspecifieke voorbeelden van het proces 'vaststelling' binnen de opgegeven context (Organisatorisch: Justid, Juridisch: Civiel recht, Wettelijk: Wetboek van Strafvordering):
+  - 1. Vaststelling van identiteit van een verdachte vóór verhoor (art. 27a Sv)**
+  - Binnen het civielrechtelijk domein, onder het Wetboek van Strafvordering, heeft een functionaris van Justid tot taak om voorafgaand aan het verhoor de identiteit van een verdachte formeel vast te stellen. Dit gebeurt door het onderzoeken van legitimatiebewijzen, het raadplegen van basisregistraties (BRP) en het controleren van aangeleverde persoonsgegevens. Na verificatie wordt formeel erkend wie de verdachte is, zodat het proces-verbaal op correcte wijze kan worden opgemaakt.
+  - 2. Vaststelling van het bestaan van een dwangmiddel (bijvoorbeeld beslag op goederen)**
+  - Wanneer er in een civielrechtelijke zaak beslag wordt gelegd op iemands goederen, dient Justid een proces te volgen waarin formeel wordt vastgesteld dat het beslag bevoegd is gelegd (o.b.v. rechterlijk bevel of toestemming). Dit houdt in dat een bevoegde medewerker alle relevante documenten (bevelschrift, proces-verbaal van beslaglegging) onderzoekt en het bestaan en de rechtmatigheid van het dwangmiddel formeel vastlegt in het systeem en erkent voor verdere verwerking.
+  - 3. Vaststelling van procesrechtelijke termijnen**
+  - Justid functionarissen stellen na ontvangst van civielrechtelijke stukken, zoals een dagvaarding of een proces-verbaal, formeel vast op welke datum een procedure is aangevangen en welke procesrechtelijke termijnen van toepassing zijn (bijvoorbeeld termijnen voor verweer of hoger beroep volgens het Wetboek van Strafvordering). Dit gebeurt door nauwgezet de ingediende stukken en de relevante wetgeving te onderzoeken en vervolgens de juridische termijnen vast te leggen en te bewaken in het systeem.
+  - Toelichting:**
+  - In alle drie de voorbeelden is vaststelling een formele handeling waarbij door onderzoek van bewijs en documenten door een bevoegde functionaris (of instantie) een feit of rechtstoestand erkend wordt, specifiek binnen de context van Justid, civiel recht en het strafvorderingsproces.
+
+Tegenvoorbeelden:
+  - Registratie van een feit: **Voorbeeld:** Een griffiemedewerker registreert de ontvangst van een processtuk in het systeem van de rechtbank.
+
+**Waarom niet ‘vaststelling’:**  
+Bij registratie wordt de ontvangst van een document feitelijk genoteerd of ingevoerd. Er is geen formele erkenning van de inhoud of waarheid van het stuk; er wordt alleen administratief vastgelegd dát het is ontvangen.
+
+---
+  - Advies uitbrengen: **Voorbeeld:** Een juridische medewerker brengt op basis van alle stukken een advies uit aan een rechter over een te nemen beslissing in een civiele zaak.
+
+**Waarom niet ‘vaststelling’:**  
+Advies uitbrengen is een voorbereidende handeling waarbij een functionaris oordeelt, beoordeelt en conclusies trekt, maar het geeft géén formeel/juridisch bindende erkenning. Het advies kan door de rechter worden overgenomen, maar is op zichzelf geen vaststelling van een feit of rechtstoestand.
+
+---
+  - Opsporing/onderzoek: **Voorbeeld:** Een opsporingsambtenaar verzamelt bewijsmateriaal tijdens een civielrechtelijk onderzoek naar een geschil.
+
+**Waarom niet ‘vaststelling’:**  
+Het verzamelen van bewijsmateriaal of aanwijzingen is een onderdeel van het onderzoeksproces. De ambtenaar erkent nog niets formeel als feit of rechtstoestand. De uiteindelijke formele erkenning (vaststelling) gebeurt pas later door een bevoegd functionaris of instantie.
+
+---
+
+#### Samenvatting:
+**Registratie, advies en opsporing** zijn processen binnen Justid/Civiel recht die uiterlijk soms lijken op ‘vaststelling’ omdat ze met feiten, bewijs en beoordeling te maken hebben,  
+maar ze voldoen niet aan de definitie omdat er geen formele/juridisch bindende erkenning na onderzoek plaatsvindt door een bevoegde instantie.
+
+Toelichting: In de context van Justid binnen het civiel recht en het huidige Wetboek van Strafvordering betekent 'vaststelling' het formele proces waarbij een bevoegde functionaris, zoals een rechter of een ambtenaar, na zorgvuldige bestudering van bewijs en relevante gegevens, een feit of rechtstoestand officieel erkent en vastlegt; dit is essentieel omdat Justid verantwoordelijk is voor de juiste en betrouwbare verwerking van juridische gegevens, waarbij deze vaststellingen de basis vormen voor verdere besluitvorming, rechtsbescherming en de uitvoering van wettelijke procedures.
+
+--------------------------------------------------------------------------------
+
+Begrip: vaststellingswijze
+Definitie: "De methode gebruikt bij de inwinning en verificatie van een identiteitskenmerk"@nl
+
+Toelichting: De vaststellingswijze laat bijvoorbeeld zien of de naam is verkregen door eigen opgave, afgeleid uit een identiteitsmiddel, een (gekwalificeerd) identiteitsbewijs en of deze gegeven geverifieerd zijn in registers. 
+  
+Latere gebruikers van deze identiteitsgegevens kunnen hiermee nagaan of de betrouwbaarheid van deze gegevens hoog genoeg is voor de beslissing die zij dan moeten nemen.
+Categorie: type
+Context: ["Strafrechtketen"]
+Status: draft
+Validation score: n/a
+
+--------------------------------------------------------------------------------
+
+Begrip: verbod
+Definitie: - Ontologische categorie: resultaat
+Resultaat van een formeel besluit waarbij een bepaalde handeling of gedraging niet is toegestaan door een daartoe bevoegde instantie.
+Categorie: proces
+Context: ["ZM"]
+Status: archived
+Validation score: n/a
+
+Voorbeeld zinnen:
+  - Binnen ZM geldt een verbod op het meenemen van persoonlijke elektronische apparaten in de vergaderruimte.
+  - Het verbod op externe catering tijdens bijeenkomsten is door ZM formeel vastgesteld.
+  - ZM heeft een verbod ingesteld op het delen van interne documenten met niet-medewerkers.
+
+Praktijkvoorbeelden:
+  - Zeker, hieronder vind je drie praktische, concrete voorbeelden waarbij het begrip ‘verbod’ (zoals gedefinieerd) van toepassing is binnen een organisatorische context van ZM (Zorginstelling of Zorgorganisatie), zonder juridische of wettelijke grondslag (dus op basis van interne, formele besluiten):
+
+----
+  - Verbod op het gebruik van mobiele telefoons op bepaalde afdelingen: Binnen ZM besluit het management formeel dat medewerkers en bezoekers geen mobiele telefoons mogen gebruiken op de intensive care-afdeling om verstoring van medische apparatuur en patiëntenrust te voorkomen. Medewerkers worden hierover geïnformeerd en het verbod wordt zichtbaar gecommuniceerd bij de toegangen tot de afdeling.
+
+---
+  - Verbod op het meenemen van etenswaren in bepaalde vergaderruimten: Het facilitair management van ZM stelt formeel vast dat het niet toegestaan is om eten en drinken mee te nemen in de onlangs gerenoveerde vergaderzalen om vlekken en beschadiging van het meubilair te voorkomen. Deze regel wordt bekendgemaakt per e-mail en via borden bij de ingangen.
+
+---
+  - Verbod op het uitvoeren van privé-administratie tijdens werktijd: Het management van ZM besluit formeel dat medewerkers tijdens werktijd geen privéadministratie (zoals internetbankieren, persoonlijke e-mails, etc.) mogen uitvoeren op hun werkcomputers, om afleiding en veiligheidsrisico’s te verminderen. Dit verbod wordt opgenomen in het interne arbeidsreglement.
+
+---
+
+**
+
+Toelichting: ** In alle drie de voorbeelden is er sprake van een formeel, organisatorisch besluit door ZM (niet wettelijk of juridisch afdwingbaar, maar intern bindend) waarmee een bepaalde gedraging of handeling niet is toegestaan. Het ‘verbod’ is dus een resultaat van intern beleid gericht op het organiseren of beschermen van (werk)processen binnen ZM.
+
+Tegenvoorbeelden:
+  - 1. Advies**
+  - Voorbeeld:* Het managementteam van ZM geeft het dringende advies aan medewerkers om geen persoonlijke telefoongesprekken te voeren tijdens werktijd.
+  - Uitleg:* Dit is geen formeel besluit waarbij een handeling expliciet wordt verboden; het betreft slechts een aanbeveling. Medewerkers worden aangemoedigd om bepaald gedrag te vermijden, maar het is niet formeel niet-toegestaan gemaakt.
+  - 2. Ontrading/afgeraden verklaring**
+  - Voorbeeld:* De directie geeft aan dat het afgeraden is om in het weekend te werken, omdat dit ten koste kan gaan van de werk-privébalans.
+  - Uitleg:* Ook dit is geen verbod volgens de definitie: er is geen formeel besluit genomen dat werken in het weekend niet is toegestaan. Het is slechts een negatief advies.
+  - 3. Ontheffing/uitzondering**
+  - Voorbeeld:* Er geldt een algemene regel binnen ZM dat men geen extern e-mails mag versturen, maar een projectteam krijgt een ontheffing om dit bij uitzondering wel te doen.
+  - Uitleg:* In deze situatie is er geen nieuw verbod opgelegd; integendeel, voor deze groep wordt juist de verboden handeling toegestaan. Een ontheffing is dus het tegendeel van een verbod volgens de definitie.
+  - Samenvattend:**
+  - Deze voorbeelden zijn relevant in soortgelijke organisatorische besluitvormingsprocessen als verboden, maar ze vallen er niet onder omdat ze niet het resultaat zijn van een formeel besluit om een handeling of gedraging niet toe te staan. Ze staan qua strekking of uitwerking in de buurt, maar voldoen niet aan de strikte definitie van 'verbod'.
+
+Toelichting: Binnen de organisatie ZM betekent een 'verbod' het formeel vastgestelde resultaat van een besluit waarbij bepaalde handelingen of gedragingen expliciet niet zijn toegestaan door een bevoegd orgaan binnen ZM; hoewel er geen juridische of wettelijke basis aan ten grondslag ligt, is dit verbod in de praktijk belangrijk om intern duidelijkheid, veiligheid en orde te waarborgen door richting te geven aan acceptabel gedrag en de grenzen aan te geven waarbinnen medewerkers en betrokkenen dienen te handelen.
+
+--------------------------------------------------------------------------------
+
+Begrip: verbod
+Definitie: - Ontologische categorie: soort
+Beperkende maatregel die een specifieke handeling, gedraging of situatie formeel uitsluit door middel van een bindende bepaling.
+Categorie: proces
+Context: ["ZM"]
+Status: archived
+Validation score: n/a
+
+Voorbeeld zinnen:
+  - Binnen ZM geldt een verbod op het meenemen van externe apparatuur naar de werkvloer.
+  - ZM heeft een verbod ingesteld op het delen van interne documenten met onbevoegden.
+  - Het verbod op eten in vergaderruimtes wordt door ZM strikt gehandhaafd.
+
+Praktijkvoorbeelden:
+  - Rookverbod op het terrein voor medewerkers en bezoekers**  
+De organisatie ZM heeft als beleid dat er niet gerookt mag worden op het volledige terrein, dus noch binnen- noch buitenshuis. Dit verbod is opgenomen in de huisregels en geldt voor iedereen die zich op het terrein bevindt. Ook zijn er borden geplaatst die wijzen op dit rookverbod. Het is een formele en bindende bepaling die een specifieke handeling (roken) uitsluit.
+  - Verbod op het gebruik van mobiele telefoons op bepaalde afdelingen**  
+Op sommige afdelingen, bijvoorbeeld op de intensive care of waar gevoelige medische apparatuur staat, geldt vanuit de organisatie een verbod op het gebruik van mobiele telefoons. Dit verbod is ingevoerd om storingen aan apparatuur te voorkomen en rust te waarborgen voor patiënten, en wordt door de organisatie strikt gehandhaafd.
+  - Verbod op het meenemen van etenswaren naar de operatiekamer**  
+Binnen ZM is er het interne organisatiebeleid dat het verboden is om etenswaren of drinken mee te nemen in steriele en kritische ruimtes, zoals operatiekamers. Dit is uit hygiënisch oogpunt en wordt medewerkers via interne procedures en instructies duidelijk gemaakt. Het betreft een formele, bindende uitsluiting van een bepaalde gedraging. 
+
+Deze voorbeelden zijn organisatiegebonden en niet direct afkomstig uit wettelijk of juridisch vastgelegde regels, maar zijn interne, formele verboden binnen ZM.
+
+Tegenvoorbeelden:
+  - Advies: - **Uitleg:** Een advies is een formele of informele aanbeveling om een bepaalde handeling of gedraging te vermijden, maar het verplicht niet en sluit niets formeel uit. Het is dus geen bindende maatregel.
+  - Beperking/Begrenzing: - **Uitleg:** Een beperking (zoals "maximaal 30 deelnemers in een zaal") stelt grenzen aan wat is toegestaan, maar sluit de handeling niet formeel volledig uit. Het is geen categorisch uitsluiten, maar een begrenzing binnen bepaalde voorwaarden.
+  - Toestemmingsplicht: - **Uitleg:** Een situatie waarin vooraf toestemming vereist is ("alleen met toestemming van de leidinggevende mag je overuren maken") laat de handeling mogelijk, mits aan de voorwaarde wordt voldaan. De handeling is daarmee niet formeel uitgesloten, en voldoet niet aan de bindende uitsluiting die hoort bij een verbod.
+
+**Samenvattend:**  
+Al deze voorbeelden zijn relevante maatregelen of instrumenten die lijken op een verbod, maar doordat ze de handeling niet nadrukkelijk en bindend uitsluiten, zijn het geen verboden volgens de gegeven definitie.
+
+Toelichting: Binnen de organisatie ZM betekent een verbod dat er intern duidelijke, bindende regels zijn opgesteld die bepaalde handelingen of situaties expliciet uitsluiten, ook al ontbreekt hiervoor een juridische of wettelijke verplichting; dit is belangrijk omdat het de interne orde, veiligheid of gewenste werkwijze waarborgt en zo bijdraagt aan het effectief functioneren van de organisatie volgens haar eigen normen en waarden.
+
+--------------------------------------------------------------------------------
+
+Begrip: verifiëren
+Definitie: "Het vergelijken van de ingewonnen identiteitsgegevens van een persoon met een andere set identiteitsgegevens in een 1-op-1-vergelijking."@nl
+
+Toelichting: De andere set kan afkomstig zijn van een identiteitsbewijs of een specifiek record uit een register zoals de SKDB.
+Categorie: type
+Context: ["Strafrechtketen"]
+Status: draft
+Validation score: n/a
+
+--------------------------------------------------------------------------------
+
+Begrip: versheidscontrole
+Definitie: - Ontologische categorie: soort
+Versheidscontrole: categorie controlemaatregel met als kenmerk dat wordt vastgesteld of informatie, gegevens of documenten voldoen aan vooraf gestelde eisen met betrekking tot tijdigheid of actualiteit.
+Categorie: proces
+Context: ["ZM"]
+Status: archived
+Validation score: n/a
+
+Voorbeeld zinnen:
+  - Bij ZM hebben we een strikte versheidscontrole ingesteld om te waarborgen dat alle klantgegevens altijd up-to-date zijn.
+  - Het team bij ZM voert regelmatig een versheidscontrole uit op onze documentatie om te voldoen aan de interne kwaliteitsnormen.
+  - Om de betrouwbaarheid van onze rapportages te garanderen, implementeren we bij ZM een versheidscontrole op alle verzamelde data.
+
+Praktijkvoorbeelden:
+  - ### Voorbeeld 1: Medische Dossierupdates
+  - In een ziekenhuis is het van cruciaal belang dat medisch dossiers van patiënten altijd up-to-date zijn. Bij elke patiënt komt regelmatig nieuwe informatie beschikbaar, zoals uitslagen van onderzoeken of wijzigingen in medicatie. Een versheidscontrole wordt uitgevoerd door een team van zorgprofessionals dat periodiek alle medisch dossiers controleert op actualiteit. Dit houdt in dat zij nagaan of alle recente gegevens correct zijn ingevoerd en voldoen aan de tijdseisen die zijn vastgesteld door de organisatie, zoals binnen 48 uur na de laatste behandeling of consult.
+  - ### Voorbeeld 2: Kwaliteitsrapportages
+  - Een zorginstelling dient regelmatig kwaliteitsrapportages in te dienen bij toezichthoudende instanties, waarin cijfers over bijvoorbeeld patiënttevredenheid, behandelingen en incidenten worden gerapporteerd. De versheidscontrole speelt hier een rol wanneer het kwaliteitsmanagementteam ervoor zorgt dat de data die in deze rapportages worden opgenomen actueel zijn. Dit houdt in dat er wordt gecontroleerd of de gegevens van het afgelopen kwartaal zijn verzameld, geanalyseerd en verwerkt, en of deze voldoen aan de vastgestelde deadlines en kwaliteitseisen.
+  - ### Voorbeeld 3: Vaccinatie- en Immunisatiegegevens
+  - In het kader van het vaccinatieprogramma van de zorginstelling moeten de immunisatiegegevens van patiënten regelmatig worden gecontroleerd op actualiteit. Dit wordt gedaan door het zorgpersoneel dat er zorg voor draagt dat alle patiënten op de juiste momenten gevaccineerd worden en dat hun vaccinatiestatus correct is gedocumenteerd in het patiënteninformatiesysteem. Een versheidscontrole wordt uitgevoerd om te bevestigen dat eerdere vaccinaties zijn geregistreerd, en er wordt gecontroleerd of een herinnering is verzonden naar patiënten die een vaccinatie moeten ontvangen, zodat aan de tijdige vereisten voor vaccinatie wordt voldaan.
+  - Deze voorbeelden illustreren hoe versheidscontrole in de praktijk van een zorginstelling cruciaal is om ervoor te zorgen dat informatie over patiënten en kwaliteitsgegevens op de juiste tijdstippen en met de juiste actualiteit beschikbaar zijn.
+
+Tegenvoorbeelden:
+  - Kwaliteitscontrole van producten**  
+   - **Toelichting**: Bij kwaliteitscontrole wordt vastgesteld of producten voldoen aan bepaalde kwaliteitsnormen en specificaties. Hoewel dit een controlemaatregel is, richt het zich niet specifiek op de actualiteit of tijdigheid van informatie, gegevens of documenten. Het gaat eerder om de functionaliteit en geschiktheid van producten, wat buiten de scope van versheidscontrole valt.
+  - Audit van financiële gegevens**  
+   - **Toelichting**: Een audit van financiële gegevens beoordeelt de betrouwbaarheid en nauwkeurigheid van financiële rapportages en transacties. Dit proces gaat over de integriteit en de goede werking van de financiële administratie, en niet over de tijdigheid van de informatie. Audit is gericht op compliance en correctheid, niet specifiek op de actueelheid of versheid van de gegevens.
+  - Training en capaciteitsontwikkeling**  
+   - **Toelichting**: Trainingen voor personeel gericht op capaciteitsontwikkeling zijn bedoeld om kennis en vaardigheden te verbeteren. Dit heeft betrekking op de ontwikkeling van medewerkers en de organisatie, maar staat los van controles die de actualiteit van informatie, gegevens of documenten vaststellen. Het bestaat voornamelijk uit educatieve en ontwikkelingsinitiatieven, en niet uit het verifiëren of informatie tijdig en actueel is. 
+
+Deze voorbeelden zijn dus niet in lijn met de definitie van versheidscontrole, omdat ze niet gericht zijn op het aspect van tijdigheid of actualiteit van informatie.
+
+Toelichting: Versheidscontrole binnen de organisatorische context van ZM verwijst naar het proces waarbij wordt nagegaan of informatie, gegevens of documenten voldoen aan de eisen van actualiteit en tijdigheid. Dit is cruciaal voor ZM, omdat het de betrouwbaarheid en relevantie van hun beslissingen en communicatie waarborgt. In een omgeving waar informatie snel veroudert, zorgt versheidscontrole ervoor dat medewerkers en stakeholders beschikken over actuele gegevens, waardoor zij geïnformeerde keuzes kunnen maken en de effectiviteit van de organisatie wordt vergroot. Het implementeren van deze controlemaatregelen helpt ook risico's te minimaliseren die voortkomen uit het gebruik van verouderde of incorrecte informatie.
+
+--------------------------------------------------------------------------------
+
+Begrip: verticaal
+Definitie: - Ontologische categorie: soort
+Soort oriëntatie die een richting aanduidt loodrecht op een vlak dat als horizontaal wordt beschouwd.
+Categorie: proces
+Context: ["NP"]
+Status: archived
+Validation score: n/a
+
+Voorbeeld zinnen:
+  - De verticaal gepositioneerde organigrammen binnen de organisatie helpen medewerkers om de hiërarchie duidelijk te begrijpen.
+  - In civiel recht is het belangrijk om onderscheid te maken tussen verticaal en horizontaal eigendomsrecht.
+  - De verticaal georiënteerde communicatiestructuur in de organisatie bevordert een efficiëntere informatie-uitwisseling.
+
+Praktijkvoorbeelden:
+  - Organisatorische Structuur: **Voorbeeld:** In een non-profitorganisatie is er vaak een verticale hiërarchische structuur. Bijvoorbeeld, de directeur staat aan de top van de organisatie, gevolgd door managementlagen en uiteindelijk de medewerkers. Deze verticale structuur helpt bij het duidelijk definiëren van verantwoordelijkheden en communicatiekanalen. De directeur kan specifieke richtlijnen geven aan het management, dat deze vervolgens communiceert aan de medewerkers, wat zorgt voor een gestructureerde en efficiënte workflow.
+  - Juridische Aansprakelijkheid: **Voorbeeld:** In het civiele recht kan 'verticaal' betrekking hebben op de aansprakelijkheid tussen verschillende niveaus van een organisatie. Stel, een vrijwilliger in een non-profitorganisatie veroorzaakt per ongeluk schade aan een derde partij. De vraag van aansprakelijkheid kan terugkomen op de verticale relatie tussen de vrijwilliger en de organisatie. In dit geval kan de organisatie als juridisch entiteit aansprakelijk zijn, terwijl de vrijwilliger ook persoonlijk aansprakelijk kan worden gesteld, afhankelijk van de omstandigheden. Hier is de 'verticale' lijn van aansprakelijkheid van belang voor het bepalen wie verantwoordelijk is.
+  - Financiële Rapportage: **Voorbeeld:** Bij het opstellen van financiële rapportages in een non-profitorganisatie kan een verticaal rapportagesysteem worden gebruikt. Dit houdt in dat financiële gegevens van verschillende subafdelingen (bijvoorbeeld projecten of filialen) worden verzameld en vervolgens samengevoegd naar een centrale rapportage. Dit stelt het bestuur in staat om een overzicht te krijgen van de financiële situatie van de hele organisatie, waarbij elke laag van de organisatie bijdraagt aan het totale financiële beeld. Hier is de verticale stroom van informatie cruciaal voor het verkrijgen van een duidelijk en samenhangend overzicht van de financiële gezondheid van de organisatie. 
+
+In al deze voorbeelden benadrukt het gebruik van 'verticaal' de verschillende niveaus en relaties binnen de context van een non-profitorganisatie en het civiele recht.
+
+Tegenvoorbeelden:
+  - Horizontale samenwerking binnen teams**  
+   *Uitleg*: Horizontale samenwerking verwijst naar het samenwerken tussen gelijke of op hetzelfde niveau opererende teams of afdelingen binnen een organisatie. Dit staat in contrast met verticale lijnen, die verwijzen naar hiërarchische structuren. Hier is geen sprake van een richting die loodrecht staat op een horizontaal vlak; in plaats daarvan bewegingen of relaties plaatsvinden binnen hetzelfde niveau.
+  - Functionele re-organisatie**  
+   *Uitleg*: Bij een functionele reorganisatie worden taken en verantwoordelijkheden herverdeeld binnen dezelfde hiërarchische laag zonder significante toegevoegde niveaus. Dit heeft te maken met de afstemming van werkzaamheden, maar niet met de verticaal georiënteerde structuren die hiërarchieën benoemen, aangezien er geen elementen van loodrechte structurering zijn.
+  - Cross-functionele teams**  
+   *Uitleg*: Cross-functionele teams bestaan uit leden van verschillende afdelingen die samenwerken aan een specifiek project. Hoewel dit interdisciplinaire samenwerking omvat, bezoekt het geen nieuwe hiërarchische niveaus of verticaal georiënteerde structuren. In plaats daarvan blijft het binnen de bredere horizontale context van samenwerking, zonder dat er gesproken wordt over verticale oriëntatie of hiërarchie. 
+
+Deze voorbeelden zijn relevant voor de organisatorische context, maar voldoen niet aan de definitie van 'verticaal' omdat ze niet het aspect van een hiërarchische verhouding of een loodrechte richting ten opzichte van een horizontaal vlak vertegenwoordigen.
+
+Toelichting: In de organisatorische context van een netwerkorganisatie (NP) verwijst 'verticaal' naar de hiërarchische structuur en de wijze waarop verantwoordelijkheden en besluitvorming zijn georganiseerd. Dit houdt in dat beslissingen vaak van boven naar beneden worden genomen, waarbij leidinggevenden een cruciale rol spelen in de aansturing van de organisatie en het toewijzen van taken aan medewerkers. In het civiele recht is het begrip 'verticaal' relevant omdat het kan duiden op de relatie tussen verschillende niveaus van rechtelijke autoriteit, bijvoorbeeld tussen nationale en lokale wetgeving. Dit onderscheid is belangrijk omdat het de manier waarop juridische besluiten en verantwoordelijkheden worden gedeeld en uitgevoerd beïnvloedt, wat op zijn beurt de effectiviteit van de organisatie en haar juridische operaties kan aansteken of belemmeren. Een heldere verticaal gelaagdheid zorgt ervoor dat processen soepel verlopen en dat er duidelijkheid is over bevoegdheden, wat essentieel is voor de werking en compliance binnen de organisatie.
+
+--------------------------------------------------------------------------------
+
+Begrip: vervoersverbod
+Definitie: - Ontologische categorie: soort
+Vervoersverbod: maatregel die een persoon verbiedt zich met een vervoermiddel binnen een bepaald gebied of tussen specifieke locaties te verplaatsen.
+Categorie: proces
+Context: ["OM", "ZM"]
+Status: archived
+Validation score: n/a
+
+Voorbeeld zinnen:
+  - Het OM kan in het strafrecht een vervoersverbod opleggen aan een verdachte om herhaling van het delict te voorkomen.
+  - Een vervoersverbod wordt soms door de ZM opgelegd als tijdelijke maatregel in een strafzaak.
+  - Binnen het strafrecht kan het vervoersverbod door het OM worden toegepast, ook al bestaat hiervoor geen specifieke wettelijke regeling.
+
+Praktijkvoorbeelden:
+  - Zeker! Hier volgen drie praktische voorbeelden waarin het begrip **'vervoersverbod'** binnen strafrechtelijke context voorkomt, specifiek gezien vanuit de organisaties Openbaar Ministerie (OM) en Zittende Magistratuur (ZM):
+  - Voorbeeld 1: Verdachte van joyriding tijdens het strafproces**
+  - Een jongvolwassene wordt verdacht van joyriding en herhaalde verkeersdelicten. Tijdens de strafzaak besluit de rechter (ZM), op vordering van het OM, als bijzondere voorwaarde bij de schorsing van de voorlopige hechtenis dat de verdachte géén gebruik mag maken van motorrijtuigen binnen de gemeente waar hij woont (vervoersverbod). Dit om recidive en gevaar op de weg te voorkomen gedurende de behandeling van de zaak.
+  - Toelichting:* Het vervoersverbod is hier specifiek gekoppeld aan een vervoermiddel (auto/motor) en een bepaald gebied (woonplaats).
+  - Voorbeeld 2: Ramkraker met contact- en vervoersverbod**
+  - Een verdachte van een gewapende overval en ramkraak krijgt bij oplegging van een locatieverbod door de rechter eveneens een vervoersverbod opgelegd. Dit betekent dat hij zich niet per (snor)fiets, auto of ander voertuig naar een bepaald winkelcentrum mag begeven, noch tussen zijn woonplaats en het winkelcentrum mag reizen met eigen vervoer, uit vrees voor herhaling of intimidatie richting slachtoffers of personeel.
+  - Toelichting:* Hier wordt het vervoersverbod als maatregel gebruikt om verdere strafbare feiten te voorkomen en het slachtoffer te beschermen.
+  - Voorbeeld 3: Groephoofd bij voetbalrellen—voorwaarden bij schorsing voorlopig hechtenis**
+  - Een persoon wordt gezien als leider van een groep voetbalhooligans en is verdacht van opruiing en openlijke geweldpleging rond wedstrijden. Het OM vordert dat bij schorsing van de voorlopige hechtenis, deze verdachte geen gebruik mag maken van het openbaar vervoer richting stadion en geen gebruik mag maken van georganiseerde supportersbussen voor een bepaalde periode. De rechter neemt deze voorwaarde over als vervoersverbod.
+  - Toelichting:* Dit vervoersverbod is gericht op het verbieden van verplaatsing via specifieke vervoermiddelen naar risicovolle gebieden.
+  - Samenvatting:**
+  - In deze voorbeelden wordt het vervoersverbod als strafrechtelijke maatregel gebruikt door OM en ZM, meestal als bijzondere voorwaarde tijdens voorlopige hechtenis, schorsing daarvan, of bij een locatieverbod, om de kans op herhaling van strafbare feiten of gevaar voor de samenleving te minimaliseren.
+
+Tegenvoorbeelden:
+  - 1. Meldplicht bij politiebureau**
+  - Toelichting:**
+  - Een meldplicht houdt in dat iemand zich op gezette tijden moet melden bij het politiebureau of een andere aangewezen instantie. Deze maatregel beperkt iemands bewegingsvrijheid indirect, want de betrokkene moet fysiek op een bepaalde plek verschijnen, maar er is géén verbod om zich met een vervoermiddel te verplaatsen — men mag reizen hoe men wil, zolang men zich maar meldt.
+  - 2. Contactverbod**
+  - Een contactverbod verbiedt een persoon om contact te zoeken met een of meer specifieke personen. Dit kan gecombineerd worden met locatiegeboden, maar an sich wordt hiermee niet verboden om zich met een vervoermiddel te verplaatsen binnen een bepaald gebied.
+  - 3. Gebiedsverbod (lokaalverbod)**
+  - Bij een gebiedsverbod mag een persoon zich niet in een specifiek gebied bevinden, ongeacht het vervoermiddel. De maatregel is gebiedsgericht, niet vervoersmiddelgericht: iemand mag een ander gebied vrij betreden met welk vervoermiddel dan ook. Het verbod is dus niet gekoppeld aan het middel van verplaatsing, maar aan de locatie zelf.
+  - Samenvatting:**
+  - Deze voorbeelden lijken op het vervoersverbod doordat ze de bewegingsvrijheid of het gedrag beperken, maar doen dat niet door het gebruik van een vervoermiddel te verbieden binnen een bepaald gebied (zoals in de definitie van vervoersverbod). Ze richten zich respectievelijk op meldplicht, contact met personen en verblijf in bepaalde gebieden, niet op manier van verplaatsing.
+
+Toelichting: Een vervoersverbod is in de strafrechtelijke praktijk een door het Openbaar Ministerie (OM) of de Zittende Magistratuur (ZM) opgelegde maatregel die voorkomt dat een verdachte of veroordeelde zich met een bepaald vervoermiddel binnen een specifiek gebied begeeft of tussen bepaalde locaties reist; deze maatregel wordt vooral ingezet als gedragsaanwijzing om recidive of ordeverstoringen te voorkomen, en is belangrijk omdat het OM en de ZM zo direct de bewegingsvrijheid van betrokkenen kunnen beperken zonder dat daarvoor een wettelijke grondslag vereist is, en daarmee effectief kunnen inspelen op acute risico’s voor de openbare orde of veiligheid.
+
+--------------------------------------------------------------------------------
+
+Begrip: voegen strafzaak
+Definitie: Type procedure waarbij een afzonderlijke strafzaak formeel wordt samengevoegd met een andere strafzaak tot één gezamenlijk te behandelen zaak binnen een strafrechtelijk traject.
+Categorie: proces
+Context: ["OM"]
+Status: archived
+Validation score: n/a
+
+Voorbeeld zinnen:
+  - Het OM besloot om de strafzaken van beide verdachten te voegen, zodat er één gezamenlijke strafzaak kon plaatsvinden.
+  - Bij het voegen van een strafzaak zorgt het OM ervoor dat samenhangende misdrijven gelijktijdig worden behandeld.
+  - Het voegen van een strafzaak door het OM kan efficiëntie opleveren wanneer meerdere zaken betrekking hebben op dezelfde gebeurtenis.
+
+Praktijkvoorbeelden:
+  - 1. Meerdere winkeldiefstallen door dezelfde verdachte**
+  - Het OM constateert dat een verdachte, Piet Jansen, in verschillende supermarkten in Amsterdam binnen een maand tijd drie keer is aangehouden voor winkeldiefstal. In plaats van voor elke diefstal een aparte rechtszaak te voeren, besluit het OM de drie strafzaken te voegen. De zaken worden samengevoegd zodat ze in één zitting gezamenlijk behandeld kunnen worden, wat efficiënter is voor zowel de rechtbank als het OM en alle betrokken partijen.
+  - 2. Samenspanning bij inbraak door een groep verdachten**
+  - Een groep van vier jongeren wordt door het OM vervolgd voor een serie inbraken in eenzelfde wijk. Ieder van hen heeft een aparte strafzaak omdat ze bij verschillende incidenten betrokken waren. Als uit het onderzoek blijkt dat deze zaken nauw met elkaar verbonden zijn (zelfde daders, vergelijkbare werkwijze, zelfde periode), vraagt het OM om de strafzaken te voegen. Zo worden alle feiten en betrokkenen samen besproken en kan de rechter in één gezamenlijk proces uitspraak doen.
+  - 3. Verdachte heeft in verschillende gemeenten strafbare feiten gepleegd**
+  - Een verdachte heeft in januari een auto gestolen in Rotterdam en in februari een mishandeling gepleegd in Den Haag. De politie in beide steden maakt apart proces-verbaal op en het OM registreert beide als afzonderlijke strafzaken. Aangezien het om dezelfde verdachte gaat en beide zaken in behandeling zijn binnen hetzelfde arrondissement, besluit het OM de strafzaken te voegen, zodat de rechtbank in één zitting uitspraak kan doen over alle feiten.
+  - Toelichting op de context:**
+  - Deze voorbeelden zijn specifiek gesitueerd in de organisatie van het Openbaar Ministerie, waar besluiten over het voegen van strafzaken in de dagelijkse praktijk worden genomen om de efficiëntie van het strafproces te verhogen en samenhangende feiten en verdachten gezamenlijk te kunnen beoordelen.
+  - Laat gerust weten als je nog meer voorbeelden of verduidelijking wilt!
+
+Tegenvoorbeelden:
+  - Hieronder drie tegenvoorbeelden binnen de strafrechtelijke context van het OM die relevant zijn, lijken op 'voegen strafzaak', maar er níet onder vallen. Bij elk voorbeeld een korte uitleg:
+  - 1. Splitsen van strafzaken (afsplitsen)**
+  - > **Uitleg**: Hierbij wordt juist één strafzaak opgesplitst in meerdere afzonderlijke zaken, bijvoorbeeld om praktische of juridische redenen. Dit is het tegenovergestelde van ‘voegen’, dus hier worden zaken niet samengevoegd, maar uit elkaar gehaald.
+  - 2. Gezamenlijke behandeling van zaken zonder formele samenvoeging**
+  - > **Uitleg**: Soms kunnen meerdere strafzaken op dezelfde zitting behandeld worden (bijvoorbeeld uit efficiëntie), maar ze blijven formeel afzonderlijke zaken. Er is dan dus géén formele samenvoeging tot één zaak, en dus geen sprake van ‘voegen’ volgens de definitie.
+  - 3. Samenloop van strafbare feiten binnen één zaak**
+  - > **Uitleg**: Soms worden meerdere strafbare feiten of feitencomplexen van één verdachte in één dossier behandeld, maar het betreft geen afzonderlijke, formeel bestaande zaken die samengevoegd worden. Dit is dus een juridisch (materieel) samenloop en géén procedure van ‘voegen’ van losse strafzaken.
+  - Kort samengevat:**
+  - Deze voorbeelden lijken organisatorisch of procedureel op samenbrengen, maar géén van deze is een formele ‘voeging’ van afzonderlijke strafzaken tot één zaak, zoals in de gegeven definitie bedoeld.
+
+Toelichting: Binnen de organisatie van het Openbaar Ministerie (OM) betekent 'voegen strafzaak' dat afzonderlijke strafzaken die inhoudelijk verband houden of efficiënt gezamenlijk kunnen worden behandeld, formeel door het OM worden samengebracht tot één zaak, zodat deze gezamenlijk aan de rechter kunnen worden voorgelegd; dit is in de praktijk belangrijk omdat het zorgt voor een efficiëntere procesvoering, consistentie in de beoordeling en mogelijk besparing van tijd en middelen, terwijl het de coördinatie van zaken binnen het OM vergemakkelijkt, ook al is er geen expliciete wettelijke of juridische regeling vereist.
+
+--------------------------------------------------------------------------------
+
+Begrip: voertuig
+Definitie: - Ontologische categorie: soort
+Type vervoersmiddel met een eigen constructie voor het verplaatsen van personen, dieren of goederen over land, water of door de lucht, waarbij zelfstandige voortbeweging mogelijk is door mechanische, elektrische of andere aandrijving.
+Categorie: proces
+Context: ["Justid"]
+Status: archived
+Validation score: n/a
+
+Voorbeeld zinnen:
+  - De verdachte zou volgens het onderzoek van Justid gebruik hebben gemaakt van een voertuig om het terrein ongezien te verlaten.
+  - Binnen het strafrecht wordt het begrip voertuig ruim geïnterpreteerd voor het vaststellen van aansprakelijkheid bij verkeersovertredingen.
+  - Justid registreerde het voertuig als belangrijk bewijsmateriaal in de lopende strafzaak.
+
+Praktijkvoorbeelden:
+  - Zeker! Hieronder drie praktische, organisatie- en domeinspecifieke toepassingen van het begrip ‘voertuig’ binnen de context van Justid (Justitiële Informatiedienst), het strafrecht en zonder een specifieke wettelijke definitie.
+  - Voorbeeld 1:**
+  - Tijdens een strafrechtelijk onderzoek naar autodiefstallen ontvangt Justid gegevensverzoeken van het Openbaar Ministerie over een specifiek ‘voertuig’, zoals het serienummer, het type (bijvoorbeeld een elektrische scooter), en de geregistreerde eigenaar. Justid raadpleegt hiervoor het kentekenregister en verstrekt de relevante voertuiggegevens aan het OM ten behoeve van het opsporingsonderzoek.
+  - Voorbeeld 2:**
+  - In het kader van een strafzaak over drugssmokkel vraagt de rechtbank Justid om informatie over een vrachtwagen (‘voertuig’) die is onderschept bij de grens. Justid levert achtergrondinformatie, eigendomsbewijzen en eventueel eerdere registraties van hetzelfde voertuig als ondersteuning voor het bewijsdossier in de strafzaak.
+  - Voorbeeld 3:**
+  - Bij het vaststellen van de identiteit van een verdachte van joyriding gebruikt Justid voertuigdata afkomstig van automodules (bijvoorbeeld data-uitwisseling van navigatiesystemen via telematica), zodat deze informatie gekoppeld kan worden aan reeds bekende strafrechtelijke gegevens, die een zaak onderbouwen waar het ‘voertuig’ als misdrijfobject centraal staat.
+  - Deze voorbeelden zijn specifiek toegespitst op de justitiële (organisatorische) en strafrechtelijke (juridische) context waarin Justid opereert, en laten concreet zien hoe het begrip ‘voertuig’ in de praktijk wordt toegepast.
+
+Tegenvoorbeelden:
+  - Fiets zonder trapondersteuning (gewone fiets): - **Waarom niet?** Een gewone fiets heeft geen mechanische, elektrische of andere aandrijving behalve spierkracht van de gebruiker. De eigen definitie vereist een zelfstandige aandrijving door een mechanisch of elektrisch systeem.
+  - Rolstoel zonder hulpmotor (handbewogen rolstoel): - **Waarom niet?** Een handbewogen rolstoel wordt voortbewogen door menselijke kracht en heeft geen eigen aangedreven mechanisme. Mechanische of elektrische voortbeweging is vereist volgens de definitie.
+  - Skateboard: - **Waarom niet?** Een skateboard wordt uitsluitend voortbewogen door menselijke inspanning, zonder een eigen aandrijfsysteem. Het valt dus buiten de definitie die zelfstandige, niet-menselijke aandrijving vereist.
+
+**Samenvattend:**  
+Alle drie deze middelen worden gebruikt voor het verplaatsen van personen, maar missen een eigen mechanische, elektrische of andere aangedreven voortbeweging, en vallen daarom niet onder de gegeven definitie van 'voertuig'.
+
+Toelichting: In de strafrechtelijke praktijk van Justid is het begrip 'voertuig' essentieel omdat het bepaalt welke objecten onder specifieke strafrechtelijke bepalingen vallen, bijvoorbeeld bij verkeersdelicten, diefstal of vernieling van voertuigen; aangezien er geen wettelijke definitie is, wordt doorgaans aangesloten bij de brede omschrijving van een voertuig als een zelfstandig voortbewegend vervoermiddel voor personen, dieren of goederen, waardoor duidelijk wordt of bepaalde handelingen strafbaar zijn en onder welk regime ze onderzocht, vervolgd en geregistreerd moeten worden binnen de systemen van Justid.
+
+--------------------------------------------------------------------------------
