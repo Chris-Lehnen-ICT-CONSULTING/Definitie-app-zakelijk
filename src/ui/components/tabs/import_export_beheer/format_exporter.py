@@ -10,7 +10,7 @@ import streamlit as st
 
 from database.definitie_repository import DefinitieRepository, DefinitieStatus
 from services.data_aggregation_service import DataAggregationService
-from services.export_service import ExportFormat, ExportService
+from services.export_service import ExportFormat, ExportLevel, ExportService
 
 logger = logging.getLogger(__name__)
 
@@ -47,7 +47,7 @@ class FormatExporter:
     def _render_bulk_export(self):
         """Render bulk export UI."""
         # Export filters
-        col1, col2, col3 = st.columns(3)
+        col1, col2, col3, col4 = st.columns(4)
 
         with col1:
             export_format = st.selectbox(
@@ -58,6 +58,16 @@ class FormatExporter:
             )
 
         with col2:
+            export_level = st.selectbox(
+                "Export niveau",
+                ["Basis", "Uitgebreid", "Compleet"],
+                help="Basis: 17 velden (definitie + voorbeelden)\n"
+                "Uitgebreid: 25 velden (+ metadata, proces, users)\n"
+                "Compleet: 36 velden (alle database velden)",
+                key="bulk_level",
+            )
+
+        with col3:
             status_filter = st.selectbox(
                 "Status filter",
                 ["Alle"] + [status.value for status in DefinitieStatus],
@@ -65,7 +75,7 @@ class FormatExporter:
                 key="bulk_status",
             )
 
-        with col3:
+        with col4:
             limit = st.number_input(
                 "Maximum aantal",
                 min_value=0,
@@ -78,14 +88,16 @@ class FormatExporter:
 
         # Export knop
         if st.button("📥 Genereer Bulk Export", type="primary", key="bulk_export_btn"):
-            self._generate_bulk_export(export_format, status_filter, limit)
+            self._generate_bulk_export(
+                export_format, export_level, status_filter, limit
+            )
 
     def _render_individual_export(self):
         """Render individuele definitie selectie UI."""
         st.markdown("#### Selecteer Definities")
 
         # Filters voor selectie
-        col1, col2 = st.columns(2)
+        col1, col2, col3 = st.columns(3)
 
         with col1:
             status_filter = st.selectbox(
@@ -101,6 +113,16 @@ class FormatExporter:
                 ["CSV", "Excel", "JSON", "TXT"],
                 help="Selecteer het gewenste export formaat",
                 key="individual_format",
+            )
+
+        with col3:
+            export_level = st.selectbox(
+                "Export niveau",
+                ["Basis", "Uitgebreid", "Compleet"],
+                help="Basis: 17 velden (definitie + voorbeelden)\n"
+                "Uitgebreid: 25 velden (+ metadata, proces, users)\n"
+                "Compleet: 36 velden (alle database velden)",
+                key="individual_level",
             )
 
         # Haal definities op voor selectie
@@ -196,11 +218,15 @@ class FormatExporter:
                 selected_definitions = [
                     definitions_map[label] for label in selected_labels
                 ]
-                self._generate_individual_export(selected_definitions, export_format)
+                self._generate_individual_export(
+                    selected_definitions, export_format, export_level
+                )
         else:
             st.warning("⚠️ Selecteer minimaal 1 definitie om te exporteren")
 
-    def _generate_bulk_export(self, format: str, status_filter: str, limit: int):
+    def _generate_bulk_export(
+        self, format: str, level: str, status_filter: str, limit: int
+    ):
         """Genereer bulk export bestand via ExportService."""
         with st.spinner("Bulk export genereren..."):
             try:
@@ -218,13 +244,13 @@ class FormatExporter:
                     st.warning("Geen definities gevonden voor export")
                     return
 
-                self._execute_export(definitions, format, "bulk")
+                self._execute_export(definitions, format, level, "bulk")
 
             except Exception as e:
                 st.error(f"Fout bij genereren bulk export: {e!s}")
                 logger.exception("Bulk export fout")
 
-    def _generate_individual_export(self, definitions: list, format: str):
+    def _generate_individual_export(self, definitions: list, format: str, level: str):
         """Genereer export voor individueel geselecteerde definities."""
         with st.spinner(f"Export genereren voor {len(definitions)} definitie(s)..."):
             try:
@@ -232,13 +258,15 @@ class FormatExporter:
                     st.warning("Geen definities geselecteerd voor export")
                     return
 
-                self._execute_export(definitions, format, "individual")
+                self._execute_export(definitions, format, level, "individual")
 
             except Exception as e:
                 st.error(f"Fout bij genereren export: {e!s}")
                 logger.exception("Individual export fout")
 
-    def _execute_export(self, definitions: list, format: str, export_type: str):
+    def _execute_export(
+        self, definitions: list, format: str, level: str, export_type: str
+    ):
         """Voer de daadwerkelijke export uit (herbruikbaar voor bulk en individual)."""
         # Map format naar ExportFormat enum
         format_map = {
@@ -249,9 +277,17 @@ class FormatExporter:
         }
         export_format = format_map.get(format, ExportFormat.CSV)
 
-        # Gebruik ExportService voor export (inclusief alle velden + voorbeelden!)
+        # Map level naar ExportLevel enum
+        level_map = {
+            "Basis": ExportLevel.BASIS,
+            "Uitgebreid": ExportLevel.UITGEBREID,
+            "Compleet": ExportLevel.COMPLEET,
+        }
+        export_level = level_map.get(level, ExportLevel.BASIS)
+
+        # Gebruik ExportService voor export met geselecteerd niveau
         file_path = self.export_service.export_multiple_definitions(
-            definitions=definitions, format=export_format
+            definitions=definitions, format=export_format, level=export_level
         )
 
         # Lees bestand en toon download button
@@ -277,10 +313,19 @@ class FormatExporter:
             data=file_data,
             file_name=filename,
             mime=mime_type,
-            key=f"download_{export_type}_{format}",
+            key=f"download_{export_type}_{format}_{level}",
         )
 
+        # Toon veldenaantal per niveau
+        field_counts = {
+            "Basis": "17 velden",
+            "Uitgebreid": "25 velden",
+            "Compleet": "36 velden",
+        }
+        field_count = field_counts.get(level, "17 velden")
+
         st.success(
-            f"✅ Export gegenereerd: {len(definitions)} definitie(s) met alle velden + voorbeelden"
+            f"✅ Export gegenereerd: {len(definitions)} definitie(s) "
+            f"met {level} niveau ({field_count})"
         )
         st.info(f"📁 Bestand opgeslagen: {file_path}")

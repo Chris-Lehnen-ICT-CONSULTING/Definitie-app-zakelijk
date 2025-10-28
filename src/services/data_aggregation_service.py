@@ -223,18 +223,24 @@ class DataAggregationService:
                 # Multiple DB rows joined with ", " for proper CSV export
                 synoniemen_list = voorbeelden_dict.get("synonyms", [])
                 export_data.synoniemen = (
-                    ", ".join(str(s) for s in synoniemen_list if s) if synoniemen_list else ""
+                    ", ".join(str(s) for s in synoniemen_list if s)
+                    if synoniemen_list
+                    else ""
                 )
 
                 antoniemen_list = voorbeelden_dict.get("antonyms", [])
                 export_data.antoniemen = (
-                    ", ".join(str(a) for a in antoniemen_list if a) if antoniemen_list else ""
+                    ", ".join(str(a) for a in antoniemen_list if a)
+                    if antoniemen_list
+                    else ""
                 )
 
                 # Toelichting: double newline for multi-paragraph text
                 toelichting_list = voorbeelden_dict.get("explanation", [])
                 export_data.toelichting = (
-                    "\n\n".join(str(t) for t in toelichting_list if t) if toelichting_list else ""
+                    "\n\n".join(str(t) for t in toelichting_list if t)
+                    if toelichting_list
+                    else ""
                 )
 
             # Voorkeursterm uit definitie record (al aanwezig in database)
@@ -245,7 +251,11 @@ class DataAggregationService:
         if additional_data:
             # Warn about conflicts between database and session data (DEF-43)
             if definitie_record and definitie_record.id:
-                list_fields = ["voorbeeld_zinnen", "praktijkvoorbeelden", "tegenvoorbeelden"]
+                list_fields = [
+                    "voorbeeld_zinnen",
+                    "praktijkvoorbeelden",
+                    "tegenvoorbeelden",
+                ]
                 for field in list_fields:
                     db_value = getattr(export_data, field, [])
                     session_value = additional_data.get(field, [])
