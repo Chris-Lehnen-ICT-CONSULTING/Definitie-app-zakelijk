@@ -29,6 +29,7 @@ class ExportFormat(Enum):
     TXT = "txt"
     JSON = "json"
     CSV = "csv"
+    EXCEL = "xlsx"
     DOCX = "docx"
     PDF = "pdf"
 
@@ -307,6 +308,319 @@ class ExportService:
             writer.writerow(row)
 
         logger.info(f"Definitie geëxporteerd naar CSV: {pad}")
+        return str(pad)
+
+    def export_multiple_definitions(
+        self,
+        definitions: list[DefinitieRecord],
+        format: ExportFormat = ExportFormat.CSV,
+    ) -> str:
+        """
+        Exporteer meerdere definities naar het opgegeven formaat.
+
+        Args:
+            definitions: Lijst van definitie records
+            format: Export formaat
+
+        Returns:
+            Pad naar het geëxporteerde bestand
+        """
+        if format == ExportFormat.CSV:
+            return self._export_multiple_to_csv(definitions)
+        elif format == ExportFormat.EXCEL:
+            return self._export_multiple_to_excel(definitions)
+        elif format == ExportFormat.JSON:
+            return self._export_multiple_to_json(definitions)
+        elif format == ExportFormat.TXT:
+            return self._export_multiple_to_txt(definitions)
+        else:
+            raise NotImplementedError(
+                f"Bulk export voor formaat {format} nog niet geïmplementeerd"
+            )
+
+    def _export_multiple_to_csv(self, definitions: list[DefinitieRecord]) -> str:
+        """Exporteer meerdere definities naar CSV."""
+        import csv
+
+        # Genereer bestandsnaam
+        tijdstempel = datetime.now(UTC).strftime("%Y%m%d_%H%M%S")
+        bestandsnaam = f"definities_export_{tijdstempel}.csv"
+        pad = self.export_dir / bestandsnaam
+
+        # CSV velden - inclusief voorbeelden!
+        fieldnames = [
+            "begrip",
+            "definitie",
+            "categorie",
+            "organisatorische_context",
+            "juridische_context",
+            "wettelijke_basis",
+            "status",
+            "validation_score",
+            "voorkeursterm",
+            "synoniemen",
+            "antoniemen",
+            "toelichting",
+            "voorbeeld_zinnen",
+            "praktijkvoorbeelden",
+            "tegenvoorbeelden",
+            "created_at",
+            "updated_at",
+        ]
+
+        # Schrijf CSV
+        with open(pad, "w", newline="", encoding="utf-8") as csvfile:
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            writer.writeheader()
+
+            for d in definitions:
+                # Aggregeer data inclusief voorbeelden
+                export_data = (
+                    self.data_aggregation_service.aggregate_definitie_for_export(
+                        definitie_record=d
+                    )
+                )
+
+                row = {
+                    "begrip": d.begrip,
+                    "definitie": d.definitie,
+                    "categorie": d.categorie,
+                    "organisatorische_context": d.organisatorische_context,
+                    "juridische_context": d.juridische_context or "",
+                    "wettelijke_basis": d.wettelijke_basis or "",
+                    "status": d.status,
+                    "validation_score": d.validation_score or "",
+                    "voorkeursterm": export_data.voorkeursterm or "",
+                    "synoniemen": export_data.synoniemen or "",
+                    "antoniemen": export_data.antoniemen or "",
+                    "toelichting": export_data.toelichting or "",
+                    "voorbeeld_zinnen": (
+                        " | ".join(export_data.voorbeeld_zinnen)
+                        if export_data.voorbeeld_zinnen
+                        else ""
+                    ),
+                    "praktijkvoorbeelden": (
+                        " | ".join(export_data.praktijkvoorbeelden)
+                        if export_data.praktijkvoorbeelden
+                        else ""
+                    ),
+                    "tegenvoorbeelden": (
+                        " | ".join(export_data.tegenvoorbeelden)
+                        if export_data.tegenvoorbeelden
+                        else ""
+                    ),
+                    "created_at": d.created_at.isoformat() if d.created_at else "",
+                    "updated_at": d.updated_at.isoformat() if d.updated_at else "",
+                }
+
+                writer.writerow(row)
+
+        logger.info(f"{len(definitions)} definities geëxporteerd naar CSV: {pad}")
+        return str(pad)
+
+    def _export_multiple_to_excel(self, definitions: list[DefinitieRecord]) -> str:
+        """Exporteer meerdere definities naar Excel."""
+        import pandas as pd
+
+        # Genereer bestandsnaam
+        tijdstempel = datetime.now(UTC).strftime("%Y%m%d_%H%M%S")
+        bestandsnaam = f"definities_export_{tijdstempel}.xlsx"
+        pad = self.export_dir / bestandsnaam
+
+        # Verzamel data
+        data = []
+        for d in definitions:
+            export_data = self.data_aggregation_service.aggregate_definitie_for_export(
+                definitie_record=d
+            )
+
+            # Convert timezone-aware datetimes to naive for Excel compatibility
+            created_at_naive = None
+            if d.created_at:
+                created_at_naive = (
+                    d.created_at.replace(tzinfo=None)
+                    if d.created_at.tzinfo
+                    else d.created_at
+                )
+
+            updated_at_naive = None
+            if d.updated_at:
+                updated_at_naive = (
+                    d.updated_at.replace(tzinfo=None)
+                    if d.updated_at.tzinfo
+                    else d.updated_at
+                )
+
+            data.append(
+                {
+                    "begrip": d.begrip,
+                    "definitie": d.definitie,
+                    "categorie": d.categorie,
+                    "organisatorische_context": d.organisatorische_context,
+                    "juridische_context": d.juridische_context or "",
+                    "wettelijke_basis": d.wettelijke_basis or "",
+                    "status": d.status,
+                    "validation_score": d.validation_score,
+                    "voorkeursterm": export_data.voorkeursterm or "",
+                    "synoniemen": export_data.synoniemen or "",
+                    "antoniemen": export_data.antoniemen or "",
+                    "toelichting": export_data.toelichting or "",
+                    "voorbeeld_zinnen": (
+                        " | ".join(export_data.voorbeeld_zinnen)
+                        if export_data.voorbeeld_zinnen
+                        else ""
+                    ),
+                    "praktijkvoorbeelden": (
+                        " | ".join(export_data.praktijkvoorbeelden)
+                        if export_data.praktijkvoorbeelden
+                        else ""
+                    ),
+                    "tegenvoorbeelden": (
+                        " | ".join(export_data.tegenvoorbeelden)
+                        if export_data.tegenvoorbeelden
+                        else ""
+                    ),
+                    "created_at": created_at_naive,
+                    "updated_at": updated_at_naive,
+                }
+            )
+
+        # Maak DataFrame en export naar Excel
+        df = pd.DataFrame(data)
+        df.to_excel(pad, index=False, engine="openpyxl")
+
+        logger.info(f"{len(definitions)} definities geëxporteerd naar Excel: {pad}")
+        return str(pad)
+
+    def _export_multiple_to_json(self, definitions: list[DefinitieRecord]) -> str:
+        """Exporteer meerdere definities naar JSON."""
+        # Genereer bestandsnaam
+        tijdstempel = datetime.now(UTC).strftime("%Y%m%d_%H%M%S")
+        bestandsnaam = f"definities_export_{tijdstempel}.json"
+        pad = self.export_dir / bestandsnaam
+
+        # Verzamel data
+        json_data = {
+            "export_info": {
+                "export_timestamp": datetime.now(UTC).isoformat(),
+                "export_version": "2.0",
+                "format": "json",
+                "total_definitions": len(definitions),
+            },
+            "definities": [],
+        }
+
+        for d in definitions:
+            export_data = self.data_aggregation_service.aggregate_definitie_for_export(
+                definitie_record=d
+            )
+
+            json_data["definities"].append(
+                {
+                    "begrip": export_data.begrip,
+                    "definitie": d.definitie,
+                    "categorie": d.categorie,
+                    "context": {
+                        "organisatorische_context": d.organisatorische_context,
+                        "juridische_context": d.juridische_context or "",
+                        "wettelijke_basis": d.wettelijke_basis or "",
+                    },
+                    "status": d.status,
+                    "validation_score": d.validation_score,
+                    "voorkeursterm": export_data.voorkeursterm,
+                    "voorbeelden": {
+                        "voorbeeld_zinnen": export_data.voorbeeld_zinnen,
+                        "praktijkvoorbeelden": export_data.praktijkvoorbeelden,
+                        "tegenvoorbeelden": export_data.tegenvoorbeelden,
+                    },
+                    "taalkundig": {
+                        "synoniemen": export_data.synoniemen,
+                        "antoniemen": export_data.antoniemen,
+                        "toelichting": export_data.toelichting,
+                    },
+                    "metadata": {
+                        "created_at": (
+                            d.created_at.isoformat() if d.created_at else None
+                        ),
+                        "updated_at": (
+                            d.updated_at.isoformat() if d.updated_at else None
+                        ),
+                    },
+                }
+            )
+
+        # Schrijf naar bestand
+        with open(pad, "w", encoding="utf-8") as f:
+            json.dump(json_data, f, ensure_ascii=False, indent=2)
+
+        logger.info(f"{len(definitions)} definities geëxporteerd naar JSON: {pad}")
+        return str(pad)
+
+    def _export_multiple_to_txt(self, definitions: list[DefinitieRecord]) -> str:
+        """Exporteer meerdere definities naar TXT."""
+        # Genereer bestandsnaam
+        tijdstempel = datetime.now(UTC).strftime("%Y%m%d_%H%M%S")
+        bestandsnaam = f"definities_export_{tijdstempel}.txt"
+        pad = self.export_dir / bestandsnaam
+
+        lines = [
+            "DEFINITIE EXPORT",
+            "=" * 80,
+            f"Aantal definities: {len(definitions)}",
+            f"Export datum: {datetime.now(UTC).strftime('%Y-%m-%d %H:%M:%S')}",
+            "=" * 80,
+            "",
+        ]
+
+        for d in definitions:
+            export_data = self.data_aggregation_service.aggregate_definitie_for_export(
+                definitie_record=d
+            )
+
+            lines.extend(
+                [
+                    f"Begrip: {d.begrip}",
+                    f"Definitie: {d.definitie}",
+                    f"Categorie: {d.categorie}",
+                    f"Context: {d.organisatorische_context}",
+                    f"Status: {d.status}",
+                    f"Validation score: {d.validation_score or 'n/a'}",
+                    "",
+                ]
+            )
+
+            if export_data.voorkeursterm:
+                lines.append(f"Voorkeursterm: {export_data.voorkeursterm}")
+
+            if export_data.voorbeeld_zinnen:
+                lines.append("Voorbeeld zinnen:")
+                for vb in export_data.voorbeeld_zinnen:
+                    lines.append(f"  - {vb}")
+                lines.append("")
+
+            if export_data.praktijkvoorbeelden:
+                lines.append("Praktijkvoorbeelden:")
+                for vb in export_data.praktijkvoorbeelden:
+                    lines.append(f"  - {vb}")
+                lines.append("")
+
+            if export_data.tegenvoorbeelden:
+                lines.append("Tegenvoorbeelden:")
+                for vb in export_data.tegenvoorbeelden:
+                    lines.append(f"  - {vb}")
+                lines.append("")
+
+            if export_data.toelichting:
+                lines.append(f"Toelichting: {export_data.toelichting}")
+                lines.append("")
+
+            lines.extend(["-" * 80, ""])
+
+        # Schrijf naar bestand
+        with open(pad, "w", encoding="utf-8") as f:
+            f.write("\n".join(lines))
+
+        logger.info(f"{len(definitions)} definities geëxporteerd naar TXT: {pad}")
         return str(pad)
 
     def get_export_history(self, begrip: str | None = None) -> list[dict[str, Any]]:
