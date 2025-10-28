@@ -1,0 +1,166 @@
+{
+  "export_info": {
+    "export_timestamp": "2025-10-28T14:17:23.351438+00:00",
+    "export_version": "2.0",
+    "format": "json",
+    "total_definitions": 3
+  },
+  "definities": [
+    {
+      "begrip": "identiteitskenmerk",
+      "definitie": "biometrische of biografische eigenschap van een persoon die bijdraagt om deze persoon te onderscheiden van anderen.\n\nToelichting: Hier gaat het om de eigenschap (bijv. gezicht) van of de toegekende beschrijving (bijv. naam) aan de persoon in de werkelijkheid.",
+      "categorie": "resultaat",
+      "context": {
+        "organisatorische_context": "[\"Strafrechtketen\"]",
+        "juridische_context": "[\"Strafrecht\"]",
+        "wettelijke_basis": "[]"
+      },
+      "status": "draft",
+      "validation_score": null,
+      "voorkeursterm": "",
+      "voorbeelden": {
+        "voorbeeld_zinnen": [
+          "Binnen de strafrechtketen wordt het identiteitskenmerk gebruikt om verdachten te herkennen en te onderscheiden.",
+          "Het verwerken van een identiteitskenmerk, zoals een vingerafdruk, speelt een cruciale rol binnen het strafrecht.",
+          "Zonder een uniek identiteitskenmerk kan het in de strafrechtketen lastig zijn om personen betrouwbaar te identificeren."
+        ],
+        "praktijkvoorbeelden": [
+          "Opnemen van vingerafdrukken bij aanhouding: **Situatie:**",
+          "Wanneer een verdachte wordt aangehouden door de politie, worden diens vingerafdrukken afgenomen en opgeslagen in het opsporingssysteem (HAVANK).",
+          "**",
+          "Toelichting: **",
+          "Vingerafdrukken zijn een biometrisch identiteitskenmerk. Hiermee kan gecontroleerd worden of de persoon eerder met politie of justitie in aanraking is geweest, en kan men de identiteit van de verdachte bevestigen of uitsluiten.",
+          "---",
+          "Het controleren van persoonsgegevens in de rechtbank: **Situatie:**",
+          "Bij aanvang van een rechtszaak verifieert de rechter-commissaris zorgvuldig de persoonsgegevens (zoals volledige naam, geboortedatum en -plaats, BSN) van de verdachte.",
+          "**",
+          "Toelichting: **",
+          "Deze biografische identiteitskenmerken worden gebruikt om zeker te stellen dat men daadwerkelijk de juiste persoon voor zich heeft voordat de rechtszaak verdergaat.",
+          "---",
+          "Gebruik van dna-profielen bij het oplossen van strafzaken: **Situatie:**",
+          "In een zedenzaak vraagt het Openbaar Ministerie na het veiligstellen van dna-sporen op de plaats delict, om het dna-profiel van een verdachte te vergelijken met de afgenomen monsters.",
+          "**",
+          "Toelichting: **",
+          "Dna-profielen zijn unieke biometrische identiteitskenmerken, waarmee een persoon met vrijwel absolute zekerheid geïdentificeerd of uitgesloten kan worden als betrokkene bij de zaak.",
+          "---",
+          "**Samengevat:** In de strafrechtketen zijn identiteitskenmerken essentieel voor correcte identificatie van verdachten, het voorkomen van persoonsverwisseling, en het koppelen van strafbare feiten aan de juiste persoon."
+        ],
+        "tegenvoorbeelden": [
+          "Registratienummer van een verdachte: - **Uitleg:** Dit is een uniek administratief nummer dat aan een verdachte wordt toegekend door politie of justitie.",
+          "- **Waarom geen identiteitskenmerk:** Het registratienummer is geen biografische of biometrische eigenschap van een persoon, maar een door de organisatie toegekend gegeven. Het zegt niets over het fysieke of levensbeschrijvende profiel van een persoon.",
+          "---",
+          "Zaaknummer of dossiernummer: - **Uitleg:** Dit is het nummer waaronder een specifieke strafzaak administratief wordt geregistreerd.",
+          "- **Waarom geen identiteitskenmerk:** Hoewel ieder dossier aan een persoon te koppelen kan zijn, is het zaaknummer geen intrinsieke eigenschap van de persoon zelf. Het nummer hoort bij het dossier, niet bij de persoon.",
+          "---",
+          "Status van voorlopige hechtenis: - **Uitleg:** Geeft aan of iemand momenteel in voorlopige hechtenis zit binnen het strafproces.",
+          "- **Waarom geen identiteitskenmerk:** Dit is een juridische of procedurele status en heeft niets te maken met biologische of biografische eigenschappen van de persoon. Iedereen kan deze status krijgen, ongeacht persoonlijke kenmerken.",
+          "---",
+          "#### Samenvatting:",
+          "Al deze voorbeelden zijn wél belangrijk binnen de strafrechtketen om personen of zaken te traceren of administreren, maar het zijn **geen identiteitskenmerken** omdat ze niet zijn gebaseerd op biometrische of biografische eigenschappen van de persoon zelf."
+        ]
+      },
+      "taalkundig": {
+        "synoniemen": "identiteitsgegeven, persoonskenmerk, biometrisch gegeven, uniek persoonsgegeven, identificatiekenmerk",
+        "antoniemen": "Anonimiteit, Uniformiteit, Onherkenbaarheid, Collectief kenmerk, Algemene eigenschap",
+        "toelichting": "In de strafrechtketen betekent een identiteitskenmerk een persoonlijk kenmerk, zoals een vingerafdruk of geboortedatum, waarmee iemand uniek geïdentificeerd kan worden om verwisseling of vergissingen te voorkomen; dit is essentieel om ervoor te zorgen dat de juiste persoon in het strafproces wordt betrokken, omdat nauwkeurige identificatie voorkomt dat onschuldigen onterecht worden vervolgd of veroordeeld en bevordert dat strafzaken efficiënt en rechtvaardig verlopen."
+      },
+      "metadata": {
+        "created_at": "2025-09-24T07:24:25.071316+00:00",
+        "updated_at": "2025-10-27T14:43:23.521090+00:00"
+      }
+    },
+    {
+      "begrip": "identiteitsgegeven",
+      "definitie": "representatie van een identiteitskenmerk.\n\nToelichting: Dit is de beschrijving van identiteitskenmerken in een registratie.\n · Identiteitsgegevens kennen verschillende mate van selectiviteit van een persoon; het ene kenmerk (‘vingerafdruk’) is met meer zekerheid te koppelen aan een specifieke persoon dan een ander kenmerk (‘haarkleur’).",
+      "categorie": "type",
+      "context": {
+        "organisatorische_context": "[\"Strafrechtketen\"]",
+        "juridische_context": "[\"Strafrecht\"]",
+        "wettelijke_basis": "[]"
+      },
+      "status": "draft",
+      "validation_score": null,
+      "voorkeursterm": "",
+      "voorbeelden": {
+        "voorbeeld_zinnen": [
+          "Bij het opstellen van het proces-verbaal registreert de politie elk identiteitsgegeven van de verdachte.",
+          "In de strafrechtketen is het zorgvuldig vastleggen van elk identiteitsgegeven essentieel voor een correcte dossiervorming.",
+          "Het Openbaar Ministerie controleert of de identiteitsgegevens in het strafdossier overeenkomen met de officiële registraties."
+        ],
+        "praktijkvoorbeelden": [
+          "Opstellen van een proces-verbaal na een aanhouding**",
+          "Nadat een verdachte is aangehouden door de politie, worden in het proces-verbaal diverse identiteitsgegevens opgenomen, zoals naam, geboortedatum, geboorteplaats en adres van de verdachte. Deze identificatie is cruciaal om de juiste persoon aan een strafbaar feit te koppelen.",
+          "Verificatie van identiteit bij het uitvoeren van een huiszoeking**",
+          "Tijdens een huiszoeking moet de politie controleren of de aanwezige personen overeenkomen met de betrokkenen in het onderzoek. Hierbij vergelijkt men identiteitsgegevens (zoals het Burgerservicenummer of paspoortnummer) van personen ter plaatse met de gegevens in het strafdossier.",
+          "Uitwisseling van verdachte-informatie tussen ketenpartners**",
+          "Wanneer het Openbaar Ministerie een verdachte overdraagt aan het gevangeniswezen voor voorlopige hechtenis, worden de identiteitsgegevens (zoals signalement, foto, vingerafdrukken) van de verdachte gedeeld om verwisseling of vergissingen te voorkomen en te waarborgen dat de juiste persoon wordt vastgehouden.",
+          "Deze voorbeelden laten zien hoe identiteitsgegevens binnen de strafrechtketen een centrale rol spelen bij identificatie, verificatie en uitwisseling van informatie over verdachten."
+        ],
+        "tegenvoorbeelden": [
+          "Strafbladregistratie (het overzicht van eerdere veroordelingen): **",
+          "- **Waarom niet?** Een strafblad betreft behaalde uitkomsten (veroordelingen) en gedragsinformatie, geen beschrijving van een kenmerk waarmee iemands identiteit wordt vastgesteld. Het is afgeleid van het handelen van een persoon, niet van diens identiteitskenmerken zoals naam, geboortedatum of BSN.",
+          "Zaaknummer (van een strafproces): **",
+          "- **Waarom niet?** Een zaaknummer is administratief en uniek voor een juridisch dossier, maar zegt niets over iemands identiteit of kenmerken van een persoon. Het verwijst naar een zaak, niet naar een individu of diens identiteit.",
+          "Tijdstip van een delict: **",
+          "- **Waarom niet?** Dit gegeven is relevant voor het reconstrueren van gebeurtenissen in een strafzaak, maar is geen kenmerk van de identiteit van een natuurlijk persoon. Het betreft feitelijke contextinformatie van een gebeurtenis, niet van een individu.",
+          "**Samenvatting:**",
+          "Bovenstaande voorbeelden zijn allemaal gegevens die in de strafrechtketen voorkomen en die soms dicht bij persoonsgegevens liggen, maar ze geven geen beschrijving van een identiteitskenmerk van een natuurlijk persoon en vallen dus niet onder de definitie van ‘identiteitsgegeven’."
+        ]
+      },
+      "taalkundig": {
+        "synoniemen": "persoonsgegeven, identificerend kenmerk, identiteitsspecificatie, persoonlijk gegeven, uniek identificatiekenmerk",
+        "antoniemen": "Onbekend gegeven, Anonimiteitskenmerk, Verzwegen eigenschap, Generiek kenmerk, Persoonsloos gegeven",
+        "toelichting": "In de strafrechtketen verwijst het begrip 'identiteitsgegeven' naar informatie die een persoon uniek identificeert, zoals naam, geboortedatum of BSN, en die essentieel is voor het correct vaststellen, registreren en uitwisselen van persoonsgegevens binnen strafrechtelijke processen; dit is belangrijk omdat accurate en eenduidige vaststelling van iemands identiteit essentieel is voor de rechtszekerheid, fraudepreventie en een zorgvuldig verloop van opsporing, vervolging en berechting."
+      },
+      "metadata": {
+        "created_at": "2025-09-24T07:24:25.077936+00:00",
+        "updated_at": "2025-10-27T14:19:39.578697+00:00"
+      }
+    },
+    {
+      "begrip": "persoon",
+      "definitie": "Een mens van vlees en bloed\n\nToelichting: Deze definitie beperkt zich tot natuurlijke personen",
+      "categorie": "type",
+      "context": {
+        "organisatorische_context": "[\"Strafrechtketen\"]",
+        "juridische_context": "[\"Strafrecht\"]",
+        "wettelijke_basis": "[]"
+      },
+      "status": "draft",
+      "validation_score": null,
+      "voorkeursterm": "",
+      "voorbeelden": {
+        "voorbeeld_zinnen": [
+          "In de strafrechtketen wordt onderscheid gemaakt tussen een persoon en een rechtspersoon als verdachte.",
+          "Een persoon kan binnen het strafrecht als getuige worden opgeroepen.",
+          "De politie richt haar onderzoek in de strafrechtketen meestal op een persoon als dader."
+        ],
+        "praktijkvoorbeelden": [
+          "1. Aanhouding van een verdachte door de politie**",
+          "Tijdens een opsporingsonderzoek identificeert de politie een verdachte van een diefstal. In het proces-verbaal noteert de politie dat \"deze persoon\" is aangehouden op verdenking van diefstal. Hier verwijst ‘persoon’ nadrukkelijk naar een mens van vlees en bloed, namelijk de verdachte die fysiek wordt vastgehouden en ondervraagd.",
+          "2. Getuigenverhoor bij de rechter-commissaris**",
+          "In een strafzaak roept de rechter-commissaris een getuige op voor verhoor. In het proces-verbaal wordt vastgesteld dat ‘de betreffende persoon’ ter zitting is verschenen en onder ede is gehoord over zijn waarnemingen. Ook hier is duidelijk dat het gaat om een fysieke mens, niet om een rechtspersoon of andere entiteit.",
+          "3. Identificatie bij binnenkomst van het Huis van Bewaring**",
+          "Bij binnenkomst in het Huis van Bewaring wordt een veroordeelde ‘persoon’ geïdentificeerd aan de hand van zijn identiteitsbewijs. Vervolgens wordt de persoon fysiek begeleid naar zijn cel. In deze context slaat ‘persoon’ weer op de concrete mens van vlees en bloed die fysiek wordt vastgehouden.",
+          "Deze voorbeelden zijn direct herkenbaar voor medewerkers binnen de strafrechtketen, zoals politie, OM, rechters en gevangenispersoneel."
+        ],
+        "tegenvoorbeelden": [
+          "Rechtspersoon (bv. een BV of stichting): - *Uitleg*: Een rechtspersoon zoals een besloten vennootschap (BV) of stichting kan in het strafrecht vervolgd worden, maar is geen \"mens van vlees en bloed\". Het is een juridische constructie.",
+          "Overheidsinstantie (bv. gemeenten, ministeries): - *Uitleg*: Ook overheidsinstanties kunnen in bepaalde gevallen aansprakelijk worden gesteld in strafrechtelijke contexten. Zij zijn echter organisaties, geen natuurlijke personen.",
+          "Groepsverband zonder rechtspersoonlijkheid (zoals een maatschap of samenwerkingsverband): - *Uitleg*: Een samenwerkingsverband zonder rechtspersoonlijkheid kan, afhankelijk van de situatie, in het strafrecht betrokken worden. Maar dit verband bestaat uit meerdere personen en is zelf geen individu van vlees en bloed.",
+          "**Samenvatting:**",
+          "Deze voorbeelden zijn alle relevant binnen het strafrecht en de strafrechtketen, maar vallen niet onder 'persoon' volgens de beperking tot \"mens van vlees en bloed\". Ze zijn ofwel juridische constructies, organisaties of collectieven, en dus géén individuele natuurlijke personen."
+        ]
+      },
+      "taalkundig": {
+        "synoniemen": "natuurlijk persoon, individu, mens, fysiek persoon, rechtssubject",
+        "antoniemen": "Rechtspersoon, Fictieve entiteit, Dier, Onbezield object, Natuurlijk fenomeen",
+        "toelichting": "Binnen de strafrechtketen verwijst het begrip 'persoon' specifiek naar een individueel mens van vlees en bloed die als verdachte, slachtoffer, verdachte of getuige betrokken kan zijn bij strafzaken; deze afbakening is belangrijk omdat het bepaalt wie juridisch als subject kan worden aangemerkt in strafrechtelijke procedures, zodat bijvoorbeeld alleen natuurlijke personen, en niet organisaties of rechtspersonen, onder bepaalde strafrechtelijke bepalingen, zoals vrijheidsstraffen of persoonlijke maatregelen, kunnen vallen."
+      },
+      "metadata": {
+        "created_at": "2025-09-24T07:24:25.249470+00:00",
+        "updated_at": "2025-10-27T11:43:42.920602+00:00"
+      }
+    }
+  ]
+}

@@ -2,6 +2,28 @@
 
 This file provides guidance and memory for Codex CLI.
 
+## 🎯 Cross-Platform Agent Instructions
+
+**IMPORTANT:** All agents (BMad, Claude Code, Codex) must follow cross-platform rules defined in:
+
+**`~/.ai-agents/UNIFIED_INSTRUCTIONS.md`** - Core principles including:
+- 🎯 **VIBE CODING PRINCIPLES** - AI-assisted development patterns (Context-Rich, Show Me First, Incremental, Archaeology First)
+- 🚫 **FORBIDDEN PATTERNS** - Import blacklist, code duplication prevention
+- 🎯 **APPROVAL LADDER** - Clear thresholds for auto-approve vs require approval
+- 🔄 **WORKFLOW SELECTION** - When to use ANALYSIS, DOCUMENT, HOTFIX, FULL_TDD, REFACTOR
+- 📝 **NAMING CONVENTIONS** - Canonical names (e.g., `ValidationOrchestratorV2`, `organisatorische_context`)
+
+**Instruction Precedence (Highest → Lowest):**
+1. `~/.ai-agents/UNIFIED_INSTRUCTIONS.md` (PRIMAIR - applies to ALL agents)
+2. `AGENTS.md` (this file - BMad Method specific)
+3. `CLAUDE.md` (Claude Code specific)
+4. `~/.ai-agents/quality-gates.yaml`
+5. `~/.ai-agents/agent-mappings.yaml`
+
+**For DefinitieAgent-specific patterns:**
+- See `CLAUDE.md` → "AI-Assisted Development met Vibe Coding" section
+- See `docs/methodologies/vibe-coding/PATTERNS.md` → Full pattern catalog with project examples
+
 <!-- BEGIN: BMAD-AGENTS -->
 # BMAD-METHOD Agents and Tasks
 
