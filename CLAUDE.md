@@ -311,6 +311,62 @@ De applicatie gebruikt Streamlit's session state uitgebreid. Belangrijke state v
 - Import volgorde: standard library, third-party, lokaal
 - Gebruik ALTIJD canonical names (zie UNIFIED voor lijst)
 
+### AI-Assisted Development met Vibe Coding
+
+> **📚 Voor Vibe Coding core patterns, zie:**
+> **`~/.ai-agents/UNIFIED_INSTRUCTIONS.md`** → Sectie "VIBE CODING PRINCIPLES" (cross-platform)
+>
+> **Voor DefinitieAgent-specifieke voorbeelden:**
+> `docs/methodologies/vibe-coding/PATTERNS.md` → Volledige pattern catalog met DefinitieAgent cases
+> `docs/methodologies/vibe-coding/GUIDE.md` → Step-by-step implementation guide
+
+**Vibe Coding** is de primaire methodologie voor AI-assisted development in DefinitieAgent. De core patterns zijn gedefinieerd in `UNIFIED_INSTRUCTIONS.md` voor cross-platform support (Claude Code, BMad agents, Codex).
+
+#### DefinitieAgent-Specifieke Context
+
+**Brownfield Refactoring Focus** (kritiek voor dit project!):
+
+- DefinitieAgent is **refactor-heavy** - veel legacy code met business logica
+- **ALTIJD Archaeology First** - analyseer bestaande code voor business kennis
+- **Geen backwards compatibility** - single-user app, niet in productie
+- **"Surgical strikes"** - 1 module tegelijk, geen complete rewrites
+- **Business logic preservation** - extraheer domeinkennis tijdens refactoring
+
+**Project-Specifieke Voorbeelden:**
+
+**Context-Rich Request** (DefinitieAgent style):
+```text
+✅ "In ValidationOrchestratorV2, the 45 validation rules are loaded 10x
+    during startup. Check US-202 analysis and implement RuleCache with
+    @cached decorator for bulk loading."
+```
+
+**Incremental Changes** (concrete metrics):
+```text
+✅ "Reduce PromptOrchestrator tokens from 7.250 to <5.000:
+    1. Identify duplicate fragments
+    2. Implement template cache
+    3. Test with 45 validation rules
+    4. Measure reduction"
+```
+
+#### Pattern Selection voor DefinitieAgent
+
+| Scenario | Aanbevolen Pattern | Rationale |
+|----------|-------------------|-----------|
+| Legacy code refactor | Archaeology First + Business-First | Preserveer business logica |
+| Performance issue | Context-Rich + Incremental | Concrete metrics verplicht |
+| God object cleanup | Business-First + Show Me First | Impact analysis kritiek |
+| Quick bug fix | Context-Rich only | Verifieer component/scope |
+
+**Voor volledige pattern catalog:**
+- 9 patterns met XML tags voor structured prompts
+- Real DefinitieAgent cases (US-202, dry_helpers.py refactor)
+- Integration tests + metrics framework
+- BMad + UNIFIED workflow alignment
+
+**➡️ Zie: `docs/methodologies/vibe-coding/PATTERNS.md`**
+
 ### Test Vereisten
 
 - Nieuwe features vereisen tests

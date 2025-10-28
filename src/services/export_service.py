@@ -29,8 +29,118 @@ class ExportFormat(Enum):
     TXT = "txt"
     JSON = "json"
     CSV = "csv"
+    EXCEL = "xlsx"
     DOCX = "docx"
     PDF = "pdf"
+
+
+class ExportLevel(Enum):
+    """Export detail levels - hoeveel velden worden geëxporteerd."""
+
+    BASIS = "basis"  # 17 velden: definitie + voorbeelden
+    UITGEBREID = "uitgebreid"  # 25 velden: + metadata, process, users
+    COMPLEET = "compleet"  # 37 velden: alle database velden
+
+
+# Field configuration per export level
+EXPORT_LEVEL_FIELDS = {
+    ExportLevel.BASIS: {
+        "definitie": [
+            "begrip",
+            "definitie",
+            "categorie",
+            "organisatorische_context",
+            "juridische_context",
+            "wettelijke_basis",
+            "status",
+            "validation_score",
+            "created_at",
+            "updated_at",
+        ],
+        "voorbeelden": [
+            "voorkeursterm",
+            "voorbeeld_zinnen",
+            "praktijkvoorbeelden",
+            "tegenvoorbeelden",
+            "synoniemen",
+            "antoniemen",
+            "toelichting",
+        ],
+    },
+    ExportLevel.UITGEBREID: {
+        "definitie": [
+            "begrip",
+            "definitie",
+            "categorie",
+            "organisatorische_context",
+            "juridische_context",
+            "wettelijke_basis",
+            "ufo_categorie",  # + Ontologie
+            "status",
+            "validation_score",
+            "validation_date",  # + Validatie details
+            "validation_issues",  # + Validatie details
+            "toelichting_proces",  # + Proces notities
+            "source_type",  # + Bron tracking
+            "created_at",
+            "updated_at",
+            "created_by",  # + User info
+            "updated_by",  # + User info
+            "ketenpartners",  # + Team info
+        ],
+        "voorbeelden": [
+            "voorkeursterm",
+            "voorbeeld_zinnen",
+            "praktijkvoorbeelden",
+            "tegenvoorbeelden",
+            "synoniemen",
+            "antoniemen",
+            "toelichting",
+        ],
+    },
+    ExportLevel.COMPLEET: {
+        "definitie": [
+            "id",
+            "begrip",
+            "definitie",
+            "categorie",
+            "organisatorische_context",
+            "juridische_context",
+            "wettelijke_basis",
+            "ufo_categorie",
+            "toelichting_proces",
+            "status",
+            "version_number",
+            "previous_version_id",
+            "validation_score",
+            "validation_date",
+            "validation_issues",
+            "source_type",
+            "source_reference",
+            "imported_from",
+            "created_at",
+            "updated_at",
+            "created_by",
+            "updated_by",
+            "datum_voorstel",
+            "ketenpartners",
+            "approved_by",
+            "approved_at",
+            "approval_notes",
+            "last_exported_at",
+            "export_destinations",
+        ],
+        "voorbeelden": [
+            "voorkeursterm",
+            "voorbeeld_zinnen",
+            "praktijkvoorbeelden",
+            "tegenvoorbeelden",
+            "synoniemen",
+            "antoniemen",
+            "toelichting",
+        ],
+    },
+}
 
 
 class ExportService:
@@ -93,11 +203,27 @@ class ExportService:
             Pad naar het geëxporteerde bestand
         """
         # Aggregeer data
-        export_data = self.data_aggregation_service.aggregate_definitie_for_export(
-            definitie_id=definitie_id,
-            definitie_record=definitie_record,
-            additional_data=additional_data,
-        )
+        try:
+            export_data = self.data_aggregation_service.aggregate_definitie_for_export(
+                definitie_id=definitie_id,
+                definitie_record=definitie_record,
+                additional_data=additional_data,
+            )
+        except ValueError as e:
+            # Definitie niet gevonden in database
+            logger.error(
+                f"Export failed: definitie not found (ID: {definitie_id}): {e}"
+            )
+            msg = f"Kan definitie {definitie_id} niet exporteren: niet gevonden"
+            raise ValueError(msg) from e
+        except Exception as e:
+            # Database of aggregatie fout
+            logger.error(
+                f"Export failed: data aggregation error (ID: {definitie_id}): {e}",
+                exc_info=True,
+            )
+            msg = f"Export mislukt: {e!s}"
+            raise RuntimeError(msg) from e
 
         # Validatiegate alleen via async pad ondersteund
         if self.enable_validation_gate and self.validation_orchestrator is not None:
@@ -308,6 +434,363 @@ class ExportService:
 
         logger.info(f"Definitie geëxporteerd naar CSV: {pad}")
         return str(pad)
+
+    def export_multiple_definitions(
+        self,
+        definitions: list[DefinitieRecord],
+        format: ExportFormat = ExportFormat.CSV,
+        level: ExportLevel = ExportLevel.BASIS,
+    ) -> str:
+        """
+        Exporteer meerdere definities naar het opgegeven formaat.
+
+        Args:
+            definitions: Lijst van definitie records
+            format: Export formaat
+            level: Export detail level (BASIS, UITGEBREID, COMPLEET)
+
+        Returns:
+            Pad naar het geëxporteerde bestand
+        """
+        if format == ExportFormat.CSV:
+            return self._export_multiple_to_csv(definitions, level)
+        elif format == ExportFormat.EXCEL:
+            return self._export_multiple_to_excel(definitions, level)
+        elif format == ExportFormat.JSON:
+            return self._export_multiple_to_json(definitions, level)
+        elif format == ExportFormat.TXT:
+            return self._export_multiple_to_txt(definitions, level)
+        else:
+            raise NotImplementedError(
+                f"Bulk export voor formaat {format} nog niet geïmplementeerd"
+            )
+
+    def _generate_export_path(self, format: ExportFormat) -> Path:
+        """
+        Generate timestamped export file path.
+
+        Args:
+            format: Export format (determines file extension)
+
+        Returns:
+            Path object for export file
+
+        Example:
+            >>> self._generate_export_path(ExportFormat.CSV)
+            Path("/exports/definities_export_20250128_143022.csv")
+        """
+        timestamp = datetime.now(UTC).strftime("%Y%m%d_%H%M%S")
+        filename = f"definities_export_{timestamp}.{format.value}"
+        return self.export_dir / filename
+
+    def _prepare_export_data(
+        self,
+        definitions: list[DefinitieRecord],
+        level: ExportLevel,
+    ) -> tuple[list[dict[str, Any]], list[str]]:
+        """
+        Collect and build export rows for all definitions.
+
+        Args:
+            definitions: List of DefinitieRecord to export
+            level: Export level determining which fields to include
+
+        Returns:
+            Tuple of (rows, fieldnames) where:
+            - rows: List of dictionaries with export data
+            - fieldnames: List of field names in order
+
+        Raises:
+            No exceptions raised - skips definitions with errors and logs warning
+
+        Example:
+            >>> data, fields = self._prepare_export_data(definitions, ExportLevel.BASIS)
+            >>> len(fields)  # BASIS has 17 fields
+            17
+        """
+        fields_config = EXPORT_LEVEL_FIELDS[level]
+        fieldnames = fields_config["definitie"] + fields_config["voorbeelden"]
+
+        data = []
+        for d in definitions:
+            try:
+                export_data = (
+                    self.data_aggregation_service.aggregate_definitie_for_export(
+                        definitie_record=d
+                    )
+                )
+                row = self._build_export_row(d, export_data, level)
+                data.append(row)
+            except Exception as e:
+                # Log maar skip deze definitie - geen hele export laten falen
+                logger.warning(
+                    f"Definitie {d.id} ({d.begrip}) overgeslagen bij export: {e}",
+                    exc_info=True,
+                )
+                continue
+
+        return data, fieldnames
+
+    def _build_export_row(
+        self,
+        definitie: DefinitieRecord,
+        export_data: DefinitieExportData,
+        level: ExportLevel,
+    ) -> dict[str, Any]:
+        """
+        Build export row dict met velden volgens export level.
+
+        Args:
+            definitie: Definitie record uit database
+            export_data: Geaggregeerde export data (met voorbeelden)
+            level: Export detail level
+
+        Returns:
+            Dictionary met geselecteerde velden
+        """
+        fields_config = EXPORT_LEVEL_FIELDS[level]
+        row = {}
+
+        # Definitie velden uit database
+        for field in fields_config["definitie"]:
+            value = getattr(definitie, field, None)
+
+            # Special handling voor bepaalde velden
+            if field in ["created_at", "updated_at"] and value:
+                # Voor Excel: strip timezone
+                row[field] = value.replace(tzinfo=None) if value.tzinfo else value
+            elif field in [
+                "validation_issues",
+                "ketenpartners",
+                "export_destinations",
+            ]:
+                # JSON velden: converteer naar string
+                row[field] = str(value) if value else ""
+            elif field == "datum_voorstel" and value:
+                row[field] = (
+                    value.isoformat() if hasattr(value, "isoformat") else str(value)
+                )
+            else:
+                row[field] = value or ""
+
+        # Voorbeelden velden uit export_data
+        if "voorkeursterm" in fields_config["voorbeelden"]:
+            row["voorkeursterm"] = export_data.voorkeursterm or ""
+        if "voorbeeld_zinnen" in fields_config["voorbeelden"]:
+            # Use semicolon delimiter (Dutch CSV standard) to avoid conflicts with pipe characters in text
+            row["voorbeeld_zinnen"] = (
+                "; ".join(export_data.voorbeeld_zinnen)
+                if export_data.voorbeeld_zinnen
+                else ""
+            )
+        if "praktijkvoorbeelden" in fields_config["voorbeelden"]:
+            # Use semicolon delimiter (Dutch CSV standard) to avoid conflicts with pipe characters in text
+            row["praktijkvoorbeelden"] = (
+                "; ".join(export_data.praktijkvoorbeelden)
+                if export_data.praktijkvoorbeelden
+                else ""
+            )
+        if "tegenvoorbeelden" in fields_config["voorbeelden"]:
+            # Use semicolon delimiter (Dutch CSV standard) to avoid conflicts with pipe characters in text
+            row["tegenvoorbeelden"] = (
+                "; ".join(export_data.tegenvoorbeelden)
+                if export_data.tegenvoorbeelden
+                else ""
+            )
+        if "synoniemen" in fields_config["voorbeelden"]:
+            row["synoniemen"] = export_data.synoniemen or ""
+        if "antoniemen" in fields_config["voorbeelden"]:
+            row["antoniemen"] = export_data.antoniemen or ""
+        if "toelichting" in fields_config["voorbeelden"]:
+            row["toelichting"] = export_data.toelichting or ""
+
+        return row
+
+    def _export_multiple_to_csv(
+        self,
+        definitions: list[DefinitieRecord],
+        level: ExportLevel = ExportLevel.BASIS,
+    ) -> str:
+        """Exporteer meerdere definities naar CSV."""
+        import csv
+
+        # Prepare data using helper
+        data, fieldnames = self._prepare_export_data(definitions, level)
+        path = self._generate_export_path(ExportFormat.CSV)
+
+        # Format-specific: CSV writing
+        with open(path, "w", newline="", encoding="utf-8") as csvfile:
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            writer.writeheader()
+
+            for row in data:
+                # Convert datetime to ISO string for CSV compatibility
+                for field in fieldnames:
+                    if field in row and isinstance(row[field], datetime):
+                        row[field] = row[field].isoformat()
+                writer.writerow(row)
+
+        logger.info(
+            f"{len(data)} definities geëxporteerd naar CSV ({level.value}): {path}"
+        )
+        return str(path)
+
+    def _export_multiple_to_excel(
+        self,
+        definitions: list[DefinitieRecord],
+        level: ExportLevel = ExportLevel.BASIS,
+    ) -> str:
+        """Exporteer meerdere definities naar Excel."""
+        import pandas as pd
+
+        # Prepare data using helper (datetime already timezone-naive in helper)
+        data, fieldnames = self._prepare_export_data(definitions, level)
+        path = self._generate_export_path(ExportFormat.EXCEL)
+
+        # Format-specific: Excel writing with pandas
+        df = pd.DataFrame(data, columns=fieldnames)
+        df.to_excel(path, index=False, engine="openpyxl")
+
+        logger.info(
+            f"{len(data)} definities geëxporteerd naar Excel ({level.value}): {path}"
+        )
+        return str(path)
+
+    def _export_multiple_to_json(
+        self,
+        definitions: list[DefinitieRecord],
+        level: ExportLevel = ExportLevel.BASIS,
+    ) -> str:
+        """Exporteer meerdere definities naar JSON."""
+        # Prepare data using helper
+        data, _ = self._prepare_export_data(definitions, level)
+        path = self._generate_export_path(ExportFormat.JSON)
+
+        # Format-specific: JSON structure with metadata
+        json_data = {
+            "export_info": {
+                "export_timestamp": datetime.now(UTC).isoformat(),
+                "export_version": "2.0",
+                "format": "json",
+                "export_level": level.value,
+                "total_definitions": len(data),
+            },
+            "definities": [],
+        }
+
+        # Convert datetime objects to ISO strings for JSON
+        for row in data:
+            for key, value in row.items():
+                if isinstance(value, datetime):
+                    row[key] = value.isoformat()
+            json_data["definities"].append(row)
+
+        # Write to file
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(json_data, f, ensure_ascii=False, indent=2)
+
+        logger.info(
+            f"{len(data)} definities geëxporteerd naar JSON ({level.value}): {path}"
+        )
+        return str(path)
+
+    def _export_multiple_to_txt(
+        self,
+        definitions: list[DefinitieRecord],
+        level: ExportLevel = ExportLevel.BASIS,
+    ) -> str:
+        """Exporteer meerdere definities naar TXT."""
+        # Prepare data using helper
+        data, _ = self._prepare_export_data(definitions, level)
+        path = self._generate_export_path(ExportFormat.TXT)
+
+        # Format-specific: Human-readable text with headers
+        lines = [
+            "DEFINITIE EXPORT",
+            "=" * 80,
+            f"Aantal definities: {len(data)}",
+            f"Export niveau: {level.value.upper()}",
+            f"Export datum: {datetime.now(UTC).strftime('%Y-%m-%d %H:%M:%S')}",
+            "=" * 80,
+            "",
+        ]
+
+        # Field labels voor mooie weergave
+        field_labels = {
+            "id": "ID",
+            "begrip": "Begrip",
+            "definitie": "Definitie",
+            "categorie": "Categorie",
+            "organisatorische_context": "Organisatorische context",
+            "juridische_context": "Juridische context",
+            "wettelijke_basis": "Wettelijke basis",
+            "ufo_categorie": "UFO categorie",
+            "toelichting_proces": "Toelichting proces",
+            "status": "Status",
+            "version_number": "Versie",
+            "previous_version_id": "Vorige versie ID",
+            "validation_score": "Validatie score",
+            "validation_date": "Validatie datum",
+            "validation_issues": "Validatie issues",
+            "source_type": "Bron type",
+            "source_reference": "Bron referentie",
+            "imported_from": "Geïmporteerd van",
+            "created_at": "Aangemaakt op",
+            "updated_at": "Bijgewerkt op",
+            "created_by": "Aangemaakt door",
+            "updated_by": "Bijgewerkt door",
+            "datum_voorstel": "Datum voorstel",
+            "ketenpartners": "Ketenpartners",
+            "approved_by": "Goedgekeurd door",
+            "approved_at": "Goedgekeurd op",
+            "approval_notes": "Goedkeurings notities",
+            "last_exported_at": "Laatst geëxporteerd op",
+            "export_destinations": "Export bestemmingen",
+            "voorkeursterm": "Voorkeursterm",
+            "voorbeeld_zinnen": "Voorbeeld zinnen",
+            "praktijkvoorbeelden": "Praktijkvoorbeelden",
+            "tegenvoorbeelden": "Tegenvoorbeelden",
+            "synoniemen": "Synoniemen",
+            "antoniemen": "Antoniemen",
+            "toelichting": "Toelichting",
+        }
+
+        # Format each definition
+        for row in data:
+            # Toon alleen niet-lege velden
+            for field, value in row.items():
+                if value:  # Skip lege strings, None, etc.
+                    # Converteer datetime naar leesbare string
+                    if isinstance(value, datetime):
+                        value = value.strftime("%Y-%m-%d %H:%M:%S")
+
+                    label = field_labels.get(field, field.replace("_", " ").title())
+
+                    # Speciale weergave voor lijst velden (komen als "; " separated string)
+                    if field in [
+                        "voorbeeld_zinnen",
+                        "praktijkvoorbeelden",
+                        "tegenvoorbeelden",
+                    ]:
+                        lines.append(f"{label}:")
+                        items = value.split("; ") if isinstance(value, str) else []
+                        for item in items:
+                            if item:
+                                lines.append(f"  - {item}")
+                        lines.append("")
+                    else:
+                        lines.append(f"{label}: {value}")
+
+            lines.extend(["-" * 80, ""])
+
+        # Write to file
+        with open(path, "w", encoding="utf-8") as f:
+            f.write("\n".join(lines))
+
+        logger.info(
+            f"{len(data)} definities geëxporteerd naar TXT ({level.value}): {path}"
+        )
+        return str(path)
 
     def get_export_history(self, begrip: str | None = None) -> list[dict[str, Any]]:
         """
