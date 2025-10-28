@@ -19977,6 +19977,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Export Architecture Problem - Visual Diagram",
+      "path": "../diagrams/export-architecture-problem.md",
+      "url": "../diagrams/export-architecture-problem.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/diagrams/export-architecture-problem.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Legacy Code Removal Plan",
       "path": "../planning/LEGACY_REMOVAL_PLAN.md",
       "url": "../planning/LEGACY_REMOVAL_PLAN.md",
@@ -49760,6 +49791,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Export Fix Implementation Guide",
+      "path": "../guides/EXPORT_FIX_IMPLEMENTATION_GUIDE.md",
+      "url": "../guides/EXPORT_FIX_IMPLEMENTATION_GUIDE.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/guides/EXPORT_FIX_IMPLEMENTATION_GUIDE.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Ontology Classification - Quick Start Guide",
       "path": "../guides/ONTOLOGY_CLASSIFICATION_QUICKSTART.md",
       "url": "../guides/ONTOLOGY_CLASSIFICATION_QUICKSTART.md",
@@ -53756,6 +53818,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Export Field Comparison: Current vs Recommended",
+      "path": "../reports/export-field-comparison.md",
+      "url": "../reports/export-field-comparison.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/reports/export-field-comparison.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Code Simplification Analysis & Implementation Summary",
       "path": "../reports/SIMPLIFICATION_SUMMARY.md",
       "url": "../reports/SIMPLIFICATION_SUMMARY.md",
@@ -53816,6 +53909,37 @@
         "req": []
       },
       "rendered_url": "rendered/reports/PERFORMANCE_WINS.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Export Enhancement Quick Start Guide",
+      "path": "../reports/export-enhancement-quickstart.md",
+      "url": "../reports/export-enhancement-quickstart.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/reports/export-enhancement-quickstart.html"
     },
     {
       "id": null,
@@ -55033,6 +55157,39 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Terminology Export Standards Analysis & Recommendations",
+      "path": "../reports/terminology-export-standards-analysis.md",
+      "url": "../reports/terminology-export-standards-analysis.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [
+          "EPIC-016"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/reports/terminology-export-standards-analysis.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "CRITICAL & HIGH PRIORITY FIXES APPLIED",
       "path": "../reports/CRITICAL-FIXES-APPLIED.md",
       "url": "../reports/CRITICAL-FIXES-APPLIED.md",
@@ -55281,6 +55438,37 @@
         "req": []
       },
       "rendered_url": "rendered/reports/performance-optimization-verification.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Export Data Limitation - Root Cause Analysis",
+      "path": "../reports/EXPORT_DATA_LIMITATION_ANALYSIS.md",
+      "url": "../reports/EXPORT_DATA_LIMITATION_ANALYSIS.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/reports/EXPORT_DATA_LIMITATION_ANALYSIS.html"
     },
     {
       "id": null,
@@ -55988,7 +56176,7 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 931,
+      "DOC": 937,
       "EPIC": 35,
       "US": 375,
       "BUG": 28,
@@ -55998,7 +56186,7 @@
       "TEST": 35,
       "COMP": 5
     },
-    "generated_at": "2025-10-27T15:15:04Z"
+    "generated_at": "2025-10-28T09:17:48Z"
   },
   "sources": [
     "docs"

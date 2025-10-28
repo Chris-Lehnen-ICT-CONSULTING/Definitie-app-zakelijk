@@ -138,7 +138,7 @@ class DataAggregationService:
             export_data.metadata = {
                 "id": definitie_record.id,
                 "status": definitie_record.status,
-                "versie": definitie_record.versie,
+                "versie": definitie_record.version_number,
                 "categorie": definitie_record.categorie,
                 "datum_voorstel": definitie_record.created_at,
                 "voorsteller": definitie_record.created_by or "Systeem",
@@ -201,6 +201,37 @@ class DataAggregationService:
             # Timestamps
             export_data.created_at = definitie_record.created_at
             export_data.updated_at = definitie_record.updated_at
+
+            # Haal voorbeelden op uit database (DEF-43 fix)
+            if definitie_record.id:
+                voorbeelden_dict = self.repository.get_voorbeelden_by_type(
+                    definitie_record.id
+                )
+
+                # Map database types naar export fields
+                export_data.voorbeeld_zinnen = voorbeelden_dict.get("sentence", [])
+                export_data.praktijkvoorbeelden = voorbeelden_dict.get("practical", [])
+                export_data.tegenvoorbeelden = voorbeelden_dict.get("counter", [])
+
+                # Synoniemen/antoniemen/toelichting zijn teksten, niet lijsten
+                synoniemen_list = voorbeelden_dict.get("synonyms", [])
+                export_data.synoniemen = (
+                    "\n".join(synoniemen_list) if synoniemen_list else ""
+                )
+
+                antoniemen_list = voorbeelden_dict.get("antonyms", [])
+                export_data.antoniemen = (
+                    "\n".join(antoniemen_list) if antoniemen_list else ""
+                )
+
+                toelichting_list = voorbeelden_dict.get("explanation", [])
+                export_data.toelichting = (
+                    "\n\n".join(toelichting_list) if toelichting_list else ""
+                )
+
+            # Voorkeursterm uit definitie record (al aanwezig in database)
+            if definitie_record.voorkeursterm:
+                export_data.voorkeursterm = definitie_record.voorkeursterm
 
         # Merge met additional data indien aanwezig
         if additional_data:
