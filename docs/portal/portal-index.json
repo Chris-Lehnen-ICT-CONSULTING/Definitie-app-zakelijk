@@ -55376,6 +55376,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Phase 2: Export Service Refactoring - Complete Report",
+      "path": "../reports/PHASE_2_EXPORT_REFACTORING_COMPLETE.md",
+      "url": "../reports/PHASE_2_EXPORT_REFACTORING_COMPLETE.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/reports/PHASE_2_EXPORT_REFACTORING_COMPLETE.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Session State Flags Implementation Summary",
       "path": "../reports/session_state_flags_implementation.md",
       "url": "../reports/session_state_flags_implementation.md",
@@ -56207,7 +56238,7 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 938,
+      "DOC": 939,
       "EPIC": 35,
       "US": 375,
       "BUG": 28,
@@ -56217,7 +56248,7 @@
       "TEST": 35,
       "COMP": 5
     },
-    "generated_at": "2025-10-28T14:55:59Z"
+    "generated_at": "2025-10-28T15:29:13Z"
   },
   "sources": [
     "docs"
