@@ -1074,13 +1074,45 @@ class DefinitieRepository:
 
         return success
 
+    def get_all(self) -> list[DefinitieRecord]:
+        """
+        Haal alle definities op zonder limit.
+
+        Returns:
+            List van alle DefinitieRecord objecten
+        """
+        return self.search_definities(limit=None)
+
+    def get_by_status(self, status: str) -> list[DefinitieRecord]:
+        """
+        Haal definities op gefilterd op status.
+
+        Args:
+            status: Status waarde (string zoals 'draft', 'established', etc.)
+
+        Returns:
+            List van DefinitieRecord objecten met de gegeven status
+
+        Raises:
+            ValueError: Als status geen geldige DefinitieStatus waarde is
+        """
+        try:
+            status_enum = DefinitieStatus(status)
+        except ValueError as e:
+            valid_statuses = ", ".join([s.value for s in DefinitieStatus])
+            raise ValueError(
+                f"Ongeldige status '{status}'. Toegestane waarden: {valid_statuses}"
+            ) from e
+
+        return self.search_definities(status=status_enum, limit=None)
+
     def search_definities(
         self,
         query: str | None = None,
         categorie: OntologischeCategorie = None,
         organisatorische_context: str | None = None,
         status: DefinitieStatus = None,
-        limit: int = 100,
+        limit: int | None = 100,
     ) -> list[DefinitieRecord]:
         """
         Zoek definities met verschillende filters.
@@ -1090,7 +1122,7 @@ class DefinitieRepository:
             categorie: Filter op categorie
             organisatorische_context: Filter op organisatie
             status: Filter op status
-            limit: Maximum aantal resultaten
+            limit: Maximum aantal resultaten (None voor onbeperkt)
 
         Returns:
             List van DefinitieRecord objecten

@@ -138,7 +138,7 @@ class DataAggregationService:
             export_data.metadata = {
                 "id": definitie_record.id,
                 "status": definitie_record.status,
-                "versie": definitie_record.versie,
+                "versie": definitie_record.version_number,
                 "categorie": definitie_record.categorie,
                 "datum_voorstel": definitie_record.created_at,
                 "voorsteller": definitie_record.created_by or "Systeem",
@@ -202,8 +202,69 @@ class DataAggregationService:
             export_data.created_at = definitie_record.created_at
             export_data.updated_at = definitie_record.updated_at
 
+            # Haal voorbeelden op uit database (DEF-43 fix)
+            if definitie_record.id:
+                try:
+                    voorbeelden_dict = self.repository.get_voorbeelden_by_type(
+                        definitie_record.id
+                    )
+                except Exception as e:
+                    logger.warning(
+                        f"Failed to retrieve voorbeelden for definitie {definitie_record.id}: {e}"
+                    )
+                    voorbeelden_dict = {}
+
+                # Map database types naar export fields
+                export_data.voorbeeld_zinnen = voorbeelden_dict.get("sentence", [])
+                export_data.praktijkvoorbeelden = voorbeelden_dict.get("practical", [])
+                export_data.tegenvoorbeelden = voorbeelden_dict.get("counter", [])
+
+                # Synoniemen/antoniemen: CSV-compatible comma separator (not newline!)
+                # Multiple DB rows joined with ", " for proper CSV export
+                synoniemen_list = voorbeelden_dict.get("synonyms", [])
+                export_data.synoniemen = (
+                    ", ".join(str(s) for s in synoniemen_list if s)
+                    if synoniemen_list
+                    else ""
+                )
+
+                antoniemen_list = voorbeelden_dict.get("antonyms", [])
+                export_data.antoniemen = (
+                    ", ".join(str(a) for a in antoniemen_list if a)
+                    if antoniemen_list
+                    else ""
+                )
+
+                # Toelichting: double newline for multi-paragraph text
+                toelichting_list = voorbeelden_dict.get("explanation", [])
+                export_data.toelichting = (
+                    "\n\n".join(str(t) for t in toelichting_list if t)
+                    if toelichting_list
+                    else ""
+                )
+
+            # Voorkeursterm uit definitie record (al aanwezig in database)
+            if definitie_record.voorkeursterm:
+                export_data.voorkeursterm = definitie_record.voorkeursterm
+
         # Merge met additional data indien aanwezig
         if additional_data:
+            # Warn about conflicts between database and session data (DEF-43)
+            if definitie_record and definitie_record.id:
+                list_fields = [
+                    "voorbeeld_zinnen",
+                    "praktijkvoorbeelden",
+                    "tegenvoorbeelden",
+                ]
+                for field in list_fields:
+                    db_value = getattr(export_data, field, [])
+                    session_value = additional_data.get(field, [])
+                    if db_value and session_value and db_value != session_value:
+                        logger.warning(
+                            f"Export conflict for {field}: DB has {len(db_value)} items, "
+                            f"session has {len(session_value)} items. Using session data."
+                        )
+
             self._merge_additional_data(export_data, additional_data)
 
         logger.debug(f"Geaggregeerde export data voor begrip '{export_data.begrip}'")

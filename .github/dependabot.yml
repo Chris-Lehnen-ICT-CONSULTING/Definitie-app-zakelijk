@@ -26,7 +26,11 @@ updates:
         update-types:
           - "minor"
           - "patch"
-    
+    # Ignore mando updates due to radon dependency conflict
+    ignore:
+      - dependency-name: "mando"
+        update-types: ["version-update:semver-major", "version-update:semver-minor", "version-update:semver-patch"]
+
   # GitHub Actions updates
   - package-ecosystem: "github-actions"
     directory: "/"
