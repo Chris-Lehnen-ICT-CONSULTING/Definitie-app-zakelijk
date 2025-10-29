@@ -47,6 +47,10 @@ logs/
 # 💚 Exports (generated files) - NEW STRUCTURE
 exports/definitions/
 exports/reports/
+# Ignore test export artifacts (timestamped files)
+exports/definitie_*_202*.txt
+exports/definitie_*_202*.csv
+exports/definities_export_202*.*
 
 # 💚 OS files
 .DS_Store
