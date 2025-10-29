@@ -13,9 +13,18 @@ from datetime import datetime
 from typing import Any
 
 # Import bestaande repository voor backward compatibility
-from database.definitie_repository import DefinitieRecord
-from database.definitie_repository import DefinitieRepository as LegacyRepository
-from database.definitie_repository import DefinitieStatus, SourceType
+from database.definitie_repository import (
+    DefinitieRecord,
+    DefinitieRepository as LegacyRepository,
+    DefinitieStatus,
+    SourceType,
+)
+from services.exceptions import (
+    DatabaseConnectionError,
+    DatabaseConstraintError,
+    DuplicateDefinitionError,
+    RepositoryError,
+)
 from services.interfaces import Definition, DefinitionRepositoryInterface
 
 logger = logging.getLogger(__name__)
@@ -61,10 +70,11 @@ class DefinitionRepository(DefinitionRepositoryInterface):
             ID van de opgeslagen definitie
 
         Raises:
-            sqlite3.Error: Bij database fouten
+            DuplicateDefinitionError: Als definitie al bestaat
+            DatabaseConstraintError: Bij database constraint violations
+            DatabaseConnectionError: Bij database verbindingsproblemen
+            RepositoryError: Bij andere repository fouten
         """
-        self._stats["total_saves"] += 1
-
         try:
             # Gebruik legacy repository voor opslag
             if definition.id:
@@ -74,7 +84,12 @@ class DefinitionRepository(DefinitionRepositoryInterface):
                 if definition.metadata and "updated_by" in definition.metadata:
                     updated_by = definition.metadata["updated_by"]
                 self.legacy_repo.update_definitie(definition.id, updates, updated_by)
+                self._stats["total_saves"] += 1
+                logger.info(
+                    f"Updated definition '{definition.begrip}' (ID: {definition.id})"
+                )
                 return definition.id
+
             # Maak nieuwe
             # Converteer Definition naar DefinitieRecord
             record = self._definition_to_record(definition)
@@ -87,13 +102,83 @@ class DefinitionRepository(DefinitionRepositoryInterface):
                     allow_duplicate = True
             except Exception:
                 allow_duplicate = False
-            return self.legacy_repo.create_definitie(
+
+            result_id = self.legacy_repo.create_definitie(
                 record, allow_duplicate=allow_duplicate
             )
 
-        except Exception as e:
-            logger.error(f"Fout bij opslaan definitie: {e}")
+            if not result_id or result_id <= 0:
+                raise RepositoryError(
+                    operation="create",
+                    begrip=definition.begrip,
+                    message=f"Invalid ID returned: {result_id}",
+                )
+
+            self._stats["total_saves"] += 1
+            logger.info(
+                f"Created definition '{definition.begrip}' (ID: {result_id}, "
+                f"categorie: {definition.categorie})"
+            )
+            return result_id
+
+        except ValueError as e:
+            # Legacy repo raises ValueError for duplicates
+            if "bestaat al" in str(e).lower() or "already exists" in str(e).lower():
+                raise DuplicateDefinitionError(
+                    begrip=definition.begrip, message=str(e)
+                ) from e
+            # Other ValueErrors
+            raise RepositoryError(
+                operation="save", begrip=definition.begrip, message=str(e)
+            ) from e
+
+        except sqlite3.IntegrityError as e:
+            error_msg = str(e).lower()
+            if "not null" in error_msg or "null constraint" in error_msg:
+                # Extract field name from error message
+                field = "unknown"
+                if "categorie" in error_msg:
+                    field = "categorie"
+                raise DatabaseConstraintError(
+                    field=field,
+                    begrip=definition.begrip,
+                    message=f"NOT NULL constraint failed for field '{field}': {e}",
+                ) from e
+            if "unique" in error_msg or "duplicate" in error_msg:
+                raise DuplicateDefinitionError(
+                    begrip=definition.begrip,
+                    message=f"Definition already exists: {e}",
+                ) from e
+            # Other integrity errors
+            raise DatabaseConstraintError(
+                field="unknown",
+                begrip=definition.begrip,
+                message=f"Database constraint violated: {e}",
+            ) from e
+
+        except sqlite3.OperationalError as e:
+            logger.error(f"Database connection failed for '{definition.begrip}': {e}")
+            raise DatabaseConnectionError(
+                db_path=self.db_path, message=f"Database unavailable: {e}"
+            ) from e
+
+        except (
+            DuplicateDefinitionError,
+            DatabaseConstraintError,
+            DatabaseConnectionError,
+        ):
+            # Re-raise our custom exceptions
             raise
+
+        except Exception as e:
+            logger.exception(
+                f"Unexpected error saving '{definition.begrip}': {e}", exc_info=True
+            )
+            raise RepositoryError(
+                operation="save",
+                begrip=definition.begrip,
+                message=f"Unexpected error: {e}",
+            ) from e
 
     def get(self, definition_id: int) -> Definition | None:
         """
@@ -507,11 +592,24 @@ class DefinitionRepository(DefinitionRepositoryInterface):
         except Exception:
             pass
 
+        # CRITICAL FIX DEF-53: Ensure categorie has a value
+        # Try ontologische_categorie first, then categorie, fallback to "proces"
+        category_value = (
+            definition.categorie
+            or getattr(definition, "ontologische_categorie", None)
+            or "proces"
+        )
+        logger.debug(
+            f"Category mapping: categorie={definition.categorie}, "
+            f"ontologische_categorie={getattr(definition, 'ontologische_categorie', None)}, "
+            f"final={category_value}"
+        )
+
         record = DefinitieRecord(
             id=definition.id,
             begrip=definition.begrip,
             definitie=definition.definitie,
-            categorie=definition.categorie or "proces",
+            categorie=category_value,
             ufo_categorie=getattr(definition, "ufo_categorie", None),
             toelichting_proces=getattr(definition, "toelichting_proces", None),
             organisatorische_context=_json.dumps(
