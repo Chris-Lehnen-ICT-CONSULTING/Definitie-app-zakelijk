@@ -23,22 +23,28 @@ UTC = UTC  # Python 3.10 compatibility  # noqa: PLW0127
 import contextlib
 from typing import TYPE_CHECKING, Any, Optional
 
-from services.interfaces import AIServiceInterface as IntelligentAIService
+from services.exceptions import (
+    DatabaseConnectionError,
+    DatabaseConstraintError,
+    DuplicateDefinitionError,
+    RepositoryError,
+)
 from services.interfaces import (
+    AIServiceInterface as IntelligentAIService,
     CleaningServiceInterface,
     Definition,
     DefinitionOrchestratorInterface,
     DefinitionRepositoryInterface,
     DefinitionResponseV2,
+    EnhancementServiceInterface as EnhancementService,
+    FeedbackEngineInterface as FeedbackEngine,
+    GenerationRequest,
+    MonitoringServiceInterface as MonitoringService,
+    OrchestratorConfig,
+    PromptServiceInterface as PromptServiceV2,
+    SecurityServiceInterface as SecurityService,
+    ValidationResult,
 )
-from services.interfaces import EnhancementServiceInterface as EnhancementService
-from services.interfaces import FeedbackEngineInterface as FeedbackEngine
-from services.interfaces import GenerationRequest
-from services.interfaces import MonitoringServiceInterface as MonitoringService
-from services.interfaces import OrchestratorConfig
-from services.interfaces import PromptServiceInterface as PromptServiceV2
-from services.interfaces import SecurityServiceInterface as SecurityService
-from services.interfaces import ValidationResult
 from services.validation.interfaces import ValidationOrchestratorInterface
 from utils.dict_helpers import safe_dict_get
 from utils.type_helpers import ensure_dict, ensure_list, ensure_string
@@ -1006,6 +1012,7 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             wettelijke_basis=request.wettelijke_basis or [],
             # EPIC-010: domein field verwijderd
             ontologische_categorie=request.ontologische_categorie,  # V2: Properly set
+            categorie=request.ontologische_categorie,  # DEF-53 fix: explicit mapping to DB field
             ufo_categorie=getattr(request, "ufo_categorie", None),
             valid=safe_dict_get(validation_result, "is_acceptable", False),
             validation_violations=ensure_list(
@@ -1017,15 +1024,71 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
         )
 
     async def _safe_save_definition(self, definition: Definition) -> int | None:
-        """Safely save definition with error handling."""
+        """
+        Safely save definition with comprehensive error handling.
+
+        Returns:
+            Definition ID if successful, None if repository doesn't support save
+
+        Raises:
+            DuplicateDefinitionError: If definition already exists
+            DatabaseConstraintError: If database constraints violated
+            DatabaseConnectionError: If database unavailable
+            RepositoryError: For other repository errors
+        """
+        # Check if repository supports save
+        if not hasattr(self.repository, "save"):
+            logger.error(
+                f"Repository {type(self.repository).__name__} does not have save() method! "
+                f"Available methods: {[m for m in dir(self.repository) if not m.startswith('_')]}"
+            )
+            return None
+
+        # Log save attempt
+        logger.info(
+            f"Attempting to save definition: begrip='{definition.begrip}', "
+            f"categorie={definition.categorie}, "
+            f"ontologische_categorie={definition.ontologische_categorie}"
+        )
+
         try:
-            if hasattr(self.repository, "save"):
-                return self.repository.save(definition)
-            logger.warning("Repository does not support save operation")
-            return None
+            result = self.repository.save(definition)
+            logger.info(
+                f"Successfully saved definition '{definition.begrip}' with ID: {result}"
+            )
+            return result
+
+        except DuplicateDefinitionError as e:
+            logger.warning(
+                f"Duplicate definition detected: {e.begrip}. "
+                "User may want to update existing definition instead."
+            )
+            raise  # Let caller handle duplicate (may want to offer update option)
+
+        except DatabaseConstraintError as e:
+            logger.error(
+                f"Database constraint violation for '{e.begrip}': "
+                f"field='{e.field}', error={e}"
+            )
+            raise  # Critical error - should not happen after Fix 1
+
+        except DatabaseConnectionError as e:
+            logger.error(f"Database connection failed: {e.db_path}, error={e}")
+            raise  # Infrastructure issue - needs immediate attention
+
+        except RepositoryError as e:
+            logger.error(f"Repository error during {e.operation}: {e}")
+            raise  # Unexpected repository issue
+
         except Exception as e:
-            logger.error(f"Failed to save definition: {e!s}")
-            return None
+            # Catch any unexpected errors
+            logger.exception(
+                f"CRITICAL: Unexpected error saving '{definition.begrip}': {e!s}",
+                exc_info=True,
+            )
+            raise RepositoryError(
+                operation="save", begrip=definition.begrip, message=str(e)
+            ) from e
 
     async def _save_failed_attempt(
         self,
