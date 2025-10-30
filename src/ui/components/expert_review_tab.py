@@ -631,10 +631,10 @@ class ExpertReviewTab:
                     disabled=approve_disabled,
                     help=approve_help,
                 ):
-                    user = st.session_state.get("user", "expert")
+                    user = SessionStateManager.get_value("user", default="expert")
                     # Neem gewijzigde UFO‑categorie automatisch mee bij vaststellen
                     try:
-                        selected_ufo = st.session_state.get(
+                        selected_ufo = SessionStateManager.get_value(
                             f"review_ufo_{definitie.id}"
                         )
                         current_ufo = getattr(definitie, "ufo_categorie", None)
@@ -679,7 +679,7 @@ class ExpertReviewTab:
                 if st.button(
                     "Afwijzen", key=f"reject_btn_{definitie.id}", disabled=disabled
                 ):
-                    user = st.session_state.get("user", "expert")
+                    user = SessionStateManager.get_value("user", default="expert")
                     res = workflow.reject(
                         definition_id=definitie.id, user=user, reason=reason.strip()
                     )
@@ -702,7 +702,7 @@ class ExpertReviewTab:
                 key=f"unlock_btn_{definitie.id}",
                 disabled=disabled,
             ):
-                user = st.session_state.get("user", "expert")
+                user = SessionStateManager.get_value("user", default="expert")
                 # Gebruik DefinitionWorkflowService voor consistente statuswijziging
                 try:
                     from services.container import get_container
@@ -736,7 +736,7 @@ class ExpertReviewTab:
                 key=f"restore_btn_{definitie.id}",
                 disabled=disabled,
             ):
-                user = st.session_state.get("user", "expert")
+                user = SessionStateManager.get_value("user", default="expert")
                 try:
                     from services.container import get_container
 
@@ -958,12 +958,12 @@ class ExpertReviewTab:
                 updates["definitie"] = edited_def
 
             # Check voor aangepaste UFO categorie
-            ufo_selected = st.session_state.get(f"review_ufo_{definitie.id}")
+            ufo_selected = SessionStateManager.get_value(f"review_ufo_{definitie.id}")
             if ufo_selected and ufo_selected != getattr(definitie, "ufo_categorie", ""):
                 updates["ufo_categorie"] = ufo_selected if ufo_selected else None
 
             # Check voor aangepaste procesmatige toelichting
-            toelichting_proces = st.session_state.get(
+            toelichting_proces = SessionStateManager.get_value(
                 f"review_toelichting_proces_{definitie.id}"
             )
             if toelichting_proces != getattr(definitie, "toelichting_proces", ""):
