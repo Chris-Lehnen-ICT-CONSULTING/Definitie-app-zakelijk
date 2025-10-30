@@ -875,15 +875,26 @@ class DefinitionGeneratorTab:
                 return
 
             # Sla op met voorkeursterm uit session state
+            from models.voorbeelden_validation import validate_save_voorbeelden_input
+            from pydantic import ValidationError
+
             voorkeursterm = SessionStateManager.get_value("voorkeursterm", "")
-            repo.save_voorbeelden(
-                definitie_id=definitie_id,
-                voorbeelden_dict=to_save,
-                generation_model="ai",
-                generation_params=meta if isinstance(meta, dict) else None,
-                gegenereerd_door=ensure_string(meta.get("model") or "ai"),
-                voorkeursterm=voorkeursterm if voorkeursterm else None,
-            )
+
+            # DEF-74: Validate input before saving
+            try:
+                validated = validate_save_voorbeelden_input(
+                    definitie_id=definitie_id,
+                    voorbeelden_dict=to_save,
+                    generation_model="ai",
+                    generation_params=meta if isinstance(meta, dict) else None,
+                    gegenereerd_door=ensure_string(meta.get("model") or "ai"),
+                    voorkeursterm=voorkeursterm if voorkeursterm else None,
+                )
+                repo.save_voorbeelden(**validated.model_dump())
+            except ValidationError as e:
+                logger.error(f"Voorbeelden validation failed: {e}")
+                # Don't raise in auto-save context, just log
+                return
             SessionStateManager.set_value(flag_key, True)
             logger.info(
                 "Voorbeelden automatisch opgeslagen voor definitie %s", definitie_id
@@ -936,23 +947,33 @@ class DefinitionGeneratorTab:
                 return False
 
             repo = get_definitie_repository()
+            from models.voorbeelden_validation import validate_save_voorbeelden_input
+            from pydantic import ValidationError
+
             voorkeursterm = SessionStateManager.get_value("voorkeursterm", "")
-            repo.save_voorbeelden(
-                definitie_id=definitie_id,
-                voorbeelden_dict=to_save,
-                generation_model="ai",
-                generation_params=(
-                    ensure_dict(agent_result.get("metadata", {}))
-                    if isinstance(agent_result, dict)
-                    else None
-                ),
-                gegenereerd_door=ensure_string(
-                    (agent_result.get("metadata", {}) or {}).get("model")
-                    if isinstance(agent_result, dict)
-                    else "ai"
-                ),
-                voorkeursterm=voorkeursterm if voorkeursterm else None,
-            )
+
+            # DEF-74: Validate input before saving
+            try:
+                validated = validate_save_voorbeelden_input(
+                    definitie_id=definitie_id,
+                    voorbeelden_dict=to_save,
+                    generation_model="ai",
+                    generation_params=(
+                        ensure_dict(agent_result.get("metadata", {}))
+                        if isinstance(agent_result, dict)
+                        else None
+                    ),
+                    gegenereerd_door=ensure_string(
+                        (agent_result.get("metadata", {}) or {}).get("model")
+                        if isinstance(agent_result, dict)
+                        else "ai"
+                    ),
+                    voorkeursterm=voorkeursterm if voorkeursterm else None,
+                )
+                repo.save_voorbeelden(**validated.model_dump())
+            except ValidationError as e:
+                logger.error(f"Voorbeelden validation failed: {e}")
+                return False
             return True
         except Exception as e:
             logger.warning("Force opslaan voorbeelden mislukt: %s", e)

@@ -35,9 +35,7 @@ _VOORBEELD_FIELD_CONFIG = [
 
 
 def _sync_voorbeelden_to_widgets(
-    voorbeelden: dict[str, Any],
-    prefix: str,
-    force_overwrite: bool = False
+    voorbeelden: dict[str, Any], prefix: str, force_overwrite: bool = False
 ) -> None:
     """Sync voorbeelden dict to Streamlit widget session state keys.
 
@@ -55,6 +53,7 @@ def _sync_voorbeelden_to_widgets(
         - Preserveert user edits bij force_overwrite=False
         - Formatted output per field type (list vs string, newline vs comma join)
     """
+
     def k(name: str) -> str:
         return f"{prefix}_{name}"
 
@@ -85,7 +84,9 @@ def _sync_voorbeelden_to_widgets(
                 logger.debug(f"[SYNC] {widget_key} = '{content[:50]}...'")
 
     except Exception as e:
-        logger.error(f"[SYNC ERROR] Failed to sync voorbeelden to widgets: {e}", exc_info=True)
+        logger.error(
+            f"[SYNC ERROR] Failed to sync voorbeelden to widgets: {e}", exc_info=True
+        )
         # Re-raise to let caller handle (don't fail silently)
         raise
 
@@ -123,10 +124,13 @@ def render_examples_block(
 
     # DEBUG: Log resolved examples (only in dev mode)
     import os as _os
+
     if _os.getenv("DEV_MODE"):
-        logger.debug(f"[EXAMPLES] state_key={examples_state_key}, "
-                    f"counts: vz={len(current_examples.get('voorbeeldzinnen', []))}, "
-                    f"syn={len(current_examples.get('synoniemen', []))}")
+        logger.debug(
+            f"[EXAMPLES] state_key={examples_state_key}, "
+            f"counts: vz={len(current_examples.get('voorbeeldzinnen', []))}, "
+            f"syn={len(current_examples.get('synoniemen', []))}"
+        )
 
     # Optional: generate via AI (Edit tab only)
     if allow_generate:
@@ -135,7 +139,9 @@ def render_examples_block(
             can_call = True
             import os as _os2
 
-            if not (_os2.getenv("OPENAI_API_KEY") or _os2.getenv("OPENAI_API_KEY_PROD")):
+            if not (
+                _os2.getenv("OPENAI_API_KEY") or _os2.getenv("OPENAI_API_KEY_PROD")
+            ):
                 st.info(
                     "ℹ️ Geen OPENAI_API_KEY gevonden — voorbeelden genereren is uitgeschakeld."
                 )
@@ -187,8 +193,12 @@ def render_examples_block(
                         )
 
                         if not result:
-                            st.error("❌ Geen voorbeelden gegenereerd. Controleer logs.")
-                            logger.error(f"[GENERATE] genereer_alle_voorbeelden_async returned empty for term: {begrip}")
+                            st.error(
+                                "❌ Geen voorbeelden gegenereerd. Controleer logs."
+                            )
+                            logger.error(
+                                f"[GENERATE] genereer_alle_voorbeelden_async returned empty for term: {begrip}"
+                            )
                             return
 
                         # DEBUG: Log generated result (only in dev mode)
@@ -202,9 +212,7 @@ def render_examples_block(
                         # DEF-56 FIX: FORCE sync naar widget keys VOOR st.rerun()
                         # Safety measure voor Streamlit widget state race condition
                         _sync_voorbeelden_to_widgets(
-                            result,
-                            state_prefix,
-                            force_overwrite=True
+                            result, state_prefix, force_overwrite=True
                         )
                         logger.info("[GENERATE] Completed sync to widget keys")
 
@@ -214,11 +222,17 @@ def render_examples_block(
                         st.rerun()
 
                 except TimeoutError:
-                    st.error("⏱️ Timeout: Voorbeelden generatie duurde langer dan 90 seconden")
-                    logger.error(f"[GENERATE] Timeout during voorbeelden generation for term: {begrip}")
+                    st.error(
+                        "⏱️ Timeout: Voorbeelden generatie duurde langer dan 90 seconden"
+                    )
+                    logger.error(
+                        f"[GENERATE] Timeout during voorbeelden generation for term: {begrip}"
+                    )
                 except Exception as e:
                     st.error(f"❌ Fout bij genereren voorbeelden: {e}")
-                    logger.exception(f"[GENERATE] Exception during voorbeelden generation")
+                    logger.exception(
+                        "[GENERATE] Exception during voorbeelden generation"
+                    )
 
         with col_right:
             if st.checkbox("🔍 Debug: Voorbeelden Content", key=k("debug_examples")):
@@ -338,9 +352,7 @@ def render_examples_block(
             # DEF-56 FIX: Sync voorbeelden naar widget keys VOOR declaratie
             # Dit zorgt dat widgets auto-syncen met session state na st.rerun()
             _sync_voorbeelden_to_widgets(
-                current_examples,
-                state_prefix,
-                force_overwrite=False
+                current_examples, state_prefix, force_overwrite=False
             )
 
             # DEF-56 FIX: Gebruik ALLEEN key parameter (geen value)
@@ -431,7 +443,9 @@ def render_examples_block(
 
                 # Houd de keuze ook bij in de (globale) session state net als in generator-tab
                 try:
-                    SessionStateManager.set_value("voorkeursterm", selected_voorkeursterm or "")
+                    SessionStateManager.set_value(
+                        "voorkeursterm", selected_voorkeursterm or ""
+                    )
                 except Exception:
                     pass
 
@@ -475,17 +489,28 @@ def render_examples_block(
                             new_examples["toelichting"] = [tol.strip()]
 
                         # Persist in DB with voorkeursterm
+                        from models.voorbeelden_validation import validate_save_voorbeelden_input
+                        from pydantic import ValidationError
+
                         reviewer = (
                             SessionStateManager.get_value("reviewer_name") or "expert"
                         )
-                        repository.save_voorbeelden(
-                            definitie_id=int(definition.id),
-                            voorbeelden_dict=new_examples,
-                            gegenereerd_door=str(reviewer or "expert"),
-                            generation_model="manual",
-                            generation_params=None,
-                            voorkeursterm=selected_voorkeursterm,
-                        )
+
+                        try:
+                            # DEF-74: Validate input before saving
+                            validated = validate_save_voorbeelden_input(
+                                definitie_id=int(definition.id),
+                                voorbeelden_dict=new_examples,
+                                gegenereerd_door=str(reviewer or "expert"),
+                                generation_model="manual",
+                                generation_params=None,
+                                voorkeursterm=selected_voorkeursterm,
+                            )
+                            repository.save_voorbeelden(**validated.model_dump())
+                        except ValidationError as e:
+                            logger.error(f"Voorbeelden validation failed: {e}")
+                            st.error("⚠️ Ongeldige voorbeelden - controleer invoer")
+                            raise
 
                         # Update session state (flatten explanation back to str)
                         updated = {
