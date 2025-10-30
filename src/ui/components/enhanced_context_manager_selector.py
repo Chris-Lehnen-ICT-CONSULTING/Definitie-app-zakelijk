@@ -162,10 +162,12 @@ class EnhancedContextManagerSelector:
             "wet_multiselect": "wet_basis_values",
         }
 
+        from ui.session_state import SessionStateManager
+
         session_key = session_key_map.get(multiselect_key)
-        if session_key and session_key in st.session_state:
+        if session_key:
             # Clean up the session state to prevent conflicts
-            del st.session_state[session_key]
+            SessionStateManager.delete_value(session_key)
             logger.debug(f"Cleaned up session state key: {session_key}")
 
         # Also clean up the global multiselect keys (legacy) and any namespaced variants
@@ -174,9 +176,8 @@ class EnhancedContextManagerSelector:
             "cm_" + multiselect_key + "_global",
             multiselect_key,
         ]:
-            if key_variant in st.session_state:
-                del st.session_state[key_variant]
-                logger.debug(f"Cleaned up conflicting widget key: {key_variant}")
+            SessionStateManager.delete_value(key_variant)
+            logger.debug(f"Cleaned up conflicting widget key: {key_variant}")
 
         # Extract custom values (those not in base options)
         custom_values = [

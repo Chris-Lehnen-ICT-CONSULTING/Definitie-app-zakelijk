@@ -29,13 +29,11 @@ def ensure_session_value(key: str, default: Any = None) -> Any:
     Get or initialize a session state value with a default.
 
     Replaces repeated pattern:
-        if key not in st.session_state:
-            st.session_state[key] = default
-        return st.session_state[key]
+        SessionStateManager.get_value(key, default=default)
     """
-    if key not in st.session_state:
-        st.session_state[key] = default
-    return st.session_state[key]
+    from ui.session_state import SessionStateManager
+
+    return SessionStateManager.get_value(key, default=default)
 
 
 def update_session_values(**kwargs) -> None:
@@ -43,12 +41,14 @@ def update_session_values(**kwargs) -> None:
     Update multiple session state values at once.
 
     Replaces repeated pattern:
-        st.session_state["key1"] = value1
-        st.session_state["key2"] = value2
+        SessionStateManager.set_value("key1", value1)
+        SessionStateManager.set_value("key2", value2)
         ...
     """
+    from ui.session_state import SessionStateManager
+
     for key, value in kwargs.items():
-        st.session_state[key] = value
+        SessionStateManager.set_value(key, value)
 
 
 def clear_session_values(*keys: str) -> None:
@@ -56,13 +56,13 @@ def clear_session_values(*keys: str) -> None:
     Clear multiple session state values.
 
     Replaces repeated pattern:
-        if "key1" in st.session_state:
-            del st.session_state["key1"]
+        SessionStateManager.delete_value("key1")
         ...
     """
+    from ui.session_state import SessionStateManager
+
     for key in keys:
-        if key in st.session_state:
-            del st.session_state[key]
+        SessionStateManager.delete_value(key)
 
 
 # === Service Access Helpers ===
@@ -74,7 +74,7 @@ def get_service_safe(service_name: str) -> Any:
 
     Replaces repeated pattern:
         initialize_services_once()
-        container = st.session_state.get("service_container")
+        container = SessionStateManager.get_value("service_container")
         if not container:
             st.error("Service container not initialized")
             return None

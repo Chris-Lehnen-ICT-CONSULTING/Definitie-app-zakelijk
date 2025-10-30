@@ -58,8 +58,9 @@ class DefinitionGeneratorTab:
                 st.warning(
                     "Minstens één context is vereist (organisatorisch of juridisch of wettelijk) om te genereren of op te slaan."
                 )
-        except Exception:
-            pass
+        except Exception as e:
+            logger.error(f"Context validation check failed: {e}", exc_info=True)
+            st.error("⚠️ Fout bij context validatie - controleer invoer")
 
         if check_result:
             self._render_duplicate_check_results(check_result)
@@ -758,11 +759,12 @@ class DefinitionGeneratorTab:
             try:
                 if not def_id:
                     return
-                value = st.session_state.get(key)
+                from ui.session_state import SessionStateManager
+                value = SessionStateManager.get_value(key)
                 if value == "":
                     value = None
                 repo = get_definitie_repository()
-                user = st.session_state.get("user", "system")
+                user = SessionStateManager.get_value("user", default="system")
                 _ = repo.update_definitie(
                     int(def_id), {"ufo_categorie": value}, updated_by=user
                 )
@@ -1886,7 +1888,7 @@ class DefinitionGeneratorTab:
         """Bewerk bestaande definitie."""
         # Zet doel definitie en navigeer programmatic naar radio‑tab 'edit'
         SessionStateManager.set_value("editing_definition_id", definitie.id)
-        st.session_state["active_tab"] = "edit"
+        SessionStateManager.set_value("active_tab", "edit")
         st.success("✏️ Bewerk-tab geopend — laden van definitie…")
         st.rerun()
 
