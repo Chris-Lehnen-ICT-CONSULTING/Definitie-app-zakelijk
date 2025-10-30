@@ -418,7 +418,7 @@ def render_examples_block(
                 selected = st.selectbox(
                     "⭐ Voorkeursterm selecteren",
                     options=voorkeursterm_options,
-                    index=min(max(default_index, 0), len(voorkeelsterm_options) - 1),
+                    index=min(max(default_index, 0), len(voorkeursterm_options) - 1),
                     key=k("voorkeursterm_select"),
                     help="Selecteer de voorkeurs-term (kan ook het begrip zelf zijn)",
                 )
