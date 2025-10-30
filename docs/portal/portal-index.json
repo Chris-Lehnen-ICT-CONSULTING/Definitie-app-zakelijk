@@ -8952,6 +8952,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "DEF-54 Multi-Agent Analysis Validation Report",
+      "path": "../analyses/DEF54_MULTI_AGENT_ANALYSIS_VALIDATION.md",
+      "url": "../analyses/DEF54_MULTI_AGENT_ANALYSIS_VALIDATION.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/DEF54_MULTI_AGENT_ANALYSIS_VALIDATION.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Automated Synonym Suggestion Analysis voor DefinitieAgent",
       "path": "../analyses/SYNONYM_AUTOMATION_ANALYSIS.md",
       "url": "../analyses/SYNONYM_AUTOMATION_ANALYSIS.md",
@@ -56579,7 +56610,7 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 949,
+      "DOC": 950,
       "ARCH": 42,
       "COMP": 5,
       "TEST": 35,
@@ -56589,7 +56620,7 @@
       "BUG": 28,
       "REQ": 110
     },
-    "generated_at": "2025-10-30T09:21:15Z"
+    "generated_at": "2025-10-30T14:35:47Z"
   },
   "sources": [
     "docs"

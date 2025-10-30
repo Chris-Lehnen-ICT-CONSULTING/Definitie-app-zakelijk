@@ -16,6 +16,38 @@ from domain.ontological_categories import OntologischeCategorie
 from integration.definitie_checker import CheckAction, DefinitieChecker
 
 
+@pytest.fixture(autouse=True)
+def _cleanup_test_records():
+    """Clean up test records before and after each test."""
+    repo = get_definitie_repository()
+    test_begrippen = ["test_begrip_duplicate", "test_begrip_multi_category"]
+
+    # Cleanup BEFORE test
+    for begrip in test_begrippen:
+        records = repo.search_definities(query=begrip)
+        for record in records:
+            try:
+                # Delete via direct SQL to avoid any validation
+                with repo._get_connection() as conn:
+                    conn.execute("DELETE FROM definities WHERE id = ?", (record.id,))
+                    conn.commit()
+            except Exception:
+                pass  # Ignore deletion errors
+
+    yield  # Run test
+
+    # Cleanup AFTER test (for cleanliness)
+    for begrip in test_begrippen:
+        records = repo.search_definities(query=begrip)
+        for record in records:
+            try:
+                with repo._get_connection() as conn:
+                    conn.execute("DELETE FROM definities WHERE id = ?", (record.id,))
+                    conn.commit()
+            except Exception:
+                pass
+
+
 def test_duplicate_detection_with_same_category():
     """
     Test: Zelfde begrip + context + categorie → Moet BLOCKED worden.
@@ -80,11 +112,10 @@ def test_duplicate_detection_with_same_category():
         wettelijke_basis="[]",
     )
 
-    try:
+    # Should raise error for duplicate
+    error_msg = "bestaat al"
+    with pytest.raises((ValueError, Exception), match=error_msg):
         repo.create_definitie(record2)
-        raise AssertionError("Expected duplicate error, but creation succeeded")
-    except (ValueError, Exception) as e:
-        assert "bestaat al" in str(e).lower(), f"Expected duplicate error, got: {e}"
 
 
 def test_duplicate_detection_with_different_category():
