@@ -265,7 +265,7 @@ def main():
         return 1
 
     # Find export files with missing IDs
-    target_ids = {80, 81, 82, 83, 84, 85, 86, 87, 88, 90, 91}
+    target_ids = {77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 90, 91}
 
     export_files = [
         exports_dir / "definities_export_20251029_130927.txt",  # IDs 80-88
