@@ -551,7 +551,7 @@ class DefinitieRepository:
                         record.begrip,
                         record.organisatorische_context,
                         record.juridische_context or "",
-                        categorie=None,  # categorie is geen onderdeel van duplicate-criteria
+                        categorie=record.categorie,  # categorie IS onderdeel van duplicate-criteria (TYPE vs ROLE zijn verschillend)
                         wettelijke_basis=(
                             json.loads(record.wettelijke_basis)
                             if record.wettelijke_basis

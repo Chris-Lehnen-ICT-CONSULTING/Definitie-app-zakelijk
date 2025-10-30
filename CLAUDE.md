@@ -311,6 +311,65 @@ De applicatie gebruikt Streamlit's session state uitgebreid. Belangrijke state v
 - Import volgorde: standard library, third-party, lokaal
 - Gebruik ALTIJD canonical names (zie UNIFIED voor lijst)
 
+### Streamlit UI Patterns
+
+> **📚 Voor volledige Streamlit best practices, zie:**
+> `docs/guidelines/STREAMLIT_PATTERNS.md` → Comprehensive patterns gebaseerd op DEF-56 lessons learned
+
+**Kritieke Regels (gevalideerd door DEF-56 fix):**
+
+#### 1️⃣ Key-Only Widget Pattern (VERPLICHT)
+```python
+# ✅ CORRECT: Alleen key parameter
+st.text_area("Label", key="edit_23_field")
+
+# ❌ FOUT: value + key combinatie → race condition!
+st.text_area("Label", value=data, key="edit_23_field")
+```
+
+**Waarom:** Widgets met beide `value` en `key` parameters bewaren interne state over `st.rerun()` heen, wat resulteert in stale data ondanks correcte session state.
+
+#### 2️⃣ SessionStateManager is MANDATORY
+```python
+# ✅ CORRECT: Via SessionStateManager
+from ui.session_state import SessionStateManager
+value = SessionStateManager.get_value("my_key", default="")
+SessionStateManager.set_value("my_key", new_value)
+
+# ❌ FOUT: Directe st.session_state toegang
+import streamlit as st
+value = st.session_state["my_key"]  # VERBODEN in UI modules!
+```
+
+#### 3️⃣ State Initialization Volgorde
+```python
+# ✅ CORRECT: State VOOR widget
+SessionStateManager.set_value("my_key", "default")
+st.text_area("Label", key="my_key")
+
+# ❌ FOUT: Widget VOOR state init
+st.text_area("Label", key="my_key")
+SessionStateManager.set_value("my_key", "default")  # Te laat!
+```
+
+#### 4️⃣ Pre-Commit Enforcement
+Pre-commit hook `streamlit-anti-patterns` detecteert automatisch:
+- ❌ `value` + `key` combinaties
+- ❌ Directe `st.session_state` access in UI modules
+- ⚠️  Generieke widget keys (conflicts)
+
+**Test je wijzigingen:**
+```bash
+# Draai Streamlit pattern checker
+python scripts/check_streamlit_patterns.py
+
+# Of via pre-commit
+pre-commit run streamlit-anti-patterns --all-files
+```
+
+**Voor debugging, testing patterns en advanced scenarios:**
+→ Zie `docs/guidelines/STREAMLIT_PATTERNS.md`
+
 ### AI-Assisted Development met Vibe Coding
 
 > **📚 Voor Vibe Coding core patterns, zie:**
