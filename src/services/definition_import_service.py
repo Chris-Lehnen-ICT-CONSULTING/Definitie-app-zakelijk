@@ -11,6 +11,7 @@ geüpload.
 from __future__ import annotations
 
 import asyncio
+import logging
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from typing import Any
@@ -19,6 +20,8 @@ import pandas as pd
 
 from services.interfaces import Definition
 from services.validation.interfaces import ValidationResult
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -190,9 +193,19 @@ class DefinitionImportService:
                             voorkeursterm=voorkeursterm,
                         )
 
-            except Exception:
+            except Exception as e:
                 # Voorbeelden opslag is best-effort, hoofddefinitie is al opgeslagen
-                pass
+                logger.error(
+                    f"Voorbeelden save failed for definition {new_id}: {e}",
+                    exc_info=True,
+                    extra={
+                        "definitie_id": new_id,
+                        "voorbeelden_keys": (
+                            list(voorbeelden_dict.keys()) if voorbeelden_dict else []
+                        ),
+                    },
+                )
+                # Note: UI layer should check logs and warn user about partial save
 
         # Eenvoudige logging naar import_export_logs (bestemming=single_import_ui)
         try:

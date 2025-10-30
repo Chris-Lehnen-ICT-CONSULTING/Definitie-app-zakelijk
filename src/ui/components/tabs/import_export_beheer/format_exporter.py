@@ -11,6 +11,7 @@ import streamlit as st
 from database.definitie_repository import DefinitieRepository, DefinitieStatus
 from services.data_aggregation_service import DataAggregationService
 from services.export_service import ExportFormat, ExportLevel, ExportService
+from ui.session_state import SessionStateManager
 
 logger = logging.getLogger(__name__)
 
@@ -175,22 +176,22 @@ class FormatExporter:
         col1, col2 = st.columns([1, 1])
         with col1:
             if st.button("✅ Selecteer Alle", key="select_all"):
-                st.session_state.selected_definitions = options.copy()
+                SessionStateManager.set_value("selected_definitions", options.copy())
         with col2:
             if st.button("❌ Deselecteer Alle", key="deselect_all"):
-                st.session_state.selected_definitions = []
+                SessionStateManager.set_value("selected_definitions", [])
 
         # Multi-select widget
         selected_labels = st.multiselect(
             "Selecteer definities om te exporteren",
             options=options,
-            default=st.session_state.get("selected_definitions", []),
+            default=SessionStateManager.get_value("selected_definitions", default=[]),
             help="Selecteer één of meerdere definities",
             key="individual_multiselect",
         )
 
         # Update session state
-        st.session_state.selected_definitions = selected_labels
+        SessionStateManager.set_value("selected_definitions", selected_labels)
 
         # Preview van selectie
         if selected_labels:

@@ -105,7 +105,9 @@ class AsyncProgressTracker:
 
         # Check cancel button
         if self.cancel_button and self.state.is_running:
-            if st.session_state.get("cancel_async", False):
+            from ui.session_state import SessionStateManager
+
+            if SessionStateManager.get_value("cancel_async", default=False):
                 self.cancel()
 
     def is_cancelled(self) -> bool:
