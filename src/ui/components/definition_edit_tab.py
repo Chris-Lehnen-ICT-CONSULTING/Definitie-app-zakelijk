@@ -151,10 +151,11 @@ class DefinitionEditTab:
 
         with col2:
             # Status filter (NL labels → codes)
+            # Note: "Concept" is default (index=0), "Alle" toont ook archived
             status_options = {
+                "Concept": "draft",
                 "Alle": None,
                 "Geïmporteerd": "imported",
-                "Concept": "draft",
                 "In review": "review",
                 "Vastgesteld": "established",
                 "Gearchiveerd": "archived",
