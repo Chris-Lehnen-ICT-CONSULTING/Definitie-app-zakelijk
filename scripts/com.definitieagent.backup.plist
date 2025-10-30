@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- Service Label -->
+    <key>Label</key>
+    <string>com.definitieagent.backup</string>
+
+    <!-- Program to Run -->
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/bash</string>
+        <string>/Users/chrislehnen/Projecten/Definitie-app/scripts/auto_backup_database.sh</string>
+    </array>
+
+    <!-- Run every hour -->
+    <key>StartInterval</key>
+    <integer>3600</integer>
+
+    <!-- Also run at load (for testing) -->
+    <key>RunAtLoad</key>
+    <true/>
+
+    <!-- Standard output & error logging -->
+    <key>StandardOutPath</key>
+    <string>/Users/chrislehnen/Projecten/Definitie-app/logs/backup.log</string>
+
+    <key>StandardErrorPath</key>
+    <string>/Users/chrislehnen/Projecten/Definitie-app/logs/backup.error.log</string>
+
+    <!-- Working directory -->
+    <key>WorkingDirectory</key>
+    <string>/Users/chrislehnen/Projecten/Definitie-app</string>
+
+    <!-- Environment variables (if needed) -->
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+    </dict>
+
+    <!-- Keep job alive on failure -->
+    <key>KeepAlive</key>
+    <false/>
+
+    <!-- Don't run if battery is low -->
+    <key>LowPriorityIO</key>
+    <true/>
+</dict>
+</plist>
