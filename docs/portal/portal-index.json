@@ -9997,6 +9997,37 @@
     {
       "id": null,
       "type": "GUIDE",
+      "title": "Database Backup & Recovery Guide",
+      "path": "../guidelines/DATABASE_BACKUP_RECOVERY.md",
+      "url": "../guidelines/DATABASE_BACKUP_RECOVERY.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/guidelines/DATABASE_BACKUP_RECOVERY.html"
+    },
+    {
+      "id": null,
+      "type": "GUIDE",
       "title": "Canonieke Documentatie Locaties",
       "path": "../guidelines/CANONICAL_LOCATIONS.md",
       "url": "../guidelines/CANONICAL_LOCATIONS.md",
@@ -56806,13 +56837,13 @@
       "ARCH": 42,
       "COMP": 5,
       "TEST": 35,
-      "GUIDE": 16,
+      "GUIDE": 17,
       "EPIC": 35,
       "US": 375,
       "BUG": 28,
       "REQ": 110
     },
-    "generated_at": "2025-10-30T15:12:11Z"
+    "generated_at": "2025-10-30T15:45:55Z"
   },
   "sources": [
     "docs"
