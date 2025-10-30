@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Streamlit Best Practices & Anti-Patterns</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>Streamlit Best Practices & Anti-Patterns</h1>
+
+<p><strong>Status:</strong> Active | <strong>Last Updated:</strong> 2025-10-29 | <strong>Source:</strong> DEF-56 Root Cause Analysis</p>
+
+<p>Deze richtlijnen zijn gebaseerd op concrete bugs gevonden in DefinitieAgent en gevalideerd door Streamlit officiële documentatie (Context7 MCP) en deep research (Perplexity MCP).</p>
+
+<p>---</p>
+
+<h2>🎯 Core Principle: Key-Only Widget Pattern</h2>
+
+<p><strong>REGEL:</strong> Gebruik ALLEEN <code>key</code> parameter voor widgets die session state gebruiken. <strong>NOOIT</strong> <code>value</code> + <code>key</code> combineren.</p>
+
+<h3>✅ CORRECT Pattern</h3>
+
+<pre><code>import streamlit as st
+from ui.session_state import SessionStateManager
+
+# 1️⃣ Initialize session state VOOR widget declaratie
+state_key = "my_text_area"
+if not SessionStateManager.get_value(state_key):
+    SessionStateManager.set_value(state_key, "default value")
+
+# 2️⃣ Widget met ALLEEN key parameter
+text = st.text_area(
+    "Label",
+    key=state_key,  # ✅ Key only
+    help="Help text"
+)
+
+# 3️⃣ Gebruik widget return value of haal op uit session state
+value = SessionStateManager.get_value(state_key)</code></pre>
+
+<h3>❌ INCORRECT Pattern (Race Condition!)</h3>
+
+<pre><code># ❌ NEVER DO THIS: value + key combinatie
+text = st.text_area(
+    "Label",
+    value=some_variable,  # ❌ Race condition!
+    key=state_key         # Widget bewaart oude state
+)</code></pre>
+
+<p><strong>Waarom dit fout gaat:</strong></p>
+<ol>
+<li>Widget krijgt `value="old data"` bij eerste render</li>
+<li>User genereert nieuwe data → `some_variable` wordt ge-update</li>
+<li>`st.rerun()` triggert page refresh</li>
+<li>Widget's interne state blijft "old data" → **nieuwe `value` wordt genegeerd**</li>
+<li>Result: Widget toont oude data ondanks correcte session state</li>
+</ol>
+
+<p>---</p>
+
+<h2>🔄 State Synchronization Pattern</h2>
+
+<h3>Scenario: AI-Gegenereerde Content in Text Areas</h3>
+
+<p><strong>Use Case:</strong> Genereer data met AI, vul text areas, preserveer user edits.</p>
+
+<pre><code>from typing import Any
+from ui.session_state import SessionStateManager
+
+def sync_data_to_widgets(
+    data: dict[str, Any],
+    prefix: str,
+    force_overwrite: bool = False
+) -&gt; None:
+    """Sync data dictionary naar Streamlit widget session keys.
+
+    Args:
+        data: Dictionary met veld data
+        prefix: Session key prefix (bijv. 'edit_42')
+        force_overwrite: True = overschrijf alles (post-generatie)
+                        False = preserveer bestaande values (pre-widget)
+    """
+    for field_name, widget_suffix in FIELD_CONFIG:
+        widget_key = f"{prefix}_{widget_suffix}"
+
+        # Skip als al gezet EN niet force (preserveer user edits)
+        if not force_overwrite:
+            existing = SessionStateManager.get_value(widget_key, None)
+            if existing is not None:
+                continue
+
+        # Haal data op en format
+        value = data.get(field_name, "")
+        formatted = format_value(value)  # bijv. list → "\n".join()
+
+        # Schrijf naar session state
+        SessionStateManager.set_value(widget_key, formatted)
+
+# VOOR widget declaratie (preserveer edits)
+sync_data_to_widgets(current_data, "edit_23", force_overwrite=False)
+
+# Declareer widgets (key-only!)
+st.text_area("Field 1", key="edit_23_field1")
+st.text_area("Field 2", key="edit_23_field2")
+
+# NA AI generatie (force sync)
+new_data = generate_with_ai()
+sync_data_to_widgets(new_data, "edit_23", force_overwrite=True)
+st.rerun()  # Widgets tonen nieuwe data na rerun</code></pre>
+
+<p>---</p>
+
+<h2>🏗️ Architecture Compliance</h2>
+
+<h3>SessionStateManager is MANDATORY</h3>
+
+<p><strong>REGEL:</strong> Alle <code>st.session_state</code> toegang MOET via <code>SessionStateManager</code>.</p>
+
+<h4>✅ CORRECT</h4>
+
+<pre><code>from ui.session_state import SessionStateManager
+
+# Read
+value = SessionStateManager.get_value("my_key", default="fallback")
+
+# Write
+SessionStateManager.set_value("my_key", new_value)
+
+# Clear
+SessionStateManager.clear_value("my_key")</code></pre>
+
+<h4>❌ INCORRECT</h4>
+
+<pre><code>import streamlit as st
+
+# ❌ NEVER direct access
+value = st.session_state.get("my_key")
+st.session_state["my_key"] = new_value
+del st.session_state["my_key"]</code></pre>
+
+<p><strong>Waarom:</strong></p>
+<ul>
+<li>Centrale controle over state management</li>
+<li>Debuggen en logging op één plek</li>
+<li>Voorkomt circulaire dependencies</li>
+<li>Consistent met DefinitieAgent architectuur</li>
+</ul>
+
+<p>---</p>
+
+<h2>🚫 Common Anti-Patterns</h2>
+
+<h3>1. Widget State Pollution</h3>
+
+<p><strong>Problem:</strong> Widget state blijft hangen tussen tabs/sessions.</p>
+
+<pre><code># ❌ BAD: Generieke keys zonder context
+st.text_input("Name", key="name")  # Conflict tussen tabs!
+
+# ✅ GOOD: Context-specific keys
+st.text_input("Name", key=f"{context}_name")
+st.text_input("Name", key="edit_23_name")</code></pre>
+
+<h3>2. Conditional Widget Keys</h3>
+
+<p><strong>Problem:</strong> Widget keys veranderen tussen reruns → state verlies.</p>
+
+<pre><code># ❌ BAD: Conditie kan wijzigen
+key = "edit" if editing else "view"
+st.text_input("Name", key=key)  # Key wijzigt → state reset!
+
+# ✅ GOOD: Stable keys
+if editing:
+    st.text_input("Name", key="name_edit")
+else:
+    st.text_input("Name", key="name_view", disabled=True)</code></pre>
+
+<h3>3. Late State Initialization</h3>
+
+<p><strong>Problem:</strong> Widget wordt gedeclareerd voordat session state is ge-initialiseerd.</p>
+
+<pre><code># ❌ BAD: Widget voor state init
+st.text_area("Text", key="my_text")
+st.session_state["my_text"] = "default"  # Te laat!
+
+# ✅ GOOD: State voor widget
+SessionStateManager.set_value("my_text", "default")
+st.text_area("Text", key="my_text")</code></pre>
+
+<p>---</p>
+
+<h2>🧪 Testing Patterns</h2>
+
+<h3>Unit Test: State Synchronization</h3>
+
+<pre><code>import pytest
+from ui.session_state import SessionStateManager
+from unittest.mock import patch, MagicMock
+
+@patch('streamlit.session_state', new_callable=dict)
+def test_sync_preserves_user_edits(mock_session_state):
+    """Test dat sync user edits NIET overschrijft."""
+    # Setup: User heeft edit gemaakt
+    SessionStateManager.set_value("edit_23_field1", "user edit")
+
+    # Act: Sync nieuwe data met force_overwrite=False
+    new_data = {"field1": "ai generated"}
+    sync_data_to_widgets(new_data, "edit_23", force_overwrite=False)
+
+    # Assert: User edit is gepreserveerd
+    assert SessionStateManager.get_value("edit_23_field1") == "user edit"
+
+@patch('streamlit.session_state', new_callable=dict)
+def test_sync_force_overwrite(mock_session_state):
+    """Test dat force sync user edits WEL overschrijft."""
+    # Setup: User heeft edit gemaakt
+    SessionStateManager.set_value("edit_23_field1", "user edit")
+
+    # Act: Sync met force_overwrite=True
+    new_data = {"field1": "ai generated"}
+    sync_data_to_widgets(new_data, "edit_23", force_overwrite=True)
+
+    # Assert: AI data heeft user edit overschreven
+    assert SessionStateManager.get_value("edit_23_field1") == "ai generated"</code></pre>
+
+<h3>Integration Test: Widget Behavior</h3>
+
+<pre><code>from streamlit.testing.v1 import AppTest
+
+def test_text_area_populates_after_generation():
+    """Test dat text areas gevuld worden na AI generatie."""
+    at = AppTest.from_file("src/main.py")
+    at.run()
+
+    # Navigate to Bewerk tab
+    at.sidebar.selectbox[0].select("Bewerk definitie")
+    at.run()
+
+    # Trigger generation
+    generate_button = at.button("✨ Genereer voorbeelden (AI)")
+    generate_button.click()
+    at.run()
+
+    # Assert: Text areas are populated
+    text_areas = at.text_area
+    assert len(text_areas[0].value) &gt; 0  # Voorbeeldzinnen
+    assert len(text_areas[1].value) &gt; 0  # Praktijkvoorbeelden</code></pre>
+
+<p>---</p>
+
+<h2>📋 Pre-Flight Checklist</h2>
+
+<p><strong>Voor elke nieuwe Streamlit component:</strong></p>
+
+<ul>
+<li>[ ] Widget gebruikt key-only pattern (GEEN `value` parameter)</li>
+<li>[ ] Session state geïnitialiseerd VOOR widget declaratie</li>
+<li>[ ] Key is context-specific (geen generieke keys)</li>
+<li>[ ] SessionStateManager gebruikt (GEEN directe `st.session_state`)</li>
+<li>[ ] Conditional logic beïnvloedt NIET widget keys</li>
+<li>[ ] Error handling voor state access</li>
+<li>[ ] Unit tests voor state sync logic</li>
+</ul>
+
+<p>---</p>
+
+<h2>🔍 Debugging Tips</h2>
+
+<h3>Widget Toont Verkeerde Data</h3>
+
+<p><strong>Symptoom:</strong> Widget content komt niet overeen met session state.</p>
+
+<p><strong>Checklist:</strong></p>
+<ol>
+<li>✅ Check widget gebruikt key-only pattern (geen `value`)</li>
+<li>✅ Check session state is ge-set VOOR widget declaratie</li>
+<li>✅ Check widget key is correct (geen typo's)</li>
+<li>✅ Log session state value direct voor widget:</li>
+<pre><code>   value = SessionStateManager.get_value("my_key")
+   logger.debug(f"Session state voor widget: {value}")
+   st.text_area("Label", key="my_key")</code></pre>
+</ol>
+
+<h3>State Verdwijnt Na Rerun</h3>
+
+<p><strong>Symptoom:</strong> Widget reset naar lege value na <code>st.rerun()</code>.</p>
+
+<p><strong>Checklist:</strong></p>
+<ol>
+<li>✅ Check widget key is stable (wijzigt NIET tussen reruns)</li>
+<li>✅ Check geen conditional logic wijzigt key</li>
+<li>✅ Check session state wordt NIET cleared tijdens rerun</li>
+<li>✅ Gebruik Streamlit Session State viewer:</li>
+<pre><code>   if st.checkbox("Debug Session State"):
+       st.write("Session State:", dict(st.session_state))</code></pre>
+</ol>
+
+<p>---</p>
+
+<h2>📚 References</h2>
+
+<ul>
+<li>**DEF-56 Root Cause Analysis:** `docs/backlog/EPIC-XXX/US-XXX/DEF-56/DEF-56.md`</li>
+<li>**Streamlit Docs (Context7):** Widget state management best practices</li>
+<li>**Perplexity Research:** Streamlit widget lifecycle and race conditions</li>
+<li>**SessionStateManager:** `src/ui/session_state.py`</li>
+</ul>
+
+<p>---</p>
+
+<h2>✅ Enforcement</h2>
+
+<p><strong>Pre-Commit Hook:</strong> Detecteer Streamlit anti-patterns</p>
+
+<pre><code># .pre-commit-config.yaml
+- id: streamlit-anti-patterns
+  name: Check Streamlit Anti-Patterns
+  entry: python scripts/check_streamlit_patterns.py
+  language: system
+  files: 'src/ui/.*\.py$'</code></pre>
+
+<p><strong>Automated Checks:</strong></p>
+<ul>
+<li>❌ Detect `st.text_area(value=..., key=...)` combinatie</li>
+<li>❌ Detect direct `st.session_state[...]` access in UI modules</li>
+<li>❌ Detect generieke widget keys ("name", "text", etc.)</li>
+<li>✅ Enforce SessionStateManager import in UI modules</li>
+</ul>
+
+<p>---</p>
+
+<p><strong>Status:</strong> Deze patterns zijn gevalideerd door DEF-56 fix en moeten worden toegepast op ALLE Streamlit components in DefinitieAgent.</p>
+
+  </div>
+</body>
+</html>
