@@ -2947,6 +2947,68 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "MCP Integration Best Practices",
+      "path": "../methodologies/MCP_INTEGRATION_PATTERNS.md",
+      "url": "../methodologies/MCP_INTEGRATION_PATTERNS.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/methodologies/MCP_INTEGRATION_PATTERNS.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Multiagent Workflow voor DefinitieAgent",
+      "path": "../methodologies/MULTIAGENT_WORKFLOW.md",
+      "url": "../methodologies/MULTIAGENT_WORKFLOW.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/methodologies/MULTIAGENT_WORKFLOW.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Logische Prompt Blokken - Business Perspectief",
       "path": "../archief/LOGICAL_PROMPT_BLOCKS_BUSINESS_VIEW.md",
       "url": "../archief/LOGICAL_PROMPT_BLOCKS_BUSINESS_VIEW.md",
@@ -7195,6 +7257,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Voorbeelden Generatie Fix - Definitie ID-23",
+      "path": "../analyses/voorbeelden-generation-fix-2025-10-29.md",
+      "url": "../analyses/voorbeelden-generation-fix-2025-10-29.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/voorbeelden-generation-fix-2025-10-29.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Perplexity API Decision Summary",
       "path": "../analyses/PERPLEXITY_DECISION_SUMMARY.md",
       "url": "../analyses/PERPLEXITY_DECISION_SUMMARY.md",
@@ -8253,6 +8346,37 @@
         "req": []
       },
       "rendered_url": "rendered/analyses/sru-dc-prefix-validation.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Voorbeelden Save Fix - Bewerk Tab",
+      "path": "../analyses/voorbeelden-save-fix-2025-10-29.md",
+      "url": "../analyses/voorbeelden-save-fix-2025-10-29.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/voorbeelden-save-fix-2025-10-29.html"
     },
     {
       "id": null,
@@ -9328,6 +9452,37 @@
         "req": []
       },
       "rendered_url": "rendered/guidelines/DATABASE_GUIDELINES.html"
+    },
+    {
+      "id": null,
+      "type": "GUIDE",
+      "title": "Streamlit Best Practices & Anti-Patterns",
+      "path": "../guidelines/STREAMLIT_PATTERNS.md",
+      "url": "../guidelines/STREAMLIT_PATTERNS.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/guidelines/STREAMLIT_PATTERNS.html"
     },
     {
       "id": null,
@@ -56424,17 +56579,17 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 945,
+      "DOC": 949,
       "ARCH": 42,
       "COMP": 5,
       "TEST": 35,
-      "GUIDE": 15,
+      "GUIDE": 16,
       "EPIC": 35,
       "US": 375,
       "BUG": 28,
       "REQ": 110
     },
-    "generated_at": "2025-10-29T10:16:48Z"
+    "generated_at": "2025-10-30T09:21:15Z"
   },
   "sources": [
     "docs"
