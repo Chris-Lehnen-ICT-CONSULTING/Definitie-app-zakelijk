@@ -7288,6 +7288,39 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "🎯 STREAMLIT STARTUP PERFORMANCE - VISUAL ANALYSIS",
+      "path": "../analyses/STARTUP_PERFORMANCE_DIAGRAM.md",
+      "url": "../analyses/STARTUP_PERFORMANCE_DIAGRAM.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-202"
+        ],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/STARTUP_PERFORMANCE_DIAGRAM.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Perplexity API Decision Summary",
       "path": "../analyses/PERPLEXITY_DECISION_SUMMARY.md",
       "url": "../analyses/PERPLEXITY_DECISION_SUMMARY.md",
@@ -7315,6 +7348,37 @@
         "req": []
       },
       "rendered_url": "rendered/analyses/PERPLEXITY_DECISION_SUMMARY.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Over-Engineering Analysis: DefinitieApp Solo Developer Reality Check",
+      "path": "../analyses/OVER_ENGINEERING_ANALYSIS.md",
+      "url": "../analyses/OVER_ENGINEERING_ANALYSIS.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/OVER_ENGINEERING_ANALYSIS.html"
     },
     {
       "id": null,
@@ -7674,6 +7738,39 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Startup Performance - Linear Issues Overzicht",
+      "path": "../analyses/STARTUP_PERFORMANCE_LINEAR_ISSUES.md",
+      "url": "../analyses/STARTUP_PERFORMANCE_LINEAR_ISSUES.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-202"
+        ],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/STARTUP_PERFORMANCE_LINEAR_ISSUES.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Synonym Automation Research - Document Index",
       "path": "../analyses/README_SYNONYM_AUTOMATION.md",
       "url": "../analyses/README_SYNONYM_AUTOMATION.md",
@@ -7893,6 +7990,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Code Simplification Examples: Enterprise vs Solo Developer Patterns",
+      "path": "../analyses/SIMPLIFICATION_CODE_EXAMPLES.md",
+      "url": "../analyses/SIMPLIFICATION_CODE_EXAMPLES.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/SIMPLIFICATION_CODE_EXAMPLES.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Classification Pipeline Patterns - Visual Comparison",
       "path": "../analyses/CLASSIFICATION_PIPELINE_COMPARISON.md",
       "url": "../analyses/CLASSIFICATION_PIPELINE_COMPARISON.md",
@@ -8015,6 +8143,37 @@
         "req": []
       },
       "rendered_url": "rendered/analyses/DEF-54-RISK-AND-ROLLBACK-ANALYSIS.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "DefinitieAgent Bug Hunt Analysis",
+      "path": "../analyses/BUG_HUNT_ANALYSIS_2025-10-30.md",
+      "url": "../analyses/BUG_HUNT_ANALYSIS_2025-10-30.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/BUG_HUNT_ANALYSIS_2025-10-30.html"
     },
     {
       "id": null,
@@ -8311,6 +8470,39 @@
         "req": []
       },
       "rendered_url": "rendered/analyses/ACTION_PLAN_double_weighting_followup.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "🔍 STREAMLIT STARTUP PERFORMANCE ANALYSIS",
+      "path": "../analyses/STARTUP_PERFORMANCE_ANALYSIS.md",
+      "url": "../analyses/STARTUP_PERFORMANCE_ANALYSIS.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-202"
+        ],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/STARTUP_PERFORMANCE_ANALYSIS.html"
     },
     {
       "id": null,
@@ -56610,7 +56802,7 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 950,
+      "DOC": 956,
       "ARCH": 42,
       "COMP": 5,
       "TEST": 35,
@@ -56620,7 +56812,7 @@
       "BUG": 28,
       "REQ": 110
     },
-    "generated_at": "2025-10-30T14:35:47Z"
+    "generated_at": "2025-10-30T15:12:11Z"
   },
   "sources": [
     "docs"
