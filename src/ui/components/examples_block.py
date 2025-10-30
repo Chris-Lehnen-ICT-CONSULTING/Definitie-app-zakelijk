@@ -10,6 +10,7 @@ Shared Examples Block for Edit and Expert tabs.
 from __future__ import annotations
 
 import contextlib
+import logging
 import re
 from typing import Any
 
@@ -17,6 +18,76 @@ import streamlit as st
 
 from ui.helpers.examples import resolve_examples
 from ui.session_state import SessionStateManager
+
+logger = logging.getLogger(__name__)
+
+# DEF-56: Configuration for voorbeeld field mappings (single source of truth)
+_VOORBEELD_FIELD_CONFIG = [
+    # (data_key, widget_suffix, join_separator)
+    # join_separator: "\n" for list fields with newlines, ", " for comma-separated, None for string
+    ("voorbeeldzinnen", "vz_edit", "\n"),
+    ("praktijkvoorbeelden", "pv_edit", "\n"),
+    ("tegenvoorbeelden", "tv_edit", "\n"),
+    ("synoniemen", "syn_edit", ", "),
+    ("antoniemen", "ant_edit", ", "),
+    ("toelichting", "tol_edit", None),  # String field, not list
+]
+
+
+def _sync_voorbeelden_to_widgets(
+    voorbeelden: dict[str, Any],
+    prefix: str,
+    force_overwrite: bool = False
+) -> None:
+    """Sync voorbeelden dict to Streamlit widget session state keys.
+
+    Handles all voorbeeld fields (voorbeeldzinnen, synoniemen, toelichting, etc.)
+    with appropriate formatting (newline-separated lists, comma-separated lists, strings).
+
+    Args:
+        voorbeelden: Dict with example fields (voorbeeldzinnen, synoniemen, etc.)
+        prefix: Session key prefix (e.g. 'edit_42')
+        force_overwrite: If True, overwrite existing widget values (post-generation sync)
+                        If False, only initialize unset widgets (pre-widget-declaration sync)
+
+    Business Logic:
+        - Gebruikt SessionStateManager voor alle session state toegang (VERPLICHT)
+        - Preserveert user edits bij force_overwrite=False
+        - Formatted output per field type (list vs string, newline vs comma join)
+    """
+    def k(name: str) -> str:
+        return f"{prefix}_{name}"
+
+    try:
+        for field, widget_suffix, join_sep in _VOORBEELD_FIELD_CONFIG:
+            widget_key = k(widget_suffix)
+
+            # Skip if already set (unless forcing overwrite) - preserveert user edits
+            if not force_overwrite:
+                existing = SessionStateManager.get_value(widget_key, None)
+                if existing is not None:
+                    continue
+
+            val = voorbeelden.get(field, [])
+
+            # Format content based on field type
+            if join_sep is None:  # String field (toelichting)
+                content = str(val) if val else ""
+            elif isinstance(val, list):
+                content = join_sep.join(val)
+            else:
+                content = str(val) if val else ""
+
+            # DEF-56 FIX: Use SessionStateManager (NO direct st.session_state access)
+            SessionStateManager.set_value(widget_key, content)
+
+            if force_overwrite:
+                logger.debug(f"[SYNC] {widget_key} = '{content[:50]}...'")
+
+    except Exception as e:
+        logger.error(f"[SYNC ERROR] Failed to sync voorbeelden to widgets: {e}", exc_info=True)
+        # Re-raise to let caller handle (don't fail silently)
+        raise
 
 
 def render_examples_block(
@@ -50,14 +121,21 @@ def render_examples_block(
         examples_state_key, definition, repository=repository
     )
 
+    # DEBUG: Log resolved examples (only in dev mode)
+    import os as _os
+    if _os.getenv("DEV_MODE"):
+        logger.debug(f"[EXAMPLES] state_key={examples_state_key}, "
+                    f"counts: vz={len(current_examples.get('voorbeeldzinnen', []))}, "
+                    f"syn={len(current_examples.get('synoniemen', []))}")
+
     # Optional: generate via AI (Edit tab only)
     if allow_generate:
         col_left, col_right = st.columns([1, 1])
         with col_left:
             can_call = True
-            import os as _os
+            import os as _os2
 
-            if not (_os.getenv("OPENAI_API_KEY") or _os.getenv("OPENAI_API_KEY_PROD")):
+            if not (_os2.getenv("OPENAI_API_KEY") or _os2.getenv("OPENAI_API_KEY_PROD")):
                 st.info(
                     "ℹ️ Geen OPENAI_API_KEY gevonden — voorbeelden genereren is uitgeschakeld."
                 )
@@ -93,7 +171,7 @@ def render_examples_block(
                         "wettelijk": list(wet_ctx),
                     }
 
-                    with st.spinner("🧠 Voorbeelden genereren met AI..."):
+                    with st.spinner("🧠 Voorbeelden genereren met AI (max 90s)..."):
                         from ui.helpers.async_bridge import run_async
                         from voorbeelden.unified_voorbeelden import (
                             genereer_alle_voorbeelden_async,
@@ -107,11 +185,40 @@ def render_examples_block(
                             ),
                             timeout=90,
                         )
-                        SessionStateManager.set_value(examples_state_key, result or {})
-                        current_examples = result or {}
+
+                        if not result:
+                            st.error("❌ Geen voorbeelden gegenereerd. Controleer logs.")
+                            logger.error(f"[GENERATE] genereer_alle_voorbeelden_async returned empty for term: {begrip}")
+                            return
+
+                        # DEBUG: Log generated result (only in dev mode)
+                        if _os.getenv("DEV_MODE"):
+                            logger.debug(f"[GENERATE] Generated {len(result)} fields")
+
+                        # STAP 1: Update session state met generated voorbeelden
+                        SessionStateManager.set_value(examples_state_key, result)
+                        current_examples = result
+
+                        # DEF-56 FIX: FORCE sync naar widget keys VOOR st.rerun()
+                        # Safety measure voor Streamlit widget state race condition
+                        _sync_voorbeelden_to_widgets(
+                            result,
+                            state_prefix,
+                            force_overwrite=True
+                        )
+                        logger.info("[GENERATE] Completed sync to widget keys")
+
                         st.success("✅ Voorbeelden gegenereerd!")
+
+                        # Rerun to refresh UI and populate edit fields with generated examples
+                        st.rerun()
+
+                except TimeoutError:
+                    st.error("⏱️ Timeout: Voorbeelden generatie duurde langer dan 90 seconden")
+                    logger.error(f"[GENERATE] Timeout during voorbeelden generation for term: {begrip}")
                 except Exception as e:
                     st.error(f"❌ Fout bij genereren voorbeelden: {e}")
+                    logger.exception(f"[GENERATE] Exception during voorbeelden generation")
 
         with col_right:
             if st.checkbox("🔍 Debug: Voorbeelden Content", key=k("debug_examples")):
@@ -161,9 +268,7 @@ def render_examples_block(
 
     # Fallback naar session‑keuze voor directe feedback (zoals generator-tab)
     try:
-        from ui.session_state import SessionStateManager as _SSM
-
-        sess_vt = _SSM.get_value("voorkeursterm", "")
+        sess_vt = SessionStateManager.get_value("voorkeursterm", "")
     except Exception:
         sess_vt = ""
 
@@ -230,28 +335,38 @@ def render_examples_block(
                     return [s.strip() for s in val.split(",") if s.strip()]
                 return []
 
+            # DEF-56 FIX: Sync voorbeelden naar widget keys VOOR declaratie
+            # Dit zorgt dat widgets auto-syncen met session state na st.rerun()
+            _sync_voorbeelden_to_widgets(
+                current_examples,
+                state_prefix,
+                force_overwrite=False
+            )
+
+            # DEF-56 FIX: Gebruik ALLEEN key parameter (geen value)
+            # Streamlit widgets met key auto-syncen met session state
             vz = st.text_area(
                 "📄 Voorbeeldzinnen (één per regel)",
-                value="\n".join(_get_list("voorbeeldzinnen")),
                 height=120,
                 key=k("vz_edit"),
+                help="Positieve voorbeelden (één per regel)",
             )
             pv = st.text_area(
                 "💼 Praktijkvoorbeelden (één per regel)",
-                value="\n".join(_get_list("praktijkvoorbeelden")),
                 height=120,
                 key=k("pv_edit"),
+                help="Praktische toepassingsvoorbeelden",
             )
             tv = st.text_area(
                 "❌ Tegenvoorbeelden (één per regel)",
-                value="\n".join(_get_list("tegenvoorbeelden")),
                 height=120,
                 key=k("tv_edit"),
+                help="Negatieve voorbeelden (incorrect gebruik)",
             )
             syn = st.text_input(
                 "🔄 Synoniemen (komma-gescheiden)",
-                value=", ".join(_get_list("synoniemen")),
                 key=k("syn_edit"),
+                help="Alternatieve termen (gescheiden door komma's)",
             )
 
             # Voorkeursterm selector voor Expert Review en Edit tabs
@@ -293,9 +408,7 @@ def render_examples_block(
                     if current_voorkeursterm:
                         target = current_voorkeursterm
                     else:
-                        from ui.session_state import SessionStateManager as _SSM
-
-                        sess_vt = _SSM.get_value("voorkeursterm", "")
+                        sess_vt = SessionStateManager.get_value("voorkeursterm", "")
                         target = sess_vt or None
                     if target and target in voorkeursterm_options:
                         default_index = voorkeursterm_options.index(target)
@@ -305,7 +418,7 @@ def render_examples_block(
                 selected = st.selectbox(
                     "⭐ Voorkeursterm selecteren",
                     options=voorkeursterm_options,
-                    index=min(max(default_index, 0), len(voorkeursterm_options) - 1),
+                    index=min(max(default_index, 0), len(voorkeelsterm_options) - 1),
                     key=k("voorkeursterm_select"),
                     help="Selecteer de voorkeurs-term (kan ook het begrip zelf zijn)",
                 )
@@ -318,22 +431,22 @@ def render_examples_block(
 
                 # Houd de keuze ook bij in de (globale) session state net als in generator-tab
                 try:
-                    from ui.session_state import SessionStateManager as _SSM
-
-                    _SSM.set_value("voorkeursterm", selected_voorkeursterm or "")
+                    SessionStateManager.set_value("voorkeursterm", selected_voorkeursterm or "")
                 except Exception:
                     pass
 
+            # DEF-56 FIX: Antoniemen en Toelichting ook zonder value parameter
             ant = st.text_input(
                 "↔️ Antoniemen (komma-gescheiden)",
-                value=", ".join(_get_list("antoniemen")),
                 key=k("ant_edit"),
+                help="Tegenovergestelde termen (gescheiden door komma's)",
             )
+
             tol = st.text_area(
                 "📝 Toelichting (korte tekst)",
-                value=str(current_examples.get("toelichting") or ""),
                 height=80,
                 key=k("tol_edit"),
+                help="Uitleg over het begrip en gebruik",
             )
 
             col_s1, _ = st.columns([1, 3])
