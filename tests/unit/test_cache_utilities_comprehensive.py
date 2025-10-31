@@ -472,7 +472,7 @@ class TestSpecializedCacheDecorators:
 class TestAsyncCache:
     """Test async cache functionality."""
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_cache_async_result(self):
         """Test async caching decorator."""
         call_count = 0

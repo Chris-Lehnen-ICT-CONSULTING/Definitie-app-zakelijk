@@ -38,7 +38,7 @@ from services.validation.modular_validation_service import ModularValidationServ
 class TestStory24PerformanceBaseline:
     """Baseline performance tests for Story 2.4 interface migration."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def fast_mock_validation_service(self):
         """Create fast mock validation service for performance testing."""
         service = Mock()
@@ -59,7 +59,7 @@ class TestStory24PerformanceBaseline:
         )
         return service
 
-    @pytest.fixture()
+    @pytest.fixture
     def performance_orchestrator(self, fast_mock_validation_service):
         """Create orchestrator optimized for performance testing."""
         return ValidationOrchestratorV2(
@@ -67,8 +67,8 @@ class TestStory24PerformanceBaseline:
             cleaning_service=None,  # Disable cleaning for pure validation performance
         )
 
-    @pytest.mark.performance()
-    @pytest.mark.asyncio()
+    @pytest.mark.performance
+    @pytest.mark.asyncio
     async def test_single_validation_performance(self, performance_orchestrator):
         """Test single validation performance meets baseline requirements."""
         # Warm up
@@ -118,8 +118,8 @@ class TestStory24PerformanceBaseline:
             f"✅ Single validation performance: avg={avg_time:.2f}ms, p95={p95_time:.2f}ms, p99={p99_time:.2f}ms"
         )
 
-    @pytest.mark.performance()
-    @pytest.mark.asyncio()
+    @pytest.mark.performance
+    @pytest.mark.asyncio
     async def test_batch_validation_performance(self, performance_orchestrator):
         """Test batch validation performance and scalability."""
         batch_sizes = [10, 50, 100, 200]
@@ -158,8 +158,8 @@ class TestStory24PerformanceBaseline:
                 f"✅ Batch size {batch_size}: {batch_time:.2f}ms total, {time_per_item:.2f}ms per item"
             )
 
-    @pytest.mark.performance()
-    @pytest.mark.asyncio()
+    @pytest.mark.performance
+    @pytest.mark.asyncio
     async def test_concurrent_validation_performance(self, performance_orchestrator):
         """Test concurrent validation performance under load."""
         concurrency_levels = [5, 10, 20]
@@ -202,8 +202,8 @@ class TestStory24PerformanceBaseline:
                 f"✅ Concurrency {concurrency}: {total_time:.2f}ms total, efficiency={efficiency_ratio:.2f}"
             )
 
-    @pytest.mark.performance()
-    @pytest.mark.asyncio()
+    @pytest.mark.performance
+    @pytest.mark.asyncio
     async def test_memory_usage_performance(self, performance_orchestrator):
         """Test memory usage during validation operations."""
         process = psutil.Process(os.getpid())
@@ -243,8 +243,8 @@ class TestStory24PerformanceBaseline:
             f"✅ Memory usage: baseline={baseline_memory:.2f}MB, final={final_memory:.2f}MB, increase={memory_increase:.2f}MB"
         )
 
-    @pytest.mark.performance()
-    @pytest.mark.asyncio()
+    @pytest.mark.performance
+    @pytest.mark.asyncio
     async def test_orchestrator_overhead_measurement(
         self, fast_mock_validation_service
     ):
@@ -302,8 +302,8 @@ class TestStory24PerformanceBaseline:
 class TestStory24PerformanceRegression:
     """Performance regression tests to ensure no performance degradation."""
 
-    @pytest.mark.performance()
-    @pytest.mark.asyncio()
+    @pytest.mark.performance
+    @pytest.mark.asyncio
     async def test_validation_context_conversion_performance(self):
         """Test performance impact of ValidationContext conversion."""
         mock_service = AsyncMock(
@@ -352,8 +352,8 @@ class TestStory24PerformanceRegression:
 
         print(f"✅ Context conversion performance: {avg_time:.2f}ms average")
 
-    @pytest.mark.performance()
-    @pytest.mark.asyncio()
+    @pytest.mark.performance
+    @pytest.mark.asyncio
     async def test_error_handling_performance(self):
         """Test performance of error handling paths."""
         # Mock service that fails
@@ -385,8 +385,8 @@ class TestStory24PerformanceRegression:
 
         print(f"✅ Error handling performance: {avg_error_time:.2f}ms average")
 
-    @pytest.mark.performance()
-    @pytest.mark.asyncio()
+    @pytest.mark.performance
+    @pytest.mark.asyncio
     async def test_schema_compliance_performance(self):
         """Test performance impact of schema compliance validation."""
         mock_service = AsyncMock(
@@ -429,9 +429,9 @@ class TestStory24PerformanceRegression:
 class TestStory24PerformanceProfiler:
     """Advanced performance profiling for Story 2.4."""
 
-    @pytest.mark.performance()
-    @pytest.mark.slow()
-    @pytest.mark.asyncio()
+    @pytest.mark.performance
+    @pytest.mark.slow
+    @pytest.mark.asyncio
     async def test_comprehensive_performance_profile(self):
         """Comprehensive performance profile of ValidationOrchestratorV2."""
 
@@ -528,8 +528,8 @@ class TestStory24PerformanceProfiler:
         print("\n" + "=" * 60)
         print("✅ Comprehensive performance profile completed successfully")
 
-    @pytest.mark.performance()
-    @pytest.mark.asyncio()
+    @pytest.mark.performance
+    @pytest.mark.asyncio
     async def test_load_test_simulation(self):
         """Simulate load test conditions for Story 2.4."""
 

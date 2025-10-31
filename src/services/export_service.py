@@ -454,16 +454,15 @@ class ExportService:
         """
         if format == ExportFormat.CSV:
             return self._export_multiple_to_csv(definitions, level)
-        elif format == ExportFormat.EXCEL:
+        if format == ExportFormat.EXCEL:
             return self._export_multiple_to_excel(definitions, level)
-        elif format == ExportFormat.JSON:
+        if format == ExportFormat.JSON:
             return self._export_multiple_to_json(definitions, level)
-        elif format == ExportFormat.TXT:
+        if format == ExportFormat.TXT:
             return self._export_multiple_to_txt(definitions, level)
-        else:
-            raise NotImplementedError(
-                f"Bulk export voor formaat {format} nog niet geïmplementeerd"
-            )
+        raise NotImplementedError(
+            f"Bulk export voor formaat {format} nog niet geïmplementeerd"
+        )
 
     def _generate_export_path(self, format: ExportFormat) -> Path:
         """

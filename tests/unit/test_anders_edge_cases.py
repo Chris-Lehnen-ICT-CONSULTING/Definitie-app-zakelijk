@@ -34,7 +34,7 @@ from src.ui.components.enhanced_context_manager_selector import (
 class TestMaliciousInputPrevention:
     """Test protection against malicious input in Anders fields."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def mock_streamlit(self):
         with (
             patch("streamlit.multiselect") as mock_multiselect,
@@ -126,7 +126,7 @@ class TestMaliciousInputPrevention:
 class TestExtremeLengthInputs:
     """Test handling of extremely long inputs."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def mock_streamlit(self):
         with (
             patch("streamlit.multiselect") as mock_multiselect,
@@ -259,7 +259,7 @@ class TestConcurrencyAndRaceConditions:
 class TestUnicodeAndEncodingEdgeCases:
     """Test Unicode and encoding edge cases."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def mock_streamlit(self):
         with (
             patch("streamlit.multiselect") as mock_multiselect,
@@ -389,7 +389,7 @@ class TestMemoryStress:
 class TestBoundaryConditions:
     """Test boundary conditions and limits."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def mock_streamlit(self):
         with (
             patch("streamlit.multiselect") as mock_multiselect,

@@ -9,13 +9,14 @@ from typing import Dict, List
 import pytest
 
 
-@pytest.mark.performance()
-@pytest.mark.asyncio()
+@pytest.mark.performance
+@pytest.mark.asyncio
 async def test_performance_vs_v1_baseline():
     """Test that V2 performance meets or exceeds V1 baseline."""
     # Try to import both V1 and V2
     try:
         from services.definition_validator import DefinitionValidator
+
         from services.interfaces import Definition
 
         v1_available = True
@@ -95,8 +96,8 @@ async def test_performance_vs_v1_baseline():
         print(f"✓ V2 is {improvement:.1f}% faster than V1")
 
 
-@pytest.mark.performance()
-@pytest.mark.asyncio()
+@pytest.mark.performance
+@pytest.mark.asyncio
 async def test_validation_latency_bounds():
     """Test that validation latency stays within acceptable bounds."""
     m = pytest.importorskip(
@@ -152,8 +153,8 @@ SKIP_TIMING = pytest.mark.skipif(
 )
 
 
-@pytest.mark.performance()
-@pytest.mark.asyncio()
+@pytest.mark.performance
+@pytest.mark.asyncio
 @SKIP_TIMING
 @pytest.mark.xfail(
     reason="Timeoutbescherming nog niet geïmplementeerd in adapter; timing-gevoelig",
@@ -228,8 +229,8 @@ async def test_rule_evaluation_overhead():
     assert result.get("errored", False), "Timed out rule should be marked as errored"
 
 
-@pytest.mark.performance()
-@pytest.mark.asyncio()
+@pytest.mark.performance
+@pytest.mark.asyncio
 @SKIP_TIMING
 @pytest.mark.xfail(
     reason="Concurrencyschaal-test is timing-gevoelig; heuristiek nog niet gestabiliseerd",
@@ -290,7 +291,7 @@ async def test_concurrent_validation_scaling():
             assert "overall_score" in result
 
 
-@pytest.mark.performance()
+@pytest.mark.performance
 def test_memory_usage_stability():
     """Test that memory usage remains stable during repeated validations."""
     m = pytest.importorskip(
@@ -345,8 +346,8 @@ def test_memory_usage_stability():
     ), f"Possible memory leak: {object_growth} new objects after 100 validations"
 
 
-@pytest.mark.performance()
-@pytest.mark.benchmark()
+@pytest.mark.performance
+@pytest.mark.benchmark
 def test_validation_throughput(benchmark):
     """Benchmark validation throughput (if pytest-benchmark available)."""
     m = pytest.importorskip(

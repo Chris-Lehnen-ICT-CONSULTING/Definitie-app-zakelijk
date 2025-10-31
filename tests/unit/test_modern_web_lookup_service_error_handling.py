@@ -33,7 +33,7 @@ class _DummySRUService:
         raise RuntimeError(msg)
 
 
-@pytest.fixture()
+@pytest.fixture
 def service(monkeypatch):
     """Provide a ModernWebLookupService with minimal setup."""
 
@@ -48,7 +48,7 @@ def service(monkeypatch):
     return svc
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_lookup_sru_logs_attempt_failures(service, monkeypatch, caplog):
     """SRU attempt logging failures should be surfaced as debug logs."""
 

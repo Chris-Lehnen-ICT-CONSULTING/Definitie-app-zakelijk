@@ -25,7 +25,7 @@ from src.monitoring.performance_tracker import (
 )
 
 
-@pytest.fixture()
+@pytest.fixture
 def temp_db():
     """Fixture voor tijdelijke database."""
     with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as f:
@@ -38,7 +38,7 @@ def temp_db():
         os.unlink(db_path)
 
 
-@pytest.fixture()
+@pytest.fixture
 def tracker(temp_db):
     """Fixture voor performance tracker met tijdelijke database."""
     return PerformanceTracker(temp_db)

@@ -19,12 +19,12 @@ from generation.definitie_generator import (
 # Importeer database en core componenten voor definitie management
 from database.definitie_repository import (
     DefinitieStatus,  # Status en bron type enumeraties
+    get_definitie_repository,
 )
-from database.definitie_repository import get_definitie_repository
 from integration.definitie_checker import (
+    DefinitieChecker,
     generate_or_retrieve_definition,  # Integratie en duplicaat checking
 )
-from integration.definitie_checker import DefinitieChecker
 
 # Setup logging configuratie voor CLI tool
 logging.basicConfig(

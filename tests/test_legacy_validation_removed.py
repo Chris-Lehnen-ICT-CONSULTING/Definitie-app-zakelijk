@@ -73,7 +73,7 @@ class TestLegacyValidationRemoval:
 class TestV2ValidationOrchestrator:
     """Test suite for V2 validation orchestrator functionality."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def mock_validation_service(self):
         """Create mock validation service."""
         service = Mock(spec=ValidationServiceInterface)
@@ -91,14 +91,14 @@ class TestV2ValidationOrchestrator:
         )
         return service
 
-    @pytest.fixture()
+    @pytest.fixture
     def mock_cleaning_service(self):
         """Create mock cleaning service."""
         service = Mock(spec=CleaningServiceInterface)
         service.clean_text = AsyncMock(side_effect=lambda text: text.strip())
         return service
 
-    @pytest.fixture()
+    @pytest.fixture
     def orchestrator(self, mock_validation_service, mock_cleaning_service):
         """Create V2 orchestrator with mocked services."""
         return ValidationOrchestratorV2(
@@ -106,7 +106,7 @@ class TestV2ValidationOrchestrator:
             cleaning_service=mock_cleaning_service,
         )
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_v2_orchestrator_validate_text(self, orchestrator):
         """Test V2 orchestrator can validate text."""
         result = await orchestrator.validate_text(
@@ -120,7 +120,7 @@ class TestV2ValidationOrchestrator:
         assert result["is_acceptable"] is True
         assert result["overall_score"] == 0.85
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_v2_orchestrator_with_context(self, orchestrator):
         """Test V2 orchestrator handles validation context."""
         context = ValidationContext(
@@ -134,7 +134,7 @@ class TestV2ValidationOrchestrator:
         assert result is not None
         assert result.metadata.get("correlation_id") == "test-123"
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_v2_orchestrator_validate_definition(self, orchestrator):
         """Test V2 orchestrator can validate Definition objects."""
         definition = Definition(
@@ -149,7 +149,7 @@ class TestV2ValidationOrchestrator:
         assert isinstance(result, dict)
         assert result["is_acceptable"] is True
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_v2_orchestrator_batch_validate(self, orchestrator):
         """Test V2 orchestrator batch validation."""
         requests = [
@@ -168,7 +168,7 @@ class TestV2ValidationOrchestrator:
             assert isinstance(result, dict)
             assert result["is_acceptable"] is True
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_v2_orchestrator_with_cleaning(self, orchestrator):
         """Test V2 orchestrator applies cleaning when configured."""
         result = await orchestrator.validate_text(
@@ -181,7 +181,7 @@ class TestV2ValidationOrchestrator:
         orchestrator.cleaning_service.clean_text.assert_called()
         assert result.is_valid is True
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_v2_orchestrator_error_handling(self, mock_validation_service):
         """Test V2 orchestrator handles validation errors gracefully."""
         # Make validation service raise an error

@@ -309,7 +309,7 @@ test:
 class TestGetSynoniemen:
     """Test suite voor get_synoniemen() - bidirectionele lookup."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def service_with_data(self, tmp_path):
         """Create service with test data."""
         yaml_content = """
@@ -427,7 +427,7 @@ voorlopige_hechtenis:
 class TestExpandQueryTerms:
     """Test suite voor expand_query_terms() - query expansion."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def service_with_data(self, tmp_path):
         """Create service with test data."""
         yaml_content = """
@@ -525,7 +525,7 @@ test:
 class TestHasSynoniemen:
     """Test suite voor has_synoniemen() - boolean check."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def service_with_data(self, tmp_path):
         """Create service with test data."""
         yaml_content = """
@@ -580,7 +580,7 @@ onherroepelijk:
 class TestGetAllTerms:
     """Test suite voor get_all_terms() - set van alle termen."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def service_with_data(self, tmp_path):
         """Create service with test data."""
         yaml_content = """
@@ -652,7 +652,7 @@ voorlopige_hechtenis:
 class TestFindMatchingSynoniemen:
     """Test suite voor find_matching_synoniemen() - text analysis."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def service_with_data(self, tmp_path):
         """Create service with test data."""
         yaml_content = """
@@ -742,7 +742,7 @@ verdachte:
 class TestGetStats:
     """Test suite voor get_stats() - statistieken."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def service_with_data(self, tmp_path):
         """Create service with test data."""
         yaml_content = """

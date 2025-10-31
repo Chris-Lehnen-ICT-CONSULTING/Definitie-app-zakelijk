@@ -33,7 +33,7 @@ class TestHybridContextManager:
         self.config = ContextConfig()
         self.context_manager = HybridContextManager(self.config)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_build_enriched_context_basic(self):
         """Test basis context building."""
         request = GenerationRequest(
@@ -51,7 +51,7 @@ class TestHybridContextManager:
         assert "OM" in enriched_context.base_context["organisatorisch"]
         assert "juridisch" in enriched_context.base_context["juridisch"]
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_abbreviation_expansion(self):
         """Test afkortingen uitbreiding."""
         request = GenerationRequest(
@@ -271,7 +271,7 @@ class TestDefinitionEnhancer:
 class TestIntegration:
     """Integration tests voor alle Step 2 componenten samen."""
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_full_step2_integration(self):
         """Test volledige integratie van alle Step 2 componenten."""
         # Initialize all components

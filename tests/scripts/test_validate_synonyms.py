@@ -25,7 +25,7 @@ from validate_synonyms import (
 )
 
 
-@pytest.fixture()
+@pytest.fixture
 def fixtures_dir() -> Path:
     """Return path to test fixtures directory."""
     return Path(__file__).parent.parent / "fixtures"

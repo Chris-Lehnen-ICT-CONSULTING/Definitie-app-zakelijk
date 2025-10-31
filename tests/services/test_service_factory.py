@@ -30,7 +30,7 @@ from services.service_factory import (
 )
 
 
-@pytest.fixture()
+@pytest.fixture
 def mock_container():
     """Mock ServiceContainer voor tests."""
     container = Mock(spec=ServiceContainer)
@@ -44,7 +44,7 @@ def mock_container():
     return container
 
 
-@pytest.fixture()
+@pytest.fixture
 def mock_orchestrator():
     """Mock orchestrator met async methods."""
     orchestrator = AsyncMock()
@@ -53,7 +53,7 @@ def mock_orchestrator():
     return orchestrator
 
 
-@pytest.fixture()
+@pytest.fixture
 def service_adapter(mock_container, mock_orchestrator):
     """ServiceAdapter instance voor tests."""
     mock_container.orchestrator.return_value = mock_orchestrator
@@ -252,7 +252,7 @@ class TestServiceAdapter:
         assert adapter.orchestrator == mock_orchestrator
         mock_container.orchestrator.assert_called_once()
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_generate_definition_success(
         self, service_adapter, mock_orchestrator
     ):
@@ -344,7 +344,7 @@ class TestServiceAdapter:
         assert call_args.organisatie == "Test Org"
         assert call_args.extra_instructies == "Extra info"
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_generate_definition_failure(
         self, service_adapter, mock_orchestrator
     ):
@@ -368,7 +368,7 @@ class TestServiceAdapter:
         assert result["success"] is False
         assert result["error_message"] == "Generation failed due to API error"
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_generate_definition_no_message(
         self, service_adapter, mock_orchestrator
     ):
@@ -388,7 +388,7 @@ class TestServiceAdapter:
         # Verify
         assert result["error_message"] == "Generatie mislukt"
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_generate_definition_empty_context(
         self, service_adapter, mock_orchestrator
     ):
@@ -562,7 +562,7 @@ class TestRenderFeatureFlagToggle:
 class TestOverallScoreHandling:
     """Test suite for overall_score KeyError fix (line 170 & 297)."""
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_overall_score_normal_case(self, service_adapter, mock_orchestrator):
         """Test normal case with valid overall_score."""
         # Setup with valid overall_score
@@ -602,7 +602,7 @@ class TestOverallScoreHandling:
         assert result["final_score"] == 85.5
         assert isinstance(result["final_score"], float)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_overall_score_missing_key(self, service_adapter, mock_orchestrator):
         """Test handling when overall_score key is missing."""
         # Setup with missing overall_score key
@@ -644,7 +644,7 @@ class TestOverallScoreHandling:
         assert result["final_score"] == 0.0
         assert isinstance(result["final_score"], float)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_overall_score_none_value(self, service_adapter, mock_orchestrator):
         """Test handling when overall_score is None."""
         # Setup with None overall_score
@@ -684,7 +684,7 @@ class TestOverallScoreHandling:
         assert result["final_score"] == 0.0
         assert isinstance(result["final_score"], float)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_overall_score_invalid_string(
         self, service_adapter, mock_orchestrator
     ):
@@ -732,7 +732,7 @@ class TestOverallScoreHandling:
             assert "validation_details" in result
             # Implementation might crash here - documenting expected behavior
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_overall_score_valid_string_number(
         self, service_adapter, mock_orchestrator
     ):
@@ -774,7 +774,7 @@ class TestOverallScoreHandling:
         assert result["final_score"] == 75.5
         assert isinstance(result["final_score"], float)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_overall_score_list_type(self, service_adapter, mock_orchestrator):
         """Test handling when overall_score is a list (invalid type)."""
         # Setup with list overall_score
@@ -813,7 +813,7 @@ class TestOverallScoreHandling:
         except (TypeError, ValueError):
             pass  # Expected - documenting behavior
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_overall_score_dict_type(self, service_adapter, mock_orchestrator):
         """Test handling when overall_score is a dict (invalid type)."""
         # Setup with dict overall_score
@@ -852,7 +852,7 @@ class TestOverallScoreHandling:
         except (TypeError, ValueError):
             pass  # Expected - documenting behavior
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_overall_score_zero_value(self, service_adapter, mock_orchestrator):
         """Test handling when overall_score is zero (edge case)."""
         # Setup with zero overall_score
@@ -894,7 +894,7 @@ class TestOverallScoreHandling:
         assert result["final_score"] == 0.0
         assert isinstance(result["final_score"], float)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_overall_score_negative_value(
         self, service_adapter, mock_orchestrator
     ):
@@ -936,7 +936,7 @@ class TestOverallScoreHandling:
         assert result["final_score"] == -10.5
         assert isinstance(result["final_score"], float)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_overall_score_very_large_value(
         self, service_adapter, mock_orchestrator
     ):
@@ -978,7 +978,7 @@ class TestOverallScoreHandling:
         assert result["final_score"] == 999999999.99
         assert isinstance(result["final_score"], float)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_concurrent_validation_scenario(self, mock_container):
         """Test concurrent validations with different overall_score scenarios."""
 
@@ -1074,7 +1074,7 @@ class TestOverallScoreHandling:
             assert "overall_score" in result["validation_details"]
             assert isinstance(result["validation_details"]["overall_score"], float)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_validation_details_missing_entirely(
         self, service_adapter, mock_orchestrator
     ):
@@ -1129,7 +1129,7 @@ class TestIntegrationScenarios:
             # Both are V2, no legacy path exists
             assert service1.__class__ == service2.__class__
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_adapter_with_real_interfaces(self):
         """Test adapter met echte interface objecten."""
         # Create real objects
