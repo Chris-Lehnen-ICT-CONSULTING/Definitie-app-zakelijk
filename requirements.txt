@@ -55,7 +55,7 @@ nodeenv==1.9.1
 numpy==2.3.4
 openai==2.6.1
 packageurl-python==0.17.5
-packaging==24.2
+packaging==25.0
 pandas==2.3.3
 pathspec==0.12.1
 pbr==7.0.1
