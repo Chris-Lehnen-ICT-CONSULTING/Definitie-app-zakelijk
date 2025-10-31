@@ -12,8 +12,7 @@ from typing import Any
 
 import streamlit as st
 
-from database.definitie_repository import (DefinitieRecord,
-                                           get_definitie_repository)
+from database.definitie_repository import DefinitieRecord, get_definitie_repository
 from integration.definitie_checker import CheckAction, DefinitieChecker
 from services.category_service import CategoryService
 from services.category_state_manager import CategoryStateManager
@@ -879,8 +878,7 @@ class DefinitionGeneratorTab:
             # Sla op met voorkeursterm uit session state
             from pydantic import ValidationError
 
-            from models.voorbeelden_validation import \
-                validate_save_voorbeelden_input
+            from models.voorbeelden_validation import validate_save_voorbeelden_input
 
             voorkeursterm = SessionStateManager.get_value("voorkeursterm", "")
 
@@ -953,8 +951,7 @@ class DefinitionGeneratorTab:
             repo = get_definitie_repository()
             from pydantic import ValidationError
 
-            from models.voorbeelden_validation import \
-                validate_save_voorbeelden_input
+            from models.voorbeelden_validation import validate_save_voorbeelden_input
 
             voorkeursterm = SessionStateManager.get_value("voorkeursterm", "")
 
@@ -1135,8 +1132,7 @@ class DefinitionGeneratorTab:
                             "💾 Bewaar als concept en bewerk", disabled=not can_save
                         ):
                             from services.interfaces import Definition
-                            from utils.container_manager import \
-                                get_cached_container
+                            from utils.container_manager import get_cached_container
 
                             container = get_cached_container()
                             repo = container.repository()
@@ -1673,8 +1669,7 @@ class DefinitionGeneratorTab:
         """Render validation resultaten via gedeelde renderer (V2 dict)."""
         st.markdown("#### ✅ Kwaliteitstoetsing")
         try:
-            from ui.components.validation_view import \
-                render_validation_detailed_list
+            from ui.components.validation_view import render_validation_detailed_list
 
             render_validation_detailed_list(
                 validation_result,

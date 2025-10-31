@@ -22,6 +22,7 @@ import streamlit as st
 from ui.session_state import SessionStateManager
 from ui.tabbed_interface import TabbedInterface
 from utils.exceptions import log_and_display_error
+
 # Setup structured logging if enabled via environment variable
 from utils.structured_logging import setup_structured_logging
 
