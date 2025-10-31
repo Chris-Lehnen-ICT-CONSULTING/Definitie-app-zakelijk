@@ -7257,6 +7257,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Linear Issues Dependency & Risk Analysis - DefinitieAgent",
+      "path": "../analyses/LINEAR_ISSUES_DEPENDENCY_RISK_ANALYSIS.md",
+      "url": "../analyses/LINEAR_ISSUES_DEPENDENCY_RISK_ANALYSIS.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/LINEAR_ISSUES_DEPENDENCY_RISK_ANALYSIS.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Voorbeelden Generatie Fix - Definitie ID-23",
       "path": "../analyses/voorbeelden-generation-fix-2025-10-29.md",
       "url": "../analyses/voorbeelden-generation-fix-2025-10-29.md",
@@ -8346,6 +8377,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Linear Issues Dependency Graph - DefinitieAgent",
+      "path": "../analyses/LINEAR_DEPENDENCY_GRAPH.md",
+      "url": "../analyses/LINEAR_DEPENDENCY_GRAPH.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/LINEAR_DEPENDENCY_GRAPH.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "CI Failures Analysis & Fix Plan",
       "path": "../analyses/CI_FAILURES_ANALYSIS.md",
       "url": "../analyses/CI_FAILURES_ANALYSIS.md",
@@ -8821,6 +8883,37 @@
         "req": []
       },
       "rendered_url": "rendered/analyses/sru-failure-quick-reference.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Linear Issues Executive Summary - DefinitieAgent",
+      "path": "../analyses/LINEAR_ISSUES_EXECUTIVE_SUMMARY.md",
+      "url": "../analyses/LINEAR_ISSUES_EXECUTIVE_SUMMARY.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/LINEAR_ISSUES_EXECUTIVE_SUMMARY.html"
     },
     {
       "id": null,
@@ -56866,7 +56959,7 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 957,
+      "DOC": 960,
       "ARCH": 42,
       "COMP": 5,
       "TEST": 35,
@@ -56876,7 +56969,7 @@
       "BUG": 28,
       "REQ": 110
     },
-    "generated_at": "2025-10-30T16:12:51Z"
+    "generated_at": "2025-10-30T16:28:24Z"
   },
   "sources": [
     "docs"
