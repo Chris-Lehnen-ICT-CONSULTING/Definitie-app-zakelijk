@@ -10,12 +10,72 @@ Related: DEF-74 (Pydantic validation), DEF-68/69 (logging), DEF-83 (integration 
 
 import logging
 from pathlib import Path
-from unittest.mock import patch
 
 import pytest
 from pydantic import ValidationError
 
 from database.definitie_repository import DefinitieRepository
+
+# Test Data Constants
+
+
+VALID_DEFINITIE_ID = 1  # ID created by repository fixture
+INVALID_NEGATIVE_ID = -1  # Invalid: negative ID
+INVALID_ZERO_ID = 0  # Invalid: zero is not allowed
+INVALID_EXTREME_NEGATIVE_ID = -999  # Invalid: extreme negative value
+
+
+# Helper Functions
+
+
+def assert_error_contains(exc_info, *keywords: str) -> None:
+    """Assert that error message contains any of the given keywords.
+
+    Args:
+        exc_info: pytest ExcInfo object from pytest.raises()
+        *keywords: Keywords to search for (case-insensitive). If multiple
+                   keywords provided, at least one must be present.
+
+    Raises:
+        AssertionError: If none of the keywords found in error message
+
+    Example:
+        with pytest.raises(ValidationError) as exc_info:
+            some_function()
+        assert_error_contains(exc_info, "definitie_id", "positive")
+    """
+    error_msg = str(exc_info.value).lower()
+    assert any(
+        kw.lower() in error_msg for kw in keywords
+    ), f"Error '{exc_info.value!s}' should contain one of: {keywords}"
+
+
+def _count_active_voorbeelden(
+    repository: DefinitieRepository, definitie_id: int
+) -> int:
+    """Count active voorbeelden for a given definitie.
+
+    Args:
+        repository: Repository instance
+        definitie_id: ID of the definitie to count voorbeelden for
+
+    Returns:
+        Count of active voorbeelden in database
+
+    Note:
+        Uses parameterized SQL query to prevent SQL injection and
+        improve maintainability. Direct database access via _get_connection()
+        is acceptable in integration tests for verification purposes.
+    """
+    with repository._get_connection() as conn:
+        cursor = conn.execute(
+            "SELECT COUNT(*) FROM definitie_voorbeelden WHERE definitie_id = ? AND actief = TRUE",
+            (definitie_id,),
+        )
+        return cursor.fetchone()[0]
+
+
+# Fixtures
 
 
 @pytest.fixture()
@@ -66,23 +126,22 @@ def test_invalid_definitie_id_rejection(repository: DefinitieRepository):
     # Invalid: negative ID
     with pytest.raises(ValidationError) as exc_info:
         repository.save_voorbeelden(
-            definitie_id=-1,
+            definitie_id=INVALID_NEGATIVE_ID,
             voorbeelden_dict={"voorbeeldzinnen": ["test"]},
         )
 
     # Check error message contains useful info
-    error_msg = str(exc_info.value)
-    assert "definitie_id" in error_msg.lower()
-    assert "positive" in error_msg.lower() or "greater than" in error_msg.lower()
+    assert_error_contains(exc_info, "definitie_id")
+    assert_error_contains(exc_info, "positive", "greater than")
 
     # Invalid: zero
     with pytest.raises(ValidationError) as exc_info:
         repository.save_voorbeelden(
-            definitie_id=0,
+            definitie_id=INVALID_ZERO_ID,
             voorbeelden_dict={"voorbeeldzinnen": ["test"]},
         )
 
-    assert "definitie_id" in str(exc_info.value).lower()
+    assert_error_contains(exc_info, "definitie_id")
 
 
 def test_invalid_voorbeelden_dict_type_rejection(repository: DefinitieRepository):
@@ -93,40 +152,38 @@ def test_invalid_voorbeelden_dict_type_rejection(repository: DefinitieRepository
     # Invalid: string instead of dict
     with pytest.raises(ValidationError) as exc_info:
         repository.save_voorbeelden(
-            definitie_id=1,
+            definitie_id=VALID_DEFINITIE_ID,
             voorbeelden_dict="not a dict",  # type: ignore
         )
 
-    error_msg = str(exc_info.value)
-    assert "voorbeelden_dict" in error_msg.lower() or "dict" in error_msg.lower()
+    assert_error_contains(exc_info, "voorbeelden_dict", "dict")
 
     # Invalid: list instead of dict
     with pytest.raises(ValidationError) as exc_info:
         repository.save_voorbeelden(
-            definitie_id=1,
+            definitie_id=VALID_DEFINITIE_ID,
             voorbeelden_dict=["not", "a", "dict"],  # type: ignore
         )
 
-    assert "dict" in str(exc_info.value).lower()
+    assert_error_contains(exc_info, "dict")
 
     # Invalid: dict with non-string keys
     with pytest.raises(ValidationError) as exc_info:
         repository.save_voorbeelden(
-            definitie_id=1,
+            definitie_id=VALID_DEFINITIE_ID,
             voorbeelden_dict={123: ["test"]},  # type: ignore
         )
 
-    error_msg = str(exc_info.value)
-    assert "key" in error_msg.lower() or "string" in error_msg.lower()
+    assert_error_contains(exc_info, "key", "string")
 
     # Invalid: dict with non-list values
     with pytest.raises(ValidationError) as exc_info:
         repository.save_voorbeelden(
-            definitie_id=1,
+            definitie_id=VALID_DEFINITIE_ID,
             voorbeelden_dict={"voorbeeldzinnen": "should be list"},  # type: ignore
         )
 
-    assert "list" in str(exc_info.value).lower()
+    assert_error_contains(exc_info, "list")
 
 
 def test_empty_voorbeelden_dict_rejection(repository: DefinitieRepository):
@@ -137,17 +194,16 @@ def test_empty_voorbeelden_dict_rejection(repository: DefinitieRepository):
     # Empty dict
     with pytest.raises(ValidationError) as exc_info:
         repository.save_voorbeelden(
-            definitie_id=1,
+            definitie_id=VALID_DEFINITIE_ID,
             voorbeelden_dict={},
         )
 
-    error_msg = str(exc_info.value)
-    assert "example" in error_msg.lower() or "empty" in error_msg.lower()
+    assert_error_contains(exc_info, "example", "empty")
 
     # Dict with only empty lists
     with pytest.raises(ValidationError) as exc_info:
         repository.save_voorbeelden(
-            definitie_id=1,
+            definitie_id=VALID_DEFINITIE_ID,
             voorbeelden_dict={
                 "voorbeeldzinnen": [],
                 "praktijkvoorbeelden": [],
@@ -159,7 +215,7 @@ def test_empty_voorbeelden_dict_rejection(repository: DefinitieRepository):
     # Dict with only whitespace strings
     with pytest.raises(ValidationError) as exc_info:
         repository.save_voorbeelden(
-            definitie_id=1,
+            definitie_id=VALID_DEFINITIE_ID,
             voorbeelden_dict={
                 "voorbeeldzinnen": ["   ", "\t", "\n"],
             },
@@ -186,7 +242,7 @@ def test_valid_data_acceptance_and_logging(repository: DefinitieRepository, capl
 
     # Should succeed
     result = repository.save_voorbeelden(
-        definitie_id=1,
+        definitie_id=VALID_DEFINITIE_ID,
         voorbeelden_dict=valid_voorbeelden,
         generation_model="gpt-4",
         gegenereerd_door="test_system",
@@ -209,7 +265,7 @@ def test_error_message_clarity(repository: DefinitieRepository):
     # Test error for invalid ID
     with pytest.raises(ValidationError) as exc_info:
         repository.save_voorbeelden(
-            definitie_id=-999,
+            definitie_id=INVALID_EXTREME_NEGATIVE_ID,
             voorbeelden_dict={"voorbeeldzinnen": ["test"]},
         )
 
@@ -219,13 +275,12 @@ def test_error_message_clarity(repository: DefinitieRepository):
     assert any("definitie_id" in str(err) for err in error.errors())
 
     # Error should contain constraint info
-    error_str = str(error)
-    assert "positive" in error_str.lower() or "greater" in error_str.lower()
+    assert_error_contains(exc_info, "positive", "greater")
 
     # Test error for wrong type
     with pytest.raises(ValidationError) as exc_info:
         repository.save_voorbeelden(
-            definitie_id=1,
+            definitie_id=VALID_DEFINITIE_ID,
             voorbeelden_dict={"voorbeeldzinnen": "not a list"},  # type: ignore
         )
 
@@ -248,7 +303,7 @@ def test_logging_integration_with_context(repository: DefinitieRepository, caplo
     # Trigger validation error
     with pytest.raises(ValidationError):
         repository.save_voorbeelden(
-            definitie_id=-1,
+            definitie_id=INVALID_NEGATIVE_ID,
             voorbeelden_dict={"voorbeeldzinnen": ["test"]},
         )
 
@@ -282,7 +337,7 @@ def test_validation_chain_end_to_end(repository: DefinitieRepository, caplog):
 
     # Valid flow
     valid_result = repository.save_voorbeelden(
-        definitie_id=1,
+        definitie_id=VALID_DEFINITIE_ID,
         voorbeelden_dict={
             "voorbeeldzinnen": ["Zin 1", "Zin 2"],
             "praktijkvoorbeelden": ["Praktijk"],
@@ -296,12 +351,8 @@ def test_validation_chain_end_to_end(repository: DefinitieRepository, caplog):
     assert all(isinstance(id, int) for id in valid_result)
 
     # Verify database state
-    with repository._get_connection() as conn:
-        cursor = conn.execute(
-            "SELECT COUNT(*) FROM definitie_voorbeelden WHERE definitie_id = 1 AND actief = TRUE"
-        )
-        count = cursor.fetchone()[0]
-        assert count > 0, "Should have saved voorbeelden to database"
+    count = _count_active_voorbeelden(repository, VALID_DEFINITIE_ID)
+    assert count > 0, "Should have saved voorbeelden to database"
 
     # Verify logging
     info_records = [r for r in caplog.records if r.levelname == "INFO"]
@@ -313,7 +364,7 @@ def test_validation_chain_end_to_end(repository: DefinitieRepository, caplog):
 
     with pytest.raises(ValidationError):
         repository.save_voorbeelden(
-            definitie_id=0,  # Invalid
+            definitie_id=INVALID_ZERO_ID,
             voorbeelden_dict={"voorbeeldzinnen": ["test"]},
         )
 
