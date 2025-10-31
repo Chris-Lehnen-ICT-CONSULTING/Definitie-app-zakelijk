@@ -12,7 +12,7 @@ from src.services.ufo_pattern_matcher import (
 )
 
 
-@pytest.mark.unit()
+@pytest.mark.unit
 def test_kind_category_has_patterns():
     pm = PatternMatcher()
     data = pm.get_patterns_for_category(UFOCategory.KIND)
@@ -25,7 +25,7 @@ def test_kind_category_has_patterns():
     assert isinstance(data["negative_patterns"], list)
 
 
-@pytest.mark.unit()
+@pytest.mark.unit
 def test_event_category_has_temporal_keywords():
     pm = get_pattern_matcher()
     data = pm.get_patterns_for_category(UFOCategory.EVENT)
@@ -34,7 +34,7 @@ def test_event_category_has_temporal_keywords():
     assert len(data["temporal_keywords"]) > 0
 
 
-@pytest.mark.unit()
+@pytest.mark.unit
 def test_vocabulary_contains_strafrecht_terms():
     pm = PatternMatcher()
     vocab = pm.get_vocabulary_for_domain("strafrecht")
@@ -42,7 +42,7 @@ def test_vocabulary_contains_strafrecht_terms():
     assert "aangifte" in vocab
 
 
-@pytest.mark.unit()
+@pytest.mark.unit
 def test_get_singleton_matcher():
     m1 = get_pattern_matcher()
     m2 = get_pattern_matcher()

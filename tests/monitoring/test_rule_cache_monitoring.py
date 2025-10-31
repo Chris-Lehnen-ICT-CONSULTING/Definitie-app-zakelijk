@@ -5,7 +5,7 @@ import pytest
 from toetsregels.rule_cache import RuleCache, get_rule_cache
 
 
-@pytest.fixture()
+@pytest.fixture
 def rule_cache():
     """Create a fresh RuleCache instance for testing."""
     # Create new instance (singleton will be shared)

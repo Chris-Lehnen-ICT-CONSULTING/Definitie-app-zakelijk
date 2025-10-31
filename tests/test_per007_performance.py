@@ -15,8 +15,8 @@ from services.prompts.prompt_service_v2 import PromptServiceV2
 class TestPerformance:
     """Performance benchmarks - run after GREEN phase implementation"""
 
-    @pytest.mark.benchmark()
-    @pytest.mark.performance()
+    @pytest.mark.benchmark
+    @pytest.mark.performance
     def test_context_processing_under_100ms(self):
         """Context processing must complete in < 100ms"""
         # GIVEN: Complex request with all context types
@@ -51,8 +51,8 @@ class TestPerformance:
         assert len(result["juridisch"]) == 3
         assert len(result["wettelijk"]) == 5
 
-    @pytest.mark.benchmark()
-    @pytest.mark.performance()
+    @pytest.mark.benchmark
+    @pytest.mark.performance
     def test_deduplication_performance(self):
         """Deduplication must be efficient even with large lists"""
         # GIVEN: Large list with many duplicates
@@ -80,8 +80,8 @@ class TestPerformance:
             result["organisatorisch"] == base_orgs
         ), f"Deduplication failed. Got {result['organisatorisch']}"
 
-    @pytest.mark.benchmark()
-    @pytest.mark.performance()
+    @pytest.mark.benchmark
+    @pytest.mark.performance
     def test_ui_formatting_performance(self):
         """UI preview generation must be fast"""
         # GIVEN: Complex context
@@ -127,8 +127,8 @@ class TestPerformance:
         assert "📋 Org:" in result or "Org:" in result
         assert "⚖️ Juridisch:" in result or "Juridisch:" in result
 
-    @pytest.mark.benchmark()
-    @pytest.mark.performance()
+    @pytest.mark.benchmark
+    @pytest.mark.performance
     def test_astra_validation_performance(self):
         """ASTRA validation must be fast"""
         # GIVEN: Mix of valid, invalid, and custom organizations
@@ -165,8 +165,8 @@ class TestPerformance:
             avg_time < 10
         ), f"ASTRA validation took {avg_time:.2f}ms, exceeds 10ms limit"
 
-    @pytest.mark.benchmark()
-    @pytest.mark.performance()
+    @pytest.mark.benchmark
+    @pytest.mark.performance
     def test_end_to_end_flow_performance(self):
         """Complete context flow must be under 200ms"""
         # GIVEN: Full request
@@ -218,8 +218,8 @@ class TestPerformance:
         assert avg_time < 200, f"E2E flow took {avg_time:.2f}ms average, exceeds 200ms"
         assert max_time < 400, f"E2E flow took {max_time:.2f}ms max, exceeds 400ms"
 
-    @pytest.mark.benchmark()
-    @pytest.mark.performance()
+    @pytest.mark.benchmark
+    @pytest.mark.performance
     def test_anders_processing_overhead(self):
         """Anders option processing should add minimal overhead"""
         # GIVEN: Request without Anders
@@ -268,8 +268,8 @@ class TestPerformance:
             overhead_percent < 20
         ), f"Anders processing adds {overhead_percent:.1f}% overhead, exceeds 20% limit"
 
-    @pytest.mark.benchmark()
-    @pytest.mark.performance()
+    @pytest.mark.benchmark
+    @pytest.mark.performance
     def test_memory_efficiency(self):
         """Context processing should be memory efficient"""
         import tracemalloc
@@ -303,8 +303,8 @@ class TestPerformance:
 
         assert memory_mb < 10, f"Memory usage {memory_mb:.2f}MB exceeds 10MB limit"
 
-    @pytest.mark.benchmark()
-    @pytest.mark.performance()
+    @pytest.mark.benchmark
+    @pytest.mark.performance
     def test_concurrent_processing_performance(self):
         """Context processing should handle concurrent requests efficiently"""
         import concurrent.futures

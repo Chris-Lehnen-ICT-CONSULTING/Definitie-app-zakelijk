@@ -88,7 +88,7 @@ class _StubWebLookupService:
         return [r2, r1]  # Already ranked
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_orchestrator_includes_provenance_sources_in_metadata():
     from services.interfaces import GenerationRequest, OrchestratorConfig
     from services.orchestrators.definition_orchestrator_v2 import (
