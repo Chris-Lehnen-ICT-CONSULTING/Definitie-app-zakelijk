@@ -220,7 +220,8 @@ class ServiceContainer:
             )
             from services.ai_service_v2 import AIServiceV2
             from services.interfaces import OrchestratorConfig as V2OrchestratorConfig
-            from services.prompts.prompt_service_v2 import PromptServiceV2
+
+            # DEF-66: PromptServiceV2 import removed - lazy loaded by orchestrator
             from services.validation.config import ValidationConfig
 
             # Validation service: cutover to modular V2 implementation
@@ -233,8 +234,10 @@ class ServiceContainer:
 
             v2_config = V2OrchestratorConfig()
 
-            # Create all required V2 services
-            prompt_service = PromptServiceV2()
+            # DEF-66: PromptServiceV2 is now lazy-loaded by orchestrator (saves 435ms on init)
+            # prompt_service = PromptServiceV2()  # REMOVED - lazy loaded
+
+            # Create AI service (still eager - needed for orchestrator init check)
             ai_service = AIServiceV2(
                 default_model=self.generator_config.gpt.model, use_cache=True
             )
@@ -280,8 +283,8 @@ class ServiceContainer:
                 synonym_orch = None
 
             self._instances["orchestrator"] = DefinitionOrchestratorV2(
-                # Required V2 services
-                prompt_service=prompt_service,
+                # DEF-66: prompt_service=None triggers lazy loading (saves 435ms)
+                prompt_service=None,  # Will be lazy-loaded on first access
                 ai_service=ai_service,
                 validation_service=validation_orchestrator,
                 cleaning_service=cleaning_service,
