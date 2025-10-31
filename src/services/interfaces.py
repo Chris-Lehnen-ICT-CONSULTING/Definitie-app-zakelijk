@@ -37,27 +37,28 @@ class ValidationDetailsDict(TypedDict):
     passed_rules: list[str]
 
 
-class VoorbeeldenDict(TypedDict):
-    """Canonical examples format for V2 contract.
-
-    REFACTORED: Semantisch correcte namen voor voorbeelden types.
-    - voorbeeldzinnen: was "juridisch" - algemene voorbeeldzinnen
-    - praktijkvoorbeelden: was "praktijk" - concrete praktijksituaties
-    - tegenvoorbeelden: wat het NIET is
-    - synoniemen: alternatieve termen (kan leeg zijn)
-    - antoniemen: tegengestelde termen (kan leeg zijn)
-    - toelichting: uitgebreide uitleg (kan leeg zijn)
-
-    BUSINESSLOGICA: Alle velden worden ALTIJD gegenereerd door unified_voorbeelden.py
-    maar kunnen lege waarden bevatten als er geen relevante content is.
-    """
-
-    voorbeeldzinnen: list[str]  # Was "juridisch"
-    praktijkvoorbeelden: list[str]  # Was "praktijk"
-    tegenvoorbeelden: list[str]
-    synoniemen: list[str]  # Altijd aanwezig, kan leeg zijn
-    antoniemen: list[str]  # Altijd aanwezig, kan leeg zijn
-    toelichting: str  # Altijd aanwezig, kan leeg zijn
+# NOTE (DEF-82): VoorbeeldenDict TypedDict REMOVED - gebruik Pydantic versie
+# Voor runtime validation met Pydantic: from models.voorbeelden_validation import VoorbeeldenDict
+# Voor type hints only: gebruik dict[str, list[str]]
+#
+# REASONING: Duplication tussen TypedDict (type hints only) en Pydantic BaseModel
+# (runtime validation) was verwarrend en prone to drift. Pydantic versie is canonical
+# omdat het input validation biedt (DEF-74).
+#
+# BUSINESSLOGICA (behouden uit oude TypedDict):
+# - voorbeeldzinnen: was "juridisch" - algemene voorbeeldzinnen
+# - praktijkvoorbeelden: was "praktijk" - concrete praktijksituaties
+# - tegenvoorbeelden: wat het NIET is
+# - synoniemen: alternatieve termen (kan leeg zijn)
+# - antoniemen: tegengestelde termen (kan leeg zijn)
+# - toelichting: uitgebreide uitleg (kan leeg zijn)
+#
+# Alle velden worden ALTIJD gegenereerd door unified_voorbeelden.py
+# maar kunnen lege waarden bevatten als er geen relevante content is.
+#
+# Voor backward compatibility waar TypedDict structuur nodig is,
+# gebruik: dict[str, list[str]] (voor de meeste fields) of dict[str, str | list[str]]
+# (als toelichting string moet kunnen zijn)
 
 
 class MetadataDict(TypedDict, total=False):
@@ -76,6 +77,10 @@ class UIResponseDict(TypedDict):
 
     This is the ONLY format the UI should receive.
     No best iteration attr, no is_valid, no object forms.
+
+    NOTE (DEF-82): voorbeelden field type changed from VoorbeeldenDict (removed)
+    to dict[str, list[str] | str] to support voorbeeldzinnen/praktijkvoorbeelden (list)
+    and toelichting (str).
     """
 
     success: bool
@@ -83,7 +88,7 @@ class UIResponseDict(TypedDict):
     definitie_gecorrigeerd: str
     final_score: float
     validation_details: ValidationDetailsDict
-    voorbeelden: VoorbeeldenDict
+    voorbeelden: dict[str, list[str] | str]  # Was: VoorbeeldenDict (removed in DEF-82)
     metadata: MetadataDict
     sources: list[dict[str, Any]]
 
