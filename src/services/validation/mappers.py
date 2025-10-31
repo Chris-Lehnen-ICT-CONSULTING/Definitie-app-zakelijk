@@ -5,6 +5,7 @@ Deze module handelt de conversie af tussen:
 - services.validation.interfaces.ValidationResult (TypedDict) - JSON Schema conform
 """
 
+import logging
 import uuid
 from datetime import UTC, datetime
 
@@ -20,6 +21,9 @@ from services.validation.interfaces import (
 )
 from services.validation.interfaces import ValidationResult as TypedDictResult
 from services.validation.interfaces import ViolationLocation
+
+# Module logger
+logger = logging.getLogger(__name__)
 
 # Default passed rules configuration
 DEFAULT_PASSED_RULES = ["BASIC-001", "BASIC-002", "BASIC-003"]
@@ -198,6 +202,12 @@ def ensure_schema_compliance(
         return dataclass_to_schema_dict(result, correlation_id)
 
     # Fallback: create minimal valid result
+    logger.error(
+        f"Context validation failed: Invalid result type {type(result).__name__}. "
+        f"Expected dataclass or dict with 'version' and 'system' keys. "
+        f"correlation_id={correlation_id or 'N/A'}",
+        exc_info=True,
+    )
     return create_degraded_result(
         error="Invalid result type", correlation_id=correlation_id
     )
@@ -218,6 +228,13 @@ def create_degraded_result(
     """
     if not correlation_id:
         correlation_id = str(uuid.uuid4())
+
+    # Log degraded result creation
+    logger.error(
+        f"Creating degraded validation result: {error}. "
+        f"begrip={begrip or 'N/A'}, correlation_id={correlation_id}",
+        exc_info=True,
+    )
 
     violation: RuleViolation = {
         "code": "SYS-SVC-001",
