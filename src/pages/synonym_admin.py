@@ -807,7 +807,7 @@ if view_mode == "Individuele Members Review":
                                 st.warning(f"❌ Rejected: {member.term}")
                                 st.rerun()
                     elif st.button("↩️ Revert to Pending", key=f"revert_{member.id}"):
-                        user = st.session_state.get("user", "admin")
+                        user = SessionStateManager.get_value("user", "admin")
                         registry.update_member_status(member.id, "ai_pending", user)
                         orchestrator.invalidate_cache(member.term)
                         st.success(f"↩️ Reverted: {member.term}")
