@@ -167,7 +167,7 @@ class EnhancedContextManagerSelector:
         session_key = session_key_map.get(multiselect_key)
         if session_key:
             # Clean up the session state to prevent conflicts
-            SessionStateManager.delete_value(session_key)
+            SessionStateManager.clear_value(session_key)
             logger.debug(f"Cleaned up session state key: {session_key}")
 
         # Also clean up the global multiselect keys (legacy) and any namespaced variants
@@ -176,7 +176,7 @@ class EnhancedContextManagerSelector:
             "cm_" + multiselect_key + "_global",
             multiselect_key,
         ]:
-            SessionStateManager.delete_value(key_variant)
+            SessionStateManager.clear_value(key_variant)
             logger.debug(f"Cleaned up conflicting widget key: {key_variant}")
 
         # Extract custom values (those not in base options)
