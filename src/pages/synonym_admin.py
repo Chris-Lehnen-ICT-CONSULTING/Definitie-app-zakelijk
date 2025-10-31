@@ -34,6 +34,7 @@ from src.repositories.synonym_registry import SynonymRegistry
 from src.services.container import get_container
 from src.services.gpt4_synonym_suggester import GPT4SynonymSuggester
 from src.services.synonym_orchestrator import SynonymOrchestrator
+from ui.session_state import SessionStateManager
 
 logger = logging.getLogger(__name__)
 
@@ -450,7 +451,7 @@ if view_mode == "Groepen Browser":
 
                             with col2:
                                 if st.button("🗑️ Verwijder", key=f"delete_m_{m.id}"):
-                                    if st.session_state.get(
+                                    if SessionStateManager.get_value(
                                         f"confirm_delete_m_{m.id}", False
                                     ):
                                         try:
@@ -461,8 +462,8 @@ if view_mode == "Groepen Browser":
                                         except Exception as e:
                                             st.error(f"Fout: {e}")
                                     else:
-                                        st.session_state[f"confirm_delete_m_{m.id}"] = (
-                                            True
+                                        SessionStateManager.set_value(
+                                            f"confirm_delete_m_{m.id}", True
                                         )
                                         st.warning(
                                             "⚠️ Klik nogmaals om definitief te verwijderen"
@@ -521,7 +522,7 @@ if view_mode == "Groepen Browser":
                         if st.button(
                             "🗑️ Verwijder Groep", key=f"delete_group_{group_id}"
                         ):
-                            if st.session_state.get(
+                            if SessionStateManager.get_value(
                                 f"confirm_delete_{group_id}", False
                             ):
                                 try:
@@ -531,7 +532,9 @@ if view_mode == "Groepen Browser":
                                 except Exception as e:
                                     st.error(f"Fout: {e}")
                             else:
-                                st.session_state[f"confirm_delete_{group_id}"] = True
+                                SessionStateManager.set_value(
+                                    f"confirm_delete_{group_id}", True
+                                )
                                 st.warning("Klik nogmaals om te bevestigen")
 
                     with col2:
@@ -636,7 +639,7 @@ if view_mode == "Individuele Members Review":
             items_per_page = 20
             total_pages = (len(all_members) - 1) // items_per_page + 1
 
-            current_page = st.session_state.get("page", 1)
+            current_page = SessionStateManager.get_value("page", 1)
             if current_page > total_pages:
                 current_page = 1
 
@@ -649,7 +652,7 @@ if view_mode == "Individuele Members Review":
                     value=current_page,
                     key="page_input",
                 )
-                st.session_state["page"] = page
+                SessionStateManager.set_value("page", page)
 
             # Paginate
             start_idx = (page - 1) * items_per_page
@@ -669,24 +672,24 @@ if view_mode == "Individuele Members Review":
                         f"✅ Approve All Visible ({len(ai_pending_on_page)})",
                         key="bulk_approve",
                     ):
-                        st.session_state["confirm_bulk_approve"] = True
+                        SessionStateManager.set_value("confirm_bulk_approve", True)
 
                 with col2:
                     if st.button(
                         f"❌ Reject All Visible ({len(ai_pending_on_page)})",
                         key="bulk_reject",
                     ):
-                        st.session_state["confirm_bulk_reject"] = True
+                        SessionStateManager.set_value("confirm_bulk_reject", True)
 
                 # Confirmations
-                if st.session_state.get("confirm_bulk_approve", False):
+                if SessionStateManager.get_value("confirm_bulk_approve", False):
                     st.warning(
                         f"⚠️ Weet je zeker dat je {len(ai_pending_on_page)} members wilt approven?"
                     )
                     col1, col2 = st.columns(2)
                     with col1:
                         if st.button("Ja, Approve All", key="confirm_yes_approve"):
-                            user = st.session_state.get("user", "admin")
+                            user = SessionStateManager.get_value("user", "admin")
                             success = 0
                             for m in ai_pending_on_page:
                                 try:
@@ -696,21 +699,21 @@ if view_mode == "Individuele Members Review":
                                 except Exception as e:
                                     logger.error(f"Bulk approve failed for {m.id}: {e}")
                             st.success(f"✅ {success} members approved!")
-                            st.session_state["confirm_bulk_approve"] = False
+                            SessionStateManager.set_value("confirm_bulk_approve", False)
                             st.rerun()
                     with col2:
                         if st.button("Annuleer", key="cancel_approve"):
-                            st.session_state["confirm_bulk_approve"] = False
+                            SessionStateManager.set_value("confirm_bulk_approve", False)
                             st.rerun()
 
-                if st.session_state.get("confirm_bulk_reject", False):
+                if SessionStateManager.get_value("confirm_bulk_reject", False):
                     st.warning(
                         f"⚠️ Weet je zeker dat je {len(ai_pending_on_page)} members wilt rejecten?"
                     )
                     col1, col2 = st.columns(2)
                     with col1:
                         if st.button("Ja, Reject All", key="confirm_yes_reject"):
-                            user = st.session_state.get("user", "admin")
+                            user = SessionStateManager.get_value("user", "admin")
                             success = 0
                             for m in ai_pending_on_page:
                                 try:
@@ -722,11 +725,11 @@ if view_mode == "Individuele Members Review":
                                 except Exception as e:
                                     logger.error(f"Bulk reject failed for {m.id}: {e}")
                             st.warning(f"❌ {success} members rejected!")
-                            st.session_state["confirm_bulk_reject"] = False
+                            SessionStateManager.set_value("confirm_bulk_reject", False)
                             st.rerun()
                     with col2:
                         if st.button("Annuleer", key="cancel_reject"):
-                            st.session_state["confirm_bulk_reject"] = False
+                            SessionStateManager.set_value("confirm_bulk_reject", False)
                             st.rerun()
 
             st.markdown("---")
@@ -789,14 +792,14 @@ if view_mode == "Individuele Members Review":
                             if st.button(
                                 "✅ Approve", key=f"approve_{member.id}", type="primary"
                             ):
-                                user = st.session_state.get("user", "admin")
+                                user = SessionStateManager.get_value("user", "admin")
                                 registry.update_member_status(member.id, "active", user)
                                 orchestrator.invalidate_cache(member.term)
                                 st.success(f"✅ Approved: {member.term}")
                                 st.rerun()
                         with col2:
                             if st.button("❌ Reject", key=f"reject_{member.id}"):
-                                user = st.session_state.get("user", "admin")
+                                user = SessionStateManager.get_value("user", "admin")
                                 registry.update_member_status(
                                     member.id, "rejected_auto", user
                                 )

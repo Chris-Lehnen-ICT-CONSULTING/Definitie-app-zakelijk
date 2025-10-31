@@ -4,7 +4,7 @@ Context State Cleaner - Automatische opschoning van ongeldige session state waar
 
 import logging
 
-import streamlit as st
+from ui.session_state import SessionStateManager
 
 logger = logging.getLogger(__name__)
 
@@ -30,26 +30,29 @@ class ContextStateCleaner:
         ]
 
         # Clean organisatorische context
-        if "org_context_values" in st.session_state:
-            original = st.session_state.org_context_values.copy()
+        org_context_values = SessionStateManager.get_value("org_context_values")
+        if org_context_values is not None:
+            original = org_context_values.copy()
             # Verwijder "Anders..." en behoud alleen geldige waardes
             cleaned = [v for v in original if v not in {"Anders...", ""}]
             if cleaned != original:
                 logger.info(f"Cleaned org_context_values: {original} -> {cleaned}")
-                st.session_state.org_context_values = cleaned
+                SessionStateManager.set_value("org_context_values", cleaned)
 
         # Clean juridische context
-        if "jur_context_values" in st.session_state:
-            original = st.session_state.jur_context_values.copy()
+        jur_context_values = SessionStateManager.get_value("jur_context_values")
+        if jur_context_values is not None:
+            original = jur_context_values.copy()
             # Verwijder "Anders..." en test waardes
             cleaned = [v for v in original if v not in {"Anders...", "en nu", ""}]
             if cleaned != original:
                 logger.info(f"Cleaned jur_context_values: {original} -> {cleaned}")
-                st.session_state.jur_context_values = cleaned
+                SessionStateManager.set_value("jur_context_values", cleaned)
 
         # Clean wettelijke basis - AGRESSIEVE CLEANUP
-        if "wet_basis_values" in st.session_state:
-            original = st.session_state.wet_basis_values.copy()
+        wet_basis_values = SessionStateManager.get_value("wet_basis_values")
+        if wet_basis_values is not None:
+            original = wet_basis_values.copy()
             # Alleen behouden wat EXACT in de base options staat OF een echte custom waarde is
             # Verwijder ALLE test waardes en "Anders..."
             cleaned = []
@@ -72,7 +75,7 @@ class ContextStateCleaner:
                 logger.warning(
                     f"AGGRESSIVE CLEANUP wet_basis_values: {original} -> {cleaned}"
                 )
-                st.session_state.wet_basis_values = cleaned
+                SessionStateManager.set_value("wet_basis_values", cleaned)
 
     @staticmethod
     def validate_and_fix_state(
@@ -112,9 +115,9 @@ def init_context_cleaner(force_clean=False):
     Args:
         force_clean: If True, force a cleanup even if already done
     """
-    if force_clean or "context_cleaned" not in st.session_state:
+    if force_clean or SessionStateManager.get_value("context_cleaned") is None:
         ContextStateCleaner.clean_session_state()
-        st.session_state.context_cleaned = True
+        SessionStateManager.set_value("context_cleaned", True)
         logger.info("Context state cleaned on app initialization")
 
 
@@ -123,15 +126,11 @@ def reset_all_context():
     logger.warning("FORCE RESET: Clearing all context fields")
 
     # Reset alle context velden
-    if "org_context_values" in st.session_state:
-        del st.session_state.org_context_values
-    if "jur_context_values" in st.session_state:
-        del st.session_state.jur_context_values
-    if "wet_basis_values" in st.session_state:
-        del st.session_state.wet_basis_values
+    SessionStateManager.clear_value("org_context_values")
+    SessionStateManager.clear_value("jur_context_values")
+    SessionStateManager.clear_value("wet_basis_values")
 
     # Reset cleaned flag om force cleanup te triggeren
-    if "context_cleaned" in st.session_state:
-        del st.session_state.context_cleaned
+    SessionStateManager.clear_value("context_cleaned")
 
     logger.info("All context fields reset")
