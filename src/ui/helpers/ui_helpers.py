@@ -56,13 +56,13 @@ def clear_session_values(*keys: str) -> None:
     Clear multiple session state values.
 
     Replaces repeated pattern:
-        SessionStateManager.delete_value("key1")
+        SessionStateManager.clear_value("key1")
         ...
     """
     from ui.session_state import SessionStateManager
 
     for key in keys:
-        SessionStateManager.delete_value(key)
+        SessionStateManager.clear_value(key)
 
 
 # === Service Access Helpers ===
@@ -227,10 +227,9 @@ def create_action_button(
     button_clicked = st.button(label, key=key, type=type, disabled=disabled, **kwargs)
 
     if button_clicked:
-        if confirm:
-            if not st.checkbox(f"Bevestig: {confirm}", key=f"{key}_confirm"):
-                st.warning("Actie geannuleerd - bevestiging vereist")
-                return None
+        if confirm and not st.checkbox(f"Bevestig: {confirm}", key=f"{key}_confirm"):
+            st.warning("Actie geannuleerd - bevestiging vereist")
+            return None
 
         with show_progress(f"{label}..."):
             result = action()
@@ -354,7 +353,7 @@ def show_status_badge(
         "success": ("✅", "green"),
         "error": ("❌", "red"),
         "warning": ("⚠️", "orange"),
-        "info": ("ℹ️", "blue"),
+        "info": ("💡", "blue"),
         "pending": ("⏳", "gray"),
         "active": ("🟢", "green"),
         "inactive": ("🔴", "red"),
