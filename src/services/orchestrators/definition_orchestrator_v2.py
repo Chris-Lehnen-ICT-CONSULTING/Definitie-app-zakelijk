@@ -74,11 +74,13 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
     def __init__(
         self,
         # Core generation services (required)
-        prompt_service: "PromptServiceV2",
-        ai_service: "IntelligentAIService",
-        validation_service: "ValidationOrchestratorInterface",
-        cleaning_service: "CleaningServiceInterface",
-        repository: "DefinitionRepositoryInterface",
+        prompt_service: Optional[
+            "PromptServiceV2"
+        ] = None,  # DEF-66: Now optional for lazy loading
+        ai_service: "IntelligentAIService" = None,
+        validation_service: "ValidationOrchestratorInterface" = None,
+        cleaning_service: "CleaningServiceInterface" = None,
+        repository: "DefinitionRepositoryInterface" = None,
         # Optional services
         enhancement_service: Optional["EnhancementService"] = None,
         security_service: Optional["SecurityService"] = None,
@@ -94,12 +96,10 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
         """
         Clean dependency injection - no session state access.
 
-        All core services are required for V2-only operation.
+        DEF-66: PromptServiceV2 is now lazy-loaded to reduce initialization time from 509ms to <180ms.
+        If not provided, it will be created on first access.
         """
-        # V2 Services (required)
-        if not prompt_service:
-            msg = "PromptServiceV2 is required"
-            raise ValueError(msg)
+        # V2 Services (required, except prompt_service which is lazy)
         if not ai_service:
             msg = "AIServiceInterface is required"
             raise ValueError(msg)
@@ -113,7 +113,8 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             msg = "DefinitionRepositoryInterface is required"
             raise ValueError(msg)
 
-        self.prompt_service = prompt_service
+        # DEF-66: Store prompt_service for lazy loading (private to force property usage)
+        self._prompt_service = prompt_service
         self.ai_service = ai_service
         self.validation_service = validation_service
         self.enhancement_service = enhancement_service
@@ -145,6 +146,26 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             f"caching={self.config.enable_caching}, "
             f"synonym_enrichment={'enabled' if synonym_orchestrator else 'disabled'}"
         )
+
+    @property
+    def prompt_service(self) -> "PromptServiceV2":
+        """
+        Lazy-load PromptServiceV2 on first access (DEF-66 performance optimization).
+
+        This reduces TabbedInterface initialization from 509ms to <180ms by deferring
+        the expensive PromptServiceV2 creation (435ms, 85% of init time) until first use.
+
+        Returns:
+            PromptServiceV2 instance (cached after first access)
+        """
+        if self._prompt_service is None:
+            logger.debug("DEF-66: Lazy-loading PromptServiceV2 on first access")
+            from services.prompts.prompt_service_v2 import PromptServiceV2
+
+            self._prompt_service = PromptServiceV2()
+            logger.debug("DEF-66: PromptServiceV2 initialized successfully")
+
+        return self._prompt_service
 
     def get_service_info(self) -> dict:
         """Return service info voor UI quality control."""
