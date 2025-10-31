@@ -99,52 +99,50 @@ class VoorbeeldenDebugger:
 
         # Check for voorbeelden in session state (UI only)
         try:
-            st = __import__("streamlit")
+            # Import SessionStateManager for compliant state access
+            from ui.session_state import SessionStateManager
         except Exception:
             logger.debug(f"[{generation_id}] Session state unavailable (no UI context)")
             return
-        if hasattr(st, "session_state"):
-            relevant_keys = [
-                "voorbeelden",
-                "generated_voorbeelden",
-                "cached_voorbeelden",
-                "synoniemen",
-                "antoniemen",
-                "voorbeeldzinnen",
-                "praktijkvoorbeelden",
-                "tegenvoorbeelden",
-                "toelichting",
-            ]
 
-            for key in relevant_keys:
-                if key in st.session_state:
-                    value = st.session_state[key]
-                    if isinstance(value, dict):
-                        logger.debug(
-                            f"[{generation_id}]   st.session_state.{key}: dict with {len(value)} keys"
-                        )
-                        # Log each key's count
-                        for k, v in value.items():
-                            if isinstance(v, list | tuple):
-                                logger.debug(
-                                    f"[{generation_id}]     - {k}: {len(v)} items"
-                                )
-                            elif isinstance(v, str):
-                                logger.debug(
-                                    f"[{generation_id}]     - {k}: {len(v)} chars"
-                                )
-                    elif isinstance(value, list | tuple):
-                        logger.debug(
-                            f"[{generation_id}]   st.session_state.{key}: {len(value)} items"
-                        )
-                    elif isinstance(value, str):
-                        logger.debug(
-                            f"[{generation_id}]   st.session_state.{key}: {len(value)} chars"
-                        )
-                    else:
-                        logger.debug(
-                            f"[{generation_id}]   st.session_state.{key}: {type(value).__name__}"
-                        )
+        # Use SessionStateManager for state access
+        relevant_keys = [
+            "voorbeelden",
+            "generated_voorbeelden",
+            "cached_voorbeelden",
+            "synoniemen",
+            "antoniemen",
+            "voorbeeldzinnen",
+            "praktijkvoorbeelden",
+            "tegenvoorbeelden",
+            "toelichting",
+        ]
+
+        for key in relevant_keys:
+            value = SessionStateManager.get_value(key)
+            if value is not None:
+                if isinstance(value, dict):
+                    logger.debug(
+                        f"[{generation_id}]   st.session_state.{key}: dict with {len(value)} keys"
+                    )
+                    # Log each key's count
+                    for k, v in value.items():
+                        if isinstance(v, list | tuple):
+                            logger.debug(f"[{generation_id}]     - {k}: {len(v)} items")
+                        elif isinstance(v, str):
+                            logger.debug(f"[{generation_id}]     - {k}: {len(v)} chars")
+                elif isinstance(value, list | tuple):
+                    logger.debug(
+                        f"[{generation_id}]   st.session_state.{key}: {len(value)} items"
+                    )
+                elif isinstance(value, str):
+                    logger.debug(
+                        f"[{generation_id}]   st.session_state.{key}: {len(value)} chars"
+                    )
+                else:
+                    logger.debug(
+                        f"[{generation_id}]   st.session_state.{key}: {type(value).__name__}"
+                    )
 
     def log_cache_interaction(
         self, generation_id: str, cache_key: str, hit: bool, ttl: int | None = None

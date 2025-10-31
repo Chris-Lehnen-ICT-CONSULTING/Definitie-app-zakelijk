@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Consensus Roadmap - Visual Summary</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>Consensus Roadmap - Visual Summary</h1>
+<p><strong>Date:</strong> 2025-10-30</p>
+<p><strong>Reading Time:</strong> 2 minutes</p>
+<p><strong>Full details:</strong> <code>CONSENSUS_ROADMAP_2025-10-30.md</code></p>
+
+<p>---</p>
+
+<h2>🚀 TL;DR - What to Do This Week</h2>
+
+<pre><code>WEEK 1 EXECUTION ORDER (CONSENSUS)
+═══════════════════════════════════════════════════════════
+
+DAY 1 (4-5h): Foundation + Validation
+├─ Morning   [2h]    Phase 1A: Logging infrastructure (DEF-68 partial)
+└─ Afternoon [2-3h]  DEF-74: Enforce Pydantic validation
+
+DAY 2 (5-7h): Error Propagation
+├─ Morning   [3-4h]  DEF-69: Voorbeelden save error handling
+└─ Afternoon [2-3h]  DEF-68: Context validation (complete)
+
+DAY 3 (3-4h): SessionState Compliance
+└─ All day   [3-4h]  DEF-73: Fix 10 st.session_state violations
+
+DAY 4 (4h): Performance Quick Win
+└─ All day   [4h]    DEF-60: Lazy tab loading (537ms → &lt;200ms)
+
+═══════════════════════════════════════════════════════════
+TOTAL: 14-17 hours
+RESULT: ✅ Zero data loss + 65% faster + SessionState compliant</code></pre>
+
+<p>---</p>
+
+<h2>🔥 CRITICAL CONFLICT RESOLUTION</h2>
+
+<h3>The Debate</h3>
+
+<p><strong>Debug Specialist:</strong> DEF-74 first (validation before error handling)</p>
+<p><strong>Full-Stack Developer:</strong> DEF-68 first (logging before validation)</p>
+
+<h3>The Consensus</h3>
+
+<p><strong>HYBRID approach wins:</strong></p>
+
+<pre><code>Phase 1A: DEF-68 (logging only)
+    ↓
+Phase 1B: DEF-74 (validation)
+    ↓
+Phase 1C: DEF-69 (voorbeelden)
+    ↓
+Phase 1D: DEF-68 (complete)</code></pre>
+
+<p><strong>Why:</strong> Observability + Technical correctness</p>
+
+<p>---</p>
+
+<h2>📊 CONSENSUS SCORES</h2>
+
+<pre><code>┌─────────────────────────────────────────┐
+│  FEASIBILITY:  8.5/10  ████████▌░       │
+│  RISK:         3/10    ███░░░░░░░       │
+│  ROI:          9/10    █████████░       │
+└─────────────────────────────────────────┘
+
+RECOMMENDED: ✅ PROCEED WITH CONFIDENCE</code></pre>
+
+<p><strong>Breakdown:</strong></p>
+<ul>
+<li>**Week 1 (Days 1-4):** LOW RISK, HIGH ROI, MANDATORY</li>
+<li>**Week 2 (Classifier MVP):** MEDIUM RISK, HIGH ROI, MANDATORY</li>
+<li>**Weeks 3-4 (God Objects):** MEDIUM-HIGH RISK, HIGH ROI, OPTIONAL</li>
+</ul>
+
+<p>---</p>
+
+<h2>🎯 EXECUTION STRATEGY SUMMARY</h2>
+
+<h3>Sequential (MANDATORY)</h3>
+
+<p>Week 1 data integrity chain MUST be sequential:</p>
+
+<pre><code>Logging → Validation → Error handling → SessionState → Performance</code></pre>
+
+<p><strong>Reason:</strong> Each builds on previous infrastructure.</p>
+
+<h3>Parallel (OPTIONAL - Weeks 3-4 only)</h3>
+
+<p>God object refactoring CAN be parallel, BUT solo dev constraint means sequential is safer:</p>
+
+<pre><code>RECOMMENDED (Sequential):
+ServiceContainer (Week 3) → DefinitieRepository (Week 4)
+
+RISKY (Parallel):
+ServiceContainer ∥ DefinitieRepository (database changes = high risk)</code></pre>
+
+<p>---</p>
+
+<h2>🚨 OVERLOOKED RISKS (NEW FINDINGS)</h2>
+
+<h3>1. Git Database Tracking Incident ✅ RESOLVED</h3>
+
+<p><strong>What happened (2025-10-30):</strong></p>
+<ul>
+<li>130 voorbeelden lost due to `data/definities.db` in git</li>
+<li>Branch switch overwrote database</li>
+</ul>
+
+<p><strong>Resolution:</strong></p>
+<ul>
+<li>Commit bbac2a71: Database removed from git ✅</li>
+<li>Auto-backup system (EPIC-016) ✅</li>
+</ul>
+
+<p><strong>Still Missing:</strong></p>
+<ul>
+<li>[ ] **DEF-80:** Auto-export on "Vaststellen" (P1, 2-3h) ← NEW ISSUE</li>
+<li>[ ] **DEF-81:** Voorbeelden completeness check (P2, 1-2h) ← NEW ISSUE</li>
+</ul>
+
+<h3>2. Export File Dependency</h3>
+
+<p><strong>Critical finding:</strong> Recovery only succeeded because TXT exports existed.</p>
+
+<p><strong>Gap:</strong> No automated export on status changes.</p>
+
+<p><strong>Solution:</strong> DEF-80 (auto-export) is BLOCKING for Week 2 (add after Week 1).</p>
+
+<p>---</p>
+
+<h2>🎯 WEEK-BY-WEEK PRIORITIES</h2>
+
+<h3>Week 1: Data Integrity (CRITICAL)</h3>
+
+<pre><code>P0 Fixes (7-9h):
+  ├─ Phase 1A: Logging infrastructure (2h)
+  ├─ DEF-74: Pydantic validation (2h)
+  ├─ DEF-69: Voorbeelden errors (3-4h)
+  └─ DEF-68: Context errors (2-3h)
+
+Quick Wins (7-8h):
+  ├─ DEF-73: SessionState compliance (3-4h)
+  └─ DEF-60: Lazy loading (4h)</code></pre>
+
+<p><strong>Must Achieve:</strong></p>
+<ul>
+<li>✅ Zero silent exceptions</li>
+<li>✅ All errors logged + shown to user</li>
+<li>✅ Startup < 200ms</li>
+</ul>
+
+<h3>Week 2: Classifier MVP (CRITICAL)</h3>
+
+<pre><code>DEF-35 (16-20h):
+  ├─ Term-based classifier (8-10h)
+  ├─ AI fallback (4-6h)
+  └─ Integration (4h)</code></pre>
+
+<p><strong>Must Achieve:</strong></p>
+<ul>
+<li>✅ 80%+ accuracy</li>
+<li>✅ Unblocks DEF-38, DEF-40 (ontological prompts)</li>
+</ul>
+
+<h3>Weeks 3-4: God Objects (OPTIONAL)</h3>
+
+<pre><code>DEF-70: ServiceContainer (4-6h)
+  818 LOC → 100-150 LOC (82% reduction)
+
+DEF-71: DefinitieRepository (8-12h)
+  2,101 LOC → 300-400 LOC (81% reduction)</code></pre>
+
+<p><strong>Must Achieve (if done):</strong></p>
+<ul>
+<li>✅ 70-80% total LOC reduction</li>
+<li>✅ All tests passing</li>
+<li>✅ No performance regression</li>
+</ul>
+
+<p><strong>Defer if:</strong> Critical bugs arise or classifier takes longer.</p>
+
+<p>---</p>
+
+<h2>📈 SUCCESS METRICS</h2>
+
+<h3>Week 1 Validation</h3>
+
+<pre><code># Data integrity
+pytest -q tests/                         # All pass
+pytest -m smoke -v                        # Smoke pass
+
+# SessionState compliance
+python scripts/check_streamlit_patterns.py  # Zero violations
+
+# Performance
+# Expected: Startup &lt; 200ms (baseline: 537ms)
+python -m cProfile -s cumulative src/main.py | head -20</code></pre>
+
+<h3>Week 2 Validation</h3>
+
+<pre><code># Classifier accuracy
+pytest tests/services/test_classifier_accuracy.py -v
+# Expected: accuracy &gt;= 0.80
+
+# Performance
+pytest tests/performance/test_classifier_performance.py -v
+# Expected: p95 &lt; 3000ms</code></pre>
+
+<p>---</p>
+
+<h2>🔍 KEY DEVIATIONS FROM AGENT RECOMMENDATIONS</h2>
+
+<h3>1. Execution Order (CRITICAL CHANGE)</h3>
+
+<p><strong>Original Debate:</strong></p>
+<ul>
+<li>Debug Specialist: DEF-74 → DEF-69 → DEF-68</li>
+<li>Full-Stack Dev: DEF-68 → DEF-74 → DEF-69</li>
+</ul>
+
+<p><strong>Consensus:</strong></p>
+<ul>
+<li>Phase 1A (logging) → DEF-74 → DEF-69 → DEF-68 (complete)</li>
+</ul>
+
+<p><strong>Why:</strong> Combines observability (Full-Stack) + technical correctness (Debug).</p>
+
+<h3>2. Scope Expansion (NEW ISSUES)</h3>
+
+<p><strong>What Both Missed:</strong></p>
+<ul>
+<li>Git database tracking incident (voorbeelden-data-loss-2025-10-30.md)</li>
+<li>Export automation critical for recovery</li>
+</ul>
+
+<p><strong>New Issues:</strong></p>
+<ul>
+<li>**DEF-80:** Auto-export on status change (P1, after Week 1)</li>
+<li>**DEF-81:** Voorbeelden completeness check (P2, Week 2)</li>
+</ul>
+
+<h3>3. God Object Prioritization (OPTIONAL)</h3>
+
+<p><strong>Both Agents:</strong> P2 priority</p>
+<p><strong>Consensus:</strong> OPTIONAL (defer if stability issues)</p>
+
+<p><strong>Reason:</strong> Solo developer + database changes = high risk if classifier MVP takes longer.</p>
+
+<p>---</p>
+
+<h2>💡 CRITICAL SUCCESS FACTORS</h2>
+
+<blockquote>**"Logging enables debugging - add observability FIRST."**</blockquote>
+<blockquote>- Full-Stack Developer (adopted in Phase 1A)</blockquote>
+
+<blockquote>**"Data integrity ALWAYS comes before performance."**</blockquote>
+<blockquote>- Debug Specialist (P0 fixes before quick wins)</blockquote>
+
+<blockquote>**"Export automation is your safety net."**</blockquote>
+<blockquote>- NEW insight from historical analysis (DEF-80)</blockquote>
+
+<blockquote>**"Respect the sequential chain - no shortcuts."**</blockquote>
+<blockquote>- Both agents (consensus)</blockquote>
+
+<p>---</p>
+
+<h2>🚀 START HERE (TODAY)</h2>
+
+<h3>Next 2 Hours</h3>
+
+<ol>
+<li>Read full roadmap: `CONSENSUS_ROADMAP_2025-10-30.md`</li>
+<li>Create branch: `fix/p0-data-integrity-week1`</li>
+<li>Backup database:</li>
+<pre><code>   cp data/definities.db data/backups/manual/pre-week1-$(date +%Y%m%d).db</code></pre>
+<li>Start Phase 1A: Add logging infrastructure</li>
+</ol>
+
+<h3>Today EOD (6-8h total)</h3>
+
+<ul>
+<li>[ ] Phase 1A complete (2h)</li>
+<li>[ ] DEF-74 complete (2h)</li>
+<li>[ ] Unit tests passing (2-4h)</li>
+</ul>
+
+<p>---</p>
+
+<h2>📞 EMERGENCY CONTACTS</h2>
+
+<p><strong>Data loss detected?</strong></p>
+<p>→ See Section 9 of <code>LINEAR_ISSUES_DEPENDENCY_RISK_ANALYSIS.md</code></p>
+
+<p><strong>Performance regression?</strong></p>
+<p>→ See <code>STARTUP_PERFORMANCE_ANALYSIS.md</code></p>
+
+<p><strong>Git database issue?</strong></p>
+<p>→ See <code>voorbeelden-data-loss-2025-10-30.md</code> recovery process</p>
+
+<p>---</p>
+
+<p><strong>BOTTOM LINE:</strong></p>
+<ul>
+<li>**This week:** Fix data loss (7-9h) + quick wins (7-8h) = 14-17h total</li>
+<li>**Next week:** Classifier MVP (16-20h)</li>
+<li>**Weeks 3-4:** God objects (12-18h, OPTIONAL)</li>
+<li>**Total impact:** Zero data loss + 81-88% code reduction + 65-82% faster</li>
+</ul>
+
+<p><strong>START PHASE 1A NOW!</strong></p>
+
+<p>---</p>
+
+<p><strong>END OF VISUAL SUMMARY</strong></p>
+
+<p><strong>For full consensus analysis:</strong> See <code>CONSENSUS_ROADMAP_2025-10-30.md</code></p>
+
+  </div>
+</body>
+</html>

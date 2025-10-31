@@ -489,8 +489,11 @@ def render_examples_block(
                             new_examples["toelichting"] = [tol.strip()]
 
                         # Persist in DB with voorkeursterm
-                        from models.voorbeelden_validation import validate_save_voorbeelden_input
                         from pydantic import ValidationError
+
+                        from models.voorbeelden_validation import (
+                            validate_save_voorbeelden_input,
+                        )
 
                         reviewer = (
                             SessionStateManager.get_value("reviewer_name") or "expert"

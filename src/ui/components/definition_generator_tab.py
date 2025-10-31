@@ -760,6 +760,7 @@ class DefinitionGeneratorTab:
                 if not def_id:
                     return
                 from ui.session_state import SessionStateManager
+
                 value = SessionStateManager.get_value(key)
                 if value == "":
                     value = None
@@ -875,8 +876,9 @@ class DefinitionGeneratorTab:
                 return
 
             # Sla op met voorkeursterm uit session state
-            from models.voorbeelden_validation import validate_save_voorbeelden_input
             from pydantic import ValidationError
+
+            from models.voorbeelden_validation import validate_save_voorbeelden_input
 
             voorkeursterm = SessionStateManager.get_value("voorkeursterm", "")
 
@@ -947,8 +949,9 @@ class DefinitionGeneratorTab:
                 return False
 
             repo = get_definitie_repository()
-            from models.voorbeelden_validation import validate_save_voorbeelden_input
             from pydantic import ValidationError
+
+            from models.voorbeelden_validation import validate_save_voorbeelden_input
 
             voorkeursterm = SessionStateManager.get_value("voorkeursterm", "")
 
@@ -1921,10 +1924,9 @@ class DefinitionGeneratorTab:
         """Submit definitie voor expert review via DefinitionWorkflowService."""
         try:
             # US-072: Use DefinitionWorkflowService for combined workflow and repository actions
-            if hasattr(st.session_state, "service_container"):
-                workflow_service = (
-                    st.session_state.service_container.definition_workflow_service()
-                )
+            service_container = SessionStateManager.get_value("service_container")
+            if service_container is not None:
+                workflow_service = service_container.definition_workflow_service()
             else:
                 # Fallback to container method
                 from services.container import get_container
