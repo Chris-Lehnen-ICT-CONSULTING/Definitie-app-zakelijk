@@ -760,6 +760,7 @@ class DefinitionGeneratorTab:
                 if not def_id:
                     return
                 from ui.session_state import SessionStateManager
+
                 value = SessionStateManager.get_value(key)
                 if value == "":
                     value = None
@@ -875,8 +876,9 @@ class DefinitionGeneratorTab:
                 return
 
             # Sla op met voorkeursterm uit session state
-            from models.voorbeelden_validation import validate_save_voorbeelden_input
             from pydantic import ValidationError
+
+            from models.voorbeelden_validation import validate_save_voorbeelden_input
 
             voorkeursterm = SessionStateManager.get_value("voorkeursterm", "")
 
@@ -947,8 +949,9 @@ class DefinitionGeneratorTab:
                 return False
 
             repo = get_definitie_repository()
-            from models.voorbeelden_validation import validate_save_voorbeelden_input
             from pydantic import ValidationError
+
+            from models.voorbeelden_validation import validate_save_voorbeelden_input
 
             voorkeursterm = SessionStateManager.get_value("voorkeursterm", "")
 
