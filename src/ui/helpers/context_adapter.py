@@ -13,7 +13,9 @@ from services.context.context_manager import (
     ContextSource,
     get_context_manager,
 )
-from ui.session_state import SessionStateManager
+
+# NOTE: SessionStateManager import moved to method to break circular dependency
+# See DEF-86: Circular import deadlock fix
 
 logger = logging.getLogger(__name__)
 
@@ -46,6 +48,9 @@ class ContextAdapter:
         Returns:
             Context dictionary compatible with legacy code
         """
+        # Late import to break circular dependency (DEF-86)
+        from ui.session_state import SessionStateManager
+
         # First check if ContextManager has context
         current = self.context_manager.get_context()
         if current is not None:

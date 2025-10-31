@@ -9,7 +9,8 @@ from typing import Any, ClassVar  # Type hints voor betere code documentatie
 
 import streamlit as st  # Streamlit framework voor web interface
 
-from ui.helpers.context_adapter import get_context_adapter
+# NOTE: get_context_adapter import moved to get_context_dict() to break circular dependency
+# See DEF-86: Circular import deadlock fix
 
 
 class SessionStateManager:
@@ -200,6 +201,9 @@ class SessionStateManager:
         """
         # Probeer eerst de gecentraliseerde ContextManager via adapter
         try:
+            # Late import to break circular dependency (DEF-86)
+            from ui.helpers.context_adapter import get_context_adapter
+
             adapter = get_context_adapter()
             cm = adapter.to_generation_request()
             return {
