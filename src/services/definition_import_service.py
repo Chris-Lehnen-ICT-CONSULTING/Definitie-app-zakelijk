@@ -23,9 +23,6 @@ from services.validation.interfaces import ValidationResult
 
 logger = logging.getLogger(__name__)
 
-from models.voorbeelden_validation import validate_save_voorbeelden_input
-from pydantic import ValidationError
-
 
 @dataclass
 class SingleImportPreview:

@@ -12,7 +12,6 @@ Exit codes:
 import re
 import sys
 from pathlib import Path
-from typing import List, Tuple
 
 # ANSI color codes
 RED = "\033[91m"
@@ -26,8 +25,8 @@ class StreamlitPatternChecker:
 
     def __init__(self, root_dir: Path):
         self.root_dir = root_dir
-        self.errors: List[Tuple[Path, int, str]] = []
-        self.warnings: List[Tuple[Path, int, str]] = []
+        self.errors: list[tuple[Path, int, str]] = []
+        self.warnings: list[tuple[Path, int, str]] = []
 
     def check_file(self, file_path: Path) -> None:
         """Check single Python file for anti-patterns."""
@@ -46,31 +45,40 @@ class StreamlitPatternChecker:
         stripped = line.strip()
 
         # Ignore comments and docstrings
-        if stripped.startswith("#") or stripped.startswith('"""') or stripped.startswith("'''"):
+        if (
+            stripped.startswith("#")
+            or stripped.startswith('"""')
+            or stripped.startswith("'''")
+        ):
             return
 
         # 1️⃣ CRITICAL: Detect value + key parameter combination
         # Pattern: st.text_area(..., value=..., key=...) or st.text_input(...)
-        if re.search(r"st\.(text_area|text_input|number_input|selectbox|multiselect)\s*\([^)]*value\s*=[^)]*key\s*=", line):
+        if re.search(
+            r"st\.(text_area|text_input|number_input|selectbox|multiselect)\s*\([^)]*value\s*=[^)]*key\s*=",
+            line,
+        ):
             self.errors.append(
                 (
                     file_path,
                     line_num,
-                    "CRITICAL: Widget has both 'value' and 'key' parameters (race condition!). Use key-only pattern."
+                    "CRITICAL: Widget has both 'value' and 'key' parameters (race condition!). Use key-only pattern.",
                 )
             )
 
         # 2️⃣ HIGH: Direct st.session_state access in UI modules
         # Pattern: st.session_state["key"] or st.session_state.get("key")
         if "src/ui/" in str(file_path):
-            if re.search(r"st\.session_state\[", line) or re.search(r"st\.session_state\.get\(", line):
+            if re.search(r"st\.session_state\[", line) or re.search(
+                r"st\.session_state\.get\(", line
+            ):
                 # Allow in session_state.py itself
                 if file_path.name != "session_state.py":
                     self.errors.append(
                         (
                             file_path,
                             line_num,
-                            "HIGH: Direct st.session_state access forbidden. Use SessionStateManager.get_value() / set_value()."
+                            "HIGH: Direct st.session_state access forbidden. Use SessionStateManager.get_value() / set_value().",
                         )
                     )
 
@@ -83,7 +91,7 @@ class StreamlitPatternChecker:
                     (
                         file_path,
                         line_num,
-                        f"MEDIUM: Generic widget key '{generic}' may cause conflicts. Use context-specific keys (e.g., 'edit_23_{generic}')."
+                        f"MEDIUM: Generic widget key '{generic}' may cause conflicts. Use context-specific keys (e.g., 'edit_23_{generic}').",
                     )
                 )
 
@@ -96,7 +104,6 @@ class StreamlitPatternChecker:
                 # This is a heuristic - would need full AST analysis for accuracy
                 # For now, just warn if we see st.session_state assignment after widget
                 # (This check is best effort - full analysis requires AST)
-                pass
 
     def check_all_ui_files(self) -> None:
         """Check all Python files in src/ui/ directory."""
@@ -106,7 +113,9 @@ class StreamlitPatternChecker:
             return
 
         py_files = list(ui_dir.rglob("*.py"))
-        print(f"🔍 Checking {len(py_files)} UI Python files for Streamlit anti-patterns...\n")
+        print(
+            f"🔍 Checking {len(py_files)} UI Python files for Streamlit anti-patterns...\n"
+        )
 
         for py_file in py_files:
             self.check_file(py_file)
@@ -137,14 +146,20 @@ class StreamlitPatternChecker:
         print("=" * 80)
         if self.errors:
             print(f"{RED}❌ {len(self.errors)} error(s) found - FIX REQUIRED{RESET}")
-            print(f"\n📚 See: docs/guidelines/STREAMLIT_PATTERNS.md for correct patterns")
+            print(
+                "\n📚 See: docs/guidelines/STREAMLIT_PATTERNS.md for correct patterns"
+            )
             return 1
         elif self.warnings:
-            print(f"{YELLOW}⚠️  {len(self.warnings)} warning(s) found - REVIEW RECOMMENDED{RESET}")
+            print(
+                f"{YELLOW}⚠️  {len(self.warnings)} warning(s) found - REVIEW RECOMMENDED{RESET}"
+            )
             print(f"{GREEN}✅ No blocking errors - pre-commit PASSES{RESET}")
             return 0
         else:
-            print(f"{GREEN}✅ All checks passed - code follows Streamlit best practices{RESET}")
+            print(
+                f"{GREEN}✅ All checks passed - code follows Streamlit best practices{RESET}"
+            )
             return 0
 
 

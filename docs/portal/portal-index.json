@@ -7257,6 +7257,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Linear Issues Dependency & Risk Analysis - DefinitieAgent",
+      "path": "../analyses/LINEAR_ISSUES_DEPENDENCY_RISK_ANALYSIS.md",
+      "url": "../analyses/LINEAR_ISSUES_DEPENDENCY_RISK_ANALYSIS.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/LINEAR_ISSUES_DEPENDENCY_RISK_ANALYSIS.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Voorbeelden Generatie Fix - Definitie ID-23",
       "path": "../analyses/voorbeelden-generation-fix-2025-10-29.md",
       "url": "../analyses/voorbeelden-generation-fix-2025-10-29.md",
@@ -7636,6 +7667,39 @@
         "req": []
       },
       "rendered_url": "rendered/analyses/CONTAINER_DUPLICATION_ROOT_CAUSE.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Consensus Roadmap - Visual Summary",
+      "path": "../analyses/CONSENSUS_ROADMAP_VISUAL_2025-10-30.md",
+      "url": "../analyses/CONSENSUS_ROADMAP_VISUAL_2025-10-30.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [
+          "EPIC-016"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/CONSENSUS_ROADMAP_VISUAL_2025-10-30.html"
     },
     {
       "id": null,
@@ -8310,6 +8374,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "DefinitieAgent Consensus Roadmap - Linear Issues",
+      "path": "../analyses/CONSENSUS_ROADMAP_2025-10-30.md",
+      "url": "../analyses/CONSENSUS_ROADMAP_2025-10-30.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/CONSENSUS_ROADMAP_2025-10-30.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Container Dubbele Initialisatie - Analysis Package",
       "path": "../analyses/README.md",
       "url": "../analyses/README.md",
@@ -8342,6 +8437,37 @@
         "req": []
       },
       "rendered_url": "rendered/analyses/README.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Linear Issues Dependency Graph - DefinitieAgent",
+      "path": "../analyses/LINEAR_DEPENDENCY_GRAPH.md",
+      "url": "../analyses/LINEAR_DEPENDENCY_GRAPH.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/LINEAR_DEPENDENCY_GRAPH.html"
     },
     {
       "id": null,
@@ -8825,6 +8951,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Linear Issues Executive Summary - DefinitieAgent",
+      "path": "../analyses/LINEAR_ISSUES_EXECUTIVE_SUMMARY.md",
+      "url": "../analyses/LINEAR_ISSUES_EXECUTIVE_SUMMARY.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/LINEAR_ISSUES_EXECUTIVE_SUMMARY.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Double-Weighting Bug Analysis - Quality Gate Implementation",
       "path": "../analyses/double-weighting-bug-analysis.md",
       "url": "../analyses/double-weighting-bug-analysis.md",
@@ -9299,6 +9456,39 @@
         "req": []
       },
       "rendered_url": "rendered/analyses/CONFIG_MANAGER_ENVIRONMENT_ANALYSIS.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Linear Issues - Multiagent Consensus Roadmap",
+      "path": "../analyses/LINEAR_ISSUES_CONSENSUS_ROADMAP.md",
+      "url": "../analyses/LINEAR_ISSUES_CONSENSUS_ROADMAP.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-202"
+        ],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/LINEAR_ISSUES_CONSENSUS_ROADMAP.html"
     },
     {
       "id": null,
@@ -56866,7 +57056,7 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 957,
+      "DOC": 963,
       "ARCH": 42,
       "COMP": 5,
       "TEST": 35,
@@ -56876,7 +57066,7 @@
       "BUG": 28,
       "REQ": 110
     },
-    "generated_at": "2025-10-30T16:12:20Z"
+    "generated_at": "2025-10-31T10:44:50Z"
   },
   "sources": [
     "docs"

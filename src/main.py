@@ -152,9 +152,9 @@ def _track_streamlit_metrics(init_ms: float, interface_ms: float, render_ms: flo
 
         # Detect if this is a heavy operation by checking session state flags
         is_heavy_operation = (
-            st.session_state.get("generating_definition", False)
-            or st.session_state.get("validating_definition", False)
-            or st.session_state.get("saving_to_database", False)
+            SessionStateManager.get_value("generating_definition", False)
+            or SessionStateManager.get_value("validating_definition", False)
+            or SessionStateManager.get_value("saving_to_database", False)
         )
 
         # Track individual metrics

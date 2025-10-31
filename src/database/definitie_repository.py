@@ -18,8 +18,13 @@ from enum import Enum  # Enumeratie types voor constante waarden
 from pathlib import Path  # Object-georiënteerde pad manipulatie
 from typing import Any  # Type hints voor betere code documentatie
 
+from pydantic import ValidationError  # Pydantic validation errors (DEF-74)
+
 from domain.ontological_categories import (
     OntologischeCategorie,  # Import ontologische categorieën voor classificatie
+)
+from models.voorbeelden_validation import (
+    validate_save_voorbeelden_input,  # Pydantic validation voor voorbeelden (DEF-74)
 )
 
 logger = logging.getLogger(__name__)  # Maak logger instantie voor database module
@@ -1474,6 +1479,32 @@ class DefinitieRepository:
             List van IDs van de opgeslagen voorbeelden
         """
         logger.info(f"Saving voorbeelden voor definitie {definitie_id}")
+
+        # DEF-74: Validate input using Pydantic schema BEFORE database operations
+        try:
+            validated = validate_save_voorbeelden_input(
+                definitie_id=definitie_id,
+                voorbeelden_dict=voorbeelden_dict,
+                generation_model=generation_model,
+                generation_params=generation_params,
+                gegenereerd_door=gegenereerd_door,
+                voorkeursterm=voorkeursterm,
+            )
+            # Use validated & cleaned data for rest of method
+            voorbeelden_dict = validated.voorbeelden_dict
+            definitie_id = validated.definitie_id
+            gegenereerd_door = validated.gegenereerd_door
+        except ValidationError as e:
+            logger.error(
+                f"❌ Validation failed for definitie {definitie_id}: {e}",
+                exc_info=True,
+                extra={
+                    "definitie_id": definitie_id,
+                    "error_details": e.errors(),
+                    "error_count": len(e.errors()),
+                },
+            )
+            raise  # Re-raise for caller to handle
 
         # Safety guard: doe niets als er geen nieuwe voorbeelden zijn doorgegeven
         try:

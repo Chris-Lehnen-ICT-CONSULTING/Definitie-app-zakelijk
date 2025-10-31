@@ -7,10 +7,10 @@ Test alle 12 combinaties (3 levels × 4 formats).
 import csv
 import json
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 from pathlib import Path
 
-UTC = timezone.utc  # Python 3.9 compatibility
+UTC = UTC  # Python 3.9 compatibility
 
 import pandas as pd
 
@@ -112,7 +112,7 @@ class ExportLevelTester:
             if not Path(file_path).exists():
                 result["status"] = "FAIL"
                 result["error"] = "File not created"
-                print(f"   ❌ FAIL: Bestand niet aangemaakt")
+                print("   ❌ FAIL: Bestand niet aangemaakt")
                 return result
 
             result["file_size"] = Path(file_path).stat().st_size
@@ -126,11 +126,13 @@ class ExportLevelTester:
                 if actual_fields is None:  # Valid content, skip count check
                     result["status"] = "PASS"
                     result["actual_fields"] = "N/A"
-                    print(f"   ✅ PASS: TXT file generated (field count validation skipped)")
+                    print(
+                        "   ✅ PASS: TXT file generated (field count validation skipped)"
+                    )
                 else:
                     result["status"] = "FAIL"
                     result["error"] = "Empty or invalid TXT file"
-                    print(f"   ❌ FAIL: Empty or invalid TXT file")
+                    print("   ❌ FAIL: Empty or invalid TXT file")
             elif actual_fields == expected_fields:
                 result["status"] = "PASS"
                 print(
@@ -138,7 +140,9 @@ class ExportLevelTester:
                 )
             else:
                 result["status"] = "FAIL"
-                result["error"] = f"Field count mismatch: {actual_fields} != {expected_fields}"
+                result["error"] = (
+                    f"Field count mismatch: {actual_fields} != {expected_fields}"
+                )
                 print(
                     f"   ❌ FAIL: {actual_fields} velden (verwacht: {expected_fields})"
                 )
@@ -239,7 +243,7 @@ class ExportLevelTester:
             )
 
         print()
-        print(f"Export directory: exports/")
+        print("Export directory: exports/")
         print(f"Test voltooiing: {datetime.now(UTC).strftime('%Y-%m-%d %H:%M:%S')}")
         print("=" * 80)
 
