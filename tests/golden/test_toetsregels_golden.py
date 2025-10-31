@@ -15,7 +15,7 @@ from toetsregels.manager import RegelPrioriteit
 class TestToetsregelsGolden:
     """Golden tests voor kritieke toetsregels."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def toetser(self):
         """Create toetser instance."""
         return ModularToetser()
@@ -295,7 +295,7 @@ class TestGoldenDefinitions:
         },
     }
 
-    @pytest.fixture()
+    @pytest.fixture
     def toetser(self):
         """Create toetser instance."""
         return ModularToetser()

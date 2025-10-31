@@ -58,17 +58,17 @@ class SchemaValidator:
             UUID(correlation_id)
 
 
-@pytest.fixture()
+@pytest.fixture
 def schema_validator() -> SchemaValidator:
     return SchemaValidator()
 
 
-@pytest.fixture()
+@pytest.fixture
 def mock_orchestrator() -> MockValidationOrchestrator:
     return MockValidationOrchestrator()
 
 
-@pytest.fixture()
+@pytest.fixture
 def validation_context() -> ValidationContext:
     return ValidationContext(
         correlation_id=UUID("12345678-1234-5678-1234-567812345678"),
@@ -78,9 +78,9 @@ def validation_context() -> ValidationContext:
     )
 
 
-@pytest.mark.contract()
+@pytest.mark.contract
 class TestValidationInterfaceContract:
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_happy_path_text_validation(
         self,
         mock_orchestrator: MockValidationOrchestrator,
@@ -106,7 +106,7 @@ class TestValidationInterfaceContract:
             validation_context.correlation_id
         )
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_empty_text_validation(
         self,
         mock_orchestrator: MockValidationOrchestrator,
@@ -124,7 +124,7 @@ class TestValidationInterfaceContract:
         assert "correlation_id" in result["system"]
         UUID(result["system"]["correlation_id"])  # raises if invalid
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_degraded_result_on_failure(
         self, schema_validator: SchemaValidator, validation_context: ValidationContext
     ) -> None:
@@ -140,7 +140,7 @@ class TestValidationInterfaceContract:
         )  # SYS-* code
         assert "error" in result["system"]
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_batch_validation_order_preserved(
         self,
         mock_orchestrator: MockValidationOrchestrator,
@@ -163,7 +163,7 @@ class TestValidationInterfaceContract:
                 item.context.correlation_id
             )
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_definition_validation_includes_scores(
         self,
         mock_orchestrator: MockValidationOrchestrator,
@@ -186,7 +186,7 @@ class TestValidationInterfaceContract:
             assert 0.0 <= result["detailed_scores"][category] <= 1.0
 
     @pytest.mark.parametrize("score", [0.0, 0.5, 1.0])
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_score_boundaries(
         self,
         schema_validator: SchemaValidator,

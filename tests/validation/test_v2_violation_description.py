@@ -4,7 +4,7 @@ from services.validation.modular_validation_service import ModularValidationServ
 from toetsregels.manager import get_toetsregel_manager
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_violations_include_description_field():
     """V2 violations should mirror 'message' into 'description' for UI."""
     svc = ModularValidationService(get_toetsregel_manager(), None, None)

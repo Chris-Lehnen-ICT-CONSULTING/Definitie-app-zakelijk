@@ -11,17 +11,17 @@ from src.services.category_service import CategoryService
 class TestCategoryService:
     """Test class voor CategoryService."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def mock_repository(self):
         """Mock repository voor tests."""
         return Mock()
 
-    @pytest.fixture()
+    @pytest.fixture
     def category_service(self, mock_repository):
         """CategoryService instance voor tests."""
         return CategoryService(mock_repository)
 
-    @pytest.fixture()
+    @pytest.fixture
     def sample_definition(self):
         """Sample definitie voor tests."""
         definition = Mock(spec=DefinitieRecord)

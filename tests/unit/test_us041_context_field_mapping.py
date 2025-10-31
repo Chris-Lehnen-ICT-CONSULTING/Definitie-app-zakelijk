@@ -83,7 +83,7 @@ class TestContextFieldTypes:
 class TestPromptServiceV2Integration:
     """Test PromptServiceV2 correctly handles context fields."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def prompt_service(self):
         """Create PromptServiceV2 instance."""
         return PromptServiceV2()
@@ -213,7 +213,7 @@ class TestPromptServiceV2Integration:
 class TestContextPropagationFlow:
     """Test context flows correctly through entire system."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def service_container(self):
         """Create ServiceContainer with mocked dependencies."""
         with patch(
@@ -258,7 +258,7 @@ class TestContextPropagationFlow:
 class TestJusticeDomainSpecificScenarios:
     """Test justice-specific context scenarios."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def prompt_service(self):
         return PromptServiceV2()
 
@@ -382,7 +382,7 @@ class TestContextAuditCompliance:
 class TestEdgeCases:
     """Test edge cases and error conditions."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def prompt_service(self):
         return PromptServiceV2()
 
