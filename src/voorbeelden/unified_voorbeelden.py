@@ -219,7 +219,11 @@ class UnifiedExamplesGenerator:
 
         except Exception as e:
             self.error_count += 1
-            logger.error(f"Example generation failed: {e}")
+            logger.error(
+                f"Example generation failed for {request.example_type.value}: {e}. "
+                f"begrip={request.begrip}, mode={request.generation_mode.value}",
+                exc_info=True,
+            )
 
             # Log error in debug
             if DEBUG_ENABLED and generation_id:
@@ -264,6 +268,11 @@ class UnifiedExamplesGenerator:
 
             return self._parse_response(response.text, request.example_type)
         except Exception as e:
+            logger.error(
+                f"Synchronous generation failed for {request.example_type.value}: {e}. "
+                f"begrip={request.begrip}, model={request.model}",
+                exc_info=True,
+            )
             msg = f"Synchronous generation failed: {e}"
             raise RuntimeError(msg) from e
 
@@ -284,6 +293,11 @@ class UnifiedExamplesGenerator:
             )
             return self._parse_response(response.text, request.example_type)
         except Exception as e:
+            logger.error(
+                f"Asynchronous generation failed for {request.example_type.value}: {e}. "
+                f"begrip={request.begrip}, model={request.model}",
+                exc_info=True,
+            )
             msg = f"Asynchronous generation failed: {e}"
             raise RuntimeError(msg) from e
 
@@ -332,9 +346,17 @@ class UnifiedExamplesGenerator:
 
             except Exception as e:
                 if attempt == max_retries:
+                    logger.error(
+                        f"Generation failed after {max_retries + 1} attempts for {request.example_type.value}: {e}. "
+                        f"begrip={request.begrip}, model={request.model}",
+                        exc_info=True,
+                    )
                     msg = f"Generation failed after {max_retries + 1} attempts: {e}"
                     raise RuntimeError(msg) from e
-                logger.warning(f"Attempt {attempt + 1} failed: {e}")
+                logger.warning(
+                    f"Attempt {attempt + 1} failed for {request.example_type.value}: {e}. "
+                    f"begrip={request.begrip}"
+                )
 
         return []  # Should never reach here
 
@@ -465,6 +487,11 @@ class UnifiedExamplesGenerator:
             # Voor explanation, return de hele response als één item
             return [response.text.strip()] if response.text.strip() else []
         except Exception as e:
+            logger.error(
+                f"Resilient explanation generation failed: {e}. "
+                f"begrip={request.begrip}, model={request.model}",
+                exc_info=True,
+            )
             msg = f"Resilient generation failed: {e}"
             raise RuntimeError(msg) from e
 
@@ -481,6 +508,11 @@ class UnifiedExamplesGenerator:
             )
             return self._parse_response(response.text, request.example_type)
         except Exception as e:
+            logger.error(
+                f"Resilient generation failed for {request.example_type.value}: {e}. "
+                f"begrip={request.begrip}, model={request.model}",
+                exc_info=True,
+            )
             msg = f"Resilient generation failed: {e}"
             raise RuntimeError(msg) from e
 

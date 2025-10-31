@@ -8,13 +8,12 @@ while routing all context operations through the centralized ContextManager.
 import logging
 from typing import Any
 
-import streamlit as st
-
 from services.context.context_manager import (
     ContextManager,
     ContextSource,
     get_context_manager,
 )
+from ui.session_state import SessionStateManager
 
 logger = logging.getLogger(__name__)
 
@@ -55,26 +54,32 @@ class ContextAdapter:
         # Fallback to session state for backward compatibility
         context = {}
 
-        # Extract context fields from session state
-        if hasattr(st.session_state, "begrip"):
-            context["begrip"] = st.session_state.begrip
+        # Extract context fields from session state via SessionStateManager
+        begrip = SessionStateManager.get_value("begrip")
+        if begrip is not None:
+            context["begrip"] = begrip
 
-        if hasattr(st.session_state, "wet_context"):
-            context["wet_context"] = st.session_state.wet_context
+        wet_context = SessionStateManager.get_value("wet_context")
+        if wet_context is not None:
+            context["wet_context"] = wet_context
 
-        if hasattr(st.session_state, "organisatie"):
-            context["organisatie"] = st.session_state.organisatie
+        organisatie = SessionStateManager.get_value("organisatie")
+        if organisatie is not None:
+            context["organisatie"] = organisatie
 
-        if hasattr(st.session_state, "juridische_context"):
-            context["juridische_context"] = st.session_state.juridische_context
+        juridische_context = SessionStateManager.get_value("juridische_context")
+        if juridische_context is not None:
+            context["juridische_context"] = juridische_context
 
-        if hasattr(st.session_state, "organisatorische_context"):
-            context["organisatorische_context"] = (
-                st.session_state.organisatorische_context
-            )
+        organisatorische_context = SessionStateManager.get_value(
+            "organisatorische_context"
+        )
+        if organisatorische_context is not None:
+            context["organisatorische_context"] = organisatorische_context
 
-        if hasattr(st.session_state, "extra_instructies"):
-            context["extra_instructies"] = st.session_state.extra_instructies
+        extra_instructies = SessionStateManager.get_value("extra_instructies")
+        if extra_instructies is not None:
+            context["extra_instructies"] = extra_instructies
 
         logger.debug(f"Retrieved context from session state: {list(context.keys())}")
         return context

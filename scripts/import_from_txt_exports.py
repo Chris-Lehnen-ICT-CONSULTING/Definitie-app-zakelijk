@@ -8,9 +8,8 @@ Used for data recovery after accidental database overwrites.
 import re
 import sqlite3
 import sys
-from pathlib import Path
 from datetime import datetime
-from typing import Dict, List, Optional
+from pathlib import Path
 
 
 class DefinitieExportParser:
@@ -20,7 +19,7 @@ class DefinitieExportParser:
         self.export_file = export_file
         self.content = export_file.read_text(encoding="utf-8")
 
-    def parse_all(self) -> List[Dict]:
+    def parse_all(self) -> list[dict]:
         """Parse all definitions from export file."""
         definitions = []
 
@@ -43,7 +42,7 @@ class DefinitieExportParser:
 
         return definitions
 
-    def _parse_definition_block(self, block: str) -> Optional[Dict]:
+    def _parse_definition_block(self, block: str) -> dict | None:
         """Parse a single definition block."""
         lines = block.strip().split("\n")
 
@@ -61,10 +60,8 @@ class DefinitieExportParser:
 
                 current_field = match.group(1).strip()
                 current_value = [match.group(2)]
-            else:
-                # Continuation of previous field
-                if current_field:
-                    current_value.append(line)
+            elif current_field:
+                current_value.append(line)
 
         # Save last field
         if current_field:
@@ -85,14 +82,14 @@ class DefinitieExportParser:
             "status": data.get("Status", "draft"),
             "version_number": int(data.get("Versie", "1")),
             "source_type": data.get("Bron type", "generated"),
-            "source_reference": data.get("Geïmporteerd van", None),
+            "source_reference": data.get("Geïmporteerd van"),
             "created_at": self._parse_timestamp(data.get("Aangemaakt op")),
             "updated_at": self._parse_timestamp(data.get("Bijgewerkt op")),
-            "toelichting_proces": data.get("Toelichting", None),
+            "toelichting_proces": data.get("Toelichting"),
             "voorbeelden": self._extract_voorbeelden(data),
         }
 
-    def _parse_timestamp(self, ts_str: Optional[str]) -> Optional[str]:
+    def _parse_timestamp(self, ts_str: str | None) -> str | None:
         """Parse timestamp string."""
         if not ts_str:
             return None
@@ -106,7 +103,7 @@ class DefinitieExportParser:
         except Exception:
             return None
 
-    def _extract_voorbeelden(self, data: Dict) -> List[str]:
+    def _extract_voorbeelden(self, data: dict) -> list[str]:
         """Extract example sentences."""
         voorbeelden = []
 
@@ -128,7 +125,7 @@ class DatabaseImporter:
         self.conn = sqlite3.connect(str(db_path))
         self.cursor = self.conn.cursor()
 
-    def import_definition(self, definition: Dict, overwrite: bool = False) -> bool:
+    def import_definition(self, definition: dict, overwrite: bool = False) -> bool:
         """Import a single definition."""
         def_id = definition["id"]
 
@@ -154,7 +151,7 @@ class DatabaseImporter:
 
         return True
 
-    def _insert_definition(self, definition: Dict):
+    def _insert_definition(self, definition: dict):
         """Insert new definition."""
         sql = """
             INSERT INTO definities (
@@ -166,24 +163,27 @@ class DatabaseImporter:
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """
 
-        self.cursor.execute(sql, (
-            definition["id"],
-            definition["begrip"],
-            definition["definitie"],
-            definition["categorie"],
-            definition["organisatorische_context"],
-            definition["juridische_context"],
-            definition["wettelijke_basis"],
-            definition.get("toelichting_proces"),
-            definition["status"],
-            definition["version_number"],
-            definition["source_type"],
-            definition.get("source_reference"),
-            definition.get("created_at"),
-            definition.get("updated_at"),
-        ))
+        self.cursor.execute(
+            sql,
+            (
+                definition["id"],
+                definition["begrip"],
+                definition["definitie"],
+                definition["categorie"],
+                definition["organisatorische_context"],
+                definition["juridische_context"],
+                definition["wettelijke_basis"],
+                definition.get("toelichting_proces"),
+                definition["status"],
+                definition["version_number"],
+                definition["source_type"],
+                definition.get("source_reference"),
+                definition.get("created_at"),
+                definition.get("updated_at"),
+            ),
+        )
 
-    def _update_definition(self, definition: Dict):
+    def _update_definition(self, definition: dict):
         """Update existing definition."""
         sql = """
             UPDATE definities SET
@@ -202,28 +202,30 @@ class DatabaseImporter:
             WHERE id = ?
         """
 
-        self.cursor.execute(sql, (
-            definition["begrip"],
-            definition["definitie"],
-            definition["categorie"],
-            definition["organisatorische_context"],
-            definition["juridische_context"],
-            definition["wettelijke_basis"],
-            definition.get("toelichting_proces"),
-            definition["status"],
-            definition["version_number"],
-            definition["source_type"],
-            definition.get("source_reference"),
-            definition.get("updated_at"),
-            definition["id"],
-        ))
+        self.cursor.execute(
+            sql,
+            (
+                definition["begrip"],
+                definition["definitie"],
+                definition["categorie"],
+                definition["organisatorische_context"],
+                definition["juridische_context"],
+                definition["wettelijke_basis"],
+                definition.get("toelichting_proces"),
+                definition["status"],
+                definition["version_number"],
+                definition["source_type"],
+                definition.get("source_reference"),
+                definition.get("updated_at"),
+                definition["id"],
+            ),
+        )
 
-    def _import_voorbeelden(self, definitie_id: int, voorbeelden: List[str]):
+    def _import_voorbeelden(self, definitie_id: int, voorbeelden: list[str]):
         """Import example sentences."""
         # Clear existing voorbeelden
         self.cursor.execute(
-            "DELETE FROM definitie_voorbeelden WHERE definitie_id = ?",
-            (definitie_id,)
+            "DELETE FROM definitie_voorbeelden WHERE definitie_id = ?", (definitie_id,)
         )
 
         # Insert new voorbeelden with volgorde
@@ -237,7 +239,7 @@ class DatabaseImporter:
                     )
                     VALUES (?, ?, ?, ?)
                     """,
-                    (definitie_id, voorbeeld_text.strip(), "sentence", volgorde)
+                    (definitie_id, voorbeeld_text.strip(), "sentence", volgorde),
                 )
                 volgorde += 1
 
@@ -339,7 +341,7 @@ def main():
     importer.close()
 
     print("\n" + "=" * 60)
-    print(f"✅ KLAAR!")
+    print("✅ KLAAR!")
     print(f"   Geïmporteerd: {imported}")
     print(f"   Overgeslagen: {skipped}")
     print("=" * 60)
