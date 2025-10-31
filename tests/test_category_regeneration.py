@@ -12,12 +12,12 @@ from src.ui.components.definition_generator_tab import DefinitionGeneratorTab
 class TestCategoryRegeneration:
     """Test class voor category regeneration flow."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def mock_checker(self):
         """Mock DefinitieChecker."""
         return Mock()
 
-    @pytest.fixture()
+    @pytest.fixture
     def generator_tab(self, mock_checker):
         """DefinitionGeneratorTab instance."""
         with patch(

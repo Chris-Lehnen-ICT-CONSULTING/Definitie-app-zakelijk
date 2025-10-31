@@ -24,13 +24,13 @@ from voorbeelden.unified_voorbeelden import (
 )
 
 
-@pytest.fixture()
+@pytest.fixture
 def mock_ai_response():
     """Mock AI response for testing."""
     return ["Voorbeeld 1", "Voorbeeld 2", "Voorbeeld 3"]
 
 
-@pytest.fixture()
+@pytest.fixture
 def test_context():
     """Test context data."""
     return {
@@ -40,7 +40,7 @@ def test_context():
     }
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_parallel_execution_performance(test_context):
     """Test that parallel execution is significantly faster than sequential."""
 
@@ -105,7 +105,7 @@ async def test_parallel_execution_performance(test_context):
         ), f"Parallel execution ({parallel_duration:.2f}s) should be close to single call time ({expected_parallel_time:.2f}s)"
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_parallel_error_handling(test_context):
     """Test that individual call failures don't break entire batch."""
 
@@ -153,7 +153,7 @@ async def test_parallel_error_handling(test_context):
         assert result["antoniemen"] == []
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_real_world_timing_comparison():
     """
     Simulate real-world AI call timing to demonstrate speedup.

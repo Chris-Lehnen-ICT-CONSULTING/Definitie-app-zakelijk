@@ -20,7 +20,7 @@ from src.repositories.synonym_registry import SynonymRegistry
 class TestAddGroupMemberIdempotent:
     """Tests voor add_group_member() idempotent behavior."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def registry(self, test_db_path):
         """Create registry with test database and apply schema."""
         # Apply full schema (includes definities table needed for FK)
@@ -282,7 +282,7 @@ class TestAddGroupMemberIdempotent:
 class TestAddGroupMemberEdgeCases:
     """Edge case tests voor add_group_member() idempotent behavior."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def registry(self, test_db_path):
         """Create registry with test database and apply schema."""
         schema_path = (

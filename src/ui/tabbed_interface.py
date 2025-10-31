@@ -10,8 +10,10 @@ met ondersteuning voor meerdere tabs en complete workflow beheer.
 import asyncio  # Asynchrone programmering voor ontologische analyse
 import logging  # Logging faciliteiten voor debug en monitoring
 import os
-from datetime import datetime  # Datum en tijd functionaliteit
-from datetime import UTC
+from datetime import (
+    UTC,
+    datetime,  # Datum en tijd functionaliteit
+)
 from typing import Any  # Type hints voor betere code documentatie
 
 import streamlit as st  # Streamlit web interface framework

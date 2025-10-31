@@ -33,7 +33,7 @@ from src.services.interfaces import GenerationRequest
 class TestFeatureFlagConfiguration:
     """Test feature flag configuration and management."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def feature_flags(self):
         """Create FeatureFlags instance."""
         return FeatureFlags()
@@ -100,7 +100,7 @@ class TestFeatureFlagConfiguration:
 class TestPercentageRollout:
     """Test percentage-based feature rollouts."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def feature_flags(self):
         return FeatureFlags()
 
