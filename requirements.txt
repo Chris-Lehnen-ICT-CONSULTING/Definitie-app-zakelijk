@@ -50,10 +50,10 @@ msgpack==1.1.2
 multidict==6.7.0
 mypy==1.18.2
 mypy_extensions==1.1.0
-narwhals==2.9.0
+narwhals==2.10.0
 nodeenv==1.9.1
 numpy==2.3.4
-openai==2.6.0
+openai==2.6.1
 packageurl-python==0.17.5
 packaging==24.2
 pandas==2.3.3
@@ -68,7 +68,7 @@ pluggy==1.6.0
 pre_commit==4.3.0
 propcache==0.4.1
 protobuf==6.33.0
-psutil==7.1.1
+psutil==7.1.2
 py-serializable==2.1.0
 pyarrow==21.0.0
 pycodestyle==2.14.0
@@ -86,7 +86,7 @@ pytest-asyncio==1.2.0
 pytest-cov==7.0.0
 python-dateutil==2.9.0.post0
 python-docx==1.2.0
-python-dotenv==1.1.1
+python-dotenv==1.2.1
 python-json-logger==4.0.0
 pytz==2025.2
 PyYAML==6.0.3
