@@ -8,7 +8,9 @@ from typing import Any
 
 import pytest
 
-from services.interfaces import VoorbeeldenDict
+# NOTE (DEF-82): VoorbeeldenDict TypedDict removed from interfaces.py
+# For runtime validation: from models.voorbeelden_validation import VoorbeeldenDict
+# For type hints: dict[str, list[str] | str]
 from voorbeelden import genereer_alle_voorbeelden
 
 
@@ -84,7 +86,11 @@ def test_voorbeelden_businesslogica_aantallen():
 
 
 def test_voorbeelden_contract_matches_typedef():
-    """Test dat gegenereerde voorbeelden matchen met VoorbeeldenDict TypedDict."""
+    """Test dat gegenereerde voorbeelden matchen met voorbeelden structuur.
+
+    NOTE (DEF-82): Test aangepast - VoorbeeldenDict TypedDict removed.
+    Validates against dict[str, list[str] | str] structure.
+    """
     # Test data
     begrip = "contracttest"
     definitie = "Test voor contract matching."
@@ -97,7 +103,7 @@ def test_voorbeelden_contract_matches_typedef():
     # Generate voorbeelden
     voorbeelden = genereer_alle_voorbeelden(begrip, definitie, context_dict)
 
-    # Check dat structuur overeenkomt met VoorbeeldenDict
+    # Check dat structuur overeenkomt met verwachte dict structuur
     # We kunnen niet direct type-checken tijdens runtime, maar we kunnen
     # wel de structuur valideren
 

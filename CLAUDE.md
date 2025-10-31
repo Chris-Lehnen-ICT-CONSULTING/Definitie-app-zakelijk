@@ -311,6 +311,71 @@ De applicatie gebruikt Streamlit's session state uitgebreid. Belangrijke state v
 - Import volgorde: standard library, third-party, lokaal
 - Gebruik ALTIJD canonical names (zie UNIFIED voor lijst)
 
+### Lazy Import Pattern (Circular Dependency Fix)
+
+**WHEN TO USE:**
+- **ONLY** when circular import is unavoidable after attempting restructure
+- As **last resort** solution when other alternatives fail
+- When modules have unavoidable bidirectional dependencies
+
+**HOW TO USE:**
+```python
+def my_function():
+    # Lazy import to avoid circular dependency
+    # Reason: module_a imports module_b, module_b imports module_a
+    from some.module import SomeClass
+
+    # Use SomeClass only within function scope
+    result = SomeClass().do_something()
+    return result
+```
+
+**EXAMPLES IN CODEBASE:**
+
+**Example 1: session_state ↔ context_adapter (DEF-73)**
+```python
+# src/ui/session_state.py:205
+def get_context_dict() -> dict[str, list[str]]:
+    # Lazy import to avoid circular dependency
+    # Reason: session_state imports context_adapter, context_adapter imports session_state
+    from ui.helpers.context_adapter import get_context_adapter
+
+    adapter = get_context_adapter()
+    return adapter.get_context_dict()
+```
+
+**PREFER THESE ALTERNATIVES (in order):**
+
+1. **Restructure code** - Remove the circular dependency by extracting shared code
+   ```python
+   # Instead of: module_a ↔ module_b
+   # Create: module_a → shared_module ← module_b
+   ```
+
+2. **Dependency Injection** - Pass dependencies as function parameters
+   ```python
+   # Instead of importing at module level, pass as argument
+   def my_function(dependency: SomeClass):
+       return dependency.do_something()
+   ```
+
+3. **Extract shared code** - Create new module for common functionality
+   ```python
+   # src/shared/common_types.py
+   class SharedDataClass:
+       pass
+
+   # Both modules import from shared, no circularity
+   ```
+
+**IMPORTANT:**
+- Document WHY lazy import was necessary (failed alternatives)
+- Add comment explaining the circular dependency
+- Consider refactoring when opportunity arises
+- Keep lazy imports to minimum (currently only 1 in codebase!)
+
+**Added:** DEF-84 (2025-10-31) - Documents pattern introduced in DEF-73
+
 ### Streamlit UI Patterns
 
 > **📚 Voor volledige Streamlit best practices, zie:**
