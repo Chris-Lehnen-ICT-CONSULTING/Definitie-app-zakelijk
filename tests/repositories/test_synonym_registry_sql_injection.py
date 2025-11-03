@@ -20,7 +20,7 @@ from src.repositories.synonym_registry import SynonymRegistry
 class TestSynonymRegistryOrderByValidation:
     """Tests voor order_by parameter validation (SQL injection prevention)."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def registry(self, test_db_path):
         """Create registry with test database and apply schema."""
         # Apply full schema (includes definities table needed for FK)
@@ -38,7 +38,7 @@ class TestSynonymRegistryOrderByValidation:
 
         return SynonymRegistry(db_path=test_db_path)
 
-    @pytest.fixture
+    @pytest.fixture()
     def sample_group_with_members(self, registry):
         """Create a sample group with members for testing."""
         # Create group

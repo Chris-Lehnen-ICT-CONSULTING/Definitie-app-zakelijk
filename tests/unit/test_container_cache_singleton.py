@@ -258,7 +258,7 @@ class TestContainerCacheEdgeCases:
         assert results[0] == results[-1], "Eerste en laatste ID moeten gelijk zijn"
 
 
-@pytest.mark.integration
+@pytest.mark.integration()
 class TestContainerIntegration:
     """Integration tests voor container met andere services."""
 
