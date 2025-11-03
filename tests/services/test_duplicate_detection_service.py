@@ -19,13 +19,13 @@ from services.interfaces import Definition
 class TestDuplicateDetectionService:
     """Test suite voor DuplicateDetectionService."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def service(self):
         """Create a service instance."""
         # V2: woord-Jaccard is conservatief; gebruik 0.3 drempel
         return DuplicateDetectionService(similarity_threshold=0.3)
 
-    @pytest.fixture
+    @pytest.fixture()
     def sample_definitions(self):
         """Create sample definitions for testing."""
         return [

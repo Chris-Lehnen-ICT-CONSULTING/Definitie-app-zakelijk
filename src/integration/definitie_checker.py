@@ -14,13 +14,15 @@ from enum import Enum  # Enumeraties voor actie types
 from typing import Any  # Type hints voor betere code documentatie
 
 # Database en core component imports
+from database.definitie_repository import SourceType  # Data modellen en enums
+from database.definitie_repository import (
+    get_definitie_repository,  # Repository toegang en factory
+)
 from database.definitie_repository import (
     DefinitieRecord,
     DefinitieRepository,
     DefinitieStatus,
     DuplicateMatch,
-    SourceType,  # Data modellen en enums
-    get_definitie_repository,  # Repository toegang en factory
 )
 from domain.ontological_categories import OntologischeCategorie  # Generatie componenten
 

@@ -15,7 +15,7 @@ from services.workflow_service import DefinitionStatus, StatusChange, WorkflowSe
 class TestWorkflowService:
     """Test suite voor WorkflowService."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def service(self):
         """Create a service instance."""
         return WorkflowService()

@@ -11,7 +11,7 @@ from services.interfaces import LookupRequest, LookupResult, WebSource
 from services.modern_web_lookup_service import ModernWebLookupService
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_brave_search_integrated_in_lookup_flow(monkeypatch):
     """Test dat Brave Search wordt aangeroepen in normale lookup flow."""
 
@@ -80,7 +80,7 @@ async def test_brave_search_integrated_in_lookup_flow(monkeypatch):
     assert len(brave_results) > 0, "Brave Search result should be in results"
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_brave_search_mixed_with_wikipedia(monkeypatch):
     """Test mixing van Brave Search en Wikipedia resultaten."""
 
@@ -156,7 +156,7 @@ async def test_brave_search_mixed_with_wikipedia(monkeypatch):
     assert any("Wikipedia" in s for s in sources), "Should have Wikipedia result"
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_brave_search_ranking_with_confidence(monkeypatch):
     """Test dat Brave Search correct wordt gerankt op basis van confidence."""
 
@@ -230,7 +230,7 @@ async def test_brave_search_ranking_with_confidence(monkeypatch):
     assert "Brave" in results[0].source.name, "Brave Search should be ranked first"
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_brave_search_in_juridical_context(monkeypatch):
     """Test dat Brave Search wordt gebruikt in juridische context."""
 
@@ -298,7 +298,7 @@ async def test_brave_search_in_juridical_context(monkeypatch):
     assert len(results) > 0
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_brave_search_deduplication(monkeypatch):
     """Test deduplicatie van Brave Search resultaten met andere bronnen."""
 
@@ -373,7 +373,7 @@ async def test_brave_search_deduplication(monkeypatch):
     assert results[0].source.url == "https://duplicate.com/page"
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_brave_search_configuration_loaded():
     """Test dat Brave Search configuratie correct wordt geladen."""
 
@@ -389,7 +389,7 @@ async def test_brave_search_configuration_loaded():
     assert brave_config.confidence_weight == 0.85  # Van config
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_brave_search_in_source_determination():
     """Test dat Brave Search in source determination logica zit."""
 
@@ -410,7 +410,7 @@ async def test_brave_search_in_source_determination():
     ), "Brave Search should be in general source list"
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_brave_search_provider_key_inference():
     """Test dat provider key correct wordt afgeleid voor Brave Search."""
 

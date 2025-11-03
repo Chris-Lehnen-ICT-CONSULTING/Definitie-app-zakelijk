@@ -78,13 +78,13 @@ def _count_active_voorbeelden(
 # Fixtures
 
 
-@pytest.fixture
+@pytest.fixture()
 def test_db_path(tmp_path: Path) -> Path:
     """Create temporary database for testing."""
     return tmp_path / "test_voorbeelden.db"
 
 
-@pytest.fixture
+@pytest.fixture()
 def repository(test_db_path: Path) -> DefinitieRepository:
     """Create repository instance with test database."""
     repo = DefinitieRepository(str(test_db_path))
