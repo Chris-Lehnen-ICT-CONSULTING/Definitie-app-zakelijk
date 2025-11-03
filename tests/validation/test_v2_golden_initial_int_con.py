@@ -22,7 +22,7 @@ class _FakeRepo:
         return list(self._defs)
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_int01_single_sentence_pass_and_multi_sentence_fail():
     svc = ModularValidationService(get_toetsregel_manager(), None, None)
 
@@ -54,7 +54,7 @@ async def test_int01_single_sentence_pass_and_multi_sentence_fail():
     ), res_bad
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_con01_forbidden_context_patterns_and_duplicate_signal():
     # Set up repo with existing definition → duplicate signal as warning
     existing = _FakeDef(

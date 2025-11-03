@@ -19,11 +19,10 @@ from pathlib import Path
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-from services.regeneration_service import RegenerationContext, RegenerationService
-
 from domain.ontological_categories import OntologischeCategorie
 from services.definition_generator_config import UnifiedGeneratorConfig
 from services.definition_generator_prompts import UnifiedPromptBuilder
+from services.regeneration_service import RegenerationContext, RegenerationService
 
 # Set up logging
 logging.basicConfig(

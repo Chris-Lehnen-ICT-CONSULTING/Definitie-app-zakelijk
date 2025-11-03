@@ -21,13 +21,13 @@ from services.definition_repository import DefinitionRepository
 from services.interfaces import Definition
 
 
-@pytest.fixture
+@pytest.fixture()
 def mock_legacy_repo():
     """Mock voor de legacy DefinitieRepository."""
     return Mock()
 
 
-@pytest.fixture
+@pytest.fixture()
 def repository(mock_legacy_repo):
     """DefinitionRepository instance met gemockte legacy repo."""
     with patch(
@@ -36,7 +36,7 @@ def repository(mock_legacy_repo):
         return DefinitionRepository(db_path=":memory:")
 
 
-@pytest.fixture
+@pytest.fixture()
 def sample_definition():
     """Sample Definition voor tests."""
     return Definition(
@@ -54,7 +54,7 @@ def sample_definition():
     )
 
 
-@pytest.fixture
+@pytest.fixture()
 def sample_record():
     """Sample DefinitieRecord voor tests."""
     record = DefinitieRecord()
@@ -776,7 +776,7 @@ class TestDefinitionRepositoryIntegration:
 class TestDraftManagement:
     """Test suite for draft management functionality (US-064)."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def repository_with_db(self, tmp_path):
         """Create repository with actual SQLite database for draft tests."""
         # Create a temporary database

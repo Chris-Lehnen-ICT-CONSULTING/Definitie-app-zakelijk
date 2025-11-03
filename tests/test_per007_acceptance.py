@@ -17,7 +17,7 @@ from services.prompts.prompt_service_v2 import PromptServiceV2
 class TestAcceptanceCriteria:
     """Full acceptance tests - validate architecture decisions"""
 
-    @pytest.mark.acceptance
+    @pytest.mark.acceptance()
     def test_ac1_ui_preview_never_used_as_source(self):
         """AC1: UI preview is display only, never data source"""
         # GIVEN: Complete context flow
@@ -78,7 +78,7 @@ class TestAcceptanceCriteria:
         assert "📋" not in context_str, "UI emoji found in prompt context"
         assert " | " not in context_str, "UI separator found in prompt context"
 
-    @pytest.mark.acceptance
+    @pytest.mark.acceptance()
     def test_ac2_single_context_path(self):
         """AC2: Only ONE path for context processing exists"""
         # Analyze codebase for context processing paths
@@ -137,7 +137,7 @@ class TestAcceptanceCriteria:
             len(legacy_paths) == 0
         ), f"Legacy context paths still exist: {legacy_paths}"
 
-    @pytest.mark.acceptance
+    @pytest.mark.acceptance()
     def test_ac3_anders_works_all_lists(self):
         """AC3: Anders... option works in all three context lists"""
         test_cases = [
@@ -179,7 +179,7 @@ class TestAcceptanceCriteria:
                     # Expected to fail in RED phase
                     pass
 
-    @pytest.mark.acceptance
+    @pytest.mark.acceptance()
     def test_ac4_astra_warnings_not_errors(self):
         """AC4: ASTRA validation gives warnings, never blocks"""
         # GIVEN: Mix of valid and invalid organizations
@@ -228,7 +228,7 @@ class TestAcceptanceCriteria:
         finally:
             logger.removeHandler(handler)
 
-    @pytest.mark.acceptance
+    @pytest.mark.acceptance()
     def test_ac5_complete_context_flow_integration(self):
         """AC5: Complete integration test of context flow"""
         # GIVEN: A complex request with all features
@@ -305,7 +305,7 @@ class TestAcceptanceCriteria:
                 except (ValueError, AssertionError):
                     pass  # Expected in RED phase
 
-    @pytest.mark.acceptance
+    @pytest.mark.acceptance()
     def test_ac6_no_ui_string_reverse_engineering(self):
         """AC6: System cannot reverse-engineer data from UI strings"""
         # GIVEN: A UI preview string
@@ -354,7 +354,7 @@ class TestAcceptanceCriteria:
         assert "⚖️" not in all_text, "UI emoji leaked into context"
         assert "📜" not in all_text, "UI emoji leaked into context"
 
-    @pytest.mark.acceptance
+    @pytest.mark.acceptance()
     def test_ac7_separation_of_concerns_validated(self):
         """AC7: Clear separation between presentation and data layers"""
         # This test validates the architectural separation

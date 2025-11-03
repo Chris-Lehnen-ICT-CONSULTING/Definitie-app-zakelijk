@@ -15,7 +15,7 @@ from services.prompts.prompt_service_v2 import PromptServiceV2
 class TestUIPreviewRejection:
     """Tests that MUST fail in RED phase - proving UI strings are wrongly accepted"""
 
-    @pytest.mark.red_phase
+    @pytest.mark.red_phase()
     def test_prompt_builder_rejects_ui_preview_string(self):
         """MUST FAIL: System should reject UI preview strings as input"""
         # GIVEN: A UI preview string with emojis and formatting
@@ -33,7 +33,7 @@ class TestUIPreviewRejection:
             # Note: This method doesn't exist yet - proving we need to implement it
             prompt_service._parse_ui_string_as_context(ui_preview)
 
-    @pytest.mark.red_phase
+    @pytest.mark.red_phase()
     def test_context_manager_rejects_concatenated_strings(self):
         """MUST FAIL: Context manager should reject concatenated context strings"""
         # GIVEN: A request with UI-formatted context
@@ -51,7 +51,7 @@ class TestUIPreviewRejection:
             # Note: This method doesn't exist yet
             manager.process_ui_string_context(request)
 
-    @pytest.mark.red_phase
+    @pytest.mark.red_phase()
     def test_enriched_context_validates_source_type(self):
         """MUST FAIL: EnrichedContext should validate it's built from lists, not strings"""
         # GIVEN: Attempt to create context from wrong source
@@ -63,7 +63,7 @@ class TestUIPreviewRejection:
             # This should fail - from_ui_string shouldn't exist
             EnrichedContext.from_ui_string("📋 Org: OM | ⚖️ Juridisch: Strafrecht")
 
-    @pytest.mark.red_phase
+    @pytest.mark.red_phase()
     def test_ui_formatter_is_output_only(self):
         """MUST FAIL: UI formatter should only output, never accept UI strings as input"""
         # GIVEN: A UI preview string
@@ -78,7 +78,7 @@ class TestUIPreviewRejection:
         with pytest.raises(ValueError, match="ContextFormatter is output-only"):
             formatter.parse_ui_string(ui_string)
 
-    @pytest.mark.red_phase
+    @pytest.mark.red_phase()
     def test_prompt_service_blocks_emoji_contamination(self):
         """MUST FAIL: Prompt service should block any emoji-containing strings"""
         # GIVEN: Context with emoji contamination
@@ -93,7 +93,7 @@ class TestUIPreviewRejection:
         with pytest.raises(ValueError, match="Emojis not allowed in structured data"):
             prompt_service.build_prompt(request)
 
-    @pytest.mark.red_phase
+    @pytest.mark.red_phase()
     def test_context_formatter_enforces_separation(self):
         """MUST FAIL: Context formatter must enforce strict separation"""
         # GIVEN: Valid structured context

@@ -27,7 +27,7 @@ class FakeSyncCleaningService:
         return True
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_cleaning_service_adapter_clean_text():
     adapter = CleaningServiceAdapterV1toV2(FakeSyncCleaningService())
     result = await adapter.clean_text("  tekst  ", "begrip")
@@ -37,7 +37,7 @@ async def test_cleaning_service_adapter_clean_text():
     assert "strip" in result.applied_rules
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_cleaning_service_adapter_clean_definition():
     adapter = CleaningServiceAdapterV1toV2(FakeSyncCleaningService())
     definition = Definition(begrip="test", definitie="a  b")
@@ -51,3 +51,18 @@ async def test_cleaning_service_adapter_clean_definition():
 def test_cleaning_service_adapter_validate_rules_sync():
     adapter = CleaningServiceAdapterV1toV2(FakeSyncCleaningService())
     assert adapter.validate_cleaning_rules() is True
+
+
+def test_cleaning_service_adapter_prevents_double_wrapping():
+    """
+    DEF-99: Regression test to prevent double adapter wrapping.
+
+    Double wrapping causes AttributeError: coroutine object has no attribute 'clean_text'
+    because the outer adapter tries to await the inner adapter's coroutine result.
+    """
+    # First wrap is valid
+    adapter1 = CleaningServiceAdapterV1toV2(FakeSyncCleaningService())
+
+    # Second wrap should raise TypeError
+    with pytest.raises(TypeError, match="already adapted"):
+        CleaningServiceAdapterV1toV2(adapter1)

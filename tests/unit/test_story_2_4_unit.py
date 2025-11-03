@@ -31,7 +31,7 @@ from services.validation.interfaces import (
 class TestValidationOrchestratorV2Unit:
     """Unit tests for ValidationOrchestratorV2 class."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def mock_validation_service(self):
         """Create mock validation service."""
         service = Mock()
@@ -51,7 +51,7 @@ class TestValidationOrchestratorV2Unit:
         )
         return service
 
-    @pytest.fixture
+    @pytest.fixture()
     def mock_cleaning_service(self):
         """Create mock cleaning service."""
         service = Mock()
@@ -64,7 +64,7 @@ class TestValidationOrchestratorV2Unit:
         service.clean_definition = AsyncMock(side_effect=mock_clean_definition)
         return service
 
-    @pytest.fixture
+    @pytest.fixture()
     def orchestrator(self, mock_validation_service, mock_cleaning_service):
         """Create ValidationOrchestratorV2 instance."""
         return ValidationOrchestratorV2(
@@ -107,7 +107,7 @@ class TestValidationOrchestratorV2Unit:
     # VALIDATE_TEXT METHOD TESTS
     # ========================================
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_validate_text_basic_functionality(
         self, orchestrator, mock_validation_service
     ):
@@ -128,7 +128,7 @@ class TestValidationOrchestratorV2Unit:
         assert "overall_score" in result
         assert "is_acceptable" in result
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_validate_text_with_all_parameters(
         self, orchestrator, mock_validation_service
     ):
@@ -160,7 +160,7 @@ class TestValidationOrchestratorV2Unit:
         assert context_arg["locale"] == "nl-NL"
         assert context_arg["feature_flags"] == {"flag1": True}
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_validate_text_with_cleaning(
         self, orchestrator, mock_cleaning_service, mock_validation_service
     ):
@@ -176,7 +176,7 @@ class TestValidationOrchestratorV2Unit:
         call_args = mock_validation_service.validate_definition.call_args
         assert call_args[1]["text"] == "super clean text"
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_validate_text_without_cleaning_service(
         self, mock_validation_service
     ):
@@ -195,7 +195,7 @@ class TestValidationOrchestratorV2Unit:
     # VALIDATE_DEFINITION METHOD TESTS
     # ========================================
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_validate_definition_basic_functionality(
         self, orchestrator, mock_validation_service
     ):
@@ -216,7 +216,7 @@ class TestValidationOrchestratorV2Unit:
         assert call_args[1]["text"] == "clean definitie"  # Text gets cleaned
         assert call_args[1]["ontologische_categorie"] == "proces"
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_validate_definition_with_cleaning(
         self, orchestrator, mock_cleaning_service
     ):
@@ -237,7 +237,7 @@ class TestValidationOrchestratorV2Unit:
     # BATCH_VALIDATE METHOD TESTS
     # ========================================
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_batch_validate_functionality(self, orchestrator):
         """Test batch_validate processes multiple requests."""
         requests = [
@@ -251,7 +251,7 @@ class TestValidationOrchestratorV2Unit:
         assert all(isinstance(result, dict) for result in results)
         assert all("is_acceptable" in result for result in results)
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_batch_validate_ignores_max_concurrency(self, orchestrator):
         """Test batch_validate ignores max_concurrency parameter in V2."""
         requests = [ValidationRequest(begrip="begrip", text="text")]
@@ -265,7 +265,7 @@ class TestValidationOrchestratorV2Unit:
     # ERROR HANDLING TESTS
     # ========================================
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_validate_text_error_handling(self, mock_validation_service):
         """Test validate_text error handling creates degraded result."""
         mock_validation_service.validate_definition.side_effect = Exception(
@@ -283,7 +283,7 @@ class TestValidationOrchestratorV2Unit:
         assert "error" in result["system"]
         assert "Service error" in result["system"]["error"]
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_validate_definition_error_handling(self, mock_validation_service):
         """Test validate_definition error handling."""
         from services.interfaces import Definition
@@ -305,7 +305,7 @@ class TestValidationOrchestratorV2Unit:
     # CONTEXT CONVERSION TESTS
     # ========================================
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_validation_context_to_dict_conversion(
         self, orchestrator, mock_validation_service
     ):
@@ -330,7 +330,7 @@ class TestValidationOrchestratorV2Unit:
         assert context_dict["correlation_id"] == str(context.correlation_id)
         assert context_dict["feature_flags"] == {"feature1": True, "feature2": False}
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_validation_context_with_none_values(
         self, orchestrator, mock_validation_service
     ):
@@ -354,7 +354,7 @@ class TestValidationOrchestratorV2Unit:
     # SCHEMA COMPLIANCE TESTS
     # ========================================
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_result_schema_compliance(self, orchestrator):
         """Test that results are schema compliant."""
         result = await orchestrator.validate_text("begrip", "text")
@@ -379,7 +379,7 @@ class TestValidationOrchestratorV2Unit:
         # Verify version matches contract
         assert result["version"] == CONTRACT_VERSION
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_correlation_id_generation(self, orchestrator):
         """Test correlation ID generation when not provided."""
         result = await orchestrator.validate_text("begrip", "text")
@@ -391,7 +391,7 @@ class TestValidationOrchestratorV2Unit:
         # Should be valid UUID format
         uuid.UUID(correlation_id)  # Will raise if invalid
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_correlation_id_preservation(
         self, orchestrator, mock_validation_service
     ):
@@ -499,7 +499,7 @@ class TestStory24UnitTestHelpers:
         assert context.locale == "en-US"
         assert context.correlation_id is not None
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_orchestrator_test_helper(self):
         """Test helper for setting up orchestrator for unit tests."""
 

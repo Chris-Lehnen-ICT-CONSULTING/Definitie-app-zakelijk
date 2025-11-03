@@ -296,10 +296,9 @@ def test_mock_regeneration_workflow():
     print("=" * 50)
 
     try:
-        from services.regeneration_service import RegenerationService
-
         from services.definition_generator_config import UnifiedGeneratorConfig
         from services.definition_generator_prompts import UnifiedPromptBuilder
+        from services.regeneration_service import RegenerationService
 
         # Setup regeneration service
         config = UnifiedGeneratorConfig()

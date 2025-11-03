@@ -1181,6 +1181,8 @@ class OrchestratorConfig:
     web_lookup_top_k: int = 3
     max_retries: int = 3
     timeout_seconds: int = 30
+    # DEF-90: Enable JSON validation rules (tests can disable for golden-accept)
+    use_json_rules: bool = True
 
 
 @dataclass

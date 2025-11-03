@@ -19,7 +19,7 @@ from domain.ontological_categories import OntologischeCategorie
 class TestSinglePathClassification:
     """Test single-path classification behavior."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def mock_session_state(self):
         """Mock session state manager."""
         with patch("ui.tabbed_interface.SessionStateManager") as mock:
@@ -28,7 +28,7 @@ class TestSinglePathClassification:
             mock.clear_value = Mock()
             yield mock
 
-    @pytest.fixture
+    @pytest.fixture()
     def mock_interface(self, mock_session_state):
         """Create TabbedInterface with mocked dependencies."""
         with (
@@ -72,8 +72,9 @@ class TestSinglePathClassification:
             )
 
             # This would fail in real Streamlit but we test the logic
-            with patch("ui.tabbed_interface.st"), patch(
-                "ui.tabbed_interface.asyncio.run", side_effect=lambda coro: coro
+            with (
+                patch("ui.tabbed_interface.st"),
+                patch("ui.tabbed_interface.asyncio.run", side_effect=lambda coro: coro),
             ):
                 try:
                     mock_interface._render_category_preview()
@@ -283,7 +284,7 @@ class TestDeadCodeRemoval:
 class TestClassificationFlow:
     """Test the complete classification flow."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def interface_with_mocks(self):
         """Setup interface with all necessary mocks."""
         with (

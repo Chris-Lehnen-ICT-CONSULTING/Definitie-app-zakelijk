@@ -17,17 +17,17 @@ from services.data_aggregation_service import (
 class TestDataAggregationService:
     """Test cases voor DataAggregationService."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def mock_repository(self):
         """Create mock repository."""
         return Mock(spec=DefinitieRepository)
 
-    @pytest.fixture
+    @pytest.fixture()
     def service(self, mock_repository):
         """Create service instance."""
         return DataAggregationService(mock_repository)
 
-    @pytest.fixture
+    @pytest.fixture()
     def sample_definitie_record(self):
         """Create sample definitie record."""
         record = Mock(spec=DefinitieRecord)
