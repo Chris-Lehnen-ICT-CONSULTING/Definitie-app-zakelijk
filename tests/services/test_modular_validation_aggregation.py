@@ -3,7 +3,7 @@
 import pytest
 
 
-@pytest.mark.unit
+@pytest.mark.unit()
 def test_weighted_sum_aggregation_formula():
     """Test the weighted sum aggregation: Σ(weight × score) / Σ(weights)."""
     m = pytest.importorskip(
@@ -47,7 +47,7 @@ def test_weighted_sum_aggregation_formula():
     assert result == 0.0  # Default when no weights
 
 
-@pytest.mark.unit
+@pytest.mark.unit()
 def test_aggregation_two_decimal_rounding():
     """Test that aggregated scores are rounded to exactly 2 decimal places."""
     m = pytest.importorskip(
@@ -81,8 +81,8 @@ def test_aggregation_two_decimal_rounding():
         assert result == round(result, 2)
 
 
-@pytest.mark.unit
-@pytest.mark.asyncio
+@pytest.mark.unit()
+@pytest.mark.asyncio()
 async def test_category_aggregation():
     """Test aggregation per category (taal, juridisch, structuur, samenhang)."""
     m = pytest.importorskip(
@@ -114,7 +114,7 @@ async def test_category_aggregation():
         ), f"Category {category} not rounded to 2 decimals: {score}"
 
 
-@pytest.mark.unit
+@pytest.mark.unit()
 def test_aggregation_with_missing_rules():
     """Test aggregation when some rules are missing or errored."""
     m = pytest.importorskip(
@@ -149,7 +149,7 @@ def test_aggregation_with_missing_rules():
     assert "CON-01" in result["errored_rules"]
 
 
-@pytest.mark.unit
+@pytest.mark.unit()
 def test_aggregation_acceptability_threshold():
     """Test is_acceptable based on overall_score >= threshold (default 0.75)."""
     m = pytest.importorskip(
@@ -179,7 +179,7 @@ def test_aggregation_acceptability_threshold():
         ), f"Score {score} with threshold {threshold} should be acceptable={expected}"
 
 
-@pytest.mark.unit
+@pytest.mark.unit()
 def test_category_minimum_thresholds():
     """Test that category minimums can override overall acceptability."""
     m = pytest.importorskip(

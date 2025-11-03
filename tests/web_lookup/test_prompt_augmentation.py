@@ -30,7 +30,7 @@ class _Req:
         self.options = {}
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_prompt_augmentation_injects_top_k(monkeypatch):
     from services.prompts.prompt_service_v2 import PromptServiceV2
 
@@ -99,7 +99,7 @@ async def test_prompt_augmentation_injects_top_k(monkeypatch):
     assert "PROMPT_BODY" in text
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_prompt_augmentation_respects_budget(monkeypatch):
     from services.prompts.prompt_service_v2 import PromptServiceV2
 

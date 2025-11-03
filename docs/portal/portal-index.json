@@ -1527,6 +1527,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "DEF-99 Root Cause Analysis: Double Adapter Wrapping Bug",
+      "path": "../debugging/DEF-99-ROOT-CAUSE-ANALYSIS.md",
+      "url": "../debugging/DEF-99-ROOT-CAUSE-ANALYSIS.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/debugging/DEF-99-ROOT-CAUSE-ANALYSIS.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Legacy Code Removal Plan",
       "path": "../planning/LEGACY_REMOVAL_PLAN.md",
       "url": "../planning/LEGACY_REMOVAL_PLAN.md",
@@ -8145,6 +8176,37 @@
         "req": []
       },
       "rendered_url": "rendered/analyses/CLASSIFICATION_PIPELINE_COMPARISON.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "DEF-93: String Literal Duplication Analysis - Comprehensive Report",
+      "path": "../analyses/DEF-93-STRING-DUPLICATION-ANALYSIS.md",
+      "url": "../analyses/DEF-93-STRING-DUPLICATION-ANALYSIS.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/DEF-93-STRING-DUPLICATION-ANALYSIS.html"
     },
     {
       "id": null,
@@ -57056,7 +57118,7 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 963,
+      "DOC": 965,
       "ARCH": 42,
       "COMP": 5,
       "TEST": 35,
@@ -57066,7 +57128,7 @@
       "BUG": 28,
       "REQ": 110
     },
-    "generated_at": "2025-10-31T14:43:18Z"
+    "generated_at": "2025-11-03T09:03:18Z"
   },
   "sources": [
     "docs"

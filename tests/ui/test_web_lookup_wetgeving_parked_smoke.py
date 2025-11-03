@@ -3,7 +3,7 @@ import pytest
 pytestmark = pytest.mark.smoke_web_lookup
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_wetgeving_parked_attempt_propagates(monkeypatch):
     """Simuleer Wetgeving.nl 503 'parked' en controleer dat attempt info doorkomt."""
 

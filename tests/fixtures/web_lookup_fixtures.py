@@ -69,7 +69,7 @@ class MockLookupResult:
         self.source.is_juridical = is_juridical
 
 
-@pytest.fixture
+@pytest.fixture()
 def mock_lookup_result():
     """
     Factory fixture voor MockLookupResult.
@@ -81,7 +81,7 @@ def mock_lookup_result():
     return MockLookupResult
 
 
-@pytest.fixture
+@pytest.fixture()
 def juridische_lookup_result(mock_lookup_result):
     """
     Pre-configured juridisch lookup result.
@@ -98,7 +98,7 @@ def juridische_lookup_result(mock_lookup_result):
     )
 
 
-@pytest.fixture
+@pytest.fixture()
 def wikipedia_lookup_result(mock_lookup_result):
     """
     Pre-configured Wikipedia lookup result.
@@ -115,7 +115,7 @@ def wikipedia_lookup_result(mock_lookup_result):
     )
 
 
-@pytest.fixture
+@pytest.fixture()
 def mixed_lookup_results(juridische_lookup_result, wikipedia_lookup_result):
     """
     Lijst met mixed lookup results (juridisch + algemeen).
@@ -140,7 +140,7 @@ def mixed_lookup_results(juridische_lookup_result, wikipedia_lookup_result):
 # =============================================================================
 
 
-@pytest.fixture
+@pytest.fixture()
 def temp_synonym_yaml(tmp_path):
     """
     Create temporary YAML file met synoniemen.
@@ -161,7 +161,7 @@ def temp_synonym_yaml(tmp_path):
     return _create_yaml
 
 
-@pytest.fixture
+@pytest.fixture()
 def basic_synonym_yaml(temp_synonym_yaml):
     """
     Basic synoniemen YAML met veel voorkomende termen.
@@ -188,7 +188,7 @@ verdachte:
     return temp_synonym_yaml(content)
 
 
-@pytest.fixture
+@pytest.fixture()
 def synonym_service_basic(basic_synonym_yaml):
     """
     JuridischeSynoniemlService met basic test data.
@@ -199,7 +199,7 @@ def synonym_service_basic(basic_synonym_yaml):
     return JuridischeSynoniemlService(config_path=str(basic_synonym_yaml))
 
 
-@pytest.fixture
+@pytest.fixture()
 def synonym_service_empty(tmp_path):
     """
     JuridischeSynoniemlService met lege database.
@@ -212,7 +212,7 @@ def synonym_service_empty(tmp_path):
     return JuridischeSynoniemlService(config_path=str(empty_yaml))
 
 
-@pytest.fixture
+@pytest.fixture()
 def synonym_service_extensive(temp_synonym_yaml):
     """
     JuridischeSynoniemlService met extensive test data (alle categorieën).
@@ -270,7 +270,7 @@ schadevergoeding:
 # =============================================================================
 
 
-@pytest.fixture
+@pytest.fixture()
 def sample_juridische_definitie():
     """
     Sample juridische definitie met keywords, artikel refs, etc.
@@ -285,7 +285,7 @@ def sample_juridische_definitie():
     )
 
 
-@pytest.fixture
+@pytest.fixture()
 def sample_neutrale_definitie():
     """
     Sample neutrale definitie zonder juridische kenmerken.
@@ -299,7 +299,7 @@ def sample_neutrale_definitie():
     )
 
 
-@pytest.fixture
+@pytest.fixture()
 def sample_wikipedia_definitie():
     """
     Sample Wikipedia-stijl definitie (algemeen + wat juridische termen).
@@ -314,7 +314,7 @@ def sample_wikipedia_definitie():
     )
 
 
-@pytest.fixture
+@pytest.fixture()
 def sample_rechtspraak_definitie():
     """
     Sample Rechtspraak.nl-stijl definitie (hoog juridisch).
@@ -336,7 +336,7 @@ def sample_rechtspraak_definitie():
 # =============================================================================
 
 
-@pytest.fixture
+@pytest.fixture()
 def mock_web_lookup_config():
     """
     Mock web lookup configuratie.
@@ -378,7 +378,7 @@ def mock_web_lookup_config():
     }
 
 
-@pytest.fixture
+@pytest.fixture()
 def mock_sru_endpoints():
     """
     Mock SRU endpoints configuratie.
@@ -399,7 +399,7 @@ def mock_sru_endpoints():
 # =============================================================================
 
 
-@pytest.fixture
+@pytest.fixture()
 def juridische_keywords_sample():
     """
     Sample set van juridische keywords voor testing.
@@ -420,7 +420,7 @@ def juridische_keywords_sample():
     }
 
 
-@pytest.fixture
+@pytest.fixture()
 def juridische_domeinen_sample():
     """
     Sample set van juridische domeinen voor testing.
@@ -436,7 +436,7 @@ def juridische_domeinen_sample():
     }
 
 
-@pytest.fixture
+@pytest.fixture()
 def test_terms_strafrecht():
     """
     Test termen uit strafrecht domein.
@@ -454,7 +454,7 @@ def test_terms_strafrecht():
     ]
 
 
-@pytest.fixture
+@pytest.fixture()
 def test_terms_procesrecht():
     """
     Test termen uit procesrecht domein.
@@ -477,7 +477,7 @@ def test_terms_procesrecht():
 # =============================================================================
 
 
-@pytest.fixture
+@pytest.fixture()
 def large_synonym_database(temp_synonym_yaml):
     """
     Large synoniemen database voor performance testing.
@@ -496,7 +496,7 @@ def large_synonym_database(temp_synonym_yaml):
     return temp_synonym_yaml(content)
 
 
-@pytest.fixture
+@pytest.fixture()
 def mock_slow_lookup_service():
     """
     Mock lookup service met simulated latency.
@@ -525,7 +525,7 @@ def mock_slow_lookup_service():
 # =============================================================================
 
 
-@pytest.fixture
+@pytest.fixture()
 def assert_boosted_higher():
     """
     Utility fixture voor asserting boost effects.
@@ -549,7 +549,7 @@ def assert_boosted_higher():
     return _assert
 
 
-@pytest.fixture
+@pytest.fixture()
 def create_lookup_results():
     """
     Factory fixture voor het maken van multiple lookup results.
