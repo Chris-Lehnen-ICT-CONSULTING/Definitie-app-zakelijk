@@ -107,7 +107,7 @@ def test_category_service():
 # ==============================================================================
 # SMOKE TEST 7: Validation can run on sample definition
 # ==============================================================================
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_validation_runs():
     """Validation service can validate sample definition."""
     from services.interfaces import Definition

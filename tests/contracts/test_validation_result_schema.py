@@ -4,8 +4,8 @@ from pathlib import Path
 import pytest
 
 
-@pytest.mark.contract
-@pytest.mark.asyncio
+@pytest.mark.contract()
+@pytest.mark.asyncio()
 async def test_validation_result_happy_path_schema():
     m = pytest.importorskip(
         "services.validation.modular_validation_service",
@@ -38,7 +38,7 @@ async def test_validation_result_happy_path_schema():
     validate(instance=result, schema=schema)
 
 
-@pytest.mark.contract
+@pytest.mark.contract()
 def test_validation_result_degraded_schema():
     # Load JSON schema
     schema_path = Path(

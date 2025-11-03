@@ -37,7 +37,7 @@ class TestPromptServiceInterface:
         assert hasattr(PromptServiceInterface, "build_generation_prompt")
         assert hasattr(PromptServiceInterface, "optimize_prompt")
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_concrete_implementation(self):
         """Test concrete implementatie van PromptServiceInterface."""
 
@@ -75,7 +75,7 @@ class TestValidationServiceInterface:
         assert hasattr(ValidationServiceInterface, "validate_definition")
         assert hasattr(ValidationServiceInterface, "batch_validate")
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_async_validation(self):
         """Test async validatie methode."""
 
@@ -107,7 +107,7 @@ class TestValidationServiceInterface:
 class TestCleaningServiceInterface:
     """Test suite voor async CleaningServiceInterface."""
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_async_cleaning(self):
         """Test dat cleaning service nu async is."""
 
@@ -139,7 +139,7 @@ class TestCleaningServiceInterface:
 class TestEnhancementServiceInterface:
     """Test suite voor EnhancementServiceInterface."""
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_enhancement_interface(self):
         """Test enhancement service interface."""
 
@@ -166,7 +166,7 @@ class TestEnhancementServiceInterface:
 class TestSecurityServiceInterface:
     """Test suite voor SecurityServiceInterface."""
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_security_interface(self):
         """Test security service interface."""
 
@@ -199,7 +199,7 @@ class TestSecurityServiceInterface:
 class TestMonitoringServiceInterface:
     """Test suite voor MonitoringServiceInterface."""
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_monitoring_interface(self):
         """Test monitoring service interface."""
 
@@ -237,7 +237,7 @@ class TestMonitoringServiceInterface:
 class TestFeedbackEngineInterface:
     """Test suite voor FeedbackEngineInterface."""
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_feedback_interface(self):
         """Test feedback engine interface."""
 
@@ -283,7 +283,7 @@ class TestFeedbackEngineInterface:
 class TestOrchestratorInterface:
     """Test suite voor updated DefinitionOrchestratorInterface."""
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_orchestrator_with_context(self):
         """Test orchestrator met optionele context parameter."""
 
@@ -326,7 +326,7 @@ class TestOrchestratorInterface:
 class TestInterfaceCompatibility:
     """Test dat alle interfaces compatible zijn met elkaar."""
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_v2_orchestrator_can_use_all_services(self):
         """Test dat V2 orchestrator alle services kan gebruiken."""
 
