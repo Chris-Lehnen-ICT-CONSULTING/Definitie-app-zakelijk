@@ -29,22 +29,22 @@ from services.exceptions import (
     DuplicateDefinitionError,
     RepositoryError,
 )
-from services.interfaces import AIServiceInterface as IntelligentAIService
 from services.interfaces import (
+    AIServiceInterface as IntelligentAIService,
     CleaningServiceInterface,
     Definition,
     DefinitionOrchestratorInterface,
     DefinitionRepositoryInterface,
     DefinitionResponseV2,
+    EnhancementServiceInterface as EnhancementService,
+    FeedbackEngineInterface as FeedbackEngine,
+    GenerationRequest,
+    MonitoringServiceInterface as MonitoringService,
+    OrchestratorConfig,
+    PromptServiceInterface as PromptServiceV2,
+    SecurityServiceInterface as SecurityService,
+    ValidationResult,
 )
-from services.interfaces import EnhancementServiceInterface as EnhancementService
-from services.interfaces import FeedbackEngineInterface as FeedbackEngine
-from services.interfaces import GenerationRequest
-from services.interfaces import MonitoringServiceInterface as MonitoringService
-from services.interfaces import OrchestratorConfig
-from services.interfaces import PromptServiceInterface as PromptServiceV2
-from services.interfaces import SecurityServiceInterface as SecurityService
-from services.interfaces import ValidationResult
 from services.validation.interfaces import ValidationOrchestratorInterface
 from utils.dict_helpers import safe_dict_get
 from utils.type_helpers import ensure_dict, ensure_list, ensure_string
@@ -392,11 +392,11 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             import os
 
             try:
-                WEB_LOOKUP_TIMEOUT = float(
+                web_lookup_timeout = float(
                     os.getenv("WEB_LOOKUP_TIMEOUT_SECONDS", "10.0")
                 )
             except Exception:
-                WEB_LOOKUP_TIMEOUT = 10.0
+                web_lookup_timeout = 10.0
 
             # Web lookup runs ALWAYS when service is available (no feature flag)
             if self.web_lookup_service:
@@ -430,7 +430,7 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                         context=context_str,
                         max_results=_max_res,
                         include_examples=False,
-                        timeout=WEB_LOOKUP_TIMEOUT,  # Configurable via env var
+                        timeout=web_lookup_timeout,  # Configurable via env var
                     )
 
                     # Add timeout protection for web lookup
@@ -438,7 +438,7 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
 
                     web_results = await asyncio.wait_for(
                         self.web_lookup_service.lookup(lookup_request),
-                        timeout=WEB_LOOKUP_TIMEOUT,
+                        timeout=web_lookup_timeout,
                     )
                     logger.info(
                         f"Generation {generation_id}: Web lookup returned {len(web_results) if web_results else 0} results"
@@ -501,7 +501,7 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
 
                 except TimeoutError:
                     logger.warning(
-                        f"Generation {generation_id}: Web lookup timeout after {WEB_LOOKUP_TIMEOUT} seconds - "
+                        f"Generation {generation_id}: Web lookup timeout after {web_lookup_timeout} seconds - "
                         f"prompt service will use cached lookup results or proceed without"
                     )
                     web_lookup_status = "timeout"
@@ -903,7 +903,7 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                     "sources": provenance_sources,
                     "web_lookup_status": web_lookup_status,
                     "web_lookup_available": self.web_lookup_service is not None,
-                    "web_lookup_timeout": WEB_LOOKUP_TIMEOUT,
+                    "web_lookup_timeout": web_lookup_timeout,
                     "web_sources_count": len(provenance_sources),
                     "web_lookup_debug": debug_info,
                     "web_lookup_debug_available": debug_info is not None,
@@ -956,7 +956,7 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             except Exception:  # pragma: no cover
                 pass
 
-            # Optioneel: sla mislukte poging ook op voor feedback‑learning
+            # Optioneel: sla mislukte poging ook op voor feedback-learning
             if not safe_dict_get(validation_result, "is_acceptable", False):
                 await self._save_failed_attempt(
                     definition, validation_result, generation_id

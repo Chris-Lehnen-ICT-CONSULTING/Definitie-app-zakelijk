@@ -1527,6 +1527,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "DEF-99 Fix Validation - Comprehensive Test Execution Report",
+      "path": "../debugging/DEF-99-TEST-VALIDATION-REPORT.md",
+      "url": "../debugging/DEF-99-TEST-VALIDATION-REPORT.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/debugging/DEF-99-TEST-VALIDATION-REPORT.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "DEF-99 Root Cause Analysis: Double Adapter Wrapping Bug",
       "path": "../debugging/DEF-99-ROOT-CAUSE-ANALYSIS.md",
       "url": "../debugging/DEF-99-ROOT-CAUSE-ANALYSIS.md",
@@ -57118,7 +57149,7 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 965,
+      "DOC": 966,
       "ARCH": 42,
       "COMP": 5,
       "TEST": 35,
@@ -57128,7 +57159,7 @@
       "BUG": 28,
       "REQ": 110
     },
-    "generated_at": "2025-11-03T09:03:18Z"
+    "generated_at": "2025-11-03T10:35:18Z"
   },
   "sources": [
     "docs"
