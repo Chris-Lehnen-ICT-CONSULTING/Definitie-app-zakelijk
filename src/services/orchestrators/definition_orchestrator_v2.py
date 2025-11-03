@@ -29,22 +29,22 @@ from services.exceptions import (
     DuplicateDefinitionError,
     RepositoryError,
 )
+from services.interfaces import AIServiceInterface as IntelligentAIService
 from services.interfaces import (
-    AIServiceInterface as IntelligentAIService,
     CleaningServiceInterface,
     Definition,
     DefinitionOrchestratorInterface,
     DefinitionRepositoryInterface,
     DefinitionResponseV2,
-    EnhancementServiceInterface as EnhancementService,
-    FeedbackEngineInterface as FeedbackEngine,
-    GenerationRequest,
-    MonitoringServiceInterface as MonitoringService,
-    OrchestratorConfig,
-    PromptServiceInterface as PromptServiceV2,
-    SecurityServiceInterface as SecurityService,
-    ValidationResult,
 )
+from services.interfaces import EnhancementServiceInterface as EnhancementService
+from services.interfaces import FeedbackEngineInterface as FeedbackEngine
+from services.interfaces import GenerationRequest
+from services.interfaces import MonitoringServiceInterface as MonitoringService
+from services.interfaces import OrchestratorConfig
+from services.interfaces import PromptServiceInterface as PromptServiceV2
+from services.interfaces import SecurityServiceInterface as SecurityService
+from services.interfaces import ValidationResult
 from services.validation.interfaces import ValidationOrchestratorInterface
 from utils.dict_helpers import safe_dict_get
 from utils.type_helpers import ensure_dict, ensure_list, ensure_string
@@ -78,7 +78,9 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             "PromptServiceV2"
         ] = None,  # DEF-66: Now optional for lazy loading
         ai_service: "IntelligentAIService" = None,
-        validation_service: "ValidationOrchestratorInterface" = None,
+        validation_service: Optional[
+            "ValidationOrchestratorInterface"
+        ] = None,  # DEF-90: Now optional for lazy loading
         cleaning_service: "CleaningServiceInterface" = None,
         repository: "DefinitionRepositoryInterface" = None,
         # Optional services
@@ -97,14 +99,12 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
         Clean dependency injection - no session state access.
 
         DEF-66: PromptServiceV2 is now lazy-loaded to reduce initialization time from 509ms to <180ms.
-        If not provided, it will be created on first access.
+        DEF-90: ValidationOrchestratorV2 is now lazy-loaded to reduce initialization from 616ms to 271ms (-345ms, 56%!).
+        If not provided, they will be created on first access.
         """
-        # V2 Services (required, except prompt_service which is lazy)
+        # V2 Services (required, except prompt_service and validation_service which are lazy)
         if not ai_service:
             msg = "AIServiceInterface is required"
-            raise ValueError(msg)
-        if not validation_service:
-            msg = "ValidationOrchestratorInterface is required"
             raise ValueError(msg)
         if not cleaning_service:
             msg = "CleaningServiceInterface is required"
@@ -116,7 +116,8 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
         # DEF-66: Store prompt_service for lazy loading (private to force property usage)
         self._prompt_service = prompt_service
         self.ai_service = ai_service
-        self.validation_service = validation_service
+        # DEF-90: Store validation_service for lazy loading (private to force property usage)
+        self._validation_service = validation_service
         self.enhancement_service = enhancement_service
 
         # Security (V2 only)
@@ -166,6 +167,69 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             logger.debug("DEF-66: PromptServiceV2 initialized successfully")
 
         return self._prompt_service
+
+    @property
+    def validation_service(self) -> "ValidationOrchestratorInterface":
+        """
+        Lazy-load ValidationOrchestratorV2 on first access (DEF-90 performance optimization).
+
+        This reduces ServiceContainer initialization from 616ms to 271ms by deferring
+        the expensive validation creation (345ms, 56% of init time) until first use.
+
+        The validation orchestrator wraps ModularValidationService and loads 53 validation
+        rules from the toetsregels manager. This is deferred until the first definition
+        validation call, which happens AFTER GPT-4 generation (plenty of time to load).
+
+        Returns:
+            ValidationOrchestratorInterface instance (cached after first access)
+        """
+        if self._validation_service is None:
+            logger.debug(
+                "DEF-90: Lazy-loading ValidationOrchestratorV2 on first access"
+            )
+
+            # Import validation components
+            from services.orchestrators.validation_orchestrator_v2 import (
+                ValidationOrchestratorV2,
+            )
+            from services.validation.config import ValidationConfig
+            from services.validation.modular_validation_service import (
+                ModularValidationService,
+            )
+
+            # Load validation rules if JSON rules are enabled
+            # (tests can disable for golden-accept verification)
+            if self.config.use_json_rules:
+                from toetsregels.cached_manager import get_cached_toetsregel_manager
+
+                manager = get_cached_toetsregel_manager()
+                vcfg = ValidationConfig.from_yaml("src/config/validation_rules.yaml")
+            else:
+                manager = None
+                vcfg = None
+
+            # Create ModularValidationService
+            modular_validation_service = ModularValidationService(
+                manager,
+                None,  # second parameter unused
+                vcfg,
+                repository=self.repository,
+            )
+
+            # DEF-99: Use cleaning service directly - already wrapped by ServiceContainer
+            # ServiceContainer wraps sync CleaningService with CleaningServiceAdapterV1toV2
+            # Double wrapping causes AttributeError: coroutine object has no attribute 'clean_text'
+            cleaning_adapter = self.cleaning_service
+
+            # Create ValidationOrchestratorV2
+            self._validation_service = ValidationOrchestratorV2(
+                validation_service=modular_validation_service,
+                cleaning_service=cleaning_adapter,
+            )
+
+            logger.debug("DEF-90: ValidationOrchestratorV2 initialized successfully")
+
+        return self._validation_service
 
     def get_service_info(self) -> dict:
         """Return service info voor UI quality control."""

@@ -11,8 +11,8 @@ import pytest
 class TestSRUCircuitBreakerIntegration:
     """Integration tests for circuit breaker in realistic scenarios."""
 
-    @pytest.mark.asyncio
-    @pytest.mark.integration
+    @pytest.mark.asyncio()
+    @pytest.mark.integration()
     async def test_empty_search_with_circuit_breaker(self):
         """
         Integration test: Search voor non-existent term triggert circuit breaker.
@@ -68,8 +68,8 @@ class TestSRUCircuitBreakerIntegration:
                 len(strategies) <= 3
             ), f"Should attempt max 3 strategies with threshold=2, got {len(strategies)}"
 
-    @pytest.mark.asyncio
-    @pytest.mark.integration
+    @pytest.mark.asyncio()
+    @pytest.mark.integration()
     async def test_rechtspraak_higher_threshold(self):
         """
         Integration test: Rechtspraak heeft hogere threshold (3) dan overheid (2).
@@ -109,7 +109,7 @@ class TestSRUCircuitBreakerIntegration:
                 len(strategies) <= 4
             ), "Rechtspraak threshold=3 allows max 4 strategies"
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_sru_20_namespace_compatibility(self):
         """
         Integration test: Verify SRU 2.0 namespace wordt correct ondersteund.
