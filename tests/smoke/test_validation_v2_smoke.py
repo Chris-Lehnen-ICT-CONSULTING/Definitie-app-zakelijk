@@ -25,7 +25,7 @@ def test_management_tab_uses_v2_in_dev_mode():
     assert os.getenv("DEV_MODE", "false").lower() == "true"
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_validation_v2_basic_call():
     """Eenvoudige V2 orchestrator call met gepatchte async methode."""
     from services.orchestrators.validation_orchestrator_v2 import (

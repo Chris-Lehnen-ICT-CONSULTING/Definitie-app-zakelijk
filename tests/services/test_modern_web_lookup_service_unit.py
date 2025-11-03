@@ -7,7 +7,7 @@ from services.interfaces import LookupRequest, LookupResult, WebSource
 from services.modern_web_lookup_service import ModernWebLookupService
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_parallel_lookup_concurrency_and_timeout(monkeypatch):
     # Patch providers with small delays
     from tests.fixtures.web_lookup_mocks import SRUServiceStub, wikipedia_lookup_stub
@@ -41,7 +41,7 @@ async def test_parallel_lookup_concurrency_and_timeout(monkeypatch):
     assert len(results) >= 1
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_error_handling_returns_empty_results(monkeypatch):
     # Providers raise → service should handle and return []
     async def broken_wiki(*a, **k):
@@ -71,7 +71,7 @@ async def test_error_handling_returns_empty_results(monkeypatch):
     assert results == []
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_ranking_relevance_based(monkeypatch):
     """
     FASE 3: Test quality-gated juridical boost.
@@ -150,7 +150,7 @@ async def test_ranking_relevance_based(monkeypatch):
     ), f"Expected Wikipedia to win (relevance > low-quality juridical), got {results[0].source.name}"
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_quality_gate_allows_high_quality_juridical(monkeypatch):
     """
     FASE 3: Test quality gate allows high-quality juridical sources full boost.
@@ -230,7 +230,7 @@ async def test_quality_gate_allows_high_quality_juridical(monkeypatch):
     ), f"Expected Overheid.nl to win (high-quality juridical), got {results[0].source.name}"
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_quality_gate_disabled_gives_full_boost_to_all(monkeypatch):
     """
     FASE 3: Test quality gate disabled behavior (backward compatibility).
@@ -323,7 +323,7 @@ async def test_quality_gate_disabled_gives_full_boost_to_all(monkeypatch):
     ), f"Expected Overheid.nl to win (gate disabled, full boost), got {results[0].source.name}"
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_quality_gate_boundary_exactly_at_threshold(monkeypatch):
     """
     FASE 3: Test quality gate boundary condition (base_score = threshold).

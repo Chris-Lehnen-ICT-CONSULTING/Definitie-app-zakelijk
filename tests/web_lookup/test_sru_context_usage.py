@@ -3,7 +3,7 @@ import pytest
 pytestmark = pytest.mark.smoke_web_lookup
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_sru_uses_only_wet_tokens(monkeypatch):
     """Verify SRU lookup receives only 'wet' tokens (no org/jur) from orchestrator."""
 

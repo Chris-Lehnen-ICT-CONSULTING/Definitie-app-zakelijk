@@ -21,7 +21,18 @@ class CleaningServiceAdapterV1toV2(CleaningServiceInterface):
 
         Args:
             sync_cleaning_service: The synchronous cleaning service to wrap
+
+        Raises:
+            TypeError: If attempting to wrap an already-wrapped adapter (DEF-99 defense)
         """
+        # DEF-99: Prevent double wrapping - defense in depth
+        # Double wrapping causes AttributeError: coroutine object has no attribute 'clean_text'
+        if isinstance(sync_cleaning_service, CleaningServiceAdapterV1toV2):
+            msg = (
+                "Cannot wrap CleaningServiceAdapterV1toV2 - service is already adapted. "
+                "Use the adapter directly instead of wrapping it again."
+            )
+            raise TypeError(msg)
         self._svc = sync_cleaning_service
 
     async def clean_text(self, text: str, term: str) -> CleaningResult:

@@ -240,7 +240,7 @@ test:
 class TestGetSynonymsWithWeights:
     """Test suite voor get_synonyms_with_weights() functie."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def service_with_weighted_data(self, tmp_path):
         """Create service with weighted test data."""
         yaml_content = """
@@ -327,7 +327,7 @@ voorlopige_hechtenis:
 class TestGetBestSynonyms:
     """Test suite voor get_best_synonyms() threshold filtering."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def service_with_varied_weights(self, tmp_path):
         """Create service with varied synonym weights."""
         yaml_content = """

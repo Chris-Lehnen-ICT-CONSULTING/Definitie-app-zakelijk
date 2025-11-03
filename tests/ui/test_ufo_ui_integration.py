@@ -23,7 +23,7 @@ from src.services.ufo_classifier_service import (
 class TestGeneratorTabIntegration:
     """Test UFO integration in Generator tab"""
 
-    @pytest.fixture
+    @pytest.fixture()
     def mock_streamlit(self):
         """Mock Streamlit components"""
         mock_st = Mock()
@@ -40,7 +40,7 @@ class TestGeneratorTabIntegration:
         mock_st.spinner = Mock()
         return mock_st
 
-    @pytest.fixture
+    @pytest.fixture()
     def classifier(self):
         return UFOClassifierService()
 
@@ -157,7 +157,7 @@ class TestGeneratorTabIntegration:
 class TestEditTabIntegration:
     """Test UFO integration in Edit tab"""
 
-    @pytest.fixture
+    @pytest.fixture()
     def mock_ui_components(self):
         """Mock UI components for Edit tab"""
         components = Mock()
@@ -167,7 +167,7 @@ class TestEditTabIntegration:
         components.form_submit_button = Mock(return_value=False)
         return components
 
-    @pytest.fixture
+    @pytest.fixture()
     def classifier(self):
         return UFOClassifierService()
 
@@ -279,11 +279,11 @@ class TestEditTabIntegration:
 class TestExpertReviewTabIntegration:
     """Test UFO integration in Expert Review tab"""
 
-    @pytest.fixture
+    @pytest.fixture()
     def classifier(self):
         return UFOClassifierService()
 
-    @pytest.fixture
+    @pytest.fixture()
     def mock_expert_ui(self):
         """Mock Expert Review UI components"""
         ui = Mock()
@@ -437,11 +437,11 @@ class TestExpertReviewTabIntegration:
 class TestMigrationUI:
     """Test UI for migrating existing definitions"""
 
-    @pytest.fixture
+    @pytest.fixture()
     def classifier(self):
         return UFOClassifierService()
 
-    @pytest.fixture
+    @pytest.fixture()
     def mock_migration_ui(self):
         """Mock migration UI components"""
         ui = Mock()
@@ -527,7 +527,7 @@ class TestMigrationUI:
 class TestUIPerformance:
     """Test UI performance considerations"""
 
-    @pytest.fixture
+    @pytest.fixture()
     def classifier(self):
         return UFOClassifierService()
 
@@ -600,7 +600,7 @@ class TestUIPerformance:
 class TestAuditUI:
     """Test audit trail UI for UFO changes"""
 
-    @pytest.fixture
+    @pytest.fixture()
     def mock_audit_ui(self):
         """Mock audit UI components"""
         ui = Mock()

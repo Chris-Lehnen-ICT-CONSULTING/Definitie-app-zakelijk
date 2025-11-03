@@ -21,7 +21,7 @@ from src.repositories.synonym_registry import SynonymRegistry
 class TestSynonymRegistryDelete:
     """Tests voor delete_group() method."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def registry(self, test_db_path):
         """Create registry with test database and apply schema."""
         # Apply full schema (includes definities table needed for FK)
