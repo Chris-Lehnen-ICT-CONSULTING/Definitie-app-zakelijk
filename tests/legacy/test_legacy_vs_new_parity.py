@@ -29,13 +29,13 @@ from services.service_factory import ServiceAdapter, get_definition_service
 class TestLegacyVsNewParity:
     """Test suite voor het vergelijken van legacy vs nieuwe implementatie."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def legacy_service(self):
         """Maak legacy service instance."""
         # Return ServiceAdapter - both services are now V2
         return get_definition_service()
 
-    @pytest.fixture
+    @pytest.fixture()
     def new_service(self):
         """Maak nieuwe service instance via factory."""
         with patch.dict("os.environ", {"USE_NEW_SERVICES": "true"}):
@@ -45,7 +45,7 @@ class TestLegacyVsNewParity:
             ), f"Should return ServiceAdapter, got {type(service).__name__}"
             return service
 
-    @pytest.fixture
+    @pytest.fixture()
     def test_context(self):
         """Standard test context voor beide services."""
         return {
@@ -54,7 +54,7 @@ class TestLegacyVsNewParity:
             "domein": ["Informatiebeveiliging", "Identity Management"],
         }
 
-    @pytest.fixture
+    @pytest.fixture()
     def mock_gpt_response(self):
         """Mock GPT response voor consistente tests."""
         return """Een authenticatiemechanisme is een systeem of proces dat wordt gebruikt om de identiteit van een gebruiker, apparaat of systeem te verifiëren voordat toegang wordt verleend tot beveiligde resources of diensten.
@@ -66,7 +66,7 @@ Dit mechanisme bestaat uit verschillende componenten:
 
 Voorbeelden van authenticatiemechanismen zijn wachtwoorden, biometrie, tokens en certificaten."""
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     @patch("prompt_builder.stuur_prompt_naar_gpt")
     async def test_basic_generation_parity(
         self, mock_gpt, legacy_service, new_service, test_context, mock_gpt_response
@@ -116,7 +116,7 @@ Voorbeelden van authenticatiemechanismen zijn wachtwoorden, biometrie, tokens en
         # Verify dat beide services dezelfde GPT aanroepen
         assert mock_gpt.call_count == 2
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     @patch("prompt_builder.stuur_prompt_naar_gpt")
     async def test_error_handling_parity(
         self, mock_gpt, legacy_service, new_service, test_context
@@ -143,7 +143,7 @@ Voorbeelden van authenticatiemechanismen zijn wachtwoorden, biometrie, tokens en
         assert "error" in legacy_result or "error_message" in legacy_result
         assert "error" in new_result or "error_message" in new_result
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     @patch("prompt_builder.stuur_prompt_naar_gpt")
     async def test_empty_context_handling(
         self, mock_gpt, legacy_service, new_service, mock_gpt_response
@@ -166,7 +166,7 @@ Voorbeelden van authenticatiemechanismen zijn wachtwoorden, biometrie, tokens en
         assert legacy_result["success"] == new_result["success"]
         assert legacy_result["success"] is True
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     @patch("prompt_builder.stuur_prompt_naar_gpt")
     @patch("config.Config.monitoring_enabled", False)
     async def test_validation_consistency(
@@ -198,7 +198,7 @@ Voorbeelden van authenticatiemechanismen zijn wachtwoorden, biometrie, tokens en
         assert len(legacy_errors) > 0 or not legacy_result["success"]
         assert len(new_errors) > 0 or not new_result["success"]
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_response_structure_compatibility(self, legacy_service, new_service):
         """Test dat response structuur compatible is."""
         # Mock alle dependencies
@@ -239,7 +239,7 @@ Voorbeelden van authenticatiemechanismen zijn wachtwoorden, biometrie, tokens en
                 if field in legacy_result:
                     assert field in new_result, f"New missing optional field {field}"
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     @patch("services.definition_repository.sqlite3.connect")
     async def test_database_operations_parity(
         self, mock_db, legacy_service, new_service
@@ -266,7 +266,7 @@ Voorbeelden van authenticatiemechanismen zijn wachtwoorden, biometrie, tokens en
         repository = new_service.container.repository()
         assert repository is not None
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_performance_comparison(
         self, legacy_service, new_service, test_context
     ):
@@ -299,7 +299,7 @@ Voorbeelden van authenticatiemechanismen zijn wachtwoorden, biometrie, tokens en
             # Nieuwe service mag niet significant langzamer zijn (max 20% overhead)
             assert new_time < legacy_time * 1.2, "New service is >20% slower"
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_feature_flag_switching(self):
         """Test dat feature flag correct schakelt tussen services."""
         # Both services are now V2 ServiceAdapter - feature flag affects internal config
@@ -315,7 +315,7 @@ Voorbeelden van authenticatiemechanismen zijn wachtwoorden, biometrie, tokens en
             assert type(service).__name__ == "ServiceAdapter"
             assert isinstance(service, ServiceAdapter)
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     @patch("prompt_builder.stuur_prompt_naar_gpt")
     async def test_monitoring_compatibility(
         self, mock_gpt, legacy_service, new_service, test_context
@@ -365,7 +365,7 @@ Voorbeelden van authenticatiemechanismen zijn wachtwoorden, biometrie, tokens en
 class TestMigrationScenarios:
     """Test scenarios voor de migratie van legacy naar nieuwe services."""
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_gradual_rollout_scenario(self):
         """Test graduele uitrol met feature flags."""
         results = []
@@ -387,7 +387,7 @@ class TestMigrationScenarios:
         new_count = results.count("ServiceAdapter")
         assert new_count == 10  # All 10 should be ServiceAdapter
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_rollback_scenario(self):
         """Test rollback van nieuwe naar oude service."""
         # Start met nieuwe service

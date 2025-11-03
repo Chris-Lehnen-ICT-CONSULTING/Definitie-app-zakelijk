@@ -62,12 +62,12 @@ class PerformanceMetrics:
 class TestContextFlowPerformance:
     """Core performance tests for context flow."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def prompt_service(self):
         """Create PromptServiceV2 instance."""
         return PromptServiceV2()
 
-    @pytest.fixture
+    @pytest.fixture()
     def context_manager(self):
         """Create ContextManager instance."""
         return ContextManager()

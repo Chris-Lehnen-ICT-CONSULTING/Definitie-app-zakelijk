@@ -154,7 +154,7 @@ _clusters:
 class TestGetRelatedTerms:
     """Test get_related_terms() method."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def service_with_clusters(self):
         """Service met clusters voor tests."""
         yaml_content = """
@@ -235,7 +235,7 @@ _clusters:
 class TestGetClusterName:
     """Test get_cluster_name() method."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def service_with_clusters(self):
         """Service met clusters voor tests."""
         yaml_content = """
@@ -284,7 +284,7 @@ _clusters:
 class TestExpandWithRelated:
     """Test expand_with_related() method."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def service_full(self):
         """Service met zowel synoniemen als clusters."""
         yaml_content = """
@@ -523,7 +523,7 @@ hoger_beroep:
 class TestRealWorldClusters:
     """Test met echte juridische clusters uit juridische_synoniemen.yaml."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def real_service(self):
         """Service met echte config (if available)."""
         # Try to load real config

@@ -2,11 +2,8 @@ import re
 
 import pytest
 
-from services.interfaces import (
-    ValidationResult as DCValidationResult,
-    ValidationSeverity,
-    ValidationViolation,
-)
+from services.interfaces import ValidationResult as DCValidationResult
+from services.interfaces import ValidationSeverity, ValidationViolation
 from services.validation.interfaces import CONTRACT_VERSION
 from services.validation.mappers import (
     DEFAULT_PASSED_RULES,

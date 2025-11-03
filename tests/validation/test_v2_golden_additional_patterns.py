@@ -4,7 +4,7 @@ from services.validation.modular_validation_service import ModularValidationServ
 from toetsregels.manager import get_toetsregel_manager
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_additional_patterns_con01_detects_context_wording():
     svc = ModularValidationService(get_toetsregel_manager(), None, None)
     text = "registratie: het vastleggen van gegevens binnen de context van het strafrecht bij het OM"
@@ -17,7 +17,7 @@ async def test_additional_patterns_con01_detects_context_wording():
     assert any(v.get("code") == "CON-01" for v in res.get("violations", [])), res
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_additional_patterns_ess01_detects_goal_phrases():
     svc = ModularValidationService(get_toetsregel_manager(), None, None)
     text = "maatregel: is bedoeld om naleving af te dwingen"
@@ -30,7 +30,7 @@ async def test_additional_patterns_ess01_detects_goal_phrases():
     assert any(v.get("code") == "ESS-01" for v in res.get("violations", [])), res
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_additional_patterns_int01_detects_multi_sentence():
     svc = ModularValidationService(get_toetsregel_manager(), None, None)
     text = (
@@ -46,7 +46,7 @@ async def test_additional_patterns_int01_detects_multi_sentence():
     assert any(v.get("code") == "INT-01" for v in res.get("violations", [])), res
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_additional_patterns_str02_detects_vague_terms():
     svc = ModularValidationService(get_toetsregel_manager(), None, None)
     text = "termijn: proces."

@@ -48,7 +48,7 @@ class TestSecurityMiddleware:
         assert hasattr(self.middleware, "rate_limits")
         assert len(self.middleware.suspicious_patterns) > 0
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_normal_request_validation(self):
         """Test validation of normal, safe requests."""
         request = ValidationRequest(
@@ -75,7 +75,7 @@ class TestSecurityMiddleware:
         assert "X-Security-Status" in response.response_headers
         assert response.response_headers["X-Security-Status"] == "validated"
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_xss_attack_detection(self):
         """Test XSS attack detection and blocking."""
         malicious_request = ValidationRequest(
@@ -101,7 +101,7 @@ class TestSecurityMiddleware:
         assert response.security_events[0].event_type == ThreatType.XSS
         assert response.response_headers["X-Security-Status"] == "threat_detected"
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_sql_injection_detection(self):
         """Test SQL injection attack detection."""
         sql_injection_request = ValidationRequest(
@@ -126,7 +126,7 @@ class TestSecurityMiddleware:
         assert ThreatType.SQL_INJECTION in response.threats_detected
         assert len(response.security_events) > 0
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_rate_limiting(self):
         """Test rate limiting functionality."""
         # Make multiple requests from same IP
@@ -153,7 +153,7 @@ class TestSecurityMiddleware:
         assert response.allowed is False
         assert ThreatType.RATE_LIMIT_EXCEEDED in response.threats_detected
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_ip_blocking(self):
         """Test IP blocking after security violations."""
         malicious_ip = "192.168.1.104"
@@ -426,7 +426,7 @@ class TestInputValidation:
 class TestSecurityIntegration:
     """Test integration between security components."""
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_complete_security_pipeline(self):
         """Test complete security validation pipeline."""
         # Create a request with various security issues
@@ -504,7 +504,7 @@ class TestSecurityIntegration:
 class TestSecurityPerformance:
     """Test security system performance."""
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_security_validation_performance(self):
         """Test performance of security validation."""
         import time
