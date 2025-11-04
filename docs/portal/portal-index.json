@@ -7833,6 +7833,70 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Comprehensive Analysis: Definitie Generatie Prompt v6 - Improvement Plan",
+      "path": "../analyses/PROMPT_COMPREHENSIVE_ANALYSIS_AND_IMPROVEMENT_PLAN.md",
+      "url": "../analyses/PROMPT_COMPREHENSIVE_ANALYSIS_AND_IMPROVEMENT_PLAN.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-202"
+        ],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/PROMPT_COMPREHENSIVE_ANALYSIS_AND_IMPROVEMENT_PLAN.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Comprehensive Exploration: Waarom \"Type\" Dominant Lijkt als Ontologische Categorie",
+      "path": "../analyses/ONTOLOGISCHE_CATEGORIE_COMPREHENSIVE_EXPLORATION.md",
+      "url": "../analyses/ONTOLOGISCHE_CATEGORIE_COMPREHENSIVE_EXPLORATION.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/ONTOLOGISCHE_CATEGORIE_COMPREHENSIVE_EXPLORATION.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Container Duplication Fix - Implementation Plan",
       "path": "../analyses/CONTAINER_FIX_IMPLEMENTATION_PLAN.md",
       "url": "../analyses/CONTAINER_FIX_IMPLEMENTATION_PLAN.md",
@@ -8081,6 +8145,37 @@
         "req": []
       },
       "rendered_url": "rendered/analyses/CON-01_VALIDATIE_TEST_RAPPORT.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Ontologische Categorie Implementation - Comprehensive Exploration",
+      "path": "../analyses/ONTOLOGICAL_CATEGORIE_COMPREHENSIVE_EXPLORATION.md",
+      "url": "../analyses/ONTOLOGICAL_CATEGORIE_COMPREHENSIVE_EXPLORATION.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/ONTOLOGICAL_CATEGORIE_COMPREHENSIVE_EXPLORATION.html"
     },
     {
       "id": null,
@@ -9553,6 +9648,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "PRAKTIJKVOORBEELDEN TIMEOUT - ULTRA-DIEPGAANDE ROOT CAUSE ANALYSIS",
+      "path": "../analyses/PRAKTIJKVOORBEELDEN_TIMEOUT_ANALYSIS.md",
+      "url": "../analyses/PRAKTIJKVOORBEELDEN_TIMEOUT_ANALYSIS.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/PRAKTIJKVOORBEELDEN_TIMEOUT_ANALYSIS.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Linear Issues - Multiagent Consensus Roadmap",
       "path": "../analyses/LINEAR_ISSUES_CONSENSUS_ROADMAP.md",
       "url": "../analyses/LINEAR_ISSUES_CONSENSUS_ROADMAP.md",
@@ -10115,6 +10241,37 @@
         "req": []
       },
       "rendered_url": "rendered/guidelines/RECOMMENDED_RUFF_CONFIG.html"
+    },
+    {
+      "id": null,
+      "type": "GUIDE",
+      "title": "Code Archaeology Checklist",
+      "path": "../guidelines/CODE_ARCHAEOLOGY_CHECKLIST.md",
+      "url": "../guidelines/CODE_ARCHAEOLOGY_CHECKLIST.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/guidelines/CODE_ARCHAEOLOGY_CHECKLIST.html"
     },
     {
       "id": null,
@@ -57149,17 +57306,17 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 966,
+      "DOC": 970,
       "ARCH": 42,
       "COMP": 5,
       "TEST": 35,
-      "GUIDE": 17,
+      "GUIDE": 18,
       "EPIC": 35,
       "US": 375,
       "BUG": 28,
       "REQ": 110
     },
-    "generated_at": "2025-11-03T10:35:18Z"
+    "generated_at": "2025-11-04T14:57:03Z"
   },
   "sources": [
     "docs"

@@ -31,6 +31,7 @@ Laatste update: 12-09-2025 (Architectuur Consolidatie Compleet)
 - **Documentation Policy**: `docs/guidelines/DOCUMENTATION_POLICY.md`
 - **Agents Guidelines**: `docs/guidelines/AGENTS.md`
 - **Development Workflows**: `docs/guidelines/TDD_TO_DEPLOYMENT_WORKFLOW.md`
+- **Code Archaeology Checklist**: `docs/guidelines/CODE_ARCHAEOLOGY_CHECKLIST.md` ✅ ACTIEF (Quick reference voor feature verification)
 
 ### 3. Module Documentatie
 - **Module Analyses**: `docs/technische-referentie/modules/` ✅ ACTIEF

@@ -1,0 +1,837 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ontologische Categorie Implementation - Comprehensive Exploration</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>Ontologische Categorie Implementation - Comprehensive Exploration</h1>
+
+<p><strong>Date</strong>: 2025-11-03  </p>
+<p><strong>Status</strong>: Complete Investigation  </p>
+<p><strong>Scope</strong>: Very Thorough Deep Dive  </p>
+
+<p>---</p>
+
+<h2>Executive Summary</h2>
+
+<p>The <strong>ontologische_categorie</strong> (ontological category) feature is <strong>extensively implemented</strong> throughout DefinitieAgent, spanning:</p>
+
+<ul>
+<li>✅ **Domain Models**: Two systems (TYPE/PROCES/RESULTAAT/EXEMPLAAR) AND (U/F/O classification)</li>
+<li>✅ **Validation**: ESS-02 rule fully implemented with regex pattern matching</li>
+<li>✅ **Data Flow**: Category flows through entire generation pipeline</li>
+<li>✅ **Prompt Integration**: Used for template selection and context hints</li>
+<li>✅ **Database**: Stored and retrieved properly</li>
+<li>❌ **UI Widget**: No user-facing category selector found</li>
+<li>❌ **Blocking Behavior**: Validation runs but doesn't prevent generation</li>
+<li>❓ **DEF-39/DEF-13 Status**: Requirements not located; implementation status unclear</li>
+</ul>
+
+<p>---</p>
+
+<h2>1. TWO Ontological Category Systems</h2>
+
+<h3>1.1 System A: TYPE/PROCES/RESULTAAT/EXEMPLAAR</h3>
+
+<p><strong>Type</strong>: 4-category classification for juridische definitions  </p>
+<p><strong>Location</strong>: <code>/src/domain/ontological_categories.py</code></p>
+
+<pre><code>class OntologischeCategorie(Enum):
+    """Ontologische categorieën (van generation implementatie)."""
+    TYPE = "type"              # Soort/klasse begrip
+    PROCES = "proces"          # Activiteit/handeling
+    RESULTAAT = "resultaat"    # Uitkomst/bevinding
+    EXEMPLAAR = "exemplaar"    # Specifiek geval</code></pre>
+
+<p><strong>Usage Context</strong>:</p>
+<ul>
+<li>GenerationRequest.ontologische_categorie field</li>
+<li>Prompt template selection</li>
+<li>Definition validation (ESS-02 rule)</li>
+<li>Database storage</li>
+</ul>
+
+<p><strong>Database Field Name</strong>: <code>categorie</code> (not <code>ontologische_categorie</code>)  </p>
+<p><strong>Mapping</strong>: Done in <code>definition_orchestrator_v2.py</code> (DEF-53 fix)</p>
+
+<h3>1.2 System B: U/F/O Classification (UNIVERSEEL/FUNCTIONEEL/OPERATIONEEL)</h3>
+
+<p><strong>Type</strong>: 3-level ontological classification  </p>
+<p><strong>Location</strong>: <code>/src/services/classification/ontological_classifier.py</code></p>
+
+<pre><code>class OntologicalLevel(Enum):
+    """Ontologische niveaus voor juridische begrippen."""
+    UNIVERSEEL = "U"       # Universal concepts (Persoon, Datum)
+    FUNCTIONEEL = "F"      # Functional/domain-specific (Overeenkomst)
+    OPERATIONEEL = "O"     # Organization-specific (Aanvraag vergunning X)</code></pre>
+
+<p><strong>Purpose</strong>: AI-based classification BEFORE definition generation  </p>
+<p><strong>Not</strong> for naming the database field; separate from System A</p>
+
+<p><strong>Key Insight</strong>: These are TWO DIFFERENT systems serving different purposes!</p>
+
+<p>---</p>
+
+<h2>2. Domain Model & Data Structures</h2>
+
+<h3>2.1 GenerationRequest Interface</h3>
+
+<p><strong>File</strong>: <code>/src/services/interfaces.py</code> (lines 147-200+)</p>
+
+<pre><code>@dataclass
+class GenerationRequest:
+    """Request object voor het genereren van een definitie."""
+    id: str
+    begrip: str
+    ontologische_categorie: str | None = None    # ← The field
+    organisatorische_context: list[str] | None = None
+    juridische_context: list[str] | None = None
+    wettelijke_basis: list[str] | None = None
+    context: str | None = None
+    actor: str = "system"
+    legal_basis: str = "legitimate_interest"</code></pre>
+
+<p><strong>Critical Note</strong>: Field is <strong>OPTIONAL</strong> (nullable)  </p>
+<p>This is key to understanding why DEF-39 (if it requires blocking) is not fully implemented.</p>
+
+<h3>2.2 Definition Domain Object</h3>
+
+<p><strong>File</strong>: <code>/src/services/interfaces.py</code> (Definition interface)</p>
+
+<p><strong>Fields</strong>:</p>
+<ul>
+<li>`categorie`: String field matching database schema</li>
+<li>`ontologische_categorie`: Property or derived from `categorie`</li>
+</ul>
+
+<p><strong>Storage Path</strong>: Database <code>categorie</code> column</p>
+
+<p>---</p>
+
+<h2>3. Validation Rule: ESS-02</h2>
+
+<h3>3.1 Rule Metadata</h3>
+
+<p><strong>File</strong>: <code>/src/toetsregels/regels/ESS-02.json</code></p>
+
+<pre><code>{
+  "id": "ESS_02",
+  "naam": "Ontologische categorie expliciteren (type / particulier / proces / resultaat)",
+  "uitleg": "Indien een begrip meerdere ontologische categorieën kan aanduiden, 
+            moet uit de definitie ondubbelzinnig blijken welke van deze vier bedoeld wordt",
+  "prioriteit": "hoog",
+  "aanbeveling": "verplicht",  ← MARKED AS MANDATORY
+  "type": "polysemie"
+}</code></pre>
+
+<p><strong>Recognition Patterns</strong>:</p>
+<ul>
+<li>Type: `"is een categorie", "soort", "klasse"`</li>
+<li>Particulier: `"exemplaar", "specifiek exemplaar"`</li>
+<li>Proces: `"proces", "activiteit", "handeling"`</li>
+<li>Resultaat: `"is het resultaat van", "uitkomst"`</li>
+</ul>
+
+<h3>3.2 Validator Implementation</h3>
+
+<p><strong>File</strong>: <code>/src/toetsregels/regels/ESS-02.py</code></p>
+
+<p><strong>Logic Flow</strong>:</p>
+<ol>
+<li>Check metadata override (marker field in context)</li>
+<li>Apply regex patterns for category detection</li>
+<li>Count detected categories (0, 1, 2+)</li>
+<li>Return pass/fail based on count:</li>
+</ol>
+<ul>
+<li>  - 0 detected: FAIL (insufficient clarity)</li>
+<li>  - 1 detected: PASS ✓</li>
+<li>  - 2+ detected: FAIL (ambiguous)</li>
+</ul>
+
+<p><strong>Score Calculation</strong>:</p>
+<ul>
+<li>Pass: 1.0</li>
+<li>Fail: 0.0</li>
+</ul>
+
+<h3>3.3 CRITICAL FINDING: NOT BLOCKING</h3>
+
+<p><strong>Current Behavior</strong>:</p>
+<pre><code>ESS-02 violation detected
+  ↓
+Recorded in validation_details.violations[]
+  ↓
+Counted in overall score calculation
+  ↓
+Definition saved ANYWAY (success=True)</code></pre>
+
+<p><strong>Validation Results Type</strong>: <code>ValidationDetailsDict</code> (V2 contract)</p>
+<pre><code>class ValidationDetailsDict(TypedDict):
+    overall_score: float    # 0.0-1.0 (ESS-02 fail lowers this)
+    is_acceptable: bool     # True if score &gt;= 0.6 (not definition-blocking)
+    violations: list[...]   # ESS-02 listed here
+    passed_rules: list[...]</code></pre>
+
+<p><strong>Acceptance Logic</strong>: Definition acceptable if:</p>
+<ul>
+<li>Score >= 0.6 (60%)</li>
+<li>No CRITICAL severity violations</li>
+<li>ESS-02 = MEDIUM or LOW severity (not CRITICAL)</li>
+</ul>
+
+<p><strong>⚠️ IMPLICATION</strong>: Even with ESS-02 failure, definition is marked <code>is_acceptable=True</code> and saved.</p>
+
+<p>---</p>
+
+<h2>4. Data Flow: Complete Journey</h2>
+
+<h3>4.1 UI Input Phase</h3>
+
+<p><strong>Missing Component</strong>: No user UI widget for category selection found!</p>
+
+<p><strong>Inferred Flow</strong>:</p>
+<ol>
+<li>User enters term (begrip) in definition_generator_tab</li>
+<li>User selects context (org/jur/wet) via enhanced_context_manager_selector</li>
+<li>GenerationRequest created from form inputs</li>
+<li>`ontologische_categorie` field: **WHERE IS THIS SET?**</li>
+</ol>
+
+<p><strong>Possible Sources</strong>:</p>
+<ul>
+<li>Default value (need to find where)</li>
+<li>AI classification via OntologicalClassifier</li>
+<li>External API call</li>
+<li>Backend-provided hint</li>
+</ul>
+
+<h3>4.2 Generation Request Creation</h3>
+
+<p><strong>Location</strong>: <code>definition_generator_tab.py</code> or upstream</p>
+
+<p><strong>Missing</strong>: Actual code location where category is assigned</p>
+
+<h3>4.3 AI Classification (Optional)</h3>
+
+<p><strong>Location</strong>: <code>src/services/container.py</code> (lines 293-328)</p>
+
+<pre><code>def ontological_classifier(self):
+    """Get or create OntologicalClassifier instance (U/F/O classifier)."""
+    # Singleton instance created
+    # Usage: result = await classifier.classify(begrip, org_ctx, jur_ctx)</code></pre>
+
+<p><strong>If category is None</strong>:</p>
+<ul>
+<li>(Not found in code - need to verify)</li>
+<li>OntologicalClassifier.classify() should be called</li>
+<li>Result.to_string_level() provides classification</li>
+</ul>
+
+<p><strong>Current Status</strong>: Code path exists but unclear if wired into UI flow</p>
+
+<h3>4.4 Orchestration & Generation</h3>
+
+<p><strong>File</strong>: <code>/src/services/orchestrators/definition_orchestrator_v2.py</code></p>
+
+<p><strong>Line ~296-299</strong>:</p>
+<pre><code>logger.info(
+    f"Generation {generation_id}: Starting orchestration for '{request.begrip}' "
+    f"with category '{request.ontologische_categorie}'"  # ← Logs category
+)</code></pre>
+
+<p><strong>Line ~323</strong>:</p>
+<pre><code>feedback_history = await self.feedback_engine.get_feedback_for_request(
+    sanitized_request.begrip, 
+    sanitized_request.ontologische_categorie  # ← Passed to feedback
+)</code></pre>
+
+<p><strong>Line ~467+</strong>: Category passed to prompt service</p>
+
+<h3>4.5 Prompt Building</h3>
+
+<p><strong>File</strong>: <code>/src/services/prompts/prompt_service_v2.py</code></p>
+
+<p><strong>Components</strong>:</p>
+<ul>
+<li>`semantic_categorisation_module.py` - Uses category for semantic analysis</li>
+<li>Prompt template selected based on `ontologische_categorie`</li>
+<li>Category hint added to prompt: `"Dit begrip is een {category}. Houd hier rekening mee in de definitie."`</li>
+</ul>
+
+<h3>4.6 Validation</h3>
+
+<p><strong>File</strong>: <code>/src/services/orchestrators/validation_orchestrator_v2.py</code></p>
+
+<p><strong>Line ~validation call</strong>:</p>
+<pre><code>validation_result = await validation_service.validate(
+    definitie=...,
+    ontologische_categorie=request.ontologische_categorie,  # ← Passed
+    context=context
+)</code></pre>
+
+<p><strong>ESS-02 Execution</strong>:</p>
+<ul>
+<li>ModularValidationService calls ESS02Validator.validate()</li>
+<li>Result recorded but NOT blocking</li>
+<li>Definition proceeds regardless</li>
+</ul>
+
+<h3>4.7 Storage</h3>
+
+<p><strong>File</strong>: <code>/src/services/orchestrators/definition_orchestrator_v2.py</code> (lines ~670)</p>
+
+<pre><code>repository.save(
+    Definition(
+        categorie=request.ontologische_categorie,  # Stored in DB
+        ...
+    )
+)</code></pre>
+
+<p>---</p>
+
+<h2>5. UI Components: What Exists</h2>
+
+<h3>5.1 Definition Generator Tab</h3>
+
+<p><strong>File</strong>: <code>/src/ui/components/definition_generator_tab.py</code></p>
+
+<p><strong>Functionality</strong>:</p>
+<ul>
+<li>Displays generation results</li>
+<li>Shows validation score</li>
+<li>Shows category IF provided (read-only)</li>
+<li>Performs duplicate checking</li>
+</ul>
+
+<p><strong>Missing</strong>: No widget to INPUT category</p>
+
+<h3>5.2 Enhanced Context Manager Selector</h3>
+
+<p><strong>File</strong>: <code>/src/ui/components/enhanced_context_manager_selector.py</code></p>
+
+<p><strong>What It Does</strong>:</p>
+<ul>
+<li>Selector for organisatorische context (OM, ZM, DJI, etc.)</li>
+<li>Selector for juridische context (Strafrecht, Civiel recht, etc.)</li>
+<li>Selector for wettelijke basis (WvSr, Awb, etc.)</li>
+</ul>
+
+<p><strong>Extensible</strong>: Pattern could be used for category selector, but NOT implemented</p>
+
+<h3>5.3 UI Gaps Identified</h3>
+
+<p><strong>Gap 1: No Category Selector Widget</strong></p>
+<ul>
+<li>Users cannot select category</li>
+<li>Category must come from elsewhere (AI, default, API)</li>
+</ul>
+
+<p><strong>Gap 2: No AI Suggestion Display</strong></p>
+<ul>
+<li>OntologicalClassifier exists</li>
+<li>No UI shows classification results</li>
+<li>No override mechanism visible</li>
+</ul>
+
+<p>---</p>
+
+<h2>6. OntologicalClassifier Service (U/F/O)</h2>
+
+<h3>6.1 Service Definition</h3>
+
+<p><strong>File</strong>: <code>/src/services/classification/ontological_classifier.py</code> (85-291 lines)</p>
+
+<p><strong>Class</strong>: <code>OntologicalClassifier</code></p>
+
+<p><strong>Methods</strong>:</p>
+<ul>
+<li>`async classify(begrip, org_context, jur_context) → ClassificationResult`</li>
+<li>`async classify_batch(begrippen, shared_context) → dict`</li>
+<li>`async validate_existing_definition(begrip, claimed_level, definition_text) → (bool, str)`</li>
+</ul>
+
+<h3>6.2 Classification Result</h3>
+
+<p><strong>Type</strong>: <code>ClassificationResult</code> dataclass</p>
+
+<pre><code>@dataclass
+class ClassificationResult:
+    level: OntologicalLevel              # U/F/O
+    confidence: float                    # 0.0-1.0
+    confidence_level: ClassificationConfidence  # HIGH/MEDIUM/LOW
+    rationale: str                       # Explanation
+    scores: dict[str, float]             # {U: 0.8, F: 0.15, O: 0.05}
+    metadata: dict | None = None
+
+    def to_string_level(self) -&gt; str:
+        """Converteer naar string voor GenerationRequest.ontologische_categorie"""
+        return self.level.value  # Returns "U" or "F" or "O"</code></pre>
+
+<h3>6.3 AI-Powered Classification</h3>
+
+<p><strong>Prompt Built</strong>: (lines ~148-169)</p>
+<pre><code>Classificeer het volgende juridische begrip in een ontologisch niveau:
+
+Begrip: {begrip}
+
+Ontologische niveaus:
+- U (Universeel): Universele begrippen die overal gelden
+- F (Functioneel): Functionele begrippen domein-specifiek maar org-onafhankelijk
+- O (Operationeel): Operationele begrippen organisatie-specifiek
+
+Geef antwoord in JSON formaat:
+{
+    "level": "U/F/O",
+    "confidence": 0.0-1.0,
+    "rationale": "Uitleg",
+    "scores": {"U": ..., "F": ..., "O": ...}
+}</code></pre>
+
+<p><strong>Model</strong>: GPT-4 (via AIServiceV2)  </p>
+<p><strong>Temperature</strong>: 0.3 (consistent/deterministic)</p>
+
+<h3>6.4 Container Registration</h3>
+
+<p><strong>File</strong>: <code>/src/services/container.py</code> (lines 293-328)</p>
+
+<pre><code>def ontological_classifier(self):
+    """Get or create OntologicalClassifier instance (U/F/O classifier)."""
+    if "ontological_classifier" not in self._instances:
+        from services.classification.ontological_classifier import OntologicalClassifier
+        
+        ai_service = AIServiceV2(...)
+        self._instances["ontological_classifier"] = OntologicalClassifier(ai_service)
+    
+    return self._instances["ontological_classifier"]</code></pre>
+
+<p><strong>Intended Usage</strong>:</p>
+<pre><code>classifier = container.ontological_classifier()
+result = await classifier.classify(begrip, org_ctx, jur_ctx)
+request.ontologische_categorie = result.to_string_level()</code></pre>
+
+<p><strong>Status</strong>: ✅ Infrastructure ready  </p>
+<p><strong>Status</strong>: ❓ Integration with UI unclear</p>
+
+<p>---</p>
+
+<h2>7. Complete File Inventory</h2>
+
+<h3>Core Domain & Models</h3>
+<ul>
+<li>**`/src/domain/ontological_categories.py`** - OntologischeCategorie enum (4 values)</li>
+</ul>
+
+<h3>Database Layer</h3>
+<ul>
+<li>**`/src/database/schema.sql`** - `categorie` column definition</li>
+<li>**`/src/database/definitie_repository.py`** - Database mapping & access</li>
+<li>**`/src/services/definition_repository.py`** - Repository interface</li>
+</ul>
+
+<h3>Validation (Toetsregels)</h3>
+<ul>
+<li>**`/src/toetsregels/regels/ESS-02.json`** - Rule metadata & patterns</li>
+<li>**`/src/toetsregels/regels/ESS-02.py`** - Validator implementation (ESS02Validator class)</li>
+</ul>
+
+<h3>Classification Service (U/F/O)</h3>
+<ul>
+<li>**`/src/services/classification/ontological_classifier.py`** - OntologicalClassifier (85-291 lines)</li>
+<li>**`/src/services/classification/__init__.py`** - Module exports</li>
+</ul>
+
+<h3>Service Container & Orchestration</h3>
+<ul>
+<li>**`/src/services/container.py`** - DI registration (ontological_classifier method, line 293)</li>
+<li>**`/src/services/orchestrators/definition_orchestrator_v2.py`** - Main flow</li>
+<li>**`/src/services/orchestrators/validation_orchestrator_v2.py`** - Validation context</li>
+</ul>
+
+<h3>Prompt & Generation</h3>
+<ul>
+<li>**`/src/services/prompts/prompt_service_v2.py`** - Category in prompt selection</li>
+<li>**`/src/services/prompts/modules/semantic_categorisation_module.py`** - Category semantics</li>
+</ul>
+
+<h3>Service Interfaces</h3>
+<ul>
+<li>**`/src/services/interfaces.py`** - GenerationRequest definition (line ~147-200)</li>
+</ul>
+
+<h3>UI Components</h3>
+<ul>
+<li>**`/src/ui/components/definition_generator_tab.py`** - Generation tab (no category selector)</li>
+<li>**`/src/ui/components/enhanced_context_manager_selector.py`** - Context selectors (pattern for category)</li>
+<li>**`/src/ui/session_state.py`** - Session state management</li>
+</ul>
+
+<h3>Tests</h3>
+<ul>
+<li>**`/tests/test_ontological_category_fix.py`** - Category tests (comprehensive)</li>
+<li>**`/tests/test_modular_prompt_builder.py`** - ESS-02 in prompts</li>
+</ul>
+
+<h3>Example/Documentation</h3>
+<ul>
+<li>**`/docs/examples/classifier_integration_ui.py`** - Example usage (shows integration pattern)</li>
+<li>**`/docs/examples/service_adapter_with_classifier.py`** - Example adapter pattern</li>
+</ul>
+
+<p>---</p>
+
+<h2>8. Data Flow Diagram</h2>
+
+<pre><code>┌─────────────────────────────────────────────────────────────────┐
+│                          USER INTERFACE                         │
+│                                                                 │
+│  ┌──────────────────┐     ┌──────────────────────────────┐    │
+│  │ Term Input       │     │ Context Selection            │    │
+│  │ (Definition Gen) │──→  │ (org/jur/wet selectors)      │    │
+│  └──────────────────┘     └──────────────────────────────┘    │
+│           │                          │                         │
+│           └──────────────┬───────────┘                         │
+│                          │                                     │
+│      MISSING: Category Selector Widget                        │
+│                          │                                     │
+└──────────────────────────┼──────────────────────────────────┘
+                           │
+                           ↓
+         ┌─────────────────────────────────┐
+         │  GenerationRequest Created      │
+         │  - begrip: "Overeenkomst"       │
+         │  - ontologische_categorie: ???  │ ← WHERE SET?
+         │  - org/jur/wet contexts         │
+         └─────────────────────────────────┘
+                           │
+              ┌────────────┴──────────────┐
+              │                           │
+              ↓                           ↓
+    ┌──────────────────┐        ┌───────────────────┐
+    │ Use Default?     │        │ AI Classify?      │
+    │ (if exists)      │        │ OntologicalClass- │
+    │                  │        │ ifier.classify()  │
+    └──────────────────┘        └───────────────────┘
+              │                           │
+              └────────────┬──────────────┘
+                           │
+                           ↓
+         ┌─────────────────────────────────┐
+         │ Definition Orchestrator V2      │
+         │ - Logs category usage           │
+         │ - Passes to prompt service      │
+         └─────────────────────────────────┘
+                           │
+                           ↓
+         ┌─────────────────────────────────┐
+         │ Prompt Service V2               │
+         │ - Template selected by category │
+         │ - Category hint added to prompt │
+         │ - Semantic categorisation       │
+         └─────────────────────────────────┘
+                           │
+                           ↓
+         ┌─────────────────────────────────┐
+         │ AI Service (GPT-4)              │
+         │ - Generates definition          │
+         └─────────────────────────────────┘
+                           │
+                           ↓
+         ┌─────────────────────────────────┐
+         │ Validation Orchestrator V2      │
+         │ - Runs ESS-02 validation        │
+         │ - Category passed to validators │
+         └─────────────────────────────────┘
+                           │
+                           ↓
+         ┌─────────────────────────────────┐
+         │ ESS-02 Validator                │
+         │ - Pattern detection             │
+         │ - Ambiguity check               │
+         │ - Records violation if fail     │
+         │ ⚠️ NOT BLOCKING!                │
+         └─────────────────────────────────┘
+                           │
+                           ↓
+         ┌─────────────────────────────────┐
+         │ Definition Repository           │
+         │ - Save definition               │
+         │ - Store category in DB          │
+         │ - categorie = request.          │
+         │   ontologische_categorie        │
+         └─────────────────────────────────┘
+                           │
+                           ↓
+         ┌─────────────────────────────────┐
+         │ Database (SQLite)               │
+         │ - categorie column              │
+         │ - Value: type|proces|resultaat  │
+         │   |exemplaar|None               │
+         └─────────────────────────────────┘</code></pre>
+
+<p>---</p>
+
+<h2>9. Key Findings</h2>
+
+<h3>What's Fully Implemented ✅</h3>
+
+<ol>
+<li>**Domain Enums**: OntologischeCategorie (TYPE/PROCES/RESULTAAT/EXEMPLAAR)</li>
+<li>**U/F/O Classifier**: Complete OntologicalClassifier service with AI backing</li>
+<li>**Validation Rule ESS-02**: Full regex pattern matching, proper scoring</li>
+<li>**Data Flow**: Category flows through entire generation pipeline</li>
+<li>**Prompt Integration**: Category used for template selection and hints</li>
+<li>**Database Storage**: Category persisted and retrieved</li>
+<li>**Service Container**: DI setup for classifier and all components</li>
+<li>**Test Coverage**: Comprehensive tests for category handling</li>
+</ol>
+
+<h3>What's Missing or Incomplete ❌</h3>
+
+<ol>
+<li>**No UI Category Selector Widget**</li>
+</ol>
+<ul>
+<li>  - Users cannot select category</li>
+<li>  - No visible input field</li>
+<li>  - No dropdown menu</li>
+<li>  - Pattern exists (context selectors) but not implemented</li>
+</ul>
+
+<ol>
+<li>**Category Not Blocking Generation (DEF-39?)**</li>
+</ol>
+<ul>
+<li>  - ESS-02 runs but doesn't prevent save</li>
+<li>  - Definition marked acceptable even if category ambiguous</li>
+<li>  - No "category required" validation</li>
+<li>  - Field is optional/nullable</li>
+</ul>
+
+<ol>
+<li>**No AI Suggestion Display (DEF-13?)**</li>
+</ol>
+<ul>
+<li>  - OntologicalClassifier exists</li>
+<li>  - No UI shows recommendations</li>
+<li>  - No confidence display</li>
+<li>  - No override mechanism</li>
+</ul>
+
+<ol>
+<li>**Missing Category Default Logic**</li>
+</ol>
+<ul>
+<li>  - Where does default category come from?</li>
+<li>  - What happens when null?</li>
+<li>  - Fallback behavior unclear</li>
+</ul>
+
+<ol>
+<li>**Classification Integration Unclear**</li>
+</ol>
+<ul>
+<li>  - Code path exists in container</li>
+<li>  - Not clear if actually called from UI</li>
+<li>  - No logs or traces found</li>
+</ul>
+
+<p>---</p>
+
+<h2>10. Answering Key Questions</h2>
+
+<h3>Q1: Is definition generation **blocked** when ontologische_categorie is missing?</h3>
+<p><strong>A</strong>: <strong>NO</strong> - Category field is optional/nullable, and even ESS-02 failures don't block generation.</p>
+
+<h3>Q2: Is there a **UI widget** for category selection?</h3>
+<p><strong>A</strong>: <strong>NO</strong> - No user-facing selector found. Pattern could be based on context manager selector.</p>
+
+<h3>Q3: Is there **AI-suggested category** with user override?</h3>
+<p><strong>A</strong>: <strong>PARTIAL</strong> - OntologicalClassifier exists with AI backing, but UI integration unclear.</p>
+
+<h3>Q4: Where is ontologische_categorie set/validated?</h3>
+<p><strong>A</strong>: Multiple places:</p>
+<ul>
+<li>GenerationRequest field (optional)</li>
+<li>Potential AI classification (OntologicalClassifier)</li>
+<li>Validation: ESS-02 rule</li>
+<li>Storage: Database `categorie` field</li>
+</ul>
+
+<h3>Q5: Are DEF-39 and DEF-13 implemented?</h3>
+<p><strong>A</strong>: <strong>UNKNOWN</strong> - Epic/Story documents not located. Implementation status based on inferences.</p>
+
+<p>---</p>
+
+<h2>11. Architecture Assessment</h2>
+
+<h3>Strengths</h3>
+<ul>
+<li>Clean separation of concerns (U/F/O vs TYPE/PROCES/RESULTAAT)</li>
+<li>Enum-based domain prevents mistakes</li>
+<li>Category flows naturally through pipeline</li>
+<li>Validation rule properly implemented</li>
+<li>AI classification service ready</li>
+</ul>
+
+<h3>Weaknesses</h3>
+<ul>
+<li>Dual naming confusion (ontologische_categorie vs categorie)</li>
+<li>No user control/visibility of category</li>
+<li>Validation marked "verplicht" but not actually blocking</li>
+<li>AI classification exists but orphaned from UI</li>
+<li>ESS-02 failure doesn't prevent save despite importance</li>
+</ul>
+
+<h3>Risks</h3>
+<ul>
+<li>Users may be confused about what category is used</li>
+<li>Invalid category combinations possible</li>
+<li>Definition quality may suffer without proper category hint</li>
+<li>ESS-02 rule effectiveness undermined by non-blocking behavior</li>
+</ul>
+
+<p>---</p>
+
+<h2>12. Recommended Next Steps</h2>
+
+<h3>For DEF-39 (If Requirement Is: Block Without Category)</h3>
+<ol>
+<li>**Find the epic/story** to confirm requirement</li>
+<li>**Make category REQUIRED**: Change GenerationRequest field to non-optional</li>
+<li>**Add UI widget**: Category dropdown selector (similar to context selector)</li>
+<li>**Implement blocking**: Check category before save, reject if missing</li>
+</ol>
+
+<h3>For DEF-13 (If Requirement Is: AI-Suggest Category)</h3>
+<ol>
+<li>**Find the epic/story** to confirm requirement</li>
+<li>**Wire UI integration**: Show OntologicalClassifier results in UI</li>
+<li>**Add suggestion display**: Show confidence and rationale</li>
+<li>**Implement override**: Allow user to accept/reject/modify suggestion</li>
+</ol>
+
+<h3>For General Improvement</h3>
+<ol>
+<li>**Rename field consistently**: Use `ontologische_categorie` everywhere (not just `categorie`)</li>
+<li>**Make ESS-02 blocking**: Prevent save if category ambiguous</li>
+<li>**Add category to duplicates**: Consider category when finding similar definitions</li>
+<li>**Improve logging**: Log category selection and confidence</li>
+</ol>
+
+<p>---</p>
+
+<h2>13. File Location Quick Reference</h2>
+
+<p>| Component | File | Line(s) |</p>
+<p>|-----------|------|---------|</p>
+<p>| Enum Definition | <code>/src/domain/ontological_categories.py</code> | 11-17 |</p>
+<p>| Request Interface | <code>/src/services/interfaces.py</code> | ~147 |</p>
+<p>| ESS-02 Rule | <code>/src/toetsregels/regels/ESS-02.py</code> | 1-250+ |</p>
+<p>| U/F/O Classifier | <code>/src/services/classification/ontological_classifier.py</code> | 85-291 |</p>
+<p>| Container Registration | <code>/src/services/container.py</code> | 293-328 |</p>
+<p>| Orchestration | <code>/src/services/orchestrators/definition_orchestrator_v2.py</code> | Multiple |</p>
+<p>| Validation | <code>/src/services/orchestrators/validation_orchestrator_v2.py</code> | Multiple |</p>
+<p>| Prompt Building | <code>/src/services/prompts/prompt_service_v2.py</code> | Multiple |</p>
+<p>| UI Display | <code>/src/ui/components/definition_generator_tab.py</code> | Multiple |</p>
+<p>| Tests | <code>/tests/test_ontological_category_fix.py</code> | 1-217 |</p>
+
+<p>---</p>
+
+<h2>14. Appendix: Code Snippets</h2>
+
+<h3>A. GenerationRequest with Category</h3>
+
+<pre><code>@dataclass
+class GenerationRequest:
+    """Request object voor het genereren van een definitie."""
+    id: str
+    begrip: str
+    ontologische_categorie: str | None = None  # ← Nullable!
+    organisatorische_context: list[str] | None = None
+    juridische_context: list[str] | None = None
+    wettelijke_basis: list[str] | None = None
+    context: str | None = None
+    actor: str = "system"
+    legal_basis: str = "legitimate_interest"</code></pre>
+
+<h3>B. ESS-02 Validation Pattern Matching</h3>
+
+<pre><code>def validate(self, definitie: str, begrip: str, context: dict | None = None) \
+  → tuple[bool, str, float]:
+    # 0️⃣ Metadata-override if provided
+    # 1️⃣ Explicit failure examples per category
+    # 2️⃣ Category detection via regex patterns
+    # 3️⃣ One category → ✔️ pass
+    # 4️⃣ Multiple categories → ❌ fail (ambiguous)
+    # 5️⃣ No hits → Good examples per category</code></pre>
+
+<h3>C. OntologicalClassifier Integration</h3>
+
+<pre><code>def ontological_classifier(self):
+    """Get or create OntologicalClassifier instance (U/F/O classifier)."""
+    if "ontological_classifier" not in self._instances:
+        ai_service = AIServiceV2(...)
+        self._instances["ontological_classifier"] = OntologicalClassifier(ai_service)
+    return self._instances["ontological_classifier"]
+
+# Usage:
+classifier = container.ontological_classifier()
+result = await classifier.classify(begrip, org_ctx, jur_ctx)
+request.ontologische_categorie = result.to_string_level()</code></pre>
+
+<h3>D. Category in Orchestrator</h3>
+
+<pre><code>logger.info(
+    f"Generation {generation_id}: Starting orchestration for '{request.begrip}' "
+    f"with category '{request.ontologische_categorie}'"
+)
+
+# ... later ...
+
+repository.save(
+    Definition(
+        categorie=request.ontologische_categorie,  # Stored in DB
+        # ... other fields ...
+    )
+)</code></pre>
+
+<p>---</p>
+
+<h2>15. Conclusion</h2>
+
+<p>The <strong>ontologische_categorie</strong> feature is <strong>well-architected</strong> with:</p>
+<ul>
+<li>Clear domain models (2 separate systems)</li>
+<li>Complete validation logic (ESS-02)</li>
+<li>Full data flow integration</li>
+<li>AI classification capability</li>
+</ul>
+
+<p>However, it's <strong>incomplete from a user perspective</strong>:</p>
+<ul>
+<li>No UI for category selection/display</li>
+<li>Validation doesn't block despite "verplicht" marking</li>
+<li>AI classification exists but integration unclear</li>
+</ul>
+
+<p><strong>Status</strong>: Foundation complete, user-facing features need completion.</p>
+
+
+  </div>
+</body>
+</html>
