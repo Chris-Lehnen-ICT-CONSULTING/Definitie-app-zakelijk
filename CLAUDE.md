@@ -482,6 +482,9 @@ pre-commit run streamlit-anti-patterns --all-files
 | Performance issue | Context-Rich + Incremental | Concrete metrics verplicht |
 | God object cleanup | Business-First + Show Me First | Impact analysis kritiek |
 | Quick bug fix | Context-Rich only | Verifieer component/scope |
+| **Issue verification** | **Search Strategies + Validate** | **Check UI text → tabbed_interface.py → user confirm** |
+
+> **🔍 CRITICAL voor DefinitieAgent**: Features zijn vaak inline geïntegreerd in `tabbed_interface.py`, niet standalone files. Search UI teksten ("Voorgesteld:", "Aanpassen?") voordat je concludeert "niet geïmplementeerd". Zie UNIFIED_INSTRUCTIONS.md → "Code Archaeology Search Strategies".
 
 **Voor volledige pattern catalog:**
 - 9 patterns met XML tags voor structured prompts
