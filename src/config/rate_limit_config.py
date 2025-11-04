@@ -37,14 +37,14 @@ ENDPOINT_CONFIGS: dict[str, EndpointConfig] = {
         bucket_capacity=20,  # Verhoogd van 15 naar 20
         burst_capacity=12,  # Verhoogd van 10 naar 12
         target_response_time=2.0,
-        timeout=20.0,  # Sync met decorator timeout
+        timeout=45.0,  # DEF-108: sync met decorator (was 20.0)
     ),
     "examples_generation_counter": EndpointConfig(
         tokens_per_second=5.0,  # Verhoogd van 3.0 naar 5.0
         bucket_capacity=20,  # Verhoogd van 15 naar 20
         burst_capacity=12,  # Verhoogd van 10 naar 12
         target_response_time=2.0,
-        timeout=20.0,  # Sync met decorator timeout
+        timeout=30.0,  # DEF-108: sync met decorator (was 20.0)
     ),
     "examples_generation_synonyms": EndpointConfig(
         tokens_per_second=5.0,  # Verhoogd van 3.0 naar 5.0

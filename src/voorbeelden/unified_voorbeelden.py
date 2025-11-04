@@ -423,7 +423,7 @@ class UnifiedExamplesGenerator:
     @with_full_resilience(
         endpoint_name="examples_generation_practical",
         priority=RequestPriority.NORMAL,
-        timeout=20.0,  # Verhoogd van 10s naar 20s voor parallelle processing
+        timeout=45.0,  # DEF-108: p99 latency coverage (was 20s → 100% timeout)
         model=None,
         expected_tokens=200,
     )
@@ -434,7 +434,7 @@ class UnifiedExamplesGenerator:
     @with_full_resilience(
         endpoint_name="examples_generation_counter",
         priority=RequestPriority.NORMAL,
-        timeout=20.0,  # Verhoogd van 10s naar 20s voor parallelle processing
+        timeout=30.0,  # DEF-108: safety margin (preventive fix)
         model=None,
         expected_tokens=200,
     )
