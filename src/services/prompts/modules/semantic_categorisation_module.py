@@ -134,14 +134,15 @@ class SemanticCategorisationModule(BasePromptModule):
         """
         # Basis ESS-02 sectie (altijd aanwezig)
         base_section = """### 📐 Let op betekenislaag (ESS-02 - Ontologische categorie):
-Je **moet** één van de vier categorieën expliciet maken:
-• type (soort), • exemplaar (specifiek geval), • proces (activiteit), • resultaat (uitkomst)
-Gebruik formuleringen zoals:
-- 'is een activiteit waarbij...'
-- 'is het resultaat van...'
-- 'betreft een specifieke soort...'
-- 'is een exemplaar van...'
-⚠️ Ondubbelzinnigheid is vereist.
+Je **moet** één van de vier categorieën expliciet maken door de JUISTE KICK-OFF term te kiezen:
+
+• PROCES begrippen → start met: 'activiteit waarbij...', 'handeling die...', 'proces waarin...'
+• TYPE begrippen → start met: 'soort...', 'categorie van...', 'type... dat...'
+• RESULTAAT begrippen → start met: 'resultaat van...', 'uitkomst van...', 'product dat...'
+• EXEMPLAAR begrippen → start met: 'exemplaar van... dat...', 'specifiek geval van...'
+
+⚠️ Let op: Start NOOIT met 'is een' of andere koppelwerkwoorden!
+De kick-off term MOET een zelfstandig naamwoord zijn dat de categorie aangeeft.
 
 BELANGRIJK: Bepaal de juiste categorie op basis van het BEGRIP zelf:
 - Eindigt op -ING of -TIE en beschrijft een handeling? → PROCES
@@ -177,81 +178,90 @@ BELANGRIJK: Bepaal de juiste categorie op basis van het BEGRIP zelf:
             Category-specific guidance of None
         """
         category_guidance_map = {
-            "proces": """**PROCES CATEGORIE - Focus op HANDELING en VERLOOP:**
-Gebruik formuleringen zoals:
-- 'is een activiteit waarbij...'
-- 'is het proces waarin...'
-- 'behelst de handeling van...'
-- 'omvat de stappen die...'
+            "proces": """**PROCES CATEGORIE - Formuleer als ACTIVITEIT/HANDELING:**
 
-⚠️ **PROCES SPECIFIEKE RICHTLIJNEN:**
-- Beschrijf WIE doet WAT en HOE het verloopt
-- Geef aan waar het proces BEGINT en EINDIGT
-- Vermeld de ACTOREN (wie voert uit)
-- Focus op de HANDELING, niet het doel
-- Gebruik actieve in plaats van passieve bewoordingen
+KICK-OFF opties (kies één):
+- 'activiteit waarbij...' → focus op wat er gebeurt
+- 'handeling die...' → focus op de actie
+- 'proces waarin...' → focus op het verloop
 
-VOORBEELDEN van procesbegrippen:
-- validatie: proces waarbij gecontroleerd wordt of...
-- toezicht: activiteit waarbij systematisch gevolgd wordt...
-- sanctionering: het proces van opleggen van maatregelen (NIET de sanctie zelf!)""",
-            "type": """**TYPE CATEGORIE - Focus op CLASSIFICATIE en KENMERKEN:**
-Gebruik formuleringen zoals:
-- 'is een soort...'
-- 'betreft een categorie van...'
-- 'is een type...'
-- 'is een vorm van...'
+VERVOLG met:
+- WIE voert het uit (actor/rol)
+- WAT er precies gebeurt (actie)
+- HOE het verloopt (stappen/methode)
+- WAAR het begint en eindigt (scope)
 
-⚠️ **TYPE SPECIFIEKE RICHTLIJNEN:**
-- Geef aan waarin dit TYPE verschilt van andere types
-- Beschrijf de ONDERSCHEIDENDE KENMERKEN
-- Gebruik classificerende taal (soort, categorie, type)
-- Focus op WAT het is, niet wat het doet
-- Maak duidelijk tot welke bredere klasse het behoort
+VOORBEELDEN (GOED):
+✅ "activiteit waarbij gegevens worden verzameld door directe waarneming"
+✅ "handeling waarin door middel van vraaggesprekken informatie wordt verzameld"
+✅ "proces waarin documenten systematisch worden geanalyseerd"
 
-VOORBEELDEN van typebegrippen:
-- voorwaarde: type bepaling die aangeeft wanneer...
-- maatregel: soort interventie die...
-- systeem: categorie van samenhangende componenten...""",
-            "resultaat": """**RESULTAAT CATEGORIE - Focus op OORSPRONG en GEVOLG:**
-Gebruik formuleringen zoals:
-- 'is het resultaat van...'
-- 'is de uitkomst van...'
-- 'ontstaat door...'
-- 'wordt veroorzaakt door...'
-- 'is een maatregel die volgt op...'
-- 'is een besluit/beslissing genomen door...'
+VOORBEELDEN (FOUT):
+❌ "is een activiteit waarbij..." (start met 'is')
+❌ "het observeren van..." (werkwoordelijk)
+❌ "manier om gegevens te verzamelen" (te abstract)""",
+            "type": """**TYPE CATEGORIE - Formuleer als SOORT/CATEGORIE:**
 
-⚠️ **RESULTAAT SPECIFIEKE RICHTLIJNEN:**
-- Beschrijf WAAR het uit voortkomt (oorsprong)
-- Leg uit WAT het betekent of bewerkstelligt (gevolg)
-- Focus op de CAUSALE RELATIE
-- Vermeld het proces of de handeling die het resultaat oplevert
-- Gebruik resultatgerichte taal (uitkomst, gevolg, product, maatregel, besluit)
+KICK-OFF opties (kies één):
+- 'soort... die...' → algemene classificatie
+- 'categorie van...' → formele indeling
+- 'type... dat...' → specifieke variant
+- 'klasse van...' → technische classificatie
 
-VOORBEELDEN van resultaatbegrippen:
-- sanctie: maatregel die volgt op normovertreding
-- rapport: document dat het resultaat is van onderzoek
-- besluit: uitkomst van een besluitvormingsproces
-- registratie: vastlegging die resulteert uit...""",
-            "exemplaar": """**EXEMPLAAR CATEGORIE - Focus op SPECIFICITEIT en INDIVIDUALITEIT:**
-Gebruik formuleringen zoals:
-- 'is een specifiek exemplaar van...'
-- 'betreft een individueel geval van...'
-- 'is een concrete instantie van...'
-- 'is een bepaald voorbeeld van...'
+VERVOLG met:
+- Tot welke BREDERE KLASSE het behoort
+- Wat de ONDERSCHEIDENDE KENMERKEN zijn
+- Waarin het VERSCHILT van andere types
 
-⚠️ **EXEMPLAAR SPECIFIEKE RICHTLIJNEN:**
-- Maak duidelijk dat het een CONCRETE instantie betreft
-- Geef aan van welke algemene klasse dit een specifiek geval is
-- Focus op de INDIVIDUELE KENMERKEN
-- Beschrijf wat dit exemplaar UNIEK maakt
-- Gebruik specificerende taal (specifiek, individueel, concreet, bepaald)
+VOORBEELDEN (GOED):
+✅ "soort document dat formele beslissingen vastlegt"
+✅ "categorie van personen die aan bepaalde criteria voldoen"
+✅ "type interventie gericht op gedragsverandering"
 
-VOORBEELDEN van exemplaarbegrippen:
-- incident: specifiek voorval waarbij...
-- casus: individueel geval van...
-- dossier: concrete verzameling documenten over...""",
+VOORBEELDEN (FOUT):
+❌ "is een soort..." (start met 'is')
+❌ "betreft een..." (koppelwerkwoord)""",
+            "resultaat": """**RESULTAAT CATEGORIE - Formuleer als UITKOMST/PRODUCT:**
+
+KICK-OFF opties (kies één):
+- 'resultaat van...' → algemene uitkomst
+- 'uitkomst van...' → proces resultaat
+- 'product dat ontstaat door...' → tastbaar resultaat
+- 'gevolg van...' → causaal resultaat
+
+VERVOLG met:
+- UIT WELK PROCES het voortkomt (oorsprong)
+- WAT het betekent/bewerkstelligt (doel/functie)
+- WIE het produceert (actor)
+
+VOORBEELDEN (GOED):
+✅ "resultaat van het uitwerken en analyseren van interviews"
+✅ "uitkomst van een beoordelingsproces waarbij criteria worden toegepast"
+✅ "product dat ontstaat door het combineren van verschillende databronnen"
+
+VOORBEELDEN (FOUT):
+❌ "is het resultaat van..." (start met 'is')
+❌ "de uitkomst..." (lidwoord)""",
+            "exemplaar": """**EXEMPLAAR CATEGORIE - Formuleer als SPECIFIEK GEVAL:**
+
+KICK-OFF opties (kies één):
+- 'exemplaar van... dat...' → concrete instantie
+- 'specifiek geval van...' → individueel voorbeeld
+- 'individuele instantie van...' → uniek voorkomen
+
+VERVOLG met:
+- Van welke ALGEMENE KLASSE dit een exemplaar is
+- Wat dit exemplaar UNIEK maakt (identificerende kenmerken)
+- WANNEER/WAAR het voorkomt (contextualisering)
+
+VOORBEELDEN (GOED):
+✅ "exemplaar van een adelaar dat op 25 mei 2024 in de Biesbosch werd waargenomen"
+✅ "specifiek geval van een observatie uitgevoerd op 12 maart 2024"
+✅ "individuele instantie van een besluit genomen door de rechtbank op 1 april 2024"
+
+VOORBEELDEN (FOUT):
+❌ "is een exemplaar van..." (start met 'is')
+❌ "het exemplaar..." (lidwoord)""",
         }
 
         return category_guidance_map.get(categorie)
