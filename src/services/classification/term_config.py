@@ -45,38 +45,15 @@ class TermPatternConfig:
         self._validate()
 
     def _validate(self):
-        """
-        Valideer config structuur.
-
-        Raises:
-            ValueError: Als config invalid is
-        """
-        # Valideer category_priority bevat alle categorieën
-        required_categories = {"TYPE", "PROCES", "RESULTAAT", "EXEMPLAAR"}
-        priority_set = set(self.category_priority)
-
-        if not priority_set.issubset(required_categories):
-            extra = priority_set - required_categories
-            raise ValueError(
-                f"Invalid categories in category_priority: {extra}. "
-                f"Must be subset of {required_categories}"
-            )
-
-        # Valideer confidence thresholds
+        """Valideer config structuur."""
+        # 1. Threshold keys (prevents missing keys)
         required_thresholds = {"high", "medium", "low"}
         if set(self.confidence_thresholds.keys()) != required_thresholds:
             raise ValueError(
                 f"confidence_thresholds must contain exactly: {required_thresholds}"
             )
 
-        # Valideer threshold waarden (0.0 <= x <= 1.0)
-        for label, value in self.confidence_thresholds.items():
-            if not 0.0 <= value <= 1.0:
-                raise ValueError(
-                    f"Threshold {label}={value} must be between 0.0 and 1.0"
-                )
-
-        # Valideer threshold volgorde (high > medium > low)
+        # 2. Threshold ordering (business logic - no YAML equivalent)
         if not (
             self.confidence_thresholds["high"]
             >= self.confidence_thresholds["medium"]
@@ -89,32 +66,14 @@ class TermPatternConfig:
                 f"low={self.confidence_thresholds['low']}"
             )
 
-        # Valideer suffix_weights structure
-        for category, weights in self.suffix_weights.items():
-            if category not in required_categories:
-                logger.warning(
-                    f"Unknown category in suffix_weights: {category}. "
-                    f"Expected one of: {required_categories}"
-                )
-            # Skip None or empty weights (e.g., EXEMPLAAR has no suffix patterns)
-            if weights is None or not weights:
-                continue
-            for suffix, weight in weights.items():
-                if not 0.0 <= weight <= 1.0:
-                    raise ValueError(
-                        f"Suffix weight {category}.{suffix}={weight} "
-                        f"must be between 0.0 and 1.0"
-                    )
-
-        # Valideer domain_overrides values
+        # 3. Domain override validation (prevents runtime errors)
+        required_categories = {"TYPE", "PROCES", "RESULTAAT", "EXEMPLAAR"}
         for term, category in self.domain_overrides.items():
             if category not in required_categories:
                 raise ValueError(
                     f"Invalid category for domain override '{term}': {category}. "
                     f"Must be one of: {required_categories}"
                 )
-
-        logger.debug("TermPatternConfig validation passed")
 
 
 # Singleton cache voor config
