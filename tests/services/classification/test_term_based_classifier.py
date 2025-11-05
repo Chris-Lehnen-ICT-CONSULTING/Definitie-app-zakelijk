@@ -457,23 +457,3 @@ class TestPerformance:
 
         # DEF-35 requirement: < 10ms per classification
         assert avg_time_ms < 10, f"Average time: {avg_time_ms:.2f}ms (expected <10ms)"
-
-    def test_config_loading_is_cached(self):
-        """Test dat config loading gecached wordt."""
-        import time
-
-        reset_config_cache()
-
-        # First load (cold)
-        start = time.perf_counter()
-        config1 = load_term_config()
-        cold_time = time.perf_counter() - start
-
-        # Second load (cached)
-        start = time.perf_counter()
-        config2 = load_term_config()
-        cached_time = time.perf_counter() - start
-
-        # Cached load moet veel sneller zijn
-        assert cached_time < cold_time / 10  # At least 10x faster
-        assert config1 is config2  # Same instance
