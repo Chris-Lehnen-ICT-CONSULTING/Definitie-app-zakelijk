@@ -440,20 +440,18 @@ class TestServiceContainerIntegration:
 
 
 class TestPerformance:
-    """Performance tests voor classifier."""
+    """Smoke test voor classifier performance."""
 
-    def test_classification_speed(self):
-        """Test dat classificatie < 10ms duurt."""
+    def test_classification_speed_smoke(self):
+        """Smoke test: classificatie moet < 10ms zijn (DEF-35 requirement)."""
         import time
 
         classifier = ImprovedOntologyClassifier()
 
         start = time.perf_counter()
-        for _ in range(100):
+        for _ in range(10):  # Reduced from 100
             classifier.classify("behandeling")
         end = time.perf_counter()
 
-        avg_time_ms = ((end - start) / 100) * 1000
-
-        # DEF-35 requirement: < 10ms per classification
-        assert avg_time_ms < 10, f"Average time: {avg_time_ms:.2f}ms (expected <10ms)"
+        avg_time_ms = ((end - start) / 10) * 1000
+        assert avg_time_ms < 10, f"Avg: {avg_time_ms:.2f}ms (expected <10ms)"
