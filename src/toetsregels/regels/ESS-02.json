@@ -17,32 +17,34 @@
     "\\b(proces|activiteit|handeling|gebeurtenis)\\b"
   ],
   "herkenbaar_patronen_resultaat": [
-    "\\b(is het resultaat van|het resultaat van)\\b",
+    "\\bresultaat van\\b",
     "\\b(uitkomst|effect|product|bevinding)\\b",
     "\\b(resulteert in|leidt tot)\\b"
   ],
   "goede_voorbeelden_type": [
-    "verdachte: juridische categorie van personen die voldoen aan bepaalde criteria",
-    "Adelaar is een vogelsoort die voorkomt in Europa."
+    "juridische categorie van personen die voldoen aan bepaalde criteria",
+    "vogelsoort die voorkomt in Europa"
   ],
   "foute_voorbeelden_type": [
     "Werkomgeving waarnemen als middel om requirements aan het licht te brengen."
   ],
   "goede_voorbeelden_particulier": [
-    "Het exemplaar adelaar dat op 25 mei 2024 in de Biesbosch werd waargenomen."
+    "exemplaar van een adelaar dat op 25 mei 2024 in de Biesbosch werd waargenomen",
+    "specifiek geval van een observatie uitgevoerd op 12 maart 2024"
   ],
   "foute_voorbeelden_particulier": [
     "Exemplaar van observatie: observatie als middel om gegevens te verzamelen."
   ],
   "goede_voorbeelden_proces": [
-    "Observatie is een activiteit waarbij gegevens worden verzameld door directe waarneming.",
-    "Interview is een activiteit waarbij gegevens worden verzameld door middel van vraaggesprekken."
+    "activiteit waarbij gegevens worden verzameld door directe waarneming",
+    "handeling waarin door middel van vraaggesprekken informatie wordt verzameld"
   ],
   "foute_voorbeelden_proces": [
     "Observatie is een manier om gegevens te verzamelen."
   ],
   "goede_voorbeelden_resultaat": [
-    "Interviewrapportage is het resultaat van het uitwerken en analyseren van het interview met persoon X."
+    "resultaat van het uitwerken en analyseren van interviews",
+    "uitkomst van een beoordelingsproces"
   ],
   "foute_voorbeelden_resultaat": [
     "Rapportage: het documenteren van inzichten als middel."
