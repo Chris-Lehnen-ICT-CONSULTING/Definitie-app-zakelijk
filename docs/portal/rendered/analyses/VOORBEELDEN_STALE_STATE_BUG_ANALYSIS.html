@@ -1,0 +1,493 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ROOT CAUSE ANALYSIS: Stale Voorbeelden Bug in Edit Tab</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>ROOT CAUSE ANALYSIS: Stale Voorbeelden Bug in Edit Tab</h1>
+
+<p><strong>Datum:</strong> 2025-11-04</p>
+<p><strong>Prioriteit:</strong> P0 (DATA LOSS RISK)</p>
+<p><strong>Status:</strong> Analysis Complete - Fix Pending</p>
+<p><strong>Analyst:</strong> Claude Code (BMad Master mode)</p>
+
+<p>---</p>
+
+<h2>🚨 EXECUTIVE SUMMARY</h2>
+
+<p><strong>Bug:</strong> Wanneer een gebruiker definitie A bewerkt in de Edit Tab en vervolgens via zoek definitie B selecteert, blijven de voorbeelden van definitie A zichtbaar in de UI. Bij opslaan worden deze voorbeelden toegevoegd aan definitie B, wat resulteert in data loss van B's originele voorbeelden.</p>
+
+<p><strong>Impact:</strong> DATA CORRUPTION - voorbeelden worden aan verkeerde definities gekoppeld</p>
+<p><strong>Urgency:</strong> CRITICAL - hoger dan DEF-108 timeout fix</p>
+<p><strong>User Report:</strong> Logging toont 21 voorbeelden → 48 voorbeelden bij save</p>
+
+<p>---</p>
+
+<h2>📊 SYMPTOM ANALYSIS (UIT LOGGING)</h2>
+
+<pre><code>16:03:06 - Generated definitie ID 106 voor 'semantiek'
+16:03:06 - Successfully saved 21 voorbeelden           ← ORIGINEEL
+
+// User edits definition 106 in Edit tab
+16:04:09 - Loading definition 106 - no current definition
+16:04:37 - Updated definitie 106 (semantiek)
+
+// User selects DIFFERENT definition via search (hypothesized)
+// BUG: voorbeelden from previous definition still visible
+
+16:05:10 - Saving voorbeelden voor definitie 106
+16:05:10 - Successfully saved 48 voorbeelden           ← 48?! WAS 21!</code></pre>
+
+<p><strong>48 voorbeelden = 21 (origineel) + ~27 (van andere definitie?)</strong></p>
+
+<p>---</p>
+
+<h2>🔍 CODE ARCHAEOLOGY FINDINGS</h2>
+
+<h3>1. VOORBEELDEN RESOLUTION ORDER</h3>
+
+<p><strong>File:</strong> <code>src/ui/helpers/examples.py:113-262</code></p>
+
+<pre><code>def resolve_examples(
+    state_key: str, definition: Any | None, *, repository: Any | None = None
+) -&gt; dict[str, Any]:
+    """Resolution order:
+    1) Session state (al gecanonicaliseerd)
+    2) Definition.metadata.voorbeelden
+    3) last_generation_result → agent_result.voorbeelden
+    4) Database fallback via repository
+    """</code></pre>
+
+<p><strong>Key Implementation Details:</strong></p>
+
+<pre><code># Priority 1: Session state CHECK (Line 126-131)
+try:
+    sess_val = SessionStateManager.get_value(state_key)
+    if isinstance(sess_val, dict) and sess_val:
+        return canonicalize_examples(sess_val)  # ← EARLY RETURN!
+except Exception:
+    pass
+
+# Priority 2-4 only reached if session state is empty/None</code></pre>
+
+<p><strong>OBSERVATION:</strong> Session state heeft ALTIJD voorrang. Als er stale data in session state zit, wordt die gebruikt zonder DB check!</p>
+
+<p>---</p>
+
+<h3>2. WIDGET SYNCHRONIZATION MECHANISM</h3>
+
+<p><strong>File:</strong> <code>src/ui/components/examples_block.py:39-92</code></p>
+
+<pre><code>def _sync_voorbeelden_to_widgets(
+    voorbeelden: dict[str, Any],
+    prefix: str,
+    force_overwrite: bool = False
+):
+    """Sync voorbeelden dict to widget keys."""
+
+    for field, widget_suffix, join_sep in _VOORBEELD_FIELD_CONFIG:
+        widget_key = k(widget_suffix)  # e.g., "edit_106_vz_edit"
+
+        # Skip if already set (unless forcing overwrite)
+        if not force_overwrite:
+            existing = SessionStateManager.get_value(widget_key, None)
+            if existing is not None:  # ← PROBLEEM!
+                continue  # ← SKIP SYNC!
+
+        # ... sync logic</code></pre>
+
+<p><strong>CALLING CONTEXT (Line 354-356):</strong></p>
+<pre><code>_sync_voorbeelden_to_widgets(
+    current_examples, state_prefix, force_overwrite=False  # ← ALTIJD FALSE!
+)</code></pre>
+
+<p><strong>CRITICAL ISSUE:</strong> Met <code>force_overwrite=False</code> wordt er NIET gesynchroniseerd als widget key al bestaat, zelfs als de data stale is!</p>
+
+<p>---</p>
+
+<h3>3. STATE PREFIX SCOPING</h3>
+
+<p><strong>File:</strong> <code>src/ui/components/definition_edit_tab.py:708-735</code></p>
+
+<pre><code>def _render_examples_section(self):
+    def_id = SessionStateManager.get_value("editing_definition_id")
+    if not def_id:
+        return
+
+    render_examples_block(
+        definition,
+        state_prefix=f"edit_{def_id}",  # ← UNIEK PER DEFINITIE
+        allow_generate=True,
+        allow_edit=True,
+        repository=repo,
+    )</code></pre>
+
+<p><strong>OBSERVATION:</strong> State prefix is correct (edit_106 vs edit_105). Dit zou moeten werken!</p>
+
+<p>---</p>
+
+<h3>4. DEFINITION SWITCHING</h3>
+
+<p><strong>File:</strong> <code>src/ui/components/definition_edit_tab.py:947-986</code></p>
+
+<pre><code>def _start_edit_session(self, definition_id: int):
+    """Start edit session for a definition."""
+    session = self.edit_service.start_edit_session(definition_id, user=...)
+
+    if session["success"]:
+        SessionStateManager.set_value("editing_definition_id", definition_id)
+        SessionStateManager.set_value("editing_definition", session["definition"])
+        SessionStateManager.set_value("edit_session", session)
+
+        # ❌ NO CLEANUP OF OLD WIDGET KEYS!
+        # ❌ NO FORCE_OVERWRITE TRIGGER!
+
+        st.success("✅ Edit sessie gestart")
+        st.rerun()</code></pre>
+
+<p><strong>CRITICAL MISSING:</strong> Geen cleanup van oude definition's widget state bij definitie wissel!</p>
+
+<p>---</p>
+
+<h2>🐛 ROOT CAUSE IDENTIFICATION</h2>
+
+<h3>Primary Bug: Stale Session State Persistence</h3>
+
+<p><strong>Scenario:</strong></p>
+
+<ol>
+<li>**User opent definitie 106:**</li>
+</ol>
+<ul>
+<li>  - Widget keys: `edit_106_vz_edit`, `edit_106_pv_edit`, etc.</li>
+<li>  - Values synced from DB: voorbeelden van 106</li>
+</ul>
+
+<ol>
+<li>**User bewerkt widgets (optioneel):**</li>
+</ol>
+<ul>
+<li>  - Widget values blijven in session state</li>
+</ul>
+
+<ol>
+<li>**User selecteert definitie 105 via zoek:**</li>
+</ol>
+<ul>
+<li>  - `_start_edit_session(105)` called</li>
+<li>  - `editing_definition_id` = 105 ✅</li>
+<li>  - `state_prefix` = "edit_105" ✅</li>
+<li>  - `resolve_examples()` haalt voorbeelden van 105 uit DB ✅</li>
+</ul>
+
+<ol>
+<li>**BUG TRIGGER: `_sync_voorbeelden_to_widgets(..., force_overwrite=False)`:**</li>
+</ol>
+<ul>
+<li>  - Check: Is `edit_105_vz_edit` al gezet?</li>
+<li>  - **IF FIRST TIME**: Nee → Sync van DB ✅</li>
+<li>  - **IF PREVIOUSLY OPENED IN SAME SESSION**: Ja → **SKIP SYNC!** ❌</li>
+</ul>
+
+<ol>
+<li>**Result:**</li>
+</ol>
+<ul>
+<li>  - Widgets tonen STALE data van vorige keer dat 105 geopend was</li>
+<li>  - Of LEGE data als 105 nooit geopend was maar widgets bestaan</li>
+</ul>
+
+<h3>Secondary Bug Hypothesis: Session State Leakage</h3>
+
+<p><strong>Alternative scenario (needs validation):</strong></p>
+
+<p>IF er ergens in de code een GLOBALE widget key wordt gebruikt (zonder <code>state_prefix</code>), dan kunnen voorbeelden overlappen tussen definities.</p>
+
+<p><strong>Evidence needed:</strong> Grep voor widget keys zonder <code>k()</code> helper in examples_block.py</p>
+
+<p>---</p>
+
+<h2>🎯 IMPACT ANALYSIS</h2>
+
+<h3>Data Integrity Risk</h3>
+
+<p><strong>HIGH SEVERITY:</strong></p>
+<ul>
+<li>Voorbeelden van definitie A worden toegevoegd aan definitie B</li>
+<li>Originele voorbeelden van B worden OVERSCHREVEN (niet merged!)</li>
+<li>Database save is REPLACE (set actief=FALSE, then insert new)</li>
+</ul>
+
+<p><strong>User workflow affected:</strong></p>
+<pre><code>Definitie A: 21 voorbeelden (correct)
+↓ User edits in Edit tab
+↓ User switches to Definitie B via search
+↓ Bug: A's voorbeelden still visible
+↓ User saves
+Definitie B: 48 voorbeelden (21 from A + ?? from B) ← DATA CORRUPTION</code></pre>
+
+<h3>Frequency Assessment</h3>
+
+<p><strong>LIKELY FREQUENT:</strong></p>
+<ul>
+<li>Multi-definitie editing sessions (common workflow)</li>
+<li>Search + edit workflow (primary use case)</li>
+<li>Same-session definition switching (expected behavior)</li>
+</ul>
+
+<p><strong>Risk Factor:</strong> Users likely don't notice immediately (voorbeelden section expandable)</p>
+
+<p>---</p>
+
+<h2>💡 SOLUTION OPTIONS</h2>
+
+<h3>Option A: Force Overwrite on Definition Switch (Emergency Hotfix)</h3>
+
+<p><strong>Change:</strong> Set <code>force_overwrite=True</code> when opening different definition</p>
+
+<p><strong>Implementation:</strong></p>
+<pre><code># In definition_edit_tab.py:_start_edit_session()
+def _start_edit_session(self, definition_id: int):
+    # ... existing code ...
+
+    # NEW: Clear stale widget state before rerun
+    prev_id = SessionStateManager.get_value("editing_definition_id")
+    if prev_id and prev_id != definition_id:
+        # Force clean slate for new definition
+        self._clear_examples_widgets(prev_id)
+
+    SessionStateManager.set_value("editing_definition_id", definition_id)
+    # ... rest ...</code></pre>
+
+<p><strong>Pros:</strong></p>
+<ul>
+<li>Minimal code change (<20 lines)</li>
+<li>Immediate fix for data loss</li>
+<li>Low risk (surgical change)</li>
+</ul>
+
+<p><strong>Cons:</strong></p>
+<ul>
+<li>User edits in widgets are lost on definition switch</li>
+<li>Not perfect UX (but prevents data corruption)</li>
+</ul>
+
+<p><strong>Lines changed:</strong> ~15-20</p>
+<p><strong>Risk:</strong> LOW</p>
+<p><strong>Time:</strong> 30 min</p>
+
+<p>---</p>
+
+<h3>Option B: Reverse Priority Order (Proper Fix)</h3>
+
+<p><strong>Change:</strong> Database FIRST, session state as fallback (OPPOSITE of current)</p>
+
+<p><strong>Implementation:</strong></p>
+<pre><code>def resolve_examples(
+    state_key: str, definition: Any | None, *, repository: Any | None = None
+) -&gt; dict[str, Any]:
+    """Resolution order:
+    1) Database (if definition.id exists) ← NEW PRIORITY!
+    2) Definition.metadata.voorbeelden
+    3) last_generation_result
+    4) Session state (fallback for generator tab)
+    """
+
+    # 1) Database first (if we have a saved definition)
+    if definition and hasattr(definition, "id") and int(definition.id) &gt; 0:
+        try:
+            db_examples = repository.get_voorbeelden_by_type(definition.id)
+            if db_examples:
+                canon = canonicalize_examples(db_examples)
+                SessionStateManager.set_value(state_key, canon)  # Update session
+                return canon
+        except Exception:
+            pass
+
+    # 2-4) Fallbacks for generator tab / unsaved definitions
+    # ... existing logic ...</code></pre>
+
+<p><strong>Pros:</strong></p>
+<ul>
+<li>Fixes root cause (wrong priority)</li>
+<li>Database is Single Source of Truth</li>
+<li>Aligns with "SSoT = Database" principle</li>
+</ul>
+
+<p><strong>Cons:</strong></p>
+<ul>
+<li>Larger change (~50 lines)</li>
+<li>May affect generator tab behavior (needs testing)</li>
+<li>Breaking change if unsaved edits expected</li>
+</ul>
+
+<p><strong>Lines changed:</strong> ~50</p>
+<p><strong>Risk:</strong> MEDIUM</p>
+<p><strong>Time:</strong> 2 hours (with testing)</p>
+
+<p>---</p>
+
+<h3>Option C: Context-Aware Sync with Definition ID Tracking</h3>
+
+<p><strong>Change:</strong> Track last synced definition ID, force resync on mismatch</p>
+
+<p><strong>Implementation:</strong></p>
+<pre><code>def _sync_voorbeelden_to_widgets(
+    voorbeelden: dict[str, Any],
+    prefix: str,
+    force_overwrite: bool = False,
+    definition_id: int | None = None  # NEW PARAM
+):
+    # Track last synced definition for this prefix
+    last_synced_key = f"{prefix}_last_synced_id"
+    last_synced = SessionStateManager.get_value(last_synced_key, None)
+
+    # Force overwrite if definition changed
+    if definition_id and last_synced != definition_id:
+        force_overwrite = True
+        SessionStateManager.set_value(last_synced_key, definition_id)
+
+    # ... rest of sync logic ...</code></pre>
+
+<p><strong>Pros:</strong></p>
+<ul>
+<li>Preserves user edits within same definition</li>
+<li>Forces resync on definition switch</li>
+<li>Clear intent (definition-aware sync)</li>
+</ul>
+
+<p><strong>Cons:</strong></p>
+<ul>
+<li>More complex state management</li>
+<li>Requires definition_id passing through call chain</li>
+<li>Edge cases with unsaved definitions</li>
+</ul>
+
+<p><strong>Lines changed:</strong> ~30</p>
+<p><strong>Risk:</strong> MEDIUM-LOW</p>
+<p><strong>Time:</strong> 1.5 hours</p>
+
+<p>---</p>
+
+<h2>🎯 RECOMMENDATION</h2>
+
+<p><strong>Priority 1: Option C (Context-Aware Sync)</strong></p>
+<ul>
+<li>**Rationale:** Best balance of UX (preserves edits) and correctness (prevents data loss)</li>
+<li>**Implementation:** Add definition ID tracking to force resync on switch</li>
+<li>**Testing:** Easy to validate (open def A, edit, switch to def B, verify B's data shown)</li>
+</ul>
+
+<p><strong>Priority 2: Option A (Emergency Hotfix)</strong></p>
+<ul>
+<li>**Use if:** Need immediate fix before comprehensive solution</li>
+<li>**Downside:** User edits lost on switch (but better than data corruption)</li>
+</ul>
+
+<p><strong>NOT RECOMMENDED: Option B</strong></p>
+<ul>
+<li>**Reason:** Too invasive, may break generator tab workflow</li>
+<li>**Risk:** High for limited gain</li>
+</ul>
+
+<p>---</p>
+
+<h2>🧪 VALIDATION PLAN</h2>
+
+<h3>Test Case 1: Definition Switch with Stale Data</h3>
+<pre><code>1. Open definitie 106 in Edit tab
+2. Verify voorbeelden van 106 shown
+3. (Optional) Edit voorbeelden
+4. Search and select definitie 105
+5. VERIFY: voorbeelden van 105 shown (NOT 106!)
+6. Save
+7. VERIFY: definitie 105 has correct voorbeelden count</code></pre>
+
+<h3>Test Case 2: Multiple Switches</h3>
+<pre><code>1. Open def 106 → edit → don't save
+2. Open def 105 → verify 105 data
+3. Open def 106 again → verify 106 data (NOT 105!)
+4. Save → verify 106 has 106's data</code></pre>
+
+<h3>Test Case 3: Same Session Revisit</h3>
+<pre><code>1. Open def 106 → save
+2. Open def 105 → save
+3. Open def 106 again (same session)
+4. VERIFY: voorbeelden refreshed from DB (not stale session state)</code></pre>
+
+<p>---</p>
+
+<h2>📝 IMPLEMENTATION CHECKLIST</h2>
+
+<ul>
+<li>[ ] Choose solution option (recommend: Option C)</li>
+<li>[ ] Implement definition ID tracking in `_sync_voorbeelden_to_widgets`</li>
+<li>[ ] Update `render_examples_block` to pass definition_id</li>
+<li>[ ] Add logging for sync decisions (debug mode)</li>
+<li>[ ] Run validation test cases (all 3)</li>
+<li>[ ] Smoke test: generator tab still works</li>
+<li>[ ] Update VOORBEELDEN_STALE_STATE_BUG_ANALYSIS.md with implementation notes</li>
+<li>[ ] Commit with message: `fix(edit): prevent stale voorbeelden on definition switch (DEF-XXX)`</li>
+</ul>
+
+<p>---</p>
+
+<h2>🔗 RELATED ISSUES</h2>
+
+<ul>
+<li>**DEF-108:** Praktijkvoorbeelden timeout (separate issue, lower priority)</li>
+<li>**DEF-56:** Key-only widget pattern (related fix for stale data)</li>
+<li>**US-202:** ServiceContainer singleton (not related)</li>
+</ul>
+
+<p>---</p>
+
+<h2>📚 CODE REFERENCES</h2>
+
+<p><strong>Key files analyzed:</strong></p>
+<ul>
+<li>`src/ui/helpers/examples.py:113-262` (resolve_examples)</li>
+<li>`src/ui/components/examples_block.py:39-92` (_sync_voorbeelden_to_widgets)</li>
+<li>`src/ui/components/examples_block.py:94-535` (render_examples_block)</li>
+<li>`src/ui/components/definition_edit_tab.py:708-735` (_render_examples_section)</li>
+<li>`src/ui/components/definition_edit_tab.py:947-986` (_start_edit_session)</li>
+<li>`src/database/definitie_repository.py:1458-1703` (save_voorbeelden)</li>
+</ul>
+
+<p><strong>Commit analysis:</strong></p>
+<ul>
+<li>`6aaa736f` - Auto-load voorbeelden from metadata (partial fix, not complete)</li>
+<li>`04fb928c` - DEF-74 Pydantic validation (orthogonal fix)</li>
+<li>`1490c1ca` - DEF-108 timeout fix (separate issue)</li>
+</ul>
+
+<p>---</p>
+
+<h2>✅ NEXT ACTIONS</h2>
+
+<ol>
+<li>**User confirmation:** Verify this matches observed behavior</li>
+<li>**Solution selection:** Option A (hotfix) or Option C (proper fix)?</li>
+<li>**Implementation:** If approved, implement + test</li>
+<li>**Merge strategy:** Standalone PR or merge with DEF-108?</li>
+</ol>
+
+<p><strong>Estimated total time:</strong> 2-3 hours (Option C) or 30 min (Option A)</p>
+
+  </div>
+</body>
+</html>

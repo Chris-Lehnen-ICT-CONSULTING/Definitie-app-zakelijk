@@ -707,6 +707,8 @@ class DefinitionEditTab:
 
     def _render_examples_section(self):
         """Render sectie voor AI-gegenereerde voorbeelden (edit-tab)."""
+        from ui.components.examples_block import _reset_voorbeelden_context
+
         def_id = SessionStateManager.get_value("editing_definition_id")
         if not def_id:
             return
@@ -723,6 +725,9 @@ class DefinitionEditTab:
 
         # Get repository voor edit functionaliteit
         repo = DefinitieRepository()
+
+        # DEF-110: Reset context before rendering to prevent stale voorbeelden
+        _reset_voorbeelden_context(f"edit_{def_id}", definition_id=def_id)
 
         # Render voorbeelden met edit mogelijkheid
         with st.expander("📋 Voorbeelden Details", expanded=True):

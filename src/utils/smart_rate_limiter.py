@@ -286,7 +286,10 @@ class SmartRateLimiter:
         self.stats["total_requests"] += 1
 
         # Try immediate acquisition for high priority requests
-        if priority in [RequestPriority.CRITICAL, RequestPriority.HIGH] and await self.token_bucket.acquire():
+        if (
+            priority in [RequestPriority.CRITICAL, RequestPriority.HIGH]
+            and await self.token_bucket.acquire()
+        ):
             return True
 
         # Queue the request
