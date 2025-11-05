@@ -1018,10 +1018,11 @@ async def genereer_alle_voorbeelden_async(
     begrip: str, definitie: str, context_dict: dict[str, list[str]]
 ) -> dict[str, list[str]]:
     """
-    Generate all types of examples concurrently using asyncio.gather().
+    Generate all types of examples sequentially to avoid rate limiter contention.
 
-    PERFORMANCE: This function runs all 6 example generation calls in parallel,
-    achieving ~10s speedup (from 12s sequential to ~2s parallel).
+    PERFORMANCE: Changed from parallel to sequential processing (DEF-108 follow-up).
+    Sequential prevents rate limiter timeouts when 6 parallel requests compete for tokens.
+    Trade-off: Slower total time (~30-60s) but reliable completion without timeouts.
 
     Args:
         begrip: Term to generate examples for
@@ -1051,33 +1052,32 @@ async def genereer_alle_voorbeelden_async(
         requests.append(request)
         example_types.append(example_type)
 
-    # Create wrapper function to apply semaphore protection
-    async def limited_generate(req):
-        """Generate with semaphore protection to prevent API overload."""
-        async with generator._concurrent_limit:
-            return await generator._generate_resilient(req)
-
-    # Create all coroutines for parallel execution with semaphore protection
-    coroutines = [limited_generate(req) for req in requests]
-
-    # Execute ALL tasks in parallel with asyncio.gather()
-    # return_exceptions=True ensures one failure doesn't break all
-    # Semaphore ensures max 6 concurrent API calls (prevents rate limiting)
     logger.info(
-        f"Starting parallel generation of {len(coroutines)} example types for '{begrip}'"
+        f"Starting sequential generation of {len(requests)} example types for '{begrip}'"
     )
 
     try:
-        # Run all 6 example generation calls in parallel with concurrency limit
-        all_results = await asyncio.gather(*coroutines, return_exceptions=True)
+        # Execute requests sequentially to avoid rate limiter contention
+        # Each request gets full rate limiter bandwidth without competition
+        all_results = []
+        for i, req in enumerate(requests, 1):
+            logger.info(
+                f"Generating {req.example_type.value} ({i}/{len(requests)}) for '{begrip}'"
+            )
+            try:
+                result = await generator._generate_resilient(req)
+                all_results.append(result)
+            except Exception as e:
+                logger.error(f"Failed to generate {req.example_type.value}: {e}")
+                all_results.append(e)  # Store exception for processing below
 
-        parallel_duration = time.time() - start_time
+        sequential_duration = time.time() - start_time
         logger.info(
-            f"Parallel voorbeelden generation completed in {parallel_duration:.2f}s "
-            f"for '{begrip}' ({len(coroutines)} types)"
+            f"Sequential voorbeelden generation completed in {sequential_duration:.2f}s "
+            f"for '{begrip}' ({len(requests)} types)"
         )
     except Exception as e:
-        logger.error(f"Parallel generation failed catastrophically: {e}")
+        logger.error(f"Sequential generation failed catastrophically: {e}")
         # Return empty results on catastrophic failure
         return {
             "voorbeeldzinnen": [],
