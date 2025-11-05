@@ -153,7 +153,6 @@ def load_term_config(
     """
     # Check cache
     if config_path in _config_cache:
-        logger.debug(f"Using cached config for: {config_path}")
         return _config_cache[config_path]
 
     # Resolve path
@@ -203,11 +202,7 @@ def load_term_config(
 
     # Cache result
     _config_cache[config_path] = config
-    logger.info(
-        f"✅ TermPatternConfig loaded successfully: {config_path} "
-        f"({len(config.domain_overrides)} overrides, "
-        f"{len(config.suffix_weights)} categories)"
-    )
+    logger.info(f"Config loaded: {config_path}")
 
     return config
 
@@ -221,13 +216,3 @@ def reset_config_cache():
     global _config_cache
     _config_cache.clear()
     logger.debug("TermPatternConfig cache cleared")
-
-
-def get_cached_config_count() -> int:
-    """
-    Get aantal gecachte configs (voor debugging).
-
-    Returns:
-        Aantal configs in cache
-    """
-    return len(_config_cache)
