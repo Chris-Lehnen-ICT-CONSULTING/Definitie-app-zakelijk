@@ -100,19 +100,57 @@ class TokenBucket:
         self.last_update = time.time()
         self._lock = asyncio.Lock()
 
-    async def acquire(self, tokens: int = 1) -> bool:
-        """Acquire tokens from the bucket."""
-        async with self._lock:
-            now = time.time()
-            # Add tokens based on elapsed time
-            elapsed = now - self.last_update
-            self.tokens = min(self.capacity, self.tokens + elapsed * self.rate)
-            self.last_update = now
+    async def acquire(self, tokens: int = 1, timeout: float | None = None) -> bool:
+        """
+        Acquire tokens from the bucket, waiting if necessary.
 
-            if self.tokens >= tokens:
-                self.tokens -= tokens
-                return True
-            return False
+        Args:
+            tokens: Number of tokens to acquire (must be >= 1)
+            timeout: Maximum time to wait in seconds (None = infinite)
+
+        Returns:
+            True if tokens acquired, False if timeout exceeded
+
+        Raises:
+            ValueError: If tokens < 1 or timeout < 0
+        """
+        # Input validation
+        if tokens < 1:
+            msg = "tokens must be >= 1"
+            raise ValueError(msg)
+        if timeout is not None and timeout < 0:
+            msg = "timeout must be >= 0 or None"
+            raise ValueError(msg)
+
+        start_time = time.time()
+
+        while True:
+            async with self._lock:
+                # Refill tokens based on elapsed time
+                now = time.time()
+                elapsed = now - self.last_update
+                self.tokens = max(
+                    0, min(self.capacity, self.tokens + elapsed * self.rate)
+                )
+                self.last_update = now
+
+                # Try to acquire requested tokens
+                if self.tokens >= tokens:
+                    self.tokens -= tokens
+                    return True
+
+                # Calculate tokens needed for wait time
+                tokens_needed = tokens - self.tokens
+
+            # Check timeout (OUTSIDE lock)
+            if timeout is not None:
+                elapsed_time = time.time() - start_time
+                if elapsed_time >= timeout:
+                    return False
+
+            # Calculate wait time for refill (OUTSIDE lock)
+            wait_time = tokens_needed / self.rate
+            await asyncio.sleep(min(wait_time, 0.1))  # Max 100ms chunks
 
     async def wait_for_tokens(self, tokens: int = 1) -> float:
         """Calculate wait time for required tokens."""
@@ -248,9 +286,8 @@ class SmartRateLimiter:
         self.stats["total_requests"] += 1
 
         # Try immediate acquisition for high priority requests
-        if priority in [RequestPriority.CRITICAL, RequestPriority.HIGH]:
-            if await self.token_bucket.acquire():
-                return True
+        if priority in [RequestPriority.CRITICAL, RequestPriority.HIGH] and await self.token_bucket.acquire():
+            return True
 
         # Queue the request
         future = asyncio.Future()
@@ -274,10 +311,8 @@ class SmartRateLimiter:
             return result
         except TimeoutError:
             # Remove from queue if still there
-            try:
+            with contextlib.suppress(ValueError):
                 self.priority_queues[priority].remove(queued_request)
-            except ValueError:
-                pass  # Already processed
             self.stats["total_dropped"] += 1
             return False
 
@@ -285,46 +320,39 @@ class SmartRateLimiter:
         """Background task to process priority queues."""
         while not self._shutdown:
             try:
-                # Process requests in priority order
+                processed_any = False
+
+                # Process each priority queue in order
                 for priority in RequestPriority:
                     queue = self.priority_queues[priority]
 
-                    while queue and await self.token_bucket.acquire():
+                    # Process all requests in this priority queue
+                    while queue:
+                        # Try to acquire token (with short timeout to avoid blocking)
+                        if not await self.token_bucket.acquire(tokens=1, timeout=0.1):
+                            # No tokens available right now, move to next priority
+                            break
+
                         request = queue.popleft()
+                        processed_any = True
 
-                        # Check if request hasn't timed out
+                        # Grant permission if request hasn't timed out already
                         if not request.future.done():
-                            queue_wait_time = (
-                                datetime.now(UTC) - request.timestamp
-                            ).total_seconds()
-
-                            # Apply priority weighting to queue time
-                            weight = self.config.priority_weights[priority]
-                            if (
-                                queue_wait_time * weight < 30.0
-                            ):  # Max weighted wait time
-                                request.future.set_result(True)
-
-                                # Update queue time statistics
-                                self._update_queue_stats(queue_wait_time)
-                            else:
-                                # Timeout due to priority weighting
-                                request.future.set_result(False)
-                                self.stats["total_dropped"] += 1
-
-                    # Don't process all priorities in one cycle if tokens are limited
-                    if not await self.token_bucket.acquire():
-                        break
+                            request.future.set_result(True)
+                            self.stats["total_processed"] = (
+                                self.stats.get("total_processed", 0) + 1
+                            )
 
                 # Dynamic rate adjustment
                 await self._adjust_rate_if_needed()
 
-                # Small delay to prevent busy waiting
-                await asyncio.sleep(0.1)
+                # Small delay if nothing was processed
+                if not processed_any:
+                    await asyncio.sleep(0.1)
 
             except Exception as e:
                 logger.error(f"Error in queue processing: {e}")
-                await asyncio.sleep(1.0)
+                await asyncio.sleep(1.0)  # Back off on error
 
     def _update_queue_stats(self, queue_wait_time: float):
         """Update queue time statistics."""
@@ -460,8 +488,6 @@ async def get_smart_limiter(
     Returns:
         SmartRateLimiter instance voor de specifieke endpoint
     """
-    global _smart_limiters
-
     # Gebruik endpoint naam als key voor specifieke rate limiter
     if endpoint_name not in _smart_limiters:
         # Probeer endpoint-specifieke configuratie te laden
@@ -591,7 +617,6 @@ async def test_smart_rate_limiter():
 
 async def cleanup_smart_limiters():
     """Clean up all endpoint-specific rate limiters."""
-    global _smart_limiters
     for endpoint_name, limiter in _smart_limiters.items():
         await limiter.stop()
         logger.info(f"Stopped rate limiter for endpoint: {endpoint_name}")
