@@ -8,6 +8,12 @@
 # - domain_overrides: Expliciete classificatie van ambigue termen
 # - suffix_weights: Gewichten voor suffix patronen per categorie
 # - category_priority: Tie-breaking volgorde bij gelijke scores
+#
+# VALIDATIE REGELS:
+# - confidence_thresholds moet keys hebben: high, medium, low
+# - Thresholds moeten geordend zijn: high >= medium >= low
+# - domain_overrides categorieën moeten zijn: TYPE, PROCES, RESULTAAT, EXEMPLAAR
+# - category_priority moet subset zijn van bovenstaande categorieën
 # - confidence_thresholds: Drempels voor HIGH/MEDIUM/LOW confidence labels
 
 # ============================================================
