@@ -5,6 +5,7 @@ Deze module beheert alle sessie variabelen die gebruikt worden
 door de Streamlit interface om data tussen pagina refreshes te bewaren.
 """
 
+import contextlib
 from typing import Any, ClassVar  # Type hints voor betere code documentatie
 
 import streamlit as st  # Streamlit framework voor web interface
@@ -312,3 +313,39 @@ class SessionStateManager:
         definitie = st.session_state.get("definitie_gecorrigeerd", "")
         # Controleer of het een string is en minimaal 3 karakters bevat
         return isinstance(definitie, str) and len(definitie.strip()) > 3
+
+
+def force_cleanup_voorbeelden(prefix: str) -> None:
+    """Clear all voorbeelden widget state for a given prefix.
+
+    Used when crossing definition boundaries to prevent stale data.
+
+    Args:
+        prefix: Session key prefix (e.g., 'edit_106')
+
+    Business Logic:
+        - Nuclear option: deletes ALL voorbeelden-related keys
+        - Safety: only deletes keys containing voorbeelden indicators
+        - Called by _reset_voorbeelden_context() when definition changes
+
+    Example:
+        force_cleanup_voorbeelden("edit_106")
+        # Deletes: edit_106_vz_edit, edit_106_syn_edit, edit_106_examples, etc.
+
+    DEF-110: Moved to session_state.py where direct st.session_state access is allowed.
+    """
+    # Find all keys for this prefix that contain voorbeelden data
+    keys_to_clear = [
+        k
+        for k in st.session_state
+        if k.startswith(f"{prefix}_")
+        and any(
+            indicator in k
+            for indicator in ["vz_", "pv_", "tv_", "syn_", "ant_", "tol_", "examples"]
+        )
+    ]
+
+    # Nuclear cleanup: delete all voorbeelden keys for this prefix
+    for key in keys_to_clear:
+        with contextlib.suppress(KeyError):
+            del st.session_state[key]
