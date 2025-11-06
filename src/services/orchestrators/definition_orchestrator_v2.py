@@ -29,22 +29,22 @@ from services.exceptions import (
     DuplicateDefinitionError,
     RepositoryError,
 )
-from services.interfaces import AIServiceInterface as IntelligentAIService
 from services.interfaces import (
+    AIServiceInterface as IntelligentAIService,
     CleaningServiceInterface,
     Definition,
     DefinitionOrchestratorInterface,
     DefinitionRepositoryInterface,
     DefinitionResponseV2,
+    EnhancementServiceInterface as EnhancementService,
+    FeedbackEngineInterface as FeedbackEngine,
+    GenerationRequest,
+    MonitoringServiceInterface as MonitoringService,
+    OrchestratorConfig,
+    PromptServiceInterface as PromptServiceV2,
+    SecurityServiceInterface as SecurityService,
+    ValidationResult,
 )
-from services.interfaces import EnhancementServiceInterface as EnhancementService
-from services.interfaces import FeedbackEngineInterface as FeedbackEngine
-from services.interfaces import GenerationRequest
-from services.interfaces import MonitoringServiceInterface as MonitoringService
-from services.interfaces import OrchestratorConfig
-from services.interfaces import PromptServiceInterface as PromptServiceV2
-from services.interfaces import SecurityServiceInterface as SecurityService
-from services.interfaces import ValidationResult
 from services.validation.interfaces import ValidationOrchestratorInterface
 from utils.dict_helpers import safe_dict_get
 from utils.type_helpers import ensure_dict, ensure_list, ensure_string
@@ -55,6 +55,7 @@ logger = logging.getLogger(__name__)
 if TYPE_CHECKING:
     # Forward-declared interfaces for type checking without import errors
     from services.interfaces import PromptResult, WebLookupServiceInterface
+
     from src.services.synonym_orchestrator import SynonymOrchestrator
 
 

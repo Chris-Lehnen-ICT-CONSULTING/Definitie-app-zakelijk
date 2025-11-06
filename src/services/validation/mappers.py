@@ -18,9 +18,9 @@ from services.validation.interfaces import (
     ImprovementSuggestion,
     RuleViolation,
     SystemMetadata,
+    ValidationResult as TypedDictResult,
+    ViolationLocation,
 )
-from services.validation.interfaces import ValidationResult as TypedDictResult
-from services.validation.interfaces import ViolationLocation
 
 # Module logger
 logger = logging.getLogger(__name__)

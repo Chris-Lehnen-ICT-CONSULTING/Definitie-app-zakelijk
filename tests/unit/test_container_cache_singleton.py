@@ -13,7 +13,6 @@ import logging
 from unittest.mock import patch
 
 import pytest
-
 from utils.container_manager import (
     clear_container_cache,
     get_cached_container,

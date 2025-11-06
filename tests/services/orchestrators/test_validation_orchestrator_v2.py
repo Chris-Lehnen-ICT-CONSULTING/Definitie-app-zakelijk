@@ -6,7 +6,6 @@ import uuid
 from unittest.mock import AsyncMock, Mock
 
 import pytest
-
 from services.interfaces import Definition
 from services.orchestrators.validation_orchestrator_v2 import ValidationOrchestratorV2
 from services.validation.interfaces import (

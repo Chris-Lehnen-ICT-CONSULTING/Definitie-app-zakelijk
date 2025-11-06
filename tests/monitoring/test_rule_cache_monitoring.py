@@ -1,7 +1,6 @@
 """Integration tests for RuleCache with monitoring."""
 
 import pytest
-
 from toetsregels.rule_cache import RuleCache, get_rule_cache
 
 

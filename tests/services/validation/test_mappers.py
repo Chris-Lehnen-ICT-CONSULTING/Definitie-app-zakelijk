@@ -5,7 +5,6 @@ from dataclasses import dataclass
 from typing import List
 
 import pytest
-
 from services.validation.interfaces import CONTRACT_VERSION
 from services.validation.mappers import (
     create_degraded_result,

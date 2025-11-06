@@ -17,7 +17,6 @@ if str(src_path) not in sys.path:
 from datetime import datetime
 
 import click
-
 from monitoring.performance_tracker import get_tracker
 
 

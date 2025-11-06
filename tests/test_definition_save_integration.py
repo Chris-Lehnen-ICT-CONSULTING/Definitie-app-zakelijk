@@ -8,7 +8,6 @@ This test verifies DEF-53 fix: ensure categorie field is properly set and saved.
 from datetime import UTC, datetime
 
 import pytest
-
 from services.definition_repository import DefinitionRepository
 from services.exceptions import DatabaseConstraintError, DuplicateDefinitionError
 from services.interfaces import Definition, GenerationRequest

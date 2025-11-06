@@ -7,13 +7,13 @@ from uuid import UUID, uuid4
 
 import pytest
 from jsonschema import FormatChecker, ValidationError, validate
-
 from services.interfaces import Definition
 from services.validation.interfaces import (
     CONTRACT_VERSION,
     ValidationContext,
     ValidationRequest,
 )
+
 from tests.contracts.mock_orchestrator import MockValidationOrchestrator
 
 

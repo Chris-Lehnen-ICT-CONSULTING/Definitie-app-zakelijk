@@ -12,7 +12,6 @@ Validates that:
 from unittest.mock import MagicMock, Mock, patch
 
 import pytest
-
 from domain.ontological_categories import OntologischeCategorie
 
 
