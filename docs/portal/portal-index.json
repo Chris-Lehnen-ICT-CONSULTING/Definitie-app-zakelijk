@@ -7319,6 +7319,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "COMPLEXITY HEATMAP - VISUAL ANALYSIS",
+      "path": "../analyses/COMPLEXITY_HEATMAP.md",
+      "url": "../analyses/COMPLEXITY_HEATMAP.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/COMPLEXITY_HEATMAP.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Classification Pre-Processing - Implementation Code Examples",
       "path": "../analyses/CLASSIFICATION_IMPLEMENTATION_CODE_EXAMPLES.md",
       "url": "../analyses/CLASSIFICATION_IMPLEMENTATION_CODE_EXAMPLES.md",
@@ -7662,6 +7693,39 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Performance Regression Analysis - 2025-11-06",
+      "path": "../analyses/PERFORMANCE_REGRESSION_2025-11-06.md",
+      "url": "../analyses/PERFORMANCE_REGRESSION_2025-11-06.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-202"
+        ],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/PERFORMANCE_REGRESSION_2025-11-06.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Solo Developer Re-Analysis: Wat Verandert Er Fundamenteel?",
       "path": "../analyses/SOLO_DEVELOPER_REANALYSIS.md",
       "url": "../analyses/SOLO_DEVELOPER_REANALYSIS.md",
@@ -7817,6 +7881,41 @@
         "req": []
       },
       "rendered_url": "rendered/analyses/SECURITY_AUDIT_REPORT.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "DEFINITEAGENT CODEBASE INVENTORY & ARCHITECTURE ANALYSIS",
+      "path": "../analyses/CODEBASE_INVENTORY_ANALYSIS.md",
+      "url": "../analyses/CODEBASE_INVENTORY_ANALYSIS.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-202"
+        ],
+        "epic": [
+          "EPIC-016"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/CODEBASE_INVENTORY_ANALYSIS.html"
     },
     {
       "id": null,
@@ -8304,6 +8403,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "PHASE 2 CODE QUALITY REVIEW - DELIVERABLES INDEX",
+      "path": "../analyses/PHASE_2_DELIVERABLES.md",
+      "url": "../analyses/PHASE_2_DELIVERABLES.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/PHASE_2_DELIVERABLES.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "CON-01 Validatie - Test Rapport",
       "path": "../analyses/CON-01_VALIDATIE_TEST_RAPPORT.md",
       "url": "../analyses/CON-01_VALIDATIE_TEST_RAPPORT.md",
@@ -8717,6 +8847,39 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Performance Regression Summary - Quick Reference",
+      "path": "../analyses/REGRESSION_SUMMARY_2025-11-06.md",
+      "url": "../analyses/REGRESSION_SUMMARY_2025-11-06.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-202"
+        ],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/REGRESSION_SUMMARY_2025-11-06.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Container Cache Key Problem - Visual Analysis",
       "path": "../analyses/CONTAINER_CACHE_KEY_PROBLEM.md",
       "url": "../analyses/CONTAINER_CACHE_KEY_PROBLEM.md",
@@ -8877,6 +9040,68 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "COMPLEXITY & OVER-ENGINEERING ANALYSIS - EXECUTIVE SUMMARY",
+      "path": "../analyses/COMPLEXITY_SUMMARY.md",
+      "url": "../analyses/COMPLEXITY_SUMMARY.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/COMPLEXITY_SUMMARY.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "MULTIAGENT CONSENSUS REPORT - DEFINITIEAGENT CODEBASE REVIEW",
+      "path": "../analyses/MULTIAGENT_CONSENSUS_REPORT.md",
+      "url": "../analyses/MULTIAGENT_CONSENSUS_REPORT.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/MULTIAGENT_CONSENSUS_REPORT.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "CI Failures Analysis & Fix Plan",
       "path": "../analyses/CI_FAILURES_ANALYSIS.md",
       "url": "../analyses/CI_FAILURES_ANALYSIS.md",
@@ -8937,6 +9162,37 @@
         "req": []
       },
       "rendered_url": "rendered/analyses/LEVEL_CLASSIFIER_FLOW_DIAGRAM.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "COMPLETE CODEBASE REVIEW - DELIVERABLES INDEX",
+      "path": "../analyses/REVIEW_INDEX.md",
+      "url": "../analyses/REVIEW_INDEX.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/REVIEW_INDEX.html"
     },
     {
       "id": null,
@@ -9067,6 +9323,37 @@
         "req": []
       },
       "rendered_url": "rendered/analyses/STARTUP_PERFORMANCE_ANALYSIS.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "EXECUTIVE SUMMARY - DEFINITIEAGENT CODEBASE REVIEW",
+      "path": "../analyses/EXECUTIVE_SUMMARY.md",
+      "url": "../analyses/EXECUTIVE_SUMMARY.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/EXECUTIVE_SUMMARY.html"
     },
     {
       "id": null,
@@ -9484,6 +9771,41 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "DEF-110 Post-Mortem: Rerun Cascade Performance Regression",
+      "path": "../analyses/DEF-110-postmortem.md",
+      "url": "../analyses/DEF-110-postmortem.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-202"
+        ],
+        "epic": [
+          "EPIC-010"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/DEF-110-postmortem.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Synonym Automation - Developer Quick Reference",
       "path": "../analyses/SYNONYM_AUTOMATION_QUICKREF.md",
       "url": "../analyses/SYNONYM_AUTOMATION_QUICKREF.md",
@@ -9646,6 +9968,39 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "DEFINITEAGENT COMPLEXITY & OVER-ENGINEERING ANALYSIS",
+      "path": "../analyses/COMPLEXITY_ANALYSIS.md",
+      "url": "../analyses/COMPLEXITY_ANALYSIS.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-202"
+        ],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/COMPLEXITY_ANALYSIS.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "DEF-38, DEF-35, DEF-106, DEF-45: Comprehensive Dependency & Impact Analysis",
       "path": "../analyses/DEF_35_38_106_45_DEPENDENCY_IMPACT_ANALYSIS.md",
       "url": "../analyses/DEF_35_38_106_45_DEPENDENCY_IMPACT_ANALYSIS.md",
@@ -9704,6 +10059,37 @@
         "req": []
       },
       "rendered_url": "rendered/analyses/PERPLEXITY_API_FEASIBILITY_ANALYSIS.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "DEFINITEAGENT CODE QUALITY REVIEW",
+      "path": "../analyses/CODE_QUALITY_REVIEW.md",
+      "url": "../analyses/CODE_QUALITY_REVIEW.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/CODE_QUALITY_REVIEW.html"
     },
     {
       "id": null,
@@ -10020,6 +10406,41 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "DEFINITEAGENT CODEBASE ANALYSIS - KEY FINDINGS SUMMARY",
+      "path": "../analyses/CODEBASE_FINDINGS_SUMMARY.md",
+      "url": "../analyses/CODEBASE_FINDINGS_SUMMARY.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-202"
+        ],
+        "epic": [
+          "EPIC-016"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/CODEBASE_FINDINGS_SUMMARY.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "PRAKTIJKVOORBEELDEN TIMEOUT - ULTRA-DIEPGAANDE ROOT CAUSE ANALYSIS",
       "path": "../analyses/PRAKTIJKVOORBEELDEN_TIMEOUT_ANALYSIS.md",
       "url": "../analyses/PRAKTIJKVOORBEELDEN_TIMEOUT_ANALYSIS.md",
@@ -10080,6 +10501,68 @@
         "req": []
       },
       "rendered_url": "rendered/analyses/LINEAR_ISSUES_CONSENSUS_ROADMAP.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "CODE QUALITY REVIEW - EXECUTIVE SUMMARY",
+      "path": "../analyses/CODE_QUALITY_SUMMARY.md",
+      "url": "../analyses/CODE_QUALITY_SUMMARY.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/CODE_QUALITY_SUMMARY.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "PHASE 3: COMPLEXITY & OVER-ENGINEERING ANALYSIS - INDEX",
+      "path": "../analyses/PHASE3_INDEX.md",
+      "url": "../analyses/PHASE3_INDEX.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/PHASE3_INDEX.html"
     },
     {
       "id": null,
@@ -10579,7 +11062,9 @@
       "parent_epic": null,
       "parent_us": null,
       "_refs": {
-        "us": [],
+        "us": [
+          "US-202"
+        ],
         "epic": [],
         "req": []
       },
@@ -76349,7 +76834,7 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 1071,
+      "DOC": 1086,
       "ARCH": 42,
       "COMP": 5,
       "TEST": 36,
@@ -76359,7 +76844,7 @@
       "BUG": 45,
       "REQ": 220
     },
-    "generated_at": "2025-11-06T09:05:53Z"
+    "generated_at": "2025-11-06T11:01:02Z"
   },
   "sources": [
     "docs"
