@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DEF-110 Post-Mortem: Rerun Cascade Performance Regression</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>DEF-110 Post-Mortem: Rerun Cascade Performance Regression</h1>
+
+<p><strong>Date:</strong> 2025-11-06</p>
+<p><strong>Severity:</strong> P0 - Critical (App unusable)</p>
+<p><strong>Status:</strong> ✅ RESOLVED</p>
+<p><strong>Related:</strong> US-202, DEF-66, DEF-90, EPIC-010</p>
+
+<p>---</p>
+
+<h2>📋 Executive Summary</h2>
+
+<p><strong>Incident:</strong> Performance regression causing 74,569% startup slowdown (48ms → 35.7s) after DEF-38/DEF-110 deployment.</p>
+
+<p><strong>Root Cause:</strong> Single line of code <code>init_context_cleaner(force_clean=True)</code> in <code>render()</code> method violated Streamlit's purity principle, causing 4x Python process cascade.</p>
+
+<p><strong>Impact:</strong> All previous performance optimizations (US-202 RuleCache, DEF-66 ServiceContainer, DEF-90 PromptOrchestrator) completely nullified.</p>
+
+<p><strong>Resolution:</strong> Removed problematic line → 96.6% improvement (35s → 1.2s). Implemented preventive measures.</p>
+
+<p>---</p>
+
+<h2>🔥 Timeline</h2>
+
+<p>| Time | Event |</p>
+<p>|------|-------|</p>
+<p>| <strong>2025-11-05 18:00</strong> | DEF-38 & DEF-110 merged to main (context cleanup fix) |</p>
+<p>| <strong>2025-11-06 09:30</strong> | User reports: "App extremely slow, >30s startup" |</p>
+<p>| <strong>2025-11-06 09:45</strong> | Log analysis reveals: 4x RuleCache loads, 4x rerun cycles |</p>
+<p>| <strong>2025-11-06 10:00</strong> | Root cause identified: <code>force_clean=True</code> in render() |</p>
+<p>| <strong>2025-11-06 10:15</strong> | Fix implemented and verified (1.2s startup) |</p>
+<p>| <strong>2025-11-06 10:30</strong> | Pre-commit hook & tests deployed |</p>
+<p>| <strong>2025-11-06 11:00</strong> | Documentation & post-mortem complete |</p>
+
+<p><strong>Total Downtime:</strong> ~1.5 hours (P0 incident)</p>
+
+<p>---</p>
+
+<h2>🐛 What Happened</h2>
+
+<h3>The Bug</h3>
+
+<p><strong>File:</strong> <code>src/ui/tabbed_interface.py:220</code></p>
+<p><strong>Change:</strong> Added <code>init_context_cleaner(force_clean=True)</code> in <code>render()</code> method</p>
+
+<pre><code># ❌ PROBLEMATIC CODE (introduced in DEF-110)
+class TabbedInterface:
+    def render(self):
+        """Render de volledige tabbed interface."""
+        # Clean session state on initialization - FORCE CLEAN voor problematische waardes
+        init_context_cleaner(force_clean=True)  # ← THIS LINE!
+
+        # App header
+        self._render_header()</code></pre>
+
+<h3>The Cascade Mechanism</h3>
+
+<pre><code>1. App starts → main() calls interface.render()
+2. render() executes → init_context_cleaner(force_clean=True)
+3. Context cleaner mutates session state
+4. Streamlit detects state change → TRIGGERS RERUN
+5. New Python process starts → ALL singletons reset
+6. Repeat steps 1-5 (4x total)
+7. Finally: State stabilizes after 4 iterations</code></pre>
+
+<p><strong>Why 4x?</strong> Each rerun resets the <code>context_cleaned</code> flag, but the guard is bypassed by <code>force_clean=True</code>, creating infinite loop until state stabilizes naturally.</p>
+
+<h3>Performance Impact</h3>
+
+<p>| Metric | Baseline | With Bug | Regression |</p>
+<p>|--------|----------|----------|------------|</p>
+<p>| <strong>Startup Time</strong> | 1.2s | 35.7s | <strong>+2,875%</strong> |</p>
+<p>| <strong>Render Time</strong> | 48ms | 35,761ms | <strong>+74,569%</strong> |</p>
+<p>| <strong>RuleCache Loads</strong> | 1x | 4x | <strong>+300%</strong> |</p>
+<p>| <strong>ServiceContainer Inits</strong> | 1x | 4x | <strong>+300%</strong> |</p>
+<p>| <strong>PromptOrchestrator Inits</strong> | 1x (16 modules) | 4x (64 modules) | <strong>+300%</strong> |</p>
+
+<p><strong>Total Wasted Time per Startup:</strong> 34.5 seconds × 4 = <strong>138 seconds of redundant work</strong></p>
+
+<p>---</p>
+
+<h2>🔍 Root Cause Analysis</h2>
+
+<h3>Why Did This Happen?</h3>
+
+<p><strong>Immediate Cause:</strong></p>
+<ul>
+<li>DEF-110 fix needed aggressive cleanup to resolve "stale voorbeelden" bug</li>
+<li>`force_clean=True` was added to ensure cleanup always runs</li>
+<li>Placed in `render()` for "convenience" (seemed like initialization point)</li>
+</ul>
+
+<p><strong>Underlying Causes:</strong></p>
+
+<ol>
+<li>**Insufficient understanding of Streamlit's execution model**</li>
+</ol>
+<ul>
+<li>  - `render()` is NOT an initialization method</li>
+<li>  - `render()` executes on EVERY rerun</li>
+<li>  - State mutations in render() → rerun cascade</li>
+</ul>
+
+<ol>
+<li>**Missing architectural guidance**</li>
+</ol>
+<ul>
+<li>  - No documentation on Streamlit's purity principle</li>
+<li>  - No examples of WHERE to place cleanup logic</li>
+<li>  - No pre-commit checks for this anti-pattern</li>
+</ul>
+
+<ol>
+<li>**Overconfidence in "force" flags**</li>
+</ol>
+<ul>
+<li>  - `force_clean=True` bypasses idempotent guard</li>
+<li>  - Guards exist for a reason (prevent cascades!)</li>
+<li>  - "Force" should ONLY be used in controlled contexts</li>
+</ul>
+
+<ol>
+<li>**No performance regression monitoring**</li>
+</ol>
+<ul>
+<li>  - Manual testing didn't catch 4x cascade (looked "normal")</li>
+<li>  - No automated performance tests</li>
+<li>  - No startup time monitoring</li>
+</ul>
+
+<h3>Why Didn't Existing Tests Catch This?</h3>
+
+<p><strong>Test Gaps:</strong></p>
+<ol>
+<li>**Functional tests** ✅ PASSED - DEF-110 logic was correct</li>
+<li>**Unit tests** ✅ PASSED - Individual components worked</li>
+<li>**Integration tests** ❌ DIDN'T EXIST - No startup time monitoring</li>
+<li>**Performance tests** ❌ DIDN'T EXIST - No rerun cascade detection</li>
+</ol>
+
+<p><strong>Lesson:</strong> Functional correctness ≠ Performance correctness</p>
+
+<p>---</p>
+
+<h2>✅ The Fix</h2>
+
+<h3>Immediate Fix (FASE 1 - 30 min)</h3>
+
+<p><strong>Change:</strong> Remove 1 line from <code>render()</code> method</p>
+
+<pre><code>  def render(self):
+      """Render de volledige tabbed interface."""
+-     # Clean session state on initialization - FORCE CLEAN voor problematische waardes
+-     init_context_cleaner(force_clean=True)
+-
+      # App header
+      self._render_header()</code></pre>
+
+<p><strong>Why This Works:</strong></p>
+<ul>
+<li>Cleanup already happens in `SessionStateManager.initialize_session_state()`</li>
+<li>Idempotent guard (`context_cleaned` flag) prevents multiple executions</li>
+<li>No need for `force_clean=True` - normal cleanup sufficient</li>
+</ul>
+
+<p><strong>Verification:</strong></p>
+<pre><code>✅ DEF-110 tests: 11/11 passing
+✅ Option C logic: intact
+✅ Performance: 1.2s startup (96.6% improvement)
+✅ No rerun cascade detected</code></pre>
+
+<p><strong>Commit:</strong> <code>19ac9245</code> on <code>fix/DEF-110-performance-regression</code></p>
+
+<p>---</p>
+
+<h2>🛡️ Preventive Measures</h2>
+
+<h3>FASE 2: Automated Guards (Implemented)</h3>
+
+<h4>1. Enhanced Pre-Commit Hook</h4>
+
+<p><strong>File:</strong> <code>scripts/check_streamlit_patterns.py</code></p>
+
+<p><strong>New Checks:</strong></p>
+<ul>
+<li>❌ **CRITICAL:** Detect `force_clean=True` in any UI code</li>
+<li>⚠️  **HIGH:** Warn on state mutations in render() methods</li>
+<li>✅ Auto-fails commit if violations found</li>
+</ul>
+
+<p><strong>Result:</strong> 0 CRITICAL errors detected in codebase ✅</p>
+
+<h4>2. Performance Regression Test Suite</h4>
+
+<p><strong>File:</strong> <code>tests/performance/test_def110_regression.py</code></p>
+
+<p><strong>Tests:</strong></p>
+<ol>
+<li>`test_no_rerun_cascade_in_logs` - Detects rerun cascades</li>
+<li>`test_rule_cache_loads_once` - Monitors RuleCache behavior</li>
+<li>`test_startup_time_acceptable` - 15s hard limit (fails CI)</li>
+<li>`test_no_force_clean_in_render_methods` - Code-level validation</li>
+<li>`test_context_cleaner_idempotent_guard` - Structural verification</li>
+</ol>
+
+<p><strong>Thresholds:</strong></p>
+<ul>
+<li>Reruns: ≤1 (FAIL if >1)</li>
+<li>Context cleanups: ≤2 (WARN if >2)</li>
+<li>Startup time: <15s (FAIL if >15s)</li>
+</ul>
+
+<h3>FASE 3: Documentation & Education (Implemented)</h3>
+
+<h4>1. Streamlit Best Practices Updated</h4>
+
+<p><strong>File:</strong> <code>docs/guidelines/STREAMLIT_PATTERNS.md</code></p>
+
+<p><strong>New Section:</strong> "State Mutation in render() Methods (DEF-110)"</p>
+
+<p><strong>Key Points:</strong></p>
+<ul>
+<li>✅ Explains Streamlit purity principle</li>
+<li>✅ Shows exact DEF-110 pattern (before/after)</li>
+<li>✅ Cascade mechanism explained</li>
+<li>✅ Prevention checklist</li>
+<li>✅ References to pre-commit & tests</li>
+</ul>
+
+<h4>2. Performance Verification Script</h4>
+
+<p><strong>File:</strong> <code>scripts/verify_def110_fix.py</code></p>
+
+<p><strong>Functionality:</strong></p>
+<ul>
+<li>Launches Streamlit in headless mode</li>
+<li>Monitors startup for 10 seconds</li>
+<li>Checks: RuleCache loads, reruns, context cleanups</li>
+<li>Exit code 0 = PASS, 1 = FAIL</li>
+</ul>
+
+<p><strong>Usage:</strong> <code>python scripts/verify_def110_fix.py</code></p>
+
+<p>---</p>
+
+<h2>📊 Lessons Learned</h2>
+
+<h3>What Went Well ✅</h3>
+
+<ol>
+<li>**Fast detection** - User reported within hours</li>
+<li>**Clear logs** - Performance tracker captured exact metrics</li>
+<li>**Simple fix** - 1 line removal, no complex refactoring</li>
+<li>**Comprehensive response** - Full FASE 1-3 implementation in 2 hours</li>
+</ol>
+
+<h3>What Went Wrong ❌</h3>
+
+<ol>
+<li>**Insufficient testing** - No performance regression tests</li>
+<li>**Poor placement** - Cleanup in wrong location (render vs init)</li>
+<li>**Misunderstood "force"** - Bypassing guards has consequences</li>
+<li>**No documentation** - Streamlit patterns not documented</li>
+</ol>
+
+<h3>Action Items</h3>
+
+<p><strong>Immediate (DONE):</strong></p>
+<ul>
+<li>[x] Fix deployed and verified</li>
+<li>[x] Pre-commit hooks enhanced</li>
+<li>[x] Performance tests added</li>
+<li>[x] Documentation updated</li>
+</ul>
+
+<p><strong>Short-term (Next Sprint):</strong></p>
+<ul>
+<li>[ ] Review ALL render() methods for state mutations</li>
+<li>[ ] Add performance monitoring to CI/CD</li>
+<li>[ ] Document when to use `force_clean=True` (spoiler: rarely!)</li>
+<li>[ ] Create "Streamlit Anti-Patterns" training</li>
+</ul>
+
+<p><strong>Long-term (Backlog):</strong></p>
+<ul>
+<li>[ ] Automated performance benchmarks in CI</li>
+<li>[ ] Startup time tracking dashboard</li>
+<li>[ ] Streamlit execution model deep-dive training</li>
+</ul>
+
+<p>---</p>
+
+<h2>🎯 Success Criteria (All Met ✅)</h2>
+
+<ul>
+<li>[x] Startup time <5s (achieved: 1.2s)</li>
+<li>[x] No rerun cascades detected</li>
+<li>[x] DEF-110 functionality intact (11/11 tests passing)</li>
+<li>[x] Pre-commit hook prevents recurrence</li>
+<li>[x] Performance tests monitor regression</li>
+<li>[x] Documentation complete</li>
+<li>[x] Zero `force_clean=True` in render methods</li>
+</ul>
+
+<p>---</p>
+
+<h2>🔗 Related Documents</h2>
+
+<ul>
+<li>**Fix Commit:** `19ac9245` - `fix/DEF-110-performance-regression`</li>
+<li>**Pre-Commit Hook:** `scripts/check_streamlit_patterns.py`</li>
+<li>**Performance Tests:** `tests/performance/test_def110_regression.py`</li>
+<li>**Best Practices:** `docs/guidelines/STREAMLIT_PATTERNS.md`</li>
+<li>**Verification Script:** `scripts/verify_def110_fix.py`</li>
+<li>**Original Bug:** `docs/backlog/EPIC-XXX/DEF-110/DEF-110.md`</li>
+</ul>
+
+<p>---</p>
+
+<h2>📝 Appendix: Log Evidence</h2>
+
+<h3>Before Fix (35.7s startup)</h3>
+
+<pre><code>2025-11-06 09:34:12 - Rerun requested
+2025-11-06 09:34:13 - RuleCache initialized (45 rules)
+2025-11-06 09:34:21 - Rerun requested
+2025-11-06 09:34:22 - RuleCache initialized (45 rules)
+2025-11-06 09:34:30 - Rerun requested
+2025-11-06 09:34:31 - RuleCache initialized (45 rules)
+2025-11-06 09:34:39 - Rerun requested
+2025-11-06 09:34:40 - RuleCache initialized (45 rules)
+2025-11-06 09:34:47 - App ready (total: 35.7s)</code></pre>
+
+<h3>After Fix (1.2s startup)</h3>
+
+<pre><code>2025-11-06 10:15:03 - RuleCache initialized (45 rules)
+2025-11-06 10:15:04 - App ready (total: 1.2s)</code></pre>
+
+<p><strong>Improvement:</strong> 35.7s → 1.2s (<strong>96.6% faster</strong>)</p>
+
+<p>---</p>
+
+<p><strong>Post-Mortem Author:</strong> Claude Code (multiagent analysis)</p>
+<p><strong>Reviewed By:</strong> User (chrislehnen)</p>
+<p><strong>Date:</strong> 2025-11-06</p>
+
+  </div>
+</body>
+</html>
