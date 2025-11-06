@@ -2,7 +2,7 @@
 Tests for DEF-110: Stale Voorbeelden Bug Fix
 
 DEF-110 fixes data persistence across definition switches by implementing:
-1. _force_cleanup_voorbeelden(): Nuclear cleanup of all voorbeelden widget state
+1. force_cleanup_voorbeelden(): Nuclear cleanup of all voorbeelden widget state
 2. _reset_voorbeelden_context(): Context tracking with sentinel pattern for None IDs
 
 Integration: Called by definition_edit_tab._render_examples_section() before rendering.
@@ -19,10 +19,8 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from ui.components.examples_block import (
-    _force_cleanup_voorbeelden,
-    _reset_voorbeelden_context,
-)
+from ui.components.examples_block import _reset_voorbeelden_context
+from ui.session_state import force_cleanup_voorbeelden
 
 
 class TestDEF110StaleVoorbeeldenFix:
@@ -68,7 +66,7 @@ class TestDEF110StaleVoorbeeldenFix:
         """Test that _force_cleanup removes all voorbeelden keys but preserves others."""
         with patch("streamlit.session_state", mock_session_state):
             # Execute cleanup
-            _force_cleanup_voorbeelden("test")
+            force_cleanup_voorbeelden("test")
 
             # Assert: All voorbeelden keys removed
             assert "test_vz_edit" not in mock_session_state
@@ -93,7 +91,7 @@ class TestDEF110StaleVoorbeeldenFix:
             del mock_session_state["test_syn_edit"]
 
             # Should not raise exception
-            _force_cleanup_voorbeelden("test")
+            force_cleanup_voorbeelden("test")
 
             # Assert: Remaining voorbeelden keys cleaned
             assert "test_pv_edit" not in mock_session_state
@@ -106,13 +104,13 @@ class TestDEF110StaleVoorbeeldenFix:
         self, mock_session_state_manager
     ):
         """Test that context reset triggers cleanup when definition_id changes."""
-        mock_ssm, context_storage = mock_session_state_manager
+        _mock_ssm, context_storage = mock_session_state_manager
 
         # Setup: Initial context for definition 106
         context_storage["test_context_id"] = 106
 
         with patch(
-            "ui.components.examples_block._force_cleanup_voorbeelden"
+            "ui.components.examples_block.force_cleanup_voorbeelden"
         ) as mock_cleanup:
             # Execute: Switch to definition 105
             _reset_voorbeelden_context("test", definition_id=105)
@@ -125,13 +123,13 @@ class TestDEF110StaleVoorbeeldenFix:
 
     def test_reset_context_preserves_same_definition(self, mock_session_state_manager):
         """Test that context reset does NOT trigger cleanup for same definition."""
-        mock_ssm, context_storage = mock_session_state_manager
+        _mock_ssm, context_storage = mock_session_state_manager
 
         # Setup: Initial context for definition 106
         context_storage["test_context_id"] = 106
 
         with patch(
-            "ui.components.examples_block._force_cleanup_voorbeelden"
+            "ui.components.examples_block.force_cleanup_voorbeelden"
         ) as mock_cleanup:
             # Execute: "Switch" to same definition 106
             _reset_voorbeelden_context("test", definition_id=106)
@@ -144,13 +142,13 @@ class TestDEF110StaleVoorbeeldenFix:
 
     def test_reset_context_handles_none_ids_correctly(self, mock_session_state_manager):
         """Test that None IDs use sentinel pattern correctly (no false positives)."""
-        mock_ssm, context_storage = mock_session_state_manager
+        _mock_ssm, context_storage = mock_session_state_manager
 
         # Setup: Initial context with None (generator tab)
         context_storage["test_context_id"] = None
 
         with patch(
-            "ui.components.examples_block._force_cleanup_voorbeelden"
+            "ui.components.examples_block.force_cleanup_voorbeelden"
         ) as mock_cleanup:
             # Execute: Reset with None again
             _reset_voorbeelden_context("test", definition_id=None)
@@ -165,13 +163,13 @@ class TestDEF110StaleVoorbeeldenFix:
         self, mock_session_state_manager
     ):
         """Test that switching from None to saved definition triggers cleanup."""
-        mock_ssm, context_storage = mock_session_state_manager
+        _mock_ssm, context_storage = mock_session_state_manager
 
         # Setup: Initial context with None (unsaved definition in generator tab)
         context_storage["test_context_id"] = None
 
         with patch(
-            "ui.components.examples_block._force_cleanup_voorbeelden"
+            "ui.components.examples_block.force_cleanup_voorbeelden"
         ) as mock_cleanup:
             # Execute: Switch to saved definition 106
             _reset_voorbeelden_context("test", definition_id=106)
@@ -186,13 +184,13 @@ class TestDEF110StaleVoorbeeldenFix:
         self, mock_session_state_manager
     ):
         """Test that switching from saved definition to None triggers cleanup."""
-        mock_ssm, context_storage = mock_session_state_manager
+        _mock_ssm, context_storage = mock_session_state_manager
 
         # Setup: Initial context with saved definition
         context_storage["test_context_id"] = 106
 
         with patch(
-            "ui.components.examples_block._force_cleanup_voorbeelden"
+            "ui.components.examples_block.force_cleanup_voorbeelden"
         ) as mock_cleanup:
             # Execute: Switch to None (new unsaved definition)
             _reset_voorbeelden_context("test", definition_id=None)
@@ -207,13 +205,13 @@ class TestDEF110StaleVoorbeeldenFix:
         self, mock_session_state_manager
     ):
         """Test that first initialization triggers cleanup (sentinel → definition)."""
-        mock_ssm, context_storage = mock_session_state_manager
+        _mock_ssm, context_storage = mock_session_state_manager
 
         # Setup: No context stored (first time)
         # context_storage is empty
 
         with patch(
-            "ui.components.examples_block._force_cleanup_voorbeelden"
+            "ui.components.examples_block.force_cleanup_voorbeelden"
         ) as mock_cleanup:
             # Execute: First initialization with definition 106
             _reset_voorbeelden_context("test", definition_id=106)
@@ -230,7 +228,7 @@ class TestDEF110StaleVoorbeeldenFix:
 
         with patch("streamlit.session_state", empty_state):
             # Should not raise exception
-            _force_cleanup_voorbeelden("test")
+            force_cleanup_voorbeelden("test")
 
             # Assert: State still empty
             assert len(empty_state) == 0
@@ -243,7 +241,7 @@ class TestDEF110StaleVoorbeeldenFix:
 
         with patch("streamlit.session_state", mock_session_state):
             # Execute: Cleanup only "test" prefix
-            _force_cleanup_voorbeelden("test")
+            force_cleanup_voorbeelden("test")
 
             # Assert: "test" prefix cleaned
             assert "test_vz_edit" not in mock_session_state
@@ -258,10 +256,10 @@ class TestDEF110StaleVoorbeeldenFix:
         self, mock_session_state_manager
     ):
         """Test context tracking through realistic definition switching sequence."""
-        mock_ssm, context_storage = mock_session_state_manager
+        _mock_ssm, context_storage = mock_session_state_manager
 
         with patch(
-            "ui.components.examples_block._force_cleanup_voorbeelden"
+            "ui.components.examples_block.force_cleanup_voorbeelden"
         ) as mock_cleanup:
             # Sequence: None → 105 → 105 → 106 → None → 105
             transitions = [
