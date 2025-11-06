@@ -1,6 +1,6 @@
 # Streamlit Best Practices & Anti-Patterns
 
-**Status:** Active | **Last Updated:** 2025-10-29 | **Source:** DEF-56 Root Cause Analysis
+**Status:** Active | **Last Updated:** 2025-11-06 | **Source:** DEF-56 & DEF-110 Root Cause Analysis
 
 Deze richtlijnen zijn gebaseerd op concrete bugs gevonden in DefinitieAgent en gevalideerd door Streamlit officiële documentatie (Context7 MCP) en deep research (Perplexity MCP).
 
@@ -191,6 +191,66 @@ SessionStateManager.set_value("my_text", "default")
 st.text_area("Text", key="my_text")
 ```
 
+### 4. State Mutation in render() Methods (DEF-110)
+
+**Problem:** State mutations in render() methods triggeren rerun cascades → 74,569% performance regression.
+
+**Root Cause:** Streamlit's purity principle vereist dat render() methods PURE zijn (geen side effects).
+
+```python
+# ❌ CRITICAL: State mutation in render() → Rerun cascade!
+class TabbedInterface:
+    def render(self):
+        """Render de volledige tabbed interface."""
+        # ❌ NEVER DO THIS: force_clean=True triggers state mutation
+        init_context_cleaner(force_clean=True)  # ← Causes cascade!
+
+        # App header
+        self._render_header()
+        # ...
+
+# ✅ CORRECT: State cleanup in app initialization (main.py)
+def main():
+    """Hoofd applicatie functie."""
+    # Initialize session state ONCE at app startup
+    SessionStateManager.initialize_session_state()
+
+    # init_context_cleaner() is called via default values
+    # OR with force_clean=False (idempotent guard)
+
+    # Render interface (PURE - no state mutations!)
+    interface = get_tabbed_interface()
+    interface.render()  # ✅ Pure render
+```
+
+**Mechanisme van de Cascade:**
+1. `render()` method roept `init_context_cleaner(force_clean=True)` aan
+2. Dit muteert session state → Streamlit detecteert change
+3. Streamlit triggert RERUN → nieuwe Python process
+4. Alle singletons gereset (RuleCache, ServiceContainer, etc.)
+5. **Repeat 4x** → 4x startup overhead
+
+**Impact (DEF-110):**
+- Startup: 1.2s → 35s (2,817% regressie)
+- RuleCache: 1x load → 4x loads
+- ServiceContainer: 1x init → 4x inits
+- Alle US-202, DEF-66, DEF-90 optimalisaties tenietgedaan
+
+**Preventie:**
+- ✅ **NEVER** call cleanup/state mutation functions in render()
+- ✅ Use idempotent guards (`if context_cleaned is None`)
+- ✅ Cleanup in `main()` initialization, NOT render()
+- ✅ Pre-commit hook detecteert `force_clean=True` in render methods
+
+**Enforcement (Pre-Commit):**
+```bash
+# Automated check in scripts/check_streamlit_patterns.py
+- Detect force_clean=True in any UI code → CRITICAL ERROR
+- Warn on state mutations in render() methods → HIGH WARNING
+```
+
+**Reference:** `docs/backlog/EPIC-XXX/DEF-110/DEF-110-postmortem.md`
+
 ---
 
 ## 🧪 Testing Patterns
@@ -326,11 +386,20 @@ def test_text_area_populates_after_generation():
 ```
 
 **Automated Checks:**
-- ❌ Detect `st.text_area(value=..., key=...)` combinatie
-- ❌ Detect direct `st.session_state[...]` access in UI modules
-- ❌ Detect generieke widget keys ("name", "text", etc.)
+- ❌ Detect `st.text_area(value=..., key=...)` combinatie → **CRITICAL**
+- ❌ Detect direct `st.session_state[...]` access in UI modules → **HIGH**
+- ❌ Detect generieke widget keys ("name", "text", etc.) → **MEDIUM**
+- ❌ Detect `force_clean=True` in render() methods (DEF-110) → **CRITICAL**
+- ⚠️  Warn on state mutations in render() methods (DEF-110) → **HIGH**
 - ✅ Enforce SessionStateManager import in UI modules
+
+**Performance Tests:**
+- `tests/performance/test_def110_regression.py`: Monitor rerun cascades
+- Auto-fails bij: >1 rerun, >2 context cleanups, >15s startup
+- Validates: No `force_clean=True` in codebase
 
 ---
 
-**Status:** Deze patterns zijn gevalideerd door DEF-56 fix en moeten worden toegepast op ALLE Streamlit components in DefinitieAgent.
+**Status:** Deze patterns zijn gevalideerd door DEF-56 en DEF-110 fixes en moeten worden toegepast op ALLE Streamlit components in DefinitieAgent.
+
+**Performance Guarantee:** Met deze patterns blijft startup tijd <5s, geen rerun cascades, en alle caching optimalisaties (US-202, DEF-66, DEF-90) blijven intact.
