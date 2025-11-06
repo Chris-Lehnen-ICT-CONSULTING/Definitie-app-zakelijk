@@ -20,9 +20,6 @@ from enum import Enum  # Enumeraties voor voorbeeld types en modi
 from typing import Any  # Type hints voor betere code documentatie
 
 from services.ai_service_v2 import AIServiceV2  # V2 AI service interface
-from src.config.config_manager import (
-    get_component_config,  # Centrale component configuratie
-)
 
 # Importeer resilience en caching systemen voor robuuste voorbeeld generatie
 from utils.integrated_resilience import (
@@ -37,6 +34,10 @@ from utils.voorbeelden_debug import (  # Debug logging voor voorbeelden flow
     debugger,
 )
 from voorbeelden.robust_cache import get_robust_cache
+
+from src.config.config_manager import (
+    get_component_config,  # Centrale component configuratie
+)
 
 logger = logging.getLogger(__name__)  # Logger instantie voor unified voorbeelden module
 

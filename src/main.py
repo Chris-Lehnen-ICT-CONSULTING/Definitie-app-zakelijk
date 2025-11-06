@@ -18,7 +18,6 @@ if str(src_path) not in sys.path:
     sys.path.insert(0, str(src_path))
 
 import streamlit as st
-
 from ui.session_state import SessionStateManager
 from ui.tabbed_interface import TabbedInterface
 from utils.exceptions import log_and_display_error

@@ -29,12 +29,12 @@ if str(src_path) not in sys.path:
     sys.path.insert(0, str(src_path))
 
 import streamlit as st
+from ui.session_state import SessionStateManager
 
 from src.repositories.synonym_registry import SynonymRegistry
 from src.services.container import get_container
 from src.services.gpt4_synonym_suggester import GPT4SynonymSuggester
 from src.services.synonym_orchestrator import SynonymOrchestrator
-from ui.session_state import SessionStateManager
 
 logger = logging.getLogger(__name__)
 

@@ -5,7 +5,6 @@ Test dat alle 45 validators correct geladen en uitgevoerd worden.
 """
 
 import pytest
-
 from ai_toetser import ModularToetser, toets_definitie
 from ai_toetser.json_validator_loader import json_validator_loader
 

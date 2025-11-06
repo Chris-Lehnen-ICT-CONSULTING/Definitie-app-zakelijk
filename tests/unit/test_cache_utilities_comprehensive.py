@@ -15,7 +15,6 @@ from pathlib import Path
 from unittest.mock import MagicMock, Mock, patch
 
 import pytest
-
 from utils.cache import (
     CacheConfig,
     CacheManager,

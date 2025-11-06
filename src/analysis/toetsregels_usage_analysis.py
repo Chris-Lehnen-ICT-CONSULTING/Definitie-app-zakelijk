@@ -11,9 +11,9 @@ from deprecated.generation.definitie_generator import (
     GenerationContext,
     OntologischeCategorie,
 )
+from validation.definitie_validator import DefinitieValidator
 
 from config.toetsregel_manager import get_toetsregel_manager
-from validation.definitie_validator import DefinitieValidator
 
 
 def analyze_rule_usage():
