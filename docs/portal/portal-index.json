@@ -1527,6 +1527,68 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "DEF-99 Fix Validation - Comprehensive Test Execution Report",
+      "path": "../debugging/DEF-99-TEST-VALIDATION-REPORT.md",
+      "url": "../debugging/DEF-99-TEST-VALIDATION-REPORT.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/debugging/DEF-99-TEST-VALIDATION-REPORT.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "DEF-99 Root Cause Analysis: Double Adapter Wrapping Bug",
+      "path": "../debugging/DEF-99-ROOT-CAUSE-ANALYSIS.md",
+      "url": "../debugging/DEF-99-ROOT-CAUSE-ANALYSIS.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/debugging/DEF-99-ROOT-CAUSE-ANALYSIS.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Legacy Code Removal Plan",
       "path": "../planning/LEGACY_REMOVAL_PLAN.md",
       "url": "../planning/LEGACY_REMOVAL_PLAN.md",
@@ -5829,6 +5891,37 @@
     {
       "id": null,
       "type": "TEST",
+      "title": "DEF-110 Test Report: Stale Voorbeelden Bug Fix",
+      "path": "../testing/DEF-110-TEST-REPORT.md",
+      "url": "../testing/DEF-110-TEST-REPORT.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/testing/DEF-110-TEST-REPORT.html"
+    },
+    {
+      "id": null,
+      "type": "TEST",
       "title": "Story 2.3 Test Implementatie Report",
       "path": "../testing/story-2.3-test-implementation.md",
       "url": "../testing/story-2.3-test-implementation.md",
@@ -6888,6 +6981,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "DEF-35: MVP Term-Based Classifier Implementation Summary",
+      "path": "../implementation/DEF-35_IMPLEMENTATION_SUMMARY.md",
+      "url": "../implementation/DEF-35_IMPLEMENTATION_SUMMARY.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/implementation/DEF-35_IMPLEMENTATION_SUMMARY.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "🔧 Refactor Backlog - Sprint 37 Preparation",
       "path": "../implementation/REFACTOR_BACKLOG_2025-09.md",
       "url": "../implementation/REFACTOR_BACKLOG_2025-09.md",
@@ -7164,6 +7288,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "DEF-102: Forensische Analyse van de \"is een\" Contradictie",
+      "path": "../analyses/DEF-102_CONTRADICTION_FORENSICS.md",
+      "url": "../analyses/DEF-102_CONTRADICTION_FORENSICS.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/DEF-102_CONTRADICTION_FORENSICS.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "COMPLEXITY HEATMAP - VISUAL ANALYSIS",
       "path": "../analyses/COMPLEXITY_HEATMAP.md",
       "url": "../analyses/COMPLEXITY_HEATMAP.md",
@@ -7379,6 +7534,37 @@
         "req": []
       },
       "rendered_url": "rendered/analyses/STARTUP_PERFORMANCE_DIAGRAM.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "DEF-102: Cross-Rule Impact Analysis - Alle 53 Validatieregels",
+      "path": "../analyses/DEF-102_CROSS_RULE_IMPACT_ANALYSIS.md",
+      "url": "../analyses/DEF-102_CROSS_RULE_IMPACT_ANALYSIS.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/DEF-102_CROSS_RULE_IMPACT_ANALYSIS.html"
     },
     {
       "id": null,
@@ -7870,6 +8056,70 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Comprehensive Analysis: Definitie Generatie Prompt v6 - Improvement Plan",
+      "path": "../analyses/PROMPT_COMPREHENSIVE_ANALYSIS_AND_IMPROVEMENT_PLAN.md",
+      "url": "../analyses/PROMPT_COMPREHENSIVE_ANALYSIS_AND_IMPROVEMENT_PLAN.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-202"
+        ],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/PROMPT_COMPREHENSIVE_ANALYSIS_AND_IMPROVEMENT_PLAN.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Comprehensive Exploration: Waarom \"Type\" Dominant Lijkt als Ontologische Categorie",
+      "path": "../analyses/ONTOLOGISCHE_CATEGORIE_COMPREHENSIVE_EXPLORATION.md",
+      "url": "../analyses/ONTOLOGISCHE_CATEGORIE_COMPREHENSIVE_EXPLORATION.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/ONTOLOGISCHE_CATEGORIE_COMPREHENSIVE_EXPLORATION.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Container Duplication Fix - Implementation Plan",
       "path": "../analyses/CONTAINER_FIX_IMPLEMENTATION_PLAN.md",
       "url": "../analyses/CONTAINER_FIX_IMPLEMENTATION_PLAN.md",
@@ -7996,6 +8246,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "DEF-102: Comprehensive Linguistic Analysis",
+      "path": "../analyses/DEF-102_LINGUISTIC_ANALYSIS.md",
+      "url": "../analyses/DEF-102_LINGUISTIC_ANALYSIS.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/DEF-102_LINGUISTIC_ANALYSIS.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Prompt Engineering vs Parsing: Ontological Category Analysis",
       "path": "../analyses/PROMPT_VS_PARSING_ANALYSIS.md",
       "url": "../analyses/PROMPT_VS_PARSING_ANALYSIS.md",
@@ -8023,6 +8304,37 @@
         "req": []
       },
       "rendered_url": "rendered/analyses/PROMPT_VS_PARSING_ANALYSIS.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "DEF-102 Prompt Contradiction Architecture Map",
+      "path": "../analyses/DEF-102_ARCHITECTURE_MAP.md",
+      "url": "../analyses/DEF-102_ARCHITECTURE_MAP.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/DEF-102_ARCHITECTURE_MAP.html"
     },
     {
       "id": null,
@@ -8056,39 +8368,6 @@
         "req": []
       },
       "rendered_url": "rendered/analyses/voorbeelden-data-loss-2025-10-30.html"
-    },
-    {
-      "id": null,
-      "type": "DOC",
-      "title": "DEF-110 Performance Regression Verification Report",
-      "path": "../analyses/DEF-110_VERIFICATION_REPORT.md",
-      "url": "../analyses/DEF-110_VERIFICATION_REPORT.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
-      "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
-      "category": null,
-      "sprint": null,
-      "story_points": null,
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 5,
-        "type_rank": 9
-      },
-      "parent_epic": null,
-      "parent_us": null,
-      "_refs": {
-        "us": [
-          "US-202"
-        ],
-        "epic": [],
-        "req": []
-      },
-      "rendered_url": "rendered/analyses/DEF-110_VERIFICATION_REPORT.html"
     },
     {
       "id": null,
@@ -8182,6 +8461,68 @@
         "req": []
       },
       "rendered_url": "rendered/analyses/CON-01_VALIDATIE_TEST_RAPPORT.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "DEF-102: Final Approval Report - Multi-Agent Quality Gate Results",
+      "path": "../analyses/DEF-102_FINAL_APPROVAL_REPORT.md",
+      "url": "../analyses/DEF-102_FINAL_APPROVAL_REPORT.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/DEF-102_FINAL_APPROVAL_REPORT.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Ontologische Categorie Implementation - Comprehensive Exploration",
+      "path": "../analyses/ONTOLOGICAL_CATEGORIE_COMPREHENSIVE_EXPLORATION.md",
+      "url": "../analyses/ONTOLOGICAL_CATEGORIE_COMPREHENSIVE_EXPLORATION.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/ONTOLOGICAL_CATEGORIE_COMPREHENSIVE_EXPLORATION.html"
     },
     {
       "id": null,
@@ -8308,6 +8649,37 @@
         "req": []
       },
       "rendered_url": "rendered/analyses/CLASSIFICATION_PIPELINE_COMPARISON.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "DEF-93: String Literal Duplication Analysis - Comprehensive Report",
+      "path": "../analyses/DEF-93-STRING-DUPLICATION-ANALYSIS.md",
+      "url": "../analyses/DEF-93-STRING-DUPLICATION-ANALYSIS.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/DEF-93-STRING-DUPLICATION-ANALYSIS.html"
     },
     {
       "id": null,
@@ -9209,6 +9581,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "DEF-102: \"is een activiteit\" vs \"activiteit\" - Decision Analysis",
+      "path": "../analyses/DEF-102_IS_EEN_DECISION_ANALYSIS.md",
+      "url": "../analyses/DEF-102_IS_EEN_DECISION_ANALYSIS.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/DEF-102_IS_EEN_DECISION_ANALYSIS.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "ServiceContainer Call Flow Diagram",
       "path": "../analyses/container_call_flow.md",
       "url": "../analyses/container_call_flow.md",
@@ -9333,6 +9736,72 @@
         "req": []
       },
       "rendered_url": "rendered/analyses/double-weighting-bug-analysis.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "DEF-102: De CORRECTE Oplossing - Ontologische Categorie als Template Driver",
+      "path": "../analyses/DEF-102_CORRECT_SOLUTION.md",
+      "url": "../analyses/DEF-102_CORRECT_SOLUTION.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/DEF-102_CORRECT_SOLUTION.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "DEF-110 Post-Mortem: Rerun Cascade Performance Regression",
+      "path": "../analyses/DEF-110-postmortem.md",
+      "url": "../analyses/DEF-110-postmortem.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-202"
+        ],
+        "epic": [
+          "EPIC-010"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/DEF-110-postmortem.html"
     },
     {
       "id": null,
@@ -9532,6 +10001,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "DEF-38, DEF-35, DEF-106, DEF-45: Comprehensive Dependency & Impact Analysis",
+      "path": "../analyses/DEF_35_38_106_45_DEPENDENCY_IMPACT_ANALYSIS.md",
+      "url": "../analyses/DEF_35_38_106_45_DEPENDENCY_IMPACT_ANALYSIS.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/DEF_35_38_106_45_DEPENDENCY_IMPACT_ANALYSIS.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Perplexity API Haalbaarheidsanalyse voor Nederlandse Juridische Definitie Lookup",
       "path": "../analyses/PERPLEXITY_API_FEASIBILITY_ANALYSIS.md",
       "url": "../analyses/PERPLEXITY_API_FEASIBILITY_ANALYSIS.md",
@@ -9594,9 +10094,9 @@
     {
       "id": null,
       "type": "DOC",
-      "title": "RuleCache 4x Pattern - Executive Summary",
-      "path": "../analyses/RULECACHE_4X_SUMMARY.md",
-      "url": "../analyses/RULECACHE_4X_SUMMARY.md",
+      "title": "DEF-102: Exacte Functie Injection Call Stack Analyse",
+      "path": "../analyses/DEF-102_INJECTION_CALL_STACK.md",
+      "url": "../analyses/DEF-102_INJECTION_CALL_STACK.md",
       "status": null,
       "prioriteit": null,
       "owner": null,
@@ -9616,13 +10116,11 @@
       "parent_epic": null,
       "parent_us": null,
       "_refs": {
-        "us": [
-          "US-202"
-        ],
+        "us": [],
         "epic": [],
         "req": []
       },
-      "rendered_url": "rendered/analyses/RULECACHE_4X_SUMMARY.html"
+      "rendered_url": "rendered/analyses/DEF-102_INJECTION_CALL_STACK.html"
     },
     {
       "id": null,
@@ -9654,41 +10152,6 @@
         "req": []
       },
       "rendered_url": "rendered/analyses/ROOT_CAUSE_ANALYSIS_DEFINITION_DISPLAY_BUG.html"
-    },
-    {
-      "id": null,
-      "type": "DOC",
-      "title": "RuleCache 4x Loading Pattern - Root Cause Analysis",
-      "path": "../analyses/RULECACHE_4X_PATTERN_ANALYSIS.md",
-      "url": "../analyses/RULECACHE_4X_PATTERN_ANALYSIS.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
-      "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
-      "category": null,
-      "sprint": null,
-      "story_points": null,
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 5,
-        "type_rank": 9
-      },
-      "parent_epic": null,
-      "parent_us": null,
-      "_refs": {
-        "us": [
-          "US-202"
-        ],
-        "epic": [
-          "EPIC-026"
-        ],
-        "req": []
-      },
-      "rendered_url": "rendered/analyses/RULECACHE_4X_PATTERN_ANALYSIS.html"
     },
     {
       "id": null,
@@ -9751,6 +10214,37 @@
         "req": []
       },
       "rendered_url": "rendered/analyses/multi-agent-consensus-single-dev-context.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "DEF-102: Implementation Guide - Fix Blocking Contradictions",
+      "path": "../analyses/DEF-102_IMPLEMENTATION_GUIDE.md",
+      "url": "../analyses/DEF-102_IMPLEMENTATION_GUIDE.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/DEF-102_IMPLEMENTATION_GUIDE.html"
     },
     {
       "id": null,
@@ -9943,6 +10437,37 @@
         "req": []
       },
       "rendered_url": "rendered/analyses/CODEBASE_FINDINGS_SUMMARY.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "PRAKTIJKVOORBEELDEN TIMEOUT - ULTRA-DIEPGAANDE ROOT CAUSE ANALYSIS",
+      "path": "../analyses/PRAKTIJKVOORBEELDEN_TIMEOUT_ANALYSIS.md",
+      "url": "../analyses/PRAKTIJKVOORBEELDEN_TIMEOUT_ANALYSIS.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/PRAKTIJKVOORBEELDEN_TIMEOUT_ANALYSIS.html"
     },
     {
       "id": null,
@@ -10197,37 +10722,6 @@
     {
       "id": null,
       "type": "DOC",
-      "title": "Render Regression Investigation - Executive Summary",
-      "path": "../analyses/RENDER_REGRESSION_SUMMARY.md",
-      "url": "../analyses/RENDER_REGRESSION_SUMMARY.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
-      "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
-      "category": null,
-      "sprint": null,
-      "story_points": null,
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 5,
-        "type_rank": 9
-      },
-      "parent_epic": null,
-      "parent_us": null,
-      "_refs": {
-        "us": [],
-        "epic": [],
-        "req": []
-      },
-      "rendered_url": "rendered/analyses/RENDER_REGRESSION_SUMMARY.html"
-    },
-    {
-      "id": null,
-      "type": "DOC",
       "title": "Automated Synonym Suggestion - Executive Summary",
       "path": "../analyses/SYNONYM_AUTOMATION_SUMMARY.md",
       "url": "../analyses/SYNONYM_AUTOMATION_SUMMARY.md",
@@ -10259,6 +10753,39 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "ROOT CAUSE ANALYSIS: Stale Voorbeelden Bug in Edit Tab",
+      "path": "../analyses/VOORBEELDEN_STALE_STATE_BUG_ANALYSIS.md",
+      "url": "../analyses/VOORBEELDEN_STALE_STATE_BUG_ANALYSIS.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-202"
+        ],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/VOORBEELDEN_STALE_STATE_BUG_ANALYSIS.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "DEF-54: Refactor Plan Comparison & Recommendations",
       "path": "../analyses/DEF-54-COMPARISON-SUMMARY.md",
       "url": "../analyses/DEF-54-COMPARISON-SUMMARY.md",
@@ -10286,6 +10813,37 @@
         "req": []
       },
       "rendered_url": "rendered/analyses/DEF-54-COMPARISON-SUMMARY.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "DEF-102: Forensic Analysis of Prompt System Contradictions",
+      "path": "../analyses/DEF-102_CONTRADICTION_FORENSIC_ANALYSIS.md",
+      "url": "../analyses/DEF-102_CONTRADICTION_FORENSIC_ANALYSIS.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/DEF-102_CONTRADICTION_FORENSIC_ANALYSIS.html"
     },
     {
       "id": null,
@@ -10348,37 +10906,6 @@
         "req": []
       },
       "rendered_url": "rendered/analyses/DEF-54-RECOMMENDED-APPROACH.html"
-    },
-    {
-      "id": null,
-      "type": "DOC",
-      "title": "Render Regression Analysis - Metric Naming Issue",
-      "path": "../analyses/RENDER_METRIC_ANALYSIS.md",
-      "url": "../analyses/RENDER_METRIC_ANALYSIS.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
-      "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
-      "category": null,
-      "sprint": null,
-      "story_points": null,
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 5,
-        "type_rank": 9
-      },
-      "parent_epic": null,
-      "parent_us": null,
-      "_refs": {
-        "us": [],
-        "epic": [],
-        "req": []
-      },
-      "rendered_url": "rendered/analyses/RENDER_METRIC_ANALYSIS.html"
     },
     {
       "id": null,
@@ -10535,7 +11062,9 @@
       "parent_epic": null,
       "parent_us": null,
       "_refs": {
-        "us": [],
+        "us": [
+          "US-202"
+        ],
         "epic": [],
         "req": []
       },
@@ -10633,6 +11162,37 @@
         "req": []
       },
       "rendered_url": "rendered/guidelines/RECOMMENDED_RUFF_CONFIG.html"
+    },
+    {
+      "id": null,
+      "type": "GUIDE",
+      "title": "Code Archaeology Checklist",
+      "path": "../guidelines/CODE_ARCHAEOLOGY_CHECKLIST.md",
+      "url": "../guidelines/CODE_ARCHAEOLOGY_CHECKLIST.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/guidelines/CODE_ARCHAEOLOGY_CHECKLIST.html"
     },
     {
       "id": null,
@@ -76274,17 +76834,17 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 1070,
+      "DOC": 1086,
       "ARCH": 42,
       "COMP": 5,
-      "TEST": 35,
-      "GUIDE": 18,
+      "TEST": 36,
+      "GUIDE": 19,
       "EPIC": 58,
       "US": 616,
       "BUG": 45,
       "REQ": 220
     },
-    "generated_at": "2025-11-06T11:27:52Z"
+    "generated_at": "2025-11-06T11:01:02Z"
   },
   "sources": [
     "docs"

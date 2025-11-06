@@ -8,8 +8,8 @@ def _load_cases():
     return data["cases"]
 
 
-@pytest.mark.contract
-@pytest.mark.asyncio
+@pytest.mark.contract()
+@pytest.mark.asyncio()
 async def test_golden_definitions_against_modular_service():
     m = pytest.importorskip(
         "services.validation.modular_validation_service",

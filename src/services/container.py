@@ -222,54 +222,26 @@ class ServiceContainer:
             from services.interfaces import OrchestratorConfig as V2OrchestratorConfig
 
             # DEF-66: PromptServiceV2 import removed - lazy loaded by orchestrator
-            from services.validation.config import ValidationConfig
-
-            # Validation service: cutover to modular V2 implementation
-            from services.validation.modular_validation_service import (
-                ModularValidationService,
+            # DEF-90: ValidationOrchestratorV2 creation removed - lazy loaded by orchestrator
+            # Create config with use_json_rules for lazy validation loading
+            v2_config = V2OrchestratorConfig(
+                use_json_rules=self.use_json_rules  # DEF-90: Pass for lazy validation
             )
-
-            # US-202: Use cached manager voor 100x betere performance
-            from toetsregels.cached_manager import get_cached_toetsregel_manager
-
-            v2_config = V2OrchestratorConfig()
 
             # DEF-66: PromptServiceV2 is now lazy-loaded by orchestrator (saves 435ms on init)
             # prompt_service = PromptServiceV2()  # REMOVED - lazy loaded
+
+            # DEF-90: ValidationOrchestratorV2 is now lazy-loaded by orchestrator (saves 345ms on init)
+            # modular_validation_service = ...  # REMOVED - lazy loaded
+            # validation_orchestrator = ...  # REMOVED - lazy loaded
 
             # Create AI service (still eager - needed for orchestrator init check)
             ai_service = AIServiceV2(
                 default_model=self.generator_config.gpt.model, use_cache=True
             )
 
-            # Create ModularValidationService (V2)
-            # Tests kunnen JSON-regels uitschakelen om golden-acceptatiebanden te controleren
-            if self.use_json_rules:
-                manager = get_cached_toetsregel_manager()
-                vcfg = ValidationConfig.from_yaml("src/config/validation_rules.yaml")
-            else:
-                manager = None
-                vcfg = None
-
-            modular_validation_service = ModularValidationService(
-                manager,
-                None,
-                vcfg,
-                repository=self.repository(),
-            )
+            # Get cleaning service (needed for orchestrator init)
             cleaning_service = CleaningServiceAdapterV1toV2(self.cleaning_service())
-
-            # Create ValidationOrchestratorV2 wrapping ModularValidationService
-            from services.orchestrators.validation_orchestrator_v2 import (
-                ValidationOrchestratorV2,
-            )
-
-            validation_orchestrator = ValidationOrchestratorV2(
-                validation_service=modular_validation_service,
-                cleaning_service=cleaning_service,
-            )
-            # Expose validation orchestrator separately for services that need direct validation
-            self._instances["validation_orchestrator"] = validation_orchestrator
 
             # Architecture v3.1: Get synonym orchestrator for enrichment
             try:
@@ -286,7 +258,8 @@ class ServiceContainer:
                 # DEF-66: prompt_service=None triggers lazy loading (saves 435ms)
                 prompt_service=None,  # Will be lazy-loaded on first access
                 ai_service=ai_service,
-                validation_service=validation_orchestrator,
+                # DEF-90: validation_service=None triggers lazy loading (saves 345ms, 56%!)
+                validation_service=None,  # Will be lazy-loaded on first access
                 cleaning_service=cleaning_service,
                 repository=self.repository(),
                 # Optional services
@@ -307,20 +280,15 @@ class ServiceContainer:
 
     def validation_orchestrator(self):
         """
-        Get of create de ValidationOrchestratorV2 instance.
+        Get ValidationOrchestratorV2 instance (DEF-90: lazy-loaded via orchestrator).
 
         Returns:
-            Singleton instance van ValidationOrchestratorV2
+            ValidationOrchestratorV2 instance (lazy-loaded from orchestrator property)
         """
-        # If already created (via orchestrator setup), return it
-        if "validation_orchestrator" in self._instances:
-            return self._instances["validation_orchestrator"]
-        # Ensure orchestrator path has initialized validation orchestrator
-        _ = self.orchestrator()
-        if "validation_orchestrator" in self._instances:
-            return self._instances["validation_orchestrator"]
-        msg = "Validation orchestrator not available"
-        raise RuntimeError(msg)
+        # DEF-90: Validation is now lazy-loaded via orchestrator property
+        # Access orchestrator.validation_service to trigger lazy load if needed
+        orchestrator = self.orchestrator()
+        return orchestrator.validation_service
 
     def ontological_classifier(self):
         """
@@ -358,6 +326,39 @@ class ServiceContainer:
             logger.info("OntologicalClassifier (standalone) initialized")
 
         return self._instances["ontological_classifier"]
+
+    def term_based_classifier(self):
+        """
+        Get of create ImprovedOntologyClassifier instance (term-based classifier).
+
+        DEF-35: Term-based classifier met YAML configuratie voor pattern matching.
+        Dit is een snellere, config-driven alternatief voor AI-based classificatie.
+
+        Returns:
+            Singleton instance van ImprovedOntologyClassifier
+
+        Usage:
+            # In UI of service
+            classifier = container.term_based_classifier()
+            result = classifier.classify(begrip, org_ctx, jur_ctx, wet_ctx)
+
+            # Result bevat:
+            # - result.categorie: OntologischeCategorie enum
+            # - result.confidence: 0.0-1.0 score
+            # - result.confidence_label: "HIGH"/"MEDIUM"/"LOW"
+            # - result.all_scores: Dict met alle category scores
+            # - result.reasoning: Menselijke uitleg
+        """
+        if "term_based_classifier" not in self._instances:
+            from ontologie.improved_classifier import ImprovedOntologyClassifier
+
+            # Initialize met default config (loaded from YAML, cached)
+            self._instances["term_based_classifier"] = ImprovedOntologyClassifier()
+            logger.info(
+                "ImprovedOntologyClassifier (term-based) initialized with YAML config"
+            )
+
+        return self._instances["term_based_classifier"]
 
     def web_lookup(self) -> WebLookupServiceInterface:
         """
@@ -711,6 +712,8 @@ class ServiceContainer:
             "gpt4_synonym_suggester": self.gpt4_synonym_suggester,
             "synonym_orchestrator": self.synonym_orchestrator,
             "synonym_service": self.synonym_service,
+            "ontological_classifier": self.ontological_classifier,
+            "term_based_classifier": self.term_based_classifier,
         }
 
         if name in service_map:

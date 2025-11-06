@@ -23,7 +23,7 @@ from src.monitoring.performance_tracker import (
 )
 
 
-@pytest.fixture
+@pytest.fixture()
 def temp_db(tmp_path):
     """Tijdelijke database voor tests."""
     db_path = tmp_path / "test_performance.db"
@@ -34,7 +34,7 @@ def temp_db(tmp_path):
         db_path.unlink()
 
 
-@pytest.fixture
+@pytest.fixture()
 def reset_global_tracker():
     """Reset global tracker tussen tests."""
     reset_tracker()

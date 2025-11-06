@@ -17,7 +17,7 @@ class FakeSyncValidationService:
         )
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_validation_service_adapter_builds_definition_and_validates():
     fake = FakeSyncValidationService()
     adapter = ValidationServiceAdapterV1toV2(fake)
@@ -37,7 +37,7 @@ async def test_validation_service_adapter_builds_definition_and_validates():
     assert fake.last_definition.ontologische_categorie == "juridisch concept"
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_validation_service_adapter_batch_validate_processes_all():
     fake = FakeSyncValidationService()
     adapter = ValidationServiceAdapterV1toV2(fake)

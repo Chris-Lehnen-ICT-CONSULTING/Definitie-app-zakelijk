@@ -10,10 +10,8 @@ met ondersteuning voor meerdere tabs en complete workflow beheer.
 import asyncio  # Asynchrone programmering voor ontologische analyse
 import logging  # Logging faciliteiten voor debug en monitoring
 import os
-from datetime import (
-    UTC,
-    datetime,  # Datum en tijd functionaliteit
-)
+from datetime import datetime  # Datum en tijd functionaliteit
+from datetime import UTC
 from typing import Any  # Type hints voor betere code documentatie
 
 import streamlit as st  # Streamlit web interface framework
@@ -37,7 +35,6 @@ from integration.definitie_checker import (  # Definitie integratie controle
 
 # Nieuwe services imports
 from services import get_definition_service
-from ui.components.context_state_cleaner import init_context_cleaner
 from ui.components.definition_edit_tab import (
     DefinitionEditTab,  # Edit interface voor definities
 )
@@ -218,9 +215,6 @@ class TabbedInterface:
 
     def render(self):
         """Render de volledige tabbed interface."""
-        # Clean session state on initialization - FORCE CLEAN voor problematische waardes
-        init_context_cleaner(force_clean=True)
-
         # App header
         self._render_header()
 

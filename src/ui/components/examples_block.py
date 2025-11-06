@@ -17,7 +17,7 @@ from typing import Any
 import streamlit as st
 
 from ui.helpers.examples import resolve_examples
-from ui.session_state import SessionStateManager
+from ui.session_state import SessionStateManager, force_cleanup_voorbeelden
 
 logger = logging.getLogger(__name__)
 
@@ -34,8 +34,52 @@ _VOORBEELD_FIELD_CONFIG = [
 ]
 
 
+def _reset_voorbeelden_context(prefix: str, definition_id: int | None = None) -> None:
+    """Reset voorbeelden context when crossing definition boundaries.
+
+    Tracks last synced definition ID and forces cleanup when it changes.
+    Handles None IDs correctly using sentinel object comparison.
+
+    Args:
+        prefix: Session key prefix (e.g., 'edit_106')
+        definition_id: Current definition ID (None for unsaved definitions)
+
+    Business Logic:
+        - Tracks last synced definition per prefix
+        - Forces cleanup if definition_id changes
+        - Uses sentinel object to handle None IDs correctly
+        - Prevents stale voorbeelden across definition switches
+
+    Example:
+        # Before rendering voorbeelden in Edit tab
+        _reset_voorbeelden_context("edit_106", definition_id=106)
+        _sync_voorbeelden_to_widgets(voorbeelden, "edit_106")
+
+    DEF-110: Fixes stale voorbeelden bug when switching definitions.
+    """
+    # Track context per prefix
+    context_key = f"{prefix}_context_id"
+
+    # Sentinel for first-time initialization (handles None != None correctly)
+    sentinel = object()
+    last_definition_id = SessionStateManager.get_value(context_key, sentinel)
+
+    # Force cleanup if context changed
+    if last_definition_id is not definition_id:
+        force_cleanup_voorbeelden(prefix)
+        SessionStateManager.set_value(context_key, definition_id)
+
+        # Debug logging
+        logger.debug(
+            f"[DEF-110 CONTEXT RESET] {prefix}: {last_definition_id} → {definition_id}"
+        )
+
+
 def _sync_voorbeelden_to_widgets(
-    voorbeelden: dict[str, Any], prefix: str, force_overwrite: bool = False
+    voorbeelden: dict[str, Any],
+    prefix: str,
+    force_overwrite: bool = False,
+    definition_id: int | None = None,
 ) -> None:
     """Sync voorbeelden dict to Streamlit widget session state keys.
 
@@ -47,15 +91,34 @@ def _sync_voorbeelden_to_widgets(
         prefix: Session key prefix (e.g. 'edit_42')
         force_overwrite: If True, overwrite existing widget values (post-generation sync)
                         If False, only initialize unset widgets (pre-widget-declaration sync)
+        definition_id: Definition ID for tracking (triggers force resync on change)
 
     Business Logic:
+        - Tracks last synced definition ID per prefix (prevents stale state)
+        - Forces resync when definition_id changes (prevents stale data)
+        - Preserves user edits within same definition
         - Gebruikt SessionStateManager voor alle session state toegang (VERPLICHT)
-        - Preserveert user edits bij force_overwrite=False
         - Formatted output per field type (list vs string, newline vs comma join)
     """
 
     def k(name: str) -> str:
         return f"{prefix}_{name}"
+
+    # Track last synced definition for this prefix (prevents stale voorbeelden)
+    last_synced_key = f"{prefix}_last_synced_id"
+    last_synced = SessionStateManager.get_value(last_synced_key, None)
+
+    # Force resync if definition changed (prevents stale state on definition switch)
+    # Note: Only track/compare when definition_id is provided to avoid false positives
+    if definition_id is not None:
+        if last_synced != definition_id:
+            force_overwrite = True
+            logger.info(
+                f"🔄 Definition switch detected ({last_synced} → {definition_id}). "
+                f"Forcing voorbeelden resync for prefix '{prefix}'"
+            )
+        # Update tracking even if no switch detected (idempotent, prevents None→int false positives)
+        SessionStateManager.set_value(last_synced_key, definition_id)
 
     try:
         for field, widget_suffix, join_sep in _VOORBEELD_FIELD_CONFIG:
@@ -65,6 +128,10 @@ def _sync_voorbeelden_to_widgets(
             if not force_overwrite:
                 existing = SessionStateManager.get_value(widget_key, None)
                 if existing is not None:
+                    logger.debug(
+                        f"Preserving existing widget value for {widget_key} "
+                        f"(def_id={definition_id})"
+                    )
                     continue
 
             val = voorbeelden.get(field, [])
@@ -212,7 +279,10 @@ def render_examples_block(
                         # DEF-56 FIX: FORCE sync naar widget keys VOOR st.rerun()
                         # Safety measure voor Streamlit widget state race condition
                         _sync_voorbeelden_to_widgets(
-                            result, state_prefix, force_overwrite=True
+                            result,
+                            state_prefix,
+                            force_overwrite=True,
+                            definition_id=getattr(definition, "id", None),
                         )
                         logger.info("[GENERATE] Completed sync to widget keys")
 
@@ -352,7 +422,10 @@ def render_examples_block(
             # DEF-56 FIX: Sync voorbeelden naar widget keys VOOR declaratie
             # Dit zorgt dat widgets auto-syncen met session state na st.rerun()
             _sync_voorbeelden_to_widgets(
-                current_examples, state_prefix, force_overwrite=False
+                current_examples,
+                state_prefix,
+                force_overwrite=False,
+                definition_id=getattr(definition, "id", None),
             )
 
             # DEF-56 FIX: Gebruik ALLEEN key parameter (geen value)

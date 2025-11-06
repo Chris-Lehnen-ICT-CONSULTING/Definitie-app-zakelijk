@@ -78,7 +78,7 @@ class _StubWebLookupService:
         return [r1, r2]
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_e2e_orchestrator_prompt_augmentation(monkeypatch):
     from services.interfaces import GenerationRequest, OrchestratorConfig
     from services.orchestrators.definition_orchestrator_v2 import (
