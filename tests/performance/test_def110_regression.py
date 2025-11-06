@@ -24,7 +24,7 @@ import pytest
 class TestDEF110Regression:
     """Monitor performance regression patterns from DEF-110."""
 
-    @pytest.mark.performance
+    @pytest.mark.performance()
     def test_no_rerun_cascade_in_logs(self, tmp_path):
         """
         CRITICAL: Verify no rerun cascade occurs during startup.
@@ -82,7 +82,7 @@ class TestDEF110Regression:
             context_clean_count <= 2
         ), f"REGRESSION: {context_clean_count}x context cleanups (expected ≤2). Check {log_file}"
 
-    @pytest.mark.performance
+    @pytest.mark.performance()
     def test_rule_cache_loads_once(self, tmp_path):
         """
         CRITICAL: Verify RuleCache is loaded only 1x during startup.
@@ -135,8 +135,8 @@ class TestDEF110Regression:
             rule_cache_init_count <= 1
         ), f"REGRESSION: RuleCache loaded {rule_cache_init_count}x (expected 1x). Check {log_file}"
 
-    @pytest.mark.performance
-    @pytest.mark.slow
+    @pytest.mark.performance()
+    @pytest.mark.slow()
     def test_startup_time_acceptable(self, tmp_path):
         """
         WARNING: Verify startup completes in reasonable time.
@@ -202,7 +202,7 @@ class TestDEF110Regression:
                 match=f"WARNING: Startup took {elapsed:.1f}s (>5s threshold)",
             )
 
-    @pytest.mark.performance
+    @pytest.mark.performance()
     def test_no_force_clean_in_render_methods(self):
         """
         STRUCTURAL: Verify force_clean=True is not used in render() methods.
@@ -251,7 +251,7 @@ class TestDEF110Regression:
             msg += "\nThis pattern causes rerun cascades (DEF-110)!"
             pytest.fail(msg)
 
-    @pytest.mark.performance
+    @pytest.mark.performance()
     def test_context_cleaner_idempotent_guard(self):
         """
         STRUCTURAL: Verify context cleaner has idempotent guard.
@@ -263,10 +263,10 @@ class TestDEF110Regression:
         - init_context_cleaner has default force_clean=False
         - Function checks context_cleaned flag before executing
         """
-        from ui.components.context_state_cleaner import init_context_cleaner
-
         # Verify signature
         import inspect
+
+        from ui.components.context_state_cleaner import init_context_cleaner
 
         sig = inspect.signature(init_context_cleaner)
         assert "force_clean" in sig.parameters, "Missing force_clean parameter"
@@ -286,7 +286,7 @@ class TestDEF110Regression:
         ), "Guard not using SessionStateManager"
 
 
-@pytest.mark.performance
+@pytest.mark.performance()
 class TestPerformanceBaseline:
     """Baseline performance metrics for regression detection."""
 

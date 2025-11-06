@@ -27,7 +27,7 @@ def verify_fix():
     log_file = Path("logs/verification_run.log")
     log_file.parent.mkdir(exist_ok=True)
 
-    print(f"\n1. Starting Streamlit app...")
+    print("\n1. Starting Streamlit app...")
     print(f"   Log: {log_file}")
 
     start_time = time.time()
@@ -39,7 +39,10 @@ def verify_fix():
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             text=True,
-            env={**subprocess.os.environ, "OPENAI_API_KEY": subprocess.os.environ.get("OPENAI_API_KEY_PROD", "")}
+            env={
+                **subprocess.os.environ,
+                "OPENAI_API_KEY": subprocess.os.environ.get("OPENAI_API_KEY_PROD", ""),
+            },
         )
 
         # Capture first 10 seconds of output
@@ -73,7 +76,7 @@ def verify_fix():
         rerun_count = full_output.count("Rerun requested")
         context_cleans = full_output.count("Context state cleaned")
 
-        print(f"\n3. Performance Metrics:")
+        print("\n3. Performance Metrics:")
         print(f"   ✓ Startup time: {elapsed:.1f}s (target: <10s)")
         print(f"   ✓ RuleCache loads: {rule_cache_loads}x (target: 1x)")
         print(f"   ✓ Reruns: {rerun_count}x")
@@ -87,7 +90,9 @@ def verify_fix():
             success = False
 
         if rule_cache_loads > 1:
-            print(f"\n   ❌ FAIL: RuleCache loaded multiple times ({rule_cache_loads}x)")
+            print(
+                f"\n   ❌ FAIL: RuleCache loaded multiple times ({rule_cache_loads}x)"
+            )
             success = False
 
         if context_cleans > 2:  # Allow 1-2 cleanups (initial + potential rerun)
@@ -95,7 +100,7 @@ def verify_fix():
 
         if success:
             print("\n✅ VERIFICATION PASSED")
-            print(f"   Fix is working correctly - no performance regression detected")
+            print("   Fix is working correctly - no performance regression detected")
             return 0
         else:
             print("\n❌ VERIFICATION FAILED")
