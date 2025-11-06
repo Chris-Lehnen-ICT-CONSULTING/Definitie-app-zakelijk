@@ -18,6 +18,7 @@ if str(src_path) not in sys.path:
     sys.path.insert(0, str(src_path))
 
 import streamlit as st
+
 from ui.session_state import SessionStateManager
 from ui.tabbed_interface import TabbedInterface
 from utils.exceptions import log_and_display_error
@@ -120,6 +121,39 @@ def main():
         )  # Toon gebruikersvriendelijke fout
 
 
+def _is_heavy_operation(render_ms: float) -> bool:
+    """Detect heavy operations based on render time.
+
+    Heavy operations (definition generation, voorbeelden generation, etc.) involve
+    multiple sequential API calls and naturally take 5+ seconds to complete.
+    Pure UI reruns (page navigation, state updates) should complete in <200ms.
+
+    This timing-based approach is more reliable than flag-based detection because:
+    - Flags are set DURING render (in button handlers), not BEFORE
+    - Checking flags before render starts always returns False
+    - Timing-based check happens AFTER render completes (has actual data)
+
+    Args:
+        render_ms: Render time in milliseconds (measured AFTER render completes)
+
+    Returns:
+        True if this appears to be a heavy operation (API calls, business logic)
+        False if this is a pure UI rerun (navigation, state updates)
+
+    Examples:
+        - 50ms render → False (UI-only rerun)
+        - 35,000ms render → True (6 voorbeelden API calls @ 5s each)
+        - 4,000ms render → False (below threshold, probably single fast API call)
+
+    History:
+        - DEF-111: Replaced flag-based detection to fix false alarm pollution
+        - Prior: Used session_state flags (generating_definition, etc.) but they
+                 were checked before being set, causing 74,569% "regressions"
+    """
+    heavy_threshold_ms = 5000  # 5 seconds
+    return render_ms > heavy_threshold_ms
+
+
 def _track_streamlit_metrics(init_ms: float, interface_ms: float, render_ms: float):
     """Track separate Streamlit performance metrics for granular monitoring.
 
@@ -149,12 +183,11 @@ def _track_streamlit_metrics(init_ms: float, interface_ms: float, render_ms: flo
         tracker = get_tracker()
         total_ms = init_ms + interface_ms + render_ms
 
-        # Detect if this is a heavy operation by checking session state flags
-        is_heavy_operation = (
-            SessionStateManager.get_value("generating_definition", False)
-            or SessionStateManager.get_value("validating_definition", False)
-            or SessionStateManager.get_value("saving_to_database", False)
-        )
+        # Detect if this is a heavy operation by timing (checked AFTER render completes)
+        # Heavy operations (definition generation, voorbeelden) take 5+ seconds
+        # UI-only reruns complete in <200ms
+        # DEF-111: Replaced flag-based detection to fix false alarm pollution
+        is_heavy_operation = _is_heavy_operation(render_ms)
 
         # Track individual metrics
         tracker.track_metric(
