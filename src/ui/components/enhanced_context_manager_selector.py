@@ -7,7 +7,6 @@ import logging
 from typing import Any, ClassVar
 
 import streamlit as st
-
 from services.context.context_manager import ContextSource, get_context_manager
 from validation.sanitizer import ContentType, SanitizationLevel, get_sanitizer
 

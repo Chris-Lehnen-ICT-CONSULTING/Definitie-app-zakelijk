@@ -6,7 +6,6 @@ en 3-tier confidence scoring.
 """
 
 import pytest
-
 from domain.ontological_categories import OntologischeCategorie
 from ontologie.improved_classifier import ImprovedOntologyClassifier
 from services.classification.term_config import (

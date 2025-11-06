@@ -7,7 +7,6 @@ import logging
 from unittest.mock import Mock, call, patch
 
 import pytest
-
 from services.definition_generator_context import HybridContextManager
 from services.interfaces import GenerationRequest
 

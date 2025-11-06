@@ -8,7 +8,6 @@ from pathlib import Path
 from unittest.mock import MagicMock, Mock, patch
 
 import pytest
-
 from database.definitie_repository import DefinitieRecord, DefinitieRepository
 from services.data_aggregation_service import (
     DataAggregationService,

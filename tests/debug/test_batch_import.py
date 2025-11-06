@@ -11,8 +11,9 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 def test_batch_import():
     """Simulate batch CSV import like management_tab does."""
-    from src.services.container import ServiceContainer
     from ui.helpers.async_bridge import run_async_safe
+
+    from src.services.container import ServiceContainer
 
     container = ServiceContainer()
     import_service = container.import_service()

@@ -8,7 +8,6 @@ in één bestand te hebben. Dit voorkomt het God Object anti-pattern.
 import logging
 
 import streamlit as st
-
 from database.definitie_repository import DefinitieRepository
 from services.service_factory import get_definition_service
 from ui.session_state import SessionStateManager

@@ -15,7 +15,6 @@ from functools import wraps
 from typing import Any
 
 from openai import AsyncOpenAI, OpenAIError
-
 from utils.cache import _cache, cache_gpt_call
 
 logger = logging.getLogger(__name__)

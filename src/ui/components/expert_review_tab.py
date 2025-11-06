@@ -6,14 +6,14 @@ import contextlib
 from datetime import datetime
 
 import streamlit as st
-
-from config.config_manager import ConfigSection, get_config
 from database.definitie_repository import (
     DefinitieRecord,
     DefinitieRepository,
     DefinitieStatus,
 )
 from ui.session_state import SessionStateManager
+
+from config.config_manager import ConfigSection, get_config
 
 
 class ExpertReviewTab:

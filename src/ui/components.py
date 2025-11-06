@@ -9,6 +9,8 @@ from typing import Any
 
 import pandas as pd
 import streamlit as st
+from ui.session_state import SessionStateManager
+from utils.exceptions import log_and_display_error
 
 from config.config_manager import ConfigSection, get_config
 from config.verboden_woorden import (
@@ -16,8 +18,6 @@ from config.verboden_woorden import (
     log_test_verboden_woord,
     sla_verboden_woorden_op,
 )
-from ui.session_state import SessionStateManager
-from utils.exceptions import log_and_display_error
 
 
 class UIComponents:

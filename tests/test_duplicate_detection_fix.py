@@ -5,7 +5,6 @@ Test verifieert dat categorie WEL onderdeel is van de unieke key.
 """
 
 import pytest
-
 from database.definitie_repository import (
     DefinitieRecord,
     DefinitieStatus,
