@@ -20,7 +20,7 @@
     <a class="back" href="../../index.html">← Terug naar Portal</a>
     <h1>Streamlit Best Practices & Anti-Patterns</h1>
 
-<p><strong>Status:</strong> Active | <strong>Last Updated:</strong> 2025-10-29 | <strong>Source:</strong> DEF-56 Root Cause Analysis</p>
+<p><strong>Status:</strong> Active | <strong>Last Updated:</strong> 2025-11-06 | <strong>Source:</strong> DEF-56 & DEF-110 Root Cause Analysis</p>
 
 <p>Deze richtlijnen zijn gebaseerd op concrete bugs gevonden in DefinitieAgent en gevalideerd door Streamlit officiële documentatie (Context7 MCP) en deep research (Perplexity MCP).</p>
 
@@ -199,6 +199,68 @@ st.session_state["my_text"] = "default"  # Te laat!
 SessionStateManager.set_value("my_text", "default")
 st.text_area("Text", key="my_text")</code></pre>
 
+<h3>4. State Mutation in render() Methods (DEF-110)</h3>
+
+<p><strong>Problem:</strong> State mutations in render() methods triggeren rerun cascades → 74,569% performance regression.</p>
+
+<p><strong>Root Cause:</strong> Streamlit's purity principle vereist dat render() methods PURE zijn (geen side effects).</p>
+
+<pre><code># ❌ CRITICAL: State mutation in render() → Rerun cascade!
+class TabbedInterface:
+    def render(self):
+        """Render de volledige tabbed interface."""
+        # ❌ NEVER DO THIS: force_clean=True triggers state mutation
+        init_context_cleaner(force_clean=True)  # ← Causes cascade!
+
+        # App header
+        self._render_header()
+        # ...
+
+# ✅ CORRECT: State cleanup in app initialization (main.py)
+def main():
+    """Hoofd applicatie functie."""
+    # Initialize session state ONCE at app startup
+    SessionStateManager.initialize_session_state()
+
+    # init_context_cleaner() is called via default values
+    # OR with force_clean=False (idempotent guard)
+
+    # Render interface (PURE - no state mutations!)
+    interface = get_tabbed_interface()
+    interface.render()  # ✅ Pure render</code></pre>
+
+<p><strong>Mechanisme van de Cascade:</strong></p>
+<ol>
+<li>`render()` method roept `init_context_cleaner(force_clean=True)` aan</li>
+<li>Dit muteert session state → Streamlit detecteert change</li>
+<li>Streamlit triggert RERUN → nieuwe Python process</li>
+<li>Alle singletons gereset (RuleCache, ServiceContainer, etc.)</li>
+<li>**Repeat 4x** → 4x startup overhead</li>
+</ol>
+
+<p><strong>Impact (DEF-110):</strong></p>
+<ul>
+<li>Startup: 1.2s → 35s (2,817% regressie)</li>
+<li>RuleCache: 1x load → 4x loads</li>
+<li>ServiceContainer: 1x init → 4x inits</li>
+<li>Alle US-202, DEF-66, DEF-90 optimalisaties tenietgedaan</li>
+</ul>
+
+<p><strong>Preventie:</strong></p>
+<ul>
+<li>✅ **NEVER** call cleanup/state mutation functions in render()</li>
+<li>✅ Use idempotent guards (`if context_cleaned is None`)</li>
+<li>✅ Cleanup in `main()` initialization, NOT render()</li>
+<li>✅ Pre-commit hook detecteert `force_clean=True` in render methods</li>
+</ul>
+
+<p><strong>Enforcement (Pre-Commit):</strong></p>
+<pre><code># Automated check in scripts/check_streamlit_patterns.py
+- Detect force_clean=True in any UI code → CRITICAL ERROR
+- Warn on state mutations in render() methods → HIGH WARNING</code></pre>
+
+<p><strong>Reference:</strong> <code>docs/backlog/EPIC-XXX/DEF-110/DEF-110-postmortem.md</code></p>
+
 <p>---</p>
 
 <h2>🧪 Testing Patterns</h2>
@@ -333,15 +395,26 @@ def test_text_area_populates_after_generation():
 
 <p><strong>Automated Checks:</strong></p>
 <ul>
-<li>❌ Detect `st.text_area(value=..., key=...)` combinatie</li>
-<li>❌ Detect direct `st.session_state[...]` access in UI modules</li>
-<li>❌ Detect generieke widget keys ("name", "text", etc.)</li>
+<li>❌ Detect `st.text_area(value=..., key=...)` combinatie → **CRITICAL**</li>
+<li>❌ Detect direct `st.session_state[...]` access in UI modules → **HIGH**</li>
+<li>❌ Detect generieke widget keys ("name", "text", etc.) → **MEDIUM**</li>
+<li>❌ Detect `force_clean=True` in render() methods (DEF-110) → **CRITICAL**</li>
+<li>⚠️  Warn on state mutations in render() methods (DEF-110) → **HIGH**</li>
 <li>✅ Enforce SessionStateManager import in UI modules</li>
+</ul>
+
+<p><strong>Performance Tests:</strong></p>
+<ul>
+<li>`tests/performance/test_def110_regression.py`: Monitor rerun cascades</li>
+<li>Auto-fails bij: >1 rerun, >2 context cleanups, >15s startup</li>
+<li>Validates: No `force_clean=True` in codebase</li>
 </ul>
 
 <p>---</p>
 
-<p><strong>Status:</strong> Deze patterns zijn gevalideerd door DEF-56 fix en moeten worden toegepast op ALLE Streamlit components in DefinitieAgent.</p>
+<p><strong>Status:</strong> Deze patterns zijn gevalideerd door DEF-56 en DEF-110 fixes en moeten worden toegepast op ALLE Streamlit components in DefinitieAgent.</p>
+
+<p><strong>Performance Guarantee:</strong> Met deze patterns blijft startup tijd <5s, geen rerun cascades, en alle caching optimalisaties (US-202, DEF-66, DEF-90) blijven intact.</p>
 
   </div>
 </body>
