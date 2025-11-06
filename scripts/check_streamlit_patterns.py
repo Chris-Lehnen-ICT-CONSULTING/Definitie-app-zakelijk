@@ -95,7 +95,32 @@ class StreamlitPatternChecker:
                     )
                 )
 
-        # 4️⃣ MEDIUM: Late state initialization (after widget)
+        # 4️⃣ CRITICAL: DEF-110 - force_clean=True in UI code (causes rerun cascade)
+        # Pattern: init_context_cleaner(force_clean=True) or any function with force_clean=True
+        if re.search(r"force_clean\s*=\s*True", line):
+            self.errors.append(
+                (
+                    file_path,
+                    line_num,
+                    "CRITICAL: force_clean=True detected! This causes state mutation and rerun cascades. Remove or use force_clean=False.",
+                )
+            )
+
+        # 5️⃣ HIGH: DEF-110 - State mutation in render() methods
+        # Pattern: SessionStateManager.set_value() or .clear_value() inside render methods
+        # Note: This is heuristic-based, requires context awareness for accuracy
+        if re.search(r"SessionStateManager\.(set_value|clear_value|set_values)", line):
+            # Check if we're likely in a render() method (heuristic)
+            # Full AST analysis would be more accurate, but this catches common cases
+            self.warnings.append(
+                (
+                    file_path,
+                    line_num,
+                    "HIGH: State mutation detected. Ensure this is NOT in render() method (causes rerun cascade). See DEF-110 post-mortem.",
+                )
+            )
+
+        # 6️⃣ MEDIUM: Late state initialization (after widget)
         # This requires multi-line context, so we check for pattern
         if re.search(r"st\.(text_area|text_input).*key\s*=\s*[\"'](\w+)[\"']", line):
             key_match = re.search(r"key\s*=\s*[\"'](\w+)[\"']", line)
