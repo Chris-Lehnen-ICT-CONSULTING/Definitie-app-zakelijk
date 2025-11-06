@@ -327,6 +327,39 @@ class ServiceContainer:
 
         return self._instances["ontological_classifier"]
 
+    def term_based_classifier(self):
+        """
+        Get of create ImprovedOntologyClassifier instance (term-based classifier).
+
+        DEF-35: Term-based classifier met YAML configuratie voor pattern matching.
+        Dit is een snellere, config-driven alternatief voor AI-based classificatie.
+
+        Returns:
+            Singleton instance van ImprovedOntologyClassifier
+
+        Usage:
+            # In UI of service
+            classifier = container.term_based_classifier()
+            result = classifier.classify(begrip, org_ctx, jur_ctx, wet_ctx)
+
+            # Result bevat:
+            # - result.categorie: OntologischeCategorie enum
+            # - result.confidence: 0.0-1.0 score
+            # - result.confidence_label: "HIGH"/"MEDIUM"/"LOW"
+            # - result.all_scores: Dict met alle category scores
+            # - result.reasoning: Menselijke uitleg
+        """
+        if "term_based_classifier" not in self._instances:
+            from ontologie.improved_classifier import ImprovedOntologyClassifier
+
+            # Initialize met default config (loaded from YAML, cached)
+            self._instances["term_based_classifier"] = ImprovedOntologyClassifier()
+            logger.info(
+                "ImprovedOntologyClassifier (term-based) initialized with YAML config"
+            )
+
+        return self._instances["term_based_classifier"]
+
     def web_lookup(self) -> WebLookupServiceInterface:
         """
         Get of create ModernWebLookupService instance.
@@ -679,6 +712,8 @@ class ServiceContainer:
             "gpt4_synonym_suggester": self.gpt4_synonym_suggester,
             "synonym_orchestrator": self.synonym_orchestrator,
             "synonym_service": self.synonym_service,
+            "ontological_classifier": self.ontological_classifier,
+            "term_based_classifier": self.term_based_classifier,
         }
 
         if name in service_map:

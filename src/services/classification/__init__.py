@@ -1,15 +1,17 @@
 """
 Classification Services Package.
 
-Bevat services voor ontologische classificatie van begrippen.
+DEF-35: Term-Based Classifier met externe configuratie.
 """
 
-from src.services.classification.ontological_classifier import (
-    ClassificationConfidence,
-    OntologicalClassifier,
+from services.classification.term_config import (
+    TermPatternConfig,
+    load_term_config,
+    reset_config_cache,
 )
 
 __all__ = [
-    "ClassificationConfidence",
-    "OntologicalClassifier",
+    "TermPatternConfig",
+    "load_term_config",
+    "reset_config_cache",
 ]
