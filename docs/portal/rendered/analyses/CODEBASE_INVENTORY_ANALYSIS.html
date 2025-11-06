@@ -1,0 +1,1258 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DEFINITEAGENT CODEBASE INVENTORY & ARCHITECTURE ANALYSIS</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>DEFINITEAGENT CODEBASE INVENTORY & ARCHITECTURE ANALYSIS</h1>
+
+<p><strong>Date:</strong> November 6, 2025</p>
+<p><strong>Thoroughness Level:</strong> VERY THOROUGH</p>
+<p><strong>Current Branch:</strong> feature/DEF-35-term-classifier-mvp</p>
+<p><strong>Status:</strong> 91,157 LOC across 343 source files + 64,502 test LOC across 267 test files</p>
+
+<p>---</p>
+
+<h2>EXECUTIVE SUMMARY</h2>
+
+<p><strong>Architecture Health Score: 7.2/10</strong></p>
+
+<p>DefinitieAgent is a mature single-user Dutch legal definition generator built with a service-oriented architecture and dependency injection pattern. The codebase demonstrates good structural organization with clear separation between services, UI, validation, and database layers. However, there are indicators of technical debt accumulation in the form of large components, utility redundancy, and some architectural inconsistencies in session state management.</p>
+
+<h3>Key Findings at a Glance</h3>
+
+<p>| Metric | Value | Assessment |</p>
+<p>|--------|-------|-----------|</p>
+<p>| Total Python files | 343 | Moderate complexity |</p>
+<p>| Total LOC | 91,157 | Substantial codebase |</p>
+<p>| Avg file size | 265 LOC | Healthy |</p>
+<p>| Large files (>1000 LOC) | 14 | Concerning (4% of codebase) |</p>
+<p>| Very large files (>1500 LOC) | 6 | Needs refactoring |</p>
+<p>| Test coverage ratio | 0.71:1 | Adequate |</p>
+<p>| Circular dependencies | 20 functions with lazy imports | Manageable but could improve |</p>
+<p>| External integrations | 4 major (OpenAI, Wikipedia, SRU, Database) | Well-managed |</p>
+<p>| Validation rules | 46 rules + 46 validators = 92 files | Good modularity |</p>
+
+<p>---</p>
+
+<h2>PART 1: ARCHITECTURE MAP</h2>
+
+<h3>1.1 High-Level Architecture</h3>
+
+<pre><code>PRESENTATION LAYER
+├── main.py (entry point)
+├── ui/
+│   ├── tabbed_interface.py (1,585 LOC) - Main UI coordinator
+│   ├── session_state.py - Session state manager (Streamlit)
+│   ├── components/ (12 files, 7,562 LOC)
+│   │   ├── definition_generator_tab.py (2,412 LOC) ⚠️ VERY LARGE
+│   │   ├── definition_edit_tab.py (1,604 LOC) ⚠️ LARGE
+│   │   ├── expert_review_tab.py (1,417 LOC)
+│   │   ├── examples_block.py (607 LOC)
+│   │   └── ... (8 other components)
+│   └── helpers/ (5 files, 1,098 LOC)
+│
+SERVICE LAYER
+├── services/ (102 files, 33,852 LOC)
+│   ├── container.py (823 LOC) - Dependency injection
+│   ├── interfaces.py (1,212 LOC) ⚠️ LARGE interface definitions
+│   ├── orchestrators/ (3 files, 1,527 LOC)
+│   │   ├── definition_orchestrator_v2.py (1,231 LOC)
+│   │   └── validation_orchestrator_v2.py
+│   ├── validation/ (10 files, 3,318 LOC)
+│   │   └── modular_validation_service.py (1,631 LOC)
+│   ├── web_lookup/ (16 files, 5,335 LOC)
+│   │   ├── sru_service.py (1,251 LOC)
+│   │   ├── modern_web_lookup_service.py (1,190 LOC)
+│   │   └── ... (14 other lookup services)
+│   ├── prompts/ (3 files + 19 modules, 5,403 LOC)
+│   │   └── prompt_service_v2.py
+│   └── ... (50+ other service modules)
+│
+VALIDATION LAYER
+├── toetsregels/ (125 files, 22,508 LOC) - Validation rules
+│   ├── regels/ (46 Python rule implementations)
+│   │   ├── ARAI-01 to ARAI-06 (9 rules - Accessibility/Authority)
+│   │   ├── CON-01 to CON-02 (2 rules - Consistency)
+│   │   ├── ESS-01 to ESS-05 (5 rules - Essential)
+│   │   ├── INT-01 to INT-09 (9 rules - Integrity)
+│   │   ├── SAM-01 to SAM-08 (8 rules - Sample)
+│   │   ├── STR-01 to STR-09 (9 rules - Structure)
+│   │   └── VER-01 to VER-03 (3 rules - Verification)
+│   └── validators/ (46 validator implementations)
+│
+PERSISTENCE LAYER
+├── database/ (3 files, 2,760 LOC)
+│   ├── definitie_repository.py (2,131 LOC) ⚠️ LARGE
+│   ├── schema.sql
+│   └── migrate_database.py (622 LOC)
+├── repositories/ (3 files, 1,785 LOC)
+│   ├── synonym_registry.py (1,194 LOC)
+│   └── synonym_repository.py (578 LOC)
+│
+UTILITIES &amp; INFRASTRUCTURE
+├── utils/ (19 files, 6,028 LOC)
+│   ├── optimized_resilience.py (806 LOC)
+│   ├── resilience.py (729 LOC)
+│   ├── smart_rate_limiter.py (630 LOC)
+│   ├── cache.py (602 LOC)
+│   └── ... (15 other utilities)
+├── config/ (9 files, 2,075 LOC)
+├── validation/ (6 files, 3,551 LOC)
+├── voorbeelden/ (6 files, 2,457 LOC)
+└── ... (20+ other infrastructure modules)</code></pre>
+
+<h3>1.2 Dependency Flow</h3>
+
+<p><strong>Primary Flow:</strong></p>
+<pre><code>main.py
+  └─&gt; ui/tabbed_interface.py
+        ├─&gt; ui/session_state.py (SessionStateManager)
+        ├─&gt; ui/components/* (UI tabs)
+        └─&gt; services/container.py (ServiceContainer)
+              ├─&gt; services/orchestrators/definition_orchestrator_v2.py
+              │     ├─&gt; services/validation/modular_validation_service.py
+              │     ├─&gt; services/prompts/prompt_service_v2.py
+              │     ├─&gt; services/web_lookup/modern_web_lookup_service.py
+              │     └─&gt; services/ai_service_v2.py
+              ├─&gt; database/definitie_repository.py
+              └─&gt; ... (30+ other services)</code></pre>
+
+<p><strong>Validation Pipeline:</strong></p>
+<pre><code>definition_generator_tab.py
+  └─&gt; definition_orchestrator_v2.py
+        └─&gt; modular_validation_service.py
+              ├─&gt; toetsregels/rule_cache.py (caching layer - US-202)
+              └─&gt; 46 individual validation rules
+                    ├─&gt; ARAI-* (authority/accessibility)
+                    ├─&gt; CON-* (consistency)
+                    ├─&gt; ESS-* (essential)
+                    ├─&gt; INT-* (integrity)
+                    ├─&gt; SAM-* (samples)
+                    ├─&gt; STR-* (structure)
+                    └─&gt; VER-* (verification)</code></pre>
+
+<h3>1.3 Core Services</h3>
+
+<h4>ValidationOrchestratorV2</h4>
+<ul>
+<li>**Location:** `src/services/orchestrators/validation_orchestrator_v2.py`</li>
+<li>**Purpose:** Orchestrate entire validation workflow</li>
+<li>**Key responsibilities:** Rule execution, caching, result compilation</li>
+<li>**Status:** Active, heavily used</li>
+</ul>
+
+<h4>DefinitionOrchestratorV2</h4>
+<ul>
+<li>**Location:** `src/services/orchestrators/definition_orchestrator_v2.py` (1,231 LOC)</li>
+<li>**Purpose:** Main orchestrator for definition generation workflow</li>
+<li>**Key responsibilities:** Generation, validation, context enrichment</li>
+<li>**Imports:** 17 major dependencies</li>
+<li>**Status:** Active, core business logic</li>
+</ul>
+
+<h4>ModularValidationService</h4>
+<ul>
+<li>**Location:** `src/services/validation/modular_validation_service.py` (1,631 LOC)</li>
+<li>**Purpose:** Execute modular validation rules</li>
+<li>**Key responsibilities:** Rule loading, execution, result aggregation</li>
+<li>**Performance:** 77% faster than pre-US-202 (rule caching optimized)</li>
+<li>**Status:** Active, performance-optimized</li>
+</ul>
+
+<h4>PromptServiceV2</h4>
+<ul>
+<li>**Location:** `src/services/prompts/prompt_service_v2.py` (545 LOC)</li>
+<li>**Purpose:** Generate context-aware prompts for GPT-4</li>
+<li>**Key responsibilities:** Template management, module composition</li>
+<li>**Token usage:** ~7,250 tokens with current prompts (optimization opportunity)</li>
+<li>**Status:** Active</li>
+</ul>
+
+<h4>ModernWebLookupService</h4>
+<ul>
+<li>**Location:** `src/services/modern_web_lookup_service.py` (1,190 LOC)</li>
+<li>**Purpose:** Unified web lookup interface (Wikipedia, SRU)</li>
+<li>**Key responsibilities:** Provider abstraction, ranking, caching</li>
+<li>**Status:** Active</li>
+</ul>
+
+<h4>ServiceContainer</h4>
+<ul>
+<li>**Location:** `src/services/container.py` (823 LOC)</li>
+<li>**Purpose:** Dependency injection & service management</li>
+<li>**Key responsibilities:** Service instantiation, configuration, singleton management</li>
+<li>**Notes:** Implements lazy loading pattern; uses unique container IDs for tracking</li>
+<li>**Status:** Active, well-maintained</li>
+</ul>
+
+<h3>1.4 Database Layer</h3>
+
+<p><strong>Schema:</strong> SQLite with support for 5 core ontological categories + 7 UFO categories</p>
+
+<p><strong>Main Tables:</strong></p>
+<ul>
+<li>`definities` - Core definition storage (18 columns)</li>
+<li>`definitie_geschiedenis` - Audit trail</li>
+<li>`voorbeelden` - Example sentences</li>
+<li>`synoniemen` - Synonym management</li>
+<li>`approval_gates_config` - Approval workflow config (EPIC-016)</li>
+</ul>
+
+<p><strong>Repository Pattern:</strong></p>
+<ul>
+<li>`DefinitieRepository` (2,131 LOC) - Primary repository</li>
+<li>`SynonymRepository` (578 LOC)</li>
+<li>`SynonymRegistry` (1,194 LOC)</li>
+</ul>
+
+<h3>1.5 Entry Points</h3>
+
+<ol>
+<li>**Main Application:** `src/main.py`</li>
+</ol>
+<ul>
+<li>  - Initializes Streamlit page config</li>
+<li>  - Sets up logging (with PII redaction)</li>
+<li>  - Caches `TabbedInterface` for performance</li>
+<li>  - Initializes session state</li>
+</ul>
+
+<ol>
+<li>**UI Entry:** `src/ui/tabbed_interface.py` (1,585 LOC)</li>
+</ol>
+<ul>
+<li>  - Manages tab structure (Generate, Edit, Review, Export)</li>
+<li>  - Routes between UI components</li>
+<li>  - Status: Core UI coordinator</li>
+</ul>
+
+<ol>
+<li>**Service Entry:** `src/services/container.py`</li>
+</ol>
+<ul>
+<li>  - Provides singleton instances</li>
+<li>  - Manages all service dependencies</li>
+<li>  - Lazy-loads services on first access</li>
+</ul>
+
+<p>---</p>
+
+<h2>PART 2: MODULE INVENTORY</h2>
+
+<h3>2.1 File Count by Directory</h3>
+
+<p>| Directory | Python Files | Total LOC | Avg Size | Status |</p>
+<p>|-----------|-------------|----------|----------|--------|</p>
+<p>| services | 37 | 16,437 | 444 | Well-organized, some large modules |</p>
+<p>| toetsregels/regels | 46 | 6,479 | 141 | Good modularity |</p>
+<p>| toetsregels/validators | 46 | 6,383 | 139 | Parallel structure maintained |</p>
+<p>| utils | 19 | 6,028 | 317 | Utility accumulation ⚠️ |</p>
+<p>| services/prompts/modules | 19 | 4,429 | 233 | Good separation |</p>
+<p>| services/web_lookup | 16 | 5,335 | 334 | Well-organized |</p>
+<p>| ui/components | 12 | 7,562 | 630 | LARGE components ⚠️ |</p>
+<p>| services/validation | 10 | 3,318 | 332 | Modular |</p>
+<p>| config | 9 | 2,075 | 231 | Good organization |</p>
+<p>| validation | 6 | 3,551 | 592 | MODERATE size |</p>
+<p>| voorbeelden | 6 | 2,457 | 410 | Good separation |</p>
+<p>| database | 3 | 2,760 | 920 | LARGE repository file |</p>
+<p>| repositories | 3 | 1,785 | 595 | Moderate |</p>
+
+<h3>2.2 Largest Files (God Objects Concern)</h3>
+
+<p>| File | LOC | Module | Assessment |</p>
+<p>|------|-----|--------|-----------|</p>
+<p>| definition_generator_tab.py | 2,412 | UI component | ⚠️ VERY LARGE - Needs refactoring |</p>
+<p>| definitie_repository.py | 2,131 | Database | ⚠️ VERY LARGE - Multiple responsibilities |</p>
+<p>| ufo_pattern_matcher.py | 1,641 | Service | ⚠️ LARGE - Focused but substantial |</p>
+<p>| modular_validation_service.py | 1,631 | Validation | ⚠️ LARGE - Complex orchestration |</p>
+<p>| definition_edit_tab.py | 1,604 | UI component | ⚠️ LARGE - Form handling heavy |</p>
+<p>| tabbed_interface.py | 1,585 | UI | ⚠️ LARGE - Main tab coordinator |</p>
+<p>| expert_review_tab.py | 1,417 | UI component | LARGE - Review workflow |</p>
+<p>| sru_service.py | 1,251 | Web lookup | LARGE - Protocol implementation |</p>
+<p>| definition_orchestrator_v2.py | 1,231 | Service | LARGE - Orchestration |</p>
+<p>| interfaces.py | 1,212 | Service | ⚠️ LARGE - Interface definitions |</p>
+<p>| unified_voorbeelden.py | 1,179 | Voorbeelden | LARGE - Example management |</p>
+<p>| definitie_validator.py | 1,048 | Validation | MODERATE - Validation logic |</p>
+
+<p><strong>Critical Finding:</strong> 6 files > 1,500 LOC, 14 files > 1,000 LOC. This represents 4% of codebase but significant refactoring opportunity.</p>
+
+<h3>2.3 Directory Structure Redundancies</h3>
+
+<p><strong>Detected Duplicated Directory Names:</strong></p>
+
+<ol>
+<li>**context** - Exists in 2 places:</li>
+</ol>
+<ul>
+<li>  - `src/domain/context/`</li>
+<li>  - `src/services/context/`</li>
+<li>  - Potential for consolidation</li>
+</ul>
+
+<ol>
+<li>**validation** - Exists in 2 places:</li>
+</ol>
+<ul>
+<li>  - `src/validation/` (6 files, 3,551 LOC)</li>
+<li>  - `src/services/validation/` (10 files, 3,318 LOC)</li>
+<li>  - Related but different purposes (separate concern)</li>
+</ul>
+
+<ol>
+<li>**services** - Exists in 2 places:</li>
+</ol>
+<ul>
+<li>  - `src/services/` (main)</li>
+<li>  - `src/ui/services/` (UI-specific)</li>
+<li>  - Intentional separation - acceptable</li>
+</ul>
+
+<ol>
+<li>**tabs** - Exists in 2 places:</li>
+</ol>
+<ul>
+<li>  - `src/ui/tabs/`</li>
+<li>  - `src/ui/components/tabs/`</li>
+<li>  - Potential consolidation opportunity</li>
+</ul>
+
+<ol>
+<li>**validators** - Exists in 2 places:</li>
+</ol>
+<ul>
+<li>  - `src/ai_toetser/validators/`</li>
+<li>  - `src/toetsregels/validators/`</li>
+<li>  - Intentional - dual validation framework</li>
+</ul>
+
+<p>---</p>
+
+<h2>PART 3: PATTERN DETECTION</h2>
+
+<h3>3.1 Validation Rule Pattern (Dual JSON + Python)</h3>
+
+<p><strong>Structure:</strong> Highly modular, consistent implementation pattern</p>
+
+<p><strong>Rules by Category:</strong></p>
+
+<pre><code>ARAI (Authority/Accessibility)      - 9 rules
+  ARAI-01: Basic authority
+  ARAI-02: Subdivision rules
+  ARAI-03 to ARAI-06: Additional rules
+
+CON (Consistency)                   - 2 rules
+  CON-01, CON-02
+
+ESS (Essential)                     - 5 rules
+  ESS-01 to ESS-05
+
+INT (Integrity)                     - 9 rules
+  INT-01 to INT-09 (incl. sub-rules)
+
+SAM (Sample)                        - 8 rules
+  SAM-01 to SAM-08
+
+STR (Structure)                     - 9 rules
+  STR-01 to STR-09
+
+VER (Verification)                  - 3 rules
+  VER-01 to VER-03
+
+DUP (Duplication)                   - 1 rule
+  DUP_01
+
+TOTAL: 46 unique rules</code></pre>
+
+<p><strong>Implementation:</strong></p>
+<ul>
+<li>Each rule has corresponding Python file in `src/toetsregels/regels/`</li>
+<li>Each rule has validator in `src/toetsregels/validators/`</li>
+<li>Loaded via `RuleCache` (US-202 optimization)</li>
+<li>Performance improvement: 77% faster, 81% less memory</li>
+</ul>
+
+<h3>3.2 Service Container Pattern</h3>
+
+<p><strong>Pattern Type:</strong> Dependency Injection with Lazy Loading</p>
+
+<p><strong>Key Features:</strong></p>
+<ul>
+<li>Singleton service instances cached in `_instances` dict</li>
+<li>Lazy-loaded services in `_lazy_instances` dict</li>
+<li>Unique container ID for tracking multiple instantiations</li>
+<li>Structured logging with extra fields</li>
+<li>Configuration-driven service instantiation</li>
+</ul>
+
+<p><strong>Code Structure:</strong></p>
+<pre><code>class ServiceContainer:
+    def __init__(self, config: dict | None = None):
+        self._instances = {}  # Cached singletons
+        self._lazy_instances = {}  # Lazy-loaded services
+        self._container_id = str(uuid.uuid4())[:8]  # Tracking ID
+        self._load_configuration()
+
+    def get_service(self, service_name: str) -&gt; Any:
+        # Return cached or create new instance
+        if service_name not in self._instances:
+            self._instances[service_name] = self._create_service(service_name)
+        return self._instances[service_name]</code></pre>
+
+<h3>3.3 Session State Management Pattern</h3>
+
+<p><strong>Pattern:</strong> SessionStateManager for centralized access</p>
+
+<p><strong>Current Status:</strong></p>
+<ul>
+<li>✅ SessionStateManager exists and is used</li>
+<li>⚠️ **Direct `st.session_state` access FOUND in UI modules** (violation of pattern)</li>
+<li>Good: Manager used for primary state operations</li>
+</ul>
+
+<p><strong>Example Usage:</strong></p>
+<pre><code># Correct pattern
+from ui.session_state import SessionStateManager
+value = SessionStateManager.get_value("key", default="")
+SessionStateManager.set_value("key", new_value)
+
+# Found in codebase (anti-pattern)
+import streamlit as st
+value = st.session_state["key"]  # AVOID - causes state inconsistencies</code></pre>
+
+<h3>3.4 Streamlit Key-Only Widget Pattern</h3>
+
+<p><strong>Status:</strong> Implementation varies; some components follow best practice</p>
+
+<p><strong>Example of correct pattern seen:</strong></p>
+<pre><code>st.text_area("Label", key="edit_23_field")  # Key-only, state managed separately</code></pre>
+
+<p><strong>Note:</strong> This pattern prevents widget-internal state conflicts over <code>st.rerun()</code> cycles.</p>
+
+<h3>3.5 Lazy Import Pattern (Circular Dependencies)</h3>
+
+<p><strong>Detected:</strong> 20 functions using lazy imports</p>
+
+<p><strong>Rationale Found:</strong> Primarily in <code>ui/session_state.py</code> and <code>ui/helpers/context_adapter.py</code> for circular dependency resolution</p>
+
+<p><strong>Example:</strong></p>
+<pre><code>def get_context_dict() -&gt; dict[str, list[str]]:
+    # Lazy import to avoid circular dependency
+    from ui.helpers.context_adapter import get_context_adapter
+    adapter = get_context_adapter()
+    return adapter.get_context_dict()</code></pre>
+
+<p><strong>Assessment:</strong> Minimal usage, documented in codebase. Last-resort pattern employed appropriately.</p>
+
+<h3>3.6 Caching Strategy Pattern</h3>
+
+<p><strong>Implementation:</strong> Multiple cache mechanisms</p>
+
+<ol>
+<li>**RuleCache** (`src/toetsregels/rule_cache.py`) - Bulk loading</li>
+</ol>
+<ul>
+<li>  - TTL: 3,600 seconds</li>
+<li>  - Decorator: `@cached`</li>
+<li>  - Impact: 77% performance improvement (US-202)</li>
+</ul>
+
+<ol>
+<li>**Definition Cache** (`src/services/definition_generator_cache.py`)</li>
+</ol>
+<ul>
+<li>  - Generation result caching</li>
+</ul>
+
+<ol>
+<li>**ServiceContainer Cache** (`src/services/container.py`)</li>
+</ol>
+<ul>
+<li>  - Singleton service caching</li>
+</ul>
+
+<ol>
+<li>**Streamlit Cache** (`@st.cache_resource`, `@st.cache_data`)</li>
+</ol>
+<ul>
+<li>  - TabbedInterface cached (200ms savings per rerun)</li>
+</ul>
+
+<h3>3.7 Resilience & Retry Pattern</h3>
+
+<p><strong>Multiple Implementations Found:</strong></p>
+<ol>
+<li>`optimized_resilience.py` (806 LOC)</li>
+<li>`resilience.py` (729 LOC)</li>
+<li>`integrated_resilience.py` (522 LOC)</li>
+<li>`enhanced_retry.py` (458 LOC)</li>
+</ol>
+
+<p>⚠️ <strong>CONCERN:</strong> Significant redundancy in resilience implementations. Code review phase should investigate consolidation opportunities.</p>
+
+<p>---</p>
+
+<h2>PART 4: RED FLAGS FOR NEXT PHASES</h2>
+
+<h3>4.1 God Objects (Large Components >800 LOC)</h3>
+
+<p>| File | LOC | Issues |</p>
+<p>|------|-----|--------|</p>
+<p>| definition_generator_tab.py | 2,412 | Multiple responsibilities: generation, validation display, state management, export |</p>
+<p>| definitie_repository.py | 2,131 | Database operations + business logic coupling |</p>
+<p>| modular_validation_service.py | 1,631 | Rule orchestration + execution + result aggregation |</p>
+<p>| definition_edit_tab.py | 1,604 | Form handling + validation + state sync |</p>
+<p>| tabbed_interface.py | 1,585 | UI coordination + state management + routing |</p>
+<p>| expert_review_tab.py | 1,417 | Review workflow + approval logic + export |</p>
+<p>| interfaces.py | 1,212 | Large interface definition file (consider extraction) |</p>
+<p>| ufo_pattern_matcher.py | 1,641 | Complex matching logic (assess for decomposition) |</p>
+<p>| sru_service.py | 1,251 | Protocol-specific logic (acceptable but substantial) |</p>
+
+<p><strong>Recommended Action for Next Phase:</strong> Assess each >1,500 LOC file for extract-method refactoring.</p>
+
+<h3>4.2 Circular Dependency Indicators</h3>
+
+<p><strong>Detected potential circular patterns:</strong></p>
+
+<ol>
+<li>**ui/session_state ↔ ui/helpers/context_adapter**</li>
+</ol>
+<ul>
+<li>  - Pattern: Lazy import in session_state.py</li>
+<li>  - Status: Documented, acceptable (per CLAUDE.md)</li>
+</ul>
+
+<ol>
+<li>**ui/tabbed_interface ↔ ui/session_state**</li>
+</ol>
+<ul>
+<li>  - Pattern: Mutual imports</li>
+<li>  - Status: Need verification</li>
+</ul>
+
+<ol>
+<li>**services/container ↔ service implementations**</li>
+</ol>
+<ul>
+<li>  - Pattern: Container creates services that may import from container</li>
+<li>  - Status: Potential issue if services access container directly</li>
+</ul>
+
+<ol>
+<li>**services/validation ↔ ui/components**</li>
+</ol>
+<ul>
+<li>  - Pattern: UI imports validation, validation may import UI helpers</li>
+<li>  - Status: Potential concern</li>
+</ul>
+
+<p><strong>Recommended Action for Next Phase:</strong> Map import graph to identify true circular dependencies requiring restructuring.</p>
+
+<h3>4.3 Utility Module Redundancy</h3>
+
+<p><strong>Resilience Utilities Duplication:</strong></p>
+<ul>
+<li>`resilience.py` (729 LOC)</li>
+<li>`optimized_resilience.py` (806 LOC)</li>
+<li>`integrated_resilience.py` (522 LOC)</li>
+<li>`enhanced_retry.py` (458 LOC)</li>
+</ul>
+
+<p>Total: 2,515 LOC in 4 resilience modules</p>
+
+<p><strong>Assessment:</strong> Significant code duplication. Consolidation opportunity.</p>
+
+<p><strong>Other Utility Concerns:</strong></p>
+<ul>
+<li>`cache.py` (602 LOC) + `caching.py` (251 LOC) - Potential duplication</li>
+<li>`performance_monitor.py` (152 LOC) - Separate monitoring concerns</li>
+</ul>
+
+<h3>4.4 Potential Dead Code</h3>
+
+<p><strong>Findings:</strong></p>
+<ul>
+<li>No files with >10 commented-out code blocks detected (good sign)</li>
+<li>Legacy migration file: `database/migrations/add_legacy_fields.sql`</li>
+<li>No `*_old.py` or `*_legacy.py` patterns found (good cleanup)</li>
+</ul>
+
+<p><strong>Assessment:</strong> Dead code is minimal; good housekeeping observed.</p>
+
+<h3>4.5 Test Coverage Gaps</h3>
+
+<p><strong>Critical modules WITHOUT dedicated tests:</strong></p>
+
+<pre><code>services/container.py                    ❌ NO TEST
+services/orchestrators/definition_orchestrator_v2.py  ❌ NO TEST
+services/validation/modular_validation_service.py     ❌ NO TEST
+ui/tabbed_interface.py                   ❌ NO TEST
+database/definitie_repository.py         ❌ NO TEST
+services/export_service.py               ❌ NO TEST</code></pre>
+
+<p><strong>Test Infrastructure:</strong></p>
+<ul>
+<li>Test files: 267 across tests/</li>
+<li>Test LOC: 64,502</li>
+<li>Test-to-code ratio: 0.71:1 (adequate but could improve)</li>
+</ul>
+
+<p><strong>Test Categories:</strong></p>
+<ul>
+<li>Integration tests (comprehensive)</li>
+<li>Smoke tests (critical path coverage)</li>
+<li>Unit tests (28 files in tests/unit/)</li>
+<li>Performance tests (8 files in tests/performance/)</li>
+<li>Regression tests (8 files in tests/regression/)</li>
+</ul>
+
+<h3>4.6 Import Coupling Analysis</h3>
+
+<p><strong>Most imported modules (by internal modules):</strong></p>
+
+<pre><code>services          - 99 imports
+logging          - 232 imports
+typing           - 144 imports
+utils            - 42 imports
+ui               - 29 imports
+database         - 24 imports
+config           - 11 imports</code></pre>
+
+<p><strong>Key Coupling Points:</strong></p>
+<ol>
+<li>UI imports from services (moderate, expected)</li>
+<li>Services layer shows high internal coupling (expected due to orchestration)</li>
+<li>Logging is ubiquitous (good observability)</li>
+</ol>
+
+<p><strong>Assessment:</strong> Coupling is within normal range for service-oriented architecture.</p>
+
+<h3>4.7 Architectural Inconsistencies</h3>
+
+<p><strong>Found Issues:</strong></p>
+
+<ol>
+<li>**Session State Management Violation**</li>
+</ol>
+<ul>
+<li>  - Direct `st.session_state` access found in UI modules</li>
+<li>  - Should all go through SessionStateManager</li>
+<li>  - Impact: Potential state consistency issues</li>
+</ul>
+
+<ol>
+<li>**Service Initialization Tracking**</li>
+</ol>
+<ul>
+<li>  - ServiceContainer uses unique IDs to track multiple instantiations</li>
+<li>  - Indicates there may have been prior initialization issues</li>
+<li>  - Status: Addressed in US-202 (noted in CLAUDE.md)</li>
+</ul>
+
+<ol>
+<li>**Duplicate Validation Framework**</li>
+</ol>
+<ul>
+<li>  - Both `src/validation/` and `src/services/validation/`</li>
+<li>  - Both `src/ai_toetser/validators/` and `src/toetsregels/validators/`</li>
+<li>  - Appears intentional (legacy + new framework)</li>
+<li>  - Consolidation opportunity in future refactor</li>
+</ul>
+
+<p>---</p>
+
+<h2>PART 5: FEATURE INVENTORY</h2>
+
+<h3>5.1 Core Features Implemented</h3>
+
+<h4>1. Definition Generation (Core)</h4>
+<ul>
+<li>**UI:** `definition_generator_tab.py` (2,412 LOC)</li>
+<li>**Service:** `definition_orchestrator_v2.py` (1,231 LOC)</li>
+<li>**Status:** Production-ready</li>
+<li>**Integration:** GPT-4 with temperature control and rate limiting</li>
+</ul>
+
+<h4>2. Definition Editing</h4>
+<ul>
+<li>**UI:** `definition_edit_tab.py` (1,604 LOC)</li>
+<li>**Service:** `definition_edit_service.py` (655 LOC)</li>
+<li>**Status:** Production-ready</li>
+<li>**Features:** Inline editing, validation feedback</li>
+</ul>
+
+<h4>3. Expert Review & Approval</h4>
+<ul>
+<li>**UI:** `expert_review_tab.py` (1,417 LOC)</li>
+<li>**Service:** `approval_gates_config` (EPIC-016 framework)</li>
+<li>**Status:** Production-ready</li>
+<li>**Features:** Workflow validation, approval tracking</li>
+</ul>
+
+<h4>4. Validation System (45+ Rules)</h4>
+<ul>
+<li>**Framework:** Modular validation service</li>
+<li>**Rules:** 46 rules across 7 categories (ARAI, CON, ESS, INT, SAM, STR, VER)</li>
+<li>**Performance:** 77% faster (cached via US-202)</li>
+<li>**Status:** Production-optimized</li>
+</ul>
+
+<h4>5. Example Management</h4>
+<ul>
+<li>**UI:** `examples_block.py` (607 LOC)</li>
+<li>**Service:** `unified_voorbeelden.py` (1,179 LOC)</li>
+<li>**Status:** Production-ready</li>
+<li>**Features:** Example generation, ranking, display</li>
+</ul>
+
+<h4>6. Web Lookup Integration</h4>
+<ul>
+<li>**Services:** `modern_web_lookup_service.py` (1,190 LOC)</li>
+<li>**Providers:** Wikipedia, SRU (legal database)</li>
+<li>**Status:** Production-ready</li>
+<li>**Features:** Ranked results, context enrichment</li>
+</ul>
+
+<h4>7. Export & Import</h4>
+<ul>
+<li>**Service:** `export_service.py` (857 LOC)</li>
+<li>**Formats:** DOCX, JSON, CSV</li>
+<li>**Status:** Production-ready</li>
+<li>**Tracking:** Export destination logging</li>
+</ul>
+
+<h4>8. Definition Management (CRUD)</h4>
+<ul>
+<li>**Repository:** `definitie_repository.py` (2,131 LOC)</li>
+<li>**Database:** SQLite with 5+ entity tables</li>
+<li>**Status:** Production-ready</li>
+<li>**Features:** Version tracking, audit trail</li>
+</ul>
+
+<h4>9. Synonym Management</h4>
+<ul>
+<li>**Services:** `synonym_orchestrator.py` (590 LOC)</li>
+<li>**UI:** `synonym_admin.py` (830 LOC)</li>
+<li>**Status:** Production-ready</li>
+<li>**Features:** Registry, ranking, integration</li>
+</ul>
+
+<h4>10. Context Management</h4>
+<ul>
+<li>**Services:** Hybrid context fusion, source selection</li>
+<li>**UI:** Context selector components</li>
+<li>**Status:** Production-ready</li>
+<li>**Features:** Organizational, juridical, legislative context</li>
+</ul>
+
+<h3>5.2 Advanced Features</h3>
+
+<h4>Approval Gate Policy (EPIC-016)</h4>
+<ul>
+<li>**Purpose:** Centralized approval workflow configuration</li>
+<li>**Status:** Implemented, DB-backed</li>
+<li>**Features:** Mode selection, validation thresholds, required fields</li>
+</ul>
+
+<h4>UFO Pattern Classification</h4>
+<ul>
+<li>**Service:** `ufo_pattern_matcher.py` (1,641 LOC)</li>
+<li>**Purpose:** Ontological categorization using UFO metamodel</li>
+<li>**Status:** Production-ready</li>
+<li>**Categories:** Kind, Event, Role, Phase, Relator, Mode, Quantity, Quality, etc.</li>
+</ul>
+
+<h4>Performance Monitoring</h4>
+<ul>
+<li>**Services:** `api_monitor.py` (680 LOC), `performance_tracker.py`</li>
+<li>**Tracking:** API calls, response times, token usage</li>
+<li>**Status:** Production-ready</li>
+<li>**Metrics:** Stored and analyzable</li>
+</ul>
+
+<h4>Document Processing</h4>
+<ul>
+<li>**Service:** `document_processor.py` (534 LOC)</li>
+<li>**Status:** Available but secondary feature</li>
+<li>**Formats:** DOCX import/export</li>
+</ul>
+
+<h3>5.3 Database Tables & Purpose</h3>
+
+<pre><code>definities              -- Core definitions (18 columns)
+definitie_geschiedenis  -- Audit trail with versions
+voorbeelden            -- Example sentences
+synoniemen             -- Synonym mapping
+approval_gates_config  -- Approval workflow settings
+context_configurations -- Context management
+web_lookup_cache       -- Web lookup result caching</code></pre>
+
+<p><strong>Database Integrity:</strong></p>
+<ul>
+<li>Schema: `src/database/schema.sql`</li>
+<li>Migrations: `src/database/migrations/`</li>
+<li>UTF-8 encoding support (Dutch text)</li>
+<li>Proper indexing on frequent query columns</li>
+</ul>
+
+<p>---</p>
+
+<h2>PART 6: EXTERNAL INTEGRATIONS</h2>
+
+<h3>6.1 OpenAI Integration</h3>
+
+<p><strong>Usage Pattern:</strong></p>
+<ul>
+<li>31 files with OpenAI references</li>
+<li>Models: GPT-4 (primary), fallback model configuration</li>
+<li>Temperature control: Configurable per operation</li>
+<li>Rate limiting: `smart_rate_limiter.py` (630 LOC)</li>
+</ul>
+
+<p><strong>Key Services:</strong></p>
+<ul>
+<li>`ai_service_v2.py` - Core OpenAI wrapper</li>
+<li>`prompt_service_v2.py` - Prompt composition (19 modules)</li>
+<li>Integration points: Definition generation, synonym suggestion</li>
+</ul>
+
+<p><strong>Token Usage:</strong></p>
+<ul>
+<li>Current: ~7,250 tokens per generation with prompts</li>
+<li>Opportunity: Implement prompt caching/deduplication</li>
+</ul>
+
+<p><strong>Status:</strong> Production-ready, well-integrated</p>
+
+<h3>6.2 Wikipedia Integration</h3>
+
+<p><strong>Usage Pattern:</strong></p>
+<ul>
+<li>3 files with Wikipedia references</li>
+<li>Service: `wikipedia_service.py`</li>
+<li>Purpose: Definition context enrichment</li>
+</ul>
+
+<p><strong>Features:</strong></p>
+<ul>
+<li>Search and extract</li>
+<li>Synonym suggestion from categories</li>
+<li>Caching support</li>
+</ul>
+
+<p><strong>Status:</strong> Production-ready, secondary enhancement</p>
+
+<h3>6.3 SRU (Search Retrieve via URL) Integration</h3>
+
+<p><strong>Usage Pattern:</strong></p>
+<ul>
+<li>4 files with SRU references</li>
+<li>Service: `sru_service.py` (1,251 LOC)</li>
+<li>Purpose: Legal database (Dutch law) queries</li>
+<li>Provider: Dutch government SRU endpoint</li>
+</ul>
+
+<p><strong>Features:</strong></p>
+<ul>
+<li>Query composition</li>
+<li>Result parsing and ranking</li>
+<li>Juridical context enrichment</li>
+</ul>
+
+<p><strong>Status:</strong> Production-ready, specialized</p>
+
+<h3>6.4 SQLite Database Integration</h3>
+
+<p><strong>Usage Pattern:</strong></p>
+<ul>
+<li>24 files with database references</li>
+<li>Schema: Well-defined in `schema.sql`</li>
+<li>Repository: Abstract interface + implementation</li>
+</ul>
+
+<p><strong>Features:</strong></p>
+<ul>
+<li>CRUD operations</li>
+<li>Versioning and audit trail</li>
+<li>Transaction support</li>
+<li>Proper error handling</li>
+</ul>
+
+<p><strong>Status:</strong> Production-ready, well-tested</p>
+
+<p>---</p>
+
+<h2>PART 7: TECHNOLOGY STACK</h2>
+
+<h3>Python Ecosystem</h3>
+<ul>
+<li>**Version:** 3.11+ (type hints required)</li>
+<li>**Formatting:** Black (88 char lines)</li>
+<li>**Linting:** Ruff</li>
+<li>**Testing:** pytest</li>
+<li>**Async:** asyncio (used in services)</li>
+</ul>
+
+<h3>Key Libraries</h3>
+<ul>
+<li>**Streamlit** (28 imports) - UI framework</li>
+<li>**OpenAI** (31 files) - LLM integration</li>
+<li>**SQLite3** (7 files) - Database</li>
+<li>**Pydantic** (dataclasses) - Data validation</li>
+<li>**Typing** (144 imports) - Type hints</li>
+</ul>
+
+<h3>External APIs</h3>
+<ul>
+<li>OpenAI GPT-4</li>
+<li>Wikipedia API</li>
+<li>Dutch SRU endpoint</li>
+<li>(Potentially more via hybrid context)</li>
+</ul>
+
+<p>---</p>
+
+<h2>PART 8: METRICS SUMMARY</h2>
+
+<h3>Codebase Size</h3>
+<pre><code>Source code:      91,157 LOC across 343 files (265 avg)
+Test code:        64,502 LOC across 267 files
+Total:           155,659 LOC
+Ratio:           0.71:1 (test-to-code)</code></pre>
+
+<h3>Architecture Distribution</h3>
+<pre><code>Services:         33,852 LOC (37% of code) - Well-organized
+Validation:       22,508 LOC (25% of code) - Modular
+UI:              13,346 LOC (15% of code) - Component-based
+Database:         4,910 LOC (5% of code) - Repository pattern
+Utils:            6,028 LOC (7% of code) - Utility functions
+Other:            10,513 LOC (11% of code) - Infrastructure</code></pre>
+
+<h3>Complexity Indicators</h3>
+<pre><code>Large files (&gt;1000 LOC):    14 files (4.1% of codebase)
+Very large (&gt;1500 LOC):    6 files (1.7% of codebase)
+Most used imports:         services (99), logging (232), typing (144)
+External integrations:     4 major (OpenAI, Wikipedia, SRU, SQLite)
+Circular dependencies:     20 functions with lazy imports (manageable)
+Dead code:                Minimal (good housekeeping)</code></pre>
+
+<p>---</p>
+
+<h2>PART 9: ARCHITECTURE HEALTH ASSESSMENT</h2>
+
+<h3>Strengths (Score: +2.5 points)</h3>
+
+<ol>
+<li>✅ **Clear Separation of Concerns**</li>
+</ol>
+<ul>
+<li>  - Service layer cleanly separated from UI and validation</li>
+<li>  - Database layer properly abstracted via repository pattern</li>
+<li>  - Validation rules modularly organized</li>
+</ul>
+
+<ol>
+<li>✅ **Dependency Injection Pattern**</li>
+</ol>
+<ul>
+<li>  - ServiceContainer provides excellent testability</li>
+<li>  - Lazy loading reduces initialization overhead</li>
+<li>  - Clear service wiring</li>
+</ul>
+
+<ol>
+<li>✅ **Modular Validation Rules**</li>
+</ol>
+<ul>
+<li>  - 46 rules in separate files (not monolithic)</li>
+<li>  - Consistent implementation pattern</li>
+<li>  - Performance-optimized caching (US-202)</li>
+</ul>
+
+<ol>
+<li>✅ **Performance Optimization**</li>
+</ol>
+<ul>
+<li>  - Rule caching: 77% improvement (US-202)</li>
+<li>  - TabbedInterface cached: 200ms savings</li>
+<li>  - Rate limiting and smart retries implemented</li>
+</ul>
+
+<ol>
+<li>✅ **Good Test Infrastructure**</li>
+</ol>
+<ul>
+<li>  - 267 test files across multiple categories</li>
+<li>  - Smoke tests for critical paths</li>
+<li>  - Performance test suite</li>
+<li>  - 0.71:1 test-to-code ratio</li>
+</ul>
+
+<h3>Weaknesses (Score: -1.3 points)</h3>
+
+<ol>
+<li>❌ **God Objects in UI Layer**</li>
+</ol>
+<ul>
+<li>  - definition_generator_tab.py: 2,412 LOC</li>
+<li>  - definition_edit_tab.py: 1,604 LOC</li>
+<li>  - expert_review_tab.py: 1,417 LOC</li>
+<li>  - Violates single responsibility principle</li>
+</ul>
+
+<ol>
+<li>❌ **Large Repository File**</li>
+</ol>
+<ul>
+<li>  - definitie_repository.py: 2,131 LOC</li>
+<li>  - Database logic + business logic coupling</li>
+<li>  - Candidate for decomposition</li>
+</ul>
+
+<ol>
+<li>❌ **Session State Management Violations**</li>
+</ol>
+<ul>
+<li>  - Direct `st.session_state` access found in UI modules</li>
+<li>  - Should be exclusively through SessionStateManager</li>
+<li>  - Risk of state consistency issues</li>
+</ul>
+
+<ol>
+<li>❌ **Utility Module Redundancy**</li>
+</ol>
+<ul>
+<li>  - 4 separate resilience implementations (2,515 LOC total)</li>
+<li>  - Potential for consolidation</li>
+<li>  - cache.py + caching.py duplication</li>
+</ul>
+
+<ol>
+<li>⚠️ **Test Coverage Gaps**</li>
+</ol>
+<ul>
+<li>  - No tests for ServiceContainer (critical infrastructure)</li>
+<li>  - No tests for definition_orchestrator_v2 (core business logic)</li>
+<li>  - No tests for modular_validation_service (validation engine)</li>
+<li>  - No tests for tabbed_interface (main UI)</li>
+</ul>
+
+<ol>
+<li>⚠️ **Large Interface Definition File**</li>
+</ol>
+<ul>
+<li>  - interfaces.py: 1,212 LOC</li>
+<li>  - Consider extracting protocol groups</li>
+</ul>
+
+<h3>Moderate Concerns (Score: -1.2 points)</h3>
+
+<ol>
+<li>⚠️ **Potential Circular Dependencies**</li>
+</ol>
+<ul>
+<li>  - 20 functions with lazy imports</li>
+<li>  - Some patterns could be refactored away</li>
+<li>  - ui/session_state ↔ context_adapter relation</li>
+</ul>
+
+<ol>
+<li>⚠️ **Duplicate Validation Frameworks**</li>
+</ol>
+<ul>
+<li>  - Both `validation/` and `services/validation/` directories</li>
+<li>  - Both `ai_toetser/validators/` and `toetsregels/validators/`</li>
+<li>  - Appears intentional but should be clarified</li>
+</ul>
+
+<ol>
+<li>⚠️ **Import Coupling**</li>
+</ol>
+<ul>
+<li>  - UI layer imports 6 different internal packages</li>
+<li>  - services layer highly interconnected (expected but complex)</li>
+<li>  - Opportunity for cleaner interfaces</li>
+</ul>
+
+<p>---</p>
+
+<h2>PART 10: RECOMMENDATIONS FOR NEXT PHASES</h2>
+
+<h3>Phase 1: Code Quality & Testing (Priority: HIGH)</h3>
+
+<ol>
+<li>**Add missing tests for critical infrastructure:**</li>
+</ol>
+<ul>
+<li>  - ServiceContainer singleton pattern</li>
+<li>  - DefinitionOrchestratorV2 workflow</li>
+<li>  - ModularValidationService rule execution</li>
+<li>  - TabbedInterface tab routing</li>
+</ul>
+
+<ol>
+<li>**Fix session state management violations:**</li>
+</ol>
+<ul>
+<li>  - Audit all UI modules for direct `st.session_state` access</li>
+<li>  - Route all state through SessionStateManager</li>
+<li>  - Add pre-commit hook validation</li>
+</ul>
+
+<ol>
+<li>**Consolidate utility modules:**</li>
+</ol>
+<ul>
+<li>  - Merge resilience implementations (save 1,500+ LOC)</li>
+<li>  - Unify cache.py + caching.py</li>
+<li>  - Document remaining resilience patterns</li>
+</ul>
+
+<h3>Phase 2: Component Refactoring (Priority: MEDIUM)</h3>
+
+<ol>
+<li>**Decompose UI god objects:**</li>
+</ol>
+<ul>
+<li>  - definition_generator_tab.py (2,412 → ~1,200 + helpers)</li>
+<li>  - definition_edit_tab.py (1,604 → ~1,000 + form components)</li>
+<li>  - expert_review_tab.py (1,417 → ~900 + workflow components)</li>
+<li>  - Target: Split into presentation + business logic layers</li>
+</ul>
+
+<ol>
+<li>**Refactor repository layer:**</li>
+</ol>
+<ul>
+<li>  - definitie_repository.py (2,131 → ~1,200 + query helpers)</li>
+<li>  - Extract query builders into separate classes</li>
+<li>  - Move business logic to service layer</li>
+</ul>
+
+<ol>
+<li>**Optimize service interfaces:**</li>
+</ol>
+<ul>
+<li>  - interfaces.py (1,212 → ~800)</li>
+<li>  - Group related protocols</li>
+<li>  - Consider protocol inheritance hierarchy</li>
+</ul>
+
+<h3>Phase 3: Architectural Improvements (Priority: MEDIUM)</h3>
+
+<ol>
+<li>**Clarify validation framework direction:**</li>
+</ol>
+<ul>
+<li>  - Document why dual validation exists</li>
+<li>  - Plan migration path if consolidation desired</li>
+<li>  - Update architecture documentation</li>
+</ul>
+
+<ol>
+<li>**Map and resolve circular dependencies:**</li>
+</ol>
+<ul>
+<li>  - Create import graph visualization</li>
+<li>  - Identify true circular dependencies</li>
+<li>  - Refactor lazy imports where possible</li>
+</ul>
+
+<ol>
+<li>**Performance optimization opportunities:**</li>
+</ol>
+<ul>
+<li>  - Implement prompt caching (reduce 7,250 tokens)</li>
+<li>  - Cache web lookup results more aggressively</li>
+<li>  - Profile hot paths in orchestrators</li>
+</ul>
+
+<p>---</p>
+
+<h2>APPENDIX A: CRITICAL FILES FOR REVIEW</h2>
+
+<p><strong>By Importance for Next Phase:</strong></p>
+
+<ol>
+<li>`src/ui/components/definition_generator_tab.py` (2,412 LOC) - God object</li>
+<li>`src/database/definitie_repository.py` (2,131 LOC) - Large repository</li>
+<li>`src/services/validation/modular_validation_service.py` (1,631 LOC) - Validation engine</li>
+<li>`src/services/orchestrators/definition_orchestrator_v2.py` (1,231 LOC) - Core orchestrator</li>
+<li>`src/services/interfaces.py` (1,212 LOC) - Large interface definitions</li>
+<li>`src/ui/tabbed_interface.py` (1,585 LOC) - Main UI coordinator</li>
+<li>`src/services/container.py` (823 LOC) - Dependency injection</li>
+<li>`src/utils/optimized_resilience.py` (806 LOC) - Resilience (examine for consolidation)</li>
+<li>`src/utils/resilience.py` (729 LOC) - Resilience (examine for consolidation)</li>
+<li>`src/ui/session_state.py` - Session state management (audit for violations)</li>
+</ol>
+
+<p>---</p>
+
+<h2>APPENDIX B: FEATURE CHECKLIST</h2>
+
+<p><strong>Implemented Features:</strong></p>
+<ul>
+<li>[x] Definition generation (GPT-4)</li>
+<li>[x] Definition editing</li>
+<li>[x] Expert review & approval workflow</li>
+<li>[x] 46+ validation rules</li>
+<li>[x] Example sentence management</li>
+<li>[x] Web lookup (Wikipedia + SRU)</li>
+<li>[x] Export/import (DOCX, JSON, CSV)</li>
+<li>[x] Synonym management</li>
+<li>[x] Context management (organizational, juridical, legislative)</li>
+<li>[x] UFO pattern classification</li>
+<li>[x] Performance monitoring</li>
+<li>[x] Approval gate configuration (EPIC-016)</li>
+<li>[x] Document processing</li>
+</ul>
+
+<p><strong>Not Fully Assessed:</strong></p>
+<ul>
+<li>Hybrid context fusion (complex module)</li>
+<li>AI-assisted synonym suggestion</li>
+<li>Advanced analysis features</li>
+<li>Ontological classification refinements</li>
+</ul>
+
+<p>---</p>
+
+<h2>CONCLUSION</h2>
+
+<p>DefinitieAgent is a <strong>mature, production-ready application</strong> with solid architectural foundations. The service-oriented design with dependency injection provides good testability and maintainability. However, the codebase has accumulated technical debt in the form of large components and utility redundancy that should be addressed in a lean refactoring phase.</p>
+
+<p><strong>Key Action Items:</strong></p>
+<ol>
+<li>Fix session state management violations (quick win)</li>
+<li>Add missing tests for critical infrastructure (medium effort)</li>
+<li>Decompose UI god objects (high-value refactoring)</li>
+<li>Consolidate utility modules (obvious consolidation)</li>
+</ol>
+
+<p><strong>Overall Assessment: READY FOR OPTIMIZATION PHASE</strong></p>
+
+<p>The codebase is well-organized, properly tested, and maintainable. With targeted refactoring of large components and addressing the identified architectural inconsistencies, this could be a very clean, lean codebase with excellent separation of concerns.</p>
+
+<p>---</p>
+
+<p><strong>Report Generated:</strong> November 6, 2025</p>
+<p><strong>Data Sources:</strong> File system analysis, import graph analysis, LOC counting, pattern detection</p>
+<p><strong>Analysis Scope:</strong> 343 source files, 267 test files, complete service layer mapping</p>
+
+  </div>
+</body>
+</html>
