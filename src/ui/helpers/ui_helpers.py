@@ -12,7 +12,6 @@ from functools import wraps
 from typing import Any, TypeVar
 
 import streamlit as st
-
 from ui.cached_services import get_service, initialize_services_once
 from ui.session_state import SessionStateManager
 

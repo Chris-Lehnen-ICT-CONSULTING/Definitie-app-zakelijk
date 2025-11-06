@@ -9,7 +9,6 @@ from pathlib import Path
 from typing import Any
 
 import streamlit as st
-
 from database.definitie_repository import DefinitieRepository, DefinitieStatus
 
 logger = logging.getLogger(__name__)

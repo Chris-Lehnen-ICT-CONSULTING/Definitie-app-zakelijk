@@ -12,9 +12,8 @@ import logging
 from pathlib import Path
 
 import pytest
-from pydantic import ValidationError
-
 from database.definitie_repository import DefinitieRepository
+from pydantic import ValidationError
 
 # Test Data Constants
 

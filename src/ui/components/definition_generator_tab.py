@@ -11,7 +11,6 @@ from pathlib import Path
 from typing import Any
 
 import streamlit as st
-
 from database.definitie_repository import DefinitieRecord, get_definitie_repository
 from integration.definitie_checker import CheckAction, DefinitieChecker
 from services.category_service import CategoryService
@@ -876,9 +875,8 @@ class DefinitionGeneratorTab:
                 return
 
             # Sla op met voorkeursterm uit session state
-            from pydantic import ValidationError
-
             from models.voorbeelden_validation import validate_save_voorbeelden_input
+            from pydantic import ValidationError
 
             voorkeursterm = SessionStateManager.get_value("voorkeursterm", "")
 
@@ -949,9 +947,8 @@ class DefinitionGeneratorTab:
                 return False
 
             repo = get_definitie_repository()
-            from pydantic import ValidationError
-
             from models.voorbeelden_validation import validate_save_voorbeelden_input
+            from pydantic import ValidationError
 
             voorkeursterm = SessionStateManager.get_value("voorkeursterm", "")
 

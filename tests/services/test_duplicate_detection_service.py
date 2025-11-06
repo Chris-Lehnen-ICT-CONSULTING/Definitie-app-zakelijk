@@ -8,7 +8,6 @@ zonder database dependencies.
 from datetime import datetime
 
 import pytest
-
 from services.duplicate_detection_service import (
     DuplicateDetectionService,
     DuplicateMatch,
