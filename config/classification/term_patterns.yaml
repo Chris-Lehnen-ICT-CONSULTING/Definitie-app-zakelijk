@@ -1,0 +1,108 @@
+# Term-Based Classifier Configuration
+# DEF-35: MVP Term-Based Classifier Essentials
+#
+# Deze configuratie definieert patronen en prioriteiten voor de
+# term-based ontologische classificatie (TYPE/PROCES/RESULTAAT/EXEMPLAAR).
+#
+# GEBRUIK:
+# - domain_overrides: Expliciete classificatie van ambigue termen
+# - suffix_weights: Gewichten voor suffix patronen per categorie
+# - category_priority: Tie-breaking volgorde bij gelijke scores
+#
+# VALIDATIE REGELS:
+# - confidence_thresholds moet keys hebben: high, medium, low
+# - Thresholds moeten geordend zijn: high >= medium >= low
+# - domain_overrides categorieën moeten zijn: TYPE, PROCES, RESULTAAT, EXEMPLAAR
+# - category_priority moet subset zijn van bovenstaande categorieën
+# - confidence_thresholds: Drempels voor HIGH/MEDIUM/LOW confidence labels
+
+# ============================================================
+# DOMAIN OVERRIDES
+# ============================================================
+# Juridisch-specifieke overrides voor ambigue begrippen.
+# Deze worden VOOR pattern matching toegepast (hoogste prioriteit).
+#
+# Voorbeelden:
+# - "machtiging" → TYPE (bevoegdheid definitie, niet de handeling)
+# - "vergunning" → RESULTAAT (besluit, niet de aanvraag)
+# - "toestemming" → TYPE (juridische status, niet de handeling)
+domain_overrides:
+  machtiging: TYPE        # Bevoegdheid (juridisch construct)
+  vergunning: RESULTAAT   # Besluit (resultaat van aanvraag)
+  toestemming: TYPE       # Juridische status/bevoegdheid
+  volmacht: TYPE          # Bevoegdheid tot vertegenwoordiging
+
+# ============================================================
+# SUFFIX WEIGHTS
+# ============================================================
+# Gewichten (0.0-1.0) voor suffix patronen per categorie.
+# Hogere waarde = sterker signaal voor die categorie.
+#
+# GEBRUIK:
+# - Exacte suffix match krijgt dit gewicht
+# - Substring match krijgt 0.5x dit gewicht
+# - Combinaties worden opgeteld (max 1.0)
+
+suffix_weights:
+  PROCES:
+    ing: 0.85          # behandeling, verwerking
+    atie: 0.90         # validatie, autorisatie
+    tie: 0.90          # verificatie, registratie
+    eren: 0.80         # controleren, toetsen
+    isatie: 0.85       # realisatie, formalisatie
+
+  RESULTAAT:
+    besluit: 0.95      # aanwijzingsbesluit
+    vergunning: 0.90   # bouwvergunning
+    rapport: 0.85      # onderzoeksrapport
+    advies: 0.85       # juridisch advies
+    beschikking: 0.95  # aanslag, afwijzing
+    uitspraak: 0.90    # rechterlijke uitspraak
+    vonnis: 0.90       # strafvonnis
+
+  TYPE:
+    systeem: 0.80      # registersysteem
+    model: 0.80        # beoordelingsmodel
+    formulier: 0.85    # aanvraagformulier
+    toets: 0.85        # belangentoets
+    register: 0.85     # handelsregister
+    document: 0.80     # identiteitsdocument
+
+  EXEMPLAAR: {}      # EXEMPLAAR heeft geen suffix patterns (detection via context only)
+
+# ============================================================
+# CATEGORY PRIORITY
+# ============================================================
+# Volgorde voor tie-breaking bij gelijke scores (verschil < 0.15).
+# Eerste in de lijst krijgt voorrang.
+#
+# RATIONALE:
+# 1. EXEMPLAAR → Hoogste prioriteit (meest specifiek)
+# 2. TYPE → Definitie van begrip zelf
+# 3. RESULTAAT → Uitkomst van proces
+# 4. PROCES → Laagste prioriteit (meest abstract)
+
+category_priority:
+  - EXEMPLAAR    # Concrete instantie (hoogste prioriteit)
+  - TYPE         # Soort/klasse van iets
+  - RESULTAAT    # Uitkomst van handeling
+  - PROCES       # Handeling/procedure (laagste prioriteit)
+
+# ============================================================
+# CONFIDENCE THRESHOLDS
+# ============================================================
+# Drempels voor confidence labels (0.0-1.0).
+#
+# CONFIDENCE BEREKENING:
+# confidence = winner_score * min(margin / 0.30, 1.0)
+# waarbij margin = winner_score - runner_up_score
+#
+# LABELS:
+# - HIGH (>= 0.70): Groen, auto-accept, duidelijke classificatie
+# - MEDIUM (>= 0.45): Oranje, review aanbevolen, enige twijfel
+# - LOW (< 0.45): Rood, handmatige review vereist, onduidelijk
+
+confidence_thresholds:
+  high: 0.70      # Groen - auto-accept
+  medium: 0.45    # Oranje - review aanbevolen
+  low: 0.0        # Rood - handmatig (alles onder medium)

@@ -34,6 +34,89 @@ _VOORBEELD_FIELD_CONFIG = [
 ]
 
 
+def _force_cleanup_voorbeelden(prefix: str) -> None:
+    """Clear all voorbeelden widget state for a given prefix.
+
+    Used when crossing definition boundaries to prevent stale data.
+
+    Args:
+        prefix: Session key prefix (e.g., 'edit_106')
+
+    Business Logic:
+        - Nuclear option: deletes ALL voorbeelden-related keys
+        - Safety: only deletes keys containing voorbeelden indicators
+        - Called by _reset_voorbeelden_context() when definition changes
+
+    Example:
+        _force_cleanup_voorbeelden("edit_106")
+        # Deletes: edit_106_vz_edit, edit_106_syn_edit, edit_106_examples, etc.
+    """
+    import streamlit as st
+
+    # Find all keys for this prefix that contain voorbeelden data
+    keys_to_clear = [
+        k
+        for k in st.session_state
+        if k.startswith(f"{prefix}_")
+        and any(
+            indicator in k
+            for indicator in ["vz_", "pv_", "tv_", "syn_", "ant_", "tol_", "examples"]
+        )
+    ]
+
+    # Use SessionStateManager for state clearing
+    from ui.session_state import SessionStateManager
+
+    for key in keys_to_clear:
+        try:
+            # Check if key exists before deleting
+            if SessionStateManager.get_value(key, default=None) is not None:
+                del st.session_state[key]
+        except KeyError:
+            pass  # Already deleted, ignore
+
+
+def _reset_voorbeelden_context(prefix: str, definition_id: int | None = None) -> None:
+    """Reset voorbeelden context when crossing definition boundaries.
+
+    Tracks last synced definition ID and forces cleanup when it changes.
+    Handles None IDs correctly using sentinel object comparison.
+
+    Args:
+        prefix: Session key prefix (e.g., 'edit_106')
+        definition_id: Current definition ID (None for unsaved definitions)
+
+    Business Logic:
+        - Tracks last synced definition per prefix
+        - Forces cleanup if definition_id changes
+        - Uses sentinel object to handle None IDs correctly
+        - Prevents stale voorbeelden across definition switches
+
+    Example:
+        # Before rendering voorbeelden in Edit tab
+        _reset_voorbeelden_context("edit_106", definition_id=106)
+        _sync_voorbeelden_to_widgets(voorbeelden, "edit_106")
+
+    DEF-110: Fixes stale voorbeelden bug when switching definitions.
+    """
+    # Track context per prefix
+    context_key = f"{prefix}_context_id"
+
+    # Sentinel for first-time initialization (handles None != None correctly)
+    sentinel = object()
+    last_definition_id = SessionStateManager.get_value(context_key, sentinel)
+
+    # Force cleanup if context changed
+    if last_definition_id is not definition_id:
+        _force_cleanup_voorbeelden(prefix)
+        SessionStateManager.set_value(context_key, definition_id)
+
+        # Debug logging
+        logger.debug(
+            f"[DEF-110 CONTEXT RESET] {prefix}: {last_definition_id} → {definition_id}"
+        )
+
+
 def _sync_voorbeelden_to_widgets(
     voorbeelden: dict[str, Any],
     prefix: str,
