@@ -192,6 +192,10 @@ docs/
 │   ├── per-007-documents/   # PER-007 implementation docs
 │   ├── migration-documents/ # V1/V2 migration docs
 │   └── misc/               # Other archived docs
+├── 📁 archief/2025-01-cleanup/migrations/ ✅ Migration docs (Nov 2025)
+│   ├── v1-v2-validation/   # Legacy validation migration (COMPLETED)
+│   ├── synoniemen/          # Synonym migration strategy (SUPERSEDED)
+│   └── history-tab/         # History tab removal (US-412, COMPLETED)
 ├── 📁 archief/          Archive of all older documents
 ├── 📁 architectuur/     3 canonical docs + templates + beslissingen
 │   ├── ENTERPRISE_ARCHITECTURE.md ✅

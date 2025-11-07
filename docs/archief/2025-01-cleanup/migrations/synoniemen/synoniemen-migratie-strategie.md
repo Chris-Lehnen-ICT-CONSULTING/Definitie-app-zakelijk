@@ -1,3 +1,11 @@
+---
+status: SUPERSEDED
+superseded_by: Synonym Orchestrator Architecture v3.1 (commit 8a4b58b1, Oct 10 2025)
+reason: Alternative graph-based architecture implemented using synonym_groups/synonym_group_members tables instead of definitie_voorbeelden
+archived: 2025-11-07
+implementation_status: NEVER STARTED - All 4 phases abandoned in favor of alternative approach
+---
+
 # Migratiestrategie: Synoniemen, Antoniemen & AI-Toelichting naar definitie_voorbeelden
 
 ## Executive Summary

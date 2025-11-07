@@ -21,7 +21,7 @@ This analysis evaluates 4 migration documentation files against project standard
 
 ## Detailed File Analysis
 
-### 1. `/docs/migration/legacy-code-inventory.md`
+### 1. `/docs/archief/2025-01-cleanup/migrations/v1-v2-validation/legacy-code-inventory.md`
 
 ```yaml
 relevance_analysis:
@@ -60,7 +60,7 @@ relevance_analysis:
 
 ---
 
-### 2. `/docs/migration/remove-legacy-validation-plan.md`
+### 2. `/docs/archief/2025-01-cleanup/migrations/v1-v2-validation/remove-legacy-validation-plan.md`
 
 ```yaml
 relevance_analysis:
@@ -99,7 +99,7 @@ relevance_analysis:
 
 ---
 
-### 3. `/docs/migration/synoniemen-migratie-strategie.md`
+### 3. `/docs/archief/2025-01-cleanup/migrations/synoniemen/synoniemen-migratie-strategie.md`
 
 ```yaml
 relevance_analysis:
@@ -143,7 +143,7 @@ relevance_analysis:
 
 ---
 
-### 4. `/docs/migrations/history_tab_removal.md`
+### 4. `/docs/archief/2025-01-cleanup/migrations/history-tab/history_tab_removal.md`
 
 ```yaml
 relevance_analysis:
