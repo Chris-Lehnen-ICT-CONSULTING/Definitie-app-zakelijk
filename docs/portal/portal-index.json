@@ -12031,8 +12031,8 @@
       "id": null,
       "type": "DOC",
       "title": "🚀 Plan: Legacy Validation Verwijderen",
-      "path": "../migration/remove-legacy-validation-plan.md",
-      "url": "../migration/remove-legacy-validation-plan.md",
+      "path": "../archief/2025-01-cleanup/migrations/v1-v2-validation/remove-legacy-validation-plan.md",
+      "url": "../archief/2025-01-cleanup/migrations/v1-v2-validation/remove-legacy-validation-plan.md",
       "status": null,
       "prioriteit": null,
       "owner": null,
@@ -12056,14 +12056,14 @@
         "epic": [],
         "req": []
       },
-      "rendered_url": "rendered/migration/remove-legacy-validation-plan.html"
+      "rendered_url": "rendered/archief/2025-01-cleanup/migrations/v1-v2-validation/remove-legacy-validation-plan.html"
     },
     {
       "id": null,
       "type": "DOC",
       "title": "📋 Legacy Code Inventory - Complete Overzicht",
-      "path": "../migration/legacy-code-inventory.md",
-      "url": "../migration/legacy-code-inventory.md",
+      "path": "../archief/2025-01-cleanup/migrations/v1-v2-validation/legacy-code-inventory.md",
+      "url": "../archief/2025-01-cleanup/migrations/v1-v2-validation/legacy-code-inventory.md",
       "status": null,
       "prioriteit": null,
       "owner": null,
@@ -12087,14 +12087,14 @@
         "epic": [],
         "req": []
       },
-      "rendered_url": "rendered/migration/legacy-code-inventory.html"
+      "rendered_url": "rendered/archief/2025-01-cleanup/migrations/v1-v2-validation/legacy-code-inventory.html"
     },
     {
       "id": null,
       "type": "DOC",
       "title": "Migratiestrategie: Synoniemen, Antoniemen & AI-Toelichting naar definitie_voorbeelden",
-      "path": "../migration/synoniemen-migratie-strategie.md",
-      "url": "../migration/synoniemen-migratie-strategie.md",
+      "path": "../archief/2025-01-cleanup/migrations/synoniemen/synoniemen-migratie-strategie.md",
+      "url": "../archief/2025-01-cleanup/migrations/synoniemen/synoniemen-migratie-strategie.md",
       "status": null,
       "prioriteit": null,
       "owner": null,
@@ -12118,7 +12118,7 @@
         "epic": [],
         "req": []
       },
-      "rendered_url": "rendered/migration/synoniemen-migratie-strategie.html"
+      "rendered_url": "rendered/archief/2025-01-cleanup/migrations/synoniemen/synoniemen-migratie-strategie.html"
     },
     {
       "id": null,
