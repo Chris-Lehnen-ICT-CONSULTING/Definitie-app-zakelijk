@@ -1,0 +1,926 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Prompt Architectuur & Redundantie Analyse</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>Prompt Architectuur & Redundantie Analyse</h1>
+
+<p><strong>Geanalyseerd bestand:</strong> <code>/Users/chrislehnen/Downloads/_Definitie_Generatie_prompt-7.txt</code></p>
+<p><strong>Analyse datum:</strong> 2025-11-07</p>
+<p><strong>Huidige lengte:</strong> 419 regels</p>
+<p><strong>Probleemdiagnose:</strong> Massieve redundantie, conflicterende instructies, onduidelijke structuur</p>
+
+<p>---</p>
+
+<h2>1. STRUCTUUR ANALYSE</h2>
+
+<h3>Hoofdsecties Overzicht</h3>
+
+<p>| Sectie | Regels | Doel | Redundantie Score |</p>
+<p>|--------|--------|------|-------------------|</p>
+<p>| <strong>Introductie</strong> | 1-10 | Basis rol & vereisten | 🟢 Uniek |</p>
+<p>| <strong>Output Format</strong> | 11-16 | Technische specs | 🟢 Uniek |</p>
+<p>| <strong>Definitie Kwaliteit</strong> | 17-22 | Algemene taalregels | 🟡 Overlapt met ARAI |</p>
+<p>| <strong>Grammatica Regels</strong> | 24-61 | Specifieke grammatica | 🟡 Overlapt met VER |</p>
+<p>| <strong>Context Info</strong> | 63-69 | Organisatorisch/juridisch | 🟢 Uniek |</p>
+<p>| <strong>Betekenislaag (ESS-02)</strong> | 70-109 | Ontologische categorieën | 🔴 <strong>CONFLICTEERT</strong> met 293-335 |</p>
+<p>| <strong>Templates</strong> | 110-124 | Voorbeeldstructuren | 🟢 Nuttig |</p>
+<p>| <strong>Validatieregels</strong> | 125-292 | 45 gestructureerde regels | 🟢 Core logica |</p>
+<p>| <strong>Veelgemaakte Fouten</strong> | 293-335 | Verboden starts | 🔴 <strong>MASSIVE OVERLAP</strong> |</p>
+<p>| <strong>Context Verboden</strong> | 336-351 | Context-specifiek | 🟢 Uniek |</p>
+<p>| <strong>Kwaliteitsmetrieken</strong> | 353-379 | Technische limieten | 🟢 Uniek |</p>
+<p>| <strong>Finale Instructies</strong> | 380-419 | Opdracht + checklist | 🟡 Herhaalt eerdere regels |</p>
+
+<h3>Logische Flow Problemen</h3>
+
+<p><strong>KRITIEKE ISSUE: Broken Narrative Arc</strong></p>
+
+<pre><code>Lijn 73-77:   "Start NOOIT met 'is een' of koppelwerkwoorden!"
+              "MOET een zelfstandig naamwoord zijn"
+
+Lijn 87-92:   "PROCES CATEGORIE - KICK-OFF opties:"
+              "activiteit waarbij..." ✅
+              "handeling die..." ✅
+              "proces waarin..." ✅
+
+Lijn 293-335: "❌ Start niet met 'proces waarbij'"
+              "❌ Start niet met 'handeling die'"
+
+=&gt; DIRECTE CONTRADICTIE!</code></pre>
+
+<p><strong>Flow Volgorde Issues:</strong></p>
+
+<ol>
+<li>**Ontologische categorie wordt 3x uitgelegd:**</li>
+</ol>
+<ul>
+<li>  - Lijn 70-109: Uitgebreide uitleg met voorbeelden</li>
+<li>  - Lijn 143: ESS-02 regel verwijzing</li>
+<li>  - Lijn 389-390: Finale checklist</li>
+</ul>
+
+<ol>
+<li>**"Geen lidwoord" wordt 6x herhaald:**</li>
+</ol>
+<ul>
+<li>  - Lijn 13, 134, 294, 320-322, 386</li>
+</ul>
+
+<ol>
+<li>**Templates komen TE LAAT:**</li>
+</ol>
+<ul>
+<li>  - Templates (110-124) komen NA ontologische uitleg</li>
+<li>  - Beter: Eerst templates, dan specifieke regels</li>
+</ul>
+
+<p>---</p>
+
+<h2>2. REDUNDANTIE MATRIX</h2>
+
+<h3>Overlappende Instructies (Gedetailleerd)</h3>
+
+<h4>**"Geen Lidwoord" Herhaling (6x)**</h4>
+
+<p>| Locatie | Formulering | Noodzaak |</p>
+<p>|---------|-------------|----------|</p>
+<p>| Lijn 13 | "Geen punt aan het einde" | ✅ FORMAT |</p>
+<p>| Lijn 134 | ARAI-06: "geen lidwoord, geen koppelwerkwoord" | ✅ REGEL |</p>
+<p>| Lijn 294 | "❌ Begin niet met lidwoorden" | ❌ DUPLICATE |</p>
+<p>| Lijn 320-322 | "❌ Start niet met 'de', 'het', 'een'" | ❌ DUPLICATE |</p>
+<p>| Lijn 386 | Checklist: "geen lidwoord/koppelwerkwoord" | ❌ DUPLICATE |</p>
+
+<p><strong>Optimalisatie:</strong> KEEP alleen lijn 134 (ARAI-06 regel), DELETE rest</p>
+
+<h4>**"Geen Koppelwerkwoord" Herhaling (5x)**</h4>
+
+<p>| Locatie | Formulering | Noodzaak |</p>
+<p>|---------|-------------|----------|</p>
+<p>| Lijn 78 | "Start NOOIT met 'is een'" | ✅ ESS-02 context |</p>
+<p>| Lijn 134 | ARAI-06: "geen koppelwerkwoord" | ✅ REGEL |</p>
+<p>| Lijn 295 | "❌ Gebruik geen koppelwerkwoord aan het begin" | ❌ DUPLICATE |</p>
+<p>| Lijn 301-318 | Lijst van 18 verboden koppelwerkwoorden | ❌ OVERKILL |</p>
+<p>| Lijn 344 | Tabel: "Koppelwerkwoorden aan het begin ✅" | ❌ DUPLICATE |</p>
+
+<p><strong>Optimalisatie:</strong> KEEP lijn 134 + top 5 voorbeelden, DELETE rest</p>
+
+<h4>**Ontologische Categorie Conflict (KRITIEK!)**</h4>
+
+<p>| Locatie | Instructie | Type |</p>
+<p>|---------|-----------|------|</p>
+<p>| <strong>Lijn 73-77</strong> | "start met: 'activiteit waarbij', 'handeling die', 'proces waarin'" | ✅ VOORSCHRIFT |</p>
+<p>| <strong>Lijn 87-92</strong> | "KICK-OFF opties: 'activiteit waarbij...', 'handeling die...', 'proces waarin...'" | ✅ VOORSCHRIFT |</p>
+<p>| <strong>Lijn 323-325</strong> | "❌ Start niet met 'proces waarbij', 'handeling die'" | ❌ <strong>CONTRADICTIE</strong> |</p>
+
+<p><strong>ROOT CAUSE:</strong></p>
+<p>Lijn 323-325 is bedoeld om <strong>standalone</strong> gebruik te verbieden (bijv. "proces waarbij gegevens worden verzameld" zonder specificatie van TYPE proces).</p>
+<p>Maar dit CONFLICTEERT met de KICK-OFF template die juist "activiteit waarbij..." vereist.</p>
+
+<p><strong>OPLOSSING:</strong></p>
+<ul>
+<li>DELETE lijn 323-329 volledig</li>
+<li>Vervang door: "Start met specifieke kick-off (activiteit/handeling/proces), niet met generieke containerbegrippen zonder toespitsing"</li>
+</ul>
+
+<h4>**Enkelvoud Regel (4x)**</h4>
+
+<p>| Locatie | Formulering |</p>
+<p>|---------|-------------|</p>
+<p>| Lijn 26-31 | "🔸 Enkelvoud als standaard" (uitgebreid) |</p>
+<p>| Lijn 289 | VER-01: "Term in enkelvoud" |</p>
+<p>| Lijn 290 | VER-02: "Definitie in enkelvoud" |</p>
+<p>| Lijn 300 | "❌ Gebruik enkelvoud" |</p>
+
+<p><strong>Optimalisatie:</strong> KEEP lijn 26-31 (duidelijke uitleg), condense VER regels</p>
+
+<p>---</p>
+
+<h2>3. COMPLEXITEIT ANALYSE</h2>
+
+<h3>Lengte Metrics</h3>
+
+<pre><code>Totaal regels:           419
+Effectieve regels:       ~250 (na duplicate removal)
+Potentiële reductie:     40% (169 regels)
+
+Sectie Verdeling:
+- Validatieregels:       168 regels (40%) ← CORE, KEEP
+- Veelgemaakte Fouten:   43 regels (10%)  ← 80% CUT
+- Grammatica:            37 regels (9%)   ← MERGE
+- Ontologie:             39 regels (9%)   ← SIMPLIFY
+- Rest:                  132 regels (32%) ← OPTIMIZE</code></pre>
+
+<h3>Complexiteit Score per Sectie</h3>
+
+<p>| Sectie | Lines | Redundantie | Essentialiteit | Actie |</p>
+<p>|--------|-------|-------------|----------------|-------|</p>
+<p>| <strong>Validatieregels (125-292)</strong> | 168 | 🟢 Low | 🔴 HIGH | KEEP 95% |</p>
+<p>| <strong>Veelgemaakte Fouten (293-335)</strong> | 43 | 🔴 HIGH | 🟡 MEDIUM | CUT 80% |</p>
+<p>| <strong>Ontologie (70-109)</strong> | 39 | 🟡 MEDIUM | 🔴 HIGH | SIMPLIFY |</p>
+<p>| <strong>Grammatica (24-61)</strong> | 37 | 🟡 MEDIUM | 🔴 HIGH | MERGE |</p>
+<p>| <strong>Templates (110-124)</strong> | 14 | 🟢 Low | 🔴 HIGH | KEEP 100% |</p>
+<p>| <strong>Finale Instructies (380-419)</strong> | 39 | 🔴 HIGH | 🟡 MEDIUM | CUT 60% |</p>
+
+<h3>Essentiële vs Nice-to-Have</h3>
+
+<h4>**CORE Requirements (MUST KEEP)**</h4>
+
+<ol>
+<li>**Validatieregels (ARAI/CON/ESS/STR/INT/SAM/VER)** - 168 regels</li>
+</ol>
+<ul>
+<li>  - Dit is de **business logica**, kan niet worden verkort</li>
+<li>  - Bevat gestructureerde toetsregels met voorbeelden</li>
+<li>  - Enkele optimalisatie: STR-01 (lijn 151-157) overlapt met ARAI-06</li>
+</ul>
+
+<ol>
+<li>**Ontologische Categorieën (ESS-02)** - 39 regels</li>
+</ol>
+<ul>
+<li>  - KRITIEK voor correcte definitie structuur</li>
+<li>  - Moet worden GESIMPLIFICEERD, niet verwijderd</li>
+<li>  - Verwijder conflict met lijn 323-325</li>
+</ul>
+
+<ol>
+<li>**Templates** - 14 regels</li>
+</ol>
+<ul>
+<li>  - Concrete voorbeelden zijn waardevol</li>
+<li>  - KEEP volledig</li>
+</ul>
+
+<ol>
+<li>**Output Format** - 6 regels</li>
+</ol>
+<ul>
+<li>  - Technische vereisten</li>
+<li>  - KEEP volledig</li>
+</ul>
+
+<h4>**NICE-TO-HAVE (CAN BE CUT/CONDENSED)**</h4>
+
+<ol>
+<li>**Veelgemaakte Fouten (293-335)** - 43 regels</li>
+</ol>
+<ul>
+<li>  - 80% is DUPLICATE van eerdere regels</li>
+<li>  - CUT naar 8-10 regels (alleen unieke voorbeelden)</li>
+</ul>
+
+<ol>
+<li>**Finale Instructies (380-419)** - 39 regels</li>
+</ol>
+<ul>
+<li>  - Bevat veel redundantie met eerdere secties</li>
+<li>  - CUT naar 15 regels (alleen checklist + metadata)</li>
+</ul>
+
+<ol>
+<li>**Grammatica Regels (24-61)** - 37 regels</li>
+</ol>
+<ul>
+<li>  - Overlap met VER-01, VER-02, VER-03</li>
+<li>  - MERGE met VER sectie</li>
+</ul>
+
+<ol>
+<li>**Kwaliteitsmetrieken (353-379)** - 26 regels</li>
+</ol>
+<ul>
+<li>  - Nuttige metadata, maar kan worden COMPRESSED</li>
+<li>  - CUT naar 10 regels</li>
+</ul>
+
+<p>---</p>
+
+<h2>4. CONFLICTERENDE INSTRUCTIES</h2>
+
+<h3>Conflict #1: Ontologische Kick-Off vs Verboden Starts</h3>
+
+<p><strong>Locatie:</strong> Lijn 73-92 vs 323-329</p>
+
+<p><strong>Probleem:</strong></p>
+<pre><code>VOORSCHRIFT (lijn 73-92):
+✅ "activiteit waarbij..."
+✅ "handeling die..."
+✅ "proces waarin..."
+
+VERBOD (lijn 323-325):
+❌ "Start niet met 'proces waarbij'"
+❌ "Start niet met 'handeling die'"</code></pre>
+
+<p><strong>Impact:</strong> AI krijgt tegengestelde instructies, resulteert in onvoorspelbaar gedrag</p>
+
+<p><strong>Oplossing:</strong></p>
+<pre><code>DELETE lijn 323-329 volledig
+
+VERVANG door (toevoegen bij ESS-02):
+"⚠️ Gebruik SPECIFIEKE kick-off termen:
+  ✅ 'activiteit waarbij [specifieke actor] [specifieke actie]'
+  ❌ 'proces waarbij' (zonder verdere toespitsing)
+
+  Voorbeeld:
+  ✅ 'activiteit waarbij gegevens worden verzameld door directe waarneming'
+  ❌ 'proces waarbij iets gebeurt'
+"</code></pre>
+
+<h3>Conflict #2: Containerbegrippen Verbod vs Template Gebruik</h3>
+
+<p><strong>Locatie:</strong> Lijn 127-128 (ARAI-02) vs Lijn 112-113 (Templates)</p>
+
+<p><strong>Probleem:</strong></p>
+<pre><code>ARAI-02: "Vermijd vage containerbegrippen"
+         "Lexicale containerbegrippen vermijden"
+
+Template (lijn 113): "[Handeling/activiteit] waarbij [actor/systeem]..."</code></pre>
+
+<p><strong>Verduidelijking Nodig:</strong></p>
+<p>"Activiteit" is TOEGESTAAN in kick-off positie (genus proximum), maar VERBODEN als standalone definitie.</p>
+
+<p><strong>Oplossing:</strong></p>
+<pre><code>TOEVOEGEN bij ARAI-02:
+"⚠️ Uitzondering: Containerbegrippen ZIJN toegestaan als genus proximum
+    (kick-off term), MITS gevolgd door specificerende differentia specifica.
+
+    ✅ 'activiteit waarbij [specifieke actor] [specifieke actie] uitvoert'
+    ❌ 'activiteit die belangrijk is'
+"</code></pre>
+
+<h3>Conflict #3: ESS-01 vs STR-06</h3>
+
+<p><strong>Locatie:</strong> Lijn 142 vs 187-191</p>
+
+<p><strong>Probleem:</strong></p>
+<pre><code>ESS-01: "Essentie, niet doel"
+STR-06: "Essentie ≠ informatiebehoefte"
+
+Beide zeggen HETZELFDE, maar met andere voorbeelden.</code></pre>
+
+<p><strong>Oplossing:</strong></p>
+<pre><code>MERGE beide regels:
+
+"🔹 ESS-01 / STR-06 - Essentie, niet doel of informatiebehoefte
+- Een definitie geeft WAT het begrip is, niet WAARVOOR het gebruikt wordt
+- Toetsvraag: Beschrijft de definitie de aard/kenmerken, niet het doel of de behoefte?
+  ✅ beveiligingsmaatregel: voorziening die ongeautoriseerde toegang voorkomt
+  ❌ beveiligingsmaatregel: voorziening om ongeautoriseerde toegang te voorkomen
+  ✅ proces dat beslissers identificeert
+  ❌ proces om beslissers te kunnen informeren
+"</code></pre>
+
+<p>---</p>
+
+<h2>5. PRIORITERING & OPTIMALISATIE STRATEGIE</h2>
+
+<h3>Fase 1: KRITIEKE FIXES (HIGH PRIORITY)</h3>
+
+<p><strong>Impact:</strong> Verwijder conflicterende instructies die AI kapot maken</p>
+
+<p>| Actie | Locatie | Reductie | Effort |</p>
+<p>|-------|---------|----------|--------|</p>
+<p>| <strong>DELETE lijn 323-329</strong> | Ontologische conflict | -7 regels | 5 min |</p>
+<p>| <strong>MERGE ESS-01 + STR-06</strong> | Duplicate "essentie" regel | -6 regels | 10 min |</p>
+<p>| <strong>DELETE lijn 294-322</strong> | Veelgemaakte fouten overlap | -29 regels | 5 min |</p>
+<p>| <strong>SIMPLIFY lijn 380-400</strong> | Finale instructies redundantie | -15 regels | 10 min |</p>
+
+<p><strong>Totaal:</strong> -57 regels (14% reductie) in 30 minuten</p>
+
+<h3>Fase 2: STRUCTURELE OPTIMALISATIE (MEDIUM PRIORITY)</h3>
+
+<p><strong>Impact:</strong> Verbeter leesbaarheid en logische flow</p>
+
+<p>| Actie | Locatie | Reductie | Effort |</p>
+<p>|-------|---------|----------|--------|</p>
+<p>| <strong>MERGE Grammatica + VER</strong> | Lijn 24-61 + 289-291 | -20 regels | 20 min |</p>
+<p>| <strong>CONDENSE Kwaliteitsmetrieken</strong> | Lijn 353-379 | -16 regels | 15 min |</p>
+<p>| <strong>SIMPLIFY Ontologie</strong> | Lijn 70-109 | -10 regels | 20 min |</p>
+<p>| <strong>REORGANIZE Validatieregels</strong> | Lijn 125-292 | 0 regels | 30 min |</p>
+
+<p><strong>Totaal:</strong> -46 regels (11% reductie) in 1.5 uur</p>
+
+<h3>Fase 3: CONTENT REFINEMENT (LOW PRIORITY)</h3>
+
+<p><strong>Impact:</strong> Polish en finesse</p>
+
+<p>| Actie | Locatie | Reductie | Effort |</p>
+<p>|-------|---------|----------|--------|</p>
+<p>| <strong>REMOVE duplicate voorbeelden</strong> | Diverse secties | -15 regels | 30 min |</p>
+<p>| <strong>OPTIMIZE bullet formatting</strong> | Alle secties | -10 regels | 20 min |</p>
+<p>| <strong>ADD missing cross-references</strong> | Validatieregels | 0 regels | 30 min |</p>
+
+<p><strong>Totaal:</strong> -25 regels (6% reductie) in 1.5 uur</p>
+
+<p>---</p>
+
+<h2>6. CONCRETE OPTIMALISATIE ROADMAP</h2>
+
+<h3>Target Metrics</h3>
+
+<pre><code>HUIDIGE STAAT:
+- Totaal regels: 419
+- Redundantie: ~40%
+- Conflicten: 3 kritieke
+- Token count: ~7.250 (schatting)
+
+DOEL STAAT:
+- Totaal regels: 290 (-31%)
+- Redundantie: &lt;10%
+- Conflicten: 0
+- Token count: ~4.500 (-38%)</code></pre>
+
+<h3>Optimalisatie Fasering</h3>
+
+<h4>**Week 1: Critical Fixes**</h4>
+
+<p><strong>Dag 1-2: Conflict Resolution</strong></p>
+<ul>
+<li>[ ] DELETE lijn 323-329 (ontologische conflict)</li>
+<li>[ ] ADD verduidelijking bij ESS-02 over kick-off gebruik</li>
+<li>[ ] MERGE ESS-01 + STR-06</li>
+<li>[ ] TEST prompt met 10 voorbeeldbegrippen</li>
+</ul>
+
+<p><strong>Dag 3-4: Duplicate Removal</strong></p>
+<ul>
+<li>[ ] DELETE lijn 294-322 (veelgemaakte fouten)</li>
+<li>[ ] KEEP alleen top 5 verboden starts bij ARAI-06</li>
+<li>[ ] CONDENSE finale instructies (lijn 380-400)</li>
+<li>[ ] TEST prompt met edge cases</li>
+</ul>
+
+<p><strong>Dag 5: Validation</strong></p>
+<ul>
+<li>[ ] Draai volledige validatieregel test suite</li>
+<li>[ ] Check backwards compatibility met bestaande definities</li>
+<li>[ ] Measure token reduction</li>
+</ul>
+
+<h4>**Week 2: Structural Optimization**</h4>
+
+<p><strong>Dag 1-2: Section Merging</strong></p>
+<ul>
+<li>[ ] MERGE Grammatica (24-61) met VER (289-291)</li>
+<li>[ ] Reorganiseer in logische volgorde:</li>
+</ul>
+<ol>
+<li>Output Format</li>
+<li>Grammatica/VER (merged)</li>
+<li>Ontologie (ESS-02)</li>
+<li>Templates</li>
+<li>Validatieregels (ARAI/CON/ESS/STR/INT/SAM)</li>
+</ol>
+<ul>
+<li>[ ] TEST nieuwe structuur</li>
+</ul>
+
+<p><strong>Dag 3-4: Content Condensing</strong></p>
+<ul>
+<li>[ ] CONDENSE Kwaliteitsmetrieken (353-379)</li>
+<li>[ ] SIMPLIFY Ontologie (70-109)</li>
+<li>[ ] OPTIMIZE voorbeelden (max 2 ✅ + 2 ❌ per regel)</li>
+</ul>
+
+<p><strong>Dag 5: Final Polish</strong></p>
+<ul>
+<li>[ ] ADD cross-references tussen gerelateerde regels</li>
+<li>[ ] VERIFY alle validatieregels nog aanwezig</li>
+<li>[ ] CREATE version comparison document</li>
+</ul>
+
+<h4>**Week 3: Testing & Rollout**</h4>
+
+<p><strong>Dag 1-3: Integration Testing</strong></p>
+<ul>
+<li>[ ] Test met 50 diverse begrippen (proces/type/resultaat/exemplaar)</li>
+<li>[ ] Compare output v7 vs v8</li>
+<li>[ ] Check voor regressies in definitiekwaliteit</li>
+</ul>
+
+<p><strong>Dag 4-5: Documentation & Deployment</strong></p>
+<ul>
+<li>[ ] UPDATE prompt generation code</li>
+<li>[ ] CREATE migration guide</li>
+<li>[ ] DEPLOY nieuwe prompt versie</li>
+</ul>
+
+<p>---</p>
+
+<h2>7. CORE REQUIREMENTS DISTILLATIE</h2>
+
+<h3>Absolute Essentials (CANNOT BE REMOVED)</h3>
+
+<ol>
+<li>**Validatieregels (ARAI/CON/ESS/STR/INT/SAM/VER)** - 168 regels</li>
+</ol>
+<ul>
+<li>  - Business logica kernstuk</li>
+<li>  - Gestructureerd met voorbeelden</li>
+<li>  - Enige optimalisatie: merge duplicates</li>
+</ul>
+
+<ol>
+<li>**Ontologische Categorieën (ESS-02)** - 25 regels (na optimalisatie)</li>
+</ol>
+<ul>
+<li>  - Proces/Type/Resultaat/Exemplaar onderscheid</li>
+<li>  - Kick-off templates met voorbeelden</li>
+<li>  - KRITIEK voor structuur correctheid</li>
+</ul>
+
+<ol>
+<li>**Output Format Vereisten** - 6 regels</li>
+</ol>
+<ul>
+<li>  - Technische specs (één zin, geen punt, etc.)</li>
+<li>  - Niet-negocieerbaar</li>
+</ul>
+
+<ol>
+<li>**Templates & Voorbeelden** - 14 regels</li>
+</ol>
+<ul>
+<li>  - Concrete guidance voor AI</li>
+<li>  - Bewezen effectief in praktijk</li>
+</ul>
+
+<p><strong>Totaal CORE:</strong> ~213 regels (51% van huidige prompt)</p>
+
+<h3>Nice-to-Have maar Valuable</h3>
+
+<ol>
+<li>**Grammatica Regels** - 15 regels (na merge met VER)</li>
+</ol>
+<ul>
+<li>  - Enkelvoud, actieve vorm, tegenwoordige tijd</li>
+<li>  - Kan worden CONDENSED maar niet VERWIJDERD</li>
+</ul>
+
+<ol>
+<li>**Context Instructies** - 10 regels</li>
+</ol>
+<ul>
+<li>  - Organisatorisch/juridisch context verwerken</li>
+<li>  - Nodig voor contextspecifieke definities</li>
+</ul>
+
+<ol>
+<li>**Kwaliteitsmetrieken** - 10 regels (na condensing)</li>
+</ol>
+<ul>
+<li>  - Karakterlimieten, complexiteitsindicatoren</li>
+<li>  - Nuttig voor debugging</li>
+</ul>
+
+<p><strong>Totaal NICE-TO-HAVE:</strong> ~35 regels (8% van huidige prompt)</p>
+
+<h3>Can Be Removed (Redundant/Low-Value)</h3>
+
+<ol>
+<li>**Veelgemaakte Fouten (293-335)** - Meeste is duplicate</li>
+</ol>
+<ul>
+<li>  - KEEP: Top 5 verboden starts</li>
+<li>  - DELETE: Rest (35 regels)</li>
+</ul>
+
+<ol>
+<li>**Finale Instructies (380-400)** - Herhaalt eerdere regels</li>
+</ol>
+<ul>
+<li>  - KEEP: Checklist (10 regels)</li>
+<li>  - DELETE: Redundante vragen (15 regels)</li>
+</ul>
+
+<ol>
+<li>**Duplicate Voorbeelden** - Scattered door prompt</li>
+</ol>
+<ul>
+<li>  - Consolideer naar max 2 ✅ + 2 ❌ per regel</li>
+<li>  - DELETE: Overbodige herhaling (20 regels)</li>
+</ul>
+
+<p><strong>Totaal REMOVABLE:</strong> ~70 regels (17% van huidige prompt)</p>
+
+<p>---</p>
+
+<h2>8. WERKELIJKE NOODZAAK ANALYSE</h2>
+
+<h3>Categorisering per Urgentie</h3>
+
+<h4>🔴 CRITICAL (Must Fix Immediately)</h4>
+
+<p><strong>Reden:</strong> Broken prompt door conflicten</p>
+
+<ol>
+<li>**Ontologische Conflict (lijn 73-92 vs 323-329)**</li>
+</ol>
+<ul>
+<li>  - AI krijgt tegengestelde instructies</li>
+<li>  - Resulteert in onvoorspelbare output</li>
+<li>  - **FIX:** DELETE lijn 323-329, ADD verduidelijking</li>
+</ul>
+
+<ol>
+<li>**Duplicate "Geen Lidwoord" (6x herhaling)**</li>
+</ol>
+<ul>
+<li>  - Token waste zonder toegevoegde waarde</li>
+<li>  - Verhoogt prompt complexity score onnodig</li>
+<li>  - **FIX:** KEEP alleen ARAI-06, DELETE rest</li>
+</ul>
+
+<h4>🟡 HIGH (Should Fix This Sprint)</h4>
+
+<p><strong>Reden:</strong> Significante kwaliteitsverbetering</p>
+
+<ol>
+<li>**Veelgemaakte Fouten Sectie (lijn 293-335)**</li>
+</ol>
+<ul>
+<li>  - 80% overlap met eerdere regels</li>
+<li>  - 43 regels kunnen worden gereduceerd naar 8</li>
+<li>  - **FIX:** DELETE redundantie, KEEP unieke voorbeelden</li>
+</ul>
+
+<ol>
+<li>**ESS-01 + STR-06 Merge**</li>
+</ol>
+<ul>
+<li>  - Beide regels zeggen hetzelfde</li>
+<li>  - Verwarrend voor AI (welke volgen?)</li>
+<li>  - **FIX:** MERGE naar één geconsolideerde regel</li>
+</ul>
+
+<ol>
+<li>**Grammatica + VER Merge**</li>
+</ol>
+<ul>
+<li>  - Lijn 24-61 overlapt met lijn 289-291</li>
+<li>  - Kan worden gecombineerd zonder informatieverlies</li>
+<li>  - **FIX:** MERGE beide secties</li>
+</ul>
+
+<h4>🟢 MEDIUM (Nice to Have)</h4>
+
+<p><strong>Reden:</strong> Verbetert leesbaarheid/efficiency</p>
+
+<ol>
+<li>**Kwaliteitsmetrieken Condensing**</li>
+</ol>
+<ul>
+<li>  - 26 regels kunnen naar 10 zonder functieverlies</li>
+<li>  - Metadata is nuttig maar te verbose</li>
+<li>  - **FIX:** CONDENSE naar essentie</li>
+</ul>
+
+<ol>
+<li>**Ontologie Simplificatie**</li>
+</ol>
+<ul>
+<li>  - 39 regels kunnen naar 25 met betere structuur</li>
+<li>  - Voorbeelden zijn goed, maar te veel herhaling</li>
+<li>  - **FIX:** SIMPLIFY zonder content loss</li>
+</ul>
+
+<ol>
+<li>**Finale Instructies Cleanup**</li>
+</ol>
+<ul>
+<li>  - 39 regels naar 15 door duplicate removal</li>
+<li>  - Checklist is waardevol, maar rest is redundant</li>
+<li>  - **FIX:** TRIM naar essentials</li>
+</ul>
+
+<h4>🔵 LOW (Future Enhancement)</h4>
+
+<p><strong>Reden:</strong> Polish en finesse</p>
+
+<ol>
+<li>**Cross-Reference System**</li>
+</ol>
+<ul>
+<li>  - Voeg links toe tussen gerelateerde regels</li>
+<li>  - Helpt AI navigeren tussen secties</li>
+<li>  - **FIX:** ADD hyperlinks (indien ondersteund)</li>
+</ul>
+
+<ol>
+<li>**Voorbeelden Optimalisatie**</li>
+</ol>
+<ul>
+<li>  - Consolideer naar max 2 ✅ + 2 ❌ per regel</li>
+<li>  - Verbetert scan-baarheid</li>
+<li>  - **FIX:** OPTIMIZE voorbeelden</li>
+</ul>
+
+<p>---</p>
+
+<h2>9. IMPACT ASSESSMENT</h2>
+
+<h3>Token Reduction Schatting</h3>
+
+<pre><code>HUIDIGE STAAT (v7):
+- Totaal regels: 419
+- Geschat tokens: ~7.250
+- Redundantie: ~40%
+
+NA FASE 1 (Critical Fixes):
+- Totaal regels: 362 (-57)
+- Geschat tokens: ~6.200 (-1.050, -14%)
+- Redundantie: ~25%
+
+NA FASE 2 (Structural):
+- Totaal regels: 316 (-103)
+- Geschat tokens: ~5.400 (-1.850, -26%)
+- Redundantie: ~15%
+
+NA FASE 3 (Polish):
+- Totaal regels: 290 (-129)
+- Geschat tokens: ~4.500 (-2.750, -38%)
+- Redundantie: &lt;10%</code></pre>
+
+<h3>Risico Analyse</h3>
+
+<p>| Actie | Risico | Mitigatie |</p>
+<p>|-------|--------|-----------|</p>
+<p>| DELETE lijn 323-329 | 🟢 LOW | Conflicteert met ESS-02, safe to remove |</p>
+<p>| MERGE ESS-01 + STR-06 | 🟢 LOW | Beide regels identiek, merge is safe |</p>
+<p>| DELETE Veelgemaakte Fouten | 🟡 MEDIUM | Test met edge cases na removal |</p>
+<p>| MERGE Grammatica + VER | 🟡 MEDIUM | Verify geen informatie verloren gaat |</p>
+<p>| CONDENSE Kwaliteitsmetrieken | 🟢 LOW | Metadata, niet kritiek voor output |</p>
+<p>| SIMPLIFY Ontologie | 🟡 MEDIUM | Core functionaliteit, extensive testing needed |</p>
+
+<h3>Backwards Compatibility</h3>
+
+<p><strong>Verwachting:</strong> 95%+ backwards compatible</p>
+
+<p><strong>Redenen:</strong></p>
+<ol>
+<li>Core validatieregels blijven intact</li>
+<li>Templates blijven behouden</li>
+<li>Ontologische categorieën worden VERBETERD (conflict fix)</li>
+<li>Alleen redundantie wordt verwijderd</li>
+</ol>
+
+<p><strong>Test Strategy:</strong></p>
+<ol>
+<li>Draai 50 bestaande definities door v7 en v8</li>
+<li>Compare outputs met diff tool</li>
+<li>Flaggen significante verschillen</li>
+<li>Manuele review van afwijkingen</li>
+</ol>
+
+<p>---</p>
+
+<h2>10. CONCLUSIES & AANBEVELINGEN</h2>
+
+<h3>Hoofdbevindingen</h3>
+
+<ol>
+<li>**Massieve Redundantie (40%)**: 169 van 419 regels zijn duplicate of near-duplicate</li>
+<li>**3 Kritieke Conflicten**: Tegengestelde instructies voor ontologie, containerbegrippen, essentie</li>
+<li>**Onduidelijke Structuur**: Logische flow is verbroken door slechte sectie volgorde</li>
+<li>**Token Waste**: ~2.750 tokens (38%) kunnen worden geëlimineerd zonder functieverlies</li>
+</ol>
+
+<h3>CRITICAL Actions (Must Do)</h3>
+
+<pre><code># FASE 1: CRITICAL FIXES (30 minuten)
+1. DELETE lijn 323-329  # Fix ontologische conflict
+2. DELETE lijn 294-322  # Remove duplicate verboden starts
+3. MERGE ESS-01 + STR-06  # Consolidate duplicate regel
+4. TRIM lijn 380-400 → 15 regels  # Cleanup finale instructies
+
+EXPECTED RESULT:
+- 419 → 362 regels (-14%)
+- 7.250 → 6.200 tokens (-14%)
+- 3 conflicten → 0 conflicten</code></pre>
+
+<h3>HIGH Priority Actions (Should Do)</h3>
+
+<pre><code># FASE 2: STRUCTURAL OPTIMIZATION (1.5 uur)
+1. MERGE Grammatica (24-61) + VER (289-291)
+2. CONDENSE Kwaliteitsmetrieken (353-379) → 10 regels
+3. SIMPLIFY Ontologie (70-109) → 25 regels
+4. REORGANIZE secties in logische volgorde
+
+EXPECTED RESULT:
+- 362 → 316 regels (-25% vs origineel)
+- 6.200 → 5.400 tokens (-26% vs origineel)
+- Redundantie: 40% → 15%</code></pre>
+
+<h3>MEDIUM Priority (Nice to Have)</h3>
+
+<pre><code># FASE 3: POLISH (1.5 uur)
+1. OPTIMIZE voorbeelden (max 2✅ + 2❌ per regel)
+2. ADD cross-references tussen gerelateerde regels
+3. VERIFY backwards compatibility met test suite
+
+EXPECTED RESULT:
+- 316 → 290 regels (-31% vs origineel)
+- 5.400 → 4.500 tokens (-38% vs origineel)
+- Redundantie: 15% → &lt;10%</code></pre>
+
+<h3>Definitief Advies</h3>
+
+<p><strong>START MET:</strong> Fase 1 (Critical Fixes)</p>
+<p><strong>REDEN:</strong> 30 minuten werk, 14% reductie, 100% conflict removal</p>
+<p><strong>RISICO:</strong> Minimaal (alleen duplicate removal)</p>
+
+<p><strong>DAARNA:</strong> Fase 2 (Structural Optimization)</p>
+<p><strong>REDEN:</strong> 1.5 uur werk, totaal 26% reductie, veel betere leesbaarheid</p>
+<p><strong>RISICO:</strong> Medium (test met 50 begrippen vereist)</p>
+
+<p><strong>OPTIONEEL:</strong> Fase 3 (Polish)</p>
+<p><strong>REDEN:</strong> 1.5 uur werk, totaal 31% reductie, perfectie</p>
+<p><strong>RISICO:</strong> Low (alleen formatting changes)</p>
+
+<p>---</p>
+
+<h2>BIJLAGEN</h2>
+
+<h3>Bijlage A: Volledige Duplicate Mapping</h3>
+
+<pre><code>DUPLICATE #1: "Geen lidwoord"
+- Lijn 13: Output format
+- Lijn 134: ARAI-06 regel
+- Lijn 294: Veelgemaakte fouten intro
+- Lijn 320-322: Specifieke verboden
+- Lijn 386: Checklist
+
+ACTIE: KEEP lijn 134, DELETE rest
+
+DUPLICATE #2: "Geen koppelwerkwoord"
+- Lijn 78: ESS-02 context
+- Lijn 134: ARAI-06 regel
+- Lijn 295: Veelgemaakte fouten intro
+- Lijn 301-318: 18 specifieke verboden
+- Lijn 344: Tabel samenvatting
+
+ACTIE: KEEP lijn 134 + top 5 voorbeelden, DELETE rest
+
+DUPLICATE #3: "Enkelvoud regel"
+- Lijn 26-31: Grammatica uitleg
+- Lijn 289-290: VER-01 + VER-02
+- Lijn 300: Veelgemaakte fouten
+
+ACTIE: KEEP lijn 26-31, MERGE VER, DELETE lijn 300
+
+DUPLICATE #4: "Essentie niet doel"
+- Lijn 142: ESS-01
+- Lijn 187-191: STR-06
+
+ACTIE: MERGE naar één regel met beide voorbeelden</code></pre>
+
+<h3>Bijlage B: Conflict Resolution Details</h3>
+
+<p><strong>CONFLICT #1: Ontologische Kick-Off</strong></p>
+
+<pre><code>HUIDIGE STAAT (CONFLICTEREND):
+
+Lijn 73-77:
++ "start met: 'activiteit waarbij...', 'handeling die...', 'proces waarin...'"
+
+Lijn 323-325:
+- "❌ Start niet met 'proces waarbij'"
+- "❌ Start niet met 'handeling die'"
+
+NIEUWE STAAT (RESOLVED):
+
+Lijn 73-77: KEEP (unchanged)
+Lijn 323-329: DELETE volledig
+
+TOEVOEGEN bij ESS-02:
+"⚠️ Gebruik SPECIFIEKE kick-off, niet generiek:
+  ✅ 'activiteit waarbij gegevens worden verzameld door directe waarneming'
+  ❌ 'proces waarbij iets gebeurt' (te vaag)
+
+  De kick-off moet meteen toespitsen op het specifieke begrip."</code></pre>
+
+<p><strong>CONFLICT #2: Containerbegrippen</strong></p>
+
+<pre><code>HUIDIGE STAAT (ONDUIDELIJK):
+
+ARAI-02: "Vermijd vage containerbegrippen"
+Template: "[Handeling/activiteit] waarbij..."
+
+=&gt; Wanneer mag "activiteit" WEL?
+
+NIEUWE STAAT (VERDUIDELIJKT):
+
+TOEVOEGEN bij ARAI-02:
+"⚠️ Uitzondering: Containerbegrippen ZIJN toegestaan als genus proximum
+    (kick-off), MITS direct gevolgd door specificerende differentia.
+
+    ✅ 'activiteit waarbij [specifieke actor] [specifieke actie]'
+    ❌ 'activiteit die plaatsvindt' (te vaag)
+    ❌ 'proces' (geen toespitsing)"</code></pre>
+
+<h3>Bijlage C: Recommended Section Order</h3>
+
+<pre><code>NIEUWE STRUCTUUR (Logische Flow):
+
+1. INTRODUCTIE (1-10)
+   └─ Basis rol &amp; vereisten
+
+2. OUTPUT FORMAT (11-16)
+   └─ Technische specs
+
+3. GRAMMATICA &amp; VORM (MERGED: 24-61 + 289-291)
+   └─ Enkelvoud, actieve vorm, tegenwoordige tijd, afkortingen
+
+4. ONTOLOGISCHE CATEGORIEËN (70-109, SIMPLIFIED)
+   └─ Proces/Type/Resultaat/Exemplaar
+   └─ Kick-off templates
+   └─ Voorbeelden
+
+5. TEMPLATES (110-124)
+   └─ Concrete structuren
+
+6. VALIDATIEREGELS (125-288, OPTIMIZED)
+   └─ ARAI (Algemeen)
+   └─ CON (Context)
+   └─ ESS (Essentie, MERGED ESS-01+STR-06)
+   └─ STR (Structuur)
+   └─ INT (Integriteit)
+   └─ SAM (Samenhang)
+
+7. CONTEXT INFO (63-69 + 336-351)
+   └─ Organisatorisch/juridisch
+   └─ Context-specifieke verboden
+
+8. KWALITEITSMETRIEKEN (353-379, CONDENSED)
+   └─ Karakterlimieten
+   └─ Complexiteitsindicatoren
+
+9. FINALE INSTRUCTIES (380-419, TRIMMED)
+   └─ Opdracht
+   └─ Checklist (condensed)
+   └─ Metadata</code></pre>
+
+<p>---</p>
+
+<p><strong>EINDE ANALYSE</strong></p>
+
+<p><strong>Volgende Stap:</strong> Implementatie planning - zie <code>/docs/planning/</code> voor concrete refactor roadmap.</p>
+
+  </div>
+</body>
+</html>

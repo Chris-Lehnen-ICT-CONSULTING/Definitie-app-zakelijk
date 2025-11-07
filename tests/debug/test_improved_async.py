@@ -64,9 +64,8 @@ def test_real_import():
     """Test actual import service with new async_bridge."""
     print("\n3. Real import service test:")
 
-    from ui.helpers.async_bridge import run_async_safe
-
     from src.services.container import ServiceContainer
+    from ui.helpers.async_bridge import run_async_safe
 
     container = ServiceContainer()
     import_service = container.import_service()

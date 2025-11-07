@@ -48,6 +48,7 @@ def test_validation_result_degraded_schema():
     schema = json.loads(schema_path.read_text(encoding="utf-8"))
 
     from jsonschema import validate
+
     from services.validation.mappers import create_degraded_result
 
     degraded = create_degraded_result(

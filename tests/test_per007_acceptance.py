@@ -8,6 +8,7 @@ import os
 from unittest.mock import MagicMock, Mock, patch
 
 import pytest
+
 from services.definition_generator_context import EnrichedContext, HybridContextManager
 from services.interfaces import GenerationRequest
 from services.prompts.prompt_service_v2 import PromptServiceV2

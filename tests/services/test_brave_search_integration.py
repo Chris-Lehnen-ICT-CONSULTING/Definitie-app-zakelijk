@@ -6,6 +6,7 @@ inclusief ranking, deduplicatie en mixing met andere providers.
 """
 
 import pytest
+
 from services.interfaces import LookupRequest, LookupResult, WebSource
 from services.modern_web_lookup_service import ModernWebLookupService
 

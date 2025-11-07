@@ -21,11 +21,10 @@ from pathlib import Path
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root / "src"))
 
+from config.synonym_config import SynonymPolicy, get_synonym_config, reload_config
 from repositories.synonym_registry import get_synonym_registry
 from services.gpt4_synonym_suggester import GPT4SynonymSuggester
 from services.synonym_orchestrator import SynonymOrchestrator
-
-from config.synonym_config import SynonymPolicy, get_synonym_config, reload_config
 
 
 def print_separator(title: str = ""):

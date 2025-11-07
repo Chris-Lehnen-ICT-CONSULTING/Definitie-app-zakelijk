@@ -10,12 +10,12 @@ from datetime import datetime, timedelta
 from typing import Any
 
 import streamlit as st
+
+from config.config_manager import ConfigSection, get_config
 from services.definition_edit_repository import DefinitionEditRepository
 from services.definition_edit_service import DefinitionEditService
 from services.validation.modular_validation_service import ModularValidationService
 from ui.session_state import SessionStateManager
-
-from config.config_manager import ConfigSection, get_config
 
 logger = logging.getLogger(__name__)
 

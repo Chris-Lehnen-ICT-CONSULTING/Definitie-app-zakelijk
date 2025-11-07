@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DEF-101 EPIC Implementation Guide</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>DEF-101 EPIC Implementation Guide</h1>
+<p><strong>Last Updated:</strong> 7 november 2025</p>
+<p><strong>Total Effort:</strong> 28 uur</p>
+<p><strong>Expected Impact:</strong> -63% token reduction (7250→2650)</p>
+
+<h2>🎯 Quick Start voor nieuwe developer</h2>
+
+<p>Als je DEF-101 oppakt, volg deze stappen:</p>
+
+<h3>Stap 1: Lees deze documenten (30 min)</h3>
+<ol>
+<li>**Analysis:** `docs/analyses/PROMPT_COMPREHENSIVE_ANALYSIS_AND_IMPROVEMENT_PLAN.md`</li>
+<li>**Architecture:** `docs/analyses/PROMPT_OPTIMIZATION_ANALYSIS.md`</li>
+<li>**Implementation:** `docs/planning/PROMPT_V8_IMPLEMENTATION.md`</li>
+</ol>
+
+<h3>Stap 2: Check Linear status</h3>
+<ul>
+<li>**DEF-102** (Todo) - Begin hiermee! Fix 5 blocking contradictions</li>
+<li>**DEF-106** (Todo) - PromptValidator voor regression prevention</li>
+<li>Rest staat in Backlog</li>
+</ul>
+
+<h3>Stap 3: Verwijder verkeerde issues</h3>
+<ul>
+<li>**DEF-122** - CANCEL dit (verkeerde aanpak)</li>
+<li>**DEF-125** - CANCEL dit (verkeerde aanpak)</li>
+<li>Gebruik **DEF-126** voor validatieregel transformatie</li>
+</ul>
+
+<p>---</p>
+
+<h2>📋 Complete Issue List (9 actieve issues)</h2>
+
+<h3>ORIGINELE CONTENT FIXES (DEF-102 t/m DEF-107)</h3>
+<p>| Issue | Titel | Status | Effort | Impact |</p>
+<p>|-------|-------|--------|--------|--------|</p>
+<p>| DEF-102 | Fix Blocking Contradictions | <strong>Todo</strong> ⚡ | 3u | System wordt usable |</p>
+<p>| DEF-103 | Reduce Cognitive Load | Backlog | 2u | -750 tokens |</p>
+<p>| DEF-104 | Reorganize Flow | Backlog | 3u | -800 tokens |</p>
+<p>| DEF-105 | Visual Hierarchy | Backlog | 2u | Betere leesbaarheid |</p>
+<p>| DEF-106 | PromptValidator | <strong>Todo</strong> ⚡ | 2u | Voorkomt regressie |</p>
+<p>| DEF-107 | Documentation & Testing | Backlog | 4u | Maintainability |</p>
+
+<h3>NIEUWE ARCHITECTURE FIXES (DEF-123, DEF-124, DEF-126)</h3>
+<p>| Issue | Titel | Status | Effort | Impact |</p>
+<p>|-------|-------|--------|--------|--------|</p>
+<p>| DEF-123 | Context-aware module loading | Backlog 🆕 | 5u | <strong>-25% tokens</strong> |</p>
+<p>| DEF-124 | Cache static modules | Backlog 🆕 | 2u | <strong>40% faster</strong> |</p>
+<p>| DEF-126 | Transform rules to instructions | Backlog 🆕 | 5u | <strong>Betere generatie</strong> |</p>
+
+<p>---</p>
+
+<h2>🗓️ Implementatie Volgorde (BELANGRIJK!)</h2>
+
+<h3>WEEK 1: Critical Fixes (8 uur)</h3>
+<pre><code>1. DEF-102 - Fix 5 blocking contradictions (3u)
+   → Files: src/services/prompts/modules/error_prevention_module.py
+   → Add exception clauses voor ESS-02
+
+2. DEF-126 - Transform validation rules to instructions (5u)
+   → Files: alle 7 regel modules (arai_rules_module.py, etc.)
+   → Transform van "check X" naar "doe X"
+   → NIET DEF-122/125 gebruiken!
+
+3. DEF-103 - Reduce cognitive load (2u) [indien tijd]
+   → 42 forbidden patterns → 7 categorieën</code></pre>
+
+<h3>WEEK 2: Structural Improvements (10 uur)</h3>
+<pre><code>4. DEF-104 - Reorganize flow + Inverted Pyramid (3u)
+   → Implement 5-level pyramid structure
+   → Critical info first
+
+5. DEF-123 - Context-aware module loading (5u)
+   → Grootste token savings!
+   → 16 modules altijd → 6-10 conditional
+
+6. DEF-105 - Visual hierarchy (2u)
+   → 3-tier priority badges</code></pre>
+
+<h3>WEEK 3: Quality & Performance (8 uur)</h3>
+<pre><code>7. DEF-106 - PromptValidator (2u)
+   → Automated QA checks
+   → Detecteer contradictions
+
+8. DEF-124 - Cache static modules (2u)
+   → 40% performance boost
+   → Streamlit caching
+
+9. DEF-107 - Documentation &amp; testing (4u)
+   → Golden reference set
+   → Regression tests</code></pre>
+
+<p>---</p>
+
+<h2>🔧 Technische Details</h2>
+
+<h3>Files om aan te passen</h3>
+<pre><code>src/services/prompts/modules/
+├── arai_rules_module.py     (DEF-126: transform to instructions)
+├── con_rules_module.py      (DEF-126: transform to instructions)
+├── ess_rules_module.py      (DEF-126: transform to instructions)
+├── integrity_rules_module.py(DEF-126: transform to instructions)
+├── sam_rules_module.py      (DEF-126: transform to instructions)
+├── structure_rules_module.py(DEF-126: transform to instructions)
+├── ver_rules_module.py      (DEF-126: transform to instructions)
+├── error_prevention_module.py (DEF-102: add exception clauses)
+├── prompt_orchestrator.py   (DEF-123: conditional loading)
+└── [new] module_cache.py    (DEF-124: caching layer)</code></pre>
+
+<h3>Test Strategy</h3>
+<pre><code># Voor elke change:
+pytest tests/services/prompts/test_prompt_generation.py
+
+# A/B testing:
+python scripts/ab_test_prompts.py --v7 --v8 --terms 50
+
+# Token counting:
+python scripts/count_prompt_tokens.py --before --after</code></pre>
+
+<p>---</p>
+
+<h2>⚠️ Belangrijke Aandachtspunten</h2>
+
+<h3>1. NIET DEF-122/125 gebruiken!</h3>
+<ul>
+<li>DEF-122 wil regels VERWIJDEREN (verkeerd)</li>
+<li>DEF-125 wil regels COMPRIMEREN (verkeerd)</li>
+<li>**Gebruik DEF-126**: TRANSFORMEER naar instructies</li>
+</ul>
+
+<h3>2. Contradictions eerst oplossen</h3>
+<ul>
+<li>Begin ALTIJD met DEF-102</li>
+<li>Systeem is nu UNUSABLE door 5 blocking contradictions</li>
+<li>Vooral ESS-02 "is" conflict is kritiek</li>
+</ul>
+
+<h3>3. Measure impact</h3>
+<ul>
+<li>Token count voor/na elke change</li>
+<li>A/B test met 50 begrippen</li>
+<li>Validatie scores moeten gelijk blijven of beter</li>
+</ul>
+
+<h3>4. Validatieregels NIET aanpassen</h3>
+<ul>
+<li>JSON files blijven intact</li>
+<li>Python validatie code blijft intact</li>
+<li>Alleen PRESENTATIE in prompt modules wijzigt</li>
+</ul>
+
+<p>---</p>
+
+<h2>📊 Expected Results</h2>
+
+<h3>Na Week 1 (Critical)</h3>
+<ul>
+<li>✅ Systeem wordt usable (contradictions opgelost)</li>
+<li>✅ Betere instructies voor LLM</li>
+<li>✅ -750 tokens (cognitive load)</li>
+</ul>
+
+<h3>Na Week 2 (Structural)</h3>
+<ul>
+<li>✅ -2800 tokens extra (conditional loading)</li>
+<li>✅ Betere information flow</li>
+<li>✅ Visual hierarchy</li>
+</ul>
+
+<h3>Na Week 3 (Quality)</h3>
+<ul>
+<li>✅ Automated regression prevention</li>
+<li>✅ 40% sneller</li>
+<li>✅ Volledig gedocumenteerd</li>
+</ul>
+
+<h3>TOTAAL</h3>
+<ul>
+<li>**Van:** 7250 tokens, unusable, 100+ concepts</li>
+<li>**Naar:** 2650 tokens (-63%), usable, <15 concepts</li>
+</ul>
+
+<p>---</p>
+
+<h2>🔗 Links</h2>
+
+<ul>
+<li>**Linear EPIC:** https://linear.app/definitie-app/issue/DEF-101</li>
+<li>**Analysis Doc:** `/docs/analyses/PROMPT_OPTIMIZATION_ANALYSIS.md`</li>
+<li>**Implementation Plan:** `/docs/planning/PROMPT_V8_IMPLEMENTATION.md`</li>
+</ul>
+
+<p>---</p>
+
+<h2>Contact</h2>
+
+<p>Bij vragen over deze EPIC:</p>
+<ul>
+<li>Check Linear comment van 7 november 2025</li>
+<li>Review de analysis documenten</li>
+<li>Test met golden reference set: `/tests/fixtures/golden_definitions.json`</li>
+</ul>
+  </div>
+</body>
+</html>

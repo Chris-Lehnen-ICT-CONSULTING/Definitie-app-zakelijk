@@ -9,9 +9,8 @@ import logging
 from collections.abc import Callable
 from dataclasses import dataclass
 
-from utils.async_api import async_cached, async_gpt_call
-
 from config.config_manager import get_prompt_temperature
+from utils.async_api import async_cached, async_gpt_call
 
 logger = logging.getLogger(__name__)
 

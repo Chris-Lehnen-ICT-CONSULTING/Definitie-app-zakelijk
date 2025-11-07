@@ -11,6 +11,7 @@ Test coverage:
 """
 
 import pytest
+
 from services.interfaces import LookupResult, WebSource
 from services.web_lookup.brave_search_service import BraveSearchService
 

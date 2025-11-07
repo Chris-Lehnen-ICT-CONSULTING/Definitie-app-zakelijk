@@ -10,6 +10,7 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
+
 from toetsregels.cached_manager import CachedToetsregelManager
 from toetsregels.manager import ToetsregelManager
 

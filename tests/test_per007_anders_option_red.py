@@ -7,6 +7,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 import streamlit as st
+
 from services.definition_generator_context import HybridContextManager
 from services.interfaces import GenerationRequest
 

@@ -8,6 +8,7 @@ import asyncio
 from unittest.mock import Mock, patch
 
 import pytest
+
 from services.interfaces import GenerationRequest
 from services.orchestrators.definition_orchestrator_v2 import DefinitionOrchestratorV2
 from services.prompts.prompt_service_v2 import PromptServiceConfig, PromptServiceV2

@@ -190,6 +190,7 @@ class TestHistoryTabRemoval:
     def test_session_state_no_history_keys(self):
         """Verify no history-related keys in session state initialization."""
         import streamlit as st
+
         from ui.session_state import SessionStateManager
 
         # Mock streamlit session state

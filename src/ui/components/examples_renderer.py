@@ -10,6 +10,7 @@ from collections.abc import Iterable
 from typing import Any
 
 import streamlit as st
+
 from ui.session_state import SessionStateManager
 
 

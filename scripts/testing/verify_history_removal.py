@@ -273,6 +273,7 @@ class HistoryRemovalVerifier:
             from unittest.mock import patch
 
             import streamlit as st
+
             from ui.session_state import SessionStateManager
 
             # Mock streamlit session state
