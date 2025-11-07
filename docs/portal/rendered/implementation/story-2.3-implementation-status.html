@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>[GEARCHIVEERD] Story 2.3 Implementatie Status - ModularValidationService V2</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>aangemaakt: '08-09-2025'</p>
+<p>applies_to: definitie-app@v2</p>
+<p>bijgewerkt: '08-09-2025'</p>
+<p>canonical: false</p>
+<p>last_verified: 02-09-2025</p>
+<p>owner: validation</p>
+<p>prioriteit: medium</p>
+<p>status: archived</p>
+<p>---</p>
+
+
+
+<h1>[GEARCHIVEERD] Story 2.3 Implementatie Status - ModularValidationService V2</h1>
+
+<p>Deze statusnotitie is gearchiveerd. De actuele specificatie/status staat in:</p>
+<ul>
+<li>`docs/backlog/stories/MASTER-EPICS-USER-STORIES.md` (Story 2.3 - Completed)</li>
+<li>Implementatie instructies zijn gearchiveerd: `/docs/archief/2025-01-workflows/story-2.3-implementation-handover.md`</li>
+</ul>
+
+<p><strong>Datum</strong>: 09-01-2025</p>
+<p><strong>Branch</strong>: <code>feat/story-2.3-container-wiring</code> (verwijderd)</p>
+<p><strong>Status</strong>: ✅ Core Implementatie Compleet (70%)</p>
+
+<h2>📊 Implementatie Overview</h2>
+
+<h3>✅ Wat is Geïmplementeerd</h3>
+
+<h4>1. Core Modules (100% compleet)</h4>
+<p>Alle vereiste modules zijn aangemaakt en werkend:</p>
+
+<p>| Module | Status | Functionaliteit |</p>
+<p>|--------|--------|-----------------|</p>
+<p>| <code>modular_validation_service.py</code> | ✅ | Hoofdservice met 9 interne validatieregels |</p>
+<p>| <code>aggregation.py</code> | ✅ | Gewogen score berekening Σ(w×s)/Σ(w) |</p>
+<p>| <code>config.py</code> | ✅ | YAML configuratie met env overlay |</p>
+<p>| <code>types_internal.py</code> | ✅ | EvaluationContext & RuleResult dataclasses |</p>
+<p>| <code>module_adapter.py</code> | ✅ | Error isolation voor regel executie |</p>
+<p>| <code>validation_rules.yaml</code> | ✅ | Configuratie weights/thresholds |</p>
+
+<h4>2. Validatie Regels Geïmplementeerd</h4>
+<pre><code>Regel Codes &amp; Weights:
+- VAL-EMP-001: 1.0  # Lege definitie check
+- VAL-LEN-001: 0.9  # Te kort check
+- VAL-LEN-002: 0.6  # Te lang check
+- ESS-CONT-001: 1.0 # Essentiële inhoud
+- CON-CIRC-001: 0.8 # Circulariteit
+- LANG-INF-001: 0.6 # Informele taal
+- LANG-MIX-001: 0.7 # Gemengde taal NL/EN
+- STR-TERM-001: 0.5 # Terminologie
+- STR-ORG-001: 0.7  # Structuur/organisatie
+
+Threshold: 0.75 (acceptabel &gt;= 0.75)</code></pre>
+
+<h4>3. Container Integration (✅ Compleet)</h4>
+<pre><code># Container gebruikt nu direct ModularValidationService
+validation_service = ModularValidationService(
+    get_toetsregel_manager(),
+    None,  # cleaning_service optioneel
+    ValidationConfig.from_yaml("src/config/validation_rules.yaml")
+)</code></pre>
+
+<h4>4. Export Service Enhancement (✅ Compleet)</h4>
+<ul>
+<li>Optionele validation gate toegevoegd</li>
+<li>Async validatie integratie voor export quality control</li>
+</ul>
+
+<h3>📈 Test Resultaten</h3>
+
+<h4>Slagende Tests (15/43)</h4>
+<ul>
+<li>**Contract Tests**: 3/3 ✅</li>
+<li>**Determinisme Tests**: 5/5 ✅</li>
+<li>**Aggregatie Tests**: 5/6 (1 rounding issue)</li>
+<li>**Context Sharing**: 2/6 (basis werkt)</li>
+</ul>
+
+<h4>Test Coverage per Categorie</h4>
+<p>| Categorie | Status | Tests |</p>
+<p>|-----------|--------|-------|</p>
+<p>| Contract/Interface | ✅ | 3/3 |</p>
+<p>| Determinisme | ✅ | 5/5 |</p>
+<p>| Aggregatie | ⚠️ | 5/6 |</p>
+<p>| Golden Tests | ⚠️ | 0/1 |</p>
+<p>| Error Isolation | ⚠️ | Basis werkt |</p>
+<p>| Batch Processing | ❌ | 0/7 |</p>
+<p>| Prestaties | ❌ | 0/4 |</p>
+<p>| Integration | ❌ | 0/2 |</p>
+
+<h3>❌ Wat Moet Nog Geïmplementeerd</h3>
+
+<h4>1. Batch Validation (Prioriteit 1)</h4>
+<pre><code>async def batch_validate(
+    self,
+    definitions: list[Definition],
+    max_concurrency: int = 5
+) -&gt; list[ValidationResult]:
+    # TODO: Implement concurrent batch processing</code></pre>
+
+<h4>2. Prestaties Optimizations</h4>
+<ul>
+<li>Benchmark fixture setup</li>
+<li>Caching mechanisme</li>
+<li>Concurrent regel evaluatie</li>
+</ul>
+
+<h4>3. Bug Fixes</h4>
+<ul>
+<li>Aggregatie rounding fix (0.81 vs 0.80)</li>
+<li>Golden test boundary issue (score 1.0 waar max 0.75)</li>
+</ul>
+
+<h4>4. Integration met ToetsregelManager</h4>
+<ul>
+<li>Nu gebruikt interne regels</li>
+<li>Moet gekoppeld worden aan bestaande Python regel modules</li>
+</ul>
+
+<h2>🔄 Volgende Stappen</h2>
+
+<h3>Immediate (Sprint 1)</h3>
+<ol>
+<li>[ ] Implementeer `batch_validate` methode</li>
+<li>[ ] Fix aggregatie rounding issue</li>
+<li>[ ] Fix golden test boundaries</li>
+<li>[ ] Add pytest-benchmark voor performance tests</li>
+</ol>
+
+<h3>Short Term (Sprint 2)</h3>
+<ol>
+<li>[ ] Integreer met ToetsregelManager</li>
+<li>[ ] Implementeer caching layer</li>
+<li>[ ] Add concurrent regel evaluatie</li>
+<li>[ ] Complete integration tests</li>
+</ol>
+
+<h3>Long Term (Sprint 3+)</h3>
+<ol>
+<li>[ ] Feature flags voor gradual rollout</li>
+<li>[ ] A/B testing framework</li>
+<li>[ ] Prestaties monitoring</li>
+<li>[ ] Complete V1 deprecation</li>
+</ol>
+
+<h2>📝 Technische Details</h2>
+
+<h3>Aggregatie Formule</h3>
+<pre><code>def calculate_weighted_score(scores, weights):
+    total_w = sum(weights.values())
+    total_ws = sum(w * scores[code] for code, w in weights.items())
+    return round(total_ws / total_w, 2) if total_w &gt; 0 else 0.0</code></pre>
+
+<h3>ValidationResult Schema</h3>
+<pre><code>{
+    "version": "1.0.0",
+    "overall_score": 0.75,  # 2 decimalen
+    "is_acceptable": True,   # &gt;= threshold
+    "violations": [...],     # gesorteerd op code
+    "passed_rules": [...],   # lijst van codes
+    "detailed_scores": {
+        "taal": 0.80,
+        "juridisch": 0.75,
+        "structuur": 0.70,
+        "samenhang": 0.85
+    },
+    "system": {
+        "correlation_id": "uuid"
+    }
+}</code></pre>
+
+<h3>Error Isolation Pattern</h3>
+<pre><code>try:
+    result = rule.validate(context)
+except Exception as e:
+    # Regel faalt, maar validatie gaat door
+    result = RuleResult.errored(rule_code, e)</code></pre>
+
+<h2>🎯 Success Metrics</h2>
+
+<h3>Current State</h3>
+<ul>
+<li>✅ Core functionaliteit: **100%**</li>
+<li>⚠️ Batch processing: **0%**</li>
+<li>⚠️ Prestaties: **0%**</li>
+<li>✅ Error isolation: **100%**</li>
+<li>✅ Determinisme: **100%**</li>
+<li>⚠️ Integration: **30%**</li>
+</ul>
+
+<h3>Overall Completion: **~70%**</h3>
+
+<h2>📚 Referenties</h2>
+
+<ul>
+<li>Story 2.3 Specificaties: zie `docs/backlog/stories/MASTER-EPICS-USER-STORIES.md` (Story 2.3 - Completed)</li>
+<li>[Test Implementatie](../testing/story-2.3-test-implementation.md)</li>
+<li>Implementatie Overdracht: `/docs/archief/2025-01-workflows/story-2.3-implementation-handover.md`</li>
+<li>[Golden Test Cases](../../tests/fixtures/golden_definitions.yaml)</li>
+</ul>
+
+<h2>🏁 Conclusie</h2>
+
+<p>De ModularValidationService V2 implementatie is succesvol opgezet met werkende core functionaliteit. De service is deterministisch, heeft error isolation, en gebruikt configureerbare weights. De architectuur is klaar voor uitbreiding met batch processing en performance optimalisaties.</p>
+
+<p><strong>Commit</strong>: <code>ab81aee</code> - feat: implement ModularValidationService v2 (Story 2.3)</p>
+
+  </div>
+</body>
+</html>

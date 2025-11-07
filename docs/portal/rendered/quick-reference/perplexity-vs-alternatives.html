@@ -1,0 +1,425 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Perplexity API vs. Alternatives - Quick Reference</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>Perplexity API vs. Alternatives - Quick Reference</h1>
+
+<p><strong>Last Updated</strong>: 2025-10-09</p>
+<p><strong>Decision</strong>: NO-GO (see full analysis in <code>docs/analyses/PERPLEXITY_API_FEASIBILITY_ANALYSIS.md</code>)</p>
+
+<p>---</p>
+
+<h2>One-Page Comparison</h2>
+
+<h3>Option Matrix</h3>
+
+<p>| Option | Cost/Month | Effort (hours) | Latency | NL Juridisch Coverage | Recommendation |</p>
+<p>|--------|-----------|----------------|---------|----------------------|----------------|</p>
+<p>| <strong>Perplexity Search</strong> | $1.50-150 | 4-6 | 2-4s | ❓ Unproven | ❌ NO-GO |</p>
+<p>| <strong>Perplexity Sonar</strong> | $2-180 | 4-6 | 2-4s | ❓ Unproven + hallucination risk | ❌ NO-GO |</p>
+<p>| <strong>Brave Search Fix</strong> | $0 (2k free) | 2-3 | 1-2s | ✅ Proven (web diversity) | ✅ <strong>RECOMMENDED</strong> |</p>
+<p>| <strong>Wikipedia Synoniemen</strong> | $0 | 1-2/batch | 0.5s | ✅ Proven (476 synoniemen) | ✅ <strong>RECOMMENDED</strong> |</p>
+<p>| <strong>Current Providers</strong> | $0 | 0 (done) | 1.5-2s | ✅ 80%+ hit rate | ✅ <strong>KEEP</strong> |</p>
+
+<p>---</p>
+
+<h2>Provider Scorecard</h2>
+
+<h3>Perplexity API</h3>
+
+<p><strong>Pros</strong>:</p>
+<ul>
+<li>✅ AI-powered search with citations</li>
+<li>✅ Domain filtering capability</li>
+<li>✅ Real-time web access</li>
+</ul>
+
+<p><strong>Cons</strong>:</p>
+<ul>
+<li>❌ **Costs $5-180/month** (vs FREE alternatives)</li>
+<li>❌ **No free tier** (credit card required)</li>
+<li>❌ **No proven NL juridische advantage**</li>
+<li>❌ **Slower** (2-4s LLM processing)</li>
+<li>❌ **Hallucination risk** (Sonar mode)</li>
+<li>❌ **Vendor lock-in**</li>
+</ul>
+
+<p><strong>Score</strong>: 4.3/10 (threshold: 6.0) → <strong>REJECT</strong></p>
+
+<p>---</p>
+
+<h3>Brave Search Direct API (RECOMMENDED)</h3>
+
+<p><strong>Pros</strong>:</p>
+<ul>
+<li>✅ **FREE tier**: 2,000 queries/month</li>
+<li>✅ **Fast**: 1-2s response time</li>
+<li>✅ **Same cost at scale**: $5/1k (identical to Perplexity)</li>
+<li>✅ **No vendor lock-in** (already implemented, just fix wrapper)</li>
+<li>✅ **Dutch language support** (search_lang=nl)</li>
+</ul>
+
+<p><strong>Cons</strong>:</p>
+<ul>
+<li>⚠️ Currently broken (MCP wrapper issue)</li>
+<li>⚠️ Mixed content (juridical + general web)</li>
+</ul>
+
+<p><strong>Implementation</strong>:</p>
+<pre><code># src/services/web_lookup/brave_direct_service.py
+async def brave_direct_search(query: str) -&gt; List[dict]:
+    async with httpx.AsyncClient() as client:
+        response = await client.get(
+            "https://api.search.brave.com/res/v1/web/search",
+            headers={"X-Subscription-Token": os.getenv("BRAVE_API_KEY")},
+            params={
+                "q": query,
+                "count": 5,
+                "search_lang": "nl",
+                "country": "NL"
+            }
+        )
+    return response.json()["web"]["results"]</code></pre>
+
+<p><strong>Effort</strong>: 2-3 hours</p>
+<p><strong>Score</strong>: 8.5/10 → <strong>IMPLEMENT</strong></p>
+
+<p>---</p>
+
+<h3>Wikipedia + Synoniemen Database (CURRENT)</h3>
+
+<p><strong>Pros</strong>:</p>
+<ul>
+<li>✅ **FREE, unlimited**</li>
+<li>✅ **Proven effective**: "onherroepelijk" → "kracht van gewijsde"</li>
+<li>✅ **476 weighted synoniemen** (expanding)</li>
+<li>✅ **Fast**: 0.5s avg response</li>
+<li>✅ **No vendor lock-in**</li>
+</ul>
+
+<p><strong>Cons</strong>:</p>
+<ul>
+<li>⚠️ Requires synonym maintenance (GPT-4 suggest + human approve)</li>
+<li>⚠️ Not authoritative (vs Overheid.nl)</li>
+</ul>
+
+<p><strong>Current Weight</strong>: 0.85 (boosted Oct 2025)</p>
+
+<p><strong>Expansion Workflow</strong>:</p>
+<pre><code>python scripts/batch_suggest_synonyms.py data/test_terms.csv
+# → GPT-4 suggests synonyms
+# → Human reviews + approves
+# → Update config/juridische_synoniemen.yaml</code></pre>
+
+<p><strong>Effort</strong>: 1-2 hours/batch (ongoing)</p>
+<p><strong>Score</strong>: 9.0/10 → <strong>KEEP + EXPAND</strong></p>
+
+<p>---</p>
+
+<h2>Cost Comparison</h2>
+
+<h3>Scenario: Development (10 queries/day)</h3>
+
+<p>| Provider | Monthly Cost | Annual Cost |</p>
+<p>|----------|-------------|-------------|</p>
+<p>| Perplexity Search | $1.50 | $18 |</p>
+<p>| Perplexity Sonar | $2.30 | $28 |</p>
+<p>| Brave Search | <strong>$0</strong> (free tier) | <strong>$0</strong> |</p>
+<p>| Wikipedia | <strong>$0</strong> | <strong>$0</strong> |</p>
+<p>| Overheid.nl | <strong>$0</strong> | <strong>$0</strong> |</p>
+
+<p><strong>Winner</strong>: Brave + Wikipedia (FREE)</p>
+
+<p>---</p>
+
+<h3>Scenario: Production (1,000 queries/day)</h3>
+
+<p>| Provider | Monthly Cost | Annual Cost |</p>
+<p>|----------|-------------|-------------|</p>
+<p>| Perplexity Search | $150 | $1,800 |</p>
+<p>| Perplexity Sonar | $180 | $2,160 |</p>
+<p>| Brave Search | $75 | $900 |</p>
+<p>| Wikipedia | <strong>$0</strong> | <strong>$0</strong> |</p>
+<p>| Overheid.nl | <strong>$0</strong> | <strong>$0</strong> |</p>
+
+<p><strong>Winner</strong>: Wikipedia + Overheid.nl (FREE)</p>
+<p><strong>Runner-up</strong>: Brave Search ($900/year vs $1,800-2,160 Perplexity)</p>
+
+<p>---</p>
+
+<h2>Action Plan</h2>
+
+<h3>❌ DON'T DO (Perplexity)</h3>
+
+<ul>
+<li>~~Integrate Perplexity Search API~~</li>
+<li>~~Integrate Perplexity Sonar (LLM)~~</li>
+<li>**Reason**: No ROI, high cost, vendor lock-in</li>
+</ul>
+
+<h3>✅ DO INSTEAD</h3>
+
+<h4>Priority 1: Fix Brave Search (This Week)</h4>
+
+<pre><code># 1. Create direct API service (no MCP wrapper)
+touch src/services/web_lookup/brave_direct_service.py
+
+# 2. Implement direct API call
+# See code snippet above
+
+# 3. Update ModernWebLookupService
+# Replace MCP wrapper with direct call
+
+# 4. Get Brave API key (free tier)
+# https://brave.com/search/api/
+
+# 5. Test
+python scripts/test_web_lookup_live.py</code></pre>
+
+<p><strong>Effort</strong>: 2-3 hours</p>
+<p><strong>Expected Result</strong>: +15% recall, $0 cost</p>
+
+<p>---</p>
+
+<h4>Priority 2: Expand Synoniemen (Ongoing)</h4>
+
+<pre><code># 1. Create test_terms.csv with new terms
+echo "term,context\nonherroepelijk,Strafrecht\nhoger beroep,Procesrecht" &gt; data/test_terms.csv
+
+# 2. Run GPT-4 suggest workflow
+python scripts/batch_suggest_synonyms.py data/test_terms.csv
+
+# 3. Review suggestions in generated file
+cat data/suggested_synonyms_*.yaml
+
+# 4. Approve + merge into config/juridische_synoniemen.yaml
+
+# 5. Test
+pytest tests/services/web_lookup/test_wikipedia_service.py -v</code></pre>
+
+<p><strong>Effort</strong>: 1-2 hours/batch</p>
+<p><strong>Expected Result</strong>: +10% recall per 100 synoniemen</p>
+
+<p>---</p>
+
+<h4>Priority 3: Tiered Cascade (Next Sprint)</h4>
+
+<pre><code># src/services/modern_web_lookup_service.py
+
+async def lookup_tiered(self, request: LookupRequest) -&gt; List[LookupResult]:
+    """Tiered provider cascade for faster avg response."""
+
+    # Tier 1 (Authoritative): Parallel, 2s timeout
+    results_t1 = await asyncio.gather(
+        self._lookup_source("overheid", request),
+        self._lookup_source("rechtspraak", request),
+        return_exceptions=True
+    )
+    results = [r for r in results_t1 if r and r.success]
+
+    if len(results) &gt;= 3:
+        return results  # ← Early exit (60-70% queries)
+
+    # Tier 2 (Encyclopedia): Parallel, 3s timeout
+    results_t2 = await asyncio.gather(
+        self._lookup_source("wikipedia", request),
+        self._lookup_source("brave_search", request),
+        return_exceptions=True
+    )
+    results += [r for r in results_t2 if r and r.success]
+
+    return results[:request.max_results]</code></pre>
+
+<p><strong>Effort</strong>: 3-4 hours</p>
+<p><strong>Expected Result</strong>: 30-40% faster avg response time</p>
+
+<p>---</p>
+
+<h2>Test Case: "onherroepelijk" in Strafrecht</h2>
+
+<h3>Expected Results (After Brave Fix + Synoniemen)</h3>
+
+<pre><code>{
+  "results": [
+    {
+      "provider": "Wikipedia",
+      "term": "Kracht van gewijsde",
+      "confidence": 0.88,
+      "latency": "0.5s",
+      "cost": "$0.00"
+    },
+    {
+      "provider": "Overheid.nl",
+      "term": "Onherroepelijk vonnis",
+      "confidence": 0.85,
+      "latency": "0.5s",
+      "cost": "$0.00"
+    },
+    {
+      "provider": "Rechtspraak.nl",
+      "ecli": "ECLI:NL:HR:2023:456",
+      "confidence": 0.82,
+      "latency": "0.2s",
+      "cost": "$0.00"
+    },
+    {
+      "provider": "Brave Search",
+      "url": "https://www.om.nl/...",
+      "confidence": 0.75,
+      "latency": "1.2s",
+      "cost": "$0.00"
+    }
+  ],
+  "total_latency": "1.5s",
+  "total_cost": "$0.00",
+  "hit_rate": "100%"
+}</code></pre>
+
+<p><strong>vs. Perplexity</strong> (Hypothetical):</p>
+<ul>
+<li>Latency: 1.5s vs 2-4s → **Faster**</li>
+<li>Cost: $0 vs $0.005 → **Cheaper**</li>
+<li>Reliability: Authoritative sources vs AI-generated → **More reliable**</li>
+<li>Coverage: 4 providers vs 1 → **Better diversity**</li>
+</ul>
+
+<p>---</p>
+
+<h2>Decision Criteria</h2>
+
+<h3>When to Use Perplexity (NEVER in this case)</h3>
+
+<p><strong>Use Perplexity IF</strong>:</p>
+<ul>
+<li>[ ] Budget > $100/month for API calls (NOT our case)</li>
+<li>[ ] Need AI-summarized answers (NOT needed - we generate via GPT-4)</li>
+<li>[ ] Current providers < 50% hit rate (we have 80%+)</li>
+<li>[ ] Latency not critical (juridische app needs fast response)</li>
+<li>[ ] No Dutch-specific requirements (we NEED NL juridisch)</li>
+</ul>
+
+<p><strong>Result</strong>: 0/5 criteria met → ❌ <strong>DO NOT USE</strong></p>
+
+<p>---</p>
+
+<h3>When to Use Brave Search (YES)</h3>
+
+<p><strong>Use Brave IF</strong>:</p>
+<ul>
+<li>[x] Need web diversity (Wikipedia + Overheid.nl might miss edge cases)</li>
+<li>[x] FREE tier available (2k queries/month)</li>
+<li>[x] Fast response needed (1-2s acceptable)</li>
+<li>[x] Dutch language support (search_lang=nl)</li>
+<li>[x] Already implemented (just fix wrapper)</li>
+</ul>
+
+<p><strong>Result</strong>: 5/5 criteria met → ✅ <strong>IMPLEMENT</strong></p>
+
+<p>---</p>
+
+<h2>Quick Reference Commands</h2>
+
+<h3>Test Current Providers</h3>
+
+<pre><code># Live test all providers
+python scripts/test_web_lookup_live.py
+
+# Unit test specific provider
+pytest tests/services/web_lookup/test_wikipedia_service.py -v
+
+# Check provider weights
+grep -A5 "provider.*weight" config/web_lookup_defaults.yaml</code></pre>
+
+<h3>Monitor Performance</h3>
+
+<pre><code># Check response times
+grep "duration_ms" logs/startup_verification.log | tail -20
+
+# Check hit rates by provider
+grep -E "wikipedia|overheid|rechtspraak" logs/*.log | grep -i "success\|hit" | wc -l
+
+# Check synoniemen matches
+grep "synonym" logs/*.log | grep "match" | tail -10</code></pre>
+
+<h3>Expand Synoniemen</h3>
+
+<pre><code># Suggest new synonyms
+python scripts/batch_suggest_synonyms.py data/test_terms.csv
+
+# Validate synoniemen database
+python -c "import yaml; yaml.safe_load(open('config/juridische_synoniemen.yaml'))"
+
+# Count current synoniemen
+grep "synoniem:" config/juridische_synoniemen.yaml | wc -l</code></pre>
+
+<p>---</p>
+
+<h2>FAQ</h2>
+
+<h3>Q: What if Brave Search still doesn't work after fix?</h3>
+
+<p><strong>A</strong>: Use Wikipedia + Overheid.nl + Rechtspraak.nl (already 80%+ hit rate). Brave is "nice-to-have", not critical.</p>
+
+<h3>Q: Can we use Perplexity as fallback (lowest priority)?</h3>
+
+<p><strong>A</strong>: Not recommended. Costs $5/1k + hallucination risk + vendor lock-in. Better to invest in synoniemen expansion (proven ROI).</p>
+
+<h3>Q: What if we need better recall than current 80%?</h3>
+
+<p><strong>A</strong>:</p>
+<ol>
+<li>Expand synoniemen database (+10% per 100 synoniemen)</li>
+<li>Implement tiered cascade (+5-10% early exit efficiency)</li>
+<li>Add domain-specific providers (e.g., EUR-Lex for EU law)</li>
+<li>**NOT Perplexity** (unproven + expensive)</li>
+</ol>
+
+<h3>Q: What if Perplexity releases free tier?</h3>
+
+<p><strong>A</strong>: Re-evaluate. But current decision stands based on:</p>
+<ul>
+<li>No proven NL juridische advantage</li>
+<li>Hallucination risk (Sonar mode)</li>
+<li>Current providers already perform well</li>
+</ul>
+
+<p><strong>Next Review</strong>: 2025-Q2</p>
+
+<p>---</p>
+
+<h2>References</h2>
+
+<ul>
+<li>**Full Analysis**: `docs/analyses/PERPLEXITY_API_FEASIBILITY_ANALYSIS.md`</li>
+<li>**Decision Summary**: `docs/analyses/PERPLEXITY_DECISION_SUMMARY.md`</li>
+<li>**Provider Strategy**: `docs/analyses/PROVIDER_PRIORITY_STRATEGY.md`</li>
+<li>**Current Config**: `config/web_lookup_defaults.yaml`</li>
+<li>**Synoniemen DB**: `config/juridische_synoniemen.yaml` (476 lines)</li>
+</ul>
+
+<p>---</p>
+
+<p><strong>Last Updated</strong>: 2025-10-09</p>
+<p><strong>Decision</strong>: ❌ NO-GO (Perplexity)</p>
+<p><strong>Alternative</strong>: ✅ Fix Brave + Expand Synoniemen</p>
+<p><strong>Status</strong>: ✅ DOCUMENTED</p>
+
+  </div>
+</body>
+</html>

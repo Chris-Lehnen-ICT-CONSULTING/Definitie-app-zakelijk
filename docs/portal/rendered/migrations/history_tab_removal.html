@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>History Tab Removal Migration Guide</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>History Tab Removal Migration Guide</h1>
+
+<p><strong>Date</strong>: 2025-09-29</p>
+<p><strong>Author</strong>: Development Team</p>
+<p><strong>Status</strong>: Planned</p>
+<p><strong>Related</strong>: US-412 (Removal), US-411 (Future Implementation)</p>
+
+<h2>Executive Summary</h2>
+
+<p>This document describes the removal of the unused History tab from the DefinitieAgent application and outlines the migration path to a modern inline history implementation.</p>
+
+<h2>What Was Removed</h2>
+
+<h3>UI Components</h3>
+<ul>
+<li>**History Tab**: The dedicated history tab in the main navigation</li>
+<li>**Associated UI Code**: Approximately 453 lines of unused UI code</li>
+<li>**Tab Registration**: History tab removed from navigation logic</li>
+<li>**Related Styling**: Any CSS/styling specific to the history tab</li>
+</ul>
+
+<h3>What Was NOT Removed</h3>
+<ul>
+<li>**Database Structure**: `definitie_geschiedenis` table remains intact</li>
+<li>**Audit Triggers**: All database triggers continue to function</li>
+<li>**Historical Data**: All existing history data is preserved</li>
+<li>**Backend Services**: Audit logging continues unchanged</li>
+</ul>
+
+<h2>Why It Was Removed</h2>
+
+<h3>Technical Debt Reduction</h3>
+<ol>
+<li>**Unused Code**: The history tab was not actively used by any users</li>
+<li>**Maintenance Burden**: 453 lines of code requiring maintenance without providing value</li>
+<li>**Confusion**: Dead code creates confusion for developers</li>
+<li>**Performance**: Reduces bundle size and application loading time</li>
+</ol>
+
+<h3>Strategic Reasons</h3>
+<ol>
+<li>**Modern UX Patterns**: Industry has moved to inline history (GitHub, Google Docs)</li>
+<li>**Context Switching**: Tab-based history requires users to lose context</li>
+<li>**Clean Slate**: Enables fresh implementation with modern architecture</li>
+</ol>
+
+<h2>Data Preservation Strategy</h2>
+
+<h3>Database Integrity</h3>
+<p>All historical data remains fully accessible and intact:</p>
+
+<pre><code>-- These tables remain unchanged
+SELECT * FROM definitie_geschiedenis;  -- All history preserved
+SELECT * FROM definities;              -- Current definitions intact
+
+-- Triggers continue to function
+-- All INSERT, UPDATE, DELETE operations still tracked</code></pre>
+
+<h3>Accessing Historical Data</h3>
+
+<h4>Via Database Query</h4>
+<pre><code>import sqlite3
+
+def get_definition_history(definitie_id: int):
+    """Get history for a definition directly from database"""
+    conn = sqlite3.connect('data/definities.db')
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT
+            id,
+            definitie_id,
+            action,
+            old_value,
+            new_value,
+            changed_by,
+            changed_at
+        FROM definitie_geschiedenis
+        WHERE definitie_id = ?
+        ORDER BY changed_at DESC
+    """, (definitie_id,))
+
+    return cursor.fetchall()</code></pre>
+
+<h4>Via SQL Client</h4>
+<pre><code># Connect to database
+sqlite3 data/definities.db
+
+# View history for specific definition
+SELECT * FROM definitie_geschiedenis
+WHERE definitie_id = 123
+ORDER BY changed_at DESC;
+
+# View recent changes
+SELECT * FROM definitie_geschiedenis
+WHERE changed_at &gt; datetime('now', '-7 days')
+ORDER BY changed_at DESC;</code></pre>
+
+<h2>Future Implementation Plan (US-411)</h2>
+
+<h3>Timeline</h3>
+<ul>
+<li>**Phase 1** (Q2 2025): GitHistoryService implementation</li>
+<li>**Phase 2** (Q3 2025): Inline UI components</li>
+<li>**Phase 3** (Q3 2025): Performance optimization</li>
+<li>**Phase 4** (Q4 2025): Full rollout</li>
+</ul>
+
+<h3>Modern Architecture</h3>
+
+<pre><code># Future inline history approach
+class GitHistoryService:
+    """Modern history service with Git-like features"""
+
+    def get_timeline(self, definitie_id: int) -&gt; Timeline:
+        """Get interactive timeline"""
+        pass
+
+    def get_diff(self, v1: int, v2: int) -&gt; Diff:
+        """Compare versions with visual diff"""
+        pass
+
+    def blame(self, definitie_id: int) -&gt; BlameInfo:
+        """Line-by-line attribution"""
+        pass</code></pre>
+
+<h3>User Experience Improvements</h3>
+
+<ol>
+<li>**Inline Display**: History appears in context where needed</li>
+<li>**Visual Diffs**: Color-coded changes with word-level precision</li>
+<li>**Timeline Navigation**: Interactive timeline with filtering</li>
+<li>**Performance**: Sub-200ms render times with caching</li>
+<li>**Mobile Support**: Responsive design for all devices</li>
+</ol>
+
+<h2>Migration Steps for Developers</h2>
+
+<h3>If You Were Using History Tab</h3>
+
+<p>If you had custom code referencing the history tab:</p>
+
+<ol>
+<li>**Remove Imports**</li>
+<pre><code>   # Remove these imports
+   # from src.ui.tabs import history_tab
+   # from src.ui.components.history import HistoryViewer</code></pre>
+</ol>
+
+<ol>
+<li>**Update Navigation**</li>
+<pre><code>   # Old code
+   tabs = ["Generate", "Edit", "Review", "History", "Config"]
+
+   # New code
+   tabs = ["Generate", "Edit", "Review", "Config"]</code></pre>
+</ol>
+
+<ol>
+<li>**Access History Data Directly**</li>
+<pre><code>   # Use database queries as shown above
+   # Or wait for US-411 implementation</code></pre>
+</ol>
+
+<h3>Testing After Migration</h3>
+
+<p>Run these tests to ensure successful migration:</p>
+
+<pre><code># Verify application starts
+streamlit run src/main.py
+
+# Check for broken imports
+python -m py_compile src/main.py
+
+# Run test suite
+pytest tests/ -v
+
+# Search for lingering references
+grep -r "history_tab" src/
+grep -r "HistoryTab" src/</code></pre>
+
+<h2>Rollback Procedure</h2>
+
+<p>If rollback is needed (unlikely as feature was unused):</p>
+
+<h3>Quick Rollback</h3>
+<pre><code># Revert the removal commit
+git revert &lt;removal-commit-hash&gt;
+
+# Reinstall and test
+pip install -r requirements.txt
+pytest tests/
+streamlit run src/main.py</code></pre>
+
+<h3>Manual Restoration</h3>
+<ol>
+<li>Restore history_tab.py from git history</li>
+<li>Re-add tab to main.py navigation</li>
+<li>Update imports and configuration</li>
+<li>Test thoroughly</li>
+</ol>
+
+<h2>FAQ</h2>
+
+<h3>Q: Will I lose my definition history?</h3>
+<p><strong>A</strong>: No, all historical data is preserved in the database. Only the unused UI was removed.</p>
+
+<h3>Q: When will the new history feature be available?</h3>
+<p><strong>A</strong>: The modern inline history (US-411) is planned for Q2-Q4 2025.</p>
+
+<h3>Q: Can I still audit changes?</h3>
+<p><strong>A</strong>: Yes, all audit functionality continues to work. Database triggers remain active.</p>
+
+<h3>Q: How do I view history now?</h3>
+<p><strong>A</strong>: Currently via direct database queries. Future implementation will provide better UI.</p>
+
+<h3>Q: What if I need the old history tab?</h3>
+<p><strong>A</strong>: The code is preserved in git history and can be restored if needed.</p>
+
+<h2>Support</h2>
+
+<p>For questions or issues related to this migration:</p>
+
+<ol>
+<li>Check this migration guide</li>
+<li>Review US-412 and US-411 documentation</li>
+<li>Contact the development team</li>
+<li>File a bug report if you encounter issues</li>
+</ol>
+
+<h2>Appendix: Removed Files List</h2>
+
+<p>The following files/components were removed:</p>
+
+<pre><code>src/ui/tabs/history_tab.py (if existed)
+src/ui/components/history_*.py (if any)
+tests/ui/test_history_tab.py (if existed)</code></pre>
+
+<p>Modified files:</p>
+<pre><code>src/main.py - Removed history tab from navigation
+src/ui/navigation.py - Updated navigation logic (if applicable)
+src/config/ui_config.py - Removed history configuration (if applicable)</code></pre>
+
+<h2>Version History</h2>
+
+<p>| Version | Date | Changes |</p>
+<p>|---------|------|---------|</p>
+<p>| 1.0 | 2025-09-29 | Initial migration guide |</p>
+  </div>
+</body>
+</html>
