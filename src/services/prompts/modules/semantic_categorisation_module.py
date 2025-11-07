@@ -133,22 +133,22 @@ class SemanticCategorisationModule(BasePromptModule):
             ESS-02 sectie tekst
         """
         # Basis ESS-02 sectie (altijd aanwezig)
-        base_section = """### 📐 Let op betekenislaag (ESS-02 - Ontologische categorie):
-Je **moet** één van de vier categorieën expliciet maken door de JUISTE KICK-OFF term te kiezen:
+        base_section = """### 🎯 ONTOLOGISCHE CATEGORIE INSTRUCTIES:
 
-• PROCES begrippen → start met: 'activiteit waarbij...', 'handeling die...', 'proces waarin...'
-• TYPE begrippen → start met: 'soort...', 'categorie van...', 'type... dat...'
-• RESULTAAT begrippen → start met: 'resultaat van...', 'uitkomst van...', 'product dat...'
-• EXEMPLAAR begrippen → start met: 'exemplaar van... dat...', 'specifiek geval van...'
+⚠️ BELANGRIJK: Deze instructies helpen je de definitie te STRUCTUREREN.
+De definitie zelf begint DIRECT met een zelfstandig naamwoord, NOOIT met 'is een' of meta-woorden.
 
-⚠️ Let op: Start NOOIT met 'is een' of andere koppelwerkwoorden!
-De kick-off term MOET een zelfstandig naamwoord zijn dat de categorie aangeeft.
+BEPAAL eerst de categorie van het begrip:
+• PROCES → Beschrijft een handeling/activiteit (vaak eindigt op -ing, -tie, -atie)
+• TYPE → Classificeert of categoriseert iets
+• RESULTAAT → Is de uitkomst/gevolg van een proces
+• EXEMPLAAR → Is een specifiek, uniek geval
 
-BELANGRIJK: Bepaal de juiste categorie op basis van het BEGRIP zelf:
-- Eindigt op -ING of -TIE en beschrijft een handeling? → PROCES
-- Is het een gevolg/uitkomst van iets? → RESULTAAT (bijv. sanctie, rapport, besluit)
-- Is het een classificatie/soort? → TYPE
-- Is het een specifiek geval? → EXEMPLAAR"""
+⛔ DEFINITIE REGELS:
+- Begin DIRECT met het zelfstandig naamwoord
+- GEEN 'is een', 'betreft', 'betekent' aan het begin
+- GEEN meta-woorden zoals 'proces', 'type', 'resultaat', 'exemplaar' aan het begin
+- WEL: De categorie bepaalt de STRUCTUUR van je definitie"""
 
         # Voeg category-specific guidance toe indien beschikbaar
         if categorie and self.detailed_guidance_enabled:
@@ -171,6 +171,9 @@ BELANGRIJK: Bepaal de juiste categorie op basis van het BEGRIP zelf:
         """
         Verkrijg category-specific guidance per ontologische categorie.
 
+        BELANGRIJK: Deze instructies zijn voor het MODEL om de definitie te structureren.
+        De definitie zelf begint NOOIT met de meta-woorden uit de instructies.
+
         Args:
             categorie: Ontologische categorie
 
@@ -178,90 +181,110 @@ BELANGRIJK: Bepaal de juiste categorie op basis van het BEGRIP zelf:
             Category-specific guidance of None
         """
         category_guidance_map = {
-            "proces": """**PROCES CATEGORIE - Formuleer als ACTIVITEIT/HANDELING:**
+            "proces": """**🔄 PROCES CATEGORIE - Focus op HANDELING en VERLOOP:**
 
-KICK-OFF opties (kies één):
-- 'activiteit waarbij...' → focus op wat er gebeurt
-- 'handeling die...' → focus op de actie
-- 'proces waarin...' → focus op het verloop
+⚠️ INSTRUCTIE: Begin direct met een HANDELINGSNAAMWOORD (zelfstandig naamwoord van een werkwoord)
 
-VERVOLG met:
-- WIE voert het uit (actor/rol)
-- WAT er precies gebeurt (actie)
-- HOE het verloopt (stappen/methode)
-- WAAR het begint en eindigt (scope)
+STRUCTUUR van je definitie:
+1. Start: [Handelingsnaamwoord]
+2. Vervolg: [van/door/waarbij] [actor/object]
+3. Detail: [methode/doel/resultaat]
 
-VOORBEELDEN (GOED):
-✅ "activiteit waarbij gegevens worden verzameld door directe waarneming"
-✅ "handeling waarin door middel van vraaggesprekken informatie wordt verzameld"
-✅ "proces waarin documenten systematisch worden geanalyseerd"
+VOORBEELDEN (✅ GOED):
+• "observatie van gedrag in natuurlijke omgeving"
+• "verzameling van data door systematische meting"
+• "beoordeling van prestaties volgens vastgestelde criteria"
+• "analyse waarbij documenten worden vergeleken op kernmerken"
 
-VOORBEELDEN (FOUT):
-❌ "is een activiteit waarbij..." (start met 'is')
-❌ "het observeren van..." (werkwoordelijk)
-❌ "manier om gegevens te verzamelen" (te abstract)""",
-            "type": """**TYPE CATEGORIE - Formuleer als SOORT/CATEGORIE:**
+VOORBEELDEN (❌ FOUT):
+• "proces waarin..." (begin NIET met 'proces')
+• "activiteit waarbij..." (begin NIET met 'activiteit')
+• "het observeren van..." (GEEN werkwoordelijke vorm)
+• "is een handeling..." (GEEN koppelwerkwoord)
 
-KICK-OFF opties (kies één):
-- 'soort... die...' → algemene classificatie
-- 'categorie van...' → formele indeling
-- 'type... dat...' → specifieke variant
-- 'klasse van...' → technische classificatie
+FOCUS ELEMENTEN:
+- WIE voert uit (actor)
+- WAT gebeurt er (handeling)
+- HOE verloopt het (methode)
+- WANNEER begint/eindigt het (temporeel)""",
+            "type": """**📦 TYPE CATEGORIE - Focus op CLASSIFICATIE en KENMERKEN:**
 
-VERVOLG met:
-- Tot welke BREDERE KLASSE het behoort
-- Wat de ONDERSCHEIDENDE KENMERKEN zijn
-- Waarin het VERSCHILT van andere types
+⚠️ INSTRUCTIE: Begin direct met het ZELFSTANDIG NAAMWOORD dat de klasse aanduidt
 
-VOORBEELDEN (GOED):
-✅ "soort document dat formele beslissingen vastlegt"
-✅ "categorie van personen die aan bepaalde criteria voldoen"
-✅ "type interventie gericht op gedragsverandering"
+STRUCTUUR van je definitie:
+1. Start: [Zelfstandig naamwoord van de klasse]
+2. Vervolg: [die/dat/met] [onderscheidend kenmerk]
+3. Detail: [specifieke eigenschappen/functie]
 
-VOORBEELDEN (FOUT):
-❌ "is een soort..." (start met 'is')
-❌ "betreft een..." (koppelwerkwoord)""",
-            "resultaat": """**RESULTAAT CATEGORIE - Formuleer als UITKOMST/PRODUCT:**
+VOORBEELDEN (✅ GOED):
+• "document dat juridische beslissingen formeel vastlegt"
+• "persoon die bevoegd is tot het nemen van besluiten"
+• "maatregel die recidive moet voorkomen"
+• "interventie gericht op gedragsverandering bij jeugdigen"
 
-KICK-OFF opties (kies één):
-- 'resultaat van...' → algemene uitkomst
-- 'uitkomst van...' → proces resultaat
-- 'product dat ontstaat door...' → tastbaar resultaat
-- 'gevolg van...' → causaal resultaat
+VOORBEELDEN (❌ FOUT):
+• "soort document dat..." (begin NIET met 'soort')
+• "type persoon die..." (begin NIET met 'type')
+• "categorie van maatregelen..." (begin NIET met 'categorie')
+• "is een document..." (GEEN koppelwerkwoord)
 
-VERVOLG met:
-- UIT WELK PROCES het voortkomt (oorsprong)
-- WAT het betekent/bewerkstelligt (doel/functie)
-- WIE het produceert (actor)
+FOCUS ELEMENTEN:
+- BREDERE KLASSE waartoe het behoort (impliciet in het naamwoord)
+- ONDERSCHEIDENDE KENMERKEN t.o.v. andere in dezelfde klasse
+- FUNCTIE of DOEL waarvoor het dient
+- CRITERIA waaraan het moet voldoen""",
+            "resultaat": """**📊 RESULTAAT CATEGORIE - Focus op UITKOMST en OORSPRONG:**
 
-VOORBEELDEN (GOED):
-✅ "resultaat van het uitwerken en analyseren van interviews"
-✅ "uitkomst van een beoordelingsproces waarbij criteria worden toegepast"
-✅ "product dat ontstaat door het combineren van verschillende databronnen"
+⚠️ INSTRUCTIE: Begin direct met het ZELFSTANDIG NAAMWOORD dat de uitkomst benoemt
 
-VOORBEELDEN (FOUT):
-❌ "is het resultaat van..." (start met 'is')
-❌ "de uitkomst..." (lidwoord)""",
-            "exemplaar": """**EXEMPLAAR CATEGORIE - Formuleer als SPECIFIEK GEVAL:**
+STRUCTUUR van je definitie:
+1. Start: [Zelfstandig naamwoord van de uitkomst]
+2. Vervolg: [ontstaan uit/voortkomend uit/volgend op]
+3. Detail: [proces/handeling die eraan voorafging]
 
-KICK-OFF opties (kies één):
-- 'exemplaar van... dat...' → concrete instantie
-- 'specifiek geval van...' → individueel voorbeeld
-- 'individuele instantie van...' → uniek voorkomen
+VOORBEELDEN (✅ GOED):
+• "rapport opgesteld na systematische analyse van gegevens"
+• "besluit genomen na beoordeling van alle relevante factoren"
+• "sanctie opgelegd wegens overtreding van voorschriften"
+• "overzicht samengesteld uit meerdere databronnen"
 
-VERVOLG met:
-- Van welke ALGEMENE KLASSE dit een exemplaar is
-- Wat dit exemplaar UNIEK maakt (identificerende kenmerken)
-- WANNEER/WAAR het voorkomt (contextualisering)
+VOORBEELDEN (❌ FOUT):
+• "resultaat van analyse..." (begin NIET met 'resultaat')
+• "uitkomst van een proces..." (begin NIET met 'uitkomst')
+• "product dat ontstaat..." (begin NIET met 'product')
+• "is een rapport..." (GEEN koppelwerkwoord)
 
-VOORBEELDEN (GOED):
-✅ "exemplaar van een adelaar dat op 25 mei 2024 in de Biesbosch werd waargenomen"
-✅ "specifiek geval van een observatie uitgevoerd op 12 maart 2024"
-✅ "individuele instantie van een besluit genomen door de rechtbank op 1 april 2024"
+FOCUS ELEMENTEN:
+- OORSPRONG: uit welk proces komt het voort
+- DOEL: waarvoor dient de uitkomst
+- VORM: hoe manifesteert het zich
+- EFFECT: wat bewerkstelligt het""",
+            "exemplaar": """**🔍 EXEMPLAAR CATEGORIE - Focus op SPECIFIEKE INSTANTIE:**
 
-VOORBEELDEN (FOUT):
-❌ "is een exemplaar van..." (start met 'is')
-❌ "het exemplaar..." (lidwoord)""",
+⚠️ INSTRUCTIE: Begin direct met de NAAM of AANDUIDING van het specifieke geval
+
+STRUCTUUR van je definitie:
+1. Start: [Eigennaam of specifieke aanduiding]
+2. Vervolg: [betreffende/zijnde] [wat het is]
+3. Detail: [unieke kenmerken/context]
+
+VOORBEELDEN (✅ GOED):
+• "Wet van 15 maart 2024 betreffende de digitale overheid"
+• "Zaak 2024/1234 waarin verdachte zich moet verantwoorden voor fraude"
+• "Besluit d.d. 1 april 2024 waarbij vergunning is verleend"
+• "Arrest HR 25 mei 2024 inzake staatsaansprakelijkheid"
+
+VOORBEELDEN (❌ FOUT):
+• "exemplaar van een wet..." (begin NIET met 'exemplaar')
+• "specifiek geval van zaak..." (begin NIET met 'specifiek geval')
+• "individuele instantie..." (begin NIET met 'individuele instantie')
+• "is de Wet van..." (GEEN koppelwerkwoord)
+
+FOCUS ELEMENTEN:
+- IDENTIFICATIE: datum, nummer, naam
+- CONTEXT: waar/wanneer/door wie
+- UNICITEIT: wat maakt dit geval specifiek
+- KLASSE: tot welke algemene categorie behoort het""",
         }
 
         return category_guidance_map.get(categorie)

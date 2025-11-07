@@ -1,10 +1,10 @@
 """
-Error Prevention Module - Verboden patronen en veelgemaakte fouten.
+Error Prevention Module - Instructies voor effectieve definities.
 
 Deze module is verantwoordelijk voor:
-1. Basis verboden patronen
-2. Context-aware verboden toevoegingen
-3. Verboden startwoorden
+1. Positieve instructies voor goede definities
+2. Context-aware richtlijnen
+3. Kritieke waarschuwingen waar nodig
 4. Validatiematrix
 """
 
@@ -18,20 +18,20 @@ logger = logging.getLogger(__name__)
 
 class ErrorPreventionModule(BasePromptModule):
     """
-    Module voor het genereren van verboden patronen en veelgemaakte fouten.
+    Module voor het genereren van positieve instructies voor definitie-kwaliteit.
 
-    Genereert waarschuwingen voor veel voorkomende fouten en
-    past context-specifieke verboden toe.
+    Genereert richtlijnen voor effectieve definities met focus op
+    wat WEL te doen in plaats van alleen verboden.
     """
 
     def __init__(self):
         """Initialize de error prevention module."""
         super().__init__(
             module_id="error_prevention",
-            module_name="Error Prevention & Forbidden Patterns",
+            module_name="Definition Quality Instructions",
         )
         self.include_validation_matrix = True
-        self.extended_forbidden_list = True
+        self.extended_instructions = True
 
     def initialize(self, config: dict[str, Any]) -> None:
         """
@@ -42,11 +42,11 @@ class ErrorPreventionModule(BasePromptModule):
         """
         self._config = config
         self.include_validation_matrix = config.get("include_validation_matrix", True)
-        self.extended_forbidden_list = config.get("extended_forbidden_list", True)
+        self.extended_instructions = config.get("extended_instructions", True)
         self._initialized = True
         logger.debug(
             f"ErrorPreventionModule geïnitialiseerd "
-            f"(matrix={self.include_validation_matrix}, extended={self.extended_forbidden_list})"
+            f"(matrix={self.include_validation_matrix}, extended={self.extended_instructions})"
         )
 
     def validate_input(self, context: ModuleContext) -> tuple[bool, str | None]:
@@ -63,13 +63,13 @@ class ErrorPreventionModule(BasePromptModule):
 
     def execute(self, context: ModuleContext) -> ModuleOutput:
         """
-        Genereer verboden patronen sectie.
+        Genereer instructies voor definitie-kwaliteit.
 
         Args:
             context: Module context
 
         Returns:
-            ModuleOutput met verboden patronen
+            ModuleOutput met instructies
         """
         try:
             # Haal context informatie op van ContextAwarenessModule
@@ -81,31 +81,32 @@ class ErrorPreventionModule(BasePromptModule):
             # Bouw secties
             sections = []
 
-            # Header
-            sections.append("### ⚠️ Veelgemaakte fouten (vermijden!):")
+            # Header met positieve framing
+            sections.append("### ✅ Instructies voor effectieve definities:")
 
-            # Basis fouten
-            sections.extend(self._build_basic_errors())
+            # Positieve instructies (geconsolideerd van ~30 naar ~10)
+            sections.extend(self._build_positive_instructions())
 
-            # Verboden startwoorden
-            if self.extended_forbidden_list:
-                sections.extend(self._build_forbidden_starters())
-
-            # Context-specifieke verboden
-            context_forbidden = self._build_context_forbidden(
+            # Context-specifieke instructies
+            context_instructions = self._build_context_instructions(
                 org_contexts, jur_contexts, wet_contexts
             )
-            if context_forbidden:
-                sections.append("\n### 🚨 CONTEXT-SPECIFIEKE VERBODEN:")
-                sections.extend(context_forbidden)
+            if context_instructions:
+                sections.append("\n### 🎯 Context-specifieke richtlijnen:")
+                sections.extend(context_instructions)
+
+            # Kritieke waarschuwingen (alleen waar positief niet werkt)
+            if self.extended_instructions:
+                sections.append("\n### ⚠️ Kritieke aandachtspunten:")
+                sections.extend(self._build_critical_warnings())
 
             # Validatiematrix
             if self.include_validation_matrix:
                 sections.append(self._build_validation_matrix())
 
-            # Laatste waarschuwing
+            # Afsluitende reminder
             sections.append(
-                "\n🚫 Let op: context en bronnen mogen niet letterlijk of herleidbaar in de definitie voorkomen."
+                "\n💡 Focus: Schrijf vanuit de essentie van het begrip, niet vanuit de context."
             )
 
             # Combineer alles
@@ -114,11 +115,12 @@ class ErrorPreventionModule(BasePromptModule):
             return ModuleOutput(
                 content=content,
                 metadata={
-                    "context_forbidden_count": len(org_contexts)
+                    "context_count": len(org_contexts)
                     + len(jur_contexts)
                     + len(wet_contexts),
                     "include_matrix": self.include_validation_matrix,
-                    "extended_list": self.extended_forbidden_list,
+                    "extended_instructions": self.extended_instructions,
+                    "instruction_type": "positive",
                 },
             )
 
@@ -128,7 +130,7 @@ class ErrorPreventionModule(BasePromptModule):
                 content="",
                 metadata={"error": str(e)},
                 success=False,
-                error_message=f"Failed to generate error prevention section: {e!s}",
+                error_message=f"Failed to generate instruction section: {e!s}",
             )
 
     def get_dependencies(self) -> list[str]:
@@ -140,64 +142,54 @@ class ErrorPreventionModule(BasePromptModule):
         """
         return ["context_awareness"]
 
-    def _build_basic_errors(self) -> list[str]:
-        """Bouw basis veelgemaakte fouten."""
+    def _build_positive_instructions(self) -> list[str]:
+        """
+        Bouw positieve, actionele instructies.
+
+        CONSOLIDATIE: Van ~30 regels naar ~10 door groepering:
+        - Alle "niet starten met" regels → 1 positieve instructie
+        - Alle vage termen → 1 specificiteit instructie
+        - Alle grammatica regels → 1 taalgebruik instructie
+        """
         return [
-            "- ❌ Begin niet met lidwoorden ('de', 'het', 'een')",
-            "- ❌ Gebruik geen koppelwerkwoord aan het begin ('is', 'betekent', 'omvat')",
-            "- ❌ Herhaal het begrip niet letterlijk",
-            "- ❌ Gebruik geen synoniem als definitie",
-            "- ❌ Vermijd containerbegrippen ('proces', 'activiteit')",
-            "- ❌ Vermijd bijzinnen zoals 'die', 'waarin', 'zoals'",
-            "- ❌ Gebruik enkelvoud; infinitief bij werkwoorden",
+            # Geconsolideerd van 20+ "niet starten met" regels
+            "- 📝 **Start direct met de essentie**: Begin met wat het begrip IS (zonder lidwoorden, koppelwerkwoorden of meta-woorden)",
+            # Positieve versie van "geen herhaling/synoniem"
+            "- 🎯 **Definieer vanuit functie**: Beschrijf wat het begrip doet of bewerkstelligt, niet wat het lijkt",
+            # Geconsolideerd van alle vage termen warnings
+            "- 🔍 **Wees specifiek en concreet**: Gebruik precieze termen in plaats van algemene containers",
+            # Positieve versie van ontologische markers regel
+            "- ✨ **Gebruik ontologische markers bewust**: 'proces', 'activiteit', 'handeling' mogen wanneer ze specificeren WAT het begrip IS",
+            "  • Goed: 'systematisch proces waarbij gegevens worden verzameld' ✅",
+            "  • Fout: 'proces ter ondersteuning van...' ❌",
+            # Geconsolideerd van grammatica regels
+            "- 📐 **Gebruik heldere grammatica**: Enkelvoud voor zelfstandig naamwoord, infinitief voor werkwoord, minimale bijzinnen",
+            # Nieuwe positieve instructie voor structuur
+            "- 🏗️ **Structureer logisch**: Genus proximum (wat is het) → differentia specifica (wat maakt het uniek)",
+            # Focus op bruikbaarheid
+            "- 🎪 **Test de definitie**: Kan iemand zonder voorkennis het begrip begrijpen en toepassen?",
         ]
 
-    def _build_forbidden_starters(self) -> list[str]:
-        """Bouw uitgebreide lijst verboden startwoorden."""
-        forbidden_starters = [
-            "is",
-            "betreft",
-            "omvat",
-            "betekent",
-            "verwijst naar",
-            "houdt in",
-            "heeft betrekking op",
-            "duidt op",
-            "staat voor",
-            "impliceert",
-            "definieert",
-            "beschrijft",
-            "wordt",
-            "zijn",
-            "was",
-            "waren",
-            "behelst",
-            "bevat",
-            "bestaat uit",
-            "de",
-            "het",
-            "een",
-            "proces waarbij",
-            "handeling die",
-            "vorm van",
-            "type van",
-            "soort van",
-            "methode voor",
-            "wijze waarop",
-            "manier om",
-            "een belangrijk",
-            "een essentieel",
-            "een vaak gebruikte",
-            "een veelvoorkomende",
+    def _build_critical_warnings(self) -> list[str]:
+        """
+        Bouw alleen kritieke waarschuwingen waar positieve framing onduidelijk zou zijn.
+
+        REDUCTIE: Van ~8 naar 3 door alleen echt kritieke zaken te behouden.
+        """
+        return [
+            # Deze blijft negatief omdat het te complex is om positief te formuleren
+            "- ❌ **Vermijd cirkelredenering**: Gebruik het te definiëren begrip niet in de definitie",
+            # Context warning blijft omdat dit project-specifiek is
+            "- ❌ **Geen letterlijke contextvermelding**: Organisaties, wetboeken of juridische context horen niet in de definitie",
+            # Deze blijft als quality gate
+            "- ❌ **Geen subjectieve kwalificaties**: Vermijd 'belangrijk', 'essentieel', 'adequaat' - laat de lezer oordelen",
         ]
 
-        return [f"- ❌ Start niet met '{starter}'" for starter in forbidden_starters]
-
-    def _build_context_forbidden(
+    def _build_context_instructions(
         self, org_contexts: list[str], jur_contexts: list[str], wet_contexts: list[str]
     ) -> list[str]:
         """
-        Bouw context-specifieke verboden.
+        Bouw context-specifieke positieve instructies.
 
         Args:
             org_contexts: Organisatorische contexten
@@ -205,9 +197,9 @@ class ErrorPreventionModule(BasePromptModule):
             wet_contexts: Wettelijke basis contexten
 
         Returns:
-            Lijst met context-specifieke verboden
+            Lijst met context-specifieke instructies
         """
-        forbidden = []
+        instructions = []
 
         # Organisatie mapping voor afkortingen
         org_mappings = {
@@ -221,42 +213,50 @@ class ErrorPreventionModule(BasePromptModule):
             "FIOD": "Fiscale Inlichtingen- en Opsporingsdienst",
         }
 
-        # Organisatorische context verboden
-        for org in org_contexts:
-            forbidden.append(
-                f"- Gebruik de term '{org}' of een variant daarvan niet letterlijk in de definitie."
+        # Positieve framing voor context-aware definitie
+        if org_contexts or jur_contexts or wet_contexts:
+            instructions.append(
+                "- 🎯 **Focus op universele toepassing**: Schrijf definities die werken ongeacht de specifieke organisatie of context"
             )
 
-            # Voeg volledige naam toe als het een afkorting is
-            if org in org_mappings:
-                forbidden.append(
-                    f"- Gebruik de term '{org_mappings[org]}' of een variant daarvan niet letterlijk in de definitie."
+        # Specifieke organisatie instructies (positief geformuleerd)
+        if org_contexts:
+            orgs_display = []
+            for org in org_contexts:
+                orgs_display.append(org)
+                if org in org_mappings:
+                    orgs_display.append(org_mappings[org])
+
+            if orgs_display:
+                instructions.append(
+                    f"- 📋 **Abstraheer van organisatie**: Definieer het begrip zonder '{', '.join(orgs_display)}' te noemen"
                 )
 
-        # Juridische context verboden
-        for jur in jur_contexts:
-            forbidden.append(
-                f"- Vermijd expliciete vermelding van juridisch context '{jur}' in de definitie."
+        # Juridische context instructies
+        if jur_contexts:
+            instructions.append(
+                f"- ⚖️ **Generaliseer juridische context**: Maak de definitie toepasbaar buiten '{', '.join(jur_contexts)}'"
             )
 
-        # Wettelijke basis verboden
-        for wet in wet_contexts:
-            forbidden.append(
-                f"- Vermijd expliciete vermelding van wetboek '{wet}' in de definitie."
+        # Wettelijke basis instructies
+        if wet_contexts:
+            instructions.append(
+                f"- 📚 **Abstraheer van wetgeving**: Formuleer zonder directe verwijzing naar '{', '.join(wet_contexts)}'"
             )
 
-        return forbidden
+        return instructions
 
     def _build_validation_matrix(self) -> str:
-        """Bouw de validatiematrix."""
+        """Bouw de validatiematrix met positieve framing."""
         return """
-| Probleem                             | Afgedekt? | Toelichting                                |
-|--------------------------------------|-----------|---------------------------------------------|
-| Start met begrip                     | ✅        | Vermijd cirkeldefinities                     |
-| Abstracte constructies               | ✅        | 'proces waarbij', 'handeling die', enz.      |
-| Koppelwerkwoorden aan het begin      | ✅        | 'is', 'omvat', 'betekent'                    |
-| Lidwoorden aan het begin             | ✅        | 'de', 'het', 'een'                           |
-| Letterlijke contextvermelding        | ✅        | Noem context niet letterlijk                 |
-| Afkortingen onverklaard              | ✅        | Licht afkortingen toe in de definitie       |
-| Subjectieve termen                   | ✅        | Geen 'essentieel', 'belangrijk', 'adequaat' |
-| Bijzinconstructies                   | ✅        | Vermijd 'die', 'waarin', 'zoals' enz.       |"""
+### 📊 Kwaliteitscheck Matrix:
+
+| Kwaliteitsaspect                     | Instructie                                  | Waarom belangrijk?                         |
+|--------------------------------------|---------------------------------------------|---------------------------------------------|
+| **Directe start**                    | Begin met de essentie                      | Voorkomt vage intro's en meta-taal         |
+| **Functie-focus**                    | Definieer wat het doet                     | Maakt definitie bruikbaar                  |
+| **Specificiteit**                    | Gebruik concrete termen                    | Voorkomt vaagheid                          |
+| **Ontologische helderheid**          | Specificeer wat het IS                     | Geeft categorie aan                        |
+| **Grammaticale eenvoud**             | Enkelvoud, infinitief, minimale bijzinnen  | Verbetert leesbaarheid                     |
+| **Context-onafhankelijkheid**        | Abstraheer van specifieke context          | Universele toepasbaarheid                  |
+| **Testbaarheid**                     | Controleer begrip zonder voorkennis        | Valideert effectiviteit                    |"""

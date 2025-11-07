@@ -7140,6 +7140,37 @@
     },
     {
       "id": null,
+      "type": "DOC",
+      "title": "DEF-127: Module Consolidation Plan",
+      "path": "../implementation/DEF-127_CONSOLIDATION_PLAN.md",
+      "url": "../implementation/DEF-127_CONSOLIDATION_PLAN.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/implementation/DEF-127_CONSOLIDATION_PLAN.html"
+    },
+    {
+      "id": null,
       "type": "GUIDE",
       "title": "Implementation Roadmap & Test Strategy - \"Anders...\" Option Fix",
       "path": "../implementation/ANDERS-OPTION-IMPLEMENTATION-ROADMAP.md",
@@ -7215,6 +7246,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "DEF-135: Error Prevention Module Transformation Summary",
+      "path": "../implementation/DEF-135-transformation-summary.md",
+      "url": "../implementation/DEF-135-transformation-summary.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/implementation/DEF-135-transformation-summary.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "EPIC-010 Implementatieplan - Context Flow & Orchestration Fixes",
       "path": "../implementation/EPIC-010-action-plan.md",
       "url": "../implementation/EPIC-010-action-plan.md",
@@ -7282,6 +7344,37 @@
         "req": []
       },
       "rendered_url": "rendered/implementation/VALIDATION_VIEW_UNIFICATION_PLAN.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "DEF-127: Module Consolidation Implementation Summary",
+      "path": "../implementation/DEF-127_IMPLEMENTATION_SUMMARY.md",
+      "url": "../implementation/DEF-127_IMPLEMENTATION_SUMMARY.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/implementation/DEF-127_IMPLEMENTATION_SUMMARY.html"
     },
     {
       "id": null,
@@ -8906,6 +8999,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "DEF-102: Detailed Contradictions Analysis - Prompt Module File Locations",
+      "path": "../analyses/DEF-102_DETAILED_CONTRADICTIONS_ANALYSIS.md",
+      "url": "../analyses/DEF-102_DETAILED_CONTRADICTIONS_ANALYSIS.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/DEF-102_DETAILED_CONTRADICTIONS_ANALYSIS.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "DEF-54: Risk & Rollback Analysis - Debug Specialist Report",
       "path": "../analyses/DEF-54-RISK-AND-ROLLBACK-ANALYSIS.md",
       "url": "../analyses/DEF-54-RISK-AND-ROLLBACK-ANALYSIS.md",
@@ -9096,6 +9220,37 @@
         "req": []
       },
       "rendered_url": "rendered/analyses/double-weighting-bug-root-cause-analysis.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "DEF-138 Compatibiliteit met Validatieregels",
+      "path": "../analyses/DEF-138_VALIDATION_RULES_COMPATIBILITY.md",
+      "url": "../analyses/DEF-138_VALIDATION_RULES_COMPATIBILITY.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/DEF-138_VALIDATION_RULES_COMPATIBILITY.html"
     },
     {
       "id": null,
@@ -11801,6 +11956,37 @@
         "req": []
       },
       "rendered_url": "rendered/guidelines/README.html"
+    },
+    {
+      "id": null,
+      "type": "GUIDE",
+      "title": "Documentation Cleanup Workflow",
+      "path": "../guidelines/DOCUMENTATION_CLEANUP_WORKFLOW.md",
+      "url": "../guidelines/DOCUMENTATION_CLEANUP_WORKFLOW.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/guidelines/DOCUMENTATION_CLEANUP_WORKFLOW.html"
     },
     {
       "id": null,
@@ -14579,6 +14765,39 @@
         "req": []
       },
       "rendered_url": "rendered/reviews/TEST_SUITE_CODE_REVIEW.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Code Review: DEF-138 - Fix Ontological Category Instructions",
+      "path": "../reviews/DEF-138_CODE_REVIEW.md",
+      "url": "../reviews/DEF-138_CODE_REVIEW.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-243"
+        ],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/reviews/DEF-138_CODE_REVIEW.html"
     },
     {
       "id": null,
@@ -77092,17 +77311,17 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 1212,
+      "DOC": 1218,
       "ARCH": 42,
       "COMP": 5,
       "TEST": 36,
-      "GUIDE": 19,
+      "GUIDE": 20,
       "EPIC": 58,
       "US": 616,
       "BUG": 45,
       "REQ": 115
     },
-    "generated_at": "2025-11-07T13:12:00Z"
+    "generated_at": "2025-11-07T15:04:38Z"
   },
   "sources": [
     "docs"

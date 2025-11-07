@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DEF-135: Error Prevention Module Transformation Summary</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>DEF-135: Error Prevention Module Transformation Summary</h1>
+
+<h2>Overview</h2>
+<p>Successfully transformed the <code>error_prevention_module.py</code> from negative rules ("Don't do X") to positive instructions ("Do Y"), achieving a <strong>70% reduction</strong> in rule count (exceeding the 40% target).</p>
+
+<h2>Transformation Results</h2>
+
+<h3>Before: Negative Rules Approach</h3>
+<ul>
+<li>**Total rules:** ~33 items</li>
+<li> - 8 basic error rules (all negative)</li>
+<li> - ~25 forbidden starters</li>
+<li> - Multiple context-specific forbiddens</li>
+<li>**Tone:** Restrictive, focusing on what NOT to do</li>
+<li>**Structure:** Long lists of prohibitions</li>
+</ul>
+
+<h3>After: Positive Instructions Approach</h3>
+<ul>
+<li>**Total rules:** ~10 main instructions</li>
+<li> - 7 positive action-oriented instructions</li>
+<li> - 3 critical warnings (kept negative where essential)</li>
+<li> - Context instructions dynamically generated</li>
+<li>**Tone:** Empowering, focusing on what TO DO</li>
+<li>**Structure:** Consolidated, actionable guidance</li>
+</ul>
+
+<h2>Key Transformations</h2>
+
+<h3>1. Consolidated "Don't Start With" Rules</h3>
+<p><strong>Before:</strong> 25+ separate rules</p>
+<pre><code>- ❌ Start niet met 'is'
+- ❌ Start niet met 'betreft'
+- ❌ Start niet met 'de'
+[... 22 more rules ...]</code></pre>
+
+<p><strong>After:</strong> 1 positive instruction</p>
+<pre><code>- 📝 **Start direct met de essentie**: Begin met wat het begrip IS
+  (zonder lidwoorden, koppelwerkwoorden of meta-woorden)</code></pre>
+
+<h3>2. Transformed Vague Terms Warning</h3>
+<p><strong>Before:</strong> Multiple negatives</p>
+<pre><code>- ❌ Vermijd vage containerbegrippen ('aspect', 'element', 'factor'...)</code></pre>
+
+<p><strong>After:</strong> Positive guidance</p>
+<pre><code>- 🔍 **Wees specifiek en concreet**: Gebruik precieze termen
+  in plaats van algemene containers</code></pre>
+
+<h3>3. Grammar Rules Consolidation</h3>
+<p><strong>Before:</strong> Multiple separate rules</p>
+<pre><code>- ❌ Gebruik enkelvoud
+- ❌ Infinitief bij werkwoorden
+- ❌ Vermijd onnodige bijzinnen</code></pre>
+
+<p><strong>After:</strong> Single comprehensive instruction</p>
+<pre><code>- 📐 **Gebruik heldere grammatica**: Enkelvoud voor zelfstandig
+  naamwoord, infinitief voor werkwoord, minimale bijzinnen</code></pre>
+
+<h2>New Positive Elements Added</h2>
+
+<h3>Structural Guidance</h3>
+<pre><code>- 🏗️ **Structureer logisch**: Genus proximum (wat is het) →
+  differentia specifica (wat maakt het uniek)</code></pre>
+
+<h3>Quality Testing</h3>
+<pre><code>- 🎯 **Test de definitie**: Kan iemand zonder voorkennis
+  het begrip begrijpen en toepassen?</code></pre>
+
+<h2>Critical Warnings Retained</h2>
+
+<p>Only 3 essential warnings kept where positive framing would be unclear:</p>
+
+<ol>
+<li>**Circular reasoning** - Too complex to frame positively</li>
+<li>**Context mentions** - Project-specific requirement</li>
+<li>**Subjective qualifications** - Quality gate necessity</li>
+</ol>
+
+<h2>Validation Matrix Update</h2>
+
+<p>Transformed from problem-focused to quality-focused:</p>
+
+<p><strong>Before:</strong></p>
+<p>| Probleem | Afgedekt? | Toelichting |</p>
+
+<p><strong>After:</strong></p>
+<p>| Kwaliteitsaspect | Instructie | Waarom belangrijk? |</p>
+
+<h2>Impact Analysis</h2>
+
+<h3>Quantitative Results</h3>
+<ul>
+<li>**Rule reduction:** 70% (from ~33 to ~10)</li>
+<li>**Positive vs negative ratio:** 7:3 (70% positive)</li>
+<li>**Consolidation factor:** 3.3x (average 3.3 old rules → 1 new instruction)</li>
+</ul>
+
+<h3>Qualitative Improvements</h3>
+<ul>
+<li>✅ More actionable guidance</li>
+<li>✅ Clearer structure</li>
+<li>✅ Reduced cognitive load</li>
+<li>✅ Empowering tone</li>
+<li>✅ Better memorability</li>
+</ul>
+
+<h2>Test Coverage</h2>
+
+<p>Created comprehensive test suite verifying:</p>
+<ul>
+<li>Rule count reduction (✅ 70% achieved)</li>
+<li>Positive framing with action verbs (✅ verified)</li>
+<li>Context instructions are positive (✅ confirmed)</li>
+<li>Critical warnings remain for essentials (✅ validated)</li>
+<li>Full module execution works (✅ tested)</li>
+<li>Validation matrix has positive framing (✅ verified)</li>
+<li>Consolidated rules cover all topics (✅ confirmed)</li>
+</ul>
+
+<h2>Files Modified</h2>
+
+<ol>
+<li>**`src/services/prompts/modules/error_prevention_module.py`**</li>
+</ol>
+<ul>
+<li>  - Complete transformation to positive instructions</li>
+<li>  - Reduced from 275 to 268 lines (cleaner despite added documentation)</li>
+</ul>
+
+<ol>
+<li>**`tests/unit/services/prompts/test_error_prevention_transformation.py`** (new)</li>
+</ol>
+<ul>
+<li>  - 7 comprehensive tests</li>
+<li>  - All tests passing</li>
+<li>  - Validates transformation objectives</li>
+</ul>
+
+<h2>Conclusion</h2>
+
+<p>The transformation successfully:</p>
+<ul>
+<li>**Exceeded reduction target:** 70% reduction vs 40% goal</li>
+<li>**Improved tone:** From restrictive to empowering</li>
+<li>**Enhanced clarity:** Consolidated overlapping rules</li>
+<li>**Maintained quality:** Critical rules preserved where needed</li>
+<li>**Added value:** New structural and testing guidance</li>
+</ul>
+
+<p>The module now provides clearer, more actionable guidance that helps users understand what makes a good definition rather than just listing what to avoid.</p>
+  </div>
+</body>
+</html>

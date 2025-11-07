@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DEF-127: Module Consolidation Plan</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>DEF-127: Module Consolidation Plan</h1>
+<h2>Reducing Cognitive Load from 19 Modules to <15 Core Concepts</h2>
+
+<h3>Current State Analysis (19 Modules)</h3>
+
+<h4>Module Categories and Overlaps</h4>
+
+<ol>
+<li>**Validation Rule Modules (7 modules - MAJOR OVERLAP)**</li>
+</ol>
+<ul>
+<li>  - arai_rules_module.py - General quality guidelines</li>
+<li>  - con_rules_module.py - Context-specific rules</li>
+<li>  - ess_rules_module.py - Essence validation</li>
+<li>  - integrity_rules_module.py - Completeness validation</li>
+<li>  - sam_rules_module.py - Coherence between terms</li>
+<li>  - structure_rules_module.py - Grammatical/structural validation</li>
+<li>  - ver_rules_module.py - Grammatical form validation</li>
+</ul>
+
+<p>   <strong>Overlap</strong>: All generate validation rules with similar structure, just different categories</p>
+
+<ol>
+<li>**Language & Grammar Modules (3 modules - OVERLAP)**</li>
+</ol>
+<ul>
+<li>  - grammar_module.py - Grammar and writing style</li>
+<li>  - structure_rules_module.py - Grammatical structure (STR rules)</li>
+<li>  - ver_rules_module.py - Grammatical form (VER rules)</li>
+</ul>
+
+<p>   <strong>Overlap</strong>: Grammar and structure_rules have significant overlap</p>
+
+<ol>
+<li>**Output & Format Modules (2 modules - PARTIAL OVERLAP)**</li>
+</ol>
+<ul>
+<li>  - output_specification_module.py - Output format and limits</li>
+<li>  - template_module.py - Definition templates and patterns</li>
+</ul>
+
+<p>   <strong>Overlap</strong>: Both deal with formatting, could be merged</p>
+
+<ol>
+<li>**Context Processing (2 modules - KEEP SEPARATE)**</li>
+</ol>
+<ul>
+<li>  - context_awareness_module.py - Context richness scoring</li>
+<li>  - semantic_categorisation_module.py - Ontological category guidance</li>
+</ul>
+
+<p>   <strong>Rationale</strong>: Different responsibilities, low overlap</p>
+
+<ol>
+<li>**Core Instruction Modules (3 modules - KEEP)**</li>
+</ol>
+<ul>
+<li>  - expertise_module.py - Expert role definition</li>
+<li>  - definition_task_module.py - Final instructions and checklist</li>
+<li>  - error_prevention_module.py - Quality instructions</li>
+</ul>
+
+<p>   <strong>Rationale</strong>: Core functionality with distinct purposes</p>
+
+<ol>
+<li>**Metrics & Monitoring (1 module - KEEP)**</li>
+</ol>
+<ul>
+<li>  - metrics_module.py - Quality metrics and scoring</li>
+</ul>
+
+<p>   <strong>Rationale</strong>: Unique functionality</p>
+
+<h3>Proposed Consolidation (<15 Concepts)</h3>
+
+<h4>Phase 1: Merge Validation Rules (7 → 2)</h4>
+<p><strong>Before</strong>: 7 separate validation rule modules</p>
+<p><strong>After</strong>: 2 consolidated modules</p>
+
+<ol>
+<li>**unified_validation_rules_module.py**</li>
+</ol>
+<ul>
+<li>  - Combines: arai, con, ess, sam, integrity rules</li>
+<li>  - Why: All have same structure, just different rule categories</li>
+<li>  - Method: Single module with category parameter</li>
+</ul>
+
+<ol>
+<li>**linguistic_rules_module.py**</li>
+</ol>
+<ul>
+<li>  - Combines: structure_rules (STR) + ver_rules (VER) + grammar</li>
+<li>  - Why: All deal with linguistic/grammatical validation</li>
+<li>  - Method: Unified grammar and form validation</li>
+</ul>
+
+<h4>Phase 2: Merge Output Formatting (2 → 1)</h4>
+<p><strong>Before</strong>: output_specification + template modules</p>
+<p><strong>After</strong>: 1 consolidated module</p>
+
+<ol>
+<li>**output_format_module.py**</li>
+</ol>
+<ul>
+<li>  - Combines: output_specification + template</li>
+<li>  - Why: Both handle output formatting and structure</li>
+<li>  - Method: Single module for all output concerns</li>
+</ul>
+
+<h4>Phase 3: Keep Core Modules (8 modules remain)</h4>
+<ol>
+<li>**expertise_module.py** - Core role definition (KEEP)</li>
+<li>**context_awareness_module.py** - Context processing (KEEP)</li>
+<li>**semantic_categorisation_module.py** - Ontological guidance (KEEP)</li>
+<li>**error_prevention_module.py** - Quality instructions (KEEP)</li>
+<li>**definition_task_module.py** - Task instructions (KEEP)</li>
+<li>**metrics_module.py** - Quality metrics (KEEP)</li>
+</ol>
+
+<h4>Infrastructure (Not counted in 15 limit)</h4>
+<ul>
+<li>base_module.py - Base class (infrastructure)</li>
+<li>prompt_orchestrator.py - Orchestration (infrastructure)</li>
+<li>__init__.py - Package initialization (infrastructure)</li>
+</ul>
+
+<h3>Final Module Count: 9 Core Concepts (< 15 ✓)</h3>
+
+<h3>Implementation Strategy</h3>
+
+<h4>Step 1: Create Unified Validation Module</h4>
+<pre><code>class UnifiedValidationRulesModule(BasePromptModule):
+    """Unified module for all validation rule categories."""
+
+    def __init__(self, categories: list[str] = None):
+        # Load rules for specified categories
+        # Default to all: ['ARAI', 'CON', 'ESS', 'SAM', 'INT']</code></pre>
+
+<h4>Step 2: Create Linguistic Rules Module</h4>
+<pre><code>class LinguisticRulesModule(BasePromptModule):
+    """Combined linguistic, grammar, and form validation."""
+
+    def __init__(self):
+        # Combines STR, VER, and general grammar rules</code></pre>
+
+<h4>Step 3: Create Output Format Module</h4>
+<pre><code>class OutputFormatModule(BasePromptModule):
+    """Unified output formatting and templates."""
+
+    def __init__(self):
+        # Combines output specs and templates</code></pre>
+
+<h4>Step 4: Update Orchestrator</h4>
+<ul>
+<li>Update PromptOrchestrator to use new consolidated modules</li>
+<li>Maintain same output quality with fewer modules</li>
+</ul>
+
+<h3>Migration Path</h3>
+
+<ol>
+<li>**Create new modules** alongside existing ones</li>
+<li>**Test new modules** to ensure same output quality</li>
+<li>**Update orchestrator** to use new modules</li>
+<li>**Deprecate old modules** (comment out imports)</li>
+<li>**Remove old modules** after verification</li>
+</ol>
+
+<h3>Benefits of Consolidation</h3>
+
+<ol>
+<li>**Reduced Cognitive Load**: 19 → 9 modules (53% reduction)</li>
+<li>**Less Duplication**: Single source for validation rules</li>
+<li>**Easier Maintenance**: Fewer files to update</li>
+<li>**Clearer Structure**: Logical grouping by function</li>
+<li>**Better Performance**: Fewer module initializations</li>
+</ol>
+
+<h3>Validation Strategy</h3>
+
+<p>To ensure no functionality is lost:</p>
+<ol>
+<li>Generate prompts with old system</li>
+<li>Generate prompts with new system</li>
+<li>Compare outputs - should be identical</li>
+<li>Run all existing tests</li>
+<li>Add new integration tests for consolidated modules</li>
+</ol>
+
+<h3>Risk Mitigation</h3>
+
+<ul>
+<li>Keep old modules initially (just unused)</li>
+<li>Extensive testing before removal</li>
+<li>Document all consolidation decisions</li>
+<li>Maintain backward compatibility in outputs</li>
+</ul>
+  </div>
+</body>
+</html>
