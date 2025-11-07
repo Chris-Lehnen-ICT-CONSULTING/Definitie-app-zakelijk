@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Volledige Code- en Documentatiereview — Plan</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>Volledige Code- en Documentatiereview — Plan</h1>
+
+<h2>Doel & Scope</h2>
+<ul>
+<li>Doel: Volledige review van code, configuraties, JSON/YAML en documentatie met per bestand een concreet voorstel en acceptatiecriteria.</li>
+<li>Scope: `src/`, `tests/`, `scripts/`, `config/`, `docs/` (incl. relevante JSON/YAML/SQL).</li>
+<li>Uitsluitingen: Beveiliging-audit valt buiten scope (alleen informatief noteren, geen beoordeling).</li>
+</ul>
+
+<h2>Werkwijze</h2>
+<ol>
+<li>Inventarisatie: Checklists genereren en actueel houden.</li>
+<li>Diepte-review per map in vaste volgorde (zie Volgorde van Review).</li>
+<li>Rapportage: Voor elk gereviewd bestand een sectie in `CODE_REVIEW_REPORT.md` met bevindingen en voorstel.</li>
+<li>Afvinken: Pas afvinken in checklist wanneer het voorstel + acceptatiecriteria voor dat bestand in het rapport staan.</li>
+</ol>
+
+<h2>Volgorde van Review</h2>
+<p>1) Kritische instappunten: <code>src/main.py</code>, <code>src/services/</code>, <code>src/ui/</code></p>
+<p>2) Domeinlogica: <code>src/domain/</code>, <code>src/ontologie/</code>, <code>src/toetsregels/</code></p>
+<p>3) Hulpfuncties & infra: <code>src/utils/</code>, <code>src/config/</code>, <code>src/database/</code></p>
+<p>4) Integratie & I/O: <code>src/integration/</code>, <code>src/export/</code>, <code>src/web_lookup/</code></p>
+<p>5) Tests & scripts: <code>tests/</code>, <code>scripts/</code></p>
+<p>6) Documentatie: <code>docs/architectuur</code>, <code>docs/workflows</code>, overige docs</p>
+
+<h2>Statuslabels</h2>
+<ul>
+<li>WACHTEND: Nog niet bekeken</li>
+<li>TRIAGED: Snel gescand, diepte-review gepland</li>
+<li>REVIEWED: Inhoudelijk beoordeeld, bevindingen genoteerd</li>
+<li>PROPOSED: Voorstel in rapport opgenomen (wacht op akkoord)</li>
+<li>DONE: Voorstel geaccepteerd/afgehandeld</li>
+<li>BLOCKED: Tijdelijk geblokkeerd (afhankelijkheden)</li>
+</ul>
+
+<h2>Kwaliteitscriteria (niet-security)</h2>
+<ul>
+<li>Structuur: Bestandslocatie en modulegrenzen kloppen met projectregels.</li>
+<li>Stijl: Consistente stijl, duidelijke namen, geen dode code of willekeurige prints.</li>
+<li>Types: Type hints waar zinvol; geen flagrante type-mismatches.</li>
+<li>Tests: Bestaande tests actueel; zo niet, actiepunt opnemen.</li>
+<li>Docs: NL-docstrings voor businesslogica; korte module-intro waar nuttig.</li>
+<li>Config: Heldere defaults; env-variabelen en documentatie aanwezig.</li>
+<li>Architectuur: Past binnen architectuurrichtlijnen en lagen.</li>
+</ul>
+
+<h2>Rapportage-eis per bestand</h2>
+<p>Een bestand mag in de checklist afgevinkt worden als in <code>CODE_REVIEW_REPORT.md</code> een sectie bestaat met:</p>
+<ul>
+<li>Samenvatting (1–2 zinnen)</li>
+<li>Bevindingen per categorie (Stijl/Types/Tests/Docs/Architectuur)</li>
+<li>Concreet voorstel (min. 1–3 acties)</li>
+<li>Acceptatiecriteria (objectieve check op “klaar”)</li>
+</ul>
+
+<h2>Anchors & Verwijzingen</h2>
+<ul>
+<li>Ankerformaat: path naar lower-case; `/` en niet-alfanumeriek → `-`.</li>
+<li>Voorbeeld: `src/main.py` → `#src-main-py` in het rapport.</li>
+<li>Checklist link: `[src/main.py](CODE_REVIEW_REPORT.md#src-main-py)`.</li>
+</ul>
+
+<h2>Automatisering (optioneel)</h2>
+<ul>
+<li>Baseline tooling: Ruff/Black/MyPy/pytest voor mechanische feedback; security-checks blijven uit.</li>
+<li>BMAD: `source .bmad-core/utils/bmad-post-edit-hook.sh && trigger_post_edit_review "Codex" "src/..."` (uitsluitend mechanische issues meenemen).</li>
+</ul>
+
+<h2>Versie & Datum</h2>
+<ul>
+<li>Planversie: v1.0</li>
+<li>Datum: 28-08-2025</li>
+</ul>
+
+  </div>
+</body>
+</html>

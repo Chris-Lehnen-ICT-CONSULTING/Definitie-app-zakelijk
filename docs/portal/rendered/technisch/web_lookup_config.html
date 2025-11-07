@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Web Lookup Configuratie (SRU/MediaWiki)</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>Web Lookup Configuratie (SRU/MediaWiki)</h1>
+
+<h2>SRU</h2>
+<ul>
+<li>Accept headers: `Accept: application/xml`; bij SRU 2.0 ook `httpAccept=application/xml` en `recordPacking=xml` als query-parameters.</li>
+<li>Schema ladder (v2.0): `oai_dc` → `srw_dc` → `dc` (fallback bij 406).</li>
+<li>Wetgeving.nl: gebruik zoekservice `https://zoekservice.overheid.nl/sru/Search` met `x-connection=BWB`.</li>
+<li>Overheid.nl repository: `https://repository.overheid.nl/sru` (recordSchema=dc, collection=rijksoverheid).</li>
+<li>Zoekservice (GZD): `https://zoekservice.overheid.nl/sru/Search` (recordSchema=gzd).</li>
+</ul>
+
+<h2>MediaWiki (Wikipedia/Wiktionary)</h2>
+<ul>
+<li>Queries worden gesanitized: organisatorische tokens strippen; juridische/wet-tokens normaliseren; disambiguation overslaan.</li>
+<li>Taal NL; timeouts via config; UA verplicht.</li>
+</ul>
+
+<h2>Providers (defaults)</h2>
+<ul>
+<li>`sru_overheid.enabled: true` (Overheid.nl/Zoekservice actief)</li>
+<li>`wetgeving_nl` actief met SRU 2.0 + BWB</li>
+<li>`rechtspraak_ecli`: afhankelijk van netwerk (DNS/poort 443 `zoeken.rechtspraak.nl`)</li>
+</ul>
+
+
+  </div>
+</body>
+</html>

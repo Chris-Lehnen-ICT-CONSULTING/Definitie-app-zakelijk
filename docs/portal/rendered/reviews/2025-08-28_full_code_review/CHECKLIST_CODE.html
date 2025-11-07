@@ -1,0 +1,418 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Checklist — Code, Tests, Scripts, Config</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>Checklist — Code, Tests, Scripts, Config</h1>
+
+<p>Regel: vink een bestand pas af als het voorstel + acceptatiecriteria in <code>CODE_REVIEW_REPORT.md</code> staat. Link-formaat: <code><a href="CODE_REVIEW_REPORT.md#<anchor>" target="_blank">pad</a></code> met anchor als verlaagde path en niet-alfanumeriek → <code>-</code>.</p>
+
+<h2>SRC</h2>
+
+<ul>
+<li>[ ] [src/__init__.py](CODE_REVIEW_REPORT.md#src--init--py)</li>
+<li>[ ] [src/ai_toetser/__init__.py](CODE_REVIEW_REPORT.md#src-ai_toetser--init--py)</li>
+<li>[ ] [src/ai_toetser/json_validator_loader.py](CODE_REVIEW_REPORT.md#src-ai_toetser-json_validator_loader-py)</li>
+<li>[ ] [src/ai_toetser/modular_toetser.py](CODE_REVIEW_REPORT.md#src-ai_toetser-modular_toetser-py)</li>
+<li>[ ] [src/ai_toetser/toetser.py](CODE_REVIEW_REPORT.md#src-ai_toetser-toetser-py)</li>
+<li>[ ] [src/analysis/__init__.py](CODE_REVIEW_REPORT.md#src-analysis--init--py)</li>
+<li>[ ] [src/analysis/toetsregels_usage_analysis.py](CODE_REVIEW_REPORT.md#src-analysis-toetsregels_usage_analysis-py)</li>
+<li>[ ] [src/api/feature_status_api.py](CODE_REVIEW_REPORT.md#src-api-feature_status_api-py)</li>
+<li>[ ] [src/archive/migration_scripts/README.md](CODE_REVIEW_REPORT.md#src-archive-migration_scripts-readme-md)</li>
+<li>[ ] [src/config/__init__.py](CODE_REVIEW_REPORT.md#src-config--init--py)</li>
+<li>[ ] [src/config/config_adapters.py](CODE_REVIEW_REPORT.md#src-config-config_adapters-py)</li>
+<li>[ ] [src/config/config_loader.py](CODE_REVIEW_REPORT.md#src-config-config_loader-py)</li>
+<li>[ ] [src/config/config_manager.py](CODE_REVIEW_REPORT.md#src-config-config_manager-py)</li>
+<li>[ ] [src/config/context_wet_mapping.json](CODE_REVIEW_REPORT.md#src-config-context_wet_mapping-json)</li>
+<li>[ ] [src/config/rate_limit_config.py](CODE_REVIEW_REPORT.md#src-config-rate_limit_config-py)</li>
+<li>[ ] [src/config/verboden_woorden.json](CODE_REVIEW_REPORT.md#src-config-verboden_woorden-json)</li>
+<li>[ ] [src/config/verboden_woorden.py](CODE_REVIEW_REPORT.md#src-config-verboden_woorden-py)</li>
+<li>[ ] [src/database/__init__.py](CODE_REVIEW_REPORT.md#src-database--init--py)</li>
+<li>[ ] [src/database/definitie_repository.py](CODE_REVIEW_REPORT.md#src-database-definitie_repository-py)</li>
+<li>[ ] [src/database/migrate_database.py](CODE_REVIEW_REPORT.md#src-database-migrate_database-py)</li>
+<li>[ ] [src/database/migrations/add_legacy_fields.sql](CODE_REVIEW_REPORT.md#src-database-migrations-add_legacy_fields-sql)</li>
+<li>[ ] [src/database/migrations/add_metadata_fields.sql](CODE_REVIEW_REPORT.md#src-database-migrations-add_metadata_fields-sql)</li>
+<li>[ ] [src/database/migrations/fix_category_constraint.sql](CODE_REVIEW_REPORT.md#src-database-migrations-fix_category_constraint-sql)</li>
+<li>[ ] [src/database/migrations/reset_with_category_support.sql](CODE_REVIEW_REPORT.md#src-database-migrations-reset_with_category_support-sql)</li>
+<li>[ ] [src/database/schema.sql](CODE_REVIEW_REPORT.md#src-database-schema-sql)</li>
+<li>[ ] [src/document_processing/__init__.py](CODE_REVIEW_REPORT.md#src-document_processing--init--py)</li>
+<li>[ ] [src/document_processing/document_extractor.py](CODE_REVIEW_REPORT.md#src-document_processing-document_extractor-py)</li>
+<li>[ ] [src/document_processing/document_processor.py](CODE_REVIEW_REPORT.md#src-document_processing-document_processor-py)</li>
+<li>[ ] [src/domain/__init__.py](CODE_REVIEW_REPORT.md#src-domain--init--py)</li>
+<li>[ ] [src/domain/autoriteit/__init__.py](CODE_REVIEW_REPORT.md#src-domain-autoriteit--init--py)</li>
+<li>[ ] [src/domain/autoriteit/betrouwbaarheid.py](CODE_REVIEW_REPORT.md#src-domain-autoriteit-betrouwbaarheid-py)</li>
+<li>[ ] [src/domain/context/__init__.py](CODE_REVIEW_REPORT.md#src-domain-context--init--py)</li>
+<li>[ ] [src/domain/context/organisatie_wetten.py](CODE_REVIEW_REPORT.md#src-domain-context-organisatie_wetten-py)</li>
+<li>[ ] [src/domain/juridisch/__init__.py](CODE_REVIEW_REPORT.md#src-domain-juridisch--init--py)</li>
+<li>[ ] [src/domain/juridisch/patronen.py](CODE_REVIEW_REPORT.md#src-domain-juridisch-patronen-py)</li>
+<li>[ ] [src/domain/linguistisch/__init__.py](CODE_REVIEW_REPORT.md#src-domain-linguistisch--init--py)</li>
+<li>[ ] [src/domain/linguistisch/pluralia_tantum.py](CODE_REVIEW_REPORT.md#src-domain-linguistisch-pluralia_tantum-py)</li>
+<li>[ ] [src/domain/ontological_categories.py](CODE_REVIEW_REPORT.md#src-domain-ontological_categories-py)</li>
+<li>[ ] [src/export/__init__.py](CODE_REVIEW_REPORT.md#src-export--init--py)</li>
+<li>[ ] [src/export/export_txt.py](CODE_REVIEW_REPORT.md#src-export-export_txt-py)</li>
+<li>[ ] [src/exports/__init__.py](CODE_REVIEW_REPORT.md#src-exports--init--py)</li>
+<li>[ ] [src/external/__init__.py](CODE_REVIEW_REPORT.md#src-external--init--py)</li>
+<li>[ ] [src/external/external_source_adapter.py](CODE_REVIEW_REPORT.md#src-external-external_source_adapter-py)</li>
+<li>[ ] [src/hybrid_context/__init__.py](CODE_REVIEW_REPORT.md#src-hybrid_context--init--py)</li>
+<li>[ ] [src/hybrid_context/context_fusion.py](CODE_REVIEW_REPORT.md#src-hybrid_context-context_fusion-py)</li>
+<li>[ ] [src/hybrid_context/hybrid_context_engine.py](CODE_REVIEW_REPORT.md#src-hybrid_context-hybrid_context_engine-py)</li>
+<li>[ ] [src/hybrid_context/smart_source_selector.py](CODE_REVIEW_REPORT.md#src-hybrid_context-smart_source_selector-py)</li>
+<li>[ ] [src/integration/__init__.py](CODE_REVIEW_REPORT.md#src-integration--init--py)</li>
+<li>[ ] [src/integration/definitie_checker.py](CODE_REVIEW_REPORT.md#src-integration-definitie_checker-py)</li>
+<li>[ ] [src/main.py](CODE_REVIEW_REPORT.md#src-main-py)</li>
+<li>[ ] [src/models/category_models.py](CODE_REVIEW_REPORT.md#src-models-category_models-py)</li>
+<li>[ ] [src/monitoring/__init__.py](CODE_REVIEW_REPORT.md#src-monitoring--init--py)</li>
+<li>[ ] [src/monitoring/api_monitor.py](CODE_REVIEW_REPORT.md#src-monitoring-api_monitor-py)</li>
+<li>[ ] [src/ontologie/__init__.py](CODE_REVIEW_REPORT.md#src-ontologie--init--py)</li>
+<li>[ ] [src/ontologie/ontological_analyzer.py](CODE_REVIEW_REPORT.md#src-ontologie-ontological_analyzer-py)</li>
+<li>[ ] [src/opschoning/__init__.py](CODE_REVIEW_REPORT.md#src-opschoning--init--py)</li>
+<li>[ ] [src/opschoning/opschoning_enhanced.py](CODE_REVIEW_REPORT.md#src-opschoning-opschoning_enhanced-py)</li>
+<li>[ ] [src/opschoning/opschoning.py](CODE_REVIEW_REPORT.md#src-opschoning-opschoning-py)</li>
+<li>[ ] [src/opschoning/README.md](CODE_REVIEW_REPORT.md#src-opschoning-readme-md)</li>
+<li>[ ] [src/orchestration/__init__.py](CODE_REVIEW_REPORT.md#src-orchestration--init--py)</li>
+<li>[ ] [src/orchestration/definitie_agent.py](CODE_REVIEW_REPORT.md#src-orchestration-definitie_agent-py)</li>
+<li>[ ] [src/security/__init__.py](CODE_REVIEW_REPORT.md#src-security--init--py)</li>
+<li>[ ] [src/security/security_middleware.py](CODE_REVIEW_REPORT.md#src-security-security_middleware-py)</li>
+<li>[ ] [src/services/__init__.py](CODE_REVIEW_REPORT.md#src-services--init--py)</li>
+<li>[ ] [src/services/ab_testing_framework.py](CODE_REVIEW_REPORT.md#src-services-ab_testing_framework-py)</li>
+<li>[ ] [src/services/ai_service.py](CODE_REVIEW_REPORT.md#src-services-ai_service-py)</li>
+<li>[ ] [src/services/category_service.py](CODE_REVIEW_REPORT.md#src-services-category_service-py)</li>
+<li>[ ] [src/services/category_state_manager.py](CODE_REVIEW_REPORT.md#src-services-category_state_manager-py)</li>
+<li>[ ] [src/services/cleaning_service.py](CODE_REVIEW_REPORT.md#src-services-cleaning_service-py)</li>
+<li>[ ] [src/services/container.py](CODE_REVIEW_REPORT.md#src-services-container-py)</li>
+<li>[ ] [src/services/data_aggregation_service.py](CODE_REVIEW_REPORT.md#src-services-data_aggregation_service-py)</li>
+<li>[ ] [src/services/definition_generator_cache.py](CODE_REVIEW_REPORT.md#src-services-definition_generator_cache-py)</li>
+<li>[ ] [src/services/definition_generator_config.py](CODE_REVIEW_REPORT.md#src-services-definition_generator_config-py)</li>
+<li>[ ] [src/services/definition_generator_context.py](CODE_REVIEW_REPORT.md#src-services-definition_generator_context-py)</li>
+<li>[ ] [src/services/definition_generator_enhancement.py](CODE_REVIEW_REPORT.md#src-services-definition_generator_enhancement-py)</li>
+<li>[ ] [src/services/definition_generator_monitoring.py](CODE_REVIEW_REPORT.md#src-services-definition_generator_monitoring-py)</li>
+<li>[ ] [src/services/definition_generator_prompts.py](CODE_REVIEW_REPORT.md#src-services-definition_generator_prompts-py)</li>
+<li>[ ] [src/services/definition_orchestrator.py](CODE_REVIEW_REPORT.md#src-services-definition_orchestrator-py)</li>
+<li>[ ] [src/services/definition_repository.py](CODE_REVIEW_REPORT.md#src-services-definition_repository-py)</li>
+<li>[ ] [src/services/definition_validator.py](CODE_REVIEW_REPORT.md#src-services-definition_validator-py)</li>
+<li>[ ] [src/services/duplicate_detection_service.py](CODE_REVIEW_REPORT.md#src-services-duplicate_detection_service-py)</li>
+<li>[ ] [src/services/export_service.py](CODE_REVIEW_REPORT.md#src-services-export_service-py)</li>
+<li>[ ] [src/services/interfaces.py](CODE_REVIEW_REPORT.md#src-services-interfaces-py)</li>
+<li>[ ] [src/services/modern_web_lookup_service.py](CODE_REVIEW_REPORT.md#src-services-modern_web_lookup_service-py)</li>
+<li>[ ] [src/services/null_repository.py](CODE_REVIEW_REPORT.md#src-services-null_repository-py)</li>
+<li>[ ] [src/services/orchestrators/__init__.py](CODE_REVIEW_REPORT.md#src-services-orchestrators--init--py)</li>
+<li>[ ] [src/services/orchestrators/definition_orchestrator_v2.py](CODE_REVIEW_REPORT.md#src-services-orchestrators-definition_orchestrator_v2-py)</li>
+<li>[ ] [src/services/prompts/modular_prompt_adapter.py](CODE_REVIEW_REPORT.md#src-services-prompts-modular_prompt_adapter-py)</li>
+<li>[ ] [src/services/prompts/modular_prompt_builder.py](CODE_REVIEW_REPORT.md#src-services-prompts-modular_prompt_builder-py)</li>
+<li>[ ] [src/services/prompts/modular_prompt_builder.py.backup](CODE_REVIEW_REPORT.md#src-services-prompts-modular_prompt_builder-py-backup)</li>
+<li>[ ] [src/services/prompts/modules/__init__.py](CODE_REVIEW_REPORT.md#src-services-prompts-modules--init--py)</li>
+<li>[ ] [src/services/prompts/modules/base_module.py](CODE_REVIEW_REPORT.md#src-services-prompts-modules-base_module-py)</li>
+<li>[ ] [src/services/prompts/modules/context_awareness_module.py](CODE_REVIEW_REPORT.md#src-services-prompts-modules-context_awareness_module-py)</li>
+<li>[ ] [src/services/prompts/modules/definition_task_module.py](CODE_REVIEW_REPORT.md#src-services-prompts-modules-definition_task_module-py)</li>
+<li>[ ] [src/services/prompts/modules/error_prevention_module.py](CODE_REVIEW_REPORT.md#src-services-prompts-modules-error_prevention_module-py)</li>
+<li>[ ] [src/services/prompts/modules/expertise_module.py](CODE_REVIEW_REPORT.md#src-services-prompts-modules-expertise_module-py)</li>
+<li>[ ] [src/services/prompts/modules/grammar_module.py](CODE_REVIEW_REPORT.md#src-services-prompts-modules-grammar_module-py)</li>
+<li>[ ] [src/services/prompts/modules/integrity_rules_module.py](CODE_REVIEW_REPORT.md#src-services-prompts-modules-integrity_rules_module-py)</li>
+<li>[ ] [src/services/prompts/modules/metrics_module.py](CODE_REVIEW_REPORT.md#src-services-prompts-modules-metrics_module-py)</li>
+<li>[ ] [src/services/prompts/modules/output_specification_module.py](CODE_REVIEW_REPORT.md#src-services-prompts-modules-output_specification_module-py)</li>
+<li>[ ] [src/services/prompts/modules/prompt_orchestrator.py](CODE_REVIEW_REPORT.md#src-services-prompts-modules-prompt_orchestrator-py)</li>
+<li>[ ] [src/services/prompts/modules/quality_rules_module.py](CODE_REVIEW_REPORT.md#src-services-prompts-modules-quality_rules_module-py)</li>
+<li>[ ] [src/services/prompts/modules/semantic_categorisation_module.py](CODE_REVIEW_REPORT.md#src-services-prompts-modules-semantic_categorisation_module-py)</li>
+<li>[ ] [src/services/prompts/modules/structure_rules_module.py](CODE_REVIEW_REPORT.md#src-services-prompts-modules-structure_rules_module-py)</li>
+<li>[ ] [src/services/prompts/modules/template_module.py](CODE_REVIEW_REPORT.md#src-services-prompts-modules-template_module-py)</li>
+<li>[ ] [src/services/prompts/prompt_service_v2.py](CODE_REVIEW_REPORT.md#src-services-prompts-prompt_service_v2-py)</li>
+<li>[ ] [src/services/regeneration_service.py](CODE_REVIEW_REPORT.md#src-services-regeneration_service-py)</li>
+<li>[ ] [src/services/service_factory.py](CODE_REVIEW_REPORT.md#src-services-service_factory-py)</li>
+<li>[ ] [src/services/definition_generator.py.DEPRECATED](CODE_REVIEW_REPORT.md#src-services-unified_definition_generator-py-deprecated)</li>
+<li>[ ] [src/services/web_lookup/__init__.py](CODE_REVIEW_REPORT.md#src-services-web_lookup--init--py)</li>
+<li>[ ] [src/services/web_lookup/sru_service.py](CODE_REVIEW_REPORT.md#src-services-web_lookup-sru_service-py)</li>
+<li>[ ] [src/services/web_lookup/wikipedia_service.py](CODE_REVIEW_REPORT.md#src-services-web_lookup-wikipedia_service-py)</li>
+<li>[ ] [src/services/workflow_service.py](CODE_REVIEW_REPORT.md#src-services-workflow_service-py)</li>
+<li>[ ] [src/test_export.json](CODE_REVIEW_REPORT.md#src-test_export-json)</li>
+<li>[ ] [src/toetsregels/__init__.py](CODE_REVIEW_REPORT.md#src-toetsregels--init--py)</li>
+<li>[ ] [src/toetsregels/adapter.py](CODE_REVIEW_REPORT.md#src-toetsregels-adapter-py)</li>
+<li>[ ] [src/toetsregels/loader.py](CODE_REVIEW_REPORT.md#src-toetsregels-loader-py)</li>
+<li>[ ] [src/toetsregels/manager.py](CODE_REVIEW_REPORT.md#src-toetsregels-manager-py)</li>
+<li>[ ] [src/toetsregels/modular_loader.py](CODE_REVIEW_REPORT.md#src-toetsregels-modular_loader-py)</li>
+<li>[ ] [src/toetsregels/regels/ARAI-01.json](CODE_REVIEW_REPORT.md#src-toetsregels-regels-arai-01-json)</li>
+<li>[ ] [src/toetsregels/regels/ARAI-01.py](CODE_REVIEW_REPORT.md#src-toetsregels-regels-arai-01-py)</li>
+<li>[ ] [src/toetsregels/regels/ARAI-02.json](CODE_REVIEW_REPORT.md#src-toetsregels-regels-arai-02-json)</li>
+<li>[ ] [src/toetsregels/regels/ARAI-02.py](CODE_REVIEW_REPORT.md#src-toetsregels-regels-arai-02-py)</li>
+<li>[ ] [src/toetsregels/regels/ARAI-02SUB1.json](CODE_REVIEW_REPORT.md#src-toetsregels-regels-arai-02sub1-json)</li>
+<li>[ ] [src/toetsregels/regels/ARAI-02SUB1.py](CODE_REVIEW_REPORT.md#src-toetsregels-regels-arai-02sub1-py)</li>
+<li>[ ] [src/toetsregels/regels/ARAI-02SUB2.json](CODE_REVIEW_REPORT.md#src-toetsregels-regels-arai-02sub2-json)</li>
+<li>[ ] [src/toetsregels/regels/ARAI-02SUB2.py](CODE_REVIEW_REPORT.md#src-toetsregels-regels-arai-02sub2-py)</li>
+<li>[ ] [src/toetsregels/regels/ARAI-03.json](CODE_REVIEW_REPORT.md#src-toetsregels-regels-arai-03-json)</li>
+<li>[ ] [src/toetsregels/regels/ARAI-03.py](CODE_REVIEW_REPORT.md#src-toetsregels-regels-arai-03-py)</li>
+<li>[ ] [src/toetsregels/regels/ARAI-04.json](CODE_REVIEW_REPORT.md#src-toetsregels-regels-arai-04-json)</li>
+<li>[ ] [src/toetsregels/regels/ARAI-04.py](CODE_REVIEW_REPORT.md#src-toetsregels-regels-arai-04-py)</li>
+<li>[ ] [src/toetsregels/regels/ARAI-04SUB1.json](CODE_REVIEW_REPORT.md#src-toetsregels-regels-arai-04sub1-json)</li>
+<li>[ ] [src/toetsregels/regels/ARAI-04SUB1.py](CODE_REVIEW_REPORT.md#src-toetsregels-regels-arai-04sub1-py)</li>
+<li>[ ] [src/toetsregels/regels/ARAI-05.json](CODE_REVIEW_REPORT.md#src-toetsregels-regels-arai-05-json)</li>
+<li>[ ] [src/toetsregels/regels/ARAI-05.py](CODE_REVIEW_REPORT.md#src-toetsregels-regels-arai-05-py)</li>
+<li>[ ] [src/toetsregels/regels/ARAI-06.json](CODE_REVIEW_REPORT.md#src-toetsregels-regels-arai-06-json)</li>
+<li>[ ] [src/toetsregels/regels/ARAI-06.py](CODE_REVIEW_REPORT.md#src-toetsregels-regels-arai-06-py)</li>
+<li>[ ] [src/toetsregels/regels/CON-01.json](CODE_REVIEW_REPORT.md#src-toetsregels-regels-con-01-json)</li>
+<li>[ ] [src/toetsregels/regels/CON-01.py](CODE_REVIEW_REPORT.md#src-toetsregels-regels-con-01-py)</li>
+<li>[ ] [src/toetsregels/regels/CON-02.json](CODE_REVIEW_REPORT.md#src-toetsregels-regels-con-02-json)</li>
+<li>[ ] [src/toetsregels/regels/CON-02.py](CODE_REVIEW_REPORT.md#src-toetsregels-regels-con-02-py)</li>
+<li>[ ] [src/toetsregels/regels/ESS-01.json](CODE_REVIEW_REPORT.md#src-toetsregels-regels-ess-01-json)</li>
+<li>[ ] [src/toetsregels/regels/ESS-01.py](CODE_REVIEW_REPORT.md#src-toetsregels-regels-ess-01-py)</li>
+<li>[ ] [src/toetsregels/regels/ESS-02.json](CODE_REVIEW_REPORT.md#src-toetsregels-regels-ess-02-json)</li>
+<li>[ ] [src/toetsregels/regels/ESS-02.py](CODE_REVIEW_REPORT.md#src-toetsregels-regels-ess-02-py)</li>
+<li>[ ] [src/toetsregels/regels/ESS-03.json](CODE_REVIEW_REPORT.md#src-toetsregels-regels-ess-03-json)</li>
+<li>[ ] [src/toetsregels/regels/ESS-03.py](CODE_REVIEW_REPORT.md#src-toetsregels-regels-ess-03-py)</li>
+<li>[ ] [src/toetsregels/regels/ESS-04.json](CODE_REVIEW_REPORT.md#src-toetsregels-regels-ess-04-json)</li>
+<li>[ ] [src/toetsregels/regels/ESS-04.py](CODE_REVIEW_REPORT.md#src-toetsregels-regels-ess-04-py)</li>
+<li>[ ] [src/toetsregels/regels/ESS-05.json](CODE_REVIEW_REPORT.md#src-toetsregels-regels-ess-05-json)</li>
+<li>[ ] [src/toetsregels/regels/ESS-05.py](CODE_REVIEW_REPORT.md#src-toetsregels-regels-ess-05-py)</li>
+<li>[ ] [src/toetsregels/regels/INT-01.json](CODE_REVIEW_REPORT.md#src-toetsregels-regels-int-01-json)</li>
+<li>[ ] [src/toetsregels/regels/INT-01.py](CODE_REVIEW_REPORT.md#src-toetsregels-regels-int-01-py)</li>
+<li>[ ] [src/toetsregels/regels/INT-02.json](CODE_REVIEW_REPORT.md#src-toetsregels-regels-int-02-json)</li>
+<li>[ ] [src/toetsregels/regels/INT-02.py](CODE_REVIEW_REPORT.md#src-toetsregels-regels-int-02-py)</li>
+<li>[ ] [src/toetsregels/regels/INT-03.json](CODE_REVIEW_REPORT.md#src-toetsregels-regels-int-03-json)</li>
+<li>[ ] [src/toetsregels/regels/INT-03.py](CODE_REVIEW_REPORT.md#src-toetsregels-regels-int-03-py)</li>
+<li>[ ] [src/toetsregels/regels/INT-04.json](CODE_REVIEW_REPORT.md#src-toetsregels-regels-int-04-json)</li>
+<li>[ ] [src/toetsregels/regels/INT-04.py](CODE_REVIEW_REPORT.md#src-toetsregels-regels-int-04-py)</li>
+<li>[ ] [src/toetsregels/regels/INT-06.json](CODE_REVIEW_REPORT.md#src-toetsregels-regels-int-06-json)</li>
+<li>[ ] [src/toetsregels/regels/INT-06.py](CODE_REVIEW_REPORT.md#src-toetsregels-regels-int-06-py)</li>
+<li>[ ] [src/toetsregels/regels/INT-07.json](CODE_REVIEW_REPORT.md#src-toetsregels-regels-int-07-json)</li>
+<li>[ ] [src/toetsregels/regels/INT-07.py](CODE_REVIEW_REPORT.md#src-toetsregels-regels-int-07-py)</li>
+<li>[ ] [src/toetsregels/regels/INT-08.json](CODE_REVIEW_REPORT.md#src-toetsregels-regels-int-08-json)</li>
+<li>[ ] [src/toetsregels/regels/INT-08.py](CODE_REVIEW_REPORT.md#src-toetsregels-regels-int-08-py)</li>
+<li>[ ] [src/toetsregels/regels/INT-09.json](CODE_REVIEW_REPORT.md#src-toetsregels-regels-int-09-json)</li>
+<li>[ ] [src/toetsregels/regels/INT-09.py](CODE_REVIEW_REPORT.md#src-toetsregels-regels-int-09-py)</li>
+<li>[ ] [src/toetsregels/regels/INT-10.json](CODE_REVIEW_REPORT.md#src-toetsregels-regels-int-10-json)</li>
+<li>[ ] [src/toetsregels/regels/INT-10.py](CODE_REVIEW_REPORT.md#src-toetsregels-regels-int-10-py)</li>
+<li>[ ] [src/toetsregels/regels/SAM-01.json](CODE_REVIEW_REPORT.md#src-toetsregels-regels-sam-01-json)</li>
+<li>[ ] [src/toetsregels/regels/SAM-01.py](CODE_REVIEW_REPORT.md#src-toetsregels-regels-sam-01-py)</li>
+<li>[ ] [src/toetsregels/regels/SAM-02.json](CODE_REVIEW_REPORT.md#src-toetsregels-regels-sam-02-json)</li>
+<li>[ ] [src/toetsregels/regels/SAM-02.py](CODE_REVIEW_REPORT.md#src-toetsregels-regels-sam-02-py)</li>
+<li>[ ] [src/toetsregels/regels/SAM-03.json](CODE_REVIEW_REPORT.md#src-toetsregels-regels-sam-03-json)</li>
+<li>[ ] [src/toetsregels/regels/SAM-03.py](CODE_REVIEW_REPORT.md#src-toetsregels-regels-sam-03-py)</li>
+<li>[ ] [src/toetsregels/regels/SAM-04.json](CODE_REVIEW_REPORT.md#src-toetsregels-regels-sam-04-json)</li>
+<li>[ ] [src/toetsregels/regels/SAM-04.py](CODE_REVIEW_REPORT.md#src-toetsregels-regels-sam-04-py)</li>
+<li>[ ] [src/toetsregels/regels/SAM-05.json](CODE_REVIEW_REPORT.md#src-toetsregels-regels-sam-05-json)</li>
+<li>[ ] [src/toetsregels/regels/SAM-05.py](CODE_REVIEW_REPORT.md#src-toetsregels-regels-sam-05-py)</li>
+<li>[ ] [src/toetsregels/regels/SAM-06.json](CODE_REVIEW_REPORT.md#src-toetsregels-regels-sam-06-json)</li>
+<li>[ ] [src/toetsregels/regels/SAM-06.py](CODE_REVIEW_REPORT.md#src-toetsregels-regels-sam-06-py)</li>
+<li>[ ] [src/toetsregels/regels/SAM-07.json](CODE_REVIEW_REPORT.md#src-toetsregels-regels-sam-07-json)</li>
+<li>[ ] [src/toetsregels/regels/SAM-07.py](CODE_REVIEW_REPORT.md#src-toetsregels-regels-sam-07-py)</li>
+<li>[ ] [src/toetsregels/regels/SAM-08.json](CODE_REVIEW_REPORT.md#src-toetsregels-regels-sam-08-json)</li>
+<li>[ ] [src/toetsregels/regels/SAM-08.py](CODE_REVIEW_REPORT.md#src-toetsregels-regels-sam-08-py)</li>
+<li>[ ] [src/toetsregels/regels/STR-01.json](CODE_REVIEW_REPORT.md#src-toetsregels-regels-str-01-json)</li>
+<li>[ ] [src/toetsregels/regels/STR-01.py](CODE_REVIEW_REPORT.md#src-toetsregels-regels-str-01-py)</li>
+<li>[ ] [src/toetsregels/regels/STR-02.json](CODE_REVIEW_REPORT.md#src-toetsregels-regels-str-02-json)</li>
+<li>[ ] [src/toetsregels/regels/STR-02.py](CODE_REVIEW_REPORT.md#src-toetsregels-regels-str-02-py)</li>
+<li>[ ] [src/toetsregels/regels/STR-03.json](CODE_REVIEW_REPORT.md#src-toetsregels-regels-str-03-json)</li>
+<li>[ ] [src/toetsregels/regels/STR-03.py](CODE_REVIEW_REPORT.md#src-toetsregels-regels-str-03-py)</li>
+<li>[ ] [src/toetsregels/regels/STR-04.json](CODE_REVIEW_REPORT.md#src-toetsregels-regels-str-04-json)</li>
+<li>[ ] [src/toetsregels/regels/STR-04.py](CODE_REVIEW_REPORT.md#src-toetsregels-regels-str-04-py)</li>
+<li>[ ] [src/toetsregels/regels/STR-05.json](CODE_REVIEW_REPORT.md#src-toetsregels-regels-str-05-json)</li>
+<li>[ ] [src/toetsregels/regels/STR-05.py](CODE_REVIEW_REPORT.md#src-toetsregels-regels-str-05-py)</li>
+<li>[ ] [src/toetsregels/regels/STR-06.json](CODE_REVIEW_REPORT.md#src-toetsregels-regels-str-06-json)</li>
+<li>[ ] [src/toetsregels/regels/STR-06.py](CODE_REVIEW_REPORT.md#src-toetsregels-regels-str-06-py)</li>
+<li>[ ] [src/toetsregels/regels/STR-07.json](CODE_REVIEW_REPORT.md#src-toetsregels-regels-str-07-json)</li>
+<li>[ ] [src/toetsregels/regels/STR-07.py](CODE_REVIEW_REPORT.md#src-toetsregels-regels-str-07-py)</li>
+<li>[ ] [src/toetsregels/regels/STR-08.json](CODE_REVIEW_REPORT.md#src-toetsregels-regels-str-08-json)</li>
+<li>[ ] [src/toetsregels/regels/STR-08.py](CODE_REVIEW_REPORT.md#src-toetsregels-regels-str-08-py)</li>
+<li>[ ] [src/toetsregels/regels/STR-09.json](CODE_REVIEW_REPORT.md#src-toetsregels-regels-str-09-json)</li>
+<li>[ ] [src/toetsregels/regels/STR-09.py](CODE_REVIEW_REPORT.md#src-toetsregels-regels-str-09-py)</li>
+<li>[ ] [src/toetsregels/regels/VER-01.json](CODE_REVIEW_REPORT.md#src-toetsregels-regels-ver-01-json)</li>
+<li>[ ] [src/toetsregels/regels/VER-01.py](CODE_REVIEW_REPORT.md#src-toetsregels-regels-ver-01-py)</li>
+<li>[ ] [src/toetsregels/regels/VER-02.json](CODE_REVIEW_REPORT.md#src-toetsregels-regels-ver-02-json)</li>
+<li>[ ] [src/toetsregels/regels/VER-02.py](CODE_REVIEW_REPORT.md#src-toetsregels-regels-ver-02-py)</li>
+<li>[ ] [src/toetsregels/regels/VER-03.json](CODE_REVIEW_REPORT.md#src-toetsregels-regels-ver-03-json)</li>
+<li>[ ] [src/toetsregels/regels/VER-03.py](CODE_REVIEW_REPORT.md#src-toetsregels-regels-ver-03-py)</li>
+<li>[ ] [src/toetsregels/sets/__init__.py](CODE_REVIEW_REPORT.md#src-toetsregels-sets--init--py)</li>
+<li>[ ] [src/toetsregels/sets/per-categorie/__init__.py](CODE_REVIEW_REPORT.md#src-toetsregels-sets-per-categorie--init--py)</li>
+<li>[ ] [src/toetsregels/sets/per-categorie/arai.json](CODE_REVIEW_REPORT.md#src-toetsregels-sets-per-categorie-arai-json)</li>
+<li>[ ] [src/toetsregels/sets/per-categorie/context.json](CODE_REVIEW_REPORT.md#src-toetsregels-sets-per-categorie-context-json)</li>
+<li>[ ] [src/toetsregels/sets/per-categorie/essentie.json](CODE_REVIEW_REPORT.md#src-toetsregels-sets-per-categorie-essentie-json)</li>
+<li>[ ] [src/toetsregels/sets/per-categorie/interne.json](CODE_REVIEW_REPORT.md#src-toetsregels-sets-per-categorie-interne-json)</li>
+<li>[ ] [src/toetsregels/sets/per-categorie/samenhang.json](CODE_REVIEW_REPORT.md#src-toetsregels-sets-per-categorie-samenhang-json)</li>
+<li>[ ] [src/toetsregels/sets/per-categorie/structuur.json](CODE_REVIEW_REPORT.md#src-toetsregels-sets-per-categorie-structuur-json)</li>
+<li>[ ] [src/toetsregels/sets/per-context/__init__.py](CODE_REVIEW_REPORT.md#src-toetsregels-sets-per-context--init--py)</li>
+<li>[ ] [src/toetsregels/sets/per-context/exemplaar-regels.json](CODE_REVIEW_REPORT.md#src-toetsregels-sets-per-context-exemplaar-regels-json)</li>
+<li>[ ] [src/toetsregels/sets/per-context/proces-regels.json](CODE_REVIEW_REPORT.md#src-toetsregels-sets-per-context-proces-regels-json)</li>
+<li>[ ] [src/toetsregels/sets/per-context/resultaat-regels.json](CODE_REVIEW_REPORT.md#src-toetsregels-sets-per-context-resultaat-regels-json)</li>
+<li>[ ] [src/toetsregels/sets/per-context/type-regels.json](CODE_REVIEW_REPORT.md#src-toetsregels-sets-per-context-type-regels-json)</li>
+<li>[ ] [src/toetsregels/sets/per-prioriteit/__init__.py](CODE_REVIEW_REPORT.md#src-toetsregels-sets-per-prioriteit--init--py)</li>
+<li>[ ] [src/toetsregels/sets/per-prioriteit/hoog.json](CODE_REVIEW_REPORT.md#src-toetsregels-sets-per-prioriteit-hoog-json)</li>
+<li>[ ] [src/toetsregels/sets/per-prioriteit/verplicht-hoog.json](CODE_REVIEW_REPORT.md#src-toetsregels-sets-per-prioriteit-verplicht-hoog-json)</li>
+<li>[ ] [src/toetsregels/sets/per-prioriteit/verplicht.json](CODE_REVIEW_REPORT.md#src-toetsregels-sets-per-prioriteit-verplicht-json)</li>
+<li>[ ] [src/toetsregels/toetsregels-manager.json](CODE_REVIEW_REPORT.md#src-toetsregels-toetsregels-manager-json)</li>
+<li>[ ] [src/toetsregels/validators/__init__.py](CODE_REVIEW_REPORT.md#src-toetsregels-validators--init--py)</li>
+<li>[ ] [src/toetsregels/validators/ARAI01.py](CODE_REVIEW_REPORT.md#src-toetsregels-validators-arai01-py)</li>
+<li>[ ] [src/toetsregels/validators/ARAI02.py](CODE_REVIEW_REPORT.md#src-toetsregels-validators-arai02-py)</li>
+<li>[ ] [src/toetsregels/validators/ARAI02SUB1.py](CODE_REVIEW_REPORT.md#src-toetsregels-validators-arai02sub1-py)</li>
+<li>[ ] [src/toetsregels/validators/ARAI02SUB2.py](CODE_REVIEW_REPORT.md#src-toetsregels-validators-arai02sub2-py)</li>
+<li>[ ] [src/toetsregels/validators/ARAI03.py](CODE_REVIEW_REPORT.md#src-toetsregels-validators-arai03-py)</li>
+<li>[ ] [src/toetsregels/validators/ARAI04.py](CODE_REVIEW_REPORT.md#src-toetsregels-validators-arai04-py)</li>
+<li>[ ] [src/toetsregels/validators/ARAI04SUB1.py](CODE_REVIEW_REPORT.md#src-toetsregels-validators-arai04sub1-py)</li>
+<li>[ ] [src/toetsregels/validators/ARAI05.py](CODE_REVIEW_REPORT.md#src-toetsregels-validators-arai05-py)</li>
+<li>[ ] [src/toetsregels/validators/ARAI06.py](CODE_REVIEW_REPORT.md#src-toetsregels-validators-arai06-py)</li>
+<li>[ ] [src/toetsregels/validators/CON_01.py](CODE_REVIEW_REPORT.md#src-toetsregels-validators-con_01-py)</li>
+<li>[ ] [src/toetsregels/validators/CON_02.py](CODE_REVIEW_REPORT.md#src-toetsregels-validators-con_02-py)</li>
+<li>[ ] [src/toetsregels/validators/ESS_01.py](CODE_REVIEW_REPORT.md#src-toetsregels-validators-ess_01-py)</li>
+<li>[ ] [src/toetsregels/validators/ESS_02.py](CODE_REVIEW_REPORT.md#src-toetsregels-validators-ess_02-py)</li>
+<li>[ ] [src/toetsregels/validators/ESS_03.py](CODE_REVIEW_REPORT.md#src-toetsregels-validators-ess_03-py)</li>
+<li>[ ] [src/toetsregels/validators/ESS_04.py](CODE_REVIEW_REPORT.md#src-toetsregels-validators-ess_04-py)</li>
+<li>[ ] [src/toetsregels/validators/ESS_05.py](CODE_REVIEW_REPORT.md#src-toetsregels-validators-ess_05-py)</li>
+<li>[ ] [src/toetsregels/validators/INT_01.py](CODE_REVIEW_REPORT.md#src-toetsregels-validators-int_01-py)</li>
+<li>[ ] [src/toetsregels/validators/INT_02.py](CODE_REVIEW_REPORT.md#src-toetsregels-validators-int_02-py)</li>
+<li>[ ] [src/toetsregels/validators/INT_03.py](CODE_REVIEW_REPORT.md#src-toetsregels-validators-int_03-py)</li>
+<li>[ ] [src/toetsregels/validators/INT_04.py](CODE_REVIEW_REPORT.md#src-toetsregels-validators-int_04-py)</li>
+<li>[ ] [src/toetsregels/validators/INT_06.py](CODE_REVIEW_REPORT.md#src-toetsregels-validators-int_06-py)</li>
+<li>[ ] [src/toetsregels/validators/INT_07.py](CODE_REVIEW_REPORT.md#src-toetsregels-validators-int_07-py)</li>
+<li>[ ] [src/toetsregels/validators/INT_08.py](CODE_REVIEW_REPORT.md#src-toetsregels-validators-int_08-py)</li>
+<li>[ ] [src/toetsregels/validators/INT_09.py](CODE_REVIEW_REPORT.md#src-toetsregels-validators-int_09-py)</li>
+<li>[ ] [src/toetsregels/validators/INT_10.py](CODE_REVIEW_REPORT.md#src-toetsregels-validators-int_10-py)</li>
+<li>[ ] [src/toetsregels/validators/SAM_01.py](CODE_REVIEW_REPORT.md#src-toetsregels-validators-sam_01-py)</li>
+<li>[ ] [src/toetsregels/validators/SAM_02.py](CODE_REVIEW_REPORT.md#src-toetsregels-validators-sam_02-py)</li>
+<li>[ ] [src/toetsregels/validators/SAM_03.py](CODE_REVIEW_REPORT.md#src-toetsregels-validators-sam_03-py)</li>
+<li>[ ] [src/toetsregels/validators/SAM_04.py](CODE_REVIEW_REPORT.md#src-toetsregels-validators-sam_04-py)</li>
+<li>[ ] [src/toetsregels/validators/SAM_05.py](CODE_REVIEW_REPORT.md#src-toetsregels-validators-sam_05-py)</li>
+<li>[ ] [src/toetsregels/validators/SAM_06.py](CODE_REVIEW_REPORT.md#src-toetsregels-validators-sam_06-py)</li>
+<li>[ ] [src/toetsregels/validators/SAM_07.py](CODE_REVIEW_REPORT.md#src-toetsregels-validators-sam_07-py)</li>
+<li>[ ] [src/toetsregels/validators/SAM_08.py](CODE_REVIEW_REPORT.md#src-toetsregels-validators-sam_08-py)</li>
+<li>[ ] [src/toetsregels/validators/STR_01.py](CODE_REVIEW_REPORT.md#src-toetsregels-validators-str_01-py)</li>
+<li>[ ] [src/toetsregels/validators/STR_02.py](CODE_REVIEW_REPORT.md#src-toetsregels-validators-str_02-py)</li>
+<li>[ ] [src/toetsregels/validators/STR_03.py](CODE_REVIEW_REPORT.md#src-toetsregels-validators-str_03-py)</li>
+<li>[ ] [src/toetsregels/validators/STR_04.py](CODE_REVIEW_REPORT.md#src-toetsregels-validators-str_04-py)</li>
+<li>[ ] [src/toetsregels/validators/STR_05.py](CODE_REVIEW_REPORT.md#src-toetsregels-validators-str_05-py)</li>
+<li>[ ] [src/toetsregels/validators/STR_06.py](CODE_REVIEW_REPORT.md#src-toetsregels-validators-str_06-py)</li>
+<li>[ ] [src/toetsregels/validators/STR_07.py](CODE_REVIEW_REPORT.md#src-toetsregels-validators-str_07-py)</li>
+<li>[ ] [src/toetsregels/validators/STR_08.py](CODE_REVIEW_REPORT.md#src-toetsregels-validators-str_08-py)</li>
+<li>[ ] [src/toetsregels/validators/STR_09.py](CODE_REVIEW_REPORT.md#src-toetsregels-validators-str_09-py)</li>
+<li>[ ] [src/toetsregels/validators/VER_01.py](CODE_REVIEW_REPORT.md#src-toetsregels-validators-ver_01-py)</li>
+<li>[ ] [src/toetsregels/validators/VER_02.py](CODE_REVIEW_REPORT.md#src-toetsregels-validators-ver_02-py)</li>
+<li>[ ] [src/toetsregels/validators/VER_03.py](CODE_REVIEW_REPORT.md#src-toetsregels-validators-ver_03-py)</li>
+<li>[ ] [src/tools/__init__.py](CODE_REVIEW_REPORT.md#src-tools--init--py)</li>
+<li>[ ] [src/tools/definitie_manager.py](CODE_REVIEW_REPORT.md#src-tools-definitie_manager-py)</li>
+<li>[ ] [src/tools/setup_database.py](CODE_REVIEW_REPORT.md#src-tools-setup_database-py)</li>
+<li>[ ] [src/ui/__init__.py](CODE_REVIEW_REPORT.md#src-ui--init--py)</li>
+<li>[ ] [src/ui/async_progress.py](CODE_REVIEW_REPORT.md#src-ui-async_progress-py)</li>
+<li>[ ] [src/ui/cache_manager.py](CODE_REVIEW_REPORT.md#src-ui-cache_manager-py)</li>
+<li>[ ] [src/ui/components_adapter.py](CODE_REVIEW_REPORT.md#src-ui-components_adapter-py)</li>
+<li>[ ] [src/ui/components.py](CODE_REVIEW_REPORT.md#src-ui-components-py)</li>
+<li>[ ] [src/ui/components/__init__.py](CODE_REVIEW_REPORT.md#src-ui-components--init--py)</li>
+<li>[ ] [src/ui/components/category_regeneration_helper.py](CODE_REVIEW_REPORT.md#src-ui-components-category_regeneration_helper-py)</li>
+<li>[ ] [src/ui/components/context_selector.py](CODE_REVIEW_REPORT.md#src-ui-components-context_selector-py)</li>
+<li>[ ] [src/ui/components/definition_generator_tab.py](CODE_REVIEW_REPORT.md#src-ui-components-definition_generator_tab-py)</li>
+<li>[ ] [src/ui/components/expert_review_tab.py](CODE_REVIEW_REPORT.md#src-ui-components-expert_review_tab-py)</li>
+<li>[ ] [src/ui/components/export_tab.py](CODE_REVIEW_REPORT.md#src-ui-components-export_tab-py)</li>
+<li>[ ] [src/ui/components/external_sources_tab.py](CODE_REVIEW_REPORT.md#src-ui-components-external_sources_tab-py)</li>
+<li>[ ] [src/ui/components/history_tab.py](CODE_REVIEW_REPORT.md#src-ui-components-history_tab-py)</li>
+<li>[ ] [src/ui/components/management_tab.py](CODE_REVIEW_REPORT.md#src-ui-components-management_tab-py)</li>
+<li>[ ] [src/ui/components/monitoring_tab.py](CODE_REVIEW_REPORT.md#src-ui-components-monitoring_tab-py)</li>
+<li>[ ] [src/ui/components/orchestration_tab.py](CODE_REVIEW_REPORT.md#src-ui-components-orchestration_tab-py)</li>
+<li>[ ] [src/ui/components/prompt_debug_section.py](CODE_REVIEW_REPORT.md#src-ui-components-prompt_debug_section-py)</li>
+<li>[ ] [src/ui/components/quality_control_tab.py](CODE_REVIEW_REPORT.md#src-ui-components-quality_control_tab-py)</li>
+<li>[ ] [src/ui/components/web_lookup_tab.py](CODE_REVIEW_REPORT.md#src-ui-components-web_lookup_tab-py)</li>
+<li>[ ] [src/ui/regeneration_handler.py](CODE_REVIEW_REPORT.md#src-ui-regeneration_handler-py)</li>
+<li>[ ] [src/ui/services/definition_ui_service.py](CODE_REVIEW_REPORT.md#src-ui-services-definition_ui_service-py)</li>
+<li>[ ] [src/ui/session_state.py](CODE_REVIEW_REPORT.md#src-ui-session_state-py)</li>
+<li>[ ] [src/ui/tabbed_interface.py](CODE_REVIEW_REPORT.md#src-ui-tabbed_interface-py)</li>
+<li>[ ] [src/utils/__init__.py](CODE_REVIEW_REPORT.md#src-utils--init--py)</li>
+<li>[ ] [src/utils/async_api.py](CODE_REVIEW_REPORT.md#src-utils-async_api-py)</li>
+<li>[ ] [src/utils/cache.py](CODE_REVIEW_REPORT.md#src-utils-cache-py)</li>
+<li>[ ] [src/utils/enhanced_retry.py](CODE_REVIEW_REPORT.md#src-utils-enhanced_retry-py)</li>
+<li>[ ] [src/utils/exceptions.py](CODE_REVIEW_REPORT.md#src-utils-exceptions-py)</li>
+<li>[ ] [src/utils/integrated_resilience.py](CODE_REVIEW_REPORT.md#src-utils-integrated_resilience-py)</li>
+<li>[ ] [src/utils/optimized_resilience.py](CODE_REVIEW_REPORT.md#src-utils-optimized_resilience-py)</li>
+<li>[ ] [src/utils/performance_monitor.py](CODE_REVIEW_REPORT.md#src-utils-performance_monitor-py)</li>
+<li>[ ] [src/utils/resilience_summary.py](CODE_REVIEW_REPORT.md#src-utils-resilience_summary-py)</li>
+<li>[ ] [src/utils/resilience.py](CODE_REVIEW_REPORT.md#src-utils-resilience-py)</li>
+<li>[ ] [src/utils/smart_rate_limiter.py](CODE_REVIEW_REPORT.md#src-utils-smart_rate_limiter-py)</li>
+<li>[ ] [src/validation/__init__.py](CODE_REVIEW_REPORT.md#src-validation--init--py)</li>
+<li>[ ] [src/validation/definitie_validator.py](CODE_REVIEW_REPORT.md#src-validation-definitie_validator-py)</li>
+<li>[ ] [src/validation/dutch_text_validator.py](CODE_REVIEW_REPORT.md#src-validation-dutch_text_validator-py)</li>
+<li>[ ] [src/validation/input_validator.py](CODE_REVIEW_REPORT.md#src-validation-input_validator-py)</li>
+<li>[ ] [src/validation/sanitizer.py](CODE_REVIEW_REPORT.md#src-validation-sanitizer-py)</li>
+<li>[ ] [src/voorbeelden/__init__.py](CODE_REVIEW_REPORT.md#src-voorbeelden--init--py)</li>
+<li>[ ] [src/voorbeelden/async_voorbeelden.py](CODE_REVIEW_REPORT.md#src-voorbeelden-async_voorbeelden-py)</li>
+<li>[ ] [src/voorbeelden/cached_voorbeelden.py](CODE_REVIEW_REPORT.md#src-voorbeelden-cached_voorbeelden-py)</li>
+<li>[ ] [src/voorbeelden/unified_voorbeelden.py](CODE_REVIEW_REPORT.md#src-voorbeelden-unified_voorbeelden-py)</li>
+<li>[ ] [src/voorbeelden/voorbeelden.py](CODE_REVIEW_REPORT.md#src-voorbeelden-voorbeelden-py)</li>
+</ul>
+
+<h2>TESTS</h2>
+
+<ul>
+<li>[ ] [tests/__init__.py](CODE_REVIEW_REPORT.md#tests--init--py)</li>
+<li>[ ] [tests/data/sample-prompt-1-toezicht.txt](CODE_REVIEW_REPORT.md#tests-data-sample-prompt-1-toezicht-txt)</li>
+<li>[ ] [tests/data/sample-prompt-2-sanctionering.txt](CODE_REVIEW_REPORT.md#tests-data-sample-prompt-2-sanctionering-txt)</li>
+<li>[ ] [tests/import_test.py](CODE_REVIEW_REPORT.md#tests-import_test-py)</li>
+<li>[ ] [tests/manual_test_category_aware_duplicates.py](CODE_REVIEW_REPORT.md#tests-manual_test_category_aware_duplicates-py)</li>
+<li>[ ] [tests/manual_test_category_regeneration_fix.py](CODE_REVIEW_REPORT.md#tests-manual_test_category_regeneration_fix-py)</li>
+<li>[ ] [tests/manual_test_category.py](CODE_REVIEW_REPORT.md#tests-manual_test_category-py)</li>
+<li>[ ] [tests/manual_test_enhanced_ui_flow.py](CODE_REVIEW_REPORT.md#tests-manual_test_enhanced_ui_flow-py)</li>
+<li>[ ] [tests/manual_test_prompt_debug.py](CODE_REVIEW_REPORT.md#tests-manual_test_prompt_debug-py)</li>
+<li>[ ] [tests/manual_test_regeneration.py](CODE_REVIEW_REPORT.md#tests-manual_test_regeneration-py)</li>
+<li>[ ] [tests/output/test_baseline_continue.txt](CODE_REVIEW_REPORT.md#tests-output-test_baseline_continue-txt)</li>
+<li>[ ] [tests/output/test_baseline.txt](CODE_REVIEW_REPORT.md#tests-output-test_baseline-txt)</li>
+<li>[ ] [tests/pytest.ini](CODE_REVIEW_REPORT.md#tests-pytest-ini)</li>
+<li>[ ] [tests/README.md](CODE_REVIEW_REPORT.md#tests-readme-md)</li>
+<li>[ ] [tests/unit/voorbeelden_functionality_tests.py](CODE_REVIEW_REPORT.md#tests-unit-voorbeelden_functionality_tests-py)</li>
+</ul>
+
+<h2>SCRIPTS</h2>
+
+<ul>
+<li>[ ] [scripts/ai_code_reviewer.py](CODE_REVIEW_REPORT.md#scripts-ai_code_reviewer-py)</li>
+<li>[ ] [scripts/ai_metrics_tracker.py](CODE_REVIEW_REPORT.md#scripts-ai_metrics_tracker-py)</li>
+<li>[ ] [scripts/ai-agent-wrapper.py](CODE_REVIEW_REPORT.md#scripts-ai-agent-wrapper-py)</li>
+<li>[ ] [scripts/ai-metrics-dashboard.py](CODE_REVIEW_REPORT.md#scripts-ai-metrics-dashboard-py)</li>
+<li>[ ] [scripts/ai-pre-commit](CODE_REVIEW_REPORT.md#scripts-ai-pre-commit)</li>
+<li>[ ] [scripts/analyse/hernoem-naar-nederlands.py](CODE_REVIEW_REPORT.md#scripts-analyse-hernoem-naar-nederlands-py)</li>
+<li>[ ] [scripts/analysis/analyze_core_module.py](CODE_REVIEW_REPORT.md#scripts-analysis-analyze_core_module-py)</li>
+<li>[ ] [scripts/analysis/analyze_dependencies.py](CODE_REVIEW_REPORT.md#scripts-analysis-analyze_dependencies-py)</li>
+<li>[ ] [scripts/analysis/analyze_modular_prompts.py](CODE_REVIEW_REPORT.md#scripts-analysis-analyze_modular_prompts-py)</li>
+<li>[ ] [scripts/analysis/analyze_modular_structure.py](CODE_REVIEW_REPORT.md#scripts-analysis-analyze_modular_structure-py)</li>
+<li>[ ] [scripts/analysis/compare_modules.py](CODE_REVIEW_REPORT.md#scripts-analysis-compare_modules-py)</li>
+<li>[ ] [scripts/analysis/afhankelijkheid_analysis.py](CODE_REVIEW_REPORT.md#scripts-analysis-afhankelijkheid_analysis-py)</li>
+<li>[ ] [scripts/analysis/module_afhankelijkheid_analysis.py](CODE_REVIEW_REPORT.md#scripts-analysis-module_afhankelijkheid_analysis-py)</li>
+<li>[ ] [scripts/analysis/trace_prompt_decision.py](CODE_REVIEW_REPORT.md#scripts-analysis-trace_prompt_decision-py)</li>
+<li>[ ] [scripts/architecture_sync.py](CODE_REVIEW_REPORT.md#scripts-architecture_sync-py)</li>
+<li>[ ] [scripts/architecture_validator.py](CODE_REVIEW_REPORT.md#scripts-architecture_validator-py)</li>
+<li>[ ] [scripts/benchmarks/benchmark_services.py](CODE_REVIEW_REPORT.md#scripts-benchmarks-benchmark_services-py)</li>
+<li>[ ] [scripts/benchmarks/simple_benchmark.py](CODE_REVIEW_REPORT.md#scripts-benchmarks-simple_benchmark-py)</li>
+<li>[ ] [scripts/bmad-agent-review.sh](CODE_REVIEW_REPORT.md#scripts-bmad-agent-review-sh)</li>
+<li>[ ] [scripts/enhanced_ai_reviewer.py](CODE_REVIEW_REPORT.md#scripts-enhanced_ai_reviewer-py)</li>
+<li>[ ] [scripts/find_duplicates.sh](CODE_REVIEW_REPORT.md#scripts-find_duplicates-sh)</li>
+<li>[ ] [scripts/hooks/check-doc-location.py](CODE_REVIEW_REPORT.md#scripts-hooks-check-doc-location-py)</li>
+<li>[ ] [scripts/maintenance/code_review_tool.py](CODE_REVIEW_REPORT.md#scripts-maintenance-code_review_tool-py)</li>
+<li>[ ] [scripts/maintenance/security_review.py](CODE_REVIEW_REPORT.md#scripts-maintenance-security_review-py)</li>
+<li>[ ] [scripts/migrate-documents-fase2.sh](CODE_REVIEW_REPORT.md#scripts-migrate-documents-fase2-sh)</li>
+<li>[ ] [scripts/migrate-documents-fase3.sh](CODE_REVIEW_REPORT.md#scripts-migrate-documents-fase3-sh)</li>
+<li>[ ] [scripts/migrate-documents.sh](CODE_REVIEW_REPORT.md#scripts-migrate-documents-sh)</li>
+<li>[ ] [scripts/setup_ai_review.sh](CODE_REVIEW_REPORT.md#scripts-setup_ai_review-sh)</li>
+<li>[ ] [scripts/setup-ai-review.sh](CODE_REVIEW_REPORT.md#scripts-setup-ai-review-sh)</li>
+<li>[ ] [scripts/start_app.sh](CODE_REVIEW_REPORT.md#scripts-start_app-sh)</li>
+<li>[ ] [scripts/update_feature_status.py](CODE_REVIEW_REPORT.md#scripts-update_feature_status-py)</li>
+</ul>
+
+<h2>CONFIG</h2>
+
+<ul>
+<li>[ ] [config/config_default.yaml](CODE_REVIEW_REPORT.md#config-config_default-yaml)</li>
+<li>[ ] [config/config_development.yaml](CODE_REVIEW_REPORT.md#config-config_development-yaml)</li>
+<li>[ ] [config/config_production.yaml](CODE_REVIEW_REPORT.md#config-config_production-yaml)</li>
+<li>[ ] [config/config_testing.yaml](CODE_REVIEW_REPORT.md#config-config_testing-yaml)</li>
+<li>[ ] [config/pytest.ini](CODE_REVIEW_REPORT.md#config-pytest-ini)</li>
+</ul>
+
+  </div>
+</body>
+</html>

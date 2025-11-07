@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Documentcontext gebruiken in de prompt (ontwikkelaars)</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>aangemaakt: '2025-09-22'</p>
+<p>applies_to: definitie-app@current</p>
+<p>bijgewerkt: '2025-09-22'</p>
+<p>canonical: true</p>
+<p>last_verified: 2025-09-22</p>
+<p>owner: architecture</p>
+<p>prioriteit: medium</p>
+<p>status: active</p>
+<p>---</p>
+
+<h1>Documentcontext gebruiken in de prompt (ontwikkelaars)</h1>
+
+<h2>Doel</h2>
+
+<p>Korte how‑to voor het doorgeven en gebruiken van documentcontext in de prompt.</p>
+
+<h2>Stap 1 — Samenvatting bouwen</h2>
+
+<p>Gebruik <code>DocumentProcessor.get_aggregated_context(selected_ids)</code> en vorm een compacte string met de belangrijkste keywords/concepten/juridische verwijzingen.</p>
+
+<h2>Stap 2 — Doorgeven aan service</h2>
+
+<p>Geef de samenvatting mee in <code>GenerationRequest</code> als <code>document_context</code>:</p>
+
+<pre><code>from services.interfaces import GenerationRequest
+
+request = GenerationRequest(
+    id=str(uuid4()),
+    begrip=begrip,
+    organisatorische_context=org_list,
+    juridische_context=jur_list,
+    wettelijke_basis=wet_list,
+    ontologische_categorie=categorie,
+    options=opts,
+)
+request.document_context = summary  # korte samenvatting</code></pre>
+
+<p>HybridContextManager voegt deze bron toe met hoge confidence; <code>ContextAwarenessModule</code> formatteert de contextsectie.</p>
+
+<h2>Optioneel — Snippet‑injectie</h2>
+
+<p>Converteer (sanitized) fragmenten naar hetzelfde schema als web_lookup sources en zet <code>used_in_prompt=True</code>. Respecteer <code>max_snippets</code> en <code>total_token_budget</code> (PromptServiceV2).</p>
+
+<h2>Let op</h2>
+
+<ul>
+<li>Installeer extractie‑libs: `pip install python-docx PyPDF2`</li>
+<li>Geen `.doc` en geen OCR; zie Phoenix‑EPIC voor uitgebreidere scope</li>
+</ul>
+
+<h2>Configuratie (env)</h2>
+
+<ul>
+<li>`DOCUMENT_SNIPPETS_ENABLED` (true|false): schakel snippet‑injectie in/uit (default: true)</li>
+<li>`DOCUMENT_SNIPPETS_MAX` (int): maximaal aantal snippets in de prompt over alle documenten (default: 16)</li>
+<li>`DOCUMENT_SNIPPETS_PER_DOC` (int): maximaal aantal matches per document (default: 4)</li>
+<li>`SNIPPET_WINDOW_CHARS` (int): vensterlengte rondom de match (default: 280)</li>
+<li>`DOCUMENT_SNIPPETS_MAX_CHARS` (int): totaal aantal tekens over alle snippets (default: 800)</li>
+</ul>
+
+<p>Voorbeeld (shell):</p>
+<pre><code>export DOCUMENT_SNIPPETS_ENABLED=true
+export DOCUMENT_SNIPPETS_PER_DOC=4
+export SNIPPET_WINDOW_CHARS=280
+export DOCUMENT_SNIPPETS_MAX=16
+export DOCUMENT_SNIPPETS_MAX_CHARS=800</code></pre>
+
+  </div>
+</body>
+</html>

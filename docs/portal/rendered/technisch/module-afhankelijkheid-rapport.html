@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Module Dependency Analysis Report</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>Module Dependency Analysis Report</h1>
+
+<h2>Overview</h2>
+
+<p>Total modules analyzed: 7</p>
+
+<h2>Module Afhankelijkheden</h2>
+
+<h3>context_awareness</h3>
+<ul>
+<li>**Direct Afhankelijkheden**: None</li>
+<li>**Shared Data Set**: ['domain_contexts', 'organization_contexts']</li>
+<li>**Shared Data Get**: None</li>
+</ul>
+
+<h3>definition_task</h3>
+<ul>
+<li>**Direct Afhankelijkheden**: ['semantic_categorisation']</li>
+<li>**Shared Data Set**: None</li>
+<li>**Shared Data Get**: ['word_type', 'ontological_category', 'domain_contexts', 'organization_contexts']</li>
+</ul>
+
+<h3>error_prevention</h3>
+<ul>
+<li>**Direct Afhankelijkheden**: ['context_awareness']</li>
+<li>**Shared Data Set**: None</li>
+<li>**Shared Data Get**: ['domain_contexts', 'organization_contexts']</li>
+</ul>
+
+<h3>expertise</h3>
+<ul>
+<li>**Direct Afhankelijkheden**: None</li>
+<li>**Shared Data Set**: ['word_type']</li>
+<li>**Shared Data Get**: None</li>
+</ul>
+
+<h3>output_specification</h3>
+<ul>
+<li>**Direct Afhankelijkheden**: None</li>
+<li>**Shared Data Set**: ['character_limit_warning']</li>
+<li>**Shared Data Get**: None</li>
+</ul>
+
+<h3>quality_rules</h3>
+<ul>
+<li>**Direct Afhankelijkheden**: None</li>
+<li>**Shared Data Set**: None</li>
+<li>**Shared Data Get**: None</li>
+</ul>
+
+<h3>semantic_categorisation</h3>
+<ul>
+<li>**Direct Afhankelijkheden**: None</li>
+<li>**Shared Data Set**: ['ontological_category']</li>
+<li>**Shared Data Get**: None</li>
+</ul>
+
+<h2>Coupling Analysis</h2>
+
+<h3>Independent Modules</h3>
+<p>Modules with no direct afhankelijkheden:</p>
+<ul>
+<li>context_awareness</li>
+<li>expertise</li>
+<li>output_specification</li>
+<li>quality_rules</li>
+<li>semantic_categorisation</li>
+</ul>
+
+<h3>Direct Afhankelijkheden</h3>
+<ul>
+<li>**definition_task** depends on: semantic_categorisation</li>
+<li>**error_prevention** depends on: context_awareness</li>
+</ul>
+
+<h3>Data Flow Afhankelijkheden</h3>
+<ul>
+<li>**definition_task**</li>
+<li> - Needs: word_type, ontological_category, domain_contexts, organization_contexts</li>
+<li> - Provides: None</li>
+<li>**error_prevention**</li>
+<li> - Needs: domain_contexts, organization_contexts</li>
+<li> - Provides: None</li>
+</ul>
+
+<h3>Dependency Chains</h3>
+<ol>
+<li>definition_task → semantic_categorisation</li>
+<li>error_prevention → context_awareness</li>
+</ol>
+
+<h2>Modularity Assessment</h2>
+
+<ul>
+<li>**Modularity Score**: 71.4% (5/7 modules are independent)</li>
+<li>**Tightly Coupled Pairs**: 0</li>
+<li>**Longest Dependency Chain**: 2</li>
+</ul>
+
+<h2>Recommendations</h2>
+
+
+<h2>Dependency Graph</h2>
+
+<pre><code>graph TD
+    context_awareness[context_awareness]
+    definition_task[definition_task]
+    error_prevention[error_prevention]
+    expertise[expertise]
+    output_specification[output_specification]
+    quality_rules[quality_rules]
+    semantic_categorisation[semantic_categorisation]
+    definition_task --&gt;|depends on| semantic_categorisation
+    error_prevention --&gt;|depends on| context_awareness
+    expertise -.-&gt;|word_type| definition_task
+    semantic_categorisation -.-&gt;|ontological_category| definition_task
+    context_awareness -.-&gt;|domain_contexts| definition_task
+    context_awareness -.-&gt;|organization_contexts| definition_task
+    context_awareness -.-&gt;|domain_contexts| error_prevention
+    context_awareness -.-&gt;|organization_contexts| error_prevention</code></pre>
+
+  </div>
+</body>
+</html>

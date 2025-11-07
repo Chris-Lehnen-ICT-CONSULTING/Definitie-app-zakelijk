@@ -1,0 +1,632 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ConfigManager Environment Handling Analysis</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>ConfigManager Environment Handling Analysis</h1>
+
+<p><strong>Date:</strong> 2025-10-07</p>
+<p><strong>Analyst:</strong> Claude Code</p>
+<p><strong>Context:</strong> US-202 Performance Optimization - Understanding forced DEVELOPMENT environment</p>
+
+<p>---</p>
+
+<h2>Executive Summary</h2>
+
+<p>ConfigManager has been intentionally <strong>hardcoded to DEVELOPMENT mode</strong> (lines 389-421) and ignores the <code>ENVIRONMENT</code> variable. However, this creates a <strong>critical inconsistency</strong> because:</p>
+
+<ol>
+<li>**ServiceContainer uses APP_ENV** (via `container_manager.py` and `service_factory.py`)</li>
+<li>**ConfigManager ignores APP_ENV/ENVIRONMENT** (forced to DEVELOPMENT)</li>
+<li>These two systems load **different config files** based on different environment variables</li>
+<li>The Environment enum still has PRODUCTION/TESTING values that are **unreachable**</li>
+</ol>
+
+<p>This analysis examines the impact, inconsistencies, and provides recommendations.</p>
+
+<p>---</p>
+
+<h2>1. Current Environment Handling Behavior</h2>
+
+<h3>1.1 ConfigManager (src/config/config_manager.py)</h3>
+
+<p><strong>Lines 389-421: Forced DEVELOPMENT mode</strong></p>
+
+<pre><code>class ConfigManager:
+    def __init__(
+        self,
+        environment: Environment = Environment.DEVELOPMENT,
+        config_dir: str = "config",
+    ):
+        # Forceer vaste omgeving (development) ongeacht ENVIRONMENT variabele
+        self.environment = Environment.DEVELOPMENT  # &lt;-- HARDCODED
+        self.config_dir = Path(config_dir)
+        self.config_file = self.config_dir / f"config_{self.environment.value}.yaml"
+        # ...</code></pre>
+
+<p><strong>Line 474: ENVIRONMENT variable explicitly ignored</strong></p>
+
+<pre><code>def _load_from_environment(self):
+    # ...
+    # ENVIRONMENT wordt genegeerd; we hanteren één vaste omgeving</code></pre>
+
+<p><strong>Lines 664-672: Global singleton forced to DEVELOPMENT</strong></p>
+
+<pre><code>def get_config_manager(environment: Environment | None = None) -&gt; ConfigManager:
+    """Get or create global configuration manager."""
+    global _config_manager
+
+    if _config_manager is None:
+        # Eén vaste omgeving; negeer meegegeven/omgevingswaarde
+        _config_manager = ConfigManager(Environment.DEVELOPMENT)
+
+    return _config_manager</code></pre>
+
+<p><strong>Result:</strong> ConfigManager <strong>always</strong> loads <code>config/config_development.yaml</code>, regardless of:</p>
+<ul>
+<li>`ENVIRONMENT` environment variable</li>
+<li>`environment` parameter passed to constructor</li>
+<li>Any runtime detection</li>
+</ul>
+
+<h3>1.2 ServiceContainer (src/utils/container_manager.py)</h3>
+
+<p><strong>Lines 48-57: Uses APP_ENV variable</strong></p>
+
+<pre><code>@lru_cache(maxsize=1)
+def get_cached_container() -&gt; ServiceContainer:
+    logger.info("🚀 Initialiseer ServiceContainer (gebeurt 1x per sessie)")
+
+    # Bepaal environment configuratie
+    env = os.getenv("APP_ENV", "production")  # &lt;-- DIFFERENT VARIABLE
+
+    if env == "development":
+        config = ContainerConfigs.development()
+    elif env == "testing":
+        config = ContainerConfigs.testing()
+    else:
+        config = ContainerConfigs.production()</code></pre>
+
+<p><strong>Result:</strong> ServiceContainer uses <code>APP_ENV</code> and loads <strong>different configurations</strong> based on it.</p>
+
+<h3>1.3 ServiceFactory (src/services/service_factory.py)</h3>
+
+<p><strong>Lines 94-104: Also uses APP_ENV</strong></p>
+
+<pre><code>def _get_environment_config() -&gt; dict:
+    """Bepaal environment en return juiste config."""
+    import os
+
+    env = os.getenv("APP_ENV", "production")
+
+    if env == "development":
+        return ContainerConfigs.development()
+    if env == "testing":
+        return ContainerConfigs.testing()
+    return ContainerConfigs.production()</code></pre>
+
+<p>---</p>
+
+<h2>2. Configuration Files Analysis</h2>
+
+<h3>2.1 Available Config Files</h3>
+
+<pre><code>config/
+├── config_default.yaml        # Base config (373 lines)
+├── config_development.yaml    # Dev overrides (207 lines) - ALWAYS LOADED BY ConfigManager
+├── config_production.yaml     # Prod overrides (128 lines) - NEVER LOADED
+├── config_testing.yaml        # Test overrides (110 lines) - NEVER LOADED</code></pre>
+
+<h3>2.2 Key Differences Between Environments</h3>
+
+<h4>Development vs Production (Critical Differences)</h4>
+
+<p>| Setting | Development | Production | Impact |</p>
+<p>|---------|------------|------------|--------|</p>
+<p>| <strong>default_model</strong> | <code>gpt-4o-mini</code> | <code>gpt-4.1</code> (from default) | Cost & Quality |</p>
+<p>| <strong>default_temperature</strong> | <code>0.9</code> | <code>0.01</code> | Determinism |</p>
+<p>| <strong>max_retries</strong> | <code>5</code> | <code>3</code> | Resilience |</p>
+<p>| <strong>cache.default_ttl</strong> | <code>600s</code> (10min) | <code>3600s</code> (1hr) | Performance |</p>
+<p>| <strong>cache.max_cache_size</strong> | <code>500</code> | <code>2000</code> | Memory |</p>
+<p>| <strong>logging.level</strong> | <code>DEBUG</code> | <code>INFO</code> | Verbosity |</p>
+<p>| <strong>logging.console_enabled</strong> | <code>true</code> | <code>false</code> | Output |</p>
+<p>| <strong>monitoring.enabled</strong> | <code>true</code> | <code>true</code> | Same |</p>
+<p>| <strong>rate_limiting.requests_per_minute</strong> | <code>120</code> | <code>30</code> | Throttling |</p>
+<p>| <strong>validation.strict_mode</strong> | <code>false</code> | <code>true</code> | Quality |</p>
+
+<h4>Testing vs Default (Critical Differences)</h4>
+
+<p>| Setting | Testing | Default | Impact |</p>
+<p>|---------|---------|---------|--------|</p>
+<p>| <strong>default_model</strong> | <code>gpt-3.5-turbo</code> | <code>gpt-4.1</code> | Speed |</p>
+<p>| <strong>cache.enabled</strong> | <code>false</code> | <code>true</code> | Determinism |</p>
+<p>| <strong>monitoring.enabled</strong> | <code>false</code> | <code>true</code> | Speed |</p>
+<p>| <strong>logging.level</strong> | <code>ERROR</code> | <code>INFO</code> | Quiet |</p>
+<p>| <strong>rate_limiting.enabled</strong> | <code>false</code> | <code>true</code> | Speed |</p>
+<p>| <strong>security.enabled</strong> | <code>false</code> | <code>true</code> | Speed |</p>
+
+<h3>2.3 Component-Specific AI Configuration (config_default.yaml only)</h3>
+
+<p>The <code>ai_components</code> section (lines 23-121) defines <strong>per-component model and temperature settings</strong>:</p>
+
+<pre><code>ai_components:
+  definition_generator:
+    model: "gpt-4.1"
+    temperature: 0.0
+
+  voorbeelden:
+    synoniemen:
+      model: "gpt-4.1"
+      temperature: 0.2
+    praktijkvoorbeelden:
+      model: "gpt-4.1"
+      temperature: 0.6
+    # ... 15+ more component configs</code></pre>
+
+<p><strong>Critical Finding:</strong> This section <strong>only exists in config_default.yaml</strong>. Development/production/testing configs don't define it, so they inherit from default.</p>
+
+<p>---</p>
+
+<h2>3. What ConfigManager Actually Configures</h2>
+
+<h3>3.1 Values Read Through ConfigManager</h3>
+
+<p>Based on grep analysis, ConfigManager is used for:</p>
+
+<ol>
+<li>**API Configuration** (AIServiceV2, container.py)</li>
+</ol>
+<ul>
+<li>  - OpenAI API key</li>
+<li>  - Default model/temperature/max_tokens</li>
+<li>  - Rate limiting settings (RateLimitConfig)</li>
+</ul>
+
+<ol>
+<li>**UI Configuration** (components.py, definition_edit_tab.py, expert_review_tab.py)</li>
+</ol>
+<ul>
+<li>  - Page title, icon, sidebar width</li>
+<li>  - Context options (organizational, legal, laws)</li>
+<li>  - Abbreviations mapping</li>
+</ul>
+
+<ol>
+<li>**Component-Specific AI Config** (unified_voorbeelden.py)</li>
+</ol>
+<ul>
+<li>  - Per-component model/temperature via `get_component_config()`</li>
+</ul>
+
+<ol>
+<li>**Cache/Paths/Logging** (minimal usage)</li>
+</ol>
+<ul>
+<li>  - Directory paths</li>
+<li>  - Log levels</li>
+</ul>
+
+<h3>3.2 Values NOT Used from ConfigManager</h3>
+
+<p>ServiceContainer loads its own config from <code>ContainerConfigs</code> classes which are <strong>not</strong> derived from ConfigManager:</p>
+
+<ul>
+<li>Generator/validator feature toggles</li>
+<li>Database path</li>
+<li>Monitoring/quality/cleaning configs</li>
+<li>Duplicate detection settings</li>
+<li>Export/import settings</li>
+</ul>
+
+<p>---</p>
+
+<h2>4. The Problem: Two Independent Configuration Systems</h2>
+
+<h3>4.1 Inconsistency Table</h3>
+
+<p>| Component | Config Source | Environment Variable | Config File |</p>
+<p>|-----------|--------------|---------------------|-------------|</p>
+<p>| <strong>ConfigManager</strong> | config_manager.py | <strong>NONE</strong> (ignores ENVIRONMENT) | config_development.yaml |</p>
+<p>| <strong>ServiceContainer</strong> | container_manager.py | <strong>APP_ENV</strong> (default: production) | ContainerConfigs.{env}() |</p>
+<p>| <strong>ServiceFactory</strong> | service_factory.py | <strong>APP_ENV</strong> (default: production) | ContainerConfigs.{env}() |</p>
+
+<h3>4.2 Concrete Example of Inconsistency</h3>
+
+<p><strong>Scenario:</strong> User sets <code>APP_ENV=production</code> to run in production mode</p>
+
+<p><strong>What happens:</strong></p>
+
+<ol>
+<li>**ServiceContainer** uses `APP_ENV=production` → loads `ContainerConfigs.production()`</li>
+</ol>
+<ul>
+<li>  - Uses production thresholds, monitoring, etc.</li>
+</ul>
+
+<ol>
+<li>**ConfigManager** ignores everything → always loads `config_development.yaml`</li>
+</ol>
+<ul>
+<li>  - Uses `gpt-4o-mini` (dev model)</li>
+<li>  - Uses `temperature=0.9` (high creativity)</li>
+<li>  - Uses `DEBUG` logging</li>
+<li>  - Uses `requests_per_minute=120` (high rate limit)</li>
+</ul>
+
+<p><strong>Result:</strong> Mixed configuration with unpredictable behavior!</p>
+
+<p>---</p>
+
+<h2>5. What Breaks if We Respect APP_ENV</h2>
+
+<h3>5.1 Theoretical Breakage</h3>
+
+<p>If ConfigManager were to respect <code>APP_ENV</code>:</p>
+
+<ol>
+<li>**Production mode would use different models**</li>
+</ol>
+<ul>
+<li>  - Current: Always `gpt-4o-mini` (from development config)</li>
+<li>  - With fix: Would use `gpt-4.1` (from default, as production doesn't override)</li>
+<li>  - Impact: **Better quality, higher cost**</li>
+</ul>
+
+<ol>
+<li>**Temperature would become deterministic**</li>
+</ol>
+<ul>
+<li>  - Current: Always `0.9` (creative)</li>
+<li>  - With fix: Would use `0.01` (deterministic)</li>
+<li>  - Impact: **More consistent results**</li>
+</ul>
+
+<ol>
+<li>**Rate limiting would become stricter**</li>
+</ol>
+<ul>
+<li>  - Current: Always `120 rpm` (development)</li>
+<li>  - With fix: Would use `30 rpm` (production)</li>
+<li>  - Impact: **Slower throughput**</li>
+</ul>
+
+<ol>
+<li>**Logging would be quieter**</li>
+</ol>
+<ul>
+<li>  - Current: Always `DEBUG` level</li>
+<li>  - With fix: Would use `INFO` (production) or `ERROR` (testing)</li>
+<li>  - Impact: **Less verbose output**</li>
+</ul>
+
+<h3>5.2 Actual Runtime Impact</h3>
+
+<p><strong>Finding:</strong> The codebase appears to have been <strong>developed and tested entirely in forced DEVELOPMENT mode</strong>.</p>
+
+<p>Evidence:</p>
+<ul>
+<li>No production deployments found</li>
+<li>All tests use forced development config</li>
+<li>CLAUDE.md states: "single-user applicatie, NIET in productie"</li>
+</ul>
+
+<p><strong>Therefore:</strong> Respecting APP_ENV would cause <strong>zero production breakage</strong> because there is no production environment.</p>
+
+<h3>5.3 Test Impact</h3>
+
+<p>Tests use multiple approaches:</p>
+<ul>
+<li>Some set `APP_ENV=testing`</li>
+<li>Some mock ConfigManager</li>
+<li>Some use `:memory:` database</li>
+</ul>
+
+<p>If ConfigManager respected APP_ENV:</p>
+<ul>
+<li>Tests setting `APP_ENV=testing` would get testing config (cache disabled, faster model)</li>
+<li>Tests not setting APP_ENV would get **production** config (default in container_manager.py line 50)</li>
+<li>Result: **Some tests might become slower** but more realistic</li>
+</ul>
+
+<p>---</p>
+
+<h2>6. Environment-Dependent Configuration Values</h2>
+
+<h3>6.1 Critical Environment-Specific Values</h3>
+
+<p><strong>Values that SHOULD differ between environments:</strong></p>
+
+<p>| Configuration | Development | Production | Testing | Purpose |</p>
+<p>|--------------|------------|------------|---------|---------|</p>
+<p>| <strong>Model</strong> | Fast/cheap | High-quality | Fast | Cost vs Quality |</p>
+<p>| <strong>Temperature</strong> | Flexible | Deterministic | Deterministic | Consistency |</p>
+<p>| <strong>Cache</strong> | Short TTL | Long TTL | Disabled | Performance vs freshness |</p>
+<p>| <strong>Logging</strong> | Verbose | Moderate | Quiet | Debugging |</p>
+<p>| <strong>Rate Limiting</strong> | Relaxed | Strict | Disabled | Protection |</p>
+<p>| <strong>Security</strong> | Relaxed | Strict | Disabled | Speed vs safety |</p>
+<p>| <strong>Validation</strong> | Relaxed | Strict | Relaxed | Quality gates |</p>
+
+<h3>6.2 Values That Should Be Consistent</h3>
+
+<p><strong>Values that should NOT differ:</strong></p>
+
+<ul>
+<li>UI configuration (contexts, laws, abbreviations)</li>
+<li>Component AI configs (voorbeelden temperatures)</li>
+<li>File paths structure</li>
+<li>Validation rules (toetsregels)</li>
+</ul>
+
+<p>---</p>
+
+<h2>7. Dead Code Analysis</h2>
+
+<h3>7.1 Unreachable Environment Enum Values</h3>
+
+<p><strong>Lines 23-31: Environment enum</strong></p>
+
+<pre><code>class Environment(Enum):
+    """Omgevingstype (vast: development)."""
+    DEVELOPMENT = "development"
+    # PRODUCTION and TESTING removed from enum</code></pre>
+
+<p><strong>Finding:</strong> The enum originally had PRODUCTION and TESTING values (evidenced by helper functions):</p>
+
+<pre><code>def is_production() -&gt; bool:
+    return get_config_manager().environment == Environment.PRODUCTION  # Always False!
+
+def is_testing() -&gt; bool:
+    return get_config_manager().environment == Environment.TESTING  # Always False!</code></pre>
+
+<p><strong>Problem:</strong> These functions are <strong>dead code</strong> that always return False because:</p>
+<ol>
+<li>ConfigManager.environment is always `Environment.DEVELOPMENT`</li>
+<li>But the enum definition doesn't include PRODUCTION/TESTING anymore</li>
+<li>The helper functions reference non-existent enum values</li>
+</ol>
+
+<p>This would cause an <strong>AttributeError</strong> at runtime if called!</p>
+
+<h3>7.2 Unused Config Files</h3>
+
+<ul>
+<li>`config/config_production.yaml` - **Never loaded by ConfigManager**</li>
+<li>`config/config_testing.yaml` - **Never loaded by ConfigManager**</li>
+</ul>
+
+<p>These files exist but are never used by the ConfigManager system.</p>
+
+<p>---</p>
+
+<h2>8. Recommendations</h2>
+
+<h3>8.1 Option A: Remove Environment Abstraction Entirely (RECOMMENDED)</h3>
+
+<p><strong>Rationale:</strong></p>
+<ul>
+<li>Single-user application</li>
+<li>No production deployment</li>
+<li>Simplifies codebase</li>
+<li>Aligns with current reality</li>
+</ul>
+
+<p><strong>Changes:</strong></p>
+<ol>
+<li>Remove Environment enum entirely</li>
+<li>Remove `is_production()`, `is_testing()` helper functions</li>
+<li>Rename `config_development.yaml` to `config.yaml`</li>
+<li>Delete `config_production.yaml` and `config_testing.yaml`</li>
+<li>Remove environment parameter from ConfigManager</li>
+<li>Update container_manager.py to not use `APP_ENV`</li>
+</ol>
+
+<p><strong>Benefits:</strong></p>
+<ul>
+<li>Eliminates confusion</li>
+<li>Removes dead code</li>
+<li>Simpler mental model</li>
+<li>Faster startup (no environment detection)</li>
+</ul>
+
+<p><strong>Risks:</strong></p>
+<ul>
+<li>Future production deployment would require re-adding environment support</li>
+<li>Tests might need adjustment</li>
+</ul>
+
+<h3>8.2 Option B: Fix Environment Handling Consistency</h3>
+
+<p><strong>Rationale:</strong></p>
+<ul>
+<li>Future-proofs for production deployment</li>
+<li>Proper separation of concerns</li>
+<li>More maintainable</li>
+</ul>
+
+<p><strong>Changes:</strong></p>
+<ol>
+<li>ConfigManager respects `APP_ENV` variable</li>
+<li>Add PRODUCTION and TESTING back to Environment enum</li>
+<li>Unify environment variable (use APP_ENV everywhere)</li>
+<li>ServiceContainer and ConfigManager use same environment logic</li>
+<li>Test with all three environments</li>
+</ol>
+
+<p><strong>Benefits:</strong></p>
+<ul>
+<li>Correct environment separation</li>
+<li>Supports future production deployment</li>
+<li>Tests can use realistic production config</li>
+</ul>
+
+<p><strong>Risks:</strong></p>
+<ul>
+<li>More complex</li>
+<li>Tests might break</li>
+<li>Requires thorough testing</li>
+</ul>
+
+<h3>8.3 Option C: Keep Current Behavior, Document It</h3>
+
+<p><strong>Rationale:</strong></p>
+<ul>
+<li>Don't fix what isn't broken</li>
+<li>Current behavior is intentional (per comments)</li>
+</ul>
+
+<p><strong>Changes:</strong></p>
+<ol>
+<li>Document that app always runs in development mode</li>
+<li>Remove unused production/testing config files</li>
+<li>Remove dead helper functions (is_production, is_testing)</li>
+<li>Update tests to not set APP_ENV (it's ignored)</li>
+</ol>
+
+<p><strong>Benefits:</strong></p>
+<ul>
+<li>No behavior changes</li>
+<li>Low risk</li>
+</ul>
+
+<p><strong>Risks:</strong></p>
+<ul>
+<li>Perpetuates confusion</li>
+<li>Future maintainers will be confused</li>
+</ul>
+
+<p>---</p>
+
+<h2>9. Impact Analysis: Removing Development Config</h2>
+
+<h3>9.1 What Uses config_development.yaml</h3>
+
+<p>Currently loaded by ConfigManager for all values. Key consumers:</p>
+
+<ol>
+<li>**AIServiceV2** - Gets default model/temperature</li>
+<li>**UI Components** - Gets context lists, abbreviations</li>
+<li>**Rate Limiting** - Gets rate limit thresholds</li>
+</ol>
+
+<h3>9.2 Migration Path</h3>
+
+<p>If we remove development config:</p>
+
+<ol>
+<li>**Merge development-specific values into config_default.yaml**</li>
+</ol>
+<ul>
+<li>  - Keep the more permissive settings (higher rate limits, verbose logging)</li>
+<li>  - OR make them configurable via environment variables</li>
+</ul>
+
+<ol>
+<li>**Update ConfigManager to always load config_default.yaml**</li>
+</ol>
+<ul>
+<li>  - Remove environment parameter</li>
+<li>  - Remove config file selection logic</li>
+</ul>
+
+<ol>
+<li>**Environment variables for key settings**</li>
+<pre><code>   OPENAI_MODEL=gpt-4o-mini  # Override default model
+   LOG_LEVEL=DEBUG           # Override log level
+   RATE_LIMIT_RPM=120        # Override rate limit</code></pre>
+</ol>
+
+<h3>9.3 Affected Files</h3>
+
+<p>Files that would need updates:</p>
+
+<ul>
+<li>`src/config/config_manager.py` - Remove environment logic</li>
+<li>`src/utils/container_manager.py` - Remove APP_ENV usage</li>
+<li>`src/services/service_factory.py` - Remove environment config selection</li>
+<li>`tests/` - Update tests that set APP_ENV</li>
+<li>`config/` - Consolidate YAML files</li>
+</ul>
+
+<p>---</p>
+
+<h2>10. Conclusion</h2>
+
+<p><strong>Current State:</strong></p>
+<ul>
+<li>ConfigManager is hardcoded to DEVELOPMENT mode</li>
+<li>This is intentional (per code comments)</li>
+<li>However, it creates inconsistency with ServiceContainer which uses APP_ENV</li>
+<li>Production/testing configs exist but are never loaded</li>
+<li>Helper functions reference non-existent enum values</li>
+</ul>
+
+<p><strong>Root Cause:</strong></p>
+<ul>
+<li>Two independent configuration systems (ConfigManager vs ContainerConfigs)</li>
+<li>Different environment variables (ignored ENVIRONMENT vs APP_ENV)</li>
+<li>Partial refactoring left dead code</li>
+</ul>
+
+<p><strong>Impact:</strong></p>
+<ul>
+<li>No production deployment → No actual breakage</li>
+<li>Confusing codebase for future maintainers</li>
+<li>Dead code (is_production, is_testing) that would error if called</li>
+<li>Inconsistent configuration loading</li>
+</ul>
+
+<p><strong>Recommended Action:</strong></p>
+<p><strong>Option A</strong> - Remove environment abstraction entirely. This application is single-user, not deployed to production, and the complexity of environment handling is not justified.</p>
+
+<p><strong>Critical Fix Required:</strong></p>
+<p>Remove <code>is_production()</code> and <code>is_testing()</code> functions immediately - they reference non-existent enum values and will cause AttributeError if ever called.</p>
+
+<p>---</p>
+
+<h2>Appendix: File Locations</h2>
+
+<h3>Configuration Files</h3>
+<ul>
+<li>`/Users/chrislehnen/Projecten/Definitie-app/config/config_default.yaml` (373 lines)</li>
+<li>`/Users/chrislehnen/Projecten/Definitie-app/config/config_development.yaml` (207 lines) - ALWAYS LOADED</li>
+<li>`/Users/chrislehnen/Projecten/Definitie-app/config/config_production.yaml` (128 lines) - NEVER LOADED</li>
+<li>`/Users/chrislehnen/Projecten/Definitie-app/config/config_testing.yaml` (110 lines) - NEVER LOADED</li>
+</ul>
+
+<h3>Source Files</h3>
+<ul>
+<li>`/Users/chrislehnen/Projecten/Definitie-app/src/config/config_manager.py` (788 lines)</li>
+<li>`/Users/chrislehnen/Projecten/Definitie-app/src/services/container.py` (639 lines)</li>
+<li>`/Users/chrislehnen/Projecten/Definitie-app/src/services/service_factory.py` (746 lines)</li>
+<li>`/Users/chrislehnen/Projecten/Definitie-app/src/utils/container_manager.py` (198 lines)</li>
+<li>`/Users/chrislehnen/Projecten/Definitie-app/src/services/ai_service_v2.py` (323 lines)</li>
+</ul>
+
+<h3>Key Line References</h3>
+<ul>
+<li>**config_manager.py:389-421** - Forced DEVELOPMENT initialization</li>
+<li>**config_manager.py:474** - ENVIRONMENT ignored comment</li>
+<li>**config_manager.py:664-672** - Global singleton forced to DEVELOPMENT</li>
+<li>**config_manager.py:749-762** - Dead helper functions (is_production, is_testing)</li>
+<li>**container_manager.py:48-57** - APP_ENV usage</li>
+<li>**service_factory.py:94-104** - Environment config selection</li>
+</ul>
+
+  </div>
+</body>
+</html>

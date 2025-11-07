@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Code Archaeology Checklist</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>Code Archaeology Checklist</h1>
+
+<p><strong>Purpose</strong>: Quick reference voor het verifiëren of features wel/niet geïmplementeerd zijn in brownfield codebases.</p>
+
+<p><strong>Origin</strong>: Lessons learned van DEF-39/DEF-13 analyse (2025-11-03) - Multiagent exploration concludeerde "niet geïmplementeerd" terwijl features volledig inline geïntegreerd waren.</p>
+
+<p>---</p>
+
+<h2>🎯 Use This Checklist When</h2>
+
+<ul>
+<li>[ ] Verifying Linear issue status ("Is feature X implemented?")</li>
+<li>[ ] Multiagent exploration concludeert "not found"</li>
+<li>[ ] Expected filename/component niet gevonden</li>
+<li>[ ] Before claiming "feature missing" to user/team</li>
+</ul>
+
+<p>---</p>
+
+<h2>✅ Search Strategy (Execute In Order)</h2>
+
+<h3>1️⃣ Search Exact UI Text (HIGHEST PRIORITY)</h3>
+
+<p><strong>What to do</strong>: Grep voor user-visible text strings</p>
+
+<pre><code># Examples from DefinitieAgent ontology feature:
+grep -r "Voorgesteld:" .
+grep -r "Waarom deze categorie" .
+grep -r "Aanpassen?" .
+grep -r "✓ Gebruik" .
+
+# Generic pattern:
+grep -r "&lt;exact button/label text&gt;" .</code></pre>
+
+<p><strong>Why</strong>: UI text is most stable. User knows what they see. Filenames change, UI text doesn't.</p>
+
+<p><strong>Success indicators</strong>:</p>
+<ul>
+<li>✅ Found in unexpected file (e.g., `tabbed_interface.py` not `ontology_widget.py`)</li>
+<li>✅ Inline implementation discovered</li>
+<li>❌ No results → Try next strategy</li>
+</ul>
+
+<p>---</p>
+
+<h3>2️⃣ Check Main UI Entry Points</h3>
+
+<p><strong>What to do</strong>: Target high-traffic UI files</p>
+
+<pre><code># DefinitieAgent specific:
+grep "&lt;keyword&gt;" src/ui/tabbed_interface.py
+grep "&lt;keyword&gt;" src/ui/main.py
+grep "&lt;keyword&gt;" src/main.py
+
+# Generic pattern:
+grep "&lt;keyword&gt;" &lt;main_ui_file&gt;
+grep "&lt;keyword&gt;" &lt;app_entry_point&gt;</code></pre>
+
+<p><strong>Why</strong>: Complex features often integrated in main UI, not standalone widgets.</p>
+
+<p><strong>Common filenames</strong>:</p>
+<ul>
+<li>`tabbed_interface.py` (Streamlit apps)</li>
+<li>`main.py`, `app.py` (FastAPI/Flask)</li>
+<li>`index.tsx`, `App.tsx` (React)</li>
+<li>`main_window.py` (Qt/Tkinter)</li>
+</ul>
+
+<p>---</p>
+
+<h3>3️⃣ Search Function/Method Names</h3>
+
+<p><strong>What to do</strong>: Wildcard search for related methods</p>
+
+<pre><code># DefinitieAgent example:
+grep -r "def.*category" src/ui/
+grep -r "def.*ontolog" src/ui/
+grep -r "def.*preview" src/ui/
+
+# Generic pattern:
+grep -r "def.*&lt;keyword&gt;" &lt;target_dir&gt;/
+find . -name "*.py" -exec grep -l "def.*&lt;keyword&gt;" {} \;</code></pre>
+
+<p><strong>Why</strong>: Methods reveal implementation even if file name unexpected.</p>
+
+<p>---</p>
+
+<h3>4️⃣ Search Expected Filenames (LAST RESORT)</h3>
+
+<p><strong>What to do</strong>: Try expected paths</p>
+
+<pre><code># DefinitieAgent example:
+find . -name "*ontology*widget*.py"
+find . -name "*suggestion*.py"
+
+# Generic:
+find . -name "*&lt;expected_name&gt;*.&lt;ext&gt;"</code></pre>
+
+<p><strong>Why</strong>: Filename expectations often wrong in brownfield code. Use as validation, not primary search.</p>
+
+<p>---</p>
+
+<h2>🚫 Anti-Patterns to Avoid</h2>
+
+<p>| ❌ Don't Do This | ✅ Do This Instead |</p>
+<p>|------------------|---------------------|</p>
+<p>| Assume expected filename exists | Search UI text first |</p>
+<p>| Grep only technical terms (<code>ontological_classifier</code>) | Grep user-visible text ("Voorgesteld:") |</p>
+<p>| Stop after first search fails | Try all 4 strategies sequentially |</p>
+<p>| Trust agent exploration alone | Validate findings with user |</p>
+<p>| Conclude "not implemented" immediately | Complete full checklist first |</p>
+
+<p>---</p>
+
+<h2>🤝 User Validation Step</h2>
+
+<p><strong>After completing search</strong>: ALWAYS validate with user</p>
+
+<pre><code>Template message:
+"I searched for [feature] in:
+- UI text strings: [results]
+- Main UI files: [results]
+- Method names: [results]
+- Expected filenames: [results]
+
+My conclusion: [implemented/not implemented]
+
+Can you confirm if this matches your experience?
+Did I miss any integration points?"</code></pre>
+
+<p><strong>Why</strong>: User knows the codebase better. They'll catch inline implementations you missed.</p>
+
+<p>---</p>
+
+<h2>📋 Before/After Example: DEF-39 & DEF-13</h2>
+
+<h3>❌ Original (Incorrect) Analysis</h3>
+
+<p><strong>Search approach</strong>:</p>
+<ol>
+<li>Grep for `ontological_classifier` → Found backend</li>
+<li>Look for `ontology_suggestion_widget.py` → Not found</li>
+<li>Check `GenerationRequest` field → Found (nullable)</li>
+<li>**Conclusion**: DEF-13 not implemented ❌</li>
+</ol>
+
+<p><strong>Mistake</strong>: Didn't search UI text. Didn't check <code>tabbed_interface.py</code>.</p>
+
+<p>---</p>
+
+<h3>✅ Corrected Analysis</h3>
+
+<p><strong>Search approach</strong>:</p>
+<ol>
+<li>Grep for `"Voorgesteld:"` → Found in `tabbed_interface.py:545` ✅</li>
+<li>Grep for `"Waarom deze categorie"` → Found in `tabbed_interface.py:547` ✅</li>
+<li>Grep for `"Aanpassen?"` → Found in `tabbed_interface.py:551` ✅</li>
+<li>Check `_render_category_preview()` method → Full implementation ✅</li>
+<li>**Conclusion**: DEF-13 fully implemented ✅</li>
+</ol>
+
+<p><strong>Key difference</strong>: Started with UI text → Found inline implementation</p>
+
+<p>---</p>
+
+<h2>🎓 Lessons Learned</h2>
+
+<ol>
+<li>**UI Text > Filenames**: Search what user sees, not what you expect</li>
+<li>**Check Main UI Files**: `tabbed_interface.py` is goldmine for integrated features</li>
+<li>**Inline != Missing**: Features don't need standalone files to be "implemented"</li>
+<li>**Always Validate**: User feedback catches agent blind spots</li>
+<li>**Complete Checklist**: Don't shortcut - run all 4 search strategies</li>
+</ol>
+
+<p>---</p>
+
+<h2>🔗 References</h2>
+
+<ul>
+<li>**Full methodology**: `~/.ai-agents/UNIFIED_INSTRUCTIONS.md` → "Code Archaeology Search Strategies"</li>
+<li>**Project context**: `CLAUDE.md` → "Pattern Selection voor DefinitieAgent"</li>
+<li>**Case study**: `docs/analyses/ONTOLOGICAL_CATEGORIE_COMPREHENSIVE_EXPLORATION.md`</li>
+<li>**Validated by**: DEF-39 & DEF-13 analysis (2025-11-03)</li>
+</ul>
+
+<p>---</p>
+
+<h2>🚀 Quick Start</h2>
+
+<p><strong>Copy-paste search commands</strong>:</p>
+
+<pre><code># 1. UI Text Search
+grep -r "your_ui_text_here" .
+
+# 2. Main UI Files
+grep "keyword" src/ui/tabbed_interface.py src/ui/main.py src/main.py
+
+# 3. Method Names
+grep -r "def.*keyword" src/
+
+# 4. Expected Filenames
+find . -name "*expected_name*"</code></pre>
+
+<p><strong>Then</strong>: Validate findings with user before concluding.</p>
+
+<p>---</p>
+
+<p><strong>Last Updated</strong>: 2025-11-03</p>
+<p><strong>Author</strong>: BMad Master (via multiagent analysis lessons learned)</p>
+<p><strong>Status</strong>: Active guideline for all code archaeology tasks</p>
+
+  </div>
+</body>
+</html>

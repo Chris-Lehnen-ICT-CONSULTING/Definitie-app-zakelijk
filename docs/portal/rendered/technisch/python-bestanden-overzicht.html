@@ -1,0 +1,426 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>VOLLEDIG PYTHON BESTANDEN OVERZICHT - DefinitieAgent</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>VOLLEDIG PYTHON BESTANDEN OVERZICHT - DefinitieAgent</h1>
+
+<h2>📊 PROJECT STATISTIEKEN</h2>
+<ul>
+<li>**Totaal Python bestanden**: 337 bestanden</li>
+<li>**Totaal regels code**: 85,476 LOC</li>
+<li>**Hoofdfunctie**: AI-gedreven juridische definitie generator</li>
+<li>**Architectuur**: Service-oriented met afhankelijkheid injection</li>
+<li>**Entry point**: `src/main.py`</li>
+</ul>
+
+<p>---</p>
+
+<h2>🏗️ KERNARCHITECTUUR - SRC/SERVICES/ (24 bestanden, 10,006 LOC)</h2>
+
+<h3>🎯 ORCHESTRATION & CONTAINER</h3>
+<p>| Bestand | LOC | Status | Functionaliteit |</p>
+<p>|---------|-----|---------|----------------|</p>
+<p>| <code>container.py</code> | 439 | ✅ <strong>ACTIEF</strong> | Dependency injection container - hart van de service architectuur |</p>
+<p>| <code>definition_orchestrator.py</code> | 678 | ✅ <strong>ACTIEF</strong> | Hoofd orchestrator voor definitie workflow en AI pipeline |</p>
+<p>| <code>service_factory.py</code> | 379 | ✅ <strong>ACTIEF</strong> | Factory pattern voor service instantiatie |</p>
+<p>| <code>workflow_service.py</code> | 695 | ✅ <strong>ACTIEF</strong> | Business logic workflow management |</p>
+
+<h3>🤖 AI DEFINITION GENERATION PIPELINE</h3>
+<p>| Bestand | LOC | Status | Functionaliteit |</p>
+<p>|---------|-----|---------|----------------|</p>
+<p>| <code>definition_generator_cache.py</code> | 601 | ✅ <strong>ACTIEF</strong> | Cache systeem voor AI-gegenereerde definities |</p>
+<p>| <code>definition_generator_config.py</code> | 347 | ✅ <strong>ACTIEF</strong> | Configuratie voor AI model parameters |</p>
+<p>| <code>definition_generator_context.py</code> | 456 | ✅ <strong>ACTIEF</strong> | Context management voor definitie generatie |</p>
+<p>| <code>definition_generator_enhancement.py</code> | 560 | ✅ <strong>ACTIEF</strong> | Enhancement pipeline voor AI output |</p>
+<p>| <code>definition_generator_monitoring.py</code> | 414 | ✅ <strong>ACTIEF</strong> | Prestaties monitoring van AI systeem |</p>
+<p>| <code>definition_generator_prompts.py</code> | 657 | ✅ <strong>ACTIEF</strong> | AI prompt management en templates |</p>
+
+<h3>💾 DATA & REPOSITORY LAYER</h3>
+<p>| Bestand | LOC | Status | Functionaliteit |</p>
+<p>|---------|-----|---------|----------------|</p>
+<p>| <code>definition_repository.py</code> | 473 | ✅ <strong>ACTIEF</strong> | Database repository pattern - hoofd data access |</p>
+<p>| <code>null_repository.py</code> | 81 | ✅ <strong>ACTIEF</strong> | Null object pattern voor testing |</p>
+<p>| <code>duplicate_detection_service.py</code> | 231 | ✅ <strong>ACTIEF</strong> | Detectie van duplicate definities |</p>
+<p>| <code>data_aggregation_service.py</code> | 347 | ✅ <strong>ACTIEF</strong> | Data aggregatie service |</p>
+
+<h3>✅ QUALITY & VALIDATION</h3>
+<p>| Bestand | LOC | Status | Functionaliteit |</p>
+<p>|---------|-----|---------|----------------|</p>
+<p>| <code>definition_validator.py</code> | 357 | ✅ <strong>ACTIEF</strong> | Hoofdvalidatie service voor definities |</p>
+<p>| <code>cleaning_service.py</code> | 277 | ✅ <strong>ACTIEF</strong> | AI output opschoning en normalisatie |</p>
+<p>| <code>ab_testing_framework.py</code> | 564 | ✅ <strong>ACTIEF</strong> | A/B testing voor verschillende AI modellen |</p>
+
+<h3>🔍 EXTERNAL INTEGRATION</h3>
+<p>| Bestand | LOC | Status | Functionaliteit |</p>
+<p>|---------|-----|---------|----------------|</p>
+<p>| <code>modern_web_lookup_service.py</code> | 433 | ⚠️ <strong>GEDEELTELIJK</strong> | Web lookup - backend werkt, UI integratie ontbreekt |</p>
+<p>| <code>web_lookup/sru_service.py</code> | - | ✅ <strong>ACTIEF</strong> | SRU (Search/Retrieve via URL) service integratie |</p>
+<p>| <code>web_lookup/wikipedia_service.py</code> | - | ✅ <strong>ACTIEF</strong> | Wikipedia API integratie |</p>
+
+<h3>📊 UTILITIES & SUPPORT</h3>
+<p>| Bestand | LOC | Status | Functionaliteit |</p>
+<p>|---------|-----|---------|----------------|</p>
+<p>| <code>export_service.py</code> | 312 | ✅ <strong>ACTIEF</strong> | Export naar TXT, JSON, CSV formaten |</p>
+<p>| <code>regeneration_service.py</code> | 129 | ✅ <strong>ACTIEF</strong> | Definitie regeneratie workflow |</p>
+<p>| <code>category_service.py</code> | 169 | ✅ <strong>ACTIEF</strong> | Categorie management en operations |</p>
+<p>| <code>category_state_manager.py</code> | 47 | ✅ <strong>ACTIEF</strong> | State management voor categorieën |</p>
+<p>| <code>interfaces.py</code> | 547 | ✅ <strong>ACTIEF</strong> | Service interface definities |</p>
+
+<p>---</p>
+
+<h2>🖥️ GEBRUIKERSINTERFACE - SRC/UI/ (8 bestanden, 12,167 LOC)</h2>
+
+<h3>🎨 HOOFD UI CONTROLLER</h3>
+<p>| Bestand | LOC | Status | Functionaliteit |</p>
+<p>|---------|-----|---------|----------------|</p>
+<p>| <code>tabbed_interface.py</code> | 1,313 | ✅ <strong>KERN ACTIEF</strong> | Hoofdcontroller voor tabbed Streamlit interface |</p>
+<p>| <code>session_state.py</code> | - | ✅ <strong>ACTIEF</strong> | Streamlit sessie status management |</p>
+<p>| <code>cache_manager.py</code> | - | ✅ <strong>ACTIEF</strong> | UI cache management |</p>
+<p>| <code>async_progress.py</code> | - | ✅ <strong>ACTIEF</strong> | Asynchrone progress indicators |</p>
+<p>| <code>components_adapter.py</code> | - | ✅ <strong>ACTIEF</strong> | Adapter voor component integratie |</p>
+<p>| <code>regeneration_handler.py</code> | - | ✅ <strong>ACTIEF</strong> | UI regeneratie handling |</p>
+
+<h3>🧩 UI COMPONENTEN (12 bestanden)</h3>
+<p>| Bestand | Status | Functionaliteit |</p>
+<p>|---------|---------|----------------|</p>
+<p>| <code>definition_generator_tab.py</code> | ✅ <strong>ACTIEF</strong> | Hoofdtab voor definitie generatie workflow |</p>
+<p>| <code>expert_review_tab.py</code> | ✅ <strong>ACTIEF</strong> | Expert review en approval workflow |</p>
+<p>| <code>export_tab.py</code> | ✅ <strong>ACTIEF</strong> | Export functionaliteit interface |</p>
+<p>| <code>external_sources_tab.py</code> | ✅ <strong>ACTIEF</strong> | Externe bronnen management interface |</p>
+<p>| <code>history_tab.py</code> | ✅ <strong>ACTIEF</strong> | Definitie geschiedenis en versioning |</p>
+<p>| <code>management_tab.py</code> | ✅ <strong>ACTIEF</strong> | Systeembeheer interface |</p>
+<p>| <code>monitoring_tab.py</code> | ✅ <strong>ACTIEF</strong> | System monitoring dashboard |</p>
+<p>| <code>orchestration_tab.py</code> | ✅ <strong>ACTIEF</strong> | Werkstroom orchestration interface |</p>
+<p>| <code>quality_control_tab.py</code> | ✅ <strong>ACTIEF</strong> | Kwaliteitscontrole dashboard |</p>
+<p>| <code>web_lookup_tab.py</code> | ❌ <strong>PROBLEEM</strong> | Web lookup interface - toont geen resultaten |</p>
+<p>| <code>context_selector.py</code> | ✅ <strong>ACTIEF</strong> | Context selectie component |</p>
+<p>| <code>category_regeneration_helper.py</code> | ✅ <strong>ACTIEF</strong> | Categorie regeneratie helper |</p>
+
+<h3>⚠️ LEGACY UI</h3>
+<p>| Bestand | Status | Functionaliteit |</p>
+<p>|---------|---------|----------------|</p>
+<p>| <code>components.py</code> | 🔄 <strong>WORDT VERVANGEN</strong> | Legacy components - wordt gemigreerd naar components/ |</p>
+
+<p>---</p>
+
+<h2>🧪 VALIDATIESYSTEEM - SRC/TOETSREGELS/ (100+ bestanden, 13,632 LOC)</h2>
+
+<h3>📋 CORE MANAGEMENT (4 bestanden)</h3>
+<p>| Bestand | LOC | Status | Functionaliteit |</p>
+<p>|---------|-----|---------|----------------|</p>
+<p>| <code>manager.py</code> | - | ✅ <strong>ACTIEF</strong> | Validatie regel management systeem |</p>
+<p>| <code>loader.py</code> | - | 🔄 <strong>LEGACY</strong> | Legacy regel loader |</p>
+<p>| <code>modular_loader.py</code> | - | ✅ <strong>ACTIEF</strong> | Moderne modulaire regel loader |</p>
+<p>| <code>adapter.py</code> | - | ✅ <strong>ACTIEF</strong> | Interface adapter voor regel systeem |</p>
+
+<h3>📏 VALIDATIEREGELS (38 regels x 2 implementaties = 76 bestanden)</h3>
+
+<h4>**ARAI - AI Response Adequacy & Intelligence (6 regels)**</h4>
+<p>| Regel | Implementatie | Validator | Status |</p>
+<p>|-------|--------------|-----------|---------|</p>
+<p>| <code>ARAI-01</code> | ✅ regels/ | ✅ validators/ | ✅ <strong>ACTIEF</strong> - AI response adequacy check |</p>
+<p>| <code>ARAI-02</code> | ✅ regels/ | ✅ validators/ | ✅ <strong>ACTIEF</strong> - AI intelligence validation |</p>
+<p>| <code>ARAI-03</code> | ✅ regels/ | ✅ validators/ | ✅ <strong>ACTIEF</strong> - Response completeness |</p>
+<p>| <code>ARAI-04</code> | ✅ regels/ | ✅ validators/ | ✅ <strong>ACTIEF</strong> - Context awareness |</p>
+<p>| <code>ARAI-05</code> | ✅ regels/ | ✅ validators/ | ✅ <strong>ACTIEF</strong> - Reasoning quality |</p>
+<p>| <code>ARAI-06</code> | ✅ regels/ | ✅ validators/ | ✅ <strong>ACTIEF</strong> - Output consistency |</p>
+
+<h4>**CON - Consistency Validation (2 regels)**</h4>
+<p>| Regel | Implementatie | Validator | Status |</p>
+<p>|-------|--------------|-----------|---------|</p>
+<p>| <code>CON-01</code> | ✅ regels/ | ✅ validators/ | ✅ <strong>ACTIEF</strong> - Internal consistency |</p>
+<p>| <code>CON-02</code> | ✅ regels/ | ✅ validators/ | ✅ <strong>ACTIEF</strong> - Cross-reference consistency |</p>
+
+<h4>**ESS - Essential Content Validation (5 regels)**</h4>
+<p>| Regel | Implementatie | Validator | Status |</p>
+<p>|-------|--------------|-----------|---------|</p>
+<p>| <code>ESS-01</code> | ✅ regels/ | ✅ validators/ | ✅ <strong>ACTIEF</strong> - Essential content presence |</p>
+<p>| <code>ESS-02</code> | ✅ regels/ | ✅ validators/ | ✅ <strong>ACTIEF</strong> - Content relevance |</p>
+<p>| <code>ESS-03</code> | ✅ regels/ | ✅ validators/ | ✅ <strong>ACTIEF</strong> - Content accuracy |</p>
+<p>| <code>ESS-04</code> | ✅ regels/ | ✅ validators/ | ✅ <strong>ACTIEF</strong> - Content completeness |</p>
+<p>| <code>ESS-05</code> | ✅ regels/ | ✅ validators/ | ✅ <strong>ACTIEF</strong> - Content precision |</p>
+
+<h4>**INT - Integration & Interface Validation (9 regels)**</h4>
+<p>| Regel | Implementatie | Validator | Status |</p>
+<p>|-------|--------------|-----------|---------|</p>
+<p>| <code>INT-01</code> | ✅ regels/ | ✅ validators/ | ✅ <strong>ACTIEF</strong> - System integration |</p>
+<p>| <code>INT-02</code> | ✅ regels/ | ✅ validators/ | ✅ <strong>ACTIEF</strong> - Interface consistency |</p>
+<p>| <code>INT-03</code> | ✅ regels/ | ✅ validators/ | ✅ <strong>ACTIEF</strong> - Data flow validation |</p>
+<p>| <code>INT-04</code> | ✅ regels/ | ✅ validators/ | ✅ <strong>ACTIEF</strong> - API compliance |</p>
+<p>| <code>INT-05</code> | ❌ <strong>ONTBREEKT</strong> | ❌ <strong>ONTBREEKT</strong> | 🚨 <strong>MISSING</strong> - Integration completeness |</p>
+<p>| <code>INT-06</code> | ✅ regels/ | ✅ validators/ | ✅ <strong>ACTIEF</strong> - Error handling |</p>
+<p>| <code>INT-07</code> | ✅ regels/ | ✅ validators/ | ✅ <strong>ACTIEF</strong> - Prestaties validation |</p>
+<p>| <code>INT-08</code> | ✅ regels/ | ✅ validators/ | ✅ <strong>ACTIEF</strong> - Beveiliging compliance |</p>
+<p>| <code>INT-09</code> | ✅ regels/ | ✅ validators/ | ✅ <strong>ACTIEF</strong> - Scalability validation |</p>
+
+<h4>**SAM - Semantic Accuracy & Meaning (8 regels)**</h4>
+<p>| Regel | Implementatie | Validator | Status |</p>
+<p>|-------|--------------|-----------|---------|</p>
+<p>| <code>SAM-01</code> | ✅ regels/ | ✅ validators/ | ✅ <strong>ACTIEF</strong> - Semantic accuracy |</p>
+<p>| <code>SAM-02</code> | ✅ regels/ | ✅ validators/ | ✅ <strong>ACTIEF</strong> - Meaning preservation |</p>
+<p>| <code>SAM-03</code> | ✅ regels/ | ✅ validators/ | ✅ <strong>ACTIEF</strong> - Context relevance |</p>
+<p>| <code>SAM-04</code> | ✅ regels/ | ✅ validators/ | ✅ <strong>ACTIEF</strong> - Terminology consistency |</p>
+<p>| <code>SAM-05</code> | ✅ regels/ | ✅ validators/ | ✅ <strong>ACTIEF</strong> - Conceptual clarity |</p>
+<p>| <code>SAM-06</code> | ✅ regels/ | ✅ validators/ | ✅ <strong>ACTIEF</strong> - Logical coherence |</p>
+<p>| <code>SAM-07</code> | ✅ regels/ | ✅ validators/ | ✅ <strong>ACTIEF</strong> - Semantic completeness |</p>
+<p>| <code>SAM-08</code> | ✅ regels/ | ✅ validators/ | ✅ <strong>ACTIEF</strong> - Meaning accuracy |</p>
+
+<h4>**STR - Structure & Formatting (9 regels)**</h4>
+<p>| Regel | Implementatie | Validator | Status |</p>
+<p>|-------|--------------|-----------|---------|</p>
+<p>| <code>STR-01</code> | ✅ regels/ | ✅ validators/ | ✅ <strong>ACTIEF</strong> - Document structure |</p>
+<p>| <code>STR-02</code> | ✅ regels/ | ✅ validators/ | ✅ <strong>ACTIEF</strong> - Formatting compliance |</p>
+<p>| <code>STR-03</code> | ✅ regels/ | ✅ validators/ | ✅ <strong>ACTIEF</strong> - Layout consistency |</p>
+<p>| <code>STR-04</code> | ✅ regels/ | ✅ validators/ | ✅ <strong>ACTIEF</strong> - Header structure |</p>
+<p>| <code>STR-05</code> | ✅ regels/ | ✅ validators/ | ✅ <strong>ACTIEF</strong> - Content organization |</p>
+<p>| <code>STR-06</code> | ✅ regels/ | ✅ validators/ | ✅ <strong>ACTIEF</strong> - Citation format |</p>
+<p>| <code>STR-07</code> | ✅ regels/ | ✅ validators/ | ✅ <strong>ACTIEF</strong> - Reference structure |</p>
+<p>| <code>STR-08</code> | ✅ regels/ | ✅ validators/ | ✅ <strong>ACTIEF</strong> - Numbering system |</p>
+<p>| <code>STR-09</code> | ✅ regels/ | ✅ validators/ | ✅ <strong>ACTIEF</strong> - Visual presentation |</p>
+
+<h4>**VER - Verification & Completeness (3 regels)**</h4>
+<p>| Regel | Implementatie | Validator | Status |</p>
+<p>|-------|--------------|-----------|---------|</p>
+<p>| <code>VER-01</code> | ✅ regels/ | ✅ validators/ | ✅ <strong>ACTIEF</strong> - Content verification |</p>
+<p>| <code>VER-02</code> | ✅ regels/ | ✅ validators/ | ✅ <strong>ACTIEF</strong> - Completeness check |</p>
+<p>| <code>VER-03</code> | ✅ regels/ | ✅ validators/ | ✅ <strong>ACTIEF</strong> - Quality assurance |</p>
+
+<p>---</p>
+
+<h2>💾 DATABASE LAYER - SRC/DATABASE/ (3 bestanden, 1,674 LOC)</h2>
+
+<p>| Bestand | LOC | Status | Functionaliteit |</p>
+<p>|---------|-----|---------|----------------|</p>
+<p>| <code>definitie_repository.py</code> | - | ✅ <strong>ACTIEF</strong> | Hoofd database access layer met repository pattern |</p>
+<p>| <code>migrate_database.py</code> | - | ✅ <strong>ACTIEF</strong> | Database migratie management |</p>
+<p>| <code>__init__.py</code> | - | ✅ <strong>ACTIEF</strong> | Package initialization |</p>
+
+<p>---</p>
+
+<h2>🔧 CONFIGURATIE - SRC/CONFIG/ (6 bestanden, 1,590 LOC)</h2>
+
+<p>| Bestand | LOC | Status | Functionaliteit |</p>
+<p>|---------|-----|---------|----------------|</p>
+<p>| <code>config_manager.py</code> | - | ✅ <strong>ACTIEF</strong> | Centrale configuratie management |</p>
+<p>| <code>config_loader.py</code> | - | ✅ <strong>ACTIEF</strong> | YAML/JSON configuratie laden |</p>
+<p>| <code>config_adapters.py</code> | - | ✅ <strong>ACTIEF</strong> | Configuration adapters voor verschillende formaten |</p>
+<p>| <code>rate_limit_config.py</code> | - | ✅ <strong>ACTIEF</strong> | Rate limiting configuratie |</p>
+<p>| <code>verboden_woorden.py</code> | - | ✅ <strong>ACTIEF</strong> | Verboden woorden lijst voor content filtering |</p>
+
+<p>---</p>
+
+<h2>🛠️ UTILITIES - SRC/UTILS/ (11 bestanden, 4,572 LOC)</h2>
+
+<h3>🔄 RESILIENCE & RETRY</h3>
+<p>| Bestand | LOC | Status | Functionaliteit |</p>
+<p>|---------|-----|---------|----------------|</p>
+<p>| <code>resilience.py</code> | - | ✅ <strong>ACTIEF</strong> | Basis foutafhandeling en retry logic |</p>
+<p>| <code>optimized_resilience.py</code> | - | ✅ <strong>ACTIEF</strong> | Geoptimaliseerde resilience patterns |</p>
+<p>| <code>integrated_resilience.py</code> | - | ✅ <strong>ACTIEF</strong> | Geïntegreerde resilience systeem |</p>
+<p>| <code>enhanced_retry.py</code> | - | ✅ <strong>ACTIEF</strong> | Enhanced retry mechanismen |</p>
+<p>| <code>smart_rate_limiter.py</code> | - | ✅ <strong>ACTIEF</strong> | Intelligente rate limiting |</p>
+
+<h3>📊 MONITORING & PERFORMANCE</h3>
+<p>| Bestand | LOC | Status | Functionaliteit |</p>
+<p>|---------|-----|---------|----------------|</p>
+<p>| <code>performance_monitor.py</code> | - | ✅ <strong>ACTIEF</strong> | Prestaties monitoring en metrics |</p>
+<p>| <code>async_api.py</code> | - | ✅ <strong>ACTIEF</strong> | Asynchrone API utilities |</p>
+<p>| <code>cache.py</code> | - | ✅ <strong>ACTIEF</strong> | Cache management systeem |</p>
+
+<h3>🚨 ERROR HANDLING</h3>
+<p>| Bestand | LOC | Status | Functionaliteit |</p>
+<p>|---------|-----|---------|----------------|</p>
+<p>| <code>exceptions.py</code> | - | ✅ <strong>ACTIEF</strong> | Custom exception handling en error types |</p>
+
+<p>🔍 <strong>MOGELIJKE DUPLICATIE</strong>: Meerdere resilience implementaties - consolidatie mogelijk.</p>
+
+<p>---</p>
+
+<h2>🏛️ DOMEINLOGICA - SRC/DOMAIN/ (2 folders + files, 802 LOC)</h2>
+
+<h3>📚 ONTOLOGIE & CATEGORISATIE</h3>
+<p>| Bestand | LOC | Status | Functionaliteit |</p>
+<p>|---------|-----|---------|----------------|</p>
+<p>| <code>ontological_categories.py</code> | - | ✅ <strong>ACTIEF</strong> | Ontologische categorisatie systeem |</p>
+<p>| <code>autoriteit/betrouwbaarheid.py</code> | - | ✅ <strong>ACTIEF</strong> | Autoriteit en betrouwbaarheid validatie |</p>
+<p>| <code>context/organisatie_wetten.py</code> | - | ✅ <strong>ACTIEF</strong> | Organisatie wetgeving context |</p>
+<p>| <code>juridisch/patronen.py</code> | - | ✅ <strong>ACTIEF</strong> | Juridische patronen herkenning |</p>
+<p>| <code>linguistisch/pluralia_tantum.py</code> | - | ✅ <strong>ACTIEF</strong> | Nederlandse linguïstische regels |</p>
+
+<p>---</p>
+
+<h2>📚 VOORBEELDSYSTEEM - SRC/VOORBEELDEN/ (5 bestanden, 1,518 LOC)</h2>
+
+<p>| Bestand | LOC | Status | Functionaliteit |</p>
+<p>|---------|-----|---------|----------------|</p>
+<p>| <code>voorbeelden.py</code> | - | 🔄 <strong>LEGACY</strong> | Basis voorbeelden systeem |</p>
+<p>| <code>unified_voorbeelden.py</code> | - | ✅ <strong>ACTIEF</strong> | Unified voorbeelden API |</p>
+<p>| <code>async_voorbeelden.py</code> | - | ✅ <strong>ACTIEF</strong> | Asynchrone voorbeelden laden |</p>
+<p>| <code>cached_voorbeelden.py</code> | - | ✅ <strong>ACTIEF</strong> | Gecachte voorbeelden systeem |</p>
+
+<p>🔍 <strong>DUPLICATIE GEDETECTEERD</strong>: Meerdere implementaties van voorbeelden systeem.</p>
+
+<p>---</p>
+
+<h2>🔍 VALIDATIE LAYER - SRC/VALIDATION/ (5 bestanden, 3,277 LOC)</h2>
+
+<p>| Bestand | LOC | Status | Functionaliteit |</p>
+<p>|---------|-----|---------|----------------|</p>
+<p>| <code>definitie_validator.py</code> | - | ✅ <strong>ACTIEF</strong> | Hoofd definitie validatie systeem |</p>
+<p>| <code>dutch_text_validator.py</code> | - | ✅ <strong>ACTIEF</strong> | Nederlandse tekst validatie |</p>
+<p>| <code>input_validator.py</code> | - | ✅ <strong>ACTIEF</strong> | Input sanitization en validatie |</p>
+<p>| <code>sanitizer.py</code> | - | ✅ <strong>ACTIEF</strong> | Text sanitization utilities |</p>
+
+<p>---</p>
+
+<h2>🧪 TESTSYSTEEM - TESTS/ (59 bestanden, 21,297 LOC)</h2>
+
+<h3>🔧 CORE TESTING INFRASTRUCTURE</h3>
+<p>| Category | Bestanden | Status | Functionaliteit |</p>
+<p>|----------|-----------|---------|----------------|</p>
+<p>| <strong>Unit Tests</strong> | 14 bestanden | ✅ <strong>ACTIEF</strong> | Unit testing voor individuele componenten |</p>
+<p>| <strong>Integration Tests</strong> | 10 bestanden | ✅ <strong>ACTIEF</strong> | Integratie testing tussen services |</p>
+<p>| <strong>Services Tests</strong> | 14 bestanden | ✅ <strong>ACTIEF</strong> | Service layer testing |</p>
+<p>| <strong>Functionality Tests</strong> | 5 bestanden | ✅ <strong>ACTIEF</strong> | End-to-end functionaliteit testing |</p>
+<p>| <strong>Beveiliging Tests</strong> | 2 bestanden | ✅ <strong>ACTIEF</strong> | Beveiliging validatie testing |</p>
+<p>| <strong>Rate Limiting Tests</strong> | 9 bestanden | ✅ <strong>ACTIEF</strong> | Rate limiting systeem testing |</p>
+<p>| <strong>Prestaties Tests</strong> | 2 bestanden | ✅ <strong>ACTIEF</strong> | Prestaties benchmark testing |</p>
+<p>| <strong>UI Tests</strong> | 1 bestand | ✅ <strong>ACTIEF</strong> | User interface testing |</p>
+
+<h3>🛠️ MANUAL TESTING</h3>
+<p>| Bestand | Status | Functionaliteit |</p>
+<p>|---------|---------|----------------|</p>
+<p>| <code>manual_test_*.py</code> (6 bestanden) | ✅ <strong>ACTIEF</strong> | Handmatige test scripts voor debugging |</p>
+
+<p>---</p>
+
+<h2>🤖 AUTOMATION - SCRIPTS/ (13 bestanden)</h2>
+
+<h3>📊 CODE QUALITY & REVIEW</h3>
+<p>| Bestand | Status | Functionaliteit |</p>
+<p>|---------|---------|----------------|</p>
+<p>| <code>ai_code_reviewer.py</code> | ✅ <strong>ACTIEF</strong> | AI-powered code review systeem |</p>
+<p>| <code>enhanced_ai_reviewer.py</code> | ✅ <strong>ACTIEF</strong> | Enhanced AI reviewer met meer features |</p>
+<p>| <code>architecture_validator.py</code> | ✅ <strong>ACTIEF</strong> | Architecture validation en compliance |</p>
+<p>| <code>architecture_sync.py</code> | ✅ <strong>ACTIEF</strong> | Architecture synchronization tools |</p>
+
+<h3>🚀 PERFORMANCE & BENCHMARKS</h3>
+<p>| Directory/Bestand | Status | Functionaliteit |</p>
+<p>|-------------------|---------|----------------|</p>
+<p>| <code>benchmarks/</code> | ✅ <strong>ACTIEF</strong> | Prestaties benchmarking scripts |</p>
+<p>| <code>update_feature_status.py</code> | ✅ <strong>ACTIEF</strong> | Feature status tracking automation |</p>
+
+<p>---</p>
+
+<h2>🧰 TOOLS & MAINTENANCE - TOOLS/ (3 bestanden)</h2>
+
+<p>| Bestand | Status | Functionaliteit |</p>
+<p>|---------|---------|----------------|</p>
+<p>| <code>run_maintenance.py</code> | ✅ <strong>ACTIEF</strong> | Maintenance runner voor automated tasks |</p>
+<p>| <code>maintenance/fix_naming_consistency.py</code> | ✅ <strong>ACTIEF</strong> | Naming consistency fixer tool |</p>
+
+<p>---</p>
+
+<h2>🏠 ROOT UTILITIES (8 bestanden, 851 LOC)</h2>
+
+<p>| Bestand | LOC | Status | Functionaliteit |</p>
+<p>|---------|-----|---------|----------------|</p>
+<p>| <code>analyze_dependencies.py</code> | 139 | ✅ <strong>ACTIEF</strong> | Service afhankelijkheid analysis tool |</p>
+<p>| <code>afhankelijkheid_analysis.py</code> | 141 | ✅ <strong>ACTIEF</strong> | Circulaire afhankelijkheid detectie |</p>
+<p>| <code>code_review_tool.py</code> | 164 | ✅ <strong>ACTIEF</strong> | Code review automation tool |</p>
+<p>| <code>security_review.py</code> | 76 | ✅ <strong>ACTIEF</strong> | Beveiliging review utilities |</p>
+<p>| <code>trace_prompt_decision.py</code> | 74 | ✅ <strong>ACTIEF</strong> | Debug tool voor AI prompt beslissingen |</p>
+<p>| <code>test_categorie_complete_flow.py</code> | 143 | ✅ <strong>ACTIEF</strong> | Complete flow test voor categorieën |</p>
+<p>| <code>test_legacy_activation.py</code> | 62 | ✅ <strong>ACTIEF</strong> | Legacy system activation tests |</p>
+<p>| <code>test_ontological_integration.py</code> | 52 | ✅ <strong>ACTIEF</strong> | Ontological integration tests |</p>
+
+<p>---</p>
+
+<h2>📈 USAGE & STATUS ANALYSE</h2>
+
+<h3>✅ INTENSIEF GEBRUIKTE MODERNE CODE (HOOG PRIORITY)</h3>
+<ol>
+<li>**`src/services/`** - Kernarchitectuur, volledig actief</li>
+<li>**`src/ui/tabbed_interface.py`** - Hoofd UI controller</li>
+<li>**`src/toetsregels/`** - Volledig validatiesysteem (37/38 regels)</li>
+<li>**`src/database/`** - Actieve database layer</li>
+<li>**`src/utils/`** - Hergebruikte utilities</li>
+<li>**`tests/`** - Uitgebreid testsysteem</li>
+</ol>
+
+<h3>⚠️ LEGACY/TRANSITIONAL CODE (GEMIDDELD PRIORITY)</h3>
+<ol>
+<li>**`src/ui/components.py`** - Wordt vervangen door components/</li>
+<li>**`src/voorbeelden/voorbeelden.py`** - Legacy voorbeelden systeem</li>
+<li>**`src/config/`** - Mix van legacy en moderne configuratie</li>
+</ol>
+
+<h3>🔍 MOGELIJKE DUPLICATIES (CONSOLIDATIE NODIG)</h3>
+<ol>
+<li>**Resilience Systems** - 4 verschillende implementaties in utils/</li>
+<li>**Voorbeelden Systems** - 4 verschillende implementaties</li>
+<li>**Code Review Tools** - 2 verschillende AI reviewers</li>
+</ol>
+
+<h3>🚨 KRITIEKE ISSUES</h3>
+<ol>
+<li>**`INT-05` ONTBREEKT** - Validatieregel niet geïmplementeerd</li>
+<li>**Web Lookup UI** - Backend werkt, UI integratie faalt</li>
+<li>**Bare Exceptions** - 8 bare except clauses (security risk)</li>
+<li>**Import Errors** - E402 import errors in legacy modules</li>
+</ol>
+
+<h3>💡 ARCHITECTUUR KWALITEIT</h3>
+<ul>
+<li>**Sterke service-oriented architecture** met clean afhankelijkheid injection</li>
+<li>**Uitgebreid validatiesysteem** met 37/38 geïmplementeerde regels</li>
+<li>**Moderne testing approach** met 21K+ LOC aan tests</li>
+<li>**Good separation of concerns** tussen UI, services, en domain logic</li>
+</ul>
+
+<p>---</p>
+
+<h2>🎯 AANBEVELINGEN</h2>
+
+<h3>1. **CONSOLIDATIE PRIORITEITEN**</h3>
+<ul>
+<li>Merge resilience implementaties naar één unified systeem</li>
+<li>Consolideer voorbeelden systems naar unified API</li>
+<li>Elimineer legacy components waar mogelijk</li>
+</ul>
+
+<h3>2. **MISSING IMPLEMENTATIONS**</h3>
+<ul>
+<li>Implementeer ontbrekende INT-05 validatieregel</li>
+<li>Fix WebLookup UI integratie</li>
+<li>Vervang bare exceptions met specifieke error handling</li>
+</ul>
+
+<h3>3. **ARCHITECTUUR VERBETERING**</h3>
+<ul>
+<li>Continue service architecture migration</li>
+<li>Improve afhankelijkheid injection patterns</li>
+<li>Enhance error handling consistency</li>
+</ul>
+
+<p>Dit overzicht toont een <strong>professionele, uitgebreide codebase</strong> met sterke architecturale fundamenten maar met enkele legacy elementen die consolidatie behoeven.</p>
+
+  </div>
+</body>
+</html>

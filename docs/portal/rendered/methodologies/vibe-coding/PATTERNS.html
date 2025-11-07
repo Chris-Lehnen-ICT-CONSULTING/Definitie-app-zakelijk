@@ -1,0 +1,1021 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Vibe Coding Pattern Catalog - DefinitieAgent</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>Vibe Coding Pattern Catalog - DefinitieAgent</h1>
+
+<p><!--</p>
+<p>metadata:</p>
+<p>  document_id: "vibe-coding-patterns"</p>
+<p>  title: "Vibe Coding Pattern Catalog"</p>
+<p>  version: "1.0.0"</p>
+<p>  last_updated: "2025-01-27"</p>
+<p>  author: "DefinitieAgent Team"</p>
+<p>  status: "active"</p>
+<p>  applies_to:</p>
+<ul>
+<li>   - "Claude Sonnet 4.5"</li>
+<li>   - "Claude Opus"</li>
+<li>   - "GPT-4"</li>
+<li>   - "GPT-4 Turbo"</li>
+<p>  prerequisites:</p>
+<li>   - "CLAUDE.md → Project Overzicht"</li>
+<li>   - "UNIFIED_INSTRUCTIONS.md → APPROVAL LADDER"</li>
+<li>   - "BMad Method basics (optional)"</li>
+<p>  related_documents:</p>
+<li>   - "CLAUDE.md → AI-Assisted Development"</li>
+<li>   - "docs/methodologies/vibe-coding/GUIDE.md"</li>
+<li>   - "docs/methodologies/vibe-coding/templates/"</li>
+<p>  pattern_count: 9</p>
+<p>  difficulty_range: ["beginner", "intermediate", "advanced"]</p>
+<p>--></p>
+</ul>
+
+<h2>📋 Overzicht</h2>
+
+<p>Dit document bevat de volledige catalog van Vibe Coding patterns voor DefinitieAgent. Vibe Coding is een intent-driven methodologie voor AI-assisted development die maximaliseert wat AI kan bereiken door strategische prompt patterns en brownfield-aware workflows.</p>
+
+<p><strong>Voor een beknopt overzicht:</strong> Zie <code>CLAUDE.md</code> → sectie "AI-Assisted Development met Vibe Coding"</p>
+
+<p>---</p>
+
+<h2>🎯 Core Principes</h2>
+
+<p><principle type="intent-driven" id="principle-intent"></p>
+
+<h3>Intent-Driven Development</h3>
+
+<p>Focus op <strong>WAT</strong> je wil bereiken (doel), niet <strong>HOE</strong> technisch (implementatie).</p>
+
+<p><strong>Waarom:</strong></p>
+
+<ul>
+<li>AI is excellent in pattern recognition en oplossingszoeken</li>
+<li>Technische specificatie beperkt AI creativiteit</li>
+<li>Intent geeft context voor betere beslissingen</li>
+<li>Natuurlijke taal werkt beter dan pseudo-code</li>
+</ul>
+
+<p><strong>Voorbeeld:</strong></p>
+
+<pre><code>❌ "Use functools.lru_cache decorator on get_rules function"
+✅ "Reduce rule loading time from 10x to 1x during startup"</code></pre>
+
+<p></principle></p>
+
+<p><principle type="brownfield" id="principle-brownfield"></p>
+
+<h3>Brownfield Context Awareness</h3>
+
+<p>DefinitieAgent is een brownfield project. Dit vereist speciale aandacht voor:</p>
+
+<p><strong>Archaeology First:</strong></p>
+
+<ul>
+<li>Analyseer EERST bestaande code voordat wijzigen</li>
+<li>Begrijp WAAROM code geschreven is zoals het is</li>
+<li>Identificeer business logica vs technische debt</li>
+</ul>
+
+<p><strong>Business Logic Preservation:</strong></p>
+
+<ul>
+<li>Extraheer business regels tijdens refactoring</li>
+<li>Documenteer domeinkennis in comments en docs</li>
+<li>Test business invariants na wijzigingen</li>
+</ul>
+
+<p><strong>No Backwards Compatibility:</strong></p>
+
+<ul>
+<li>DefinitieAgent is single-user applicatie</li>
+<li>GEEN feature flags of parallelle V1/V2 paden</li>
+<li>Refactor direct, geen gradual migration</li>
+<li>Focus op code verbeteren, niet compatibility</li>
+</ul>
+
+<p><strong>Surgical Strikes:</strong></p>
+
+<ul>
+<li>Kleine, focused changes i.p.v. complete rewrites</li>
+<li>Wijzig 1 concern per sessie</li>
+<li>Test na elke change, rollback if failures</li>
+</ul>
+
+<p></principle></p>
+
+<p>---</p>
+
+<h2>📖 Pattern Catalog</h2>
+
+<h3>Pattern 1: Context-Rich Requests</h3>
+
+<p><pattern id="context-rich" category="prompting" difficulty="intermediate" token_budget="150"></p>
+
+<h4>Beschrijving</h4>
+
+<p>Context-rich requests leveren beste resultaten door AI volledige context te geven over locatie, probleem, verwacht gedrag, en oplossingsrichting.</p>
+
+<h4>Anti-Pattern</h4>
+
+<p><example type="anti-pattern"></p>
+
+<pre><code>❌ "Fix the validation bug"</code></pre>
+
+<p><strong>Problemen:</strong></p>
+
+<ul>
+<li>Geen context over welke validatie</li>
+<li>Geen locatie waar bug zit</li>
+<li>Geen beschrijving van bug behavior</li>
+<li>Geen verwacht gedrag</li>
+</ul>
+
+<p><strong>Resultaat:</strong> AI moet gissen, grote kans op verkeerde fix</p>
+
+<p></example></p>
+
+<h4>Best Practice</h4>
+
+<p><example type="best-practice"></p>
+
+<pre><code>✅ "In ValidationOrchestratorV2, the 45 validation rules are
+    being loaded 10x during startup (see init logs).
+    Root cause: No caching in loader.py.
+
+    Check US-202 analysis in docs/reports/toetsregels-caching-fix.md
+    and implement RuleCache in src/toetsregels/rule_cache.py with
+    @cached decorator for bulk loading (TTL: 3600s).
+
+    Expected: 77% faster, 81% less memory.
+    Test: pytest tests/services/test_definition_validator.py"</code></pre>
+
+<p><strong>Waarom beter:</strong></p>
+
+<ul>
+<li>Specificeert exact component (ValidationOrchestratorV2)</li>
+<li>Quantificeert probleem (10x laden, 45 regels)</li>
+<li>Geeft root cause (geen caching in loader.py)</li>
+<li>Verwijst naar analyse document (US-202)</li>
+<li>Specificeert oplossingsrichting (RuleCache + @cached)</li>
+<li>Geeft verwachte impact (77% faster, 81% less memory)</li>
+<li>Specificeert test (pytest command)</li>
+</ul>
+
+<p></example></p>
+
+<h4>When to Use</h4>
+
+<p><strong>Altijd bij:</strong></p>
+
+<ul>
+<li>Complex refactoring tasks</li>
+<li>Performance optimalisaties met metrics</li>
+<li>Bug fixes in onbekende code</li>
+<li>Brownfield archaeology sessions</li>
+</ul>
+
+<p><strong>Timing:</strong></p>
+
+<ul>
+<li>5-15 minuten voorbereiding (gather context)</li>
+<li>Bespaart 30-60 minuten debug/trial-and-error</li>
+</ul>
+
+<h4>Pattern Components</h4>
+
+<p><components></p>
+
+<ol>
+<li>**Component identificatie** - Waar zit het probleem?</li>
+<li>**Probleem quantificatie** - Hoe erg is het? (metrics)</li>
+<li>**Root cause** - Wat is de oorzaak? (als bekend)</li>
+<li>**Referentie documenten** - Waar staat analyse?</li>
+<li>**Oplossingsrichting** - Wat is de aanpak? (niet exact implementation)</li>
+<li>**Expected impact** - Wat verwacht je te bereiken?</li>
+<li>**Test criteria** - Hoe valideer je success?</li>
+</ol>
+
+<p></components></p>
+
+<h4>Success Criteria</h4>
+
+<ul>
+<li>✅ AI begrijpt probleem first-try (geen clarifying questions)</li>
+<li>✅ Oplossing werkt zonder iteraties</li>
+<li>✅ Expected metrics bereikt (±10%)</li>
+</ul>
+
+<h4>Token Budget</h4>
+
+<p><strong>Target:</strong> 120-180 tokens (~30-45 regels)</p>
+
+<p><strong>Distribution:</strong></p>
+
+<ul>
+<li>Context: 40 tokens</li>
+<li>Problem description: 40 tokens</li>
+<li>Solution guidance: 40 tokens</li>
+<li>References: 30 tokens</li>
+</ul>
+
+<p></pattern></p>
+
+<p>---</p>
+
+<h3>Pattern 2: Business-First Refactoring</h3>
+
+<p><pattern id="business-first" category="refactoring" difficulty="advanced" token_budget="150"></p>
+
+<h4>Beschrijving</h4>
+
+<p>Business-first refactoring behoudt domeinkennis tijdens code restructuring. Focus op WAAROM code bestaat voordat je wijzigt HOE het geïmplementeerd is.</p>
+
+<h4>Anti-Pattern</h4>
+
+<p><example type="anti-pattern"></p>
+
+<pre><code>❌ "Refactor dry_helpers.py"</code></pre>
+
+<p><strong>Problemen:</strong></p>
+
+<ul>
+<li>Geen focus op business logica</li>
+<li>Risico op verloren domeinkennis</li>
+<li>Onduidelijk wat "refactor" betekent</li>
+<li>Geen guidance over responsibility split</li>
+</ul>
+
+<p><strong>Resultaat:</strong> Code wordt "schoner" maar business logica verdwijnt in process</p>
+
+<p></example></p>
+
+<h4>Best Practice</h4>
+
+<p><example type="best-practice"></p>
+
+<pre><code>✅ "dry_helpers.py is a god object violating Single Responsibility Principle.
+
+    Analysis shows 3 distinct business concerns:
+    1. Type safety (ensure_list, ensure_dict)
+       → Purpose: Guarantee downstream functions receive correct types
+    2. Dictionary operations (safe_dict_get)
+       → Purpose: Safe access to nested config without KeyErrors
+    3. Validation utilities
+       → Purpose: Input validation for user-provided data
+
+    Refactor strategy:
+    - Create utils/type_helpers.py for concern #1
+    - Create utils/dict_helpers.py for concern #2
+    - Create utils/validation_helpers.py for concern #3
+    - Update all imports (expect ~15 files)
+    - Run full test suite after each move
+
+    PRESERVE business logic comments explaining WHY each function exists.
+    Document extracted patterns in module docstrings.
+
+    Estimate: 8 files modified, 45 minutes
+    Show me proposed structure before executing."</code></pre>
+
+<p><strong>Waarom beter:</strong></p>
+
+<ul>
+<li>Identificeert specifieke concerns met business rationale</li>
+<li>Definieert duidelijke verantwoordelijkheden per module</li>
+<li>Expliciet: PRESERVE business logica</li>
+<li>Gefaseerde aanpak met testing</li>
+<li>"Show me first" voor approval</li>
+</ul>
+
+<p></example></p>
+
+<h4>When to Use</h4>
+
+<ul>
+<li>God object cleanup</li>
+<li>Legacy code modernization</li>
+<li>Business logic extraction</li>
+<li>Domain knowledge preservation</li>
+</ul>
+
+<h4>Pattern Components</h4>
+
+<p><components></p>
+
+<ol>
+<li>**Identify concerns** - Welke business concerns zijn er?</li>
+<li>**Document purpose** - WAAROM bestaat elke concern?</li>
+<li>**Define modules** - Welke nieuwe modules? Wat is hun verantwoordelijkheid?</li>
+<li>**Preservation strategy** - Hoe behoud je business kennis?</li>
+<li>**Phased approach** - Volgorde van changes met testing</li>
+<li>**Documentation requirements** - Wat moet gedocumenteerd?</li>
+</ol>
+
+<p></components></p>
+
+<h4>Success Criteria</h4>
+
+<ul>
+<li>✅ Alle business logica behouden (0 functionaliteit verloren)</li>
+<li>✅ Tests passing (100% na refactor)</li>
+<li>✅ Business logic comments preserved/improved</li>
+<li>✅ Clear module responsibilities (single concern per module)</li>
+</ul>
+
+<h4>Real Example from DefinitieAgent</h4>
+
+<p><strong>Scenario:</strong> dry_helpers.py cleanup (November 2024)</p>
+
+<p><strong>Prompt used:</strong></p>
+
+<pre><code>"dry_helpers.py contains mixed responsibilities. Extract:
+- Type conversions → utils/type_helpers.py
+- Dict operations → utils/dict_helpers.py
+Preserve all docstrings explaining business rules.
+Run tests after each extraction."</code></pre>
+
+<p><strong>Outcome:</strong></p>
+
+<ul>
+<li>8 files modified</li>
+<li>0 test failures</li>
+<li>Business logica intact</li>
+<li>Time: 42 minutes (estimated: 45)</li>
+</ul>
+
+<p><strong>Pattern used:</strong> Business-First Refactoring + Show Me First</p>
+
+<p></pattern></p>
+
+<p>---</p>
+
+<h3>Pattern 3: Incremental Changes</h3>
+
+<p><pattern id="incremental" category="workflow" difficulty="beginner" token_budget="120"></p>
+
+<h4>Beschrijving</h4>
+
+<p>Incremental changes volgen DefinitieAgent filosofie: kleine stappen, meetbare progress, rollback mogelijk. GEEN big bang rewrites.</p>
+
+<h4>Anti-Pattern</h4>
+
+<p><example type="anti-pattern"></p>
+
+<pre><code>❌ "Rewrite the entire prompt system"</code></pre>
+
+<p><strong>Problemen:</strong></p>
+
+<ul>
+<li>Te grote scope (ondefinieerbaar)</li>
+<li>Geen rollback mogelijk</li>
+<li>Hoog risico bij failures</li>
+<li>Geen meetbare milestones</li>
+</ul>
+
+<p><strong>Resultaat:</strong> Days of work, unclear progress, stuck if issues arise</p>
+
+<p></example></p>
+
+<h4>Best Practice</h4>
+
+<p><example type="best-practice"></p>
+
+<pre><code>✅ "Reduce PromptOrchestrator token usage from 7.250 to &lt;5.000 tokens.
+
+    Phased approach:
+
+    Phase 1: Identify duplicates (30 min)
+    - Analyze all prompt fragments
+    - Find duplicate patterns
+    - Document top 5 duplicates
+    - Measure: List duplicates with token counts
+
+    Phase 2: Implement shared cache (1 hour)
+    - Create prompt_cache.py with deduplication
+    - Integrate into PromptOrchestrator
+    - Test with existing 45 validation rules
+    - Measure: Token count after dedup
+
+    Phase 3: Validate impact (30 min)
+    - Run full test suite
+    - Measure actual token reduction
+    - Document in docs/reports/
+    - Target: 7.250 → &lt;5.000 tokens
+
+    STOP after each phase if issues. Rollback if needed."</code></pre>
+
+<p><strong>Waarom beter:</strong></p>
+
+<ul>
+<li>Gefaseerd met duidelijke milestones</li>
+<li>Meetbare targets per fase</li>
+<li>Tijdsestimates per fase</li>
+<li>Test na elke fase</li>
+<li>Explicit rollback strategy</li>
+</ul>
+
+<p></example></p>
+
+<h4>When to Use</h4>
+
+<ul>
+<li>Performance optimalisaties</li>
+<li>Refactoring sessions</li>
+<li>Feature additions</li>
+<li>Risk-averse scenarios</li>
+</ul>
+
+<h4>Pattern Components</h4>
+
+<p><components></p>
+
+<ol>
+<li>**Overall goal** - Wat is eindresultaat? (meetbaar)</li>
+<li>**Phase breakdown** - 3-5 phases, elk 30-90 min</li>
+<li>**Per-phase deliverable** - Wat levert fase op?</li>
+<li>**Per-phase validation** - Hoe test je fase?</li>
+<li>**Rollback strategy** - Wat als fase faalt?</li>
+</ol>
+
+<p></components></p>
+
+<h4>Success Criteria</h4>
+
+<ul>
+<li>✅ Elk phase completes successfully</li>
+<li>✅ Overall goal bereikt (metrics match target)</li>
+<li>✅ Geen regressions (all tests passing)</li>
+</ul>
+
+<p></pattern></p>
+
+<p>---</p>
+
+<h3>Pattern 4: Show Me First</h3>
+
+<p><pattern id="show-me-first" category="workflow" difficulty="beginner" token_budget="80"></p>
+
+<h4>Beschrijving</h4>
+
+<p>"Show Me First" is safety pattern: AI toont proposed changes VOORDAT executing. Gebruik dit ALTIJD bij >100 lines changes (UNIFIED approval ladder).</p>
+
+<h4>Template</h4>
+
+<pre><code>"Before [ACTION], show me:
+ 1. [CURRENT STATE]
+ 2. [IDENTIFIED ISSUES]
+ 3. [PROPOSED NEW STATE]
+ 4. [IMPACT ANALYSIS]
+ Then wait for approval."</code></pre>
+
+<h4>Example</h4>
+
+<pre><code>"Before refactoring PromptServiceV2, show me:
+ 1. Current structure and responsibilities
+ 2. Identified duplication patterns
+ 3. Proposed new structure
+ 4. Impact analysis (files affected, test coverage)
+ Then wait for approval."</code></pre>
+
+<h4>When to Use</h4>
+
+<p><strong>MANDATORY bij:</strong></p>
+
+<ul>
+<li>>100 lines changes (UNIFIED APPROVAL LADDER)</li>
+<li>>5 files touched</li>
+<li>Schema changes</li>
+<li>Architectural changes</li>
+</ul>
+
+<p><strong>RECOMMENDED bij:</strong></p>
+
+<ul>
+<li>Unfamiliar code</li>
+<li>Complex refactorings</li>
+<li>Production-critical code</li>
+</ul>
+
+<h4>Success Criteria</h4>
+
+<ul>
+<li>✅ AI toont proposed structure BEFORE executing</li>
+<li>✅ User heeft tijd voor review</li>
+<li>✅ Changes match approved proposal</li>
+</ul>
+
+<p></pattern></p>
+
+<p>---</p>
+
+<h3>Pattern 5: Archaeology First</h3>
+
+<p><pattern id="archaeology-first" category="analysis" difficulty="intermediate" token_budget="100"></p>
+
+<h4>Beschrijving</h4>
+
+<p>Archaeology First: Begrijp bestaande code VOORDAT wijzigen. Kritiek voor brownfield projects zoals DefinitieAgent.</p>
+
+<h4>Template</h4>
+
+<pre><code>"Analyze [COMPONENT] to understand:
+ - [BUSINESS LOGIC QUESTION]
+ - [ARCHITECTURE QUESTION]
+ - [DEPENDENCY QUESTION]
+ Document findings before suggesting changes."</code></pre>
+
+<h4>Example</h4>
+
+<pre><code>"Analyze src/services/validation/ to understand:
+ - Why 45 rules organized by ARAI/CON/ESS/INT/SAM/STR/VER categories?
+ - Business logic behind priority levels (high/medium/low)?
+ - Dependencies between validation rules?
+ - Historical context: Why dual JSON+Python format?
+ Document findings in analysis.md before suggesting changes."</code></pre>
+
+<h4>When to Use</h4>
+
+<ul>
+<li>Unknown codebase exploration</li>
+<li>Legacy code modernization</li>
+<li>Before major refactorings</li>
+<li>Business logic extraction</li>
+</ul>
+
+<h4>Success Criteria</h4>
+
+<ul>
+<li>✅ Business rationale documented</li>
+<li>✅ Architecture decisions explained</li>
+<li>✅ Dependencies mapped</li>
+<li>✅ NO changes made during archaeology</li>
+</ul>
+
+<p></pattern></p>
+
+<p>---</p>
+
+<h3>Pattern 6: Test-Driven Refactor</h3>
+
+<p><pattern id="test-driven-refactor" category="testing" difficulty="advanced" token_budget="120"></p>
+
+<h4>Beschrijving</h4>
+
+<p>Test-Driven Refactor: Definieer constraints VOORDAT refactoring. Rollback bij test failures.</p>
+
+<h4>Template</h4>
+
+<pre><code>"Refactor [COMPONENT] with these constraints:
+ 1. MUST [HARD CONSTRAINT]
+ 2. CANNOT [FORBIDDEN ACTION]
+ 3. SHOULD [SOFT GOAL]
+ 4. Run tests after each change, rollback if failures"</code></pre>
+
+<h4>Example</h4>
+
+<pre><code>"Refactor SessionStateManager with these constraints:
+ 1. MUST maintain 100% existing test coverage (currently 98%)
+ 2. CANNOT break st.session_state isolation rule
+ 3. SHOULD improve performance (current: 200ms, target: &lt;150ms)
+ 4. Run tests after each change, rollback if failures
+
+ Test command: pytest tests/utils/test_session_state.py -v"</code></pre>
+
+<h4>When to Use</h4>
+
+<ul>
+<li>Refactoring critical components</li>
+<li>When test coverage exists (>80%)</li>
+<li>Performance-sensitive code</li>
+<li>State management changes</li>
+</ul>
+
+<h4>Success Criteria</h4>
+
+<ul>
+<li>✅ All constraints satisfied (MUST, CANNOT, SHOULD)</li>
+<li>✅ Zero test failures</li>
+<li>✅ Performance target met (if specified)</li>
+</ul>
+
+<p></pattern></p>
+
+<p>---</p>
+
+<h2>🚫 Anti-Patterns</h2>
+
+<p><anti_patterns></p>
+
+<h3>Anti-Pattern 1: Vague Requests</h3>
+
+<p><anti_pattern type="vague-request" severity="high"></p>
+
+<p><strong>Pattern:</strong></p>
+
+<pre><code>❌ "Make it better"
+❌ "Optimize the code"
+❌ "Fix the bug"</code></pre>
+
+<p><strong>Waarom problematisch:</strong></p>
+
+<ul>
+<li>AI kan niet bepalen wat "better" betekent</li>
+<li>Geen context voor prioritization</li>
+<li>Resultaat kan conflicteren met jouw bedoeling</li>
+</ul>
+
+<p><strong>Fix:</strong></p>
+
+<pre><code>✅ "Reduce validation time from 5s to &lt;2s"
+✅ "Improve code readability: extract functions &gt;50 lines"
+✅ "Fix KeyError in config loading when 'optional_key' missing"</code></pre>
+
+<p></anti_pattern></p>
+
+<h3>Anti-Pattern 2: Tech-First</h3>
+
+<p><anti_pattern type="tech-first" severity="medium"></p>
+
+<p><strong>Pattern:</strong></p>
+
+<pre><code>❌ "Use functools.lru_cache"
+❌ "Implement singleton pattern"</code></pre>
+
+<p><strong>Waarom problematisch:</strong></p>
+
+<ul>
+<li>AI volgt instructie blind</li>
+<li>Mist betere alternatieven</li>
+<li>Geen context waarom deze techniek</li>
+</ul>
+
+<p><strong>Fix:</strong></p>
+
+<pre><code>✅ "Cache rule loading to prevent 10x reload during startup"
+✅ "Ensure only 1 ServiceContainer instance across app"</code></pre>
+
+<p></anti_pattern></p>
+
+<h3>Anti-Pattern 3: No Context</h3>
+
+<p><anti_pattern type="no-context" severity="high"></p>
+
+<p><strong>Pattern:</strong></p>
+
+<pre><code>❌ "Fix test_definition_generator.py"</code></pre>
+
+<p><strong>Waarom problematisch:</strong></p>
+
+<ul>
+<li>AI gist wat "fix" betekent</li>
+<li>Geen info over welke test faalt</li>
+<li>Geen verwacht gedrag</li>
+</ul>
+
+<p><strong>Fix:</strong></p>
+
+<pre><code>✅ "test_generate_with_examples fails with AttributeError:
+    'NoneType' object has no attribute 'strip'.
+    Expected: Generate definition with 3 examples.
+    Root cause: examples list can be None but code expects list."</code></pre>
+
+<p></anti_pattern></p>
+
+<h3>Anti-Pattern 4: Big Scope</h3>
+
+<p><anti_pattern type="big-scope" severity="high"></p>
+
+<p><strong>Pattern:</strong></p>
+
+<pre><code>❌ "Optimize everything"
+❌ "Refactor the entire codebase"</code></pre>
+
+<p><strong>Waarom problematisch:</strong></p>
+
+<ul>
+<li>Overwelming (AI + user)</li>
+<li>Geen meetbaar resultaat</li>
+<li>Hoog risico failures</li>
+</ul>
+
+<p><strong>Fix:</strong></p>
+
+<pre><code>✅ "Optimize ValidationOrchestrator: reduce from 5s to &lt;2s"
+✅ "Refactor god object: src/utils/dry_helpers.py → 3 focused modules"</code></pre>
+
+<p></anti_pattern></p>
+
+<p></anti_patterns></p>
+
+<p>---</p>
+
+<h2>🔗 Integration met Workflows</h2>
+
+<h3>Met BMad Method</h3>
+
+<p><strong>Relatie:</strong></p>
+
+<ul>
+<li>Vibe Coding = **HOW** to prompt agents (execution)</li>
+<li>BMad Method = **WHAT** to build (planning)</li>
+</ul>
+
+<p><strong>Usage:</strong></p>
+
+<ul>
+<li>Gebruik Vibe patterns in BMad task execution</li>
+<li>Example: BMad task "Refactor validation module" → Use "Business-First Refactoring" pattern</li>
+</ul>
+
+<h3>Met TDD Workflow (UNIFIED)</h3>
+
+<p><strong>Mapping:</strong></p>
+
+<p>| UNIFIED Workflow | Vibe Pattern | When to Use |</p>
+<p>|-----------------|--------------|-------------|</p>
+<p>| ANALYSIS | Archaeology First | Unknown codebase |</p>
+<p>| DOCUMENT | Context-Rich Request | Documentation updates |</p>
+<p>| REFACTOR | Business-First + Test-Driven | Legacy code |</p>
+<p>| FULL_TDD | Test-Driven Refactor | New features |</p>
+<p>| HOTFIX | Context-Rich + Incremental | Bug fixes |</p>
+
+<h3>Met UNIFIED Approval Ladder</h3>
+
+<p><strong>Rules:</strong></p>
+
+<ul>
+<li>**>100 lines change** → ALTIJD "Show Me First" pattern</li>
+<li>**>5 files touched** → Request impact analysis eerst</li>
+<li>**Schema changes** → Archaeology + approval voor uitvoering</li>
+<li>**Network calls** → Document API contract + error handling</li>
+</ul>
+
+<p>---</p>
+
+<h2>📊 Pattern Testing & Validation</h2>
+
+<h3>Why Test Patterns?</h3>
+
+<p>Vibe Coding patterns werken verschillend per model/versie. Testing valideert effectiviteit.</p>
+
+<h3>Test Process</h3>
+
+<p><testing_framework></p>
+
+<h4>1. Baseline Metrics</h4>
+
+<p>Meet current state VOOR pattern application:</p>
+
+<ul>
+<li>Time (how long does task take manually?)</li>
+<li>Quality (how many bugs? test coverage?)</li>
+<li>Token usage (how many tokens consumed?)</li>
+</ul>
+
+<h4>2. Apply Pattern</h4>
+
+<p>Gebruik documented Vibe pattern:</p>
+
+<ul>
+<li>Follow pattern template exact</li>
+<li>Record exact prompt used</li>
+<li>Note any deviations from template</li>
+</ul>
+
+<h4>3. Measure Outcome</h4>
+
+<p>Compare tegen baseline:</p>
+
+<ul>
+<li>Time saved (%)</li>
+<li>Quality improvement (bugs prevented, coverage increased)</li>
+<li>Token efficiency (tokens used vs manual)</li>
+</ul>
+
+<h4>4. Document</h4>
+
+<p>Record in <code>docs/methodologies/vibe-coding/results/</code>:</p>
+
+<pre><code>pattern_id: "context-rich"
+date: "2025-01-27"
+model: "Claude Sonnet 4.5"
+task_description: "Fix validation bug in US-202"
+baseline:
+  time_manual: "90 minutes"
+  quality: "2 iterations needed"
+  token_usage: "N/A"
+with_pattern:
+  time: "35 minutes"
+  quality: "1 iteration, worked first try"
+  token_usage: "450 tokens"
+improvement:
+  time_saved: "61%"
+  quality: "50% fewer iterations"
+success: true
+notes: "Context-rich request eliminated debugging iterations"</code></pre>
+
+<p></testing_framework></p>
+
+<h3>Success Criteria</h3>
+
+<p><strong>Pattern succeeds if:</strong></p>
+
+<ul>
+<li>✅ Time saved: >20% improvement</li>
+<li>✅ Code quality: Geen nieuwe bugs, tests passing</li>
+<li>✅ Token efficiency: <10% token overhead vs manual</li>
+<li>✅ Reproducibility: 3/3 trials successful</li>
+</ul>
+
+<p><strong>Pattern fails if:</strong></p>
+
+<ul>
+<li>❌ Time regression: Takes longer than manual</li>
+<li>❌ Quality regression: Introduces bugs</li>
+<li>❌ Token explosion: >50% more tokens than expected</li>
+<li>❌ Inconsistent: Works 1/3 trials</li>
+</ul>
+
+<h3>Failed Pattern Handling</h3>
+
+<p><strong>If pattern fails:</strong></p>
+
+<ol>
+<li>Document in `vibe-coding/failed-patterns.md`</li>
+<li>Analyze why:</li>
+</ol>
+<ul>
+<li>  - Model limitation?</li>
+<li>  - Wrong context?</li>
+<li>  - Unclear prompt?</li>
+<li>  - Task mismatch?</li>
+</ul>
+<ol>
+<li>Update pattern OR deprecate</li>
+<li>Share learnings met team</li>
+</ol>
+
+<h3>Testing Schedule</h3>
+
+<p><strong>When to test:</strong></p>
+
+<ul>
+<li>After Claude/GPT-4 major updates (monthly check)</li>
+<li>After DefinitieAgent architecture changes</li>
+<li>When pattern used >10x (validate consistency)</li>
+<li>Before sharing pattern with team</li>
+</ul>
+
+<p><strong>Metrics Tracking:</strong></p>
+
+<pre><code># docs/methodologies/vibe-coding/results/metrics.yaml
+patterns:
+  context-rich:
+    tests_run: 15
+    success_rate: 93.3%  # 14/15 successful
+    avg_time_saved: 35%
+    avg_token_usage: 450
+    last_tested: "2025-01-27"
+    test_model: "Claude Sonnet 4.5"
+  business-first:
+    tests_run: 8
+    success_rate: 100%
+    avg_time_saved: 28%
+    avg_token_usage: 380
+    last_tested: "2025-01-20"
+    test_model: "Claude Sonnet 4.5"</code></pre>
+
+<p>---</p>
+
+<h2>🎯 Pattern Selection Guide</h2>
+
+<h3>Decision Matrix</h3>
+
+<p>| Scenario | Recommended Pattern | Difficulty | Avg Time |</p>
+<p>|----------|-------------------|------------|----------|</p>
+<p>| Unknown codebase | Archaeology First | Beginner | 1-2h |</p>
+<p>| God object cleanup | Business-First Refactoring | Advanced | 2-4h |</p>
+<p>| Performance issue | Context-Rich Request | Intermediate | 1-3h |</p>
+<p>| Safe refactor | Test-Driven Refactor | Advanced | 2-5h |</p>
+<p>| Large feature | Incremental Changes | Intermediate | 4-8h |</p>
+<p>| Quick fix | Show Me First | Beginner | 30min-1h |</p>
+<p>| Bug fix | Context-Rich + Incremental | Intermediate | 1-2h |</p>
+<p>| Documentation | Archaeology First | Beginner | 30min-1h |</p>
+
+<h3>By Difficulty Level</h3>
+
+<p><strong>Beginner:</strong></p>
+
+<ul>
+<li>Incremental Changes</li>
+<li>Show Me First</li>
+<li>Archaeology First (analysis only)</li>
+</ul>
+
+<p><strong>Intermediate:</strong></p>
+
+<ul>
+<li>Context-Rich Requests</li>
+<li>Combination patterns (2 simple patterns)</li>
+</ul>
+
+<p><strong>Advanced:</strong></p>
+
+<ul>
+<li>Business-First Refactoring</li>
+<li>Test-Driven Refactor</li>
+<li>Complex combinations (3+ patterns)</li>
+</ul>
+
+<h3>Token Budget Guidelines</h3>
+
+<p>| Pattern Complexity | Token Budget | Example |</p>
+<p>|-------------------|--------------|---------|</p>
+<p>| Simple prompt | 50-100 | Show Me First |</p>
+<p>| Intermediate | 100-200 | Context-Rich Request |</p>
+<p>| Complex | 200-400 | Business-First Refactoring |</p>
+<p>| Full specification | 400-600 | Test-Driven + Business-First combo |</p>
+
+<p>---</p>
+
+<h2>📚 Resources</h2>
+
+<h3>Documentation</h3>
+
+<ul>
+<li>**Complete guide**: `docs/methodologies/vibe-coding/GUIDE.md`</li>
+<li>**Prompt templates**: `docs/methodologies/vibe-coding/templates/`</li>
+<li>**Real examples**: `docs/methodologies/vibe-coding/examples/`</li>
+<li>**Testing results**: `docs/methodologies/vibe-coding/results/`</li>
+</ul>
+
+<h3>External Resources</h3>
+
+<ul>
+<li>**21 Vibe Tips**: `.ai-agents/vibe-coding/21-tips.md` (if exists)</li>
+<li>**Anthropic Prompt Engineering**: <https://docs.claude.com/en/docs/build-with-claude/prompt-engineering></li>
+<li>**OpenAI Best Practices**: <https://help.openai.com/en/articles/6654000-best-practices-for-prompt-engineering></li>
+</ul>
+
+<h3>Related DefinitieAgent Docs</h3>
+
+<ul>
+<li>**UNIFIED_INSTRUCTIONS.md** → APPROVAL LADDER (>100 lines rule)</li>
+<li>**CLAUDE.md** → Development Richtlijnen</li>
+<li>**BMad Method** → EPIC/Story planning</li>
+<li>**Refactor Log** → `docs/refactor-log.md`</li>
+</ul>
+
+<p>---</p>
+
+<h2>🔄 Version History</h2>
+
+<h3>v1.0.0 (2025-01-27)</h3>
+
+<p><strong>Initial release:</strong></p>
+
+<ul>
+<li>9 documented patterns (6 main + 3 supporting)</li>
+<li>XML semantic tags voor AI parsing</li>
+<li>Testing framework met metrics</li>
+<li>Real DefinitieAgent examples (US-202, dry_helpers.py)</li>
+<li>Integration met BMad + UNIFIED workflows</li>
+<li>Best practice compliant (token optimization, metadata, pronoun usage)</li>
+</ul>
+
+<p><strong>Patterns included:</strong></p>
+
+<ol>
+<li>Context-Rich Requests</li>
+<li>Business-First Refactoring</li>
+<li>Incremental Changes</li>
+<li>Show Me First</li>
+<li>Archaeology First</li>
+<li>Test-Driven Refactor</li>
+</ol>
+
+<p><strong>Anti-patterns documented:</strong> 4 (Vague, Tech-First, No Context, Big Scope)</p>
+
+<p>---</p>
+
+<p><strong>Voor vragen of feedback:</strong> Update <code>docs/methodologies/vibe-coding/PATTERNS.md</code> of contact DefinitieAgent team.</p>
+
+  </div>
+</body>
+</html>

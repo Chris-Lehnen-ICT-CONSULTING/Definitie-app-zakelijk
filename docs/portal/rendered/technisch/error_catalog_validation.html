@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Error Catalog - Validation Services</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>Error Catalog - Validation Services</h1>
+
+<p>---</p>
+<p>document: Error Catalog Validation</p>
+<p>version: 1.0</p>
+<p>status: CONCEPT</p>
+<p>type: Reference</p>
+<p>parent: validation_orchestrator_v2.md</p>
+<p>related:</p>
+<ul>
+<li> - validation_result_contract.md</li>
+<li> - validation_orchestrator_rollout.md</li>
+<li> - validation_observability_privacy.md</li>
+<p>see-also:</p>
+<li> - ../architectuur/SOLUTION_ARCHITECTURE.md</li>
+<p>owner: Dev Lead</p>
+<p>created: 29-12-2024</p>
+<p>updated: 29-12-2024</p>
+<p>tags: [validation, errors, taxonomy, retry, monitoring]</p>
+<p>---</p>
+</ul>
+
+<h2>Executive Summary</h2>
+
+<p>Dit document definieert de complete error taxonomie voor ValidationOrchestratorV2. Het specificeert error codes, retry policies, severity levels, en remediation strategies.</p>
+
+<h2>Error Taxonomie</h2>
+
+<h3>Categorieën</h3>
+
+<p>| Category | Code Range | Type | Retryable | Description |</p>
+<p>|----------|------------|------|-----------|-------------|</p>
+<p>| <strong>Validation Rule Violations</strong> | VAL-xxx-xxx | Functional | No | Business rule violations |</p>
+<p>| <strong>Input Errors</strong> | INP-xxx-xxx | Client | No | Invalid input data |</p>
+<p>| <strong>Policy Errors</strong> | POL-xxx-xxx | Authorization | No | Policy/permission violations |</p>
+<p>| <strong>Rate Limits</strong> | LIM-xxx-xxx | Throttling | Yes* | Rate limit exceeded |</p>
+<p>| <strong>Timeouts</strong> | TMO-xxx-xxx | Temporal | Yes | Operation timeout |</p>
+<p>| <strong>Upstream Errors</strong> | UPS-xxx-xxx | External | Yes* | External service errors |</p>
+<p>| <strong>Internal Errors</strong> | INT-xxx-xxx | System | No** | Internal system errors |</p>
+
+<p>*Retryable met backoff</p>
+<p>**Mogelijk retryable na investigation</p>
+
+<h2>Standard Error Fields</h2>
+
+<p>Elke error MOET deze velden bevatten:</p>
+
+<pre><code>interface ValidationError {
+  // Identification
+  code: string;           // Unique error code
+  title: string;          // Short description
+  message: string;        // User-friendly message (no PII!)
+
+  // Classification
+  category: string;       // Error category
+  severity: 'info' | 'warning' | 'error' | 'critical';
+  retryable: boolean;     // Can retry solve this?
+
+  // HTTP mapping
+  http_status: number;    // HTTP status code equivalent
+
+  // Remediation
+  remediation: string;    // How to fix this
+  documentation_url?: string;  // Link to detailed docs
+
+  // Operational
+  source: 'rule_engine' | 'ai' | 'schema' | 'legal' | 'system';
+  telemetry_tags: string[];  // For monitoring/alerting
+}</code></pre>
+
+<h2>Validation Rule Violations (VAL)</h2>
+
+<h3>Structure Violations (VAL-STR)</h3>
+
+<p>| Code | Title | Message | Severity | Remediation |</p>
+<p>|------|-------|---------|----------|-------------|</p>
+<p>| VAL-STR-001 | Long Sentence | Zin bevat meer dan 20 woorden | warning | Splits lange zinnen op voor betere leesbaarheid |</p>
+<p>| VAL-STR-002 | Missing Structure | Definitie mist duidelijke structuur | error | Gebruik de standaard definitiestructuur: term + 'is' + uitleg |</p>
+<p>| VAL-STR-003 | Nested Complexity | Te veel geneste bijzinnen | warning | Vereenvoudig de zinsstructuur |</p>
+
+<h3>Language Violations (VAL-LNG)</h3>
+
+<p>| Code | Title | Message | Severity | Remediation |</p>
+<p>|------|-------|---------|----------|-------------|</p>
+<p>| VAL-LNG-001 | Spelling Error | Spellingsfout gedetecteerd | warning | Controleer spelling van gemarkeerde woorden |</p>
+<p>| VAL-LNG-002 | Jargon Detected | Onnodig jargon gebruikt | info | Vervang vaktermen door begrijpelijke alternatieven |</p>
+<p>| VAL-LNG-003 | B1 Level Exceeded | Taalniveau te complex (boven B1) | warning | Vereenvoudig woordkeuze voor B1 niveau |</p>
+
+<h3>Legal Violations (VAL-JUR)</h3>
+
+<p>| Code | Title | Message | Severity | Remediation |</p>
+<p>|------|-------|---------|----------|-------------|</p>
+<p>| VAL-JUR-001 | Circular Reference | Circulaire verwijzing gedetecteerd | error | Verwijder zelfreferentie uit definitie |</p>
+<p>| VAL-JUR-002 | Ambiguous Terms | Juridisch ambigue formulering | error | Gebruik eenduidige juridische termen |</p>
+<p>| VAL-JUR-003 | Missing Legal Basis | Wettelijke grondslag ontbreekt | warning | Voeg verwijzing naar relevante wetgeving toe |</p>
+
+<h3>Coherence Violations (VAL-SAM)</h3>
+
+<p>| Code | Title | Message | Severity | Remediation |</p>
+<p>|------|-------|---------|----------|-------------|</p>
+<p>| VAL-SAM-001 | Inconsistent Terms | Inconsistent gebruik van termen | warning | Gebruik termen consistent door hele definitie |</p>
+<p>| VAL-SAM-002 | Context Missing | Context informatie ontbreekt | info | Voeg context toe voor duidelijkheid |</p>
+<p>| VAL-SAM-003 | Contradiction | Tegenstrijdige informatie | error | Los tegenstrijdigheden in definitie op |</p>
+
+<h2>System Errors</h2>
+
+<h3>Timeout Errors (TMO)</h3>
+
+<p>| Code | Title | HTTP | Retryable | Remediation |</p>
+<p>|------|-------|------|-----------|-------------|</p>
+<p>| TMO-001 | Validation Timeout | 504 | Yes | Retry met kleinere batch of verhoog timeout |</p>
+<p>| TMO-002 | Cleaning Timeout | 504 | Yes | Vereenvoudig input text |</p>
+<p>| TMO-003 | Enhancement Timeout | 504 | Yes | Skip enhancement of probeer later |</p>
+
+<h3>Upstream Errors (UPS)</h3>
+
+<p>| Code | Title | HTTP | Retryable | Remediation |</p>
+<p>|------|-------|------|-----------|-------------|</p>
+<p>| UPS-001 | AI Service Unavailable | 503 | Yes | Wacht 30s en probeer opnieuw |</p>
+<p>| UPS-002 | Database Unavailable | 503 | Yes | Check database connection |</p>
+<p>| UPS-003 | External API Error | 502 | Yes | Contact external service provider |</p>
+
+<h3>Internal Errors (INT)</h3>
+
+<p>| Code | Title | HTTP | Retryable | Remediation |</p>
+<p>|------|-------|------|-----------|-------------|</p>
+<p>| INT-001 | Validation Engine Error | 500 | No | Check logs, contact support |</p>
+<p>| INT-002 | Configuration Error | 500 | No | Verify configuration settings |</p>
+<p>| INT-003 | Memory Exhausted | 500 | Maybe | Reduce batch size, restart service |</p>
+
+<h2>Retry Policies</h2>
+
+<h3>Exponential Backoff</h3>
+<pre><code>def get_retry_delay(attempt: int, base_delay: float = 1.0) -&gt; float:
+    """Calculate retry delay with exponential backoff + jitter."""
+    delay = min(base_delay * (2 ** attempt), 60.0)  # Cap at 60s
+    jitter = random.uniform(0, delay * 0.1)  # 10% jitter
+    return delay + jitter</code></pre>
+
+<h3>Retry Matrix</h3>
+
+<p>| Error Category | Max Attempts | Base Delay | Strategy |</p>
+<p>|----------------|-------------|------------|----------|</p>
+<p>| Rate Limits | 3 | 5s | Exponential backoff |</p>
+<p>| Timeouts | 2 | 2s | Linear backoff |</p>
+<p>| Upstream | 3 | 1s | Exponential + jitter |</p>
+<p>| Internal | 0 | - | No retry (investigate) |</p>
+
+<h2>Error Response Format</h2>
+
+<h3>Standard Error Response</h3>
+<pre><code>{
+  "error": {
+    "code": "VAL-STR-001",
+    "title": "Long Sentence",
+    "message": "Zin bevat meer dan 20 woorden",
+    "severity": "warning",
+    "category": "validation",
+    "retryable": false,
+    "http_status": 422,
+    "remediation": "Splits lange zinnen op voor betere leesbaarheid",
+    "documentation_url": "https://docs.../errors/VAL-STR-001",
+    "source": "rule_engine",
+    "telemetry_tags": ["validation", "structure", "warning"],
+    "details": {
+      "location": {"start": 45, "end": 123},
+      "rule_id": "ARAI04",
+      "threshold": 20,
+      "actual": 35
+    }
+  },
+  "correlation_id": "550e8400-e29b-41d4-a716-446655440000",
+  "timestamp": "2024-12-29T10:30:00Z"
+}</code></pre>
+
+<h3>Batch Error Response</h3>
+<pre><code>{
+  "errors": [
+    {"code": "VAL-STR-001", "message": "..."},
+    {"code": "VAL-JUR-002", "message": "..."}
+  ],
+  "partial_results": [...],
+  "correlation_id": "550e8400-e29b-41d4-a716-446655440000"
+}</code></pre>
+
+<h2>UI Mapping Guidelines</h2>
+
+<h3>Severity to UI</h3>
+
+<p>| Severity | Color | Icon | User Action |</p>
+<p>|----------|-------|------|-------------|</p>
+<p>| info | Blue | ℹ️ | Optional improvement |</p>
+<p>| warning | Orange | ⚠️ | Should fix |</p>
+<p>| error | Red | ❌ | Must fix |</p>
+<p>| critical | Dark Red | 🚨 | Blocks operation |</p>
+
+<h3>i18n Support</h3>
+
+<p>Error messages worden vertaald via code lookup:</p>
+<pre><code>const errorMessages = {
+  "VAL-STR-001": {
+    "nl": "Zin bevat meer dan 20 woorden",
+    "en": "Sentence contains more than 20 words",
+    "de": "Satz enthält mehr als 20 Wörter"
+  }
+};</code></pre>
+
+<h2>Monitoring & Alerting</h2>
+
+<h3>Metrics to Track</h3>
+
+<pre><code># Error rate by code
+validation_errors_total{code="VAL-STR-001", severity="warning"} 142
+
+# Error rate by category
+validation_errors_total{category="structure", severity="error"} 23
+
+# Retry success rate
+validation_retries_total{code="TMO-001", success="true"} 45
+validation_retries_total{code="TMO-001", success="false"} 5</code></pre>
+
+<h3>Alert Thresholds</h3>
+
+<p>| Metric | Warning | Critical | Action |</p>
+<p>|--------|---------|----------|--------|</p>
+<p>| Error rate | >5% | >10% | Check specific error codes |</p>
+<p>| Timeout rate | >2% | >5% | Scale up or optimize |</p>
+<p>| Retry failure | >20% | >50% | Check upstream services |</p>
+<p>| 5xx errors | >0.1% | >1% | Page on-call engineer |</p>
+
+<h2>Privacy & Beveiliging</h2>
+
+<h3>PII Prevention</h3>
+<ul>
+<li>GEEN persoonsgegevens in error messages</li>
+<li>GEEN gevoelige data in logs</li>
+<li>Gebruik correlation IDs voor tracing</li>
+<li>Mask/redact waar nodig</li>
+</ul>
+
+<h3>Log Sanitization</h3>
+<pre><code>def sanitize_error_log(error: dict) -&gt; dict:
+    """Remove PII from error before logging."""
+    sanitized = error.copy()
+    if 'user_input' in sanitized:
+        sanitized['user_input'] = '[REDACTED]'
+    if 'definition_text' in sanitized:
+        sanitized['definition_text'] = sanitized['definition_text'][:50] + '...'
+    return sanitized</code></pre>
+
+<h2>Related Documents</h2>
+<ul>
+<li>**Parent**: [Validation Orchestrator V2](../architectuur/TECHNICAL_ARCHITECTURE.md)</li>
+<li>**Contract**: [ValidationResult Contract](../architectuur/contracts/validation_result_contract.md)</li>
+<li>**Implementatie**: [Rollout Runbook](../workflows/validation_orchestrator_rollout.md)</li>
+<li>**Monitoring**: [Observability Guide](./validation_observability_privacy.md)</li>
+</ul>
+
+<h2>Change Log</h2>
+<p>| Versie | Date | Changes | Author |</p>
+<p>|---------|------|---------|--------|</p>
+<p>| 1.0 | 29-12-2024 | Initial error catalog | Dev Lead |</p>
+
+<p>---</p>
+<p><em>Error codes are immutable once assigned. New codes only, no reuse.</em></p>
+
+  </div>
+</body>
+</html>

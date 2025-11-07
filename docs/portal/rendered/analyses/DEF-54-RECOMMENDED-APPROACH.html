@@ -1,0 +1,498 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DEF-54: Recommended Approach - Executive Summary</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>DEF-54: Recommended Approach - Executive Summary</h1>
+
+<p><strong>Date</strong>: 2025-10-29</p>
+<p><strong>For</strong>: Solo Developer</p>
+<p><strong>Decision</strong>: Which refactor plan to execute?</p>
+
+<p>---</p>
+
+<h2>TL;DR: Choose "Surgical First" (7-9 days)</h2>
+
+<p><strong>Why?</strong></p>
+<ul>
+<li>✅ Simplify complexity BEFORE merge (not after)</li>
+<li>✅ Lower risk per phase (no god method merges)</li>
+<li>✅ No cleanup debt (code is clean from start)</li>
+<li>⚠️ Only 1-2 days longer than "Simplified Plan"</li>
+</ul>
+
+<p><strong>Trade-off</strong>: Invest 2-3 days upfront to save debugging time and eliminate technical debt.</p>
+
+<p>---</p>
+
+<h2>The Problem with All Three Plans</h2>
+
+<h3>They All Assume: "Merge Complexity Now, Clean Up Later"</h3>
+
+<p><strong>Original Plan</strong>: Merge 500+ lines → Hope nothing breaks → Clean up never happens</p>
+<p><strong>Simplified Plan</strong>: Merge god methods in phases → Defer cleanup to Phase 8 → Phase 8 is "nice to have"</p>
+<p><strong>Reality</strong>: Phase 8 cleanup never happens (out of time/energy after merge)</p>
+
+<h3>What Complexity Are We Talking About?</h3>
+
+<p><strong>God Method #1</strong>: <code>save_voorbeelden()</code> (226 lines, complexity 19)</p>
+<ul>
+<li>7 responsibilities in one method</li>
+<li>Type normalization (35 lines nested function)</li>
+<li>Synonym sync (calls 185-line business logic method)</li>
+<li>**Impact**: Phase 4 becomes HIGH RISK if merged as-is</li>
+</ul>
+
+<p><strong>God Method #2</strong>: <code>_sync_synonyms_to_registry()</code> (185 lines, complexity 22)</p>
+<ul>
+<li>Business logic buried in repository (wrong layer!)</li>
+<li>Bidirectional sync, conflict resolution</li>
+<li>**Impact**: Perpetuates architectural debt into merged codebase</li>
+</ul>
+
+<p><strong>Duplicate Error Handling</strong>: Same 15-line error handling in 3 places</p>
+<ul>
+<li>**Impact**: 45 lines of duplication, inconsistent error messages</li>
+</ul>
+
+<p>---</p>
+
+<h2>The "Surgical First" Approach</h2>
+
+<h3>Philosophy: Clean the Code BEFORE You Merge It</h3>
+
+<p><strong>Analogy</strong>: Don't merge two messy rooms and hope to organize later. Organize FIRST, then merge organized spaces.</p>
+
+<p>---</p>
+
+<h2>Surgical First: 12-Phase Plan (7-9 days)</h2>
+
+<h3>WEEK 1: Surgical Simplification (2-3 days)</h3>
+
+<p><strong>Goal</strong>: Reduce complexity at source, fix architecture</p>
+
+<h4>Phase -2: Extract Error Handling (0.5 days)</h4>
+<pre><code># BEFORE: Duplicated 3 times
+except sqlite3.IntegrityError as e:
+    if "UNIQUE constraint" in str(e):
+        # ... 15 lines of handling ...
+
+# AFTER: Single helper
+def _handle_db_error(self, e, begrip, operation):
+    # Centralized error handling</code></pre>
+<p><strong>Benefit</strong>: -45 lines duplication, consistent errors</p>
+
+<p>---</p>
+
+<h4>Phase -1: Simplify save_voorbeelden() (1 day)</h4>
+<pre><code># BEFORE: God method (226 lines, 7 responsibilities)
+def save_voorbeelden(...):
+    # Input validation
+    # Transaction management
+    # Deactivate existing
+    # Type normalization
+    # Insert/update
+    # Voorkeursterm
+    # Synonym sync
+
+# AFTER: Orchestrator + 4 helpers (50 lines + 4×40)
+def save_voorbeelden(...):
+    validated = self._validate_voorbeelden_input(voorbeelden_dict)
+    with self._get_connection() as conn:
+        self._deactivate_existing_voorbeelden(conn, definitie_id)
+        saved_ids = self._insert_or_update_voorbeelden(conn, ...)
+        self._persist_voorkeursterm(conn, definitie_id, voorkeursterm)
+        self._sync_synonyms(definitie_id, synoniemen, ...)
+    return saved_ids</code></pre>
+<p><strong>Benefit</strong>: Complexity 19 → 5, independently testable, easier merge</p>
+
+<p>---</p>
+
+<h4>Phase 0: Extract SynonymService (1 day)</h4>
+<pre><code># BEFORE: Business logic in repository (185 lines)
+class DefinitieRepository:
+    def _sync_synonyms_to_registry(...):
+        # Complex bidirectional sync
+        # Conflict resolution
+        # THIS IS SERVICE LAYER WORK!
+
+# AFTER: Proper layer separation
+# Create src/services/synonym_service.py
+class SynonymService:
+    def sync_to_registry(self, definitie_id, synoniemen, ...):
+        # Business logic here (185 lines)
+
+# Repository becomes thin wrapper
+class DefinitieRepository:
+    def _sync_synonyms(self, definitie_id, synoniemen, ...):
+        if self._synonym_service:
+            self._synonym_service.sync_to_registry(...)</code></pre>
+<p><strong>Benefit</strong>: Repository -185 lines, proper architecture, testable service</p>
+
+<p>---</p>
+
+<p><strong>CHECKPOINT</strong>: After Week 1, you have:</p>
+<ul>
+<li>✅ Consolidated error handling (DRY principle)</li>
+<li>✅ Simplified save_voorbeelden() (226 lines → 50 orchestrator + 4×40 helpers)</li>
+<li>✅ Proper layer separation (synonym logic in service, not repository)</li>
+<li>✅ **36% complexity reduction** BEFORE merge</li>
+</ul>
+
+<p>---</p>
+
+<h3>WEEK 2: Execute Simplified Plan (4-5 days)</h3>
+
+<p><strong>Now execute Simplified Plan Phases 1-9, but EASIER because:</strong></p>
+<ul>
+<li>Phase 3a: Merge simple CRUD (no god methods)</li>
+<li>Phase 4: Merge **already-simplified** voorbeelden (50% faster)</li>
+<li>Phase 8: OPTIONAL (code already clean)</li>
+</ul>
+
+<p><strong>Result</strong>: Clean merge, no complexity debt, easier maintenance</p>
+
+<p>---</p>
+
+<h2>Comparison: What Do You Get?</h2>
+
+<p>| Aspect | Original 5-Phase | Simplified 10-Phase | Surgical First |</p>
+<p>|--------|------------------|---------------------|----------------|</p>
+<p>| <strong>Timeline</strong> | 5 days | 6-8 days | <strong>7-9 days</strong> |</p>
+<p>| <strong>Complexity After</strong> | High (no cleanup) | Medium (Phase 8 deferred) | <strong>Low (cleaned first)</strong> |</p>
+<p>| <strong>God Methods</strong> | 1 (merged as-is) | 1 (merged as-is) | <strong>0 (simplified first)</strong> |</p>
+<p>| <strong>Phase 4 Risk</strong> | HIGH (226 lines) | MEDIUM (god method) | <strong>LOW (simple methods)</strong> |</p>
+<p>| <strong>Architectural Debt</strong> | Inherited | Inherited | <strong>Fixed (service layer)</strong> |</p>
+<p>| <strong>Cleanup Debt</strong> | None (no cleanup) | Phase 8 (optional) | <strong>None (already clean)</strong> |</p>
+<p>| <strong>Lines Removed</strong> | 0 (just merge) | -787 (wrapper) | <strong>-1,087 (wrapper + simplification)</strong> |</p>
+<p>| <strong>Simplification Score</strong> | 3/10 | 6/10 | <strong>9/10</strong> |</p>
+
+<p><strong>Verdict</strong>: Surgical First achieves <strong>36% better outcome</strong> for 1-2 extra days.</p>
+
+<p>---</p>
+
+<h2>Visual: Risk Over Time</h2>
+
+<pre><code>RISK LEVEL DURING REFACTOR
+
+Original Plan:
+Week 1:  ███████████████████ (HIGH - 500+ line merges)
+Week 2:  ████████████ (MEDIUM - cleanup never happens)
+
+Simplified Plan:
+Week 1:  ███████████ (MEDIUM - god method merges)
+Week 2:  ████████ (MEDIUM-LOW - Phase 8 deferred)
+
+Surgical First:
+Week 1:  ██████ (LOW-MEDIUM - isolated simplifications)
+Week 2:  ███ (LOW - merging clean code)
+         ↓
+    CLEAN CODE (no debt)</code></pre>
+
+<p>---</p>
+
+<h2>Visual: Complexity Trajectory</h2>
+
+<pre><code>CYCLOMATIC COMPLEXITY
+
+Current State:
+  save_voorbeelden():        ████████████████████ (19)
+  _sync_synonyms_to_registry: ██████████████████████ (22)
+  find_duplicates():         ████████████████████████ (24)
+
+After Simplified Plan:
+  (Deferred to Phase 8, may never happen)
+  save_voorbeelden():        ████████████████████ (19) ← STILL GOD METHOD
+  _sync_synonyms_to_registry: ██████████████████████ (22) ← STILL WRONG LAYER
+
+After Surgical First:
+  save_voorbeelden():        █████ (5) ← SIMPLIFIED FIRST
+  _sync_synonyms():          ██ (2) ← THIN WRAPPER
+  SynonymService.sync():     ███████████████ (15) ← IN SERVICE LAYER
+  _validate_voorbeelden():   ███ (3) ← EXTRACTED HELPER
+  _insert_or_update():       ████████ (8) ← EXTRACTED HELPER</code></pre>
+
+<p>---</p>
+
+<h2>Decision Framework</h2>
+
+<h3>Choose Surgical First If:</h3>
+<ul>
+<li>✅ You value **code quality** over speed</li>
+<li>✅ You have **7-9 days** available</li>
+<li>✅ You want **no cleanup debt**</li>
+<li>✅ You're comfortable **refactoring complex code**</li>
+<li>✅ You want **architectural fixes** (service layer)</li>
+</ul>
+
+<h3>Choose Simplified Plan If:</h3>
+<ul>
+<li>✅ You have **6-8 days** available</li>
+<li>✅ You're willing to **accept god methods** temporarily</li>
+<li>✅ You **might skip Phase 8** due to time constraints</li>
+<li>⚠️ Risk: Cleanup debt (Phase 8 is "nice to have")</li>
+</ul>
+
+<h3>Choose Accelerated Hybrid If:</h3>
+<ul>
+<li>✅ **Deadline in 5 days** (time-critical)</li>
+<li>✅ You'll **schedule Week 3** for cleanup</li>
+<li>⚠️ Risk: Higher complexity during merge</li>
+</ul>
+
+<p>---</p>
+
+<h2>Recommended Timeline: Surgical First</h2>
+
+<h3>Week 1: Simplification Surgery</h3>
+
+<p><strong>Day 1</strong> (Morning):</p>
+<ul>
+<li>Extract `_handle_db_error()` helper</li>
+<li>Update 3 callsites (create, update, service)</li>
+<li>Test error handling</li>
+<li>**Deliverable**: Consolidated error handling</li>
+</ul>
+
+<p><strong>Day 1</strong> (Afternoon) - Day 2:</p>
+<ul>
+<li>Extract 4 helpers from `save_voorbeelden()`</li>
+<li> - `_validate_voorbeelden_input()`</li>
+<li> - `_deactivate_existing_voorbeelden()`</li>
+<li> - `_insert_or_update_voorbeelden()`</li>
+<li> - `_persist_voorkeursterm()`</li>
+<li>Extract type normalizer to module function</li>
+<li>Write tests for each helper</li>
+<li>**Deliverable**: Simplified save_voorbeelden() (226 → 50 lines)</li>
+</ul>
+
+<p><strong>Day 3</strong>:</p>
+<ul>
+<li>Create `src/services/synonym_service.py`</li>
+<li>Move `_sync_synonyms_to_registry()` logic</li>
+<li>Update `save_voorbeelden()` to use service</li>
+<li>Add service to ServiceContainer</li>
+<li>Test synonym sync</li>
+<li>**Deliverable**: SynonymService extracted, repository -185 lines</li>
+</ul>
+
+<p><strong>CHECKPOINT</strong>: Code is now CLEAN and SIMPLE</p>
+
+<p>---</p>
+
+<h3>Week 2: Execute Merge</h3>
+
+<p><strong>Days 4-5</strong>: Phases 1-3 (Schema, Feature Flag, CRUD)</p>
+<ul>
+<li>Same as Simplified Plan</li>
+<li>**BUT EASIER**: Merging simple methods, not god methods</li>
+</ul>
+
+<p><strong>Day 6</strong>: Phase 4 (Voorbeelden)</p>
+<ul>
+<li>Merge **already-simplified** voorbeelden methods</li>
+<li>**50% faster** (simple methods merge quickly)</li>
+</ul>
+
+<p><strong>Days 7-8</strong>: Phases 6-9 (Callsites, Cleanup, Docs)</p>
+<ul>
+<li>Same as Simplified Plan</li>
+<li>**Phase 8 is OPTIONAL** (code already clean)</li>
+</ul>
+
+<p><strong>Day 9</strong>: Buffer (if needed)</p>
+
+<p>---</p>
+
+<h2>Success Metrics</h2>
+
+<h3>After Surgical First, You Will Have:</h3>
+
+<p><strong>Functional Metrics</strong>:</p>
+<ul>
+<li>✅ All 31 callsites use legacy repository</li>
+<li>✅ Service wrapper deleted (887 lines removed)</li>
+<li>✅ Simplified repository (2,100 → 1,900 lines)</li>
+<li>✅ Total reduction: **-1,087 lines** (36% better than Simplified)</li>
+</ul>
+
+<p><strong>Quality Metrics</strong>:</p>
+<ul>
+<li>✅ No god methods (all methods <100 lines)</li>
+<li>✅ Avg complexity: A (3.8) vs current B (5.16) = **-26% complexity**</li>
+<li>✅ Proper layer separation (business logic in services)</li>
+<li>✅ Consolidated error handling (DRY principle)</li>
+<li>✅ No cleanup debt (code clean from start)</li>
+</ul>
+
+<p><strong>Maintenance Metrics</strong>:</p>
+<ul>
+<li>✅ Easier to test (isolated helpers vs god methods)</li>
+<li>✅ Easier to debug (clear responsibility per method)</li>
+<li>✅ Easier to extend (add features to small methods)</li>
+<li>✅ Future developers say "thank you" (not "WTF?")</li>
+</ul>
+
+<p>---</p>
+
+<h2>Risks & Mitigation</h2>
+
+<h3>Risk 1: "Week 1 takes longer than 3 days"</h3>
+<p><strong>Likelihood</strong>: MEDIUM</p>
+<p><strong>Impact</strong>: Timeline extends to 8-10 days</p>
+<p><strong>Mitigation</strong>: Buffer Day 9, can compress Week 2 if needed</p>
+
+<h3>Risk 2: "Breaking existing functionality during simplification"</h3>
+<p><strong>Likelihood</strong>: LOW (isolated changes, good tests)</p>
+<p><strong>Impact</strong>: Need to rollback simplification</p>
+<p><strong>Mitigation</strong>: Commit after each phase, comprehensive tests</p>
+
+<h3>Risk 3: "Running out of time before merge complete"</h3>
+<p><strong>Likelihood</strong>: LOW (Week 1 is independent)</p>
+<p><strong>Impact</strong>: Have simplified code but not merged yet</p>
+<p><strong>Mitigation</strong>: Simplified code is still valuable! Defer merge to later sprint</p>
+
+<p>---</p>
+
+<h2>Alternative: Modified Simplified Plan (8-10 days)</h2>
+
+<p>If you're not ready for full Surgical First, try <strong>Modified Simplified</strong>:</p>
+
+<p><strong>Modification</strong>: Prepend Week 1 phases to Simplified Plan</p>
+<ul>
+<li>Phase -2: Error handling (0.5 days)</li>
+<li>Phase -1: Simplify save_voorbeelden() (1 day)</li>
+<li>Phase 0: Extract SynonymService (1 day)</li>
+<li>Phases 1-9: Original Simplified Plan (6-8 days)</li>
+</ul>
+
+<p><strong>Timeline</strong>: 8-10 days (vs 7-9 for full Surgical)</p>
+<p><strong>Benefit</strong>: Same outcome, more granular phases</p>
+<p><strong>Trade-off</strong>: Extra overhead from more phases</p>
+
+<p>---</p>
+
+<h2>Frequently Asked Questions</h2>
+
+<h3>Q1: "Can't I just skip Week 1 and do cleanup in Phase 8?"</h3>
+<p><strong>A</strong>: You CAN, but history shows Phase 8 cleanup gets deferred/skipped when time is tight. Surgical First ensures cleanup happens BEFORE merge, not as optional "nice to have" after.</p>
+
+<h3>Q2: "Is 2-3 days of simplification worth it?"</h3>
+<p><strong>A</strong>: Yes! You'll save:</p>
+<ul>
+<li>1 day on Phase 4 (50% faster to merge simple methods)</li>
+<li>1-2 days on debugging (no god method bugs)</li>
+<li>Infinite days of future maintenance (clean code is easier)</li>
+<li>**ROI**: Invest 2-3 days, save 2-3+ days</li>
+</ul>
+
+<h3>Q3: "What if I find more complexity during Week 1?"</h3>
+<p><strong>A</strong>: Good! Finding complexity early is the goal. Add extra simplification phases as needed. Better to discover issues during isolated refactor than during merge.</p>
+
+<h3>Q4: "Can I do Week 1 as separate project?"</h3>
+<p><strong>A</strong>: YES! Week 1 is <strong>independent</strong> of merge. You can:</p>
+<ul>
+<li>Do Week 1 now, merge later</li>
+<li>Do partial Week 1 (just error handling + save_voorbeelden)</li>
+<li>Use Week 1 as "code quality sprint"</li>
+</ul>
+
+<h3>Q5: "What if I only have 5 days total?"</h3>
+<p><strong>A</strong>: Use <strong>Accelerated Hybrid</strong> (4-5 days) but schedule Week 3 for cleanup. Don't skip simplification entirely - technical debt compounds.</p>
+
+<p>---</p>
+
+<h2>Final Recommendation</h2>
+
+<h3>For This Project: Use SURGICAL FIRST</h3>
+
+<p><strong>Rationale</strong>:</p>
+<ol>
+<li>✅ Solo developer (no team to help debug god methods)</li>
+<li>✅ Not in production (can afford 1-2 extra days)</li>
+<li>✅ Long-term maintenance matters (you'll maintain this code)</li>
+<li>✅ Quality over speed (project philosophy)</li>
+<li>✅ Good test coverage exists (safe to refactor)</li>
+</ol>
+
+<p><strong>Timeline</strong>: 7-9 days</p>
+<p><strong>Risk</strong>: LOW-MEDIUM</p>
+<p><strong>Outcome</strong>: Clean, simple, maintainable codebase</p>
+
+<p>---</p>
+
+<h2>Next Steps</h2>
+
+<p><strong>Ready to start? Here's your checklist:</strong></p>
+
+<h3>Pre-Flight (30 minutes)</h3>
+<ul>
+<li>[ ] Backup database: `cp data/definities.db data/definities.db.backup`</li>
+<li>[ ] Commit current work: `git commit -am "checkpoint before DEF-54"`</li>
+<li>[ ] Create branch: `git checkout -b feature/DEF-54-surgical-first`</li>
+<li>[ ] Run full test suite: `pytest -q` (establish baseline)</li>
+<li>[ ] Document metrics: line counts, complexity scores</li>
+</ul>
+
+<h3>Week 1 Day 1 (Start Here!)</h3>
+<ul>
+<li>[ ] Read full Simplification Analysis</li>
+<li>[ ] Extract `_handle_db_error()` helper</li>
+<li>[ ] Update 3 callsites</li>
+<li>[ ] Run tests: `pytest tests/database/ -q`</li>
+<li>[ ] Commit: `git commit -am "refactor: consolidate error handling"`</li>
+</ul>
+
+<h3>Continue with Week 1 Plan</h3>
+<ul>
+<li>[ ] See detailed timeline in main analysis document</li>
+</ul>
+
+<p>---</p>
+
+<h2>Document References</h2>
+
+<p><strong>Main Analysis</strong>: <code>docs/analyses/DEF-54-SIMPLIFICATION-ANALYSIS.md</code> (full 30-page analysis)</p>
+<p><strong>This Document</strong>: <code>docs/analyses/DEF-54-RECOMMENDED-APPROACH.md</code> (executive summary)</p>
+<p><strong>Original Plans</strong>:</p>
+<ul>
+<li>`docs/analyses/DEF-54-SIMPLIFIED-REFACTOR-PLAN.md`</li>
+<li>`docs/analyses/DEF-54-COMPARISON-SUMMARY.md`</li>
+<li>`docs/analyses/DEF-54-DECISION-MATRIX.md`</li>
+</ul>
+
+<p>---</p>
+
+<h2>Sign-Off</h2>
+
+<p><strong>Prepared By</strong>: Code Simplification Specialist (Claude)</p>
+<p><strong>Date</strong>: 2025-10-29</p>
+<p><strong>Recommendation</strong>: SURGICAL SIMPLIFICATION FIRST (7-9 days)</p>
+<p><strong>Confidence</strong>: HIGH (based on complexity metrics, line counts, cyclomatic analysis)</p>
+
+<p><strong>Key Insight</strong>: The best time to fix complexity is BEFORE you merge it, not after. Invest 2-3 days in Week 1 to save weeks of debugging and maintenance.</p>
+
+<p><strong>Remember</strong>: Clean code is not about perfection - it's about making future changes easy. Surgical First makes every future change easier.</p>
+
+<p>---</p>
+
+<p><strong>END OF RECOMMENDED APPROACH</strong></p>
+
+  </div>
+</body>
+</html>

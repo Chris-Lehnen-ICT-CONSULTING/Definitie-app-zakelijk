@@ -1,0 +1,572 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>EPIC-010: Context Flow Refactoring - Implementation Plan</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>canonical: true</p>
+<p>status: active</p>
+<p>owner: development</p>
+<p>last_verified: 2025-09-08</p>
+<p>applies_to: definitie-app@current</p>
+<p>epic: EPIC-010</p>
+<p>sprint: sprint-36</p>
+<p>priority: KRITIEK</p>
+<p>---</p>
+
+<h1>EPIC-010: Context Flow Refactoring - Implementation Plan</h1>
+
+<h2>Executive Summary</h2>
+
+<p>This document provides the detailed 9-phase implementation plan for fixing KRITIEK context flow issues that are blocking legal compliance and causing system failures. The plan addresses both immediate bugs and long-term architectural improvements.</p>
+
+<h2>Current Status</h2>
+
+<p>| Component | Status | Blocking Issue |</p>
+<p>|-----------|--------|----------------|</p>
+<p>| <strong>Test Suite</strong> | ❌ BLOCKED | CFR-BUG-003: GenerationResult import error (36 tests) |</p>
+<p>| <strong>Context Flow</strong> | ❌ BROKEN | Context fields not passed to prompts |</p>
+<p>| <strong>Custom Context</strong> | ❌ CRASHES | "Anders..." option causes validation errors |</p>
+<p>| <strong>Legacy Routes</strong> | ⚠️ MIXED | Multiple inconsistent data paths |</p>
+<p>| <strong>ASTRA Compliance</strong> | ❌ FAILED | No context traceability |</p>
+
+<h2>Implementation Phases</h2>
+
+<h3>FASE 0: Pre-flight Analysis & Emergency Fix (2-4 hours)</h3>
+<p><strong>Status:</strong> IN PROGRESS</p>
+<p><strong>Bug:</strong> CFR-BUG-003</p>
+
+<h4>Context Schema Analysis</h4>
+<pre><code># Expected schema for context fields
+context_schema = {
+    "juridische_context": List[str],      # ["Strafrecht", "Bestuursrecht"]
+    "wettelijke_basis": List[str],        # ["Wetboek van Strafrecht", "AWB"]
+    "organisatorische_context": List[str], # ["OM", "DJI", "Anders: custom"]
+    "domein": str                          # "justice" (deprecated, remove in US-043)
+}</code></pre>
+
+<h4>Immediate Actions</h4>
+<ol>
+<li>**Apply GenerationResult shim fix**:</li>
+<pre><code>   # In src/models/generation_result.py
+   GenerationResult = LegacyGenerationResult  # Temporary alias</code></pre>
+</ol>
+
+<ol>
+<li>**Verify test collection**:</li>
+<pre><code>   pytest --co -q  # Should collect all 36 tests
+   pytest -x       # Find first actual failure</code></pre>
+</ol>
+
+<ol>
+<li>**Document test baseline**:</li>
+</ol>
+<ul>
+<li>  - Record which tests pass/fail BEFORE changes</li>
+<li>  - Create test recovery metrics</li>
+</ul>
+
+<h3>FASE 1: GenerationResult Shim & Test Recovery (4 hours)</h3>
+<p><strong>Status:</strong> PENDING</p>
+<p><strong>Story:</strong> Pre-US-041</p>
+
+<h4>Objectives</h4>
+<ul>
+<li>Restore test suite functionality</li>
+<li>Establish baseline test metrics</li>
+<li>Unblock CI/CD pipeline</li>
+</ul>
+
+<h4>Implementation</h4>
+<ol>
+<li>Apply shim fix in `src/models/generation_result.py`</li>
+<li>Run full test suite and categorize failures</li>
+<li>Create test recovery report</li>
+<li>Update CI/CD configuration if needed</li>
+</ol>
+
+<h4>Success Criteria</h4>
+<ul>
+<li>[ ] All 36 tests can be collected</li>
+<li>[ ] No ImportError failures</li>
+<li>[ ] Test failures documented and categorized</li>
+</ul>
+
+<h4>Test Files</h4>
+<ul>
+<li>Run existing integration test: `tests/integration/test_context_flow_epic_cfr.py`</li>
+<li>Verify test collection works for all unit tests</li>
+</ul>
+
+<h3>FASE 2: Test Coverage Restoration (8 hours)</h3>
+<p><strong>Status:</strong> PENDING</p>
+<p><strong>Story:</strong> Test preparation for US-041</p>
+
+<h4>Objectives</h4>
+<ul>
+<li>Fix critical test failures</li>
+<li>Establish >60% test coverage</li>
+<li>Create context flow test suite</li>
+</ul>
+
+<h4>Test Categories to Fix</h4>
+<ol>
+<li>**Unit Tests**: Mock context properly</li>
+<li>**Integration Tests**: Test context propagation</li>
+<li>**E2E Tests**: Full context flow validation</li>
+</ol>
+
+<h4>New Test Cases Required</h4>
+<pre><code>def test_context_field_mapping():
+    """Verify context fields reach prompt"""
+
+def test_anders_option_handling():
+    """Test custom context without crashes"""
+
+def test_context_type_validation():
+    """Ensure all contexts are List[str]"""</code></pre>
+
+<h4>Test Files to Execute</h4>
+<ul>
+<li>**Unit Tests**:</li>
+<li> - `tests/unit/test_us041_context_field_mapping.py`</li>
+<li> - `tests/unit/test_us042_anders_option_fix.py`</li>
+<li> - `tests/unit/test_us043_remove_legacy_routes.py`</li>
+<li>**Integration**: `tests/integration/test_context_flow_epic_cfr.py`</li>
+<li>**Performance**: `tests/performance/test_context_flow_performance.py`</li>
+</ul>
+
+<h3>FASE 3: Fix Context Field Mapping (US-041) (8 hours)</h3>
+<p><strong>Status:</strong> PENDING</p>
+<p><strong>Story:</strong> US-041</p>
+<p><strong>Priority:</strong> KRITIEK</p>
+
+<h4>Problem</h4>
+<p>Context fields collected in UI but not passed to AI prompts.</p>
+
+<h4>Fix Locations</h4>
+<ol>
+<li>**`src/services/prompts/prompt_service_v2.py`** (lines 158-176):</li>
+<pre><code>   def _convert_request_to_context(self, request):
+       # Map UI context fields to prompt context
+       base_context["juridische_context"] = request.juridische_context
+       base_context["wettelijke_basis"] = request.wettelijke_basis
+       base_context["organisatorische_context"] = request.organisatorische_context</code></pre>
+</ol>
+
+<ol>
+<li>**`src/ui/tabbed_interface.py`**:</li>
+</ol>
+<ul>
+<li>  - Ensure context collection preserves List[str] types</li>
+<li>  - Pass context through to generation request</li>
+</ul>
+
+<ol>
+<li>**`src/services/definition_generator_context.py`**:</li>
+</ol>
+<ul>
+<li>  - Validate context presence in generation flow</li>
+</ul>
+
+<h4>Validation Gates</h4>
+<ul>
+<li>[ ] Context visible in debug prompts</li>
+<li>[ ] All three context types properly mapped</li>
+<li>[ ] Context preserved through full flow</li>
+</ul>
+
+<h4>Test Files for US-041</h4>
+<ul>
+<li>**Primary Test**: `tests/unit/test_us041_context_field_mapping.py`</li>
+<li> - Tests all context field mapping scenarios</li>
+<li> - Validates prompt inclusion</li>
+<li> - Checks justice domain specifics</li>
+<li>**Edge Cases**: `tests/unit/test_anders_edge_cases.py`</li>
+<li>**Integration**: `tests/integration/test_context_flow_epic_cfr.py`</li>
+</ul>
+
+<h4>Test Execution</h4>
+<pre><code># Run US-041 specific tests
+pytest tests/unit/test_us041_context_field_mapping.py -v
+
+# Verify context propagation
+pytest tests/integration/test_context_flow_epic_cfr.py::TestContextFlowIntegration -v</code></pre>
+
+<h3>FASE 4: Fix "Anders..." Custom Context (US-042) (5 hours)</h3>
+<p><strong>Status:</strong> PENDING</p>
+<p><strong>Story:</strong> US-042</p>
+<p><strong>Priority:</strong> KRITIEK</p>
+
+<h4>Problem</h4>
+<p>"Anders..." selection causes: "The default value 'test' is not part of the options"</p>
+
+<h4>Root Cause</h4>
+<p>Multiselect widget crashes when final list differs from initial options.</p>
+
+<h4>Fix Implementation</h4>
+<pre><code># src/ui/components/context_selector.py (lines 137-183)
+def handle_anders_option(context_type, options, selected):
+    if "Anders..." in selected:
+        # Show text input for custom value
+        custom_value = st.text_input(f"Custom {context_type}")
+        if custom_value:
+            # Add with "Anders: " prefix
+            selected.remove("Anders...")
+            selected.append(f"Anders: {custom_value}")
+    return selected</code></pre>
+
+<h4>Test Cases</h4>
+<ul>
+<li>[ ] Select "Anders..." alone</li>
+<li>[ ] Mix "Anders..." with predefined options</li>
+<li>[ ] Multiple "Anders..." across different contexts</li>
+<li>[ ] Special characters in custom text</li>
+</ul>
+
+<h4>Test Files for US-042</h4>
+<ul>
+<li>**Primary Test**: `tests/unit/test_us042_anders_option_fix.py`</li>
+<li> - Complete Anders option coverage</li>
+<li> - UI behavior validation</li>
+<li> - State persistence tests</li>
+<li>**UI Component Test**: `tests/ui/test_context_selector_anders_fix.py`</li>
+<li>**Edge Cases**: `tests/unit/test_anders_edge_cases.py`</li>
+<li> - XSS/SQL injection prevention</li>
+<li> - Unicode handling</li>
+<li> - Extreme length inputs</li>
+</ul>
+
+<h4>Test Execution</h4>
+<pre><code># Run US-042 specific tests
+pytest tests/unit/test_us042_anders_option_fix.py -v
+
+# Test UI components
+pytest tests/ui/test_context_selector_anders_fix.py -v
+
+# Stress test edge cases
+pytest tests/unit/test_anders_edge_cases.py -v</code></pre>
+
+<h3>FASE 5: Remove Legacy Context Routes (US-043) (8 hours)</h3>
+<p><strong>Status:</strong> PENDING</p>
+<p><strong>Story:</strong> US-043</p>
+<p><strong>Priority:</strong> HOOG</p>
+<p><strong>Dependencies:</strong> US-041, US-042</p>
+
+<h4>Legacy Routes to Remove</h4>
+<ol>
+<li>**Direct `context` field (string)**:</li>
+</ol>
+<ul>
+<li>  - Location: `src/models/generation_request.py`</li>
+<li>  - Action: Deprecate and remove</li>
+</ul>
+
+<ol>
+<li>**Separate `domein` field**:</li>
+</ol>
+<ul>
+<li>  - Location: Multiple files</li>
+<li>  - Action: Consolidate into context lists</li>
+</ul>
+
+<ol>
+<li>**V1 orchestrator context**:</li>
+</ol>
+<ul>
+<li>  - Location: `src/orchestration/orchestrator.py`</li>
+<li>  - Action: Remove V1 code paths</li>
+</ul>
+
+<ol>
+<li>**Session state context storage**:</li>
+</ol>
+<ul>
+<li>  - Location: `src/ui/state_manager.py`</li>
+<li>  - Action: Refactor to use proper types</li>
+</ul>
+
+<ol>
+<li>**Multiple context_dict creation**:</li>
+</ol>
+<ul>
+<li>  - Locations: Search with `grep -r "context_dict"`</li>
+<li>  - Action: Consolidate to single source</li>
+</ul>
+
+<h4>Migration Strategy</h4>
+<ul>
+<li>Use feature flags for gradual rollout</li>
+<li>Maintain backward compatibility temporarily</li>
+<li>Log deprecation warnings</li>
+</ul>
+
+<h4>Test Files for US-043</h4>
+<ul>
+<li>**Primary Test**: `tests/unit/test_us043_remove_legacy_routes.py`</li>
+<li> - Validates single context flow path</li>
+<li> - Performance improvement verification (>20% target)</li>
+<li> - Memory efficiency checks</li>
+<li>**Feature Flags**: `tests/unit/test_feature_flags_context_flow.py`</li>
+<li>**Performance**: `tests/performance/test_context_flow_performance.py`</li>
+</ul>
+
+<h4>Test Execution</h4>
+<pre><code># Run US-043 specific tests
+pytest tests/unit/test_us043_remove_legacy_routes.py -v
+
+# Verify performance improvements
+pytest tests/performance/test_context_flow_performance.py -v --benchmark
+
+# Test feature flag rollout
+pytest tests/unit/test_feature_flags_context_flow.py -v</code></pre>
+
+<h3>FASE 6: Feature Flags & Monitoring (4 hours)</h3>
+<p><strong>Status:</strong> PENDING</p>
+<p><strong>Story:</strong> Infrastructure for safe rollout</p>
+
+<h4>Feature Flag Implementation</h4>
+<pre><code># config/feature_flags.yaml
+context_flow_refactor:
+  enabled: true
+  rollout_percentage: 10
+  audit_enabled: true
+  fallback_to_legacy: true</code></pre>
+
+<h4>Monitoring Points</h4>
+<ol>
+<li>Context field population rates</li>
+<li>"Anders..." usage frequency</li>
+<li>Error rates per context type</li>
+<li>Performance impact metrics</li>
+</ol>
+
+<h4>Test Files for Monitoring</h4>
+<ul>
+<li>**Feature Flags**: `tests/unit/test_feature_flags_context_flow.py`</li>
+<li> - A/B testing scenarios</li>
+<li> - Percentage-based rollouts</li>
+<li> - Fallback mechanisms</li>
+<li>**Performance Monitoring**: `tests/performance/test_context_flow_performance.py`</li>
+</ul>
+
+<h4>Test Execution</h4>
+<pre><code># Test feature flag configurations
+pytest tests/unit/test_feature_flags_context_flow.py -v
+
+# Monitor performance under flags
+pytest tests/performance/test_context_flow_performance.py::test_with_feature_flags -v</code></pre>
+
+<h3>FASE 7: Grep-Gate Validation (4 hours)</h3>
+<p><strong>Status:</strong> PENDING</p>
+<p><strong>Story:</strong> Automated validation gates</p>
+
+<h4>Validation Commands</h4>
+<pre><code># No direct string context remains
+grep -r "context.*:.*str" src/ --include="*.py"
+
+# All context fields are lists
+grep -r "juridische_context\|wettelijke_basis\|organisatorische_context" src/
+
+# No legacy imports
+grep -r "from orchestration import orchestrator" tests/
+
+# GenerationResult properly used
+grep -r "GenerationResult" src/ tests/</code></pre>
+
+<h4>Success Criteria</h4>
+<ul>
+<li>[ ] Zero string context fields</li>
+<li>[ ] All contexts validated as List[str]</li>
+<li>[ ] No legacy orchestrator imports</li>
+<li>[ ] Consistent GenerationResult usage</li>
+</ul>
+
+<h3>FASE 8: Audit Trail & ASTRA Compliance (8 hours)</h3>
+<p><strong>Status:</strong> PENDING</p>
+<p><strong>Story:</strong> US-045 (follow-up)</p>
+
+<h4>Audit Implementation</h4>
+<pre><code># src/services/audit/context_auditor.py
+class ContextAuditor:
+    def log_context_decision(self, request_id, context_data):
+        """Log context usage for ASTRA compliance"""
+        audit_entry = {
+            "timestamp": datetime.now().isoformat(),
+            "request_id": request_id,
+            "juridische_context": context_data.get("juridische_context", []),
+            "wettelijke_basis": context_data.get("wettelijke_basis", []),
+            "organisatorische_context": context_data.get("organisatorische_context", []),
+            "authoritative_sources": self._get_sources(context_data),
+            "retention_until": self._calculate_retention_date()  # 7 years
+        }
+        self._write_immutable_log(audit_entry)</code></pre>
+
+<h4>Compliance Checklist</h4>
+<ul>
+<li>[ ] Full context attribution in logs</li>
+<li>[ ] Immutable audit trail</li>
+<li>[ ] 7-year retention configured</li>
+<li>[ ] Authoritative source linking</li>
+<li>[ ] Privacy impact assessed</li>
+</ul>
+
+<h4>Test Files for Compliance</h4>
+<ul>
+<li>**ASTRA/NORA Compliance**: `tests/compliance/test_astra_nora_context_compliance.py`</li>
+<li> - Audit trail requirements</li>
+<li> - Privacy and data protection</li>
+<li> - Interoperability standards</li>
+<li> - Justice domain specifics</li>
+</ul>
+
+<h4>Test Execution</h4>
+<pre><code># Run compliance tests
+pytest tests/compliance/test_astra_nora_context_compliance.py -v
+
+# Verify audit logging
+pytest tests/integration/test_context_flow_epic_cfr.py::test_audit_trail -v</code></pre>
+
+<h3>FASE 9: Production Rollout & Verification (8 hours)</h3>
+<p><strong>Status:</strong> PENDING</p>
+<p><strong>Story:</strong> Final deployment</p>
+
+<h4>Rollout Steps</h4>
+<ol>
+<li>**Deploy with 10% feature flag**</li>
+<li>**Monitor for 24 hours**</li>
+<li>**Increase to 50% if stable**</li>
+<li>**Full rollout after 48 hours**</li>
+<li>**Remove legacy code after 1 week**</li>
+</ol>
+
+<h4>Production Verification</h4>
+<ul>
+<li>[ ] Context visible in all definitions</li>
+<li>[ ] Zero context-related errors</li>
+<li>[ ] ASTRA compliance validated</li>
+<li>[ ] Performance within SLAs</li>
+<li>[ ] User satisfaction >90%</li>
+</ul>
+
+<h2>Risk Mitigation</h2>
+
+<p>| Risk | Impact | Mitigation | Owner |</p>
+<p>|------|--------|------------|-------|</p>
+<p>| Test suite remains broken | KRITIEK | Immediate shim fix in FASE 0 | Dev Team |</p>
+<p>| Context loss during migration | HOOG | Feature flags with fallback | Architecture |</p>
+<p>| Performance degradation | GEMIDDELD | Performance gates in each phase | DevOps |</p>
+<p>| User confusion | GEMIDDELD | Clear communication plan | Product |</p>
+<p>| Compliance failure | KRITIEK | Early ASTRA validation | Compliance |</p>
+
+<h2>Success Metrics</h2>
+
+<h3>Phase Metrics</h3>
+<ul>
+<li>**FASE 0-1**: Test suite restored (36 tests collectible)</li>
+<li>**FASE 2**: >60% test coverage achieved</li>
+<li>**FASE 3**: 100% context field mapping verified</li>
+<li>**FASE 4**: Zero "Anders..." crashes</li>
+<li>**FASE 5**: All legacy routes removed</li>
+<li>**FASE 6-7**: Monitoring and validation gates active</li>
+<li>**FASE 8**: ASTRA compliance achieved</li>
+<li>**FASE 9**: Production deployment successful</li>
+</ul>
+
+<h3>Overall Success Criteria</h3>
+<ul>
+<li>[ ] **Context Propagation**: 100% of UI context reaches prompts</li>
+<li>[ ] **Error Rate**: Zero context-related errors in production</li>
+<li>[ ] **Test Coverage**: >80% for context flow code</li>
+<li>[ ] **Performance**: <200ms additional latency</li>
+<li>[ ] **Compliance**: Full ASTRA/NORA compliance</li>
+<li>[ ] **User Satisfaction**: >90% satisfaction score</li>
+</ul>
+
+<h2>Timeline</h2>
+
+<p>| Phase | Duration | Dependencies | Target Date |</p>
+<p>|-------|----------|--------------|-------------|</p>
+<p>| FASE 0 | 2-4 hours | None | 08-09-2025 |</p>
+<p>| FASE 1 | 4 hours | FASE 0 | 08-09-2025 |</p>
+<p>| FASE 2 | 8 hours | FASE 1 | 09-09-2025 |</p>
+<p>| FASE 3 | 8 hours | FASE 2 | 09-09-2025 |</p>
+<p>| FASE 4 | 5 hours | FASE 2 | 10-09-2025 |</p>
+<p>| FASE 5 | 8 hours | FASE 3, 4 | 10-09-2025 |</p>
+<p>| FASE 6 | 4 hours | FASE 5 | 11-09-2025 |</p>
+<p>| FASE 7 | 4 hours | FASE 6 | 11-09-2025 |</p>
+<p>| FASE 8 | 8 hours | FASE 7 | 12-09-2025 |</p>
+<p>| FASE 9 | 8 hours | FASE 8 | 12-09-2025 |</p>
+
+<p><strong>Total Duration</strong>: ~59 hours (7-8 working days)</p>
+<p><strong>Target Completion</strong>: End of Sprint 36 (12-09-2025)</p>
+
+<h2>Related Documents</h2>
+
+<h3>Epic & Stories</h3>
+<ul>
+<li>**Epic**: [EPIC-010: Context Flow Refactoring](../backlog/EPIC-010/EPIC-010.md)</li>
+<li>**User Stories**:</li>
+<li> - [US-041: Fix Context Field Mapping](../backlog/EPIC-010/US-041/US-041.md)</li>
+<li> - [US-042: Fix "Anders..." Custom Context](../backlog/EPIC-010/US-042/US-042.md)</li>
+<li> - [US-043: Remove Legacy Context Routes](../backlog/EPIC-010/US-043/US-043.md)</li>
+</ul>
+
+<h3>Bug Reports</h3>
+<ul>
+<li>**CFR-BUG-003**: GenerationResult Import Error</li>
+</ul>
+
+<h3>Test Documentation</h3>
+<ul>
+<li>**Test Strategy**: [EPIC-010 Test Strategy](../testing/EPIC-010-test-strategy.md)</li>
+<li>**Test Suite Summary**: [250+ Test Cases](../testing/EPIC_010_TEST_SUITE_SUMMARY.md)</li>
+</ul>
+
+<h3>Test Files Referenced in This Plan</h3>
+<ul>
+<li>**Unit Tests**:</li>
+<li> - [`test_us041_context_field_mapping.py`](../../tests/unit/test_us041_context_field_mapping.py) - US-041 context mapping</li>
+<li> - [`test_us042_anders_option_fix.py`](../../tests/unit/test_us042_anders_option_fix.py) - US-042 Anders option</li>
+<li> - [`test_us043_remove_legacy_routes.py`](../../tests/unit/test_us043_remove_legacy_routes.py) - US-043 legacy removal</li>
+<li> - [`test_anders_edge_cases.py`](../../tests/unit/test_anders_edge_cases.py) - Edge case coverage</li>
+<li> - [`test_feature_flags_context_flow.py`](../../tests/unit/test_feature_flags_context_flow.py) - Feature flags</li>
+<li>**Integration Tests**:</li>
+<li> - [`test_context_flow_epic_cfr.py`](../../tests/integration/test_context_flow_epic_cfr.py) - End-to-end flow</li>
+<li>**Performance Tests**:</li>
+<li> - [`test_context_flow_performance.py`](../../tests/performance/test_context_flow_performance.py) - Performance metrics</li>
+</ul>
+
+<h3>Architecture</h3>
+<ul>
+<li>**Technical Architecture**: [Technical Architecture](../architectuur/TECHNICAL_ARCHITECTURE.md)</li>
+</ul>
+
+<h2>Wijzigingslog</h2>
+
+<p>| Datum | Versie | Wijzigingen |</p>
+<p>|-------|--------|-------------|</p>
+<p>| 08-09-2025 | 1.0 | Initial implementation plan created |</p>
+
+<p>---</p>
+
+<p><em>This implementation plan is a living document and will be updated as work progresses through each phase.</em></p>
+
+  </div>
+</body>
+</html>

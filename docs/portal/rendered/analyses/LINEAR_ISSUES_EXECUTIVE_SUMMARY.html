@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Linear Issues Executive Summary - DefinitieAgent</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>Linear Issues Executive Summary - DefinitieAgent</h1>
+<p><strong>Date:</strong> 2025-10-30</p>
+<p><strong>Target Audience:</strong> Solo developer (quick reference)</p>
+<p><strong>Reading Time:</strong> 3 minutes</p>
+
+<p>---</p>
+
+<h2>🚨 URGENT ACTION REQUIRED</h2>
+
+<h3>P0 CRITICAL: Data Loss Issues (FIX THIS WEEK!)</h3>
+
+<p><strong>3 silent data loss bugs discovered</strong> - must fix before ANY other work:</p>
+
+<ol>
+<li>**DEF-74:** Missing Pydantic validation enforcement (2h)</li>
+</ol>
+<ul>
+<li>  - **Impact:** TypeError crashes when voorbeelden_dict is wrong type</li>
+<li>  - **Fix:** Add validation call in `definitie_repository.save_voorbeelden()`</li>
+<li>  - **Status:** ⚠️ Schema created, not enforced yet</li>
+</ul>
+
+<ol>
+<li>**DEF-69:** Voorbeelden silently lost in CSV import (3-4h)</li>
+</ol>
+<ul>
+<li>  - **Impact:** Definition saves, voorbeelden lost without warning</li>
+<li>  - **Fix:** Add try-except with logging, return partial save status</li>
+<li>  - **Location:** `src/services/definition_import_service.py` line ~150</li>
+</ul>
+
+<ol>
+<li>**DEF-68:** Context validation exceptions swallowed (2-3h)</li>
+</ol>
+<ul>
+<li>  - **Impact:** Invalid context data saved to DB without user awareness</li>
+<li>  - **Fix:** Add error handling + logging in validation orchestrator</li>
+<li>  - **Location:** Validation flow (orchestrator or import service)</li>
+</ul>
+
+<p><strong>Total Effort:</strong> 7-9 hours (DAYS 1-2)</p>
+<p><strong>Risk:</strong> LOW (additive changes, no refactoring)</p>
+<p><strong>CRITICAL:</strong> Must be done SEQUENTIALLY (DEF-74 → DEF-69 → DEF-68)</p>
+
+<p>---</p>
+
+<h2>📋 WHAT TO DO THIS WEEK</h2>
+
+<h3>Day 1-2: Fix Data Loss (BLOCKING)</h3>
+<pre><code># 1. Create branch
+git checkout -b fix/p0-data-loss-prevention
+
+# 2. Fix DEF-74 (2h)
+# - Add validation call in definitie_repository.save_voorbeelden()
+# - Use: validate_save_voorbeelden_input() from models/voorbeelden_validation.py
+# - Add unit tests for invalid input
+
+# 3. Fix DEF-69 (3-4h)
+# - Wrap repo.save_voorbeelden() in try-except with logging
+# - Add voorbeelden_saved flag to SingleImportResult
+# - Display partial save warning in UI
+# - Test: voorbeelden save failures are logged + shown to user
+
+# 4. Fix DEF-68 (2-3h)
+# - Wrap context validation in try-except with logging
+# - Return errors to UI
+# - Test: context validation exceptions are logged + shown to user
+
+# 5. Commit &amp; test
+git add -A
+git commit -m "fix(critical): DEF-74, DEF-69, DEF-68 - prevent silent data loss"
+pytest -q  # All tests must pass</code></pre>
+
+<h3>Day 3: SessionState Compliance (QUICK WIN)</h3>
+<pre><code># Fix DEF-73: 10 st.session_state violations (3-4h)
+# - Replace st.session_state[...] with SessionStateManager.get_value()
+# - Files: examples_block.py, definition_generator_tab.py, + 8 more
+# - Run: scripts/check_streamlit_patterns.py to verify</code></pre>
+
+<h3>Day 4: Performance Quick Win</h3>
+<pre><code># Fix DEF-60: Lazy tab loading (4h)
+# - Add _tabs cache to TabbedInterface
+# - Implement _get_tab() lazy factory
+# - Target: 509ms → 180ms (65% faster startup)</code></pre>
+
+<p>---</p>
+
+<h2>🎯 PRIORITY MATRIX (WHAT'S NEXT?)</h2>
+
+<h3>P0 (THIS WEEK) - Data Loss 🔴</h3>
+<ul>
+<li>**DEF-74, DEF-69, DEF-68** - Silent failures → FIX IMMEDIATELY</li>
+<li>**Effort:** 7-9 hours</li>
+<li>**Impact:** Prevents data corruption</li>
+</ul>
+
+<h3>P1 (NEXT WEEK) - Critical Feature 🟡</h3>
+<ul>
+<li>**DEF-35** - Classifier MVP (16-20h)</li>
+<li>**Blocks:** Ontological prompt work (DEF-38, DEF-40)</li>
+<li>**Wait for:** P0 fixes complete</li>
+</ul>
+
+<h3>P2 (WEEKS 2-3) - Performance + Architecture 🟠</h3>
+<ul>
+<li>**DEF-73** - SessionState compliance (3-4h) - Quick win!</li>
+<li>**DEF-60** - Lazy tab loading (4h) - 65% faster startup</li>
+<li>**DEF-61** - Async prompt loading (8h) - Additional 50% speedup</li>
+<li>**DEF-70** - ServiceContainer simplification (4-6h) - 82% code reduction</li>
+<li>**DEF-71** - Repository simplification (8-12h) - 81% code reduction</li>
+</ul>
+
+<h3>P3 (MONTH 2) - Features 🟢</h3>
+<ul>
+<li>**DEF-38, DEF-40** - Ontological prompt improvements</li>
+<li>**DEF-42** - Audit trail for deletions</li>
+<li>**DEF-45** - Voorbeelden consistency</li>
+</ul>
+
+<h3>P4 (BACKLOG) - Code Quality 🟢</h3>
+<ul>
+<li>**DEF-72** - Directory consolidation (34→8)</li>
+<li>**DEF-63-65** - Module consolidation</li>
+<li>**DEF-75-79** - Over-engineering cleanup</li>
+</ul>
+
+<p>---</p>
+
+<h2>🔗 KEY DEPENDENCIES (WHAT BLOCKS WHAT?)</h2>
+
+<h3>Critical Chain 1: Data Integrity</h3>
+<pre><code>DEF-74 (validation) → DEF-69 (voorbeelden) → DEF-68 (context)
+   ↓
+Safe CSV import + voorbeelden reliability</code></pre>
+
+<h3>Critical Chain 2: Feature Development</h3>
+<pre><code>P0 fixes (data integrity) → DEF-35 (classifier) → DEF-38/40 (prompts)</code></pre>
+
+<h3>Chain 3: Performance</h3>
+<pre><code>DEF-60 (lazy loading) → DEF-61 (async loading) → 82% startup improvement</code></pre>
+
+<h3>Chain 4: Maintainability</h3>
+<pre><code>DEF-70 (container) + DEF-71 (repository) → 81-86% code reduction
+   ↓
+DEF-72 (directories) → Cleaner codebase</code></pre>
+
+<p>---</p>
+
+<h2>📊 RISK SCORES (WHY THIS ORDER?)</h2>
+
+<p>| Issue | Risk | Why Critical? | Effort |</p>
+<p>|-------|------|---------------|--------|</p>
+<p>| <strong>DEF-68</strong> | 🔴 10/10 | Silent data corruption | 2-3h |</p>
+<p>| <strong>DEF-69</strong> | 🔴 10/10 | Voorbeelden lost without warning | 3-4h |</p>
+<p>| <strong>DEF-74</strong> | 🔴 8/10 | TypeError crashes (partial fix done) | 2h |</p>
+<p>| <strong>DEF-35</strong> | 🟡 6/10 | Blocks ontological features | 16-20h |</p>
+<p>| <strong>DEF-71</strong> | 🟠 7/10 | 2,101 LOC god object | 8-12h |</p>
+<p>| <strong>DEF-70</strong> | 🟠 6/10 | 818 LOC DI container overkill | 4-6h |</p>
+<p>| <strong>DEF-60</strong> | 🟠 5/10 | 509ms startup (95% of total) | 4h |</p>
+<p>| <strong>DEF-73</strong> | 🟠 5/10 | 10 SessionState violations | 3-4h |</p>
+
+<p>---</p>
+
+<h2>⚡ QUICK WINS (HIGH ROI, LOW EFFORT)</h2>
+
+<h3>Week 1 Quick Wins</h3>
+<ol>
+<li>**DEF-73** (Day 3) - SessionState compliance</li>
+</ol>
+<ul>
+<li>  - **Effort:** 3-4 hours</li>
+<li>  - **Impact:** Prevents future UI bugs</li>
+<li>  - **Risk:** LOW (find-replace pattern)</li>
+</ul>
+
+<ol>
+<li>**DEF-60** (Day 4) - Lazy tab loading</li>
+</ol>
+<ul>
+<li>  - **Effort:** 4 hours</li>
+<li>  - **Impact:** 65% faster startup (509ms → 180ms)</li>
+<li>  - **Risk:** LOW (no refactoring, just defer initialization)</li>
+</ul>
+
+<h3>Total Quick Wins: 7-8 hours for 65% performance boost + UI stability</h3>
+
+<p>---</p>
+
+<h2>🛡️ SUCCESS CRITERIA (HOW DO I KNOW IT'S FIXED?)</h2>
+
+<h3>After P0 Fixes (Days 1-2)</h3>
+<ul>
+<li>[ ] ✅ No silent exceptions in validation flow</li>
+<li>[ ] ✅ All errors logged with full context (stack trace, payload)</li>
+<li>[ ] ✅ UI shows partial save warnings ("Definitie opgeslagen, voorbeelden mislukt")</li>
+<li>[ ] ✅ Pydantic validation enforced on all save_voorbeelden() calls</li>
+<li>[ ] ✅ Tests verify error propagation (no silent swallowing)</li>
+</ul>
+
+<h3>After Week 1</h3>
+<ul>
+<li>[ ] ✅ No direct st.session_state access (DEF-73)</li>
+<li>[ ] ✅ Startup time < 200ms (DEF-60)</li>
+<li>[ ] ✅ All CSV imports reliable (voorbeelden + context)</li>
+<li>[ ] ✅ Pre-commit hooks prevent violations</li>
+</ul>
+
+<h3>After Week 2 (if DEF-35 done)</h3>
+<ul>
+<li>[ ] ✅ Classifier MVP: 80%+ accuracy</li>
+<li>[ ] ✅ AI fallback working</li>
+<li>[ ] ✅ Integration tests passing</li>
+</ul>
+
+<p>---</p>
+
+<h2>📁 WHERE TO FIND THINGS</h2>
+
+<h3>Critical Files (Data Loss Fixes)</h3>
+<pre><code>src/models/voorbeelden_validation.py        # ✅ Pydantic schema (done)
+src/database/definitie_repository.py        # ❌ Need to enforce validation (line 1453)
+src/services/definition_import_service.py   # ❌ Need error handling (line ~150)</code></pre>
+
+<h3>God Objects (Future Refactoring)</h3>
+<pre><code>src/services/container.py                   # 817 LOC (target: 100-150)
+src/database/definitie_repository.py        # 2,100 LOC (target: 300-400)</code></pre>
+
+<h3>Analysis Documents</h3>
+<pre><code>docs/analyses/LINEAR_ISSUES_DEPENDENCY_RISK_ANALYSIS.md    # Full analysis
+docs/analyses/LINEAR_DEPENDENCY_GRAPH.md                   # Visual dependencies
+docs/analyses/STARTUP_PERFORMANCE_ANALYSIS.md              # DEF-60, DEF-61
+docs/analyses/OVER_ENGINEERING_ANALYSIS.md                 # DEF-70, DEF-71</code></pre>
+
+<p>---</p>
+
+<h2>🚨 RED FLAGS (WHEN TO STOP)</h2>
+
+<h3>Stop Work If:</h3>
+<ol>
+<li>**Data loss detected** → Rollback last changes, restore DB backup</li>
+<li>**Silent failures found** → Add logging IMMEDIATELY (don't wait)</li>
+<li>**Performance regression > 20%** → Rollback optimization</li>
+<li>**Tests fail after P0 fixes** → Don't proceed to quick wins</li>
+</ol>
+
+<h3>Emergency Contacts:</h3>
+<ul>
+<li>Data corruption → See `LINEAR_ISSUES_DEPENDENCY_RISK_ANALYSIS.md` Section 9</li>
+<li>Performance issues → See `STARTUP_PERFORMANCE_ANALYSIS.md`</li>
+<li>God object refactoring → See `OVER_ENGINEERING_ANALYSIS.md`</li>
+</ul>
+
+<p>---</p>
+
+<h2>💡 KEY INSIGHTS</h2>
+
+<h3>What Went Wrong</h3>
+<ol>
+<li>**Silent exception swallowing** - No logging = no debugging</li>
+<li>**Missing input validation** - Type errors crash at runtime</li>
+<li>**God objects** - 2,100+ LOC files impossible to maintain</li>
+<li>**Over-engineering** - Enterprise patterns for single-user app</li>
+</ol>
+
+<h3>What to Remember</h3>
+<blockquote>**"Data integrity ALWAYS comes before performance or features."**</blockquote>
+
+<blockquote>**"Single-user apps don't need enterprise patterns."**</blockquote>
+
+<blockquote>**"Fix silent failures first, optimize later, add features last."**</blockquote>
+
+<p>---</p>
+
+<h2>📞 NEXT STEPS</h2>
+
+<h3>Today (Right Now!)</h3>
+<ol>
+<li>Read this summary ✅</li>
+<li>Read full analysis: `LINEAR_ISSUES_DEPENDENCY_RISK_ANALYSIS.md`</li>
+<li>Create branch: `fix/p0-data-loss-prevention`</li>
+<li>Start DEF-74 (2h) - Enforce Pydantic validation</li>
+</ol>
+
+<h3>Tomorrow</h3>
+<ol>
+<li>Fix DEF-69 (3-4h) - Voorbeelden error handling</li>
+<li>Fix DEF-68 (2-3h) - Context validation errors</li>
+<li>Test everything: `pytest -q`</li>
+<li>Commit: `git commit -m "fix(critical): prevent silent data loss"`</li>
+</ol>
+
+<h3>Day 3-4</h3>
+<ol>
+<li>Fix DEF-73 (3-4h) - SessionState compliance</li>
+<li>Fix DEF-60 (4h) - Lazy tab loading</li>
+<li>Celebrate: 65% faster startup + no data loss!</li>
+</ol>
+
+<p>---</p>
+
+<h2>📊 VISUAL SUMMARY</h2>
+
+<pre><code>WEEK 1 PLAN
+═══════════════════════════════════════════════════
+
+Day 1-2: 🔴 DATA LOSS PREVENTION (7-9h)
+├─ DEF-74: Pydantic validation     [2h]   ●━━━━━┐
+├─ DEF-69: Voorbeelden errors      [3-4h] ●━━━━━┤ Sequential!
+└─ DEF-68: Context errors          [2-3h] ●━━━━━┘
+
+Day 3: 🟡 SESSION STATE (3-4h)
+└─ DEF-73: Fix 10 violations       [3-4h] ●━━━━━
+
+Day 4: 🟠 PERFORMANCE (4h)
+└─ DEF-60: Lazy tab loading        [4h]   ●━━━━━
+
+═══════════════════════════════════════════════════
+TOTAL: 14-17 hours
+RESULT: ✅ No data loss + 65% faster startup</code></pre>
+
+<p>---</p>
+
+<p><strong>BOTTOM LINE:</strong></p>
+<ul>
+<li>**This week:** Fix 3 data loss bugs (7-9h)</li>
+<li>**Next week:** Classifier MVP (16-20h)</li>
+<li>**Month 2:** God object simplification (optional, 16-20h)</li>
+<li>**Total impact:** No data loss + 81-86% code reduction + 82% startup speedup</li>
+</ul>
+
+<p><strong>START WITH DEF-74 TODAY!</strong></p>
+
+<p>---</p>
+
+<p><strong>END OF EXECUTIVE SUMMARY</strong></p>
+
+<p><strong>For full details:</strong> See <code>LINEAR_ISSUES_DEPENDENCY_RISK_ANALYSIS.md</code></p>
+
+  </div>
+</body>
+</html>
