@@ -8,6 +8,7 @@ Volgt MODULAIRE_PROMPT_ARCHITECTUUR_WORKFLOW.md testing strategie.
 from unittest.mock import Mock
 
 import pytest
+
 from services.definition_generator_config import UnifiedGeneratorConfig
 from services.definition_generator_context import EnrichedContext
 from services.prompts.modular_prompt_builder import (

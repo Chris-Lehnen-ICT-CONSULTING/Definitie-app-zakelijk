@@ -4,8 +4,8 @@ from datetime import datetime
 from unittest.mock import MagicMock, Mock
 
 import pytest
-from models.category_models import CategoryChangeResult
 
+from models.category_models import CategoryChangeResult
 from src.database.definitie_repository import DefinitieRecord
 from src.services.category_service import CategoryService
 

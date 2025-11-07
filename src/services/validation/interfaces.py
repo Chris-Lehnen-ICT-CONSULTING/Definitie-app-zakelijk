@@ -13,8 +13,9 @@ from dataclasses import dataclass
 from typing import Any, NotRequired
 from uuid import UUID
 
-from services.interfaces import Definition
 from typing_extensions import TypedDict
+
+from services.interfaces import Definition
 
 # Contract version voor schema compliance
 CONTRACT_VERSION = "1.0.0"
