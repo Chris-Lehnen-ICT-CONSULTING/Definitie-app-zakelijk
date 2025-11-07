@@ -69,9 +69,8 @@ def test_import_service():
     print("Test 3: Import service call")
 
     try:
-        from ui.helpers.async_bridge import run_async_safe
-
         from src.services.container import ServiceContainer
+        from ui.helpers.async_bridge import run_async_safe
 
         # Initialize service container
         container = ServiceContainer()

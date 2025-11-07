@@ -2,6 +2,7 @@ import asyncio
 import time
 
 import pytest
+
 from services.interfaces import LookupRequest, LookupResult, WebSource
 from services.modern_web_lookup_service import ModernWebLookupService
 

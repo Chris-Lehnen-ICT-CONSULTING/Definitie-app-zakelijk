@@ -18,13 +18,14 @@ from enum import Enum  # Enumeratie types voor constante waarden
 from pathlib import Path  # Object-georiënteerde pad manipulatie
 from typing import Any  # Type hints voor betere code documentatie
 
+from pydantic import ValidationError  # Pydantic validation errors (DEF-74)
+
 from domain.ontological_categories import (
     OntologischeCategorie,  # Import ontologische categorieën voor classificatie
 )
 from models.voorbeelden_validation import (
     validate_save_voorbeelden_input,  # Pydantic validation voor voorbeelden (DEF-74)
 )
-from pydantic import ValidationError  # Pydantic validation errors (DEF-74)
 
 logger = logging.getLogger(__name__)  # Maak logger instantie voor database module
 

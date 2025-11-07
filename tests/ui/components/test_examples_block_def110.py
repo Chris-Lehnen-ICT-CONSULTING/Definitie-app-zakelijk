@@ -18,6 +18,7 @@ Test Coverage:
 from unittest.mock import MagicMock, patch
 
 import pytest
+
 from ui.components.examples_block import _reset_voorbeelden_context
 from ui.session_state import force_cleanup_voorbeelden
 

@@ -8,6 +8,7 @@ import asyncio
 from unittest.mock import Mock, patch
 
 import pytest
+
 from services.definition_generator_config import (
     ContextConfig,
     MonitoringConfig,

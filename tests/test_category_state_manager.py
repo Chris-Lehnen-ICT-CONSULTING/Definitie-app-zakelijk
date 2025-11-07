@@ -3,8 +3,8 @@
 from unittest.mock import Mock
 
 import pytest
-from models.category_models import DefinitionCategory
 
+from models.category_models import DefinitionCategory
 from src.services.category_state_manager import CategoryStateManager
 
 

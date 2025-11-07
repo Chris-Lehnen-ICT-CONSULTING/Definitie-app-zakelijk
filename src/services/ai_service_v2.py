@@ -23,6 +23,8 @@ except ImportError:
     tiktoken = None
 
 from openai import APIConnectionError, OpenAIError, RateLimitError
+
+from config.config_manager import get_config_manager
 from services.interfaces import (
     AIBatchRequest,
     AIGenerationResult,
@@ -33,8 +35,6 @@ from services.interfaces import (
 )
 from utils.async_api import AsyncGPTClient, RateLimitConfig
 from utils.cache import cache_gpt_call
-
-from config.config_manager import get_config_manager
 
 logger = logging.getLogger(__name__)
 

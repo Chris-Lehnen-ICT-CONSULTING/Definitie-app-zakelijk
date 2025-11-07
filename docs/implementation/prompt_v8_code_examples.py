@@ -7,6 +7,7 @@ Concrete implementatie voorbeelden voor prompt optimalisatie
 # EXAMPLE 1: Optimized Rule Module (Van 3500 naar 200 tokens)
 # ============================================================================
 
+
 class AraiRulesModuleV8(BasePromptModule):
     """
     V8: Alleen high-level principes, geen individuele regels.
@@ -23,7 +24,7 @@ class AraiRulesModuleV8(BasePromptModule):
             "- Vermijd vage containerbegrippen zonder specificatie",
             "- Essentie beschrijven, niet het doel",
             "- Volledige validatie gebeurt automatisch na generatie",
-            ""
+            "",
         ]
         # Token count: ~50 (was ~500 per module)
 
@@ -31,6 +32,7 @@ class AraiRulesModuleV8(BasePromptModule):
 # ============================================================================
 # EXAMPLE 2: Error Prevention Module met Positive Templates
 # ============================================================================
+
 
 class ErrorPreventionModuleV8(BasePromptModule):
     """
@@ -54,7 +56,7 @@ class ErrorPreventionModuleV8(BasePromptModule):
             "   Voorbeeld: besluit van de rechter dat rechtsgevolgen vaststelt",
             "",
             "🚫 VERMIJD: Koppelwerkwoorden ('is'), lidwoorden ('de/het'), term-herhaling",
-            ""
+            "",
         ]
         # Token count: ~150 (was ~900)
 
@@ -62,6 +64,7 @@ class ErrorPreventionModuleV8(BasePromptModule):
 # ============================================================================
 # EXAMPLE 3: Conditional Module Loading
 # ============================================================================
+
 
 class PromptOrchestratorV8:
     """
@@ -89,9 +92,9 @@ class PromptOrchestratorV8:
 
         # Always include core (essential for any definition)
         modules = [
-            "expertise",          # ~50 tokens
-            "output_specification", # ~100 tokens
-            "task"                # ~100 tokens
+            "expertise",  # ~50 tokens
+            "output_specification",  # ~100 tokens
+            "task",  # ~100 tokens
         ]
 
         # Conditional modules based on context
@@ -99,7 +102,7 @@ class PromptOrchestratorV8:
             modules.append("context_awareness")  # ~200 tokens
 
         if context.has_juridische_context():
-            modules.append("legal_references")   # ~150 tokens
+            modules.append("legal_references")  # ~150 tokens
 
         # Only include most relevant rule module (not all 7)
         if context.begrip_type == "proces":
@@ -126,8 +129,10 @@ class PromptOrchestratorV8:
 # EXAMPLE 4: Static Module Caching
 # ============================================================================
 
-import streamlit as st
 from functools import lru_cache
+
+import streamlit as st
+
 
 class ModuleCacheV8:
     """
@@ -143,7 +148,7 @@ class ModuleCacheV8:
         return {
             "grammar": self._load_grammar_rules(),
             "error_patterns": self._load_error_patterns(),
-            "base_templates": self._load_base_templates()
+            "base_templates": self._load_base_templates(),
         }
 
     @lru_cache(maxsize=128)
@@ -165,6 +170,7 @@ class ModuleCacheV8:
 # ============================================================================
 # EXAMPLE 5: Inverted Pyramid Template
 # ============================================================================
+
 
 class InvertedPyramidTemplateV8:
     """
@@ -226,6 +232,7 @@ Formuleer een **heldere, contextuele definitie** voor overheidsgebruik die het b
 # EXAMPLE 6: Priority-Based Rule Selection
 # ============================================================================
 
+
 class RulePrioritySelectorV8:
     """
     V8: Alleen hoogste prioriteit regels in prompt.
@@ -236,25 +243,20 @@ class RulePrioritySelectorV8:
         "ESS-02": 1,  # Ontologische categorie
         "STR-01": 1,  # Start met zelfstandig naamwoord
         "INT-01": 1,  # Eén zin
-
         # HIGH (meestal in prompt)
         "ESS-01": 2,  # Essentie niet doel
         "CON-01": 2,  # Context verwerking
         "STR-02": 2,  # Kick-off ≠ term
-
         # MEDIUM (alleen bij complexe definities)
         "INT-02": 3,  # Geen beslisregel
         "INT-08": 3,  # Positieve formulering
-
         # LOW (alleen in validatie, niet in prompt)
         "VER-01": 4,  # Enkelvoud
         "SAM-05": 4,  # Geen cirkeldefinities
     }
 
     def select_rules_for_prompt(
-        self,
-        complexity: float,
-        max_rules: int = 8
+        self, complexity: float, max_rules: int = 8
     ) -> List[str]:
         """
         Select only most relevant rules for prompt.
@@ -271,7 +273,8 @@ class RulePrioritySelectorV8:
             priority_threshold = 3
 
         selected = [
-            rule for rule, priority in self.RULE_PRIORITIES.items()
+            rule
+            for rule, priority in self.RULE_PRIORITIES.items()
             if priority <= priority_threshold
         ]
 
@@ -282,6 +285,7 @@ class RulePrioritySelectorV8:
 # EXAMPLE 7: Metrics-Driven Optimization
 # ============================================================================
 
+
 class PromptOptimizerV8:
     """
     V8: Track en optimaliseer prompt performance.
@@ -291,7 +295,7 @@ class PromptOptimizerV8:
         self.metrics = {
             "module_token_counts": {},
             "module_value_scores": {},
-            "generation_times": []
+            "generation_times": [],
         }
 
     def optimize_prompt(self, context: ModuleContext) -> str:
@@ -304,8 +308,7 @@ class PromptOptimizerV8:
 
         # Select modules with best value/token ratio
         selected_modules = self._select_optimal_modules(
-            module_scores,
-            target_tokens=2500
+            module_scores, target_tokens=2500
         )
 
         # Build prompt with selected modules
@@ -325,20 +328,14 @@ class PromptOptimizerV8:
         return scores
 
     def _select_optimal_modules(
-        self,
-        scores: Dict[str, float],
-        target_tokens: int
+        self, scores: Dict[str, float], target_tokens: int
     ) -> List[str]:
         """
         Select modules that maximize value within token budget.
         """
 
         # Sort by value/token ratio
-        sorted_modules = sorted(
-            scores.items(),
-            key=lambda x: x[1],
-            reverse=True
-        )
+        sorted_modules = sorted(scores.items(), key=lambda x: x[1], reverse=True)
 
         selected = []
         current_tokens = 0
@@ -360,6 +357,7 @@ class PromptOptimizerV8:
 # EXAMPLE 8: A/B Testing Implementation
 # ============================================================================
 
+
 class PromptABTestV8:
     """
     V8: Test prompt versions systematically.
@@ -368,19 +366,13 @@ class PromptABTestV8:
     def __init__(self):
         self.test_config = {
             "v7": {"builder": PromptBuilderV7(), "weight": 0.1},
-            "v8": {"builder": PromptBuilderV8(), "weight": 0.9}
+            "v8": {"builder": PromptBuilderV8(), "weight": 0.9},
         }
 
-    async def generate_with_ab_test(
-        self,
-        begrip: str,
-        context: Dict
-    ) -> Dict:
+    async def generate_with_ab_test(self, begrip: str, context: Dict) -> Dict:
         """
         Generate definition with A/B testing.
         """
-
-        import random
 
         # Select version based on weights
         version = self._select_version()
@@ -395,28 +387,28 @@ class PromptABTestV8:
         generation_time = time.time() - start_time
 
         # Log results for analysis
-        self._log_test_result({
-            "version": version,
-            "begrip": begrip,
-            "prompt_tokens": self._count_tokens(prompt),
-            "generation_time": generation_time,
-            "validation_passed": self._validate(result),
-            "result": result
-        })
+        self._log_test_result(
+            {
+                "version": version,
+                "begrip": begrip,
+                "prompt_tokens": self._count_tokens(prompt),
+                "generation_time": generation_time,
+                "validation_passed": self._validate(result),
+                "result": result,
+            }
+        )
 
         return {
             "definition": result,
             "version": version,
-            "metrics": {
-                "tokens": self._count_tokens(prompt),
-                "time": generation_time
-            }
+            "metrics": {"tokens": self._count_tokens(prompt), "time": generation_time},
         }
 
     def _select_version(self) -> str:
         """Select version based on configured weights."""
 
         import random
+
         rand = random.random()
         cumulative = 0
 
