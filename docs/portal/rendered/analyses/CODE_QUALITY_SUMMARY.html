@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CODE QUALITY REVIEW - EXECUTIVE SUMMARY</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>CODE QUALITY REVIEW - EXECUTIVE SUMMARY</h1>
+
+<p><strong>Generated:</strong> November 6, 2025</p>
+<p><strong>Full Report:</strong> <code>/docs/analyses/CODE_QUALITY_REVIEW.md</code></p>
+
+<p>---</p>
+
+<h2>OVERALL SCORE: 6.8/10</h2>
+
+<p><strong>Verdict:</strong> Production-ready with significant technical debt in UI layer</p>
+
+<p>---</p>
+
+<h2>TOP 5 CRITICAL ISSUES</h2>
+
+<h3>1. UI GOD OBJECTS (CRITICAL - 40-60h)</h3>
+
+<p><strong>Files:</strong></p>
+<ul>
+<li>`definition_generator_tab.py` - 2,412 LOC</li>
+<li>`definition_edit_tab.py` - 1,604 LOC</li>
+<li>`expert_review_tab.py` - 1,417 LOC</li>
+</ul>
+
+<p><strong>Problem:</strong> Mixed UI + business logic + database operations</p>
+
+<p><strong>Impact:</strong> Cannot test, cannot reuse, cannot maintain</p>
+
+<p><strong>Fix:</strong> Extract to services + components (2,412 → 800 LOC each)</p>
+
+<p>---</p>
+
+<h3>2. STREAMLIT VALUE+KEY ANTI-PATTERN (CRITICAL - 4-6h)</h3>
+
+<p><strong>File:</strong> <code>definition_edit_tab.py</code></p>
+
+<p><strong>Problem:</strong> Widgets with both <code>value=</code> and <code>key=</code> parameters</p>
+
+<p><strong>Impact:</strong> Widget state becomes stale, user edits lost</p>
+
+<p><strong>Fix:</strong> Migrate to key-only pattern with SessionStateManager</p>
+
+<p>---</p>
+
+<h3>3. REPOSITORY GOD OBJECT (HIGH - 16-24h)</h3>
+
+<p><strong>File:</strong> <code>definitie_repository.py</code> - 2,131 LOC</p>
+
+<p><strong>Problem:</strong> Business logic in data layer</p>
+
+<p><strong>Impact:</strong> Cannot test algorithms, cannot reuse</p>
+
+<p><strong>Fix:</strong> Extract to service layer (2,131 → 1,200 LOC)</p>
+
+<p>---</p>
+
+<h3>4. UTILITY REDUNDANCY (HIGH - 12-16h)</h3>
+
+<p><strong>Files:</strong> 4 resilience modules - 2,515 LOC total</p>
+
+<p><strong>Problem:</strong> 80% duplicate code across 4 modules</p>
+
+<p><strong>Impact:</strong> Maintenance nightmare, confusion</p>
+
+<p><strong>Fix:</strong> Consolidate to 1 module (2,515 → 1,264 LOC, 50% reduction)</p>
+
+<p>---</p>
+
+<h3>5. MISSING TESTS (MEDIUM - 52-64h)</h3>
+
+<p><strong>Files:</strong></p>
+<ul>
+<li>`definition_orchestrator_v2.py` - 1,231 LOC (NO TESTS)</li>
+<li>`tabbed_interface.py` - 1,585 LOC (NO TESTS)</li>
+<li>`definitie_repository.py` - 2,131 LOC (INDIRECT TESTS)</li>
+</ul>
+
+<p><strong>Problem:</strong> Cannot refactor confidently</p>
+
+<p><strong>Fix:</strong> Add comprehensive test suites (80%+ coverage)</p>
+
+<p>---</p>
+
+<h2>TECHNICAL DEBT SUMMARY</h2>
+
+<p>| Priority | Items | Effort | LOC |</p>
+<p>|----------|-------|--------|-----|</p>
+<p>| CRITICAL | 2 issues | 44-66h | 7,449 |</p>
+<p>| HIGH | 2 issues | 28-40h | 4,646 |</p>
+<p>| MEDIUM | 3 issues | 80-106h | 5,849 |</p>
+<p>| <strong>TOTAL</strong> | <strong>7 issues</strong> | <strong>152-212h</strong> | <strong>17,944</strong> |</p>
+
+<p><strong>19.7% of codebase requires refactoring</strong></p>
+
+<p>---</p>
+
+<h2>GOD METHODS DETECTED</h2>
+
+<p><strong>17 functions >100 lines across 4 files:</strong></p>
+
+<p>| Function | LOC | File |</p>
+<p>|----------|-----|------|</p>
+<p>| <code>_render_generation_results</code> | 370 | definition_generator_tab.py |</p>
+<p>| <code>_render_sources_section</code> | 298 | definition_generator_tab.py |</p>
+<p>| <code>_render_editor</code> | 274 | definition_edit_tab.py |</p>
+<p>| <code>_render_review_queue</code> | 270 | expert_review_tab.py |</p>
+<p>| <code>save_voorbeelden</code> | 252 | definitie_repository.py |</p>
+<p>| (12 more functions) | 100-215 | Various |</p>
+
+<p><strong>Total LOC in 17 functions:</strong> 2,261 (2.5% of codebase!)</p>
+
+<p>---</p>
+
+<h2>ANTI-PATTERNS FOUND</h2>
+
+<h3>COMPLIANT (Good!) ✅</h3>
+
+<ul>
+<li>Session State Management (correct usage)</li>
+<li>No Service Layer importing Streamlit</li>
+<li>No bare `except:` clauses</li>
+<li>Minimal dead code (4 TODO markers only)</li>
+<li>Lazy imports properly documented</li>
+</ul>
+
+<h3>VIOLATIONS (Bad!) ❌</h3>
+
+<ol>
+<li>**God Objects** - 3 UI components >1,400 LOC</li>
+<li>**Value+Key Widget Pattern** - Streamlit anti-pattern</li>
+<li>**Business Logic in Repository** - Violates repository pattern</li>
+<li>**Try-Except for Control Flow** - Exception handling misuse</li>
+<li>**Inconsistent Type Hints** - 52%-98% coverage range</li>
+</ol>
+
+<p>---</p>
+
+<h2>TYPE HINTS COVERAGE</h2>
+
+<p>| Module | Coverage | Status | Action |</p>
+<p>|--------|----------|--------|--------|</p>
+<p>| definitie_repository.py | 97.8% | ✅ Excellent | None |</p>
+<p>| definition_generator_tab.py | 81.7% | ✅ Good | Minor |</p>
+<p>| services/container.py | 68.8% | ⚠️ Adequate | +10 funcs |</p>
+<p>| definition_edit_tab.py | 52.4% | ❌ Poor | +20 funcs |</p>
+
+<p><strong>Average:</strong> 75% (Target: 90%+)</p>
+
+<p>---</p>
+
+<h2>RECOMMENDED ROADMAP</h2>
+
+<h3>Sprint 1 (2 weeks): Critical Fixes</h3>
+<ul>
+<li>Fix Streamlit anti-patterns (6h)</li>
+<li>Decompose definition_generator_tab.py (36h)</li>
+<li>**Deliverable:** Core UI refactored</li>
+</ul>
+
+<h3>Sprint 2 (2 weeks): High Priority</h3>
+<ul>
+<li>Repository refactoring (32h)</li>
+<li>Utility consolidation (20h)</li>
+<li>**Deliverable:** Testable services</li>
+</ul>
+
+<h3>Sprint 3 (2 weeks): Testing</h3>
+<ul>
+<li>Add orchestrator tests (24h)</li>
+<li>Add type hints (12h)</li>
+<li>Repository unit tests (24h)</li>
+<li>**Deliverable:** 80%+ test coverage</li>
+</ul>
+
+<h3>Sprint 4 (2 weeks): Cleanup</h3>
+<ul>
+<li>UI tests (16h)</li>
+<li>God method refactoring (20h)</li>
+<li>Documentation (12h)</li>
+<li>**Deliverable:** Production-grade code</li>
+</ul>
+
+<p><strong>Total: 8 weeks (2 months)</strong></p>
+
+<p>---</p>
+
+<h2>SUCCESS METRICS</h2>
+
+<p>| Metric | Before | After | Change |</p>
+<p>|--------|--------|-------|--------|</p>
+<p>| Quality Score | 6.8/10 | 8.5/10 | +25% |</p>
+<p>| Files >1,500 LOC | 6 | 2 | -67% |</p>
+<p>| God Methods | 17 | 5 | -71% |</p>
+<p>| Type Coverage | 75% | 90% | +15% |</p>
+<p>| Test Coverage | 50% | 80% | +30% |</p>
+<p>| Tech Debt (hours) | 152-212 | 30-40 | -80% |</p>
+
+<p>---</p>
+
+<h2>IMMEDIATE ACTIONS</h2>
+
+<p><strong>This Week:</strong></p>
+<ol>
+<li>Fix Streamlit value+key pattern (6h) - CRITICAL correctness issue</li>
+<li>Start UI decomposition Phase 1 (16h)</li>
+</ol>
+
+<p><strong>Next Week:</strong></p>
+<ol>
+<li>Complete UI decomposition Phase 2 (28h)</li>
+<li>Begin repository refactoring (8h)</li>
+</ol>
+
+<p><strong>This Month:</strong></p>
+<ol>
+<li>Complete all CRITICAL and HIGH priority fixes (72-106h)</li>
+<li>Add missing tests for orchestrator (24h)</li>
+</ol>
+
+<p>---</p>
+
+<h2>KEY STRENGTHS ⭐</h2>
+
+<ol>
+<li>**Excellent Error Handling** - No bare except, specific exceptions</li>
+<li>**Clean Service Layer** - Proper separation, no UI imports</li>
+<li>**Good Type Coverage** - 98% in database layer</li>
+<li>**Minimal Dead Code** - Only 4 TODO markers</li>
+<li>**Well-Tested Infrastructure** - ServiceContainer, ModularValidationService</li>
+</ol>
+
+<h2>KEY WEAKNESSES ⚠️</h2>
+
+<ol>
+<li>**God Objects** - UI components too large (2,412 LOC)</li>
+<li>**Utility Duplication** - 4 resilience modules (2,515 LOC)</li>
+<li>**Test Gaps** - Critical orchestrators lack tests</li>
+<li>**Inconsistent Types** - Range from 52% to 98%</li>
+<li>**Business Logic Leakage** - Repository contains algorithms</li>
+</ol>
+
+<p>---</p>
+
+<h2>NEXT STEPS</h2>
+
+<ol>
+<li>**Review this summary** with team</li>
+<li>**Read full report** at `/docs/analyses/CODE_QUALITY_REVIEW.md`</li>
+<li>**Prioritize fixes** based on team capacity</li>
+<li>**Start Sprint 1** (Streamlit fixes + UI decomposition)</li>
+<li>**Track progress** using success metrics</li>
+</ol>
+
+<p>---</p>
+
+<p><strong>Report Quality:</strong> COMPREHENSIVE</p>
+<p><strong>Confidence:</strong> HIGH</p>
+<p><strong>Ready For:</strong> Sprint planning, refactoring execution, Phase 3 (complexity analysis)</p>
+
+  </div>
+</body>
+</html>

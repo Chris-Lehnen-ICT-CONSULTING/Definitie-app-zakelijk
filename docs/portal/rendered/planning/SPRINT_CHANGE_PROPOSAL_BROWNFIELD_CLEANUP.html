@@ -1,0 +1,638 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sprint Change Proposal: Brownfield Cleanup & Quality Infrastructure</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>Sprint Change Proposal: Brownfield Cleanup & Quality Infrastructure</h1>
+
+<p><strong>Date:</strong> 2025-09-30</p>
+<p><strong>Type:</strong> Course Correction / Technical Debt Resolution</p>
+<p><strong>Status:</strong> Pending Approval</p>
+<p><strong>Owner:</strong> Architecture Team</p>
+
+<p>---</p>
+
+<h2>Executive Summary</h2>
+
+<p>Het DefinitieAgent project heeft een <strong>60-80% discrepantie</strong> tussen gedocumenteerde architectuur/werkwijze en daadwerkelijke implementatie. Dit resulteert in developer confusion, architecture violations, process breakdown, en ongecontroleerde technical debt accumulation.</p>
+
+<p><strong>Recommended Action:</strong> Dedicated 4-5 week brownfield cleanup initiative (EPIC-025) met 3 gefaseerde sprints om documentatie/code alignment te herstellen van 60% → 90% en quality enforcement te implementeren.</p>
+
+<p><strong>Trade-off:</strong> Feature development (EPIC-017) wordt gepauzeerd voor 4-5 weken in ruil voor sustainable development foundation.</p>
+
+<p>---</p>
+
+<h2>1. Identified Issue</h2>
+
+<h3>Core Problem Statement</h3>
+
+<p><strong>60-80% discrepancy</strong> tussen gedocumenteerde architectuur/werkwijze en daadwerkelijke implementatie, veroorzaakt door:</p>
+
+<ol>
+<li>**Aspirational Documentation Presented as Current State**</li>
+</ol>
+<ul>
+<li>  - Architecture docs beschrijven microservices, Kubernetes, PostgreSQL als "current"</li>
+<li>  - Reality: Streamlit monolith, SQLite, service-oriented modules</li>
+<li>  - 3000+ regels "dead documentation" (beschrijft niet-geïmplementeerde infrastructure)</li>
+</ul>
+
+<ol>
+<li>**Architecture Violations**</li>
+</ol>
+<ul>
+<li>  - 14 UI bestanden importeren direct vanuit database layer (omzeilen service layer)</li>
+<li>  - 5 bestanden overschrijden 500-regel limiet dramatisch (2-4.7x over)</li>
+<li>  - Deprecated naming conventions nog in gebruik (organizational_context vs organisatorische_context)</li>
+</ul>
+
+<ol>
+<li>**Process Breakdown**</li>
+</ol>
+<ul>
+<li>  - TDD workflow gedocumenteerd maar 80% mismatch met actual commits</li>
+<li>  - 5.2% van stories heeft review document (moet 100% zijn)</li>
+<li>  - Pre-commit hooks niet afgedwongen in CI</li>
+</ul>
+
+<ol>
+<li>**Agent Instruction Conflicts**</li>
+</ol>
+<ul>
+<li>  - 3 verschillende instruction bronnen (CLAUDE.md, UNIFIED_INSTRUCTIONS.md, AGENTS.md)</li>
+<li>  - Unclear precedence en overlapping rules</li>
+<li>  - Agent name mismatches tussen systemen</li>
+</ul>
+
+<h3>Evidence</h3>
+
+<p><strong>Multi-Agent Analysis Results:</strong></p>
+
+<ul>
+<li>**📚 Doc Auditor:** 6 US-ID duplicaties, 270 canonical conflicts, INDEX.md 55→270 story mismatch</li>
+<li>**🏗️ Code Architect:** 5 files 2-4.7x over limiet (max 2339 LOC), 2066 LOC resilience duplicatie</li>
+<li>**⚙️ Process Guardian:** 72 scripts misplaced, 4 pre-commit vs 14 CI workflows, 80% workflow mismatch</li>
+<li>**🔍 Architecture Coherence:** 60% alignment score, 3000+ regels aspirational infrastructure docs</li>
+</ul>
+
+<p><strong>Impact:</strong></p>
+<ul>
+<li>Blocked progress (impossible to add features consistently)</li>
+<li>Developer confusion (niet duidelijk welke regels/patterns te volgen)</li>
+<li>Quality gate bypass (geen enforcement)</li>
+<li>Technical debt compounds (geen sustainable foundation)</li>
+</ul>
+
+<p>---</p>
+
+<h2>2. Epic Impact</h2>
+
+<h3>Current Epic (EPIC-017 - Active)</h3>
+
+<p><strong>Status:</strong> Must be <strong>PAUSED</strong> for 4-5 weeks during cleanup</p>
+
+<p><strong>Rationale:</strong></p>
+<ul>
+<li>Adding V2 iterative improvements to unstable codebase increases technical debt</li>
+<li>Risk of introducing new violations without enforcement gates</li>
+<li>Clean foundation required before feature expansion</li>
+</ul>
+
+<p><strong>Action:</strong></p>
+<ul>
+<li>Update EPIC-017 status: Active → Deferred</li>
+<li>Add note: "Blocked by EPIC-025 (Brownfield Cleanup)"</li>
+<li>Expected resume: Week 6 (post-cleanup)</li>
+</ul>
+
+<h3>Future Epics (19 Remaining)</h3>
+
+<p><strong>Status:</strong> <strong>NO SCOPE CHANGES</strong> - all epics remain valid</p>
+
+<p><strong>Impact:</strong></p>
+<ul>
+<li>Execution delay: Start after cleanup complete</li>
+<li>Better foundation: Cleaner basis voor implementation</li>
+<li>Higher velocity: Reduced technical debt friction</li>
+</ul>
+
+<h3>New Epic Required</h3>
+
+<p><strong>EPIC-025: Brownfield Cleanup & Quality Infrastructure</strong></p>
+
+<p><strong>Scope:</strong></p>
+<ul>
+<li>Duration: 4-5 weken (3 sprints)</li>
+<li>Priority: **P0** (blocker voor alle andere work)</li>
+<li>Stories: 7 (US-426 → US-434)</li>
+<li>Effort: ~91 hours</li>
+</ul>
+
+<p><strong>Goals:</strong></p>
+<ol>
+<li>Documentation/code alignment: 60% → 90%</li>
+<li>Architecture violations: 14 → 0</li>
+<li>Process enforcement: Automated quality gates</li>
+<li>Agent clarity: 3 instruction sources → 1 unified approach</li>
+</ol>
+
+<h3>Epic Status Standardization</h3>
+
+<p><strong>Current:</strong> 12 different status values in use</p>
+<ul>
+<li>Active, active, ACTIVE</li>
+<li>Completed, completed, Voltooid</li>
+<li>Deferred, DEFERRED</li>
+<li>IN_UITVOERING, TE_DOEN, READY, Open, Nog te bepalen, proposed</li>
+</ul>
+
+<p><strong>Target:</strong> 4 canonical values</p>
+<ul>
+<li>`active` - Currently being worked on</li>
+<li>`completed` - Done and validated</li>
+<li>`deferred` - Paused/blocked</li>
+<li>`proposed` - Planned but not started</li>
+</ul>
+
+<p>---</p>
+
+<h2>3. Artifact Impact</h2>
+
+<h3>Documents Requiring Updates</h3>
+
+<p>| Artifact | Impact | Changes Needed | Effort | Priority |</p>
+<p>|----------|--------|----------------|--------|----------|</p>
+<p>| <strong>ENTERPRISE_ARCHITECTURE.md</strong> | Major | Add AS-IS vs TO-BE sections, remove microservices claims | 4h | P0 |</p>
+<p>| <strong>SOLUTION_ARCHITECTURE.md</strong> | Major | Move 3000+ lines infra to ROADMAP doc | 8h | P0 |</p>
+<p>| <strong>TECHNICAL_ARCHITECTURE.md</strong> | Major | Update tech stack (SQLite), remove K8s/Docker/Terraform | 6h | P0 |</p>
+<p>| <strong>CLAUDE.md</strong> | Medium | Resolve UNIFIED conflict, add agent mapping | 2h | P1 |</p>
+<p>| <strong>UNIFIED_INSTRUCTIONS.md</strong> | Medium | Clarify precedence, deduplicate overlap | 2h | P1 |</p>
+<p>| <strong>INDEX.md</strong> | Medium | Update counts (55→270), sync directory structure | 2h | P1 |</p>
+<p>| <strong>CANONICAL_LOCATIONS.md</strong> | Low | Add missing dirs, update structure | 1h | P2 |</p>
+<p>| <strong>PRD (NEW)</strong> | Medium | Create Brownfield Cleanup PRD | 4h | P1 |</p>
+<p>| <strong>270+ US files</strong> | Medium | Normalize frontmatter (canonical, status) | 8h | P1 |</p>
+<p>| <strong>Scripts directory</strong> | Low | Reorganize 72 files to subdirs | 1h | P2 |</p>
+
+<p><strong>Total Documentation Effort:</strong> ~38 hours</p>
+
+<h3>Architecture Coherence Issues</h3>
+
+<p><strong>Current Alignment:</strong> 60%</p>
+
+<p><strong>Major Gaps:</strong></p>
+<ul>
+<li>Infrastructure as Code (K8s/Terraform): Documented but not implemented</li>
+<li>Database stack: PostgreSQL/Redis/Kafka documented, SQLite actual</li>
+<li>Microservices: 12 services documented, monolith actual</li>
+<li>Monitoring: Prometheus/ELK/Jaeger documented, basic logging actual</li>
+</ul>
+
+<p><strong>Target Alignment:</strong> 90% (realistic with AS-IS/TO-BE distinction)</p>
+
+<p>---</p>
+
+<h2>4. Recommended Path Forward</h2>
+
+<h3>Selected Option: Option 3 - PRD MVP Review (Phased Rollout)</h3>
+
+<p><strong>Rationale:</strong></p>
+
+<p>✅ <strong>Structurele fixes met automation</strong> (sustainable, prevents regression)</p>
+<p>✅ <strong>Clear scope met dedicated epic</strong> (trackable progress)</p>
+<p>✅ <strong>Root cause oplossing</strong> (niet alleen symptomen)</p>
+<p>✅ <strong>Long-term ROI</strong> (4-5 weken → jaren clean development)</p>
+
+<p><strong>Rejected Alternatives:</strong></p>
+
+<p>❌ <strong>Option 1 (Direct Adjustment):</strong> Lost symptomen maar niet onderliggende proces issues, risk van half-fixed state</p>
+<p>❌ <strong>Option 2 (Rollback):</strong> Recente commits zijn GOEDE refactoring, brownfield issues niet recent</p>
+
+<h3>Trade-off Analysis</h3>
+
+<p><strong>Cost:</strong></p>
+<ul>
+<li>4-5 weken feature development delay</li>
+<li>EPIC-017 paused</li>
+<li>~91 hours effort investment</li>
+</ul>
+
+<p><strong>Benefit:</strong></p>
+<ul>
+<li>90% doc/code alignment (from 60%)</li>
+<li>Zero architecture violations (from 14)</li>
+<li>Enforced quality gates (automated)</li>
+<li>Resolved agent confusion</li>
+<li>Sustainable development foundation</li>
+</ul>
+
+<p><strong>ROI:</strong> After cleanup, feature velocity INCREASES (less technical debt friction)</p>
+
+<p>---</p>
+
+<h2>5. Sprint Breakdown</h2>
+
+<h3>Sprint 1: Foundation Fixes (Week 1-2, ~35h)</h3>
+
+<p><strong>US-426: Fix Documentation Critical Issues</strong></p>
+<ul>
+<li>Fix 6 US-ID duplicaties (US-201→US-205, US-417)</li>
+<li>Update INDEX.md counts (55→270 stories)</li>
+<li>Normalize 270+ frontmatter files</li>
+<li>Reorganiseer scripts directory (72→subdirs)</li>
+<li>**Owner:** 📚 Doc Auditor Agent | **Effort:** 13h</li>
+</ul>
+
+<p><strong>US-427: Split Gigantic UI Components</strong></p>
+<ul>
+<li>`definition_generator_tab.py`: 2339→3x ~700 LOC</li>
+<li>`definitie_repository.py`: 1800→3x ~600 LOC</li>
+<li>`tabbed_interface.py`: 1733→5x ~350 LOC</li>
+<li>**Owner:** 🏗️ Code Architect Agent | **Effort:** 20h</li>
+</ul>
+
+<p><strong>US-428: Resolve Agent Instruction Conflicts</strong></p>
+<ul>
+<li>Update CLAUDE.md (add agent mapping)</li>
+<li>Clarify UNIFIED_INSTRUCTIONS precedence</li>
+<li>Document agent name translations</li>
+<li>**Owner:** ⚙️ Process Guardian Agent | **Effort:** 2h</li>
+</ul>
+
+<p><strong>Sprint 1 Deliverables:</strong></p>
+<ul>
+<li>✅ Zero US-ID conflicts</li>
+<li>✅ All files < 800 LOC</li>
+<li>✅ Single agent instruction source of truth</li>
+<li>✅ Clean scripts organization</li>
+</ul>
+
+<p>---</p>
+
+<h3>Sprint 2: Process Enforcement (Week 3, ~24h)</h3>
+
+<p><strong>US-429: Implement CI Quality Gates</strong></p>
+<ul>
+<li>Add pre-commit verification job to CI</li>
+<li>Run preflight-checks.sh in GitHub Actions</li>
+<li>Block commits without pre-commit execution</li>
+<li>Add branch name validation</li>
+<li>**Owner:** ⚙️ Process Guardian Agent | **Effort:** 8h</li>
+</ul>
+
+<p><strong>US-430: Extend Pre-commit Hooks</strong></p>
+<ul>
+<li>Add ruff check (local linting)</li>
+<li>Add pytest smoke tests</li>
+<li>Add forbidden pattern checks</li>
+<li>Add file size validation (500 LOC warning)</li>
+<li>**Owner:** 🏗️ Code Architect Agent | **Effort:** 6h</li>
+</ul>
+
+<p><strong>US-431: Workflow Validation Automation</strong></p>
+<ul>
+<li>Create workflow-guard.py script</li>
+<li>Add phase-tracker.py for TDD workflow</li>
+<li>Create wip_tracker.sh for backlog visibility</li>
+<li>Add review-reminder post-commit hook</li>
+<li>**Owner:** ⚙️ Process Guardian Agent | **Effort:** 10h</li>
+</ul>
+
+<p><strong>Sprint 2 Deliverables:</strong></p>
+<ul>
+<li>✅ CI enforces pre-commit hooks</li>
+<li>✅ 10+ automated quality checks active</li>
+<li>✅ Workflow violations blocked automatically</li>
+<li>✅ Real-time WIP visibility</li>
+</ul>
+
+<p>---</p>
+
+<h3>Sprint 3: Documentation Alignment (Week 4-5, ~32h)</h3>
+
+<p><strong>US-432: Update Architecture Documents</strong></p>
+<ul>
+<li>EA: Add AS-IS vs TO-BE distinction</li>
+<li>SA: Move 3000+ lines to INFRASTRUCTURE_ROADMAP.md</li>
+<li>TA: Update tech stack (SQLite reality)</li>
+<li>Create IMPLEMENTATION_STATUS.md dashboard</li>
+<li>**Owner:** 🔍 Architecture Coherence Agent | **Effort:** 18h</li>
+</ul>
+
+<p><strong>US-433: Consolidate Code Duplicatie</strong></p>
+<ul>
+<li>Consolideer resilience modules (4→1, 2066→800 LOC)</li>
+<li>Remove exports/ duplicate directory</li>
+<li>Merge technical/→technisch/</li>
+<li>Replace print() met logging (top 5 files)</li>
+<li>**Owner:** 🏗️ Code Architect Agent | **Effort:** 10h</li>
+</ul>
+
+<p><strong>US-434: Create Brownfield Cleanup PRD</strong></p>
+<ul>
+<li>Define new MVP goals</li>
+<li>Document success criteria</li>
+<li>Create epic/story breakdown</li>
+<li>Add to requirements traceability</li>
+<li>**Owner:** 📚 Doc Auditor Agent | **Effort:** 4h</li>
+</ul>
+
+<p><strong>Sprint 3 Deliverables:</strong></p>
+<ul>
+<li>✅ Architecture docs 90% aligned</li>
+<li>✅ Code duplicatie reduced 70%</li>
+<li>✅ NEW PRD canonical</li>
+<li>✅ IMPLEMENTATION_STATUS dashboard live</li>
+</ul>
+
+<p>---</p>
+
+<h2>6. Success Criteria</h2>
+
+<h3>Quantitative Targets</h3>
+
+<p>| Metric | Baseline | Target | Validation Method |</p>
+<p>|--------|----------|--------|-------------------|</p>
+<p>| <strong>Doc/Code Alignment</strong> | 60% | 90% | Coherence check script |</p>
+<p>| <strong>Files > 500 LOC</strong> | 5 | 0 | <code>find src -name "*.py" -exec wc -l</code> |</p>
+<p>| <strong>Architecture Violations</strong> | 14 | 0 | Grep for <code>from database.</code> in UI |</p>
+<p>| <strong>US-ID Conflicts</strong> | 6 | 0 | <code>rg "^id: US-" \| uniq -d</code> |</p>
+<p>| <strong>Code Duplicatie (LOC)</strong> | 2066 | <900 | Count resilience module lines |</p>
+<p>| <strong>CI Quality Checks</strong> | 4 | 10+ | <code>pre-commit run --all</code> count |</p>
+<p>| <strong>Epic Status Values</strong> | 12 | 4 | <code>grep "^status:" EPIC-*.md \| uniq</code> |</p>
+<p>| <strong>Agent Instruction Sources</strong> | 3 | 1 | Unified approach documented |</p>
+
+<h3>Qualitative Targets</h3>
+
+<p>✅ <strong>Developer Onboarding:</strong> New developer can understand codebase in < 2 days (from weeks)</p>
+<p>✅ <strong>Feature Velocity:</strong> Post-cleanup features implement 30% faster (less debt friction)</p>
+<p>✅ <strong>Agent Clarity:</strong> Agents know which instructions to follow without conflicts</p>
+<p>✅ <strong>Sustainable Foundation:</strong> Quality gates prevent future regression</p>
+
+<p>---</p>
+
+<h2>7. Risk Management</h2>
+
+<h3>High Risks</h3>
+
+<p><strong>Risk 1: Feature Pressure (Likelihood: HIGH)</strong></p>
+<ul>
+<li>**Impact:** Cleanup abandoned for urgent features</li>
+<li>**Mitigation:** Clear stakeholder communication upfront</li>
+<li>**Contingency:** Hotfix branch strategy for urgent features</li>
+<li>**Owner:** BMad Master</li>
+</ul>
+
+<p><strong>Risk 2: Agent Context Loss (Likelihood: MEDIUM)</strong></p>
+<ul>
+<li>**Impact:** Agent can't continue story execution</li>
+<li>**Mitigation:** Detailed handoff documents per sprint</li>
+<li>**Contingency:** Re-run agent analysis (30 min)</li>
+<li>**Owner:** BMad Master</li>
+</ul>
+
+<p><strong>Risk 3: Breaking Changes (Likelihood: MEDIUM)</strong></p>
+<ul>
+<li>**Impact:** Application doesn't start after refactoring</li>
+<li>**Mitigation:** Small atomic commits, smoke tests</li>
+<li>**Contingency:** Git revert to last stable commit</li>
+<li>**Owner:** Code Architect Agent</li>
+</ul>
+
+<h3>Rollback Plan</h3>
+
+<p><strong>Trigger Scenarios:</strong></p>
+<ol>
+<li>Sprint 1 < 50% complete at week 2 → Extend 1 week</li>
+<li>Application breaks → Git revert + incremental rollout</li>
+<li>Stakeholder pressure → Hotfix branch strategy</li>
+<li>< 30% progress after Sprint 1 → Consider aborting</li>
+</ol>
+
+<p><strong>Rollback Threshold:</strong> If after 2 weeks < 30% progress, reassess approach</p>
+
+<p>---</p>
+
+<h2>8. Agent Handoff Plan</h2>
+
+<h3>Agent Assignments</h3>
+
+<p>| Agent | Stories | Primary Responsibility |</p>
+<p>|-------|---------|----------------------|</p>
+<p>| <strong>📚 Doc Auditor</strong> | US-426, US-434 | Documentation fixes, PRD creation |</p>
+<p>| <strong>🏗️ Code Architect</strong> | US-427, US-430, US-433 | Code refactoring, file splits, consolidation |</p>
+<p>| <strong>⚙️ Process Guardian</strong> | US-428, US-429, US-431 | Workflow enforcement, automation |</p>
+<p>| <strong>🔍 Architecture Coherence</strong> | US-432 | Architecture doc alignment |</p>
+
+<h3>Handoff Sequence</h3>
+
+<p><strong>Sprint 1 Start (Week 1):</strong></p>
+<ul>
+<li>BMad Master → 📚 Doc Auditor (US-426)</li>
+<li>BMad Master → 🏗️ Code Architect (US-427)</li>
+<li>BMad Master → ⚙️ Process Guardian (US-428)</li>
+</ul>
+
+<p><strong>Sprint 2 Start (Week 3):</strong></p>
+<ul>
+<li>Code Architect → Process Guardian (primary)</li>
+<li>Handoff: US-429, US-430, US-431</li>
+</ul>
+
+<p><strong>Sprint 3 Start (Week 4):</strong></p>
+<ul>
+<li>Process Guardian → Architecture Coherence + Doc Auditor</li>
+<li>Handoff: US-432, US-433, US-434</li>
+</ul>
+
+<h3>Daily Standup Format (Async)</h3>
+
+<p><strong>Agent Report Template:</strong></p>
+<pre><code>🤖 [Agent Name] Daily Report - [Date]
+
+✅ Completed Yesterday:
+- [Task 1]
+- [Task 2]
+
+🔄 Working On Today:
+- [Task 1]
+- [Task 2]
+
+🚧 Blockers:
+- [Blocker 1] (if any)
+
+📊 Progress: [Story ID] [XX]% complete</code></pre>
+
+<p>---</p>
+
+<h2>9. Timeline & Milestones</h2>
+
+<h3>Week-by-Week Breakdown</h3>
+
+<p><strong>Week 0 (This Week):</strong></p>
+<ul>
+<li>User approval</li>
+<li>Execute quick wins (2h)</li>
+<li>Create EPIC-025 + 7 stories</li>
+</ul>
+
+<p><strong>Week 1-2 (Sprint 1):</strong></p>
+<ul>
+<li>US-426, US-427, US-428</li>
+<li>Daily agent reports</li>
+<li>Sprint 1 review (end of week 2)</li>
+</ul>
+
+<p><strong>Week 3 (Sprint 2):</strong></p>
+<ul>
+<li>US-429, US-430, US-431</li>
+<li>CI gates go live</li>
+<li>Sprint 2 review (end of week 3)</li>
+</ul>
+
+<p><strong>Week 4-5 (Sprint 3):</strong></p>
+<ul>
+<li>US-432, US-433, US-434</li>
+<li>Architecture updates finalized</li>
+<li>Final validation & review</li>
+</ul>
+
+<p><strong>Week 6:</strong></p>
+<ul>
+<li>Resume EPIC-017</li>
+<li>Normal feature development velocity restored</li>
+</ul>
+
+<h3>Key Milestones</h3>
+
+<p>| Milestone | Date | Success Criteria |</p>
+<p>|-----------|------|------------------|</p>
+<p>| <strong>Kickoff Complete</strong> | Day 2 | EPIC-025 + stories created |</p>
+<p>| <strong>Sprint 1 Review</strong> | Week 2 end | 80% targets met |</p>
+<p>| <strong>Sprint 2 Review</strong> | Week 3 end | 90% targets met |</p>
+<p>| <strong>Sprint 3 Complete</strong> | Week 5 end | 100% targets met |</p>
+<p>| <strong>EPIC-017 Resume</strong> | Week 6 | Feature development restored |</p>
+
+<p>---</p>
+
+<h2>10. Quick Wins (Parallel Track)</h2>
+
+<p><strong>Can be executed IMMEDIATELY (Today):</strong></p>
+
+<ol>
+<li>**Fix datum typo** (5 min)</li>
+</ol>
+<ul>
+<li>  - File: `TDD_TO_DEPLOYMENT_WORKFLOW.md` line 5</li>
+<li>  - Change: "30-01-2025" → "30-09-2025"</li>
+</ul>
+
+<ol>
+<li>**Remove empty directories** (5 min)</li>
+<pre><code>   find docs/backlog -type d -empty -delete</code></pre>
+</ol>
+
+<ol>
+<li>**Merge technical/ → technisch/** (15 min)</li>
+<pre><code>   mv docs/technical/* docs/technisch/
+   rmdir docs/technical</code></pre>
+</ol>
+
+<ol>
+<li>**Archive development/ directory** (10 min)</li>
+<pre><code>   mv docs/development docs/archief/2025-09/development</code></pre>
+</ol>
+
+<ol>
+<li>**Add minimal frontmatter** (1h)</li>
+<pre><code>   bash scripts/add-frontmatter.sh</code></pre>
+</ol>
+
+<p><strong>Total Quick Wins:</strong> ~2 hours</p>
+<p><strong>Impact:</strong> Immediate visible improvement, momentum builder</p>
+
+<p>---</p>
+
+<h2>11. Approval Required</h2>
+
+<h3>Decision Points</h3>
+
+<p><strong>Please approve/reject the following:</strong></p>
+
+<ul>
+<li>[ ] **APPROVE** - Pause EPIC-017 for 4-5 weeks</li>
+<li>[ ] **APPROVE** - Create EPIC-025 (Brownfield Cleanup)</li>
+<li>[ ] **APPROVE** - Resource allocation (~91h effort)</li>
+<li>[ ] **APPROVE** - Agent assignments (4 agents)</li>
+<li>[ ] **APPROVE** - Success criteria (8 quantitative targets)</li>
+<li>[ ] **APPROVE** - Phased rollout approach (3 sprints)</li>
+</ul>
+
+<h3>Signature</h3>
+
+<p><strong>Prepared By:</strong> BMad Master (Change Navigation Agent)</p>
+<p><strong>Date:</strong> 2025-09-30</p>
+<p><strong>Status:</strong> Awaiting Approval</p>
+
+<p><strong>Approved By:</strong> ________________</p>
+<p><strong>Date:</strong> ________________</p>
+
+<p>---</p>
+
+<h2>12. Next Steps (Post-Approval)</h2>
+
+<p><strong>Immediate Actions:</strong></p>
+
+<ol>
+<li>Execute Quick Wins (2h)</li>
+<li>Create EPIC-025 in backlog</li>
+<li>Create 7 user stories (US-426→US-434)</li>
+<li>Update EPIC-017 status (Active→Deferred)</li>
+<li>Assign stories to agents</li>
+<li>Schedule Sprint 1 kickoff</li>
+</ol>
+
+<p><strong>Communication Plan:</strong></p>
+
+<ul>
+<li>Stakeholder announcement (why feature pause)</li>
+<li>Team notification (sprint structure)</li>
+<li>Daily async standup setup</li>
+<li>Weekly progress reports</li>
+</ul>
+
+<p>---</p>
+
+<h2>Appendix A: Agent Analysis Summary</h2>
+
+<p>See separate document: <code>AGENT_ANALYSIS_SUMMARY.md</code></p>
+
+<h2>Appendix B: Story Details</h2>
+
+<p>See individual story files in <code>/docs/backlog/EPIC-025/US-XXX/</code></p>
+
+<h2>Appendix C: Validation Scripts</h2>
+
+<p>All validation scripts referenced in this document available in <code>/scripts/validation/</code></p>
+
+<p>---</p>
+
+<p><strong>End of Sprint Change Proposal</strong></p>
+
+  </div>
+</body>
+</html>

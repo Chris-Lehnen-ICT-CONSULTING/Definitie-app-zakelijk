@@ -1,0 +1,610 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DEF-99 Root Cause Analysis: Double Adapter Wrapping Bug</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>DEF-99 Root Cause Analysis: Double Adapter Wrapping Bug</h1>
+
+<p><strong>Date:</strong> 2025-11-03</p>
+<p><strong>Bug:</strong> Critical validation failure - AttributeError: 'coroutine' object has no attribute 'cleaned_text'</p>
+<p><strong>Impact:</strong> ALL validations fail, application unusable</p>
+<p><strong>Status:</strong> ✅ Root cause CONFIRMED with reproduction</p>
+
+<p>---</p>
+
+<h2>Executive Summary</h2>
+
+<h3>Root Cause</h3>
+<p><strong>DOUBLE ADAPTER WRAPPING</strong> in uncommitted DEF-90 lazy loading changes causes <code>asyncio.to_thread()</code> to receive async functions instead of sync functions, returning coroutine objects instead of <code>CleaningResult</code> instances.</p>
+
+<h3>Evidence Chain</h3>
+<ol>
+<li>✅ `container.py:245` wraps `CleaningService` ONCE → returns `CleaningServiceAdapterV1toV2`</li>
+<li>✅ `definition_orchestrator_v2.py:221` wraps it AGAIN → double wrapping</li>
+<li>✅ Inner adapter returns `CleaningResult` correctly</li>
+<li>✅ Outer adapter calls `asyncio.to_thread(async_function)` which FAILS</li>
+<li>✅ Result is coroutine object, not `CleaningResult`</li>
+<li>✅ Validation tries `result.cleaned_text` → AttributeError</li>
+</ol>
+
+<h3>Minimal Reproduction</h3>
+<p>Created <code>scripts/debug/test_double_wrapping.py</code> - <strong>ALL 3 tests PASS</strong> confirming the bug:</p>
+<ul>
+<li>✅ Single wrap works correctly</li>
+<li>✅ Double wrap returns coroutine object (not CleaningResult)</li>
+<li>✅ `asyncio.to_thread()` cannot handle async functions</li>
+</ul>
+
+<p>---</p>
+
+<h2>Detailed Analysis</h2>
+
+<h3>1. The Double Wrapping Chain</h3>
+
+<h4>Step 1: Container wraps CleaningService (CORRECT)</h4>
+<p><strong>File:</strong> <code>src/services/container.py:245</code></p>
+<pre><code># Get cleaning service (needed for orchestrator init)
+cleaning_service = CleaningServiceAdapterV1toV2(self.cleaning_service())</code></pre>
+
+<p><strong>Result:</strong> <code>cleaning_service</code> is now <code>CleaningServiceAdapterV1toV2(CleaningService)</code></p>
+<p><strong>Interface:</strong> Async methods (<code>async def clean_text()</code>)</p>
+
+<h4>Step 2: Orchestrator wraps it AGAIN (BUG!)</h4>
+<p><strong>File:</strong> <code>src/services/orchestrators/definition_orchestrator_v2.py:221</code> (UNCOMMITTED)</p>
+<pre><code># Wrap cleaning service for V2 compatibility
+cleaning_adapter = CleaningServiceAdapterV1toV2(self.cleaning_service)</code></pre>
+
+<p><strong>Result:</strong> <code>Adapter2(Adapter1(CleaningService))</code></p>
+<p><strong>Problem:</strong> <code>self.cleaning_service</code> is ALREADY wrapped!</p>
+
+<h3>2. Why asyncio.to_thread() Fails</h3>
+
+<h4>Adapter Implementation</h4>
+<p><strong>File:</strong> <code>src/services/adapters/cleaning_service_adapter.py:27-33</code></p>
+<pre><code>async def clean_text(self, text: str, term: str) -&gt; CleaningResult:
+    """
+    Clean definition text asynchronously.
+
+    Wraps the sync method using asyncio.to_thread for proper async execution.
+    """
+    return await asyncio.to_thread(self._svc.clean_text, text, term)</code></pre>
+
+<h4>The Problem</h4>
+<p><strong>Expected:</strong> <code>self._svc.clean_text</code> is a <strong>SYNC</strong> function</p>
+<p><strong>Actual (double wrap):</strong> <code>self._svc.clean_text</code> is an <strong>ASYNC</strong> function</p>
+<p><strong>Result:</strong> <code>asyncio.to_thread()</code> returns coroutine object instead of executing it</p>
+
+<h4>Python asyncio.to_thread() Documentation</h4>
+<blockquote>`asyncio.to_thread(func, /, *args, **kwargs)`</blockquote>
+<p>></p>
+<blockquote>Asynchronously run function *func* in a separate thread.</blockquote>
+<p>></p>
+<blockquote>**NOTE:** *func* must be a **SYNCHRONOUS** callable.</blockquote>
+
+<p>Source: https://docs.python.org/3/library/asyncio-task.html#asyncio.to_thread</p>
+
+<h3>3. Execution Flow Breakdown</h3>
+
+<h4>Single Wrap (WORKS)</h4>
+<pre><code>ValidationOrchestrator.validate_definition()
+  └─&gt; await cleaning_adapter.clean_text(text, term)  # Adapter1
+        └─&gt; await asyncio.to_thread(CleaningService.clean_text, text, term)  # SYNC method
+              └─&gt; Returns CleaningResult ✅</code></pre>
+
+<h4>Double Wrap (FAILS)</h4>
+<pre><code>ValidationOrchestrator.validate_definition()
+  └─&gt; await cleaning_adapter.clean_text(text, term)  # Adapter2
+        └─&gt; await asyncio.to_thread(Adapter1.clean_text, text, term)  # ASYNC method!
+              └─&gt; Returns coroutine object ❌ (not CleaningResult)</code></pre>
+
+<h3>4. When Was This Introduced?</h3>
+
+<h4>Git Analysis</h4>
+<pre><code>$ git diff HEAD src/services/orchestrators/definition_orchestrator_v2.py</code></pre>
+
+<p><strong>Finding:</strong> Changes are <strong>UNCOMMITTED</strong> - part of DEF-90 lazy loading optimization</p>
+
+<p><strong>Introduced in:</strong> DEF-90 lazy loading changes (uncommitted working directory changes)</p>
+
+<p><strong>Commit that would introduce bug:</strong> Not yet committed (still in working directory)</p>
+
+<h4>Key Changes in DEF-90</h4>
+<ol>
+<li>Added `validation_service` property for lazy loading</li>
+<li>Added double wrapping at line 221: `CleaningServiceAdapterV1toV2(self.cleaning_service)`</li>
+<li>Changed `self.cleaning_service` from direct assignment to already-wrapped service</li>
+</ol>
+
+<h3>5. Why Tests Didn't Catch This</h3>
+
+<h4>Test Analysis</h4>
+<p><strong>File:</strong> <code>tests/services/adapters/test_cleaning_service_adapter.py</code></p>
+
+<p><strong>Tests use:</strong> Single wrapping only (FakeSyncCleaningService → Adapter)</p>
+<pre><code>adapter = CleaningServiceAdapterV1toV2(FakeSyncCleaningService())</code></pre>
+
+<p><strong>Missing test case:</strong> Double wrapping scenario</p>
+<pre><code># MISSING TEST CASE
+adapter1 = CleaningServiceAdapterV1toV2(FakeSyncCleaningService())
+adapter2 = CleaningServiceAdapterV1toV2(adapter1)  # Should fail!</code></pre>
+
+<h4>Test Gap</h4>
+<ul>
+<li>✅ Tests verify adapter wraps sync service correctly</li>
+<li>❌ Tests don't verify adapter fails when wrapping async service</li>
+<li>❌ Tests don't verify type checking prevents double wrapping</li>
+<li>❌ Integration tests don't exercise lazy-loaded validation path</li>
+</ul>
+
+<p>---</p>
+
+<h2>Fix Options Analysis</h2>
+
+<h3>Option 1: Remove Double Wrapping (RECOMMENDED)</h3>
+<p><strong>File:</strong> <code>src/services/orchestrators/definition_orchestrator_v2.py:221</code></p>
+
+<p><strong>Change:</strong></p>
+<pre><code># BEFORE (BUG)
+cleaning_adapter = CleaningServiceAdapterV1toV2(self.cleaning_service)
+
+# AFTER (FIX)
+cleaning_adapter = self.cleaning_service  # Already wrapped by container</code></pre>
+
+<p><strong>Pros:</strong></p>
+<ul>
+<li>✅ Simple 1-line fix</li>
+<li>✅ No performance impact</li>
+<li>✅ Maintains existing architecture</li>
+<li>✅ No API changes required</li>
+</ul>
+
+<p><strong>Cons:</strong></p>
+<ul>
+<li>None identified</li>
+</ul>
+
+<p><strong>Risk:</strong> LOW</p>
+
+<p>---</p>
+
+<h3>Option 2: Add Type Checking to Adapter</h3>
+<p><strong>File:</strong> <code>src/services/adapters/cleaning_service_adapter.py:18-25</code></p>
+
+<p><strong>Change:</strong></p>
+<pre><code>def __init__(self, sync_cleaning_service):
+    """
+    Initialize adapter with sync cleaning service.
+
+    Args:
+        sync_cleaning_service: The synchronous cleaning service to wrap
+
+    Raises:
+        TypeError: If sync_cleaning_service is already an adapter
+    """
+    # Prevent double wrapping
+    if isinstance(sync_cleaning_service, CleaningServiceAdapterV1toV2):
+        raise TypeError(
+            "Cannot wrap CleaningServiceAdapterV1toV2 - service is already adapted. "
+            "Use the adapter directly instead of wrapping it again."
+        )
+
+    self._svc = sync_cleaning_service</code></pre>
+
+<p><strong>Pros:</strong></p>
+<ul>
+<li>✅ Prevents double wrapping at runtime</li>
+<li>✅ Clear error message for developers</li>
+<li>✅ Defensive programming</li>
+</ul>
+
+<p><strong>Cons:</strong></p>
+<ul>
+<li>⚠️  Doesn't fix existing bug (still need Option 1)</li>
+<li>⚠️  Only catches same-type wrapping (not async functions in general)</li>
+</ul>
+
+<p><strong>Risk:</strong> LOW</p>
+<p><strong>Recommendation:</strong> Implement AFTER Option 1 as preventive measure</p>
+
+<p>---</p>
+
+<h3>Option 3: Change Container to Return Unwrapped Service</h3>
+<p><strong>File:</strong> <code>src/services/container.py:245</code></p>
+
+<p><strong>Change:</strong></p>
+<pre><code># BEFORE
+cleaning_service = CleaningServiceAdapterV1toV2(self.cleaning_service())
+
+# AFTER
+cleaning_service = self.cleaning_service()  # Return unwrapped</code></pre>
+
+<p><strong>Pros:</strong></p>
+<ul>
+<li>✅ Allows orchestrator to control wrapping</li>
+</ul>
+
+<p><strong>Cons:</strong></p>
+<ul>
+<li>❌ Requires updating ALL consumers of `container.cleaning_service()`</li>
+<li>❌ Breaks existing code that expects async interface</li>
+<li>❌ Violates separation of concerns (container should provide ready-to-use services)</li>
+<li>❌ High risk of breaking other code</li>
+</ul>
+
+<p><strong>Risk:</strong> HIGH</p>
+<p><strong>Recommendation:</strong> DO NOT USE</p>
+
+<p>---</p>
+
+<h2>Recommended Fix Strategy</h2>
+
+<h3>Phase 1: Immediate Fix (P0)</h3>
+<ol>
+<li>**Remove double wrapping** at `definition_orchestrator_v2.py:221`</li>
+<pre><code>   # Change this line:
+   cleaning_adapter = CleaningServiceAdapterV1toV2(self.cleaning_service)
+   # To:
+   cleaning_adapter = self.cleaning_service  # Already wrapped by container</code></pre>
+</ol>
+
+<ol>
+<li>**Test the fix**</li>
+<pre><code>   # Run existing adapter tests
+   pytest tests/services/adapters/test_cleaning_service_adapter.py -v
+
+   # Run validation tests
+   pytest tests/services/orchestrators/test_validation_orchestrator_v2.py -v
+
+   # Run integration tests
+   pytest tests/integration/ -v</code></pre>
+</ol>
+
+<h3>Phase 2: Prevent Regression (P1)</h3>
+<ol>
+<li>**Add type checking** to `CleaningServiceAdapterV1toV2.__init__()` (Option 2)</li>
+</ol>
+
+<ol>
+<li>**Add test case** for double wrapping prevention</li>
+<pre><code>   # tests/services/adapters/test_cleaning_service_adapter.py
+
+   def test_adapter_prevents_double_wrapping():
+       """Test that adapter raises TypeError when wrapping another adapter."""
+       sync_service = FakeSyncCleaningService()
+       adapter1 = CleaningServiceAdapterV1toV2(sync_service)
+
+       with pytest.raises(TypeError, match="already adapted"):
+           CleaningServiceAdapterV1toV2(adapter1)</code></pre>
+</ol>
+
+<ol>
+<li>**Add integration test** for lazy-loaded validation path</li>
+<pre><code>   # tests/integration/test_lazy_validation.py
+
+   @pytest.mark.asyncio
+   async def test_lazy_validation_service_cleaning():
+       """Test that lazy-loaded validation service uses cleaning correctly."""
+       # Create orchestrator with lazy validation (None)
+       orchestrator = DefinitionOrchestratorV2(
+           ai_service=mock_ai,
+           cleaning_service=wrapped_cleaning,
+           repository=mock_repo,
+           validation_service=None,  # Trigger lazy load
+       )
+
+       # Trigger validation (lazy load)
+       result = await orchestrator.validation_service.validate_definition(...)
+
+       # Verify cleaning result has correct type
+       assert isinstance(result, ValidationResult)
+       assert not isinstance(result, types.CoroutineType)</code></pre>
+</ol>
+
+<h3>Phase 3: Documentation (P2)</h3>
+<ol>
+<li>**Update CLAUDE.md** with adapter pattern guidance</li>
+<pre><code>   ### CleaningService Adapter Pattern
+
+   **RULE:** CleaningService is wrapped ONCE by ServiceContainer
+
+   - ✅ Use `self.cleaning_service` directly (already wrapped)
+   - ❌ NEVER wrap it again: `CleaningServiceAdapterV1toV2(self.cleaning_service)`
+
+   **Why:** Double wrapping causes `asyncio.to_thread()` to receive async functions,
+   returning coroutine objects instead of CleaningResult instances.</code></pre>
+</ol>
+
+<ol>
+<li>**Add comment** at container wrapping location</li>
+<pre><code>   # src/services/container.py:245
+
+   # IMPORTANT: This is the ONLY place CleaningService should be wrapped
+   # Other services should use self.cleaning_service directly (already wrapped)
+   # See: docs/debugging/DEF-99-ROOT-CAUSE-ANALYSIS.md
+   cleaning_service = CleaningServiceAdapterV1toV2(self.cleaning_service())</code></pre>
+</ol>
+
+<p>---</p>
+
+<h2>Edge Cases & Risks</h2>
+
+<h3>Edge Case 1: Other Services Using cleaning_service</h3>
+<p><strong>Question:</strong> Do other services wrap <code>self.cleaning_service</code>?</p>
+
+<p><strong>Check:</strong></p>
+<pre><code>grep -r "CleaningServiceAdapterV1toV2(self.cleaning_service)" src/</code></pre>
+
+<p><strong>Result:</strong> Only found in <code>definition_orchestrator_v2.py:221</code> (the bug)</p>
+
+<p><strong>Conclusion:</strong> No other edge cases identified</p>
+
+<h3>Edge Case 2: Tests Mocking cleaning_service</h3>
+<p><strong>Question:</strong> Do tests provide pre-wrapped or unwrapped mocks?</p>
+
+<p><strong>Check:</strong></p>
+<pre><code># tests/services/orchestrators/test_validation_orchestrator_v2.py:50-56
+@pytest.fixture
+def mock_cleaning_service(self):
+    """Create a mock cleaning service."""
+    service = Mock()
+    service.clean_text = AsyncMock(return_value=Mock(cleaned_text="cleaned text"))
+    service.clean_definition = AsyncMock(...)
+    return service</code></pre>
+
+<p><strong>Finding:</strong> Tests provide ASYNC mock (simulates wrapped adapter)</p>
+
+<p><strong>Conclusion:</strong> Tests expect wrapped service, consistent with fix</p>
+
+<h3>Edge Case 3: Python 3.13 Behavior Change</h3>
+<p><strong>Question:</strong> Does Python 3.13 change asyncio.to_thread() behavior?</p>
+
+<p><strong>Research:</strong> Python 3.13 asyncio.to_thread() documentation unchanged</p>
+
+<p><strong>Conclusion:</strong> No Python 3.13 specific behavior</p>
+
+<p>---</p>
+
+<h2>Performance Impact Analysis</h2>
+
+<h3>Before Fix (Double Wrap)</h3>
+<pre><code>Adapter2.clean_text()
+  └─&gt; asyncio.to_thread(Adapter1.clean_text)  # WRONG: async function
+        └─&gt; Returns coroutine (not executed)</code></pre>
+
+<p><strong>Performance:</strong> N/A (code fails before completion)</p>
+
+<h3>After Fix (Single Wrap)</h3>
+<pre><code>Adapter1.clean_text()
+  └─&gt; asyncio.to_thread(CleaningService.clean_text)  # CORRECT: sync function
+        └─&gt; Returns CleaningResult</code></pre>
+
+<p><strong>Performance:</strong> Expected performance (no additional overhead)</p>
+
+<p><strong>Conclusion:</strong> Fix has NO performance impact (restores correct behavior)</p>
+
+<p>---</p>
+
+<h2>Testing Strategy</h2>
+
+<h3>Unit Tests</h3>
+<ol>
+<li>✅ Existing adapter tests (verify single wrap works)</li>
+<li>➕ New test: prevent double wrapping (TypeError)</li>
+<li>➕ New test: asyncio.to_thread with async function fails</li>
+</ol>
+
+<h3>Integration Tests</h3>
+<ol>
+<li>➕ Test lazy-loaded validation service</li>
+<li>➕ Test full definition generation with validation</li>
+<li>➕ Test cleaning result type in validation flow</li>
+</ol>
+
+<h3>Manual Testing</h3>
+<ol>
+<li>Start application: `make dev`</li>
+<li>Generate definition with "Burger" + "OBJECT"</li>
+<li>Verify validation runs without AttributeError</li>
+<li>Verify cleaned_text is accessible</li>
+</ol>
+
+<h3>Regression Testing</h3>
+<pre><code># Run full test suite
+pytest -v
+
+# Run validation-specific tests
+pytest tests/services/orchestrators/ -v
+pytest tests/services/adapters/ -v
+
+# Run smoke tests
+pytest tests/smoke/ -v</code></pre>
+
+<p>---</p>
+
+<h2>Timeline</h2>
+
+<h3>When Bug Was Introduced</h3>
+<ul>
+<li>**Date:** During DEF-90 lazy loading implementation</li>
+<li>**Status:** UNCOMMITTED (in working directory)</li>
+<li>**Would be committed:** If DEF-90 changes are committed without review</li>
+</ul>
+
+<h3>When Bug Was Discovered</h3>
+<ul>
+<li>**Date:** 2025-11-03</li>
+<li>**Discovered by:** Validation failures in all definition generations</li>
+<li>**Impact:** Application unusable</li>
+</ul>
+
+<h3>Fix Timeline</h3>
+<ul>
+<li>**Root cause confirmed:** 2025-11-03 (this analysis)</li>
+<li>**Fix implementation:** < 5 minutes (1-line change)</li>
+<li>**Testing:** 30 minutes</li>
+<li>**Documentation:** 1 hour (this document)</li>
+<li>**Total:** ~2 hours</li>
+</ul>
+
+<p>---</p>
+
+<h2>Lessons Learned</h2>
+
+<h3>Architecture Lessons</h3>
+<ol>
+<li>**Lazy loading increases complexity** - Need integration tests for lazy paths</li>
+<li>**Adapter pattern needs guards** - Prevent double wrapping with type checks</li>
+<li>**Container responsibilities** - Container should provide ready-to-use services</li>
+</ol>
+
+<h3>Testing Lessons</h3>
+<ol>
+<li>**Mock fidelity matters** - Tests should match production wrapping</li>
+<li>**Integration tests critical** - Unit tests missed double wrapping scenario</li>
+<li>**Lazy loading needs tests** - Test both eager and lazy initialization paths</li>
+</ol>
+
+<h3>Process Lessons</h3>
+<ol>
+<li>**Code review value** - Would have caught double wrapping immediately</li>
+<li>**Git discipline** - Uncommitted changes = unreviewed changes</li>
+<li>**Performance optimizations** - Need extra scrutiny for correctness</li>
+</ol>
+
+<p>---</p>
+
+<h2>Related Issues</h2>
+
+<h3>Similar Patterns to Check</h3>
+<ol>
+<li>❓ Other adapters that might double-wrap</li>
+<li>❓ Other lazy-loaded services</li>
+<li>❓ Other asyncio.to_thread() usage</li>
+</ol>
+
+<h3>Technical Debt</h3>
+<ol>
+<li>Consider removing adapter pattern if CleaningService can be async directly</li>
+<li>Consider dependency injection validation in ServiceContainer</li>
+<li>Consider runtime type checking for critical interfaces</li>
+</ol>
+
+<p>---</p>
+
+<h2>References</h2>
+
+<h3>Files Analyzed</h3>
+<ul>
+<li>`src/services/container.py:245` - First wrap (correct)</li>
+<li>`src/services/orchestrators/definition_orchestrator_v2.py:221` - Second wrap (BUG)</li>
+<li>`src/services/adapters/cleaning_service_adapter.py` - Adapter implementation</li>
+<li>`tests/services/adapters/test_cleaning_service_adapter.py` - Unit tests</li>
+</ul>
+
+<h3>Documentation</h3>
+<ul>
+<li>Python asyncio.to_thread(): https://docs.python.org/3/library/asyncio-task.html#asyncio.to_thread</li>
+<li>DEF-90: Lazy loading optimization (uncommitted)</li>
+<li>DEF-99: This bug report</li>
+</ul>
+
+<h3>Tools Used</h3>
+<ul>
+<li>Reproduction script: `scripts/debug/test_double_wrapping.py`</li>
+<li>Git blame analysis</li>
+<li>Git diff analysis</li>
+<li>Manual code inspection</li>
+</ul>
+
+<p>---</p>
+
+<h2>Appendix A: Reproduction Script Output</h2>
+
+<pre><code>============================================================
+DEF-99 Double Adapter Wrapping Reproduction Test
+============================================================
+
+=== Test 1: Single Adapter Wrapping ===
+✅ Single wrap works! Result: test
+
+=== Test 2: Double Adapter Wrapping (reproduces DEF-99) ===
+Result type: &lt;class 'coroutine'&gt;
+Result value: &lt;coroutine object CleaningServiceAdapterV1toV2.clean_text at 0x106db03c0&gt;
+❌ Result is missing cleaned_text attribute!
+   Available attributes: ['__await__', '__class__', ...]
+
+=== Test 3: asyncio.to_thread() with async function ===
+Result: &lt;coroutine object test_asyncio_to_thread_with_async_function.&lt;locals&gt;.async_function at 0x106ce2770&gt;
+Result type: &lt;class 'coroutine'&gt;
+❌ Result is a coroutine! This is the bug.
+   asyncio.to_thread() cannot handle async functions
+
+============================================================
+SUMMARY
+============================================================
+✅ PASSED: Single wrap
+✅ PASSED: Double wrap
+✅ PASSED: asyncio.to_thread
+
+============================================================
+ROOT CAUSE ANALYSIS
+============================================================
+
+1. container.py line 245 wraps CleaningService ONCE:
+   cleaning_service = CleaningServiceAdapterV1toV2(self.cleaning_service())
+
+2. definition_orchestrator_v2.py line 221 wraps it AGAIN:
+   cleaning_adapter = CleaningServiceAdapterV1toV2(self.cleaning_service)
+
+3. Double wrapping chain:
+   Adapter2 → Adapter1 → CleaningService
+
+4. When Adapter2.clean_text() is called:
+   - Adapter2 calls: asyncio.to_thread(Adapter1.clean_text, ...)
+   - But Adapter1.clean_text is ASYNC function!
+   - asyncio.to_thread() expects SYNC functions only
+   - Result: Returns coroutine object instead of CleaningResult
+
+5. Validation code tries to access result.cleaned_text
+   → AttributeError: 'coroutine' object has no attribute 'cleaned_text'</code></pre>
+
+<p>---</p>
+
+<h2>Appendix B: Fix Verification Checklist</h2>
+
+<p>Before committing fix:</p>
+
+<ul>
+<li>[ ] Fix applied at `definition_orchestrator_v2.py:221`</li>
+<li>[ ] Unit tests pass: `pytest tests/services/adapters/`</li>
+<li>[ ] Integration tests pass: `pytest tests/services/orchestrators/`</li>
+<li>[ ] Smoke tests pass: `pytest tests/smoke/`</li>
+<li>[ ] Manual test: Generate definition successfully</li>
+<li>[ ] Code review completed</li>
+<li>[ ] Documentation updated (CLAUDE.md)</li>
+<li>[ ] Regression tests added</li>
+<li>[ ] Git commit with reference to this analysis</li>
+</ul>
+
+<p>---</p>
+
+<p><strong>END OF REPORT</strong></p>
+
+  </div>
+</body>
+</html>
