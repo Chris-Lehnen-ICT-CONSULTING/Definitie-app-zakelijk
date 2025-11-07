@@ -55,7 +55,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **History Tab Removal** (US-412): Removed unused history tab UI component (-453 LOC)
   - Tab functionality was not in active use
   - Database structure and audit triggers preserved
-  - See [migration guide](docs/migrations/history_tab_removal.md) for details
+  - See [migration guide](docs/archief/2025-01-cleanup/migrations/history-tab/history_tab_removal.md) for details
   - Future inline history implementation planned in US-411
 
 ### Preserved
