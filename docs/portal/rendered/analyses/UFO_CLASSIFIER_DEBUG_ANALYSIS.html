@@ -1,0 +1,1333 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>UFO Classifier - Grondige Debug Analyse</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>UFO Classifier - Grondige Debug Analyse</h1>
+
+<p><strong>Datum</strong>: 2025-10-07</p>
+<p><strong>Versie</strong>: 5.0.0</p>
+<p><strong>Doel</strong>: Identificatie van potentiële bugs, edge cases en risico's</p>
+
+<p>---</p>
+
+<h2>Executive Summary</h2>
+
+<p>Na grondige analyse van <code>ufo_classifier_service.py</code> zijn <strong>5 kritieke bugs</strong>, <strong>8 edge case risico's</strong> en <strong>12 potentiële verbeteringen</strong> geïdentificeerd. De implementatie scoort:</p>
+
+<ul>
+<li>**Correctheid**: 7/10 (goede basis, maar mist input validatie)</li>
+<li>**Robuustheid**: 6/10 (geen guards voor edge cases)</li>
+<li>**Performance**: 8/10 (goede caching strategie)</li>
+<li>**Security**: 5/10 (geen input sanitization)</li>
+</ul>
+
+<p>---</p>
+
+<h2>1. KRITIEKE BUGS 🔴</h2>
+
+<h3>BUG-1: Geen Input Validatie (HIGH SEVERITY)</h3>
+
+<p><strong>Locatie</strong>: <code>classify()</code> method, line 323-334</p>
+
+<p><strong>Probleem</strong>:</p>
+<pre><code># Current code:
+term = self._normalize_text(term)
+definition = self._normalize_text(definition)
+
+if not term or not definition:
+    return UFOClassificationResult(
+        term=term or "",
+        definition=definition or "",
+        primary_category=UFOCategory.UNKNOWN,
+        confidence=MIN_CONFIDENCE,
+        explanation=["Empty or invalid input"],
+    )</code></pre>
+
+<p><strong>Issue</strong>:</p>
+<ul>
+<li>Tests verwachten `ValueError` bij lege input (zie test_ufo_classifier_edge_cases.py:46)</li>
+<li>Huidige code returnt UNKNOWN i.p.v. exception</li>
+<li>Mismatch tussen test expectations en implementatie</li>
+</ul>
+
+<p><strong>Bewijs</strong>:</p>
+<pre><code># From test file:
+def test_empty_string_validation(self, classifier):
+    with pytest.raises(ValueError, match="term.*niet-lege"):
+        classifier.classify("", "valid definition")  # Verwacht exception!</code></pre>
+
+<p><strong>Impact</strong>: HOOG - Tests zullen falen, contract niet gerespecteerd</p>
+
+<p><strong>Fix</strong>:</p>
+<pre><code>def classify(self, term: str, definition: str, context: dict | None = None) -&gt; UFOClassificationResult:
+    # VALIDATION FIRST
+    if not isinstance(term, str) or not isinstance(definition, str):
+        raise ValueError("term en definition moeten niet-lege strings zijn")
+
+    # Normalize
+    term = self._normalize_text(term)
+    definition = self._normalize_text(definition)
+
+    # Check after normalization
+    if not term.strip():
+        raise ValueError("term mag niet leeg zijn na normalisatie")
+    if not definition.strip():
+        raise ValueError("definition mag niet leeg zijn na normalisatie")
+
+    # Continue with classification...</code></pre>
+
+<p>---</p>
+
+<h3>BUG-2: Missing None Guards (HIGH SEVERITY)</h3>
+
+<p><strong>Locatie</strong>: Multiple locations</p>
+
+<p><strong>Probleem</strong>:</p>
+<pre><code># _normalize_text() line 200:
+if not text or not isinstance(text, str):
+    return ""  # Returns empty string for None
+
+# But classify() doesn't check for None BEFORE calling _normalize_text
+term = self._normalize_text(term)  # If term is None, returns ""</code></pre>
+
+<p><strong>Test Expectation</strong>:</p>
+<pre><code>def test_none_input_handling(self, classifier):
+    with pytest.raises(ValueError, match="niet-lege string"):
+        classifier.classify(None, "definition")  # Expects exception!</code></pre>
+
+<p><strong>Impact</strong>: HOOG - Silent failures instead of explicit errors</p>
+
+<p><strong>Fix</strong>:</p>
+<pre><code>def classify(self, term: str, definition: str, context: dict | None = None):
+    # Validate types FIRST
+    if term is None or definition is None:
+        raise ValueError("term en definition mogen niet None zijn")
+    if not isinstance(term, str) or not isinstance(definition, str):
+        raise TypeError(f"term en definition moeten strings zijn, got {type(term)}, {type(definition)}")
+
+    # Then normalize
+    term = self._normalize_text(term)
+    definition = self._normalize_text(definition)</code></pre>
+
+<p>---</p>
+
+<h3>BUG-3: Score Calculation Kan Leiden tot Confidence > 1.0 (MEDIUM SEVERITY)</h3>
+
+<p><strong>Locatie</strong>: <code>_extract_features()</code>, line 224</p>
+
+<p><strong>Probleem</strong>:</p>
+<pre><code>for pattern in patterns:
+    if pattern.search(combined_text):
+        score += 0.4  # Simple scoring: 0.4 per match
+        matches.append(pattern.pattern)
+
+if score &gt; 0:
+    scores[category] = min(score, MAX_CONFIDENCE)  # Clamps at 1.0</code></pre>
+
+<p><strong>Issue</strong>:</p>
+<ul>
+<li>Disambiguation kan score verhogen: `scores[target_category] = min(current + 0.3, MAX_CONFIDENCE)`</li>
+<li>Maar wat als current al 0.8 is? Dan wordt het 1.0</li>
+<li>Daarna in `_determine_primary_category()` kan confidence worden verlaagd bij ambiguity</li>
+<li>Inconsistente scoring logica</li>
+</ul>
+
+<p><strong>Edge Case</strong>:</p>
+<pre><code># Scenario:
+# - Pattern matching: score = 0.8
+# - Disambiguation: score = 0.8 + 0.3 = 1.0 (clamped)
+# - Ambiguity check: confidence = 1.0 * 0.8 = 0.8
+#
+# Maar wat als twee categorieën beide 1.0 scoren?
+# Dan wordt primary: 1.0 * 0.8 = 0.8
+# En secondary blijft 1.0 (internal score)
+# → Secondary heeft hogere raw score dan primary!</code></pre>
+
+<p><strong>Fix</strong>:</p>
+<pre><code>def _determine_primary_category(
+    self, scores: dict[UFOCategory, float]
+) -&gt; tuple[UFOCategory, float]:
+    if not scores:
+        return UFOCategory.UNKNOWN, DEFAULT_CONFIDENCE
+
+    sorted_scores = sorted(scores.items(), key=lambda x: x[1], reverse=True)
+    primary_cat, primary_score = sorted_scores[0]
+
+    # GUARD: Ensure score is valid
+    primary_score = max(MIN_CONFIDENCE, min(primary_score, MAX_CONFIDENCE))
+
+    # Check for ambiguity
+    if len(sorted_scores) &gt; 1:
+        second_score = sorted_scores[1][1]
+        margin = primary_score - second_score
+
+        # Only reduce if margin is small AND scores are high
+        if margin &lt; 0.1 and primary_score &gt; 0.5:
+            # Reduce proportionally to margin
+            reduction = 1.0 - (margin / 0.1) * 0.2  # Max 20% reduction
+            primary_score *= reduction
+
+    # FINAL CLAMP
+    return primary_cat, max(MIN_CONFIDENCE, min(primary_score, MAX_CONFIDENCE))</code></pre>
+
+<p>---</p>
+
+<h3>BUG-4: Regex Performance op Lange Teksten (MEDIUM SEVERITY)</h3>
+
+<p><strong>Locatie</strong>: <code>_extract_features()</code>, line 218-229</p>
+
+<p><strong>Probleem</strong>:</p>
+<pre><code>combined_text = f"{term} {definition}".lower()
+
+for category, patterns in self.compiled_patterns.items():
+    for pattern in patterns:
+        if pattern.search(combined_text):  # O(n*m) per category</code></pre>
+
+<p><strong>Issue</strong>:</p>
+<ul>
+<li>Bij MAX_TEXT_LENGTH = 10000 kan dit traag zijn</li>
+<li>Er zijn 9 categorieën × ~5 patterns = 45 regex searches per classificatie</li>
+<li>Geen timeout op regex matching</li>
+<li>Potentiële ReDoS (Regular Expression Denial of Service) bij malicious input</li>
+</ul>
+
+<p><strong>Bewijs van Risico</strong>:</p>
+<pre><code># Malicious input that can cause catastrophic backtracking:
+term = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa!"
+definition = "a" * 5000  # Long repeated pattern
+
+# Pattern zoals r"\b(procedure|proces|zitting)\b" is safe
+# Maar custom patterns kunnen gevaarlijk zijn</code></pre>
+
+<p><strong>Test Case</strong>:</p>
+<pre><code>def test_regex_performance_large_text(classifier):
+    """Test regex doesn't hang on large text."""
+    import signal
+
+    def timeout_handler(signum, frame):
+        raise TimeoutError("Regex took too long")
+
+    # Set 1 second timeout
+    signal.signal(signal.SIGALRM, timeout_handler)
+    signal.alarm(1)
+
+    try:
+        huge_text = "x" * 10000
+        result = classifier.classify(huge_text, huge_text)
+        signal.alarm(0)  # Cancel alarm
+        assert result.classification_time_ms &lt; 1000
+    except TimeoutError:
+        pytest.fail("Regex timeout on large input")</code></pre>
+
+<p><strong>Fix</strong>:</p>
+<pre><code># Add timeout wrapper
+import signal
+from contextlib import contextmanager
+
+@contextmanager
+def time_limit(seconds):
+    def signal_handler(signum, frame):
+        raise TimeoutError("Operation timed out")
+    signal.signal(signal.SIGALRM, signal_handler)
+    signal.alarm(seconds)
+    try:
+        yield
+    finally:
+        signal.alarm(0)
+
+def _extract_features(self, term: str, definition: str) -&gt; dict[UFOCategory, float]:
+    scores = {}
+    combined_text = f"{term} {definition}".lower()
+
+    # Limit text length for regex
+    if len(combined_text) &gt; 5000:
+        combined_text = combined_text[:5000]
+
+    try:
+        with time_limit(2):  # 2 second timeout
+            for category, patterns in self.compiled_patterns.items():
+                # ... existing logic
+    except TimeoutError:
+        logger.warning(f"Regex timeout for term '{term[:50]}'")
+        return {}  # Return empty scores on timeout
+
+    return scores</code></pre>
+
+<p>---</p>
+
+<h3>BUG-5: Unicode Normalization Inconsistentie (LOW-MEDIUM SEVERITY)</h3>
+
+<p><strong>Locatie</strong>: <code>_normalize_text()</code>, line 205</p>
+
+<p><strong>Probleem</strong>:</p>
+<pre><code>text = unicodedata.normalize("NFC", text)</code></pre>
+
+<p><strong>Issue</strong>:</p>
+<ul>
+<li>Tests verwachten consistent gedrag voor NFC, NFD, NFKC, NFKD (zie test line 227-241)</li>
+<li>Maar alleen NFC wordt gebruikt</li>
+<li>NFD input wordt geconverteerd naar NFC, maar dit kan semantiek veranderen</li>
+</ul>
+
+<p><strong>Voorbeeld</strong>:</p>
+<pre><code># Input: "café" in NFD form (e + combining acute)
+# After NFC: "café" (precomposed é)
+#
+# Problem: Pattern matching kan verschillen
+# r"\bcafé\b" in NFD form matches niet met NFC normalisatie</code></pre>
+
+<p><strong>Impact</strong>: MEDIUM - Inconsistent behavior voor niet-NFC input</p>
+
+<p><strong>Fix</strong>:</p>
+<pre><code>def _normalize_text(self, text: str) -&gt; str:
+    """Normalize text with full Unicode support for Dutch."""
+    if not text or not isinstance(text, str):
+        return ""
+
+    # Strip whitespace first
+    text = text.strip()
+
+    # Remove control characters and zero-width spaces
+    text = "".join(ch for ch in text if unicodedata.category(ch)[0] != "C" or ch in "\t\n\r")
+
+    # Normalize to NFC (canonical composition) for Dutch
+    # This handles: café, coöperatie, geïnformeerd consistently
+    text = unicodedata.normalize("NFC", text)
+
+    # Also normalize whitespace
+    text = " ".join(text.split())
+
+    # Limit length
+    if len(text) &gt; MAX_TEXT_LENGTH:
+        text = text[:MAX_TEXT_LENGTH]
+        logger.warning(f"Text truncated to {MAX_TEXT_LENGTH} chars")
+
+    return text</code></pre>
+
+<p>---</p>
+
+<h2>2. EDGE CASES & RISICO'S ⚠️</h2>
+
+<h3>EDGE-1: Alle Scores 0.0</h3>
+
+<p><strong>Scenario</strong>:</p>
+<pre><code>result = classifier.classify("xyz", "abc def ghi")
+# No patterns match → scores = {}</code></pre>
+
+<p><strong>Huidige Gedrag</strong>:</p>
+<pre><code># _determine_primary_category():
+if not scores:
+    return UFOCategory.UNKNOWN, DEFAULT_CONFIDENCE  # Returns 0.3</code></pre>
+
+<p><strong>Risico</strong>:</p>
+<ul>
+<li>Is DEFAULT_CONFIDENCE (0.3) te hoog voor "geen enkele match"?</li>
+<li>Gebruiker ziet 30% confidence zonder enige evidence</li>
+<li>Misleidend voor decision making</li>
+</ul>
+
+<p><strong>Aanbeveling</strong>:</p>
+<pre><code>if not scores:
+    return UFOCategory.UNKNOWN, 0.0  # Zero confidence, geen matches</code></pre>
+
+<p>---</p>
+
+<h3>EDGE-2: Één Score 1.0, Rest 0.0</h3>
+
+<p><strong>Scenario</strong>:</p>
+<pre><code># Term matches 3+ patterns in één category:
+scores = {
+    UFOCategory.KIND: 1.0,
+    # Rest: 0.0 (niet in dict)
+}</code></pre>
+
+<p><strong>Huidige Gedrag</strong>:</p>
+<pre><code># _determine_primary_category():
+sorted_scores = sorted(scores.items(), key=lambda x: x[1], reverse=True)
+primary_cat, primary_score = sorted_scores[0]  # KIND, 1.0
+
+if len(sorted_scores) &gt; 1:  # False! Only 1 entry
+    # Ambiguity check skipped</code></pre>
+
+<p><strong>Risico</strong>:</p>
+<ul>
+<li>Goede score, geen ambiguity check</li>
+<li>Maar wat als 1.0 is based on weak patterns?</li>
+<li>Geen quality check op "waarom 1.0?"</li>
+</ul>
+
+<p><strong>Fix</strong>:</p>
+<pre><code># Add pattern quality check
+def _extract_features(self, term: str, definition: str) -&gt; dict[UFOCategory, float]:
+    scores = {}
+    combined_text = f"{term} {definition}".lower()
+
+    for category, patterns in self.compiled_patterns.items():
+        score = 0.0
+        matches = []
+        pattern_weights = []  # Track individual pattern contributions
+
+        for pattern in patterns:
+            if match := pattern.search(combined_text):
+                # Weight based on match position and length
+                match_pos = match.start() / max(len(combined_text), 1)
+                match_len = len(match.group(0))
+
+                # Prefer matches early in text and longer matches
+                weight = 0.4 * (1.0 - match_pos * 0.3) * min(match_len / 10, 1.0)
+                score += weight
+                pattern_weights.append(weight)
+                matches.append(pattern.pattern)
+
+        if score &gt; 0:
+            # If only one weak pattern matched, reduce confidence
+            if len(pattern_weights) == 1 and pattern_weights[0] &lt; 0.2:
+                score *= 0.5  # Reduce confidence for single weak match
+
+            scores[category] = min(score, MAX_CONFIDENCE)
+
+    return scores</code></pre>
+
+<p>---</p>
+
+<h3>EDGE-3: Alle Scores Gelijk</h3>
+
+<p><strong>Scenario</strong>:</p>
+<pre><code># Ambiguous term matches equally across categories:
+scores = {
+    UFOCategory.KIND: 0.4,
+    UFOCategory.EVENT: 0.4,
+    UFOCategory.ROLE: 0.4,
+    UFOCategory.RELATOR: 0.4,
+}</code></pre>
+
+<p><strong>Huidige Gedrag</strong>:</p>
+<pre><code>sorted_scores = sorted(scores.items(), key=lambda x: x[1], reverse=True)
+# Order is UNDEFINED for equal values! Python dict iteration order is insertion order in 3.7+
+# but sorted() with equal keys is non-deterministic
+
+primary_cat, primary_score = sorted_scores[0]  # Random category!
+second_score = sorted_scores[1][1]  # 0.4
+margin = 0.4 - 0.4 = 0.0
+
+if margin &lt; 0.1:  # True!
+    primary_score *= 0.8  # 0.4 * 0.8 = 0.32</code></pre>
+
+<p><strong>Risico</strong>:</p>
+<ul>
+<li>Non-deterministic results voor identieke input</li>
+<li>Tie-breaking is arbitrair (dict iteration order)</li>
+<li>Confidence wordt verlaagd maar primary category is random</li>
+</ul>
+
+<p><strong>Fix</strong>:</p>
+<pre><code>def _determine_primary_category(
+    self, scores: dict[UFOCategory, float]
+) -&gt; tuple[UFOCategory, float]:
+    if not scores:
+        return UFOCategory.UNKNOWN, DEFAULT_CONFIDENCE
+
+    # Sort by score DESC, then by category name ASC for determinism
+    sorted_scores = sorted(
+        scores.items(),
+        key=lambda x: (-x[1], x[0].value)  # Score DESC, name ASC
+    )
+
+    primary_cat, primary_score = sorted_scores[0]
+
+    # Count ties at top score
+    top_score = primary_score
+    num_ties = sum(1 for _, score in sorted_scores if abs(score - top_score) &lt; 0.01)
+
+    if num_ties &gt; 1:
+        # Multiple categories tied - very low confidence
+        confidence = primary_score * 0.5
+        logger.warning(
+            f"Ambiguous classification: {num_ties} categories tied at {top_score:.2f}"
+        )
+        return primary_cat, max(MIN_CONFIDENCE, confidence)
+
+    # Check second place
+    if len(sorted_scores) &gt; 1:
+        second_score = sorted_scores[1][1]
+        margin = primary_score - second_score
+
+        if margin &lt; 0.1:
+            primary_score *= 0.8
+
+    return primary_cat, max(MIN_CONFIDENCE, min(primary_score, MAX_CONFIDENCE))</code></pre>
+
+<p>---</p>
+
+<h3>EDGE-4: Scores met Negatieve Waarden</h3>
+
+<p><strong>Scenario</strong>: Kan dit gebeuren?</p>
+
+<p><strong>Analyse</strong>:</p>
+<pre><code># In _extract_features():
+score += 0.4  # Always positive increment
+scores[category] = min(score, MAX_CONFIDENCE)  # Always positive
+
+# In _apply_disambiguation():
+current = scores.get(target_category, 0.0)  # Default 0.0
+scores[target_category] = min(current + 0.3, MAX_CONFIDENCE)  # Always positive</code></pre>
+
+<p><strong>Conclusie</strong>: ✅ GEEN RISICO - scores zijn altijd >= 0.0</p>
+
+<p>---</p>
+
+<h3>EDGE-5: Scores > 1.0</h3>
+
+<p><strong>Scenario</strong>: Kan dit gebeuren na disambiguation?</p>
+
+<p><strong>Analyse</strong>:</p>
+<pre><code># _extract_features():
+scores[category] = min(score, MAX_CONFIDENCE)  # Clamped at 1.0
+
+# _apply_disambiguation():
+scores[target_category] = min(current + 0.3, MAX_CONFIDENCE)  # Clamped at 1.0
+
+# _determine_primary_category():
+# primary_score komt direct uit scores dict, dus max 1.0
+# But: primary_score *= 0.8 kan het verlagen
+# GEEN check op MAX_CONFIDENCE na verlaging!</code></pre>
+
+<p><strong>Risico</strong>: ❌ GEEN RISICO voor > 1.0, maar wel voor inconsistentie</p>
+
+<p><strong>Echter</strong>: Er is geen GUARD dat primary_score niet hoger wordt in edge cases.</p>
+
+<p><strong>Defensive Fix</strong>:</p>
+<pre><code>def _determine_primary_category(
+    self, scores: dict[UFOCategory, float]
+) -&gt; tuple[UFOCategory, float]:
+    # ... existing logic ...
+
+    # FINAL GUARD - paranoid but safe
+    return primary_cat, max(MIN_CONFIDENCE, min(primary_score, MAX_CONFIDENCE))</code></pre>
+
+<p>---</p>
+
+<h3>EDGE-6: Empty text_context (Lege Definitie)</h3>
+
+<p><strong>Scenario</strong>:</p>
+<pre><code>result = classifier.classify("test", "")
+# After normalization: definition = ""</code></pre>
+
+<p><strong>Huidige Gedrag</strong>:</p>
+<pre><code>if not term or not definition:
+    return UFOClassificationResult(
+        term=term or "",
+        definition=definition or "",
+        primary_category=UFOCategory.UNKNOWN,
+        confidence=MIN_CONFIDENCE,
+        explanation=["Empty or invalid input"],
+    )</code></pre>
+
+<p><strong>Issue</strong>: Dit retourneert UNKNOWN met confidence 0.1</p>
+
+<p><strong>Maar</strong>: Test verwacht ValueError! (Zie BUG-1)</p>
+
+<p>---</p>
+
+<h3>EDGE-7: Zeer Lange text_context (10000+ chars)</h3>
+
+<p><strong>Scenario</strong>:</p>
+<pre><code>long_text = "x" * 15000
+result = classifier.classify("test", long_text)</code></pre>
+
+<p><strong>Huidige Gedrag</strong>:</p>
+<pre><code># _normalize_text():
+if len(text) &gt; MAX_TEXT_LENGTH:
+    text = text[:MAX_TEXT_LENGTH]  # Truncates at 10000
+
+# No warning logged!</code></pre>
+
+<p><strong>Risico</strong>:</p>
+<ul>
+<li>Silent truncation kan leiden tot incomplete classification</li>
+<li>Belangrijk deel van definitie kan worden afgekapt</li>
+<li>Geen feedback naar gebruiker</li>
+</ul>
+
+<p><strong>Fix</strong>:</p>
+<pre><code>if len(text) &gt; MAX_TEXT_LENGTH:
+    logger.warning(
+        f"Text truncated from {len(text)} to {MAX_TEXT_LENGTH} chars for term '{text[:50]}...'"
+    )
+    text = text[:MAX_TEXT_LENGTH]</code></pre>
+
+<p><strong>Test</strong>:</p>
+<pre><code>def test_long_text_truncation_logging(classifier, caplog):
+    """Test that truncation is logged."""
+    long_text = "x" * 15000
+
+    with caplog.at_level(logging.WARNING):
+        result = classifier.classify("test", long_text)
+
+    assert "truncated" in caplog.text.lower()
+    assert len(result.definition) == 10000</code></pre>
+
+<p>---</p>
+
+<h3>EDGE-8: Unicode/Special Chars Edge Cases</h3>
+
+<p><strong>Scenario</strong>: Emoji, control characters, RTL text</p>
+
+<p><strong>Test Bevindingen</strong> (from test_ufo_classifier_edge_cases.py:208-216):</p>
+<pre><code>test_cases = [
+    ("test\u200b", "zero-width space"),  # Zero-width space
+    ("test\ufeff", "BOM character"),      # Byte order mark
+    ("🏛️", "emoji rechtbank"),            # Emoji
+    ("test™", "trademark symbol"),         # Special symbols
+    ("Α", "Greek alpha"),                  # Non-Latin scripts
+    ("א", "Hebrew aleph"),                 # Right-to-left script
+]</code></pre>
+
+<p><strong>Risico</strong>: Huidige <code>_normalize_text()</code> handelt deze NIET af!</p>
+
+<p><strong>Probleem</strong>:</p>
+<pre><code># Current normalization:
+text = unicodedata.normalize("NFC", text)
+
+# But:
+# - Zero-width spaces blijven staan
+# - BOM characters blijven staan
+# - Emoji blijven staan
+# - RTL marks blijven staan</code></pre>
+
+<p><strong>Fix</strong>:</p>
+<pre><code>def _normalize_text(self, text: str) -&gt; str:
+    if not text or not isinstance(text, str):
+        return ""
+
+    text = text.strip()
+
+    # Remove control characters (category C*)
+    # Keep only: Cc (control) that are tab/newline/return
+    text = "".join(
+        ch for ch in text
+        if unicodedata.category(ch)[0] != "C"
+        or ch in "\t\n\r"
+    )
+
+    # Remove zero-width characters
+    zero_width_chars = "\u200b\u200c\u200d\ufeff"
+    for zwc in zero_width_chars:
+        text = text.replace(zwc, "")
+
+    # Normalize Unicode
+    text = unicodedata.normalize("NFC", text)
+
+    # Normalize whitespace (collapse multiple spaces)
+    text = " ".join(text.split())
+
+    # Length limit
+    if len(text) &gt; MAX_TEXT_LENGTH:
+        logger.warning(f"Text truncated to {MAX_TEXT_LENGTH} chars")
+        text = text[:MAX_TEXT_LENGTH]
+
+    return text</code></pre>
+
+<p>---</p>
+
+<h2>3. CONFIDENCE FORMULA ANALYSE 🧮</h2>
+
+<h3>Huidige Formule</h3>
+
+<p><strong>Pattern Matching Score</strong>:</p>
+<pre><code>score = 0.4 * number_of_matches  # Max: 0.4 * 3+ = 1.2+ → clamped to 1.0</code></pre>
+
+<p><strong>Disambiguation Boost</strong>:</p>
+<pre><code>score = min(current + 0.3, 1.0)  # Adds 0.3 if disambiguation matches</code></pre>
+
+<p><strong>Ambiguity Penalty</strong>:</p>
+<pre><code>if margin &lt; 0.1:
+    confidence = primary_score * 0.8  # 20% reduction</code></pre>
+
+<h3>Problemen</h3>
+
+<ol>
+<li>**Overweegt Pattern Quantity over Quality**</li>
+</ol>
+<ul>
+<li>  - 3 weak patterns = 1.0 confidence</li>
+<li>  - 1 strong pattern = 0.4 confidence</li>
+<li>  - Geen weighting voor pattern importance</li>
+</ul>
+
+<ol>
+<li>**Disambiguation Te Sterk**</li>
+</ol>
+<ul>
+<li>  - +0.3 is 75% van een pattern match (0.4)</li>
+<li>  - Disambiguation boost > pattern match</li>
+</ul>
+
+<ol>
+<li>**Ambiguity Penalty Te Simpel**</li>
+</ol>
+<ul>
+<li>  - Only checks top 2 scores</li>
+<li>  - Doesn't consider magnitude of scores</li>
+<li>  - 0.9 vs 0.85 gets same penalty as 0.3 vs 0.25</li>
+</ul>
+
+<ol>
+<li>**Geen Calibratie**</li>
+</ol>
+<ul>
+<li>  - Confidence heeft geen semantische betekenis</li>
+<li>  - 0.7 betekent niet "70% kans op correct"</li>
+<li>  - Geen historische validatie data</li>
+</ul>
+
+<h3>Voorgestelde Verbeterde Formule</h3>
+
+<pre><code>def _calculate_confidence(
+    self,
+    primary_cat: UFOCategory,
+    primary_score: float,
+    all_scores: dict[UFOCategory, float],
+    num_patterns_matched: int,
+    disambiguation_applied: bool
+) -&gt; float:
+    """
+    Calculate calibrated confidence score.
+
+    Factors:
+    1. Raw score magnitude (0-1)
+    2. Number of patterns matched (quality signal)
+    3. Score distribution (ambiguity)
+    4. Disambiguation certainty
+
+    Returns confidence in [0.1, 1.0]
+    """
+
+    # Base confidence from score
+    base_conf = primary_score
+
+    # Quality adjustment: More patterns = higher confidence
+    if num_patterns_matched &gt;= 3:
+        quality_mult = 1.0
+    elif num_patterns_matched == 2:
+        quality_mult = 0.9
+    elif num_patterns_matched == 1:
+        quality_mult = 0.7  # Single pattern is weaker
+    else:
+        quality_mult = 0.5  # Should not happen
+
+    # Ambiguity adjustment: Calculate entropy of score distribution
+    sorted_scores = sorted(all_scores.values(), reverse=True)
+
+    if len(sorted_scores) &gt;= 2:
+        # Margin ratio: how much better is #1 vs #2?
+        margin = sorted_scores[0] - sorted_scores[1]
+        margin_ratio = margin / max(sorted_scores[0], 0.01)  # Avoid div/0
+
+        # High margin ratio (e.g., 0.8 vs 0.2 → ratio=0.75) = high certainty
+        # Low margin ratio (e.g., 0.5 vs 0.48 → ratio=0.04) = low certainty
+        ambiguity_mult = 0.5 + (margin_ratio * 0.5)  # [0.5, 1.0]
+    else:
+        ambiguity_mult = 1.0  # Only one category matched
+
+    # Disambiguation adjustment
+    disambiguation_mult = 1.1 if disambiguation_applied else 1.0
+
+    # Combine factors
+    confidence = base_conf * quality_mult * ambiguity_mult * disambiguation_mult
+
+    # Clamp to valid range
+    return max(MIN_CONFIDENCE, min(confidence, MAX_CONFIDENCE))</code></pre>
+
+<p><strong>Voordelen</strong>:</p>
+<ul>
+<li>Multifactorial (4 factoren)</li>
+<li>Considers pattern quality (count)</li>
+<li>Uses margin ratio instead of absolute margin</li>
+<li>Explicit disambiguation signal</li>
+<li>Still clamped to [0.1, 1.0]</li>
+</ul>
+
+<p>---</p>
+
+<h2>4. POLICY DREMPELS ⚙️</h2>
+
+<h3>Huidige Drempels</h3>
+
+<pre><code>MIN_CONFIDENCE = 0.1
+MAX_CONFIDENCE = 1.0
+DEFAULT_CONFIDENCE = 0.3
+
+# In _get_secondary_categories():
+threshold = 0.2  # Hardcoded secondary threshold</code></pre>
+
+<h3>Problemen</h3>
+
+<ol>
+<li>**DEFAULT_CONFIDENCE = 0.3 Te Hoog**</li>
+</ol>
+<ul>
+<li>  - Bij geen enkele match: 30% confidence</li>
+<li>  - Misleidend - suggereert enige zekerheid</li>
+<li>  - Beter: 0.0 of 0.05</li>
+</ul>
+
+<ol>
+<li>**Secondary Threshold = 0.2 Te Laag**</li>
+</ol>
+<ul>
+<li>  - Bijna elke category met 1 pattern match komt in secondary</li>
+<li>  - Ruis in results</li>
+<li>  - Beter: 0.3 of 0.4</li>
+</ul>
+
+<ol>
+<li>**Geen Approval Gate Drempels**</li>
+</ol>
+<ul>
+<li>  - Wanneer is confidence "hoog genoeg" voor auto-approval?</li>
+<li>  - Wanneer moet human review?</li>
+<li>  - Geen explicit thresholds</li>
+</ul>
+
+<h3>Voorgestelde Policy</h3>
+
+<pre><code># Confidence levels
+MIN_CONFIDENCE = 0.05  # Lowered from 0.1
+MAX_CONFIDENCE = 1.0
+DEFAULT_CONFIDENCE = 0.0  # Changed from 0.3 - no evidence = no confidence
+
+# Classification quality gates
+CONFIDENCE_HIGH = 0.8       # Auto-approve safe
+CONFIDENCE_MEDIUM = 0.6     # Review recommended
+CONFIDENCE_LOW = 0.4        # Review required
+# Below 0.4: Manual classification required
+
+# Secondary category threshold
+SECONDARY_THRESHOLD = 0.35  # Raised from 0.2 - reduce noise
+
+# Approval gate integration
+@dataclass
+class UFOClassificationResult:
+    # ... existing fields ...
+
+    @property
+    def quality_level(self) -&gt; str:
+        """Return quality level for approval gates."""
+        if self.confidence &gt;= 0.8:
+            return "HIGH"
+        elif self.confidence &gt;= 0.6:
+            return "MEDIUM"
+        elif self.confidence &gt;= 0.4:
+            return "LOW"
+        else:
+            return "INSUFFICIENT"
+
+    @property
+    def requires_review(self) -&gt; bool:
+        """True if human review is required."""
+        return self.confidence &lt; 0.6
+
+    @property
+    def requires_manual_classification(self) -&gt; bool:
+        """True if automatic classification is not reliable."""
+        return self.confidence &lt; 0.4</code></pre>
+
+<p>---</p>
+
+<h2>5. TIE-BREAKING ANALYSE 🎲</h2>
+
+<h3>Huidige Implementatie</h3>
+
+<p><strong>Disambiguation Rules</strong> (line 152-180):</p>
+<pre><code>DISAMBIGUATION_RULES = {
+    "zaak": {
+        "patterns": {
+            r"rechts|procedure|behandel": UFOCategory.EVENT,
+            r"dossier|nummer|registr": UFOCategory.KIND,
+            r"eigendom|goed|object": UFOCategory.RELATOR,
+        }
+    },
+    # ... more rules
+}</code></pre>
+
+<p><strong>Tie-Breaking Logic</strong>:</p>
+<pre><code># In _determine_primary_category():
+sorted_scores = sorted(scores.items(), key=lambda x: x[1], reverse=True)
+primary_cat, primary_score = sorted_scores[0]</code></pre>
+
+<h3>Problemen</h3>
+
+<ol>
+<li>**Disambiguation Kan Bias Introduceren**</li>
+</ol>
+
+<p>   <strong>Voorbeeld</strong>:</p>
+<pre><code>   term = "zaak"
+   definition = "Een rechtszaak met dossier en procedures"
+
+   # Initial scores:
+   # EVENT: 0.4 (procedure match)
+   # KIND: 0.4 (dossier match)
+
+   # Disambiguation matches BOTH:
+   # - "rechts|procedure" → EVENT
+   # - "dossier|nummer" → KIND
+
+   # First pattern to match wins!
+   # Order-dependent = bias</code></pre>
+
+<ol>
+<li>**Meerdere Tie-Breaker Matches**</li>
+</ol>
+
+<p>   <strong>Current Code</strong>:</p>
+<pre><code>   for pattern_str, target_category in rules["patterns"].items():
+       if re.search(pattern_str, definition_lower):
+           scores[target_category] = min(current + 0.3, MAX_CONFIDENCE)
+           break  # ONLY FIRST MATCH!</code></pre>
+
+<p>   <strong>Probleem</strong>: Als 2 patterns matchen, alleen de eerste wordt gebruikt.</p>
+<ul>
+<li>  - Dict iteration order in Python 3.7+ is insertion order</li>
+<li>  - Maar dit is niet semantisch - willekeurig welke eerst is</li>
+</ul>
+
+<ol>
+<li>**Geen Tie-Breaking voor Gelijke Scores**</li>
+</ol>
+
+<p>   Als na disambiguation nog steeds tie:</p>
+<pre><code>   scores = {
+       UFOCategory.EVENT: 0.7,
+       UFOCategory.KIND: 0.7,
+   }
+
+   sorted_scores = sorted(...)  # Order is undefined for equal values!</code></pre>
+
+<h3>Voorgestelde Fix</h3>
+
+<pre><code>def _apply_disambiguation(
+    self, term: str, definition: str, scores: dict[UFOCategory, float]
+) -&gt; dict[UFOCategory, float]:
+    """Apply disambiguation rules with proper tie-breaking."""
+    term_lower = term.lower()
+
+    if term_lower not in self.DISAMBIGUATION_RULES:
+        return scores
+
+    rules = self.DISAMBIGUATION_RULES[term_lower]
+    definition_lower = definition.lower()
+
+    # Collect ALL matches, not just first
+    matches = []
+    for pattern_str, target_category in rules["patterns"].items():
+        if match := re.search(pattern_str, definition_lower):
+            # Score by match position (earlier = more important)
+            position_score = 1.0 - (match.start() / len(definition_lower))
+            matches.append((target_category, position_score))
+
+    if not matches:
+        return scores
+
+    # If multiple matches, use weighted average
+    if len(matches) &gt; 1:
+        # Distribute boost proportionally
+        total_position_score = sum(ps for _, ps in matches)
+        for target_cat, pos_score in matches:
+            weight = pos_score / total_position_score
+            boost = 0.3 * weight  # Proportional boost
+            current = scores.get(target_cat, 0.0)
+            scores[target_cat] = min(current + boost, MAX_CONFIDENCE)
+            logger.debug(
+                f"Disambiguation: '{term}' → {target_cat} (+{boost:.2f}, position weight={weight:.2f})"
+            )
+    else:
+        # Single match - full boost
+        target_cat, _ = matches[0]
+        current = scores.get(target_cat, 0.0)
+        scores[target_cat] = min(current + 0.3, MAX_CONFIDENCE)
+        logger.debug(f"Disambiguation: '{term}' → {target_cat} (+0.3)")
+
+    return scores</code></pre>
+
+<p><strong>Deterministic Tie-Breaking</strong>:</p>
+<pre><code>def _determine_primary_category(
+    self, scores: dict[UFOCategory, float]
+) -&gt; tuple[UFOCategory, float]:
+    if not scores:
+        return UFOCategory.UNKNOWN, DEFAULT_CONFIDENCE
+
+    # Sort by: score DESC, then category name ASC (deterministic)
+    sorted_scores = sorted(
+        scores.items(),
+        key=lambda x: (-x[1], x[0].value)
+    )
+
+    # ... rest of logic</code></pre>
+
+<p>---</p>
+
+<h2>6. PROBLEMATISCHE INPUT VOORBEELDEN 💣</h2>
+
+<h3>Test Case Suite</h3>
+
+<pre><code># tests/debug/test_ufo_classifier_problematic_inputs.py
+
+import pytest
+from src.services.ufo_classifier_service import UFOClassifierService, UFOCategory
+
+class TestProblematicInputs:
+    """Test suite for problematic and edge case inputs."""
+
+    @pytest.fixture
+    def classifier(self):
+        return UFOClassifierService()
+
+    # ============ EDGE CASE 1: ALL SCORES ZERO ============
+    def test_no_pattern_matches(self, classifier):
+        """Test classification when no patterns match."""
+        result = classifier.classify("xyzabc", "qwerty asdf jklö")
+
+        assert result.primary_category == UFOCategory.UNKNOWN
+        assert result.confidence == 0.0  # Should be 0, not 0.3!
+        assert "geen matches" in " ".join(result.explanation).lower()
+
+    # ============ EDGE CASE 2: SINGLE HIGH SCORE ============
+    def test_single_category_perfect_match(self, classifier):
+        """Test when only one category matches strongly."""
+        # 3+ KIND patterns: persoon, organisatie, document
+        result = classifier.classify(
+            "rechtspersoon",
+            "Een natuurlijk persoon of organisatie met rechtspersoonlijkheid volgens document"
+        )
+
+        assert result.primary_category == UFOCategory.KIND
+        assert result.confidence &gt;= 0.9  # High confidence expected
+        assert len(result.secondary_categories) == 0  # No secondary
+
+    # ============ EDGE CASE 3: ALL SCORES EQUAL ============
+    def test_completely_ambiguous_term(self, classifier):
+        """Test term that matches all categories equally."""
+        # Term designed to hit multiple categories
+        result = classifier.classify(
+            "status",
+            "Een toestand waarbij een persoon een rol heeft in een procedure met verplichtingen"
+            # persoon=KIND, rol=ROLE, procedure=EVENT, verplichtingen=MODE, toestand=PHASE
+        )
+
+        # Should be low confidence due to ambiguity
+        assert result.confidence &lt;= 0.5
+        assert len(result.secondary_categories) &gt;= 2
+
+        # Check for determinism: same input = same output
+        result2 = classifier.classify("status", result.definition)
+        assert result.primary_category == result2.primary_category
+
+    # ============ EDGE CASE 4: NEGATIVE SCORES (IMPOSSIBLE?) ============
+    def test_no_negative_scores_possible(self, classifier):
+        """Verify negative scores cannot occur."""
+        # Try to trigger edge cases
+        test_cases = [
+            ("", ""),  # Will raise ValueError
+            ("x", "y"),  # No matches
+            ("test" * 1000, "test" * 1000),  # Repetition
+        ]
+
+        for term, definition in test_cases:
+            try:
+                result = classifier.classify(term, definition)
+                # If successful, confidence should be non-negative
+                assert result.confidence &gt;= 0.0
+            except ValueError:
+                pass  # Expected for empty input
+
+    # ============ EDGE CASE 5: SCORES &gt; 1.0 (IMPOSSIBLE?) ============
+    def test_confidence_never_exceeds_one(self, classifier):
+        """Verify confidence is always &lt;= 1.0."""
+        # Try to trigger score inflation
+        test_cases = [
+            # Term with many keywords from same category
+            ("rechtspersoon", "Een natuurlijk persoon is een mens die als persoon optreedt volgens persoonlijke gegevens"),
+            # Disambiguation + high score
+            ("zaak", "Een rechtszaak is een procedure met behandeling in rechtzaak"),
+            # Multiple categories matching
+            ("contract", "Een overeenkomst is een relatie tussen partijen als personen"),
+        ]
+
+        for term, definition in test_cases:
+            result = classifier.classify(term, definition)
+            assert 0.0 &lt;= result.confidence &lt;= 1.0, \
+                f"Confidence {result.confidence} out of bounds for '{term}'"
+
+    # ============ EDGE CASE 6: EMPTY CONTEXT ============
+    def test_empty_definition_after_normalization(self, classifier):
+        """Test when definition becomes empty after normalization."""
+        # Only whitespace and control chars
+        with pytest.raises(ValueError):
+            classifier.classify("test", "   \t\n\r   ")
+
+    # ============ EDGE CASE 7: EXTREMELY LONG TEXT ============
+    def test_very_long_input_performance(self, classifier):
+        """Test performance doesn't degrade on long input."""
+        import time
+
+        long_def = "juridisch begrip " * 1000  # 17k chars
+
+        start = time.perf_counter()
+        result = classifier.classify("test", long_def)
+        elapsed_ms = (time.perf_counter() - start) * 1000
+
+        # Should complete in reasonable time
+        assert elapsed_ms &lt; 500, f"Classification took {elapsed_ms}ms"
+        assert len(result.definition) == 10000  # Truncated
+
+    # ============ EDGE CASE 8: UNICODE EDGE CASES ============
+    def test_zero_width_characters(self, classifier):
+        """Test handling of invisible Unicode characters."""
+        # Zero-width space, BOM, etc.
+        term_with_zwsp = "test\u200b\u200c\u200d\ufeff"
+
+        result = classifier.classify(term_with_zwsp, "definitie")
+
+        # Should be normalized away
+        assert "\u200b" not in result.term
+        assert "\ufeff" not in result.term
+        assert result.term == "test"  # Clean
+
+    def test_emoji_in_text(self, classifier):
+        """Test handling of emoji and special symbols."""
+        result = classifier.classify(
+            "🏛️ rechtbank",
+            "De rechtbank ⚖️ is een juridische instantie"
+        )
+
+        # Should classify based on text, not emoji
+        assert result.primary_category == UFOCategory.KIND
+        assert result.confidence &gt; 0.5
+
+    def test_mixed_scripts(self, classifier):
+        """Test handling of mixed writing systems."""
+        result = classifier.classify(
+            "test Α 中 א",  # Latin, Greek, Chinese, Hebrew
+            "een begrip met mixed scripts"
+        )
+
+        assert result is not None
+        assert result.primary_category in UFOCategory
+
+    # ============ SECURITY EDGE CASES ============
+    def test_regex_dos_protection(self, classifier):
+        """Test protection against ReDoS attacks."""
+        import signal
+
+        # Pathological input for regex
+        evil_input = "a" * 10000 + "!"
+
+        # Should complete without hanging
+        def timeout_handler(signum, frame):
+            raise TimeoutError("Regex took too long")
+
+        signal.signal(signal.SIGALRM, timeout_handler)
+        signal.alarm(2)  # 2 second timeout
+
+        try:
+            result = classifier.classify(evil_input, evil_input)
+            signal.alarm(0)  # Cancel
+            assert result is not None
+        except TimeoutError:
+            pytest.fail("Classification timed out - possible ReDoS vulnerability")
+        finally:
+            signal.alarm(0)
+
+    def test_sql_injection_safety(self, classifier):
+        """Test SQL injection attempts are handled safely."""
+        dangerous = "'; DROP TABLE definities; --"
+
+        result = classifier.classify(dangerous, "test definition")
+
+        # Should classify safely without executing anything
+        assert result is not None
+        assert dangerous in result.term  # Preserved as-is
+
+    # ============ DISAMBIGUATION EDGE CASES ============
+    def test_disambiguation_multiple_matches(self, classifier):
+        """Test when multiple disambiguation patterns match."""
+        result = classifier.classify(
+            "zaak",
+            "Een rechtszaak is een dossier met een nummer voor registratie van eigendom"
+            # Matches: rechts (EVENT), dossier (KIND), eigendom (RELATOR)
+        )
+
+        # Should handle gracefully, pick most appropriate
+        assert result.primary_category in [UFOCategory.EVENT, UFOCategory.KIND, UFOCategory.RELATOR]
+        # Confidence should reflect ambiguity
+        assert result.confidence &lt; 0.8
+
+    def test_disambiguation_tie_breaking_determinism(self, classifier):
+        """Test disambiguation is deterministic."""
+        term = "eigendom"
+        definition = "Het verkrijgen van eigendom door overdracht van een goed"
+        # Matches: verkrijg (EVENT), eigendom (RELATOR), goed (KIND)
+
+        # Run 10 times
+        results = [classifier.classify(term, definition) for _ in range(10)]
+
+        # All results should be identical
+        categories = [r.primary_category for r in results]
+        assert len(set(categories)) == 1, "Non-deterministic disambiguation"
+
+    # ============ CONFIDENCE CALCULATION EDGE CASES ============
+    def test_confidence_calibration_low_scores(self, classifier):
+        """Test confidence is reasonable for low pattern matches."""
+        # Single weak match
+        result = classifier.classify("test", "een persoon")  # Only 1 KIND pattern
+
+        # Confidence should reflect single pattern
+        assert 0.2 &lt;= result.confidence &lt;= 0.5, \
+            f"Confidence {result.confidence} not calibrated for single pattern"
+
+    def test_confidence_with_high_ambiguity(self, classifier):
+        """Test confidence is reduced for ambiguous cases."""
+        # Multiple categories with close scores
+        result = classifier.classify(
+            "handeling",
+            "Een handeling is een procedure die personen uitvoeren met verplichtingen"
+            # procedure=EVENT, personen=KIND, verplichtingen=MODE, handeling=EVENT
+        )
+
+        # High ambiguity should reduce confidence
+        assert result.confidence &lt; 0.7
+        assert len(result.secondary_categories) &gt;= 1</code></pre>
+
+<p>---</p>
+
+<h2>7. AANBEVELINGEN & PRIORITEITEN 📋</h2>
+
+<h3>Hoge Prioriteit (Fix Onmiddellijk)</h3>
+
+<ol>
+<li>**BUG-1: Input Validatie** - KRITIEK</li>
+</ol>
+<ul>
+<li>  - Tests falen zonder dit</li>
+<li>  - Contract breach</li>
+<li>  - Geschatte tijd: 1 uur</li>
+</ul>
+
+<ol>
+<li>**BUG-2: None Guards** - KRITIEK</li>
+</ol>
+<ul>
+<li>  - Silent failures</li>
+<li>  - Geschatte tijd: 30 min</li>
+</ul>
+
+<ol>
+<li>**EDGE-8: Unicode Normalization** - HOOG</li>
+</ol>
+<ul>
+<li>  - Data quality issue</li>
+<li>  - Geschatte tijd: 2 uur</li>
+</ul>
+
+<h3>Medium Prioriteit (Deze Sprint)</h3>
+
+<ol>
+<li>**BUG-3: Score Calculation Guards** - MEDIUM</li>
+</ol>
+<ul>
+<li>  - Rare maar mogelijk</li>
+<li>  - Geschatte tijd: 2 uur</li>
+</ul>
+
+<ol>
+<li>**EDGE-3: Tie-Breaking Determinisme** - MEDIUM</li>
+</ol>
+<ul>
+<li>  - Non-determinisme is slecht voor tests</li>
+<li>  - Geschatte tijd: 2 uur</li>
+</ul>
+
+<ol>
+<li>**Confidence Formula Verbetering** - MEDIUM</li>
+</ol>
+<ul>
+<li>  - Betere gebruikerservaring</li>
+<li>  - Geschatte tijd: 4 uur</li>
+</ul>
+
+<h3>Lage Prioriteit (Volgende Sprint)</h3>
+
+<ol>
+<li>**BUG-4: Regex Performance** - LOW</li>
+</ol>
+<ul>
+<li>  - Alleen bij extreme input</li>
+<li>  - Geschatte tijd: 3 uur</li>
+</ul>
+
+<ol>
+<li>**Policy Drempels Review** - LOW</li>
+</ol>
+<ul>
+<li>  - Optimization, niet bug</li>
+<li>  - Geschatte tijd: 2 uur</li>
+</ul>
+
+<ol>
+<li>**Disambiguation Verbetering** - LOW</li>
+</ol>
+<ul>
+<li>  - Nice to have</li>
+<li>  - Geschatte tijd: 3 uur</li>
+</ul>
+
+<h3>Totale Geschatte Effort</h3>
+
+<ul>
+<li>**Hoge prioriteit**: 3.5 uur</li>
+<li>**Medium prioriteit**: 10 uur</li>
+<li>**Lage prioriteit**: 8 uur</li>
+<li>**Totaal**: ~22 uur (3 dagen dev time)</li>
+</ul>
+
+<p>---</p>
+
+<h2>8. CONCLUSIE</h2>
+
+<p>De UFO Classifier heeft een <strong>solide basis</strong> maar mist <strong>kritieke input validatie</strong> en heeft <strong>edge case vulnerabilities</strong>. De belangrijkste risico's zijn:</p>
+
+<ol>
+<li>**Test Failures** - Huidige code matcht niet test expectations</li>
+<li>**Non-Determinisme** - Tie-breaking is arbitrair</li>
+<li>**Silent Failures** - Geen exceptions bij invalid input</li>
+<li>**Unicode Issues** - Incomplete normalization</li>
+<li>**Misleading Confidence** - Formule is te simpel</li>
+</ol>
+
+<p><strong>Prioritize</strong>: Fix BUG-1 en BUG-2 eerst, dan work through edge cases.</p>
+
+<p>---</p>
+
+<p><strong>End of Analysis</strong></p>
+
+  </div>
+</body>
+</html>

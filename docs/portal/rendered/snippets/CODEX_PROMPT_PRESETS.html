@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Codex Prompt Presets & Multi‑Agent Cheatsheet</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>titel: Codex Prompt Presets & Multi‑Agent Cheatsheet</p>
+<p>aangemaakt: 2025-09-12</p>
+<p>status: active</p>
+<p>canonical: false</p>
+<p>owner: development</p>
+<p>last_verified: 2025-09-12</p>
+<p>applies_to: definitie-app@current</p>
+<p>---</p>
+
+<h1>Codex Prompt Presets & Multi‑Agent Cheatsheet</h1>
+
+<p>Korte, praktische referentie voor parallel werken met meerdere agents (worktrees/patches) en voor hoogwaardige analyse‑prompts voor Codex.</p>
+
+<h2>Samenvatting</h2>
+<ul>
+<li>Doel: parallel ideeën laten uitwerken en beste patch kiezen met objectieve criteria.</li>
+<li>Strategieën: git worktrees (aanrader), sequentiële patches, debate/critique met arbiter.</li>
+<li>Beoordeling: tests groen, EPIC‑010 conform (geen legacy), lage codechurn, stabiel en snel.</li>
+</ul>
+
+<h2>Kerncommando’s Multi‑Agent</h2>
+
+<h3>Parallel (git worktrees)</h3>
+<pre><code>git worktree add ../Definitie-app-agent-a -b agent-a
+git worktree add ../Definitie-app-agent-b -b agent-b
+git worktree add ../Definitie-app-agent-c -b agent-c
+
+# Open per worktree een eigen sessie
+cd ../Definitie-app-agent-a</code></pre>
+
+<h3>Sequentieel (patches)</h3>
+<pre><code># Agent A
+git diff &gt; patches/agent-a.patch &amp;&amp; git reset --hard
+
+# Apply en testen
+git apply --check patches/agent-a.patch &amp;&amp; git apply patches/agent-a.patch &amp;&amp; pytest -q</code></pre>
+
+<h3>Quick checks (legacy/V2‑UI)</h3>
+<pre><code>rg -n "from src.models.generation_result import|best_iteration|asyncio\.run\(" src/ &amp;&amp; echo "LEGACY FOUND" || echo "OK"
+rg -n "definitie_gecorrigeerd|validation_details|voorbeelden|metadata" src/ui/</code></pre>
+
+<h3>Scoreboard (simpel)</h3>
+<pre><code>for b in agent-a agent-b agent-c; do 
+  git checkout "$b" &gt;/dev/null 2&gt;&amp;1 || continue
+  start=$(date +%s)
+  pytest -q || status=$?
+  dur=$(( $(date +%s) - start ))
+  echo "BRANCH=$b DURATION=${dur}s STATUS=${status:-0}"
+done</code></pre>
+
+<h3>Codex deep config</h3>
+<pre><code>codex config set model=o1
+codex config set temperature=0.1
+codex config set max_output_tokens=4096
+codex config set plan.enabled=true
+codex config set plan.autoupdate=true
+codex config set trace.enabled=true
+codex config set debug.enabled=true
+codex config set patch.confirm=true
+codex config set test.auto=true
+codex config set patch.preview=true
+
+# Alias (optioneel)
+alias codex-deep='codex --trace --debug'</code></pre>
+
+<h3>Slash Commands (agent toggles)</h3>
+<p>Gebruik deze in je chat om gedrag te sturen (details in <code>docs/guidelines/AGENTS.md</code>).</p>
+
+<ul>
+<li>`/strict on` | `/strict off` — strict mode (geen aannames; pauzes voor akkoord bij patches/tests/netwerk/DB).</li>
+<li>`/approve` | `/approve all` — geef akkoord voor geblokkeerde stap(pen).</li>
+<li>`/deny` — weiger volgende geblokkeerde stap.</li>
+<li>`/plan on` | `/plan off` — planmodus forceren/uitzetten.</li>
+<li>Scopes: `/strict on patch,test` om alleen bepaalde domeinen te gaten (`patch`, `test`, `network`, `db`, `all`).</li>
+</ul>
+
+<h2>Prompt Presets (Copy‑Paste)</h2>
+
+<h3>How to use (quick)</h3>
+<ul>
+<li>Open deze cheatsheet naast je Codex sessie.</li>
+<li>Plak de “Deep‑Analysis Prompt” bovenaan je opdracht en vul doel/scope in.</li>
+<li>Run de “Pre‑flight Checklist” als sub‑taken; laat Codex resultaten inline rapporteren.</li>
+<li>Na analyse: gebruik de “Implementatie‑verdieping” prompt voor patchvoorstellen.</li>
+<li>Werk met agents via worktrees of patches (zie Kerncommando’s) en kies de beste variant met het Scoreboard.</li>
+</ul>
+
+<h3>Deep‑Analysis Prompt</h3>
+<pre><code>Context:
+- Doel: &lt;beschrijf kort je doel/issue&gt;
+- Scope/Bestanden: &lt;noem kernbestanden of dirs&gt;
+- Constraints: respecteer CLAUDE.md (geen backwards‑compat, geen Streamlit in services, geen asyncio.run in services), README gates (EPIC‑010), canonical locations (geen nieuwe docs), schema.sql als bron, V2‑contracten.
+
+Opdracht:
+1) Doe eerst een grondige analyse:
+   - Lees en kruislijn: IMPLEMENTATION_PLAN_CODEX.md, IMPLEMENTATION_PLAN_claude.md, CLAUDE.md, README.md.
+   - Scan relevante codepaden en highlight API‑mismatches, naming/invariants (repo/workflow/validator/UI).
+   - Benoem onbekenden/assumpties, quick wins vs. root‑cause fixes.
+2) Lever output in deze structuur:
+   - Bevindingen (feitelijk, met paden/IDs)
+   - Conflicten/mismatches (wat ↔ waar)
+   - Aanbevolen aanpak (stappen + rationale)
+   - Risico’s + mitigaties
+   - Testplan (unit/integratie, wat te verifiëren)
+   - Acceptatiecriteria (checklist)
+3) Gebruik het plan‑tool en werk het bij na elke fase.
+4) Pas nog geen code; stel patches voor met minimale diffs en duidelijke context.
+5) Vraag expliciet toestemming voor zware/risicovolle acties.
+
+Let op:
+- Gebruik `rg` voor snelle zoekacties; lees files in blokken ≤250 regels.
+- Respecteer repository‑conventies (V2 orchestrator/validator, repository API, workflowservice, query‑param fallback).
+- Noem alternatieven met voor/nadelen waar zinvol.</code></pre>
+
+<h3>Implementatie‑verdieping (na analyse)</h3>
+<pre><code>Nu graag: 1) kort akkoord op aanpak, 2) minimal‑diff patchvoorstellen.
+- Lever patchsets per logische unit (repo/validator/UI/workflow).
+- Voeg bij elke patch: impact, rollback, en tests om groen te krijgen.
+- Houd je aan: geen niet‑gerelateerde wijzigingen; gebruik bestaande namen/structuur.</code></pre>
+
+<h3>Pre‑flight Checklist</h3>
+<ul>
+<li>Lees: `docs/backlog/EPIC-004/US-064/IMPLEMENTATION_PLAN_CODEX.md`</li>
+<li>Lees: `docs/backlog/EPIC-004/US-064/IMPLEMENTATION_PLAN_claude.md`</li>
+<li>Lees: `CLAUDE.md`, `README.md`</li>
+<li>Scan repo op: `get_or_create_draft`, `update_with_lock_check`, `change_status/update_status`, `ValidationOrchestratorV2.validate_text`, `definitie_voorbeelden` typen</li>
+<li>Check schema: `src/database/schema.sql` (UNIQUE, triggers, voorbeelden‑types)</li>
+<li>Noteer API‑mismatches en naming afwijken (organisatorische_context/juridische_context, detailed_scores, severity)</li>
+</ul>
+
+<h3>Acceptatiecriteria (in je prompt opnemen)</h3>
+<ul>
+<li>Eén actieve draft per combinatie (UNIQUE enforced; race‑safe INSERT→SELECT).</li>
+<li>Optimistic locking via `updated_at` + rowcount check; conflict‑UX voorstel aanwezig.</li>
+<li>Gates: `overall_score ≥ 0.80`; `detailed_scores['juridisch'] & ['structuur'] ≥ 0.75`; violations: error=blok, warning=waarschuwing.</li>
+<li>Voorbeelden‑delta: alleen gewijzigde rows; types exact volgens schema.</li>
+<li>Workflow: statuswijziging via `DefinitionWorkflowService` en `change_status` (of adapter `update_status`).</li>
+<li>UI: stateless navigatie met query‑param fallback; geen services in UI‑services importen; caching conform CLAUDE.md.</li>
+</ul>
+
+<h3>Korte “Deep‑read” opener</h3>
+<pre><code>Voer een deep‑read uit: kruis IMPLEMENTATION_PLAN_CODEX.md ↔ IMPLEMENTATION_PLAN_claude.md ↔ CLAUDE.md ↔ README.md. Som concrete mismatches + fixes op (API, naming, gates, repo/locking, workflow, voorbeelden). Nog geen code. Lever daarna een compact stappenplan + testplan.</code></pre>
+
+<p>---</p>
+<p>Bronnen:</p>
+<ul>
+<li>Agents richtlijnen: `docs/guidelines/AGENTS.md`</li>
+<li>Multi‑Agent gids: `docs/handleidingen/ontwikkelaars/codex-multi-agent-gebruik.md`</li>
+<li>Multi‑Agent Quickstart: `docs/handleidingen/ontwikkelaars/MULTIAGENT_QUICKSTART.md`</li>
+<li>Projectrichtlijnen: `README.md`, `CLAUDE.md`</li>
+</ul>
+
+<h2>No‑Assumptions / Strict Mode (Codex)</h2>
+
+<p>Doel: werken zonder aannames door beslissingen expliciet te maken en akkoord te vragen op tussenstappen.</p>
+
+<ul>
+<li>Strict proces</li>
+<li> - Start elk werk met `update_plan` + “open vragen/unknowns”; pauzeer tot goedkeuring.</li>
+<li> - Approval gates: geen codepatch, tests, netwerk of DB‑reset zonder expliciete OK.</li>
+<li> - Decision Log: leg beslissingen (geen aannames), motivatie en akkoordmoment vast.</li>
+<li>Vereiste input (voorkomt aannames)</li>
+<li> - Doel & scope, Definition of Done, acceptatiecriteria.</li>
+<li> - API/contracten en wijzigingsruimte (wat wel/niet aanpassen).</li>
+<li> - Randvoorwaarden: security, performance, UX/i18n/a11y, foutafhandeling.</li>
+<li> - Voorbeelden/tegenvoorbeelden + testdata (happy/edge/error cases).</li>
+<li> - Bron van waarheid en conflictbeleid bij inconsistenties.</li>
+<li>Verificatie en bewijs</li>
+<li> - Lever testopdracht/scenario’s; draai tests en toon resultaten (logs/diff/screenshot waar passend).</li>
+<li> - Per planstap een kort verificatieblok: wat geverifieerd, hoe, en met welk bewijs.</li>
+<li>Alternatieven en keuzes</li>
+<li> - Geef per ontwerpbesluit 2–3 alternatieven met trade‑offs; vraag om keuze vóór implementatie.</li>
+<li>Scope‑bescherming</li>
+<li> - Stel wijzigingsgrenzen: enkel paden X/Y, maximaal N regels diff, geen hernoem/format buiten scope.</li>
+<li> - Specificeer welke feature flags/env‑vars gebruikt mogen worden.</li>
+<li>Templates (handig)</li>
+<li> - Opdrachtbrief: doel, scope, DoD, constraints, risico’s, testcases, SSoT.</li>
+<li> - Review‑gate: beslissingen ter goedkeuring, impact, rollback, testplan.</li>
+<li>Direct toepasbaar in deze repo</li>
+<li> - Zet “no‑assumptions” actief: de agent stopt bij unknowns en vraagt om akkoord.</li>
+<li> - Start met een unknowns‑lijst en laat die expliciet goedkeuren vóór implementatie.</li>
+</ul>
+
+<p>Zie ook: “Slash Commands (agent toggles)” hierboven om strict mode snel te togglen tijdens je sessie.</p>
+
+  </div>
+</body>
+</html>

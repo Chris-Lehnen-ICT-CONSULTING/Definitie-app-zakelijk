@@ -1,0 +1,623 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Synonym Management System - Edge Case & Bug Analysis</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>Synonym Management System - Edge Case & Bug Analysis</h1>
+
+<h2>Executive Summary</h2>
+
+<p>Deze analyse identificeert potentiële problemen, edge cases, en bugs in het voorgestelde synonym management systeem voor DefinitieAgent. Het systeem gebruikt een database-first approach met AI fallback voor synonym generatie en management.</p>
+
+<h2>Systeem Architectuur Context</h2>
+
+<h3>Huidige Situatie</h3>
+<ul>
+<li>**YAML-based**: `config/juridische_synoniemen.yaml` met weighted synonyms</li>
+<li>**Service**: `JuridischeSynoniemlService` als singleton met caching</li>
+<li>**Integratie**: Web lookup service gebruikt synoniemen voor query expansion</li>
+</ul>
+
+<h3>Voorgestelde Flow</h3>
+<pre><code>IF term heeft geen synoniemen in DB:
+    CALL OpenAI API voor 5 synoniemen
+    USE voor web lookup + definitie
+ELSE:
+    GET synoniemen uit DB (voorkeursterm eerst)
+    IF count &lt; 5:
+        CALL OpenAI voor aanvulling
+    USE top 5 voor beide doelen</code></pre>
+
+<h2>1. Race Conditions</h2>
+
+<h3>1.1 Concurrent Synonym Requests</h3>
+<p><strong>Probleem</strong>: Meerdere gelijktijdige requests voor dezelfde term kunnen leiden tot dubbele API calls en database writes.</p>
+
+<p><strong>Scenario</strong>:</p>
+<pre><code># Thread 1 &amp; 2 tegelijk:
+synoniemen = repo.get_suggestions_for_hoofdterm("verdachte")
+if not synoniemen:
+    # Beide threads komen hier
+    gpt_results = await gpt4.suggest_synonyms("verdachte")
+    # Dubbele inserts → unique constraint violation</code></pre>
+
+<ul>
+<li>**Waarschijnlijkheid**: HIGH (Streamlit reruns, multiple users)</li>
+<li>**Impact**: MAJOR (API kosten, database errors)</li>
+<li>**Detectie**: Monitor `UNIQUE constraint failed` errors in logs</li>
+<li>**Preventie**:</li>
+<pre><code>  # In-memory request deduplication
+  class SynonymService:
+      def __init__(self):
+          self._pending_requests = {}  # term -&gt; asyncio.Future
+          self._request_lock = asyncio.Lock()
+
+      async def get_or_generate(self, term):
+          async with self._request_lock:
+              if term in self._pending_requests:
+                  return await self._pending_requests[term]
+
+              future = asyncio.Future()
+              self._pending_requests[term] = future
+
+          try:
+              result = await self._generate_synonyms(term)
+              future.set_result(result)
+              return result
+          finally:
+              del self._pending_requests[term]</code></pre>
+<li>**Testing**: Concurrent load testing met locust/pytest-asyncio</li>
+</ul>
+
+<h3>1.2 Cache Invalidation Race</h3>
+<p><strong>Probleem</strong>: Cache update tijdens read operation kan inconsistente state opleveren.</p>
+
+<p><strong>Scenario</strong>:</p>
+<pre><code># Thread 1: Reading from cache
+cached = self.synoniemen.get("onherroepelijk")
+
+# Thread 2: Invalidating cache na DB update
+self.synoniemen.clear()
+self._load_synoniemen()
+
+# Thread 1: Gebruikt stale data
+return cached  # Mogelijk None of outdated</code></pre>
+
+<ul>
+<li>**Waarschijnlijkheid**: MEDIUM (Cache TTL windows)</li>
+<li>**Impact**: MINOR (Temporary inconsistency)</li>
+<li>**Detectie**: Add cache version tracking</li>
+<li>**Preventie**: Gebruik read-write locks of immutable cache replacement</li>
+<li>**Testing**: Stress test met rapid cache invalidations</li>
+</ul>
+
+<h3>1.3 Database Write Conflicts</h3>
+<p><strong>Probleem</strong>: SQLite WAL mode conflicts bij concurrent writes.</p>
+
+<ul>
+<li>**Waarschijnlijkheid**: LOW (WAL mode handles most cases)</li>
+<li>**Impact**: MINOR (Retry mechanism exists)</li>
+<li>**Detectie**: Monitor `database is locked` errors</li>
+<li>**Preventie**: Connection pooling met retry logic</li>
+<li>**Testing**: Concurrent write stress tests</li>
+</ul>
+
+<h2>2. Memory & Performance Issues</h2>
+
+<h3>2.1 Unbounded Cache Growth</h3>
+<p><strong>Probleem</strong>: Cache groeit onbeperkt bij veel unieke termen.</p>
+
+<p><strong>Scenario</strong>:</p>
+<pre><code># Elke nieuwe term wordt gecached
+for term in zeer_grote_dataset:
+    synoniemen = service.get_synoniemen(term)
+    # Cache groeit lineair met unieke termen</code></pre>
+
+<ul>
+<li>**Waarschijnlijkheid**: HIGH (Production usage)</li>
+<li>**Impact**: MAJOR (Memory exhaustion)</li>
+<li>**Detectie**: Monitor memory usage, cache size metrics</li>
+<li>**Preventie**:</li>
+<pre><code>  from functools import lru_cache
+  from cachetools import TTLCache
+
+  class BoundedSynonymCache:
+      def __init__(self, maxsize=10000, ttl=3600):
+          self.cache = TTLCache(maxsize=maxsize, ttl=ttl)</code></pre>
+<li>**Testing**: Memory profiling met grote datasets</li>
+</ul>
+
+<h3>2.2 N+1 Query Problem</h3>
+<p><strong>Probleem</strong>: Loop over termen triggert individuele DB queries.</p>
+
+<p><strong>Scenario</strong>:</p>
+<pre><code># UI code
+for begrip in alle_begrippen:  # 100+ items
+    suggestions = repo.get_suggestions_for_hoofdterm(begrip)
+    # 100+ separate queries</code></pre>
+
+<ul>
+<li>**Waarschijnlijkheid**: HIGH (Batch processing, export)</li>
+<li>**Impact**: MAJOR (Performance degradation)</li>
+<li>**Detectie**: SQL query logging, slow query analysis</li>
+<li>**Preventie**:</li>
+<pre><code>  def get_bulk_suggestions(self, hoofdtermen: list[str]):
+      placeholders = ','.join('?' * len(hoofdtermen))
+      query = f"""
+          SELECT * FROM synonym_suggestions
+          WHERE hoofdterm IN ({placeholders})
+          ORDER BY hoofdterm, confidence DESC
+      """
+      return self._execute_query(query, hoofdtermen)</code></pre>
+<li>**Testing**: Performance tests met batch operations</li>
+</ul>
+
+<h3>2.3 API Rate Limiting Cascade</h3>
+<p><strong>Probleem</strong>: Rate limit hit veroorzaakt retry storm.</p>
+
+<p><strong>Scenario</strong>:</p>
+<pre><code># Bulk processing hits rate limit
+for term in terms[:100]:
+    try:
+        await gpt4.suggest(term)  # Hit rate limit at term 50
+    except RateLimitError:
+        await asyncio.sleep(1)
+        retry()  # All subsequent calls fail fast</code></pre>
+
+<ul>
+<li>**Waarschijnlijkheid**: MEDIUM (Batch operations)</li>
+<li>**Impact**: MAJOR (Complete failure of batch)</li>
+<li>**Detectie**: Rate limit error patterns in logs</li>
+<li>**Preventie**:</li>
+<pre><code>  class AdaptiveRateLimiter:
+      def __init__(self):
+          self.delay = 1.0
+          self.last_success = time.time()
+
+      async def execute(self, func):
+          await asyncio.sleep(self.delay)
+          try:
+              result = await func()
+              self.delay = max(0.5, self.delay * 0.9)  # Speed up
+              return result
+          except RateLimitError:
+              self.delay = min(60, self.delay * 2)  # Back off
+              raise</code></pre>
+<li>**Testing**: Rate limit simulation tests</li>
+</ul>
+
+<h3>2.4 Cold Start Latency</h3>
+<p><strong>Probleem</strong>: Eerste request na idle periode is traag.</p>
+
+<ul>
+<li>**Waarschijnlijkheid**: HIGH (Development, low traffic)</li>
+<li>**Impact**: MINOR (User experience)</li>
+<li>**Detectie**: Response time monitoring</li>
+<li>**Preventie**: Warmup tijdens container init, connection pooling</li>
+<li>**Testing**: Cold start benchmarks</li>
+</ul>
+
+<h2>3. Data Consistency Issues</h2>
+
+<h3>3.1 YAML vs Database Sync</h3>
+<p><strong>Probleem</strong>: Migratie periode met dubbele sources of truth.</p>
+
+<p><strong>Scenario</strong>:</p>
+<pre><code># YAML heeft: verdachte -&gt; [beklaagde, beschuldigde]
+# DB heeft: verdachte -&gt; [aangeklaagde, verdacht persoon]
+# Which one wins?</code></pre>
+
+<ul>
+<li>**Waarschijnlijkheid**: HIGH (During migration)</li>
+<li>**Impact**: CRITICAL (Wrong synonyms used)</li>
+<li>**Detectie**: Data validation scripts</li>
+<li>**Preventie**:</li>
+<pre><code>  class MigrationSynonymService:
+      def __init__(self):
+          self.migration_mode = True
+
+      def get_synoniemen(self, term):
+          db_syns = self._get_from_db(term)
+          yaml_syns = self._get_from_yaml(term)
+
+          if self.migration_mode:
+              # Merge strategy: DB overrides YAML
+              return db_syns if db_syns else yaml_syns
+          return db_syns</code></pre>
+<li>**Testing**: Migration validation tests</li>
+</ul>
+
+<h3>3.2 Orphaned Synonyms</h3>
+<p><strong>Probleem</strong>: Synoniemen zonder hoofdterm na deletes.</p>
+
+<p><strong>Scenario</strong>:</p>
+<pre><code>-- Hoofdterm deleted but synonyms remain
+DELETE FROM definities WHERE begrip = 'oude_term';
+-- synonym_suggestions still has entries for 'oude_term'</code></pre>
+
+<ul>
+<li>**Waarschijnlijkheid**: MEDIUM (Manual operations)</li>
+<li>**Impact**: MINOR (Storage waste)</li>
+<li>**Detectie**: Orphan detection query</li>
+<li>**Preventie**: Cascade deletes, referential integrity</li>
+<li>**Testing**: Deletion scenario tests</li>
+</ul>
+
+<h3>3.3 Conflicting Preferred Terms</h3>
+<p><strong>Probleem</strong>: Multiple terms claiming same synonym as preferred.</p>
+
+<p><strong>Scenario</strong>:</p>
+<pre><code>aanhouding:
+  - arrestatie (preferred)
+
+vrijheidsberoving:
+  - arrestatie (also preferred?)</code></pre>
+
+<ul>
+<li>**Waarschijnlijkheid**: MEDIUM (Human error)</li>
+<li>**Impact**: MAJOR (Incorrect term selection)</li>
+<li>**Detectie**: Validation on insert/update</li>
+<li>**Preventie**: Unique constraint on preferred synonyms</li>
+<li>**Testing**: Conflict detection tests</li>
+</ul>
+
+<h2>4. Edge Cases</h2>
+
+<h3>4.1 Empty/Null OpenAI Responses</h3>
+<p><strong>Probleem</strong>: API returns geen bruikbare synoniemen.</p>
+
+<p><strong>Scenario</strong>:</p>
+<pre><code>response = await openai.complete(prompt)
+# response.choices[0].text = ""
+# of response = {"error": "content_filter"}</code></pre>
+
+<ul>
+<li>**Waarschijnlijkheid**: LOW (But happens)</li>
+<li>**Impact**: MAJOR (No fallback)</li>
+<li>**Detectie**: Response validation</li>
+<li>**Preventie**:</li>
+<pre><code>  def validate_gpt_response(response):
+      if not response or not response.choices:
+          raise EmptyResponseError()
+
+      text = response.choices[0].text.strip()
+      if not text or len(text) &lt; 3:
+          raise InvalidResponseError()
+
+      # Parse and validate JSON structure
+      try:
+          synonyms = json.loads(text)
+          if not isinstance(synonyms, list) or len(synonyms) == 0:
+              raise InvalidFormatError()
+      except json.JSONDecodeError:
+          raise ParseError()</code></pre>
+<li>**Testing**: Mock empty responses</li>
+</ul>
+
+<h3>4.2 Network Timeouts During Critical Flow</h3>
+<p><strong>Probleem</strong>: Timeout tijdens definitie generatie flow.</p>
+
+<p><strong>Scenario</strong>:</p>
+<pre><code># User clicks "Generate"
+definition = await generate_definition(term)  # Works
+synonyms = await fetch_synonyms(term)  # Timeout!
+# Incomplete result shown to user</code></pre>
+
+<ul>
+<li>**Waarschijnlijkheid**: MEDIUM (Network issues)</li>
+<li>**Impact**: MAJOR (Incomplete results)</li>
+<li>**Detectie**: Timeout monitoring</li>
+<li>**Preventie**: Circuit breaker pattern, graceful degradation</li>
+<li>**Testing**: Network fault injection</li>
+</ul>
+
+<h3>4.3 Circular Synonym References</h3>
+<p><strong>Probleem</strong>: A→B→C→A synonym chains.</p>
+
+<p><strong>Scenario</strong>:</p>
+<pre><code>rechtsmiddel:
+  synoniemen: [beroep]
+beroep:
+  synoniemen: [hoger_beroep]
+hoger_beroep:
+  synoniemen: [rechtsmiddel]  # Circular!</code></pre>
+
+<ul>
+<li>**Waarschijnlijkheid**: LOW (Manual curation)</li>
+<li>**Impact**: MAJOR (Infinite loops)</li>
+<li>**Detectie**: Graph cycle detection</li>
+<li>**Preventie**:</li>
+<pre><code>  def detect_cycles(self, term, visited=None):
+      if visited is None:
+          visited = set()
+
+      if term in visited:
+          return True  # Cycle detected
+
+      visited.add(term)
+      for synonym in self.get_synoniemen(term):
+          if self.detect_cycles(synonym, visited.copy()):
+              return True
+      return False</code></pre>
+<li>**Testing**: Cycle detection unit tests</li>
+</ul>
+
+<h3>4.4 Unicode & Special Characters</h3>
+<p><strong>Probleem</strong>: Synoniemen met speciale karakters breken parsing.</p>
+
+<p><strong>Scenario</strong>:</p>
+<pre><code># Synonym: "café's" or "naïef" or "§ 1.2"
+yaml.safe_load(content)  # Encoding error
+json.dumps(synonym)  # Unicode escape issues</code></pre>
+
+<ul>
+<li>**Waarschijnlijkheid**: MEDIUM (Dutch legal terms)</li>
+<li>**Impact**: MINOR (Display issues)</li>
+<li>**Detectie**: Unicode validation</li>
+<li>**Preventie**: Proper encoding handling, normalization</li>
+<li>**Testing**: Unicode test suite</li>
+</ul>
+
+<h3>4.5 Case Sensitivity Issues</h3>
+<p><strong>Probleem</strong>: Inconsistent casing leidt tot duplicates.</p>
+
+<p><strong>Scenario</strong>:</p>
+<pre><code># Database has both:
+- "Verdachte"
+- "verdachte"
+- "VERDACHTE"</code></pre>
+
+<ul>
+<li>**Waarschijnlijkheid**: HIGH (User input)</li>
+<li>**Impact**: MINOR (Duplicates)</li>
+<li>**Detectie**: Case-insensitive duplicate check</li>
+<li>**Preventie**: Normalize on insert, case-insensitive indices</li>
+<li>**Testing**: Case variation tests</li>
+</ul>
+
+<h2>5. Integration Bugs</h2>
+
+<h3>5.1 Service Initialization Order</h3>
+<p><strong>Probleem</strong>: Services initialized in wrong order.</p>
+
+<p><strong>Scenario</strong>:</p>
+<pre><code># Container initialization
+synonym_service = SynonymService()  # Needs DB
+db_service = DatabaseService()  # Not ready yet!</code></pre>
+
+<ul>
+<li>**Waarschijnlijkheid**: MEDIUM (Refactoring)</li>
+<li>**Impact**: CRITICAL (Startup failure)</li>
+<li>**Detectie**: Dependency validation</li>
+<li>**Preventie**: Explicit dependency injection</li>
+<li>**Testing**: Initialization order tests</li>
+</ul>
+
+<h3>5.2 Streamlit Rerun State Issues</h3>
+<p><strong>Probleem</strong>: State lost tussen reruns.</p>
+
+<p><strong>Scenario</strong>:</p>
+<pre><code># User edits synonym
+st.session_state.edited_synonyms = [...]
+# Page rerun triggered
+# State lost if not properly persisted</code></pre>
+
+<ul>
+<li>**Waarschijnlijkheid**: HIGH (Streamlit nature)</li>
+<li>**Impact**: MAJOR (Data loss)</li>
+<li>**Detectie**: State persistence checks</li>
+<li>**Preventie**: Proper session state management</li>
+<li>**Testing**: Rerun simulation tests</li>
+</ul>
+
+<h3>5.3 Cache vs Session Conflicts</h3>
+<p><strong>Probleem</strong>: Global cache conflicts met user session.</p>
+
+<p><strong>Scenario</strong>:</p>
+<pre><code># User 1 approves synonym
+cache.update(term, new_synonyms)
+
+# User 2 still sees old cached version
+display(cache.get(term))  # Stale!</code></pre>
+
+<ul>
+<li>**Waarschijnlijkheid**: MEDIUM (Multi-user)</li>
+<li>**Impact**: MINOR (Temporary)</li>
+<li>**Detectie**: Cache consistency monitoring</li>
+<li>**Preventie**: User-scoped caching</li>
+<li>**Testing**: Multi-user scenarios</li>
+</ul>
+
+<h2>6. Production Issues</h2>
+
+<h3>6.1 Rollback Scenarios</h3>
+<p><strong>Probleem</strong>: Rollback na partial migration.</p>
+
+<p><strong>Scenario</strong>:</p>
+<pre><code>-- Migration 50% complete
+-- Error occurs
+-- How to rollback?
+-- Which synonyms were migrated?</code></pre>
+
+<ul>
+<li>**Waarschijnlijkheid**: LOW (One-time migration)</li>
+<li>**Impact**: CRITICAL (Data corruption)</li>
+<li>**Detectie**: Migration checkpoints</li>
+<li>**Preventie**: Transactional migration, backup first</li>
+<li>**Testing**: Rollback procedures</li>
+</ul>
+
+<h3>6.2 Partial Migration States</h3>
+<p><strong>Probleem</strong>: System in inconsistent state tijdens migration.</p>
+
+<ul>
+<li>**Waarschijnlijkheid**: MEDIUM (Migration window)</li>
+<li>**Impact**: MAJOR (Wrong results)</li>
+<li>**Detectie**: Migration status tracking</li>
+<li>**Preventie**: Feature flags, gradual rollout</li>
+<li>**Testing**: Migration state tests</li>
+</ul>
+
+<h3>6.3 Feature Flag Toggle Bugs</h3>
+<p><strong>Probleem</strong>: Feature flag changes cause unexpected behavior.</p>
+
+<p><strong>Scenario</strong>:</p>
+<pre><code>if FEATURE_FLAGS.use_db_synonyms:
+    return db_service.get()
+else:
+    return yaml_service.get()
+# What if flag changes mid-session?</code></pre>
+
+<ul>
+<li>**Waarschijnlijkheid**: LOW (Controlled)</li>
+<li>**Impact**: MAJOR (Inconsistency)</li>
+<li>**Detectie**: Flag change monitoring</li>
+<li>**Preventie**: Session-stable flags</li>
+<li>**Testing**: Flag toggle tests</li>
+</ul>
+
+<h2>Recommended Testing Strategy</h2>
+
+<h3>Unit Tests</h3>
+<pre><code>class TestSynonymEdgeCases:
+    def test_concurrent_requests(self):
+        """Test race condition handling"""
+
+    def test_empty_api_response(self):
+        """Test empty OpenAI response"""
+
+    def test_circular_references(self):
+        """Test cycle detection"""
+
+    def test_unicode_handling(self):
+        """Test special characters"""</code></pre>
+
+<h3>Integration Tests</h3>
+<pre><code>class TestSynonymIntegration:
+    def test_db_yaml_precedence(self):
+        """Test migration mode precedence"""
+
+    def test_cache_invalidation(self):
+        """Test cache consistency"""
+
+    def test_service_initialization(self):
+        """Test startup sequence"""</code></pre>
+
+<h3>Load Tests</h3>
+<pre><code>class TestSynonymLoad:
+    def test_concurrent_users(self):
+        """Simulate 100 concurrent users"""
+
+    def test_bulk_processing(self):
+        """Process 10,000 terms"""
+
+    def test_memory_growth(self):
+        """Monitor memory over time"""</code></pre>
+
+<h3>Chaos Engineering</h3>
+<pre><code>class TestSynonymChaos:
+    def test_network_failures(self):
+        """Inject network failures"""
+
+    def test_partial_responses(self):
+        """Simulate partial API responses"""
+
+    def test_database_locks(self):
+        """Simulate database contention"""</code></pre>
+
+<h2>Monitoring & Alerting</h2>
+
+<h3>Key Metrics</h3>
+<ol>
+<li>**API Latency**: p50, p95, p99 for OpenAI calls</li>
+<li>**Cache Hit Rate**: Should be > 80%</li>
+<li>**Database Query Time**: Alert if > 100ms</li>
+<li>**Memory Usage**: Alert if > 80% of limit</li>
+<li>**Error Rate**: Alert if > 1% of requests</li>
+</ol>
+
+<h3>Log Patterns</h3>
+<pre><code># Success pattern
+logger.info(f"Synonym generated: term={term}, count={len(synonyms)}, source={source}")
+
+# Error pattern
+logger.error(f"Synonym generation failed: term={term}, error={e}, retry={retry_count}")
+
+# Performance pattern
+logger.debug(f"Cache lookup: term={term}, hit={cache_hit}, time_ms={elapsed}")</code></pre>
+
+<h2>Mitigation Priority Matrix</h2>
+
+<p>| Issue | Likelihood | Impact | Priority | Mitigation Effort |</p>
+<p>|-------|------------|--------|----------|------------------|</p>
+<p>| Concurrent requests | HIGH | MAJOR | P0 | Medium |</p>
+<p>| Unbounded cache | HIGH | MAJOR | P0 | Low |</p>
+<p>| N+1 queries | HIGH | MAJOR | P0 | Medium |</p>
+<p>| YAML/DB sync | HIGH | CRITICAL | P0 | High |</p>
+<p>| Empty API response | LOW | MAJOR | P1 | Low |</p>
+<p>| Circular references | LOW | MAJOR | P1 | Medium |</p>
+<p>| Unicode issues | MEDIUM | MINOR | P2 | Low |</p>
+<p>| Case sensitivity | HIGH | MINOR | P2 | Low |</p>
+
+<h2>Conclusion</h2>
+
+<p>Het synonym management systeem heeft verschillende kritieke edge cases die moeten worden aangepakt:</p>
+
+<ol>
+<li>**Immediate actie vereist (P0)**:</li>
+</ol>
+<ul>
+<li>  - Request deduplication implementeren</li>
+<li>  - Cache bounds instellen</li>
+<li>  - Bulk query optimalisatie</li>
+<li>  - Migration strategy bepalen</li>
+</ul>
+
+<ol>
+<li>**Belangrijke mitigaties (P1)**:</li>
+</ol>
+<ul>
+<li>  - API response validation</li>
+<li>  - Cycle detection</li>
+<li>  - Graceful degradation</li>
+</ul>
+
+<ol>
+<li>**Nice-to-have (P2)**:</li>
+</ol>
+<ul>
+<li>  - Unicode normalization</li>
+<li>  - Case handling</li>
+</ul>
+
+<p>De meeste issues zijn op te lossen met bekende patterns (caching, locking, validation). De grootste risico's liggen in de migration periode en concurrent access patterns.</p>
+
+<h2>Aanbevelingen</h2>
+
+<ol>
+<li>**Start met een feature flag**: Gradual rollout met mogelijkheid tot rollback</li>
+<li>**Implementeer request deduplication eerst**: Voorkomt meeste race conditions</li>
+<li>**Gebruik TTL cache met size limit**: Lost memory issues op</li>
+<li>**Bouw comprehensive logging**: Voor production debugging</li>
+<li>**Test met production-like load**: Voorkom surprises</li>
+</ol>
+
+<p>Deze analyse biedt een solide basis voor het implementeren van een robuust synonym management systeem.</p>
+  </div>
+</body>
+</html>

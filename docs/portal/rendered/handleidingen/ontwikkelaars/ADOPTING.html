@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ADOPTING.md — Portal & Generator Integratie</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>ADOPTING.md — Portal & Generator Integratie</h1>
+
+<p>Deze handleiding beschrijft hoe je de Portal en Generator in een ander (of dit) project adopteert.</p>
+
+<h2>Contract (frontmatter)</h2>
+<p>Elke doc (REQ/EPIC/US/BUG/…) heeft YAML‑achtige frontmatter:</p>
+
+<pre><code>---
+id: REQ-021 | EPIC-003 | US-015 | BUG-001
+status: TE_DOEN | IN_UITVOERING | GEREED | VOLTOOID | archived
+prioriteit: KRITIEK | HOOG | GEMIDDELD | LAAG
+owner: &lt;team-of-persoon&gt;
+canonical: true|false
+sprint: &lt;label&gt;
+story_points: &lt;int&gt;
+last_verified: &lt;dd-mm-jjjj&gt;
+---</code></pre>
+
+<p>ID‑conventies en paden (canoniek):</p>
+<ul>
+<li>EPIC: `docs/backlog/EPIC-XXX/EPIC-XXX.md`</li>
+<li>US:   `docs/backlog/EPIC-XXX/US-YYY/US-YYY.md`</li>
+<li>BUG:  `docs/backlog/EPIC-XXX/US-YYY/BUG-ZZZ/BUG-ZZZ.md`</li>
+<li>REQ:  `docs/backlog/requirements/REQ-XXX.md`</li>
+</ul>
+
+<h2>Configuratie</h2>
+<ul>
+<li>Standaard web‑lookup providers en gewichten: `config/web_lookup_defaults.yaml`</li>
+<li>Traceability relaties: `docs/traceability.json` (REQ↔EPIC↔US)</li>
+<li>Portal bronnen: `docs/portal/config/sources.yaml`</li>
+</ul>
+
+<h2>Generator draaien</h2>
+<pre><code>python scripts/docs/generate_portal.py</code></pre>
+<ul>
+<li>Schrijft `docs/portal/portal-index.json` + injecteert inline JSON in `docs/portal/index.html`</li>
+</ul>
+
+<p>Navigatie & Rendering (MVP)</p>
+<ul>
+<li>Documenten openen via `docs/portal/viewer.html?src=…` met een duidelijke knop “Terug naar Portal”.</li>
+<li>Markdown (.md) wordt vooraf gerenderd naar HTML met portal‑stijl onder `docs/portal/rendered/…` (feature‑flag: `PORTAL_RENDER_MD=0` om uit te zetten).</li>
+<li>PDF’s openen in de browser viewer; DOCX opent via fallback (download/native app) als conversie niet beschikbaar is.</li>
+</ul>
+
+<h2>Pre‑commit/CI snippets</h2>
+<ul>
+<li>Pre‑commit (voorbeeld entry in `.pre-commit-config.yaml`):</li>
+<pre><code>- id: generate-portal-on-docs-change
+  name: Generate portal (docs → portal)
+  entry: bash scripts/docs/run_portal_generator.sh
+  language: system
+  pass_filenames: false
+  files: ^docs/(?!portal/).+\.md$
+  stages: [pre-commit]</code></pre>
+<li>CI drift‑guard: zie `.github/workflows/docs-integrity.yml`</li>
+<li> - Regenereren `docs/portal/*` → cached diff → fail bij drift (met instructie)</li>
+<li> - Upload portal‑artifact (index.html + portal-index.json)</li>
+</ul>
+
+<h2>Privacy & NFR’s</h2>
+<ul>
+<li>Geen PII/secrets in portaldata of logs</li>
+<li>Sanitization toepassen op externe content (zie EPIC‑003 NFR’s)</li>
+<li>Respecteer canonical/archived flags in weergave/exports</li>
+</ul>
+
+<h2>Veelgemaakte fouten</h2>
+<ul>
+<li>Verkeerde paden (gebruik canonieke structuur)</li>
+<li>Vergeten traceability (REQ‑links in frontmatter/body)</li>
+<li>Broken links (draai de generator; linkscan staat in het project)</li>
+</ul>
+
+  </div>
+</body>
+</html>

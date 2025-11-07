@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SRU Lookup Failure - Root Cause Analysis</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>SRU Lookup Failure - Root Cause Analysis</h1>
+
+<p><strong>Datum</strong>: 2025-10-08</p>
+<p><strong>Analyst</strong>: Debug Specialist (Claude Code)</p>
+<p><strong>Status</strong>: CRITICAL - All SRU providers failing with 0 results</p>
+
+<h2>Executive Summary</h2>
+
+<p>All SRU (Search/Retrieve via URL) endpoints are consistently returning 0 results due to <strong>incorrect recordSchema configuration</strong>. The circuit breaker is correctly triggering after 2 consecutive empty responses, but the underlying issue is that the queries themselves are malformed or incompatible with the target endpoints.</p>
+
+<p><strong>Impact</strong>: Complete failure of juridical source lookup (Wetgeving.nl, Overheid.nl, Rechtspraak.nl)</p>
+
+<p><strong>Root Cause</strong>: Schema mismatch and incompatible CQL query syntax</p>
+
+<h2>Investigation Timeline</h2>
+
+<h3>1. Symptom Analysis (from logs)</h3>
+
+<p><strong>Log Evidence</strong>:</p>
+<pre><code>2025-10-07 15:31:06,678 - services.web_lookup.sru_service - INFO - Parsed 0 results from Wetgeving.nl
+2025-10-07 15:31:06,680 - services.web_lookup.sru_service - INFO - Parsed 0 results from Overheid.nl Zoekservice
+2025-10-07 15:31:06,694 - services.web_lookup.sru_service - INFO - Parsed 0 results from Overheid.nl</code></pre>
+
+<p><strong>Pattern</strong>: 100% failure rate across ALL SRU providers (Wetgeving.nl, Overheid.nl, Overheid.nl Zoekservice)</p>
+
+<h3>2. Code Analysis</h3>
+
+<p><strong>File</strong>: <code>/Users/chrislehnen/Projecten/Definitie-app/src/services/web_lookup/sru_service.py</code></p>
+
+<h4>Current Configuration (Lines 85-129)</h4>
+
+<pre><code>"overheid": SRUConfig(
+    name="Overheid.nl",
+    base_url="https://repository.overheid.nl/sru",
+    default_collection="rijksoverheid",
+    record_schema="dc",  # ❌ NOT SUPPORTED
+    confidence_weight=1.0,
+    is_juridical=True,
+),
+"wetgeving_nl": SRUConfig(
+    name="Wetgeving.nl",
+    base_url="https://zoekservice.overheid.nl/sru/Search",
+    default_collection="",
+    record_schema="oai_dc",  # ❌ NOT SUPPORTED for BWB
+    sru_version="2.0",
+    confidence_weight=0.9,
+    is_juridical=True,
+    extra_params={"x-connection": "BWB"},
+),</code></pre>
+
+<h2>Root Causes Identified</h2>
+
+<h3>ROOT CAUSE #1: Unsupported recordSchema (CRITICAL)</h3>
+
+<p><strong>Evidence from Live Testing</strong>:</p>
+
+<h4>Overheid.nl (repository.overheid.nl)</h4>
+<ul>
+<li>**Configured**: `recordSchema="dc"`</li>
+<li>**Server Response**:</li>
+<pre><code>  &lt;diagnostic&gt;
+    &lt;uri&gt;info:srw/diagnostic/1/6&lt;/uri&gt;
+    &lt;details&gt;dc&lt;/details&gt;
+    &lt;message&gt;record schema not supported&lt;/message&gt;
+  &lt;/diagnostic&gt;</code></pre>
+<li>**Supported Schemas** (from Explain): `gzd`, `short`, `sitemap`, `manifest`</li>
+<li>**Fix Required**: Change from `"dc"` → `"gzd"`</li>
+</ul>
+
+<h4>Wetgeving.nl (BWB via zoekservice.overheid.nl)</h4>
+<ul>
+<li>**Configured**: `recordSchema="oai_dc"` with `x-connection=BWB`</li>
+<li>**Server Response**:</li>
+<pre><code>  &lt;diagnostic&gt;
+    &lt;uri&gt;info:srw/diagnostic/1/67&lt;/uri&gt;
+    &lt;message&gt;The record schema is known, but this particular record cannot be transformed into it&lt;/message&gt;
+  &lt;/diagnostic&gt;</code></pre>
+<li>**Status Code**: 406 (Not Acceptable)</li>
+<li>**Issue**: BWB connection does not support transformation to oai_dc/dc schemas</li>
+<li>**Tested Schemas**: All failed (gzd, oai_dc, dc) with x-connection=BWB</li>
+<li>**Possible Fix**: BWB connection may be incompatible; needs further investigation of alternative query methods</li>
+</ul>
+
+<h4>Overheid.nl Zoekservice</h4>
+<ul>
+<li>**Issue**: Returns `info:srw/diagnostic/1/7` - "Mandatory parameter not supplied: x-connection"</li>
+<li>**Current Config**: No x-connection parameter</li>
+<li>**Fix Required**: Add mandatory x-connection parameter (value TBD)</li>
+</ul>
+
+<h3>ROOT CAUSE #2: Incompatible CQL Query Syntax (SECONDARY)</h3>
+
+<p><strong>Code Location</strong>: <code>_build_cql_query()</code> method (lines 575-663)</p>
+
+<p><strong>Current Query Pattern</strong> (without wet-context detection):</p>
+<pre><code>(dc.title="wetboek" OR dc.subject="wetboek" OR dc.description="wetboek")</code></pre>
+
+<p><strong>Problem</strong>:</p>
+<ol>
+<li>Uses Dublin Core field names (`dc.title`, `dc.subject`, `dc.description`)</li>
+<li>These field names may not be supported by all SRU endpoints</li>
+<li>The GZD schema has different field structure</li>
+</ol>
+
+<p><strong>Evidence</strong>: Even when servers return 200 OK, they parse 0 records because the query syntax doesn't match the schema's searchable fields.</p>
+
+<h3>ROOT CAUSE #3: Missing Diagnostic Parsing (OPERATIONAL)</h3>
+
+<p><strong>Code Location</strong>: <code>_parse_sru_response()</code> method (lines 741-777)</p>
+
+<p><strong>Current Behavior</strong>:</p>
+<pre><code>logger.info(f"Parsed {len(results)} results from {config.name}")</code></pre>
+
+<p><strong>Problem</strong>:</p>
+<ul>
+<li>Function returns empty list `[]` when diagnostics are present</li>
+<li>No logging of WHY the query failed</li>
+<li>Diagnostic messages are silently ignored in most code paths</li>
+<li>Only line 389-392 logs diagnostics, but incompletely</li>
+</ul>
+
+<p><strong>Evidence from Code</strong> (lines 269-302):</p>
+<pre><code>def _extract_diag(xml_text: str) -&gt; dict:
+    # Diagnostic extraction exists but results aren't logged</code></pre>
+
+<p>The <code>_extract_diag()</code> helper is defined but diagnostic information is only stored in attempt records, never surfaced to application logs or users.</p>
+
+<h3>ROOT CAUSE #4: Circuit Breaker Masking Underlying Issue (OPERATIONAL)</h3>
+
+<p><strong>Code Location</strong>: Lines 408-514 (query cascade with circuit breaker)</p>
+
+<p><strong>Current Logic</strong>:</p>
+<pre><code># Query 1: DC fields
+empty_result_count += 1
+if cb_enabled and empty_result_count &gt;= cb_threshold:
+    logger.info("Circuit breaker triggered...")
+    return []  # ❌ Stops after 2 empty results</code></pre>
+
+<p><strong>Problem</strong>:</p>
+<ul>
+<li>Circuit breaker correctly stops wasteful queries</li>
+<li>BUT: Prevents discovery that ALL query strategies are failing</li>
+<li>No differentiation between "no data exists" vs "query is malformed"</li>
+</ul>
+
+<p><strong>Evidence</strong>:</p>
+<ul>
+<li>Circuit breaker triggers at threshold=2</li>
+<li>Logs show only 2 query strategies attempted (dc, serverChoice)</li>
+<li>Never reaches strategies 3-5 (hyphen, serverChoice_any, prefix_wildcard)</li>
+</ul>
+
+<h2>Detailed Test Results</h2>
+
+<h3>Test 1: Overheid.nl Repository - Schema Testing</h3>
+
+<p>| recordSchema | Status | numberOfRecords | Diagnostic |</p>
+<p>|--------------|--------|-----------------|------------|</p>
+<p>| <code>dc</code> | 200 | 0 | "record schema not supported" |</p>
+<p>| <code>oai_dc</code> | 200 | 0 | "record schema not supported" |</p>
+<p>| <code>gzd</code> | 200 | <strong>145,858</strong> | ✅ SUCCESS |</p>
+<p>| <code>dcx</code> | 200 | 0 | "record schema not supported" |</p>
+<p>| <code>didl</code> | 200 | 0 | "record schema not supported" |</p>
+
+<p><strong>Conclusion</strong>: Only <code>gzd</code> schema works for repository.overheid.nl</p>
+
+<h3>Test 2: Wetgeving.nl (BWB) - Schema Testing</h3>
+
+<p>| recordSchema | x-connection | Status | Result |</p>
+<p>|--------------|--------------|--------|--------|</p>
+<p>| <code>gzd</code> | BWB | 406 | "record cannot be transformed" |</p>
+<p>| <code>oai_dc</code> | BWB | 406 | "record cannot be transformed" |</p>
+<p>| <code>dc</code> | BWB | 406 | "record cannot be transformed" |</p>
+<p>| <code>gzd</code> | (none) | 200 | "Mandatory parameter not supplied" |</p>
+
+<p><strong>Conclusion</strong>: BWB connection appears fundamentally incompatible with schema transformation</p>
+
+<h3>Test 3: Query Syntax Testing (Overheid.nl with GZD)</h3>
+
+<p>| Query Type | Works? | Notes |</p>
+<p>|------------|--------|-------|</p>
+<p>| <code>(dc.title="..." OR dc.subject="...")</code> | ❌ No | Field names don't exist in GZD |</p>
+<p>| <code>cql.serverChoice any "wetboek"</code> | ✅ Likely | Standard CQL syntax |</p>
+<p>| Simple: <code>wetboek</code> | ✅ Likely | Simplest approach |</p>
+
+<p><strong>Note</strong>: Not yet tested with corrected schema configuration</p>
+
+<h2>Code Flow Analysis</h2>
+
+<h3>Current Request Flow</h3>
+
+<ol>
+<li>**Entry**: `search()` method called with term="wetboek", endpoint="wetgeving_nl"</li>
+<li>**Config**: Reads `SRUConfig` with `record_schema="oai_dc"`, `x-connection="BWB"`</li>
+<li>**Query Build**: `_build_cql_query()` returns DC-field query</li>
+<li>**Request Attempt**: `_try_query()` loops through schemas:</li>
+</ol>
+<ul>
+<li>  - Primary: `oai_dc` (from config)</li>
+<li>  - Fallback: `oai_dc`, `srw_dc`, `dc` (for SRU 2.0)</li>
+</ul>
+<ol>
+<li>**Response**: Server returns 406 with diagnostic</li>
+<li>**Parsing**: `_parse_sru_response()` finds 0 records</li>
+<li>**Circuit Breaker**: After 2 empty results, returns `[]`</li>
+<li>**Logging**: "Parsed 0 results" (no diagnostic info)</li>
+</ol>
+
+<h3>Why Diagnostics Are Lost</h3>
+
+<p><strong>Attempt Recording</strong> (lines 324-350):</p>
+<pre><code>attempt_rec: dict = {
+    "endpoint": config.name,
+    "url": u,
+    "query": query_str,
+    "strategy": strategy,
+    "status": response.status,
+    "recordSchema": schema,
+}
+# ... diagnostic extraction happens here
+attempt_rec.update(_extract_diag(txt))  # ✅ Stored in attempt
+self._attempts.append(attempt_rec)       # ✅ Available via get_attempts()</code></pre>
+
+<p><strong>But</strong>: These attempts are never logged or surfaced to users. The only logging is:</p>
+<pre><code>logger.info(f"Parsed {len(results)} results from {config.name}")  # No diagnostic info</code></pre>
+
+<h2>Additional Findings</h2>
+
+<h3>1. Rechtspraak.nl DNS Issues</h3>
+
+<p><strong>Log Evidence</strong>:</p>
+<pre><code>2025-09-03 10:03:49,408 - services.web_lookup.sru_service - ERROR - SRU API error 404 voor Rechtspraak.nl</code></pre>
+
+<p><strong>Live Test Result</strong>:</p>
+<pre><code>ClientConnectorDNSError: Cannot connect to host zoeken.rechtspraak.nl:443 ssl:default
+[nodename nor servname provided, or not known]</code></pre>
+
+<p><strong>Issue</strong>: DNS resolution failure for <code>zoeken.rechtspraak.nl</code></p>
+<p><strong>Cause</strong>: Likely network-specific or temporary DNS issue (not schema-related)</p>
+
+<h3>2. SRU Explain Support</h3>
+
+<p><strong>Tested</strong>:</p>
+<ul>
+<li>✅ `repository.overheid.nl/sru`: Explain works, returns schema list</li>
+<li>❌ `zoekservice.overheid.nl/sru/Search`: Explain requires x-connection parameter</li>
+</ul>
+
+<p><strong>Implication</strong>: Cannot dynamically discover BWB schemas via Explain</p>
+
+<h2>Prioritized Root Causes</h2>
+
+<p>| Priority | Root Cause | Impact | Effort to Fix |</p>
+<p>|----------|------------|--------|---------------|</p>
+<p>| <strong>P0</strong> | Overheid.nl using unsupported <code>dc</code> schema | 100% failure | LOW - 1 line change |</p>
+<p>| <strong>P0</strong> | Missing diagnostic logging | Hidden failures | LOW - Add logging |</p>
+<p>| <strong>P1</strong> | BWB/Wetgeving.nl schema incompatibility | 100% failure | MEDIUM - Needs research |</p>
+<p>| <strong>P1</strong> | DC-field CQL queries incompatible with GZD | Low result quality | MEDIUM - Query refactor |</p>
+<p>| <strong>P2</strong> | Overheid Zoekservice missing x-connection | 100% failure | LOW - Add parameter |</p>
+<p>| <strong>P3</strong> | Circuit breaker hiding full failure scope | Delayed diagnosis | N/A - Working as designed |</p>
+
+<h2>Recommended Immediate Fixes</h2>
+
+<h3>Fix #1: Overheid.nl Schema Correction (IMMEDIATE)</h3>
+
+<p><strong>File</strong>: <code>src/services/web_lookup/sru_service.py</code></p>
+<p><strong>Line</strong>: 92</p>
+
+<pre><code># BEFORE
+"overheid": SRUConfig(
+    name="Overheid.nl",
+    base_url="https://repository.overheid.nl/sru",
+    default_collection="rijksoverheid",
+    record_schema="dc",  # ❌
+    ...
+),
+
+# AFTER
+"overheid": SRUConfig(
+    name="Overheid.nl",
+    base_url="https://repository.overheid.nl/sru",
+    default_collection="rijksoverheid",
+    record_schema="gzd",  # ✅
+    ...
+),</code></pre>
+
+<p><strong>Expected Outcome</strong>: Overheid.nl will start returning results immediately</p>
+
+<h3>Fix #2: Add Diagnostic Logging (IMMEDIATE)</h3>
+
+<p><strong>File</strong>: <code>src/services/web_lookup/sru_service.py</code></p>
+<p><strong>Location</strong>: After line 769</p>
+
+<pre><code># CURRENT
+logger.info(f"Parsed {len(results)} results from {config.name}")
+return results
+
+# ADD
+if len(results) == 0:
+    # Log diagnostic information from attempts
+    for attempt in self._attempts:
+        if 'diag_message' in attempt:
+            logger.warning(
+                f"SRU diagnostic for {config.name}: {attempt['diag_message']} "
+                f"(URI: {attempt.get('diag_uri', 'N/A')}, Status: {attempt.get('status')})"
+            )
+        elif attempt.get('status') not in [200, None]:
+            logger.warning(
+                f"SRU HTTP error for {config.name}: Status {attempt['status']}"
+            )</code></pre>
+
+<p><strong>Expected Outcome</strong>: Failed queries will surface diagnostic messages in logs</p>
+
+<h3>Fix #3: Wetgeving.nl Investigation (RESEARCH REQUIRED)</h3>
+
+<p><strong>Problem</strong>: BWB connection incompatible with all tested schemas</p>
+
+<p><strong>Investigation Steps</strong>:</p>
+<ol>
+<li>Research BWB (Basiswettenbestand) documentation</li>
+<li>Test alternative endpoints (e.g., `wetten.overheid.nl` directly)</li>
+<li>Test without x-connection parameter</li>
+<li>Consider if BWB should be separate endpoint config</li>
+</ol>
+
+<p><strong>Possible Solutions</strong>:</p>
+<ul>
+<li>Option A: Use different base URL (not zoekservice)</li>
+<li>Option B: Remove x-connection and use different collection parameter</li>
+<li>Option C: Disable wetgeving_nl endpoint until proper config is found</li>
+</ul>
+
+<h2>Testing Recommendations</h2>
+
+<h3>Validation Test Suite</h3>
+
+<p>Create test: <code>tests/services/web_lookup/test_sru_schema_validation.py</code></p>
+
+<pre><code>@pytest.mark.asyncio
+async def test_overheid_nl_returns_results():
+    """Verify Overheid.nl returns results after schema fix."""
+    service = SRUService()
+    async with service:
+        results = await service.search('wetboek', 'overheid', max_records=3)
+        assert len(results) &gt; 0, "Overheid.nl should return results with gzd schema"
+
+@pytest.mark.asyncio
+async def test_diagnostics_logged_on_failure():
+    """Verify diagnostic messages are logged when queries fail."""
+    service = SRUService()
+    # Force wrong schema for test
+    service.endpoints['overheid'].record_schema = 'dc'
+
+    with LogCapture() as logs:
+        async with service:
+            await service.search('test', 'overheid')
+
+        # Verify diagnostic was logged
+        assert any('diagnostic' in log.lower() for log in logs)</code></pre>
+
+<h2>Long-term Recommendations</h2>
+
+<ol>
+<li>**Dynamic Schema Discovery**: Use SRU Explain to auto-detect supported schemas</li>
+<li>**Query Strategy Per Schema**: Build CQL queries appropriate for each schema type</li>
+<li>**Comprehensive Error Handling**: Surface all SRU diagnostics to users/logs</li>
+<li>**Integration Monitoring**: Add metrics for SRU success/failure rates</li>
+<li>**Configuration Validation**: Validate endpoint configs on startup using Explain</li>
+</ol>
+
+<h2>Conclusion</h2>
+
+<p>The SRU lookup failures are caused by <strong>incorrect recordSchema configuration</strong> (P0 root cause). The current code uses <code>dc</code> and <code>oai_dc</code> schemas that are not supported by the target endpoints.</p>
+
+<p><strong>Immediate Impact</strong>: Changing Overheid.nl to <code>gzd</code> schema will restore functionality for that provider.</p>
+
+<p><strong>Remaining Work</strong>: Wetgeving.nl (BWB) requires deeper investigation as it appears fundamentally incompatible with the current approach.</p>
+
+<p><strong>Visibility Issue</strong>: Lack of diagnostic logging prevented this issue from being discovered earlier. Adding diagnostic logging will prevent similar issues in the future.</p>
+
+<p>---</p>
+
+<h2>File Paths Referenced</h2>
+
+<ul>
+<li>**SRU Service Implementation**: `/Users/chrislehnen/Projecten/Definitie-app/src/services/web_lookup/sru_service.py`</li>
+<li>**Modern Web Lookup Service**: `/Users/chrislehnen/Projecten/Definitie-app/src/services/modern_web_lookup_service.py`</li>
+<li>**Integration Tests**: `/Users/chrislehnen/Projecten/Definitie-app/tests/services/web_lookup/test_sru_integration.py`</li>
+<li>**Circuit Breaker Tests**: `/Users/chrislehnen/Projecten/Definitie-app/tests/services/web_lookup/test_sru_circuit_breaker.py`</li>
+</ul>
+
+<h2>Log Files Analyzed</h2>
+
+<ul>
+<li>`/Users/chrislehnen/Projecten/Definitie-app/logs/log om caching te testen.txt` (lines 98-145)</li>
+<li>`/Users/chrislehnen/Projecten/Definitie-app/logs/log.txt` (line 2319)</li>
+</ul>
+
+  </div>
+</body>
+</html>

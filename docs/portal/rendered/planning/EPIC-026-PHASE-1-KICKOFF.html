@@ -1,0 +1,550 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>EPIC-026 Phase 1 Kickoff Plan (Design)</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>aangemaakt: 2025-09-30</p>
+<p>applies_to: definitie-app@epic-026</p>
+<p>bijgewerkt: 2025-09-30</p>
+<p>canonical: true</p>
+<p>epic: EPIC-026</p>
+<p>id: EPIC-026-PHASE-1-KICKOFF</p>
+<p>last_verified: 2025-09-30</p>
+<p>owner: code-architect</p>
+<p>phase: 1</p>
+<p>status: ready-to-start</p>
+<p>titel: EPIC-026 Phase 1 Kickoff Plan (Design)</p>
+<p>type: execution-plan</p>
+<p>---</p>
+
+<h1>EPIC-026 Phase 1 Kickoff Plan</h1>
+<h2>Design Phase (Week 4-5) - God Object Refactoring</h2>
+
+<p><strong>Status:</strong> ✅ APPROVED - Ready to Start</p>
+<p><strong>Phase:</strong> 1 of 3 (Design)</p>
+<p><strong>Duration:</strong> 3-5 days</p>
+<p><strong>Owner:</strong> Code Architect Agent</p>
+<p><strong>Approval:</strong> 2025-09-30</p>
+
+<p>---</p>
+
+<h2>🎯 Phase 1 Mission</h2>
+
+<p><strong>Goal:</strong> Design sustainable service boundaries for 3 God Objects</p>
+
+<p><strong>Deliverables:</strong></p>
+<ol>
+<li>Responsibility maps (all 3 files)</li>
+<li>Service boundary definitions</li>
+<li>Dependency graphs</li>
+<li>Migration plan with rollback strategy</li>
+<li>Architecture review approval</li>
+</ol>
+
+<p><strong>Success Criteria:</strong></p>
+<ul>
+<li>✅ Each service has single clear responsibility</li>
+<li>✅ Dependencies explicit and injected</li>
+<li>✅ Migration plan approved</li>
+<li>✅ Rollback checkpoints defined</li>
+</ul>
+
+<p>---</p>
+
+<h2>📅 5-Day Execution Plan</h2>
+
+<h3>**Day 1: Map Responsibilities (definitie_repository.py)**</h3>
+
+<p><strong>Morning (4h):</strong></p>
+<ul>
+<li>Read entire file (1800 LOC)</li>
+<li>Create method inventory (40+ methods)</li>
+<li>Group by responsibility:</li>
+<li> - READ operations (queries, get_by_id, search, etc.)</li>
+<li> - WRITE operations (insert, update, delete)</li>
+<li> - BULK operations (import, export, batch)</li>
+<li> - UTILITY (schema, migrations, health)</li>
+</ul>
+
+<p><strong>Afternoon (4h):</strong></p>
+<ul>
+<li>Identify cross-cutting concerns</li>
+<li>Map dependencies (database, logging, validation)</li>
+<li>Document data flow</li>
+<li>Create responsibility diagram</li>
+</ul>
+
+<p><strong>Deliverable:</strong> <code>definitie_repository_responsibility_map.md</code></p>
+
+<p>---</p>
+
+<h3>**Day 2: Map Responsibilities (definition_generator_tab.py + tabbed_interface.py)**</h3>
+
+<p><strong>Morning (4h) - definition_generator_tab.py:</strong></p>
+<ul>
+<li>Read file (2339 LOC, 46 methods)</li>
+<li>Group by responsibility:</li>
+<li> - UI rendering (layout, widgets, forms)</li>
+<li> - Business logic (orchestration, validation)</li>
+<li> - Result rendering (display, formatting)</li>
+<li> - State management (session state via SessionStateManager)</li>
+<li> - Event handlers (button clicks, form submissions)</li>
+</ul>
+
+<p><strong>Afternoon (4h) - tabbed_interface.py:</strong></p>
+<ul>
+<li>Read file (1733 LOC, 38 methods)</li>
+<li>Group by responsibility:</li>
+<li> - Tab orchestration (tab switching, navigation)</li>
+<li> - Tab components (individual tab logic - ALREADY exist in ui/components!)</li>
+<li> - Layout management</li>
+<li> - State coordination</li>
+</ul>
+
+<p><strong>Deliverables:</strong></p>
+<ul>
+<li>`definition_generator_tab_responsibility_map.md`</li>
+<li>`tabbed_interface_responsibility_map.md`</li>
+</ul>
+
+<p>---</p>
+
+<h3>**Day 3: Design Service Boundaries**</h3>
+
+<p><strong>Morning (4h) - definitie_repository.py:</strong></p>
+
+<p><strong>Target Structure:</strong></p>
+<pre><code>src/database/definitie_repository/
+├── __init__.py (facade pattern, backwards compatible)
+├── read_service.py (~600 LOC)
+│   ├── get_by_id()
+│   ├── search()
+│   ├── list_all()
+│   └── get_history()
+├── write_service.py (~600 LOC)
+│   ├── insert()
+│   ├── update()
+│   ├── delete()
+│   └── soft_delete()
+└── bulk_service.py (~600 LOC)
+    ├── import_csv()
+    ├── export_json()
+    ├── batch_update()
+    └── batch_delete()</code></pre>
+
+<p><strong>Key Decisions:</strong></p>
+<ul>
+<li>Shared: Database connection (injected)</li>
+<li>Each service: Single responsibility</li>
+<li>Facade: Maintains backward compatibility during migration</li>
+</ul>
+
+<p><strong>Afternoon (4h) - definition_generator_tab.py:</strong></p>
+
+<p><strong>Target Structure:</strong></p>
+<pre><code>src/ui/components/definition_generator/
+├── __init__.py
+├── generator_ui.py (~700 LOC)
+│   ├── render_layout()
+│   ├── render_input_form()
+│   └── render_controls()
+├── generator_orchestrator.py (~700 LOC)
+│   ├── handle_generate_click()
+│   ├── coordinate_validation()
+│   └── manage_workflow()
+├── result_renderer.py (~500 LOC)
+│   ├── render_definition()
+│   ├── render_validation_results()
+│   └── format_output()
+├── state_coordinator.py (~300 LOC)
+│   ├── get_current_definition()
+│   ├── update_session_state()
+│   └── clear_state()
+└── validation_handler.py (~139 LOC - ALREADY EXISTS!)</code></pre>
+
+<p><strong>Deliverable:</strong> <code>service_boundary_design.md</code></p>
+
+<p>---</p>
+
+<h3>**Day 4: Create Migration Plan**</h3>
+
+<p><strong>Morning (4h) - Extraction Strategy:</strong></p>
+
+<p><strong>Phase 2a: definitie_repository.py (Days 1-3)</strong></p>
+<pre><code>Step 1: Create read_service.py
+- Extract all query methods
+- Update imports incrementally
+- Run tests after each extraction
+- Checkpoint: All read tests pass
+
+Step 2: Create write_service.py
+- Extract all write methods
+- Update imports
+- Run tests
+- Checkpoint: All write tests pass
+
+Step 3: Create bulk_service.py
+- Extract bulk operations
+- Update imports
+- Run tests
+- Checkpoint: All bulk tests pass
+
+Step 4: Create facade __init__.py
+- Maintain backward compatibility
+- Gradual migration of callers
+- Remove old file when usage = 0</code></pre>
+
+<p><strong>Afternoon (4h) - Risk Analysis:</strong></p>
+
+<p><strong>Risks:</strong></p>
+<ol>
+<li>**Import cycles** (HIGH)</li>
+</ol>
+<ul>
+<li>  - Mitigation: Dependency injection, no circular imports</li>
+<li>  - Rollback: Git revert to checkpoint</li>
+</ul>
+
+<ol>
+<li>**Test failures** (MEDIUM)</li>
+</ol>
+<ul>
+<li>  - Mitigation: Run tests after EACH extraction</li>
+<li>  - Rollback: Revert last extraction, add missing tests</li>
+</ul>
+
+<ol>
+<li>**Breaking changes** (MEDIUM)</li>
+</ol>
+<ul>
+<li>  - Mitigation: Facade pattern maintains compatibility</li>
+<li>  - Rollback: Keep original file until 100% migrated</li>
+</ul>
+
+<p><strong>Deliverables:</strong></p>
+<ul>
+<li>`migration_plan.md`</li>
+<li>`risk_analysis.md`</li>
+</ul>
+
+<p>---</p>
+
+<h3>**Day 5: Architecture Review & Approval**</h3>
+
+<p><strong>Morning (2h) - Prepare Review Package:</strong></p>
+
+<p><strong>Documents to Present:</strong></p>
+<ol>
+<li>3 Responsibility maps</li>
+<li>Service boundary design</li>
+<li>Migration plan</li>
+<li>Risk analysis</li>
+<li>Rollback strategy</li>
+</ol>
+
+<p><strong>Afternoon (2h) - Architecture Review:</strong></p>
+
+<p><strong>Review Checklist:</strong></p>
+<ul>
+<li>[ ] Each service has single responsibility ✅</li>
+<li>[ ] Dependencies are explicit and injected ✅</li>
+<li>[ ] No circular dependencies ✅</li>
+<li>[ ] Migration plan is incremental ✅</li>
+<li>[ ] Rollback checkpoints defined ✅</li>
+<li>[ ] Test strategy documented ✅</li>
+<li>[ ] Backward compatibility maintained ✅</li>
+</ul>
+
+<p><strong>Approval Criteria:</strong></p>
+<ul>
+<li>✅ All checklist items pass</li>
+<li>✅ No major architectural concerns</li>
+<li>✅ Risk mitigation acceptable</li>
+</ul>
+
+<p><strong>If Approved:</strong> Proceed to Phase 2 (Extraction)</p>
+<p><strong>If Revisions Needed:</strong> 1-2 day revision cycle</p>
+<p><strong>If Rejected:</strong> Abort EPIC-026, defer to v2.3</p>
+
+<p><strong>Deliverable:</strong> <code>architecture_review_approval.md</code></p>
+
+<p>---</p>
+
+<h2>📊 Success Metrics (Phase 1)</h2>
+
+<h3>Deliverables Checklist</h3>
+
+<ul>
+<li>[ ] `definitie_repository_responsibility_map.md`</li>
+<li>[ ] `definition_generator_tab_responsibility_map.md`</li>
+<li>[ ] `tabbed_interface_responsibility_map.md`</li>
+<li>[ ] `service_boundary_design.md`</li>
+<li>[ ] `migration_plan.md`</li>
+<li>[ ] `risk_analysis.md`</li>
+<li>[ ] `architecture_review_approval.md`</li>
+</ul>
+
+<p><strong>Total:</strong> 7 documents</p>
+
+<h3>Quality Criteria</h3>
+
+<p><strong>Responsibility Maps:</strong></p>
+<ul>
+<li>✅ All methods inventoried</li>
+<li>✅ Clear grouping by responsibility</li>
+<li>✅ Dependencies identified</li>
+<li>✅ Data flow documented</li>
+</ul>
+
+<p><strong>Service Boundaries:</strong></p>
+<ul>
+<li>✅ Single Responsibility Principle applied</li>
+<li>✅ Clear interfaces defined</li>
+<li>✅ Dependency injection planned</li>
+<li>✅ No circular dependencies</li>
+</ul>
+
+<p><strong>Migration Plan:</strong></p>
+<ul>
+<li>✅ Incremental steps defined</li>
+<li>✅ Test checkpoints after each step</li>
+<li>✅ Rollback strategy clear</li>
+<li>✅ Backward compatibility maintained</li>
+</ul>
+
+<p>---</p>
+
+<h2>🛠️ Tools & Resources</h2>
+
+<h3>Analysis Tools</h3>
+
+<p><strong>Code Analysis:</strong></p>
+<pre><code># Count methods per file
+grep -E "^\s+def " src/database/definitie_repository.py | wc -l
+
+# Find dependencies
+grep -E "^(from|import)" src/database/definitie_repository.py
+
+# Check complexity
+python -m radon cc src/database/definitie_repository.py -a</code></pre>
+
+<p><strong>Dependency Graph:</strong></p>
+<pre><code># Install if needed
+pip install pydeps
+
+# Generate graph
+pydeps src/database/definitie_repository.py --max-bacon=2</code></pre>
+
+<h3>Documentation Templates</h3>
+
+<p><strong>Responsibility Map Template:</strong></p>
+<pre><code># [Filename] Responsibility Map
+
+## Overview
+- LOC: [count]
+- Methods: [count]
+- Primary Responsibilities: [list]
+
+## Method Inventory
+
+### Responsibility 1: [Name]
+- Method: [name] - [purpose]
+- Dependencies: [list]
+- LOC: [count]
+
+### Responsibility 2: [Name]
+...
+
+## Dependencies
+- Direct: [list]
+- Indirect: [list]
+
+## Cross-cutting Concerns
+- Logging: [where]
+- Error handling: [where]
+- Validation: [where]</code></pre>
+
+<p>---</p>
+
+<h2>🚦 Decision Points</h2>
+
+<h3>Checkpoint 1: End of Day 2</h3>
+
+<p><strong>Question:</strong> Are responsibility maps complete and accurate?</p>
+
+<p><strong>Go/No-Go:</strong></p>
+<ul>
+<li>✅ GO: All 3 files mapped → Proceed to Day 3</li>
+<li>⚠️ REVISE: Gaps identified → Add 1 day for deeper analysis</li>
+<li>❌ ABORT: Cannot identify clear boundaries → Defer EPIC-026</li>
+</ul>
+
+<p><strong>Decision Owner:</strong> Code Architect</p>
+
+<p>---</p>
+
+<h3>Checkpoint 2: End of Day 4</h3>
+
+<p><strong>Question:</strong> Is migration plan feasible and low-risk?</p>
+
+<p><strong>Go/No-Go:</strong></p>
+<ul>
+<li>✅ GO: Plan is incremental, risks managed → Proceed to review</li>
+<li>⚠️ REVISE: Need adjustments → 1 day revision</li>
+<li>❌ ABORT: Too risky, unclear plan → Defer EPIC-026</li>
+</ul>
+
+<p><strong>Decision Owner:</strong> Code Architect + BMad Master</p>
+
+<p>---</p>
+
+<h3>Checkpoint 3: End of Day 5</h3>
+
+<p><strong>Question:</strong> Architecture review approval?</p>
+
+<p><strong>Outcomes:</strong></p>
+<ul>
+<li>✅ APPROVED: Proceed to Phase 2 (Extraction) Week 6</li>
+<li>⚠️ REVISIONS: 1-2 days adjustments, re-review</li>
+<li>❌ REJECTED: Abort EPIC-026, mark as deferred</li>
+</ul>
+
+<p><strong>Decision Owner:</strong> Architecture Review Board (or BMad Master as proxy)</p>
+
+<p>---</p>
+
+<h2>📝 Daily Standup Format</h2>
+
+<p><strong>Code Architect Daily Report:</strong></p>
+
+<pre><code>## 🏗️ Code Architect - Day [X] Report
+
+**Focus:** [Current task]
+
+✅ **Completed:**
+- [Task 1]
+- [Task 2]
+
+🔄 **In Progress:**
+- [Task 1]
+
+📊 **Progress:**
+- Phase 1: [X]% complete
+- Documents: [X]/7 delivered
+
+🚧 **Blockers:**
+- [None or list]
+
+🎯 **Tomorrow:**
+- [Next task]</code></pre>
+
+<p><strong>File:</strong> <code>docs/planning/daily-updates/epic-026-day-[X].md</code></p>
+
+<p>---</p>
+
+<h2>🎬 Kickoff Actions (Start Monday)</h2>
+
+<h3>Immediate (Today)</h3>
+
+<p><strong>BMad Master:</strong></p>
+<ul>
+<li>[x] Approve EPIC-026</li>
+<li>[x] Update status to "active"</li>
+<li>[x] Create Phase 1 kickoff plan</li>
+<li>[ ] Commit approval documents</li>
+</ul>
+
+<p><strong>Code Architect:</strong></p>
+<ul>
+<li>[ ] Review kickoff plan</li>
+<li>[ ] Set up workspace (docs/backlog/EPIC-026/phase-1/)</li>
+<li>[ ] Schedule architecture review (Day 5)</li>
+</ul>
+
+<p>---</p>
+
+<h3>Monday Morning (Week 4, Day 1)</h3>
+
+<p><strong>Code Architect:</strong></p>
+<ol>
+<li>Create workspace directory</li>
+<li>Start Day 1: Map definitie_repository.py</li>
+<li>Post morning standup update</li>
+<li>Deliver responsibility map by EOD</li>
+</ol>
+
+<p><strong>BMad Master:</strong></p>
+<ul>
+<li>Monitor progress</li>
+<li>Ready for questions/blockers</li>
+<li>Coordinate architecture review scheduling</li>
+</ul>
+
+<p>---</p>
+
+<h2>📚 Reference Documents</h2>
+
+<p><strong>Design Phase:</strong></p>
+<ol>
+<li>`docs/backlog/EPIC-026/EPIC-026.md` - Full epic spec</li>
+<li>`docs/backlog/EPIC-025/US-427/US-427-REFACTORING-STRATEGY.md` - Technical strategy</li>
+<li>`docs/testing/US-427-coverage-baseline.md` - Test baseline (73 tests)</li>
+<li>`docs/planning/AGENT_ANALYSIS_SUMMARY.md` - Original God Object analysis</li>
+</ol>
+
+<p><strong>Files to Refactor:</strong></p>
+<ol>
+<li>`src/database/definitie_repository.py` (1800 LOC, 40 methods)</li>
+<li>`src/ui/components/definition_generator_tab.py` (2339 LOC, 46 methods)</li>
+<li>`src/ui/tabbed_interface.py` (1733 LOC, 38 methods)</li>
+</ol>
+
+<p><strong>Test Coverage:</strong></p>
+<ul>
+<li>73 tests passing (baseline)</li>
+<li>Focus: definitie_repository has 51 tests (excellent coverage)</li>
+<li>Must maintain ≥ baseline after refactoring</li>
+</ul>
+
+<p>---</p>
+
+<h2>🏆 Phase 1 Success = Green Light for Phase 2</h2>
+
+<p><strong>If Phase 1 succeeds (7/7 deliverables, review approved):</strong></p>
+<ul>
+<li>✅ Clear service boundaries defined</li>
+<li>✅ Migration plan approved</li>
+<li>✅ Risks managed</li>
+<li>✅ **Proceed to Phase 2: Extraction (Week 6-7)**</li>
+</ul>
+
+<p><strong>Investment:</strong> 3-5 days design → <strong>Saves weeks of rework</strong></p>
+
+<p>---</p>
+
+<p><strong>Status:</strong> ✅ READY TO START</p>
+<p><strong>Start Date:</strong> Week 4, Day 1 (Monday)</p>
+<p><strong>Owner:</strong> Code Architect Agent</p>
+<p><strong>Next Action:</strong> Code Architect reads this plan and begins Day 1</p>
+
+<p>🚀 <strong>LET'S BUILD SUSTAINABLE ARCHITECTURE!</strong></p>
+
+  </div>
+</body>
+</html>

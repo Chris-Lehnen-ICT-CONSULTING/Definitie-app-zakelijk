@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>📝 Document Creation & Management Werkstroom</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>aangemaakt: '08-09-2025'</p>
+<p>applies_to: definitie-app@v2</p>
+<p>bijgewerkt: '08-09-2025'</p>
+<p>canonical: true</p>
+<p>document_type: workflow</p>
+<p>last_verified: 04-09-2025</p>
+<p>owner: architecture</p>
+<p>prioriteit: medium</p>
+<p>status: active</p>
+<p>---</p>
+
+
+
+<h1>📝 Document Creation & Management Werkstroom</h1>
+
+<p>Dit document beschrijft de <strong>verplichte workflow</strong> voor het maken, updaten en archiveren van documenten in het DefinitieAgent project.</p>
+
+<p>---</p>
+
+<h2>🚨 GOLDEN RULE: Check Before Create</h2>
+
+<p><strong>NOOIT</strong> direct een nieuw document maken. <strong>ALTIJD</strong> eerst checken of het al bestaat!</p>
+
+<p>---</p>
+
+<h2>📋 Document Creation Werkstroom</h2>
+
+<h3>STAP 1: 🔍 Search for Existing Content</h3>
+<pre><code># Zoek in alle docs naar je onderwerp
+grep -r "jouw onderwerp" docs/
+
+# Zoek naar bestandsnamen
+ls docs/**/*relevante-term*.md
+
+# Check specifieke directories
+ls docs/backlog/stories/*.md
+ls docs/architectuur/*.md</code></pre>
+
+<h3>STAP 2: 📚 Check Master Documents</h3>
+<pre><code># Check het MASTER epics document
+cat docs/backlog/stories/MASTER-EPICS-USER-STORIES.md | grep "jouw onderwerp"
+
+# Check de documentatie index
+cat docs/INDEX.md | grep "jouw onderwerp"
+
+# Check canonieke locaties
+cat docs/CANONICAL_LOCATIONS.md</code></pre>
+
+<h3>STAP 3: 🗂️ Check Archive</h3>
+<pre><code># Check of het in het archief staat
+ls docs/archief/
+ls docs/archief/stories/
+ls docs/archief/architecture/</code></pre>
+
+<h3>STAP 4: ✅ Decision Tree</h3>
+
+<pre><code>Document gevonden?
+├── JA → UPDATE het bestaande document
+│   ├── Check `last_verified` datum
+│   ├── Update content
+│   └── Update frontmatter
+│
+└── NEE → Mag je het maken?
+    ├── Is het een epic/story? → NEIN! Update MASTER-EPICS-USER-STORIES.md
+    ├── Is het een duplicate? → NEIN! Update het origineel
+    └── Echt nieuw? → Ga naar STAP 5</code></pre>
+
+<h3>STAP 5: 📁 Create in Correct Location</h3>
+
+<p><strong>Check eerst:</strong> <code>docs/CANONICAL_LOCATIONS.md</code></p>
+
+<p>| Type Document | Locatie |</p>
+<p>|--------------|---------|</p>
+<p>| Epische Verhalen & Stories | <code>docs/backlog/stories/MASTER-EPICS-USER-STORIES.md</code> (UPDATE ONLY) |</p>
+<p>| Architecture (EA/SA/TA) | <code>docs/architectuur/</code> |</p>
+<p>| ADRs | <code>Geïntegreerd in EA/SA/TA docs</code> |</p>
+<p>| Module docs | <code>docs/technische-referentie/modules/</code> |</p>
+<p>| Reviews | <code>docs/reviews/</code> |</p>
+<p>| Vereisten | <code>docs/vereistes/</code> |</p>
+<p>| Test docs | <code>docs/testing/</code> |</p>
+
+<h3>STAP 6: ✍️ Add Required Frontmatter</h3>
+
+<pre><code>---
+canonical: true           # Is dit DE bron voor dit onderwerp?
+status: active           # active/draft/archived
+owner: development       # architecture/validation/platform/product/domain
+last_verified: 04-09-2025  # YYYY-MM-DD
+applies_to: definitie-app@v2  # Scope/versie
+document_type: guide     # epic/story/adr/guide/analysis/etc.
+---</code></pre>
+
+<h3>STAP 7: 🔗 Update References</h3>
+
+<ul>
+<li>[ ] Update `docs/INDEX.md` met link naar nieuw document</li>
+<li>[ ] Update relevante master documenten</li>
+<li>[ ] Add cross-references waar nodig</li>
+<li>[ ] Check dat alle links werken</li>
+</ul>
+
+<p>---</p>
+
+<h2>📦 Archiving Werkstroom</h2>
+
+<h3>GEBRUIK ALLEEN `/docs/archief/`</h3>
+
+<pre><code># GOED ✅
+mv docs/backlog/stories/old-story.md docs/archief/stories/
+
+# FOUT ❌
+mkdir docs/archive  # NOOIT!
+mkdir docs/old      # NOOIT!
+mkdir docs/archief2 # NOOIT!</code></pre>
+
+<h3>Archive Structuur</h3>
+<pre><code>docs/archief/
+├── stories/        # Oude epics en stories
+├── architecture/   # Oude architectuur docs
+├── vereistes/   # Oude vereistes
+├── REFERENTIE/    # Referentie materiaal
+└── HISTORISCH/    # Historische docs</code></pre>
+
+<p>---</p>
+
+<h2>🚫 Common Mistakes to Avoid</h2>
+
+<h3>❌ DEZE FOUTEN MAKEN ROMMEL:</h3>
+
+<ol>
+<li>**Nieuwe epic/story document maken**</li>
+</ol>
+<ul>
+<li>  - FOUT: `docs/backlog/stories/epic-8-new-feature.md`</li>
+<li>  - GOED: Update `docs/backlog/stories/MASTER-EPICS-USER-STORIES.md`</li>
+</ul>
+
+<ol>
+<li>**Archive map maken**</li>
+</ol>
+<ul>
+<li>  - FOUT: `mkdir docs/archive` of `docs/old`</li>
+<li>  - GOED: Gebruik `/docs/archief/`</li>
+</ul>
+
+<ol>
+<li>**Duplicate met andere naam**</li>
+</ol>
+<ul>
+<li>  - FOUT: `validation-v2.md` naast `validation-orchestrator.md`</li>
+<li>  - GOED: Update het origineel of archiveer oude versie</li>
+</ul>
+
+<ol>
+<li>**Geen frontmatter**</li>
+</ol>
+<ul>
+<li>  - FOUT: Document zonder metadata</li>
+<li>  - GOED: Altijd frontmatter toevoegen</li>
+</ul>
+
+<ol>
+<li>**Verkeerde locatie**</li>
+</ol>
+<ul>
+<li>  - FOUT: Story in `/docs/` root</li>
+<li>  - GOED: Check `CANONICAL_LOCATIONS.md`</li>
+</ul>
+
+<p>---</p>
+
+<h2>✅ Best Practices</h2>
+
+<h3>Document Hygiene</h3>
+<ul>
+<li>🔍 **Search First**: Altijd zoeken voor maken</li>
+<li>📝 **Update > Create**: Liever updaten dan nieuw maken</li>
+<li>📁 **Right Location**: Gebruik canonieke locaties</li>
+<li>🏷️ **Metadata**: Altijd frontmatter toevoegen</li>
+<li>🔗 **Link It**: Update INDEX.md en cross-references</li>
+<li>🗓️ **Date It**: `last_verified` bijhouden</li>
+<li>📦 **Archive Smart**: Alleen `/docs/archief/` gebruiken</li>
+</ul>
+
+<h3>Voor AI/Claude</h3>
+<pre><code># Deze commands ALTIJD uitvoeren voor document creatie:
+grep -r "onderwerp" docs/
+cat docs/backlog/stories/MASTER-EPICS-USER-STORIES.md | grep "onderwerp"
+cat docs/INDEX.md | grep "onderwerp"
+cat docs/CANONICAL_LOCATIONS.md
+ls docs/archief/</code></pre>
+
+<p>---</p>
+
+<h2>📊 Quick Reference Card</h2>
+
+<p>| Actie | Command |</p>
+<p>|-------|---------|</p>
+<p>| Search content | <code>grep -r "term" docs/</code> |</p>
+<p>| Search filenames | <code>ls docs/*<em>/</em>term*.md</code> |</p>
+<p>| Check master | <code>cat docs/backlog/stories/MASTER-EPICS-USER-STORIES.md</code> |</p>
+<p>| Check index | <code>cat docs/INDEX.md</code> |</p>
+<p>| Check locations | <code>cat docs/CANONICAL_LOCATIONS.md</code> |</p>
+<p>| Archive properly | <code>mv file.md docs/archief/category/</code> |</p>
+<p>| Never do | <code>mkdir docs/archive</code> ❌ |</p>
+
+<p>---</p>
+
+<h2>🔧 Enforcement</h2>
+
+<h3>Git Pre-commit Hooks (Suggested)</h3>
+<pre><code>#!/bin/bash
+# Check for duplicate documents
+# Check for docs outside canonical locations
+# Check for missing frontmatter
+# Warn about new epic/story files</code></pre>
+
+<h3>CI/CD Checks</h3>
+<ul>
+<li>Detect multiple `canonical: true` for same topic</li>
+<li>Warn if creating outside canonical locations</li>
+<li>Block new archive/old directories</li>
+<li>Check frontmatter completeness</li>
+</ul>
+
+<p>---</p>
+
+<p><strong>Remember</strong>: Een clean project begint met discipline. Check eerst, maak later!</p>
+
+  </div>
+</body>
+</html>

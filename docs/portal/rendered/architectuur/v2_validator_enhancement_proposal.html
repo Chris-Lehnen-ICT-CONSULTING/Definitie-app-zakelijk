@@ -1,0 +1,661 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>V2 Validator Technical Enhancement Proposal</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>V2 Validator Technical Enhancement Proposal</h1>
+
+<h2>Executive Summary</h2>
+
+<p>This proposal addresses critical feature gaps in the V2 validation architecture, specifically focusing on:</p>
+<ul>
+<li>Category-specific compliance scoring (currently all categories mirror overall score)</li>
+<li>Acceptance gates from legacy system (critical/overall/category thresholds)</li>
+<li>Severity mapping and multipliers for proper violation impact</li>
+<li>Violation metadata enrichment for better debugging and audit</li>
+</ul>
+
+<h2>Current State Analysis</h2>
+
+<h3>Working Components</h3>
+<p>✅ <strong>ValidationOrchestratorV2</strong>: Clean async orchestration layer</p>
+<p>✅ <strong>ModularValidationService</strong>: Rule evaluation with 45+ validation rules</p>
+<p>✅ <strong>ApprovalGatePolicy</strong>: Gate policy configuration (but not integrated)</p>
+<p>✅ <strong>Schema Compliance</strong>: JSON Schema validation for all outputs</p>
+
+<h3>Identified Gaps</h3>
+
+<h4>1. Category Scoring (HIGH Priority)</h4>
+<p><strong>Current</strong>: All category scores (<code>taal</code>, <code>juridisch</code>, <code>structuur</code>, <code>samenhang</code>) mirror overall score</p>
+<pre><code># Line 386-392 in modular_validation_service.py
+detailed = {
+    "taal": overall,
+    "juridisch": overall,
+    "structuur": overall,
+    "samenhang": overall,
+}</code></pre>
+
+<p><strong>Impact</strong>: Cannot track category-specific improvements or violations</p>
+
+<h4>2. Acceptance Gates Not Integrated</h4>
+<p><strong>Current</strong>: Simple threshold check (<code>overall >= 0.75</code>)</p>
+<p><strong>Missing</strong>:</p>
+<ul>
+<li>Critical violation blocking</li>
+<li>Category minimum thresholds</li>
+<li>Soft vs hard requirements</li>
+<li>ApprovalGatePolicy integration</li>
+</ul>
+
+<h4>3. Severity Mapping Issues</h4>
+<p><strong>Current</strong>: Simplistic severity assignment</p>
+<pre><code># Line 814-820
+if aan == "verplicht" or pri == "hoog":
+    return "error"
+return "warning"</code></pre>
+<p><strong>Missing</strong>: Proper impact calculation, multipliers, critical flagging</p>
+
+<h4>4. Violation Metadata</h4>
+<p><strong>Current</strong>: Basic violation structure</p>
+<p><strong>Missing</strong>:</p>
+<ul>
+<li>Impact scores</li>
+<li>Fix complexity</li>
+<li>Violation counts per category</li>
+<li>Remediation guidance</li>
+</ul>
+
+<h2>Technical Design</h2>
+
+<h3>1. Category-Specific Scoring</h3>
+
+<h4>Implementation Approach</h4>
+<p>Create category-aware aggregation that groups rules by category and calculates weighted scores per category.</p>
+
+<pre><code># New module: src/services/validation/category_scorer.py
+
+from typing import Dict, List, Tuple
+from dataclasses import dataclass
+
+@dataclass
+class CategoryScoreResult:
+    """Result of category-specific scoring."""
+    category: str
+    score: float
+    rule_count: int
+    violation_count: int
+    critical_violations: List[str]
+
+class CategoryScorer:
+    """Calculate category-specific compliance scores."""
+
+    RULE_CATEGORIES = {
+        # Taal rules
+        "ARAI-": "taal",
+        "VER-": "taal",
+
+        # Juridisch rules
+        "ESS-": "juridisch",
+        "VAL-": "juridisch",
+
+        # Structuur rules
+        "STR-": "structuur",
+        "INT-": "structuur",
+
+        # Samenhang rules
+        "CON-": "samenhang",
+        "SAM-": "samenhang",
+    }
+
+    def calculate_category_scores(
+        self,
+        rule_scores: Dict[str, float],
+        violations: List[Dict],
+        weights: Dict[str, float]
+    ) -&gt; Dict[str, CategoryScoreResult]:
+        """Calculate weighted scores per category."""
+
+        # Group rules by category
+        category_groups = self._group_by_category(rule_scores)
+
+        # Calculate per-category scores
+        results = {}
+        for category, rules in category_groups.items():
+            # Get violations for this category
+            cat_violations = [
+                v for v in violations
+                if self._get_category(v.get("code", "")) == category
+            ]
+
+            # Calculate weighted score for category
+            cat_scores = {r: rule_scores[r] for r in rules}
+            cat_weights = {r: weights.get(r, 0.5) for r in rules}
+            weighted_score = self._calculate_weighted(cat_scores, cat_weights)
+
+            # Find critical violations
+            critical = [
+                v["code"] for v in cat_violations
+                if v.get("severity") == "error"
+            ]
+
+            results[category] = CategoryScoreResult(
+                category=category,
+                score=weighted_score,
+                rule_count=len(rules),
+                violation_count=len(cat_violations),
+                critical_violations=critical
+            )
+
+        return results</code></pre>
+
+<h4>Integration Point</h4>
+<p>Modify <code>modular_validation_service.py</code> line 386-392:</p>
+<pre><code># Replace simple mirroring with category calculation
+category_scorer = CategoryScorer()
+category_results = category_scorer.calculate_category_scores(
+    rule_scores, violations, weights
+)
+
+detailed = {
+    cat: result.score
+    for cat, result in category_results.items()
+}
+
+# Add category metadata to result
+result["category_details"] = {
+    cat: {
+        "score": res.score,
+        "violations": res.violation_count,
+        "critical": len(res.critical_violations) &gt; 0
+    }
+    for cat, res in category_results.items()
+}</code></pre>
+
+<h3>2. Acceptance Gate Integration</h3>
+
+<h4>Implementation Approach</h4>
+<p>Create gate evaluator that uses ApprovalGatePolicy to determine acceptability.</p>
+
+<pre><code># New module: src/services/validation/gate_evaluator.py
+
+from dataclasses import dataclass
+from typing import Dict, List, Optional
+from services.policies.approval_gate_policy import GatePolicyService
+
+@dataclass
+class GateEvaluation:
+    """Result of gate evaluation."""
+    passed: bool
+    hard_failures: List[str]
+    soft_failures: List[str]
+    override_possible: bool
+    reason: str
+
+class GateEvaluator:
+    """Evaluate validation results against acceptance gates."""
+
+    def __init__(self, policy_service: GatePolicyService):
+        self.policy_service = policy_service
+
+    def evaluate(
+        self,
+        overall_score: float,
+        category_scores: Dict[str, float],
+        violations: List[Dict],
+        context: Optional[Dict] = None
+    ) -&gt; GateEvaluation:
+        """Evaluate against all gate criteria."""
+
+        policy = self.policy_service.get_policy()
+        hard_failures = []
+        soft_failures = []
+
+        # Check critical violations
+        critical_violations = [
+            v for v in violations
+            if v.get("severity") == "error" and
+            v.get("code", "").startswith(("ESS-", "VAL-"))
+        ]
+
+        if critical_violations and policy.hard_requirements.get("forbid_critical_issues"):
+            hard_failures.append(f"Critical violations: {len(critical_violations)}")
+
+        # Check overall threshold
+        if overall_score &lt; policy.hard_min_score:
+            hard_failures.append(
+                f"Score {overall_score:.2f} below hard minimum {policy.hard_min_score}"
+            )
+        elif overall_score &lt; policy.soft_min_score:
+            soft_failures.append(
+                f"Score {overall_score:.2f} below soft minimum {policy.soft_min_score}"
+            )
+
+        # Check category minimums
+        category_mins = policy.thresholds.get("category_minimums", {})
+        for cat, min_score in category_mins.items():
+            if cat in category_scores and category_scores[cat] &lt; min_score:
+                msg = f"{cat} score {category_scores[cat]:.2f} below minimum {min_score}"
+                if cat in ["juridisch", "structuur"]:
+                    hard_failures.append(msg)
+                else:
+                    soft_failures.append(msg)
+
+        # Check context requirement
+        if policy.hard_requirements.get("min_one_context_required"):
+            has_context = bool(
+                context and (
+                    context.get("organisatorische_context") or
+                    context.get("juridische_context")
+                )
+            )
+            if not has_context:
+                hard_failures.append("No context provided (required)")
+
+        # Determine result
+        passed = len(hard_failures) == 0
+        override_possible = (
+            len(hard_failures) == 0 and
+            len(soft_failures) &gt; 0 and
+            policy.soft_requirements.get("allow_high_issues_with_override", False)
+        )
+
+        reason = self._build_reason(hard_failures, soft_failures, passed)
+
+        return GateEvaluation(
+            passed=passed,
+            hard_failures=hard_failures,
+            soft_failures=soft_failures,
+            override_possible=override_possible,
+            reason=reason
+        )</code></pre>
+
+<h4>Integration Point</h4>
+<p>Modify <code>modular_validation_service.py</code> after line 384:</p>
+<pre><code># Evaluate against gates
+if hasattr(self, "gate_evaluator"):
+    gate_result = self.gate_evaluator.evaluate(
+        overall_score=overall,
+        category_scores=detailed,
+        violations=violations,
+        context=context
+    )
+    is_ok = gate_result.passed
+
+    # Add gate metadata to result
+    result["acceptance_gate"] = {
+        "passed": gate_result.passed,
+        "reason": gate_result.reason,
+        "override_possible": gate_result.override_possible,
+        "hard_failures": gate_result.hard_failures,
+        "soft_failures": gate_result.soft_failures
+    }
+else:
+    # Fallback to simple threshold
+    is_ok = determine_acceptability(overall, self._overall_threshold)</code></pre>
+
+<h3>3. Severity Mapping Enhancement</h3>
+
+<h4>Implementation Approach</h4>
+<p>Create severity calculator with proper multipliers and impact assessment.</p>
+
+<pre><code># New module: src/services/validation/severity_calculator.py
+
+from enum import Enum
+from typing import Dict, Optional
+
+class SeverityLevel(Enum):
+    """Severity levels with multipliers."""
+    CRITICAL = ("critical", 0.0)    # Blocks acceptance
+    ERROR = ("error", 0.3)           # Major impact
+    WARNING = ("warning", 0.7)       # Minor impact
+    INFO = ("info", 0.9)            # Minimal impact
+
+    def __init__(self, label: str, multiplier: float):
+        self.label = label
+        self.multiplier = multiplier
+
+class SeverityCalculator:
+    """Calculate proper severity and impact for violations."""
+
+    CRITICAL_RULES = {
+        "VAL-EMP-001",  # Empty definition
+        "ESS-CONT-001", # No essential content
+        "CON-CIRC-001", # Circular definition
+    }
+
+    HIGH_PRIORITY_RULES = {
+        "ESS-02", "ESS-03", "ESS-04",  # Essential elements
+        "VAL-LEN-001",                   # Too short
+        "INT-01",                        # Not integral
+    }
+
+    def calculate_severity(
+        self,
+        rule_code: str,
+        rule_metadata: Dict,
+        violation_context: Optional[Dict] = None
+    ) -&gt; Dict:
+        """Calculate severity with impact metadata."""
+
+        # Determine base severity
+        if rule_code in self.CRITICAL_RULES:
+            severity = SeverityLevel.CRITICAL
+        elif rule_code in self.HIGH_PRIORITY_RULES:
+            severity = SeverityLevel.ERROR
+        elif rule_metadata.get("aanbeveling") == "verplicht":
+            severity = SeverityLevel.ERROR
+        elif rule_metadata.get("prioriteit") == "hoog":
+            severity = SeverityLevel.WARNING
+        else:
+            severity = SeverityLevel.INFO
+
+        # Calculate impact score (0-1, where 0 is worst)
+        impact_score = severity.multiplier
+
+        # Adjust for context
+        if violation_context:
+            # Multiple violations of same type increase impact
+            similar_count = violation_context.get("similar_violations", 0)
+            if similar_count &gt; 2:
+                impact_score *= 0.8
+
+            # Violations in juridisch category are more severe
+            if violation_context.get("category") == "juridisch":
+                impact_score *= 0.9
+
+        # Determine remediation complexity
+        complexity = self._calculate_fix_complexity(rule_code, rule_metadata)
+
+        return {
+            "severity": severity.label,
+            "impact_score": round(impact_score, 2),
+            "multiplier": severity.multiplier,
+            "fix_complexity": complexity,
+            "blocks_acceptance": severity == SeverityLevel.CRITICAL
+        }
+
+    def _calculate_fix_complexity(
+        self,
+        rule_code: str,
+        rule_metadata: Dict
+    ) -&gt; str:
+        """Estimate complexity to fix violation."""
+
+        # Simple fixes (typos, formatting)
+        if rule_code.startswith("STR-"):
+            return "simple"
+
+        # Moderate fixes (rewording, restructuring)
+        if rule_code.startswith(("INT-", "SAM-")):
+            return "moderate"
+
+        # Complex fixes (missing content, fundamental issues)
+        if rule_code.startswith(("ESS-", "VAL-")):
+            return "complex"
+
+        return "unknown"</code></pre>
+
+<h4>Integration Point</h4>
+<p>Modify <code>_severity_for_json_rule</code> in <code>modular_validation_service.py</code>:</p>
+<pre><code>def _severity_for_json_rule(self, rule: dict[str, Any]) -&gt; str:
+    """Calculate enhanced severity with metadata."""
+    if hasattr(self, "severity_calculator"):
+        result = self.severity_calculator.calculate_severity(
+            rule_code=rule.get("id", ""),
+            rule_metadata=rule,
+            violation_context={
+                "category": self._category_for(rule.get("id", "")),
+                "similar_violations": self._count_similar_violations(rule.get("id", ""))
+            }
+        )
+        # Store metadata for later use
+        self._severity_metadata[rule.get("id", "")] = result
+        return result["severity"]
+
+    # Fallback to existing logic
+    aan = str(rule.get("aanbeveling", "")).lower()
+    pri = str(rule.get("prioriteit", "")).lower()
+    if aan == "verplicht" or pri == "hoog":
+        return "error"
+    return "warning"</code></pre>
+
+<h3>4. Violation Metadata Enrichment</h3>
+
+<h4>Implementation Approach</h4>
+<p>Add comprehensive metadata to each violation for better debugging and remediation.</p>
+
+<pre><code># Enhancement in modular_validation_service.py
+
+def _enrich_violation(
+    self,
+    violation: Dict[str, Any],
+    rule_code: str,
+    rule_metadata: Dict,
+    context: EvaluationContext
+) -&gt; Dict[str, Any]:
+    """Enrich violation with additional metadata."""
+
+    # Add severity metadata if available
+    if hasattr(self, "_severity_metadata") and rule_code in self._severity_metadata:
+        violation["impact"] = self._severity_metadata[rule_code]
+
+    # Add rule metadata
+    violation["metadata"] = {
+        "rule_priority": rule_metadata.get("prioriteit", "unknown"),
+        "rule_recommendation": rule_metadata.get("aanbeveling", "unknown"),
+        "category": self._category_for(rule_code),
+        "fix_guidance": self._get_fix_guidance(rule_code),
+        "examples": self._get_rule_examples(rule_code),
+    }
+
+    # Add occurrence information
+    violation["occurrence"] = {
+        "text_position": self._find_text_position(violation, context.cleaned_text),
+        "frequency": self._count_pattern_matches(violation, context.cleaned_text),
+    }
+
+    # Add improvement metrics
+    violation["improvement"] = {
+        "estimated_score_gain": self._estimate_score_gain(rule_code, rule_metadata),
+        "fix_priority": self._calculate_fix_priority(violation),
+    }
+
+    return violation
+
+def _get_fix_guidance(self, rule_code: str) -&gt; Dict[str, str]:
+    """Get detailed fix guidance for a rule."""
+    guidance_map = {
+        "VAL-EMP-001": {
+            "action": "Add definition text",
+            "example": "Een [begrip] is een [genus] dat [differentia]",
+            "tips": "Start with the genus (broader category) then add distinguishing features"
+        },
+        "ESS-02": {
+            "action": "Make ontological category explicit",
+            "example": "Use markers like 'soort', 'type', 'proces', 'resultaat'",
+            "tips": "Choose one clear category marker and use consistently"
+        },
+        # ... more guidance
+    }
+    return guidance_map.get(rule_code, {
+        "action": "Review and fix according to rule requirements",
+        "example": "",
+        "tips": "Check rule documentation for specific requirements"
+    })</code></pre>
+
+<h2>Implementation Plan</h2>
+
+<h3>Phase 1: Category Scoring (Week 1)</h3>
+<ol>
+<li>**Day 1-2**: Implement CategoryScorer class</li>
+<li>**Day 3**: Integrate with ModularValidationService</li>
+<li>**Day 4**: Update tests for category scoring</li>
+<li>**Day 5**: Validate against golden test cases</li>
+</ol>
+
+<p><strong>Acceptance Criteria:</strong></p>
+<ul>
+<li>Each category has independent score calculation</li>
+<li>Category scores reflect actual rule violations in that category</li>
+<li>Backward compatibility maintained (overall_score unchanged)</li>
+</ul>
+
+<h3>Phase 2: Gate Integration (Week 2)</h3>
+<ol>
+<li>**Day 1-2**: Implement GateEvaluator class</li>
+<li>**Day 3**: Connect ApprovalGatePolicy to validation flow</li>
+<li>**Day 4**: Add gate evaluation to orchestrator</li>
+<li>**Day 5**: Test gate scenarios (hard/soft failures)</li>
+</ol>
+
+<p><strong>Acceptance Criteria:</strong></p>
+<ul>
+<li>Gates properly block/allow based on policy</li>
+<li>Hard vs soft failures clearly distinguished</li>
+<li>Override mechanism works for soft failures</li>
+</ul>
+
+<h3>Phase 3: Severity Enhancement (Week 3)</h3>
+<ol>
+<li>**Day 1-2**: Implement SeverityCalculator</li>
+<li>**Day 3**: Add impact scoring to violations</li>
+<li>**Day 4**: Integrate fix complexity estimation</li>
+<li>**Day 5**: Test severity scenarios</li>
+</ol>
+
+<p><strong>Acceptance Criteria:</strong></p>
+<ul>
+<li>Critical violations properly identified</li>
+<li>Impact scores accurately reflect violation severity</li>
+<li>Fix complexity helps prioritize remediation</li>
+</ul>
+
+<h3>Phase 4: Metadata Enrichment (Week 4)</h3>
+<ol>
+<li>**Day 1-2**: Implement violation enrichment</li>
+<li>**Day 3**: Add fix guidance system</li>
+<li>**Day 4**: Add occurrence tracking</li>
+<li>**Day 5**: Final integration testing</li>
+</ol>
+
+<p><strong>Acceptance Criteria:</strong></p>
+<ul>
+<li>Violations include actionable fix guidance</li>
+<li>Metadata helps developers understand issues</li>
+<li>Performance impact < 10ms per validation</li>
+</ul>
+
+<h2>Testing Strategy</h2>
+
+<h3>Unit Tests</h3>
+<pre><code># tests/services/validation/test_category_scorer.py
+def test_category_scoring_independence():
+    """Test that category scores are calculated independently."""
+
+def test_critical_violation_detection():
+    """Test that critical violations are properly flagged."""
+
+# tests/services/validation/test_gate_evaluator.py
+def test_hard_gate_blocking():
+    """Test that hard failures block acceptance."""
+
+def test_soft_gate_override():
+    """Test that soft failures can be overridden."""</code></pre>
+
+<h3>Integration Tests</h3>
+<pre><code># tests/integration/test_v2_validation_flow.py
+async def test_full_validation_with_gates():
+    """Test complete validation flow with all enhancements."""
+
+async def test_category_specific_improvements():
+    """Test that fixing category-specific issues improves that category score."""</code></pre>
+
+<h3>Regression Tests</h3>
+<ul>
+<li>Run existing test suite to ensure no breaking changes</li>
+<li>Validate against golden test cases</li>
+<li>Performance benchmarks (must stay within 10% of current)</li>
+</ul>
+
+<h2>Migration Approach</h2>
+
+<h3>Non-Breaking Implementation</h3>
+<p>All changes are additive:</p>
+<ol>
+<li>New fields added to ValidationResult (backward compatible)</li>
+<li>Existing fields maintain same values/behavior</li>
+<li>New components are optional (graceful degradation)</li>
+</ol>
+
+<h3>Rollout Strategy</h3>
+<ol>
+<li>**Feature flags**: Each enhancement behind feature flag</li>
+<li>**Gradual activation**: Enable per component in stages</li>
+<li>**Monitoring**: Track validation metrics before/after</li>
+<li>**Rollback plan**: Feature flags allow instant rollback</li>
+</ol>
+
+<h2>Risk Assessment</h2>
+
+<h3>Technical Risks</h3>
+<p>| Risk | Impact | Likelihood | Mitigation |</p>
+<p>|------|---------|------------|------------|</p>
+<p>| Performance degradation | High | Low | Benchmark continuously, optimize hot paths |</p>
+<p>| Category scoring inaccuracy | Medium | Medium | Extensive testing with real data |</p>
+<p>| Gate policy conflicts | Medium | Low | Clear precedence rules, comprehensive tests |</p>
+<p>| Breaking changes | High | Low | All changes additive, extensive regression tests |</p>
+
+<h3>Implementation Risks</h3>
+<p>| Risk | Impact | Likelihood | Mitigation |</p>
+<p>|------|---------|------------|------------|</p>
+<p>| Scope creep | Medium | Medium | Strict phase boundaries, clear acceptance criteria |</p>
+<p>| Integration complexity | Medium | Medium | Incremental integration, comprehensive tests |</p>
+<p>| Testing coverage gaps | High | Low | 90%+ coverage requirement per component |</p>
+
+<h2>Success Metrics</h2>
+
+<h3>Functional Metrics</h3>
+<ul>
+<li>✅ All 4 feature gaps addressed</li>
+<li>✅ 100% backward compatibility</li>
+<li>✅ Category scores accurately reflect violations</li>
+<li>✅ Gates properly enforce policy</li>
+</ul>
+
+<h3>Quality Metrics</h3>
+<ul>
+<li>✅ 90%+ test coverage on new code</li>
+<li>✅ Performance within 10% of baseline</li>
+<li>✅ Zero regression bugs in production</li>
+<li>✅ Documentation complete for all components</li>
+</ul>
+
+<h2>Conclusion</h2>
+
+<p>This proposal provides a comprehensive, incremental approach to enhancing the V2 validator. Each enhancement is:</p>
+<ul>
+<li>**Additive**: No breaking changes to existing contracts</li>
+<li>**Testable**: Clear acceptance criteria and test strategies</li>
+<li>**Measurable**: Defined success metrics</li>
+<li>**Reversible**: Feature flags enable rollback</li>
+</ul>
+
+<p>The implementation prioritizes the highest-impact features (category scoring and gates) first, with complexity increasing gradually through the phases. This approach minimizes risk while delivering maximum value to the validation system.</p>
+  </div>
+</body>
+</html>

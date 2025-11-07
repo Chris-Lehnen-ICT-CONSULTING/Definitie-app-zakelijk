@@ -1,0 +1,444 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Synonym Migration Guide - PHASE 1.4</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>Synonym Migration Guide - PHASE 1.4</h1>
+
+<h2>Overview</h2>
+
+<p>This guide covers the migration of synonym data from 3 legacy sources into the new unified graph-based synonym registry (Synonym Orchestrator Architecture v3.1).</p>
+
+<p><strong>Architecture Reference:</strong></p>
+<p><code>docs/architectuur/synonym-orchestrator-architecture-v3.1.md</code> (Lines 814-913)</p>
+
+<p><strong>Migration Script:</strong></p>
+<p><code>scripts/migrate_synonyms_to_registry.py</code></p>
+
+<h2>Migration Sources</h2>
+
+<h3>Source 1: YAML File (Legacy)</h3>
+<ul>
+<li>**Location:** `config/juridische_synoniemen.yaml`</li>
+<li>**Structure:**</li>
+<pre><code>  hoofdterm:
+    - synoniem: term
+      weight: 0.95</code></pre>
+<li>**Status:** Legacy configuration file</li>
+<li>**Migration Target:** `imported_yaml` source, `active` status</li>
+<li>**Scope:** Global (definitie_id = NULL)</li>
+</ul>
+
+<h3>Source 2: Database - synonym_suggestions Table</h3>
+<ul>
+<li>**Location:** `data/definities.db` table `synonym_suggestions`</li>
+<li>**Filter:** Only approved suggestions (`status = 'approved'`)</li>
+<li>**Fields Used:** hoofdterm, synoniem, confidence, context_data, reviewed_by</li>
+<li>**Migration Target:** `ai_suggested` source, `active` status</li>
+<li>**Scope:** Global (definitie_id = NULL)</li>
+</ul>
+
+<h3>Source 3: Database - definitie_voorbeelden Table</h3>
+<ul>
+<li>**Location:** `data/definities.db` table `definitie_voorbeelden`</li>
+<li>**Filter:** Where `voorbeeld_type = 'synonyms'` and `actief = TRUE`</li>
+<li>**Fields Used:** definitie_id, begrip, voorbeeld_tekst</li>
+<li>**Migration Target:** `manual` source, `active` status</li>
+<li>**Scope:** Per-definitie (definitie_id = X) - SCOPED!</li>
+</ul>
+
+<h2>Target Schema</h2>
+
+<h3>synonym_groups Table</h3>
+<pre><code>CREATE TABLE synonym_groups (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    canonical_term TEXT NOT NULL UNIQUE,  -- Hoofdterm/voorkeursterm
+    domain TEXT,                           -- Optional domain
+    created_at TIMESTAMP,
+    updated_at TIMESTAMP,
+    created_by TEXT
+);</code></pre>
+
+<h3>synonym_group_members Table</h3>
+<pre><code>CREATE TABLE synonym_group_members (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    group_id INTEGER NOT NULL,            -- FK to synonym_groups
+    term TEXT NOT NULL,
+    weight REAL DEFAULT 1.0,              -- 0.0-1.0 range
+    is_preferred BOOLEAN DEFAULT FALSE,
+    status TEXT DEFAULT 'active',         -- active, ai_pending, rejected_auto, deprecated
+    source TEXT NOT NULL,                 -- db_seed, manual, ai_suggested, imported_yaml
+    context_json TEXT,                    -- JSON metadata
+    definitie_id INTEGER,                 -- NULL = global, X = scoped
+    usage_count INTEGER DEFAULT 0,
+    last_used_at TIMESTAMP,
+    created_at TIMESTAMP,
+    updated_at TIMESTAMP,
+    created_by TEXT,
+    reviewed_by TEXT,
+    reviewed_at TIMESTAMP,
+    FOREIGN KEY(group_id) REFERENCES synonym_groups(id) ON DELETE CASCADE,
+    FOREIGN KEY(definitie_id) REFERENCES definities(id) ON DELETE CASCADE,
+    UNIQUE(group_id, term)
+);</code></pre>
+
+<h2>Usage</h2>
+
+<h3>1. Preview Migration (Dry-Run)</h3>
+
+<p><strong>Recommended first step:</strong> Always run dry-run to preview what will be migrated.</p>
+
+<pre><code>python scripts/migrate_synonyms_to_registry.py --dry-run</code></pre>
+
+<p><strong>Output:</strong></p>
+<ul>
+<li>Total groups that will be created</li>
+<li>Total members that will be added</li>
+<li>Breakdown by source (YAML, suggestions, voorbeelden)</li>
+<li>Conflict detection (duplicates, ambiguities)</li>
+<li>No database writes</li>
+</ul>
+
+<p><strong>Example Output:</strong></p>
+<pre><code>GROUPS &amp; MEMBERS:
+  Groups created: 70
+  Members added: 192
+
+BY SOURCE:
+  YAML imported: 70
+  DB approved suggestions: 0
+  Definitie voorbeelden: 122
+
+ISSUES:
+  Conflicts detected: 36
+  Errors encountered: 0
+  Items skipped: 36</code></pre>
+
+<h3>2. Execute Migration</h3>
+
+<p><strong>Warning:</strong> This writes to the database. Backup recommended.</p>
+
+<pre><code># Backup database first (recommended)
+cp data/definities.db data/definities.db.backup
+
+# Execute migration
+python scripts/migrate_synonyms_to_registry.py --execute</code></pre>
+
+<p><strong>What happens:</strong></p>
+<ul>
+<li>Creates synonym_groups for each hoofdterm/begrip</li>
+<li>Adds members to groups with proper source tracking</li>
+<li>Skips duplicates (same term in same group)</li>
+<li>Preserves context_data and reviewed_by from suggestions</li>
+<li>Sets definitie_id for scoped voorbeelden</li>
+<li>Validates migration results</li>
+<li>Logs to `logs/synonym_migration.log`</li>
+</ul>
+
+<h3>3. Rollback Migration (If Needed)</h3>
+
+<p>If migration needs to be undone:</p>
+
+<pre><code>python scripts/migrate_synonyms_to_registry.py --rollback</code></pre>
+
+<p><strong>What happens:</strong></p>
+<ul>
+<li>Deletes all groups with `created_by LIKE 'migration_%'`</li>
+<li>CASCADE deletes all associated members</li>
+<li>Safe: Won't delete manually created groups</li>
+<li>Reports count of deleted groups and members</li>
+</ul>
+
+<p><strong>Example Output:</strong></p>
+<pre><code>Will delete 70 groups
+Will delete 192 members
+Deleted 70 groups (and their members)</code></pre>
+
+<h3>4. Custom Paths</h3>
+
+<p>For testing or alternative configurations:</p>
+
+<pre><code>python scripts/migrate_synonyms_to_registry.py --execute \
+    --db-path data/test.db \
+    --yaml-path config/custom_synonyms.yaml</code></pre>
+
+<h3>5. Verbose Mode</h3>
+
+<p>For detailed logging (DEBUG level):</p>
+
+<pre><code>python scripts/migrate_synonyms_to_registry.py --dry-run --verbose</code></pre>
+
+<h2>Migration Process Flow</h2>
+
+<h3>Phase 1: YAML File Migration</h3>
+<ol>
+<li>Check if YAML file exists</li>
+<li>Load YAML with PyYAML</li>
+<li>For each hoofdterm:</li>
+</ol>
+<ul>
+<li>  - Normalize (replace underscores with spaces)</li>
+<li>  - Get or create synonym_group</li>
+<li>  - For each synoniem:</li>
+<li>    - Check for duplicates</li>
+<li>    - Add as member with `source='imported_yaml'`</li>
+<li>    - Preserve weight from YAML</li>
+</ul>
+
+<h3>Phase 2: Synonym Suggestions Migration</h3>
+<ol>
+<li>Check if synonym_suggestions table exists</li>
+<li>Query approved suggestions only</li>
+<li>For each approved suggestion:</li>
+</ol>
+<ul>
+<li>  - Get or create synonym_group for hoofdterm</li>
+<li>  - Check for duplicates</li>
+<li>  - Add as member with `source='ai_suggested'`</li>
+<li>  - Use confidence as weight</li>
+<li>  - Preserve context_data and reviewed_by</li>
+<li>  - Status: 'active' (already approved)</li>
+</ul>
+
+<h3>Phase 3: Definitie Voorbeelden Migration</h3>
+<ol>
+<li>Check if definitie_voorbeelden table exists</li>
+<li>Query voorbeelden where type='synonyms' and actief=TRUE</li>
+<li>Join with definities to get begrip</li>
+<li>For each voorbeeld:</li>
+</ol>
+<ul>
+<li>  - Parse voorbeeld_tekst (JSON array or comma-separated)</li>
+<li>  - Get or create synonym_group for begrip</li>
+<li>  - For each synoniem:</li>
+<li>    - Check for duplicates</li>
+<li>    - Add as member with `source='manual'`</li>
+<li>    - **SCOPED:** Set definitie_id (not global!)</li>
+<li>    - Weight: 1.0 (default for manual)</li>
+<li>    - Status: 'active'</li>
+</ul>
+
+<h3>Phase 4: Validation (Execute Mode Only)</h3>
+<ol>
+<li>Get registry statistics</li>
+<li>Check for orphaned members (should be 0)</li>
+<li>Check for empty groups (should be 0)</li>
+<li>Report validation results</li>
+</ol>
+
+<h2>Conflict Detection</h2>
+
+<p>The migration script detects and handles several types of conflicts:</p>
+
+<h3>1. Duplicate Members</h3>
+<p><strong>Detection:</strong> Same term appears multiple times in same group</p>
+<p><strong>Behavior:</strong> First occurrence wins, subsequent skipped</p>
+<p><strong>Example:</strong></p>
+<pre><code>CONFLICT: Duplicate member in suggestions: 'kracht van gewijsde' in group 'onherroepelijk'</code></pre>
+
+<p><strong>Cause:</strong> Term appears in both YAML and synonym_suggestions</p>
+<p><strong>Resolution:</strong> Use YAML (Source 1) weight, skip suggestion (Source 2)</p>
+
+<h3>2. Definitie Scoping Duplicates</h3>
+<p><strong>Detection:</strong> Same term in multiple definitie_voorbeelden for same begrip</p>
+<p><strong>Behavior:</strong> First definitie_id wins, subsequent skipped</p>
+<p><strong>Example:</strong></p>
+<pre><code>CONFLICT: Duplicate member in voorbeelden: 'definitief' in group 'onherroepelijk' (definitie 64)
+CONFLICT: Duplicate member in voorbeelden: 'definitief' in group 'onherroepelijk' (definitie 67)</code></pre>
+
+<p><strong>Cause:</strong> Multiple definitions for 'onherroepelijk' with same synonym</p>
+<p><strong>Resolution:</strong> First definitie_id (64) wins, others (67, 69) skipped</p>
+
+<p><strong>Note:</strong> This is expected behavior. The graph model doesn't support duplicate terms per group.</p>
+
+<h3>3. Validation Errors</h3>
+<p><strong>Detection:</strong> Invalid weight, status, or source values</p>
+<p><strong>Behavior:</strong> Error logged, item skipped</p>
+<p><strong>Example:</strong></p>
+<pre><code>ERROR: Failed to add member 'term': weight moet tussen 0.0 en 1.0 zijn: 1.5</code></pre>
+
+<p><strong>Resolution:</strong> Check source data quality, fix invalid values</p>
+
+<h2>Statistics & Reporting</h2>
+
+<h3>Migration Statistics</h3>
+<ul>
+<li>`groups_created`: Number of new synonym_groups</li>
+<li>`members_added`: Total members added to groups</li>
+<li>`yaml_imported`: Members from YAML file</li>
+<li>`db_approved`: Members from synonym_suggestions</li>
+<li>`definitie_voorbeelden`: Members from definitie_voorbeelden</li>
+<li>`by_source`: Breakdown by source type</li>
+<li>`conflicts`: Number of conflicts detected</li>
+<li>`errors`: Number of errors encountered</li>
+<li>`skipped`: Number of items not migrated</li>
+<li>`duration_seconds`: Total migration time</li>
+</ul>
+
+<h3>Post-Migration Validation</h3>
+<ul>
+<li>`total_groups`: Total groups in registry</li>
+<li>`total_members`: Total members in registry</li>
+<li>`members_by_source`: Count per source</li>
+<li>`members_by_status`: Count per status</li>
+<li>`orphaned_members`: Members without group (should be 0)</li>
+<li>`groups_without_members`: Empty groups (should be 0)</li>
+<li>`avg_group_size`: Average members per group</li>
+</ul>
+
+<h2>Expected Results</h2>
+
+<p>Based on current data (as of 2025-10-09):</p>
+
+<pre><code>DRY-RUN SUMMARY:
+  Groups created: 70
+  Members added: 192
+
+  YAML imported: 70
+  DB approved suggestions: 0 (all duplicates)
+  Definitie voorbeelden: 122
+
+  Conflicts detected: 36 (expected duplicates)
+  Errors encountered: 0
+  Items skipped: 36</code></pre>
+
+<p><strong>Why 0 DB approved suggestions?</strong></p>
+<p>All approved suggestions already exist in YAML (Source 1), so they're correctly detected as duplicates and skipped.</p>
+
+<p><strong>Why 36 conflicts?</strong></p>
+<ul>
+<li>13 from synonym_suggestions (already in YAML)</li>
+<li>23 from definitie_voorbeelden (multiple definitions with same synonyms)</li>
+</ul>
+
+<p>This is <strong>expected and correct behavior</strong>. The migration prioritizes Source 1 (YAML) over Source 2 (suggestions).</p>
+
+<h2>Troubleshooting</h2>
+
+<h3>Issue: YAML file not found</h3>
+<pre><code>YAML file not found: config/juridische_synoniemen.yaml
+Skipping Source 1</code></pre>
+<p><strong>Solution:</strong> Check YAML path exists, or use <code>--yaml-path</code> to specify custom location.</p>
+
+<h3>Issue: Table not found</h3>
+<pre><code>synonym_suggestions table not found
+Skipping Source 2</code></pre>
+<p><strong>Solution:</strong> Verify database schema is up-to-date. Run migrations if needed.</p>
+
+<h3>Issue: Permission denied</h3>
+<pre><code>FATAL ERROR: unable to open database file</code></pre>
+<p><strong>Solution:</strong> Check file permissions on database and logs directory.</p>
+
+<h3>Issue: Foreign key constraint failed</h3>
+<pre><code>ERROR: Failed to add member: FOREIGN KEY constraint failed</code></pre>
+<p><strong>Solution:</strong> Verify synonym_groups exists before adding members. Check group_id.</p>
+
+<h3>Issue: UNIQUE constraint failed</h3>
+<pre><code>ValueError: Member 'term' bestaat al in groep X (ID: Y)</code></pre>
+<p><strong>Solution:</strong> This is caught and logged as conflict. Check duplicate detection logic.</p>
+
+<h2>Logs</h2>
+
+<p>Migration logs are written to:</p>
+<ul>
+<li>**Console:** INFO level by default, DEBUG with `--verbose`</li>
+<li>**File:** `logs/synonym_migration.log` (all levels, persistent)</li>
+</ul>
+
+<p><strong>Log format:</strong></p>
+<pre><code>2025-10-09 21:14:24,937 [INFO] Initialized migration with database: data/definities.db
+2025-10-09 21:14:24,949 [INFO] Completed Source 1: 70 members from YAML
+2025-10-09 21:14:24,950 [WARNING] CONFLICT: Duplicate member in suggestions: 'kracht van gewijsde'
+2025-10-09 21:14:24,962 [ERROR] ERROR: Failed to process 'term': ValueError</code></pre>
+
+<h2>Next Steps</h2>
+
+<p>After successful migration:</p>
+
+<ol>
+<li>**Verify Data:**</li>
+<pre><code>   SELECT COUNT(*) FROM synonym_groups;
+   SELECT COUNT(*) FROM synonym_group_members;
+   SELECT source, COUNT(*) FROM synonym_group_members GROUP BY source;</code></pre>
+</ol>
+
+<ol>
+<li>**Test Registry:**</li>
+<pre><code>   from repositories.synonym_registry import get_synonym_registry
+
+   registry = get_synonym_registry()
+   synonyms = registry.get_synonyms("onherroepelijk", statuses=["active"])
+   print(f"Found {len(synonyms)} synonyms for 'onherroepelijk'")</code></pre>
+</ol>
+
+<ol>
+<li>**Update Services:**</li>
+</ol>
+<ul>
+<li>  - Connect ProviderManager to SynonymRegistry (PHASE 2)</li>
+<li>  - Implement cache layer (PHASE 2)</li>
+<li>  - Add AI suggestion flow (PHASE 3)</li>
+</ul>
+
+<ol>
+<li>**Archive Legacy:**</li>
+</ol>
+<ul>
+<li>  - Keep `juridische_synoniemen.yaml` as backup</li>
+<li>  - Document migration date in schema</li>
+<li>  - Update application to use registry exclusively</li>
+</ul>
+
+<h2>Architecture Integration</h2>
+
+<p><strong>Current Phase:</strong> PHASE 1.4 - Migration Script</p>
+<p><strong>Dependencies:</strong></p>
+<ul>
+<li>PHASE 1.1: Database Schema (synonym_groups, synonym_group_members) ✅</li>
+<li>PHASE 1.2: SynonymRegistry Repository ✅</li>
+<li>PHASE 1.3: SynonymConfig ✅</li>
+</ul>
+
+<p><strong>Next Phases:</strong></p>
+<ul>
+<li>PHASE 1.5: Integration Testing</li>
+<li>PHASE 2.1: ProviderManager connects to Registry</li>
+<li>PHASE 2.2: Cache Layer (LRU + TTL)</li>
+<li>PHASE 3.1: Orchestrator with AI suggestions</li>
+</ul>
+
+<h2>References</h2>
+
+<ul>
+<li>**Architecture:** `docs/architectuur/synonym-orchestrator-architecture-v3.1.md`</li>
+<li>**Schema:** `src/database/schema.sql` (lines 347-444)</li>
+<li>**Registry:** `src/repositories/synonym_registry.py`</li>
+<li>**Models:** `src/models/synonym_models.py`</li>
+<li>**Script:** `scripts/migrate_synonyms_to_registry.py`</li>
+</ul>
+
+<p>---</p>
+
+<p><strong>Document Version:</strong> 1.0</p>
+<p><strong>Date:</strong> 2025-10-09</p>
+<p><strong>Phase:</strong> 1.4 - Migration Script</p>
+<p><strong>Status:</strong> Ready for integration testing (PHASE 1.5)</p>
+
+  </div>
+</body>
+</html>

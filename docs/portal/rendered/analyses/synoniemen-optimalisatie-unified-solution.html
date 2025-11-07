@@ -1,0 +1,467 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>UNIFIED SOLUTION: "BEST OF 3 WORLDS" SYNONIEMEN OPTIMALISATIE</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>UNIFIED SOLUTION: "BEST OF 3 WORLDS" SYNONIEMEN OPTIMALISATIE</h1>
+
+<p><strong>Datum</strong>: 2025-10-09</p>
+<p><strong>Versie</strong>: 1.0 (Multi-Agent Consensus)</p>
+<p><strong>Status</strong>: Volledig Uitgewerkte Oplossing (Geen Code)</p>
+<p><strong>Auteur</strong>: Multi-Agent Analyse (4 specialized agents + consensus)</p>
+
+<p>---</p>
+
+<h2>📋 EXECUTIVE SUMMARY</h2>
+
+<h3>Het Kernprobleem</h3>
+
+<p>Gebruikers krijgen niet de maximale waarde uit het synoniemensysteem omdat het functioneert als een "black box" met verborgen complexiteit. Hoewel de technische infrastructuur grotendeels compleet is (database, YAML sync, review UI, weblookup integratie), missen drie kritieke elementen:</p>
+
+<ol>
+<li>**Visibility**: Gebruikers zien niet welke synoniemen werden gebruikt tijdens definitiegeneratie</li>
+<li>**Inconsistent Coverage**: Slechts 1 van 6 providers (Wikipedia) gebruikt synoniemen, wat 80%+ van potentiële hits onbenut laat</li>
+<li>**Friction in Workflow**: Synonym management is geïsoleerd in aparte page, resulterend in 7 stappen en 2+ minuten om één synoniem toe te voegen</li>
+</ol>
+
+<h3>Unified Visie</h3>
+
+<p><strong>Na implementatie ziet de gebruiker:</strong></p>
+
+<ul>
+<li>**Transparante Expansion**: "🔍 Ook gezocht naar: 'hoger beroep insteller' (Wikipedia: 3 hits, SRU: 5 hits)"</li>
+<li>**Inline Approval**: Inline suggestie met ✓/✗ knoppen direct onder gegenereerde definitie</li>
+<li>**Adaptive Intelligence**: Systeem probeert eerst letterlijke term, expandeert automatisch bij <3 resultaten</li>
+<li>**Actionable Analytics**: "Top 10 productive synonyms" en "Low performers" voor data-driven management</li>
+</ul>
+
+<h3>Key Architectural Decisions</h3>
+
+<ol>
+<li>**Adaptive Expansion Strategy**: Try-first-then-expand (balans tussen precision en recall)</li>
+<li>**Transparency Layer**: Web lookup report als optioneel expandable component</li>
+<li>**Dual UI Approach**: Inline voor quick wins, separate page voor bulk</li>
+<li>**Conservative Auto-Approve**: >0.95 threshold met post-approval review</li>
+<li>**Real-Time Usage Tracking**: Per-lookup granularity met database-level aggregation</li>
+</ol>
+
+<p>---</p>
+
+<h2>🔍 MULTI-AGENT ANALYSE BEVINDINGEN</h2>
+
+<h3>Agent 1: Weblookup Mechanisme</h3>
+
+<p><strong>Status</strong>: ✅ Technisch Solide, maar Onderbenut</p>
+
+<p><strong>Sterke Punten</strong>:</p>
+<ul>
+<li>Wikipedia: 100% hit rate met synoniemen (+125% improvement)</li>
+<li>SRU Overheid: 100% hit rate, hoogste autoriteit (weight 1.0)</li>
+<li>JuridischRanker: Quality gate (0.65 threshold) voorkomt low-quality spam</li>
+</ul>
+
+<p><strong>Kritieke Problemen</strong>:</p>
+<ul>
+<li>❌ Inconsistent synonym support: Wikipedia ✅, SRU ❌, Rechtspraak ❌</li>
+<li>❌ Brave Search disabled (MCP dependency broken)</li>
+<li>❌ Wetgeving.nl disabled (0% hit rate)</li>
+<li>⚠️ Quality gate threshold (0.65) is arbitrary, geen empirische basis</li>
+</ul>
+
+<p><strong>Top Aanbevelingen</strong>:</p>
+<ol>
+<li>Implement SRU synonym support (2-3h, +10% hit rate)</li>
+<li>Replace Brave MCP met direct API (4-6h)</li>
+<li>Wikipedia attempt limit (5 max, -58% latency)</li>
+</ol>
+
+<p>---</p>
+
+<h3>Agent 2: Context→Definitie Kwaliteit</h3>
+
+<p><strong>Status</strong>: ✅ Efficient, Documentatie Verouderd</p>
+
+<p><strong>Sterke Punten</strong>:</p>
+<ul>
+<li>Token efficiency: ~2,400-3,400 tokens (GEEN duplicaties meer)</li>
+<li>PromptOrchestrator duplicatie OPGELOST (Oct 7, 2025)</li>
+<li>ServiceContainer duplicatie OPGELOST (Oct 6, 2025)</li>
+<li>Web lookup context: ~400 tokens (budget enforced)</li>
+</ul>
+
+<p><strong>Kritieke Problemen</strong>:</p>
+<ul>
+<li>❌ CLAUDE.md claim "7,250 tokens" is VEROUDERD</li>
+<li>❌ Geen empirische kwaliteitsmeting (MET vs ZONDER weblookup)</li>
+<li>⚠️ Synoniemen worden IMPLICIET gebruikt, NIET expliciet in definities</li>
+</ul>
+
+<p><strong>Top Aanbevelingen</strong>:</p>
+<ol>
+<li>Update CLAUDE.md met actuele metrieken</li>
+<li>Implementeer quality metrics tracking</li>
+<li>A/B test MET vs ZONDER weblookup (100 terms)</li>
+<li>GPT-4 native prompt caching (50% cost reduction)</li>
+</ol>
+
+<p>---</p>
+
+<h3>Agent 3: Synoniemen UX Validatie</h3>
+
+<p><strong>Status</strong>: ⚠️ Foundation Complete, UX Enhancements Missing</p>
+
+<p><strong>Wat Werkt</strong> (60% compleet):</p>
+<ul>
+<li>✅ Database schema compleet (`synonym_suggestions` tabel)</li>
+<li>✅ Approval workflow geïmplementeerd (`SynonymWorkflow`)</li>
+<li>✅ Auto-sync DB→YAML werkend</li>
+<li>✅ UI page `/synonym_review` met filters en bulk operations</li>
+</ul>
+
+<p><strong>Wat Ontbreekt</strong> (40%):</p>
+<ul>
+<li>❌ Usage tracking (geen `usage_count`/`last_used` columns)</li>
+<li>❌ Inline approval in Definition Generator</li>
+<li>❌ Web lookup transparency (user ziet niets)</li>
+<li>❌ Analytics dashboard (alleen basic stats)</li>
+<li>❌ Auto-approve high-confidence</li>
+<li>❌ Example-based synonym extraction</li>
+</ul>
+
+<p><strong>Top Aanbevelingen</strong>:</p>
+<ol>
+<li>Add usage tracking columns (Phase 1, 6-8h)</li>
+<li>Implement inline approval component (Phase 1, 6-8h)</li>
+<li>Web lookup transparency report (Phase 0, 3-4h)</li>
+<li>Analytics dashboard (Phase 2, 8-10h)</li>
+</ol>
+
+<p>---</p>
+
+<h2>🎯 PRIORITIZED ROADMAP</h2>
+
+<h3>Phase 0: Quick Wins (< 1 week, HIGH IMPACT)</h3>
+
+<p><strong>Feature 1: Web Lookup Transparency Report</strong> (3-4h)</p>
+<ul>
+<li>Expandable component toont welke synoniemen gebruikt werden</li>
+<li>Provider hits breakdown (Wikipedia: 3, SRU: 5)</li>
+<li>Zero backend changes (data bestaat al)</li>
+<li>**Impact**: Immediate visibility unlock</li>
+</ul>
+
+<p><strong>Feature 2: Update CLAUDE.md</strong> (1h)</p>
+<ul>
+<li>Correctie: "~2,400-3,400 tokens" (niet 7,250)</li>
+<li>Mark duplicatie problemen als RESOLVED</li>
+<li>**Impact**: Accurate documentation</li>
+</ul>
+
+<p><strong>Feature 3: Wikipedia Attempt Limit</strong> (2-3h)</p>
+<ul>
+<li>Cap op 5 maximum attempts</li>
+<li>Voorkomt exponential blowup</li>
+<li>**Impact**: -58% latency worst case</li>
+</ul>
+
+<p>---</p>
+
+<h3>Phase 1: Foundation (Week 1-2, MUST HAVE)</h3>
+
+<p><strong>Feature 4: Usage Tracking</strong> (6-8h)</p>
+<ul>
+<li>Add `usage_count` + `last_used` columns</li>
+<li>Implement tracking in `JuridischeSynoniemlService`</li>
+<li>**Impact**: Unlocks all analytics features</li>
+</ul>
+
+<p><strong>Feature 5: SRU Synonym Support</strong> (6-8h)</p>
+<ul>
+<li>Implement OR queries in SRU provider</li>
+<li>**Impact**: +10% hit rate (highest authority source)</li>
+</ul>
+
+<p><strong>Feature 6: Inline Approval Component</strong> (6-8h)</p>
+<ul>
+<li>Approve synonyms zonder page navigation</li>
+<li>Reduces workflow: 7 steps → 2 steps</li>
+<li>**Impact**: Primary UX pain point solved</li>
+</ul>
+
+<p>---</p>
+
+<h3>Phase 2: Enhancement (Week 3-4, SHOULD HAVE)</h3>
+
+<p><strong>Feature 7: Analytics Dashboard</strong> (8-10h)</p>
+<ul>
+<li>Top 10 productive synonyms</li>
+<li>Low performers detection</li>
+<li>Usage heatmap</li>
+<li>**Impact**: Data-driven synonym management</li>
+</ul>
+
+<p><strong>Feature 8: Auto-Approve Logic</strong> (6-8h)</p>
+<ul>
+<li>Conservative threshold (>0.95)</li>
+<li>Post-approval notification</li>
+<li>**Impact**: Scales synonym management</li>
+</ul>
+
+<p><strong>Feature 9: Brave Search Direct API</strong> (6-8h)</p>
+<ul>
+<li>Replace broken MCP dependency</li>
+<li>**Impact**: Restores 6th provider</li>
+</ul>
+
+<p>---</p>
+
+<h3>Phase 3: Advanced (Month 2+, NICE TO HAVE)</h3>
+
+<p><strong>Feature 10: GPT-4 Prompt Caching</strong> (6-8h)</p>
+<ul>
+<li>50% cost reduction</li>
+<li>Static legal guidelines cached</li>
+<li>**Impact**: Cost optimization</li>
+</ul>
+
+<p><strong>Feature 11: Quality Gate Tuning</strong> (12-16h)</p>
+<ul>
+<li>A/B test thresholds (0.60, 0.65, 0.70)</li>
+<li>Empirical calibration</li>
+<li>**Impact**: Quality improvement</li>
+</ul>
+
+<p><strong>Feature 12: NLP Synonym Extraction</strong> (16-20h)</p>
+<ul>
+<li>Parse definition examples</li>
+<li>Auto-detect synonyms</li>
+<li>**Impact**: Long-term automation</li>
+</ul>
+
+<p>---</p>
+
+<h2>📊 SUCCESS METRICS</h2>
+
+<h3>User Experience</h3>
+
+<p>| Metric | Current | Phase 0 | Phase 1 | Phase 2 |</p>
+<p>|--------|---------|---------|---------|---------|</p>
+<p>| Time to add synonym | 2+ min | 2 min | 30 sec | <strong>10 sec</strong> |</p>
+<p>| Actions to approve | 7 steps | 7 | 3 steps | <strong>2 steps</strong> |</p>
+<p>| Synonym visibility | 0% | <strong>100%</strong> | 100% | 100% |</p>
+
+<h3>Quality</h3>
+
+<p>| Metric | Current | Target (Phase 2) |</p>
+<p>|--------|---------|------------------|</p>
+<p>| Synonym precision | >90% | >90% maintained |</p>
+<p>| Definition validation scores | Baseline | <strong>+10%</strong> |</p>
+<p>| Coverage (hoofdtermen) | 50 | <strong>75</strong> |</p>
+<p>| Coverage (synoniemen) | 184 | <strong>250</strong> |</p>
+
+<h3>Efficiency</h3>
+
+<p>| Metric | Current | Target (Phase 3) |</p>
+<p>|--------|---------|------------------|</p>
+<p>| Token cost per definition | $0.042 | <strong>$0.021</strong> (50% reduction) |</p>
+<p>| Web lookup hit rate | 85% | <strong>92%</strong> |</p>
+<p>| Web lookup latency P95 | 3-5 sec | <strong><5 sec</strong> |</p>
+
+<p>---</p>
+
+<h2>⚠️ RISK MITIGATION</h2>
+
+<h3>Technical Risks</h3>
+
+<p><strong>YAML Corruption</strong> (HIGH impact, LOW probability)</p>
+<ul>
+<li>Mitigation: Atomic writes, backups, validation, rollback</li>
+<li>Testing: Unit test met corrupted YAML</li>
+</ul>
+
+<p><strong>Performance Degradation</strong> (MEDIUM impact, LOW probability)</p>
+<ul>
+<li>Mitigation: <5ms overhead target, database indexes</li>
+<li>Testing: 1,000 lookups performance test</li>
+</ul>
+
+<p><strong>Token Budget Overruns</strong> (MEDIUM impact, LOW probability)</p>
+<ul>
+<li>Mitigation: Hard 400 token limit, semantic deduplication</li>
+<li>Testing: 10 overlapping snippets dedup test</li>
+</ul>
+
+<h3>UX Risks</h3>
+
+<p><strong>Feature Overwhelm</strong> (MEDIUM impact, MEDIUM probability)</p>
+<ul>
+<li>Mitigation: Progressive disclosure, onboarding tooltips, incremental rollout</li>
+<li>Monitoring: Feature adoption tracking</li>
+</ul>
+
+<p><strong>Trust Issues</strong> (HIGH impact, MEDIUM probability)</p>
+<ul>
+<li>Mitigation: Transparent auto-approve, easy revert, audit trail</li>
+<li>Monitoring: Revert rate <5% threshold</li>
+</ul>
+
+<p>---</p>
+
+<h2>❓ OPEN QUESTIONS</h2>
+
+<h3>Empirisch (A/B Testing)</h3>
+
+<ol>
+<li>**Optimal quality gate threshold?** (0.60-0.70 range)</li>
+</ol>
+<ul>
+<li>  - Test: 100 terms per variant</li>
+<li>  - Metric: F1 score (precision × recall)</li>
+</ul>
+
+<ol>
+<li>**Initial expansion vs fallback?**</li>
+</ol>
+<ul>
+<li>  - Test: 100 terms per variant</li>
+<li>  - Decision: Adopt IF +10% recall AND <5% precision drop</li>
+</ul>
+
+<ol>
+<li>**GPT-4 caching ROI?**</li>
+</ol>
+<ul>
+<li>  - Test: 100 definitions per variant</li>
+<li>  - Decision: Implement IF >40% cost reduction</li>
+</ul>
+
+<h3>Technical Spikes</h3>
+
+<ol>
+<li>**Usage tracking overhead?**</li>
+</ol>
+<ul>
+<li>  - Test: 1,000 lookups baseline vs tracking</li>
+<li>  - Target: <5ms P95 overhead</li>
+</ul>
+
+<ol>
+<li>**Wikipedia attempt limit impact?**</li>
+</ol>
+<ul>
+<li>  - Test: 100 terms with >5 synonyms</li>
+<li>  - Target: >30% latency improvement, <3% hit rate drop</li>
+</ul>
+
+<h3>User Research</h3>
+
+<ol>
+<li>**Synonyms in definition output?**</li>
+</ol>
+<ul>
+<li>  - Survey: 10-15 users</li>
+<li>  - Validate: Decision 2 (never show in definition)</li>
+</ul>
+
+<ol>
+<li>**Inline vs separate UI?**</li>
+</ol>
+<ul>
+<li>  - A/B test: 20 users, 3 groups</li>
+<li>  - Validate: Decision 4 (dual UI best)</li>
+</ul>
+
+<p>---</p>
+
+<h2>🎬 CONCLUSION</h2>
+
+<h3>Kern van de Oplossing</h3>
+
+<p>Het synoniemensysteem is <strong>technisch compleet maar operationeel onzichtbaar</strong>. De oplossing is een <strong>drieledige visibility upgrade</strong>:</p>
+
+<ol>
+<li>**Transparency**: Laat zien welke synoniemen werden gebruikt</li>
+<li>**Efficiency**: Maak approval frictionless (2 stappen ipv 7)</li>
+<li>**Intelligence**: Laat systeem leren van gebruik (analytics, auto-approve)</li>
+</ol>
+
+<h3>Waarom Gaat Dit Werken?</h3>
+
+<ul>
+<li>**Technisch**: Geen breaking changes, pure additive features</li>
+<li>**Organisatorisch**: Incremental rollout met meetbare success criteria</li>
+<li>**Empirisch**: Beslissingen zijn data-driven (niet gokken maar meten)</li>
+<li>**User-Centric**: Dual UI erkent twee workflows (quick vs bulk)</li>
+</ul>
+
+<h3>Volgende Stap</h3>
+
+<p><strong>Aanbeveling</strong>: Start met <strong>Phase 0 (Quick Wins)</strong> - levert immediate value binnen 1 week, zero risk, bouwt momentum. Daarna Phase 1 (Foundation) voor usage tracking + inline approval - dit zijn de game-changers.</p>
+
+<p>---</p>
+
+<h2>📎 BIJLAGEN</h2>
+
+<h3>A. Agent Rapporten</h3>
+
+<ul>
+<li>**Agent 1**: Weblookup Mechanisme Analyse (18 pagina's, 7.5/10 score)</li>
+<li>**Agent 2**: Context→Definitie Kwaliteit Analyse (15 pagina's)</li>
+<li>**Agent 3**: Synoniemen UX Validatie (12 pagina's, 60% implementation)</li>
+<li>**Consensus**: Multi-Agent Synthese (25 pagina's, unified roadmap)</li>
+</ul>
+
+<h3>B. Belangrijkste Bestanden</h3>
+
+<p>| Component | File | Status |</p>
+<p>|-----------|------|--------|</p>
+<p>| Web Lookup Service | <code>src/services/modern_web_lookup_service.py</code> | ✅ Werkend |</p>
+<p>| Synonym Service | <code>src/services/juridische_synoniemen_service.py</code> | ⚠️ Needs usage tracking |</p>
+<p>| Prompt Service | <code>src/services/prompts/prompt_service_v2.py</code> | ✅ Werkend |</p>
+<p>| Juridisch Ranker | <code>src/services/web_lookup/juridisch_ranker.py</code> | ✅ Quality gate works |</p>
+<p>| Synonym Workflow | <code>src/workflows/synonym_workflow.py</code> | ✅ Approval flow complete |</p>
+<p>| UI Review Page | <code>src/pages/synonym_review.py</code> | ⚠️ Needs inline component |</p>
+<p>| Config | <code>config/web_lookup_defaults.yaml</code> | ✅ Comprehensive |</p>
+
+<h3>C. Dependencies Graph</h3>
+
+<pre><code>Phase 0 (Quick Wins)
+  ↓
+Phase 1: Foundation
+  Feature 4 (Usage Tracking) ← CRITICAL PATH
+    ↓
+    ├─→ Feature 7 (Analytics Dashboard)
+    ├─→ Feature 8 (Auto-Approve)
+    └─→ Feature 12 (NLP Extraction)
+
+  Feature 5 (SRU Synonyms) ← PARALLEL
+  Feature 6 (Inline Approval) ← PARALLEL
+
+Phase 2: Enhancement
+  Features 7, 8, 9 (no interdependencies)
+
+Phase 3: Advanced
+  Features 10, 11, 12 (experimental)</code></pre>
+
+<p>---</p>
+
+<p><strong>Voor vragen of implementatie ondersteuning, raadpleeg de individuele agent rapporten in deze analyse.</strong></p>
+
+  </div>
+</body>
+</html>

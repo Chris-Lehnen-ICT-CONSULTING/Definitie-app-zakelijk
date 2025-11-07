@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>🚀 Plan: Legacy Validation Verwijderen</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>🚀 Plan: Legacy Validation Verwijderen</h1>
+
+<blockquote>Status: VOLTOOID (v2.3.1). Legacy `DefinitionValidator` en `DefinitionValidatorInterface` zijn verwijderd. Deze pagina blijft bewaard als historisch migratieplan.</blockquote>
+
+<h2>Doel</h2>
+<p>Volledig verwijderen van legacy DefinitionValidator en overstappen naar V2 modulaire architectuur.</p>
+
+<h2>Huidige Situatie</h2>
+
+<h3>Legacy Components</h3>
+<ol>
+<li>**src/services/definition_validator.py** (12KB)</li>
+</ol>
+<ul>
+<li>  - Gebruikt door: ServiceContainer.validator()</li>
+<li>  - Functionaliteit: Validatie + stats tracking</li>
+</ul>
+
+<ol>
+<li>**src/validation/definitie_validator.py** (40KB)</li>
+</ol>
+<ul>
+<li>  - ANDERE validator (niet gerelateerd aan services layer)</li>
+<li>  - Gebruikt door: management_tab.py voor health checks</li>
+<li>  - Dit kan blijven of apart gemigreerd worden</li>
+</ul>
+
+<h3>Afhankelijkheden op Legacy DefinitionValidator</h3>
+
+<h4>Productie Code</h4>
+<ol>
+<li>**ServiceContainer.validator()** (line 147-157)</li>
+</ol>
+<ul>
+<li>  - Creëert DefinitionValidator instance</li>
+<li>  - Gebruikt door ServiceFactory</li>
+</ul>
+
+<ol>
+<li>**ServiceFactory.get_stats()** (line 309)</li>
+</ol>
+<ul>
+<li>  - Roept `container.validator().get_stats()` aan</li>
+<li>  - Stats: total_validations, passed, failed, average_score</li>
+</ul>
+
+<h4>Test Code (9 files)</h4>
+<ul>
+<li>test_service_container.py</li>
+<li>test_definition_validator.py</li>
+<li>test_services_simple.py</li>
+<li>test_services_basic.py</li>
+<li>test_new_services_integration.py</li>
+<li>test_container.py</li>
+<li>benchmark_services.py</li>
+<li>simple_benchmark.py</li>
+</ul>
+
+<h2>📋 Migratieplan</h2>
+
+<h3>Stap 1: Stats Functionaliteit Toevoegen aan V2 (30 min)</h3>
+
+<p><strong>File</strong>: <code>src/services/orchestrators/validation_orchestrator_v2.py</code></p>
+
+<pre><code>class ValidationOrchestratorV2(ValidationOrchestratorInterface):
+    def __init__(self, ...):
+        # Existing code
+        self._stats = {
+            "total_validations": 0,
+            "passed_validations": 0,
+            "failed_validations": 0,
+            "average_score": 0.0
+        }
+
+    async def validate_text(self, ...):
+        # Existing validation code
+        result = await self._perform_validation(...)
+
+        # Update stats
+        self._update_stats(result)
+        return result
+
+    def _update_stats(self, result: ValidationResult):
+        """Update statistics based on validation result."""
+        self._stats["total_validations"] += 1
+        if result.is_valid:
+            self._stats["passed_validations"] += 1
+        else:
+            self._stats["failed_validations"] += 1
+
+        # Update average score
+        total = self._stats["total_validations"]
+        current_avg = self._stats["average_score"]
+        new_score = result.confidence_score
+        self._stats["average_score"] = ((current_avg * (total - 1)) + new_score) / total
+
+    def get_stats(self) -&gt; dict:
+        """Get validation statistics."""
+        return self._stats.copy()</code></pre>
+
+<h3>Stap 2: ServiceContainer Updaten (15 min)</h3>
+
+<p><strong>File</strong>: <code>src/services/container.py</code></p>
+
+<pre><code>def validator(self) -&gt; ValidationOrchestratorInterface:
+    """
+    Get V2 validation orchestrator.
+    Legacy DefinitionValidator is deprecated.
+    """
+    if "validator" not in self._instances:
+        # Use V2 orchestrator for validation
+        validation_service = self.get_validation_service()  # Implement this
+        cleaning_service = self.get_cleaning_service()     # Optional
+
+        self._instances["validator"] = ValidationOrchestratorV2(
+            validation_service=validation_service,
+            cleaning_service=cleaning_service
+        )
+        logger.info("ValidationOrchestratorV2 instance created as validator")
+    return self._instances["validator"]</code></pre>
+
+<h3>Stap 3: ServiceFactory Aanpassen (10 min)</h3>
+
+<p><strong>File</strong>: <code>src/services/service_factory.py</code></p>
+
+<pre><code>def get_stats(self) -&gt; dict:
+    """Get statistieken van alle services."""
+    stats = {
+        "generator": self.container.generator().get_stats(),
+        "repository": self.container.repository().get_stats(),
+        "orchestrator": self.orchestrator.get_stats(),
+    }
+
+    # Validator stats alleen als V2 orchestrator get_stats heeft
+    validator = self.container.validator()
+    if hasattr(validator, 'get_stats'):
+        stats["validator"] = validator.get_stats()
+    else:
+        stats["validator"] = {"message": "V2 validator - stats not geïmplementeerd"}
+
+    return stats</code></pre>
+
+<h3>Stap 4: Tests Migreren (1-2 uur)</h3>
+
+<p>Voor elke test file die DefinitionValidator gebruikt:</p>
+
+<p><strong>Van (Legacy)</strong>:</p>
+<pre><code>from services.definition_validator import DefinitionValidator
+
+def test_validation():
+    validator = DefinitionValidator(config)
+    result = validator.validate_definition(definition)
+    assert result.is_valid</code></pre>
+
+<p><strong>Naar (V2)</strong>:</p>
+<pre><code>from services.orchestrators.validation_orchestrator_v2 import ValidationOrchestratorV2
+import asyncio
+
+def test_validation():
+    orchestrator = ValidationOrchestratorV2(validation_service, cleaning_service)
+    result = asyncio.run(orchestrator.validate_text(
+        begrip=definition.begrip,
+        text=definition.definitie
+    ))
+    assert result.is_valid</code></pre>
+
+<h3>Stap 5: Legacy Files Verwijderen (5 min)</h3>
+
+<pre><code># Verwijder legacy validator
+rm src/services/definition_validator.py
+
+# Verwijder oude tests (of update ze)
+rm tests/services/test_definition_validator.py
+
+# Update imports waar nodig</code></pre>
+
+<h2>⚠️ Risico's & Mitigatie</h2>
+
+<p>| Risico | Impact | Mitigatie |</p>
+<p>|--------|--------|-----------|</p>
+<p>| Stats format verschilt | LAAG | Map oude stats naar nieuwe format |</p>
+<p>| Async vs Sync | GEMIDDELD | Gebruik asyncio.run() wrapper waar nodig |</p>
+<p>| Test failures | LAAG | Update tests incrementeel |</p>
+<p>| Onbekende afhankelijkheden | LAAG | Gebruik grep voor final check |</p>
+
+<h2>🎯 Eindresultaat</h2>
+
+<ul>
+<li>**GEEN** DefinitionValidator meer in services layer</li>
+<li>**GEEN** dubbele validatie systemen</li>
+<li>**WEL** clean V2 architectuur</li>
+<li>**WEL** backwards compatible stats (indien nodig)</li>
+</ul>
+
+<h2>Tijdsinschatting</h2>
+
+<ul>
+<li>Stap 1: 30 minuten (stats toevoegen aan V2)</li>
+<li>Stap 2: 15 minuten (container update)</li>
+<li>Stap 3: 10 minuten (factory update)</li>
+<li>Stap 4: 1-2 uur (tests migreren)</li>
+<li>Stap 5: 5 minuten (cleanup)</li>
+</ul>
+
+<p><strong>Totaal: 2-3 uur werk</strong></p>
+
+<h2>Alternatief: Radicale Optie</h2>
+
+<p>Als stats NIET belangrijk zijn:</p>
+
+<ol>
+<li>**Verwijder** regel 309 uit ServiceFactory.get_stats()</li>
+<li>**Verwijder** container.validator() methode volledig</li>
+<li>**Verwijder** src/services/definition_validator.py</li>
+<li>**Update/verwijder** alle tests die het gebruiken</li>
+</ol>
+
+<p><strong>Totaal: 30 minuten werk</strong></p>
+
+<p>Dit is de cleanste optie als je echt GEEN backwards compatibility wilt!</p>
+
+  </div>
+</body>
+</html>
