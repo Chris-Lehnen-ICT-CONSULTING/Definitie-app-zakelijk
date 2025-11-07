@@ -157,6 +157,7 @@
         "us": [
           "US-001",
           "US-064",
+          "US-412",
           "US-426",
           "US-440"
         ],
@@ -211,40 +212,6 @@
         "req": []
       },
       "rendered_url": "rendered/snippets/CODEX_PROMPT_PRESETS.html"
-    },
-    {
-      "id": null,
-      "type": "DOC",
-      "title": "History Tab Removal Migration Guide",
-      "path": "../migrations/history_tab_removal.md",
-      "url": "../migrations/history_tab_removal.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
-      "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
-      "category": null,
-      "sprint": null,
-      "story_points": null,
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 5,
-        "type_rank": 9
-      },
-      "parent_epic": null,
-      "parent_us": null,
-      "_refs": {
-        "us": [
-          "US-411",
-          "US-412"
-        ],
-        "epic": [],
-        "req": []
-      },
-      "rendered_url": "rendered/migrations/history_tab_removal.html"
     },
     {
       "id": null,
@@ -11955,7 +11922,8 @@
       "_refs": {
         "us": [
           "US-001",
-          "US-002"
+          "US-002",
+          "US-412"
         ],
         "epic": [
           "EPIC-001",
@@ -12026,99 +11994,6 @@
         "req": []
       },
       "rendered_url": "rendered/epics/DEF-101-IMPLEMENTATION-GUIDE.html"
-    },
-    {
-      "id": null,
-      "type": "DOC",
-      "title": "🚀 Plan: Legacy Validation Verwijderen",
-      "path": "../archief/2025-01-cleanup/migrations/v1-v2-validation/remove-legacy-validation-plan.md",
-      "url": "../archief/2025-01-cleanup/migrations/v1-v2-validation/remove-legacy-validation-plan.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
-      "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
-      "category": null,
-      "sprint": null,
-      "story_points": null,
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 5,
-        "type_rank": 9
-      },
-      "parent_epic": null,
-      "parent_us": null,
-      "_refs": {
-        "us": [],
-        "epic": [],
-        "req": []
-      },
-      "rendered_url": "rendered/archief/2025-01-cleanup/migrations/v1-v2-validation/remove-legacy-validation-plan.html"
-    },
-    {
-      "id": null,
-      "type": "DOC",
-      "title": "📋 Legacy Code Inventory - Complete Overzicht",
-      "path": "../archief/2025-01-cleanup/migrations/v1-v2-validation/legacy-code-inventory.md",
-      "url": "../archief/2025-01-cleanup/migrations/v1-v2-validation/legacy-code-inventory.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
-      "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
-      "category": null,
-      "sprint": null,
-      "story_points": null,
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 5,
-        "type_rank": 9
-      },
-      "parent_epic": null,
-      "parent_us": null,
-      "_refs": {
-        "us": [],
-        "epic": [],
-        "req": []
-      },
-      "rendered_url": "rendered/archief/2025-01-cleanup/migrations/v1-v2-validation/legacy-code-inventory.html"
-    },
-    {
-      "id": null,
-      "type": "DOC",
-      "title": "Migratiestrategie: Synoniemen, Antoniemen & AI-Toelichting naar definitie_voorbeelden",
-      "path": "../archief/2025-01-cleanup/migrations/synoniemen/synoniemen-migratie-strategie.md",
-      "url": "../archief/2025-01-cleanup/migrations/synoniemen/synoniemen-migratie-strategie.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
-      "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
-      "category": null,
-      "sprint": null,
-      "story_points": null,
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 5,
-        "type_rank": 9
-      },
-      "parent_epic": null,
-      "parent_us": null,
-      "_refs": {
-        "us": [],
-        "epic": [],
-        "req": []
-      },
-      "rendered_url": "rendered/archief/2025-01-cleanup/migrations/synoniemen/synoniemen-migratie-strategie.html"
     },
     {
       "id": null,
@@ -21260,6 +21135,40 @@
         "req": []
       },
       "rendered_url": "rendered/archief/2025-01-cleanup/code-reviews/synonym-pages-bug-impact-diagram.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Historical Migration Documentation",
+      "path": "../archief/2025-01-cleanup/migrations/README.md",
+      "url": "../archief/2025-01-cleanup/migrations/README.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-411",
+          "US-412"
+        ],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/archief/2025-01-cleanup/migrations/README.html"
     },
     {
       "id": null,
@@ -34797,6 +34706,68 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "🚀 Plan: Legacy Validation Verwijderen",
+      "path": "../archief/2025-01-cleanup/migrations/v1-v2-validation/remove-legacy-validation-plan.md",
+      "url": "../archief/2025-01-cleanup/migrations/v1-v2-validation/remove-legacy-validation-plan.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/archief/2025-01-cleanup/migrations/v1-v2-validation/remove-legacy-validation-plan.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "📋 Legacy Code Inventory - Complete Overzicht",
+      "path": "../archief/2025-01-cleanup/migrations/v1-v2-validation/legacy-code-inventory.md",
+      "url": "../archief/2025-01-cleanup/migrations/v1-v2-validation/legacy-code-inventory.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/archief/2025-01-cleanup/migrations/v1-v2-validation/legacy-code-inventory.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "History Tab Removal Migration Guide",
       "path": "../archief/2025-01-cleanup/migrations/history-tab/history_tab_removal.md",
       "url": "../archief/2025-01-cleanup/migrations/history-tab/history_tab_removal.md",
@@ -34827,6 +34798,37 @@
         "req": []
       },
       "rendered_url": "rendered/archief/2025-01-cleanup/migrations/history-tab/history_tab_removal.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Migratiestrategie: Synoniemen, Antoniemen & AI-Toelichting naar definitie_voorbeelden",
+      "path": "../archief/2025-01-cleanup/migrations/synoniemen/synoniemen-migratie-strategie.md",
+      "url": "../archief/2025-01-cleanup/migrations/synoniemen/synoniemen-migratie-strategie.md",
+      "status": "SUPERSEDED",
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/archief/2025-01-cleanup/migrations/synoniemen/synoniemen-migratie-strategie.html"
     },
     {
       "id": null,
@@ -77100,7 +77102,7 @@
       "BUG": 45,
       "REQ": 115
     },
-    "generated_at": "2025-11-07T13:01:38Z"
+    "generated_at": "2025-11-07T13:12:00Z"
   },
   "sources": [
     "docs"
