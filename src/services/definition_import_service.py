@@ -17,6 +17,7 @@ from dataclasses import dataclass
 from typing import Any
 
 import pandas as pd
+
 from services.interfaces import Definition
 from services.validation.interfaces import ValidationResult
 

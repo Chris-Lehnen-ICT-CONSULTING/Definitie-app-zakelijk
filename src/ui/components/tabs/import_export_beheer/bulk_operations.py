@@ -7,6 +7,7 @@ Bevat bulk status update functionaliteit, exact zoals het al werkte.
 import logging
 
 import streamlit as st
+
 from database.definitie_repository import DefinitieRepository, DefinitieStatus
 
 logger = logging.getLogger(__name__)

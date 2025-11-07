@@ -15,6 +15,7 @@ import re
 from typing import Any
 
 import streamlit as st
+
 from ui.helpers.examples import resolve_examples
 from ui.session_state import SessionStateManager, force_cleanup_voorbeelden
 
@@ -561,10 +562,11 @@ def render_examples_block(
                             new_examples["toelichting"] = [tol.strip()]
 
                         # Persist in DB with voorkeursterm
+                        from pydantic import ValidationError
+
                         from models.voorbeelden_validation import (
                             validate_save_voorbeelden_input,
                         )
-                        from pydantic import ValidationError
 
                         reviewer = (
                             SessionStateManager.get_value("reviewer_name") or "expert"

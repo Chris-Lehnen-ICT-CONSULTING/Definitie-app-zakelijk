@@ -1558,6 +1558,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "PROMPT V8 IMPLEMENTATION PLAN",
+      "path": "../planning/PROMPT_V8_IMPLEMENTATION.md",
+      "url": "../planning/PROMPT_V8_IMPLEMENTATION.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/planning/PROMPT_V8_IMPLEMENTATION.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Agent Analysis Summary: Brownfield Cleanup Investigation",
       "path": "../planning/AGENT_ANALYSIS_SUMMARY.md",
       "url": "../planning/AGENT_ANALYSIS_SUMMARY.md",
@@ -1837,6 +1868,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Prompt v8 Implementatie Plan - Fase 1 (Critical Fixes)",
+      "path": "../planning/PROMPT_V8_IMPLEMENTATION_PLAN.md",
+      "url": "../planning/PROMPT_V8_IMPLEMENTATION_PLAN.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/planning/PROMPT_V8_IMPLEMENTATION_PLAN.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "V2 Validator Verbeterplan (JSON‑Centrisch) — Review Versie",
       "path": "../planning/V2_VALIDATOR_VOLLEDIG_IMPLEMENTATIEPLAN.md",
       "url": "../planning/V2_VALIDATOR_VOLLEDIG_IMPLEMENTATIEPLAN.md",
@@ -1977,6 +2039,37 @@
         "req": []
       },
       "rendered_url": "rendered/planning/PARALLEL-TRACK-COORDINATION.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Consensus Implementation Plan: Prompt Optimization",
+      "path": "../planning/CONSENSUS_IMPLEMENTATION_PLAN.md",
+      "url": "../planning/CONSENSUS_IMPLEMENTATION_PLAN.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/planning/CONSENSUS_IMPLEMENTATION_PLAN.html"
     },
     {
       "id": "EPIC-026-REVIEW-BRIEF",
@@ -7761,6 +7854,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Prompt Optimalisatie - Executive Summary",
+      "path": "../analyses/PROMPT_OPTIMIZATION_SUMMARY.md",
+      "url": "../analyses/PROMPT_OPTIMIZATION_SUMMARY.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/PROMPT_OPTIMIZATION_SUMMARY.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "MONITORING BUG ANALYSIS - App Startup Metric Measuring Wrong Duration",
       "path": "../analyses/MONITORING_BUG_ANALYSIS_STARTUP_METRIC.md",
       "url": "../analyses/MONITORING_BUG_ANALYSIS_STARTUP_METRIC.md",
@@ -8085,6 +8209,37 @@
         "req": []
       },
       "rendered_url": "rendered/analyses/CONTAINER_FIX_IMPLEMENTATION_PLAN.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "PROMPT OPTIMIZATION ANALYSIS - DefinitieAgent",
+      "path": "../analyses/PROMPT_OPTIMIZATION_ANALYSIS.md",
+      "url": "../analyses/PROMPT_OPTIMIZATION_ANALYSIS.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/PROMPT_OPTIMIZATION_ANALYSIS.html"
     },
     {
       "id": null,
@@ -8498,6 +8653,40 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Migration Documentation Relevance Analysis",
+      "path": "../analyses/MIGRATION_DOCUMENTATION_RELEVANCE_ANALYSIS.md",
+      "url": "../analyses/MIGRATION_DOCUMENTATION_RELEVANCE_ANALYSIS.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-411",
+          "US-412"
+        ],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/MIGRATION_DOCUMENTATION_RELEVANCE_ANALYSIS.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "UNIFIED SOLUTION: \"BEST OF 3 WORLDS\" SYNONIEMEN OPTIMALISATIE",
       "path": "../analyses/unified-synonym-solution.md",
       "url": "../analyses/unified-synonym-solution.md",
@@ -8558,6 +8747,37 @@
         "req": []
       },
       "rendered_url": "rendered/analyses/LEVEL_CLASSIFIER_REFACTORING_PLAN.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "DEF-101 Issue Mapping Analysis: Planned vs Existing vs Needed",
+      "path": "../analyses/DEF_101_ISSUE_MAPPING_ANALYSIS.md",
+      "url": "../analyses/DEF_101_ISSUE_MAPPING_ANALYSIS.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/DEF_101_ISSUE_MAPPING_ANALYSIS.html"
     },
     {
       "id": null,
@@ -8913,6 +9133,39 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "CONSENSUS RAPPORT: Prompt Optimalisatie Analyses",
+      "path": "../analyses/PROMPT_ANALYSIS_CONSENSUS_REPORT.md",
+      "url": "../analyses/PROMPT_ANALYSIS_CONSENSUS_REPORT.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [
+          "EPIC-016"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/PROMPT_ANALYSIS_CONSENSUS_REPORT.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "DefinitieAgent Consensus Roadmap - Linear Issues",
       "path": "../analyses/CONSENSUS_ROADMAP_2025-10-30.md",
       "url": "../analyses/CONSENSUS_ROADMAP_2025-10-30.md",
@@ -9133,6 +9386,68 @@
         "req": []
       },
       "rendered_url": "rendered/analyses/LEVEL_CLASSIFIER_FLOW_DIAGRAM.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Linear Issues vs My Analysis: Comprehensive Mapping & Gap Analysis",
+      "path": "../analyses/LINEAR_VS_MY_ANALYSIS_MAPPING.md",
+      "url": "../analyses/LINEAR_VS_MY_ANALYSIS_MAPPING.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/LINEAR_VS_MY_ANALYSIS_MAPPING.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Prompt Architectuur & Redundantie Analyse",
+      "path": "../analyses/PROMPT_ARCHITECTURE_ANALYSIS.md",
+      "url": "../analyses/PROMPT_ARCHITECTURE_ANALYSIS.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/PROMPT_ARCHITECTURE_ANALYSIS.html"
     },
     {
       "id": null,
@@ -9777,6 +10092,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "ROI & Dependency Analysis: DEF-111 vs DEF-101 Prioritization",
+      "path": "../analyses/DEF_111_vs_DEF_101_ROI_ANALYSIS.md",
+      "url": "../analyses/DEF_111_vs_DEF_101_ROI_ANALYSIS.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/DEF_111_vs_DEF_101_ROI_ANALYSIS.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Synonym Automation - Developer Quick Reference",
       "path": "../analyses/SYNONYM_AUTOMATION_QUICKREF.md",
       "url": "../analyses/SYNONYM_AUTOMATION_QUICKREF.md",
@@ -9873,6 +10219,37 @@
         "req": []
       },
       "rendered_url": "rendered/analyses/LEVEL_CLASSIFIER_INTEGRATION_GAP_ANALYSIS.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Linear vs My Analysis: Visual Decision Guide",
+      "path": "../analyses/LINEAR_VS_MY_ANALYSIS_VISUAL.md",
+      "url": "../analyses/LINEAR_VS_MY_ANALYSIS_VISUAL.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/LINEAR_VS_MY_ANALYSIS_VISUAL.html"
     },
     {
       "id": null,
@@ -11105,6 +11482,37 @@
     },
     {
       "id": null,
+      "type": "DOC",
+      "title": "🎯 Definitie Generatie Prompt V8 - GEOPTIMALISEERD",
+      "path": "../templates/PROMPT_V8_OPTIMIZED_TEMPLATE.md",
+      "url": "../templates/PROMPT_V8_OPTIMIZED_TEMPLATE.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/templates/PROMPT_V8_OPTIMIZED_TEMPLATE.html"
+    },
+    {
+      "id": null,
       "type": "GUIDE",
       "title": "Database Richtlijnen",
       "path": "../guidelines/DATABASE_GUIDELINES.md",
@@ -11587,6 +11995,37 @@
         "req": []
       },
       "rendered_url": "rendered/guidelines/AI_CONFIGURATION_GUIDE.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "DEF-101 EPIC Implementation Guide",
+      "path": "../epics/DEF-101-IMPLEMENTATION-GUIDE.md",
+      "url": "../epics/DEF-101-IMPLEMENTATION-GUIDE.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/epics/DEF-101-IMPLEMENTATION-GUIDE.html"
     },
     {
       "id": null,
@@ -76651,7 +77090,7 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 1198,
+      "DOC": 1212,
       "ARCH": 42,
       "COMP": 5,
       "TEST": 36,
@@ -76661,7 +77100,7 @@
       "BUG": 45,
       "REQ": 115
     },
-    "generated_at": "2025-11-06T11:41:33Z"
+    "generated_at": "2025-11-07T13:01:38Z"
   },
   "sources": [
     "docs"

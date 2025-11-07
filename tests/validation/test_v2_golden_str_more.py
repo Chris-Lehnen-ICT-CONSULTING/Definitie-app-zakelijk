@@ -1,4 +1,5 @@
 import pytest
+
 from services.validation.modular_validation_service import ModularValidationService
 from toetsregels.manager import get_toetsregel_manager
 

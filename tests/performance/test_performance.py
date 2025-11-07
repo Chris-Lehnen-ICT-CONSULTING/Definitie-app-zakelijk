@@ -11,12 +11,12 @@ from unittest.mock import MagicMock, patch
 
 import psutil
 import pytest
+
+from config.config_manager import get_config_manager
 from utils.async_api import AsyncGPTClient
 from utils.cache import cached
 from utils.resilience import ResilienceFramework
 from utils.smart_rate_limiter import SmartRateLimiter
-
-from config.config_manager import get_config_manager
 
 
 class TestPerformanceBenchmarks:

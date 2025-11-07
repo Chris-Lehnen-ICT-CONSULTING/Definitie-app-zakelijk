@@ -1,4 +1,5 @@
 import pytest
+
 from services.adapters.validation_service_adapter import ValidationServiceAdapterV1toV2
 from services.interfaces import Definition, ValidationResult
 

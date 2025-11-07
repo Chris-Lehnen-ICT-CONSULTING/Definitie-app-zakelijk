@@ -11,6 +11,7 @@ import asyncio
 from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
+
 from services.definition_generator_config import ContextConfig
 from services.definition_generator_context import HybridContextManager
 from services.interfaces import GenerationRequest
