@@ -97,6 +97,10 @@ docs/backlog/
   - CFR documenten (Context Flow Refactoring)
   - PER-007 documenten (implementatie details)
   - V1/V2 migratie documenten
+- **Migration Documentation (Nov 2025)**: `docs/archief/2025-01-cleanup/migrations/` ✅ NIEUWE CANONICAL LOCATIE
+  - V1→V2 validation migration (legacy-code-inventory, remove-legacy-validation-plan)
+  - Synoniemen migration strategy (SUPERSEDED by Orchestrator v3.1)
+  - History tab removal (US-412)
 - **Oude Versies**: `docs/archief/`
 - **Referentie Materiaal**: `docs/archief/REFERENTIE/`
 - **Historische Beslissingen**: `docs/archief/2025-09-architectuur-consolidatie/beslissingen/`
@@ -108,6 +112,14 @@ docs/backlog/
 - `docs/epics/` → Gebruik `/docs/backlog/epics/`
 - `docs/stories/` → Gebruik `/docs/backlog/stories/`
 - `docs/dashboard/` → Gebruik `/docs/backlog/dashboard/`
+
+⚠️ **BELANGRIJK**: Vanaf 7 november 2025:
+- `docs/migration/` → **VERWIJDERD** - Gebruik `/docs/archief/2025-01-cleanup/migrations/`
+- `docs/migrations/` → **VERWIJDERD** - Gebruik `/docs/archief/2025-01-cleanup/migrations/`
+
+**For new migration documentation:**
+- Active migrations → `/docs/technisch/migrations/` (if currently implementing)
+- Completed migrations → `/docs/archief/YYYY-MM-cleanup/migrations/` (historical reference)
 
 Deze directories bevatten duplicaten en worden gefaseerd verwijderd:
 - `docs/active/` - Migreer naar specifieke subdirectories
