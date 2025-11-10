@@ -324,7 +324,8 @@ class ImprovedOntologyClassifier:
                 scores["resultaat"] += 0.15
 
         # Normaliseer scores naar [0, 1]
-        max_score = max(scores.values()) if max(scores.values()) > 0 else 1.0
+        max_score_val = max(scores.values())  # Call once (DEF-138 optimization)
+        max_score = max_score_val if max_score_val > 0 else 1.0
         return {k: min(v / max_score, 1.0) for k, v in scores.items()}
 
     def _classify_from_scores(self, scores: dict, begrip: str) -> OntologischeCategorie:
@@ -517,9 +518,8 @@ class ImprovedOntologyClassifier:
 
         # DEF-35: Add confidence info
         confidence_emoji = {"HIGH": "🟢", "MEDIUM": "🟡", "LOW": "🔴"}
-        parts.append(
-            f"Confidence: {confidence:.2f} {confidence_emoji.get(confidence_label, '')} ({confidence_label})"
-        )
+        emoji = confidence_emoji.get(confidence_label, "")
+        parts.append(f"Confidence: {confidence:.2f} {emoji} ({confidence_label})")
 
         if matched_patterns:
             parts.append(f"Patronen: {', '.join(matched_patterns[:2])}")
