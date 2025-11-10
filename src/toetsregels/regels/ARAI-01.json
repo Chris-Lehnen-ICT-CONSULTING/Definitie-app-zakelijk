@@ -1,19 +1,24 @@
 {
   "id": "ARAI01",
-  "naam": "geen werkwoord als kern (afgeleid)",
-  "uitleg": "De kern van de definitie mag geen werkwoord zijn, om verwarring tussen handelingen en concepten te voorkomen.",
-  "toelichting": "Een definitie moet beschrijven wat iets is, niet wat het doet. Werkwoorden als kern kunnen leiden tot onduidelijkheid over de aard van het begrip. Deze regel is afgeleid van de ASTRA-aanbeveling 'Definitie ≠ beschrijving van gedrag'.",
-  "toetsvraag": "Is de kern van de definitie een zelfstandig naamwoord (en geen werkwoord)?",
+  "naam": "geen werkwoord als kern (vervoegd werkwoord)",
+  "uitleg": "De kern van de definitie mag geen VERVOEGD werkwoord zijn (zoals 'is', 'wordt', 'heeft'). Handelingsnaamwoorden ('observatie', 'verzameling', 'registratie') zijn zelfstandige naamwoorden en daarom WEL toegestaan.",
+  "toelichting": "Een definitie moet beginnen met een zelfstandig naamwoord, niet met een vervoegd werkwoord. Let op het verschil: 'observatie' (zelfstandig naamwoord) ≠ 'observeren' (werkwoord) ≠ 'observeert' (vervoegd werkwoord). Handelingsnaamwoorden zijn grammaticaal zelfstandige naamwoorden en daarom toegestaan voor PROCES-begrippen.",
+  "toetsvraag": "Begint de definitie met een zelfstandig naamwoord (en niet met een vervoegd werkwoord)?",
   "herkenbaar_patronen": [
-    "\\b(is|zijn|doet|kan|heeft|hebben|wordt|vormt|creëert)\\b"
+    "^\\s*(is|zijn|doet|doet|kan|kunnen|heeft|hebben|wordt|worden|vormt|vormen|creëert|creëren|moet|moeten|zal|zullen|mag|mogen)\\b"
   ],
   "goede_voorbeelden": [
+    "activiteit waarbij gegevens worden verzameld",
+    "observatie van gedrag in natuurlijke omgeving",
+    "verzameling van relevante documenten",
     "proces dat beslissers identificeert",
-    "instelling die zorg verleent"
+    "handelingsnaamwoord dat een activiteit aanduidt"
   ],
   "foute_voorbeelden": [
-    "Een systeem dat registreert...",
-    "Een functie die uitvoert..."
+    "is een activiteit waarbij gegevens worden verzameld",
+    "wordt gebruikt voor het observeren van gedrag",
+    "heeft als doel het verzamelen van documenten",
+    "kan worden omschreven als een proces"
   ],
   "prioriteit": "midden",
   "aanbeveling": "optioneel",

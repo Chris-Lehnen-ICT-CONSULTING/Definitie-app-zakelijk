@@ -9005,6 +9005,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "DEF-138: Deep Analysis of Ontological Category Contradictions",
+      "path": "../analyses/DEF-138-ontological-contradictions-analysis.md",
+      "url": "../analyses/DEF-138-ontological-contradictions-analysis.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/DEF-138-ontological-contradictions-analysis.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Performance Regression Summary - Quick Reference",
       "path": "../analyses/REGRESSION_SUMMARY_2025-11-06.md",
       "url": "../analyses/REGRESSION_SUMMARY_2025-11-06.md",
@@ -11805,6 +11836,37 @@
     {
       "id": null,
       "type": "GUIDE",
+      "title": "Documentation Cleanup Workflow",
+      "path": "../guidelines/DOCUMENTATION_CLEANUP_WORKFLOW.md",
+      "url": "../guidelines/DOCUMENTATION_CLEANUP_WORKFLOW.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/guidelines/DOCUMENTATION_CLEANUP_WORKFLOW.html"
+    },
+    {
+      "id": null,
+      "type": "GUIDE",
       "title": "Quick Quality Decision Card",
       "path": "../guidelines/QUICK_QUALITY_DECISIONS.md",
       "url": "../guidelines/QUICK_QUALITY_DECISIONS.md",
@@ -11963,6 +12025,37 @@
         "req": []
       },
       "rendered_url": "rendered/guidelines/AI_CONFIGURATION_GUIDE.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "DEF-138: Implementation Summary - Ontological Contradictions Resolved",
+      "path": "../implementations/DEF-138-implementation-summary.md",
+      "url": "../implementations/DEF-138-implementation-summary.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/implementations/DEF-138-implementation-summary.html"
     },
     {
       "id": null,
@@ -13340,6 +13433,37 @@
         "req": []
       },
       "rendered_url": "rendered/reports/DEF-43_CRITICAL_BUGS_SUMMARY.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "DEF-135 Prompt Analysis Report",
+      "path": "../reports/DEF-135-prompt-analysis-report.md",
+      "url": "../reports/DEF-135-prompt-analysis-report.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/reports/DEF-135-prompt-analysis-report.html"
     },
     {
       "id": null,
@@ -77092,17 +77216,17 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 1212,
+      "DOC": 1215,
       "ARCH": 42,
       "COMP": 5,
       "TEST": 36,
-      "GUIDE": 19,
+      "GUIDE": 20,
       "EPIC": 58,
       "US": 616,
       "BUG": 45,
       "REQ": 115
     },
-    "generated_at": "2025-11-07T13:12:00Z"
+    "generated_at": "2025-11-10T07:42:55Z"
   },
   "sources": [
     "docs"
