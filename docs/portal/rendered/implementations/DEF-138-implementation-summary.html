@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DEF-138: Implementation Summary - Ontological Contradictions Resolved</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>DEF-138: Implementation Summary - Ontological Contradictions Resolved</h1>
+
+<h2>Summary</h2>
+
+<p>Successfully resolved the perceived contradiction between validation rules regarding handelingsnaamwoorden (action nouns) in PROCES category definitions. The issue was not a functional contradiction but a documentation clarity problem combined with an overly broad regex pattern.</p>
+
+<h2>Key Finding</h2>
+
+<p><strong>There was NO actual contradiction</strong> - handelingsnaamwoorden like "activiteit", "proces", and "handeling" ARE grammatically nouns (zelfstandige naamwoorden), not verbs. They comply with all existing rules.</p>
+
+<h2>Changes Implemented</h2>
+
+<h3>1. Documentation Clarifications</h3>
+
+<h4>ARAI-01.json</h4>
+<ul>
+<li>Updated name: "geen werkwoord als kern (vervoegd werkwoord)"</li>
+<li>Clarified that handelingsnaamwoorden ARE allowed</li>
+<li>Updated explanation to distinguish between conjugated verbs and action nouns</li>
+</ul>
+
+<h4>semantic_categorisation_module.py</h4>
+<ul>
+<li>Added clear note that PROCES kick-off terms are NOUNS</li>
+<li>Explicitly stated compliance with STR-01 and ARAI-01</li>
+</ul>
+
+<h4>structure_rules_module.py</h4>
+<ul>
+<li>Added note that handelingsnaamwoorden are zelfstandige naamwoorden</li>
+</ul>
+
+<h3>2. Pattern Fix</h3>
+
+<h4>ARAI-01.json</h4>
+<ul>
+<li>Changed pattern from `\b(is|zijn|...)` to `^(is|zijn|...)`</li>
+<li>Now only checks for verbs at the START of definitions</li>
+<li>Prevents false positives for valid verb usage later in sentences</li>
+</ul>
+
+<h3>3. Code Documentation</h3>
+
+<h4>ARAI-01.py</h4>
+<ul>
+<li>Added clarifying comments about checking for CONJUGATED verbs only</li>
+<li>Noted that action nouns are valid</li>
+</ul>
+
+<h3>4. Test Coverage</h3>
+
+<h4>test_def138_handelingsnaamwoord_validation.py</h4>
+<ul>
+<li>Created comprehensive test suite with 17 test cases</li>
+<li>Verifies action nouns pass validation</li>
+<li>Verifies conjugated verbs fail validation</li>
+<li>Includes parametrized tests for various patterns</li>
+<li>All tests passing ✅</li>
+</ul>
+
+<h2>Files Modified</h2>
+
+<ol>
+<li>`/src/toetsregels/regels/ARAI-01.json` - Updated validation rule metadata and pattern</li>
+<li>`/src/toetsregels/regels/ARAI-01.py` - Added clarifying comments</li>
+<li>`/src/services/prompts/modules/semantic_categorisation_module.py` - Added linguistic clarification</li>
+<li>`/src/services/prompts/modules/structure_rules_module.py` - Added handelingsnaamwoord note</li>
+</ol>
+
+<h2>Files Created</h2>
+
+<ol>
+<li>`/docs/analyses/DEF-138-ontological-contradictions-analysis.md` - Deep analysis document</li>
+<li>`/tests/unit/test_def138_handelingsnaamwoord_validation.py` - Comprehensive test suite</li>
+<li>`/docs/implementations/DEF-138-implementation-summary.md` - This summary</li>
+</ol>
+
+<h2>Impact</h2>
+
+<ul>
+<li>**Risk Level**: LOW</li>
+<li>**Breaking Changes**: NONE</li>
+<li>**User Impact**: Positive - clearer guidance, fewer false validation failures</li>
+<li>**Developer Impact**: Positive - less confusion about linguistic rules</li>
+</ul>
+
+<h2>Validation Results</h2>
+
+<h3>Before Fix</h3>
+<ul>
+<li>Pattern `\b(wordt)\b` would match "wordt" anywhere in definition</li>
+<li>Caused false failures for valid definitions like "activiteit waarbij data wordt verzameld"</li>
+</ul>
+
+<h3>After Fix</h3>
+<ul>
+<li>Pattern `^(wordt)\b` only matches "wordt" at the start</li>
+<li>Correctly allows: "activiteit waarbij data wordt verzameld" ✅</li>
+<li>Correctly rejects: "wordt gebruikt voor registratie" ❌</li>
+</ul>
+
+<h2>Linguistic Clarification</h2>
+
+<p>The solution confirms that:</p>
+<ol>
+<li>**Handelingsnaamwoorden ARE morphologically nouns** (zelfstandige naamwoorden)</li>
+<li>**They functionally describe actions** (perfect for PROCES category)</li>
+<li>**ARAI-01 correctly targets CONJUGATED verbs only**</li>
+</ol>
+
+<p>Examples of valid handelingsnaamwoorden:</p>
+<ul>
+<li>activiteit (activity)</li>
+<li>handeling (action)</li>
+<li>proces (process)</li>
+<li>registratie (registration)</li>
+<li>observatie (observation)</li>
+<li>beoordeling (assessment)</li>
+</ul>
+
+<h2>Next Steps</h2>
+
+<ol>
+<li>✅ Documentation updated</li>
+<li>✅ Code comments added</li>
+<li>✅ Tests created and passing</li>
+<li>⬜ Consider adding UI tooltip explaining the distinction</li>
+<li>⬜ Monitor for any user confusion post-deployment</li>
+</ol>
+
+<h2>Conclusion</h2>
+
+<p>The "contradiction" was successfully resolved through:</p>
+<ul>
+<li>**Linguistic precision** in documentation</li>
+<li>**Pattern refinement** to prevent false positives</li>
+<li>**Comprehensive testing** to ensure correctness</li>
+</ul>
+
+<p>The system now correctly handles handelingsnaamwoorden while maintaining strict validation against conjugated verbs at the start of definitions.</p>
+
+<p>---</p>
+
+<p><strong>Implementation Date</strong>: 2025-11-07</p>
+<p><strong>Implementer</strong>: Claude Code</p>
+<p><strong>Issue</strong>: DEF-138</p>
+<p><strong>Status</strong>: Complete</p>
+<p><strong>Tests</strong>: 17/17 Passing</p>
+  </div>
+</body>
+</html>

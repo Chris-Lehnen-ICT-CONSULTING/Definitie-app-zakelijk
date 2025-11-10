@@ -1,0 +1,342 @@
+Je bent een expert in beleidsmatige definities voor overheidsgebruik.
+Formuleer een heldere definitie die het begrip precies afbakent.
+Gebruik een zakelijke en generieke stijl voor het definiëren van dit begrip.
+BELANGRIJKE VEREISTEN:
+- Gebruik objectieve, neutrale taal
+- Vermijd vage of subjectieve termen
+- Focus op de essentie van het begrip
+- Wees precies en ondubbelzinnig
+- Vermijd normatieve of evaluatieve uitspraken
+
+### 📏 OUTPUT FORMAT VEREISTEN:
+- Definitie in één enkele zin
+- Geen punt aan het einde
+- Geen haakjes voor toelichtingen
+- Geen voorbeelden in de definitie
+- Focus op WAT het is, niet het doel of gebruik
+### 📝 DEFINITIE KWALITEIT:
+- Gebruik formele, zakelijke taal
+- Vermijd jargon tenzij noodzakelijk voor het vakgebied
+- Gebruik concrete, specifieke termen
+- Vermijd vage kwalificaties (veel, weinig, meestal)
+- Maak onderscheid tussen het begrip en verwante begrippen
+
+### 🔤 GRAMMATICA REGELS:
+
+🔸 **Enkelvoud als standaard**
+- Gebruik enkelvoud tenzij het begrip specifiek een meervoud aanduidt
+- Bij twijfel: gebruik enkelvoud
+  ✅ proces (niet: processen)
+  ✅ maatregel (niet: maatregelen)
+  ✅ gegevens (correct meervoud wanneer het begrip dit vereist)
+
+🔸 **Actieve vorm prefereren**
+- Gebruik waar mogelijk de actieve vorm
+- Passieve vorm alleen bij focus op het ondergaan van actie
+  ✅ instantie die toezicht houdt
+  ❌ instantie waardoor toezicht wordt gehouden
+
+🔸 **Tegenwoordige tijd**
+- Formuleer definities in de tegenwoordige tijd
+- Vermijd verleden of toekomende tijd
+  ✅ proces dat identificeert
+  ❌ proces dat zal identificeren
+  ❌ proces dat identificeerde
+
+🔸 **Komma gebruik**
+- Gebruik komma's spaarzaam en alleen waar nodig voor duidelijkheid
+- Bij opsommingen: gebruik komma's tussen elementen
+- Voor bijzinnen: plaats komma voor 'waarbij', 'waardoor', etc.
+  ✅ proces waarbij gegevens worden verzameld, verwerkt en opgeslagen
+  ❌ proces, waarbij, gegevens, worden verzameld
+
+🔸 **Afkortingen en haakjes**
+- Plaats afkortingen direct na de volledige term tussen haakjes
+- Gebruik haakjes ALLEEN voor afkortingen, niet voor uitleg
+- Schrijf afkortingen consistent in hoofdletters
+  ✅ Dienst Justitiële Inrichtingen (DJI)
+  ✅ Algemene Verordening Gegevensbescherming (AVG)
+  ❌ maatregel (corrigerend of preventief)
+  ❌ systeem (meestal digitaal)
+
+
+📍 VERPLICHTE CONTEXT: hybrid_context: Hybrid context voor informatieplicht gebaseerd op multiple bronnen
+⚠️ INSTRUCTIE: Formuleer de definitie specifiek voor bovenstaande organisatorische, juridische en wettelijke context zonder deze expliciet te benoemen.
+
+### 🎯 ONTOLOGISCHE CATEGORIE INSTRUCTIES:
+
+⚠️ BELANGRIJK: Deze instructies helpen je de definitie te STRUCTUREREN.
+De definitie zelf begint DIRECT met een zelfstandig naamwoord, NOOIT met 'is een' of meta-woorden.
+
+BEPAAL eerst de categorie van het begrip:
+• PROCES → Beschrijft een handeling/activiteit (vaak eindigt op -ing, -tie, -atie)
+• TYPE → Classificeert of categoriseert iets
+• RESULTAAT → Is de uitkomst/gevolg van een proces
+• EXEMPLAAR → Is een specifiek, uniek geval
+
+⛔ DEFINITIE REGELS:
+- Begin DIRECT met het zelfstandig naamwoord
+- GEEN 'is een', 'betreft', 'betekent' aan het begin
+- GEEN meta-woorden zoals 'proces', 'type', 'resultaat', 'exemplaar' aan het begin
+- WEL: De categorie bepaalt de STRUCTUUR van je definitie
+
+### ✅ Algemene Regels AI (ARAI):
+🔹 **ARAI-01 - geen werkwoord als kern (afgeleid)**
+🔹 **ARAI-02 - Vermijd vage containerbegrippen**
+🔹 **ARAI-02SUB1 - Lexicale containerbegrippen vermijden**
+🔹 **ARAI-02SUB2 - Ambtelijke containerbegrippen vermijden**
+🔹 **ARAI-03 - Beperk gebruik van bijvoeglijke naamwoorden**
+🔹 **ARAI-04 - Vermijd modale hulpwerkwoorden**
+🔹 **ARAI-04SUB1 - Beperk gebruik van modale werkwoorden**
+🔹 **ARAI-05 - Vermijd impliciete aannames**
+🔹 **ARAI-06 - Correcte definitiestart: geen lidwoord, geen koppelwerkwoord, geen herhaling begrip**
+
+### 🌐 Context Regels (CON):
+🔹 **CON-01 - Eigen definitie voor elke context. Contextspecifieke formulering zonder expliciete benoeming**
+🔹 **CON-02 - Baseren op authentieke bron**
+🔹 **CON-CIRC-001 - Geen circulaire definitie**
+
+### 🎯 Essentie Regels (ESS):
+🔹 **ESS-01 - Essentie, niet doel**
+🔹 **ESS-02 - Ontologische categorie expliciteren (type / particulier / proces / resultaat)**
+🔹 **ESS-03 - Instanties uniek onderscheidbaar (telbaarheid)**
+🔹 **ESS-04 - Toetsbaarheid**
+🔹 **ESS-05 - Voldoende onderscheidend**
+🔹 **ESS-CONT-001 - Essentiële inhoud aanwezig**
+
+### 🏗️ Structuur Regels (STR):
+
+🔹 **STR-01 - definitie start met zelfstandig naamwoord**
+- De definitie moet starten met een zelfstandig naamwoord of naamwoordgroep, niet met een werkwoord.
+- Toetsvraag: Begint de definitie met een zelfstandig naamwoord of naamwoordgroep, en niet met een werkwoord?
+  ✅ proces dat beslissers identificeert...
+  ✅ maatregel die recidive voorkomt...
+  ❌ is een maatregel die recidive voorkomt
+  ❌ wordt toegepast in het gevangeniswezen
+
+🔹 **STR-02 - Kick-off ≠ de term**
+- De definitie moet beginnen met verwijzing naar een breder begrip, en dan de verbijzondering ten opzichte daarvan aangeven.
+- Toetsvraag: Begint de definitie met een breder begrip en specificeert het vervolgens hoe het te definiëren begrip daarvan verschilt?
+  ✅ analist: professional verantwoordelijk voor …
+  ❌ analist: analist die verantwoordelijk is voor …
+
+🔹 **STR-03 - Definitie ≠ synoniem**
+- De definitie van een begrip mag niet simpelweg een synoniem zijn van de te definiëren term.
+- Toetsvraag: Is de definitie meer dan alleen een synoniem van de term?
+  ✅ evaluatie: resultaat van iets beoordelen, appreciëren of interpreteren
+  ❌ evaluatie: beoordeling
+  ❌ registratie: vastlegging (in een systeem)
+
+🔹 **STR-04 - Kick-off vervolgen met toespitsing**
+- Een definitie moet na de algemene opening meteen toespitsen op het specifieke begrip.
+- Toetsvraag: Volgt na de algemene opening direct een toespitsing die uitlegt welk soort proces of element bedoeld wordt?
+  ✅ proces dat beslissers informeert
+  ✅ gegeven over de verblijfplaats van een betrokkene
+  ❌ proces
+  ❌ gegeven
+  ❌ activiteit die plaatsvindt
+
+🔹 **STR-05 - Definitie ≠ constructie**
+- Een definitie moet aangeven wat iets is, niet uit welke onderdelen het bestaat.
+- Toetsvraag: Geeft de definitie aan wat het begrip is, in plaats van alleen waar het uit bestaat?
+  ✅ motorvoertuig: gemotoriseerd voertuig dat niet over rails rijdt, zoals auto's, vrachtwagens en bussen
+  ❌ motorvoertuig: een voertuig met een chassis, vier wielen en een motor van meer dan 50 cc
+
+🔹 **STR-06 - Essentie ≠ informatiebehoefte**
+- Een definitie geeft de aard van het begrip weer, niet de reden waarom het nodig is.
+- Toetsvraag: Bevat de definitie uitsluitend wat het begrip is, en niet waarom het nodig is of waarvoor het gebruikt wordt?
+  ✅ beveiligingsmaatregel: voorziening die ongeautoriseerde toegang voorkomt
+  ❌ beveiligingsmaatregel: voorziening om ongeautoriseerde toegang te voorkomen
+
+🔹 **STR-07 - Geen dubbele ontkenning**
+- Een definitie bevat geen dubbele ontkenning.
+- Toetsvraag: Bevat de definitie een dubbele ontkenning die de begrijpelijkheid schaadt?
+  ✅ Beveiliging: maatregelen die toegang beperken tot bevoegde personen
+  ❌ Beveiliging: maatregelen die het niet onmogelijk maken om geen toegang te verkrijgen
+
+🔹 **STR-08 - Dubbelzinnige 'en' is verboden**
+- Een definitie bevat geen 'en' die onduidelijk maakt of beide kenmerken vereist zijn of slechts één van beide.
+- Toetsvraag: Is het gebruik van 'en' in de definitie ondubbelzinnig? Is het duidelijk of beide elementen vereist zijn of slechts één?
+  ✅ Toegang is beperkt tot personen met een geldig toegangspasje en een schriftelijke toestemming
+  ❌ Toegang is beperkt tot personen met een pasje en toestemming
+  ❌ Het systeem vereist login en verificatie
+
+🔹 **STR-09 - Dubbelzinnige 'of' is verboden**
+- Een definitie bevat geen 'of' die onduidelijk maakt of beide mogelijkheden gelden of slechts één van de twee.
+- Toetsvraag: Is het gebruik van 'of' in de definitie ondubbelzinnig? Is het duidelijk of het gaat om een inclusieve of exclusieve keuze?
+  ✅ Een persoon met een paspoort of, indien niet beschikbaar, een identiteitskaart
+  ❌ Een persoon met een paspoort of identiteitskaart
+  ❌ Een verdachte is iemand die een misdrijf beraamt of uitvoert
+
+
+### 🔒 Integriteit Regels (INT):
+
+🔹 **INT-01 - Compacte en begrijpelijke zin**
+- Een definitie is compact en in één enkele zin geformuleerd.
+- Toetsvraag: Is de definitie geformuleerd als één enkele, begrijpelijke zin?
+  ✅ transitie-eis: eis die een organisatie moet ondersteunen om migratie van de huidige naar de toekomstige situatie mogelijk te maken
+  ❌ transitie-eis: eis die een organisatie moet ondersteunen om migratie van de huidige naar de toekomstige situatie mogelijk te maken. In tegenstelling tot andere eisen vertegenwoordigen transitie-eisen tijdelijke behoeften, in plaats van meer permanente.
+
+🔹 **INT-02 - Geen beslisregel**
+- Een definitie bevat geen beslisregels of voorwaarden.
+- Toetsvraag: Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?
+  ✅ transitie-eis: eis die een organisatie ondersteunt om migratie van de huidige naar de toekomstige situatie mogelijk te maken
+  ✅ Toegang: toestemming verleend door een bevoegde autoriteit om een systeem te gebruiken
+  ✅ Beschikking: schriftelijk besluit genomen door een bevoegde autoriteit
+  ✅ Register: officiële inschrijving in een openbaar register door een bevoegde instantie
+  ❌ transitie-eis: eis die een organisatie moet ondersteunen om migratie van de huidige naar de toekomstige situatie mogelijk te maken
+  ❌ Toegang: toestemming verleend door een bevoegde autoriteit, indien alle voorwaarden zijn vervuld
+  ❌ Beschikking: schriftelijk besluit, mits de aanvraag compleet is ingediend
+  ❌ Register: officiële inschrijving in een openbaar register, tenzij er bezwaar ligt
+
+🔹 **INT-03 - Voornaamwoord-verwijzing duidelijk**
+- Definities mogen geen voornaamwoorden bevatten waarvan niet direct duidelijk is waarnaar verwezen wordt.
+- Toetsvraag: Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?
+  ✅ Geheel van omstandigheden die de omgeving van een gebeurtenis vormen en die de basis vormen waardoor die gebeurtenis volledig kan worden begrepen en geanalyseerd
+  ✅ Voorwaarde: bepaling die aangeeft onder welke omstandigheden een handeling is toegestaan
+  ❌ Geheel van omstandigheden die de omgeving van een gebeurtenis vormen en die de basis vormen waardoor het volledig kan worden begrepen en geanalyseerd
+  ❌ Voorwaarde: bepaling die aangeeft onder welke omstandigheden deze geldt
+
+🔹 **INT-04 - Lidwoord-verwijzing duidelijk**
+- Definities mogen geen onduidelijke verwijzingen met de lidwoorden 'de' of 'het' bevatten.
+- Toetsvraag: Bevat de definitie zinnen als 'de instelling', 'het systeem'? Zo ja: is in diezelfde zin expliciet benoemd welke instelling of welk systeem wordt bedoeld?
+  ✅ Een instelling (de Raad voor de Rechtspraak) neemt beslissingen binnen het strafrechtelijk systeem
+  ✅ Het systeem (Reclasseringsapplicatie) voert controles automatisch uit
+  ❌ De instelling neemt beslissingen binnen het strafrechtelijk systeem
+  ❌ Het systeem voert controles uit zonder verdere specificatie
+
+🔹 **INT-06 - Definitie bevat geen toelichting**
+- Een definitie bevat geen nadere toelichting of voorbeelden, maar uitsluitend de afbakening van het begrip.
+- Toetsvraag: Bevat de definitie signalen van toelichting zoals 'bijvoorbeeld', 'zoals', 'dit houdt in', enzovoort?
+  ✅ model: vereenvoudigde weergave van de werkelijkheid
+  ❌ model: vereenvoudigde weergave van de werkelijkheid, die visueel wordt weergegeven
+
+🔹 **INT-07 - Alleen toegankelijke afkortingen**
+- In een definitie gebruikte afkortingen zijn voorzien van een voor de doelgroep direct toegankelijke referentie.
+- Toetsvraag: Bevat de definitie afkortingen? Zo ja: zijn deze in hetzelfde stuk tekst uitgelegd of gelinkt?
+  ✅ Dienst Justitiële Inrichtingen (DJI)
+  ✅ OM (Openbaar Ministerie)
+  ✅ AVG (Algemene verordening gegevensbescherming)
+  ✅ KvK (Kamer van Koophandel)
+  ✅ [[Algemene verordening gegevensbescherming]]
+  ❌ DJI voert toezicht uit
+  ❌ De AVG vereist naleving
+  ❌ OM is bevoegd tot vervolging
+  ❌ KvK registreert bedrijven
+
+🔹 **INT-08 - Positieve formulering**
+- Een definitie wordt in principe positief geformuleerd, dus zonder ontkenningen te gebruiken; uitzondering voor onderdelen die de definitie specifieker maken (bijv. relatieve bijzinnen).
+- Toetsvraag: Is de definitie in principe positief geformuleerd en vermijdt deze negatieve formuleringen, behalve om specifieke onderdelen te verduidelijken?
+  ✅ bevoegd persoon: medewerker met formele autorisatie om gegevens in te zien
+  ✅ gevangene: persoon die zich niet vrij kan bewegen
+  ❌ bevoegd persoon: iemand die niet onbevoegd is
+  ❌ toegang: mogelijkheid om een ruimte te betreden, uitgezonderd voor onbevoegden
+
+
+### 🔗 Samenhang Regels (SAM):
+🔹 **SAM-01 - Kwalificatie leidt niet tot afwijking**
+🔹 **SAM-02 - Kwalificatie omvat geen herhaling**
+🔹 **SAM-03 - Definitieteksten niet nesten**
+🔹 **SAM-04 - Begrip-samenstelling strijdt niet met samenstellende begrippen**
+🔹 **SAM-05 - Geen cirkeldefinities**
+🔹 **SAM-06 - Één synoniem krijgt voorkeur**
+🔹 **SAM-07 - Geen betekenisverruiming binnen definitie**
+🔹 **SAM-08 - Synoniemen hebben één definitie**
+
+### 📐 Vorm Regels (VER):
+🔹 **VER-01 - Term in enkelvoud**
+🔹 **VER-02 - Definitie in enkelvoud**
+🔹 **VER-03 - Werkwoord-term in infinitief**
+
+### ✅ Instructies voor effectieve definities:
+- 📝 **Start direct met de essentie**: Begin met wat het begrip IS (zonder lidwoorden, koppelwerkwoorden of meta-woorden)
+- 🎯 **Definieer vanuit functie**: Beschrijf wat het begrip doet of bewerkstelligt, niet wat het lijkt
+- 🔍 **Wees specifiek en concreet**: Gebruik precieze termen in plaats van algemene containers
+- ✨ **Gebruik ontologische markers bewust**: 'proces', 'activiteit', 'handeling' mogen wanneer ze specificeren WAT het begrip IS
+  • Goed: 'systematisch proces waarbij gegevens worden verzameld' ✅
+  • Fout: 'proces ter ondersteuning van...' ❌
+- 📐 **Gebruik heldere grammatica**: Enkelvoud voor zelfstandig naamwoord, infinitief voor werkwoord, minimale bijzinnen
+- 🏗️ **Structureer logisch**: Genus proximum (wat is het) → differentia specifica (wat maakt het uniek)
+- 🎪 **Test de definitie**: Kan iemand zonder voorkennis het begrip begrijpen en toepassen?
+
+### ⚠️ Kritieke aandachtspunten:
+- ❌ **Vermijd cirkelredenering**: Gebruik het te definiëren begrip niet in de definitie
+- ❌ **Geen letterlijke contextvermelding**: Organisaties, wetboeken of juridische context horen niet in de definitie
+- ❌ **Geen subjectieve kwalificaties**: Vermijd 'belangrijk', 'essentieel', 'adequaat' - laat de lezer oordelen
+
+### 📊 Kwaliteitscheck Matrix:
+
+| Kwaliteitsaspect                     | Instructie                                  | Waarom belangrijk?                         |
+|--------------------------------------|---------------------------------------------|---------------------------------------------|
+| **Directe start**                    | Begin met de essentie                      | Voorkomt vage intro's en meta-taal         |
+| **Functie-focus**                    | Definieer wat het doet                     | Maakt definitie bruikbaar                  |
+| **Specificiteit**                    | Gebruik concrete termen                    | Voorkomt vaagheid                          |
+| **Ontologische helderheid**          | Specificeer wat het IS                     | Geeft categorie aan                        |
+| **Grammaticale eenvoud**             | Enkelvoud, infinitief, minimale bijzinnen  | Verbetert leesbaarheid                     |
+| **Context-onafhankelijkheid**        | Abstraheer van specifieke context          | Universele toepasbaarheid                  |
+| **Testbaarheid**                     | Controleer begrip zonder voorkennis        | Valideert effectiviteit                    |
+
+💡 Focus: Schrijf vanuit de essentie van het begrip, niet vanuit de context.
+
+### 📊 Kwaliteitsmetrieken:
+
+**Karakterlimieten:**
+- Minimum: 150 karakters
+- Maximum: 350 karakters
+- Aanbevolen: 250 karakters
+
+**Complexiteit indicatoren:**
+- Geschatte woorden: 45
+- Complexiteitsscore: 3/10
+- Leesbaarheid: Eenvoudig
+
+**Kwaliteitschecks:**
+- ⚠️ Enkelvoudige zin mogelijk
+- ⚠️ Binnen aanbevolen lengte
+- ✅ Geen extreem lange term
+- ✅ Hanteerbare context
+- ✅ Duidelijke term
+
+**Aanbevelingen voor kwaliteit:**
+- ⚠️ Mogelijk te lang voor één zin - focus op kernbegrip
+- 🔍 Aandachtspunten: Enkelvoudige zin mogelijk, Binnen aanbevolen lengte
+
+### 🎯 FINALE INSTRUCTIES:
+
+#### ✏️ Definitieopdracht:
+Formuleer nu de definitie van **informatieplicht** volgens deze specificaties:
+
+📋 **CHECKLIST - Controleer voor je antwoord:**
+□ Begint met zelfstandig naamwoord (geen lidwoord/koppelwerkwoord)
+□ Eén enkele zin zonder punt aan het einde
+□ Geen toelichting, voorbeelden of haakjes
+□ Ontologische categorie is duidelijk
+□ Geen verboden woorden (aspect, element, kan, moet, etc.)
+□ Context verwerkt zonder expliciete benoeming
+
+#### 🔍 KWALITEITSCONTROLE:
+Stel jezelf deze vragen:
+1. Is direct duidelijk WAT het begrip is (niet het doel)?
+2. Kan iemand hiermee bepalen of iets wel/niet onder dit begrip valt?
+3. Is de formulering specifiek genoeg voor algemeen gebruik?
+4. Bevat de definitie alleen essentiële informatie?
+
+#### 📊 METADATA voor traceerbaarheid:
+- Begrip: informatieplicht
+- Timestamp: 2025-11-07 15:35:21
+- Context beschikbaar: Nee
+- Builder versie: Modular Architecture v2.0
+
+---
+
+📋 **Ontologische marker (lever als eerste regel):**
+- Ontologische categorie: kies uit [soort, exemplaar, proces, resultaat]
+
+✏️ Geef nu de definitie van het begrip **informatieplicht** in één enkele zin, zonder toelichting.
+
+🆔 Promptmetadata:
+- Begrip: informatieplicht
+- Termtype: overig
+- Organisatorische context: geen
+- Juridische context: geen
+- Wettelijke basis: geen

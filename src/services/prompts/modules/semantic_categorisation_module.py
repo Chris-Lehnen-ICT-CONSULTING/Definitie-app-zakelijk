@@ -180,6 +180,10 @@ BELANGRIJK: Bepaal de juiste categorie op basis van het BEGRIP zelf:
         category_guidance_map = {
             "proces": """**PROCES CATEGORIE - Formuleer als ACTIVITEIT/HANDELING:**
 
+⚠️ BELANGRIJK: De kick-off termen hieronder zijn ZELFSTANDIGE NAAMWOORDEN (handelingsnaamwoorden),
+geen werkwoorden! Ze voldoen dus aan STR-01 (start met zelfstandig naamwoord) en ARAI-01
+(geen vervoegd werkwoord als kern).
+
 KICK-OFF opties (kies één):
 - 'activiteit waarbij...' → focus op wat er gebeurt
 - 'handeling die...' → focus op de actie

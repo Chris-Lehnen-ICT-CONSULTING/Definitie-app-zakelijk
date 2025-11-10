@@ -138,6 +138,9 @@ class StructureRulesModule(BasePromptModule):
             "- De definitie moet starten met een zelfstandig naamwoord of naamwoordgroep, niet met een werkwoord."
         )
         rules.append(
+            "- Let op: Handelingsnaamwoorden ('activiteit', 'proces', 'handeling') zijn zelfstandige naamwoorden!"
+        )
+        rules.append(
             "- Toetsvraag: Begint de definitie met een zelfstandig naamwoord of naamwoordgroep, en niet met een werkwoord?"
         )
 
