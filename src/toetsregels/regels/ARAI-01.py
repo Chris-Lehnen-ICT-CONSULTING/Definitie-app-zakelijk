@@ -49,6 +49,12 @@ class ARAI01Validator:
 
         # Legacy implementatie
         try:
+            # Check for CONJUGATED verbs AT THE START, not action nouns (handelingsnaamwoorden)
+            # Handelingsnaamwoorden zijn zelfstandige naamwoorden en dus toegestaan:
+            # - 'observatie' (noun) ✓ - afgeleid van 'observeren' maar grammaticaal een zelfstandig naamwoord
+            # - 'verzameling' (noun) ✓ - afgeleid van 'verzamelen' maar grammaticaal een zelfstandig naamwoord
+            # - 'observeert' (conjugated verb) ✗ - vervoegd werkwoord, niet toegestaan aan begin
+            # - 'is' (conjugated verb) ✗ - koppelwerkwoord, niet toegestaan aan begin
             patroon_lijst = regel.get("herkenbaar_patronen", [])
             werkwoorden_gevonden = set()
             for patroon in patroon_lijst:
