@@ -1,0 +1,664 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DEF-101 Plan B: Complete Implementation Specification</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>DEF-101 Plan B: Complete Implementation Specification</h1>
+
+<p><strong>Document Type:</strong> Comprehensive Implementation Guide</p>
+<p><strong>Status:</strong> Ready for Execution</p>
+<p><strong>Created:</strong> 2025-11-10</p>
+<p><strong>Authors:</strong> Multiagent Analysis (Explore, Debug-Specialist, Plan, Code-Reviewer)</p>
+<p><strong>Estimated Effort:</strong> 26 hours over 11 days</p>
+<p><strong>Expected Impact:</strong> -63% token reduction (7250→2650), system usability restored</p>
+
+<p>---</p>
+
+<h2>🎯 Executive Summary</h2>
+
+<p>Plan B (Quality-focused) is een <strong>11-daags implementatieplan</strong> voor DEF-101 EPIC (Prompt Optimization) dat 9 subissues uitvoert in 3 gefaseerde weken met 6 test gates.</p>
+
+<h3>Waarom Plan B?</h3>
+
+<p><strong>Huidige situatie:</strong></p>
+<ul>
+<li>❌ Systeem UNUSABLE (5 blocking contradictions)</li>
+<li>❌ 7.250 tokens (65% redundancy)</li>
+<li>❌ Cognitive load 9/10 (100+ concepts)</li>
+<li>❌ Geen automated validation</li>
+</ul>
+
+<p><strong>Na Plan B:</strong></p>
+<ul>
+<li>✅ Systeem USABLE (0 contradictions)</li>
+<li>✅ 2.650 tokens (-63% reduction)</li>
+<li>✅ Cognitive load 4/10 (30 effective concepts)</li>
+<li>✅ Automated PromptValidator</li>
+</ul>
+
+<h3>3-Week Overview</h3>
+
+<p>| Week | Issues | Effort | Risk | Focus |</p>
+<p>|------|--------|--------|------|-------|</p>
+<p>| <strong>Week 1</strong> | DEF-102, DEF-103, DEF-126 | 10h | MEDIUM | <strong>System restoration</strong> - Fix contradictions, reduce cognitive load |</p>
+<p>| <strong>Week 2</strong> | DEF-104, DEF-106, DEF-123 | 10h | <strong>HIGH</strong> ⚠️ | <strong>Architecture</strong> - Reorganize flow, add validation, context-aware loading |</p>
+<p>| <strong>Week 3</strong> | DEF-105, DEF-124, DEF-107 | 6h | LOW | <strong>Polish</strong> - Visual hierarchy, caching, documentation |</p>
+
+<h3>Success Metrics</h3>
+
+<p>| Metric | Baseline | Target | Validation Method |</p>
+<p>|--------|----------|--------|-------------------|</p>
+<p>| <strong>Usability</strong> | ❌ UNUSABLE | ✅ USABLE | 0 blocking contradictions |</p>
+<p>| <strong>Token Count</strong> | 7,250 | 2,650 (-63%) | Measure actual prompts |</p>
+<p>| <strong>Cognitive Load</strong> | 9/10 | 4/10 (-56%) | Rule count × redundancy |</p>
+<p>| <strong>Quality</strong> | 90% pass | ≥ 90% pass | Golden reference tests |</p>
+<p>| <strong>Performance</strong> | Baseline | +40% faster | With caching enabled |</p>
+
+<p>---</p>
+
+<h2>📋 Complete Issue List (9 Issues)</h2>
+
+<h3>WEEK 1: System Restoration (10h)</h3>
+
+<p>| Issue | Title | Priority | Effort | Files | Impact |</p>
+<p>|-------|-------|----------|--------|-------|--------|</p>
+<p>| <strong>DEF-102</strong> | Fix 5 Blocking Contradictions | 🔴 P0 | 3h | 3 files | System USABLE |</p>
+<p>| <strong>DEF-103</strong> | Reduce Cognitive Load | 🟡 P1 | 2h | 1 file | -10% tokens |</p>
+<p>| <strong>DEF-126</strong> | Transform Rules to Instructions | 🔴 P0 | 5h | 7 files | -39% tokens |</p>
+
+<h3>WEEK 2: Architecture Changes (10h) ⚠️ HIGH RISK</h3>
+
+<p>| Issue | Title | Priority | Effort | Files | Impact |</p>
+<p>|-------|-------|----------|--------|-------|--------|</p>
+<p>| <strong>DEF-104</strong> | Reorganize Module Flow | 🟡 P1 | 3h | 2 files | Flow 4/10→8/10 |</p>
+<p>| <strong>DEF-106</strong> | Create PromptValidator | 🟢 P2 | 2h | 1 new | Automated QA |</p>
+<p>| <strong>DEF-123</strong> | Context-Aware Module Loading | 🟡 P1 | 5h | 2 files | -17% tokens |</p>
+
+<h3>WEEK 3: Polish & Quality (6h)</h3>
+
+<p>| Issue | Title | Priority | Effort | Files | Impact |</p>
+<p>|-------|-------|----------|--------|-------|--------|</p>
+<p>| <strong>DEF-105</strong> | Add Visual Priority Badges | 🟢 P2 | 2h | 7 files | Scanability |</p>
+<p>| <strong>DEF-124</strong> | Static Module Caching | 🟢 P2 | 2h | 1 file | +40% speed |</p>
+<p>| <strong>DEF-107</strong> | Documentation & Tests | 🟢 P2 | 4h | 5 new | Maintainability |</p>
+
+<p>---</p>
+
+<h2>🗺️ File Mapping (15 Files Total)</h2>
+
+<h3>Files to Modify (10 existing)</h3>
+
+<p>| File | Size | Issues | Changes | Risk |</p>
+<p>|------|------|--------|---------|------|</p>
+<p>| <code>error_prevention_module.py</code> | 262L | DEF-102, DEF-103 | +50L, -30L | MEDIUM |</p>
+<p>| <code>semantic_categorisation_module.py</code> | 279L | DEF-102 | +20L | LOW |</p>
+<p>| <code>arai_rules_module.py</code> | 128L | DEF-126 | +20L | MEDIUM |</p>
+<p>| <code>con_rules_module.py</code> | 128L | DEF-126 | +20L | MEDIUM |</p>
+<p>| <code>ess_rules_module.py</code> | 128L | DEF-126 | +20L | MEDIUM |</p>
+<p>| <code>sam_rules_module.py</code> | 128L | DEF-126 | +20L | MEDIUM |</p>
+<p>| <code>ver_rules_module.py</code> | 128L | DEF-126 | +20L | MEDIUM |</p>
+<p>| <code>structure_rules_module.py</code> | 332L | DEF-126, DEF-105 | +45L | MEDIUM |</p>
+<p>| <code>integrity_rules_module.py</code> | 314L | DEF-126, DEF-105 | +45L | MEDIUM |</p>
+<p>| <code>prompt_orchestrator.py</code> | 414L | DEF-104, DEF-123, DEF-124 | +120L | <strong>HIGH</strong> |</p>
+
+<h3>Files to Create (5 new)</h3>
+
+<p>| File | Size | Issues | Purpose |</p>
+<p>|------|------|--------|---------|</p>
+<p>| <code>prompt_validator.py</code> | ~150L | DEF-106 | Automated validation |</p>
+<p>| <code>test_prompt_validator.py</code> | ~150L | DEF-107 | Validator tests |</p>
+<p>| <code>test_rule_transformations.py</code> | ~200L | DEF-107 | Rule tone tests |</p>
+<p>| <code>test_context_aware_loading.py</code> | ~150L | DEF-107 | Context tests |</p>
+<p>| <code>prompt-quality-improvements.md</code> | ~500L | DEF-107 | Documentation |</p>
+
+<p><strong>Total:</strong> ~1,200 lines added/modified</p>
+
+<p>---</p>
+
+<h2>⚠️ Risk Analysis Summary</h2>
+
+<h3>Risk Heatmap</h3>
+
+<p>| Issue | Technical Risk | Business Risk | Rollback | Overall |</p>
+<p>|-------|---------------|---------------|----------|---------|</p>
+<p>| DEF-102 | 7/10 | 6/10 | EASY | MEDIUM |</p>
+<p>| DEF-103 | 3/10 | 2/10 | EASY | LOW |</p>
+<p>| DEF-126 | 6/10 | 5/10 | MEDIUM | MEDIUM |</p>
+<p>| DEF-104 | <strong>8/10</strong> | 7/10 | MEDIUM | <strong>HIGH</strong> ⚠️ |</p>
+<p>| DEF-106 | 4/10 | 3/10 | EASY | LOW |</p>
+<p>| DEF-123 | <strong>8/10</strong> | <strong>8/10</strong> | HARD | <strong>HIGH</strong> ⚠️ |</p>
+<p>| DEF-105 | 2/10 | 1/10 | EASY | LOW |</p>
+<p>| DEF-124 | 5/10 | 3/10 | EASY | MEDIUM |</p>
+<p>| DEF-107 | 2/10 | 1/10 | N/A | LOW |</p>
+
+<h3>Critical Risks</h3>
+
+<p><strong>HIGH RISK Issues (Require Extra Caution):</strong></p>
+
+<ol>
+<li>**DEF-104** (Module Reordering)</li>
+</ol>
+<ul>
+<li>  - **Risk:** 60% chance of dependency breaks (missing shared_state keys)</li>
+<li>  - **Impact:** System unusable if module order breaks dependencies</li>
+<li>  - **Mitigation:** Document dependencies BEFORE reordering, add validation</li>
+<li>  - **Rollback:** git revert, 10 minutes</li>
+</ul>
+
+<ol>
+<li>**DEF-123** (Context-Aware Loading)</li>
+</ol>
+<ul>
+<li>  - **Risk:** 50% chance of wrong modules skipped</li>
+<li>  - **Impact:** Quality drops if critical modules not loaded</li>
+<li>  - **Mitigation:** Feature flag (default OFF), extensive testing</li>
+<li>  - **Rollback:** Disable flag, 5 minutes</li>
+</ul>
+
+<p><strong>Compound Risk:</strong></p>
+<ul>
+<li>DEF-104 + DEF-123 together = 10/10 severity</li>
+<li>**DO NOT deploy same day** - 3-day gap minimum</li>
+</ul>
+
+<h3>Test Gates (6 Checkpoints)</h3>
+
+<p>| Gate | After | Validation | GO/NO-GO Criteria |</p>
+<p>|------|-------|------------|-------------------|</p>
+<p>| <strong>#1</strong> | DEF-102 | 10 golden definitions | ≥ 9/10 pass (90%) |</p>
+<p>| <strong>#2</strong> | DEF-103, DEF-126 | Token count + quality | -49% tokens, ≥ 90% pass |</p>
+<p>| <strong>#3</strong> | DEF-104 | Dependency validation | No KeyErrors, 40/40 pass |</p>
+<p>| <strong>#4</strong> | DEF-123 | Context-aware testing | Token reduction ≥ 10%, quality ≥ 85% |</p>
+<p>| <strong>#5</strong> | DEF-105, DEF-124 | Performance validation | +40% speed, visual badges present |</p>
+<p>| <strong>#6</strong> | DEF-107 | Final validation | 100 definitions, ≥ 90% pass, -63% tokens |</p>
+
+<p>---</p>
+
+<h2>🏗️ Architecture Impact</h2>
+
+<h3>Architecture Score: 7.2/10 (Good)</h3>
+
+<p>| Dimension | Before | After | Delta | Score |</p>
+<p>|-----------|--------|-------|-------|-------|</p>
+<p>| <strong>Cohesion</strong> | 7/10 | 8/10 | +1 | 8/10 |</p>
+<p>| <strong>Coupling</strong> | 6/10 | 5/10 | -1 | 5/10 |</p>
+<p>| <strong>Testability</strong> | 5/10 | 8/10 | +3 | 8/10 |</p>
+<p>| <strong>Maintainability</strong> | 6/10 | 7/10 | +1 | 7/10 |</p>
+<p>| <strong>Scalability</strong> | 7/10 | 8/10 | +1 | 8/10 |</p>
+
+<h3>Key Architectural Changes</h3>
+
+<p><strong>Week 1:</strong></p>
+<ul>
+<li>✅ Exception clauses added (error handling improvement)</li>
+<li>✅ Rule tone transformation (UX improvement, no structural change)</li>
+</ul>
+
+<p><strong>Week 2:</strong> ⚠️ <strong>MAJOR CHANGES</strong></p>
+<ul>
+<li>⚠️ Module execution order changed (affects ALL prompts)</li>
+<li>✅ Validator added (separation of concerns)</li>
+<li>⚠️ Dynamic module loading (architectural shift)</li>
+</ul>
+
+<p><strong>Week 3:</strong></p>
+<ul>
+<li>✅ Visual hierarchy (presentation layer only)</li>
+<li>✅ Caching added (performance optimization)</li>
+<li>✅ Tests + docs (quality improvement)</li>
+</ul>
+
+<h3>Technical Debt Assessment</h3>
+
+<p>| Category | Debt Removed | Debt Added | Net |</p>
+<p>|----------|--------------|------------|-----|</p>
+<p>| <strong>Contradictions</strong> | 5 blocking issues | 0 | <strong>-5</strong> ✅ |</p>
+<p>| <strong>Testing</strong> | No validator | PromptValidator | <strong>-1</strong> ✅ |</p>
+<p>| <strong>Complexity</strong> | 100+ concepts | 30 concepts | <strong>-70</strong> ✅ |</p>
+<p>| <strong>Dependencies</strong> | 3 implicit | 5 documented | <strong>+2</strong> ⚠️ |</p>
+<p>| <strong>Caching</strong> | No cache invalidation | Cache strategy needed | <strong>+1</strong> ⚠️ |</p>
+
+<p><strong>Net Technical Debt:</strong> <strong>-73 points</strong> (MAJOR IMPROVEMENT)</p>
+
+<h3>Alignment with DEF-111</h3>
+
+<p><strong>Recommendation:</strong> <strong>Execute Plan B FIRST</strong>, then DEF-111</p>
+
+<p><strong>Rationale:</strong></p>
+<ul>
+<li>Plan B fixes prompt content (3 weeks)</li>
+<li>DEF-111 refactors architecture (18 weeks)</li>
+<li>No conflicts if Plan B goes first</li>
+<li>DEF-111 benefits from cleaner prompts (+$2,700 savings)</li>
+</ul>
+
+<p><strong>Parallel Work:</strong> Possible after Week 1 (low risk period)</p>
+
+<p>---</p>
+
+<h2>📅 11-Day Implementation Timeline</h2>
+
+<h3>Week 1: System Restoration (4 days, 10h)</h3>
+
+<h4>DAY 1 (Monday) - 2.5h</h4>
+<ul>
+<li>**08:00-10:00** DEF-103: Categorize 42 patterns (2h)</li>
+<li>**10:00-11:30** DEF-102: Start contradiction fixes (1.5h)</li>
+<li>**Deliverable:** DEF-103 done, DEF-102 40% done</li>
+</ul>
+
+<h4>DAY 2 (Tuesday) - 3h</h4>
+<ul>
+<li>**08:00-10:00** DEF-102: Finish contradictions (2h)</li>
+<li>**10:00-11:00** TEST GATE #1: Validate with 10 golden definitions</li>
+<li>**Deliverable:** DEF-102 done, staging validated</li>
+</ul>
+
+<h4>DAY 3 (Wednesday) - 2.5h</h4>
+<ul>
+<li>**08:00-10:30** DEF-126: Transform ARAI, CON, ESS modules (2.5h)</li>
+<li>**Deliverable:** 3 of 7 modules transformed</li>
+</ul>
+
+<h4>DAY 4 (Thursday) - 3h</h4>
+<ul>
+<li>**08:00-11:00** DEF-126: Transform SAM, VER, STR, INT modules (3h)</li>
+<li>**11:00-11:45** TEST GATE #2: Validate all 7 transformations</li>
+<li>**Deliverable:** Week 1 complete, -49% tokens</li>
+</ul>
+
+<p>---</p>
+
+<h3>Week 2: Architecture Changes (4 days, 10h) ⚠️ HIGH RISK</h3>
+
+<h4>DAY 5 (Monday) - 2h</h4>
+<ul>
+<li>**08:00-10:30** DEF-104: Start module reordering (2h)</li>
+<li>**Deliverable:** Module order changed, initial testing</li>
+</ul>
+
+<h4>DAY 6 (Tuesday) - 3h</h4>
+<ul>
+<li>**08:00-09:15** DEF-104: Finish reordering + extensive testing</li>
+<li>**09:15-09:45** TEST GATE #3: Dependency validation</li>
+<li>**10:00-11:15** DEF-106: Create PromptValidator (1.5h)</li>
+<li>**Deliverable:** DEF-104 on staging, DEF-106 done</li>
+</ul>
+
+<h4>DAY 7 (Wednesday) - 3h ⚠️ HIGH RISK DAY</h4>
+<ul>
+<li>**08:00-08:30** PRE-123 SAFETY BRIEFING</li>
+<li>**08:30-11:30** DEF-123: Implement context-aware loading (3h)</li>
+<li>**Feature flag:** Default OFF (disabled)</li>
+<li>**Deliverable:** DEF-123 implemented but disabled</li>
+</ul>
+
+<h4>DAY 8 (Thursday) - 2.5h</h4>
+<ul>
+<li>**08:00-10:00** DEF-123: Enable flag + testing (2h)</li>
+<li>**10:00-10:30** TEST GATE #4: Context-aware validation</li>
+<li>**Deliverable:** DEF-123 validated, Week 2 complete</li>
+</ul>
+
+<p>---</p>
+
+<h3>Week 3: Polish & Quality (3 days, 6h)</h3>
+
+<h4>DAY 9 (Monday) - 2h</h4>
+<ul>
+<li>**08:00-10:00** DEF-105: Visual priority badges (2h)</li>
+<li>**10:00-11:30** DEF-124: Start static caching (1.5h)</li>
+<li>**Deliverable:** Visual badges live, caching 50% done</li>
+</ul>
+
+<h4>DAY 10 (Tuesday) - 2h</h4>
+<ul>
+<li>**08:00-09:00** DEF-124: Finish caching + performance testing</li>
+<li>**09:00-11:00** DEF-107: Start tests + documentation (2h)</li>
+<li>**Deliverable:** DEF-124 validated, DEF-107 50% done</li>
+</ul>
+
+<h4>DAY 11 (Wednesday) - 2h FINAL DAY</h4>
+<ul>
+<li>**08:00-10:00** DEF-107: Finish tests + documentation (2h)</li>
+<li>**10:00-11:00** TEST GATE #6: Final validation (100 definitions)</li>
+<li>**11:00-11:30** PRODUCTION DEPLOYMENT</li>
+<li>**Deliverable:** Plan B complete, production stable</li>
+</ul>
+
+<p>---</p>
+
+<h2>🧪 Testing Strategy</h2>
+
+<h3>Golden Reference Test Suite</h3>
+
+<p><strong>Location:</strong> <code>tests/fixtures/golden_definitions.json</code></p>
+
+<p><strong>Sample Size:</strong> 10 definitions (baseline), 40 definitions (thorough), 100 definitions (final)</p>
+
+<p><strong>Categories Covered:</strong></p>
+<ul>
+<li>25% PROCES (activiteit, handeling)</li>
+<li>25% TYPE (soort, categorie)</li>
+<li>25% RESULTAAT (uitkomst, product)</li>
+<li>25% EXEMPLAAR (specifiek geval)</li>
+</ul>
+
+<p><strong>Pass Threshold:</strong> ≥ 90% (same as baseline)</p>
+
+<h3>Test Commands</h3>
+
+<pre><code># Unit tests (fast)
+pytest tests/services/prompts/ -v
+
+# Integration tests (with golden reference)
+pytest tests/fixtures/ -v --tb=short
+
+# Performance tests (with caching)
+pytest tests/services/prompts/test_performance.py -v
+
+# Full test suite (comprehensive)
+pytest tests/ -v --cov=src/services/prompts --cov-report=html</code></pre>
+
+<h3>Test Gates Checklist</h3>
+
+<p><strong>GATE #1</strong> (After DEF-102):</p>
+<ul>
+<li>[ ] 10 golden definitions pass</li>
+<li>[ ] 0 "is" contradictions</li>
+<li>[ ] 0 container term violations</li>
+<li>[ ] ESS-02 exception works correctly</li>
+</ul>
+
+<p><strong>GATE #2</strong> (After DEF-103 + DEF-126):</p>
+<ul>
+<li>[ ] Token count ≤ 4,500 (from 7,250)</li>
+<li>[ ] Forbidden patterns < 10 bullets (categorized)</li>
+<li>[ ] No "Toetsvraag:" in output</li>
+<li>[ ] Instructions are clear and actionable</li>
+</ul>
+
+<p><strong>GATE #3</strong> (After DEF-104):</p>
+<ul>
+<li>[ ] 40 definitions pass dependency validation</li>
+<li>[ ] No KeyErrors from missing shared_state</li>
+<li>[ ] ESS-02 appears before line 50</li>
+<li>[ ] Task metadata appears before line 20</li>
+</ul>
+
+<p><strong>GATE #4</strong> (After DEF-123):</p>
+<ul>
+<li>[ ] Token reduction ≥ 10% (with context-aware loading)</li>
+<li>[ ] Quality drops < 5% (vs flag OFF)</li>
+<li>[ ] Rich context: 14-16 modules loaded</li>
+<li>[ ] Minimal context: 6-8 modules loaded</li>
+</ul>
+
+<p><strong>GATE #5</strong> (After DEF-105 + DEF-124):</p>
+<ul>
+<li>[ ] Priority badges present (🔴 TIER 1, 🟡 TIER 2, 🟢 TIER 3)</li>
+<li>[ ] Performance +40% (with caching)</li>
+<li>[ ] Cache hits > 80% for static modules</li>
+</ul>
+
+<p><strong>GATE #6</strong> (Final):</p>
+<ul>
+<li>[ ] 100 definitions pass</li>
+<li>[ ] Token count ≤ 2,650 (from 7,250 = -63%)</li>
+<li>[ ] Quality ≥ 90% pass rate</li>
+<li>[ ] Performance +40% faster</li>
+<li>[ ] Cognitive load 4/10 (from 9/10)</li>
+</ul>
+
+<p>---</p>
+
+<h2>🚨 Rollback Procedures</h2>
+
+<h3>Emergency Rollback (< 5 min)</h3>
+
+<p><strong>Scenario:</strong> System unusable, critical failure</p>
+
+<pre><code># 1. Disable feature flags
+export ENABLE_CONTEXT_AWARE_LOADING=false
+
+# 2. Revert to main branch
+git checkout main
+git pull
+
+# 3. Redeploy
+bash scripts/run_app.sh
+
+# 4. Verify
+pytest tests/smoke/ -v</code></pre>
+
+<p><strong>Recovery Time:</strong> 5 minutes</p>
+<p><strong>Data Loss:</strong> None</p>
+
+<h3>Selective Rollback (per issue)</h3>
+
+<p>| Issue | Rollback Complexity | Time | Procedure |</p>
+<p>|-------|-------------------|------|-----------|</p>
+<p>| DEF-102 | EASY | 5 min | <code>git revert <commit></code> |</p>
+<p>| DEF-103 | EASY | 5 min | <code>git revert <commit></code> |</p>
+<p>| DEF-126 | MEDIUM | 10 min | Revert 7 commits (one per module) |</p>
+<p>| DEF-104 | MEDIUM | 10 min | Revert order, test dependencies |</p>
+<p>| DEF-106 | EASY | 2 min | Remove validator call |</p>
+<p>| DEF-123 | EASY | 2 min | Set flag to false |</p>
+<p>| DEF-105 | EASY | 5 min | Revert visual changes |</p>
+<p>| DEF-124 | EASY | 5 min | Disable caching |</p>
+<p>| DEF-107 | N/A | N/A | Tests/docs don't affect runtime |</p>
+
+<h3>Auto-Rollback Triggers</h3>
+
+<p><strong>Immediate Rollback (automated):</strong></p>
+<ul>
+<li>Prompt generation failure rate > 5%</li>
+<li>System errors > 10/hour</li>
+<li>Data corruption detected</li>
+<li>Quality drops > 20%</li>
+</ul>
+
+<p><strong>24h Observation Period (manual decision):</strong></p>
+<ul>
+<li>Quality drops 10-20%</li>
+<li>User complaints > 5 tickets/day</li>
+<li>Performance degrades > 10%</li>
+<li>Token reduction < expected (but system works)</li>
+</ul>
+
+<p>---</p>
+
+<h2>📦 Deliverables Checklist</h2>
+
+<h3>Week 1 Deliverables</h3>
+<ul>
+<li>[ ] DEF-102: 3 files modified (contradiction fixes)</li>
+<li>[ ] DEF-103: 1 file modified (cognitive load reduction)</li>
+<li>[ ] DEF-126: 7 files modified (tone transformation)</li>
+<li>[ ] TEST GATE #1: Passed with ≥ 9/10</li>
+<li>[ ] TEST GATE #2: Passed with ≥ 90% + -49% tokens</li>
+<li>[ ] Staging deployment validated</li>
+<li>[ ] Linear issues updated (DEF-102, DEF-103, DEF-126 → Done)</li>
+</ul>
+
+<h3>Week 2 Deliverables</h3>
+<ul>
+<li>[ ] DEF-104: 2 files modified (flow reorganization)</li>
+<li>[ ] DEF-106: 1 new file (PromptValidator)</li>
+<li>[ ] DEF-123: 2 files modified (context-aware loading)</li>
+<li>[ ] TEST GATE #3: Passed (dependency validation)</li>
+<li>[ ] TEST GATE #4: Passed (context-aware validation)</li>
+<li>[ ] Feature flags configured (DEF-123 default OFF)</li>
+<li>[ ] Staging deployment validated</li>
+<li>[ ] Linear issues updated (DEF-104, DEF-106, DEF-123 → Done)</li>
+</ul>
+
+<h3>Week 3 Deliverables</h3>
+<ul>
+<li>[ ] DEF-105: 7 files modified (visual badges)</li>
+<li>[ ] DEF-124: 1 file modified (static caching)</li>
+<li>[ ] DEF-107: 5 new files (tests + docs)</li>
+<li>[ ] TEST GATE #5: Passed (performance validation)</li>
+<li>[ ] TEST GATE #6: Passed (final validation)</li>
+<li>[ ] Production deployment complete</li>
+<li>[ ] All 9 Linear issues → Done</li>
+<li>[ ] DEF-101 EPIC → Complete</li>
+<li>[ ] Documentation updated</li>
+<li>[ ] Lessons learned documented</li>
+</ul>
+
+<p>---</p>
+
+<h2>🎓 Lessons Learned (Pre-Implementation)</h2>
+
+<h3>From Multiagent Analysis</h3>
+
+<ol>
+<li>**File mapping is critical** - Knowing exact line numbers prevents scope creep</li>
+<li>**Risk analysis prevents surprises** - 75 risks identified, 73 mitigated</li>
+<li>**Realistic timelines work** - 2.5h/day is sustainable, 8h/day is fantasy</li>
+<li>**Architecture review catches debt** - Net -73 technical debt points</li>
+<li>**Test gates enforce quality** - 6 checkpoints prevent regression</li>
+</ol>
+
+<h3>Key Insights</h3>
+
+<ol>
+<li>**Week 2 is HIGH RISK** - DEF-104 + DEF-123 need 3-day gap</li>
+<li>**Feature flags are essential** - Enable gradual rollout + easy rollback</li>
+<li>**Golden reference testing is critical** - 90% pass threshold maintains quality</li>
+<li>**Documentation pays off** - Dependency docs prevent DEF-104 failures</li>
+<li>**Cognitive load matters** - 42 patterns → 5 categories reduces mental overhead</li>
+</ol>
+
+<h3>Success Factors</h3>
+
+<ol>
+<li>✅ **Phased approach** (3 weeks, 6 gates)</li>
+<li>✅ **Test coverage** (unit + integration + golden reference)</li>
+<li>✅ **Feature flags** (gradual rollout, easy rollback)</li>
+<li>✅ **Documentation** (dependencies, architecture, rollback)</li>
+<li>✅ **Realistic timeline** (26h over 11 days, not 3 days)</li>
+</ol>
+
+<p>---</p>
+
+<h2>🚀 Next Steps</h2>
+
+<h3>TODAY (Before Starting)</h3>
+<ol>
+<li>[ ] Stakeholder approval for Plan B</li>
+<li>[ ] Confirm feature branch: `feature/def-101-plan-b-quality`</li>
+<li>[ ] Review risk analysis (focus on Week 2)</li>
+<li>[ ] Set up staging environment</li>
+<li>[ ] Configure feature flags (DEF-123, DEF-124)</li>
+</ol>
+
+<h3>MONDAY (Start Week 1)</h3>
+<ol>
+<li>[ ] Morning standup (review Plan B)</li>
+<li>[ ] Check out feature branch</li>
+<li>[ ] Start DEF-103 (categorize patterns)</li>
+<li>[ ] Commit + push EOD</li>
+</ol>
+
+<h3>ONGOING</h3>
+<ul>
+<li>[ ] Daily standups (15 min)</li>
+<li>[ ] Update Linear issues after each completion</li>
+<li>[ ] Run test gates at specified checkpoints</li>
+<li>[ ] Document progress in commit messages</li>
+<li>[ ] Monitor staging deployment</li>
+</ul>
+
+<p>---</p>
+
+<h2>📚 Reference Documents</h2>
+
+<p><strong>Primary:</strong></p>
+<ul>
+<li>`DEF-101-TECHNICAL-COMPLEXITY-ANALYSIS.md` - Technical deep-dive</li>
+<li>`DEF-101-ALTERNATIVE-SEQUENCING-PLANS.md` - Plan A/B/C comparison</li>
+<li>`DEF-101-SEQUENCING-INSIGHTS.md` - Strategic insights</li>
+<li>`PLAN-B-FILE-MAPPING.md` - Exact file locations (Explore agent)</li>
+<li>`PLAN-B-RISK-ANALYSIS.md` - 75 risks identified (Debug-Specialist agent)</li>
+<li>`PLAN-B-EXECUTION-TIMELINE.md` - Hour-by-hour breakdown (Plan agent)</li>
+<li>`PLAN-B-ARCHITECTURE-REVIEW.md` - Architecture impact (Code-Reviewer agent)</li>
+</ul>
+
+<p><strong>Supporting:</strong></p>
+<ul>
+<li>`CONSENSUS_IMPLEMENTATION_PLAN.md` - Original Plan B specification</li>
+<li>`DEF-101-IMPLEMENTATION-GUIDE.md` - Implementation guide</li>
+<li>`PROMPT_COMPREHENSIVE_ANALYSIS_AND_IMPROVEMENT_PLAN.md` - Analysis basis</li>
+</ul>
+
+<p><strong>Testing:</strong></p>
+<ul>
+<li>`tests/fixtures/golden_definitions.json` - Golden reference suite</li>
+<li>`tests/services/prompts/` - Existing test patterns</li>
+</ul>
+
+<p>---</p>
+
+<h2>✅ Success Criteria</h2>
+
+<p><strong>Plan B is successful if:</strong></p>
+
+<ol>
+<li>✅ **System is USABLE** (0 blocking contradictions)</li>
+<li>✅ **Token reduction ≥ 60%** (target: -63%, 7250 → 2650)</li>
+<li>✅ **Quality maintained** (≥ 90% golden reference pass rate)</li>
+<li>✅ **Performance improved** (≥ 30% faster with caching)</li>
+<li>✅ **Cognitive load reduced** (≤ 5/10, from 9/10)</li>
+<li>✅ **All 6 test gates pass**</li>
+<li>✅ **Production stable** (no rollbacks needed)</li>
+<li>✅ **Documentation complete** (tests + architecture docs)</li>
+</ol>
+
+<p><strong>Additional Success Indicators:</strong></p>
+<ul>
+<li>User satisfaction ≥ 80%</li>
+<li>Support tickets decrease ≥ 50%</li>
+<li>Development velocity maintained (no regression)</li>
+<li>DEF-111 execution unblocked (parallel work feasible)</li>
+</ul>
+
+<p>---</p>
+
+<h2>🎉 Conclusion</h2>
+
+<p>Plan B is a <strong>comprehensive, realistic, and well-analyzed</strong> implementation plan for DEF-101 EPIC. With 4 multiagent analyses, 6 test gates, and detailed risk mitigation, this plan balances <strong>speed</strong> (11 days) with <strong>quality</strong> (90%+ pass rate) and <strong>safety</strong> (feature flags + rollback procedures).</p>
+
+<p><strong>Recommendation:</strong> ✅ <strong>APPROVE and BEGIN EXECUTION</strong></p>
+
+<p><strong>Confidence:</strong> 85% (High confidence with identified risks mitigated)</p>
+
+<p>---</p>
+
+<p><strong>Document Status:</strong> ✅ COMPLETE</p>
+<p><strong>Ready for:</strong> Stakeholder approval → Execution</p>
+<p><strong>Next Action:</strong> Review with team, obtain approval, start Day 1</p>
+
+<p>🤖 Generated with <a href="https://claude.com/claude-code" target="_blank">Claude Code</a> using multiagent ultrathink analysis</p>
+
+<p>Co-Authored-By: Claude <noreply@anthropic.com></p>
+
+  </div>
+</body>
+</html>
