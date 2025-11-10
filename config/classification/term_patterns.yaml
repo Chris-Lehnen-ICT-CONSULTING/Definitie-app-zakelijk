@@ -68,6 +68,12 @@ suffix_weights:
     register: 0.85     # handelsregister
     document: 0.80     # identiteitsdocument
 
+    # Compound word patterns (DEF-138 fix)
+    woord: 0.70        # Compound words ending in -woord (voegwoord, werkwoord, bijwoord)
+    naam: 0.65         # Compound words ending in -naam (voornaam, achternaam)
+    lijst: 0.65        # Lists/registers ending in -lijst (controlelijst, checklist)
+    boek: 0.70         # Documents/books ending in -boek (handboek, wetboek)
+
   EXEMPLAAR: {}      # EXEMPLAAR heeft geen suffix patterns (detection via context only)
 
 # ============================================================
