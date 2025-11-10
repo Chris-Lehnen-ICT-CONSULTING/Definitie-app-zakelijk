@@ -137,17 +137,18 @@ class SemanticCategorisationModule(BasePromptModule):
 Je **moet** één van de vier categorieën expliciet maken door de JUISTE KICK-OFF term te kiezen:
 
 • PROCES begrippen → start met: 'activiteit waarbij...', 'handeling die...', 'proces waarin...'
-• TYPE begrippen → start met: 'soort...', 'categorie van...', 'type... dat...'
+• TYPE begrippen → start met: [kernwoord] dat/die [kenmerk] (bijv. 'woord dat...', 'document dat...', 'persoon die...')
 • RESULTAAT begrippen → start met: 'resultaat van...', 'uitkomst van...', 'product dat...'
 • EXEMPLAAR begrippen → start met: 'exemplaar van... dat...', 'specifiek geval van...'
 
 ⚠️ Let op: Start NOOIT met 'is een' of andere koppelwerkwoorden!
+⚠️ Voor TYPE: Start NOOIT met meta-woorden ('soort', 'type', 'categorie')!
 De kick-off term MOET een zelfstandig naamwoord zijn dat de categorie aangeeft.
 
 BELANGRIJK: Bepaal de juiste categorie op basis van het BEGRIP zelf:
 - Eindigt op -ING of -TIE en beschrijft een handeling? → PROCES
 - Is het een gevolg/uitkomst van iets? → RESULTAAT (bijv. sanctie, rapport, besluit)
-- Is het een classificatie/soort? → TYPE
+- Is het een classificatie/soort? → TYPE (begin direct met kernwoord!)
 - Is het een specifiek geval? → EXEMPLAAR"""
 
         # Voeg category-specific guidance toe indien beschikbaar
@@ -204,27 +205,34 @@ VOORBEELDEN (FOUT):
 ❌ "is een activiteit waarbij..." (start met 'is')
 ❌ "het observeren van..." (werkwoordelijk)
 ❌ "manier om gegevens te verzamelen" (te abstract)""",
-            "type": """**TYPE CATEGORIE - Formuleer als SOORT/CATEGORIE:**
+            "type": """**TYPE CATEGORIE - Begin met het ZELFSTANDIG NAAMWOORD dat de klasse aanduidt:**
 
-KICK-OFF opties (kies één):
-- 'soort... die...' → algemene classificatie
-- 'categorie van...' → formele indeling
-- 'type... dat...' → specifieke variant
-- 'klasse van...' → technische classificatie
+⚠️ BELANGRIJK: Begin DIRECT met het kernwoord, NIET met meta-woorden!
+
+INSTRUCTIE: Start met het zelfstandig naamwoord dat de klasse of soort benoemt
+
+STRUCTUUR van je definitie:
+1. Start: [Zelfstandig naamwoord van de klasse]
+2. Vervolg: [die/dat/met] [onderscheidend kenmerk]
 
 VERVOLG met:
-- Tot welke BREDERE KLASSE het behoort
-- Wat de ONDERSCHEIDENDE KENMERKEN zijn
-- Waarin het VERSCHILT van andere types
+- BREDERE KLASSE (impliciet door kernwoord keuze)
+- ONDERSCHEIDENDE KENMERKEN (wat maakt dit uniek)
+- VERSCHIL met andere types (hoe te onderscheiden)
 
 VOORBEELDEN (GOED):
-✅ "soort document dat formele beslissingen vastlegt"
-✅ "categorie van personen die aan bepaalde criteria voldoen"
-✅ "type interventie gericht op gedragsverandering"
+✅ "woord dat handelingen of toestanden uitdrukt"
+✅ "document dat juridische beslissingen formeel vastlegt"
+✅ "persoon die bevoegd is tot het nemen van besluiten"
+✅ "maatregel die recidive moet voorkomen"
+✅ "interventie gericht op gedragsverandering"
 
 VOORBEELDEN (FOUT):
-❌ "is een soort..." (start met 'is')
-❌ "betreft een..." (koppelwerkwoord)""",
+❌ "soort woord dat..." (begin niet met 'soort')
+❌ "type document dat..." (begin niet met 'type')
+❌ "categorie van personen die..." (begin niet met 'categorie')
+❌ "is een woord dat..." (geen koppelwerkwoord)
+❌ "betreft een..." (geen koppelwerkwoord)""",
             "resultaat": """**RESULTAAT CATEGORIE - Formuleer als UITKOMST/PRODUCT:**
 
 KICK-OFF opties (kies één):
