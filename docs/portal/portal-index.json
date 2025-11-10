@@ -1799,6 +1799,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "DEF-101 ALTERNATIVE SEQUENCING PLANS",
+      "path": "../planning/DEF-101-ALTERNATIVE-SEQUENCING-PLANS.md",
+      "url": "../planning/DEF-101-ALTERNATIVE-SEQUENCING-PLANS.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/planning/DEF-101-ALTERNATIVE-SEQUENCING-PLANS.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "WEEK 1: UUR-VOOR-UUR IMPLEMENTATIE SCHEDULE",
       "path": "../planning/week-1-hourly-schedule.md",
       "url": "../planning/week-1-hourly-schedule.md",
@@ -2200,6 +2231,37 @@
         "req": []
       },
       "rendered_url": "rendered/planning/EPIC-026-STAKEHOLDER-REVIEW-BRIEF.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "DEF-101 SEQUENCING INSIGHTS: Challenging the Assumptions",
+      "path": "../planning/DEF-101-SEQUENCING-INSIGHTS.md",
+      "url": "../planning/DEF-101-SEQUENCING-INSIGHTS.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/planning/DEF-101-SEQUENCING-INSIGHTS.html"
     },
     {
       "id": null,
@@ -7811,6 +7873,37 @@
         "req": []
       },
       "rendered_url": "rendered/analyses/DEF-54-SIMPLIFIED-REFACTOR-PLAN.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "DEF-101 Technical Complexity & Dependencies Analysis",
+      "path": "../analyses/DEF-101-TECHNICAL-COMPLEXITY-ANALYSIS.md",
+      "url": "../analyses/DEF-101-TECHNICAL-COMPLEXITY-ANALYSIS.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/DEF-101-TECHNICAL-COMPLEXITY-ANALYSIS.html"
     },
     {
       "id": null,
@@ -77747,7 +77840,7 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 1229,
+      "DOC": 1232,
       "ARCH": 42,
       "COMP": 5,
       "TEST": 37,
@@ -77757,7 +77850,7 @@
       "BUG": 47,
       "REQ": 115
     },
-    "generated_at": "2025-11-10T13:04:30Z"
+    "generated_at": "2025-11-10T13:55:13Z"
   },
   "sources": [
     "docs"
