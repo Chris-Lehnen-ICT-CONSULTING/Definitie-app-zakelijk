@@ -2235,6 +2235,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "DEF-101 Plan B: Complete Implementation Specification",
+      "path": "../planning/PLAN-B-COMPLETE-SPECIFICATION.md",
+      "url": "../planning/PLAN-B-COMPLETE-SPECIFICATION.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/planning/PLAN-B-COMPLETE-SPECIFICATION.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "DEF-101 SEQUENCING INSIGHTS: Challenging the Assumptions",
       "path": "../planning/DEF-101-SEQUENCING-INSIGHTS.md",
       "url": "../planning/DEF-101-SEQUENCING-INSIGHTS.md",
@@ -11448,6 +11479,39 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "DEF-101: Plan B - Detailed Risk Analysis",
+      "path": "../analyses/DEF-101_PLAN_B_DETAILED_RISK_ANALYSIS.md",
+      "url": "../analyses/DEF-101_PLAN_B_DETAILED_RISK_ANALYSIS.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [
+          "EPIC-015"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/DEF-101_PLAN_B_DETAILED_RISK_ANALYSIS.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Automated Synonym Suggestion - Executive Summary",
       "path": "../analyses/SYNONYM_AUTOMATION_SUMMARY.md",
       "url": "../analyses/SYNONYM_AUTOMATION_SUMMARY.md",
@@ -15299,6 +15363,37 @@
         "req": []
       },
       "rendered_url": "rendered/reviews/TEST_FAILURE_ANALYSIS.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Plan B Implementation: Architectural Review",
+      "path": "../reviews/plan-b-architecture-review.md",
+      "url": "../reviews/plan-b-architecture-review.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/reviews/plan-b-architecture-review.html"
     },
     {
       "id": null,
@@ -77840,7 +77935,7 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 1232,
+      "DOC": 1235,
       "ARCH": 42,
       "COMP": 5,
       "TEST": 37,
@@ -77850,7 +77945,7 @@
       "BUG": 47,
       "REQ": 115
     },
-    "generated_at": "2025-11-10T13:55:13Z"
+    "generated_at": "2025-11-10T15:08:50Z"
   },
   "sources": [
     "docs"
