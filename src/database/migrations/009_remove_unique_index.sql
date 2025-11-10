@@ -1,0 +1,57 @@
+-- Migration 009: Remove ontological contradiction in UNIQUE INDEX (DEF-138)
+-- Author: System (automated analysis)
+-- Date: 2025-11-10
+-- Description: Remove idx_definities_unique_full to enable versioning system
+--
+-- PROBLEM:
+--   Migration 008 added UNIQUE INDEX on (begrip, org_context, jur_context, wet_basis, categorie)
+--   This BLOCKS the versioning system (version_number, previous_version_id fields)
+--   User cannot generate NEW definition for existing term in same context
+--
+-- RATIONALE FOR REMOVAL:
+--   1. Schema DESIGN includes versioning fields → implies multiple active versions allowed
+--   2. Python validation (definitie_checker.py, definitie_repository.py) ALREADY prevents
+--      unintended duplicates MORE intelligently (fuzzy matching, synonyms, user choice)
+--   3. Legitimate use cases blocked:
+--      - Iterative improvement (generate v2, compare to v1, choose better)
+--      - Regulatory updates (new version, keep old for history)
+--      - Context evolution (same term gains new meaning over time)
+--   4. Database constraint is REDUNDANT when application layer handles it better
+--
+-- SAFETY:
+--   - Application-level duplicate prevention remains active (definitie_repository.py:554-572)
+--   - allow_duplicate flag provides explicit control
+--   - Version history preserved via previous_version_id
+--   - Easy rollback if needed (see 009_rollback.sql)
+--
+-- AFFECTED CODE:
+--   - definitie_repository.py: create_definitie() already checks duplicates before INSERT
+--   - definitie_checker.py: check_before_generation() provides intelligent duplicate detection
+--   - No code depends on IntegrityError from this constraint
+--
+-- Rollback: See 009_rollback.sql (requires no duplicates in database)
+
+-- Remove the problematic UNIQUE INDEX
+DROP INDEX IF EXISTS idx_definities_unique_full;
+
+-- Verification query: Check if any duplicates exist post-migration
+-- (Should return 0 rows - duplicate prevention is now application-level only)
+-- SELECT
+--     begrip,
+--     organisatorische_context,
+--     juridische_context,
+--     wettelijke_basis,
+--     categorie,
+--     COUNT(*) as duplicate_count,
+--     GROUP_CONCAT(id) as definition_ids
+-- FROM definities
+-- WHERE status != 'archived'
+-- GROUP BY begrip, organisatorische_context, juridische_context, wettelijke_basis, categorie
+-- HAVING COUNT(*) > 1;
+
+-- Success message
+-- Migration 009 completed: Versioning system enabled
+-- Users can now create multiple versions of definitions with same context
+-- Duplicate prevention handled by:
+--   - definitie_repository.create_definitie(allow_duplicate=False) [default]
+--   - definitie_checker.check_before_generation() [intelligent fuzzy matching]
