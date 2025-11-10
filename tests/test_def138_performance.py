@@ -14,7 +14,7 @@ from ontologie.improved_classifier import ImprovedOntologyClassifier
 class TestClassificationPerformance:
     """Performance tests for DEF-138 fixes."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def classifier(self):
         """Create classifier instance."""
         return ImprovedOntologyClassifier()
@@ -148,7 +148,7 @@ class TestClassificationPerformance:
 class TestZeroScoreRegression:
     """Regression tests for zero-score bug."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def classifier(self):
         """Create classifier instance."""
         return ImprovedOntologyClassifier()

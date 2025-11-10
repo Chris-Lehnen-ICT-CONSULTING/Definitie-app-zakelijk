@@ -12,7 +12,7 @@ from ontologie.improved_classifier import ImprovedOntologyClassifier
 class TestCompoundWordEdgeCases:
     """Test edge cases for compound word classification."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def classifier(self):
         """Create classifier instance."""
         return ImprovedOntologyClassifier()
@@ -86,7 +86,7 @@ class TestCompoundWordEdgeCases:
 class TestZeroScoreScenarios:
     """Test scenarios that previously caused zero confidence scores."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def classifier(self):
         """Create classifier instance."""
         return ImprovedOntologyClassifier()
@@ -142,7 +142,7 @@ class TestZeroScoreScenarios:
 class TestPerformanceEdgeCases:
     """Test performance-related edge cases."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def classifier(self):
         """Create classifier instance."""
         return ImprovedOntologyClassifier()
@@ -193,7 +193,7 @@ class TestPerformanceEdgeCases:
 class TestClassificationConsistency:
     """Test that classifications are consistent and reproducible."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def classifier(self):
         """Create classifier instance."""
         return ImprovedOntologyClassifier()
