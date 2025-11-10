@@ -36,7 +36,9 @@ class CheckAction(Enum):
 
     PROCEED = "proceed"  # Ga door met generatie
     USE_EXISTING = "use_existing"  # Gebruik bestaande definitie
-    UPDATE_EXISTING = "update"  # Update bestaande definitie
+    UPDATE_EXISTING = (
+        "update_existing"  # Update bestaande definitie (DEF-138: fixed consistency)
+    )
     USER_CHOICE = "user_choice"  # Laat gebruiker kiezen
 
 

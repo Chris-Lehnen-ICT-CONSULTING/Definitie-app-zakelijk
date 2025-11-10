@@ -216,6 +216,130 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "UNIQUE INDEX Removal Strategy - Design Document",
+      "path": "../database/UNIQUE_CONSTRAINT_REMOVAL_DESIGN.md",
+      "url": "../database/UNIQUE_CONSTRAINT_REMOVAL_DESIGN.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/database/UNIQUE_CONSTRAINT_REMOVAL_DESIGN.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Migration 009 Execution Checklist",
+      "path": "../database/MIGRATION_009_CHECKLIST.md",
+      "url": "../database/MIGRATION_009_CHECKLIST.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/database/MIGRATION_009_CHECKLIST.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Migration 009 - Flow Diagram & Decision Tree",
+      "path": "../database/MIGRATION_009_FLOW_DIAGRAM.md",
+      "url": "../database/MIGRATION_009_FLOW_DIAGRAM.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/database/MIGRATION_009_FLOW_DIAGRAM.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "UNIQUE Constraint Removal - Executive Summary",
+      "path": "../database/UNIQUE_CONSTRAINT_REMOVAL_SUMMARY.md",
+      "url": "../database/UNIQUE_CONSTRAINT_REMOVAL_SUMMARY.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/database/UNIQUE_CONSTRAINT_REMOVAL_SUMMARY.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Backend Refactor Checklist (Q1 2025)",
       "path": "../tasks/backend-refactor-checklist.md",
       "url": "../tasks/backend-refactor-checklist.md",
@@ -6477,6 +6601,37 @@
     {
       "id": null,
       "type": "TEST",
+      "title": "🧪 DEF-138 COMPREHENSIVE TEST EXECUTION REPORT",
+      "path": "../testing/DEF-138-test-execution-report.md",
+      "url": "../testing/DEF-138-test-execution-report.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/testing/DEF-138-test-execution-report.html"
+    },
+    {
+      "id": null,
+      "type": "TEST",
       "title": "EPIC-010 Context Flow Refactoring - Test Strategy",
       "path": "../testing/EPIC-010-test-strategy.md",
       "url": "../testing/EPIC-010-test-strategy.md",
@@ -8807,6 +8962,39 @@
         "req": []
       },
       "rendered_url": "rendered/analyses/CLASSIFICATION_PIPELINE_COMPARISON.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "DEF-138: Zero Scores Root Cause Analysis",
+      "path": "../analyses/DEF-138-zero-scores-root-cause-analysis.md",
+      "url": "../analyses/DEF-138-zero-scores-root-cause-analysis.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-202"
+        ],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/DEF-138-zero-scores-root-cause-analysis.html"
     },
     {
       "id": null,
@@ -14329,6 +14517,68 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Comprehensive Bug Hunt Report - DEF-138 + General Codebase",
+      "path": "../reports/BUG_HUNT_REPORT_DEF138_COMPREHENSIVE.md",
+      "url": "../reports/BUG_HUNT_REPORT_DEF138_COMPREHENSIVE.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/reports/BUG_HUNT_REPORT_DEF138_COMPREHENSIVE.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "🔬 Comprehensive Test Report: DEF-138 Compound Word Patterns",
+      "path": "../reports/COMPREHENSIVE_TEST_REPORT_DEF138.md",
+      "url": "../reports/COMPREHENSIVE_TEST_REPORT_DEF138.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/reports/COMPREHENSIVE_TEST_REPORT_DEF138.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Terminology Export Standards Analysis & Recommendations",
       "path": "../reports/terminology-export-standards-analysis.md",
       "url": "../reports/terminology-export-standards-analysis.md",
@@ -14734,6 +14984,37 @@
         "req": []
       },
       "rendered_url": "rendered/reviews/ONTOLOGICAL_CLASSIFICATION_ARCHITECTURE_REVIEW.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Code Review: Duplicate Definition Handling Architecture",
+      "path": "../reviews/duplicate-constraint-architecture-review.md",
+      "url": "../reviews/duplicate-constraint-architecture-review.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/reviews/duplicate-constraint-architecture-review.html"
     },
     {
       "id": null,
@@ -77212,21 +77493,271 @@
         "req": []
       },
       "rendered_url": "rendered/planning/daily-updates/epic-026-timeline-reassessment.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Quick Fix Checklist - DEF-138 Bug Hunt",
+      "path": "../backlog/EPIC-138/QUICK-FIX-CHECKLIST.md",
+      "url": "../backlog/EPIC-138/QUICK-FIX-CHECKLIST.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-138",
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-138/QUICK-FIX-CHECKLIST.html"
+    },
+    {
+      "id": null,
+      "type": "BUG",
+      "title": "Bug Hunt Summary - DEF-138 + General Codebase",
+      "path": "../backlog/EPIC-138/BUG-HUNT-SUMMARY.md",
+      "url": "../backlog/EPIC-138/BUG-HUNT-SUMMARY.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 3
+      },
+      "parent_epic": "EPIC-138",
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [
+          "EPIC-138"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-138/BUG-HUNT-SUMMARY.html"
+    },
+    {
+      "id": null,
+      "type": "BUG",
+      "title": "BUG-138-001: False Positive Classifier Bug - Action Plan",
+      "path": "../backlog/EPIC-138/BUG-138-001-ACTION-PLAN.md",
+      "url": "../backlog/EPIC-138/BUG-138-001-ACTION-PLAN.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 3
+      },
+      "parent_epic": "EPIC-138",
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-138/BUG-138-001-ACTION-PLAN.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "DEF-138: Category Mismatch Debugging Playbook",
+      "path": "../backlog/EPIC-XXX/DEF-138/DEBUGGING_PLAYBOOK.md",
+      "url": "../backlog/EPIC-XXX/DEF-138/DEBUGGING_PLAYBOOK.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-XXX/DEF-138/DEBUGGING_PLAYBOOK.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "DEF-138: Investigation Summary - Category Mismatch Bug",
+      "path": "../backlog/EPIC-XXX/DEF-138/INVESTIGATION_SUMMARY.md",
+      "url": "../backlog/EPIC-XXX/DEF-138/INVESTIGATION_SUMMARY.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-XXX/DEF-138/INVESTIGATION_SUMMARY.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "DEF-138: UNIQUE INDEX Removal - Executive Summary",
+      "path": "../backlog/EPIC-XXX/DEF-138/EXECUTIVE_SUMMARY.md",
+      "url": "../backlog/EPIC-XXX/DEF-138/EXECUTIVE_SUMMARY.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-XXX/DEF-138/EXECUTIVE_SUMMARY.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "DEF-138: Root Cause Analysis - Ontological Category Mismatch",
+      "path": "../backlog/EPIC-XXX/DEF-138/ROOT_CAUSE_ANALYSIS.md",
+      "url": "../backlog/EPIC-XXX/DEF-138/ROOT_CAUSE_ANALYSIS.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-XXX/DEF-138/ROOT_CAUSE_ANALYSIS.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "DEF-138: UNIQUE INDEX Removal Impact Analysis",
+      "path": "../backlog/EPIC-XXX/DEF-138/DEF-138-UNIQUE-INDEX-REMOVAL-ANALYSIS.md",
+      "url": "../backlog/EPIC-XXX/DEF-138/DEF-138-UNIQUE-INDEX-REMOVAL-ANALYSIS.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-XXX/DEF-138/DEF-138-UNIQUE-INDEX-REMOVAL-ANALYSIS.html"
     }
   ],
   "aggregate": {
     "counts": {
-      "DOC": 1215,
+      "DOC": 1229,
       "ARCH": 42,
       "COMP": 5,
-      "TEST": 36,
+      "TEST": 37,
       "GUIDE": 20,
       "EPIC": 58,
       "US": 616,
-      "BUG": 45,
+      "BUG": 47,
       "REQ": 115
     },
-    "generated_at": "2025-11-10T07:42:55Z"
+    "generated_at": "2025-11-10T13:01:05Z"
   },
   "sources": [
     "docs"

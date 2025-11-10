@@ -770,18 +770,21 @@ class DefinitieRepository:
         matches = []
 
         with self._get_connection() as conn:
-            # Build exact match query with optional categorie filter
+            # Build exact match query - MUST match all 5 fields:
+            # begrip + organisatorische_context + juridische_context + wettelijke_basis + categorie
+            # (DEF-138: Replaces removed UNIQUE INDEX with application-level check)
+            # Use COALESCE to normalize NULL/''/None to empty string for exact comparison
             exact_query = """
                 SELECT * FROM definities
-                WHERE begrip = ? AND organisatorische_context = ?
-                AND (juridische_context = ? OR (juridische_context IS NULL AND ? = ''))
+                WHERE begrip = ?
+                AND organisatorische_context = ?
+                AND COALESCE(juridische_context, '') = COALESCE(?, '')
                 AND status != 'archived'
             """
             exact_params = [
                 begrip,
                 organisatorische_context,
-                juridische_context,
-                juridische_context,
+                juridische_context or "",  # Normalize None to ''
             ]
 
             # Add categorie filter if provided
@@ -810,7 +813,7 @@ class DefinitieRepository:
                     )
                 )
 
-            # Exact synoniem‑match (case-insensitive) — zelfde contextfilters
+            # Exact synoniem‑match (case-insensitive) — same exact match logic for juridische_context
             syn_query = """
                 SELECT d.*
                 FROM definities d
@@ -819,14 +822,13 @@ class DefinitieRepository:
                   AND v.voorbeeld_type = 'synonyms'
                   AND v.actief = TRUE
                   AND d.organisatorische_context = ?
-                  AND (d.juridische_context = ? OR (d.juridische_context IS NULL AND ? = ''))
+                  AND COALESCE(d.juridische_context, '') = COALESCE(?, '')
                   AND d.status != 'archived'
             """
             syn_params = [
                 begrip,
                 organisatorische_context,
-                juridische_context,
-                juridische_context,
+                juridische_context or "",  # Normalize None to ''
             ]
 
             # Add categorie filter if provided
@@ -855,13 +857,20 @@ class DefinitieRepository:
                 )
 
             # Fuzzy match op begrip (alleen als geen exact match)
+            # MOET dezelfde context filters gebruiken als EXACT match (DEF-138 fix)
             if not matches:
                 fuzzy_query = """
                     SELECT * FROM definities
-                    WHERE begrip LIKE ? AND organisatorische_context = ?
+                    WHERE begrip LIKE ?
+                    AND organisatorische_context = ?
+                    AND COALESCE(juridische_context, '') = COALESCE(?, '')
                     AND status != 'archived'
                 """
-                fuzzy_params = [f"%{begrip}%", organisatorische_context]
+                fuzzy_params = [
+                    f"%{begrip}%",
+                    organisatorische_context,
+                    juridische_context or "",
+                ]
 
                 # Add categorie filter if provided
                 if categorie is not None:

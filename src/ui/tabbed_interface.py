@@ -258,6 +258,12 @@ class TabbedInterface:
                 wet_context="",  # Wettelijke context: optioneel via UI uitbreiding
             )
 
+            # DEF-138: Defensive None check
+            if result is None:
+                raise RuntimeError(
+                    f"Classifier returned None voor '{begrip}'. Dit duidt op een interne fout."
+                )
+
             logger.info(
                 f"Ontologische classificatie voor '{begrip}': {result.categorie.value} "
                 f"(scores: {result.test_scores})"
@@ -673,8 +679,14 @@ class TabbedInterface:
                         "RESULTAAT": OntologischeCategorie.RESULTAAT,
                         "EXEMPLAAR": OntologischeCategorie.EXEMPLAAR,
                     }
+                    # DEF-138 FIX: uppercase determined_category voor case-insensitive match
                     auto_categorie = category_map.get(
-                        determined_category, OntologischeCategorie.PROCES
+                        (
+                            determined_category.upper()
+                            if determined_category
+                            else "PROCES"
+                        ),
+                        OntologischeCategorie.PROCES,
                     )
                     category_reasoning = SessionStateManager.get_value(
                         "category_reasoning", ""
