@@ -120,6 +120,11 @@ class DefinitieRecord:
     last_exported_at: datetime | None = None  # Laatste export datum
     export_destinations: str | None = None  # JSON string met export bestemmingen
 
+    # Generation Prompt Storage (DEF-151) - Stores complete prompt used for AI generation
+    generation_prompt_data: str | None = (
+        None  # JSON string met prompt, model, tokens, etc.
+    )
+
     # Deprecated (aanwezig in sommige databases, niet meer gebruikt)
     voorkeursterm_is_begrip: bool | None = None
 
@@ -384,6 +389,7 @@ class DefinitieRepository:
             "approval_notes",
             "last_exported_at",
             "export_destinations",
+            "generation_prompt_data",
         ]
 
         values: list[Any] = [
@@ -413,6 +419,7 @@ class DefinitieRepository:
             record.approval_notes,
             record.last_exported_at,
             record.export_destinations,
+            record.generation_prompt_data,
         ]
 
         if include_legacy:
