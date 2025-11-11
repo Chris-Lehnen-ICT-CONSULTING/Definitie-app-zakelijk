@@ -1395,6 +1395,11 @@ class DefinitieRepository:
                 else None
             ),
             export_destinations=row["export_destinations"],
+            generation_prompt_data=(
+                row["generation_prompt_data"]
+                if "generation_prompt_data" in _keys
+                else None
+            ),
         )
 
     def _log_geschiedenis(

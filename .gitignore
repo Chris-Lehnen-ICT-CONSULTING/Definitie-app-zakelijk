@@ -112,6 +112,9 @@ backups/
 backup/
 *_backup_*/
 docs/archief_backup_*/
+# Database backups (can be very large!)
+data/*.backup*
+data/*.db.backup*
 
 # 💚 Archives and QA locations (ignored)
 archive/
