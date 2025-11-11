@@ -7596,6 +7596,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "DEF-101 EXECUTIVE DECISION BRIEF",
+      "path": "../analyses/DEF-101_EXECUTIVE_DECISION_BRIEF.md",
+      "url": "../analyses/DEF-101_EXECUTIVE_DECISION_BRIEF.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/DEF-101_EXECUTIVE_DECISION_BRIEF.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "COMPLEXITY HEATMAP - VISUAL ANALYSIS",
       "path": "../analyses/COMPLEXITY_HEATMAP.md",
       "url": "../analyses/COMPLEXITY_HEATMAP.md",
@@ -8158,6 +8189,71 @@
         "req": []
       },
       "rendered_url": "rendered/analyses/MASTER_IMPROVEMENT_PLAN.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "DEF-101 ULTRATHINK VIABILITY ANALYSIS",
+      "path": "../analyses/DEF-101_ULTRATHINK_VIABILITY_ANALYSIS.md",
+      "url": "../analyses/DEF-101_ULTRATHINK_VIABILITY_ANALYSIS.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [
+          "EPIC-016",
+          "EPIC-017"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/DEF-101_ULTRATHINK_VIABILITY_ANALYSIS.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "DEF-101 DECISION FLOWCHART",
+      "path": "../analyses/DEF-101_DECISION_FLOWCHART.md",
+      "url": "../analyses/DEF-101_DECISION_FLOWCHART.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/DEF-101_DECISION_FLOWCHART.html"
     },
     {
       "id": null,
@@ -8837,6 +8933,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "DEF-XXX: Voorbeelden Save Failure - Quick Reference",
+      "path": "../analyses/DEF-XXX_VOORBEELDEN_SAVE_FAILURE_QUICK_REFERENCE.md",
+      "url": "../analyses/DEF-XXX_VOORBEELDEN_SAVE_FAILURE_QUICK_REFERENCE.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/DEF-XXX_VOORBEELDEN_SAVE_FAILURE_QUICK_REFERENCE.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Web Lookup Provider Failure Analysis",
       "path": "../analyses/web-lookup-provider-failure-analysis.md",
       "url": "../analyses/web-lookup-provider-failure-analysis.md",
@@ -9247,6 +9374,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "DEF-101 EPIC VIABILITY ANALYSIS - Document Index",
+      "path": "../analyses/DEF-101_ANALYSIS_INDEX.md",
+      "url": "../analyses/DEF-101_ANALYSIS_INDEX.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/DEF-101_ANALYSIS_INDEX.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "ServiceContainer Fix - Implementation Guide",
       "path": "../analyses/CONTAINER_FIX_IMPLEMENTATION.md",
       "url": "../analyses/CONTAINER_FIX_IMPLEMENTATION.md",
@@ -9470,6 +9628,37 @@
         "req": []
       },
       "rendered_url": "rendered/analyses/REGRESSION_SUMMARY_2025-11-06.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "ULTRATHINK ANALYSIS: DEF-110 Causality Investigation",
+      "path": "../analyses/DEF-XXX_DEF110_CAUSALITY_ULTRATHINK.md",
+      "url": "../analyses/DEF-XXX_DEF110_CAUSALITY_ULTRATHINK.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/DEF-XXX_DEF110_CAUSALITY_ULTRATHINK.html"
     },
     {
       "id": null,
@@ -11318,6 +11507,37 @@
         "req": []
       },
       "rendered_url": "rendered/analyses/PRAKTIJKVOORBEELDEN_TIMEOUT_ANALYSIS.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "DEF-XXX: Root Cause Analysis - Voorbeelden Save Failure",
+      "path": "../analyses/DEF-XXX_VOORBEELDEN_SAVE_FAILURE_ROOT_CAUSE.md",
+      "url": "../analyses/DEF-XXX_VOORBEELDEN_SAVE_FAILURE_ROOT_CAUSE.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/DEF-XXX_VOORBEELDEN_SAVE_FAILURE_ROOT_CAUSE.html"
     },
     {
       "id": null,
@@ -78121,7 +78341,7 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 1241,
+      "DOC": 1248,
       "ARCH": 42,
       "COMP": 5,
       "TEST": 37,
@@ -78131,7 +78351,7 @@
       "BUG": 47,
       "REQ": 115
     },
-    "generated_at": "2025-11-11T14:36:57Z"
+    "generated_at": "2025-11-11T16:24:57Z"
   },
   "sources": [
     "docs"
