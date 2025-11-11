@@ -1,0 +1,1472 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DEF-101 ULTRATHINK VIABILITY ANALYSIS</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>DEF-101 ULTRATHINK VIABILITY ANALYSIS</h1>
+<p><strong>Comprehensive Assessment: Continue, Pivot, or Cancel?</strong></p>
+
+<p><strong>Document Version:</strong> 1.0</p>
+<p><strong>Date:</strong> 2025-11-11</p>
+<p><strong>Analyst:</strong> Debug Specialist (Claude Code)</p>
+<p><strong>Status:</strong> ✅ ANALYSIS COMPLETE</p>
+
+<p>---</p>
+
+<h2>🎯 EXECUTIVE SUMMARY</h2>
+
+<p><strong>The Core Question:</strong></p>
+<p>Given that DEF-138 (ontological contradictions) and DEF-102 partial (3/5 contradictions) are DONE, does the remaining DEF-101 EPIC work still deliver sufficient value?</p>
+
+<h3>Quick Verdict: **OPTION B - PIVOT TO "DEF-101 LITE"** ✅</h3>
+
+<p><strong>Rationale:</strong></p>
+<ul>
+<li>**DEF-138 + DEF-102 solved CONTRADICTIONS** (4/5 critical issues) → System now USABLE</li>
+<li>**Token reduction opportunity REMAINS** (~35% reduction still achievable: 7,000 → 4,550 tokens)</li>
+<li>**Highest ROI items still valuable**: DEF-123 (context-aware loading -25%), DEF-106 (validator)</li>
+<li>**Lower ROI items skippable**: DEF-104 (flow), DEF-105 (badges), DEF-126 (tone - partially done)</li>
+<li>**Planning investment**: 2,985 lines docs, 11-day timeline → **reuse for focused execution**</li>
+</ul>
+
+<p><strong>Recommended Scope (DEF-101 Lite):</strong></p>
+<ol>
+<li>✅ **DEF-106: PromptValidator** (3h) - NOW MORE IMPORTANT (detect DEF-138 regressions)</li>
+<li>✅ **DEF-123: Context-Aware Loading** (5h) - BIGGEST TOKEN WIN (-25%)</li>
+<li>✅ **DEF-103: Cognitive Load** (2h) - STILL 42 PATTERNS (categorization valuable)</li>
+</ol>
+
+<p><strong>Total Effort:</strong> 10 hours (down from 28h full plan)</p>
+<p><strong>Expected Impact:</strong> -28% tokens (~5,000 final), regression prevention, manageable cognitive load</p>
+<p><strong>Skip:</strong> DEF-104 (flow), DEF-105 (badges), DEF-107 (partial - DEF-138 added tests), DEF-124 (caching), DEF-126 (tone - partially obsoleted)</p>
+
+<p>---</p>
+
+<h2>📊 SECTION 1: IMPACT CHAIN ANALYSIS</h2>
+
+<p><strong>Question:</strong> Does DEF-138 completion change the value proposition of the remaining 8 DEF-101 issues?</p>
+
+<h3>DEF-102: Fix 5 Blocking Contradictions</h3>
+
+<p><strong>Original Status:</strong> 3h effort, HIGH priority (system unusable)</p>
+<p><strong>Current Status:</strong> 🟡 <strong>80% DONE</strong> (4/5 contradictions resolved)</p>
+
+<p><strong>What Was Completed:</strong></p>
+<ul>
+<li>✅ Contradiction #1 (Resolved Nov 5): ESS-02 "is een" pattern now allowed for ontological markers</li>
+<li>✅ Contradiction #2 (Resolved Nov 10): Removed 'proces'/'activiteit' from forbidden container terms</li>
+<li>✅ Contradiction #3 (Resolved Nov 10): Removed blanket relative clause prohibition ('waarbij', 'die', 'waarin' now allowed)</li>
+<li>✅ Contradiction #4 (Implied): Cross-module consistency ensured by DEF-138 linguistic clarifications</li>
+</ul>
+
+<p><strong>What Remains:</strong></p>
+<ul>
+<li>⚠️ Contradiction #5: Context usage paradox (93% pass rate - LOW PRIORITY)</li>
+<li> - Verdict: "Nice-to-have enhancement, NOT critical" (DEF-102_CONTRADICTION_5_FINAL_VERDICT.md)</li>
+<li> - Option A: Minimal fix (30 min) - ban "context" word → 98% pass</li>
+<li> - Option B: Full 3-mechanisms (2-3h) - aspirational 99%</li>
+<li> - Recommendation: Option C (No Action) or Option A when convenient</li>
+</ul>
+
+<p><strong>DEF-138 Impact:</strong> ✅ <strong>CRITICAL</strong> - DEF-138 did the heavy lifting for contradictions</p>
+<ul>
+<li>Clarified TYPE category (no meta-words: 'soort', 'type', 'categorie')</li>
+<li>Clarified PROCES linguistic status ('activiteit', 'handeling', 'proces' are NOUNS, not verbs)</li>
+<li>Added 13 edge case tests validating ontological patterns</li>
+</ul>
+
+<p><strong>Remaining Value:</strong> ⚠️ <strong>LOW</strong> - Only Contradiction #5 remains, already 93% working</p>
+<p><strong>Effort Saved:</strong> 2.5h (only need 30 min for Option A minimal fix)</p>
+
+<p>---</p>
+
+<h3>DEF-103: Reduce Cognitive Load (42 patterns → 7 categories)</h3>
+
+<p><strong>Original Scope:</strong> 2h effort, -750 tokens</p>
+<p><strong>Current Status:</strong> ❌ NOT DONE</p>
+
+<p><strong>What DEF-138 Changed:</strong></p>
+<ul>
+<li>DEF-138 clarified TYPE category (no meta-words) → **1 pattern now clearer**</li>
+<li>Still have **41 other forbidden patterns** needing categorization</li>
+<li>Example: error_prevention_module.py lines 156-191 lists 36 forbidden starters</li>
+</ul>
+
+<p><strong>DEF-138 Impact:</strong> ⚠️ <strong>MINIMAL</strong> - Only addressed 1 of 42 patterns</p>
+<p><strong>Remaining Value:</strong> ✅ <strong>HIGH</strong> - Still 41 patterns causing cognitive overload</p>
+<p><strong>Recommendation:</strong> ✅ <strong>KEEP</strong> (P1 - Medium Priority)</p>
+
+<p><strong>Updated Estimate:</strong></p>
+<ul>
+<li>Effort: 2h (unchanged)</li>
+<li>Token reduction: ~400 tokens (categorization reduces verbosity)</li>
+<li>Expected outcome: 42 patterns → 7 categories (ARAI, CON, ESS, INT, SAM, STR, VER)</li>
+</ul>
+
+<p>---</p>
+
+<h3>DEF-104: Reorganize Flow (Inverted Pyramid)</h3>
+
+<p><strong>Original Scope:</strong> 3h effort, -800 tokens, better UX</p>
+<p><strong>Current Status:</strong> ❌ NOT DONE</p>
+
+<p><strong>What DEF-138 Changed:</strong></p>
+<ul>
+<li>DEF-138 made TYPE/PROCES categories clearer, but **flow structure unchanged**</li>
+<li>Current structure: Still mixed priority (high/medium/low scattered across modules)</li>
+<li>Module order: Still hardcoded in prompt_orchestrator.py `_get_default_module_order()`</li>
+</ul>
+
+<p><strong>DEF-138 Impact:</strong> ⚠️ <strong>NONE</strong> - Orthogonal concern (content clarity ≠ structure reorganization)</p>
+<p><strong>Remaining Value:</strong> 🟡 <strong>MEDIUM</strong> - UX improvement, not critical</p>
+<p><strong>Recommendation:</strong> ❌ <strong>SKIP</strong> (P2 - Nice-to-Have, defer to later)</p>
+
+<p><strong>Rationale for Skipping:</strong></p>
+<ul>
+<li>Low ROI: 3h effort for UX improvement (not core quality)</li>
+<li>Depends on other changes: Better to do AFTER DEF-123 (context-aware loading changes structure)</li>
+<li>Can be addressed in future optimization cycle</li>
+</ul>
+
+<p>---</p>
+
+<h3>DEF-105: Visual Hierarchy (Priority Badges)</h3>
+
+<p><strong>Original Scope:</strong> 2h effort, better readability</p>
+<p><strong>Current Status:</strong> ❌ NOT DONE</p>
+
+<p><strong>What DEF-138 Changed:</strong></p>
+<ul>
+<li>DEF-138 didn't add any visual hierarchy elements</li>
+<li>Still no way to quickly scan for CRITICAL vs OPTIONAL rules</li>
+</ul>
+
+<p><strong>DEF-138 Impact:</strong> ⚠️ <strong>NONE</strong> - Independent feature</p>
+<p><strong>Remaining Value:</strong> 🟡 <strong>LOW</strong> - Nice-to-have, not blocking</p>
+<p><strong>Recommendation:</strong> ❌ <strong>SKIP</strong> (P3 - Optional, lowest ROI)</p>
+
+<p><strong>Rationale for Skipping:</strong></p>
+<ul>
+<li>Lowest impact: Visual enhancement, doesn't affect generation quality</li>
+<li>Time better spent on token reduction (DEF-123) and quality gates (DEF-106)</li>
+<li>Can be quick win in future if needed</li>
+</ul>
+
+<p>---</p>
+
+<h3>DEF-106: PromptValidator (Regression Prevention)</h3>
+
+<p><strong>Original Scope:</strong> 2h effort, automated QA checks</p>
+<p><strong>Current Status:</strong> ❌ NOT DONE</p>
+
+<p><strong>What DEF-138 Changed:</strong></p>
+<ul>
+<li>DEF-138 actually **INCREASES** the need for this!</li>
+<li>Why? Now we have **specific patterns to enforce**:</li>
+<li> - TYPE category: MUST NOT contain meta-words ('soort', 'type', 'categorie')</li>
+<li> - PROCES category: MUST use NOUN forms ('activiteit', 'handeling', 'proces')</li>
+<li> - ESS-02 exceptions: MUST allow ontological markers while blocking vague patterns</li>
+</ul>
+
+<p><strong>DEF-138 Impact:</strong> ✅ <strong>INCREASES VALUE</strong> - Regression prevention now CRITICAL</p>
+<p><strong>Remaining Value:</strong> ✅ <strong>VERY HIGH</strong> - Protect DEF-138/102 investments</p>
+<p><strong>Recommendation:</strong> ✅ <strong>KEEP</strong> (P0 - Highest Priority)</p>
+
+<p><strong>Updated Estimate:</strong></p>
+<ul>
+<li>Effort: **3h** (increased from 2h - need to add DEF-138 pattern validation)</li>
+<li>Must validate:</li>
+<li> - No meta-words in TYPE category prompts</li>
+<li> - ESS-02 exception clauses consistent across all 5 modules</li>
+<li> - Container term exemptions working correctly (DEF-102)</li>
+<li> - Relative clause guidance not conflicting (DEF-102)</li>
+</ul>
+
+<p><strong>Implementation:</strong></p>
+<pre><code># New validation checks needed
+def validate_type_category_no_meta_words(prompt: str) -&gt; bool:
+    """Ensure TYPE category doesn't use 'soort', 'type', 'categorie'."""
+
+def validate_ess02_exception_consistency(modules: list) -&gt; bool:
+    """Check ESS-02 exceptions don't conflict with STR-01, ARAI-01."""
+
+def validate_container_exemptions(prompt: str) -&gt; bool:
+    """Verify 'proces'/'activiteit' allowed only in ontological contexts."""</code></pre>
+
+<p>---</p>
+
+<h3>DEF-107: Documentation & Testing</h3>
+
+<p><strong>Original Scope:</strong> 4h effort, golden reference set, regression tests</p>
+<p><strong>Current Status:</strong> 🟡 <strong>PARTIALLY DONE</strong> by DEF-138</p>
+
+<p><strong>What DEF-138 Delivered:</strong></p>
+<ul>
+<li>✅ **13 new edge case tests** added (tests/test_def138_edge_cases.py)</li>
+<li>✅ **Database migration tests** added (tests/database/test_migration_009_versioning.py)</li>
+<li>✅ **Performance tests** added (tests/test_def138_performance.py)</li>
+<li>✅ **Extensive documentation** added (6,643 lines across 21 files)</li>
+</ul>
+
+<p><strong>What Remains:</strong></p>
+<ul>
+<li>❌ **Prompt module documentation** (no comprehensive docs for each module)</li>
+<li>❌ **Golden reference set** for prompt testing (no `tests/fixtures/golden_definitions.json`)</li>
+<li>❌ **Regression tests for prompt changes** (DEF-138 tests are for classification, not prompts)</li>
+</ul>
+
+<p><strong>DEF-138 Impact:</strong> ✅ <strong>SIGNIFICANT</strong> - Reduced scope by ~50%</p>
+<p><strong>Remaining Value:</strong> 🟡 <strong>MEDIUM</strong> - Documentation valuable, but not blocking</p>
+<p><strong>Recommendation:</strong> 🟡 <strong>PARTIAL</strong> (P1 - Do lightweight version, 2h instead of 4h)</p>
+
+<p><strong>Updated Estimate:</strong></p>
+<ul>
+<li>Effort: **2h** (reduced from 4h - DEF-138 covered testing, only docs remain)</li>
+<li>Focus on:</li>
+<li> - Prompt module README (how modules work together)</li>
+<li> - Golden reference set (20 definitions for A/B testing)</li>
+<li> - Skip: Comprehensive test coverage (DEF-138 already added 13 tests)</li>
+</ul>
+
+<p>---</p>
+
+<h3>DEF-123: Context-Aware Module Loading (-25% tokens)</h3>
+
+<p><strong>Original Scope:</strong> 5h effort, -1,750 tokens (BIGGEST win)</p>
+<p><strong>Current Status:</strong> ❌ NOT DONE</p>
+
+<p><strong>What DEF-138 Changed:</strong></p>
+<ul>
+<li>DEF-138 cleaned up TYPE/PROCES content, but **loading strategy unchanged**</li>
+<li>Still loading **ALL 19 modules** for EVERY definition regardless of context</li>
+<li>Current modules: ARAI, CON, ESS (semantic), INT, SAM, STR, VER + 12 supporting modules</li>
+</ul>
+
+<p><strong>DEF-138 Impact:</strong> ⚠️ <strong>NONE</strong> - Orthogonal concern (content ≠ loading strategy)</p>
+<p><strong>Remaining Value:</strong> ✅ <strong>VERY HIGH</strong> - Biggest remaining token reduction opportunity</p>
+<p><strong>Recommendation:</strong> ✅ <strong>KEEP</strong> (P0 - Highest Priority alongside DEF-106)</p>
+
+<p><strong>Current Token Waste:</strong></p>
+<pre><code># Current behavior (prompt_orchestrator.py)
+def generate_prompt(term, context):
+    # ALWAYS loads ALL 19 modules
+    modules = [
+        arai_rules,           # Always loaded
+        con_rules,            # Always loaded
+        ess_rules,            # Always loaded
+        integrity_rules,      # Always loaded
+        sam_rules,            # Always loaded
+        structure_rules,      # Always loaded
+        ver_rules,            # Always loaded
+        # + 12 supporting modules
+    ]
+    # Result: ~7,000 tokens per prompt</code></pre>
+
+<p><strong>Proposed Context-Aware Loading:</strong></p>
+<pre><code># Proposed behavior
+def generate_prompt(term, context):
+    # BASE modules (always): 6 modules (~2,000 tokens)
+    base_modules = [
+        definition_task,      # What to do
+        expertise,            # Domain knowledge
+        semantic_categorisation,  # ESS-02 (category-specific)
+        template,             # Category templates
+        output_specification, # Format
+        error_prevention,     # Forbidden patterns (context-aware)
+    ]
+
+    # CONDITIONAL validation rules: Only if relevant (save ~2,500 tokens)
+    # Example: juridische_context="Wetboek van Strafvordering"
+    if has_context(context, "juridical"):
+        validation_modules.append(con_rules)  # Consistency (context references)
+        validation_modules.append(ver_rules)  # Verification (legal basis)
+
+    if ontological_category == "proces":
+        validation_modules.append(sam_rules)  # Samenhang (process coherence)
+
+    if has_examples(context):
+        validation_modules.append(integrity_rules)  # Example integration
+
+    # ALWAYS needed for quality
+    validation_modules.append(arai_rules)      # Abstractie (universality)
+    validation_modules.append(structure_rules) # Structure (STR-01)
+
+    # Result: 6 base + 3-5 conditional = 9-11 modules (~4,500 tokens)</code></pre>
+
+<p><strong>Expected Impact:</strong></p>
+<ul>
+<li>Token reduction: 7,000 → 4,500 tokens (**-35%** from current state)</li>
+<li>Modules loaded: 19 → 9-11 (conditional based on context)</li>
+<li>Quality: Same or better (only relevant rules shown → less confusion)</li>
+</ul>
+
+<p>---</p>
+
+<h3>DEF-124: Static Module Caching (+40% speed)</h3>
+
+<p><strong>Original Scope:</strong> 2h effort, 40% performance boost</p>
+<p><strong>Current Status:</strong> ❌ NOT DONE</p>
+
+<p><strong>What DEF-138 Changed:</strong></p>
+<ul>
+<li>DEF-138 didn't change caching strategy</li>
+<li>Performance opportunity unchanged</li>
+</ul>
+
+<p><strong>DEF-138 Impact:</strong> ⚠️ <strong>NONE</strong> - Orthogonal concern</p>
+<p><strong>Remaining Value:</strong> 🟡 <strong>MEDIUM</strong> - Performance improvement, not quality</p>
+<p><strong>Recommendation:</strong> ❌ <strong>SKIP</strong> (P2 - Defer to later optimization cycle)</p>
+
+<p><strong>Rationale for Skipping:</strong></p>
+<ul>
+<li>Lower priority: Performance is acceptable (< 5 sec generation time)</li>
+<li>Time better spent on token reduction (DEF-123) and quality gates (DEF-106)</li>
+<li>Can be addressed after DEF-123 (context-aware loading changes caching needs)</li>
+</ul>
+
+<p>---</p>
+
+<h3>DEF-126: Transform Rules to Instructions (Tone)</h3>
+
+<p><strong>Original Scope:</strong> 5h effort, better generation quality</p>
+<p><strong>Current Status:</strong> 🟡 <strong>PARTIALLY DONE</strong> by DEF-138</p>
+
+<p><strong>What DEF-138 Changed:</strong></p>
+<ul>
+<li>✅ DEF-138 **transformed TYPE/PROCES categories** to instruction tone:</li>
+<li> - TYPE: "Begin DIRECT met het kernwoord, NIET met meta-woorden!" (imperative)</li>
+<li> - PROCES: "De kick-off termen zijn ZELFSTANDIGE NAAMWOORDEN" (declarative instruction)</li>
+<li>❌ Other modules **still rule-heavy**: VER, STR, INT, CON, SAM, ARAI use "check X" language</li>
+</ul>
+
+<p><strong>Example Comparison:</strong></p>
+
+<p><strong>BEFORE (Rule Tone):</strong></p>
+<pre><code># str_rules_module.py (still unchanged)
+"STR-01: De definitie moet beginnen met een zelfstandig naamwoord.
+CHECK: Is het eerste woord een zelfstandig naamwoord?
+VALIDATIE: Bij detectie van lidwoord of werkwoord → FAIL"</code></pre>
+
+<p><strong>AFTER DEF-138 (Instruction Tone - semantic_categorisation_module.py):</strong></p>
+<pre><code># semantic_categorisation_module.py (already transformed)
+"**TYPE CATEGORIE - Begin met het ZELFSTANDIG NAAMWOORD:**
+⚠️ BELANGRIJK: Begin DIRECT met het kernwoord, NIET met meta-woorden!
+STRUCTUUR van je definitie:
+1. Start: [Zelfstandig naamwoord van de klasse]
+2. Vervolg: [die/dat/met] [onderscheidend kenmerk]"</code></pre>
+
+<p><strong>DEF-138 Impact:</strong> ✅ <strong>SIGNIFICANT</strong> - Partially addresses this issue (TYPE/PROCES done)</p>
+<p><strong>Remaining Value:</strong> 🟡 <strong>MEDIUM</strong> - Other modules still need transformation</p>
+<p><strong>Recommendation:</strong> 🟡 <strong>PARTIAL</strong> (P2 - Reduced scope, 2h instead of 5h)</p>
+
+<p><strong>Updated Estimate:</strong></p>
+<ul>
+<li>Effort: **2h** (reduced from 5h - TYPE/PROCES already done, only 5 modules remain)</li>
+<li>Modules to transform: VER, STR, INT, CON, SAM (ARAI is abstract, less critical)</li>
+<li>Skip: ARAI (already fairly instructional), semantic (done by DEF-138)</li>
+</ul>
+
+<p>---</p>
+
+<h2>📊 SECTION 2: TOKEN REDUCTION RECALCULATION</h2>
+
+<p><strong>Question:</strong> What's the ACTUAL token reduction opportunity NOW that contradictions are solved?</p>
+
+<h3>Original Baseline (Pre-DEF-138)</h3>
+
+<p><strong>Total Prompt Tokens:</strong> ~7,250 tokens</p>
+<p><strong>Breakdown (estimated):</strong></p>
+<ul>
+<li>Base ESS-02 section: ~400 tokens (with meta-word warnings, verbose)</li>
+<li>7 validation rule modules: ~3,500 tokens (ARAI, CON, ESS, INT, SAM, STR, VER)</li>
+<li>Supporting modules: ~2,500 tokens (task, expertise, template, grammar, metrics, etc.)</li>
+<li>Error prevention: ~850 tokens (42 forbidden patterns, context-specific bans)</li>
+</ul>
+
+<p>---</p>
+
+<h3>Current State (Post-DEF-138 + DEF-102)</h3>
+
+<p><strong>Estimated Current Tokens:</strong> ~6,900-7,000 tokens</p>
+
+<p><strong>DEF-138 Impact (Token Savings):</strong></p>
+<ul>
+<li>TYPE category: Removed meta-word bloat (longer warnings) → **~80 tokens saved**</li>
+<li>PROCES category: Clarified noun status (less explanation needed) → **~50 tokens saved**</li>
+<li>Total DEF-138 savings: **~130 tokens** (1.8% reduction)</li>
+</ul>
+
+<p><strong>DEF-102 Impact (Token Savings):</strong></p>
+<ul>
+<li>Contradiction #1: Simplified ESS-02 "is een" exception → **~80 tokens saved**</li>
+<li>Contradiction #2: Removed 'proces'/'activiteit' from forbidden list → **~40 tokens saved**</li>
+<li>Contradiction #3: Simplified relative clause guidance → **~50 tokens saved**</li>
+<li>Total DEF-102 savings: **~170 tokens** (2.4% reduction)</li>
+</ul>
+
+<p><strong>Combined Savings:</strong> ~300 tokens (4.2% reduction from original)</p>
+
+<p><strong>Current Estimated Token Count:</strong> 7,250 - 300 = <strong>~6,950 tokens</strong></p>
+
+<p>---</p>
+
+<h3>Remaining Opportunity (DEF-101 Issues)</h3>
+
+<p><strong>If All Remaining Issues Implemented:</strong></p>
+
+<p>| Issue | Estimated Token Savings | Rationale |</p>
+<p>|-------|------------------------|-----------|</p>
+<p>| DEF-103 (Cognitive Load) | -400 tokens | 42 patterns → 7 categories (less verbosity) |</p>
+<p>| DEF-104 (Flow) | -300 tokens | Eliminate redundancy (inverted pyramid) |</p>
+<p>| DEF-123 (Context-Aware) | -2,000 tokens | Load 9-11 modules instead of 19 (biggest win!) |</p>
+<p>| DEF-126 (Tone) | -200 tokens | Instruction style shorter than rule style (partial - 5 modules remain) |</p>
+<p>| <strong>TOTAL REMAINING</strong> | <strong>-2,900 tokens</strong> | From 6,950 → 4,050 tokens |</p>
+
+<p><strong>Full Plan B Target:</strong> 6,950 → 4,050 tokens (<strong>-42% from current</strong>, -44% from original)</p>
+
+<p>---</p>
+
+<h3>DEF-101 Lite Opportunity (Recommended)</h3>
+
+<p><strong>Lite Scope:</strong> DEF-106 (validator - no token impact) + DEF-123 (context-aware) + DEF-103 (cognitive load)</p>
+
+<p>| Issue | Estimated Token Savings | Rationale |</p>
+<p>|-------|------------------------|-----------|</p>
+<p>| DEF-106 (Validator) | 0 tokens | Quality gate, no prompt changes |</p>
+<p>| DEF-123 (Context-Aware) | -2,000 tokens | Conditional module loading (19 → 9-11) |</p>
+<p>| DEF-103 (Cognitive Load) | -400 tokens | Categorization reduces verbosity |</p>
+<p>| <strong>DEF-101 LITE TOTAL</strong> | <strong>-2,400 tokens</strong> | From 6,950 → 4,550 tokens |</p>
+
+<p><strong>Lite Plan Target:</strong> 6,950 → 4,550 tokens (<strong>-34.5% from current</strong>, -37% from original)</p>
+
+<p>---</p>
+
+<h3>Updated Token Reduction Claim</h3>
+
+<p><strong>Original Claim (Plan B Spec):</strong> -63% (7,250 → 2,650)</p>
+<p><strong>Reality Check:</strong> ⚠️ <strong>TOO AGGRESSIVE</strong></p>
+
+<p><strong>Why Original Was Over-Optimistic:</strong></p>
+<ul>
+<li>Assumed NO prior token reduction (but DEF-138/102 already saved 300)</li>
+<li>Assumed context-aware could eliminate 50% of modules (reality: 40-45%)</li>
+<li>Didn't account for minimum module requirements (base modules always needed)</li>
+</ul>
+
+<p><strong>Revised Realistic Targets:</strong></p>
+
+<p>| Scenario | Final Token Count | Reduction | Effort | Recommendation |</p>
+<p>|----------|------------------|-----------|--------|----------------|</p>
+<p>| <strong>No Action</strong> (current) | 6,950 | -4.2% | 0h | ❌ Not optimal |</p>
+<p>| <strong>DEF-101 Lite</strong> | 4,550 | -34.5% | 10h | ✅ <strong>RECOMMENDED</strong> |</p>
+<p>| <strong>Full Plan B</strong> | 4,050 | -42% | 21h | 🟡 Diminishing returns |</p>
+<p>| <strong>Original Target</strong> | 2,650 | -63% | N/A | ❌ Unrealistic |</p>
+
+<p><strong>Key Insight:</strong> DEF-101 Lite achieves <strong>82% of the token reduction</strong> (2,400/2,900 tokens) with only <strong>48% of the effort</strong> (10h/21h). This is the optimal ROI.</p>
+
+<p>---</p>
+
+<h2>📊 SECTION 3: PRIORITY RE-RANKING</h2>
+
+<p><strong>Question:</strong> Which of the remaining 8 issues are NOW highest priority?</p>
+
+<h3>Original Priority (Plan B Sequencing)</h3>
+
+<p><strong>Week 1:</strong> DEF-102 (contradictions) → DEF-126 (tone) → DEF-103 (cognitive)</p>
+<p><strong>Week 2:</strong> DEF-104 (flow) → DEF-123 (context-aware) → DEF-105 (badges)</p>
+<p><strong>Week 3:</strong> DEF-106 (validator) → DEF-124 (caching) → DEF-107 (docs/tests)</p>
+
+<p>---</p>
+
+<h3>Re-Ranked Priority (Post-DEF-138 Reality)</h3>
+
+<p><strong>Tier P0 - CRITICAL (Must Do):</strong></p>
+
+<ol>
+<li>**DEF-106: PromptValidator** (3h)</li>
+</ol>
+<ul>
+<li>  - **Why P0:** Regression prevention is NOW CRITICAL</li>
+<li>  - DEF-138 introduced specific patterns to enforce (no meta-words in TYPE)</li>
+<li>  - DEF-102 introduced exception clauses that must stay consistent</li>
+<li>  - Without validator, risk of breaking DEF-138/102 fixes in future changes</li>
+<li>  - **Impact:** Quality gate + regression prevention (protects 10h investment)</li>
+</ul>
+
+<ol>
+<li>**DEF-123: Context-Aware Module Loading** (5h)</li>
+</ol>
+<ul>
+<li>  - **Why P0:** Biggest remaining token reduction (-2,000 tokens = -29%)</li>
+<li>  - Independent of DEF-138 (orthogonal concern)</li>
+<li>  - Enables better prompt efficiency (only show relevant rules)</li>
+<li>  - **Impact:** -29% tokens, clearer prompts (less cognitive load for LLM)</li>
+</ul>
+
+<p><strong>Tier P1 - HIGH VALUE (Should Do):</strong></p>
+
+<ol>
+<li>**DEF-103: Cognitive Load Reduction** (2h)</li>
+</ol>
+<ul>
+<li>  - **Why P1:** Still 41 patterns causing information overload</li>
+<li>  - DEF-138 only clarified 1 pattern (meta-words in TYPE)</li>
+<li>  - Categorization (42 → 7 categories) makes maintenance easier</li>
+<li>  - **Impact:** -400 tokens, better maintainability</li>
+</ul>
+
+<ol>
+<li>**DEF-107: Documentation & Testing** (2h)</li>
+</ol>
+<ul>
+<li>  - **Why P1:** Knowledge preservation, but scope reduced by DEF-138</li>
+<li>  - DEF-138 added 13 tests (testing partially done)</li>
+<li>  - Need: Prompt module docs + golden reference set</li>
+<li>  - **Impact:** Maintainability, onboarding</li>
+</ul>
+
+<p><strong>Tier P2 - NICE-TO-HAVE (Can Defer):</strong></p>
+
+<ol>
+<li>**DEF-104: Flow Reorganization** (3h)</li>
+</ol>
+<ul>
+<li>  - **Why P2:** UX improvement, not core quality</li>
+<li>  - Better done AFTER DEF-123 (context-aware changes structure)</li>
+<li>  - **Impact:** Better readability (not generation quality)</li>
+</ul>
+
+<ol>
+<li>**DEF-126: Tone Transform** (2h)</li>
+</ol>
+<ul>
+<li>  - **Why P2:** Partially done by DEF-138 (TYPE/PROCES already instruction tone)</li>
+<li>  - Remaining: 5 modules (VER, STR, INT, CON, SAM)</li>
+<li>  - **Impact:** -200 tokens, slightly better LLM comprehension</li>
+</ul>
+
+<ol>
+<li>**DEF-124: Static Module Caching** (2h)</li>
+</ol>
+<ul>
+<li>  - **Why P2:** Performance is acceptable (< 5 sec generation)</li>
+<li>  - Better done AFTER DEF-123 (caching needs change)</li>
+<li>  - **Impact:** +40% speed (nice but not blocking)</li>
+</ul>
+
+<p><strong>Tier P3 - OPTIONAL (Low ROI):</strong></p>
+
+<ol>
+<li>**DEF-105: Visual Hierarchy Badges** (2h)</li>
+</ol>
+<ul>
+<li>  - **Why P3:** Lowest impact (visual enhancement only)</li>
+<li>  - No effect on generation quality or token count</li>
+<li>  - **Impact:** Better prompt readability for humans (not LLM)</li>
+</ul>
+
+<p>---</p>
+
+<h3>Priority Justification Matrix</h3>
+
+<p>| Issue | Token Impact | Quality Impact | Urgency | Dependencies | Total Score | Tier |</p>
+<p>|-------|-------------|---------------|---------|--------------|-------------|------|</p>
+<p>| DEF-106 | 0 | ⭐⭐⭐⭐⭐ | ⚡⚡⚡ | None | 13/15 | <strong>P0</strong> |</p>
+<p>| DEF-123 | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⚡⚡⚡ | None | 12/15 | <strong>P0</strong> |</p>
+<p>| DEF-103 | ⭐⭐⭐ | ⭐⭐⭐ | ⚡⚡ | None | 8/15 | <strong>P1</strong> |</p>
+<p>| DEF-107 | 0 | ⭐⭐⭐ | ⚡⚡ | DEF-106 | 7/15 | <strong>P1</strong> |</p>
+<p>| DEF-104 | ⭐⭐ | ⭐⭐ | ⚡ | DEF-123 | 5/15 | <strong>P2</strong> |</p>
+<p>| DEF-126 | ⭐⭐ | ⭐⭐ | ⚡ | None | 5/15 | <strong>P2</strong> |</p>
+<p>| DEF-124 | 0 | ⭐⭐ | ⚡ | DEF-123 | 4/15 | <strong>P2</strong> |</p>
+<p>| DEF-105 | 0 | ⭐ | ⚡ | None | 2/15 | <strong>P3</strong> |</p>
+
+<p><strong>Key:</strong></p>
+<ul>
+<li>Token Impact: ⭐ per 500 tokens saved</li>
+<li>Quality Impact: ⭐ per quality improvement dimension</li>
+<li>Urgency: ⚡ for time sensitivity (regression risk, blockers, etc.)</li>
+<li>Dependencies: Issues that are prerequisites</li>
+</ul>
+
+<p>---</p>
+
+<h2>📊 SECTION 4: SEQUENCE DEPENDENCIES</h2>
+
+<p><strong>Question:</strong> What's the new optimal sequence given DEF-138 is done?</p>
+
+<h3>Original Sequence (Plan B)</h3>
+
+<p><strong>Phase 1 (Week 1):</strong> DEF-102 → DEF-126 → DEF-103</p>
+<p><strong>Phase 2 (Week 2):</strong> DEF-104 → DEF-123 → DEF-105</p>
+<p><strong>Phase 3 (Week 3):</strong> DEF-106 → DEF-124 → DEF-107</p>
+
+<p><strong>Problems with Original Sequence:</strong></p>
+<ul>
+<li>❌ DEF-106 (validator) too late (Week 3) - regression risk during Week 1-2 changes</li>
+<li>❌ DEF-123 (biggest win) delayed to Week 2 - no dependencies, could start earlier</li>
+<li>❌ DEF-126 (tone) before DEF-123 (structure) - wrong order (tone depends on structure)</li>
+</ul>
+
+<p>---</p>
+
+<h3>Optimal Sequence (Post-DEF-138)</h3>
+
+<p><strong>PHASE 1: Infrastructure & Regression Prevention (Week 1 - 8 hours)</strong></p>
+
+<pre><code>Day 1-2: DEF-106 - PromptValidator (3h)
+├── Build validator FIRST to catch regressions early
+├── Validate DEF-138 patterns (no meta-words in TYPE)
+├── Validate DEF-102 exceptions (container terms, relative clauses)
+└── CI integration for automated checks
+
+Day 3-4: DEF-123 - Context-Aware Module Loading (5h)
+├── Biggest token win (-2,000 tokens = -29%)
+├── UNBLOCKS: DEF-124 (caching), DEF-104 (flow depends on structure)
+├── Test with DEF-106 validator (regression safety)
+└── Measure token reduction (before/after comparison)</code></pre>
+
+<p><strong>Why This Order:</strong></p>
+<ul>
+<li>✅ DEF-106 FIRST: Safety net for all subsequent changes</li>
+<li>✅ DEF-123 EARLY: Biggest impact, unblocks other work</li>
+<li>✅ Validator + context-aware: Independent (can work in parallel if needed)</li>
+</ul>
+
+<p>---</p>
+
+<p><strong>PHASE 2: Quality & Maintainability (Week 2 - 4 hours)</strong></p>
+
+<pre><code>Day 5: DEF-103 - Cognitive Load Reduction (2h)
+├── Categorize 42 patterns → 7 categories
+├── EASIER NOW: DEF-123 reduced module count (19 → 9-11)
+├── Test with DEF-106 validator
+└── Measure token reduction
+
+Day 6: DEF-107 - Documentation &amp; Testing (2h)
+├── Prompt module README
+├── Golden reference set (20 definitions)
+├── Document DEF-123 context-aware loading logic
+└── Skip: Testing (DEF-138 already added 13 tests)</code></pre>
+
+<p><strong>Why This Order:</strong></p>
+<ul>
+<li>✅ DEF-103 AFTER DEF-123: Easier to categorize with fewer modules</li>
+<li>✅ DEF-107 LAST: Document the final architecture</li>
+</ul>
+
+<p>---</p>
+
+<p><strong>PHASE 3: Optimizations (Optional - Week 3 - 9 hours)</strong></p>
+
+<pre><code>Optional 1: DEF-104 - Flow Reorganization (3h)
+├── DEPENDS ON: DEF-123 (context-aware changes structure)
+├── Implement inverted pyramid
+└── Test with reduced module set
+
+Optional 2: DEF-126 - Tone Transform (2h)
+├── Transform 5 remaining modules (VER, STR, INT, CON, SAM)
+├── TYPE/PROCES already done by DEF-138
+└── Measure quality improvement
+
+Optional 3: DEF-124 - Static Module Caching (2h)
+├── DEPENDS ON: DEF-123 (caching needs change with conditional loading)
+├── Implement Streamlit caching
+└── Measure performance improvement
+
+Optional 4: DEF-105 - Visual Hierarchy (2h)
+├── Lowest priority (cosmetic)
+├── Add 3-tier badges (CRITICAL/IMPORTANT/OPTIONAL)
+└── Human readability only</code></pre>
+
+<p><strong>Why Optional:</strong></p>
+<ul>
+<li>⚠️ Diminishing returns: Phase 1+2 achieves 82% of value with 48% of effort</li>
+<li>⚠️ Can defer: These are optimizations, not critical fixes</li>
+<li>⚠️ Better timing: After Phase 1+2 deployed and validated in production</li>
+</ul>
+
+<p>---</p>
+
+<h3>Dependency Graph</h3>
+
+<pre><code>DEF-106 (Validator) ◄─────────┬─────────┬─────────┬────────── NO DEPENDENCIES
+                              │         │         │
+DEF-123 (Context-Aware) ◄─────┤         │         │           NO DEPENDENCIES
+         │                    │         │         │
+         │                    │         │         │
+         ├─────► DEF-104 (Flow)        │         │           DEPENDS ON: DEF-123
+         │                              │         │
+         └─────► DEF-124 (Caching) ────┤         │           DEPENDS ON: DEF-123
+                                        │         │
+DEF-103 (Cognitive) ◄───────────────────┤         │           NO DEPENDENCIES (but easier after DEF-123)
+                                        │         │
+DEF-107 (Docs) ◄────────────────────────┴─────────┤           DEPENDS ON: DEF-106 (document validator)
+                                                  │
+DEF-126 (Tone) ◄──────────────────────────────────┘           NO DEPENDENCIES
+                                                               (but TYPE/PROCES already done by DEF-138)
+
+DEF-105 (Badges) ◄─────────────────────────────────           NO DEPENDENCIES</code></pre>
+
+<p><strong>Critical Path (DEF-101 Lite):</strong></p>
+<pre><code>DEF-106 (3h) → DEF-123 (5h) → DEF-103 (2h) → DEF-107 (optional 2h)
+         │                                          │
+         │                                          │
+         └──────── Validate all changes ────────────┘</code></pre>
+
+<p>---</p>
+
+<h3>Parallel Execution Opportunities</h3>
+
+<p><strong>Can Run in Parallel:</strong></p>
+<ul>
+<li>✅ DEF-106 + DEF-123 (independent, different files)</li>
+<li>❌ DEF-103 + DEF-123 (conflict: both modify module structure)</li>
+<li>❌ DEF-104 + DEF-123 (conflict: both change module ordering)</li>
+</ul>
+
+<p><strong>Recommended Parallelization:</strong></p>
+<pre><code>Week 1, Day 1-2:
+├── Dev A: DEF-106 (validator) - 3h
+└── Dev B: DEF-123 (context-aware) - 5h
+
+Week 1, Day 3-4:
+└── Dev A: DEF-103 (cognitive load) - 2h
+
+Week 2, Day 5:
+└── Dev A: DEF-107 (docs) - 2h</code></pre>
+
+<p><strong>Total Wall Time:</strong> 5h (if 2 devs in parallel) vs 10h (if 1 dev sequential)</p>
+
+<p>---</p>
+
+<h2>📊 SECTION 5: EFFORT RE-ESTIMATION</h2>
+
+<p><strong>Question:</strong> Does DEF-138 completion reduce effort for remaining issues?</p>
+
+<h3>Effort Comparison Table</h3>
+
+<p>| Issue | Original Estimate | Post-DEF-138 Estimate | Change | Reason |</p>
+<p>|-------|------------------|----------------------|--------|--------|</p>
+<p>| DEF-102 | 3h | <strong>0.5h</strong> | ✅ <strong>-2.5h</strong> | 80% done (only Contradiction #5 minimal fix remains) |</p>
+<p>| DEF-103 | 2h | <strong>2h</strong> | ⚪ No change | Still 41 patterns (DEF-138 only clarified 1) |</p>
+<p>| DEF-104 | 3h | <strong>3h</strong> | ⚪ No change | Flow independent of DEF-138 content changes |</p>
+<p>| DEF-105 | 2h | <strong>2h</strong> | ⚪ No change | Visual hierarchy independent |</p>
+<p>| DEF-106 | 2h | <strong>3h</strong> | ❌ <strong>+1h</strong> | Need to add DEF-138 pattern validation (meta-words, noun forms) |</p>
+<p>| DEF-107 | 4h | <strong>2h</strong> | ✅ <strong>-2h</strong> | DEF-138 added 13 tests (testing scope reduced) |</p>
+<p>| DEF-123 | 5h | <strong>5h</strong> | ⚪ No change | Context-aware loading independent |</p>
+<p>| DEF-124 | 2h | <strong>2h</strong> | ⚪ No change | Caching independent |</p>
+<p>| DEF-126 | 5h | <strong>2h</strong> | ✅ <strong>-3h</strong> | DEF-138 transformed TYPE/PROCES (only 5 modules remain) |</p>
+<p>| <strong>TOTAL</strong> | <strong>28h</strong> | <strong>21.5h</strong> | ✅ <strong>-6.5h</strong> | Net savings from DEF-138 work |</p>
+
+<p>---</p>
+
+<h3>Detailed Effort Breakdown</h3>
+
+<p><strong>DEF-102: Fix 5 Blocking Contradictions</strong></p>
+<ul>
+<li>**Original:** 3h (fix all 5 contradictions)</li>
+<li>**Post-DEF-138:** 0.5h (only Contradiction #5 minimal fix)</li>
+<li>**Savings:** 2.5h</li>
+<li>**Rationale:**</li>
+<li> - ✅ Contradictions #1-#4 DONE (Nov 5-10, 2025)</li>
+<li> - ⚠️ Contradiction #5: 93% pass rate (LOW PRIORITY)</li>
+<li> - Minimal fix: Add "ban 'context' word" → 30 min</li>
+<li> - Full fix: Implement 3 mechanisms → 2-3h (overkill, not recommended)</li>
+</ul>
+
+<p><strong>DEF-106: PromptValidator</strong></p>
+<ul>
+<li>**Original:** 2h (basic validator)</li>
+<li>**Post-DEF-138:** 3h (validator + DEF-138 pattern checks)</li>
+<li>**Increase:** +1h</li>
+<li>**Rationale:**</li>
+<li> - Need to validate DEF-138 patterns:</li>
+<li>   - TYPE category: No meta-words ('soort', 'type', 'categorie')</li>
+<li>   - PROCES category: Noun forms ('activiteit', 'handeling', 'proces')</li>
+<li>   - ESS-02 exception consistency across 5 modules</li>
+<li> - Additional test cases: +13 (matching DEF-138 edge cases)</li>
+<li> - CI integration: +30 min (automated checks)</li>
+</ul>
+
+<p><strong>DEF-107: Documentation & Testing</strong></p>
+<ul>
+<li>**Original:** 4h (comprehensive docs + full test suite)</li>
+<li>**Post-DEF-138:** 2h (docs only, testing partially done)</li>
+<li>**Savings:** 2h</li>
+<li>**Rationale:**</li>
+<li> - ✅ DEF-138 added 13 edge case tests (testing scope reduced)</li>
+<li> - ✅ DEF-138 added performance tests (no need to duplicate)</li>
+<li> - ❌ Prompt module docs still missing (2h remains)</li>
+<li> - ❌ Golden reference set still needed (included in 2h)</li>
+</ul>
+
+<p><strong>DEF-126: Transform Rules to Instructions</strong></p>
+<ul>
+<li>**Original:** 5h (transform all 7 validation rule modules)</li>
+<li>**Post-DEF-138:** 2h (transform only 5 remaining modules)</li>
+<li>**Savings:** 3h</li>
+<li>**Rationale:**</li>
+<li> - ✅ DEF-138 transformed TYPE category (instruction tone)</li>
+<li> - ✅ DEF-138 transformed PROCES category (noun clarification)</li>
+<li> - ❌ 5 modules remain: VER, STR, INT, CON, SAM (ARAI less critical)</li>
+<li> - Effort: 2h (24 min per module: read, transform, test)</li>
+</ul>
+
+<p>---</p>
+
+<h3>DEF-101 Lite Effort Summary</h3>
+
+<p><strong>Recommended Scope:</strong></p>
+<ol>
+<li>DEF-106: PromptValidator → **3h** (increased from 2h)</li>
+<li>DEF-123: Context-Aware Loading → **5h** (unchanged)</li>
+<li>DEF-103: Cognitive Load → **2h** (unchanged)</li>
+<li>DEF-107: Documentation (optional) → **2h** (reduced from 4h)</li>
+</ol>
+
+<p><strong>Total DEF-101 Lite:</strong> 10h core + 2h optional = <strong>12h max</strong></p>
+
+<p><strong>Total Full Plan B:</strong> 21.5h (down from original 28h)</p>
+
+<p><strong>Savings from DEF-138:</strong> 6.5h effort reduction</p>
+
+<p>---</p>
+
+<h2>📊 SECTION 6: VIABILITY ASSESSMENT</h2>
+
+<p><strong>Question:</strong> Should DEF-101 continue, pivot, or cancel?</p>
+
+<h3>Option A: Continue Plan B (Full Scope)</h3>
+
+<p><strong>Scope:</strong> All 8 remaining issues (DEF-102 partial + DEF-103 through DEF-126)</p>
+<p><strong>Effort:</strong> 21.5 hours (reduced from 28h due to DEF-138)</p>
+<p><strong>Token Reduction:</strong> -42% (6,950 → 4,050 tokens)</p>
+<p><strong>Timeline:</strong> 3 weeks (original schedule)</p>
+
+<p><strong>Pros:</strong></p>
+<ul>
+<li>✅ Maximum token reduction (-2,900 tokens)</li>
+<li>✅ Complete vision (all 9 Plan B issues addressed)</li>
+<li>✅ Comprehensive quality improvements (flow, badges, caching, tone)</li>
+<li>✅ Full documentation and testing</li>
+<li>✅ Reuse extensive planning (2,985 lines of docs)</li>
+</ul>
+
+<p><strong>Cons:</strong></p>
+<ul>
+<li>❌ Large time investment (21.5h = 3 weeks)</li>
+<li>❌ Diminishing returns (last 4 issues = 9h for 500 tokens + optimizations)</li>
+<li>❌ Some items low ROI (DEF-105 badges, DEF-124 caching, DEF-104 flow)</li>
+<li>❌ Risk of over-engineering (performance already acceptable)</li>
+</ul>
+
+<p><strong>When to Choose:</strong></p>
+<ul>
+<li>✅ Token reduction is CRITICAL business priority (every token counts)</li>
+<li>✅ Have 3 full weeks available for prompt optimization</li>
+<li>✅ Want comprehensive solution (no technical debt)</li>
+<li>✅ Performance optimization matters (need +40% speed boost)</li>
+</ul>
+
+<p><strong>Risk Assessment:</strong> 🟡 MEDIUM</p>
+<ul>
+<li>Risk: Time investment may not justify marginal gains</li>
+<li>Mitigation: Gate Phase 3 (Optional) after validating Phase 1+2 impact</li>
+</ul>
+
+<p>---</p>
+
+<h3>Option B: Pivot to "DEF-101 Lite" (Cherry-Pick High ROI) ✅ RECOMMENDED</h3>
+
+<p><strong>Scope:</strong> 3 critical issues (DEF-106 + DEF-123 + DEF-103) + optional DEF-107</p>
+<p><strong>Effort:</strong> 10h core + 2h optional = 12h max</p>
+<p><strong>Token Reduction:</strong> -34.5% (6,950 → 4,550 tokens)</p>
+<p><strong>Timeline:</strong> 1-2 weeks (compressed)</p>
+
+<p><strong>Pros:</strong></p>
+<ul>
+<li>✅ High ROI (82% of token reduction, 48% of effort)</li>
+<li>✅ Addresses critical needs (regression prevention, biggest token win, cognitive load)</li>
+<li>✅ Pragmatic scope (skip low-value items)</li>
+<li>✅ Shorter timeline (1-2 weeks vs 3 weeks)</li>
+<li>✅ Lower risk (focused changes, easier to validate)</li>
+<li>✅ Reuse planning for focused execution</li>
+<li>✅ Can revisit Phase 3 items later if needed</li>
+</ul>
+
+<p><strong>Cons:</strong></p>
+<ul>
+<li>⚠️ Skip flow optimization (DEF-104) - UX not improved</li>
+<li>⚠️ Skip visual badges (DEF-105) - prompt readability unchanged</li>
+<li>⚠️ Skip caching (DEF-124) - no performance boost</li>
+<li>⚠️ Skip tone transform (DEF-126) - only partial completion (TYPE/PROCES done, 5 modules remain)</li>
+</ul>
+
+<p><strong>When to Choose:</strong></p>
+<ul>
+<li>✅ Want best ROI (maximum value, minimum time)</li>
+<li>✅ Token reduction important but not critical (35% is "good enough")</li>
+<li>✅ Have 1-2 weeks available (not 3 weeks)</li>
+<li>✅ Prioritize regression prevention and maintainability</li>
+<li>✅ Performance is acceptable (< 5 sec generation time)</li>
+</ul>
+
+<p><strong>Risk Assessment:</strong> 🟢 LOW</p>
+<ul>
+<li>Risk: Minimal (focused scope, high-value items)</li>
+<li>Validation: DEF-106 validator catches regressions</li>
+<li>Rollback: Easy (3 independent changes)</li>
+</ul>
+
+<p>---</p>
+
+<h3>Option C: Cancel DEF-101 (Accept Current State)</h3>
+
+<p><strong>Scope:</strong> None (archive all remaining issues)</p>
+<p><strong>Effort:</strong> 0 hours</p>
+<p><strong>Token Reduction:</strong> -4.2% (7,250 → 6,950 tokens) - only DEF-138 + DEF-102 partial</p>
+<p><strong>Timeline:</strong> Immediate</p>
+
+<p><strong>Pros:</strong></p>
+<ul>
+<li>✅ Zero time investment</li>
+<li>✅ Contradictions solved (system USABLE)</li>
+<li>✅ DEF-138 provided quality improvements (ontological clarity)</li>
+<li>✅ Can move to other features</li>
+</ul>
+
+<p><strong>Cons:</strong></p>
+<ul>
+<li>❌ Miss major token reduction opportunity (-2,400 tokens remain on table)</li>
+<li>❌ No regression prevention (DEF-106 validator missing)</li>
+<li>❌ High cognitive load remains (42 forbidden patterns not categorized)</li>
+<li>❌ Prompt still verbose (6,950 tokens)</li>
+<li>❌ Waste extensive planning (2,985 lines of analysis/specs)</li>
+</ul>
+
+<p><strong>When to Choose:</strong></p>
+<ul>
+<li>⚠️ Only if prompts work "well enough" now (token count acceptable)</li>
+<li>⚠️ Only if other priorities more critical (feature development)</li>
+<li>⚠️ Only if no time available for optimization</li>
+</ul>
+
+<p><strong>Risk Assessment:</strong> 🔴 HIGH</p>
+<ul>
+<li>Risk: Regression without validator (DEF-138 patterns may drift)</li>
+<li>Risk: Maintenance burden (42 patterns hard to manage)</li>
+<li>Risk: Wasted planning investment (2,985 lines unused)</li>
+</ul>
+
+<p><strong>NOT RECOMMENDED</strong> unless prompts demonstrably "good enough" (see Validation Criteria).</p>
+
+<p>---</p>
+
+<h3>Decision Matrix</h3>
+
+<p>| Criteria | Option A (Full) | Option B (Lite) ✅ | Option C (Cancel) |</p>
+<p>|----------|----------------|-------------------|------------------|</p>
+<p>| <strong>Token Reduction</strong> | -42% (4,050) | -34.5% (4,550) ⭐ | -4.2% (6,950) |</p>
+<p>| <strong>Effort</strong> | 21.5h | 10h ⭐⭐ | 0h ⭐⭐⭐ |</p>
+<p>| <strong>ROI (tokens/hour)</strong> | 135 tokens/h | 240 tokens/h ⭐⭐⭐ | N/A |</p>
+<p>| <strong>Timeline</strong> | 3 weeks | 1-2 weeks ⭐⭐ | Immediate ⭐⭐⭐ |</p>
+<p>| <strong>Regression Prevention</strong> | ✅ DEF-106 | ✅ DEF-106 | ❌ None |</p>
+<p>| <strong>Cognitive Load</strong> | ✅ Fixed | ✅ Fixed | ❌ Remains |</p>
+<p>| <strong>Reuse Planning</strong> | ✅ Full | ✅ Partial | ❌ Waste |</p>
+<p>| <strong>Risk Level</strong> | 🟡 Medium | 🟢 Low ⭐⭐⭐ | 🔴 High |</p>
+<p>| <strong>Completeness</strong> | 100% ⭐⭐⭐ | 82% ⭐⭐ | 4% |</p>
+<p>| <strong>Maintenance</strong> | ✅ Optimal | ✅ Good | ❌ High burden |</p>
+
+<p><strong>Winner:</strong> <strong>Option B (DEF-101 Lite)</strong> ✅</p>
+<ul>
+<li>Best ROI: 240 tokens/hour (78% better than Full Plan)</li>
+<li>Balanced approach: 82% of value, 48% of effort</li>
+<li>Low risk: Focused scope, regression prevention</li>
+<li>Pragmatic: Addresses critical needs, skips nice-to-haves</li>
+</ul>
+
+<p>---</p>
+
+<h3>Recommendation Confidence</h3>
+
+<p><strong>Confidence Level:</strong> 95% (Very High)</p>
+
+<p><strong>Supporting Evidence:</strong></p>
+<ol>
+<li>✅ **Token Analysis:** DEF-123 alone achieves -29% reduction (biggest single win)</li>
+<li>✅ **Effort Analysis:** DEF-101 Lite has 2.4x better ROI than Full Plan</li>
+<li>✅ **Risk Analysis:** DEF-106 (validator) prevents regression (protects DEF-138 investment)</li>
+<li>✅ **User Need:** System is USABLE post-DEF-138/102 (contradictions solved)</li>
+<li>✅ **Precedent:** DEF-138 showed focused scope works (5 commits, clear impact)</li>
+</ol>
+
+<p><strong>Uncertainty (5%):</strong></p>
+<ul>
+<li>⚠️ Actual token count unknown (estimates based on ~4 chars/token heuristic)</li>
+<li>⚠️ DEF-123 implementation may reveal additional complexity (5h estimate could grow)</li>
+<li>⚠️ User may have specific needs for DEF-104 (flow) or DEF-105 (badges)</li>
+</ul>
+
+<p><strong>Mitigation:</strong></p>
+<ul>
+<li>✅ Measure actual tokens BEFORE starting (Validation Criteria #1)</li>
+<li>✅ Start with DEF-106 (validator) to catch issues early</li>
+<li>✅ Gate DEF-103 after DEF-123 completes (validate token reduction achieved)</li>
+</ul>
+
+<p>---</p>
+
+<h2>📊 SECTION 7: VALIDATION CRITERIA</h2>
+
+<p><strong>Question:</strong> How do we validate our decision?</p>
+
+<h3>Pre-Decision Tests (Run BEFORE choosing option)</h3>
+
+<p><strong>Test 1: Measure Current Token Count</strong></p>
+<pre><code># Script: scripts/count_prompt_tokens.py
+import tiktoken
+
+def count_prompt_tokens(term="testbegrip", context=None):
+    """
+    Generate prompt for given term/context and count tokens.
+    """
+    from services.prompts.modules.prompt_orchestrator import PromptOrchestrator
+
+    orchestrator = PromptOrchestrator()
+    # ... register all modules ...
+    prompt = orchestrator.generate_full_prompt(term, context)
+
+    enc = tiktoken.encoding_for_model("gpt-4")
+    tokens = enc.encode(prompt)
+
+    return len(tokens), prompt
+
+# Run for 10 different terms with varying contexts
+baseline_tokens = []
+for term, context in test_cases:
+    token_count, _ = count_prompt_tokens(term, context)
+    baseline_tokens.append(token_count)
+
+avg_tokens = sum(baseline_tokens) / len(baseline_tokens)
+print(f"Average baseline tokens: {avg_tokens}")
+print(f"Min: {min(baseline_tokens)}, Max: {max(baseline_tokens)}")</code></pre>
+
+<p><strong>Expected Result:</strong></p>
+<ul>
+<li>✅ Avg ~6,900-7,000 tokens (validates our estimates)</li>
+<li>⚠️ If > 7,200: Higher reduction opportunity (favor Option A)</li>
+<li>⚠️ If < 6,500: Lower opportunity (consider Option C)</li>
+</ul>
+
+<p>---</p>
+
+<p><strong>Test 2: Generation Quality Baseline</strong></p>
+<pre><code># Script: scripts/measure_quality_baseline.py
+from services.definition_generator import UnifiedDefinitionGenerator
+
+def measure_quality_baseline(n=50):
+    """
+    Generate N definitions and measure quality metrics.
+    """
+    generator = UnifiedDefinitionGenerator()
+
+    results = []
+    for term in test_terms[:n]:
+        definition = generator.generate_definition(term)
+
+        # Measure quality
+        validation_score = definition.get("validation_score", 0.0)
+        confidence_score = definition.get("confidence_score", 0.0)
+
+        # Check for contradictions
+        has_meta_words = any(word in definition["tekst"].lower()
+                            for word in ["soort", "type", "categorie"])
+        starts_with_is = definition["tekst"].lower().startswith("is ")
+
+        results.append({
+            "term": term,
+            "validation_score": validation_score,
+            "confidence_score": confidence_score,
+            "has_meta_words": has_meta_words,
+            "starts_with_is": starts_with_is,
+        })
+
+    # Aggregate
+    avg_validation = sum(r["validation_score"] for r in results) / n
+    avg_confidence = sum(r["confidence_score"] for r in results) / n
+    contradiction_rate = sum(1 for r in results if r["has_meta_words"] or r["starts_with_is"]) / n
+
+    return {
+        "avg_validation_score": avg_validation,
+        "avg_confidence_score": avg_confidence,
+        "contradiction_rate": contradiction_rate,
+        "sample_size": n,
+    }</code></pre>
+
+<p><strong>Expected Result:</strong></p>
+<ul>
+<li>✅ Avg validation score ≥ 0.85 (good quality)</li>
+<li>✅ Avg confidence score ≥ 0.75 (good confidence)</li>
+<li>✅ Contradiction rate < 10% (DEF-138/102 working)</li>
+<li>⚠️ If quality poor: Prioritize DEF-106 (validator) ASAP</li>
+<li>⚠️ If contradictions high: Investigate DEF-138/102 regression</li>
+</ul>
+
+<p>---</p>
+
+<p><strong>Test 3: LLM Confusion Analysis</strong></p>
+<pre><code># Check validation logs for GPT-4 errors
+grep -i "error\|failed\|invalid" logs/definition_generation.log | \
+  grep -v "INFO" | \
+  tail -100 &gt; /tmp/gpt4_errors.txt
+
+# Categorize errors
+python scripts/categorize_errors.py /tmp/gpt4_errors.txt</code></pre>
+
+<p><strong>Categories to Check:</strong></p>
+<ul>
+<li>Contradiction errors (ESS-02 vs STR-01 conflicts)</li>
+<li>Context errors (CON-01 violations)</li>
+<li>Validation errors (rule violations)</li>
+<li>Parsing errors (output format issues)</li>
+</ul>
+
+<p><strong>Expected Result:</strong></p>
+<ul>
+<li>✅ Contradiction errors < 5% (DEF-138/102 resolved most)</li>
+<li>⚠️ If > 10%: DEF-102 Contradiction #5 needs fixing (30 min)</li>
+<li>⚠️ New error patterns: Indicates new issues (investigate before proceeding)</li>
+</ul>
+
+<p>---</p>
+
+<p><strong>Test 4: User Experience Check</strong></p>
+<pre><code># User Interview Script (5 questions, 10 min)
+
+1. "Is the current prompt clear enough for your needs?"
+   - Yes → Token reduction less critical (Option B or C)
+   - No → Need clarity improvements (Option A for DEF-104 flow)
+
+2. "Are you noticing any prompt-related issues?"
+   - Meta-words in TYPE definitions → DEF-138 regression (fix immediately)
+   - Contradictory instructions → DEF-102 regression (fix immediately)
+   - None → System working well (Option B sufficient)
+
+3. "Is definition generation speed acceptable?"
+   - Yes → Caching (DEF-124) not needed (skip)
+   - No → Prioritize DEF-124 (add to Lite scope)
+
+4. "Do validation errors make sense to you?"
+   - Yes → Error messages clear (DEF-107 less critical)
+   - No → Need better documentation (keep DEF-107)
+
+5. "What's your top prompt-related pain point?"
+   - "Too verbose" → Prioritize DEF-123 (context-aware)
+   - "Confusing rules" → Prioritize DEF-103 (cognitive load)
+   - "Missing features" → Different EPIC (not DEF-101)</code></pre>
+
+<p>---</p>
+
+<h3>Post-Decision Validation (Run AFTER implementing chosen option)</h3>
+
+<p><strong>Validation 1: Token Reduction Achieved</strong></p>
+<pre><code># Compare before/after token counts
+before_tokens = measure_token_count_baseline()  # From Test 1
+after_tokens = measure_token_count_post_implementation()
+
+reduction = (before_tokens - after_tokens) / before_tokens * 100
+print(f"Token reduction achieved: {reduction:.1f}%")
+
+# DEF-101 Lite target: 34.5%
+assert reduction &gt;= 30.0, f"Target not met: {reduction}% &lt; 30%"</code></pre>
+
+<p><strong>Success Criteria:</strong></p>
+<ul>
+<li>✅ DEF-101 Lite: ≥30% reduction (target: 34.5%)</li>
+<li>✅ Full Plan B: ≥40% reduction (target: 42%)</li>
+</ul>
+
+<p>---</p>
+
+<p><strong>Validation 2: Quality Maintained or Improved</strong></p>
+<pre><code># Compare quality metrics
+before_quality = measure_quality_baseline(n=50)  # From Test 2
+after_quality = measure_quality_post_implementation(n=50)
+
+# Quality should not regress
+assert after_quality["avg_validation_score"] &gt;= before_quality["avg_validation_score"] - 0.05
+assert after_quality["avg_confidence_score"] &gt;= before_quality["avg_confidence_score"] - 0.05
+assert after_quality["contradiction_rate"] &lt;= before_quality["contradiction_rate"] * 1.2</code></pre>
+
+<p><strong>Success Criteria:</strong></p>
+<ul>
+<li>✅ Validation score: No regression > 5%</li>
+<li>✅ Confidence score: No regression > 5%</li>
+<li>✅ Contradiction rate: No increase > 20%</li>
+</ul>
+
+<p>---</p>
+
+<p><strong>Validation 3: Regression Tests Pass (DEF-106)</strong></p>
+<pre><code># Run DEF-106 validator
+python -m pytest tests/services/prompts/test_prompt_validator.py
+
+# Check for DEF-138 pattern violations
+python scripts/validate_def138_patterns.py
+
+# Check for DEF-102 exception consistency
+python scripts/validate_def102_exceptions.py</code></pre>
+
+<p><strong>Success Criteria:</strong></p>
+<ul>
+<li>✅ All validator tests pass</li>
+<li>✅ No meta-words in TYPE category prompts</li>
+<li>✅ ESS-02 exceptions consistent across 5 modules</li>
+<li>✅ Container term exemptions working correctly</li>
+</ul>
+
+<p>---</p>
+
+<p><strong>Validation 4: A/B Testing (Production)</strong></p>
+<pre><code># Deploy side-by-side comparison
+# 50% of definitions use old prompt (v7)
+# 50% of definitions use new prompt (v8)
+
+def ab_test_prompts(n=100):
+    """
+    Generate N definitions with both prompts, compare quality.
+    """
+    for term in test_terms[:n]:
+        # Control group (old prompt)
+        old_def = generate_with_prompt_v7(term)
+
+        # Treatment group (new prompt)
+        new_def = generate_with_prompt_v8(term)
+
+        # Compare
+        compare_definitions(old_def, new_def)
+
+    # Aggregate results
+    report_ab_test_results()</code></pre>
+
+<p><strong>Success Criteria:</strong></p>
+<ul>
+<li>✅ New prompt quality ≥ old prompt quality</li>
+<li>✅ New prompt token count < old prompt token count</li>
+<li>✅ No increase in user rejection rate</li>
+<li>✅ No increase in validation errors</li>
+</ul>
+
+<p>---</p>
+
+<h3>Decision Matrix Based on Validation Results</h3>
+
+<p>| Test Result | Recommendation |</p>
+<p>|-------------|----------------|</p>
+<p>| <strong>Tokens ~7,000 + Quality Good + Low Confusion</strong> | ✅ <strong>Option B (Lite)</strong> - Get validator + context-aware |</p>
+<p>| <strong>Tokens ~7,000 + Quality Poor + High Confusion</strong> | ⚠️ <strong>Option A (Full)</strong> - Need comprehensive fixes |</p>
+<p>| <strong>Tokens <6,500 + Quality Good + Low Confusion</strong> | 🟡 <strong>Option C (Cancel)</strong> - "Good enough" |</p>
+<p>| <strong>Tokens >7,200 + Any Quality</strong> | ✅ <strong>Option A (Full)</strong> - Token reduction critical |</p>
+<p>| <strong>User Pain: Confusing Rules</strong> | ✅ <strong>Option B (Lite)</strong> - DEF-103 addresses this |</p>
+<p>| <strong>User Pain: Slow Generation</strong> | 🟡 <strong>Add DEF-124</strong> - Caching needed |</p>
+<p>| <strong>User Pain: Bad Flow</strong> | 🟡 <strong>Add DEF-104</strong> - Flow optimization needed |</p>
+
+<p>---</p>
+
+<h2>📊 FINAL RECOMMENDATION</h2>
+
+<h3>The Verdict: **OPTION B - "DEF-101 LITE"** ✅</h3>
+
+<p><strong>Scope:</strong></p>
+<ol>
+<li>✅ **DEF-106: PromptValidator** (3h) - Regression prevention</li>
+<li>✅ **DEF-123: Context-Aware Module Loading** (5h) - Biggest token win (-29%)</li>
+<li>✅ **DEF-103: Cognitive Load Reduction** (2h) - Categorize 42 patterns</li>
+<li>🟡 **DEF-107: Documentation** (optional 2h) - If time permits</li>
+</ol>
+
+<p><strong>Total Effort:</strong> 10h core + 2h optional = <strong>12h maximum</strong></p>
+
+<p><strong>Expected Impact:</strong></p>
+<ul>
+<li>Token reduction: -34.5% (6,950 → 4,550 tokens)</li>
+<li>Quality: Maintained or improved (validator prevents regression)</li>
+<li>Maintainability: Improved (categorized patterns, documented architecture)</li>
+<li>Risk: Low (focused scope, high-value items)</li>
+</ul>
+
+<p>---</p>
+
+<h3>Implementation Sequence</h3>
+
+<p><strong>Week 1 (8 hours):</strong></p>
+<pre><code>Monday-Tuesday:   DEF-106 (Validator) - 3h
+Wednesday-Friday: DEF-123 (Context-Aware) - 5h</code></pre>
+
+<p><strong>Week 2 (4 hours):</strong></p>
+<pre><code>Monday:    DEF-103 (Cognitive Load) - 2h
+Tuesday:   DEF-107 (Documentation) - 2h (optional)
+Wednesday: Validation &amp; Deployment</code></pre>
+
+<p>---</p>
+
+<h3>Why NOT Option A (Full Plan B)?</h3>
+
+<p><strong>Diminishing Returns:</strong></p>
+<ul>
+<li>Last 11.5h (Phase 3) only delivers:</li>
+<li> - DEF-104 (flow): UX improvement, no quality impact</li>
+<li> - DEF-105 (badges): Cosmetic, no LLM impact</li>
+<li> - DEF-124 (caching): Performance already acceptable</li>
+<li> - DEF-126 (tone): Partially done by DEF-138, only 200 tokens</li>
+</ul>
+
+<ul>
+<li>**ROI Comparison:**</li>
+<li> - Phase 1+2 (DEF-101 Lite): 240 tokens/hour</li>
+<li> - Phase 3 (Optional items): 52 tokens/hour (78% WORSE ROI!)</li>
+</ul>
+
+<p><strong>Time Investment:</strong></p>
+<ul>
+<li>Option A: 21.5h (3 weeks)</li>
+<li>Option B: 10h (1-2 weeks)</li>
+<li>**Opportunity cost:** 11.5h could be spent on new features (EPIC-016, EPIC-017, etc.)</li>
+</ul>
+
+<p>---</p>
+
+<h3>Why NOT Option C (Cancel)?</h3>
+
+<p><strong>Missed Opportunities:</strong></p>
+<ul>
+<li>❌ -2,400 tokens left on table (34.5% reduction)</li>
+<li>❌ No regression prevention (DEF-138 patterns may drift)</li>
+<li>❌ High cognitive load remains (42 patterns hard to manage)</li>
+<li>❌ Wasted planning investment (2,985 lines of analysis)</li>
+</ul>
+
+<p><strong>Risk:</strong></p>
+<ul>
+<li>🔴 WITHOUT DEF-106 (validator): No protection against regression</li>
+<li>🔴 WITHOUT DEF-123 (context-aware): Prompt remains verbose (6,950 tokens)</li>
+<li>🔴 WITHOUT DEF-103 (cognitive): 42 patterns remain unmaintainable</li>
+</ul>
+
+<p><strong>Only acceptable IF:</strong></p>
+<ul>
+<li>⚠️ Validation tests show quality is "excellent" (≥90% validation score)</li>
+<li>⚠️ Token count is "acceptable" (<6,500 tokens)</li>
+<li>⚠️ No user complaints about prompt clarity</li>
+<li>⚠️ Other priorities demonstrably more critical</li>
+</ul>
+
+<p>---</p>
+
+<h3>Success Metrics (DEF-101 Lite)</h3>
+
+<p><strong>Week 1 Checkpoint:</strong></p>
+<ul>
+<li>✅ DEF-106: Validator tests pass (100% pass rate)</li>
+<li>✅ DEF-123: Token reduction ≥25% (6,950 → 5,200 or better)</li>
+<li>✅ No quality regression (validation score ≥0.85)</li>
+</ul>
+
+<p><strong>Week 2 Checkpoint:</strong></p>
+<ul>
+<li>✅ DEF-103: 42 patterns → 7 categories (documented)</li>
+<li>✅ Total token reduction ≥30% (6,950 → 4,850 or better)</li>
+<li>✅ DEF-107: Prompt architecture documented (if time permits)</li>
+</ul>
+
+<p><strong>Final Validation:</strong></p>
+<ul>
+<li>✅ A/B test: New prompt ≥ old prompt quality</li>
+<li>✅ No regression: DEF-138 patterns still enforced</li>
+<li>✅ User acceptance: No increase in rejection rate</li>
+</ul>
+
+<p>---</p>
+
+<h3>Contingency Plans</h3>
+
+<p><strong>If DEF-123 reveals complexity:</strong></p>
+<ul>
+<li>🟡 **Simplify scope:** Only implement context-aware for validation rules (skip supporting modules)</li>
+<li>🟡 **Reduced target:** Aim for -20% instead of -29% (still valuable)</li>
+<li>🟡 **Gate approval:** Pause after DEF-106+DEF-123, validate impact before DEF-103</li>
+</ul>
+
+<p><strong>If quality regresses:</strong></p>
+<ul>
+<li>🔴 **STOP immediately:** Rollback changes</li>
+<li>🔴 **Root cause analysis:** Identify which change caused regression</li>
+<li>🔴 **Adjust scope:** Remove problematic change, proceed with remaining items</li>
+</ul>
+
+<p><strong>If time exceeds estimate:</strong></p>
+<ul>
+<li>🟡 **Skip DEF-107:** Documentation can wait (not blocking)</li>
+<li>🟡 **Timebox DEF-103:** Accept partial categorization (e.g., 42 → 14 groups instead of 7)</li>
+<li>⚠️ **Never skip DEF-106:** Validator is MANDATORY (regression prevention)</li>
+</ul>
+
+<p>---</p>
+
+<h2>🎯 CONCLUSION</h2>
+
+<p><strong>DEF-101 remains VIABLE with focused scope (DEF-101 Lite).</strong></p>
+
+<p><strong>Key Insights:</strong></p>
+<ol>
+<li>✅ DEF-138 + DEF-102 solved CONTRADICTIONS → System now USABLE</li>
+<li>✅ Token reduction opportunity REMAINS → ~35% achievable with focused work</li>
+<li>✅ Highest ROI items: DEF-106 (validator), DEF-123 (context-aware), DEF-103 (cognitive)</li>
+<li>⚠️ Lower ROI items skippable: DEF-104 (flow), DEF-105 (badges), DEF-124 (caching), DEF-126 (partial tone)</li>
+</ol>
+
+<p><strong>Final Recommendation:</strong> ✅ <strong>PIVOT TO DEF-101 LITE</strong> (Option B)</p>
+<ul>
+<li>10h effort, -34.5% tokens, low risk, high ROI</li>
+<li>Reuse extensive planning for focused execution</li>
+<li>Protect DEF-138/102 investments with validator</li>
+<li>Achieve 82% of value with 48% of effort</li>
+</ul>
+
+<p><strong>Next Steps:</strong></p>
+<ol>
+<li>Run validation tests (Section 7) to confirm baseline</li>
+<li>Create Linear issues for DEF-106, DEF-123, DEF-103</li>
+<li>Update DEF-101 EPIC status to "In Progress (Lite Scope)"</li>
+<li>Start Week 1: DEF-106 (validator) + DEF-123 (context-aware)</li>
+<li>Gate checkpoint after Week 1: Validate token reduction achieved before proceeding</li>
+</ol>
+
+<p>---</p>
+
+<p><strong>Document Status:</strong> ✅ READY FOR DECISION</p>
+<p><strong>Confidence:</strong> 95% (Very High)</p>
+<p><strong>Recommended Action:</strong> PROCEED with DEF-101 Lite (Option B)</p>
+
+<p>---</p>
+
+<p><strong>END OF ULTRATHINK ANALYSIS</strong></p>
+
+  </div>
+</body>
+</html>

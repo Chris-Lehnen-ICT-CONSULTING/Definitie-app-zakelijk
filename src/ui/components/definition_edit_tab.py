@@ -125,6 +125,10 @@ class DefinitionEditTab:
                 self._render_editor()
                 self._render_action_buttons()
                 self._render_examples_section()
+                # DEF-151: Show generation prompt in main content area for visibility
+                definition = SessionStateManager.get_value("editing_definition")
+                if definition:
+                    self._render_generation_prompt_section(definition)
 
         with col2:
             # Sidebar with metadata and history
@@ -820,9 +824,6 @@ class DefinitionEditTab:
             if definition.bron:
                 st.caption(f"**Bron Referentie:** {definition.bron}")
 
-        # DEF-151: Show generation prompt if available
-        self._render_generation_prompt_section(definition)
-
     def _render_generation_prompt_section(self, definition):
         """
         Render generation prompt viewer (DEF-151).
@@ -831,35 +832,38 @@ class DefinitionEditTab:
         PromptDebugSection component. Includes prompt text, model info, and token usage.
 
         Args:
-            definition: Definition object to retrieve prompt data for
+            definition: Definition object with generation_prompt_data attribute
 
         Note:
             Silently fails if prompt data is not available or cannot be parsed.
             This is non-critical functionality for viewing historical generation details.
+            Uses same approach as generator tab for consistency.
         """
-        from ui.components.prompt_debug_section import PromptDebugSection
-
-        # Try to get generation_prompt_data via repository (proper layer separation)
         try:
-            # Use repository method instead of direct database access
-            prompt_data = self.definition_repository.get_generation_prompt_data(
-                definition.id
-            )
+            from ui.components.prompt_debug_section import PromptDebugSection
 
-            if prompt_data:
-                # Create container for PromptDebugSection
+            # Get prompt from definition.metadata (where it's actually stored!)
+            prompt_template: str | None = None
+
+            if definition.metadata and "generation_prompt_data" in definition.metadata:
+                # metadata already contains parsed JSON dict
+                prompt_data = definition.metadata["generation_prompt_data"]
+                prompt_template = (
+                    prompt_data.get("prompt") if isinstance(prompt_data, dict) else None
+                )
+
+            if prompt_template:
+                # Create container for PromptDebugSection (EXACT same pattern as generator tab)
                 class _PromptContainer:
                     def __init__(self, text: str):
                         self.prompt_template = text
 
-                prompt_text = prompt_data.get("prompt")
-                if prompt_text:
-                    container = _PromptContainer(prompt_text)
+                container = _PromptContainer(prompt_template)
+                # Render with PromptDebugSection (no voorbeelden_prompts in edit context)
+                PromptDebugSection.render(container, voorbeelden_prompts=None)
 
-                    # Render with PromptDebugSection
-                    PromptDebugSection.render(container, voorbeelden_prompts=None)
         except Exception as e:
-            logger.warning(f"Could not render generation prompt: {e}")
+            logger.debug(f"Could not render generation prompt: {e}")
             # Silently fail - not critical
 
     def _render_version_history(self):
