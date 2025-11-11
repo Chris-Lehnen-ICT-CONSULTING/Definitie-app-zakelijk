@@ -659,6 +659,40 @@ class DefinitionRepository(DefinitionRepositoryInterface):
                         exc,
                     )
 
+            # DEF-151: Store generation prompt data as JSON
+            # Extract relevant metadata for prompt storage
+            if (
+                "prompt_text" in definition.metadata
+                or "prompt_template" in definition.metadata
+            ):
+                try:
+                    prompt_data = {
+                        "prompt": definition.metadata.get("prompt_text")
+                        or definition.metadata.get("prompt_template"),
+                        "model": definition.metadata.get("model", "unknown"),
+                        "temperature": definition.metadata.get("temperature"),
+                        "tokens_used": definition.metadata.get("tokens_used", 0),
+                        "tokens_prompt": definition.metadata.get("tokens_prompt"),
+                        "tokens_completion": definition.metadata.get(
+                            "tokens_completion"
+                        ),
+                        "created_at": definition.metadata.get("generated_at")
+                        or definition.metadata.get("generation_time"),
+                    }
+                    # Only store non-None values
+                    prompt_data = {
+                        k: v for k, v in prompt_data.items() if v is not None
+                    }
+                    record.generation_prompt_data = _json.dumps(
+                        prompt_data, ensure_ascii=False
+                    )
+                except Exception as exc:
+                    logger.warning(
+                        "Could not serialize generation prompt data for '%s': %s",
+                        definition.begrip,
+                        exc,
+                    )
+
         # Voeg toelichting toe aan definitie tekst indien aanwezig
         if definition.toelichting:
             record.definitie = (
@@ -666,6 +700,36 @@ class DefinitionRepository(DefinitionRepositoryInterface):
             )
 
         return record
+
+    def get_generation_prompt_data(self, definition_id: int) -> dict | None:
+        """
+        Get generation prompt data for a definition.
+
+        Args:
+            definition_id: ID of the definition
+
+        Returns:
+            Dictionary with prompt data or None if not available
+        """
+        import json as _json
+
+        try:
+            # Get record from legacy repository
+            with self.legacy_repo._get_connection() as conn:
+                cursor = conn.execute(
+                    "SELECT generation_prompt_data FROM definities WHERE id = ?",
+                    (definition_id,),
+                )
+                row = cursor.fetchone()
+
+                if row and row[0]:
+                    return _json.loads(row[0])
+                return None
+        except Exception as exc:
+            logger.debug(
+                f"Could not load generation prompt data for ID {definition_id}: {exc}"
+            )
+            return None
 
     def _record_to_definition(self, record: DefinitieRecord) -> Definition:
         """Converteer DefinitieRecord naar Definition."""
@@ -717,6 +781,13 @@ class DefinitionRepository(DefinitionRepositoryInterface):
             with suppress(json.JSONDecodeError, ValueError):
                 definition.metadata["validation_issues"] = json.loads(
                     record.validation_issues
+                )
+
+        # DEF-151: Restore generation prompt data from database
+        if record.generation_prompt_data:
+            with suppress(json.JSONDecodeError, ValueError):
+                definition.metadata["generation_prompt_data"] = json.loads(
+                    record.generation_prompt_data
                 )
 
         return definition
