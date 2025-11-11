@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Bug Hunt Summary - DEF-138 + General Codebase</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>Bug Hunt Summary - DEF-138 + General Codebase</h1>
+
+<p><strong>Date:</strong> 2025-11-10</p>
+<p><strong>Duration:</strong> 45 minutes</p>
+<p><strong>Scope:</strong> Regression testing + comprehensive codebase audit</p>
+
+<p>---</p>
+
+<h2>Quick Stats</h2>
+
+<p>| Category | Count | Status |</p>
+<p>|----------|-------|--------|</p>
+<p>| <strong>CRITICAL</strong> | 1 | 🔴 REQUIRES IMMEDIATE FIX |</p>
+<p>| <strong>HIGH</strong> | 3 | 🟠 FIX THIS WEEK |</p>
+<p>| <strong>MEDIUM</strong> | 4 | 🟡 FIX NEXT SPRINT |</p>
+<p>| <strong>LOW</strong> | 3 | 🟢 BACKLOG |</p>
+<p>| <strong>Total Issues</strong> | 11 | 8 actionable, 3 tech debt |</p>
+
+<p>---</p>
+
+<h2>Critical Issues (Fix Today!)</h2>
+
+<h3>🔴 BUG-001: False Positive Classification - "woordvoerder"</h3>
+
+<p><strong>Problem:</strong></p>
+<pre><code>woordvoerder → TYPE (wrong!)  # Should be PROCES</code></pre>
+
+<p><strong>Root Cause:</strong> New <code>-woord</code> pattern (0.70 weight) matches semantic compounds without validation</p>
+
+<p><strong>Fix:</strong> Add exclusion patterns to YAML config</p>
+<ul>
+<li>**Time:** 2-3 hours</li>
+<li>**Action Plan:** `/docs/backlog/EPIC-138/BUG-138-001-ACTION-PLAN.md`</li>
+</ul>
+
+<p>---</p>
+
+<h2>High Priority Issues (Fix This Week)</h2>
+
+<h3>🟠 BUG-004: Empty String Produces Invalid Classification</h3>
+
+<p><strong>Problem:</strong></p>
+<pre><code>classifier.classify("") → type (conf: 0.00)  # Should raise ValueError</code></pre>
+
+<p><strong>Fix:</strong> Add input validation</p>
+<pre><code>if not begrip or not begrip.strip():
+    raise ValueError("Cannot classify empty begrip")</code></pre>
+<ul>
+<li>**Time:** 30 minutes</li>
+</ul>
+
+<p>---</p>
+
+<h3>🟠 BUG-003: Division by Zero Risk</h3>
+
+<p><strong>Problem:</strong> <code>max(scores.values())</code> called twice, edge case handling incomplete</p>
+
+<p><strong>Fix:</strong> Optimize + validate</p>
+<pre><code>score_values = list(scores.values())
+max_score = max(score_values) if score_values and max(score_values) &gt; 0 else 1.0</code></pre>
+<ul>
+<li>**Time:** 1 hour</li>
+</ul>
+
+<p>---</p>
+
+<h3>🟠 BUG-002: Session State Architecture Compliance</h3>
+
+<p><strong>Status:</strong> ✅ NOT A BUG - Architecture is correct</p>
+<p><strong>Action:</strong> Add linter rule to prevent violations in future</p>
+<ul>
+<li>**Time:** 1 hour</li>
+</ul>
+
+<p>---</p>
+
+<h2>Medium Priority Issues (Next Sprint)</h2>
+
+<h3>🟡 BUG-005: Overly Broad Exception Handling</h3>
+
+<p><strong>Problem:</strong> 200+ instances of <code>except Exception:</code> that swallow errors</p>
+
+<p><strong>Fix:</strong> Audit + refactor to specific exceptions</p>
+<ul>
+<li>**Time:** 10-20 hours (long-term)</li>
+</ul>
+
+<p>---</p>
+
+<h3>🟡 BUG-006: YAML Loading Without Existence Check</h3>
+
+<p><strong>Problem:</strong> 11 files load YAML without checking if file exists</p>
+
+<p><strong>Fix:</strong> Create standardized <code>load_yaml_config()</code> helper</p>
+<ul>
+<li>**Time:** 2-3 hours</li>
+</ul>
+
+<p>---</p>
+
+<h3>🟡 BUG-007: SQL Injection Risk (Low Severity)</h3>
+
+<p><strong>Problem:</strong> <code>f"PRAGMA table_info({table})"</code> in migrate_database.py</p>
+
+<p><strong>Fix:</strong> Add table name validation whitelist</p>
+<ul>
+<li>**Time:** 30 minutes</li>
+</ul>
+
+<p>---</p>
+
+<h3>🟡 BUG-008: Undocumented Weight Choices</h3>
+
+<p><strong>Problem:</strong> New weights (0.70, 0.65) not justified in config</p>
+
+<p><strong>Fix:</strong> Add documentation comments explaining rationale</p>
+<ul>
+<li>**Time:** 30 minutes</li>
+</ul>
+
+<p>---</p>
+
+<h2>Low Priority Issues (Backlog)</h2>
+
+<h3>🟢 BUG-009: Performance - Duplicate max() Call</h3>
+
+<p><strong>Fix:</strong> Cache result instead of calling twice</p>
+<ul>
+<li>**Time:** 5 minutes</li>
+</ul>
+
+<h3>🟢 BUG-010: Missing Unicode Tests</h3>
+
+<p><strong>Fix:</strong> Add test cases for Dutch diacritics</p>
+<ul>
+<li>**Time:** 30 minutes</li>
+</ul>
+
+<h3>🟢 BUG-011: Config Cache Not Thread-Safe</h3>
+
+<p><strong>Fix:</strong> Add threading.Lock (future-proofing)</p>
+<ul>
+<li>**Time:** 15 minutes</li>
+</ul>
+
+<p>---</p>
+
+<h2>Test Results</h2>
+
+<h3>Edge Cases Tested ✅</h3>
+
+<p>| Input | Result | Status |</p>
+<p>|-------|--------|--------|</p>
+<p>| Empty string | TYPE (0.00) | ❌ Should error |</p>
+<p>| Whitespace | TYPE (0.00) | ❌ Should error |</p>
+<p>| 500 chars | TYPE (0.00) | ✅ Handles gracefully |</p>
+<p>| Special chars | TYPE (0.00) | ✅ Handles gracefully |</p>
+<p>| Unicode (bëloning) | PROCES (1.00) | ✅ Works correctly |</p>
+
+<h3>False Positive Analysis ⚠️</h3>
+
+<p>| Term | Current | Expected | Status |</p>
+<p>|------|---------|----------|--------|</p>
+<p>| werkwoord | TYPE ✅ | TYPE | ✅ CORRECT |</p>
+<p>| bijwoord | TYPE ✅ | TYPE | ✅ CORRECT |</p>
+<p>| handboek | TYPE ✅ | TYPE | ✅ CORRECT |</p>
+<p>| <strong>woordvoerder</strong> | TYPE ❌ | PROCES | ❌ FALSE POSITIVE |</p>
+<p>| <strong>naamgeving</strong> | PROCES ✅ | PROCES | ✅ CORRECT (context wins) |</p>
+<p>| <strong>boekhouding</strong> | PROCES ✅ | PROCES | ✅ CORRECT (context wins) |</p>
+
+<p><strong>Verdict:</strong> 1 critical false positive found (woordvoerder)</p>
+
+<p>---</p>
+
+<h2>Architecture Compliance</h2>
+
+<h3>✅ PASSED</h3>
+
+<ul>
+<li>Session state management (no violations outside SessionStateManager)</li>
+<li>Database file locations (all in `data/` directory)</li>
+<li>SQL parameterization (used throughout)</li>
+<li>Transaction handling (proper try/commit/rollback)</li>
+</ul>
+
+<h3>⚠️ WARNINGS</h3>
+
+<ul>
+<li>200+ overly broad exception handlers (`except Exception:`)</li>
+<li>11 YAML loaders without existence checks</li>
+<li>1 SQL f-string (low risk, controlled input)</li>
+</ul>
+
+<p>---</p>
+
+<h2>Recommendations</h2>
+
+<h3>TODAY (Before End of Day)</h3>
+
+<ol>
+<li>✅ Read full report: `/docs/reports/BUG_HUNT_REPORT_DEF138_COMPREHENSIVE.md`</li>
+<li>🔴 Fix BUG-001 (exclusion patterns) - 2-3 hours</li>
+<li>🟠 Fix BUG-004 (empty string validation) - 30 minutes</li>
+</ol>
+
+<p><strong>Total time:</strong> 3-4 hours</p>
+
+<p>---</p>
+
+<h3>THIS WEEK</h3>
+
+<ol>
+<li>🟠 Fix BUG-003 (division by zero optimization) - 1 hour</li>
+<li>🟡 Fix BUG-008 (document weight choices) - 30 minutes</li>
+<li>🟡 Fix BUG-007 (SQL injection prevention) - 30 minutes</li>
+</ol>
+
+<p><strong>Total time:</strong> 2 hours</p>
+
+<p>---</p>
+
+<h3>NEXT SPRINT</h3>
+
+<ol>
+<li>🟡 Standardize YAML loading (BUG-006) - 2-3 hours</li>
+<li>🟢 Add unicode test coverage (BUG-010) - 30 minutes</li>
+<li>🟡 Begin exception handling audit (BUG-005) - 10-20 hours (ongoing)</li>
+</ol>
+
+<p><strong>Total time:</strong> 13-24 hours</p>
+
+<p>---</p>
+
+<h2>Risk Assessment</h2>
+
+<p>| Area | Risk Level | Rationale |</p>
+<p>|------|-----------|-----------|</p>
+<p>| <strong>DEF-138 Changes</strong> | MEDIUM | False positives introduced |</p>
+<p>| <strong>Core Classification</strong> | LOW | Solid architecture, one edge case |</p>
+<p>| <strong>Session State</strong> | LOW | Compliant with architecture rules |</p>
+<p>| <strong>Database</strong> | LOW | Proper parameterization, safe transactions |</p>
+<p>| <strong>Error Handling</strong> | MEDIUM | Too broad, but not breaking |</p>
+<p>| <strong>Config Loading</strong> | LOW | Works but lacks validation |</p>
+
+<p><strong>Overall Risk:</strong> LOW-MEDIUM</p>
+<ul>
+<li>No security vulnerabilities found</li>
+<li>No data corruption risks</li>
+<li>One user-facing bug (false positive)</li>
+</ul>
+
+<p>---</p>
+
+<h2>Files Generated</h2>
+
+<ol>
+<li>**Comprehensive Report:** `/docs/reports/BUG_HUNT_REPORT_DEF138_COMPREHENSIVE.md` (11 pages)</li>
+<li>**Action Plan:** `/docs/backlog/EPIC-138/BUG-138-001-ACTION-PLAN.md` (detailed fix steps)</li>
+<li>**This Summary:** `/docs/backlog/EPIC-138/BUG-HUNT-SUMMARY.md` (quick reference)</li>
+</ol>
+
+<p>---</p>
+
+<h2>Conclusion</h2>
+
+<p>The DEF-138 changes successfully fixed zero confidence scores BUT introduced one critical false positive bug. The codebase is generally healthy with good architecture compliance. Recommended action: Fix BUG-001 today (3 hours), then address HIGH priority issues this week.</p>
+
+<p><strong>Next Steps:</strong></p>
+<ol>
+<li>Review `/docs/reports/BUG_HUNT_REPORT_DEF138_COMPREHENSIVE.md`</li>
+<li>Implement `/docs/backlog/EPIC-138/BUG-138-001-ACTION-PLAN.md`</li>
+<li>Run regression tests</li>
+<li>Monitor production for 48 hours</li>
+</ol>
+
+<p>---</p>
+
+<p><strong>Report by:</strong> Debug Specialist (Claude Code)</p>
+<p><strong>Methodology:</strong> Static analysis + dynamic testing + pattern detection</p>
+<p><strong>Confidence:</strong> HIGH (comprehensive testing performed)</p>
+
+  </div>
+</body>
+</html>
