@@ -923,9 +923,20 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                     ),
                     # Add voorbeelden to metadata so UI can display them
                     "voorbeelden": voorbeelden if voorbeelden else {},
-                    # Store the prompt text for debug UI
+                    # DEF-151: Store complete generation prompt metadata for audit trail
                     "prompt_text": prompt_result.text if prompt_result else "",
                     "prompt_template": prompt_result.text if prompt_result else "",
+                    "temperature": temperature,
+                    "tokens_prompt": (
+                        generation_result.metadata.get("tokens_prompt")
+                        if generation_result and generation_result.metadata
+                        else None
+                    ),
+                    "tokens_completion": (
+                        generation_result.metadata.get("tokens_completion")
+                        if generation_result and generation_result.metadata
+                        else None
+                    ),
                     # Store original definition without metadata headers (for UI display)
                     # This is the GPT output with "Ontologische categorie:" header removed
                     "definitie_origineel": definitie_zonder_header,
