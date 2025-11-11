@@ -371,6 +371,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "DEF-151: Generation Prompt Storage - Implementation Specification",
+      "path": "../specifications/DEF-151_GENERATION_PROMPT_STORAGE_SPEC.md",
+      "url": "../specifications/DEF-151_GENERATION_PROMPT_STORAGE_SPEC.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/specifications/DEF-151_GENERATION_PROMPT_STORAGE_SPEC.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "🎯 AI Frontend Generatie Prompt voor DefinitieAgent",
       "path": "../frontend/AI-FRONTEND-PROMPT-NL.md",
       "url": "../frontend/AI-FRONTEND-PROMPT-NL.md",
@@ -1799,6 +1830,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "DEF-101 ALTERNATIVE SEQUENCING PLANS",
+      "path": "../planning/DEF-101-ALTERNATIVE-SEQUENCING-PLANS.md",
+      "url": "../planning/DEF-101-ALTERNATIVE-SEQUENCING-PLANS.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/planning/DEF-101-ALTERNATIVE-SEQUENCING-PLANS.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "WEEK 1: UUR-VOOR-UUR IMPLEMENTATIE SCHEDULE",
       "path": "../planning/week-1-hourly-schedule.md",
       "url": "../planning/week-1-hourly-schedule.md",
@@ -2200,6 +2262,68 @@
         "req": []
       },
       "rendered_url": "rendered/planning/EPIC-026-STAKEHOLDER-REVIEW-BRIEF.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "DEF-101 Plan B: Complete Implementation Specification",
+      "path": "../planning/PLAN-B-COMPLETE-SPECIFICATION.md",
+      "url": "../planning/PLAN-B-COMPLETE-SPECIFICATION.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/planning/PLAN-B-COMPLETE-SPECIFICATION.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "DEF-101 SEQUENCING INSIGHTS: Challenging the Assumptions",
+      "path": "../planning/DEF-101-SEQUENCING-INSIGHTS.md",
+      "url": "../planning/DEF-101-SEQUENCING-INSIGHTS.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/planning/DEF-101-SEQUENCING-INSIGHTS.html"
     },
     {
       "id": null,
@@ -7722,6 +7846,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "DEF-102 Contradiction #5: FINAL VERDICT",
+      "path": "../analyses/DEF-102_CONTRADICTION_5_FINAL_VERDICT.md",
+      "url": "../analyses/DEF-102_CONTRADICTION_5_FINAL_VERDICT.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/DEF-102_CONTRADICTION_5_FINAL_VERDICT.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Perplexity API Decision Summary",
       "path": "../analyses/PERPLEXITY_DECISION_SUMMARY.md",
       "url": "../analyses/PERPLEXITY_DECISION_SUMMARY.md",
@@ -7811,6 +7966,37 @@
         "req": []
       },
       "rendered_url": "rendered/analyses/DEF-54-SIMPLIFIED-REFACTOR-PLAN.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "DEF-101 Technical Complexity & Dependencies Analysis",
+      "path": "../analyses/DEF-101-TECHNICAL-COMPLEXITY-ANALYSIS.md",
+      "url": "../analyses/DEF-101-TECHNICAL-COMPLEXITY-ANALYSIS.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/DEF-101-TECHNICAL-COMPLEXITY-ANALYSIS.html"
     },
     {
       "id": null,
@@ -8003,6 +8189,37 @@
         "req": []
       },
       "rendered_url": "rendered/analyses/PROMPT_OPTIMIZATION_SUMMARY.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "DEF-102 Contradiction #5: ULTRA-DEEP ANALYSIS",
+      "path": "../analyses/DEF-102_CONTRADICTION_5_ULTRATHINK_ANALYSIS.md",
+      "url": "../analyses/DEF-102_CONTRADICTION_5_ULTRATHINK_ANALYSIS.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/DEF-102_CONTRADICTION_5_ULTRATHINK_ANALYSIS.html"
     },
     {
       "id": null,
@@ -9669,6 +9886,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "DEF-102: CONTEXT USAGE Contradiction - Complete Analysis",
+      "path": "../analyses/DEF-102_CONTEXT_USAGE_ANALYSIS.md",
+      "url": "../analyses/DEF-102_CONTEXT_USAGE_ANALYSIS.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/DEF-102_CONTEXT_USAGE_ANALYSIS.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Strategic Analysis: Pre-Processing Pattern voor Ontologische Classificatie",
       "path": "../analyses/ONTOLOGICAL_CLASSIFICATION_PRE_PROCESSING_PATTERN_ANALYSIS.md",
       "url": "../analyses/ONTOLOGICAL_CLASSIFICATION_PRE_PROCESSING_PATTERN_ANALYSIS.md",
@@ -11324,6 +11572,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "DEF-102: Context Usage - Quick Reference Guide",
+      "path": "../analyses/DEF-102_CONTEXT_USAGE_QUICK_REFERENCE.md",
+      "url": "../analyses/DEF-102_CONTEXT_USAGE_QUICK_REFERENCE.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/DEF-102_CONTEXT_USAGE_QUICK_REFERENCE.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Render Regression Investigation - Executive Summary",
       "path": "../analyses/RENDER_REGRESSION_SUMMARY.md",
       "url": "../analyses/RENDER_REGRESSION_SUMMARY.md",
@@ -11351,6 +11630,39 @@
         "req": []
       },
       "rendered_url": "rendered/analyses/RENDER_REGRESSION_SUMMARY.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "DEF-101: Plan B - Detailed Risk Analysis",
+      "path": "../analyses/DEF-101_PLAN_B_DETAILED_RISK_ANALYSIS.md",
+      "url": "../analyses/DEF-101_PLAN_B_DETAILED_RISK_ANALYSIS.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [
+          "EPIC-015"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/DEF-101_PLAN_B_DETAILED_RISK_ANALYSIS.html"
     },
     {
       "id": null,
@@ -11508,6 +11820,37 @@
         "req": []
       },
       "rendered_url": "rendered/analyses/synonym-system-edge-case-analysis.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "DEF-151: Generation Prompt Storage - Architecture Integration Analysis",
+      "path": "../analyses/DEF-151_ARCHITECTURE_INTEGRATION_ANALYSIS.md",
+      "url": "../analyses/DEF-151_ARCHITECTURE_INTEGRATION_ANALYSIS.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/DEF-151_ARCHITECTURE_INTEGRATION_ANALYSIS.html"
     },
     {
       "id": null,
@@ -15206,6 +15549,37 @@
         "req": []
       },
       "rendered_url": "rendered/reviews/TEST_FAILURE_ANALYSIS.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Plan B Implementation: Architectural Review",
+      "path": "../reviews/plan-b-architecture-review.md",
+      "url": "../reviews/plan-b-architecture-review.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/reviews/plan-b-architecture-review.html"
     },
     {
       "id": null,
@@ -77747,7 +78121,7 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 1229,
+      "DOC": 1241,
       "ARCH": 42,
       "COMP": 5,
       "TEST": 37,
@@ -77757,7 +78131,7 @@
       "BUG": 47,
       "REQ": 115
     },
-    "generated_at": "2025-11-10T13:04:30Z"
+    "generated_at": "2025-11-11T14:19:27Z"
   },
   "sources": [
     "docs"

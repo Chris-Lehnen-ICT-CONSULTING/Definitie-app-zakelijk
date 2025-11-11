@@ -147,8 +147,7 @@ class ErrorPreventionModule(BasePromptModule):
             "- ❌ Gebruik geen koppelwerkwoord aan het begin ('is', 'betekent', 'omvat')",
             "- ❌ Herhaal het begrip niet letterlijk",
             "- ❌ Gebruik geen synoniem als definitie",
-            "- ❌ Vermijd containerbegrippen ('proces', 'activiteit')",
-            "- ❌ Vermijd bijzinnen zoals 'die', 'waarin', 'zoals'",
+            "- ❌ Vermijd vage containerbegrippen ('aspect', 'element', 'factor', 'kwestie')",
             "- ❌ Gebruik enkelvoud; infinitief bij werkwoorden",
         ]
 
