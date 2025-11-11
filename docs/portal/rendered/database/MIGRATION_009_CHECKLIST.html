@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Migration 009 Execution Checklist</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>Migration 009 Execution Checklist</h1>
+
+<p><strong>Migration</strong>: Remove UNIQUE constraint on definities table</p>
+<p><strong>Date</strong>: 2025-11-10</p>
+<p><strong>Estimated Time</strong>: 10 minutes</p>
+
+<p>---</p>
+
+<h2>Pre-Flight Checklist</h2>
+
+<h3>Preparation</h3>
+<ul>
+<li>[ ] Read design document: `docs/database/UNIQUE_CONSTRAINT_REMOVAL_DESIGN.md`</li>
+<li>[ ] Read summary: `docs/database/UNIQUE_CONSTRAINT_REMOVAL_SUMMARY.md`</li>
+<li>[ ] Understand rollback procedure</li>
+</ul>
+
+<h3>Environment Check</h3>
+<ul>
+<li>[ ] Database exists: `data/definities.db`</li>
+<li>[ ] Backup directory exists: `data/`</li>
+<li>[ ] Migration file exists: `src/database/migrations/009_remove_unique_constraint.sql`</li>
+<li>[ ] Test file exists: `tests/database/test_unique_constraint_removal.py`</li>
+</ul>
+
+<p>---</p>
+
+<h2>Execution Steps</h2>
+
+<h3>Step 1: Backup Database</h3>
+<pre><code>cp data/definities.db data/definities.db.backup_pre_migration_009
+ls -lh data/definities.db.backup_pre_migration_009</code></pre>
+<ul>
+<li>[ ] Backup created successfully</li>
+<li>[ ] Backup file size > 0</li>
+</ul>
+
+<h3>Step 2: Verify Current State</h3>
+<pre><code>sqlite3 data/definities.db "SELECT name, sql FROM sqlite_master WHERE type='index' AND name='idx_definities_unique_full';"</code></pre>
+<ul>
+<li>[ ] Output shows: `idx_definities_unique_full`</li>
+<li>[ ] Index SQL includes: `CREATE UNIQUE INDEX`</li>
+</ul>
+
+<h3>Step 3: Run Pre-Migration Tests</h3>
+<pre><code>pytest tests/database/test_unique_constraint_removal.py::TestPreMigration -v</code></pre>
+<ul>
+<li>[ ] All tests PASSED</li>
+<li>[ ] Test `test_unique_index_exists` passed</li>
+<li>[ ] Test `test_duplicate_blocked_by_database` passed</li>
+<li>[ ] Test `test_python_check_detects_duplicates` passed</li>
+</ul>
+
+<h3>Step 4: Apply Migration</h3>
+<pre><code>sqlite3 data/definities.db &lt; src/database/migrations/009_remove_unique_constraint.sql</code></pre>
+<ul>
+<li>[ ] No errors displayed</li>
+<li>[ ] Exit code: 0</li>
+</ul>
+
+<h3>Step 5: Verify Migration Applied</h3>
+<pre><code>sqlite3 data/definities.db "SELECT COUNT(*) FROM sqlite_master WHERE type='index' AND name='idx_definities_unique_full';"</code></pre>
+<ul>
+<li>[ ] Output shows: `0`</li>
+<li>[ ] Index removed successfully</li>
+</ul>
+
+<h3>Step 6: Run Post-Migration Tests</h3>
+<pre><code>pytest tests/database/test_unique_constraint_removal.py::TestPostMigration -v</code></pre>
+<ul>
+<li>[ ] All tests PASSED</li>
+<li>[ ] Test `test_unique_index_removed` passed</li>
+<li>[ ] Test `test_duplicate_allowed_with_flag` passed</li>
+<li>[ ] Test `test_python_guard_still_blocks_without_flag` passed</li>
+<li>[ ] Test `test_find_duplicates_still_works` passed</li>
+</ul>
+
+<h3>Step 7: Run Regression Tests</h3>
+<pre><code>pytest tests/services/test_duplicate_detection_service.py -v
+pytest tests/services/test_definition_repository.py -v</code></pre>
+<ul>
+<li>[ ] All tests PASSED</li>
+<li>[ ] No new failures introduced</li>
+</ul>
+
+<h3>Step 8: Smoke Test via UI</h3>
+<pre><code>bash scripts/run_app.sh</code></pre>
+
+<p><strong>Test Scenario</strong>:</p>
+<ol>
+<li>Create definition: `begrip="test_migration"`, `categorie="ENT"`, context="DJI"</li>
+<li>Attempt duplicate: Same attributes</li>
+<li>Expected: Warning dialog shown</li>
+<li>Click "Create Anyway"</li>
+<li>Expected: Second definition created successfully</li>
+</ol>
+
+<ul>
+<li>[ ] Warning dialog shown on duplicate attempt</li>
+<li>[ ] User can override warning</li>
+<li>[ ] Duplicate definition created successfully</li>
+<li>[ ] Both definitions visible in database</li>
+</ul>
+
+<p>---</p>
+
+<h2>Rollback (If Needed)</h2>
+
+<h3>Immediate Rollback (No Duplicates)</h3>
+<pre><code>cp data/definities.db.backup_pre_migration_009 data/definities.db
+sqlite3 data/definities.db "SELECT name FROM sqlite_master WHERE type='index' AND name='idx_definities_unique_full';"</code></pre>
+<ul>
+<li>[ ] Backup restored</li>
+<li>[ ] Index exists again</li>
+</ul>
+
+<h3>Delayed Rollback (With Duplicates)</h3>
+<pre><code># Step 1: Preview duplicates
+python scripts/cleanup_duplicates.py --preview
+
+# Step 2: Clean up duplicates
+python scripts/cleanup_duplicates.py --execute
+
+# Step 3: Apply rollback migration
+sqlite3 data/definities.db &lt; src/database/migrations/009_rollback_remove_unique_constraint.sql
+
+# Step 4: Verify
+sqlite3 data/definities.db "SELECT name FROM sqlite_master WHERE type='index' AND name='idx_definities_unique_full';"</code></pre>
+<ul>
+<li>[ ] Duplicates identified</li>
+<li>[ ] Duplicates archived</li>
+<li>[ ] Rollback migration applied</li>
+<li>[ ] Index restored</li>
+</ul>
+
+<p>---</p>
+
+<h2>Post-Migration Monitoring</h2>
+
+<h3>Day 1 (Immediate)</h3>
+<ul>
+<li>[ ] No errors in application logs</li>
+<li>[ ] Duplicate creation works as expected</li>
+<li>[ ] Python warnings still functional</li>
+</ul>
+
+<h3>Week 1 (Monitor Daily)</h3>
+<pre><code># Count duplicates created
+grep "allow_duplicate=True" logs/app.log | wc -l
+
+# Check duplicate percentage
+sqlite3 data/definities.db &lt;&lt;EOF
+SELECT
+    (SELECT COUNT(*) FROM definities WHERE status != 'archived') as total,
+    (SELECT COUNT(*) FROM (
+        SELECT begrip, organisatorische_context, COUNT(*) as cnt
+        FROM definities WHERE status != 'archived'
+        GROUP BY begrip, organisatorische_context, juridische_context, wettelijke_basis, categorie
+        HAVING COUNT(*) &gt; 1
+    )) as duplicates;
+EOF</code></pre>
+<ul>
+<li>[ ] Duplicate rate < 5%</li>
+<li>[ ] No user complaints</li>
+<li>[ ] No performance degradation</li>
+</ul>
+
+<p>---</p>
+
+<h2>Sign-Off</h2>
+
+<h3>Executed By</h3>
+<ul>
+<li>Name: __________________</li>
+<li>Date: __________________</li>
+<li>Time: __________________</li>
+</ul>
+
+<h3>Verified By</h3>
+<ul>
+<li>Name: __________________</li>
+<li>Date: __________________</li>
+<li>Time: __________________</li>
+</ul>
+
+<h3>Result</h3>
+<ul>
+<li>[ ] ✅ SUCCESS - Migration applied successfully</li>
+<li>[ ] ⚠️ PARTIAL - Issues encountered (describe below)</li>
+<li>[ ] ❌ FAILED - Rolled back (describe below)</li>
+</ul>
+
+<h3>Notes</h3>
+<pre><code>[Add any observations, issues, or deviations from plan]
+
+
+
+
+</code></pre>
+
+<p>---</p>
+
+<h2>Emergency Contacts</h2>
+
+<p><strong>If issues occur</strong>:</p>
+<ol>
+<li>Stop application immediately</li>
+<li>Check logs: `logs/app.log`</li>
+<li>Restore backup if necessary</li>
+<li>Document issue in notes above</li>
+<li>Consult design document for troubleshooting</li>
+</ol>
+
+<p>---</p>
+
+<p><strong>END OF CHECKLIST</strong></p>
+
+  </div>
+</body>
+</html>
