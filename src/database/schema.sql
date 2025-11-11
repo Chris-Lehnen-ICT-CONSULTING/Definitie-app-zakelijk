@@ -71,6 +71,9 @@ CREATE TABLE definities (
     last_exported_at TIMESTAMP,
     export_destinations TEXT, -- JSON array van export locaties
 
+    -- Generation Prompt Storage (DEF-151)
+    generation_prompt_data TEXT, -- JSON with prompt, model, tokens, etc. for reproducibility
+
     -- Legacy metadata fields
     datum_voorstel DATE,
     ketenpartners TEXT, -- JSON array van ketenpartner namen

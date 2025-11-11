@@ -820,6 +820,48 @@ class DefinitionEditTab:
             if definition.bron:
                 st.caption(f"**Bron Referentie:** {definition.bron}")
 
+        # DEF-151: Show generation prompt if available
+        self._render_generation_prompt_section(definition)
+
+    def _render_generation_prompt_section(self, definition):
+        """
+        Render generation prompt viewer (DEF-151).
+
+        Displays the stored generation prompt data (if available) using the
+        PromptDebugSection component. Includes prompt text, model info, and token usage.
+
+        Args:
+            definition: Definition object to retrieve prompt data for
+
+        Note:
+            Silently fails if prompt data is not available or cannot be parsed.
+            This is non-critical functionality for viewing historical generation details.
+        """
+        from ui.components.prompt_debug_section import PromptDebugSection
+
+        # Try to get generation_prompt_data via repository (proper layer separation)
+        try:
+            # Use repository method instead of direct database access
+            prompt_data = self.definition_repository.get_generation_prompt_data(
+                definition.id
+            )
+
+            if prompt_data:
+                # Create container for PromptDebugSection
+                class _PromptContainer:
+                    def __init__(self, text: str):
+                        self.prompt_template = text
+
+                prompt_text = prompt_data.get("prompt")
+                if prompt_text:
+                    container = _PromptContainer(prompt_text)
+
+                    # Render with PromptDebugSection
+                    PromptDebugSection.render(container, voorbeelden_prompts=None)
+        except Exception as e:
+            logger.warning(f"Could not render generation prompt: {e}")
+            # Silently fail - not critical
+
     def _render_version_history(self):
         """Render compact version history panel."""
         definition_id = SessionStateManager.get_value("editing_definition_id")
