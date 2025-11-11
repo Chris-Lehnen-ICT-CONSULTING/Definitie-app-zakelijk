@@ -800,13 +800,12 @@ class DefinitionGeneratorTab:
                 else {}
             )
             gen_id = meta.get("generation_id")
-            flag_key = (
-                f"examples_saved_for_gen_{gen_id}"
-                if gen_id
-                else f"examples_saved_for_def_{definitie_id}"
+            # FIX: Remove flag check - causes silent save failures on regeneration
+            # Flag reuse in same session prevents voorbeelden from being saved
+            # Use DB comparison for idempotency instead (line 874)
+            logger.debug(
+                f"Auto-save voorbeelden check for definitie_id={definitie_id}, gen_id={gen_id}"
             )
-            if SessionStateManager.get_value(flag_key):
-                return
 
             raw = (
                 ensure_dict(agent_result.get("voorbeelden", {}))
@@ -814,6 +813,9 @@ class DefinitionGeneratorTab:
                 else {}
             )
             if not raw:
+                logger.warning(
+                    f"No voorbeelden data in agent_result for definitie {definitie_id}"
+                )
                 return
 
             # Canonicaliseer en normaliseer naar lists
@@ -845,6 +847,9 @@ class DefinitionGeneratorTab:
             # Controleer of er iets nieuws is
             total_new = sum(len(v) for v in to_save.values())
             if total_new == 0:
+                logger.warning(
+                    f"Voorbeelden dict empty (0 items) for definitie {definitie_id}"
+                )
                 return
 
             # Vergelijk met huidige actieve voorbeelden; sla alleen op als er verschil is
@@ -872,7 +877,9 @@ class DefinitionGeneratorTab:
             }
 
             if _norm(current_canon) == _norm(to_save):
-                SessionStateManager.set_value(flag_key, True)
+                logger.info(
+                    f"Voorbeelden identical to database for definitie {definitie_id}, skipping save"
+                )
                 return
 
             # Sla op met voorkeursterm uit session state
@@ -893,14 +900,16 @@ class DefinitionGeneratorTab:
                     voorkeursterm=voorkeursterm if voorkeursterm else None,
                 )
                 repo.save_voorbeelden(**validated.model_dump())
+                logger.info(
+                    f"✅ Voorbeelden saved for definitie {definitie_id}: "
+                    f"{total_new} items across {len([k for k, v in to_save.items() if v])} types"
+                )
             except ValidationError as e:
-                logger.error(f"Voorbeelden validation failed: {e}")
+                logger.error(
+                    f"Voorbeelden validation failed for definitie {definitie_id}: {e}"
+                )
                 # Don't raise in auto-save context, just log
                 return
-            SessionStateManager.set_value(flag_key, True)
-            logger.info(
-                "Voorbeelden automatisch opgeslagen voor definitie %s", definitie_id
-            )
         except Exception as e:
             logger.warning("Automatisch opslaan voorbeelden mislukt: %s", e)
 
