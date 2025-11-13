@@ -86,10 +86,10 @@ docs/backlog/
 
 #### ID Policy (Backlog)
 - Epic ID’s (`EPIC-XXX`) zijn GLOBAAL uniek binnen het project.
-- User Story ID’s (frontmatter `id: US-XXX`) zijn GLOBAAL uniek over de héle backlog (niet alleen binnen een EPIC).
-- Bug ID’s (frontmatter `id: BUG-XXX` of `CFR-BUG-XXX`) zijn ook globaal uniek.
+- User Story ID's (frontmatter `id: US-XXX`) zijn GLOBAAL uniek over de héle backlog (niet alleen binnen een EPIC).
+- Bug ID's (frontmatter `id: BUG-XXX` of `CFR-BUG-XXX`) zijn ook globaal uniek.
 - De frontmatter‑`id` is de canonieke identiteit; map‑/bestandsnamen mogen historisch afwijken maar worden bij voorkeur opgevolgd.
-- Bij aanmaken/wijzigen: voer een uniekheidscheck uit en kies het eerstvolgende vrije nummer. Bij conflicten: renummer de nieuwere of minst‑gekoppelde story en update referenties/portals.
+- Bij aanmaken/wijzigen: voer een uniekheidscheck uit (`rg -n "^id: US-" docs/backlog`) en kies het eerstvolgende vrije nummer. Bij conflicten: renummer de nieuwere of minst‑gekoppelde story en update alle referenties.
 
 ### 7. Archief
 - **Architectuur Consolidatie (Sept 2025)**: `docs/archief/2025-09-architectuur-consolidatie/`

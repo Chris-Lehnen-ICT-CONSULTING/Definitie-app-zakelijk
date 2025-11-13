@@ -717,7 +717,6 @@ black src config
 
 ### Huidig Werk & Epics
 
-- Centrale Portal: `docs/portal/index.html` (zoek, filter, planning, requirements)
 - Individuele Epic: `docs/backlog/EPIC-XXX/EPIC-XXX.md`
 - Individuele Story: `docs/backlog/EPIC-XXX/US-XXX/US-XXX.md`
 - Bugs per Story: `docs/backlog/EPIC-XXX/US-XXX/BUG-XXX/BUG-XXX.md`

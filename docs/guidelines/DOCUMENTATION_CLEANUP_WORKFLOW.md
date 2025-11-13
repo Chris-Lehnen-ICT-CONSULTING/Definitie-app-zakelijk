@@ -279,12 +279,8 @@ git mv docs/{source}/{file2} docs/archief/{target}/
 # Update CHANGELOG.md
 sed -i '' 's|docs/{old_path}|docs/{new_path}|g' CHANGELOG.md
 
-# Update Portal JSON (multiple sed operations)
-sed -i '' 's|"../{old_path}"|"../{new_path}"|g' docs/portal/portal-index.json
-sed -i '' 's|"rendered/{old_path}"|"rendered/{new_path}"|g' docs/portal/portal-index.json
-
-# Validate Portal JSON
-python -m json.tool docs/portal/portal-index.json > /dev/null
+# Portal updates (DEPRECATED - portal archived 2025-11-13)
+# No portal updates needed anymore
 
 # Update analysis documents
 sed -i '' 's|/docs/{old_path}|/docs/{new_path}|g' docs/analyses/*.md
@@ -319,8 +315,7 @@ ls docs/{source} 2>&1 | grep "No such file"  # Source should be gone
 grep -r "docs/{old_path}" docs/ --include="*.md" | grep -v archief | wc -l
 # Should be 0 (or only in context like analysis docs)
 
-# Validate Portal JSON
-python -m json.tool docs/portal/portal-index.json > /dev/null
+# Portal validation (DEPRECATED - portal archived 2025-11-13)
 
 # Check git history preservation
 git log --follow docs/archief/{target}/{file}  # Should show full history
@@ -503,7 +498,7 @@ Gebruik deze decision tree om te bepalen wat er met elk bestand moet gebeuren:
 5. **Reference updates in bulk**
    - Sed commands voor multiple replacements
    - Valideer JSON na elke batch
-   - **Impact:** 12 portal references in <5 min
+   - **Impact:** ~~12 portal references~~ (portal deprecated) in <5 min
 
 ### ❌ Anti-Patterns (Avoid This):
 
@@ -519,7 +514,7 @@ Gebruik deze decision tree om te bepalen wat er met elk bestand moet gebeuren:
 
 3. **NOOIT skippen van verification**
    - Broken links discovered te laat
-   - Portal JSON corruption
+   - ~~Portal JSON corruption~~ (portal deprecated)
    - **Use:** Check ELKE fase voor verder gaan
 
 4. **NOOIT assumptie over file status**
@@ -584,8 +579,8 @@ Task(
 # Find all references to old path
 grep -r "docs/migration/" docs/ --include="*.md"
 
-# Exclude archief and portal from search
-grep -r "docs/migration/" docs/ --include="*.md" | grep -v archief | grep -v portal
+# Exclude archief from search
+grep -r "docs/migration/" docs/ --include="*.md" | grep -v archief
 
 # Count references
 grep -r "docs/migration/" docs/ --include="*.md" | grep -v archief | wc -l
@@ -603,8 +598,8 @@ sed -i '' 's|old/path|new/path|g' file.md
 # Multiple files
 sed -i '' 's|old/path|new/path|g' docs/**/*.md
 
-# Portal JSON (escape special chars)
-sed -i '' 's|"../migration/file\.md"|"../archief/migrations/file.md"|g' portal-index.json
+# Portal JSON - DEPRECATED (escape special chars)
+# sed -i '' 's|"../migration/file\.md"|"../archief/migrations/file.md"|g' portal-index.json
 
 # Verify before commit
 grep "old/path" file.md  # Should return nothing
