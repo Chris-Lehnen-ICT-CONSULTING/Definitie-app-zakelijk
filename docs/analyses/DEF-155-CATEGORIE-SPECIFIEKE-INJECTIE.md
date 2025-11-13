@@ -1,4 +1,4 @@
-# DEF-126: Categorie-Specifieke Instructie Injectie
+# DEF-155: Categorie-Specifieke Instructie Injectie
 
 ## ✅ De Juiste Aanpak
 
@@ -194,4 +194,4 @@ Door één module verantwoordelijk te maken voor categorie-specifieke instructie
 - **Model krijgt precise, relevante instructies**
 - **Geen conflicten of verwarring meer**
 
-Dit is DE kernverbetering voor DEF-126!
+Dit is DE kernverbetering voor DEF-155!

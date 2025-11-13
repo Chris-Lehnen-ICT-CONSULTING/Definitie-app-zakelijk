@@ -1,4 +1,4 @@
-# DEF-126 Context Consolidation - Executive Risk Summary
+# DEF-155 Context Consolidation - Executive Risk Summary
 
 **Date:** 2025-11-13
 **Risk Level:** 🟡 MEDIUM-HIGH → 🟢 LOW-MEDIUM (with mitigations)
@@ -122,14 +122,14 @@ Tests with clean mocks pass, production with real data fails.
 2. Generate prompts with CURRENT system
 3. Generate definitions with CURRENT system
 4. Run validation, capture scores
-5. Store in `tests/fixtures/DEF-126-baseline/`
+5. Store in `tests/fixtures/DEF-155-baseline/`
 6. Commit to git
 
 **Acceptance criteria:**
 - ✓ 20 prompt files
 - ✓ 20 definition JSON files
 - ✓ scores.csv with 20 rows
-- ✓ Git commit: "test(DEF-126): baseline capture"
+- ✓ Git commit: "test(DEF-155): baseline capture"
 
 **Why critical:**
 Without this, you have NO WAY to verify quality is maintained. All other tests become meaningless because they validate new system against... new system.
@@ -355,14 +355,14 @@ git reset --hard <commit-hash>
 
 ## 📚 Related Documents
 
-- **Full Risk Assessment:** `DEF-126-RISK-ASSESSMENT-FMEA.md` (this folder)
-- **Implementation Plan:** `DEF-126-CONTEXT-CONSOLIDATION-IMPLEMENTATION-PLAN.md`
-- **Context Analysis:** `DEF-126-CONTEXT-INJECTION-SUMMARY.md`
-- **Architecture:** `DEF-126-PROMPT-SYSTEM-ARCHITECTURE.md`
+- **Full Risk Assessment:** `DEF-155-RISK-ASSESSMENT-FMEA.md` (this folder)
+- **Implementation Plan:** `DEF-155-CONTEXT-CONSOLIDATION-IMPLEMENTATION-PLAN.md`
+- **Context Analysis:** `DEF-155-CONTEXT-INJECTION-SUMMARY.md`
+- **Architecture:** `DEF-155-PROMPT-SYSTEM-ARCHITECTURE.md`
 
 ---
 
 **Document Status:** ✅ COMPLETE
-**Priority:** 🔴 HIGH - Read before implementing DEF-126
+**Priority:** 🔴 HIGH - Read before implementing DEF-155
 **Audience:** Developer implementing consolidation
 **Action Required:** Add 4 phases to implementation plan before starting

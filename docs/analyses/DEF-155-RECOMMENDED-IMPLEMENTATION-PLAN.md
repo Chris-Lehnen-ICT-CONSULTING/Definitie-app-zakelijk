@@ -1,4 +1,4 @@
-# DEF-126 Recommended Implementation Plan: Phased Hybrid Approach
+# DEF-155 Recommended Implementation Plan: Phased Hybrid Approach
 
 **Date:** 2025-11-13
 **Based on:** Multi-Agent Analysis (4 specialized agents)
@@ -36,14 +36,14 @@ Decision Point: After Phase 2 → STOP or proceed to Phase 3?
 pip install tiktoken
 echo "tiktoken" >> requirements.txt
 git add requirements.txt
-git commit -m "build(deps): add tiktoken for token measurement (DEF-126)"
+git commit -m "build(deps): add tiktoken for token measurement (DEF-155)"
 ```
 
 #### 2. Create Baseline Generation Script (15 min)
 ```python
 # tests/debug/generate_baseline_def126.py
 """
-Generate baseline definitions BEFORE DEF-126 refactor.
+Generate baseline definitions BEFORE DEF-155 refactor.
 Used to detect quality regressions.
 """
 import json
@@ -93,7 +93,7 @@ def main():
     generator = get_definition_generator()
     baseline = []
 
-    print("🔍 Generating baseline definitions (BEFORE DEF-126)...\n")
+    print("🔍 Generating baseline definitions (BEFORE DEF-155)...\n")
 
     for i, test_case in enumerate(TEST_CASES, 1):
         print(f"[{i}/{len(TEST_CASES)}] {test_case['scenario']}: {test_case['begrip']}")
@@ -153,7 +153,7 @@ cat tests/debug/baseline_def126.json | head -50
 #### 4. Measure Token Counts (20 min)
 ```python
 # tests/debug/measure_tokens_def126.py
-"""Measure current token usage (BEFORE DEF-126)."""
+"""Measure current token usage (BEFORE DEF-155)."""
 import json
 import tiktoken
 from src.services.prompts.prompt_service_v2 import PromptServiceV2
@@ -172,7 +172,7 @@ def main():
 
     measurements = []
 
-    print("📊 Measuring token usage (BEFORE DEF-126)...\n")
+    print("📊 Measuring token usage (BEFORE DEF-155)...\n")
 
     for entry in baseline:
         if "error" in entry:
@@ -277,7 +277,7 @@ wet_basis = (
 )
 
 # AFTER (REPLACE WITH):
-# Use shared_state for consistency (DEF-126 Phase 1)
+# Use shared_state for consistency (DEF-155 Phase 1)
 org_contexts = context.get_shared("organization_contexts", [])
 jur_contexts = context.get_shared("juridical_contexts", [])
 wet_basis = context.get_shared("legal_basis_contexts", [])
@@ -295,7 +295,7 @@ wet_basis = context.get_shared("legal_basis_contexts", [])
 ```python
 def test_uses_shared_state_not_direct_access():
     """
-    Verify module uses shared_state for context (DEF-126 Phase 1).
+    Verify module uses shared_state for context (DEF-155 Phase 1).
 
     Previously, DefinitionTaskModule read directly from base_context,
     bypassing the shared_state pattern. This caused inconsistencies.
@@ -421,7 +421,7 @@ def _build_unified_context_section(
     context_score: float,
 ) -> str:
     """
-    Build unified context section (DEF-126 Phase 2).
+    Build unified context section (DEF-155 Phase 2).
 
     Single instruction, formatting varies by score.
     Eliminates redundancy from rich/moderate/minimal variants.
@@ -516,7 +516,7 @@ return f"""📋 **CONSTRUCTIE GUIDE - Bouw je definitie op:**
 ```python
 def test_single_context_instruction_phase2():
     """
-    Verify context instruction appears ONCE (DEF-126 Phase 2).
+    Verify context instruction appears ONCE (DEF-155 Phase 2).
 
     Previously, "Gebruik onderstaande context..." appeared 2-3 times.
     Now it should appear exactly ONCE.
@@ -643,7 +643,7 @@ Decision: MUST proceed to Phase 3 OR investigate issues
 3. **ContextConstraintBuilder** (80 lines) - Forbidden patterns
 4. **ContextMetadataBuilder** (60 lines) - Optional metadata
 
-**See:** `DEF-126-ARCHITECTURE-EVALUATION.md` Section 3 for detailed design.
+**See:** `DEF-155-ARCHITECTURE-EVALUATION.md` Section 3 for detailed design.
 
 ### Tasks (High-Level):
 
@@ -801,7 +801,7 @@ echo "Phase 1 completed: $(date)" >> time_tracking.txt
 ### Final Report (after completion):
 
 ```markdown
-# DEF-126 Implementation Report
+# DEF-155 Implementation Report
 
 **Completed Phases:** 1+2 (or 1+2+3)
 **Total Time:** X hours (budget: Y hours)

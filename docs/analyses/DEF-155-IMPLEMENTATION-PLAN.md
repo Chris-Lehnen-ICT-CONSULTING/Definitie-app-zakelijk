@@ -1,4 +1,4 @@
-# DEF-126: Implementation Plan - Eliminate Ontological Category Redundancy
+# DEF-155: Implementation Plan - Eliminate Ontological Category Redundancy
 
 ## Executive Summary
 
@@ -53,7 +53,7 @@ RESULT: Prompt with 2500 tokens of category instructions
         Despite category already being "type"!
 ```
 
-## 3. SOLUTION DESIGN - FROM DEF-126 DOCUMENTS ✅
+## 3. SOLUTION DESIGN - FROM DEF-155 DOCUMENTS ✅
 
 ### Architecture: Single Source of Truth
 
@@ -256,7 +256,7 @@ def test_definition_quality_maintained():
 
 ## 10. CONCLUSION
 
-The DEF-126 solution is:
+The DEF-155 solution is:
 1. **Verified:** Forensic analysis confirms 2500 tokens of redundancy
 2. **Designed:** Clear Single Source of Truth architecture
 3. **Low Risk:** Gradual rollout with feature flags

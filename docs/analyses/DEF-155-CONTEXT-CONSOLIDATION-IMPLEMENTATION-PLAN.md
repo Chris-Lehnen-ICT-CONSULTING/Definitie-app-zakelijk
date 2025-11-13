@@ -1,4 +1,4 @@
-# DEF-126: Context Injection Consolidation - Implementation Plan
+# DEF-155: Context Injection Consolidation - Implementation Plan
 
 ## Executive Summary
 
@@ -1335,11 +1335,11 @@ pytest tests/services/test_definition_generator.py -v -k quality
 1. **Git safety:**
    ```bash
    # Create feature branch
-   git checkout -b feature/DEF-126-context-consolidation
+   git checkout -b feature/DEF-155-context-consolidation
    
    # Commit after each phase
    git add -A
-   git commit -m "feat(DEF-126): Phase 1 - Create ContextInstructionModule skeleton"
+   git commit -m "feat(DEF-155): Phase 1 - Create ContextInstructionModule skeleton"
    
    # Can revert individual phases if needed
    git revert <commit-hash>
@@ -1474,7 +1474,7 @@ pytest tests/services/prompts/modules/test_context_instruction_module.py \
 
 4. **Changelog**
    - `docs/refactor-log.md`
-   - Add entry for DEF-126 context consolidation
+   - Add entry for DEF-155 context consolidation
 
 ### Documentation Template
 
@@ -1579,7 +1579,7 @@ Zie `tests/services/prompts/modules/test_context_instruction_module.py`
 
 ### Summary
 
-The DEF-126 Context Consolidation solution:
+The DEF-155 Context Consolidation solution:
 
 1. ✅ **Verified Problem:** 380 tokens of redundancy across 3 modules
 2. ✅ **Clear Architecture:** Single Source of Truth pattern

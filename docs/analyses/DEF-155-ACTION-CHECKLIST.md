@@ -1,4 +1,4 @@
-# DEF-126 Context Consolidation - Action Checklist
+# DEF-155 Context Consolidation - Action Checklist
 
 **Purpose:** Quick reference for developer implementing context consolidation
 **Status:** Ready to use - follow in order
@@ -9,7 +9,7 @@
 ## ⚡ Quick Start
 
 **Before you do ANYTHING:**
-1. Read `DEF-126-EXECUTIVE-RISK-SUMMARY.md` (5 minutes)
+1. Read `DEF-155-EXECUTIVE-RISK-SUMMARY.md` (5 minutes)
 2. Complete "Pre-Flight Checklist" below
 3. Only proceed if all ✓
 
@@ -27,10 +27,10 @@
 - [ ] Schedule available (11.5 hours over 2 days)
 
 ### Preparation
-- [ ] Git branch created: `feature/DEF-126-context-consolidation`
+- [ ] Git branch created: `feature/DEF-155-context-consolidation`
 - [ ] Baseline capture plan understood (Phase 0)
 - [ ] Real context samples available (from database)
-- [ ] Test fixtures directory created: `tests/fixtures/DEF-126-baseline/`
+- [ ] Test fixtures directory created: `tests/fixtures/DEF-155-baseline/`
 
 ### Risk Understanding
 - [ ] Understand Risk #1: Silent context loss
@@ -58,13 +58,13 @@
   - [ ] 2 with no context
 - [ ] **0.2** Create test script: `tests/debug/capture_baseline.py`
 - [ ] **0.3** Run script: Generate prompts with CURRENT system
-- [ ] **0.4** Save prompts to `tests/fixtures/DEF-126-baseline/prompts/`
+- [ ] **0.4** Save prompts to `tests/fixtures/DEF-155-baseline/prompts/`
 - [ ] **0.5** Generate definitions with CURRENT system
-- [ ] **0.6** Save definitions to `tests/fixtures/DEF-126-baseline/definitions/`
+- [ ] **0.6** Save definitions to `tests/fixtures/DEF-155-baseline/definitions/`
 - [ ] **0.7** Run validation on all 20 definitions
-- [ ] **0.8** Save scores to `tests/fixtures/DEF-126-baseline/scores.csv`
+- [ ] **0.8** Save scores to `tests/fixtures/DEF-155-baseline/scores.csv`
 - [ ] **0.9** Verify all files created correctly
-- [ ] **0.10** Git commit: `test(DEF-126): baseline capture for migration validation`
+- [ ] **0.10** Git commit: `test(DEF-155): baseline capture for migration validation`
 
 **Acceptance:**
 - ✓ 20 prompt files exist
@@ -89,7 +89,7 @@
 - [ ] **1.7** Implement `get_dependencies()` (return empty list)
 - [ ] **1.8** Add docstring explaining Single Source of Truth
 - [ ] **1.9** Test: `python -m py_compile src/services/prompts/modules/context_instruction_module.py`
-- [ ] **1.10** Git commit: `feat(DEF-126): Phase 1 - Create ContextInstructionModule skeleton`
+- [ ] **1.10** Git commit: `feat(DEF-155): Phase 1 - Create ContextInstructionModule skeleton`
 
 **Acceptance:**
 - ✓ File compiles without errors
@@ -111,7 +111,7 @@
 - [ ] **2.1.7** Write test_context_richness_scoring()
 - [ ] **2.1.8** Run: `pytest tests/.../test_context_instruction_module.py::test_context_richness_scoring -v`
 - [ ] **2.1.9** Verify score between 0.0-1.0
-- [ ] **2.1.10** Git commit: `feat(DEF-126): Phase 2.1 - Migrate context richness scoring`
+- [ ] **2.1.10** Git commit: `feat(DEF-155): Phase 2.1 - Migrate context richness scoring`
 
 #### Phase 2.2: Adaptive Formatting (30 min)
 
@@ -122,7 +122,7 @@
 - [ ] **2.2.5** Update execute() to call `_build_context_instructions()`
 - [ ] **2.2.6** Write test_adaptive_formatting_rich/moderate/minimal()
 - [ ] **2.2.7** Run tests: verify correct formatting for each level
-- [ ] **2.2.8** Git commit: `feat(DEF-126): Phase 2.2 - Migrate adaptive formatting`
+- [ ] **2.2.8** Git commit: `feat(DEF-155): Phase 2.2 - Migrate adaptive formatting`
 
 #### Phase 2.3: Context Forbidden Patterns (30 min)
 
@@ -133,7 +133,7 @@
 - [ ] **2.3.5** Write test_context_forbidden_patterns()
 - [ ] **2.3.6** Write test_organization_mapping()
 - [ ] **2.3.7** Run tests: verify forbidden patterns generated
-- [ ] **2.3.8** Git commit: `feat(DEF-126): Phase 2.3 - Migrate context forbidden patterns`
+- [ ] **2.3.8** Git commit: `feat(DEF-155): Phase 2.3 - Migrate context forbidden patterns`
 
 #### Phase 2.4: Context Metadata (30 min)
 
@@ -144,7 +144,7 @@
 - [ ] **2.4.5** Integrate into execute(): add metadata as footer
 - [ ] **2.4.6** Write test_context_metadata()
 - [ ] **2.4.7** Run tests: verify metadata present when enabled
-- [ ] **2.4.8** Git commit: `feat(DEF-126): Phase 2.4 - Migrate context metadata`
+- [ ] **2.4.8** Git commit: `feat(DEF-155): Phase 2.4 - Migrate context metadata`
 
 ---
 
@@ -164,7 +164,7 @@
 - [ ] **2.5.10** Write test_configuration_toggles() (adaptive_formatting, etc.)
 - [ ] **2.5.11** Run all helper tests: `pytest tests/.../test_context_instruction_module.py -v`
 - [ ] **2.5.12** Verify 100% pass rate
-- [ ] **2.5.13** Git commit: `test(DEF-126): Phase 2.5 - Add helper method tests`
+- [ ] **2.5.13** Git commit: `test(DEF-155): Phase 2.5 - Add helper method tests`
 
 **Acceptance:**
 - ✓ All edge cases covered
@@ -188,7 +188,7 @@
 - [ ] **3.10** Run: `pytest tests/.../test_context_instruction_module.py -v`
 - [ ] **3.11** Verify all sections present in output
 - [ ] **3.12** Verify shared_state populated correctly
-- [ ] **3.13** Git commit: `feat(DEF-126): Phase 3 - Implement complete execute() orchestration`
+- [ ] **3.13** Git commit: `feat(DEF-155): Phase 3 - Implement complete execute() orchestration`
 
 ---
 
@@ -203,7 +203,7 @@
 - [ ] **4.7** Verify "context_instruction" in output
 - [ ] **4.8** Write test_orchestrator_includes_context_instruction()
 - [ ] **4.9** Run orchestrator tests: `pytest tests/.../test_prompt_orchestrator.py -v`
-- [ ] **4.10** Git commit: `feat(DEF-126): Phase 4 - Register ContextInstructionModule in orchestrator`
+- [ ] **4.10** Git commit: `feat(DEF-155): Phase 4 - Register ContextInstructionModule in orchestrator`
 
 ---
 
@@ -221,7 +221,7 @@
 - [ ] **5.10** Write test_error_prevention_no_context_logic()
 - [ ] **5.11** Run: `pytest tests/.../test_error_prevention_module.py -v`
 - [ ] **5.12** Verify context logic removed, generic logic preserved
-- [ ] **5.13** Git commit: `refactor(DEF-126): Phase 5 - Remove context logic from ErrorPreventionModule`
+- [ ] **5.13** Git commit: `refactor(DEF-155): Phase 5 - Remove context logic from ErrorPreventionModule`
 
 ---
 
@@ -239,7 +239,7 @@
 - [ ] **6.10** Write test_definition_task_no_context_logic()
 - [ ] **6.11** Run: `pytest tests/.../test_definition_task_module.py -v`
 - [ ] **6.12** Verify context metadata removed, final instructions preserved
-- [ ] **6.13** Git commit: `refactor(DEF-126): Phase 6 - Remove context metadata from DefinitionTaskModule`
+- [ ] **6.13** Git commit: `refactor(DEF-155): Phase 6 - Remove context metadata from DefinitionTaskModule`
 
 ---
 
@@ -254,7 +254,7 @@
 - [ ] **7.7** Verify zero results (except .bak file)
 - [ ] **7.8** Test: `python -m py_compile src/services/prompts/modular_prompt_adapter.py`
 - [ ] **7.9** Test: `python -c "from services.prompts.modules import *"`
-- [ ] **7.10** Git commit: `refactor(DEF-126): Phase 7 - Delete ContextAwarenessModule`
+- [ ] **7.10** Git commit: `refactor(DEF-155): Phase 7 - Delete ContextAwarenessModule`
 
 ---
 
@@ -274,7 +274,7 @@
 - [ ] **7.5.10** Write test_module_dependency_graph()
 - [ ] **7.5.11** Write test_shared_state_single_writer()
 - [ ] **7.5.12** Run tests: verify dependency graph correct
-- [ ] **7.5.13** Git commit: `test(DEF-126): Phase 7.5 - Verify no hidden dependencies on old module`
+- [ ] **7.5.13** Git commit: `test(DEF-155): Phase 7.5 - Verify no hidden dependencies on old module`
 
 **Acceptance:**
 - ✓ Zero old module references (except docs/history)
@@ -328,7 +328,7 @@
 - [ ] **8.22** Run: `pytest tests/.../test_definition_task_module.py -v`
 - [ ] **8.23** Check coverage: `pytest tests/.../test_context_instruction_module.py --cov=src/.../context_instruction_module --cov-report=term-missing`
 - [ ] **8.24** Verify coverage ≥80%
-- [ ] **8.25** Git commit: `test(DEF-126): Phase 8 - Comprehensive unit test suite`
+- [ ] **8.25** Git commit: `test(DEF-155): Phase 8 - Comprehensive unit test suite`
 
 ---
 
@@ -346,7 +346,7 @@
 - [ ] **9.10** Verify all required sections present
 - [ ] **9.11** Run: `pytest tests/integration/test_prompt_module_pipeline.py -v`
 - [ ] **9.12** Verify 100% pass rate
-- [ ] **9.13** Git commit: `test(DEF-126): Phase 9 - Integration tests with full orchestrator`
+- [ ] **9.13** Git commit: `test(DEF-155): Phase 9 - Integration tests with full orchestrator`
 
 ---
 
@@ -354,7 +354,7 @@
 
 **Purpose:** Validate quality maintained vs baseline
 
-- [ ] **9.5.1** Load baseline from Phase 0: `tests/fixtures/DEF-126-baseline/`
+- [ ] **9.5.1** Load baseline from Phase 0: `tests/fixtures/DEF-155-baseline/`
 - [ ] **9.5.2** Create comparison script: `tests/debug/compare_to_baseline.py`
 - [ ] **9.5.3** Generate prompts with NEW system (same 20 test cases)
 - [ ] **9.5.4** Count tokens: new vs baseline
@@ -367,8 +367,8 @@
 - [ ] **9.5.11** If quality < 0.95: STOP, investigate, fix, re-test
 - [ ] **9.5.12** If quality >= 0.95: Manually review 5 definitions
 - [ ] **9.5.13** Verify definitions are context-specific (not generic)
-- [ ] **9.5.14** Document results in `docs/analyses/DEF-126-BASELINE-COMPARISON-RESULTS.md`
-- [ ] **9.5.15** Git commit: `test(DEF-126): Phase 9.5 - Baseline comparison (quality maintained)`
+- [ ] **9.5.14** Document results in `docs/analyses/DEF-155-BASELINE-COMPARISON-RESULTS.md`
+- [ ] **9.5.15** Git commit: `test(DEF-155): Phase 9.5 - Baseline comparison (quality maintained)`
 
 **BLOCKING CONDITION:**
 - ⛔ If quality < 95% of baseline: **DO NOT PROCEED**
@@ -396,7 +396,7 @@
 - [ ] **10.10** Update module diagram
 - [ ] **10.11** Add entry to `docs/refactor-log.md`
 - [ ] **10.12** Document lessons learned
-- [ ] **10.13** Git commit: `docs(DEF-126): Phase 10 - Update documentation for context consolidation`
+- [ ] **10.13** Git commit: `docs(DEF-155): Phase 10 - Update documentation for context consolidation`
 
 ---
 
@@ -493,11 +493,11 @@ pytest tests/ -v
 **Investigation:**
 ```bash
 # Compare prompts manually
-diff tests/fixtures/DEF-126-baseline/prompts/case001.txt \
-     tests/fixtures/DEF-126-baseline/prompts-new/case001.txt
+diff tests/fixtures/DEF-155-baseline/prompts/case001.txt \
+     tests/fixtures/DEF-155-baseline/prompts-new/case001.txt
 
 # Check for missing context
-grep "CONTEXT" tests/fixtures/DEF-126-baseline/prompts-new/*.txt
+grep "CONTEXT" tests/fixtures/DEF-155-baseline/prompts-new/*.txt
 
 # Check shared_state
 pytest tests/.../test_context_instruction_module.py::test_context_data_shared -v -s
@@ -538,10 +538,10 @@ pytest tests/ -v
 bash scripts/run_app.sh
 
 # 3. Notify user
-# "Rolled back DEF-126 due to issue X. Investigating."
+# "Rolled back DEF-155 due to issue X. Investigating."
 
 # 4. Investigate offline
-git checkout feature/DEF-126-context-consolidation
+git checkout feature/DEF-155-context-consolidation
 # ... debug ...
 ```
 

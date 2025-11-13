@@ -1,4 +1,4 @@
-# DEF-126 Context Consolidation - Risk Assessment & FMEA
+# DEF-155 Context Consolidation - Risk Assessment & FMEA
 
 ## Executive Summary
 
@@ -722,7 +722,7 @@ orchestrator = PromptOrchestrator(max_workers=4)
 **Steps:**
 ```bash
 # 1. Revert git commits
-git log --oneline  # Find commit hash before DEF-126
+git log --oneline  # Find commit hash before DEF-155
 git revert <commit-hash>
 # Or: git reset --hard <commit-hash> (if not pushed)
 
@@ -772,7 +772,7 @@ EOF
 sqlite3 data/definities.db << EOF
 UPDATE definities
 SET status = 'needs_regeneration',
-    notes = 'DEF-126 rollback - generated with v2 context module'
+    notes = 'DEF-155 rollback - generated with v2 context module'
 WHERE created_at > '2025-11-13 12:00:00';
 EOF
 
@@ -799,7 +799,7 @@ python scripts/regenerate_definitions.py --filter "needs_regeneration"
 **If caught during Phase 1-6 (before deletion):**
 ```bash
 # 1. Git stash changes
-git stash save "DEF-126 partial implementation - aborting"
+git stash save "DEF-155 partial implementation - aborting"
 
 # 2. Verify old code still works
 pytest tests/services/prompts/test_context_awareness_module.py -v
@@ -902,14 +902,14 @@ def test_definition_quality_regression():
 3. Generate definitions with CURRENT system
 4. Run validation on definitions
 5. Capture: prompts (text files), definitions (JSON), scores (CSV)
-6. Store in `tests/fixtures/DEF-126-baseline/`
+6. Store in `tests/fixtures/DEF-155-baseline/`
 7. Commit to git (so it's preserved)
 
 **Acceptance criteria:**
 - ✓ 20 prompt files saved
 - ✓ 20 definition JSON files saved
 - ✓ scores.csv with 20 rows
-- ✓ Git commit: "test(DEF-126): baseline capture for migration validation"
+- ✓ Git commit: "test(DEF-155): baseline capture for migration validation"
 
 ---
 
@@ -1042,19 +1042,19 @@ grep -r "get_shared.*context_richness_score" src/ --include="*.py"
 **Strategy:**
 ```bash
 # Feature branch for full development
-git checkout -b feature/DEF-126-context-consolidation
+git checkout -b feature/DEF-155-context-consolidation
 
 # Commit after EACH phase
 git add -A
-git commit -m "feat(DEF-126): Phase 1 - Create ContextInstructionModule skeleton"
+git commit -m "feat(DEF-155): Phase 1 - Create ContextInstructionModule skeleton"
 # ... work ...
-git commit -m "feat(DEF-126): Phase 2.1 - Migrate context richness scoring"
+git commit -m "feat(DEF-155): Phase 2.1 - Migrate context richness scoring"
 # ... etc ...
 
 # When all phases done + tests pass
 git checkout main
-git merge feature/DEF-126-context-consolidation --squash
-git commit -m "feat(DEF-126): consolidate context handling into single module"
+git merge feature/DEF-155-context-consolidation --squash
+git commit -m "feat(DEF-155): consolidate context handling into single module"
 ```
 
 **Checkpoints = commits, not releases.**
@@ -1086,7 +1086,7 @@ bash scripts/run_app.sh
 # Generate definition, note prompt
 
 # Test new system
-git checkout feature/DEF-126-context-consolidation
+git checkout feature/DEF-155-context-consolidation
 bash scripts/run_app.sh
 # Generate same definition, compare prompts
 ```
@@ -1106,7 +1106,7 @@ bash scripts/run_app.sh
   - [ ] Generate prompts with current system
   - [ ] Generate definitions with current system
   - [ ] Run validation, capture scores
-  - [ ] Store in `tests/fixtures/DEF-126-baseline/`
+  - [ ] Store in `tests/fixtures/DEF-155-baseline/`
   - [ ] Commit to git
 
 - [ ] **Current System Documentation**
@@ -1133,7 +1133,7 @@ bash scripts/run_app.sh
 **After each phase:**
 
 - [ ] **Git Commit**
-  - Commit message: `feat(DEF-126): Phase X - [description]`
+  - Commit message: `feat(DEF-155): Phase X - [description]`
   - Allows rollback to specific phase
 
 - [ ] **Smoke Test**
@@ -1200,7 +1200,7 @@ bash scripts/run_app.sh
 - [ ] **Documentation**
   - [ ] Update CLAUDE.md (module references)
   - [ ] Update architecture docs
-  - [ ] Add DEF-126 entry to refactor-log.md
+  - [ ] Add DEF-155 entry to refactor-log.md
 
 **After merging to main:**
 

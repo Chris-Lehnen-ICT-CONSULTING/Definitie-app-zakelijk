@@ -1,4 +1,4 @@
-# DEF-126 Quick Decision Guide
+# DEF-155 Quick Decision Guide
 
 **Last Updated:** 2025-11-13
 **Status:** Ready for User Decision
@@ -160,7 +160,7 @@ Day 2 Full day: Phase 3 (8h) + Gate 3 (0.5h)
 ```
 ❌ Not ready to decide
 → Review detailed analysis first
-→ Read: DEF-126-MULTI-AGENT-ANALYSIS-EXECUTIVE-SUMMARY.md
+→ Read: DEF-155-MULTI-AGENT-ANALYSIS-EXECUTIVE-SUMMARY.md
 ```
 
 ---
@@ -184,7 +184,7 @@ Day 2 Full day: Phase 3 (8h) + Gate 3 (0.5h)
    ```
 
 4. **Start Phase 1** (3 hours)
-   - See: `DEF-126-RECOMMENDED-IMPLEMENTATION-PLAN.md`
+   - See: `DEF-155-RECOMMENDED-IMPLEMENTATION-PLAN.md`
 
 ---
 
@@ -213,20 +213,20 @@ A: HIGH. All 4 agents verified measurements and converged on recommendation.
 - This guide (you are here)
 
 **Executive Summary:**
-- `DEF-126-MULTI-AGENT-ANALYSIS-EXECUTIVE-SUMMARY.md` (12 pages)
+- `DEF-155-MULTI-AGENT-ANALYSIS-EXECUTIVE-SUMMARY.md` (12 pages)
 
 **Detailed Plan:**
-- `DEF-126-RECOMMENDED-IMPLEMENTATION-PLAN.md` (detailed steps)
+- `DEF-155-RECOMMENDED-IMPLEMENTATION-PLAN.md` (detailed steps)
 
 **Agent Reports:**
-- `DEF-126-ARCHITECTURE-EVALUATION.md` (architecture analysis)
-- `DEF-126-PERFORMANCE-ANALYSIS.md` (token measurements)
-- `DEF-126-RISK-ASSESSMENT.md` (risk management)
-- `DEF-126-IMPLEMENTATION-EVALUATION.md` (effort estimates)
+- `DEF-155-ARCHITECTURE-EVALUATION.md` (architecture analysis)
+- `DEF-155-PERFORMANCE-ANALYSIS.md` (token measurements)
+- `DEF-155-RISK-ASSESSMENT.md` (risk management)
+- `DEF-155-IMPLEMENTATION-EVALUATION.md` (effort estimates)
 
 **Existing Analyses:**
-- `DEF-126-CONTEXT-INJECTION-SUMMARY.md` (problem statement)
-- `DEF-126-CONTEXT-CONSOLIDATION-IMPLEMENTATION-PLAN.md` (original plan)
+- `DEF-155-CONTEXT-INJECTION-SUMMARY.md` (problem statement)
+- `DEF-155-CONTEXT-CONSOLIDATION-IMPLEMENTATION-PLAN.md` (original plan)
 
 ---
 

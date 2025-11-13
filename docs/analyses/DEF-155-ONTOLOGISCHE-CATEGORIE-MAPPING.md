@@ -1,4 +1,4 @@
-# DEF-126: Ontologische Categorie Instructies - Complete Mapping
+# DEF-155: Ontologische Categorie Instructies - Complete Mapping
 
 ## 🔍 Probleem: 5 Overlappende Bronnen voor Dezelfde Instructie
 
@@ -243,7 +243,7 @@ class TemplateModule(BasePromptModule):
 - Relatief eenvoudig te implementeren
 - Direct meetbaar resultaat (token reductie)
 - Verbetert prompt kwaliteit
-- Maakt DEF-126 transformatie makkelijker
+- Maakt DEF-155 transformatie makkelijker
 
 ## Configuration Voorbeeld
 
@@ -272,4 +272,4 @@ Door alle ontologische categorie logic te consolideren in **SemanticCategorisati
 - Creëren we **één autoritieve bron** voor categorieën
 - Maken we het systeem **veel makkelijker te onderhouden**
 
-Dit is een perfecte eerste stap voor DEF-126 transformatie!
+Dit is een perfecte eerste stap voor DEF-155 transformatie!
