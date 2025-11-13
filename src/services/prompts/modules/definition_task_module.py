@@ -195,13 +195,13 @@ Formuleer nu de definitie van **{begrip}** volgens deze specificaties:"""
             if ontological_category in category_hints:
                 ont_cat = f"\n🎯 Focus: Dit is een **{ontological_category}** ({category_hints[ontological_category]})"
 
-        return f"""📋 **CHECKLIST - Controleer voor je antwoord:**
-□ Begint met zelfstandig naamwoord (geen lidwoord/koppelwerkwoord)
-□ Eén enkele zin zonder punt aan het einde
-□ Geen toelichting, voorbeelden of haakjes
-□ Ontologische categorie is duidelijk{ont_cat}
-□ Geen verboden woorden (aspect, element, kan, moet, etc.)
-□ Context verwerkt zonder expliciete benoeming"""
+        return f"""📋 **CONSTRUCTIE GUIDE - Bouw je definitie op:**
+→ Begint met zelfstandig naamwoord (geen lidwoord/koppelwerkwoord)
+→ Eén enkele zin zonder punt aan het einde
+→ Geen toelichting, voorbeelden of haakjes
+→ Ontologische categorie is duidelijk{ont_cat}
+→ Geen verboden woorden (aspect, element, kan, moet, etc.)
+→ Context verwerkt zonder expliciete benoeming"""
 
     def _build_quality_control(self, has_context: bool) -> str:
         """

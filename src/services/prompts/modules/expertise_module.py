@@ -155,7 +155,7 @@ class ExpertiseModule(BasePromptModule):
         Returns:
             Rol definitie tekst
         """
-        return "Je bent een expert in beleidsmatige definities voor overheidsgebruik."
+        return "Je bent een expert in het creëren van definities die EENDUIDIG zijn voor alle BELANGHEBBENDEN en aansluiten bij de WERKELIJKHEID."
 
     def _build_task_instruction(self) -> str:
         """

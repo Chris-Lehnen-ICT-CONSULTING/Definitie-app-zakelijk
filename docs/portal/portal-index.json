@@ -7220,6 +7220,68 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "DEF-126: Complete Document Index & Locaties",
+      "path": "../implementation/DEF-126_DOCUMENT_INDEX.md",
+      "url": "../implementation/DEF-126_DOCUMENT_INDEX.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/implementation/DEF-126_DOCUMENT_INDEX.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "DEF-126: Executive Summary - Mindset Transformatie",
+      "path": "../implementation/DEF-126_EXECUTIVE_SUMMARY.md",
+      "url": "../implementation/DEF-126_EXECUTIVE_SUMMARY.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/implementation/DEF-126_EXECUTIVE_SUMMARY.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "EPIC-010: Context Flow Refactoring - Implementation Plan",
       "path": "../implementation/EPIC-010-implementation-plan.md",
       "url": "../implementation/EPIC-010-implementation-plan.md",
@@ -7349,6 +7411,37 @@
         "req": []
       },
       "rendered_url": "rendered/implementation/story-2.3-implementation-status.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "DEF-126: Gecontroleerd Implementatieplan - Validatie naar Generatie Mindset",
+      "path": "../implementation/DEF-126_IMPLEMENTATION_PLAN.md",
+      "url": "../implementation/DEF-126_IMPLEMENTATION_PLAN.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/implementation/DEF-126_IMPLEMENTATION_PLAN.html"
     },
     {
       "id": null,
@@ -9859,6 +9952,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "PROMPT MODULE FORENSIC DEBUG REPORT",
+      "path": "../analyses/PROMPT_MODULE_FORENSIC_DEBUG_REPORT.md",
+      "url": "../analyses/PROMPT_MODULE_FORENSIC_DEBUG_REPORT.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/PROMPT_MODULE_FORENSIC_DEBUG_REPORT.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Double-Weighting Bug: Deep Root Cause Analysis",
       "path": "../analyses/double-weighting-bug-root-cause-analysis.md",
       "url": "../analyses/double-weighting-bug-root-cause-analysis.md",
@@ -10048,6 +10172,37 @@
         "req": []
       },
       "rendered_url": "rendered/analyses/COMPLEXITY_SUMMARY.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "🎯 DEFINITIE-APP PROMPT OPTIMIZATION: COMPREHENSIVE ROADMAP",
+      "path": "../analyses/DEF-151_MODULES_QUICK_REFERENCE.md",
+      "url": "../analyses/DEF-151_MODULES_QUICK_REFERENCE.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/DEF-151_MODULES_QUICK_REFERENCE.html"
     },
     {
       "id": null,
@@ -78710,7 +78865,7 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 1259,
+      "DOC": 1264,
       "ARCH": 42,
       "COMP": 5,
       "TEST": 37,
@@ -78720,7 +78875,7 @@
       "BUG": 47,
       "REQ": 115
     },
-    "generated_at": "2025-11-13T09:09:45Z"
+    "generated_at": "2025-11-13T12:35:25Z"
   },
   "sources": [
     "docs"
