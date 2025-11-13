@@ -11,9 +11,10 @@ KEY CHANGES:
 3. Removed forbidden starters: "proces waarbij" and "handeling die"
 """
 
-import pytest
-from unittest.mock import MagicMock, patch
 from importlib import import_module
+from unittest.mock import MagicMock, patch
+
+import pytest
 
 from src.services.prompts.modules.base_module import ModuleContext
 
@@ -25,19 +26,23 @@ class TestQualityEnhancementTransformation:
         """Set up test fixtures before each test method."""
         # Try to import the new module name first (for when it's implemented)
         try:
-            module_class = import_module('src.services.prompts.modules.quality_enhancement_module')
+            module_class = import_module(
+                "src.services.prompts.modules.quality_enhancement_module"
+            )
             self.module = module_class.QualityEnhancementModule()
             self.module_name_correct = True
         except (ImportError, AttributeError):
             # Fall back to old module for initial failing tests
-            from src.services.prompts.modules.error_prevention_module import ErrorPreventionModule
+            from src.services.prompts.modules.error_prevention_module import (
+                ErrorPreventionModule,
+            )
+
             self.module = ErrorPreventionModule()
             self.module_name_correct = False
 
-        self.module.initialize({
-            "include_validation_matrix": True,
-            "extended_forbidden_list": True
-        })
+        self.module.initialize(
+            {"include_validation_matrix": True, "extended_forbidden_list": True}
+        )
 
         # Create mock context
         self.context = MagicMock(spec=ModuleContext)
@@ -49,7 +54,7 @@ class TestQualityEnhancementTransformation:
         shared_data = {
             "organization_contexts": ["gemeente"],
             "juridical_contexts": [],
-            "legal_basis_contexts": []
+            "legal_basis_contexts": [],
         }
         return shared_data.get(key, default)
 
@@ -62,22 +67,25 @@ class TestQualityEnhancementTransformation:
         """
         # Check if we can import the new module
         try:
-            from src.services.prompts.modules.quality_enhancement_module import QualityEnhancementModule
+            from src.services.prompts.modules.quality_enhancement_module import (
+                QualityEnhancementModule,
+            )
+
             module = QualityEnhancementModule()
 
             # Verify the module has the right ID
-            assert module.module_id == "quality_enhancement", (
-                "Module ID should be 'quality_enhancement' not 'error_prevention'"
-            )
+            assert (
+                module.module_id == "quality_enhancement"
+            ), "Module ID should be 'quality_enhancement' not 'error_prevention'"
 
             # Verify the module name reflects the change
-            assert "Quality" in module.module_name, (
-                "Module name should reference 'Quality' not 'Error Prevention'"
-            )
+            assert (
+                "Quality" in module.module_name
+            ), "Module name should reference 'Quality' not 'Error Prevention'"
 
-            assert "Error Prevention" not in module.module_name, (
-                "Module name should not contain 'Error Prevention'"
-            )
+            assert (
+                "Error Prevention" not in module.module_name
+            ), "Module name should not contain 'Error Prevention'"
 
         except ImportError:
             pytest.fail(
@@ -94,9 +102,9 @@ class TestQualityEnhancementTransformation:
         result = self.module.execute(self.context)
 
         # Old negative header should be gone
-        assert "Veelgemaakte fouten (vermijden!)" not in result.content, (
-            "Negative 'mistakes to avoid' header should be replaced with positive framing"
-        )
+        assert (
+            "Veelgemaakte fouten (vermijden!)" not in result.content
+        ), "Negative 'mistakes to avoid' header should be replaced with positive framing"
 
         # Should have a positive header instead
         positive_headers = [
@@ -104,10 +112,12 @@ class TestQualityEnhancementTransformation:
             "Best Practices",
             "Constructieprincipes",
             "Kwaliteitscriteria",
-            "Definitieprincipes"
+            "Definitieprincipes",
         ]
 
-        has_positive_header = any(header in result.content for header in positive_headers)
+        has_positive_header = any(
+            header in result.content for header in positive_headers
+        )
         assert has_positive_header, (
             "Should have positive, quality-focused header like 'Kwaliteitsrichtlijnen' "
             "or 'Best Practices'"
@@ -122,12 +132,16 @@ class TestQualityEnhancementTransformation:
         result = self.module.execute(self.context)
 
         # Count negative vs positive instructions
-        vermijd_count = result.content.count("Vermijd") + result.content.count("VERMIJD")
-        gebruik_count = result.content.count("Gebruik") + result.content.count("GEBRUIK")
-
-        assert gebruik_count > 0, (
-            "Should have 'GEBRUIK' (use) instructions for positive guidance"
+        vermijd_count = result.content.count("Vermijd") + result.content.count(
+            "VERMIJD"
         )
+        gebruik_count = result.content.count("Gebruik") + result.content.count(
+            "GEBRUIK"
+        )
+
+        assert (
+            gebruik_count > 0
+        ), "Should have 'GEBRUIK' (use) instructions for positive guidance"
 
         assert gebruik_count >= vermijd_count, (
             f"Should have more positive instructions (gebruik: {gebruik_count}) "
@@ -144,7 +158,10 @@ class TestQualityEnhancementTransformation:
         result = self.module.execute(self.context)
 
         # "proces waarbij" should NOT be in the forbidden list
-        assert "proces waarbij" not in result.content or "Start niet met 'proces waarbij'" not in result.content, (
+        assert (
+            "proces waarbij" not in result.content
+            or "Start niet met 'proces waarbij'" not in result.content
+        ), (
             "'proces waarbij' should be REMOVED from forbidden starters. "
             "This constructive phrase is now allowed."
         )
@@ -159,7 +176,10 @@ class TestQualityEnhancementTransformation:
         result = self.module.execute(self.context)
 
         # "handeling die" should NOT be in the forbidden list
-        assert "handeling die" not in result.content or "Start niet met 'handeling die'" not in result.content, (
+        assert (
+            "handeling die" not in result.content
+            or "Start niet met 'handeling die'" not in result.content
+        ), (
             "'handeling die' should be REMOVED from forbidden starters. "
             "This constructive phrase is now allowed."
         )
@@ -174,12 +194,19 @@ class TestQualityEnhancementTransformation:
 
         # Look for positive construction words
         positive_indicators = [
-            "gebruik", "start met", "formuleer", "construeer",
-            "bouw", "zorg voor", "waarborg", "implementeer"
+            "gebruik",
+            "start met",
+            "formuleer",
+            "construeer",
+            "bouw",
+            "zorg voor",
+            "waarborg",
+            "implementeer",
         ]
 
-        positive_count = sum(1 for word in positive_indicators
-                           if word in result.content.lower())
+        positive_count = sum(
+            1 for word in positive_indicators if word in result.content.lower()
+        )
 
         assert positive_count >= 3, (
             f"Should have at least 3 positive construction indicators, found {positive_count}. "
@@ -214,11 +241,18 @@ class TestQualityEnhancementTransformation:
             # Find the matrix section
             matrix_start = result.content.find("|")
             if matrix_start > 0:
-                matrix_section = result.content[matrix_start:matrix_start + 1000]
+                matrix_section = result.content[matrix_start : matrix_start + 1000]
 
                 # Should use positive column headers
-                positive_headers = ["Kwaliteitskenmerk", "Criterium", "Principe", "Richtlijn"]
-                has_positive = any(header in matrix_section for header in positive_headers)
+                positive_headers = [
+                    "Kwaliteitskenmerk",
+                    "Criterium",
+                    "Principe",
+                    "Richtlijn",
+                ]
+                has_positive = any(
+                    header in matrix_section for header in positive_headers
+                )
 
                 assert has_positive or "Probleem" not in matrix_section, (
                     "Validation matrix should use positive headers like 'Kwaliteitskenmerk' "
@@ -235,12 +269,17 @@ class TestQualityEnhancementTransformation:
 
         # Look for alternative suggestions
         alternative_indicators = [
-            "in plaats van", "gebruik liever", "beter is",
-            "alternatief:", "vervang door", "→"
+            "in plaats van",
+            "gebruik liever",
+            "beter is",
+            "alternatief:",
+            "vervang door",
+            "→",
         ]
 
-        has_alternatives = any(indicator in result.content.lower()
-                             for indicator in alternative_indicators)
+        has_alternatives = any(
+            indicator in result.content.lower() for indicator in alternative_indicators
+        )
 
         assert has_alternatives, (
             "Should provide constructive alternatives using phrases like "
@@ -254,20 +293,26 @@ class TestQualityEnhancementTransformation:
         Even context-specific rules should be framed positively.
         """
         # Test with organizational context
-        self.context.get_shared = MagicMock(side_effect=lambda key, default=None:
-            ["gemeente", "provincie"] if key == "organization_contexts" else default
+        self.context.get_shared = MagicMock(
+            side_effect=lambda key, default=None: (
+                ["gemeente", "provincie"] if key == "organization_contexts" else default
+            )
         )
 
         result = self.module.execute(self.context)
 
         if "CONTEXT-SPECIFIEK" in result.content:
             context_section = result.content[
-                result.content.find("CONTEXT-SPECIFIEK"):
-                result.content.find("CONTEXT-SPECIFIEK") + 500
+                result.content.find("CONTEXT-SPECIFIEK") : result.content.find(
+                    "CONTEXT-SPECIFIEK"
+                )
+                + 500
             ]
 
             # Should frame context rules positively
-            assert "VERBODEN" not in context_section or "RICHTLIJNEN" in context_section, (
+            assert (
+                "VERBODEN" not in context_section or "RICHTLIJNEN" in context_section
+            ), (
                 "Context-specific section should use 'RICHTLIJNEN' (guidelines) "
                 "not 'VERBODEN' (forbidden)"
             )
@@ -282,9 +327,10 @@ class TestQualityEnhancementTransformation:
         result = self.module.execute(self.context)
 
         # Should not have "errors" framing
-        assert "fouten" not in result.content.lower()[:500] or "kwaliteit" in result.content.lower()[:500], (
-            "Opening sections should focus on 'kwaliteit' (quality) not 'fouten' (errors)"
-        )
+        assert (
+            "fouten" not in result.content.lower()[:500]
+            or "kwaliteit" in result.content.lower()[:500]
+        ), "Opening sections should focus on 'kwaliteit' (quality) not 'fouten' (errors)"
 
     def test_forbidden_starters_list_is_reduced(self):
         """
@@ -296,8 +342,11 @@ class TestQualityEnhancementTransformation:
         result = self.module.execute(self.context)
 
         # Count lines that look like forbidden starter warnings
-        forbidden_lines = [line for line in result.content.split('\n')
-                          if "Start niet met" in line or "niet met '" in line]
+        forbidden_lines = [
+            line
+            for line in result.content.split("\n")
+            if "Start niet met" in line or "niet met '" in line
+        ]
 
         # Should have fewer forbidden starters (since we removed some)
         assert len(forbidden_lines) < 35, (
@@ -314,9 +363,9 @@ class TestQualityEnhancementTransformation:
         result = self.module.execute(self.context)
 
         assert result is not None
-        assert hasattr(result, 'content')
-        assert hasattr(result, 'metadata')
-        assert hasattr(result, 'success')
+        assert hasattr(result, "content")
+        assert hasattr(result, "metadata")
+        assert hasattr(result, "success")
         assert result.success is True
 
     def test_dependencies_unchanged(self):
@@ -335,10 +384,16 @@ class TestQualityEnhancementPositiveExamples:
     def setup_method(self):
         """Set up test fixtures before each test method."""
         try:
-            from src.services.prompts.modules.quality_enhancement_module import QualityEnhancementModule
+            from src.services.prompts.modules.quality_enhancement_module import (
+                QualityEnhancementModule,
+            )
+
             self.module = QualityEnhancementModule()
         except ImportError:
-            from src.services.prompts.modules.error_prevention_module import ErrorPreventionModule
+            from src.services.prompts.modules.error_prevention_module import (
+                ErrorPreventionModule,
+            )
+
             self.module = ErrorPreventionModule()
 
         self.module.initialize({})
@@ -356,16 +411,19 @@ class TestQualityEnhancementPositiveExamples:
 
         # Look for example indicators
         example_indicators = [
-            "bijvoorbeeld:", "voorbeeld:", "zoals:",
-            "goede definitie:", "correct:", "✓"
+            "bijvoorbeeld:",
+            "voorbeeld:",
+            "zoals:",
+            "goede definitie:",
+            "correct:",
+            "✓",
         ]
 
-        has_examples = any(indicator in result.content.lower()
-                         for indicator in example_indicators)
-
-        assert has_examples, (
-            "Should provide positive examples of good definitions"
+        has_examples = any(
+            indicator in result.content.lower() for indicator in example_indicators
         )
+
+        assert has_examples, "Should provide positive examples of good definitions"
 
     def test_emphasizes_clarity_and_precision(self):
         """
@@ -376,11 +434,13 @@ class TestQualityEnhancementPositiveExamples:
         result = self.module.execute(self.context)
 
         quality_terms = ["helder", "duidelijk", "precies", "specifiek", "concreet"]
-        quality_count = sum(1 for term in quality_terms if term in result.content.lower())
-
-        assert quality_count >= 2, (
-            "Should emphasize positive qualities like 'helder', 'duidelijk', 'precies'"
+        quality_count = sum(
+            1 for term in quality_terms if term in result.content.lower()
         )
+
+        assert (
+            quality_count >= 2
+        ), "Should emphasize positive qualities like 'helder', 'duidelijk', 'precies'"
 
     def test_construction_order_guidance(self):
         """
@@ -391,16 +451,22 @@ class TestQualityEnhancementPositiveExamples:
         result = self.module.execute(self.context)
 
         order_indicators = [
-            "eerst", "vervolgens", "daarna", "ten slotte",
-            "stap 1", "stap 2", "1.", "2.", "→"
+            "eerst",
+            "vervolgens",
+            "daarna",
+            "ten slotte",
+            "stap 1",
+            "stap 2",
+            "1.",
+            "2.",
+            "→",
         ]
 
-        has_order = any(indicator in result.content.lower()
-                       for indicator in order_indicators)
-
-        assert has_order, (
-            "Should provide step-by-step construction guidance"
+        has_order = any(
+            indicator in result.content.lower() for indicator in order_indicators
         )
+
+        assert has_order, "Should provide step-by-step construction guidance"
 
 
 class TestQualityEnhancementEdgeCases:
@@ -409,10 +475,16 @@ class TestQualityEnhancementEdgeCases:
     def setup_method(self):
         """Set up test fixtures before each test method."""
         try:
-            from src.services.prompts.modules.quality_enhancement_module import QualityEnhancementModule
+            from src.services.prompts.modules.quality_enhancement_module import (
+                QualityEnhancementModule,
+            )
+
             self.module = QualityEnhancementModule()
         except ImportError:
-            from src.services.prompts.modules.error_prevention_module import ErrorPreventionModule
+            from src.services.prompts.modules.error_prevention_module import (
+                ErrorPreventionModule,
+            )
+
             self.module = ErrorPreventionModule()
 
     def test_empty_context_still_positive(self):
@@ -427,9 +499,9 @@ class TestQualityEnhancementEdgeCases:
         result = module.execute(context)
 
         # Should still be positive even without context
-        assert "GEBRUIK" in result.content or "kwaliteit" in result.content.lower(), (
-            "Should maintain positive framing even without context"
-        )
+        assert (
+            "GEBRUIK" in result.content or "kwaliteit" in result.content.lower()
+        ), "Should maintain positive framing even without context"
 
     def test_multiple_contexts_handled_positively(self):
         """Test that multiple contexts are handled with positive framing."""
@@ -438,11 +510,13 @@ class TestQualityEnhancementEdgeCases:
 
         context = MagicMock(spec=ModuleContext)
         context.begrip = "test"
-        context.get_shared = MagicMock(side_effect=lambda key, default=None: {
-            "organization_contexts": ["OM", "ZM", "CJIB"],
-            "juridical_contexts": ["Strafrecht", "Bestuursrecht"],
-            "legal_basis_contexts": ["WvS", "Awb"]
-        }.get(key, default))
+        context.get_shared = MagicMock(
+            side_effect=lambda key, default=None: {
+                "organization_contexts": ["OM", "ZM", "CJIB"],
+                "juridical_contexts": ["Strafrecht", "Bestuursrecht"],
+                "legal_basis_contexts": ["WvS", "Awb"],
+            }.get(key, default)
+        )
 
         result = module.execute(context)
 
@@ -453,10 +527,16 @@ class TestQualityEnhancementEdgeCases:
         positive_words = ["gebruik", "kwaliteit", "richtlijn", "principe"]
         negative_words = ["vermijd", "verboden", "niet", "geen"]
 
-        positive_count = sum(result.content.lower().count(word) for word in positive_words)
-        negative_count = sum(result.content.lower().count(word) for word in negative_words)
+        positive_count = sum(
+            result.content.lower().count(word) for word in positive_words
+        )
+        _ = sum(  # Calculate but don't assert on negative words
+            result.content.lower().count(word) for word in negative_words
+        )
 
-        assert positive_count > 0, "Should have positive guidance even with complex context"
+        assert (
+            positive_count > 0
+        ), "Should have positive guidance even with complex context"
 
     def test_configuration_flags_respected(self):
         """Test that configuration flags still work after transformation."""
@@ -486,8 +566,10 @@ class TestQualityEnhancementEdgeCases:
 
         context = MagicMock(spec=ModuleContext)
         context.begrip = "e-commerce"
-        context.get_shared = MagicMock(side_effect=lambda key, default=None:
-            ["3RO", "e-Overheid"] if key == "organization_contexts" else default
+        context.get_shared = MagicMock(
+            side_effect=lambda key, default=None: (
+                ["3RO", "e-Overheid"] if key == "organization_contexts" else default
+            )
         )
 
         result = module.execute(context)
@@ -503,10 +585,16 @@ class TestQualityEnhancementIntegration:
     def setup_method(self):
         """Set up test fixtures before each test method."""
         try:
-            from src.services.prompts.modules.quality_enhancement_module import QualityEnhancementModule
+            from src.services.prompts.modules.quality_enhancement_module import (
+                QualityEnhancementModule,
+            )
+
             self.module = QualityEnhancementModule()
         except ImportError:
-            from src.services.prompts.modules.error_prevention_module import ErrorPreventionModule
+            from src.services.prompts.modules.error_prevention_module import (
+                ErrorPreventionModule,
+            )
+
             self.module = ErrorPreventionModule()
 
         self.module.initialize({})
@@ -518,10 +606,10 @@ class TestQualityEnhancementIntegration:
         The module should maintain compatibility with the orchestration system.
         """
         # The module should have the right interface
-        assert hasattr(self.module, 'module_id')
-        assert hasattr(self.module, 'execute')
-        assert hasattr(self.module, 'get_dependencies')
-        assert hasattr(self.module, 'validate_input')
+        assert hasattr(self.module, "module_id")
+        assert hasattr(self.module, "execute")
+        assert hasattr(self.module, "get_dependencies")
+        assert hasattr(self.module, "validate_input")
 
         # Dependencies should be properly declared
         deps = self.module.get_dependencies()
@@ -560,6 +648,7 @@ class TestQualityEnhancementIntegration:
 
         if not result.success:
             # Error message should be constructive
-            assert "Failed to generate" in result.error_message or "quality" in result.error_message.lower(), (
-                "Error messages should be constructive"
-            )
+            assert (
+                "Failed to generate" in result.error_message
+                or "quality" in result.error_message.lower()
+            ), "Error messages should be constructive"

@@ -9,12 +9,13 @@ OLD: "CHECKLIST - Controleer voor je antwoord"
 NEW: "CONSTRUCTIE GUIDE - Bouw je definitie op"
 """
 
-import pytest
+from datetime import UTC, datetime
 from unittest.mock import MagicMock, patch
-from datetime import datetime, UTC
 
+import pytest
+
+from src.services.prompts.modules.base_module import EnrichedContext, ModuleContext
 from src.services.prompts.modules.definition_task_module import DefinitionTaskModule
-from src.services.prompts.modules.base_module import ModuleContext, EnrichedContext
 
 
 class TestDefinitionTaskTransformation:
@@ -23,10 +24,9 @@ class TestDefinitionTaskTransformation:
     def setup_method(self):
         """Set up test fixtures before each test method."""
         self.module = DefinitionTaskModule()
-        self.module.initialize({
-            "include_quality_control": True,
-            "include_metadata": True
-        })
+        self.module.initialize(
+            {"include_quality_control": True, "include_metadata": True}
+        )
 
         # Create a mock context with all required attributes
         self.context = MagicMock(spec=ModuleContext)
@@ -47,7 +47,7 @@ class TestDefinitionTaskTransformation:
             "ontological_category": "proces",
             "organization_contexts": ["gemeente"],
             "juridical_contexts": [],
-            "legal_basis_contexts": []
+            "legal_basis_contexts": [],
         }
         return shared_data.get(key, default)
 
@@ -61,18 +61,18 @@ class TestDefinitionTaskTransformation:
         result = self.module.execute(self.context)
 
         # Check that old checklist language is gone
-        assert "CHECKLIST - Controleer voor je antwoord" not in result.content, (
-            "Old validation-focused checklist language should be removed"
-        )
+        assert (
+            "CHECKLIST - Controleer voor je antwoord" not in result.content
+        ), "Old validation-focused checklist language should be removed"
 
         # Check that new construction guide is present
-        assert "CONSTRUCTIE GUIDE" in result.content, (
-            "New construction guide header must be present"
-        )
+        assert (
+            "CONSTRUCTIE GUIDE" in result.content
+        ), "New construction guide header must be present"
 
-        assert "Bouw je definitie op" in result.content, (
-            "Construction-focused language 'Bouw je definitie op' must be present"
-        )
+        assert (
+            "Bouw je definitie op" in result.content
+        ), "Construction-focused language 'Bouw je definitie op' must be present"
 
     def test_no_controleer_in_main_sections(self):
         """
@@ -87,9 +87,9 @@ class TestDefinitionTaskTransformation:
         main_content = result.content.split("METADATA voor traceerbaarheid")[0]
 
         # "Controleer" should not be in main instructional content
-        assert "Controleer" not in main_content, (
-            "Validation language 'Controleer' should be removed from main instructions"
-        )
+        assert (
+            "Controleer" not in main_content
+        ), "Validation language 'Controleer' should be removed from main instructions"
 
     def test_constructive_language_in_guide(self):
         """
@@ -105,15 +105,17 @@ class TestDefinitionTaskTransformation:
         if guide_start == -1:
             guide_start = result.content.find("📋")  # Alternative marker
 
-        guide_section = result.content[guide_start:guide_start + 1000]
+        guide_section = result.content[guide_start : guide_start + 1000]
 
         # Check for constructive language
         constructive_words = ["bouw", "construeer", "vorm", "creëer", "stel", "maak"]
-        found_constructive = any(word in guide_section.lower() for word in constructive_words)
-
-        assert found_constructive, (
-            "Construction guide should use constructive language like 'bouw', 'construeer', 'vorm'"
+        found_constructive = any(
+            word in guide_section.lower() for word in constructive_words
         )
+
+        assert (
+            found_constructive
+        ), "Construction guide should use constructive language like 'bouw', 'construeer', 'vorm'"
 
     def test_checklist_items_become_construction_steps(self):
         """
@@ -124,13 +126,6 @@ class TestDefinitionTaskTransformation:
         """
         result = self.module.execute(self.context)
 
-        # Original checklist items that should be transformed
-        old_items = [
-            "□ Begint met zelfstandig naamwoord",
-            "□ Eén enkele zin zonder punt",
-            "□ Geen toelichting, voorbeelden of haakjes"
-        ]
-
         # At least the checkbox format should change
         checkbox_count = result.content.count("□")
 
@@ -139,8 +134,9 @@ class TestDefinitionTaskTransformation:
         plus_count = result.content.count("✓")
         step_count = result.content.lower().count("stap")
 
-        assert (arrow_count > 0 or plus_count > 0 or step_count > 0
-                or checkbox_count == 0), (
+        assert (
+            arrow_count > 0 or plus_count > 0 or step_count > 0 or checkbox_count == 0
+        ), (
             "Checklist items should be transformed to construction steps "
             "using arrows (→), checkmarks (✓), or step indicators"
         )
@@ -155,21 +151,30 @@ class TestDefinitionTaskTransformation:
 
         if "KWALITEITSCONTROLE" in result.content:
             quality_section = result.content[
-                result.content.find("KWALITEITSCONTROLE"):
-                result.content.find("KWALITEITSCONTROLE") + 500
+                result.content.find("KWALITEITSCONTROLE") : result.content.find(
+                    "KWALITEITSCONTROLE"
+                )
+                + 500
             ]
 
             # Should use positive framing
             positive_indicators = [
-                "zorg", "bouw", "maak", "creëer",
-                "waarborg", "realiseer", "bewerkstellig"
+                "zorg",
+                "bouw",
+                "maak",
+                "creëer",
+                "waarborg",
+                "realiseer",
+                "bewerkstellig",
             ]
 
-            has_positive = any(ind in quality_section.lower() for ind in positive_indicators)
-
-            assert has_positive, (
-                "Quality control should use positive, constructive language"
+            has_positive = any(
+                ind in quality_section.lower() for ind in positive_indicators
             )
+
+            assert (
+                has_positive
+            ), "Quality control should use positive, constructive language"
 
     def test_task_assignment_is_constructive(self):
         """
@@ -183,14 +188,14 @@ class TestDefinitionTaskTransformation:
         task_section = None
         if "Definitieopdracht:" in result.content:
             start = result.content.find("Definitieopdracht:")
-            task_section = result.content[start:start + 200]
+            task_section = result.content[start : start + 200]
 
         if task_section:
             # Should use "Formuleer", "Bouw", "Creëer" or similar
-            assert any(word in task_section for word in
-                      ["Formuleer", "Bouw", "Creëer", "Construeer", "Stel op"]), (
-                "Task assignment should use constructive verbs"
-            )
+            assert any(
+                word in task_section
+                for word in ["Formuleer", "Bouw", "Creëer", "Construeer", "Stel op"]
+            ), "Task assignment should use constructive verbs"
 
     def test_no_negative_commands_in_guide(self):
         """
@@ -202,13 +207,19 @@ class TestDefinitionTaskTransformation:
         result = self.module.execute(self.context)
 
         # Count negative indicators
-        guide_section = result.content[:result.content.find("METADATA") if "METADATA" in result.content else len(result.content)]
+        guide_section = result.content[
+            : (
+                result.content.find("METADATA")
+                if "METADATA" in result.content
+                else len(result.content)
+            )
+        ]
 
         negative_count = (
-            guide_section.count("Geen ") +
-            guide_section.count("Niet ") +
-            guide_section.count("Vermijd ") +
-            guide_section.count("niet ")
+            guide_section.count("Geen ")
+            + guide_section.count("Niet ")
+            + guide_section.count("Vermijd ")
+            + guide_section.count("niet ")
         )
 
         # Some negatives might be necessary, but should be minimal
@@ -225,14 +236,16 @@ class TestDefinitionTaskTransformation:
 
         if "Ontologische marker" in result.content:
             marker_section = result.content[
-                result.content.find("Ontologische marker"):
-                result.content.find("Ontologische marker") + 200
+                result.content.find("Ontologische marker") : result.content.find(
+                    "Ontologische marker"
+                )
+                + 200
             ]
 
             # Should instruct to "provide" or "specify" rather than "check"
-            assert not "controleer" in marker_section.lower(), (
-                "Ontological marker should not use validation language"
-            )
+            assert (
+                "controleer" not in marker_section.lower()
+            ), "Ontological marker should not use validation language"
 
     def test_final_instruction_emphasizes_creation(self):
         """
@@ -242,7 +255,7 @@ class TestDefinitionTaskTransformation:
 
         # Find the final instruction (usually contains the begrip)
         final_instruction = None
-        lines = result.content.split('\n')
+        lines = result.content.split("\n")
         for line in lines:
             if self.context.begrip in line and "definitie" in line.lower():
                 final_instruction = line
@@ -251,9 +264,9 @@ class TestDefinitionTaskTransformation:
         if final_instruction:
             # Should use creative/constructive language
             constructive_verbs = ["Geef", "Formuleer", "Creëer", "Bouw", "Stel op"]
-            assert any(verb in final_instruction for verb in constructive_verbs), (
-                "Final instruction should use constructive verbs like 'Geef' or 'Formuleer'"
-            )
+            assert any(
+                verb in final_instruction for verb in constructive_verbs
+            ), "Final instruction should use constructive verbs like 'Geef' or 'Formuleer'"
 
     def test_metadata_section_unchanged(self):
         """
@@ -268,18 +281,25 @@ class TestDefinitionTaskTransformation:
         assert "METADATA" in result.content or "Metadata" in result.content
         assert "Timestamp" in result.content or "timestamp" in result.content
 
-    @pytest.mark.parametrize("ontological_category,expected_hint", [
-        ("proces", "activiteit/handeling"),
-        ("type", "soort/categorie"),
-        ("resultaat", "uitkomst/gevolg"),
-        ("exemplaar", "specifiek geval"),
-    ])
-    def test_ontological_hints_use_constructive_language(self, ontological_category, expected_hint):
+    @pytest.mark.parametrize(
+        ("ontological_category", "expected_hint"),
+        [
+            ("proces", "activiteit/handeling"),
+            ("type", "soort/categorie"),
+            ("resultaat", "uitkomst/gevolg"),
+            ("exemplaar", "specifiek geval"),
+        ],
+    )
+    def test_ontological_hints_use_constructive_language(
+        self, ontological_category, expected_hint
+    ):
         """
         Test that ontological category hints are framed constructively.
         """
-        self.context.get_shared = MagicMock(side_effect=lambda key, default=None:
-            ontological_category if key == "ontological_category" else default
+        self.context.get_shared = MagicMock(
+            side_effect=lambda key, default=None: (
+                ontological_category if key == "ontological_category" else default
+            )
         )
 
         result = self.module.execute(self.context)
@@ -288,12 +308,14 @@ class TestDefinitionTaskTransformation:
         if expected_hint in result.content:
             # Find the context around the hint
             hint_pos = result.content.find(expected_hint)
-            context_around = result.content[max(0, hint_pos-50):hint_pos+50]
+            context_around = result.content[max(0, hint_pos - 50) : hint_pos + 50]
 
             # Should be framed as guidance, not restriction
-            assert "Focus:" in context_around or "Bouw" in context_around or "als" in context_around, (
-                f"Ontological hint for {ontological_category} should be framed constructively"
-            )
+            assert (
+                "Focus:" in context_around
+                or "Bouw" in context_around
+                or "als" in context_around
+            ), f"Ontological hint for {ontological_category} should be framed constructively"
 
 
 class TestDefinitionTaskBackwardCompatibility:
@@ -321,9 +343,9 @@ class TestDefinitionTaskBackwardCompatibility:
         result = self.module.execute(self.context)
 
         assert result is not None
-        assert hasattr(result, 'content')
-        assert hasattr(result, 'metadata')
-        assert hasattr(result, 'success')
+        assert hasattr(result, "content")
+        assert hasattr(result, "metadata")
+        assert hasattr(result, "success")
 
     def test_all_required_sections_present(self):
         """Test that all required sections are still generated."""
@@ -332,15 +354,15 @@ class TestDefinitionTaskBackwardCompatibility:
         # Essential sections should still exist (perhaps with new names)
         essential_elements = [
             "FINALE INSTRUCTIES",  # Or new equivalent
-            "Definitieopdracht",    # Task assignment
-            self.context.begrip,    # The actual term
-            "📋"                    # Some form of guide/checklist
+            "Definitieopdracht",  # Task assignment
+            self.context.begrip,  # The actual term
+            "📋",  # Some form of guide/checklist
         ]
 
         for element in essential_elements:
-            assert element in result.content or element.lower() in result.content.lower(), (
-                f"Essential element '{element}' should still be present"
-            )
+            assert (
+                element in result.content or element.lower() in result.content.lower()
+            ), f"Essential element '{element}' should still be present"
 
     def test_metadata_still_tracked(self):
         """Test that metadata is still properly tracked."""
@@ -385,15 +407,17 @@ class TestDefinitionTaskEdgeCases:
         enriched = MagicMock(spec=EnrichedContext)
         enriched.base_context = {
             "juridische_context": ["Strafrecht"],
-            "wettelijke_basis": ["Wetboek van Strafrecht"]
+            "wettelijke_basis": ["Wetboek van Strafrecht"],
         }
         context.enriched_context = enriched
 
-        context.get_shared = MagicMock(side_effect=lambda key, default=None: {
-            "organization_contexts": ["OM", "ZM"],
-            "juridical_contexts": ["Strafrecht"],
-            "legal_basis_contexts": ["Wetboek van Strafrecht"]
-        }.get(key, default))
+        context.get_shared = MagicMock(
+            side_effect=lambda key, default=None: {
+                "organization_contexts": ["OM", "ZM"],
+                "juridical_contexts": ["Strafrecht"],
+                "legal_basis_contexts": ["Wetboek van Strafrecht"],
+            }.get(key, default)
+        )
 
         result = self.module.execute(context)
 

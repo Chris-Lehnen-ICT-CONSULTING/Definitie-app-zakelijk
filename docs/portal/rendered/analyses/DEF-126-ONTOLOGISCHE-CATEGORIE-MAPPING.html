@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DEF-126: Ontologische Categorie Instructies - Complete Mapping</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>DEF-126: Ontologische Categorie Instructies - Complete Mapping</h1>
+
+<h2>🔍 Probleem: 5 Overlappende Bronnen voor Dezelfde Instructie</h2>
+
+<h3>a. ExpertiseModule → Regel 3</h3>
+<pre><code># src/services/prompts/modules/expertise_module.py (regel 181)
+"deverbaal": "Als het begrip een resultaat is, beschrijf het dan als uitkomst van een proces."</code></pre>
+<p><strong>Locatie in prompt:</strong> Regel 3</p>
+<p><strong>Basis:</strong> Woordsoort (werkwoord/deverbaal/overig)</p>
+
+<h3>b. SemanticCategorisationModule → Regels 70-116</h3>
+<pre><code># src/services/prompts/modules/semantic_categorisation_module.py
+# Genereert complete ESS-02 sectie met:
+- Basis instructies (regels 70-87)
+- TYPE-specifieke guidance (regels 88-116)</code></pre>
+<p><strong>Locatie in prompt:</strong> Regels 70-116 (47 regels!)</p>
+<p><strong>Basis:</strong> Ontologische categorie metadata</p>
+
+<h3>c. EssRulesModule → Regel 150</h3>
+<pre><code># Laadt uit: src/toetsregels/regels/ESS-02.json
+"naam": "Ontologische categorie expliciteren (type / particulier / proces / resultaat)"</code></pre>
+<p><strong>Locatie in prompt:</strong> Regel 150 (binnen ESS sectie)</p>
+<p><strong>Basis:</strong> Validatieregel uit JSON</p>
+
+<h3>d. DefinitionTaskModule → Regel 395 & 204</h3>
+<pre><code># src/services/prompts/modules/definition_task_module.py
+# In checklist:
+"🎯 Focus: Dit is een **type** (soort/categorie)"
+"→ Ontologische categorie is duidelijk"</code></pre>
+<p><strong>Locatie in prompt:</strong></p>
+<ul>
+<li>Regel 204: "→ Ontologische categorie is duidelijk"</li>
+<li>Regel 395: "🎯 Focus: Dit is een **type** (soort/categorie)"</li>
+</ul>
+
+<h3>e. DefinitionTaskModule → Regels 413-415</h3>
+<pre><code># Ontologische marker instructie:
+"📋 **Ontologische marker (lever als eerste regel):**"
+"- Ontologische categorie: kies uit [soort, exemplaar, proces, resultaat]"</code></pre>
+<p><strong>Locatie in prompt:</strong> Regels 413-415</p>
+
+<h2>📊 Samenvatting van Overlappingen</h2>
+
+<p>| Module | Regels | Wat doet het | Type Content |</p>
+<p>|--------|--------|--------------|--------------|</p>
+<p>| <strong>ExpertiseModule</strong> | 3 | Geeft advies op basis van woordsoort | <strong>Dynamisch</strong> (woordsoort bepaling) |</p>
+<p>| <strong>SemanticCategorisationModule</strong> | 70-116 | Complete ESS-02 instructie set | <strong>Template</strong> + Dynamisch |</p>
+<p>| <strong>EssRulesModule</strong> | 150 | Noemt ESS-02 regel | <strong>Template</strong> (uit JSON) |</p>
+<p>| <strong>DefinitionTaskModule</strong> | 204, 395 | Herhaalt categorie focus | <strong>Dynamisch</strong> |</p>
+<p>| <strong>DefinitionTaskModule</strong> | 413-415 | Vraagt om categorie keuze | <strong>Template</strong> |</p>
+
+<h2>🔴 Kern Problemen</h2>
+
+<h3>1. Terminologie Inconsistentie</h3>
+<ul>
+<li>**ExpertiseModule**: "deverbaal" → advies voor "resultaat"</li>
+<li>**SemanticCategorisation**: "resultaat" categorie</li>
+<li>**EssRulesModule**: "particulier" (niet "exemplaar")</li>
+<li>**DefinitionTaskModule**: "soort" (niet "type")</li>
+</ul>
+
+<h3>2. Conflicterende Instructies</h3>
+<ul>
+<li>**ExpertiseModule** bepaalt op basis van **woordsoort** (morfologie)</li>
+<li>**SemanticCategorisation** gebruikt **metadata** (UI/config)</li>
+<li>Beide proberen hetzelfde te doen maar met andere logica</li>
+</ul>
+
+<h3>3. Redundante Herhaling</h3>
+<ul>
+<li>Dezelfde instructie wordt **5x** op verschillende manieren gegeven</li>
+<li>Totaal **~65 regels** voor wat eigenlijk **~15 regels** kan zijn</li>
+</ul>
+
+<h2>✅ Voorgestelde Oplossing: Single Source Architecture</h2>
+
+<h3>Principe: Eén Module als Category Authority</h3>
+
+<pre><code>graph TD
+    UI[UI/Config] --&gt;|ontologische_categorie| SM[SemanticCategorisationModule]
+
+    SM --&gt;|Bepaalt categorie| SM
+    SM --&gt;|Set shared state| SS[Shared State]
+
+    SS --&gt;|category: type| TM[TemplateModule]
+    SS --&gt;|category: type| DT[DefinitionTaskModule]
+
+    EM[ExpertiseModule] -.-&gt;|VERWIJDERD| X[Geen categorie advies]
+    ER[EssRulesModule] -.-&gt;|SKIP ESS-02| X
+
+    style SM fill:#90EE90
+    style X fill:#FFB6C1</code></pre>
+
+<h3>Implementatie Plan</h3>
+
+<h4>STAP 1: Consolideer in SemanticCategorisationModule</h4>
+
+<pre><code>class SemanticCategorisationModule(BasePromptModule):
+    """
+    DE ENIGE BRON voor ontologische categorie bepaling en instructies.
+    """
+
+    def execute(self, context: ModuleContext) -&gt; ModuleOutput:
+        # 1. Bepaal categorie (UI override of intelligent detection)
+        category = self._determine_category(context)
+
+        # 2. Sla op voor ALLE andere modules
+        context.set_shared("ontological_category", category)
+        context.set_shared("category_normalized", self._normalize(category))
+
+        # 3. Genereer EENMALIGE complete instructie
+        if context.config.get("compact_mode"):
+            content = self._build_compact_instruction(category)
+        else:
+            content = self._build_full_ess02_instruction(category)
+
+        return ModuleOutput(content=content)
+
+    def _determine_category(self, context):
+        """Intelligente categorie bepaling."""
+        # 1. Check UI/metadata override
+        if context.get_metadata("ontologische_categorie"):
+            return context.get_metadata("ontologische_categorie")
+
+        # 2. Morfologische analyse (wat ExpertiseModule deed)
+        begrip = context.begrip.lower()
+
+        # Mapping van woordsoort naar categorie
+        if begrip.endswith(("eren", "elen", "enen")):
+            return "proces"  # Werkwoord → proces
+
+        if begrip.endswith(("ing", "atie", "tie", "isatie")):
+            # Deverbaal kan proces OF resultaat zijn
+            if self._is_action_noun(begrip):
+                return "proces"  # bijv. "vergadering" (actie)
+            else:
+                return "resultaat"  # bijv. "registratie" (uitkomst)
+
+        if "exemplaar" in begrip or "geval" in begrip:
+            return "exemplaar"
+
+        # Default
+        return "type"
+
+    def _build_compact_instruction(self, category):
+        """Compacte versie voor token besparing."""
+        instructions = {
+            "proces": "→ Start met: 'activiteit waarbij...' of 'handeling die...'",
+            "type": "→ Start met: [kernwoord] dat/die [kenmerk]",
+            "resultaat": "→ Start met: 'resultaat van...' of 'uitkomst van...'",
+            "exemplaar": "→ Start met: 'exemplaar van... dat...'"
+        }
+        return f"📐 Ontologische categorie: **{category}**\n{instructions[category]}"</code></pre>
+
+<h4>STAP 2: Verwijder uit ExpertiseModule</h4>
+
+<pre><code>class ExpertiseModule(BasePromptModule):
+    def execute(self, context: ModuleContext) -&gt; ModuleOutput:
+        sections = []
+        sections.append(self._build_role_definition())
+        sections.append(self._build_task_instruction())
+        # VERWIJDERD: _build_word_type_advice()
+        sections.append(self._build_basic_requirements())
+        return ModuleOutput(content="\n".join(sections))</code></pre>
+
+<h4>STAP 3: Skip ESS-02 in EssRulesModule</h4>
+
+<pre><code>class EssRulesModule(BasePromptModule):
+    def execute(self, context: ModuleContext) -&gt; ModuleOutput:
+        # Filter ESS-02 eruit (handled by SemanticCategorisationModule)
+        ess_rules = {
+            k: v for k, v in all_rules.items()
+            if k.startswith("ESS-") and k != "ESS-02"
+        }</code></pre>
+
+<h4>STAP 4: Simplify DefinitionTaskModule</h4>
+
+<pre><code>class DefinitionTaskModule(BasePromptModule):
+    def _build_checklist(self, ontological_category: str | None) -&gt; str:
+        # Gebruik alleen shared state, geen eigen generatie
+        category = context.get_shared("ontological_category")
+
+        return f"""📋 **CONSTRUCTIE GUIDE:**
+→ Categorie: {category}  # Alleen noemen, niet uitleggen
+→ Eén enkele zin zonder punt
+→ Context verwerkt zonder expliciete benoeming"""
+
+    def _build_ontological_marker(self) -&gt; str:
+        # OPTIONEEL: Alleen als niet al bepaald
+        if not context.get_shared("ontological_category"):
+            return "📋 Bepaal categorie: [type/exemplaar/proces/resultaat]"
+        return ""  # Skip als al bekend</code></pre>
+
+<h4>STAP 5: TemplateModule gebruikt alleen Shared State</h4>
+
+<pre><code>class TemplateModule(BasePromptModule):
+    def execute(self, context: ModuleContext) -&gt; ModuleOutput:
+        # Gebruik ALLEEN de categorie uit shared state
+        category = context.get_shared("ontological_category")
+        if not category:
+            return ModuleOutput(content="", success=False)
+
+        template = self._get_category_template(category)
+        return ModuleOutput(content=template)</code></pre>
+
+<h2>📈 Verwachte Resultaten</h2>
+
+<h3>Voor (Huidige Situatie)</h3>
+<ul>
+<li>**65+ regels** voor ontologische categorie instructies</li>
+<li>**5 verschillende modules** die hetzelfde proberen</li>
+<li>**Inconsistente terminologie**</li>
+<li>**Verwarrende/conflicterende instructies**</li>
+</ul>
+
+<h3>Na (Voorgestelde Oplossing)</h3>
+<ul>
+<li>**~15 regels** totaal (77% reductie)</li>
+<li>**1 module** als single source</li>
+<li>**Consistente terminologie**</li>
+<li>**Heldere, eenduidige instructies**</li>
+</ul>
+
+<h3>Concrete Winsten</h3>
+<ol>
+<li>**-50 regels** prompt reductie</li>
+<li>**Betere onderhoudbaarheid** (1 plek om aan te passen)</li>
+<li>**Consistentere output** (geen conflicterende instructies)</li>
+<li>**Flexibele modi** (compact vs volledig)</li>
+</ol>
+
+<h2>🚀 Implementatie Prioriteit</h2>
+
+<p><strong>HIGH PRIORITY</strong> - Dit is een quick win met grote impact:</p>
+<ul>
+<li>Relatief eenvoudig te implementeren</li>
+<li>Direct meetbaar resultaat (token reductie)</li>
+<li>Verbetert prompt kwaliteit</li>
+<li>Maakt DEF-126 transformatie makkelijker</li>
+</ul>
+
+<h2>Configuration Voorbeeld</h2>
+
+<pre><code># config/prompt_modules.yaml
+semantic_categorisation:
+  enabled: true
+  mode: compact  # of 'full' voor uitgebreide instructies
+  auto_detect: true  # Morfologische analyse als geen metadata
+
+expertise:
+  word_type_advice: false  # DEPRECATED - gebruik semantic_categorisation
+
+ess_rules:
+  skip_rules: ["ESS-02"]  # Handled by semantic_categorisation
+
+definition_task:
+  show_ontological_marker: auto  # Alleen als niet bepaald</code></pre>
+
+<h2>Conclusie</h2>
+
+<p>Door alle ontologische categorie logic te consolideren in <strong>SemanticCategorisationModule</strong>:</p>
+<ul>
+<li>Elimineren we **5 redundante bronnen**</li>
+<li>Reduceren we de prompt met **~50 regels**</li>
+<li>Creëren we **één autoritieve bron** voor categorieën</li>
+<li>Maken we het systeem **veel makkelijker te onderhouden**</li>
+</ul>
+
+<p>Dit is een perfecte eerste stap voor DEF-126 transformatie!</p>
+  </div>
+</body>
+</html>

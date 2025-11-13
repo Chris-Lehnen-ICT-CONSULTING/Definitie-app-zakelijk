@@ -1,0 +1,432 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DEF-126 Context Consolidation - Executive Risk Summary</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>DEF-126 Context Consolidation - Executive Risk Summary</h1>
+
+<p><strong>Date:</strong> 2025-11-13</p>
+<p><strong>Risk Level:</strong> 🟡 MEDIUM-HIGH → 🟢 LOW-MEDIUM (with mitigations)</p>
+<p><strong>Recommendation:</strong> ✅ PROCEED with enhanced plan</p>
+
+<p>---</p>
+
+<h2>🎯 TL;DR - What You Need to Know</h2>
+
+<p><strong>The Good:</strong></p>
+<ul>
+<li>✅ "No backwards compatibility" policy is appropriate for this app</li>
+<li>✅ Implementation plan is well-structured with good foundation</li>
+<li>✅ Expected benefits (50-65% token reduction, single source of truth) are achievable</li>
+</ul>
+
+<p><strong>The Bad:</strong></p>
+<ul>
+<li>⚠️ Plan underestimates timeline: **11.5 hours needed** (not 6 hours)</li>
+<li>⚠️ **MISSING CRITICAL PHASES:** Baseline capture, helper tests, baseline comparison</li>
+<li>⚠️ Test coverage has gaps (edge cases, real data scenarios)</li>
+</ul>
+
+<p><strong>The Ugly:</strong></p>
+<ul>
+<li>🔴 **CRITICAL RISK:** No baseline comparison = cannot validate quality maintained</li>
+<li>🔴 **CRITICAL RISK:** Inconsistent data access could cause silent context loss</li>
+<li>🟡 **HIGH RISK:** Tests using mocked data may miss production edge cases</li>
+</ul>
+
+<p><strong>Decision:</strong> Proceed ONLY if you add 4 mandatory phases to the implementation plan.</p>
+
+<p>---</p>
+
+<h2>🚨 Top 3 Show-Stopper Risks</h2>
+
+<h3>1. Circular Validation Trap (Severity: 64 - CRITICAL)</h3>
+
+<p><strong>Problem:</strong></p>
+<pre><code>Current plan:
+Step 1: Change prompt system
+Step 2: Generate definitions with new system
+Step 3: Validate with same validators
+Step 4: "Quality maintained!" ← CIRCULAR LOGIC</code></pre>
+
+<p>If the validator uses the SAME context logic you just changed, it will validate consistently with the NEW system but might miss that definitions are WORSE than the OLD system.</p>
+
+<p><strong>Solution:</strong></p>
+<ul>
+<li>**Phase 0 (ADD):** Capture baseline BEFORE any changes (20 test cases)</li>
+<li>**Phase 9.5 (ADD):** Compare new scores to baseline</li>
+<li>**Blocking condition:** Quality must be ≥95% of baseline</li>
+</ul>
+
+<p><strong>Status:</strong> ⚠️ NOT in current plan - MUST ADD</p>
+
+<p>---</p>
+
+<h3>2. Silent Context Loss (Severity: 70 - CRITICAL)</h3>
+
+<p><strong>Problem:</strong></p>
+<pre><code># OLD: DefinitionTaskModule reads base_context DIRECTLY
+base_ctx = context.enriched_context.base_context
+jur = base_ctx.get("juridische_context") or base_ctx.get("juridisch") or []
+
+# NEW: ContextInstructionModule uses shared_state
+jur = context.get_shared("juridical_contexts", [])</code></pre>
+
+<p>If there's a KEY MISMATCH ("juridische_context" vs "juridisch" vs "juridical_contexts"), context silently disappears from prompts. Tests pass (no error), but definitions lack context guidance.</p>
+
+<p><strong>Solution:</strong></p>
+<ul>
+<li>**Phase 0:** Test with REAL production context data (not mocks)</li>
+<li>**Phase 2.5 (ADD):** Explicit test of `_extract_contexts()` helper</li>
+<li>**Phase 8:** Add assertion: "if base_context has data, shared_state must too"</li>
+<li>**Monitoring:** Log warning if extraction produces empty lists</li>
+</ul>
+
+<p><strong>Status:</strong> ⚠️ Partially covered - need Phase 2.5</p>
+
+<p>---</p>
+
+<h3>3. Test False Positives (Severity: 48 - HIGH)</h3>
+
+<p><strong>Problem:</strong></p>
+<pre><code># Proposed test (from plan)
+def create_test_context(org=["NP"], jur=["Strafrecht"]):
+    base_context = {"organisatorisch": org, "juridisch": jur}  # Clean mock</code></pre>
+
+<p>Real production data has edge cases:</p>
+<ul>
+<li>Sometimes "organisatorisch", sometimes "organisatie"</li>
+<li>Sometimes `[]`, sometimes `None`, sometimes `False` (legacy)</li>
+<li>Sometimes string, sometimes list, sometimes mixed</li>
+</ul>
+
+<p>Tests with clean mocks pass, production with real data fails.</p>
+
+<p><strong>Solution:</strong></p>
+<ul>
+<li>**Phase 0:** Extract 20 real context samples from database</li>
+<li>**Phase 2.5 (ADD):** Test edge cases (bool, str, list, None, mixed)</li>
+<li>**Phase 8:** Use real fixtures in all tests</li>
+</ul>
+
+<p><strong>Status:</strong> ⚠️ NOT in current plan - MUST ADD</p>
+
+<p>---</p>
+
+<h2>✅ Required Changes to Implementation Plan</h2>
+
+<h3>Add 4 Mandatory Phases</h3>
+
+<p>| Phase | Name | Duration | Why MANDATORY | Insert After |</p>
+<p>|-------|------|----------|---------------|--------------|</p>
+<p>| <strong>0</strong> | Baseline Capture | 1 hour | Without baseline, cannot validate quality | Start (before Phase 1) |</p>
+<p>| <strong>2.5</strong> | Helper Method Tests | 1 hour | Plan mentions helpers but doesn't test them | Phase 2 |</p>
+<p>| <strong>7.5</strong> | Dependency Verification | 30 min | Ensure no hidden dependencies on old module | Phase 7 |</p>
+<p>| <strong>9.5</strong> | Baseline Comparison | 1 hour | Compare new vs baseline - BLOCKING CONDITION | Phase 9 |</p>
+
+<p><strong>New total time:</strong> 11.5 hours (was 6 hours, +92%)</p>
+
+<p>---</p>
+
+<h3>Phase 0: Baseline Capture (CRITICAL)</h3>
+
+<p><strong>What to do:</strong></p>
+<ol>
+<li>Select 20 test cases (diverse contexts: org, juridical, legal, none)</li>
+<li>Generate prompts with CURRENT system</li>
+<li>Generate definitions with CURRENT system</li>
+<li>Run validation, capture scores</li>
+<li>Store in `tests/fixtures/DEF-126-baseline/`</li>
+<li>Commit to git</li>
+</ol>
+
+<p><strong>Acceptance criteria:</strong></p>
+<ul>
+<li>✓ 20 prompt files</li>
+<li>✓ 20 definition JSON files</li>
+<li>✓ scores.csv with 20 rows</li>
+<li>✓ Git commit: "test(DEF-126): baseline capture"</li>
+</ul>
+
+<p><strong>Why critical:</strong></p>
+<p>Without this, you have NO WAY to verify quality is maintained. All other tests become meaningless because they validate new system against... new system.</p>
+
+<p>---</p>
+
+<h3>Phase 2.5: Helper Method Tests (HIGH PRIORITY)</h3>
+
+<p><strong>What to do:</strong></p>
+<ol>
+<li>Test `_extract_contexts()` with bool/str/list/None inputs</li>
+<li>Test `_format_detailed_base_context()` with real samples</li>
+<li>Test `_format_sources_with_confidence()` with real ContextSources</li>
+<li>Test `_format_abbreviations_*()` with real abbreviations</li>
+<li>Test `_build_fallback_context_section()` (error path)</li>
+</ol>
+
+<p><strong>Acceptance criteria:</strong></p>
+<ul>
+<li>✓ Each helper has dedicated unit test</li>
+<li>✓ Edge cases covered (empty, None, invalid)</li>
+<li>✓ Backwards compatibility verified</li>
+</ul>
+
+<p><strong>Why critical:</strong></p>
+<p>These helpers contain subtle business logic (like legacy bool support, emoji thresholds). If not tested, silent bugs will appear in production.</p>
+
+<p>---</p>
+
+<h3>Phase 7.5: Dependency Verification (MEDIUM PRIORITY)</h3>
+
+<p><strong>What to do:</strong></p>
+<pre><code># Search for hidden dependencies
+grep -r "ContextAwarenessModule" src/ tests/ --include="*.py"
+grep -r "context_awareness" src/ tests/ --include="*.py"
+
+# Verify orchestrator updated
+grep "ContextAwarenessModule()" src/services/prompts/modular_prompt_adapter.py
+
+# Verify ErrorPreventionModule dependency updated
+grep "def get_dependencies" src/services/prompts/modules/error_prevention_module.py</code></pre>
+
+<p><strong>Acceptance criteria:</strong></p>
+<ul>
+<li>✓ Zero references to old module (except docs)</li>
+<li>✓ All imports updated</li>
+<li>✓ All dependencies updated</li>
+</ul>
+
+<p><strong>Why important:</strong></p>
+<p>Missing one reference = import error = app crashes on startup.</p>
+
+<p>---</p>
+
+<h3>Phase 9.5: Baseline Comparison (BLOCKING)</h3>
+
+<p><strong>What to do:</strong></p>
+<ol>
+<li>Load baseline from Phase 0</li>
+<li>Generate prompts with NEW system (same 20 test cases)</li>
+<li>Generate definitions with NEW system</li>
+<li>Run validation</li>
+<li>Compare scores: `new_score / baseline_score >= 0.95`</li>
+</ol>
+
+<p><strong>Acceptance criteria:</strong></p>
+<ul>
+<li>✓ Token reduction ≥50% (info only, not blocking)</li>
+<li>✓ **Quality ≥95% of baseline (BLOCKING)**</li>
+<li>✓ No new critical validation failures</li>
+<li>✓ Manual review: 5 definitions look good</li>
+</ul>
+
+<p><strong>Why BLOCKING:</strong></p>
+<p>This is the ONLY way to verify quality is maintained. If this fails, DO NOT MERGE.</p>
+
+<p>---</p>
+
+<h2>📋 Pre-Implementation Checklist</h2>
+
+<p><strong>Before writing any code, verify:</strong></p>
+
+<ul>
+<li>[ ] User approval obtained (>100 lines = requires approval)</li>
+<li>[ ] 11.5 hours budgeted (not 6 hours)</li>
+<li>[ ] Phase 0 added to plan (baseline capture)</li>
+<li>[ ] Phase 2.5 added to plan (helper tests)</li>
+<li>[ ] Phase 7.5 added to plan (dependency verify)</li>
+<li>[ ] Phase 9.5 added to plan (baseline comparison)</li>
+<li>[ ] Understand blocking condition: quality ≥95% of baseline</li>
+</ul>
+
+<p><strong>If all checked:</strong> ✅ PROCEED</p>
+
+<p><strong>If any unchecked:</strong> ⛔ STOP - address gaps first</p>
+
+<p>---</p>
+
+<h2>🎯 Success Criteria</h2>
+
+<h3>Primary (MUST ACHIEVE)</h3>
+
+<p>| Metric | Target | Measurement | Blocking? |</p>
+<p>|--------|--------|-------------|-----------|</p>
+<p>| Quality maintained | ≥95% of baseline | Phase 9.5 comparison | <strong>YES</strong> |</p>
+<p>| All tests pass | 100% | pytest exit code | <strong>YES</strong> |</p>
+<p>| No regressions | Zero new failures | Validation suite | <strong>YES</strong> |</p>
+
+<h3>Secondary (NICE TO HAVE)</h3>
+
+<p>| Metric | Target | Measurement | Blocking? |</p>
+<p>|--------|--------|-------------|-----------|</p>
+<p>| Token reduction | ≥50% | Token counting | No (info only) |</p>
+<p>| Code reduction | ~150 lines | Line count diff | No |</p>
+<p>| Single source of truth | 1 module | Code review | No |</p>
+
+<p><strong>If primary criteria fail:</strong> DO NOT MERGE, investigate and fix.</p>
+
+<p><strong>If secondary criteria fail:</strong> Investigate but don't block merge.</p>
+
+<p>---</p>
+
+<h2>🔄 Rollback Strategy</h2>
+
+<h3>When to Rollback</h3>
+
+<p><strong>Automated signals:</strong></p>
+<ul>
+<li>Definition quality < 95% of baseline</li>
+<li>Critical validation failures</li>
+<li>Tests failing after merge</li>
+</ul>
+
+<p><strong>Manual signals:</strong></p>
+<ul>
+<li>User reports quality issues</li>
+<li>Definitions missing context guidance</li>
+<li>Prompt display broken in UI</li>
+</ul>
+
+<h3>How to Rollback</h3>
+
+<p><strong>Code rollback (easy):</strong></p>
+<pre><code># Revert commits
+git revert &lt;commit-hash&gt;
+
+# Or reset if not pushed
+git reset --hard &lt;commit-hash&gt;
+
+# Time: 5 minutes</code></pre>
+
+<p><strong>Data rollback (medium):</strong></p>
+<ul>
+<li>Definitions generated with new system remain in database</li>
+<li>Can mark for regeneration</li>
+<li>Time: 30-60 minutes</li>
+</ul>
+
+<p><strong>Emergency abort (hard):</strong></p>
+<ul>
+<li>If caught during implementation (before Phase 7): `git stash`</li>
+<li>If caught after deletion: restore from git history</li>
+<li>Time: 10-30 minutes</li>
+</ul>
+
+<p>---</p>
+
+<h2>📊 Risk Summary Table</h2>
+
+<p>| Risk | Severity | Mitigated? | Phase | Notes |</p>
+<p>|------|----------|------------|-------|-------|</p>
+<p>| Circular validation | 🔴 64 | ⚠️ NOT YET | 0, 9.5 | MUST ADD phases |</p>
+<p>| Silent context loss | 🔴 70 | ⚠️ PARTIAL | 0, 2.5, 8 | Need Phase 2.5 |</p>
+<p>| Test false positives | 🟡 48 | ⚠️ PARTIAL | 0, 2.5 | Need real data |</p>
+<p>| Execution order breaks | 🟡 45 | ✅ YES | 4, 5, 7.5, 8 | Plan covers this |</p>
+<p>| Incomplete migration | 🟡 54 | ⚠️ PARTIAL | 2.5 | Need Phase 2.5 |</p>
+<p>| Token reduction unmet | 🟡 24 | ✅ YES | 0, 9.5 | Low priority |</p>
+<p>| Shared state pollution | 🟡 35 | ✅ YES | 7.5 | Audit needed |</p>
+<p>| Error loops | 🟡 30 | ✅ YES | 8 | Test coverage |</p>
+<p>| UI not updated | 🟡 42 | ✅ YES | Post-merge | Manual test |</p>
+<p>| Rollback impossible | 🟡 36 | ✅ YES | Git | Plan verified |</p>
+
+<p><strong>Overall:</strong> 3 critical gaps, all fixable by adding 4 phases.</p>
+
+<p>---</p>
+
+<h2>💡 Key Insights</h2>
+
+<h3>What Implementation Plan Gets Right</h3>
+
+<ol>
+<li>✅ Single source of truth pattern is solid architecture</li>
+<li>✅ 10-phase breakdown is logical and well-structured</li>
+<li>✅ Module responsibilities are clear</li>
+<li>✅ "No backwards compatibility" policy is appropriate</li>
+<li>✅ Git provides rollback mechanism</li>
+</ol>
+
+<h3>What Implementation Plan Misses</h3>
+
+<ol>
+<li>❌ No baseline capture (CRITICAL)</li>
+<li>❌ No baseline comparison (CRITICAL)</li>
+<li>❌ Underestimated timeline (6 hours → 11.5 hours)</li>
+<li>❌ Helper methods mentioned but not tested</li>
+<li>❌ Edge cases not covered (legacy formats, None, empty)</li>
+<li>❌ Real data not used in tests (mocked data only)</li>
+</ol>
+
+<h3>What to Do Differently</h3>
+
+<ol>
+<li>**BEFORE Phase 1:** Capture baseline (Phase 0)</li>
+<li>**BETWEEN Phase 2 & 3:** Test helpers (Phase 2.5)</li>
+<li>**AFTER Phase 7:** Verify dependencies (Phase 7.5)</li>
+<li>**AFTER Phase 9:** Compare to baseline (Phase 9.5)</li>
+<li>**Throughout:** Use REAL context data, not mocks</li>
+<li>**Blocking condition:** Quality < 95% = DO NOT MERGE</li>
+</ol>
+
+<p>---</p>
+
+<h2>🎬 Final Verdict</h2>
+
+<h3>Should You Proceed? ✅ **YES**</h3>
+
+<p><strong>BUT ONLY IF:</strong></p>
+<ol>
+<li>You add the 4 mandatory phases</li>
+<li>You budget 11.5 hours (not 6)</li>
+<li>You commit to NOT skipping baseline comparison</li>
+<li>You accept blocking condition: quality ≥95%</li>
+</ol>
+
+<p><strong>Expected outcome:</strong></p>
+<ul>
+<li>✅ 50-65% token reduction</li>
+<li>✅ Quality maintained</li>
+<li>✅ Single source of truth</li>
+<li>✅ Improved maintainability</li>
+<li>✅ Clean architecture</li>
+</ul>
+
+<p><strong>Risk level:</strong> 🟡 MEDIUM-HIGH → 🟢 LOW-MEDIUM (with mitigations)</p>
+
+<p><strong>Recommendation:</strong> <strong>PROCEED</strong> with enhanced 11.5-hour plan.</p>
+
+<p>---</p>
+
+<h2>📚 Related Documents</h2>
+
+<ul>
+<li>**Full Risk Assessment:** `DEF-126-RISK-ASSESSMENT-FMEA.md` (this folder)</li>
+<li>**Implementation Plan:** `DEF-126-CONTEXT-CONSOLIDATION-IMPLEMENTATION-PLAN.md`</li>
+<li>**Context Analysis:** `DEF-126-CONTEXT-INJECTION-SUMMARY.md`</li>
+<li>**Architecture:** `DEF-126-PROMPT-SYSTEM-ARCHITECTURE.md`</li>
+</ul>
+
+<p>---</p>
+
+<p><strong>Document Status:</strong> ✅ COMPLETE</p>
+<p><strong>Priority:</strong> 🔴 HIGH - Read before implementing DEF-126</p>
+<p><strong>Audience:</strong> Developer implementing consolidation</p>
+<p><strong>Action Required:</strong> Add 4 phases to implementation plan before starting</p>
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DEF-126: Categorie-Specifieke Instructie Injectie</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>DEF-126: Categorie-Specifieke Instructie Injectie</h1>
+
+<h2>✅ De Juiste Aanpak</h2>
+
+<p><strong>Probleem:</strong> Nu staan er instructies voor ALLE 4 categorieën in de prompt + "bepaal zelf" instructies</p>
+<p><strong>Oplossing:</strong> Eén module die ALLEEN de instructies voor de GEKOZEN categorie injecteert</p>
+
+<h2>🎯 Single Module Design</h2>
+
+<h3>SemanticCategorisationModule - Refactored</h3>
+
+<pre><code>class SemanticCategorisationModule(BasePromptModule):
+    """
+    Injecteert categorie-SPECIFIEKE instructies op basis van
+    de door de UI/applicatie bepaalde categorie.
+
+    GEEN categorie bepaling, alleen instructie injectie!
+    """
+
+    def execute(self, context: ModuleContext) -&gt; ModuleOutput:
+        # Haal de AL BEPAALDE categorie op
+        category = context.get_metadata("ontologische_categorie")
+
+        if not category:
+            # Geen categorie? Dan geen instructies
+            return ModuleOutput(content="", skip=True)
+
+        # Injecteer ALLEEN de instructies voor DEZE categorie
+        content = self._get_category_specific_instruction(category)
+
+        # Deel met andere modules voor consistency
+        context.set_shared("ontological_category", category)
+
+        return ModuleOutput(content=content)
+
+    def _get_category_specific_instruction(self, category: str) -&gt; str:
+        """Retourneert ALLEEN instructies voor de gegeven categorie."""
+
+        instructions = {
+            "type": """### 📐 TYPE Definitie Instructies:
+Begin DIRECT met het kernwoord (zelfstandig naamwoord):
+- Start: [Kernwoord] dat/die [onderscheidend kenmerk]
+- Voorbeelden: "document dat...", "persoon die...", "maatregel die..."
+- NIET: "soort van...", "type...", "categorie..."
+- Focus op: wat maakt dit type uniek?""",
+
+            "proces": """### 📐 PROCES Definitie Instructies:
+Start met een handelingsnaamwoord:
+- Start: "activiteit waarbij..." OF "handeling die..." OF "proces waarin..."
+- Focus op: WIE doet WAT met welk DOEL
+- Beschrijf het verloop, niet het resultaat
+- Voorbeelden: "activiteit waarbij gegevens worden verzameld..."""""",
+
+            "resultaat": """### 📐 RESULTAAT Definitie Instructies:
+Beschrijf als uitkomst of product:
+- Start: "resultaat van..." OF "uitkomst van..." OF "product dat ontstaat door..."
+- Focus op: wat is het eindproduct/gevolg
+- Verwijs naar het proces waaruit het ontstaat
+- Voorbeelden: "uitkomst van een beoordelingsproces waarbij..."""",
+
+            "exemplaar": """### 📐 EXEMPLAAR Definitie Instructies:
+Beschrijf als specifiek geval:
+- Start: "exemplaar van... dat..." OF "specifiek geval van..."
+- Geef aan: van welke klasse dit een instantie is
+- Wat maakt dit exemplaar uniek (tijd/plaats/kenmerken)
+- Voorbeelden: "exemplaar van een besluit genomen op [datum] door [instantie]""""
+        }
+
+        return instructions.get(category, "")</code></pre>
+
+<h2>🚫 Wat MOET Eruit</h2>
+
+<p>Deze instructies moeten VOLLEDIG verwijderd worden:</p>
+
+<h3>1. Uit SemanticCategorisationModule (regels 70-87)</h3>
+<pre><code>❌ "Je **moet** één van de vier categorieën expliciet maken..."
+❌ "BELANGRIJK: Bepaal de juiste categorie op basis van het BEGRIP zelf"
+❌ "Eindigt op -ING of -TIE en beschrijft een handeling? → PROCES"</code></pre>
+
+<h3>2. Uit ExpertiseModule (regel 3)</h3>
+<pre><code>❌ "Als het begrip een resultaat is, beschrijf het dan als..."</code></pre>
+<p>→ Deze module weet niet welke categorie gekozen is!</p>
+
+<h3>3. Uit DefinitionTaskModule (regels 413-415)</h3>
+<pre><code>❌ "Ontologische marker (lever als eerste regel):"
+❌ "Ontologische categorie: kies uit [soort, exemplaar, proces, resultaat]"</code></pre>
+<p>→ De categorie is al gekozen!</p>
+
+<h3>4. Uit EssRulesModule (regel 150)</h3>
+<pre><code>❌ "ESS-02 - Ontologische categorie expliciteren"</code></pre>
+<p>→ Niet nodig, categorie is al expliciet</p>
+
+<h2>✅ Nieuwe Prompt Structuur</h2>
+
+<h3>Voor categorie "type":</h3>
+<pre><code>[ExpertiseModule output - alleen rol &amp; basis]
+[OutputSpecificationModule output]
+[GrammarModule output]
+[ContextAwarenessModule output]
+
+### 📐 TYPE Definitie Instructies:
+Begin DIRECT met het kernwoord...
+[ALLEEN type-specifieke instructies]
+
+[Validation rules - zonder ESS-02]
+[Templates voor TYPE]
+[Metrics]
+[Final task - zonder "kies categorie"]</code></pre>
+
+<h3>Voor categorie "proces":</h3>
+<pre><code>[Zelfde basis modules]
+
+### 📐 PROCES Definitie Instructies:
+Start met een handelingsnaamwoord...
+[ALLEEN proces-specifieke instructies]
+
+[Rest van de modules]</code></pre>
+
+<h2>📊 Impact</h2>
+
+<h3>Huidige Situatie</h3>
+<ul>
+<li>**65+ regels** met instructies voor ALLE categorieën</li>
+<li>Model moet "kiezen" terwijl keuze al gemaakt is</li>
+<li>Verwarrende/conflicterende instructies</li>
+</ul>
+
+<h3>Na Implementatie</h3>
+<ul>
+<li>**~10 regels** met ALLEEN relevante instructies</li>
+<li>Model krijgt duidelijke, specifieke instructies</li>
+<li>Geen verwarring meer</li>
+</ul>
+
+<h3>Token Besparing</h3>
+<ul>
+<li>**Van ~2000 tokens → ~1500 tokens** (25% reductie)</li>
+<li>Betere output kwaliteit (geen verwarring)</li>
+<li>Snellere generatie</li>
+</ul>
+
+<h2>🔧 Implementatie</h2>
+
+<h3>Stap 1: Update SemanticCategorisationModule</h3>
+<pre><code># Volledig herschrijven naar category-specific injection
+# Geen bepaling, alleen instructie selectie</code></pre>
+
+<h3>Stap 2: Clean andere modules</h3>
+<pre><code># ExpertiseModule: verwijder word_type logic
+# DefinitionTaskModule: verwijder "kies categorie"
+# EssRulesModule: skip ESS-02</code></pre>
+
+<h3>Stap 3: Update TemplateModule</h3>
+<pre><code>class TemplateModule:
+    def execute(self, context):
+        category = context.get_shared("ontological_category")
+        if not category:
+            return ModuleOutput(skip=True)  # Skip als geen categorie
+
+        # Geef ALLEEN templates voor deze categorie
+        return self._get_templates_for_category(category)</code></pre>
+
+<h3>Stap 4: Module Orchestrator Config</h3>
+<pre><code>modules:
+  semantic_categorisation:
+    # Alleen actief als categorie bekend is
+    requires: ["metadata.ontologische_categorie"]
+
+  template:
+    # Ook alleen actief met categorie
+    requires: ["shared.ontological_category"]</code></pre>
+
+<h2>🎯 Conclusie</h2>
+
+<p>Door één module verantwoordelijk te maken voor categorie-specifieke instructie injectie:</p>
+<ul>
+<li>**Elimineren we alle "bepaal zelf" instructies**</li>
+<li>**Reduceren we de prompt met 85%** voor categorie instructies</li>
+<li>**Model krijgt precise, relevante instructies**</li>
+<li>**Geen conflicten of verwarring meer**</li>
+</ul>
+
+<p>Dit is DE kernverbetering voor DEF-126!</p>
+  </div>
+</body>
+</html>

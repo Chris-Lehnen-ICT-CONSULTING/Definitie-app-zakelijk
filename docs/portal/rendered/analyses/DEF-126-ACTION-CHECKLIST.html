@@ -1,0 +1,721 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DEF-126 Context Consolidation - Action Checklist</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>DEF-126 Context Consolidation - Action Checklist</h1>
+
+<p><strong>Purpose:</strong> Quick reference for developer implementing context consolidation</p>
+<p><strong>Status:</strong> Ready to use - follow in order</p>
+<p><strong>Last Updated:</strong> 2025-11-13</p>
+
+<p>---</p>
+
+<h2>⚡ Quick Start</h2>
+
+<p><strong>Before you do ANYTHING:</strong></p>
+<ol>
+<li>Read `DEF-126-EXECUTIVE-RISK-SUMMARY.md` (5 minutes)</li>
+<li>Complete "Pre-Flight Checklist" below</li>
+<li>Only proceed if all ✓</li>
+</ol>
+
+<p>---</p>
+
+<h2>🚦 Pre-Flight Checklist (MANDATORY)</h2>
+
+<p><strong>Do NOT start implementation until ALL items are ✓</strong></p>
+
+<h3>Planning</h3>
+<ul>
+<li>[ ] Read executive risk summary</li>
+<li>[ ] Understand 11.5-hour timeline (not 6 hours)</li>
+<li>[ ] Understand blocking condition: quality ≥95% of baseline</li>
+<li>[ ] User approval obtained (>100 lines)</li>
+<li>[ ] Schedule available (11.5 hours over 2 days)</li>
+</ul>
+
+<h3>Preparation</h3>
+<ul>
+<li>[ ] Git branch created: `feature/DEF-126-context-consolidation`</li>
+<li>[ ] Baseline capture plan understood (Phase 0)</li>
+<li>[ ] Real context samples available (from database)</li>
+<li>[ ] Test fixtures directory created: `tests/fixtures/DEF-126-baseline/`</li>
+</ul>
+
+<h3>Risk Understanding</h3>
+<ul>
+<li>[ ] Understand Risk #1: Silent context loss</li>
+<li>[ ] Understand Risk #3: Circular validation trap</li>
+<li>[ ] Understand Risk #4: Test false positives</li>
+<li>[ ] Know that skipping Phase 0 or 9.5 = FAILURE</li>
+</ul>
+
+<p><strong>If any item is ☐:</strong> STOP - address gaps first</p>
+
+<p><strong>If all items are ✓:</strong> ✅ PROCEED to Phase 0</p>
+
+<p>---</p>
+
+<h2>📋 Phase-by-Phase Checklist</h2>
+
+<h3>Phase 0: Baseline Capture (1 hour) ⭐ MANDATORY</h3>
+
+<p><strong>Purpose:</strong> Capture current system output for comparison</p>
+
+<ul>
+<li>[ ] **0.1** Select 20 test cases</li>
+<li> - [ ] 5 with org context only</li>
+<li> - [ ] 5 with juridical context only</li>
+<li> - [ ] 5 with legal basis context only</li>
+<li> - [ ] 3 with multiple contexts</li>
+<li> - [ ] 2 with no context</li>
+<li>[ ] **0.2** Create test script: `tests/debug/capture_baseline.py`</li>
+<li>[ ] **0.3** Run script: Generate prompts with CURRENT system</li>
+<li>[ ] **0.4** Save prompts to `tests/fixtures/DEF-126-baseline/prompts/`</li>
+<li>[ ] **0.5** Generate definitions with CURRENT system</li>
+<li>[ ] **0.6** Save definitions to `tests/fixtures/DEF-126-baseline/definitions/`</li>
+<li>[ ] **0.7** Run validation on all 20 definitions</li>
+<li>[ ] **0.8** Save scores to `tests/fixtures/DEF-126-baseline/scores.csv`</li>
+<li>[ ] **0.9** Verify all files created correctly</li>
+<li>[ ] **0.10** Git commit: `test(DEF-126): baseline capture for migration validation`</li>
+</ul>
+
+<p><strong>Acceptance:</strong></p>
+<ul>
+<li>✓ 20 prompt files exist</li>
+<li>✓ 20 definition JSON files exist</li>
+<li>✓ scores.csv has 20 rows with scores</li>
+<li>✓ Committed to git (so it's preserved)</li>
+</ul>
+
+<p><strong>Time checkpoint:</strong> Should take ~1 hour. If longer, you're doing too much manual work.</p>
+
+<p>---</p>
+
+<h3>Phase 1: Create Skeleton (30 min)</h3>
+
+<p><strong>Purpose:</strong> Create new module structure</p>
+
+<ul>
+<li>[ ] **1.1** Create file: `src/services/prompts/modules/context_instruction_module.py`</li>
+<li>[ ] **1.2** Copy skeleton from implementation plan (lines 314-378)</li>
+<li>[ ] **1.3** Implement `__init__()` with priority=75</li>
+<li>[ ] **1.4** Implement `initialize()` with config handling</li>
+<li>[ ] **1.5** Implement `validate_input()` (always returns True)</li>
+<li>[ ] **1.6** Implement stub `execute()` (return empty ModuleOutput)</li>
+<li>[ ] **1.7** Implement `get_dependencies()` (return empty list)</li>
+<li>[ ] **1.8** Add docstring explaining Single Source of Truth</li>
+<li>[ ] **1.9** Test: `python -m py_compile src/services/prompts/modules/context_instruction_module.py`</li>
+<li>[ ] **1.10** Git commit: `feat(DEF-126): Phase 1 - Create ContextInstructionModule skeleton`</li>
+</ul>
+
+<p><strong>Acceptance:</strong></p>
+<ul>
+<li>✓ File compiles without errors</li>
+<li>✓ Module has all required methods</li>
+<li>✓ Docstring explains responsibility</li>
+</ul>
+
+<p>---</p>
+
+<h3>Phase 2: Migrate Business Logic (2 hours)</h3>
+
+<h4>Phase 2.1: Context Richness Scoring (30 min)</h4>
+
+<ul>
+<li>[ ] **2.1.1** Copy `_calculate_context_score()` from context_awareness_module.py (lines 143-184)</li>
+<li>[ ] **2.1.2** Paste into ContextInstructionModule</li>
+<li>[ ] **2.1.3** Verify imports (EnrichedContext accessible)</li>
+<li>[ ] **2.1.4** Update execute() to call this method</li>
+<li>[ ] **2.1.5** Update execute() to store score in shared_state</li>
+<li>[ ] **2.1.6** Test: Create test_context_instruction_module.py</li>
+<li>[ ] **2.1.7** Write test_context_richness_scoring()</li>
+<li>[ ] **2.1.8** Run: `pytest tests/.../test_context_instruction_module.py::test_context_richness_scoring -v`</li>
+<li>[ ] **2.1.9** Verify score between 0.0-1.0</li>
+<li>[ ] **2.1.10** Git commit: `feat(DEF-126): Phase 2.1 - Migrate context richness scoring`</li>
+</ul>
+
+<h4>Phase 2.2: Adaptive Formatting (30 min)</h4>
+
+<ul>
+<li>[ ] **2.2.1** Copy rich/moderate/minimal section methods (lines 186-280)</li>
+<li>[ ] **2.2.2** Copy helper methods: `_format_detailed_base_context()`, etc.</li>
+<li>[ ] **2.2.3** Consolidate into single `_build_context_instructions()` method</li>
+<li>[ ] **2.2.4** Use score-based switch: if score >= 0.8: rich, elif >= 0.5: moderate, else: minimal</li>
+<li>[ ] **2.2.5** Update execute() to call `_build_context_instructions()`</li>
+<li>[ ] **2.2.6** Write test_adaptive_formatting_rich/moderate/minimal()</li>
+<li>[ ] **2.2.7** Run tests: verify correct formatting for each level</li>
+<li>[ ] **2.2.8** Git commit: `feat(DEF-126): Phase 2.2 - Migrate adaptive formatting`</li>
+</ul>
+
+<h4>Phase 2.3: Context Forbidden Patterns (30 min)</h4>
+
+<ul>
+<li>[ ] **2.3.1** Copy `_build_context_forbidden()` from error_prevention_module.py (lines 193-245)</li>
+<li>[ ] **2.3.2** Move ORGANIZATION_MAPPINGS to module-level constant</li>
+<li>[ ] **2.3.3** Update method to use shared_state data</li>
+<li>[ ] **2.3.4** Integrate into execute(): add forbidden section to output</li>
+<li>[ ] **2.3.5** Write test_context_forbidden_patterns()</li>
+<li>[ ] **2.3.6** Write test_organization_mapping()</li>
+<li>[ ] **2.3.7** Run tests: verify forbidden patterns generated</li>
+<li>[ ] **2.3.8** Git commit: `feat(DEF-126): Phase 2.3 - Migrate context forbidden patterns`</li>
+</ul>
+
+<h4>Phase 2.4: Context Metadata (30 min)</h4>
+
+<ul>
+<li>[ ] **2.4.1** Copy `_build_prompt_metadata()` from definition_task_module.py (lines 259-299)</li>
+<li>[ ] **2.4.2** Rename to `_build_context_metadata()`</li>
+<li>[ ] **2.4.3** Update to use shared_state (not direct base_context access)</li>
+<li>[ ] **2.4.4** Make conditional on `self.include_metadata` flag</li>
+<li>[ ] **2.4.5** Integrate into execute(): add metadata as footer</li>
+<li>[ ] **2.4.6** Write test_context_metadata()</li>
+<li>[ ] **2.4.7** Run tests: verify metadata present when enabled</li>
+<li>[ ] **2.4.8** Git commit: `feat(DEF-126): Phase 2.4 - Migrate context metadata`</li>
+</ul>
+
+<p>---</p>
+
+<h3>Phase 2.5: Helper Method Tests (1 hour) ⭐ NEW MANDATORY</h3>
+
+<p><strong>Purpose:</strong> Test business logic edge cases</p>
+
+<ul>
+<li>[ ] **2.5.1** Write test_extract_contexts_with_bool() (legacy format)</li>
+<li>[ ] **2.5.2** Write test_extract_contexts_with_string() (single string)</li>
+<li>[ ] **2.5.3** Write test_extract_contexts_with_list() (list format)</li>
+<li>[ ] **2.5.4** Write test_extract_contexts_with_none() (None handling)</li>
+<li>[ ] **2.5.5** Write test_extract_contexts_with_empty_list() ([] handling)</li>
+<li>[ ] **2.5.6** Write test_extract_contexts_mixed_types() ([str, None, str])</li>
+<li>[ ] **2.5.7** Write test_format_sources_with_confidence() (emoji logic)</li>
+<li>[ ] **2.5.8** Write test_format_abbreviations() (both detailed and simple)</li>
+<li>[ ] **2.5.9** Write test_build_fallback_context_section() (error path)</li>
+<li>[ ] **2.5.10** Write test_configuration_toggles() (adaptive_formatting, etc.)</li>
+<li>[ ] **2.5.11** Run all helper tests: `pytest tests/.../test_context_instruction_module.py -v`</li>
+<li>[ ] **2.5.12** Verify 100% pass rate</li>
+<li>[ ] **2.5.13** Git commit: `test(DEF-126): Phase 2.5 - Add helper method tests`</li>
+</ul>
+
+<p><strong>Acceptance:</strong></p>
+<ul>
+<li>✓ All edge cases covered</li>
+<li>✓ Legacy formats tested</li>
+<li>✓ Error paths tested</li>
+<li>✓ All tests pass</li>
+</ul>
+
+<p>---</p>
+
+<h3>Phase 3: Complete execute() (30 min)</h3>
+
+<ul>
+<li>[ ] **3.1** Implement orchestration logic (see plan lines 518-569)</li>
+<li>[ ] **3.2** Step 1: Calculate score</li>
+<li>[ ] **3.3** Step 2: Extract and share context data</li>
+<li>[ ] **3.4** Step 3a: Generate context instructions</li>
+<li>[ ] **3.5** Step 3b: Generate forbidden patterns</li>
+<li>[ ] **3.6** Step 3c: Generate metadata (if enabled)</li>
+<li>[ ] **3.7** Step 4: Combine sections with proper formatting</li>
+<li>[ ] **3.8** Add error handling (try/except)</li>
+<li>[ ] **3.9** Write test_complete_context_output()</li>
+<li>[ ] **3.10** Run: `pytest tests/.../test_context_instruction_module.py -v`</li>
+<li>[ ] **3.11** Verify all sections present in output</li>
+<li>[ ] **3.12** Verify shared_state populated correctly</li>
+<li>[ ] **3.13** Git commit: `feat(DEF-126): Phase 3 - Implement complete execute() orchestration`</li>
+</ul>
+
+<p>---</p>
+
+<h3>Phase 4: Update Orchestrator (30 min)</h3>
+
+<ul>
+<li>[ ] **4.1** Open `src/services/prompts/modular_prompt_adapter.py`</li>
+<li>[ ] **4.2** Add import: `from .modules import ContextInstructionModule`</li>
+<li>[ ] **4.3** Find `get_cached_orchestrator()` function (line 42)</li>
+<li>[ ] **4.4** Add to modules list: `ContextInstructionModule()`</li>
+<li>[ ] **4.5** Remove: `ContextAwarenessModule()` (comment out for now)</li>
+<li>[ ] **4.6** Test: `python -c "from services.prompts.modular_prompt_adapter import get_cached_orchestrator; o = get_cached_orchestrator(); print(o.modules.keys())"`</li>
+<li>[ ] **4.7** Verify "context_instruction" in output</li>
+<li>[ ] **4.8** Write test_orchestrator_includes_context_instruction()</li>
+<li>[ ] **4.9** Run orchestrator tests: `pytest tests/.../test_prompt_orchestrator.py -v`</li>
+<li>[ ] **4.10** Git commit: `feat(DEF-126): Phase 4 - Register ContextInstructionModule in orchestrator`</li>
+</ul>
+
+<p>---</p>
+
+<h3>Phase 5: Refactor ErrorPreventionModule (45 min)</h3>
+
+<ul>
+<li>[ ] **5.1** Open `src/services/prompts/modules/error_prevention_module.py`</li>
+<li>[ ] **5.2** Document CURRENT state: copy execute() method to comment</li>
+<li>[ ] **5.3** Remove lines 75-79 (context retrieval from shared_state)</li>
+<li>[ ] **5.4** Remove lines 95-100 (context forbidden section injection)</li>
+<li>[ ] **5.5** Remove method: `_build_context_forbidden()` (lines 193-245)</li>
+<li>[ ] **5.6** Remove constant: organization mappings (lines 209-219)</li>
+<li>[ ] **5.7** Update execute(): keep basic errors, forbidden starters, validation matrix</li>
+<li>[ ] **5.8** Add generic warning: "context en bronnen mogen niet letterlijk..."</li>
+<li>[ ] **5.9** Update get_dependencies(): return [] (not ["context_awareness"])</li>
+<li>[ ] **5.10** Write test_error_prevention_no_context_logic()</li>
+<li>[ ] **5.11** Run: `pytest tests/.../test_error_prevention_module.py -v`</li>
+<li>[ ] **5.12** Verify context logic removed, generic logic preserved</li>
+<li>[ ] **5.13** Git commit: `refactor(DEF-126): Phase 5 - Remove context logic from ErrorPreventionModule`</li>
+</ul>
+
+<p>---</p>
+
+<h3>Phase 6: Refactor DefinitionTaskModule (45 min)</h3>
+
+<ul>
+<li>[ ] **6.1** Open `src/services/prompts/modules/definition_task_module.py`</li>
+<li>[ ] **6.2** Document CURRENT state: copy relevant methods to comment</li>
+<li>[ ] **6.3** Remove lines 84-104 (context detection from base_context)</li>
+<li>[ ] **6.4** Update execute(): remove has_context variable</li>
+<li>[ ] **6.5** Update `_build_quality_control()`: remove has_context parameter</li>
+<li>[ ] **6.6** Make quality control generic (remove context-aware adaptation)</li>
+<li>[ ] **6.7** Remove method: `_build_metadata()` (lines 225-246)</li>
+<li>[ ] **6.8** Remove method: `_build_prompt_metadata()` (lines 259-299)</li>
+<li>[ ] **6.9** Update `_build_checklist()`: remove line "Context verwerkt zonder..." (line 204)</li>
+<li>[ ] **6.10** Write test_definition_task_no_context_logic()</li>
+<li>[ ] **6.11** Run: `pytest tests/.../test_definition_task_module.py -v`</li>
+<li>[ ] **6.12** Verify context metadata removed, final instructions preserved</li>
+<li>[ ] **6.13** Git commit: `refactor(DEF-126): Phase 6 - Remove context metadata from DefinitionTaskModule`</li>
+</ul>
+
+<p>---</p>
+
+<h3>Phase 7: Delete ContextAwarenessModule (15 min)</h3>
+
+<ul>
+<li>[ ] **7.1** Verify Phases 5-6 complete (other modules refactored)</li>
+<li>[ ] **7.2** Backup old module: `cp src/.../context_awareness_module.py src/.../context_awareness_module.py.bak`</li>
+<li>[ ] **7.3** Git rm: `git rm src/services/prompts/modules/context_awareness_module.py`</li>
+<li>[ ] **7.4** Update `src/services/prompts/modules/__init__.py`: remove ContextAwarenessModule export</li>
+<li>[ ] **7.5** Update imports in modular_prompt_adapter.py (line 18)</li>
+<li>[ ] **7.6** Search: `grep -r "ContextAwarenessModule" src/ --include="*.py"`</li>
+<li>[ ] **7.7** Verify zero results (except .bak file)</li>
+<li>[ ] **7.8** Test: `python -m py_compile src/services/prompts/modular_prompt_adapter.py`</li>
+<li>[ ] **7.9** Test: `python -c "from services.prompts.modules import *"`</li>
+<li>[ ] **7.10** Git commit: `refactor(DEF-126): Phase 7 - Delete ContextAwarenessModule`</li>
+</ul>
+
+<p>---</p>
+
+<h3>Phase 7.5: Verify Dependencies (30 min) ⭐ NEW MANDATORY</h3>
+
+<p><strong>Purpose:</strong> Ensure no hidden references to old module</p>
+
+<ul>
+<li>[ ] **7.5.1** Search: `grep -r "ContextAwarenessModule" src/ tests/ --include="*.py"`</li>
+<li>[ ] **7.5.2** Document results (should be zero except docs/tests)</li>
+<li>[ ] **7.5.3** Search: `grep -r "context_awareness" src/ tests/ --include="*.py"`</li>
+<li>[ ] **7.5.4** Verify ErrorPreventionModule dependency is "context_instruction" (not "context_awareness")</li>
+<li>[ ] **7.5.5** Verify orchestrator registration list (should have ContextInstructionModule)</li>
+<li>[ ] **7.5.6** Search: `grep -r "get_shared.*organization_contexts" src/ --include="*.py"`</li>
+<li>[ ] **7.5.7** Verify only ErrorPreventionModule reads this key</li>
+<li>[ ] **7.5.8** Search: `grep -r "set_shared.*organization_contexts" src/ --include="*.py"`</li>
+<li>[ ] **7.5.9** Verify ONLY ContextInstructionModule writes this key</li>
+<li>[ ] **7.5.10** Write test_module_dependency_graph()</li>
+<li>[ ] **7.5.11** Write test_shared_state_single_writer()</li>
+<li>[ ] **7.5.12** Run tests: verify dependency graph correct</li>
+<li>[ ] **7.5.13** Git commit: `test(DEF-126): Phase 7.5 - Verify no hidden dependencies on old module`</li>
+</ul>
+
+<p><strong>Acceptance:</strong></p>
+<ul>
+<li>✓ Zero old module references (except docs/history)</li>
+<li>✓ All dependencies updated</li>
+<li>✓ Single-writer rule enforced</li>
+</ul>
+
+<p>---</p>
+
+<h3>Phase 8: Unit Testing (1.5 hours)</h3>
+
+<p><strong>Purpose:</strong> Comprehensive unit test coverage</p>
+
+<h4>Core Functionality Tests</h4>
+
+<ul>
+<li>[ ] **8.1** Write test_initialization()</li>
+<li>[ ] **8.2** Write test_no_dependencies()</li>
+<li>[ ] **8.3** Write test_validate_input_always_true()</li>
+<li>[ ] **8.4** Write test_context_richness_score_calculation()</li>
+<li>[ ] **8.5** Write test_context_data_shared()</li>
+</ul>
+
+<h4>Formatting Tests</h4>
+
+<ul>
+<li>[ ] **8.6** Write test_rich_context_formatting() (score >= 0.8)</li>
+<li>[ ] **8.7** Write test_moderate_context_formatting() (0.5 <= score < 0.8)</li>
+<li>[ ] **8.8** Write test_minimal_context_formatting() (score < 0.5)</li>
+</ul>
+
+<h4>Edge Case Tests ⭐ CRITICAL</h4>
+
+<ul>
+<li>[ ] **8.9** Write test_no_context_scenario() (empty context)</li>
+<li>[ ] **8.10** Write test_error_handling() (invalid enriched_context)</li>
+<li>[ ] **8.11** Write test_shared_state_keys_exact() (no typos!)</li>
+<li>[ ] **8.12** Write test_context_extraction_edge_cases() (bool/str/list/None)</li>
+</ul>
+
+<h4>Integration Tests</h4>
+
+<ul>
+<li>[ ] **8.13** Write test_error_prevention_no_longer_depends()</li>
+<li>[ ] **8.14** Write test_definition_task_no_context_logic()</li>
+<li>[ ] **8.15** Write test_execution_order_correct()</li>
+</ul>
+
+<h4>Real Data Tests ⭐ CRITICAL</h4>
+
+<ul>
+<li>[ ] **8.16** Extract 20 real context samples: `python scripts/extract_real_contexts.py`</li>
+<li>[ ] **8.17** Write test_with_real_production_samples()</li>
+<li>[ ] **8.18** Test all 20 samples: verify no crashes</li>
+</ul>
+
+<h4>Run All Tests</h4>
+
+<ul>
+<li>[ ] **8.19** Run: `pytest tests/.../test_context_instruction_module.py -v`</li>
+<li>[ ] **8.20** Verify 100% pass rate</li>
+<li>[ ] **8.21** Run: `pytest tests/.../test_error_prevention_module.py -v`</li>
+<li>[ ] **8.22** Run: `pytest tests/.../test_definition_task_module.py -v`</li>
+<li>[ ] **8.23** Check coverage: `pytest tests/.../test_context_instruction_module.py --cov=src/.../context_instruction_module --cov-report=term-missing`</li>
+<li>[ ] **8.24** Verify coverage ≥80%</li>
+<li>[ ] **8.25** Git commit: `test(DEF-126): Phase 8 - Comprehensive unit test suite`</li>
+</ul>
+
+<p>---</p>
+
+<h3>Phase 9: Integration Testing (45 min)</h3>
+
+<ul>
+<li>[ ] **9.1** Write test_orchestrator_with_context_instruction_module()</li>
+<li>[ ] **9.2** Verify module registered correctly</li>
+<li>[ ] **9.3** Verify execution order (context_instruction before error_prevention)</li>
+<li>[ ] **9.4** Write test_full_prompt_generation_with_context()</li>
+<li>[ ] **9.5** Generate full prompt with test context</li>
+<li>[ ] **9.6** Verify context appears ONCE (not 3 times)</li>
+<li>[ ] **9.7** Verify forbidden patterns section exists</li>
+<li>[ ] **9.8** Verify metadata section exists (if enabled)</li>
+<li>[ ] **9.9** Write test_prompt_structure_maintained()</li>
+<li>[ ] **9.10** Verify all required sections present</li>
+<li>[ ] **9.11** Run: `pytest tests/integration/test_prompt_module_pipeline.py -v`</li>
+<li>[ ] **9.12** Verify 100% pass rate</li>
+<li>[ ] **9.13** Git commit: `test(DEF-126): Phase 9 - Integration tests with full orchestrator`</li>
+</ul>
+
+<p>---</p>
+
+<h3>Phase 9.5: Baseline Comparison (1 hour) ⭐ MANDATORY BLOCKING</h3>
+
+<p><strong>Purpose:</strong> Validate quality maintained vs baseline</p>
+
+<ul>
+<li>[ ] **9.5.1** Load baseline from Phase 0: `tests/fixtures/DEF-126-baseline/`</li>
+<li>[ ] **9.5.2** Create comparison script: `tests/debug/compare_to_baseline.py`</li>
+<li>[ ] **9.5.3** Generate prompts with NEW system (same 20 test cases)</li>
+<li>[ ] **9.5.4** Count tokens: new vs baseline</li>
+<li>[ ] **9.5.5** Calculate token reduction: `(baseline - new) / baseline * 100`</li>
+<li>[ ] **9.5.6** Generate definitions with NEW system (same 20 test cases)</li>
+<li>[ ] **9.5.7** Run validation on new definitions</li>
+<li>[ ] **9.5.8** Compare scores: `new_score / baseline_score`</li>
+<li>[ ] **9.5.9** Calculate average quality ratio</li>
+<li>[ ] **9.5.10** Check blocking condition: **quality ratio >= 0.95** ⭐</li>
+<li>[ ] **9.5.11** If quality < 0.95: STOP, investigate, fix, re-test</li>
+<li>[ ] **9.5.12** If quality >= 0.95: Manually review 5 definitions</li>
+<li>[ ] **9.5.13** Verify definitions are context-specific (not generic)</li>
+<li>[ ] **9.5.14** Document results in `docs/analyses/DEF-126-BASELINE-COMPARISON-RESULTS.md`</li>
+<li>[ ] **9.5.15** Git commit: `test(DEF-126): Phase 9.5 - Baseline comparison (quality maintained)`</li>
+</ul>
+
+<p><strong>BLOCKING CONDITION:</strong></p>
+<ul>
+<li>⛔ If quality < 95% of baseline: **DO NOT PROCEED**</li>
+<li>✅ If quality >= 95% of baseline: **PROCEED to Phase 10**</li>
+</ul>
+
+<p><strong>Acceptance:</strong></p>
+<ul>
+<li>✓ Token reduction ≥50% (info only)</li>
+<li>✓ **Quality ≥95% of baseline (BLOCKING)**</li>
+<li>✓ No new critical failures</li>
+<li>✓ Manual review confirms quality</li>
+</ul>
+
+<p>---</p>
+
+<h3>Phase 10: Documentation (30 min)</h3>
+
+<ul>
+<li>[ ] **10.1** Create `docs/technisch/context_instruction_module.md`</li>
+<li>[ ] **10.2** Document module responsibilities</li>
+<li>[ ] **10.3** Document data flow</li>
+<li>[ ] **10.4** Document configuration options</li>
+<li>[ ] **10.5** Document token optimization strategy</li>
+<li>[ ] **10.6** Document migration from old modules</li>
+<li>[ ] **10.7** Update `CLAUDE.md`: add ContextInstructionModule reference</li>
+<li>[ ] **10.8** Update `CLAUDE.md`: remove ContextAwarenessModule references</li>
+<li>[ ] **10.9** Update `docs/architectuur/PROMPT_SYSTEM_ARCHITECTURE.md`</li>
+<li>[ ] **10.10** Update module diagram</li>
+<li>[ ] **10.11** Add entry to `docs/refactor-log.md`</li>
+<li>[ ] **10.12** Document lessons learned</li>
+<li>[ ] **10.13** Git commit: `docs(DEF-126): Phase 10 - Update documentation for context consolidation`</li>
+</ul>
+
+<p>---</p>
+
+<h2>🎯 Post-Implementation Checklist</h2>
+
+<p><strong>Before merging to main:</strong></p>
+
+<h3>Test Verification</h3>
+<ul>
+<li>[ ] All unit tests pass: `pytest tests/services/prompts/modules/ -v`</li>
+<li>[ ] All integration tests pass: `pytest tests/integration/ -v`</li>
+<li>[ ] Smoke tests pass: `pytest tests/smoke/ -v`</li>
+<li>[ ] Coverage ≥80%: `pytest tests/.../test_context_instruction_module.py --cov --cov-report=term`</li>
+</ul>
+
+<h3>Quality Verification ⭐ BLOCKING</h3>
+<ul>
+<li>[ ] Baseline comparison complete (Phase 9.5)</li>
+<li>[ ] **Quality ratio ≥0.95** (MANDATORY)</li>
+<li>[ ] Token reduction ≥50% (info only)</li>
+<li>[ ] No new critical validation failures</li>
+</ul>
+
+<h3>Manual Testing</h3>
+<ul>
+<li>[ ] App starts without errors: `bash scripts/run_app.sh`</li>
+<li>[ ] Generate definition with org context (e.g., NP)</li>
+<li>[ ] Navigate to Edit tab</li>
+<li>[ ] View generated prompt</li>
+<li>[ ] Verify single context section (not 3 duplicate sections)</li>
+<li>[ ] Verify forbidden patterns section exists</li>
+<li>[ ] Verify "NP" and "Nederlands Politie" mentioned</li>
+</ul>
+
+<h3>Code Review</h3>
+<ul>
+<li>[ ] Self-review: line-by-line comparison vs old code</li>
+<li>[ ] All business logic migrated from ContextAwarenessModule</li>
+<li>[ ] All helper methods tested</li>
+<li>[ ] Error paths covered</li>
+<li>[ ] No hardcoded values (use constants)</li>
+</ul>
+
+<h3>Documentation</h3>
+<ul>
+<li>[ ] CLAUDE.md updated</li>
+<li>[ ] Architecture docs updated</li>
+<li>[ ] Refactor log updated</li>
+<li>[ ] Technical docs created</li>
+</ul>
+
+<p><strong>If all checked:</strong> ✅ <strong>READY TO MERGE</strong></p>
+
+<p><strong>If any unchecked:</strong> ⛔ <strong>STOP</strong> - complete missing items</p>
+
+<p>---</p>
+
+<h2>🚨 Emergency Procedures</h2>
+
+<h3>If Tests Fail During Implementation</h3>
+
+<p><strong>Step 1: Identify phase</strong></p>
+<ul>
+<li>Which phase were you in? (1-10)</li>
+<li>What was the last successful commit?</li>
+</ul>
+
+<p><strong>Step 2: Isolate failure</strong></p>
+<pre><code># Run specific test
+pytest tests/.../test_file.py::test_function -v
+
+# Check for import errors
+python -m py_compile src/.../module.py
+
+# Check for syntax errors
+python -c "import module"</code></pre>
+
+<p><strong>Step 3: Rollback to last good commit</strong></p>
+<pre><code># See recent commits
+git log --oneline -10
+
+# Reset to last good commit
+git reset --hard &lt;commit-hash&gt;
+
+# Verify tests pass
+pytest tests/ -v</code></pre>
+
+<p><strong>Step 4: Re-attempt phase</strong></p>
+<ul>
+<li>Review phase checklist</li>
+<li>Follow steps carefully</li>
+<li>Test after each sub-step</li>
+</ul>
+
+<p>---</p>
+
+<h3>If Baseline Comparison Fails (Phase 9.5)</h3>
+
+<p><strong>Symptoms:</strong></p>
+<ul>
+<li>Quality ratio < 0.95</li>
+<li>Critical validation failures</li>
+<li>Definitions are generic (not context-specific)</li>
+</ul>
+
+<p><strong>Investigation:</strong></p>
+<pre><code># Compare prompts manually
+diff tests/fixtures/DEF-126-baseline/prompts/case001.txt \
+     tests/fixtures/DEF-126-baseline/prompts-new/case001.txt
+
+# Check for missing context
+grep "CONTEXT" tests/fixtures/DEF-126-baseline/prompts-new/*.txt
+
+# Check shared_state
+pytest tests/.../test_context_instruction_module.py::test_context_data_shared -v -s</code></pre>
+
+<p><strong>Fixes:</strong></p>
+<ol>
+<li>**Context not appearing:**</li>
+</ol>
+<ul>
+<li>  - Check `_share_traditional_context()` method</li>
+<li>  - Verify shared_state keys correct</li>
+<li>  - Add debug logging</li>
+</ul>
+
+<ol>
+<li>**Quality lower:**</li>
+</ol>
+<ul>
+<li>  - Compare prompt structure old vs new</li>
+<li>  - Check for missing instructions</li>
+<li>  - Verify all helpers migrated</li>
+</ul>
+
+<ol>
+<li>**If cannot fix in 2 hours:**</li>
+</ol>
+<ul>
+<li>  - **ABORT** implementation</li>
+<li>  - Rollback to main branch</li>
+<li>  - Document findings in issue</li>
+</ul>
+
+<p>---</p>
+
+<h3>If Production Breaks After Merge</h3>
+
+<p><strong>Symptoms:</strong></p>
+<ul>
+<li>App crashes on startup</li>
+<li>Definitions are low quality</li>
+<li>Users report issues</li>
+</ul>
+
+<p><strong>Immediate actions:</strong></p>
+<pre><code># 1. Rollback code
+git revert &lt;merge-commit-hash&gt;
+
+# 2. Verify rollback worked
+pytest tests/ -v
+bash scripts/run_app.sh
+
+# 3. Notify user
+# "Rolled back DEF-126 due to issue X. Investigating."
+
+# 4. Investigate offline
+git checkout feature/DEF-126-context-consolidation
+# ... debug ...</code></pre>
+
+<p><strong>Don't panic:</strong></p>
+<ul>
+<li>Git preserves all history</li>
+<li>Database is unaffected (no schema changes)</li>
+<li>Rollback is straightforward</li>
+<li>Learn from the issue</li>
+</ul>
+
+<p>---</p>
+
+<h2>📊 Progress Tracking</h2>
+
+<p><strong>Use this table to track progress:</strong></p>
+
+<p>| Phase | Status | Time | Issues | Notes |</p>
+<p>|-------|--------|------|--------|-------|</p>
+<p>| 0 | ☐ | ___ min | | Baseline capture |</p>
+<p>| 1 | ☐ | ___ min | | Skeleton |</p>
+<p>| 2.1 | ☐ | ___ min | | Richness scoring |</p>
+<p>| 2.2 | ☐ | ___ min | | Adaptive formatting |</p>
+<p>| 2.3 | ☐ | ___ min | | Forbidden patterns |</p>
+<p>| 2.4 | ☐ | ___ min | | Metadata |</p>
+<p>| 2.5 | ☐ | ___ min | | Helper tests |</p>
+<p>| 3 | ☐ | ___ min | | Execute() |</p>
+<p>| 4 | ☐ | ___ min | | Orchestrator |</p>
+<p>| 5 | ☐ | ___ min | | ErrorPrevention |</p>
+<p>| 6 | ☐ | ___ min | | DefinitionTask |</p>
+<p>| 7 | ☐ | ___ min | | Delete old |</p>
+<p>| 7.5 | ☐ | ___ min | | Verify deps |</p>
+<p>| 8 | ☐ | ___ min | | Unit tests |</p>
+<p>| 9 | ☐ | ___ min | | Integration |</p>
+<p>| 9.5 | ☐ | ___ min | | Baseline compare |</p>
+<p>| 10 | ☐ | ___ min | | Documentation |</p>
+
+<p><strong>Total time:</strong> ____ min / 690 min (11.5 hours)</p>
+
+<p><strong>Update this table as you complete each phase.</strong></p>
+
+<p>---</p>
+
+<h2>✅ Success Confirmation</h2>
+
+<p><strong>After completing all phases, verify:</strong></p>
+
+<ul>
+<li>[ ] All phases marked complete (✓)</li>
+<li>[ ] Total time within 11.5 hours (or note why longer)</li>
+<li>[ ] All tests passing</li>
+<li>[ ] **Quality ≥95% of baseline** (MOST IMPORTANT)</li>
+<li>[ ] Token reduction achieved</li>
+<li>[ ] UI working correctly</li>
+<li>[ ] Documentation updated</li>
+<li>[ ] Git history clean (meaningful commits)</li>
+<li>[ ] Ready to merge to main</li>
+</ul>
+
+<p><strong>If all verified:</strong> 🎉 <strong>SUCCESS - Merge to main</strong></p>
+
+<p>---</p>
+
+<p><strong>Document Status:</strong> ✅ READY TO USE</p>
+<p><strong>Last Updated:</strong> 2025-11-13</p>
+<p><strong>Use:</strong> Follow step-by-step during implementation</p>
+<p><strong>Priority:</strong> 🔴 CRITICAL - Do not skip any mandatory phases</p>
+
+  </div>
+</body>
+</html>

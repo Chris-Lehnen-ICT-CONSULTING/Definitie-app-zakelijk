@@ -1,0 +1,1589 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DEF-126 Context Consolidation - Risk Assessment & FMEA</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>DEF-126 Context Consolidation - Risk Assessment & FMEA</h1>
+
+<h2>Executive Summary</h2>
+
+<p><strong>Assessment Date:</strong> 2025-11-13</p>
+<p><strong>Refactoring Scope:</strong> Consolidate 3 modules into 1 (ContextInstructionModule)</p>
+<p><strong>Code Changes:</strong> ~150 lines across 4 files (1 new, 1 deleted, 2 refactored)</p>
+<p><strong>Overall Risk Level:</strong> 🟡 <strong>MEDIUM-HIGH</strong> (proceed with extreme caution)</p>
+
+<p><strong>Critical Finding:</strong> The "no backwards compatibility" policy is <strong>APPROPRIATE</strong> for this single-user dev app, but the migration has <strong>HIDDEN LANDMINES</strong> that the implementation plan underestimates.</p>
+
+<p>---</p>
+
+<h2>1. FAILURE MODE & EFFECTS ANALYSIS (FMEA)</h2>
+
+<h3>Risk Scoring Matrix</h3>
+
+<p>| Likelihood | Impact | Severity Score | Action Required |</p>
+<p>|------------|--------|----------------|-----------------|</p>
+<p>| 1-3 (Low) | 1-3 (Low) | 1-9 | Monitor |</p>
+<p>| 1-3 (Low) | 4-7 (Medium) | 4-21 | Mitigate |</p>
+<p>| 1-3 (Low) | 8-10 (High) | 8-30 | Prevent |</p>
+<p>| 4-7 (Medium) | 4-7 (Medium) | 16-49 | <strong>HIGH PRIORITY</strong> |</p>
+<p>| 4-7 (Medium) | 8-10 (High) | 32-70 | <strong>CRITICAL</strong> |</p>
+<p>| 8-10 (High) | 8-10 (High) | 64-100 | <strong>BLOCKER</strong> |</p>
+
+<p>---</p>
+
+<h3>FMEA Table</h3>
+
+<p>| # | Failure Mode | Likelihood (1-10) | Impact (1-10) | Severity | Root Cause | Detection Method | Mitigation |</p>
+<p>|---|--------------|-------------------|---------------|----------|------------|------------------|------------|</p>
+<p>| <strong>1</strong> | <strong>Silent context loss in prompts</strong> | 7 | 10 | 🔴 <strong>70 CRITICAL</strong> | Inconsistent data access (base_context vs shared_state) | Integration tests fail to detect empty context sections | Add explicit context presence assertions, test with real data |</p>
+<p>| <strong>2</strong> | <strong>Module execution order breaks</strong> | 5 | 9 | 🟡 <strong>45 HIGH</strong> | Priority 75 too high, conflicts with existing priorities | Unit tests don't catch orchestrator ordering | Document current execution order, test batch resolution |</p>
+<p>| <strong>3</strong> | <strong>Circular reasoning in quality degradation</strong> | 8 | 8 | 🔴 <strong>64 CRITICAL</strong> | Validating new prompts with NEW validators (not baseline) | No baseline comparison tests | <strong>MUST</strong> capture baseline prompts + validation scores BEFORE any changes |</p>
+<p>| <strong>4</strong> | <strong>Test false positives masking real issues</strong> | 6 | 8 | 🟡 <strong>48 HIGH</strong> | Mock data doesn't reflect production patterns | Passing tests but real definitions fail | Use real historical context data in tests |</p>
+<p>| <strong>5</strong> | <strong>Token reduction not achieved</strong> | 4 | 6 | 🟡 <strong>24 MEDIUM</strong> | Optimistic estimates, hidden duplication | Token counting test uses wrong baseline | Measure tokens in CURRENT system first |</p>
+<p>| <strong>6</strong> | <strong>Incomplete business logic migration</strong> | 6 | 9 | 🟡 <strong>54 HIGH</strong> | 433 lines of ContextAwarenessModule, easy to miss edge cases | Code review misses subtle logic | Line-by-line migration checklist with sign-off |</p>
+<p>| <strong>7</strong> | <strong>Shared state pollution</strong> | 5 | 7 | 🟡 <strong>35 HIGH</strong> | Multiple modules writing to shared_state, no locking | Intermittent failures, race conditions | Document shared_state contract, single-writer rule |</p>
+<p>| <strong>8</strong> | <strong>Error handling creates infinite loops</strong> | 3 | 10 | 🟡 <strong>30 HIGH</strong> | Fallback logic depends on modules that failed | Timeout during execution, stack overflow | Test error scenarios explicitly |</p>
+<p>| <strong>9</strong> | <strong>UI doesn't reflect prompt changes</strong> | 7 | 6 | 🟡 <strong>42 HIGH</strong> | No UI smoke tests, only backend tests | Users see old-style prompts | Add UI integration test for Edit tab prompt display |</p>
+<p>| <strong>10</strong> | <strong>Rollback impossible due to data migration</strong> | 4 | 9 | 🟡 <strong>36 HIGH</strong> | Database schema changes, no migration scripts | Cannot revert to old code | <strong>VERIFY:</strong> No schema changes planned (plan says no DB changes) |</p>
+
+<p>---</p>
+
+<h2>2. CRITICAL RISK DEEP DIVE</h2>
+
+<h3>🔴 RISK #1: Silent Context Loss (Severity: 70 - CRITICAL)</h3>
+
+<p><strong>Problem:</strong> DefinitionTaskModule reads base_context DIRECTLY (lines 84-98), while ErrorPreventionModule reads shared_state. New module consolidates to shared_state only.</p>
+
+<p><strong>What can go wrong:</strong></p>
+<pre><code># OLD: DefinitionTaskModule (lines 86-98)
+base_ctx = context.enriched_context.base_context  # DIRECT ACCESS
+jur_contexts = base_ctx.get("juridische_context") or base_ctx.get("juridisch") or []
+wet_basis = base_ctx.get("wettelijke_basis") or base_ctx.get("wettelijk") or []
+
+# NEW: ContextInstructionModule (proposed)
+jur_contexts = context.get_shared("juridical_contexts", [])  # shared_state only
+wet_contexts = context.get_shared("legal_basis_contexts", [])</code></pre>
+
+<p><strong>Failure scenario:</strong></p>
+<ol>
+<li>EnrichedContext has `base_context = {"juridische_context": ["Strafrecht"]}`</li>
+<li>ContextInstructionModule extracts "juridisch" (line 383 in old module)</li>
+<li>But there's a typo/mismatch in key names ("juridische_context" vs "juridisch")</li>
+<li>shared_state gets empty list</li>
+<li>Prompt generation succeeds (no error)</li>
+<li>Generated definition lacks context guidance</li>
+<li>User doesn't notice until quality regression shows up days later</li>
+</ol>
+
+<p><strong>Why implementation plan misses this:</strong></p>
+<ul>
+<li>Plan assumes `_share_traditional_context()` logic (lines 368-395) will be preserved</li>
+<li>But doesn't test the EXACT key mapping between base_context → shared_state</li>
+<li>Test creates mock data with consistent keys, doesn't catch production variance</li>
+</ul>
+
+<p><strong>MITIGATION REQUIRED:</strong></p>
+<ol>
+<li>Extract real base_context samples from production database</li>
+<li>Create regression test with ACTUAL historical context data</li>
+<li>Add assertion: `len(shared_state["juridical_contexts"]) == len(base_context.get("juridisch"))`</li>
+<li>Add monitoring: Log warning if context extraction produces empty lists when base_context is non-empty</li>
+</ol>
+
+<p>---</p>
+
+<h3>🔴 RISK #3: Circular Reasoning in Quality Validation (Severity: 64 - CRITICAL)</h3>
+
+<p><strong>Problem:</strong> Implementation plan says "test definition quality maintained" (Phase 9), but HOW?</p>
+
+<p><strong>Circular reasoning trap:</strong></p>
+<pre><code># Step 1: Implement new ContextInstructionModule
+# Step 2: Generate definitions with new system
+# Step 3: Validate with SAME validators
+# Step 4: Quality score = 0.8 (good!)
+#
+# BUT: If the validator uses the SAME context logic you just changed,
+#      it will be consistent with itself but WRONG compared to old system!</code></pre>
+
+<p><strong>Concrete example:</strong></p>
+<ul>
+<li>OLD: Context appears 3 times in prompt (redundant but comprehensive)</li>
+<li>NEW: Context appears 1 time (consolidated)</li>
+<li>Validator: "Context present? ✓ Yes"</li>
+<li>Result: Test passes, but definitions are WORSE (less context guidance)</li>
+</ul>
+
+<p><strong>Why this is CRITICAL:</strong></p>
+<ul>
+<li>Implementation plan has NO baseline capture step</li>
+<li>All tests compare new system to... new system</li>
+<li>Quality degradation goes undetected</li>
+<li>Users discover issue after 100+ definitions generated</li>
+</ul>
+
+<p><strong>MITIGATION REQUIRED (BLOCKING):</strong></p>
+<pre><code># STEP 0: BEFORE ANY CODE CHANGES
+pytest tests/services/test_definition_generator.py --baseline-capture
+# Captures: prompts, definitions, validation scores for 20 test cases
+
+# STEP 10: AFTER IMPLEMENTATION
+pytest tests/services/test_definition_generator.py --baseline-compare
+# Compares: new prompts vs baseline, new definitions vs baseline
+# Fails if: validation score drops &gt;5%, prompt structure changes unexpectedly</code></pre>
+
+<p><strong>Implementation gap:</strong> Plan has no "Step 0" or baseline capture phase!</p>
+
+<p>---</p>
+
+<h3>🟡 RISK #2: Module Execution Order Breaks (Severity: 45 - HIGH)</h3>
+
+<p><strong>Problem:</strong> New ContextInstructionModule priority = 75 (high), but existing modules have:</p>
+
+<pre><code># Current priorities (from modular_prompt_adapter.py lines 60-78)
+ExpertiseModule()                  # Priority: ? (need to check)
+OutputSpecificationModule()        # Priority: ?
+GrammarModule()                    # Priority: ?
+ContextAwarenessModule()           # Priority: 70 ← OLD
+SemanticCategorisationModule()     # Priority: ?
+TemplateModule()                   # Priority: ?
+ErrorPreventionModule()            # Depends on: ["context_awareness"]</code></pre>
+
+<p><strong>Failure scenario:</strong></p>
+<ol>
+<li>Set ContextInstructionModule priority = 75</li>
+<li>But ExpertiseModule priority = 80 (hypothetical)</li>
+<li>Expertise runs first, expects shared_state data</li>
+<li>shared_state is empty</li>
+<li>Expertise module behaves differently</li>
+<li>Prompt is malformed</li>
+<li>GPT-4 generates nonsense</li>
+</ol>
+
+<p><strong>Why implementation plan misses this:</strong></p>
+<ul>
+<li>Plan says "no dependencies" (Phase 1, line 375) ← CORRECT for ContextInstruction</li>
+<li>But doesn't document REVERSE dependencies (who depends on IT)</li>
+<li>ErrorPreventionModule depends on "context_awareness" → needs UPDATE to "context_instruction"</li>
+<li>Plan mentions updating ErrorPreventionModule dependencies (Phase 5, line 699) ← GOOD</li>
+<li>But doesn't verify no OTHER modules depend on context_awareness</li>
+</ul>
+
+<p><strong>MITIGATION:</strong></p>
+<pre><code># Search for hidden dependencies
+grep -r "context_awareness" src/services/prompts/ --include="*.py"
+# Found: error_prevention_module.py line 141 ← Known, covered in plan
+# Found: modular_prompt_adapter.py line 18 ← Import statement (need to update)
+# Found: 84 other files (mostly docs) ← Need to verify no code dependencies</code></pre>
+
+<p><strong>ACTION REQUIRED:</strong></p>
+<ol>
+<li>Document CURRENT execution order (batch 1, batch 2, etc.)</li>
+<li>Document EXPECTED execution order after change</li>
+<li>Test that ErrorPreventionModule runs AFTER ContextInstructionModule</li>
+<li>Update import in modular_prompt_adapter.py line 18</li>
+</ol>
+
+<p>---</p>
+
+<h3>🟡 RISK #4: Test False Positives (Severity: 48 - HIGH)</h3>
+
+<p><strong>Problem:</strong> Proposed test suite uses mocked/synthetic data:</p>
+
+<pre><code># From implementation plan (lines 906-950)
+def create_test_context(
+    begrip="vergunning",
+    org=None,
+    jur=None,
+    wet=None,
+):
+    """Helper to create test context."""
+    base_context = {}
+    if org:
+        base_context["organisatorisch"] = org  # ← CLEAN mock data</code></pre>
+
+<p><strong>Why this is dangerous:</strong></p>
+<ol>
+<li>Real production data has inconsistencies:</li>
+</ol>
+<ul>
+<li>  - Sometimes "organisatorisch", sometimes "organisatie"</li>
+<li>  - Sometimes list of strings, sometimes single string</li>
+<li>  - Sometimes empty list `[]`, sometimes `None`, sometimes `False` (legacy)</li>
+</ul>
+<ol>
+<li>Mocked data has NONE of these edge cases</li>
+<li>Tests pass with mocked data</li>
+<li>Production fails with real data</li>
+</ol>
+
+<p><strong>Evidence from code:</strong></p>
+<pre><code># context_awareness_module.py lines 396-423
+def _extract_contexts(self, context_value: Any) -&gt; list[str]:
+    """Extract context lijst uit verschillende input formaten."""
+    if not context_value:
+        return []
+
+    if isinstance(context_value, bool):  # ← Legacy support!
+        return []  # True means no specific context
+    if isinstance(context_value, str):   # ← Single string
+        return [context_value]
+    if isinstance(context_value, list):  # ← List of items
+        return [str(item) for item in context_value if item]</code></pre>
+
+<p><strong>This logic must be preserved</strong>, but tests don't verify it!</p>
+
+<p><strong>MITIGATION:</strong></p>
+<pre><code># Add to test suite
+def test_context_extraction_edge_cases():
+    """Test real-world context data formats."""
+    module = ContextInstructionModule()
+
+    # Test case 1: Legacy boolean (from old system)
+    ctx1 = create_test_context_raw({"organisatorisch": True})
+    out1 = module.execute(ctx1)
+    assert ctx1.get_shared("organization_contexts") == []  # Not crash!
+
+    # Test case 2: Single string (not list)
+    ctx2 = create_test_context_raw({"organisatorisch": "NP"})
+    out2 = module.execute(ctx2)
+    assert ctx2.get_shared("organization_contexts") == ["NP"]
+
+    # Test case 3: None vs empty list
+    ctx3 = create_test_context_raw({"organisatorisch": None})
+    out3 = module.execute(ctx3)
+    assert ctx3.get_shared("organization_contexts") == []
+
+    # Test case 4: Mixed types in list
+    ctx4 = create_test_context_raw({"organisatorisch": ["NP", None, "", "OM"]})
+    out4 = module.execute(ctx4)
+    assert ctx4.get_shared("organization_contexts") == ["NP", "OM"]  # Filtered!</code></pre>
+
+<p><strong>ACTION:</strong> Extract 20 real base_context samples from database, add to test fixtures.</p>
+
+<p>---</p>
+
+<h3>🟡 RISK #6: Incomplete Business Logic Migration (Severity: 54 - HIGH)</h3>
+
+<p><strong>Problem:</strong> ContextAwarenessModule is 433 lines. Implementation plan says "migrate business logic" but doesn't detail EVERY method.</p>
+
+<p><strong>Evidence of complexity:</strong></p>
+<pre><code># context_awareness_module.py methods (not all in plan!)
+- __init__()                          ✓ Covered in plan
+- initialize()                        ✓ Covered
+- validate_input()                    ✓ Covered
+- execute()                           ✓ Covered
+- get_dependencies()                  ✓ Covered
+- _calculate_context_score()          ✓ Covered (Phase 2.1)
+- _build_rich_context_section()       ✓ Covered (Phase 2.2)
+- _build_moderate_context_section()   ✓ Covered (Phase 2.2)
+- _build_minimal_context_section()    ✓ Covered (Phase 2.2)
+- _format_detailed_base_context()     ⚠️  Helper method - mentioned but no test
+- _format_sources_with_confidence()   ⚠️  Helper method - mentioned but no test
+- _format_abbreviations_detailed()    ⚠️  Helper method - no explicit test
+- _format_abbreviations_simple()      ⚠️  Helper method - no explicit test
+- _share_traditional_context()        ✓ Covered (Phase 2)
+- _extract_contexts()                 ⚠️  CRITICAL HELPER - no explicit test plan!
+- _build_fallback_context_section()   ⚠️  Error handling - no test coverage!</code></pre>
+
+<p><strong>Missing from plan:</strong></p>
+<ol>
+<li>Test for `_extract_contexts()` (handles bool/str/list) ← CRITICAL for backwards compat</li>
+<li>Test for `_format_sources_with_confidence()` (emoji logic)</li>
+<li>Test for `_build_fallback_context_section()` (error paths)</li>
+<li>Test for confidence indicators toggle (`self.confidence_indicators`)</li>
+<li>Test for abbreviations toggle (`self.include_abbreviations`)</li>
+</ol>
+
+<p><strong>MITIGATION:</strong></p>
+<p>Add Phase 2.5: "Migrate and test helper methods" (1 hour)</p>
+<ul>
+<li>Test each format helper with real data</li>
+<li>Test toggles (adaptive_formatting, confidence_indicators, include_abbreviations)</li>
+<li>Test fallback/error paths</li>
+</ul>
+
+<p>---</p>
+
+<h3>🟡 RISK #7: Shared State Pollution (Severity: 35 - HIGH)</h3>
+
+<p><strong>Problem:</strong> Multiple modules can write to shared_state, no locking mechanism.</p>
+
+<p><strong>Scenario:</strong></p>
+<pre><code># ContextInstructionModule (Priority 75)
+context.set_shared("context_richness_score", 0.65)
+context.set_shared("organization_contexts", ["NP"])
+
+# Hypothetical: Another module (Priority 76) runs first
+# (if priorities are wrong)
+context.set_shared("organization_contexts", ["ERROR"])
+
+# ErrorPreventionModule reads shared_state
+org_contexts = context.get_shared("organization_contexts")  # Gets ["ERROR"]!</code></pre>
+
+<p><strong>Why this matters:</strong></p>
+<ul>
+<li>PromptOrchestrator resolves execution order by priority + dependencies</li>
+<li>If priorities are wrong (see Risk #2), execution order breaks</li>
+<li>shared_state becomes corrupted</li>
+<li>Symptoms appear in LATER modules (hard to debug)</li>
+</ul>
+
+<p><strong>Current safeguard:</strong></p>
+<ul>
+<li>Dependencies force ordering: ErrorPreventionModule depends on ["context_awareness"]</li>
+<li>This ensures context_awareness runs first</li>
+<li>**BUT:** After refactor, dependency changes to ["context_instruction"]?</li>
+<li> - Plan says yes (Phase 5, line 699)</li>
+<li> - But doesn't verify no OTHER modules write to same keys</li>
+</ul>
+
+<p><strong>MITIGATION:</strong></p>
+<ol>
+<li>Audit all modules: who writes to organization_contexts, juridical_contexts, legal_basis_contexts?</li>
+<li>Enforce single-writer rule: ONLY ContextInstructionModule writes these keys</li>
+<li>Add debug logging: `logger.debug(f"Setting shared_state: {key}={value}")`</li>
+<li>Add assertion in ErrorPreventionModule: verify shared_state is populated before use</li>
+</ol>
+
+<p>---</p>
+
+<h3>🟡 RISK #9: UI Doesn't Reflect Prompt Changes (Severity: 42 - HIGH)</h3>
+
+<p><strong>Problem:</strong> All tests are backend-only. No UI integration tests.</p>
+
+<p><strong>Failure scenario:</strong></p>
+<ol>
+<li>Backend prompt generation works perfectly</li>
+<li>User opens Edit tab → clicks "View Generated Prompt"</li>
+<li>Sees old-style prompt (cached? stale state?)</li>
+<li>User reports: "consolidation didn't work"</li>
+<li>Developer confused: tests pass!</li>
+</ol>
+
+<p><strong>Root cause possibilities:</strong></p>
+<ul>
+<li>Streamlit session state caching old prompts</li>
+<li>UI component not refreshed after prompt generation</li>
+<li>Edit tab displays cached prompt metadata (see DEF-151 recent fix)</li>
+</ul>
+
+<p><strong>Evidence from git history:</strong></p>
+<pre><code>266dab91 fix(DEF-151): enable generation prompt viewing in edit tab
+9bf74c88 fix(DEF-151): add missing generation metadata to prompt storage</code></pre>
+
+<p>Recent fixes to prompt display in Edit tab! This area is fragile.</p>
+
+<p><strong>MITIGATION:</strong></p>
+<pre><code># Add UI smoke test (manual checklist)
+def test_ui_displays_new_prompt_format():
+    """
+    Manual test checklist for UI verification:
+    1. Generate definition with context (org=["NP"], jur=["Strafrecht"])
+    2. Navigate to Edit tab
+    3. Select generated definition
+    4. Click "View Generated Prompt"
+    5. Verify prompt contains:
+       - ✓ Single "📌 VERPLICHTE CONTEXT" section (not 3 sections)
+       - ✓ "🚨 CONTEXT-SPECIFIEKE VERBODEN" section
+       - ✓ "NP" and "Nederlands Politie" mentioned
+       - ✓ No duplicate context listings
+    6. Compare token count vs baseline
+    """
+    pass</code></pre>
+
+<p><strong>ACTION:</strong> Add manual UI test checklist to Phase 9 (Integration testing).</p>
+
+<p>---</p>
+
+<h2>3. EVALUATION OF "NO BACKWARDS COMPATIBILITY" POLICY</h2>
+
+<h3>Is This Approach Appropriate? ✅ **YES, BUT...**</h3>
+
+<p><strong>Justification for "no rollback":</strong></p>
+<ol>
+<li>Single-user application ✓</li>
+<li>Not in production ✓</li>
+<li>Developer has full control ✓</li>
+<li>Can test thoroughly before merging ✓</li>
+<li>Git provides version control ✓</li>
+</ol>
+
+<p><strong>Per CLAUDE.md:</strong></p>
+<blockquote>⚠️ GEEN BACKWARDS COMPATIBILITY CODE</blockquote>
+<blockquote>Dit is een single-user applicatie, NIET in productie</blockquote>
+<blockquote>REFACTOR code met behoud van businesskennis en logica</blockquote>
+
+<p><strong>This policy is CORRECT</strong> for this scenario.</p>
+
+<p><strong>HOWEVER, major risks remain:</strong></p>
+
+<h3>Risk: "Refactor met behoud van businesskennis"</h3>
+
+<p><strong>Problem:</strong> 433 lines of ContextAwarenessModule contain subtle business logic:</p>
+<ul>
+<li>Confidence scoring algorithm (lines 143-184)</li>
+<li>Legacy format support (bool/str/list in `_extract_contexts`)</li>
+<li>Emoji indicator thresholds (0.5, 0.8)</li>
+<li>Organization code mappings (NP → Nederlands Politie)</li>
+</ul>
+
+<p><strong>If ANY of this is lost:</strong></p>
+<ul>
+<li>Tests might pass (if tests don't cover edge cases)</li>
+<li>Quality degrades silently</li>
+<li>User discovers issue later (possibly weeks/months)</li>
+<li>Rollback is painful (definitions generated in between)</li>
+</ul>
+
+<p><strong>Policy compliance:</strong></p>
+<p>✅ "No backwards compatibility" ← Applied correctly</p>
+<p>⚠️ "Met behoud van businesskennis" ← <strong>THIS is the risk</strong></p>
+
+<p><strong>Recommendation:</strong> Implementation plan needs <strong>explicit business logic preservation checklist</strong>.</p>
+
+<p>---</p>
+
+<h3>Should We Keep ContextAwarenessModule as Fallback? ❌ **NO**</h3>
+
+<p><strong>Arguments AGAINST keeping old module:</strong></p>
+<ol>
+<li>Code duplication (433 lines duplicated)</li>
+<li>Maintenance nightmare (which version is truth?)</li>
+<li>Risk of accidentally calling old module</li>
+<li>Goes against "no backwards compatibility" policy</li>
+</ol>
+
+<p><strong>Arguments FOR keeping old module:</strong></p>
+<ol>
+<li>Safety net if new module fails</li>
+<li>Can compare outputs side-by-side</li>
+<li>Easy rollback (just swap registrations)</li>
+</ol>
+
+<p><strong>Verdict: Don't keep old module, BUT:</strong></p>
+<ul>
+<li>✅ Keep old file as `.bak` during development</li>
+<li>✅ Git preserves history (can revert)</li>
+<li>✅ Feature branch allows testing before merge</li>
+<li>❌ Don't keep in production codebase</li>
+</ul>
+
+<p><strong>Implementation:</strong></p>
+<pre><code># During Phase 7 (Delete ContextAwarenessModule)
+git mv src/services/prompts/modules/context_awareness_module.py \
+       src/services/prompts/modules/context_awareness_module.py.bak
+
+# Test everything
+pytest tests/ -v
+
+# If all good, delete .bak file
+git rm src/services/prompts/modules/context_awareness_module.py.bak
+
+# If problems, restore
+git mv src/services/prompts/modules/context_awareness_module.py.bak \
+       src/services/prompts/modules/context_awareness_module.py</code></pre>
+
+<p>---</p>
+
+<h2>4. TEST COVERAGE GAPS ANALYSIS</h2>
+
+<h3>Current Test Plan (from implementation doc lines 906-1246)</h3>
+
+<p><strong>Unit tests planned:</strong> ✓ Good coverage</p>
+<ul>
+<li>Initialization</li>
+<li>No dependencies</li>
+<li>Validate input always true</li>
+<li>Context richness scoring</li>
+<li>Context data sharing</li>
+<li>Rich/moderate/minimal formatting</li>
+<li>Context forbidden patterns</li>
+<li>Organization mapping</li>
+<li>Context metadata</li>
+<li>No context scenario</li>
+<li>Error handling</li>
+</ul>
+
+<p><strong>Integration tests planned:</strong> ✓ Basic coverage</p>
+<ul>
+<li>Orchestrator includes new module</li>
+<li>Full prompt generation with context</li>
+<li>Token reduction verification</li>
+</ul>
+
+<p><strong>Validation tests planned:</strong> ⚠️ <strong>WEAK</strong></p>
+<ul>
+<li>Definition quality maintained (how?)</li>
+<li>Compare quality scores (to what baseline?)</li>
+</ul>
+
+<h3>MISSING Test Scenarios</h3>
+
+<h4>1. Edge Case Tests (CRITICAL)</h4>
+<pre><code># NOT in plan!
+def test_context_with_legacy_formats():
+    """Test backwards compatibility with old context formats."""
+    # Boolean context (legacy)
+    # Single string vs list
+    # None vs empty list
+    # Mixed types in list</code></pre>
+
+<h4>2. Error Path Tests (HIGH)</h4>
+<pre><code># NOT in plan!
+def test_context_instruction_with_invalid_enriched_context():
+    """Test error handling when enriched_context is malformed."""
+    # None enriched_context
+    # Missing base_context
+    # Invalid base_context structure</code></pre>
+
+<h4>3. Configuration Toggle Tests (MEDIUM)</h4>
+<pre><code># NOT in plan!
+def test_adaptive_formatting_toggle():
+    """Test adaptive_formatting can be disabled."""
+    module = ContextInstructionModule()
+    module.initialize({"adaptive_formatting": False})
+    # Should always use same format regardless of score</code></pre>
+
+<h4>4. Shared State Contract Tests (HIGH)</h4>
+<pre><code># NOT in plan!
+def test_shared_state_keys_match_expected():
+    """Verify exact shared_state keys produced."""
+    module = ContextInstructionModule()
+    context = create_test_context(org=["NP"])
+    module.execute(context)
+
+    # Exact keys (no typos!)
+    assert "context_richness_score" in context.shared_state
+    assert "organization_contexts" in context.shared_state  # Not "organisational"!
+    assert "juridical_contexts" in context.shared_state     # Not "juridische"!
+    assert "legal_basis_contexts" in context.shared_state   # Not "wettelijke"!</code></pre>
+
+<h4>5. Module Dependency Graph Tests (HIGH)</h4>
+<pre><code># NOT in plan!
+def test_error_prevention_depends_on_context_instruction():
+    """Verify dependency graph updated correctly."""
+    from services.prompts.modules.error_prevention_module import ErrorPreventionModule
+
+    module = ErrorPreventionModule()
+    deps = module.get_dependencies()
+
+    assert "context_instruction" in deps
+    assert "context_awareness" not in deps  # Old module removed!</code></pre>
+
+<h4>6. Execution Order Tests (CRITICAL)</h4>
+<pre><code># NOT in plan!
+def test_orchestrator_execution_order_after_refactor():
+    """Verify ContextInstructionModule runs before ErrorPreventionModule."""
+    orchestrator = get_cached_orchestrator()
+
+    # Get execution order
+    batches = orchestrator.resolve_execution_order()
+
+    # Find modules
+    context_batch = None
+    error_batch = None
+    for i, batch in enumerate(batches):
+        if "context_instruction" in batch:
+            context_batch = i
+        if "error_prevention" in batch:
+            error_batch = i
+
+    assert context_batch is not None
+    assert error_batch is not None
+    assert context_batch &lt; error_batch  # Context MUST run first!</code></pre>
+
+<h4>7. Real Data Regression Tests (CRITICAL)</h4>
+<pre><code># NOT in plan!
+def test_with_real_production_context_samples():
+    """Test with 20 real context samples from production database."""
+    # Load real samples from data/test_fixtures/real_contexts.json
+    # Samples extracted from production definitions
+    # Includes all weird edge cases we've seen
+
+    for sample in load_real_context_samples():
+        module = ContextInstructionModule()
+        context = create_context_from_sample(sample)
+
+        output = module.execute(context)
+
+        # Should not crash
+        assert output.success is True
+
+        # Should produce context output if context exists
+        if sample.has_context:
+            assert len(output.content) &gt; 50  # Non-trivial output</code></pre>
+
+<p><strong>ACTION:</strong> Add 30-40 additional tests to cover these gaps.</p>
+
+<p>---</p>
+
+<h2>5. DATA CONSISTENCY RISKS</h2>
+
+<h3>Scenario: shared_state Out of Sync</h3>
+
+<p><strong>How it happens:</strong></p>
+<ol>
+<li>ContextInstructionModule extracts contexts from base_context</li>
+<li>Stores in shared_state: `{"organization_contexts": ["NP"]}`</li>
+<li>Later module reads: `context.get_shared("organization_contexts")`</li>
+<li>**BUT:** What if base_context is MUTATED after extraction?</li>
+</ol>
+
+<p><strong>Code inspection:</strong></p>
+<pre><code># context_awareness_module.py lines 379-384
+base_context = context.enriched_context.base_context
+
+# Extract alle ACTIEVE contexten
+org_contexts = self._extract_contexts(base_context.get("organisatorisch"))
+# ↑ This reads base_context ONCE
+# ↓ Stores in shared_state
+context.set_shared("organization_contexts", org_contexts)</code></pre>
+
+<p><strong>Is base_context mutable?</strong> Let's check:</p>
+<pre><code># definition_generator_context.py (not read yet)
+class EnrichedContext:
+    def __init__(self, base_context: dict, ...):
+        self.base_context = base_context  # ← Reference or copy?</code></pre>
+
+<p><strong>RISK:</strong> If base_context is mutable dict (not frozen), later modules could modify it.</p>
+
+<p><strong>Likelihood:</strong> LOW (no evidence of modules modifying base_context)</p>
+<p><strong>Impact:</strong> HIGH (would cause subtle bugs)</p>
+<p><strong>Severity:</strong> 🟡 <strong>MEDIUM (3 × 8 = 24)</strong></p>
+
+<p><strong>MITIGATION:</strong></p>
+<ol>
+<li>Verify EnrichedContext freezes base_context (or uses dataclass with frozen=True)</li>
+<li>Add assertion in tests: `base_context_before == base_context_after`</li>
+<li>Document in code: "base_context is immutable, safe to cache extractions"</li>
+</ol>
+
+<p>---</p>
+
+<h3>Scenario: Module Execution Order Changes</h3>
+
+<p><strong>PromptOrchestrator uses topological sort</strong> (lines 354-372 in modular_prompt_adapter.py).</p>
+
+<p><strong>Current order:</strong></p>
+<pre><code>Batch 1 (no dependencies): ExpertiseModule, OutputSpec, Grammar, ContextAwareness, ...
+Batch 2 (depends on batch 1): SemanticCategorisation?, Template?, ...
+Batch N (depends on context): ErrorPrevention, DefinitionTask</code></pre>
+
+<p><strong>After refactor:</strong></p>
+<pre><code>Batch 1: ExpertiseModule, OutputSpec, Grammar, ContextInstruction, ...
+          ↑ Changed from ContextAwareness to ContextInstruction
+Batch N: ErrorPrevention (depends on context_instruction)</code></pre>
+
+<p><strong>What if priorities cause different ordering?</strong></p>
+<ul>
+<li>Example: If ContextInstruction priority = 75 but Grammar priority = 80</li>
+<li>Grammar might run first (depends on orchestrator's tiebreaker logic)</li>
+<li>If Grammar depends on shared_state data... boom!</li>
+</ul>
+
+<p><strong>Likelihood:</strong> MEDIUM (priorities are easy to get wrong)</p>
+<p><strong>Impact:</strong> HIGH (prompt generation fails)</p>
+<p><strong>Severity:</strong> 🟡 <strong>MEDIUM-HIGH (5 × 9 = 45)</strong></p>
+
+<p><strong>MITIGATION:</strong></p>
+<ol>
+<li>Test execution order explicitly (see Test Coverage Gap #6)</li>
+<li>Document priorities for all modules</li>
+<li>Add assertion: verify no module with priority > 75 depends on context data</li>
+</ol>
+
+<p>---</p>
+
+<h3>Scenario: Race Conditions (if multi-threading)</h3>
+
+<p><strong>PromptOrchestrator has <code>max_workers=4</code></strong> (line 57 in modular_prompt_adapter.py).</p>
+
+<p><strong>Does this mean parallel execution?</strong> Need to check:</p>
+<pre><code># modular_prompt_adapter.py line 57
+orchestrator = PromptOrchestrator(max_workers=4)</code></pre>
+
+<p><strong>If modules run in parallel:</strong></p>
+<ul>
+<li>Batch 1 modules could run simultaneously</li>
+<li>All writing to shared_state at same time</li>
+<li>**Potential data race!**</li>
+</ul>
+
+<p><strong>Likelihood:</strong> UNKNOWN (need to check PromptOrchestrator implementation)</p>
+<p><strong>Impact:</strong> HIGH (corrupted shared_state)</p>
+<p><strong>Severity:</strong> 🟡 <strong>POTENTIALLY HIGH</strong></p>
+
+<p><strong>ACTION REQUIRED:</strong> Check if PromptOrchestrator actually uses threading/multiprocessing.</p>
+
+<p><strong>If yes:</strong></p>
+<ul>
+<li>Add locking around shared_state writes</li>
+<li>Or serialize shared_state writes</li>
+<li>Or disable parallelism (max_workers=1)</li>
+</ul>
+
+<p><strong>If no:</strong> Risk is zero.</p>
+
+<p>---</p>
+
+<h2>6. ROLLBACK STRATEGY (Even Though Policy Says "No Rollback")</h2>
+
+<h3>Why We Need a Rollback Plan Anyway</h3>
+
+<p><strong>Reasons:</strong></p>
+<ol>
+<li>**Principle of least surprise:** Users expect to revert bad changes</li>
+<li>**Risk management:** Even with perfect testing, production issues occur</li>
+<li>**Compliance:** "No backwards compatibility" ≠ "No rollback"</li>
+<li>**Safety net:** Developer confidence increases with safety net</li>
+</ol>
+
+<h3>Level 1: Code Rollback (Easy)</h3>
+
+<p><strong>Scenario:</strong> New code has bugs, old code worked fine.</p>
+
+<p><strong>Steps:</strong></p>
+<pre><code># 1. Revert git commits
+git log --oneline  # Find commit hash before DEF-126
+git revert &lt;commit-hash&gt;
+# Or: git reset --hard &lt;commit-hash&gt; (if not pushed)
+
+# 2. Re-run tests
+pytest tests/ -v
+
+# 3. Restart Streamlit app
+bash scripts/run_app.sh
+
+# Time: 5 minutes
+# Success rate: 99%</code></pre>
+
+<p><strong>Caveats:</strong></p>
+<ul>
+<li>✅ Code reverts cleanly</li>
+<li>✅ No database changes (plan says no schema changes)</li>
+<li>⚠️ Definitions generated with new system remain in database (see Level 2)</li>
+</ul>
+
+<p>---</p>
+
+<h3>Level 2: Data Rollback (Medium)</h3>
+
+<p><strong>Scenario:</strong> Definitions generated with new system are lower quality, need to discard.</p>
+
+<p><strong>Problem:</strong> Plan says "no database changes", but definitions ARE database records!</p>
+
+<p><strong>Steps:</strong></p>
+<pre><code># 1. Identify definitions generated with new system
+# Assumption: generation_metadata.prompt_version or timestamp
+sqlite3 data/definities.db &lt;&lt; EOF
+SELECT id, begrip, created_at
+FROM definities
+WHERE created_at &gt; '2025-11-13 12:00:00'  -- Time of deployment
+  AND generation_metadata LIKE '%ContextInstructionModule%'
+LIMIT 10;
+EOF
+
+# 2. Backup these definitions (don't delete yet!)
+sqlite3 data/definities.db &lt;&lt; EOF
+CREATE TABLE IF NOT EXISTS definities_rollback_backup AS
+SELECT * FROM definities
+WHERE created_at &gt; '2025-11-13 12:00:00';
+EOF
+
+# 3. Mark as "needs regeneration" (don't delete!)
+sqlite3 data/definities.db &lt;&lt; EOF
+UPDATE definities
+SET status = 'needs_regeneration',
+    notes = 'DEF-126 rollback - generated with v2 context module'
+WHERE created_at &gt; '2025-11-13 12:00:00';
+EOF
+
+# 4. Regenerate with old system
+# (Now that code is rolled back)
+python scripts/regenerate_definitions.py --filter "needs_regeneration"
+
+# Time: 30-60 minutes (depending on definition count)
+# Success rate: 80%</code></pre>
+
+<p><strong>Caveats:</strong></p>
+<ul>
+<li>⚠️ Requires definitions have created_at timestamp</li>
+<li>⚠️ Requires generation_metadata to identify module version</li>
+<li>⚠️ User might have edited definitions (lose edits!)</li>
+<li>✅ No data loss (backup table preserves originals)</li>
+</ul>
+
+<p>---</p>
+
+<h3>Level 3: Emergency Abort (Hard)</h3>
+
+<p><strong>Scenario:</strong> Production is completely broken, need to abort mid-migration.</p>
+
+<p><strong>If caught during Phase 1-6 (before deletion):</strong></p>
+<pre><code># 1. Git stash changes
+git stash save "DEF-126 partial implementation - aborting"
+
+# 2. Verify old code still works
+pytest tests/services/prompts/test_context_awareness_module.py -v
+
+# 3. Restart app
+bash scripts/run_app.sh
+
+# Time: 2 minutes
+# Success rate: 95%</code></pre>
+
+<p><strong>If caught during/after Phase 7 (ContextAwarenessModule deleted):</strong></p>
+<pre><code># 1. Restore from git history
+git checkout HEAD~1 -- src/services/prompts/modules/context_awareness_module.py
+
+# 2. Undo orchestrator registration changes
+git checkout HEAD~1 -- src/services/prompts/modular_prompt_adapter.py
+
+# 3. Run tests
+pytest tests/ -v
+
+# 4. If tests fail: keep reverting commits until tests pass
+git log --oneline
+git checkout &lt;working-commit-hash&gt; -- .
+
+# Time: 10-30 minutes
+# Success rate: 70% (depends on how many commits)</code></pre>
+
+<p>---</p>
+
+<h3>Detection: How to Know We Need Rollback</h3>
+
+<p><strong>Automated detection:</strong></p>
+<pre><code># Add to CI/CD pipeline
+def test_definition_quality_regression():
+    """Smoke test: generate 10 definitions, check quality."""
+    generator = get_definition_generator()
+    validator = get_validator()
+
+    test_terms = [
+        ("vergunning", ["NP"], ["Strafrecht"]),
+        ("registratie", ["DJI"], []),
+        # ... 8 more
+    ]
+
+    scores = []
+    for begrip, org, jur in test_terms:
+        definition = generator.generate(begrip, org, jur)
+        result = validator.validate(definition)
+        scores.append(result.overall_score)
+
+    avg_score = sum(scores) / len(scores)
+
+    # Compare to baseline
+    BASELINE_SCORE = 0.82  # From last known good version
+    assert avg_score &gt;= BASELINE_SCORE * 0.95, \
+        f"Quality regression detected: {avg_score:.2f} &lt; {BASELINE_SCORE * 0.95:.2f}"</code></pre>
+
+<p><strong>Manual detection signs:</strong></p>
+<ol>
+<li>User reports: "Definitions are lower quality"</li>
+<li>Definitions missing context-specific phrasing</li>
+<li>Validation scores drop below 0.7</li>
+<li>Increased validation failures</li>
+<li>GPT-4 generates generic definitions (not context-specific)</li>
+</ol>
+
+<p><strong>Response time target:</strong> Detect within 24 hours, rollback within 2 hours.</p>
+
+<p>---</p>
+
+<h2>7. MIGRATION SEQUENCING EVALUATION</h2>
+
+<h3>Is 10-Phase Order Optimal? ⚠️ **NO - MISSING PHASES**</h3>
+
+<p><strong>Current plan:</strong></p>
+<ol>
+<li>Create skeleton (30 min)</li>
+<li>Migrate business logic (2 hours)</li>
+<li>Implement execute() (30 min)</li>
+<li>Update orchestrator (30 min)</li>
+<li>Refactor ErrorPreventionModule (45 min)</li>
+<li>Refactor DefinitionTaskModule (45 min)</li>
+<li>Delete ContextAwarenessModule (15 min)</li>
+<li>Unit testing (1 hour)</li>
+<li>Integration testing (45 min)</li>
+<li>Documentation (30 min)</li>
+</ol>
+
+<p><strong>MISSING PHASES:</strong></p>
+
+<h4>Phase 0: Baseline Capture (CRITICAL - ADD BEFORE PHASE 1)</h4>
+
+<p><strong>Duration:</strong> 1 hour</p>
+<p><strong>Why:</strong> Without baseline, cannot validate quality maintained</p>
+
+<p><strong>Steps:</strong></p>
+<ol>
+<li>Select 20 representative test cases (diverse contexts)</li>
+<li>Generate prompts with CURRENT system</li>
+<li>Generate definitions with CURRENT system</li>
+<li>Run validation on definitions</li>
+<li>Capture: prompts (text files), definitions (JSON), scores (CSV)</li>
+<li>Store in `tests/fixtures/DEF-126-baseline/`</li>
+<li>Commit to git (so it's preserved)</li>
+</ol>
+
+<p><strong>Acceptance criteria:</strong></p>
+<ul>
+<li>✓ 20 prompt files saved</li>
+<li>✓ 20 definition JSON files saved</li>
+<li>✓ scores.csv with 20 rows</li>
+<li>✓ Git commit: "test(DEF-126): baseline capture for migration validation"</li>
+</ul>
+
+<p>---</p>
+
+<h4>Phase 2.5: Migrate and Test Helper Methods (ADD BETWEEN 2 & 3)</h4>
+
+<p><strong>Duration:</strong> 1 hour</p>
+<p><strong>Why:</strong> Implementation plan mentions helpers but doesn't test them</p>
+
+<p><strong>Steps:</strong></p>
+<ol>
+<li>Migrate `_format_detailed_base_context()`</li>
+<li>Test with real base_context samples</li>
+<li>Migrate `_format_sources_with_confidence()`</li>
+<li>Test with real ContextSource objects</li>
+<li>Migrate `_format_abbreviations_detailed()` and `_format_abbreviations_simple()`</li>
+<li>Test abbreviation handling</li>
+<li>Migrate `_extract_contexts()` ← CRITICAL</li>
+<li>Test with bool/str/list/None inputs</li>
+<li>Migrate `_build_fallback_context_section()`</li>
+<li>Test error path</li>
+</ol>
+
+<p><strong>Acceptance criteria:</strong></p>
+<ul>
+<li>✓ All helper methods migrated</li>
+<li>✓ Each helper has dedicated unit test</li>
+<li>✓ Edge cases covered (empty input, invalid input, None)</li>
+<li>✓ Backwards compatibility verified (legacy formats)</li>
+</ul>
+
+<p>---</p>
+
+<h4>Phase 7.5: Verify No Hidden Dependencies (ADD AFTER PHASE 7)</h4>
+
+<p><strong>Duration:</strong> 30 min</p>
+<p><strong>Why:</strong> Ensure no other modules depend on ContextAwarenessModule</p>
+
+<p><strong>Steps:</strong></p>
+<pre><code># 1. Search codebase for references
+grep -r "ContextAwarenessModule" src/ tests/ --include="*.py"
+grep -r "context_awareness" src/ tests/ --include="*.py"
+
+# 2. Check imports
+grep -r "from.*context_awareness_module" src/ --include="*.py"
+
+# 3. Verify orchestrator registration updated
+grep -r "ContextAwarenessModule()" src/ --include="*.py"
+
+# 4. Check shared_state keys
+grep -r "get_shared.*context_richness_score" src/ --include="*.py"</code></pre>
+
+<p><strong>Expected results:</strong></p>
+<ul>
+<li>✅ No imports of ContextAwarenessModule (except in deleted file)</li>
+<li>✅ No instantiation of ContextAwarenessModule()</li>
+<li>✅ ErrorPreventionModule updated to use context_instruction dependency</li>
+<li>✅ All shared_state readers updated to new keys (if changed)</li>
+</ul>
+
+<p><strong>Acceptance criteria:</strong></p>
+<ul>
+<li>✓ Zero references to old module (except docs/history)</li>
+<li>✓ All dependencies updated</li>
+<li>✓ All imports updated</li>
+</ul>
+
+<p>---</p>
+
+<h4>Phase 9.5: Baseline Comparison (ADD AFTER PHASE 9)</h4>
+
+<p><strong>Duration:</strong> 1 hour</p>
+<p><strong>Why:</strong> Validate quality maintained vs baseline</p>
+
+<p><strong>Steps:</strong></p>
+<ol>
+<li>Load baseline test cases from Phase 0</li>
+<li>Generate prompts with NEW system (same 20 test cases)</li>
+<li>Generate definitions with NEW system</li>
+<li>Run validation on new definitions</li>
+<li>Compare:</li>
+</ol>
+<ul>
+<li>  - Prompt token counts (expect 50-65% reduction)</li>
+<li>  - Definition quality scores (expect ≥95% of baseline)</li>
+<li>  - Validation pass rate (expect 100% if baseline passed)</li>
+</ul>
+<ol>
+<li>Manual inspection: read 5 definitions, verify context-specific phrasing</li>
+</ol>
+
+<p><strong>Acceptance criteria:</strong></p>
+<ul>
+<li>✓ Token reduction ≥50% (380 → ≤190)</li>
+<li>✓ Quality scores ≥95% of baseline</li>
+<li>✓ No critical validation failures</li>
+<li>✓ Manual review: definitions are context-specific</li>
+</ul>
+
+<p><strong>If fails:</strong> Investigate, fix, re-test. DO NOT merge.</p>
+
+<p>---</p>
+
+<h3>Revised Timeline</h3>
+
+<p>| Phase | Original Est. | Revised Est. | Total (Cumulative) |</p>
+<p>|-------|---------------|--------------|-------------------|</p>
+<p>| <strong>0</strong> (Baseline) | — | <strong>1 hour</strong> | 1 hour |</p>
+<p>| <strong>1</strong> (Skeleton) | 30 min | 30 min | 1.5 hours |</p>
+<p>| <strong>2</strong> (Business logic) | 2 hours | 2 hours | 3.5 hours |</p>
+<p>| <strong>2.5</strong> (Helper tests) | — | <strong>1 hour</strong> | 4.5 hours |</p>
+<p>| <strong>3</strong> (Execute) | 30 min | 30 min | 5 hours |</p>
+<p>| <strong>4</strong> (Orchestrator) | 30 min | 30 min | 5.5 hours |</p>
+<p>| <strong>5</strong> (ErrorPrevention) | 45 min | 45 min | 6.25 hours |</p>
+<p>| <strong>6</strong> (DefinitionTask) | 45 min | 45 min | 7 hours |</p>
+<p>| <strong>7</strong> (Delete) | 15 min | 15 min | 7.25 hours |</p>
+<p>| <strong>7.5</strong> (Verify deps) | — | <strong>30 min</strong> | 7.75 hours |</p>
+<p>| <strong>8</strong> (Unit tests) | 1 hour | <strong>1.5 hours</strong> | 9.25 hours |</p>
+<p>| <strong>9</strong> (Integration) | 45 min | 45 min | 10 hours |</p>
+<p>| <strong>9.5</strong> (Baseline compare) | — | <strong>1 hour</strong> | 11 hours |</p>
+<p>| <strong>10</strong> (Documentation) | 30 min | 30 min | 11.5 hours |</p>
+
+<p><strong>Original estimate:</strong> 6 hours</p>
+<p><strong>Revised estimate:</strong> <strong>11.5 hours</strong> (+5.5 hours, +92%)</p>
+
+<p><strong>Recommendation:</strong> Budget 2 days (2x 6-hour sessions) instead of 1 day.</p>
+
+<p>---</p>
+
+<h3>Should We Do Incremental Releases? ⚠️ **NOT NECESSARY, BUT CONSIDER CHECKPOINTS**</h3>
+
+<p><strong>Arguments AGAINST incremental releases:</strong></p>
+<ol>
+<li>Single-user dev app (no users to disrupt)</li>
+<li>Feature branch allows full testing before merge</li>
+<li>Incremental releases complicate rollback</li>
+<li>Git commits provide checkpoints anyway</li>
+</ol>
+
+<p><strong>Arguments FOR incremental releases:</strong></p>
+<ol>
+<li>Earlier detection of issues</li>
+<li>Can test parts of system in isolation</li>
+<li>Smaller changes easier to debug</li>
+</ol>
+
+<p><strong>Verdict: Use feature branch + git commits as checkpoints</strong></p>
+
+<p><strong>Strategy:</strong></p>
+<pre><code># Feature branch for full development
+git checkout -b feature/DEF-126-context-consolidation
+
+# Commit after EACH phase
+git add -A
+git commit -m "feat(DEF-126): Phase 1 - Create ContextInstructionModule skeleton"
+# ... work ...
+git commit -m "feat(DEF-126): Phase 2.1 - Migrate context richness scoring"
+# ... etc ...
+
+# When all phases done + tests pass
+git checkout main
+git merge feature/DEF-126-context-consolidation --squash
+git commit -m "feat(DEF-126): consolidate context handling into single module"</code></pre>
+
+<p><strong>Checkpoints = commits, not releases.</strong></p>
+
+<p><strong>If issue found:</strong> <code>git reset --hard HEAD~3</code> to go back 3 commits.</p>
+
+<p>---</p>
+
+<h3>Feature Flags Despite "No Backwards Compatibility"? ❌ **NO**</h3>
+
+<p><strong>Arguments AGAINST feature flags:</strong></p>
+<ol>
+<li>Policy explicitly says "no feature flags" (CLAUDE.md line 23)</li>
+<li>Adds complexity (2 code paths to maintain)</li>
+<li>Risk of "flag stays on forever" (tech debt)</li>
+<li>Single-user app doesn't need gradual rollout</li>
+</ol>
+
+<p><strong>Arguments FOR feature flags:</strong></p>
+<ol>
+<li>Can toggle new module on/off for testing</li>
+<li>Easy A/B comparison (old vs new prompts)</li>
+<li>Safety net (flip flag if production breaks)</li>
+</ol>
+
+<p><strong>Verdict: NO feature flags, stick to policy</strong></p>
+
+<p><strong>Alternative: Use git branches for A/B testing</strong></p>
+<pre><code># Test old system
+git checkout main
+bash scripts/run_app.sh
+# Generate definition, note prompt
+
+# Test new system
+git checkout feature/DEF-126-context-consolidation
+bash scripts/run_app.sh
+# Generate same definition, compare prompts</code></pre>
+
+<p><strong>This achieves same goal without code complexity.</strong></p>
+
+<p>---</p>
+
+<h2>8. RECOMMENDED SAFETY MEASURES</h2>
+
+<h3>Pre-Implementation Checklist (MANDATORY)</h3>
+
+<p><strong>Before writing any code:</strong></p>
+
+<ul>
+<li>[ ] **Baseline Capture**</li>
+<li> - [ ] Extract 20 real context samples from production database</li>
+<li> - [ ] Generate prompts with current system</li>
+<li> - [ ] Generate definitions with current system</li>
+<li> - [ ] Run validation, capture scores</li>
+<li> - [ ] Store in `tests/fixtures/DEF-126-baseline/`</li>
+<li> - [ ] Commit to git</li>
+</ul>
+
+<ul>
+<li>[ ] **Current System Documentation**</li>
+<li> - [ ] Document current module execution order</li>
+<li> - [ ] Document current priorities</li>
+<li> - [ ] Document shared_state keys (exact spellings!)</li>
+<li> - [ ] Document token counts (measure, don't estimate)</li>
+</ul>
+
+<ul>
+<li>[ ] **Dependency Audit**</li>
+<li> - [ ] List all modules that depend on context_awareness</li>
+<li> - [ ] List all modules that read shared_state keys</li>
+<li> - [ ] Verify no hidden dependencies</li>
+</ul>
+
+<ul>
+<li>[ ] **Test Fixture Preparation**</li>
+<li> - [ ] Extract real base_context samples (20+)</li>
+<li> - [ ] Extract real ContextSource objects (10+)</li>
+<li> - [ ] Extract real abbreviation examples (5+)</li>
+<li> - [ ] Store in `tests/fixtures/real_context_data/`</li>
+</ul>
+
+<p>---</p>
+
+<h3>During Implementation (MANDATORY)</h3>
+
+<p><strong>After each phase:</strong></p>
+
+<ul>
+<li>[ ] **Git Commit**</li>
+<li> - Commit message: `feat(DEF-126): Phase X - [description]`</li>
+<li> - Allows rollback to specific phase</li>
+</ul>
+
+<ul>
+<li>[ ] **Smoke Test**</li>
+<li> - Run relevant unit tests</li>
+<li> - Verify no import errors</li>
+<li> - Verify app still starts</li>
+</ul>
+
+<ul>
+<li>[ ] **Progress Log**</li>
+<li> - Update implementation tracker</li>
+<li> - Note any deviations from plan</li>
+<li> - Note any issues discovered</li>
+</ul>
+
+<p><strong>After Phase 3 (execute() implemented):</strong></p>
+
+<ul>
+<li>[ ] **Integration Smoke Test**</li>
+<li> - Register new module in test orchestrator</li>
+<li> - Generate ONE test prompt</li>
+<li> - Verify output looks reasonable</li>
+<li> - Verify shared_state populated</li>
+</ul>
+
+<p><strong>After Phase 7 (deletion):</strong></p>
+
+<ul>
+<li>[ ] **Comprehensive Grep**</li>
+<li> - `grep -r ContextAwarenessModule src/`</li>
+<li> - Should return zero results</li>
+</ul>
+
+<p><strong>After Phase 9 (integration tests):</strong></p>
+
+<ul>
+<li>[ ] **Baseline Comparison** (Phase 9.5)</li>
+<li> - Run full baseline comparison</li>
+<li> - If quality < 95%: STOP, debug before proceeding</li>
+<li> - If token reduction < 50%: investigate (not blocking, but worth checking)</li>
+</ul>
+
+<p>---</p>
+
+<h3>Post-Implementation (MANDATORY)</h3>
+
+<p><strong>Before merging to main:</strong></p>
+
+<ul>
+<li>[ ] **Full Test Suite**</li>
+<li> - [ ] All unit tests pass: `pytest tests/services/prompts/modules/ -v`</li>
+<li> - [ ] All integration tests pass: `pytest tests/integration/ -v`</li>
+<li> - [ ] Smoke tests pass: `pytest tests/smoke/ -v`</li>
+</ul>
+
+<ul>
+<li>[ ] **Baseline Validation**</li>
+<li> - [ ] Quality scores ≥95% of baseline (BLOCKING)</li>
+<li> - [ ] Token reduction ≥50% (not blocking, but investigate if not met)</li>
+<li> - [ ] No critical validation failures</li>
+</ul>
+
+<ul>
+<li>[ ] **Manual UI Test**</li>
+<li> - [ ] Generate definition with context</li>
+<li> - [ ] Navigate to Edit tab</li>
+<li> - [ ] View generated prompt</li>
+<li> - [ ] Verify single context section (not 3)</li>
+<li> - [ ] Verify forbidden patterns section</li>
+<li> - [ ] Verify no duplication</li>
+</ul>
+
+<ul>
+<li>[ ] **Code Review**</li>
+<li> - [ ] Self-review: line-by-line check vs old code</li>
+<li> - [ ] Verify all business logic migrated</li>
+<li> - [ ] Verify all helper methods tested</li>
+<li> - [ ] Verify error paths covered</li>
+</ul>
+
+<ul>
+<li>[ ] **Documentation**</li>
+<li> - [ ] Update CLAUDE.md (module references)</li>
+<li> - [ ] Update architecture docs</li>
+<li> - [ ] Add DEF-126 entry to refactor-log.md</li>
+</ul>
+
+<p><strong>After merging to main:</strong></p>
+
+<ul>
+<li>[ ] **Monitor First 10 Definitions**</li>
+<li> - Generate 10 definitions with various contexts</li>
+<li> - Manually review quality</li>
+<li> - Check validation scores</li>
+<li> - If issues: consider rollback</li>
+</ul>
+
+<ul>
+<li>[ ] **User Notification**</li>
+<li> - Inform user: "Context handling improved, expect slightly different prompts"</li>
+<li> - Ask user to report any quality issues</li>
+<li> - Monitor for 48 hours</li>
+</ul>
+
+<p>---</p>
+
+<h3>Circuit Breakers (Automated Monitoring)</h3>
+
+<p><strong>Add to CI/CD pipeline:</strong></p>
+
+<pre><code># tests/smoke/test_definition_quality_circuit_breaker.py
+def test_quality_circuit_breaker():
+    """Fail CI if definition quality drops below threshold."""
+    # Generate 5 test definitions
+    # Validate all 5
+    # If any score &lt; 0.7: FAIL
+    # If average &lt; 0.75: WARN
+    pass</code></pre>
+
+<p><strong>Run on every commit in feature branch.</strong></p>
+
+<p>---</p>
+
+<h2>9. MITIGATION STRATEGIES BY RISK CATEGORY</h2>
+
+<h3>CRITICAL Risks (Severity ≥ 60)</h3>
+
+<h4>RISK #1: Silent Context Loss (Severity: 70)</h4>
+
+<p><strong>Mitigation:</strong></p>
+<ol>
+<li>✅ **Phase 0:** Capture baseline with real context data</li>
+<li>✅ **Phase 2.5:** Test `_extract_contexts()` with all input types</li>
+<li>✅ **Phase 8:** Add explicit context presence assertions</li>
+<li>✅ **Phase 9.5:** Baseline comparison detects missing context</li>
+<li>✅ **Monitoring:** Log warning if base_context non-empty but shared_state empty</li>
+</ol>
+
+<p><strong>Residual risk:</strong> LOW (after mitigations)</p>
+
+<p>---</p>
+
+<h4>RISK #3: Circular Reasoning in Quality Validation (Severity: 64)</h4>
+
+<p><strong>Mitigation:</strong></p>
+<ol>
+<li>✅ **Phase 0:** Capture baseline with CURRENT system (MANDATORY)</li>
+<li>✅ **Phase 9.5:** Compare NEW scores to BASELINE scores (MANDATORY)</li>
+<li>✅ **Blocking condition:** Quality < 95% of baseline = DO NOT MERGE</li>
+<li>✅ **Manual review:** Developer reads 5 definitions, verifies quality</li>
+</ol>
+
+<p><strong>Residual risk:</strong> LOW (after mitigations)</p>
+
+<p>---</p>
+
+<h3>HIGH Risks (Severity 40-59)</h3>
+
+<h4>RISK #2: Module Execution Order Breaks (Severity: 45)</h4>
+
+<p><strong>Mitigation:</strong></p>
+<ol>
+<li>✅ **Phase 4:** Document current and expected execution order</li>
+<li>✅ **Phase 5:** Update ErrorPreventionModule dependency to "context_instruction"</li>
+<li>✅ **Phase 7.5:** Verify no other modules depend on context_awareness</li>
+<li>✅ **Phase 8:** Add execution order test (Test Coverage Gap #6)</li>
+</ol>
+
+<p><strong>Residual risk:</strong> LOW (after mitigations)</p>
+
+<p>---</p>
+
+<h4>RISK #4: Test False Positives (Severity: 48)</h4>
+
+<p><strong>Mitigation:</strong></p>
+<ol>
+<li>✅ **Phase 0:** Extract real context samples from database</li>
+<li>✅ **Phase 2.5:** Test helpers with real data (not mocks)</li>
+<li>✅ **Phase 8:** Add edge case tests (bool/str/list/None)</li>
+<li>✅ **Phase 9:** Integration tests use real context samples</li>
+</ol>
+
+<p><strong>Residual risk:</strong> MEDIUM (some edge cases may remain undiscovered)</p>
+
+<p>---</p>
+
+<h4>RISK #6: Incomplete Business Logic Migration (Severity: 54)</h4>
+
+<p><strong>Mitigation:</strong></p>
+<ol>
+<li>✅ **Phase 2.5:** Migrate and test ALL helper methods</li>
+<li>✅ **Line-by-line review:** Developer checks every line of old module</li>
+<li>✅ **Checklist:** Mark each method as "migrated" or "N/A" with reason</li>
+<li>✅ **Sign-off:** Developer signs off that all business logic preserved</li>
+</ol>
+
+<p><strong>Residual risk:</strong> LOW (after careful review)</p>
+
+<p>---</p>
+
+<h4>RISK #9: UI Doesn't Reflect Prompt Changes (Severity: 42)</h4>
+
+<p><strong>Mitigation:</strong></p>
+<ol>
+<li>✅ **Post-merge:** Manual UI test checklist (mandatory)</li>
+<li>✅ **Monitor:** Check Edit tab after first definition generated</li>
+<li>✅ **User testing:** Ask user to verify prompt display works</li>
+</ol>
+
+<p><strong>Residual risk:</strong> LOW (manual test catches most issues)</p>
+
+<p>---</p>
+
+<h3>MEDIUM Risks (Severity 20-39)</h3>
+
+<h4>RISK #5: Token Reduction Not Achieved (Severity: 24)</h4>
+
+<p><strong>Mitigation:</strong></p>
+<ol>
+<li>✅ **Phase 0:** Measure current token usage (don't estimate)</li>
+<li>✅ **Phase 9.5:** Measure new token usage</li>
+<li>✅ **Compare:** Calculate actual reduction percentage</li>
+<li>✅ **If < 50%:** Investigate (but don't block merge)</li>
+</ol>
+
+<p><strong>Residual risk:</strong> LOW (not blocking issue)</p>
+
+<p>---</p>
+
+<h4>RISK #7: Shared State Pollution (Severity: 35)</h4>
+
+<p><strong>Mitigation:</strong></p>
+<ol>
+<li>✅ **Phase 7.5:** Audit all modules for shared_state writes</li>
+<li>✅ **Single-writer rule:** Document that only ContextInstruction writes context keys</li>
+<li>✅ **Debug logging:** Add log statement for all shared_state writes</li>
+<li>✅ **Check threading:** Verify PromptOrchestrator threading behavior</li>
+</ol>
+
+<p><strong>Residual risk:</strong> LOW (after audit)</p>
+
+<p>---</p>
+
+<h4>RISK #10: Rollback Impossible (Severity: 36)</h4>
+
+<p><strong>Mitigation:</strong></p>
+<ol>
+<li>✅ **Verify:** Plan says no database schema changes ← confirm this</li>
+<li>✅ **Feature branch:** Full development on feature branch</li>
+<li>✅ **Git commits:** Checkpoint after each phase</li>
+<li>✅ **Database backup:** Backup before first definition generated with new system</li>
+</ol>
+
+<p><strong>Residual risk:</strong> LOW (git provides rollback)</p>
+
+<p>---</p>
+
+<h2>10. FINAL RISK VERDICT</h2>
+
+<h3>Overall Risk Assessment: 🟡 **MEDIUM-HIGH**</h3>
+
+<p><strong>Risk Distribution:</strong></p>
+<ul>
+<li>🔴 **CRITICAL** (≥60): 2 risks</li>
+<li>🟡 **HIGH** (40-59): 5 risks</li>
+<li>🟡 **MEDIUM** (20-39): 3 risks</li>
+</ul>
+
+<p><strong>Mitigated Risk Distribution (after implementing recommendations):</strong></p>
+<ul>
+<li>🟢 **LOW** (residual): 8 risks</li>
+<li>🟡 **MEDIUM** (residual): 2 risks</li>
+</ul>
+
+<h3>Should We Proceed? ✅ **YES, BUT WITH CONDITIONS**</h3>
+
+<p><strong>Proceed ONLY IF:</strong></p>
+<ol>
+<li>✅ **Phase 0 (Baseline Capture) is MANDATORY** - add before Phase 1</li>
+<li>✅ **Phase 2.5 (Helper Tests) is MANDATORY** - add between Phase 2 and 3</li>
+<li>✅ **Phase 7.5 (Dependency Verify) is MANDATORY** - add after Phase 7</li>
+<li>✅ **Phase 9.5 (Baseline Compare) is MANDATORY** - add after Phase 9</li>
+<li>✅ **Budget 11.5 hours** (not 6 hours) - realistic timeline</li>
+<li>✅ **Blocking condition:** Quality ≥95% of baseline - no exceptions</li>
+<li>✅ **Manual UI test** - mandatory before merge</li>
+</ol>
+
+<p><strong>DO NOT proceed if:</strong></p>
+<ul>
+<li>❌ Timeline pressure forces cutting corners</li>
+<li>❌ Baseline capture skipped</li>
+<li>❌ Test coverage gaps accepted as "good enough"</li>
+<li>❌ Developer lacks time for line-by-line review</li>
+</ul>
+
+<h3>Recommendation: **PROCEED with enhanced plan**</h3>
+
+<p><strong>Implementation plan is GOOD, but needs 4 additional phases:</strong></p>
+<ol>
+<li>Phase 0: Baseline Capture</li>
+<li>Phase 2.5: Helper Method Tests</li>
+<li>Phase 7.5: Dependency Verification</li>
+<li>Phase 9.5: Baseline Comparison</li>
+</ol>
+
+<p><strong>Expected outcome:</strong></p>
+<ul>
+<li>✅ 50-65% token reduction</li>
+<li>✅ Quality maintained (≥95% of baseline)</li>
+<li>✅ Single source of truth for context</li>
+<li>✅ Improved maintainability</li>
+<li>✅ Clean architecture</li>
+</ul>
+
+<p><strong>Risk level after mitigations:</strong> 🟢 <strong>LOW-MEDIUM</strong> (acceptable for dev environment)</p>
+
+<p>---</p>
+
+<h2>11. IMPLEMENTATION READINESS CHECKLIST</h2>
+
+<p><strong>Before starting Phase 1:</strong></p>
+
+<ul>
+<li>[ ] User approval obtained (>100 lines = requires approval per UNIFIED)</li>
+<li>[ ] 11.5 hours budgeted (not 6 hours)</li>
+<li>[ ] Test fixtures prepared (real context samples)</li>
+<li>[ ] Baseline captured and committed to git</li>
+<li>[ ] Current system documented (execution order, priorities, tokens)</li>
+<li>[ ] Dependencies audited (no hidden context_awareness dependencies)</li>
+<li>[ ] Developer has read this risk assessment</li>
+<li>[ ] Developer commits to NOT skipping phases</li>
+</ul>
+
+<p><strong>If all checkboxes are ✓:</strong> <strong>PROCEED with implementation</strong></p>
+
+<p><strong>If any checkbox is ☐:</strong> <strong>STOP - address gap before proceeding</strong></p>
+
+<p>---</p>
+
+<h2>APPENDIX A: Quick Reference - Risk Scores</h2>
+
+<p>| Risk | Severity | Status | Phase | Blocker? |</p>
+<p>|------|----------|--------|-------|----------|</p>
+<p>| 1. Silent context loss | 🔴 70 | Mitigated | 0, 2.5, 8, 9.5 | If not mitigated |</p>
+<p>| 2. Execution order breaks | 🟡 45 | Mitigated | 4, 5, 7.5, 8 | No |</p>
+<p>| 3. Circular validation | 🔴 64 | Mitigated | 0, 9.5 | <strong>YES</strong> |</p>
+<p>| 4. Test false positives | 🟡 48 | Partial | 0, 2.5, 8, 9 | If quality fails |</p>
+<p>| 5. Token reduction not met | 🟡 24 | Low priority | 0, 9.5 | No |</p>
+<p>| 6. Incomplete migration | 🟡 54 | Mitigated | 2.5, review | If not reviewed |</p>
+<p>| 7. Shared state pollution | 🟡 35 | Mitigated | 7.5, audit | No |</p>
+<p>| 8. Error loops | 🟡 30 | Low likelihood | 8, error tests | No |</p>
+<p>| 9. UI not updated | 🟡 42 | Mitigated | Post-merge | No |</p>
+<p>| 10. Rollback impossible | 🟡 36 | Low likelihood | Git, backup | No |</p>
+
+<p><strong>Blocking risks:</strong> #3 (circular validation)</p>
+<p><strong>Critical mitigations:</strong> Phase 0 (baseline), Phase 9.5 (comparison)</p>
+
+<p>---</p>
+
+<h2>APPENDIX B: Comparison with Implementation Plan Claims</h2>
+
+<p>| Implementation Plan Claim | Risk Assessment Verdict | Notes |</p>
+<p>|---------------------------|-------------------------|-------|</p>
+<p>| "Low Risk: No backwards compatibility" | ✅ <strong>AGREE</strong> | Appropriate for single-user dev app |</p>
+<p>| "4-5 hours implementation" | ❌ <strong>DISAGREE</strong> | 11.5 hours realistic (see revised timeline) |</p>
+<p>| "Comprehensive unit tests" | ⚠️ <strong>PARTIAL</strong> | Good coverage but missing edge cases |</p>
+<p>| "Integration tests verify context presence" | ⚠️ <strong>WEAK</strong> | Tests don't verify CORRECT context data |</p>
+<p>| "Definition quality maintained" | ❌ <strong>UNVERIFIABLE</strong> | No baseline comparison planned |</p>
+<p>| "No rollback mechanism needed" | ⚠️ <strong>MISLEADING</strong> | Rollback via git is fine, but need detection strategy |</p>
+<p>| "Token reduction 50-65%" | ⚠️ <strong>UNVERIFIED</strong> | Estimate not measured, need baseline |</p>
+<p>| "All tests pass = success" | ❌ <strong>INSUFFICIENT</strong> | Tests can pass with false positives |</p>
+
+<p><strong>Overall assessment:</strong> Plan is <strong>GOOD foundation</strong> but <strong>underestimates risks</strong> and <strong>missing critical phases</strong>.</p>
+
+<p>---</p>
+
+<p><strong>Document Status:</strong> ✅ COMPLETE</p>
+<p><strong>Created:</strong> 2025-11-13</p>
+<p><strong>Risk Assessment:</strong> MEDIUM-HIGH → LOW-MEDIUM (after mitigations)</p>
+<p><strong>Recommendation:</strong> PROCEED with enhanced 11.5-hour plan including 4 additional phases</p>
+
+  </div>
+</body>
+</html>

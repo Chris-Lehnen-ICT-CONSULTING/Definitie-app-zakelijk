@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Prompt Module Mapping Analyse</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>Prompt Module Mapping Analyse</h1>
+
+<h2>Doel</h2>
+<p>Dit document mappt exact welke prompt module verantwoordelijk is voor welke regels in de gegenereerde prompt.</p>
+
+<h2>Test Case</h2>
+<ul>
+<li>**Begrip**: contradictie</li>
+<li>**Prompt bestand**: `/Users/chrislehnen/Downloads/_Definitie_Generatie_prompt-13.txt`</li>
+<li>**Totaal regels**: 423</li>
+</ul>
+
+<h2>Module → Prompt Mapping (COMPLEET)</h2>
+
+<h3>1. ExpertiseModule (`expertise_module.py`)</h3>
+<p><strong>Regels: 1-9</strong></p>
+<ul>
+<li>Regels 1-2: Rol definitie ("Je bent een expert...")</li>
+<li>Regel 3: Deverbaal-specifiek advies ("Als het begrip een resultaat is...")</li>
+<li>Regels 4-9: Belangrijke vereisten (objectieve taal, vermijd vage termen, etc.)</li>
+</ul>
+
+<h3>2. OutputSpecificationModule (`output_specification_module.py`)</h3>
+<p><strong>Regels: 11-22</strong></p>
+<ul>
+<li>Regels 11-16: OUTPUT FORMAT VEREISTEN (één zin, geen punt, geen haakjes)</li>
+<li>Regels 17-22: DEFINITIE KWALITEIT (formele taal, vermijd jargon, specifieke termen)</li>
+</ul>
+
+<h3>3. GrammarModule (`grammar_module.py`)</h3>
+<p><strong>Regels: 24-61</strong></p>
+<ul>
+<li>Regels 24-25: GRAMMATICA REGELS header</li>
+<li>Regels 26-31: Enkelvoud als standaard</li>
+<li>Regels 33-37: Actieve vorm prefereren</li>
+<li>Regels 39-44: Tegenwoordige tijd</li>
+<li>Regels 46-51: Komma gebruik</li>
+<li>Regels 53-60: Afkortingen en haakjes</li>
+</ul>
+
+<h3>4. ContextAwarenessModule (`context_awareness_module.py`)</h3>
+<p><strong>Regels: 63-69</strong></p>
+<ul>
+<li>Regel 63: VERPLICHTE CONTEXT INFORMATIE</li>
+<li>Regel 64: Belangrijke instructie voor context gebruik</li>
+<li>Regel 66: SPECIFIEKE CONTEXT VOOR DEZE DEFINITIE</li>
+<li>Regel 67-68: Organisatorische context ("test", ["test"])</li>
+<li>Regel 69: hybrid_context</li>
+</ul>
+
+<h3>5. SemanticCategorisationModule (`semantic_categorisation_module.py`)</h3>
+<p><strong>Regels: 70-116</strong></p>
+<ul>
+<li>Regels 70-87: Basis ESS-02 sectie (4 categorieën)</li>
+<li>Regels 88-116: TYPE-specifieke guidance (voor "contradictie")</li>
+<li> - Structuur instructies</li>
+<li> - Voorbeelden GOED en FOUT</li>
+</ul>
+
+<h3>6. TemplateModule (`template_module.py`)</h3>
+<p><strong>Regels: 117-131</strong> ✅ GEVALIDEERD</p>
+<ul>
+<li>Regel 117: Definitie Templates header</li>
+<li>Regels 119-120: Template voor Object</li>
+<li>Regels 122-125: Aanbevolen definitiepatronen (deverbaal patterns)</li>
+<li>Regels 127-130: Voorbeelden uit categorie Object</li>
+</ul>
+
+<h3>7. Validatieregels Modules (7 modules)</h3>
+<p><strong>Regels: 132-300</strong></p>
+
+<h4>AraiRulesModule (`arai_rules_module.py`)</h4>
+<p><strong>Regels: 132-142</strong></p>
+<ul>
+<li>Algemene Regels AI (ARAI-01 t/m ARAI-06)</li>
+</ul>
+
+<h4>ConRulesModule (`con_rules_module.py`)</h4>
+<p><strong>Regels: 143-147</strong></p>
+<ul>
+<li>Context Regels (CON-01, CON-02, CON-CIRC-001)</li>
+</ul>
+
+<h4>EssRulesModule (`ess_rules_module.py`)</h4>
+<p><strong>Regels: 148-155</strong></p>
+<ul>
+<li>Essentie Regels (ESS-01 t/m ESS-05, ESS-CONT-001)</li>
+</ul>
+
+<h4>StructureRulesModule (`structure_rules_module.py`)</h4>
+<p><strong>Regels: 156-221</strong></p>
+<ul>
+<li>STR-01 t/m STR-09 met uitgebreide voorbeelden</li>
+</ul>
+
+<h4>IntegrityRulesModule (`integrity_rules_module.py`)</h4>
+<p><strong>Regels: 222-285</strong></p>
+<ul>
+<li>INT-01 t/m INT-08 met voorbeelden</li>
+</ul>
+
+<h4>SamRulesModule (`sam_rules_module.py`)</h4>
+<p><strong>Regels: 286-295</strong></p>
+<ul>
+<li>SAM-01 t/m SAM-08</li>
+</ul>
+
+<h4>VerRulesModule (`ver_rules_module.py`)</h4>
+<p><strong>Regels: 296-300</strong></p>
+<ul>
+<li>VER-01 t/m VER-03</li>
+</ul>
+
+<h3>8. ErrorPreventionModule (`error_prevention_module.py`)</h3>
+<p><strong>Regels: 301-356</strong> ✅ GEVALIDEERD</p>
+<ul>
+<li>Regels 301-340: Veelgemaakte fouten (vermijden!) - uitgebreide lijst verboden startwoorden</li>
+<li>Regels 341-344: CONTEXT-SPECIFIEKE VERBODEN</li>
+<li>Regels 345-355: Validatiematrix tabel</li>
+<li>Regel 356: Context waarschuwing</li>
+</ul>
+
+<h3>9. MetricsModule (`metrics_module.py`)</h3>
+<p><strong>Regels: 358-384</strong> ✅ GEVALIDEERD</p>
+<ul>
+<li>Regels 358-359: Kwaliteitsmetrieken header</li>
+<li>Regels 360-363: Karakterlimieten</li>
+<li>Regels 365-368: Complexiteit indicatoren</li>
+<li>Regels 370-375: Kwaliteitschecks</li>
+<li>Regels 377-380: Context complexiteit</li>
+<li>Regels 382-384: Aanbevelingen voor kwaliteit</li>
+</ul>
+
+<h3>10. DefinitionTaskModule (`definition_task_module.py`)</h3>
+<p><strong>Regels: 385-423</strong> ✅ GEVALIDEERD</p>
+<ul>
+<li>Regels 385-386: FINALE INSTRUCTIES header</li>
+<li>Regels 387-388: Definitieopdracht</li>
+<li>Regels 390-397: Constructie guide checklist</li>
+<li>Regels 399-404: Kwaliteitscontrole vragen</li>
+<li>Regels 406-410: Metadata voor traceerbaarheid</li>
+<li>Regel 411: Separator</li>
+<li>Regels 413-415: Ontologische marker instructie</li>
+<li>Regel 417: Finale definitie opdracht</li>
+<li>Regels 419-423: Promptmetadata</li>
+</ul>
+
+<h2>Status</h2>
+<p>✅ <strong>COMPLEET</strong> - Alle modules zijn gevalideerd en gemapped</p>
+
+<h2>Samenvattende Statistieken</h2>
+
+<p>| Module | Aantal Regels | Percentage |</p>
+<p>|--------|--------------|------------|</p>
+<p>| ExpertiseModule | 9 | 2.1% |</p>
+<p>| OutputSpecificationModule | 12 | 2.8% |</p>
+<p>| GrammarModule | 38 | 9.0% |</p>
+<p>| ContextAwarenessModule | 7 | 1.7% |</p>
+<p>| SemanticCategorisationModule | 47 | 11.1% |</p>
+<p>| TemplateModule | 15 | 3.5% |</p>
+<p>| AraiRulesModule | 11 | 2.6% |</p>
+<p>| ConRulesModule | 5 | 1.2% |</p>
+<p>| EssRulesModule | 8 | 1.9% |</p>
+<p>| StructureRulesModule | 66 | 15.6% |</p>
+<p>| IntegrityRulesModule | 64 | 15.1% |</p>
+<p>| SamRulesModule | 10 | 2.4% |</p>
+<p>| VerRulesModule | 5 | 1.2% |</p>
+<p>| ErrorPreventionModule | 56 | 13.2% |</p>
+<p>| MetricsModule | 27 | 6.4% |</p>
+<p>| DefinitionTaskModule | 39 | 9.2% |</p>
+<p>| <strong>TOTAAL</strong> | <strong>419</strong> | <strong>99%</strong> |</p>
+
+<p><em>Opmerking: 4 regels (10, 23, 62, 357) zijn lege regels voor formatting</em></p>
+
+<h2>Geïdentificeerde Overlappingen en Optimalisaties</h2>
+
+<h3>1. Redundante Instructies</h3>
+<ul>
+<li>**Dubbele context instructies**: Regels 64 en 242 bevatten vergelijkbare instructies over context gebruik</li>
+<li>**Meerdere "vermijd" lijsten**: Verboden patronen worden herhaald in verschillende modules</li>
+</ul>
+
+<h3>2. Potentiële Consolidaties</h3>
+<ul>
+<li>**Validatieregels**: 7 aparte modules voor validatieregels (132-300) kunnen mogelijk gecombineerd worden</li>
+<li>**Kwaliteitsinstructies**: OutputSpecificationModule en MetricsModule hebben overlap in kwaliteitscriteria</li>
+</ul>
+
+<h3>3. Module Afhankelijkheden</h3>
+<ul>
+<li>DefinitionTaskModule gebruikt output van SemanticCategorisationModule</li>
+<li>ErrorPreventionModule gebruikt context van ContextAwarenessModule</li>
+<li>TemplateModule gebruikt word_type van ExpertiseModule</li>
+</ul>
+
+<h2>Aanbevelingen voor DEF-126</h2>
+
+<ol>
+<li>**Consolideer validatieregels**: Overweeg één CompositeModule voor alle validatieregels</li>
+<li>**Reduceer context herhaling**: Centraliseer context instructies in ContextAwarenessModule</li>
+<li>**Optimaliseer verboden patronen**: Combineer alle verboden in ErrorPreventionModule</li>
+<li>**Streamline kwaliteitsmetrieken**: Merge OutputSpecificationModule en MetricsModule waar mogelijk</li>
+</ol>
+  </div>
+</body>
+</html>
