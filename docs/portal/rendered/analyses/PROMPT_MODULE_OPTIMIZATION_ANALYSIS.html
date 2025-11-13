@@ -1,0 +1,745 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Prompt Module Optimization Analysis</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>Prompt Module Optimization Analysis</h1>
+<p><strong>Date:</strong> 2025-01-12</p>
+<p><strong>Status:</strong> Analysis Complete</p>
+<p><strong>Goal:</strong> Reduce 16 modules to optimal count, eliminate contradictions, maximize token savings</p>
+
+<h2>Executive Summary</h2>
+
+<p><strong>Current State:</strong></p>
+<ul>
+<li>16 modules totaling 4,443 lines of code</li>
+<li>~7,250 tokens per prompt with duplication</li>
+<li>3 different category naming schemes (semantic_category, ontological_category, legacy domain)</li>
+<li>1 broken module (TemplateModule never runs)</li>
+<li>Multiple contradictions between modules</li>
+</ul>
+
+<p><strong>Recommendation:</strong> Consolidate to <strong>7 modules</strong> (56% reduction)</p>
+<ul>
+<li>**Expected token savings:** 35-45% (2,500-3,200 tokens saved)</li>
+<li>**Complexity reduction:** 7/10 → 3/10</li>
+<li>**Implementation effort:** 16-20 hours</li>
+<li>**Risk level:** MEDIUM (requires careful refactoring + testing)</li>
+</ul>
+
+<p>---</p>
+
+<h2>Module-by-Module Analysis</h2>
+
+<h3>1. ExpertiseModule (200 lines)</h3>
+<p><strong>Current:</strong> Defines AI role, task, word type detection, basic requirements</p>
+
+<p><strong>Recommendation:</strong> <strong>KEEP (but simplify)</strong></p>
+<ul>
+<li>**Action:** Reduce from 200 to ~120 lines</li>
+<li>**Rationale:** Core module, sets foundation for all others</li>
+<li>**Token savings:** ~80-100 tokens</li>
+<li>**Effort:** 2 hours</li>
+</ul>
+
+<p><strong>Simplifications:</strong></p>
+<ul>
+<li>Remove `_bepaal_woordsoort()` logic → Move to shared utility</li>
+<li>Remove redundant "basic requirements" (duplicates ARAI rules)</li>
+<li>Simplify word type advice (too verbose)</li>
+</ul>
+
+<p><strong>Dependencies:</strong> None (independent)</p>
+
+<p>---</p>
+
+<h3>2. OutputSpecificationModule (175 lines)</h3>
+<p><strong>Current:</strong> Format specs, character limits, guidelines</p>
+
+<p><strong>Recommendation:</strong> <strong>MERGE into ExpertiseModule</strong></p>
+<ul>
+<li>**Rationale:** Tightly coupled to basic instructions, minimal logic</li>
+<li>**Token savings:** ~150-200 tokens (eliminate header duplication)</li>
+<li>**Effort:** 1 hour</li>
+</ul>
+
+<p><strong>Merge plan:</strong></p>
+<pre><code># In ExpertiseModule:
+def _build_output_specs(self, context):
+    # Inline format requirements
+    # Conditional char limit warnings</code></pre>
+
+<p><strong>Risk:</strong> LOW - straightforward merge, no business logic</p>
+
+<p>---</p>
+
+<h3>3. GrammarModule (256 lines)</h3>
+<p><strong>Current:</strong> Grammar rules, word type rules, punctuation, strict mode</p>
+
+<p><strong>Recommendation:</strong> <strong>KEEP (but refactor)</strong></p>
+<ul>
+<li>**Action:** Extract to separate utility, reduce to ~150 lines</li>
+<li>**Token savings:** ~200-250 tokens</li>
+<li>**Effort:** 3 hours</li>
+</ul>
+
+<p><strong>Issues:</strong></p>
+<ul>
+<li>Overlaps with STR rules (enkelvoud, actieve vorm)</li>
+<li>Word type advice duplicates ExpertiseModule</li>
+<li>Strict mode never used (dead code)</li>
+</ul>
+
+<p><strong>Refactor plan:</strong></p>
+<ol>
+<li>Remove strict mode (dead code)</li>
+<li>Consolidate word type handling with ExpertiseModule</li>
+<li>Focus only on grammar (not structure)</li>
+</ol>
+
+<p><strong>Dependencies:</strong> Soft dependency on ExpertiseModule (word_type)</p>
+
+<p>---</p>
+
+<h3>4. ContextAwarenessModule (433 lines)</h3>
+<p><strong>Current:</strong> Context scoring, adaptive formatting, confidence indicators, V2 context handling</p>
+
+<p><strong>Recommendation:</strong> <strong>KEEP (critical, already optimized)</strong></p>
+<ul>
+<li>**No changes recommended**</li>
+<li>**Rationale:** Complex business logic, well-designed, handles EPIC-010 compliance</li>
+<li>**Token savings:** 0 (already efficient)</li>
+</ul>
+
+<p><strong>Notes:</strong></p>
+<ul>
+<li>Most sophisticated module (context richness scoring)</li>
+<li>Adaptive formatting reduces tokens automatically</li>
+<li>Shares context correctly via `set_shared()`</li>
+</ul>
+
+<p><strong>Dependencies:</strong> None (but provides context for others)</p>
+
+<p>---</p>
+
+<h3>5. SemanticCategorisationModule (280 lines)</h3>
+<p><strong>Current:</strong> ESS-02 ontological category instructions</p>
+
+<p><strong>Recommendation:</strong> <strong>KEEP (but consolidate with TemplateModule)</strong></p>
+<ul>
+<li>**Action:** Merge category guidance into unified CategoryGuidanceModule</li>
+<li>**Token savings:** ~300-400 tokens (eliminate duplication)</li>
+<li>**Effort:** 4 hours</li>
+</ul>
+
+<p><strong>Issues:</strong></p>
+<ul>
+<li>**CONTRADICTION:** Uses "ontological_category" but ErrorPreventionModule forbids kick-off terms</li>
+<li> - Line 178-207: Instructs to use "activiteit waarbij...", "handeling die..."</li>
+<li> - ErrorPreventionModule line 178-179: Forbids "proces waarbij", "handeling die"</li>
+<li> - **CRITICAL CONFLICT TO RESOLVE**</li>
+</ul>
+
+<p><strong>Merge plan:</strong></p>
+<ul>
+<li>Combine with TemplateModule → **CategoryGuidanceModule**</li>
+<li>Unified category handling (type/proces/resultaat/exemplaar)</li>
+<li>Single source of truth for kick-off terms</li>
+</ul>
+
+<p><strong>Dependencies:</strong> None (provides category for others)</p>
+
+<p>---</p>
+
+<h3>6. TemplateModule (251 lines)</h3>
+<p><strong>Current:</strong> Category-specific templates, BROKEN (never runs due to validation fail)</p>
+
+<p><strong>Recommendation:</strong> <strong>MERGE into SemanticCategorisationModule</strong></p>
+<ul>
+<li>**Rationale:** Both handle category-specific guidance, TemplateModule is broken</li>
+<li>**Token savings:** ~400-500 tokens (eliminate broken module + duplication)</li>
+<li>**Effort:** 3 hours</li>
+</ul>
+
+<p><strong>Issues:</strong></p>
+<ul>
+<li>Validation always fails: checks for "semantic_category" but only "ontological_category" exists</li>
+<li>Different category names than SemanticCategorisationModule</li>
+<li>Templates duplicate ESS-02 guidance</li>
+</ul>
+
+<p><strong>Root cause (line 63):</strong></p>
+<pre><code>category = context.get_metadata("semantic_category")  # NEVER EXISTS!
+if not category and self.detailed_templates:
+    return False, "Geen semantische categorie beschikbaar"</code></pre>
+
+<p><strong>Fix:</strong> Merge into SemanticCategorisationModule, use consistent naming</p>
+
+<p><strong>Dependencies:</strong> Depends on SemanticCategorisationModule (but broken)</p>
+
+<p>---</p>
+
+<h3>7-13. Validation Rule Modules (7 modules, ~1,200 lines total)</h3>
+
+<p><strong>Current modules:</strong></p>
+<ul>
+<li>AraiRulesModule (129 lines) - General rules</li>
+<li>ConRulesModule (129 lines) - Context rules</li>
+<li>EssRulesModule (128 lines) - Essence rules</li>
+<li>StructureRulesModule (332 lines) - Structure rules (HARDCODED!)</li>
+<li>IntegrityRulesModule (314 lines) - Integrity rules (HARDCODED!)</li>
+<li>SamRulesModule (128 lines) - Coherence rules</li>
+<li>VerRulesModule (128 lines) - Form rules</li>
+</ul>
+
+<p><strong>Recommendation:</strong> <strong>MERGE into 1 ValidationRulesModule</strong></p>
+<ul>
+<li>**Token savings:** ~800-1,000 tokens (eliminate 6 headers, deduplication)</li>
+<li>**Effort:** 5 hours</li>
+</ul>
+
+<p><strong>Issues:</strong></p>
+<ol>
+<li>**ARAI, CON, ESS, SAM, VER:** All use identical `_format_rule()` method (code duplication)</li>
+<li>**STR, INT:** HARDCODED rules instead of loading from cache</li>
+</ol>
+<ul>
+<li>  - StructureRulesModule: 9 hardcoded methods (`_build_str01_rule()` through `_build_str09_rule()`)</li>
+<li>  - IntegrityRulesModule: Similar hardcoded methods</li>
+<li>  - **CRITICAL:** Bypasses cached_toetsregel_manager, defeats US-202 optimization!</li>
+</ul>
+
+<p><strong>Consolidation plan:</strong></p>
+<pre><code>class ValidationRulesModule(BasePromptModule):
+    """Unified module for all validation rules (ARAI, CON, ESS, STR, INT, SAM, VER)."""
+
+    def __init__(self):
+        super().__init__(module_id="validation_rules", ...)
+        self.rule_categories = ["ARAI", "CON", "ESS", "STR", "INT", "SAM", "VER"]
+
+    def execute(self, context):
+        manager = get_cached_toetsregel_manager()
+        all_rules = manager.get_all_regels()
+
+        sections = []
+        for category in self.rule_categories:
+            category_rules = {k: v for k, v in all_rules.items() if k.startswith(f"{category}-")}
+            sections.append(self._format_category_section(category, category_rules))
+
+        return ModuleOutput(content="\n\n".join(sections), ...)
+
+    def _format_rule(self, regel_key, regel_data):
+        # Shared formatting logic (used by all 7 original modules)
+        ...</code></pre>
+
+<p><strong>Benefits:</strong></p>
+<ul>
+<li>Single source of truth for rule formatting</li>
+<li>Consistent rule loading (always via cache)</li>
+<li>Remove hardcoded STR/INT rules</li>
+<li>Easier to maintain</li>
+</ul>
+
+<p><strong>Dependencies:</strong> None (provides rules for validation)</p>
+
+<p>---</p>
+
+<h3>14. ErrorPreventionModule (262 lines)</h3>
+<p><strong>Current:</strong> Forbidden patterns, context-specific forbidden terms, validation matrix</p>
+
+<p><strong>Recommendation:</strong> <strong>MERGE into ValidationRulesModule</strong></p>
+<ul>
+<li>**Rationale:** Both provide validation guidance, ErrorPreventionModule is inverse of rules</li>
+<li>**Token savings:** ~200-250 tokens</li>
+<li>**Effort:** 2 hours</li>
+</ul>
+
+<p><strong>Issues:</strong></p>
+<ul>
+<li>**CONTRADICTION with SemanticCategorisationModule:**</li>
+<li> - Line 178-179: Forbids "proces waarbij", "handeling die"</li>
+<li> - SemanticCategorisationModule lines 197-206: Instructs to USE these exact terms!</li>
+<li> - **Resolution:** ErrorPreventionModule should forbid starting with VERBS, not NOUNS</li>
+<li>   - "proces waarbij" = NOUN (handelingsnaamwoord) → ALLOWED</li>
+<li>   - "is een proces" = VERB (koppelwerkwoord) → FORBIDDEN</li>
+</ul>
+
+<p><strong>Merge plan:</strong></p>
+<ul>
+<li>Add "forbidden_patterns" section to ValidationRulesModule</li>
+<li>Context-forbidden logic moves to _build_context_forbidden() helper</li>
+<li>Resolve contradiction: clarify noun vs. verb distinction</li>
+</ul>
+
+<p><strong>Dependencies:</strong> Depends on ContextAwarenessModule (for context-specific forbidden)</p>
+
+<p>---</p>
+
+<h3>15. MetricsModule (326 lines)</h3>
+<p><strong>Current:</strong> Character counts, complexity scoring, quality indicators</p>
+
+<p><strong>Recommendation:</strong> <strong>KEEP (but make optional)</strong></p>
+<ul>
+<li>**Action:** Add config flag to disable for token savings</li>
+<li>**Token savings:** 0-400 tokens (when disabled)</li>
+<li>**Effort:** 1 hour</li>
+</ul>
+
+<p><strong>Rationale:</strong></p>
+<ul>
+<li>Useful for monitoring/debugging</li>
+<li>Not essential for prompt quality</li>
+<li>Can be disabled for token budget optimization</li>
+</ul>
+
+<p><strong>Optimization:</strong></p>
+<pre><code># In orchestrator config:
+"metrics": {
+    "enabled": False,  # Saves ~400 tokens when disabled
+}</code></pre>
+
+<p><strong>Dependencies:</strong> None (informational only)</p>
+
+<p>---</p>
+
+<h3>16. DefinitionTaskModule (299 lines)</h3>
+<p><strong>Current:</strong> Final instructions, checklist, quality control, metadata</p>
+
+<p><strong>Recommendation:</strong> <strong>KEEP (critical for task definition)</strong></p>
+<ul>
+<li>**Action:** Simplify checklist, remove redundant metadata</li>
+<li>**Token savings:** ~100-150 tokens</li>
+<li>**Effort:** 2 hours</li>
+</ul>
+
+<p><strong>Simplifications:</strong></p>
+<ul>
+<li>Checklist duplicates rules (reduce to 3-4 items)</li>
+<li>Remove verbose quality control questions</li>
+<li>Simplify prompt metadata (keep only essentials)</li>
+</ul>
+
+<p><strong>Dependencies:</strong> Depends on SemanticCategorisationModule (for ontological_category)</p>
+
+<p>---</p>
+
+<h2>Consolidation Plan: 16 → 7 Modules</h2>
+
+<h3>Proposed Architecture</h3>
+
+<p>| New Module | Consolidates | Priority | Lines | Token Est |</p>
+<p>|------------|--------------|----------|-------|-----------|</p>
+<p>| <strong>1. CoreInstructionsModule</strong> | Expertise + OutputSpec | 100 | ~250 | 800 |</p>
+<p>| <strong>2. ContextAwarenessModule</strong> | (unchanged) | 80 | 433 | 1,200 |</p>
+<p>| <strong>3. CategoryGuidanceModule</strong> | Semantic + Template | 70 | ~350 | 900 |</p>
+<p>| <strong>4. GrammarModule</strong> | (simplified) | 70 | ~150 | 400 |</p>
+<p>| <strong>5. ValidationRulesModule</strong> | ARAI+CON+ESS+STR+INT+SAM+VER+ErrorPrev | 65 | ~800 | 2,200 |</p>
+<p>| <strong>6. DefinitionTaskModule</strong> | (simplified) | 50 | ~200 | 500 |</p>
+<p>| <strong>7. MetricsModule</strong> | (optional) | 30 | 326 | 400 (opt) |</p>
+
+<p><strong>Total:</strong> 7 modules, ~2,509 lines, ~6,400 tokens (vs. current 7,250)</p>
+
+<p>---</p>
+
+<h2>Contradictions Matrix</h2>
+
+<p>| Issue | Module 1 | Module 2 | Resolution |</p>
+<p>|-------|----------|----------|------------|</p>
+<p>| <strong>Kick-off terms</strong> | SemanticCategorisationModule (ALLOWS "proces waarbij", "handeling die") | ErrorPreventionModule (FORBIDS same terms) | <strong>FIX:</strong> ErrorPreventionModule should forbid VERBS, not NOUNS. "proces" is noun (handelingsnaamwoord), "is" is verb (koppelwerkwoord). Update forbidden list to clarify. |</p>
+<p>| <strong>Category naming</strong> | SemanticCategorisationModule (uses "ontological_category") | TemplateModule (looks for "semantic_category") | <strong>FIX:</strong> Merge modules, use consistent "ontological_category" everywhere |</p>
+<p>| <strong>Hardcoded rules</strong> | StructureRulesModule + IntegrityRulesModule (hardcode rules) | ARAI+CON+ESS+SAM+VER (load from cache) | <strong>FIX:</strong> All modules must use cached_toetsregel_manager for consistency |</p>
+<p>| <strong>Word type logic</strong> | ExpertiseModule (detects word type) | GrammarModule (uses word type for rules) | <strong>OK:</strong> Soft dependency via shared state works, but consolidate advice |</p>
+
+<p>---</p>
+
+<h2>Implementation Roadmap</h2>
+
+<h3>Phase 1: Fix Critical Issues (4 hours)</h3>
+<p><strong>Goal:</strong> Resolve contradictions, unblock broken module</p>
+
+<p><strong>Tasks:</strong></p>
+<ol>
+<li>**Fix TemplateModule validation** (1 hour)</li>
+</ol>
+<ul>
+<li>  - Change `semantic_category` → `ontological_category`</li>
+<li>  - Test that module now runs</li>
+</ul>
+
+<ol>
+<li>**Resolve kick-off contradiction** (1 hour)</li>
+</ol>
+<ul>
+<li>  - Update ErrorPreventionModule forbidden list</li>
+<li>  - Clarify: forbid VERBS ("is", "betekent"), allow NOUNS ("proces", "activiteit")</li>
+</ul>
+
+<ol>
+<li>**Fix hardcoded STR/INT rules** (2 hours)</li>
+</ol>
+<ul>
+<li>  - Convert StructureRulesModule to load from cache</li>
+<li>  - Convert IntegrityRulesModule to load from cache</li>
+<li>  - Verify rules match JSON definitions</li>
+</ul>
+
+<p><strong>Success criteria:</strong></p>
+<ul>
+<li>All 16 modules run without errors</li>
+<li>No contradictory guidance</li>
+<li>All rules loaded from cache (US-202 compliance)</li>
+</ul>
+
+<p>---</p>
+
+<h3>Phase 2: Consolidate Simple Merges (6 hours)</h3>
+<p><strong>Goal:</strong> Low-risk merges for immediate token savings</p>
+
+<p><strong>Tasks:</strong></p>
+<ol>
+<li>**Merge OutputSpec → Expertise** (1 hour)</li>
+</ol>
+<ul>
+<li>  - Move format specs into ExpertiseModule</li>
+<li>  - Remove OutputSpecificationModule</li>
+<li>  - Update orchestrator registration</li>
+</ul>
+
+<ol>
+<li>**Merge Template → Semantic** (3 hours)</li>
+</ol>
+<ul>
+<li>  - Combine category guidance into CategoryGuidanceModule</li>
+<li>  - Unified templates + ESS-02 instructions</li>
+<li>  - Test category-specific guidance</li>
+</ul>
+
+<ol>
+<li>**Merge ErrorPrevention → Validation** (2 hours)</li>
+</ol>
+<ul>
+<li>  - Add forbidden patterns section to ValidationRulesModule</li>
+<li>  - Preserve context-specific forbidden logic</li>
+<li>  - Test validation output</li>
+</ul>
+
+<p><strong>Success criteria:</strong></p>
+<ul>
+<li>16 → 10 modules</li>
+<li>~1,000 tokens saved</li>
+<li>All tests pass</li>
+</ul>
+
+<p>---</p>
+
+<h3>Phase 3: Major Consolidation (8 hours)</h3>
+<p><strong>Goal:</strong> Consolidate 7 rule modules into 1</p>
+
+<p><strong>Tasks:</strong></p>
+<ol>
+<li>**Create ValidationRulesModule** (4 hours)</li>
+</ol>
+<ul>
+<li>  - Unified rule loading for all 7 categories</li>
+<li>  - Shared `_format_rule()` method</li>
+<li>  - Category-specific headers/grouping</li>
+</ul>
+
+<ol>
+<li>**Remove 7 individual rule modules** (2 hours)</li>
+</ol>
+<ul>
+<li>  - Delete ARAI, CON, ESS, STR, INT, SAM, VER modules</li>
+<li>  - Update orchestrator registration</li>
+</ul>
+
+<ol>
+<li>**Testing & validation** (2 hours)</li>
+</ol>
+<ul>
+<li>  - Verify all 45 rules appear in prompt</li>
+<li>  - Check token count reduction</li>
+<li>  - Regression testing</li>
+</ul>
+
+<p><strong>Success criteria:</strong></p>
+<ul>
+<li>10 → 4 modules (+3 optional)</li>
+<li>~2,500-3,000 tokens saved</li>
+<li>All 45 validation rules present</li>
+</ul>
+
+<p>---</p>
+
+<h3>Phase 4: Refinement (2 hours)</h3>
+<p><strong>Goal:</strong> Polish and optimize</p>
+
+<p><strong>Tasks:</strong></p>
+<ol>
+<li>**Simplify DefinitionTask** (1 hour)</li>
+</ol>
+<ul>
+<li>  - Reduce checklist redundancy</li>
+<li>  - Simplify metadata</li>
+</ul>
+
+<ol>
+<li>**Optimize GrammarModule** (1 hour)</li>
+</ol>
+<ul>
+<li>  - Remove strict mode</li>
+<li>  - Consolidate word type handling</li>
+</ul>
+
+<p><strong>Success criteria:</strong></p>
+<ul>
+<li>7 final modules</li>
+<li>~3,200 tokens saved (45% reduction)</li>
+<li>Complexity: 3/10</li>
+</ul>
+
+<p>---</p>
+
+<h2>Risk Assessment</h2>
+
+<h3>HIGH RISK (Requires careful planning)</h3>
+<ul>
+<li>**ValidationRulesModule consolidation:** Affects 7 modules, must preserve all 45 rules</li>
+<li> - **Mitigation:** Create comprehensive test suite, verify rule-by-rule</li>
+</ul>
+
+<ul>
+<li>**Kick-off term contradiction:** Critical for ESS-02 compliance</li>
+<li> - **Mitigation:** Document noun vs. verb distinction clearly, add examples</li>
+</ul>
+
+<h3>MEDIUM RISK</h3>
+<ul>
+<li>**Category naming unification:** Affects multiple modules</li>
+<li> - **Mitigation:** Search/replace, verify all references updated</li>
+</ul>
+
+<ul>
+<li>**Hardcoded STR/INT conversion:** Must match JSON definitions exactly</li>
+<li> - **Mitigation:** Compare output before/after, regression tests</li>
+</ul>
+
+<h3>LOW RISK</h3>
+<ul>
+<li>**Simple merges (OutputSpec, ErrorPrev):** Straightforward code moves</li>
+<li>**Optional MetricsModule:** No impact if disabled</li>
+</ul>
+
+<p>---</p>
+
+<h2>Testing Strategy</h2>
+
+<h3>Unit Tests</h3>
+<ul>
+<li>Each consolidated module must have dedicated test</li>
+<li>Verify all original functionality preserved</li>
+<li>Test edge cases (missing context, invalid category, etc.)</li>
+</ul>
+
+<h3>Integration Tests</h3>
+<ul>
+<li>Test full prompt generation with new architecture</li>
+<li>Compare output tokens: before vs. after</li>
+<li>Verify all 45 validation rules present</li>
+</ul>
+
+<h3>Regression Tests</h3>
+<ul>
+<li>Run existing test suite against new modules</li>
+<li>Verify no functional changes to generated prompts</li>
+<li>Check metadata preservation</li>
+</ul>
+
+<h3>Performance Tests</h3>
+<ul>
+<li>Measure prompt generation time (should be same or faster)</li>
+<li>Verify cache usage (no new loadings)</li>
+<li>Check memory footprint</li>
+</ul>
+
+<p>---</p>
+
+<h2>Success Metrics</h2>
+
+<h3>Token Efficiency</h3>
+<ul>
+<li>**Baseline:** 7,250 tokens/prompt</li>
+<li>**Target:** <5,000 tokens/prompt (30%+ savings)</li>
+<li>**Stretch:** <4,500 tokens/prompt (38%+ savings)</li>
+</ul>
+
+<h3>Code Quality</h3>
+<ul>
+<li>**Baseline:** 16 modules, 4,443 lines</li>
+<li>**Target:** 7 modules, <2,600 lines (41% reduction)</li>
+<li>**No code duplication** (DRY principle)</li>
+</ul>
+
+<h3>Maintainability</h3>
+<ul>
+<li>**Baseline:** Complexity 7/10</li>
+<li>**Target:** Complexity 3/10</li>
+<li>**Single source of truth** for categories, rules, formatting</li>
+</ul>
+
+<h3>Functionality</h3>
+<ul>
+<li>**All 45 validation rules present**</li>
+<li>**No contradictions**</li>
+<li>**All tests passing**</li>
+<li>**Same or better definition quality**</li>
+</ul>
+
+<p>---</p>
+
+<h2>Appendix A: Module Statistics</h2>
+
+<h3>Current State (16 modules)</h3>
+<pre><code>Module                          Lines    Tokens (est)   Priority   Status
+─────────────────────────────────────────────────────────────────────────
+ExpertiseModule                   200         600        100       OK
+OutputSpecificationModule         175         400         90       OK
+GrammarModule                     256         650         85       OK
+ContextAwarenessModule            433       1,200         70       OK
+SemanticCategorisationModule      280         700         60       OK
+TemplateModule                    251         550         60       BROKEN
+AraiRulesModule                   129         300         75       OK
+ConRulesModule                    129         300         70       OK
+EssRulesModule                    128         300         70       OK
+StructureRulesModule              332         800         65       HARDCODED
+IntegrityRulesModule              314         750         65       HARDCODED
+SamRulesModule                    128         300         60       OK
+VerRulesModule                    128         300         55       OK
+ErrorPreventionModule             262         600         50       CONTRADICTION
+MetricsModule                     326         400         30       OK
+DefinitionTaskModule              299         600         40       OK
+─────────────────────────────────────────────────────────────────────────
+TOTAL                           4,443       7,250 (avg)</code></pre>
+
+<h3>Proposed State (7 modules)</h3>
+<pre><code>Module                          Lines    Tokens (est)   Priority   Status
+─────────────────────────────────────────────────────────────────────────
+CoreInstructionsModule            250         800        100       NEW
+ContextAwarenessModule            433       1,200         80       UNCHANGED
+CategoryGuidanceModule            350         900         70       NEW (merged)
+GrammarModule                     150         400         70       SIMPLIFIED
+ValidationRulesModule             800       2,200         65       NEW (7→1)
+DefinitionTaskModule              200         500         50       SIMPLIFIED
+MetricsModule (optional)          326         400         30       OPTIONAL
+─────────────────────────────────────────────────────────────────────────
+TOTAL                           2,509       6,400 (avg)  -or-  6,000 (no metrics)
+REDUCTION                     -1,934       -850 tokens   -or-  -1,250 tokens
+                                -44%          -12%               -17%</code></pre>
+
+<p><strong>Note:</strong> Token estimates are conservative. Actual savings likely higher due to:</p>
+<ul>
+<li>Elimination of duplicate headers (6 removed)</li>
+<li>Shared formatting logic (no repeated `_format_rule()`)</li>
+<li>Removal of dead code (strict mode, broken validation)</li>
+<li>Adaptive context formatting (already optimized)</li>
+</ul>
+
+<p>---</p>
+
+<h2>Appendix B: Code Duplication Analysis</h2>
+
+<h3>Identical `_format_rule()` Method</h3>
+<p><strong>Modules affected:</strong> ARAI, CON, ESS, SAM, VER (5 modules)</p>
+
+<p><strong>Duplicated code (129 lines × 5 = 645 lines):</strong></p>
+<pre><code>def _format_rule(self, regel_key: str, regel_data: dict) -&gt; list[str]:
+    lines = []
+    naam = regel_data.get("naam", "Onbekende regel")
+    lines.append(f"🔹 **{regel_key} - {naam}**")
+
+    uitleg = regel_data.get("uitleg", "")
+    if uitleg:
+        lines.append(f"- {uitleg}")
+
+    toetsvraag = regel_data.get("toetsvraag", "")
+    if toetsvraag:
+        lines.append(f"- Toetsvraag: {toetsvraag}")
+
+    if self.include_examples:
+        goede_voorbeelden = regel_data.get("goede_voorbeelden", [])
+        for goed in goede_voorbeelden:
+            lines.append(f"  ✅ {goed}")
+
+        foute_voorbeelden = regel_data.get("foute_voorbeelden", [])
+        for fout in foute_voorbeelden:
+            lines.append(f"  ❌ {fout}")
+
+    return lines</code></pre>
+
+<p><strong>Impact:</strong> 645 lines of pure duplication (14.5% of total codebase!)</p>
+
+<p><strong>Solution:</strong> Extract to shared utility in ValidationRulesModule</p>
+
+<p>---</p>
+
+<h2>Appendix C: Category Naming Schemes</h2>
+
+<h3>Three Incompatible Naming Schemes</h3>
+
+<p><strong>Scheme 1: SemanticCategorisationModule (ESS-02)</strong></p>
+<pre><code>ontological_category = "proces" | "type" | "resultaat" | "exemplaar"
+context.set_shared("ontological_category", ontological_category)</code></pre>
+
+<p><strong>Scheme 2: TemplateModule (BROKEN)</strong></p>
+<pre><code>category = context.get_metadata("semantic_category")  # NEVER EXISTS!
+# Expects: "Proces" | "Object" | "Actor" | "Toestand" | "Gebeurtenis" | ...</code></pre>
+
+<p><strong>Scheme 3: ErrorPreventionModule (legacy)</strong></p>
+<pre><code># Uses "domain_contexts" (EPIC-010 deprecated)
+# Should use: org_contexts, jur_contexts, wet_contexts</code></pre>
+
+<p><strong>Resolution:</strong></p>
+<ul>
+<li>**PRIMARY:** `ontological_category` (ESS-02 compliant)</li>
+<li>**VALUES:** `"proces"`, `"type"`, `"resultaat"`, `"exemplaar"` (lowercase)</li>
+<li>**DEPRECATED:** `semantic_category`, `domain_contexts`</li>
+</ul>
+
+<p>---</p>
+
+<h2>Next Steps</h2>
+
+<ol>
+<li>**Review this analysis** with team</li>
+<li>**Prioritize phases** based on urgency</li>
+<li>**Create feature branch** for consolidation work</li>
+<li>**Phase 1 (critical fixes)** - Start immediately</li>
+<li>**Measure baseline** (current token usage, test coverage)</li>
+<li>**Implement incrementally** (test after each phase)</li>
+<li>**Document changes** in REFACTOR_LOG.md</li>
+</ol>
+
+<p>---</p>
+
+<p><strong>Analysis prepared by:</strong> Claude Code (DefinitieAgent)</p>
+<p><strong>Review required:</strong> Yes (architectural changes)</p>
+<p><strong>Approval threshold:</strong> >100 lines affected (UNIFIED compliance)</p>
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,366 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Prompt Module Optimization - Documentation Index</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>Prompt Module Optimization - Documentation Index</h1>
+<p><strong>Date:</strong> 2025-01-12</p>
+<p><strong>Status:</strong> Analysis Complete, Ready for Implementation</p>
+
+<h2>Overview</h2>
+
+<p>This analysis examines the 16 DefinitieAgent prompt modules and proposes consolidation to 7 modules, achieving 44% code reduction and 17%+ token savings.</p>
+
+<p>---</p>
+
+<h2>Documentation Files</h2>
+
+<h3>1. Executive Summary (Start Here)</h3>
+<p><strong>File:</strong> <code>PROMPT_MODULE_OPTIMIZATION_SUMMARY.md</code></p>
+<p><strong>Purpose:</strong> TL;DR version for stakeholders</p>
+<p><strong>Audience:</strong> Management, team leads, decision makers</p>
+<p><strong>Read time:</strong> 5 minutes</p>
+
+<p><strong>Contents:</strong></p>
+<ul>
+<li>Quick win recommendations</li>
+<li>Key findings (critical issues)</li>
+<li>Proposed 7-module architecture</li>
+<li>Token savings breakdown</li>
+<li>Implementation phases</li>
+<li>Risk assessment</li>
+<li>Success metrics</li>
+</ul>
+
+<p><strong>Use this file to:</strong></p>
+<ul>
+<li>Get quick overview</li>
+<li>Understand business impact</li>
+<li>Approve/reject proposal</li>
+<li>Allocate resources</li>
+</ul>
+
+<p>---</p>
+
+<h3>2. Detailed Analysis (Technical Deep Dive)</h3>
+<p><strong>File:</strong> <code>PROMPT_MODULE_OPTIMIZATION_ANALYSIS.md</code></p>
+<p><strong>Purpose:</strong> Complete technical analysis</p>
+<p><strong>Audience:</strong> Developers, architects, QA engineers</p>
+<p><strong>Read time:</strong> 30-40 minutes</p>
+
+<p><strong>Contents:</strong></p>
+<ul>
+<li>Module-by-module analysis (all 16 modules)</li>
+<li>KEEP/MERGE/REMOVE recommendations</li>
+<li>Token savings per module</li>
+<li>Complexity reduction metrics</li>
+<li>Implementation effort estimates</li>
+<li>Dependency analysis</li>
+<li>Contradictions matrix</li>
+<li>Code duplication analysis</li>
+<li>Category naming schemes</li>
+<li>Implementation roadmap (4 phases)</li>
+<li>Risk mitigation strategies</li>
+<li>Testing strategy</li>
+<li>Appendices (statistics, duplication, naming)</li>
+</ul>
+
+<p><strong>Use this file to:</strong></p>
+<ul>
+<li>Understand technical details</li>
+<li>Plan implementation</li>
+<li>Assess risks</li>
+<li>Design refactoring approach</li>
+<li>Create test strategy</li>
+</ul>
+
+<p>---</p>
+
+<h3>3. Visual Guide (Diagrams & Flow Charts)</h3>
+<p><strong>File:</strong> <code>PROMPT_MODULE_CONSOLIDATION_VISUAL.md</code></p>
+<p><strong>Purpose:</strong> Visual representation of changes</p>
+<p><strong>Audience:</strong> Everyone (visual learners)</p>
+<p><strong>Read time:</strong> 15-20 minutes</p>
+
+<p><strong>Contents:</strong></p>
+<ul>
+<li>Before/After architecture diagrams</li>
+<li>Consolidation flow diagram</li>
+<li>Token savings visualization</li>
+<li>Contradiction resolution (code examples)</li>
+<li>Testing checklist</li>
+<li>Risk mitigation plan</li>
+<li>Implementation timeline (Gantt-style)</li>
+</ul>
+
+<p><strong>Use this file to:</strong></p>
+<ul>
+<li>Visualize changes</li>
+<li>Understand flow</li>
+<li>Present to team</li>
+<li>Track progress</li>
+<li>Review before/after</li>
+</ul>
+
+<p>---</p>
+
+<h3>4. Action Checklist (Implementation Guide)</h3>
+<p><strong>File:</strong> <code>PROMPT_MODULE_ACTION_CHECKLIST.md</code></p>
+<p><strong>Purpose:</strong> Step-by-step implementation guide</p>
+<p><strong>Audience:</strong> Developers implementing changes</p>
+<p><strong>Read time:</strong> Reference (ongoing)</p>
+
+<p><strong>Contents:</strong></p>
+<ul>
+<li>Phase 1: Critical fixes (4 tasks, 4 hours)</li>
+<li> - Task 1.1: Fix TemplateModule validation</li>
+<li> - Task 1.2: Resolve kick-off contradiction</li>
+<li> - Task 1.3: Fix hardcoded STR rules</li>
+<li> - Task 1.4: Fix hardcoded INT rules</li>
+<li>Phase 2: Simple merges (3 tasks, 6 hours)</li>
+<li>Phase 3: Major consolidation (2 tasks, 8 hours)</li>
+<li>Phase 4: Refinement (2 tasks, 2 hours)</li>
+<li>Testing strategy</li>
+<li>Success criteria</li>
+<li>Rollback plan</li>
+<li>Documentation updates</li>
+</ul>
+
+<p><strong>Use this file to:</strong></p>
+<ul>
+<li>Implement changes</li>
+<li>Track progress</li>
+<li>Verify completion</li>
+<li>Ensure quality</li>
+<li>Manage rollback</li>
+</ul>
+
+<p>---</p>
+
+<h3>5. Index (This File)</h3>
+<p><strong>File:</strong> <code>PROMPT_MODULE_OPTIMIZATION_INDEX.md</code></p>
+<p><strong>Purpose:</strong> Navigation and quick reference</p>
+<p><strong>Audience:</strong> Everyone</p>
+<p><strong>Read time:</strong> 5 minutes</p>
+
+<p><strong>Use this file to:</strong></p>
+<ul>
+<li>Navigate documentation</li>
+<li>Find specific information</li>
+<li>Understand document structure</li>
+<li>Choose appropriate file</li>
+</ul>
+
+<p>---</p>
+
+<h2>Quick Navigation</h2>
+
+<h3>I need to... → Read this file</h3>
+
+<p>| Need | File | Section |</p>
+<p>|------|------|---------|</p>
+<p>| Understand proposal in 5 min | SUMMARY.md | TL;DR, Quick Wins |</p>
+<p>| Get approval for project | SUMMARY.md | Key Findings, Success Metrics |</p>
+<p>| Understand technical details | ANALYSIS.md | Module-by-Module Analysis |</p>
+<p>| See what's broken/contradictory | ANALYSIS.md | Contradictions Matrix |</p>
+<p>| Visualize changes | VISUAL.md | Before/After Diagrams |</p>
+<p>| Understand token savings | VISUAL.md | Token Savings Breakdown |</p>
+<p>| Start implementation | ACTION_CHECKLIST.md | Phase 1 Tasks |</p>
+<p>| Fix specific module | ACTION_CHECKLIST.md | Task 1.1-1.4 |</p>
+<p>| Plan testing | ACTION_CHECKLIST.md | Testing Strategy |</p>
+<p>| Understand risks | ANALYSIS.md or VISUAL.md | Risk Assessment |</p>
+<p>| See timeline | VISUAL.md | Implementation Timeline |</p>
+
+<p>---</p>
+
+<h2>Key Findings (Quick Reference)</h2>
+
+<h3>Critical Issues (Must Fix)</h3>
+<ol>
+<li>**TemplateModule BROKEN** - Never runs (validation error)</li>
+<li>**Major contradiction** - Semantic ↔ ErrorPrev (kick-off terms)</li>
+<li>**Hardcoded rules** - STR, INT bypass cache (defeats US-202)</li>
+<li>**645 lines duplication** - `_format_rule()` method (14.5% of code)</li>
+</ol>
+
+<h3>Consolidation Targets</h3>
+<ul>
+<li>**16 → 7 modules** (56% reduction)</li>
+<li>**4,443 → 2,509 lines** (44% reduction)</li>
+<li>**~7,250 → ~6,000 tokens** (17% reduction, conservative)</li>
+<li>**Complexity: 7/10 → 3/10**</li>
+</ul>
+
+<h3>Implementation</h3>
+<ul>
+<li>**20 hours total** (~3 weeks part-time, 3 days full-time)</li>
+<li>**4 phases** (progressive, can pause between)</li>
+<li>**MEDIUM risk** (phased approach minimizes)</li>
+<li>**High reward** (token savings, maintainability)</li>
+</ul>
+
+<p>---</p>
+
+<h2>Decision Tree</h2>
+
+<pre><code>┌───────────────────────────────────────────────────────┐
+│         PROMPT MODULE OPTIMIZATION DECISION            │
+└───────────────────────────────────────────────────────┘
+
+Question: Should we proceed with this optimization?
+
+    ┌─ Are modules currently broken? ────────────► YES
+    │  (TemplateModule validation fails)           │
+    │                                               ▼
+    │                                         FIX IMMEDIATELY
+    │                                         (Phase 1, 4h)
+    │
+    ├─ Are there contradictions? ────────────────► YES
+    │  (Semantic ↔ ErrorPrev conflict)             │
+    │                                               ▼
+    │                                         FIX HIGH PRIORITY
+    │                                         (Phase 1, 4h)
+    │
+    ├─ Is US-202 compliance broken? ─────────────► YES
+    │  (STR, INT hardcoded rules)                  │
+    │                                               ▼
+    │                                         FIX REQUIRED
+    │                                         (Phase 1, 4h)
+    │
+    ├─ Need token savings? ──────────────────────► YES
+    │  (Budget constraints, performance)           │
+    │                                               ▼
+    │                                         PROCEED TO PHASE 2-4
+    │                                         (12h additional)
+    │
+    ├─ Need better maintainability? ─────────────► YES
+    │  (Code duplication, complexity)              │
+    │                                               ▼
+    │                                         PROCEED TO PHASE 2-4
+    │                                         (12h additional)
+    │
+    └─ Only want to maintain status quo ─────────► NO
+       (No critical issues blocking)              │
+                                                  ▼
+                                            AT MINIMUM: Phase 1
+                                            (Fix critical issues)
+
+RECOMMENDATION: Phase 1 is MANDATORY (critical fixes)
+                Phase 2-4 are HIGHLY RECOMMENDED (savings + quality)</code></pre>
+
+<p>---</p>
+
+<h2>Success Metrics Dashboard</h2>
+
+<h3>Token Efficiency</h3>
+<pre><code>Baseline:  7,250 tokens/prompt  ███████████████████████ 100%
+Target:    6,000 tokens/prompt  ██████████████████░░░░░  83% (-17%)
+Stretch:   5,000 tokens/prompt  ███████████████░░░░░░░░  69% (-31%)</code></pre>
+
+<h3>Code Quality</h3>
+<pre><code>Modules:   16 → 7               ████████░░░░░░░░░░░░░░░  44% (-9 modules)
+Lines:     4,443 → 2,509        █████████████░░░░░░░░░░  56% (-1,934 lines)
+Complex:   7/10 → 3/10          ████░░░░░░░░░░░░░░░░░░░  43% (-4 points)</code></pre>
+
+<h3>Functionality</h3>
+<pre><code>Rules:     45/45 present        ███████████████████████ 100%
+Tests:     All passing          ███████████████████████ 100%
+Quality:   Same or better       ███████████████████████ 100%</code></pre>
+
+<p>---</p>
+
+<h2>Next Steps</h2>
+
+<h3>Immediate Actions (Do Now)</h3>
+<ol>
+<li>**Review** SUMMARY.md (5 min)</li>
+<li>**Approve** Phase 1 (critical fixes only, 4h)</li>
+<li>**Create** feature branch: `feature/prompt-module-consolidation`</li>
+<li>**Assign** developer to Phase 1</li>
+</ol>
+
+<h3>Short-term (This Week)</h3>
+<ol>
+<li>**Implement** Phase 1 (4h)</li>
+<li>**Test** all modules functional</li>
+<li>**Measure** baseline improvements</li>
+<li>**Decide** on Phase 2-4 (based on Phase 1 results)</li>
+</ol>
+
+<h3>Medium-term (Next 2-3 Weeks)</h3>
+<ol>
+<li>**Implement** Phase 2 (6h) if approved</li>
+<li>**Implement** Phase 3 (8h) if approved</li>
+<li>**Implement** Phase 4 (2h) polish</li>
+<li>**Document** all changes</li>
+</ol>
+
+<h3>Long-term (Ongoing)</h3>
+<ol>
+<li>**Monitor** token usage (monthly)</li>
+<li>**Track** definition quality (metrics)</li>
+<li>**Maintain** 7-module architecture</li>
+<li>**Refine** as needed</li>
+</ol>
+
+<p>---</p>
+
+<h2>File Locations</h2>
+
+<p>All analysis files located in:</p>
+<pre><code>/Users/chrislehnen/Projecten/Definitie-app/docs/analyses/
+├── PROMPT_MODULE_OPTIMIZATION_INDEX.md          ← This file
+├── PROMPT_MODULE_OPTIMIZATION_SUMMARY.md        ← Executive summary (TL;DR)
+├── PROMPT_MODULE_OPTIMIZATION_ANALYSIS.md       ← Detailed technical analysis
+├── PROMPT_MODULE_CONSOLIDATION_VISUAL.md        ← Visual guide (diagrams)
+└── PROMPT_MODULE_ACTION_CHECKLIST.md            ← Implementation steps</code></pre>
+
+<p>---</p>
+
+<h2>Contact & Questions</h2>
+
+<p><strong>Analysis prepared by:</strong> Claude Code (DefinitieAgent)</p>
+<p><strong>Date:</strong> 2025-01-12</p>
+<p><strong>Review required:</strong> Yes (architectural changes, >100 lines)</p>
+<p><strong>UNIFIED compliance:</strong> ✅ Follows APPROVAL LADDER, REFACTOR principles</p>
+
+<p><strong>Questions?</strong></p>
+<ul>
+<li>Technical details → See ANALYSIS.md</li>
+<li>Implementation → See ACTION_CHECKLIST.md</li>
+<li>Business case → See SUMMARY.md</li>
+<li>Visual overview → See VISUAL.md</li>
+</ul>
+
+<p>---</p>
+
+<h2>Version History</h2>
+
+<p>| Date | Version | Changes |</p>
+<p>|------|---------|---------|</p>
+<p>| 2025-01-12 | 1.0 | Initial analysis complete |</p>
+
+<p>---</p>
+
+<p><strong>Status:</strong> ✅ Analysis complete, ready for implementation</p>
+<p><strong>Priority:</strong> HIGH (critical fixes in Phase 1)</p>
+<p><strong>Impact:</strong> HIGH (token savings, maintainability, US-202 compliance)</p>
+
+  </div>
+</body>
+</html>

@@ -7813,6 +7813,70 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Quick Reference: 16 Prompt Modules Analysis",
+      "path": "../analyses/DEF-126_MODULES_QUICK_REFERENCE.md",
+      "url": "../analyses/DEF-126_MODULES_QUICK_REFERENCE.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [
+          "EPIC-010"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/DEF-126_MODULES_QUICK_REFERENCE.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "DEF-151: Prompt Module Transformatie Analyse - Van Validatie naar Generatie Mindset",
+      "path": "../analyses/DEF-151_PROMPT_MODULE_TRANSFORMATION_ANALYSIS.md",
+      "url": "../analyses/DEF-151_PROMPT_MODULE_TRANSFORMATION_ANALYSIS.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/DEF-151_PROMPT_MODULE_TRANSFORMATION_ANALYSIS.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "🎯 STREAMLIT STARTUP PERFORMANCE - VISUAL ANALYSIS",
       "path": "../analyses/STARTUP_PERFORMANCE_DIAGRAM.md",
       "url": "../analyses/STARTUP_PERFORMANCE_DIAGRAM.md",
@@ -7873,6 +7937,72 @@
         "req": []
       },
       "rendered_url": "rendered/analyses/DEF-102_CROSS_RULE_IMPACT_ANALYSIS.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Prompt Module Optimization - Documentation Index",
+      "path": "../analyses/PROMPT_MODULE_OPTIMIZATION_INDEX.md",
+      "url": "../analyses/PROMPT_MODULE_OPTIMIZATION_INDEX.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-202"
+        ],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/PROMPT_MODULE_OPTIMIZATION_INDEX.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Prompt Module Optimization - Executive Summary",
+      "path": "../analyses/PROMPT_MODULE_OPTIMIZATION_SUMMARY.md",
+      "url": "../analyses/PROMPT_MODULE_OPTIMIZATION_SUMMARY.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-202"
+        ],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/PROMPT_MODULE_OPTIMIZATION_SUMMARY.html"
     },
     {
       "id": null,
@@ -9405,6 +9535,41 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Prompt Module Optimization Analysis",
+      "path": "../analyses/PROMPT_MODULE_OPTIMIZATION_ANALYSIS.md",
+      "url": "../analyses/PROMPT_MODULE_OPTIMIZATION_ANALYSIS.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-202"
+        ],
+        "epic": [
+          "EPIC-010"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/PROMPT_MODULE_OPTIMIZATION_ANALYSIS.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "ServiceContainer Fix - Implementation Guide",
       "path": "../analyses/CONTAINER_FIX_IMPLEMENTATION.md",
       "url": "../analyses/CONTAINER_FIX_IMPLEMENTATION.md",
@@ -10013,6 +10178,39 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Comprehensive Analysis: 16 DefinitieAgent Prompt Modules",
+      "path": "../analyses/DEF-151_PROMPT_MODULES_ANALYSIS.md",
+      "url": "../analyses/DEF-151_PROMPT_MODULES_ANALYSIS.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [
+          "EPIC-010"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/DEF-151_PROMPT_MODULES_ANALYSIS.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Prompt Architectuur & Redundantie Analyse",
       "path": "../analyses/PROMPT_ARCHITECTURE_ANALYSIS.md",
       "url": "../analyses/PROMPT_ARCHITECTURE_ANALYSIS.md",
@@ -10426,6 +10624,41 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Prompt Module Optimization - Complete Analysis Index",
+      "path": "../analyses/PROMPT_OPTIMIZATION_INDEX.md",
+      "url": "../analyses/PROMPT_OPTIMIZATION_INDEX.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-202"
+        ],
+        "epic": [
+          "EPIC-010"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/PROMPT_OPTIMIZATION_INDEX.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "DEF-54: Code Simplification Analysis Report",
       "path": "../analyses/DEF-54-SIMPLIFICATION-ANALYSIS.md",
       "url": "../analyses/DEF-54-SIMPLIFICATION-ANALYSIS.md",
@@ -10614,6 +10847,39 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Prompt Module Optimization - Action Checklist",
+      "path": "../analyses/PROMPT_MODULE_ACTION_CHECKLIST.md",
+      "url": "../analyses/PROMPT_MODULE_ACTION_CHECKLIST.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-202"
+        ],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/PROMPT_MODULE_ACTION_CHECKLIST.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Double-Weighting Bug Analysis - Quality Gate Implementation",
       "path": "../analyses/double-weighting-bug-analysis.md",
       "url": "../analyses/double-weighting-bug-analysis.md",
@@ -10711,6 +10977,39 @@
         "req": []
       },
       "rendered_url": "rendered/analyses/DEF-110-postmortem.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "PROMPT OPTIMIZATION: EXECUTIVE BRIEF",
+      "path": "../analyses/PROMPT_OPTIMIZATION_EXECUTIVE_BRIEF.md",
+      "url": "../analyses/PROMPT_OPTIMIZATION_EXECUTIVE_BRIEF.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [
+          "EPIC-010"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/PROMPT_OPTIMIZATION_EXECUTIVE_BRIEF.html"
     },
     {
       "id": null,
@@ -11191,6 +11490,41 @@
         "req": []
       },
       "rendered_url": "rendered/analyses/RULECACHE_4X_PATTERN_ANALYSIS.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Prompt Module Consolidation - Visual Guide",
+      "path": "../analyses/PROMPT_MODULE_CONSOLIDATION_VISUAL.md",
+      "url": "../analyses/PROMPT_MODULE_CONSOLIDATION_VISUAL.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-202"
+        ],
+        "epic": [
+          "EPIC-010"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/PROMPT_MODULE_CONSOLIDATION_VISUAL.html"
     },
     {
       "id": null,
@@ -11947,6 +12281,41 @@
         "req": []
       },
       "rendered_url": "rendered/analyses/VOORBEELDEN_STALE_STATE_BUG_ANALYSIS.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "PROMPT MODULE OPTIMIZATION: ULTRATHINK ANALYSIS",
+      "path": "../analyses/PROMPT_OPTIMIZATION_ULTRATHINK_ANALYSIS.md",
+      "url": "../analyses/PROMPT_OPTIMIZATION_ULTRATHINK_ANALYSIS.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-202"
+        ],
+        "epic": [
+          "EPIC-010"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/analyses/PROMPT_OPTIMIZATION_ULTRATHINK_ANALYSIS.html"
     },
     {
       "id": null,
@@ -78341,7 +78710,7 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 1248,
+      "DOC": 1259,
       "ARCH": 42,
       "COMP": 5,
       "TEST": 37,
@@ -78351,7 +78720,7 @@
       "BUG": 47,
       "REQ": 115
     },
-    "generated_at": "2025-11-11T16:24:57Z"
+    "generated_at": "2025-11-13T09:09:45Z"
   },
   "sources": [
     "docs"
