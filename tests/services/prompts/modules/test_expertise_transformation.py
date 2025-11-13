@@ -10,11 +10,12 @@ NEW: Focus on BELANGHEBBENDEN (stakeholders), EENDUIDIG (unambiguous),
      and WERKELIJKHEID (reality) in the instruction
 """
 
-import pytest
 from unittest.mock import MagicMock, patch
 
-from src.services.prompts.modules.expertise_module import ExpertiseModule
+import pytest
+
 from src.services.prompts.modules.base_module import ModuleContext
+from src.services.prompts.modules.expertise_module import ExpertiseModule
 
 
 class TestExpertiseTransformation:
@@ -47,9 +48,10 @@ class TestExpertiseTransformation:
         )
 
         # The word should be in uppercase to emphasize importance
-        assert "belanghebbenden" not in result.content or "BELANGHEBBENDEN" in result.content, (
-            "BELANGHEBBENDEN should be emphasized in uppercase"
-        )
+        assert (
+            "belanghebbenden" not in result.content
+            or "BELANGHEBBENDEN" in result.content
+        ), "BELANGHEBBENDEN should be emphasized in uppercase"
 
     def test_expert_role_includes_eenduidig(self):
         """
@@ -97,9 +99,9 @@ class TestExpertiseTransformation:
         )
 
         # Also check for partial phrases that indicate old mindset
-        assert "voor overheidsgebruik" not in result.content, (
-            "Reference to 'governmental use only' should be removed"
-        )
+        assert (
+            "voor overheidsgebruik" not in result.content
+        ), "Reference to 'governmental use only' should be removed"
 
     def test_complete_new_instruction_format(self):
         """
@@ -111,24 +113,24 @@ class TestExpertiseTransformation:
         result = self.module.execute(self.context)
 
         # Extract the role definition section (usually the first major statement)
-        lines = result.content.split('\n')
+        lines = result.content.split("\n")
         role_definition = None
         for line in lines:
-            if "expert" in line.lower() and not line.startswith('#'):
+            if "expert" in line.lower() and not line.startswith("#"):
                 role_definition = line
                 break
 
         assert role_definition is not None, "Could not find expert role definition"
 
         # Check that it's a complete, coherent instruction
-        assert len(role_definition) > 50, (
-            "New instruction should be substantial and complete"
-        )
+        assert (
+            len(role_definition) > 50
+        ), "New instruction should be substantial and complete"
 
         # Verify it contains the essence of the new approach
-        assert "creëren" in role_definition or "maken" in role_definition, (
-            "Should focus on creating/making definitions, not just validating"
-        )
+        assert (
+            "creëren" in role_definition or "maken" in role_definition
+        ), "Should focus on creating/making definitions, not just validating"
 
     def test_basic_requirements_align_with_stakeholder_focus(self):
         """
@@ -140,36 +142,58 @@ class TestExpertiseTransformation:
         result = self.module.execute(self.context)
 
         # Check if requirements mention practical application
-        requirements_section = result.content[result.content.find("BELANGRIJKE VEREISTEN"):]
+        requirements_section = result.content[
+            result.content.find("BELANGRIJKE VEREISTEN") :
+        ]
 
         # Should still have quality requirements but framed differently
-        assert "precies" in requirements_section or "duidelijk" in requirements_section, (
-            "Requirements should emphasize clarity and precision for stakeholder understanding"
-        )
+        assert (
+            "precies" in requirements_section or "duidelijk" in requirements_section
+        ), "Requirements should emphasize clarity and precision for stakeholder understanding"
 
-    def test_word_type_advice_supports_generation_mindset(self):
+    def test_word_type_advice_no_longer_provided(self):
         """
-        Test that word-type specific advice supports definition generation.
+        DEF-154: Verify word_type_advice is no longer in output.
 
-        The advice should be constructive and generation-focused,
-        not validation-focused.
+        Word type advice was removed to eliminate redundancy with TemplateModule's
+        category-specific instructions. However, word_type detection still occurs
+        and is shared with downstream modules.
         """
         # Test with different word types
         test_cases = [
             ("aanvragen", "werkwoord"),
-            ("aanvraag", "deverbaal"),
-            ("vergunning", "overig")
+            ("behandeling", "deverbaal"),  # ends with "ing"
+            ("beleid", "overig"),  # doesn't match any suffix
         ]
 
         for begrip, expected_type in test_cases:
             self.context.begrip = begrip
             result = self.module.execute(self.context)
 
-            # Verify advice is present and constructive
-            assert "definieer" in result.content or "beschrijf" in result.content, (
-                f"Advice for {expected_type} should use constructive language "
-                "(definieer/beschrijf) not restrictive language"
+            # Should NOT contain category advice (removed in DEF-154)
+            assert "proces" not in result.content.lower(), (
+                f"Category advice for {expected_type} should not be present "
+                "(removed per DEF-154 to eliminate redundancy with TemplateModule)"
             )
+            assert "resultaat" not in result.content.lower(), (
+                "Category advice should not reference 'resultaat' "
+                "(handled by TemplateModule instead)"
+            )
+            assert "activiteit" not in result.content.lower(), (
+                "Category advice should not reference 'activiteit' "
+                "(handled by TemplateModule instead)"
+            )
+
+            # But should still set shared state for downstream modules
+            self.context.set_shared.assert_called()
+            calls = self.context.set_shared.call_args_list
+            word_type_set = any(
+                call[0][0] == "word_type" and call[0][1] == expected_type
+                for call in calls
+            )
+            assert (
+                word_type_set
+            ), f"Word type '{expected_type}' should still be shared with other modules"
 
     def test_metadata_reflects_transformation(self):
         """
@@ -192,7 +216,7 @@ class TestExpertiseTransformation:
 
         The transformation should influence how other modules operate.
         """
-        result = self.module.execute(self.context)
+        self.module.execute(self.context)
 
         # Verify word type is still being shared (backward compatibility)
         self.context.set_shared.assert_called()
@@ -230,15 +254,18 @@ class TestExpertiseTransformation:
 
         validation_words = ["controleer", "toets", "valideer", "check"]
         for word in validation_words:
-            assert word not in main_part.lower(), (
-                f"Validation word '{word}' should not appear in generation-focused instruction"
-            )
+            assert (
+                word not in main_part.lower()
+            ), f"Validation word '{word}' should not appear in generation-focused instruction"
 
-    @pytest.mark.parametrize("begrip,expected_focus", [
-        ("vergunning", "stakeholder clarity"),
-        ("aanvraagprocedure", "practical process"),
-        ("besluit", "real-world impact"),
-    ])
+    @pytest.mark.parametrize(
+        ("begrip", "expected_focus"),
+        [
+            ("vergunning", "stakeholder clarity"),
+            ("aanvraagprocedure", "practical process"),
+            ("besluit", "real-world impact"),
+        ],
+    )
     def test_different_begrippen_get_stakeholder_focus(self, begrip, expected_focus):
         """
         Test that different types of begrippen all get stakeholder-focused treatment.
@@ -278,17 +305,17 @@ class TestExpertiseBackwardCompatibility:
         result = self.module.execute(self.context)
 
         assert result is not None
-        assert hasattr(result, 'content')
-        assert hasattr(result, 'metadata')
-        assert hasattr(result, 'success')
+        assert hasattr(result, "content")
+        assert hasattr(result, "metadata")
+        assert hasattr(result, "success")
         assert result.success is True
 
     def test_word_type_detection_still_works(self):
         """Test that word type detection is not broken."""
         test_cases = [
             ("aanvragen", "werkwoord"),
-            ("aanvraag", "deverbaal"),
-            ("vergunning", "overig"),
+            ("behandeling", "deverbaal"),  # ends with "ing"
+            ("beleid", "overig"),  # doesn't match any suffix
         ]
 
         for begrip, expected_type in test_cases:
@@ -296,7 +323,7 @@ class TestExpertiseBackwardCompatibility:
             result = self.module.execute(self.context)
 
             # Check metadata for word_type
-            assert result.metadata.get('word_type') == expected_type
+            assert result.metadata.get("word_type") == expected_type
 
 
 class TestExpertiseEdgeCases:
@@ -310,7 +337,9 @@ class TestExpertiseEdgeCases:
     def test_very_long_begrip(self):
         """Test handling of very long begrippen."""
         context = MagicMock(spec=ModuleContext)
-        context.begrip = "zeer lange samengestelde begripsomschrijving met meerdere componenten"
+        context.begrip = (
+            "zeer lange samengestelde begripsomschrijving met meerdere componenten"
+        )
         context.get_shared = MagicMock(return_value=None)
         context.set_shared = MagicMock()
 
@@ -350,9 +379,10 @@ class TestExpertiseEdgeCases:
         """Test that exceptions are handled gracefully."""
         context = MagicMock(spec=ModuleContext)
         context.begrip = "test"
-        # Simulate an exception by making get_shared raise
-        context.get_shared = MagicMock(side_effect=Exception("Test error"))
-        context.set_shared = MagicMock()
+        # Simulate an exception by making set_shared raise
+        # (set_shared is actually called during execute, unlike get_shared)
+        context.get_shared = MagicMock(return_value=None)
+        context.set_shared = MagicMock(side_effect=Exception("Test error"))
 
         result = self.module.execute(context)
 
