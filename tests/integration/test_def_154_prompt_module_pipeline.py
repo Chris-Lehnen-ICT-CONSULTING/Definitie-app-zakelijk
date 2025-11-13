@@ -98,13 +98,13 @@ def create_test_context(
 # ============================================================================
 
 
-@pytest.fixture
+@pytest.fixture()
 def orchestrator():
     """Get cached PromptOrchestrator with all modules."""
     return get_cached_orchestrator()
 
 
-@pytest.fixture
+@pytest.fixture()
 def test_cases():
     """Real-world test cases including problematic ones from DEF-126."""
     return [
@@ -152,7 +152,7 @@ def test_cases():
 # ============================================================================
 
 
-@pytest.mark.integration
+@pytest.mark.integration()
 def test_module_pipeline_word_type_propagation():  # noqa: PLR0915
     """
     Test 1: Verify word_type propagates correctly through module pipeline.
@@ -295,7 +295,7 @@ def test_module_pipeline_word_type_propagation():  # noqa: PLR0915
 # ============================================================================
 
 
-@pytest.mark.integration
+@pytest.mark.integration()
 def test_full_prompt_generation_with_orchestrator(  # noqa: PLR0915
     orchestrator, test_cases
 ):
@@ -423,7 +423,7 @@ def test_full_prompt_generation_with_orchestrator(  # noqa: PLR0915
 # ============================================================================
 
 
-@pytest.mark.integration
+@pytest.mark.integration()
 def test_conflict_verification_deverbaal_with_type_category(orchestrator):
     """
     Test 3: Verify conflicts eliminated for problematic case.
@@ -522,7 +522,7 @@ def test_conflict_verification_deverbaal_with_type_category(orchestrator):
 # ============================================================================
 
 
-@pytest.mark.integration
+@pytest.mark.integration()
 def test_token_reduction_from_conflict_removal(orchestrator):
     """
     Test 4: Verify token reduction from removing conflicting advice.
@@ -603,8 +603,8 @@ def test_token_reduction_from_conflict_removal(orchestrator):
 # ============================================================================
 
 
-@pytest.mark.integration
-@pytest.mark.slow
+@pytest.mark.integration()
+@pytest.mark.slow()
 def test_performance_multiple_iterations(orchestrator):  # noqa: PLR0915
     """
     Test 5: Performance test with 10 iterations.
@@ -709,7 +709,7 @@ def test_performance_multiple_iterations(orchestrator):  # noqa: PLR0915
 # ============================================================================
 
 
-@pytest.mark.integration
+@pytest.mark.integration()
 @pytest.mark.skipif(
     True, reason="ValidationOrchestratorV2 integration requires full service container"
 )
@@ -742,7 +742,7 @@ def test_validation_orchestrator_integration():
 # ============================================================================
 
 
-@pytest.mark.integration
+@pytest.mark.integration()
 def test_module_interaction_matrix():
     """
     Test 7: Verify all module interactions are correct.
@@ -830,7 +830,7 @@ def test_module_interaction_matrix():
 # ============================================================================
 
 
-@pytest.mark.integration
+@pytest.mark.integration()
 def test_generate_integration_report(orchestrator, test_cases):  # noqa: PLR0915
     """
     Generate comprehensive integration test report for DEF-154.
