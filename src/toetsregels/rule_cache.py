@@ -10,6 +10,7 @@ ModularValidationService — zonder UI/Streamlit‑afhankelijkheid.
 import contextlib
 import json
 import logging
+import threading
 from pathlib import Path
 from typing import Any
 
@@ -115,18 +116,22 @@ def _load_single_rule_cached(regels_dir: str, regel_id: str) -> dict[str, Any] |
 
 class RuleCache:
     """
-    Singleton cache voor validatieregels met Streamlit integration.
+    Singleton cache voor validatieregels met thread-safe initialization.
 
     Deze class biedt een clean interface voor regel access terwijl
-    alle caching wordt afgehandeld door Streamlit's @st.cache_data.
+    alle caching wordt afgehandeld door de @cached decorator.
     """
 
     _instance = None
+    _lock = threading.Lock()
 
     def __new__(cls):
         if cls._instance is None:
-            cls._instance = super().__new__(cls)
-            cls._instance._initialized = False
+            with cls._lock:
+                # Double-check locking pattern voor thread safety
+                if cls._instance is None:
+                    cls._instance = super().__new__(cls)
+                    cls._instance._initialized = False
         return cls._instance
 
     def __init__(self):
@@ -308,16 +313,20 @@ class RuleCache:
 
 # Global singleton instance
 _rule_cache: RuleCache | None = None
+_rule_cache_lock = threading.Lock()
 
 
 def get_rule_cache() -> RuleCache:
     """
-    Haal de globale RuleCache instance op.
+    Haal de globale RuleCache instance op (thread-safe singleton).
 
     Returns:
         Singleton RuleCache instance
     """
     global _rule_cache
     if _rule_cache is None:
-        _rule_cache = RuleCache()
+        with _rule_cache_lock:
+            # Double-check locking pattern voor thread safety
+            if _rule_cache is None:
+                _rule_cache = RuleCache()
     return _rule_cache

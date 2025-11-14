@@ -1,7 +1,7 @@
 # Canonieke Documentatie Locaties
 
 Dit document definieert de officiële locaties voor alle documentatie types.
-Laatste update: 12-09-2025 (Architectuur Consolidatie Compleet)
+Laatste update: 13-11-2025 (Architectuur Simplificatie - Solo Dev Alignment)
 
 ## 🎯 Officiële Locaties
 
@@ -11,19 +11,22 @@ Laatste update: 12-09-2025 (Architectuur Consolidatie Compleet)
 - **LICENSE**: Licentie informatie
 - **CONTRIBUTING.md**: Bijdrage richtlijnen (optioneel)
 
-### 1. Architectuur Documentatie (Geconsolideerd September 2025)
+### 1. Architectuur Documentatie (Gesimplificeerd November 2025)
 
 | Document Type | Canonical Location | Status |
 |--------------|-------------------|--------|
-| **Enterprise Architecture** | `/docs/architectuur/ENTERPRISE_ARCHITECTURE.md` | ✅ Single Source |
-| **Solution Architecture** | `/docs/architectuur/SOLUTION_ARCHITECTURE.md` | ✅ Single Source |
-| **Technical Architecture** | `/docs/architectuur/TECHNICAL_ARCHITECTURE.md` | ✅ Single Source |
-| Architecture Decisions | `Geïntegreerd in canonical docs` | Gearchiveerd |
-| Architecture Templates | `/docs/architectuur/*_TEMPLATE.md` | Active |
-| Architecture Reports | `/docs/architectuur/*-REPORT.md` | Active |
+| **Architecture Overview** | `/docs/architectuur/ARCHITECTURE.md` | ✅ Single Source (v1.0) |
+| Architecture Templates | `/docs/architectuur/templates/*_TEMPLATE.md` | Active |
 | Diagrams | `/docs/architectuur/diagrams/` | Active |
 | Contracts | `/docs/architectuur/contracts/` | Active |
-| Prompt Refactoring | `/docs/architectuur/prompt-refactoring/` | Active |
+| Decisions (ADRs) | `/docs/architectuur/decisions/` | Active |
+
+**Gearchiveerd** (13-11-2025 - Enterprise fantasy documenten):
+| ~~Enterprise Architecture~~ | `/docs/archief/2025-11-enterprise-architecture-docs/` | Gearchiveerd |
+| ~~Solution Architecture~~ | `/docs/archief/2025-11-enterprise-architecture-docs/` | Gearchiveerd |
+| ~~Technical Architecture~~ | `/docs/archief/2025-11-enterprise-architecture-docs/` | Gearchiveerd |
+
+**Reden archivering**: Misalignment met solo dev/solo user realiteit. Oude documenten beschreven enterprise architectuur (microservices, Kubernetes, €1.5M budgets) die niet van toepassing zijn. Vervangen door eerlijk ARCHITECTURE.md dat modular monolith op Streamlit + SQLite beschrijft.
 
 ### 2. Guidelines & Standards
 - **Documentation Guidelines**: `docs/guidelines/` ✅ ACTIEF

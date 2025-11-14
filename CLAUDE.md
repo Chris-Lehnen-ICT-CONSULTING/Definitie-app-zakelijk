@@ -696,9 +696,13 @@ black src config
 
 ### Belangrijke Architectuur Documenten (Canoniek)
 
-- **Enterprise Architectuur**: `docs/architectuur/ENTERPRISE_ARCHITECTURE.md`
-- **Solution Architectuur**: `docs/architectuur/SOLUTION_ARCHITECTURE.md`
-- **Technische Architectuur**: `docs/architectuur/TECHNICAL_ARCHITECTURE.md`
+- **Architecture Overview**: `docs/architectuur/ARCHITECTURE.md` - Solo dev/solo user architectuur principes, core patterns, tech stack rationale
+
+**Gearchiveerd** (enterprise fantasy documenten):
+- ~~Enterprise Architectuur~~ → `docs/archief/2025-11-enterprise-architecture-docs/ENTERPRISE_ARCHITECTURE.md`
+- ~~Solution Architectuur~~ → `docs/archief/2025-11-enterprise-architecture-docs/SOLUTION_ARCHITECTURE.md`
+- ~~Technische Architectuur~~ → `docs/archief/2025-11-enterprise-architecture-docs/TECHNICAL_ARCHITECTURE.md`
+- **Reden archivering**: Misalignment met solo dev/solo user realiteit (beschreven microservices, Kubernetes, €1.5M budgets die niet van toepassing zijn)
 
 ### Implementatie Handleidingen
 
