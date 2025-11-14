@@ -59,12 +59,14 @@ def _load_all_rules_cached(regels_dir: str) -> dict[str, dict[str, Any]]:
         try:
             with open(json_file, encoding="utf-8") as f:
                 regel_data = json.load(f)
-                # Bewaar alleen essentiële velden voor memory efficiency
+                # Bewaar alle velden voor completeness (validatie + prompt generation)
+                # Memory cost: ~300KB extra voor 45 regels (negligible)
                 all_rules[regel_id] = {
                     "id": regel_data.get("id", regel_id),
                     "naam": regel_data.get("naam", ""),
                     "prioriteit": regel_data.get("prioriteit", "midden"),
                     "aanbeveling": regel_data.get("aanbeveling", "optioneel"),
+                    # Pattern fields (voor validatie)
                     "herkenbaar_patronen": regel_data.get("herkenbaar_patronen", []),
                     "herkenbaar_patronen_type": regel_data.get(
                         "herkenbaar_patronen_type", []
@@ -79,6 +81,11 @@ def _load_all_rules_cached(regels_dir: str) -> dict[str, dict[str, Any]]:
                         "herkenbaar_patronen_resultaat", []
                     ),
                     "weight": regel_data.get("weight"),  # Als aanwezig
+                    # Content fields (voor prompt generation) - DEF-156 fix
+                    "uitleg": regel_data.get("uitleg", ""),
+                    "toetsvraag": regel_data.get("toetsvraag", ""),
+                    "goede_voorbeelden": regel_data.get("goede_voorbeelden", []),
+                    "foute_voorbeelden": regel_data.get("foute_voorbeelden", []),
                 }
         except Exception as e:
             logger.error(f"Fout bij laden regel {regel_id}: {e}")

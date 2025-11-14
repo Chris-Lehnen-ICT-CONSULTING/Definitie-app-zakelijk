@@ -13,23 +13,19 @@ from services.definition_generator_config import UnifiedGeneratorConfig
 from services.definition_generator_context import EnrichedContext
 
 from .modules import (
-    AraiRulesModule,
-    ConRulesModule,
     ContextAwarenessModule,
     DefinitionTaskModule,
     ErrorPreventionModule,
-    EssRulesModule,
     ExpertiseModule,
     GrammarModule,
     IntegrityRulesModule,
+    JSONBasedRulesModule,
     MetricsModule,
     OutputSpecificationModule,
     PromptOrchestrator,
-    SamRulesModule,
     SemanticCategorisationModule,
     StructureRulesModule,
     TemplateModule,
-    VerRulesModule,
 )
 
 logger = logging.getLogger(__name__)
@@ -64,14 +60,49 @@ def get_cached_orchestrator() -> PromptOrchestrator:
                     ContextAwarenessModule(),
                     SemanticCategorisationModule(),
                     TemplateModule(),
-                    # Regel modules - elke categorie eigen module
-                    AraiRulesModule(),  # ARAI regels
-                    ConRulesModule(),  # CON regels
-                    EssRulesModule(),  # ESS regels
-                    IntegrityRulesModule(),  # INT regels
-                    SamRulesModule(),  # SAM regels
-                    StructureRulesModule(),  # STR regels
-                    VerRulesModule(),  # VER regels
+                    # JSON-based regel modules (DEF-156: Consolidated from 5 duplicate modules)
+                    JSONBasedRulesModule(
+                        rule_prefix="ARAI",
+                        module_id="arai_rules",
+                        module_name="ARAI Validation Rules",
+                        header_emoji="✅",
+                        header_text="Algemene Regels AI (ARAI)",
+                        priority=75,
+                    ),
+                    JSONBasedRulesModule(
+                        rule_prefix="CON-",  # ⚠️ Edge case: trailing dash
+                        module_id="con_rules",
+                        module_name="Context Validation Rules (CON)",
+                        header_emoji="🌐",
+                        header_text="Context Regels (CON)",
+                        priority=70,
+                    ),
+                    JSONBasedRulesModule(
+                        rule_prefix="ESS-",
+                        module_id="ess_rules",
+                        module_name="Essence Validation Rules (ESS)",
+                        header_emoji="🎯",
+                        header_text="Essentie Regels (ESS)",
+                        priority=75,
+                    ),
+                    IntegrityRulesModule(),  # INT regels (custom, not JSON-based)
+                    JSONBasedRulesModule(
+                        rule_prefix="SAM-",
+                        module_id="sam_rules",
+                        module_name="Coherence Validation Rules (SAM)",
+                        header_emoji="🔗",
+                        header_text="Samenhang Regels (SAM)",
+                        priority=65,
+                    ),
+                    StructureRulesModule(),  # STR regels (custom, not JSON-based)
+                    JSONBasedRulesModule(
+                        rule_prefix="VER-",
+                        module_id="ver_rules",
+                        module_name="Form Validation Rules (VER)",
+                        header_emoji="📐",
+                        header_text="Vorm Regels (VER)",
+                        priority=60,
+                    ),
                     ErrorPreventionModule(),
                     MetricsModule(),
                     DefinitionTaskModule(),
