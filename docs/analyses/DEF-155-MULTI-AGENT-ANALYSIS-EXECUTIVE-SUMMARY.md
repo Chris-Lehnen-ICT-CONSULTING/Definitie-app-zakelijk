@@ -14,7 +14,7 @@
 **Rationale:**
 - ✅ **Lower risk** dan full consolidation (incremental + validation gates)
 - ✅ **Better architecture** dan proposed plan (geen god object)
-- ✅ **Sufficient impact** (26-39% token reductie in Phase 1+2, 50-68% in Phase 3)
+- ✅ **Sufficient impact** (5-8% total prompt reduction in Phase 1+2, ~9% in Phase 3)
 - ✅ **Realistic timeline** (9u voor Phase 1+2 vs 6u optimistische schatting)
 
 **Next Step:** User beslissing welke approach (zie sectie 6)
@@ -249,7 +249,7 @@ Weighted average:                239 → 80 tokens (66.5%)
 │ - ContextAwarenessModule: unified output          │
 │ - Remove "gebruik context" duplicates             │
 │ - TEST: Token reduction ≥100? (blocker)           │
-│ RISK: MEDIUM | TOKEN IMPACT: High (26-39%)        │
+│ RISK: MEDIUM | TOKEN IMPACT: ~5-8% total prompt   │
 └────────────────────────────────────────────────────┘
                         ↓
          [DECISION GATE: Token Reduction Check]
@@ -258,7 +258,7 @@ Weighted average:                239 → 80 tokens (66.5%)
           ▼                           ▼
     [STOP HERE]              [PHASE 3: OPTIONAL]
     9 hours total            +8 hours (17h total)
-    26-39% reduction         50-68% reduction
+    ~5-8% total reduction    ~9% total reduction
     LOW risk                 MEDIUM risk
 ```
 
@@ -271,7 +271,7 @@ Weighted average:                239 → 80 tokens (66.5%)
 **Phase 1+2 (9 hours, LOW risk):**
 - ✅ Fix confirmed data access bug
 - ✅ Consolidate redundant instructions
-- ✅ Token reduction: 26-39% (~100-150 tokens)
+- ✅ Token reduction: ~5-8% total prompt (~120 tokens saved)
 - ✅ Validation gates prevent regressions
 - ✅ Incremental rollback if needed
 

@@ -9,11 +9,11 @@
 
 **Problem:** 380 tokens wasted, 3 modules duplicate context instructions
 **Solution:** Consolidate to single source of truth
-**Impact:** 26-68% token reduction (verified), better architecture
+**Impact:** 5-9% total prompt reduction (120-220 tokens saved), better architecture
 **Effort:** 9 hours (Phase 1+2) or 17 hours (all phases)
 **Risk:** LOW-MEDIUM (with validation gates)
 
-**Recommendation:** ✅ START with Phase 1+2 (9 hours, 26-39% reduction)
+**Recommendation:** ✅ START with Phase 1+2 (9 hours, ~5-8% total prompt reduction)
 
 ---
 
@@ -21,9 +21,9 @@
 
 | Your Priority | Recommended Approach | Effort | Risk | Impact |
 |--------------|---------------------|--------|------|--------|
-| **Quick Win** | Phase 1 only | 3h | LOW | 5% reduction |
-| **Balanced** ⭐ | Phase 1+2 (stop) | 9h | LOW | 26-39% reduction |
-| **Best Architecture** | Phase 1+2+3 | 17h | MEDIUM | 50-68% reduction |
+| **Quick Win** | Phase 1 only | 3h | LOW | ~2% reduction |
+| **Balanced** ⭐ | Phase 1+2 (stop) | 9h | LOW | ~5-8% total reduction |
+| **Best Architecture** | Phase 1+2+3 | 17h | MEDIUM | ~9% total reduction |
 | **Conservative** | Minimal changes only | 8h | LOW | 17% reduction |
 
 ---
@@ -136,7 +136,7 @@ Day 2 Full day: Phase 3 (8h) + Gate 3 (0.5h)
 ```
 ✅ I want balanced risk/reward
 ✅ I prefer incremental validation
-✅ 26-39% reduction is acceptable
+✅ 5-8% total prompt reduction is acceptable
 → START with Phase 0+1+2
 → DECIDE after Phase 2: stop or continue?
 ```

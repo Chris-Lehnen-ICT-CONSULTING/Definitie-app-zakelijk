@@ -391,7 +391,7 @@ python tests/debug/compare_baselines.py baseline_def126.json after_phase1.json
 ### Goal: Remove duplicate "gebruik context" instructions
 
 **Risk Level:** 🟡 MEDIUM (changes prompt generation logic)
-**Token Impact:** ~26-39% (100-150 tokens reduction)
+**Token Impact:** ~5% total prompt reduction (~60% of context section = 120 tokens saved)
 
 ### Current Redundancy:
 
