@@ -498,7 +498,25 @@ class DefinitionGeneratorTab:
                             saved_id = int(saved_definition_id)
 
                         if saved_id:
-                            self._maybe_persist_examples(saved_id, agent_result)
+                            # DEF-156: Show UI confirmation when voorbeelden are auto-saved
+                            saved_successfully = self._maybe_persist_examples(
+                                saved_id, agent_result
+                            )
+                            if saved_successfully:
+                                # Count total voorbeelden items for confirmation message
+                                vb = agent_result.get("voorbeelden", {})
+                                if isinstance(vb, dict):
+                                    total = sum(
+                                        (
+                                            len(v)
+                                            if isinstance(v, list)
+                                            else (1 if v else 0)
+                                        )
+                                        for v in vb.values()
+                                    )
+                                    st.success(
+                                        f"✅ Voorbeelden automatisch opgeslagen ({total} items)"
+                                    )
                     except Exception as e:
                         logger.warning(
                             f"Automatisch opslaan van voorbeelden overgeslagen: {e}"
@@ -786,12 +804,15 @@ class DefinitionGeneratorTab:
 
     def _maybe_persist_examples(
         self, definitie_id: int, agent_result: dict[str, Any]
-    ) -> None:
+    ) -> bool:
         """Sla gegenereerde voorbeelden automatisch op in de DB.
 
         - Vermijdt dubbele opslag door te keyen op generation_id
         - Slaat alleen op wanneer er daadwerkelijk content is
         - Vergelijkt met huidige actieve DB‑voorbeelden om onnodige writes te vermijden
+
+        Returns:
+            True if voorbeelden were saved, False otherwise
         """
         try:
             meta = (
@@ -816,7 +837,7 @@ class DefinitionGeneratorTab:
                 logger.warning(
                     f"No voorbeelden data in agent_result for definitie {definitie_id}"
                 )
-                return
+                return False
 
             # Canonicaliseer en normaliseer naar lists
             from ui.helpers.examples import canonicalize_examples
@@ -850,7 +871,7 @@ class DefinitionGeneratorTab:
                 logger.warning(
                     f"Voorbeelden dict empty (0 items) for definitie {definitie_id}"
                 )
-                return
+                return False
 
             # Vergelijk met huidige actieve voorbeelden; sla alleen op als er verschil is
             repo = get_definitie_repository()
@@ -880,7 +901,7 @@ class DefinitionGeneratorTab:
                 logger.info(
                     f"Voorbeelden identical to database for definitie {definitie_id}, skipping save"
                 )
-                return
+                return False  # Not saved (already exists)
 
             # Sla op met voorkeursterm uit session state
             from pydantic import ValidationError
@@ -904,14 +925,17 @@ class DefinitionGeneratorTab:
                     f"✅ Voorbeelden saved for definitie {definitie_id}: "
                     f"{total_new} items across {len([k for k, v in to_save.items() if v])} types"
                 )
+                # DEF-156: Return success indicator for UI confirmation
+                return True
             except ValidationError as e:
                 logger.error(
                     f"Voorbeelden validation failed for definitie {definitie_id}: {e}"
                 )
                 # Don't raise in auto-save context, just log
-                return
+                return False
         except Exception as e:
             logger.warning("Automatisch opslaan voorbeelden mislukt: %s", e)
+            return False
 
     def _persist_examples_manual(
         self, definitie_id: int, agent_result: dict[str, Any]

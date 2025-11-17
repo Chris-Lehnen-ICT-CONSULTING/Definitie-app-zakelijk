@@ -711,8 +711,6 @@ class DefinitionEditTab:
 
     def _render_examples_section(self):
         """Render sectie voor AI-gegenereerde voorbeelden (edit-tab)."""
-        from ui.components.examples_block import _reset_voorbeelden_context
-
         def_id = SessionStateManager.get_value("editing_definition_id")
         if not def_id:
             return
@@ -730,8 +728,11 @@ class DefinitionEditTab:
         # Get repository voor edit functionaliteit
         repo = DefinitieRepository()
 
-        # DEF-110: Reset context before rendering to prevent stale voorbeelden
-        _reset_voorbeelden_context(f"edit_{def_id}", definition_id=def_id)
+        # REMOVED: _reset_voorbeelden_context() call (caused data loss!)
+        # De reset wiste voorbeelden uit session state bij elke render, terwijl ze
+        # niet altijd in de database waren opgeslagen. Dit veroorzaakte permanent
+        # data verlies wanneer voorbeelden alleen in session state zaten.
+        # Reset gebeurt nu alleen bij definitie switches in _start_edit_session().
 
         # Render voorbeelden met edit mogelijkheid
         with st.expander("📋 Voorbeelden Details", expanded=True):
@@ -1009,6 +1010,29 @@ class DefinitionEditTab:
                     "editing_definition", session["definition"]
                 )
                 SessionStateManager.set_value("edit_session", session)
+
+                # DEF-156 Fix 2B: Eager voorbeelden loading to prevent data loss
+                # Explicitly resolve and cache voorbeelden in session state
+                try:
+                    from database.definitie_repository import DefinitieRepository
+                    from ui.helpers.examples import resolve_examples
+
+                    repo = DefinitieRepository()
+                    state_key = f"edit_{definition_id}_examples"
+                    voorbeelden = resolve_examples(
+                        state_key, session["definition"], repository=repo
+                    )
+                    if voorbeelden and any(voorbeelden.values()):
+                        SessionStateManager.set_value(state_key, voorbeelden)
+                        logger.debug(
+                            f"Eager-loaded voorbeelden for edit session {definition_id}: "
+                            f"{sum(len(v) if isinstance(v, list) else 0 for v in voorbeelden.values())} items"
+                        )
+                except Exception as e:
+                    # Don't fail session start if voorbeelden loading fails
+                    logger.warning(
+                        f"Could not eager-load voorbeelden for edit session {definition_id}: {e}"
+                    )
 
                 # Check for auto-save draft en bied herstelknop
                 if session.get("auto_save"):

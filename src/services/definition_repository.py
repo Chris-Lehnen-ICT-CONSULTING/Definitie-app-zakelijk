@@ -790,6 +790,26 @@ class DefinitionRepository(DefinitionRepositoryInterface):
                     record.generation_prompt_data
                 )
 
+        # DEF-156: Load voorbeelden from database and populate metadata
+        # This ensures voorbeelden persist when loading definitions in Bewerk tab
+        try:
+            voorbeelden_db = self.get_voorbeelden_by_type(record.id)
+            if voorbeelden_db and any(voorbeelden_db.values()):
+                # Canonicalize DB keys to UI-expected format
+                # DB uses: sentence, practical, counter, synonyms, antonyms, explanation
+                # UI expects: voorbeeldzinnen, praktijkvoorbeelden, tegenvoorbeelden, synoniemen, antoniemen, toelichting
+                from ui.helpers.examples import canonicalize_examples
+
+                canonicalized = canonicalize_examples(voorbeelden_db)
+                definition.metadata["voorbeelden"] = canonicalized
+                logger.debug(
+                    f"Loaded voorbeelden for definitie {record.id}: "
+                    f"{sum(len(v) if isinstance(v, list) else 0 for v in canonicalized.values())} items"
+                )
+        except Exception as e:
+            # Don't fail if voorbeelden loading fails - just log warning
+            logger.warning(f"Could not load voorbeelden for definitie {record.id}: {e}")
+
         return definition
 
     @contextmanager
