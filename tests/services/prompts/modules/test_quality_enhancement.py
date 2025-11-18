@@ -1,14 +1,28 @@
 """
 Test ErrorPrevention → QualityEnhancement transformation for DEF-126.
 
+⚠️ OBSOLETE (DEF-169): This test suite is no longer relevant.
+
+REASON:
+ErrorPreventionModule has been disabled because it's 100% redundant with
+JSONBasedRulesModule. The entire "Veelgemaakte fouten" section (~1,000 tokens)
+is already covered by validation rules (ARAI-06, STR-01, ESS-02, etc.).
+
+DECISION:
+Instead of transforming ErrorPreventionModule → QualityEnhancementModule,
+we removed the module entirely to save tokens without quality loss.
+
+PREVIOUS PLAN (DEF-126):
 These tests MUST FAIL initially (red phase of TDD) until the transformation
 is implemented. They validate the shift from error prevention (negative)
 to quality enhancement (positive).
 
-KEY CHANGES:
+KEY CHANGES (no longer relevant):
 1. Module renamed: ErrorPreventionModule → QualityEnhancementModule
 2. Language shift: "VERMIJD X" → "GEBRUIK Y"
 3. Removed forbidden starters: "proces waarbij" and "handeling die"
+
+STATUS: Tests will skip if ErrorPreventionModule is not available.
 """
 
 from importlib import import_module

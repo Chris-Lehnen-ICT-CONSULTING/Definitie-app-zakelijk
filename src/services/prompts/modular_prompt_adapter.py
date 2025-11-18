@@ -15,7 +15,7 @@ from services.definition_generator_context import EnrichedContext
 from .modules import (
     ContextAwarenessModule,
     DefinitionTaskModule,
-    ErrorPreventionModule,
+    # ErrorPreventionModule,  # DEF-169: Disabled - redundant with JSONBasedRulesModule
     ExpertiseModule,
     GrammarModule,
     JSONBasedRulesModule,
@@ -117,7 +117,16 @@ def get_cached_orchestrator() -> PromptOrchestrator:
                         header_text="Vorm Regels (VER)",
                         priority=60,
                     ),
-                    ErrorPreventionModule(),
+                    # DEF-169: ErrorPreventionModule uitgeschakeld - 100% redundant met JSONBasedRulesModule
+                    # De "Veelgemaakte fouten" sectie (~1.000 tokens) wordt volledig afgedekt door:
+                    # - ARAI-06 (geen lidwoorden/koppelwerkwoorden)
+                    # - STR-01, STR-02, STR-03 (structuur regels)
+                    # - ESS-02 (geen meta-woorden)
+                    # - ARAI-02, ARAI-03 (containerbegrippen, bijvoeglijke naamwoorden)
+                    # - VER-01, VER-02, VER-03 (enkelvoud, infinitief)
+                    # Plus: validatiematrix tabel vat alle patronen al samen
+                    # Besparing: ~1.000 tokens (-14%) zonder kwaliteitsverlies
+                    # ErrorPreventionModule(),
                     MetricsModule(),
                     DefinitionTaskModule(),
                 ]
@@ -222,11 +231,12 @@ class ModularPromptAdapter:
             "ver_rules": {
                 "include_examples": config.include_examples_in_rules,
             },
-            "error_prevention": {
-                # Error prevention settings
-                "include_validation_matrix": not config.compact_mode,
-                "extended_forbidden_list": not config.compact_mode,
-            },
+            # DEF-169: ErrorPreventionModule config disabled (module not registered)
+            # "error_prevention": {
+            #     # Error prevention settings
+            #     "include_validation_matrix": not config.compact_mode,
+            #     "extended_forbidden_list": not config.compact_mode,
+            # },
             "definition_task": {
                 # Task module settings
                 "include_quality_control": not config.compact_mode,

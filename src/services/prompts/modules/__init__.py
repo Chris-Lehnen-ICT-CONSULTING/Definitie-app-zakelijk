@@ -10,8 +10,8 @@ DEF-156 Phase 1: JSON-based rule modules consolidated into JSONBasedRulesModule.
 from .base_module import BasePromptModule, CompositeModule, ModuleContext, ModuleOutput
 from .context_awareness_module import ContextAwarenessModule
 from .definition_task_module import DefinitionTaskModule
-from .error_prevention_module import ErrorPreventionModule
 
+# from .error_prevention_module import ErrorPreventionModule  # DEF-169: Disabled - redundant
 # Concrete modules
 from .expertise_module import ExpertiseModule
 from .grammar_module import GrammarModule
@@ -36,7 +36,7 @@ __all__ = [
     "CompositeModule",
     "ContextAwarenessModule",
     "DefinitionTaskModule",
-    "ErrorPreventionModule",
+    # "ErrorPreventionModule",  # DEF-169: Disabled - redundant with JSONBasedRulesModule
     # Core modules
     "ExpertiseModule",
     "GrammarModule",
