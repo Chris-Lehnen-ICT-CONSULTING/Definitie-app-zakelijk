@@ -12,10 +12,9 @@ from typing import Any
 from services.definition_generator_config import UnifiedGeneratorConfig
 from services.definition_generator_context import EnrichedContext
 
-from .modules import (
+from .modules import (  # ErrorPreventionModule,  # DEF-169: Disabled - redundant with JSONBasedRulesModule
     ContextAwarenessModule,
     DefinitionTaskModule,
-    # ErrorPreventionModule,  # DEF-169: Disabled - redundant with JSONBasedRulesModule
     ExpertiseModule,
     GrammarModule,
     JSONBasedRulesModule,
