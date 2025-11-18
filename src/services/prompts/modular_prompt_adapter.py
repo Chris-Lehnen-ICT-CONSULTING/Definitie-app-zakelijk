@@ -18,13 +18,11 @@ from .modules import (
     ErrorPreventionModule,
     ExpertiseModule,
     GrammarModule,
-    IntegrityRulesModule,
     JSONBasedRulesModule,
     MetricsModule,
     OutputSpecificationModule,
     PromptOrchestrator,
     SemanticCategorisationModule,
-    StructureRulesModule,
     TemplateModule,
 )
 
@@ -85,7 +83,15 @@ def get_cached_orchestrator() -> PromptOrchestrator:
                         header_text="Essentie Regels (ESS)",
                         priority=75,
                     ),
-                    IntegrityRulesModule(),  # INT regels (custom, not JSON-based)
+                    JSONBasedRulesModule(
+                        rule_prefix="INT",
+                        module_id="integrity_rules",
+                        module_name="Integrity Validation Rules (INT)",
+                        header_emoji="🔒",
+                        header_text="Integriteit Regels (INT)",
+                        priority=70,  # Same priority as before
+                        # mode=ValidationMode.INSTRUCTION,  # ← OPTIONAL: Uncomment to enable compact mode
+                    ),
                     JSONBasedRulesModule(
                         rule_prefix="SAM-",
                         module_id="sam_rules",
@@ -94,7 +100,15 @@ def get_cached_orchestrator() -> PromptOrchestrator:
                         header_text="Samenhang Regels (SAM)",
                         priority=65,
                     ),
-                    StructureRulesModule(),  # STR regels (custom, not JSON-based)
+                    JSONBasedRulesModule(
+                        rule_prefix="STR",  # Note: "STR" not "STR-" (matches JSON id format STR_01)
+                        module_id="structure_rules",
+                        module_name="Structure Validation Rules (STR)",
+                        header_emoji="🏗️",
+                        header_text="Structuur Regels (STR)",
+                        priority=65,  # Same priority as before
+                        # mode=ValidationMode.INSTRUCTION,  # ← OPTIONAL: Uncomment to enable compact mode
+                    ),
                     JSONBasedRulesModule(
                         rule_prefix="VER-",
                         module_id="ver_rules",

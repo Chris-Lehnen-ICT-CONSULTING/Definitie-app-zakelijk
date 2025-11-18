@@ -75,6 +75,26 @@ DefinitieAgent is een AI-gestuurde Nederlandse juridische definitiegenerator die
 
 ## 🚫 KRITIEKE REGELS VOOR CLAUDE/AI
 
+### 🤖 MULTIAGENT + ULTRATHINK ENFORCEMENT
+
+> **⚠️ MANDATORY PROTOCOL bij multiagent/ultrathink requests:**
+> Zie `~/.ai-agents/UNIFIED_INSTRUCTIONS.md` → sectie "MULTIAGENT + ULTRATHINK PROTOCOL"
+
+**Critical Constraints (Solo Dev Context):**
+- ✅ **Effort Limit**: MAX 10 hours voor complex tasks
+- ✅ **KISS Principle**: Simplest solution that achieves 80% benefit
+- ✅ **Solo Dev**: Experimental code, NO backwards compatibility, NO enterprise patterns
+- ❌ **Anti-Patterns**: ValidationMode enums, phased rollouts, quality gates, monitoring frameworks
+
+**Real-Time Correction Shortcuts:**
+- 🚨 **KISS** → "You're overcomplicating - what's the 1-liner version?"
+- 🚨 **EFFORT** → "This is >10 hours - give me the <3 hour prototype"
+- 🚨 **ENTERPRISE** → "Remove team/production patterns - solo dev only!"
+- 🚨 **PROTOTYPE** → "Can I test this in 30 min? If no, simplify!"
+
+**Voor volledige protocol (5-question self-check, effort calibration, red flags):**
+→ `~/.ai-agents/UNIFIED_INSTRUCTIONS.md`
+
 ### 🔴 PROJECT ROOT - STRIKT BELEID
 
 **NOOIT bestanden in project root plaatsen, behalve:**
