@@ -452,13 +452,13 @@ class DefinitionEditTab:
                 default=org_default,
                 key=k("org_multiselect"),
                 disabled=disabled,
-                help="Selecteer één of meer organisaties; kies Anders... voor eigen waarden (komma‑gescheiden)",
+                help="Selecteer één of meer organisaties; kies Anders... voor eigen waarden (komma-gescheiden)",
             )
             # Afkortingen-uitleg uit config (indien aanwezig)
             try:
                 abbrev = getattr(ui_cfg, "afkortingen", {}) or {}
                 if abbrev:
-                    with st.expander("ℹ️ Afkortingen (uitleg)", expanded=False):
+                    with st.expander("i Afkortingen (uitleg)", expanded=False):
                         for ak in sorted(abbrev.keys()):
                             st.markdown(f"- **{ak}** — {abbrev[ak]}")
             except Exception:
@@ -466,7 +466,7 @@ class DefinitionEditTab:
             org_custom_values = []
             if "Anders..." in org_selected:
                 org_custom_raw = st.text_input(
-                    "Andere organisatie(s) (komma‑gescheiden)",
+                    "Andere organisatie(s) (komma-gescheiden)",
                     value=", ".join(org_other) if org_other else "",
                     key=k("org_custom"),
                     disabled=disabled,
@@ -474,7 +474,7 @@ class DefinitionEditTab:
                 org_custom_values = [
                     v.strip() for v in org_custom_raw.split(",") if v.strip()
                 ]
-            # Schrijf de samengevoegde lijst naar session state voor save‑flow
+            # Schrijf de samengevoegde lijst naar session state voor save-flow
             org_resolved = [
                 v for v in org_selected if v != "Anders..."
             ] + org_custom_values
@@ -491,7 +491,7 @@ class DefinitionEditTab:
                 help="Ontologische categorie van het begrip",
             )
 
-            # UFO‑categorie selectie (onder ontologische categorie)
+            # UFO-categorie selectie (onder ontologische categorie)
             ufo_opties = [
                 "",
                 "Kind",
@@ -519,12 +519,12 @@ class DefinitionEditTab:
             except Exception:
                 ufo_default_index = 0
             ufo_selected = st.selectbox(
-                "UFO‑categorie",
+                "UFO-categorie",
                 options=ufo_opties,
                 index=ufo_default_index,
                 key=k("ufo_categorie"),
                 disabled=disabled,
-                help="Selecteer de UFO‑categorie (OntoUML/UFO metamodel)",
+                help="Selecteer de UFO-categorie (OntoUML/UFO metamodel)",
             )
 
         with col2:
@@ -551,12 +551,12 @@ class DefinitionEditTab:
                 default=jur_default,
                 key=k("jur_multiselect"),
                 disabled=disabled,
-                help="Selecteer rechtsgebieden; kies Anders... voor eigen waarden (komma‑gescheiden)",
+                help="Selecteer rechtsgebieden; kies Anders... voor eigen waarden (komma-gescheiden)",
             )
             jur_custom_values = []
             if "Anders..." in jur_selected:
                 jur_custom_raw = st.text_input(
-                    "Andere rechtsgebieden (komma‑gescheiden)",
+                    "Andere rechtsgebieden (komma-gescheiden)",
                     value=", ".join(jur_other) if jur_other else "",
                     key=k("jur_custom"),
                     disabled=disabled,
@@ -591,12 +591,12 @@ class DefinitionEditTab:
                 default=wet_default,
                 key=k("wet_multiselect"),
                 disabled=disabled,
-                help="Selecteer wetten; kies Anders... voor eigen waarden (komma‑gescheiden)",
+                help="Selecteer wetten; kies Anders... voor eigen waarden (komma-gescheiden)",
             )
             wet_custom_values = []
             if "Anders..." in wet_selected:
                 wet_custom_raw = st.text_input(
-                    "Andere wetten (komma‑gescheiden)",
+                    "Andere wetten (komma-gescheiden)",
                     value=", ".join(wet_other) if wet_other else "",
                     key=k("wet_custom"),
                     disabled=disabled,
@@ -670,7 +670,7 @@ class DefinitionEditTab:
 
         st.text_input("Reden voor wijziging (optioneel)", key=k("save_reason"))
 
-        # Check ‘minstens 1 context’ voor Save‑actie
+        # Check 'minstens 1 context' voor Save-actie
         org_list = SessionStateManager.get_value(k("organisatorische_context")) or []
         jur_list = SessionStateManager.get_value(k("juridische_context")) or []
         wet_list = SessionStateManager.get_value(k("wettelijke_basis")) or []
@@ -769,11 +769,11 @@ class DefinitionEditTab:
                                 )
                             else:
                                 st.info(
-                                    "ℹ️ Geen voorkeursterm geselecteerd. Gebruik de selector hierboven om er een te kiezen."
+                                    "i Geen voorkeursterm geselecteerd. Gebruik de selector hierboven om er een te kiezen."
                                 )
                         except Exception:
                             st.info(
-                                "ℹ️ Geen voorkeursterm geselecteerd. Gebruik de selector hierboven om er een te kiezen."
+                                "i Geen voorkeursterm geselecteerd. Gebruik de selector hierboven om er een te kiezen."
                             )
         except Exception as e:
             logger.debug(f"Could not show voorkeursterm status: {e}")
@@ -1201,7 +1201,7 @@ class DefinitionEditTab:
                         context=vc,
                     )
                 )
-                # Normaliseer naar UI‑structuur
+                # Normaliseer naar UI-structuur
                 if isinstance(v, dict):
                     violations = v.get("violations", []) or []
                     normalized_issues = []
@@ -1301,12 +1301,12 @@ class DefinitionEditTab:
                 lines.append("\nFout voorbeeld:")
                 lines.extend([f"- {b}" for b in bad[:2]])
             lines.append(
-                "\nMeer uitleg: [Validatieregels (CON‑01 e.a.)](docs/handleidingen/gebruikers/uitleg-validatieregels.md)"
+                "\nMeer uitleg: [Validatieregels (CON-01 e.a.)](docs/handleidingen/gebruikers/uitleg-validatieregels.md)"
             )
             return "\n".join(lines)
         except Exception:
             return (
-                "Meer uitleg: [Validatieregels (CON‑01 e.a.)]"
+                "Meer uitleg: [Validatieregels (CON-01 e.a.)]"
                 "(docs/handleidingen/gebruikers/uitleg-validatieregels.md)"
             )
 

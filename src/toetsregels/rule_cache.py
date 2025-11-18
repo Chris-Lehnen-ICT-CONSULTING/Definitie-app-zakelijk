@@ -1,10 +1,10 @@
 """
 Rule Cache voor geoptimaliseerde validatieregel loading.
 
-Deze implementatie laadt JSON‑regelbestanden één keer en cachet ze in
-een proces‑lokale cache (TTL via utils.cache). Dit minimaliseert IO,
+Deze implementatie laadt JSON-regelbestanden één keer en cachet ze in
+een proces-lokale cache (TTL via utils.cache). Dit minimaliseert IO,
 behoudt een kleine memory footprint en is direct integreerbaar met
-ModularValidationService — zonder UI/Streamlit‑afhankelijkheid.
+ModularValidationService — zonder UI/Streamlit-afhankelijkheid.
 """
 
 import contextlib
@@ -32,7 +32,7 @@ except ImportError:
 @cached(ttl=3600)
 def _load_all_rules_cached(regels_dir: str) -> dict[str, dict[str, Any]]:
     """
-    Load alle validatieregels van disk met pure‑Python caching.
+    Load alle validatieregels van disk met pure-Python caching.
 
     Deze functie wordt SLECHTS EENMAAL uitgevoerd per uur (ttl=3600).
     Alle volgende calls returnen de gecachte data direct uit memory.
@@ -278,7 +278,7 @@ class RuleCache:
         Clear de cache voor regels.
 
         Let op: gebruikt de globale cachefacade en kan ook andere
-        decorator‑caches legen, conform eerdere Streamlit‑clear semantiek.
+        decorator-caches legen, conform eerdere Streamlit-clear semantiek.
         """
         if self._monitor:
             with self._monitor.track_operation("clear", "cache") as result:

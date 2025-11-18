@@ -292,24 +292,24 @@ class ContextManager:
             "juridische_context",
             "wettelijke_basis",
         ]
-        for field in list_fields:
-            value = context_data.get(field, [])
+        for field_name in list_fields:
+            value = context_data.get(field_name, [])
 
             # Ensure it's a list
             if value is None:
-                validated[field] = []
+                validated[field_name] = []
             elif isinstance(value, list):
                 # Validate each item is a string
-                validated[field] = [
+                validated[field_name] = [
                     str(item)
                     for item in value
                     if item is not None and str(item).strip()
                 ]
             elif isinstance(value, str):
                 # Convert single string to list
-                validated[field] = [value] if value.strip() else []
+                validated[field_name] = [value] if value.strip() else []
             else:
-                msg = f"Invalid type for {field}: expected list or string, got {type(value)}"
+                msg = f"Invalid type for {field_name}: expected list or string, got {type(value)}"
                 raise ValueError(msg)
 
         # Validate metadata

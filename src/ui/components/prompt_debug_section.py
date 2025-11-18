@@ -17,7 +17,7 @@ class PromptDebugSection:
     """Component voor het tonen en analyseren van AI prompts."""
 
     @staticmethod
-    def render(  # noqa: PLR0915
+    def render(
         generation_result: Any | None = None,
         voorbeelden_prompts: dict[str, str] | None = None,
     ):

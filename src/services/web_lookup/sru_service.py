@@ -664,16 +664,16 @@ class SRUService:
 
     def _build_cql_query(self, term: str, collection: str) -> str:
         """
-        Bouw een SRU CQL‑query op basis van de zoekterm en (indien aanwezig)
+        Bouw een SRU CQL-query op basis van de zoekterm en (indien aanwezig)
         afgeleide wettelijke context. Deze versie vermijdt één grote gequote
-        frase en gebruikt in plaats daarvan AND/OR‑blokken:
+        frase en gebruikt in plaats daarvan AND/OR-blokken:
 
         (cql.serverChoice any "<term>") AND (
             cql.serverChoice any "Wetboek van Strafvordering" OR cql.serverChoice any "Sv"
         )
 
         Wanneer geen wettelijke context kan worden herkend, valt de builder
-        terug op de eerdere DC‑velden (title/subject/description).
+        terug op de eerdere DC-velden (title/subject/description).
         """
 
         # Interne helpers
@@ -681,7 +681,7 @@ class SRUService:
             return (s or "").replace('"', '\\"').strip()
 
         def _detect_wet_variants(text: str) -> list[str]:
-            """Herken wet‑synoniemen (Sv/Sr/Awb/Rv en uitgeschreven varianten)."""
+            """Herken wet-synoniemen (Sv/Sr/Awb/Rv en uitgeschreven varianten)."""
             t = (text or "").lower()
             variants: list[str] = []
             # Voluit namen en gebruikelijke afkortingen
@@ -699,7 +699,7 @@ class SRUService:
             if ("burgerlijke rechtsvordering" in t) or (" rv" in f" {t}"):
                 variants.extend(["Wetboek van Burgerlijke Rechtsvordering", "Rv"])
 
-            # De‑dupe while preserving order (case‑insensitive)
+            # De-dupe while preserving order (case-insensitive)
             seen: set[str] = set()
             out: list[str] = []
             for v in variants:
@@ -720,10 +720,10 @@ class SRUService:
                 kept.append(p)
             return " ".join(kept)
 
-        # Stap 1: haal wet‑varianten uit de term, strip org‑tokens uit basisterm
+        # Stap 1: haal wet-varianten uit de term, strip org-tokens uit basisterm
         wet_variants = _detect_wet_variants(term)
         base_term = _strip_org_tokens(term)
-        # Verwijder wet‑varianten uit de basisterm om ruis te beperken
+        # Verwijder wet-varianten uit de basisterm om ruis te beperken
         if wet_variants:
             bt = base_term
             for v in wet_variants:
@@ -731,12 +731,12 @@ class SRUService:
                     continue
                 import re as _re
 
-                # case‑insensitive vervanging, als los woord of frase
+                # case-insensitive vervanging, als los woord of frase
                 pattern = _re.compile(r"\b" + _re.escape(v) + r"\b", _re.IGNORECASE)
                 bt = pattern.sub(" ", bt)
             base_term = " ".join(bt.split())
 
-        # Als we wet‑context hebben, bouw een AND/OR query met serverChoice any
+        # Als we wet-context hebben, bouw een AND/OR query met serverChoice any
         if wet_variants:
             term_block = f'cql.serverChoice any "{_escape(base_term)}"'
             wet_block_parts = [
@@ -749,7 +749,7 @@ class SRUService:
                 query = f'{query} AND c.product-area="{_escape(collection)}"'
             return query
 
-        # Geen herkende wet‑context ⇒ gebruik schema-agnostic serverChoice
+        # Geen herkende wet-context ⇒ gebruik schema-agnostic serverChoice
         # FIX A.1: DC fields falen met gzd schema ("unknown prefix dc")
         # serverChoice werkt met alle schemas (gzd, dc, oai_dc)
         escaped_term = _escape(term)
@@ -1122,10 +1122,7 @@ class SRUService:
 
         # Title match (hoogste score)
         if title and term_lower in title.lower():
-            if term_lower == title.lower().strip():
-                base_confidence = 0.95  # Exact match
-            else:
-                base_confidence = 0.85  # Partial title match
+            base_confidence = 0.95 if term_lower == title.lower().strip() else 0.85
 
         # Subject match
         elif subject and term_lower in subject.lower():

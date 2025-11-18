@@ -511,7 +511,7 @@ class DefinitionWorkflowService:
 
     # ===== US-160: Gate preview & evaluation =====
     def preview_gate(self, definition_id: int) -> dict[str, Any]:
-        """Geef gate‑status voor UI‑presentatie (pass/override_required/blocked + redenen)."""
+        """Geef gate-status voor UI-presentatie (pass/override_required/blocked + redenen)."""
         try:
             # Gebruik legacy compat method om DefinitieRecord op te halen
             get_method = getattr(self.repository, "get_definitie", None)
@@ -527,11 +527,11 @@ class DefinitionWorkflowService:
             logger.warning("Gate preview failed: %s", e)
             return {
                 "status": "blocked",
-                "reasons": ["Technische fout bij gate‑preview"],
+                "reasons": ["Technische fout bij gate-preview"],
             }
 
     def _evaluate_gate(self, definition) -> dict[str, Any]:
-        """Implementeert Option B gate‑logica.
+        """Implementeert Option B gate-logica.
 
         Verwacht DefinitieRecord met velden:
         - validation_score (float | None)
@@ -620,7 +620,7 @@ class DefinitionWorkflowService:
         soft_reasons: list[str] = []
         if score is not None and soft_min <= float(score) < hard_min:
             soft_reasons.append(
-                f"Score onder vaststel‑drempel maar ≥ soft‑drempel ({soft_min:.2f})"
+                f"Score onder vaststel-drempel maar ≥ soft-drempel ({soft_min:.2f})"
             )
         if (
             policy.soft_requirements.get("allow_high_issues_with_override", True)
@@ -637,7 +637,7 @@ class DefinitionWorkflowService:
         return {"status": "pass", "reasons": []}
 
     def _get_policy(self):
-        # Prefer geïnjecteerde service; val terug op best‑effort loader
+        # Prefer geïnjecteerde service; val terug op best-effort loader
         if getattr(self, "gate_policy_service", None):
             return self.gate_policy_service.get_policy()
         if GatePolicyService:
@@ -667,5 +667,5 @@ class DefinitionWorkflowService:
             def soft_min_score(self) -> float:  # type: ignore[misc]
                 return 0.65
 
-        logger.warning("GatePolicyService niet beschikbaar – gebruik defaults")
+        logger.warning("GatePolicyService niet beschikbaar - gebruik defaults")
         return _Defaults()

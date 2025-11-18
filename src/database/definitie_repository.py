@@ -96,7 +96,7 @@ class DefinitieRecord:
     source_reference: str | None = None  # Referentie naar originele bron
     imported_from: str | None = None  # Van welk systeem geïmporteerd
 
-    # Voorkeursterm (single source of truth op definitie‑niveau)
+    # Voorkeursterm (single source of truth op definitie-niveau)
     voorkeursterm: str | None = None
 
     # Metadata - Algemene record informatie
@@ -706,7 +706,7 @@ class DefinitieRepository:
             if row:
                 return self._row_to_record(row)
 
-            # Geen directe begrip-hit: probeer exacte synoniem‑match (case-insensitive)
+            # Geen directe begrip-hit: probeer exacte synoniem-match (case-insensitive)
             syn_query = """
                 SELECT d.*
                 FROM definities d
@@ -820,7 +820,7 @@ class DefinitieRepository:
                     )
                 )
 
-            # Exact synoniem‑match (case-insensitive) — same exact match logic for juridische_context
+            # Exact synoniem-match (case-insensitive) — same exact match logic for juridische_context
             syn_query = """
                 SELECT d.*
                 FROM definities d
@@ -923,8 +923,8 @@ class DefinitieRepository:
     ) -> int:
         """Tel definities met exact zelfde begrip + context (jur optional empty), status != archived.
 
-        - Wettelijke_basis wordt orde‑onafhankelijk vergeleken via genormaliseerde JSON string.
-        - Gebruik voor validatieregels (CON‑01) om meervoud te signaleren.
+        - Wettelijke_basis wordt orde-onafhankelijk vergeleken via genormaliseerde JSON string.
+        - Gebruik voor validatieregels (CON-01) om meervoud te signaleren.
         """
         with self._get_connection() as conn:
             query = (
@@ -1558,7 +1558,7 @@ class DefinitieRepository:
                     (definitie_id,),
                 )
 
-                # Helper: normaliseer voorbeeld_type naar schema‑waarden
+                # Helper: normaliseer voorbeeld_type naar schema-waarden
                 def _normalize_type(tp: str) -> str:
                     t = (tp or "").strip().lower()
                     mapping = {
@@ -1606,7 +1606,7 @@ class DefinitieRepository:
                         if not voorbeeld_tekst.strip():  # Skip lege voorbeelden
                             continue
 
-                        # Voorkeursterm wordt alleen op definitie‑niveau opgeslagen; flags op rij‑niveau niet meer gebruikt
+                        # Voorkeursterm wordt alleen op definitie-niveau opgeslagen; flags op rij-niveau niet meer gebruikt
 
                         # Maak VoorbeeldenRecord
                         record = VoorbeeldenRecord(
@@ -1706,7 +1706,7 @@ class DefinitieRepository:
                         )
                         conn.commit()
                 except Exception:
-                    # Soft-fail: laat eerdere per‑row set gelden
+                    # Soft-fail: laat eerdere per-row set gelden
                     pass
 
                 # PHASE 3.3: Sync synoniemen naar registry (Architecture v3.1)

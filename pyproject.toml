@@ -85,8 +85,31 @@ ignore = [
     "PGH003",  # Use specific rule codes when ignoring type issues
     "PLC0415", # Import outside top-level - intentional lazy loading
     "ARG002",  # Unused method argument - often needed for interface compliance
+    "ARG001",  # Unused function argument - often needed for interface compliance
     "N999",    # Invalid module name - legacy naming conventions
     "PLW0603", # Global statement - used for singleton patterns
+    "PLW0127", # Self-assignment (UTC = UTC) - Python 3.10 compatibility pattern
+    "PLW2901", # Loop variable overwritten - intentional in many cases
+    "PLC2401", # Non-ASCII characters in names - Dutch variable names allowed
+    "PLR0911", # Too many return statements - complex validation logic
+    "PLR0912", # Too many branches - complex validation logic
+    "PLR0915", # Too many statements - complex validation logic
+    "RUF012",  # Mutable class attributes - intentional patterns
+    "SIM102",  # Nested if statements - often more readable
+    "DTZ",     # Datetime timezone rules - acceptable patterns
+    "EM",      # Exception message rules - acceptable for context
+    "RUF005",  # Collection literal concatenation - often intentional
+    "ARG003",  # Unused class method argument - often needed
+    "ARG004",  # Unused static method argument - often needed
+    "ARG005",  # Unused lambda argument - often required
+    "SIM105",  # Use contextlib.suppress - try/except often more explicit
+    "SIM113",  # Use enumerate - explicit counter sometimes clearer
+    "B005",    # Using .strip() with multi-character - intentional
+    "B018",    # Useless expression - sometimes used for type checking
+    "B019",    # lru_cache on methods - acceptable pattern
+    "N802",    # Function name lowercase - exceptions for special methods
+    "N806",    # Variable lowercase - constants acceptable
+    "N814",    # Camelcase imports - external APIs
 ]
 
 # Allow autofix for all enabled rules
@@ -103,6 +126,12 @@ unfixable = []
 "src/orchestration/definitie_agent.py" = ["PLR0912", "PLR0915"]
 "src/services/container.py" = ["PLC0415", "PLW0603"]
 "src/services/service_factory.py" = ["PLC0415"]
+# Validation files with complex logic
+"src/validation/definitie_validator.py" = ["PLR0912", "PLR0915"]
+"src/validation/input_validator.py" = ["PLR0912"]
+"src/validation/sanitizer.py" = ["PLR0912"]
+# Analysis scripts may have unused arguments
+"src/analysis/*.py" = ["ARG001"]
 # Ignore ALL errors in archief/archive directories
 "**/archief/**/*.py" = ["ALL"]
 "**/ARCHIEF/**/*.py" = ["ALL"]

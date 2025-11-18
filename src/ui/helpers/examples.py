@@ -24,10 +24,10 @@ def _to_list(val: Any) -> list[str]:
             return []
         # Support diverse scheiders: komma, puntkomma, pipe, nieuwe regel,
         # en bullet/asterisk/hyphen varianten met spaties eromheen
-        parts = re.split(r"(?:,|;|\||\r?\n|\s+[•*\-–—]\s+)+", s)
+        parts = re.split(r"(?:,|;|\||\r?\n|\s+[•*\--—]\s+)+", s)
         out: list[str] = []
         for p in parts:
-            t = str(p).strip().lstrip("*•-–— ")
+            t = str(p).strip().lstrip("*•--— ")
             if t:
                 out.append(t)
         return out
@@ -224,7 +224,7 @@ def resolve_examples(
                 repo = repository
             vdb = repo.get_voorbeelden_by_type(int(definition.id))
             if isinstance(vdb, dict) and any(vdb.values()):
-                # Canonicaliseer DB-keys naar UI‑canoniek (sentence→voorbeeldzinnen, etc.)
+                # Canonicaliseer DB-keys naar UI-canoniek (sentence→voorbeeldzinnen, etc.)
                 canon = canonicalize_examples(vdb)
                 SessionStateManager.set_value(state_key, canon)
                 if debug_mode:

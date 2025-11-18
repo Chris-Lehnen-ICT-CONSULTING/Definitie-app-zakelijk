@@ -1,13 +1,13 @@
 """Centrale mapping van aanvullende (legacy) regexpatronen per toetsregel.
 
-Voorkomt duplicatie tussen de legacy validator en de V2‑validator.
+Voorkomt duplicatie tussen de legacy validator en de V2-validator.
 Gebruik `get_additional_patterns(code)` om patronen voor een regelcode op te halen.
 """
 
 from __future__ import annotations
 
 _ADDITIONAL_PATTERNS: dict[str, list[str]] = {
-    # ARAI – taal/algemene formulering
+    # ARAI - taal/algemene formulering
     "ARAI-01": [
         r"\bbetekent\b",  # vaak gebruikte verbale kern in foutieve definities
     ],
@@ -45,7 +45,7 @@ _ADDITIONAL_PATTERNS: dict[str, list[str]] = {
     "STR-02": [
         r"\b(proces|activiteit|handeling|zaak|ding)\b(?!\s+\w+)",  # Vage termen zonder specificatie
     ],
-    # SAM – samenhang/kwalificaties
+    # SAM - samenhang/kwalificaties
     "SAM-01": [
         r"\binstitutioneel\b",
         r"\bfunctioneel\b",

@@ -19,7 +19,7 @@ import time
 import uuid
 from datetime import UTC, datetime
 
-UTC = UTC  # Python 3.10 compatibility  # noqa: PLW0127
+UTC = UTC  # Python 3.10 compatibility
 import contextlib
 from typing import TYPE_CHECKING, Any, Optional
 
@@ -263,7 +263,7 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
 
         return stats
 
-    async def create_definition(  # noqa: PLR0912, PLR0915
+    async def create_definition(
         self, request: GenerationRequest, context: dict[str, Any] | None = None
     ) -> DefinitionResponseV2:
         """

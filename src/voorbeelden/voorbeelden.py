@@ -66,7 +66,7 @@ def genereer_voorbeeld_zinnen(
     # splitsen op regels en nummering weghalen
     zinnen: list[str] = []
     for line in blob.splitlines():
-        # als AI “1. ...” of “- ...” gebruikt, strip dat eraf
+        # als AI "1. ..." of "- ..." gebruikt, strip dat eraf
         zin = re.sub(r"^\s*(?:\d+\.|-)\s*", "", line).strip()
         if zin:
             zinnen.append(zin)
