@@ -1,6 +1,357 @@
-# CLAUDE.md
+# CLAUDE.md (DefinitieAgent Instructions)
+
+*Last Updated: 2025-01-18 | Version: 3.0 | Status: Active | Optimized for single-file reference*
 
 Dit bestand biedt richtlijnen aan Claude Code bij het werken met code in deze repository.
+
+---
+
+## ⚡ TL;DR - Project Essentials (2-3 min read)
+
+**🎯 Activation Protocol:**
+1. **Read `@~/.ai-agents/UNIFIED_INSTRUCTIONS.md` §TL;DR FIRST** - Cross-project core rules (PRIMAIR!)
+2. **Then read this §TL;DR** - DefinitieAgent-specific critical rules
+3. Full document below = Deep-dive reference for complex situations
+
+### 🎯 Project Identity
+
+**What**: AI-gestuurde Nederlandse juridische definitiegenerator
+**Tech**: Streamlit UI + GPT-4 + Python 3.11 + SQLite
+**Architecture**: Service-oriented with dependency injection (ServiceContainer pattern)
+**Scale**: Solo developer, single user, NOT in production
+**Philosophy**: KISS, no backwards compatibility, refactor in place
+
+### 🔴 DEFINITIEAGENT CRITICAL RULES
+
+#### 1️⃣ Project Root Policy (STRICT!)
+**NEVER place files in project root, except:**
+- `README.md`, `CONTRIBUTING.md`, `CLAUDE.md`
+- `requirements.txt`, `requirements-dev.txt`
+- Config: `pyproject.toml`, `pytest.ini`, `.pre-commit-config.yaml`
+
+**VERBODEN in root - ALTIJD verplaatsen:**
+- `test_*.py` → `tests/` (subdirs: unit/, integration/, smoke/, debug/)
+- `*.sh` scripts → `scripts/` (subdirs: maintenance/, monitoring/, testing/)
+- `*.log` → `logs/` (archive: logs/archive/YYYY-MM/)
+- `*.db` → `data/` (old: data/old_databases/)
+- `HANDOVER*.md` → `docs/archief/handovers/`
+- `*PLAN*.md` → `docs/planning/`
+- `*REPORT*` → `docs/reports/`
+
+**Bij twijfel:** Check `~/.ai-agents/quality-gates.yaml` sectie "forbidden_locations"
+
+#### 2️⃣ SessionStateManager (MANDATORY!)
+**REGEL**: `SessionStateManager` is de ENIGE module die `st.session_state` mag aanraken
+**VERBODEN**: Directe `st.session_state` toegang in andere modules
+**OPLOSSING**: ALLE access via `SessionStateManager.get_value()` / `set_value()`
+
+```python
+# ✅ CORRECT
+from ui.session_state import SessionStateManager
+value = SessionStateManager.get_value("my_key", default="")
+
+# ❌ FOUT
+import streamlit as st
+value = st.session_state["my_key"]  # VERBODEN!
+```
+
+#### 3️⃣ NO Backwards Compatibility
+- Dit is single-user app, NIET in productie
+- REFACTOR code met behoud van businesskennis
+- Geen feature flags, migratiepaden, deprecation warnings
+- Focus: code verbeteren, NIET compatibiliteit
+
+#### 4️⃣ NO God Objects
+**VERBODEN**: `dry_helpers.py` of "alles-in-één" utility modules
+**OPLOSSING**: Split naar specifieke modules
+- `utils/type_helpers.py` - Type conversies
+- `utils/dict_helpers.py` - Dictionary operations
+- `utils/validation_helpers.py` - Validatie utilities
+
+#### 5️⃣ Canonical Names (MANDATORY!)
+- `ValidationOrchestratorV2` (NOT V1!)
+- `UnifiedDefinitionGenerator`
+- `ModularValidationService`
+- `organisatorische_context` (NOT organizational_context!)
+- `juridische_context` (NOT legal_context!)
+
+### ✅ DEFINITIEAGENT PATTERNS
+
+#### Streamlit UI (CRITICAL!)
+**Key-Only Widget Pattern** (VERPLICHT):
+```python
+# ✅ CORRECT: Alleen key parameter
+st.text_area("Label", key="edit_23_field")
+
+# ❌ FOUT: value + key combinatie → race condition!
+st.text_area("Label", value=data, key="edit_23_field")
+```
+
+**State Initialization Volgorde**:
+```python
+# ✅ CORRECT: State VOOR widget
+SessionStateManager.set_value("my_key", "default")
+st.text_area("Label", key="my_key")
+
+# ❌ FOUT: Widget VOOR state init
+st.text_area("Label", key="my_key")
+SessionStateManager.set_value("my_key", "default")  # Te laat!
+```
+
+**Pre-Commit Enforcement**:
+Pre-commit hook `streamlit-anti-patterns` detecteert automatisch:
+- ❌ `value` + `key` combinaties
+- ❌ Directe `st.session_state` access in UI modules
+- ⚠️  Generieke widget keys (conflicts)
+
+**Test je wijzigingen:**
+```bash
+# Draai Streamlit pattern checker
+python scripts/check_streamlit_patterns.py
+
+# Of via pre-commit
+pre-commit run streamlit-anti-patterns --all-files
+```
+
+**Full patterns**: See §🎨 Streamlit UI Patterns (H2 section below) or `docs/guidelines/STREAMLIT_PATTERNS.md`
+
+#### Database
+- **ONLY** `data/definities.db` (geen DB in root of elders!)
+- Schema: `src/database/schema.sql`
+- Migraties: `src/database/migrations/`
+- UTF-8 encoding voor Nederlandse tekst
+- Verwijder stray `*.db`, `*.db-shm`, `*.db-wal` buiten `data/`
+
+#### Testing
+- Run tests after ELKE code wijziging
+- Minimum 60% coverage voor nieuwe modules
+- High-coverage modules (aanbevolen na changes):
+  - `tests/services/test_definition_generator.py` (99%)
+  - `tests/services/test_definition_validator.py` (98%)
+  - `tests/services/test_definition_repository.py` (100%)
+
+#### Imports (CRITICAL!)
+```python
+# ❌ VERBODEN
+# In services/ layer:
+import streamlit  # NEVER!
+from ui.* import  # NEVER!
+
+# ✅ CORRECT
+# Use service layer, no UI imports in services/
+```
+
+### 🏗️ Architecture Quick Map
+
+```
+src/
+├── main.py                     # Entry point
+├── services/
+│   ├── container.py           # ServiceContainer (DI)
+│   ├── validation/
+│   │   ├── modular_validation_service.py  # 45 validatieregels
+│   │   └── validation_orchestrator_v2.py  # Main orchestration
+│   ├── generation/
+│   │   └── unified_definition_generator.py
+│   └── ai/
+│       └── ai_service_v2.py   # GPT-4 integration
+├── ui/
+│   ├── tabs/                  # Streamlit UI tabs
+│   └── session_state.py       # SessionStateManager
+├── toetsregels/
+│   ├── regels/                # Python validation logic
+│   └── rule_cache.py          # RuleCache (TTL: 3600s)
+├── database/
+│   ├── schema.sql
+│   └── migrations/
+└── config/
+    └── toetsregels/regels/    # JSON regel metadata
+
+data/
+└── definities.db              # SQLite database (ONLY hier!)
+
+tests/
+├── unit/
+├── integration/
+└── smoke/
+```
+
+### 🔧 Common Commands
+
+```bash
+# Start app (AANBEVOLEN)
+bash scripts/run_app.sh
+
+# Alternative start
+OPENAI_API_KEY="$OPENAI_API_KEY_PROD" streamlit run src/main.py
+
+# Quick dev start
+make dev
+
+# Run tests
+pytest -q                      # Stille modus
+make test                      # Via Makefile
+pytest tests/services/test_definition_generator.py  # Specifiek bestand
+
+# Tests met coverage
+pytest --cov=src --cov-report=html
+
+# Test categorieën
+pytest -m unit          # Alleen unit tests
+pytest -m integration   # Integratie tests
+pytest -m smoke        # Smoke tests
+
+# Code quality
+make lint                      # Lint + format checks
+python -m ruff check src config
+python -m black src config
+
+# Pre-commit
+pre-commit install             # Setup hooks
+pre-commit run --all-files     # Run all hooks
+
+# Validation status
+make validation-status
+```
+
+### 📊 Performance Context
+
+#### Opgeloste Problemen ✅
+1. **Validatieregels**: ~~45x herladen per sessie~~ → ✅ **OPGELOST** (US-202, Oct 2025)
+   - Was: 10x laden tijdens startup (900% overhead)
+   - Nu: 1x laden + cache reuse via `CachedToetsregelManager` en `RuleCache`
+   - Verbetering: 77% sneller, 81% minder memory
+
+2. **Service Initialisatie**: ~~2-3x initialization~~ → ✅ **OPGELOST** (US-202, Oct 2025)
+   - Was: ServiceContainer #1 (cached) + #2 (custom config)
+   - Nu: Single singleton met unified cache_key
+
+3. **PromptOrchestrator**: ~~2x initialisatie~~ → ✅ **OPGELOST** (US-202, Oct 2025)
+   - Was: 2x initialisatie door duplicate container
+   - Nu: 1x initialization tijdens app startup
+
+#### Bekende Issues (Open)
+- **Prompt Tokens**: 7,250 tokens met duplicaties (nog niet geoptimaliseerd)
+
+#### Performance Targets
+- Definitie generatie: <5 seconden
+- UI respons: <200ms
+- Validatie: <1 seconde
+- Export: <2 seconden
+
+### 🎯 Workflow Shortcuts
+
+**Definitie Generatie Flow:**
+1. User input → ServiceContainer
+2. ValidationOrchestratorV2 → 45 regels check
+3. UnifiedDefinitionGenerator → GPT-4 call
+4. ModularValidationService → Post-gen validation
+5. SessionStateManager → Store results
+6. UI update
+
+**Debugging Quick Checks:**
+1. Service init issues? → Check `st.session_state.service_container`
+2. Validation errors? → Enable debug logging in `modular_validation_service.py`
+3. API rate limits? → Check `logs/api_calls.json`
+4. Memory issues? → Monitor cache size in session_state
+5. Import errors? → `python -m py_compile <file>`
+
+### 🔍 When You're Stuck - DefinitieAgent Specific
+
+| Question | Check | Quick Answer |
+|----------|-------|--------------|
+| "Can I put files in root?" | §1️⃣ Project Root Policy | NO! Only README, requirements, config |
+| "How to access session state?" | §2️⃣ SessionStateManager | Via SessionStateManager ONLY |
+| "Which ValidationOrchestrator?" | §5️⃣ Canonical Names | ValidationOrchestratorV2 (NOT V1!) |
+| "Can I add backwards compat?" | §3️⃣ NO Backwards Compatibility | NO! Solo dev - refactor in place |
+| "Streamlit widget pattern?" | §Streamlit UI (CRITICAL!) | Key-only (no value+key combo!) |
+| "Where's the database?" | §Database | data/definities.db ONLY |
+| "Can I import streamlit in services/?" | §Imports (CRITICAL!) | NO! Service layer = no UI imports |
+
+### 📚 Deep Dive References
+
+**For comprehensive guidance:**
+
+- **Instruction hierarchy**: See §🎯 Agent Instruction Hierarchy & Precedence below
+- **Streamlit patterns**: See §🎨 Streamlit UI Patterns below or `docs/guidelines/STREAMLIT_PATTERNS.md`
+- **Architecture overview**: See §🏗️ Architecture Overview below or `docs/architectuur/ARCHITECTURE.md`
+- **Validation system**: See §Validatieregels Systeem below or `docs/architectuur/validation_orchestrator_v2.md`
+- **Development commands**: See §🔧 Development Commands below
+- **Testing strategy**: `docs/testing/validation_orchestrator_testplan.md`
+- **CI/CD workflows**: See §🤖 CI/CD Pipeline & GitHub Workflow Management below
+
+### ✅ DefinitieAgent Compliance Checklist
+
+Before ANY change:
+
+- [ ] No files in project root? (except allowed list)
+- [ ] Using SessionStateManager for st.session_state?
+- [ ] No backwards compatibility code?
+- [ ] No god objects (dry_helpers.py pattern)?
+- [ ] Using canonical names (ValidationOrchestratorV2, etc.)?
+- [ ] Streamlit key-only widgets (no value+key)?
+- [ ] Database only in data/definities.db?
+- [ ] No streamlit imports in services/?
+- [ ] Tests will pass after change?
+
+---
+
+## 🔍 Quick Lookup Tables
+
+### Table 1: File Location Matrix
+
+| File Type | FORBIDDEN Location | REQUIRED Location | Example |
+|-----------|-------------------|-------------------|---------|
+| Test files | Project root | `tests/` subdirs | `test_foo.py` → `tests/unit/test_foo.py` |
+| Scripts | Project root | `scripts/` subdirs | `backup.sh` → `scripts/maintenance/backup.sh` |
+| Logs | Project root | `logs/` + archive | `app.log` → `logs/app.log` |
+| Databases | Project root or anywhere | `data/` only | Any `*.db` → `data/definities.db` |
+| Documentation | Root or scattered | `docs/` hierarchy | `PLAN.md` → `docs/planning/PLAN.md` |
+
+### Table 2: Canonical Name Reference
+
+| CORRECT Name | FORBIDDEN Alternatives | Location | Type |
+|--------------|----------------------|----------|------|
+| `ValidationOrchestratorV2` | V1, ValidationOrchestrator | `src/services/validation/` | Class |
+| `UnifiedDefinitionGenerator` | DefinitionGenerator | `src/services/generation/` | Class |
+| `ModularValidationService` | ValidationService | `src/services/validation/` | Class |
+| `SessionStateManager` | session_state, StateManager | `src/ui/` | Class |
+| `organisatorische_context` | organizational_context | Database/config | Variable |
+| `juridische_context` | legal_context | Database/config | Variable |
+| `data/definities.db` | `definities.db` (root) | `data/` only | File |
+
+### Table 3: Import Rules Matrix
+
+| Layer | CAN Import | CANNOT Import | Reason |
+|-------|------------|---------------|--------|
+| `services/` | services/, utils/, config/ | ui/, streamlit | Layer separation |
+| `ui/` | services/, utils/, streamlit | - | UI layer can use all |
+| `toetsregels/` | config/, utils/ | ui/, services/ (except via DI) | Domain isolation |
+| `database/` | utils/ | ui/, services/ (except via DI) | Infrastructure layer |
+| `utils/` | Standard library only | ALL project modules | Utility layer |
+
+### Table 4: Streamlit Widget Patterns
+
+| Pattern | Status | Example | Result |
+|---------|--------|---------|--------|
+| Key-only | ✅ CORRECT | `st.text_area("Label", key="my_key")` | Session state drives value |
+| Value + key | ❌ FORBIDDEN | `st.text_area("Label", value=data, key="my_key")` | Race condition, stale data |
+| Direct session_state | ❌ FORBIDDEN | `st.session_state["my_key"]` | Use SessionStateManager |
+| SessionStateManager | ✅ CORRECT | `SessionStateManager.get_value("my_key")` | Centralized, safe |
+| State before widget | ✅ CORRECT | `set_value() → st.widget()` | Proper initialization |
+| Widget before state | ❌ FORBIDDEN | `st.widget() → set_value()` | Too late, no effect |
+
+### Table 5: Testing Strategy
+
+| Test Type | Location | Coverage Target | When to Run | Priority |
+|-----------|----------|-----------------|-------------|----------|
+| Unit | `tests/unit/` | 80%+ | After every change | HIGH |
+| Integration | `tests/integration/` | 60%+ | Before commit | MEDIUM |
+| Smoke | `tests/smoke/` | N/A | After merge, CI/CD | HIGH |
+| Debug | `tests/debug/` | N/A | Issue investigation | As needed |
+| High-coverage modules | See §Testing above | 95%+ | After refactors | HIGH |
+
+---
 
 ## 🎯 Agent Instruction Hierarchy & Precedence
 
@@ -58,7 +409,7 @@ Dit bestand biedt richtlijnen aan Claude Code bij het werken met code in deze re
 
 **Bij conflicten:** UNIFIED > CLAUDE.md (zoals gespecificeerd in Instruction Priority hierboven)
 
-## Project Overzicht
+## 🌟 Project Overzicht
 
 DefinitieAgent is een AI-gestuurde Nederlandse juridische definitiegenerator die GPT-4 gebruikt met 45+ kwaliteitsvalidatieregels. De applicatie gebruikt Streamlit voor de UI en volgt een service-georiënteerde architectuur met dependency injection.
 
@@ -73,7 +424,9 @@ DefinitieAgent is een AI-gestuurde Nederlandse juridische definitiegenerator die
 - `docs/guidelines/CANONICAL_LOCATIONS.md` voor backlog structuur
 - `~/.ai-agents/UNIFIED_INSTRUCTIONS.md` voor naming conventions
 
-## 🚫 KRITIEKE REGELS VOOR CLAUDE/AI
+## 🔴 Critical Rules (Detailed)
+
+> **Quick Reference:** See §🔴 DEFINITIEAGENT CRITICAL RULES in TL;DR above for condensed version
 
 ### 🤖 MULTIAGENT + ULTRATHINK ENFORCEMENT
 
@@ -148,7 +501,6 @@ DefinitieAgent is een AI-gestuurde Nederlandse juridische definitiegenerator die
 - **GEVOLG**: Circulaire dependencies, recursie problemen, inconsistente state management
 - **OPLOSSING**: ALLE session state toegang via `SessionStateManager.get_value()` / `set_value()`
 
-
 ### 📁 Document & File Management
 
 **Voor alle regels rondom:**
@@ -158,8 +510,9 @@ DefinitieAgent is een AI-gestuurde Nederlandse juridische definitiegenerator die
 
 **➡️ Zie:** `~/.ai-agents/UNIFIED_INSTRUCTIONS.md` sectie "FORBIDDEN PATTERNS" en "APPROVAL LADDER"
 
+## 🔧 Development Commands
 
-## Veelgebruikte Development Commando's
+> **Quick Reference:** See §🔧 Common Commands in TL;DR above for most frequently used commands
 
 ### Applicatie Starten
 
@@ -228,7 +581,9 @@ pre-commit install
 pre-commit run --all-files
 ```
 
-## Architectuur Overzicht
+## 🏗️ Architecture Overview
+
+> **Quick Reference:** See §🏗️ Architecture Quick Map in TL;DR above for directory structure
 
 ### Service-Georiënteerde Architectuur met Dependency Injection
 
@@ -272,12 +627,14 @@ De applicatie gebruikt Streamlit's session state uitgebreid. Belangrijke state v
 - Schema gedefinieerd in `src/database/schema.sql`
 - Migraties in `src/database/migrations/`
 - UTF-8 encoding ondersteuning voor Nederlandse juridische tekst
- - Enig toegestaan actief pad: `data/definities.db` (geen DB in root of elders)
- - Initialiseer/migreer via `schema.sql` en `src/database/migrate_database.py`
- - Verwijder stray `*.db`, `*.db-shm`, `*.db-wal` buiten `data/`
- - Fallback CREATE in code is een noodpad; gebruik primair `schema.sql`
+- Enig toegestaan actief pad: `data/definities.db` (geen DB in root of elders)
+- Initialiseer/migreer via `schema.sql` en `src/database/migrate_database.py`
+- Verwijder stray `*.db`, `*.db-shm`, `*.db-wal` buiten `data/`
+- Fallback CREATE in code is een noodpad; gebruik primair `schema.sql`
 
-## Kritieke Performance Overwegingen
+## ⚡ Performance Considerations
+
+> **Quick Reference:** See §📊 Performance Context in TL;DR above for overview
 
 ### Opgeloste Problemen ✅
 
@@ -312,7 +669,7 @@ De applicatie gebruikt Streamlit's session state uitgebreid. Belangrijke state v
 - Validatie: < 1 seconde
 - Export: < 2 seconden
 
-## Development Richtlijnen
+## 📋 Development Guidelines
 
 > **📚 Voor workflow selectie, approval thresholds en agent tool mappings, zie:**
 > `~/.ai-agents/UNIFIED_INSTRUCTIONS.md` → secties "WORKFLOW SELECTION MATRIX" en "APPROVAL LADDER"
@@ -396,14 +753,16 @@ def get_context_dict() -> dict[str, list[str]]:
 
 **Added:** DEF-84 (2025-10-31) - Documents pattern introduced in DEF-73
 
-### Streamlit UI Patterns
+## 🎨 Streamlit UI Patterns
 
+> **Quick Reference:** See §Streamlit UI (CRITICAL!) in TL;DR above for key patterns
+>
 > **📚 Voor volledige Streamlit best practices, zie:**
 > `docs/guidelines/STREAMLIT_PATTERNS.md` → Comprehensive patterns gebaseerd op DEF-56 lessons learned
 
 **Kritieke Regels (gevalideerd door DEF-56 fix):**
 
-#### 1️⃣ Key-Only Widget Pattern (VERPLICHT)
+### 1️⃣ Key-Only Widget Pattern (VERPLICHT)
 ```python
 # ✅ CORRECT: Alleen key parameter
 st.text_area("Label", key="edit_23_field")
@@ -414,7 +773,7 @@ st.text_area("Label", value=data, key="edit_23_field")
 
 **Waarom:** Widgets met beide `value` en `key` parameters bewaren interne state over `st.rerun()` heen, wat resulteert in stale data ondanks correcte session state.
 
-#### 2️⃣ SessionStateManager is MANDATORY
+### 2️⃣ SessionStateManager is MANDATORY
 ```python
 # ✅ CORRECT: Via SessionStateManager
 from ui.session_state import SessionStateManager
@@ -426,7 +785,7 @@ import streamlit as st
 value = st.session_state["my_key"]  # VERBODEN in UI modules!
 ```
 
-#### 3️⃣ State Initialization Volgorde
+### 3️⃣ State Initialization Volgorde
 ```python
 # ✅ CORRECT: State VOOR widget
 SessionStateManager.set_value("my_key", "default")
@@ -437,7 +796,7 @@ st.text_area("Label", key="my_key")
 SessionStateManager.set_value("my_key", "default")  # Te laat!
 ```
 
-#### 4️⃣ Pre-Commit Enforcement
+### 4️⃣ Pre-Commit Enforcement
 Pre-commit hook `streamlit-anti-patterns` detecteert automatisch:
 - ❌ `value` + `key` combinaties
 - ❌ Directe `st.session_state` access in UI modules
@@ -455,7 +814,7 @@ pre-commit run streamlit-anti-patterns --all-files
 **Voor debugging, testing patterns en advanced scenarios:**
 → Zie `docs/guidelines/STREAMLIT_PATTERNS.md`
 
-### AI-Assisted Development met Vibe Coding
+## 🧪 AI-Assisted Development met Vibe Coding
 
 > **📚 Voor Vibe Coding core patterns, zie:**
 > **`~/.ai-agents/UNIFIED_INSTRUCTIONS.md`** → Sectie "VIBE CODING PRINCIPLES" (cross-platform)
@@ -466,7 +825,7 @@ pre-commit run streamlit-anti-patterns --all-files
 
 **Vibe Coding** is de primaire methodologie voor AI-assisted development in DefinitieAgent. De core patterns zijn gedefinieerd in `UNIFIED_INSTRUCTIONS.md` voor cross-platform support (Claude Code, BMad agents, Codex).
 
-#### DefinitieAgent-Specifieke Context
+### DefinitieAgent-Specifieke Context
 
 **Brownfield Refactoring Focus** (kritiek voor dit project!):
 
@@ -494,7 +853,7 @@ pre-commit run streamlit-anti-patterns --all-files
     4. Measure reduction"
 ```
 
-#### Pattern Selection voor DefinitieAgent
+### Pattern Selection voor DefinitieAgent
 
 | Scenario | Aanbevolen Pattern | Rationale |
 |----------|-------------------|-----------|
@@ -514,21 +873,21 @@ pre-commit run streamlit-anti-patterns --all-files
 
 **➡️ Zie: `docs/methodologies/vibe-coding/PATTERNS.md`**
 
-### Test Vereisten
+## 🧪 Test Requirements
 
 - Nieuwe features vereisen tests
 - Minimum 60% coverage voor nieuwe modules
 - Gebruik pytest fixtures voor test data
 - Mock externe API calls
 
-### Security Vereisten
+## 🔒 Security Requirements
 
 - GEEN hardcoded API keys (gebruik environment variabelen)
 - Input validatie op alle gebruiker inputs
 - Alleen geparametriseerde SQL queries
 - XSS preventie in web content
 
-## Werken met Validatieregels (Toetsregels)
+## 🎯 Werken met Validatieregels (Toetsregels)
 
 Bij het wijzigen van validatieregels:
 
@@ -538,7 +897,7 @@ Bij het wijzigen van validatieregels:
 4. Update `config/toetsregels.json` bij toevoegen nieuwe regels
 5. Draai `make validation-status` ter verificatie
 
-## Web Lookup Configuratie
+## 🌐 Web Lookup Configuratie
 
 Het web lookup systeem gebruikt `config/web_lookup_defaults.yaml`:
 
@@ -546,7 +905,7 @@ Het web lookup systeem gebruikt `config/web_lookup_defaults.yaml`:
 - Prompt augmentatie is configureerbaar
 - Override met `WEB_LOOKUP_CONFIG` environment variabele
 
-## Environment Variabelen
+## 🔑 Environment Variabelen
 
 ```bash
 # Verplicht
@@ -558,7 +917,7 @@ DEV_MODE               # Schakel V2 validatie in tijdens development
 SKIP_PRE_COMMIT        # Sla pre-commit hooks over (alleen noodgevallen)
 ```
 
-## Belangrijke Bestandslocaties
+## 📂 Belangrijke Bestandslocaties
 
 - **Main entry**: `src/main.py`
 - **Service container**: `src/services/container.py`
@@ -568,7 +927,7 @@ SKIP_PRE_COMMIT        # Sla pre-commit hooks over (alleen noodgevallen)
 - **Logs**: `logs/` directory
 - **Exports**: `exports/` directory
 
-## Debugging Tips
+## 🐛 Debugging Tips
 
 1. **Service initialisatie problemen**: Check `st.session_state.service_container`
 2. **Validatie fouten**: Schakel debug logging in bij `src/services/validation/modular_validation_service.py`
@@ -576,7 +935,7 @@ SKIP_PRE_COMMIT        # Sla pre-commit hooks over (alleen noodgevallen)
 4. **Geheugen problemen**: Monitor cache grootte in `st.session_state`
 5. **Import errors**: Draai `python -m py_compile <file>` om syntax te checken
 
-## Werken met Legacy Code
+## 🔧 Werken met Legacy Code
 
 > **📚 Voor refactor workflow selectie, zie:**
 > `~/.ai-agents/UNIFIED_INSTRUCTIONS.md` → sectie "WORKFLOW SELECTION MATRIX" (REFACTOR workflow)
@@ -590,7 +949,7 @@ Refactor, geen backwards compatibility:
 - Behoud en documenteer businesslogica tijdens refactor
 - Gebruik UNIFIED approval ladder voor impact assessment (>100 lines = vraag toestemming)
 
-## CI/CD Pipeline & GitHub Workflow Management
+## 🤖 CI/CD Pipeline & GitHub Workflow Management
 
 ### 🔄 Systematische Aanpak voor CI/CD Fixes
 
@@ -606,7 +965,7 @@ Refactor, geen backwards compatibility:
 
 2. **Prioritering & Planning**
    - **Phase 1 (Week 1):** Security (gitleaks, pip-audit) - KRITIEK
-   - **Phase 2 (Week 1-2):** Core tests & compatibility - BELANGRIJK  
+   - **Phase 2 (Week 1-2):** Core tests & compatibility - BELANGRIJK
    - **Phase 3 (Week 2):** Quality gates - NICE TO HAVE
    - **Phase 4 (Week 2-3):** Documentation & non-blocking - OPTIONEEL
 
@@ -690,7 +1049,7 @@ Refactor, geen backwards compatibility:
 - **`.github/ISSUE_TEMPLATE/`** - Issue templates voor consistentie
 - **`.github/workflows/`** - All CI/CD workflow definitions
 
-## Snelle Fixes voor Veelvoorkomende Problemen
+## 🔧 Quick Fixes Reference
 
 ```bash
 # Fix import errors
@@ -710,7 +1069,7 @@ ruff check --fix src config
 black src config
 ```
 
-## Documentatie Referenties
+## 📚 Documentation References
 
 > **📍 Voor document locaties:** Zie `docs/guidelines/CANONICAL_LOCATIONS.md` voor waar elk type document hoort te staan.
 
