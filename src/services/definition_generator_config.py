@@ -205,6 +205,9 @@ class UnifiedGeneratorConfig:
     # Generation strategy
     strategy: GenerationStrategy = GenerationStrategy.HYBRID
 
+    # Environment (for configuration context)
+    environment: str = "production"
+
     # Feature flags (consolidated from all implementations)
     enable_async: bool = True
     enable_batch_processing: bool = False

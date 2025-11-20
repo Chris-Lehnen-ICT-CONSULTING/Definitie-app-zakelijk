@@ -9,11 +9,12 @@ inclusief API keys, cache instellingen en omgeving-specifieke configuraties.
 
 import logging  # Logging systeem voor foutrapportage en debugging
 import os  # Operating system interface voor omgevingsvariabelen
+from collections.abc import Callable  # Type hints voor betere code documentatie
 from dataclasses import dataclass, field  # Decorators voor gestructureerde data klassen
 from datetime import UTC, datetime  # Datum/tijd functionaliteit voor timestamps
 from enum import Enum  # Enumeratie types voor constante waarden
 from pathlib import Path  # Object-georiënteerde bestandspad manipulatie
-from typing import Any  # Type hints voor betere code documentatie
+from typing import Any
 
 import yaml  # YAML bestand parser voor configuratie bestanden
 
@@ -453,7 +454,7 @@ class ConfigManager:
         self._load_configuration()
 
         # Configuration change callbacks
-        self._change_callbacks: dict[str, list[callable]] = {}
+        self._change_callbacks: dict[str, list[Callable]] = {}
 
         logger.info(f"Configuration loaded for environment: {environment.value}")
 
@@ -607,7 +608,7 @@ class ConfigManager:
             msg = f"Invalid config key: {section.value}.{key}"
             raise ValueError(msg)
 
-    def register_change_callback(self, section: str, callback: callable):
+    def register_change_callback(self, section: str, callback: Callable):
         """Register callback for configuration changes."""
         if section not in self._change_callbacks:
             self._change_callbacks[section] = []

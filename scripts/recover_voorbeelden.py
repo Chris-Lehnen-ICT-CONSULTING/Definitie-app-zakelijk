@@ -70,7 +70,7 @@ class VoorbeeldenParser:
             "voorbeelden": self._extract_all_voorbeelden(data),
         }
 
-    def _extract_all_voorbeelden(self, data: dict) -> dict:  # noqa: PLR0912
+    def _extract_all_voorbeelden(self, data: dict) -> dict:
         """Extract ALL types of examples from the export."""
         voorbeelden = {
             "sentence": [],
@@ -85,7 +85,7 @@ class VoorbeeldenParser:
         if "Voorbeeld zinnen" in data:
             content = data["Voorbeeld zinnen"]
             for line in content.split("\n"):
-                line = line.strip()  # noqa: PLW2901
+                line = line.strip()
                 if line.startswith("-"):
                     text = line[1:].strip()
                     if text:
@@ -98,7 +98,7 @@ class VoorbeeldenParser:
                 # Split by "### Voorbeeld" headers or keep as one block
                 examples = re.split(r"\n### Voorbeeld \d+:", content)
                 for example in examples:
-                    example = example.strip()  # noqa: PLW2901
+                    example = example.strip()
                     if example:
                         voorbeelden["practical"].append(example)
 
@@ -110,7 +110,7 @@ class VoorbeeldenParser:
                 if "\n- " in content or content.startswith("- "):
                     parts = re.split(r"\n- ", content)
                     for part in parts:
-                        part = part.strip()  # noqa: PLW2901
+                        part = part.strip()
                         if part and not part.startswith("-"):
                             voorbeelden["counter"].append(part)
                         elif part.startswith("-"):
@@ -219,7 +219,7 @@ class VoorbeeldenRecovery:
         self.conn.close()
 
 
-def main():  # noqa: PLR0915
+def main():
     """Main recovery function."""
     print("🔄 VOORBEELDEN RECOVERY")
     print("=" * 60)
