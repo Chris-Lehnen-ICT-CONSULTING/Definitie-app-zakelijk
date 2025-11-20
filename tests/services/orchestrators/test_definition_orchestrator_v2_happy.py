@@ -79,12 +79,26 @@ async def test_orchestrator_happy_path_minimal():
     # Repository save succeeds
     repository.save.return_value = 123
 
+    # Setup request first
+    request = GenerationRequest(
+        id="it-001",
+        begrip="verificatie",
+        ontologische_categorie="proces",
+        context="DJI",
+        actor="tester",
+        legal_basis="testing",
+    )
+
+    # Configure security service to return sanitized request
+    security_service = AsyncMock()
+    security_service.sanitize_request.return_value = request
+
     orch = DefinitionOrchestratorV2(
         prompt_service=prompt_service,
         ai_service=ai_service,
         validation_service=validation_service,
         enhancement_service=None,
-        security_service=AsyncMock(),
+        security_service=security_service,
         cleaning_service=cleaning_service,
         repository=repository,
         monitoring=AsyncMock(),
@@ -106,16 +120,6 @@ async def test_orchestrator_happy_path_minimal():
         "voorbeelden.unified_voorbeelden.genereer_alle_voorbeelden_async",
         new=AsyncMock(return_value=fake_examples),
     ):
-        # Also patch web lookup off by not providing service (already None)
-        request = GenerationRequest(
-            id="it-001",
-            begrip="verificatie",
-            ontologische_categorie="proces",
-            context="DJI",
-            actor="tester",
-            legal_basis="testing",
-        )
-
         response = await orch.create_definition(request)
 
     assert response.success is True

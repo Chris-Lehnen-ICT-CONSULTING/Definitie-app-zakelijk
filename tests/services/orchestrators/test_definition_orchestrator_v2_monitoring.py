@@ -66,12 +66,26 @@ async def test_orchestrator_monitoring_token_count_and_components():
         "system": {"correlation_id": "00000000-0000-0000-0000-000000000000"},
     }
 
+    # Setup request FIRST
+    req = GenerationRequest(
+        id="it-MON-1",
+        begrip="verificatie",
+        ontologische_categorie="proces",
+        context="DJI",
+        actor="tester",
+        legal_basis="testing",
+    )
+
+    # Configure security service to return request
+    security_service = AsyncMock()
+    security_service.sanitize_request.return_value = req
+
     orch = DefinitionOrchestratorV2(
         prompt_service=prompt_service,
         ai_service=ai_service,
         validation_service=validation_service,
         enhancement_service=None,
-        security_service=AsyncMock(),
+        security_service=security_service,
         cleaning_service=cleaning_service,
         repository=repository,
         monitoring=monitoring,
@@ -92,14 +106,6 @@ async def test_orchestrator_monitoring_token_count_and_components():
             }
         ),
     ):
-        req = GenerationRequest(
-            id="it-MON-1",
-            begrip="verificatie",
-            ontologische_categorie="proces",
-            context="DJI",
-            actor="tester",
-            legal_basis="testing",
-        )
         resp = await orch.create_definition(req)
 
     assert resp.success is True
