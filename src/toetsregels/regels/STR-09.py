@@ -51,11 +51,11 @@ class STR09Validator:
         try:
             # ── 1) Combineer JSON-patronen met strikte regex voor "A, B of C" en "X of Y"
             patronen = list(regel.get("herkenbaar_patronen", [])) + [
-                r"\b\w+,\s*\w+\s+of\s+\w+\b",  # bv. “A, B of C”
-                r"\b\w+\s+of\s+\w+\b",  # bv. “X of Y”
+                r"\b\w+,\s*\w+\s+of\s+\w+\b",  # bv. "A, B of C"
+                r"\b\w+\s+of\s+\w+\b",  # bv. "X of Y"
             ]
 
-            # ── 2) Verzamel alle gevonden ‘of’-constructies
+            # ── 2) Verzamel alle gevonden 'of'-constructies
             of_vormen = set()
             for pat in patronen:
                 of_vormen.update(re.findall(pat, definitie, re.IGNORECASE))

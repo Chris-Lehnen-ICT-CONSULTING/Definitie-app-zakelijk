@@ -16,7 +16,7 @@ class CON01Validator:
     """Minimale validator die altijd een geldig resultaat oplevert.
 
     In echte implementaties voert CON-01 inhouds/consistentiecontroles uit.
-    Deze shim rapporteert een PASS met een korte boodschap om unit‑tests
+    Deze shim rapporteert een PASS met een korte boodschap om unit-tests
     niet te blokkeren tijdens de transitie.
     """
 

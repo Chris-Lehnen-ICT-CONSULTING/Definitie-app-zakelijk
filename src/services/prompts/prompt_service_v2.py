@@ -196,9 +196,9 @@ class PromptServiceV2:
     def _maybe_augment_with_document_snippets(
         self, prompt_text: str, enriched_context: EnrichedContext
     ) -> str:
-        """Voeg (optionele) document‑snippets toe aan de prompt.
+        """Voeg (optionele) document-snippets toe aan de prompt.
 
-        Besturing via env‑vars:
+        Besturing via env-vars:
         - DOCUMENT_SNIPPETS_ENABLED (default: true)
         - DOCUMENT_SNIPPETS_MAX (default: 2)
         - DOCUMENT_SNIPPETS_MAX_CHARS (default: 800)
@@ -411,7 +411,7 @@ class PromptServiceV2:
         )
         raise NotImplementedError(msg)
 
-    def _maybe_augment_with_web_context(  # noqa: PLR0911, PLR0915
+    def _maybe_augment_with_web_context(
         self, prompt_text: str, enriched_context: EnrichedContext
     ) -> str:
         try:

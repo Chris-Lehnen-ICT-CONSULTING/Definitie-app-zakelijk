@@ -87,7 +87,7 @@ class ModularValidationService:
         self.config = config
         self._repository = repository
 
-        # Baseline interne regels (altijd beschikbaar voor policies zoals scoring‑uitsluiting)
+        # Baseline interne regels (altijd beschikbaar voor policies zoals scoring-uitsluiting)
         self._baseline_internal: list[str] = [
             "VAL-EMP-001",
             "VAL-LEN-001",
@@ -333,7 +333,7 @@ class ModularValidationService:
                 if code in self._baseline_internal:
                     weights[code] = 0.0
                 elif cu.startswith(("ARAI", "AR-", "AR")):
-                    # Beperk tot ARAI‑familie; AR‑prefix meegenomen voor compat
+                    # Beperk tot ARAI-familie; AR-prefix meegenomen voor compat
                     weights[code] = 0.0
         except Exception:
             pass
@@ -376,7 +376,8 @@ class ModularValidationService:
             else:
                 # Fallback: treat as scalar score
                 rule_scores[code] = float(out or 0.0)
-                passed_rules.append(code if float(out or 0.0) >= 1.0 else code)
+                if float(out or 0.0) >= 1.0:
+                    passed_rules.append(code)
         current_begrip = getattr(self, "_current_begrip", None)
         self._current_begrip = None
 
@@ -385,7 +386,7 @@ class ModularValidationService:
 
         # Quality band scaling: gently penalize very short/very long texts to
         # avoid saturating at 1.0 for minimale/overdadige gevallen. Calibrated
-        # to align with golden bands (acceptable minimal ≈ 0.60–0.75,
+        # to align with golden bands (acceptable minimal ≈ 0.60-0.75,
         # high quality ≥ 0.75, perfect ≥ 0.80).
         try:
             raw = (eval_ctx.cleaned_text or eval_ctx.raw_text or "").strip()
@@ -769,7 +770,7 @@ class ModularValidationService:
                     "description": msg,
                     "rule_id": code_up,
                     "category": self._category_for(code_up),
-                    "suggestion": "Gebruik de onbepaalde wijs (infinitief), bijv. ‘beoordelen’ i.p.v. ‘beoordeelt’.",
+                    "suggestion": "Gebruik de onbepaalde wijs (infinitief), bijv. 'beoordelen' i.p.v. 'beoordeelt'.",
                 }
             # Geen issue
             return 1.0, None
@@ -803,7 +804,7 @@ class ModularValidationService:
                         "suggestion": "Begin met het gekwalificeerde begrip en gebruik genus+differentia zonder de basisdefinitie te herhalen.",
                     }
 
-                # 2) Heuristische detectie van herhaling van bekende basisfrase (bv. strafbepaling‑zin)
+                # 2) Heuristische detectie van herhaling van bekende basisfrase (bv. strafbepaling-zin)
                 if head in text_l and (
                     "binnen de grenzen van" in text_l
                     or "wettelijke strafbepaling" in text_l
@@ -816,7 +817,7 @@ class ModularValidationService:
                         "description": msg,
                         "rule_id": code_up,
                         "category": self._category_for(code_up),
-                        "suggestion": "Gebruik genus+differentia: noem het hoofdbegrip kort (bv. ‘delict’) en voeg alleen het onderscheidende criterium toe.",
+                        "suggestion": "Gebruik genus+differentia: noem het hoofdbegrip kort (bv. 'delict') en voeg alleen het onderscheidende criterium toe.",
                     }
 
             # Geen issues gevonden → pass
@@ -846,7 +847,7 @@ class ModularValidationService:
                         "description": msg,
                         "rule_id": code_up,
                         "category": self._category_for(code_up),
-                        "suggestion": "Laat de definitie beginnen met het genus uit de samenstelling (bv. ‘model …’ bij ‘procesmodel’).",
+                        "suggestion": "Laat de definitie beginnen met het genus uit de samenstelling (bv. 'model …' bij 'procesmodel').",
                     }
 
             return 1.0, None
@@ -1145,7 +1146,7 @@ class ModularValidationService:
         if reason == "required_patterns":
             return "Maak het vereiste element expliciet in de formulering."
         if reason == "forbidden_phrase":
-            return f"Vervang of verwijder de term ‘{d}’; kies correcte terminologie."
+            return f"Vervang of verwijder de term '{d}'; kies correcte terminologie."
         if reason == "min_words":
             return (
                 f"Breid de definitie uit tot minimaal {d} woorden met kerninformatie."
@@ -1157,13 +1158,13 @@ class ModularValidationService:
         if reason == "max_chars":
             return f"Kort de definitie in tot maximaal {d} tekens; maak compacter."
         if reason == "circular":
-            return f"Vermijd het begrip ‘{d}’ in de definitie; omschrijf zonder het letterlijk te herhalen."
+            return f"Vermijd het begrip '{d}' in de definitie; omschrijf zonder het letterlijk te herhalen."
         if reason == "structure_runon":
-            return "Vereenvoudig de zinsstructuur: minder komma’s en kortere zinsdelen."
+            return "Vereenvoudig de zinsstructuur: minder komma's en kortere zinsdelen."
         if reason == "redundancy":
             return "Verwijder redundante/tegenstrijdige bewoordingen; kies één heldere formulering."
         if reason == "auth_source" and c == "CON-02":
-            return "Voeg een authentieke bron/basis toe (bijv. ‘volgens’, ‘conform’, of wet/regeling)."
+            return "Voeg een authentieke bron/basis toe (bijv. 'volgens', 'conform', of wet/regeling)."
         if reason == "unique_id" and c == "ESS-03":
             return (
                 "Voeg een uniek identificatiecriterium toe (nummer/code/registratie)."
@@ -1178,10 +1179,10 @@ class ModularValidationService:
         # Regel-specifieke defaults
         if c == "INT-01":
             return (
-                "Herschrijf naar één compacte zin; vermijd ‘en/maar/of’ en bijzinnen."
+                "Herschrijf naar één compacte zin; vermijd 'en/maar/of' en bijzinnen."
             )
         if c == "CON-01":
-            return "Noem de context niet expliciet; formuleer context‑neutraal."
+            return "Noem de context niet expliciet; formuleer context-neutraal."
         if c == "ESS-02":
             return "Maak de ontologische categorie expliciet (type/particulier/proces/resultaat)."
 
@@ -1479,9 +1480,9 @@ class ModularValidationService:
             begrip = getattr(self, "_current_begrip", None) or "het begrip"
             return f"Vermijd {begrip} letterlijk; omschrijf zonder de term te herhalen."
         if c == "STR-TERM-001":
-            return "Gebruik correcte terminologie (bijv. ‘HTTP‑protocol’)."
+            return "Gebruik correcte terminologie (bijv. 'HTTP-protocol')."
         if c == "STR-ORG-001":
-            return "Vereenvoudig de zinsstructuur: minder komma’s, kortere zinsdelen."
+            return "Vereenvoudig de zinsstructuur: minder komma's, kortere zinsdelen."
         return None
 
     def _calculate_category_scores(

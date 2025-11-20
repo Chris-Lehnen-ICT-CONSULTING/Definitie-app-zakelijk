@@ -3,7 +3,7 @@ DefinitionImportService - Enkelvoudige import (legacy-MVP).
 
 Deze service blijft beschikbaar als hulpmiddel voor de CSV-bulkimport
 (≤100) die per rij validatie en opslag uitvoert. De oorspronkelijke
-“Enkelvoudige import”-sectie in de Management-tab is verwijderd; gebruik
+"Enkelvoudige import"-sectie in de Management-tab is verwijderd; gebruik
 de bulkimport voor alle scenario's, ook wanneer slechts één record wordt
 geüpload.
 """
@@ -266,7 +266,7 @@ class DefinitionImportService:
         jur_list = _as_list(jur)
         wet_list = _as_list(wet)
 
-        # Nieuwe velden mapping – UFO-categorie valideren/normaliseren naar canonieke waarden
+        # Nieuwe velden mapping - UFO-categorie valideren/normaliseren naar canonieke waarden
         import re as _re
 
         def _normalize_ufo(val: str | None) -> str | None:

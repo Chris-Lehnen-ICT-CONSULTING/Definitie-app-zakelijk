@@ -87,13 +87,6 @@ repos:
         language: system
         types: [python]
         stages: [pre-commit]
-      - id: generate-portal-on-docs-change
-        name: Generate portal (docs → portal)
-        entry: bash scripts/docs/run_portal_generator.sh
-        language: system
-        pass_filenames: false
-        files: ^docs/(?!portal/).+\.md$
-        stages: [pre-commit]
       - id: validate-juridische-synoniemen
         name: Validate juridische_synoniemen.yaml
         entry: python3 scripts/validate_synonyms.py

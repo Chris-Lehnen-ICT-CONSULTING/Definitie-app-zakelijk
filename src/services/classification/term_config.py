@@ -172,6 +172,5 @@ def reset_config_cache():
 
     Gebruik dit om geforceerde reload van configuratie te triggeren.
     """
-    global _config_cache
     _config_cache.clear()
     logger.debug("TermPatternConfig cache cleared")

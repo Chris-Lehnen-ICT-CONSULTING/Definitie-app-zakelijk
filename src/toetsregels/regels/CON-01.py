@@ -67,7 +67,7 @@ class CON01Validator:
             Tuple van (succes, melding, score)
         """
         definitie_lc = definitie.lower()
-        # Ondersteun zowel legacy 'contexten' als V2 velden op top‑niveau
+        # Ondersteun zowel legacy 'contexten' als V2 velden op top-niveau
         contexten: dict[str, Any] = {}
         if context:
             if isinstance(context.get("contexten"), dict):
@@ -108,7 +108,7 @@ class CON01Validator:
                             f"❌ {self.id}: er bestaan meerdere definities voor dit begrip met dezelfde context (aantal: {cnt}). Consolidatie of hergebruik aanbevolen.",
                             0.0,
                         )
-        except Exception:  # Soft‑fail: laat overige checks doorlopen
+        except Exception:  # Soft-fail: laat overige checks doorlopen
             pass
 
         # 1️⃣ Dynamisch: user-gegeven contexten

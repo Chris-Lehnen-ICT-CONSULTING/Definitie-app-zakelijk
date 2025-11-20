@@ -4,7 +4,7 @@ UI components for DefinitieAgent Streamlit application.
 
 import json
 import os
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Any
 
 import pandas as pd
@@ -51,7 +51,7 @@ class UIComponents:
         try:
             abbrev = getattr(ui_cfg, "afkortingen", {}) or {}
             if abbrev:
-                with st.expander("ℹ️ Afkortingen (uitleg)", expanded=False):
+                with st.expander("i Afkortingen (uitleg)", expanded=False):
                     for k in sorted(abbrev.keys()):
                         st.markdown(f"- **{k}** — {abbrev[k]}")
         except Exception:
@@ -105,7 +105,7 @@ class UIComponents:
             wet_basis.append(custom_wet.strip())
 
         # Additional metadata
-        datum = st.date_input("Datum voorstel", value=datetime.today())
+        datum = st.date_input("Datum voorstel", value=datetime.now(UTC).date())
         voorsteller = st.text_input("Voorgesteld door")
         ketenpartners = st.multiselect(
             "Ketenpartners die akkoord zijn",
@@ -368,7 +368,7 @@ class UIComponents:
     @staticmethod
     def _render_word_testing():
         """Render individual word testing interface."""
-        st.markdown("### ➕ Test dit woord (individueel)")
+        st.markdown("### + Test dit woord (individueel)")
 
         col1, col2 = st.columns(2)
 

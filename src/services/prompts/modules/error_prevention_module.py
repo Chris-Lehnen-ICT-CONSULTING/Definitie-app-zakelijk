@@ -176,8 +176,6 @@ class ErrorPreventionModule(BasePromptModule):
             "de",
             "het",
             "een",
-            "proces waarbij",
-            "handeling die",
             "vorm van",
             "type van",
             "soort van",

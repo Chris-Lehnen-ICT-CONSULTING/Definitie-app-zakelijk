@@ -176,7 +176,7 @@ Opmerking: Dit is een gedragsconventie van de agent (soft‑gate). Voor harde sy
 - User stories (frontmatter `id: US-XXX`) zijn GLOBAAL uniek over de backlog (niet alleen per EPIC).
 - Bugs (`id: BUG-XXX`/`CFR-BUG-XXX`) zijn GLOBAAL uniek.
 - Voordat je een US/BUG aanmaakt of wijzigt: check duplicaten en kies het eerstvolgende vrije nummer.
-- CI/portal mogen falen bij ID‑duplicaten; corrigeer altijd door te renummeren en referenties bij te werken.
+- Bij ID‑duplicaten: corrigeer altijd door te renummeren en referenties bij te werken.
 
 ## Specifieke Agents (beschikbaar)
 

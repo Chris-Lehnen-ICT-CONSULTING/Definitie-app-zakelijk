@@ -45,8 +45,8 @@ COMMON_LAWS: Final[list[str]] = [
 
 __all__ = ["COMMON_LAWS", "LEGAL_DOMAINS", "ORGANIZATIONS"]
 
-# Alias‑mapping om UI‑afkortingen naar canonieke namen te vertalen
-# Gebruik in de Edit‑tab voor automatische prefill.
+# Alias-mapping om UI-afkortingen naar canonieke namen te vertalen
+# Gebruik in de Edit-tab voor automatische prefill.
 ORG_ALIASES: Final[dict[str, str]] = {
     "OM": "Openbaar Ministerie",
     "NP": "Nationale Politie",

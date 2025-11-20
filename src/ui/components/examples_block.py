@@ -210,7 +210,7 @@ def render_examples_block(
                 _os2.getenv("OPENAI_API_KEY") or _os2.getenv("OPENAI_API_KEY_PROD")
             ):
                 st.info(
-                    "ℹ️ Geen OPENAI_API_KEY gevonden — voorbeelden genereren is uitgeschakeld."
+                    "i Geen OPENAI_API_KEY gevonden — voorbeelden genereren is uitgeschakeld."
                 )
                 can_call = False
             if st.button(
@@ -350,7 +350,7 @@ def render_examples_block(
         with contextlib.suppress(Exception):
             voorkeursterm_display = repository.get_voorkeursterm(definition.id)
 
-    # Fallback naar session‑keuze voor directe feedback (zoals generator-tab)
+    # Fallback naar session-keuze voor directe feedback (zoals generator-tab)
     try:
         sess_vt = SessionStateManager.get_value("voorkeursterm", "")
     except Exception:
@@ -456,10 +456,10 @@ def render_examples_block(
 
             # Voorkeursterm selector voor Expert Review en Edit tabs
             def _split_synonyms(text: str) -> list[str]:
-                parts = re.split(r"(?:,|;|\||\r?\n|\s+[•*\-–—]\s+)+", text or "")
+                parts = re.split(r"(?:,|;|\||\r?\n|\s+[•*\--—]\s+)+", text or "")
                 out: list[str] = []
                 for p in parts:
-                    t = str(p).strip().lstrip("*•-–— ")
+                    t = str(p).strip().lstrip("*•--— ")
                     if t:
                         out.append(t)
                 return out
@@ -515,12 +515,10 @@ def render_examples_block(
                     selected_voorkeursterm = selected
 
                 # Houd de keuze ook bij in de (globale) session state net als in generator-tab
-                try:
+                with contextlib.suppress(Exception):
                     SessionStateManager.set_value(
                         "voorkeursterm", selected_voorkeursterm or ""
                     )
-                except Exception:
-                    pass
 
             # DEF-56 FIX: Antoniemen en Toelichting ook zonder value parameter
             ant = st.text_input(

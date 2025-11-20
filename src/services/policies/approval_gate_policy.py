@@ -24,7 +24,7 @@ def _safe_import_yaml():
         return yaml
     except Exception as e:  # pragma: no cover - import guard
         msg = f"PyYAML is required for loading approval gate config: {e!s}"
-        raise RuntimeError(msg)
+        raise RuntimeError(msg) from e
 
 
 DEFAULT_POLICY = {
@@ -138,11 +138,11 @@ class GatePolicyService:
                     base_data = yaml.safe_load(f) or {}
             else:
                 logger.warning(
-                    "Approval gate config not found at %s – using defaults",
+                    "Approval gate config not found at %s - using defaults",
                     self.base_path,
                 )
         except Exception as e:
-            logger.warning("Invalid approval gate config (%s) – using defaults", e)
+            logger.warning("Invalid approval gate config (%s) - using defaults", e)
             base_data = {}
 
         # Optional overlay via env var

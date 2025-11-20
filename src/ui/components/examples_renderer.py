@@ -88,7 +88,7 @@ def render_examples_readonly(examples: dict[str, Any] | None) -> None:
 
 
 def render_examples_expandable(examples: dict[str, Any] | None) -> None:
-    """Render examples met dezelfde expanders‑indeling als de Generator‑tab.
+    """Render examples met dezelfde expanders-indeling als de Generator-tab.
 
     - 📄 Voorbeeldzinnen: bullets
     - 💼 Praktijkvoorbeelden: informatieve blokken
@@ -123,7 +123,7 @@ def render_examples_expandable(examples: dict[str, Any] | None) -> None:
             for s in syn:
                 st.write(f"• {s}")
 
-            # Voorkeursterm selectie geïntegreerd in Synoniemen‑sectie
+            # Voorkeursterm selectie geïntegreerd in Synoniemen-sectie
             try:
                 begrip = SessionStateManager.get_value("begrip", "")
             except Exception:

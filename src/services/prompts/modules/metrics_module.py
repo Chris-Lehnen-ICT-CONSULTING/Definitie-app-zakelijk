@@ -78,9 +78,8 @@ class MetricsModule(BasePromptModule):
             # Verzamel basis informatie
             begrip = context.begrip
 
-            # Extract org_contexts from base_context (fix compatibility issue)
-            base_context = context.enriched_context.base_context
-            org_contexts = base_context.get("organisatorisch", [])
+            # Haal org_contexts op via shared_state
+            org_contexts = context.get_shared("organization_contexts", [])
 
             char_limits = self._get_char_limits(context)
 

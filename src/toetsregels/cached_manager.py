@@ -6,6 +6,7 @@ de RuleCache voor drastisch betere performance. Compatible met bestaande code.
 """
 
 import logging
+import threading
 from typing import Any
 
 from .rule_cache import get_rule_cache
@@ -38,7 +39,7 @@ class CachedToetsregelManager:
             "sets_geladen": 0,
         }
 
-        logger.info("CachedToetsregelManager geïnitialiseerd met RuleCache")
+        # Log message moved to get_cached_toetsregel_manager() voor singleton tracking
 
     def load_regel(self, regel_id: str) -> dict[str, Any] | None:
         """
@@ -150,16 +151,21 @@ class CachedToetsregelManager:
 
 # Global manager instance
 _manager: CachedToetsregelManager | None = None
+_manager_lock = threading.Lock()
 
 
 def get_cached_toetsregel_manager() -> CachedToetsregelManager:
     """
-    Haal globale CachedToetsregelManager instantie op.
+    Haal globale CachedToetsregelManager instantie op (thread-safe singleton).
 
     Returns:
         Singleton CachedToetsregelManager instance
     """
     global _manager
     if _manager is None:
-        _manager = CachedToetsregelManager()
+        with _manager_lock:
+            # Double-check locking pattern voor thread safety
+            if _manager is None:
+                _manager = CachedToetsregelManager()
+                logger.info("✅ CachedToetsregelManager singleton created")
     return _manager

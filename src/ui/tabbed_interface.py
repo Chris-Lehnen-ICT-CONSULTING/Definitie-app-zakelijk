@@ -77,7 +77,7 @@ except ImportError:
     HYBRID_CONTEXT_AVAILABLE = False  # Hybride context niet beschikbaar
 
 # Module-level constants
-UTC = UTC  # Voor Python 3.10 compatibility  # noqa: PLW0127
+UTC = UTC  # Voor Python 3.10 compatibility
 
 logger = logging.getLogger(__name__)  # Logger instantie voor deze module
 
@@ -341,7 +341,7 @@ class TabbedInterface:
             scores = SessionStateManager.get_value("category_scores", {})
 
             st.info(f"**Voorgesteld:** {determined_category}")
-            with st.expander("ℹ️ Waarom deze categorie?"):
+            with st.expander("i Waarom deze categorie?"):
                 st.write(reasoning)
                 if scores:
                     st.write("**Scores:**", scores)
@@ -537,9 +537,9 @@ class TabbedInterface:
             )
             SessionStateManager.set_value("ketenpartners", ketenpartners)
 
-        # UFO‑categorie (optioneel) — wordt automatisch meegestuurd bij generatie
+        # UFO-categorie (optioneel) — wordt automatisch meegestuurd bij generatie
         # en opgeslagen met de definitie
-        st.markdown("#### 🧭 UFO‑categorie (optioneel)")
+        st.markdown("#### 🧭 UFO-categorie (optioneel)")
         ufo_opties = [
             "",  # leeg = geen voorkeur; service bepaalt of laat leeg
             "Kind",
@@ -567,11 +567,11 @@ class TabbedInterface:
         except Exception:
             default_index = 0
         ufo_selected = st.selectbox(
-            "UFO‑categorie",
+            "UFO-categorie",
             options=ufo_opties,
             index=default_index,
             key="meta_ufo_categorie",
-            help="Kies desgewenst een UFO‑categorie; deze wordt automatisch opgeslagen bij generatie",
+            help="Kies desgewenst een UFO-categorie; deze wordt automatisch opgeslagen bij generatie",
         )
         SessionStateManager.set_value("ufo_categorie", ufo_selected)
 
@@ -759,7 +759,7 @@ class TabbedInterface:
                                 SessionStateManager.set_value(
                                     "generation_options", options
                                 )
-                                # Wis duplicate‑check resultaat zodat bestaande definitie niet meer wordt getoond
+                                # Wis duplicate-check resultaat zodat bestaande definitie niet meer wordt getoond
                                 try:
                                     SessionStateManager.clear_value("last_check_result")
                                     SessionStateManager.clear_value(
@@ -849,7 +849,7 @@ class TabbedInterface:
                 check_result = None
                 agent_result = service_result
 
-                # Voor auto-load in de Bewerk-tab: gebruik ID uit service‑resultaat; geen extra DB‑save
+                # Voor auto-load in de Bewerk-tab: gebruik ID uit service-resultaat; geen extra DB-save
                 saved_record = None
                 saved_definition_id = None
                 if isinstance(service_result, dict) and service_result.get("success"):
@@ -940,7 +940,7 @@ class TabbedInterface:
                     if hasattr(saved_record, "id"):
                         logger.info(f"DEBUG: saved_record.id = {saved_record.id}")
 
-                # Bepaal te openen definitie‑ID voor de Bewerk‑tab
+                # Bepaal te openen definitie-ID voor de Bewerk-tab
                 target_edit_id = None
                 if saved_definition_id:
                     target_edit_id = int(saved_definition_id)
@@ -1041,7 +1041,7 @@ class TabbedInterface:
     def _build_document_context_summary(self, aggregated: dict[str, Any]) -> str:
         """Bouw een compacte samenvatting uit geaggregeerde documentcontext.
 
-        Opzet: korte lijstjes met top‑items; aantal items gelimiteerd zodat het
+        Opzet: korte lijstjes met top-items; aantal items gelimiteerd zodat het
         samenvattend blijft. Dit wordt gebruikt als `document_context` in het
         GenerationRequest.
         """
@@ -1084,7 +1084,7 @@ class TabbedInterface:
 
         - Maakt per document maximaal 1 snippet (eerste match)
         - Beperkt totaal aantal snippets (default 2)
-        - Snippet wordt gesanitized in de prompt‑service; hier beperken we lengte
+        - Snippet wordt gesanitized in de prompt-service; hier beperken we lengte
         """
         try:
             if not begrip or not selected_doc_ids:
@@ -1093,7 +1093,7 @@ class TabbedInterface:
             processor = get_document_processor()
             begrip_lower = str(begrip).strip().lower()
 
-            # Stel totaal‑limiet af op aantal documenten × per‑doc‑limiet
+            # Stel totaal-limiet af op aantal documenten x per-doc-limiet
             if max_snippets_total is None:
                 max_snippets_total = max(
                     0, int(len(selected_doc_ids) * max(1, per_doc_max))
@@ -1240,10 +1240,10 @@ class TabbedInterface:
             )
             # Korte links naar documentatie
             st.markdown(
-                "- ℹ️ Technisch: [Extractie & flow](docs/technisch/document_processing.md)"
+                "- i Technisch: [Extractie & flow](docs/technisch/document_processing.md)"
             )
             st.markdown(
-                "- 🧑‍💻 Dev how‑to: [document_context gebruiken](docs/handleidingen/ontwikkelaars/document-context-gebruik.md)"
+                "- 🧑‍💻 Dev how-to: [document_context gebruiken](docs/handleidingen/ontwikkelaars/document-context-gebruik.md)"
             )
 
             # File uploader
@@ -1313,7 +1313,7 @@ class TabbedInterface:
             # Update session state
             SessionStateManager.set_value("documents_updated", True)
 
-    def _render_uploaded_documents_list(self):  # noqa: PLR0915
+    def _render_uploaded_documents_list(self):
         """Render lijst van geüploade documenten."""
         processor = get_document_processor()
         documents = processor.get_processed_documents()

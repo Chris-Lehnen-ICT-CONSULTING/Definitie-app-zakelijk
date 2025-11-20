@@ -624,7 +624,7 @@ GEEF ALLEEN ÉÉN ENKELE ALINEA ALS ANTWOORD, GEEN OPSOMMINGEN OF MEERDERE PARAG
 
         return "\n".join(context_lines)
 
-    def _parse_response(  # noqa: PLR0912, PLR0915
+    def _parse_response(
         self, response: str, example_type: ExampleType | None = None
     ) -> list[str]:
         """Parse GPT response into list of examples."""

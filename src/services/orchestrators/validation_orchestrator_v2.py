@@ -244,11 +244,11 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
         """Add definition fields to context metadata for richer validation.
 
         Minimale verrijking zonder complexe regels: dit stelt de validator in staat
-        duplicaten en context‑afhankelijke checks beter te signaleren.
+        duplicaten en context-afhankelijke checks beter te signaleren.
         """
         enriched: dict = dict(ctx or {})
 
-        # Top-level context velden (compatibel met validator meta‑checks)
+        # Top-level context velden (compatibel met validator meta-checks)
         try:
             if definition.organisatorische_context:
                 enriched["organisatorische_context"] = list(
