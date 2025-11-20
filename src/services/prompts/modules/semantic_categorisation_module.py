@@ -142,8 +142,9 @@ Je **moet** één van de vier categorieën expliciet maken door de JUISTE KICK-O
 • EXEMPLAAR begrippen → start met: 'exemplaar van... dat...', 'specifiek geval van...'
 
 ⚠️ Let op: Start NOOIT met 'is een' of andere koppelwerkwoorden!
-⚠️ Voor TYPE: Start NOOIT met meta-woorden ('soort', 'type', 'categorie')!
-De kick-off term MOET een zelfstandig naamwoord zijn dat de categorie aangeeft.
+⚠️ Voor TYPE: Start NOOIT met meta-woorden als kick-off ('soort...', 'type...', 'categorie...')!
+De kick-off term MOET een concreet zelfstandig naamwoord zijn (bijv. 'woord', 'document', 'persoon').
+Je MAG wel 'soort' gebruiken in de UITLEG, niet als START.
 
 BELANGRIJK: Bepaal de juiste categorie op basis van het BEGRIP zelf:
 - Eindigt op -ING of -TIE en beschrijft een handeling? → PROCES
@@ -207,9 +208,10 @@ VOORBEELDEN (FOUT):
 ❌ "manier om gegevens te verzamelen" (te abstract)""",
             "type": """**TYPE CATEGORIE - Begin met het ZELFSTANDIG NAAMWOORD dat de klasse aanduidt:**
 
-⚠️ BELANGRIJK: Begin DIRECT met het kernwoord, NIET met meta-woorden!
+⚠️ BELANGRIJK: Begin DIRECT met het kernwoord, NIET met meta-woorden als kick-off!
 
-INSTRUCTIE: Start met het zelfstandig naamwoord dat de klasse of soort benoemt
+INSTRUCTIE: Start met het concrete zelfstandig naamwoord (bijv. 'woord', 'document', 'persoon')
+die de klasse benoemt, gevolgd door onderscheidende kenmerken
 
 STRUCTUUR van je definitie:
 1. Start: [Zelfstandig naamwoord van de klasse]

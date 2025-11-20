@@ -184,10 +184,11 @@ class JSONBasedRulesModule(BasePromptModule):
         """
         Formateer een regel uit JSON data naar markdown lines.
 
-        Format:
+        Format (na DEF-126 transformatie):
         🔹 **REGEL-KEY - Naam**
         - Uitleg tekst
-        - Toetsvraag: vraag tekst
+        - Instructie: imperatieve instructie (voor TOP 10 regels)
+        - Toetsvraag: vraag tekst (voor overige regels)
           ✅ Goed voorbeeld
           ❌ Fout voorbeeld
 
@@ -214,10 +215,15 @@ class JSONBasedRulesModule(BasePromptModule):
         if uitleg:
             lines.append(f"- {uitleg}")
 
-        # Toetsvraag
-        toetsvraag = regel_data.get("toetsvraag", "")
-        if toetsvraag:
-            lines.append(f"- Toetsvraag: {toetsvraag}")
+        # DEF-126: Transform TOP 10 validation questions to instructions
+        instruction = self._get_instruction_for_rule(regel_key)
+        if instruction:
+            lines.append(f"- **Instructie:** {instruction}")
+        else:
+            # Fallback: gebruik originele toetsvraag voor niet-getransformeerde regels
+            toetsvraag = regel_data.get("toetsvraag", "")
+            if toetsvraag:
+                lines.append(f"- Toetsvraag: {toetsvraag}")
 
         # Voorbeelden (indien enabled in config)
         if self.include_examples:
@@ -232,3 +238,75 @@ class JSONBasedRulesModule(BasePromptModule):
                 lines.append(f"  ❌ {fout}")
 
         return lines
+
+    def _get_instruction_for_rule(self, regel_key: str) -> str | None:
+        """
+        DEF-126: Transform validation questions to generation instructions.
+
+        Returns instruction for TOP 10 highest-impact rules, None for others.
+
+        Args:
+            regel_key: Regel identifier (bijv. "ARAI-01")
+
+        Returns:
+            Instruction string or None if not in TOP 10
+        """
+        # DEF-126 Phase 1 + Phase 2 transformation mapping
+        instruction_map = {
+            # ARAI rules (Algemene Regels AI)
+            "ARAI-01": "Begin de definitie met een zelfstandig naamwoord of naamwoordgroep",
+            "ARAI-02": "Vermijd containerbegrippen zoals 'aspect', 'ding', 'iets', 'element' zonder verdere specificatie",
+            "ARAI-02SUB1": "Vermijd algemene containertermen zoals 'aspect', 'ding', 'iets', 'element', 'factor'",
+            "ARAI-02SUB2": "Vermijd ongespecificeerde containerbegrippen zoals 'proces', 'voorziening', 'activiteit'",
+            "ARAI-03": "Vermijd subjectieve of contextafhankelijke bijvoeglijke naamwoorden",
+            "ARAI-04": "Vermijd modale hulpwerkwoorden zoals 'kan', 'moet', 'mag', 'zal'",
+            "ARAI-04SUB1": "Vermijd modale werkwoorden die onduidelijkheid scheppen over de essentie van het begrip",
+            "ARAI-05": "Vermijd impliciete verwijzingen naar aannames, gewoonten of niet-toegelichte contexten",
+            "ARAI-06": "Start zonder lidwoord ('de', 'het', 'een'), zonder koppelwerkwoord ('is', 'betekent') en zonder herhaling van het begrip",
+            # ESS rules (Essentie)
+            "ESS-01": "Beschrijf WAT het begrip is, niet WAARVOOR het dient of wordt gebruikt",
+            "ESS-02": "Maak de ontologische categorie expliciet: kies duidelijk tussen proces, type, resultaat of exemplaar",
+            "ESS-03": "Noem criteria voor unieke identificatie van instanties (zoals serienummer, kenteken, ID, registratienummer)",
+            "ESS-04": "Gebruik objectief toetsbare elementen (deadlines, aantallen, percentages, meetbare criteria)",
+            "ESS-05": "Maak expliciet duidelijk waarin het begrip zich onderscheidt van andere verwante begrippen",
+            # STR rules (Structuur)
+            "STR-01": "Start de definitie met een zelfstandig naamwoord of naamwoordgroep, niet met een werkwoord",
+            "STR-02": "Begin met een breder begrip (genus) en specificeer vervolgens hoe de term daarvan verschilt",
+            "STR-03": "Geef een volledige definitie, niet alleen een synoniem",
+            "STR-04": "Volg de algemene opening direct met een toespitsing die het specifieke type verduidelijkt",
+            "STR-05": "Beschrijf wat het begrip is, niet enkel uit welke onderdelen het bestaat",
+            "STR-06": "Beschrijf wat het begrip is, niet waarvoor het dient of waarom het nodig is",
+            "STR-07": "Vermijd dubbele ontkenningen (zoals 'niet zonder', 'onmogelijk om niet te')",
+            "STR-08": "Gebruik 'en' ondubbelzinnig (maak duidelijk of beide vereist zijn of één van beide)",
+            "STR-09": "Gebruik 'of' ondubbelzinnig (maak duidelijk of het inclusief of exclusief is)",
+            # INT rules (Integriteit)
+            "INT-01": "Formuleer de definitie als één enkele, begrijpelijke zin",
+            "INT-02": "Vermijd voorwaardelijke formuleringen zoals 'indien', 'mits', 'tenzij', 'alleen als'",
+            "INT-03": "Zorg dat voornaamwoorden ('deze', 'dit', 'die') direct verwijzen naar een duidelijk antecedent in dezelfde zin",
+            "INT-04": "Maak bepaalde lidwoorden ('de instelling', 'het systeem') expliciet door direct te specificeren welke bedoeld wordt",
+            "INT-06": "Vermijd toelichtende formuleringen zoals 'bijvoorbeeld', 'zoals', 'dit houdt in', 'namelijk'",
+            "INT-07": "Licht afkortingen direct toe in dezelfde zin (bijv. DJI (Dienst Justitiële Inrichtingen))",
+            "INT-08": "Formuleer positief (wat iets wél is), niet negatief (wat iets niet is)",
+            "INT-09": "Maak opsommingen limitatief (vermijd 'zoals', 'bijvoorbeeld', 'onder andere', 'etc.')",
+            "INT-10": "Zorg dat de definitie begrijpelijk is zonder specialistische of niet-openbare kennis",
+            # VER rules (Vorm)
+            "VER-01": "Gebruik enkelvoud, tenzij het begrip een plurale-tantum is (alleen meervoud bestaat)",
+            "VER-02": "Formuleer de definitie in het enkelvoud",
+            "VER-03": "Gebruik de infinitief voor werkwoord-termen (niet vervoegd)",
+            # CON rules (Context)
+            "CON-01": "Verwerk de context impliciet in de formulering zonder expliciete benoeming van contextnamen",
+            "CON-02": "Baseer de definitie op een authentieke bron (wetgeving, officiële documenten, standaarden)",
+            # SAM rules (Samenstelling)
+            "SAM-01": "Zorg dat kwalificaties niet leiden tot een betekenis die afwijkt van het algemeen aanvaarde begrip",
+            "SAM-02": "Vermijd herhaling uit de definitie van het hoofdbegrip bij het kwalificeren van begrippen",
+            "SAM-03": "Herhaal geen andere definitieteksten; verwijs naar het begrip of definieer afzonderlijk",
+            "SAM-04": "Begin samengestelde begrippen met het component dat de specialisatie vormt (genus) en specificeer daarna",
+            "SAM-05": "Vermijd cirkeldefinities (wederzijdse verwijzingen tussen begrippen)",
+            "SAM-06": "Gebruik consistente terminologie (kies één voorkeurs-term per begrip)",
+            "SAM-07": "Vermijd betekenisverruiming; beperk je tot elementen die inherent zijn aan de term",
+            "SAM-08": "Voor synoniemen: gebruik exact dezelfde definitiestructuur",
+            # DUP rules (Duplicate detection)
+            "DUP_01": "Formuleer een originele definitie die substantieel verschilt van standaardformuleringen",
+        }
+
+        return instruction_map.get(regel_key)
