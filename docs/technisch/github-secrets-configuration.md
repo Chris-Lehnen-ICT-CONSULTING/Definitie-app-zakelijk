@@ -3,21 +3,24 @@
 **Last Updated:** 2025-01-20
 **Status:** Active
 
-## Required Secrets
+## Available Secrets
 
-This document describes the GitHub repository secrets required for CI/CD workflows.
+This document describes the GitHub repository secrets that can be configured for CI/CD workflows.
 
 ### GITLEAKS_LICENSE
 
 **Purpose:** License key for Gitleaks organization scanning
 **Used in:** `.github/workflows/security.yml`
-**Required:** Yes (for organization-level secret scanning)
+**Required:** No (Gitleaks works fine in open source mode)
 **Type:** Repository or Organization secret
+**Status:** Not configured - using open source mode
 
-#### Configuration Steps
+#### Configuration Steps (Optional)
+
+**Note:** Gitleaks works perfectly fine without a license in open source mode. Only configure this if you have purchased an enterprise license and need advanced features.
 
 1. **Obtain License:**
-   - Get organization license from Gitleaks
+   - Purchase from https://gitleaks.io/products
    - Store securely (password manager/vault)
 
 2. **Add to GitHub:**
@@ -27,21 +30,32 @@ This document describes the GitHub repository secrets required for CI/CD workflo
    - Value: `<your-license-key>`
    - Click "Add secret"
 
-3. **Verify:**
+3. **Update Workflow:**
+   - Add env section to `.github/workflows/security.yml`:
+   ```yaml
+   - name: Run gitleaks
+     uses: gitleaks/gitleaks-action@v2
+     env:
+       GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
+     with:
+       args: --redact --no-banner --verbose
+   ```
+
+4. **Verify:**
    - Push to a branch matching: `main`, `develop`, `feature/DEF-*`, `fix/DEF-*`, `DEF-*`
    - Check Actions tab → Security workflow
-   - Confirm gitleaks scan completes without license errors
+   - Confirm gitleaks scan shows licensed features
 
-#### Workflow Usage
+#### Current Workflow Usage
 
 ```yaml
 - name: Run gitleaks
   uses: gitleaks/gitleaks-action@v2
-  env:
-    GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
   with:
     args: --redact --no-banner --verbose
 ```
+
+**Mode:** Open source (no license required)
 
 ### CODECOV_TOKEN
 
