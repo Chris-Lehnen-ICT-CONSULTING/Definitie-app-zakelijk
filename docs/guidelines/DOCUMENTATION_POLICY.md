@@ -217,5 +217,5 @@ Exceptions to this policy require:
 - User Stories hebben een frontmatter‑`id: US-XXX` die GLOBAAL uniek is over de héle backlog (niet per EPIC).
 - Bugs hebben een frontmatter‑`id: BUG-XXX`/`CFR-BUG-XXX` die GLOBAAL uniek is.
 - De `id` in frontmatter is leidend; H1‑kop moet overeenkomen.
-- Bij toevoegen/wijzigen: voer een uniekheidscheck uit (`rg -n "^id: US-" docs/backlog`) of gebruik de portal checker.
-- Duplicaten zijn niet toegestaan en worden door CI/portal als fout gerapporteerd.
+- Bij toevoegen/wijzigen: voer een uniekheidscheck uit (`rg -n "^id: US-" docs/backlog`).
+- Duplicaten zijn niet toegestaan.

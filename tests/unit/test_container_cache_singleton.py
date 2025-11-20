@@ -82,9 +82,17 @@ class TestContainerCacheSingleton:
         init_logs = [
             record
             for record in caplog.records
-            if "Initialiseer ServiceContainer" in record.message
+            if "ServiceContainer instance initialized" in record.message
+            or "ServiceContainer succesvol geïnitialiseerd" in record.message
         ]
-        assert len(init_logs) == 1, "Container mag maar 1x geïnitialiseerd worden"
+        assert len(init_logs) >= 1, "Container moet geïnitialiseerd worden"
+        # Check that we only created singleton once (look for creation log)
+        creation_logs = [
+            record
+            for record in caplog.records
+            if "Creating singleton ServiceContainer" in record.message
+        ]
+        assert len(creation_logs) == 1, "Container mag maar 1x aangemaakt worden"
 
     def test_clear_cache_forces_reinit(self):
         """Verify clearing cache forces new initialization."""

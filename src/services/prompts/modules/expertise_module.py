@@ -5,6 +5,10 @@ Deze module is verantwoordelijk voor:
 1. Expert rol definitie
 2. Taak instructies
 3. Basis schrijfregels
+
+DEF-154: Removed conflicting word_type_advice to eliminate redundancy with
+TemplateModule category-specific instructions. Word type detection is still
+performed and shared with downstream modules (GrammarModule, TemplateModule).
 """
 
 import logging
@@ -82,12 +86,8 @@ class ExpertiseModule(BasePromptModule):
             # 2. Taak instructie
             sections.append(self._build_task_instruction())
 
-            # 3. Woordsoort-specifiek advies
-            word_type_advice = self._build_word_type_advice(woordsoort)
-            if word_type_advice:
-                sections.append(word_type_advice)
-
-            # 4. Basis kwaliteitsvereisten
+            # 3. Basis kwaliteitsvereisten
+            # DEF-154: word_type_advice removed - redundant with TemplateModule
             sections.append(self._build_basic_requirements())
 
             # Combineer secties
@@ -155,7 +155,7 @@ class ExpertiseModule(BasePromptModule):
         Returns:
             Rol definitie tekst
         """
-        return "Je bent een expert in beleidsmatige definities voor overheidsgebruik."
+        return "Je bent een expert in het creëren van definities die EENDUIDIG zijn voor alle BELANGHEBBENDEN en aansluiten bij de WERKELIJKHEID."
 
     def _build_task_instruction(self) -> str:
         """
@@ -165,24 +165,6 @@ class ExpertiseModule(BasePromptModule):
             Taak instructie tekst
         """
         return "Formuleer een heldere definitie die het begrip precies afbakent."
-
-    def _build_word_type_advice(self, woordsoort: str) -> str | None:
-        """
-        Bouw woordsoort-specifiek schrijfadvies.
-
-        Args:
-            woordsoort: Type woord (werkwoord/deverbaal/overig)
-
-        Returns:
-            Schrijfadvies of None
-        """
-        advice_map = {
-            "werkwoord": "Als het begrip een handeling beschrijft, definieer het dan als proces of activiteit.",
-            "deverbaal": "Als het begrip een resultaat is, beschrijf het dan als uitkomst van een proces.",
-            "overig": "Gebruik een zakelijke en generieke stijl voor het definiëren van dit begrip.",
-        }
-
-        return advice_map.get(woordsoort)
 
     def _build_basic_requirements(self) -> str:
         """

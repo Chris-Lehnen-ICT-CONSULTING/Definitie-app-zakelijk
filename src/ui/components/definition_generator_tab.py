@@ -52,7 +52,7 @@ class DefinitionGeneratorTab:
         check_result = SessionStateManager.get_value("last_check_result")
         generation_result = SessionStateManager.get_value("last_generation_result")
 
-        # Vroegtijdige guard: minsténs 1 context vereist (UI‑melding)
+        # Vroegtijdige guard: minsténs 1 context vereist (UI-melding)
         try:
             if not self._has_min_one_context():
                 st.warning(
@@ -223,7 +223,7 @@ class DefinitionGeneratorTab:
 
     # ===== Context guards (minstens 1 vereist) =====
     def _get_global_context_lists(self) -> dict[str, list[str]]:
-        """Lees globale UI‑context en normaliseer naar lijsten."""
+        """Lees globale UI-context en normaliseer naar lijsten."""
         try:
             ctx = ensure_dict(SessionStateManager.get_value("global_context", {}))
         except Exception:
@@ -295,7 +295,7 @@ class DefinitionGeneratorTab:
                 SessionStateManager.set_value(
                     "selected_review_definition_id", target_id
                 )
-                # Zorg dat de Bewerk‑tab direct kan auto‑laden
+                # Zorg dat de Bewerk-tab direct kan auto-laden
                 SessionStateManager.set_value("editing_definition_id", target_id)
             except Exception:
                 pass
@@ -384,7 +384,7 @@ class DefinitionGeneratorTab:
 
             st.subheader("2️⃣ Finale Definitie")
             st.info(agent_result["definitie_gecorrigeerd"])
-            # Bewaar finale tekst + begrip voor UI‑uitleg (pass‑rationales)
+            # Bewaar finale tekst + begrip voor UI-uitleg (pass-rationales)
             try:
                 SessionStateManager.set_value(
                     "current_definition_text",
@@ -453,7 +453,7 @@ class DefinitionGeneratorTab:
                     self._render_validation_results(validation_details)
                 else:
                     st.markdown("#### ✅ Kwaliteitstoetsing")
-                    st.info("ℹ️ Geen validatiedetails beschikbaar.")
+                    st.info("i Geen validatiedetails beschikbaar.")
         except Exception as e:
             st.markdown("#### ✅ Kwaliteitstoetsing")
             st.error(f"Validatiesectie kon niet worden gerenderd: {e!s}")
@@ -498,7 +498,25 @@ class DefinitionGeneratorTab:
                             saved_id = int(saved_definition_id)
 
                         if saved_id:
-                            self._maybe_persist_examples(saved_id, agent_result)
+                            # DEF-156: Show UI confirmation when voorbeelden are auto-saved
+                            saved_successfully = self._maybe_persist_examples(
+                                saved_id, agent_result
+                            )
+                            if saved_successfully:
+                                # Count total voorbeelden items for confirmation message
+                                vb = agent_result.get("voorbeelden", {})
+                                if isinstance(vb, dict):
+                                    total = sum(
+                                        (
+                                            len(v)
+                                            if isinstance(v, list)
+                                            else (1 if v else 0)
+                                        )
+                                        for v in vb.values()
+                                    )
+                                    st.success(
+                                        f"✅ Voorbeelden automatisch opgeslagen ({total} items)"
+                                    )
                     except Exception as e:
                         logger.warning(
                             f"Automatisch opslaan van voorbeelden overgeslagen: {e}"
@@ -542,7 +560,7 @@ class DefinitionGeneratorTab:
                                         )
                                     else:
                                         st.info(
-                                            "ℹ️ Geen op te slaan voorbeelden of al up-to-date"
+                                            "i Geen op te slaan voorbeelden of al up-to-date"
                                         )
                     except Exception as e:
                         logger.debug(
@@ -550,7 +568,7 @@ class DefinitionGeneratorTab:
                         )
                 else:
                     st.markdown("#### 📚 Gegenereerde Content")
-                    st.info("ℹ️ Geen voorbeelden beschikbaar voor deze generatie.")
+                    st.info("i Geen voorbeelden beschikbaar voor deze generatie.")
         except Exception as e:
             st.markdown("#### 📚 Gegenereerde Content")
             st.error(f"Voorbeeldensectie kon niet worden gerenderd: {e!s}")
@@ -708,7 +726,7 @@ class DefinitionGeneratorTab:
         Toont een selectbox met UFO-categorieën en biedt een knop om de keuze
         op te slaan bij het opgeslagen record (indien beschikbaar).
         """
-        st.markdown("#### 🧭 UFO‑categorie")
+        st.markdown("#### 🧭 UFO-categorie")
         ufo_opties = [
             "",
             "Kind",
@@ -775,23 +793,26 @@ class DefinitionGeneratorTab:
 
         key_sel = f"ufo_select_{target_id or 'new'}"
         st.selectbox(
-            "Selecteer UFO‑categorie",
+            "Selecteer UFO-categorie",
             options=ufo_opties,
             index=default_index,
             key=key_sel,
-            help="Kies de UFO‑categorie volgens het OntoUML/UFO metamodel",
+            help="Kies de UFO-categorie volgens het OntoUML/UFO metamodel",
             on_change=_persist_ufo_selection,
             args=(key_sel, target_id),
         )
 
     def _maybe_persist_examples(
         self, definitie_id: int, agent_result: dict[str, Any]
-    ) -> None:
+    ) -> bool:
         """Sla gegenereerde voorbeelden automatisch op in de DB.
 
         - Vermijdt dubbele opslag door te keyen op generation_id
         - Slaat alleen op wanneer er daadwerkelijk content is
-        - Vergelijkt met huidige actieve DB‑voorbeelden om onnodige writes te vermijden
+        - Vergelijkt met huidige actieve DB-voorbeelden om onnodige writes te vermijden
+
+        Returns:
+            True if voorbeelden were saved, False otherwise
         """
         try:
             meta = (
@@ -816,7 +837,7 @@ class DefinitionGeneratorTab:
                 logger.warning(
                     f"No voorbeelden data in agent_result for definitie {definitie_id}"
                 )
-                return
+                return False
 
             # Canonicaliseer en normaliseer naar lists
             from ui.helpers.examples import canonicalize_examples
@@ -850,7 +871,7 @@ class DefinitionGeneratorTab:
                 logger.warning(
                     f"Voorbeelden dict empty (0 items) for definitie {definitie_id}"
                 )
-                return
+                return False
 
             # Vergelijk met huidige actieve voorbeelden; sla alleen op als er verschil is
             repo = get_definitie_repository()
@@ -880,7 +901,7 @@ class DefinitionGeneratorTab:
                 logger.info(
                     f"Voorbeelden identical to database for definitie {definitie_id}, skipping save"
                 )
-                return
+                return False  # Not saved (already exists)
 
             # Sla op met voorkeursterm uit session state
             from pydantic import ValidationError
@@ -904,14 +925,17 @@ class DefinitionGeneratorTab:
                     f"✅ Voorbeelden saved for definitie {definitie_id}: "
                     f"{total_new} items across {len([k for k, v in to_save.items() if v])} types"
                 )
+                # DEF-156: Return success indicator for UI confirmation
+                return True
             except ValidationError as e:
                 logger.error(
                     f"Voorbeelden validation failed for definitie {definitie_id}: {e}"
                 )
                 # Don't raise in auto-save context, just log
-                return
+                return False
         except Exception as e:
             logger.warning("Automatisch opslaan voorbeelden mislukt: %s", e)
+            return False
 
     def _persist_examples_manual(
         self, definitie_id: int, agent_result: dict[str, Any]
@@ -1184,7 +1208,7 @@ class DefinitionGeneratorTab:
                             )
                             try:
                                 new_id = repo.save(new_def)
-                                # Zet auto-load voor Bewerk‑tab
+                                # Zet auto-load voor Bewerk-tab
                                 SessionStateManager.set_value(
                                     "editing_definition_id", int(new_id)
                                 )
@@ -1201,7 +1225,7 @@ class DefinitionGeneratorTab:
                                     "selected_review_definition_id", int(new_id)
                                 )
                                 st.success(
-                                    "✅ Concept opgeslagen. Open de Bewerk‑tab om te bewerken."
+                                    "✅ Concept opgeslagen. Open de Bewerk-tab om te bewerken."
                                 )
                             except Exception as se:
                                 st.error(f"Opslaan mislukt: {se}")
@@ -1444,13 +1468,13 @@ class DefinitionGeneratorTab:
 
                 # Bepaal bericht
                 if web_available is False or web_status == "not_available":
-                    msg = "ℹ️ Web lookup is niet beschikbaar in deze omgeving."
+                    msg = "i Web lookup is niet beschikbaar in deze omgeving."
                 elif web_status == "timeout":
                     msg = "⏱️ Web lookup time-out — geen bronnen opgehaald."
                 elif web_status == "error":
                     msg = "⚠️ Web lookup fout — geen bronnen opgehaald."
                 else:
-                    msg = "ℹ️ Geen relevante externe bronnen gevonden."
+                    msg = "i Geen relevante externe bronnen gevonden."
 
                 st.info(msg)
                 return
@@ -1778,12 +1802,12 @@ class DefinitionGeneratorTab:
                 lines.append("\nFout voorbeeld:")
                 lines.extend([f"- {b}" for b in bad[:2]])
             lines.append(
-                "\nMeer uitleg: [Validatieregels (CON‑01 e.a.)](docs/handleidingen/gebruikers/uitleg-validatieregels.md)"
+                "\nMeer uitleg: [Validatieregels (CON-01 e.a.)](docs/handleidingen/gebruikers/uitleg-validatieregels.md)"
             )
             return "\n".join(lines)
         except Exception:
             return (
-                "Meer uitleg: [Validatieregels (CON‑01 e.a.)]"
+                "Meer uitleg: [Validatieregels (CON-01 e.a.)]"
                 "(docs/handleidingen/gebruikers/uitleg-validatieregels.md)"
             )
 
@@ -1793,7 +1817,7 @@ class DefinitionGeneratorTab:
 
     # ============ UI-private utilities (géén aparte helpers/module) ============
     def _get_current_text_and_begrip(self) -> tuple[str, str]:
-        """Lees huidige definitietekst/begrip uit UI‑state (best effort)."""
+        """Lees huidige definitietekst/begrip uit UI-state (best effort)."""
         try:
             text = ensure_string(
                 SessionStateManager.get_value("current_definition_text", "")
@@ -1804,7 +1828,7 @@ class DefinitionGeneratorTab:
             return "", ""
 
     def _compute_text_metrics(self, text: str) -> dict[str, int]:
-        """Kleine metrics voor pass‑rationales (UI‑only)."""
+        """Kleine metrics voor pass-rationales (UI-only)."""
         t = ensure_string(text)
         words = len(t.split()) if t else 0
         chars = len(t)
@@ -1812,7 +1836,7 @@ class DefinitionGeneratorTab:
         return {"words": words, "chars": chars, "commas": commas}
 
     def _build_pass_reason(self, rule_id: str, text: str, begrip: str) -> str:
-        """Beknopte reden waarom regel geslaagd is (heuristiek, UI‑only)."""
+        """Beknopte reden waarom regel geslaagd is (heuristiek, UI-only)."""
         rid = ensure_string(rule_id).upper()
         m = self._compute_text_metrics(text)
         w, c, cm = m.get("words", 0), m.get("chars", 0), m.get("commas", 0)
@@ -1846,7 +1870,7 @@ class DefinitionGeneratorTab:
                 return "Begrip niet opgegeven."
             if rid == "STR-TERM-001":
                 return (
-                    "Verboden term niet aangetroffen (‘HTTP protocol’)."
+                    "Verboden term niet aangetroffen ('HTTP protocol')."
                     if "HTTP protocol" not in ensure_string(text)
                     else ""
                 )
@@ -1859,7 +1883,7 @@ class DefinitionGeneratorTab:
                     )
                 )
                 return (
-                    "Geen lange komma‑zin (>300 tekens en ≥6 komma’s) en geen redundantiepatroon."
+                    "Geen lange komma-zin (>300 tekens en ≥6 komma's) en geen redundantiepatroon."
                     if not (c > 300 and cm >= 6) and not redund
                     else ""
                 )
@@ -1910,8 +1934,8 @@ class DefinitionGeneratorTab:
             "VAL-LEN-002": "Maximale lengte om overdadigheid te voorkomen.",
             "ESS-CONT-001": "Essentiële inhoud aanwezig (niet te summier).",
             "CON-CIRC-001": "Detecteert of het begrip letterlijk in de definitie voorkomt.",
-            "STR-TERM-001": "Terminologiekwesties (bijv. ‘HTTP‑protocol’ i.p.v. ‘HTTP protocol’).",
-            "STR-ORG-001": "Lange, komma‑rijke zinnen of redundantie/tegenstrijdigheid.",
+            "STR-TERM-001": "Terminologiekwesties (bijv. 'HTTP-protocol' i.p.v. 'HTTP protocol').",
+            "STR-ORG-001": "Lange, komma-rijke zinnen of redundantie/tegenstrijdigheid.",
             "ESS-02": "Eenduidige ontologische marker (type/particulier/proces/resultaat).",
             "CON-01": "Context niet letterlijk benoemen; waarschuwt bij dubbele context.",
         }
@@ -1919,7 +1943,7 @@ class DefinitionGeneratorTab:
 
     def _edit_existing_definition(self, definitie: DefinitieRecord):
         """Bewerk bestaande definitie."""
-        # Zet doel definitie en navigeer programmatic naar radio‑tab 'edit'
+        # Zet doel definitie en navigeer programmatic naar radio-tab 'edit'
         SessionStateManager.set_value("editing_definition_id", definitie.id)
         SessionStateManager.set_value("active_tab", "edit")
         st.success("✏️ Bewerk-tab geopend — laden van definitie…")
@@ -2256,9 +2280,9 @@ class DefinitionGeneratorTab:
         # Fallback: extract from session state
         from ui.session_state import SessionStateManager
 
-        for context_type in context_dict:
+        for context_type, context_value in list(context_dict.items()):
             session_value = SessionStateManager.get_value(f"{context_type}_context", [])
-            if session_value and not context_dict[context_type]:
+            if session_value and not context_value:
                 context_dict[context_type] = session_value
 
         return context_dict

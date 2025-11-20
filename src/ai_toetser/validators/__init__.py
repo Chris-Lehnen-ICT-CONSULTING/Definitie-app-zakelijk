@@ -3,8 +3,8 @@ Shim voor ai_toetser.validators
 
 Deze module biedt een minimale, testvriendelijke API voor oude imports die
 in sommige tests nog gebruikt worden. De daadwerkelijke validatorlogica leeft
-onder `src/toetsregels/validators` en de JSON‑loader. Deze shim zorgt er alleen
-voor dat unit‑tests die tegen `ai_toetser.validators` zijn geschreven kunnen
+onder `src/toetsregels/validators` en de JSON-loader. Deze shim zorgt er alleen
+voor dat unit-tests die tegen `ai_toetser.validators` zijn geschreven kunnen
 importeren en basisfunctionaliteit gebruiken tijdens de transitie.
 """
 
@@ -12,7 +12,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Dict
+from typing import Any
 
 
 class ValidationResult(Enum):

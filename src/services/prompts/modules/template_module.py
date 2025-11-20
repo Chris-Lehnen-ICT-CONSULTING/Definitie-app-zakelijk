@@ -246,5 +246,5 @@ class TemplateModule(BasePromptModule):
 
         return examples_map.get(
             category,
-            ["  ℹ️ Geen specifieke voorbeelden beschikbaar voor deze categorie"],
+            ["  i Geen specifieke voorbeelden beschikbaar voor deze categorie"],
         )

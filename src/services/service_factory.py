@@ -701,8 +701,8 @@ def get_service(*args, **kwargs):
 
 
 ## NOTE:
-## Keep a single, test‑patchable symbol named `get_container` in this module.
-## Previous duplicate definition attempted to import a non‑existent
+## Keep a single, test-patchable symbol named `get_container` in this module.
+## Previous duplicate definition attempted to import a non-existent
 ## `utils.container_manager.get_container`, causing ImportError at runtime.
 ## The implementation above (cached container manager) is the canonical one.
 

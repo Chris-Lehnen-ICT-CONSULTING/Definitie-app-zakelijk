@@ -81,21 +81,8 @@ class DefinitionTaskModule(BasePromptModule):
             word_type = context.get_shared("word_type", "onbekend")
             ontological_category = context.get_shared("ontological_category")
             org_contexts = context.get_shared("organization_contexts", [])
-            # Derive juridical and legal-basis contexts from enriched base_context
-            try:
-                base_ctx = (
-                    context.enriched_context.base_context
-                    if context and context.enriched_context
-                    else {}
-                )
-            except Exception:
-                base_ctx = {}
-            jur_contexts = (
-                base_ctx.get("juridische_context") or base_ctx.get("juridisch") or []
-            )
-            wet_basis = (
-                base_ctx.get("wettelijke_basis") or base_ctx.get("wettelijk") or []
-            )
+            jur_contexts = context.get_shared("juridical_contexts", [])
+            wet_basis = context.get_shared("legal_basis_contexts", [])
             has_context = bool(
                 org_contexts
                 or jur_contexts
@@ -162,12 +149,12 @@ class DefinitionTaskModule(BasePromptModule):
 
     def get_dependencies(self) -> list[str]:
         """
-        Deze module is afhankelijk van SemanticCategorisationModule.
+        Deze module is afhankelijk van SemanticCategorisationModule en ContextAwarenessModule.
 
         Returns:
             Lijst met dependency
         """
-        return ["semantic_categorisation"]
+        return ["semantic_categorisation", "context_awareness"]
 
     def _build_task_assignment(self, begrip: str) -> str:
         """Bouw de definitie opdracht."""
@@ -195,13 +182,13 @@ Formuleer nu de definitie van **{begrip}** volgens deze specificaties:"""
             if ontological_category in category_hints:
                 ont_cat = f"\n🎯 Focus: Dit is een **{ontological_category}** ({category_hints[ontological_category]})"
 
-        return f"""📋 **CHECKLIST - Controleer voor je antwoord:**
-□ Begint met zelfstandig naamwoord (geen lidwoord/koppelwerkwoord)
-□ Eén enkele zin zonder punt aan het einde
-□ Geen toelichting, voorbeelden of haakjes
-□ Ontologische categorie is duidelijk{ont_cat}
-□ Geen verboden woorden (aspect, element, kan, moet, etc.)
-□ Context verwerkt zonder expliciete benoeming"""
+        return f"""📋 **CONSTRUCTIE GUIDE - Bouw je definitie op:**
+→ Begint met zelfstandig naamwoord (geen lidwoord/koppelwerkwoord)
+→ Eén enkele zin zonder punt aan het einde
+→ Geen toelichting, voorbeelden of haakjes
+→ Ontologische categorie is duidelijk{ont_cat}
+→ Geen verboden woorden (aspect, element, kan, moet, etc.)
+→ Context verwerkt zonder expliciete benoeming"""
 
     def _build_quality_control(self, has_context: bool) -> str:
         """

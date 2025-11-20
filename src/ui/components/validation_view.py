@@ -111,12 +111,12 @@ def _build_rule_hint_markdown(rule_id: str) -> str:
             lines.append("\nFout voorbeeld:")
             lines.extend([f"- {b}" for b in bad[:2]])
         lines.append(
-            "\nMeer uitleg: [Validatieregels (CON‑01 e.a.)](docs/handleidingen/gebruikers/uitleg-validatieregels.md)"
+            "\nMeer uitleg: [Validatieregels (CON-01 e.a.)](docs/handleidingen/gebruikers/uitleg-validatieregels.md)"
         )
         return "\n".join(lines)
     except Exception:
         return (
-            "Meer uitleg: [Validatieregels (CON‑01 e.a.)]"
+            "Meer uitleg: [Validatieregels (CON-01 e.a.)]"
             "(docs/handleidingen/gebruikers/uitleg-validatieregels.md)"
         )
 
@@ -319,5 +319,5 @@ def render_validation_detailed_list(
         # Inline explanation per rule (skip pure summary lines)
         rid = _extract_rule_id_from_line(line)
         if rid:
-            with st.expander(f"ℹ️ Toon uitleg voor {rid}", expanded=False):
+            with st.expander(f"i Toon uitleg voor {rid}", expanded=False):
                 st.markdown(_build_rule_hint_markdown(rid))

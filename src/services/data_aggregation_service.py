@@ -287,9 +287,9 @@ class DataAggregationService:
             "prompt_text",
         ]
 
-        for field in direct_fields:
-            if field in additional_data:
-                setattr(export_data, field, additional_data[field])
+        for field_name in direct_fields:
+            if field_name in additional_data:
+                setattr(export_data, field_name, additional_data[field_name])
 
         # List fields
         list_fields = [
@@ -301,11 +301,11 @@ class DataAggregationService:
             "beoordeling_gen",
         ]
 
-        for field in list_fields:
-            if field in additional_data:
-                value = additional_data[field]
+        for field_name in list_fields:
+            if field_name in additional_data:
+                value = additional_data[field_name]
                 if isinstance(value, list):
-                    setattr(export_data, field, value)
+                    setattr(export_data, field_name, value)
 
         # Dict fields
         if "toetsresultaten" in additional_data:

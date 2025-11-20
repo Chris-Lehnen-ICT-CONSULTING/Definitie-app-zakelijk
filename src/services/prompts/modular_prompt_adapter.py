@@ -12,24 +12,17 @@ from typing import Any
 from services.definition_generator_config import UnifiedGeneratorConfig
 from services.definition_generator_context import EnrichedContext
 
-from .modules import (
-    AraiRulesModule,
-    ConRulesModule,
+from .modules import (  # ErrorPreventionModule,  # DEF-169: Disabled - redundant with JSONBasedRulesModule
     ContextAwarenessModule,
     DefinitionTaskModule,
-    ErrorPreventionModule,
-    EssRulesModule,
     ExpertiseModule,
     GrammarModule,
-    IntegrityRulesModule,
+    JSONBasedRulesModule,
     MetricsModule,
     OutputSpecificationModule,
     PromptOrchestrator,
-    SamRulesModule,
     SemanticCategorisationModule,
-    StructureRulesModule,
     TemplateModule,
-    VerRulesModule,
 )
 
 logger = logging.getLogger(__name__)
@@ -64,15 +57,75 @@ def get_cached_orchestrator() -> PromptOrchestrator:
                     ContextAwarenessModule(),
                     SemanticCategorisationModule(),
                     TemplateModule(),
-                    # Regel modules - elke categorie eigen module
-                    AraiRulesModule(),  # ARAI regels
-                    ConRulesModule(),  # CON regels
-                    EssRulesModule(),  # ESS regels
-                    IntegrityRulesModule(),  # INT regels
-                    SamRulesModule(),  # SAM regels
-                    StructureRulesModule(),  # STR regels
-                    VerRulesModule(),  # VER regels
-                    ErrorPreventionModule(),
+                    # JSON-based regel modules (DEF-156: Consolidated from 5 duplicate modules)
+                    JSONBasedRulesModule(
+                        rule_prefix="ARAI",
+                        module_id="arai_rules",
+                        module_name="ARAI Validation Rules",
+                        header_emoji="✅",
+                        header_text="Algemene Regels AI (ARAI)",
+                        priority=75,
+                    ),
+                    JSONBasedRulesModule(
+                        rule_prefix="CON-",  # ⚠️ Edge case: trailing dash
+                        module_id="con_rules",
+                        module_name="Context Validation Rules (CON)",
+                        header_emoji="🌐",
+                        header_text="Context Regels (CON)",
+                        priority=70,
+                    ),
+                    JSONBasedRulesModule(
+                        rule_prefix="ESS-",
+                        module_id="ess_rules",
+                        module_name="Essence Validation Rules (ESS)",
+                        header_emoji="🎯",
+                        header_text="Essentie Regels (ESS)",
+                        priority=75,
+                    ),
+                    JSONBasedRulesModule(
+                        rule_prefix="INT",
+                        module_id="integrity_rules",
+                        module_name="Integrity Validation Rules (INT)",
+                        header_emoji="🔒",
+                        header_text="Integriteit Regels (INT)",
+                        priority=70,  # Same priority as before
+                        # mode=ValidationMode.INSTRUCTION,  # ← OPTIONAL: Uncomment to enable compact mode
+                    ),
+                    JSONBasedRulesModule(
+                        rule_prefix="SAM-",
+                        module_id="sam_rules",
+                        module_name="Coherence Validation Rules (SAM)",
+                        header_emoji="🔗",
+                        header_text="Samenhang Regels (SAM)",
+                        priority=65,
+                    ),
+                    JSONBasedRulesModule(
+                        rule_prefix="STR",  # Note: "STR" not "STR-" (matches JSON id format STR_01)
+                        module_id="structure_rules",
+                        module_name="Structure Validation Rules (STR)",
+                        header_emoji="🏗️",
+                        header_text="Structuur Regels (STR)",
+                        priority=65,  # Same priority as before
+                        # mode=ValidationMode.INSTRUCTION,  # ← OPTIONAL: Uncomment to enable compact mode
+                    ),
+                    JSONBasedRulesModule(
+                        rule_prefix="VER-",
+                        module_id="ver_rules",
+                        module_name="Form Validation Rules (VER)",
+                        header_emoji="📐",
+                        header_text="Vorm Regels (VER)",
+                        priority=60,
+                    ),
+                    # DEF-169: ErrorPreventionModule uitgeschakeld - 100% redundant met JSONBasedRulesModule
+                    # De "Veelgemaakte fouten" sectie (~1.000 tokens) wordt volledig afgedekt door:
+                    # - ARAI-06 (geen lidwoorden/koppelwerkwoorden)
+                    # - STR-01, STR-02, STR-03 (structuur regels)
+                    # - ESS-02 (geen meta-woorden)
+                    # - ARAI-02, ARAI-03 (containerbegrippen, bijvoeglijke naamwoorden)
+                    # - VER-01, VER-02, VER-03 (enkelvoud, infinitief)
+                    # Plus: validatiematrix tabel vat alle patronen al samen
+                    # Besparing: ~1.000 tokens (-14%) zonder kwaliteitsverlies
+                    # ErrorPreventionModule(),
                     MetricsModule(),
                     DefinitionTaskModule(),
                 ]
@@ -177,11 +230,12 @@ class ModularPromptAdapter:
             "ver_rules": {
                 "include_examples": config.include_examples_in_rules,
             },
-            "error_prevention": {
-                # Error prevention settings
-                "include_validation_matrix": not config.compact_mode,
-                "extended_forbidden_list": not config.compact_mode,
-            },
+            # DEF-169: ErrorPreventionModule config disabled (module not registered)
+            # "error_prevention": {
+            #     # Error prevention settings
+            #     "include_validation_matrix": not config.compact_mode,
+            #     "extended_forbidden_list": not config.compact_mode,
+            # },
             "definition_task": {
                 # Task module settings
                 "include_quality_control": not config.compact_mode,
