@@ -248,7 +248,7 @@ def _normalize_wettelijke_basis(conn: sqlite3.Connection) -> int:
         if changed:
             logger.info(f"✅ Genormaliseerd: {changed} rijen voor wettelijke_basis")
         else:
-            logger.info("ℹ️  Geen normalisaties nodig voor wettelijke_basis")
+            logger.info("i  Geen normalisaties nodig voor wettelijke_basis")
         return changed
     except Exception as e:
         logger.warning(f"Normalisatie wettelijk mislukt: {e}")
@@ -486,7 +486,7 @@ def migrate_database(db_path: str = "data/definities.db"):
                     conn.execute("PRAGMA foreign_keys=ON")
                     logger.info("✅ Kolom 'voorkeursterm_is_begrip' verwijderd")
             except Exception as e:
-                logger.warning(f"Kolom‑opruiming overgeslagen/mislukt: {e}")
+                logger.warning(f"Kolom-opruiming overgeslagen/mislukt: {e}")
 
             # Correcteer eventueel FK die nog naar 'definities_old' wijst
             try:
@@ -536,7 +536,7 @@ def migrate_database(db_path: str = "data/definities.db"):
             except Exception as e:
                 logger.warning(f"FK correctie check overslagen/mislukt: {e}")
 
-            # Normaliseer wettelijke_basis voor betrouwbare duplicate‑check op DB‑laag
+            # Normaliseer wettelijke_basis voor betrouwbare duplicate-check op DB-laag
             _normalize_wettelijke_basis(conn)
 
             logger.info("✅ Database migratie + normalisatie succesvol!")
@@ -581,7 +581,7 @@ def verify_migration(db_path: str = "data/definities.db"):
                 f"✅ ketenpartners: {'AANWEZIG' if has_ketenpartners else 'ONTBREEKT'}"
             )
             logger.info(
-                f"ℹ️  voorkeursterm_is_begrip: {'AANWEZIG (deprecated)' if has_voorkeursterm_is_begrip else 'ONTBREEKT (ok)'}"
+                f"i  voorkeursterm_is_begrip: {'AANWEZIG (deprecated)' if has_voorkeursterm_is_begrip else 'ONTBREEKT (ok)'}"
             )
             logger.info(
                 f"✅ voorkeursterm (TEXT): {'AANWEZIG' if has_voorkeursterm_text else 'ONTBREEKT'}"

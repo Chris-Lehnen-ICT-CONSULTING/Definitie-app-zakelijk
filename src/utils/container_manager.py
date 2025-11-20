@@ -1,11 +1,11 @@
 """
-Container Manager met pure‑Python caching voor ServiceContainer.
+Container Manager met pure-Python caching voor ServiceContainer.
 
 Dit module voorkomt dat ServiceContainer onnodig vaak wordt geïnitialiseerd
-door een proces‑lokale LRU‑cache (singleton) te gebruiken. Dit reduceert
-opstarttijd en houdt het systeem UI‑agnostisch (geen Streamlit‑afhankelijkheid).
+door een proces-lokale LRU-cache (singleton) te gebruiken. Dit reduceert
+opstarttijd en houdt het systeem UI-agnostisch (geen Streamlit-afhankelijkheid).
 
-US‑201: Optimaliseer ServiceContainer caching
+US-201: Optimaliseer ServiceContainer caching
 US-202: Remove custom config support - singleton only
 """
 

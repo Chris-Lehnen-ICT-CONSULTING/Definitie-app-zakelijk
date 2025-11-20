@@ -55,7 +55,7 @@ async def get_feature_status():
 
         return data
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @app.get("/api/feature-status/summary")

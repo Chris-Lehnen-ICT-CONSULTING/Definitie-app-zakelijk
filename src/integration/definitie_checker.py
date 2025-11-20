@@ -476,7 +476,7 @@ class DefinitieChecker:
             if via_synoniem and search_term:
                 return (
                     f"{prefix} voor '{existing.begrip}' (ID: {existing.id}). "
-                    f"Gevonden via synoniem ‘{search_term}’ met gelijke context."
+                    f"Gevonden via synoniem '{search_term}' met gelijke context."
                 )
             return f"{prefix} voor '{existing.begrip}' (ID: {existing.id})"
 

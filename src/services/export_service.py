@@ -269,7 +269,7 @@ class ExportService:
                 )
             except Exception as e:  # pragma: no cover - defensive
                 msg = f"Validatie mislukt vóór export: {e!s}"
-                raise ValueError(msg)
+                raise ValueError(msg) from e
             if not isinstance(result, dict) or not result.get("is_acceptable", False):
                 msg = "Export geblokkeerd: definitie niet acceptabel volgens validatiegate"
                 raise ValueError(msg)

@@ -117,7 +117,7 @@ def _extract_pdf(content: bytes) -> str | None:
             for page in pdf_reader.pages:
                 text_parts.append(page.extract_text())
 
-            # Gebruik form feed (\f) als pagina‑scheiding voor locatiebepaling
+            # Gebruik form feed (\f) als pagina-scheiding voor locatiebepaling
             return "\f".join(text_parts)
 
         except ImportError:

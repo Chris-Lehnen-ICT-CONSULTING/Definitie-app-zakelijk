@@ -43,6 +43,10 @@ class ReadOnlySequence:
             return list(self._data) == list(other)
         return NotImplemented
 
+    def __hash__(self) -> int:
+        """Make hashable since the internal data is immutable."""
+        return hash(self._data)
+
 
 @dataclass(frozen=True)
 class EvaluationContext:
@@ -146,7 +150,8 @@ class RuleResult:
         return cls(rule_code=rule_code, score=score_val)
 
     @classmethod
-    def errored(cls, rule_code: str, error: Exception) -> RuleResult:
+    def from_error(cls, rule_code: str, error: Exception) -> RuleResult:
+        """Create RuleResult from an error/exception."""
         return cls(
             rule_code=rule_code,
             score=0.0,
