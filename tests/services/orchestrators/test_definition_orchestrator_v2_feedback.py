@@ -103,12 +103,26 @@ async def test_orchestrator_feedback_loop_integration_success():
     # Orchestrator configured with feedback loop enabled, enhancement off
     cfg = OrchestratorConfig(enable_feedback_loop=True, enable_enhancement=False)
 
+    # Setup request FIRST
+    request = GenerationRequest(
+        id="it-FEEDBACK",
+        begrip="verificatie",
+        ontologische_categorie="proces",
+        context="DJI",
+        actor="tester",
+        legal_basis="testing",
+    )
+
+    # Configure security service to return request
+    security_service = AsyncMock()
+    security_service.sanitize_request.return_value = request
+
     orch = DefinitionOrchestratorV2(
         prompt_service=prompt_service,
         ai_service=ai_service,
         validation_service=validation_service,
         enhancement_service=None,
-        security_service=AsyncMock(),
+        security_service=security_service,
         cleaning_service=cleaning_service,
         repository=repository,
         monitoring=monitoring,
@@ -130,15 +144,6 @@ async def test_orchestrator_feedback_loop_integration_success():
         "voorbeelden.unified_voorbeelden.genereer_alle_voorbeelden_async",
         new=AsyncMock(return_value=fake_examples),
     ):
-        request = GenerationRequest(
-            id="it-FEEDBACK",
-            begrip="verificatie",
-            ontologische_categorie="proces",
-            context="DJI",
-            actor="tester",
-            legal_basis="testing",
-        )
-
         # Act
         resp = await orch.create_definition(request)
 

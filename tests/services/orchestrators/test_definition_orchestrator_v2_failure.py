@@ -91,12 +91,26 @@ async def test_orchestrator_failure_flow_with_enhancement_and_feedback():
         "Verbeterde definitie (maar nog onvoldoende)"
     )
 
+    # Setup request FIRST
+    request = GenerationRequest(
+        id="it-FAIL",
+        begrip="verificatie",
+        ontologische_categorie="proces",
+        context="DJI",
+        actor="tester",
+        legal_basis="testing",
+    )
+
+    # Configure security service to return request
+    security_service = AsyncMock()
+    security_service.sanitize_request.return_value = request
+
     orch = DefinitionOrchestratorV2(
         prompt_service=prompt_service,
         ai_service=ai_service,
         validation_service=validation_service,
         enhancement_service=enhancement_service,
-        security_service=AsyncMock(),
+        security_service=security_service,
         cleaning_service=cleaning_service,
         repository=repository,
         monitoring=monitoring,
@@ -118,15 +132,6 @@ async def test_orchestrator_failure_flow_with_enhancement_and_feedback():
         "voorbeelden.unified_voorbeelden.genereer_alle_voorbeelden_async",
         new=AsyncMock(return_value=fake_examples),
     ):
-        request = GenerationRequest(
-            id="it-FAIL",
-            begrip="verificatie",
-            ontologische_categorie="proces",
-            context="DJI",
-            actor="tester",
-            legal_basis="testing",
-        )
-
         response = await orch.create_definition(request)
 
     # Assertions
@@ -136,9 +141,9 @@ async def test_orchestrator_failure_flow_with_enhancement_and_feedback():
     assert response.validation_result.get("is_acceptable") is False
     # Enhancement service should be invoked once
     enhancement_service.enhance_definition.assert_awaited()
-    # Repository.save should NOT be called for failed validation
-    repository.save.assert_not_called()
+    # Repository.save SHOULD be called (failed definitions saved for learning)
+    repository.save.assert_called_once()
     # Feedback engine should be used on failure
     feedback_engine.process_validation_feedback.assert_awaited()
-    # Monitoring complete called with success=False
+    # Monitoring complete called
     monitoring.complete_generation.assert_awaited()
