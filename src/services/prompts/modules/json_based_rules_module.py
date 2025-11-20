@@ -251,24 +251,37 @@ class JSONBasedRulesModule(BasePromptModule):
         Returns:
             Instruction string or None if not in TOP 10
         """
-        # TOP 10 transformation mapping (DEF-126)
+        # DEF-126 Phase 1 + Phase 2 transformation mapping
         instruction_map = {
             # ARAI rules (Algemene Regels AI)
             "ARAI-01": "Begin de definitie met een zelfstandig naamwoord of naamwoordgroep",
             "ARAI-02": "Vermijd containerbegrippen zoals 'aspect', 'ding', 'iets', 'element' zonder verdere specificatie",
+            "ARAI-02SUB1": "Vermijd algemene containertermen zoals 'aspect', 'ding', 'iets', 'element', 'factor'",
+            "ARAI-02SUB2": "Vermijd ongespecificeerde containerbegrippen zoals 'proces', 'voorziening', 'activiteit'",
+            "ARAI-03": "Vermijd subjectieve of contextafhankelijke bijvoeglijke naamwoorden",
             "ARAI-04": "Vermijd modale hulpwerkwoorden zoals 'kan', 'moet', 'mag', 'zal'",
+            "ARAI-04SUB1": "Vermijd modale werkwoorden die onduidelijkheid scheppen over de essentie van het begrip",
+            "ARAI-05": "Vermijd impliciete verwijzingen naar aannames, gewoonten of niet-toegelichte contexten",
             "ARAI-06": "Start zonder lidwoord ('de', 'het', 'een'), zonder koppelwerkwoord ('is', 'betekent') en zonder herhaling van het begrip",
             # ESS rules (Essentie)
             "ESS-01": "Beschrijf WAT het begrip is, niet WAARVOOR het dient of wordt gebruikt",
             "ESS-02": "Maak de ontologische categorie expliciet: kies duidelijk tussen proces, type, resultaat of exemplaar",
+            "ESS-03": "Noem criteria voor unieke identificatie van instanties (zoals serienummer, kenteken, ID, registratienummer)",
+            "ESS-04": "Gebruik objectief toetsbare elementen (deadlines, aantallen, percentages, meetbare criteria)",
+            "ESS-05": "Maak expliciet duidelijk waarin het begrip zich onderscheidt van andere verwante begrippen",
             # STR rules (Structuur)
             "STR-01": "Start de definitie met een zelfstandig naamwoord of naamwoordgroep, niet met een werkwoord",
             # INT rules (Integriteit)
             "INT-01": "Formuleer de definitie als één enkele, begrijpelijke zin",
             # VER rules (Vorm)
             "VER-01": "Gebruik enkelvoud, tenzij het begrip een plurale-tantum is (alleen meervoud bestaat)",
+            "VER-02": "Formuleer de definitie in het enkelvoud",
+            "VER-03": "Gebruik de infinitief voor werkwoord-termen (niet vervoegd)",
             # CON rules (Context)
             "CON-01": "Verwerk de context impliciet in de formulering zonder expliciete benoeming van contextnamen",
+            "CON-02": "Baseer de definitie op een authentieke bron (wetgeving, officiële documenten, standaarden)",
+            # DUP rules (Duplicate detection)
+            "DUP_01": "Formuleer een originele definitie die substantieel verschilt van standaardformuleringen",
         }
 
         return instruction_map.get(regel_key)
