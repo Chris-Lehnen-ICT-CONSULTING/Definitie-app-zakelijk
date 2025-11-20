@@ -17,6 +17,7 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 from enum import Enum
 from functools import lru_cache
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -50,7 +51,7 @@ class PatternMatch:
     matched_text: str
     pattern_id: str
     confidence: float
-    context: dict[str, any] = field(default_factory=dict)
+    context: dict[str, Any] = field(default_factory=dict)
 
 
 class PatternMatcher:
@@ -535,7 +536,7 @@ class PatternMatcher:
             },
         }
 
-    def _initialize_comprehensive_patterns(self) -> dict[UFOCategory, dict[str, any]]:
+    def _initialize_comprehensive_patterns(self) -> dict[UFOCategory, dict[str, Any]]:
         """
         Initialiseer alle 100+ patronen voor Nederlandse juridische tekst.
         Volledig uitgewerkt volgens US-300 requirements.
@@ -1585,7 +1586,7 @@ class PatternMatcher:
         # Cap at 1.0
         return min(base_confidence, 1.0)
 
-    def get_patterns_for_category(self, category: UFOCategory) -> dict[str, any]:
+    def get_patterns_for_category(self, category: UFOCategory) -> dict[str, Any]:
         """Haal alle patronen op voor een specifieke categorie."""
         return self.patterns.get(category, {})
 
