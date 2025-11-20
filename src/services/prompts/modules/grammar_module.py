@@ -133,7 +133,7 @@ class GrammarModule(BasePromptModule):
 
         rules.append("🔸 **Enkelvoud als standaard**")
         rules.append(
-            "- Gebruik enkelvoud tenzij het begrip specifiek een meervoud aanduidt"
+            "- Gebruik enkelvoud tenzij het begrip een plurale-tantum is (alleen meervoud bestaat)"
         )
         rules.append("- Bij twijfel: gebruik enkelvoud")
 
@@ -141,8 +141,9 @@ class GrammarModule(BasePromptModule):
             rules.append("  ✅ proces (niet: processen)")
             rules.append("  ✅ maatregel (niet: maatregelen)")
             rules.append(
-                "  ✅ gegevens (correct meervoud wanneer het begrip dit vereist)"
+                "  ✅ gegevens (plurale-tantum - alleen meervoudsvorm bestaat)"
             )
+            rules.append("  ❌ gegeven (enkelvoud bestaat niet in Nederlandse taal)")
             rules.append("")
 
         rules.append("🔸 **Actieve vorm prefereren**")
