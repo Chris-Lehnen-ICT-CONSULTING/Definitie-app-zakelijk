@@ -15,10 +15,13 @@ This file provides guidance and memory for Codex CLI.
 
 **Instruction Precedence (Highest → Lowest):**
 1. `~/.ai-agents/UNIFIED_INSTRUCTIONS.md` (PRIMAIR - applies to ALL agents)
-2. `AGENTS.md` (this file - BMad Method specific)
-3. `CLAUDE.md` (Claude Code specific)
-4. `~/.ai-agents/quality-gates.yaml`
-5. `~/.ai-agents/agent-mappings.yaml`
+2. `CLAUDE.md` (DefinitieAgent project-specific - applies to ALL agents in this project)
+3. `AGENTS.md` (this file - BMad Method personas/workflows only)
+4. `~/.ai-agents/quality-gates.yaml` (Enforcement rules)
+5. `~/.ai-agents/agent-mappings.yaml` (Tool translations)
+
+**Note:** CLAUDE.md is project-local (in repo) and takes precedence over tool-specific AGENTS.md.
+BMad agents should read CLAUDE.md first for DefinitieAgent patterns, then AGENTS.md for persona definitions.
 
 **For DefinitieAgent-specific patterns:**
 - See `CLAUDE.md` → "AI-Assisted Development met Vibe Coding" section

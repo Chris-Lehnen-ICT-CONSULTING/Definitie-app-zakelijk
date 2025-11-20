@@ -55,7 +55,7 @@ class ValidationModuleAdapter:
             return rr.__dict__  # Dict-like for broad compatibility in tests
 
         except Exception as e:  # Error isolation per rule
-            rr = RuleResult.errored(rule_code, e)
+            rr = RuleResult.from_error(rule_code, e)
             # Ensure violations is always an empty list for errored rules
             rr.violations = []
             return rr.__dict__
@@ -79,4 +79,4 @@ class ValidationModuleAdapter:
             )
             return RuleResult.from_rule_output(rule_code, result)
         except Exception as e:
-            return RuleResult.errored(rule_code, e)
+            return RuleResult.from_error(rule_code, e)

@@ -51,11 +51,11 @@ class STR08Validator:
         try:
             # ── 1) Start met je JSON-patronen en breid uit met strikte regex voor "A, B en C" en "X en Y"
             patronen = list(regel.get("herkenbaar_patronen", [])) + [
-                r"\b\w+,\s*\w+\s+en\s+\w+\b",  # bv. “A, B en C”
-                r"\b\w+\s+en\s+\w+\b",  # bv. “X en Y”
+                r"\b\w+,\s*\w+\s+en\s+\w+\b",  # bv. "A, B en C"
+                r"\b\w+\s+en\s+\w+\b",  # bv. "X en Y"
             ]
 
-            # ── 2) Match alle gevonden ‘en’-constructies
+            # ── 2) Match alle gevonden 'en'-constructies
             en_vormen = set()
             for pat in patronen:
                 en_vormen.update(re.findall(pat, definitie, re.IGNORECASE))

@@ -111,7 +111,7 @@ class ExpertReviewTab:
                     ui_cfg = get_config(ConfigSection.UI)
                     abbrev = getattr(ui_cfg, "afkortingen", {}) or {}
                     if abbrev:
-                        with st.expander("ℹ️ Afkortingen (uitleg)", expanded=False):
+                        with st.expander("i Afkortingen (uitleg)", expanded=False):
                             for ak in sorted(abbrev.keys()):
                                 st.markdown(f"- **{ak}** — {abbrev[ak]}")
                 except Exception:
@@ -414,8 +414,8 @@ class ExpertReviewTab:
                 st.write(f"**Wettelijke basis:** {wb_val or '—'}")
                 st.write(f"**Categorie:** {definitie.categorie}")
 
-                # UFO‑categorie select (onder ontologische categorie)
-                st.markdown("**UFO‑categorie**")
+                # UFO-categorie select (onder ontologische categorie)
+                st.markdown("**UFO-categorie**")
                 ufo_opties = [
                     "",
                     "Kind",
@@ -445,11 +445,11 @@ class ExpertReviewTab:
                 except Exception:
                     ufo_default_index = 0
                 st.selectbox(
-                    "Selecteer UFO‑categorie",
+                    "Selecteer UFO-categorie",
                     options=ufo_opties,
                     index=ufo_default_index,
                     key=f"review_ufo_{definitie.id}",
-                    help="Kies de UFO‑categorie (OntoUML/UFO)",
+                    help="Kies de UFO-categorie (OntoUML/UFO)",
                 )
 
                 # Procesmatige toelichting veld (review/validatie notities)
@@ -558,7 +558,7 @@ class ExpertReviewTab:
             except Exception:
                 gate = {
                     "status": "blocked",
-                    "reasons": ["Technische fout bij gate‑preview"],
+                    "reasons": ["Technische fout bij gate-preview"],
                 }
 
             gate_status = gate.get("status", "blocked")
@@ -632,7 +632,7 @@ class ExpertReviewTab:
                     help=approve_help,
                 ):
                     user = SessionStateManager.get_value("user", default="expert")
-                    # Neem gewijzigde UFO‑categorie automatisch mee bij vaststellen
+                    # Neem gewijzigde UFO-categorie automatisch mee bij vaststellen
                     try:
                         selected_ufo = SessionStateManager.get_value(
                             f"review_ufo_{definitie.id}"
@@ -977,7 +977,7 @@ class ExpertReviewTab:
 
             # Process decision
             if "Goedkeuren" in decision:
-                # Route via DefinitionWorkflowService om gate‑policy te handhaven (US‑160)
+                # Route via DefinitionWorkflowService om gate-policy te handhaven (US-160)
                 try:
                     from services.container import get_container
 
@@ -992,7 +992,7 @@ class ExpertReviewTab:
 
                     if getattr(result, "success", False):
                         st.success("✅ Definitie goedgekeurd!")
-                        # Toon gate‑status informatief
+                        # Toon gate-status informatief
                         if getattr(result, "gate_status", None):
                             st.caption(
                                 f"Gate: {result.gate_status}"
@@ -1023,7 +1023,7 @@ class ExpertReviewTab:
                                 )
                             )
                 except Exception as se:
-                    st.error(f"❌ Gate‑workflow fout: {se!s}")
+                    st.error(f"❌ Gate-workflow fout: {se!s}")
 
             elif "Wijzigingen Vereist" in decision:
                 # Keep in review status but add feedback

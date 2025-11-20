@@ -10,6 +10,7 @@ import json  # JSON verwerking voor metadata opslag
 import logging  # Logging faciliteiten voor debug en monitoring
 import os  # Operating system interface voor bestandsoperaties
 import pickle  # Python object serialisatie voor cache data
+import threading  # Thread synchronization voor race condition preventie
 from collections import OrderedDict
 from collections.abc import Callable
 from datetime import (  # Datum en tijd voor TTL management, timezone
@@ -232,17 +233,28 @@ def cached(
     cache_manager: Optional["CacheManager"] = None,
 ):
     """
-    Decorator to cache function results.
+    Thread-safe decorator to cache function results.
+
+    Uses function-level lock with double-check pattern to prevent duplicate execution
+    when multiple threads request the same cached value concurrently.
 
     Args:
         ttl: Time to live in seconds (default: 1 hour)
         cache_key_func: Custom function to generate cache key
+        cache_manager: Optional custom cache manager (default: global FileCache)
 
     Example:
         @cached(ttl=3600)
         def expensive_function(param1, param2):
             return some_expensive_computation(param1, param2)
+
+    Thread Safety:
+        - Fast path: Optimistic read without lock (cache hit)
+        - Slow path: Function-level lock prevents duplicate execution (cache miss)
+        - Double-check: Prevents race condition between threads
     """
+    # Function-level lock (shared across all calls to this decorated function)
+    _func_lock = threading.Lock()
 
     def decorator(func):
         @wraps(func)
@@ -254,9 +266,11 @@ def cached(
                 func_name = getattr(func, "__name__", "callable")
                 cache_key = _generate_key_from_args(func_name, *args, **kwargs)
 
-            # Try to get from cache
+            # Determine backend
             backend_get = cache_manager.get if cache_manager else _cache.get
             backend_set = cache_manager.set if cache_manager else _cache.set
+
+            # FAST PATH: Optimistic read (no lock)
             cached_result = backend_get(cache_key)
             if cached_result is not None:
                 fn = getattr(func, "__name__", "callable")
@@ -264,16 +278,31 @@ def cached(
                 _stats["hits"] += 1
                 return cached_result
 
-            # Cache miss - execute function
-            fn = getattr(func, "__name__", "callable")
-            logger.debug(f"Cache miss for {fn}")
+            # SLOW PATH: Thread-safe computation
+            # Note: We track decorator-level miss here (before lock) to avoid
+            # double-counting in case of double-check hit
             _stats["misses"] += 1
-            result = func(*args, **kwargs)
 
-            # Store in cache
-            backend_set(cache_key, result, ttl)
+            with _func_lock:
+                # DOUBLE-CHECK: Another thread may have filled cache while waiting
+                cached_result = backend_get(cache_key)
+                if cached_result is not None:
+                    fn = getattr(func, "__name__", "callable")
+                    logger.debug(f"Cache hit after lock wait for {fn}")
+                    # Convert miss to hit (another thread filled cache)
+                    _stats["misses"] -= 1
+                    _stats["hits"] += 1
+                    return cached_result
 
-            return result
+                # EXECUTE: Only first thread gets here
+                fn = getattr(func, "__name__", "callable")
+                logger.debug(f"Cache miss for {fn}")
+                result = func(*args, **kwargs)
+
+                # Store in cache
+                backend_set(cache_key, result, ttl)
+
+                return result
 
         return wrapper
 

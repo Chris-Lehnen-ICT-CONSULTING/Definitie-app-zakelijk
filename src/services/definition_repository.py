@@ -75,7 +75,7 @@ class DefinitionRepository(DefinitionRepositoryInterface):
         try:
             # Gebruik legacy repository voor opslag
             if definition.id:
-                # Update bestaande via updates‑dict (legacy repo verwacht dict)
+                # Update bestaande via updates-dict (legacy repo verwacht dict)
                 updates = self._definition_to_updates(definition)
                 updated_by = None
                 if definition.metadata and "updated_by" in definition.metadata:
@@ -240,7 +240,7 @@ class DefinitionRepository(DefinitionRepositoryInterface):
         self._stats["total_updates"] += 1
 
         try:
-            # Converteer naar updates‑dict (legacy verwacht dict)
+            # Converteer naar updates-dict (legacy verwacht dict)
             updates = self._definition_to_updates(definition)
 
             updated_by = None
@@ -790,6 +790,26 @@ class DefinitionRepository(DefinitionRepositoryInterface):
                     record.generation_prompt_data
                 )
 
+        # DEF-156: Load voorbeelden from database and populate metadata
+        # This ensures voorbeelden persist when loading definitions in Bewerk tab
+        try:
+            voorbeelden_db = self.get_voorbeelden_by_type(record.id)
+            if voorbeelden_db and any(voorbeelden_db.values()):
+                # Canonicalize DB keys to UI-expected format
+                # DB uses: sentence, practical, counter, synonyms, antonyms, explanation
+                # UI expects: voorbeeldzinnen, praktijkvoorbeelden, tegenvoorbeelden, synoniemen, antoniemen, toelichting
+                from ui.helpers.examples import canonicalize_examples
+
+                canonicalized = canonicalize_examples(voorbeelden_db)
+                definition.metadata["voorbeelden"] = canonicalized
+                logger.debug(
+                    f"Loaded voorbeelden for definitie {record.id}: "
+                    f"{sum(len(v) if isinstance(v, list) else 0 for v in canonicalized.values())} items"
+                )
+        except Exception as e:
+            # Don't fail if voorbeelden loading fails - just log warning
+            logger.warning(f"Could not load voorbeelden for definitie {record.id}: {e}")
+
         return definition
 
     @contextmanager
@@ -865,7 +885,7 @@ class DefinitionRepository(DefinitionRepositoryInterface):
 
     # ===== Legacy compatibility surface for workflow/UI =====
     def get_definitie(self, definitie_id: int) -> DefinitieRecord | None:
-        """Pass‑through naar legacy repository (compat met bestaande callers)."""
+        """Pass-through naar legacy repository (compat met bestaande callers)."""
         try:
             return self.legacy_repo.get_definitie(definitie_id)
         except Exception:
@@ -874,7 +894,7 @@ class DefinitionRepository(DefinitionRepositoryInterface):
     def update_definitie(
         self, definitie_id: int, updates: dict[str, Any], updated_by: str | None = None
     ) -> bool:
-        """Pass‑through update voor compatibiliteit."""
+        """Pass-through update voor compatibiliteit."""
         try:
             return self.legacy_repo.update_definitie(definitie_id, updates, updated_by)
         except Exception:
@@ -887,7 +907,7 @@ class DefinitionRepository(DefinitionRepositoryInterface):
         changed_by: str | None = None,
         notes: str | None = None,
     ) -> bool:
-        """Pass‑through statuswijziging voor compatibiliteit met workflowservice."""
+        """Pass-through statuswijziging voor compatibiliteit met workflowservice."""
         try:
             return self.legacy_repo.change_status(
                 definitie_id, new_status, changed_by, notes
@@ -897,7 +917,7 @@ class DefinitionRepository(DefinitionRepositoryInterface):
 
     # ===== Helpers =====
     def _definition_to_updates(self, definition: Definition) -> dict[str, Any]:
-        """Converteer Definition naar updates‑dict voor legacy update_definitie()."""
+        """Converteer Definition naar updates-dict voor legacy update_definitie()."""
         import json as _json
 
         updates: dict[str, Any] = {}

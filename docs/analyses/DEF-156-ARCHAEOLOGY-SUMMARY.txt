@@ -1,0 +1,118 @@
+================================================================================
+DEF-156: PROMPT MODULE CONSOLIDATION - CODEBASE ARCHAEOLOGY COMPLETE
+================================================================================
+
+ANALYSIS COMPLETION DATE: 2025-11-14
+THOROUGHNESS LEVEL: VERY THOROUGH (Comprehensive code archaeology)
+
+================================================================================
+KEY FINDINGS
+================================================================================
+
+1. DUPLICATION CONFIRMED (100%)
+   - 5 modules: arai_rules, con_rules, ess_rules, sam_rules, ver_rules
+   - Total: 640 lines across 5 files
+   - Shared logic: 121 lines per file × 5 = 605 lines identical
+   - Differences: ONLY 7 parameters (emoji, prefix, priority, name)
+   - NO business logic differences whatsoever
+
+2. NO HIDDEN DEPENDENCIES FOUND
+   ✓ No inter-module imports (ARAI doesn't import CON, etc.)
+   ✓ All modules only import from base_module
+   ✓ Common dependency: toetsregels.cached_manager (same for all)
+   ✓ No type checks or isinstance() guards on these modules
+   ✓ Zero risk for consolidation from dependency perspective
+
+3. SAFE CONSOLIDATION PATH IDENTIFIED
+   ✓ Only 1 instantiation point: modular_prompt_adapter.py:68-74
+   ✓ Module IDs are hardcoded but can be preserved
+   ✓ Configuration is identical across all 5 modules
+   ✓ Registration pattern supports factory/parameterized creation
+
+4. DEPENDENCY GRAPH IS DEAD CODE
+   ✓ All modules return [] from get_dependencies()
+   ✓ Orchestrator has 44-line Kahn's algorithm but never uses it
+   ✓ Uses hardcoded _get_default_module_order() instead
+   ✓ Consolidation won't affect this non-functional code
+
+5. TEST COVERAGE IS MINIMAL (Risk = MEDIUM)
+   ⚠ Only 1 test file references these modules (test_def126_redundancy.py)
+   ⚠ Tests are basic rule-loading checks, not comprehensive
+   ⚠ No output comparison tests exist
+   ✓ But: Easy to implement before consolidation
+
+================================================================================
+RISK ASSESSMENT
+================================================================================
+
+Overall Risk Level: LOW
+
+Risk Breakdown:
+  - Code Dependencies:        ✓ ZERO
+  - Configuration:            ✓ LOW (all use same keys)
+  - Registration/Orchestration: ✓ LOW (1 point of instantiation)
+  - Test Coverage:            ⚠ MEDIUM (need output tests)
+  - Rollback:                 ✓ LOW (keep backup files)
+
+CONSOLIDATION IS SAFE TO PROCEED
+
+================================================================================
+IMPACT SUMMARY
+================================================================================
+
+Code Reduction:       640 lines → ~85 lines (88% reduction)
+Token Savings:        ~2,800 tokens (39% of prompt budget)
+Lines Saved:          ~555 lines (86% of original)
+Maintenance Burden:   SIGNIFICANTLY REDUCED
+
+Files Affected:
+  - 5 module files: No changes (keep for compatibility or delete)
+  - modular_prompt_adapter.py: Minimal changes (registration still same)
+  - __init__.py: Update imports
+
+Breaking Changes: NONE (can keep wrapper classes for backward compatibility)
+
+================================================================================
+DETAILED ANALYSIS LOCATION
+================================================================================
+
+Full report: /docs/analyses/DEF-156-CODEBASE-ARCHAEOLOGY-REPORT.md
+
+This report contains:
+  1. Line-by-line duplication validation
+  2. Import/dependency analysis with grep results
+  3. Where modules are used (all locations found)
+  4. Configuration interdependencies
+  5. Dependency graph validation
+  6. Test coverage analysis
+  7. Risk assessment with devil's advocate scenarios
+  8. Detailed consolidation strategy
+  9. Before/after impact estimates
+  10. File-by-file breakdown
+
+================================================================================
+NEXT STEPS
+================================================================================
+
+1. REVIEW this archaeology report
+2. RUN existing tests to baseline behavior
+3. CREATE output comparison tests before consolidation
+4. IMPLEMENT JSONBasedRulesModule base class
+5. CONSOLIDATE to wrapper pattern
+6. TEST output matches original
+7. VERIFY token count reduction
+
+Estimated Effort: 4 hours
+Risk: LOW
+Impact: VERY HIGH
+
+================================================================================
+RECOMMENDATION: PROCEED WITH CONSOLIDATION (Priority 1: CRITICAL)
+================================================================================
+
+This is a safe, high-impact refactoring with clear benefits:
+- Eliminates 86% of code duplication
+- Saves ~2,800 tokens from prompt budget
+- No hidden risks or dependencies
+- Low implementation risk with clear testing strategy
+

@@ -34,7 +34,7 @@ def _redact_text(text: str) -> str:
     # 1) OpenAI sleutelpatroon (sk-<alnum>..)
     s = re.sub(r"sk-[A-Za-z0-9]{16,}", lambda m: _mask_token(m.group(0)), s)
 
-    # 2) Lange hex tokens (32–64 tekens)
+    # 2) Lange hex tokens (32-64 tekens)
     s = re.sub(r"\b[0-9a-fA-F]{32,64}\b", REDACTED, s)
 
     # 3) Base64-achtige tokens (minimaal 32 tekens)
