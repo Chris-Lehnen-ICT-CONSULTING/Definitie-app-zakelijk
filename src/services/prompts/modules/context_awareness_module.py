@@ -238,7 +238,9 @@ class ContextAwarenessModule(BasePromptModule):
 
         sections.append("📌 VERPLICHTE CONTEXT INFORMATIE:")
         sections.append(
-            "⚠️ BELANGRIJKE INSTRUCTIE: Gebruik onderstaande context om de definitie specifiek te maken voor deze organisatorische, juridische en wettelijke context. Formuleer de definitie zodanig dat deze past binnen deze specifieke context, zonder de context expliciet te benoemen."
+            "⚠️ BELANGRIJKE INSTRUCTIE: Verwerk de onderstaande context IMPLICIET in de definitie. "
+            "Maak de definitie specifiek voor deze context door je woordkeuze en formulering aan te passen, "
+            "maar VERMIJD het expliciet noemen van contextnamen (zoals organisatienamen, wettelijke kaders, etc.)."
         )
         sections.append("")
 
