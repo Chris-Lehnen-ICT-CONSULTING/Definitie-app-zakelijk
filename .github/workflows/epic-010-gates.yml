@@ -2,9 +2,14 @@ name: EPIC-010 Legacy Pattern Gates
 
 on:
   push:
-    branches: [ main, develop, feature/* ]
+    branches:
+      - main
+      - develop
+      - feature/DEF-*
+      - fix/DEF-*
+      - DEF-*
   pull_request:
-    branches: [ main, develop ]
+    branches: [main, develop]
 
 jobs:
   check-legacy-patterns:
