@@ -273,6 +273,14 @@ class JSONBasedRulesModule(BasePromptModule):
             "STR-01": "Start de definitie met een zelfstandig naamwoord of naamwoordgroep, niet met een werkwoord",
             # INT rules (Integriteit)
             "INT-01": "Formuleer de definitie als één enkele, begrijpelijke zin",
+            "INT-02": "Vermijd voorwaardelijke formuleringen zoals 'indien', 'mits', 'tenzij', 'alleen als'",
+            "INT-03": "Zorg dat voornaamwoorden ('deze', 'dit', 'die') direct verwijzen naar een duidelijk antecedent in dezelfde zin",
+            "INT-04": "Maak bepaalde lidwoorden ('de instelling', 'het systeem') expliciet door direct te specificeren welke bedoeld wordt",
+            "INT-06": "Vermijd toelichtende formuleringen zoals 'bijvoorbeeld', 'zoals', 'dit houdt in', 'namelijk'",
+            "INT-07": "Licht afkortingen direct toe in dezelfde zin (bijv. DJI (Dienst Justitiële Inrichtingen))",
+            "INT-08": "Formuleer positief (wat iets wél is), niet negatief (wat iets niet is)",
+            "INT-09": "Maak opsommingen limitatief (vermijd 'zoals', 'bijvoorbeeld', 'onder andere', 'etc.')",
+            "INT-10": "Zorg dat de definitie begrijpelijk is zonder specialistische of niet-openbare kennis",
             # VER rules (Vorm)
             "VER-01": "Gebruik enkelvoud, tenzij het begrip een plurale-tantum is (alleen meervoud bestaat)",
             "VER-02": "Formuleer de definitie in het enkelvoud",
@@ -280,6 +288,15 @@ class JSONBasedRulesModule(BasePromptModule):
             # CON rules (Context)
             "CON-01": "Verwerk de context impliciet in de formulering zonder expliciete benoeming van contextnamen",
             "CON-02": "Baseer de definitie op een authentieke bron (wetgeving, officiële documenten, standaarden)",
+            # SAM rules (Samenstelling)
+            "SAM-01": "Zorg dat kwalificaties niet leiden tot een betekenis die afwijkt van het algemeen aanvaarde begrip",
+            "SAM-02": "Vermijd herhaling uit de definitie van het hoofdbegrip bij het kwalificeren van begrippen",
+            "SAM-03": "Herhaal geen andere definitieteksten; verwijs naar het begrip of definieer afzonderlijk",
+            "SAM-04": "Begin samengestelde begrippen met het component dat de specialisatie vormt (genus) en specificeer daarna",
+            "SAM-05": "Vermijd cirkeldefinities (wederzijdse verwijzingen tussen begrippen)",
+            "SAM-06": "Gebruik consistente terminologie (kies één voorkeurs-term per begrip)",
+            "SAM-07": "Vermijd betekenisverruiming; beperk je tot elementen die inherent zijn aan de term",
+            "SAM-08": "Voor synoniemen: gebruik exact dezelfde definitiestructuur",
             # DUP rules (Duplicate detection)
             "DUP_01": "Formuleer een originele definitie die substantieel verschilt van standaardformuleringen",
         }
