@@ -271,6 +271,14 @@ class JSONBasedRulesModule(BasePromptModule):
             "ESS-05": "Maak expliciet duidelijk waarin het begrip zich onderscheidt van andere verwante begrippen",
             # STR rules (Structuur)
             "STR-01": "Start de definitie met een zelfstandig naamwoord of naamwoordgroep, niet met een werkwoord",
+            "STR-02": "Begin met een breder begrip (genus) en specificeer vervolgens hoe de term daarvan verschilt",
+            "STR-03": "Geef een volledige definitie, niet alleen een synoniem",
+            "STR-04": "Volg de algemene opening direct met een toespitsing die het specifieke type verduidelijkt",
+            "STR-05": "Beschrijf wat het begrip is, niet enkel uit welke onderdelen het bestaat",
+            "STR-06": "Beschrijf wat het begrip is, niet waarvoor het dient of waarom het nodig is",
+            "STR-07": "Vermijd dubbele ontkenningen (zoals 'niet zonder', 'onmogelijk om niet te')",
+            "STR-08": "Gebruik 'en' ondubbelzinnig (maak duidelijk of beide vereist zijn of één van beide)",
+            "STR-09": "Gebruik 'of' ondubbelzinnig (maak duidelijk of het inclusief of exclusief is)",
             # INT rules (Integriteit)
             "INT-01": "Formuleer de definitie als één enkele, begrijpelijke zin",
             "INT-02": "Vermijd voorwaardelijke formuleringen zoals 'indien', 'mits', 'tenzij', 'alleen als'",
