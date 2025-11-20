@@ -184,10 +184,11 @@ class JSONBasedRulesModule(BasePromptModule):
         """
         Formateer een regel uit JSON data naar markdown lines.
 
-        Format:
+        Format (na DEF-126 transformatie):
         🔹 **REGEL-KEY - Naam**
         - Uitleg tekst
-        - Toetsvraag: vraag tekst
+        - Instructie: imperatieve instructie (voor TOP 10 regels)
+        - Toetsvraag: vraag tekst (voor overige regels)
           ✅ Goed voorbeeld
           ❌ Fout voorbeeld
 
@@ -214,10 +215,15 @@ class JSONBasedRulesModule(BasePromptModule):
         if uitleg:
             lines.append(f"- {uitleg}")
 
-        # Toetsvraag
-        toetsvraag = regel_data.get("toetsvraag", "")
-        if toetsvraag:
-            lines.append(f"- Toetsvraag: {toetsvraag}")
+        # DEF-126: Transform TOP 10 validation questions to instructions
+        instruction = self._get_instruction_for_rule(regel_key)
+        if instruction:
+            lines.append(f"- **Instructie:** {instruction}")
+        else:
+            # Fallback: gebruik originele toetsvraag voor niet-getransformeerde regels
+            toetsvraag = regel_data.get("toetsvraag", "")
+            if toetsvraag:
+                lines.append(f"- Toetsvraag: {toetsvraag}")
 
         # Voorbeelden (indien enabled in config)
         if self.include_examples:
@@ -232,3 +238,37 @@ class JSONBasedRulesModule(BasePromptModule):
                 lines.append(f"  ❌ {fout}")
 
         return lines
+
+    def _get_instruction_for_rule(self, regel_key: str) -> str | None:
+        """
+        DEF-126: Transform validation questions to generation instructions.
+
+        Returns instruction for TOP 10 highest-impact rules, None for others.
+
+        Args:
+            regel_key: Regel identifier (bijv. "ARAI-01")
+
+        Returns:
+            Instruction string or None if not in TOP 10
+        """
+        # TOP 10 transformation mapping (DEF-126)
+        instruction_map = {
+            # ARAI rules (Algemene Regels AI)
+            "ARAI-01": "Begin de definitie met een zelfstandig naamwoord of naamwoordgroep",
+            "ARAI-02": "Vermijd containerbegrippen zoals 'aspect', 'ding', 'iets', 'element' zonder verdere specificatie",
+            "ARAI-04": "Vermijd modale hulpwerkwoorden zoals 'kan', 'moet', 'mag', 'zal'",
+            "ARAI-06": "Start zonder lidwoord ('de', 'het', 'een'), zonder koppelwerkwoord ('is', 'betekent') en zonder herhaling van het begrip",
+            # ESS rules (Essentie)
+            "ESS-01": "Beschrijf WAT het begrip is, niet WAARVOOR het dient of wordt gebruikt",
+            "ESS-02": "Maak de ontologische categorie expliciet: kies duidelijk tussen proces, type, resultaat of exemplaar",
+            # STR rules (Structuur)
+            "STR-01": "Start de definitie met een zelfstandig naamwoord of naamwoordgroep, niet met een werkwoord",
+            # INT rules (Integriteit)
+            "INT-01": "Formuleer de definitie als één enkele, begrijpelijke zin",
+            # VER rules (Vorm)
+            "VER-01": "Gebruik enkelvoud, tenzij het begrip een plurale-tantum is (alleen meervoud bestaat)",
+            # CON rules (Context)
+            "CON-01": "Verwerk de context impliciet in de formulering zonder expliciete benoeming van contextnamen",
+        }
+
+        return instruction_map.get(regel_key)

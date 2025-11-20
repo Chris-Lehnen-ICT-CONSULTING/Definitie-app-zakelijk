@@ -141,7 +141,7 @@ class OutputSpecificationModule(BasePromptModule):
         return """### 📏 OUTPUT FORMAT VEREISTEN:
 - Definitie in één enkele zin
 - Geen punt aan het einde
-- Geen haakjes voor toelichtingen
+- Geen haakjes BEHALVE voor afkortingen (bijv. DJI, AVG)
 - Geen voorbeelden in de definitie
 - Focus op WAT het is, niet het doel of gebruik"""
 
