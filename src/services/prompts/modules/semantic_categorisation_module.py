@@ -134,7 +134,7 @@ class SemanticCategorisationModule(BasePromptModule):
         """
         # Basis ESS-02 sectie (altijd aanwezig)
         base_section = """### 📐 Let op betekenislaag (ESS-02 - Ontologische categorie):
-Je **moet** één van de vier categorieën expliciet maken door de JUISTE KICK-OFF term te kiezen:
+Je **moet** de opgegeven ontologische categorie volgen door de JUISTE KICK-OFF term te kiezen:
 
 • PROCES begrippen → start met: 'activiteit waarbij...', 'handeling die...', 'proces waarin...'
 • TYPE begrippen → start met: [kernwoord] dat/die [kenmerk] (bijv. 'woord dat...', 'document dat...', 'persoon die...')
