@@ -144,13 +144,7 @@ Je **moet** één van de vier categorieën expliciet maken door de JUISTE KICK-O
 ⚠️ Let op: Start NOOIT met 'is een' of andere koppelwerkwoorden!
 ⚠️ Voor TYPE: Start NOOIT met meta-woorden als kick-off ('soort...', 'type...', 'categorie...')!
 De kick-off term MOET een concreet zelfstandig naamwoord zijn (bijv. 'woord', 'document', 'persoon').
-Je MAG wel 'soort' gebruiken in de UITLEG, niet als START.
-
-BELANGRIJK: Bepaal de juiste categorie op basis van het BEGRIP zelf:
-- Eindigt op -ING of -TIE en beschrijft een handeling? → PROCES
-- Is het een gevolg/uitkomst van iets? → RESULTAAT (bijv. sanctie, rapport, besluit)
-- Is het een classificatie/soort? → TYPE (begin direct met kernwoord!)
-- Is het een specifiek geval? → EXEMPLAAR"""
+Je MAG wel 'soort' gebruiken in de UITLEG, niet als START."""
 
         # Voeg category-specific guidance toe indien beschikbaar
         if categorie and self.detailed_guidance_enabled:

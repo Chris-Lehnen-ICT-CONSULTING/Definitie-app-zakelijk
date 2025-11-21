@@ -140,9 +140,6 @@ class StructureRulesModule(BasePromptModule):
         rules.append(
             "- Let op: Handelingsnaamwoorden ('activiteit', 'proces', 'handeling') zijn zelfstandige naamwoorden!"
         )
-        rules.append(
-            "- Toetsvraag: Begint de definitie met een zelfstandig naamwoord of naamwoordgroep, en niet met een werkwoord?"
-        )
 
         if self.include_examples:
             rules.append("  ✅ proces dat beslissers identificeert...")
@@ -161,9 +158,6 @@ class StructureRulesModule(BasePromptModule):
         rules.append(
             "- De definitie moet beginnen met verwijzing naar een breder begrip, en dan de verbijzondering ten opzichte daarvan aangeven."
         )
-        rules.append(
-            "- Toetsvraag: Begint de definitie met een breder begrip en specificeert het vervolgens hoe het te definiëren begrip daarvan verschilt?"
-        )
 
         if self.include_examples:
             rules.append("  ✅ analist: professional verantwoordelijk voor …")
@@ -179,9 +173,6 @@ class StructureRulesModule(BasePromptModule):
         rules.append("🔹 **STR-03 - Definitie ≠ synoniem**")
         rules.append(
             "- De definitie van een begrip mag niet simpelweg een synoniem zijn van de te definiëren term."
-        )
-        rules.append(
-            "- Toetsvraag: Is de definitie meer dan alleen een synoniem van de term?"
         )
 
         if self.include_examples:
@@ -202,9 +193,6 @@ class StructureRulesModule(BasePromptModule):
         rules.append(
             "- Een definitie moet na de algemene opening meteen toespitsen op het specifieke begrip."
         )
-        rules.append(
-            "- Toetsvraag: Volgt na de algemene opening direct een toespitsing die uitlegt welk soort proces of element bedoeld wordt?"
-        )
 
         if self.include_examples:
             rules.append("  ✅ proces dat beslissers informeert")
@@ -223,9 +211,6 @@ class StructureRulesModule(BasePromptModule):
         rules.append("🔹 **STR-05 - Definitie ≠ constructie**")
         rules.append(
             "- Een definitie moet aangeven wat iets is, niet uit welke onderdelen het bestaat."
-        )
-        rules.append(
-            "- Toetsvraag: Geeft de definitie aan wat het begrip is, in plaats van alleen waar het uit bestaat?"
         )
 
         if self.include_examples:
@@ -247,9 +232,6 @@ class StructureRulesModule(BasePromptModule):
         rules.append(
             "- Een definitie geeft de aard van het begrip weer, niet de reden waarom het nodig is."
         )
-        rules.append(
-            "- Toetsvraag: Bevat de definitie uitsluitend wat het begrip is, en niet waarom het nodig is of waarvoor het gebruikt wordt?"
-        )
 
         if self.include_examples:
             rules.append(
@@ -268,9 +250,6 @@ class StructureRulesModule(BasePromptModule):
 
         rules.append("🔹 **STR-07 - Geen dubbele ontkenning**")
         rules.append("- Een definitie bevat geen dubbele ontkenning.")
-        rules.append(
-            "- Toetsvraag: Bevat de definitie een dubbele ontkenning die de begrijpelijkheid schaadt?"
-        )
 
         if self.include_examples:
             rules.append(
@@ -290,9 +269,6 @@ class StructureRulesModule(BasePromptModule):
         rules.append("🔹 **STR-08 - Dubbelzinnige 'en' is verboden**")
         rules.append(
             "- Een definitie bevat geen 'en' die onduidelijk maakt of beide kenmerken vereist zijn of slechts één van beide."
-        )
-        rules.append(
-            "- Toetsvraag: Is het gebruik van 'en' in de definitie ondubbelzinnig? Is het duidelijk of beide elementen vereist zijn of slechts één?"
         )
 
         if self.include_examples:
@@ -314,9 +290,6 @@ class StructureRulesModule(BasePromptModule):
         rules.append("🔹 **STR-09 - Dubbelzinnige 'of' is verboden**")
         rules.append(
             "- Een definitie bevat geen 'of' die onduidelijk maakt of beide mogelijkheden gelden of slechts één van de twee."
-        )
-        rules.append(
-            "- Toetsvraag: Is het gebruik van 'of' in de definitie ondubbelzinnig? Is het duidelijk of het gaat om een inclusieve of exclusieve keuze?"
         )
 
         if self.include_examples:

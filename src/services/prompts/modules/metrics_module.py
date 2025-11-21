@@ -66,83 +66,24 @@ class MetricsModule(BasePromptModule):
 
     def execute(self, context: ModuleContext) -> ModuleOutput:
         """
-        Genereer metrics en scoring informatie.
+        Metrics module disabled - quality metrics removed in DEF-171 Phase 1.
+
+        Rationale: Output metrics guide post-generation validation, not generation itself.
+        ValidationOrchestratorV2 handles quality checks.
 
         Args:
             context: Module context
 
         Returns:
-            ModuleOutput met metrics
+            ModuleOutput with empty content
         """
         try:
-            # Verzamel basis informatie
-            begrip = context.begrip
-
-            # Haal org_contexts op via shared_state
-            org_contexts = context.get_shared("organization_contexts", [])
-
-            char_limits = self._get_char_limits(context)
-
-            # Bereken metrics
-            metrics = self._calculate_metrics(begrip, org_contexts, char_limits)
-
-            # Bouw metrics sectie
-            sections = []
-
-            # Header
-            sections.append("### 📊 Kwaliteitsmetrieken:")
-            sections.append("")
-
-            # Karakterlimieten
-            sections.append("**Karakterlimieten:**")
-            sections.append(f"- Minimum: {char_limits['min']} karakters")
-            sections.append(f"- Maximum: {char_limits['max']} karakters")
-            sections.append(f"- Aanbevolen: {char_limits['recommended']} karakters")
-            sections.append("")
-
-            # Complexiteit indicatoren
-            if self.include_detailed_metrics:
-                sections.append("**Complexiteit indicatoren:**")
-                sections.append(f"- Geschatte woorden: {metrics['estimated_words']}")
-                sections.append(
-                    f"- Complexiteitsscore: {metrics['complexity_score']}/10"
-                )
-                sections.append(f"- Leesbaarheid: {metrics['readability_level']}")
-                sections.append("")
-
-                # Kwaliteitschecks
-                sections.append("**Kwaliteitschecks:**")
-                for check, status in metrics["quality_checks"].items():
-                    icon = "✅" if status else "⚠️"
-                    sections.append(f"- {icon} {check}")
-                sections.append("")
-
-            # Context-specifieke metrics
-            if org_contexts and len(org_contexts) > 1:
-                sections.append("**Context complexiteit:**")
-                sections.append(f"- Aantal contexten: {len(org_contexts)}")
-                sections.append(
-                    f"- Multi-context uitdaging: {'Hoog' if len(org_contexts) > 3 else 'Gemiddeld'}"
-                )
-                sections.append("")
-
-            # Scoring advies
-            scoring_advice = self._generate_scoring_advice(metrics)
-            if scoring_advice:
-                sections.append("**Aanbevelingen voor kwaliteit:**")
-                for advice in scoring_advice:
-                    sections.append(f"- {advice}")
-
-            # Combineer secties
-            content = "\n".join(sections)
-
+            # Module generates no content (metrics removed)
             return ModuleOutput(
-                content=content,
+                content="",
                 metadata={
-                    "metrics": metrics,
-                    "char_limits": char_limits,
-                    "context_count": len(org_contexts) if org_contexts else 0,
-                    "has_scoring_advice": bool(scoring_advice),
+                    "disabled_reason": "DEF-171 Phase 1: Quality metrics removed",
+                    "validation_handled_by": "ValidationOrchestratorV2",
                 },
             )
 
@@ -152,7 +93,7 @@ class MetricsModule(BasePromptModule):
                 content="",
                 metadata={"error": str(e)},
                 success=False,
-                error_message=f"Failed to generate metrics: {e!s}",
+                error_message=f"Failed to execute metrics module: {e!s}",
             )
 
     def get_dependencies(self) -> list[str]:

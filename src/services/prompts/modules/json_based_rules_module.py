@@ -184,20 +184,20 @@ class JSONBasedRulesModule(BasePromptModule):
         """
         Formateer een regel uit JSON data naar markdown lines.
 
-        Format (na DEF-126 transformatie):
+        Format (na DEF-126 + DEF-171):
         🔹 **REGEL-KEY - Naam**
         - Uitleg tekst
-        - Instructie: imperatieve instructie (voor TOP 10 regels)
-        - Toetsvraag: vraag tekst (voor overige regels)
+        - **Instructie:** imperatieve instructie (voor TOP 10 regels only)
           ✅ Goed voorbeeld
           ❌ Fout voorbeeld
+
+        DEF-171: Toetsvraag patterns verwijderd (validation → ValidationOrchestratorV2)
 
         Args:
             regel_key: Regel identifier (bijv. "ARAI-01", "CON-02")
             regel_data: Regel data uit JSON met keys:
                 - naam: Regel naam
                 - uitleg: Uitleg tekst
-                - toetsvraag: Toetsvraag tekst
                 - goede_voorbeelden: List van goede voorbeelden
                 - foute_voorbeelden: List van foute voorbeelden
 
@@ -216,14 +216,10 @@ class JSONBasedRulesModule(BasePromptModule):
             lines.append(f"- {uitleg}")
 
         # DEF-126: Transform TOP 10 validation questions to instructions
+        # DEF-171: Removed Toetsvraag fallback (validation handled by ValidationOrchestratorV2)
         instruction = self._get_instruction_for_rule(regel_key)
         if instruction:
             lines.append(f"- **Instructie:** {instruction}")
-        else:
-            # Fallback: gebruik originele toetsvraag voor niet-getransformeerde regels
-            toetsvraag = regel_data.get("toetsvraag", "")
-            if toetsvraag:
-                lines.append(f"- Toetsvraag: {toetsvraag}")
 
         # Voorbeelden (indien enabled in config)
         if self.include_examples:
