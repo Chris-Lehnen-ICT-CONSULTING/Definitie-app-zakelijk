@@ -64,7 +64,7 @@ async def analyze_prompt_tokens():
     print("=" * 80)
 
     token_distribution = []
-    for i, section in enumerate(sections):
+    for _i, section in enumerate(sections):
         if section.strip():
             section_tokens = len(enc.encode(section))
             percentage = (section_tokens / len(tokens)) * 100

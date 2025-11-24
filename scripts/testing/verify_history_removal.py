@@ -412,7 +412,7 @@ class HistoryRemovalVerifier:
 
             with patch("streamlit.session_state", {}):
                 _ = TabbedInterface()
-        except:
+        except Exception:
             pass
         current, peak = tracemalloc.get_traced_memory()
         tracemalloc.stop()
@@ -477,7 +477,7 @@ class HistoryRemovalVerifier:
                 metrics["history_entries"] = cursor.fetchone()[0]
 
                 conn.close()
-            except:
+            except Exception:
                 pass
 
         return metrics

@@ -151,11 +151,11 @@ class TestPromptEdgeCases:
         builder = ModularPromptBuilder()
 
         # Empty begrip
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match=r".+"):
             builder.build_prompt("", create_test_context(), UnifiedGeneratorConfig())
 
         # Whitespace-only begrip
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match=r".+"):
             builder.build_prompt(
                 "   \n\t  ", create_test_context(), UnifiedGeneratorConfig()
             )
@@ -435,7 +435,7 @@ class TestPromptIntegration:
         service = PromptServiceV2()
 
         # Test with invalid inputs
-        with pytest.raises(Exception):
+        with pytest.raises(Exception, match=r".+"):
             service.generate_prompt(
                 begrip=None,  # Invalid
                 context={},

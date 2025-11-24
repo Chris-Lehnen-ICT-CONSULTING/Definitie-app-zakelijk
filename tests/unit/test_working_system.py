@@ -314,11 +314,11 @@ class TestErrorHandling:
             raise ValueError(msg)
 
         # Should propagate error, not cache it
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match=r".+"):
             error_function()
 
         # Second call should also raise error
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match=r".+"):
             error_function()
 
     def test_toetser_error_handling(self):

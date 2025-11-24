@@ -21,7 +21,7 @@ def parse_requirement_file(filepath):
 
     try:
         frontmatter = yaml.safe_load(frontmatter_match.group(1))
-    except:
+    except Exception:
         return None
 
     # Extract body sections

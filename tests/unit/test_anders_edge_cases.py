@@ -446,7 +446,7 @@ class TestBoundaryConditions:
             # Should handle without crashing
             try:
                 selector.render()
-            except:
+            except Exception:
                 pytest.fail("Null byte caused crash")
 
 

@@ -184,7 +184,7 @@ class TestVoorbeeldenFunctionality:
         voorbeelden = {"sentence": ["Test"]}
         saved_ids = repository.save_voorbeelden(test_definitie, voorbeelden)
 
-        with pytest.raises(ValueError) as exc_info:
+        with pytest.raises(ValueError, match=r".+") as exc_info:
             repository.beoordeel_voorbeeld(saved_ids[0], "invalid_rating")
 
         assert "moet 'goed', 'matig' of 'slecht' zijn" in str(exc_info.value)

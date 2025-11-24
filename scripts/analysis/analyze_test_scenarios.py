@@ -107,7 +107,7 @@ def analyze_test_scenarios():
                             keyword.lower() in content.lower() for keyword in keywords
                         ):
                             tested_scenarios.add(scenario)
-            except:
+            except Exception:
                 pass
 
         missing = set(expected["scenarios"]) - tested_scenarios
@@ -193,7 +193,7 @@ def analyze_test_scenarios():
                             keyword.lower() in content.lower() for keyword in keywords
                         ):
                             edge_case_coverage[category].add(case)
-        except:
+        except Exception:
             pass
 
     print("\n📊 EDGE CASE TEST COVERAGE:")
@@ -237,7 +237,7 @@ def analyze_test_scenarios():
                         ):
                             has_state_tests = True
                             break
-                except:
+                except Exception:
                     pass
 
             status = "✅" if has_state_tests else "❌"
@@ -271,7 +271,7 @@ def analyze_test_scenarios():
                         word.lower() in content.lower() for word in scenario.split()[:2]
                     ):
                         found_integration_tests.add(scenario)
-        except:
+        except Exception:
             pass
 
     print(

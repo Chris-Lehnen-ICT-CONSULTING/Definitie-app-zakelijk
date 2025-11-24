@@ -179,7 +179,7 @@ class TestExportService:
         # Act & Assert
         with pytest.raises(
             NotImplementedError,
-            match="Export formaat ExportFormat.PDF nog niet geïmplementeerd",
+            match=r"Export formaat ExportFormat.PDF nog niet geïmplementeerd",
         ):
             service.export_definitie(definitie_id=1, format=ExportFormat.PDF)
 
