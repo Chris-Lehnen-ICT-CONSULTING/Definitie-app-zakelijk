@@ -113,7 +113,11 @@ class DefinitionTaskModule(BasePromptModule):
                 )
 
             # Ontologische marker instructie
-            sections.append(self._build_ontological_marker())
+            # DISABLED: Category already determined by ImprovedOntologyClassifier in UI
+            # Asking LLM to "choose" creates conflicting instruction with SemanticCategorisationModule
+            # which injects the correct category via metadata. This created ambiguity in prompt.
+            # See analysis: /Users/chrislehnen/Downloads/prompt-analysis-output.json (Fix #1)
+            # sections.append(self._build_ontological_marker())
 
             # Finale definitie opdracht
             sections.append(self._build_final_instruction(begrip))
@@ -233,7 +237,17 @@ Stel jezelf deze vragen:
 - Builder versie: Modular Architecture v2.0"""
 
     def _build_ontological_marker(self) -> str:
-        """Bouw ontologische marker instructie."""
+        """
+        Bouw ontologische marker instructie.
+
+        DEPRECATED: Deze method is niet meer in gebruik.
+        Reden: Ontologische categorie wordt al bepaald door ImprovedOntologyClassifier
+        voordat de prompt wordt gegenereerd. Het LLM vragen om te "kiezen" creëert
+        een conflict met de reeds bepaalde categorie in metadata.
+
+        Historisch: Deze instructie was bedoeld om LLM te laten aangeven welke
+        categorie het herkende, maar dat is niet meer nodig nu we classifier hebben.
+        """
         return """---
 
 📋 **Ontologische marker (lever als eerste regel):**
