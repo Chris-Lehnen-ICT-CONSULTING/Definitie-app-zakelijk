@@ -1,5 +1,6 @@
 # Editable install with no version control (ai-code-reviewer==2.1.0)
--e /Users/chrislehnen/Projecten/Definitie-app/ai_code_reviewer_package
+# COMMENTED OUT: Local path not valid for CI/CD
+# -e /Users/chrislehnen/Projecten/Definitie-app/ai_code_reviewer_package
 aiohappyeyeballs==2.6.1
 aiohttp==3.13.2
 aiosignal==1.4.0
