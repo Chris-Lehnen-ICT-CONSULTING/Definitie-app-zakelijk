@@ -1,0 +1,26 @@
+============================================================
+VALIDATION SERVICE V2 STATUS REPORT
+============================================================
+Generated: 2025-11-21T17:04:58.457640
+Overall Health: UNHEALTHY
+Health Score: 0.0%
+
+❌ Modular Validation Service
+   Status: ERROR
+   Message: cannot import name 'UTC' from 'datetime' (/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/datetime.py)
+
+❌ Validation Config
+   Status: ERROR
+   Message: cannot import name 'UTC' from 'datetime' (/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/datetime.py)
+
+❌ Container Integration
+   Status: ERROR
+   Message: cannot import name 'UTC' from 'datetime' (/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/datetime.py)
+
+❌ Toetsregel Manager
+   Status: ERROR
+   Message: cannot import name 'UTC' from 'datetime' (/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/datetime.py)
+
+❌ Test Suite
+   Status: ERROR
+   Message: [Errno 2] No such file or directory: 'python'

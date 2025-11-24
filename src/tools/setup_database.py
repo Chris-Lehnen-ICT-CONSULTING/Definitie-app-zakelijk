@@ -17,7 +17,10 @@ from generation.definitie_generator import (
 # Importeer database componenten voor setup en initialisatie
 from database.definitie_repository import DefinitieRecord  # Repository en data modellen
 from database.definitie_repository import SourceType  # Status en bron type enumeraties
-from database.definitie_repository import DefinitieStatus, get_definitie_repository
+from database.definitie_repository import (
+    DefinitieStatus,
+    get_definitie_repository,
+)
 
 # Setup logging configuratie voor database setup script
 logging.basicConfig(

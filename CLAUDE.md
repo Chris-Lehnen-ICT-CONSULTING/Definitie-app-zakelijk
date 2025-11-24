@@ -213,6 +213,55 @@ value = st.session_state["my_key"]  # NEVER!
 
 **Why:** 95% of conversations don't use BMad - loading wastes 77% of token budget.
 
+### 🔍 Bounded Analysis Workflow (On-Demand, Project-Specific)
+
+**Pattern:** Structured two-phase optimization workflow
+
+**Available workflows:**
+
+#### Phase 1: Analysis (60 min MAX)
+- **Prompt Optimization:** `docs/workflows/bounded-prompt-analysis.md`
+- **Codebase Health:** `docs/workflows/bounded-codebase-analysis.md`
+- **Framework:** 5 Whys + Pareto (80/20) + MECE + Impact-Effort Matrix
+- **Output:** `~/Downloads/analysis-output.json` with TOP 3 issues
+
+#### Phase 2: Implementation (2h MAX, 3 fixes)
+- **File:** `docs/workflows/implement-prompt-fixes.md`
+- **Input:** JSON from Phase 1
+- **Pattern:** ReAct (Reason → Act → Observe → Decide)
+- **Output:** Code changes + validation report
+
+**When to use:**
+- ✅ User says: "optimize prompt", "reduce tokens", "bottleneck analysis"
+- ✅ Performance issue with unclear root cause
+- ✅ Multiple interrelated issues needing prioritization
+- ✅ User requests: "systematic approach", "comprehensive analysis"
+
+**Do NOT use:**
+- ❌ Single clear bug (use HOTFIX workflow)
+- ❌ User provides clear requirements (skip analysis, implement directly)
+- ❌ <100 lines change with known solution (overkill)
+
+**Multiagent integration:**
+- **Analysis:** Optional (Perplexity for research, Context7 for docs, debug-specialist for root cause)
+- **Implementation:** Optional (code-reviewer for scoring, code-simplifier for complexity)
+- **Ultrathink checks:** MANDATORY (§EFFORT <10h, §KISS no enterprise, §PROTOTYPE 30min)
+
+**Quick start:**
+```bash
+# Analysis phase
+Read: docs/workflows/bounded-prompt-analysis.md
+Input: [prompt file or codebase path]
+Time: 60 minutes HARD STOP
+
+# Implementation phase
+Read: docs/workflows/implement-prompt-fixes.md
+Input: ~/Downloads/analysis-output.json
+Time: 2 hours (3 fixes max)
+```
+
+**See also:** `~/.ai-agents/UNIFIED_INSTRUCTIONS.md` §BOUNDED_ANALYSIS for cross-project framework
+
 ---
 
 ## 📚 Cross-Reference Guide
@@ -222,7 +271,8 @@ value = st.session_state["my_key"]  # NEVER!
 | Topic | UNIFIED Section | What You Find |
 |-------|----------------|---------------|
 | Approval Thresholds | §APPROVAL LADDER | Complete decision tree |
-| Workflow Selection | §WORKFLOW MATRIX | ANALYSIS/HOTFIX/FULL_TDD/REFACTOR |
+| Workflow Selection | §WORKFLOW MATRIX | ANALYSIS/HOTFIX/FULL_TDD/REFACTOR/BOUNDED_ANALYSIS |
+| Bounded Analysis | §BOUNDED_ANALYSIS | Framework, triggers, multiagent + ultrathink |
 | Canonical Naming | §NAMING CONVENTIONS | Full name list |
 | Forbidden Imports | §FORBIDDEN PATTERNS | Import blacklist |
 | Multiagent Workflows | §MULTIAGENT PATTERNS | When & how |

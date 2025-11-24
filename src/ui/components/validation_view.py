@@ -319,5 +319,5 @@ def render_validation_detailed_list(
         # Inline explanation per rule (skip pure summary lines)
         rid = _extract_rule_id_from_line(line)
         if rid:
-            with st.expander(f"i Toon uitleg voor {rid}", expanded=False):
+            with st.expander(f"ℹ️ Toon uitleg voor {rid}", expanded=False):
                 st.markdown(_build_rule_hint_markdown(rid))

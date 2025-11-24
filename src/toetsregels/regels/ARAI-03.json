@@ -12,12 +12,10 @@
     "\\badequaat\\b"
   ],
   "goede_voorbeelden": [
-    "maatregel die leidt tot het voorkomen van recidive",
-    "gegeven dat unieke identificatie mogelijk maakt"
+    "maatregel die leidt tot het voorkomen van recidive"
   ],
   "foute_voorbeelden": [
-    "belangrijke maatregel ter bevordering van veiligheid",
-    "adequaat systeem voor gegevensuitwisseling"
+    "belangrijke maatregel ter bevordering van veiligheid"
   ],
   "prioriteit": "midden",
   "aanbeveling": "optioneel",

@@ -92,7 +92,7 @@ CONTEXT_PAYLOAD_SCHEMA_V1 = {
 class TestSchemaValidation:
     """Test basic schema validation."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def validator(self):
         """Create JSON schema validator."""
         return Draft7Validator(CONTEXT_PAYLOAD_SCHEMA_V1)
@@ -152,7 +152,7 @@ class TestSchemaValidation:
 class TestFieldTypeValidation:
     """Test field type validation and coercion."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def validator(self):
         return Draft7Validator(CONTEXT_PAYLOAD_SCHEMA_V1)
 
@@ -208,7 +208,7 @@ class TestFieldTypeValidation:
 class TestFieldConstraints:
     """Test field constraints and formats."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def validator(self):
         return Draft7Validator(CONTEXT_PAYLOAD_SCHEMA_V1)
 
@@ -435,7 +435,7 @@ class TestDataclassIntegration:
 class TestErrorHandling:
     """Test schema validation error handling."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def validator(self):
         return Draft7Validator(CONTEXT_PAYLOAD_SCHEMA_V1)
 

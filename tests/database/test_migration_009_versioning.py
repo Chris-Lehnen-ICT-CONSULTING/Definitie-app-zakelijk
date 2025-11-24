@@ -26,7 +26,7 @@ from domain.ontological_categories import OntologischeCategorie
 class TestMigration009Versioning:
     """Test versioning system after UNIQUE INDEX removal."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def repo(self, tmp_path):
         """Create temporary repository for testing."""
         db_path = tmp_path / "test_migration_009.db"
@@ -360,7 +360,7 @@ class TestMigration009Versioning:
 class TestMigration009SafetyChecks:
     """Test safety aspects of migration 009."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def repo(self, tmp_path):
         """Create temporary repository for testing."""
         db_path = tmp_path / "test_migration_009_safety.db"
@@ -475,7 +475,7 @@ class TestMigration009SafetyChecks:
 class TestMigration009IntegrationChecker:
     """Test integration with definitie_checker.py after migration 009."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def repo(self, tmp_path):
         """Create temporary repository for testing."""
         db_path = tmp_path / "test_migration_009_checker.db"

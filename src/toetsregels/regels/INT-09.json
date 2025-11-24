@@ -17,12 +17,10 @@
     "al dan niet"
   ],
   "goede_voorbeelden": [
-    "niet-natuurlijk persoon: rechtspersoon of samenwerkingsverband",
-    "voertuig: gemotoriseerd vervoermiddel, zoals auto, motorfiets of brommer (uitsluitend deze types)"
+    "niet-natuurlijk persoon: rechtspersoon of samenwerkingsverband"
   ],
   "foute_voorbeelden": [
-    "voertuig: zoals auto, motorfiets of brommer",
-    "maatregel: bijvoorbeeld een waarschuwing, boete of sanctie"
+    "voertuig: zoals auto, motorfiets of brommer"
   ],
   "prioriteit": "midden",
   "aanbeveling": "verplicht",

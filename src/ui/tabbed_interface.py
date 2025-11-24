@@ -11,7 +11,9 @@ import asyncio  # Asynchrone programmering voor ontologische analyse
 import logging  # Logging faciliteiten voor debug en monitoring
 import os
 from datetime import datetime  # Datum en tijd functionaliteit
-from datetime import UTC
+from datetime import (
+    UTC,
+)
 from typing import Any  # Type hints voor betere code documentatie
 
 import streamlit as st  # Streamlit web interface framework
@@ -341,7 +343,7 @@ class TabbedInterface:
             scores = SessionStateManager.get_value("category_scores", {})
 
             st.info(f"**Voorgesteld:** {determined_category}")
-            with st.expander("i Waarom deze categorie?"):
+            with st.expander("ℹ️ Waarom deze categorie?"):
                 st.write(reasoning)
                 if scores:
                     st.write("**Scores:**", scores)

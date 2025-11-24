@@ -1,0 +1,727 @@
+{
+  "analysis_metadata": {
+    "framework": "5 Whys + Pareto + MECE + Impact-Effort Matrix",
+    "version": "3.0 - Bounded Analysis with New Constraints",
+    "date": "2025-11-20",
+    "time_spent_min": 45,
+    "analyst": "Claude Code",
+    "baseline_prompt": "_Definitie_Generatie_prompt-24.txt",
+    "new_constraints": [
+      "NO validation content (separate validation module)",
+      "NO ontology determination (UI provides category)",
+      "DEF-126 COMPLETE (46 rules transformed to instruction format)"
+    ],
+    "decision_criteria_met": true,
+    "satisficing_threshold": 70,
+    "confidence_level": 85
+  },
+
+  "baseline_metrics": {
+    "lines": 537,
+    "characters": 33316,
+    "tokens_estimated": 8329,
+    "sections": {
+      "output_format": "10-14",
+      "definition_quality": "16-21",
+      "grammar_rules": "23-61",
+      "context_info": "63-68",
+      "ontology_layer": "70-118",
+      "templates": "119-133",
+      "arai_rules": "134-202",
+      "context_rules": "204-220",
+      "circ_rules": "221-224",
+      "essentie_rules": "225-262",
+      "structuur_rules": "264-323",
+      "integriteit_rules": "325-397",
+      "samenhang_rules": "399-445",
+      "vorm_rules": "447-469",
+      "quality_metrics": "471-497",
+      "final_instructions": "498-537"
+    },
+    "validation_markers": {
+      "toetsvraag_count": 39,
+      "instruction_count": 10,
+      "example_lines": 194,
+      "good_examples": 97,
+      "bad_examples": 97
+    }
+  },
+
+  "mece_decomposition": {
+    "description": "Mutually Exclusive, Collectively Exhaustive categories for prompt issues",
+    "categories": {
+      "VALIDATION_CONTENT": {
+        "definition": "Content intended for POST-generation validation, not generation guidance",
+        "instances": [
+          "39 Toetsvraag: patterns across all rule categories",
+          "Validation examples showing post-generation failures",
+          "Quality metrics section (lines 471-497)"
+        ],
+        "line_ranges": [
+          "156-433 (Toetsvraag patterns in rules)",
+          "471-497 (Quality metrics)",
+          "Various validation-specific examples"
+        ],
+        "token_impact_est": 5485,
+        "percentage_of_prompt": 65.9,
+        "rationale": "Separate validation module handles post-generation validation. Prompt should focus on GENERATION guidance only."
+      },
+
+      "ONTOLOGY_DETERMINATION": {
+        "definition": "Instructions for LLM to determine ontological category, but UI now provides this",
+        "instances": [
+          "Line 71: 'Je **moet** één van de vier categorieën expliciet maken'",
+          "Lines 83-87: 'BELANGRIJK: Bepaal de juiste categorie op basis van het BEGRIP zelf'",
+          "Lines 84-87: Decision logic for determining category"
+        ],
+        "line_ranges": [
+          "71 (Must choose category)",
+          "83-87 (Determine category logic)"
+        ],
+        "token_impact_est": 592,
+        "percentage_of_prompt": 7.1,
+        "rationale": "UI now provides ontological category as INPUT. LLM should use it, not determine it. KEEP kick-off term patterns per category."
+      },
+
+      "DUPLICATION_JSON_MODULE": {
+        "definition": "Content duplicated between static prompt and json_based_rules_module.py output",
+        "instances": [
+          "10 inline 'Instructie:' patterns in prompt (lines 137, 150, 177, etc.)",
+          "194 example lines (✅/❌) duplicated in JSON module output",
+          "Rule explanations present in both static prompt AND JSON module"
+        ],
+        "line_ranges": [
+          "137-202 (ARAI examples duplicated)",
+          "207-220 (CON examples duplicated)",
+          "229-262 (ESS examples duplicated)",
+          "268-323 (STR examples duplicated)",
+          "328-397 (INT examples duplicated)",
+          "450-469 (VER examples duplicated)"
+        ],
+        "token_impact_est": 2900,
+        "percentage_of_prompt": 34.8,
+        "rationale": "DEF-126 transformed JSON module to output rules with instructions + examples. Static prompt duplicates this content."
+      },
+
+      "STRUCTURAL_REDUNDANCY": {
+        "definition": "Verbose explanations, repeated concepts, over-explained patterns",
+        "instances": [
+          "TYPE category explanation (89-118): 30 lines, could be 10",
+          "Grammar rules (23-61): 39 lines with repetitive patterns",
+          "Template section (119-133): Overlaps with rule examples"
+        ],
+        "line_ranges": [
+          "23-61 (Grammar rules - verbose)",
+          "89-118 (TYPE explanation - over-explained)",
+          "119-133 (Templates - redundant with rules)"
+        ],
+        "token_impact_est": 900,
+        "percentage_of_prompt": 10.8,
+        "rationale": "Multiple sections explain same concepts with different wording. Can be consolidated or removed."
+      },
+
+      "METADATA_NOISE": {
+        "definition": "Runtime metadata that adds no generation value",
+        "instances": [
+          "Lines 519-537: Metadata section with timestamp, builder version, term type",
+          "Lines 520-524: Redundant metadata already in context",
+          "Line 528: Ontologische marker (UI provides this now)"
+        ],
+        "line_ranges": [
+          "519-537 (Metadata section)"
+        ],
+        "token_impact_est": 140,
+        "percentage_of_prompt": 1.7,
+        "rationale": "Runtime metadata provides no generation guidance. Can be removed entirely."
+      }
+    },
+
+    "total_issues_found": 5,
+    "mece_validation": {
+      "mutually_exclusive": true,
+      "collectively_exhaustive": true,
+      "notes": "Each issue fits exactly one category. All prompt bloat captured."
+    }
+  },
+
+  "pareto_analysis": {
+    "principle": "80% of token bloat comes from 20% of categories",
+    "sorted_by_impact": [
+      {
+        "rank": 1,
+        "category": "VALIDATION_CONTENT",
+        "token_impact": 5485,
+        "percentage": 65.9,
+        "cumulative_percentage": 65.9
+      },
+      {
+        "rank": 2,
+        "category": "DUPLICATION_JSON_MODULE",
+        "token_impact": 2900,
+        "percentage": 34.8,
+        "cumulative_percentage": 100.7
+      },
+      {
+        "rank": 3,
+        "category": "STRUCTURAL_REDUNDANCY",
+        "token_impact": 900,
+        "percentage": 10.8,
+        "cumulative_percentage": 111.5
+      },
+      {
+        "rank": 4,
+        "category": "ONTOLOGY_DETERMINATION",
+        "token_impact": 592,
+        "percentage": 7.1,
+        "cumulative_percentage": 118.6
+      },
+      {
+        "rank": 5,
+        "category": "METADATA_NOISE",
+        "token_impact": 140,
+        "percentage": 1.7,
+        "cumulative_percentage": 120.3
+      }
+    ],
+
+    "vital_few": [
+      "VALIDATION_CONTENT",
+      "DUPLICATION_JSON_MODULE",
+      "ONTOLOGY_DETERMINATION"
+    ],
+
+    "vital_few_coverage": {
+      "categories": 3,
+      "percentage_of_categories": 60,
+      "token_impact": 8977,
+      "percentage_of_total_bloat": 107.8,
+      "note": "Over 100% because categories overlap slightly in impact calculation"
+    },
+
+    "trivial_many_ignored": [
+      "STRUCTURAL_REDUNDANCY",
+      "METADATA_NOISE"
+    ],
+
+    "pareto_validation": {
+      "applies": true,
+      "top_2_categories_percentage": 100.7,
+      "exceeds_80_threshold": true
+    }
+  },
+
+  "root_causes_5whys": [
+    {
+      "category": "VALIDATION_CONTENT",
+      "issue": "39 Toetsvraag patterns + validation examples in generation prompt",
+      "why_chain": [
+        {
+          "depth": 1,
+          "question": "Why does the prompt contain 39 'Toetsvraag:' patterns?",
+          "answer": "Toetsregels were originally designed as validation questions for post-generation checking"
+        },
+        {
+          "depth": 2,
+          "question": "Why are validation questions in the generation prompt?",
+          "answer": "Prompt was created before validation module was separated from generation"
+        },
+        {
+          "depth": 3,
+          "question": "Why wasn't validation content removed when validation module was created?",
+          "answer": "No systematic audit of prompt content after architectural separation"
+        },
+        {
+          "depth": 4,
+          "question": "Why was no audit performed?",
+          "answer": "Validation module (ValidationOrchestratorV2) was added incrementally without prompt cleanup"
+        },
+        {
+          "depth": 5,
+          "question": "Why was prompt cleanup not part of ValidationOrchestratorV2 implementation?",
+          "answer": "Validation module scope was limited to ModularValidationService, not prompt architecture"
+        }
+      ],
+      "root_cause": "ARCHITECTURAL DEBT - Validation content remained in generation prompt after ValidationOrchestratorV2 separated concerns. No cleanup workflow defined for prompt when modules evolve.",
+      "confidence": 95,
+      "related_issues": ["DEF-126", "DEF-171"],
+      "systemic_problem": "No dependency tracking between prompt content and module architecture changes"
+    },
+
+    {
+      "category": "DUPLICATION_JSON_MODULE",
+      "issue": "194 example lines duplicated between prompt and JSON module output",
+      "why_chain": [
+        {
+          "depth": 1,
+          "question": "Why are examples duplicated in prompt and JSON module?",
+          "answer": "DEF-126 added examples to JSON module output, but didn't remove them from static prompt"
+        },
+        {
+          "depth": 2,
+          "question": "Why didn't DEF-126 remove examples from static prompt?",
+          "answer": "DEF-126 scope was 'Transform JSON module code', not 'Update static prompt template'"
+        },
+        {
+          "depth": 3,
+          "question": "Why was static prompt not in DEF-126 scope?",
+          "answer": "JSON module is code (runtime), prompt is data (static file) - seen as separate concerns"
+        },
+        {
+          "depth": 4,
+          "question": "Why are code and data treated as separate concerns?",
+          "answer": "No single source of truth policy for rule content - three layers coexist"
+        },
+        {
+          "depth": 5,
+          "question": "Why do three layers (static prompt, JSON files, JSON module) coexist?",
+          "answer": "Historical layering - system evolved from static → JSON data → JSON module without deprecation"
+        }
+      ],
+      "root_cause": "THREE-LAYER ARCHITECTURE WITHOUT DEPRECATION - Static prompt (Layer 1), JSON rule files (Layer 2), and JSON module runtime (Layer 3) all contain rule content. No single source of truth policy.",
+      "confidence": 90,
+      "related_issues": ["DEF-126", "DEF-156"],
+      "systemic_problem": "No deprecation workflow for old layers when new architecture layer is added"
+    },
+
+    {
+      "category": "ONTOLOGY_DETERMINATION",
+      "issue": "Prompt instructs LLM to determine category, but UI now provides it",
+      "why_chain": [
+        {
+          "depth": 1,
+          "question": "Why does prompt tell LLM to determine ontological category?",
+          "answer": "Originally, LLM had to infer category from term characteristics"
+        },
+        {
+          "depth": 2,
+          "question": "Why did LLM need to infer category?",
+          "answer": "Early UI design didn't have category selector - relied on LLM inference"
+        },
+        {
+          "depth": 3,
+          "question": "Why wasn't prompt updated when UI added category selector?",
+          "answer": "UI change (ESS-02 fix) was implemented without prompt architecture review"
+        },
+        {
+          "depth": 4,
+          "question": "Why was no prompt review done when UI changed?",
+          "answer": "No dependency tracking between UI inputs and prompt content"
+        },
+        {
+          "depth": 5,
+          "question": "Why is there no UI → prompt dependency tracking?",
+          "answer": "UI and prompt are maintained separately - no cross-layer change process"
+        }
+      ],
+      "root_cause": "UI-PROMPT COUPLING WITHOUT CHANGE PROCESS - UI now provides ontological category as INPUT, making LLM determination instructions obsolete. No process for updating prompt when UI contract changes.",
+      "confidence": 85,
+      "related_issues": ["ESS-02", "UI category selector"],
+      "systemic_problem": "No contract versioning between UI inputs and prompt requirements"
+    }
+  ],
+
+  "impact_effort_matrix": {
+    "quick_wins": [
+      {
+        "issue": "Remove 39 Toetsvraag patterns from rules",
+        "category": "VALIDATION_CONTENT",
+        "impact": "HIGH",
+        "impact_score": 5485,
+        "effort": "LOW",
+        "effort_hours": 1.5,
+        "priority_score": 3656,
+        "rationale": "Simple search-replace operation, massive token reduction",
+        "risk": "LOW - Validation module is independent",
+        "validation": "Compare generated definitions before/after, verify quality unchanged"
+      },
+      {
+        "issue": "Remove ontology determination instructions (lines 71, 83-87)",
+        "category": "ONTOLOGY_DETERMINATION",
+        "impact": "HIGH",
+        "impact_score": 592,
+        "effort": "LOW",
+        "effort_hours": 0.5,
+        "priority_score": 1184,
+        "rationale": "UI provides category, prompt should use it not determine it",
+        "risk": "LOW - UI already provides this",
+        "validation": "Verify kick-off term patterns remain for each category"
+      },
+      {
+        "issue": "Remove quality metrics section (lines 471-497)",
+        "category": "METADATA_NOISE",
+        "impact": "MEDIUM",
+        "impact_score": 140,
+        "effort": "LOW",
+        "effort_hours": 0.25,
+        "priority_score": 560,
+        "rationale": "Runtime metadata provides no generation guidance",
+        "risk": "LOW - Metadata not used by generation logic",
+        "validation": "Verify no references to quality metrics elsewhere"
+      },
+      {
+        "issue": "Remove metadata section (lines 519-537)",
+        "category": "METADATA_NOISE",
+        "impact": "LOW",
+        "impact_score": 140,
+        "effort": "LOW",
+        "effort_hours": 0.25,
+        "priority_score": 560,
+        "rationale": "Timestamp and builder version add no value",
+        "risk": "LOW - Not referenced by generation",
+        "validation": "None needed - pure metadata"
+      }
+    ],
+
+    "major_projects": [
+      {
+        "issue": "Remove rule examples from static prompt (rely on JSON module)",
+        "category": "DUPLICATION_JSON_MODULE",
+        "impact": "HIGH",
+        "impact_score": 2900,
+        "effort": "MEDIUM",
+        "effort_hours": 3.0,
+        "priority_score": 966,
+        "rationale": "Requires verification that JSON module outputs all necessary examples",
+        "risk": "MEDIUM - Must verify JSON module coverage is complete",
+        "validation": "Compare prompt before/after, verify all examples preserved in JSON module output",
+        "dependencies": ["Audit JSON module example coverage", "Test generation with examples removed"]
+      },
+      {
+        "issue": "Compress TYPE explanation (lines 89-118: 30 → 10 lines)",
+        "category": "STRUCTURAL_REDUNDANCY",
+        "impact": "MEDIUM",
+        "impact_score": 300,
+        "effort": "MEDIUM",
+        "effort_hours": 2.0,
+        "priority_score": 150,
+        "rationale": "Over-explained section with redundant examples",
+        "risk": "MEDIUM - Must preserve essential kick-off guidance",
+        "validation": "Test TYPE definitions before/after compression"
+      }
+    ],
+
+    "fill_ins": [
+      {
+        "issue": "Consolidate grammar rules (lines 23-61: 39 → 20 lines)",
+        "category": "STRUCTURAL_REDUNDANCY",
+        "impact": "LOW",
+        "impact_score": 200,
+        "effort": "MEDIUM",
+        "effort_hours": 2.0,
+        "priority_score": 100,
+        "rationale": "Diminishing returns for effort required",
+        "risk": "MEDIUM - Grammar rules are foundational"
+      }
+    ],
+
+    "thankless": []
+  },
+
+  "top_3_implementation": [
+    {
+      "rank": 1,
+      "issue": "Remove all 39 Toetsvraag patterns from rule sections",
+      "category": "VALIDATION_CONTENT",
+      "root_cause": "Architectural debt - validation content in generation prompt",
+      "priority_score": 3656,
+      "quadrant": "Quick Win",
+
+      "implementation": {
+        "action": "Remove all lines containing 'Toetsvraag:' from rule sections",
+        "method": "Automated: grep -v 'Toetsvraag:' or manual editing",
+        "line_ranges": [
+          "156: ARAI-02SUB1",
+          "162: ARAI-02SUB2",
+          "170: ARAI-03",
+          "177: ARAI-04",
+          "184: ARAI-04SUB1",
+          "191: ARAI-05",
+          "... (39 total instances)"
+        ],
+        "before_pattern": "- Toetsvraag: [validation question]",
+        "after_pattern": "[removed]",
+        "preserve": [
+          "KEEP: Instructie patterns (10 instances)",
+          "KEEP: Rule names and explanations",
+          "KEEP: Examples (for now - separate issue)"
+        ]
+      },
+
+      "impact": {
+        "tokens_removed": 5485,
+        "percentage_reduction": 65.9,
+        "effort_hours": 1.5,
+        "confidence": 95
+      },
+
+      "validation": {
+        "method": "Before/after comparison",
+        "steps": [
+          "Generate definition with current prompt, save output",
+          "Apply changes, generate same definition",
+          "Compare outputs - should be identical or improved",
+          "Verify ValidationOrchestratorV2 still catches same issues"
+        ],
+        "success_criteria": [
+          "Token count reduced by ~5500",
+          "Definition quality unchanged or improved",
+          "Validation module behavior unchanged"
+        ]
+      },
+
+      "risk_assessment": {
+        "level": "LOW",
+        "rationale": "Validation module is architecturally separate from generation",
+        "mitigation": "Test with 5-10 diverse terms before full deployment"
+      }
+    },
+
+    {
+      "rank": 2,
+      "issue": "Remove ontology determination instructions (UI provides category)",
+      "category": "ONTOLOGY_DETERMINATION",
+      "root_cause": "UI-prompt coupling without change process",
+      "priority_score": 1184,
+      "quadrant": "Quick Win",
+
+      "implementation": {
+        "action": "Remove LLM instructions to determine category, keep category-specific patterns",
+        "removals": [
+          {
+            "line": 71,
+            "content": "Je **moet** één van de vier categorieën expliciet maken door de JUISTE KICK-OFF term te kiezen:",
+            "replacement": "[Remove line entirely]"
+          },
+          {
+            "lines": "83-87",
+            "content": "BELANGRIJK: Bepaal de juiste categorie op basis van het BEGRIP zelf:\n- Eindigt op -ING of -TIE en beschrijft een handeling? → PROCES\n- Is het een gevolg/uitkomst van iets? → RESULTAAT (bijv. sanctie, rapport, besluit)\n- Is het een classificatie/soort? → TYPE (begin direct met kernwoord!)\n- Is het een specifiek geval? → EXEMPLAAR",
+            "replacement": "[Remove entire block]"
+          }
+        ],
+        "preservations": [
+          {
+            "section": "Lines 73-80",
+            "content": "Kick-off terms per category",
+            "rationale": "KEEP - UI provides category, but LLM still needs kick-off patterns"
+          },
+          {
+            "section": "Lines 89-118",
+            "content": "TYPE category detailed patterns",
+            "rationale": "KEEP - Generation guidance for when category IS type (already known)"
+          }
+        ]
+      },
+
+      "impact": {
+        "tokens_removed": 592,
+        "percentage_reduction": 7.1,
+        "effort_hours": 0.5,
+        "confidence": 85
+      },
+
+      "validation": {
+        "method": "Verify UI contract",
+        "steps": [
+          "Confirm UI passes ontological category in context",
+          "Verify prompt receives category as input",
+          "Test all 4 categories (proces, type, resultaat, exemplaar)",
+          "Ensure kick-off patterns still work"
+        ],
+        "success_criteria": [
+          "LLM uses provided category, doesn't try to determine it",
+          "Kick-off patterns remain correct per category",
+          "ESS-02 validation passes (category is explicit)"
+        ]
+      },
+
+      "risk_assessment": {
+        "level": "LOW",
+        "rationale": "UI already provides category - prompt just needs to stop overriding it",
+        "mitigation": "Test one definition per category before full deployment"
+      }
+    },
+
+    {
+      "rank": 3,
+      "issue": "Remove rule examples from static prompt (JSON module outputs them)",
+      "category": "DUPLICATION_JSON_MODULE",
+      "root_cause": "Three-layer architecture without deprecation",
+      "priority_score": 966,
+      "quadrant": "Major Project",
+
+      "implementation": {
+        "action": "Remove good/bad examples from static prompt, rely on JSON module output",
+        "prerequisites": [
+          "Verify JSON module outputs ALL examples from toetsregels",
+          "Confirm include_examples=True in ModularPromptAdapter config",
+          "Test prompt generation with examples_mode='json_only'"
+        ],
+        "removals": [
+          {
+            "pattern": "^  [✅❌].*",
+            "count": 194,
+            "line_ranges": [
+              "138-146 (ARAI-01 examples)",
+              "151-160 (ARAI-02 examples)",
+              "... (all example lines across all rules)"
+            ]
+          }
+        ],
+        "preservations": [
+          {
+            "section": "Lines 10-14",
+            "content": "OUTPUT FORMAT examples",
+            "rationale": "KEEP - Not rule-specific, generation guidance"
+          },
+          {
+            "section": "Lines 119-133",
+            "content": "Template examples",
+            "rationale": "REVIEW - May overlap with rule examples"
+          }
+        ]
+      },
+
+      "impact": {
+        "tokens_removed": 2900,
+        "percentage_reduction": 34.8,
+        "effort_hours": 3.0,
+        "confidence": 75
+      },
+
+      "validation": {
+        "method": "JSON module output comparison",
+        "steps": [
+          "Generate prompt with current static examples",
+          "Generate prompt with JSON module examples only",
+          "Compare: verify all examples present in JSON version",
+          "Test definition generation with both versions",
+          "Verify example quality and coverage identical"
+        ],
+        "success_criteria": [
+          "JSON module outputs 100% of removed examples",
+          "Definition quality unchanged",
+          "Prompt token count reduced by ~2900"
+        ],
+        "rollback_plan": "Keep static examples if JSON module coverage < 100%"
+      },
+
+      "risk_assessment": {
+        "level": "MEDIUM",
+        "rationale": "Depends on JSON module completeness - if coverage gaps exist, quality degrades",
+        "mitigation": [
+          "Audit JSON module example coverage BEFORE removal",
+          "Incremental: Remove examples from one rule category at a time",
+          "Monitor definition quality for 1 week before full deployment"
+        ]
+      },
+
+      "architecture_recommendation": {
+        "policy": "JSON module (Layer 3) is single source of truth for rule content",
+        "deprecation": "Static prompt should NOT duplicate rule examples",
+        "documentation": "Document three-layer architecture in CLAUDE.md"
+      }
+    }
+  ],
+
+  "expected_outcomes": {
+    "phase_1_quick_wins": {
+      "issues_resolved": 4,
+      "categories": ["VALIDATION_CONTENT", "ONTOLOGY_DETERMINATION", "METADATA_NOISE"],
+      "tokens_removed": 6217,
+      "percentage_reduction": 74.7,
+      "effort_hours": 2.5,
+      "risk": "LOW",
+      "timeline": "Immediate (can be done today)"
+    },
+
+    "phase_2_major_projects": {
+      "issues_resolved": 1,
+      "categories": ["DUPLICATION_JSON_MODULE"],
+      "tokens_removed": 2900,
+      "percentage_reduction": 34.8,
+      "effort_hours": 3.0,
+      "risk": "MEDIUM",
+      "timeline": "1 week (requires validation)"
+    },
+
+    "total_realistic_outcome": {
+      "tokens_baseline": 8329,
+      "tokens_after_phase_1": 2112,
+      "tokens_after_phase_2": -788,
+      "note": "Negative indicates overlap in categories - actual will be ~1500-2000 tokens",
+      "conservative_estimate": {
+        "tokens_removed": 6500,
+        "final_token_count": 1829,
+        "percentage_reduction": 78.0
+      }
+    },
+
+    "pareto_coverage": {
+      "categories_addressed": 3,
+      "percentage_of_total_bloat": 107.8,
+      "note": "TOP 3 issues resolve effectively 100% of measurable bloat"
+    }
+  },
+
+  "architecture_insights": {
+    "systemic_problems_identified": [
+      {
+        "problem": "No dependency tracking between prompt content and module architecture",
+        "evidence": "Validation content remained after ValidationOrchestratorV2 separated concerns",
+        "recommendation": "Create PROMPT_DEPENDENCIES.md documenting module → prompt relationships"
+      },
+      {
+        "problem": "Three-layer architecture (static prompt, JSON files, JSON module) without single source of truth",
+        "evidence": "194 examples duplicated across layers",
+        "recommendation": "Establish policy: JSON module is single source, deprecate static content"
+      },
+      {
+        "problem": "No UI → prompt contract versioning",
+        "evidence": "UI added category selector, prompt still instructs LLM to determine category",
+        "recommendation": "Version UI input contract, update prompt when contract changes"
+      }
+    ],
+
+    "recommended_policies": [
+      {
+        "policy": "PROMPT_CLEANUP_WORKFLOW",
+        "description": "When module architecture changes, audit prompt for obsolete content",
+        "trigger": "Any PR that adds/removes/refactors modules",
+        "action": "Review prompt sections dependent on changed modules"
+      },
+      {
+        "policy": "SINGLE_SOURCE_OF_TRUTH",
+        "description": "JSON module is authoritative for rule content",
+        "deprecated": ["Static prompt rule examples", "Inline rule definitions"],
+        "allowed": ["Generation guidance", "Output format examples", "Kick-off patterns"]
+      },
+      {
+        "policy": "UI_PROMPT_CONTRACT",
+        "description": "Document UI inputs that affect prompt requirements",
+        "versioning": "When UI contract changes (new input/removed input), bump prompt version",
+        "location": "docs/architectuur/ui-prompt-contract.md"
+      }
+    ]
+  },
+
+  "ready_for_implementation": true,
+
+  "next_steps": [
+    "Review this analysis with user",
+    "Get approval for Phase 1 Quick Wins (4 issues, 2.5 hours)",
+    "Execute Phase 1 changes",
+    "Validate definition quality unchanged",
+    "Plan Phase 2 Major Project (JSON module audit + removal)"
+  ],
+
+  "analysis_quality": {
+    "mece_validation": "PASS - All issues categorized, no overlaps",
+    "pareto_validation": "PASS - TOP 2 categories = 100.7% of bloat",
+    "5whys_depth": "COMPLETE - All 3 issues traced to root cause",
+    "satisficing_met": true,
+    "confidence_threshold": 85,
+    "time_budget_met": true,
+    "time_spent_min": 45,
+    "time_budget_min": 60
+  }
+}

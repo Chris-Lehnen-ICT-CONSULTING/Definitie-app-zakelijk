@@ -453,7 +453,7 @@ class DefinitionGeneratorTab:
                     self._render_validation_results(validation_details)
                 else:
                     st.markdown("#### ✅ Kwaliteitstoetsing")
-                    st.info("i Geen validatiedetails beschikbaar.")
+                    st.info("ℹ️ Geen validatiedetails beschikbaar.")
         except Exception as e:
             st.markdown("#### ✅ Kwaliteitstoetsing")
             st.error(f"Validatiesectie kon niet worden gerenderd: {e!s}")
@@ -560,7 +560,7 @@ class DefinitionGeneratorTab:
                                         )
                                     else:
                                         st.info(
-                                            "i Geen op te slaan voorbeelden of al up-to-date"
+                                            "ℹ️ Geen op te slaan voorbeelden of al up-to-date"
                                         )
                     except Exception as e:
                         logger.debug(
@@ -568,7 +568,7 @@ class DefinitionGeneratorTab:
                         )
                 else:
                     st.markdown("#### 📚 Gegenereerde Content")
-                    st.info("i Geen voorbeelden beschikbaar voor deze generatie.")
+                    st.info("ℹ️ Geen voorbeelden beschikbaar voor deze generatie.")
         except Exception as e:
             st.markdown("#### 📚 Gegenereerde Content")
             st.error(f"Voorbeeldensectie kon niet worden gerenderd: {e!s}")
@@ -1468,13 +1468,13 @@ class DefinitionGeneratorTab:
 
                 # Bepaal bericht
                 if web_available is False or web_status == "not_available":
-                    msg = "i Web lookup is niet beschikbaar in deze omgeving."
+                    msg = "ℹ️ Web lookup is niet beschikbaar in deze omgeving."
                 elif web_status == "timeout":
                     msg = "⏱️ Web lookup time-out — geen bronnen opgehaald."
                 elif web_status == "error":
                     msg = "⚠️ Web lookup fout — geen bronnen opgehaald."
                 else:
-                    msg = "i Geen relevante externe bronnen gevonden."
+                    msg = "ℹ️ Geen relevante externe bronnen gevonden."
 
                 st.info(msg)
                 return

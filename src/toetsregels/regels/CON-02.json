@@ -16,12 +16,10 @@
     "\\buit (de|het)?\\s*(Wetboek|Besluit|Regeling|Beleidsregel|Standaard|Verordening|Richtlijn)\\b"
   ],
   "goede_voorbeelden": [
-    "gegevensverwerking: iedere handeling met gegevens zoals bedoeld in de AVG",
-    "delict: gedraging die volgens het Wetboek van Strafrecht strafbaar is gesteld"
+    "gegevensverwerking: iedere handeling met gegevens zoals bedoeld in de AVG"
   ],
   "foute_voorbeelden": [
-    "gegevensverwerking: handeling met gegevens (geen bron vermeld)",
-    "delict: iets strafbaars (geen verwijzing naar wet)"
+    "gegevensverwerking: handeling met gegevens (geen bron vermeld)"
   ],
   "prioriteit": "hoog",
   "aanbeveling": "verplicht",

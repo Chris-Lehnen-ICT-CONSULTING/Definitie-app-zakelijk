@@ -14,12 +14,10 @@
     "^doet\\b"
   ],
   "goede_voorbeelden": [
-    "proces dat beslissers identificeert...",
-    "maatregel die recidive voorkomt..."
+    "proces dat beslissers identificeert..."
   ],
   "foute_voorbeelden": [
-    "is een maatregel die recidive voorkomt",
-    "wordt toegepast in het gevangeniswezen"
+    "is een maatregel die recidive voorkomt"
   ],
   "prioriteit": "hoog",
   "aanbeveling": "verplicht",

@@ -458,7 +458,7 @@ class DefinitionEditTab:
             try:
                 abbrev = getattr(ui_cfg, "afkortingen", {}) or {}
                 if abbrev:
-                    with st.expander("i Afkortingen (uitleg)", expanded=False):
+                    with st.expander("ℹ️ Afkortingen (uitleg)", expanded=False):
                         for ak in sorted(abbrev.keys()):
                             st.markdown(f"- **{ak}** — {abbrev[ak]}")
             except Exception:
@@ -769,11 +769,11 @@ class DefinitionEditTab:
                                 )
                             else:
                                 st.info(
-                                    "i Geen voorkeursterm geselecteerd. Gebruik de selector hierboven om er een te kiezen."
+                                    "ℹ️ Geen voorkeursterm geselecteerd. Gebruik de selector hierboven om er een te kiezen."
                                 )
                         except Exception:
                             st.info(
-                                "i Geen voorkeursterm geselecteerd. Gebruik de selector hierboven om er een te kiezen."
+                                "ℹ️ Geen voorkeursterm geselecteerd. Gebruik de selector hierboven om er een te kiezen."
                             )
         except Exception as e:
             logger.debug(f"Could not show voorkeursterm status: {e}")

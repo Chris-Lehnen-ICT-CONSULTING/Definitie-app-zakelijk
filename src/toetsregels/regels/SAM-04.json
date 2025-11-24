@@ -6,8 +6,7 @@
   "toetsvraag": "Begint de definitie met het onderdeel dat de specialisatie vormt van de samenstelling?",
   "herkenbaar_patronen": [],
   "goede_voorbeelden": [
-    "procesmodel: model van een proces",
-    "procesmodel: schematisch model van een proces"
+    "procesmodel: model van een proces"
   ],
   "foute_voorbeelden": [
     "procesmodel: weergave, meestal als diagram, van een proces"

@@ -14,12 +14,10 @@
     "\\bzullen\\b"
   ],
   "goede_voorbeelden": [
-    "maatregel die toegang beperkt tot bevoegde personen",
-    "procedure die leidt tot besluitvorming"
+    "maatregel die toegang beperkt tot bevoegde personen"
   ],
   "foute_voorbeelden": [
-    "maatregel die toegang kan beperken",
-    "procedure die tot besluitvorming zou kunnen leiden"
+    "maatregel die toegang kan beperken"
   ],
   "prioriteit": "midden",
   "aanbeveling": "optioneel",

@@ -26,7 +26,7 @@ from ui.session_state import force_cleanup_voorbeelden
 class TestDEF110StaleVoorbeeldenFix:
     """Tests for DEF-110 stale voorbeelden bug fix."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def mock_session_state(self):
         """Mock Streamlit session state with voorbeelden keys and control keys."""
         return {
@@ -44,7 +44,7 @@ class TestDEF110StaleVoorbeeldenFix:
             "unrelated_vz_key": "This should stay (no prefix match)",
         }
 
-    @pytest.fixture()
+    @pytest.fixture
     def mock_session_state_manager(self):
         """Mock SessionStateManager for context tracking."""
         with patch("ui.components.examples_block.SessionStateManager") as mock:
