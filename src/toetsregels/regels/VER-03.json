@@ -9,12 +9,10 @@
     ".+d\\b"
   ],
   "goede_voorbeelden": [
-    "beoordelen",
-    "toezicht houden"
+    "beoordelen"
   ],
   "foute_voorbeelden": [
-    "beoordeelt",
-    "houdt toezicht"
+    "beoordeelt"
   ],
   "prioriteit": "midden",
   "aanbeveling": "aanbevolen",

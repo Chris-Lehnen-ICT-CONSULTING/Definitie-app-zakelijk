@@ -343,7 +343,7 @@ class TabbedInterface:
             scores = SessionStateManager.get_value("category_scores", {})
 
             st.info(f"**Voorgesteld:** {determined_category}")
-            with st.expander("i Waarom deze categorie?"):
+            with st.expander("ℹ️ Waarom deze categorie?"):
                 st.write(reasoning)
                 if scores:
                     st.write("**Scores:**", scores)

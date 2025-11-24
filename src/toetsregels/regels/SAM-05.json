@@ -5,12 +5,10 @@
   "toelichting": "Definities zijn circulair als begrip A in definitie B staat en begrip B in definitie A (diepte 2), of dieper (A→B→C→A). Dit leidt tot onbegrijpelijkheid.",
   "toetsvraag": "Treden er wederzijdse verwijzingen op tussen begrippen (cirkeldefinitie)?",
   "goede_voorbeelden": [
-    "object: fysiek ding dat bestaat in ruimte en tijd",
-    "entiteit: iets dat bestaat"
+    "object: fysiek ding dat bestaat in ruimte en tijd"
   ],
   "foute_voorbeelden": [
-    "object: een ding is een object",
-    "ding: een object is een ding"
+    "object: een ding is een object"
   ],
   "prioriteit": "hoog",
   "aanbeveling": "verplicht",

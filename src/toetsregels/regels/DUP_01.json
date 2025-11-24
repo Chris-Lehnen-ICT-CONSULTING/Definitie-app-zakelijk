@@ -6,12 +6,10 @@
   "toetsvraag": "Bestaat deze definitie nog niet in de database?",
   "herkenbaar_patronen": [],
   "goede_voorbeelden": [
-    "Een nieuwe unieke definitie voor het begrip 'sanctie' die nog niet bestaat",
-    "Een definitie met substantiële verschillen ten opzichte van bestaande versies"
+    "Een nieuwe unieke definitie voor het begrip 'sanctie' die nog niet bestaat"
   ],
   "foute_voorbeelden": [
-    "Exact dezelfde definitie die al bestaat voor dit begrip",
-    "Een minimaal gewijzigde versie (alleen interpunctie) van een bestaande definitie"
+    "Exact dezelfde definitie die al bestaat voor dit begrip"
   ],
   "prioriteit": "hoog",
   "aanbeveling": "verplicht",

@@ -10,8 +10,7 @@
     "\\bzoals omschreven bij\\b"
   ],
   "goede_voorbeelden": [
-    "procesmodel: model van een proces",
-    "procesmodel: schematisch model van een proces"
+    "procesmodel: model van een proces"
   ],
   "foute_voorbeelden": [
     "procesmodel: doelgerichte abstractie van een aantal activiteiten die samen een bepaalde gewenste uitkomst oplevert"

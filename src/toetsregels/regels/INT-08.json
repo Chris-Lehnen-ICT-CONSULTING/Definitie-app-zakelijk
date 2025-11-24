@@ -14,12 +14,10 @@
     "\\bvermijdt\\b"
   ],
   "goede_voorbeelden": [
-    "bevoegd persoon: medewerker met formele autorisatie om gegevens in te zien",
-    "gevangene: persoon die zich niet vrij kan bewegen"
+    "bevoegd persoon: medewerker met formele autorisatie om gegevens in te zien"
   ],
   "foute_voorbeelden": [
-    "bevoegd persoon: iemand die niet onbevoegd is",
-    "toegang: mogelijkheid om een ruimte te betreden, uitgezonderd voor onbevoegden"
+    "bevoegd persoon: iemand die niet onbevoegd is"
   ],
   "prioriteit": "midden",
   "aanbeveling": "verplicht",

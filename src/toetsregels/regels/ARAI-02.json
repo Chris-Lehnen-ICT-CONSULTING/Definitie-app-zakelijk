@@ -12,12 +12,10 @@
     "\\belement\\b"
   ],
   "goede_voorbeelden": [
-    "proces dat gegevens verzamelt voor analyse",
-    "activiteit die gericht is op toezicht"
+    "proces dat gegevens verzamelt voor analyse"
   ],
   "foute_voorbeelden": [
-    "proces ter ondersteuning",
-    "activiteit binnen het systeem"
+    "proces ter ondersteuning"
   ],
   "prioriteit": "midden",
   "aanbeveling": "optioneel",
