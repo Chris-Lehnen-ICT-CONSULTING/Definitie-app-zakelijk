@@ -121,7 +121,7 @@ class TestWorkflowService:
     def test_invalid_transitions(self, service):
         """Test that invalid transitions raise errors."""
         # Invalid transition
-        with pytest.raises(ValueError) as exc:
+        with pytest.raises(ValueError, match=r"Invalid transition") as exc:
             service.prepare_status_change(
                 definition_id=1,
                 current_status="draft",
@@ -131,7 +131,7 @@ class TestWorkflowService:
         assert "Invalid transition" in str(exc.value)
 
         # Invalid role for transition
-        with pytest.raises(ValueError) as exc:
+        with pytest.raises(ValueError, match=r"Invalid transition.*user") as exc:
             service.prepare_status_change(
                 definition_id=1,
                 current_status="review",
@@ -275,7 +275,7 @@ class TestWorkflowService:
         """Test submit_for_review with invalid current status."""
         # This will fail because submit_for_review expects DRAFT status
         # but prepare_status_change will validate the transition
-        with pytest.raises(ValueError) as exc:
+        with pytest.raises(ValueError, match=r"Invalid transition") as exc:
             # Simulating a call where current status is not draft
             service.prepare_status_change(
                 definition_id=42,

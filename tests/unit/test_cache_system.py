@@ -525,10 +525,10 @@ class TestCacheIntegration:
             raise ValueError(msg)
 
         # Error should not be cached
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match=r".+"):
             error_function()
 
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match=r".+"):
             error_function()  # Should raise again, not use cache
 
     def test_cache_memory_pressure(self):

@@ -43,15 +43,15 @@ class TestInputValidation:
     def test_empty_string_validation(self, classifier):
         """Test that empty strings are properly rejected."""
         # Empty term
-        with pytest.raises(ValueError, match="term.*niet-lege"):
+        with pytest.raises(ValueError, match=r"term.*niet-lege"):
             classifier.classify("", "valid definition")
 
         # Empty definition
-        with pytest.raises(ValueError, match="definition.*niet-lege"):
+        with pytest.raises(ValueError, match=r"definition.*niet-lege"):
             classifier.classify("valid term", "")
 
         # Both empty
-        with pytest.raises(ValueError, match="term.*niet-lege"):
+        with pytest.raises(ValueError, match=r"term.*niet-lege"):
             classifier.classify("", "")
 
     def test_whitespace_only_validation(self, classifier):

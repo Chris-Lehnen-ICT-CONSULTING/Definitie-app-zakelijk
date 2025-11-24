@@ -383,7 +383,7 @@ class TestEdgeCase6EmptyAfterNormalization:
     )
     def test_whitespace_only_after_strip(self, classifier):
         """Whitespace-only input should raise ValueError."""
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match=r".+"):
             classifier.classify("test", "   \t\n\r   ")
 
 

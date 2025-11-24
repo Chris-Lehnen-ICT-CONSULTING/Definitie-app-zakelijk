@@ -306,22 +306,22 @@ class TestClassification:
 
     def test_classify_with_empty_term(self, classifier):
         """Test met lege term."""
-        with pytest.raises(ValueError, match="term.*niet-lege string"):
+        with pytest.raises(ValueError, match=r"term.*niet-lege string"):
             classifier.classify("", "Een definitie")
 
     def test_classify_with_empty_definition(self, classifier):
         """Test met lege definitie."""
-        with pytest.raises(ValueError, match="definition.*niet-lege string"):
+        with pytest.raises(ValueError, match=r"definition.*niet-lege string"):
             classifier.classify("term", "")
 
     def test_classify_with_whitespace_only(self, classifier):
         """Test met alleen whitespace."""
-        with pytest.raises(ValueError, match="term.*niet leeg"):
+        with pytest.raises(ValueError, match=r"term.*niet leeg"):
             classifier.classify("   ", "definitie")
 
     def test_classify_with_none_input(self, classifier):
         """Test met None input."""
-        with pytest.raises(ValueError, match="term.*niet-lege string"):
+        with pytest.raises(ValueError, match=r"term.*niet-lege string"):
             classifier.classify(None, "definitie")
 
     def test_classify_with_very_long_text(self, classifier):
