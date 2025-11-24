@@ -470,7 +470,7 @@ class TestSecurityIntegration:
         # Test with malicious data
         malicious_data = {"input": "<script>alert('xss')</script>"}
 
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match=r".+"):
             asyncio.run(test_function(malicious_data))
 
     def test_global_security_middleware(self):

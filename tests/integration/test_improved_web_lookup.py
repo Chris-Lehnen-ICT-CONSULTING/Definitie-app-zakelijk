@@ -16,7 +16,6 @@ Requirements:
 
 import asyncio
 from dataclasses import dataclass
-from typing import List
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -41,7 +40,6 @@ class MockLookupResult:
         self.source.url = url
         self.source.confidence = confidence
         self.source.is_juridical = False
-
 
 @pytest.mark.asyncio
 class TestWikipediaSynonymFallback:
@@ -173,7 +171,6 @@ voorlopige_hechtenis:
         assert len(results) > 0
         assert results[0].term == "bewaring"
 
-
 @pytest.mark.asyncio
 class TestSRUQueryZeroExecution:
     """Test nieuwe SRU Query 0 strategie."""
@@ -247,7 +244,6 @@ class TestSRUQueryZeroExecution:
         # Verify Query 0 provided results
         assert len(results) > 0
         assert results[0].definition == "Definitie uit Query 0"
-
 
 @pytest.mark.asyncio
 class TestJuridischeRankingIntegration:
@@ -330,7 +326,6 @@ class TestJuridischeRankingIntegration:
         assert boosted[0].definition.startswith("Strafrechtelijke")
         # Context match should increase confidence
         assert boosted[0].source.confidence > 0.5
-
 
 @pytest.mark.asyncio
 class TestEndToEndPipeline:
@@ -453,7 +448,6 @@ voorlopige_hechtenis:
         assert metrics["results_found"] > 0  # Synonym fallback succeeded
         assert metrics["fallback_triggered"] is True
 
-
 @pytest.mark.asyncio
 class TestCoverageImprovement:
     """Test coverage improvement met nieuwe features."""
@@ -537,7 +531,6 @@ class TestCoverageImprovement:
 
         # Verify juridische result is boosted significantly
         assert juridische_result.source.confidence > 0.5
-
 
 @pytest.mark.asyncio
 class TestErrorHandling:

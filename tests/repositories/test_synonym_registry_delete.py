@@ -103,7 +103,7 @@ class TestSynonymRegistryDelete:
         registry.add_group_member(group_id, "beklaagde", weight=0.90)
 
         # Attempt delete without cascade should fail
-        with pytest.raises(ValueError, match="heeft .* members"):
+        with pytest.raises(ValueError, match=r"heeft .* members"):
             registry.delete_group(group_id, cascade=False)
 
         # Verify group still exists

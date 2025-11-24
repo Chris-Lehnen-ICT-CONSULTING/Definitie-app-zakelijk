@@ -209,7 +209,7 @@ def test_bug_3_singleton_race_condition():
     # Test with rapid sequential calls
     print("\nTesting rapid sequential calls...")
     sequential_ids = []
-    for i in range(100):
+    for _i in range(100):
         inst = get_ufo_classifier()
         sequential_ids.append(id(inst))
 

@@ -11,7 +11,7 @@ import asyncio
 import json
 import sys
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any
 from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
@@ -361,7 +361,6 @@ Voorbeelden van authenticatiemechanismen zijn wachtwoorden, biometrie, tokens en
         assert hasattr(container, "repository")
         assert hasattr(container, "orchestrator")
 
-
 class TestMigrationScenarios:
     """Test scenarios voor de migratie van legacy naar nieuwe services."""
 
@@ -402,7 +401,6 @@ class TestMigrationScenarios:
 
         # Services moeten onafhankelijk zijn
         assert service1 is not service2
-
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v", "-s"])

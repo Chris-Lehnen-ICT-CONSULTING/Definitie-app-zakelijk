@@ -19,7 +19,6 @@ import re
 import threading
 import time
 import unicodedata
-from typing import List, Tuple
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -43,15 +42,15 @@ class TestInputValidation:
     def test_empty_string_validation(self, classifier):
         """Test that empty strings are properly rejected."""
         # Empty term
-        with pytest.raises(ValueError, match="term.*niet-lege"):
+        with pytest.raises(ValueError, match=r"term.*niet-lege"):
             classifier.classify("", "valid definition")
 
         # Empty definition
-        with pytest.raises(ValueError, match="definition.*niet-lege"):
+        with pytest.raises(ValueError, match=r"definition.*niet-lege"):
             classifier.classify("valid term", "")
 
         # Both empty
-        with pytest.raises(ValueError, match="term.*niet-lege"):
+        with pytest.raises(ValueError, match=r"term.*niet-lege"):
             classifier.classify("", "")
 
     def test_whitespace_only_validation(self, classifier):
@@ -177,7 +176,6 @@ class TestInputValidation:
             result = classifier.classify(dangerous, "safe definition")
             assert result is not None
 
-
 class TestUnicodeHandling:
     """Test Unicode normalization and Dutch diacritics."""
 
@@ -239,7 +237,6 @@ class TestUnicodeHandling:
         assert (
             len(set(categories)) == 1
         ), "Inconsistent classification across Unicode forms"
-
 
 class TestPerformanceAndMemory:
     """Test performance boundaries and memory management."""
@@ -314,7 +311,6 @@ class TestPerformanceAndMemory:
             growth_rate < 10
         ), f"Memory growing at {growth_rate} objects per classification"
 
-
 class TestConcurrency:
     """Test thread safety and concurrent operations."""
 
@@ -384,7 +380,6 @@ class TestConcurrency:
         instance_ids = list(instances.queue)
         assert len(set(instance_ids)) == 1, "Multiple instances created"
 
-
 class TestErrorHandling:
     """Test error handling and recovery."""
 
@@ -444,7 +439,6 @@ class TestErrorHandling:
         with patch("builtins.open", MagicMock(side_effect=OSError("File error"))):
             classifier = UFOClassifierService(Path("dummy.yaml"))
             assert classifier.config is not None  # Should use defaults
-
 
 class TestCategoryClassification:
     """Test correct classification of each UFO category."""
@@ -514,7 +508,6 @@ class TestCategoryClassification:
             result = classifier.classify(term, definition)
             assert result.primary_category == UFOCategory.QUANTITY
 
-
 class TestDisambiguation:
     """Test disambiguation of ambiguous terms."""
 
@@ -556,7 +549,6 @@ class TestDisambiguation:
         result = classifier.classify("procedure", "Het document volgens de procedure")
         assert result.primary_category == UFOCategory.KIND
 
-
 class TestIntegration:
     """Integration tests with ServiceContainer."""
 
@@ -580,7 +572,6 @@ class TestIntegration:
         result2 = instance2.classify("test", "definition")
 
         assert result1.primary_category == result2.primary_category
-
 
 class TestRegressionPrevention:
     """Tests to prevent regression of previously fixed bugs."""
@@ -638,7 +629,6 @@ class TestRegressionPrevention:
             assert isinstance(patterns, list)
             for pattern in patterns:
                 assert isinstance(pattern, re.Pattern)
-
 
 if __name__ == "__main__":
     # Run tests with coverage

@@ -148,7 +148,7 @@ def check_status_implementation_mismatch():
                                 "missing_files": missing_sources,
                             }
                         )
-            except:
+            except Exception:
                 pass
 
     return mismatches
@@ -283,7 +283,7 @@ def main():
                 try:
                     fm = yaml.safe_load(frontmatter_match.group(1))
                     print(f"  {req_id}: {fm.get('title')} - Status: {fm.get('status')}")
-                except:
+                except Exception:
                     pass
 
 

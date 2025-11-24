@@ -67,7 +67,7 @@ class TestWeightedSynonym:
         """
         ws = WeightedSynonym(term="test", weight=0.90)
 
-        with pytest.raises(Exception):  # FrozenInstanceError
+        with pytest.raises(Exception, match=r".+"):  # FrozenInstanceError
             ws.weight = 0.80  # type: ignore
 
     def test_weighted_synonym_equality(self):

@@ -14,7 +14,7 @@ import pytest
 
 from config.config_manager import get_config_manager
 from utils.async_api import AsyncGPTClient
-from utils.cache import cached
+from utils.cache import CacheManager, cached
 from utils.resilience import ResilienceFramework
 from utils.smart_rate_limiter import SmartRateLimiter
 
