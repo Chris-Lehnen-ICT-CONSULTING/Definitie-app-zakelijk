@@ -28,10 +28,9 @@ import psutil
 import pytest
 
 from src.services.container import ServiceContainer
+from src.services.context.context_manager import ContextManager
 from src.services.interfaces import GenerationRequest
 from src.services.prompts.prompt_service_v2 import PromptServiceV2
-
-# from src.services.context.context_manager import ContextManager
 
 
 @dataclass

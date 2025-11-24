@@ -376,10 +376,9 @@ class TestEnhancedCache:
 
         # Try to advance internal clock if available; fallback to tiny real sleep
         advanced = False
+        base = [0.0]
         for attr in ("_now", "now", "time", "_time"):
             if hasattr(self.enhanced_cache, attr):
-                base = [0.0]
-
                 def _fake_now():
                     return base[0] + 1.0
 

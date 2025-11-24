@@ -30,7 +30,7 @@ async def test_endpoints():
             # Dummy call
             result = await resilience.resilient_call(
                 endpoint_name=endpoint,
-                func=lambda: f"Test result for {endpoint}",
+                func=lambda e=endpoint: f"Test result for {e}",
                 timeout=5.0,
             )
             print(f"✅ {endpoint}: Success - {result}")

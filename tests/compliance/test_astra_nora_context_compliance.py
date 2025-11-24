@@ -24,9 +24,8 @@ from unittest.mock import MagicMock, Mock, patch
 import pytest
 
 from src.services.container import ServiceContainer
+from src.services.context.context_manager import ContextManager
 from src.services.interfaces import GenerationRequest
-
-# from src.services.context.context_manager import ContextManager
 
 
 @pytest.mark.xfail(

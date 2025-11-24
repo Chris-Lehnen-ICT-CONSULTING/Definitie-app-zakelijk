@@ -23,7 +23,7 @@ from unittest.mock import MagicMock, Mock, patch
 
 import pytest
 
-# from src.services.feature_flags import FeatureFlags, FeatureFlagConfig
+from config.feature_flags import FeatureFlags
 from src.services.interfaces import GenerationRequest
 
 
