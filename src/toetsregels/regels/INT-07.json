@@ -16,17 +16,10 @@
     "\\bKvK\\b"
   ],
   "goede_voorbeelden": [
-    "Dienst Justitiële Inrichtingen (DJI)",
-    "OM (Openbaar Ministerie)",
-    "AVG (Algemene verordening gegevensbescherming)",
-    "KvK (Kamer van Koophandel)",
-    "[[Algemene verordening gegevensbescherming]]"
+    "Dienst Justitiële Inrichtingen (DJI)"
   ],
   "foute_voorbeelden": [
-    "DJI voert toezicht uit.",
-    "De AVG vereist naleving.",
-    "OM is bevoegd tot vervolging.",
-    "KvK registreert bedrijven."
+    "DJI voert toezicht uit."
   ],
   "prioriteit": "midden",
   "aanbeveling": "verplicht",

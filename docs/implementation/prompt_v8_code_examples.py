@@ -159,12 +159,11 @@ class ModuleCacheV8:
         """
         if category == "proces":
             return "[activiteit/handeling] waarbij [actor] [actie] uitvoert"
-        elif category == "type":
+        if category == "type":
             return "[soort/categorie] [bovenbegrip] met kenmerk"
-        elif category == "resultaat":
+        if category == "resultaat":
             return "[uitkomst] van [proces] dat [functie]"
-        else:
-            return "[entiteit] die [kenmerk] heeft"
+        return "[entiteit] die [kenmerk] heeft"
 
 
 # ============================================================================

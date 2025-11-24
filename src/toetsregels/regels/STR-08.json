@@ -13,8 +13,7 @@
     "Toegang is beperkt tot personen met een geldig toegangspasje en een schriftelijke toestemming"
   ],
   "foute_voorbeelden": [
-    "Toegang is beperkt tot personen met een pasje en toestemming",
-    "Het systeem vereist login en verificatie"
+    "Toegang is beperkt tot personen met een pasje en toestemming"
   ],
   "prioriteit": "midden",
   "aanbeveling": "verplicht",

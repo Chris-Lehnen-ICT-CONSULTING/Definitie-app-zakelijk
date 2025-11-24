@@ -32,10 +32,10 @@ def fix_unicode_chars(file_path: Path) -> bool:
         content = content.replace("\u2019", "'")
 
         # Replace LEFT DOUBLE QUOTATION MARK with QUOTATION MARK
-        content = content.replace("\u201C", '"')
+        content = content.replace("\u201c", '"')
 
         # Replace RIGHT DOUBLE QUOTATION MARK with QUOTATION MARK
-        content = content.replace("\u201D", '"')
+        content = content.replace("\u201d", '"')
 
         # Remove INFORMATION SOURCE emoji (ℹ️ → i)
         # Note: Keep checkmark ✅ and cross ❌ as they're intentional visual markers

@@ -175,17 +175,16 @@ class StreamlitPatternChecker:
                 "\n📚 See: docs/guidelines/STREAMLIT_PATTERNS.md for correct patterns"
             )
             return 1
-        elif self.warnings:
+        if self.warnings:
             print(
                 f"{YELLOW}⚠️  {len(self.warnings)} warning(s) found - REVIEW RECOMMENDED{RESET}"
             )
             print(f"{GREEN}✅ No blocking errors - pre-commit PASSES{RESET}")
             return 0
-        else:
-            print(
-                f"{GREEN}✅ All checks passed - code follows Streamlit best practices{RESET}"
-            )
-            return 0
+        print(
+            f"{GREEN}✅ All checks passed - code follows Streamlit best practices{RESET}"
+        )
+        return 0
 
 
 def main() -> int:

@@ -26,6 +26,64 @@
 
 ---
 
+## 🤖 MULTIAGENT + ULTRATHINK INTEGRATION
+
+### When to Use Multiagents (Optional)
+
+**Analysis can be enhanced with specialized agents when:**
+
+**Phase 1 (MECE Decomposition):**
+- ❓ Unknown issue categories → **Perplexity:** "Software engineering issue taxonomy for [domain]"
+- ❓ Framework-specific patterns → **Context7:** Official docs for library/framework
+
+**Phase 2 (Pareto + 5 Whys):**
+- ❓ Complex root cause → **debug-specialist:** Deep 5 Whys analysis with technical expertise
+- ❓ Multiple dependencies → **Perplexity:** Research common architectural patterns
+
+**Phase 3 (Impact-Effort Matrix):**
+- ❓ Effort estimation unclear → **code-reviewer:** Historical effort data from similar changes
+- ❓ Implementation complexity → **full-stack-developer:** Technical feasibility assessment
+
+**⚠️ Multiagent Usage Rules:**
+- Only use when analysis blocked or confidence <70%
+- Each agent call adds 5-10 minutes → Factor into 60min budget
+- Document agent insights in JSON output
+
+### Ultrathink Checkpoints (MANDATORY - Solo Dev)
+
+**After Phase 3 (Impact-Effort Matrix completed):**
+
+```markdown
+⚠️ CHECKPOINT 1: EFFORT Check
+Q: Are top 3 fixes >10 hours total?
+├─ YES → 🚨 STOP: Simplify scope or reduce to 2 fixes
+└─ NO → ✅ Continue
+
+⚠️ CHECKPOINT 2: KISS Check
+Q: Am I proposing new classes, enums, or frameworks?
+├─ YES → 🚨 STOP: Try parameters/functions/config first
+└─ NO → ✅ Continue
+
+⚠️ CHECKPOINT 3: PROTOTYPE Check
+Q: Can I prototype the top fix in 30 minutes to 2 hours?
+├─ NO → 🚨 STOP: Solution too complex, simplify
+└─ YES → ✅ Continue to implementation
+
+⚠️ CHECKPOINT 4: ENTERPRISE Check
+Q: Am I using words like "phased rollout", "quality gates", "monitoring dashboard"?
+├─ YES → 🚨 STOP: Remove enterprise patterns (solo dev!)
+└─ NO → ✅ Ready for implementation
+```
+
+**If ANY checkpoint fails:**
+1. Revise top 3 issues to meet solo dev constraints
+2. Re-run Impact-Effort Matrix with simplified solutions
+3. Document why original approach was too complex
+
+**See also:** `~/.ai-agents/UNIFIED_INSTRUCTIONS.md` §MULTIAGENT + ULTRATHINK PROTOCOL
+
+---
+
 ## 📋 PHASE 1: Problem Statement + MECE Decomposition (15 min)
 
 ### Step 1: Define Problem (5 min)

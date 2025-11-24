@@ -8,17 +8,10 @@
     "^\\s*(is|zijn|doet|doet|kan|kunnen|heeft|hebben|wordt|worden|vormt|vormen|creëert|creëren|moet|moeten|zal|zullen|mag|mogen)\\b"
   ],
   "goede_voorbeelden": [
-    "activiteit waarbij gegevens worden verzameld",
-    "observatie van gedrag in natuurlijke omgeving",
-    "verzameling van relevante documenten",
-    "proces dat beslissers identificeert",
-    "handelingsnaamwoord dat een activiteit aanduidt"
+    "activiteit waarbij gegevens worden verzameld"
   ],
   "foute_voorbeelden": [
-    "is een activiteit waarbij gegevens worden verzameld",
-    "wordt gebruikt voor het observeren van gedrag",
-    "heeft als doel het verzamelen van documenten",
-    "kan worden omschreven als een proces"
+    "is een activiteit waarbij gegevens worden verzameld"
   ],
   "prioriteit": "midden",
   "aanbeveling": "optioneel",

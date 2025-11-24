@@ -129,9 +129,6 @@ class IntegrityRulesModule(BasePromptModule):
 
         rules.append("🔹 **INT-01 - Compacte en begrijpelijke zin**")
         rules.append("- Een definitie is compact en in één enkele zin geformuleerd.")
-        rules.append(
-            "- Toetsvraag: Is de definitie geformuleerd als één enkele, begrijpelijke zin?"
-        )
 
         if self.include_examples:
             rules.append(
@@ -150,9 +147,6 @@ class IntegrityRulesModule(BasePromptModule):
 
         rules.append("🔹 **INT-02 - Geen beslisregel**")
         rules.append("- Een definitie bevat geen beslisregels of voorwaarden.")
-        rules.append(
-            "- Toetsvraag: Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?"
-        )
 
         if self.include_examples:
             rules.append(
@@ -191,9 +185,6 @@ class IntegrityRulesModule(BasePromptModule):
         rules.append(
             "- Definities mogen geen voornaamwoorden bevatten waarvan niet direct duidelijk is waarnaar verwezen wordt."
         )
-        rules.append(
-            "- Toetsvraag: Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?"
-        )
 
         if self.include_examples:
             rules.append(
@@ -219,9 +210,6 @@ class IntegrityRulesModule(BasePromptModule):
         rules.append("🔹 **INT-04 - Lidwoord-verwijzing duidelijk**")
         rules.append(
             "- Definities mogen geen onduidelijke verwijzingen met de lidwoorden 'de' of 'het' bevatten."
-        )
-        rules.append(
-            "- Toetsvraag: Bevat de definitie zinnen als 'de instelling', 'het systeem'? Zo ja: is in diezelfde zin expliciet benoemd welke instelling of welk systeem wordt bedoeld?"
         )
 
         if self.include_examples:
@@ -249,9 +237,6 @@ class IntegrityRulesModule(BasePromptModule):
         rules.append(
             "- Een definitie bevat geen nadere toelichting of voorbeelden, maar uitsluitend de afbakening van het begrip."
         )
-        rules.append(
-            "- Toetsvraag: Bevat de definitie signalen van toelichting zoals 'bijvoorbeeld', 'zoals', 'dit houdt in', enzovoort?"
-        )
 
         if self.include_examples:
             rules.append("  ✅ model: vereenvoudigde weergave van de werkelijkheid")
@@ -269,9 +254,6 @@ class IntegrityRulesModule(BasePromptModule):
         rules.append("🔹 **INT-07 - Alleen toegankelijke afkortingen**")
         rules.append(
             "- In een definitie gebruikte afkortingen zijn voorzien van een voor de doelgroep direct toegankelijke referentie."
-        )
-        rules.append(
-            "- Toetsvraag: Bevat de definitie afkortingen? Zo ja: zijn deze in hetzelfde stuk tekst uitgelegd of gelinkt?"
         )
 
         if self.include_examples:
@@ -295,9 +277,6 @@ class IntegrityRulesModule(BasePromptModule):
         rules.append("🔹 **INT-08 - Positieve formulering**")
         rules.append(
             "- Een definitie wordt in principe positief geformuleerd, dus zonder ontkenningen te gebruiken; uitzondering voor onderdelen die de definitie specifieker maken (bijv. relatieve bijzinnen)."
-        )
-        rules.append(
-            "- Toetsvraag: Is de definitie in principe positief geformuleerd en vermijdt deze negatieve formuleringen, behalve om specifieke onderdelen te verduidelijken?"
         )
 
         if self.include_examples:

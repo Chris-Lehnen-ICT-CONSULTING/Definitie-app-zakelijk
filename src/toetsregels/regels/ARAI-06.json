@@ -9,13 +9,10 @@
     "^\\s*(is|omvat|betekent)\\s+"
   ],
   "goede_voorbeelden": [
-    "proces waarbij toezicht plaatsvindt op naleving van wetgeving.",
-    "maatregel die wordt ingezet bij overtredingen van regels."
+    "proces waarbij toezicht plaatsvindt op naleving van wetgeving."
   ],
   "foute_voorbeelden": [
-    "De maatregel is bedoeld voor naleving.",
-    "Het begrip betekent: een controlemechanisme.",
-    "Registratie is een registratie van gegevens."
+    "De maatregel is bedoeld voor naleving."
   ],
   "prioriteit": "hoog",
   "aanbeveling": "verplicht",

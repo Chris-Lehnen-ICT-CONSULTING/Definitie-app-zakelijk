@@ -10,12 +10,10 @@
     "\\book wel\\b"
   ],
   "goede_voorbeelden": [
-    "term A: proces waarbij gegevens worden verzameld",
-    "term B: zie term A"
+    "term A: proces waarbij gegevens worden verzameld"
   ],
   "foute_voorbeelden": [
-    "term A: proces waarbij gegevens worden verzameld",
-    "term B: methode om gegevens op te slaan"
+    "term A: proces waarbij gegevens worden verzameld"
   ],
   "prioriteit": "hoog",
   "aanbeveling": "verplicht",

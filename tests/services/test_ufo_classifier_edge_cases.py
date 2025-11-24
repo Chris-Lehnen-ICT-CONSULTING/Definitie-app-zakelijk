@@ -36,7 +36,7 @@ from src.services.ufo_classifier_service import (
 class TestInputValidation:
     """Test input validation and sanitization."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def classifier(self):
         return UFOClassifierService()
 
@@ -181,7 +181,7 @@ class TestInputValidation:
 class TestUnicodeHandling:
     """Test Unicode normalization and Dutch diacritics."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def classifier(self):
         return UFOClassifierService()
 
@@ -244,7 +244,7 @@ class TestUnicodeHandling:
 class TestPerformanceAndMemory:
     """Test performance boundaries and memory management."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def classifier(self):
         return UFOClassifierService()
 
@@ -318,7 +318,7 @@ class TestPerformanceAndMemory:
 class TestConcurrency:
     """Test thread safety and concurrent operations."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def classifier(self):
         return UFOClassifierService()
 
@@ -388,7 +388,7 @@ class TestConcurrency:
 class TestErrorHandling:
     """Test error handling and recovery."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def classifier(self):
         return UFOClassifierService()
 
@@ -449,7 +449,7 @@ class TestErrorHandling:
 class TestCategoryClassification:
     """Test correct classification of each UFO category."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def classifier(self):
         return UFOClassifierService()
 
@@ -518,7 +518,7 @@ class TestCategoryClassification:
 class TestDisambiguation:
     """Test disambiguation of ambiguous terms."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def classifier(self):
         return UFOClassifierService()
 
@@ -585,7 +585,7 @@ class TestIntegration:
 class TestRegressionPrevention:
     """Tests to prevent regression of previously fixed bugs."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def classifier(self):
         return UFOClassifierService()
 

@@ -1,8 +1,8 @@
 """
 DefinitionWorkflowService - Combineert workflow en repository acties.
 
-US-072: Deze service consolideert workflow transities (review/approve/reject) 
-met de bijbehorende repository-updates en audit/event-publicatie zodat UI-code 
+US-072: Deze service consolideert workflow transities (review/approve/reject)
+met de bijbehorende repository-updates en audit/event-publicatie zodat UI-code
 geen losse services hoeft te coördineren en we consistente businessregels afdwingen.
 """
 

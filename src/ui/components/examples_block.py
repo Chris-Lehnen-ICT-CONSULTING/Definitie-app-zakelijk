@@ -210,7 +210,7 @@ def render_examples_block(
                 _os2.getenv("OPENAI_API_KEY") or _os2.getenv("OPENAI_API_KEY_PROD")
             ):
                 st.info(
-                    "i Geen OPENAI_API_KEY gevonden — voorbeelden genereren is uitgeschakeld."
+                    "ℹ️ Geen OPENAI_API_KEY gevonden — voorbeelden genereren is uitgeschakeld."
                 )
                 can_call = False
             if st.button(
