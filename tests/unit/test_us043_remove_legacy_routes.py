@@ -26,7 +26,7 @@ import inspect
 import time
 import timeit
 import traceback
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 from unittest.mock import MagicMock, Mock, patch
 
 import pytest
@@ -107,7 +107,6 @@ class TestSingleContextFlowPath:
             assert (
                 pattern not in source
             ), f"Legacy pattern '{pattern}' found in orchestrator"
-
 
 class TestPerformanceImprovement:
     """Verify >20% performance improvement target is achieved."""
@@ -213,7 +212,6 @@ class TestPerformanceImprovement:
                 mock_format.call_count <= 3
             ), "Context formatting called too many times"
 
-
 class TestLegacyCodeRemoval:
     """Verify legacy context handlers are removed."""
 
@@ -255,7 +253,6 @@ class TestLegacyCodeRemoval:
                 assert hasattr(
                     method, "__deprecated__"
                 ) or "@deprecated" in inspect.getsource(method)
-
 
 class TestSessionStateEncapsulation:
     """Test that session state is properly encapsulated."""
@@ -329,7 +326,6 @@ class TestSessionStateEncapsulation:
         assert current.organisatorische_context == ["OM"]
         assert "DJI" not in current.organisatorische_context
 
-
 class TestMemoryEfficiency:
     """Test memory efficiency improvements."""
 
@@ -376,7 +372,6 @@ class TestMemoryEfficiency:
 
         # Should be garbage collected
         assert weak_ref() is None, "Context not garbage collected"
-
 
 class TestCodeMaintainability:
     """Test code maintainability improvements."""
@@ -430,7 +425,6 @@ class TestCodeMaintainability:
         assert prompt_service_v2.__doc__ is not None
         assert "context" in prompt_service_v2.__doc__.lower()
 
-
 class TestRegressionPrevention:
     """Test that old patterns cannot re-emerge."""
 
@@ -474,7 +468,6 @@ class TestRegressionPrevention:
             ]
         )
 
-
 class TestFeatureFlags:
     """Test feature flag mechanism for gradual rollout."""
 
@@ -512,7 +505,6 @@ class TestFeatureFlags:
             # Should fallback gracefully
             # This test documents the requirement
 
-
 class TestMonitoring:
     """Test monitoring and observability of context flow."""
 
@@ -549,7 +541,6 @@ class TestMonitoring:
 
             # Should log flow for debugging
             # This test documents the requirement
-
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v", "--tb=short"])

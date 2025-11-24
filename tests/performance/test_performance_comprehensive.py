@@ -17,6 +17,7 @@ import pytest
 
 # Import modules for performance testing
 from ai_toetser.modular_toetser import ModularToetser
+from config import get_api_config
 from config.config_manager import ConfigSection, get_config_manager
 from document_processing.document_extractor import extract_text_from_file
 from toetsregels.loader import load_toetsregels

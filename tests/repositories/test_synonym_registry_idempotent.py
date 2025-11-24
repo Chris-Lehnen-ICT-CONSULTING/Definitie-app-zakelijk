@@ -315,10 +315,10 @@ class TestAddGroupMemberEdgeCases:
         group_id = group.id
 
         # Invalid weight should raise error
-        with pytest.raises(ValueError, match="tussen 0.0 en 1.0"):
+        with pytest.raises(ValueError, match=r"tussen 0.0 en 1.0"):
             registry.add_group_member(group_id=group_id, term="test", weight=1.5)
 
-        with pytest.raises(ValueError, match="tussen 0.0 en 1.0"):
+        with pytest.raises(ValueError, match=r"tussen 0.0 en 1.0"):
             registry.add_group_member(group_id=group_id, term="test", weight=-0.1)
 
     def test_add_group_member_nonexistent_group_still_raises_error(self, registry):

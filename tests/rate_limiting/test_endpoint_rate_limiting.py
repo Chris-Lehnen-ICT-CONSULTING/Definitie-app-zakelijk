@@ -123,7 +123,7 @@ async def test_endpoint_specific_rate_limiting():
     start_time = time.time()
     results = await asyncio.gather(*tasks, return_exceptions=True)
 
-    for i, result in enumerate(results):
+    for _i, result in enumerate(results):
         elapsed = time.time() - start_time
         if isinstance(result, Exception):
             print(f"❌ [{elapsed:.2f}s] Error: {result}")

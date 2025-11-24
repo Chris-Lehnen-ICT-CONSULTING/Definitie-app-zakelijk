@@ -14,7 +14,6 @@ import logging
 import signal
 import time
 import unicodedata
-from typing import List, Tuple
 
 import pytest
 
@@ -27,7 +26,6 @@ from src.services.ufo_classifier_service import (
 # ============================================================================
 # BUG REPRODUCTIONS
 # ============================================================================
-
 
 class TestBug1InputValidation:
     """BUG-1: Geen input validatie - tests verwachten ValueError maar krijgen UNKNOWN."""
@@ -66,7 +64,6 @@ class TestBug1InputValidation:
         assert result.primary_category == UFOCategory.UNKNOWN
         assert result.confidence == 0.1  # MIN_CONFIDENCE
 
-
 class TestBug2NoneGuards:
     """BUG-2: Missing None guards - should raise TypeError."""
 
@@ -104,7 +101,6 @@ class TestBug2NoneGuards:
         # Then: empty string triggers UNKNOWN path
         result = classifier.classify(None, "definition")
         assert result.primary_category == UFOCategory.UNKNOWN
-
 
 class TestBug3ScoreCalculation:
     """BUG-3: Score calculation kan leiden tot inconsistente confidence."""
@@ -157,7 +153,6 @@ class TestBug3ScoreCalculation:
         # Confidence should never exceed 1.0
         assert 0.0 <= result.confidence <= 1.0
         # Even if multiple patterns + disambiguation boost
-
 
 class TestBug4RegexPerformance:
     """BUG-4: Regex performance op zeer lange teksten zonder timeout."""
@@ -220,7 +215,6 @@ class TestBug4RegexPerformance:
         finally:
             signal.alarm(0)
 
-
 class TestBug5UnicodeNormalization:
     """BUG-5: Unicode normalization inconsistentie."""
 
@@ -279,11 +273,9 @@ class TestBug5UnicodeNormalization:
         print(f"NFC normalized: {result_nfc.term!r}")
         print(f"NFD normalized: {result_nfd.term!r}")
 
-
 # ============================================================================
 # EDGE CASE REPRODUCTIONS
 # ============================================================================
-
 
 class TestEdgeCase1AllScoresZero:
     """EDGE-1: Alle scores 0.0 - geen enkele pattern match."""
@@ -305,7 +297,6 @@ class TestEdgeCase1AllScoresZero:
 
         # Better behavior would be:
         # assert result.confidence <= 0.05
-
 
 class TestEdgeCase2SingleHighScore:
     """EDGE-2: Eén score 1.0, rest 0.0."""
@@ -329,7 +320,6 @@ class TestEdgeCase2SingleHighScore:
         print(f"Secondary categories: {result.secondary_categories}")
         # With threshold 0.2, could have noise
         # Better threshold would be 0.35+
-
 
 class TestEdgeCase3AllScoresEqual:
     """EDGE-3: Alle scores gelijk - perfecte ambiguity."""
@@ -370,7 +360,6 @@ class TestEdgeCase3AllScoresEqual:
         categories = [r.primary_category for r in results]
         assert len(set(categories)) == 1, f"Non-deterministic: {categories}"
 
-
 class TestEdgeCase6EmptyAfterNormalization:
     """EDGE-6: Text wordt leeg na normalization."""
 
@@ -383,9 +372,8 @@ class TestEdgeCase6EmptyAfterNormalization:
     )
     def test_whitespace_only_after_strip(self, classifier):
         """Whitespace-only input should raise ValueError."""
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match=r".+"):
             classifier.classify("test", "   \t\n\r   ")
-
 
 class TestEdgeCase7VeryLongText:
     """EDGE-7: Zeer lange tekst (10000+ chars)."""
@@ -408,7 +396,6 @@ class TestEdgeCase7VeryLongText:
         print(f"Log messages: {caplog.text}")
         # Currently: geen warning
         # Should log: "Text truncated from X to 10000 chars"
-
 
 class TestEdgeCase8UnicodeSpecialChars:
     """EDGE-8: Unicode special characters en emoji."""
@@ -449,11 +436,9 @@ class TestEdgeCase8UnicodeSpecialChars:
 
         assert result is not None
 
-
 # ============================================================================
 # DISAMBIGUATION BUG REPRODUCTIONS
 # ============================================================================
-
 
 class TestDisambiguationBugs:
     """Test disambiguation logic edge cases."""
@@ -498,11 +483,9 @@ class TestDisambiguationBugs:
         # Should be deterministic
         assert len(set(results)) == 1, f"Biased disambiguation: {results}"
 
-
 # ============================================================================
 # CONFIDENCE FORMULA BUG REPRODUCTIONS
 # ============================================================================
-
 
 class TestConfidenceFormulaBugs:
     """Test confidence calculation issues."""
@@ -542,11 +525,9 @@ class TestConfidenceFormulaBugs:
         # Current: 20% flat reduction if margin < 0.1
         # Better: proportional to margin ratio
 
-
 # ============================================================================
 # SECURITY BUG REPRODUCTIONS
 # ============================================================================
-
 
 class TestSecurityBugs:
     """Test security edge cases."""
@@ -582,11 +563,9 @@ class TestSecurityBugs:
 
         assert result is not None
 
-
 # ============================================================================
 # SUMMARY STATISTICS
 # ============================================================================
-
 
 def test_bug_summary():
     """Print summary van bugs voor reporting."""
@@ -622,7 +601,6 @@ def test_bug_summary():
     print("\nOPMERKING: Run met -v flag voor details:")
     print("  pytest tests/debug/test_ufo_classifier_bugs_reproduction.py -v")
     print("=" * 70 + "\n")
-
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v", "--tb=short"])

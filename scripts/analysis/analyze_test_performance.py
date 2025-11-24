@@ -91,7 +91,7 @@ def analyze_test_performance():
                         sleep_tests.append(
                             (test_file.relative_to(Path("tests")), count)
                         )
-            except:
+            except Exception:
                 pass
 
         for test_file, count in sorted(sleep_tests, key=lambda x: x[1], reverse=True)[
@@ -122,7 +122,7 @@ def analyze_test_performance():
                         and "rollback" not in content
                     ):
                         db_tests.append(test_file.relative_to(Path("tests")))
-            except:
+            except Exception:
                 pass
 
         for test_file in db_tests[:15]:
@@ -148,7 +148,7 @@ def analyze_test_performance():
                         io_tests.append(
                             (test_file.relative_to(Path("tests")), io_score)
                         )
-            except:
+            except Exception:
                 pass
 
         for test_file, score in sorted(io_tests, key=lambda x: x[1], reverse=True)[:10]:

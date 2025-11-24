@@ -102,7 +102,7 @@ class CoverageAuditor:
                 metrics["complexity"] = "high"
             elif metrics["lines"] > 200 or total_entities > 10:
                 metrics["complexity"] = "medium"
-        except:
+        except Exception:
             pass
 
         return metrics
@@ -161,7 +161,7 @@ class CoverageAuditor:
             if "Mock.ANY" in content or "ANY" in content:
                 issues["bad_practices"].append("uses_mock_any")
 
-        except:
+        except Exception:
             pass
 
         return issues
@@ -259,7 +259,7 @@ class CoverageAuditor:
         print("-" * 50)
 
         all_untested = []
-        for category, stats in coverage_stats.items():
+        for _category, stats in coverage_stats.items():
             for module in stats["untested"]:
                 complexity = self.analyze_module_complexity(module)
                 all_untested.append((module, complexity["lines"]))

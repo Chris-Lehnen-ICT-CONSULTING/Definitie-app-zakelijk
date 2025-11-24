@@ -295,7 +295,7 @@ class TraceabilityAnalyzer:
         try:
             with open(story.path, encoding="utf-8") as f:
                 content = f.read().lower()
-        except:
+        except Exception:
             return "EPIC-001"  # Default to first epic
 
         # Keywords for each epic

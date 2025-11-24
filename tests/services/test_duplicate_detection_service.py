@@ -252,10 +252,10 @@ class TestDuplicateDetectionService:
         assert service.threshold == 1.0
 
         # Invalid updates
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match=r".+"):
             service.update_threshold(-0.1)
 
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match=r".+"):
             service.update_threshold(1.1)
 
 

@@ -30,7 +30,7 @@ import tempfile
 import time
 import unittest
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 from unittest.mock import MagicMock, Mock, patch
 
 # Voeg src directory toe aan Python path
@@ -40,7 +40,6 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 # Configureer logging voor tests
 logging.basicConfig(level=logging.WARNING)
 logger = logging.getLogger(__name__)
-
 
 class TestImportStructure(unittest.TestCase):
     """Test de import structuur en module beschikbaarheid."""
@@ -131,7 +130,6 @@ class TestImportStructure(unittest.TestCase):
         assert (
             len(missing_init_files) == 0
         ), f"Ontbrekende __init__.py bestanden in: {missing_init_files}"
-
 
 class TestNederlandseCommentaren(unittest.TestCase):
     """Test de kwaliteit en consistentie van Nederlandse commentaren."""
@@ -306,7 +304,6 @@ class TestNederlandseCommentaren(unittest.TestCase):
             len(undocumented_functions) / total_functions < 0.3
         ), f"Te veel ongedocumenteerde functies: {undocumented_functions[:10]}"
 
-
 class TestCoreFunctionality(unittest.TestCase):
     """Test de core functionaliteit van DefinitieAgent."""
 
@@ -470,7 +467,6 @@ class TestCoreFunctionality(unittest.TestCase):
         except Exception as e:
             self.fail(f"AI integratie test gefaald: {e}")
 
-
 class TestModernWebLookupIntegration(unittest.TestCase):
     """Test moderne web lookup service functionaliteit."""
 
@@ -509,7 +505,6 @@ class TestModernWebLookupIntegration(unittest.TestCase):
 
         except Exception as e:
             logger.warning(f"External API test warning: {e}")
-
 
 class TestPerformanceAndMemory(unittest.TestCase):
     """Test performance en memory usage."""
@@ -559,7 +554,6 @@ class TestPerformanceAndMemory(unittest.TestCase):
         except ImportError:
             logger.info("⚠️ psutil niet beschikbaar, skip memory test")
 
-
 class TestErrorHandlingAndRobustness(unittest.TestCase):
     """Test error handling en robuustheid."""
 
@@ -606,7 +600,6 @@ class TestErrorHandlingAndRobustness(unittest.TestCase):
 
         except Exception as e:
             self.fail(f"Input validation error handling gefaald: {e}")
-
 
 class TestRegressionSpecific(unittest.TestCase):
     """Test specifieke regressies die eerder opgelost zijn."""
@@ -685,7 +678,6 @@ class TestRegressionSpecific(unittest.TestCase):
 
         logger.info("✅ Alle verwachte __init__.py bestanden aanwezig")
 
-
 def run_regression_suite():
     """Voer de volledige regressietest suite uit."""
     print("🧪 Starting DefinitieAgent Regressietest Suite")
@@ -728,14 +720,14 @@ def run_regression_suite():
         print("\n🔴 GEFAALDE TESTS:")
         for test, traceback in result.failures:
             print(
-                f"  - {test}: {traceback.split('\\n')[-2] if traceback else 'Unknown'}"
+                f"  - {test}: {traceback.split(chr(10))[-2] if traceback else 'Unknown'}"
             )
 
     if result.errors:
         print("\n💥 TEST ERRORS:")
         for test, traceback in result.errors:
             print(
-                f"  - {test}: {traceback.split('\\n')[-2] if traceback else 'Unknown'}"
+                f"  - {test}: {traceback.split(chr(10))[-2] if traceback else 'Unknown'}"
             )
 
     success_rate = (
@@ -753,7 +745,6 @@ def run_regression_suite():
         print("⚠️ AANDACHT NODIG! Meerdere issues gevonden")
 
     return result.wasSuccessful()
-
 
 if __name__ == "__main__":
     success = run_regression_suite()
