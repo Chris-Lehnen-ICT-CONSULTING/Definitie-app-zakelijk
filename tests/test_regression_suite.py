@@ -728,14 +728,14 @@ def run_regression_suite():
         print("\n🔴 GEFAALDE TESTS:")
         for test, traceback in result.failures:
             print(
-                f"  - {test}: {traceback.split('\\n')[-2] if traceback else 'Unknown'}"
+                f"  - {test}: {traceback.split(chr(10))[-2] if traceback else 'Unknown'}"
             )
 
     if result.errors:
         print("\n💥 TEST ERRORS:")
         for test, traceback in result.errors:
             print(
-                f"  - {test}: {traceback.split('\\n')[-2] if traceback else 'Unknown'}"
+                f"  - {test}: {traceback.split(chr(10))[-2] if traceback else 'Unknown'}"
             )
 
     success_rate = (

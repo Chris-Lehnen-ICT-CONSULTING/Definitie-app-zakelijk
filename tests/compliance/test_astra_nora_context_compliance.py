@@ -196,7 +196,7 @@ class TestInteroperabilityStandards:
         # Should be JSON serializable
         try:
             json.dumps(request.__dict__)
-        except:
+        except Exception:
             pytest.fail("Context not JSON serializable")
 
     def test_semantic_interoperability(self):

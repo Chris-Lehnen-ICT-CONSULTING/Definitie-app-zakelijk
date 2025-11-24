@@ -76,7 +76,7 @@ class TestCoverageAnalyzer:
             with open(test_file, encoding="utf-8") as f:
                 content = f.read()
                 tree = ast.parse(content)
-        except:
+        except Exception:
             return metrics
 
         # Check for real service usage patterns
@@ -155,7 +155,7 @@ class TestCoverageAnalyzer:
             if coverage_file.exists():
                 with open(coverage_file) as f:
                     return json.load(f)
-        except:
+        except Exception:
             pass
         return {}
 

@@ -102,7 +102,7 @@ class CoverageAuditor:
                 metrics["complexity"] = "high"
             elif metrics["lines"] > 200 or total_entities > 10:
                 metrics["complexity"] = "medium"
-        except:
+        except Exception:
             pass
 
         return metrics
@@ -161,7 +161,7 @@ class CoverageAuditor:
             if "Mock.ANY" in content or "ANY" in content:
                 issues["bad_practices"].append("uses_mock_any")
 
-        except:
+        except Exception:
             pass
 
         return issues
