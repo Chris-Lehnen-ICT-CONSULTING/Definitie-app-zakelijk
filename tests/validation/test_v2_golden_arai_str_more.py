@@ -4,7 +4,7 @@ from services.validation.modular_validation_service import ModularValidationServ
 from toetsregels.manager import get_toetsregel_manager
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_arai01_flags_verb_core():
     svc = ModularValidationService(get_toetsregel_manager(), None, None)
     text = "begrip: is een systeem dat gegevens verwerkt"
@@ -17,7 +17,7 @@ async def test_arai01_flags_verb_core():
     assert any(v.get("code") == "ARAI-01" for v in res.get("violations", [])), res
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_arai02_container_without_specificity_fails_and_with_specificity_passes():
     svc = ModularValidationService(get_toetsregel_manager(), None, None)
 
@@ -44,7 +44,7 @@ async def test_arai02_container_without_specificity_fails_and_with_specificity_p
     ), res_ok
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_arai03_subjective_adjectives_flagged():
     svc = ModularValidationService(get_toetsregel_manager(), None, None)
     text = "maatregel: adequaat en relevant systeem voor gegevensuitwisseling"
@@ -57,7 +57,7 @@ async def test_arai03_subjective_adjectives_flagged():
     assert any(v.get("code") == "ARAI-03" for v in res.get("violations", [])), res
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_str01_body_start_detects_verb_via_arai01():
     svc = ModularValidationService(get_toetsregel_manager(), None, None)
     # FOUT: start met hulpwoord na ':' (valt onder ARAI-01 verb-kern detectie)

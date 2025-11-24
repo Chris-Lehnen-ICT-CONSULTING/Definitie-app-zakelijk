@@ -16,7 +16,7 @@ from src.services.container import ServiceContainer
 class TestSynonymContainerIntegration:
     """Test synonym system integration with ServiceContainer."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def container(self):
         """Create a test container with in-memory database."""
         config = {

@@ -17,7 +17,7 @@ from services.interfaces import Definition, GenerationRequest
 class TestDefinitionSaveIntegration:
     """Integration tests voor definition save operations."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def repository(self, tmp_path):
         """Create temporary repository for testing."""
         db_path = tmp_path / "test_definities.db"
@@ -25,7 +25,7 @@ class TestDefinitionSaveIntegration:
         return repo
         # Cleanup handled by tmp_path
 
-    @pytest.fixture()
+    @pytest.fixture
     def sample_definition(self):
         """Create sample definition for testing."""
         return Definition(

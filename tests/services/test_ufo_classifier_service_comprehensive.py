@@ -217,7 +217,7 @@ class TestUFOClassifierServiceInitialization:
 class TestClassification:
     """Test de classify methode."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def classifier(self):
         """Maak een UFOClassifierService instance."""
         return UFOClassifierService()
@@ -350,7 +350,7 @@ class TestClassification:
 class TestDisambiguation:
     """Test disambiguation voor ambigue termen."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def classifier(self):
         return UFOClassifierService()
 
@@ -414,7 +414,7 @@ class TestDisambiguation:
 class TestPatternMatching:
     """Test pattern matching functionaliteit."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def classifier(self):
         return UFOClassifierService()
 
@@ -464,7 +464,7 @@ class TestPatternMatching:
 class TestConfidenceCalculation:
     """Test confidence berekening."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def classifier(self):
         return UFOClassifierService()
 
@@ -518,7 +518,7 @@ class TestConfidenceCalculation:
 class TestSecondaryCategories:
     """Test bepaling van secundaire categorieën."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def classifier(self):
         return UFOClassifierService()
 
@@ -569,7 +569,7 @@ class TestSecondaryCategories:
 class TestExplanationGeneration:
     """Test uitleg generatie."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def classifier(self):
         return UFOClassifierService()
 
@@ -602,7 +602,7 @@ class TestExplanationGeneration:
 class TestNormalization:
     """Test tekst normalisatie."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def classifier(self):
         return UFOClassifierService()
 
@@ -642,7 +642,7 @@ class TestNormalization:
 class TestBatchClassification:
     """Test batch classificatie."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def classifier(self):
         return UFOClassifierService()
 
@@ -715,7 +715,7 @@ class TestBatchClassification:
 class TestJuridicalDomain:
     """Test met Nederlandse juridische termen."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def classifier(self):
         return UFOClassifierService()
 
@@ -769,7 +769,7 @@ class TestJuridicalDomain:
 class TestFallbackBehavior:
     """Test fallback gedrag."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def classifier(self):
         return UFOClassifierService()
 
@@ -809,7 +809,7 @@ class TestFallbackBehavior:
 class TestEdgeCases:
     """Test edge cases."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def classifier(self):
         return UFOClassifierService()
 
@@ -896,7 +896,7 @@ class TestIntegration:
 class TestCompleteWorkflow:
     """Test complete workflow scenarios."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def classifier(self):
         return UFOClassifierService()
 
@@ -961,7 +961,7 @@ class TestCompleteWorkflow:
 class TestPerformanceRequirements:
     """Test performance requirements."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def classifier(self):
         return UFOClassifierService()
 

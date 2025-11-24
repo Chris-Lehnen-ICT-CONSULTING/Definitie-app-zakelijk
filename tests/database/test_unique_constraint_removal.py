@@ -27,7 +27,7 @@ from database.definitie_repository import DefinitieRecord, DefinitieRepository
 # ============================================================================
 
 
-@pytest.fixture()
+@pytest.fixture
 def test_db_path(tmp_path):
     """Create temporary test database with schema."""
     db_path = tmp_path / "test_definities.db"
@@ -68,7 +68,7 @@ def test_db_path(tmp_path):
     return str(db_path)
 
 
-@pytest.fixture()
+@pytest.fixture
 def repo(test_db_path):
     """Create repository instance for testing."""
     return DefinitieRepository(test_db_path)

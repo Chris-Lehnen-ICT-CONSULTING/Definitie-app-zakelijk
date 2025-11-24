@@ -30,7 +30,7 @@ from services.data_aggregation_service import DataAggregationService
 from services.export_service import ExportFormat, ExportLevel, ExportService
 
 
-@pytest.fixture()
+@pytest.fixture
 def populated_db(tmp_path):
     """Create SQLite DB with 10 test definitions.
 
@@ -186,7 +186,7 @@ def populated_db(tmp_path):
     return repo
 
 
-@pytest.fixture()
+@pytest.fixture
 def export_service(populated_db, tmp_path):
     """Create ExportService with temp export directory."""
     data_agg_service = DataAggregationService(repository=populated_db)
@@ -582,7 +582,7 @@ class TestExportMetadata:
         assert "updated_at" in df.columns
 
 
-@pytest.mark.slow()
+@pytest.mark.slow
 class TestLargeDataset:
     """Test large dataset performance (optional - marked as slow)."""
 

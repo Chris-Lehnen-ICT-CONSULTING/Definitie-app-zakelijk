@@ -4,7 +4,7 @@ from services.validation.modular_validation_service import ModularValidationServ
 from toetsregels.manager import get_toetsregel_manager
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_str04_kickoff_requires_narrowing_pass_and_fail():
     svc = ModularValidationService(get_toetsregel_manager(), None, None)
 
@@ -31,7 +31,7 @@ async def test_str04_kickoff_requires_narrowing_pass_and_fail():
     ), res_bad
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_str05_definition_not_construction_fail():
     svc = ModularValidationService(get_toetsregel_manager(), None, None)
     res = await svc.validate_definition(
@@ -43,7 +43,7 @@ async def test_str05_definition_not_construction_fail():
     assert any(v.get("code") == "STR-05" for v in res.get("violations", [])), res
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_str06_essence_not_goal_fail():
     svc = ModularValidationService(get_toetsregel_manager(), None, None)
     res = await svc.validate_definition(
@@ -55,7 +55,7 @@ async def test_str06_essence_not_goal_fail():
     assert any(v.get("code") == "STR-06" for v in res.get("violations", [])), res
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_str07_double_negation_fail():
     svc = ModularValidationService(get_toetsregel_manager(), None, None)
     res = await svc.validate_definition(
@@ -67,7 +67,7 @@ async def test_str07_double_negation_fail():
     assert any(v.get("code") == "STR-07" for v in res.get("violations", [])), res
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_str08_ambiguous_and_fail():
     svc = ModularValidationService(get_toetsregel_manager(), None, None)
     res = await svc.validate_definition(
@@ -79,7 +79,7 @@ async def test_str08_ambiguous_and_fail():
     assert any(v.get("code") == "STR-08" for v in res.get("violations", [])), res
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_str09_ambiguous_or_fail():
     svc = ModularValidationService(get_toetsregel_manager(), None, None)
     res = await svc.validate_definition(

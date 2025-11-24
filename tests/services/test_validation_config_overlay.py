@@ -8,7 +8,7 @@ import pytest
 import yaml
 
 
-@pytest.mark.unit()
+@pytest.mark.unit
 def test_config_load_from_yaml_file():
     """Test loading configuration from YAML file."""
     m = pytest.importorskip(
@@ -60,7 +60,7 @@ def test_config_load_from_yaml_file():
         os.unlink(config_path)
 
 
-@pytest.mark.unit()
+@pytest.mark.unit
 def test_config_environment_overlay():
     """Test that environment variables can overlay YAML config."""
     m = pytest.importorskip(
@@ -115,7 +115,7 @@ def test_config_environment_overlay():
         os.environ.pop("VALIDATION_CONFIG_OVERLAY", None)
 
 
-@pytest.mark.unit()
+@pytest.mark.unit
 def test_config_validation_at_startup():
     """Test that invalid configuration is validated and rejected."""
     m = pytest.importorskip(
@@ -172,7 +172,7 @@ def test_config_validation_at_startup():
     assert len(errors) > 0, "Weight for disabled code should be invalid"
 
 
-@pytest.mark.unit()
+@pytest.mark.unit
 def test_config_fallback_to_defaults_on_error():
     """Test that system falls back to defaults when config is invalid."""
     m = pytest.importorskip(
@@ -206,7 +206,7 @@ def test_config_fallback_to_defaults_on_error():
         os.unlink(invalid_path)
 
 
-@pytest.mark.unit()
+@pytest.mark.unit
 def test_config_deep_merge_overlay():
     """Test that overlay performs deep merge, not shallow replace."""
     m = pytest.importorskip(
@@ -257,7 +257,7 @@ def test_config_deep_merge_overlay():
     assert result["thresholds"]["category_min"]["CON"] == 0.6  # Preserved
 
 
-@pytest.mark.unit()
+@pytest.mark.unit
 def test_config_handles_missing_overlay_gracefully():
     """Test that missing overlay file doesn't crash the system."""
     m = pytest.importorskip(
@@ -297,7 +297,7 @@ def test_config_handles_missing_overlay_gracefully():
         os.environ.pop("VALIDATION_CONFIG_OVERLAY", None)
 
 
-@pytest.mark.unit()
+@pytest.mark.unit
 def test_config_v1_parity_extraction():
     """Test extraction of weights/thresholds from V1 DefinitionValidator."""
     m = pytest.importorskip(
