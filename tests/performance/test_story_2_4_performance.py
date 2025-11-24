@@ -24,7 +24,7 @@ import os
 import statistics
 import time
 import uuid
-from typing import Any, Dict, List
+from typing import Any
 from unittest.mock import AsyncMock, Mock
 
 import psutil
@@ -298,7 +298,6 @@ class TestStory24PerformanceBaseline:
             f"✅ Orchestrator overhead: {overhead_ms:.2f}ms ({overhead_percent:.2f}%)"
         )
 
-
 class TestStory24PerformanceRegression:
     """Performance regression tests to ensure no performance degradation."""
 
@@ -424,7 +423,6 @@ class TestStory24PerformanceRegression:
         ), f"Schema compliance time {avg_compliance_time:.2f}ms exceeds {MAX_COMPLIANCE_TIME}ms"
 
         print(f"✅ Schema compliance performance: {avg_compliance_time:.2f}ms average")
-
 
 class TestStory24PerformanceProfiler:
     """Advanced performance profiling for Story 2.4."""

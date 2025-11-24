@@ -14,8 +14,7 @@ import threading
 from pathlib import Path
 from typing import Any
 
-from utils.cache import cached
-from utils.cache import clear_cache as _global_cache_clear
+from utils.cache import cached, clear_cache as _global_cache_clear
 
 logger = logging.getLogger(__name__)
 

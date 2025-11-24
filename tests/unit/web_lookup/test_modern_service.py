@@ -9,7 +9,6 @@ from __future__ import annotations
 import asyncio
 import sys
 from pathlib import Path
-from typing import List
 
 import pytest
 
@@ -24,7 +23,6 @@ from services.modern_web_lookup_service import ModernWebLookupService
 
 # Skip all tests in this file until fixtures are restored
 pytestmark = pytest.mark.skip(reason="Fixtures removed, will restore incrementally")
-
 
 @pytest.mark.asyncio
 async def test_parallel_lookup_mediawiki_and_sru(monkeypatch):
@@ -56,7 +54,6 @@ async def test_parallel_lookup_mediawiki_and_sru(monkeypatch):
     # Confidence weights are applied (>0)
     assert all((r.source.confidence or 0.0) > 0 for r in results)
 
-
 @pytest.mark.asyncio
 async def test_error_in_sru_does_not_break_other_providers(monkeypatch):
     """SRU error is handled; MediaWiki result is still returned."""
@@ -82,7 +79,6 @@ async def test_error_in_sru_does_not_break_other_providers(monkeypatch):
     # Only wikipedia survives
     assert len(results) >= 1
     assert any(r.source.name == "Wikipedia" for r in results)
-
 
 @pytest.mark.asyncio
 async def test_lookup_single_source(monkeypatch):

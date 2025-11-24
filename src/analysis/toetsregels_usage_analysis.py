@@ -5,6 +5,8 @@ bij generatie en validatie van definities.
 
 from typing import Any
 
+from config.toetsregel_manager import get_toetsregel_manager
+
 # Import from deprecated location - this analysis script needs the real implementation
 from deprecated.generation.definitie_generator import (
     DefinitieGenerator,
@@ -12,7 +14,6 @@ from deprecated.generation.definitie_generator import (
     OntologischeCategorie,
 )
 
-from config.toetsregel_manager import get_toetsregel_manager
 from validation.definitie_validator import DefinitieValidator
 
 

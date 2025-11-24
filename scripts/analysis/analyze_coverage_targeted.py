@@ -259,7 +259,7 @@ class CoverageAuditor:
         print("-" * 50)
 
         all_untested = []
-        for category, stats in coverage_stats.items():
+        for _category, stats in coverage_stats.items():
             for module in stats["untested"]:
                 complexity = self.analyze_module_complexity(module)
                 all_untested.append((module, complexity["lines"]))
