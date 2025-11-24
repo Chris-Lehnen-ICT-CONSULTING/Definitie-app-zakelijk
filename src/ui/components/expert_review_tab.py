@@ -111,7 +111,7 @@ class ExpertReviewTab:
                     ui_cfg = get_config(ConfigSection.UI)
                     abbrev = getattr(ui_cfg, "afkortingen", {}) or {}
                     if abbrev:
-                        with st.expander("i Afkortingen (uitleg)", expanded=False):
+                        with st.expander("ℹ️ Afkortingen (uitleg)", expanded=False):
                             for ak in sorted(abbrev.keys()):
                                 st.markdown(f"- **{ak}** — {abbrev[ak]}")
                 except Exception:

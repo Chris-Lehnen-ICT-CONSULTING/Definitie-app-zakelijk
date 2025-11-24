@@ -31,7 +31,7 @@ from services.orchestrators.definition_orchestrator_v2 import DefinitionOrchestr
 class TestDefinitionOrchestratorV2:
     """Test suite for DefinitionOrchestratorV2."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def mock_services(self):
         """Create mock services for testing."""
         return {
@@ -46,7 +46,7 @@ class TestDefinitionOrchestratorV2:
             "feedback_engine": AsyncMock(),
         }
 
-    @pytest.fixture()
+    @pytest.fixture
     def orchestrator(self, mock_services):
         """Create orchestrator with mock services."""
         return DefinitionOrchestratorV2(
@@ -62,7 +62,7 @@ class TestDefinitionOrchestratorV2:
             config=OrchestratorConfig(),
         )
 
-    @pytest.fixture()
+    @pytest.fixture
     def sample_request(self):
         """Create sample generation request with ontological category."""
         return GenerationRequest(
@@ -74,7 +74,7 @@ class TestDefinitionOrchestratorV2:
             legal_basis="legitimate_interest",
         )
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_successful_generation_with_ontological_category(
         self, orchestrator, mock_services, sample_request
     ):
@@ -150,7 +150,7 @@ class TestDefinitionOrchestratorV2:
         # Verify definition object has correct ontological category
         assert response.definition.ontologische_categorie == "proces"
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_feedback_integration(
         self, orchestrator, mock_services, sample_request
     ):
@@ -223,7 +223,7 @@ class TestDefinitionOrchestratorV2:
         # Verify response metadata indicates feedback integration
         assert response.metadata["feedback_integrated"] is True
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_security_service_integration(
         self, orchestrator, mock_services, sample_request
     ):
@@ -281,7 +281,7 @@ class TestDefinitionOrchestratorV2:
         used_request = prompt_call_args[0][0]
         assert used_request.context == "[PII-REDACTED] detentiesysteem"
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_validation_failure_and_enhancement(
         self, orchestrator, mock_services, sample_request
     ):
@@ -358,7 +358,7 @@ class TestDefinitionOrchestratorV2:
         assert response.validation_result.is_valid is True
         assert response.metadata.get("enhanced") is True
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_error_handling(self, orchestrator, mock_services, sample_request):
         """Test comprehensive error handling."""
         # Mock security service to raise exception
@@ -379,7 +379,7 @@ class TestDefinitionOrchestratorV2:
         if mock_services["monitoring"]:
             mock_services["monitoring"].track_error.assert_called_once()
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_monitoring_integration(
         self, orchestrator, mock_services, sample_request
     ):
@@ -429,22 +429,22 @@ class TestDefinitionOrchestratorV2:
 class TestDefinitionOrchestratorV2Integration:
     """Integration tests for DefinitionOrchestratorV2 with real services."""
 
-    @pytest.mark.integration()
-    @pytest.mark.asyncio()
+    @pytest.mark.integration
+    @pytest.mark.asyncio
     async def test_integration_with_existing_services(self):
         """Test integration with existing service infrastructure."""
         # This test would use real service container
         # Placeholder for future integration testing
 
-    @pytest.mark.performance()
-    @pytest.mark.asyncio()
+    @pytest.mark.performance
+    @pytest.mark.asyncio
     async def test_performance_benchmarks(self):
         """Test that orchestrator meets performance targets (<5s response time)."""
         # This test would measure actual performance
         # Target: <5s response time (60% improvement over legacy)
 
-    @pytest.mark.ontological_category()
-    @pytest.mark.asyncio()
+    @pytest.mark.ontological_category
+    @pytest.mark.asyncio
     async def test_ontological_category_end_to_end(self):
         """Test complete ontological category flow with real template selection."""
         # This test would verify the ontological category bug is fixed

@@ -9,13 +9,10 @@
     "^\\s*(proces|gegeven|activiteit|maatregel|functie|instantie|persoon)\\s+die\\s*$"
   ],
   "goede_voorbeelden": [
-    "proces dat beslissers informeert",
-    "gegeven over de verblijfplaats van een betrokkene"
+    "proces dat beslissers informeert"
   ],
   "foute_voorbeelden": [
-    "proces",
-    "gegeven",
-    "activiteit die plaatsvindt"
+    "proces"
   ],
   "prioriteit": "hoog",
   "aanbeveling": "verplicht",

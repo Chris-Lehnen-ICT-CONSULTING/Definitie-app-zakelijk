@@ -1,0 +1,29 @@
+{
+  "last_updated": "2025-11-21T17:04:58.457640",
+  "components": {
+    "modular_validation_service": {
+      "status": "error",
+      "message": "cannot import name 'UTC' from 'datetime' (/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/datetime.py)"
+    },
+    "validation_config": {
+      "status": "error",
+      "message": "cannot import name 'UTC' from 'datetime' (/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/datetime.py)"
+    },
+    "container_integration": {
+      "status": "error",
+      "message": "cannot import name 'UTC' from 'datetime' (/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/datetime.py)"
+    },
+    "toetsregel_manager": {
+      "status": "error",
+      "message": "cannot import name 'UTC' from 'datetime' (/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/datetime.py)"
+    },
+    "test_suite": {
+      "status": "error",
+      "message": "[Errno 2] No such file or directory: 'python'"
+    }
+  },
+  "test_results": {},
+  "connections": {},
+  "overall_health": "unhealthy",
+  "health_score": 0.0
+}

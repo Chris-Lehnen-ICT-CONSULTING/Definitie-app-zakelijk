@@ -12,9 +12,13 @@ from typing import Any
 
 # Legacy loaders kept for back-compat (used by some docs/tools)
 from .config_loader import laad_toetsregels, laad_verboden_woorden
-from .config_manager import APIConfig
+from .config_manager import (
+    APIConfig,
+)
 from .config_manager import CacheConfig as _CacheCfg
-from .config_manager import ConfigSection
+from .config_manager import (
+    ConfigSection,
+)
 from .config_manager import PathsConfig as _PathsCfg
 from .config_manager import ValidationConfig as _ValCfg
 from .config_manager import (

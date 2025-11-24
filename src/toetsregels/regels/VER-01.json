@@ -8,12 +8,10 @@
     "\\b(\\w+en)\\b"
   ],
   "goede_voorbeelden": [
-    "gegeven",
-    "voertuig"
+    "gegeven"
   ],
   "foute_voorbeelden": [
-    "gegevens",
-    "voertuigen"
+    "gegevens"
   ],
   "prioriteit": "hoog",
   "aanbeveling": "verplicht",

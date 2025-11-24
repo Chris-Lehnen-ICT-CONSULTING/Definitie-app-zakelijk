@@ -13,9 +13,14 @@ from datetime import datetime
 from typing import Any
 
 # Import bestaande repository voor backward compatibility
-from database.definitie_repository import DefinitieRecord
+from database.definitie_repository import (
+    DefinitieRecord,
+)
 from database.definitie_repository import DefinitieRepository as LegacyRepository
-from database.definitie_repository import DefinitieStatus, SourceType
+from database.definitie_repository import (
+    DefinitieStatus,
+    SourceType,
+)
 from services.exceptions import (
     DatabaseConnectionError,
     DatabaseConstraintError,

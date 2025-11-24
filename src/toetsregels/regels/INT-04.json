@@ -9,12 +9,10 @@
     "\\bhet\\s+(proces|gegeven|systeem|document|resultaat|beleid|instrument)\\b"
   ],
   "goede_voorbeelden": [
-    "Een instelling (de Raad voor de Rechtspraak) neemt beslissingen binnen het strafrechtelijk systeem.",
-    "Het systeem (Reclasseringsapplicatie) voert controles automatisch uit."
+    "Een instelling (de Raad voor de Rechtspraak) neemt beslissingen binnen het strafrechtelijk systeem."
   ],
   "foute_voorbeelden": [
-    "De instelling neemt beslissingen binnen het strafrechtelijk systeem.",
-    "Het systeem voert controles uit zonder verdere specificatie."
+    "De instelling neemt beslissingen binnen het strafrechtelijk systeem."
   ],
   "prioriteit": "midden",
   "aanbeveling": "verplicht",

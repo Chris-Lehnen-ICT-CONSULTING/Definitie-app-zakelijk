@@ -81,10 +81,9 @@ async def test_double_wrap():
         if hasattr(result, "cleaned_text"):
             print(f"✅ Double wrap works (unexpected!): {result.cleaned_text}")
             return False
-        else:
-            print("❌ Result is missing cleaned_text attribute!")
-            print(f"   Available attributes: {dir(result)}")
-            return True
+        print("❌ Result is missing cleaned_text attribute!")
+        print(f"   Available attributes: {dir(result)}")
+        return True
 
     except AttributeError as e:
         print(f"❌ AttributeError caught (expected): {e}")
@@ -114,9 +113,8 @@ async def test_asyncio_to_thread_with_async_function():
             print("❌ Result is a coroutine! This is the bug.")
             print("   asyncio.to_thread() cannot handle async functions")
             return True
-        else:
-            print("✅ Result is not a coroutine (unexpected)")
-            return False
+        print("✅ Result is not a coroutine (unexpected)")
+        return False
 
     except Exception as e:
         print(f"❌ Error: {type(e).__name__}: {e}")

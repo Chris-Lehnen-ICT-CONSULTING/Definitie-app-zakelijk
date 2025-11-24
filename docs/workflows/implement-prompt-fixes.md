@@ -35,6 +35,83 @@
 
 ---
 
+## 🤖 MULTIAGENT + ULTRATHINK INTEGRATION
+
+### When to Use Multiagents (Optional)
+
+**Implementation can be enhanced with specialized agents:**
+
+**During Implementation (Per Fix):**
+- ❓ Complex code change → **full-stack-developer:** Safe implementation with proper error handling
+- ❓ Uncertain side effects → **debug-specialist:** Impact analysis before applying fix
+- ❓ Framework-specific → **Context7:** Official docs for API usage
+
+**After All Fixes (Phase 3: Final Validation):**
+- **code-reviewer (RECOMMENDED):** Score implementation quality
+  - Target: ≥9/10 quality
+  - Identifies: CRITICAL/HIGH/MEDIUM issues
+  - Time: 10 minutes
+
+- **code-simplifier (if score <8):** Reduce complexity
+  - Target: ≤4/10 complexity
+  - Identifies: DRY violations, over-engineering
+  - Time: 10 minutes
+
+**⚠️ Multiagent Usage Rules:**
+- Only call after completing all 3 fixes (not per fix)
+- Fix CRITICAL issues only (HIGH/MEDIUM = optional)
+- Budget: +20 minutes for review + fixes
+
+### Ultrathink Checkpoints (MANDATORY - Solo Dev)
+
+**Before Each Fix (DECIDE Phase):**
+
+```markdown
+⚠️ CHECKPOINT 1: KISS Check
+Q: Am I creating new abstractions (classes, helpers, utils)?
+├─ YES → 🚨 STOP: Edit existing code instead
+└─ NO → ✅ Continue
+
+⚠️ CHECKPOINT 2: EFFORT Check
+Q: Will this single fix take >2 hours?
+├─ YES → 🚨 STOP: Simplify or skip this fix
+└─ NO → ✅ Continue
+
+⚠️ CHECKPOINT 3: SCOPE Check
+Q: Am I changing more than specified in JSON spec?
+├─ YES → 🚨 STOP: Scope creep, stick to spec
+└─ NO → ✅ Continue to implementation
+```
+
+**After All Fixes (Phase 3):**
+
+```markdown
+⚠️ CHECKPOINT 4: PROTOTYPE Check
+Q: Did all fixes take <2 hours total?
+├─ NO → 🚨 WARNING: Scope creep occurred, document why
+└─ YES → ✅ Continue
+
+⚠️ CHECKPOINT 5: VALIDATION Check
+Q: Are all tests passing?
+├─ NO → 🚨 STOP: Revert last fix, escalate to user
+└─ YES → ✅ Continue
+
+⚠️ CHECKPOINT 6: REGRESSION Check
+Q: Did token/performance metrics improve?
+├─ NO → 🚨 STOP: Revert all fixes, re-analyze
+└─ YES → ✅ Complete, generate report
+```
+
+**If ANY checkpoint fails:**
+1. Stop implementation immediately
+2. Document which checkpoint failed + why
+3. Revert changes if needed
+4. Escalate to user with context
+
+**See also:** `~/.ai-agents/UNIFIED_INSTRUCTIONS.md` §MULTIAGENT + ULTRATHINK PROTOCOL
+
+---
+
 ## 📋 PHASE 1: Load Analysis (5 min)
 
 **Read analysis output:**

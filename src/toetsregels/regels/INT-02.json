@@ -14,16 +14,10 @@
     "\\bin geval dat\\b"
   ],
   "goede_voorbeelden": [
-    "transitie-eis: eis die een organisatie ondersteunt om migratie van de huidige naar de toekomstige situatie mogelijk te maken.",
-    "Toegang: toestemming verleend door een bevoegde autoriteit om een systeem te gebruiken.",
-    "Beschikking: schriftelijk besluit genomen door een bevoegde autoriteit.",
-    "Register: officiële inschrijving in een openbaar register door een bevoegde instantie."
+    "transitie-eis: eis die een organisatie ondersteunt om migratie van de huidige naar de toekomstige situatie mogelijk te maken."
   ],
   "foute_voorbeelden": [
-    "transitie-eis: eis die een organisatie moet ondersteunen om migratie van de huidige naar de toekomstige situatie mogelijk te maken.",
-    "Toegang: toestemming verleend door een bevoegde autoriteit, indien alle voorwaarden zijn vervuld.",
-    "Beschikking: schriftelijk besluit, mits de aanvraag compleet is ingediend.",
-    "Register: officiële inschrijving in een openbaar register, tenzij er bezwaar ligt."
+    "transitie-eis: eis die een organisatie moet ondersteunen om migratie van de huidige naar de toekomstige situatie mogelijk te maken."
   ],
   "prioriteit": "midden",
   "aanbeveling": "aanbevolen",

@@ -15,8 +15,7 @@
     "procedure: vastgelegde reeks stappen die wordt uitgevoerd bij het registreren van incidenten"
   ],
   "foute_voorbeelden": [
-    "procedure: zoals gebruikelijk uitgevoerd binnen het systeem",
-    "gegeven: informatie zoals bekend in de registratiepraktijk"
+    "procedure: zoals gebruikelijk uitgevoerd binnen het systeem"
   ],
   "prioriteit": "midden",
   "aanbeveling": "optioneel",

@@ -32,7 +32,7 @@ from src.services.ufo_classifier_service import (
 class TestBug1InputValidation:
     """BUG-1: Geen input validatie - tests verwachten ValueError maar krijgen UNKNOWN."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def classifier(self):
         return UFOClassifierService()
 
@@ -70,7 +70,7 @@ class TestBug1InputValidation:
 class TestBug2NoneGuards:
     """BUG-2: Missing None guards - should raise TypeError."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def classifier(self):
         return UFOClassifierService()
 
@@ -109,7 +109,7 @@ class TestBug2NoneGuards:
 class TestBug3ScoreCalculation:
     """BUG-3: Score calculation kan leiden tot inconsistente confidence."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def classifier(self):
         return UFOClassifierService()
 
@@ -162,7 +162,7 @@ class TestBug3ScoreCalculation:
 class TestBug4RegexPerformance:
     """BUG-4: Regex performance op zeer lange teksten zonder timeout."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def classifier(self):
         return UFOClassifierService()
 
@@ -224,7 +224,7 @@ class TestBug4RegexPerformance:
 class TestBug5UnicodeNormalization:
     """BUG-5: Unicode normalization inconsistentie."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def classifier(self):
         return UFOClassifierService()
 
@@ -288,7 +288,7 @@ class TestBug5UnicodeNormalization:
 class TestEdgeCase1AllScoresZero:
     """EDGE-1: Alle scores 0.0 - geen enkele pattern match."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def classifier(self):
         return UFOClassifierService()
 
@@ -310,7 +310,7 @@ class TestEdgeCase1AllScoresZero:
 class TestEdgeCase2SingleHighScore:
     """EDGE-2: Eén score 1.0, rest 0.0."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def classifier(self):
         return UFOClassifierService()
 
@@ -334,7 +334,7 @@ class TestEdgeCase2SingleHighScore:
 class TestEdgeCase3AllScoresEqual:
     """EDGE-3: Alle scores gelijk - perfecte ambiguity."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def classifier(self):
         return UFOClassifierService()
 
@@ -374,7 +374,7 @@ class TestEdgeCase3AllScoresEqual:
 class TestEdgeCase6EmptyAfterNormalization:
     """EDGE-6: Text wordt leeg na normalization."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def classifier(self):
         return UFOClassifierService()
 
@@ -390,7 +390,7 @@ class TestEdgeCase6EmptyAfterNormalization:
 class TestEdgeCase7VeryLongText:
     """EDGE-7: Zeer lange tekst (10000+ chars)."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def classifier(self):
         return UFOClassifierService()
 
@@ -413,7 +413,7 @@ class TestEdgeCase7VeryLongText:
 class TestEdgeCase8UnicodeSpecialChars:
     """EDGE-8: Unicode special characters en emoji."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def classifier(self):
         return UFOClassifierService()
 
@@ -458,7 +458,7 @@ class TestEdgeCase8UnicodeSpecialChars:
 class TestDisambiguationBugs:
     """Test disambiguation logic edge cases."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def classifier(self):
         return UFOClassifierService()
 
@@ -507,7 +507,7 @@ class TestDisambiguationBugs:
 class TestConfidenceFormulaBugs:
     """Test confidence calculation issues."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def classifier(self):
         return UFOClassifierService()
 
@@ -551,7 +551,7 @@ class TestConfidenceFormulaBugs:
 class TestSecurityBugs:
     """Test security edge cases."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def classifier(self):
         return UFOClassifierService()
 

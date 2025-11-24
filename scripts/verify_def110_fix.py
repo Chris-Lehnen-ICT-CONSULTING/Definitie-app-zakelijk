@@ -102,10 +102,9 @@ def verify_fix():
             print("\n✅ VERIFICATION PASSED")
             print("   Fix is working correctly - no performance regression detected")
             return 0
-        else:
-            print("\n❌ VERIFICATION FAILED")
-            print(f"   Performance regression still present - review {log_file}")
-            return 1
+        print("\n❌ VERIFICATION FAILED")
+        print(f"   Performance regression still present - review {log_file}")
+        return 1
 
     except subprocess.TimeoutExpired:
         print("\n❌ FAIL: Streamlit startup timed out")

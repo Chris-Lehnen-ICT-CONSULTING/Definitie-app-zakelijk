@@ -12,12 +12,10 @@
     "\\bfactor\\b"
   ],
   "goede_voorbeelden": [
-    "maatregel die gericht is op risicobeheersing",
-    "gegeven dat betrekking heeft op de identiteit van een persoon"
+    "maatregel die gericht is op risicobeheersing"
   ],
   "foute_voorbeelden": [
-    "iets dat helpt bij het beheersen van risico’s",
-    "element dat informatie bevat"
+    "iets dat helpt bij het beheersen van risico’s"
   ],
   "prioriteit": "midden",
   "aanbeveling": "optioneel",

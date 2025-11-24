@@ -13,12 +13,10 @@
     "\\bmoeten\\b"
   ],
   "goede_voorbeelden": [
-    "proces dat persoonsgegevens verwerkt",
-    "maatregel die tot gedragsverandering leidt"
+    "proces dat persoonsgegevens verwerkt"
   ],
   "foute_voorbeelden": [
-    "proces dat gegevens *kan* verwerken",
-    "maatregel die *moet* worden genomen bij overtreding"
+    "proces dat gegevens *kan* verwerken"
   ],
   "prioriteit": "midden",
   "aanbeveling": "optioneel",
