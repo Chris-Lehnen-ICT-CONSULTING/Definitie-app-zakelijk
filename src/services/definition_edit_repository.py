@@ -1,7 +1,7 @@
 """
 Extended DefinitionRepository for edit interface functionality.
 
-This module provides additional repository methods needed for the 
+This module provides additional repository methods needed for the
 definition edit interface, including version history and optimistic locking.
 """
 

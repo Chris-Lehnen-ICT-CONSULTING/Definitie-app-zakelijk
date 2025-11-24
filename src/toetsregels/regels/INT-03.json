@@ -17,12 +17,10 @@
     "\\bin het kader\\b"
   ],
   "goede_voorbeelden": [
-    "Geheel van omstandigheden die de omgeving van een gebeurtenis vormen en die de basis vormen waardoor die gebeurtenis volledig kan worden begrepen en geanalyseerd.",
-    "Voorwaarde: bepaling die aangeeft onder welke omstandigheden een handeling is toegestaan."
+    "Geheel van omstandigheden die de omgeving van een gebeurtenis vormen en die de basis vormen waardoor die gebeurtenis volledig kan worden begrepen en geanalyseerd."
   ],
   "foute_voorbeelden": [
-    "Geheel van omstandigheden die de omgeving van een gebeurtenis vormen en die de basis vormen waardoor het volledig kan worden begrepen en geanalyseerd.",
-    "Voorwaarde: bepaling die aangeeft onder welke omstandigheden deze geldt."
+    "Geheel van omstandigheden die de omgeving van een gebeurtenis vormen en die de basis vormen waardoor het volledig kan worden begrepen en geanalyseerd."
   ],
   "prioriteit": "hoog",
   "aanbeveling": "verplicht",

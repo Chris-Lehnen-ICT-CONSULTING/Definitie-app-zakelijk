@@ -13,12 +13,10 @@
     "\\bding(en)?\\b"
   ],
   "goede_voorbeelden": [
-    "systeem: geautomatiseerd hulpmiddel dat beslissingen registreert",
-    "voorziening: softwarecomponent die inloggegevens valideert"
+    "systeem: geautomatiseerd hulpmiddel dat beslissingen registreert"
   ],
   "foute_voorbeelden": [
-    "voorziening die iets mogelijk maakt",
-    "element dat hoort bij het systeem"
+    "voorziening die iets mogelijk maakt"
   ],
   "prioriteit": "midden",
   "aanbeveling": "optioneel",

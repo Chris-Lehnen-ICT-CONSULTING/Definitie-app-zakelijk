@@ -9,12 +9,10 @@
     "\\buniek(e)?\\b"
   ],
   "goede_voorbeelden": [
-    "Een auto is een vierwielig motorvoertuig met een uniek chassisnummer (VIN) en kenteken.",
-    "Een boekexemplaar is een fysiek gebonden exemplaar van een titel met eigen ISBN en inventarisnummer."
+    "Een auto is een vierwielig motorvoertuig met een uniek chassisnummer (VIN) en kenteken."
   ],
   "foute_voorbeelden": [
-    "Een auto is een vervoermiddel op vier wielen met een motor.",
-    "Een boek is een verzameling pagina’s met tekst gebonden in een omslag."
+    "Een auto is een vervoermiddel op vier wielen met een motor."
   ],
   "prioriteit": "hoog",
   "aanbeveling": "verplicht",

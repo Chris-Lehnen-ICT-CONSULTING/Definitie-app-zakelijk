@@ -17,12 +17,10 @@
     "\\bgericht op\\b"
   ],
   "goede_voorbeelden": [
-    "meldpunt: instantie die meldingen registreert over strafbare feiten",
-    "sanctie: maatregel die volgt op normovertreding"
+    "meldpunt: instantie die meldingen registreert over strafbare feiten"
   ],
   "foute_voorbeelden": [
-    "meldpunt: instantie om meldingen te kunnen verwerken",
-    "sanctie: maatregel met als doel naleving te bevorderen"
+    "meldpunt: instantie om meldingen te kunnen verwerken"
   ],
   "prioriteit": "hoog",
   "aanbeveling": "verplicht",

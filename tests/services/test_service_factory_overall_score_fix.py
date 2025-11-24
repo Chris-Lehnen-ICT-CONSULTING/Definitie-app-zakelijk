@@ -35,14 +35,14 @@ class TestOverallScoreRobustness:
     Tests all edge cases and type variations to ensure production stability.
     """
 
-    @pytest.fixture()
+    @pytest.fixture
     def mock_container(self):
         """Create a mock container for testing."""
         container = Mock()
         container.orchestrator = Mock()
         return container
 
-    @pytest.fixture()
+    @pytest.fixture
     def service_adapter(self, mock_container):
         """Create a ServiceAdapter instance for testing."""
         orchestrator = AsyncMock()
@@ -107,7 +107,7 @@ class TestOverallScoreRobustness:
             message="Success",
         )
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_normal_float_score(self, service_adapter, mock_container):
         """Test normal case with valid float overall_score."""
         orchestrator = mock_container.orchestrator.return_value
@@ -122,7 +122,7 @@ class TestOverallScoreRobustness:
         assert isinstance(result["final_score"], float)
         assert isinstance(result["validation_details"]["overall_score"], float)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_normal_int_score(self, service_adapter, mock_container):
         """Test normal case with valid integer overall_score."""
         orchestrator = mock_container.orchestrator.return_value
@@ -136,7 +136,7 @@ class TestOverallScoreRobustness:
         assert result["final_score"] == 90.0
         assert isinstance(result["final_score"], float)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_missing_overall_score_key(self, service_adapter, mock_container):
         """Test when overall_score key is completely missing from response."""
         orchestrator = mock_container.orchestrator.return_value
@@ -151,7 +151,7 @@ class TestOverallScoreRobustness:
         assert result["final_score"] == 0.0
         assert isinstance(result["final_score"], float)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_none_overall_score(self, service_adapter, mock_container):
         """Test when overall_score is explicitly None."""
         orchestrator = mock_container.orchestrator.return_value
@@ -165,7 +165,7 @@ class TestOverallScoreRobustness:
         assert result["validation_details"]["overall_score"] == 0.0
         assert result["final_score"] == 0.0
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_empty_string_score(self, service_adapter, mock_container):
         """Test when overall_score is an empty string."""
         orchestrator = mock_container.orchestrator.return_value
@@ -179,7 +179,7 @@ class TestOverallScoreRobustness:
         assert result["validation_details"]["overall_score"] == 0.0
         assert result["final_score"] == 0.0
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_numeric_string_score(self, service_adapter, mock_container):
         """Test when overall_score is a valid numeric string."""
         orchestrator = mock_container.orchestrator.return_value
@@ -194,7 +194,7 @@ class TestOverallScoreRobustness:
         assert result["final_score"] == 75.5
         assert isinstance(result["final_score"], float)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_zero_score(self, service_adapter, mock_container):
         """Test when overall_score is zero (should not be replaced with default)."""
         orchestrator = mock_container.orchestrator.return_value
@@ -206,7 +206,7 @@ class TestOverallScoreRobustness:
         assert result["validation_details"]["overall_score"] == 0.0
         assert result["final_score"] == 0.0
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_negative_score(self, service_adapter, mock_container):
         """Test when overall_score is negative."""
         orchestrator = mock_container.orchestrator.return_value
@@ -220,7 +220,7 @@ class TestOverallScoreRobustness:
         assert result["validation_details"]["overall_score"] == -25.5
         assert result["final_score"] == -25.5
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_very_large_score(self, service_adapter, mock_container):
         """Test when overall_score is extremely large."""
         orchestrator = mock_container.orchestrator.return_value
@@ -234,7 +234,7 @@ class TestOverallScoreRobustness:
         assert result["validation_details"]["overall_score"] == large_score
         assert result["final_score"] == large_score
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_validation_object_none(self, service_adapter, mock_container):
         """Test when entire validation object is None."""
         orchestrator = mock_container.orchestrator.return_value
@@ -251,7 +251,7 @@ class TestOverallScoreRobustness:
         assert result["validation_details"]["violations"] == []
         assert result["validation_details"]["passed_rules"] == []
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_boolean_true_score(self, service_adapter, mock_container):
         """Test when overall_score is boolean True (edge case)."""
         orchestrator = mock_container.orchestrator.return_value
@@ -265,7 +265,7 @@ class TestOverallScoreRobustness:
         assert result["validation_details"]["overall_score"] == 1.0
         assert result["final_score"] == 1.0
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_boolean_false_score(self, service_adapter, mock_container):
         """Test when overall_score is boolean False (edge case)."""
         orchestrator = mock_container.orchestrator.return_value
@@ -283,7 +283,7 @@ class TestOverallScoreRobustness:
 class TestConcurrentValidations:
     """Test concurrent validation scenarios with different overall_score values."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def mock_containers(self):
         """Create multiple mock containers for concurrent testing."""
         containers = []
@@ -295,7 +295,7 @@ class TestConcurrentValidations:
             containers.append((container, orchestrator))
         return containers
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_concurrent_mixed_scores(self, mock_containers):
         """Test concurrent validations with various score scenarios."""
         adapters = []
@@ -366,7 +366,7 @@ class TestConcurrentValidations:
             assert isinstance(result["final_score"], float)
             assert isinstance(result["validation_details"]["overall_score"], float)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_concurrent_error_recovery(self, mock_containers):
         """Test concurrent validations with some causing errors."""
         adapters = []
@@ -441,7 +441,7 @@ class TestConcurrentValidations:
 class TestProductionReadiness:
     """Test production readiness aspects of the overall_score fix."""
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_memory_efficiency_large_batch(self):
         """Test memory efficiency with large batch of validations."""
         container = Mock()
@@ -489,7 +489,7 @@ class TestProductionReadiness:
         for result in results:
             assert result["final_score"] == 85.5
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_resilience_malformed_response(self):
         """Test resilience against malformed API responses."""
         container = Mock()
@@ -552,7 +552,7 @@ class TestProductionReadiness:
 class TestDocumentedBehavior:
     """Test that the implementation matches documented behavior."""
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_line_170_behavior(self):
         """Test line 170: float(result.get("overall_score") or 0.0)"""
         container = Mock()
@@ -603,7 +603,7 @@ class TestDocumentedBehavior:
             expected = float(test_dict.get("overall_score") or 0.0)
             assert result["validation_details"]["overall_score"] == expected
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_line_297_behavior(self):
         """Test line 297: validation_details.get("overall_score", 0.0)"""
         container = Mock()

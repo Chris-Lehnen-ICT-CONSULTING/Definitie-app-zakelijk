@@ -1,7 +1,7 @@
 repos:
   # Ruff - Fast Python linting
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.3.0
+    rev: v0.14.5
     hooks:
       - id: ruff
         name: Ruff linting
@@ -10,7 +10,7 @@ repos:
 
   # Black - Code formatting
   - repo: https://github.com/psf/black
-    rev: 24.2.0
+    rev: 25.11.0
     hooks:
       - id: black
         name: Black formatting
@@ -18,7 +18,7 @@ repos:
 
   # isort - Import sorting
   - repo: https://github.com/pycqa/isort
-    rev: 5.13.2
+    rev: 7.0.0
     hooks:
       - id: isort
         name: Sort imports (isort)
@@ -27,7 +27,7 @@ repos:
 
   # Gitleaks - Secret detection
   - repo: https://github.com/gitleaks/gitleaks
-    rev: v8.25.0
+    rev: v8.29.1
     hooks:
       - id: gitleaks
         name: Detect hardcoded secrets (gitleaks)

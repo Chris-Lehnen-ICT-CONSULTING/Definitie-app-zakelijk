@@ -11,7 +11,7 @@ from src.services.interfaces import Definition, DefinitionResponse
 from src.services.service_factory import ServiceAdapter
 
 
-@pytest.fixture()
+@pytest.fixture
 def adapter_with_orchestrator():
     container = Mock()
     orchestrator = AsyncMock()
@@ -50,8 +50,8 @@ def _def_response(score_present: bool, score_value):
     )
 
 
-@pytest.mark.asyncio()
-@pytest.mark.unit()
+@pytest.mark.asyncio
+@pytest.mark.unit
 @pytest.mark.parametrize(
     ("score_present", "score_value", "expected"),
     [

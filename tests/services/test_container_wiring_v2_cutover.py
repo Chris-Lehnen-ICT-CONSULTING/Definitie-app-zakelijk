@@ -3,7 +3,7 @@ import inspect
 import pytest
 
 
-@pytest.mark.unit()
+@pytest.mark.unit
 def test_container_orchestrator_exists_and_is_validation_orchestrator_v2():
     from services.container import ContainerConfigs, ServiceContainer
     from services.orchestrators.definition_orchestrator_v2 import (
@@ -20,7 +20,7 @@ def test_container_orchestrator_exists_and_is_validation_orchestrator_v2():
     assert isinstance(orch.validation_service, ValidationOrchestratorV2)
 
 
-@pytest.mark.unit()
+@pytest.mark.unit
 @pytest.mark.xfail(
     reason="Pending V2-only cutover: ModularValidationService not wired yet"
 )

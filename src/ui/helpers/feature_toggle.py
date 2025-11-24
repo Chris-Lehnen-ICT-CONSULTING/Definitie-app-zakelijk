@@ -22,7 +22,7 @@ def render_feature_flag_toggle():
         st.success("✅ V2 services active (default)")
 
         # Show info about legacy removal
-        with st.expander("i About V2 Services"):
+        with st.expander("ℹ️ About V2 Services"):
             st.markdown(
                 """
             **V2 Services are now the default and only path.**

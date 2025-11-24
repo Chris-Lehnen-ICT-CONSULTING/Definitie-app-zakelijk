@@ -22,14 +22,10 @@
     "\\btoetsbaar\\b"
   ],
   "goede_voorbeelden": [
-    "…binnen 3 dagen nadat het verzoek is ingediend…",
-    "…tenminste 80% van de steekproef voldoet…",
-    "…uiterlijk na 1 week na ontvangst…"
+    "…binnen 3 dagen nadat het verzoek is ingediend…"
   ],
   "foute_voorbeelden": [
-    "…zo snel mogelijk na ontvangst…",
-    "…zo veel mogelijk resultaten…",
-    "…moet zo mogelijk conform…"
+    "…zo snel mogelijk na ontvangst…"
   ],
   "prioriteit": "midden",
   "aanbeveling": "verplicht",

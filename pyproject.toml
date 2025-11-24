@@ -94,7 +94,9 @@ ignore = [
     "PLR0911", # Too many return statements - complex validation logic
     "PLR0912", # Too many branches - complex validation logic
     "PLR0915", # Too many statements - complex validation logic
+    "RUF001",  # Ambiguous Unicode characters - intentional emoji usage in UI
     "RUF012",  # Mutable class attributes - intentional patterns
+    "RUF059",  # Unused unpacked variable - acceptable in UI layouts
     "SIM102",  # Nested if statements - often more readable
     "DTZ",     # Datetime timezone rules - acceptable patterns
     "EM",      # Exception message rules - acceptable for context
@@ -137,6 +139,8 @@ unfixable = []
 "**/ARCHIEF/**/*.py" = ["ALL"]
 "**/archive/**/*.py" = ["ALL"]
 "docs/architectuur/definitie service/archief/**/*.py" = ["ALL"]
+# Documentation/example files - may have incomplete code
+"docs/implementation/*.py" = ["F821", "E501"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["src"]
