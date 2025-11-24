@@ -15,7 +15,9 @@ from typing import Any
 # Import bestaande repository voor backward compatibility
 from database.definitie_repository import (
     DefinitieRecord,
-    DefinitieRepository as LegacyRepository,
+)
+from database.definitie_repository import DefinitieRepository as LegacyRepository
+from database.definitie_repository import (
     DefinitieStatus,
     SourceType,
 )

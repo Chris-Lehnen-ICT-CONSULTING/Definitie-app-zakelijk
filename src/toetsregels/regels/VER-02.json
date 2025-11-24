@@ -2,7 +2,7 @@
   "id": "VER_02",
   "naam": "Definitie in enkelvoud",
   "uitleg": "De definitie is geformuleerd in het enkelvoud.",
-  "toelichting": "Net als de term, moet ook de definitie zoveel mogelijk in het enkelvoud geformuleerd worden. Dit verhoogt de helderheid, precisie en logische consistentie van definities. Uitzonderingen zijn mogelijk, maar slechts bij gemotiveerde noodzaak.",
+  "toelichting": "Net als de term, moet ook de definitie in het enkelvoud geformuleerd worden. Dit verhoogt de helderheid, precisie en logische consistentie. Uitzondering: begrippen die alleen in meervoud bestaan (plurale-tantum zoals 'gegevens', 'kosten', 'hersenen').",
   "toetsvraag": "Is de formulering van de definitie in het enkelvoud?",
   "herkenbaar_patronen": [
     "\\bgegevens zijn\\b",
@@ -13,10 +13,13 @@
     "\\b\\w+en zijn\\b"
   ],
   "goede_voorbeelden": [
-    "gegeven: feitelijke eenheid van informatie die kan worden vastgelegd"
+    "gegeven: feitelijke eenheid van informatie die kan worden vastgelegd",
+    "maatregel: actie die is genomen om een doel te bereiken",
+    "gegevens: feiten die kunnen worden vastgelegd (plurale-tantum - alleen meervoud)"
   ],
   "foute_voorbeelden": [
-    "gegevens zijn feiten en getallen die zijn verzameld voor analyse"
+    "gegevens zijn feiten en getallen die zijn verzameld voor analyse",
+    "maatregelen zijn acties die genomen worden (fout: maatregel bestaat wel in enkelvoud)"
   ],
   "prioriteit": "midden",
   "aanbeveling": "verplicht",

@@ -2,8 +2,8 @@ import re
 
 import pytest
 
+from services.interfaces import ValidationResult as DCValidationResult
 from services.interfaces import (
-    ValidationResult as DCValidationResult,
     ValidationSeverity,
     ValidationViolation,
 )

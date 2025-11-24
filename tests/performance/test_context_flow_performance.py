@@ -56,6 +56,7 @@ class PerformanceMetrics:
         """Calculate improvement percentage over baseline."""
         return (baseline.mean_time_ms - self.mean_time_ms) / baseline.mean_time_ms * 100
 
+
 @pytest.mark.skip(reason="Context module not yet implemented (US-041/042/043)")
 class TestContextFlowPerformance:
     """Core performance tests for context flow."""
@@ -187,6 +188,7 @@ class TestContextFlowPerformance:
             metrics.throughput_per_sec > 100
         ), f"Context ops throughput too low: {metrics.throughput_per_sec:.2f}/sec"
 
+
 @pytest.mark.skip(reason="Context module not yet implemented (US-041/042/043)")
 class TestPerformanceImprovement:
     """Test performance improvement over legacy implementation."""
@@ -280,6 +282,7 @@ class TestPerformanceImprovement:
         # Should achieve >20% improvement
         assert improvement > 20, f"Improvement only {improvement:.1f}%, target is >20%"
 
+
 @pytest.mark.skip(reason="Context module not yet implemented (US-041/042/043)")
 class TestScalability:
     """Test system scalability under load."""
@@ -350,6 +353,7 @@ class TestScalability:
             memory_growth < 100
         ), f"Memory grew by {memory_growth:.2f}MB, should be <100MB"
 
+
 @pytest.mark.skip(reason="Context module not yet implemented (US-041/042/043)")
 class TestLatencyPercentiles:
     """Test latency percentiles meet SLA requirements."""
@@ -391,6 +395,7 @@ class TestLatencyPercentiles:
         assert p95 < 100, f"P95 latency {p95:.2f}ms exceeds 100ms target"
         assert p99 < 200, f"P99 latency {p99:.2f}ms exceeds 200ms target"
 
+
 @pytest.mark.skip(reason="Context module not yet implemented (US-041/042/043)")
 class TestCacheEffectiveness:
     """Test caching improves performance."""
@@ -431,6 +436,7 @@ class TestCacheEffectiveness:
         # At least 20% improvement from caching
         improvement = (cold_avg - warm_avg) / cold_avg * 100
         assert improvement > 20, f"Cache improvement only {improvement:.1f}%"
+
 
 @pytest.mark.skip(reason="Context module not yet implemented (US-041/042/043)")
 class TestResourceUtilization:
@@ -506,6 +512,7 @@ class TestResourceUtilization:
         assert len(errors) == 0, f"Thread safety errors: {errors}"
         assert len(results) == 500, "Not all requests completed"
 
+
 @pytest.mark.skip(reason="Context module not yet implemented (US-041/042/043)")
 class TestWorstCaseScenarios:
     """Test performance in worst-case scenarios."""
@@ -569,6 +576,7 @@ class TestWorstCaseScenarios:
         degradation = (last_100 - first_100) / first_100 * 100
         assert degradation < 20, f"Performance degraded by {degradation:.1f}%"
 
+
 @pytest.mark.skip(reason="Context module not yet implemented (US-041/042/043)")
 class TestMemoryLeaks:
     """Test for memory leaks in context processing."""
@@ -608,6 +616,7 @@ class TestMemoryLeaks:
 
         growth = second_half - first_half
         assert growth < 10, f"Memory grew by {growth:.2f}MB, possible leak"
+
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v", "--tb=short", "-s"])

@@ -25,6 +25,7 @@ class MockValidationResult:
     detailed_scores: dict = None
     error: str = None
 
+
 @dataclass
 class MockViolation:
     """Mock violation voor testing."""
@@ -36,6 +37,7 @@ class MockViolation:
     category: str
     location: dict = None
     suggestions: list[str] = None
+
 
 class TestMappers:
     """Test suite voor ValidationResult mappers."""

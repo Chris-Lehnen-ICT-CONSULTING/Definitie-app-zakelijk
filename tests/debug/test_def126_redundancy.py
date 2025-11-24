@@ -11,11 +11,10 @@ from pathlib import Path
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
-from services.prompts.modules.ess_rules_module import EssRulesModule
-
 from services.definition_generator_context import EnrichedContext
 from services.prompts.modules.base_module import ModuleContext
 from services.prompts.modules.definition_task_module import DefinitionTaskModule
+from services.prompts.modules.ess_rules_module import EssRulesModule
 from services.prompts.modules.expertise_module import ExpertiseModule
 from services.prompts.modules.prompt_orchestrator import PromptOrchestrator
 from services.prompts.modules.semantic_categorisation_module import (

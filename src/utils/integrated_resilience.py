@@ -27,17 +27,17 @@ except (ImportError, ModuleNotFoundError):
 
 
 # Importeer alle resilience componenten voor geïntegreerd systeem
+from utils.enhanced_retry import RetryConfig  # Adaptieve retry management
 from utils.enhanced_retry import (
     AdaptiveRetryManager,
-    RetryConfig,  # Adaptieve retry management
 )
+from utils.resilience import ResilienceConfig  # Basis resilience framework
 from utils.resilience import (
-    ResilienceConfig,  # Basis resilience framework
     ResilienceFramework,
 )
+from utils.smart_rate_limiter import RequestPriority  # Intelligente rate limiting
 from utils.smart_rate_limiter import (
     RateLimitConfig,
-    RequestPriority,  # Intelligente rate limiting
     SmartRateLimiter,
 )
 

@@ -18,7 +18,9 @@ from services.validation.interfaces import (
     ImprovementSuggestion,
     RuleViolation,
     SystemMetadata,
-    ValidationResult as TypedDictResult,
+)
+from services.validation.interfaces import ValidationResult as TypedDictResult
+from services.validation.interfaces import (
     ViolationLocation,
 )
 
