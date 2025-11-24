@@ -262,7 +262,7 @@ class ProjectVernederlandser:
             # 2. Update alle imports en referenties
             gewijzigde_bestanden = [str(nieuw_pad)]
 
-            for bestand, refs in referenties.items():
+            for bestand, _refs in referenties.items():
                 try:
                     with open(bestand, encoding="utf-8") as f:
                         content = f.read()

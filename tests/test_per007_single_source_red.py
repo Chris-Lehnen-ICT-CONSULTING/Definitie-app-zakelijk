@@ -41,7 +41,7 @@ class TestSingleSourceOfTruth:
                                             context_paths.append(
                                                 f"{filepath}:{node.name}"
                                             )
-                    except:
+                    except Exception:
                         pass
 
         # THEN: Only ONE path should exist (through DefinitionGeneratorContext)
@@ -145,14 +145,14 @@ class TestSingleSourceOfTruth:
                 metadata={},
             )
             entry_points.append("EnrichedContext.__init__")
-        except:
+        except Exception:
             pass
 
         # Method 2: HybridContextManager
         try:
             HybridContextManager()
             entry_points.append("HybridContextManager")
-        except:
+        except Exception:
             pass
 
         # Method 3: Through PromptService (should not create context)
@@ -193,7 +193,7 @@ class TestSingleSourceOfTruth:
                                     or "EnrichedContext(" in content
                                 ):
                                     ui_violations.append(filepath)
-                        except:
+                        except Exception:
                             pass
 
         # This will FAIL if UI is doing context processing

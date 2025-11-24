@@ -17,7 +17,7 @@ def extract_frontmatter(filepath):
         if len(parts) >= 3:
             try:
                 return yaml.safe_load(parts[1])
-            except:
+            except Exception:
                 return {}
     return {}
 

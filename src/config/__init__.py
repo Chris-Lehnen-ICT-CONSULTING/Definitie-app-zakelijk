@@ -14,14 +14,10 @@ from typing import Any
 from .config_loader import laad_toetsregels, laad_verboden_woorden
 from .config_manager import (
     APIConfig,
-)
-from .config_manager import CacheConfig as _CacheCfg
-from .config_manager import (
+    CacheConfig as _CacheCfg,
     ConfigSection,
-)
-from .config_manager import PathsConfig as _PathsCfg
-from .config_manager import ValidationConfig as _ValCfg
-from .config_manager import (
+    PathsConfig as _PathsCfg,
+    ValidationConfig as _ValCfg,
     get_config,
     get_config_manager,
     get_default_model,

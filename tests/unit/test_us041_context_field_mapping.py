@@ -20,7 +20,7 @@ Test Coverage:
 """
 
 import json
-from typing import List, Optional
+from typing import Optional
 from unittest.mock import MagicMock, Mock, patch
 
 import pytest
@@ -78,7 +78,6 @@ class TestContextFieldTypes:
         )
         assert request.juridische_context is None or request.juridische_context == []
         assert request.wettelijke_basis is None or request.wettelijke_basis == []
-
 
 class TestPromptServiceV2Integration:
     """Test PromptServiceV2 correctly handles context fields."""
@@ -209,7 +208,6 @@ class TestPromptServiceV2Integration:
         assert "Art. 5 EVRM" in prompt
         assert "(Wet Bopz)" in prompt
 
-
 class TestContextPropagationFlow:
     """Test context flows correctly through entire system."""
 
@@ -253,7 +251,6 @@ class TestContextPropagationFlow:
         assert call_args.organisatorische_context == ["DJI"]
         assert call_args.juridische_context == ["Strafrecht"]
         assert call_args.wettelijke_basis == ["Test wet"]
-
 
 class TestJusticeDomainSpecificScenarios:
     """Test justice-specific context scenarios."""
@@ -334,7 +331,6 @@ class TestJusticeDomainSpecificScenarios:
         # Note: Cross-organizational terms may not always appear explicitly
         # The important thing is that all organizations are in the context
 
-
 class TestContextAuditCompliance:
     """Test ASTRA/NORA compliance for context handling."""
 
@@ -377,7 +373,6 @@ class TestContextAuditCompliance:
 
         # This test documents the requirement for validation
         # Implementation should validate against these lists
-
 
 class TestEdgeCases:
     """Test edge cases and error conditions."""
@@ -447,7 +442,6 @@ class TestEdgeCases:
         prompt = prompt_service.build_prompt(request)
         assert "DJI" in prompt
         assert "Test wet" in prompt
-
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v", "--tb=short"])

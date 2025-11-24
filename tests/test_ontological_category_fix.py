@@ -181,7 +181,7 @@ class TestOntologicalCategoryFix:
         ), "Different categories should generate different prompts"
 
         # Verify dat elke prompt de category weergeeft
-        for category, prompt_text in prompts.items():
+        for _category, prompt_text in prompts.items():
             # Elk prompt moet iets hebben dat specifiek is voor die category
             assert len(prompt_text) > 0
             # Deze test kan worden uitgebreid met meer specifieke checks

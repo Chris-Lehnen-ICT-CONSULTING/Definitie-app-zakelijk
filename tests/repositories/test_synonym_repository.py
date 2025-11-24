@@ -147,7 +147,7 @@ class TestSynonymRepository:
 
     def test_save_suggestion_invalid_confidence_raises_error(self, repo):
         """Test dat invalide confidence een error geeft."""
-        with pytest.raises(ValueError, match="tussen 0.0 en 1.0"):
+        with pytest.raises(ValueError, match=r"tussen 0.0 en 1.0"):
             repo.save_suggestion(
                 hoofdterm="test",
                 synoniem="test2",

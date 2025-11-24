@@ -57,7 +57,7 @@ for root, _dirs, files in os.walk("src/services"):
 
 # Count how many times each service is imported
 import_count = Counter()
-for service, imports in service_imports.items():
+for _service, imports in service_imports.items():
     for imported in imports:
         import_count[imported] += 1
 

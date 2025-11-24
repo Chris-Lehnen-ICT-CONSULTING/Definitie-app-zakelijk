@@ -8,7 +8,6 @@ if any are found outside of allowed deprecated files.
 import pathlib
 import re
 from collections.abc import Iterator
-from typing import Tuple
 
 import pytest
 
@@ -57,11 +56,9 @@ VOORBEELDEN_PATTERNS = [
     ),
 ]
 
-
 def _iter_py_files(base: pathlib.Path) -> Iterator[pathlib.Path]:
     """Iterate over all Python files in a directory tree."""
     yield from base.rglob("*.py")
-
 
 def _is_allowed(filepath: pathlib.Path) -> bool:
     """Check if a file is in the allowlist."""
@@ -71,7 +68,6 @@ def _is_allowed(filepath: pathlib.Path) -> bool:
         rel_path == allowed or rel_path.endswith(allowed) or ".DEPRECATED" in rel_path
         for allowed in ALLOWLIST
     )
-
 
 def test_no_forbidden_v1_symbols():
     """Test that no forbidden V1 symbols exist in the active codebase."""
@@ -112,7 +108,6 @@ def test_no_forbidden_v1_symbols():
             violation_msg += f"  {filepath}: {description}\n"
         pytest.fail(violation_msg)
 
-
 def test_no_v1_files_exist():
     """Content-based guard: flag only real V1 patterns, not filenames.
 
@@ -121,7 +116,6 @@ def test_no_v1_files_exist():
     # Deze test is vervangen door inhoudelijke pattern-checks in `test_no_forbidden_v1_symbols`.
     # Laat expliciet slagen om geen false positives te veroorzaken.
     assert True
-
 
 def test_async_patterns_in_orchestrator():
     """Verify V2 orchestrator uses proper async patterns."""
@@ -160,7 +154,6 @@ def test_async_patterns_in_orchestrator():
             "V2 orchestrator missing required async patterns:\n"
             + "\n".join(f"  - {m}" for m in missing)
         )
-
 
 def test_no_legacy_response_fields_in_core():
     """Guard against V1 response field usage in core modules.

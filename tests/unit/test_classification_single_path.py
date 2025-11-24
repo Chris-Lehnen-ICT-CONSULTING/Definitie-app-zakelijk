@@ -78,7 +78,7 @@ class TestSinglePathClassification:
             ):
                 try:
                     mock_interface._render_category_preview()
-                except:
+                except Exception:
                     pass  # Streamlit calls will fail, that's OK
 
         # Verify classification was called
@@ -236,7 +236,7 @@ class TestSinglePathClassification:
 
             try:
                 mock_interface._handle_definition_generation("test", {})
-            except:
+            except Exception:
                 pass  # Will fail due to missing classification, that's expected
 
             # Verify _determine_ontological_category was NEVER called (no fallback)
@@ -338,7 +338,7 @@ class TestClassificationFlow:
 
             try:
                 interface._render_category_preview()
-            except:
+            except Exception:
                 pass  # Streamlit calls will fail
 
             # Simulate classification result stored

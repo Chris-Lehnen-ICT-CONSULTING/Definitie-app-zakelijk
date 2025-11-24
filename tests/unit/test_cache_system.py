@@ -376,10 +376,9 @@ class TestEnhancedCache:
 
         # Try to advance internal clock if available; fallback to tiny real sleep
         advanced = False
+        base = [0.0]
         for attr in ("_now", "now", "time", "_time"):
             if hasattr(self.enhanced_cache, attr):
-                base = [0.0]
-
                 def _fake_now():
                     return base[0] + 1.0
 
@@ -525,10 +524,10 @@ class TestCacheIntegration:
             raise ValueError(msg)
 
         # Error should not be cached
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match=r".+"):
             error_function()
 
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match=r".+"):
             error_function()  # Should raise again, not use cache
 
     def test_cache_memory_pressure(self):

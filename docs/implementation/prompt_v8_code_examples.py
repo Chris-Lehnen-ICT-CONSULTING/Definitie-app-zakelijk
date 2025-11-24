@@ -339,7 +339,7 @@ class PromptOptimizerV8:
         selected = []
         current_tokens = 0
 
-        for module, score in sorted_modules:
+        for module, _score in sorted_modules:
             module_tokens = self.metrics["module_token_counts"].get(module, 100)
 
             if current_tokens + module_tokens <= target_tokens:
