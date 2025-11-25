@@ -543,7 +543,32 @@
       ],
       "processing_status": "success",
       "error_message": null
+    },
+    {
+      "id": "c3a0e0e8c2409f21",
+      "filename": "test.docx",
+      "mime_type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "size": 36635,
+      "uploaded_at": "2025-11-25T08:23:50.014628+00:00",
+      "extracted_text": "Dit is een test. BegripX komt hier voor.\nNog een paragraaf met BegripX en extra tekst.",
+      "text_length": 86,
+      "keywords": [
+        "begripx",
+        "test",
+        "komt",
+        "hier",
+        "paragraaf",
+        "extra",
+        "tekst"
+      ],
+      "key_concepts": [],
+      "legal_references": [],
+      "context_hints": [
+        "Compact document - specifieke context"
+      ],
+      "processing_status": "success",
+      "error_message": null
     }
   ],
-  "last_updated": "2025-11-13T15:26:04.956277+00:00"
+  "last_updated": "2025-11-25T08:23:50.016354+00:00"
 }
