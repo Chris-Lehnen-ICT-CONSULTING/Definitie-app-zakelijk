@@ -4,7 +4,9 @@ Bulk Operations component - Verplaatst van import_export_beheer_tab.py.
 Bevat bulk status update functionaliteit, exact zoals het al werkte.
 """
 
-from __future__ import annotations  # DEF-175: Enable string annotations for TYPE_CHECKING
+from __future__ import (
+    annotations,  # DEF-175: Enable string annotations for TYPE_CHECKING
+)
 
 import logging
 from typing import TYPE_CHECKING

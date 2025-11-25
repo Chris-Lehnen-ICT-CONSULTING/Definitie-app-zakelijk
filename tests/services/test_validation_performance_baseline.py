@@ -94,6 +94,7 @@ async def test_performance_vs_v1_baseline():
         improvement = (1 - performance_ratio) * 100
         print(f"✓ V2 is {improvement:.1f}% faster than V1")
 
+
 @pytest.mark.performance
 @pytest.mark.asyncio
 async def test_validation_latency_bounds():
@@ -144,10 +145,12 @@ async def test_validation_latency_bounds():
             median <= max_ms * 0.7
         ), f"{name} text: median {median:.1f}ms too close to limit {max_ms}ms"
 
+
 SKIP_TIMING = pytest.mark.skipif(
     bool(os.getenv("CI") or os.getenv("GITHUB_ACTIONS")),
     reason="Timing-gevoelige test; overslaan in CI",
 )
+
 
 @pytest.mark.performance
 @pytest.mark.asyncio
@@ -224,6 +227,7 @@ async def test_rule_evaluation_overhead():
     assert elapsed < 2.0, "Timeout protection failed"
     assert result.get("errored", False), "Timed out rule should be marked as errored"
 
+
 @pytest.mark.performance
 @pytest.mark.asyncio
 @SKIP_TIMING
@@ -285,6 +289,7 @@ async def test_concurrent_validation_scaling():
         for result in results:
             assert "overall_score" in result
 
+
 @pytest.mark.performance
 def test_memory_usage_stability():
     """Test that memory usage remains stable during repeated validations."""
@@ -338,6 +343,7 @@ def test_memory_usage_stability():
     assert (
         object_growth < 1000
     ), f"Possible memory leak: {object_growth} new objects after 100 validations"
+
 
 @pytest.mark.performance
 @pytest.mark.benchmark

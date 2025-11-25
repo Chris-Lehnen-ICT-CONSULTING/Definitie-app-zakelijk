@@ -97,7 +97,9 @@ class TabbedInterface:
         # DEF-175: Lazy import to avoid database layer dependency at module level
         from database.definitie_repository import get_definitie_repository
 
-        self.repository = get_definitie_repository()  # Haal database repository instantie op
+        self.repository = (
+            get_definitie_repository()
+        )  # Haal database repository instantie op
 
         # Gebruik nieuwe service factory voor definitie service
         try:

@@ -3,7 +3,9 @@
 Definition Generator Tab - Main AI definition generation interface.
 """
 
-from __future__ import annotations  # DEF-175: Enable string annotations for TYPE_CHECKING
+from __future__ import (
+    annotations,  # DEF-175: Enable string annotations for TYPE_CHECKING
+)
 
 import json
 import logging

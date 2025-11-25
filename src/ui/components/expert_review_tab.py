@@ -2,7 +2,9 @@
 Expert Review Tab - Interface voor expert review en approval workflow.
 """
 
-from __future__ import annotations  # DEF-175: Enable string annotations for TYPE_CHECKING
+from __future__ import (
+    annotations,  # DEF-175: Enable string annotations for TYPE_CHECKING
+)
 
 import contextlib
 from datetime import datetime
