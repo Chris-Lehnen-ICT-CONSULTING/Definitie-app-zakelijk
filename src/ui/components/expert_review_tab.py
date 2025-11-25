@@ -2,18 +2,28 @@
 Expert Review Tab - Interface voor expert review en approval workflow.
 """
 
+from __future__ import annotations  # DEF-175: Enable string annotations for TYPE_CHECKING
+
 import contextlib
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 import streamlit as st
 
 from config.config_manager import ConfigSection, get_config
-from database.definitie_repository import (
-    DefinitieRecord,
-    DefinitieRepository,
-    DefinitieStatus,
-)
 from ui.session_state import SessionStateManager
+
+if TYPE_CHECKING:
+    from database.definitie_repository import (
+        DefinitieRecord,
+        DefinitieRepository,
+    )
+
+# Status values as string literals (avoids runtime import of DefinitieStatus enum)
+_STATUS_DRAFT = "draft"
+_STATUS_REVIEW = "review"
+_STATUS_ESTABLISHED = "established"
+_STATUS_ARCHIVED = "archived"
 
 
 class ExpertReviewTab:
@@ -49,8 +59,8 @@ class ExpertReviewTab:
         try:
             # Status filter: In review of Gearchiveerd
             status_options = {
-                "In review": DefinitieStatus.REVIEW,
-                "Gearchiveerd": DefinitieStatus.ARCHIVED,
+                "In review": _STATUS_REVIEW,
+                "Gearchiveerd": _STATUS_ARCHIVED,
             }
 
             selected_status_label = st.selectbox(
@@ -914,7 +924,7 @@ class ExpertReviewTab:
             try:
                 # Haal recent reviewed definities op
                 recent_reviews = self.repository.search_definities(
-                    status=DefinitieStatus.ESTABLISHED, limit=10
+                    status=_STATUS_ESTABLISHED, limit=10
                 )
 
                 if recent_reviews:
@@ -1035,7 +1045,7 @@ class ExpertReviewTab:
             elif "Afwijzen" in decision:
                 success = self.repository.change_status(
                     definitie.id,
-                    DefinitieStatus.ARCHIVED,
+                    _STATUS_ARCHIVED,
                     reviewer,
                     f"Afgewezen: {comments}",
                 )

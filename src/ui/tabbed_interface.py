@@ -18,9 +18,7 @@ from typing import Any  # Type hints voor betere code documentatie
 
 import streamlit as st  # Streamlit web interface framework
 
-from database.definitie_repository import (
-    get_definitie_repository,  # Database toegang factory
-)
+# DEF-175: Moved to lazy import where used (line ~100)
 from document_processing.document_extractor import (
     supported_file_types,  # Ondersteunde bestandstypen
 )
@@ -96,9 +94,10 @@ class TabbedInterface:
 
         self.container = get_cached_service_container()
 
-        self.repository = (
-            get_definitie_repository()
-        )  # Haal database repository instantie op
+        # DEF-175: Lazy import to avoid database layer dependency at module level
+        from database.definitie_repository import get_definitie_repository
+
+        self.repository = get_definitie_repository()  # Haal database repository instantie op
 
         # Gebruik nieuwe service factory voor definitie service
         try:

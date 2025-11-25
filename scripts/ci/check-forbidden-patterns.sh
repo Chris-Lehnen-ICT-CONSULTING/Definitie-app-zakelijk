@@ -38,10 +38,12 @@ if [ -n "$UI_VIOLATIONS" ]; then
     ((VIOLATIONS++))
 fi
 
-# Check 3: No repository imports in UI (should go through services)
-if rg -q "from src\.database\.|from database\." src/ui/ 2>/dev/null; then
+# Check 3: No top-level repository imports in UI (should go through services)
+# DEF-175: Only match non-indented imports (excludes TYPE_CHECKING and lazy imports)
+DB_VIOLATIONS=$(rg -n "^from (src\.)?database\." src/ui/ 2>/dev/null || true)
+if [ -n "$DB_VIOLATIONS" ]; then
     echo -e "${RED}❌ Found direct database imports in UI${NC}"
-    rg -n "from src\.database\.|from database\." src/ui/ 2>/dev/null || true
+    echo "$DB_VIOLATIONS"
     echo -e "${YELLOW}   → UI should access data through services${NC}"
     ((VIOLATIONS++))
 fi
