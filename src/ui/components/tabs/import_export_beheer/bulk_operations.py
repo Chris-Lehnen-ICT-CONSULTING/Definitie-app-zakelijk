@@ -4,11 +4,18 @@ Bulk Operations component - Verplaatst van import_export_beheer_tab.py.
 Bevat bulk status update functionaliteit, exact zoals het al werkte.
 """
 
+from __future__ import annotations  # DEF-175: Enable string annotations for TYPE_CHECKING
+
 import logging
+from typing import TYPE_CHECKING
 
 import streamlit as st
 
-from database.definitie_repository import DefinitieRepository, DefinitieStatus
+if TYPE_CHECKING:
+    from database.definitie_repository import DefinitieRepository
+
+# Status values as string literals (avoids runtime import of DefinitieStatus enum)
+_DEFINITIE_STATUSES = ["draft", "review", "established", "archived", "imported"]
 
 logger = logging.getLogger(__name__)
 
@@ -29,14 +36,14 @@ class BulkOperations:
         with col1:
             from_status = st.selectbox(
                 "Van status",
-                [status.value for status in DefinitieStatus],
+                _DEFINITIE_STATUSES,
                 help="Selecteer huidige status",
             )
 
         with col2:
             to_status = st.selectbox(
                 "Naar status",
-                [status.value for status in DefinitieStatus],
+                _DEFINITIE_STATUSES,
                 help="Selecteer nieuwe status",
             )
 
