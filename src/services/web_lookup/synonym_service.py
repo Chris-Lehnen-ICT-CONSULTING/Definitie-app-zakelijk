@@ -545,7 +545,7 @@ class JuridischeSynoniemlService:
             "hoofdtermen": len(self.synoniemen),
             "totaal_synoniemen": total_synoniemen,
             "unieke_synoniemen": len(self.reverse_index),
-            "gemiddeld_per_term": (
+            "gemiddeld_per_term": int(
                 total_synoniemen / len(self.synoniemen) if self.synoniemen else 0
             ),
             "clusters": len(self.clusters),

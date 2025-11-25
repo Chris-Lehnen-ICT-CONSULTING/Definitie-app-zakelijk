@@ -118,11 +118,12 @@ class ModularValidationService:
         self._overall_threshold: float = 0.75
         # Categorie-acceptatiedrempel (nieuw; overschrijfbaar via config.thresholds.category_accept)
         self._category_threshold: float = 0.70
-        if getattr(self.config, "thresholds", None):
+        thresholds = getattr(self.config, "thresholds", None)
+        if thresholds is not None:
             with contextlib.suppress(Exception):
                 self._overall_threshold = float(
                     safe_dict_get(
-                        self.config.thresholds,
+                        thresholds,
                         "overall_accept",
                         self._overall_threshold,
                     )
@@ -130,7 +131,7 @@ class ModularValidationService:
             with contextlib.suppress(Exception):
                 self._category_threshold = float(
                     safe_dict_get(
-                        self.config.thresholds,
+                        thresholds,
                         "category_accept",
                         self._category_threshold,
                     )
@@ -141,7 +142,12 @@ class ModularValidationService:
         """Load rules from ToetsregelManager if available."""
         try:
             # Get all available rules from manager
-            all_rules = self.toetsregel_manager.get_all_regels()
+            # toetsregel_manager is guaranteed to be not None here (checked by caller)
+            manager = self.toetsregel_manager
+            if manager is None:
+                self._set_default_rules()
+                return
+            all_rules = manager.get_all_regels()
 
             # Early return if no rules
             if not all_rules:
@@ -288,15 +294,15 @@ class ModularValidationService:
             self.cleaning_service, "clean_text"
         ):
             try:
-                result = self.cleaning_service.clean_text(text)
+                clean_result = self.cleaning_service.clean_text(text)
                 # clean_text kan sync of async zijn
-                if hasattr(result, "__await__"):
-                    result = await result  # type: ignore[func-returns-value]
+                if hasattr(clean_result, "__await__"):
+                    clean_result = await clean_result  # type: ignore[func-returns-value]
                 # Ondersteun zowel string als object met cleaned_text attribuut
-                if isinstance(result, str):
-                    cleaned = result
-                elif hasattr(result, "cleaned_text"):
-                    cleaned = result.cleaned_text
+                if isinstance(clean_result, str):
+                    cleaned = clean_result
+                elif hasattr(clean_result, "cleaned_text"):
+                    cleaned = clean_result.cleaned_text
             except Exception:
                 # Bij cleaning-fout: ga verder met raw text (geen crash)
                 cleaned = text
@@ -316,11 +322,12 @@ class ModularValidationService:
 
         # 4) Regels evalueren in deterministische volgorde
         weights = dict(self._default_weights)
-        if getattr(self.config, "weights", None):
+        config_weights = getattr(self.config, "weights", None)
+        if config_weights is not None:
             weights.update(
                 {
                     k: float(v) if v is not None else self._default_weights.get(k, 0.5)
-                    for k, v in self.config.weights.items()
+                    for k, v in config_weights.items()
                 }
             )
 
@@ -343,7 +350,7 @@ class ModularValidationService:
         passed_rules: list[str] = []
 
         # Houd begrip tijdelijk vast voor interne regels die het nodig hebben
-        self._current_begrip = begrip
+        self._current_begrip: str | None = begrip
         for code in sorted(self._internal_rules):
             out = self._evaluate_rule(code, eval_ctx)
             # Support both (score, violation) tuple and dict-like outputs (for tests that patch the method)
@@ -378,7 +385,7 @@ class ModularValidationService:
                 rule_scores[code] = float(out or 0.0)
                 if float(out or 0.0) >= 1.0:
                     passed_rules.append(code)
-        current_begrip = getattr(self, "_current_begrip", None)
+        current_begrip = self._current_begrip
         self._current_begrip = None
 
         # 5) Aggregatie (gewogen) en afronding
@@ -1087,7 +1094,7 @@ class ModularValidationService:
             description = "; ".join(dict.fromkeys(messages))  # unique-preserving
             suggestion_text = "; ".join([s for s in suggestions if s]).strip() or None
             # Belangrijk: description blijft gelijk aan message (tests verwachten dit)
-            vio = {
+            vio: dict[str, Any] = {
                 "code": code,
                 "severity": severity,
                 "severity_level": self._severity_level_for_json_rule(rule),
@@ -1365,6 +1372,9 @@ class ModularValidationService:
         - wettelijke_basis (genormaliseerd)
         - categorie (indien opgegeven in md en aanwezig bij candidate)
         """
+        # _repository is guaranteed not None by caller (_maybe_add_duplicate_context_signal)
+        if self._repository is None:
+            return None
         defs = self._repository._get_all_definitions()
         cat = md.get("categorie") or md.get("ontologische_categorie")
 

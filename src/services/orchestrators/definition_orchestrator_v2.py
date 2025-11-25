@@ -21,7 +21,7 @@ from datetime import UTC, datetime
 
 UTC = UTC  # Python 3.10 compatibility
 import contextlib
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any, Optional, cast
 
 from services.exceptions import (
     DatabaseConnectionError,
@@ -231,9 +231,9 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
 
         return self._validation_service
 
-    def get_service_info(self) -> dict:
+    def get_service_info(self) -> dict[str, Any]:
         """Return service info voor UI quality control."""
-        info = {
+        info: dict[str, Any] = {
             "service_mode": "orchestrator_v2",
             "architecture": "microservices",
             "version": "2.0",
@@ -333,7 +333,7 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             # =====================================
             # PHASE 2.4: Synonym Enrichment (Architecture v3.1)
             # =====================================
-            enriched_synonyms = []
+            enriched_synonyms: list[Any] = []
             ai_pending_count = 0
             synonym_enrichment_status = "not_available"
 
@@ -1152,7 +1152,7 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             logger.info(
                 f"Successfully saved definition '{definition.begrip}' with ID: {result}"
             )
-            return result
+            return cast(int, result)
 
         except DuplicateDefinitionError as e:
             logger.warning(

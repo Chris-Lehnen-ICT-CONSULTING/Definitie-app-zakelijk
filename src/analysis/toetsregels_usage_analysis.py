@@ -8,7 +8,7 @@ from typing import Any
 from config.toetsregel_manager import get_toetsregel_manager
 
 # Import from deprecated location - this analysis script needs the real implementation
-from deprecated.generation.definitie_generator import (
+from deprecated.generation.definitie_generator import (  # type: ignore[import-untyped]
     DefinitieGenerator,
     GenerationContext,
     OntologischeCategorie,

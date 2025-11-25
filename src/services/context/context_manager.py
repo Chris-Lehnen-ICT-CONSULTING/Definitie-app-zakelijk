@@ -284,7 +284,7 @@ class ContextManager:
         Raises:
             ValueError: If validation fails
         """
-        validated = {}
+        validated: dict[str, Any] = {}
 
         # Validate list fields
         list_fields = [

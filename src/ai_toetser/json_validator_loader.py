@@ -10,7 +10,8 @@ import json
 import logging
 import sys
 from pathlib import Path
-from typing import Any
+from types import ModuleType
+from typing import Any, cast
 
 logger = logging.getLogger(__name__)
 
@@ -37,8 +38,8 @@ class JSONValidatorLoader:
         else:
             self.regels_dir = Path(regels_dir)
 
-        self._validators_cache = {}
-        self._json_cache = {}
+        self._validators_cache: dict[str, Any] = {}
+        self._json_cache: dict[str, dict[str, Any]] = {}
 
         logger.info(
             f"JSONValidatorLoader geïnitialiseerd met directory: {self.regels_dir}"
@@ -89,7 +90,10 @@ class JSONValidatorLoader:
             spec = importlib.util.spec_from_file_location(
                 f"toetsregel_{regel_id}", py_path
             )
-            module = importlib.util.module_from_spec(spec)
+            if spec is None or spec.loader is None:
+                logger.error(f"Kon geen module spec laden voor {py_path}")
+                return None
+            module: ModuleType = importlib.util.module_from_spec(spec)
             sys.modules[f"toetsregel_{regel_id}"] = module
             spec.loader.exec_module(module)
 
@@ -125,7 +129,7 @@ class JSONValidatorLoader:
             JSON configuratie als dict of None
         """
         if regel_id in self._json_cache:
-            return self._json_cache[regel_id]
+            return cast(dict[str, Any], self._json_cache[regel_id])
 
         json_path = self.regels_dir / f"{regel_id}.json"
 
@@ -142,7 +146,7 @@ class JSONValidatorLoader:
             # Cache config
             self._json_cache[regel_id] = config
 
-            return config
+            return cast(dict[str, Any], config)
 
         except Exception as e:
             logger.error(f"Fout bij laden JSON voor {regel_id}: {e}")

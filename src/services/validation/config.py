@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import os
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, cast
 
 
 def _safe_import_yaml():
@@ -84,7 +84,7 @@ def deep_merge_configs(base: dict[str, Any], overlay: dict[str, Any]) -> dict[st
         # For non-dicts (lists, scalars) the overlay fully replaces base
         return b
 
-    return _merge(base, overlay)
+    return cast("dict[str, Any]", _merge(base, overlay))
 
 
 def load_with_env_overlay(base_path: str) -> ValidationConfig:

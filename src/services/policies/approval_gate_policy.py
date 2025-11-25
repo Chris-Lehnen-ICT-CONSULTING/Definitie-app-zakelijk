@@ -12,7 +12,7 @@ import logging
 import os
 import time
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, cast
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +27,7 @@ def _safe_import_yaml():
         raise RuntimeError(msg) from e
 
 
-DEFAULT_POLICY = {
+DEFAULT_POLICY: dict[str, dict[str, Any]] = {
     "hard_requirements": {
         "min_one_context_required": True,
         "forbid_critical_issues": True,
@@ -64,7 +64,7 @@ def _deep_merge(base: dict[str, Any], overlay: dict[str, Any]) -> dict[str, Any]
             return result
         return b
 
-    return _merge(base, overlay)
+    return cast(dict[str, Any], _merge(base, overlay))
 
 
 @dataclass
@@ -72,17 +72,15 @@ class GatePolicy:
     """Typed view on the approval gate policy."""
 
     hard_requirements: dict[str, Any] = field(
-        default_factory=lambda: DEFAULT_POLICY["hard_requirements"].copy()
+        default_factory=lambda: dict(DEFAULT_POLICY["hard_requirements"])
     )
     thresholds: dict[str, Any] = field(
-        default_factory=lambda: DEFAULT_POLICY["thresholds"].copy()
+        default_factory=lambda: dict(DEFAULT_POLICY["thresholds"])
     )
     soft_requirements: dict[str, Any] = field(
-        default_factory=lambda: DEFAULT_POLICY["soft_requirements"].copy()
+        default_factory=lambda: dict(DEFAULT_POLICY["soft_requirements"])
     )
-    cache: dict[str, Any] = field(
-        default_factory=lambda: DEFAULT_POLICY["cache"].copy()
-    )
+    cache: dict[str, Any] = field(default_factory=lambda: dict(DEFAULT_POLICY["cache"]))
 
     @property
     def hard_min_score(self) -> float:

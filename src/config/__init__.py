@@ -154,7 +154,7 @@ def get_openai_api_key() -> str:
     if not cfg.openai_api_key:
         msg = "OPENAI_API_KEY not configured"
         raise ValueError(msg)
-    return cfg.openai_api_key
+    return str(cfg.openai_api_key)
 
 
 class ValidationConfigAdapter:

@@ -3,13 +3,14 @@ Hybrid Context Engine - Hoofdcomponent voor hybride context verrijking.
 Combineert web lookup met document processing voor optimale definitie generatie.
 """
 
+import asyncio  # Async support voor web lookup
 import logging  # Logging faciliteiten voor debug en monitoring
 from dataclasses import dataclass  # Dataklassen voor gestructureerde context data
 from datetime import (  # Datum en tijd functionaliteit voor timestamps, timezone
     UTC,
     datetime,
 )
-from typing import Any  # Type hints voor betere code documentatie
+from typing import Any, cast  # Type hints voor betere code documentatie
 
 from document_processing.document_processor import (
     get_document_processor,  # Document processor factory
@@ -26,13 +27,27 @@ from .smart_source_selector import SmartSourceSelector  # Intelligente bron sele
 _web_lookup_service = ModernWebLookupService()
 
 
-# Compatibility wrapper
-async def zoek_definitie_combinatie(term: str, *args, **kwargs):
-    """Compatibility wrapper for legacy web lookup"""
+# Compatibility wrapper (sync version for legacy callers)
+def zoek_definitie_combinatie(term: str, *args: Any, **kwargs: Any) -> dict[str, Any]:
+    """Compatibility wrapper for legacy web lookup (synchronous)."""
     from services.interfaces import LookupRequest
 
-    request = LookupRequest(term=term, max_results=5)
-    return await _web_lookup_service.lookup(request)
+    async def _async_lookup() -> Any:
+        request = LookupRequest(term=term, max_results=5)
+        return await _web_lookup_service.lookup(request)
+
+    try:
+        asyncio.get_running_loop()
+    except RuntimeError:
+        # No running loop, create one
+        return cast(dict[str, Any], asyncio.run(_async_lookup()))
+
+    # If there's a running loop, run in thread to avoid nested loop issues
+    import concurrent.futures
+
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        future = executor.submit(asyncio.run, _async_lookup())
+        return cast(dict[str, Any], future.result())
 
 
 # Imports zijn al bovenaan toegevoegd
@@ -176,7 +191,10 @@ class HybridContextEngine:
             }
 
         try:
-            return self.document_processor.get_aggregated_context(selected_document_ids)
+            return cast(
+                dict[str, Any],
+                self.document_processor.get_aggregated_context(selected_document_ids),
+            )
         except Exception as e:
             logger.error(f"Fout bij ophalen document context: {e}")
             return {

@@ -22,6 +22,7 @@ import json
 import logging
 import sys
 from pathlib import Path
+from typing import cast
 
 # Add src to path for imports
 src_path = Path(__file__).parent.parent
@@ -295,7 +296,7 @@ if view_mode == "Groepen Browser":
                 LEFT JOIN synonym_group_members m ON m.group_id = g.id
                 WHERE 1=1
             """
-            params = []
+            params: list[str | int] = []
 
             # Apply search filter (bidirectional: canonical_term OR member term)
             if group_search and group_search.strip():
@@ -614,9 +615,9 @@ if view_mode == "Individuele Members Review":
 
     try:
         # Fetch members based on filters (ONE query instead of N+1!)
-        status_filter_db = filters["status"]
-        term_search = filters["term_search"]
-        min_weight_filter = filters["min_weight"]
+        status_filter_db = cast(str | None, filters["status"])
+        term_search = cast(str | None, filters["term_search"])
+        min_weight_filter = cast(float, filters["min_weight"])
 
         # Query registry - NEW METHOD fixes Bug #1 (get_all_groups) and Bug #2 (N+1)
         all_members = registry.get_all_members(
@@ -693,9 +694,12 @@ if view_mode == "Individuele Members Review":
                             success = 0
                             for m in ai_pending_on_page:
                                 try:
-                                    registry.update_member_status(m.id, "active", user)
-                                    orchestrator.invalidate_cache(m.term)
-                                    success += 1
+                                    if m.id is not None:
+                                        registry.update_member_status(
+                                            m.id, "active", user
+                                        )
+                                        orchestrator.invalidate_cache(m.term)
+                                        success += 1
                                 except Exception as e:
                                     logger.error(f"Bulk approve failed for {m.id}: {e}")
                             st.success(f"✅ {success} members approved!")
@@ -717,11 +721,12 @@ if view_mode == "Individuele Members Review":
                             success = 0
                             for m in ai_pending_on_page:
                                 try:
-                                    registry.update_member_status(
-                                        m.id, "rejected_auto", user
-                                    )
-                                    orchestrator.invalidate_cache(m.term)
-                                    success += 1
+                                    if m.id is not None:
+                                        registry.update_member_status(
+                                            m.id, "rejected_auto", user
+                                        )
+                                        orchestrator.invalidate_cache(m.term)
+                                        success += 1
                                 except Exception as e:
                                     logger.error(f"Bulk reject failed for {m.id}: {e}")
                             st.warning(f"❌ {success} members rejected!")
@@ -786,7 +791,7 @@ if view_mode == "Individuele Members Review":
                     st.markdown("---")
 
                     # Actions
-                    if member.status == "ai_pending":
+                    if member.status == "ai_pending" and member.id is not None:
                         col1, col2 = st.columns(2)
                         with col1:
                             if st.button(
@@ -806,7 +811,9 @@ if view_mode == "Individuele Members Review":
                                 orchestrator.invalidate_cache(member.term)
                                 st.warning(f"❌ Rejected: {member.term}")
                                 st.rerun()
-                    elif st.button("↩️ Revert to Pending", key=f"revert_{member.id}"):
+                    elif member.id is not None and st.button(
+                        "↩️ Revert to Pending", key=f"revert_{member.id}"
+                    ):
                         user = SessionStateManager.get_value("user", "admin")
                         registry.update_member_status(member.id, "ai_pending", user)
                         orchestrator.invalidate_cache(member.term)

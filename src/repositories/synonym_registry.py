@@ -13,7 +13,7 @@ import sqlite3
 from collections.abc import Callable
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from src.models.synonym_models import SynonymGroup, SynonymGroupMember, WeightedSynonym
 
@@ -52,7 +52,7 @@ def _adapt_datetime_iso(val: datetime) -> str:
     return val.isoformat()
 
 
-def _convert_datetime(val: bytes) -> datetime:
+def _convert_datetime(val: bytes | str) -> datetime:
     """
     Convert ISO string from SQLite to datetime (Python 3.12+ compatible).
 
@@ -63,9 +63,8 @@ def _convert_datetime(val: bytes) -> datetime:
         datetime object
     """
     # Handle both bytes and str (SQLite can return either)
-    if isinstance(val, bytes):
-        val = val.decode()
-    return datetime.fromisoformat(val)
+    val_str: str = val.decode() if isinstance(val, bytes) else val
+    return datetime.fromisoformat(val_str)
 
 
 # Register custom adapter/converter (Python 3.12+ requirement)
@@ -427,7 +426,7 @@ class SynonymRegistry:
             )
             existing = cursor.fetchone()
             if existing:
-                existing_id = existing[0]
+                existing_id = cast(int, existing[0])
                 logger.warning(
                     f"Member '{term}' already in group {group_id}, "
                     f"returning existing ID {existing_id} (idempotent)"
@@ -470,6 +469,9 @@ class SynonymRegistry:
             # Trigger cache invalidation
             self._trigger_invalidation(term)
 
+            if member_id is None:
+                msg = "Failed to get lastrowid after insert"
+                raise RuntimeError(msg)
             return member_id
 
     def get_group_members(
@@ -676,8 +678,8 @@ class SynonymRegistry:
                 return False
 
             # Build dynamic UPDATE query
-            updates = []
-            params = []
+            updates: list[str] = []
+            params: list[Any] = []
 
             if weight is not None:
                 updates.append("weight = ?")

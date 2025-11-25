@@ -49,7 +49,7 @@ def run_async(coro: Coroutine[Any, Any, T], timeout: float | None = None) -> T:
     # No running loop - create new one
     if timeout:
 
-        async def with_timeout():
+        async def with_timeout() -> T:
             return await asyncio.wait_for(coro, timeout)
 
         return asyncio.run(with_timeout())
@@ -90,7 +90,8 @@ async def gather_async(*coros: Coroutine[Any, Any, Any]) -> tuple[Any, ...]:
     Returns:
         Tuple of results in the same order as inputs
     """
-    return await asyncio.gather(*coros)
+    results = await asyncio.gather(*coros)
+    return tuple(results)
 
 
 def run_parallel(

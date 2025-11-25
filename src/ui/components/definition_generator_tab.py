@@ -12,7 +12,7 @@ import logging
 import os
 import re
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 import streamlit as st
 
@@ -226,7 +226,7 @@ class DefinitionGeneratorTab:
 
         org_list = _parse(getattr(def_record, "organisatorische_context", None))
         jur_list = _parse(getattr(def_record, "juridische_context", None))
-        wet_list = []
+        wet_list: list[str] = []
         if hasattr(def_record, "get_wettelijke_basis_list"):
             wet_list = def_record.get_wettelijke_basis_list() or []
         return ", ".join(org_list), ", ".join(jur_list), ", ".join(wet_list)
@@ -497,8 +497,10 @@ class DefinitionGeneratorTab:
                     # Persistente opslag van voorbeelden in DB (automatisch) wanneer een record is opgeslagen
                     try:
                         saved_id = None
-                        if isinstance(saved_record, DefinitieRecord) and getattr(
-                            saved_record, "id", None
+                        if (
+                            saved_record is not None
+                            and hasattr(saved_record, "id")
+                            and saved_record.id
                         ):
                             saved_id = int(saved_record.id)
                         elif (
@@ -538,8 +540,10 @@ class DefinitionGeneratorTab:
                         with col_left:
                             can_save_examples = True
                             saved_id_btn = None
-                            if isinstance(saved_record, DefinitieRecord) and getattr(
-                                saved_record, "id", None
+                            if (
+                                saved_record is not None
+                                and hasattr(saved_record, "id")
+                                and saved_record.id
                             ):
                                 saved_id_btn = int(saved_record.id)
                             elif (
@@ -768,6 +772,8 @@ class DefinitionGeneratorTab:
         current_ufo = None
         try:
             if target_id:
+                from database.definitie_repository import get_definitie_repository
+
                 repo = get_definitie_repository()
                 rec = repo.get_definitie(target_id)
                 current_ufo = getattr(rec, "ufo_categorie", None) if rec else None
@@ -792,6 +798,8 @@ class DefinitionGeneratorTab:
                 value = SessionStateManager.get_value(key)
                 if value == "":
                     value = None
+                from database.definitie_repository import get_definitie_repository
+
                 repo = get_definitie_repository()
                 user = SessionStateManager.get_value("user", default="system")
                 _ = repo.update_definitie(
@@ -884,6 +892,8 @@ class DefinitionGeneratorTab:
                 return False
 
             # Vergelijk met huidige actieve voorbeelden; sla alleen op als er verschil is
+            from database.definitie_repository import get_definitie_repository
+
             repo = get_definitie_repository()
             current = repo.get_voorbeelden_by_type(definitie_id)
 
@@ -990,6 +1000,8 @@ class DefinitionGeneratorTab:
             total_new = sum(len(v) for v in to_save.values())
             if total_new == 0:
                 return False
+
+            from database.definitie_repository import get_definitie_repository
 
             repo = get_definitie_repository()
             from pydantic import ValidationError
@@ -1541,7 +1553,7 @@ class DefinitionGeneratorTab:
         except Exception as e:
             logger.debug(f"Kon bronnen sectie niet renderen: {e}")
 
-    def _get_provider_label(self: str) -> str:
+    def _get_provider_label(self, provider: str) -> str:
         """Get human-friendly label for provider (local helper)."""
         labels = {
             "wikipedia": "Wikipedia NL",
@@ -1549,7 +1561,7 @@ class DefinitionGeneratorTab:
             "rechtspraak": "Rechtspraak.nl",
             "wiktionary": "Wiktionary NL",
         }
-        return labels.get(self, self.replace("_", " ").title())
+        return labels.get(provider, provider.replace("_", " ").title())
 
     def _log_generation_result_debug(
         self, generation_result: dict, agent_result: Any
@@ -1596,10 +1608,13 @@ class DefinitionGeneratorTab:
 
     def _extract_score_from_result(self, agent_result: dict) -> float:
         """Extract validation score from agent result."""
-        return safe_dict_get(
-            agent_result,
-            "validation_score",
-            safe_dict_get(agent_result, "final_score", 0.0),
+        return cast(
+            float,
+            safe_dict_get(
+                agent_result,
+                "validation_score",
+                safe_dict_get(agent_result, "final_score", 0.0),
+            ),
         )
 
     def _build_detailed_assessment(self, validation_result: dict) -> list[str]:
@@ -2274,10 +2289,14 @@ class DefinitionGeneratorTab:
 
     def _extract_context_from_generation_result(
         self, generation_result: dict[str, Any]
-    ) -> dict:
+    ) -> dict[str, list[str]]:
         """Extract context information from previous generation result."""
         # Try to get context from various sources in the generation result
-        context_dict = {"organisatorisch": [], "juridisch": [], "wettelijk": []}
+        context_dict: dict[str, list[str]] = {
+            "organisatorisch": [],
+            "juridisch": [],
+            "wettelijk": [],
+        }
 
         # Extract from stored context if available
         if "document_context" in generation_result:
@@ -2349,11 +2368,13 @@ class DefinitionGeneratorTab:
         # Check if it's a dict (new service) or object (legacy)
         if isinstance(agent_result, dict):
             # New service format
-            return agent_result.get(
+            result = agent_result.get(
                 "definitie_gecorrigeerd", agent_result.get("definitie", "")
             )
+            return result if isinstance(result, str) else ""
         # Legacy format
-        return getattr(agent_result, "final_definitie", "")
+        legacy_result = getattr(agent_result, "final_definitie", "")
+        return legacy_result if isinstance(legacy_result, str) else ""
 
     def _clear_results(self):
         """Wis alle resultaten."""

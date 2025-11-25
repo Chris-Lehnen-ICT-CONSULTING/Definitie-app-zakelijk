@@ -56,7 +56,7 @@ def get_nested_dict_value(
     if not dictionary:
         return default
 
-    current = dictionary
+    current: Any = dictionary
     for key in keys:
         if not isinstance(current, dict):
             return default

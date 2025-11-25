@@ -5,6 +5,7 @@ Document Text Extraction - Haal tekst uit verschillende bestandsformaten.
 import logging  # Logging faciliteiten voor debug en monitoring
 import mimetypes  # MIME type detectie voor bestandsformaten
 from pathlib import Path  # Object-georiënteerde pad manipulatie
+from typing import Any, cast
 
 logger = logging.getLogger(__name__)  # Logger instantie voor document extractor module
 
@@ -173,7 +174,7 @@ def _extract_markdown(content: bytes) -> str:
 
         # Probeer markdown library als beschikbaar voor betere parsing
         try:
-            import markdown
+            import markdown  # type: ignore[import-untyped]
             from bs4 import BeautifulSoup
 
             # Convert markdown naar HTML en dan naar plain text
@@ -274,7 +275,7 @@ def _extract_rtf(content: bytes) -> str:
             from striprtf.striprtf import rtf_to_text
 
             rtf_content = content.decode("utf-8")
-            return rtf_to_text(rtf_content)
+            return cast(str, rtf_to_text(rtf_content))
 
         except ImportError:
             logger.warning("striprtf niet beschikbaar - RTF extractie overgeslagen")
@@ -285,7 +286,7 @@ def _extract_rtf(content: bytes) -> str:
         return ""
 
 
-def get_file_info(filename: str, file_size: int) -> dict[str, any]:
+def get_file_info(filename: str, file_size: int) -> dict[str, Any]:
     """
     Krijg bestandsinformatie.
 
@@ -306,5 +307,5 @@ def get_file_info(filename: str, file_size: int) -> dict[str, any]:
         "size": file_size,
         "size_mb": round(file_size / (1024 * 1024), 2),
         "supported": mime_type in SUPPORTED_TYPES,
-        "type_description": SUPPORTED_TYPES.get(mime_type, "Niet ondersteund"),
+        "type_description": SUPPORTED_TYPES.get(mime_type or "", "Niet ondersteund"),
     }
