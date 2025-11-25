@@ -5,13 +5,18 @@ Deze orchestrator gebruikt de modulaire componenten in plaats van alle logica
 in één bestand te hebben. Dit voorkomt het God Object anti-pattern.
 """
 
+from __future__ import annotations  # DEF-175: Enable string annotations for TYPE_CHECKING
+
 import logging
+from typing import TYPE_CHECKING
 
 import streamlit as st
 
-from database.definitie_repository import DefinitieRepository
 from services.service_factory import get_definition_service
 from ui.session_state import SessionStateManager
+
+if TYPE_CHECKING:
+    from database.definitie_repository import DefinitieRepository
 
 from .bulk_operations import BulkOperations
 from .csv_importer import CSVImporter
