@@ -32,6 +32,7 @@ async def test_enhancement_applied_leads_to_successful_validation_and_save():
     monitoring = AsyncMock()
     feedback_engine = AsyncMock()
     web_lookup = AsyncMock()
+    security_service = AsyncMock()
 
     web_lookup.lookup.return_value = []
     web_lookup._last_debug = None
@@ -103,7 +104,7 @@ async def test_enhancement_applied_leads_to_successful_validation_and_save():
         ai_service=ai_service,
         validation_service=validation_service,
         enhancement_service=enhancement_service,
-        security_service=AsyncMock(),
+        security_service=security_service,
         cleaning_service=cleaning_service,
         repository=repository,
         monitoring=monitoring,
@@ -133,6 +134,8 @@ async def test_enhancement_applied_leads_to_successful_validation_and_save():
             actor="tester",
             legal_basis="testing",
         )
+        # Configure security_service mock to return the request object
+        security_service.sanitize_request.return_value = req
         resp = await orch.create_definition(req)
 
     assert resp.success is True
