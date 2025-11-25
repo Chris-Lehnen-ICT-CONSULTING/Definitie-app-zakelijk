@@ -1,8 +1,9 @@
 import json
+import os
 
 import requests
 
-API_KEY = ("lin_api_" + "fsFS5ivIV8lyLYbo" + "BO1erER4huHU7kxK" + "XanAN0dq")
+API_KEY = os.getenv("LINEAR_API_KEY", "")
 URL = "https://api.linear.app/graphql"
 
 
