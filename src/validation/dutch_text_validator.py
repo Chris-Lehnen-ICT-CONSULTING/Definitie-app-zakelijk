@@ -60,7 +60,7 @@ class DutchValidationResult:
     issues: list[dict[str, Any]]
     suggestions: list[str]
     corrected_text: str | None = None
-    statistics: dict[str, Any] = None
+    statistics: dict[str, Any] | None = None
 
 
 class DutchTextValidator:
@@ -589,7 +589,7 @@ class DutchTextValidator:
         )
 
         # Text type usage
-        text_type_usage = {}
+        text_type_usage: dict[str, int] = {}
         for validation in self.validation_history:
             text_type = validation.get("text_type", "unknown")
             text_type_usage[text_type] = text_type_usage.get(text_type, 0) + 1

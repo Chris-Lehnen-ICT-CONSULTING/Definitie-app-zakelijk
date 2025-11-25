@@ -14,7 +14,7 @@ from datetime import UTC, datetime, timedelta
 UTC = UTC  # Python 3.10 compatibility
 from enum import Enum
 from functools import wraps
-from typing import Any
+from typing import Any, cast
 
 from monitoring.api_monitor import get_metrics_collector, record_api_call
 
@@ -294,7 +294,8 @@ class OptimizedResilienceSystem:
         """Enhanced execution with retry logic."""
         last_error = None
 
-        for attempt in range(self.config.retry_config.max_retries + 1):
+        retry_config = cast(RetryConfig, self.config.retry_config)
+        for attempt in range(retry_config.max_retries + 1):
             try:
                 if attempt > 0:
                     if not await self.retry_manager.should_retry(last_error, attempt):
@@ -319,10 +320,12 @@ class OptimizedResilienceSystem:
                     f"Attempt {attempt + 1} failed for {endpoint_name}: {e!s}"
                 )
 
-                if attempt == self.config.retry_config.max_retries:
-                    raise e
+                if attempt == retry_config.max_retries:
+                    raise
 
-        raise last_error
+        raise (
+            last_error if last_error is not None else RuntimeError("No error captured")
+        )
 
     async def _execute_smart(
         self,

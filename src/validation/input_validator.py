@@ -558,7 +558,10 @@ class InputValidator:
                 passed = value is not None and value not in ("", [])
 
             elif rule.validation_type == ValidationType.TYPE:
-                passed = value is None or isinstance(value, rule.expected_type)
+                if rule.expected_type is None:
+                    passed = True
+                else:
+                    passed = value is None or isinstance(value, rule.expected_type)
 
             elif rule.validation_type == ValidationType.LENGTH:
                 if value is None:
@@ -572,7 +575,7 @@ class InputValidator:
                         passed = False
 
             elif rule.validation_type == ValidationType.PATTERN:
-                if value is None:
+                if value is None or rule.pattern is None:
                     passed = True
                 else:
                     pattern = re.compile(rule.pattern, rule.pattern_flags)
@@ -589,7 +592,10 @@ class InputValidator:
                         passed = False
 
             elif rule.validation_type == ValidationType.ENUM:
-                passed = value is None or value in rule.allowed_values
+                if rule.allowed_values is None:
+                    passed = True
+                else:
+                    passed = value is None or value in rule.allowed_values
 
             elif rule.validation_type == ValidationType.CUSTOM:
                 passed = rule.custom_validator(value) if rule.custom_validator else True
@@ -669,7 +675,7 @@ class InputValidator:
         )
 
         # Schema usage statistics
-        schema_usage = {}
+        schema_usage: dict[str, int] = {}
         for validation in self.validation_history:
             schema_name = validation.get("schema_name", "unknown")
             schema_usage[schema_name] = schema_usage.get(schema_name, 0) + 1

@@ -377,7 +377,7 @@ class SmartSourceSelector:
 
         # Start met basis bronnen
         priority_sources = ["wikipedia", "wiktionary"]
-        excluded_sources = []
+        excluded_sources: list[str] = []
         boost_keywords = []
         confidence_modifier = 1.0
 

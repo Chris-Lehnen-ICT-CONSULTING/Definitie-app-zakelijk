@@ -14,7 +14,7 @@ from datetime import (
     UTC,
     datetime,  # Datum en tijd functionaliteit
 )
-from typing import Any  # Type hints voor betere code documentatie
+from typing import Any, cast  # Type hints voor betere code documentatie
 
 import streamlit as st  # Streamlit web interface framework
 
@@ -481,7 +481,7 @@ class TabbedInterface:
                 render_context_selector,
             )
 
-            return render_context_selector()
+            return cast(dict[str, Any], render_context_selector())
         except Exception as e:
             logger.error(
                 f"Enhanced context selector kon niet renderen: {e}", exc_info=True
@@ -1035,7 +1035,7 @@ class TabbedInterface:
             if aggregated_context["document_count"] == 0:
                 return None
 
-            return aggregated_context
+            return cast(dict[str, Any], aggregated_context)
 
         except Exception as e:
             logger.error(f"Fout bij ophalen document context: {e}")

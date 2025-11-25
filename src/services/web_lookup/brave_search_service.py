@@ -8,7 +8,7 @@ Gebruikt dezelfde LookupResult interface als andere providers voor naadloze inte
 import logging
 from datetime import UTC, datetime
 from hashlib import sha256
-from typing import Any
+from typing import Any, cast
 
 from ..interfaces import LookupResult, WebSource
 
@@ -346,4 +346,5 @@ async def brave_search_lookup(
     async with BraveSearchService(
         count=count, mcp_search_function=mcp_search_function
     ) as service:
-        return await service.lookup(term)
+        result = await service.lookup(term)
+        return cast("LookupResult | None", result)

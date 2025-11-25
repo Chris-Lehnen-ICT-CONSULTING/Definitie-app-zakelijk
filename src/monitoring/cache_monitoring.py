@@ -4,6 +4,7 @@ import logging
 import time
 from contextlib import contextmanager
 from dataclasses import dataclass
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -53,7 +54,7 @@ class CacheMonitor:
             return
 
         start = time.perf_counter()
-        result_data = {}
+        result_data: dict[str, Any] = {}
 
         try:
             yield result_data

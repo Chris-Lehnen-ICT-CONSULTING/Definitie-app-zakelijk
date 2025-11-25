@@ -10,7 +10,8 @@ import json
 import logging
 from collections.abc import Callable
 from pathlib import Path
-from typing import Any
+from types import ModuleType
+from typing import Any, cast
 
 logger = logging.getLogger(__name__)
 
@@ -32,10 +33,10 @@ class ModularToetsregelLoader:
         else:
             self.regels_dir = Path(regels_dir)
 
-        self.loaded_modules = {}
-        self.loaded_configs = {}
+        self.loaded_modules: dict[str, ModuleType] = {}
+        self.loaded_configs: dict[str, dict[str, Any]] = {}
 
-    def load_regel(self, regel_id: str) -> dict[str, Any]:
+    def load_regel(self, regel_id: str) -> dict[str, Any] | None:
         """
         Laad een toetsregel met zowel JSON config als Python module.
 
@@ -78,33 +79,38 @@ class ModularToetsregelLoader:
             try:
                 # Dynamisch laden van Python module
                 spec = importlib.util.spec_from_file_location(module_name, py_path)
-                module = importlib.util.module_from_spec(spec)
-                spec.loader.exec_module(module)
+                if spec is None or spec.loader is None:
+                    logger.warning(f"Kon spec niet laden voor {regel_id}")
+                else:
+                    module = importlib.util.module_from_spec(spec)
+                    spec.loader.exec_module(module)
 
-                # Zoek validator class of functie
-                if hasattr(module, "create_validator"):
-                    # Module heeft factory functie
-                    validator = module.create_validator()
-                    regel_data["validator"] = validator
-                    regel_data["validate_func"] = validator.validate
-                    logger.info(f"Geladen validator class voor {regel_id}")
+                    # Zoek validator class of functie
+                    if hasattr(module, "create_validator"):
+                        # Module heeft factory functie
+                        validator = module.create_validator()
+                        regel_data["validator"] = validator
+                        regel_data["validate_func"] = validator.validate
+                        logger.info(f"Geladen validator class voor {regel_id}")
 
-                elif hasattr(module, f"validate_{module_name.lower()}"):
-                    # Module heeft directe validatie functie
-                    validate_func = getattr(module, f"validate_{module_name.lower()}")
-                    regel_data["validate_func"] = validate_func
-                    logger.info(f"Geladen validatie functie voor {regel_id}")
+                    elif hasattr(module, f"validate_{module_name.lower()}"):
+                        # Module heeft directe validatie functie
+                        validate_func = getattr(
+                            module, f"validate_{module_name.lower()}"
+                        )
+                        regel_data["validate_func"] = validate_func
+                        logger.info(f"Geladen validatie functie voor {regel_id}")
 
-                elif hasattr(module, f"{module_name}Validator"):
-                    # Module heeft validator class
-                    validator_class = getattr(module, f"{module_name}Validator")
-                    validator = validator_class(config)
-                    regel_data["validator"] = validator
-                    regel_data["validate_func"] = validator.validate
-                    logger.info(f"Geladen {module_name}Validator voor {regel_id}")
+                    elif hasattr(module, f"{module_name}Validator"):
+                        # Module heeft validator class
+                        validator_class = getattr(module, f"{module_name}Validator")
+                        validator = validator_class(config)
+                        regel_data["validator"] = validator
+                        regel_data["validate_func"] = validator.validate
+                        logger.info(f"Geladen {module_name}Validator voor {regel_id}")
 
-                # Cache de module
-                self.loaded_modules[regel_id] = module
+                    # Cache de module
+                    self.loaded_modules[regel_id] = module
 
             except Exception as e:
                 logger.warning(f"Kon Python module niet laden voor {regel_id}: {e}")
@@ -223,7 +229,9 @@ class ModularToetsregelLoader:
         # Gebruik de validate functie
         validate_func = regel_data.get("validate_func")
         if validate_func:
-            return validate_func(definitie, begrip, context)
+            return cast(
+                tuple[bool, str, float], validate_func(definitie, begrip, context)
+            )
         return False, f"❌ Geen validator voor {regel_id}", 0.0
 
     def get_generation_hints(self, regel_id: str) -> list[str]:
@@ -243,7 +251,7 @@ class ModularToetsregelLoader:
         validator = regel_data.get("validator")
 
         if validator and hasattr(validator, "get_generation_hints"):
-            return validator.get_generation_hints()
+            return cast(list[str], validator.get_generation_hints())
 
         # Fallback: gebruik goede voorbeelden uit config
         config = regel_data.get("config", {})

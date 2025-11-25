@@ -12,7 +12,7 @@ import json
 import logging
 import threading
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from utils.cache import cached, clear_cache as _global_cache_clear
 
@@ -43,7 +43,7 @@ def _load_all_rules_cached(regels_dir: str) -> dict[str, dict[str, Any]]:
         Dictionary met regel_id als key en regel data als value
     """
     rules_path = Path(regels_dir)
-    all_rules = {}
+    all_rules: dict[str, dict[str, Any]] = {}
 
     if not rules_path.exists():
         logger.warning(f"Regels directory bestaat niet: {regels_dir}")
@@ -114,7 +114,7 @@ def _load_single_rule_cached(regels_dir: str, regel_id: str) -> dict[str, Any] |
 
     try:
         with open(regel_path, encoding="utf-8") as f:
-            return json.load(f)
+            return cast(dict[str, Any], json.load(f))
     except Exception as e:
         logger.error(f"Fout bij laden regel {regel_id}: {e}")
         return None
@@ -189,9 +189,11 @@ class RuleCache:
                     result["result"] = "hit"
                     result["source"] = "memory"
 
-                return rules
+                return cast(dict[str, dict[str, Any]], rules)
         else:
-            return _load_all_rules_cached(str(self.regels_dir))
+            return cast(
+                dict[str, dict[str, Any]], _load_all_rules_cached(str(self.regels_dir))
+            )
 
     def get_rule(self, regel_id: str) -> dict[str, Any] | None:
         """
@@ -222,7 +224,7 @@ class RuleCache:
                 else:
                     result["result"] = "miss"
                     result["source"] = "not_found"
-                return rule
+                return cast(dict[str, Any] | None, rule)
         else:
             # Probeer eerst uit de bulk cache
             all_rules = self.get_all_rules()
@@ -230,7 +232,10 @@ class RuleCache:
                 return all_rules[regel_id]
 
             # Fallback naar single rule loading
-            return _load_single_rule_cached(str(self.regels_dir), regel_id)
+            return cast(
+                dict[str, Any] | None,
+                _load_single_rule_cached(str(self.regels_dir), regel_id),
+            )
 
     def get_rules_by_priority(self, priority: str) -> list[dict[str, Any]]:
         """

@@ -18,7 +18,7 @@ import logging
 import threading
 from collections import OrderedDict
 from datetime import UTC, datetime
-from typing import Any
+from typing import Any, cast
 
 from src.config.synonym_config import SynonymPolicy, get_synonym_config
 from src.models.synonym_models import WeightedSynonym
@@ -299,7 +299,7 @@ class SynonymOrchestrator:
             for suggestion in ai_suggestions:
                 try:
                     self.registry.add_group_member(
-                        group_id=group.id,
+                        group_id=cast(int, group.id),
                         term=suggestion.synoniem,
                         weight=suggestion.confidence,
                         status="ai_pending",  # Governance gate!

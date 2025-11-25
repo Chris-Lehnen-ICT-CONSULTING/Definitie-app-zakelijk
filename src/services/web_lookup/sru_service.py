@@ -27,6 +27,8 @@ from datetime import UTC
 
 UTC = UTC  # Python 3.10 compatibility
 
+from typing import cast
+
 from ..interfaces import LookupResult, WebSource
 
 logger = logging.getLogger(__name__)
@@ -318,7 +320,9 @@ class SRUService:
                         # Kleine retry op connectieproblemen met jitter
                         for attempt in range(1, 3 + 1):
                             try:
-                                async with self.session.get(u) as response:
+                                session = self.session
+                                assert session is not None  # Validated at line 215
+                                async with session.get(u) as response:
                                     attempt_rec: dict = {
                                         "endpoint": config.name,
                                         "url": u,
@@ -969,6 +973,8 @@ class SRUService:
 
             results = []
 
+            # At this point, namespaces is guaranteed to be set (records is non-empty)
+            assert namespaces is not None
             for record in records:
                 result = self._parse_record(record, term, config, namespaces)
                 if result:
@@ -1192,10 +1198,12 @@ class SRUService:
         # Provider-specific threshold override
         provider_thresholds = self.circuit_breaker_config.get("providers", {})
         if endpoint in provider_thresholds:
-            return provider_thresholds[endpoint]
+            return cast(int, provider_thresholds[endpoint])
 
         # Default threshold
-        return self.circuit_breaker_config.get("consecutive_empty_threshold", 2)
+        return cast(
+            int, self.circuit_breaker_config.get("consecutive_empty_threshold", 2)
+        )
 
 
 # Standalone functies voor gebruik in bestaande code
@@ -1211,7 +1219,9 @@ async def sru_search_legislation(term: str, max_records: int = 5) -> list[Lookup
         Lijst van LookupResult objecten
     """
     async with SRUService() as service:
-        return await service.search_legislation(term, max_records)
+        return cast(
+            list[LookupResult], await service.search_legislation(term, max_records)
+        )
 
 
 async def sru_search_jurisprudence(
@@ -1228,7 +1238,9 @@ async def sru_search_jurisprudence(
         Lijst van LookupResult objecten
     """
     async with SRUService() as service:
-        return await service.search_jurisprudence(term, max_records)
+        return cast(
+            list[LookupResult], await service.search_jurisprudence(term, max_records)
+        )
 
 
 async def sru_search_all(
@@ -1245,4 +1257,7 @@ async def sru_search_all(
         Lijst van LookupResult objecten (gesorteerd op confidence)
     """
     async with SRUService() as service:
-        return await service.search_all_sources(term, max_records_per_source)
+        return cast(
+            list[LookupResult],
+            await service.search_all_sources(term, max_records_per_source),
+        )

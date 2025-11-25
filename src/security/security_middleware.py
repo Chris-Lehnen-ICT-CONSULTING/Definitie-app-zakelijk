@@ -520,7 +520,7 @@ class SecurityMiddleware:
         ]
 
         # Group events by type
-        threat_counts = {}
+        threat_counts: dict[str, int] = {}
         for event in recent_events:
             threat_type = event.event_type.value
             threat_counts[threat_type] = threat_counts.get(threat_type, 0) + 1
@@ -530,7 +530,7 @@ class SecurityMiddleware:
         blocked_events = len([e for e in recent_events if e.blocked])
 
         # Top threat sources
-        ip_counts = {}
+        ip_counts: dict[str, int] = {}
         for event in recent_events:
             ip = event.source_ip
             ip_counts[ip] = ip_counts.get(ip, 0) + 1

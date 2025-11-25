@@ -10,7 +10,7 @@ import logging
 import sqlite3
 from contextlib import contextmanager, suppress
 from datetime import datetime
-from typing import Any
+from typing import Any, cast
 
 # Import bestaande repository voor backward compatibility
 from database.definitie_repository import (
@@ -88,7 +88,7 @@ class DefinitionRepository(DefinitionRepositoryInterface):
                 logger.info(
                     f"Updated definition '{definition.begrip}' (ID: {definition.id})"
                 )
-                return definition.id
+                return cast(int, definition.id)
 
             # Maak nieuwe
             # Converteer Definition naar DefinitieRecord
@@ -119,7 +119,7 @@ class DefinitionRepository(DefinitionRepositoryInterface):
                 f"Created definition '{definition.begrip}' (ID: {result_id}, "
                 f"categorie: {definition.categorie})"
             )
-            return result_id
+            return cast(int, result_id)
 
         except ValueError as e:
             # Legacy repo raises ValueError for duplicates
@@ -297,7 +297,7 @@ class DefinitionRepository(DefinitionRepositoryInterface):
             with self._get_connection() as conn:
                 cur = conn.cursor()
                 cur.execute("DELETE FROM definities WHERE id = ?", (definition_id,))
-                return cur.rowcount > 0
+                return cast(bool, cur.rowcount > 0)
         except Exception as e:
             logger.error(f"Fout bij hard delete definitie {definition_id}: {e}")
             return False
@@ -456,7 +456,7 @@ class DefinitionRepository(DefinitionRepositoryInterface):
                         f"Found existing draft {draft_id} for begrip='{begrip}', "
                         f"categorie={categorie}"
                     )
-                    return draft_id
+                    return cast(int, draft_id)
 
                 # No existing draft found, create new one
                 cursor.execute(
@@ -490,7 +490,7 @@ class DefinitionRepository(DefinitionRepositoryInterface):
                     f"Created new draft {draft_id} for begrip='{begrip}', "
                     f"categorie={categorie}"
                 )
-                return draft_id
+                return cast(int, draft_id)
 
         except Exception as e:
             logger.error(f"Error in get_or_create_draft for '{begrip}': {e}")
@@ -513,7 +513,7 @@ class DefinitionRepository(DefinitionRepositoryInterface):
                     )
                     row = cursor.fetchone()
                     if row:
-                        return row[0]
+                        return cast(int, row[0])
             raise
 
     def set_duplicate_service(self, duplicate_service):
@@ -568,7 +568,10 @@ class DefinitionRepository(DefinitionRepositoryInterface):
             'synoniemen', 'antoniemen' indien aanwezig; lege dict bij afwezigheid/fout.
         """
         try:
-            return self.legacy_repo.get_voorbeelden_by_type(definitie_id)  # type: ignore[attr-defined]
+            return cast(
+                dict[str, list[str]],
+                self.legacy_repo.get_voorbeelden_by_type(definitie_id),  # type: ignore[attr-defined]
+            )
         except Exception as e:
             logger.warning(
                 f"Legacy voorbeelden by type unavailable for definitie {definitie_id}: {e}"
@@ -726,7 +729,7 @@ class DefinitionRepository(DefinitionRepositoryInterface):
                 row = cursor.fetchone()
 
                 if row and row[0]:
-                    return _json.loads(row[0])
+                    return cast(dict[Any, Any], _json.loads(row[0]))
                 return None
         except Exception as exc:
             logger.debug(
@@ -846,7 +849,7 @@ class DefinitionRepository(DefinitionRepositoryInterface):
 
     def get_stats(self) -> dict[str, Any]:
         """Haal repository statistieken op."""
-        stats = self._stats.copy()
+        stats: dict[str, Any] = self._stats.copy()
 
         # Voeg database stats toe
         try:
@@ -868,7 +871,7 @@ class DefinitionRepository(DefinitionRepositoryInterface):
                     GROUP BY status
                 """
                 )
-                stats["by_status"] = dict(cursor.fetchall())
+                stats["by_status"] = {row[0]: row[1] for row in cursor.fetchall()}
 
         except sqlite3.Error as exc:
             logger.warning("Kon repository statistieken niet ophalen: %s", exc)
@@ -899,7 +902,10 @@ class DefinitionRepository(DefinitionRepositoryInterface):
     ) -> bool:
         """Pass-through update voor compatibiliteit."""
         try:
-            return self.legacy_repo.update_definitie(definitie_id, updates, updated_by)
+            return cast(
+                bool,
+                self.legacy_repo.update_definitie(definitie_id, updates, updated_by),
+            )
         except Exception:
             return False
 
@@ -912,8 +918,11 @@ class DefinitionRepository(DefinitionRepositoryInterface):
     ) -> bool:
         """Pass-through statuswijziging voor compatibiliteit met workflowservice."""
         try:
-            return self.legacy_repo.change_status(
-                definitie_id, new_status, changed_by, notes
+            return cast(
+                bool,
+                self.legacy_repo.change_status(
+                    definitie_id, new_status, changed_by, notes
+                ),
             )
         except Exception:
             return False

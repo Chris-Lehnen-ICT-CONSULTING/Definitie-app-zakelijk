@@ -8,6 +8,7 @@ asynchronous interface expected by DefinitionOrchestratorV2.
 from __future__ import annotations
 
 import asyncio
+from typing import cast
 
 from services.interfaces import CleaningResult, CleaningServiceInterface, Definition
 
@@ -57,4 +58,4 @@ class CleaningServiceAdapterV1toV2(CleaningServiceInterface):
 
         This method doesn't need async as it's a simple validation check.
         """
-        return self._svc.validate_cleaning_rules()
+        return cast(bool, self._svc.validate_cleaning_rules())

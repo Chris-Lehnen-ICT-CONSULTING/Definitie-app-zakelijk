@@ -18,7 +18,7 @@ import logging
 import os
 import re
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, cast
 
 if TYPE_CHECKING:
     from services.web_lookup.modern_web_lookup import LookupResult
@@ -73,8 +73,8 @@ class JuridischRankerConfig:
         # Keywords database (normalized)
         self.keywords: set[str] = set()
 
-        # Boost factors
-        self.boost_factors = {
+        # Boost factors (values can be float or dict for nested config like quality_gate)
+        self.boost_factors: dict[str, float | dict[str, Any]] = {
             "juridische_bron": 1.2,
             "keyword_per_match": 1.1,
             "keyword_max_boost": 1.3,
@@ -478,10 +478,14 @@ def calculate_juridische_boost(
     boost_factors = config.boost_factors
 
     # Load quality gate settings (FASE 3 FIX)
-    quality_gate_config = boost_factors.get("quality_gate", {})
-    quality_gate_enabled = quality_gate_config.get("enabled", True)
-    min_base_score = quality_gate_config.get("min_base_score", 0.65)
-    reduced_factor = quality_gate_config.get("reduced_boost_factor", 0.5)
+    quality_gate_config: dict[str, Any] = cast(
+        dict[str, Any], boost_factors.get("quality_gate", {})
+    )
+    quality_gate_enabled: bool = cast(bool, quality_gate_config.get("enabled", True))
+    min_base_score: float = cast(float, quality_gate_config.get("min_base_score", 0.65))
+    reduced_factor: float = cast(
+        float, quality_gate_config.get("reduced_boost_factor", 0.5)
+    )
 
     # Get base score BEFORE any boosting
     base_score = float(getattr(result.source, "confidence", 0.5))
@@ -510,7 +514,7 @@ def calculate_juridische_boost(
         and hasattr(result.source, "url")
         and is_juridische_bron(result.source.url)
     ):
-        bron_boost = float(boost_factors.get("juridische_bron", 1.2))
+        bron_boost = cast(float, boost_factors.get("juridische_bron", 1.2))
         # Apply quality gate: interpolate between 1.0 and bron_boost
         effective_boost = 1.0 + (bron_boost - 1.0) * quality_multiplier
         boost *= effective_boost
@@ -525,7 +529,7 @@ def calculate_juridische_boost(
         and getattr(result.source, "is_juridical", False)
         and boost == 1.0  # Alleen als niet al geboosted via URL
     ):
-        flag_boost = float(boost_factors.get("juridical_flag", 1.15))
+        flag_boost = cast(float, boost_factors.get("juridical_flag", 1.15))
         effective_boost = 1.0 + (flag_boost - 1.0) * quality_multiplier
         boost *= effective_boost
         logger.debug(
@@ -542,21 +546,21 @@ def calculate_juridische_boost(
 
     if keyword_count > 0:
         # Cap bij keyword_max_boost (configurable)
-        keyword_per_match = float(boost_factors.get("keyword_per_match", 1.1))
-        keyword_max = float(boost_factors.get("keyword_max_boost", 1.3))
+        keyword_per_match = cast(float, boost_factors.get("keyword_per_match", 1.1))
+        keyword_max = cast(float, boost_factors.get("keyword_max_boost", 1.3))
         keyword_boost = min(keyword_per_match**keyword_count, keyword_max)
         boost *= keyword_boost
         logger.debug(f"Keyword boost {keyword_boost:.3f}x ({keyword_count} keywords)")
 
     # 3. Artikel-referentie boost
     if contains_artikel_referentie(definitie):
-        artikel_boost = float(boost_factors.get("artikel_referentie", 1.15))
+        artikel_boost = cast(float, boost_factors.get("artikel_referentie", 1.15))
         boost *= artikel_boost
         logger.debug(f"Artikel-referentie boost {artikel_boost:.3f}x")
 
     # 4. Lid-referentie boost
     if contains_lid_referentie(definitie):
-        lid_boost = float(boost_factors.get("lid_referentie", 1.05))
+        lid_boost = cast(float, boost_factors.get("lid_referentie", 1.05))
         boost *= lid_boost
         logger.debug(f"Lid-referentie boost {lid_boost:.3f}x")
 
@@ -570,8 +574,8 @@ def calculate_juridische_boost(
 
         if matches > 0:
             # context_match^matches, capped bij context_max_boost
-            context_per_match = float(boost_factors.get("context_match", 1.1))
-            context_max = float(boost_factors.get("context_max_boost", 1.3))
+            context_per_match = cast(float, boost_factors.get("context_match", 1.1))
+            context_max = cast(float, boost_factors.get("context_max_boost", 1.3))
             context_boost = min(context_per_match**matches, context_max)
             boost *= context_boost
             logger.debug(
