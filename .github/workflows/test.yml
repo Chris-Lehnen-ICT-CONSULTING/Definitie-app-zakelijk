@@ -56,8 +56,8 @@ jobs:
 
       - name: Run PR test suite (profiles)
         env:
-          # Overall coverage gate (PR)
-          PYTEST_ADDOPTS: --cov=src --cov-report=xml --cov-report=term-missing --cov-fail-under=60
+          # Coverage scoped to services (what PR suite tests) - full coverage in integration tests
+          PYTEST_ADDOPTS: --cov=src/services --cov-report=xml --cov-report=term-missing --cov-fail-under=60
         run: |
           bash scripts/testing/run_tests.sh pr
 

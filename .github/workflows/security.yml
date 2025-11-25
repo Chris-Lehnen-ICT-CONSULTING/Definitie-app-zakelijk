@@ -21,10 +21,16 @@ jobs:
         with:
           fetch-depth: 0  # Fetch full git history for gitleaks diff scanning
 
+      - name: Install gitleaks
+        run: |
+          # Install gitleaks CLI (no license required for CLI)
+          wget https://github.com/gitleaks/gitleaks/releases/download/v8.25.0/gitleaks_8.25.0_linux_x64.tar.gz
+          tar -xzf gitleaks_8.25.0_linux_x64.tar.gz
+          chmod +x gitleaks
+
       - name: Run gitleaks
-        uses: gitleaks/gitleaks-action@v2
-        with:
-          args: --redact --no-banner --verbose
+        run: |
+          ./gitleaks detect --redact --verbose --exit-code 1
 
   deps-audit:
     name: Dependency Audit (pip-audit)

@@ -161,8 +161,10 @@ jobs:
       - name: Check for streamlit imports outside UI layer
         run: |
           echo "Checking for streamlit imports outside src/ui/..."
+          # src/pages/ is part of the Streamlit UI layer (multipage app structure)
           VIOLATIONS=$(rg "^\s*(import|from)\s+streamlit" src/ --type py | \
                        grep -v "^src/ui/" | \
+                       grep -v "^src/pages/" | \
                        grep -v "^src/main.py" || true)
           if [ -n "$VIOLATIONS" ]; then
             echo "❌ FAIL: streamlit imports found outside src/ui"
