@@ -23,11 +23,18 @@ if rg -q "import streamlit|from streamlit" src/services/ 2>/dev/null; then
     ((VIOLATIONS++))
 fi
 
-# Check 2: No UI imports in services/
-if rg -q "from ui\.|from src\.ui\." src/services/ 2>/dev/null; then
-    echo -e "${RED}❌ Found UI imports in services/${NC}"
-    rg -n "from ui\.|from src\.ui\." src/services/ 2>/dev/null || true
-    echo -e "${YELLOW}   → Services must not import from UI layer${NC}"
+# Check 2: No UI imports in services/utils
+# DEF-173: Exclude approved bridge modules (lazy imports + soft-fail pattern):
+# - progress_context.py: Progress tracking isolation layer (try/except wrapped)
+# - voorbeelden_debug.py: Debug utility with callback pattern (soft-fail)
+UI_VIOLATIONS=$(rg -n \
+    --glob='!src/services/progress_context.py' \
+    --glob='!src/utils/voorbeelden_debug.py' \
+    "from ui\.|from src\.ui\." src/services/ src/utils/ 2>/dev/null || true)
+if [ -n "$UI_VIOLATIONS" ]; then
+    echo -e "${RED}❌ Found UI imports in services/utils${NC}"
+    echo "$UI_VIOLATIONS"
+    echo -e "${YELLOW}   → Services/utils must not import from UI layer${NC}"
     ((VIOLATIONS++))
 fi
 
