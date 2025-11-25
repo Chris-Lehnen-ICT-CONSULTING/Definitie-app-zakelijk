@@ -8,10 +8,10 @@ wordt gegenereerd, om duplicaten te voorkomen.
 
 import json  # JSON verwerking voor metadata
 import logging  # Logging faciliteiten voor debug en monitoring
-from dataclasses import dataclass  # Dataklassen voor gestructureerde data
+from dataclasses import dataclass, field  # Dataklassen voor gestructureerde data
 from datetime import UTC, datetime
 from enum import Enum  # Enumeraties voor actie types
-from typing import Any  # Type hints voor betere code documentatie
+from typing import Any, cast  # Type hints voor betere code documentatie
 
 # Database en core component imports
 from database.definitie_repository import (
@@ -46,13 +46,9 @@ class DefinitieCheckResult:
 
     action: CheckAction
     existing_definitie: DefinitieRecord | None = None
-    duplicates: list[DuplicateMatch] = None
+    duplicates: list[DuplicateMatch] = field(default_factory=list)
     message: str = ""
     confidence: float = 0.0
-
-    def __post_init__(self):  # Post-initialisatie voor default lijst
-        if self.duplicates is None:  # Controleer of duplicates lijst bestaat
-            self.duplicates = []  # Initialiseer lege lijst als deze niet bestaat
 
 
 class DefinitieChecker:
@@ -403,21 +399,30 @@ class DefinitieChecker:
         Returns:
             True als succesvol goedgekeurd
         """
-        return self.repository.change_status(
-            definitie_id, DefinitieStatus.ESTABLISHED, approved_by, notes
+        return cast(
+            bool,
+            self.repository.change_status(
+                definitie_id, DefinitieStatus.ESTABLISHED, approved_by, notes
+            ),
         )
 
     def get_pending_definitions(self) -> list[DefinitieRecord]:
         """Haal definities op die wachten op goedkeuring."""
-        return self.repository.search_definities(status=DefinitieStatus.REVIEW)
+        return cast(
+            list[DefinitieRecord],
+            self.repository.search_definities(status=DefinitieStatus.REVIEW),
+        )
 
     def get_established_definitions(
         self, organisatorische_context: str | None = None
     ) -> list[DefinitieRecord]:
         """Haal vastgestelde definities op."""
-        return self.repository.search_definities(
-            status=DefinitieStatus.ESTABLISHED,
-            organisatorische_context=organisatorische_context,
+        return cast(
+            list[DefinitieRecord],
+            self.repository.search_definities(
+                status=DefinitieStatus.ESTABLISHED,
+                organisatorische_context=organisatorische_context,
+            ),
         )
 
     def export_established_definitions(
@@ -437,7 +442,7 @@ class DefinitieChecker:
         if organisatorische_context:
             filters["organisatorische_context"] = organisatorische_context
 
-        return self.repository.export_to_json(file_path, filters)
+        return cast(int, self.repository.export_to_json(file_path, filters))
 
     def import_external_definitions(
         self, file_path: str, import_by: str | None = None
@@ -452,7 +457,10 @@ class DefinitieChecker:
         Returns:
             Tuple van (succesvol, gefaald, errors)
         """
-        return self.repository.import_from_json(file_path, import_by)
+        return cast(
+            tuple[int, int, list[str]],
+            self.repository.import_from_json(file_path, import_by),
+        )
 
     def _handle_exact_match(
         self, existing: DefinitieRecord, search_term: str | None = None

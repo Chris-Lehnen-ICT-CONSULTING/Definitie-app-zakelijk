@@ -14,6 +14,9 @@ from utils.cache import cached
 
 logger = logging.getLogger(__name__)
 
+# Module-level cache dictionary for validation results
+_VALIDATION_CACHE: dict[str, tuple[Any, float]] = {}
+
 
 def cache_validation_results(ttl: int = 300):
     """
@@ -29,12 +32,7 @@ def cache_validation_results(ttl: int = 300):
             # Genereer cache key gebaseerd op functie naam en argumenten
             cache_key = _generate_cache_key(func.__name__, args, kwargs)
 
-            # Module-level simple cache dict (streamlit-vrij)
-            global _VALIDATION_CACHE
-            try:
-                _VALIDATION_CACHE
-            except NameError:
-                _VALIDATION_CACHE = {}
+            # Use module-level cache dict (streamlit-vrij)
             cache = _VALIDATION_CACHE
 
             # Check of resultaat in cache zit en nog geldig is

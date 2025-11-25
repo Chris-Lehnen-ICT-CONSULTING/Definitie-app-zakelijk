@@ -9,7 +9,7 @@ from __future__ import annotations
 import logging
 import re
 import xml.etree.ElementTree as ET
-from typing import Any
+from typing import Any, cast
 
 try:
     import aiohttp
@@ -157,4 +157,5 @@ async def rechtspraak_lookup(term: str) -> LookupResult | None:
     ecli = m.group(0).upper()
     logger.info(f"Rechtspraak ECLI lookup: {ecli}")
     async with RechtspraakRESTService() as svc:
-        return await svc.fetch_by_ecli(ecli)
+        result = await svc.fetch_by_ecli(ecli)
+        return cast("LookupResult | None", result)

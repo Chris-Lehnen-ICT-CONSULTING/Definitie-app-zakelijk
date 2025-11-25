@@ -161,7 +161,7 @@ class ToetsregelManager:
         try:
             if regel_file.exists():
                 with open(regel_file, encoding="utf-8") as f:
-                    regel_data = json.load(f)
+                    regel_data: dict[str, Any] = json.load(f)
 
                 # Cache regel
                 self._regels_cache[regel_id] = regel_data

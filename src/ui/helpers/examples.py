@@ -9,7 +9,7 @@ Priority order:
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, cast
 
 from ui.session_state import SessionStateManager
 
@@ -55,7 +55,7 @@ def resolve_examples(
                 logger.debug(
                     f"[RESOLVE] ✅ Tier 1 (Session): {count} items for {state_key}"
                 )
-            return result
+            return cast(dict[str, Any], result)
     except Exception as e:
         if debug_mode:
             logger.debug(f"[RESOLVE] ❌ Tier 1 (Session) failed: {e}")
@@ -88,7 +88,7 @@ def resolve_examples(
                             logger.debug(
                                 f"[RESOLVE] ✅ Tier 2 (Metadata): {count} items for def_id={def_id}"
                             )
-                        return canon
+                        return cast(dict[str, Any], canon)
     except Exception as e:
         if debug_mode:
             logger.debug(f"[RESOLVE] ❌ Tier 2 (Metadata) failed: {e}")
@@ -110,7 +110,7 @@ def resolve_examples(
                         logger.debug(
                             f"[RESOLVE] ✅ Tier 3 (Last generation): {count} items"
                         )
-                    return canon
+                    return cast(dict[str, Any], canon)
     except Exception as e:
         if debug_mode:
             logger.debug(f"[RESOLVE] ❌ Tier 3 (Last generation) failed: {e}")
@@ -141,7 +141,7 @@ def resolve_examples(
                     logger.debug(
                         f"[RESOLVE] ✅ Tier 4 (Database): {count} items for def_id={def_id}"
                     )
-                return canon
+                return cast(dict[str, Any], canon)
     except Exception as e:
         if debug_mode:
             logger.debug(f"[RESOLVE] ❌ Tier 4 (Database) failed: {e}")

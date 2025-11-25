@@ -7,6 +7,7 @@ zonder enige database dependencies. Dit maakt de logic testbaar en herbruikbaar.
 
 import logging
 from dataclasses import dataclass
+from typing import cast
 
 from services.interfaces import Definition
 
@@ -115,13 +116,14 @@ class DuplicateDetectionService:
         def _norm_list(lst):
             return tuple(sorted([str(x).lower().strip() for x in (lst or [])]))
 
-        return (
+        return cast(
+            bool,
             _norm_list(getattr(def1, "organisatorische_context", []))
             == _norm_list(getattr(def2, "organisatorische_context", []))
             and _norm_list(getattr(def1, "juridische_context", []))
             == _norm_list(getattr(def2, "juridische_context", []))
             and _norm_list(getattr(def1, "wettelijke_basis", []))
-            == _norm_list(getattr(def2, "wettelijke_basis", []))
+            == _norm_list(getattr(def2, "wettelijke_basis", [])),
         )
 
     def _calculate_similarity(self, str1: str, str2: str) -> float:

@@ -9,18 +9,23 @@ This service provides async AI capabilities using AsyncGPTClient with:
 - Proper error wrapping
 """
 
+from __future__ import annotations
+
 import asyncio
 import logging
 import time
+from types import ModuleType
+from typing import Any
 
 # Token counting - try tiktoken, fallback to estimation
+_tiktoken: ModuleType | None
 try:
-    import tiktoken
+    import tiktoken as _tiktoken
 
     TIKTOKEN_AVAILABLE = True
 except ImportError:
     TIKTOKEN_AVAILABLE = False
-    tiktoken = None
+    _tiktoken = None
 
 from openai import APIConnectionError, OpenAIError, RateLimitError
 
@@ -82,7 +87,7 @@ class AIServiceV2(AIServiceInterface):
         self._client: AsyncGPTClient | None = None
         self.default_model = default_model
         self.use_cache = use_cache
-        self._token_encoders = {}  # Cache encoders per model
+        self._token_encoders: dict[str, Any] = {}  # Cache encoders per model
 
         # Initialize default model encoder if available
         if TIKTOKEN_AVAILABLE:
@@ -276,7 +281,7 @@ class AIServiceV2(AIServiceInterface):
 
         if model not in self._token_encoders:
             try:
-                self._token_encoders[model] = tiktoken.encoding_for_model(model)
+                self._token_encoders[model] = _tiktoken.encoding_for_model(model)  # type: ignore[union-attr]
                 logger.debug(f"Created token encoder for model: {model}")
             except Exception as e:
                 logger.warning(f"Failed to initialize tiktoken for {model}: {e}")

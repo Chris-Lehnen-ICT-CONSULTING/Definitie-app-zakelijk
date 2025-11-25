@@ -10,6 +10,9 @@ from openai import OpenAI, OpenAIError
 
 from utils.cache import cache_example_generation, cache_synonym_generation
 
+# Default model for OpenAI API calls
+_DEFAULT_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+
 # Initialize OpenAI client using environment variable only
 _client = OpenAI(
     api_key=(os.getenv("OPENAI_API_KEY") or os.getenv("OPENAI_API_KEY_PROD"))
@@ -32,12 +35,13 @@ def genereer_voorbeeld_zinnen(
     )
     try:
         resp = _client.chat.completions.create(
-            model=None,
+            model=_DEFAULT_MODEL,
             messages=[{"role": "user", "content": prompt}],
             temperature=0.5,
             max_tokens=200,
         )
-        blob = resp.choices[0].message.content.strip()
+        content = resp.choices[0].message.content
+        blob = content.strip() if content else ""
     except OpenAIError as e:
         return [f"❌ Fout bij genereren korte voorbeelden: {e}"]
 
@@ -68,12 +72,13 @@ def genereer_praktijkvoorbeelden(
     )
     try:
         resp = _client.chat.completions.create(
-            model=None,
+            model=_DEFAULT_MODEL,
             messages=[{"role": "user", "content": prompt}],
             temperature=0.6,
             max_tokens=400,
         )
-        blob = resp.choices[0].message.content.strip()
+        content = resp.choices[0].message.content
+        blob = content.strip() if content else ""
     except OpenAIError as e:
         return [f"❌ Fout bij genereren praktijkvoorbeelden: {e}"]
 
@@ -102,12 +107,13 @@ def genereer_tegenvoorbeelden(
     )
     try:
         resp = _client.chat.completions.create(
-            model=None,
+            model=_DEFAULT_MODEL,
             messages=[{"role": "user", "content": prompt}],
             temperature=0.6,
             max_tokens=300,
         )
-        blob = resp.choices[0].message.content.strip()
+        content = resp.choices[0].message.content
+        blob = content.strip() if content else ""
     except OpenAIError as e:
         return [f"❌ Fout bij genereren tegenvoorbeelden: {e}"]
 
@@ -135,12 +141,13 @@ def genereer_synoniemen(begrip: str, context_dict: dict[str, list[str]]) -> str:
     )
     try:
         resp = _client.chat.completions.create(
-            model=None,
+            model=_DEFAULT_MODEL,
             messages=[{"role": "user", "content": prompt}],
             temperature=0.2,
             max_tokens=150,
         )
-        return resp.choices[0].message.content.strip()
+        content = resp.choices[0].message.content
+        return content.strip() if content else ""
     except OpenAIError as e:
         return f"❌ Fout bij genereren synoniemen: {e}"
 
@@ -158,12 +165,13 @@ def genereer_antoniemen(begrip: str, context_dict: dict[str, list[str]]) -> str:
     )
     try:
         resp = _client.chat.completions.create(
-            model=None,
+            model=_DEFAULT_MODEL,
             messages=[{"role": "user", "content": prompt}],
             temperature=0.2,
             max_tokens=150,
         )
-        return resp.choices[0].message.content.strip()
+        content = resp.choices[0].message.content
+        return content.strip() if content else ""
     except OpenAIError as e:
         return f"❌ Fout bij genereren antoniemen: {e}"
 
@@ -181,11 +189,12 @@ def genereer_toelichting(begrip: str, context_dict: dict[str, list[str]]) -> str
     )
     try:
         resp = _client.chat.completions.create(
-            model=None,
+            model=_DEFAULT_MODEL,
             messages=[{"role": "user", "content": prompt}],
             temperature=0.3,
             max_tokens=200,
         )
-        return resp.choices[0].message.content.strip()
+        content = resp.choices[0].message.content
+        return content.strip() if content else ""
     except OpenAIError as e:
         return f"❌ Fout bij genereren toelichting: {e}"

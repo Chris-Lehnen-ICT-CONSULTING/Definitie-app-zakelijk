@@ -10,7 +10,7 @@ import json
 import logging
 import sqlite3
 from datetime import datetime
-from typing import Any
+from typing import Any, cast
 
 from services.definition_repository import DefinitionRepository
 from services.interfaces import Definition
@@ -129,14 +129,14 @@ class DefinitionEditRepository(DefinitionRepository):
                 self._add_history_entry(
                     definitie_id=definition_id,
                     begrip=definition.begrip,
-                    oude_waarde=old_definition.definitie if old_definition else None,
+                    oude_waarde=old_definition.definitie if old_definition else "",
                     nieuwe_waarde=definition.definitie,
                     wijziging_type="updated" if old_definition else "created",
                     wijziging_reden=wijziging_reden,
                     gewijzigd_door=gewijzigd_door,
                 )
 
-            return definition_id
+            return cast(int, definition_id)
 
         except Exception as e:
             logger.error(f"Error saving definition with history: {e}")
@@ -167,8 +167,8 @@ class DefinitionEditRepository(DefinitionRepository):
 
                 row = cursor.fetchone()
                 if row:
-                    current_version = row[0]
-                    return current_version != version_number
+                    current_version: int = row[0]
+                    return cast(bool, current_version != version_number)
 
                 return False
 
@@ -242,7 +242,7 @@ class DefinitionEditRepository(DefinitionRepository):
                 row = cursor.fetchone()
                 if row:
                     try:
-                        draft = json.loads(row[0])
+                        draft: dict[str, Any] = json.loads(row[0])
                         draft["auto_save_timestamp"] = row[1]
                         return draft
                     except json.JSONDecodeError:
@@ -333,7 +333,7 @@ class DefinitionEditRepository(DefinitionRepository):
                 # Build dynamic query
                 # Note: Geen hardcoded archived filter meer - status filter is nu expliciet
                 query = "SELECT * FROM definities WHERE 1=1"
-                params = []
+                params: list[Any] = []
 
                 if search_term:
                     query += " AND (begrip LIKE ? OR definitie LIKE ?)"
@@ -434,7 +434,7 @@ class DefinitionEditRepository(DefinitionRepository):
         except Exception as e:
             logger.error(f"Error fetching statistics: {e}")
 
-        return stats
+        return cast(dict[str, Any], stats)
 
     def _add_history_entry(
         self,

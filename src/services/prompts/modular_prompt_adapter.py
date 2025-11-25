@@ -7,7 +7,7 @@ PromptOrchestrator + modules systeem wordt gebruikt.
 
 import logging
 import threading
-from typing import Any
+from typing import Any, cast
 
 from services.definition_generator_config import UnifiedGeneratorConfig
 from services.definition_generator_context import EnrichedContext
@@ -296,7 +296,8 @@ class ModularPromptAdapter:
 
         try:
             # Gebruik orchestrator om prompt te bouwen
-            prompt = self._orchestrator.build_prompt(begrip, context, config)
+            orchestrator = cast(PromptOrchestrator, self._orchestrator)
+            prompt = orchestrator.build_prompt(begrip, context, config)
 
             # Apply compact mode post-processing indien nodig
             if self.component_config.compact_mode:
@@ -341,10 +342,13 @@ class ModularPromptAdapter:
         if not self._initialized:
             return {"error": "Adapter niet geïnitialiseerd"}
 
+        # Cast orchestrator (guaranteed non-None after _initialized check)
+        orchestrator = cast(PromptOrchestrator, self._orchestrator)
+
         # Basis metadata
-        metadata = {
+        metadata: dict[str, Any] = {
             "builder_type": "ModularPromptAdapter (True Modular Architecture)",
-            "total_available_components": len(self._orchestrator.modules),
+            "total_available_components": len(orchestrator.modules),
             "active_components": self._count_active_components(),
             "uses_orchestrator": True,
             "architecture_version": "2.0",
@@ -362,10 +366,10 @@ class ModularPromptAdapter:
         }
 
         # Module info
-        metadata["modules"] = self._orchestrator.get_registered_modules()
+        metadata["modules"] = orchestrator.get_registered_modules()
 
         # Execution metadata indien beschikbaar
-        exec_metadata = self._orchestrator.get_execution_metadata()
+        exec_metadata = orchestrator.get_execution_metadata()
         if exec_metadata:
             metadata["last_execution"] = exec_metadata
 

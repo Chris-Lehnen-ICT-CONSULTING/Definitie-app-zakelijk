@@ -17,7 +17,7 @@ from datetime import (  # Datum en tijd functionaliteit voor timestamps, timezon
     datetime,
 )
 from enum import Enum  # Enumeraties voor voorbeeld types en modi
-from typing import Any  # Type hints voor betere code documentatie
+from typing import Any, cast  # Type hints voor betere code documentatie
 
 from services.ai_service_v2 import AIServiceV2  # V2 AI service interface
 from src.config.config_manager import (
@@ -83,6 +83,7 @@ class ExampleRequest:
     max_examples: int = 3  # Default naar 3 voor alle voorbeelden
     temperature: float | None = None  # None betekent: gebruik centrale config
     model: str | None = None
+    extra_instruction: str | None = None  # Extra instructie voor retry logic
 
 
 @dataclass
@@ -381,7 +382,7 @@ class UnifiedExamplesGenerator:
             self.cache_hits += 1
             if DEBUG_ENABLED:
                 logger.debug(f"Cache hit for {request.example_type.value}")
-            return cached_value
+            return cast(list[str], cached_value)
 
         # Generate new value
         result = self._generate_sync(request)
@@ -395,17 +396,17 @@ class UnifiedExamplesGenerator:
         """Resilient example generation with retry logic and rate limiting."""
         # Route to specific resilient method based on example type
         if request.example_type == ExampleType.VOORBEELDZINNEN:
-            return await self._generate_resilient_sentence(request)
+            return cast(list[str], await self._generate_resilient_sentence(request))
         if request.example_type == ExampleType.PRAKTIJKVOORBEELDEN:
-            return await self._generate_resilient_practical(request)
+            return cast(list[str], await self._generate_resilient_practical(request))
         if request.example_type == ExampleType.TEGENVOORBEELDEN:
-            return await self._generate_resilient_counter(request)
+            return cast(list[str], await self._generate_resilient_counter(request))
         if request.example_type == ExampleType.SYNONIEMEN:
-            return await self._generate_resilient_synonyms(request)
+            return cast(list[str], await self._generate_resilient_synonyms(request))
         if request.example_type == ExampleType.ANTONIEMEN:
-            return await self._generate_resilient_antonyms(request)
+            return cast(list[str], await self._generate_resilient_antonyms(request))
         if request.example_type == ExampleType.TOELICHTING:
-            return await self._generate_resilient_explanation(request)
+            return cast(list[str], await self._generate_resilient_explanation(request))
         msg = f"Unknown example type: {request.example_type}"
         raise ValueError(msg)
 
@@ -956,15 +957,16 @@ def genereer_alle_voorbeelden(
     definitie: str,
     context_dict: dict[str, list[str]],
     mode: str = "RESILIENT",
-) -> dict[str, list[str]]:
+) -> dict[str, list[str] | str]:
     """Generate all types of examples in one call."""
     generator = get_examples_generator()
 
     # Convert string mode to enum
-    if isinstance(mode, str):
-        mode = GenerationMode(mode.lower())
+    generation_mode: GenerationMode = (
+        GenerationMode(mode.lower()) if isinstance(mode, str) else mode
+    )
 
-    results = {}
+    results: dict[str, list[str] | str] = {}
 
     # Use central configuration for max_examples per type
     # Map ExampleType enum to string keys for DEFAULT_EXAMPLE_COUNTS lookup
@@ -984,7 +986,7 @@ def genereer_alle_voorbeelden(
             definitie=definitie,
             context_dict=context_dict,
             example_type=example_type,
-            generation_mode=mode,
+            generation_mode=generation_mode,
             max_examples=max_examples_per_type.get(
                 example_type, 3
             ),  # Gebruik type-specifieke waarde
@@ -1016,7 +1018,7 @@ def genereer_alle_voorbeelden(
 # Async batch generation
 async def genereer_alle_voorbeelden_async(
     begrip: str, definitie: str, context_dict: dict[str, list[str]]
-) -> dict[str, list[str]]:
+) -> dict[str, list[str] | str]:
     """
     Generate all types of examples sequentially to avoid rate limiter contention.
 
@@ -1059,7 +1061,7 @@ async def genereer_alle_voorbeelden_async(
     try:
         # Execute requests sequentially to avoid rate limiter contention
         # Each request gets full rate limiter bandwidth without competition
-        all_results = []
+        all_results: list[list[str] | Exception] = []
         for i, req in enumerate(requests, 1):
             logger.info(
                 f"Generating {req.example_type.value} ({i}/{len(requests)}) for '{begrip}'"
@@ -1089,20 +1091,23 @@ async def genereer_alle_voorbeelden_async(
         }
 
     # Process results, handling individual failures gracefully
-    results = {}
-    for example_type, result in zip(example_types, all_results, strict=False):
+    results: dict[str, list[str] | str] = {}
+    for example_type, raw_result in zip(example_types, all_results, strict=False):
         # Check if this individual call failed
-        if isinstance(result, Exception):
-            logger.error(f"Failed to generate {example_type.value}: {result}")
+        if isinstance(raw_result, Exception):
+            logger.error(f"Failed to generate {example_type.value}: {raw_result}")
             # Voor toelichting een lege string, voor andere een lege lijst
             if example_type == ExampleType.TOELICHTING:
                 results[example_type.value] = ""
             else:
                 results[example_type.value] = []
-        elif example_type == ExampleType.TOELICHTING:
-            results[example_type.value] = result[0] if result else ""
         else:
-            results[example_type.value] = result
+            # raw_result is now narrowed to list[str]
+            example_list: list[str] = raw_result
+            if example_type == ExampleType.TOELICHTING:
+                results[example_type.value] = example_list[0] if example_list else ""
+            else:
+                results[example_type.value] = example_list
 
     total_duration = time.time() - start_time
     logger.info(

@@ -22,7 +22,7 @@ from datetime import (  # Datum en tijd functionaliteit voor timestamps, timezon
 )
 from enum import Enum  # Enumeraties voor prioriteit levels
 from pathlib import Path  # Object-georiënteerde pad manipulatie
-from typing import Any  # Type hints voor betere code documentatie
+from typing import Any, cast  # Type hints voor betere code documentatie
 
 logger = logging.getLogger(__name__)  # Logger instantie voor smart rate limiter module
 
@@ -96,7 +96,7 @@ class TokenBucket:
     def __init__(self, rate: float, capacity: int):
         self.rate = rate
         self.capacity = capacity
-        self.tokens = capacity
+        self.tokens: float = float(capacity)
         self.last_update = time.time()
         self._lock = asyncio.Lock()
 
@@ -293,7 +293,7 @@ class SmartRateLimiter:
             return True
 
         # Queue the request
-        future = asyncio.Future()
+        future: asyncio.Future[bool] = asyncio.Future()
         queued_request = QueuedRequest(
             priority=priority,
             timestamp=datetime.now(UTC),
@@ -311,7 +311,7 @@ class SmartRateLimiter:
                 result = await asyncio.wait_for(future, timeout=timeout)
             else:
                 result = await future
-            return result
+            return cast(bool, result)
         except TimeoutError:
             # Remove from queue if still there
             with contextlib.suppress(ValueError):

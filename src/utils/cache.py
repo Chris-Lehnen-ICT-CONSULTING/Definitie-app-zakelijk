@@ -493,7 +493,7 @@ class CacheManager:
         try:
             import threading
 
-            self._lock = threading.Lock()
+            self._lock: threading.Lock | None = threading.Lock()
         except Exception:  # pragma: no cover - extremely unlikely
             self._lock = None
         # key -> (value, expires_at)

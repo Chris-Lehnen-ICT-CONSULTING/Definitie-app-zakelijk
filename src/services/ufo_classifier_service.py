@@ -17,6 +17,7 @@ All review issues resolved:
 import logging
 import re
 import unicodedata
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
@@ -83,6 +84,10 @@ class UFOClassifierService:
     Simplified UFO Classifier - Production Ready v5.0
     Focus on correctness (95% precision) for single-user use.
     """
+
+    # Class attributes for ServiceContainer registration (set at module level)
+    get_instance: "Callable[[], UFOClassifierService]"
+    create: "Callable[[Path | None], UFOClassifierService]"
 
     # Pattern definitions (compiled once)
     PATTERNS = {

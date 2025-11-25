@@ -37,7 +37,7 @@ class VoorbeeldenDebugger:
 
     def __init__(self):
         """Initialize debug tracker."""
-        self.generation_id = None
+        self.generation_id: str | None = None
         self.enabled = DEBUG_ENABLED
 
     def start_generation(self, begrip: str, definitie: str) -> str:
@@ -49,15 +49,14 @@ class VoorbeeldenDebugger:
         if not self.enabled:
             return ""
 
-        self.generation_id = str(uuid.uuid4())[:8]
-        logger.debug(f"[{self.generation_id}] === START GENERATION ===")
-        logger.debug(f"[{self.generation_id}] Begrip: {begrip}")
-        logger.debug(f"[{self.generation_id}] Definitie length: {len(definitie)} chars")
-        logger.debug(
-            f"[{self.generation_id}] Timestamp: {datetime.now(UTC).isoformat()}"
-        )
+        generation_id = str(uuid.uuid4())[:8]
+        self.generation_id = generation_id
+        logger.debug(f"[{generation_id}] === START GENERATION ===")
+        logger.debug(f"[{generation_id}] Begrip: {begrip}")
+        logger.debug(f"[{generation_id}] Definitie length: {len(definitie)} chars")
+        logger.debug(f"[{generation_id}] Timestamp: {datetime.now(UTC).isoformat()}")
 
-        return self.generation_id
+        return generation_id
 
     def log_point(self, point: str, generation_id: str, **kwargs):
         """Log a specific point in the flow.

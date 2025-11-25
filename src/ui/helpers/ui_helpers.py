@@ -9,7 +9,7 @@ import logging
 from collections.abc import Callable, Generator
 from contextlib import contextmanager
 from functools import wraps
-from typing import Any, TypeVar
+from typing import Any, Literal, TypeVar
 
 import streamlit as st
 
@@ -207,10 +207,10 @@ def create_action_button(
     label: str,
     action: Callable,
     key: str | None = None,
-    type: str = "secondary",
+    type: Literal["primary", "secondary", "tertiary"] = "secondary",
     confirm: str | None = None,
     disabled: bool = False,
-    **kwargs,
+    **kwargs: Any,
 ) -> Any:
     """
     Create a button with optional confirmation and execute action.
@@ -372,21 +372,24 @@ def show_status_badge(
 
 
 def create_tab_navigation(
-    tabs: dict[str, Callable], default_tab: str | None = None
+    tabs: dict[str, Callable[[], Any]], default_tab: str | None = None
 ) -> None:
     """
     Create tab navigation with automatic state management.
 
     Replaces repeated tab creation patterns.
+
+    Note: default_tab parameter is kept for API compatibility but st.tabs
+    does not support programmatic tab selection - all tabs render their content.
     """
+    _ = default_tab  # Parameter kept for API compatibility
     tab_names = list(tabs.keys())
-    default_index = tab_names.index(default_tab) if default_tab else 0
+    tab_containers = st.tabs(tab_names)
 
-    selected_tab = st.tabs(tab_names)[default_index]
-
-    # Execute the selected tab's render function
-    if selected_tab in tabs:
-        tabs[selected_tab]()
+    # Execute each tab's render function within its container
+    for tab_name, tab_container in zip(tab_names, tab_containers, strict=False):
+        with tab_container:
+            tabs[tab_name]()
 
 
 # === Data Export Helpers ===

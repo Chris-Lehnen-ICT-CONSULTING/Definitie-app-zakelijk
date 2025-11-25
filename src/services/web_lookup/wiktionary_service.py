@@ -8,7 +8,7 @@ nl.wiktionary.org om een korte definitie op te halen.
 from __future__ import annotations
 
 import logging
-from typing import Any
+from typing import Any, cast
 from urllib.parse import quote
 
 try:
@@ -128,7 +128,8 @@ class WiktionaryService:
 
     async def _search_page(self, term: str) -> dict[str, Any] | None:
         """Zoek naar het beste lemma met eenvoudige scoringsheuristiek."""
-        params = {
+        assert self.session is not None
+        params: dict[str, str | int] = {
             "action": "query",
             "format": "json",
             "list": "search",
@@ -162,7 +163,8 @@ class WiktionaryService:
 
     async def _get_extract(self, title: str) -> str | None:
         """Haal een korte tekst uit het lemma. Prefer plaintext extract; fallback naar wikitext-parse."""
-        params = {
+        assert self.session is not None
+        params: dict[str, str | int] = {
             "action": "query",
             "format": "json",
             "prop": "extracts",
@@ -188,7 +190,8 @@ class WiktionaryService:
 
     async def _extract_from_wikitext(self, title: str) -> str | None:
         """Fallback: haal wikitext op en parse eerste definitieregel (# ...)."""
-        params = {
+        assert self.session is not None
+        params: dict[str, str] = {
             "action": "parse",
             "format": "json",
             "prop": "wikitext",
@@ -237,4 +240,4 @@ class WiktionaryService:
 async def wiktionary_lookup(term: str, language: str = "nl") -> LookupResult | None:
     """Standalone lookup helper."""
     async with WiktionaryService(language) as svc:
-        return await svc.lookup(term)
+        return cast(LookupResult | None, await svc.lookup(term))

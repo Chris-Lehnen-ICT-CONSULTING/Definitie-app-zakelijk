@@ -7,6 +7,7 @@ over juridische toepassingsgebieden te bewaren.
 
 from dataclasses import dataclass
 from enum import Enum
+from typing import Any
 
 
 class ContextType(Enum):
@@ -170,10 +171,11 @@ class OrganisatieWettenMapper:
             Lijst van relevante wetten
         """
         org_info = cls.ORGANISATIE_WETTEN.get(organisatie.upper(), {})
-        return org_info.get("wetten", [])
+        wetten = org_info.get("wetten", [])
+        return list(wetten) if wetten else []
 
     @classmethod
-    def get_organisatie_info(cls, organisatie: str) -> dict[str, str]:
+    def get_organisatie_info(cls, organisatie: str) -> dict[str, Any]:
         """
         Krijg volledige informatie over een organisatie.
 

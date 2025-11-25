@@ -12,7 +12,7 @@ import pickle
 import time
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, cast
 
 from services.definition_generator_config import CacheConfig, CacheStrategy
 from services.interfaces import Definition, GenerationRequest
@@ -28,7 +28,7 @@ class CacheEntry:
     created_at: float
     ttl: int
     access_count: int = 0
-    last_accessed: float = None
+    last_accessed: float | None = None
 
     def __post_init__(self):
         if self.last_accessed is None:
@@ -197,7 +197,7 @@ class RedisCacheBackend(CacheBackend):
 
             if data:
                 # Security: pickle usage is safe here as data is internally managed
-                entry = pickle.loads(data)  # nosec B301
+                entry = cast(CacheEntry, pickle.loads(data))  # nosec B301
                 if entry.is_expired:
                     await self.delete(key)
                     self._stats["misses"] += 1
@@ -367,7 +367,7 @@ class DefinitionGeneratorCache:
             "hit_rate": 0.0,
         }
 
-    def _create_backend(self) -> CacheBackend:
+    def _create_backend(self) -> CacheBackend | None:
         """Create appropriate cache backend based on configuration."""
         if self.config.strategy == CacheStrategy.NONE:
             return None
