@@ -6,7 +6,7 @@ en de nieuwe clean services die geen UI dependencies hebben.
 """
 
 import logging
-from typing import Any
+from typing import Any, cast
 
 import streamlit as st
 
@@ -220,7 +220,9 @@ class UIComponentsAdapter:
             Lijst met formaat opties
         """
         try:
-            return self.service.ui_service.get_export_formats()
+            return cast(
+                list[dict[str, Any]], self.service.ui_service.get_export_formats()
+            )
         except Exception as e:
             logger.error(f"Fout bij ophalen export formaten: {e}")
             # Fallback

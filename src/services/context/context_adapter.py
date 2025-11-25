@@ -6,7 +6,7 @@ For Streamlit integration, use ui/helpers/context_adapter.py instead.
 """
 
 import logging
-from typing import Any
+from typing import Any, cast
 
 from services.context.context_manager import (
     ContextManager,
@@ -85,7 +85,7 @@ class ServiceContextAdapter:
         if additional_context:
             merged.update(additional_context)
 
-        return merged
+        return cast("dict[str, Any]", merged)
 
     def prepare_generation_request(
         self, begrip: str, context_data: dict[str, Any] | None = None, **kwargs

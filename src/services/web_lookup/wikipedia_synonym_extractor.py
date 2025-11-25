@@ -13,7 +13,7 @@ import asyncio
 import logging
 from dataclasses import dataclass, field
 from difflib import SequenceMatcher
-from typing import Any
+from typing import Any, cast
 from urllib.parse import quote
 
 try:
@@ -299,7 +299,7 @@ class WikipediaSynonymExtractor:
         await self._rate_limit()
 
         # First check if page is disambiguation
-        params = {
+        params: dict[str, str | int] = {
             "action": "query",
             "format": "json",
             "titles": term,
@@ -308,7 +308,9 @@ class WikipediaSynonymExtractor:
         }
 
         try:
-            async with self.session.get(self.api_url, params=params) as response:
+            async with self.session.get(
+                self.api_url, params=cast(dict[str, str], params)
+            ) as response:
                 if response.status != 200:
                     return []
 
@@ -334,7 +336,7 @@ class WikipediaSynonymExtractor:
                 # Get page links (alternative terms)
                 await self._rate_limit()
 
-                links_params = {
+                links_params: dict[str, str | int] = {
                     "action": "query",
                     "format": "json",
                     "titles": term,
@@ -343,7 +345,7 @@ class WikipediaSynonymExtractor:
                 }
 
                 async with self.session.get(
-                    self.api_url, params=links_params
+                    self.api_url, params=cast(dict[str, str], links_params)
                 ) as links_response:
                     if links_response.status != 200:
                         return []
@@ -481,4 +483,5 @@ async def extract_wikipedia_synonyms(
     async with WikipediaSynonymExtractor(
         language=language, rate_limit_delay=rate_limit_delay
     ) as extractor:
-        return await extractor.extract_synonyms(term)
+        result: list[SynonymCandidate] = await extractor.extract_synonyms(term)
+        return result

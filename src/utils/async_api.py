@@ -12,9 +12,10 @@ from datetime import UTC, datetime, timedelta
 
 UTC = UTC  # Python 3.10 compatibility
 from functools import wraps
-from typing import Any
+from typing import Any, cast
 
 from openai import AsyncOpenAI, OpenAIError
+from openai.types.chat import ChatCompletionMessageParam
 
 from utils.cache import _cache, cache_gpt_call
 
@@ -37,8 +38,8 @@ class AsyncRateLimiter:
 
     def __init__(self, config: RateLimitConfig):
         self.config = config
-        self.requests_this_minute = []
-        self.requests_this_hour = []
+        self.requests_this_minute: list[datetime] = []
+        self.requests_this_hour: list[datetime] = []
         self.semaphore = asyncio.Semaphore(config.max_concurrent)
         self._lock = asyncio.Lock()
 
@@ -144,7 +145,7 @@ class AsyncGPTClient:
             if cached_result is not None:
                 self.session_stats["cache_hits"] += 1
                 logger.debug(f"Cache hit for prompt: {prompt[:50]}...")
-                return cached_result
+                return cast(str, cached_result)
 
         # Make API call with rate limiting and retries
         await self.rate_limiter.acquire()
@@ -152,7 +153,7 @@ class AsyncGPTClient:
         try:
             result = await self._make_request_with_retries(
                 prompt=prompt,
-                model=model,
+                model=model or "gpt-4",
                 temperature=temperature,
                 max_tokens=max_tokens,
                 system_prompt=system_prompt,
@@ -189,7 +190,7 @@ class AsyncGPTClient:
         for attempt in range(self.rate_limiter.config.max_retries):
             try:
                 # Build messages with optional system prompt
-                messages = []
+                messages: list[ChatCompletionMessageParam] = []
                 if system_prompt:
                     messages.append({"role": "system", "content": system_prompt})
                 messages.append({"role": "user", "content": prompt})
@@ -202,7 +203,8 @@ class AsyncGPTClient:
                     **kwargs,
                 )
 
-                result = response.choices[0].message.content.strip()
+                content = response.choices[0].message.content
+                result = content.strip() if content else ""
 
                 # Track token usage
                 if hasattr(response, "usage") and response.usage:

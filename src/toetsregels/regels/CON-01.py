@@ -133,7 +133,7 @@ class CON01Validator:
             )
 
         # 2️⃣ Herken bredere contexttermen via patronen
-        contextuele_term_hits = set()
+        contextuele_term_hits: set[str] = set()
         for pattern in self.compiled_patterns:
             matches = pattern.findall(definitie)
             contextuele_term_hits.update(match.lower() for match in matches)

@@ -73,7 +73,11 @@ class SAM07Validator:
             else:
                 result = f"❌ SAM-07: uitbreiding(en) herkend ({', '.join(uitbreidingen)}), onvoldoende kernachtig"
 
-            return f"❌ SAM-07: uitbreiding(en) herkend ({', '.join(uitbreidingen)}), zonder correcte toelichting"
+            return (
+                False,
+                f"❌ SAM-07: uitbreiding(en) herkend ({', '.join(uitbreidingen)}), zonder correcte toelichting",
+                0.0,
+            )
         except Exception as e:
             logger.error(f"Fout in {self.id} validator: {e}")
             return False, f"⚠️ {self.id}: fout bij uitvoeren toetsregel", 0.0

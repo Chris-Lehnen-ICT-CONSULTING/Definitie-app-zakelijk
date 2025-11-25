@@ -17,7 +17,7 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 from enum import Enum
 from functools import lru_cache
-from typing import Any
+from typing import Any, cast
 
 logger = logging.getLogger(__name__)
 
@@ -1333,9 +1333,9 @@ class PatternMatcher:
             },
         }
 
-    def _compile_all_patterns(self) -> dict[UFOCategory, dict[str, re.Pattern]]:
+    def _compile_all_patterns(self) -> dict[UFOCategory, dict[str, re.Pattern[str]]]:
         """Compileer alle regex patronen voor snelle matching."""
-        compiled = {}
+        compiled: dict[UFOCategory, dict[str, re.Pattern[str]]] = {}
 
         for category, data in self.patterns.items():
             compiled[category] = {}
@@ -1500,7 +1500,7 @@ class PatternMatcher:
                     UFOCategory.KIND,
                     0.9,
                 ),
-                (r"zaak van", UFOCategory.ABSTRACT, 0.7),
+                (r"zaak van", UFOCategory.MODE, 0.7),
             ],
             "huwelijk": [
                 (
@@ -1588,11 +1588,11 @@ class PatternMatcher:
 
     def get_patterns_for_category(self, category: UFOCategory) -> dict[str, Any]:
         """Haal alle patronen op voor een specifieke categorie."""
-        return self.patterns.get(category, {})
+        return cast(dict[str, Any], self.patterns.get(category, {}))
 
     def get_vocabulary_for_domain(self, domain: str) -> set[str]:
         """Haal vocabulaire op voor een specifiek juridisch domein."""
-        return self.legal_vocabulary.get(domain, set())
+        return cast(set[str], self.legal_vocabulary.get(domain, set()))
 
     def explain_matches(self, matches: list[PatternMatch]) -> str:
         """

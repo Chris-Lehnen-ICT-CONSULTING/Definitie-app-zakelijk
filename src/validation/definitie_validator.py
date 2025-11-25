@@ -6,11 +6,14 @@ Deze module bevat de kwaliteitscontrole logica voor gegenereerde definities,
 inclusief regel-gebaseerde validatie en score berekening.
 """
 
+from __future__ import annotations
+
 import json
 import logging
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
+from pathlib import Path
 from typing import Any
 
 from domain.ontological_categories import OntologischeCategorie
@@ -44,21 +47,15 @@ class ValidationCriterion:
 
     rule_id: str
     description: str
-    patterns_to_avoid: list[str] = None  # Regex patronen om te vermijden
-    required_elements: list[str] = None  # Vereiste elementen
-    structure_checks: list[str] = None  # Structurele controles
+    patterns_to_avoid: list[str] = field(
+        default_factory=list
+    )  # Regex patronen om te vermijden
+    required_elements: list[str] = field(default_factory=list)  # Vereiste elementen
+    structure_checks: list[str] = field(default_factory=list)  # Structurele controles
     scoring_weight: float = 1.0  # Gewicht in totaalscore
     severity: ViolationSeverity = (
         ViolationSeverity.MEDIUM
     )  # Ernst niveau van de validatie regel
-
-    def __post_init__(self):  # Post-initialisatie voor default waarden
-        if self.patterns_to_avoid is None:
-            self.patterns_to_avoid = []
-        if self.required_elements is None:
-            self.required_elements = []
-        if self.structure_checks is None:
-            self.structure_checks = []
 
 
 @dataclass
@@ -86,11 +83,7 @@ class DefinitieValidationResult:
     categorie_compliance: float  # Compliance voor specifieke categorie
     is_acceptable: bool  # Of definitie geaccepteerd wordt
     improvement_suggestions: list[str]
-    detailed_scores: dict[str, float] = None  # Score per regel
-
-    def __post_init__(self):
-        if self.detailed_scores is None:
-            self.detailed_scores = {}
+    detailed_scores: dict[str, float] = field(default_factory=dict)  # Score per regel
 
     def get_critical_violations(self) -> list[RuleViolation]:
         """Haal kritieke violations op."""
@@ -690,10 +683,10 @@ class DefinitieValidator:
         self, violations: list[RuleViolation]
     ) -> list[str]:
         """Genereer improvement suggestions op basis van violations."""
-        suggestions = []
+        suggestions: list[str] = []
 
         # Group violations by type
-        violation_groups = {}
+        violation_groups: dict[ViolationType, list[RuleViolation]] = {}
         for violation in violations:
             v_type = violation.violation_type
             if v_type not in violation_groups:
@@ -776,22 +769,21 @@ def valideer_modulaire_toetsregels_consistentie(
     Returns:
         Dictionary met validatie resultaten
     """
-    from pathlib import Path
-
     # Default path naar modulaire regels
+    regels_path: Path
     if not regels_dir:
-        regels_dir = Path(__file__).parents[1] / "config" / "toetsregels" / "regels"
+        regels_path = Path(__file__).parents[1] / "config" / "toetsregels" / "regels"
     else:
-        regels_dir = Path(regels_dir)
+        regels_path = Path(regels_dir)
 
-    if not regels_dir.exists():
-        return {"error": f"Regels directory bestaat niet: {regels_dir}"}
+    if not regels_path.exists():
+        return {"error": f"Regels directory bestaat niet: {regels_path}"}
 
     # Verzamel alle JSON en Python bestanden
-    json_files = {}
-    python_files = {}
+    json_files: dict[str, Path] = {}
+    python_files: dict[str, Path] = {}
 
-    for file in regels_dir.iterdir():
+    for file in regels_path.iterdir():
         if file.suffix == ".json":
             rule_id = file.stem
             json_files[rule_id] = file
@@ -799,27 +791,23 @@ def valideer_modulaire_toetsregels_consistentie(
             rule_id = file.stem
             python_files[rule_id] = file
 
-    # Analyseer resultaten
-    results = {
-        "json_count": len(json_files),
-        "python_count": len(python_files),
-        "missing_python": [],
-        "missing_json": [],
-        "naming_inconsistencies": [],
-        "invalid_validators": [],
-        "incomplete_rules": [],
-        "consistent_rules": [],
-        "consistency_percentage": 0.0,
-    }
+    # Analyseer resultaten - use typed lists to avoid mypy errors
+    missing_python: list[str] = []
+    missing_json: list[str] = []
+    naming_inconsistencies: list[dict[str, str]] = []
+    invalid_validators: list[dict[str, str]] = []
+    incomplete_rules: list[dict[str, Any]] = []
+    consistent_rules: list[str] = []
+    consistency_percentage: float = 0.0
 
     # Check voor ontbrekende Python modules
     for json_id in json_files:
         # Probeer beide naamgevingen (- en _)
         python_id = json_id.replace("-", "_")
         if json_id not in python_files and python_id not in python_files:
-            results["missing_python"].append(json_id)
+            missing_python.append(json_id)
         elif json_id not in python_files and python_id in python_files:
-            results["naming_inconsistencies"].append(
+            naming_inconsistencies.append(
                 {
                     "json": json_id,
                     "python": python_id,
@@ -832,7 +820,7 @@ def valideer_modulaire_toetsregels_consistentie(
         # Probeer beide naamgevingen (_ en -)
         json_id = python_id.replace("_", "-")
         if python_id not in json_files and json_id not in json_files:
-            results["missing_json"].append(python_id)
+            missing_json.append(python_id)
 
     # Valideer Python module structuur
     for python_id, python_file in python_files.items():
@@ -848,7 +836,7 @@ def valideer_modulaire_toetsregels_consistentie(
                     f"{python_id.upper().replace('_', '').replace('-', '')}Validator"
                 )
                 if f"class {alt_class_name}" not in content:
-                    results["invalid_validators"].append(
+                    invalid_validators.append(
                         {
                             "file": python_id,
                             "issue": f"Validator class '{class_name}' niet gevonden",
@@ -857,11 +845,11 @@ def valideer_modulaire_toetsregels_consistentie(
 
             # Check voor validate methode
             if "def validate(" not in content:
-                results["invalid_validators"].append(
+                invalid_validators.append(
                     {"file": python_id, "issue": "validate() methode niet gevonden"}
                 )
         except Exception as e:
-            results["invalid_validators"].append(
+            invalid_validators.append(
                 {"file": python_id, "issue": f"Kon bestand niet lezen: {e!s}"}
             )
 
@@ -871,7 +859,7 @@ def valideer_modulaire_toetsregels_consistentie(
             with open(json_file, encoding="utf-8") as f:
                 data = json.load(f)
 
-            issues = []
+            issues: list[str] = []
             if "id" not in data:
                 issues.append("id ontbreekt")
             if "naam" not in data or not data["naam"]:
@@ -880,31 +868,37 @@ def valideer_modulaire_toetsregels_consistentie(
                 issues.append("uitleg ontbreekt")
 
             if issues:
-                results["incomplete_rules"].append(
-                    {"rule_id": json_id, "issues": issues}
-                )
+                incomplete_rules.append({"rule_id": json_id, "issues": issues})
             else:
                 # Check of er een werkende Python module is
                 python_id = json_id.replace("-", "_")
                 if (json_id in python_files or python_id in python_files) and not any(
                     v["file"] == json_id or v["file"] == python_id
-                    for v in results["invalid_validators"]
+                    for v in invalid_validators
                 ):
-                    results["consistent_rules"].append(json_id)
+                    consistent_rules.append(json_id)
 
         except Exception as e:
-            results["incomplete_rules"].append(
+            incomplete_rules.append(
                 {"rule_id": json_id, "issues": [f"JSON parse error: {e!s}"]}
             )
 
     # Bereken consistentie percentage
     total_rules = max(len(json_files), len(python_files))
     if total_rules > 0:
-        results["consistency_percentage"] = (
-            len(results["consistent_rules"]) / total_rules
-        ) * 100
+        consistency_percentage = (len(consistent_rules) / total_rules) * 100
 
-    return results
+    return {
+        "json_count": len(json_files),
+        "python_count": len(python_files),
+        "missing_python": missing_python,
+        "missing_json": missing_json,
+        "naming_inconsistencies": naming_inconsistencies,
+        "invalid_validators": invalid_validators,
+        "incomplete_rules": incomplete_rules,
+        "consistent_rules": consistent_rules,
+        "consistency_percentage": consistency_percentage,
+    }
 
 
 def format_modulaire_consistency_report(results: dict[str, Any]) -> str:

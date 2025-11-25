@@ -15,7 +15,7 @@ from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
 from enum import Enum
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 logger = logging.getLogger(__name__)
 
@@ -75,7 +75,7 @@ class SynonymSuggestionRecord:
         if not self.context_data:
             return {}
         try:
-            return json.loads(self.context_data)
+            return cast(dict[str, Any], json.loads(self.context_data))
         except json.JSONDecodeError:
             return {}
 
@@ -206,6 +206,9 @@ class SynonymRepository:
             )
 
             suggestion_id = cursor.lastrowid
+            if suggestion_id is None:
+                msg = "Failed to get lastrowid after INSERT"
+                raise RuntimeError(msg)
             logger.info(
                 f"Saved suggestion {suggestion_id}: '{hoofdterm}' → '{synoniem}' "
                 f"(confidence: {confidence:.2f})"
@@ -447,7 +450,7 @@ class SynonymRepository:
             Dictionary met statistieken
         """
         with self._get_connection() as conn:
-            stats = {}
+            stats: dict[str, Any] = {}
 
             # Total counts by status
             cursor = conn.execute(

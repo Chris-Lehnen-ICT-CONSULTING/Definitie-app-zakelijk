@@ -6,7 +6,7 @@ validator paren in plaats van de BaseValidator architectuur.
 """
 
 import logging
-from typing import Any
+from typing import Any, cast
 
 from .json_validator_loader import json_validator_loader
 
@@ -79,14 +79,14 @@ class ModularToetser:
         if gebruik_logging:
             logger.info(f"Validation complete: {len(results)} results")
 
-        return results
+        return cast(list[str], results)
 
     def get_available_rules(self) -> list[str]:
         """Haal lijst op van beschikbare validatie regels."""
         if self._available_rules is None:
             self._available_rules = self.loader.get_all_regel_ids()
             logger.info(f"Geladen {len(self._available_rules)} validatie regels")
-        return self._available_rules
+        return cast(list[str], self._available_rules)
 
     def validate_single_rule(
         self, rule_id: str, definitie: str, regel_config: dict[str, Any], **kwargs
@@ -122,7 +122,7 @@ class ModularToetser:
 
         # Return eerste resultaat (skip summary)
         if len(results) > 1:
-            return results[1]
+            return cast(str, results[1])
         return None
 
 

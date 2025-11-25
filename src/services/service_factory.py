@@ -11,7 +11,7 @@ Legacy validator removed (US-043):
 
 import logging
 import os
-from typing import Any
+from typing import Any, cast
 
 from services.container import ContainerConfigs, ServiceContainer
 from utils.container_manager import get_cached_container
@@ -91,17 +91,17 @@ class LegacyGenerationResult:
 ## NOTE: get_definition_service is defined later in this file with legacy fallback support.
 
 
-def _get_environment_config() -> dict:
+def _get_environment_config() -> dict[str, Any]:
     """Bepaal environment en return juiste config."""
     import os
 
     env = os.getenv("APP_ENV", "production")
 
     if env == "development":
-        return ContainerConfigs.development()
+        return cast(dict[str, Any], ContainerConfigs.development())
     if env == "testing":
-        return ContainerConfigs.testing()
-    return ContainerConfigs.production()
+        return cast(dict[str, Any], ContainerConfigs.testing())
+    return cast(dict[str, Any], ContainerConfigs.production())
 
 
 class ServiceAdapter:
@@ -355,7 +355,7 @@ class ServiceAdapter:
 
     def _handle_regeneration_context(self, begrip: str, kwargs: dict) -> str:
         """Handle regeneration context enhancement if present (deprecated - always returns base instructions)."""
-        return ensure_string(safe_dict_get(kwargs, "extra_instructies", ""))
+        return cast(str, ensure_string(safe_dict_get(kwargs, "extra_instructies", "")))
 
     def to_ui_response(self, response, agent_result: dict) -> dict:
         """Convert orchestrator response to canonical UI format.

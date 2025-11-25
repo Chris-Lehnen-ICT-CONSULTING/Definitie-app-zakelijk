@@ -14,7 +14,7 @@ from dataclasses import dataclass, field  # Decorators voor gestructureerde data
 from datetime import UTC, datetime  # Datum/tijd functionaliteit voor timestamps
 from enum import Enum  # Enumeratie types voor constante waarden
 from pathlib import Path  # Object-georiënteerde bestandspad manipulatie
-from typing import Any
+from typing import Any, cast
 
 import yaml  # YAML bestand parser voor configuratie bestanden
 
@@ -769,7 +769,7 @@ def get_prompt_temperature(prompt_type: str) -> float:
 
     if hasattr(config, "prompt_temperatures"):
         if hasattr(config.prompt_temperatures, prompt_type):
-            return getattr(config.prompt_temperatures, prompt_type)
+            return cast(float, getattr(config.prompt_temperatures, prompt_type))
 
     # Fallback to default if prompt type not found
     logger.warning(
@@ -810,7 +810,7 @@ def get_component_config(component: str, sub_component: str | None = None) -> di
 
         # Return config if found
         if comp_config:
-            return comp_config
+            return cast(dict[Any, Any], comp_config)
 
     # Fallback to defaults
     return {

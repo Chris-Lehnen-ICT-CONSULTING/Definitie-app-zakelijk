@@ -50,7 +50,7 @@ class ContextSource:
     source_type: str  # "web_lookup", "document", "user_input", "rule_interpretation"
     confidence: float  # 0.0 - 1.0
     content: str
-    metadata: dict[str, Any] = None
+    metadata: dict[str, Any] | None = None
 
     def __post_init__(self):
         if self.metadata is None:
@@ -106,7 +106,7 @@ class HybridContextManager:
     def __init__(self, config: ContextConfig):
         self.config = config
         self._hybrid_engine = None
-        self._context_cache = {}
+        self._context_cache: dict[str, Any] = {}
 
         # Initialize components
         self._init_hybrid_engine()

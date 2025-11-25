@@ -10,7 +10,7 @@ import json
 import logging
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any
+from typing import Any, cast
 
 from database.definitie_repository import DefinitieRepository, DefinitieStatus
 from services.workflow_service import WorkflowService
@@ -472,11 +472,14 @@ class DefinitionWorkflowService:
             status_enum = DefinitieStatus[new_status.upper()]
 
             # Delegate to repository
-            return self.repository.change_status(
-                definitie_id=definition_id,
-                new_status=status_enum,
-                changed_by=user,
-                notes=notes,
+            return cast(
+                bool,
+                self.repository.change_status(
+                    definitie_id=definition_id,
+                    new_status=status_enum,
+                    changed_by=user,
+                    notes=notes,
+                ),
             )
         except (KeyError, AttributeError) as e:
             logger.error(f"Invalid status '{new_status}': {e}")
@@ -503,7 +506,10 @@ class DefinitionWorkflowService:
             if not definition:
                 return []
             current_status = definition.status
-            return self.workflow_service.get_allowed_transitions(current_status)
+            return cast(
+                list[str],
+                self.workflow_service.get_allowed_transitions(current_status),
+            )
 
         except Exception as e:
             logger.error(f"Error getting allowed transitions for {definition_id}: {e}")
@@ -557,7 +563,7 @@ class DefinitionWorkflowService:
 
         org_list = _parse_list(getattr(definition, "organisatorische_context", []))
         jur_list = _parse_list(getattr(definition, "juridische_context", []))
-        wb_list = []
+        wb_list: list[Any] = []
         if hasattr(definition, "get_wettelijke_basis_list"):
             wb_list = definition.get_wettelijke_basis_list() or []
 
@@ -567,7 +573,7 @@ class DefinitionWorkflowService:
 
         # 2) Validatiescore en issues
         score = getattr(definition, "validation_score", None)
-        issues = []
+        issues: list[dict[str, Any]] = []
         if hasattr(definition, "get_validation_issues_list"):
             issues = definition.get_validation_issues_list() or []
         severities = {str(i.get("severity", "")).lower() for i in issues}

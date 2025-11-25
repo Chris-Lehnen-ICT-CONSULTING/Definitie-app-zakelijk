@@ -8,7 +8,7 @@ Dit vermijdt context pollution in queries terwijl precision behouden blijft.
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any
 
 
@@ -19,19 +19,11 @@ class ContextMatch:
     has_org_match: bool = False
     has_jur_match: bool = False
     has_wet_match: bool = False
-    org_matches: list[str] = None
-    jur_matches: list[str] = None
-    wet_matches: list[str] = None
+    org_matches: list[str] = field(default_factory=list)
+    jur_matches: list[str] = field(default_factory=list)
+    wet_matches: list[str] = field(default_factory=list)
     relevance_score: float = 0.0
     match_count: int = 0
-
-    def __post_init__(self):
-        if self.org_matches is None:
-            self.org_matches = []
-        if self.jur_matches is None:
-            self.jur_matches = []
-        if self.wet_matches is None:
-            self.wet_matches = []
 
 
 class ContextFilter:

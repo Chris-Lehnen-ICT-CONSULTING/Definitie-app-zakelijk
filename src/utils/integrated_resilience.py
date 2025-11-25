@@ -268,12 +268,12 @@ class IntegratedResilienceSystem:
         **kwargs,
     ) -> Any:
         """Execute function with retry logic and resilience framework."""
-        last_error = None
+        last_error: Exception | None = None
 
         for attempt in range(self.config.retry_config.max_retries + 1):
             try:
                 # Check if we should retry
-                if attempt > 0:
+                if attempt > 0 and last_error is not None:
                     if not await self.retry_manager.should_retry(last_error, attempt):
                         logger.error(f"Max retries exceeded for {endpoint_name}")
                         raise last_error
@@ -312,7 +312,11 @@ class IntegratedResilienceSystem:
                 if attempt == self.config.retry_config.max_retries:
                     raise e
 
-        raise last_error
+        # This should never be reached due to the raise in the except block above,
+        # but we need to satisfy mypy. If somehow reached with no error, raise RuntimeError.
+        if last_error is not None:
+            raise last_error
+        raise RuntimeError(f"Unexpected state in retry loop for {endpoint_name}")
 
     def get_system_status(self) -> dict[str, Any]:
         """Get comprehensive system status."""

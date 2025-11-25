@@ -6,7 +6,7 @@ Strangler Fig pattern voor web lookup modernisering.
 """
 
 import logging
-from typing import Any
+from typing import Any, cast
 from urllib.parse import quote
 
 # Probeer aiohttp te importeren, fallback voor testing
@@ -160,7 +160,7 @@ class WikipediaService:
 
     async def _search_page(self, term: str) -> dict[str, Any] | None:
         """Zoek naar beste match pagina met eenvoudige scoringsheuristiek."""
-        params = {
+        params: dict[str, str | int] = {
             "action": "query",
             "format": "json",
             "list": "search",
@@ -169,6 +169,7 @@ class WikipediaService:
             "srprop": "titlesnippet|snippet",
         }
 
+        assert self.session is not None
         async with self.session.get(self.api_url, params=params) as response:
             if response.status != 200:
                 logger.error(f"Wikipedia search API error: {response.status}")
@@ -198,7 +199,7 @@ class WikipediaService:
             # Als de beste score erg laag is, liever geen Wikipedia-resultaat gebruiken
             if score(best) < 50:
                 return None
-            return best
+            return cast(dict[str, Any], best)
 
     async def _get_page_details(self, title: str) -> dict[str, Any] | None:
         """Haal pagina details op via REST API."""
@@ -206,9 +207,10 @@ class WikipediaService:
         url = f"{self.rest_url}/page/summary/{encoded_title}"
 
         try:
+            assert self.session is not None
             async with self.session.get(url) as response:
                 if response.status == 200:
-                    return await response.json()
+                    return cast(dict[str, Any], await response.json())
                 if response.status == 404:
                     logger.info(f"Wikipedia pagina niet gevonden: {title}")
                     return None
@@ -289,7 +291,7 @@ class WikipediaService:
 
     async def get_page_categories(self, title: str) -> list[str]:
         """Haal categorieën van een pagina op."""
-        params = {
+        params: dict[str, str | int] = {
             "action": "query",
             "format": "json",
             "titles": title,
@@ -298,6 +300,7 @@ class WikipediaService:
         }
 
         try:
+            assert self.session is not None
             async with self.session.get(self.api_url, params=params) as response:
                 if response.status != 200:
                     return []
@@ -319,7 +322,7 @@ class WikipediaService:
 
     async def suggest_search_terms(self, partial_term: str) -> list[str]:
         """Suggesties voor zoektermen."""
-        params = {
+        params: dict[str, str | int] = {
             "action": "opensearch",
             "format": "json",
             "search": partial_term,
@@ -327,13 +330,14 @@ class WikipediaService:
         }
 
         try:
+            assert self.session is not None
             async with self.session.get(self.api_url, params=params) as response:
                 if response.status != 200:
                     return []
 
                 data = await response.json()
                 # OpenSearch returns [query, [suggestions], [descriptions], [urls]]
-                return data[1] if len(data) > 1 else []
+                return cast(list[str], data[1]) if len(data) > 1 else []
 
         except Exception as e:
             logger.error(f"Error getting suggestions voor {partial_term}: {e}")
@@ -353,7 +357,8 @@ async def wikipedia_lookup(term: str, language: str = "nl") -> LookupResult | No
         LookupResult of None
     """
     async with WikipediaService(language) as service:
-        return await service.lookup(term)
+        result: LookupResult | None = await service.lookup(term)
+        return result
 
 
 async def wikipedia_suggestions(partial_term: str, language: str = "nl") -> list[str]:
@@ -368,4 +373,5 @@ async def wikipedia_suggestions(partial_term: str, language: str = "nl") -> list
         Lijst van suggesties
     """
     async with WikipediaService(language) as service:
-        return await service.suggest_search_terms(partial_term)
+        suggestions: list[str] = await service.suggest_search_terms(partial_term)
+        return suggestions

@@ -13,7 +13,7 @@ from datetime import UTC, datetime
 UTC = UTC  # Python 3.10 compatibility
 from enum import Enum
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 logger = logging.getLogger(__name__)
 
@@ -76,20 +76,26 @@ class ContentSanitizer:
 
     # Convenience instance methods expected by tests
     def sanitize_html(self, value: Any) -> str:
-        return self.sanitize(
-            value, ContentType.HTML, SanitizationLevel.STRICT
-        ).sanitized_value
+        return cast(
+            str,
+            self.sanitize(
+                value, ContentType.HTML, SanitizationLevel.STRICT
+            ).sanitized_value,
+        )
 
     def sanitize_sql(self, value: Any) -> str:
         # Treat as plain text with STRICT rules (SQL patterns are included)
-        return self.sanitize(
-            value, ContentType.PLAIN_TEXT, SanitizationLevel.STRICT
-        ).sanitized_value
+        return cast(
+            str,
+            self.sanitize(
+                value, ContentType.PLAIN_TEXT, SanitizationLevel.STRICT
+            ).sanitized_value,
+        )
 
     def sanitize_path(self, value: Any) -> str:
         # Strictly remove traversal patterns
         result = self.sanitize(value, ContentType.PLAIN_TEXT, SanitizationLevel.STRICT)
-        return result.sanitized_value
+        return cast(str, result.sanitized_value)
 
     def sanitize_content(
         self, value: Any, content_type: str = "text", level: str | None = None
@@ -122,12 +128,15 @@ class ContentSanitizer:
         except Exception:
             pass
         lv = lvl_map.get(level, SanitizationLevel.MODERATE)
-        return self.sanitize(value, ct, lv).sanitized_value
+        return cast(str, self.sanitize(value, ct, lv).sanitized_value)
 
     def sanitize_dutch_text(self, value: Any) -> str:
-        return self.sanitize(
-            value, ContentType.DUTCH_TEXT, SanitizationLevel.MODERATE
-        ).sanitized_value
+        return cast(
+            str,
+            self.sanitize(
+                value, ContentType.DUTCH_TEXT, SanitizationLevel.MODERATE
+            ).sanitized_value,
+        )
 
     def sanitize_with_whitelist(self, html_input: str, allowed_tags: list[str]) -> str:
         # Remove all tags not in allowed list; very basic implementation
@@ -323,9 +332,9 @@ class ContentSanitizer:
             )
 
         original_value = value
-        sanitized_value = str(value)
-        changes_made = []
-        warnings = []
+        sanitized_str: str = str(value)
+        changes_made: list[str] = []
+        warnings: list[str] = []
 
         try:
             # Apply content type specific sanitization
@@ -335,15 +344,15 @@ class ContentSanitizer:
                         rule.level.value <= level.value
                         or level == SanitizationLevel.PARANOID
                     ):
-                        old_value = sanitized_value
-                        sanitized_value = re.sub(
+                        old_value = sanitized_str
+                        sanitized_str = re.sub(
                             rule.pattern,
                             rule.replacement,
-                            sanitized_value,
+                            sanitized_str,
                             flags=re.IGNORECASE,
                         )
 
-                        if old_value != sanitized_value:
+                        if old_value != sanitized_str:
                             changes_made.append(f"Applied rule: {rule.name}")
                             logger.debug(
                                 f"Sanitization rule '{rule.name}' applied to content"
@@ -353,39 +362,38 @@ class ContentSanitizer:
             if level in (SanitizationLevel.STRICT, SanitizationLevel.PARANOID):
                 # HTML entity encoding
                 if content_type not in [ContentType.HTML]:
-                    old_value = sanitized_value
-                    sanitized_value = html.escape(sanitized_value)
-                    if old_value != sanitized_value:
+                    old_value = sanitized_str
+                    sanitized_str = html.escape(sanitized_str)
+                    if old_value != sanitized_str:
                         changes_made.append("HTML entity encoding applied")
 
                 # Path traversal prevention
-                if "../" in sanitized_value or "..\\" in sanitized_value:
-                    sanitized_value = sanitized_value.replace("../", "").replace(
-                        "..\\", ""
-                    )
+                if "../" in sanitized_str or "..\\" in sanitized_str:
+                    sanitized_str = sanitized_str.replace("../", "").replace("..\\", "")
                     changes_made.append("Path traversal patterns removed")
                     warnings.append("Potential path traversal attempt detected")
 
                 # In strict mode, when sanitizing HTML, strip all remaining tags
                 if content_type == ContentType.HTML:
-                    old_value = sanitized_value
-                    sanitized_value = re.sub(r"<[^>]+>", "", sanitized_value)
-                    if old_value != sanitized_value:
+                    old_value = sanitized_str
+                    sanitized_str = re.sub(r"<[^>]+>", "", sanitized_str)
+                    if old_value != sanitized_str:
                         changes_made.append("HTML tags stripped (strict)")
 
             # Length validation
-            if len(sanitized_value) > 10000:  # Configurable limit
-                sanitized_value = sanitized_value[:10000]
+            if len(sanitized_str) > 10000:  # Configurable limit
+                sanitized_str = sanitized_str[:10000]
                 changes_made.append("Content truncated due to length limit")
                 warnings.append("Content was truncated")
 
             # Convert back to original type if possible
+            sanitized_value: str | int | float = sanitized_str
             if isinstance(original_value, int | float):
                 try:
                     if isinstance(original_value, int):
-                        sanitized_value = int(sanitized_value)
+                        sanitized_value = int(sanitized_str)
                     else:
-                        sanitized_value = float(sanitized_value)
+                        sanitized_value = float(sanitized_str)
                 except ValueError:
                     warnings.append("Could not convert back to numeric type")
 
@@ -437,7 +445,7 @@ class ContentSanitizer:
         if content_types is None:
             content_types = {}
 
-        sanitized_data = {}
+        sanitized_data: dict[str, Any] = {}
 
         for key, value in data.items():
             content_type = content_types.get(key, ContentType.PLAIN_TEXT)
@@ -458,7 +466,7 @@ class ContentSanitizer:
     def sanitize_for_definition(self, text: str) -> str:
         """Sanitize text specifically for definition content."""
         result = self.sanitize(text, ContentType.DEFINITION, SanitizationLevel.STRICT)
-        return result.sanitized_value
+        return cast(str, result.sanitized_value)
 
     def sanitize_user_input(self, data: dict[str, Any]) -> dict[str, Any]:
         """Sanitize user input with appropriate content types."""
@@ -512,7 +520,7 @@ class ContentSanitizer:
         total_sanitizations = len(self.sanitization_history)
 
         # Content type usage
-        content_type_usage = {}
+        content_type_usage: dict[str, int] = {}
         for record in self.sanitization_history:
             content_type = record.get("content_type", "unknown")
             content_type_usage[content_type] = (
@@ -520,7 +528,7 @@ class ContentSanitizer:
             )
 
         # Level usage
-        level_usage = {}
+        level_usage: dict[str, int] = {}
         for record in self.sanitization_history:
             level = record.get("level", "unknown")
             level_usage[level] = level_usage.get(level, 0) + 1
@@ -591,7 +599,7 @@ def sanitize_content(
     """Convenience function for content sanitization."""
     sanitizer = get_sanitizer()
     result = sanitizer.sanitize(value, content_type, level)
-    return result.sanitized_value
+    return cast(str, result.sanitized_value)
 
 
 def sanitize_for_definition(text: str) -> str:

@@ -29,7 +29,7 @@ class ToetsregelsCompatibilityAdapter:
             return self._legacy_cache
 
         # Bouw legacy formaat op
-        legacy_data = {"regels": {}}
+        legacy_data: dict[str, Any] = {"regels": {}}
 
         # Haal alle beschikbare regels op
         for regel_id in self.manager.get_available_regels():

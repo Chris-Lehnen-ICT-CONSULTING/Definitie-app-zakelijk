@@ -8,7 +8,7 @@ business logic for the definition edit interface.
 import contextlib
 import logging
 from datetime import datetime, timedelta
-from typing import Any
+from typing import Any, cast
 
 from services.definition_edit_repository import DefinitionEditRepository
 from services.interfaces import Definition
@@ -48,7 +48,7 @@ class DefinitionEditService:
         self.auto_save_enabled = True
 
         # Cache for performance
-        self._cache = {}
+        self._cache: dict[str, tuple[list[dict[str, Any]], datetime]] = {}
         self._cache_ttl = 300  # 5 minutes
 
         logger.info("DefinitionEditService initialized")
@@ -184,7 +184,7 @@ class DefinitionEditService:
             content["auto_save_timestamp"] = datetime.now().isoformat()
 
             # Save draft
-            return self.repository.auto_save_draft(definitie_id, content)
+            return cast(bool, self.repository.auto_save_draft(definitie_id, content))
 
         except Exception as e:
             logger.error(f"Auto-save failed: {e}")
@@ -201,7 +201,8 @@ class DefinitionEditService:
             Auto-save content indien beschikbaar
         """
         try:
-            return self.repository.get_latest_auto_save(definitie_id)
+            result = self.repository.get_latest_auto_save(definitie_id)
+            return cast(dict[str, Any] | None, result)
         except Exception as e:
             logger.error(f"Error restoring auto-save: {e}")
             return None
@@ -228,7 +229,10 @@ class DefinitionEditService:
                     return cached_data
 
             # Get from repository
-            history = self.repository.get_version_history(definitie_id, limit)
+            history = cast(
+                list[dict[str, Any]],
+                self.repository.get_version_history(definitie_id, limit),
+            )
 
             # Process history entries
             for entry in history:
@@ -326,7 +330,13 @@ class DefinitionEditService:
         Returns:
             Result dictionary met successen en fouten
         """
-        results = {"success": [], "failed": [], "total": len(updates)}
+        results: dict[str, Any] = {
+            "success": [],
+            "failed": [],
+            "total": len(updates),
+        }
+        success_list: list[int] = results["success"]
+        failed_list: list[dict[str, Any]] = results["failed"]
 
         for definitie_id, update_dict in updates:
             try:
@@ -338,9 +348,9 @@ class DefinitionEditService:
                 )
 
                 if result["success"]:
-                    results["success"].append(definitie_id)
+                    success_list.append(definitie_id)
                 else:
-                    results["failed"].append(
+                    failed_list.append(
                         {
                             "id": definitie_id,
                             "error": result.get("error", "Unknown error"),
@@ -348,7 +358,7 @@ class DefinitionEditService:
                     )
 
             except Exception as e:
-                results["failed"].append({"id": definitie_id, "error": str(e)})
+                failed_list.append({"id": definitie_id, "error": str(e)})
 
         return results
 
@@ -455,7 +465,7 @@ class DefinitionEditService:
 
         return updated
 
-    def _validate_definition(self, definition: Definition) -> dict[str, Any]:
+    def _validate_definition(self, definition: Definition) -> dict[str, Any] | None:
         """Validate definition using injected validation service (sync only).
 
         Async validation is not executed here. If only an async API is available,
@@ -587,13 +597,13 @@ class DefinitionEditService:
         data = f"{definitie_id}_{user}_{timestamp}"
         return hashlib.md5(data.encode()).hexdigest()
 
-    def _format_timestamp(self, timestamp) -> str:
+    def _format_timestamp(self, timestamp: str | datetime | Any) -> str:
         """Format timestamp for display."""
         if isinstance(timestamp, str):
             try:
                 timestamp = datetime.fromisoformat(timestamp)
             except (ValueError, TypeError):
-                return timestamp
+                return str(timestamp)
 
         if isinstance(timestamp, datetime):
             delta = datetime.now() - timestamp

@@ -43,8 +43,3 @@ ModularPromptBuilder = ModularPromptAdapter
 
 # Re-export config class zodat imports blijven werken
 __all__ = ["ModularPromptBuilder", "PromptComponentConfig"]
-
-# Voor code die direct de klasse importeert
-import sys
-
-sys.modules[__name__].ModularPromptBuilder = ModularPromptAdapter

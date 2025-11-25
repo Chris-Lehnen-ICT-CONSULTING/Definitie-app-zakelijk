@@ -314,7 +314,11 @@ class ContextFusion:
         for focus, pattern in focus_patterns.items():
             scores[focus] = sum(1 for term in terms if any(p in term for p in pattern))
 
-        return max(scores, key=scores.get) if max(scores.values()) > 0 else "general"
+        return (
+            max(scores, key=lambda k: scores[k])
+            if max(scores.values()) > 0
+            else "general"
+        )
 
     def _determine_document_focus(self, document_context: dict[str, Any]) -> str:
         """Bepaal focus van document context."""

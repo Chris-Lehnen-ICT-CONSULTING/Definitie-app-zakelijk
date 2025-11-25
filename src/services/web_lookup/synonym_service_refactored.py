@@ -413,8 +413,8 @@ def get_synonym_service(
         try:
             from src.services.container import ServiceContainer
 
-            container = ServiceContainer.get_instance()
-            orchestrator = container.get_synonym_orchestrator()
+            container = ServiceContainer()
+            orchestrator = container.synonym_orchestrator()
             logger.debug("Orchestrator obtained from ServiceContainer")
         except Exception as e:
             logger.error(

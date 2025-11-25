@@ -16,7 +16,7 @@ from dataclasses import (  # Dataclass decorators voor gestructureerde data
 from datetime import UTC, datetime  # Datum en tijd functionaliteit voor timestamps
 from enum import Enum  # Enumeratie types voor constante waarden
 from pathlib import Path  # Object-georiënteerde pad manipulatie
-from typing import Any  # Type hints voor betere code documentatie
+from typing import Any, cast  # Type hints voor betere code documentatie
 
 from pydantic import ValidationError  # Pydantic validation errors (DEF-74)
 
@@ -153,7 +153,7 @@ class DefinitieRecord:
             return []  # Geef lege lijst terug als geen issues
         try:
             # Probeer JSON string te parsen naar lijst
-            return json.loads(self.validation_issues)
+            return cast(list[dict[str, Any]], json.loads(self.validation_issues))
         except json.JSONDecodeError:
             # Als parsing faalt, geef lege lijst terug
             return []
@@ -173,7 +173,7 @@ class DefinitieRecord:
         if not self.wettelijke_basis:
             return []
         try:
-            return json.loads(self.wettelijke_basis)
+            return cast(list[str], json.loads(self.wettelijke_basis))
         except json.JSONDecodeError:
             return []
 
@@ -198,7 +198,7 @@ class DefinitieRecord:
             return []  # Geef lege lijst terug als geen bestemmingen
         try:
             # Probeer JSON string te parsen naar lijst
-            return json.loads(self.export_destinations)
+            return cast(list[str], json.loads(self.export_destinations))
         except json.JSONDecodeError:
             # Als parsing faalt, geef lege lijst terug
             return []
@@ -222,7 +222,7 @@ class DefinitieRecord:
         if not self.ketenpartners:
             return []
         try:
-            return json.loads(self.ketenpartners)
+            return cast(list[str], json.loads(self.ketenpartners))
         except json.JSONDecodeError:
             return []
 
@@ -273,7 +273,7 @@ class VoorbeeldenRecord:
         if not self.generation_parameters:
             return {}
         try:
-            return json.loads(self.generation_parameters)
+            return cast(dict[str, Any], json.loads(self.generation_parameters))
         except json.JSONDecodeError:
             return {}
 
@@ -596,6 +596,10 @@ class DefinitieRepository:
             )
 
             record_id = cursor.lastrowid
+
+            # Ensure record_id is not None (should always have a value after INSERT)
+            if record_id is None:
+                raise RuntimeError("Failed to get lastrowid after INSERT")
 
             # Log creation
             self._log_geschiedenis(
@@ -1056,7 +1060,7 @@ class DefinitieRepository:
         Returns:
             True als succesvol gewijzigd
         """
-        updates = {"status": new_status.value}
+        updates: dict[str, Any] = {"status": new_status.value}
 
         if new_status == DefinitieStatus.ESTABLISHED and changed_by:
             updates.update(
@@ -1114,9 +1118,9 @@ class DefinitieRepository:
     def search_definities(
         self,
         query: str | None = None,
-        categorie: OntologischeCategorie = None,
+        categorie: OntologischeCategorie | None = None,
         organisatorische_context: str | None = None,
-        status: DefinitieStatus = None,
+        status: DefinitieStatus | None = None,
         limit: int | None = 100,
     ) -> list[DefinitieRecord]:
         """
@@ -1133,8 +1137,8 @@ class DefinitieRepository:
             List van DefinitieRecord objecten
         """
         with self._get_connection() as conn:
-            where_clauses = []
-            params = []
+            where_clauses: list[str] = []
+            params: list[Any] = []
 
             if query:
                 where_clauses.append("(begrip LIKE ? OR definitie LIKE ?)")
@@ -1223,12 +1227,20 @@ class DefinitieRepository:
             Aantal geëxporteerde definities
         """
         # Apply filters to get records
+        # Extract filter values with proper typing
+        filter_categorie: OntologischeCategorie | None = (
+            filters.get("categorie") if filters else None
+        )
+        filter_org_context: str | None = (
+            filters.get("organisatorische_context") if filters else None
+        )
+        filter_status: DefinitieStatus | None = (
+            filters.get("status") if filters else None
+        )
         records = self.search_definities(
-            categorie=filters.get("categorie") if filters else None,
-            organisatorische_context=(
-                filters.get("organisatorische_context") if filters else None
-            ),
-            status=filters.get("status") if filters else None,
+            categorie=filter_categorie,
+            organisatorische_context=filter_org_context,
+            status=filter_status,
             limit=None,  # No limit for export
         )
 
@@ -1741,7 +1753,7 @@ class DefinitieRepository:
                 FROM definitie_voorbeelden
                 WHERE definitie_id = ?
             """
-            params = [definitie_id]
+            params: list[Any] = [definitie_id]
 
             if voorbeeld_type:
                 query += " AND voorbeeld_type = ?"
@@ -1804,7 +1816,7 @@ class DefinitieRepository:
         """
         voorbeelden_records = self.get_voorbeelden(definitie_id)
 
-        voorbeelden_dict = {}
+        voorbeelden_dict: dict[str, list[str]] = {}
         for record in voorbeelden_records:
             if record.voorbeeld_type not in voorbeelden_dict:
                 voorbeelden_dict[record.voorbeeld_type] = []
