@@ -547,82 +547,66 @@ class DefinitieRepository:
         Returns:
             ID van nieuw aangemaakte record
         """
-        # Set database save flag BEFORE operation starts
-        try:
-            from ui.session_state import SessionStateManager
+        # DEF-173: Use progress_context for layer-compliant progress tracking
+        from services.progress_context import operation_progress
 
-            SessionStateManager.set_value("saving_to_database", True)
-        except Exception:
-            pass  # Soft-fail if session state unavailable (e.g., in tests)
-
-        try:
-            with self._get_connection() as conn:
-                # Check voor duplicates: permit indien expliciet toegestaan
-                if not allow_duplicate:
-                    duplicates = self.find_duplicates(
-                        record.begrip,
-                        record.organisatorische_context,
-                        record.juridische_context or "",
-                        categorie=record.categorie,  # categorie IS onderdeel van duplicate-criteria (TYPE vs ROLE zijn verschillend)
-                        wettelijke_basis=(
-                            json.loads(record.wettelijke_basis)
-                            if record.wettelijke_basis
-                            else []
-                        ),
-                    )
-
-                    if duplicates and any(
-                        d.definitie_record.status != DefinitieStatus.ARCHIVED.value
-                        for d in duplicates
-                    ):
-                        msg = f"Definitie voor '{record.begrip}' bestaat al in deze context"
-                        raise ValueError(msg)
-
-                # Set timestamps
-                now = datetime.now(UTC)
-                record.created_at = now
-                record.updated_at = now
-
-                # Insert record - check which columns exist
-                # Ensure NOT NULL columns receive defaults where appropriate
-                wb_value = (
-                    record.wettelijke_basis
-                    if record.wettelijke_basis is not None
-                    else "[]"
+        with operation_progress("saving_to_database"), self._get_connection() as conn:
+            # Check voor duplicates: permit indien expliciet toegestaan
+            if not allow_duplicate:
+                duplicates = self.find_duplicates(
+                    record.begrip,
+                    record.organisatorische_context,
+                    record.juridische_context or "",
+                    categorie=record.categorie,  # categorie IS onderdeel van duplicate-criteria (TYPE vs ROLE zijn verschillend)
+                    wettelijke_basis=(
+                        json.loads(record.wettelijke_basis)
+                        if record.wettelijke_basis
+                        else []
+                    ),
                 )
 
-                include_legacy = self._has_legacy_columns_in_conn(conn)
-                columns, values = self._build_insert_columns(
-                    record, wb_value, include_legacy
-                )
-                column_sql = ", ".join(columns)
-                placeholders = ", ".join("?" for _ in columns)
+                if duplicates and any(
+                    d.definitie_record.status != DefinitieStatus.ARCHIVED.value
+                    for d in duplicates
+                ):
+                    msg = f"Definitie voor '{record.begrip}' bestaat al in deze context"
+                    raise ValueError(msg)
 
-                cursor = conn.execute(
-                    f"INSERT INTO definities ({column_sql}) VALUES ({placeholders})",
-                    tuple(values),
-                )
+            # Set timestamps
+            now = datetime.now(UTC)
+            record.created_at = now
+            record.updated_at = now
 
-                record_id = cursor.lastrowid
+            # Insert record - check which columns exist
+            # Ensure NOT NULL columns receive defaults where appropriate
+            wb_value = (
+                record.wettelijke_basis if record.wettelijke_basis is not None else "[]"
+            )
 
-                # Log creation
-                self._log_geschiedenis(
-                    record_id,
-                    "created",
-                    record.created_by,
-                    f"Nieuwe definitie aangemaakt voor '{record.begrip}'",
-                )
+            include_legacy = self._has_legacy_columns_in_conn(conn)
+            columns, values = self._build_insert_columns(
+                record, wb_value, include_legacy
+            )
+            column_sql = ", ".join(columns)
+            placeholders = ", ".join("?" for _ in columns)
 
-                logger.info(f"Created definitie {record_id} voor '{record.begrip}'")
-                return record_id
-        finally:
-            # ALWAYS clear flag after operation (even on error)
-            try:
-                from ui.session_state import SessionStateManager
+            cursor = conn.execute(
+                f"INSERT INTO definities ({column_sql}) VALUES ({placeholders})",
+                tuple(values),
+            )
 
-                SessionStateManager.set_value("saving_to_database", False)
-            except Exception:
-                pass  # Soft-fail if session state unavailable
+            record_id = cursor.lastrowid
+
+            # Log creation
+            self._log_geschiedenis(
+                record_id,
+                "created",
+                record.created_by,
+                f"Nieuwe definitie aangemaakt voor '{record.begrip}'",
+            )
+
+            logger.info(f"Created definitie {record_id} voor '{record.begrip}'")
+            return record_id
 
     def get_definitie(self, definitie_id: int) -> DefinitieRecord | None:
         """

@@ -4,14 +4,22 @@ Format Export component - UI wrapper voor ExportService.
 Bevat UI logica, delegeert export naar ExportService.
 """
 
+from __future__ import annotations  # DEF-175: Enable string annotations for TYPE_CHECKING
+
 import logging
+from typing import TYPE_CHECKING
 
 import streamlit as st
 
-from database.definitie_repository import DefinitieRepository, DefinitieStatus
 from services.data_aggregation_service import DataAggregationService
 from services.export_service import ExportFormat, ExportLevel, ExportService
 from ui.session_state import SessionStateManager
+
+if TYPE_CHECKING:
+    from database.definitie_repository import DefinitieRepository
+
+# Status values as string literals (avoids runtime import of DefinitieStatus enum)
+_DEFINITIE_STATUSES = ["draft", "review", "established", "archived", "imported"]
 
 logger = logging.getLogger(__name__)
 
@@ -71,7 +79,7 @@ class FormatExporter:
         with col3:
             status_filter = st.selectbox(
                 "Status filter",
-                ["Alle"] + [status.value for status in DefinitieStatus],
+                ["Alle"] + _DEFINITIE_STATUSES,
                 help="Filter op definitie status",
                 key="bulk_status",
             )
@@ -103,7 +111,7 @@ class FormatExporter:
         with col1:
             status_filter = st.selectbox(
                 "Filter op status",
-                ["Alle"] + [status.value for status in DefinitieStatus],
+                ["Alle"] + _DEFINITIE_STATUSES,
                 help="Filter beschikbare definities op status",
                 key="individual_status",
             )

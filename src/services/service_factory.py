@@ -468,15 +468,10 @@ class ServiceAdapter:
         Deze methode is sync om legacy UI compatibility te behouden.
         """
         from services.interfaces import GenerationRequest
-        from ui.session_state import SessionStateManager
+        from services.progress_context import operation_progress
 
-        # Set generation flag BEFORE operation starts
-        try:
-            SessionStateManager.set_value("generating_definition", True)
-        except Exception:
-            pass  # Soft-fail if session state unavailable (e.g., in tests)
-
-        try:
+        # DEF-173: Use progress_context for layer-compliant progress tracking
+        with operation_progress("generating_definition"):
             # Handle regeneration context
             extra_instructions = self._handle_regeneration_context(begrip, kwargs)
 
@@ -581,12 +576,6 @@ class ServiceAdapter:
                     ui_response["metadata"], "prompt_template", ""
                 ),
             }
-        finally:
-            # ALWAYS clear flag after operation (even on error)
-            try:
-                SessionStateManager.set_value("generating_definition", False)
-            except Exception:
-                pass  # Soft-fail if session state unavailable
 
     def _create_failure_response(self, response: Any) -> dict:
         """Create a standardized failure response."""

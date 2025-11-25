@@ -85,27 +85,44 @@ class VoorbeeldenDebugger:
             else:
                 logger.debug(f"[{generation_id}]   {key}: {value}")
 
-    def log_session_state(self, generation_id: str, point: str):
+    def log_session_state(
+        self,
+        generation_id: str,
+        point: str,
+        state_getter=None,
+    ):
         """Log relevant session state for debugging.
+
+        DEF-173: Refactored to accept state_getter callback instead of importing
+        SessionStateManager directly, maintaining layer separation.
 
         Args:
             generation_id: Generation ID for this flow
             point: Flow point identifier
+            state_getter: Optional callable to retrieve state values.
+                         If None, attempts to use SessionStateManager (soft-fail).
+                         Signature: state_getter(key: str) -> Any
         """
         if not self.enabled:
             return
 
         logger.debug(f"[{generation_id}] Session State at {point}:")
 
-        # Check for voorbeelden in session state (UI only)
-        try:
-            # Import SessionStateManager for compliant state access
-            from ui.session_state import SessionStateManager
-        except Exception:
-            logger.debug(f"[{generation_id}] Session state unavailable (no UI context)")
-            return
+        # Get state getter - use provided callback or try to get SessionStateManager
+        getter = state_getter
+        if getter is None:
+            try:
+                # Lazy import with soft-fail for non-UI contexts
+                from ui.session_state import SessionStateManager
 
-        # Use SessionStateManager for state access
+                getter = SessionStateManager.get_value
+            except Exception:
+                logger.debug(
+                    f"[{generation_id}] Session state unavailable (no UI context)"
+                )
+                return
+
+        # Use provided or resolved state getter
         relevant_keys = [
             "voorbeelden",
             "generated_voorbeelden",
@@ -119,7 +136,11 @@ class VoorbeeldenDebugger:
         ]
 
         for key in relevant_keys:
-            value = SessionStateManager.get_value(key)
+            try:
+                value = getter(key)
+            except Exception:
+                continue
+
             if value is not None:
                 if isinstance(value, dict):
                     logger.debug(

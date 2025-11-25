@@ -15,7 +15,9 @@ from typing import Any
 # Import bestaande repository voor backward compatibility
 from database.definitie_repository import (
     DefinitieRecord,
-    DefinitieRepository as LegacyRepository,
+)
+from database.definitie_repository import DefinitieRepository as LegacyRepository
+from database.definitie_repository import (
     DefinitieStatus,
     SourceType,
 )
@@ -801,7 +803,7 @@ class DefinitionRepository(DefinitionRepositoryInterface):
                 # Canonicalize DB keys to UI-expected format
                 # DB uses: sentence, practical, counter, synonyms, antonyms, explanation
                 # UI expects: voorbeeldzinnen, praktijkvoorbeelden, tegenvoorbeelden, synoniemen, antoniemen, toelichting
-                from ui.helpers.examples import canonicalize_examples
+                from utils.example_formatters import canonicalize_examples
 
                 canonicalized = canonicalize_examples(voorbeelden_db)
                 definition.metadata["voorbeelden"] = canonicalized
