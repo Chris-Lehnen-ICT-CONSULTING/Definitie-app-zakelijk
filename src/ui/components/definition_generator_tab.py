@@ -497,7 +497,11 @@ class DefinitionGeneratorTab:
                     # Persistente opslag van voorbeelden in DB (automatisch) wanneer een record is opgeslagen
                     try:
                         saved_id = None
-                        if saved_record is not None and hasattr(saved_record, "id") and saved_record.id:
+                        if (
+                            saved_record is not None
+                            and hasattr(saved_record, "id")
+                            and saved_record.id
+                        ):
                             saved_id = int(saved_record.id)
                         elif (
                             isinstance(saved_definition_id, int)
@@ -536,7 +540,11 @@ class DefinitionGeneratorTab:
                         with col_left:
                             can_save_examples = True
                             saved_id_btn = None
-                            if saved_record is not None and hasattr(saved_record, "id") and saved_record.id:
+                            if (
+                                saved_record is not None
+                                and hasattr(saved_record, "id")
+                                and saved_record.id
+                            ):
                                 saved_id_btn = int(saved_record.id)
                             elif (
                                 isinstance(saved_definition_id, int)
