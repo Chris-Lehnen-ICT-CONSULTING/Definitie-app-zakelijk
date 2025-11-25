@@ -416,6 +416,7 @@ class TestStory24RegressionSuite:
             }
         )
 
+
 class TestStory24RegressionEdgeCases:
     """Edge case regression tests for Story 2.4."""
 

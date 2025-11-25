@@ -53,6 +53,7 @@ if not os.getenv("OPENAI_API_KEY"):
         allow_module_level=True,
     )
 
+
 async def test_synoniemen_antoniemen():
     """Test synoniemen en antoniemen generatie (moet 5 items returnen)."""
     print("\n🧪 TEST 1: Synoniemen/Antoniemen Generatie")
@@ -99,6 +100,7 @@ async def test_synoniemen_antoniemen():
 
     return synoniemen, antoniemen
 
+
 async def test_bulk_generation():
     """Test bulk generatie met alle voorbeeld types."""
     print("\n\n🧪 TEST 2: Bulk Generatie (alle types)")
@@ -142,6 +144,7 @@ async def test_bulk_generation():
         if examples:
             first = examples[0] if isinstance(examples, list) else examples
             print(f"     Voorbeeld: {first[:80]}...")
+
 
 async def test_rate_limiting():
     """Test endpoint-specifieke rate limiting."""
@@ -208,6 +211,7 @@ async def test_rate_limiting():
         print(f"    - Max tijd: {max_time:.3f}s")
         print(f"    - Requests: {len(times)}")
 
+
 async def test_orchestrator_v2():
     """Test V2 orchestrator functionaliteit."""
     print("\n\n🧪 TEST 4: V2 Orchestrator")
@@ -243,6 +247,7 @@ async def test_orchestrator_v2():
     else:
         print(f"\n❌ Generation failed: {result.error}")
 
+
 async def test_performance_summary():
     """Toon performance summary."""
     print("\n\n🧪 TEST 5: Performance Summary")
@@ -262,6 +267,7 @@ async def test_performance_summary():
             print(f"    - Total: {stats['total']:.2f}s")
     else:
         print("\n❌ Geen performance data beschikbaar")
+
 
 async def main():
     """Run all tests."""
@@ -296,6 +302,7 @@ async def main():
         import traceback
 
         traceback.print_exc()
+
 
 if __name__ == "__main__":
     asyncio.run(main())

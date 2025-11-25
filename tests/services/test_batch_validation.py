@@ -42,6 +42,7 @@ async def test_batch_validate_interface():
         assert "is_acceptable" in result, f"Result {i} missing is_acceptable"
         assert "violations" in result, f"Result {i} missing violations"
 
+
 @pytest.mark.unit
 @pytest.mark.asyncio
 async def test_batch_validate_order_preservation():
@@ -78,6 +79,7 @@ async def test_batch_validate_order_preservation():
     assert results[1]["is_acceptable"] is True, "Good definition should pass"
     assert results[2]["is_acceptable"] is False, "Short text should fail"
     assert results[3]["is_acceptable"] is True, "Perfect definition should pass"
+
 
 @pytest.mark.unit
 @pytest.mark.asyncio
@@ -116,6 +118,7 @@ async def test_batch_validate_with_max_concurrency():
         assert (
             results_seq[i]["overall_score"] == results_par[i]["overall_score"]
         ), f"Item {i}: scores differ between sequential and parallel"
+
 
 @pytest.mark.unit
 @pytest.mark.asyncio
@@ -160,6 +163,7 @@ async def test_batch_validate_individual_failure_handling():
     assert results[3]["is_acceptable"] is False, "Invalid begrip should fail"
     if "system" in results[3] and "error" in results[3]["system"]:
         assert results[3]["system"]["error"] is not None, "Error should be recorded"
+
 
 @pytest.mark.unit
 @pytest.mark.asyncio
@@ -215,6 +219,7 @@ async def test_batch_validate_with_validation_request_objects():
         if context:
             assert result["system"]["correlation_id"] == "batch-123"
 
+
 @pytest.mark.unit
 @pytest.mark.asyncio
 async def test_batch_validate_empty_input():
@@ -238,10 +243,12 @@ async def test_batch_validate_empty_input():
     results = await service.batch_validate(None)
     assert results == [], "None input should return empty list"
 
+
 SKIP_TIMING = pytest.mark.skipif(
     bool(os.getenv("CI") or os.getenv("GITHUB_ACTIONS")),
     reason="Timing-gevoelige test; overslaan in CI",
 )
+
 
 @pytest.mark.unit
 @pytest.mark.asyncio

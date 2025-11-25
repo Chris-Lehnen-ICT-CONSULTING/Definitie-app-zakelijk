@@ -279,6 +279,7 @@ class TestOverallScoreRobustness:
         assert result["validation_details"]["overall_score"] == 0.0
         assert result["final_score"] == 0.0
 
+
 class TestConcurrentValidations:
     """Test concurrent validation scenarios with different overall_score values."""
 
@@ -436,6 +437,7 @@ class TestConcurrentValidations:
                 assert not isinstance(result, Exception)
                 assert result["final_score"] == 80.0 + i
 
+
 class TestProductionReadiness:
     """Test production readiness aspects of the overall_score fix."""
 
@@ -546,6 +548,7 @@ class TestProductionReadiness:
             result = float(input_val or 0.0) if input_val != "" else 0.0
             assert result == expected, f"Failed for input {input_val}"
 
+
 class TestDocumentedBehavior:
     """Test that the implementation matches documented behavior."""
 
@@ -640,6 +643,7 @@ class TestDocumentedBehavior:
 
         # Line 297 uses validation_details.get("overall_score", 0.0)
         assert result["final_score"] == 0.0  # Default when missing
+
 
 if __name__ == "__main__":
     # Run tests with pytest

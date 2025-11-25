@@ -87,6 +87,7 @@ CONTEXT_PAYLOAD_SCHEMA_V1 = {
     "additionalProperties": False,
 }
 
+
 @pytest.mark.skip(reason="Context payload schema not yet implemented (US-041/042/043)")
 class TestSchemaValidation:
     """Test basic schema validation."""
@@ -146,6 +147,7 @@ class TestSchemaValidation:
 
         assert "Additional properties are not allowed" in str(exc_info.value)
 
+
 @pytest.mark.skip(reason="Context payload schema not yet implemented (US-041/042/043)")
 class TestFieldTypeValidation:
     """Test field type validation and coercion."""
@@ -200,6 +202,7 @@ class TestFieldTypeValidation:
         }
         with pytest.raises(ValidationError):
             validator.validate(payload)
+
 
 @pytest.mark.skip(reason="Context payload schema not yet implemented (US-041/042/043)")
 class TestFieldConstraints:
@@ -271,6 +274,7 @@ class TestFieldConstraints:
         with pytest.raises(ValidationError):
             validator.validate(payload)
 
+
 @pytest.mark.skip(reason="Context payload schema not yet implemented (US-041/042/043)")
 class TestCrossFieldDependencies:
     """Test dependencies between fields."""
@@ -321,6 +325,7 @@ class TestCrossFieldDependencies:
 
         # This would fail with the conditional schema
 
+
 @pytest.mark.skip(reason="Context payload schema not yet implemented (US-041/042/043)")
 class TestSchemaEvolution:
     """Test schema versioning and evolution."""
@@ -369,6 +374,7 @@ class TestSchemaEvolution:
         # Validate migrated payload
         validator = Draft7Validator(CONTEXT_PAYLOAD_SCHEMA_V1)
         validator.validate(new_payload)
+
 
 @pytest.mark.skip(reason="Context payload schema not yet implemented (US-041/042/043)")
 class TestDataclassIntegration:
@@ -424,6 +430,7 @@ class TestDataclassIntegration:
         validator = Draft7Validator(CONTEXT_PAYLOAD_SCHEMA_V1)
         validator.validate(request_dict)
 
+
 @pytest.mark.skip(reason="Context payload schema not yet implemented (US-041/042/043)")
 class TestErrorHandling:
     """Test schema validation error handling."""
@@ -472,6 +479,7 @@ class TestErrorHandling:
 
         suggestions = validate_with_suggestions(payload)
         assert len(suggestions) > 0
+
 
 @pytest.mark.skip(reason="Context payload schema not yet implemented (US-041/042/043)")
 class TestPerformanceOptimization:
@@ -524,6 +532,7 @@ class TestPerformanceOptimization:
         # Compiled should be even faster
         assert avg_time_ms < 0.05, f"Compiled validation too slow: {avg_time_ms:.3f}ms"
 
+
 @pytest.mark.skip(reason="Context payload schema not yet implemented (US-041/042/043)")
 class TestSchemaDocumentation:
     """Test schema documentation and examples."""
@@ -572,6 +581,7 @@ class TestSchemaDocumentation:
 
         for example in examples:
             validator.validate(example)
+
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v", "--tb=short"])

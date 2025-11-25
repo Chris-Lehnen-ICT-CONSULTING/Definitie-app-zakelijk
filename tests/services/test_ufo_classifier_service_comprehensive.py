@@ -68,6 +68,7 @@ class TestUFOCategory:
         assert UFOCategory.ROLE.value == "Role"
         assert UFOCategory.COLLECTIVE.value == "Collective"
 
+
 class TestUFOClassificationResult:
     """Test de UFOClassificationResult dataclass."""
 
@@ -137,6 +138,7 @@ class TestUFOClassificationResult:
         loaded = json.loads(json_str)
         assert loaded["primary_category"] == "Role"
         assert loaded["confidence"] == 0.75
+
 
 class TestUFOClassifierServiceInitialization:
     """Test initialisatie van UFOClassifierService."""
@@ -210,6 +212,7 @@ class TestUFOClassifierServiceInitialization:
         for _category, patterns in classifier.compiled_patterns.items():
             for pattern in patterns:
                 assert pattern.flags & re.IGNORECASE
+
 
 class TestClassification:
     """Test de classify methode."""
@@ -343,6 +346,7 @@ class TestClassification:
         assert avg_time < 100, f"Gemiddelde tijd {avg_time:.1f}ms > 100ms"
         assert all(t < 500 for t in times), "Sommige classificaties > 500ms"
 
+
 class TestDisambiguation:
     """Test disambiguation voor ambigue termen."""
 
@@ -406,6 +410,7 @@ class TestDisambiguation:
         )
         assert result2.primary_category == UFOCategory.RELATOR
 
+
 class TestPatternMatching:
     """Test pattern matching functionaliteit."""
 
@@ -454,6 +459,7 @@ class TestPatternMatching:
         scores = classifier._calculate_pattern_scores("xyz", "abc def ghi")
 
         assert len(scores) == 0
+
 
 class TestConfidenceCalculation:
     """Test confidence berekening."""
@@ -508,6 +514,7 @@ class TestConfidenceCalculation:
         confidence2 = classifier._calculate_confidence(scores, UFOCategory.KIND)
         assert confidence2 <= 1.0
 
+
 class TestSecondaryCategories:
     """Test bepaling van secundaire categorieën."""
 
@@ -558,6 +565,7 @@ class TestSecondaryCategories:
         assert secondary[0] == UFOCategory.EVENT  # Hoogste score
         assert secondary[1] == UFOCategory.PHASE  # Tweede hoogste
 
+
 class TestExplanationGeneration:
     """Test uitleg generatie."""
 
@@ -589,6 +597,7 @@ class TestExplanationGeneration:
         for category in UFOCategory:
             explanation = classifier._generate_explanation(category, 0.7, [])
             assert category.value in explanation
+
 
 class TestNormalization:
     """Test tekst normalisatie."""
@@ -628,6 +637,7 @@ class TestNormalization:
         """Test met alleen whitespace."""
         with pytest.raises(ValueError, match="niet leeg"):
             classifier._normalize_text("   ", "field")
+
 
 class TestBatchClassification:
     """Test batch classificatie."""
@@ -701,6 +711,7 @@ class TestBatchClassification:
         avg_time = (duration / 50) * 1000
         assert avg_time < 100, f"Batch avg {avg_time:.1f}ms per item"
 
+
 class TestJuridicalDomain:
     """Test met Nederlandse juridische termen."""
 
@@ -754,6 +765,7 @@ class TestJuridicalDomain:
             result = classifier.classify(term, definition)
             assert result.primary_category == expected
 
+
 class TestFallbackBehavior:
     """Test fallback gedrag."""
 
@@ -792,6 +804,7 @@ class TestFallbackBehavior:
         result = classifier.classify("xyz", "Een bedrag van 100 euro")
 
         assert result.primary_category == UFOCategory.QUANTITY
+
 
 class TestEdgeCases:
     """Test edge cases."""
@@ -840,6 +853,7 @@ class TestEdgeCases:
         result = classifier.classify("test", "X")
         assert result is not None
 
+
 class TestIntegration:
     """Test integratie functies."""
 
@@ -877,6 +891,7 @@ class TestIntegration:
             with patch("pathlib.Path.exists", return_value=True):
                 classifier = create_ufo_classifier_service()
                 assert classifier.config["high_confidence"] == 0.95
+
 
 class TestCompleteWorkflow:
     """Test complete workflow scenarios."""
@@ -942,6 +957,7 @@ class TestCompleteWorkflow:
         assert all(0.0 <= c <= 1.0 for c in confidences)
         assert sum(c > 0.3 for c in confidences) >= 3
 
+
 class TestPerformanceRequirements:
     """Test performance requirements."""
 
@@ -978,6 +994,7 @@ class TestPerformanceRequirements:
 
             avg_per_item = (duration / size) * 1000
             assert avg_per_item < 100, f"Size {size}: {avg_per_item:.1f}ms per item"
+
 
 if __name__ == "__main__":
     """Run tests met coverage report."""

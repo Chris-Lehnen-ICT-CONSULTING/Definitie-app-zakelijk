@@ -119,6 +119,7 @@ class TestAndersOptionBasicFunctionality:
         assert "Custom Juridisch" in result.get("juridische_context", [])
         assert "Custom Wet" in result.get("wettelijke_basis", [])
 
+
 class TestAndersSpecialCharacters:
     """Test Anders... option with special characters and edge cases."""
 
@@ -197,6 +198,7 @@ class TestAndersSpecialCharacters:
         # The text should be stored as-is (sanitization happens at display)
         assert malicious_text in result.get("organisatorische_context", [])
 
+
 class TestAndersStatePersistence:
     """Test that Anders... selections persist correctly in session state."""
 
@@ -256,6 +258,7 @@ class TestAndersStatePersistence:
             assert "Custom Value" not in result2.get("organisatorische_context", [])
             assert "Anders..." not in result2.get("organisatorische_context", [])
 
+
 class TestAndersUIBehavior:
     """Test UI behavior and user interactions with Anders option."""
 
@@ -313,6 +316,7 @@ class TestAndersUIBehavior:
             assert jur_options[-1] == "Anders..."
         if "Anders..." in wet_options:
             assert wet_options[-1] == "Anders..."
+
 
 class TestAndersErrorPrevention:
     """Test that Anders option doesn't cause crashes or errors."""
@@ -383,6 +387,7 @@ class TestAndersErrorPrevention:
             # Should be trimmed
             assert "Custom Value" in result.get("organisatorische_context", [])
             assert "  Custom Value  " not in result.get("organisatorische_context", [])
+
 
 class TestAndersIntegrationScenarios:
     """Test real-world integration scenarios with Anders option."""
@@ -455,6 +460,7 @@ class TestAndersIntegrationScenarios:
             )
             assert "Anders..." not in result.get("organisatorische_context", [])
 
+
 class TestAndersPerformance:
     """Test performance aspects of Anders option."""
 
@@ -502,6 +508,7 @@ class TestAndersPerformance:
                 len(result.get("organisatorische_context", [])) == 51
             )  # 50 options + 1 custom
             assert "Anders..." not in result.get("organisatorische_context", [])
+
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v", "--tb=short"])

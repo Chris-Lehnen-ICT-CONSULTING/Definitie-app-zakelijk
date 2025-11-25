@@ -5,7 +5,9 @@ Deze orchestrator gebruikt de modulaire componenten in plaats van alle logica
 in één bestand te hebben. Dit voorkomt het God Object anti-pattern.
 """
 
-from __future__ import annotations  # DEF-175: Enable string annotations for TYPE_CHECKING
+from __future__ import (
+    annotations,  # DEF-175: Enable string annotations for TYPE_CHECKING
+)
 
 import logging
 from typing import TYPE_CHECKING
