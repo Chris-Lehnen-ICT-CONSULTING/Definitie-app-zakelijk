@@ -4,16 +4,19 @@ CSV Import component - Verplaatst van import_export_beheer_tab.py.
 Bevat alle CSV import functionaliteit, exact zoals het al werkte.
 """
 
+from __future__ import annotations  # DEF-175: Enable string annotations for TYPE_CHECKING
+
 import logging
+from typing import TYPE_CHECKING
 
 import pandas as pd
 import streamlit as st
 
-from database.definitie_repository import (
-    DefinitieRecord,
-    DefinitieRepository,
-    DefinitieStatus,
-)
+if TYPE_CHECKING:
+    from database.definitie_repository import DefinitieRepository
+
+# Status values as string literals (avoids runtime import of DefinitieStatus enum)
+_STATUS_DRAFT = "draft"
 
 logger = logging.getLogger(__name__)
 
@@ -81,6 +84,9 @@ class CSVImporter:
         self, df: pd.DataFrame, skip_duplicates: bool, auto_validate: bool
     ):
         """Verwerk CSV import - exact verplaatst van origineel."""
+        # Local import for record construction (avoids top-level database import)
+        from database.definitie_repository import DefinitieRecord
+
         progress_bar = st.progress(0)
         status_text = st.empty()
 
@@ -111,7 +117,7 @@ class CSVImporter:
                     definitie=row.get("definitie", ""),
                     categorie=row.get("categorie", "Type"),
                     organisatorische_context=row.get("context", "Algemeen"),
-                    status=DefinitieStatus.DRAFT.value,
+                    status=_STATUS_DRAFT,
                     validation_score=0.0,
                 )
 

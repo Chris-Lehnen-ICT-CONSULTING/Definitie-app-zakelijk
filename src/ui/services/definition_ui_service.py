@@ -5,13 +5,17 @@ Facade service die UI functionaliteit biedt zonder directe session state depende
 Dit is onderdeel van de GVI Week 0 implementatie.
 """
 
-import logging
-from typing import Any
+from __future__ import annotations  # DEF-175: Enable string annotations for TYPE_CHECKING
 
-from database.definitie_repository import DefinitieRecord, DefinitieRepository
+import logging
+from typing import TYPE_CHECKING, Any
+
 from services.data_aggregation_service import DataAggregationService
 from services.export_service import ExportFormat, ExportService
 from services.workflow_service import WorkflowService
+
+if TYPE_CHECKING:
+    from database.definitie_repository import DefinitieRecord, DefinitieRepository
 
 logger = logging.getLogger(__name__)
 

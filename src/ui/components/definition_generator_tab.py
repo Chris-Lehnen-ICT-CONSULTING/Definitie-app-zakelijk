@@ -3,16 +3,21 @@
 Definition Generator Tab - Main AI definition generation interface.
 """
 
+from __future__ import annotations  # DEF-175: Enable string annotations for TYPE_CHECKING
+
 import json
 import logging
 import os
 import re
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import streamlit as st
 
-from database.definitie_repository import DefinitieRecord, get_definitie_repository
+# DEF-175: get_definitie_repository moved to lazy import in __init__
+
+if TYPE_CHECKING:
+    from database.definitie_repository import DefinitieRecord
 from integration.definitie_checker import CheckAction, DefinitieChecker
 from services.category_service import CategoryService
 from services.category_state_manager import CategoryStateManager
@@ -29,6 +34,9 @@ class DefinitionGeneratorTab:
 
     def __init__(self, checker: DefinitieChecker):
         """Initialiseer generator tab."""
+        # DEF-175: Lazy import to avoid database layer dependency at module level
+        from database.definitie_repository import get_definitie_repository
+
         self.checker = checker
         self.category_service = CategoryService(get_definitie_repository())
         self.workflow_service = WorkflowService()  # Business logic voor status workflow
