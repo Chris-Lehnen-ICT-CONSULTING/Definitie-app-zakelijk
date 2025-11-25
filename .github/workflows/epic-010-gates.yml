@@ -71,7 +71,7 @@ jobs:
                       grep -v '"""' | \
                       grep -v "# Legacy" | \
                       grep -v "# Deprecated" | \
-                      awk -F':' '{code=substr($0, index($0,$3)); if (code ~ /^\s*#/) next; print $0}' || true)
+                      awk -F':' '{code=substr($0, index($0,$3)); if (code ~ /^[[:space:]]*#/) next; print $0}' || true)
           
           if [ -n "$VIOLATIONS" ]; then
             echo "❌ FAIL: Domein field usage found"

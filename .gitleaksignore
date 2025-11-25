@@ -1,8 +1,8 @@
 # Gitleaks Ignore File
 # Already-rotated keys in git history - safe to ignore
 #
-# Format: filename:ruleid:fingerprint
-# Get fingerprints from gitleaks output
+# Format: commit:file:rule:line (fingerprint from gitleaks report)
+# Get fingerprints from: gitleaks detect --report-format json
 
 # OpenAI API keys (already rotated, keys are inactive)
 config/config_development.yaml:openai_api_key:0b706cc1e0a4be76782d0f0c505f99bb74072368
@@ -11,3 +11,24 @@ docs/portal/rendered/analyses/CONFIG_ENVIRONMENT_VERIFICATION_REPORT.html:generi
 
 # False positives (example code in documentation)
 docs/portal/rendered/architectuur/structured-logging-architecture.html:generic-api-key:5f02ab5a2c28c2df8ac9fd9c85a48e6eb78a517a
+
+# Linear API key (ROTATED 2025-01-25, key is now inactive)
+# WARNING: This key was exposed in git history - it has been rotated and is no longer valid
+7ecc95cde3539bb6d11033c15c5751aa0296cb4a:scripts/fetch_linear_issues.py:linear-api-key:5
+c4e00ff087c4735615149818bf44b47fd0da8f23:scripts/fetch_linear_issues.py:linear-api-key:5
+
+# Historical .gitleaksignore entries (self-referential - old rotated keys in ignore file)
+140d440a027e1abfcbc7fec19427382f0297a992:.gitleaksignore:generic-api-key:5
+140d440a027e1abfcbc7fec19427382f0297a992:.gitleaksignore:generic-api-key:6
+140d440a027e1abfcbc7fec19427382f0297a992:.gitleaksignore:generic-api-key:7
+140d440a027e1abfcbc7fec19427382f0297a992:.gitleaksignore:generic-api-key:10
+
+# Historical .env files (removed from repo, secrets already rotated)
+12232560cd0aad4f1c78e8e2d683cade6596b35a:.env:env-file-exposure:0
+cf4122e873efed859e022774b00c66c6e4280948:.env:env-file-exposure:0
+
+# Legacy package docs (example keys in documentation, not real secrets)
+0b706cc1e0a4be76782d0f0c505f99bb74072368:REBUILD_PACKAGE/requirements/TECHNICAL_ARCHITECTURE.md:database-connection-string:1782
+ec1cf514d0198766ee371cbebd63ee8a468daecc:ai_code_reviewer_package/BUILD.md:generic-api-key:104
+ec1cf514d0198766ee371cbebd63ee8a468daecc:ai_code_reviewer_package/BUILD.md:generic-api-key:115
+ec1cf514d0198766ee371cbebd63ee8a468daecc:ai_code_reviewer_package/BUILD.md:generic-api-key:120

@@ -6,7 +6,7 @@ on:
       - 'src/services/validation/**'
       - 'src/services/interfaces/**'
       - 'tests/contracts/**'
-      - 'docs/architecture/contracts/**'
+      - 'docs/architectuur/contracts/**'
   push:
     branches:
       - main
@@ -60,7 +60,7 @@ jobs:
         from pathlib import Path
 
         # Check main schema file
-        p = Path('docs/architecture/contracts/schemas/validation_result.schema.json')
+        p = Path('docs/architectuur/contracts/schemas/validation_result.schema.json')
         if not p.exists():
             print(f"Schema file not found: {p}", file=sys.stderr)
             sys.exit(1)
@@ -76,7 +76,7 @@ jobs:
             sys.exit(1)
 
         # Also check versioned schema if it exists
-        v_path = Path('docs/architecture/contracts/schemas/validation_result_v1.0.0.schema.json')
+        v_path = Path('docs/architectuur/contracts/schemas/validation_result_v1.0.0.schema.json')
         if v_path.exists():
             with v_path.open() as f:
                 v_schema = json.load(f)
