@@ -24,8 +24,9 @@ c4e00ff087c4735615149818bf44b47fd0da8f23:scripts/fetch_linear_issues.py:linear-a
 140d440a027e1abfcbc7fec19427382f0297a992:.gitleaksignore:generic-api-key:10
 
 # Historical .env files (removed from repo, secrets already rotated)
-12232560cd0aad4f1c78e8e2d683cade6596b35a:.env:env-file-exposure:0
-cf4122e873efed859e022774b00c66c6e4280948:.env:env-file-exposure:0
+# Note: Line numbers are 1-indexed in gitleaks fingerprints
+12232560cd0aad4f1c78e8e2d683cade6596b35a:.env:env-file-exposure:1
+cf4122e873efed859e022774b00c66c6e4280948:.env:env-file-exposure:1
 
 # Legacy package docs (example keys in documentation, not real secrets)
 0b706cc1e0a4be76782d0f0c505f99bb74072368:REBUILD_PACKAGE/requirements/TECHNICAL_ARCHITECTURE.md:database-connection-string:1782
