@@ -62,7 +62,7 @@ class INT09Validator:
         """
         # 1️⃣ Verzamel alle treffers (lowercase, uniek)
         tekst_lc = definitie.lower()
-        ongewenste_termen = set()
+        ongewenste_termen: set[str] = set()
 
         for pattern in self.compiled_patterns:
             matches = pattern.findall(definitie)

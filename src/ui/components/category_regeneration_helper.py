@@ -1,5 +1,7 @@
 """Helper voor category-based regeneration."""
 
+from typing import Any, cast
+
 import streamlit as st
 
 from ui.session_state import SessionStateManager
@@ -31,7 +33,7 @@ class CategoryRegenerationHelper:
             """
             )
 
-            return regen_data
+            return cast(dict[Any, Any], regen_data)
 
         return None
 

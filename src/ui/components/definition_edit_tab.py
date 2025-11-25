@@ -7,7 +7,7 @@ van definities met ondersteuning voor versiegeschiedenis en auto-save.
 
 import logging
 from datetime import datetime, timedelta
-from typing import Any
+from typing import Any, cast
 
 import streamlit as st
 
@@ -1647,7 +1647,7 @@ class DefinitionEditTab:
             try:
                 dt = datetime.fromisoformat(dt)
             except (ValueError, TypeError):
-                return dt
+                return cast(str, dt)
 
         if isinstance(dt, datetime):
             return dt.strftime("%d-%m-%Y %H:%M")

@@ -8,6 +8,7 @@ Temperature settings are now loaded from config.yaml for consistency.
 import logging
 from collections.abc import Callable
 from dataclasses import dataclass
+from typing import cast
 
 from config.config_manager import get_prompt_temperature
 from utils.async_api import async_cached, async_gpt_call
@@ -165,11 +166,14 @@ class AsyncExampleGenerator:
         )
 
         try:
-            return await async_gpt_call(
-                prompt=prompt,
-                model="gpt-4",
-                temperature=get_prompt_temperature("synoniemen"),
-                max_tokens=150,
+            return cast(
+                str,
+                await async_gpt_call(
+                    prompt=prompt,
+                    model="gpt-4",
+                    temperature=get_prompt_temperature("synoniemen"),
+                    max_tokens=150,
+                ),
             )
         except Exception as e:
             self.logger.error(f"Error generating synonyms: {e!s}")
@@ -190,11 +194,14 @@ class AsyncExampleGenerator:
         )
 
         try:
-            return await async_gpt_call(
-                prompt=prompt,
-                model="gpt-4",
-                temperature=get_prompt_temperature("antoniemen"),
-                max_tokens=150,
+            return cast(
+                str,
+                await async_gpt_call(
+                    prompt=prompt,
+                    model="gpt-4",
+                    temperature=get_prompt_temperature("antoniemen"),
+                    max_tokens=150,
+                ),
             )
         except Exception as e:
             self.logger.error(f"Error generating antonyms: {e!s}")
@@ -215,11 +222,14 @@ class AsyncExampleGenerator:
         )
 
         try:
-            return await async_gpt_call(
-                prompt=prompt,
-                model="gpt-4",
-                temperature=get_prompt_temperature("toelichting"),
-                max_tokens=200,
+            return cast(
+                str,
+                await async_gpt_call(
+                    prompt=prompt,
+                    model="gpt-4",
+                    temperature=get_prompt_temperature("toelichting"),
+                    max_tokens=200,
+                ),
             )
         except Exception as e:
             self.logger.error(f"Error generating explanation: {e!s}")
@@ -354,7 +364,10 @@ async def async_genereer_voorbeeld_zinnen(
 ) -> list[str]:
     """Generate example sentences asynchronously."""
     generator = get_async_generator()
-    return await generator._generate_voorbeeld_zinnen(begrip, definitie, context_dict)
+    result: list[str] = await generator._generate_voorbeeld_zinnen(
+        begrip, definitie, context_dict
+    )
+    return result
 
 
 async def async_genereer_praktijkvoorbeelden(
@@ -362,9 +375,10 @@ async def async_genereer_praktijkvoorbeelden(
 ) -> list[str]:
     """Generate practice examples asynchronously."""
     generator = get_async_generator()
-    return await generator._generate_praktijkvoorbeelden(
+    result: list[str] = await generator._generate_praktijkvoorbeelden(
         begrip, definitie, context_dict
     )
+    return result
 
 
 async def async_genereer_tegenvoorbeelden(
@@ -372,7 +386,10 @@ async def async_genereer_tegenvoorbeelden(
 ) -> list[str]:
     """Generate counter-examples asynchronously."""
     generator = get_async_generator()
-    return await generator._generate_tegenvoorbeelden(begrip, definitie, context_dict)
+    result: list[str] = await generator._generate_tegenvoorbeelden(
+        begrip, definitie, context_dict
+    )
+    return result
 
 
 async def async_genereer_synoniemen(
@@ -380,7 +397,8 @@ async def async_genereer_synoniemen(
 ) -> str:
     """Generate synonyms asynchronously."""
     generator = get_async_generator()
-    return await generator._generate_synoniemen(begrip, context_dict)
+    result: str = await generator._generate_synoniemen(begrip, context_dict)
+    return result
 
 
 async def async_genereer_antoniemen(
@@ -388,7 +406,8 @@ async def async_genereer_antoniemen(
 ) -> str:
     """Generate antonyms asynchronously."""
     generator = get_async_generator()
-    return await generator._generate_antoniemen(begrip, context_dict)
+    result: str = await generator._generate_antoniemen(begrip, context_dict)
+    return result
 
 
 async def async_genereer_toelichting(
@@ -396,4 +415,5 @@ async def async_genereer_toelichting(
 ) -> str:
     """Generate explanation asynchronously."""
     generator = get_async_generator()
-    return await generator._generate_toelichting(begrip, context_dict)
+    result: str = await generator._generate_toelichting(begrip, context_dict)
+    return result

@@ -5,10 +5,12 @@ Deze service implementeert een schone architectuur voor web lookup operaties
 terwijl geleidelijk de legacy implementaties vervangt.
 """
 
+from __future__ import annotations
+
 import asyncio
 import logging
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, cast
 
 from .interfaces import (
     JuridicalReference,
@@ -29,14 +31,14 @@ except ImportError:
     logger.warning("Domein modules niet beschikbaar - fallback modus")
     DOMAIN_AVAILABLE = False
 
-    class BronType:
+    # Fallback BronType class when domain module not available
+    class _FallbackBronType:
         WETGEVING = "wetgeving"
         JURISPRUDENTIE = "jurisprudentie"
         BELEID = "beleid"
         LITERATUUR = "literatuur"
 
-
-logger = logging.getLogger(__name__)
+    BronType = _FallbackBronType  # type: ignore[misc,assignment]
 
 
 @dataclass
@@ -117,6 +119,8 @@ class ModernWebLookupService(WebLookupServiceInterface):
         # Helper om enabled-vlag te lezen uit config
         def _is_enabled(key: str, default: bool = True) -> bool:
             try:
+                if self._config is None:
+                    return default
                 return bool(
                     self._config.get("web_lookup", {})
                     .get("providers", {})
@@ -317,7 +321,9 @@ class ModernWebLookupService(WebLookupServiceInterface):
             # Convert to contract-like dicts for ranking
             # Nu met gebooste confidence values!
             prepared = [
-                self._to_contract_dict(r) for r in valid_results if r is not None
+                self._to_contract_dict(r)
+                for r in valid_results
+                if r is not None and isinstance(r, LookupResult)
             ]
             # Provider keys mapping based on source names
             ranked = rank_and_dedup(prepared, self._provider_weights)
@@ -350,6 +356,8 @@ class ModernWebLookupService(WebLookupServiceInterface):
 
             index: dict[str, LookupResult] = {}
             for r in valid_results:
+                if not isinstance(r, LookupResult):
+                    continue
                 url_key = _canonical_url(getattr(r.source, "url", ""))
                 if url_key:
                     index[f"url:{url_key}"] = r
@@ -384,15 +392,19 @@ class ModernWebLookupService(WebLookupServiceInterface):
             logger.warning(
                 f"Ranking/dedup failed, falling back to confidence sort: {e}"
             )
-            valid_results.sort(key=lambda r: r.source.confidence, reverse=True)
+            # Filter to only LookupResult instances for sorting
+            filtered_results: list[LookupResult] = [
+                r for r in valid_results if isinstance(r, LookupResult)
+            ]
+            filtered_results.sort(key=lambda r: r.source.confidence, reverse=True)
             self._last_debug = {
                 "term": request.term,
                 "context": request.context,
                 "selected_sources": sources_to_search,
                 "attempts": self._debug_attempts,
-                "results": len(valid_results[: request.max_results]),
+                "results": len(filtered_results[: request.max_results]),
             }
-            return valid_results[: request.max_results]
+            return filtered_results[: request.max_results]
 
     def _determine_sources(self, request: LookupRequest) -> list[str]:
         """Bepaal welke bronnen te gebruiken op basis van request en context."""
@@ -606,80 +618,86 @@ class ModernWebLookupService(WebLookupServiceInterface):
                 # Gebruik moderne Wiktionary service (vergelijkbare stage-logica)
                 from .web_lookup.wiktionary_service import wiktionary_lookup
 
-                org, jur, wet = self._classify_context_tokens(
+                wikt_org, wikt_jur, wikt_wet = self._classify_context_tokens(
                     getattr(request, "context", None)
                 )
-                stages: list[tuple[str, list[str]]] = []
-                all_tokens = org + jur + wet
-                if all_tokens:
-                    stages.append(("context_full", all_tokens))
-                if jur or wet:
-                    stages.append(("jur_wet", jur + wet))
-                if wet:
-                    stages.append(("wet_only", wet))
-                stages.append(("no_ctx", []))
+                wikt_stages: list[tuple[str, list[str]]] = []
+                wikt_all_tokens = wikt_org + wikt_jur + wikt_wet
+                if wikt_all_tokens:
+                    wikt_stages.append(("context_full", wikt_all_tokens))
+                if wikt_jur or wikt_wet:
+                    wikt_stages.append(("jur_wet", wikt_jur + wikt_wet))
+                if wikt_wet:
+                    wikt_stages.append(("wet_only", wikt_wet))
+                wikt_stages.append(("no_ctx", []))
 
-                base = (term or "").strip()
-                result: LookupResult | None = None
-                for stage_name, toks in stages:
-                    q = base if not toks else f"{base} " + " ".join(toks)
+                wikt_base = (term or "").strip()
+                wikt_result: LookupResult | None = None
+                for wikt_stage_name, wikt_toks in wikt_stages:
+                    wikt_q = (
+                        wikt_base
+                        if not wikt_toks
+                        else f"{wikt_base} " + " ".join(wikt_toks)
+                    )
                     try:
-                        res = await asyncio.wait_for(
-                            wiktionary_lookup(q),
+                        wikt_res = await asyncio.wait_for(
+                            wiktionary_lookup(wikt_q),
                             timeout=float(getattr(request, "timeout", 30) or 30),
                         )
                         self._debug_attempts.append(
                             {
                                 "provider": source.name,
                                 "api_type": "mediawiki",
-                                "term": q,
-                                "stage": stage_name,
-                                "success": bool(res and res.success),
+                                "term": wikt_q,
+                                "stage": wikt_stage_name,
+                                "success": bool(wikt_res and wikt_res.success),
                             }
                         )
-                        if res and res.success:
-                            result = res
+                        if wikt_res and wikt_res.success:
+                            wikt_result = wikt_res
                             break
                     except Exception:
                         continue
 
-                if not (result and result.success):
+                if not (wikt_result and wikt_result.success):
                     # Heuristische fallbacks: koppeltekens en suffixstrip
-                    fallbacks: list[str] = []
-                    if " " in base and "-" not in base:
-                        fallbacks.append(base.replace(" ", "-"))
-                    if base.lower().endswith("tekst") and len(base) > 6:
-                        fallbacks.append(base[: -len("tekst")])
-                    seen: set[str] = set()
-                    for fb in fallbacks:
-                        fbq = fb.strip()
-                        if not fbq or fbq.lower() in seen:
+                    wikt_fallbacks: list[str] = []
+                    if " " in wikt_base and "-" not in wikt_base:
+                        wikt_fallbacks.append(wikt_base.replace(" ", "-"))
+                    if wikt_base.lower().endswith("tekst") and len(wikt_base) > 6:
+                        wikt_fallbacks.append(wikt_base[: -len("tekst")])
+                    wikt_seen: set[str] = set()
+                    for wikt_fb in wikt_fallbacks:
+                        wikt_fbq = wikt_fb.strip()
+                        if not wikt_fbq or wikt_fbq.lower() in wikt_seen:
                             continue
-                        seen.add(fbq.lower())
+                        wikt_seen.add(wikt_fbq.lower())
                         try:
-                            fb_res = await asyncio.wait_for(
-                                wiktionary_lookup(fbq),
+                            wikt_fb_res = await asyncio.wait_for(
+                                wiktionary_lookup(wikt_fbq),
                                 timeout=float(getattr(request, "timeout", 30) or 30),
                             )
                             self._debug_attempts.append(
                                 {
                                     "provider": source.name,
                                     "api_type": "mediawiki",
-                                    "term": fbq,
+                                    "term": wikt_fbq,
                                     "fallback": True,
-                                    "success": bool(fb_res and fb_res.success),
+                                    "success": bool(
+                                        wikt_fb_res and wikt_fb_res.success
+                                    ),
                                 }
                             )
-                            if fb_res and fb_res.success:
-                                result = fb_res
+                            if wikt_fb_res and wikt_fb_res.success:
+                                wikt_result = wikt_fb_res
                                 break
                         except Exception:
                             continue
 
-                if result and result.success:
+                if wikt_result and wikt_result.success:
                     # NOTE: Provider weight applied in ranking, not here
                     # to avoid double-weighting (Oct 2025)
-                    return result
+                    return wikt_result
 
         except ImportError as e:
             logger.warning(f"Modern MediaWiki service niet beschikbaar: {e}")
@@ -754,9 +772,9 @@ class ModernWebLookupService(WebLookupServiceInterface):
                         )
 
                     if results:
-                        return results[0]
                         # NOTE: Provider weight applied in ranking, not here
                         # to avoid double-weighting (Oct 2025)
+                        return cast(LookupResult, results[0])
 
                 # Heuristische extra fallbacks op basis van term (na stages)
                 extra_terms: list[str] = []
@@ -781,7 +799,7 @@ class ModernWebLookupService(WebLookupServiceInterface):
                         }
                     )
                     if results:
-                        r = results[0]
+                        r = cast(LookupResult, results[0])
                         # NOTE: Provider weight applied in ranking, not here
                         # Apply fallback penalty (0.95) to base confidence instead
                         r.source.confidence *= 0.95
@@ -813,7 +831,7 @@ class ModernWebLookupService(WebLookupServiceInterface):
         import time as _t
 
         start = _t.time()
-        attempt = {
+        attempt: dict[str, Any] = {
             "provider": source.name,
             "api_type": "rest",
             "term": term,
@@ -908,7 +926,7 @@ class ModernWebLookupService(WebLookupServiceInterface):
                 if result and result.success:
                     # NOTE: Provider weight applied in ranking, not here
                     # to avoid double-weighting (Oct 2025)
-                    return result
+                    return cast(LookupResult, result)
 
                 return None
 

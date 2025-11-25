@@ -16,7 +16,7 @@ UTC = UTC  # Python 3.10 compatibility
 from enum import Enum
 from functools import wraps
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from openai import APIConnectionError, APIError, RateLimitError
 
@@ -427,7 +427,7 @@ async def test_retry_system():
 
         if failing_function.call_count <= fail_count:
             msg = "Simulated rate limit error"
-            raise RateLimitError(msg, response=None, body=None)
+            raise RateLimitError(msg, response=cast(Any, None), body=None)
 
         return f"Success after {failing_function.call_count} attempts"
 

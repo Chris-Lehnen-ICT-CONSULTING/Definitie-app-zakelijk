@@ -4,7 +4,7 @@ Properly handles custom "Anders..." options and ensures they're passed to prompt
 """
 
 import logging
-from typing import Any, ClassVar
+from typing import Any, ClassVar, cast
 
 import streamlit as st
 
@@ -251,7 +251,7 @@ class EnhancedContextManagerSelector:
             )
 
             if result.sanitized_value:
-                return result.sanitized_value
+                return cast(str, result.sanitized_value)
 
             if result.warnings:
                 st.warning(f"⚠️ {result.warnings[0]}")

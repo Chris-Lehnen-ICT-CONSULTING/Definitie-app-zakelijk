@@ -74,6 +74,7 @@ def setup_structured_logging(enable_json: bool = False, log_file: str | None = N
         return  # Keep existing text logging
 
     # Create handler (file or console)
+    handler: logging.Handler
     if log_file:
         # Ensure log directory exists
         Path(log_file).parent.mkdir(parents=True, exist_ok=True)

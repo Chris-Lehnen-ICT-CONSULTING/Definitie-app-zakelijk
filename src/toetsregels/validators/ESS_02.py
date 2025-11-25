@@ -29,7 +29,7 @@ class ESS02Validator:
         self.prioriteit = config.get("prioriteit", "hoog")
 
         # Compile regex patronen per categorie voor performance
-        self.compiled_patterns = {
+        self.compiled_patterns: dict[str, list[re.Pattern[str]]] = {
             "type": [],
             "particulier": [],
             "proces": [],
@@ -132,7 +132,7 @@ class ESS02Validator:
                     )
 
         # 2️⃣ Detectie via patronen per categorie
-        hits = {}
+        hits: dict[str, list[str]] = {}
         for cat, patterns in self.compiled_patterns.items():
             for pattern in patterns:
                 if pattern.search(d):

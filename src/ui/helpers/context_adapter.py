@@ -6,7 +6,7 @@ while routing all context operations through the centralized ContextManager.
 """
 
 import logging
-from typing import Any
+from typing import Any, cast
 
 from services.context.context_manager import (
     ContextManager,
@@ -54,7 +54,7 @@ class ContextAdapter:
         # First check if ContextManager has context
         current = self.context_manager.get_context()
         if current is not None:
-            return current.to_dict()
+            return cast(dict[str, Any], current.to_dict())
 
         # Fallback to session state for backward compatibility
         context = {}

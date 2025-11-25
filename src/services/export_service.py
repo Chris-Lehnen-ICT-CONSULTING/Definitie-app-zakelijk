@@ -12,7 +12,7 @@ from datetime import UTC, datetime, timedelta
 UTC = UTC  # Python 3.10 compatibility
 from enum import Enum
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from database.definitie_repository import DefinitieRecord, DefinitieRepository
 from services.data_aggregation_service import (
@@ -297,7 +297,7 @@ class ExportService:
         legacy_data = self.data_aggregation_service.prepare_export_dict(export_data)
 
         # Gebruik legacy export
-        return exporteer_naar_txt(legacy_data)
+        return cast(str, exporteer_naar_txt(legacy_data))
 
     def _export_to_json(self, export_data: DefinitieExportData) -> str:
         """Exporteer naar JSON formaat."""
@@ -666,7 +666,8 @@ class ExportService:
         path = self._generate_export_path(ExportFormat.JSON)
 
         # Format-specific: JSON structure with metadata
-        json_data = {
+        definities_list: list[dict[str, Any]] = []
+        json_data: dict[str, Any] = {
             "export_info": {
                 "export_timestamp": datetime.now(UTC).isoformat(),
                 "export_version": "2.0",
@@ -674,7 +675,7 @@ class ExportService:
                 "export_level": level.value,
                 "total_definitions": len(data),
             },
-            "definities": [],
+            "definities": definities_list,
         }
 
         # Convert datetime objects to ISO strings for JSON
@@ -682,7 +683,7 @@ class ExportService:
             for key, value in row.items():
                 if isinstance(value, datetime):
                     row[key] = value.isoformat()
-            json_data["definities"].append(row)
+            definities_list.append(row)
 
         # Write to file
         with open(path, "w", encoding="utf-8") as f:
@@ -828,7 +829,7 @@ class ExportService:
                         )
 
         # Sorteer op datum (nieuwste eerst)
-        exports.sort(key=lambda x: x["created"], reverse=True)
+        exports.sort(key=lambda x: cast(datetime, x["created"]), reverse=True)
 
         return exports
 

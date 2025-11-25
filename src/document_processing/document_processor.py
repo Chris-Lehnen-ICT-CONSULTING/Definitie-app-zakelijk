@@ -11,7 +11,7 @@ from dataclasses import (  # Dataklassen voor gestructureerde document data
 )
 from datetime import UTC, datetime  # Datum en tijd functionaliteit voor timestamps
 from pathlib import Path  # Object-georiënteerde pad manipulatie
-from typing import Any  # Type hints voor betere code documentatie
+from typing import Any, cast  # Type hints voor betere code documentatie
 
 from .document_extractor import (  # Importeer tekst extractie functionaliteit
     extract_text_from_file,
@@ -71,7 +71,7 @@ class DocumentProcessor:
         self.storage_dir = Path(storage_dir)
         self.storage_dir.mkdir(parents=True, exist_ok=True)
         self.metadata_file = self.storage_dir / "documents_metadata.json"
-        self._documents_cache = {}
+        self._documents_cache: dict[str, ProcessedDocument] = {}
         self._load_metadata()
 
     def process_uploaded_file(
@@ -95,7 +95,7 @@ class DocumentProcessor:
             # Check of document al verwerkt is
             if doc_id in self._documents_cache:
                 logger.info(f"Document {filename} al eerder verwerkt, hergebruik cache")
-                return self._documents_cache[doc_id]
+                return cast(ProcessedDocument, self._documents_cache[doc_id])
 
             # Krijg bestandsinfo
             file_info = get_file_info(filename, len(file_content))
@@ -207,7 +207,7 @@ class DocumentProcessor:
         Returns:
             Dictionary met geaggregeerde context informatie
         """
-        documents = self._documents_cache.values()
+        documents: list[ProcessedDocument] = list(self._documents_cache.values())
 
         if selected_doc_ids:
             documents = [doc for doc in documents if doc.id in selected_doc_ids]
@@ -505,7 +505,7 @@ class DocumentProcessor:
                 )
             except Exception as e:
                 logger.error(f"Fout bij laden metadata: {e}")
-                self._documents_cache = {}
+                self._documents_cache.clear()
 
     def _save_metadata(self):
         """Sla document metadata op in bestand."""

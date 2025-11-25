@@ -64,8 +64,8 @@ class ServiceContainer:
             config: Dictionary met configuratie opties
         """
         self.config = config or {}
-        self._instances = {}
-        self._lazy_instances = {}  # Cache for lazy-loaded services
+        self._instances: dict[str, Any] = {}
+        self._lazy_instances: dict[str, Any] = {}  # Cache for lazy-loaded services
         self._initialization_count = 0  # Track init count voor debugging
         self._load_configuration()
         self._initialization_count += 1

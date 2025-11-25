@@ -6,7 +6,7 @@ Provides real-time progress tracking for async operations.
 import asyncio
 import time
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, cast
 
 import streamlit as st
 from services.async_definition_service import AsyncProcessingResult, get_async_service
@@ -111,7 +111,7 @@ class AsyncProgressTracker:
 
     def is_cancelled(self) -> bool:
         """Check if operation was cancelled."""
-        return self.state.is_cancelled
+        return cast(bool, self.state.is_cancelled)
 
 
 class AsyncDefinitionUI:
