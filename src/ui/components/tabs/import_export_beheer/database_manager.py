@@ -4,13 +4,20 @@ Database Manager component - Verplaatst van import_export_beheer_tab.py.
 Bevat database beheer functionaliteit, exact zoals het al werkte.
 """
 
+from __future__ import annotations  # DEF-175: Enable string annotations for TYPE_CHECKING
+
 import logging
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import streamlit as st
 
-from database.definitie_repository import DefinitieRepository, DefinitieStatus
+if TYPE_CHECKING:
+    from database.definitie_repository import DefinitieRepository
+
+# Status values as string literals (avoids runtime import of DefinitieStatus enum)
+_STATUS_ESTABLISHED = "established"
+_STATUS_DRAFT = "draft"
 
 logger = logging.getLogger(__name__)
 
@@ -64,9 +71,9 @@ class DatabaseManager:
         try:
             total = len(self.repository.get_all())
             established = len(
-                self.repository.get_by_status(DefinitieStatus.ESTABLISHED.value)
+                self.repository.get_by_status(_STATUS_ESTABLISHED)
             )
-            draft = len(self.repository.get_by_status(DefinitieStatus.DRAFT.value))
+            draft = len(self.repository.get_by_status(_STATUS_DRAFT))
 
             # Database size
             db_path = Path("data/definities.db")

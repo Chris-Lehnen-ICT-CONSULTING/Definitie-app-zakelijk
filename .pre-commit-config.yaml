@@ -16,14 +16,8 @@ repos:
         name: Black formatting
         types: [python]
 
-  # isort - Import sorting
-  - repo: https://github.com/pycqa/isort
-    rev: 7.0.0
-    hooks:
-      - id: isort
-        name: Sort imports (isort)
-        args: ["--profile", "black"]
-        types: [python]
+  # NOTE: isort removed - Ruff handles import sorting via [tool.ruff.lint.isort]
+  # Having both caused import splitting conflicts (see DEF-173 analysis)
 
   # Gitleaks - Secret detection
   - repo: https://github.com/gitleaks/gitleaks

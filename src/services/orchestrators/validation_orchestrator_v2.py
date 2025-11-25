@@ -76,62 +76,50 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
             else str(uuid.uuid4())
         )
 
-        # Set validation flag BEFORE operation starts
-        try:
-            from ui.session_state import SessionStateManager
+        # DEF-173: Use progress_context for layer-compliant progress tracking
+        from services.progress_context import operation_progress
 
-            SessionStateManager.set_value("validating_definition", True)
-        except Exception:
-            pass  # Soft-fail if session state unavailable (e.g., in tests)
-
-        try:
-            cleaned_text = text
-            if self.cleaning_service is not None:
-                cleaning = await self.cleaning_service.clean_text(text, begrip)
-                cleaned_text = cleaning.cleaned_text if cleaning else text
-
-            # Build context dict with all relevant fields
-            context_dict = None
-            if context:
-                context_dict = {}
-                if context.profile:
-                    context_dict["profile"] = context.profile
-                if context.correlation_id:
-                    context_dict["correlation_id"] = str(context.correlation_id)
-                if context.locale:
-                    context_dict["locale"] = context.locale
-                if context.feature_flags:
-                    context_dict["feature_flags"] = dict(context.feature_flags)
-
-            # No enrichment with 'definition' here: not available in validate_text
-            # Context info should be supplied via ValidationContext only.
-
-            # Call underlying service
-            result = await self.validation_service.validate_definition(
-                begrip=begrip,
-                text=cleaned_text,
-                ontologische_categorie=ontologische_categorie,
-                context=context_dict,
-            )
-
-            # Ensure result is schema-compliant
-            return ensure_schema_compliance(result, correlation_id)
-
-        except Exception as e:
-            logger.error(
-                f"Validation failed for begrip='{begrip}', correlation_id='{correlation_id}': {e}"
-            )
-            return create_degraded_result(
-                error=str(e), correlation_id=correlation_id, begrip=begrip
-            )
-        finally:
-            # ALWAYS clear flag after operation (even on error)
+        with operation_progress("validating_definition"):
             try:
-                from ui.session_state import SessionStateManager
+                cleaned_text = text
+                if self.cleaning_service is not None:
+                    cleaning = await self.cleaning_service.clean_text(text, begrip)
+                    cleaned_text = cleaning.cleaned_text if cleaning else text
 
-                SessionStateManager.set_value("validating_definition", False)
-            except Exception:
-                pass  # Soft-fail if session state unavailable
+                # Build context dict with all relevant fields
+                context_dict = None
+                if context:
+                    context_dict = {}
+                    if context.profile:
+                        context_dict["profile"] = context.profile
+                    if context.correlation_id:
+                        context_dict["correlation_id"] = str(context.correlation_id)
+                    if context.locale:
+                        context_dict["locale"] = context.locale
+                    if context.feature_flags:
+                        context_dict["feature_flags"] = dict(context.feature_flags)
+
+                # No enrichment with 'definition' here: not available in validate_text
+                # Context info should be supplied via ValidationContext only.
+
+                # Call underlying service
+                result = await self.validation_service.validate_definition(
+                    begrip=begrip,
+                    text=cleaned_text,
+                    ontologische_categorie=ontologische_categorie,
+                    context=context_dict,
+                )
+
+                # Ensure result is schema-compliant
+                return ensure_schema_compliance(result, correlation_id)
+
+            except Exception as e:
+                logger.error(
+                    f"Validation failed for begrip='{begrip}', correlation_id='{correlation_id}': {e}"
+                )
+                return create_degraded_result(
+                    error=str(e), correlation_id=correlation_id, begrip=begrip
+                )
 
     async def validate_definition(
         self,
@@ -154,59 +142,49 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
             else str(uuid.uuid4())
         )
 
-        # Set validation flag BEFORE operation starts
-        try:
-            from ui.session_state import SessionStateManager
+        # DEF-173: Use progress_context for layer-compliant progress tracking
+        from services.progress_context import operation_progress
 
-            SessionStateManager.set_value("validating_definition", True)
-        except Exception:
-            pass  # Soft-fail if session state unavailable (e.g., in tests)
-
-        try:
-            text = definition.definitie
-            if self.cleaning_service is not None:
-                cleaned = await self.cleaning_service.clean_definition(definition)
-                text = cleaned.cleaned_text if cleaned else definition.definitie
-
-            # Build context dict with all relevant fields
-            context_dict = None
-            if context:
-                context_dict = {}
-                if context.profile:
-                    context_dict["profile"] = context.profile
-                if context.correlation_id:
-                    context_dict["correlation_id"] = str(context.correlation_id)
-                if context.locale:
-                    context_dict["locale"] = context.locale
-                if context.feature_flags:
-                    context_dict["feature_flags"] = dict(context.feature_flags)
-
-            # Call underlying service (geen automatische enrich met 'definition')
-            result = await self.validation_service.validate_definition(
-                begrip=definition.begrip,
-                text=text,
-                ontologische_categorie=definition.ontologische_categorie,
-                context=context_dict,
-            )
-
-            # Ensure result is schema-compliant
-            return ensure_schema_compliance(result, correlation_id)
-
-        except Exception as e:
-            logger.error(
-                f"Validation failed for definition begrip='{definition.begrip}', correlation_id='{correlation_id}': {e}"
-            )
-            return create_degraded_result(
-                error=str(e), correlation_id=correlation_id, begrip=definition.begrip
-            )
-        finally:
-            # ALWAYS clear flag after operation (even on error)
+        with operation_progress("validating_definition"):
             try:
-                from ui.session_state import SessionStateManager
+                text = definition.definitie
+                if self.cleaning_service is not None:
+                    cleaned = await self.cleaning_service.clean_definition(definition)
+                    text = cleaned.cleaned_text if cleaned else definition.definitie
 
-                SessionStateManager.set_value("validating_definition", False)
-            except Exception:
-                pass  # Soft-fail if session state unavailable
+                # Build context dict with all relevant fields
+                context_dict = None
+                if context:
+                    context_dict = {}
+                    if context.profile:
+                        context_dict["profile"] = context.profile
+                    if context.correlation_id:
+                        context_dict["correlation_id"] = str(context.correlation_id)
+                    if context.locale:
+                        context_dict["locale"] = context.locale
+                    if context.feature_flags:
+                        context_dict["feature_flags"] = dict(context.feature_flags)
+
+                # Call underlying service (geen automatische enrich met 'definition')
+                result = await self.validation_service.validate_definition(
+                    begrip=definition.begrip,
+                    text=text,
+                    ontologische_categorie=definition.ontologische_categorie,
+                    context=context_dict,
+                )
+
+                # Ensure result is schema-compliant
+                return ensure_schema_compliance(result, correlation_id)
+
+            except Exception as e:
+                logger.error(
+                    f"Validation failed for definition begrip='{definition.begrip}', correlation_id='{correlation_id}': {e}"
+                )
+                return create_degraded_result(
+                    error=str(e),
+                    correlation_id=correlation_id,
+                    begrip=definition.begrip,
+                )
 
     async def batch_validate(
         self, items: Iterable[ValidationRequest], max_concurrency: int = 1
