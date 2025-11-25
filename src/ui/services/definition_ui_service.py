@@ -5,7 +5,9 @@ Facade service die UI functionaliteit biedt zonder directe session state depende
 Dit is onderdeel van de GVI Week 0 implementatie.
 """
 
-from __future__ import annotations  # DEF-175: Enable string annotations for TYPE_CHECKING
+from __future__ import (
+    annotations,  # DEF-175: Enable string annotations for TYPE_CHECKING
+)
 
 import logging
 from typing import TYPE_CHECKING, Any

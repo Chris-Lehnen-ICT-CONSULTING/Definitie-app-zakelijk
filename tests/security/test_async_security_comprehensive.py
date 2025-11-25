@@ -328,9 +328,7 @@ class TestAsyncThreatDetection:
             async def process_threat_level(tl=threat_level):
                 tasks = []
                 for i in range(tl["requests"]):
-                    is_malicious = (i / tl["requests"]) < tl[
-                        "threat_probability"
-                    ]
+                    is_malicious = (i / tl["requests"]) < tl["threat_probability"]
 
                     request = await self.harness.create_test_request(
                         endpoint=f"threat_level_{tl['level']}",

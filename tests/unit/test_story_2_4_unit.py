@@ -418,6 +418,7 @@ class TestValidationOrchestratorV2Unit:
         # Should preserve provided correlation_id
         assert result["system"]["correlation_id"] == str(test_uuid)
 
+
 class TestValidationOrchestratorInterfaceCompliance:
     """Unit tests for ValidationOrchestratorInterface compliance."""
 
@@ -447,6 +448,7 @@ class TestValidationOrchestratorInterfaceCompliance:
             assert callable(method), f"Method {method_name} is not callable"
 
         # If we get here, basic interface compliance is satisfied
+
 
 class TestStory24UnitTestHelpers:
     """Unit test helpers and utilities for Story 2.4."""
