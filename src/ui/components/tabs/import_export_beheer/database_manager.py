@@ -4,7 +4,9 @@ Database Manager component - Verplaatst van import_export_beheer_tab.py.
 Bevat database beheer functionaliteit, exact zoals het al werkte.
 """
 
-from __future__ import annotations  # DEF-175: Enable string annotations for TYPE_CHECKING
+from __future__ import (
+    annotations,  # DEF-175: Enable string annotations for TYPE_CHECKING
+)
 
 import logging
 from pathlib import Path
@@ -70,9 +72,7 @@ class DatabaseManager:
         """Haal database statistieken op - exact verplaatst van origineel."""
         try:
             total = len(self.repository.get_all())
-            established = len(
-                self.repository.get_by_status(_STATUS_ESTABLISHED)
-            )
+            established = len(self.repository.get_by_status(_STATUS_ESTABLISHED))
             draft = len(self.repository.get_by_status(_STATUS_DRAFT))
 
             # Database size

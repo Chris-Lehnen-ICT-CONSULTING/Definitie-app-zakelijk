@@ -93,6 +93,7 @@ class TestFeatureFlagConfiguration:
 
             assert config["rollout_percentage"] == 50
 
+
 @pytest.mark.skip(
     reason="Feature flags for context flow not yet implemented (US-041/042/043)"
 )
@@ -159,6 +160,7 @@ class TestPercentageRollout:
             ), f"Users lost access when increasing from {percentages[percentages.index(percentage)-1]}% to {percentage}%"
 
             previous_enabled = currently_enabled
+
 
 @pytest.mark.skip(
     reason="Feature flags for context flow not yet implemented (US-041/042/043)"
@@ -243,6 +245,7 @@ class TestABTesting:
                 23 < percentage < 27
             ), f"Variant {variant} got {percentage}%, expected ~25%"
 
+
 @pytest.mark.skip(
     reason="Feature flags for context flow not yet implemented (US-041/042/043)"
 )
@@ -317,6 +320,7 @@ class TestFallbackMechanisms:
         # Should recover
         assert not circuit_breaker.is_open()
 
+
 @pytest.mark.skip(
     reason="Feature flags for context flow not yet implemented (US-041/042/043)"
 )
@@ -371,6 +375,7 @@ class TestFlagOverrides:
         assert flags.is_enabled_for_request("modern_context_flow", request_dji)
         assert not flags.is_enabled_for_request("modern_context_flow", request_om)
 
+
 @pytest.mark.skip(
     reason="Feature flags for context flow not yet implemented (US-041/042/043)"
 )
@@ -413,6 +418,7 @@ class TestPerformanceImpact:
 
             # Should only compute once
             assert mock_compute.call_count == 1
+
 
 @pytest.mark.skip(
     reason="Feature flags for context flow not yet implemented (US-041/042/043)"
@@ -485,6 +491,7 @@ class TestMultiFlagInteractions:
         for combo in invalid_combinations:
             assert not flags.validate_combination(combo)
 
+
 @pytest.mark.skip(
     reason="Feature flags for context flow not yet implemented (US-041/042/043)"
 )
@@ -529,6 +536,7 @@ class TestFlagMonitoring:
 
             mock_log.assert_called()
 
+
 @pytest.mark.skip(
     reason="Feature flags for context flow not yet implemented (US-041/042/043)"
 )
@@ -569,6 +577,7 @@ class TestFlagMigration:
 
         # Should be disabled
         assert not flags.is_enabled("modern_context_flow")
+
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v", "--tb=short"])

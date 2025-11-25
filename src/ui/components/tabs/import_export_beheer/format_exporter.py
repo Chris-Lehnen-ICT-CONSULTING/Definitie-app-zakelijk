@@ -4,7 +4,9 @@ Format Export component - UI wrapper voor ExportService.
 Bevat UI logica, delegeert export naar ExportService.
 """
 
-from __future__ import annotations  # DEF-175: Enable string annotations for TYPE_CHECKING
+from __future__ import (
+    annotations,  # DEF-175: Enable string annotations for TYPE_CHECKING
+)
 
 import logging
 from typing import TYPE_CHECKING

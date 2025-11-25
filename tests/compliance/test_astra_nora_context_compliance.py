@@ -110,6 +110,7 @@ class TestAuditTrailCompliance:
 
             # This test documents the requirement
 
+
 @pytest.mark.xfail(
     strict=False,
     reason="Activating compliance tests; features pending (US-041/042/043)",
@@ -174,6 +175,7 @@ class TestPrivacyCompliance:
             # When storing context
             # mock_encrypt should be called
 
+
 @pytest.mark.xfail(
     strict=False,
     reason="Activating compliance tests; features pending (US-041/042/043)",
@@ -214,6 +216,7 @@ class TestInteroperabilityStandards:
 
         # Should handle versioned requests
         assert hasattr(request, "api_version") or "version" in request.__dict__
+
 
 @pytest.mark.xfail(
     strict=False,
@@ -266,6 +269,7 @@ class TestSecurityRequirements:
 
         # Access should be role-based
 
+
 @pytest.mark.xfail(
     strict=False,
     reason="Activating compliance tests; features pending (US-041/042/043)",
@@ -307,6 +311,7 @@ class TestTransparencyRequirements:
             # Process through system
             # Lineage should be tracked
 
+
 @pytest.mark.xfail(
     strict=False,
     reason="Activating compliance tests; features pending (US-041/042/043)",
@@ -324,6 +329,7 @@ class TestAccessibilityCompliance:
         """Support for Dutch and English contexts."""
 
         # Should handle both languages
+
 
 @pytest.mark.xfail(
     strict=False,
@@ -349,6 +355,7 @@ class TestDataGovernance:
         """Context must include standard metadata."""
 
         # This documents metadata requirements
+
 
 @pytest.mark.xfail(
     strict=False,
@@ -390,6 +397,7 @@ class TestComplianceReporting:
             # Should trigger alert
             # mock_alert.assert_called()
 
+
 @pytest.mark.xfail(
     strict=False,
     reason="Activating compliance tests; features pending (US-041/042/043)",
@@ -413,6 +421,7 @@ class TestJusticeDomainSpecific:
         """Meet specific legal retention requirements."""
 
         # Should apply correct retention
+
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v", "--tb=short"])

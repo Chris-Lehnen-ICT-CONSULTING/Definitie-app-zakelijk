@@ -379,6 +379,7 @@ class TestEnhancedCache:
         base = [0.0]
         for attr in ("_now", "now", "time", "_time"):
             if hasattr(self.enhanced_cache, attr):
+
                 def _fake_now():
                     return base[0] + 1.0
 
