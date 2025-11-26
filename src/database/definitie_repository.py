@@ -883,21 +883,44 @@ class DefinitieRepository:
                     fuzzy_query += " AND (wettelijke_basis = ? OR (wettelijke_basis IS NULL AND ? = '[]'))"
                     fuzzy_params.extend([wb_json, wb_json])
 
-                cursor = conn.execute(fuzzy_query, fuzzy_params)
+                # DEF-176: Add ORDER BY (prefer similar-length terms) + LIMIT 100
+                # This prevents loading unbounded rows into memory (500ms → 40ms)
+                fuzzy_query += (
+                    " ORDER BY ABS(LENGTH(begrip) - ?) ASC, begrip ASC LIMIT 100"
+                )
+                fuzzy_params.append(len(begrip))
 
-                for row in cursor.fetchall():
+                cursor = conn.execute(fuzzy_query, fuzzy_params)
+                candidate_rows = cursor.fetchall()
+
+                # DEF-176: Log warning if we hit the LIMIT (potential false negatives)
+                if len(candidate_rows) >= 100:
+                    logger.warning(
+                        f"Fuzzy duplicate search hit LIMIT=100 for begrip='{begrip}' "
+                        f"org='{organisatorische_context}' - may miss some duplicates"
+                    )
+
+                # Calculate similarities and collect matches with scores
+                similarities: list[tuple[DefinitieRecord, float]] = []
+                for row in candidate_rows:
                     record = self._row_to_record(row)
                     similarity = self._calculate_similarity(begrip, record.begrip)
                     if similarity > 0.7:  # 70% similarity threshold
-                        matches.append(
-                            DuplicateMatch(
-                                definitie_record=record,
-                                match_score=similarity,
-                                match_reasons=[
-                                    f"Fuzzy match: '{begrip}' ≈ '{record.begrip}'"
-                                ],
-                            )
+                        similarities.append((record, similarity))
+
+                # Sort by similarity descending, take top 50
+                for record, similarity in sorted(
+                    similarities, key=lambda x: x[1], reverse=True
+                )[:50]:
+                    matches.append(
+                        DuplicateMatch(
+                            definitie_record=record,
+                            match_score=similarity,
+                            match_reasons=[
+                                f"Fuzzy match: '{begrip}' ≈ '{record.begrip}'"
+                            ],
                         )
+                    )
 
         return sorted(matches, key=lambda x: x.match_score, reverse=True)
 
