@@ -54,8 +54,7 @@ class DefinitionRepository(DefinitionRepositoryInterface):
             "total_deletes": 0,
         }
 
-        # Inject business services indien beschikbaar
-        self._duplicate_service = None
+        # DuplicateDetectionService removed - was dead code (DEF-176)
 
         logger.info(f"DefinitionRepository geïnitialiseerd met database: {db_path}")
 
@@ -348,17 +347,8 @@ class DefinitionRepository(DefinitionRepositoryInterface):
             Lijst van mogelijke duplicaten
         """
         try:
-            # Check if we have the new duplicate detection service
-            if self._duplicate_service is not None:
-                # Use new business logic service
-                all_definitions = self._get_all_definitions()
-                matches = self._duplicate_service.find_duplicates(
-                    definition, all_definitions
-                )
-
-                # Return just the definitions
-                return [match.definition for match in matches]
-            # Fallback to legacy duplicate detection
+            # Use database-level duplicate detection (exact + synonym match)
+            # DuplicateDetectionService removed - was dead code (DEF-176)
             record = self._definition_to_record(definition)
             matches = self.legacy_repo.find_duplicates(record)
 
@@ -516,45 +506,8 @@ class DefinitionRepository(DefinitionRepositoryInterface):
                         return cast(int, row[0])
             raise
 
-    def set_duplicate_service(self, duplicate_service):
-        """
-        Inject the duplicate detection service.
-
-        Args:
-            duplicate_service: Instance of DuplicateDetectionService
-        """
-        self._duplicate_service = duplicate_service
-        logger.info("DuplicateDetectionService injected into repository")
-
-    def _get_all_definitions(self) -> list[Definition]:
-        """
-        Helper method to get all definitions for duplicate checking.
-
-        Returns:
-            List of all non-archived definitions
-        """
-        try:
-            # Get all definitions except archived ones
-            all_records = self.legacy_repo.search_definities(
-                status=None,
-                limit=1000,  # All statuses  # Reasonable limit
-            )
-
-            definitions = []
-            for record in all_records:
-                # Skip archived definitions
-                if record.status != DefinitieStatus.ARCHIVED.value:
-                    definition = self._record_to_definition(record)
-                    if definition:
-                        # Add status to definition object for duplicate service
-                        definition.status = record.status
-                        definitions.append(definition)
-
-            return definitions
-
-        except Exception as e:
-            logger.error(f"Error fetching all definitions: {e}")
-            return []
+    # set_duplicate_service() removed - was dead code (DEF-176)
+    # _get_all_definitions() removed - was dead code (DEF-176)
 
     # ===== Examples (voorbeelden) helpers - delegated to legacy repo =====
     def get_voorbeelden_by_type(self, definitie_id: int) -> dict[str, list[str]]:
