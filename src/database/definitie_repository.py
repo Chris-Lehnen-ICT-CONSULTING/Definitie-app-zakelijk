@@ -851,76 +851,9 @@ class DefinitieRepository:
                     )
                 )
 
-            # Fuzzy match op begrip (alleen als geen exact match)
-            # MOET dezelfde context filters gebruiken als EXACT match (DEF-138 fix)
-            if not matches:
-                fuzzy_query = """
-                    SELECT * FROM definities
-                    WHERE begrip LIKE ?
-                    AND organisatorische_context = ?
-                    AND COALESCE(juridische_context, '') = COALESCE(?, '')
-                    AND status != 'archived'
-                """
-                fuzzy_params = [
-                    f"%{begrip}%",
-                    organisatorische_context,
-                    juridische_context or "",
-                ]
-
-                # Add categorie filter if provided
-                if categorie is not None:
-                    fuzzy_query += " AND categorie = ?"
-                    fuzzy_params.append(categorie)
-
-                if wettelijke_basis is not None:
-                    try:
-                        norm = sorted(
-                            {str(x).strip() for x in (wettelijke_basis or [])}
-                        )
-                        wb_json = json.dumps(norm, ensure_ascii=False)
-                    except Exception:
-                        wb_json = json.dumps(wettelijke_basis or [], ensure_ascii=False)
-                    fuzzy_query += " AND (wettelijke_basis = ? OR (wettelijke_basis IS NULL AND ? = '[]'))"
-                    fuzzy_params.extend([wb_json, wb_json])
-
-                # DEF-176: Add ORDER BY (prefer similar-length terms) + LIMIT 100
-                # This prevents loading unbounded rows into memory (500ms → 40ms)
-                fuzzy_query += (
-                    " ORDER BY ABS(LENGTH(begrip) - ?) ASC, begrip ASC LIMIT 100"
-                )
-                fuzzy_params.append(len(begrip))
-
-                cursor = conn.execute(fuzzy_query, fuzzy_params)
-                candidate_rows = cursor.fetchall()
-
-                # DEF-176: Log warning if we hit the LIMIT (potential false negatives)
-                if len(candidate_rows) >= 100:
-                    logger.warning(
-                        f"Fuzzy duplicate search hit LIMIT=100 for begrip='{begrip}' "
-                        f"org='{organisatorische_context}' - may miss some duplicates"
-                    )
-
-                # Calculate similarities and collect matches with scores
-                similarities: list[tuple[DefinitieRecord, float]] = []
-                for row in candidate_rows:
-                    record = self._row_to_record(row)
-                    similarity = self._calculate_similarity(begrip, record.begrip)
-                    if similarity > 0.7:  # 70% similarity threshold
-                        similarities.append((record, similarity))
-
-                # Sort by similarity descending, take top 50
-                for record, similarity in sorted(
-                    similarities, key=lambda x: x[1], reverse=True
-                )[:50]:
-                    matches.append(
-                        DuplicateMatch(
-                            definitie_record=record,
-                            match_score=similarity,
-                            match_reasons=[
-                                f"Fuzzy match: '{begrip}' ≈ '{record.begrip}'"
-                            ],
-                        )
-                    )
+            # DEF-176: Fuzzy matching verwijderd - was ineffectief (Jaccard op woorden
+            # vangt geen typos, meervouden of samenstellingen). Exact + synoniem match
+            # is voldoende voor duplicate detection.
 
         return sorted(matches, key=lambda x: x.match_score, reverse=True)
 
@@ -1472,24 +1405,6 @@ class DefinitieRepository:
                     datetime.now(UTC),
                 ),
             )
-
-    def _calculate_similarity(self, str1: str, str2: str) -> float:
-        """Bereken similarity score tussen twee strings."""
-        # Simple similarity based on common characters
-        str1_lower = str1.lower()
-        str2_lower = str2.lower()
-
-        if str1_lower == str2_lower:
-            return 1.0
-
-        # Jaccard similarity
-        set1 = set(str1_lower.split())
-        set2 = set(str2_lower.split())
-
-        intersection = len(set1.intersection(set2))
-        union = len(set1.union(set2))
-
-        return intersection / union if union > 0 else 0.0
 
     # ========================================
     # VOORBEELDEN MANAGEMENT
