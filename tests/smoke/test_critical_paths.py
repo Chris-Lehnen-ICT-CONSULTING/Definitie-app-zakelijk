@@ -144,19 +144,7 @@ def test_export_service_initializes():
     print("✓ ExportService initialized with repository")
 
 
-# ==============================================================================
-# SMOKE TEST 9: Duplicate detection service works
-# ==============================================================================
-def test_duplicate_detection():
-    """Duplicate detection service can be initialized."""
-    from services.duplicate_detection_service import DuplicateDetectionService
-
-    service = DuplicateDetectionService()
-
-    # Test that service initializes with default threshold
-    assert service is not None
-    assert hasattr(service, "threshold")
-    print(f"✓ Duplicate detection service initialized (threshold: {service.threshold})")
+# SMOKE TEST 9: DuplicateDetectionService removed - was dead code (DEF-176)
 
 
 # ==============================================================================
