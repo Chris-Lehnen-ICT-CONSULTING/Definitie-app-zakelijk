@@ -18,7 +18,7 @@ from services.definition_generator_config import UnifiedGeneratorConfig
 from services.definition_repository import DefinitionRepository
 
 # Legacy DefinitionValidator removed - using V2 orchestrator for validation
-from services.duplicate_detection_service import DuplicateDetectionService
+# DuplicateDetectionService removed - was dead code (DEF-176)
 from services.interfaces import (
     CleaningServiceInterface,
     DefinitionGeneratorInterface,
@@ -488,34 +488,8 @@ class ServiceContainer:
 
         return self._instances["synonym_service"]
 
-    def duplicate_detector(self) -> DuplicateDetectionService:
-        """
-        Get of create DuplicateDetectionService instance (LAZY-LOADED).
-
-        Only loaded when edit functionality is accessed.
-        Automatically injects into repository on first access.
-
-        Returns:
-            Singleton instance van DuplicateDetectionService
-        """
-        if "duplicate_detector" not in self._lazy_instances:
-            similarity_threshold = self.config.get(
-                "duplicate_similarity_threshold", 0.7
-            )
-            self._lazy_instances["duplicate_detector"] = DuplicateDetectionService(
-                similarity_threshold=similarity_threshold
-            )
-            logger.info(
-                f"⚡ DuplicateDetectionService lazy-loaded (threshold={similarity_threshold})"
-            )
-
-            # Inject into repository if enabled
-            if self.config.get("use_new_duplicate_detection", True):
-                repo = self.repository()
-                repo.set_duplicate_service(self._lazy_instances["duplicate_detector"])
-                logger.info("⚡ DuplicateDetectionService injected into repository")
-
-        return self._lazy_instances["duplicate_detector"]
+    # DuplicateDetectionService removed - was dead code (DEF-176)
+    # duplicate_detector() method removed
 
     # ===== Approval Gate Policy (US-160) =====
     def gate_policy(self):
@@ -702,7 +676,7 @@ class ServiceContainer:
             "repository": self.repository,
             "orchestrator": self.orchestrator,
             "web_lookup": self.web_lookup,
-            "duplicate_detector": self.duplicate_detector,
+            # duplicate_detector removed - was dead code (DEF-176)
             "workflow": self.workflow,
             "cleaning_service": self.cleaning_service,
             "gate_policy": self.gate_policy,
