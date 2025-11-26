@@ -2076,11 +2076,56 @@ class DefinitieRepository:
 
 
 # Convenience functions
+# DEF-181: Singleton cache to prevent duplicate repository initialization
+_repository_singleton: DefinitieRepository | None = None
+
+
 def get_definitie_repository(db_path: str | None = None) -> DefinitieRepository:
-    """Haal gedeelde repository instance op."""
+    """Haal gedeelde repository instance op (singleton pattern).
+
+    DEF-181 Fix: Previously created new instance on every call, causing
+    50-100ms overhead per TabbedInterface cold start. Now uses module-level
+    singleton for ~0ms after first call.
+
+    Args:
+        db_path: Optional database path. If None, uses default data/definities.db.
+                 NOTE: Once singleton is created, db_path parameter is IGNORED.
+
+    Returns:
+        Cached DefinitieRepository singleton instance.
+    """
+    global _repository_singleton
+
+    # If singleton exists, warn if caller expects a different db_path
+    if _repository_singleton is not None:
+        if db_path is not None:
+            current_path = getattr(_repository_singleton, "db_path", None)
+            if current_path and Path(db_path).resolve() != Path(current_path).resolve():
+                logger.warning(
+                    f"get_definitie_repository called with db_path='{db_path}' "
+                    f"but singleton already exists with path='{current_path}'. "
+                    "Returning existing singleton. Use clear_repository_singleton() first if needed."
+                )
+        return _repository_singleton
+
+    # First call - create singleton
     if not db_path:
         # Default database in project directory
         project_root = Path(__file__).parent.parent.parent
         db_path = str(project_root / "data" / "definities.db")
 
-    return DefinitieRepository(db_path)
+    _repository_singleton = DefinitieRepository(db_path)
+    logger.info(f"DefinitieRepository singleton created: {db_path}")
+
+    return _repository_singleton
+
+
+def clear_repository_singleton() -> None:
+    """Clear de repository singleton (voor testing/development).
+
+    Gebruik spaarzaam! Forceert nieuwe instantie bij volgende get_definitie_repository() call.
+    """
+    global _repository_singleton
+    if _repository_singleton is not None:
+        logger.info("DefinitieRepository singleton cleared")
+        _repository_singleton = None
