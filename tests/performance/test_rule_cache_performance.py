@@ -133,7 +133,10 @@ class TestRuleCachePerformance:
                 mock_file.stem = "TEST-01"
                 mock_glob.return_value = [mock_file]
 
-                with patch("builtins.open", create=True), patch("json.load") as mock_json_load:
+                with (
+                    patch("builtins.open", create=True),
+                    patch("json.load") as mock_json_load,
+                ):
                     # Simuleer een regel met veel velden
                     mock_json_load.return_value = {
                         "id": "TEST-01",

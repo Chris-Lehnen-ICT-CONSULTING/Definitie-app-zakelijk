@@ -887,7 +887,10 @@ class TestIntegration:
         config_file = tmp_path / "ufo_classifier.yaml"
         config_file.write_text("high_confidence: 0.95")
 
-        with patch("pathlib.Path", return_value=config_file), patch("pathlib.Path.exists", return_value=True):
+        with (
+            patch("pathlib.Path", return_value=config_file),
+            patch("pathlib.Path.exists", return_value=True),
+        ):
             classifier = create_ufo_classifier_service()
             assert classifier.config["high_confidence"] == 0.95
 

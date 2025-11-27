@@ -45,9 +45,7 @@ class StreamlitPatternChecker:
         stripped = line.strip()
 
         # Ignore comments and docstrings
-        if (
-            stripped.startswith(("#", '"""', "'''"))
-        ):
+        if stripped.startswith(("#", '"""', "'''")):
             return
 
         # 1️⃣ CRITICAL: Detect value + key parameter combination

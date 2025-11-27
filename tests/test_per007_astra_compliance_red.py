@@ -163,7 +163,10 @@ class TestASTRACompliance:
         # WHEN: Processing
         manager = HybridContextManager()
 
-        with patch("logging.Logger.warning") as mock_warn, patch("logging.Logger.info") as mock_info:
+        with (
+            patch("logging.Logger.warning") as mock_warn,
+            patch("logging.Logger.info") as mock_info,
+        ):
             manager._build_base_context(request)
 
             # THEN: Different warning levels
