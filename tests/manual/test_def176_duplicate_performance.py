@@ -16,7 +16,11 @@ from pathlib import Path
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
-from database.definitie_repository import DefinitieRepository, DefinitieRecord, DefinitieStatus
+from database.definitie_repository import (
+    DefinitieRepository,
+    DefinitieRecord,
+    DefinitieStatus,
+)
 
 
 def test_duplicate_detection_performance():
@@ -33,9 +37,7 @@ def test_duplicate_detection_performance():
     print("\n1. Testing fuzzy match performance...")
     start = time.time()
     duplicates = repo.find_duplicates(
-        begrip="verificatie",
-        organisatorische_context="DJI",
-        juridische_context=""
+        begrip="verificatie", organisatorische_context="DJI", juridische_context=""
     )
     duration = time.time() - start
 
@@ -45,14 +47,16 @@ def test_duplicate_detection_performance():
     if duplicates:
         print(f"\n   Top 3 matches:")
         for i, dup in enumerate(duplicates[:3], 1):
-            print(f"   {i}. {dup.definitie_record.begrip} (score: {dup.match_score:.3f})")
+            print(
+                f"   {i}. {dup.definitie_record.begrip} (score: {dup.match_score:.3f})"
+            )
             print(f"      Reason: {dup.match_reasons[0]}")
 
     # Test 2: Verify sorting by similarity
     print("\n2. Testing similarity sorting...")
     if len(duplicates) > 1:
         scores = [d.match_score for d in duplicates]
-        is_sorted = all(scores[i] >= scores[i+1] for i in range(len(scores)-1))
+        is_sorted = all(scores[i] >= scores[i + 1] for i in range(len(scores) - 1))
         print(f"   Scores sorted descending: {is_sorted}")
         print(f"   Score range: {min(scores):.3f} - {max(scores):.3f}")
 
@@ -72,7 +76,7 @@ def test_duplicate_detection_performance():
         categorie="proces",
         organisatorische_context="TEST",
         juridische_context="",
-        status=DefinitieStatus.DRAFT.value
+        status=DefinitieStatus.DRAFT.value,
     )
 
     try:
@@ -81,7 +85,7 @@ def test_duplicate_detection_performance():
         exact_dups = repo.find_duplicates(
             begrip="test_exact_match",
             organisatorische_context="TEST",
-            juridische_context=""
+            juridische_context="",
         )
 
         if exact_dups:
@@ -110,5 +114,6 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"\nError: {e}")
         import traceback
+
         traceback.print_exc()
         sys.exit(1)
