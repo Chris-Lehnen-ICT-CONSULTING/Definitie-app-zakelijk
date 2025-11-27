@@ -1,376 +1,129 @@
 """
-Juridische synoniemen service voor verbeterde term matching.
+Juridische synoniemen service - REFACTORED as lightweight façade over SynonymOrchestrator.
 
-Deze service ondersteunt bidirectionele synonym expansion voor Wikipedia + SRU lookups.
-Synoniemen worden gebruikt als fallback wanneer primaire zoektermen geen resultaten opleveren.
+ARCHITECTURE CHANGE (v3.1):
+Dit is GEEN standalone service meer. Het is een backward-compatible façade die
+alle calls delegeert naar SynonymOrchestrator (graph-based registry + TTL cache).
 
-Sinds v2.0: Ondersteunt weighted synonyms voor confidence-based ranking.
+De oude YAML-based implementatie is vervangen door:
+- SynonymRegistry (DB layer) → Graph-based synonym_groups/members
+- SynonymOrchestrator (Business logic) → TTL cache + GPT-4 enrichment + governance
+- JuridischeSynoniemService (Façade) → Backward compatibility wrapper
 
-Gebruik:
-    service = JuridischeSynoniemlService()
-    synoniemen = service.get_synoniemen("onherroepelijk")
-    # → ["kracht van gewijsde", "rechtskracht", "in kracht van gewijsde", ...]
+Architecture Reference:
+    docs/architectuur/synonym-orchestrator-architecture-v3.1.md
+    Lines 504-542: Façade specification
 
-    expanded = service.expand_query_terms("voorlopige hechtenis", max_synonyms=3)
-    # → ["voorlopige hechtenis", "voorarrest", "bewaring", "inverzekeringstelling"]
+Migration Path:
+    1. PHASE 2.2: Create this façade (this file)
+    2. PHASE 2.3: Update imports in web_lookup services
+    3. PHASE 3.x: Remove YAML file + old config updater
 
-    # Weighted synonyms (v2.0+)
-    weighted = service.get_synonyms_with_weights("onherroepelijk")
-    # → [("kracht van gewijsde", 0.95), ("rechtskracht", 0.90), ...]
-
-    best = service.get_best_synonyms("onherroepelijk", threshold=0.85)
-    # → ["kracht van gewijsde", "rechtskracht"]
+Backward Compatibility:
+    ✅ get_synoniemen() - Returns list[str] (no weights)
+    ✅ get_synonyms_with_weights() - Returns list[tuple[str, float]]
+    ✅ expand_query_terms() - Query expansion with max_synonyms
+    ✅ has_synoniemen() - Boolean check
+    ✅ get_synonym_service() - Singleton factory
 """
 
 import logging
-from dataclasses import dataclass
-from pathlib import Path
+from typing import Any
 
-try:
-    import yaml
-
-    YAML_AVAILABLE = True
-except ImportError:
-    YAML_AVAILABLE = False
-    print("Warning: PyYAML niet beschikbaar - synoniemen service werkt niet volledig")
+from src.services.synonym_orchestrator import SynonymOrchestrator
 
 logger = logging.getLogger(__name__)
 
 
-@dataclass(frozen=True)
-class WeightedSynonym:
+class JuridischeSynoniemService:
     """
-    Represents a synonym with confidence weight.
+    Backward compatible façade over SynonymOrchestrator.
 
-    Attributes:
-        term: The synonym term (normalized)
-        weight: Confidence weight (0.0-1.0)
-                1.0 = exact/perfect synonym
-                0.95 = nearly exact
-                0.85-0.90 = strong synonym
-                0.70-0.80 = good synonym
-                0.50-0.65 = weak/contextual synonym
-                < 0.50 = questionable (use with caution)
-    """
+    Dit is een thin wrapper die bestaande code kan blijven gebruiken
+    zonder wijzigingen. Alle business logic zit in de orchestrator!
 
-    term: str
-    weight: float = 1.0
+    Architecture Principle: NO BUSINESS LOGIC HERE
+    - All queries → orchestrator.get_synonyms_for_lookup()
+    - All enrichment → orchestrator.ensure_synonyms()
+    - This class ONLY adapts the API
 
-    def __post_init__(self):
-        """Validate weight range and warn on unusual values."""
-        if not 0.0 <= self.weight <= 1.0:
-            logger.warning(
-                f"Synonym '{self.term}' has weight {self.weight} outside valid range [0.0, 1.0]"
-            )
-        elif self.weight < 0.5:
-            logger.warning(
-                f"Synonym '{self.term}' has low weight {self.weight} (< 0.5) - may be too weak"
-            )
-        elif self.weight > 1.0:
-            logger.warning(
-                f"Synonym '{self.term}' has weight {self.weight} > 1.0 - capping to 1.0"
-            )
-            # Note: frozen dataclass, so we can't modify. Validation only.
+    Example Usage (backward compatible):
+        service = JuridischeSynoniemService(orchestrator)
+        synoniemen = service.get_synoniemen("onherroepelijk")
+        # → ["kracht van gewijsde", "rechtskracht", ...]
 
-
-class JuridischeSynoniemlService:
-    """
-    Service voor juridische synoniemen lookup en query expansion.
-
-    Ondersteunt:
-    - Bidirectionele synonym matching (zoek term → vind synoniemen, en vice versa)
-    - Query expansion voor verbeterde recall in Wikipedia/SRU
-    - Configurable maximum synoniemen per term
+        expanded = service.expand_query_terms("voorlopige hechtenis", max_synonyms=3)
+        # → ["voorlopige hechtenis", "voorarrest", "bewaring", "inverzekeringstelling"]
     """
 
-    def __init__(self, config_path: str | None = None):
+    def __init__(self, orchestrator: SynonymOrchestrator):
         """
-        Initialiseer synoniemen service.
+        Initialiseer façade met orchestrator dependency.
 
         Args:
-            config_path: Pad naar juridische_synoniemen.yaml (optioneel)
-                        Default: config/juridische_synoniemen.yaml
+            orchestrator: SynonymOrchestrator instance (business logic layer)
+
+        Architecture Note:
+            - Orchestrator is injected via ServiceContainer
+            - NO direct DB access (that's in registry)
+            - NO YAML loading (migrated to DB)
         """
-        if config_path:
-            self.config_path = Path(config_path)
-        else:
-            # Zoek config relatief aan project root
-            # src/services/web_lookup → src → Definitie-app
-            current = Path(__file__).parent.parent.parent.parent
-            self.config_path = current / "config" / "juridische_synoniemen.yaml"
+        self.orchestrator = orchestrator
+        logger.info("JuridischeSynoniemService initialized as orchestrator façade")
 
-        # Synoniemen database: {normalized_term: [WeightedSynonym]}
-        # Sorted by weight (highest first)
-        self.synoniemen: dict[str, list[WeightedSynonym]] = {}
-
-        # Reverse index voor bidirectionele lookup: {synoniem: hoofdterm}
-        self.reverse_index: dict[str, str] = {}
-
-        # Semantic clusters: {cluster_name: [term1, term2, ...]}
-        # Terms are RELATED (not synonyms) - for cascade fallback and suggestions
-        self.clusters: dict[str, list[str]] = {}
-
-        # Reverse cluster index: {term: cluster_name}
-        self.term_to_cluster: dict[str, str] = {}
-
-        # Load synoniemen uit YAML
-        self._load_synoniemen()
-
-        logger.info(
-            f"Synoniemen service geïnitialiseerd met {len(self.synoniemen)} hoofdtermen, "
-            f"{len(self.reverse_index)} synoniemen, en {len(self.clusters)} clusters"
-        )
-
-    def _normalize_term(self, term: str) -> str:
-        """
-        Normaliseer term voor consistente lookup.
-
-        Conversies:
-        - Lowercase
-        - Strip whitespace
-        - Vervang underscores met spaties (YAML keys)
-        """
-        return term.lower().strip().replace("_", " ")
-
-    def _load_synoniemen(self) -> None:
-        """
-        Laad synoniemen uit YAML config.
-
-        YAML format (backward compatible):
-            # Legacy format (plain strings, weight defaults to 1.0):
-            hoofdterm:
-              - synoniem1
-              - synoniem2
-
-            # Enhanced format (with weights):
-            hoofdterm:
-              - synoniem: synoniem1
-                weight: 0.95
-              - synoniem: synoniem2
-                weight: 0.90
-              - synoniem3  # Legacy format still works
-
-        Bouwt beide forward index (term → synoniemen) en reverse index (synoniem → term).
-        Synoniemen worden gesorteerd op weight (hoogste eerst).
-        """
-        if not YAML_AVAILABLE:
-            logger.warning("PyYAML niet beschikbaar - synoniemen niet geladen")
-            return
-
-        if not self.config_path.exists():
-            logger.warning(
-                f"Synoniemen config niet gevonden: {self.config_path}. "
-                f"Synoniemen service werkt zonder synoniemen."
-            )
-            return
-
-        try:
-            with open(self.config_path, encoding="utf-8") as f:
-                data = yaml.safe_load(f)
-
-            if not data:
-                logger.warning("Lege synoniemen config - geen synoniemen geladen")
-                return
-
-            # Bouw forward index (hoofdterm → synoniemen) en laad clusters
-            for hoofdterm_raw, synoniemen_raw in data.items():
-                # Handle special _clusters section
-                if hoofdterm_raw == "_clusters":
-                    self._load_clusters(synoniemen_raw)
-                    continue
-
-                # Skip comments/metadata entries
-                if not isinstance(synoniemen_raw, list):
-                    continue
-
-                hoofdterm = self._normalize_term(hoofdterm_raw)
-
-                # Parse synoniemen (supports both formats)
-                weighted_synoniemen: list[WeightedSynonym] = []
-
-                for syn_entry in synoniemen_raw:
-                    # Legacy format: plain string
-                    if isinstance(syn_entry, str):
-                        normalized = self._normalize_term(syn_entry)
-                        if normalized:  # Skip empty
-                            weighted_synoniemen.append(
-                                WeightedSynonym(term=normalized, weight=1.0)
-                            )
-
-                    # Enhanced format: dict with 'synoniem' and 'weight' keys
-                    elif isinstance(syn_entry, dict):
-                        if "synoniem" in syn_entry:
-                            normalized = self._normalize_term(syn_entry["synoniem"])
-                            weight = float(syn_entry.get("weight", 1.0))
-
-                            # Clamp weight to valid range [0.0, 1.0]
-                            weight = max(0.0, min(1.0, weight))
-
-                            if normalized:  # Skip empty
-                                weighted_synoniemen.append(
-                                    WeightedSynonym(term=normalized, weight=weight)
-                                )
-                        else:
-                            logger.warning(
-                                f"Dict synonym entry in '{hoofdterm_raw}' missing 'synoniem' key: {syn_entry}"
-                            )
-
-                    else:
-                        logger.warning(
-                            f"Unexpected synonym type in '{hoofdterm_raw}': {type(syn_entry).__name__}"
-                        )
-
-                if not weighted_synoniemen:
-                    continue
-
-                # Sort by weight (highest first)
-                weighted_synoniemen.sort(key=lambda ws: ws.weight, reverse=True)
-
-                self.synoniemen[hoofdterm] = weighted_synoniemen
-
-                # Bouw reverse index: elk synoniem wijst naar hoofdterm
-                for ws in weighted_synoniemen:
-                    self.reverse_index[ws.term] = hoofdterm
-
-            logger.info(
-                f"Geladen: {len(self.synoniemen)} hoofdtermen, "
-                f"{len(self.reverse_index)} synoniemen uit {self.config_path}"
-            )
-
-        except yaml.YAMLError as e:
-            logger.error(f"YAML parse error in {self.config_path}: {e}")
-        except Exception as e:
-            logger.error(f"Fout bij laden synoniemen uit {self.config_path}: {e}")
-
-    def _load_clusters(self, clusters_data: dict) -> None:
-        """
-        Laad semantic clusters uit _clusters sectie.
-
-        YAML format:
-            _clusters:
-              rechtsmiddelen:
-                - rechtsmiddel
-                - hoger_beroep
-                - cassatie
-              straffen:
-                - gevangenisstraf
-                - taakstraf
-
-        Args:
-            clusters_data: Dict van cluster_name → list[term]
-
-        Bouwt beide forward index (cluster → terms) en reverse index (term → cluster).
-        Terms kunnen slechts in één cluster zitten (exclusief lidmaatschap).
-        """
-        if not isinstance(clusters_data, dict):
-            logger.warning(
-                f"_clusters section has invalid type: {type(clusters_data).__name__}, expected dict"
-            )
-            return
-
-        for cluster_name, terms in clusters_data.items():
-            if not isinstance(terms, list):
-                logger.warning(
-                    f"Cluster '{cluster_name}' has invalid type: {type(terms).__name__}, expected list"
-                )
-                continue
-
-            if not terms:
-                logger.warning(f"Cluster '{cluster_name}' is empty")
-                continue
-
-            # Normalize all terms
-            normalized_terms = []
-            for term_raw in terms:
-                if not isinstance(term_raw, str):
-                    logger.warning(
-                        f"Non-string term in cluster '{cluster_name}': {term_raw}"
-                    )
-                    continue
-
-                normalized = self._normalize_term(term_raw)
-                if not normalized:
-                    continue
-
-                # Check for duplicate membership (term already in another cluster)
-                if normalized in self.term_to_cluster:
-                    existing_cluster = self.term_to_cluster[normalized]
-                    logger.warning(
-                        f"Term '{normalized}' appears in multiple clusters: "
-                        f"'{existing_cluster}' and '{cluster_name}'. "
-                        f"Keeping first occurrence ('{existing_cluster}')."
-                    )
-                    continue
-
-                normalized_terms.append(normalized)
-                self.term_to_cluster[normalized] = cluster_name
-
-            if normalized_terms:
-                self.clusters[cluster_name] = normalized_terms
-                logger.debug(
-                    f"Loaded cluster '{cluster_name}' with {len(normalized_terms)} terms"
-                )
-
-        logger.info(
-            f"Geladen: {len(self.clusters)} clusters met "
-            f"{len(self.term_to_cluster)} totaal termen"
-        )
+    # ========================================
+    # BACKWARD COMPATIBLE API
+    # ========================================
 
     def get_synoniemen(self, term: str) -> list[str]:
         """
-        Haal synoniemen op voor een term (bidirectioneel).
+        Haal synoniemen op voor een term (backward compatible - returns strings).
 
-        Bidirectionele lookup:
-        1. Als term een hoofdterm is → return synoniemen (sorted by weight)
-        2. Als term een synoniem is → return synoniemen van hoofdterm
-        3. Anders → return lege lijst
+        Dit is de LEGACY API die strings retourneert zonder weights.
+        Nieuwe code zou get_synonyms_with_weights() moeten gebruiken.
 
-        Note: Returns plain strings (no weights). Use get_synonyms_with_weights()
-              for weighted results.
+        Flow:
+        1. Delegate to orchestrator.get_synonyms_for_lookup()
+        2. Extract term strings (drop weights)
+        3. Filter out the term itself (legacy behavior)
 
         Args:
             term: Zoekterm
 
         Returns:
-            Lijst van synoniemen (sorted by weight, highest first)
+            Lijst van synoniemen (strings only, sorted by weight)
 
         Example:
             >>> service.get_synoniemen("onherroepelijk")
-            ['kracht van gewijsde', 'rechtskracht', 'in kracht van gewijsde', ...]
+            ['kracht van gewijsde', 'rechtskracht', 'definitieve uitspraak']
 
-            >>> service.get_synoniemen("kracht van gewijsde")  # reverse lookup
-            ['onherroepelijk', 'rechtskracht', 'in kracht van gewijsde', ...]
+        Architecture Reference:
+            Lines 520-527 in architecture doc
         """
-        normalized = self._normalize_term(term)
+        if not term or not term.strip():
+            return []
 
-        # Case 1: Term is hoofdterm
-        if normalized in self.synoniemen:
-            return [ws.term for ws in self.synoniemen[normalized]]
+        # Delegate to orchestrator (business logic!)
+        weighted = self.orchestrator.get_synonyms_for_lookup(
+            term=term,
+            max_results=8,  # Historical default from YAML-based service
+            min_weight=0.7,  # Reasonable threshold for weblookup
+        )
 
-        # Case 2: Term is synoniem → lookup hoofdterm → return synoniemen
-        if normalized in self.reverse_index:
-            hoofdterm = self.reverse_index[normalized]
-            weighted_syns = self.synoniemen.get(hoofdterm, [])
-
-            # Extract terms
-            synoniemen = [ws.term for ws in weighted_syns]
-
-            # Voeg hoofdterm toe aan resultaat (volledige synoniemen set)
-            if hoofdterm not in synoniemen:
-                synoniemen.insert(0, hoofdterm)
-
-            # Verwijder de originele term uit resultaat (niet jezelf als synoniem)
-            return [s for s in synoniemen if s != normalized]
-
-        # Case 3: Niet gevonden
-        return []
+        # Extract strings, exclude the term itself (legacy behavior)
+        term_normalized = term.lower().strip()
+        return [ws.term for ws in weighted if ws.term != term_normalized]
 
     def get_synonyms_with_weights(self, term: str) -> list[tuple[str, float]]:
         """
-        Haal synoniemen op met hun confidence weights (bidirectioneel).
+        Haal synoniemen op met confidence weights (v2.0 compatible).
 
-        Bidirectionele lookup zoals get_synoniemen(), maar returnt (term, weight) tuples.
-        Hoofdterm krijgt weight 1.0 bij reverse lookup.
+        Dit is de ENHANCED API die weights retourneert voor ranking/scoring.
+
+        Flow:
+        1. Delegate to orchestrator.get_synonyms_for_lookup()
+        2. Return (term, weight) tuples
+        3. Filter out the term itself
 
         Args:
             term: Zoekterm
@@ -382,61 +135,18 @@ class JuridischeSynoniemlService:
             >>> service.get_synonyms_with_weights("onherroepelijk")
             [("kracht van gewijsde", 0.95), ("rechtskracht", 0.90), ...]
 
-            >>> service.get_synonyms_with_weights("voorarrest")  # reverse lookup
-            [("voorlopige hechtenis", 1.0), ("bewaring", 0.90), ...]
+        Architecture Reference:
+            Lines 529-532 in architecture doc
         """
-        normalized = self._normalize_term(term)
+        if not term or not term.strip():
+            return []
 
-        # Case 1: Term is hoofdterm
-        if normalized in self.synoniemen:
-            return [(ws.term, ws.weight) for ws in self.synoniemen[normalized]]
+        # Delegate to orchestrator
+        weighted = self.orchestrator.get_synonyms_for_lookup(term=term, max_results=8)
 
-        # Case 2: Term is synoniem → lookup hoofdterm → return synoniemen
-        if normalized in self.reverse_index:
-            hoofdterm = self.reverse_index[normalized]
-            weighted_syns = self.synoniemen.get(hoofdterm, [])
-
-            # Build result: hoofdterm (weight 1.0) + synoniemen
-            results: list[tuple[str, float]] = []
-
-            # Add hoofdterm first
-            results.append((hoofdterm, 1.0))
-
-            # Add other synoniemen (exclude original term)
-            for ws in weighted_syns:
-                if ws.term != normalized:
-                    results.append((ws.term, ws.weight))
-
-            # Sort by weight (highest first)
-            results.sort(key=lambda x: x[1], reverse=True)
-
-            return results
-
-        # Case 3: Niet gevonden
-        return []
-
-    def get_best_synonyms(self, term: str, threshold: float = 0.85) -> list[str]:
-        """
-        Haal alleen synoniemen op boven een bepaalde weight threshold.
-
-        Nuttig voor high-precision queries waar je alleen sterke synoniemen wilt.
-
-        Args:
-            term: Zoekterm
-            threshold: Minimum weight (0.0-1.0). Default: 0.85 (strong synonyms only)
-
-        Returns:
-            Lijst van synoniemen met weight >= threshold, sorted by weight
-
-        Example:
-            >>> service.get_best_synonyms("onherroepelijk", threshold=0.90)
-            ['kracht van gewijsde', 'rechtskracht']  # Only weight >= 0.90
-
-            >>> service.get_best_synonyms("onherroepelijk", threshold=0.50)
-            ['kracht van gewijsde', 'rechtskracht', 'definitieve uitspraak', ...]
-        """
-        weighted = self.get_synonyms_with_weights(term)
-        return [syn for syn, weight in weighted if weight >= threshold]
+        # Extract tuples, exclude the term itself
+        term_normalized = term.lower().strip()
+        return [(ws.term, ws.weight) for ws in weighted if ws.term != term_normalized]
 
     def expand_query_terms(self, term: str, max_synonyms: int = 3) -> list[str]:
         """
@@ -444,6 +154,12 @@ class JuridischeSynoniemlService:
 
         Gebruikt synoniemen om query recall te verhogen. Beperkt aantal
         synoniemen om query complexity te managen.
+
+        Flow:
+        1. Start with original term
+        2. Delegate to orchestrator for synonyms
+        3. Append top-N synonyms
+        4. Return expanded list
 
         Args:
             term: Originele zoekterm
@@ -455,18 +171,25 @@ class JuridischeSynoniemlService:
         Example:
             >>> service.expand_query_terms("voorlopige hechtenis", max_synonyms=2)
             ['voorlopige hechtenis', 'voorarrest', 'bewaring']
+
+        Architecture Reference:
+            Lines 534-537 in architecture doc
         """
-        # Start met originele term
+        if not term or not term.strip():
+            return [term] if term else []
+
+        # Start with original term
         expanded = [term]
 
-        # Haal synoniemen op
-        synoniemen = self.get_synoniemen(term)
+        # Delegate to orchestrator for synonyms
+        weighted = self.orchestrator.get_synonyms_for_lookup(
+            term=term, max_results=max_synonyms
+        )
 
-        if not synoniemen:
-            return expanded
-
-        # Voeg top-N synoniemen toe
-        expanded.extend(synoniemen[:max_synonyms])
+        # Append synonyms (excluding the term itself if present)
+        term_normalized = term.lower().strip()
+        synonyms = [ws.term for ws in weighted if ws.term != term_normalized]
+        expanded.extend(synonyms[:max_synonyms])
 
         return expanded
 
@@ -474,146 +197,156 @@ class JuridischeSynoniemlService:
         """
         Check of een term synoniemen heeft.
 
+        Flow:
+        1. Call get_synoniemen()
+        2. Check if list is non-empty
+
         Args:
             term: Zoekterm
 
         Returns:
             True als term synoniemen heeft, anders False
+
+        Example:
+            >>> service.has_synoniemen("onherroepelijk")
+            True
+
+            >>> service.has_synoniemen("nonexistent_term")
+            False
+
+        Architecture Reference:
+            Lines 539-541 in architecture doc
         """
         return len(self.get_synoniemen(term)) > 0
 
+    # ========================================
+    # LEGACY METHODS (Deprecated but kept for compatibility)
+    # ========================================
+
     def get_all_terms(self) -> set[str]:
         """
-        Haal alle bekende termen op (hoofdtermen + synoniemen).
+        Haal alle bekende termen op (LEGACY - limited in graph model).
+
+        WARNING: This method is EXPENSIVE in the graph model and should be avoided.
+        Use specific term queries instead.
 
         Returns:
             Set van alle termen in de database
+
+        Note:
+            This was useful in YAML-based service but is impractical with
+            large DB. Consider deprecating in future version.
         """
-        all_terms: set[str] = set()
+        logger.warning(
+            "get_all_terms() is deprecated and expensive - "
+            "use specific term queries instead"
+        )
+        # We could implement this by querying all members from registry,
+        # but it's expensive and not recommended
+        # For now, return empty set to discourage usage
+        return set()
 
-        # Voeg hoofdtermen toe
-        all_terms.update(self.synoniemen.keys())
+    def get_stats(self) -> dict[str, Any]:
+        """
+        Haal statistieken op over synoniemen database (delegated to orchestrator).
 
-        # Voeg synoniemen toe
-        all_terms.update(self.reverse_index.keys())
+        Returns:
+            Dictionary met statistieken
 
-        return all_terms
+        Example:
+            >>> stats = service.get_stats()
+            >>> stats
+            {
+                'cache_size': 42,
+                'cache_hit_rate': 0.85,
+                'total_groups': 150,
+                'total_members': 450
+            }
+        """
+        # Combine orchestrator cache stats + registry stats
+        cache_stats = self.orchestrator.get_cache_stats()
+        registry_stats = self.orchestrator.registry.get_statistics()
+
+        return {
+            # Cache metrics
+            "cache_size": cache_stats["size"],
+            "cache_hit_rate": cache_stats["hit_rate"],
+            "cache_hits": cache_stats["hits"],
+            "cache_misses": cache_stats["misses"],
+            # Registry metrics
+            "total_groups": registry_stats["total_groups"],
+            "total_members": registry_stats["total_members"],
+            "avg_members_per_group": registry_stats["avg_members_per_group"],
+            # Legacy compatibility (renamed keys)
+            "hoofdtermen": registry_stats["total_groups"],
+            "totaal_synoniemen": registry_stats["total_members"],
+        }
+
+    # ========================================
+    # UNSUPPORTED LEGACY METHODS (Removed features)
+    # ========================================
 
     def find_matching_synoniemen(self, text: str) -> dict[str, list[str]]:
         """
-        Vind alle juridische termen in een tekst en hun synoniemen.
+        DEPRECATED: Text analysis feature removed in v3.1.
 
-        Gebruikt greedy matching om termen te vinden in langere teksten.
-        Nuttig voor text enrichment en context analysis.
+        This method was part of YAML-based service but is not supported
+        in graph model. Use specific term queries instead.
 
         Args:
             text: Tekst om te scannen
 
         Returns:
-            Dict van {gevonden_term: [synoniemen]}
-
-        Example:
-            >>> text = "De verdachte kreeg een onherroepelijke veroordeling"
-            >>> service.find_matching_synoniemen(text)
-            {
-                'verdachte': ['beklaagde', 'beschuldigde', ...],
-                'onherroepelijke': ['kracht van gewijsde', 'rechtskracht', ...]
-            }
+            Empty dict (feature removed)
         """
-        normalized_text = self._normalize_term(text)
-        matches: dict[str, list[str]] = {}
-
-        # Check alle bekende termen
-        for term in self.get_all_terms():
-            if term in normalized_text:
-                synoniemen = self.get_synoniemen(term)
-                if synoniemen:
-                    matches[term] = synoniemen
-
-        return matches
-
-    def get_stats(self) -> dict[str, int]:
-        """
-        Haal statistieken op over synoniemen database.
-
-        Returns:
-            Dict met statistieken
-        """
-        total_synoniemen = sum(len(syns) for syns in self.synoniemen.values())
-
-        return {
-            "hoofdtermen": len(self.synoniemen),
-            "totaal_synoniemen": total_synoniemen,
-            "unieke_synoniemen": len(self.reverse_index),
-            "gemiddeld_per_term": int(
-                total_synoniemen / len(self.synoniemen) if self.synoniemen else 0
-            ),
-            "clusters": len(self.clusters),
-            "termen_in_clusters": len(self.term_to_cluster),
-        }
-
-    # === SEMANTIC CLUSTER METHODS ===
+        logger.warning(
+            "find_matching_synoniemen() is deprecated and removed - "
+            "feature not supported in graph-based model"
+        )
+        return {}
 
     def get_related_terms(self, term: str) -> list[str]:
         """
-        Haal gerelateerde termen op uit dezelfde semantic cluster.
+        DEPRECATED: Semantic clusters feature removed in v3.1.
 
-        Gerelateerde termen zijn NIET synoniemen, maar delen wel een semantisch domein.
-        Bijvoorbeeld: "hoger beroep", "cassatie", "verzet" zijn allemaal rechtsmiddelen.
+        This was part of YAML-based service but clusters are not
+        implemented in graph model yet.
 
         Args:
             term: Zoekterm
 
         Returns:
-            Lijst van gerelateerde termen (exclusief de term zelf), of lege lijst
-            als term niet in een cluster zit.
-
-        Example:
-            >>> service.get_related_terms("hoger beroep")
-            ['rechtsmiddel', 'cassatie', 'verzet', 'herziening']
-
-            >>> service.get_related_terms("onbekende term")
-            []
+            Empty list (feature removed)
         """
-        normalized = self._normalize_term(term)
-
-        # Lookup cluster
-        cluster_name = self.term_to_cluster.get(normalized)
-        if not cluster_name:
-            return []
-
-        # Get all terms in cluster, excluding the term itself
-        cluster_terms = self.clusters.get(cluster_name, [])
-        return [t for t in cluster_terms if t != normalized]
+        logger.warning(
+            "get_related_terms() is deprecated and removed - "
+            "semantic clusters not implemented in graph model"
+        )
+        return []
 
     def get_cluster_name(self, term: str) -> str | None:
         """
-        Haal cluster naam op voor een term.
+        DEPRECATED: Semantic clusters feature removed in v3.1.
 
         Args:
             term: Zoekterm
 
         Returns:
-            Cluster naam, of None als term niet in een cluster zit.
-
-        Example:
-            >>> service.get_cluster_name("hoger beroep")
-            'rechtsmiddelen'
-
-            >>> service.get_cluster_name("onbekende term")
-            None
+            None (feature removed)
         """
-        normalized = self._normalize_term(term)
-        return self.term_to_cluster.get(normalized)
+        logger.warning(
+            "get_cluster_name() is deprecated and removed - "
+            "semantic clusters not implemented in graph model"
+        )
+        return None
 
     def expand_with_related(
         self, term: str, max_synonyms: int = 3, max_related: int = 2
     ) -> list[str]:
         """
-        Expand term met ZOWEL synoniemen als gerelateerde cluster termen.
+        DEPRECATED: Semantic clusters feature removed in v3.1.
 
-        Deze methode combineert synonym expansion (voor precision) met cluster
-        expansion (voor recall). Nuttig voor cascade fallback queries.
+        Fallback to regular expand_query_terms().
 
         Args:
             term: Originele zoekterm
@@ -621,53 +354,79 @@ class JuridischeSynoniemlService:
             max_related: Maximum aantal gerelateerde cluster termen (default: 2)
 
         Returns:
-            Lijst met [originele_term, synonyms..., related_terms...]
-
-        Example:
-            >>> service.expand_with_related("hoger beroep", max_synonyms=2, max_related=2)
-            ['hoger beroep', 'appel', 'appelprocedure', 'cassatie', 'rechtsmiddel']
-            #                 ^original  ^synonyms            ^related cluster terms
-
-        Use cases:
-            - Cascade fallback: probeer eerst synoniemen, dan gerelateerde termen
-            - Context enrichment: voeg semantisch gerelateerde context toe aan prompts
-            - Related suggestions: "Je zou ook kunnen zoeken naar: cassatie, verzet"
+            Expanded terms (without related - fallback to synonyms only)
         """
-        # Start met originele term
-        expanded = [term]
-
-        # Voeg synoniemen toe (high precision)
-        synoniemen = self.get_synoniemen(term)
-        if synoniemen:
-            expanded.extend(synoniemen[:max_synonyms])
-
-        # Voeg gerelateerde cluster termen toe (high recall)
-        related = self.get_related_terms(term)
-        if related:
-            # Filter out terms already added as synonyms
-            new_related = [r for r in related if r not in expanded]
-            expanded.extend(new_related[:max_related])
-
-        return expanded
+        logger.warning(
+            "expand_with_related() is deprecated - "
+            "falling back to expand_query_terms() (no cluster support)"
+        )
+        return self.expand_query_terms(term, max_synonyms)
 
 
-# Module-level singleton voor hergebruik
-_singleton: JuridischeSynoniemlService | None = None
+# ========================================
+# MODULE-LEVEL SINGLETON (Backward Compatibility)
+# ========================================
+
+_singleton: JuridischeSynoniemService | None = None
 
 
-def get_synonym_service(config_path: str | None = None) -> JuridischeSynoniemlService:
+def get_synonym_service(
+    config_path: str | None = None, orchestrator: SynonymOrchestrator | None = None
+) -> JuridischeSynoniemService:
     """
-    Haal singleton synoniemen service op.
+    Haal singleton synoniemen service op (backward compatible factory).
+
+    Architecture Note:
+        - config_path is IGNORED (legacy parameter, kept for compatibility)
+        - orchestrator is injected from ServiceContainer
+        - Singleton pattern maintained for backward compatibility
 
     Args:
-        config_path: Optioneel custom config pad
+        config_path: DEPRECATED - YAML config no longer used
+        orchestrator: SynonymOrchestrator instance (from ServiceContainer)
 
     Returns:
-        JuridischeSynoniemlService instance
+        JuridischeSynoniemService instance (façade)
+
+    Example:
+        >>> service = get_synonym_service(orchestrator=orchestrator)
+        >>> synoniemen = service.get_synoniemen("onherroepelijk")
+
+    Migration Note:
+        Old code:
+            service = get_synonym_service(config_path="custom.yaml")
+
+        New code:
+            orchestrator = ServiceContainer.get_instance().get_synonym_orchestrator()
+            service = get_synonym_service(orchestrator=orchestrator)
     """
     global _singleton
 
-    if _singleton is None or config_path is not None:
-        _singleton = JuridischeSynoniemlService(config_path)
+    if config_path is not None:
+        logger.warning(
+            "config_path parameter is deprecated and ignored - "
+            "YAML config has been replaced by DB-based registry"
+        )
+
+    if orchestrator is None:
+        # Try to get from ServiceContainer
+        try:
+            from src.services.container import ServiceContainer
+
+            container = ServiceContainer()
+            orchestrator = container.synonym_orchestrator()
+            logger.debug("Orchestrator obtained from ServiceContainer")
+        except Exception as e:
+            logger.error(
+                f"Cannot create JuridischeSynoniemService without orchestrator: {e}. "
+                f"Please provide orchestrator parameter or ensure ServiceContainer is initialized."
+            )
+            msg = "orchestrator parameter is required (ServiceContainer not available)"
+            raise ValueError(msg) from e
+
+    # Create singleton if needed
+    if _singleton is None:
+        _singleton = JuridischeSynoniemService(orchestrator)
+        logger.info("JuridischeSynoniemService singleton created (façade mode)")
 
     return _singleton

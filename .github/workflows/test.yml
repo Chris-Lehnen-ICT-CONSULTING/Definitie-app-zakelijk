@@ -78,6 +78,8 @@ jobs:
             --cov-report=term-missing || true
 
       - name: Upload coverage reports
+        timeout-minutes: 5
+        continue-on-error: true
         uses: codecov/codecov-action@v4
         with:
           file: ./coverage.xml

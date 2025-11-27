@@ -24,14 +24,9 @@ from toetsregels.loader import load_toetsregels
 from utils.cache import cached, clear_cache, get_cache_stats
 from validation.sanitizer import get_sanitizer, sanitize_content
 
-# Import resilience and rate limiting components
-try:
-    from utils.optimized_resilience import OptimizedResilience
-    from utils.smart_rate_limiter import SmartRateLimiter
-
-    RESILIENCE_AVAILABLE = True
-except ImportError:
-    RESILIENCE_AVAILABLE = False
+# NOTE: Resilience imports removed in DEF-197 (dead code cleanup)
+# - OptimizedResilience: module deleted
+# - SmartRateLimiter: test class removed (outdated API)
 
 
 class PerformanceMonitor:
@@ -458,62 +453,9 @@ class TestDocumentProcessingPerformance:
         ), f"Concurrent document processing too slow: {perf_result['duration']:.3f}s"
 
 
-@pytest.mark.skipif(
-    not RESILIENCE_AVAILABLE, reason="Resilience components not available"
-)
-class TestResiliencePerformance:
-    """Test resilience system performance."""
-
-    def setup_method(self):
-        """Setup for each test method."""
-        self.monitor = PerformanceMonitor()
-
-    def test_circuit_breaker_performance(self):
-        """Test circuit breaker performance impact."""
-        if not RESILIENCE_AVAILABLE:
-            pytest.skip("Resilience components not available")
-
-        resilience = OptimizedResilience()
-
-        def test_operation():
-            time.sleep(0.001)  # Simulate operation
-            return "success"
-
-        # Test normal operation performance
-        measurement = self.monitor.start_measurement("circuit_breaker_normal")
-
-        for _i in range(100):
-            result = resilience.execute_with_resilience(test_operation)
-            assert result == "success"
-
-        perf_result = self.monitor.end_measurement(measurement)
-
-        # Circuit breaker should have minimal overhead
-        assert (
-            perf_result["duration"] < 1.0
-        ), f"Circuit breaker overhead too high: {perf_result['duration']:.3f}s"
-
-    def test_rate_limiter_performance(self):
-        """Test rate limiter performance."""
-        if not RESILIENCE_AVAILABLE:
-            pytest.skip("Resilience components not available")
-
-        rate_limiter = SmartRateLimiter(requests_per_second=100)
-
-        measurement = self.monitor.start_measurement("rate_limiter")
-
-        allowed_requests = 0
-        for _i in range(50):
-            if rate_limiter.allow_request("test_key"):
-                allowed_requests += 1
-
-        perf_result = self.monitor.end_measurement(measurement)
-
-        # Rate limiter should be fast
-        assert (
-            perf_result["duration"] < 0.1
-        ), f"Rate limiter too slow: {perf_result['duration']:.3f}s"
-        assert allowed_requests > 0, "Rate limiter blocked all requests"
+# NOTE: TestResiliencePerformance class removed in DEF-197 (dead code cleanup)
+# - OptimizedResilience tests: removed (module deleted)
+# - SmartRateLimiter tests: removed (outdated API)
 
 
 class TestSystemPerformanceIntegration:
