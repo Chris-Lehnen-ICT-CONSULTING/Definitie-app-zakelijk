@@ -17,8 +17,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
 from database.definitie_repository import (
-    DefinitieRepository,
     DefinitieRecord,
+    DefinitieRepository,
     DefinitieStatus,
 )
 
@@ -42,10 +42,10 @@ def test_duplicate_detection_performance():
     duration = time.time() - start
 
     print(f"   Found {len(duplicates)} duplicates in {duration*1000:.1f}ms")
-    print(f"   Expected: < 100ms (target: ~40ms)")
+    print("   Expected: < 100ms (target: ~40ms)")
 
     if duplicates:
-        print(f"\n   Top 3 matches:")
+        print("\n   Top 3 matches:")
         for i, dup in enumerate(duplicates[:3], 1):
             print(
                 f"   {i}. {dup.definitie_record.begrip} (score: {dup.match_score:.3f})"
@@ -65,7 +65,7 @@ def test_duplicate_detection_performance():
     # For this we'd need a database with many similar records
     # For now, just verify the count is reasonable
     print(f"   Total duplicates: {len(duplicates)}")
-    print(f"   Expected: ≤ 50 fuzzy matches (plus exact matches)")
+    print("   Expected: ≤ 50 fuzzy matches (plus exact matches)")
 
     # Test 4: Exact matches still work
     print("\n4. Testing exact match priority...")
@@ -90,7 +90,7 @@ def test_duplicate_detection_performance():
 
         if exact_dups:
             print(f"   Found exact match with score: {exact_dups[0].match_score}")
-            print(f"   Expected: 1.0 (exact match)")
+            print("   Expected: 1.0 (exact match)")
             assert exact_dups[0].match_score == 1.0, "Exact match should have score 1.0"
 
         # Clean up
@@ -101,11 +101,11 @@ def test_duplicate_detection_performance():
 
     print("\n" + "=" * 60)
     print("Test completed successfully!")
-    print(f"\nKey improvements (DEF-176):")
-    print(f"  - LIMIT 100 caps candidate rows")
-    print(f"  - In-memory similarity calculation on ≤100 rows")
-    print(f"  - Results sorted by similarity, top 50 returned")
-    print(f"  - Expected performance: 500ms → 40ms (92% reduction)")
+    print("\nKey improvements (DEF-176):")
+    print("  - LIMIT 100 caps candidate rows")
+    print("  - In-memory similarity calculation on ≤100 rows")
+    print("  - Results sorted by similarity, top 50 returned")
+    print("  - Expected performance: 500ms → 40ms (92% reduction)")
 
 
 if __name__ == "__main__":
