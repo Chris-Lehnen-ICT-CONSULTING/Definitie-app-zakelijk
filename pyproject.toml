@@ -95,6 +95,8 @@ ignore = [
     "PLR0912", # Too many branches - complex validation logic
     "PLR0915", # Too many statements - complex validation logic
     "RUF001",  # Ambiguous Unicode characters - intentional emoji usage in UI
+    "RUF002",  # Ambiguous Unicode in docstrings - intentional (× for dimensions)
+    "RUF003",  # Ambiguous Unicode in comments - intentional (× for dimensions)
     "RUF012",  # Mutable class attributes - intentional patterns
     "RUF059",  # Unused unpacked variable - acceptable in UI layouts
     "SIM102",  # Nested if statements - often more readable
@@ -121,9 +123,12 @@ unfixable = []
 [tool.ruff.lint.per-file-ignores]
 # Ignore imports in __init__ files
 "__init__.py" = ["F401", "E402"]
-# Ignore imports in test files
-"test_*.py" = ["F401", "E402"]
-"*_test.py" = ["F401", "E402"]
+# Ignore common patterns in test files
+"test_*.py" = ["F401", "E402", "PT017", "PT018", "PT028", "PT030", "B023", "PLW1641", "N811"]
+"*_test.py" = ["F401", "E402", "PT017", "PT018", "PT028", "PT030", "B023", "PLW1641", "N811"]
+"tests/**/*.py" = ["PT017", "PT018", "PT028", "PT030", "B023", "PLW1641", "N811"]
+# Manual test files - more relaxed standards
+"tests/manual_*.py" = ["SIM115", "F401"]
 # Legacy files may have more issues
 "src/orchestration/definitie_agent.py" = ["PLR0912", "PLR0915"]
 "src/services/container.py" = ["PLC0415", "PLW0603"]

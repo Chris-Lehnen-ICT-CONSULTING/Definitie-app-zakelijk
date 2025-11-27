@@ -45,8 +45,7 @@ class TestSinglePathClassification:
 
             from ui.tabbed_interface import TabbedInterface
 
-            interface = TabbedInterface()
-            return interface
+            return TabbedInterface()
 
     def test_classification_preview_performs_classification(
         self, mock_interface, mock_session_state

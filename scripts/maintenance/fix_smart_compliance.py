@@ -241,8 +241,8 @@ class SMARTComplianceFixer:
             "criteria" in content_lower or "acceptatie" in content_lower
         ):
             # If has SMART section, assume at least partially compliant
-            for criterion in criteria_met:
-                if not criteria_met[criterion]:
+            for criterion, is_met in criteria_met.items():
+                if not is_met:
                     criteria_met[criterion] = True
                     break
 

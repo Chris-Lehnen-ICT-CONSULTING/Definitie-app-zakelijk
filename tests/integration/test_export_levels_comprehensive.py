@@ -204,7 +204,7 @@ class TestExportLevelsFormats:
     """Test export levels × formats matrix (12 combinations)."""
 
     @pytest.mark.parametrize(
-        "level,expected_field_count",
+        ("level", "expected_field_count"),
         [
             (ExportLevel.BASIS, 17),  # 10 definitie + 7 voorbeelden
             (ExportLevel.UITGEBREID, 25),  # 18 definitie + 7 voorbeelden
