@@ -133,30 +133,32 @@ class TestRuleCachePerformance:
                 mock_file.stem = "TEST-01"
                 mock_glob.return_value = [mock_file]
 
-                with patch("builtins.open", create=True):
-                    with patch("json.load") as mock_json_load:
-                        # Simuleer een regel met veel velden
-                        mock_json_load.return_value = {
-                            "id": "TEST-01",
-                            "naam": "Test regel",
-                            "prioriteit": "hoog",
-                            "aanbeveling": "verplicht",
-                            "herkenbaar_patronen": ["pattern1"],
-                            "extra_field_1": "not needed",
-                            "extra_field_2": "also not needed",
-                            "huge_description": "x" * 10000,
-                        }
+                with (
+                    patch("builtins.open", create=True),
+                    patch("json.load") as mock_json_load,
+                ):
+                    # Simuleer een regel met veel velden
+                    mock_json_load.return_value = {
+                        "id": "TEST-01",
+                        "naam": "Test regel",
+                        "prioriteit": "hoog",
+                        "aanbeveling": "verplicht",
+                        "herkenbaar_patronen": ["pattern1"],
+                        "extra_field_1": "not needed",
+                        "extra_field_2": "also not needed",
+                        "huge_description": "x" * 10000,
+                    }
 
-                        # Call the cached function directly
-                        from toetsregels.rule_cache import _load_all_rules_cached
+                    # Call the cached function directly
+                    from toetsregels.rule_cache import _load_all_rules_cached
 
-                        rules = _load_all_rules_cached(str(cache.regels_dir))
+                    rules = _load_all_rules_cached(str(cache.regels_dir))
 
-                        # Verify dat alleen essentiële velden zijn opgeslagen
-                        rule = rules.get("TEST-01")
-                        assert rule is not None
-                        assert "id" in rule
-                        assert "naam" in rule
-                        assert "prioriteit" in rule
-                        assert "extra_field_1" not in rule
-                        assert "huge_description" not in rule
+                    # Verify dat alleen essentiële velden zijn opgeslagen
+                    rule = rules.get("TEST-01")
+                    assert rule is not None
+                    assert "id" in rule
+                    assert "naam" in rule
+                    assert "prioriteit" in rule
+                    assert "extra_field_1" not in rule
+                    assert "huge_description" not in rule

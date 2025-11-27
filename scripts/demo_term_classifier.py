@@ -170,7 +170,7 @@ def main():
     print("   ✓ Container provides cached singleton instance")
 
     print("\n6b. Via get_service():")
-    classifier_via_get_service = container.get_service("term_based_classifier")
+    container.get_service("term_based_classifier")
     print("   ✓ get_service('term_based_classifier') works")
 
     print("\n6c. Caching verification:")
