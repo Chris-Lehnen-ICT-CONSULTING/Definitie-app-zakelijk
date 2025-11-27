@@ -2080,6 +2080,29 @@ class DefinitieRepository:
 _repository_singleton: DefinitieRepository | None = None
 
 
+def _validate_repository_connection(repo: DefinitieRepository) -> bool:
+    """
+    Validate that the repository's database connection is still alive.
+
+    Used by caching mechanisms to detect stale connections and trigger
+    re-initialization when needed.
+
+    Args:
+        repo: The cached DefinitieRepository instance
+
+    Returns:
+        True if connection is valid, False if stale/broken
+    """
+    try:
+        # Quick health check - use _get_connection() to verify db access works
+        with repo._get_connection() as conn:
+            conn.execute("SELECT 1")
+        return True
+    except Exception as e:
+        logger.warning(f"Repository connection validation failed: {e}")
+        return False
+
+
 def get_definitie_repository(db_path: str | None = None) -> DefinitieRepository:
     """Haal gedeelde repository instance op (singleton pattern).
 
@@ -2129,3 +2152,25 @@ def clear_repository_singleton() -> None:
     if _repository_singleton is not None:
         logger.info("DefinitieRepository singleton cleared")
         _repository_singleton = None
+
+
+def validate_and_get_repository(db_path: str | None = None) -> DefinitieRepository:
+    """
+    Get repository with connection validation.
+
+    If the cached repository has a stale connection, clears the cache
+    and creates a new instance.
+
+    Args:
+        db_path: Optional database path
+
+    Returns:
+        Valid DefinitieRepository instance
+    """
+    # Read module-level singleton (no global needed - only reading, not assigning)
+    if _repository_singleton is not None:
+        if not _validate_repository_connection(_repository_singleton):
+            logger.info("Stale repository connection detected, reinitializing...")
+            clear_repository_singleton()
+
+    return get_definitie_repository(db_path)
