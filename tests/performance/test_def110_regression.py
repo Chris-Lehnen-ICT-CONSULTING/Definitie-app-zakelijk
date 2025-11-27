@@ -300,7 +300,7 @@ class TestPerformanceBaseline:
         # Run verification script
         from scripts.verify_def110_fix import verify_fix
 
-        result = verify_fix()
+        verify_fix()
 
         # This test documents metrics, doesn't fail
         assert True, "Baseline metrics logged"

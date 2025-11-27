@@ -1,387 +1,375 @@
-# Product Manager Business Case Analysis: DEF-126 vs DEF-151
+# Product Manager Analyse: Issue Prioritering DefinitieAgent
 
-**Document Type:** Executive Business Decision
-**Date:** 2025-11-13
-**Author:** Product Manager
-**Status:** DECISION REQUIRED
+**Datum:** 2025-11-27
+**Auteur:** Product Manager (AI-assisted)
+**Versie:** 2.0
+**Project:** DefinitieAgent - Juridische Definitie Generator
 
 ---
 
 ## Executive Summary
 
-### The Business Context
-DefinitieAgent generates legal definitions for government use. Users are consistently complaining that definitions are too abstract, difficult to apply in practice, and require too many iterations. We have two competing proposals to address these issues.
+### Elevator Pitch
+DefinitieAgent genereert juridische definities met GPT-4, maar de huidige prompt kwaliteit scoort slechts 5.2/10 door conflicterende regels en cognitieve overload.
 
-### The Proposals
-- **DEF-126:** Mindset transformation focusing on "belanghebbenden" (stakeholders) and practical applicability
-- **DEF-151:** Technical optimization fixing contradictions and reducing operational costs
+### Problem Statement
+De solo developer heeft 30+ issues in verschillende staten, zonder duidelijke prioritering. De kern-vraag: **welk issue levert de meeste waarde op in de kortste tijd?**
 
-### The Recommendation
-**Start with DEF-151 (Week 1), then implement DEF-126 (Week 2-3)**
+### Aanbeveling
+**Start met DEF-154** (30 min, Quick Win), gevolgd door **DEF-186 Stap 1+2** (35 min), dan **DEF-183/DEF-184** (30 min totaal). Daarna pas DEF-38 (groot issue).
 
-This sequencing maximizes ROI while minimizing risk. Fix the foundation first, then build the enhancement.
-
----
-
-## 1. User Value Analysis
-
-### Current User Complaints (Real Feedback)
-1. **"Definities zijn te abstract"** - Definitions lack practical grounding
-2. **"Moeilijk toe te passen in praktijk"** - Hard to apply in real scenarios
-3. **"Weet niet of X onder Y valt"** - Unclear boundaries
-4. **"Kost veel iteraties om goed te krijgen"** - Too many regenerations needed
-
-### How Each Proposal Addresses User Pain
-
-| User Complaint | DEF-126 Solution | DEF-151 Solution | Winner |
-|---------------|------------------|------------------|---------|
-| Too abstract | Direct focus on "werkelijkheid" (reality) | Removes conflicting instructions | **DEF-126** |
-| Hard to apply | Stakeholder-centric language | Clearer, non-contradictory guidance | **DEF-126** |
-| Unclear boundaries | Explicit "what falls under this" | Consistent categorization | **TIE** |
-| Many iterations | Better first-time quality | Removes confusion from contradictions | **TIE** |
-
-**Verdict:** DEF-126 directly addresses 2/4 core complaints, DEF-151 indirectly helps all 4.
+### Success Metrics
+- Definitie kwaliteit: 5.2/10 naar 7.0/10 (binnen 2 weken)
+- Token efficiency: -25% prompt tokens
+- Development velocity: 3-4 issues/week
 
 ---
 
-## 2. ROI Calculation
+## Analyse Resultaten
 
-### DEF-126 Financial Model
+### RICE Score Berekening
 
-#### Investment
-- Development: 20 hours × €100/hour = €2,000
-- Testing: 5 hours × €100/hour = €500
-- Rollout: 5 hours × €100/hour = €500
-- **Total Investment: €3,000**
+| Issue | Reach | Impact | Confidence | Effort (h) | RICE Score |
+|-------|-------|--------|------------|------------|------------|
+| **DEF-154** | 100% | 2 | 90% | 0.5 | **360** |
+| DEF-186 (Stap 1+2) | 100% | 3 | 90% | 0.6 | **450** |
+| DEF-183 | 10% | 1 | 90% | 0.25 | 36 |
+| DEF-184 | 10% | 1 | 90% | 0.25 | 36 |
+| DEF-38 | 100% | 4 | 70% | 14 | 20 |
+| DEF-123 | 100% | 2 | 60% | 5 | 24 |
+| DEF-135 | 100% | 2 | 70% | 5 | 28 |
+| DEF-185 | 50% | 1 | 80% | 5 | 8 |
 
-#### Returns (Annual)
-- **Time Savings:**
-  - 40% fewer regenerations = 200 hours/month saved
-  - 200 hours × 12 months × €50/hour = €120,000/year
-- **Support Reduction:**
-  - 25% fewer tickets = 50 hours/month
-  - 50 hours × 12 months × €75/hour = €45,000/year
-- **API Cost Savings:**
-  - Minimal (€150/month × 12 = €1,800/year)
-
-**Annual Return: €166,800**
-**ROI: 5,560%**
-**Payback Period: 6.5 days**
-
-### DEF-151 Financial Model
-
-#### Investment
-- Development: 21 hours × €100/hour = €2,100
-- Testing: included
-- **Total Investment: €2,100**
-
-#### Returns (Annual)
-- **API Cost Savings:**
-  - €1,250/month × 12 = €15,000/year
-- **Efficiency Gains:**
-  - 10% faster generation = 1 second saved per definition
-  - 1,000 definitions/day × 1 second × €0.02/second = €20/day
-  - €20/day × 250 days = €5,000/year
-- **Reduced Errors:**
-  - 5 fewer contradictions = 20% fewer failures
-  - 100 hours/month saved × 12 × €50 = €60,000/year
-
-**Annual Return: €80,000**
-**ROI: 3,810%**
-**Payback Period: 9.5 days**
-
-### Comparative ROI
-
-| Metric | DEF-126 | DEF-151 | Winner |
-|--------|---------|---------|--------|
-| Investment | €3,000 | €2,100 | DEF-151 |
-| Annual Return | €166,800 | €80,000 | DEF-126 |
-| ROI % | 5,560% | 3,810% | DEF-126 |
-| Payback Days | 6.5 | 9.5 | DEF-126 |
-| User Impact | HIGH | MEDIUM | DEF-126 |
-| Risk Level | MEDIUM | LOW | DEF-151 |
+**Conclusie:** DEF-186 en DEF-154 hebben verreweg de hoogste RICE scores.
 
 ---
 
-## 3. Risk Assessment
+### MoSCoW Classificatie
 
-### DEF-126 Risks
+#### Must Have (Week 1)
+| Issue | Reden | Effort |
+|-------|-------|--------|
+| DEF-154 | Verwijdert conflicterende instructies die GPT-4 verwarren | 30 min |
+| DEF-186 (Stap 1+2) | +25-35% kwaliteitsverbetering, vervangt DEF-149 | 35 min |
+| Close DEF-149 | Superseded door DEF-186 | 5 min |
 
-| Risk | Probability | Impact | Mitigation |
-|------|------------|--------|------------|
-| Transformation doesn't improve quality | 20% | HIGH | A/B testing, gradual rollout |
-| Users confused by new output style | 30% | MEDIUM | Clear communication, training |
-| Regression in technical accuracy | 15% | HIGH | Extensive testing, rollback plan |
-| Longer generation time | 10% | LOW | Performance monitoring |
+#### Should Have (Week 2-3)
+| Issue | Reden | Effort |
+|-------|-------|--------|
+| DEF-183 | Fix singleton bypass DUP_01.py | 15 min |
+| DEF-184 | Fix singleton bypass synonym_service | 15 min |
+| DEF-38 (Quick Wins) | PROCES + EXEMPLAAR fixes (4 uur) | 4 uur |
 
-**Risk Score: MEDIUM-HIGH**
+#### Could Have (Week 4-6)
+| Issue | Reden | Effort |
+|-------|-------|--------|
+| DEF-135 | Transform validation rules to instructions | 5 uur |
+| DEF-123 | Context-aware module loading | 5 uur |
+| DEF-106 | Create PromptValidator | 2 uur |
 
-### DEF-151 Risks
-
-| Risk | Probability | Impact | Mitigation |
-|------|------------|--------|------------|
-| Breaking existing functionality | 10% | HIGH | Comprehensive testing |
-| Token savings not realized | 20% | LOW | Already measured in analysis |
-| Module consolidation causes issues | 25% | MEDIUM | Phased implementation |
-| Performance degradation | 5% | LOW | Monitoring, optimization |
-
-**Risk Score: LOW-MEDIUM**
-
----
-
-## 4. Time to Value Analysis
-
-### DEF-126 Timeline
-- **Week 1:** Implementation (no user value yet)
-- **Week 2:** Testing & Refinement (limited beta value)
-- **Week 3:** Full rollout (**FIRST USER VALUE**)
-- **Month 2:** Measurable quality improvements
-- **Month 3:** Full ROI realization
-
-### DEF-151 Timeline
-- **Day 3:** First contradictions fixed (**IMMEDIATE VALUE**)
-- **Week 1:** All critical issues resolved
-- **Week 2:** Token optimization live (cost savings start)
-- **Week 3:** Full implementation complete
-- **Month 2:** Stable, optimized system
-
-**Winner: DEF-151** delivers value 18 days sooner
+#### Won't Have (Defer)
+| Issue | Reden |
+|-------|-------|
+| DEF-179 | 16 uur UI refactoring - no user-facing benefit |
+| DEF-180 | Docstring coverage - nice to have |
+| DEF-117 | Repository refactoring - no urgency |
 
 ---
 
-## 5. Opportunity Cost Analysis
-
-### If We Choose DEF-126 First
-**We Cannot:**
-- Fix immediate pain points (contradictions) quickly
-- Reduce operational costs immediately
-- Build on a clean foundation
-- Show quick wins to stakeholders
-
-**Risk:** Building enhancements on a broken foundation
-
-### If We Choose DEF-151 First
-**We Cannot:**
-- Address core user complaints directly (for 1 week)
-- Show major quality improvements immediately
-- Capture full ROI potential quickly
-- Transform user experience
-
-**Risk:** Delaying the bigger impact
-
-### If We Do Both Sequentially
-**Optimal Sequence: DEF-151 → DEF-126**
-
-**Benefits:**
-1. Week 1: Clean foundation, immediate cost savings
-2. Week 2-3: Build transformation on solid base
-3. Month 2: Both benefits compound
-
-**Total Investment:** €5,100
-**Combined Annual Return:** €246,800
-**Combined ROI:** 4,839%
-
----
-
-## 6. Risk/Reward Matrix
+### Dependency Analysis
 
 ```
-         High Reward
-              |
-    DEF-126   |   BOTH
-    (High     |   (Sequential)
-     Risk)    |
-    __________|__________
-              |
-    Legacy    |   DEF-151
-    (Do       |   (Low Risk,
-     Nothing) |    Med Reward)
-              |
-         Low Reward
+DEF-186 ────────> Replaces DEF-149 (CLOSE DEF-149)
+    |
+    v
+DEF-38 (Quick Wins) ────────> DEF-40 (depends on DEF-38)
+    |
+    v
+DEF-135 ────────> DEF-106 (validator needs instruction-style rules)
+```
 
-    Low Risk        High Risk
+**Critical Path:**
+1. DEF-154 (independent, do first)
+2. DEF-186 (replaces DEF-149)
+3. DEF-38 Quick Wins (enables DEF-40)
+4. DEF-135 (enables better validation)
+
+---
+
+### Quick Wins Matrix
+
+| Issue | Impact | Effort | ROI | Priority |
+|-------|--------|--------|-----|----------|
+| DEF-154 | HIGH | 30 min | EXCELLENT | 1 |
+| DEF-186 (Step 1) | HIGH | 5 min | EXCELLENT | 2 |
+| DEF-186 (Step 2) | HIGH | 30 min | EXCELLENT | 3 |
+| DEF-183 | LOW | 15 min | GOOD | 4 |
+| DEF-184 | LOW | 15 min | GOOD | 5 |
+| DEF-182 | LOW | 1 uur | MEDIUM | 6 |
+
+---
+
+### User Value vs Technical Debt Matrix
+
+```
+                    HIGH USER VALUE
+                         |
+    DEF-38 (kwaliteit)   |   DEF-186 (context)
+    DEF-40 (categories)  |   DEF-154 (contradictions)
+                         |
+LOW TECH DEBT ───────────┼─────────── HIGH TECH DEBT
+                         |
+    DEF-135 (transform)  |   DEF-185 (duplicate services)
+    DEF-106 (validator)  |   DEF-183/184 (singletons)
+                         |
+                    LOW USER VALUE
+```
+
+**Focus Quadrant:** HIGH USER VALUE + LOW TECH DEBT = DEF-186, DEF-154
+
+---
+
+## JSON Output
+
+```json
+{
+  "recommended_first_issue": "DEF-154",
+  "rationale": "Highest RICE score (360) for a 30-minute task. Removes conflicting word_type_advice from ExpertiseModule that confuses GPT-4. Zero dependencies, immediate quality improvement. After completing DEF-154, immediately proceed to DEF-186 Step 1+2 (35 min total) for +25-35% quality boost.",
+  "rice_scores": {
+    "DEF-154": 360,
+    "DEF-186_steps_1_2": 450,
+    "DEF-183": 36,
+    "DEF-184": 36,
+    "DEF-38": 20,
+    "DEF-123": 24,
+    "DEF-135": 28,
+    "DEF-185": 8
+  },
+  "moscow_classification": {
+    "must_have": ["DEF-154", "DEF-186", "CLOSE:DEF-149"],
+    "should_have": ["DEF-183", "DEF-184", "DEF-38_quick_wins"],
+    "could_have": ["DEF-135", "DEF-123", "DEF-106", "DEF-40"],
+    "wont_have": ["DEF-179", "DEF-180", "DEF-117"]
+  },
+  "dependency_order": [
+    "DEF-154 (independent - START HERE)",
+    "DEF-186 Step 1+2 (replaces DEF-149)",
+    "CLOSE DEF-149 (superseded)",
+    "DEF-183 (singleton fix)",
+    "DEF-184 (singleton fix)",
+    "DEF-38 Quick Wins (4h subset)",
+    "DEF-135 (after DEF-38)",
+    "DEF-106 (after DEF-135)"
+  ],
+  "quick_wins": [
+    {
+      "issue": "DEF-154",
+      "effort": "30 min",
+      "impact": "Remove contradictions",
+      "tokens_saved": 100
+    },
+    {
+      "issue": "DEF-186 Step 1",
+      "effort": "5 min",
+      "impact": "Priority boost context module",
+      "tokens_saved": 0
+    },
+    {
+      "issue": "DEF-186 Step 2",
+      "effort": "30 min",
+      "impact": "+25-35% quality",
+      "tokens_saved": 150
+    },
+    {
+      "issue": "DEF-183",
+      "effort": "15 min",
+      "impact": "Fix singleton bypass",
+      "tokens_saved": 0
+    },
+    {
+      "issue": "DEF-184",
+      "effort": "15 min",
+      "impact": "Fix singleton bypass",
+      "tokens_saved": 0
+    }
+  ],
+  "90_day_roadmap": [
+    {
+      "week": "1",
+      "theme": "Quick Wins",
+      "issues": ["DEF-154", "DEF-186 Step 1+2", "CLOSE DEF-149"],
+      "expected_quality": "5.2 -> 6.0",
+      "effort_hours": 1.5
+    },
+    {
+      "week": "2",
+      "theme": "Singleton Fixes + DEF-38 Start",
+      "issues": ["DEF-183", "DEF-184", "DEF-38 PROCES fix", "DEF-38 EXEMPLAAR fix"],
+      "expected_quality": "6.0 -> 6.5",
+      "effort_hours": 6
+    },
+    {
+      "week": "3-4",
+      "theme": "DEF-38 Completion",
+      "issues": ["DEF-38 TYPE fix", "DEF-38 BFO foundations"],
+      "expected_quality": "6.5 -> 7.0",
+      "effort_hours": 10
+    },
+    {
+      "week": "5-6",
+      "theme": "Instruction Optimization",
+      "issues": ["DEF-135", "DEF-123"],
+      "expected_quality": "7.0 -> 7.5",
+      "effort_hours": 10
+    },
+    {
+      "week": "7-8",
+      "theme": "Validation & Automation",
+      "issues": ["DEF-106", "DEF-40"],
+      "expected_quality": "7.5 -> 8.0",
+      "effort_hours": 8
+    },
+    {
+      "week": "9-12",
+      "theme": "Technical Debt Reduction",
+      "issues": ["DEF-185", "DEF-182", "DEF-186 Step 3"],
+      "expected_quality": "8.0 (stable)",
+      "effort_hours": 10
+    }
+  ]
+}
 ```
 
 ---
 
-## 7. Product Manager Recommendation
+## Feature Specifications
 
-### Go/No-Go Decision: **GO WITH BOTH - SEQUENCED**
+### Feature: DEF-154 - Remove Conflicting word_type_advice
 
-### Implementation Strategy
+**User Story:** Als definitie-gebruiker wil ik consistente instructies krijgen zodat GPT-4 niet verward raakt door conflicterende adviezen.
 
-#### Phase 1: DEF-151 (Week 1)
-**WHY FIRST:**
-- Lower risk, proven issues to fix
-- Immediate value (Day 3)
-- Creates clean foundation
-- Builds team confidence
-- Shows quick wins to stakeholders
+**Acceptance Criteria:**
+- Given ExpertiseModule is geladen, when word_type_advice method wordt aangeroepen, then geen output (method verwijderd)
+- Given een deverbaal woord, when definitie wordt gegenereerd, then alleen ontologische categorie bepaalt format
+- Edge case: werkwoorden krijgen GEEN "definieer als proces" advice meer
 
-**Success Criteria:**
-- 5 critical contradictions resolved
-- 10% token reduction achieved
-- No regression in quality
-- All tests green
-
-#### Phase 2: DEF-126 (Week 2-3)
-**WHY SECOND:**
-- Builds on clean foundation
-- Higher risk but higher reward
-- User feedback from Phase 1 can inform
-- Team has momentum from Phase 1 success
-
-**Success Criteria:**
-- 40% quality improvement measured
-- User satisfaction > 8/10
-- Regeneration rate < 15%
-- Positive user feedback
-
-### Business Justification
-
-1. **Risk Mitigation:** Starting with DEF-151 reduces overall program risk
-2. **Quick Wins:** Immediate value in 3 days vs 3 weeks
-3. **Compound Benefits:** Clean foundation amplifies DEF-126 impact
-4. **Cost Efficiency:** €1,250/month savings starts immediately
-5. **User Trust:** Fix obvious problems first, then enhance
-
-### KPIs to Track
-
-**Week 1 (DEF-151):**
-- Contradiction errors: Target 0
-- Token usage: Target -10%
-- Generation time: Target <4 seconds
-- Module failures: Target 0
-
-**Week 2-3 (DEF-126):**
-- First-time-success: Target 85%
-- User satisfaction: Target 8/10
-- Regeneration rate: Target <15%
-- Support tickets: Target -25%
-
-**Month 2-3 (Combined):**
-- Total cost savings: €2,500/month
-- Quality score: +40%
-- User NPS: >50
-- System efficiency: +30%
+**Priority:** P0 - Quick Win met hoogste RICE
+**Dependencies:** Geen
+**Technical Constraints:** Behoud _bepaal_woordsoort() voor andere modules
+**UX Considerations:** Geen UI impact, alleen prompt quality
 
 ---
 
-## 8. Stakeholder Communication Plan
+### Feature: DEF-186 - Context Mechanism Teaching
 
-### Board Presentation
-"We have identified two complementary improvements to our definition generation system. By implementing them sequentially, we minimize risk while maximizing return. Phase 1 fixes critical technical issues and saves €15,000/year starting in week 1. Phase 2 transforms quality and saves €150,000/year in user productivity. Total investment of €5,100 returns €246,800 annually - a 48x return."
+**User Story:** Als definitie-gebruiker wil ik dat GPT-4 context IMPLICIET verwerkt via 3 mechanismen (vocabulaire, scope, relaties) in plaats van patroon-herkenning.
 
-### User Communication
-**Week 1:** "We're fixing technical issues that have been causing inconsistent results."
-**Week 2:** "We're enhancing how definitions are generated to be more practical and applicable."
-**Week 3:** "New improvements are live - definitions are now clearer and more relevant to all stakeholders."
+**Acceptance Criteria:**
+- Given context module priority is 90, when prompt wordt gebouwd, then context instructies verschijnen voor grammar (priority 80)
+- Given 3 mechanismen zijn toegevoegd, when strafrechtelijke term wordt gegenereerd, then "recidive" verschijnt ipv "herhaling"
+- Edge case: bij geen context, minimale instructies toch aanwezig
 
-### Team Communication
-"We're taking a measured approach: fix the foundation first (DEF-151), then build the enhancement (DEF-126). This reduces risk and ensures each improvement builds on the previous one."
-
----
-
-## 9. Decision Criteria Scorecard
-
-| Criterion | Weight | DEF-126 | DEF-151 | Both Sequential |
-|-----------|--------|---------|---------|-----------------|
-| User Value | 30% | 9/10 | 6/10 | 10/10 |
-| ROI | 25% | 10/10 | 7/10 | 10/10 |
-| Risk | 20% | 5/10 | 8/10 | 9/10 |
-| Time to Value | 15% | 4/10 | 9/10 | 8/10 |
-| Technical Debt | 10% | 6/10 | 10/10 | 10/10 |
-| **Weighted Score** | | **7.35** | **7.75** | **9.45** |
+**Priority:** P0 - Vervangt DEF-149 met 4x betere ROI
+**Dependencies:** DEF-149 moet gesloten worden
+**Technical Constraints:** Maximaal +150 tokens
+**UX Considerations:** Definitie kwaliteit direct zichtbaar voor gebruiker
 
 ---
 
-## 10. Final Recommendation
+## Critical Questions Checklist
 
-### IMPLEMENT BOTH - START WITH DEF-151
-
-**Rationale:**
-1. **Lower Risk Entry:** DEF-151 has proven issues with clear fixes
-2. **Immediate Value:** Cost savings start in days, not weeks
-3. **Foundation First:** Clean base amplifies DEF-126 benefits
-4. **Compound Returns:** Sequential implementation = 1+1=3
-5. **Stakeholder Confidence:** Quick wins build support for bigger changes
-
-### Next Actions
-1. **Today:** Approve DEF-151 for immediate start
-2. **Monday:** Begin DEF-151 Phase 1 (critical fixes)
-3. **Week 1 Friday:** Checkpoint - confirm DEF-126 start
-4. **Week 2 Monday:** Begin DEF-126 transformation
-5. **Week 3 Friday:** Full system live with both improvements
-
-### Expected Outcomes (3 Months)
-- **User Satisfaction:** 6.8 → 8.5/10 (+25%)
-- **First-Time Success:** 60% → 85% (+42%)
-- **Cost Savings:** €2,500/month
-- **Productivity Gain:** 250 hours/month
-- **Support Reduction:** 25% fewer tickets
-- **System Efficiency:** 30% improvement
-
-### Risk Mitigation
-- Phased rollout with checkpoints
-- A/B testing at each phase
-- Rollback procedures tested
-- User feedback loops active
-- Performance monitoring 24/7
+- [x] Zijn er bestaande oplossingen? **Ja, DEF-149 bestaat maar is inferieur aan DEF-186**
+- [x] Wat is de minimum viable versie? **DEF-154 + DEF-186 Step 1+2 = 1.5 uur**
+- [x] Potentiele risico's? **DEF-38 is 14 uur - kan scope creep veroorzaken**
+- [x] Platform-specifieke requirements? **Streamlit SessionStateManager constraints**
+- [ ] GAPS: Hoeveel definities worden nu gegenereerd per dag/week?
+- [ ] GAPS: Wat is de huidige user satisfaction score?
+- [ ] GAPS: Zijn er concrete deadlines of stakeholder verwachtingen?
 
 ---
 
-## Appendix A: Detailed Financial Calculations
+## Aanbevolen Eerste Actie
 
-### User Productivity Calculation
-- Average user: 10 definitions/day
-- Current: 40% need regeneration = 4 extra attempts
-- After DEF-126: 10% need regeneration = 1 extra attempt
-- Time saved: 3 attempts × 5 minutes = 15 minutes/day
-- 100 users × 15 minutes × 250 days = 6,250 hours/year
-- 6,250 hours × €25/hour = €156,250/year
+### Vandaag (1.5 uur totaal):
 
-### Support Cost Calculation
-- Current: 200 tickets/month @ 30 minutes each = 100 hours
-- After improvements: 150 tickets/month @ 25 minutes = 62.5 hours
-- Saved: 37.5 hours/month × €75/hour × 12 = €33,750/year
+1. **DEF-154** (30 min)
+   - Open `src/services/prompts/modules/expertise_module.py`
+   - Verwijder `_build_word_type_advice()` method (lines 169-185)
+   - Verwijder invocation in `execute()` (lines 86-88)
+   - Run tests
 
-### API Cost Calculation
-- Current: 7,250 tokens/generation
-- After DEF-151: 6,500 tokens (-10%)
-- After DEF-126: 5,850 tokens (additional -10%)
-- Total reduction: 19.3%
-- 1,000 generations/day × 1,400 tokens saved × €0.0001/token × 365 = €51,100/year
+2. **DEF-186 Step 1** (5 min)
+   - Open `src/services/prompts/modules/context_awareness_module.py`
+   - Wijzig `priority=70` naar `priority=90` (line 38)
 
----
+3. **DEF-186 Step 2** (30 min)
+   - Voeg IMPLICIT_CONTEXT_MECHANISMS toe aan alle 3 context niveaus
+   - Run tests
 
-## Appendix B: Risk Mitigation Detailed Plans
+4. **Close DEF-149** (5 min)
+   - Linear: Mark as "Superseded by DEF-186"
+   - State: Duplicate/Canceled
 
-### DEF-151 Rollback Plan
-```bash
-# If critical issue detected:
-1. Feature flag: ENABLE_MODULE_FIXES=false
-2. Restart services
-3. Revert to previous module configuration
-4. Time to rollback: < 5 minutes
-```
+5. **DEF-183 + DEF-184** (30 min)
+   - Fix singleton bypasses
+   - Run tests
 
-### DEF-126 Gradual Rollout
-```
-Week 1: 10% of users (beta group)
-Week 2: 50% of users (if metrics positive)
-Week 3: 100% of users (after confirmation)
-```
-
-### Monitoring Dashboard
-- Real-time quality scores
-- Token usage graphs
-- Regeneration rate tracking
-- User satisfaction pulse surveys
-- System performance metrics
+**Verwacht resultaat:** Kwaliteit 5.2 -> 6.0 in 1.5 uur werk.
 
 ---
 
-**Document Status:** COMPLETE
-**Decision Required By:** End of Business Today
-**Recommended Action:** APPROVE BOTH - Sequential Implementation
-**First Step:** Start DEF-151 Monday Morning
+## Appendix: Issue Status Update Recommendations
+
+| Issue | Current State | Recommended Action |
+|-------|---------------|-------------------|
+| DEF-149 | In Progress | CLOSE (Superseded by DEF-186) |
+| DEF-186 | Backlog | MOVE to In Progress |
+| DEF-154 | In Progress | START (highest priority) |
+| DEF-38 | In Progress | CONTINUE after Quick Wins |
+| DEF-123 | In Progress | PAUSE (lower priority) |
+| DEF-135 | In Progress | PAUSE (depends on DEF-38) |
+| DEF-106 | In Progress | PAUSE (depends on DEF-135) |
+| DEF-40 | In Progress | PAUSE (depends on DEF-38) |
+
+---
+
+## Appendix B: Blocking Issues Analysis
+
+### Issues Currently "In Progress" (7 stuks)
+Het feit dat 7 issues tegelijk "In Progress" zijn is een rode vlag voor een solo developer:
+
+| Issue | Days in Progress | Recommendation |
+|-------|-----------------|----------------|
+| DEF-38 | 40+ dagen | CONTINUE - core issue |
+| DEF-149 | 17 dagen | CLOSE - superseded |
+| DEF-154 | 14 dagen | FINISH TODAY |
+| DEF-123 | 20 dagen | PAUSE - lower priority |
+| DEF-135 | 20 dagen | PAUSE - depends on DEF-38 |
+| DEF-106 | 23 dagen | PAUSE - depends on DEF-135 |
+| DEF-40 | 40+ dagen | PAUSE - depends on DEF-38 |
+
+**Aanbeveling:** Reduceer "In Progress" naar max 2 issues tegelijk (WIP limit).
+
+---
+
+## Appendix C: Linear Backlog Cleanup Actions
+
+### Immediate Actions (vandaag)
+1. DEF-149: Change state to "Duplicate" with note "Superseded by DEF-186"
+2. DEF-186: Move to "In Progress"
+3. DEF-154: Finish implementation
+
+### This Week Actions
+4. DEF-123, DEF-135, DEF-106, DEF-40: Move back to "Backlog" (paused)
+5. DEF-183, DEF-184: Move to "In Progress" after DEF-154
+
+### Backlog Grooming (weekend)
+6. Review all "No Priority" issues (12 stuks) - assign priority
+7. Close stale issues (>60 dagen zonder activiteit)
+8. Update estimates based on actual effort
+
+---
+
+*Document gegenereerd: 2025-11-27*
+*Analyse methode: RICE + MoSCoW + Dependency Mapping + User Value Matrix*
+*Data bron: Linear API real-time query*
