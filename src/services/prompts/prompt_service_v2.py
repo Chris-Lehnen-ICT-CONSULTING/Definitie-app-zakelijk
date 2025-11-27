@@ -9,13 +9,11 @@ REFACTORED: Now uses centralized ContextManager (US-043).
 import logging
 import os
 import time
-import uuid
 from dataclasses import dataclass
 from typing import Any
 
 from services.definition_generator_config import ContextConfig, UnifiedGeneratorConfig
 from services.definition_generator_context import (
-    ContextSource,
     EnrichedContext,
     HybridContextManager,
 )
@@ -256,153 +254,6 @@ class PromptServiceV2:
             return f"{block}\n\n{prompt_text}"
         except Exception:
             return prompt_text
-
-    def _DEPRECATED_convert_request_to_context(
-        self, request: GenerationRequest, extra_context: dict[str, Any] | None = None
-    ) -> EnrichedContext:
-        """DEPRECATED: Use HybridContextManager.build_enriched_context() instead.
-
-        This method is deprecated as of US-043. It violates the single context
-        entry point principle. All context mapping should go through
-        HybridContextManager.
-
-        Legacy method for converting V2 GenerationRequest to EnrichedContext.
-        """
-        import warnings
-
-        warnings.warn(
-            "_convert_request_to_context is deprecated. Use HybridContextManager.build_enriched_context() instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        # Generate correlation ID for audit trail (ASTRA compliance)
-        correlation_id = str(uuid.uuid4())
-
-        # Build base context from request (PER-007: volledige mapping met dedupe)
-        base_context: dict[str, list[str]] = {
-            "organisatorisch": [],
-            "juridisch": [],
-            "wettelijk": [],
-            # US-041 FIX: Also maintain original field names for compatibility
-            "organisatorische_context": [],
-            "juridische_context": [],
-            "wettelijke_basis": [],
-        }
-
-        def extend_unique(values: list[str] | None, into: list[str]) -> None:
-            if not values:
-                return
-            seen = set(into)
-            for v in values:
-                if v and v not in seen:
-                    into.append(v)
-                    seen.add(v)
-
-        # Expliciete UI-velden - US-041 FIX: Map to BOTH shortened and full names
-        organisatorische = getattr(request, "organisatorische_context", None)
-        juridische = getattr(request, "juridische_context", None)
-        wettelijke = getattr(request, "wettelijke_basis", None)
-
-        # Feature flag check for enhanced mapping
-        if CONTEXT_V2_ENABLED:
-            logger.info(
-                f"[AUDIT] Context V2 mapping ENABLED | "
-                f"correlation_id={correlation_id} | "
-                f"begrip={request.begrip} | "
-                f"request_id={request.id}"
-            )
-
-            # Enhanced mapping with validation
-            if organisatorische and not isinstance(organisatorische, list):
-                organisatorische = [organisatorische] if organisatorische else []
-                logger.warning(
-                    f"[AUDIT] Converted non-list organisatorische_context to list | correlation_id={correlation_id}"
-                )
-
-            if juridische and not isinstance(juridische, list):
-                juridische = [juridische] if juridische else []
-                logger.warning(
-                    f"[AUDIT] Converted non-list juridische_context to list | correlation_id={correlation_id}"
-                )
-
-            if wettelijke and not isinstance(wettelijke, list):
-                wettelijke = [wettelijke] if wettelijke else []
-                logger.warning(
-                    f"[AUDIT] Converted non-list wettelijke_basis to list | correlation_id={correlation_id}"
-                )
-
-        # Map to shortened keys (for existing modules)
-        extend_unique(organisatorische, base_context["organisatorisch"])
-        extend_unique(juridische, base_context["juridisch"])
-        extend_unique(wettelijke, base_context["wettelijk"])
-
-        # US-041 FIX: Also map to full keys (for new modules and debugging)
-        extend_unique(organisatorische, base_context["organisatorische_context"])
-        extend_unique(juridische, base_context["juridische_context"])
-        extend_unique(wettelijke, base_context["wettelijke_basis"])
-
-        # Audit logging for ASTRA compliance (no PII)
-        if organisatorische or juridische or wettelijke:
-            logger.info(
-                f"[AUDIT] Context mapping completed | "
-                f"correlation_id={correlation_id} | "
-                f"org_count={len(organisatorische) if organisatorische else 0} | "
-                f"jur_count={len(juridische) if juridische else 0} | "
-                f"wet_count={len(wettelijke) if wettelijke else 0} | "
-                f"feature_flag={CONTEXT_V2_ENABLED}"
-            )
-
-        # Legacy velden
-        # EPIC-010: domein field verwijderd - gebruik juridische_context
-        # Gebruik legacy vrije context enkel als de nieuwe velden leeg zijn
-        # EPIC-010: Do not fallback to legacy string request.context
-        # All context must be provided via the list fields above.
-
-        # 🚨 CRITICAL FIX: Preserve context_dict from extra_context
-        # This fixes the voorbeelden dictionary regression
-        if extra_context and "context_dict" in extra_context:
-            context_dict = extra_context["context_dict"]
-            logger.debug(
-                f"Preserving context_dict with keys: {list(context_dict.keys())}"
-            )
-
-            # Merge context_dict into base_context (prioritize context_dict)
-            for key, value in context_dict.items():
-                if isinstance(value, list) and value:  # Only add non-empty lists
-                    base_context[key] = value
-                    logger.debug(f"Added context_dict[{key}] = {value}")
-
-        # Create sources list (empty for now, could be extended)
-        sources: list[ContextSource] = []
-
-        # Build metadata with ontological category
-        metadata = {
-            "ontologische_categorie": request.ontologische_categorie,
-            "semantic_category": request.ontologische_categorie,  # For template module compatibility
-            "request_id": request.id,
-            "actor": request.actor,
-            "legal_basis": request.legal_basis,
-            "correlation_id": correlation_id,  # US-041: ASTRA audit trail
-            "context_v2_enabled": CONTEXT_V2_ENABLED,  # US-041: Feature flag status
-        }
-
-        if extra_context:
-            # Add all extra_context to metadata (including context_dict for reference)
-            metadata.update(extra_context)
-
-        # Create enriched context
-        enriched = EnrichedContext(
-            base_context=base_context,
-            sources=sources,
-            expanded_terms={},  # Could be extended with abbreviation expansion
-            confidence_scores={},
-            metadata=metadata,
-        )
-
-        logger.info(
-            f"EnrichedContext created with base_context keys: {list(base_context.keys())}"
-        )
-        return enriched
 
     # ==============================
     # Epic 3: Prompt Augmentation
