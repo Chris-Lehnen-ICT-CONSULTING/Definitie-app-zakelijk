@@ -185,7 +185,7 @@ class ContextAwarenessModule(BasePromptModule):
 
     def _build_rich_context_section(self, context: ModuleContext) -> str:
         """
-        Build uitgebreide context sectie voor rijke context (score ≥ 0.8).
+        Build uitgebreide context sectie voor rijke context (score >= 0.8).
 
         Args:
             context: Module context
@@ -200,6 +200,30 @@ class ContextAwarenessModule(BasePromptModule):
         sections.append(
             "⚠️ VERPLICHT: Gebruik onderstaande specifieke context om de definitie te formuleren voor deze organisatorische, juridische en wettelijke setting. Maak de definitie contextspecifiek zonder de context expliciet te benoemen."
         )
+        sections.append("")
+
+        # Impliciete context mechanismen (RICH: volledige versie met alle voorbeelden)
+        sections.append("📌 HOE CONTEXT IMPLICIET VERWERKEN (3 Mechanismen):")
+        sections.append("")
+        sections.append("**MECHANISME 1 - VOCABULAIRE:**")
+        sections.append("Gebruik domein-specifieke termen.")
+        sections.append('❌ "persoon" → ✅ "verdachte" (strafrechtelijk)')
+        sections.append('❌ "gebouw" → ✅ "penitentiaire inrichting" (DJI)')
+        sections.append('❌ "straf" → ✅ "sanctie" (formeel juridisch)')
+        sections.append("")
+        sections.append("**MECHANISME 2 - SCOPE:**")
+        sections.append("Vernauw begrippen met domein-qualifiers.")
+        sections.append('❌ "regels" → ✅ "gedragsregels"')
+        sections.append('❌ "beslissing" → ✅ "beschikking"')
+        sections.append('❌ "procedure" → ✅ "formele procedure"')
+        sections.append("")
+        sections.append("**MECHANISME 3 - RELATIES:**")
+        sections.append("Refereer context-specifieke verbanden.")
+        sections.append('❌ "herhaling" → ✅ "recidive"')
+        sections.append('❌ "begeleiding" → ✅ "reclasseringstoezicht"')
+        sections.append('❌ "functionaris" → ✅ "officier van justitie"')
+        sections.append("")
+        sections.append("🧪 TEST: Kan een expert de context raden ZONDER label?")
         sections.append("")
 
         # Base context met categorieën
@@ -225,7 +249,7 @@ class ContextAwarenessModule(BasePromptModule):
 
     def _build_moderate_context_section(self, context: ModuleContext) -> str:
         """
-        Build standaard context sectie voor matige context (0.5 ≤ score < 0.8).
+        Build standaard context sectie voor matige context (0.5 <= score < 0.8).
 
         Args:
             context: Module context
@@ -242,6 +266,27 @@ class ContextAwarenessModule(BasePromptModule):
             "Maak de definitie specifiek voor deze context door je woordkeuze en formulering aan te passen, "
             "maar VERMIJD het expliciet noemen van contextnamen (zoals organisatienamen, wettelijke kaders, etc.)."
         )
+        sections.append("")
+
+        # Impliciete context mechanismen (MODERATE: 1-2 voorbeelden per mechanisme)
+        sections.append("📌 HOE CONTEXT IMPLICIET VERWERKEN (3 Mechanismen):")
+        sections.append("")
+        sections.append("**MECHANISME 1 - VOCABULAIRE:**")
+        sections.append("Gebruik domein-specifieke termen.")
+        sections.append('❌ "persoon" → ✅ "verdachte" (strafrechtelijk)')
+        sections.append('❌ "gebouw" → ✅ "penitentiaire inrichting" (DJI)')
+        sections.append("")
+        sections.append("**MECHANISME 2 - SCOPE:**")
+        sections.append("Vernauw begrippen met domein-qualifiers.")
+        sections.append('❌ "regels" → ✅ "gedragsregels"')
+        sections.append('❌ "beslissing" → ✅ "beschikking"')
+        sections.append("")
+        sections.append("**MECHANISME 3 - RELATIES:**")
+        sections.append("Refereer context-specifieke verbanden.")
+        sections.append('❌ "herhaling" → ✅ "recidive"')
+        sections.append('❌ "begeleiding" → ✅ "reclasseringstoezicht"')
+        sections.append("")
+        sections.append("🧪 TEST: Kan een expert de context raden ZONDER label?")
         sections.append("")
 
         # Basis context formatting
@@ -275,10 +320,24 @@ class ContextAwarenessModule(BasePromptModule):
         enriched_context = context.enriched_context
         context_text = enriched_context.get_all_context_text()
 
-        if context_text:
-            return f"📍 VERPLICHTE CONTEXT: {context_text}\n⚠️ INSTRUCTIE: Formuleer de definitie specifiek voor bovenstaande organisatorische, juridische en wettelijke context zonder deze expliciet te benoemen."
+        # Impliciete context mechanismen (MINIMAL: alleen namen + test instructie)
+        mechanisms_text = (
+            "\n📌 CONTEXT IMPLICIET VERWERKEN via: "
+            "(1) VOCABULAIRE - domein-specifieke termen, "
+            "(2) SCOPE - vernauwde begrippen, "
+            "(3) RELATIES - context-specifieke verbanden. "
+            "🧪 TEST: Kan een expert de context raden ZONDER label?"
+        )
 
-        return "📍 Context: Geen specifieke context beschikbaar."
+        if context_text:
+            return (
+                f"📍 VERPLICHTE CONTEXT: {context_text}\n"
+                f"⚠️ INSTRUCTIE: Formuleer de definitie specifiek voor bovenstaande "
+                f"organisatorische, juridische en wettelijke context zonder deze expliciet te benoemen."
+                f"{mechanisms_text}"
+            )
+
+        return f"📍 Context: Geen specifieke context beschikbaar.{mechanisms_text}"
 
     def _format_detailed_base_context(self, base_context: dict) -> list[str]:
         """

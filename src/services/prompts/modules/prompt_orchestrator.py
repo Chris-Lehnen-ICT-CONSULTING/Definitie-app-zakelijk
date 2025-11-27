@@ -353,9 +353,9 @@ class PromptOrchestrator:
         """
         return [
             "expertise",
+            "context_awareness",
             "output_specification",
             "grammar",
-            "context_awareness",
             "semantic_categorisation",
             "template",
             # Validatie regels in logische volgorde
