@@ -6,6 +6,11 @@ This module serves as the entry point for the DefinitieAgent application,
 handling initialization, configuration, and launching the main user interface.
 """
 
+from dotenv import load_dotenv
+
+# Load .env file before any other imports that might need environment variables
+load_dotenv()
+
 import logging
 import os
 import sys
