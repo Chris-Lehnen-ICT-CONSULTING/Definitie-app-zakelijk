@@ -168,3 +168,4 @@ reports/
 # BMAD (local only)
 .bmad-core/
 .bmad-*/
+coverage.xml

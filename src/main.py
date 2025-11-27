@@ -77,7 +77,7 @@ def get_tabbed_interface():
         - Savings: 190ms per rerun
     """
     logger.info(
-        "TabbedInterface.__init__() called - should happen ONCE per app session"
+        "🔄 Cold start: TabbedInterface initialization (expected once per session)"
     )
     return TabbedInterface()
 
@@ -177,6 +177,11 @@ def _track_streamlit_metrics(init_ms: float, interface_ms: float, render_ms: flo
         - interface_ms > 50ms: Possible cache miss or initialization overhead
         - render_ms > 200ms without heavy operation: UI rendering regression
     """
+    # Detect first load (cold start) - cache miss is EXPECTED on first request
+    is_first_request = SessionStateManager.get_value("_first_request_done") is None
+    if is_first_request:
+        SessionStateManager.set_value("_first_request_done", True)
+
     try:
         from monitoring.performance_tracker import get_tracker
 
@@ -233,10 +238,18 @@ def _track_streamlit_metrics(init_ms: float, interface_ms: float, render_ms: flo
         if not is_heavy_operation:
             # Check interface instantiation time (should be fast after caching)
             if interface_ms > 50:
-                logger.warning(
-                    f"TabbedInterface cache miss or slow init: {interface_ms:.1f}ms "
-                    f"(expected <20ms). Check @st.cache_resource effectiveness."
-                )
+                if is_first_request:
+                    # Cold start - expected behavior, log as INFO
+                    logger.info(
+                        f"Cold start complete: {interface_ms:.1f}ms "
+                        f"(first load, cache populated)"
+                    )
+                else:
+                    # Unexpected cache miss - this IS a problem
+                    logger.warning(
+                        f"TabbedInterface unexpected cache miss: {interface_ms:.1f}ms "
+                        f"(expected <20ms). Check @st.cache_resource effectiveness."
+                    )
 
             # Check render time
             alert = tracker.check_regression("streamlit_render_ms", render_ms)
