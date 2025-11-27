@@ -5,7 +5,6 @@ from services.definition_generator_context import EnrichedContext, HybridContext
 from services.interfaces import GenerationRequest
 from services.prompts.modules.base_module import ModuleContext
 from services.prompts.modules.context_awareness_module import ContextAwarenessModule
-from services.prompts.prompt_service_v2 import PromptServiceV2
 
 
 def make_request() -> GenerationRequest:
@@ -29,16 +28,6 @@ def test_base_context_includes_all_three_lists():
     assert "OM" in base["organisatorisch"]
     assert "Strafrecht" in base["juridisch"]
     assert "Art. 27 Sv" in base["wettelijk"]
-
-
-def test_prompt_service_v2_converts_all_context_fields():
-    request = make_request()
-    svc = PromptServiceV2()
-    enriched = svc._DEPRECATED_convert_request_to_context(request)
-
-    assert set(enriched.base_context.get("organisatorisch", [])) >= {"DJI", "OM"}
-    assert "Strafrecht" in enriched.base_context.get("juridisch", [])
-    assert "Art. 27 Sv" in enriched.base_context.get("wettelijk", [])
 
 
 def test_context_awareness_module_renders_all_sections():

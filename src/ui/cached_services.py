@@ -49,7 +49,9 @@ def initialize_services_once():
     wordt aangemaakt en in session state wordt opgeslagen.
     """
     if SessionStateManager.get_value("service_container") is None:
-        logger.info("📦 Initializing service container in session state")
+        logger.info(
+            "📦 Cold start: Initializing service container in session state (expected once per session)"
+        )
 
         # Gebruik de gecachte container
         container = get_cached_service_container()
