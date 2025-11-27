@@ -98,9 +98,11 @@ class DatabaseBackupManager:
                 compressed_path = backup_path.with_suffix(".db.gz")
                 logger.info(f"Compressing backup: {compressed_path}")
 
-                with open(backup_path, "rb") as f_in:
-                    with gzip.open(compressed_path, "wb") as f_out:
-                        shutil.copyfileobj(f_in, f_out)
+                with (
+                    open(backup_path, "rb") as f_in,
+                    gzip.open(compressed_path, "wb") as f_out,
+                ):
+                    shutil.copyfileobj(f_in, f_out)
 
                 # Remove uncompressed file
                 backup_path.unlink()
@@ -156,9 +158,11 @@ class DatabaseBackupManager:
                 temp_backup = backup_path.with_suffix("")
                 logger.info("Decompressing backup...")
 
-                with gzip.open(backup_path, "rb") as f_in:
-                    with open(temp_backup, "wb") as f_out:
-                        shutil.copyfileobj(f_in, f_out)
+                with (
+                    gzip.open(backup_path, "rb") as f_in,
+                    open(temp_backup, "wb") as f_out,
+                ):
+                    shutil.copyfileobj(f_in, f_out)
 
             # Verify backup before restore
             if not self.verify_backup(temp_backup):
@@ -201,9 +205,11 @@ class DatabaseBackupManager:
             temp_path = backup_path
             if backup_path.suffix == ".gz":
                 temp_path = backup_path.with_suffix("")
-                with gzip.open(backup_path, "rb") as f_in:
-                    with open(temp_path, "wb") as f_out:
-                        shutil.copyfileobj(f_in, f_out)
+                with (
+                    gzip.open(backup_path, "rb") as f_in,
+                    open(temp_path, "wb") as f_out,
+                ):
+                    shutil.copyfileobj(f_in, f_out)
 
             # Verify database
             result = self._verify_database(temp_path)

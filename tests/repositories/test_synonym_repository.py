@@ -100,10 +100,12 @@ class TestSynonymRepository:
             / "add_synonym_suggestions_table.sql"
         )
 
-        with sqlite3.connect(test_db_path) as conn:
-            with open(migration_path, encoding="utf-8") as f:
-                migration_sql = f.read()
-                conn.executescript(migration_sql)
+        with (
+            sqlite3.connect(test_db_path) as conn,
+            open(migration_path, encoding="utf-8") as f,
+        ):
+            migration_sql = f.read()
+            conn.executescript(migration_sql)
 
         return SynonymRepository(db_path=test_db_path)
 
@@ -378,10 +380,12 @@ class TestIntegration:
             / "add_synonym_suggestions_table.sql"
         )
 
-        with sqlite3.connect(test_db_path) as conn:
-            with open(migration_path, encoding="utf-8") as f:
-                migration_sql = f.read()
-                conn.executescript(migration_sql)
+        with (
+            sqlite3.connect(test_db_path) as conn,
+            open(migration_path, encoding="utf-8") as f,
+        ):
+            migration_sql = f.read()
+            conn.executescript(migration_sql)
 
         return SynonymRepository(db_path=test_db_path)
 

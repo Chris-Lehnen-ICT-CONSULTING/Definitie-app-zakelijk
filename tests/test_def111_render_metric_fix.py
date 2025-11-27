@@ -96,7 +96,7 @@ def test_verification_script_exists():
 
 
 @pytest.mark.parametrize(
-    "render_ms,expected_heavy,description",
+    ("render_ms", "expected_heavy", "description"),
     [
         (50, False, "UI-only rerun"),
         (150, False, "Fast page navigation"),

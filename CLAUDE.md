@@ -1,474 +1,200 @@
-# CLAUDE.md (DefinitieAgent Instructions)
+# CLAUDE.md
 
-*Version: 4.0 | Last Updated: 2025-01-18 | Status: Active | Optimized for token efficiency*
-
-**Optimization:** v3.0 → v4.0 (1,700 tokens saved, 20% reduction)
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ---
 
-## ⚡ ULTRA-TL;DR (30 Second Activation)
+## Quick Reference
 
-**5 Non-Negotiable Rules:**
-1. **Files in root:** NO (except README, requirements, config)
-2. **SessionStateManager:** ONLY access via SessionStateManager
-3. **Approval gate:** >100 lines OR >5 files → Ask first
-4. **No backwards compat:** Refactor in place (solo dev!)
-5. **BMad Method:** Type `/BMad:agents:*` (loads on-demand, 57K tokens)
-
-**Architecture:** ServiceContainer + ValidationOrchestratorV2 + 45 rules
-**Database:** ONLY `data/definities.db`
-**Tests:** Run after EVERY change (60%+ coverage)
-
-**→ Next:** §Quick Lookup for instant answers | §Deep Dive for details
-
----
-
-## 🔍 Quick Lookup Tables (Instant Answers)
-
-### Table 1: File Location Matrix
-
-| File Type | ❌ FORBIDDEN | ✅ REQUIRED | Example |
-|-----------|--------------|-------------|---------|
-| Tests | Project root | `tests/` subdirs | `test_foo.py` → `tests/unit/test_foo.py` |
-| Scripts | Project root | `scripts/` subdirs | `backup.sh` → `scripts/maintenance/backup.sh` |
-| Logs | Project root | `logs/` + archive | `app.log` → `logs/app.log` |
-| Databases | Anywhere | `data/` ONLY | Any `*.db` → `data/definities.db` |
-| Docs | Root or scattered | `docs/` hierarchy | `PLAN.md` → `docs/planning/PLAN.md` |
-
-### Table 2: Canonical Name Reference
-
-| ✅ CORRECT | ❌ FORBIDDEN | Location | Type |
-|------------|--------------|----------|------|
-| `ValidationOrchestratorV2` | V1, ValidationOrchestrator | `src/services/validation/` | Class |
-| `UnifiedDefinitionGenerator` | DefinitionGenerator | `src/services/generation/` | Class |
-| `ModularValidationService` | ValidationService | `src/services/validation/` | Class |
-| `SessionStateManager` | session_state, StateManager | `src/ui/` | Class |
-| `organisatorische_context` | organizational_context | Database/config | Variable |
-| `juridische_context` | legal_context | Database/config | Variable |
-| `data/definities.db` | Root or anywhere | `data/` ONLY | File |
-
-### Table 3: Import Rules Matrix
-
-| Layer | ✅ CAN Import | ❌ CANNOT Import | Reason |
-|-------|---------------|------------------|--------|
-| `services/` | services/, utils/, config/ | ui/, streamlit | Layer separation |
-| `ui/` | services/, utils/, streamlit | - | UI can use all |
-| `toetsregels/` | config/, utils/ | ui/, services/ (except via DI) | Domain isolation |
-| `database/` | utils/ | ui/, services/ (except via DI) | Infrastructure |
-| `utils/` | Standard library only | ALL project modules | Utility layer |
-
-### Table 4: Streamlit Widget Patterns
-
-| Pattern | Status | Example | Result |
-|---------|--------|---------|--------|
-| Key-only | ✅ CORRECT | `st.text_area("Label", key="my_key")` | Session state drives value |
-| Value + key | ❌ FORBIDDEN | `st.text_area("Label", value=data, key="my_key")` | Race condition! |
-| Direct session_state | ❌ FORBIDDEN | `st.session_state["my_key"]` | Use SessionStateManager |
-| SessionStateManager | ✅ CORRECT | `SessionStateManager.get_value("my_key")` | Centralized, safe |
-| State before widget | ✅ CORRECT | `set_value() → st.widget()` | Proper init |
-| Widget before state | ❌ FORBIDDEN | `st.widget() → set_value()` | Too late! |
-
-**Pre-commit enforcement:** `scripts/check_streamlit_patterns.py` detects violations
-**Full patterns:** `docs/guidelines/STREAMLIT_PATTERNS.md`
-
-### Table 5: Testing Strategy
-
-| Test Type | Location | Coverage | When | Priority |
-|-----------|----------|----------|------|----------|
-| Unit | `tests/unit/` | 80%+ | After every change | HIGH |
-| Integration | `tests/integration/` | 60%+ | Before commit | MEDIUM |
-| Smoke | `tests/smoke/` | N/A | After merge, CI/CD | HIGH |
-| Debug | `tests/debug/` | N/A | Issue investigation | As needed |
-
-**High-coverage modules (run after refactors):**
-- `tests/services/test_definition_generator.py` (99%)
-- `tests/services/test_definition_validator.py` (98%)
-- `tests/services/test_definition_repository.py` (100%)
-
-### Table 6: Decision Tree Matrix
-
-| User Request | Check | Action | Reference |
-|--------------|-------|--------|-----------|
-| "Fix bug" | Component known? | HOTFIX workflow | →UNIFIED §WORKFLOW |
-| "Add feature" | Scope clear? | FULL_TDD workflow | →UNIFIED §WORKFLOW |
-| ">100 lines change" | - | Show structure + ask approval | →UNIFIED §APPROVAL |
-| "Import streamlit in services/" | - | REFUSE → suggest async_bridge | §Import Rules |
-| "Access st.session_state" | - | Use SessionStateManager | §SessionStateManager |
-
-### Table 7: Error Resolution Matrix
-
-| Error | Cause | Solution | Reference |
-|-------|-------|----------|-----------|
-| Import error | Forbidden pattern | Check Import Rules Matrix | §Table 3 |
-| Session state error | Direct access | Use SessionStateManager | §SessionStateManager |
-| File location error | Wrong directory | Check File Location Matrix | §Table 1 |
-| Naming error | Wrong canonical name | Check Canonical Name Reference | §Table 2 |
-
-### Table 8: Performance Status (Quick Reference)
-
-| Issue | Status | Fix | Date |
-|-------|--------|-----|------|
-| Rules 45x reload | ✅ FIXED | RuleCache | Oct 2025 |
-| Service 2x init | ✅ FIXED | Singleton | Oct 2025 |
-| PromptOrchestrator 2x | ✅ FIXED | Unified cache | Oct 2025 |
-| Prompt tokens 7.2K | ⏳ OPEN | Deduplication | Planned |
-
-**Details:** `docs/reports/toetsregels-caching-fix.md`
-
-### Table 9: Common Commands
-
-| Command | Purpose | When |
-|---------|---------|------|
-| `bash scripts/run_app.sh` | Start app (recommended) | Development |
-| `pytest -q` | Run tests (quiet) | After changes |
-| `make test` | Run tests via Makefile | CI/CD |
-| `make lint` | Lint + format checks | Before commit |
-| `pre-commit run --all-files` | Run all hooks | Manual validation |
-
-### Table 10: Architecture Quick Map
-
+**Build & Run:**
+```bash
+bash scripts/run_app.sh              # Start app (recommended)
+streamlit run src/main.py            # Alternative direct start
 ```
+
+**Testing:**
+```bash
+make test                            # Fast subset, fail-fast
+pytest -q                            # All tests (quiet)
+pytest tests/path/test_file.py::test_name  # Single test
+pytest -q -m unit                    # Unit tests only
+pytest -q -m integration             # Integration tests
+make test-cov                        # With coverage report
+```
+
+**Linting:**
+```bash
+make lint                            # Ruff + Black checks
+python -m ruff check src config      # Ruff only
+pre-commit run --all-files           # All pre-commit hooks
+```
+
+---
+
+## Critical Rules
+
+1. **No files in project root** (except README.md, CLAUDE.md, requirements*.txt, pyproject.toml, pytest.ini, .pre-commit-config.yaml)
+2. **SessionStateManager only** - Never access `st.session_state` directly; use `SessionStateManager`
+3. **Database location** - Only `data/definities.db`, nowhere else
+4. **No backwards compatibility** - Solo dev app, refactor in place
+5. **Ask first for large changes** - >100 lines OR >5 files
+
+---
+
+## Architecture
+
+**Dutch AI-powered Definition Generator** using GPT-4 with 45 validation rules (toetsregels).
+
+### Core Architecture (Service-Oriented with DI)
+
+```text
 src/
-├── main.py                     # Entry point
+├── main.py                           # Streamlit entry point
 ├── services/
-│   ├── container.py           # ServiceContainer (DI)
+│   ├── container.py                  # ServiceContainer (dependency injection)
 │   ├── validation/
-│   │   ├── modular_validation_service.py  # 45 rules
-│   │   └── validation_orchestrator_v2.py  # Orchestration
+│   │   ├── validation_orchestrator_v2.py   # Main orchestration
+│   │   └── modular_validation_service.py   # 45 rules management
 │   ├── generation/
-│   │   └── unified_definition_generator.py
+│   │   └── unified_definition_generator.py # Core generation
 │   └── ai/
-│       └── ai_service_v2.py   # GPT-4 integration
+│       └── ai_service_v2.py          # GPT-4 integration
 ├── ui/
-│   ├── tabs/                  # Streamlit UI
-│   └── session_state.py       # SessionStateManager
+│   ├── tabs/                         # Streamlit UI tabs
+│   └── session_state.py              # SessionStateManager (ONLY way to access st.session_state)
 ├── toetsregels/
-│   ├── regels/                # Validation logic
-│   └── rule_cache.py          # RuleCache (TTL: 3600s)
+│   ├── regels/                       # Validation rule implementations
+│   └── rule_cache.py                 # RuleCache (TTL: 3600s)
 └── database/
-    ├── schema.sql
+    ├── schema.sql                    # SQLite schema
     └── migrations/
-
-data/
-└── definities.db              # SQLite (ONLY here!)
 ```
+
+### Key Services
+
+| Service | Purpose |
+|---------|---------|
+| `ServiceContainer` | Dependency injection, singleton management |
+| `ValidationOrchestratorV2` | Orchestrates 45 validation rules |
+| `UnifiedDefinitionGenerator` | Core definition generation |
+| `AIServiceV2` | GPT-4 API integration |
+| `SessionStateManager` | Centralized Streamlit state management |
+| `RuleCache` | Bulk rule loading with TTL caching |
+
+### Import Rules (Layer Separation)
+
+| Layer | Can Import | Cannot Import |
+|-------|------------|---------------|
+| `services/` | services/, utils/, config/ | ui/, streamlit |
+| `ui/` | services/, utils/, streamlit | - |
+| `toetsregels/` | config/, utils/ | ui/, services/ (except via DI) |
+| `database/` | utils/ | ui/, services/ (except via DI) |
+| `utils/` | Standard library only | ALL project modules |
 
 ---
 
-## 🎯 Critical Rules (Action-Oriented)
+## Streamlit Patterns
 
-### 🔴 Project Root Policy (STRICT!)
-
-**NO files in project root, except:**
-- README.md, CONTRIBUTING.md, CLAUDE.md
-- requirements.txt, requirements-dev.txt
-- Config: pyproject.toml, pytest.ini, .pre-commit-config.yaml
-
-**MOVE immediately:**
-- `test_*.py` → `tests/` subdirs
-- `*.sh` → `scripts/` subdirs
-- `*.log` → `logs/`
-- `*.db` → `data/`
-- `HANDOVER*.md` → `docs/archief/handovers/`
-
-**Check:** `~/.ai-agents/quality-gates.yaml` §forbidden_locations
-
-### 🔴 SessionStateManager (MANDATORY)
-
-**RULE:** SessionStateManager is the ONLY module that may touch `st.session_state`
+### Key-Only Widget Pattern (Mandatory)
 
 ```python
-# ✅ CORRECT
+# CORRECT: Key-only, session state drives value
+st.text_area("Label", key="my_key")
+
+# WRONG: value + key causes race conditions on st.rerun()
+st.text_area("Label", value=data, key="my_key")
+```
+
+### SessionStateManager (Always Use)
+
+```python
+# CORRECT
 from ui.session_state import SessionStateManager
 value = SessionStateManager.get_value("my_key", default="")
+SessionStateManager.set_value("my_key", "new_value")
 
-# ❌ FORBIDDEN
-import streamlit as st
-value = st.session_state["my_key"]  # NEVER!
+# WRONG - Never access st.session_state directly
+st.session_state["my_key"]  # Forbidden outside main.py init
 ```
-
-**Exception:** App initialization in `main.py` only
-
-### 🔴 NO Backwards Compatibility
-
-- Single-user app, NOT in production
-- Refactor in place, preserve business logic
-- NO feature flags, migration paths, deprecation warnings
-- Focus: improve code, NOT compatibility
-
-### 🔴 NO God Objects
-
-**FORBIDDEN:** `dry_helpers.py` or "catch-all" utility modules
-
-**SOLUTION:** Specific modules
-- `utils/type_helpers.py` - Type conversions
-- `utils/dict_helpers.py` - Dictionary operations
-- `utils/validation_helpers.py` - Validation utilities
-
-### 🤖 BMad Method Integration (On-Demand)
-
-**AGENTS.md is NOT loaded by default** - contains 57K tokens for BMad workflows.
-
-**To use BMad agents:** Type `/BMad:agents:bmad-master` (loads on first invocation)
-
-**Why:** 95% of conversations don't use BMad - loading wastes 77% of token budget.
-
-### 🔍 Bounded Analysis Workflow (On-Demand, Project-Specific)
-
-**Pattern:** Structured two-phase optimization workflow
-
-**Available workflows:**
-
-#### Phase 1: Analysis (60 min MAX)
-- **Prompt Optimization:** `docs/workflows/bounded-prompt-analysis.md`
-- **Codebase Health:** `docs/workflows/bounded-codebase-analysis.md`
-- **Framework:** 5 Whys + Pareto (80/20) + MECE + Impact-Effort Matrix
-- **Output:** `~/Downloads/analysis-output.json` with TOP 3 issues
-
-#### Phase 2: Implementation (2h MAX, 3 fixes)
-- **File:** `docs/workflows/implement-prompt-fixes.md`
-- **Input:** JSON from Phase 1
-- **Pattern:** ReAct (Reason → Act → Observe → Decide)
-- **Output:** Code changes + validation report
-
-**When to use:**
-- ✅ User says: "optimize prompt", "reduce tokens", "bottleneck analysis"
-- ✅ Performance issue with unclear root cause
-- ✅ Multiple interrelated issues needing prioritization
-- ✅ User requests: "systematic approach", "comprehensive analysis"
-
-**Do NOT use:**
-- ❌ Single clear bug (use HOTFIX workflow)
-- ❌ User provides clear requirements (skip analysis, implement directly)
-- ❌ <100 lines change with known solution (overkill)
-
-**Multiagent integration:**
-- **Analysis:** Optional (Perplexity for research, Context7 for docs, debug-specialist for root cause)
-- **Implementation:** Optional (code-reviewer for scoring, code-simplifier for complexity)
-- **Ultrathink checks:** MANDATORY (§EFFORT <10h, §KISS no enterprise, §PROTOTYPE 30min)
-
-**Quick start:**
-```bash
-# Analysis phase
-Read: docs/workflows/bounded-prompt-analysis.md
-Input: [prompt file or codebase path]
-Time: 60 minutes HARD STOP
-
-# Implementation phase
-Read: docs/workflows/implement-prompt-fixes.md
-Input: ~/Downloads/analysis-output.json
-Time: 2 hours (3 fixes max)
-```
-
-**See also:** `~/.ai-agents/UNIFIED_INSTRUCTIONS.md` §BOUNDED_ANALYSIS for cross-project framework
-
----
-
-## 📚 Cross-Reference Guide
-
-**For general rules:** `~/.ai-agents/UNIFIED_INSTRUCTIONS.md`
-
-| Topic | UNIFIED Section | What You Find |
-|-------|----------------|---------------|
-| Approval Thresholds | §APPROVAL LADDER | Complete decision tree |
-| Workflow Selection | §WORKFLOW MATRIX | ANALYSIS/HOTFIX/FULL_TDD/REFACTOR/BOUNDED_ANALYSIS |
-| Bounded Analysis | §BOUNDED_ANALYSIS | Framework, triggers, multiagent + ultrathink |
-| Canonical Naming | §NAMING CONVENTIONS | Full name list |
-| Forbidden Imports | §FORBIDDEN PATTERNS | Import blacklist |
-| Multiagent Workflows | §MULTIAGENT PATTERNS | When & how |
-
-**This document (CLAUDE.md) adds:**
-- DefinitieAgent architecture
-- Project root policy (strict!)
-- Database locations
-- Streamlit UI patterns
-- Performance context
-
-**Precedence:** UNIFIED > CLAUDE.md > quality-gates.yaml
-
----
-
-## 🏗️ Architecture Overview
-
-**Service-Oriented with Dependency Injection (ServiceContainer)**
-
-**Key Services:**
-- **ValidationOrchestratorV2:** Main orchestration (45 rules)
-- **ModularValidationService:** Rule management
-- **UnifiedDefinitionGenerator:** Core generation
-- **AIServiceV2:** GPT-4 integration
-- **PromptServiceV2:** Modular prompts
-- **ModernWebLookupService:** External sources (Wikipedia, SRU)
-
-**Caching (US-202):**
-- **RuleCache:** Bulk loading, TTL 3600s (`@cached` decorator)
-- **CachedToetsregelManager:** Singleton manager
-- **Performance:** 77% faster, 81% less memory
-
-**Database:**
-- SQLite: `data/definities.db` (ONLY location!)
-- Schema: `src/database/schema.sql`
-- Migrations: `src/database/migrations/`
-- UTF-8 encoding for Dutch text
-
----
-
-## 🎨 Streamlit UI Patterns (Critical!)
-
-### Key-Only Widget Pattern (MANDATORY)
-
-```python
-# ✅ CORRECT: Key-only
-st.text_area("Label", key="edit_23_field")
-
-# ❌ WRONG: value + key → Race condition!
-st.text_area("Label", value=data, key="edit_23_field")
-```
-
-**Why:** Widgets with `value` + `key` retain internal state over `st.rerun()`, causing stale data.
 
 ### State Initialization Order
 
 ```python
-# ✅ CORRECT: State BEFORE widget
+# CORRECT: State BEFORE widget
 SessionStateManager.set_value("my_key", "default")
 st.text_area("Label", key="my_key")
 
-# ❌ WRONG: Widget before state
+# WRONG: Widget before state - too late!
 st.text_area("Label", key="my_key")
-SessionStateManager.set_value("my_key", "default")  # Too late!
+SessionStateManager.set_value("my_key", "default")
 ```
 
-### Pre-Commit Enforcement
-
-Hook `streamlit-anti-patterns` detects:
-- ❌ `value` + `key` combinations
-- ❌ Direct `st.session_state` in UI modules
-- ⚠️  Generic widget keys (conflicts)
-
-**Test:** `python scripts/check_streamlit_patterns.py`
-
-**Full guide:** `docs/guidelines/STREAMLIT_PATTERNS.md`
+Pre-commit hook `streamlit-anti-patterns` enforces these patterns.
 
 ---
 
-## 🧪 Development Patterns
+## Canonical Names
 
-### Lazy Import Pattern (Circular Dependency Fix)
+Use these exact names (V2 architecture):
 
-**ONLY when circular import unavoidable after restructure**
+| Correct | Forbidden |
+|---------|-----------|
+| `ValidationOrchestratorV2` | V1, ValidationOrchestrator |
+| `UnifiedDefinitionGenerator` | DefinitionGenerator |
+| `ModularValidationService` | ValidationService |
+| `SessionStateManager` | session_state, StateManager |
+| `organisatorische_context` | organizational_context |
+| `juridische_context` | legal_context |
 
-| Use Case | Implementation | Example |
-|----------|----------------|---------|
-| module_a ↔ module_b | Import inside function | session_state.py:205 |
+---
 
-**Prefer:** Restructure > DI > Extract shared > Lazy import (last resort)
+## File Locations
 
-**Reference:** DEF-84 documents pattern from DEF-73
+| Type | Required Location |
+|------|-------------------|
+| Tests | `tests/` subdirs |
+| Scripts | `scripts/` subdirs |
+| Logs | `logs/` |
+| Database | `data/definities.db` (ONLY) |
+| Docs | `docs/` hierarchy |
 
-### Code Style
+---
+
+## Code Style
 
 - Python 3.11+ with type hints
 - Ruff + Black (88 char lines)
-- Dutch comments for business logic
-- English for technical code
-- Canonical names (see Table 2)
+- Dutch comments for business logic, English for technical code
+- No TODO/FIXME in code - use backlog
 
 ---
 
-## 🔧 Common Operations
+## BMad Method (Optional)
 
-```bash
-# Start app
-bash scripts/run_app.sh
-
-# Tests
-pytest -q                      # Quick
-pytest tests/services/test_definition_generator.py  # Specific
-
-# Quality
-make lint
-python -m ruff check src config
-
-# Pre-commit
-pre-commit run --all-files
-```
+BMAD agents available in `.cursor/rules/bmad/` for structured workflows (product brief, architecture, epics). Reference with `@bmad/{module}/agents/{agent-name}`. See `.cursor/rules/bmad/index.mdc` for full list.
 
 ---
 
-## 🐛 Debugging Quick Checks
+## Extended Instructions (Load On-Demand)
 
-| Issue | Check | Solution |
-|-------|-------|----------|
-| Service init | `st.session_state.service_container` | Singleton exists? |
-| Validation errors | Enable debug logging | `modular_validation_service.py` |
-| API rate limits | Check `logs/api_calls.json` | Monitor usage |
-| Memory issues | Monitor cache size | `st.session_state` |
-| Import errors | `python -m py_compile <file>` | Syntax check |
+For complex workflows, **read `~/.ai-agents/UNIFIED_INSTRUCTIONS.md`** which contains:
 
----
+| Content | When to Load |
+|---------|--------------|
+| Multiagent patterns | User says "multiagent", "comprehensive review" |
+| BOUNDED_ANALYSIS framework | User says "optimize", "bottleneck", "systematic" |
+| MCP integration (Perplexity, Context7) | Deep research needed |
+| Detailed approval ladder | Uncertainty about thresholds |
+| Vibe coding principles | Refactoring legacy code |
+| Solo dev constraints | Task estimate >10h |
 
-## 📁 Important File Locations
+**Triggers to load UNIFIED:**
+- Task requires multiple specialized agents (debug-specialist → code-reviewer chain)
+- Systematic optimization requested (BOUNDED_ANALYSIS with 5 Whys/Pareto framework)
+- >10h effort estimate (need solo dev simplification strategies)
+- MCP integration needed (Perplexity/Context7 patterns)
 
-- **Main:** `src/main.py`
-- **Container:** `src/services/container.py`
-- **Rules:** `src/toetsregels/regels/` + `config/toetsregels/regels/`
-- **UI:** `src/ui/tabs/`
-- **Database:** `data/definities.db`
-- **Logs:** `logs/`
-- **Exports:** `exports/`
-
----
-
-## 🔗 Documentation References
-
-**Core Architecture:**
-- `docs/architectuur/ARCHITECTURE.md` - Solo dev patterns, tech stack
-- `docs/architectuur/validation_orchestrator_v2.md` - Validation system
-- `docs/guidelines/CANONICAL_LOCATIONS.md` - File organization
-
-**Implementation Guides:**
-- `docs/guidelines/STREAMLIT_PATTERNS.md` - UI patterns (DEF-56 lessons)
-- `docs/technisch/web_lookup_config.md` - Web lookup
-- `docs/testing/validation_orchestrator_testplan.md` - Test strategy
-
-**Project Info:**
-- `docs/brief.md` - Project brief
-- `docs/prd.md` - Requirements
-- `docs/INDEX.md` - Complete doc index
-
-**Current Work:**
-- `docs/backlog/EPIC-XXX/` - Epic docs
-- `docs/refactor-log.md` - Refactor history
-
----
-
-## 🎯 Workflow Reminders
-
-**Definition Generation Flow:**
-1. User input → ServiceContainer
-2. ValidationOrchestratorV2 → 45 rules
-3. UnifiedDefinitionGenerator → GPT-4
-4. ModularValidationService → Post-gen validation
-5. SessionStateManager → Store results
-6. UI update
-
-**Debugging Protocol:**
-1. Service init → Check session_state
-2. Validation → Enable debug logging
-3. API limits → Check logs
-4. Memory → Monitor cache
-5. Imports → py_compile
-
----
-
-**For detailed workflows, approval thresholds, and naming conventions:**
-→ `~/.ai-agents/UNIFIED_INSTRUCTIONS.md`
-
-**For BMad Method workflows (57K tokens, load on-demand only):**
-→ Type `/BMad:agents:bmad-master`
-
----
-
-*Version 4.0 optimized for 20% token reduction while preserving 100% critical information.*
-*Changes: ULTRA-TL;DR added, 10 quick lookup tables, compressed over-explained sections, removed duplications.*
+**Quick reference from UNIFIED (most common):**
+- Approval: >100 lines OR >5 files → ask first
+- Effort: >10h → simplify or ask user to scope down
+- Workflow: Research → ANALYSIS, <50 LOC fix → HOTFIX, New feature → FULL_TDD

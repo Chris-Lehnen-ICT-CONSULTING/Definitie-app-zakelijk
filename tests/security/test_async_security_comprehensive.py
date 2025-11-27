@@ -656,9 +656,9 @@ class TestAsyncSecurityPerformance:
 
         # Filter out exceptions
         valid_latencies = [
-            l
-            for l in latencies
-            if not isinstance(l, Exception) and isinstance(l, int | float)
+            lat
+            for lat in latencies
+            if not isinstance(lat, Exception) and isinstance(lat, int | float)
         ]
 
         # Calculate statistics
