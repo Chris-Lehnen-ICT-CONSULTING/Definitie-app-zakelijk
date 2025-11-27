@@ -114,13 +114,13 @@ jobs:
           BRANCH_NAME="${{ github.head_ref }}"
           echo "Validating branch name: $BRANCH_NAME"
 
-          # Valid patterns: feature/*, fix/*, hotfix/*, docs/*, refactor/*, test/*
-          if [[ "$BRANCH_NAME" =~ ^(feature|fix|hotfix|docs|refactor|test|chore)/.+ ]]; then
+          # Valid patterns: feature/*, fix/*, hotfix/*, docs/*, refactor/*, test/*, DEF-123/*
+          if [[ "$BRANCH_NAME" =~ ^(feature|fix|hotfix|docs|refactor|test|chore|DEF-[0-9]+)/.+ ]]; then
             echo "✅ Branch name follows convention"
           else
             echo "❌ Invalid branch name: $BRANCH_NAME"
-            echo "Branch names must follow pattern: {type}/{description}"
-            echo "Valid types: feature, fix, hotfix, docs, refactor, test, chore"
+            echo "Branch names must follow pattern: {type}/{description} or DEF-{issue}/{description}"
+            echo "Valid types: feature, fix, hotfix, docs, refactor, test, chore, DEF-{number}"
             exit 1
           fi
 
