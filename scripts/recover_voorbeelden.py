@@ -121,7 +121,7 @@ class VoorbeeldenParser:
         # 4. Extract synonyms (comma-separated)
         if "Synoniemen" in data:
             content = data["Synoniemen"].strip()
-            if content and content != "N/A" and content != "-":
+            if content and content not in {"N/A", "-"}:
                 # Split by comma and clean
                 synonyms = [s.strip() for s in content.split(",") if s.strip()]
                 voorbeelden["synonyms"].extend(synonyms)
@@ -129,7 +129,7 @@ class VoorbeeldenParser:
         # 5. Extract antonyms (comma-separated)
         if "Antoniemen" in data:
             content = data["Antoniemen"].strip()
-            if content and content != "N/A" and content != "-":
+            if content and content not in {"N/A", "-"}:
                 # Split by comma and clean
                 antonyms = [a.strip() for a in content.split(",") if a.strip()]
                 voorbeelden["antonyms"].extend(antonyms)
@@ -137,7 +137,7 @@ class VoorbeeldenParser:
         # 6. Extract explanation/toelichting
         if "Toelichting" in data:
             content = data["Toelichting"].strip()
-            if content and content != "N/A" and content != "-":
+            if content and content not in {"N/A", "-"}:
                 voorbeelden["explanation"].append(content)
 
         return voorbeelden

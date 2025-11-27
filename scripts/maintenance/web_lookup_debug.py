@@ -50,7 +50,7 @@ async def main() -> int:
     parser.add_argument(
         "--timeout",
         type=float,
-        default=float(os.getenv("WEB_LOOKUP_TIMEOUT_SECONDS", 10)),
+        default=float(os.getenv("WEB_LOOKUP_TIMEOUT_SECONDS", "10")),
     )
     parser.add_argument("--json", action="store_true", help="Print raw JSON output")
 

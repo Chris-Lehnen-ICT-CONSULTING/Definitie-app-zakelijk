@@ -46,9 +46,7 @@ class StreamlitPatternChecker:
 
         # Ignore comments and docstrings
         if (
-            stripped.startswith("#")
-            or stripped.startswith('"""')
-            or stripped.startswith("'''")
+            stripped.startswith(("#", '"""', "'''"))
         ):
             return
 
@@ -125,7 +123,7 @@ class StreamlitPatternChecker:
         if re.search(r"st\.(text_area|text_input).*key\s*=\s*[\"'](\w+)[\"']", line):
             key_match = re.search(r"key\s*=\s*[\"'](\w+)[\"']", line)
             if key_match:
-                widget_key = key_match.group(1)
+                key_match.group(1)
                 # This is a heuristic - would need full AST analysis for accuracy
                 # For now, just warn if we see st.session_state assignment after widget
                 # (This check is best effort - full analysis requires AST)

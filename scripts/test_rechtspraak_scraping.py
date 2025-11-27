@@ -6,7 +6,7 @@ Test de HTML structuur en parsing strategie voor juridische begrippen.
 """
 
 import time
-from typing import Dict, Optional
+from typing import Optional
 
 import requests
 from bs4 import BeautifulSoup

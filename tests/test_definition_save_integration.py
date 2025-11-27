@@ -21,8 +21,7 @@ class TestDefinitionSaveIntegration:
     def repository(self, tmp_path):
         """Create temporary repository for testing."""
         db_path = tmp_path / "test_definities.db"
-        repo = DefinitionRepository(str(db_path))
-        return repo
+        return DefinitionRepository(str(db_path))
         # Cleanup handled by tmp_path
 
     @pytest.fixture

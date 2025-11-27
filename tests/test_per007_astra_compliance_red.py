@@ -163,23 +163,22 @@ class TestASTRACompliance:
         # WHEN: Processing
         manager = HybridContextManager()
 
-        with patch("logging.Logger.warning") as mock_warn:
-            with patch("logging.Logger.info") as mock_info:
-                manager._build_base_context(request)
+        with patch("logging.Logger.warning") as mock_warn, patch("logging.Logger.info") as mock_info:
+            manager._build_base_context(request)
 
-                # THEN: Different warning levels
-                # This will FAIL - no differentiation
-                # Info for suggestions
-                info_calls = [call[0][0] for call in mock_info.call_args_list]
-                assert any(
-                    "suggestion" in msg.lower() for msg in info_calls
-                ), "No info-level suggestions"
+            # THEN: Different warning levels
+            # This will FAIL - no differentiation
+            # Info for suggestions
+            info_calls = [call[0][0] for call in mock_info.call_args_list]
+            assert any(
+                "suggestion" in msg.lower() for msg in info_calls
+            ), "No info-level suggestions"
 
-                # Warning for unknown
-                warn_calls = [call[0][0] for call in mock_warn.call_args_list]
-                assert any(
-                    "unknown" in msg.lower() for msg in warn_calls
-                ), "No warning for unknown org"
+            # Warning for unknown
+            warn_calls = [call[0][0] for call in mock_warn.call_args_list]
+            assert any(
+                "unknown" in msg.lower() for msg in warn_calls
+            ), "No warning for unknown org"
 
     @pytest.mark.red_phase
     def test_astra_allows_abbreviations_and_full_names(self):
