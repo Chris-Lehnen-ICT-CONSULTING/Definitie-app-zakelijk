@@ -41,7 +41,7 @@ if TYPE_CHECKING:
     from services.export_service import ExportService
     from services.gpt4_synonym_suggester import GPT4SynonymSuggester
     from services.synonym_orchestrator import SynonymOrchestrator
-    from services.web_lookup.synonym_service_refactored import JuridischeSynoniemService
+    from services.web_lookup.synonym_service import JuridischeSynoniemService
 
 logger = logging.getLogger(__name__)
 
@@ -476,7 +476,7 @@ class ServiceContainer:
             Singleton instance van JuridischeSynoniemService
         """
         if "synonym_service" not in self._instances:
-            from services.web_lookup.synonym_service_refactored import (
+            from services.web_lookup.synonym_service import (
                 JuridischeSynoniemService,
             )
 
