@@ -9,7 +9,6 @@ Shared Examples Block for Edit and Expert tabs.
 
 from __future__ import annotations
 
-import contextlib
 import logging
 import re
 from typing import Any
@@ -347,8 +346,10 @@ def render_examples_block(
 
     # Get voorkeursterm from DB if available
     if repository is not None and definition.id:
-        with contextlib.suppress(Exception):
+        try:
             voorkeursterm_display = repository.get_voorkeursterm(definition.id)
+        except (ValueError, KeyError, AttributeError) as e:
+            logger.warning(f"Could not get voorkeursterm from DB: {e}")
 
     # Fallback naar session-keuze voor directe feedback (zoals generator-tab)
     try:
@@ -469,8 +470,10 @@ def render_examples_block(
 
             # Get current voorkeursterm from DB
             if repository is not None and definition.id:
-                with contextlib.suppress(Exception):
+                try:
                     current_voorkeursterm = repository.get_voorkeursterm(definition.id)
+                except (ValueError, KeyError, AttributeError) as e:
+                    logger.warning(f"Could not get current voorkeursterm: {e}")
 
             selected_voorkeursterm = None
             # Toon selector als er synoniemen zijn, met zelfde gedrag als Generator-tab:
@@ -515,10 +518,12 @@ def render_examples_block(
                     selected_voorkeursterm = selected
 
                 # Houd de keuze ook bij in de (globale) session state net als in generator-tab
-                with contextlib.suppress(Exception):
+                try:
                     SessionStateManager.set_value(
                         "voorkeursterm", selected_voorkeursterm or ""
                     )
+                except (ValueError, TypeError) as e:
+                    logger.warning(f"Could not set voorkeursterm in session state: {e}")
 
             # DEF-56 FIX: Antoniemen en Toelichting ook zonder value parameter
             ant = st.text_input(
