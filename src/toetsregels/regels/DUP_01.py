@@ -4,7 +4,13 @@ DUP-01: Database Duplicate Detection.
 Detecteert of een definitie al bestaat in de database.
 """
 
+from __future__ import annotations
+
 import logging
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from services.definition_repository import DefinitionRepository
 
 logger = logging.getLogger(__name__)
 
@@ -12,12 +18,14 @@ logger = logging.getLogger(__name__)
 class DUP01:
     """Detecteer duplicate definities in database."""
 
-    def __init__(self):
+    repository: DefinitionRepository | None
+
+    def __init__(self) -> None:
         """Initialize duplicate detector."""
         self.repository = None
         self._initialize_repository()
 
-    def _initialize_repository(self):
+    def _initialize_repository(self) -> None:
         """Lazy initialize repository via ServiceContainer singleton (DEF-183)."""
         try:
             from services.container import get_container
