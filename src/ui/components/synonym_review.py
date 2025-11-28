@@ -202,8 +202,10 @@ class SynonymReviewComponent:
                     rationale = context.get("rationale", "")
                     if rationale:
                         st.caption(f"💡 Rationale: {rationale}")
-                except Exception:
-                    pass
+                except json.JSONDecodeError as e:
+                    logger.debug(
+                        f"Invalid JSON in context_json for '{member.term}': {e}"
+                    )
 
             # Metadata
             col1, col2 = st.columns(2)
