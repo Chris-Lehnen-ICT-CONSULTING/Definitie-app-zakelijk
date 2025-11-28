@@ -9,7 +9,6 @@ Shared Examples Block for Edit and Expert tabs.
 
 from __future__ import annotations
 
-import contextlib
 import logging
 import re
 from typing import Any
@@ -316,7 +315,8 @@ def render_examples_block(
             val = current_examples.get(key_name)
             if isinstance(val, list):
                 items = val
-        except Exception:
+        except (TypeError, AttributeError) as e:
+            logger.debug(f"Could not get {key_name} from examples: {e}")
             items = []
         if items:
             for it in items:
@@ -342,18 +342,22 @@ def render_examples_block(
         val = current_examples.get("synoniemen")
         if isinstance(val, list):
             synoniemen = val
-    except Exception:
+    except (TypeError, AttributeError) as e:
+        logger.debug(f"Could not get synoniemen from examples: {e}")
         synoniemen = []
 
     # Get voorkeursterm from DB if available
     if repository is not None and definition.id:
-        with contextlib.suppress(Exception):
+        try:
             voorkeursterm_display = repository.get_voorkeursterm(definition.id)
+        except (ValueError, KeyError, AttributeError) as e:
+            logger.warning(f"Could not get voorkeursterm from DB: {e}")
 
     # Fallback naar session-keuze voor directe feedback (zoals generator-tab)
     try:
         sess_vt = SessionStateManager.get_value("voorkeursterm", "")
-    except Exception:
+    except (TypeError, AttributeError) as e:
+        logger.debug(f"Could not get voorkeursterm from session: {e}")
         sess_vt = ""
 
     begrip = getattr(definition, "begrip", "") or ""
@@ -387,7 +391,8 @@ def render_examples_block(
     try:
         val = current_examples.get("toelichting")
         toel = val if isinstance(val, str) else ""
-    except Exception:
+    except (TypeError, AttributeError) as e:
+        logger.debug(f"Could not get toelichting from examples: {e}")
         toel = ""
     if toel:
         st.info(toel)
@@ -408,8 +413,8 @@ def render_examples_block(
                     if isinstance(db_examples, dict) and db_examples:
                         current_examples = db_examples
                         SessionStateManager.set_value(examples_state_key, db_examples)
-                except Exception:
-                    pass
+                except (AttributeError, TypeError, KeyError) as e:
+                    logger.warning(f"Could not prefill voorbeelden from DB: {e}")
 
             def _get_list(name: str) -> list[str]:
                 val = current_examples.get(name)
@@ -469,8 +474,10 @@ def render_examples_block(
 
             # Get current voorkeursterm from DB
             if repository is not None and definition.id:
-                with contextlib.suppress(Exception):
+                try:
                     current_voorkeursterm = repository.get_voorkeursterm(definition.id)
+                except (ValueError, KeyError, AttributeError) as e:
+                    logger.warning(f"Could not get current voorkeursterm: {e}")
 
             selected_voorkeursterm = None
             # Toon selector als er synoniemen zijn, met zelfde gedrag als Generator-tab:
@@ -497,7 +504,10 @@ def render_examples_block(
                         target = sess_vt or None
                     if target and target in voorkeursterm_options:
                         default_index = voorkeursterm_options.index(target)
-                except Exception:
+                except (TypeError, AttributeError, ValueError) as e:
+                    logger.debug(
+                        f"Could not determine default voorkeursterm index: {e}"
+                    )
                     default_index = 0
 
                 selected = st.selectbox(
@@ -515,10 +525,12 @@ def render_examples_block(
                     selected_voorkeursterm = selected
 
                 # Houd de keuze ook bij in de (globale) session state net als in generator-tab
-                with contextlib.suppress(Exception):
+                try:
                     SessionStateManager.set_value(
                         "voorkeursterm", selected_voorkeursterm or ""
                     )
+                except (ValueError, TypeError) as e:
+                    logger.warning(f"Could not set voorkeursterm in session state: {e}")
 
             # DEF-56 FIX: Antoniemen en Toelichting ook zonder value parameter
             ant = st.text_input(

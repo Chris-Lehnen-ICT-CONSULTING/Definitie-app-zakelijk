@@ -6,7 +6,7 @@ from __future__ import (
     annotations,  # DEF-175: Enable string annotations for TYPE_CHECKING
 )
 
-import contextlib
+import logging
 from datetime import datetime
 from typing import TYPE_CHECKING
 
@@ -14,6 +14,8 @@ import streamlit as st
 
 from config.config_manager import ConfigSection, get_config
 from ui.session_state import SessionStateManager
+
+logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
     from database.definitie_repository import (
@@ -876,7 +878,7 @@ class ExpertReviewTab:
                     # Map DB issues → V2 violations
                     mapped = []
                     for it in issues:
-                        with contextlib.suppress(Exception):
+                        try:
                             mapped.append(
                                 {
                                     "code": it.get("code") or it.get("rule_id") or "",
@@ -893,6 +895,8 @@ class ExpertReviewTab:
                                     "category": it.get("category", "system"),
                                 }
                             )
+                        except (AttributeError, TypeError, KeyError) as e:
+                            logger.warning(f"Could not map issue to V2 format: {e}")
                     v2 = {
                         "version": "1.0.0",
                         "overall_score": score,

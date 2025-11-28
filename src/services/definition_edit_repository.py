@@ -5,7 +5,6 @@ This module provides additional repository methods needed for the
 definition edit interface, including version history and optimistic locking.
 """
 
-import contextlib
 import json
 import logging
 import sqlite3
@@ -78,10 +77,12 @@ class DefinitionEditRepository(DefinitionRepository):
 
                     # Parse JSON context snapshot
                     if entry.get("context_snapshot"):
-                        with contextlib.suppress(json.JSONDecodeError):
+                        try:
                             entry["context_snapshot"] = json.loads(
                                 entry["context_snapshot"]
                             )
+                        except json.JSONDecodeError as e:
+                            logger.warning(f"Could not parse context_snapshot: {e}")
 
                     history.append(entry)
 
@@ -483,8 +484,10 @@ class DefinitionEditRepository(DefinitionRepository):
             # Convert datetime strings
             if col_name.endswith(("_op", "_at")):
                 if value and isinstance(value, str):
-                    with contextlib.suppress(ValueError, TypeError):
+                    try:
                         value = datetime.fromisoformat(value)
+                    except (ValueError, TypeError) as e:
+                        logger.debug(f"Could not parse datetime for {col_name}: {e}")
 
             result[col_name] = value
 
