@@ -1187,9 +1187,9 @@ class DefinitionGeneratorTab:
                             "💾 Bewaar als concept en bewerk", disabled=not can_save
                         ):
                             from services.interfaces import Definition
-                            from utils.container_manager import get_cached_container
+                            from ui.cached_services import get_cached_service_container
 
-                            container = get_cached_container()
+                            container = get_cached_service_container()
                             repo = container.repository()
 
                             begrip_val = ensure_string(
@@ -1987,9 +1987,9 @@ class DefinitionGeneratorTab:
                 workflow_service = service_container.definition_workflow_service()
             else:
                 # Fallback to container method
-                from services.container import get_container
+                from ui.cached_services import get_cached_service_container
 
-                container = get_container()
+                container = get_cached_service_container()
                 workflow_service = container.definition_workflow_service()
 
             # Submit for review using the new consolidated service

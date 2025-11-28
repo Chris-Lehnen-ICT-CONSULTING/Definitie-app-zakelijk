@@ -72,9 +72,9 @@ class SynonymMetricsTab:
         st.subheader("🚀 Cache Performance")
 
         try:
-            from src.services.container import get_container
+            from ui.cached_services import get_cached_service_container
 
-            orchestrator = get_container().synonym_orchestrator()
+            orchestrator = get_cached_service_container().synonym_orchestrator()
             cache_stats = orchestrator.get_cache_stats()
 
             # Metrics row
@@ -191,9 +191,9 @@ class SynonymMetricsTab:
         st.subheader("✅ Approval Workflow")
 
         try:
-            from src.services.container import get_container
+            from ui.cached_services import get_cached_service_container
 
-            registry = get_container().synonym_registry()
+            registry = get_cached_service_container().synonym_registry()
             stats = registry.get_statistics()
 
             # Pending review count (Bug #3 FIX: members_by_status not by_status!)
@@ -291,9 +291,9 @@ class SynonymMetricsTab:
         st.subheader("📈 Top Used Synonyms")
 
         try:
-            from src.services.container import get_container
+            from ui.cached_services import get_cached_service_container
 
-            registry = get_container().synonym_registry()
+            registry = get_cached_service_container().synonym_registry()
 
             # Get top 20 most used synonyms
             top_synonyms = registry.get_top_used_synonyms(limit=20)
