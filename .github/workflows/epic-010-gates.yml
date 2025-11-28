@@ -141,13 +141,12 @@ jobs:
           echo "Checking for UI imports outside src/ui/..."
           # DEF-173: Added exclusions for:
           # - src/pages/ (Streamlit pages are part of UI layer)
-          # - src/services/progress_context.py (explicit isolation layer for progress tracking)
           # - src/utils/voorbeelden_debug.py (debug utility with soft-fail UI access)
+          # DEF-198: Clean architecture - services use utils/progress_callback (no UI import)
           VIOLATIONS=$(rg "\bfrom\s+ui\.|\bimport\s+ui\b" src/ --type py | \
                        grep -v "^src/ui/" | \
                        grep -v "^src/main.py" | \
                        grep -v "^src/pages/" | \
-                       grep -v "^src/services/progress_context.py" | \
                        grep -v "^src/utils/voorbeelden_debug.py" | \
                        grep -v "^src/orchestration/definitie_agent.py" | \
                        grep -v "^src/integration/definitie_checker.py" || true)
