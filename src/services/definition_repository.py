@@ -99,7 +99,10 @@ class DefinitionRepository(DefinitionRepositoryInterface):
                     definition.metadata.get("force_duplicate")
                 ):
                     allow_duplicate = True
-            except Exception:
+            except (KeyError, TypeError, AttributeError) as e:
+                logger.debug(
+                    f"force_duplicate check failed for '{definition.begrip}': {e}"
+                )
                 allow_duplicate = False
 
             result_id = self.legacy_repo.create_definitie(
@@ -545,8 +548,10 @@ class DefinitionRepository(DefinitionRepositoryInterface):
                 st_val = str(definition.metadata.get("source_type")).lower()
                 if st_val in {"generated", "imported", "manual"}:
                     source_type_value = st_val
-        except Exception:
-            pass
+        except (KeyError, TypeError, AttributeError) as e:
+            logger.debug(
+                f"source_type extraction failed for '{definition.begrip}': {e}"
+            )
 
         # CRITICAL FIX DEF-53: Ensure categorie has a value
         # Try ontologische_categorie first, then categorie, fallback to "proces"
@@ -709,7 +714,8 @@ class DefinitionRepository(DefinitionRepositoryInterface):
                 if not val:
                     return []
                 return list(_json.loads(val)) if isinstance(val, str) else list(val)
-            except Exception:
+            except (json.JSONDecodeError, TypeError, ValueError) as e:
+                logger.debug(f"JSON list parsing failed: {e}")
                 return []
 
         definition = Definition(
@@ -847,7 +853,8 @@ class DefinitionRepository(DefinitionRepositoryInterface):
         """Pass-through naar legacy repository (compat met bestaande callers)."""
         try:
             return self.legacy_repo.get_definitie(definitie_id)
-        except Exception:
+        except Exception as e:
+            logger.warning(f"get_definitie failed for ID {definitie_id}: {e}")
             return None
 
     def update_definitie(
@@ -859,7 +866,8 @@ class DefinitionRepository(DefinitionRepositoryInterface):
                 bool,
                 self.legacy_repo.update_definitie(definitie_id, updates, updated_by),
             )
-        except Exception:
+        except Exception as e:
+            logger.error(f"update_definitie failed for ID {definitie_id}: {e}")
             return False
 
     def change_status(
@@ -877,7 +885,10 @@ class DefinitionRepository(DefinitionRepositoryInterface):
                     definitie_id, new_status, changed_by, notes
                 ),
             )
-        except Exception:
+        except Exception as e:
+            logger.error(
+                f"change_status failed for ID {definitie_id} to {new_status}: {e}"
+            )
             return False
 
     # ===== Helpers =====
