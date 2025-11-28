@@ -315,7 +315,8 @@ def render_examples_block(
             val = current_examples.get(key_name)
             if isinstance(val, list):
                 items = val
-        except Exception:
+        except (TypeError, AttributeError) as e:
+            logger.debug(f"Could not get {key_name} from examples: {e}")
             items = []
         if items:
             for it in items:
@@ -341,7 +342,8 @@ def render_examples_block(
         val = current_examples.get("synoniemen")
         if isinstance(val, list):
             synoniemen = val
-    except Exception:
+    except (TypeError, AttributeError) as e:
+        logger.debug(f"Could not get synoniemen from examples: {e}")
         synoniemen = []
 
     # Get voorkeursterm from DB if available
@@ -354,7 +356,8 @@ def render_examples_block(
     # Fallback naar session-keuze voor directe feedback (zoals generator-tab)
     try:
         sess_vt = SessionStateManager.get_value("voorkeursterm", "")
-    except Exception:
+    except (TypeError, AttributeError) as e:
+        logger.debug(f"Could not get voorkeursterm from session: {e}")
         sess_vt = ""
 
     begrip = getattr(definition, "begrip", "") or ""
@@ -388,7 +391,8 @@ def render_examples_block(
     try:
         val = current_examples.get("toelichting")
         toel = val if isinstance(val, str) else ""
-    except Exception:
+    except (TypeError, AttributeError) as e:
+        logger.debug(f"Could not get toelichting from examples: {e}")
         toel = ""
     if toel:
         st.info(toel)
@@ -409,8 +413,8 @@ def render_examples_block(
                     if isinstance(db_examples, dict) and db_examples:
                         current_examples = db_examples
                         SessionStateManager.set_value(examples_state_key, db_examples)
-                except Exception:
-                    pass
+                except (AttributeError, TypeError, KeyError) as e:
+                    logger.warning(f"Could not prefill voorbeelden from DB: {e}")
 
             def _get_list(name: str) -> list[str]:
                 val = current_examples.get(name)
@@ -500,7 +504,10 @@ def render_examples_block(
                         target = sess_vt or None
                     if target and target in voorkeursterm_options:
                         default_index = voorkeursterm_options.index(target)
-                except Exception:
+                except (TypeError, AttributeError, ValueError) as e:
+                    logger.debug(
+                        f"Could not determine default voorkeursterm index: {e}"
+                    )
                     default_index = 0
 
                 selected = st.selectbox(
