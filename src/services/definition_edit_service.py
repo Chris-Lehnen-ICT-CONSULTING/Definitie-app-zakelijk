@@ -5,7 +5,6 @@ This service orchestrates the edit operations and provides
 business logic for the definition edit interface.
 """
 
-import contextlib
 import logging
 from datetime import datetime, timedelta
 from typing import Any, cast
@@ -567,7 +566,7 @@ class DefinitionEditService:
                 issues_attr = getattr(results, "issues", []) or []
                 normalized_issues = []
                 for issue in issues_attr:
-                    with contextlib.suppress(Exception):
+                    try:
                         normalized_issues.append(
                             {
                                 "rule": getattr(issue, "regel_code", None)
@@ -576,6 +575,8 @@ class DefinitionEditService:
                                 "severity": getattr(issue, "severity", "warning"),
                             }
                         )
+                    except Exception as e:
+                        logger.warning(f"Validation issue normalisatie gefaald: {e}")
                 return {
                     "valid": getattr(results, "overall_status", "") == "success",
                     "score": getattr(results, "validation_score", 0.0) or 0.0,

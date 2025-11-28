@@ -159,14 +159,16 @@ class SRUService:
             from aiohttp import resolver as _resolver  # type: ignore
 
             _threaded = getattr(_resolver, "ThreadedResolver", None)
-        except Exception:
+        except Exception as e:
+            logger.debug(f"ThreadedResolver niet beschikbaar: {e}")
             _threaded = None
 
         self.family = 0
         try:
             if str(os.getenv("SRU_FORCE_IPV4", "")).lower() in {"1", "true", "yes"}:
                 self.family = socket.AF_INET
-        except Exception:
+        except Exception as e:
+            logger.debug(f"Socket family detectie gefaald: {e}")
             self.family = 0
 
         connector = aiohttp.TCPConnector(
@@ -298,7 +300,8 @@ class SRUService:
                             "diag_message": _txt("message"),
                             "diag_details": _txt("details"),
                         }
-                    except Exception:
+                    except Exception as e:
+                        logger.warning(f"SRU diagnostics parsing gefaald: {e}")
                         return {}
 
                 # Doorloop schemas (indien van toepassing) en probeer primary + alternatieve URLs
@@ -313,7 +316,8 @@ class SRUService:
                             urls.append(
                                 f"{alt}?{urlencode(params, quote_via=quote_plus)}"
                             )
-                        except Exception:
+                        except Exception as e:
+                            logger.debug(f"Alt URL constructie gefaald voor {alt}: {e}")
                             continue
 
                     for u in urls:
@@ -366,7 +370,10 @@ class SRUService:
                                                     },
                                                 )
                                                 attempt_rec.update(diag)
-                                        except Exception:
+                                        except Exception as e:
+                                            logger.debug(
+                                                f"Attempt record update gefaald: {e}"
+                                            )
                                             last_text = None
                                         self._attempts.append(attempt_rec)
                                         # Specifiek gedrag voor Wetgeving.nl: bij 503 niet blijven hangen
@@ -420,8 +427,8 @@ class SRUService:
                     results = await _try_query(ecli_query, strategy="ecli")
                     if results:
                         return results
-            except Exception:
-                pass
+            except Exception as e:
+                logger.warning(f"ECLI query gefaald: {e}")
 
             # BWB titel-index alleen gebruiken indien expliciet ondersteund (niet zonder explain)
 
@@ -816,7 +823,8 @@ class SRUService:
                 "diag_message": _txt("message"),
                 "diag_details": _txt("details"),
             }
-        except Exception:
+        except Exception as e:
+            logger.warning(f"SRU diagnostics extractie gefaald: {e}")
             return {}
 
     # === Legal metadata extraction ===
@@ -1010,7 +1018,8 @@ class SRUService:
                         el = element.find(f".//{ns}:{local}", namespaces)
                         if el is not None and el.text:
                             return el.text.strip()
-                    except Exception:
+                    except Exception as e:
+                        logger.debug(f"Namespace {ns} lookup gefaald voor {local}: {e}")
                         continue
                 # 2) Fallback: loop alle subelements en match op lokale tagnaam
                 for el in element.iter():
@@ -1020,7 +1029,8 @@ class SRUService:
                             tag = tag.split("}", 1)[1]
                         if tag.lower() == local.lower() and el.text:
                             return el.text.strip()
-                    except Exception:
+                    except Exception as e:
+                        logger.debug(f"Element tag extractie gefaald: {e}")
                         continue
                 return ""
 

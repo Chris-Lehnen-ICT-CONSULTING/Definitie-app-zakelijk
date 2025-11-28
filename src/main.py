@@ -51,8 +51,12 @@ try:
     _root = logging.getLogger()
     if not any(isinstance(f, PIIRedactingFilter) for f in _root.filters):
         _root.addFilter(PIIRedactingFilter())
-except Exception:  # Fail-safe: logging mag nooit breken
-    pass
+except Exception as e:  # Fail-safe: logging mag nooit breken
+    # SECURITY: Log fout want PII-filter is niet actief
+    _startup_logger = logging.getLogger(__name__)
+    _startup_logger.error(
+        f"PII redactie filter initialisatie gefaald - gevoelige data kan in logs verschijnen: {e}"
+    )
 
 # Initialiseer logger - Stel logging in voor deze module
 logger = logging.getLogger(__name__)  # Verkrijg logger instantie voor dit bestand
