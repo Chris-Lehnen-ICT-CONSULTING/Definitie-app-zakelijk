@@ -556,9 +556,9 @@ class ExpertReviewTab:
 
     def _render_review_actions(self, definitie: DefinitieRecord):
         """Render US-155 acties: Vaststellen, Afwijzen, Maak bewerkbaar."""
-        from services.container import get_container
+        from ui.cached_services import get_cached_service_container
 
-        container = get_container()
+        container = get_cached_service_container()
         workflow = container.definition_workflow_service()
 
         status = definitie.status
@@ -719,9 +719,9 @@ class ExpertReviewTab:
                 user = SessionStateManager.get_value("user", default="expert")
                 # Gebruik DefinitionWorkflowService voor consistente statuswijziging
                 try:
-                    from services.container import get_container
+                    from ui.cached_services import get_cached_service_container
 
-                    container = get_container()
+                    container = get_cached_service_container()
                     workflow = container.definition_workflow_service()
                     ok = workflow.update_status(
                         definition_id=definitie.id,
@@ -752,9 +752,9 @@ class ExpertReviewTab:
             ):
                 user = SessionStateManager.get_value("user", default="expert")
                 try:
-                    from services.container import get_container
+                    from ui.cached_services import get_cached_service_container
 
-                    container = get_container()
+                    container = get_cached_service_container()
                     workflow = container.definition_workflow_service()
                     ok = workflow.update_status(
                         definition_id=definitie.id,
@@ -995,9 +995,9 @@ class ExpertReviewTab:
             if "Goedkeuren" in decision:
                 # Route via DefinitionWorkflowService om gate-policy te handhaven (US-160)
                 try:
-                    from services.container import get_container
+                    from ui.cached_services import get_cached_service_container
 
-                    container = get_container()
+                    container = get_cached_service_container()
                     workflow_service = container.definition_workflow_service()
 
                     result = workflow_service.submit_for_review(
@@ -1075,12 +1075,12 @@ class ExpertReviewTab:
     def _revalidate_definition(self, definitie: DefinitieRecord):
         """Re-validate definitie met current rules en toon details (gedeeld)."""
         try:
-            from services.container import get_container
             from services.interfaces import Definition
             from services.validation.interfaces import ValidationContext
+            from ui.cached_services import get_cached_service_container
             from ui.helpers.async_bridge import run_async
 
-            container = get_container()
+            container = get_cached_service_container()
             orch = container.orchestrator()
 
             # Build Definition from record
