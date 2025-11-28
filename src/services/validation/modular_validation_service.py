@@ -8,7 +8,6 @@ dit uitgebreid worden om ToetsregelManager en Python-regelmodules te gebruiken.
 
 from __future__ import annotations
 
-import contextlib
 import logging
 import re
 import uuid
@@ -120,7 +119,7 @@ class ModularValidationService:
         self._category_threshold: float = 0.70
         thresholds = getattr(self.config, "thresholds", None)
         if thresholds is not None:
-            with contextlib.suppress(Exception):
+            try:
                 self._overall_threshold = float(
                     safe_dict_get(
                         thresholds,
@@ -128,13 +127,23 @@ class ModularValidationService:
                         self._overall_threshold,
                     )
                 )
-            with contextlib.suppress(Exception):
+            except (ValueError, TypeError) as e:
+                logger.error(
+                    f"Ongeldige threshold config 'overall_accept': {e}. "
+                    f"Gebruik default={self._overall_threshold}"
+                )
+            try:
                 self._category_threshold = float(
                     safe_dict_get(
                         thresholds,
                         "category_accept",
                         self._category_threshold,
                     )
+                )
+            except (ValueError, TypeError) as e:
+                logger.error(
+                    f"Ongeldige threshold config 'category_accept': {e}. "
+                    f"Gebruik default={self._category_threshold}"
                 )
 
     # Optioneel: exposeer regelvolgorde voor determinismetest
@@ -177,7 +186,10 @@ class ModularValidationService:
             )
 
         except Exception as e:
-            logger.warning(f"Could not load rules from ToetsregelManager: {e}")
+            logger.error(
+                f"ToetsregelManager laden GEFAALD: {e}. "
+                f"Fallback naar baseline regels (validatie coverage sterk verminderd)"
+            )
             self._set_default_rules()
 
     def _calculate_rule_weight(self, rule_data: dict) -> float:
