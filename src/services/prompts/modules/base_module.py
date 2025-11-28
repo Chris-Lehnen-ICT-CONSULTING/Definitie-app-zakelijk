@@ -6,7 +6,9 @@ Elke module moet deze interface implementeren voor consistente werking.
 """
 
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
+from collections.abc import Callable
+from dataclasses import dataclass, field
+from threading import RLock
 from typing import Any
 
 from services.definition_generator_config import UnifiedGeneratorConfig
@@ -15,24 +17,100 @@ from services.definition_generator_context import EnrichedContext
 
 @dataclass
 class ModuleContext:
-    """Context object dat tussen modules wordt doorgegeven."""
+    """
+    Context object dat tussen modules wordt doorgegeven.
+
+    Thread-safe: De shared_state dictionary wordt beschermd door een RLock,
+    wat veilige toegang garandeert bij parallelle module-executie via
+    ThreadPoolExecutor in PromptOrchestrator.
+
+    Note: RLock (reentrant lock) is gekozen voor defensive programming:
+    - Voorkomt self-deadlock als modules helper-functies aanroepen die ook
+      shared_state benaderen
+    - CompositeModule voert sub-modules sequentieel uit in dezelfde thread
+    - Minimale overhead vs Lock (<5%)
+
+    Each ModuleContext instance has its own _lock, meaning different
+    ModuleContext objects can be accessed in parallel without contention.
+    """
 
     begrip: str
     enriched_context: EnrichedContext
     config: UnifiedGeneratorConfig
-    shared_state: dict[str, Any]  # Voor inter-module communicatie
+    shared_state: dict[str, Any] = field(default_factory=dict)
+    # Private lock - niet in __init__ signature, automatisch aangemaakt
+    _lock: RLock = field(default_factory=RLock, repr=False, compare=False)
 
     def get_metadata(self, key: str, default: Any = None) -> Any:
         """Haal metadata op uit enriched context."""
         return self.enriched_context.metadata.get(key, default)
 
     def set_shared(self, key: str, value: Any) -> None:
-        """Sla gedeelde state op voor andere modules."""
-        self.shared_state[key] = value
+        """
+        Sla gedeelde state op voor andere modules.
+
+        Thread-safe: Gebruikt lock voor synchronisatie bij parallel execution.
+        """
+        with self._lock:
+            self.shared_state[key] = value
 
     def get_shared(self, key: str, default: Any = None) -> Any:
-        """Haal gedeelde state op van andere modules."""
-        return self.shared_state.get(key, default)
+        """
+        Haal gedeelde state op van andere modules.
+
+        Thread-safe: Gebruikt lock voor synchronisatie bij parallel execution.
+        """
+        with self._lock:
+            return self.shared_state.get(key, default)
+
+    def get_or_set_shared(
+        self, key: str, factory: Callable[[], Any] | None = None, default: Any = None
+    ) -> Any:
+        """
+        Atomair ophalen of aanmaken van gedeelde state.
+
+        Als de key niet bestaat, wordt de waarde aangemaakt met factory()
+        of default. Dit is atomair - geen race condition tussen check en set.
+
+        Args:
+            key: De sleutel om op te halen/aan te maken
+            factory: Optionele callable die de waarde produceert als key niet bestaat
+            default: Fallback waarde als key niet bestaat en geen factory gegeven
+
+        Returns:
+            De bestaande waarde of nieuw aangemaakte waarde
+
+        Thread-safe: Hele operatie is atomair door de lock.
+
+        WARNING: factory() executes INSIDE the lock, blocking all other threads.
+        Keep factory fast (<1ms) to avoid contention. For expensive operations,
+        compute the value first and use set_shared() instead.
+        """
+        with self._lock:
+            if key in self.shared_state:
+                return self.shared_state[key]
+            # Key bestaat niet - maak aan
+            value = factory() if factory is not None else default
+            self.shared_state[key] = value
+            return value
+
+    def update_shared(self, updates: dict[str, Any]) -> None:
+        """
+        Update meerdere shared state waarden atomair.
+
+        Thread-safe: Alle updates gebeuren onder dezelfde lock.
+        """
+        with self._lock:
+            self.shared_state.update(updates)
+
+    def get_shared_snapshot(self) -> dict[str, Any]:
+        """
+        Verkrijg een snapshot (kopie) van de huidige shared state.
+
+        Thread-safe: Retourneert een kopie zodat de caller veilig kan itereren.
+        """
+        with self._lock:
+            return dict(self.shared_state)
 
 
 @dataclass
