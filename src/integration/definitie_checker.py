@@ -133,9 +133,9 @@ class DefinitieChecker:
                     wettelijke_basis or []
                 ):
                     existing = None
-            except Exception:
+            except Exception as e:
                 # Als er iets misgaat met parsing, behandel als geen exacte match
-                pass
+                logger.debug(f"Exact match check failed for '{begrip}': {e}")
         if existing:
             return self._handle_exact_match(existing, search_term=begrip)
 
@@ -163,9 +163,9 @@ class DefinitieChecker:
                     if hasattr(d.definitie_record, "get_wettelijke_basis_list")
                     and _norm(d.definitie_record.get_wettelijke_basis_list()) == wb_norm
                 ]
-            except Exception:
+            except Exception as e:
                 # Fallback: laat duplicates ongewijzigd
-                pass
+                logger.debug(f"Duplicate filtering failed for '{begrip}': {e}")
         if duplicates:
             return self._handle_duplicates(duplicates)
 
@@ -335,7 +335,8 @@ class DefinitieChecker:
                     return [val]
                 if isinstance(val, list):
                     return val
-            except Exception:
+            except (ValueError, TypeError, json.JSONDecodeError) as e:
+                logger.debug(f"Context list conversion failed: {e}")
                 return []
             return []
 
@@ -474,7 +475,8 @@ class DefinitieChecker:
                     search_term.strip().lower()
                     != (existing.begrip or "").strip().lower()
                 )
-        except Exception:
+        except (AttributeError, TypeError) as e:
+            logger.debug(f"Synoniem check failed: {e}")
             via_synoniem = False
 
         # Bouw een iets rijkere uitleg

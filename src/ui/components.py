@@ -3,12 +3,15 @@ UI components for DefinitieAgent Streamlit application.
 """
 
 import json
+import logging
 import os
 from datetime import UTC, datetime
 from typing import Any
 
 import pandas as pd
 import streamlit as st
+
+logger = logging.getLogger(__name__)
 
 from config.config_manager import ConfigSection, get_config
 from config.verboden_woorden import (
@@ -54,8 +57,9 @@ class UIComponents:
                 with st.expander("ℹ️ Afkortingen (uitleg)", expanded=False):
                     for k in sorted(abbrev.keys()):
                         st.markdown(f"- **{k}** — {abbrev[k]}")
-        except Exception:
-            pass
+        except (AttributeError, TypeError) as e:
+            # Config may not have abbreviations section - safe to ignore
+            logger.debug(f"Afkortingen expander skipped: {e}")
 
         custom_context = ""
         if "Anders..." in contextopties:
