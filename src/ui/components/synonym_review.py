@@ -14,8 +14,8 @@ from typing import Any
 import streamlit as st
 
 from src.repositories.synonym_registry import SynonymRegistry
-from src.services.container import get_container
 from src.utils.dict_helpers import safe_dict_get
+from ui.cached_services import get_cached_service_container
 
 logger = logging.getLogger(__name__)
 
@@ -25,7 +25,7 @@ class SynonymReviewComponent:
 
     def __init__(self):
         """Initialize synonym review component."""
-        self.container = get_container()
+        self.container = get_cached_service_container()
 
     def render_synonym_metadata(self, generation_result: dict[str, Any]) -> None:
         """
