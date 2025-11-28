@@ -125,8 +125,9 @@ class ContentSanitizer:
                 and ">" in value
             ):
                 ct = ContentType.HTML
-        except Exception:
-            pass
+        except TypeError as e:
+            # Non-string types that don't support 'in' operator
+            logger.debug(f"Content type detection skipped for non-string value: {e}")
         lv = lvl_map.get(level, SanitizationLevel.MODERATE)
         return cast(str, self.sanitize(value, ct, lv).sanitized_value)
 
