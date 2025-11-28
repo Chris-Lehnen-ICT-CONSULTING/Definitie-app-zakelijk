@@ -15,7 +15,8 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 # Load .env file before any other imports that might need env vars
-load_dotenv()
+# override=True ensures .env takes precedence over any existing shell env vars
+load_dotenv(override=True)
 
 # Add src directory to Python path for proper imports
 src_path = Path(__file__).parent
