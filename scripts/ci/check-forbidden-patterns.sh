@@ -24,11 +24,11 @@ if rg -q "import streamlit|from streamlit" src/services/ 2>/dev/null; then
 fi
 
 # Check 2: No UI imports in services/utils
+# DEF-198: Clean architecture fix - services now use utils/progress_callback
+#   instead of ui.helpers.progress_context. No more layer violations.
 # DEF-173: Exclude approved bridge modules (lazy imports + soft-fail pattern):
-# - progress_context.py: Progress tracking isolation layer (try/except wrapped)
 # - voorbeelden_debug.py: Debug utility with callback pattern (soft-fail)
 UI_VIOLATIONS=$(rg -n \
-    --glob='!src/services/progress_context.py' \
     --glob='!src/utils/voorbeelden_debug.py' \
     "from ui\.|from src\.ui\." src/services/ src/utils/ 2>/dev/null || true)
 if [ -n "$UI_VIOLATIONS" ]; then
