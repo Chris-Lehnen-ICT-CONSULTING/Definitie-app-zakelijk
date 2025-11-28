@@ -28,7 +28,34 @@ class ContextAwarenessModule(BasePromptModule):
     - Source confidence visualization
     - Abbreviation handling
     - V2-contextverwerking: organisatorisch/juridisch/wettelijk (geen legacy 'domein')
+
+    DEF-188: Added IMPLICIT_CONTEXT_MECHANISMS teaching GPT-4 HOW to embed context.
     """
+
+    # DEF-188: 3 Mechanisms for implicit context processing
+    IMPLICIT_CONTEXT_MECHANISMS = """
+📌 HOE CONTEXT IMPLICIET VERWERKEN (3 Mechanismen):
+
+**MECHANISME 1 - VOCABULAIRE:**
+Gebruik domein-specifieke termen.
+❌ "persoon" → ✅ "verdachte" (strafrechtelijk)
+❌ "gebouw" → ✅ "penitentiaire inrichting" (DJI)
+❌ "straf" → ✅ "sanctie" (formeel juridisch)
+
+**MECHANISME 2 - SCOPE:**
+Vernauw begrippen met domein-qualifiers.
+❌ "regels" → ✅ "gedragsregels"
+❌ "beslissing" → ✅ "beschikking"
+❌ "procedure" → ✅ "formele procedure"
+
+**MECHANISME 3 - RELATIES:**
+Refereer context-specifieke verbanden.
+❌ "herhaling" → ✅ "recidive"
+❌ "begeleiding" → ✅ "reclasseringstoezicht"
+❌ "functionaris" → ✅ "officier van justitie"
+
+🧪 TEST: Kan een expert de context raden ZONDER label?
+"""
 
     def __init__(self):
         """Initialize de enhanced context awareness module."""
@@ -221,6 +248,10 @@ class ContextAwarenessModule(BasePromptModule):
                 self._format_abbreviations_detailed(enriched_context.expanded_terms)
             )
 
+        # DEF-188: Add implicit context mechanisms
+        sections.append("")
+        sections.append(self.IMPLICIT_CONTEXT_MECHANISMS.strip())
+
         return "\n".join(sections)
 
     def _build_moderate_context_section(self, context: ModuleContext) -> str:
@@ -260,6 +291,10 @@ class ContextAwarenessModule(BasePromptModule):
                 self._format_abbreviations_simple(enriched_context.expanded_terms)
             )
 
+        # DEF-188: Add implicit context mechanisms
+        sections.append("")
+        sections.append(self.IMPLICIT_CONTEXT_MECHANISMS.strip())
+
         return "\n".join(sections)
 
     def _build_minimal_context_section(self, context: ModuleContext) -> str:
@@ -275,10 +310,14 @@ class ContextAwarenessModule(BasePromptModule):
         enriched_context = context.enriched_context
         context_text = enriched_context.get_all_context_text()
 
-        if context_text:
-            return f"📍 VERPLICHTE CONTEXT: {context_text}\n⚠️ INSTRUCTIE: Formuleer de definitie specifiek voor bovenstaande organisatorische, juridische en wettelijke context zonder deze expliciet te benoemen."
+        # DEF-188: Add mechanisms even for minimal context
+        mechanisms = f"\n\n{self.IMPLICIT_CONTEXT_MECHANISMS.strip()}"
 
-        return "📍 Context: Geen specifieke context beschikbaar."
+        if context_text:
+            base = f"📍 VERPLICHTE CONTEXT: {context_text}\n⚠️ INSTRUCTIE: Formuleer de definitie specifiek voor bovenstaande organisatorische, juridische en wettelijke context zonder deze expliciet te benoemen."
+            return base + mechanisms
+
+        return "📍 Context: Geen specifieke context beschikbaar." + mechanisms
 
     def _format_detailed_base_context(self, base_context: dict) -> list[str]:
         """
