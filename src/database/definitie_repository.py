@@ -547,8 +547,8 @@ class DefinitieRepository:
         Returns:
             ID van nieuw aangemaakte record
         """
-        # DEF-198: Use ui.helpers.progress_context for layer-compliant progress tracking
-        from ui.helpers.progress_context import operation_progress
+        # DEF-198: Clean architecture - import from utils/, callback registered by UI
+        from utils.progress_callback import operation_progress
 
         with operation_progress("saving_to_database"), self._get_connection() as conn:
             # Check voor duplicates: permit indien expliciet toegestaan

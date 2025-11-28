@@ -142,15 +142,14 @@ jobs:
           # DEF-173: Added exclusions for:
           # - src/pages/ (Streamlit pages are part of UI layer)
           # - src/utils/voorbeelden_debug.py (debug utility with soft-fail UI access)
-          # DEF-198: ui.helpers.progress_context is approved bridge pattern (soft-fail)
+          # DEF-198: Clean architecture - services use utils/progress_callback (no UI import)
           VIOLATIONS=$(rg "\bfrom\s+ui\.|\bimport\s+ui\b" src/ --type py | \
                        grep -v "^src/ui/" | \
                        grep -v "^src/main.py" | \
                        grep -v "^src/pages/" | \
                        grep -v "^src/utils/voorbeelden_debug.py" | \
                        grep -v "^src/orchestration/definitie_agent.py" | \
-                       grep -v "^src/integration/definitie_checker.py" | \
-                       grep -v "from ui\.helpers\.progress_context" || true)
+                       grep -v "^src/integration/definitie_checker.py" || true)
           if [ -n "$VIOLATIONS" ]; then
             echo "❌ FAIL: UI imports found outside src/ui"
             echo "$VIOLATIONS"

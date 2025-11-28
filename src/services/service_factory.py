@@ -468,9 +468,9 @@ class ServiceAdapter:
         Deze methode is sync om legacy UI compatibility te behouden.
         """
         from services.interfaces import GenerationRequest
-        from ui.helpers.progress_context import operation_progress
+        from utils.progress_callback import operation_progress
 
-        # DEF-198: Use ui.helpers.progress_context for layer-compliant progress tracking
+        # DEF-198: Clean architecture - import from utils/, callback registered by UI
         with operation_progress("generating_definition"):
             # Handle regeneration context
             extra_instructions = self._handle_regeneration_context(begrip, kwargs)

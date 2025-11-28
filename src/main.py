@@ -28,6 +28,11 @@ import streamlit as st
 from ui.session_state import SessionStateManager
 from ui.tabbed_interface import TabbedInterface
 from utils.exceptions import log_and_display_error
+from utils.progress_callback import register_progress_callback
+
+# Register progress callback so services can update UI state without layer violation
+# DEF-198: Clean architecture - services import from utils/, UI registers callback
+register_progress_callback(SessionStateManager.set_value)
 
 # Setup structured logging if enabled via environment variable
 from utils.structured_logging import setup_structured_logging
@@ -59,8 +64,6 @@ st.set_page_config(
     layout="wide",  # Gebruik volledige breedte van de pagina
     initial_sidebar_state="expanded",  # Start met uitgevouwen sidebar
 )
-
-# Let op: geen .env-bestand laden; vertrouw op systeem-omgeving
 
 
 @st.cache_resource
