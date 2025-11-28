@@ -1177,10 +1177,10 @@ class DefinitionEditTab:
 
             # Als de service None teruggeeft (alleen async API beschikbaar), gebruik UI async-bridge
             if results is None:
-                from services.container import get_container
+                from ui.cached_services import get_cached_service_container
                 from ui.helpers.async_bridge import run_async
 
-                container = get_container()
+                container = get_cached_service_container()
                 orch = container.orchestrator()
                 from services.validation.interfaces import ValidationContext
 
