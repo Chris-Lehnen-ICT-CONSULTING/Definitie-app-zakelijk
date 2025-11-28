@@ -20,7 +20,6 @@ import uuid
 from datetime import UTC, datetime
 
 UTC = UTC  # Python 3.10 compatibility
-import contextlib
 from typing import TYPE_CHECKING, Any, Optional, cast
 
 from services.exceptions import (
@@ -258,8 +257,10 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
 
         # Include validation stats if available
         if hasattr(self.validation_service, "get_stats"):
-            with contextlib.suppress(Exception):
+            try:
                 stats["validation"] = self.validation_service.get_stats()
+            except Exception as e:
+                logger.warning(f"Validation stats ophalen gefaald: {e}")
 
         return stats
 

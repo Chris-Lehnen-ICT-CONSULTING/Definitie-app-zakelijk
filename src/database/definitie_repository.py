@@ -183,8 +183,11 @@ class DefinitieRecord:
             # Normaliseer: unieke, gestripte, lower-preserving volgorde gesorteerd voor consistente opslag
             norm = sorted({str(x).strip() for x in (basis or [])})
             self.wettelijke_basis = json.dumps(norm, ensure_ascii=False)
-        except Exception:
+        except Exception as e:
             # Fallback: ruwe dump
+            logger.debug(
+                f"Wettelijke basis normalisatie gefaald, gebruik raw dump: {e}"
+            )
             self.wettelijke_basis = json.dumps(basis or [], ensure_ascii=False)
 
     def get_export_destinations_list(self) -> list[str]:
@@ -345,7 +348,8 @@ class DefinitieRepository:
         try:
             with self._get_connection() as conn:
                 return self._has_legacy_columns_in_conn(conn)
-        except Exception:
+        except Exception as e:
+            logger.warning(f"Legacy columns check gefaald: {e}")
             return False
 
     @staticmethod
@@ -677,7 +681,10 @@ class DefinitieRepository:
                 try:
                     norm = sorted({str(x).strip() for x in (wettelijke_basis or [])})
                     wb_json = json.dumps(norm, ensure_ascii=False)
-                except Exception:
+                except Exception as e:
+                    logger.debug(
+                        f"Wettelijke basis normalisatie gefaald in find_definitie: {e}"
+                    )
                     wb_json = json.dumps(wettelijke_basis or [], ensure_ascii=False)
                 query += " AND (wettelijke_basis = ? OR (wettelijke_basis IS NULL AND ? = '[]'))"
                 params.extend([wb_json, wb_json])
@@ -721,7 +728,10 @@ class DefinitieRepository:
                 try:
                     norm = sorted({str(x).strip() for x in (wettelijke_basis or [])})
                     wb_json = json.dumps(norm, ensure_ascii=False)
-                except Exception:
+                except Exception as e:
+                    logger.debug(
+                        f"Wettelijke basis normalisatie gefaald in synonym query: {e}"
+                    )
                     wb_json = json.dumps(wettelijke_basis or [], ensure_ascii=False)
                 syn_query += " AND (d.wettelijke_basis = ? OR (d.wettelijke_basis IS NULL AND ? = '[]'))"
                 syn_params.extend([wb_json, wb_json])
@@ -791,7 +801,10 @@ class DefinitieRepository:
                 try:
                     norm = sorted({str(x).strip() for x in (wettelijke_basis or [])})
                     wb_json = json.dumps(norm, ensure_ascii=False)
-                except Exception:
+                except Exception as e:
+                    logger.debug(
+                        f"Wettelijke basis normalisatie gefaald in find_duplicates: {e}"
+                    )
                     wb_json = json.dumps(wettelijke_basis or [], ensure_ascii=False)
                 exact_query += " AND (wettelijke_basis = ? OR (wettelijke_basis IS NULL AND ? = '[]'))"
                 exact_params.extend([wb_json, wb_json])
@@ -835,7 +848,10 @@ class DefinitieRepository:
                 try:
                     norm = sorted({str(x).strip() for x in (wettelijke_basis or [])})
                     wb_json = json.dumps(norm, ensure_ascii=False)
-                except Exception:
+                except Exception as e:
+                    logger.debug(
+                        f"Wettelijke basis normalisatie gefaald in duplicates synonym: {e}"
+                    )
                     wb_json = json.dumps(wettelijke_basis or [], ensure_ascii=False)
                 syn_query += " AND (d.wettelijke_basis = ? OR (d.wettelijke_basis IS NULL AND ? = '[]'))"
                 syn_params.extend([wb_json, wb_json])
@@ -887,7 +903,10 @@ class DefinitieRepository:
                 try:
                     norm = sorted({str(x).strip() for x in (wettelijke_basis or [])})
                     wb_json = json.dumps(norm, ensure_ascii=False)
-                except Exception:
+                except Exception as e:
+                    logger.debug(
+                        f"Wettelijke basis normalisatie gefaald in count_exact: {e}"
+                    )
                     wb_json = json.dumps(wettelijke_basis or [], ensure_ascii=False)
                 query += " AND (wettelijke_basis = ? OR (wettelijke_basis IS NULL AND ? = '[]'))"
                 params.extend([wb_json, wb_json])
@@ -1473,9 +1492,11 @@ class DefinitieRepository:
                     definitie_id,
                 )
                 return []
-        except Exception:
+        except Exception as e:
             # In geval van unexpected structuur proberen we alsnog door te gaan
-            pass
+            logger.debug(
+                f"Voorbeelden structuur parsing gefaald voor definitie {definitie_id}: {e}"
+            )
 
         with self._get_connection() as conn:
             try:
@@ -1639,9 +1660,11 @@ class DefinitieRepository:
                             (definitie_id,),
                         )
                         conn.commit()
-                except Exception:
+                except Exception as e:
                     # Soft-fail: laat eerdere per-row set gelden
-                    pass
+                    logger.debug(
+                        f"Voorkeursterm update gefaald voor definitie {definitie_id}: {e}"
+                    )
 
                 # PHASE 3.3: Sync synoniemen naar registry (Architecture v3.1)
                 synoniemen = voorbeelden_dict.get("synoniemen", [])
@@ -1784,8 +1807,10 @@ class DefinitieRepository:
                     vt = row[0]
                     if vt and str(vt).strip():
                         return str(vt)
-            except Exception:
-                pass
+            except Exception as e:
+                logger.warning(
+                    f"Voorkeursterm ophalen gefaald voor definitie {definitie_id}: {e}"
+                )
 
         # 1) Geen voorkeursterm opgeslagen
         return None
