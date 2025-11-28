@@ -409,13 +409,13 @@ def get_synonym_service(
         )
 
     if orchestrator is None:
-        # Try to get from ServiceContainer
+        # Try to get from ServiceContainer singleton
         try:
-            from src.services.container import ServiceContainer
+            from src.services.container import get_container
 
-            container = ServiceContainer()
+            container = get_container()  # DEF-184: Use singleton, not new instance
             orchestrator = container.synonym_orchestrator()
-            logger.debug("Orchestrator obtained from ServiceContainer")
+            logger.debug("Orchestrator obtained from ServiceContainer singleton")
         except Exception as e:
             logger.error(
                 f"Cannot create JuridischeSynoniemService without orchestrator: {e}. "

@@ -18,11 +18,12 @@ class DUP01:
         self._initialize_repository()
 
     def _initialize_repository(self):
-        """Lazy initialize repository to avoid circular imports."""
+        """Lazy initialize repository via ServiceContainer singleton (DEF-183)."""
         try:
-            from database.definition_repository import DefinitionRepository
+            from services.container import get_container
 
-            self.repository = DefinitionRepository()
+            container = get_container()
+            self.repository = container.repository()
         except Exception as e:
             logger.warning(
                 f"Could not initialize repository for duplicate detection: {e}"
