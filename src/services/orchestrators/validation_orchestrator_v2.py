@@ -76,8 +76,8 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
             else str(uuid.uuid4())
         )
 
-        # DEF-173: Use progress_context for layer-compliant progress tracking
-        from services.progress_context import operation_progress
+        # DEF-198: Use ui.helpers.progress_context for layer-compliant progress tracking
+        from ui.helpers.progress_context import operation_progress
 
         with operation_progress("validating_definition"):
             try:
@@ -142,8 +142,8 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
             else str(uuid.uuid4())
         )
 
-        # DEF-173: Use progress_context for layer-compliant progress tracking
-        from services.progress_context import operation_progress
+        # DEF-198: Use ui.helpers.progress_context for layer-compliant progress tracking
+        from ui.helpers.progress_context import operation_progress
 
         with operation_progress("validating_definition"):
             try:
