@@ -9,7 +9,6 @@ US-201: Optimaliseer ServiceContainer caching
 US-202: Remove custom config support - singleton only
 """
 
-import contextlib
 import logging
 import os
 from functools import lru_cache
@@ -93,8 +92,10 @@ def clear_container_cache():
     logger.info("🗑️ Clear ServiceContainer cache")
 
     # Clear de singleton cache
-    with contextlib.suppress(Exception):
+    try:
         get_cached_container.cache_clear()
+    except (RuntimeError, AttributeError) as e:
+        logger.error(f"Container cache clear failed (possible resource leak): {e}")
 
     logger.info("✅ Container cache gecleared")
 

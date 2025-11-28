@@ -4,9 +4,9 @@ Provides health monitoring, failover strategies, and request queue persistence.
 """
 
 import asyncio
-import contextlib
 import json
 import logging
+import os
 import pickle
 import time
 from collections.abc import Callable
@@ -189,8 +189,11 @@ class HealthMonitor:
         self._shutdown = True
         if self._monitoring_task:
             self._monitoring_task.cancel()
-            with contextlib.suppress(asyncio.CancelledError):
+            try:
                 await self._monitoring_task
+            except asyncio.CancelledError:
+                # Expected when task is cancelled - log at DEBUG for observability
+                logger.debug("Health monitoring task cancelled (expected)")
         logger.info("Health monitoring stopped")
 
     async def register_endpoint(
@@ -356,22 +359,42 @@ class ResilienceFramework:
         self._load_persistent_state()
 
     def _load_persistent_state(self):
-        """Load persistent state from disk."""
+        """Load persistent state from disk.
+
+        Handles corrupt pickle files by removing them and starting fresh.
+        """
+        state_file = Path("cache/resilience_state.pkl")
+        if not state_file.exists():
+            return
+
         try:
-            state_file = Path("cache/resilience_state.pkl")
-            if state_file.exists():
-                with open(state_file, "rb") as f:
-                    state = pickle.load(f)
-                    self.dead_letter_queue.queue = state.get("dead_letter_queue", [])
-                    self.fallback_cache = state.get("fallback_cache", {})
-                    logger.info("Loaded persistent resilience state")
-        except Exception as e:
-            logger.warning(f"Could not load persistent state: {e}")
+            with open(state_file, "rb") as f:
+                state = pickle.load(f)
+                self.dead_letter_queue.queue = state.get("dead_letter_queue", [])
+                self.fallback_cache = state.get("fallback_cache", {})
+                logger.info("Loaded persistent resilience state")
+        except (pickle.UnpicklingError, EOFError) as e:
+            # Corrupt pickle file - remove and start fresh
+            logger.error(f"Corrupt resilience state file, removing: {e}")
+            try:
+                state_file.unlink()
+            except OSError as unlink_err:
+                logger.warning(f"Could not remove corrupt state file: {unlink_err}")
+        except OSError as e:
+            logger.warning(f"Could not read persistent state file: {e}")
+        except (KeyError, TypeError, AttributeError) as e:
+            # Invalid state structure
+            logger.error(f"Invalid resilience state structure: {e}")
 
     def _save_persistent_state(self):
-        """Save persistent state to disk."""
+        """Save persistent state to disk using atomic write.
+
+        Uses temp file + os.replace() to prevent corruption on crash.
+        """
+        state_file = Path("cache/resilience_state.pkl")
+        temp_file = state_file.with_suffix(".pkl.tmp")
+
         try:
-            state_file = Path("cache/resilience_state.pkl")
             state_file.parent.mkdir(exist_ok=True)
 
             state = {
@@ -380,10 +403,24 @@ class ResilienceFramework:
                 "timestamp": datetime.now(UTC),
             }
 
-            with open(state_file, "wb") as f:
+            # Write to temp file first (atomic write pattern)
+            with open(temp_file, "wb") as f:
                 pickle.dump(state, f)
-        except Exception as e:
-            logger.warning(f"Could not save persistent state: {e}")
+                f.flush()
+                os.fsync(f.fileno())  # Ensure data is on disk
+
+            # Atomic rename (safe on POSIX, best-effort on Windows)
+            os.replace(temp_file, state_file)
+            logger.debug("Saved persistent resilience state")
+        except OSError as e:
+            logger.error(f"Could not save persistent state: {e}")
+            # Clean up temp file if it exists
+            try:
+                temp_file.unlink(missing_ok=True)
+            except OSError:
+                pass
+        except (pickle.PicklingError, TypeError) as e:
+            logger.error(f"Could not serialize resilience state: {e}")
 
     async def start(self):
         """Start the resilience framework."""
@@ -404,11 +441,19 @@ class ResilienceFramework:
         await self.health_monitor.stop_monitoring()
 
         # Cancel background tasks
-        for task in [self._queue_processor_task, self._cache_cleanup_task]:
+        task_names = ["queue_processor", "cache_cleanup"]
+        for task, name in zip(
+            [self._queue_processor_task, self._cache_cleanup_task],
+            task_names,
+            strict=True,
+        ):
             if task:
                 task.cancel()
-                with contextlib.suppress(asyncio.CancelledError):
+                try:
                     await task
+                except asyncio.CancelledError:
+                    # Expected when task is cancelled - log at DEBUG for observability
+                    logger.debug(f"Resilience {name} task cancelled (expected)")
 
         # Save persistent state
         self._save_persistent_state()

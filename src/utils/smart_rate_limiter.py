@@ -6,7 +6,6 @@ voor efficiënte API rate limiting met intelligente load balancing.
 """
 
 import asyncio  # Asynchrone programmering voor niet-blokkerende rate limiting
-import contextlib
 import json  # JSON verwerking voor configuratie opslag
 import logging  # Logging faciliteiten voor debug en monitoring
 import time  # Tijd functies voor token bucket timing
@@ -258,8 +257,11 @@ class SmartRateLimiter:
         self._shutdown = True
         if self._processing_task:
             self._processing_task.cancel()
-            with contextlib.suppress(asyncio.CancelledError):
+            try:
                 await self._processing_task
+            except asyncio.CancelledError:
+                # Expected when task is cancelled - log at DEBUG for observability
+                logger.debug("Rate limiter processing task cancelled (expected)")
         self._save_historical_data()
         logger.info("Smart rate limiter stopped")
 
@@ -314,8 +316,11 @@ class SmartRateLimiter:
             return cast(bool, result)
         except TimeoutError:
             # Remove from queue if still there
-            with contextlib.suppress(ValueError):
+            try:
                 self.priority_queues[priority].remove(queued_request)
+            except ValueError:
+                # Request already processed/removed - expected race condition
+                logger.debug("Timeout cleanup: request already processed")
             self.stats["total_dropped"] += 1
             return False
 
