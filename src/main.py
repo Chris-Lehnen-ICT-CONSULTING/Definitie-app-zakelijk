@@ -12,6 +12,11 @@ import sys
 import time
 from pathlib import Path
 
+from dotenv import load_dotenv
+
+# Load .env file before any other imports that might need env vars
+load_dotenv()
+
 # Add src directory to Python path for proper imports
 src_path = Path(__file__).parent
 if str(src_path) not in sys.path:
