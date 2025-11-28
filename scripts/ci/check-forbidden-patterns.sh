@@ -48,6 +48,16 @@ if [ -n "$DB_VIOLATIONS" ]; then
     ((VIOLATIONS++))
 fi
 
+# Check 3b: No direct get_container() imports in UI (use cached_services instead)
+# DEF-202: UI components must use get_cached_service_container() for singleton guarantee
+CONTAINER_VIOLATIONS=$(rg -n "from (src\.)?services\.container import.*get_container" src/ui/ 2>/dev/null || true)
+if [ -n "$CONTAINER_VIOLATIONS" ]; then
+    echo -e "${RED}❌ Found direct get_container() imports in UI${NC}"
+    echo "$CONTAINER_VIOLATIONS"
+    echo -e "${YELLOW}   → Use 'from ui.cached_services import get_cached_service_container' instead${NC}"
+    ((VIOLATIONS++))
+fi
+
 # Check 4: No asyncio.run() in services (use async/await properly)
 if rg -q "asyncio\.run\(" src/services/ 2>/dev/null; then
     echo -e "${RED}❌ Found asyncio.run() in services/${NC}"
