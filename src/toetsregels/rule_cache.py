@@ -7,7 +7,6 @@ behoudt een kleine memory footprint en is direct integreerbaar met
 ModularValidationService — zonder UI/Streamlit-afhankelijkheid.
 """
 
-import contextlib
 import json
 import logging
 import threading
@@ -290,14 +289,17 @@ class RuleCache:
                     _global_cache_clear()
                     result["result"] = "evict"
                     result["source"] = "all"
-                except Exception:
+                    logger.info("Rule cache gecleared (global cache cleared)")
+                except (RuntimeError, OSError) as e:
                     result["result"] = "error"
                     result["source"] = "all"
-                logger.info("Rule cache gecleared (global cache cleared)")
+                    logger.warning(f"Rule cache clear failed: {e}")
         else:
-            with contextlib.suppress(Exception):
+            try:
                 _global_cache_clear()
-            logger.info("Rule cache gecleared (global cache cleared)")
+                logger.info("Rule cache gecleared (global cache cleared)")
+            except (RuntimeError, OSError) as e:
+                logger.warning(f"Rule cache clear failed: {e}")
 
     def get_stats(self) -> dict[str, Any]:
         """Haal cache statistieken op."""
