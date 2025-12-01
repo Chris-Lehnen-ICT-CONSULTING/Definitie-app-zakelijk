@@ -229,9 +229,8 @@ class ServiceAdapter:
                             return self._safe_float(data["score"])
                         if "overall_score" in data:
                             return self._safe_float(data["overall_score"])
-            except Exception:
-                # Ignore conversion issues and fall through to default
-                pass
+            except Exception as e:
+                logger.warning(f"Failed to extract validation score, using 0.0: {e}")
         return 0.0
 
     def _extract_is_acceptable(self, result: Any, score: float) -> bool:

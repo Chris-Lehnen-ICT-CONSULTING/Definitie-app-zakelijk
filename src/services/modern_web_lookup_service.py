@@ -1034,7 +1034,10 @@ class ModernWebLookupService(WebLookupServiceInterface):
         """
         try:
             from .web_lookup.sanitization import sanitize_snippet
-        except Exception:
+        except Exception as e:
+            logger.warning(
+                f"Failed to import sanitize_snippet, using inline fallback: {e}"
+            )
 
             def sanitize_snippet(x: str, max_length: int = 500) -> str:  # type: ignore
                 return (x or "")[:max_length]
