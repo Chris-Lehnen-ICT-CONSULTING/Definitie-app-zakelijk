@@ -399,8 +399,8 @@ class ModularValidationService:
                 elif cu.startswith(("ARAI", "AR-", "AR")):
                     # Beperk tot ARAI-familie; AR-prefix meegenomen voor compat
                     weights[code] = 0.0
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning(f"Failed to filter baseline rules from weights: {e}")
 
         rule_scores: dict[str, float] = {}
         violations: list[dict[str, Any]] = []

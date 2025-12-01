@@ -166,8 +166,8 @@ class DefinitionGeneratorTab:
                     try:
                         SessionStateManager.clear_value("last_check_result")
                         SessionStateManager.clear_value("selected_definition")
-                    except Exception:
-                        pass
+                    except Exception as e:
+                        logger.warning(f"Failed to clear session state: {e}")
                     # Trigger automatische generatie bij volgende render
                     SessionStateManager.set_value("trigger_auto_generation", True)
                     st.rerun()
@@ -220,7 +220,8 @@ class DefinitionGeneratorTab:
                     )
                 if isinstance(val, list):
                     return val
-            except Exception:
+            except Exception as e:
+                logger.warning(f"Failed to parse context JSON '{val}': {e}")
                 return []
             return []
 
@@ -236,7 +237,8 @@ class DefinitionGeneratorTab:
         """Lees globale UI-context en normaliseer naar lijsten."""
         try:
             ctx = ensure_dict(SessionStateManager.get_value("global_context", {}))
-        except Exception:
+        except Exception as e:
+            logger.error(f"Failed to load global_context from session: {e}")
             ctx = {}
         org_list = ctx.get("organisatorische_context", []) or []
         jur_list = ctx.get("juridische_context", []) or []
@@ -256,7 +258,8 @@ class DefinitionGeneratorTab:
                 or ctx.get("juridische_context")
                 or ctx.get("wettelijke_basis")
             )
-        except Exception:
+        except Exception as e:
+            logger.error(f"Context validation check crashed: {e}")
             return False
 
     def _render_generation_results(self, generation_result):
@@ -294,8 +297,8 @@ class DefinitionGeneratorTab:
                 st.info(
                     f"📄 Documentcontext gebruikt: {int(doc_ctx['document_count'])} document(en)"
                 )
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning(f"Failed to render document context badge: {e}")
 
         # Sla ID van bewaarde definitie op voor Expert-tab prefill
         # Bewaar het ID van de opgeslagen definitie voor de Expert/Bewerk tabs
@@ -313,8 +316,10 @@ class DefinitionGeneratorTab:
                 )
                 # Zorg dat de Bewerk-tab direct kan auto-laden
                 SessionStateManager.set_value("editing_definition_id", target_id)
-            except Exception:
-                pass
+            except Exception as e:
+                logger.warning(
+                    f"Failed to cache definition ID for Expert/Edit tabs: {e}"
+                )
 
         # Ontologische categorie sectie - prominent weergeven
         if determined_category:
@@ -410,8 +415,8 @@ class DefinitionGeneratorTab:
                     "current_begrip",
                     ensure_string(generation_result.get("begrip", "")),
                 )
-            except Exception:
-                pass
+            except Exception as e:
+                logger.warning(f"Failed to cache multi-definitie result: {e}")
         else:
             # Legacy format - toon enkele definitie
             st.subheader("📝 Definitie")
@@ -424,8 +429,8 @@ class DefinitionGeneratorTab:
                     "current_begrip",
                     ensure_string(generation_result.get("begrip", "")),
                 )
-            except Exception:
-                pass
+            except Exception as e:
+                logger.warning(f"Failed to cache legacy format result: {e}")
 
         # Bronverantwoording: toon gebruikte web bronnen indien beschikbaar
         self._render_sources_section(generation_result, agent_result, saved_record)
@@ -783,7 +788,8 @@ class DefinitionGeneratorTab:
                 repo = get_definitie_repository()
                 rec = repo.get_definitie(target_id)
                 current_ufo = getattr(rec, "ufo_categorie", None) if rec else None
-        except Exception:
+        except Exception as e:
+            logger.warning(f"UFO category lookup from repository failed: {e}")
             current_ufo = None
 
         try:
@@ -792,7 +798,8 @@ class DefinitionGeneratorTab:
                 if (current_ufo or "") in ufo_opties
                 else 0
             )
-        except Exception:
+        except Exception as e:
+            logger.warning(f"UFO category default index calculation failed: {e}")
             default_index = 0
 
         def _persist_ufo_selection(key: str, def_id: int | None):
@@ -811,9 +818,8 @@ class DefinitionGeneratorTab:
                 _ = repo.update_definitie(
                     int(def_id), {"ufo_categorie": value}, updated_by=user
                 )
-            except Exception:
-                # Zwijgende fout om UI niet te verstoren; logs via Streamlit niet nodig
-                pass
+            except Exception as e:
+                logger.warning(f"UFO category persist failed: {e}")
 
         key_sel = f"ufo_select_{target_id or 'new'}"
         st.selectbox(
@@ -1340,7 +1346,8 @@ class DefinitionGeneratorTab:
                         timeout_meta = float(
                             os.getenv("WEB_LOOKUP_TIMEOUT_SECONDS", "10.0")
                         )
-                    except Exception:
+                    except Exception as e:
+                        logger.debug(f"Failed to parse WEB_LOOKUP_TIMEOUT_SECONDS: {e}")
                         timeout_meta = 10.0
                 st.caption(
                     f"Web lookup: {status_text} ({avail_text}) — timeout {float(timeout_meta):.1f}s"
