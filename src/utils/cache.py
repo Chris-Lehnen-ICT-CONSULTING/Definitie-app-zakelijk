@@ -544,7 +544,10 @@ class CacheManager:
             with open(self._file_path(key), "wb") as f:
                 pickle.dump({"value": value, "expires_at": expires_at}, f)
         except Exception as e:
-            logger.debug(f"CacheManager: failed to persist key {key}: {e}")
+            logger.warning(
+                f"CacheManager: failed to persist key {key}: {e}",
+                exc_info=True,  # Include trace for observability
+            )
 
     def get(self, key: str, default: Any | None = None) -> Any | None:
         if self._lock:
