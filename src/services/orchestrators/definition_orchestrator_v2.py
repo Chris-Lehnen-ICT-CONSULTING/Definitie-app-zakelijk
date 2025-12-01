@@ -244,7 +244,9 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             try:
                 stats = self.validation_service.get_stats()
                 info["rule_count"] = safe_dict_get(stats, "total_rules", 0)
-            except Exception:
+            except (AttributeError, TypeError, RuntimeError) as e:
+                # DEF-229: Log validation stats retrieval failures
+                logger.debug(f"Could not get validation stats for service info: {e}")
                 info["rule_count"] = 0
         else:
             info["rule_count"] = 0
@@ -415,7 +417,11 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                 web_lookup_timeout = float(
                     os.getenv("WEB_LOOKUP_TIMEOUT_SECONDS", "10.0")
                 )
-            except Exception:
+            except ValueError as e:
+                # DEF-229: Log invalid env var configuration
+                logger.warning(
+                    f"Invalid WEB_LOOKUP_TIMEOUT_SECONDS value, using default 10.0: {e}"
+                )
                 web_lookup_timeout = 10.0
 
             # Web lookup runs ALWAYS when service is available (no feature flag)
@@ -442,7 +448,11 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
 
                     try:
                         _max_res = int(_os.getenv("WEB_LOOKUP_MAX_RESULTS", "20"))
-                    except Exception:
+                    except ValueError as e:
+                        # DEF-229: Log invalid env var configuration
+                        logger.warning(
+                            f"Invalid WEB_LOOKUP_MAX_RESULTS value, using default 20: {e}"
+                        )
                         _max_res = 20
                     lookup_request = LookupRequest(
                         term=sanitized_request.begrip,
@@ -468,7 +478,8 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                         debug_info = getattr(
                             self.web_lookup_service, "_last_debug", None
                         )
-                    except Exception:
+                    except AttributeError:
+                        # DEF-229: getattr with default rarely raises, but proxy objects might
                         debug_info = None
 
                     # Build provenance records
@@ -783,7 +794,8 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             # Tolerant correlation_id: als generation_id geen geldige UUID is, genereer er één
             try:
                 corr = uuid.UUID(generation_id)
-            except Exception:
+            except ValueError:
+                # DEF-229: UUID.parse only raises ValueError for invalid strings
                 corr = uuid.uuid4()
             # Voeg opties toe aan metadata zodat validator context flags kan lezen
             meta: dict[str, Any] = {"generation_id": generation_id}
@@ -870,7 +882,8 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                 # Re-validate enhanced text with new context
                 try:
                     corr2 = uuid.UUID(generation_id)
-                except Exception:
+                except ValueError:
+                    # DEF-229: UUID.parse only raises ValueError for invalid strings
                     corr2 = uuid.uuid4()
                 enhanced_context = ValidationContext(
                     correlation_id=corr2,
@@ -1007,8 +1020,11 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             try:
                 if definition_id:
                     definition.id = int(definition_id)
-            except Exception:  # pragma: no cover
-                pass
+            except (TypeError, ValueError) as e:  # pragma: no cover
+                # DEF-229: Log definition ID assignment failures
+                logger.warning(
+                    f"Generation {generation_id}: Could not assign definition ID {definition_id}: {e}"
+                )
 
             # Optioneel: sla mislukte poging ook op voor feedback-learning
             if not safe_dict_get(validation_result, "is_acceptable", False):
