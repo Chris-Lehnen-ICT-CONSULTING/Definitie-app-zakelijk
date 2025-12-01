@@ -260,7 +260,26 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             try:
                 stats["validation"] = self.validation_service.get_stats()
             except Exception as e:
-                logger.warning(f"Validation stats ophalen gefaald: {e}")
+                # DEF-215: Provide safe fallback dict instead of leaving key missing
+                logger.warning(
+                    f"Validation stats ophalen gefaald: {e}",
+                    extra={
+                        "component": "definition_orchestrator_v2",
+                        "operation": "get_validation_stats",
+                        "error_type": type(e).__name__,
+                    },
+                )
+                stats["validation"] = {
+                    "error": str(e),
+                    "error_type": type(e).__name__,
+                    "status": "unavailable",
+                }
+        else:
+            # DEF-215: Explicit status when service doesn't support stats
+            stats["validation"] = {
+                "status": "not_supported",
+                "reason": "validation_service lacks get_stats method",
+            }
 
         return stats
 

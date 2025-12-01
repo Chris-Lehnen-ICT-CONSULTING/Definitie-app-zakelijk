@@ -278,6 +278,12 @@ class DefinitionGeneratorTab:
         # Show success/warning indicator
         self._render_generation_status(agent_result)
 
+        # DEF-215: Check for degraded validation mode and show warning
+        validation_metadata = safe_dict_get(agent_result, "validation_metadata", {})
+        system_info = safe_dict_get(validation_metadata, "system", {})
+        if safe_dict_get(system_info, "degraded_mode", False):
+            self._render_degraded_mode_warning(system_info)
+
         # EPIC-018: Badge/indicator voor gebruikte documentcontext
         try:
             doc_ctx = safe_dict_get(generation_result, "document_context")
@@ -1605,6 +1611,45 @@ class DefinitionGeneratorTab:
                 )
             else:
                 st.warning(f"⚠️ Generatie gedeeltelijk succesvol: {agent_result.reason}")
+
+    def _render_degraded_mode_warning(self, system_info: dict) -> None:
+        """DEF-215: Render warning banner for degraded validation mode.
+
+        Shows user that validation is operating with reduced rule coverage
+        due to ToetsregelManager initialization failure.
+
+        Args:
+            system_info: System metadata from validation result containing:
+                - degraded_mode: bool
+                - rules_loaded: int
+                - rules_expected: int
+                - degradation_reason: str | None
+        """
+        rules_loaded = system_info.get("rules_loaded", 0)
+        rules_expected = system_info.get("rules_expected", 45)
+        coverage = (rules_loaded / rules_expected * 100) if rules_expected > 0 else 0
+        reason = system_info.get("degradation_reason", "Onbekende fout")
+
+        st.warning(
+            f"### ⚠️ BEPERKTE VALIDATIE MODUS\n\n"
+            f"Validatie draait met **verminderde dekking** door een systeemprobleem.\n\n"
+            f"- **Regels actief**: {rules_loaded} (alleen basis)\n"
+            f"- **Regels verwacht**: {rules_expected} (volledige set)\n"
+            f"- **Dekking**: {coverage:.0f}%\n\n"
+            f"**Impact**: Je definitie is alleen gevalideerd tegen basisregels. "
+            f"Geavanceerde controles (juridisch, ontologisch, taalkundig) zijn overgeslagen.\n\n"
+            f"**Aanbeveling**: Controleer gegenereerde definities handmatig voor productiegebruik."
+        )
+
+        with st.expander("📋 Technische details", expanded=False):
+            st.markdown(f"**Reden**: `{reason}`")
+            st.markdown(
+                "**Overgeslagen controles**:\n"
+                "- Juridische compliance regels (ESS-xx serie)\n"
+                "- Ontologische consistentie checks (CON-xx serie)\n"
+                "- Geavanceerde structuur validatie (STR-xx serie)\n"
+                "- Taalkundige kwaliteitsregels (ARAI-xx serie)"
+            )
 
     def _extract_score_from_result(self, agent_result: dict) -> float:
         """Extract validation score from agent result."""
