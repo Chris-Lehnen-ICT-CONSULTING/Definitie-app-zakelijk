@@ -1661,9 +1661,17 @@ class DefinitieRepository:
                         )
                         conn.commit()
                 except Exception as e:
-                    # Soft-fail: laat eerdere per-row set gelden
-                    logger.debug(
-                        f"Voorkeursterm update gefaald voor definitie {definitie_id}: {e}"
+                    # DEF-215: Upgraded from debug to warning - voorkeursterm update failure
+                    # should be visible for troubleshooting, but non-blocking for save flow
+                    logger.warning(
+                        f"Voorkeursterm update gefaald voor definitie {definitie_id}: {e}. "
+                        f"Eerdere per-row waarde blijft behouden.",
+                        extra={
+                            "component": "definitie_repository",
+                            "operation": "update_voorkeursterm",
+                            "definitie_id": definitie_id,
+                            "error_type": type(e).__name__,
+                        },
                     )
 
                 # PHASE 3.3: Sync synoniemen naar registry (Architecture v3.1)

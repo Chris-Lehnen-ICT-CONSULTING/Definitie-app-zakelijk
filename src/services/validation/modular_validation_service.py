@@ -86,6 +86,12 @@ class ModularValidationService:
         self.config = config
         self._repository = repository
 
+        # DEF-215: Degraded mode tracking voor transparantie naar UI
+        self._is_degraded_mode: bool = False
+        self._degradation_reason: str | None = None
+        self._rules_loaded_count: int = 0
+        self._rules_expected_count: int = 45  # Full rule set target
+
         # Baseline interne regels (altijd beschikbaar voor policies zoals scoring-uitsluiting)
         self._baseline_internal: list[str] = [
             "VAL-EMP-001",
@@ -181,14 +187,33 @@ class ModularValidationService:
             # Add baseline internal rules to retain safeguards (no-op if already present via JSON)
             self._add_baseline_rules()
 
+            # DEF-215: Track loaded rule count for health monitoring
+            self._rules_loaded_count = len(self._internal_rules)
+            self._is_degraded_mode = False  # Explicit: not degraded
+
             logger.info(
                 f"Loaded {len(self._internal_rules)} rules from ToetsregelManager"
             )
 
         except Exception as e:
+            # DEF-215: Set degraded mode flags voor UI transparantie
+            self._is_degraded_mode = True
+            self._degradation_reason = (
+                f"ToetsregelManager failure: {type(e).__name__}: {e}"
+            )
+            self._rules_loaded_count = len(self._baseline_internal)  # 7 baseline rules
+
             logger.error(
                 f"ToetsregelManager laden GEFAALD: {e}. "
-                f"Fallback naar baseline regels (validatie coverage sterk verminderd)"
+                f"Fallback naar baseline regels (validatie coverage sterk verminderd). "
+                f"Rules: {self._rules_loaded_count}/{self._rules_expected_count} ({self._rules_loaded_count/self._rules_expected_count*100:.0f}% coverage)",
+                extra={
+                    "component": "modular_validation_service",
+                    "degraded_mode": True,
+                    "rules_loaded": self._rules_loaded_count,
+                    "rules_expected": self._rules_expected_count,
+                    "degradation_reason": str(e),
+                },
             )
             self._set_default_rules()
 
@@ -285,6 +310,26 @@ class ModularValidationService:
         self,
     ) -> list[str]:  # pragma: no cover - used by optional test
         return sorted(self._internal_rules)
+
+    def get_health_status(self) -> dict[str, Any]:
+        """DEF-215: Get validation service health status for monitoring/UI.
+
+        Returns:
+            dict with health information including degraded mode status.
+        """
+        coverage_pct = (
+            (self._rules_loaded_count / self._rules_expected_count * 100)
+            if self._rules_expected_count > 0
+            else 0
+        )
+        return {
+            "status": "degraded" if self._is_degraded_mode else "healthy",
+            "degraded_mode": self._is_degraded_mode,
+            "rules_loaded": self._rules_loaded_count,
+            "rules_expected": self._rules_expected_count,
+            "coverage_pct": round(coverage_pct, 1),
+            "degradation_reason": self._degradation_reason,
+        }
 
     async def validate_definition(
         self,
@@ -604,7 +649,14 @@ class ModularValidationService:
             "violations": violations,
             "passed_rules": passed_rules,
             "detailed_scores": detailed,
-            "system": {"correlation_id": correlation_id},
+            # DEF-215: Include degraded mode metadata for UI transparency
+            "system": {
+                "correlation_id": correlation_id,
+                "degraded_mode": self._is_degraded_mode,
+                "rules_loaded": self._rules_loaded_count,
+                "rules_expected": self._rules_expected_count,
+                "degradation_reason": self._degradation_reason,
+            },
         }
         # Voeg acceptance_gate toe aan resultaat voor UI/clients
         if acceptance_gate:
