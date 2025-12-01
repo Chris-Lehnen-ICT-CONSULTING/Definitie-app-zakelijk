@@ -260,8 +260,10 @@ class SmartRateLimiter:
             try:
                 await self._processing_task
             except asyncio.CancelledError:
-                # Expected when task is cancelled - log at DEBUG for observability
-                logger.debug("Rate limiter processing task cancelled (expected)")
+                # Expected when task is cancelled - log with trace for observability
+                logger.debug(
+                    "Rate limiter processing task cancelled (expected)", exc_info=True
+                )
         self._save_historical_data()
         logger.info("Smart rate limiter stopped")
 
@@ -320,7 +322,9 @@ class SmartRateLimiter:
                 self.priority_queues[priority].remove(queued_request)
             except ValueError:
                 # Request already processed/removed - expected race condition
-                logger.debug("Timeout cleanup: request already processed")
+                logger.debug(
+                    "Timeout cleanup: request already processed", exc_info=True
+                )
             self.stats["total_dropped"] += 1
             return False
 
