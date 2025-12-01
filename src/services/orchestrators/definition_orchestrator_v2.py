@@ -575,7 +575,9 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                                     "source_label": "Geüpload document",
                                 }
                             )
-                        except Exception:
+                        except (TypeError, ValueError, KeyError) as e:
+                            # DEF-229: Log individual snippet normalization failures
+                            logger.debug(f"Skipping malformed document snippet: {e}")
                             continue
                     if normalized_docs:
                         provenance_sources = normalized_docs + (
@@ -583,8 +585,12 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                         )
                         context = context or {}
                         context["documents"] = {"snippets": normalized_docs}
-            except Exception:
-                pass
+            except (TypeError, KeyError, AttributeError) as e:
+                # DEF-229: Log document snippet merge failures
+                logger.warning(
+                    f"Generation {generation_id}: Failed to merge document snippets: {e}",
+                    extra={"error_type": type(e).__name__},
+                )
 
             # =====================================
             # PHASE 3: Intelligent Prompt Generation (with ontological category fix)
@@ -613,9 +619,9 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                     len(provenance_sources or []),
                     injected_snippets,
                 )
-            except Exception:
-                # Non-fatal debug
-                pass
+            except (AttributeError, ValueError) as e:
+                # DEF-229: Non-fatal debug summary failure
+                logger.debug(f"Could not generate web lookup summary: {e}")
 
             # =====================================
             # PHASE 4: AI Generation with Retry Logic
@@ -792,8 +798,9 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                         meta["force_duplicate"] = True
                     # Bewaar volledige options voor toekomstig gebruik (niet verplicht)
                     meta["options"] = dict(sanitized_request.options)
-            except Exception:
-                pass
+            except (TypeError, AttributeError) as e:
+                # DEF-229: Log options extraction failures
+                logger.debug(f"Could not extract generation options for metadata: {e}")
             validation_context = ValidationContext(
                 correlation_id=corr,
                 metadata=meta,
@@ -818,7 +825,15 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                 from services.validation.mappers import ensure_schema_compliance
 
                 validation_result = ensure_schema_compliance(raw_validation)
-            except Exception:
+            except (ImportError, TypeError, ValueError, AttributeError) as e:
+                # DEF-229: Log schema compliance failures with context
+                logger.warning(
+                    f"Generation {generation_id}: Validation schema mapping failed, using fallback: {e}",
+                    extra={
+                        "error_type": type(e).__name__,
+                        "generation_id": generation_id,
+                    },
+                )
                 # Defensive fallback to simple mapping
                 is_ok = getattr(raw_validation, "is_valid", False)
                 vio_list = getattr(raw_validation, "violations", None)
@@ -880,7 +895,15 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                     from services.validation.mappers import ensure_schema_compliance
 
                     validation_result = ensure_schema_compliance(raw_validation)
-                except Exception:
+                except (ImportError, TypeError, ValueError, AttributeError) as e:
+                    # DEF-229: Log enhancement validation mapping failures
+                    logger.warning(
+                        f"Generation {generation_id}: Enhanced validation schema mapping failed: {e}",
+                        extra={
+                            "error_type": type(e).__name__,
+                            "generation_id": generation_id,
+                        },
+                    )
                     is_ok = getattr(raw_validation, "is_valid", False)
                     vio_list = getattr(raw_validation, "violations", None)
                     if vio_list is None:

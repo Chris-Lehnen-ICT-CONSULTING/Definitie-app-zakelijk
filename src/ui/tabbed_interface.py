@@ -768,8 +768,11 @@ class TabbedInterface:
                                     SessionStateManager.clear_value(
                                         "selected_definition"
                                     )
-                                except Exception:
-                                    pass
+                                except (KeyError, AttributeError) as e:
+                                    # DEF-229: Log session state clearing failures
+                                    logger.debug(
+                                        f"Could not clear session state during force generate: {e}"
+                                    )
                                 # Ga door met geforceerde generatie (buiten gate)
                             else:
                                 # Niet gekozen → stop huidige generatie
@@ -995,8 +998,9 @@ class TabbedInterface:
                     if options.get("force_generate"):
                         options.pop("force_generate", None)
                         SessionStateManager.set_value("generation_options", options)
-                except Exception:
-                    pass
+                except (KeyError, AttributeError) as e:
+                    # DEF-229: Log force flag reset failures
+                    logger.debug(f"Could not reset force_generate flag: {e}")
 
                 # V2 validation is already included in agent_result.validation_details
                 # The beoordeling_gen will be generated from V2 ValidationDetailsDict in the UI
@@ -1521,8 +1525,9 @@ class TabbedInterface:
             try:
                 stats = self.repository.get_statistics()
                 st.metric("📊 Definities", stats.get("total_definities", 0))
-            except Exception:
-                pass
+            except (AttributeError, KeyError, RuntimeError) as e:
+                # DEF-229: Log footer stats retrieval failures
+                logger.debug(f"Could not retrieve footer stats: {e}")
 
     # ------- Lightweight helpers primarily for test harness patching -------
     def _handle_file_upload(self) -> bool:  # pragma: no cover

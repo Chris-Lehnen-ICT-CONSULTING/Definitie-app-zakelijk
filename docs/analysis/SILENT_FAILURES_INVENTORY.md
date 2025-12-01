@@ -1,7 +1,32 @@
 # Silent Failures Detailed Inventory
 
-**Generated:** 2025-11-27 | **Updated:** 2025-12-01 (DEF-215 multiagent analysis)
-**Total Patterns:** 38 original + 76 NEW = 114 | **Fixed:** 20 | **Remaining:** 94
+**Generated:** 2025-11-27 | **Updated:** 2025-12-01 (DEF-229 final fixes)
+**Total Patterns:** 38 original + 76 NEW = 114 | **Fixed:** 32 | **Remaining:** 82
+
+---
+
+## 📊 UPDATE 2025-12-01: DEF-229 Remaining Silent Exception Fixes
+
+### DEF-229 Fixes Implemented (2025-12-01)
+
+| File | Line(s) | Risk | Fix Applied |
+|------|---------|------|-------------|
+| `service_factory.py` | 312 | HIGH | Narrowed to `TypeError, ValueError, AttributeError` + `logger.debug()` |
+| `service_factory.py` | 338 | HIGH | Narrowed to `ImportError, TypeError, ValueError, AttributeError` + `logger.debug()` |
+| `service_factory.py` | 460 | MEDIUM | Narrowed to `TypeError, ValueError, AttributeError` + `logger.debug()` |
+| `service_factory.py` | 547 | MEDIUM | Narrowed to `TypeError, ValueError, KeyError` + `logger.warning()` |
+| `service_factory.py` | 611 | LOW | Narrowed to `AttributeError, RuntimeError` + `logger.debug()` |
+| `definition_orchestrator_v2.py` | 578 | MEDIUM | Narrowed to `TypeError, ValueError, KeyError` + `logger.debug()` |
+| `definition_orchestrator_v2.py` | 588 | MEDIUM | Narrowed to `TypeError, KeyError, AttributeError` + `logger.warning()` |
+| `definition_orchestrator_v2.py` | 622 | LOW | Narrowed to `AttributeError, ValueError` + `logger.debug()` |
+| `definition_orchestrator_v2.py` | 801 | MEDIUM | Narrowed to `TypeError, AttributeError` + `logger.debug()` |
+| `definition_orchestrator_v2.py` | 828 | HIGH | Narrowed to `ImportError, TypeError, ValueError, AttributeError` + `logger.warning()` |
+| `definition_orchestrator_v2.py` | 895 | HIGH | Narrowed to `ImportError, TypeError, ValueError, AttributeError` + `logger.warning()` |
+| `tabbed_interface.py` | 771 | MEDIUM | Narrowed to `KeyError, AttributeError` + `logger.debug()` |
+| `tabbed_interface.py` | 999 | MEDIUM | Narrowed to `KeyError, AttributeError` + `logger.debug()` |
+| `tabbed_interface.py` | 1526 | MEDIUM | Narrowed to `AttributeError, KeyError, RuntimeError` + `logger.debug()` |
+
+**Total DEF-229 fixes: 14 patterns**
 
 ---
 
@@ -28,9 +53,11 @@
 | # | Locatie | Risico Score | Beschrijving |
 |---|---------|--------------|--------------|
 | 1 | `modular_validation_service.py:188-212` | 60/125 | Validation fallback 45→7 regels - NU MET INDICATOR |
-| 2 | `service_factory.py` | 48/125 | 6 silent `except Exception: pass` patterns |
-| 3 | `sru_service.py` | 45/125 | 17 silent exception patterns |
-| 4 | `definition_generator_tab.py` | 40/125 | 15+ silent UI failures |
+| 2 | `service_factory.py` | ✅ **FIXED** | DEF-229: All 5 patterns fixed with logging |
+| 3 | `sru_service.py` | 45/125 | 17 silent exception patterns (mostly LOW risk with logging) |
+| 4 | `definition_generator_tab.py` | 40/125 | 15+ silent UI failures (many already logged via DEF-220) |
+| 5 | `definition_orchestrator_v2.py` | ✅ **FIXED** | DEF-229: All 6 patterns fixed with logging |
+| 6 | `tabbed_interface.py` | ✅ **FIXED** | DEF-229: All 3 patterns fixed with logging |
 
 ---
 
