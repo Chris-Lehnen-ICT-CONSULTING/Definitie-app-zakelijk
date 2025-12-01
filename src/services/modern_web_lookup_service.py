@@ -282,7 +282,10 @@ class ModernWebLookupService(WebLookupServiceInterface):
         valid_results = []
         for result in results:
             if isinstance(result, Exception):
-                logger.warning(f"Source lookup failed: {result}")
+                logger.warning(
+                    f"Source lookup failed: {result}",
+                    exc_info=result,  # Include stack trace for observability
+                )
                 continue
             if result is not None and getattr(result, "success", True):
                 valid_results.append(result)
