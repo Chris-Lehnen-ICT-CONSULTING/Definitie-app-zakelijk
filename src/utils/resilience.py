@@ -192,8 +192,10 @@ class HealthMonitor:
             try:
                 await self._monitoring_task
             except asyncio.CancelledError:
-                # Expected when task is cancelled - log at DEBUG for observability
-                logger.debug("Health monitoring task cancelled (expected)")
+                # Expected when task is cancelled - log with trace for observability
+                logger.debug(
+                    "Health monitoring task cancelled (expected)", exc_info=True
+                )
         logger.info("Health monitoring stopped")
 
     async def register_endpoint(
@@ -452,8 +454,10 @@ class ResilienceFramework:
                 try:
                     await task
                 except asyncio.CancelledError:
-                    # Expected when task is cancelled - log at DEBUG for observability
-                    logger.debug(f"Resilience {name} task cancelled (expected)")
+                    # Expected when task is cancelled - log with trace for observability
+                    logger.debug(
+                        f"Resilience {name} task cancelled (expected)", exc_info=True
+                    )
 
         # Save persistent state
         self._save_persistent_state()
