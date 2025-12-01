@@ -147,6 +147,9 @@ def get_service_stats() -> dict[str, Any]:
                         if hasattr(manager, "get_stats"):
                             stats["rule_cache_stats"] = manager.get_stats()
         except Exception as e:
-            logger.debug(f"Could not get rule cache stats: {e}")
+            logger.warning(
+                f"Could not get rule cache stats: {e}",
+                exc_info=True,  # Include trace for observability
+            )
 
     return stats
