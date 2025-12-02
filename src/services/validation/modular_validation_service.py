@@ -409,8 +409,17 @@ class ModularValidationService:
                 elif cu.startswith(("ARAI", "AR-", "AR")):
                     # Beperk tot ARAI-familie; AR-prefix meegenomen voor compat
                     weights[code] = 0.0
-        except Exception as e:
-            logger.warning(f"Failed to filter baseline rules from weights: {e}")
+        except (KeyError, TypeError, ValueError) as e:
+            # DEF-231: Log baseline rule filter failures with context
+            logger.warning(
+                f"Baseline rule filtering overgeslagen: {type(e).__name__}: {e}",
+                extra={
+                    "component": "modular_validation_service",
+                    "operation": "filter_baseline_rules",
+                    "weights_count": len(weights) if weights else 0,
+                    "correlation_id": correlation_id,
+                },
+            )
 
         rule_scores: dict[str, float] = {}
         violations: list[dict[str, Any]] = []
@@ -465,7 +474,16 @@ class ModularValidationService:
         try:
             raw = (eval_ctx.cleaned_text or eval_ctx.raw_text or "").strip()
             wcount = len(raw.split()) if raw else 0
-        except Exception:
+        except (AttributeError, TypeError) as e:
+            # DEF-231: Log word count calculation failures
+            logger.debug(
+                f"Woordentelling gefaald, default naar 0: {type(e).__name__}: {e}",
+                extra={
+                    "component": "modular_validation_service",
+                    "operation": "word_count",
+                    "correlation_id": correlation_id,
+                },
+            )
             wcount = 0
 
         scale = 1.0
@@ -483,7 +501,16 @@ class ModularValidationService:
         # Extra heuristics (language/structure) to align with golden expectations
         try:
             raw_text = (eval_ctx.cleaned_text or eval_ctx.raw_text or "").strip()
-        except Exception:
+        except (AttributeError, TypeError) as e:
+            # DEF-231: Log raw text extraction failures
+            logger.debug(
+                f"Raw text extractie gefaald, default naar leeg: {type(e).__name__}: {e}",
+                extra={
+                    "component": "modular_validation_service",
+                    "operation": "raw_text_extraction",
+                    "correlation_id": correlation_id,
+                },
+            )
             raw_text = ""
         # Informal language
         if self._has_informal_language(raw_text):
@@ -595,8 +622,18 @@ class ModularValidationService:
             detailed = self._calculate_category_scores(
                 rule_scores, default_value=overall
             )
-        except Exception:
-            # Conservatieve fallback bij onverwachte fout
+        except (TypeError, ValueError, ZeroDivisionError) as e:
+            # DEF-231: Conservatieve fallback bij categorie-berekening fout
+            logger.warning(
+                f"Categorie-scores berekening gefaald, fallback naar overall: {type(e).__name__}: {e}",
+                extra={
+                    "component": "modular_validation_service",
+                    "operation": "category_scores",
+                    "correlation_id": correlation_id,
+                    "overall_score": overall,
+                    "rule_count": len(rule_scores) if rule_scores else 0,
+                },
+            )
             detailed = {
                 "taal": overall,
                 "juridisch": overall,
@@ -714,7 +751,16 @@ class ModularValidationService:
                 r"\bvan alles\b",
             ]
             return any(re.search(p, text, re.IGNORECASE) for p in patterns)
-        except Exception:
+        except (re.error, TypeError) as e:
+            # DEF-231: Log language check failures
+            logger.debug(
+                f"Informele taal check overgeslagen: {type(e).__name__}: {e}",
+                extra={
+                    "component": "modular_validation_service",
+                    "rule_id": "LANG-INF-001",
+                    "text_length": len(text) if isinstance(text, str) else 0,
+                },
+            )
             return False
 
     def _has_mixed_language(self, text: str) -> bool:
@@ -726,7 +772,16 @@ class ModularValidationService:
             has_en = any(re.search(p, text, re.IGNORECASE) for p in en_cues)
             has_nl = any(re.search(p, text, re.IGNORECASE) for p in nl_cues)
             return bool(has_en and has_nl)
-        except Exception:
+        except (re.error, TypeError) as e:
+            # DEF-231: Log language check failures
+            logger.debug(
+                f"Gemengde taal check overgeslagen: {type(e).__name__}: {e}",
+                extra={
+                    "component": "modular_validation_service",
+                    "rule_id": "LANG-MIX-001",
+                    "text_length": len(text) if isinstance(text, str) else 0,
+                },
+            )
             return False
 
     # Interne regel-evaluatie (houd simpel en deterministisch)
@@ -893,7 +948,15 @@ class ModularValidationService:
                 parts = begrip_full.split()
                 if len(parts) >= 2:
                     head = parts[-1]
-            except Exception:
+            except (IndexError, AttributeError) as e:
+                # DEF-231: Log SAM-02 head extraction failures
+                logger.debug(
+                    f"SAM-02 head extractie overgeslagen: {type(e).__name__}: {e}",
+                    extra={
+                        "component": "modular_validation_service",
+                        "rule_id": "SAM-02",
+                    },
+                )
                 head = None
 
             # Detect: definitietekst lijkt de basisdefinitie te herhalen of definieert het hoofdbegrip i.p.v. het gekwalificeerde begrip
@@ -1360,7 +1423,15 @@ class ModularValidationService:
         marker = None
         try:
             marker = (ctx.metadata or {}).get("marker")
-        except Exception:
+        except (TypeError, AttributeError) as e:
+            # DEF-231: Log ESS-02 marker extraction failures
+            logger.debug(
+                f"ESS-02 marker extractie overgeslagen: {type(e).__name__}: {e}",
+                extra={
+                    "component": "modular_validation_service",
+                    "rule_id": "ESS-02",
+                },
+            )
             marker = None
         if marker:
             m = str(marker).strip().lower()
@@ -1465,8 +1536,20 @@ class ModularValidationService:
             # Add warning to metadata
             self._add_duplicate_warning(md, found_def["id"], found_def["status"])
 
-        except Exception:
-            # Silent: duplicate signal is best-effort
+        except AttributeError:
+            # Expected: repository method missing in some configurations
+            return
+        except Exception as e:
+            # DEF-231: Log unexpected duplicate signal failures
+            logger.warning(
+                f"Duplicate context detectie gefaald: {type(e).__name__}: {e}",
+                extra={
+                    "component": "modular_validation_service",
+                    "operation": "duplicate_context_signal",
+                    "begrip": str(begrip)[:50] if begrip else None,
+                    "has_repository": self._repository is not None,
+                },
+            )
             return
 
     def _find_duplicate_definition(
@@ -1527,7 +1610,16 @@ class ModularValidationService:
         """Normalize a list of context strings for comparison."""
         try:
             return sorted({(x or "").strip().lower() for x in list(lst or [])})
-        except Exception:
+        except (TypeError, AttributeError) as e:
+            # DEF-231: Log context normalization failures
+            logger.debug(
+                f"Context list normalisatie gefaald: {type(e).__name__}: {e}",
+                extra={
+                    "component": "modular_validation_service",
+                    "operation": "normalize_context_list",
+                    "list_type": type(lst).__name__ if lst else "None",
+                },
+            )
             return []
 
     def _add_duplicate_warning(
