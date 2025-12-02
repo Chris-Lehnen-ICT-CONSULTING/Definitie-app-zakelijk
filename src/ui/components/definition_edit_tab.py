@@ -73,44 +73,82 @@ class DefinitionEditTab:
                     )
 
             if should_load:
+                # DEF-236: Race condition fix - use version tracking to detect concurrent loads
+                # Increment load version BEFORE starting the load operation
+                current_load_version = SessionStateManager.get_value(
+                    "edit_load_version", 0
+                )
+                new_load_version = current_load_version + 1
+                SessionStateManager.set_value("edit_load_version", new_load_version)
+                logger.debug(
+                    f"Starting edit load v{new_load_version} for definition {target_id}"
+                )
+
                 # Probeer sessie te starten zodat geschiedenis/auto-save beschikbaar zijn
                 session = self.edit_service.start_edit_session(
                     target_id, user=SessionStateManager.get_value("user") or "system"
                 )
                 if session and session.get("success"):
-                    SessionStateManager.set_value(
-                        "editing_definition", session.get("definition")
+                    # DEF-236: Check if another load was triggered while we were loading
+                    # If version changed, another load started - don't apply stale data
+                    latest_version = SessionStateManager.get_value(
+                        "edit_load_version", 0
                     )
-                    SessionStateManager.set_value("edit_session", session)
-
-                    # Check of er contexten zijn meegegeven vanuit de generator tab
-                    # Dit zorgt ervoor dat de contexten automatisch ingevuld worden
-                    edit_org_context = SessionStateManager.get_value(
-                        "edit_organisatorische_context"
-                    )
-                    edit_jur_context = SessionStateManager.get_value(
-                        "edit_juridische_context"
-                    )
-                    edit_wet_context = SessionStateManager.get_value(
-                        "edit_wettelijke_basis"
-                    )
-
-                    if edit_org_context or edit_jur_context or edit_wet_context:
-                        # Log dat we contexten hebben gevonden
-                        logger.info(
-                            f"Loading contexts from generator tab for definition {target_id}"
+                    if latest_version != new_load_version:
+                        logger.warning(
+                            f"Concurrent edit tab load detected - skipping stale data "
+                            f"(started v{new_load_version}, current v{latest_version})",
+                            extra={
+                                "component": "definition_edit_tab",
+                                "operation": "auto_load",
+                                "target_id": target_id,
+                                "started_version": new_load_version,
+                                "current_version": latest_version,
+                            },
                         )
-
-                        # Toon melding aan gebruiker
+                        # Don't return! Show info and let UI continue rendering
                         st.info(
-                            "📋 Contexten van gegenereerde definitie zijn automatisch ingevuld"
+                            "🔄 Gelijktijdige laadoperatie gedetecteerd. "
+                            "De nieuwste versie wordt geladen."
+                        )
+                        # Skip applying stale session data, but continue UI rendering
+                    else:
+                        # Safe to apply session data - no concurrent load detected
+                        SessionStateManager.set_value(
+                            "editing_definition", session.get("definition")
+                        )
+                        SessionStateManager.set_value("edit_session", session)
+
+                        # Check of er contexten zijn meegegeven vanuit de generator tab
+                        # Dit zorgt ervoor dat de contexten automatisch ingevuld worden
+                        edit_org_context = SessionStateManager.get_value(
+                            "edit_organisatorische_context"
+                        )
+                        edit_jur_context = SessionStateManager.get_value(
+                            "edit_juridische_context"
+                        )
+                        edit_wet_context = SessionStateManager.get_value(
+                            "edit_wettelijke_basis"
                         )
 
-                        # Clear de tijdelijke context variabelen na gebruik
-                        # Dit voorkomt dat oude contexten blijven hangen
-                        SessionStateManager.clear_value("edit_organisatorische_context")
-                        SessionStateManager.clear_value("edit_juridische_context")
-                        SessionStateManager.clear_value("edit_wettelijke_basis")
+                        if edit_org_context or edit_jur_context or edit_wet_context:
+                            # Log dat we contexten hebben gevonden
+                            logger.info(
+                                f"Loading contexts from generator tab for definition {target_id}"
+                            )
+
+                            # Toon melding aan gebruiker
+                            st.info(
+                                "📋 Contexten van gegenereerde definitie zijn automatisch ingevuld"
+                            )
+
+                            # Clear de tijdelijke context variabelen na gebruik
+                            # Dit voorkomt dat oude contexten blijven hangen
+                            SessionStateManager.clear_value(
+                                "edit_organisatorische_context"
+                            )
+                            SessionStateManager.clear_value("edit_juridische_context")
+                            SessionStateManager.clear_value("edit_wettelijke_basis")
         except Exception as e:
             logger.error(f"Error in edit tab auto-load: {e}")
 
