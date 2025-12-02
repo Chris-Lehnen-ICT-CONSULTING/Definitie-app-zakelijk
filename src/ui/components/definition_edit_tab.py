@@ -149,8 +149,27 @@ class DefinitionEditTab:
                             )
                             SessionStateManager.clear_value("edit_juridische_context")
                             SessionStateManager.clear_value("edit_wettelijke_basis")
+        except (ValueError, TypeError, KeyError, AttributeError) as e:
+            logger.warning(
+                f"Error in edit tab auto-load: {e}",
+                extra={
+                    "component": "definition_edit_tab",
+                    "operation": "auto_load",
+                    "target_id": target_id if "target_id" in dir() else None,
+                    "error_type": type(e).__name__,
+                },
+            )
+            # Don't show error to user - graceful degradation, user can manually select
         except Exception as e:
-            logger.error(f"Error in edit tab auto-load: {e}")
+            logger.error(
+                f"Unexpected error in edit tab auto-load: {e}",
+                extra={
+                    "component": "definition_edit_tab",
+                    "operation": "auto_load",
+                    "error_type": type(e).__name__,
+                },
+            )
+            st.warning("⚠️ Kon definitie niet automatisch laden. Selecteer handmatig.")
 
         # Main layout
         col1, col2 = st.columns([2, 1])
@@ -222,10 +241,8 @@ class DefinitionEditTab:
                 self._search_definitions(search_term, status_label, max_results)
 
         # Auto-load: toon standaard de meest recente definities wanneer er nog niet gezocht is
-        try:
-            current_results = SessionStateManager.get_value("edit_search_results")
-        except Exception:
-            current_results = None
+        # Note: SessionStateManager.get_value() returns None for missing keys, no try-except needed
+        current_results = SessionStateManager.get_value("edit_search_results")
 
         if (not current_results) and (not search_term) and status_label == "Alle":
             # Haal de laatste N definities op zonder filters (discovery)
@@ -261,7 +278,8 @@ class DefinitionEditTab:
                 def _join_list(v):
                     try:
                         return ", ".join([str(x) for x in (v or [])])
-                    except Exception:
+                    except (TypeError, AttributeError):
+                        # TypeError: v is not iterable, AttributeError: str() fails
                         return ""
 
                 rows = []
@@ -352,7 +370,9 @@ class DefinitionEditTab:
                         for _, r in edited.iterrows()
                         if bool(r.get("Selecteer"))
                     ]
-                except Exception:
+                except (ValueError, TypeError, KeyError, AttributeError):
+                    # ValueError: int() fails, TypeError: iteration fails,
+                    # KeyError: missing column, AttributeError: missing method
                     true_ids = []
 
                 selected_id = prev_selected_id
@@ -378,7 +398,18 @@ class DefinitionEditTab:
                         disabled=selected_id is None,
                     ):
                         self._start_edit_session(int(selected_id))
-            except Exception as e:
+            except ImportError:
+                # pandas not available - fallback to list view
+                st.info("📋 Tabelweergave niet beschikbaar. Gebruik de lijstweergave.")
+            except (ValueError, TypeError, KeyError, AttributeError) as e:
+                logger.debug(
+                    f"Table render issue: {e}",
+                    extra={
+                        "component": "definition_edit_tab",
+                        "operation": "render_search_results",
+                        "error_type": type(e).__name__,
+                    },
+                )
                 st.warning(f"Kon tabelweergave niet renderen: {e!s}")
 
         # Interactieve lijstweergave met direct selecteerbare items (alleen tonen als tabel uit staat)
@@ -416,7 +447,8 @@ class DefinitionEditTab:
                             jur = ", ".join(getattr(d, "juridische_context", []) or [])
                             if org or jur:
                                 st.caption(f"Org: {org or '—'} · Jur: {jur or '—'}")
-                        except Exception:
+                        except (TypeError, AttributeError):
+                            # TypeError: join fails on non-iterable, AttributeError: missing attr
                             pass
                     with c2:
                         if st.button("✏️ Bewerk", key=f"edit_btn_{d.id}"):
@@ -499,7 +531,8 @@ class DefinitionEditTab:
                     with st.expander("ℹ️ Afkortingen (uitleg)", expanded=False):
                         for ak in sorted(abbrev.keys()):
                             st.markdown(f"- **{ak}** — {abbrev[ak]}")
-            except Exception:
+            except (TypeError, AttributeError, KeyError):
+                # TypeError: sorted() fails, AttributeError: missing attr, KeyError: dict access
                 pass
             org_custom_values = []
             if "Anders..." in org_selected:
@@ -554,7 +587,8 @@ class DefinitionEditTab:
                 ufo_default_index = (
                     ufo_opties.index(current_ufo) if current_ufo in ufo_opties else 0
                 )
-            except Exception:
+            except (ValueError, TypeError, AttributeError):
+                # ValueError: not in list, TypeError: unhashable, AttributeError: missing attr
                 ufo_default_index = 0
             ufo_selected = st.selectbox(
                 "UFO-categorie",
@@ -809,12 +843,20 @@ class DefinitionEditTab:
                                 st.info(
                                     "ℹ️ Geen voorkeursterm geselecteerd. Gebruik de selector hierboven om er een te kiezen."
                                 )
-                        except Exception:
+                        except (ImportError, AttributeError, TypeError):
+                            # ImportError: module not found, AttributeError: missing attr, TypeError: comparison
                             st.info(
                                 "ℹ️ Geen voorkeursterm geselecteerd. Gebruik de selector hierboven om er een te kiezen."
                             )
-        except Exception as e:
-            logger.debug(f"Could not show voorkeursterm status: {e}")
+        except (KeyError, AttributeError, TypeError) as e:
+            logger.debug(
+                f"Could not show voorkeursterm status: {e}",
+                extra={
+                    "component": "definition_edit_tab",
+                    "operation": "render_examples_section",
+                    "error_type": type(e).__name__,
+                },
+            )
 
     def _render_metadata_panel(self):
         """Render compact metadata panel."""
@@ -901,8 +943,17 @@ class DefinitionEditTab:
                 # Render with PromptDebugSection (no voorbeelden_prompts in edit context)
                 PromptDebugSection.render(container, voorbeelden_prompts=None)
 
-        except Exception as e:
-            logger.debug(f"Could not render generation prompt: {e}")
+        except (ImportError, KeyError, TypeError, AttributeError) as e:
+            # ImportError: PromptDebugSection not found, KeyError: missing key
+            # TypeError: wrong type, AttributeError: missing method
+            logger.debug(
+                f"Could not render generation prompt: {e}",
+                extra={
+                    "component": "definition_edit_tab",
+                    "operation": "render_generation_prompt_section",
+                    "error_type": type(e).__name__,
+                },
+            )
             # Silently fail - not critical
 
     def _render_version_history(self):
@@ -1030,9 +1081,28 @@ class DefinitionEditTab:
             else:
                 st.info("Geen definities gevonden met deze criteria")
 
+        except (ValueError, TypeError, KeyError) as e:
+            logger.warning(
+                f"Search input error: {e}",
+                extra={
+                    "component": "definition_edit_tab",
+                    "operation": "search_definitions",
+                    "search_term": search_term,
+                    "error_type": type(e).__name__,
+                },
+            )
+            st.warning(f"⚠️ Ongeldige zoekopdracht: {e!s}")
         except Exception as e:
-            st.error(f"Fout bij zoeken: {e!s}")
-            logger.error(f"Search error: {e}")
+            logger.error(
+                f"Search error: {e}",
+                extra={
+                    "component": "definition_edit_tab",
+                    "operation": "search_definitions",
+                    "search_term": search_term,
+                    "error_type": type(e).__name__,
+                },
+            )
+            st.error(f"❌ Fout bij zoeken: {e!s}")
 
     def _start_edit_session(self, definition_id: int):
         """Start edit session for a definition."""
@@ -1066,10 +1136,17 @@ class DefinitionEditTab:
                             f"Eager-loaded voorbeelden for edit session {definition_id}: "
                             f"{sum(len(v) if isinstance(v, list) else 0 for v in voorbeelden.values())} items"
                         )
-                except Exception as e:
+                except (ImportError, KeyError, AttributeError, TypeError) as e:
                     # Don't fail session start if voorbeelden loading fails
+                    # ImportError: module not found, KeyError: dict access, AttributeError: missing method
                     logger.warning(
-                        f"Could not eager-load voorbeelden for edit session {definition_id}: {e}"
+                        f"Could not eager-load voorbeelden for edit session {definition_id}: {e}",
+                        extra={
+                            "component": "definition_edit_tab",
+                            "operation": "start_edit_session",
+                            "definition_id": definition_id,
+                            "error_type": type(e).__name__,
+                        },
                     )
 
                 # Check for auto-save draft en bied herstelknop
@@ -1094,9 +1171,31 @@ class DefinitionEditTab:
             else:
                 st.error(f"Fout: {session.get('error', 'Onbekende fout')}")
 
+        except (ValueError, TypeError, KeyError) as e:
+            logger.warning(
+                f"Invalid data when starting edit session: {e}",
+                extra={
+                    "component": "definition_edit_tab",
+                    "operation": "start_edit_session",
+                    "definition_id": definition_id,
+                    "error_type": type(e).__name__,
+                },
+            )
+            st.error(f"⚠️ Ongeldige gegevens bij starten sessie: {e!s}")
         except Exception as e:
-            st.error(f"Fout bij starten edit sessie: {e!s}")
-            logger.error(f"Edit session error: {e}")
+            logger.error(
+                f"Edit session error: {e}",
+                extra={
+                    "component": "definition_edit_tab",
+                    "operation": "start_edit_session",
+                    "definition_id": definition_id,
+                    "error_type": type(e).__name__,
+                },
+            )
+            st.error(
+                f"❌ Fout bij starten edit sessie: {e!s}. "
+                f"Probeer de pagina te verversen."
+            )
 
     def _save_definition(self):
         """Save the edited definition."""
@@ -1175,9 +1274,31 @@ class DefinitionEditTab:
             else:
                 st.error(f"Fout bij opslaan: {result.get('error', 'Onbekende fout')}")
 
+        except (ValueError, TypeError, KeyError) as e:
+            logger.warning(
+                f"Invalid data in save request: {e}",
+                extra={
+                    "component": "definition_edit_tab",
+                    "operation": "save_definition",
+                    "definition_id": definition_id,
+                    "error_type": type(e).__name__,
+                },
+            )
+            st.error(f"⚠️ Ongeldige gegevens: {e!s}. Controleer de invoer.")
         except Exception as e:
-            st.error(f"Fout bij opslaan: {e!s}")
-            logger.error(f"Save error: {e}")
+            logger.error(
+                f"Save error: {e}",
+                extra={
+                    "component": "definition_edit_tab",
+                    "operation": "save_definition",
+                    "definition_id": definition_id,
+                    "error_type": type(e).__name__,
+                },
+            )
+            st.error(
+                f"❌ Fout bij opslaan: {e!s}. Je wijzigingen zijn NIET opgeslagen. "
+                f"Kopieer je tekst naar een veilige plek en probeer opnieuw."
+            )
 
     def _validate_definition(self):
         """Validate the current definition and return results (do not render here)."""
@@ -1261,9 +1382,27 @@ class DefinitionEditTab:
 
             return results
 
+        except (ValueError, TypeError, KeyError, AttributeError) as e:
+            logger.warning(
+                f"Validation input error: {e}",
+                extra={
+                    "component": "definition_edit_tab",
+                    "operation": "validate_definition",
+                    "error_type": type(e).__name__,
+                },
+            )
+            st.warning(f"⚠️ Validatiefout: {e!s}")
+            return None
         except Exception as e:
-            st.error(f"Fout bij validatie: {e!s}")
-            logger.error(f"Validation error: {e}")
+            logger.error(
+                f"Validation error: {e}",
+                extra={
+                    "component": "definition_edit_tab",
+                    "operation": "validate_definition",
+                    "error_type": type(e).__name__,
+                },
+            )
+            st.error(f"❌ Fout bij validatie: {e!s}")
             return None
 
     def _render_fullwidth_validation_results(self) -> None:
@@ -1273,7 +1412,8 @@ class DefinitionEditTab:
             if results:
                 st.markdown("#### ✅ Kwaliteitstoetsing")
                 self._show_validation_results(results)
-        except Exception:
+        except (KeyError, TypeError, AttributeError):
+            # KeyError: missing key, TypeError: wrong type, AttributeError: missing method
             pass
 
     def _show_validation_results(self, results: dict[str, Any]):
@@ -1342,7 +1482,9 @@ class DefinitionEditTab:
                 "\nMeer uitleg: [Validatieregels (CON-01 e.a.)](docs/handleidingen/gebruikers/uitleg-validatieregels.md)"
             )
             return "\n".join(lines)
-        except Exception:
+        except (FileNotFoundError, KeyError, TypeError, ValueError, OSError):
+            # FileNotFoundError: rule file not found, KeyError: missing dict key
+            # TypeError: wrong type, ValueError: JSON decode, OSError: file read error
             return (
                 "Meer uitleg: [Validatieregels (CON-01 e.a.)]"
                 "(docs/handleidingen/gebruikers/uitleg-validatieregels.md)"
@@ -1422,7 +1564,16 @@ class DefinitionEditTab:
                             else "Wat toetst: —"
                         )
                         st.markdown(f"✅ {rid}{name_part}: OK · {wat_toetst}")
-        except Exception as e:
+        except (KeyError, TypeError, AttributeError, ValueError) as e:
+            # KeyError: missing dict key, TypeError: wrong type, AttributeError: missing method
+            logger.debug(
+                f"V2 validation details render error: {e}",
+                extra={
+                    "component": "definition_edit_tab",
+                    "operation": "render_v2_validation_details",
+                    "error_type": type(e).__name__,
+                },
+            )
             st.warning(f"Kon gedetailleerde validatie niet tonen: {e!s}")
 
     def _get_rule_info(self, rule_id: str) -> tuple[str, str]:
@@ -1441,7 +1592,9 @@ class DefinitionEditTab:
                 data.get("uitleg") or data.get("toetsvraag") or ""
             ).strip()
             return name, explanation
-        except Exception:
+        except (FileNotFoundError, KeyError, TypeError, ValueError, OSError):
+            # FileNotFoundError: rule file not found, KeyError: missing dict key
+            # TypeError: wrong type, ValueError: JSON decode, OSError: file read error
             return "", ""
 
     def _rule_sort_key(self, rule_id: str):
@@ -1467,7 +1620,9 @@ class DefinitionEditTab:
             m = _re.search(r"(\d+)", tail)
             if m:
                 num = int(m.group(1))
-        except Exception:
+        except (ValueError, TypeError, AttributeError, IndexError):
+            # ValueError: int() fails, TypeError: wrong type, AttributeError: missing method
+            # IndexError: split fails
             num = 9999
         return (grp, num, rid)
 
@@ -1483,9 +1638,16 @@ class DefinitionEditTab:
                     st.success("✅ Wijzigingen ongedaan gemaakt")
                     st.rerun()
 
-        except Exception as e:
+        except (KeyError, TypeError, AttributeError) as e:
+            logger.warning(
+                f"Undo error: {e}",
+                extra={
+                    "component": "definition_edit_tab",
+                    "operation": "undo_changes",
+                    "error_type": type(e).__name__,
+                },
+            )
             st.error(f"Fout bij ongedaan maken: {e!s}")
-            logger.error(f"Undo error: {e}")
 
     def _cancel_edit(self):
         """Cancel the edit session."""
@@ -1517,9 +1679,17 @@ class DefinitionEditTab:
                     f"Fout bij herstellen: {result.get('error', 'Onbekende fout')}"
                 )
 
-        except Exception as e:
+        except (KeyError, TypeError, AttributeError, ValueError) as e:
+            logger.warning(
+                f"Revert error: {e}",
+                extra={
+                    "component": "definition_edit_tab",
+                    "operation": "revert_to_version",
+                    "version_id": version_id,
+                    "error_type": type(e).__name__,
+                },
+            )
             st.error(f"Fout bij herstellen: {e!s}")
-            logger.error(f"Revert error: {e}")
 
     def _refresh_current_definition(self):
         """Refresh the current definition from database."""
@@ -1531,8 +1701,15 @@ class DefinitionEditTab:
                     SessionStateManager.set_value("editing_definition", definition)
                     st.rerun()
 
-        except Exception as e:
-            logger.error(f"Refresh error: {e}")
+        except (KeyError, TypeError, AttributeError) as e:
+            logger.warning(
+                f"Refresh error: {e}",
+                extra={
+                    "component": "definition_edit_tab",
+                    "operation": "refresh_current_definition",
+                    "error_type": type(e).__name__,
+                },
+            )
 
     def _track_changes(self):
         """Track changes for auto-save."""
@@ -1562,7 +1739,8 @@ class DefinitionEditTab:
         def _norm_list(v):
             try:
                 return sorted([str(x).strip() for x in (v or [])])
-            except Exception:
+            except (TypeError, AttributeError):
+                # TypeError: v not iterable or sorted() fails, AttributeError: strip() fails
                 return []
 
         for session_key, def_attr in fields_to_check:
@@ -1592,7 +1770,8 @@ class DefinitionEditTab:
                     elapsed = datetime.now() - last
                     if elapsed.total_seconds() < 30:
                         return  # throttle
-                except Exception:
+                except (TypeError, AttributeError):
+                    # TypeError: datetime subtraction fails, AttributeError: missing method
                     pass
             self._perform_auto_save()
 
@@ -1628,8 +1807,15 @@ class DefinitionEditTab:
             if self.edit_service.auto_save(definition_id, content):
                 SessionStateManager.set_value("last_auto_save", datetime.now())
 
-        except Exception as e:
-            logger.error(f"Auto-save error: {e}")
+        except (KeyError, TypeError, AttributeError, ValueError) as e:
+            logger.warning(
+                f"Auto-save error: {e}",
+                extra={
+                    "component": "definition_edit_tab",
+                    "operation": "perform_auto_save",
+                    "error_type": type(e).__name__,
+                },
+            )
 
     def _restore_auto_save(self, auto_save_content: dict[str, Any]):
         """Restore from auto-save."""
@@ -1675,9 +1861,16 @@ class DefinitionEditTab:
 
             st.success("✅ Auto-save hersteld")
 
-        except Exception as e:
+        except (KeyError, TypeError, AttributeError, ValueError) as e:
+            logger.warning(
+                f"Restore auto-save error: {e}",
+                extra={
+                    "component": "definition_edit_tab",
+                    "operation": "restore_auto_save",
+                    "error_type": type(e).__name__,
+                },
+            )
             st.error(f"Fout bij herstellen auto-save: {e!s}")
-            logger.error(f"Restore auto-save error: {e}")
 
     def _format_datetime(self, dt) -> str:
         """Format datetime for display."""
