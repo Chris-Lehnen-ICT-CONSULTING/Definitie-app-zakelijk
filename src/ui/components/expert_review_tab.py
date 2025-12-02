@@ -129,7 +129,9 @@ class ExpertReviewTab:
                             for ak in sorted(abbrev.keys()):
                                 st.markdown(f"- **{ak}** — {abbrev[ak]}")
                 except Exception:
-                    pass
+                    logger.warning(
+                        "Failed to load afkortingen config for review filters"
+                    )
             with col_jur:
                 jur_filter = st.multiselect(
                     "Juridisch",
@@ -669,7 +671,10 @@ class ExpertReviewTab:
                                 updated_by=user,
                             )
                     except Exception:
-                        pass
+                        logger.exception(
+                            "Failed to update ufo_categorie for definitie %s",
+                            definitie.id,
+                        )
                     res = workflow.approve(
                         definition_id=definitie.id,
                         user=user,
@@ -920,7 +925,9 @@ class ExpertReviewTab:
                     v2, key_prefix=f"review_{definitie.id}", show_toggle=True, gate=None
                 )
         except Exception:
-            pass
+            logger.exception(
+                "Failed to render validation results for definitie %s", definitie.id
+            )
 
     def _render_review_history(self):
         """Render review geschiedenis."""
