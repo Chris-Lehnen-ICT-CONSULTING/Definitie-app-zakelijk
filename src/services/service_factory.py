@@ -309,8 +309,9 @@ class ServiceAdapter:
                                 safe_dict_get(data, "passed_rules", [])
                             ),
                         }
-                except Exception:
-                    pass
+                except (TypeError, ValueError, AttributeError) as e:
+                    # DEF-229: Log failed dict conversion attempts for debugging
+                    logger.debug(f"Dict conversion method {method_name} failed: {e}")
 
         # Prefer schema-compliant adapter for dataclass/TypedDict
         try:
@@ -334,8 +335,11 @@ class ServiceAdapter:
                 "violations": ensure_list(schema.get("violations", [])),
                 "passed_rules": ensure_list(schema.get("passed_rules", [])),
             }
-        except Exception:
-            pass
+        except (ImportError, TypeError, ValueError, AttributeError) as e:
+            # DEF-229: Log schema compliance failures for debugging
+            logger.debug(
+                f"Schema compliance check failed, using attribute fallback: {e}"
+            )
 
         # Final fallback: attribute extraction
         violations = self._extract_violations(result)
@@ -455,8 +459,9 @@ class ServiceAdapter:
                 response.definition, "id", None
             ):
                 result["saved_definition_id"] = int(response.definition.id)
-        except Exception:
-            pass
+        except (TypeError, ValueError, AttributeError) as e:
+            # DEF-229: Log ID extraction failures (non-critical, UI still works)
+            logger.debug(f"Could not extract saved_definition_id: {e}")
         return result
 
     async def generate_definition(self, begrip: str, context_dict: dict, **kwargs):
@@ -541,8 +546,9 @@ class ServiceAdapter:
                     ]
                     if snippets_list:
                         extra_context["documents"] = {"snippets": snippets_list}
-                except Exception:
-                    pass
+                except (TypeError, ValueError, KeyError) as e:
+                    # DEF-229: Log snippet normalization failures
+                    logger.warning(f"Failed to normalize document snippets: {e}")
 
             # Handle V2 orchestrator async call properly
             response = await self.orchestrator.create_definition(
@@ -604,8 +610,9 @@ class ServiceAdapter:
                 val = validator_service()
                 if hasattr(val, "get_stats"):
                     stats["validator"] = val.get_stats()
-        except Exception:
-            pass
+        except (AttributeError, RuntimeError) as e:
+            # DEF-229: Log validator stats retrieval failures (optional feature)
+            logger.debug(f"Could not retrieve validator stats: {e}")
         return stats
 
     def validate_source(self, text: str) -> dict:

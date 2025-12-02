@@ -12,7 +12,7 @@ import tempfile
 import time
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -592,7 +592,8 @@ class TestCacheManager:
             self.manager.set("key1", "value1")
             # Should still work in memory
             assert "key1" in self.manager._store
-            mock_logger.debug.assert_called()
+            # DEF-229: Changed from debug to warning for observability
+            mock_logger.warning.assert_called()
 
     def test_get_from_disk(self):
         """Test loading value from disk when not in memory."""
@@ -712,7 +713,7 @@ class TestUtilityFunctions:
             )
 
             # Test that configuration is applied
-            from utils.cache import _cache, _cache_config
+            from utils.cache import _cache_config
 
             assert _cache_config.cache_dir == Path(temp_dir)
             assert _cache_config.default_ttl == 7200
