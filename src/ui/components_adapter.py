@@ -102,11 +102,12 @@ class UIComponentsAdapter:
         # Context: prefer centralized ContextManager via adapter; fallback to SessionStateManager
         try:
             adapter = get_context_adapter()
-            cm = adapter.to_generation_request()
+            # Fixed: was calling non-existent to_generation_request(), now using get_merged_context()
+            context = adapter.get_merged_context()
             ui_data["context_dict"] = {
-                "organisatorisch": cm.get("organisatorische_context", []),
-                "juridisch": cm.get("juridische_context", []),
-                "wettelijk": cm.get("wettelijke_basis", []),
+                "organisatorisch": context.get("organisatorische_context", []),
+                "juridisch": context.get("juridische_context", []),
+                "wettelijk": context.get("wettelijke_basis", []),
             }
         except Exception:
             ui_data["context_dict"] = {

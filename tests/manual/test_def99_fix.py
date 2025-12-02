@@ -1,10 +1,11 @@
 """
-Manual test to verify DEF-99 fix: Double adapter wrapping bug.
+Manual test to verify DEF-99/DEF-232 fix: CleaningService is now native async.
 
+DEF-232: Adapters removed. CleaningService is now native async.
 This test verifies that:
-1. Cleaning service is properly wrapped once in ServiceContainer
-2. Definition orchestrator uses the wrapped service directly
-3. Validation completes without AttributeError
+1. Cleaning service is used directly (no adapter wrapping)
+2. Definition orchestrator uses the async service correctly
+3. Validation completes without errors
 """
 
 import asyncio
@@ -17,12 +18,13 @@ sys.path.insert(0, str(src_path))
 
 
 async def test_validation_with_real_container():
-    """Test validation using real ServiceContainer (no double wrapping)."""
+    """Test validation using real ServiceContainer (native async CleaningService)."""
+    from services.cleaning_service import CleaningService
     from services.container import ServiceContainer
     from services.interfaces import GenerationRequest
 
     print("=" * 80)
-    print("DEF-99 Manual Test: Validation with Real Container")
+    print("DEF-99/DEF-232 Manual Test: Native Async CleaningService")
     print("=" * 80)
 
     # Create container with minimal config
@@ -35,7 +37,7 @@ async def test_validation_with_real_container():
 
     print("\n1. Container created successfully")
 
-    # Get orchestrator (should have cleaning service already wrapped)
+    # Get orchestrator (should have native async cleaning service)
     orchestrator = container.orchestrator()
     print(f"2. Orchestrator created: {type(orchestrator).__name__}")
     print(f"   - Cleaning service type: {type(orchestrator.cleaning_service).__name__}")
@@ -47,24 +49,22 @@ async def test_validation_with_real_container():
         f"   - Validation cleaning service type: {type(validation_service.cleaning_service).__name__}"
     )
 
-    # Verify no double wrapping
-    from services.adapters.cleaning_service_adapter import CleaningServiceAdapterV1toV2
-
-    is_orchestrator_wrapped = isinstance(
-        orchestrator.cleaning_service, CleaningServiceAdapterV1toV2
-    )
-    is_validation_wrapped = isinstance(
-        validation_service.cleaning_service, CleaningServiceAdapterV1toV2
+    # DEF-232: Verify NO adapter wrapping (CleaningService should be used directly)
+    is_orchestrator_native = isinstance(orchestrator.cleaning_service, CleaningService)
+    is_validation_native = isinstance(
+        validation_service.cleaning_service, CleaningService
     )
 
-    print("\n4. Wrapping verification:")
-    print(f"   - Orchestrator cleaning service is wrapped: {is_orchestrator_wrapped}")
-    print(f"   - Validation cleaning service is wrapped: {is_validation_wrapped}")
+    print("\n4. Native async verification (DEF-232):")
+    print(
+        f"   - Orchestrator cleaning service is native async: {is_orchestrator_native}"
+    )
+    print(f"   - Validation cleaning service is native async: {is_validation_native}")
 
-    if is_orchestrator_wrapped and is_validation_wrapped:
-        print("   ✅ Both services properly wrapped (expected)")
+    if is_orchestrator_native and is_validation_native:
+        print("   ✅ Both services are native async (DEF-232 consolidation successful)")
     else:
-        print("   ❌ Wrapping issue detected!")
+        print("   ❌ Unexpected service type detected!")
         return False
 
     # Create a simple test request
@@ -81,7 +81,7 @@ async def test_validation_with_real_container():
     print(f"\n5. Testing validation flow with request: {request.begrip}")
 
     try:
-        # This should NOT cause AttributeError if fix is correct
+        # This should work correctly with native async CleaningService
         from services.interfaces import Definition
         from services.validation.interfaces import ValidationContext
 
@@ -106,11 +106,11 @@ async def test_validation_with_real_container():
         print("6. Validation completed successfully!")
         print(f"   - Is valid: {getattr(result, 'is_valid', 'N/A')}")
         print(f"   - Result type: {type(result).__name__}")
-        print("\n✅ DEF-99 FIX VERIFIED: No AttributeError occurred!")
+        print("\n✅ DEF-232 VERIFIED: Native async CleaningService works correctly!")
         return True
 
     except AttributeError as e:
-        print("\n❌ DEF-99 FIX FAILED: AttributeError still occurs!")
+        print("\n❌ TEST FAILED: AttributeError occurred!")
         print(f"   Error: {e}")
         import traceback
 
@@ -118,7 +118,7 @@ async def test_validation_with_real_container():
         return False
     except Exception as e:
         print(f"\n⚠️  Other error occurred (may be expected): {type(e).__name__}: {e}")
-        # Other errors are OK - we only care about AttributeError from double wrapping
+        # Other errors are OK - we only care about async-related errors
         return True
 
 
