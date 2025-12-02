@@ -427,5 +427,143 @@ class TestConfigurationIntegration:
         assert isinstance(api_config.default_temperature, int | float)
 
 
+class TestSensitiveFieldsFiltering:
+    """DEF-247: Test suite for sensitive field filtering in configuration persistence.
+
+    These tests ensure that API keys and other sensitive data are NEVER written to config.yaml.
+    This is a security-critical feature that prevents credential leakage.
+    """
+
+    def test_sensitive_fields_class_variable_exists(self):
+        """Verify _SENSITIVE_FIELDS ClassVar is defined with expected fields."""
+        from config.config_manager import ConfigManager
+
+        # Verify the class variable exists
+        assert hasattr(ConfigManager, "_SENSITIVE_FIELDS")
+
+        # Verify it contains the expected sensitive field names
+        sensitive_fields = ConfigManager._SENSITIVE_FIELDS
+        assert "openai_api_key" in sensitive_fields
+        assert "api_key" in sensitive_fields
+        assert "secret" in sensitive_fields
+        assert "password" in sensitive_fields
+        assert "token" in sensitive_fields
+
+    def test_dataclass_to_dict_excludes_openai_api_key(self):
+        """_dataclass_to_dict should replace openai_api_key with empty string.
+
+        DEF-247: Prevents API keys from being written to config.yaml.
+        """
+        config_manager = ConfigManager()
+
+        # Set a fake API key in memory
+        original_key = config_manager.api.openai_api_key
+        config_manager.api.openai_api_key = "sk-test1234567890abcdefghijklmnop"
+
+        try:
+            # Convert to dict (this is what save_configuration uses)
+            result = config_manager._dataclass_to_dict(config_manager.api)
+
+            # Verify API key is replaced with empty string
+            assert result["openai_api_key"] == ""
+            assert "sk-test" not in str(result)
+            assert "1234567890" not in str(result)
+        finally:
+            # Restore original key
+            config_manager.api.openai_api_key = original_key
+
+    def test_dataclass_to_dict_excludes_all_sensitive_fields(self):
+        """All fields in _SENSITIVE_FIELDS should be excluded from dict output.
+
+        DEF-247: Comprehensive test for all sensitive field patterns.
+        """
+        from dataclasses import dataclass
+
+        @dataclass
+        class TestConfig:
+            """Test config with various sensitive fields."""
+
+            openai_api_key: str = "sk-secret123"
+            api_key: str = "api-secret456"
+            secret: str = "my-secret-value"
+            password: str = "my-password"
+            token: str = "bearer-token-xyz"
+            normal_field: str = "this-should-persist"
+            another_normal: int = 42
+
+        config_manager = ConfigManager()
+        test_obj = TestConfig()
+
+        result = config_manager._dataclass_to_dict(test_obj)
+
+        # All sensitive fields should be empty strings
+        assert result["openai_api_key"] == ""
+        assert result["api_key"] == ""
+        assert result["secret"] == ""
+        assert result["password"] == ""
+        assert result["token"] == ""
+
+        # Normal fields should be preserved
+        assert result["normal_field"] == "this-should-persist"
+        assert result["another_normal"] == 42
+
+        # Verify no sensitive data leaked
+        result_str = str(result)
+        assert "sk-secret" not in result_str
+        assert "api-secret" not in result_str
+        assert "my-secret" not in result_str
+        assert "my-password" not in result_str
+        assert "bearer-token" not in result_str
+
+    def test_save_configuration_does_not_persist_api_key(self):
+        """save_configuration() should not write API key to disk.
+
+        DEF-247: Integration test - write config, read file, verify key is empty.
+        """
+        config_manager = ConfigManager()
+
+        # Set a fake API key
+        original_key = config_manager.api.openai_api_key
+        fake_key = "sk-FAKE_KEY_SHOULD_NOT_APPEAR_IN_FILE_12345"
+        config_manager.api.openai_api_key = fake_key
+
+        try:
+            # Save configuration to disk
+            config_manager.save_configuration()
+
+            # Read the config file back
+            config_file = config_manager.config_file
+            if config_file.exists():
+                with open(config_file) as f:
+                    saved_content = f.read()
+
+                # Verify the fake key does NOT appear in the file
+                assert fake_key not in saved_content
+                assert "sk-FAKE_KEY" not in saved_content
+
+                # Parse YAML and verify api.openai_api_key is empty
+                saved_config = yaml.safe_load(saved_content)
+                if saved_config and "api" in saved_config:
+                    assert saved_config["api"].get("openai_api_key", "") == ""
+        finally:
+            # Restore original key
+            config_manager.api.openai_api_key = original_key
+
+    def test_sensitive_field_filtering_preserves_structure(self):
+        """Sensitive field filtering should preserve YAML structure (empty string, not missing).
+
+        DEF-247: Fields should be present but empty, not completely removed.
+        This ensures config file schema remains consistent.
+        """
+        config_manager = ConfigManager()
+        config_manager.api.openai_api_key = "sk-test-key-to-filter"
+
+        result = config_manager._dataclass_to_dict(config_manager.api)
+
+        # Field should exist with empty value (not be missing)
+        assert "openai_api_key" in result
+        assert result["openai_api_key"] == ""
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

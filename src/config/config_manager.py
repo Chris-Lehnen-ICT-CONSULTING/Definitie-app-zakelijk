@@ -14,7 +14,7 @@ from dataclasses import dataclass, field  # Decorators voor gestructureerde data
 from datetime import UTC, datetime  # Datum/tijd functionaliteit voor timestamps
 from enum import Enum  # Enumeratie types voor constante waarden
 from pathlib import Path  # Object-georiënteerde bestandspad manipulatie
-from typing import Any, cast
+from typing import Any, ClassVar, cast
 
 import yaml  # YAML bestand parser voor configuratie bestanden
 
@@ -648,10 +648,27 @@ class ConfigManager:
         except Exception as e:
             logger.error(f"Failed to save configuration: {e}")
 
+    # DEF-247: Fields that should never be persisted to config.yaml
+    _SENSITIVE_FIELDS: ClassVar[set[str]] = {
+        "openai_api_key",
+        "api_key",
+        "secret",
+        "password",
+        "token",
+    }
+
     def _dataclass_to_dict(self, obj) -> dict[str, Any]:
-        """Convert dataclass to dictionary."""
+        """Convert dataclass to dictionary, excluding sensitive fields.
+
+        DEF-247: Sensitive fields (API keys, secrets) are never written to disk.
+        They should be loaded from environment variables only.
+        """
         result = {}
         for field_name, field_value in obj.__dict__.items():
+            # DEF-247: Never persist sensitive fields - write empty string instead
+            if field_name in self._SENSITIVE_FIELDS:
+                result[field_name] = ""  # Preserve field but clear value
+                continue
             if isinstance(field_value, dict | list):
                 result[field_name] = field_value
             else:

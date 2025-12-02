@@ -3,8 +3,11 @@ CleaningService voor het opschonen van AI-gegenereerde definities.
 
 Deze service implementeert de moderne architectuur patterns en biedt
 een clean interface voor definitie opschoning met metadata tracking.
+
+DEF-232: Converted to native async (V1/V2 consolidation).
 """
 
+import asyncio
 import logging
 from dataclasses import dataclass
 from datetime import UTC, datetime
@@ -48,7 +51,7 @@ class CleaningService(CleaningServiceInterface):
         self.config = config
         logger.info("CleaningService geïnitialiseerd")
 
-    def clean_definition(self, definition: Definition) -> CleaningResult:
+    async def clean_definition(self, definition: Definition) -> CleaningResult:
         """
         Schoon een definitie object op en update metadata.
 
@@ -57,9 +60,11 @@ class CleaningService(CleaningServiceInterface):
 
         Returns:
             CleaningResult met opschoning details
+
+        DEF-232: Now native async (no adapter needed).
         """
         # Gebruik clean_text voor de daadwerkelijke opschoning
-        result = self.clean_text(definition.definitie, definition.begrip)
+        result = await self.clean_text(definition.definitie, definition.begrip)
 
         # Update de Definition object metadata als preserve_original enabled is
         if self.config.preserve_original and result.was_cleaned:
@@ -85,7 +90,7 @@ class CleaningService(CleaningServiceInterface):
 
         return result
 
-    def clean_text(self, text: str, term: str) -> CleaningResult:
+    async def clean_text(self, text: str, term: str) -> CleaningResult:
         """
         Schoon definitie tekst op met gedetailleerde tracking.
 
@@ -95,6 +100,8 @@ class CleaningService(CleaningServiceInterface):
 
         Returns:
             CleaningResult met complete opschoning informatie
+
+        DEF-232: Now native async - uses asyncio.to_thread for CPU-bound opschoning.
         """
 
         original_text = text.strip()
@@ -111,12 +118,17 @@ class CleaningService(CleaningServiceInterface):
                 # Import analyze_gpt_response voor metadata extractie
                 from opschoning.opschoning_enhanced import analyze_gpt_response
 
-                # Extract metadata eerst
-                gpt_metadata = analyze_gpt_response(original_text)
+                # Extract metadata eerst (CPU-bound, run in thread)
+                gpt_metadata = await asyncio.to_thread(
+                    analyze_gpt_response, original_text
+                )
 
-                # Pas opschoning toe
-                cleaned_text = opschonen_enhanced(
-                    original_text, term, handle_gpt_format=True
+                # Pas opschoning toe (CPU-bound, run in thread)
+                cleaned_text = await asyncio.to_thread(
+                    opschonen_enhanced,
+                    original_text,
+                    term,
+                    True,  # handle_gpt_format=True
                 )
 
                 # Voeg GPT metadata toe aan applied_rules als het relevant is
@@ -126,8 +138,12 @@ class CleaningService(CleaningServiceInterface):
                     )
             else:
                 # Gebruik ook enhanced voor consistentie, maar zonder GPT format handling
-                cleaned_text = opschonen_enhanced(
-                    original_text, term, handle_gpt_format=False
+                # CPU-bound, run in thread
+                cleaned_text = await asyncio.to_thread(
+                    opschonen_enhanced,
+                    original_text,
+                    term,
+                    False,  # handle_gpt_format=False
                 )
 
             # Analyseer welke wijzigingen zijn toegepast

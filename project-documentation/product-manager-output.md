@@ -1,375 +1,374 @@
-# Product Manager Analyse: Issue Prioritering DefinitieAgent
+# DEF-232: V1/V2 Interface Consolidation - Product Manager Analysis
 
-**Datum:** 2025-11-27
-**Auteur:** Product Manager (AI-assisted)
-**Versie:** 2.0
-**Project:** DefinitieAgent - Juridische Definitie Generator
+**Date:** 2025-12-02
+**Analyst:** Product Manager Agent
+**Status:** ANALYSIS COMPLETE
+**Previous Analysis:** 2025-11-27 (Issue Prioritization - retained in git history)
 
 ---
 
 ## Executive Summary
 
 ### Elevator Pitch
-DefinitieAgent genereert juridische definities met GPT-4, maar de huidige prompt kwaliteit scoort slechts 5.2/10 door conflicterende regels en cognitieve overload.
+Eliminate the "adapter hell" layer between synchronous V1 services and asynchronous V2 orchestrators, reducing code complexity by ~1,155 lines while improving maintainability and removing a category of runtime errors.
 
 ### Problem Statement
-De solo developer heeft 30+ issues in verschillende staten, zonder duidelijke prioritering. De kern-vraag: **welk issue levert de meeste waarde op in de kortste tijd?**
+The current architecture maintains parallel V1 (synchronous) and V2 (asynchronous) implementations with adapter classes bridging the gap. This creates:
+- **Cognitive overhead** for developers navigating two paradigms
+- **Structural fragility** where format conversions fail silently
+- **Technical debt** accumulating as workarounds proliferate
+- **Testing complexity** requiring dual validation paths
 
-### Aanbeveling
-**Start met DEF-154** (30 min, Quick Win), gevolgd door **DEF-186 Stap 1+2** (35 min), dan **DEF-183/DEF-184** (30 min totaal). Daarna pas DEF-38 (groot issue).
+### Target Audience
+- **Primary:** Solo developer maintaining the application
+- **Secondary:** Future contributors who need to understand the codebase
+
+### Unique Selling Proposition
+A clean, single-paradigm architecture that eliminates the translation layer, making the codebase easier to reason about, test, and extend.
 
 ### Success Metrics
-- Definitie kwaliteit: 5.2/10 naar 7.0/10 (binnen 2 weken)
-- Token efficiency: -25% prompt tokens
-- Development velocity: 3-4 issues/week
+| Metric | Current State | Target State | Measurement Method |
+|--------|--------------|--------------|-------------------|
+| Adapter LOC | ~1,155 lines | 0 lines | `wc -l` on adapter files |
+| Exception handlers in adapters | 15+ | 0 | Grep count |
+| Async/sync conversions | 323 occurrences | <50 (legitimate async) | Grep pattern matching |
+| Test complexity | Dual V1/V2 paths | Single path | Test file analysis |
 
 ---
 
-## Analyse Resultaten
+## 1. Business Impact Assessment
 
-### RICE Score Berekening
+### 1.1 Impact on Product Velocity
 
-| Issue | Reach | Impact | Confidence | Effort (h) | RICE Score |
-|-------|-------|--------|------------|------------|------------|
-| **DEF-154** | 100% | 2 | 90% | 0.5 | **360** |
-| DEF-186 (Stap 1+2) | 100% | 3 | 90% | 0.6 | **450** |
-| DEF-183 | 10% | 1 | 90% | 0.25 | 36 |
-| DEF-184 | 10% | 1 | 90% | 0.25 | 36 |
-| DEF-38 | 100% | 4 | 70% | 14 | 20 |
-| DEF-123 | 100% | 2 | 60% | 5 | 24 |
-| DEF-135 | 100% | 2 | 70% | 5 | 28 |
-| DEF-185 | 50% | 1 | 80% | 5 | 8 |
+**Current State Analysis:**
 
-**Conclusie:** DEF-186 en DEF-154 hebben verreweg de hoogste RICE scores.
+The V1/V2 adapter layer introduces friction at multiple points:
 
----
+| Friction Point | Impact | Evidence |
+|---------------|--------|----------|
+| **ServiceFactory adapter** (760 lines) | Every definition generation passes through translation layer | `service_factory.py` normalize_validation, to_ui_response |
+| **CleaningServiceAdapterV1toV2** | Async wrapping of sync service | `asyncio.to_thread` calls |
+| **ValidationServiceAdapterV1toV2** | Format normalization between dataclass and TypedDict | `mappers.py` ensure_schema_compliance |
+| **ValidationModuleAdapter** | Rule execution isolation with format conversion | `module_adapter.py` |
 
-### MoSCoW Classificatie
+**Velocity Impact:** Each new feature touching validation or generation requires understanding both paradigms. Estimated **15-20% overhead** on feature development time.
 
-#### Must Have (Week 1)
-| Issue | Reden | Effort |
-|-------|-------|--------|
-| DEF-154 | Verwijdert conflicterende instructies die GPT-4 verwarren | 30 min |
-| DEF-186 (Stap 1+2) | +25-35% kwaliteitsverbetering, vervangt DEF-149 | 35 min |
-| Close DEF-149 | Superseded door DEF-186 | 5 min |
+### 1.2 Technical Debt Cost
 
-#### Should Have (Week 2-3)
-| Issue | Reden | Effort |
-|-------|-------|--------|
-| DEF-183 | Fix singleton bypass DUP_01.py | 15 min |
-| DEF-184 | Fix singleton bypass synonym_service | 15 min |
-| DEF-38 (Quick Wins) | PROCES + EXEMPLAAR fixes (4 uur) | 4 uur |
+**Quantified Debt:**
 
-#### Could Have (Week 4-6)
-| Issue | Reden | Effort |
-|-------|-------|--------|
-| DEF-135 | Transform validation rules to instructions | 5 uur |
-| DEF-123 | Context-aware module loading | 5 uur |
-| DEF-106 | Create PromptValidator | 2 uur |
+| Category | Files Affected | Lines of Adapter Code | Bug Surface Area |
+|----------|---------------|----------------------|------------------|
+| Service Adapters | 4 | ~400 | Format conversion errors |
+| ServiceFactory | 1 | 760 | Schema normalization |
+| Validation Mappers | 1 | 277 | TypedDict/Dataclass mismatches |
+| Context Adapter | 1 | 134 | Context key mapping |
+| **Total** | **7** | **~1,571** | Multiple exception categories |
 
-#### Won't Have (Defer)
-| Issue | Reden |
-|-------|-------|
-| DEF-179 | 16 uur UI refactoring - no user-facing benefit |
-| DEF-180 | Docstring coverage - nice to have |
-| DEF-117 | Repository refactoring - no urgency |
+**Bug Evidence from Recent Work:**
+- DEF-229 addressed 34+ silent exception patterns, many in adapter code
+- `ensure_schema_compliance` has fallback path for "Invalid result type"
+- `normalize_validation` has 4 fallback strategies for format detection
+
+### 1.3 User-Facing Impact
+
+**Direct Impact:** Minimal - users see the same UI behavior.
+
+**Indirect Impact:**
+- Slower bug resolution when issues span V1/V2 boundary
+- Potential for validation results to differ between paths (parity risk)
+- Observability gaps in adapter exception handlers (now fixed by DEF-229)
 
 ---
 
-### Dependency Analysis
+## 2. Risk Analysis
 
+### 2.1 Technical Risks
+
+| Risk | Probability | Impact | Mitigation |
+|------|-------------|--------|------------|
+| **Breaking existing validation logic** | MEDIUM | HIGH | Comprehensive test coverage before refactor |
+| **Async/await propagation issues** | MEDIUM | MEDIUM | Incremental migration with integration tests |
+| **Performance regression** | LOW | MEDIUM | Benchmark before/after each phase |
+| **Hidden state dependencies** | MEDIUM | MEDIUM | Static analysis for session_state access |
+| **Third-party integration breaks** | LOW | HIGH | Smoke tests on external services |
+
+### 2.2 Breaking Changes Impact
+
+**Services Affected:**
+1. `CleaningService` - sync -> async conversion
+2. `ValidationService` - already V2, but adapter removal
+3. `PromptServiceV2` - already async, minimal change
+4. `AIServiceV2` - already async, no change needed
+
+**UI Impact:**
+- `ServiceAdapter.generate_definition()` is the main entry point
+- UI uses `async_bridge` pattern - should remain stable
+- `SessionStateManager` access patterns unchanged
+
+### 2.3 Rollback Strategy
+
+**Recommended Approach:**
 ```
-DEF-186 ────────> Replaces DEF-149 (CLOSE DEF-149)
-    |
-    v
-DEF-38 (Quick Wins) ────────> DEF-40 (depends on DEF-38)
-    |
-    v
-DEF-135 ────────> DEF-106 (validator needs instruction-style rules)
-```
-
-**Critical Path:**
-1. DEF-154 (independent, do first)
-2. DEF-186 (replaces DEF-149)
-3. DEF-38 Quick Wins (enables DEF-40)
-4. DEF-135 (enables better validation)
-
----
-
-### Quick Wins Matrix
-
-| Issue | Impact | Effort | ROI | Priority |
-|-------|--------|--------|-----|----------|
-| DEF-154 | HIGH | 30 min | EXCELLENT | 1 |
-| DEF-186 (Step 1) | HIGH | 5 min | EXCELLENT | 2 |
-| DEF-186 (Step 2) | HIGH | 30 min | EXCELLENT | 3 |
-| DEF-183 | LOW | 15 min | GOOD | 4 |
-| DEF-184 | LOW | 15 min | GOOD | 5 |
-| DEF-182 | LOW | 1 uur | MEDIUM | 6 |
-
----
-
-### User Value vs Technical Debt Matrix
-
-```
-                    HIGH USER VALUE
-                         |
-    DEF-38 (kwaliteit)   |   DEF-186 (context)
-    DEF-40 (categories)  |   DEF-154 (contradictions)
-                         |
-LOW TECH DEBT ───────────┼─────────── HIGH TECH DEBT
-                         |
-    DEF-135 (transform)  |   DEF-185 (duplicate services)
-    DEF-106 (validator)  |   DEF-183/184 (singletons)
-                         |
-                    LOW USER VALUE
+Phase 1-2: Non-destructive additions (new async methods alongside sync)
+Phase 3-4: Deprecation (mark old methods, add warnings)
+Phase 5-6: Removal (delete adapters, update callers)
 ```
 
-**Focus Quadrant:** HIGH USER VALUE + LOW TECH DEBT = DEF-186, DEF-154
+**Rollback Points:**
+- After Phase 2: Full rollback possible, no breaking changes
+- After Phase 4: Partial rollback, restore adapter classes only
+- After Phase 6: Requires branch revert
 
 ---
 
-## JSON Output
+## 3. Prioritization Recommendation
 
-```json
-{
-  "recommended_first_issue": "DEF-154",
-  "rationale": "Highest RICE score (360) for a 30-minute task. Removes conflicting word_type_advice from ExpertiseModule that confuses GPT-4. Zero dependencies, immediate quality improvement. After completing DEF-154, immediately proceed to DEF-186 Step 1+2 (35 min total) for +25-35% quality boost.",
-  "rice_scores": {
-    "DEF-154": 360,
-    "DEF-186_steps_1_2": 450,
-    "DEF-183": 36,
-    "DEF-184": 36,
-    "DEF-38": 20,
-    "DEF-123": 24,
-    "DEF-135": 28,
-    "DEF-185": 8
-  },
-  "moscow_classification": {
-    "must_have": ["DEF-154", "DEF-186", "CLOSE:DEF-149"],
-    "should_have": ["DEF-183", "DEF-184", "DEF-38_quick_wins"],
-    "could_have": ["DEF-135", "DEF-123", "DEF-106", "DEF-40"],
-    "wont_have": ["DEF-179", "DEF-180", "DEF-117"]
-  },
-  "dependency_order": [
-    "DEF-154 (independent - START HERE)",
-    "DEF-186 Step 1+2 (replaces DEF-149)",
-    "CLOSE DEF-149 (superseded)",
-    "DEF-183 (singleton fix)",
-    "DEF-184 (singleton fix)",
-    "DEF-38 Quick Wins (4h subset)",
-    "DEF-135 (after DEF-38)",
-    "DEF-106 (after DEF-135)"
-  ],
-  "quick_wins": [
-    {
-      "issue": "DEF-154",
-      "effort": "30 min",
-      "impact": "Remove contradictions",
-      "tokens_saved": 100
-    },
-    {
-      "issue": "DEF-186 Step 1",
-      "effort": "5 min",
-      "impact": "Priority boost context module",
-      "tokens_saved": 0
-    },
-    {
-      "issue": "DEF-186 Step 2",
-      "effort": "30 min",
-      "impact": "+25-35% quality",
-      "tokens_saved": 150
-    },
-    {
-      "issue": "DEF-183",
-      "effort": "15 min",
-      "impact": "Fix singleton bypass",
-      "tokens_saved": 0
-    },
-    {
-      "issue": "DEF-184",
-      "effort": "15 min",
-      "impact": "Fix singleton bypass",
-      "tokens_saved": 0
-    }
-  ],
-  "90_day_roadmap": [
-    {
-      "week": "1",
-      "theme": "Quick Wins",
-      "issues": ["DEF-154", "DEF-186 Step 1+2", "CLOSE DEF-149"],
-      "expected_quality": "5.2 -> 6.0",
-      "effort_hours": 1.5
-    },
-    {
-      "week": "2",
-      "theme": "Singleton Fixes + DEF-38 Start",
-      "issues": ["DEF-183", "DEF-184", "DEF-38 PROCES fix", "DEF-38 EXEMPLAAR fix"],
-      "expected_quality": "6.0 -> 6.5",
-      "effort_hours": 6
-    },
-    {
-      "week": "3-4",
-      "theme": "DEF-38 Completion",
-      "issues": ["DEF-38 TYPE fix", "DEF-38 BFO foundations"],
-      "expected_quality": "6.5 -> 7.0",
-      "effort_hours": 10
-    },
-    {
-      "week": "5-6",
-      "theme": "Instruction Optimization",
-      "issues": ["DEF-135", "DEF-123"],
-      "expected_quality": "7.0 -> 7.5",
-      "effort_hours": 10
-    },
-    {
-      "week": "7-8",
-      "theme": "Validation & Automation",
-      "issues": ["DEF-106", "DEF-40"],
-      "expected_quality": "7.5 -> 8.0",
-      "effort_hours": 8
-    },
-    {
-      "week": "9-12",
-      "theme": "Technical Debt Reduction",
-      "issues": ["DEF-185", "DEF-182", "DEF-186 Step 3"],
-      "expected_quality": "8.0 (stable)",
-      "effort_hours": 10
-    }
-  ]
-}
-```
+### 3.1 Should This Be Done Now?
+
+**Recommendation: NEXT SPRINT (not immediate)**
+
+**Rationale:**
+
+| Factor | Assessment |
+|--------|-----------|
+| **Current stability** | DEF-229 just fixed exception handling - let it stabilize |
+| **Bug backlog** | No critical adapter-related bugs in queue |
+| **Feature roadmap** | No features blocked by V1/V2 architecture |
+| **Developer bandwidth** | 28-36 hours is significant for solo dev |
+| **Technical debt priority** | HIGH but not URGENT |
+
+### 3.2 Dependencies
+
+**Prerequisite Work:**
+- [x] DEF-229 exception handling (DONE - in current branch)
+- [ ] Full test coverage audit for adapter code paths
+- [ ] Performance baseline measurement
+
+**Blocking Nothing:**
+- No features depend on V1/V2 consolidation
+- Refactor is self-contained
+
+### 3.3 Opportunity Cost of NOT Doing This
+
+| Scenario | Cost | Timeline |
+|----------|------|----------|
+| **Continue adding features** | +15-20% dev time overhead | Ongoing |
+| **Another adapter bug** | 2-4 hours debugging | Unpredictable |
+| **New contributor onboarding** | Extra day understanding architecture | Per contributor |
+| **Total 6-month cost** | ~40-60 hours of overhead | Estimated |
+
+**Break-even analysis:** If the refactor takes 36 hours and saves 15% on 200 hours of future work, break-even is ~4 months.
 
 ---
 
-## Feature Specifications
+## 4. Phasing Recommendation
 
-### Feature: DEF-154 - Remove Conflicting word_type_advice
+### 4.1 Proposed 6-Phase Plan Analysis
 
-**User Story:** Als definitie-gebruiker wil ik consistente instructies krijgen zodat GPT-4 niet verward raakt door conflicterende adviezen.
+Based on codebase analysis, the likely 6-phase plan would be:
 
-**Acceptance Criteria:**
-- Given ExpertiseModule is geladen, when word_type_advice method wordt aangeroepen, then geen output (method verwijderd)
-- Given een deverbaal woord, when definitie wordt gegenereerd, then alleen ontologische categorie bepaalt format
-- Edge case: werkwoorden krijgen GEEN "definieer als proces" advice meer
+| Phase | Description | Effort | Risk |
+|-------|-------------|--------|------|
+| 1 | Add async methods to CleaningService | 4-6h | LOW |
+| 2 | Migrate ValidationService consumers | 6-8h | MEDIUM |
+| 3 | Update PromptService integration | 4-5h | LOW |
+| 4 | Refactor ServiceFactory | 8-10h | HIGH |
+| 5 | Remove adapter classes | 4-5h | MEDIUM |
+| 6 | Cleanup and testing | 4-6h | LOW |
 
-**Priority:** P0 - Quick Win met hoogste RICE
-**Dependencies:** Geen
-**Technical Constraints:** Behoud _bepaal_woordsoort() voor andere modules
-**UX Considerations:** Geen UI impact, alleen prompt quality
+### 4.2 Highest Risk Phase
+
+**Phase 4: Refactor ServiceFactory** is highest risk because:
+- 760 lines of complex mapping logic
+- Central point for all UI interactions
+- Multiple fallback strategies to preserve
+- Schema normalization must remain compatible
+
+**Risk Mitigation:**
+1. Create comprehensive golden file tests BEFORE phase 4
+2. Run V1/V2 parity tests during transition
+3. Feature flag new code path initially
+
+### 4.3 Recommended Milestones/Checkpoints
+
+| Checkpoint | Gate Criteria | Rollback Decision |
+|------------|---------------|-------------------|
+| **After Phase 2** | All unit tests pass, no new errors in logs | If integration issues, rollback Phase 2 |
+| **After Phase 4** | Golden file parity maintained, performance within 10% | If parity fails, rollback to Phase 3 |
+| **After Phase 6** | Full regression suite passes, smoke test OK | If critical bugs, restore from Phase 4 branch |
+
+### 4.4 Alternative Phasing
+
+**Consider consolidating to 4 phases:**
+
+1. **Preparation** (Phase 1+2): Add async methods, create parity tests
+2. **Core Migration** (Phase 3+4): ServiceFactory and consumer updates
+3. **Cleanup** (Phase 5): Remove adapters
+4. **Validation** (Phase 6): Testing and documentation
+
+This reduces context switching and maintains momentum.
 
 ---
 
-### Feature: DEF-186 - Context Mechanism Teaching
+## 5. Success Metrics
 
-**User Story:** Als definitie-gebruiker wil ik dat GPT-4 context IMPLICIET verwerkt via 3 mechanismen (vocabulaire, scope, relaties) in plaats van patroon-herkenning.
+### 5.1 Primary KPIs
 
-**Acceptance Criteria:**
-- Given context module priority is 90, when prompt wordt gebouwd, then context instructies verschijnen voor grammar (priority 80)
-- Given 3 mechanismen zijn toegevoegd, when strafrechtelijke term wordt gegenereerd, then "recidive" verschijnt ipv "herhaling"
-- Edge case: bij geen context, minimale instructies toch aanwezig
+| KPI | Baseline | Target | Measurement |
+|-----|----------|--------|-------------|
+| **Adapter code lines** | 1,571 | 0 | `wc -l` on adapter files |
+| **asyncio.to_thread calls** | 6+ | 0 | Grep count |
+| **Exception handler complexity** | 15+ try/except in adapters | 0 | AST analysis |
+| **Test file count** | N+M (V1+V2) | N (unified) | File count |
 
-**Priority:** P0 - Vervangt DEF-149 met 4x betere ROI
-**Dependencies:** DEF-149 moet gesloten worden
-**Technical Constraints:** Maximaal +150 tokens
-**UX Considerations:** Definitie kwaliteit direct zichtbaar voor gebruiker
+### 5.2 Secondary KPIs
+
+| KPI | Expected Change | Why It Matters |
+|-----|-----------------|----------------|
+| **Cold start time** | -50-100ms | Fewer adapter initializations |
+| **Memory footprint** | -5-10% | Fewer object translations |
+| **Code coverage** | Stable or improved | Removing dead paths |
+| **Cyclomatic complexity** | -20-30% in services/ | Simpler control flow |
+
+### 5.3 Negative Indicators (Stop Conditions)
+
+| Indicator | Threshold | Action |
+|-----------|-----------|--------|
+| **Test failures** | >5 in unrelated modules | Stop, investigate coupling |
+| **Performance regression** | >15% on generation time | Rollback, profile |
+| **New bugs reported** | >3 in 48 hours post-merge | Rollback to checkpoint |
 
 ---
 
 ## Critical Questions Checklist
 
-- [x] Zijn er bestaande oplossingen? **Ja, DEF-149 bestaat maar is inferieur aan DEF-186**
-- [x] Wat is de minimum viable versie? **DEF-154 + DEF-186 Step 1+2 = 1.5 uur**
-- [x] Potentiele risico's? **DEF-38 is 14 uur - kan scope creep veroorzaken**
-- [x] Platform-specifieke requirements? **Streamlit SessionStateManager constraints**
-- [ ] GAPS: Hoeveel definities worden nu gegenereerd per dag/week?
-- [ ] GAPS: Wat is de huidige user satisfaction score?
-- [ ] GAPS: Zijn er concrete deadlines of stakeholder verwachtingen?
+- [x] **Are there existing solutions we're improving upon?**
+  Yes - DEF-229 fixed observability in current adapter layer, but doesn't eliminate structural complexity.
+
+- [x] **What's the minimum viable version?**
+  Phase 1-2 only: Add async to CleaningService, keep adapters as deprecated shims. Provides foundation without breaking changes.
+
+- [x] **What are the potential risks or unintended consequences?**
+  - UI async_bridge pattern may need updates
+  - Third-party service mocks in tests may break
+  - Logging correlation IDs may need updating
+
+- [x] **Have we considered platform-specific requirements?**
+  - macOS development environment (Darwin 25.1.0)
+  - Python 3.11+ async features available
+  - Streamlit's async model constraints
+
+- [x] **What GAPS exist that need more clarity?**
+  1. **Test coverage audit** - Need exact count of tests touching adapter code
+  2. **Performance baseline** - No current benchmarks for comparison
+  3. **Feature flag strategy** - How to run new/old paths in parallel during transition
+  4. **Documentation updates** - CLAUDE.md and architecture docs need updating
 
 ---
 
-## Aanbevolen Eerste Actie
+## Feature Specifications
 
-### Vandaag (1.5 uur totaal):
+### Feature: V1/V2 Interface Consolidation
 
-1. **DEF-154** (30 min)
-   - Open `src/services/prompts/modules/expertise_module.py`
-   - Verwijder `_build_word_type_advice()` method (lines 169-185)
-   - Verwijder invocation in `execute()` (lines 86-88)
-   - Run tests
+**User Story:** As a solo developer, I want a single async-first service architecture so that I spend less time navigating adapter complexity and more time building features.
 
-2. **DEF-186 Step 1** (5 min)
-   - Open `src/services/prompts/modules/context_awareness_module.py`
-   - Wijzig `priority=70` naar `priority=90` (line 38)
+**Acceptance Criteria:**
+- Given all adapter files are removed, when the application starts, then all services use native async
+- Given CleaningService is called, when processing text, then no asyncio.to_thread wrapper is needed
+- Given validation results are returned, when consumed by UI, then no format normalization layer exists
+- Edge case: Legacy test fixtures continue to work with compatibility shims
 
-3. **DEF-186 Step 2** (30 min)
-   - Voeg IMPLICIT_CONTEXT_MECHANISMS toe aan alle 3 context niveaus
-   - Run tests
+**Priority:** P1 - Important but not urgent (schedule for next sprint)
+**Dependencies:** DEF-229 completion, test coverage audit
+**Technical Constraints:**
+- Must maintain backwards compatibility during transition
+- Cannot break Streamlit's event loop model
+- Must preserve validation result schemas
 
-4. **Close DEF-149** (5 min)
-   - Linear: Mark as "Superseded by DEF-186"
-   - State: Duplicate/Canceled
-
-5. **DEF-183 + DEF-184** (30 min)
-   - Fix singleton bypasses
-   - Run tests
-
-**Verwacht resultaat:** Kwaliteit 5.2 -> 6.0 in 1.5 uur werk.
+**UX Considerations:** No user-visible changes - purely internal refactor
 
 ---
 
-## Appendix: Issue Status Update Recommendations
+## Appendix: Files Requiring Changes
 
-| Issue | Current State | Recommended Action |
-|-------|---------------|-------------------|
-| DEF-149 | In Progress | CLOSE (Superseded by DEF-186) |
-| DEF-186 | Backlog | MOVE to In Progress |
-| DEF-154 | In Progress | START (highest priority) |
-| DEF-38 | In Progress | CONTINUE after Quick Wins |
-| DEF-123 | In Progress | PAUSE (lower priority) |
-| DEF-135 | In Progress | PAUSE (depends on DEF-38) |
-| DEF-106 | In Progress | PAUSE (depends on DEF-135) |
-| DEF-40 | In Progress | PAUSE (depends on DEF-38) |
+### Primary Changes
+| File | LOC | Change Type |
+|------|-----|-------------|
+| `services/adapters/cleaning_service_adapter.py` | 62 | DELETE |
+| `services/adapters/validation_service_adapter.py` | 59 | DELETE |
+| `services/validation/module_adapter.py` | 83 | REFACTOR |
+| `services/validation/mappers.py` | 277 | SIMPLIFY |
+| `services/service_factory.py` | 760 | MAJOR REFACTOR |
+| `services/container.py` | 798 | UPDATE |
+| `services/context/context_adapter.py` | 134 | EVALUATE |
 
----
-
-## Appendix B: Blocking Issues Analysis
-
-### Issues Currently "In Progress" (7 stuks)
-Het feit dat 7 issues tegelijk "In Progress" zijn is een rode vlag voor een solo developer:
-
-| Issue | Days in Progress | Recommendation |
-|-------|-----------------|----------------|
-| DEF-38 | 40+ dagen | CONTINUE - core issue |
-| DEF-149 | 17 dagen | CLOSE - superseded |
-| DEF-154 | 14 dagen | FINISH TODAY |
-| DEF-123 | 20 dagen | PAUSE - lower priority |
-| DEF-135 | 20 dagen | PAUSE - depends on DEF-38 |
-| DEF-106 | 23 dagen | PAUSE - depends on DEF-135 |
-| DEF-40 | 40+ dagen | PAUSE - depends on DEF-38 |
-
-**Aanbeveling:** Reduceer "In Progress" naar max 2 issues tegelijk (WIP limit).
+### Secondary Changes (Consumers)
+| File | Change Type |
+|------|-------------|
+| `services/orchestrators/definition_orchestrator_v2.py` | Update constructor |
+| `services/cleaning_service.py` | Add async methods |
+| `ui/helpers/async_bridge.py` | Verify compatibility |
+| Tests in `tests/services/` | Update mocks |
 
 ---
 
-## Appendix C: Linear Backlog Cleanup Actions
+## Appendix B: Current V1/V2 Architecture Patterns
 
-### Immediate Actions (vandaag)
-1. DEF-149: Change state to "Duplicate" with note "Superseded by DEF-186"
-2. DEF-186: Move to "In Progress"
-3. DEF-154: Finish implementation
+### Pattern 1: Sync-to-Async Adapter (CleaningService)
+```python
+# Current: CleaningServiceAdapterV1toV2 wraps sync service
+async def clean_text(self, text: str, term: str) -> CleaningResult:
+    return await asyncio.to_thread(self._svc.clean_text, text, term)
 
-### This Week Actions
-4. DEF-123, DEF-135, DEF-106, DEF-40: Move back to "Backlog" (paused)
-5. DEF-183, DEF-184: Move to "In Progress" after DEF-154
+# Target: Native async in CleaningService
+async def clean_text(self, text: str, term: str) -> CleaningResult:
+    # Direct async implementation
+```
 
-### Backlog Grooming (weekend)
-6. Review all "No Priority" issues (12 stuks) - assign priority
-7. Close stale issues (>60 dagen zonder activiteit)
-8. Update estimates based on actual effort
+### Pattern 2: Format Normalization (Validation)
+```python
+# Current: Multiple fallback strategies in normalize_validation
+if isinstance(result, dict):
+    return {...}  # Dict path
+elif hasattr(result, "to_dict"):
+    return {...}  # Object path
+else:
+    try:
+        schema = ensure_schema_compliance(result)  # Schema path
+    except:
+        return self._extract_violations(result)  # Fallback path
+
+# Target: Single canonical format
+return ValidationResult(**result.to_canonical())
+```
+
+### Pattern 3: ServiceFactory Translation Layer
+```python
+# Current: to_ui_response with complex mapping
+def to_ui_response(self, response, agent_result):
+    # 100+ lines of format translation
+
+# Target: Direct response passthrough
+return response.to_ui_format()
+```
 
 ---
 
-*Document gegenereerd: 2025-11-27*
-*Analyse methode: RICE + MoSCoW + Dependency Mapping + User Value Matrix*
-*Data bron: Linear API real-time query*
+## Recommendation Summary
+
+| Aspect | Recommendation |
+|--------|---------------|
+| **Priority** | P1 - Important but not urgent |
+| **Timeline** | Start next sprint, not current |
+| **Approach** | 4-phase consolidated plan |
+| **Risk mitigation** | Parity tests before phase 3 |
+| **Success measure** | Zero adapter files, all tests green |
+
+**Final Verdict:** Proceed with planning, schedule for next sprint after DEF-229 stabilization period. Create parity test suite as prerequisite before major refactoring begins.
+
+---
+
+*Document generated: 2025-12-02*
+*Analysis method: Codebase exploration + Impact assessment + Risk analysis*
+*Data sources: src/services/*.py, git history, DEF-229 documentation*
