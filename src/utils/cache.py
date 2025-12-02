@@ -20,7 +20,7 @@ from datetime import (  # Datum en tijd voor TTL management, timezone
 )
 from functools import wraps  # Decorator utilities voor cache functionaliteit
 from pathlib import Path  # Object-georiënteerde pad manipulatie
-from typing import Any  # Type hints voor betere code documentatie
+from typing import Any, Optional  # Type hints voor betere code documentatie
 
 logger = logging.getLogger(__name__)  # Logger instantie voor cache module
 
@@ -85,7 +85,7 @@ class FileCache:
             default=str,
         )
 
-        return hashlib.md5(content.encode()).hexdigest()
+        return hashlib.md5(content.encode(), usedforsecurity=False).hexdigest()
 
     def _is_expired(self, cache_key: str) -> bool:
         """Check if cache entry is expired."""
@@ -163,8 +163,14 @@ class FileCache:
                 del self.metadata[cache_key]
                 self._save_metadata()
 
-        except Exception as e:
-            logger.warning(f"Failed to delete cache entry {cache_key}: {e}")
+        except FileNotFoundError:
+            # DEF-229: Race condition - file already deleted by another process
+            logger.debug(f"Cache entry {cache_key} already deleted (race condition)")
+        except OSError as e:
+            # DEF-229: Log actual filesystem errors (OSError includes PermissionError)
+            logger.warning(
+                f"Failed to delete cache entry {cache_key}: {e}", exc_info=True
+            )
 
     def _cleanup_old_entries(self):
         """Remove old cache entries to stay within size limit."""
@@ -212,6 +218,8 @@ _cache_config = CacheConfig()
 _cache = FileCache(_cache_config)
 # Global stats for decorator-based cache
 _stats = {"hits": 0, "misses": 0, "evictions": 0}
+# DEF-229: Thread-safe lock for stats updates to prevent race conditions
+_stats_lock = threading.Lock()
 
 
 def _generate_key_from_args(func_name: str, *args, **kwargs) -> str:
@@ -220,10 +228,7 @@ def _generate_key_from_args(func_name: str, *args, **kwargs) -> str:
         sort_keys=True,
         default=str,
     )
-    return hashlib.md5(content.encode()).hexdigest()
-
-
-from typing import Optional
+    return hashlib.md5(content.encode(), usedforsecurity=False).hexdigest()
 
 
 def cached(
@@ -274,13 +279,17 @@ def cached(
             if cached_result is not None:
                 fn = getattr(func, "__name__", "callable")
                 logger.debug(f"Cache hit for {fn}")
-                _stats["hits"] += 1
+                # DEF-229: Thread-safe stats update
+                with _stats_lock:
+                    _stats["hits"] += 1
                 return cached_result
 
             # SLOW PATH: Thread-safe computation
             # Note: We track decorator-level miss here (before lock) to avoid
             # double-counting in case of double-check hit
-            _stats["misses"] += 1
+            # DEF-229: Thread-safe stats update
+            with _stats_lock:
+                _stats["misses"] += 1
 
             with _func_lock:
                 # DOUBLE-CHECK: Another thread may have filled cache while waiting
@@ -289,8 +298,10 @@ def cached(
                     fn = getattr(func, "__name__", "callable")
                     logger.debug(f"Cache hit after lock wait for {fn}")
                     # Convert miss to hit (another thread filled cache)
-                    _stats["misses"] -= 1
-                    _stats["hits"] += 1
+                    # DEF-229: Thread-safe stats update
+                    with _stats_lock:
+                        _stats["misses"] -= 1
+                        _stats["hits"] += 1
                     return cached_result
 
                 # EXECUTE: Only first thread gets here
@@ -322,29 +333,45 @@ def cache_gpt_call(prompt: str, model: str | None = None, **kwargs) -> str:
     """
     content = {"prompt": prompt, "model": model, "params": sorted(kwargs.items())}
 
-    return hashlib.md5(json.dumps(content, sort_keys=True).encode()).hexdigest()
+    return hashlib.md5(
+        json.dumps(content, sort_keys=True).encode(), usedforsecurity=False
+    ).hexdigest()
 
 
 def get_cache_stats() -> dict[str, Any]:
-    """Get global cache statistics (decorator + file cache)."""
+    """Get global cache statistics (decorator + file cache).
+
+    DEF-229: Thread-safe read of stats to prevent race conditions
+    under concurrent load.
+    """
     file_stats = _cache.get_stats()
-    total = _stats["hits"] + _stats["misses"]
-    hit_rate = (float(_stats["hits"]) / total) if total else 0.0
+    # DEF-229: Atomic read of stats under lock to prevent inconsistent values
+    with _stats_lock:
+        hits = _stats["hits"]
+        misses = _stats["misses"]
+        evictions = _stats.get("evictions", 0)
+    total = hits + misses
+    hit_rate = (float(hits) / total) if total else 0.0
     return {
-        "hits": _stats["hits"],
-        "misses": _stats["misses"],
+        "hits": hits,
+        "misses": misses,
         "hit_rate": round(hit_rate, 2),
-        "evictions": _stats.get("evictions", 0),
+        "evictions": evictions,
         "entries": file_stats.get("entries", 0),
         **{f"file_{k}": v for k, v in file_stats.items()},
     }
 
 
 def clear_cache():
-    """Clear global cache."""
+    """Clear global cache.
+
+    DEF-229: Thread-safe reset of stats to prevent race conditions.
+    """
     _cache.clear()
-    _stats["hits"] = 0
-    _stats["misses"] = 0
+    # DEF-229: Atomic reset of stats under lock to prevent race conditions
+    with _stats_lock:
+        _stats["hits"] = 0
+        _stats["misses"] = 0
     # keep evictions as a running metric for manager; doesn't affect decorator tests
 
 
@@ -489,11 +516,20 @@ class CacheManager:
         Path(self.cache_dir).mkdir(parents=True, exist_ok=True)
         self.max_size = int(max_size)
         self.default_ttl = int(default_ttl)
+        # DEF-229: Track thread-safety status for observability
+        self._thread_safe = True
         try:
             import threading
 
             self._lock: threading.Lock | None = threading.Lock()
-        except Exception:  # pragma: no cover - extremely unlikely
+        except Exception as e:  # pragma: no cover - extremely unlikely
+            # DEF-229: Log threading initialization failure (degrades to non-thread-safe)
+            # Set flag so callers can detect degraded mode
+            self._thread_safe = False
+            logger.error(
+                f"CRITICAL: Threading lock init failed, cache NOT thread-safe: {type(e).__name__}: {e}",
+                exc_info=True,
+            )
             self._lock = None
         # key -> (value, expires_at)
         self._store: OrderedDict[str, tuple[Any, float]] = OrderedDict()
@@ -505,7 +541,7 @@ class CacheManager:
         return datetime.now(UTC).timestamp()
 
     def _hash(self, key: str) -> str:
-        return hashlib.md5(key.encode()).hexdigest()
+        return hashlib.md5(key.encode(), usedforsecurity=False).hexdigest()
 
     def _file_path(self, key: str) -> Path:
         return Path(self.cache_dir) / f"cm_{self._hash(key)}.pkl"
@@ -531,7 +567,9 @@ class CacheManager:
         while len(self._store) > self.max_size:
             evicted_key, _ = self._store.popitem(last=False)
             self._evictions += 1
-            _stats["evictions"] = _stats.get("evictions", 0) + 1
+            # DEF-229: Thread-safe update of global stats (self._lock != _stats_lock)
+            with _stats_lock:
+                _stats["evictions"] = _stats.get("evictions", 0) + 1
             # Remove file for evicted key
             try:
                 self._file_path(evicted_key).unlink(missing_ok=True)  # type: ignore[call-arg]
@@ -632,4 +670,6 @@ class CacheManager:
             "hit_rate": round(hit_rate, 2),
             "evictions": self._evictions,
             "entries": len(self._store),
+            # DEF-229: Expose thread-safety status for observability
+            "thread_safe": self._thread_safe,
         }

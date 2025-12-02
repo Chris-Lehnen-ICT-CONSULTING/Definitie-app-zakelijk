@@ -563,12 +563,11 @@ class TabbedInterface:
             "Event Composition",
         ]
         ufo_default = SessionStateManager.get_value("ufo_categorie", "")
-        try:
-            default_index = (
-                ufo_opties.index(ufo_default) if ufo_default in ufo_opties else 0
-            )
-        except Exception:
-            default_index = 0
+        # DEF-229: The `if ufo_default in ufo_opties` check prevents ValueError,
+        # so no try/except needed here (was dead code)
+        default_index = (
+            ufo_opties.index(ufo_default) if ufo_default in ufo_opties else 0
+        )
         ufo_selected = st.selectbox(
             "UFO-categorie",
             options=ufo_opties,
@@ -768,8 +767,11 @@ class TabbedInterface:
                                     SessionStateManager.clear_value(
                                         "selected_definition"
                                     )
-                                except Exception:
-                                    pass
+                                except (KeyError, AttributeError) as e:
+                                    # DEF-229: Log session state clearing failures
+                                    logger.debug(
+                                        f"Could not clear session state during force generate: {e}"
+                                    )
                                 # Ga door met geforceerde generatie (buiten gate)
                             else:
                                 # Niet gekozen → stop huidige generatie
@@ -807,11 +809,19 @@ class TabbedInterface:
                     # Config via env
                     try:
                         per_doc = int(os.getenv("DOCUMENT_SNIPPETS_PER_DOC", "4"))
-                    except Exception:
+                    except ValueError as e:
+                        # DEF-229: Log invalid env var configuration
+                        logger.warning(
+                            f"Invalid DOCUMENT_SNIPPETS_PER_DOC value, using default 4: {e}"
+                        )
                         per_doc = 4
                     try:
                         window_chars = int(os.getenv("SNIPPET_WINDOW_CHARS", "280"))
-                    except Exception:
+                    except ValueError as e:
+                        # DEF-229: Log invalid env var configuration
+                        logger.warning(
+                            f"Invalid SNIPPET_WINDOW_CHARS value, using default 280: {e}"
+                        )
                         window_chars = 280
 
                     doc_snippets = self._build_document_snippets(
@@ -995,8 +1005,9 @@ class TabbedInterface:
                     if options.get("force_generate"):
                         options.pop("force_generate", None)
                         SessionStateManager.set_value("generation_options", options)
-                except Exception:
-                    pass
+                except (KeyError, AttributeError) as e:
+                    # DEF-229: Log force flag reset failures
+                    logger.debug(f"Could not reset force_generate flag: {e}")
 
                 # V2 validation is already included in agent_result.validation_details
                 # The beoordeling_gen will be generated from V2 ValidationDetailsDict in the UI
@@ -1072,7 +1083,9 @@ class TabbedInterface:
                 parts.append("Hints: " + "; ".join(hints))
 
             return " | ".join(parts)
-        except Exception:
+        except (AttributeError, KeyError, TypeError) as e:
+            # DEF-229: Log document context summary build failures
+            logger.warning(f"Could not build document context summary: {e}")
             return ""
 
     def _build_document_snippets(
@@ -1139,7 +1152,8 @@ class TabbedInterface:
                             ):
                                 para_num = text.count("\n", 0, idx) + 1
                                 citation_label = f"¶ {para_num}"
-                        except Exception:
+                        except (AttributeError, IndexError):
+                            # DEF-229: Citation label extraction is optional
                             citation_label = None
 
                         snippet = {
@@ -1156,12 +1170,17 @@ class TabbedInterface:
                         count_for_doc += 1
                         if len(snippets) >= max_snippets_total:
                             break
-                except Exception:
-                    # Bij een fout in regex/matching: ga door met volgende document
+                except (re.error, ValueError, IndexError) as e:
+                    # DEF-229: Log regex/matching errors, continue with next document
+                    logger.debug(
+                        f"Skipping document due to snippet extraction error: {e}"
+                    )
                     continue
 
             return snippets[:max_snippets_total]
-        except Exception:
+        except (AttributeError, KeyError, TypeError) as e:
+            # DEF-229: Log snippet building failures
+            logger.warning(f"Could not build document snippets: {e}")
             return []
 
     def _handle_duplicate_check(self, begrip: str, context_data: dict[str, Any]):
@@ -1521,8 +1540,9 @@ class TabbedInterface:
             try:
                 stats = self.repository.get_statistics()
                 st.metric("📊 Definities", stats.get("total_definities", 0))
-            except Exception:
-                pass
+            except (AttributeError, KeyError, RuntimeError) as e:
+                # DEF-229: Log footer stats retrieval failures
+                logger.debug(f"Could not retrieve footer stats: {e}")
 
     # ------- Lightweight helpers primarily for test harness patching -------
     def _handle_file_upload(self) -> bool:  # pragma: no cover
