@@ -360,8 +360,18 @@ class ModularValidationService:
                     cleaned = clean_result
                 elif hasattr(clean_result, "cleaned_text"):
                     cleaned = clean_result.cleaned_text
-            except Exception:
-                # Bij cleaning-fout: ga verder met raw text (geen crash)
+            except (RuntimeError, TypeError, AttributeError, UnicodeError) as e:
+                # DEF-231: Bij cleaning-fout: ga verder met raw text (geen crash)
+                logger.warning(
+                    f"Tekst cleaning gefaald, validatie met ruwe tekst: {type(e).__name__}: {e}",
+                    extra={
+                        "component": "modular_validation_service",
+                        "operation": "text_cleaning",
+                        "correlation_id": correlation_id,
+                        "text_length": len(text) if text else 0,
+                        "cleaning_service_type": type(self.cleaning_service).__name__,
+                    },
+                )
                 cleaned = text
 
         # 3) Context opbouwen (tokens slechts op aanvraag; hier niet nodig)
@@ -568,8 +578,17 @@ class ModularValidationService:
                                 "suggestion": "Voeg essentiële inhoud toe: beschrijf wat het begrip is.",
                             }
                         )
-        except Exception:
-            pass
+        except (TypeError, AttributeError) as e:
+            # DEF-231: Log circular check failures for debugging
+            logger.warning(
+                f"Circulaire definitie check overgeslagen: {type(e).__name__}: {e}",
+                extra={
+                    "component": "modular_validation_service",
+                    "rule_id": "CON-CIRC-001",
+                    "correlation_id": correlation_id,
+                    "begrip": str(current_begrip)[:50] if current_begrip else None,
+                },
+            )
 
         # 6) Categorie-scores: bereken op basis van rule_scores (geen mirror)
         try:
@@ -597,8 +616,16 @@ class ModularValidationService:
                 for w in dup_warns:
                     if isinstance(w, dict) and "code" in w:
                         violations.append(w)
-        except Exception:
-            pass
+        except (AttributeError, TypeError) as e:
+            # DEF-231: Log duplicate warning failures for debugging
+            logger.warning(
+                f"CON-01 duplicate warnings verwerking overgeslagen: {type(e).__name__}: {e}",
+                extra={
+                    "component": "modular_validation_service",
+                    "rule_id": "CON-01",
+                    "correlation_id": correlation_id,
+                },
+            )
 
         # 8) Violations deterministisch sorteren op code
         violations.sort(key=lambda v: v.get("code", ""))
@@ -608,8 +635,18 @@ class ModularValidationService:
             acceptance_gate = self._evaluate_acceptance_gates(
                 overall, detailed, violations
             )
-        except Exception:
-            # Fallback op basis-acceptatie als gate-evaluatie faalt
+        except (TypeError, ValueError, KeyError) as e:
+            # DEF-231: Fallback op basis-acceptatie als gate-evaluatie faalt
+            logger.warning(
+                f"Acceptance gates evaluatie gefaald, fallback naar threshold: {type(e).__name__}: {e}",
+                extra={
+                    "component": "modular_validation_service",
+                    "operation": "acceptance_gates",
+                    "correlation_id": correlation_id,
+                    "overall_score": overall,
+                    "threshold": self._overall_threshold,
+                },
+            )
             acceptance_gate = {
                 "acceptable": determine_acceptability(overall, self._overall_threshold),
                 "gates_passed": [],
@@ -983,8 +1020,16 @@ class ModularValidationService:
                     suggestions.append(
                         "Start met het kernzelfstandig naamwoord i.p.v. een hulpwoord of lidwoord."
                     )
-            except Exception:
-                pass
+            except (ValueError, IndexError, re.error) as e:
+                # DEF-231: Log STR-01 check failures for debugging
+                logger.debug(
+                    f"STR-01 special case check overgeslagen: {type(e).__name__}: {e}",
+                    extra={
+                        "component": "modular_validation_service",
+                        "rule_id": "STR-01",
+                        "text_length": len(text) if text else 0,
+                    },
+                )
 
         # 3) Required patterns
         req_patterns = rule.get("required_patterns", []) or []
