@@ -215,9 +215,8 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                 repository=self.repository,
             )
 
-            # DEF-99: Use cleaning service directly - already wrapped by ServiceContainer
-            # ServiceContainer wraps sync CleaningService with CleaningServiceAdapterV1toV2
-            # Double wrapping causes AttributeError: coroutine object has no attribute 'clean_text'
+            # DEF-232: Use cleaning service directly - now native async (no adapter needed)
+            # CleaningService is async, no wrapping required
             cleaning_adapter = self.cleaning_service
 
             # Create ValidationOrchestratorV2

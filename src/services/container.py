@@ -215,9 +215,7 @@ class ServiceContainer:
         """
         if "orchestrator" not in self._instances:
             # V2 is now the only orchestrator
-            from services.adapters.cleaning_service_adapter import (
-                CleaningServiceAdapterV1toV2,
-            )
+            # DEF-232: CleaningServiceAdapterV1toV2 removed - CleaningService is now native async
             from services.ai_service_v2 import AIServiceV2
             from services.interfaces import OrchestratorConfig as V2OrchestratorConfig
 
@@ -240,8 +238,8 @@ class ServiceContainer:
                 default_model=self.generator_config.gpt.model, use_cache=True
             )
 
-            # Get cleaning service (needed for orchestrator init)
-            cleaning_service = CleaningServiceAdapterV1toV2(self.cleaning_service())
+            # DEF-232: CleaningService is now native async - no adapter needed
+            cleaning_service = self.cleaning_service()
 
             # Architecture v3.1: Get synonym orchestrator for enrichment
             try:

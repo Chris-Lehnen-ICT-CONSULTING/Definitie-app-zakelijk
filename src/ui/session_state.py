@@ -5,10 +5,12 @@ Deze module beheert alle sessie variabelen die gebruikt worden
 door de Streamlit interface om data tussen pagina refreshes te bewaren.
 """
 
-import contextlib
+import logging
 from typing import Any, ClassVar  # Type hints voor betere code documentatie
 
 import streamlit as st  # Streamlit framework voor web interface
+
+logger = logging.getLogger(__name__)
 
 # NOTE: get_context_adapter import moved to get_context_dict() to break circular dependency
 # See DEF-86: Circular import deadlock fix
@@ -61,6 +63,8 @@ class SessionStateManager:
         "edit_organisatorische_context": None,  # Org context voor edit
         "edit_juridische_context": None,  # Jur context voor edit
         "edit_wettelijke_basis": None,  # Wet context voor edit
+        # DEF-236: Race condition tracking for edit tab auto-load
+        "edit_load_version": 0,
     }
 
     @staticmethod
@@ -206,13 +210,25 @@ class SessionStateManager:
             from ui.helpers.context_adapter import get_context_adapter
 
             adapter = get_context_adapter()
-            cm = adapter.to_generation_request()
+            # Fixed: was calling non-existent to_generation_request(), now using get_merged_context()
+            context = adapter.get_merged_context()
             return {
-                "organisatorisch": cm.get("organisatorische_context", []),
-                "juridisch": cm.get("juridische_context", []),
-                "wettelijk": cm.get("wettelijke_basis", []),
+                "organisatorisch": context.get("organisatorische_context", []),
+                "juridisch": context.get("juridische_context", []),
+                "wettelijk": context.get("wettelijke_basis", []),
             }
-        except Exception:
+        except Exception as e:
+            # DEF-234: Log error and warn user about fallback to legacy session state
+            logger.error(
+                f"ContextManager failed, falling back to legacy session state: {type(e).__name__}: {e}",
+                exc_info=True,
+                extra={"component": "session_state", "operation": "get_context_dict"},
+            )
+            # Show warning in UI so user knows context may be incorrect
+            st.warning(
+                "⚠️ Context manager fout - fallback naar legacy context. "
+                "Controleer context velden voor generatie."
+            )
             # Fallback op legacy sessiestate waarden
             return {
                 "organisatorisch": st.session_state.get("context", []),
@@ -345,7 +361,18 @@ def force_cleanup_voorbeelden(prefix: str) -> None:
         )
     ]
 
-    # Nuclear cleanup: delete all voorbeelden keys for this prefix
+    # DEF-235: Nuclear cleanup with explicit logging
+    # Note: keys_to_clear comes from iterating st.session_state, so keys always exist
+    # (removed unreachable else branch that was dead code)
+    if keys_to_clear:
+        logger.debug(
+            f"Cleaning {len(keys_to_clear)} voorbeelden keys for prefix={prefix}",
+            extra={
+                "component": "session_state",
+                "operation": "force_cleanup_voorbeelden",
+                "prefix": prefix,
+                "key_count": len(keys_to_clear),
+            },
+        )
     for key in keys_to_clear:
-        with contextlib.suppress(KeyError):
-            del st.session_state[key]
+        del st.session_state[key]
