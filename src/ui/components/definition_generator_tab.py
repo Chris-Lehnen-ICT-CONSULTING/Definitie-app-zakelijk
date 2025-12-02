@@ -2002,7 +2002,7 @@ class DefinitionGeneratorTab:
                 if name or explanation:
                     return name, explanation
         except Exception:
-            pass
+            logger.debug("Failed to load rule metadata from JSON for %s", rule_id)
 
         # 2) Fallback mapping (kernregels) — kort en helder
         fallback = {
