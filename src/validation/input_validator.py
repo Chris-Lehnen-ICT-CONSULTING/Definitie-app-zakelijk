@@ -9,11 +9,11 @@ import re
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import UTC, datetime
-
-UTC = UTC  # Python 3.10 compatibility
 from enum import Enum
 from pathlib import Path
 from typing import Any
+
+UTC = UTC  # Python 3.10 compatibility - must be after all imports
 
 logger = logging.getLogger(__name__)
 
@@ -322,7 +322,13 @@ class InputValidator:
         try:
             if self.config is not None:
                 cfg_max = int(getattr(self.config, "max_text_length", 0) or 0)
-        except Exception:
+        except (TypeError, ValueError) as e:
+            # DEF-229: Log config parsing failures with context
+            # Note: AttributeError removed - getattr with default never raises
+            config_type = type(self.config).__name__ if self.config else "None"
+            logger.debug(
+                f"Could not parse max_text_length from config: {type(e).__name__}: {e} [config_type={config_type}]"
+            )
             cfg_max = None
         if min_length is not None and len(t) < min_length:
             errors.append("Text is too short")
@@ -538,9 +544,14 @@ class InputValidator:
             )
 
         except Exception as e:
+            # DEF-229: Add error type and stack trace for debugging
             validation_attempt["error"] = str(e)
+            validation_attempt["error_type"] = type(e).__name__
             validation_attempt["success"] = False
-            logger.error(f"Validation error: {e}")
+            logger.error(
+                f"Validation error: {type(e).__name__}: {e}",
+                exc_info=True,
+            )
 
         # Store validation history (keep last 1000 entries)
         self.validation_history.append(validation_attempt)

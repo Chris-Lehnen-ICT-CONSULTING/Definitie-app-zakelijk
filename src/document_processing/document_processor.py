@@ -72,6 +72,8 @@ class DocumentProcessor:
         self.storage_dir.mkdir(parents=True, exist_ok=True)
         self.metadata_file = self.storage_dir / "documents_metadata.json"
         self._documents_cache: dict[str, ProcessedDocument] = {}
+        # DEF-229: Track persistence failures for observability
+        self._persistence_failed = False
         self._load_metadata()
 
     def process_uploaded_file(
@@ -418,8 +420,11 @@ class DocumentProcessor:
                     )
                     if label:
                         refs.append(label)
-                except Exception:
-                    # Veilig overslaan van onverwachte vormen
+                except (TypeError, ValueError, AttributeError) as e:
+                    # DEF-229: Log individual reference extraction failures with object context
+                    logger.debug(
+                        f"Skipping malformed reference object: {type(e).__name__}: {e} [ref={repr(v)[:100]}]"
+                    )
                     continue
 
             # Dedupliceer en beperk aantal
@@ -427,9 +432,13 @@ class DocumentProcessor:
             if refs:
                 return refs
 
-        except Exception:
-            # Domeinmodule niet beschikbaar of faalde; ga door naar regex fallback
-            pass
+        except (ImportError, AttributeError, TypeError) as e:
+            # DEF-229: Log domain module failures before falling back to regex
+            # Note: ModuleNotFoundError is subclass of ImportError
+            logger.debug(
+                f"Domain module unavailable, using regex fallback: {type(e).__name__}: {e}",
+                exc_info=True,
+            )
 
         # Fallback: simpele regex patterns voor juridische verwijzingen
         try:
@@ -453,8 +462,12 @@ class DocumentProcessor:
             # Dedupliceer, normaliseer en limiteren
             cleaned = [ref.strip() for ref in references if ref and ref.strip()]
             return list(dict.fromkeys(cleaned))[:10]
-        except Exception:
-            # Als zelfs fallback faalt, geef leeg resultaat terug
+        except (re.error, TypeError, ValueError) as e:
+            # DEF-229: Log regex fallback failures with text length (NO text content - PII risk)
+            logger.warning(
+                f"Legal reference regex extraction failed: {type(e).__name__}: {e} [text_length={len(text) if text else 0}]",
+                exc_info=True,
+            )
             return []
 
     def _generate_context_hints(
@@ -503,8 +516,24 @@ class DocumentProcessor:
                 logger.info(
                     f"Metadata geladen voor {len(self._documents_cache)} documenten"
                 )
+            except json.JSONDecodeError as e:
+                # DEF-229: JSON corrupt - must clear cache and start fresh
+                logger.error(
+                    f"Metadata JSON corrupt, opnieuw beginnen: {e}", exc_info=True
+                )
+                self._documents_cache.clear()
+            except OSError as e:
+                # DEF-229: File access error (might be transient) - keep existing cache
+                logger.warning(
+                    f"Kan metadata bestand niet lezen, bestaande cache behouden: {type(e).__name__}: {e}",
+                    exc_info=True,
+                )
             except Exception as e:
-                logger.error(f"Fout bij laden metadata: {e}")
+                # DEF-229: Unexpected error - clear cache for safety (fail-safe)
+                logger.error(
+                    f"Onverwachte fout bij laden metadata: {type(e).__name__}: {e}",
+                    exc_info=True,
+                )
                 self._documents_cache.clear()
 
     def _save_metadata(self):
@@ -518,8 +547,16 @@ class DocumentProcessor:
             with open(self.metadata_file, "w", encoding="utf-8") as f:
                 json.dump(data, f, indent=2, ensure_ascii=False)
 
-        except Exception as e:
-            logger.error(f"Fout bij opslaan metadata: {e}")
+            # DEF-229: Reset persistence flag on successful save
+            self._persistence_failed = False
+
+        except (OSError, TypeError) as e:
+            # DEF-229: Set persistence flag so UI can warn user about data loss risk
+            self._persistence_failed = True
+            logger.error(
+                f"CRITICAL: Metadata niet opgeslagen - documenten kunnen verloren gaan bij herstart: {type(e).__name__}: {e}",
+                exc_info=True,
+            )
 
 
 # Global document processor instance

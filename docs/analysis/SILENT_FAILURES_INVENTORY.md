@@ -1,7 +1,80 @@
 # Silent Failures Detailed Inventory
 
-**Generated:** 2025-11-27 | **Updated:** 2025-12-01 (DEF-215 multiagent analysis)
-**Total Patterns:** 38 original + 76 NEW = 114 | **Fixed:** 20 | **Remaining:** 94
+**Generated:** 2025-11-27 | **Updated:** 2025-12-01 (DEF-229 Phase 4 - Multi-Agent Consensus)
+**Total Patterns:** 38 original + 76 NEW = 114 | **Fixed:** 59 (+7) | **Remaining:** 55
+
+---
+
+## 📊 UPDATE 2025-12-01: DEF-229 Complete Silent Exception Fixes
+
+### DEF-229 Fixes - Phase 1 (Original 14 patterns)
+
+| File | Line(s) | Risk | Fix Applied |
+|------|---------|------|-------------|
+| `service_factory.py` | 312 | HIGH | Narrowed to `TypeError, ValueError, AttributeError` + `logger.debug()` |
+| `service_factory.py` | 338 | HIGH | Narrowed to `ImportError, TypeError, ValueError, AttributeError` + `logger.debug()` |
+| `service_factory.py` | 460 | MEDIUM | Narrowed to `TypeError, ValueError, AttributeError` + `logger.debug()` |
+| `service_factory.py` | 547 | MEDIUM | Narrowed to `TypeError, ValueError, KeyError` + `logger.warning()` |
+| `service_factory.py` | 611 | LOW | Narrowed to `AttributeError, RuntimeError` + `logger.debug()` |
+| `definition_orchestrator_v2.py` | 578 | MEDIUM | Narrowed to `TypeError, ValueError, KeyError` + `logger.debug()` |
+| `definition_orchestrator_v2.py` | 588 | MEDIUM | Narrowed to `TypeError, KeyError, AttributeError` + `logger.warning()` |
+| `definition_orchestrator_v2.py` | 622 | LOW | Narrowed to `AttributeError, ValueError` + `logger.debug()` |
+| `definition_orchestrator_v2.py` | 801 | MEDIUM | Narrowed to `TypeError, AttributeError` + `logger.debug()` |
+| `definition_orchestrator_v2.py` | 828 | HIGH | Narrowed to `ImportError, TypeError, ValueError, AttributeError` + `logger.warning()` |
+| `definition_orchestrator_v2.py` | 895 | HIGH | Narrowed to `ImportError, TypeError, ValueError, AttributeError` + `logger.warning()` |
+| `tabbed_interface.py` | 771 | MEDIUM | Narrowed to `KeyError, AttributeError` + `logger.debug()` |
+| `tabbed_interface.py` | 999 | MEDIUM | Narrowed to `KeyError, AttributeError` + `logger.debug()` |
+| `tabbed_interface.py` | 1526 | MEDIUM | Narrowed to `AttributeError, KeyError, RuntimeError` + `logger.debug()` |
+
+### DEF-229 Fixes - Phase 2 (Additional 13 patterns from multiagent review)
+
+| File | Line(s) | Risk | Fix Applied |
+|------|---------|------|-------------|
+| `definition_orchestrator_v2.py` | 247 | HIGH | Narrowed to `AttributeError, TypeError, RuntimeError` + `logger.debug()` |
+| `definition_orchestrator_v2.py` | 418 | MEDIUM | Narrowed to `ValueError` + `logger.warning()` (env var) |
+| `definition_orchestrator_v2.py` | 445 | MEDIUM | Narrowed to `ValueError` + `logger.warning()` (env var) |
+| `definition_orchestrator_v2.py` | 477 | LOW | Narrowed to `AttributeError` (getattr proxy) |
+| `definition_orchestrator_v2.py` | 786 | LOW | Narrowed to `ValueError` (UUID parse) |
+| `definition_orchestrator_v2.py` | 880 | LOW | Narrowed to `ValueError` (UUID parse) |
+| `definition_orchestrator_v2.py` | 1010 | HIGH | Narrowed to `TypeError, ValueError` + `logger.warning()` |
+| `tabbed_interface.py` | 570 | LOW | Removed dead code (try/except was unreachable) |
+| `tabbed_interface.py` | 813 | MEDIUM | Narrowed to `ValueError` + `logger.warning()` (env var) |
+| `tabbed_interface.py` | 817 | MEDIUM | Narrowed to `ValueError` + `logger.warning()` (env var) |
+| `tabbed_interface.py` | 1079 | HIGH | Narrowed to `AttributeError, KeyError, TypeError` + `logger.warning()` |
+| `tabbed_interface.py` | 1146 | LOW | Narrowed to `AttributeError, IndexError` |
+| `tabbed_interface.py` | 1163-1168 | HIGH | Narrowed to `re.error, ValueError, IndexError` + `logger.debug/warning()` |
+
+**Total DEF-229 fixes: 27 patterns (14 + 13)**
+
+### DEF-229 Fixes - Phase 3 (Additional fixes from review)
+
+| File | Line(s) | Risk | Fix Applied |
+|------|---------|------|-------------|
+| `definition_orchestrator_v2.py` | 477 | LOW | **Removed dead code** - getattr with default can't raise AttributeError |
+| `definition_orchestrator_v2.py` | 586-604 | MEDIUM | Harmonized exception types to `TypeError, ValueError, KeyError, AttributeError` + consistent `extra={}` |
+| `document_processor.py` | 421 | HIGH | Narrowed to `TypeError, ValueError, AttributeError` + `logger.debug()` |
+| `document_processor.py` | 431 | HIGH | Narrowed to `ImportError, ModuleNotFoundError, AttributeError, TypeError` + `logger.debug()` |
+| `document_processor.py` | 457 | HIGH | Narrowed to `re.error, TypeError, ValueError` + `logger.warning()` |
+| `input_validator.py` | 325 | MEDIUM | Narrowed to `TypeError, ValueError, AttributeError` + `logger.debug()` |
+| `cache.py` | 166 | MEDIUM | Split into `FileNotFoundError` (debug) + `OSError, PermissionError` (warning) |
+
+**Total DEF-229 fixes: 41 patterns (14 + 13 + 7 + 7 Phase 4)**
+
+### DEF-229 Fixes - Phase 4 (Multi-Agent Consensus Implementation)
+
+| File | Line(s) | Risk | Fix Applied |
+|------|---------|------|-------------|
+| `cache.py` | 496-505 | **CRITICAL** | Added logging for threading lock init failure |
+| `cache.py` | 169 | LOW | Removed redundant PermissionError (subclass of OSError) |
+| `document_processor.py` | 508-524 | **HIGH** | Differentiated: JSONDecodeError→clear, OSError→keep, Other→clear+log |
+| `document_processor.py` | 537-542 | MEDIUM | Added exc_info=True + narrowed to (OSError, TypeError) |
+| `document_processor.py` | 433 | LOW | Removed ModuleNotFoundError (subclass of ImportError) |
+| `definition_orchestrator_v2.py` | 586-593 | MEDIUM | Narrowed to (TypeError, ValueError) + added snippet_keys |
+| `definition_orchestrator_v2.py` | 600-605 | MEDIUM | Narrowed to TypeError only + removed extra={} |
+| `definition_orchestrator_v2.py` | 752-760 | MEDIUM | Added exc_info=True for stack trace |
+| `definition_orchestrator_v2.py` | 1264-1269 | HIGH | Added exc_info=True for stack trace |
+| `input_validator.py` | 325-332 | LOW | Removed AttributeError + added config_type context |
+| `input_validator.py` | 542-550 | MEDIUM | Added error_type + exc_info=True |
 
 ---
 
@@ -28,9 +101,11 @@
 | # | Locatie | Risico Score | Beschrijving |
 |---|---------|--------------|--------------|
 | 1 | `modular_validation_service.py:188-212` | 60/125 | Validation fallback 45→7 regels - NU MET INDICATOR |
-| 2 | `service_factory.py` | 48/125 | 6 silent `except Exception: pass` patterns |
-| 3 | `sru_service.py` | 45/125 | 17 silent exception patterns |
-| 4 | `definition_generator_tab.py` | 40/125 | 15+ silent UI failures |
+| 2 | `service_factory.py` | ✅ **FIXED** | DEF-229: All 5 patterns fixed with logging |
+| 3 | `sru_service.py` | 45/125 | 17 silent exception patterns (mostly LOW risk with logging) |
+| 4 | `definition_generator_tab.py` | 40/125 | 15+ silent UI failures (many already logged via DEF-220) |
+| 5 | `definition_orchestrator_v2.py` | ✅ **FIXED** | DEF-229: All 6 patterns fixed with logging |
+| 6 | `tabbed_interface.py` | ✅ **FIXED** | DEF-229: All 3 patterns fixed with logging |
 
 ---
 
