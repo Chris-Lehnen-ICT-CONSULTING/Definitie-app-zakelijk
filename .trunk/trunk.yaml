@@ -17,6 +17,14 @@ runtimes:
     - python@3.10.8
 # This is the section where you manage your linters. (https://docs.trunk.io/check/configuration)
 lint:
+  # Ignore docs/archief and other archive directories
+  ignore:
+    - linters: [ALL]
+      paths:
+        - docs/archief/**
+        - docs/ARCHIEF/**
+        - "**/archief/**"
+        - "**/archive/**"
   enabled:
     - gitleaks@8.28.0
     - actionlint@1.7.8

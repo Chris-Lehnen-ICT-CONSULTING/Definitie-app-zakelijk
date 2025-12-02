@@ -516,7 +516,8 @@ class TestSessionStateManagerContextDict:
     def test_get_context_dict_uses_adapter_when_available(self, mock_streamlit_session):
         """get_context_dict uses adapter when available."""
         mock_adapter = MagicMock()
-        mock_adapter.to_generation_request.return_value = {
+        # Fixed: method was renamed from to_generation_request to get_merged_context
+        mock_adapter.get_merged_context.return_value = {
             "organisatorische_context": ["DJI"],
             "juridische_context": ["Civiel"],
             "wettelijke_basis": ["BW"],
@@ -537,7 +538,8 @@ class TestSessionStateManagerContextDict:
     ):
         """get_context_dict handles incomplete adapter response (.get() fallback)."""
         mock_adapter = MagicMock()
-        mock_adapter.to_generation_request.return_value = {
+        # Fixed: method was renamed from to_generation_request to get_merged_context
+        mock_adapter.get_merged_context.return_value = {
             "organisatorische_context": ["DJI"],
         }
 
@@ -554,7 +556,8 @@ class TestSessionStateManagerContextDict:
     def test_get_context_dict_with_empty_adapter_response(self, mock_streamlit_session):
         """get_context_dict handles empty adapter response."""
         mock_adapter = MagicMock()
-        mock_adapter.to_generation_request.return_value = {}
+        # Fixed: method was renamed from to_generation_request to get_merged_context
+        mock_adapter.get_merged_context.return_value = {}
 
         with patch(
             "ui.helpers.context_adapter.get_context_adapter",
