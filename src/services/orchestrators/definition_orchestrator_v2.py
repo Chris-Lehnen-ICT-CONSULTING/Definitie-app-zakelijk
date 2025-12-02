@@ -18,8 +18,6 @@ import logging
 import time
 import uuid
 from datetime import UTC, datetime
-
-UTC = UTC  # Python 3.10 compatibility
 from typing import TYPE_CHECKING, Any, Optional, cast
 
 from services.exceptions import (
@@ -47,6 +45,8 @@ from services.interfaces import (
 from services.validation.interfaces import ValidationOrchestratorInterface
 from utils.dict_helpers import safe_dict_get
 from utils.type_helpers import ensure_dict, ensure_list, ensure_string
+
+UTC = UTC  # Python 3.10 compatibility - must be after all imports
 
 logger = logging.getLogger(__name__)
 
@@ -420,7 +420,8 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             except ValueError as e:
                 # DEF-229: Log invalid env var configuration
                 logger.warning(
-                    f"Invalid WEB_LOOKUP_TIMEOUT_SECONDS value, using default 10.0: {e}"
+                    f"Invalid WEB_LOOKUP_TIMEOUT_SECONDS value, using default 10.0: {e}",
+                    exc_info=True,
                 )
                 web_lookup_timeout = 10.0
 
@@ -451,7 +452,8 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                     except ValueError as e:
                         # DEF-229: Log invalid env var configuration
                         logger.warning(
-                            f"Invalid WEB_LOOKUP_MAX_RESULTS value, using default 20: {e}"
+                            f"Invalid WEB_LOOKUP_MAX_RESULTS value, using default 20: {e}",
+                            exc_info=True,
                         )
                         _max_res = 20
                     lookup_request = LookupRequest(
@@ -474,13 +476,8 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                         f"Generation {generation_id}: Web lookup returned {len(web_results) if web_results else 0} results"
                     )
                     # Capture debug info from service if available
-                    try:
-                        debug_info = getattr(
-                            self.web_lookup_service, "_last_debug", None
-                        )
-                    except AttributeError:
-                        # DEF-229: getattr with default rarely raises, but proxy objects might
-                        debug_info = None
+                    # Note: getattr with default never raises AttributeError
+                    debug_info = getattr(self.web_lookup_service, "_last_debug", None)
 
                     # Build provenance records
                     # Convert LookupResults to minimal dicts expected by build_provenance
@@ -586,9 +583,17 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                                     "source_label": "Geüpload document",
                                 }
                             )
-                        except (TypeError, ValueError, KeyError) as e:
+                        except (TypeError, ValueError) as e:
                             # DEF-229: Log individual snippet normalization failures
-                            logger.debug(f"Skipping malformed document snippet: {e}")
+                            # Note: KeyError/AttributeError removed - safe_dict_get never raises
+                            snippet_keys = (
+                                list(s.keys())
+                                if isinstance(s, dict)
+                                else type(s).__name__
+                            )
+                            logger.debug(
+                                f"Skipping malformed document snippet: {type(e).__name__}: {e} [keys={snippet_keys}]"
+                            )
                             continue
                     if normalized_docs:
                         provenance_sources = normalized_docs + (
@@ -596,11 +601,12 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                         )
                         context = context or {}
                         context["documents"] = {"snippets": normalized_docs}
-            except (TypeError, KeyError, AttributeError) as e:
+            except TypeError as e:
                 # DEF-229: Log document snippet merge failures
+                # Note: Only TypeError possible in outer block (list concatenation)
                 logger.warning(
-                    f"Generation {generation_id}: Failed to merge document snippets: {e}",
-                    extra={"error_type": type(e).__name__},
+                    f"Generation {generation_id}: Failed to merge document snippets: {type(e).__name__}: {e}",
+                    exc_info=True,
                 )
 
             # =====================================
@@ -750,8 +756,10 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                     f"Generation {generation_id}: Voorbeelden generated ({len(voorbeelden)} types)"
                 )
             except Exception as e:
+                # DEF-229: Add stack trace for debugging voorbeelden failures
                 logger.warning(
-                    f"Generation {generation_id}: Voorbeelden generation failed: {e}"
+                    f"Generation {generation_id}: Voorbeelden generation failed: {type(e).__name__}: {e}",
+                    exc_info=True,
                 )
                 if DEBUG_ENABLED and "debug_gen_id" in locals():
                     debugger.log_error(debug_gen_id, "C", e)
@@ -845,6 +853,7 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                         "error_type": type(e).__name__,
                         "generation_id": generation_id,
                     },
+                    exc_info=True,
                 )
                 # Defensive fallback to simple mapping
                 is_ok = getattr(raw_validation, "is_valid", False)
@@ -916,6 +925,7 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                             "error_type": type(e).__name__,
                             "generation_id": generation_id,
                         },
+                        exc_info=True,
                     )
                     is_ok = getattr(raw_validation, "is_valid", False)
                     vio_list = getattr(raw_validation, "violations", None)
@@ -1260,7 +1270,11 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             else:
                 logger.debug("Repository does not support failed attempt tracking")
         except Exception as e:
-            logger.error(f"Failed to save failed attempt: {e!s}")
+            # DEF-229: Add stack trace for debugging repository failures
+            logger.error(
+                f"Failed to save failed attempt: {type(e).__name__}: {e}",
+                exc_info=True,
+            )
 
     def _create_basic_prompt(self, request: GenerationRequest) -> str:
         """Create basic fallback prompt when prompt service unavailable."""

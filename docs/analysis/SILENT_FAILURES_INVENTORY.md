@@ -1,7 +1,7 @@
 # Silent Failures Detailed Inventory
 
-**Generated:** 2025-11-27 | **Updated:** 2025-12-01 (DEF-229 complete)
-**Total Patterns:** 38 original + 76 NEW = 114 | **Fixed:** 45 | **Remaining:** 69
+**Generated:** 2025-11-27 | **Updated:** 2025-12-01 (DEF-229 Phase 4 - Multi-Agent Consensus)
+**Total Patterns:** 38 original + 76 NEW = 114 | **Fixed:** 59 (+7) | **Remaining:** 55
 
 ---
 
@@ -45,6 +45,36 @@
 | `tabbed_interface.py` | 1163-1168 | HIGH | Narrowed to `re.error, ValueError, IndexError` + `logger.debug/warning()` |
 
 **Total DEF-229 fixes: 27 patterns (14 + 13)**
+
+### DEF-229 Fixes - Phase 3 (Additional fixes from review)
+
+| File | Line(s) | Risk | Fix Applied |
+|------|---------|------|-------------|
+| `definition_orchestrator_v2.py` | 477 | LOW | **Removed dead code** - getattr with default can't raise AttributeError |
+| `definition_orchestrator_v2.py` | 586-604 | MEDIUM | Harmonized exception types to `TypeError, ValueError, KeyError, AttributeError` + consistent `extra={}` |
+| `document_processor.py` | 421 | HIGH | Narrowed to `TypeError, ValueError, AttributeError` + `logger.debug()` |
+| `document_processor.py` | 431 | HIGH | Narrowed to `ImportError, ModuleNotFoundError, AttributeError, TypeError` + `logger.debug()` |
+| `document_processor.py` | 457 | HIGH | Narrowed to `re.error, TypeError, ValueError` + `logger.warning()` |
+| `input_validator.py` | 325 | MEDIUM | Narrowed to `TypeError, ValueError, AttributeError` + `logger.debug()` |
+| `cache.py` | 166 | MEDIUM | Split into `FileNotFoundError` (debug) + `OSError, PermissionError` (warning) |
+
+**Total DEF-229 fixes: 41 patterns (14 + 13 + 7 + 7 Phase 4)**
+
+### DEF-229 Fixes - Phase 4 (Multi-Agent Consensus Implementation)
+
+| File | Line(s) | Risk | Fix Applied |
+|------|---------|------|-------------|
+| `cache.py` | 496-505 | **CRITICAL** | Added logging for threading lock init failure |
+| `cache.py` | 169 | LOW | Removed redundant PermissionError (subclass of OSError) |
+| `document_processor.py` | 508-524 | **HIGH** | Differentiated: JSONDecodeError→clear, OSError→keep, Other→clear+log |
+| `document_processor.py` | 537-542 | MEDIUM | Added exc_info=True + narrowed to (OSError, TypeError) |
+| `document_processor.py` | 433 | LOW | Removed ModuleNotFoundError (subclass of ImportError) |
+| `definition_orchestrator_v2.py` | 586-593 | MEDIUM | Narrowed to (TypeError, ValueError) + added snippet_keys |
+| `definition_orchestrator_v2.py` | 600-605 | MEDIUM | Narrowed to TypeError only + removed extra={} |
+| `definition_orchestrator_v2.py` | 752-760 | MEDIUM | Added exc_info=True for stack trace |
+| `definition_orchestrator_v2.py` | 1264-1269 | HIGH | Added exc_info=True for stack trace |
+| `input_validator.py` | 325-332 | LOW | Removed AttributeError + added config_type context |
+| `input_validator.py` | 542-550 | MEDIUM | Added error_type + exc_info=True |
 
 ---
 
