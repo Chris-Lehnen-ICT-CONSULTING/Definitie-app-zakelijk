@@ -55,17 +55,15 @@ class BraveSearchService:
 
     async def __aenter__(self):
         """Async context manager entry - no session needed for MCP."""
-        # Import MCP function here to avoid circular imports during init
+        # DEF-248: MCP search function moet via constructor worden geïnjecteerd
+        # of later via set_mcp_search() worden ingesteld.
+        # Dit is een no-op context manager - de werkelijke MCP lookup
+        # gebeurt in lookup() met self._mcp_search.
         if self._mcp_search is None:
-            try:
-                # Dynamic import om circular dependency te voorkomen
-                import inspect
-
-                inspect.currentframe()
-                # MCP functies zijn beschikbaar in de globals van de caller
-                # maar voor testbaarheid accepteren we het ook via constructor
-            except Exception:
-                pass
+            logger.debug(
+                "BraveSearchService entered without MCP search function - "
+                "lookup() will use fallback behavior or fail gracefully"
+            )
         return self
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
