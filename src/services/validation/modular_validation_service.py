@@ -1003,7 +1003,9 @@ class ModularValidationService:
                 try:
                     body = text_l.split(":", 1)[1].strip()
                     first_token = (body.split() or [""])[0]
-                except Exception:
+                except (IndexError, AttributeError) as e:
+                    # DEF-248: Log SAM-04 parsing failures - may indicate malformed definition text
+                    logger.debug(f"SAM-04 first token extraction failed: {e}")
                     first_token = None
 
             begrip_full = (getattr(self, "_current_begrip", "") or "").strip().lower()
@@ -1637,7 +1639,9 @@ class ModularValidationService:
                     and md.get("options", {}).get("force_duplicate")
                 )
             )
-        except Exception:
+        except (TypeError, AttributeError) as e:
+            # DEF-248: Log unexpected metadata structure
+            logger.debug(f"force_duplicate check failed, defaulting to False: {e}")
             force_dup = False
         warn_list.append(
             {
@@ -1715,7 +1719,9 @@ class ModularValidationService:
                     continue
                 cat = self._category_for(r)
                 buckets[cat].append(float(score or 0.0))
-            except Exception:
+            except (TypeError, ValueError) as e:
+                # DEF-248: Log score conversion failures - skip rule but don't crash aggregation
+                logger.debug(f"Category score aggregation skipped rule {rid}: {e}")
                 continue
 
         def avg(xs: list[float]) -> float:
