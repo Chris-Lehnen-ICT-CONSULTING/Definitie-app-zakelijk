@@ -389,6 +389,19 @@ class ModularValidationService:
             metadata=dict(context or {}),
         )
 
+        # DEF-251: Log validation start with begrip for observability
+        logger.info(
+            f"Starting validation: begrip='{(begrip or '')[:50]}', "
+            f"text_length={len(text) if text else 0}, correlation_id={correlation_id}",
+            extra={
+                "component": "modular_validation_service",
+                "operation": "validate_definition_start",
+                "begrip": (begrip or "")[:50],
+                "text_length": len(text) if text else 0,
+                "correlation_id": correlation_id,
+            },
+        )
+
         # 4) Regels evalueren in deterministische volgorde
         weights = dict(self._default_weights)
         config_weights = getattr(self.config, "weights", None)

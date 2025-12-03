@@ -723,36 +723,44 @@ class ServiceContainer:
         logger.debug("Container configuratie geüpdatet")
 
 
-# Globale container instance (optioneel)
-_default_container: ServiceContainer | None = None
+# DEF-249: Global variable removed - now delegates to container_manager.get_cached_container()
+# This ensures only ONE container exists process-wide (unified singleton pattern)
 
 
 def get_container() -> ServiceContainer:
     """
     Get de singleton container instance.
 
-    No config parameter allowed - container is initialized once with
-    default configuration. This prevents duplicate initialization.
+    DEF-249: Delegates to container_manager.get_cached_container() to ensure
+    only ONE container exists process-wide. Previously this function used a
+    separate global variable, causing duplicate containers during requests.
 
     Returns:
-        ServiceContainer instance (singleton)
+        ServiceContainer instance (singleton, same as get_cached_container())
     """
-    global _default_container
+    # DEF-249: Unified singleton pattern - delegate to @lru_cache version
+    from utils.container_manager import get_cached_container
 
-    if _default_container is None:
-        # Initialize with None to use sensible defaults from _load_configuration()
-        # which pulls from environment variables and ConfigManager
-        _default_container = ServiceContainer(None)
-
-    return _default_container
+    return get_cached_container()
 
 
 def reset_container():
     """Reset de globale container."""
-    global _default_container
-    if _default_container:
-        _default_container.reset()
-    _default_container = None
+    # DEF-249: Delegate to container_manager for unified cache clearing
+    from utils.container_manager import clear_container_cache
+
+    # Clear the @lru_cache first
+    clear_container_cache()
+
+    # Also call reset() on the container if it exists
+    try:
+        from utils.container_manager import get_cached_container
+
+        container = get_cached_container()
+        container.reset()
+        clear_container_cache()  # Clear again after reset
+    except Exception:
+        pass  # Container may not exist yet
 
 
 # Test configuraties voor verschillende environments
