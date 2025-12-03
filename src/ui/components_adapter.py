@@ -6,7 +6,7 @@ en de nieuwe clean services die geen UI dependencies hebben.
 """
 
 import logging
-from typing import Any, cast
+from typing import Any, TypedDict, cast
 
 import streamlit as st
 
@@ -15,6 +15,14 @@ from ui.helpers.context_adapter import get_context_adapter
 from ui.session_state import SessionStateManager
 
 logger = logging.getLogger(__name__)
+
+
+class ContextDict(TypedDict):
+    """Type definition for context dictionary structure."""
+
+    organisatorisch: list[str]
+    juridisch: list[str]
+    wettelijk: list[str]
 
 
 class UIComponentsAdapter:
@@ -104,17 +112,37 @@ class UIComponentsAdapter:
             adapter = get_context_adapter()
             # Fixed: was calling non-existent to_generation_request(), now using get_merged_context()
             context = adapter.get_merged_context()
-            ui_data["context_dict"] = {
-                "organisatorisch": context.get("organisatorische_context", []),
-                "juridisch": context.get("juridische_context", []),
-                "wettelijk": context.get("wettelijke_basis", []),
-            }
-        except Exception:
-            ui_data["context_dict"] = {
-                "organisatorisch": SessionStateManager.get_value("context", []),
-                "juridisch": SessionStateManager.get_value("juridische_context", []),
-                "wettelijk": SessionStateManager.get_value("wet_basis", []),
-            }
+            ui_data["context_dict"] = cast(
+                ContextDict,
+                {
+                    "organisatorisch": context.get("organisatorische_context", []),
+                    "juridisch": context.get("juridische_context", []),
+                    "wettelijk": context.get("wettelijke_basis", []),
+                },
+            )
+        except (AttributeError, KeyError, TypeError, ValueError) as e:
+            # DEF-252: Log fallback activation for debugging and telemetry
+            logger.error(
+                f"ContextAdapter fallback activated: {type(e).__name__}: {e}",
+                extra={"event": "context_fallback", "error_type": type(e).__name__},
+            )
+            st.warning(
+                "Context kon niet via ContextManager worden opgehaald. "
+                "Fallback naar session state actief."
+            )
+            # Fixed DEF-252: Use correct session state keys matching ContextManager
+            ui_data["context_dict"] = cast(
+                ContextDict,
+                {
+                    "organisatorisch": SessionStateManager.get_value(
+                        "organisatorische_context", []
+                    ),
+                    "juridisch": SessionStateManager.get_value(
+                        "juridische_context", []
+                    ),
+                    "wettelijk": SessionStateManager.get_value("wettelijke_basis", []),
+                },
+            )
 
         # Metadata
         ui_data["metadata"] = {
