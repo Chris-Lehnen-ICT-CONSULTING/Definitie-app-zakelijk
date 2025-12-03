@@ -140,18 +140,27 @@ class ContextAdapter:
         context_data: dict[str, Any],
         source: ContextSource = ContextSource.UI,
         actor: str = "ui",
-    ) -> None:
+    ) -> bool:
         """Store provided context in the central manager.
 
         This mirrors the previous pattern of updating st.session_state but
         now routes through ContextManager for a single source of truth.
+
+        Returns:
+            True if context was set successfully, False otherwise.
         """
         try:
             self.context_manager.set_context(
                 context_data=context_data, source=source, actor=actor
             )
-        except Exception as exc:
-            logger.error(f"Failed to set context in manager: {exc}")
+            return True
+        except (AttributeError, KeyError, TypeError, ValueError) as exc:
+            # DEF-252: Narrow exception types and structured logging
+            logger.error(
+                f"Failed to set context in manager: {type(exc).__name__}: {exc}",
+                extra={"event": "context_set_error", "error_type": type(exc).__name__},
+            )
+            return False
 
     def validate(self) -> tuple[bool, list[str]]:
         """Lightweight validation hook for UI.
@@ -164,8 +173,15 @@ class ContextAdapter:
             current = self.context_manager.get_context()
             _ = current.to_dict() if current is not None else {}
             return True, []
-        except Exception as exc:
-            logger.warning(f"Context validation failed: {exc}")
+        except (AttributeError, KeyError, TypeError, ValueError) as exc:
+            # DEF-252: Narrow exception types and structured logging
+            logger.warning(
+                f"Context validation failed: {type(exc).__name__}: {exc}",
+                extra={
+                    "event": "context_validation_error",
+                    "error_type": type(exc).__name__,
+                },
+            )
             return False, [str(exc)]
 
     def prepare_generation_request(self, begrip: str, **kwargs) -> dict[str, Any]:
