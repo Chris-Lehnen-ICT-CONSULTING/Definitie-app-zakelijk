@@ -390,14 +390,19 @@ class ModularValidationService:
         )
 
         # DEF-251: Log validation start with begrip for observability
+        # DEF-249 FIX: Deduplicate calculations (were computed twice before)
+        begrip_truncated = (begrip or "")[:50]
+        text_length = len(text) if text else 0
         logger.info(
-            f"Starting validation: begrip='{(begrip or '')[:50]}', "
-            f"text_length={len(text) if text else 0}, correlation_id={correlation_id}",
+            "Starting validation: begrip='%s', text_length=%d, correlation_id=%s",
+            begrip_truncated,
+            text_length,
+            correlation_id,
             extra={
                 "component": "modular_validation_service",
                 "operation": "validate_definition_start",
-                "begrip": (begrip or "")[:50],
-                "text_length": len(text) if text else 0,
+                "begrip": begrip_truncated,
+                "text_length": text_length,
                 "correlation_id": correlation_id,
             },
         )

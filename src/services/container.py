@@ -744,23 +744,56 @@ def get_container() -> ServiceContainer:
     return get_cached_container()
 
 
-def reset_container():
-    """Reset de globale container."""
-    # DEF-249: Delegate to container_manager for unified cache clearing
-    from utils.container_manager import clear_container_cache
+def reset_container() -> None:
+    """Reset de globale container.
 
-    # Clear the @lru_cache first
-    clear_container_cache()
+    DEF-249: Unified reset logic - resets existing container BEFORE clearing cache.
+    This ensures the old container's services are properly cleaned up.
+    """
+    from utils.container_manager import clear_container_cache, get_cached_container
 
-    # Also call reset() on the container if it exists
+    # DEF-249 FIX: Reset existing container BEFORE clearing cache
+    # Previously the logic was wrong: it cleared cache first, then created a NEW
+    # container and reset that (pointless). Now we reset the existing one first.
     try:
-        from utils.container_manager import get_cached_container
+        # Check if container exists in cache before trying to reset
+        cache_info = get_cached_container.cache_info()
+        if cache_info.currsize > 0:
+            # Container exists - get it and reset it
+            existing_container = get_cached_container()
+            container_id = existing_container.get_container_id()
+            existing_container.reset()
+            logger.debug(
+                "Existing container reset (id=%s)",
+                container_id,
+                extra={"component": "container", "container_id": container_id},
+            )
+    except ImportError:
+        # Container module not yet loaded - expected during initial startup
+        logger.debug("Container reset skipped: container_manager not yet initialized")
+    except AttributeError as e:
+        # Container exists but doesn't have expected method - likely version mismatch
+        logger.warning(
+            "Container reset failed: container missing expected method: %s",
+            e,
+            extra={"component": "container", "error_type": "AttributeError"},
+        )
+    except Exception as e:
+        # Unexpected error - log for debugging but don't crash
+        logger.error(
+            "Unexpected error during container reset: %s: %s",
+            type(e).__name__,
+            e,
+            exc_info=True,
+            extra={"component": "container", "error_type": type(e).__name__},
+        )
 
-        container = get_cached_container()
-        container.reset()
-        clear_container_cache()  # Clear again after reset
-    except Exception:
-        pass  # Container may not exist yet
+    # Now clear the cache so next access creates fresh container
+    clear_container_cache()
+    logger.debug(
+        "Container cache cleared - next access will create fresh container",
+        extra={"component": "container", "operation": "cache_clear"},
+    )
 
 
 # Test configuraties voor verschillende environments
