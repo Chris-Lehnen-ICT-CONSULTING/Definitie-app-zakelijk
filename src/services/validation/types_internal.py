@@ -54,6 +54,7 @@ class EvaluationContext:
 
     - raw_text: original input text
     - cleaned_text: pre-cleaned text ready for validation
+    - begrip: the term being defined (DEF-244: moved from instance variable for thread-safety)
     - locale/profile: optional evaluation hints
     - correlation_id: tracing identifier
     - tokens: optional tokenization output (immutable tuple to prevent mutation)
@@ -62,6 +63,9 @@ class EvaluationContext:
 
     raw_text: str
     cleaned_text: str
+    begrip: str = (
+        ""  # DEF-244: Per-validation begrip (was _current_begrip instance var)
+    )
     locale: str | None = None
     profile: str | None = None
     correlation_id: str | None = None
@@ -82,6 +86,7 @@ class EvaluationContext:
         text: str,
         cleaned: str | None = None,
         *,
+        begrip: str = "",  # DEF-244: Per-validation begrip
         locale: str | None = None,
         profile: str | None = None,
         correlation_id: str | None = None,
@@ -91,6 +96,7 @@ class EvaluationContext:
         return cls(
             raw_text=text,
             cleaned_text=cleaned if cleaned is not None else text,
+            begrip=begrip,
             locale=locale,
             profile=profile,
             correlation_id=correlation_id,

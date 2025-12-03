@@ -375,9 +375,11 @@ class ModularValidationService:
                 cleaned = text
 
         # 3) Context opbouwen (tokens slechts op aanvraag; hier niet nodig)
+        # DEF-244: begrip now passed via context instead of instance variable
         eval_ctx = EvaluationContext.from_params(
             text=text,
             cleaned=cleaned,
+            begrip=begrip,  # DEF-244: Thread-safe begrip passing
             locale=(context or {}).get("locale") if isinstance(context, dict) else None,
             profile=(
                 (context or {}).get("profile") if isinstance(context, dict) else None
@@ -425,8 +427,7 @@ class ModularValidationService:
         violations: list[dict[str, Any]] = []
         passed_rules: list[str] = []
 
-        # Houd begrip tijdelijk vast voor interne regels die het nodig hebben
-        self._current_begrip: str | None = begrip
+        # DEF-244: begrip is now in eval_ctx.begrip (thread-safe)
         for code in sorted(self._internal_rules):
             out = self._evaluate_rule(code, eval_ctx)
             # Support both (score, violation) tuple and dict-like outputs (for tests that patch the method)
@@ -461,8 +462,7 @@ class ModularValidationService:
                 rule_scores[code] = float(out or 0.0)
                 if float(out or 0.0) >= 1.0:
                     passed_rules.append(code)
-        current_begrip = self._current_begrip
-        self._current_begrip = None
+        # DEF-244: begrip cleanup removed - now in eval_ctx (immutable, thread-safe)
 
         # 5) Aggregatie (gewogen) en afronding
         overall = calculate_weighted_score(rule_scores, weights)
@@ -568,10 +568,11 @@ class ModularValidationService:
                 }
             )
         # Circular definition fallback (ensure we catch simple cases)
+        # DEF-244: Use eval_ctx.begrip instead of instance variable
         try:
-            if current_begrip:
+            if eval_ctx.begrip:
                 tn = raw_text.lower()
-                gb = str(current_begrip).strip().lower()
+                gb = str(eval_ctx.begrip).strip().lower()
                 if (
                     gb
                     and gb in tn
@@ -586,7 +587,7 @@ class ModularValidationService:
                             "description": "Definitie is circulair (begrip komt voor in tekst)",
                             "rule_id": "CON-CIRC-001",
                             "category": "samenhang",
-                            "suggestion": f"Vermijd {current_begrip!s} letterlijk; omschrijf zonder de term te herhalen.",
+                            "suggestion": f"Vermijd {eval_ctx.begrip!s} letterlijk; omschrijf zonder de term te herhalen.",
                         }
                     )
                     # Voeg ook essentie-tekort toe voor strengere golden criteria
@@ -613,7 +614,7 @@ class ModularValidationService:
                     "component": "modular_validation_service",
                     "rule_id": "CON-CIRC-001",
                     "correlation_id": correlation_id,
-                    "begrip": str(current_begrip)[:50] if current_begrip else None,
+                    "begrip": str(eval_ctx.begrip)[:50] if eval_ctx.begrip else None,
                 },
             )
 
@@ -849,8 +850,9 @@ class ModularValidationService:
             return 0.9, None
 
         # Circulair (begrip in definitie)
+        # DEF-244: Use ctx.begrip instead of instance variable
         if code == "CON-CIRC-001":
-            begrip = getattr(self, "_current_begrip", None)
+            begrip = ctx.begrip or None
             if begrip:
                 pattern = rf"\b{re.escape(str(begrip))}\b"
                 found = bool(re.search(pattern, text_norm, re.IGNORECASE))
@@ -921,8 +923,9 @@ class ModularValidationService:
             return self._eval_ess02(rule, text, ctx)
 
         # Special: VER-03 — werkwoord-term in infinitief (controleer begrip/lemma)
+        # DEF-244: Use ctx.begrip instead of instance variable
         if code_up == "VER-03":
-            lemma = str(getattr(self, "_current_begrip", "") or "").strip()
+            lemma = str(ctx.begrip or "").strip()
             if lemma and re.search(r".+[td]$", lemma.lower()):
                 msg = "Werkwoord-term niet in infinitief (eindigt op -t/-d)"
                 return 0.0, {
@@ -939,12 +942,11 @@ class ModularValidationService:
             return 1.0, None
 
         # Special: SAM-02 — kwalificatie omvat geen herhaling/conflict
+        # DEF-244: Use ctx.begrip instead of instance variable
         if code_up == "SAM-02":
             head = None
             try:
-                begrip_full = (
-                    (getattr(self, "_current_begrip", "") or "").strip().lower()
-                )
+                begrip_full = (ctx.begrip or "").strip().lower()
                 parts = begrip_full.split()
                 if len(parts) >= 2:
                     head = parts[-1]
@@ -1008,7 +1010,8 @@ class ModularValidationService:
                     logger.debug(f"SAM-04 first token extraction failed: {e}")
                     first_token = None
 
-            begrip_full = (getattr(self, "_current_begrip", "") or "").strip().lower()
+            # DEF-244: Use ctx.begrip instead of instance variable
+            begrip_full = (ctx.begrip or "").strip().lower()
             # Heuristiek: bij samenstellingen zonder spatie moet het eerste woord een substring van het begrip zijn
             if first_token and begrip_full and " " not in begrip_full:
                 if first_token not in begrip_full:
@@ -1169,8 +1172,9 @@ class ModularValidationService:
             )
 
         # 6) Circular definition (begrip in definitie)
+        # DEF-244: Use ctx.begrip instead of instance variable
         if rule.get("circular_definition"):
-            begrip = getattr(self, "_current_begrip", None)
+            begrip = ctx.begrip or None
             if begrip and re.search(
                 rf"\b{re.escape(str(begrip))}\b", text_norm, re.IGNORECASE
             ):
@@ -1247,8 +1251,9 @@ class ModularValidationService:
                 )
             )
 
+        # DEF-244: Use ctx.begrip instead of instance variable
         if code_up == "VER-01":
-            begrip = getattr(self, "_current_begrip", "") or ""
+            begrip = ctx.begrip or ""
             if not self._lemma_is_singular(begrip):
                 messages.append("Term (lemma) lijkt meervoud (geen plurale tantum)")
                 suggestions.append(
@@ -1519,7 +1524,8 @@ class ModularValidationService:
             org = md.get("organisatorische_context") or []
             jur = md.get("juridische_context") or []
             wet = md.get("wettelijke_basis") or []
-            begrip = getattr(self, "_current_begrip", None)
+            # DEF-244: Use ctx.begrip instead of instance variable
+            begrip = ctx.begrip or None
 
             # Skip if no context to check
             # Minimaal één van de drie contextlijsten moet aanwezig zijn
@@ -1692,7 +1698,8 @@ class ModularValidationService:
         if c == "ESS-CONT-001":
             return "Voeg essentiële inhoud toe: beschrijf wat het begrip is."
         if c == "CON-CIRC-001":
-            begrip = getattr(self, "_current_begrip", None) or "het begrip"
+            # DEF-244: Use ctx.begrip instead of instance variable
+            begrip = ctx.begrip or "het begrip"
             return f"Vermijd {begrip} letterlijk; omschrijf zonder de term te herhalen."
         if c == "STR-TERM-001":
             return "Gebruik correcte terminologie (bijv. 'HTTP-protocol')."
