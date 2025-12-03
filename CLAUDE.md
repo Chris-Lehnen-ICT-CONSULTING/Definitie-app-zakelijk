@@ -38,6 +38,39 @@ pre-commit run --all-files           # All pre-commit hooks
 3. **Database location** - Only `data/definities.db`, nowhere else
 4. **No backwards compatibility** - Solo dev app, refactor in place
 5. **Ask first for large changes** - >100 lines OR >5 files
+6. **Prompt-first workflow** - For analysis/review/implementation/fix tasks, ask if a structured prompt should be generated first
+
+---
+
+## Prompt-First Workflow
+
+**BELANGRIJK**: Bij opdrachten in de volgende categorieën, vraag EERST:
+
+| Categorie | Voorbeelden |
+|-----------|-------------|
+| **Analyse** | codebase analyse, performance analyse, security audit |
+| **Review** | code review, PR review, architecture review |
+| **Implementatie** | nieuwe feature, refactoring, migratie |
+| **Fix** | bug fix, security fix, performance fix |
+
+**Vraag aan gebruiker:**
+> "Wil je dat ik eerst een gestructureerde prompt genereer voor deze taak?
+> - **Ja**: Prompt opslaan in `/prompts/` met multiagent + consensus framework
+> - **Nee**: Direct uitvoeren
+> - **Ja + Uitvoeren**: Genereer EN voer direct uit"
+
+**Wanneer WEL prompt genereren:**
+- Complexe analyse (>5 bestanden)
+- Kritieke wijzigingen
+- Kwaliteitsborging nodig (meerdere reviewers)
+- Herhaalbare taak
+
+**Wanneer NIET:**
+- Simpele fix (<10 regels)
+- Duidelijke opdracht
+- Tijdskritiek
+
+Zie `prompts/README.md` voor templates en agent configuraties.
 
 ---
 
