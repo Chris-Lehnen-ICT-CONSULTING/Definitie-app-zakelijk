@@ -389,6 +389,24 @@ class ModularValidationService:
             metadata=dict(context or {}),
         )
 
+        # DEF-251: Log validation start with begrip for observability
+        # DEF-249 FIX: Deduplicate calculations (were computed twice before)
+        begrip_truncated = (begrip or "")[:50]
+        text_length = len(text) if text else 0
+        logger.info(
+            "Starting validation: begrip='%s', text_length=%d, correlation_id=%s",
+            begrip_truncated,
+            text_length,
+            correlation_id,
+            extra={
+                "component": "modular_validation_service",
+                "operation": "validate_definition_start",
+                "begrip": begrip_truncated,
+                "text_length": text_length,
+                "correlation_id": correlation_id,
+            },
+        )
+
         # 4) Regels evalueren in deterministische volgorde
         weights = dict(self._default_weights)
         config_weights = getattr(self.config, "weights", None)
