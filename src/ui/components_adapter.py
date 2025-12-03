@@ -81,9 +81,20 @@ class UIComponentsAdapter:
             st.error(f"❌ Export mislukt: {result.get('error', 'Onbekende fout')}")
             return False
 
-        except Exception as e:
-            logger.error(f"Export fout: {e}")
-            st.error(f"❌ Technische fout bij export: {e!s}")
+        except (
+            AttributeError,
+            KeyError,
+            TypeError,
+            ValueError,
+            OSError,
+            RuntimeError,
+        ) as e:
+            # DEF-252 follow-up: Narrow exception types for export errors
+            logger.error(
+                f"Export fout: {type(e).__name__}: {e}",
+                extra={"event": "export_error", "error_type": type(e).__name__},
+            )
+            st.error(f"Technische fout bij export: {e!s}")
             return False
 
     def _collect_ui_data_for_export(self) -> dict[str, Any]:
@@ -194,8 +205,16 @@ class UIComponentsAdapter:
             if isinstance(meta, dict):
                 prompt_text = meta.get("prompt_text") or meta.get("prompt_template")
             ui_data["prompt_text"] = prompt_text
-        except Exception:
-            # Fallback: geen prompt beschikbaar
+        except (AttributeError, KeyError, TypeError) as e:
+            # DEF-252 follow-up: Log prompt extraction failure for debugging
+            logger.warning(
+                f"Prompt extraction failed: {type(e).__name__}: {e}",
+                extra={
+                    "event": "prompt_extraction_fallback",
+                    "error_type": type(e).__name__,
+                },
+            )
+            # Fallback: geen prompt beschikbaar (non-critical metadata)
             ui_data["prompt_text"] = None
 
         # Filter out None values
@@ -236,9 +255,16 @@ class UIComponentsAdapter:
             st.error(f"❌ {result['message']}")
             return False
 
-        except Exception as e:
-            logger.error(f"Review voorbereiding fout: {e}")
-            st.error(f"❌ Technische fout: {e!s}")
+        except (AttributeError, KeyError, TypeError, ValueError, RuntimeError) as e:
+            # DEF-252 follow-up: Narrow exception types for review preparation
+            logger.error(
+                f"Review voorbereiding fout: {type(e).__name__}: {e}",
+                extra={
+                    "event": "review_preparation_error",
+                    "error_type": type(e).__name__,
+                },
+            )
+            st.error(f"Technische fout: {e!s}")
             return False
 
     def get_export_formats(self) -> list[dict[str, Any]]:
@@ -252,9 +278,20 @@ class UIComponentsAdapter:
             return cast(
                 list[dict[str, Any]], self.service.ui_service.get_export_formats()
             )
-        except Exception as e:
-            logger.error(f"Fout bij ophalen export formaten: {e}")
-            # Fallback
+        except (AttributeError, RuntimeError, ConnectionError) as e:
+            # DEF-252 follow-up: Log and notify user about fallback to basic formats
+            logger.error(
+                f"Export formats ophalen mislukt: {type(e).__name__}: {e}",
+                extra={
+                    "event": "export_formats_fallback",
+                    "error_type": type(e).__name__,
+                },
+            )
+            st.warning(
+                "Export formaten konden niet worden opgehaald. "
+                "Basis formaten (TXT, JSON, CSV) beschikbaar."
+            )
+            # Fallback to basic formats
             return [
                 {"value": "txt", "label": "TXT", "available": True},
                 {"value": "json", "label": "JSON", "available": True},
