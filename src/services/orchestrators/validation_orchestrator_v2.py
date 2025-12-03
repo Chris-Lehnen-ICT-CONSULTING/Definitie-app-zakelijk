@@ -238,8 +238,12 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
                 enriched["wettelijke_basis"] = list(definition.wettelijke_basis)
             if definition.categorie:
                 enriched["categorie"] = definition.categorie
-        except Exception:
-            pass
+        except (TypeError, AttributeError) as e:
+            # DEF-248: Log context enrichment failures - may indicate malformed definition
+            logger.warning(
+                f"Failed to enrich context fields: {type(e).__name__}: {e}",
+                extra={"begrip": getattr(definition, "begrip", "unknown")},
+            )
 
         # Gebundelde definition metadata onder sleutel 'definition'
         try:
@@ -255,7 +259,11 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
                 base.update({k: v for k, v in def_meta.items() if v})
             else:
                 enriched["definition"] = {k: v for k, v in def_meta.items() if v}
-        except Exception:
-            pass
+        except (TypeError, AttributeError) as e:
+            # DEF-248: Log metadata enrichment failures
+            logger.warning(
+                f"Failed to enrich definition metadata: {type(e).__name__}: {e}",
+                extra={"begrip": getattr(definition, "begrip", "unknown")},
+            )
 
         return enriched
