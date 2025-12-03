@@ -175,6 +175,32 @@ BMAD agents available in `.cursor/rules/bmad/` for structured workflows (product
 
 ---
 
+## Linear MCP Integration
+
+**Quirks & Workarounds:**
+
+| Tool | Issue | Workaround |
+|------|-------|------------|
+| `linear_bulk_update_issues` | Array of IDs fails (GraphQL expects `id` not `ids`) | Call with single-item array per issue |
+
+**Example - Update multiple issues to Done:**
+```python
+# WRONG: Fails with GraphQL error
+issueIds: ["id1", "id2", "id3"]
+
+# CORRECT: Call once per issue
+issueIds: ["id1"]  # First call
+issueIds: ["id2"]  # Second call
+issueIds: ["id3"]  # Third call
+```
+
+**Useful State IDs (DEF team):**
+- Done: `da2a38d2-e9cb-4b62-b033-f8c80cb0a2f9`
+- In Progress: `d6b9b0ac-7e60-495c-8c9e-5389de5fd000`
+- Backlog: `0ae3e1f7-cf4c-4421-8d4c-a199823897f8`
+
+---
+
 ## Extended Instructions (Load On-Demand)
 
 For complex workflows, **read `~/.ai-agents/UNIFIED_INSTRUCTIONS.md`** which contains:
