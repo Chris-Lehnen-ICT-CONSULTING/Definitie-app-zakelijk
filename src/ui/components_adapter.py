@@ -6,7 +6,7 @@ en de nieuwe clean services die geen UI dependencies hebben.
 """
 
 import logging
-from typing import Any, cast
+from typing import Any, TypedDict, cast
 
 import streamlit as st
 
@@ -15,6 +15,14 @@ from ui.helpers.context_adapter import get_context_adapter
 from ui.session_state import SessionStateManager
 
 logger = logging.getLogger(__name__)
+
+
+class ContextDict(TypedDict):
+    """Type definition for context dictionary structure."""
+
+    organisatorisch: list[str]
+    juridisch: list[str]
+    wettelijk: list[str]
 
 
 class UIComponentsAdapter:
@@ -73,9 +81,20 @@ class UIComponentsAdapter:
             st.error(f"❌ Export mislukt: {result.get('error', 'Onbekende fout')}")
             return False
 
-        except Exception as e:
-            logger.error(f"Export fout: {e}")
-            st.error(f"❌ Technische fout bij export: {e!s}")
+        except (
+            AttributeError,
+            KeyError,
+            TypeError,
+            ValueError,
+            OSError,
+            RuntimeError,
+        ) as e:
+            # DEF-252 follow-up: Narrow exception types for export errors
+            logger.error(
+                f"Export fout: {type(e).__name__}: {e}",
+                extra={"event": "export_error", "error_type": type(e).__name__},
+            )
+            st.error(f"Technische fout bij export: {e!s}")
             return False
 
     def _collect_ui_data_for_export(self) -> dict[str, Any]:
@@ -104,17 +123,37 @@ class UIComponentsAdapter:
             adapter = get_context_adapter()
             # Fixed: was calling non-existent to_generation_request(), now using get_merged_context()
             context = adapter.get_merged_context()
-            ui_data["context_dict"] = {
-                "organisatorisch": context.get("organisatorische_context", []),
-                "juridisch": context.get("juridische_context", []),
-                "wettelijk": context.get("wettelijke_basis", []),
-            }
-        except Exception:
-            ui_data["context_dict"] = {
-                "organisatorisch": SessionStateManager.get_value("context", []),
-                "juridisch": SessionStateManager.get_value("juridische_context", []),
-                "wettelijk": SessionStateManager.get_value("wet_basis", []),
-            }
+            ui_data["context_dict"] = cast(
+                ContextDict,
+                {
+                    "organisatorisch": context.get("organisatorische_context", []),
+                    "juridisch": context.get("juridische_context", []),
+                    "wettelijk": context.get("wettelijke_basis", []),
+                },
+            )
+        except (AttributeError, KeyError, TypeError, ValueError) as e:
+            # DEF-252: Log fallback activation for debugging and telemetry
+            logger.error(
+                f"ContextAdapter fallback activated: {type(e).__name__}: {e}",
+                extra={"event": "context_fallback", "error_type": type(e).__name__},
+            )
+            st.warning(
+                "Context kon niet via ContextManager worden opgehaald. "
+                "Fallback naar session state actief."
+            )
+            # Fixed DEF-252: Use correct session state keys matching ContextManager
+            ui_data["context_dict"] = cast(
+                ContextDict,
+                {
+                    "organisatorisch": SessionStateManager.get_value(
+                        "organisatorische_context", []
+                    ),
+                    "juridisch": SessionStateManager.get_value(
+                        "juridische_context", []
+                    ),
+                    "wettelijk": SessionStateManager.get_value("wettelijke_basis", []),
+                },
+            )
 
         # Metadata
         ui_data["metadata"] = {
@@ -166,8 +205,16 @@ class UIComponentsAdapter:
             if isinstance(meta, dict):
                 prompt_text = meta.get("prompt_text") or meta.get("prompt_template")
             ui_data["prompt_text"] = prompt_text
-        except Exception:
-            # Fallback: geen prompt beschikbaar
+        except (AttributeError, KeyError, TypeError) as e:
+            # DEF-252 follow-up: Log prompt extraction failure for debugging
+            logger.warning(
+                f"Prompt extraction failed: {type(e).__name__}: {e}",
+                extra={
+                    "event": "prompt_extraction_fallback",
+                    "error_type": type(e).__name__,
+                },
+            )
+            # Fallback: geen prompt beschikbaar (non-critical metadata)
             ui_data["prompt_text"] = None
 
         # Filter out None values
@@ -208,9 +255,16 @@ class UIComponentsAdapter:
             st.error(f"❌ {result['message']}")
             return False
 
-        except Exception as e:
-            logger.error(f"Review voorbereiding fout: {e}")
-            st.error(f"❌ Technische fout: {e!s}")
+        except (AttributeError, KeyError, TypeError, ValueError, RuntimeError) as e:
+            # DEF-252 follow-up: Narrow exception types for review preparation
+            logger.error(
+                f"Review voorbereiding fout: {type(e).__name__}: {e}",
+                extra={
+                    "event": "review_preparation_error",
+                    "error_type": type(e).__name__,
+                },
+            )
+            st.error(f"Technische fout: {e!s}")
             return False
 
     def get_export_formats(self) -> list[dict[str, Any]]:
@@ -224,9 +278,20 @@ class UIComponentsAdapter:
             return cast(
                 list[dict[str, Any]], self.service.ui_service.get_export_formats()
             )
-        except Exception as e:
-            logger.error(f"Fout bij ophalen export formaten: {e}")
-            # Fallback
+        except (AttributeError, RuntimeError, ConnectionError) as e:
+            # DEF-252 follow-up: Log and notify user about fallback to basic formats
+            logger.error(
+                f"Export formats ophalen mislukt: {type(e).__name__}: {e}",
+                extra={
+                    "event": "export_formats_fallback",
+                    "error_type": type(e).__name__,
+                },
+            )
+            st.warning(
+                "Export formaten konden niet worden opgehaald. "
+                "Basis formaten (TXT, JSON, CSV) beschikbaar."
+            )
+            # Fallback to basic formats
             return [
                 {"value": "txt", "label": "TXT", "available": True},
                 {"value": "json", "label": "JSON", "available": True},
