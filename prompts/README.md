@@ -4,6 +4,22 @@ Deze directory bevat herbruikbare prompts voor AI-gestuurde analyses en taken.
 
 ---
 
+## Directory Structuur
+
+```
+prompts/
+├── README.md              # Deze documentatie
+├── templates/             # Herbruikbare prompt templates
+│   └── TEMPLATE-deep-analysis.md
+├── analysis/              # Analyse prompts
+├── review/                # Code review prompts
+├── implementation/        # Implementatie/development prompts
+├── fix/                   # Bug fix prompts
+└── quick/                 # Snelle, simpele prompts
+```
+
+---
+
 ## Workflow Instructie
 
 **BELANGRIJK**: Wanneer de gebruiker een opdracht geeft die valt onder een van de volgende categorieën:
@@ -24,7 +40,7 @@ Deze directory bevat herbruikbare prompts voor AI-gestuurde analyses en taken.
 > - Gestructureerde output en deliverables
 >
 > **Opties:**
-> 1. Ja, genereer een prompt (opslaan in `/prompts/`)
+> 1. Ja, genereer een prompt (opslaan in juiste submap)
 > 2. Nee, voer direct uit
 > 3. Ja, genereer EN voer direct uit"
 
@@ -51,10 +67,58 @@ Deze directory bevat herbruikbare prompts voor AI-gestuurde analyses en taken.
 
 ## Beschikbare Prompts
 
+### Templates
+
 | Bestand | Doel | Agents |
 |---------|------|--------|
-| `TEMPLATE-deep-analysis.md` | **Template** - Herbruikbaar voor elke diepgaande analyse | 4-10 agents |
-| `prompt-engineering-analysis.md` | Analyse van prompt-generatie architectuur | 10 agents |
+| `templates/TEMPLATE-deep-analysis.md` | Herbruikbaar template voor elke diepgaande analyse | 4-10 |
+
+### Analysis Prompts
+
+| Bestand | Doel |
+|---------|------|
+| `analysis/prompt-engineering-analysis.md` | Analyse van prompt-generatie architectuur |
+| `analysis/claude-code-agents-analysis.md` | Analyse van Claude Code agents |
+| `analysis/hookify-gap-analysis.md` | Gap analyse van hookify |
+| `analysis/hookify-rules-analysis.md` | Analyse van hookify rules |
+| `analysis/bmad-prompt-writer-analysis.md` | Analyse van BMAD prompt writer |
+| `analysis/prompt-first-enforcement-analysis.md` | Analyse van prompt-first enforcement |
+| `analysis/subagent-inventory-analysis.md` | Inventarisatie van subagents |
+| `analysis/ANALYSIS-REPORT-claude-code-agents.md` | Rapport: Claude Code agents analyse |
+
+### Implementation Prompts
+
+| Bestand | Doel |
+|---------|------|
+| `implementation/agent-consistency-system.md` | Systeem voor agent output consistentie |
+| `implementation/linear-hookify-implementation.md` | Linear + Hookify implementatie |
+| `implementation/implementation-plan-claude-agents.md` | Implementatieplan voor agents |
+| `implementation/prompt-generator-subagent-spec.md` | Specificatie voor prompt generator subagent |
+
+### Review Prompts
+
+(Nog geen prompts - gebruik `templates/TEMPLATE-deep-analysis.md` als basis)
+
+### Fix Prompts
+
+(Nog geen prompts - gebruik `templates/TEMPLATE-deep-analysis.md` als basis)
+
+### Quick Prompts
+
+(Nog geen prompts - voor snelle, simpele taken)
+
+---
+
+## Opslag Regels
+
+| Prompt Type | Submap | Voorbeeld |
+|-------------|--------|-----------|
+| Analyse prompt | `analysis/` | `analysis/security-audit.md` |
+| Review prompt | `review/` | `review/pr-review-feature-x.md` |
+| Implementatie prompt | `implementation/` | `implementation/new-feature.md` |
+| Fix prompt | `fix/` | `fix/bug-123.md` |
+| Snelle prompt | `quick/` | `quick/rename-function.md` |
+| Template | `templates/` | `templates/TEMPLATE-review.md` |
 
 ---
 
@@ -113,6 +177,7 @@ Elke prompt moet de volgende secties bevatten:
 | Debug Specialist | `debug-specialist` | Logging, debugging |
 | Explorer | `Explore` | Codebase verkenning |
 | Researcher | `general-purpose` | External research |
+| Prompt Writer | `prompt-writer` | Prompt generatie |
 
 ### Aanbevolen Agent Combinaties
 
@@ -132,11 +197,11 @@ Elke prompt moet de volgende secties bevatten:
 
 | Severity | Minimum Consensus |
 |----------|-------------------|
-| CRITICAL | ≥75% |
-| HIGH | ≥70% |
-| MEDIUM | ≥60% |
-| LOW | ≥50% |
-| SUGGESTION | ≥40% |
+| CRITICAL | >=75% |
+| HIGH | >=70% |
+| MEDIUM | >=60% |
+| LOW | >=50% |
+| SUGGESTION | >=40% |
 
 ---
 
@@ -145,7 +210,7 @@ Elke prompt moet de volgende secties bevatten:
 ### Bestaande prompt uitvoeren:
 
 ```
-Voer de prompt uit: prompts/prompt-engineering-analysis.md
+Voer de prompt uit: prompts/analysis/claude-code-agents-analysis.md
 ```
 
 ### Nieuwe prompt genereren:

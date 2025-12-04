@@ -38,39 +38,48 @@ pre-commit run --all-files           # All pre-commit hooks
 3. **Database location** - Only `data/definities.db`, nowhere else
 4. **No backwards compatibility** - Solo dev app, refactor in place
 5. **Ask first for large changes** - >100 lines OR >5 files
-6. **Prompt-first workflow** - For analysis/review/implementation/fix tasks, ask if a structured prompt should be generated first
+6. **Prompt-first workflow** - For analysis/review/implementation/fix tasks, ALWAYS ask if a structured prompt should be generated first (enforced via hookify rule)
 
 ---
 
-## Prompt-First Workflow
+## Prompt-First Workflow (VERPLICHT)
 
-**BELANGRIJK**: Bij opdrachten in de volgende categorieën, vraag EERST:
+**🛑 STOP - LEES DIT EERST**
 
-| Categorie | Voorbeelden |
-|-----------|-------------|
-| **Analyse** | codebase analyse, performance analyse, security audit |
-| **Review** | code review, PR review, architecture review |
-| **Implementatie** | nieuwe feature, refactoring, migratie |
-| **Fix** | bug fix, security fix, performance fix |
+Bij ELKE opdracht die matcht op onderstaande categorieën:
+1. **STOP** - Gebruik GEEN tools voordat je de vraag hebt gesteld
+2. **VRAAG** - Stel de prompt-first vraag aan de gebruiker
+3. **WACHT** - Wacht op antwoord voordat je verdergaat
 
-**Vraag aan gebruiker:**
-> "Wil je dat ik eerst een gestructureerde prompt genereer voor deze taak?
-> - **Ja**: Prompt opslaan in `/prompts/` met multiagent + consensus framework
-> - **Nee**: Direct uitvoeren
-> - **Ja + Uitvoeren**: Genereer EN voer direct uit"
+| Categorie | Trigger Keywords |
+|-----------|------------------|
+| **Analyse** | analyseer, analyse, onderzoek, audit, evalueer, beoordeel, bottleneck, profiel |
+| **Review** | review, controleer, bekijk, check, validate |
+| **Implementatie** | implementeer, bouw, maak, create, refactor, migreer, moderniseer, architect |
+| **Fix** | fix, repareer, debug, patch, corrigeer, herstel, silent exception, race condition |
 
-**Wanneer WEL prompt genereren:**
-- Complexe analyse (>5 bestanden)
-- Kritieke wijzigingen
-- Kwaliteitsborging nodig (meerdere reviewers)
-- Herhaalbare taak
+**De vraag die je MOET stellen:**
+```
+Wil je dat ik eerst een gestructureerde prompt genereer voor deze taak?
 
-**Wanneer NIET:**
-- Simpele fix (<10 regels)
-- Duidelijke opdracht
-- Tijdskritiek
+- **Ja**: Ik gebruik /bmad:core:agents:prompt-writer om een multiagent prompt te genereren
+- **Nee**: Ik voer direct uit
+- **Ja + Uitvoeren**: Ik genereer EN voer direct uit
 
-Zie `prompts/README.md` voor templates en agent configuraties.
+(Voor simpele taken <10 regels mag je "Nee" aannemen)
+```
+
+**Enforcement:**
+- Hookify injecteert een reminder bij detectie van trigger keywords
+- Bij twijfel: VRAAG - het kost 5 seconden, voorkomt uren werk
+- Gebruik `/bmad:core:agents:prompt-writer` voor prompt generatie (Nova agent)
+
+**Wanneer SKIP toegestaan:**
+- Expliciete user intent: "fix snel even..." of "direct:"
+- Triviale fix: <10 regels, 1 bestand, duidelijke oplossing
+- Follow-up op eerdere prompt: context al vastgelegd
+
+Zie `prompts/README.md` voor templates en `/bmad:core:agents:prompt-writer` voor interactieve generatie.
 
 ---
 
