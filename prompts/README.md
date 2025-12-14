@@ -33,16 +33,27 @@ prompts/
 
 > "Wil je dat ik eerst een gestructureerde prompt genereer voor deze taak?
 >
-> Dit kan helpen met:
-> - Multiagent aanpak (meerdere gespecialiseerde agents parallel)
-> - ULTRATHINK modus voor diepgaande analyse
-> - Consensus framework tussen agents
-> - Gestructureerde output en deliverables
->
-> **Opties:**
-> 1. Ja, genereer een prompt (opslaan in juiste submap)
-> 2. Nee, voer direct uit
-> 3. Ja, genereer EN voer direct uit"
+> - **Ja**: Ik voer `prompt-forge forge "<taak>" -r` uit (multi-agent review, aanbevolen)
+> - **Nee**: Ik voer direct uit
+> - **Ja + Uitvoeren**: Ik genereer prompt EN voer direct uit"
+
+### prompt-forge CLI
+
+```bash
+# Standaard met multi-agent review (aanbevolen)
+prompt-forge forge "<taak beschrijving>" -r
+
+# Met extra context
+prompt-forge forge "<taak>" -c "<context>" -r
+
+# Batch mode (non-interactief)
+prompt-forge forge "<taak>" -r -b
+
+# Demo mode (geen API kosten)
+prompt-forge forge "<taak>" -d
+```
+
+Zie `CLAUDE.md` §Prompt-First Workflow voor volledige documentatie.
 
 ### Wanneer WEL prompt genereren (aanbevolen):
 
@@ -177,7 +188,7 @@ Elke prompt moet de volgende secties bevatten:
 | Debug Specialist | `debug-specialist` | Logging, debugging |
 | Explorer | `Explore` | Codebase verkenning |
 | Researcher | `general-purpose` | External research |
-| Prompt Writer | `prompt-writer` | Prompt generatie |
+| Prompt Generator | `prompt-forge forge -r` | Prompt generatie (CLI tool) |
 
 ### Aanbevolen Agent Combinaties
 
@@ -215,8 +226,11 @@ Voer de prompt uit: prompts/analysis/claude-code-agents-analysis.md
 
 ### Nieuwe prompt genereren:
 
-```
-Genereer een prompt voor: [beschrijving van de taak]
+```bash
+# Via CLI (aanbevolen)
+prompt-forge forge "beschrijving van de taak" -r
+
+# Of vraag Claude om het uit te voeren
 ```
 
 ### Prompt aanpassen:

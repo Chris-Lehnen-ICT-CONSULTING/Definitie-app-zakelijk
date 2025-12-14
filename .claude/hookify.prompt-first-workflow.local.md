@@ -18,9 +18,17 @@ Dit lijkt een taak te zijn waarvoor een gestructureerde prompt nuttig kan zijn.
 
 **Vraag aan gebruiker:**
 > Wil je dat ik eerst een gestructureerde prompt genereer?
-> - **Ja**: Prompt opslaan in `/prompts/` met multiagent framework
-> - **Nee**: Direct uitvoeren
-> - **Ja + Uitvoeren**: Genereer EN voer direct uit
+>
+> - **Ja**: Ik voer `prompt-forge forge "<taak>" -r` uit (multi-agent review, aanbevolen)
+> - **Nee**: Ik voer direct uit
+> - **Ja + Uitvoeren**: Ik genereer prompt EN voer direct uit
+
+**prompt-forge opties:**
+```bash
+prompt-forge forge "<taak>" -r              # Met 6-expert review (aanbevolen)
+prompt-forge forge "<taak>" -c "<context>"  # Met extra context
+prompt-forge forge "<taak>" -r -b           # Batch mode (non-interactief)
+```
 
 **Wanneer WEL prompt genereren:**
 - Complexe analyse (>5 bestanden)
@@ -32,4 +40,4 @@ Dit lijkt een taak te zijn waarvoor een gestructureerde prompt nuttig kan zijn.
 - Duidelijke opdracht
 - Tijdskritiek
 
-Zie `prompts/README.md` voor templates.
+Zie CLAUDE.md §Prompt-First Workflow voor volledige documentatie.

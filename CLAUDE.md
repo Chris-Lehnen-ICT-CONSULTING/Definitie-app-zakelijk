@@ -29,6 +29,13 @@ python -m ruff check src config      # Ruff only
 pre-commit run --all-files           # All pre-commit hooks
 ```
 
+**Prompt Generation:**
+```bash
+prompt-forge forge "idee" -r         # Multi-agent reviewed prompt (recommended)
+prompt-forge forge "idee" -c "ctx"   # With extra context
+prompt-forge re-review               # Re-review existing prompt
+```
+
 ---
 
 ## Critical Rules
@@ -62,24 +69,67 @@ Bij ELKE opdracht die matcht op onderstaande categorieën:
 ```
 Wil je dat ik eerst een gestructureerde prompt genereer voor deze taak?
 
-- **Ja**: Ik gebruik /bmad:core:agents:prompt-writer om een multiagent prompt te genereren
+- **Ja**: Ik voer `prompt-forge forge "<taak>" -r` uit (multi-agent review, aanbevolen)
 - **Nee**: Ik voer direct uit
-- **Ja + Uitvoeren**: Ik genereer EN voer direct uit
+- **Ja + Uitvoeren**: Ik genereer prompt EN voer direct uit
 
 (Voor simpele taken <10 regels mag je "Nee" aannemen)
 ```
 
+### prompt-forge CLI (Primair)
+
+**Installatie:** Reeds beschikbaar via `prompt-forge` in PATH.
+
+**Basis gebruik:**
+```bash
+# Simpel - genereer prompt voor een idee
+prompt-forge forge "silent exceptions opruimen in services/"
+
+# Met context - extra informatie meegeven
+prompt-forge forge "validation refactoring" -c "focus op error handling, behoud backward compat"
+
+# Met multi-agent review (AANBEVOLEN) - 6 AI experts reviewen de prompt
+prompt-forge forge "nieuwe toetsregel implementeren" -r
+
+# Batch mode - non-interactief voor scripts
+prompt-forge forge "database migratie" -r -b --no-sync
+
+# Re-review bestaande prompt
+prompt-forge re-review
+```
+
+**Opties overzicht:**
+
+| Optie | Kort | Beschrijving |
+|-------|------|-------------|
+| `--review` | `-r` | Multi-agent review door 6 AI experts (sterk aanbevolen) |
+| `--context` | `-c` | Extra context toevoegen aan het idee |
+| `--batch` | `-b` | Non-interactief, geen vragen |
+| `--demo` | `-d` | Test UI zonder API calls (geen kosten) |
+| `--no-sync` | | Alleen lokaal opslaan, geen database sync |
+| `--min-loops` | | Minimum review iteraties (default: 2) |
+| `--max-loops` | | Maximum review iteraties (default: 4) |
+| `--output` | `-o` | Custom output directory |
+
+**Wanneer welke optie:**
+
+| Situatie | Command | Reden |
+|----------|---------|-------|
+| Standaard (aanbevolen) | `prompt-forge forge "<taak>" -r` | 6 experts, iteratief verbeterd |
+| Met extra context | `prompt-forge forge "<taak>" -c "<ctx>" -r` | Context meegeven |
+| Non-interactief/scripts | `prompt-forge forge "<taak>" -r -b` | Batch mode |
+| Demo/test (geen kosten) | `prompt-forge forge "<taak>" -d` | Geen API calls |
+
 **Enforcement:**
 - Hookify injecteert een reminder bij detectie van trigger keywords
 - Bij twijfel: VRAAG - het kost 5 seconden, voorkomt uren werk
-- Gebruik `/bmad:core:agents:prompt-writer` voor prompt generatie (Nova agent)
 
 **Wanneer SKIP toegestaan:**
 - Expliciete user intent: "fix snel even..." of "direct:"
 - Triviale fix: <10 regels, 1 bestand, duidelijke oplossing
 - Follow-up op eerdere prompt: context al vastgelegd
 
-Zie `prompts/README.md` voor templates en `/bmad:core:agents:prompt-writer` voor interactieve generatie.
+Zie `prompts/README.md` voor templates.
 
 ---
 
