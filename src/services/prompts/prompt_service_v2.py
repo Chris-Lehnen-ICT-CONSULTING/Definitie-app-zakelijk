@@ -167,7 +167,7 @@ class PromptServiceV2:
             result = PromptResult(
                 text=prompt_text,
                 token_count=int(token_count),
-                components_used=components_used,
+                components_used=tuple(components_used),  # frozen dataclass needs tuple
                 feedback_integrated=bool(feedback_history),
                 optimization_applied=False,
                 metadata={

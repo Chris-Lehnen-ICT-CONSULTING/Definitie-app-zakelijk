@@ -80,7 +80,11 @@ class DefinitionImportService:
         ok = True
         try:
             ok = bool(validation.get("is_acceptable", False))
-        except Exception:
+        except (TypeError, AttributeError) as e:
+            logger.warning(
+                "Validatie resultaat kon niet worden geïnterpreteerd",
+                extra={"begrip": definition.begrip, "error_type": type(e).__name__},
+            )
             ok = False
 
         return SingleImportPreview(validation=validation, duplicates=duplicates, ok=ok)
@@ -147,9 +151,17 @@ class DefinitionImportService:
                 target = preview.duplicates[0]
                 if getattr(target, "id", None):
                     definition.id = int(target.id)
-            except Exception:
-                # Fallback: laat id None → create
-                pass
+            except (TypeError, ValueError, AttributeError) as e:
+                # Fallback: laat id None → create nieuwe definitie
+                logger.warning(
+                    "Kon duplicaat ID niet overnemen, maak nieuwe definitie aan",
+                    exc_info=True,
+                    extra={
+                        "begrip": definition.begrip,
+                        "duplicate_count": len(preview.duplicates),
+                        "error_type": type(e).__name__,
+                    },
+                )
 
         # Run sync save operation in thread pool to prevent blocking
         loop = asyncio.get_event_loop()
@@ -215,9 +227,12 @@ class DefinitionImportService:
                 legacy._log_import_export(
                     "import", "single_import_ui", 1, 1, 0
                 )  # type: ignore[attr-defined]
-        except Exception:
-            # Logging is best-effort
-            pass
+        except Exception as e:
+            # Import/export logging is best-effort, maar log wel dat het faalde
+            logger.debug(
+                "Import logging naar legacy repo gefaald (non-critical)",
+                extra={"error_type": type(e).__name__, "definition_id": new_id},
+            )
 
         return SingleImportResult(
             success=bool(new_id),
