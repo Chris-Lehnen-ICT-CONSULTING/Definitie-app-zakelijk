@@ -95,43 +95,6 @@ def get_category_display_name(category: str) -> str:
     return category_names.get(category, category)
 
 
-def get_category_icon(category: str) -> str:
-    """Get emoji icon for category.
-
-    Args:
-        category: Category key
-
-    Returns:
-        Emoji icon for the category
-    """
-    icons = {
-        "type": "🏷️",
-        "proces": "⚙️",
-        "resultaat": "📊",
-        "exemplaar": "🔍",
-        "ENT": "🏷️",
-        "ACT": "⚙️",
-        "REL": "🔗",
-        "ATT": "📋",
-        "AUT": "⚖️",
-        "STA": "📊",
-        "OTH": "❓",
-    }
-    return icons.get(category, "❓")
-
-
-def get_category_display_with_icon(category: str) -> str:
-    """Get category display name with icon prefix.
-
-    Args:
-        category: Category key
-
-    Returns:
-        Icon + display name (e.g., '🏷️ Type/Klasse')
-    """
-    return f"{get_category_icon(category)} {get_category_display_name(category)}"
-
-
 def extract_definition_from_result(generation_result: dict[str, Any]) -> str:
     """Extract definition text from generation result, regardless of format.
 

@@ -30,6 +30,7 @@ from ui.components.formatters import (
     get_category_display_name,
 )
 from ui.components.sources_renderer import SourcesRenderer
+from ui.helpers.context_helpers import has_min_one_context
 from ui.session_state import SessionStateManager
 from utils.dict_helpers import safe_dict_get
 from utils.type_helpers import ensure_dict, ensure_string
@@ -68,7 +69,7 @@ class DefinitionGeneratorTab:
 
         # Vroegtijdige guard: minsténs 1 context vereist (UI-melding)
         try:
-            if not self._has_min_one_context():
+            if not has_min_one_context():
                 st.warning(
                     "Minstens één context is vereist (organisatorisch of juridisch of wettelijk) om te genereren of op te slaan."
                 )
@@ -81,36 +82,6 @@ class DefinitionGeneratorTab:
 
         if generation_result:
             self._render_generation_results(generation_result)
-
-    # ===== Context guards (minstens 1 vereist) =====
-    def _get_global_context_lists(self) -> dict[str, list[str]]:
-        """Lees globale UI-context en normaliseer naar lijsten."""
-        try:
-            ctx = ensure_dict(SessionStateManager.get_value("global_context", {}))
-        except Exception as e:
-            logger.error(f"Failed to load global_context from session: {e}")
-            ctx = {}
-        org_list = ctx.get("organisatorische_context", []) or []
-        jur_list = ctx.get("juridische_context", []) or []
-        wet_list = ctx.get("wettelijke_basis", []) or []
-        return {
-            "organisatorische_context": list(org_list),
-            "juridische_context": list(jur_list),
-            "wettelijke_basis": list(wet_list),
-        }
-
-    def _has_min_one_context(self) -> bool:
-        """True wanneer minstens één van de drie contextlijsten een waarde bevat."""
-        try:
-            ctx = self._get_global_context_lists()
-            return bool(
-                ctx.get("organisatorische_context")
-                or ctx.get("juridische_context")
-                or ctx.get("wettelijke_basis")
-            )
-        except Exception as e:
-            logger.error(f"Context validation check crashed: {e}")
-            return False
 
     def _render_generation_results(self, generation_result):
         """Render resultaten van definitie generatie."""
@@ -1042,7 +1013,7 @@ class DefinitionGeneratorTab:
                         st.warning(
                             "❗ Deze generatie voldoet niet aan de kwaliteitsdrempel."
                         )
-                        can_save = self._has_min_one_context()
+                        can_save = has_min_one_context()
                         if not can_save:
                             st.caption(
                                 "Minstens één context vereist om als concept op te slaan."

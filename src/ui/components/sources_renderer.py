@@ -142,8 +142,12 @@ class SourcesRenderer:
             # Render sources list
             self._render_sources_list(sources)
 
-        except Exception as e:
-            logger.debug(f"Kon bronnen sectie niet renderen: {e}")
+        except (KeyError, AttributeError, TypeError, ValueError) as e:
+            logger.error(f"Kon bronnen sectie niet renderen: {e}", exc_info=True)
+            st.warning(
+                "Bronnen konden niet worden weergegeven. "
+                "Probeer de pagina te vernieuwen."
+            )
 
     def _render_status_info(
         self,
@@ -243,7 +247,18 @@ class SourcesRenderer:
                             "url": url,
                         }
                     )
-                except Exception:
+                except (TypeError, AttributeError):
+                    try:
+                        repr_str = repr(a)
+                        truncated = repr_str[:100] if len(repr_str) > 100 else repr_str
+                    except Exception:
+                        truncated = f"<unrepresentable {type(a).__name__}>"
+                    logger.warning(
+                        "Malformed attempt in _render_attempts_table: "
+                        "type=%s, repr=%r",
+                        type(a).__name__,
+                        truncated,
+                    )
                     continue
 
             if rows:

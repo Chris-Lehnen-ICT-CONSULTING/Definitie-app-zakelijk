@@ -12,6 +12,7 @@ import streamlit as st
 
 from integration.definitie_checker import CheckAction
 from ui.components.formatters import format_record_context
+from ui.helpers.context_helpers import has_min_one_context
 from ui.session_state import SessionStateManager
 from utils.type_helpers import ensure_dict
 
@@ -22,20 +23,8 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-def _has_min_one_context() -> bool:
-    """Check if at least one context field has a value.
-
-    This is a standalone helper to avoid dependency on the main tab class.
-    """
-    try:
-        ctx = ensure_dict(SessionStateManager.get_value("global_context", {}))
-        org_list = ctx.get("organisatorische_context", []) or []
-        jur_list = ctx.get("juridische_context", []) or []
-        wet_list = ctx.get("wettelijke_basis", []) or []
-        return bool(org_list or jur_list or wet_list)
-    except Exception as e:
-        logger.error(f"Context validation check crashed: {e}")
-        return False
+# NOTE: _has_min_one_context() moved to ui.helpers.context_helpers (DEF-260)
+# Import: from ui.helpers.context_helpers import has_min_one_context
 
 
 class DuplicateCheckRenderer:
@@ -129,7 +118,7 @@ class DuplicateCheckRenderer:
                     self._edit_existing_definition(definitie)
 
             with col3:
-                can_generate = _has_min_one_context()
+                can_generate = has_min_one_context()
                 if not can_generate:
                     st.caption("Minstens één context vereist om nieuw te genereren.")
                 if st.button(
