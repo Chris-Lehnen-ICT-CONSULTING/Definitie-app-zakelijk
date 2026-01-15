@@ -19,6 +19,19 @@ from utils.type_helpers import ensure_list, ensure_string
 
 from .aggregation import calculate_weighted_score, determine_acceptability
 from .types_internal import EvaluationContext
+from .violation_builder import (
+    category_for_rule,
+    circular_definition_violation,
+    empty_definition_violation,
+    essential_content_violation,
+    informal_language_violation,
+    mixed_language_violation,
+    organization_violation,
+    structure_violation,
+    terminology_violation,
+    too_long_violation,
+    too_short_violation,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -419,12 +432,17 @@ class ModularValidationService:
             )
 
         # Exclude certain rules from scoring (weight=0):
-        # - Interne baseline regels (self._baseline_internal)
+        # - Interne baseline regels (self._baseline_internal) - ALLEEN als er ook JSON regels zijn
         # - ARAI* taalregels (AR**/ARAI**)
+        # NOTE: In fallback mode (alleen baseline regels), moeten deze WEL meegewogen worden
+        has_non_baseline_rules = any(
+            code not in self._baseline_internal for code in self._internal_rules
+        )
         try:
             for code in list(weights.keys()):
                 cu = str(code).upper()
-                if code in self._baseline_internal:
+                # Baseline regels alleen uitsluiten als er ook andere regels zijn
+                if has_non_baseline_rules and code in self._baseline_internal:
                     weights[code] = 0.0
                 elif cu.startswith(("ARAI", "AR-", "AR")):
                     # Beperk tot ARAI-familie; AR-prefix meegenomen voor compat
@@ -470,7 +488,7 @@ class ModularValidationService:
                                 "message": "",
                                 "description": "",
                                 "rule_id": code,
-                                "category": self._category_for(code),
+                                "category": category_for_rule(code),
                             }
                         )
                 else:
@@ -532,59 +550,15 @@ class ModularValidationService:
             raw_text = ""
         # Informal language
         if self._has_informal_language(raw_text):
-            violations.append(
-                {
-                    "code": "LANG-INF-001",
-                    "severity": "error",
-                    "severity_level": "high",
-                    "message": "Informele taal gedetecteerd",
-                    "description": "Informele taal gedetecteerd",
-                    "rule_id": "LANG-INF-001",
-                    "category": "taal",
-                    "suggestion": "Gebruik formele, precieze taal in plaats van informele bewoordingen.",
-                }
-            )
+            violations.append(informal_language_violation())
             if not any(str(v.get("code", "")) == "ESS-CONT-001" for v in violations):
-                violations.append(
-                    {
-                        "code": "ESS-CONT-001",
-                        "severity": "error",
-                        "severity_level": "high",
-                        "message": "Essentiële inhoud ontbreekt of te summier",
-                        "description": "Essentiële inhoud ontbreekt of te summier",
-                        "rule_id": "ESS-CONT-001",
-                        "category": "juridisch",
-                        "suggestion": "Voeg essentiële inhoud toe: beschrijf wat het begrip is.",
-                    }
-                )
+                violations.append(essential_content_violation())
         # Mixed NL/EN
         if self._has_mixed_language(raw_text):
-            violations.append(
-                {
-                    "code": "LANG-MIX-001",
-                    "severity": "error",
-                    "severity_level": "high",
-                    "message": "Gemengde taal (NL/EN) gedetecteerd",
-                    "description": "Gemengde taal (NL/EN) gedetecteerd",
-                    "rule_id": "LANG-MIX-001",
-                    "category": "taal",
-                    "suggestion": "Kies één taal (NL) en vermijd Engelse termen in dezelfde zin.",
-                }
-            )
+            violations.append(mixed_language_violation())
         # Too minimal structure (very short definitions)
         if wcount < 6:
-            violations.append(
-                {
-                    "code": "STR-FORM-001",
-                    "severity": "error",
-                    "severity_level": "high",
-                    "message": "Structuur ontoereikend (te summier)",
-                    "description": "Structuur ontoereikend (te summier)",
-                    "rule_id": "STR-FORM-001",
-                    "category": "structuur",
-                    "suggestion": "Breid de definitie uit met kernstructuur (wat het is, onderscheidend kenmerk).",
-                }
-            )
+            violations.append(structure_violation())
         # Circular definition fallback (ensure we catch simple cases)
         # DEF-244: Use eval_ctx.begrip instead of instance variable
         try:
@@ -597,33 +571,13 @@ class ModularValidationService:
                     and not any(v.get("code") == "CON-CIRC-001" for v in violations)
                 ):
                     violations.append(
-                        {
-                            "code": "CON-CIRC-001",
-                            "severity": "error",
-                            "severity_level": "high",
-                            "message": "Definitie is circulair (begrip komt voor in tekst)",
-                            "description": "Definitie is circulair (begrip komt voor in tekst)",
-                            "rule_id": "CON-CIRC-001",
-                            "category": "samenhang",
-                            "suggestion": f"Vermijd {eval_ctx.begrip!s} letterlijk; omschrijf zonder de term te herhalen.",
-                        }
+                        circular_definition_violation(str(eval_ctx.begrip))
                     )
                     # Voeg ook essentie-tekort toe voor strengere golden criteria
                     if not any(
                         str(v.get("code", "")) == "ESS-CONT-001" for v in violations
                     ):
-                        violations.append(
-                            {
-                                "code": "ESS-CONT-001",
-                                "severity": "error",
-                                "severity_level": "high",
-                                "message": "Essentiële inhoud ontbreekt of te summier",
-                                "description": "Essentiële inhoud ontbreekt of te summier",
-                                "rule_id": "ESS-CONT-001",
-                                "category": "juridisch",
-                                "suggestion": "Voeg essentiële inhoud toe: beschrijf wat het begrip is.",
-                            }
-                        )
+                        violations.append(essential_content_violation())
         except (TypeError, AttributeError) as e:
             # DEF-231: Log circular check failures for debugging
             logger.warning(
@@ -713,7 +667,7 @@ class ModularValidationService:
                 },
             }
 
-        # Minder strikte acceptatie: soft floor conform policy (0.65) zolang er geen blocking errors zijn
+        # Blocking errors check: bepaalde violations blokkeren ALTIJD acceptatie
         def _has_blocking_errors(vs: list[dict[str, Any]]) -> bool:
             for v in vs or []:
                 if str(v.get("severity", "")).lower() != "error":
@@ -731,8 +685,12 @@ class ModularValidationService:
                     return True
             return False
 
-        soft_ok = (overall >= 0.65) and (not _has_blocking_errors(violations))
-        is_ok = bool(acceptance_gate.get("acceptable", False)) or soft_ok
+        has_blockers = _has_blocking_errors(violations)
+        # Soft floor: score >= 0.60 zonder blocking errors (0.60 = acceptabel minimaal)
+        soft_ok = (overall >= 0.60) and (not has_blockers)
+        # Blocking errors overrulen de acceptance gate
+        gate_ok = bool(acceptance_gate.get("acceptable", False)) and (not has_blockers)
+        is_ok = gate_ok or soft_ok
 
         # 10) Schema-achtige dict output
         result: dict[str, Any] = {
@@ -817,30 +775,16 @@ class ModularValidationService:
         words = len(text_norm.split()) if text_norm else 0
         chars = len(text_norm)
 
-        def vio(prefix: str, message: str) -> dict[str, Any]:
-            return {
-                "code": prefix,
-                "severity": "warning" if prefix.startswith("STR-") else "error",
-                "severity_level": "low" if prefix.startswith("STR-") else "high",
-                "message": message,
-                "description": message,
-                "rule_id": prefix,
-                "category": self._category_for(prefix),
-                "suggestion": self._suggestion_for_internal_rule(prefix, ctx),
-            }
-
         # Leegte
         if code == "VAL-EMP-001":
             if chars == 0:
-                return 0.0, vio("VAL-EMP-001", "Definitietekst is leeg")
-            # Non-empty yields near-perfect but not saturating score
+                return 0.0, empty_definition_violation()
             return 0.9, None
 
         # Te kort
         if code == "VAL-LEN-001":
             if words < 5 or chars < 15:
-                return 0.0, vio("VAL-LEN-001", "Definitie is te kort")
-            # Grade short-but-acceptable lower than comfortable band
+                return 0.0, too_short_violation()
             if words < 12 or chars < 40:
                 return 0.7, None
             if words < 25:
@@ -850,8 +794,7 @@ class ModularValidationService:
         # Te lang
         if code == "VAL-LEN-002":
             if words > 80 or chars > 600:
-                return 0.0, vio("VAL-LEN-002", "Definitie is te lang/overdadig")
-            # Penalize near the upper range slightly
+                return 0.0, too_long_violation()
             if words > 60 or chars > 450:
                 return 0.85, None
             return 0.95, None
@@ -859,10 +802,7 @@ class ModularValidationService:
         # Essentiële inhoud aanwezig (heel grof: voldoende informatiedichtheid)
         if code == "ESS-CONT-001":
             if words < 6:
-                return 0.0, vio(
-                    "ESS-CONT-001", "Essentiële inhoud ontbreekt of te summier"
-                )
-            # Content exists: short content scores lower
+                return 0.0, essential_content_violation()
             if words < 12:
                 return 0.65, None
             return 0.9, None
@@ -875,23 +815,18 @@ class ModularValidationService:
                 pattern = rf"\b{re.escape(str(begrip))}\b"
                 found = bool(re.search(pattern, text_norm, re.IGNORECASE))
                 if not found:
-                    # Fallback: naive contains check in lowercase with added spaces to mimic word boundary
+                    # Fallback: naive contains check in lowercase with added spaces
                     tn = f" {text_norm.lower()} "
                     gb = f" {str(begrip).strip().lower()} "
                     found = gb in tn
                 if found:
-                    return 0.0, vio(
-                        "CON-CIRC-001",
-                        "Definitie is circulair (begrip komt voor in tekst)",
-                    )
+                    return 0.0, circular_definition_violation(str(begrip))
             return 1.0, None
 
         # Terminologie/structuur kleine kwestie (bijv. ontbrekende koppelteken)
         if code == "STR-TERM-001":
             if "HTTP protocol" in text_norm:
-                return 0.0, vio(
-                    "STR-TERM-001", "Terminologie/structuur: gebruik 'HTTP-protocol'"
-                )
+                return 0.0, terminology_violation("HTTP protocol")
             return 0.95, None
 
         # Organisatie/structuur (lange aaneengeregen zin of herhalingen)
@@ -905,9 +840,7 @@ class ModularValidationService:
                 )
             )
             if long_sentence or redundancy:
-                return 0.0, vio(
-                    "STR-ORG-001", "Zwakke zinsstructuur of redundantie gedetecteerd"
-                )
+                return 0.0, organization_violation()
             return 0.9, None
 
         # Onbekende regelcode → pass
@@ -953,7 +886,7 @@ class ModularValidationService:
                     "message": msg,
                     "description": msg,
                     "rule_id": code_up,
-                    "category": self._category_for(code_up),
+                    "category": category_for_rule(code_up),
                     "suggestion": "Gebruik de onbepaalde wijs (infinitief), bijv. 'beoordelen' i.p.v. 'beoordeelt'.",
                 }
             # Geen issue
@@ -991,7 +924,7 @@ class ModularValidationService:
                         "message": msg,
                         "description": msg,
                         "rule_id": code_up,
-                        "category": self._category_for(code_up),
+                        "category": category_for_rule(code_up),
                         "suggestion": "Begin met het gekwalificeerde begrip en gebruik genus+differentia zonder de basisdefinitie te herhalen.",
                     }
 
@@ -1007,7 +940,7 @@ class ModularValidationService:
                         "message": msg,
                         "description": msg,
                         "rule_id": code_up,
-                        "category": self._category_for(code_up),
+                        "category": category_for_rule(code_up),
                         "suggestion": "Gebruik genus+differentia: noem het hoofdbegrip kort (bv. 'delict') en voeg alleen het onderscheidende criterium toe.",
                     }
 
@@ -1040,7 +973,7 @@ class ModularValidationService:
                         "message": msg,
                         "description": msg,
                         "rule_id": code_up,
-                        "category": self._category_for(code_up),
+                        "category": category_for_rule(code_up),
                         "suggestion": "Laat de definitie beginnen met het genus uit de samenstelling (bv. 'model …' bij 'procesmodel').",
                     }
 
@@ -1298,7 +1231,7 @@ class ModularValidationService:
                 "message": description,
                 "description": description,
                 "rule_id": code,
-                "category": self._category_for(code),
+                "category": category_for_rule(code),
                 "suggestion": suggestion_text,
             }
             # Optionele metadata (eerste match en positie)
@@ -1506,7 +1439,7 @@ class ModularValidationService:
                 "message": f"Ambigu: meerdere categorieën herkend ({', '.join(sorted(hits.keys()))})",
                 "description": f"Ambigu: meerdere categorieën herkend ({', '.join(sorted(hits.keys()))})",
                 "rule_id": "ESS-02",
-                "category": self._category_for("ESS-02"),
+                "category": category_for_rule("ESS-02"),
                 "suggestion": self._build_suggestion_for_violation(
                     "ESS-02", rule, text, ctx, reason="ambigu"
                 ),
@@ -1519,7 +1452,7 @@ class ModularValidationService:
             "message": "Geen duidelijke ontologische marker (type/particulier/proces/resultaat)",
             "description": "Geen duidelijke ontologische marker (type/particulier/proces/resultaat)",
             "rule_id": "ESS-02",
-            "category": self._category_for("ESS-02"),
+            "category": category_for_rule("ESS-02"),
             "suggestion": self._build_suggestion_for_violation(
                 "ESS-02", rule, text, ctx, reason="missing"
             ),
@@ -1675,7 +1608,7 @@ class ModularValidationService:
                 "message": "Bestaande definitie met dezelfde context gevonden",
                 "description": "Bestaande definitie met dezelfde context gevonden",
                 "rule_id": "CON-01",
-                "category": self._category_for("CON-01"),
+                "category": category_for_rule("CON-01"),
                 "metadata": {
                     "existing_definition_id": found_id,
                     "status": found_status,
@@ -1683,47 +1616,6 @@ class ModularValidationService:
                 "suggestion": "Overweeg de bestaande definitie te hergebruiken of pas de context/lemma aan om duplicatie te voorkomen.",
             }
         )
-
-    def _category_for(self, code: str) -> str:
-        c = str(code)
-        if c.startswith("STR-"):
-            return "structuur"
-        if c.startswith("CON-"):
-            return "samenhang"
-        if c.startswith(("ESS-", "VAL-")):
-            return "juridisch"
-        if c.startswith("SAM-"):
-            return "samenhang"
-        if c.startswith(("ARAI", "ARAI-")):
-            return "taal"
-        if c.startswith("INT-"):
-            return "structuur"
-        if c.startswith("VER-"):
-            return "taal"
-        return "system"
-
-    def _suggestion_for_internal_rule(
-        self, code: str, ctx: EvaluationContext
-    ) -> str | None:
-        """Suggesties voor interne baseline regels (VAL-*, STR-*, CON-CIRC-*)."""
-        c = (code or "").upper()
-        if c == "VAL-EMP-001":
-            return "Vul de definitietekst in; tekst mag niet leeg zijn."
-        if c == "VAL-LEN-001":
-            return "Breid uit tot ≥ 5 woorden en ≥ 15 tekens met kerninformatie."
-        if c == "VAL-LEN-002":
-            return "Verkort tot ≤ 80 woorden en ≤ 600 tekens; splits indien nodig."
-        if c == "ESS-CONT-001":
-            return "Voeg essentiële inhoud toe: beschrijf wat het begrip is."
-        if c == "CON-CIRC-001":
-            # DEF-244: Use ctx.begrip instead of instance variable
-            begrip = ctx.begrip or "het begrip"
-            return f"Vermijd {begrip} letterlijk; omschrijf zonder de term te herhalen."
-        if c == "STR-TERM-001":
-            return "Gebruik correcte terminologie (bijv. 'HTTP-protocol')."
-        if c == "STR-ORG-001":
-            return "Vereenvoudig de zinsstructuur: minder komma's, kortere zinsdelen."
-        return None
 
     def _calculate_category_scores(
         self, rule_scores: dict[str, float], default_value: float
@@ -1742,7 +1634,7 @@ class ModularValidationService:
                 # Skip interne regels en ARAI* bij categorie-aggregatie
                 if r in self._baseline_internal or ru.startswith(("ARAI", "AR-", "AR")):
                     continue
-                cat = self._category_for(r)
+                cat = category_for_rule(r)
                 buckets[cat].append(float(score or 0.0))
             except (TypeError, ValueError) as e:
                 # DEF-248: Log score conversion failures - skip rule but don't crash aggregation

@@ -32,9 +32,10 @@ class TestSinglePathClassification:
     def mock_interface(self, mock_session_state):
         """Create TabbedInterface with mocked dependencies."""
         with (
-            patch("ui.tabbed_interface.get_cached_service_container"),
-            patch("ui.tabbed_interface.get_definitie_repository"),
-            patch("ui.tabbed_interface.get_definition_service"),
+            # US-202: get_cached_service_container moved to lazy import within __init__
+            patch("ui.cached_services.get_cached_service_container"),
+            patch("database.definitie_repository.get_definitie_repository"),
+            patch("services.get_definition_service"),
             patch("ui.tabbed_interface.DefinitieChecker"),
             patch("ui.tabbed_interface.ContextSelector"),
             patch("ui.tabbed_interface.DefinitionGeneratorTab"),
@@ -137,7 +138,7 @@ class TestSinglePathClassification:
         with (
             patch("ui.tabbed_interface.st") as mock_st,
             patch.object(mock_interface, "_get_document_context", return_value=None),
-            patch("ui.tabbed_interface.run_async") as mock_async,
+            patch("ui.helpers.async_bridge.run_async") as mock_async,
         ):
 
             mock_st.spinner = MagicMock()
@@ -182,7 +183,7 @@ class TestSinglePathClassification:
         with (
             patch("ui.tabbed_interface.st") as mock_st,
             patch.object(mock_interface, "_get_document_context", return_value=None),
-            patch("ui.tabbed_interface.run_async") as mock_async,
+            patch("ui.helpers.async_bridge.run_async") as mock_async,
         ):
 
             mock_st.spinner = MagicMock()
@@ -287,9 +288,10 @@ class TestClassificationFlow:
     def interface_with_mocks(self):
         """Setup interface with all necessary mocks."""
         with (
-            patch("ui.tabbed_interface.get_cached_service_container"),
-            patch("ui.tabbed_interface.get_definitie_repository"),
-            patch("ui.tabbed_interface.get_definition_service"),
+            # US-202: Patches updated for lazy imports
+            patch("ui.cached_services.get_cached_service_container"),
+            patch("database.definitie_repository.get_definitie_repository"),
+            patch("services.get_definition_service"),
             patch("ui.tabbed_interface.SessionStateManager") as mock_session,
             patch("ui.tabbed_interface.DefinitieChecker"),
             patch("ui.tabbed_interface.ContextSelector"),
@@ -349,7 +351,7 @@ class TestClassificationFlow:
         with (
             patch("ui.tabbed_interface.st") as mock_st,
             patch.object(interface, "_get_document_context", return_value=None),
-            patch("ui.tabbed_interface.run_async") as mock_async,
+            patch("ui.helpers.async_bridge.run_async") as mock_async,
         ):
 
             mock_st.spinner = MagicMock()
