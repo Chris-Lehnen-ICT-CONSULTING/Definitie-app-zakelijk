@@ -235,9 +235,12 @@ class Definition:
             self.wettelijke_basis = []
 
 
-@dataclass
+@dataclass(frozen=True)
 class ValidationViolation:
-    """Een specifieke validatie overtreding met details voor herstel."""
+    """Een specifieke validatie overtreding met details voor herstel.
+
+    Frozen: invarianten kunnen niet breken na constructie.
+    """
 
     rule_id: str  # Unieke identifier van de overtreden validatieregel
     severity: ValidationSeverity  # Ernst niveau van de overtreding
@@ -693,16 +696,21 @@ class DefinitionEventHandler(ABC):
         """Handler voor wanneer een definitie is opgeslagen."""
 
 
-@dataclass
+@dataclass(frozen=True)
 class CleaningResult:
-    """Resultaat van een opschoning operatie."""
+    """Resultaat van een opschoning operatie.
+
+    Frozen: resultaat objecten zijn immutable na constructie.
+    """
 
     original_text: str
     cleaned_text: str
     was_cleaned: bool
-    applied_rules: list[str] = field(default_factory=list)
-    improvements: list[str] = field(default_factory=list)
-    metadata: dict[str, Any] = field(default_factory=dict)
+    applied_rules: tuple[str, ...] = ()  # tuple i.p.v. list voor frozen compatibility
+    improvements: tuple[str, ...] = ()
+    metadata: dict[str, Any] = field(
+        default_factory=dict
+    )  # dict is mutable maar bevat geen invarianten
 
 
 class CleaningServiceInterface(ABC):
@@ -751,7 +759,10 @@ class CleaningServiceInterface(ABC):
 # AI Service Data Transfer Objects
 @dataclass
 class AIGenerationResult:
-    """Resultaat van een AI generatie operatie met alle metadata."""
+    """Resultaat van een AI generatie operatie met alle metadata.
+
+    Note: Niet frozen vanwege __post_init__ die metadata wijzigt.
+    """
 
     text: str  # De gegenereerde tekst
     model: str  # Het gebruikte AI model (bijv. "gpt-4", "gpt-4-1106-preview")
@@ -769,9 +780,12 @@ class AIGenerationResult:
             self.metadata["tokens_estimated"] = True
 
 
-@dataclass
+@dataclass(frozen=True)
 class AIBatchRequest:
-    """Request voor batch AI generatie operaties."""
+    """Request voor batch AI generatie operaties.
+
+    Frozen: request objecten zijn immutable na constructie.
+    """
 
     prompt: str  # De prompt voor AI generatie
     temperature: float = 0.7  # Temperatuur parameter voor creativiteit
@@ -857,13 +871,16 @@ class AITimeoutError(AIServiceError):
 # (Verplaatst naar Appendix in SA document - geen codewijzigingen nu)
 
 
-@dataclass
+@dataclass(frozen=True)
 class PromptResult:
-    """Enhanced prompt result with feedback integration."""
+    """Enhanced prompt result with feedback integration.
+
+    Frozen: prompt resultaten zijn immutable na constructie.
+    """
 
     text: str
     token_count: int
-    components_used: list[str]
+    components_used: tuple[str, ...]  # tuple voor frozen compatibility
     feedback_integrated: bool
     optimization_applied: bool
     metadata: dict[str, Any]

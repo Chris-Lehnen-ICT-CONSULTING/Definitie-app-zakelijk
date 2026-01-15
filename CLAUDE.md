@@ -46,6 +46,7 @@ prompt-forge re-review               # Re-review existing prompt
 4. **No backwards compatibility** - Solo dev app, refactor in place
 5. **Ask first for large changes** - >100 lines OR >5 files
 6. **Prompt-first workflow** - For analysis/review/implementation/fix tasks, ALWAYS ask if a structured prompt should be generated first (enforced via hookify rule)
+7. **Never commit to main** - All code changes MUST be on a feature branch (create one if needed: `git checkout -b feature/DEF-XXX-description`)
 
 ---
 
