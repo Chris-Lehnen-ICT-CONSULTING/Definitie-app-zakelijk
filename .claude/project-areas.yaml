@@ -1,0 +1,515 @@
+# Project Areas - Definitie-app
+# Functionele onderverdeling voor multiagent analyse
+# Gegenereerd: 2026-01-15
+# Target LOC per area: 1000-3500
+
+project:
+  name: "Definitie-app"
+  description: "Dutch AI-powered Definition Generator met 45 validatieregels"
+  codebase_path: "src/"
+  version: "1.0.0"
+
+# ==============================================================================
+# SERVICES LAYER - Core Business Logic
+# ==============================================================================
+
+areas:
+  # --- Services: Core Infrastructure ---
+  - area_id: services-core
+    name: "Services Core (DI & Interfaces)"
+    description: "Dependency injection container, service factory, en interfaces"
+    file_patterns:
+      - "services/container.py"
+      - "services/service_factory.py"
+      - "services/interfaces.py"
+    estimated_loc: 2807
+    focus_areas:
+      - "Dependency injection patterns"
+      - "Interface design"
+      - "Singleton management"
+      - "Service lifecycle"
+
+  # --- Services: Definition Management ---
+  - area_id: services-definitions
+    name: "Definition Repository & Edit"
+    description: "CRUD operaties voor definities, edit en import functionaliteit"
+    file_patterns:
+      - "services/definition_repository.py"
+      - "services/definition_edit_service.py"
+      - "services/definition_edit_repository.py"
+      - "services/definition_import_service.py"
+    estimated_loc: 2543
+    focus_areas:
+      - "Repository pattern"
+      - "Data persistence"
+      - "Import/export logic"
+
+  # --- Services: AI Generation ---
+  - area_id: services-generation
+    name: "Definition Generation"
+    description: "AI-powered definitie generatie met GPT-4"
+    file_patterns:
+      - "services/definition_generator_*.py"
+      - "services/unified_definition_generator.py"
+    estimated_loc: 2459
+    focus_areas:
+      - "AI integration"
+      - "Prompt engineering"
+      - "Generation caching"
+      - "Context handling"
+
+  # --- Services: UFO Classification ---
+  - area_id: services-ufo
+    name: "UFO Pattern Matching"
+    description: "Classificatie van termen volgens UFO ontologie"
+    file_patterns:
+      - "services/ufo_pattern_matcher.py"
+      - "services/ufo_classifier_service.py"
+    estimated_loc: 2072
+    is_monster_file: true
+    focus_areas:
+      - "Pattern matching algorithms"
+      - "Ontological classification"
+      - "Complexity reduction opportunities"
+
+  # --- Services: Workflow ---
+  - area_id: services-workflow
+    name: "Workflow Services"
+    description: "Workflow orchestratie en state management"
+    file_patterns:
+      - "services/workflow_service.py"
+      - "services/definition_workflow_service.py"
+    estimated_loc: 1380
+    focus_areas:
+      - "State machines"
+      - "Workflow patterns"
+      - "Process orchestration"
+
+  # --- Services: Export & Synonyms ---
+  - area_id: services-export-synonyms
+    name: "Export & Synonym Services"
+    description: "Export functionaliteit en synoniem management"
+    file_patterns:
+      - "services/export_service.py"
+      - "services/synonym_orchestrator.py"
+    estimated_loc: 1448
+    focus_areas:
+      - "Export formats"
+      - "Synonym resolution"
+      - "Data transformation"
+
+  # --- Services: Experimental ---
+  - area_id: services-experimental
+    name: "AB Testing & Data Aggregation"
+    description: "Experimentele features en data aggregatie"
+    file_patterns:
+      - "services/ab_testing_framework.py"
+      - "services/data_aggregation_service.py"
+    estimated_loc: 1021
+    focus_areas:
+      - "A/B testing patterns"
+      - "Data aggregation"
+      - "Feature flags"
+
+  # --- Services: Web Lookup ---
+  - area_id: services-web-lookup
+    name: "Web Lookup Services"
+    description: "Externe API integraties (Brave, Wiktionary, Wikipedia, Rechtspraak)"
+    file_patterns:
+      - "services/web_lookup/*.py"
+    estimated_loc: 4692
+    focus_areas:
+      - "External API integration"
+      - "Rate limiting"
+      - "Error handling"
+      - "Caching strategies"
+
+  # --- Services: Prompts ---
+  - area_id: services-prompts
+    name: "Prompt Services"
+    description: "Prompt generatie en management voor AI calls"
+    file_patterns:
+      - "services/prompts/**/*.py"
+    estimated_loc: 4796
+    focus_areas:
+      - "Prompt templates"
+      - "Context injection"
+      - "Token optimization"
+
+  # --- Services: Validation ---
+  - area_id: services-validation
+    name: "Validation Services"
+    description: "Validatie orchestratie en service integratie"
+    file_patterns:
+      - "services/validation/*.py"
+    estimated_loc: 4356
+    focus_areas:
+      - "Validation orchestration"
+      - "Rule execution"
+      - "Error aggregation"
+
+  # --- Services: Orchestrators ---
+  - area_id: services-orchestrators
+    name: "Service Orchestrators"
+    description: "High-level orchestratie services"
+    file_patterns:
+      - "services/orchestrators/*.py"
+    estimated_loc: 1596
+    focus_areas:
+      - "Orchestration patterns"
+      - "Service coordination"
+      - "Error handling"
+
+# ==============================================================================
+# TOETSREGELS - Validation Rules Engine
+# ==============================================================================
+
+  # --- Toetsregels: Core ---
+  - area_id: toetsregels-core
+    name: "Toetsregels Core"
+    description: "Rule loading, caching, en base classes"
+    file_patterns:
+      - "toetsregels/*.py"
+    estimated_loc: 1599
+    focus_areas:
+      - "Rule caching (TTL: 3600s)"
+      - "Base validator patterns"
+      - "Rule discovery"
+
+  # --- Toetsregels: Regels (Implementations) ---
+  - area_id: toetsregels-regels
+    name: "Toetsregels Implementaties"
+    description: "45 validatieregels (ARAI, STR, SAM, INT, ESS, CON, VER)"
+    file_patterns:
+      - "toetsregels/regels/*.py"
+    estimated_loc: 6499
+    file_count: 47
+    focus_areas:
+      - "Rule consistency"
+      - "Dutch business logic"
+      - "Validation patterns"
+
+  # --- Toetsregels: Validators ---
+  - area_id: toetsregels-validators
+    name: "Toetsregels Validators"
+    description: "Validator classes per regel"
+    file_patterns:
+      - "toetsregels/validators/*.py"
+    estimated_loc: 6383
+    file_count: 46
+    focus_areas:
+      - "Validator interface consistency"
+      - "Error message quality"
+      - "Performance"
+
+# ==============================================================================
+# UI LAYER - Streamlit Components
+# ==============================================================================
+
+  # --- UI: Generator Tab (Monster File) ---
+  - area_id: ui-generator-tab
+    name: "Definition Generator Tab"
+    description: "Hoofdinterface voor definitie generatie"
+    file_patterns:
+      - "ui/components/definition_generator_tab.py"
+    estimated_loc: 2528
+    is_monster_file: true
+    focus_areas:
+      - "Streamlit patterns"
+      - "SessionStateManager usage"
+      - "Complexity reduction"
+      - "Widget key management"
+
+  # --- UI: Edit Tab (Monster File) ---
+  - area_id: ui-edit-tab
+    name: "Definition Edit Tab"
+    description: "Interface voor definitie bewerking"
+    file_patterns:
+      - "ui/components/definition_edit_tab.py"
+    estimated_loc: 1905
+    is_monster_file: true
+    focus_areas:
+      - "Form handling"
+      - "State synchronization"
+      - "Validation feedback"
+
+  # --- UI: Expert Review Tab ---
+  - area_id: ui-expert-review-tab
+    name: "Expert Review Tab"
+    description: "Expert review en validatie interface"
+    file_patterns:
+      - "ui/components/expert_review_tab.py"
+    estimated_loc: 1440
+    is_monster_file: true
+    focus_areas:
+      - "Review workflow"
+      - "Validation display"
+      - "User feedback"
+
+  # --- UI: Core ---
+  - area_id: ui-core
+    name: "UI Core"
+    description: "SessionStateManager, tabbed interface, adapters"
+    file_patterns:
+      - "ui/*.py"
+    estimated_loc: 3926
+    focus_areas:
+      - "SessionStateManager (CRITICAL)"
+      - "State initialization order"
+      - "Key-only widget pattern"
+
+  # --- UI: Components (Other) ---
+  - area_id: ui-components-misc
+    name: "UI Components (Misc)"
+    description: "Kleinere UI componenten en helpers"
+    file_patterns:
+      - "ui/components/*.py"
+      - "ui/components/**/*.py"
+    exclude_patterns:
+      - "ui/components/definition_generator_tab.py"
+      - "ui/components/definition_edit_tab.py"
+      - "ui/components/expert_review_tab.py"
+    estimated_loc: 2800
+    focus_areas:
+      - "Component reusability"
+      - "Streamlit best practices"
+
+  # --- UI: Tabs & Helpers ---
+  - area_id: ui-tabs-helpers
+    name: "UI Tabs & Helpers"
+    description: "Tab modules en UI helper functies"
+    file_patterns:
+      - "ui/tabs/*.py"
+      - "ui/tabs/**/*.py"
+      - "ui/helpers/*.py"
+    estimated_loc: 2027
+    focus_areas:
+      - "Tab organization"
+      - "Helper functions"
+      - "Code reuse"
+
+# ==============================================================================
+# DATA LAYER
+# ==============================================================================
+
+  # --- Database ---
+  - area_id: database
+    name: "Database Layer"
+    description: "SQLite schema, migrations, repository"
+    file_patterns:
+      - "database/*.py"
+      - "database/**/*.py"
+    estimated_loc: 5676
+    focus_areas:
+      - "Schema design"
+      - "Migration safety"
+      - "Query performance"
+      - "Connection management"
+
+  # --- Domain Models ---
+  - area_id: domain
+    name: "Domain Models"
+    description: "Data models, enums, ontologie"
+    file_patterns:
+      - "domain/**/*.py"
+      - "models/*.py"
+      - "ontologie/*.py"
+    estimated_loc: 1325
+    focus_areas:
+      - "Model design"
+      - "Type safety"
+      - "Domain boundaries"
+
+# ==============================================================================
+# UTILITIES & INFRASTRUCTURE
+# ==============================================================================
+
+  # --- Utils: Resilience ---
+  - area_id: utils-resilience
+    name: "Utils: Resilience & Retry"
+    description: "Retry logic, circuit breakers, resilience patterns"
+    file_patterns:
+      - "utils/resilience.py"
+      - "utils/integrated_resilience.py"
+      - "utils/enhanced_retry.py"
+    estimated_loc: 1630
+    focus_areas:
+      - "Retry strategies"
+      - "Circuit breaker patterns"
+      - "Error recovery"
+
+  # --- Utils: Caching & Rate Limiting ---
+  - area_id: utils-caching
+    name: "Utils: Caching & Rate Limiting"
+    description: "Cache utilities en rate limiting"
+    file_patterns:
+      - "utils/cache.py"
+      - "utils/smart_rate_limiter.py"
+    estimated_loc: 1314
+    focus_areas:
+      - "Cache invalidation"
+      - "Rate limit strategies"
+      - "Performance optimization"
+
+  # --- Utils: Core ---
+  - area_id: utils-core
+    name: "Utils: Core Utilities"
+    description: "Logging, exceptions, async helpers"
+    file_patterns:
+      - "utils/*.py"
+    exclude_patterns:
+      - "utils/resilience.py"
+      - "utils/integrated_resilience.py"
+      - "utils/enhanced_retry.py"
+      - "utils/cache.py"
+      - "utils/smart_rate_limiter.py"
+    estimated_loc: 2067
+    focus_areas:
+      - "Logging patterns"
+      - "Exception handling"
+      - "Async utilities"
+
+  # --- Config ---
+  - area_id: config
+    name: "Configuration"
+    description: "App configuratie en settings"
+    file_patterns:
+      - "config/*.py"
+    estimated_loc: 2095
+    focus_areas:
+      - "Config management"
+      - "Environment handling"
+      - "Settings validation"
+
+# ==============================================================================
+# FEATURES & SPECIALIZED MODULES
+# ==============================================================================
+
+  # --- Voorbeelden ---
+  - area_id: voorbeelden
+    name: "Voorbeelden System"
+    description: "Example management en retrieval"
+    file_patterns:
+      - "voorbeelden/*.py"
+      - "voorbeelden/**/*.py"
+    estimated_loc: 4946
+    focus_areas:
+      - "Example retrieval"
+      - "Caching"
+      - "Quality scoring"
+
+  # --- Monitoring ---
+  - area_id: monitoring
+    name: "Monitoring"
+    description: "Performance monitoring en metrics"
+    file_patterns:
+      - "monitoring/*.py"
+    estimated_loc: 1298
+    focus_areas:
+      - "Metrics collection"
+      - "Performance tracking"
+      - "Alerting"
+
+  # --- Validation Root ---
+  - area_id: validation-root
+    name: "Validation Root"
+    description: "Root validation modules"
+    file_patterns:
+      - "validation/*.py"
+    estimated_loc: 3557
+    focus_areas:
+      - "Validation coordination"
+      - "Error handling"
+      - "Result aggregation"
+
+  # --- Hybrid Context ---
+  - area_id: hybrid-context
+    name: "Hybrid Context"
+    description: "Context generation en management"
+    file_patterns:
+      - "hybrid_context/*.py"
+    estimated_loc: 1178
+    focus_areas:
+      - "Context building"
+      - "Context merging"
+      - "Performance"
+
+  # --- Other Small Modules ---
+  - area_id: misc-modules
+    name: "Miscellaneous Modules"
+    description: "Kleinere modules (security, integration, CLI, API)"
+    file_patterns:
+      - "security/*.py"
+      - "integration/*.py"
+      - "cli/*.py"
+      - "api/*.py"
+      - "tools/*.py"
+      - "document_processing/*.py"
+      - "export/*.py"
+    estimated_loc: 2667
+    focus_areas:
+      - "Security patterns"
+      - "Integration points"
+      - "CLI design"
+
+# ==============================================================================
+# SUMMARY
+# ==============================================================================
+
+metadata:
+  total_areas: 32
+  total_estimated_loc: 82000
+  monster_files: 4
+  target_loc_range: "1000-5000"
+  last_updated: "2026-01-15"
+
+  area_distribution:
+    services: 13  # Core business logic
+    toetsregels: 3  # Validation engine
+    ui: 5  # Presentation layer
+    data: 2  # Persistence
+    utils: 4  # Infrastructure
+    features: 5  # Specialized modules
+
+# ==============================================================================
+# AGENT CONFIGURATION (Default per area type)
+# ==============================================================================
+
+agent_templates:
+  standard:
+    - agent_role: "code-reviewer"
+      focus_areas: ["Code quality", "Best practices", "Maintainability"]
+      weight: 1.0
+      max_words: 250
+    - agent_role: "full-stack-developer"
+      focus_areas: ["Implementation", "Edge cases", "Integration"]
+      weight: 1.0
+      max_words: 250
+    - agent_role: "architecture-reviewer"
+      focus_areas: ["Architecture", "Patterns", "Scalability"]
+      weight: 1.2
+      max_words: 250
+
+  monster_file:
+    - agent_role: "code-reviewer"
+      focus_areas: ["Code quality", "Best practices", "Maintainability"]
+      weight: 1.0
+      max_words: 250
+    - agent_role: "code-simplifier"
+      focus_areas: ["Complexity reduction", "Refactoring", "Splitting"]
+      weight: 1.5
+      max_words: 300
+    - agent_role: "architecture-reviewer"
+      focus_areas: ["Architecture", "Patterns", "Scalability"]
+      weight: 1.2
+      max_words: 250
+
+  validation_rules:
+    - agent_role: "code-reviewer"
+      focus_areas: ["Rule consistency", "Dutch language", "Error messages"]
+      weight: 1.0
+      max_words: 250
+    - agent_role: "full-stack-developer"
+      focus_areas: ["Edge cases", "Performance", "Test coverage"]
+      weight: 1.0
+      max_words: 250

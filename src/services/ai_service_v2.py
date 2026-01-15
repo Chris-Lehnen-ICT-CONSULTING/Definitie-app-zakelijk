@@ -98,6 +98,38 @@ class AIServiceV2(AIServiceInterface):
             self._client = AsyncGPTClient(rate_limit_config=self._rate_limit_config)
         return self._client
 
+    async def _record_api_call(
+        self,
+        function_name: str,
+        duration: float,
+        success: bool,
+        error_type: str | None = None,
+        tokens_used: int = 0,
+        model: str | None = None,
+        cache_hit: bool = False,
+    ) -> None:
+        """Record API call metrics for cost tracking and monitoring.
+
+        Uses monitoring.api_monitor.record_api_call for centralized tracking.
+        Fails silently to not disrupt AI operations.
+        """
+        try:
+            from monitoring.api_monitor import record_api_call
+
+            await record_api_call(
+                endpoint="openai/chat/completions",
+                function_name=function_name,
+                duration=duration,
+                success=success,
+                error_type=error_type,
+                tokens_used=tokens_used,
+                model=model or self.default_model,
+                cache_hit=cache_hit,
+            )
+        except Exception as e:
+            # Cost tracking is non-critical, log but don't fail
+            logger.debug(f"Failed to record API call metrics: {e}")
+
     async def generate_definition(
         self,
         prompt: str,
@@ -145,13 +177,24 @@ class AIServiceV2(AIServiceInterface):
                 cached_result = _cache.get(cache_key)
                 if cached_result is not None:
                     logger.debug(f"Cache hit for prompt: {prompt[:50]}...")
+                    generation_time = time.time() - start_time
+                    tokens_used = self._estimate_tokens(
+                        prompt, cached_result, model_to_use
+                    )
+                    # Record cache hit for accurate metrics
+                    await self._record_api_call(
+                        function_name="generate_definition",
+                        duration=generation_time,
+                        success=True,
+                        tokens_used=0,  # No actual tokens used on cache hit
+                        model=model_to_use,
+                        cache_hit=True,
+                    )
                     return AIGenerationResult(
                         text=cached_result,
                         model=model_to_use,
-                        tokens_used=self._estimate_tokens(
-                            prompt, cached_result, model_to_use
-                        ),
-                        generation_time=time.time() - start_time,
+                        tokens_used=tokens_used,
+                        generation_time=generation_time,
                         cached=True,
                         retry_count=0,
                         metadata=(
@@ -183,6 +226,16 @@ class AIServiceV2(AIServiceInterface):
 
             generation_time = time.time() - start_time
 
+            # Record API call for cost tracking and monitoring
+            await self._record_api_call(
+                function_name="generate_definition",
+                duration=generation_time,
+                success=True,
+                tokens_used=tokens_used,
+                model=model_to_use,
+                cache_hit=False,
+            )
+
             return AIGenerationResult(
                 text=result,
                 model=model_to_use,
@@ -194,22 +247,57 @@ class AIServiceV2(AIServiceInterface):
             )
 
         except TimeoutError as e:
+            await self._record_api_call(
+                function_name="generate_definition",
+                duration=time.time() - start_time,
+                success=False,
+                error_type="timeout",
+                model=model_to_use,
+            )
             timeout_msg = f"AI generation timed out after {timeout_seconds}s"
             raise AITimeoutError(timeout_msg) from e
         except RateLimitError as e:
+            await self._record_api_call(
+                function_name="generate_definition",
+                duration=time.time() - start_time,
+                success=False,
+                error_type="rate_limit",
+                model=model_to_use,
+            )
             rate_limit_msg = f"Rate limit exceeded: {e!s}"
             raise AIRateLimitError(rate_limit_msg) from e
         except APIConnectionError as e:
+            await self._record_api_call(
+                function_name="generate_definition",
+                duration=time.time() - start_time,
+                success=False,
+                error_type="connection_error",
+                model=model_to_use,
+            )
             if "timeout" in str(e).lower():
                 api_timeout_msg = f"OpenAI API timeout: {e!s}"
                 raise AITimeoutError(api_timeout_msg) from e
             api_conn_msg = f"OpenAI API connection error: {e!s}"
             raise AIServiceError(api_conn_msg) from e
         except OpenAIError as e:
+            await self._record_api_call(
+                function_name="generate_definition",
+                duration=time.time() - start_time,
+                success=False,
+                error_type="openai_error",
+                model=model_to_use,
+            )
             # Wrap all other OpenAI errors
             openai_error_msg = f"OpenAI API error: {e!s}"
             raise AIServiceError(openai_error_msg) from e
         except Exception as e:
+            await self._record_api_call(
+                function_name="generate_definition",
+                duration=time.time() - start_time,
+                success=False,
+                error_type="unexpected_error",
+                model=model_to_use,
+            )
             # Catch any other unexpected errors
             unexpected_error_msg = f"Unexpected error in AI generation: {e!s}"
             raise AIServiceError(unexpected_error_msg) from e

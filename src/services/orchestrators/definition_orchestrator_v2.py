@@ -1303,7 +1303,7 @@ Genereer een heldere, precieze definitie die voldoet aan Nederlandse kwaliteitse
         return PromptResult(
             text=basic_prompt,
             token_count=len(basic_prompt.split()) * 1.3,  # Rough estimate
-            components_used=["legacy_fallback"],
+            components_used=("legacy_fallback",),  # frozen dataclass needs tuple
             feedback_integrated=False,
             optimization_applied=False,
             metadata={"fallback_reason": "prompt_service_unavailable"},

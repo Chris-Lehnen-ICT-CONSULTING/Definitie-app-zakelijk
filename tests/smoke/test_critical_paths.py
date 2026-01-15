@@ -110,21 +110,21 @@ def test_category_service():
 @pytest.mark.asyncio
 async def test_validation_runs():
     """Validation service can validate sample definition."""
-    from services.interfaces import Definition
     from services.validation.modular_validation_service import ModularValidationService
 
     service = ModularValidationService()
 
-    sample_def = Definition(
-        begrip="toezicht",
-        definitie="Toezicht is het proces waarbij een bevoegde instantie controleert of regels worden nageleefd.",
-        juridische_context=["Strafrecht"],
-        organisatorische_context=["OM"],
-    )
+    begrip = "toezicht"
+    text = "Het proces waarbij een bevoegde instantie controleert of regels worden nageleefd."
+    context = {
+        "juridische_context": ["Strafrecht"],
+        "organisatorische_context": ["OM"],
+    }
 
-    result = await service.validate_definition(sample_def, {})
+    result = await service.validate_definition(begrip, text, context=context)
 
     assert result is not None
+    assert "overall_score" in result
     print("✓ Validation completed successfully")
 
 
