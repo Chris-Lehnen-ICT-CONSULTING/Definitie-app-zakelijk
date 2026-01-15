@@ -13,6 +13,7 @@ from typing import TYPE_CHECKING
 import streamlit as st
 
 from config.config_manager import ConfigSection, get_config
+from ui.components.formatters import format_record_context
 from ui.session_state import SessionStateManager
 
 logger = logging.getLogger(__name__)
@@ -200,7 +201,7 @@ class ExpertReviewTab:
                         return m.get((src or "").lower(), src or "")
 
                     for d in filtered_reviews:
-                        org, jur, wet = self._format_record_context(d)
+                        org, jur, wet = format_record_context(d)
                         status_disp = _status_label(
                             d.status, getattr(d, "source_type", None)
                         )
@@ -339,7 +340,7 @@ class ExpertReviewTab:
                 st.markdown(f"**{definitie.begrip}** ({definitie.categorie})")
                 st.markdown(f"*{definitie.definitie[:100]}...*")
                 # Geharmoniseerde contextweergave
-                org, jur, wet = self._format_record_context(definitie)
+                org, jur, wet = format_record_context(definitie)
                 ctx_parts = []
                 if org:
                     ctx_parts.append(f"Organisatorisch: {org}")
@@ -424,7 +425,7 @@ class ExpertReviewTab:
                 st.info(definitie.definitie)
 
                 st.markdown("#### Context")
-                org_val, jur_val, wb_val = self._format_record_context(definitie)
+                org_val, jur_val, wb_val = format_record_context(definitie)
                 st.write(f"**Organisatorisch:** {org_val or '—'}")
                 st.write(f"**Juridisch:** {jur_val or '—'}")
                 st.write(f"**Wettelijke basis:** {wb_val or '—'}")
@@ -470,14 +471,19 @@ class ExpertReviewTab:
 
                 # Procesmatige toelichting veld (review/validatie notities)
                 st.markdown("**Toelichting (optioneel)**")
-                toelichting_proces_val = (
-                    getattr(definitie, "toelichting_proces", "") or ""
-                )
+                toelichting_key = f"review_toelichting_proces_{definitie.id}"
+                # Key-only pattern: initialize state before widget
+                if toelichting_key not in st.session_state:
+                    toelichting_proces_val = (
+                        getattr(definitie, "toelichting_proces", "") or ""
+                    )
+                    SessionStateManager.set_value(
+                        toelichting_key, toelichting_proces_val
+                    )
                 st.text_area(
                     "Procesmatige opmerkingen/notities",
-                    value=toelichting_proces_val,
                     height=100,
-                    key=f"review_toelichting_proces_{definitie.id}",
+                    key=toelichting_key,
                     help="Opmerkingen over het review/validatie proces (niet over de definitie zelf)",
                     disabled=False,  # Altijd bewerkbaar in expert review
                 )
@@ -788,13 +794,17 @@ class ExpertReviewTab:
         with col2:
             st.markdown("**Expert Aangepaste Versie**")
 
-            # Editable text area
+            # Key-only pattern: initialize state before widget
+            edit_key = f"edit_def_{definitie.id}"
+            if edit_key not in st.session_state:
+                SessionStateManager.set_value(edit_key, definitie.definitie)
+
+            # Editable text area (key-only, no value= parameter)
             edited_definitie = st.text_area(
                 "Bewerk definitie",
-                value=definitie.definitie,
                 height=100,
-                key=f"edit_def_{definitie.id}",
-                help="Pas de definitie aan volgens expert kennnis",
+                key=edit_key,
+                help="Pas de definitie aan volgens expert kennis",
             )
 
             # Show changes
@@ -1136,40 +1146,11 @@ class ExpertReviewTab:
         SessionStateManager.clear_value("selected_review_definition")
         SessionStateManager.clear_value(f"edited_definition_{definitie_id}")
 
-    def _format_record_context(
-        self, definitie: DefinitieRecord
-    ) -> tuple[str, str, str]:
-        """Normaliseer en formatteer context (org/jur/wet) voor weergave."""
-        import json as _json
-
-        def _parse(val) -> list[str]:
-            try:
-                if not val:
-                    return []
-                if isinstance(val, str):
-                    return (
-                        list(_json.loads(val)) if val.strip().startswith("[") else [val]
-                    )
-                if isinstance(val, list):
-                    return val
-            except Exception:
-                return []
-            return []
-
-        org_list = _parse(getattr(definitie, "organisatorische_context", None))
-        jur_list = _parse(getattr(definitie, "juridische_context", None))
-        wet_list = (
-            definitie.get_wettelijke_basis_list()
-            if hasattr(definitie, "get_wettelijke_basis_list")
-            else []
-        )
-        return ", ".join(org_list), ", ".join(jur_list), ", ".join(wet_list)
-
     def _show_definition_preview(self, definitie: DefinitieRecord):
         """Show quick definition preview."""
         with st.expander(f"👁️ Preview: {definitie.begrip}", expanded=True):
             st.info(definitie.definitie)
-            org, jur, wet = self._format_record_context(definitie)
+            org, jur, wet = format_record_context(definitie)
             parts = []
             if org:
                 parts.append(f"Organisatorisch: {org}")

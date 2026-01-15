@@ -159,8 +159,8 @@ class CleaningService(CleaningServiceInterface):
                 original_text=original_text,
                 cleaned_text=cleaned_text,
                 was_cleaned=original_text != cleaned_text,
-                applied_rules=applied_rules,
-                improvements=improvements,
+                applied_rules=tuple(applied_rules),  # frozen dataclass needs tuple
+                improvements=tuple(improvements),
                 metadata={
                     "timestamp": datetime.now(UTC).isoformat(),
                     "term": term,
@@ -182,7 +182,7 @@ class CleaningService(CleaningServiceInterface):
                 original_text=original_text,
                 cleaned_text=original_text,
                 was_cleaned=False,
-                applied_rules=["error_occurred"],
+                applied_rules=("error_occurred",),  # frozen dataclass needs tuple
                 metadata={"error": str(e)},
             )
 

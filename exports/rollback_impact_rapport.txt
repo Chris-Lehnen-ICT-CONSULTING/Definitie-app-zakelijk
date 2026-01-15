@@ -1,0 +1,637 @@
+================================================================================
+ROLLBACK IMPACT RAPPORT
+Gegenereerd: 2025-12-15 22:27
+================================================================================
+
+Dit rapport toont de verschillen tussen:
+- Export van 28 oktober 2025 (VÓÓR rollback)
+- Huidige database (NA rollback van 31 oktober 2025)
+
+De 'Export 28 okt' versie bevat je AANGEPASTE teksten die verloren zijn.
+
+TOTAAL: 36 definities met verschillen
+================================================================================
+
+================================================================================
+BEGRIP: AUTHENTICEREN
+ID: 141 | Type: generated
+================================================================================
+
+📄 EXPORT 28 OKTOBER (vóór rollback):
+----------------------------------------
+"De echtheid, oorsprong of rechtsgeldigheid van een identiteitsbewijs vaststellen"@nl
+
+Toelichting: In het algemene spraakgebruik kan dit ook betrekking hebben op andere zaken zoals bijvoorbeeld kunstvoorwerpen.
+
+📄 HUIDIGE DATABASE (na rollback):
+----------------------------------------
+Activiteit waarbij een actor de identiteit van een persoon, systeem of entiteit vaststelt door verificatie van kenmerken aan de hand van meerdere onafhankelijke bronnen.
+
+
+================================================================================
+BEGRIP: BIOGRAFISCH IDENTITEITSKENMERK
+ID: 79 | Type: generated
+================================================================================
+
+📄 EXPORT 28 OKTOBER (vóór rollback):
+----------------------------------------
+"Tekstuele gegevens die een persoon (zoveel als mogelijk) uniek beschrijven."@nl
+
+Toelichting: Deze gegevens zijn opgenomen in basisregistraties (Basisregistratie Personen, BRP) en andere registers (Basisvoorziening Vreemdelingen, BVV) of vergelijkbare buitenlands registers. Deze gegevens zijn ook opgenomen in een wettig identiteitsbewijs.
+  
+ Zie ook ‘Identiteitskenmerk’.
+
+📄 HUIDIGE DATABASE (na rollback):
+----------------------------------------
+Resultaat van het vaststellen van een persoonsgebonden gegeven dat een unieke identificatie van een individu mogelijk maakt op basis van objectief verifieerbare biografische informatie uit meerdere bronnen.
+
+
+================================================================================
+BEGRIP: BIOGRAFISCH IDENTITEITSKENMERK
+ID: 80 | Type: generated
+================================================================================
+
+📄 EXPORT 28 OKTOBER (vóór rollback):
+----------------------------------------
+"Tekstuele gegevens die een persoon (zoveel als mogelijk) uniek beschrijven."@nl
+
+Toelichting: Deze gegevens zijn opgenomen in basisregistraties (Basisregistratie Personen, BRP) en andere registers (Basisvoorziening Vreemdelingen, BVV) of vergelijkbare buitenlands registers. Deze gegevens zijn ook opgenomen in een wettig identiteitsbewijs.
+  
+ Zie ook ‘Identiteitskenmerk’.
+
+📄 HUIDIGE DATABASE (na rollback):
+----------------------------------------
+Type persoonsgegeven dat een individuele identiteit aanduidt op basis van vaststaande persoonlijke gegevens zoals naam, geboortedatum, geboorteplaats, geslacht en nationaliteit, waarbij deze gegevens afkomstig zijn uit meerdere authentieke bronnen.
+
+
+================================================================================
+BEGRIP: BIOMETRIE
+ID: 81 | Type: generated
+================================================================================
+
+📄 EXPORT 28 OKTOBER (vóór rollback):
+----------------------------------------
+"Het bepalen van individualiserende kenmerken zoals fysieke kenmerken, fysiologische kenmerken of gedragskenmerken van een persoon middels een specifieke technische verwerking"@nl
+
+Toelichting: https://en.wikipedia.org/wiki/Biometrics: the technical term for body measurements and calculations; it refers to metrics related to human characteristics. Er is onderscheid in veranderlijkheid: 
+ · tamelijk veranderlijk: haarkleur, haardracht 
+ · tamelijk onveranderlijk: DNA, vingerafdrukken, geslacht, gelaatskenmerken, kleur ogen, gebitskenmerken, iris-patroon, handpalm-patroon, tatoeages, lengte
+ · Biometrische gegevens zoals vingerafdrukken zijn bijzonder individueel en kunnen dus goed gebruikt worden om personen te onderscheiden. 
+ · Deze architectuur schaart een foto ook onder de biometrische kenmerken, hoewel dit strikt genomen geen biometrie is. Pas nadat specifieke kenmerken van een gelaatsfoto middels een technische verwerking zijn omgezet in een biometrische template, is er sprake van biometrie. Een gelaatsfoto is natuurlijk wel een persoonsgegeven (zie art. 4, 6, 9 en 10 AVG en art. 3 t/m 10 RGR).
+
+📄 HUIDIGE DATABASE (na rollback):
+----------------------------------------
+Unieke fysieke of gedragskenmerken van individuen worden verzameld, geanalyseerd en vergeleken om identificatie of verificatie mogelijk te maken.
+
+
+================================================================================
+BEGRIP: BIOMETRIE
+ID: 82 | Type: generated
+================================================================================
+
+📄 EXPORT 28 OKTOBER (vóór rollback):
+----------------------------------------
+"Het bepalen van individualiserende kenmerken zoals fysieke kenmerken, fysiologische kenmerken of gedragskenmerken van een persoon middels een specifieke technische verwerking"@nl
+
+Toelichting: https://en.wikipedia.org/wiki/Biometrics: the technical term for body measurements and calculations; it refers to metrics related to human characteristics. Er is onderscheid in veranderlijkheid: 
+ · tamelijk veranderlijk: haarkleur, haardracht 
+ · tamelijk onveranderlijk: DNA, vingerafdrukken, geslacht, gelaatskenmerken, kleur ogen, gebitskenmerken, iris-patroon, handpalm-patroon, tatoeages, lengte
+ · Biometrische gegevens zoals vingerafdrukken zijn bijzonder individueel en kunnen dus goed gebruikt worden om personen te onderscheiden. 
+ · Deze architectuur schaart een foto ook onder de biometrische kenmerken, hoewel dit strikt genomen geen biometrie is. Pas nadat specifieke kenmerken van een gelaatsfoto middels een technische verwerking zijn omgezet in een biometrische template, is er sprake van biometrie. Een gelaatsfoto is natuurlijk wel een persoonsgegeven (zie art. 4, 6, 9 en 10 AVG en art. 3 t/m 10 RGR).
+
+📄 HUIDIGE DATABASE (na rollback):
+----------------------------------------
+**Resultaat**: vastlegging van unieke fysieke of gedragskenmerken van een individu, die ontstaat door het proces van gegevensverzameling en -analyse met als doel identificatie of verificatie.
+
+
+================================================================================
+BEGRIP: BIOMETRISCH IDENTITEITSKENMERK
+ID: 83 | Type: generated
+================================================================================
+
+📄 EXPORT 28 OKTOBER (vóór rollback):
+----------------------------------------
+"Een identiteitskenmerk dat door middel van biometrie wordt vastgesteld."@nl
+
+Toelichting: Zie ook ‘Identiteitskenmerk’.
+
+📄 HUIDIGE DATABASE (na rollback):
+----------------------------------------
+**Ontologische categorie: proces**
+Biometrisch identiteitskenmerk is een proces waarbij gegevens van unieke biologische kenmerken van een individu worden verzameld, geanalyseerd en opgeslagen ter identificatie en verificatie van identiteit.
+
+
+================================================================================
+BEGRIP: BIOMETRISCH IDENTITEITSKENMERK
+ID: 101 | Type: generated
+================================================================================
+
+📄 EXPORT 28 OKTOBER (vóór rollback):
+----------------------------------------
+"Een identiteitskenmerk dat door middel van biometrie wordt vastgesteld."@nl
+
+Toelichting: Zie ook ‘Identiteitskenmerk’.
+
+📄 HUIDIGE DATABASE (na rollback):
+----------------------------------------
+Resultaat van een verificatieproces waarbij unieke fysieke of gedragsmatige kenmerken van een persoon worden vastgesteld op basis van gegevens uit meerdere bronnen.
+
+
+================================================================================
+BEGRIP: DIGITAAL IDENTITEITSBEWIJS
+ID: 85 | Type: generated
+================================================================================
+
+📄 EXPORT 28 OKTOBER (vóór rollback):
+----------------------------------------
+"Een door een bevoegde instantie aan een specifieke persoon uitgereikt digitaal identiteitsmiddel waarmee die persoon tegenover derden zijn identiteit kan aantonen."@nl
+
+Toelichting: Een zelfstandig bruikbaar identiteitsbewijs met dezelfde waarde als een fysiek identiteitsbewijs bestaat nog niet. De huidige middelen c.q. bewijzen (DigiD, eHerkenning, eIDAS) zijn geschikt om je identiteit aan te tonen bij digitale diensten. Het ontbreekt bij deze middelen aan biometrie. Ze volstaan daarom niet om de identiteit van een persoon op straat vast te stellen. Dit is wel in ontwikkeling, bijvoorbeeld in de Digital Travel Credential van ICAO. Deze laatste is overigens ook altijd gekoppeld aan een fysieke component: het paspoort of een telefoon.
+
+📄 HUIDIGE DATABASE (na rollback):
+----------------------------------------
+Resultaat van een proces dat een elektronische identificatie mogelijk maakt voor gebruikers binnen digitale omgevingen.
+
+
+================================================================================
+BEGRIP: DIGITAAL IDENTITEITSBEWIJS
+ID: 86 | Type: generated
+================================================================================
+
+📄 EXPORT 28 OKTOBER (vóór rollback):
+----------------------------------------
+"Een door een bevoegde instantie aan een specifieke persoon uitgereikt digitaal identiteitsmiddel waarmee die persoon tegenover derden zijn identiteit kan aantonen."@nl
+
+Toelichting: Een zelfstandig bruikbaar identiteitsbewijs met dezelfde waarde als een fysiek identiteitsbewijs bestaat nog niet. De huidige middelen c.q. bewijzen (DigiD, eHerkenning, eIDAS) zijn geschikt om je identiteit aan te tonen bij digitale diensten. Het ontbreekt bij deze middelen aan biometrie. Ze volstaan daarom niet om de identiteit van een persoon op straat vast te stellen. Dit is wel in ontwikkeling, bijvoorbeeld in de Digital Travel Credential van ICAO. Deze laatste is overigens ook altijd gekoppeld aan een fysieke component: het paspoort of een telefoon.
+
+📄 HUIDIGE DATABASE (na rollback):
+----------------------------------------
+elektronische identificatie dat gebruikers in staat stelt hun identiteit digitaal te verifiëren en te authenticeren binnen diverse systemen en diensten.
+
+
+================================================================================
+BEGRIP: DIGITAAL IDENTITEITSMIDDEL
+ID: 84 | Type: generated
+================================================================================
+
+📄 EXPORT 28 OKTOBER (vóór rollback):
+----------------------------------------
+"Een identiteitsmiddel voor toegang tot digitale diensten dat geheel of grotendeels is gebaseerd op digitale zekerheden."@nl
+
+Toelichting: Dit middel – voor zover het geen digitale identiteitsbewijzen zijn – worden doorgaans door personen zelf aangemaakt en gebruikt om hun identiteit aan te tonen bij digitale diensten. Voorbeelden zijn een Microsoft ID, Apple ID en soortgelijken.
+
+📄 HUIDIGE DATABASE (na rollback):
+----------------------------------------
+**Exemplaar**
+
+Digitaal identiteitsmiddel is een specifiek exemplaar van een identificatiemiddel dat op digitale wijze de identiteit van een persoon verifieert en authenticiteit waarborgt.
+
+
+================================================================================
+BEGRIP: GRONDSLAG
+ID: 133 | Type: generated
+================================================================================
+
+📄 EXPORT 28 OKTOBER (vóór rollback):
+----------------------------------------
+"Verdenking of veroordeling die de strafrechtketen het recht geeft identiteitsgegevens in de strafrechtketen te verwerken"@nl
+
+📄 HUIDIGE DATABASE (na rollback):
+----------------------------------------
+Rechtsfeit of rechtsverhouding die dient als formele basis voor het nemen van een besluit, het uitvoeren van een handeling of het toepassen van een bevoegdheid binnen een juridisch kader.
+
+
+================================================================================
+BEGRIP: GRONDSLAGSOORT
+ID: 134 | Type: generated
+================================================================================
+
+📄 EXPORT 28 OKTOBER (vóór rollback):
+----------------------------------------
+"Typering van een grondslag"@nl
+
+Toelichting: De volgende grondslagsoorten zijn onderkend:
+ · Verdenking van een strafbaar feit,
+ · Verdenking van een strafbaar feit en twijfel over de identiteit,
+ · Verdenking van een strafbaar feit waarvoor voorlopige hechtenis is toegestaan
+ · Geen zelfstandige grondslag: gebruikt bij verrijkingen na geslaagde verificatie
+
+📄 HUIDIGE DATABASE (na rollback):
+----------------------------------------
+Classificatie die het type juridische of feitelijke basis aanduidt waarop een handeling, beslissing of verwerking berust binnen een samenhangend systeem van bevoegdheden en verantwoordelijkheden.
+
+
+================================================================================
+BEGRIP: IDENTIFICEREN
+ID: 142 | Type: generated
+================================================================================
+
+📄 EXPORT 28 OKTOBER (vóór rollback):
+----------------------------------------
+"De activiteit waarbij de identiteit van een persoon wordt vastgesteld door middel van vergelijking met meerdere sets van identiteitsgegevens uit een register (één-op-veel-vergelijking)"@nl
+
+Toelichting: Deze definitie is gangbaar bij biometrische verwerkingen. Als zodanig is hij ook opgenomen in Europese verordeningen. In het dagelijks spraakgebruik wordt identificeren ook gebruikt voor wat we in deze definities Identiteit vaststellen noemen.
+
+📄 HUIDIGE DATABASE (na rollback):
+----------------------------------------
+Activiteit waarbij een bevoegde functionaris of geautomatiseerd systeem de unieke identiteit van een persoon, object of gegevensset vaststelt door verificatie van kenmerken uit meerdere betrouwbare bronnen.
+
+
+================================================================================
+BEGRIP: IDENTITEIT
+ID: 218 | Type: generated
+================================================================================
+
+📄 EXPORT 28 OKTOBER (vóór rollback):
+----------------------------------------
+Een set van persoonskenmerken waarop de persoon (uniek) onderscheiden kan worden van andere personen.
+
+Toelichting: Algemene definities:
+ 
+ · Van Dale
+ 1 Eigen karakter van een persoon
+ 2 Gelijkheid
+ Merriam Webster
+ 1 the distinguishing character or personality of an individual
+ 2 the condition of being the same with something described or asserted
+  
+ De tweede definitie sluit het beste aan bij de context van identiteitsvaststelling.
+
+📄 HUIDIGE DATABASE (na rollback):
+----------------------------------------
+Kenmerkenverzameling die een natuurlijk persoon binnen het strafrechtelijk domein uniek identificeerbaar maakt op basis van gegevens uit meerdere bronnen.
+
+
+================================================================================
+BEGRIP: IDENTITEIT BEPALEN
+ID: 90 | Type: generated
+================================================================================
+
+📄 EXPORT 28 OKTOBER (vóór rollback):
+----------------------------------------
+"Het vaststellen van de identiteit van een persoon zonder voorgaande verwachting van de identiteit."@nl
+
+Toelichting: Deze identiteitsvaststelling vindt doorgaans plaats bij het eerste contact in de strafrechttraject voor een bepaalde verdenking. Het is dus zeer wel mogelijk dat de persoon al bekend is in de strafrechtketen en opgenomen is in de SKDB.
+ Bij Identiteit bepalen kan gebruik worden gemaakt van Identificatie: een zoekopdracht in de SKDB of andere registers om te zien of er een match is met de identiteitsgegevens van deze persoon.
+
+📄 HUIDIGE DATABASE (na rollback):
+----------------------------------------
+Resultaat van een proces waarbij gegevens uit meerdere bronnen worden geanalyseerd en samengevoegd om de identiteit van een individu vast te stellen.
+
+
+================================================================================
+BEGRIP: IDENTITEIT BEPALEN
+ID: 102 | Type: generated
+================================================================================
+
+📄 EXPORT 28 OKTOBER (vóór rollback):
+----------------------------------------
+"Het vaststellen van de identiteit van een persoon zonder voorgaande verwachting van de identiteit."@nl
+
+Toelichting: Deze identiteitsvaststelling vindt doorgaans plaats bij het eerste contact in de strafrechttraject voor een bepaalde verdenking. Het is dus zeer wel mogelijk dat de persoon al bekend is in de strafrechtketen en opgenomen is in de SKDB.
+ Bij Identiteit bepalen kan gebruik worden gemaakt van Identificatie: een zoekopdracht in de SKDB of andere registers om te zien of er een match is met de identiteitsgegevens van deze persoon.
+
+📄 HUIDIGE DATABASE (na rollback):
+----------------------------------------
+Activiteit waarbij een bevoegde functionaris of geautomatiseerd systeem kenmerken van een persoon bepaalt door verificatie van gegevens uit meerdere bronnen en vergelijking met beschikbare registraties.
+
+
+================================================================================
+BEGRIP: IDENTITEIT VASTSTELLEN
+ID: 87 | Type: generated
+================================================================================
+
+📄 EXPORT 28 OKTOBER (vóór rollback):
+----------------------------------------
+"Het proces van inwinnen van identiteitskenmerken, het controleren van deze kenmerken middels bevraging van de persoon, vergelijking met identiteitsmiddelen en/of registerbevraging, eindigend met een identiteitsvaststelling van deze persoon."@nl
+
+📄 HUIDIGE DATABASE (na rollback):
+----------------------------------------
+Bevoegde instanties gegevens uit meerdere bronnen verzamelen, analyseren en verifiëren om de identiteit van een persoon te bevestigen.
+
+
+================================================================================
+BEGRIP: IDENTITEIT VASTSTELLEN
+ID: 88 | Type: generated
+================================================================================
+
+📄 EXPORT 28 OKTOBER (vóór rollback):
+----------------------------------------
+"Het proces van inwinnen van identiteitskenmerken, het controleren van deze kenmerken middels bevraging van de persoon, vergelijking met identiteitsmiddelen en/of registerbevraging, eindigend met een identiteitsvaststelling van deze persoon."@nl
+
+📄 HUIDIGE DATABASE (na rollback):
+----------------------------------------
+uitvoeren van het proces om tot een identiteitsvaststelling te komen.
+
+
+================================================================================
+BEGRIP: IDENTITEIT VERIFIËREN EN VERRIJKEN
+ID: 91 | Type: generated
+================================================================================
+
+📄 EXPORT 28 OKTOBER (vóór rollback):
+----------------------------------------
+"Proces bestaande uit verificatie en waar mogelijk aanvullen van identiteitskenmerken."@nl
+
+Toelichting: De verificatie bepaalt of een persoon de beoogde, bekende persoon is die verwacht wordt. Indien de verificatie slaagt, worden daarna zo mogelijk nieuwe en recentere identiteitskenmerken ingewonnen.
+
+Voorbeelden van nieuwe gegevens zijn:
+ - ontbrekende vingerafdrukken,
+ - recentere foto
+ - nieuw identiteitsbewijs
+ Bij verrijken kunnen alleen gegevens ingewonnen worden die bij Identiteit bepalen ingewonnen kunnen worden. 
+ Het inwinnen van nieuwe identiteitskenmerken kan er toe leiden dat de zekerheid omtrent de identiteit van de persoon toeneemt, maar ook dat die afneemt.
+
+📄 HUIDIGE DATABASE (na rollback):
+----------------------------------------
+Gegevens over een individu worden gecontroleerd en aangevuld met informatie uit meerdere bronnen om de juistheid en volledigheid van de identiteit vast te stellen.
+
+
+================================================================================
+BEGRIP: IDENTITEITSBEHANDELING
+ID: 93 | Type: generated
+================================================================================
+
+📄 EXPORT 28 OKTOBER (vóór rollback):
+----------------------------------------
+"Het geheel van activiteiten en voorzieningen in de strafrechtketen om de juiste en rechtmatige verwerking van identiteitsgegevens van verdachten en veroordeelden te borgen."@nl
+
+📄 HUIDIGE DATABASE (na rollback):
+----------------------------------------
+vastgelegde verwerking van persoonsgegevens die voortkomt uit de identificatie en verificatie van een individu binnen een juridische context.
+
+
+================================================================================
+BEGRIP: IDENTITEITSBEWIJS
+ID: 33 | Type: imported
+================================================================================
+
+📄 EXPORT 28 OKTOBER (vóór rollback):
+----------------------------------------
+- Ontologische categorie: soort
+Echt, eigen, geldig en gekwalificeerd document met unieke identificerende persoonsgebonden kenmerken.
+
+Toelichting: De relatie met identiteitsmiddel is met deze definitie niet gelegd. Middelen zijn breder dan documenten (dit is een subset van middel).
+
+📄 HUIDIGE DATABASE (na rollback):
+----------------------------------------
+Een door een bevoegde instantie aan een specifieke persoon uitgereikt identiteitsmiddel waarmee die persoon tegenover derden zijn identiteit kan aantonen.
+
+Toelichting: Het Gegevenswoordenboek Migratieketen kent hieromtrent enkele specifieke begrippen.
+ · Biometrisch paspoort
+ · Reisdocument
+ Voor de strafrechtketen lijkt het niet nodig dit op te nemen.
+
+
+================================================================================
+BEGRIP: IDENTITEITSBEWIJS
+ID: 40 | Type: generated
+================================================================================
+
+📄 EXPORT 28 OKTOBER (vóór rollback):
+----------------------------------------
+- Ontologische categorie: soort
+Echt, eigen, geldig en gekwalificeerd document met unieke identificerende persoonsgebonden kenmerken.
+
+Toelichting: De relatie met identiteitsmiddel is met deze definitie niet gelegd. Middelen zijn breder dan documenten (dit is een subset van middel).
+
+📄 HUIDIGE DATABASE (na rollback):
+----------------------------------------
+- Ontologische categorie: soort
+Echt, eigen, geldig en gekwalificeerd document met unieke identificerende persoonsgebonden kenmerken.
+
+Toelichting: De relatie met identiteitsmiddel is met deze definitie niet gelegd. Middelen zijn breder dan documenten (dit is een subset van middel).
+
+
+================================================================================
+BEGRIP: IDENTITEITSBEWIJS
+ID: 40 | Type: generated
+================================================================================
+
+📄 EXPORT 28 OKTOBER (vóór rollback):
+----------------------------------------
+Een door een bevoegde instantie aan een specifieke persoon uitgereikt identiteitsmiddel waarmee die persoon tegenover derden zijn identiteit kan aantonen.
+
+Toelichting: Het Gegevenswoordenboek Migratieketen kent hieromtrent enkele specifieke begrippen.
+ · Biometrisch paspoort
+ · Reisdocument
+ Voor de strafrechtketen lijkt het niet nodig dit op te nemen.
+
+📄 HUIDIGE DATABASE (na rollback):
+----------------------------------------
+- Ontologische categorie: soort
+Echt, eigen, geldig en gekwalificeerd document met unieke identificerende persoonsgebonden kenmerken.
+
+Toelichting: De relatie met identiteitsmiddel is met deze definitie niet gelegd. Middelen zijn breder dan documenten (dit is een subset van middel).
+
+
+================================================================================
+BEGRIP: IDENTITEITSMIDDEL
+ID: 31 | Type: imported
+================================================================================
+
+📄 EXPORT 28 OKTOBER (vóór rollback):
+----------------------------------------
+- Ontologische categorie: soort
+Informatiebevattend voorwerp dat aanwijzing geeft over de identiteit van een persoon.
+
+📄 HUIDIGE DATABASE (na rollback):
+----------------------------------------
+"Ieder middel dat aanwijzing kan geven over de identiteit van een persoon"@nl
+
+Toelichting: NL-paspoort, MT-paspoort, visum, rijbewijs, bankpas, zorgpas, klantenkaart, OV-kaart, Rijkspas, bibliotheekpasje, aangetekende brief aan mij, …. Identiteitsmiddelen verschillen in zeggingskracht over de identiteit: een paspoort (mits Echt en Geldig) zegt natuurlijk veel meer dan een bibliotheekpasje; deze zeggingskracht wordt uitgedrukt in een Vaststellingswijze
+
+
+================================================================================
+BEGRIP: IDENTITEITSMIDDEL
+ID: 39 | Type: generated
+================================================================================
+
+📄 EXPORT 28 OKTOBER (vóór rollback):
+----------------------------------------
+- Ontologische categorie: soort
+Informatiebevattend voorwerp dat aanwijzing geeft over de identiteit van een persoon.
+
+📄 HUIDIGE DATABASE (na rollback):
+----------------------------------------
+- Ontologische categorie: soort
+Informatiebevattend voorwerp dat aanwijzing geeft over de identiteit van een persoon.
+
+
+
+================================================================================
+BEGRIP: IDENTITEITSMIDDEL
+ID: 39 | Type: generated
+================================================================================
+
+📄 EXPORT 28 OKTOBER (vóór rollback):
+----------------------------------------
+"Ieder middel dat aanwijzing kan geven over de identiteit van een persoon"@nl
+
+Toelichting: NL-paspoort, MT-paspoort, visum, rijbewijs, bankpas, zorgpas, klantenkaart, OV-kaart, Rijkspas, bibliotheekpasje, aangetekende brief aan mij, …. Identiteitsmiddelen verschillen in zeggingskracht over de identiteit: een paspoort (mits Echt en Geldig) zegt natuurlijk veel meer dan een bibliotheekpasje; deze zeggingskracht wordt uitgedrukt in een Vaststellingswijze
+
+📄 HUIDIGE DATABASE (na rollback):
+----------------------------------------
+- Ontologische categorie: soort
+Informatiebevattend voorwerp dat aanwijzing geeft over de identiteit van een persoon.
+
+
+
+================================================================================
+BEGRIP: IDENTITEITSVASTSTELLINGSID
+ID: 139 | Type: generated
+================================================================================
+
+📄 EXPORT 28 OKTOBER (vóór rollback):
+----------------------------------------
+"Een in de hele strafrechtketen unieke sleutel van een identiteitsvaststelling"@nl
+
+📄 HUIDIGE DATABASE (na rollback):
+----------------------------------------
+Identificatiekenmerk dat een unieke verwijzing vormt naar een persoon op basis van het combineren van meerdere gegevensbronnen voor het vaststellen van identiteit.
+
+
+================================================================================
+BEGRIP: MEEST BETROUWBARE IDENTITEITSGEGEVENS
+ID: 136 | Type: generated
+================================================================================
+
+📄 EXPORT 28 OKTOBER (vóór rollback):
+----------------------------------------
+"De identiteitsgegevens die met de hoogste waarschijnlijkheid een correcte weergave zijn van de identiteit van een natuurlijk persoon."@nl
+
+Toelichting: Deze set kan samengesteld zijn uit verschillende identiteitsvaststellingen van deze persoon.
+
+Dit begrip is de opvolger van de Leidende Administratieve Identiteit.
+
+📄 HUIDIGE DATABASE (na rollback):
+----------------------------------------
+Gegevensverzameling die door verificatie van meerdere onafhankelijke bronnen tot stand komt en als hoogste mate van juistheid en volledigheid wordt aangemerkt ten aanzien van de identiteit van een persoon.
+
+
+================================================================================
+BEGRIP: PERSOON
+ID: 27 | Type: imported
+================================================================================
+
+📄 EXPORT 28 OKTOBER (vóór rollback):
+----------------------------------------
+- Ontologische categorie: soort
+Uniek levend menselijk wezen met rechten en plichten.
+
+📄 HUIDIGE DATABASE (na rollback):
+----------------------------------------
+Een mens van vlees en bloed
+
+Toelichting: Deze definitie beperkt zich tot natuurlijke personen
+
+
+================================================================================
+BEGRIP: PERSOON
+ID: 38 | Type: generated
+================================================================================
+
+📄 EXPORT 28 OKTOBER (vóór rollback):
+----------------------------------------
+- Ontologische categorie: soort
+Uniek levend menselijk wezen met rechten en plichten.
+
+📄 HUIDIGE DATABASE (na rollback):
+----------------------------------------
+- Ontologische categorie: soort
+Uniek levend menselijk wezen met rechten en plichten.
+
+
+================================================================================
+BEGRIP: PERSOON
+ID: 38 | Type: generated
+================================================================================
+
+📄 EXPORT 28 OKTOBER (vóór rollback):
+----------------------------------------
+Een mens van vlees en bloed
+
+Toelichting: Deze definitie beperkt zich tot natuurlijke personen
+
+📄 HUIDIGE DATABASE (na rollback):
+----------------------------------------
+- Ontologische categorie: soort
+Uniek levend menselijk wezen met rechten en plichten.
+
+
+================================================================================
+BEGRIP: SYNTHETISCH
+ID: 71 | Type: generated
+================================================================================
+
+📄 EXPORT 28 OKTOBER (vóór rollback):
+----------------------------------------
+Materiaal of informatie met als kenmerk dat samenstelling of oorsprong het resultaat is van kunstmatige vervaardiging of nabootsing, onderscheiden van natuurlijke of authentieke varianten door gebruik van door mensen geïnitieerde processen of middelen.
+
+📄 HUIDIGE DATABASE (na rollback):
+----------------------------------------
+Type entiteit met een niet-natuurlijke oorsprong, gekenmerkt door totstandkoming door samenstelling, nabootsing of kunstmatige constructie van onderdelen of eigenschappen.
+
+
+================================================================================
+BEGRIP: TRAJECT
+ID: 135 | Type: generated
+================================================================================
+
+📄 EXPORT 28 OKTOBER (vóór rollback):
+----------------------------------------
+"de gang van een individuele zaak resp. verdachte/veroordeelde door de keten naar aanleiding van een specifiek delict (of verdenking)"@nl
+
+📄 HUIDIGE DATABASE (na rollback):
+----------------------------------------
+Samenhangende reeks stappen of fasen met een duidelijk beginpunt en eindpunt, waarbij een persoon, zaak of proces gedurende een afgebakende periode een specifieke ontwikkeling of behandeling ondergaat.
+
+
+================================================================================
+BEGRIP: VASTSTELLINGSWIJZE
+ID: 137 | Type: generated
+================================================================================
+
+📄 EXPORT 28 OKTOBER (vóór rollback):
+----------------------------------------
+"De methode gebruikt bij de inwinning en verificatie van een identiteitskenmerk"@nl
+
+Toelichting: De vaststellingswijze laat bijvoorbeeld zien of de naam is verkregen door eigen opgave, afgeleid uit een identiteitsmiddel, een (gekwalificeerd) identiteitsbewijs en of deze gegeven geverifieerd zijn in registers. 
+  
+Latere gebruikers van deze identiteitsgegevens kunnen hiermee nagaan of de betrouwbaarheid van deze gegevens hoog genoeg is voor de beslissing die zij dan moeten nemen.
+
+📄 HUIDIGE DATABASE (na rollback):
+----------------------------------------
+Activiteit waarbij een bevoegde actor door het combineren en interpreteren van informatie uit meerdere bronnen de feitelijke toedracht van een situatie of gebeurtenis bepaalt.
+
+
+================================================================================
+BEGRIP: VASTSTELLINGSWIJZEIDENTIFICATIE
+ID: 138 | Type: generated
+================================================================================
+
+📄 EXPORT 28 OKTOBER (vóór rollback):
+----------------------------------------
+"Unieke Code voor de vaststellingswijze"@nl
+
+Toelichting: Deze code geeft in een snel overzicht de vaststellingswijze weer.
+
+📄 HUIDIGE DATABASE (na rollback):
+----------------------------------------
+Activiteit waarbij een bevoegde functionaris de methode vastlegt waarmee de identiteit van een persoon wordt vastgesteld op basis van meerdere informatiebronnen.
+
+
+================================================================================
+BEGRIP: VERIFIËREN
+ID: 140 | Type: generated
+================================================================================
+
+📄 EXPORT 28 OKTOBER (vóór rollback):
+----------------------------------------
+"Het vergelijken van de ingewonnen identiteitsgegevens van een persoon met een andere set identiteitsgegevens in een 1-op-1-vergelijking."@nl
+
+Toelichting: De andere set kan afkomstig zijn van een identiteitsbewijs of een specifiek record uit een register zoals de SKDB.
+
+📄 HUIDIGE DATABASE (na rollback):
+----------------------------------------
+Activiteit waarbij een bevoegde functionaris de juistheid en volledigheid van gegevens, verklaringen of documenten vaststelt door vergelijking met betrouwbare bronnen.

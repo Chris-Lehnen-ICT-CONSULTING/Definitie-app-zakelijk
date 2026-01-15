@@ -593,7 +593,332 @@
       ],
       "processing_status": "success",
       "error_message": null
+    },
+    {
+      "id": "6b62dd15a146dd9f",
+      "filename": "test.docx",
+      "mime_type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "size": 36635,
+      "uploaded_at": "2026-01-15T12:06:37.666328+00:00",
+      "extracted_text": "Dit is een test. BegripX komt hier voor.\nNog een paragraaf met BegripX en extra tekst.",
+      "text_length": 86,
+      "keywords": [
+        "begripx",
+        "test",
+        "komt",
+        "hier",
+        "paragraaf",
+        "extra",
+        "tekst"
+      ],
+      "key_concepts": [],
+      "legal_references": [],
+      "context_hints": [
+        "Compact document - specifieke context"
+      ],
+      "processing_status": "success",
+      "error_message": null
+    },
+    {
+      "id": "6f373f0f282fe3a8",
+      "filename": "test.docx",
+      "mime_type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "size": 36635,
+      "uploaded_at": "2026-01-15T12:06:59.146020+00:00",
+      "extracted_text": "Dit is een test. BegripX komt hier voor.\nNog een paragraaf met BegripX en extra tekst.",
+      "text_length": 86,
+      "keywords": [
+        "begripx",
+        "test",
+        "komt",
+        "hier",
+        "paragraaf",
+        "extra",
+        "tekst"
+      ],
+      "key_concepts": [],
+      "legal_references": [],
+      "context_hints": [
+        "Compact document - specifieke context"
+      ],
+      "processing_status": "success",
+      "error_message": null
+    },
+    {
+      "id": "a12d89c0b51ca8f6",
+      "filename": "test.docx",
+      "mime_type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "size": 36635,
+      "uploaded_at": "2026-01-15T12:07:15.034211+00:00",
+      "extracted_text": "Dit is een test. BegripX komt hier voor.\nNog een paragraaf met BegripX en extra tekst.",
+      "text_length": 86,
+      "keywords": [
+        "begripx",
+        "test",
+        "komt",
+        "hier",
+        "paragraaf",
+        "extra",
+        "tekst"
+      ],
+      "key_concepts": [],
+      "legal_references": [],
+      "context_hints": [
+        "Compact document - specifieke context"
+      ],
+      "processing_status": "success",
+      "error_message": null
+    },
+    {
+      "id": "eeff72f7724b5675",
+      "filename": "test.docx",
+      "mime_type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "size": 36635,
+      "uploaded_at": "2026-01-15T12:07:34.902850+00:00",
+      "extracted_text": "Dit is een test. BegripX komt hier voor.\nNog een paragraaf met BegripX en extra tekst.",
+      "text_length": 86,
+      "keywords": [
+        "begripx",
+        "test",
+        "komt",
+        "hier",
+        "paragraaf",
+        "extra",
+        "tekst"
+      ],
+      "key_concepts": [],
+      "legal_references": [],
+      "context_hints": [
+        "Compact document - specifieke context"
+      ],
+      "processing_status": "success",
+      "error_message": null
+    },
+    {
+      "id": "bb347d3ba05cbf21",
+      "filename": "test.docx",
+      "mime_type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "size": 36635,
+      "uploaded_at": "2026-01-15T12:07:54.319535+00:00",
+      "extracted_text": "Dit is een test. BegripX komt hier voor.\nNog een paragraaf met BegripX en extra tekst.",
+      "text_length": 86,
+      "keywords": [
+        "begripx",
+        "test",
+        "komt",
+        "hier",
+        "paragraaf",
+        "extra",
+        "tekst"
+      ],
+      "key_concepts": [],
+      "legal_references": [],
+      "context_hints": [
+        "Compact document - specifieke context"
+      ],
+      "processing_status": "success",
+      "error_message": null
+    },
+    {
+      "id": "315d4802ed4f1c0d",
+      "filename": "test.docx",
+      "mime_type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "size": 36635,
+      "uploaded_at": "2026-01-15T12:09:44.607672+00:00",
+      "extracted_text": "Dit is een test. BegripX komt hier voor.\nNog een paragraaf met BegripX en extra tekst.",
+      "text_length": 86,
+      "keywords": [
+        "begripx",
+        "test",
+        "komt",
+        "hier",
+        "paragraaf",
+        "extra",
+        "tekst"
+      ],
+      "key_concepts": [],
+      "legal_references": [],
+      "context_hints": [
+        "Compact document - specifieke context"
+      ],
+      "processing_status": "success",
+      "error_message": null
+    },
+    {
+      "id": "1346cad4a4c17dbc",
+      "filename": "test.docx",
+      "mime_type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "size": 36635,
+      "uploaded_at": "2026-01-15T12:10:01.140651+00:00",
+      "extracted_text": "Dit is een test. BegripX komt hier voor.\nNog een paragraaf met BegripX en extra tekst.",
+      "text_length": 86,
+      "keywords": [
+        "begripx",
+        "test",
+        "komt",
+        "hier",
+        "paragraaf",
+        "extra",
+        "tekst"
+      ],
+      "key_concepts": [],
+      "legal_references": [],
+      "context_hints": [
+        "Compact document - specifieke context"
+      ],
+      "processing_status": "success",
+      "error_message": null
+    },
+    {
+      "id": "ad1b36895f7633fd",
+      "filename": "test.docx",
+      "mime_type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "size": 36635,
+      "uploaded_at": "2026-01-15T12:10:15.967731+00:00",
+      "extracted_text": "Dit is een test. BegripX komt hier voor.\nNog een paragraaf met BegripX en extra tekst.",
+      "text_length": 86,
+      "keywords": [
+        "begripx",
+        "test",
+        "komt",
+        "hier",
+        "paragraaf",
+        "extra",
+        "tekst"
+      ],
+      "key_concepts": [],
+      "legal_references": [],
+      "context_hints": [
+        "Compact document - specifieke context"
+      ],
+      "processing_status": "success",
+      "error_message": null
+    },
+    {
+      "id": "5099a89e49988be4",
+      "filename": "test.docx",
+      "mime_type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "size": 36635,
+      "uploaded_at": "2026-01-15T12:10:35.361962+00:00",
+      "extracted_text": "Dit is een test. BegripX komt hier voor.\nNog een paragraaf met BegripX en extra tekst.",
+      "text_length": 86,
+      "keywords": [
+        "begripx",
+        "test",
+        "komt",
+        "hier",
+        "paragraaf",
+        "extra",
+        "tekst"
+      ],
+      "key_concepts": [],
+      "legal_references": [],
+      "context_hints": [
+        "Compact document - specifieke context"
+      ],
+      "processing_status": "success",
+      "error_message": null
+    },
+    {
+      "id": "ca1e1821b466e96b",
+      "filename": "test.docx",
+      "mime_type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "size": 36635,
+      "uploaded_at": "2026-01-15T12:10:53.304965+00:00",
+      "extracted_text": "Dit is een test. BegripX komt hier voor.\nNog een paragraaf met BegripX en extra tekst.",
+      "text_length": 86,
+      "keywords": [
+        "begripx",
+        "test",
+        "komt",
+        "hier",
+        "paragraaf",
+        "extra",
+        "tekst"
+      ],
+      "key_concepts": [],
+      "legal_references": [],
+      "context_hints": [
+        "Compact document - specifieke context"
+      ],
+      "processing_status": "success",
+      "error_message": null
+    },
+    {
+      "id": "73d86b46f4e84bd8",
+      "filename": "test.docx",
+      "mime_type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "size": 36635,
+      "uploaded_at": "2026-01-15T12:11:10.716029+00:00",
+      "extracted_text": "Dit is een test. BegripX komt hier voor.\nNog een paragraaf met BegripX en extra tekst.",
+      "text_length": 86,
+      "keywords": [
+        "begripx",
+        "test",
+        "komt",
+        "hier",
+        "paragraaf",
+        "extra",
+        "tekst"
+      ],
+      "key_concepts": [],
+      "legal_references": [],
+      "context_hints": [
+        "Compact document - specifieke context"
+      ],
+      "processing_status": "success",
+      "error_message": null
+    },
+    {
+      "id": "c940f41ac7a7e34e",
+      "filename": "test.docx",
+      "mime_type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "size": 36635,
+      "uploaded_at": "2026-01-15T12:11:27.518597+00:00",
+      "extracted_text": "Dit is een test. BegripX komt hier voor.\nNog een paragraaf met BegripX en extra tekst.",
+      "text_length": 86,
+      "keywords": [
+        "begripx",
+        "test",
+        "komt",
+        "hier",
+        "paragraaf",
+        "extra",
+        "tekst"
+      ],
+      "key_concepts": [],
+      "legal_references": [],
+      "context_hints": [
+        "Compact document - specifieke context"
+      ],
+      "processing_status": "success",
+      "error_message": null
+    },
+    {
+      "id": "dcc3aa502900a394",
+      "filename": "test.docx",
+      "mime_type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "size": 36635,
+      "uploaded_at": "2026-01-15T12:56:54.357694+00:00",
+      "extracted_text": "Dit is een test. BegripX komt hier voor.\nNog een paragraaf met BegripX en extra tekst.",
+      "text_length": 86,
+      "keywords": [
+        "begripx",
+        "test",
+        "komt",
+        "hier",
+        "paragraaf",
+        "extra",
+        "tekst"
+      ],
+      "key_concepts": [],
+      "legal_references": [],
+      "context_hints": [
+        "Compact document - specifieke context"
+      ],
+      "processing_status": "success",
+      "error_message": null
     }
   ],
-  "last_updated": "2025-12-02T19:30:26.626120+00:00"
+  "last_updated": "2026-01-15T12:56:54.358116+00:00"
 }
