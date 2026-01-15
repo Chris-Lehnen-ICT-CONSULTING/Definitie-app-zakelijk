@@ -20,10 +20,16 @@ import streamlit as st
 
 if TYPE_CHECKING:
     from database.definitie_repository import DefinitieRecord
-from integration.definitie_checker import CheckAction, DefinitieChecker
+from integration.definitie_checker import DefinitieChecker
 from services.category_service import CategoryService
 from services.category_state_manager import CategoryStateManager
 from services.workflow_service import WorkflowService
+from ui.components.duplicate_check_renderer import DuplicateCheckRenderer
+from ui.components.formatters import (
+    extract_definition_from_result,
+    get_category_display_name,
+)
+from ui.components.sources_renderer import SourcesRenderer
 from ui.session_state import SessionStateManager
 from utils.dict_helpers import safe_dict_get
 from utils.type_helpers import ensure_dict, ensure_string
@@ -41,11 +47,9 @@ class DefinitionGeneratorTab:
 
         self.checker = checker
         self.category_service = CategoryService(get_definitie_repository())
-        self.workflow_service = WorkflowService()  # Business logic voor status workflow
-
-        # Injectie via dependency injection volgt wanneer beschikbaar
-
-        # Basic config voor regeneration service
+        self.workflow_service = WorkflowService()
+        self.duplicate_renderer = DuplicateCheckRenderer()
+        self.sources_renderer = SourcesRenderer()
 
     def render(self):
         """Render definitie generatie tab."""
@@ -73,164 +77,10 @@ class DefinitionGeneratorTab:
             st.error("⚠️ Fout bij context validatie - controleer invoer")
 
         if check_result:
-            self._render_duplicate_check_results(check_result)
+            self.duplicate_renderer.render_check_results(check_result)
 
         if generation_result:
             self._render_generation_results(generation_result)
-
-    def _render_duplicate_check_results(self, check_result):
-        """Render resultaten van duplicate check."""
-        st.markdown("### 🔍 Duplicate Check Resultaten")
-
-        # Main result
-        if check_result.action == CheckAction.PROCEED:
-            st.success(f"✅ {check_result.message}")
-        elif check_result.action == CheckAction.USE_EXISTING:
-            st.warning(f"⚠️ {check_result.message}")
-        else:
-            st.info(f"i️ {check_result.message}")
-
-        # Show confidence
-        confidence_color = (
-            "green"
-            if check_result.confidence > 0.8
-            else "orange" if check_result.confidence > 0.5 else "red"
-        )
-        st.markdown(
-            f"**Vertrouwen:** <span style='color: {confidence_color}'>{check_result.confidence:.1%}</span>",
-            unsafe_allow_html=True,
-        )
-
-        # Show existing definition if found
-        if check_result.existing_definitie:
-            self._render_existing_definition(check_result.existing_definitie)
-
-        # Show duplicates if found
-        if check_result.duplicates:
-            self._render_duplicate_matches(check_result.duplicates)
-
-    def _render_existing_definition(self, definitie: DefinitieRecord):
-        """Render bestaande definitie details."""
-        st.markdown("#### 📋 Bestaande Definitie")
-
-        with st.expander(f"Definitie Details (ID: {definitie.id})", expanded=True):
-            col1, col2 = st.columns([2, 1])
-
-            with col1:
-                st.markdown(f"**Definitie:** {definitie.definitie}")
-                org, jur, wet = self._format_record_context(definitie)
-                if org:
-                    st.markdown(f"**Organisatorisch:** {org}")
-                if jur:
-                    st.markdown(f"**Juridisch:** {jur}")
-                if wet:
-                    st.markdown(f"**Wettelijk:** {wet}")
-
-            with col2:
-                st.markdown(f"**Status:** `{definitie.status}`")
-                st.markdown(f"**Categorie:** `{definitie.categorie}`")
-                if definitie.validation_score:
-                    st.markdown(f"**Score:** {definitie.validation_score:.2f}")
-                st.markdown(
-                    f"**Gemaakt:** {definitie.created_at.strftime('%Y-%m-%d') if definitie.created_at else 'Onbekend'}"
-                )
-
-            # Action buttons
-            st.markdown("---")
-            col1, col2, col3 = st.columns(3)
-
-            with col1:
-                if st.button("✅ Gebruik Deze", key=f"use_{definitie.id}"):
-                    self._use_existing_definition(definitie)
-
-            with col2:
-                if st.button("📝 Bewerk", key=f"edit_{definitie.id}"):
-                    self._edit_existing_definition(definitie)
-
-            with col3:
-                can_generate = self._has_min_one_context()
-                if not can_generate:
-                    st.caption("Minstens één context vereist om nieuw te genereren.")
-                if st.button(
-                    "🔄 Genereer Nieuw",
-                    key=f"new_{definitie.id}",
-                    disabled=not can_generate,
-                ):
-                    # Forceer nieuwe generatie: zet flag en trigger automatische generatie
-                    options = ensure_dict(
-                        SessionStateManager.get_value("generation_options", {})
-                    )
-                    options["force_generate"] = True
-                    options["force_duplicate"] = True
-                    SessionStateManager.set_value("generation_options", options)
-                    try:
-                        SessionStateManager.clear_value("last_check_result")
-                        SessionStateManager.clear_value("selected_definition")
-                    except Exception as e:
-                        logger.warning(f"Failed to clear session state: {e}")
-                    # Trigger automatische generatie bij volgende render
-                    SessionStateManager.set_value("trigger_auto_generation", True)
-                    st.rerun()
-
-    def _render_duplicate_matches(self, duplicates):
-        """Render lijst van mogelijke duplicates."""
-        st.markdown("#### 🔍 Mogelijke Duplicates")
-
-        for i, dup_match in enumerate(duplicates[:3]):  # Toon max 3
-            definitie = dup_match.definitie_record
-            score = dup_match.match_score
-            reasons = dup_match.match_reasons
-
-            with st.expander(
-                f"Match {i+1}: {definitie.begrip} (Score: {score:.2f})", expanded=i == 0
-            ):
-                st.markdown(f"**Definitie:** {definitie.definitie}")
-                org, jur, wet = self._format_record_context(definitie)
-                ctx_parts = []
-                if org:
-                    ctx_parts.append(f"Organisatorisch: {org}")
-                if jur:
-                    ctx_parts.append(f"Juridisch: {jur}")
-                if wet:
-                    ctx_parts.append(f"Wettelijk: {wet}")
-                st.markdown(
-                    f"**Context:** {' | '.join(ctx_parts) if ctx_parts else '—'}"
-                )
-                st.markdown(f"**Redenen:** {', '.join(reasons)}")
-
-                if st.button("Gebruik deze definitie", key=f"dup_use_{definitie.id}"):
-                    self._use_existing_definition(definitie)
-
-    @staticmethod
-    def _format_record_context(def_record: DefinitieRecord) -> tuple[str, str, str]:
-        """Formatteer contextvelden van een DefinitieRecord als weergavetekst.
-
-        DefinitieRecord bewaart org/jur als TEXT; voor V2 kan dit JSON arrays zijn.
-        Deze helper parseert veilig en maakt een korte weergave.
-        """
-        import json as _json
-
-        def _parse(val) -> list[str]:
-            try:
-                if not val:
-                    return []
-                if isinstance(val, str):
-                    return (
-                        list(_json.loads(val)) if val.strip().startswith("[") else [val]
-                    )
-                if isinstance(val, list):
-                    return val
-            except Exception as e:
-                logger.warning(f"Failed to parse context JSON '{val}': {e}")
-                return []
-            return []
-
-        org_list = _parse(getattr(def_record, "organisatorische_context", None))
-        jur_list = _parse(getattr(def_record, "juridische_context", None))
-        wet_list: list[str] = []
-        if hasattr(def_record, "get_wettelijke_basis_list"):
-            wet_list = def_record.get_wettelijke_basis_list() or []
-        return ", ".join(org_list), ", ".join(jur_list), ", ".join(wet_list)
 
     # ===== Context guards (minstens 1 vereist) =====
     def _get_global_context_lists(self) -> dict[str, list[str]]:
@@ -433,7 +283,9 @@ class DefinitionGeneratorTab:
                 logger.warning(f"Failed to cache legacy format result: {e}")
 
         # Bronverantwoording: toon gebruikte web bronnen indien beschikbaar
-        self._render_sources_section(generation_result, agent_result, saved_record)
+        self.sources_renderer.render_sources_section(
+            generation_result, agent_result, saved_record
+        )
 
         # PHASE 3.2: Synonym Review UI (Architecture v3.1)
         try:
@@ -1113,7 +965,7 @@ class DefinitionGeneratorTab:
         """
         # Extract benodigde data voor workflow
         old_category = safe_dict_get(generation_result, "determined_category", "proces")
-        current_definition = self._extract_definition_from_result(generation_result)
+        current_definition = extract_definition_from_result(generation_result)
         begrip = ensure_string(safe_dict_get(generation_result, "begrip", ""))
         saved_record = generation_result.get("saved_record")
 
@@ -1265,316 +1117,6 @@ class DefinitionGeneratorTab:
                                 st.error(f"Opslaan mislukt: {se}")
             except Exception as e:
                 logger.warning(f"Could not render save-as-draft option: {e}")
-
-    def _render_sources_section(self, generation_result, agent_result, saved_record):
-        """Render sectie met gebruikte bronnen (provenance)."""
-        try:
-            sources = None
-
-            # 1) Probeer uit saved_record.metadata (na opslag)
-            if saved_record and getattr(saved_record, "metadata", None):
-                metadata = saved_record.metadata
-                if isinstance(metadata, dict):
-                    sources = metadata.get("sources")
-
-            # 2) STORY 3.1: Check direct sources key when agent_result is dict
-            if sources is None and isinstance(agent_result, dict):
-                sources = agent_result.get("sources")
-
-            # 2b) Backward: attribute style (should not occur for dict responses)
-            if sources is None and hasattr(agent_result, "sources"):
-                sources = agent_result.sources
-
-            # 3) Val terug op agent_result.metadata (legacy support)
-            if sources is None and isinstance(agent_result, dict):
-                meta = agent_result.get("metadata")
-                if isinstance(meta, dict):
-                    sources = meta.get("sources")
-            elif sources is None and hasattr(agent_result, "metadata"):
-                if isinstance(agent_result.metadata, dict):
-                    sources = agent_result.metadata.get("sources")
-
-            # STORY 3.1: Always show sources section with feedback
-            st.markdown("#### 📚 Gebruikte Bronnen")
-
-            # Toon statusinformatie indien beschikbaar
-            status_meta = None
-            available_meta = None
-            if saved_record and getattr(saved_record, "metadata", None):
-                meta = saved_record.metadata
-                if isinstance(meta, dict):
-                    status_meta = meta.get("web_lookup_status")
-                    available_meta = meta.get("web_lookup_available")
-            if status_meta is None:
-                if isinstance(agent_result, dict):
-                    meta = agent_result.get("metadata")
-                    if isinstance(meta, dict):
-                        status_meta = meta.get("web_lookup_status")
-                        available_meta = meta.get("web_lookup_available")
-                elif hasattr(agent_result, "metadata") and isinstance(
-                    agent_result.metadata, dict
-                ):
-                    status_meta = agent_result.metadata.get("web_lookup_status")
-                    available_meta = agent_result.metadata.get("web_lookup_available")
-
-            # Timeout uit metadata of environment
-            timeout_meta = None
-            if saved_record and getattr(saved_record, "metadata", None):
-                m = saved_record.metadata
-                if isinstance(m, dict):
-                    timeout_meta = m.get("web_lookup_timeout")
-            if timeout_meta is None:
-                if isinstance(agent_result, dict):
-                    m = agent_result.get("metadata")
-                    if isinstance(m, dict):
-                        timeout_meta = m.get("web_lookup_timeout")
-                elif hasattr(agent_result, "metadata") and isinstance(
-                    agent_result.metadata, dict
-                ):
-                    timeout_meta = agent_result.metadata.get("web_lookup_timeout")
-
-            if status_meta or available_meta is not None:
-                status_text = status_meta or "onbekend"
-                avail_text = (
-                    "beschikbaar"
-                    if (available_meta is True)
-                    else "niet beschikbaar" if (available_meta is False) else "onbekend"
-                )
-                # Fallback naar env als metadata geen timeout bevat
-                if timeout_meta is None:
-                    try:
-                        timeout_meta = float(
-                            os.getenv("WEB_LOOKUP_TIMEOUT_SECONDS", "10.0")
-                        )
-                    except Exception as e:
-                        logger.debug(f"Failed to parse WEB_LOOKUP_TIMEOUT_SECONDS: {e}")
-                        timeout_meta = 10.0
-                st.caption(
-                    f"Web lookup: {status_text} ({avail_text}) — timeout {float(timeout_meta):.1f}s"
-                )
-
-            # SRU/WL debug: toon lookup attempts (endpoints/termen)
-            # Zoek debug-informatie in metadata (saved_record of agent_result)
-            debug_info = None
-            if saved_record and getattr(saved_record, "metadata", None):
-                m = saved_record.metadata
-                if isinstance(m, dict):
-                    debug_info = m.get("web_lookup_debug")
-            if debug_info is None:
-                if isinstance(agent_result, dict):
-                    m = agent_result.get("metadata")
-                    if isinstance(m, dict):
-                        debug_info = m.get("web_lookup_debug")
-                elif hasattr(agent_result, "metadata") and isinstance(
-                    agent_result.metadata, dict
-                ):
-                    debug_info = agent_result.metadata.get("web_lookup_debug")
-
-            if st.checkbox(
-                "🐛 SRU/WL debug: Toon lookup attempts (JSON)",
-                key="debug_web_lookup_attempts",
-            ):
-                st.json(debug_info or {})
-
-            # Extra: overzichtelijke tabel met pogingdetails (provider, strategie, query)
-            if debug_info and isinstance(debug_info, dict):
-                attempts_list = debug_info.get("attempts") or []
-                if attempts_list:
-                    if st.checkbox(
-                        "🐛 SRU/WL debug: Toon pogingdetails (tabel)",
-                        key="debug_web_lookup_attempts_table",
-                    ):
-                        rows = []
-                        for a in attempts_list:
-                            try:
-                                provider = a.get("provider") or a.get("endpoint") or "?"
-                                api = a.get("api_type") or "?"
-                                strategy = a.get("strategy") or (
-                                    "fallback" if a.get("fallback") else ""
-                                )
-                                q = a.get("query") or a.get("term") or ""
-                                status = (
-                                    a.get("status")
-                                    if "status" in a
-                                    else (
-                                        "ok"
-                                        if a.get("success")
-                                        else "fail" if "success" in a else ""
-                                    )
-                                )
-                                records = a.get("records")
-                                url = a.get("url") or ""
-                                rows.append(
-                                    {
-                                        "provider": provider,
-                                        "api": api,
-                                        "strategie": strategy,
-                                        "query/term": q,
-                                        "status": status,
-                                        "records": records,
-                                        "url": url,
-                                    }
-                                )
-                            except Exception:
-                                continue
-                        if rows:
-                            try:
-                                import pandas as pd  # type: ignore
-
-                                st.dataframe(pd.DataFrame(rows))
-                            except Exception:
-                                # Fallback zonder pandas
-                                for r in rows:
-                                    st.markdown(
-                                        f"- {r['provider']} ({r['api']}): {r['strategie']} — {r['query/term']}"
-                                        f" — status={r['status']} records={r.get('records') or 0}"
-                                    )
-
-            # Debug toggle: toon ruwe web_lookup data (JSON)
-            if st.checkbox(
-                "🐛 Debug: Toon ruwe web_lookup data (JSON)",
-                key="debug_web_lookup_sources_raw",
-            ):
-                # Verzamel ruwe bronnenlijsten van verschillende plekken
-                saved_meta_sources = None
-                agent_meta_sources = None
-                agent_attr_sources = None
-
-                if saved_record and getattr(saved_record, "metadata", None):
-                    m = saved_record.metadata
-                    if isinstance(m, dict):
-                        saved_meta_sources = m.get("sources")
-
-                if isinstance(agent_result, dict):
-                    m = agent_result.get("metadata")
-                    if isinstance(m, dict):
-                        agent_meta_sources = m.get("sources")
-                elif hasattr(agent_result, "metadata") and isinstance(
-                    agent_result.metadata, dict
-                ):
-                    agent_meta_sources = agent_result.metadata.get("sources")
-
-                # Top-level sources on dict response (canonical)
-                agent_top_sources = None
-                if isinstance(agent_result, dict):
-                    agent_top_sources = agent_result.get("sources")
-
-                if hasattr(agent_result, "sources"):
-                    agent_attr_sources = agent_result.sources
-
-                st.json(
-                    {
-                        "web_lookup_status": status_meta,
-                        "web_lookup_available": available_meta,
-                        "web_lookup_timeout": timeout_meta,
-                        "saved_record.metadata.sources": saved_meta_sources,
-                        "agent_result.metadata.sources": agent_meta_sources,
-                        "agent_result.sources": agent_attr_sources,
-                        "agent_result.top_level_sources": agent_top_sources,
-                    }
-                )
-
-            if not sources:
-                # Toon specifiekere feedback op basis van metadata indien beschikbaar
-                web_status = None
-                web_available = None
-
-                # Metadata uit saved_record
-                if saved_record and getattr(saved_record, "metadata", None):
-                    meta = saved_record.metadata
-                    if isinstance(meta, dict):
-                        web_status = meta.get("web_lookup_status")
-                        web_available = meta.get("web_lookup_available")
-
-                # Metadata uit agent_result
-                if web_status is None:
-                    if isinstance(agent_result, dict):
-                        meta = agent_result.get("metadata")
-                        if isinstance(meta, dict):
-                            web_status = meta.get("web_lookup_status")
-                            web_available = meta.get("web_lookup_available")
-                    elif hasattr(agent_result, "metadata") and isinstance(
-                        agent_result.metadata, dict
-                    ):
-                        web_status = agent_result.metadata.get("web_lookup_status")
-                        web_available = agent_result.metadata.get(
-                            "web_lookup_available"
-                        )
-
-                # Bepaal bericht
-                if web_available is False or web_status == "not_available":
-                    msg = "ℹ️ Web lookup is niet beschikbaar in deze omgeving."
-                elif web_status == "timeout":
-                    msg = "⏱️ Web lookup time-out — geen bronnen opgehaald."
-                elif web_status == "error":
-                    msg = "⚠️ Web lookup fout — geen bronnen opgehaald."
-                else:
-                    msg = "ℹ️ Geen relevante externe bronnen gevonden."
-
-                st.info(msg)
-                return
-
-            # Toon alle gevonden bronnen (gebruik expander om het compact te houden)
-            for idx, src in enumerate(sources):
-                # Use source_label if available (Story 3.1), fallback to provider
-                provider_label = src.get("source_label") or self._get_provider_label(
-                    src.get("provider", "bron")
-                )
-                title = src.get("title") or src.get("definition") or "(zonder titel)"
-                url = src.get("url") or src.get("link") or ""
-                score = src.get("score") or src.get("confidence") or 0.0
-                used = src.get("used_in_prompt", False)
-                snippet = src.get("snippet") or src.get("context") or ""
-                is_authoritative = src.get("is_authoritative", False)
-                legal_meta = src.get("legal")
-
-                with st.expander(
-                    f"{idx+1}. {provider_label} — {title[:80]}", expanded=(idx == 0)
-                ):
-                    # Show badges
-                    col1, col2, col3 = st.columns([1, 1, 2])
-                    with col1:
-                        if is_authoritative:
-                            st.success("✓ Autoritatief")
-                    with col2:
-                        if used:
-                            st.info("→ In prompt")
-
-                    # Documentbron: toon bestandsnaam/locatie
-                    if src.get("provider") == "documents":
-                        fname = src.get("title") or src.get("filename")
-                        cite = src.get("citation_label")
-                        if fname or cite:
-                            st.markdown(
-                                f"**Document**: {fname or '(onbekend)'}{f' · Locatie: {cite}' if cite else ''}"
-                            )
-
-                    # Show juridical citation if available
-                    if legal_meta and legal_meta.get("citation_text"):
-                        st.markdown(
-                            f"**Juridische verwijzing**: {legal_meta['citation_text']}"
-                        )
-
-                    # Show score and snippet
-                    st.markdown(f"**Score**: {score:.2f}")
-                    if snippet:
-                        st.markdown(
-                            f"**Fragment**: {snippet[:500]}{'...' if len(snippet) > 500 else ''}"
-                        )
-                    if url:
-                        st.markdown(f"[🔗 Open bron]({url})")
-        except Exception as e:
-            logger.debug(f"Kon bronnen sectie niet renderen: {e}")
-
-    def _get_provider_label(self, provider: str) -> str:
-        """Get human-friendly label for provider (local helper)."""
-        labels = {
-            "wikipedia": "Wikipedia NL",
-            "overheid": "Overheid.nl",
-            "rechtspraak": "Rechtspraak.nl",
-            "wiktionary": "Wiktionary NL",
-        }
-        return labels.get(provider, provider.replace("_", " ").title())
 
     def _log_generation_result_debug(
         self, generation_result: dict, agent_result: Any
@@ -1888,10 +1430,6 @@ class DefinitionGeneratorTab:
                 "(docs/handleidingen/gebruikers/uitleg-validatieregels.md)"
             )
 
-    def _use_existing_definition(self, definitie: DefinitieRecord):
-        """Gebruik bestaande definitie."""
-        SessionStateManager.set_value("selected_definition", definitie)
-
     # ============ UI-private utilities (géén aparte helpers/module) ============
     def _get_current_text_and_begrip(self) -> tuple[str, str]:
         """Lees huidige definitietekst/begrip uit UI-state (best effort)."""
@@ -2017,14 +1555,6 @@ class DefinitionGeneratorTab:
             "CON-01": "Context niet letterlijk benoemen; waarschuwt bij dubbele context.",
         }
         return "", fallback.get(rule_id, "Geen beschrijving beschikbaar.")
-
-    def _edit_existing_definition(self, definitie: DefinitieRecord):
-        """Bewerk bestaande definitie."""
-        # Zet doel definitie en navigeer programmatic naar radio-tab 'edit'
-        SessionStateManager.set_value("editing_definition_id", definitie.id)
-        SessionStateManager.set_value("active_tab", "edit")
-        st.success("✏️ Bewerk-tab geopend — laden van definitie…")
-        st.rerun()
 
     def _edit_definition(self, definitie: DefinitieRecord):
         """Bewerk gegenereerde definitie."""
@@ -2179,14 +1709,14 @@ class DefinitionGeneratorTab:
 
         with col1:
             st.markdown("**Oude Categorie:**")
-            st.markdown(f"🏷️ `{self._get_category_display_name(old_category)}`")
+            st.markdown(f"🏷️ `{get_category_display_name(old_category)}`")
 
         with col2:
             st.markdown("**➡️**")
 
         with col3:
             st.markdown("**Nieuwe Categorie:**")
-            st.markdown(f"🎯 `{self._get_category_display_name(new_category)}`")
+            st.markdown(f"🎯 `{get_category_display_name(new_category)}`")
 
         # Current definition preview
         st.markdown("**Huidige Definitie:**")
@@ -2247,23 +1777,6 @@ class DefinitionGeneratorTab:
                 st.info(
                     "De categorie is bijgewerkt, maar de definitie blijft ongewijzigd."
                 )
-
-    def _get_category_display_name(self, category: str) -> str:
-        """Get user-friendly display name voor categorie."""
-        category_names = {
-            "type": "🏷️ Type/Klasse",
-            "proces": "⚙️ Proces/Activiteit",
-            "resultaat": "📊 Resultaat/Uitkomst",
-            "exemplaar": "🔍 Exemplaar/Instantie",
-            "ENT": "🏷️ Entiteit",
-            "ACT": "⚙️ Activiteit",
-            "REL": "🔗 Relatie",
-            "ATT": "📋 Attribuut",
-            "AUT": "⚖️ Autorisatie",
-            "STA": "📊 Status",
-            "OTH": "❓ Overig",
-        }
-        return category_names.get(category, f"❓ {category}")
 
     def _analyze_regeneration_impact(
         self, old_category: str, new_category: str
@@ -2383,13 +1896,13 @@ class DefinitionGeneratorTab:
 
         with col1:
             st.markdown(
-                f"**Oude Definitie** ({self._get_category_display_name(old_category)}):"
+                f"**Oude Definitie** ({get_category_display_name(old_category)}):"
             )
             st.info(old_definition)
 
         with col2:
             st.markdown(
-                f"**Nieuwe Definitie** ({self._get_category_display_name(new_category)}):"
+                f"**Nieuwe Definitie** ({get_category_display_name(new_category)}):"
             )
 
             # Extract new definition from result
@@ -2409,24 +1922,6 @@ class DefinitionGeneratorTab:
         if isinstance(new_result, dict) and "validation_score" in new_result:
             new_score = new_result["validation_score"]
             st.markdown(f"**Kwaliteitsscore nieuwe definitie:** {new_score:.2f}")
-
-    def _extract_definition_from_result(self, generation_result: dict[str, Any]) -> str:
-        """Extract definitie uit generation result, ongeacht format."""
-        # Check voor agent_result
-        agent_result = generation_result.get("agent_result")
-        if not agent_result:
-            return ""
-
-        # Check if it's a dict (new service) or object (legacy)
-        if isinstance(agent_result, dict):
-            # New service format
-            result = agent_result.get(
-                "definitie_gecorrigeerd", agent_result.get("definitie", "")
-            )
-            return result if isinstance(result, str) else ""
-        # Legacy format
-        legacy_result = getattr(agent_result, "final_definitie", "")
-        return legacy_result if isinstance(legacy_result, str) else ""
 
     def _clear_results(self):
         """Wis alle resultaten."""
@@ -2458,7 +1953,7 @@ class DefinitionGeneratorTab:
         with col1:
             st.markdown("**Oude Categorie:**")
             st.markdown(
-                f"🏷️ `{self._get_category_display_name(category_change_state.old_category)}`"
+                f"🏷️ `{get_category_display_name(category_change_state.old_category)}`"
             )
 
         with col2:
@@ -2467,7 +1962,7 @@ class DefinitionGeneratorTab:
         with col3:
             st.markdown("**Nieuwe Categorie:**")
             st.markdown(
-                f"🎯 `{self._get_category_display_name(category_change_state.new_category)}`"
+                f"🎯 `{get_category_display_name(category_change_state.new_category)}`"
             )
 
         # Current definition preview
