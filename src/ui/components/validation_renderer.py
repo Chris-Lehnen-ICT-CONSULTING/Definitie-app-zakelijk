@@ -217,7 +217,9 @@ class ValidationRenderer:
                 "\nMeer uitleg: [Validatieregels (CON-01 e.a.)](docs/handleidingen/gebruikers/uitleg-validatieregels.md)"
             )
             return "\n".join(lines)
-        except Exception:
+        except (KeyError, TypeError, AttributeError) as e:
+            # DEF-246: Log tooltip generation failure
+            logger.debug("Tooltip generation failed: %s: %s", type(e).__name__, e)
             return (
                 "Meer uitleg: [Validatieregels (CON-01 e.a.)]"
                 "(docs/handleidingen/gebruikers/uitleg-validatieregels.md)"
@@ -262,7 +264,9 @@ class ValidationRenderer:
         try:
             m = re.search(r"([A-Z]{2,5}(?:[-_][A-Z0-9]+)+)", str(line))
             return m.group(1) if m else ""
-        except Exception:
+        except (TypeError, re.error) as e:
+            # DEF-246: Log regex extraction failure
+            logger.debug("Rule ID extraction failed: %s: %s", type(e).__name__, e)
             return ""
 
     # ============ UI-private utilities ============
@@ -274,7 +278,11 @@ class ValidationRenderer:
             )
             begrip = ensure_string(SessionStateManager.get_value("current_begrip", ""))
             return text, begrip
-        except Exception:
+        except (KeyError, TypeError, AttributeError) as e:
+            # DEF-246: Log UI state read failure
+            logger.debug(
+                "Failed to read text/begrip from state: %s: %s", type(e).__name__, e
+            )
             return "", ""
 
     def _compute_text_metrics(self, text: str) -> dict[str, int]:
@@ -343,7 +351,14 @@ class ValidationRenderer:
                 return "Context niet letterlijk benoemd; geen duplicaat gedetecteerd."
             if rid in {"ESS-03", "ESS-04", "ESS-05"}:
                 return "Vereist element herkend (heuristiek)."
-        except Exception:
+        except (KeyError, TypeError, re.error) as e:
+            # DEF-246: Log pass reason computation failure
+            logger.debug(
+                "Pass reason computation failed for %s: %s: %s",
+                rule_id,
+                type(e).__name__,
+                e,
+            )
             return ""
 
         return "Geen issues gemeld door validator."
