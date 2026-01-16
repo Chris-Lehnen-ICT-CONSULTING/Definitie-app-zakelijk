@@ -33,29 +33,22 @@ class TestConfigManager:
     """Test suite for ConfigManager class."""
 
     def test_environment_detection(self):
-        """ConfigManager respects APP_ENV environment variable."""
+        """ConfigManager uses PRODUCTION environment (simplified enum)."""
+        # Note: Environment enum only contains PRODUCTION
+        # Other environments (development, testing) were removed for simplification
+
         # Without APP_ENV, defaults to production
         with patch.dict(os.environ, {}, clear=True):
             config_manager = ConfigManager()
             assert config_manager.environment == Environment.PRODUCTION
-
-        # With APP_ENV=development
-        with patch.dict(os.environ, {"APP_ENV": "development"}):
-            config_manager = ConfigManager()
-            assert config_manager.environment == Environment.DEVELOPMENT
-
-        # With APP_ENV=testing
-        with patch.dict(os.environ, {"APP_ENV": "testing"}):
-            config_manager = ConfigManager()
-            assert config_manager.environment == Environment.TESTING
 
         # With APP_ENV=production (explicit)
         with patch.dict(os.environ, {"APP_ENV": "production"}):
             config_manager = ConfigManager()
             assert config_manager.environment == Environment.PRODUCTION
 
-        # With invalid APP_ENV, defaults to production
-        with patch.dict(os.environ, {"APP_ENV": "invalid"}):
+        # With any APP_ENV value, still uses PRODUCTION (only value in enum)
+        with patch.dict(os.environ, {"APP_ENV": "development"}):
             config_manager = ConfigManager()
             assert config_manager.environment == Environment.PRODUCTION
 
@@ -130,7 +123,7 @@ class TestConfigManager:
             assert "api_key_configured" in env_info
             assert "directories_created" in env_info
 
-            assert env_info["environment"] == "development"
+            assert env_info["environment"] == "production"
             assert isinstance(env_info["config_loaded"], bool)
 
 

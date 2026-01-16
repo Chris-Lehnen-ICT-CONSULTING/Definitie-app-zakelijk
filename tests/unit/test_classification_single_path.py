@@ -9,7 +9,7 @@ Validates that:
 5. Manual override works correctly
 """
 
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import AsyncMock, MagicMock, Mock, patch
 
 import pytest
 
@@ -322,10 +322,25 @@ class TestClassificationFlow:
 
         # Step 2: Classification happens in preview
         with (
-            patch.object(interface, "_determine_ontological_category") as mock_classify,
+            patch.object(
+                interface, "_determine_ontological_category", new_callable=AsyncMock
+            ) as mock_classify,
             patch("ui.tabbed_interface.st"),
-            patch("ui.tabbed_interface.asyncio.run", side_effect=lambda coro: coro),
+            patch("ui.tabbed_interface.asyncio.run") as mock_asyncio_run,
         ):
+            # Configure asyncio.run to execute the coroutine properly
+            import asyncio
+
+            def run_coro(coro):
+                if asyncio.iscoroutine(coro):
+                    loop = asyncio.new_event_loop()
+                    try:
+                        return loop.run_until_complete(coro)
+                    finally:
+                        loop.close()
+                return coro
+
+            mock_asyncio_run.side_effect = run_coro
 
             mock_classify.return_value = (
                 OntologischeCategorie.PROCES,
@@ -347,6 +362,12 @@ class TestClassificationFlow:
             classification_state["category_reasoning"] = "Proces patroon"
             classification_state["category_scores"] = {"proces": 2}
 
+        # Add required keys for generation flow
+        classification_state["generation_options"] = {
+            "force_generate": True
+        }  # Skip duplicate check
+        classification_state["selected_documents"] = []
+
         # Step 3: Generation uses pre-classification
         with (
             patch("ui.tabbed_interface.st") as mock_st,
@@ -358,6 +379,7 @@ class TestClassificationFlow:
             mock_st.spinner.return_value.__enter__ = Mock()
             mock_st.spinner.return_value.__exit__ = Mock()
             mock_st.success = Mock()
+            mock_st.info = Mock()  # For hybrid context message
 
             mock_async.return_value = {
                 "success": True,
