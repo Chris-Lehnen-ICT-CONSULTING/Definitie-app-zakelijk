@@ -51,40 +51,30 @@ def _extract_sources(
     saved_record: Any,
     agent_result: dict[str, Any] | Any,
 ) -> list[dict] | None:
-    """Extract sources from various locations with fallback chain.
+    """Extract sources from dict format (V2 canonical format).
 
-    Tries multiple locations in order:
-    1. saved_record.metadata.sources
-    2. agent_result.sources (V2 direct key)
-    3. agent_result.sources (attribute style)
-    4. agent_result.metadata.sources (legacy)
+    Tries in order:
+    1. saved_record.metadata.sources (from DB)
+    2. agent_result.sources (V2 direct dict key, from ServiceAdapter.to_ui_response())
+
+    Note: Legacy object-attribute fallbacks removed in DEF-263 after audit confirmed
+    no legacy formats are used in the codebase. All code paths use V2 dict format.
     """
-    sources = None
-
-    # 1) Try saved_record.metadata
+    # 1) Try saved_record.metadata (DB format)
     if saved_record and getattr(saved_record, "metadata", None):
         metadata = saved_record.metadata
         if isinstance(metadata, dict):
             sources = metadata.get("sources")
+            if sources is not None:
+                return sources
 
-    # 2) Direct sources key on agent_result dict
-    if sources is None and isinstance(agent_result, dict):
+    # 2) Direct sources key on agent_result dict (V2 format)
+    if isinstance(agent_result, dict):
         sources = agent_result.get("sources")
+        if sources is not None:
+            return sources
 
-    # 2b) Attribute style (legacy)
-    if sources is None and hasattr(agent_result, "sources"):
-        sources = agent_result.sources
-
-    # 3) Fallback to agent_result.metadata (legacy)
-    if sources is None and isinstance(agent_result, dict):
-        meta = agent_result.get("metadata")
-        if isinstance(meta, dict):
-            sources = meta.get("sources")
-    elif sources is None and hasattr(agent_result, "metadata"):
-        if isinstance(agent_result.metadata, dict):
-            sources = agent_result.metadata.get("sources")
-
-    return sources
+    return None
 
 
 class SourcesRenderer:
