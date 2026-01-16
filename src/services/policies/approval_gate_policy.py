@@ -86,21 +86,24 @@ class GatePolicy:
     def hard_min_score(self) -> float:
         try:
             return float(self.thresholds.get("hard_min_score", 0.75))
-        except Exception:
+        except (TypeError, ValueError):
+            # DEF-246: Invalid threshold config, use default
             return 0.75
 
     @property
     def soft_min_score(self) -> float:
         try:
             return float(self.thresholds.get("soft_min_score", 0.65))
-        except Exception:
+        except (TypeError, ValueError):
+            # DEF-246: Invalid threshold config, use default
             return 0.65
 
     @property
     def ttl_seconds(self) -> int:
         try:
             return int(self.cache.get("ttl_seconds", 60))
-        except Exception:
+        except (TypeError, ValueError):
+            # DEF-246: Invalid cache config, use default
             return 60
 
 

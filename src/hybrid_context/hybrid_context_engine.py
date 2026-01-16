@@ -221,7 +221,9 @@ class HybridContextEngine:
             # Fallback naar basis web lookup
             try:
                 return zoek_definitie_combinatie(begrip) or {}
-            except Exception:
+            except (OSError, ValueError, TypeError) as fallback_err:
+                # DEF-246: Both enhanced and basic lookup failed
+                logger.warning(f"Basic web lookup also failed: {fallback_err}")
                 return {}
 
     def _enhance_web_results(

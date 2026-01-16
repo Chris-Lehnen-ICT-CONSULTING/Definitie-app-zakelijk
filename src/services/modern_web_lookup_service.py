@@ -127,7 +127,8 @@ class ModernWebLookupService(WebLookupServiceInterface):
                     .get(key, {})
                     .get("enabled", default)
                 )
-            except Exception:
+            except (KeyError, TypeError, AttributeError):
+                # DEF-246: Config access failed
                 return default
 
         self.sources = {
