@@ -29,17 +29,39 @@ def format_record_context(def_record: DefinitieRecord) -> tuple[str, str, str]:
         Tuple of (org_display, jur_display, wet_display) as comma-separated strings
     """
 
-    def _parse(val: Any) -> list[str]:
-        try:
-            if not val:
-                return []
-            if isinstance(val, str):
-                return list(json.loads(val)) if val.strip().startswith("[") else [val]
-            if isinstance(val, list):
-                return val
-        except Exception as e:
-            logger.warning(f"Failed to parse context JSON '{val}': {e}")
+    def _parse(val: str | list[str] | None) -> list[str]:
+        """Parse context value to list of strings.
+
+        Handles JSON arrays, plain strings, or existing lists.
+        """
+        if val is None or val == "":
             return []
+
+        # Already a list - ensure all items are strings
+        if isinstance(val, list):
+            return [str(item) for item in val if item is not None]
+
+        # String value - try JSON parse if it looks like an array
+        if isinstance(val, str):
+            stripped = val.strip()
+            if stripped.startswith("["):
+                try:
+                    parsed = json.loads(stripped)
+                    if isinstance(parsed, list):
+                        return [str(item) for item in parsed if item is not None]
+                    # JSON parsed to non-list (e.g., number), return as string
+                    logger.warning(
+                        f"Expected JSON array, got {type(parsed).__name__}: {val!r}"
+                    )
+                    return [str(parsed)]
+                except json.JSONDecodeError as e:
+                    logger.warning(f"Invalid JSON in context field: {e}")
+                    return [val]  # Return raw string as fallback
+            # Plain string, not JSON
+            return [val]
+
+        # Unexpected type - log and return empty
+        logger.error(f"Unexpected type in _parse: {type(val).__name__}")
         return []
 
     org_list = _parse(getattr(def_record, "organisatorische_context", None))
