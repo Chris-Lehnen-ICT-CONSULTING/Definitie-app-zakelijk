@@ -21,7 +21,7 @@ from config.config_adapters import (
 # Import available modules
 from config.config_manager import ConfigSection, get_config, get_config_manager
 from toetsregels.loader import load_toetsregels
-from utils.cache import cached, clear_cache, get_cache_stats
+from utils.cache import cached, clear_cache, configure_cache, get_cache_stats
 
 
 class TestConfigurationSystem:
@@ -78,6 +78,8 @@ class TestCacheSystem:
 
     def setup_method(self):
         """Setup for each test method."""
+        # Reset cache config to defaults (other tests may disable cache)
+        configure_cache(enable_cache=True)
         clear_cache()
 
     def test_cache_decorator_works(self):
@@ -85,18 +87,18 @@ class TestCacheSystem:
         call_count = 0
 
         @cached(ttl=60)
-        def test_function(x):
+        def cache_decorator_test_unique(x):
             nonlocal call_count
             call_count += 1
             return x * 2
 
         # First call
-        result1 = test_function(5)
+        result1 = cache_decorator_test_unique(5)
         assert result1 == 10
         assert call_count == 1
 
         # Second call should use cache
-        result2 = test_function(5)
+        result2 = cache_decorator_test_unique(5)
         assert result2 == 10
         assert call_count == 1  # No additional call
 
@@ -105,20 +107,20 @@ class TestCacheSystem:
         call_count = 0
 
         @cached(ttl=0.1)  # 100ms TTL
-        def test_function(x):
+        def cache_expiration_test_unique(x):
             nonlocal call_count
             call_count += 1
             return x * 2
 
         # First call
-        test_function(5)
+        cache_expiration_test_unique(5)
         assert call_count == 1
 
         # Wait for expiration
         time.sleep(0.2)
 
         # Should call function again
-        test_function(5)
+        cache_expiration_test_unique(5)
         assert call_count == 2
 
     def test_cache_stats_format(self):
@@ -126,13 +128,13 @@ class TestCacheSystem:
         clear_cache()
 
         @cached(ttl=60)
-        def test_function(x):
+        def cache_stats_test_unique(x):
             return x * 2
 
         # Make some calls
-        test_function(1)
-        test_function(1)
-        test_function(2)
+        cache_stats_test_unique(1)
+        cache_stats_test_unique(1)
+        cache_stats_test_unique(2)
 
         stats = get_cache_stats()
         # Check what stats are actually available
@@ -143,18 +145,18 @@ class TestCacheSystem:
         """Test that cache provides actual performance benefit."""
 
         @cached(ttl=60)
-        def expensive_function():
+        def perf_benefit_test_unique():
             time.sleep(0.01)  # Simulate work
             return "result"
 
         # First call (slow)
         start = time.time()
-        result1 = expensive_function()
+        result1 = perf_benefit_test_unique()
         first_time = time.time() - start
 
         # Second call (fast)
         start = time.time()
-        result2 = expensive_function()
+        result2 = perf_benefit_test_unique()
         second_time = time.time() - start
 
         assert result1 == result2
@@ -227,6 +229,12 @@ class TestModularToetser:
 class TestSystemIntegration:
     """Test system integration that actually works."""
 
+    def setup_method(self):
+        """Clear cache before each test to avoid state pollution."""
+        # Reset cache config to defaults (other tests may disable cache)
+        configure_cache(enable_cache=True)
+        clear_cache()
+
     def test_config_cache_integration(self):
         """Test configuration and cache working together."""
         # Get cache config
@@ -235,10 +243,10 @@ class TestSystemIntegration:
 
         # Use cache with config
         @cached(ttl=settings.get("default_ttl", 60))
-        def config_aware_function(x):
+        def config_cache_integration_unique(x):
             return x * 2
 
-        result = config_aware_function(5)
+        result = config_cache_integration_unique(5)
         assert result == 10
 
     def test_cache_toetser_integration(self):
@@ -249,7 +257,7 @@ class TestSystemIntegration:
         call_count = 0
 
         @cached(ttl=60)
-        def cached_validation(definition):
+        def toetser_integration_unique(definition):
             nonlocal call_count
             call_count += 1
             try:
@@ -260,11 +268,11 @@ class TestSystemIntegration:
                 return ["validation_error"]
 
         # First call
-        result1 = cached_validation("test definition")
+        result1 = toetser_integration_unique("test definition")
         assert call_count == 1
 
         # Second call should use cache
-        result2 = cached_validation("test definition")
+        result2 = toetser_integration_unique("test definition")
         assert call_count == 1
         assert result1 == result2
 
@@ -280,10 +288,10 @@ class TestSystemIntegration:
 
         # 3. Use cache
         @cached(ttl=60)
-        def workflow_function(data):
+        def workflow_test_unique(data):
             return f"processed_{data}"
 
-        result = workflow_function("test_data")
+        result = workflow_test_unique("test_data")
         assert result == "processed_test_data"
 
         # 4. Cache stats
@@ -309,17 +317,17 @@ class TestErrorHandling:
         """Test cache error handling."""
 
         @cached(ttl=60)
-        def error_function():
+        def error_handling_test_unique():
             msg = "Test error"
             raise ValueError(msg)
 
         # Should propagate error, not cache it
         with pytest.raises(ValueError, match=r".+"):
-            error_function()
+            error_handling_test_unique()
 
         # Second call should also raise error
         with pytest.raises(ValueError, match=r".+"):
-            error_function()
+            error_handling_test_unique()
 
     def test_toetser_error_handling(self):
         """Test toetser error handling."""
@@ -351,12 +359,12 @@ class TestPerformanceBasics:
         """Test that cache operations are fast."""
 
         @cached(ttl=60)
-        def test_function(x):
+        def cache_speed_test_unique(x):
             return x * 2
 
         start = time.time()
         for i in range(100):
-            test_function(i % 10)  # Some hits, some misses
+            cache_speed_test_unique(i % 10)  # Some hits, some misses
         end = time.time()
 
         # Should complete quickly
@@ -377,11 +385,11 @@ class TestPerformanceBasics:
             get_cache_config()
 
             @cached(ttl=60)
-            def memory_test(x):
+            def memory_test_unique(x):
                 return str(x) * 100
 
             for i in range(100):
-                memory_test(i)
+                memory_test_unique(i)
 
             final = process.memory_info().rss
             increase = final - initial
