@@ -558,7 +558,8 @@ class DefinitionWorkflowService:
                 if not val:
                     return []
                 return list(_json.loads(val)) if isinstance(val, str) else list(val)
-            except Exception:
+            except (TypeError, ValueError):
+                # DEF-246: JSON parse or list conversion failed
                 return []
 
         org_list = _parse_list(getattr(definition, "organisatorische_context", []))

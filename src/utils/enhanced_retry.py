@@ -442,7 +442,7 @@ async def test_retry_system():
                 failing_function.call_count = 0  # Reset counter
                 await failing_function(10)  # Will always fail
             except Exception:
-                pass
+                pass  # DEF-246: Intentional - testing circuit breaker behavior
 
         # Show health metrics
         metrics = retry_manager.get_health_metrics()

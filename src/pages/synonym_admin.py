@@ -393,7 +393,8 @@ if view_mode == "Groepen Browser":
                                     context = json.loads(m.context_json)
                                     with st.expander("📄 Context", expanded=False):
                                         st.json(context)
-                                except Exception:
+                                except (TypeError, ValueError):
+                                    # DEF-246: Invalid JSON in context field
                                     pass
 
                         def render_member_edit_controls(m):

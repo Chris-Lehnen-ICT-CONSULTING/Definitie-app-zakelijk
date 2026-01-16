@@ -99,7 +99,8 @@ def load_with_env_overlay(base_path: str) -> ValidationConfig:
     try:
         with open(overlay_path, encoding="utf-8") as f:
             overlay_data = yaml.safe_load(f) or {}
-    except Exception:
+    except (OSError, yaml.YAMLError):
+        # DEF-246: Overlay config load failed, use base config
         return base_cfg
 
     merged = deep_merge_configs(
