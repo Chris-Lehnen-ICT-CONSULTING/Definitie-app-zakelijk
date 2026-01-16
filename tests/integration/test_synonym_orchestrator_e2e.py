@@ -9,13 +9,23 @@ Test Categories:
 - Cache invalidation and data consistency
 
 Architecture Reference: docs/architectuur/synonym-orchestrator-architecture-v3.1.md
+
+Note: Tests require OPENAI_API_KEY for AI generation. They are skipped in CI.
 """
 
 import logging
+import os
 from datetime import UTC, datetime
 from unittest.mock import MagicMock
 
 import pytest
+
+# Skip all tests if OPENAI_API_KEY not available (e2e tests need real API)
+HAS_OPENAI_KEY = bool(os.environ.get("OPENAI_API_KEY"))
+pytestmark = pytest.mark.skipif(
+    not HAS_OPENAI_KEY,
+    reason="OPENAI_API_KEY not set - e2e tests require real API access",
+)
 
 from src.database.definitie_repository import DefinitieRecord
 from src.services.definition_repository import (

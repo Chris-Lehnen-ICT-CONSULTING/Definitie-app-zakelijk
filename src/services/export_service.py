@@ -476,9 +476,10 @@ class ExportService:
 
         Example:
             >>> self._generate_export_path(ExportFormat.CSV)
-            Path("/exports/definities_export_20250128_143022.csv")
+            Path("/exports/definities_export_20250128_143022_123456.csv")
         """
-        timestamp = datetime.now(UTC).strftime("%Y%m%d_%H%M%S")
+        # Include microseconds to ensure unique filenames for rapid successive exports
+        timestamp = datetime.now(UTC).strftime("%Y%m%d_%H%M%S_%f")
         filename = f"definities_export_{timestamp}.{format.value}"
         return self.export_dir / filename
 
@@ -805,28 +806,45 @@ class ExportService:
         exports = []
 
         for file_path in self.export_dir.iterdir():
-            if file_path.is_file():
-                # Parse bestandsnaam
-                parts = file_path.stem.split("_")
-                if len(parts) >= 3 and parts[0] == "definitie":
-                    file_begrip = "_".join(parts[1:-2])
+            if not file_path.is_file():
+                continue
 
-                    if (
-                        begrip is None
-                        or file_begrip == begrip.replace(" ", "_").lower()
-                    ):
-                        exports.append(
-                            {
-                                "file": file_path.name,
-                                "path": str(file_path),
-                                "begrip": file_begrip.replace("_", " "),
-                                "format": file_path.suffix[1:],
-                                "size": file_path.stat().st_size,
-                                "created": datetime.fromtimestamp(
-                                    file_path.stat().st_ctime
-                                ),
-                            }
-                        )
+            parts = file_path.stem.split("_")
+
+            # Format 1: Single definition export - definitie_<begrip>_<timestamp>.<ext>
+            if len(parts) >= 3 and parts[0] == "definitie":
+                file_begrip = "_".join(parts[1:-2])
+
+                if begrip is None or file_begrip == begrip.replace(" ", "_").lower():
+                    exports.append(
+                        {
+                            "file": file_path.name,
+                            "path": str(file_path),
+                            "begrip": file_begrip.replace("_", " "),
+                            "format": file_path.suffix[1:],
+                            "size": file_path.stat().st_size,
+                            "created": datetime.fromtimestamp(
+                                file_path.stat().st_ctime
+                            ),
+                        }
+                    )
+
+            # Format 2: Bulk export - definities_export_<timestamp>.<ext>
+            elif len(parts) >= 3 and parts[0] == "definities" and parts[1] == "export":
+                # Bulk exports hebben geen specifiek begrip - include als geen filter
+                if begrip is None:
+                    exports.append(
+                        {
+                            "file": file_path.name,
+                            "path": str(file_path),
+                            "begrip": "(bulk export)",
+                            "format": file_path.suffix[1:],
+                            "size": file_path.stat().st_size,
+                            "created": datetime.fromtimestamp(
+                                file_path.stat().st_ctime
+                            ),
+                        }
+                    )
 
         # Sorteer op datum (nieuwste eerst)
         exports.sort(key=lambda x: cast(datetime, x["created"]), reverse=True)

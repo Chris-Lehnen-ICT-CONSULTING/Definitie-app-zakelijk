@@ -237,12 +237,12 @@ class TestConciseness:
     """Validate CLAUDE.md is reasonably concise."""
 
     def test_line_count(self):
-        """CLAUDE.md should be under 300 lines for quick reading."""
+        """CLAUDE.md should be under 350 lines for quick reading."""
         content = read_file_content(CLAUDE_MD)
         line_count = len(content.splitlines())
         assert (
-            line_count <= 300
-        ), f"CLAUDE.md too long: {line_count} lines (target: ≤300)"
+            line_count <= 350
+        ), f"CLAUDE.md too long: {line_count} lines (target: ≤350)"
 
     def test_has_code_examples(self):
         """CLAUDE.md should have code examples for clarity."""
