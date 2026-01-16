@@ -7,9 +7,12 @@ from __future__ import annotations
 
 import logging
 import os
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import streamlit as st
+
+if TYPE_CHECKING:
+    from database.definitie_repository import DefinitieRecord
 
 from ui.components.formatters import get_provider_label
 
@@ -17,10 +20,10 @@ logger = logging.getLogger(__name__)
 
 
 def _extract_metadata_value(
-    saved_record: Any,
-    agent_result: dict[str, Any] | Any,
+    saved_record: DefinitieRecord | None,
+    agent_result: dict[str, Any],
     key: str,
-) -> Any:
+) -> str | bool | float | dict[str, Any] | list[Any] | None:
     """Extract a metadata value from saved_record or agent_result.
 
     Tries multiple locations in order:
@@ -48,43 +51,33 @@ def _extract_metadata_value(
 
 
 def _extract_sources(
-    saved_record: Any,
-    agent_result: dict[str, Any] | Any,
-) -> list[dict] | None:
-    """Extract sources from various locations with fallback chain.
+    saved_record: DefinitieRecord | None,
+    agent_result: dict[str, Any],
+) -> list[dict[str, Any]] | None:
+    """Extract sources from dict format (V2 canonical format).
 
-    Tries multiple locations in order:
-    1. saved_record.metadata.sources
-    2. agent_result.sources (V2 direct key)
-    3. agent_result.sources (attribute style)
-    4. agent_result.metadata.sources (legacy)
+    Tries in order:
+    1. saved_record.metadata.sources (from DB)
+    2. agent_result.sources (V2 direct dict key, from ServiceAdapter.to_ui_response())
+
+    Note: Legacy object-attribute fallbacks removed in DEF-263 after audit confirmed
+    no legacy formats are used in the codebase. All code paths use V2 dict format.
     """
-    sources = None
-
-    # 1) Try saved_record.metadata
+    # 1) Try saved_record.metadata (DB format)
     if saved_record and getattr(saved_record, "metadata", None):
         metadata = saved_record.metadata
         if isinstance(metadata, dict):
             sources = metadata.get("sources")
+            if sources is not None:
+                return sources
 
-    # 2) Direct sources key on agent_result dict
-    if sources is None and isinstance(agent_result, dict):
+    # 2) Direct sources key on agent_result dict (V2 format)
+    if isinstance(agent_result, dict):
         sources = agent_result.get("sources")
+        if sources is not None:
+            return sources
 
-    # 2b) Attribute style (legacy)
-    if sources is None and hasattr(agent_result, "sources"):
-        sources = agent_result.sources
-
-    # 3) Fallback to agent_result.metadata (legacy)
-    if sources is None and isinstance(agent_result, dict):
-        meta = agent_result.get("metadata")
-        if isinstance(meta, dict):
-            sources = meta.get("sources")
-    elif sources is None and hasattr(agent_result, "metadata"):
-        if isinstance(agent_result.metadata, dict):
-            sources = agent_result.metadata.get("sources")
-
-    return sources
+    return None
 
 
 class SourcesRenderer:
@@ -100,8 +93,8 @@ class SourcesRenderer:
     def render_sources_section(
         self,
         generation_result: dict[str, Any],
-        agent_result: dict[str, Any] | Any,
-        saved_record: Any = None,
+        agent_result: dict[str, Any],
+        saved_record: DefinitieRecord | None = None,
     ) -> None:
         """Render complete sources section with fallback logic.
 
@@ -142,12 +135,15 @@ class SourcesRenderer:
             # Render sources list
             self._render_sources_list(sources)
 
-        except (KeyError, AttributeError, TypeError, ValueError) as e:
-            logger.error(f"Kon bronnen sectie niet renderen: {e}", exc_info=True)
-            st.warning(
-                "Bronnen konden niet worden weergegeven. "
-                "Probeer de pagina te vernieuwen."
-            )
+        except KeyError as e:
+            logger.error(f"Missing required source data key: {e}", exc_info=True)
+            st.warning("Brongegevens zijn incompleet. Controleer de definitie data.")
+        except AttributeError as e:
+            logger.error(f"Invalid source data structure: {e}", exc_info=True)
+            st.warning("Bronnenformaat wordt niet herkend. Vernieuw de pagina.")
+        except (TypeError, ValueError) as e:
+            logger.error(f"Invalid source data value: {e}", exc_info=True)
+            st.warning("Bronwaarde kon niet worden verwerkt. Probeer opnieuw.")
 
     def _render_status_info(
         self,
@@ -177,8 +173,8 @@ class SourcesRenderer:
 
     def _render_debug_toggles(
         self,
-        saved_record: Any,
-        agent_result: Any,
+        saved_record: DefinitieRecord | None,
+        agent_result: dict[str, Any],
         status_meta: str | None,
         available_meta: bool | None,
         timeout_meta: float | None,
@@ -276,8 +272,8 @@ class SourcesRenderer:
 
     def _render_raw_debug_data(
         self,
-        saved_record: Any,
-        agent_result: Any,
+        saved_record: DefinitieRecord | None,
+        agent_result: dict[str, Any],
         status_meta: str | None,
         available_meta: bool | None,
         timeout_meta: float | None,
@@ -334,15 +330,23 @@ class SourcesRenderer:
             msg = "ℹ️ Geen relevante externe bronnen gevonden."
         st.info(msg)
 
-    def _render_sources_list(self, sources: list[dict]) -> None:
+    def _render_sources_list(self, sources: list[dict[str, Any]]) -> None:
         """Render the list of sources with expanders."""
         for idx, src in enumerate(sources):
             provider_label = src.get("source_label") or get_provider_label(
                 src.get("provider", "bron")
             )
-            title = src.get("title") or src.get("definition") or "(zonder titel)"
+            # Fix Bug #9: Strip whitespace and provide fallback
+            title_raw = src.get("title") or src.get("definition") or ""
+            title = title_raw.strip() or "(zonder titel)"
             url = src.get("url") or src.get("link") or ""
-            score = src.get("score") or src.get("confidence") or 0.0
+            # Fix Bug #2: Safely convert score to float
+            score_raw = src.get("score") or src.get("confidence")
+            try:
+                score = float(score_raw) if score_raw is not None else 0.0
+            except (TypeError, ValueError):
+                logger.warning(f"Invalid score value: {score_raw!r}, defaulting to 0.0")
+                score = 0.0
             used = src.get("used_in_prompt", False)
             snippet = src.get("snippet") or src.get("context") or ""
             is_authoritative = src.get("is_authoritative", False)
@@ -384,14 +388,3 @@ class SourcesRenderer:
                     )
                 if url:
                     st.markdown(f"[🔗 Open bron]({url})")
-
-
-# Convenience function for module-level usage
-def render_sources_section(
-    generation_result: dict[str, Any],
-    agent_result: dict[str, Any] | Any,
-    saved_record: Any = None,
-) -> None:
-    """Render sources section (convenience function)."""
-    renderer = SourcesRenderer()
-    renderer.render_sources_section(generation_result, agent_result, saved_record)

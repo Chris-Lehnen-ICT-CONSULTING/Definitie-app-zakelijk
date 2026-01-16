@@ -56,9 +56,13 @@ def resolve_examples(
                     f"[RESOLVE] ✅ Tier 1 (Session): {count} items for {state_key}"
                 )
             return cast(dict[str, Any], result)
-    except Exception as e:
-        if debug_mode:
-            logger.debug(f"[RESOLVE] ❌ Tier 1 (Session) failed: {e}")
+    except (TypeError, KeyError, AttributeError) as e:
+        # DEF-264: Log with warning (not debug) so errors are visible in production
+        logger.warning(
+            "[RESOLVE] ❌ Tier 1 (Session) failed for key=%s: %s",
+            state_key,
+            e,
+        )
 
     # 2) Definition.metadata.voorbeelden
     try:
@@ -89,9 +93,13 @@ def resolve_examples(
                                 f"[RESOLVE] ✅ Tier 2 (Metadata): {count} items for def_id={def_id}"
                             )
                         return cast(dict[str, Any], canon)
-    except Exception as e:
-        if debug_mode:
-            logger.debug(f"[RESOLVE] ❌ Tier 2 (Metadata) failed: {e}")
+    except (TypeError, KeyError, AttributeError) as e:
+        # DEF-264: Log with warning (not debug) so errors are visible in production
+        logger.warning(
+            "[RESOLVE] ❌ Tier 2 (Metadata) failed for def_id=%s: %s",
+            def_id,
+            e,
+        )
 
     # 3) last_generation_result → agent_result.voorbeelden
     try:
@@ -111,9 +119,12 @@ def resolve_examples(
                             f"[RESOLVE] ✅ Tier 3 (Last generation): {count} items"
                         )
                     return cast(dict[str, Any], canon)
-    except Exception as e:
-        if debug_mode:
-            logger.debug(f"[RESOLVE] ❌ Tier 3 (Last generation) failed: {e}")
+    except (TypeError, KeyError, AttributeError) as e:
+        # DEF-264: Log with warning (not debug) so errors are visible in production
+        logger.warning(
+            "[RESOLVE] ❌ Tier 3 (Last generation) failed: %s",
+            e,
+        )
 
     # 4) Database fallback via repository (Expert/Edit)
     try:
@@ -142,9 +153,28 @@ def resolve_examples(
                         f"[RESOLVE] ✅ Tier 4 (Database): {count} items for def_id={def_id}"
                     )
                 return cast(dict[str, Any], canon)
+    except ValueError as e:
+        # DEF-264: Invalid definition ID
+        logger.warning(
+            "[RESOLVE] ❌ Tier 4 (Database) invalid ID for def_id=%s: %s",
+            getattr(definition, "id", None),
+            e,
+        )
+    except (TypeError, KeyError, AttributeError) as e:
+        # DEF-264: Log with warning (not debug) so errors are visible in production
+        logger.warning(
+            "[RESOLVE] ❌ Tier 4 (Database) failed for def_id=%s: %s",
+            def_id,
+            e,
+        )
     except Exception as e:
-        if debug_mode:
-            logger.debug(f"[RESOLVE] ❌ Tier 4 (Database) failed: {e}")
+        # DEF-264: Catch database errors with full traceback (could be sqlite3 errors)
+        logger.error(
+            "[RESOLVE] ❌ Tier 4 (Database) unexpected error for def_id=%s: %s",
+            def_id,
+            e,
+            exc_info=True,
+        )
 
     if debug_mode:
         logger.debug(

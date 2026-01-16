@@ -1,13 +1,16 @@
 """
-Performance test for parallel voorbeelden generation.
+Performance test for voorbeelden generation.
 
-Tests the performance improvement from sequential to parallel execution
-of AI voorbeelden calls using asyncio.gather().
+NOTE: The implementation was changed from parallel to sequential in DEF-108
+to avoid rate limiter contention. The parallel performance tests are now
+skipped as they test behavior that no longer exists.
 
-Expected results:
-- Sequential execution: ~12s (6 calls × 2s each)
-- Parallel execution: ~2s (max of all concurrent calls)
-- Speedup: ~10s (83% improvement)
+See: genereer_alle_voorbeelden_async() in src/voorbeelden/unified_voorbeelden.py
+- PREVIOUS: Parallel execution via asyncio.gather()
+- CURRENT: Sequential execution to prevent rate limiter timeouts
+
+The remaining tests verify that the mock setup works correctly and
+error handling is functional.
 """
 
 import asyncio
@@ -40,9 +43,17 @@ def test_context():
     }
 
 
+@pytest.mark.skip(
+    reason="Implementation changed from parallel to sequential in DEF-108 "
+    "to avoid rate limiter contention. Test expects parallel behavior that no longer exists."
+)
 @pytest.mark.asyncio
 async def test_parallel_execution_performance(test_context):
-    """Test that parallel execution is significantly faster than sequential."""
+    """Test that parallel execution is significantly faster than sequential.
+
+    SKIPPED: Implementation changed to sequential in DEF-108.
+    See module docstring for details.
+    """
 
     # Simulate AI call delay (2 seconds each)
     SIMULATED_AI_DELAY = 0.5  # Using 0.5s for faster tests
@@ -153,12 +164,18 @@ async def test_parallel_error_handling(test_context):
         assert result["antoniemen"] == []
 
 
+@pytest.mark.skip(
+    reason="Implementation changed from parallel to sequential in DEF-108 "
+    "to avoid rate limiter contention. Test expects parallel speedup that no longer exists."
+)
 @pytest.mark.asyncio
 async def test_real_world_timing_comparison():
     """
     Simulate real-world AI call timing to demonstrate speedup.
 
-    This test uses realistic timing assumptions:
+    SKIPPED: Implementation changed to sequential in DEF-108.
+
+    Original assumptions (no longer valid):
     - Each AI call: 2 seconds
     - Sequential: 6 × 2s = 12s
     - Parallel: max(2s) = 2s
