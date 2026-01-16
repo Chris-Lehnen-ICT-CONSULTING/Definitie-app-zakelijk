@@ -217,23 +217,27 @@ class SessionStateManager:
                 "juridisch": context.get("juridische_context", []),
                 "wettelijk": context.get("wettelijke_basis", []),
             }
-        except Exception as e:
-            # DEF-234: Log error and warn user about fallback to legacy session state
+        except (AttributeError, KeyError, TypeError, ValueError, ImportError) as e:
+            # DEF-234/DEF-252: Log error and warn user about fallback to legacy session state
             logger.error(
                 f"ContextManager failed, falling back to legacy session state: {type(e).__name__}: {e}",
                 exc_info=True,
-                extra={"component": "session_state", "operation": "get_context_dict"},
+                extra={
+                    "component": "session_state",
+                    "operation": "get_context_dict",
+                    "event": "context_fallback",
+                },
             )
             # Show warning in UI so user knows context may be incorrect
             st.warning(
-                "⚠️ Context manager fout - fallback naar legacy context. "
+                "Context manager fout - fallback naar legacy context. "
                 "Controleer context velden voor generatie."
             )
-            # Fallback op legacy sessiestate waarden
+            # DEF-252: Fixed fallback keys to match ContextManager keys
             return {
-                "organisatorisch": st.session_state.get("context", []),
+                "organisatorisch": st.session_state.get("organisatorische_context", []),
                 "juridisch": st.session_state.get("juridische_context", []),
-                "wettelijk": st.session_state.get("wet_basis", []),
+                "wettelijk": st.session_state.get("wettelijke_basis", []),
             }
 
     @staticmethod
