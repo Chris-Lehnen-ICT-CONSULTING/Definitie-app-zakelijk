@@ -20,7 +20,8 @@ def _canonical_url(url: str) -> str:
         if p.query:
             canon += f"?{p.query}"
         return canon
-    except Exception:
+    except (ValueError, AttributeError):
+        # DEF-246: URL parsing failed, return simple normalized form
         return url.strip().rstrip("/").lower()
 
 
