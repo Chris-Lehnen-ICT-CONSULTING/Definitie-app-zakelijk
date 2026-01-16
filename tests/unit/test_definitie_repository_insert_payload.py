@@ -71,6 +71,7 @@ def test_build_insert_columns_without_legacy():
         "approval_notes",
         "last_exported_at",
         "export_destinations",
+        "generation_prompt_data",
     ]
 
     assert columns == expected_columns
