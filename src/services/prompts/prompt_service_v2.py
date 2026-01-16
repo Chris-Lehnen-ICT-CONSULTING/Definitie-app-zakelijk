@@ -252,7 +252,8 @@ class PromptServiceV2:
             block = "\n".join(lines)
             # Voeg bovenaan toe (context eerst)
             return f"{block}\n\n{prompt_text}"
-        except Exception:
+        except (KeyError, TypeError, AttributeError):
+            # DEF-246: Snippet injection failed, return original prompt
             return prompt_text
 
     # ==============================

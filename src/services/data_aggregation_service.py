@@ -160,7 +160,8 @@ class DataAggregationService:
                         return parts or []
                     if isinstance(val, list):
                         return val
-                except Exception:
+                except (TypeError, ValueError):
+                    # DEF-246: JSON parse or list conversion failed
                     return []
                 return []
 

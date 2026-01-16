@@ -55,18 +55,20 @@ def _get_rule_info(rule_id: str) -> tuple[str, str]:
         name = str(data.get("naam") or "").strip()
         explanation = str(data.get("uitleg") or data.get("toetsvraag") or "").strip()
         return name, explanation
-    except Exception:
+    except (OSError, KeyError, TypeError, ValueError):
+        # DEF-246: JSON load failed, return empty
         return "", ""
 
 
 def _extract_rule_id_from_line(line: str) -> str:
     """Extract rule ID (e.g., CON-01) heuristically from a line."""
-    try:
-        import re as _re
+    import re as _re
 
+    try:
         m = _re.search(r"([A-Z]{2,5}(?:[-_][A-Z0-9]+)+)", str(line))
         return m.group(1) if m else ""
-    except Exception:
+    except (TypeError, _re.error):
+        # DEF-246: Regex extraction failed
         return ""
 
 
@@ -114,7 +116,8 @@ def _build_rule_hint_markdown(rule_id: str) -> str:
             "\nMeer uitleg: [Validatieregels (CON-01 e.a.)](docs/handleidingen/gebruikers/uitleg-validatieregels.md)"
         )
         return "\n".join(lines)
-    except Exception:
+    except (OSError, KeyError, TypeError, ValueError):
+        # DEF-246: Rule hint generation failed
         return (
             "Meer uitleg: [Validatieregels (CON-01 e.a.)]"
             "(docs/handleidingen/gebruikers/uitleg-validatieregels.md)"

@@ -176,7 +176,8 @@ class ExpertReviewTab:
                     def _join_list(v):
                         try:
                             return ", ".join([str(x) for x in (v or [])])
-                        except Exception:
+                        except TypeError:
+                            # DEF-246: Non-iterable value
                             return ""
 
                     rows = []
@@ -1231,7 +1232,8 @@ class ExpertReviewTab:
                     )
                 if isinstance(val, list):
                     return val
-            except Exception:
+            except (TypeError, ValueError):
+                # DEF-246: JSON parse or type conversion failed
                 return []
             return []
 
