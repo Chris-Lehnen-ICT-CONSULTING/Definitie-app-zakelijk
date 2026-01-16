@@ -499,13 +499,15 @@ class TestSessionStateManagerContextDict:
 
     def test_get_context_dict_fallback_on_adapter_error(self, mock_streamlit_session):
         """get_context_dict falls back to legacy when adapter fails."""
-        mock_streamlit_session.session_state["context"] = ["OM"]
+        # DEF-252: Use correct session state keys matching ContextManager
+        mock_streamlit_session.session_state["organisatorische_context"] = ["OM"]
         mock_streamlit_session.session_state["juridische_context"] = ["Strafrecht"]
-        mock_streamlit_session.session_state["wet_basis"] = ["WvSv"]
+        mock_streamlit_session.session_state["wettelijke_basis"] = ["WvSv"]
 
+        # DEF-252: Use specific exception type (not generic Exception)
         with patch(
             "ui.helpers.context_adapter.get_context_adapter",
-            side_effect=Exception("Test error"),
+            side_effect=AttributeError("Test error"),
         ):
             result = mock_streamlit_session.manager.get_context_dict()
 
