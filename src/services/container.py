@@ -387,7 +387,10 @@ class ServiceContainer:
             Singleton instance van SynonymRegistry
         """
         if "synonym_registry" not in self._instances:
-            from repositories.synonym_registry import SynonymRegistry
+            try:
+                from repositories.synonym_registry import SynonymRegistry
+            except ModuleNotFoundError:
+                from src.repositories.synonym_registry import SynonymRegistry
 
             self._instances["synonym_registry"] = SynonymRegistry(self.db_path)
             logger.info(f"SynonymRegistry initialized with db: {self.db_path}")
