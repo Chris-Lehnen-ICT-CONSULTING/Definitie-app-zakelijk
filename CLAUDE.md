@@ -1,162 +1,111 @@
-# CLAUDE.md
+# CLAUDE.md - DefinitieAgent
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+> **EXTENSIE** op `~/.claude/CLAUDE.md` (moeder)  
+> Definieer hier ALLEEN project-specifieke zaken
+
+---
+
+## Project Info
+
+| Item | Waarde |
+|------|--------|
+| **Key** | DEF |
+| **Repo** | github.com/Chris-Lehnen-ICT-CONSULTING/Definitie-app-zakelijk |
+| **Linear Team** | DEF |
+| **Doel** | Dutch AI-powered Definition Generator voor overheidsorganisaties |
+
+---
+
+## Tech Stack
+
+| Component | Technologie |
+|-----------|-------------|
+| **Taal** | Python 3.11+ |
+| **Framework** | Streamlit |
+| **AI** | GPT-4 (OpenAI API) |
+| **Database** | SQLite (`data/definities.db`) |
+| **Testing** | pytest |
+| **Linting** | Ruff + Black (88 char) |
 
 ---
 
 ## Quick Reference
 
-**Build & Run:**
+### Build & Run
 ```bash
-bash scripts/run_app.sh              # Start app (recommended)
-streamlit run src/main.py            # Alternative direct start
+bash scripts/run_app.sh              # Start app (aanbevolen)
+streamlit run src/main.py            # Alternatief
 ```
 
-**Testing:**
+### Testing
 ```bash
 make test                            # Fast subset, fail-fast
-pytest -q                            # All tests (quiet)
-pytest tests/path/test_file.py::test_name  # Single test
+pytest -q                            # Alle tests
+pytest tests/path/test_file.py::test_name  # Enkele test
 pytest -q -m unit                    # Unit tests only
 pytest -q -m integration             # Integration tests
-make test-cov                        # With coverage report
+make test-cov                        # Met coverage
 ```
 
-**Linting:**
+### Linting
 ```bash
 make lint                            # Ruff + Black checks
 python -m ruff check src config      # Ruff only
-pre-commit run --all-files           # All pre-commit hooks
+pre-commit run --all-files           # Alle pre-commit hooks
 ```
 
-**Prompt Generation:**
+### Prompt Generation
 ```bash
-prompt-forge forge "idee" -r         # Multi-agent reviewed prompt (recommended)
-prompt-forge forge "idee" -c "ctx"   # With extra context
-prompt-forge re-review               # Re-review existing prompt
+prompt-forge forge "idee" -r         # Multi-agent reviewed (aanbevolen)
+prompt-forge forge "idee" -c "ctx"   # Met extra context
+prompt-forge re-review               # Re-review bestaande prompt
 ```
 
 ---
 
-## Critical Rules
+## Kritieke Regels (Project-Specifiek)
 
-1. **No files in project root** (except README.md, CLAUDE.md, requirements*.txt, pyproject.toml, pytest.ini, .pre-commit-config.yaml)
-2. **SessionStateManager only** - Never access `st.session_state` directly; use `SessionStateManager`
-3. **Database location** - Only `data/definities.db`, nowhere else
-4. **No backwards compatibility** - Solo dev app, refactor in place
-5. **Ask first for large changes** - >100 lines OR >5 files
-6. **Prompt-first workflow** - For analysis/review/implementation/fix tasks, ALWAYS ask if a structured prompt should be generated first (enforced via hookify rule)
-7. **Never commit to main** - All code changes MUST be on a feature branch (create one if needed: `git checkout -b feature/DEF-XXX-description`)
+1. **Geen bestanden in project root** - Alleen: README.md, CLAUDE.md, requirements*.txt, pyproject.toml, pytest.ini, .pre-commit-config.yaml
+2. **SessionStateManager ONLY** - Nooit `st.session_state` direct aanspreken
+3. **Database locatie** - Alleen `data/definities.db`, nergens anders
+4. **Geen backwards compatibility** - Solo dev app, refactor in place
 
 ---
 
-## Prompt-First Workflow (VERPLICHT)
+## Prompt-First Workflow
 
-**🛑 STOP - LEES DIT EERST**
+Bij taken die matchen op: **analyseer, review, implementeer, fix** → vraag eerst:
 
-Bij ELKE opdracht die matcht op onderstaande categorieën:
-1. **STOP** - Gebruik GEEN tools voordat je de vraag hebt gesteld
-2. **VRAAG** - Stel de prompt-first vraag aan de gebruiker
-3. **WACHT** - Wacht op antwoord voordat je verdergaat
-
-| Categorie | Trigger Keywords |
-|-----------|------------------|
-| **Analyse** | analyseer, analyse, onderzoek, audit, evalueer, beoordeel, bottleneck, profiel |
-| **Review** | review, controleer, bekijk, check, validate |
-| **Implementatie** | implementeer, bouw, maak, create, refactor, migreer, moderniseer, architect |
-| **Fix** | fix, repareer, debug, patch, corrigeer, herstel, silent exception, race condition |
-
-**De vraag die je MOET stellen:**
 ```
 Wil je dat ik eerst een gestructureerde prompt genereer voor deze taak?
-
-- **Ja**: Ik voer `prompt-forge forge "<taak>" -r` uit (multi-agent review, aanbevolen)
-- **Nee**: Ik voer direct uit
-- **Ja + Uitvoeren**: Ik genereer prompt EN voer direct uit
-
-(Voor simpele taken <10 regels mag je "Nee" aannemen)
+- Ja: prompt-forge forge "<taak>" -r
+- Nee: Direct uitvoeren
+- Ja + Uitvoeren: Beide
 ```
 
-### prompt-forge CLI (Primair)
-
-**Installatie:** Reeds beschikbaar via `prompt-forge` in PATH.
-
-**Basis gebruik:**
-```bash
-# Simpel - genereer prompt voor een idee
-prompt-forge forge "silent exceptions opruimen in services/"
-
-# Met context - extra informatie meegeven
-prompt-forge forge "validation refactoring" -c "focus op error handling, behoud backward compat"
-
-# Met multi-agent review (AANBEVOLEN) - 6 AI experts reviewen de prompt
-prompt-forge forge "nieuwe toetsregel implementeren" -r
-
-# Batch mode - non-interactief voor scripts
-prompt-forge forge "database migratie" -r -b --no-sync
-
-# Re-review bestaande prompt
-prompt-forge re-review
-```
-
-**Opties overzicht:**
-
-| Optie | Kort | Beschrijving |
-|-------|------|-------------|
-| `--review` | `-r` | Multi-agent review door 6 AI experts (sterk aanbevolen) |
-| `--context` | `-c` | Extra context toevoegen aan het idee |
-| `--batch` | `-b` | Non-interactief, geen vragen |
-| `--demo` | `-d` | Test UI zonder API calls (geen kosten) |
-| `--no-sync` | | Alleen lokaal opslaan, geen database sync |
-| `--min-loops` | | Minimum review iteraties (default: 2) |
-| `--max-loops` | | Maximum review iteraties (default: 4) |
-| `--output` | `-o` | Custom output directory |
-
-**Wanneer welke optie:**
-
-| Situatie | Command | Reden |
-|----------|---------|-------|
-| Standaard (aanbevolen) | `prompt-forge forge "<taak>" -r` | 6 experts, iteratief verbeterd |
-| Met extra context | `prompt-forge forge "<taak>" -c "<ctx>" -r` | Context meegeven |
-| Non-interactief/scripts | `prompt-forge forge "<taak>" -r -b` | Batch mode |
-| Demo/test (geen kosten) | `prompt-forge forge "<taak>" -d` | Geen API calls |
-
-**Enforcement:**
-- Hookify injecteert een reminder bij detectie van trigger keywords
-- Bij twijfel: VRAAG - het kost 5 seconden, voorkomt uren werk
-
-**Wanneer SKIP toegestaan:**
-- Expliciete user intent: "fix snel even..." of "direct:"
-- Triviale fix: <10 regels, 1 bestand, duidelijke oplossing
-- Follow-up op eerdere prompt: context al vastgelegd
-
-Zie `prompts/README.md` voor templates.
+**Skip toegestaan bij:** <10 regels, 1 bestand, duidelijke oplossing.
 
 ---
 
-## Architecture
+## Architectuur
 
-**Dutch AI-powered Definition Generator** using GPT-4 with 45 validation rules (toetsregels).
-
-### Core Architecture (Service-Oriented with DI)
-
-```text
+```
 src/
 ├── main.py                           # Streamlit entry point
 ├── services/
-│   ├── container.py                  # ServiceContainer (dependency injection)
+│   ├── container.py                  # ServiceContainer (DI)
 │   ├── validation/
-│   │   ├── validation_orchestrator_v2.py   # Main orchestration
-│   │   └── modular_validation_service.py   # 45 rules management
+│   │   ├── validation_orchestrator_v2.py   # 45 toetsregels orchestratie
+│   │   └── modular_validation_service.py   # Rule management
 │   ├── generation/
 │   │   └── unified_definition_generator.py # Core generation
 │   └── ai/
 │       └── ai_service_v2.py          # GPT-4 integration
 ├── ui/
 │   ├── tabs/                         # Streamlit UI tabs
-│   └── session_state.py              # SessionStateManager (ONLY way to access st.session_state)
+│   └── session_state.py              # SessionStateManager
 ├── toetsregels/
-│   ├── regels/                       # Validation rule implementations
+│   ├── regels/                       # 45 validation rule implementations
 │   └── rule_cache.py                 # RuleCache (TTL: 3600s)
 └── database/
     ├── schema.sql                    # SQLite schema
@@ -165,73 +114,55 @@ src/
 
 ### Key Services
 
-| Service | Purpose |
-|---------|---------|
+| Service | Doel |
+|---------|------|
 | `ServiceContainer` | Dependency injection, singleton management |
-| `ValidationOrchestratorV2` | Orchestrates 45 validation rules |
-| `UnifiedDefinitionGenerator` | Core definition generation |
-| `AIServiceV2` | GPT-4 API integration |
-| `SessionStateManager` | Centralized Streamlit state management |
-| `RuleCache` | Bulk rule loading with TTL caching |
+| `ValidationOrchestratorV2` | Orchestreert 45 toetsregels |
+| `UnifiedDefinitionGenerator` | Core definitie generatie |
+| `AIServiceV2` | GPT-4 API integratie |
+| `SessionStateManager` | Gecentraliseerde Streamlit state |
+| `RuleCache` | Bulk rule loading met TTL caching |
 
-### Import Rules (Layer Separation)
+### Layer Separation
 
-| Layer | Can Import | Cannot Import |
-|-------|------------|---------------|
+| Layer | Mag Importeren | Mag NIET Importeren |
+|-------|----------------|---------------------|
 | `services/` | services/, utils/, config/ | ui/, streamlit |
 | `ui/` | services/, utils/, streamlit | - |
-| `toetsregels/` | config/, utils/ | ui/, services/ (except via DI) |
-| `database/` | utils/ | ui/, services/ (except via DI) |
-| `utils/` | Standard library only | ALL project modules |
+| `toetsregels/` | config/, utils/ | ui/, services/ |
+| `database/` | utils/ | ui/, services/ |
+| `utils/` | Standard library only | ALLES |
 
 ---
 
 ## Streamlit Patterns
 
-### Key-Only Widget Pattern (Mandatory)
-
+### Key-Only Widget Pattern (Verplicht)
 ```python
-# CORRECT: Key-only, session state drives value
+# GOED: Key-only, session state drives value
 st.text_area("Label", key="my_key")
 
-# WRONG: value + key causes race conditions on st.rerun()
+# FOUT: value + key veroorzaakt race conditions
 st.text_area("Label", value=data, key="my_key")
 ```
 
-### SessionStateManager (Always Use)
-
+### SessionStateManager (Altijd Gebruiken)
 ```python
-# CORRECT
+# GOED
 from ui.session_state import SessionStateManager
 value = SessionStateManager.get_value("my_key", default="")
 SessionStateManager.set_value("my_key", "new_value")
 
-# WRONG - Never access st.session_state directly
-st.session_state["my_key"]  # Forbidden outside main.py init
+# FOUT - Nooit st.session_state direct
+st.session_state["my_key"]  # Verboden
 ```
-
-### State Initialization Order
-
-```python
-# CORRECT: State BEFORE widget
-SessionStateManager.set_value("my_key", "default")
-st.text_area("Label", key="my_key")
-
-# WRONG: Widget before state - too late!
-st.text_area("Label", key="my_key")
-SessionStateManager.set_value("my_key", "default")
-```
-
-Pre-commit hook `streamlit-anti-patterns` enforces these patterns.
 
 ---
 
-## Canonical Names
+## Canonical Names (V2 Architectuur)
 
-Use these exact names (V2 architecture):
-
-| Correct | Forbidden |
-|---------|-----------|
+| Correct | Verboden |
+|---------|----------|
 | `ValidationOrchestratorV2` | V1, ValidationOrchestrator |
 | `UnifiedDefinitionGenerator` | DefinitionGenerator |
 | `ModularValidationService` | ValidationService |
@@ -241,79 +172,51 @@ Use these exact names (V2 architecture):
 
 ---
 
-## File Locations
+## Bestandslocaties
 
-| Type | Required Location |
-|------|-------------------|
+| Type | Verplichte Locatie |
+|------|--------------------|
 | Tests | `tests/` subdirs |
 | Scripts | `scripts/` subdirs |
 | Logs | `logs/` |
-| Database | `data/definities.db` (ONLY) |
+| Database | `data/definities.db` (ENIGE) |
 | Docs | `docs/` hierarchy |
 
 ---
 
-## Code Style
+## Domein Kennis
 
-- Python 3.11+ with type hints
-- Ruff + Black (88 char lines)
-- Dutch comments for business logic, English for technical code
-- No TODO/FIXME in code - use backlog
+### Wat is DefinitieAgent?
+Een AI-tool voor Nederlandse overheidsorganisaties om juridische definities te genereren en valideren tegen **45 toetsregels** (validation rules).
 
----
-
-## BMad Method (Optional)
-
-BMAD agents available in `.cursor/rules/bmad/` for structured workflows (product brief, architecture, epics). Reference with `@bmad/{module}/agents/{agent-name}`. See `.cursor/rules/bmad/index.mdc` for full list.
+### Belangrijke Concepten
+- **Toetsregels** - 45 validatieregels voor definitiekwaliteit
+- **Organisatorische context** - Context van de organisatie die de definitie gebruikt
+- **Juridische context** - Wettelijke context waarin de definitie valt
 
 ---
 
-## Linear MCP Integration
-
-**Quirks & Workarounds:**
+## Linear MCP Quirks
 
 | Tool | Issue | Workaround |
 |------|-------|------------|
-| `linear_bulk_update_issues` | Array of IDs fails (GraphQL expects `id` not `ids`) | Call with single-item array per issue |
+| `linear_bulk_update_issues` | Array van IDs faalt | Call met single-item array per issue |
 
-**Example - Update multiple issues to Done:**
-```python
-# WRONG: Fails with GraphQL error
-issueIds: ["id1", "id2", "id3"]
-
-# CORRECT: Call once per issue
-issueIds: ["id1"]  # First call
-issueIds: ["id2"]  # Second call
-issueIds: ["id3"]  # Third call
-```
-
-**Useful State IDs (DEF team):**
+**State IDs (DEF team):**
 - Done: `da2a38d2-e9cb-4b62-b033-f8c80cb0a2f9`
 - In Progress: `d6b9b0ac-7e60-495c-8c9e-5389de5fd000`
 - Backlog: `0ae3e1f7-cf4c-4421-8d4c-a199823897f8`
 
 ---
 
-## Extended Instructions (Load On-Demand)
+## Extended Instructions
 
-For complex workflows, **read `~/.ai-agents/UNIFIED_INSTRUCTIONS.md`** which contains:
+Voor complexe workflows, laad `~/.ai-agents/UNIFIED_INSTRUCTIONS.md` bij:
+- Multiagent patterns
+- BOUNDED_ANALYSIS framework
+- MCP integration (Perplexity, Context7)
 
-| Content | When to Load |
-|---------|--------------|
-| Multiagent patterns | User says "multiagent", "comprehensive review" |
-| BOUNDED_ANALYSIS framework | User says "optimize", "bottleneck", "systematic" |
-| MCP integration (Perplexity, Context7) | Deep research needed |
-| Detailed approval ladder | Uncertainty about thresholds |
-| Vibe coding principles | Refactoring legacy code |
-| Solo dev constraints | Task estimate >10h |
+---
 
-**Triggers to load UNIFIED:**
-- Task requires multiple specialized agents (debug-specialist → code-reviewer chain)
-- Systematic optimization requested (BOUNDED_ANALYSIS with 5 Whys/Pareto framework)
-- >10h effort estimate (need solo dev simplification strategies)
-- MCP integration needed (Perplexity/Context7 patterns)
-
-**Quick reference from UNIFIED (most common):**
-- Approval: >100 lines OR >5 files → ask first
-- Effort: >10h → simplify or ask user to scope down
-- Workflow: Research → ANALYSIS, <50 LOC fix → HOTFIX, New feature → FULL_TDD
+*Laatste update: januari 2025*  
+*Extendeert: ~/.claude/CLAUDE.md (BMAD v2)*
