@@ -23,12 +23,12 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
       with:
         fetch-depth: 0
 
     - name: Set up Python ${{ env.PYTHON_VERSION }}
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v6
       with:
         python-version: ${{ env.PYTHON_VERSION }}
         cache: 'pip'
@@ -47,7 +47,7 @@ jobs:
 
     - name: Upload validation report
       if: always()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v6
       with:
         name: validation-report
         path: docs/architectuur/validation-report.json
@@ -55,7 +55,7 @@ jobs:
 
     - name: Comment PR with validation results
       if: github.event_name == 'pull_request' && always()
-      uses: actions/github-script@v6
+      uses: actions/github-script@v8
       with:
         script: |
           const fs = require('fs');
@@ -101,12 +101,12 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Set up Python ${{ env.PYTHON_VERSION }}
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v6
       with:
         python-version: ${{ env.PYTHON_VERSION }}
         cache: 'pip'
@@ -137,7 +137,7 @@ jobs:
 
     - name: Upload sync artifacts
       if: always()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v6
       with:
         name: sync-artifacts
         path: |
@@ -180,7 +180,7 @@ jobs:
 
     - name: Create Pull Request for sync updates
       if: steps.changes.outputs.has_changes == 'true' && github.event_name == 'schedule'
-      uses: peter-evans/create-pull-request@v5
+      uses: peter-evans/create-pull-request@v8
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         commit-message: |
@@ -224,7 +224,7 @@ jobs:
     steps:
     - name: Send status notification
       if: failure()
-      uses: actions/github-script@v6
+      uses: actions/github-script@v8
       with:
         script: |
           const title = "Architecture Sync Failed";
