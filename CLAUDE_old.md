@@ -72,6 +72,21 @@ prompt-forge re-review               # Re-review bestaande prompt
 
 ---
 
+## Prompt-First Workflow
+
+Bij taken die matchen op: **analyseer, review, implementeer, fix** → vraag eerst:
+
+```
+Wil je dat ik eerst een gestructureerde prompt genereer voor deze taak?
+- Ja: prompt-forge forge "<taak>" -r
+- Nee: Direct uitvoeren
+- Ja + Uitvoeren: Beide
+```
+
+**Skip toegestaan bij:** <10 regels, 1 bestand, duidelijke oplossing.
+
+---
+
 ## Architectuur
 
 ```
@@ -107,6 +122,16 @@ src/
 | `AIServiceV2` | GPT-4 API integratie |
 | `SessionStateManager` | Gecentraliseerde Streamlit state |
 | `RuleCache` | Bulk rule loading met TTL caching |
+
+### Layer Separation
+
+| Layer | Mag Importeren | Mag NIET Importeren |
+|-------|----------------|---------------------|
+| `services/` | services/, utils/, config/ | ui/, streamlit |
+| `ui/` | services/, utils/, streamlit | - |
+| `toetsregels/` | config/, utils/ | ui/, services/ |
+| `database/` | utils/ | ui/, services/ |
+| `utils/` | Standard library only | ALLES |
 
 ---
 
@@ -147,15 +172,27 @@ st.session_state["my_key"]  # Verboden
 
 ---
 
+## Bestandslocaties
+
+| Type | Verplichte Locatie |
+|------|--------------------|
+| Tests | `tests/` subdirs |
+| Scripts | `scripts/` subdirs |
+| Logs | `logs/` |
+| Database | `data/definities.db` (ENIGE) |
+| Docs | `docs/` hierarchy |
+
+---
+
 ## Domein Kennis
 
 ### Wat is DefinitieAgent?
-Een AI-tool voor Nederlandse overheidsorganisaties om juridische definities te genereren en valideren tegen **45 toetsregels**.
+Een AI-tool voor Nederlandse overheidsorganisaties om juridische definities te genereren en valideren tegen **45 toetsregels** (validation rules).
 
 ### Belangrijke Concepten
 - **Toetsregels** - 45 validatieregels voor definitiekwaliteit
-- **Organisatorische context** - Context van de organisatie
-- **Juridische context** - Wettelijke context
+- **Organisatorische context** - Context van de organisatie die de definitie gebruikt
+- **Juridische context** - Wettelijke context waarin de definitie valt
 
 ---
 
@@ -172,5 +209,14 @@ Een AI-tool voor Nederlandse overheidsorganisaties om juridische definities te g
 
 ---
 
-*Laatste update: januari 2026*  
-*Extendeert: ~/.claude/CLAUDE.md*
+## Extended Instructions
+
+Voor complexe workflows, laad `~/.ai-agents/UNIFIED_INSTRUCTIONS.md` bij:
+- Multiagent patterns
+- BOUNDED_ANALYSIS framework
+- MCP integration (Perplexity, Context7)
+
+---
+
+*Laatste update: januari 2025*  
+*Extendeert: ~/.claude/CLAUDE.md (BMAD v2)*
