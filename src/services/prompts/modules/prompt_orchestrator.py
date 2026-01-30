@@ -159,6 +159,9 @@ class PromptOrchestrator:
         """
         start_time = time.time()
 
+        # DEF-123: Bepaal welke modules actief zijn op basis van context
+        active_modules = self._get_active_modules(context, config)
+
         # Maak module context voor sharing tussen modules
         module_context = ModuleContext(
             begrip=begrip, enriched_context=context, config=config, shared_state={}
@@ -171,30 +174,42 @@ class PromptOrchestrator:
             logger.error(f"Dependency cycle error: {e}")
             raise
 
-        # Execute modules batch voor batch
+        # Execute modules batch voor batch (DEF-123: alleen actieve modules)
         all_outputs: dict[str, ModuleOutput] = {}
 
         for batch_idx, batch in enumerate(execution_batches):
-            logger.debug(f"Executing batch {batch_idx + 1}: {batch}")
+            # DEF-123: Filter batch to only include active modules
+            active_batch = [m for m in batch if m in active_modules]
 
-            if len(batch) == 1:
+            if not active_batch:
+                logger.debug(f"Skipping batch {batch_idx + 1}: no active modules")
+                continue
+
+            logger.debug(f"Executing batch {batch_idx + 1}: {active_batch}")
+
+            if len(active_batch) == 1:
                 # Single module - execute sequentially
-                module_id = batch[0]
+                module_id = active_batch[0]
                 output = self._execute_module(module_id, module_context)
                 all_outputs[module_id] = output
             else:
                 # Multiple modules - execute parallel
-                batch_outputs = self._execute_batch_parallel(batch, module_context)
+                batch_outputs = self._execute_batch_parallel(
+                    active_batch, module_context
+                )
                 all_outputs.update(batch_outputs)
 
         # Combineer alle outputs in de juiste volgorde
         combined_prompt = self._combine_outputs(all_outputs)
 
-        # Verzamel execution metadata
+        # Verzamel execution metadata (DEF-123: include active/skipped info)
         execution_time = time.time() - start_time
+        skipped_modules = set(self.modules.keys()) - active_modules
         self._execution_metadata = {
             "begrip": begrip,
             "total_modules": len(self.modules),
+            "active_modules": len(active_modules),
+            "skipped_modules": sorted(skipped_modules),
             "execution_batches": len(execution_batches),
             "execution_time_ms": round(execution_time * 1000, 2),
             "prompt_length": len(combined_prompt),
@@ -205,7 +220,8 @@ class PromptOrchestrator:
 
         logger.info(
             f"Prompt gebouwd voor '{begrip}': {len(combined_prompt)} chars "
-            f"in {self._execution_metadata['execution_time_ms']}ms"
+            f"in {self._execution_metadata['execution_time_ms']}ms "
+            f"({len(active_modules)}/{len(self.modules)} modules)"
         )
 
         return combined_prompt
@@ -370,6 +386,115 @@ class PromptOrchestrator:
             "metrics",
             "definition_task",
         ]
+
+    def _get_active_modules(
+        self, context: EnrichedContext, config: UnifiedGeneratorConfig
+    ) -> set[str]:
+        """
+        DEF-123: Bepaal welke modules actief moeten zijn op basis van context.
+
+        Filtert modules op basis van:
+        - Core modules: altijd actief
+        - Context modules: alleen als relevante context aanwezig is
+        - Debug modules: alleen in debug mode
+        - Unknown modules: altijd actief (voor backwards compatibility en tests)
+
+        Args:
+            context: Verrijkte context informatie
+            config: Generator configuratie
+
+        Returns:
+            Set van actieve module IDs
+        """
+        # Known modules that we can filter
+        known_modules = {
+            "expertise",
+            "output_specification",
+            "definition_task",
+            "semantic_categorisation",
+            "grammar",
+            "template",
+            "context_awareness",
+            "arai_rules",
+            "con_rules",
+            "ess_rules",
+            "structure_rules",
+            "integrity_rules",
+            "sam_rules",
+            "ver_rules",
+            "error_prevention",
+            "metrics",
+        }
+
+        # Core modules - altijd actief (essential for any definition)
+        active = {
+            "expertise",
+            "output_specification",
+            "definition_task",
+            "semantic_categorisation",  # Needed to determine category
+            "grammar",  # Basic grammar rules always needed
+            "template",  # Template structure always useful
+        }
+
+        # Context-aware modules (DEF-123 optimization)
+        if context.has_any_context():
+            active.add("context_awareness")
+            logger.debug(
+                "DEF-123: context_awareness module activated (context present)"
+            )
+        else:
+            logger.debug("DEF-123: context_awareness module skipped (no context)")
+
+        # Rule modules - always include core rules
+        # ARAI (general rules) and VER (form rules) are always needed
+        active.add("arai_rules")
+        active.add("ver_rules")
+
+        # Context-dependent rule modules
+        if context.has_juridische_context() or context.has_wettelijke_context():
+            # Legal context requires integrity and coherence rules
+            active.add("integrity_rules")
+            active.add("sam_rules")
+            active.add("con_rules")
+            logger.debug("DEF-123: Legal rule modules activated (juridische context)")
+
+        # ESS and STR rules are category-dependent but we don't know category yet
+        # Include both for now - can be optimized in Phase 2 with pre-classification
+        active.add("ess_rules")
+        active.add("structure_rules")
+
+        # Debug/metrics module - only in debug mode
+        debug_mode = getattr(config, "debug_mode", False) or getattr(
+            config, "include_metrics", False
+        )
+        if debug_mode:
+            active.add("metrics")
+            logger.debug("DEF-123: metrics module activated (debug mode)")
+        else:
+            logger.debug("DEF-123: metrics module skipped (not in debug mode)")
+
+        # Get all registered modules
+        registered = set(self.modules.keys())
+
+        # Unknown modules (not in our known list) are always active
+        # This ensures backwards compatibility and test modules work
+        unknown_modules = registered - known_modules
+        if unknown_modules:
+            active.update(unknown_modules)
+            logger.debug(f"DEF-123: Unknown modules always active: {unknown_modules}")
+
+        # Filter to only registered modules
+        active_registered = active & registered
+
+        # Log summary
+        skipped = registered - active_registered
+        if skipped:
+            logger.info(
+                f"DEF-123: {len(active_registered)}/{len(registered)} modules active, "
+                f"skipped: {sorted(skipped)}"
+            )
+
+        return active_registered
 
     def get_execution_metadata(self) -> dict[str, Any]:
         """
