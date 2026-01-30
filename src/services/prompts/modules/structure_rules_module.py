@@ -133,12 +133,12 @@ class StructureRulesModule(BasePromptModule):
         """Bouw STR-01 regel."""
         rules = []
 
-        rules.append("🔹 **STR-01 - definitie start met zelfstandig naamwoord**")
+        rules.append("🔹 **STR-01 - Start met zelfstandig naamwoord**")
         rules.append(
-            "- De definitie moet starten met een zelfstandig naamwoord of naamwoordgroep, niet met een werkwoord."
+            "- Start met een zelfstandig naamwoord of naamwoordgroep, niet met een werkwoord."
         )
         rules.append(
-            "- Let op: Handelingsnaamwoorden ('activiteit', 'proces', 'handeling') zijn zelfstandige naamwoorden!"
+            "- Handelingsnaamwoorden ('activiteit', 'proces', 'handeling') zijn zelfstandige naamwoorden."
         )
 
         if self.include_examples:
@@ -154,9 +154,9 @@ class StructureRulesModule(BasePromptModule):
         """Bouw STR-02 regel."""
         rules = []
 
-        rules.append("🔹 **STR-02 - Kick-off ≠ de term**")
+        rules.append("🔹 **STR-02 - Begin met genus + specificatie**")
         rules.append(
-            "- De definitie moet beginnen met verwijzing naar een breder begrip, en dan de verbijzondering ten opzichte daarvan aangeven."
+            "- Begin met een breder begrip (genus) en specificeer vervolgens de verbijzondering."
         )
 
         if self.include_examples:
@@ -170,9 +170,9 @@ class StructureRulesModule(BasePromptModule):
         """Bouw STR-03 regel."""
         rules = []
 
-        rules.append("🔹 **STR-03 - Definitie ≠ synoniem**")
+        rules.append("🔹 **STR-03 - Geef volledige definitie**")
         rules.append(
-            "- De definitie van een begrip mag niet simpelweg een synoniem zijn van de te definiëren term."
+            "- Geef een volledige definitie, niet alleen een synoniem van de term."
         )
 
         if self.include_examples:
@@ -189,9 +189,9 @@ class StructureRulesModule(BasePromptModule):
         """Bouw STR-04 regel."""
         rules = []
 
-        rules.append("🔹 **STR-04 - Kick-off vervolgen met toespitsing**")
+        rules.append("🔹 **STR-04 - Volg opening met toespitsing**")
         rules.append(
-            "- Een definitie moet na de algemene opening meteen toespitsen op het specifieke begrip."
+            "- Volg de algemene opening direct met een toespitsing op het specifieke begrip."
         )
 
         if self.include_examples:
@@ -208,9 +208,9 @@ class StructureRulesModule(BasePromptModule):
         """Bouw STR-05 regel."""
         rules = []
 
-        rules.append("🔹 **STR-05 - Definitie ≠ constructie**")
+        rules.append("🔹 **STR-05 - Beschrijf essentie, niet constructie**")
         rules.append(
-            "- Een definitie moet aangeven wat iets is, niet uit welke onderdelen het bestaat."
+            "- Beschrijf wat het begrip is, niet uit welke onderdelen het bestaat."
         )
 
         if self.include_examples:
@@ -228,9 +228,9 @@ class StructureRulesModule(BasePromptModule):
         """Bouw STR-06 regel."""
         rules = []
 
-        rules.append("🔹 **STR-06 - Essentie ≠ informatiebehoefte**")
+        rules.append("🔹 **STR-06 - Beschrijf aard, niet doel**")
         rules.append(
-            "- Een definitie geeft de aard van het begrip weer, niet de reden waarom het nodig is."
+            "- Beschrijf de aard van het begrip, niet de reden waarom het nodig is."
         )
 
         if self.include_examples:
@@ -248,8 +248,10 @@ class StructureRulesModule(BasePromptModule):
         """Bouw STR-07 regel."""
         rules = []
 
-        rules.append("🔹 **STR-07 - Geen dubbele ontkenning**")
-        rules.append("- Een definitie bevat geen dubbele ontkenning.")
+        rules.append("🔹 **STR-07 - Vermijd dubbele ontkenning**")
+        rules.append(
+            "- Vermijd dubbele ontkenningen (zoals 'niet onmogelijk', 'niet zonder')."
+        )
 
         if self.include_examples:
             rules.append(
@@ -266,9 +268,9 @@ class StructureRulesModule(BasePromptModule):
         """Bouw STR-08 regel."""
         rules = []
 
-        rules.append("🔹 **STR-08 - Dubbelzinnige 'en' is verboden**")
+        rules.append("🔹 **STR-08 - Gebruik 'en' ondubbelzinnig**")
         rules.append(
-            "- Een definitie bevat geen 'en' die onduidelijk maakt of beide kenmerken vereist zijn of slechts één van beide."
+            "- Gebruik 'en' ondubbelzinnig: maak expliciet of beide elementen vereist zijn."
         )
 
         if self.include_examples:
@@ -287,9 +289,9 @@ class StructureRulesModule(BasePromptModule):
         """Bouw STR-09 regel."""
         rules = []
 
-        rules.append("🔹 **STR-09 - Dubbelzinnige 'of' is verboden**")
+        rules.append("🔹 **STR-09 - Gebruik 'of' ondubbelzinnig**")
         rules.append(
-            "- Een definitie bevat geen 'of' die onduidelijk maakt of beide mogelijkheden gelden of slechts één van de twee."
+            "- Gebruik 'of' ondubbelzinnig: maak expliciet of het inclusief of exclusief is."
         )
 
         if self.include_examples:
