@@ -127,8 +127,8 @@ class IntegrityRulesModule(BasePromptModule):
         """Bouw INT-01 regel."""
         rules = []
 
-        rules.append("🔹 **INT-01 - Compacte en begrijpelijke zin**")
-        rules.append("- Een definitie is compact en in één enkele zin geformuleerd.")
+        rules.append("🔹 **INT-01 - Formuleer compact in één zin**")
+        rules.append("- Formuleer compact en in één enkele, begrijpelijke zin.")
 
         if self.include_examples:
             rules.append(
@@ -145,8 +145,10 @@ class IntegrityRulesModule(BasePromptModule):
         """Bouw INT-02 regel."""
         rules = []
 
-        rules.append("🔹 **INT-02 - Geen beslisregel**")
-        rules.append("- Een definitie bevat geen beslisregels of voorwaarden.")
+        rules.append("🔹 **INT-02 - Vermijd beslisregels**")
+        rules.append(
+            "- Vermijd beslisregels of voorwaarden ('indien', 'mits', 'tenzij', 'alleen als')."
+        )
 
         if self.include_examples:
             rules.append(
@@ -181,9 +183,9 @@ class IntegrityRulesModule(BasePromptModule):
         """Bouw INT-03 regel."""
         rules = []
 
-        rules.append("🔹 **INT-03 - Voornaamwoord-verwijzing duidelijk**")
+        rules.append("🔹 **INT-03 - Zorg voor duidelijke voornaamwoord-verwijzing**")
         rules.append(
-            "- Definities mogen geen voornaamwoorden bevatten waarvan niet direct duidelijk is waarnaar verwezen wordt."
+            "- Zorg dat voornaamwoorden ('deze', 'dit', 'die') direct verwijzen naar een duidelijk antecedent in dezelfde zin."
         )
 
         if self.include_examples:
@@ -207,9 +209,9 @@ class IntegrityRulesModule(BasePromptModule):
         """Bouw INT-04 regel."""
         rules = []
 
-        rules.append("🔹 **INT-04 - Lidwoord-verwijzing duidelijk**")
+        rules.append("🔹 **INT-04 - Maak lidwoord-verwijzingen expliciet**")
         rules.append(
-            "- Definities mogen geen onduidelijke verwijzingen met de lidwoorden 'de' of 'het' bevatten."
+            "- Maak bepaalde lidwoorden ('de instelling', 'het systeem') expliciet door te specificeren welke bedoeld wordt."
         )
 
         if self.include_examples:
@@ -233,9 +235,9 @@ class IntegrityRulesModule(BasePromptModule):
         """Bouw INT-06 regel."""
         rules = []
 
-        rules.append("🔹 **INT-06 - Definitie bevat geen toelichting**")
+        rules.append("🔹 **INT-06 - Vermijd toelichtingen**")
         rules.append(
-            "- Een definitie bevat geen nadere toelichting of voorbeelden, maar uitsluitend de afbakening van het begrip."
+            "- Vermijd toelichtingen of voorbeelden ('bijvoorbeeld', 'zoals', 'namelijk'); geef alleen de afbakening."
         )
 
         if self.include_examples:
@@ -251,9 +253,9 @@ class IntegrityRulesModule(BasePromptModule):
         """Bouw INT-07 regel."""
         rules = []
 
-        rules.append("🔹 **INT-07 - Alleen toegankelijke afkortingen**")
+        rules.append("🔹 **INT-07 - Licht afkortingen toe**")
         rules.append(
-            "- In een definitie gebruikte afkortingen zijn voorzien van een voor de doelgroep direct toegankelijke referentie."
+            "- Licht afkortingen direct toe in dezelfde zin (bijv. DJI (Dienst Justitiële Inrichtingen))."
         )
 
         if self.include_examples:
@@ -274,9 +276,9 @@ class IntegrityRulesModule(BasePromptModule):
         """Bouw INT-08 regel."""
         rules = []
 
-        rules.append("🔹 **INT-08 - Positieve formulering**")
+        rules.append("🔹 **INT-08 - Formuleer positief**")
         rules.append(
-            "- Een definitie wordt in principe positief geformuleerd, dus zonder ontkenningen te gebruiken; uitzondering voor onderdelen die de definitie specifieker maken (bijv. relatieve bijzinnen)."
+            "- Formuleer positief (wat iets wél is), niet negatief (wat iets niet is)."
         )
 
         if self.include_examples:
