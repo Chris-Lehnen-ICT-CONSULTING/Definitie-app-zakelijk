@@ -83,6 +83,29 @@ class EnrichedContext:
 
         return "\n".join(all_text)
 
+    def has_organisatorische_context(self) -> bool:
+        """Check of organisatorische context aanwezig is (DEF-123)."""
+        org_context = self.base_context.get("organisatorisch", [])
+        return bool(org_context and any(item.strip() for item in org_context))
+
+    def has_juridische_context(self) -> bool:
+        """Check of juridische context aanwezig is (DEF-123)."""
+        jur_context = self.base_context.get("juridisch", [])
+        return bool(jur_context and any(item.strip() for item in jur_context))
+
+    def has_wettelijke_context(self) -> bool:
+        """Check of wettelijke context aanwezig is (DEF-123)."""
+        wet_context = self.base_context.get("wettelijk", [])
+        return bool(wet_context and any(item.strip() for item in wet_context))
+
+    def has_any_context(self) -> bool:
+        """Check of er enige context aanwezig is (DEF-123)."""
+        return (
+            self.has_organisatorische_context()
+            or self.has_juridische_context()
+            or self.has_wettelijke_context()
+        )
+
 
 class HybridContextManager:
     """
