@@ -214,12 +214,17 @@ class ImprovedOntologyClassifier:
         - Weighted scoring
         """
         scores = {"type": 0.0, "proces": 0.0, "resultaat": 0.0, "exemplaar": 0.0}
-
         begrip_lower = begrip.lower()
 
-        # =======================================
-        # Score 1: Pattern matching op begrip (DEF-35: weighted)
-        # =======================================
+        self._apply_pattern_scores(scores, begrip_lower)
+        self._apply_context_scores(scores, org_ctx, jur_ctx, wet_ctx)
+        self._apply_juridical_boost(scores, jur_ctx)
+        self._apply_legal_basis_boost(scores, wet_ctx)
+
+        return self._normalize_scores(scores)
+
+    def _apply_pattern_scores(self, scores: dict, begrip_lower: str) -> None:
+        """Pattern matching op begrip (DEF-35: weighted via config)."""
         for categorie, patterns in self.patterns.items():
             pattern_score = 0.0
 
@@ -250,80 +255,84 @@ class ImprovedOntologyClassifier:
 
             scores[categorie] += min(pattern_score, 1.0)  # Cap at 1.0
 
-        # =======================================
-        # Score 2: Context analysis
-        # =======================================
+    def _apply_context_scores(
+        self, scores: dict, org_ctx: str, jur_ctx: str, wet_ctx: str
+    ) -> None:
+        """Context analysis: regex checks op combined context."""
         combined_context = f"{org_ctx} {jur_ctx} {wet_ctx}".lower()
 
-        if combined_context.strip():
-            # TYPE indicators in context
-            if re.search(
-                r"\b(soort|type|klasse|categorie|instrument|model)\b", combined_context
-            ):
-                scores["type"] += 0.2
+        if not combined_context.strip():
+            return
 
-            # PROCES indicators in context
-            if re.search(
-                r"\b(uitvoer|procedure|handeling|verloop|proces|stappen)\b",
-                combined_context,
-            ):
-                scores["proces"] += 0.2
+        # TYPE indicators in context
+        if re.search(
+            r"\b(soort|type|klasse|categorie|instrument|model)\b", combined_context
+        ):
+            scores["type"] += 0.2
 
-            # RESULTAAT indicators in context
-            if re.search(
-                r"\b(besluit|uitkomst|resultaat|verleend|afgegeven)\b",
-                combined_context,
-            ):
-                scores["resultaat"] += 0.2
+        # PROCES indicators in context
+        if re.search(
+            r"\b(uitvoer|procedure|handeling|verloop|proces|stappen)\b",
+            combined_context,
+        ):
+            scores["proces"] += 0.2
 
-            # EXEMPLAAR indicators in context
-            if re.search(
-                r"\b(specifiek|concreet|individueel|bepaald|betreffend)\b",
-                combined_context,
-            ):
-                scores["exemplaar"] += 0.2
+        # RESULTAAT indicators in context
+        if re.search(
+            r"\b(besluit|uitkomst|resultaat|verleend|afgegeven)\b",
+            combined_context,
+        ):
+            scores["resultaat"] += 0.2
 
-        # =======================================
-        # Score 3: Juridische context boost
-        # =======================================
-        if jur_ctx.strip():
-            jur_lower = jur_ctx.lower()
+        # EXEMPLAAR indicators in context
+        if re.search(
+            r"\b(specifiek|concreet|individueel|bepaald|betreffend)\b",
+            combined_context,
+        ):
+            scores["exemplaar"] += 0.2
 
-            # Juridische TYPE begrippen
-            if re.search(r"\b(belasting|heffing|recht|plicht)\b", jur_lower):
-                scores["type"] += 0.15
+    def _apply_juridical_boost(self, scores: dict, jur_ctx: str) -> None:
+        """Juridische context boost: regex checks op jur_ctx."""
+        if not jur_ctx.strip():
+            return
 
-            # Juridische PROCES begrippen
-            if re.search(
-                r"\b(procedure|beroep|aanvraag|toets|beoordeling)\b", jur_lower
-            ):
-                scores["proces"] += 0.15
+        jur_lower = jur_ctx.lower()
 
-            # Juridische RESULTAAT begrippen
-            if re.search(
-                r"\b(besluit|beschikking|uitspraak|vonnis|vergunning)\b", jur_lower
-            ):
-                scores["resultaat"] += 0.15
+        # Juridische TYPE begrippen
+        if re.search(r"\b(belasting|heffing|recht|plicht)\b", jur_lower):
+            scores["type"] += 0.15
 
-        # =======================================
-        # Score 4: Wettelijke basis boost
-        # =======================================
-        if wet_ctx.strip():
-            wet_lower = wet_ctx.lower()
+        # Juridische PROCES begrippen
+        if re.search(r"\b(procedure|beroep|aanvraag|toets|beoordeling)\b", jur_lower):
+            scores["proces"] += 0.15
 
-            # Als wet DEFINIEERT iets → TYPE
-            if re.search(r"\b(wordt verstaan onder|definitie|begrip)\b", wet_lower):
-                scores["type"] += 0.15
+        # Juridische RESULTAAT begrippen
+        if re.search(
+            r"\b(besluit|beschikking|uitspraak|vonnis|vergunning)\b", jur_lower
+        ):
+            scores["resultaat"] += 0.15
 
-            # Als wet BESCHRIJFT handeling → PROCES
-            if re.search(r"\b(dient te|moet|zal|procedure)\b", wet_lower):
-                scores["proces"] += 0.15
+    def _apply_legal_basis_boost(self, scores: dict, wet_ctx: str) -> None:
+        """Wettelijke basis boost: regex checks op wet_ctx."""
+        if not wet_ctx.strip():
+            return
 
-            # Als wet RESULTAAT noemt → RESULTAAT
-            if re.search(r"\b(verleent|afwijst|beslist|bepaalt)\b", wet_lower):
-                scores["resultaat"] += 0.15
+        wet_lower = wet_ctx.lower()
 
-        # Normaliseer scores naar [0, 1]
+        # Als wet DEFINIEERT iets → TYPE
+        if re.search(r"\b(wordt verstaan onder|definitie|begrip)\b", wet_lower):
+            scores["type"] += 0.15
+
+        # Als wet BESCHRIJFT handeling → PROCES
+        if re.search(r"\b(dient te|moet|zal|procedure)\b", wet_lower):
+            scores["proces"] += 0.15
+
+        # Als wet RESULTAAT noemt → RESULTAAT
+        if re.search(r"\b(verleent|afwijst|beslist|bepaalt)\b", wet_lower):
+            scores["resultaat"] += 0.15
+
+    def _normalize_scores(self, scores: dict) -> dict:
+        """Normaliseer scores naar [0, 1]."""
         max_score_val = max(scores.values())  # Call once (DEF-138 optimization)
         max_score = max_score_val if max_score_val > 0 else 1.0
         return {k: min(v / max_score, 1.0) for k, v in scores.items()}
