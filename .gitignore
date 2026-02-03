@@ -18,6 +18,7 @@ dist/
 *.egg-info/
 *.dmg
 *.zip
+*.app
 
 # 💚 Environment variables
 .env
