@@ -17,13 +17,6 @@ from typing import Any, cast  # Type hints voor betere code documentatie
 
 import streamlit as st  # Streamlit web interface framework
 
-# DEF-175: Moved to lazy import where used (line ~100)
-from document_processing.document_extractor import (
-    supported_file_types,  # Ondersteunde bestandstypen
-)
-from document_processing.document_processor import (
-    get_document_processor,  # Document processor factory
-)
 from integration.definitie_checker import (  # Definitie integratie controle
     DefinitieChecker,
 )
@@ -50,8 +43,9 @@ from ui.components.expert_review_tab import (
 # Geconsolideerde import/export/beheer tab (vervangt Export en Management tabs)
 from ui.components.tabs.import_export_beheer import ImportExportBeheerTab
 
-# DEF-141: Extracted handlers
+# DEF-141: Extracted handlers and renderers
 from ui.handlers.definition_generation_handler import DefinitionGenerationHandler
+from ui.renderers.document_upload_renderer import DocumentUploadRenderer
 
 # Importeer core services en utilities
 from ui.session_state import (
@@ -132,7 +126,8 @@ class TabbedInterface:
             ContextSelector()
         )  # Initialiseer context selector component
 
-        # DEF-141: Extracted handler for definition generation
+        # DEF-141: Extracted handlers and renderers
+        self.document_upload_renderer = DocumentUploadRenderer()
         self.generation_handler = DefinitionGenerationHandler(
             checker=self.checker,
             definition_service=self.definition_service,
@@ -648,179 +643,16 @@ class TabbedInterface:
             st.info(" | ".join(summary_parts))
 
     def _render_document_upload_section(self):
-        """Render document upload sectie voor context enrichment."""
-        with st.expander("📄 Document Upload voor Context Verrijking", expanded=False):
-            st.markdown(
-                "Upload documenten die relevante context bevatten voor de definitie generatie."
-            )
-            st.markdown(
-                "- i Technisch: [Extractie & flow](docs/technisch/document_processing.md)"
-            )
-            st.markdown(
-                "- 🧑‍💻 Dev how-to: [document_context gebruiken](docs/handleidingen/ontwikkelaars/document-context-gebruik.md)"
-            )
-
-            # File uploader
-            uploaded_files = st.file_uploader(
-                "Selecteer documenten",
-                type=["txt", "pdf", "docx", "doc", "md", "csv", "json", "html", "rtf"],
-                accept_multiple_files=True,
-                help="Ondersteunde formaten: TXT, PDF, Word, Markdown, CSV, JSON, HTML, RTF",
-            )
-
-            # Toon ondersteunde bestandstypen in sidebar of als tekst
-            if st.checkbox("i️ Toon ondersteunde bestandstypen", value=False):
-                supported_types = supported_file_types()
-                st.markdown("**Ondersteunde bestandstypen:**")
-                for _mime_type, description in supported_types.items():
-                    st.write(f"• {description}")
-
-            # Process uploaded files
-            if uploaded_files:
-                self._process_uploaded_files(uploaded_files)
-
-            # Toon bestaande documenten
-            self._render_uploaded_documents_list()
+        """Delegate to DocumentUploadRenderer (DEF-141)."""
+        self.document_upload_renderer.render_document_upload_section()
 
     def _process_uploaded_files(self, uploaded_files):
-        """Verwerk geüploade bestanden."""
-        processor = get_document_processor()
-
-        progress_bar = st.progress(0)
-        status_text = st.empty()
-
-        processed_docs = []
-
-        for i, uploaded_file in enumerate(uploaded_files):
-            try:
-                status_text.text(f"Verwerken van {uploaded_file.name}...")
-                progress_bar.progress((i + 1) / len(uploaded_files))
-
-                # Lees bestandsinhoud
-                file_content = uploaded_file.read()
-
-                # Verwerk document
-                processed_doc = processor.process_uploaded_file(
-                    file_content, uploaded_file.name, uploaded_file.type
-                )
-
-                processed_docs.append(processed_doc)
-
-            except Exception as e:
-                st.error(f"Fout bij verwerken van {uploaded_file.name}: {e!s}")
-
-        progress_bar.empty()
-        status_text.empty()
-
-        # Toon resultaten
-        if processed_docs:
-            st.success(f"✅ {len(processed_docs)} document(en) verwerkt!")
-
-            for doc in processed_docs:
-                if doc.processing_status == "success":
-                    st.success(
-                        f"✅ {doc.filename}: {doc.text_length} karakters geëxtraheerd"
-                    )
-                else:
-                    st.error(f"❌ {doc.filename}: {doc.error_message}")
-
-            # Update session state
-            SessionStateManager.set_value("documents_updated", True)
+        """Delegate to DocumentUploadRenderer (DEF-141)."""
+        self.document_upload_renderer._process_uploaded_files(uploaded_files)
 
     def _render_uploaded_documents_list(self):
-        """Render lijst van geüploade documenten."""
-        processor = get_document_processor()
-        documents = processor.get_processed_documents()
-
-        if not documents:
-            st.info("Geen documenten geüpload")
-            return
-
-        st.markdown("#### 📚 Geüploade Documenten")
-
-        # Document selectie voor context enrichment
-        doc_options = []
-        doc_labels = []
-
-        for doc in documents:
-            if doc.processing_status == "success":
-                label = f"{doc.filename} ({doc.text_length:,} chars, {len(doc.keywords)} keywords)"
-                doc_options.append(doc.id)
-                doc_labels.append(label)
-
-        if doc_options:
-            selected_docs = st.multiselect(
-                "Selecteer documenten voor context verrijking",
-                options=doc_options,
-                format_func=lambda x: next(
-                    label
-                    for doc_id, label in zip(doc_options, doc_labels, strict=False)
-                    if doc_id == x
-                ),
-                default=SessionStateManager.get_value("selected_documents", []),
-                help="Geselecteerde documenten worden gebruikt voor context en bronvermelding",
-            )
-
-            SessionStateManager.set_value("selected_documents", selected_docs)
-
-            # Toon document details
-            if selected_docs:
-                st.markdown(
-                    f"#### 📋 Details van {len(selected_docs)} geselecteerde document(en)"
-                )
-                aggregated = processor.get_aggregated_context(selected_docs)
-
-                col1, col2 = st.columns(2)
-
-                with col1:
-                    st.metric("Documenten", aggregated["document_count"])
-                    st.metric(
-                        "Totale tekst", f"{aggregated['total_text_length']:,} chars"
-                    )
-
-                with col2:
-                    st.metric("Keywords", len(aggregated["aggregated_keywords"]))
-                    st.metric("Concepten", len(aggregated["aggregated_concepts"]))
-
-                # Toon keywords en concepten
-                if aggregated["aggregated_keywords"]:
-                    st.markdown("**Top Keywords:**")
-                    st.write(", ".join(aggregated["aggregated_keywords"][:10]))
-
-                if aggregated["aggregated_concepts"]:
-                    st.markdown("**Key Concepten:**")
-                    st.write(", ".join(aggregated["aggregated_concepts"][:5]))
-
-                if aggregated["aggregated_legal_refs"]:
-                    st.markdown("**Juridische Verwijzingen:**")
-                    st.write(", ".join(aggregated["aggregated_legal_refs"][:5]))
-
-        # Document management - buiten expander om nesting te voorkomen
-        if documents and st.checkbox("🗂️ Toon document beheer", value=False):
-            st.markdown("#### 🗂️ Document Beheer")
-            for doc in documents:
-                col1, col2, col3 = st.columns([3, 1, 1])
-
-                with col1:
-                    status_emoji = "✅" if doc.processing_status == "success" else "❌"
-                    st.write(f"{status_emoji} {doc.filename}")
-                    if doc.processing_status == "success":
-                        st.caption(
-                            f"{doc.text_length:,} chars, {len(doc.keywords)} keywords"
-                        )
-                    else:
-                        st.caption(f"Error: {doc.error_message}")
-
-                with col2:
-                    upload_date = doc.uploaded_at.strftime("%d-%m %H:%M")
-                    st.caption(upload_date)
-
-                with col3:
-                    if st.button(
-                        "🗑️", key=f"delete_{doc.id}", help=f"Verwijder {doc.filename}"
-                    ):
-                        processor.remove_document(doc.id)
-                        st.rerun()
+        """Delegate to DocumentUploadRenderer (DEF-141)."""
+        self.document_upload_renderer.render_uploaded_documents_list()
 
     def _render_main_tabs(self):
         """Render de hoofdtabbladen met radio-gestuurde navigatie."""
