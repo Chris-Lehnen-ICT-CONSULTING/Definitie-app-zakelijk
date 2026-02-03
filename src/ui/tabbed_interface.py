@@ -1,19 +1,17 @@
-"""
-# ruff: noqa: PLR0912, PLR0915, N814, RUF005, SIM105
-Tabbed Interface voor DefinitieAgent - Nieuwe UI architectuur.
+"""Tabbed Interface voor DefinitieAgent - Nieuwe UI architectuur.
 Implementeert de requirements uit Project Requirements Document.
 
 Deze module bevat de hoofdcontroller voor de gebruikersinterface,
 met ondersteuning voor meerdere tabs en complete workflow beheer.
 """
 
-import asyncio  # Asynchrone programmering voor ontologische analyse
+import asyncio  # Used by _render_category_preview delegate + test patching target
 import logging  # Logging faciliteiten voor debug en monitoring
 from datetime import (
     UTC,
     datetime,  # Datum en tijd functionaliteit
 )
-from typing import Any, cast  # Type hints voor betere code documentatie
+from typing import Any  # Type hints voor betere code documentatie
 
 import streamlit as st  # Streamlit web interface framework
 
@@ -46,6 +44,7 @@ from ui.components.tabs.import_export_beheer import ImportExportBeheerTab
 # DEF-141: Extracted handlers and renderers
 from ui.handlers.definition_generation_handler import DefinitionGenerationHandler
 from ui.renderers.document_upload_renderer import DocumentUploadRenderer
+from ui.renderers.global_context_renderer import GlobalContextRenderer
 
 # Importeer core services en utilities
 from ui.session_state import (
@@ -128,6 +127,7 @@ class TabbedInterface:
 
         # DEF-141: Extracted handlers and renderers
         self.document_upload_renderer = DocumentUploadRenderer()
+        self.global_context_renderer = GlobalContextRenderer(self.context_selector)
         self.generation_handler = DefinitionGenerationHandler(
             checker=self.checker,
             definition_service=self.definition_service,
@@ -246,128 +246,22 @@ class TabbedInterface:
 
     # ------- Rendering methods -------
 
+    # ------- Delegates to GlobalContextRenderer (DEF-141) -------
+
     async def _determine_ontological_category(self, begrip, org_context, jur_context):
-        """
-        Bepaal automatisch de ontologische categorie.
-
-        VERBETERD: Gebruikt ImprovedOntologyClassifier met 3-context support.
-        """
-        from ontologie.improved_classifier import ImprovedOntologyClassifier
-
-        try:
-            classifier = ImprovedOntologyClassifier()
-
-            # Classificeer met alle 3 contexten (org, jur, wet)
-            result = classifier.classify(
-                begrip=begrip,
-                org_context=org_context,
-                jur_context=jur_context,
-                wet_context="",  # Wettelijke context: optioneel via UI uitbreiding
-            )
-
-            # DEF-138: Defensive None check
-            if result is None:
-                raise RuntimeError(
-                    f"Classifier returned None voor '{begrip}'. Dit duidt op een interne fout."
-                )
-
-            logger.info(
-                f"Ontologische classificatie voor '{begrip}': {result.categorie.value} "
-                f"(scores: {result.test_scores})"
-            )
-
-            return result.categorie, result.reasoning, result.test_scores
-
-        except Exception as e:
-            logger.error(
-                f"Ontologische classificatie gefaald voor '{begrip}': {e}",
-                exc_info=True,
-            )
-            # GEEN FALLBACK: Propageer error zodat gebruiker weet dat classificatie mislukt is
-            raise RuntimeError(
-                f"Kan ontologische categorie niet bepalen voor '{begrip}'. "
-                f"Controleer of context compleet is."
-            ) from e
+        """Delegate (backward compat)."""
+        return await self.global_context_renderer.determine_ontological_category(
+            begrip, org_context, jur_context
+        )
 
     def _render_category_preview(self):
-        """Toon voorgestelde ontologische categorie met mogelijkheid tot override.
-
-        DEF-36: Preview van pre-geclassificeerde categorie voor gebruiker, met override optie.
-        """
-        # DEF-36 FIX: Trigger classificatie HIER (na context selector render)
-        begrip = SessionStateManager.get_value("begrip", "")
-        if begrip.strip():
-            determined_category = SessionStateManager.get_value("determined_category")
-
-            # Als nog geen classificatie gedaan, doe het nu (met huidige context)
-            if not determined_category:
-                context_data = SessionStateManager.get_value("global_context", {})
-                org_context = context_data.get("organisatorische_context", [])
-                jur_context = context_data.get("juridische_context", [])
-
-                # Alleen classificeren als we context hebben
-                if org_context or jur_context:
-                    primary_org = org_context[0] if org_context else ""
-                    primary_jur = jur_context[0] if jur_context else ""
-
-                    try:
-                        auto_categorie, reasoning, scores = asyncio.run(
-                            self._determine_ontological_category(
-                                begrip, primary_org, primary_jur
-                            )
-                        )
-
-                        # Sla op in session state
-                        SessionStateManager.set_value(
-                            "determined_category", auto_categorie.value
-                        )
-                        SessionStateManager.set_value("category_reasoning", reasoning)
-                        SessionStateManager.set_value("category_scores", scores)
-
-                        logger.info(
-                            f"DEF-36: Pre-classificatie voor '{begrip}': {auto_categorie.value} "
-                            f"(scores: {scores})"
-                        )
-
-                        determined_category = auto_categorie.value
-                    except Exception as e:
-                        logger.warning(f"Auto-classificatie mislukt: {e}")
-                        return
-
-        determined_category = SessionStateManager.get_value("determined_category")
-        if not determined_category:
-            return
-
-        st.markdown("#### 🎯 Ontologische Categorie")
-
-        col1, col2 = st.columns([2, 1])
-
-        with col1:
-            # Toon voorgestelde categorie met confidence
-            reasoning = SessionStateManager.get_value("category_reasoning", "")
-            scores = SessionStateManager.get_value("category_scores", {})
-
-            st.info(f"**Voorgesteld:** {determined_category}")
-            with st.expander("ℹ️ Waarom deze categorie?"):
-                st.write(reasoning)
-                if scores:
-                    st.write("**Scores:**", scores)
-
-        with col2:
-            # Mogelijkheid tot override
-            manual_override = st.selectbox(
-                "Aanpassen?",
-                options=["", "TYPE", "EXEMPLAAR", "PROCES", "RESULTAAT"],
-                index=0,
-                key="manual_category_override",
-                help="Laat leeg om voorgestelde categorie te gebruiken",
-            )
-
-            if manual_override:
-                SessionStateManager.set_value(
-                    "manual_ontological_category", manual_override
-                )
-                st.success(f"✓ Gebruik {manual_override}")
+        """Delegate (backward compat). Passes module-level refs for test patching."""
+        return self.global_context_renderer.render_category_preview(
+            _st=st,
+            _sm=SessionStateManager,
+            _asyncio_run=asyncio.run,
+            _determine_fn=self._determine_ontological_category,
+        )
 
     def _render_header(self):
         """Render applicatie header."""
@@ -406,52 +300,22 @@ class TabbedInterface:
             st.error(f"❌ Systeem Issue\\n{str(e)[:50]}...")
 
     def _render_global_context(self):
-        """Render globale context selector."""
-        # Begrip invoer als eerste
-        st.markdown("### 📝 Definitie Aanvraag")
-        begrip = st.text_input(
-            "Voer een term in waarvoor een definitie moet worden gegenereerd",
-            value=SessionStateManager.get_value("begrip", ""),
-            placeholder="bijv. authenticatie, verificatie, identiteitsvaststelling...",
-            help="Het centrale begrip waarvoor een definitie gegenereerd wordt",
-            key="begrip_input",
-        )
-        SessionStateManager.set_value("begrip", begrip)
+        """Render globale context selector (delegeert naar GlobalContextRenderer)."""
+        gcr = self.global_context_renderer
 
-        st.markdown("### 🎯 Context Configuratie")
+        # Begrip invoer
+        begrip = gcr.render_begrip_input()
 
         # Document upload sectie
         self._render_document_upload_section()
 
-        # Context selector - gebruik de officiële ContextSelector component
-        try:
-            context_data = self.context_selector.render()
-            st.success("✅ Context selector succesvol geladen")
-        except Exception as e:
-            logger.error(f"Context selector crashed: {e}", exc_info=True)
-            st.error(f"❌ Context selector fout: {type(e).__name__}: {e!s}")
-            # Fallback naar simplified versie
-            try:
-                context_data = self._render_simplified_context_selector()
-            except Exception as e2:
-                logger.error(f"Simplified selector also failed: {e2}", exc_info=True)
-                context_data = {
-                    "organisatorische_context": [],
-                    "juridische_context": [],
-                    "wettelijke_basis": [],
-                }
+        # Context selector met fallback
+        context_data = gcr.render_context_selector()
 
-        # Store in session state voor gebruik in tabs
-        SessionStateManager.set_value("global_context", context_data)
-
-        # Show selected context summary
-        if any(context_data.values()):
-            self._render_context_summary(context_data)
-
-        # Metadata velden (legacy restoration)
+        # Metadata velden
         st.markdown("### 📝 Metadata")
         try:
-            self._render_metadata_fields()
+            gcr.render_metadata_fields()
             st.success("✅ Metadata velden succesvol geladen")
         except Exception as e:
             logger.error(f"Metadata fields crashed: {e}", exc_info=True)
@@ -474,99 +338,16 @@ class TabbedInterface:
             st.error(f"❌ Quick generate button fout: {type(e).__name__}: {e!s}")
 
     def _render_simplified_context_selector(self) -> dict[str, Any]:
-        """Render context selector using the ContextManager-only implementation."""
-        try:
-            from ui.components.enhanced_context_manager_selector import (
-                render_context_selector,
-            )
-
-            return cast(dict[str, Any], render_context_selector())
-        except Exception as e:
-            logger.error(
-                f"Enhanced context selector kon niet renderen: {e}", exc_info=True
-            )
-            return {
-                "organisatorische_context": [],
-                "juridische_context": [],
-                "wettelijke_basis": [],
-            }
+        """Delegate (backward compat)."""
+        return self.global_context_renderer.render_simplified_context_selector()
 
     def _render_metadata_fields(self):
-        """Render metadata velden voor definitie voorstel."""
-        from datetime import datetime
+        """Delegate (backward compat)."""
+        return self.global_context_renderer.render_metadata_fields()
 
-        col1, col2, col3 = st.columns(3)
-
-        with col1:
-            datum_voorstel = st.date_input(
-                "📅 Datum voorstel",
-                value=SessionStateManager.get_value(
-                    "datum_voorstel", datetime.now(UTC).date()
-                ),
-                help="Datum waarop deze definitie wordt voorgesteld",
-            )
-            SessionStateManager.set_value("datum_voorstel", datum_voorstel)
-
-        with col2:
-            voorgesteld_door = st.text_input(
-                "👤 Voorgesteld door",
-                value=SessionStateManager.get_value("voorgesteld_door", ""),
-                placeholder="Naam van voorsteller",
-                help="Persoon of organisatie die deze definitie voorstelt",
-            )
-            SessionStateManager.set_value("voorgesteld_door", voorgesteld_door)
-
-        with col3:
-            ketenpartner_opties = [
-                "ZM",
-                "DJI",
-                "KMAR",
-                "CJIB",
-                "JUSTID",
-                "OM",
-                "Reclassering",
-                "NP",
-            ]
-            ketenpartners = st.multiselect(
-                "🤝 Ketenpartners die akkoord zijn",
-                options=ketenpartner_opties,
-                default=SessionStateManager.get_value("ketenpartners", []),
-                help="Partners die akkoord zijn met deze definitie",
-            )
-            SessionStateManager.set_value("ketenpartners", ketenpartners)
-
-        st.markdown("#### 🧭 UFO-categorie (optioneel)")
-        ufo_opties = [
-            "",
-            "Kind",
-            "Event",
-            "Role",
-            "Phase",
-            "Relator",
-            "Mode",
-            "Quantity",
-            "Quality",
-            "Subkind",
-            "Category",
-            "Mixin",
-            "RoleMixin",
-            "PhaseMixin",
-            "Abstract",
-            "Relatie",
-            "Event Composition",
-        ]
-        ufo_default = SessionStateManager.get_value("ufo_categorie", "")
-        default_index = (
-            ufo_opties.index(ufo_default) if ufo_default in ufo_opties else 0
-        )
-        ufo_selected = st.selectbox(
-            "UFO-categorie",
-            options=ufo_opties,
-            index=default_index,
-            key="meta_ufo_categorie",
-            help="Kies desgewenst een UFO-categorie; deze wordt automatisch opgeslagen bij generatie",
-        )
-        SessionStateManager.set_value("ufo_categorie", ufo_selected)
+    def _render_context_summary(self, context_data: dict[str, Any]):
+        """Delegate (backward compat)."""
+        return self.global_context_renderer.render_context_summary(context_data)
 
     def _render_quick_generate_button(self, begrip: str, context_data: dict[str, Any]):
         """Render snelle genereer definitie knop."""
@@ -619,28 +400,6 @@ class TabbedInterface:
 
         for field in fields_to_clear:
             SessionStateManager.clear_value(field)
-
-    def _render_context_summary(self, context_data: dict[str, Any]):
-        """Render samenvatting van geselecteerde context."""
-        summary_parts = []
-
-        if context_data.get("organisatorische_context"):
-            summary_parts.append(
-                f"📋 Org: {', '.join(context_data['organisatorische_context'])}"
-            )
-
-        if context_data.get("juridische_context"):
-            summary_parts.append(
-                f"⚖️ Juridisch: {', '.join(context_data['juridische_context'])}"
-            )
-
-        if context_data.get("wettelijke_basis"):
-            summary_parts.append(
-                f"📜 Wet: {', '.join(context_data['wettelijke_basis'])}"
-            )
-
-        if summary_parts:
-            st.info(" | ".join(summary_parts))
 
     def _render_document_upload_section(self):
         """Delegate to DocumentUploadRenderer (DEF-141)."""
