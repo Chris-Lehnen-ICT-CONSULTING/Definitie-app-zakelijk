@@ -182,6 +182,11 @@ class TabbedInterface:
 
     def render(self):
         """Render de volledige tabbed interface."""
+        # AI Provider sidebar (provider selection + API key)
+        from ui.components.ai_provider_sidebar import render_ai_provider_sidebar
+
+        render_ai_provider_sidebar()
+
         # App header
         self._render_header()
 
