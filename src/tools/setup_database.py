@@ -22,11 +22,7 @@ from database.definitie_repository import (
     get_definitie_repository,
 )
 
-# Setup logging configuratie voor database setup script
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
-)  # Configureer logging format
-logger = logging.getLogger(__name__)  # Logger instantie voor setup script
+logger = logging.getLogger(__name__)
 
 
 def create_test_data() -> list[DefinitieRecord]:
@@ -137,16 +133,16 @@ def setup_database(db_path: str | None = None, include_test_data: bool = True):
         db_path: Pad naar database bestand
         include_test_data: Of test data moet worden toegevoegd
     """
-    print("🔧 DEFINITIE DATABASE SETUP")
-    print("=" * 40)
+    logger.info("DEFINITIE DATABASE SETUP")
+    logger.info("=" * 40)
 
     # Initialiseer repository (dit maakt automatisch de database aan)
     repository = get_definitie_repository(db_path)
 
-    print(f"✅ Database geïnitialiseerd: {repository.db_path}")
+    logger.info(f"Database geïnitialiseerd: {repository.db_path}")
 
     if include_test_data:
-        print("\n📥 Laden van test data...")
+        logger.info("Laden van test data...")
 
         test_records = create_test_data()
 
@@ -161,13 +157,15 @@ def setup_database(db_path: str | None = None, include_test_data: bool = True):
                 )
 
                 if existing:
-                    print(f"⏭️  Skip '{record.begrip}' - bestaat al (ID: {existing.id})")
+                    logger.info(
+                        f"Skip '{record.begrip}' - bestaat al (ID: {existing.id})"
+                    )
                     continue
 
                 # Maak nieuwe definitie
                 record_id = repository.create_definitie(record)
-                print(
-                    f"✅ Toegevoegd: '{record.begrip}' (ID: {record_id}) - {record.status}"
+                logger.info(
+                    f"Toegevoegd: '{record.begrip}' (ID: {record_id}) - {record.status}"
                 )
 
                 # Set approval als established
@@ -183,41 +181,41 @@ def setup_database(db_path: str | None = None, include_test_data: bool = True):
                     )
 
             except Exception as e:
-                print(f"❌ Fout bij toevoegen '{record.begrip}': {e}")
+                logger.error(f"Fout bij toevoegen '{record.begrip}': {e}")
 
-        print("\n✅ Test data setup voltooid")
+        logger.info("Test data setup voltooid")
 
     # Toon statistieken
     stats = repository.get_statistics()
 
-    print("\n📊 DATABASE STATISTIEKEN:")
-    print(f"   Totaal definities: {stats['total_definities']}")
+    logger.info("DATABASE STATISTIEKEN:")
+    logger.info(f"  Totaal definities: {stats['total_definities']}")
 
     if stats["by_status"]:
-        print("   Per status:")
+        logger.info("  Per status:")
         for status, count in stats["by_status"].items():
-            print(f"     - {status}: {count}")
+            logger.info(f"    - {status}: {count}")
 
     if stats["by_category"]:
-        print("   Per categorie:")
+        logger.info("  Per categorie:")
         for category, count in stats["by_category"].items():
-            print(f"     - {category}: {count}")
+            logger.info(f"    - {category}: {count}")
 
     if stats["average_validation_score"]:
-        print(f"   Gemiddelde score: {stats['average_validation_score']:.3f}")
+        logger.info(f"  Gemiddelde score: {stats['average_validation_score']:.3f}")
 
-    print("\n🎯 Setup voltooid! Database klaar voor gebruik.")
+    logger.info("Setup voltooid! Database klaar voor gebruik.")
 
     # Toon hoe CLI te gebruiken
-    print("\n💡 CLI VOORBEELDEN:")
-    print("   python tools/definitie_manager.py list")
-    print(
-        "   python tools/definitie_manager.py check --begrip authenticatie --context DJI --categorie proces"
+    logger.info("CLI VOORBEELDEN:")
+    logger.info("  python tools/definitie_manager.py list")
+    logger.info(
+        "  python tools/definitie_manager.py check --begrip authenticatie --context DJI --categorie proces"
     )
-    print(
-        "   python tools/definitie_manager.py generate --begrip controle --context OM --categorie proces"
+    logger.info(
+        "  python tools/definitie_manager.py generate --begrip controle --context OM --categorie proces"
     )
-    print("   python tools/definitie_manager.py stats")
+    logger.info("  python tools/definitie_manager.py stats")
 
 
 def create_sample_export():
@@ -234,10 +232,12 @@ def create_sample_export():
         str(export_path), {"status": DefinitieStatus.ESTABLISHED}
     )
 
-    print(f"📤 Sample export gemaakt: {export_path} ({count} definities)")
+    logger.info(f"Sample export gemaakt: {export_path} ({count} definities)")
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO, format="%(message)s")
+
     import argparse
 
     parser = argparse.ArgumentParser(description="Setup definitie database")
@@ -258,8 +258,5 @@ if __name__ == "__main__":
             create_sample_export()
 
     except Exception as e:
-        print(f"❌ Setup gefaald: {e}")
-        import traceback
-
-        traceback.print_exc()
+        logger.error(f"Setup gefaald: {e}", exc_info=True)
         sys.exit(1)

@@ -176,20 +176,20 @@ def debug_container_state():
     """
     stats = get_container_stats()
 
-    print("=" * 60)
-    print("ServiceContainer Debug Info")
-    print("=" * 60)
+    logger.info("=" * 60)
+    logger.info("ServiceContainer Debug Info")
+    logger.info("=" * 60)
 
     if stats["initialized"]:
-        print("✅ Container geïnitialiseerd")
-        print(f"📦 Aantal services: {stats['service_count']}")
-        print(f"🔧 Services: {', '.join(stats['services'])}")
-        print(f"💾 Database: {stats['config']['db_path']}")
-        print(f"🔑 API Key: {'✓' if stats['config']['has_api_key'] else '✗'}")
+        logger.info("Container geinitialiseerd")
+        logger.info(f"Aantal services: {stats['service_count']}")
+        logger.info(f"Services: {', '.join(stats['services'])}")
+        logger.info(f"Database: {stats['config']['db_path']}")
+        logger.info(f"API Key: {'yes' if stats['config']['has_api_key'] else 'no'}")
     else:
-        print(f"❌ Container niet geïnitialiseerd: {stats.get('error', 'Unknown')}")
+        logger.error(f"Container niet geinitialiseerd: {stats.get('error', 'Unknown')}")
 
-    print("=" * 60)
+    logger.info("=" * 60)
 
 
 # Backward compatibility exports

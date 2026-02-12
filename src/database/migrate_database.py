@@ -614,9 +614,9 @@ if __name__ == "__main__":
         # Verifieer resultaat
         verified = verify_migration(db_path)
         if verified:
-            print("\n🎉 Database is volledig compatibel!")
+            logger.info("Database is volledig compatibel!")
         else:
-            print("\n⚠️  Database migratie incompleet")
+            logger.warning("Database migratie incompleet")
     else:
-        print("\n❌ Database migratie mislukt!")
+        logger.error("Database migratie mislukt!")
         sys.exit(1)

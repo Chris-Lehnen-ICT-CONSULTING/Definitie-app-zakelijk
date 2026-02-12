@@ -17,7 +17,9 @@ try:
     AIOHTTP_AVAILABLE = True
 except ImportError:  # pragma: no cover - fallback voor omgevingen zonder aiohttp
     AIOHTTP_AVAILABLE = False
-    print("Warning: aiohttp niet beschikbaar - Wiktionary service niet actief")
+    logging.getLogger(__name__).warning(
+        "aiohttp niet beschikbaar - Wiktionary service niet actief"
+    )
 
 from datetime import UTC, datetime
 
