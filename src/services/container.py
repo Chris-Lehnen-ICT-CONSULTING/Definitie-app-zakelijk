@@ -11,6 +11,7 @@ from typing import TYPE_CHECKING, Any
 
 from config.config_manager import (
     get_component_config,
+    get_config_manager,
     get_default_model,
     get_default_temperature,
 )
@@ -95,6 +96,14 @@ class ServiceContainer:
             "openai_api_key",
             (os.getenv("OPENAI_API_KEY") or os.getenv("OPENAI_API_KEY_PROD")),
         )
+
+        # AI provider selection
+        config_mgr = get_config_manager()
+        self.ai_provider = config_mgr.api.ai_provider
+        if self.ai_provider == "anthropic":
+            self.ai_api_key = config_mgr.api.anthropic_api_key
+        else:
+            self.ai_api_key = self.openai_api_key
 
         # Service specifieke configuratie - Use default and override via sub-configs
         from services.definition_generator_config import (
@@ -206,6 +215,17 @@ class ServiceContainer:
 
         return self._instances["repository"]
 
+    def _get_ai_client(self):
+        """Get or create singleton AI client for the configured provider."""
+        if "_ai_client" not in self._instances:
+            from services.ai import create_ai_client
+
+            self._instances["_ai_client"] = create_ai_client(
+                provider=self.ai_provider,
+                api_key=self.ai_api_key,
+            )
+        return self._instances["_ai_client"]
+
     def orchestrator(self) -> DefinitionOrchestratorInterface:
         """
         Get of create DefinitionOrchestrator instance.
@@ -233,9 +253,14 @@ class ServiceContainer:
             # modular_validation_service = ...  # REMOVED - lazy loaded
             # validation_orchestrator = ...  # REMOVED - lazy loaded
 
+            # Create provider-agnostic AI client (singleton)
+            ai_client = self._get_ai_client()
+
             # Create AI service (still eager - needed for orchestrator init check)
             ai_service = AIServiceV2(
-                default_model=self.generator_config.gpt.model, use_cache=True
+                default_model=self.generator_config.gpt.model,
+                use_cache=True,
+                ai_client=ai_client,
             )
 
             # DEF-232: CleaningService is now native async - no adapter needed
@@ -313,9 +338,14 @@ class ServiceContainer:
                 OntologicalClassifier,
             )
 
+            # Reuse singleton AI client
+            ai_client = self._get_ai_client()
+
             # Reuse AI service with same config as generator
             ai_service = AIServiceV2(
-                default_model=self.generator_config.gpt.model, use_cache=True
+                default_model=self.generator_config.gpt.model,
+                use_cache=True,
+                ai_client=ai_client,
             )
 
             self._instances["ontological_classifier"] = OntologicalClassifier(

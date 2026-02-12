@@ -46,16 +46,24 @@ class GPTConfig:
     api_key: str | None = None
     api_base: str | None = None
     organization: str | None = None
+    provider: str = "openai"  # AI provider: "openai" or "anthropic"
 
     def __post_init__(self):
         """Load API key from environment if not provided."""
+        # Load provider from environment
+        if env_provider := os.getenv("AI_PROVIDER"):
+            self.provider = env_provider.lower()
+
         if self.api_key is None:
-            self.api_key = os.getenv("OPENAI_API_KEY") or os.getenv(
-                "OPENAI_API_KEY_PROD"
-            )
-        if self.api_base is None:
+            if self.provider == "anthropic":
+                self.api_key = os.getenv("ANTHROPIC_API_KEY")
+            else:
+                self.api_key = os.getenv("OPENAI_API_KEY") or os.getenv(
+                    "OPENAI_API_KEY_PROD"
+                )
+        if self.api_base is None and self.provider != "anthropic":
             self.api_base = os.getenv("OPENAI_API_BASE")
-        if self.organization is None:
+        if self.organization is None and self.provider != "anthropic":
             self.organization = os.getenv("OPENAI_ORGANIZATION")
 
 
@@ -252,7 +260,8 @@ class UnifiedGeneratorConfig:
 
         # Validate GPT config
         if not self.gpt.api_key:
-            issues.append("OpenAI API key not configured")
+            provider = self.gpt.provider
+            issues.append(f"API key not configured for provider: {provider}")
 
         if self.gpt.temperature < 0 or self.gpt.temperature > 2:
             issues.append("GPT temperature must be between 0 and 2")

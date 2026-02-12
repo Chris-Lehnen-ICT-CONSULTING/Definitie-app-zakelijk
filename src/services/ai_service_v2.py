@@ -27,9 +27,13 @@ except ImportError:
     TIKTOKEN_AVAILABLE = False
     _tiktoken = None
 
-from openai import APIConnectionError, OpenAIError, RateLimitError
-
 from config.config_manager import get_config_manager
+from services.ai.base_client import (
+    AIClientError,
+    AIConnectionClientError,
+    AIRateLimitClientError,
+    AsyncAIClient,
+)
 from services.interfaces import (
     AIBatchRequest,
     AIGenerationResult,
@@ -57,6 +61,7 @@ class AIServiceV2(AIServiceInterface):
         rate_limit_config: RateLimitConfig | None = None,
         default_model: str = "gpt-4o-mini",
         use_cache: bool = True,
+        ai_client: AsyncAIClient | None = None,
     ):
         """
         Initialize AIServiceV2 with configuration.
@@ -65,6 +70,7 @@ class AIServiceV2(AIServiceInterface):
             rate_limit_config: Optional rate limit configuration, uses config_manager if None
             default_model: Default model to use for AI calls
             use_cache: Whether to enable caching
+            ai_client: Optional pre-configured AI client (provider-agnostic)
         """
         # Get rate limit config from config_manager if not provided
         if rate_limit_config is None:
@@ -84,6 +90,7 @@ class AIServiceV2(AIServiceInterface):
             )
 
         self._rate_limit_config = rate_limit_config
+        self._ai_client = ai_client
         self._client: AsyncGPTClient | None = None
         self.default_model = default_model
         self.use_cache = use_cache
@@ -95,7 +102,10 @@ class AIServiceV2(AIServiceInterface):
 
     def _get_client(self) -> AsyncGPTClient:
         if self._client is None:
-            self._client = AsyncGPTClient(rate_limit_config=self._rate_limit_config)
+            self._client = AsyncGPTClient(
+                rate_limit_config=self._rate_limit_config,
+                client=self._ai_client,
+            )
         return self._client
 
     async def _record_api_call(
@@ -117,7 +127,7 @@ class AIServiceV2(AIServiceInterface):
             from monitoring.api_monitor import record_api_call
 
             await record_api_call(
-                endpoint="openai/chat/completions",
+                endpoint="ai/chat/completions",
                 function_name=function_name,
                 duration=duration,
                 success=success,
@@ -256,7 +266,7 @@ class AIServiceV2(AIServiceInterface):
             )
             timeout_msg = f"AI generation timed out after {timeout_seconds}s"
             raise AITimeoutError(timeout_msg) from e
-        except RateLimitError as e:
+        except AIRateLimitClientError as e:
             await self._record_api_call(
                 function_name="generate_definition",
                 duration=time.time() - start_time,
@@ -266,7 +276,7 @@ class AIServiceV2(AIServiceInterface):
             )
             rate_limit_msg = f"Rate limit exceeded: {e!s}"
             raise AIRateLimitError(rate_limit_msg) from e
-        except APIConnectionError as e:
+        except AIConnectionClientError as e:
             await self._record_api_call(
                 function_name="generate_definition",
                 duration=time.time() - start_time,
@@ -275,21 +285,20 @@ class AIServiceV2(AIServiceInterface):
                 model=model_to_use,
             )
             if "timeout" in str(e).lower():
-                api_timeout_msg = f"OpenAI API timeout: {e!s}"
+                api_timeout_msg = f"AI API timeout: {e!s}"
                 raise AITimeoutError(api_timeout_msg) from e
-            api_conn_msg = f"OpenAI API connection error: {e!s}"
+            api_conn_msg = f"AI API connection error: {e!s}"
             raise AIServiceError(api_conn_msg) from e
-        except OpenAIError as e:
+        except AIClientError as e:
             await self._record_api_call(
                 function_name="generate_definition",
                 duration=time.time() - start_time,
                 success=False,
-                error_type="openai_error",
+                error_type="ai_client_error",
                 model=model_to_use,
             )
-            # Wrap all other OpenAI errors
-            openai_error_msg = f"OpenAI API error: {e!s}"
-            raise AIServiceError(openai_error_msg) from e
+            ai_error_msg = f"AI API error: {e!s}"
+            raise AIServiceError(ai_error_msg) from e
         except Exception as e:
             await self._record_api_call(
                 function_name="generate_definition",
