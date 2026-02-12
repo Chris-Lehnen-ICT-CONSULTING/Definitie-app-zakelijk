@@ -726,8 +726,8 @@ def with_resilience(
 
 async def test_resilience_framework():
     """Test the resilience framework."""
-    print("🧪 Testing Resilience Framework")
-    print("=" * 40)
+    logger.info("Testing Resilience Framework")
+    logger.info("=" * 40)
 
     framework = ResilienceFramework()
     await framework.start()
@@ -749,30 +749,31 @@ async def test_resilience_framework():
 
         # Test successful execution
         result = await test_function(should_fail=False)
-        print(f"✅ {result}")
+        logger.info(f"{result}")
 
         # Test with failures (should use fallback)
         call_count = 0
         try:
             result = await test_function(should_fail=True)
-            print(f"✅ Fallback: {result}")
+            logger.info(f"Fallback: {result}")
         except Exception as e:
-            print(f"❌ Failed: {e}")
+            logger.error(f"Failed: {e}")
 
         # Show system health
         health = framework.get_system_health()
-        print("📊 System Health:")
+        logger.info("System Health:")
         for endpoint, metrics in health["health_monitor"].items():
-            print(f"  {endpoint}: {metrics.get('status', 'unknown')}")
+            logger.info(f"  {endpoint}: {metrics.get('status', 'unknown')}")
 
-        print(
-            f"📊 Dead Letter Queue: {health['dead_letter_queue']['queue_size']} items"
+        logger.info(
+            f"Dead Letter Queue: {health['dead_letter_queue']['queue_size']} items"
         )
-        print(f"📊 Fallback Cache: {health['fallback_cache']['size']} entries")
+        logger.info(f"Fallback Cache: {health['fallback_cache']['size']} entries")
 
     finally:
         await framework.stop()
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
     asyncio.run(test_resilience_framework())

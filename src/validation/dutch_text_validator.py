@@ -700,8 +700,8 @@ def dutch_text_decorator(text_type: DutchTextType = DutchTextType.GENERAL):
 
 async def test_dutch_validator():
     """Test the Dutch text validation system."""
-    print("🇳🇱 Testing Dutch Text Validator")
-    print("=" * 35)
+    logger.info("Testing Dutch Text Validator")
+    logger.info("=" * 35)
 
     validator = get_dutch_validator()
 
@@ -710,62 +710,64 @@ async def test_dutch_validator():
         "Dit is een Nederlandse tekst voor identiteitsbehandeling binnen de overheid."
     )
     result = validator.validate_text(dutch_text, DutchTextType.GENERAL)
-    print(f"✅ General Dutch text: {'PASSED' if result.passed else 'FAILED'}")
-    print(f"   Issues found: {len(result.issues)}")
+    logger.info(f"General Dutch text: {'PASSED' if result.passed else 'FAILED'}")
+    logger.info(f"Issues found: {len(result.issues)}")
 
     # Test legal text
     legal_text = "Artikel 12 van de Wet op de identificatieplicht bepaalt dat elke burger een geldig identiteitsbewijs moet kunnen tonen."
     result = validator.validate_text(legal_text, DutchTextType.LEGAL)
-    print(f"✅ Legal text: {'PASSED' if result.passed else 'FAILED'}")
-    print(f"   Issues found: {len(result.issues)}")
+    logger.info(f"Legal text: {'PASSED' if result.passed else 'FAILED'}")
+    logger.info(f"Issues found: {len(result.issues)}")
 
     # Test government text
     government_text = "Het Ministerie van Binnenlandse Zaken en Koninkrijksrelaties is verantwoordelijk voor de uitgifte van Nederlandse identiteitsbewijzen."
     result = validator.validate_text(government_text, DutchTextType.GOVERNMENT)
-    print(f"✅ Government text: {'PASSED' if result.passed else 'FAILED'}")
-    print(f"   Issues found: {len(result.issues)}")
+    logger.info(f"Government text: {'PASSED' if result.passed else 'FAILED'}")
+    logger.info(f"Issues found: {len(result.issues)}")
 
     # Test definition text
     definition_text = "Identiteitsbehandeling is het proces waarbij de identiteit van een persoon wordt vastgesteld, geverifieerd en gevalideerd."
     result = validator.validate_text(definition_text, DutchTextType.DEFINITION)
-    print(f"✅ Definition text: {'PASSED' if result.passed else 'FAILED'}")
-    print(f"   Issues found: {len(result.issues)}")
+    logger.info(f"Definition text: {'PASSED' if result.passed else 'FAILED'}")
+    logger.info(f"Issues found: {len(result.issues)}")
 
     # Test problematic text
     problematic_text = "Dit is een ZEER LANGE ZIN met veel hoofdletters die veel te lang is en eigenlijk opgedeeld zou moeten worden in kortere zinnen omdat het anders moeilijk te lezen is en niet voldoet aan de richtlijnen voor goed Nederlands!"
     result = validator.validate_text(problematic_text, DutchTextType.FORMAL)
-    print(f"❌ Problematic text: {'PASSED' if result.passed else 'FAILED'}")
-    print(f"   Issues found: {len(result.issues)}")
+    logger.info(f"Problematic text: {'PASSED' if result.passed else 'FAILED'}")
+    logger.info(f"Issues found: {len(result.issues)}")
 
     # Show statistics
     stats = validator.get_validation_statistics()
-    print("\n📊 Validation Statistics:")
-    print(f"   Total validations: {stats['total_validations']}")
-    print(f"   Success rate: {stats['success_rate']:.1%}")
-    print(f"   Average issues per validation: {stats['avg_issues_per_validation']:.1f}")
-    print(f"   Dictionary size: {stats['dictionary_size']} words")
+    logger.info("Validation Statistics:")
+    logger.info(f"Total validations: {stats['total_validations']}")
+    logger.info(f"Success rate: {stats['success_rate']:.1%}")
+    logger.info(
+        f"Average issues per validation: {stats['avg_issues_per_validation']:.1f}"
+    )
+    logger.info(f"Dictionary size: {stats['dictionary_size']} words")
 
     # Test suggestions
     suggestions = validator.suggest_improvements(
         definition_text, DutchTextType.DEFINITION
     )
-    print(f"\n💡 Improvement suggestions ({len(suggestions)}):")
+    logger.info(f"Improvement suggestions ({len(suggestions)}):")
     for suggestion in suggestions[:3]:  # Show first 3
-        print(f"   • {suggestion}")
+        logger.info(f"  {suggestion}")
 
     # Test readability
     complex_text = "De implementatie van een geïntegreerd identiteitsmanagementsysteem vereist een uitgebreide evaluatie van de bestaande infrastructuur en de ontwikkeling van nieuwe beveiligingsprotocollen."
     result = validator.validate_text(complex_text, DutchTextType.TECHNICAL)
     if result.statistics:
-        print("\n📈 Text Statistics:")
-        print(
-            f"   Readability score: {result.statistics.get('readability_score', 0):.1f}/100"
+        logger.info("Text Statistics:")
+        logger.info(
+            f"Readability score: {result.statistics.get('readability_score', 0):.1f}/100"
         )
-        print(
-            f"   Average word length: {result.statistics.get('avg_word_length', 0):.1f}"
+        logger.info(
+            f"Average word length: {result.statistics.get('avg_word_length', 0):.1f}"
         )
-        print(
-            f"   Average sentence length: {result.statistics.get('avg_sentence_length', 0):.1f} words"
+        logger.info(
+            f"Average sentence length: {result.statistics.get('avg_sentence_length', 0):.1f} words"
         )
 
 

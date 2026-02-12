@@ -419,8 +419,8 @@ def with_enhanced_retry(config: RetryConfig | None = None, endpoint_name: str = 
 
 async def test_retry_system():
     """Test the enhanced retry system."""
-    print("🧪 Testing Enhanced Retry System")
-    print("=" * 40)
+    logger.info("Testing Enhanced Retry System")
+    logger.info("=" * 40)
 
     retry_manager = get_retry_manager()
 
@@ -441,7 +441,7 @@ async def test_retry_system():
     try:
         # Test successful retry
         result = await failing_function(2)
-        print(f"✅ {result}")
+        logger.info(f"{result}")
 
         # Test circuit breaker
         for _i in range(6):  # Trigger circuit breaker
@@ -453,13 +453,14 @@ async def test_retry_system():
 
         # Show health metrics
         metrics = retry_manager.get_health_metrics()
-        print(f"📊 Circuit State: {metrics['circuit_state']}")
-        print(f"📊 Success Rate: {metrics['success_rate']:.2%}")
-        print(f"📊 Total Requests: {metrics['total_requests']}")
+        logger.info(f"Circuit State: {metrics['circuit_state']}")
+        logger.info(f"Success Rate: {metrics['success_rate']:.2%}")
+        logger.info(f"Total Requests: {metrics['total_requests']}")
 
     except Exception as e:
-        print(f"❌ Test failed: {e}")
+        logger.error(f"Test failed: {e}")
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
     asyncio.run(test_retry_system())
