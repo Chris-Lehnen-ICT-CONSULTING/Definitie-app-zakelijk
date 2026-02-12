@@ -206,27 +206,28 @@ def migrate_legacy_code_usage():
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
     # Test backward compatibility
-    print("🔄 Testing Backward Compatibility")
-    print("=" * 35)
+    logger.info("Testing Backward Compatibility")
+    logger.info("=" * 35)
 
     # Test legacy formaat
     legacy_data = load_toetsregels()
-    print(f"✅ Legacy format: {len(legacy_data['regels'])} regels geladen")
+    logger.info(f"Legacy format: {len(legacy_data['regels'])} regels geladen")
 
     # Test enkele regels
     con_regels = get_toetsregels_by_category("CON")
-    print(f"✅ CON regels: {len(con_regels)} regels")
+    logger.info(f"CON regels: {len(con_regels)} regels")
 
     hoge_prioriteit = get_toetsregels_by_priority("hoog")
-    print(f"✅ Hoge prioriteit: {len(hoge_prioriteit)} regels")
+    logger.info(f"Hoge prioriteit: {len(hoge_prioriteit)} regels")
 
     # Test validatie
     test_result = validate_against_rules("Test definitie tekst")
-    print(f"✅ Validatie test: {test_result['rules_checked']} regels gecontroleerd")
+    logger.info(f"Validatie test: {test_result['rules_checked']} regels gecontroleerd")
 
     # Migratie info
     migration = migrate_legacy_code_usage()
-    print(f"📋 Migratie patronen: {len(migration['oude_patronen'])} oude patronen")
+    logger.info(f"Migratie patronen: {len(migration['oude_patronen'])} oude patronen")
 
-    print("🎯 Backward compatibility test geslaagd!")
+    logger.info("Backward compatibility test geslaagd!")

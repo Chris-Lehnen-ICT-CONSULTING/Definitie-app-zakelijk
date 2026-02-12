@@ -807,8 +807,8 @@ def validate_input_decorator(schema_name: str):
 
 async def test_input_validator():
     """Test the input validation system."""
-    print("🧪 Testing Input Validation System")
-    print("=" * 35)
+    logger.info("Testing Input Validation System")
+    logger.info("=" * 35)
 
     validator = get_validator()
 
@@ -824,7 +824,7 @@ async def test_input_validator():
 
     results = validator.validate(valid_data, "definition_generation")
     passed = all(r.passed for r in results)
-    print(f"✅ Valid data test: {'PASSED' if passed else 'FAILED'}")
+    logger.info(f"Valid data test: {'PASSED' if passed else 'FAILED'}")
 
     # Test invalid data
     invalid_data = {
@@ -840,7 +840,7 @@ async def test_input_validator():
     errors = [
         r for r in results if not r.passed and r.severity == ValidationSeverity.ERROR
     ]
-    print(f"❌ Invalid data test: {len(errors)} errors found")
+    logger.info(f"Invalid data test: {len(errors)} errors found")
 
     # Test user input validation
     user_data = {
@@ -851,13 +851,13 @@ async def test_input_validator():
 
     results = validator.validate(user_data, "user_input")
     passed = all(r.passed for r in results)
-    print(f"✅ User input test: {'PASSED' if passed else 'FAILED'}")
+    logger.info(f"User input test: {'PASSED' if passed else 'FAILED'}")
 
     # Show validation statistics
     stats = validator.get_validation_stats()
-    print(f"📊 Total validations: {stats['total_validations']}")
-    print(f"📊 Success rate: {stats['success_rate']:.1%}")
-    print(f"📊 Total errors: {stats['total_errors']}")
+    logger.info(f"Total validations: {stats['total_validations']}")
+    logger.info(f"Success rate: {stats['success_rate']:.1%}")
+    logger.info(f"Total errors: {stats['total_errors']}")
 
 
 if __name__ == "__main__":

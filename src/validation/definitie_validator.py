@@ -983,8 +983,9 @@ def format_modulaire_consistency_report(results: dict[str, Any]) -> str:
 
 if __name__ == "__main__":
     # Test de DefinitieValidator
-    print("🔍 Testing DefinitieValidator")
-    print("=" * 30)
+    logging.basicConfig(level=logging.DEBUG)
+    logger.info("Testing DefinitieValidator")
+    logger.info("=" * 30)
 
     # Test ValidationRegelInterpreter
     interpreter = ValidationRegelInterpreter()
@@ -994,9 +995,9 @@ if __name__ == "__main__":
     con01 = rule_manager.load_regel("CON-01")
     if con01:
         criterium = interpreter.for_validation(con01)
-        print(f"✅ CON-01 criterium: {criterium.description[:80]}...")
-        print(f"🚫 Patronen om te vermijden: {len(criterium.patterns_to_avoid)}")
-        print(f"⚠️ Severity: {criterium.severity.value}")
+        logger.info(f"CON-01 criterium: {criterium.description[:80]}...")
+        logger.info(f"Patronen om te vermijden: {len(criterium.patterns_to_avoid)}")
+        logger.info(f"Severity: {criterium.severity.value}")
 
     # Test DefinitieValidator
     validator = DefinitieValidator()
@@ -1005,38 +1006,38 @@ if __name__ == "__main__":
     slechte_definitie = "Toezicht is een proces om te controleren binnen DJI context"
     result = validator.validate(slechte_definitie, OntologischeCategorie.PROCES)
 
-    print("\n🔍 Validatie slechte definitie:")
-    print(f"📊 Overall score: {result.overall_score:.2f}")
-    print(f"❌ Violations: {len(result.violations)}")
-    print(f"✅ Passed rules: {len(result.passed_rules)}")
-    print(f"🎯 Acceptable: {result.is_acceptable}")
+    logger.info("Validatie slechte definitie:")
+    logger.info(f"Overall score: {result.overall_score:.2f}")
+    logger.info(f"Violations: {len(result.violations)}")
+    logger.info(f"Passed rules: {len(result.passed_rules)}")
+    logger.info(f"Acceptable: {result.is_acceptable}")
 
     # Toon violations
     for violation in result.violations[:3]:  # Eerste 3
-        print(f"   - {violation.rule_id}: {violation.description}")
+        logger.info(f"   - {violation.rule_id}: {violation.description}")
 
     # Test goede definitie
     goede_definitie = "Verificatie waarbij identiteitsgegevens systematisch worden gecontroleerd tegen authentieke bronregistraties"
     result2 = validator.validate(goede_definitie, OntologischeCategorie.PROCES)
 
-    print("\n✅ Validatie goede definitie:")
-    print(f"📊 Overall score: {result2.overall_score:.2f}")
-    print(f"❌ Violations: {len(result2.violations)}")
-    print(f"✅ Passed rules: {len(result2.passed_rules)}")
-    print(f"🎯 Acceptable: {result2.is_acceptable}")
+    logger.info("Validatie goede definitie:")
+    logger.info(f"Overall score: {result2.overall_score:.2f}")
+    logger.info(f"Violations: {len(result2.violations)}")
+    logger.info(f"Passed rules: {len(result2.passed_rules)}")
+    logger.info(f"Acceptable: {result2.is_acceptable}")
 
     # Test convenience function
     quick_result = validate_definitie(
         "Registratie is het vastleggen van gegevens", "proces"
     )
-    print(
-        f"\n🔧 Quick validatie: Score {quick_result.overall_score:.2f}, Violations: {len(quick_result.violations)}"
+    logger.info(
+        f"Quick validatie: Score {quick_result.overall_score:.2f}, Violations: {len(quick_result.violations)}"
     )
 
     # Test modulaire consistentie validatie
-    print("\n🔍 Testing Modulaire Consistentie Validatie:")
+    logger.info("Testing Modulaire Consistentie Validatie:")
     consistency_results = valideer_modulaire_toetsregels_consistentie()
     consistency_report = format_modulaire_consistency_report(consistency_results)
-    print(consistency_report)
+    logger.info(consistency_report)
 
-    print("\n🎯 DefinitieValidator test voltooid!")
+    logger.info("DefinitieValidator test voltooid!")

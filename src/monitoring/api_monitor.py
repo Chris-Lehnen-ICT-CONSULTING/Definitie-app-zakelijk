@@ -640,8 +640,8 @@ async def record_api_call(
 
 async def test_api_monitor():
     """Test the API monitoring system."""
-    print("🧪 Testing API Monitor")
-    print("=" * 30)
+    logger.info("Testing API Monitor")
+    logger.info("=" * 30)
 
     collector = get_metrics_collector()
 
@@ -659,22 +659,25 @@ async def test_api_monitor():
 
     # Get metrics
     metrics = collector.get_realtime_metrics()
-    print(f"📊 Total calls: {metrics['total_calls']}")
-    print(f"📊 Success rate: {metrics['success_rate']:.1%}")
-    print(f"📊 Cache hit rate: {metrics['cache_hit_rate']:.1%}")
-    print(f"📊 Total cost: ${metrics['total_cost']:.4f}")
+    logger.info(f"Total calls: {metrics['total_calls']}")
+    logger.info(f"Success rate: {metrics['success_rate']:.1%}")
+    logger.info(f"Cache hit rate: {metrics['cache_hit_rate']:.1%}")
+    logger.info(f"Total cost: ${metrics['total_cost']:.4f}")
 
     # Generate cost optimization report
     report = collector.generate_cost_optimization_report()
-    print(f"💰 Estimated monthly cost: ${report.get('estimated_monthly_cost', 0):.2f}")
-    print(f"💰 Recommendations: {len(report.get('recommendations', []))}")
+    logger.info(
+        f"Estimated monthly cost: ${report.get('estimated_monthly_cost', 0):.2f}"
+    )
+    logger.info(f"Recommendations: {len(report.get('recommendations', []))}")
 
     # Export CSV
     csv_file = collector.export_metrics_csv()
-    print(f"📁 Exported metrics to: {csv_file}")
+    logger.info(f"Exported metrics to: {csv_file}")
 
 
 if __name__ == "__main__":
     import random
 
+    logging.basicConfig(level=logging.INFO)
     asyncio.run(test_api_monitor())

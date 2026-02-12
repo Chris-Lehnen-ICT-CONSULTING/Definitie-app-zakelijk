@@ -22,7 +22,9 @@ try:
     AIOHTTP_AVAILABLE = True
 except ImportError:
     AIOHTTP_AVAILABLE = False
-    print("Warning: aiohttp niet beschikbaar - Wikipedia synonym extractor werkt niet")
+    logging.getLogger(__name__).warning(
+        "aiohttp niet beschikbaar - Wikipedia synonym extractor werkt niet"
+    )
 
 logger = logging.getLogger(__name__)
 

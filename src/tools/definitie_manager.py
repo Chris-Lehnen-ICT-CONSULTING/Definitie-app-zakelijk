@@ -26,10 +26,6 @@ from integration.definitie_checker import (
     generate_or_retrieve_definition,  # Integratie en duplicaat checking
 )
 
-# Setup logging configuratie voor CLI tool
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
-)  # Configureer logging format
 logger = logging.getLogger(__name__)  # Logger instantie voor CLI tool
 
 
@@ -47,8 +43,8 @@ class DefinitieManagerCLI:
 
     def cmd_list(self, args):
         """List definities met optionele filters."""
-        print("🔍 DEFINITIES OVERZICHT")
-        print("=" * 50)
+        logger.info("DEFINITIES OVERZICHT")
+        logger.info("=" * 50)
 
         # Parse filters
         status = DefinitieStatus(args.status) if args.status else None
@@ -64,75 +60,77 @@ class DefinitieManagerCLI:
         )
 
         if not definities:
-            print("❌ Geen definities gevonden met opgegeven criteria")
+            logger.info("Geen definities gevonden met opgegeven criteria")
             return
 
         # Display results
         for i, definitie in enumerate(definities, 1):
-            print(f"\n📋 {i}. {definitie.begrip} (ID: {definitie.id})")
-            print(f"   Categorie: {definitie.categorie.upper()}")
-            print(f"   Context: {definitie.organisatorische_context}")
-            print(f"   Status: {definitie.status}")
-            print(
+            logger.info(f"\n{i}. {definitie.begrip} (ID: {definitie.id})")
+            logger.info(f"   Categorie: {definitie.categorie.upper()}")
+            logger.info(f"   Context: {definitie.organisatorische_context}")
+            logger.info(f"   Status: {definitie.status}")
+            logger.info(
                 f"   Score: {definitie.validation_score:.2f}"
                 if definitie.validation_score
                 else "   Score: N/A"
             )
-            print(f"   Definitie: {definitie.definitie[:100]}...")
+            logger.info(f"   Definitie: {definitie.definitie[:100]}...")
             if definitie.approved_by:
-                print(f"   Goedgekeurd door: {definitie.approved_by}")
+                logger.info(f"   Goedgekeurd door: {definitie.approved_by}")
 
-        print(f"\n📊 Totaal: {len(definities)} definities")
+        logger.info(f"\nTotaal: {len(definities)} definities")
 
     def cmd_show(self, args):
         """Toon details van specifieke definitie."""
         definitie = self.repository.get_definitie(args.id)
 
         if not definitie:
-            print(f"❌ Definitie met ID {args.id} niet gevonden")
+            logger.error(f"Definitie met ID {args.id} niet gevonden")
             return
 
-        print("📋 DEFINITIE DETAILS")
-        print("=" * 50)
-        print(f"ID: {definitie.id}")
-        print(f"Begrip: {definitie.begrip}")
-        print(f"Categorie: {definitie.categorie}")
-        print(f"Organisatorische context: {definitie.organisatorische_context}")
-        print(f"Juridische context: {definitie.juridische_context or 'N/A'}")
-        print(f"Status: {definitie.status}")
-        print(f"Versie: {definitie.version_number}")
-        print(f"Validation score: {definitie.validation_score or 'N/A'}")
-        print(f"Bron type: {definitie.source_type}")
+        logger.info("DEFINITIE DETAILS")
+        logger.info("=" * 50)
+        logger.info(f"ID: {definitie.id}")
+        logger.info(f"Begrip: {definitie.begrip}")
+        logger.info(f"Categorie: {definitie.categorie}")
+        logger.info(f"Organisatorische context: {definitie.organisatorische_context}")
+        logger.info(f"Juridische context: {definitie.juridische_context or 'N/A'}")
+        logger.info(f"Status: {definitie.status}")
+        logger.info(f"Versie: {definitie.version_number}")
+        logger.info(f"Validation score: {definitie.validation_score or 'N/A'}")
+        logger.info(f"Bron type: {definitie.source_type}")
 
-        print("\n📝 DEFINITIE:")
-        print(f"{definitie.definitie}")
+        logger.info("\nDEFINITIE:")
+        logger.info(f"{definitie.definitie}")
 
-        print("\n📅 METADATA:")
-        print(
+        logger.info("\nMETADATA:")
+        logger.info(
             f"Aangemaakt: {definitie.created_at} door {definitie.created_by or 'Unknown'}"
         )
-        print(
+        logger.info(
             f"Gewijzigd: {definitie.updated_at} door {definitie.updated_by or 'Unknown'}"
         )
 
         if definitie.approved_by:
-            print(f"Goedgekeurd: {definitie.approved_at} door {definitie.approved_by}")
+            logger.info(
+                f"Goedgekeurd: {definitie.approved_at} door {definitie.approved_by}"
+            )
             if definitie.approval_notes:
-                print(f"Notities: {definitie.approval_notes}")
+                logger.info(f"Notities: {definitie.approval_notes}")
 
         # Show validation issues if any
         issues = definitie.get_validation_issues_list()
         if issues:
-            print("\n⚠️ VALIDATION ISSUES:")
+            logger.warning("VALIDATION ISSUES:")
             for issue in issues:
-                print(
+                logger.warning(
                     f"   - {issue.get('rule_id', 'Unknown')}: {issue.get('description', 'No description')}"
                 )
 
     def cmd_check(self, args):
         """Check voor duplicates zonder definitie te genereren."""
-        print("🔍 DUPLICATE CHECK")
-        print("=" * 30)
+        logger.info("DUPLICATE CHECK")
+        logger.info("=" * 30)
 
         categorie = OntologischeCategorie(args.categorie)
 
@@ -143,38 +141,38 @@ class DefinitieManagerCLI:
             categorie=categorie,
         )
 
-        print(f"📋 Begrip: {args.begrip}")
-        print(f"🏢 Context: {args.context}")
-        print(f"⚖️ Juridisch: {args.juridische_context or 'N/A'}")
-        print(f"📂 Categorie: {categorie.value}")
+        logger.info(f"Begrip: {args.begrip}")
+        logger.info(f"Context: {args.context}")
+        logger.info(f"Juridisch: {args.juridische_context or 'N/A'}")
+        logger.info(f"Categorie: {categorie.value}")
 
-        print("\n🎯 RESULTAAT:")
-        print(f"Actie: {check_result.action.value}")
-        print(f"Vertrouwen: {check_result.confidence:.2f}")
-        print(f"Bericht: {check_result.message}")
+        logger.info("\nRESULTAAT:")
+        logger.info(f"Actie: {check_result.action.value}")
+        logger.info(f"Vertrouwen: {check_result.confidence:.2f}")
+        logger.info(f"Bericht: {check_result.message}")
 
         if check_result.existing_definitie:
-            print("\n📋 BESTAANDE DEFINITIE:")
+            logger.info("\nBESTAANDE DEFINITIE:")
             existing = check_result.existing_definitie
-            print(f"   ID: {existing.id}")
-            print(f"   Status: {existing.status}")
-            print(f"   Definitie: {existing.definitie}")
+            logger.info(f"   ID: {existing.id}")
+            logger.info(f"   Status: {existing.status}")
+            logger.info(f"   Definitie: {existing.definitie}")
 
         if check_result.duplicates:
-            print("\n🔍 MOGELIJKE DUPLICATEN:")
+            logger.info("\nMOGELIJKE DUPLICATEN:")
             for i, dup in enumerate(check_result.duplicates[:3], 1):
-                print(
+                logger.info(
                     f"   {i}. {dup.definitie_record.begrip} (Score: {dup.match_score:.2f})"
                 )
-                print(
+                logger.info(
                     f"      ID: {dup.definitie_record.id}, Status: {dup.definitie_record.status}"
                 )
-                print(f"      Redenen: {', '.join(dup.match_reasons)}")
+                logger.info(f"      Redenen: {', '.join(dup.match_reasons)}")
 
     def cmd_generate(self, args):
         """Genereer nieuwe definitie met duplicate checking."""
-        print("🚀 DEFINITIE GENERATIE")
-        print("=" * 30)
+        logger.info("DEFINITIE GENERATIE")
+        logger.info("=" * 30)
 
         definitie_text, metadata = generate_or_retrieve_definition(
             begrip=args.begrip,
@@ -185,24 +183,24 @@ class DefinitieManagerCLI:
             created_by=args.created_by or "cli_user",
         )
 
-        print(f"📋 Begrip: {args.begrip}")
-        print(f"🏢 Context: {args.context}")
-        print(f"📂 Categorie: {args.categorie}")
-        print(f"🔄 Force new: {args.force}")
+        logger.info(f"Begrip: {args.begrip}")
+        logger.info(f"Context: {args.context}")
+        logger.info(f"Categorie: {args.categorie}")
+        logger.info(f"Force new: {args.force}")
 
-        print("\n📝 GEGENEREERDE DEFINITIE:")
-        print(f"{definitie_text}")
+        logger.info("\nGEGENEREERDE DEFINITIE:")
+        logger.info(f"{definitie_text}")
 
-        print("\n📊 METADATA:")
+        logger.info("\nMETADATA:")
         for key, value in metadata.items():
-            print(f"   {key}: {value}")
+            logger.info(f"   {key}: {value}")
 
         if metadata.get("source") == "generated":
-            print("\n✅ Nieuwe definitie succesvol gegenereerd en opgeslagen!")
+            logger.info("\nNieuwe definitie succesvol gegenereerd en opgeslagen!")
         elif metadata.get("source") == "existing":
-            print("\n♻️ Bestaande definitie gebruikt (geen nieuwe generatie)")
+            logger.info("\nBestaande definitie gebruikt (geen nieuwe generatie)")
         else:
-            print(f"\n❌ Generatie gefaald: {metadata.get('error', 'Unknown error')}")
+            logger.error(f"Generatie gefaald: {metadata.get('error', 'Unknown error')}")
 
     def cmd_approve(self, args):
         """Keur definitie goed."""
@@ -211,9 +209,9 @@ class DefinitieManagerCLI:
         )
 
         if success:
-            print(f"✅ Definitie {args.id} goedgekeurd door {args.approved_by}")
+            logger.info(f"Definitie {args.id} goedgekeurd door {args.approved_by}")
         else:
-            print(f"❌ Kon definitie {args.id} niet goedkeuren")
+            logger.error(f"Kon definitie {args.id} niet goedkeuren")
 
     def cmd_status(self, args):
         """Wijzig status van definitie."""
@@ -227,11 +225,11 @@ class DefinitieManagerCLI:
         )
 
         if success:
-            print(
-                f"✅ Status van definitie {args.id} gewijzigd naar {new_status.value}"
+            logger.info(
+                f"Status van definitie {args.id} gewijzigd naar {new_status.value}"
             )
         else:
-            print(f"❌ Kon status van definitie {args.id} niet wijzigen")
+            logger.error(f"Kon status van definitie {args.id} niet wijzigen")
 
     def cmd_export(self, args):
         """Exporteer definities naar JSON."""
@@ -244,7 +242,7 @@ class DefinitieManagerCLI:
             filters["categorie"] = OntologischeCategorie(args.categorie)
 
         count = self.repository.export_to_json(args.file, filters)
-        print(f"✅ {count} definities geëxporteerd naar {args.file}")
+        logger.info(f"{count} definities geëxporteerd naar {args.file}")
 
     def cmd_import(self, args):
         """Importeer definities uit JSON."""
@@ -252,62 +250,64 @@ class DefinitieManagerCLI:
             args.file, args.imported_by or "cli_user"
         )
 
-        print("📥 IMPORT RESULTATEN:")
-        print(f"✅ Succesvol: {successful}")
-        print(f"❌ Gefaald: {failed}")
+        logger.info("IMPORT RESULTATEN:")
+        logger.info(f"Succesvol: {successful}")
+        logger.info(f"Gefaald: {failed}")
 
         if errors:
-            print("\n⚠️ FOUTEN:")
+            logger.warning("FOUTEN:")
             for error in errors[:5]:  # Toon eerste 5 fouten
-                print(f"   - {error}")
+                logger.warning(f"   - {error}")
             if len(errors) > 5:
-                print(f"   ... en {len(errors) - 5} meer fouten")
+                logger.warning(f"   ... en {len(errors) - 5} meer fouten")
 
     def cmd_stats(self, args):
         """Toon database statistieken."""
         stats = self.repository.get_statistics()
 
-        print("📊 DATABASE STATISTIEKEN")
-        print("=" * 30)
-        print(f"Totaal definities: {stats['total_definities']}")
+        logger.info("DATABASE STATISTIEKEN")
+        logger.info("=" * 30)
+        logger.info(f"Totaal definities: {stats['total_definities']}")
 
-        print("\n📈 PER STATUS:")
+        logger.info("\nPER STATUS:")
         for status, count in stats["by_status"].items():
-            print(f"   {status}: {count}")
+            logger.info(f"   {status}: {count}")
 
-        print("\n📂 PER CATEGORIE:")
+        logger.info("\nPER CATEGORIE:")
         for categorie, count in stats["by_category"].items():
-            print(f"   {categorie}: {count}")
+            logger.info(f"   {categorie}: {count}")
 
         if stats["average_validation_score"]:
-            print(
-                f"\n🎯 Gemiddelde validation score: {stats['average_validation_score']}"
+            logger.info(
+                f"\nGemiddelde validation score: {stats['average_validation_score']}"
             )
 
     def cmd_pending(self, args):
         """Toon definities die wachten op goedkeuring."""
         pending = self.checker.get_pending_definitions()
 
-        print("⏳ DEFINITIES IN REVIEW")
-        print("=" * 30)
+        logger.info("DEFINITIES IN REVIEW")
+        logger.info("=" * 30)
 
         if not pending:
-            print("✅ Geen definities wachten op goedkeuring")
+            logger.info("Geen definities wachten op goedkeuring")
             return
 
         for definitie in pending:
-            print(f"\n📋 {definitie.begrip} (ID: {definitie.id})")
-            print(f"   Context: {definitie.organisatorische_context}")
-            print(f"   Categorie: {definitie.categorie}")
-            print(
+            logger.info(f"\n{definitie.begrip} (ID: {definitie.id})")
+            logger.info(f"   Context: {definitie.organisatorische_context}")
+            logger.info(f"   Categorie: {definitie.categorie}")
+            logger.info(
                 f"   Score: {definitie.validation_score:.2f}"
                 if definitie.validation_score
                 else "   Score: N/A"
             )
-            print(f"   Aangemaakt: {definitie.created_at} door {definitie.created_by}")
-            print(f"   Definitie: {definitie.definitie[:80]}...")
+            logger.info(
+                f"   Aangemaakt: {definitie.created_at} door {definitie.created_by}"
+            )
+            logger.info(f"   Definitie: {definitie.definitie[:80]}...")
 
-        print(f"\n📊 Totaal {len(pending)} definities in review")
+        logger.info(f"\nTotaal {len(pending)} definities in review")
 
 
 def create_parser():
@@ -456,13 +456,12 @@ def main():
         command_method(args)
 
     except Exception as e:
-        print(f"❌ Fout: {e}")
+        logger.error(f"Fout: {e}")
         if args.verbose:
-            import traceback
-
-            traceback.print_exc()
+            logger.exception("Volledige traceback:")
         sys.exit(1)
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO, format="%(message)s")
     main()
