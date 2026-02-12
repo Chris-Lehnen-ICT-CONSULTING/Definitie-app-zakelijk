@@ -1,7 +1,9 @@
 """
 Async API utilities for DefinitieAgent.
-Provides asynchronous OpenAI API calls with rate limiting and error handling.
+Provides asynchronous AI API calls with rate limiting and error handling.
 """
+
+from __future__ import annotations
 
 import asyncio
 import logging
@@ -14,9 +16,7 @@ UTC = UTC  # Python 3.10 compatibility
 from functools import wraps
 from typing import Any, cast
 
-from openai import AsyncOpenAI, OpenAIError
-from openai.types.chat import ChatCompletionMessageParam
-
+from services.ai.base_client import AIClientError, AsyncAIClient, ChatMessage
 from utils.cache import _cache, cache_gpt_call
 
 logger = logging.getLogger(__name__)
@@ -82,16 +82,24 @@ class AsyncRateLimiter:
 
 
 class AsyncGPTClient:
-    """Async wrapper for OpenAI GPT API calls."""
+    """Async wrapper for AI API calls with rate limiting and caching."""
 
-    def __init__(self, rate_limit_config: RateLimitConfig | None = None):
-        # Prefer OPENAI_API_KEY, fallback to OPENAI_API_KEY_PROD for dev convenience
-        self.api_key = os.getenv("OPENAI_API_KEY") or os.getenv("OPENAI_API_KEY_PROD")
-        if not self.api_key:
-            msg = "OPENAI_API_KEY not found in environment"
-            raise ValueError(msg)
+    def __init__(
+        self,
+        rate_limit_config: RateLimitConfig | None = None,
+        client: AsyncAIClient | None = None,
+    ):
+        if client is not None:
+            self._ai_client = client
+        else:
+            from services.ai.openai_client import OpenAIClient
 
-        self.client = AsyncOpenAI(api_key=self.api_key)
+            api_key = os.getenv("OPENAI_API_KEY") or os.getenv("OPENAI_API_KEY_PROD")
+            if not api_key:
+                msg = "OPENAI_API_KEY not found in environment"
+                raise ValueError(msg)
+            self._ai_client = OpenAIClient(api_key=api_key)
+
         self.rate_limiter = AsyncRateLimiter(rate_limit_config or RateLimitConfig())
         self.session_stats = {
             "total_requests": 0,
@@ -189,30 +197,26 @@ class AsyncGPTClient:
 
         for attempt in range(self.rate_limiter.config.max_retries):
             try:
-                # Build messages with optional system prompt
-                messages: list[ChatCompletionMessageParam] = []
+                messages: list[ChatMessage] = []
                 if system_prompt:
-                    messages.append({"role": "system", "content": system_prompt})
-                messages.append({"role": "user", "content": prompt})
+                    messages.append(ChatMessage(role="system", content=system_prompt))
+                messages.append(ChatMessage(role="user", content=prompt))
 
-                response = await self.client.chat.completions.create(
-                    model=model,
+                response = await self._ai_client.chat_completion(
                     messages=messages,
+                    model=model,
                     temperature=temperature,
                     max_tokens=max_tokens,
-                    **kwargs,
                 )
 
-                content = response.choices[0].message.content
-                result = content.strip() if content else ""
+                result = response.text
 
-                # Track token usage
-                if hasattr(response, "usage") and response.usage:
-                    self.session_stats["total_tokens"] += response.usage.total_tokens
+                if response.tokens_used:
+                    self.session_stats["total_tokens"] += response.tokens_used
 
                 return result
 
-            except OpenAIError as e:
+            except AIClientError as e:
                 last_error = e
                 if attempt < self.rate_limiter.config.max_retries - 1:
                     wait_time = self.rate_limiter.config.backoff_factor**attempt
@@ -225,7 +229,7 @@ class AsyncGPTClient:
                         f"API call failed after {self.rate_limiter.config.max_retries} attempts"
                     )
 
-        raise last_error or OpenAIError("Unknown error after retries")
+        raise last_error or AIClientError("Unknown error after retries")
 
     async def batch_completion(
         self,
@@ -299,7 +303,8 @@ class AsyncGPTClient:
 
     async def close(self):
         """Close the async client."""
-        await self.client.close()
+        if hasattr(self._ai_client, "close"):
+            await self._ai_client.close()
 
 
 # Global async client instance

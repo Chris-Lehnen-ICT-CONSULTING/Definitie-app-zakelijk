@@ -16,9 +16,13 @@ UTC = UTC  # Python 3.10 compatibility
 from enum import Enum
 from functools import wraps
 from pathlib import Path
-from typing import Any, cast
+from typing import Any
 
-from openai import APIConnectionError, APIError, RateLimitError
+from services.ai.base_client import (
+    AIClientError,
+    AIConnectionClientError,
+    AIRateLimitClientError,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -155,7 +159,10 @@ class AdaptiveRetryManager:
 
             # Allow retry for specific error types
             return bool(
-                isinstance(error, RateLimitError | APIConnectionError | APIError)
+                isinstance(
+                    error,
+                    AIRateLimitClientError | AIConnectionClientError | AIClientError,
+                )
             )
 
     async def get_retry_delay(self, error: Exception, attempt: int) -> float:
@@ -175,11 +182,11 @@ class AdaptiveRetryManager:
             delay = self.config.base_delay
 
         # Apply error-specific multipliers
-        if isinstance(error, RateLimitError):
+        if isinstance(error, AIRateLimitClientError):
             delay *= self.config.rate_limit_multiplier
-        elif isinstance(error, APIConnectionError):
+        elif isinstance(error, AIConnectionClientError):
             delay *= self.config.connection_error_multiplier
-        elif isinstance(error, APIError):
+        elif isinstance(error, AIClientError):
             delay *= self.config.api_error_multiplier
 
         # Apply jitter to prevent thundering herd
@@ -427,7 +434,7 @@ async def test_retry_system():
 
         if failing_function.call_count <= fail_count:
             msg = "Simulated rate limit error"
-            raise RateLimitError(msg, response=cast(Any, None), body=None)
+            raise AIRateLimitClientError(msg)
 
         return f"Success after {failing_function.call_count} attempts"
 

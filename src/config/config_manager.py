@@ -61,6 +61,8 @@ class APIConfig:
     request_timeout: float = 30.0  # Timeout in seconden voor API verzoeken
     max_retries: int = 3  # Maximum aantal herhaalpogingen bij mislukte verzoeken
     retry_backoff_factor: float = 1.5  # Exponentiële vertraging tussen pogingen
+    ai_provider: str = "openai"  # AI provider: "openai" or "anthropic"
+    anthropic_api_key: str = ""  # Anthropic API key for Claude models
 
     # Model-specifieke instellingen per AI model type
     model_settings: dict[str, dict[str, Any]] = field(
@@ -74,6 +76,11 @@ class APIConfig:
                 "max_tokens": 300,  # Standaard token limiet
                 "temperature": 0.0,  # Maximale consistentie (deterministisch)
                 "cost_per_token": 0.00003,  # Kosten per token in USD
+            },
+            "claude-sonnet-4-5-20250929": {
+                "max_tokens": 300,
+                "temperature": 0.0,
+                "cost_per_token": 0.000003,
             },
         }
     )
@@ -508,6 +515,15 @@ class ConfigManager:
         if tokens := os.getenv("OPENAI_DEFAULT_MAX_TOKENS"):
             self.api.default_max_tokens = int(tokens)
 
+        # AI provider selection
+        if ai_provider := os.getenv("AI_PROVIDER"):
+            self.api.ai_provider = ai_provider.lower()
+
+        # Anthropic API key
+        anthropic_key = os.getenv("ANTHROPIC_API_KEY")
+        if anthropic_key:
+            self.api.anthropic_api_key = anthropic_key
+
         # ENVIRONMENT wordt genegeerd; we hanteren één vaste omgeving
 
         # Cache configuratie
@@ -556,8 +572,10 @@ class ConfigManager:
         maakt benodigde directories aan.
         """
         # Valideer API configuratie
-        if not self.api.openai_api_key:
-            logger.warning("OpenAI API key niet geconfigureerd")
+        if not self.validate_api_key():
+            logger.warning(
+                f"API key niet geconfigureerd voor provider: {self.api.ai_provider}"
+            )
 
         if self.api.default_temperature < 0 or self.api.default_temperature > 2:
             logger.warning(f"Ongeldige temperatuur: {self.api.default_temperature}")
@@ -651,6 +669,7 @@ class ConfigManager:
     # DEF-247: Fields that should never be persisted to config.yaml
     _SENSITIVE_FIELDS: ClassVar[set[str]] = {
         "openai_api_key",
+        "anthropic_api_key",
         "api_key",
         "secret",
         "password",
@@ -695,7 +714,7 @@ class ConfigManager:
             "environment": self.environment.value,
             "config_file": str(self.config_file),
             "config_loaded": self.config_file.exists(),
-            "api_key_configured": bool(self.api.openai_api_key),
+            "api_key_configured": self.validate_api_key(),
             "directories_created": all(
                 Path(getattr(self.paths, attr)).exists()
                 for attr in ["cache_dir", "exports_dir", "logs_dir", "reports_dir"]
@@ -704,15 +723,17 @@ class ConfigManager:
         }
 
     def validate_api_key(self) -> bool:
-        """Validate OpenAI API key."""
+        """Validate API key for the active AI provider."""
+        if self.api.ai_provider == "anthropic":
+            if not self.api.anthropic_api_key:
+                return False
+            return self.api.anthropic_api_key.startswith("sk-ant-")
+
+        # Default: OpenAI validation
         if not self.api.openai_api_key:
             return False
-
-        # Basic validation (starts with 'sk-')
         if not self.api.openai_api_key.startswith("sk-"):
             return False
-
-        # Length validation
         return not len(self.api.openai_api_key) < 20
 
 
