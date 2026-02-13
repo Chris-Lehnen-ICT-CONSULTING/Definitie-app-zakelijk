@@ -308,45 +308,6 @@ BEGIN
 END;
 
 -- ========================================
--- SAMPLE DATA (voor testing)
--- ========================================
-
--- Voorbeelden van statuses en categorieën
-INSERT INTO definities (
-    begrip, definitie, categorie, organisatorische_context, juridische_context,
-    status, validation_score, created_by, source_type
-) VALUES
-(
-    'verificatie',
-    'Proces waarbij identiteitsgegevens systematisch worden gecontroleerd tegen authentieke bronregistraties',
-    'proces',
-    'DJI',
-    'strafrecht',
-    'established',
-    0.95,
-    'system',
-    'generated'
-),
-(
-    'registratie',
-    'Handeling waarbij gegevens worden vastgelegd in een gestructureerd systeem voor latere raadpleging',
-    'proces',
-    'OM',
-    '',
-    'draft',
-    0.78,
-    'system',
-    'generated'
-);
-
--- Sample tags
-INSERT INTO definitie_tags (definitie_id, tag_naam, tag_waarde, toegevoegd_door) VALUES
-(1, 'prioriteit', 'hoog', 'admin'),
-(1, 'thema', 'identiteit', 'admin'),
-(2, 'prioriteit', 'medium', 'admin'),
-(2, 'thema', 'data_management', 'admin');
-
--- ========================================
 -- SYNONYM SYSTEM (GRAPH-BASED)
 -- ========================================
 -- Architecture: Synonym Orchestrator Architecture v3.1
@@ -444,3 +405,152 @@ CREATE TRIGGER update_synonym_group_members_timestamp
 BEGIN
     UPDATE synonym_group_members SET updated_at = CURRENT_TIMESTAMP WHERE id = NEW.id;
 END;
+
+-- ========================================
+-- SCHEMA VERSIONING
+-- ========================================
+
+CREATE TABLE IF NOT EXISTS schema_version (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    version INTEGER NOT NULL,
+    description TEXT,
+    applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ========================================
+-- RAG SYSTEM (Phase 1)
+-- ========================================
+
+CREATE TABLE IF NOT EXISTS rag_collections (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    collection_name VARCHAR(255) NOT NULL UNIQUE,
+    document_count INTEGER DEFAULT 0,
+    chunk_count INTEGER DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    metadata_json TEXT
+);
+
+CREATE TABLE IF NOT EXISTS rag_documents (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    collection_id INTEGER REFERENCES rag_collections(id) ON DELETE CASCADE,
+    filename VARCHAR(255),
+    file_type VARCHAR(50),
+    chunk_count INTEGER,
+    rechtsgebied VARCHAR(100),
+    processed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS rag_chunks (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    collection_id INTEGER REFERENCES rag_collections(id) ON DELETE CASCADE,
+    document_id INTEGER REFERENCES rag_documents(id) ON DELETE CASCADE,
+    chunk_text TEXT NOT NULL,
+    embedding BLOB,
+    chunk_index INTEGER,
+    rechtsgebied VARCHAR(100),
+    wet_regeling VARCHAR(255),
+    artikel_lid VARCHAR(100),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_chunks_collection ON rag_chunks(collection_id);
+CREATE INDEX IF NOT EXISTS idx_chunks_document ON rag_chunks(document_id);
+
+-- ========================================
+-- ONTOLOGY SYSTEM (Phase 2)
+-- ========================================
+
+CREATE TABLE IF NOT EXISTS ontological_models (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    model_name VARCHAR(255) NOT NULL,
+    version_number INTEGER DEFAULT 1,
+    parent_version_id INTEGER REFERENCES ontological_models(id),
+    rag_collection_id INTEGER REFERENCES rag_collections(id),
+    validation_status VARCHAR(50) DEFAULT 'draft',
+    validation_score DECIMAL(3,2),
+    snapshot_json TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS ontology_terms (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    model_id INTEGER REFERENCES ontological_models(id) ON DELETE CASCADE,
+    term_text VARCHAR(255) NOT NULL,
+    categorie_6 VARCHAR(50),
+    ufo_categorie VARCHAR(50),
+    classification_confidence DECIMAL(3,2),
+    wettelijke_basis VARCHAR(255),
+    rechtsgebied VARCHAR(100),
+    rag_context_summary TEXT
+);
+
+CREATE TABLE IF NOT EXISTS ontology_relationships (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    model_id INTEGER REFERENCES ontological_models(id) ON DELETE CASCADE,
+    source_term_id INTEGER REFERENCES ontology_terms(id) ON DELETE CASCADE,
+    target_term_id INTEGER REFERENCES ontology_terms(id) ON DELETE CASCADE,
+    relationship_type VARCHAR(50),
+    confidence_score DECIMAL(3,2),
+    inferred_by VARCHAR(50) DEFAULT 'manual'
+);
+
+CREATE INDEX IF NOT EXISTS idx_ont_terms_model ON ontology_terms(model_id);
+CREATE INDEX IF NOT EXISTS idx_ont_rels_model ON ontology_relationships(model_id);
+
+-- ========================================
+-- PROJECTS (Dashboard)
+-- ========================================
+
+CREATE TABLE IF NOT EXISTS projects (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    project_name VARCHAR(255) NOT NULL,
+    description TEXT,
+    rag_collection_id INTEGER REFERENCES rag_collections(id),
+    ontology_model_id INTEGER REFERENCES ontological_models(id),
+    phase_rag_status VARCHAR(50) DEFAULT 'not_started',
+    phase_ontology_status VARCHAR(50) DEFAULT 'not_started',
+    phase_definition_status VARCHAR(50) DEFAULT 'not_started',
+    phase_validation_status VARCHAR(50) DEFAULT 'not_started',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP
+);
+
+-- ========================================
+-- SAMPLE DATA (voor testing)
+-- ========================================
+
+-- Voorbeelden van statuses en categorieën
+INSERT INTO definities (
+    begrip, definitie, categorie, organisatorische_context, juridische_context,
+    status, validation_score, created_by, source_type
+) VALUES
+(
+    'verificatie',
+    'Proces waarbij identiteitsgegevens systematisch worden gecontroleerd tegen authentieke bronregistraties',
+    'proces',
+    'DJI',
+    'strafrecht',
+    'established',
+    0.95,
+    'system',
+    'generated'
+),
+(
+    'registratie',
+    'Handeling waarbij gegevens worden vastgelegd in een gestructureerd systeem voor latere raadpleging',
+    'proces',
+    'OM',
+    '',
+    'draft',
+    0.78,
+    'system',
+    'generated'
+);
+
+-- Sample tags
+INSERT INTO definitie_tags (definitie_id, tag_naam, tag_waarde, toegevoegd_door) VALUES
+(1, 'prioriteit', 'hoog', 'admin'),
+(1, 'thema', 'identiteit', 'admin'),
+(2, 'prioriteit', 'medium', 'admin'),
+(2, 'thema', 'data_management', 'admin');
