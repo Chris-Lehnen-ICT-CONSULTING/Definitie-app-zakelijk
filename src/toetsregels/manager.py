@@ -464,27 +464,28 @@ def load_regel(regel_id: str) -> dict[str, Any] | None:
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
     # Test de ToetsregelManager
-    print("🧪 Testing ToetsregelManager")
-    print("=" * 30)
+    logger.info("Testing ToetsregelManager")
+    logger.info("=" * 30)
 
     manager = ToetsregelManager()
 
     # Test regel laden
     con01 = manager.load_regel("CON-01")
     if con01:
-        print(f"✅ CON-01 geladen: {con01['naam'][:50]}...")
+        logger.info(f"CON-01 geladen: {con01['naam'][:50]}...")
 
     # Test regelset laden
     kritiek = manager.get_kritieke_regels()
-    print(f"✅ Kritieke regels: {len(kritiek)} regels")
+    logger.info(f"Kritieke regels: {len(kritiek)} regels")
 
     # Test statistieken
     stats = manager.get_stats()
-    print(f"📊 Statistieken: {stats}")
+    logger.info(f"Statistieken: {stats}")
 
     # Test beschikbare sets
     sets = manager.get_available_sets()
-    print(f"📁 Beschikbare sets: {len(sets)}")
+    logger.info(f"Beschikbare sets: {len(sets)}")
     for set_naam in sets[:5]:  # Toon eerste 5
-        print(f"   - {set_naam}")
+        logger.info(f"  - {set_naam}")

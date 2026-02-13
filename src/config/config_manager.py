@@ -874,26 +874,27 @@ def save_config():
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
     # Test configuration manager
-    print("🔧 Testing Configuration Manager")
-    print("=" * 35)
+    logger.info("Testing Configuration Manager")
+    logger.info("=" * 35)
 
     config = get_config_manager()
 
-    print(f"Environment: {config.environment.value}")
-    print(f"API Key configured: {config.validate_api_key()}")
-    print(f"Default model: {config.api.default_model}")
-    print(f"Cache directory: {config.cache.cache_dir}")
-    print(f"Rate limit: {config.rate_limiting.requests_per_minute} RPM")
+    logger.info(f"Environment: {config.environment.value}")
+    logger.info(f"API Key configured: {config.validate_api_key()}")
+    logger.info(f"Default model: {config.api.default_model}")
+    logger.info(f"Cache directory: {config.cache.cache_dir}")
+    logger.info(f"Rate limit: {config.rate_limiting.requests_per_minute} RPM")
 
     # Test configuration access
     api_config = get_config(ConfigSection.API)
-    print(f"API timeout: {api_config.request_timeout}s")
+    logger.info(f"API timeout: {api_config.request_timeout}s")
 
     # Test environment info
     env_info = config.get_environment_info()
-    print(f"Environment info: {env_info}")
+    logger.info(f"Environment info: {env_info}")
 
     # Save configuration
     config.save_configuration()
-    print("Configuration saved successfully")
+    logger.info("Configuration saved successfully")

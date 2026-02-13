@@ -659,8 +659,8 @@ def sanitize_input_decorator(
 
 async def test_sanitizer():
     """Test the sanitization system."""
-    print("🧪 Testing Content Sanitizer")
-    print("=" * 28)
+    logger.info("Testing Content Sanitizer")
+    logger.info("=" * 28)
 
     sanitizer = get_sanitizer()
 
@@ -669,8 +669,8 @@ async def test_sanitizer():
     result = sanitizer.sanitize(
         malicious_text, ContentType.HTML, SanitizationLevel.STRICT
     )
-    print(
-        f"✅ XSS removal: '{result.sanitized_value}' (changes: {len(result.changes_made)})"
+    logger.info(
+        f"XSS removal: '{result.sanitized_value}' (changes: {len(result.changes_made)})"
     )
 
     # Test Dutch text sanitization
@@ -678,8 +678,8 @@ async def test_sanitizer():
     result = sanitizer.sanitize(
         dutch_text, ContentType.DUTCH_TEXT, SanitizationLevel.STRICT
     )
-    print(
-        f"✅ Dutch text filter: '{result.sanitized_value}' (changes: {len(result.changes_made)})"
+    logger.info(
+        f"Dutch text filter: '{result.sanitized_value}' (changes: {len(result.changes_made)})"
     )
 
     # Test definition sanitization
@@ -687,13 +687,13 @@ async def test_sanitizer():
     result = sanitizer.sanitize(
         definition_text, ContentType.DEFINITION, SanitizationLevel.MODERATE
     )
-    print(
-        f"✅ Definition sanitization: '{result.sanitized_value}' (changes: {len(result.changes_made)})"
+    logger.info(
+        f"Definition sanitization: '{result.sanitized_value}' (changes: {len(result.changes_made)})"
     )
 
     # Test threat detection
     threats = sanitizer.detect_malicious_content("<script>document.cookie</script>")
-    print(f"🚨 Threats detected: {len(threats)} - {threats}")
+    logger.info(f"Threats detected: {len(threats)} - {threats}")
 
     # Test user input sanitization
     user_data = {
@@ -703,13 +703,13 @@ async def test_sanitizer():
     }
 
     sanitized_data = sanitizer.sanitize_user_input(user_data)
-    print(f"✅ User input sanitized: {sanitized_data}")
+    logger.info(f"User input sanitized: {sanitized_data}")
 
     # Show statistics
     stats = sanitizer.get_sanitization_stats()
-    print(f"📊 Total sanitizations: {stats['total_sanitizations']}")
-    print(f"📊 Total changes: {stats['total_changes']}")
-    print(f"📊 Total warnings: {stats['total_warnings']}")
+    logger.info(f"Total sanitizations: {stats['total_sanitizations']}")
+    logger.info(f"Total changes: {stats['total_changes']}")
+    logger.info(f"Total warnings: {stats['total_warnings']}")
 
 
 if __name__ == "__main__":
