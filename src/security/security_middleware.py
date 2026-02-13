@@ -647,8 +647,8 @@ def security_middleware_decorator(endpoint_name: str = ""):
 
 async def test_security_middleware():
     """Test the security middleware system."""
-    print("🔒 Testing Security Middleware")
-    print("=" * 30)
+    logger.info("Testing Security Middleware")
+    logger.info("=" * 30)
 
     middleware = get_security_middleware()
 
@@ -671,7 +671,7 @@ async def test_security_middleware():
     )
 
     response = await middleware.validate_request(normal_request)
-    print(f"✅ Normal request: {'ALLOWED' if response.allowed else 'BLOCKED'}")
+    logger.info(f"Normal request: {'ALLOWED' if response.allowed else 'BLOCKED'}")
 
     # Test malicious request
     malicious_request = ValidationRequest(
@@ -692,12 +692,12 @@ async def test_security_middleware():
     )
 
     response = await middleware.validate_request(malicious_request)
-    print(f"🚨 Malicious request: {'ALLOWED' if response.allowed else 'BLOCKED'}")
-    print(f"🚨 Threats detected: {len(response.threats_detected)}")
-    print(f"🚨 Security events: {len(response.security_events)}")
+    logger.info(f"Malicious request: {'ALLOWED' if response.allowed else 'BLOCKED'}")
+    logger.info(f"Threats detected: {len(response.threats_detected)}")
+    logger.info(f"Security events: {len(response.security_events)}")
 
     # Test rate limiting
-    print("\n🚥 Testing rate limiting...")
+    logger.info("Testing rate limiting...")
     for i in range(15):  # Exceed rate limit
         test_request = ValidationRequest(
             endpoint="definition_generation",
@@ -711,19 +711,20 @@ async def test_security_middleware():
 
         response = await middleware.validate_request(test_request)
         if not response.allowed:
-            print(f"🚥 Rate limit triggered at request {i+1}")
+            logger.info(f"Rate limit triggered at request {i+1}")
             break
 
     # Generate security report
     report = middleware.get_security_report()
-    print("\n📊 Security Report:")
-    print(f"  Total events: {report['total_security_events']}")
-    print(f"  Blocked requests: {report['blocked_requests']}")
-    print(f"  Block rate: {report['block_rate']:.1%}")
-    print(f"  Threat types: {report['threat_types']}")
+    logger.info("Security Report:")
+    logger.info(f"  Total events: {report['total_security_events']}")
+    logger.info(f"  Blocked requests: {report['blocked_requests']}")
+    logger.info(f"  Block rate: {report['block_rate']:.1%}")
+    logger.info(f"  Threat types: {report['threat_types']}")
 
 
 if __name__ == "__main__":
     import asyncio
 
+    logging.basicConfig(level=logging.INFO)
     asyncio.run(test_security_middleware())

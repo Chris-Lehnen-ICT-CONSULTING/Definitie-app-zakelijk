@@ -575,8 +575,8 @@ def with_smart_rate_limit(
 
 async def test_smart_rate_limiter():
     """Test the smart rate limiting system."""
-    print("🧪 Testing Smart Rate Limiter")
-    print("=" * 40)
+    logger.info("Testing Smart Rate Limiter")
+    logger.info("=" * 40)
 
     config = RateLimitConfig(
         tokens_per_second=2.0, bucket_capacity=5, target_response_time=1.0
@@ -615,13 +615,17 @@ async def test_smart_rate_limiter():
 
         # Show results
         successful = sum(1 for r in results if not isinstance(r, Exception))
-        print(f"✅ Completed {successful}/{len(tasks)} requests in {total_time:.2f}s")
+        logger.info(
+            f"Completed {successful}/{len(tasks)} requests in {total_time:.2f}s"
+        )
 
         # Show queue status
         status = limiter.get_queue_status()
-        print(f"📊 Current rate: {status['current_rate']:.2f} req/sec")
-        print(f"📊 Total requests: {status['stats']['total_requests']}")
-        print(f"📊 Average response time: {status['stats']['avg_response_time']:.2f}s")
+        logger.info(f"Current rate: {status['current_rate']:.2f} req/sec")
+        logger.info(f"Total requests: {status['stats']['total_requests']}")
+        logger.info(
+            f"Average response time: {status['stats']['avg_response_time']:.2f}s"
+        )
 
     finally:
         await limiter.stop()
@@ -636,4 +640,5 @@ async def cleanup_smart_limiters():
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
     asyncio.run(test_smart_rate_limiter())

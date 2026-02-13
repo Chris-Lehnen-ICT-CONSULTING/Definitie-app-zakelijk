@@ -441,8 +441,8 @@ def with_cost_optimized_resilience(endpoint_name: str = "", model: str = "gpt-4.
 
 async def test_integrated_system():
     """Test the integrated resilience system."""
-    print("🧪 Testing Integrated Resilience System")
-    print("=" * 45)
+    logger.info("Testing Integrated Resilience System")
+    logger.info("=" * 45)
 
     # Test different scenarios
     call_count = 0
@@ -469,12 +469,12 @@ async def test_integrated_system():
     try:
         # Test successful execution
         result = await test_function(should_fail=False, delay=0.2)
-        print(f"✅ Success: {result}")
+        logger.info(f"Success: {result}")
 
         # Test with failures (should retry and succeed)
         call_count = 0
         result = await test_function(should_fail=True, delay=0.1)
-        print(f"✅ Retry success: {result}")
+        logger.info(f"Retry success: {result}")
 
         # Test critical operation
         @with_critical_resilience(endpoint_name="critical_test")
@@ -482,7 +482,7 @@ async def test_integrated_system():
             return "Critical operation completed"
 
         result = await critical_function()
-        print(f"✅ Critical: {result}")
+        logger.info(f"Critical: {result}")
 
         # Test background operation
         @with_background_resilience(endpoint_name="background_test")
@@ -491,28 +491,30 @@ async def test_integrated_system():
             return "Background operation completed"
 
         result = await background_function()
-        print(f"✅ Background: {result}")
+        logger.info(f"Background: {result}")
 
         # Get system status
         system = await get_integrated_system()
         status = system.get_system_status()
 
-        print("\n📊 System Status:")
-        print(f"  Started: {status['system_started']}")
-        print(f"  Retry Manager State: {status['retry_manager']['circuit_state']}")
-        print(
+        logger.info("System Status:")
+        logger.info(f"  Started: {status['system_started']}")
+        logger.info(
+            f"  Retry Manager State: {status['retry_manager']['circuit_state']}"
+        )
+        logger.info(
             f"  Rate Limiter Rate: {status['rate_limiter']['current_rate']:.2f} req/sec"
         )
-        print(f"  Total Requests: {status['retry_manager']['total_requests']}")
+        logger.info(f"  Total Requests: {status['retry_manager']['total_requests']}")
 
         if "metrics" in status:
             metrics = status["metrics"]
-            print(f"  Success Rate: {metrics['success_rate']:.1%}")
-            print(f"  Avg Response Time: {metrics['avg_response_time']:.2f}s")
-            print(f"  Total Cost: ${metrics['total_cost']:.4f}")
+            logger.info(f"  Success Rate: {metrics['success_rate']:.1%}")
+            logger.info(f"  Avg Response Time: {metrics['avg_response_time']:.2f}s")
+            logger.info(f"  Total Cost: ${metrics['total_cost']:.4f}")
 
     except Exception as e:
-        print(f"❌ Test failed: {e}")
+        logger.error(f"Test failed: {e}")
 
     finally:
         # Clean up
@@ -530,4 +532,5 @@ async def cleanup_integrated_system():
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
     asyncio.run(test_integrated_system())

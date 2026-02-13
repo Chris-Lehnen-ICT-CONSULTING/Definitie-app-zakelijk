@@ -21,7 +21,9 @@ try:
     AIOHTTP_AVAILABLE = True
 except ImportError:
     AIOHTTP_AVAILABLE = False
-    print("Warning: aiohttp niet beschikbaar - SRU service werkt niet volledig")
+    logging.getLogger(__name__).warning(
+        "aiohttp niet beschikbaar - SRU service werkt niet volledig"
+    )
 
 from datetime import UTC
 
