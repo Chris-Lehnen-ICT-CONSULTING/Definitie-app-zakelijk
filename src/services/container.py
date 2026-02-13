@@ -681,6 +681,23 @@ class ServiceContainer:
             logger.info("⚡ DefinitionImportService lazy-loaded (CSV helper)")
         return self._lazy_instances["import_service"]
 
+    def document_chunker(self):
+        """
+        Get or create DocumentChunker instance (LAZY-LOADED).
+
+        DEF-290: Juridisch-aware document chunking voor de RAG-pipeline.
+        Only loaded when RAG chunking is triggered.
+
+        Returns:
+            Singleton instance van DocumentChunker
+        """
+        if "document_chunker" not in self._lazy_instances:
+            from services.rag.document_chunker import DocumentChunker
+
+            self._lazy_instances["document_chunker"] = DocumentChunker()
+            logger.info("⚡ DocumentChunker lazy-loaded (DEF-290)")
+        return self._lazy_instances["document_chunker"]
+
     # UI-services worden niet in de servicescontainer opgebouwd. Gebruik UI-container.
 
     # Utility methods
@@ -719,6 +736,7 @@ class ServiceContainer:
             "synonym_service": self.synonym_service,
             "ontological_classifier": self.ontological_classifier,
             "term_based_classifier": self.term_based_classifier,
+            "document_chunker": self.document_chunker,
         }
 
         if name in service_map:
