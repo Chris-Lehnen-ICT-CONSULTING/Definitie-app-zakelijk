@@ -65,12 +65,7 @@ def render_ai_provider_sidebar() -> None:
         has_env_key = bool(existing_key)
 
         if has_env_key:
-            # Show that a key is configured (mask it)
-            masked = (
-                existing_key[:7] + "..." + existing_key[-4:]
-                if len(existing_key) > 15
-                else "********"
-            )
+            masked = f"{provider_config['key_prefix']}••••••••"
             st.caption(f"Key via env: `{masked}`")
 
         # Always show password input for override
