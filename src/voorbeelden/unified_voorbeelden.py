@@ -1120,8 +1120,8 @@ async def genereer_alle_voorbeelden_async(
 
 async def test_unified_examples():
     """Test the unified examples system."""
-    print("🧪 Testing Unified Examples System")
-    print("=" * 40)
+    logger.info("Testing Unified Examples System")
+    logger.info("=" * 40)
 
     # Test data
     begrip = "identiteitsbehandeling"
@@ -1138,30 +1138,31 @@ async def test_unified_examples():
     modes = [GenerationMode.SYNC, GenerationMode.CACHED, GenerationMode.RESILIENT]
 
     for mode in modes:
-        print(f"\n🔄 Testing {mode.value} mode...")
+        logger.info(f"Testing {mode.value} mode...")
 
         examples = genereer_voorbeeld_zinnen(begrip, definitie, context_dict, mode)
-        print(f"✅ Generated {len(examples)} example sentences")
+        logger.info(f"Generated {len(examples)} example sentences")
 
         if examples:
-            print(f"   Example: {examples[0]}")
+            logger.info(f"   Example: {examples[0]}")
 
     # Test batch generation
-    print("\n📦 Testing batch generation...")
+    logger.info("Testing batch generation...")
     all_examples = genereer_alle_voorbeelden(begrip, definitie, context_dict)
 
     for example_type, examples in all_examples.items():
-        print(f"✅ {example_type}: {len(examples)} examples")
+        logger.info(f"{example_type}: {len(examples)} examples")
 
     # Show statistics
     stats = generator.get_statistics()
-    print("\n📊 Statistics:")
-    print(f"   Total generations: {stats['total_generations']}")
-    print(f"   Success rate: {stats['success_rate']:.1%}")
-    print(f"   Cache hits: {stats['cache_hits']}")
+    logger.info("Statistics:")
+    logger.info(f"   Total generations: {stats['total_generations']}")
+    logger.info(f"   Success rate: {stats['success_rate']:.1%}")
+    logger.info(f"   Cache hits: {stats['cache_hits']}")
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
     # Use the same async-safe pattern for testing
     try:
         asyncio.get_running_loop()

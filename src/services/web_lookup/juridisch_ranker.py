@@ -29,8 +29,8 @@ try:
     YAML_AVAILABLE = True
 except ImportError:
     YAML_AVAILABLE = False
-    print(
-        "Warning: PyYAML niet beschikbaar - juridisch ranker werkt met fallback keywords"
+    logging.getLogger(__name__).warning(
+        "PyYAML niet beschikbaar - juridisch ranker werkt met fallback keywords"
     )
 
 logger = logging.getLogger(__name__)
