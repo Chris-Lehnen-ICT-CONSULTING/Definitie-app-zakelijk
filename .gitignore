@@ -172,4 +172,19 @@ reports/
 .bmad/
 .codex/
 .cursor/
+.skills/
 coverage.xml
+
+# 💚 Diagram versies (lokaal, niet in repo)
+Archief_Oude_Versies/
+Huidige_Versie/
+
+# 💚 Losse analyse/plan bestanden in root
+/Linear_Issues_*.md
+/Review_*.md
+/Stappenplan_*.md
+/Verbeterd_Plan_*.md
+/plan_*.js
+
+# 💚 Backup bestanden
+*.bak
