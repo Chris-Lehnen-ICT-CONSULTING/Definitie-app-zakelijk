@@ -107,6 +107,7 @@ oude legacy broncode om te controleren/
 # 💚 HTML exports
 Browser Test Checklist.html
 *Test*.html
+docs/*.html
 
 # 💚 Backup directories
 backups/
