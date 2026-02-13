@@ -698,6 +698,26 @@ class ServiceContainer:
             logger.info("⚡ DocumentChunker lazy-loaded (DEF-290)")
         return self._lazy_instances["document_chunker"]
 
+    @property
+    def embedding_service(self):
+        """
+        Get or create EmbeddingService instance (LAZY-LOADED).
+
+        DEF-269: Eigen OpenAI client voor embeddings, onafhankelijk van chat provider.
+        Only loaded when RAG embedding is triggered.
+
+        Returns:
+            Singleton instance van EmbeddingService
+        """
+        if "embedding_service" not in self._lazy_instances:
+            from services.rag.embedding_service import EmbeddingService
+
+            self._lazy_instances["embedding_service"] = EmbeddingService(
+                api_key=self.openai_api_key,
+            )
+            logger.info("⚡ EmbeddingService lazy-loaded (DEF-269)")
+        return self._lazy_instances["embedding_service"]
+
     # UI-services worden niet in de servicescontainer opgebouwd. Gebruik UI-container.
 
     # Utility methods
@@ -737,6 +757,7 @@ class ServiceContainer:
             "ontological_classifier": self.ontological_classifier,
             "term_based_classifier": self.term_based_classifier,
             "document_chunker": self.document_chunker,
+            "embedding_service": lambda: self.embedding_service,
         }
 
         if name in service_map:
