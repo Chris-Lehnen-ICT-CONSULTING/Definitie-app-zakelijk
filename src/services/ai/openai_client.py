@@ -22,6 +22,7 @@ from services.ai.base_client import (
     AIRateLimitClientError,
     ChatMessage,
     ChatResponse,
+    sanitize_error,
 )
 
 logger = logging.getLogger(__name__)
@@ -30,8 +31,9 @@ logger = logging.getLogger(__name__)
 class OpenAIClient:
     """AsyncAIClient implementation backed by the OpenAI SDK."""
 
-    def __init__(self, api_key: str) -> None:
-        self._client = AsyncOpenAI(api_key=api_key)
+    def __init__(self, api_key: str, timeout: float = 30.0) -> None:
+        self._timeout = timeout
+        self._client = AsyncOpenAI(api_key=api_key, timeout=timeout)
 
     @property
     def provider_name(self) -> str:
@@ -43,7 +45,11 @@ class OpenAIClient:
         model: str,
         temperature: float = 0.7,
         max_tokens: int = 300,
+        timeout: float | None = None,
     ) -> ChatResponse:
+        if not messages:
+            raise AIClientError("messages must not be empty")
+
         sdk_messages: list[ChatCompletionMessageParam] = [
             {"role": m.role, "content": m.content} for m in messages  # type: ignore[misc]
         ]
@@ -53,13 +59,17 @@ class OpenAIClient:
                 messages=sdk_messages,
                 temperature=temperature,
                 max_tokens=max_tokens,
+                timeout=timeout or self._timeout,
             )
         except RateLimitError as exc:
-            raise AIRateLimitClientError(str(exc)) from exc
+            logger.warning("OpenAI rate limit hit: %s", sanitize_error(str(exc)))
+            raise AIRateLimitClientError(sanitize_error(str(exc))) from exc
         except APIConnectionError as exc:
-            raise AIConnectionClientError(str(exc)) from exc
+            logger.error("OpenAI connection error: %s", sanitize_error(str(exc)))
+            raise AIConnectionClientError(sanitize_error(str(exc))) from exc
         except OpenAIError as exc:
-            raise AIClientError(str(exc)) from exc
+            logger.error("OpenAI API error: %s", sanitize_error(str(exc)))
+            raise AIClientError(sanitize_error(str(exc))) from exc
 
         content = response.choices[0].message.content
         text = content.strip() if content else ""
