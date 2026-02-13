@@ -17,6 +17,7 @@ from services.ai.base_client import (
     AIRateLimitClientError,
     ChatMessage,
     ChatResponse,
+    sanitize_error,
 )
 
 logger = logging.getLogger(__name__)
@@ -25,8 +26,9 @@ logger = logging.getLogger(__name__)
 class AnthropicClient:
     """AsyncAIClient implementation backed by the Anthropic SDK."""
 
-    def __init__(self, api_key: str) -> None:
-        self._client = AsyncAnthropic(api_key=api_key)
+    def __init__(self, api_key: str, timeout: float = 30.0) -> None:
+        self._timeout = timeout
+        self._client = AsyncAnthropic(api_key=api_key, timeout=timeout)
 
     @property
     def provider_name(self) -> str:
@@ -38,13 +40,24 @@ class AnthropicClient:
         model: str,
         temperature: float = 0.7,
         max_tokens: int = 300,
+        timeout: float | None = None,
     ) -> ChatResponse:
+        if not messages:
+            raise AIClientError("messages must not be empty")
+
         # Anthropic uses a separate `system` parameter (not a system message in the list)
         system_text: str | anthropic.NotGiven = anthropic.NOT_GIVEN
         api_messages: list[dict[str, str]] = []
+        system_count = 0
 
         for msg in messages:
             if msg.role == "system":
+                system_count += 1
+                if system_count > 1:
+                    raise AIClientError(
+                        "Multiple system messages are not supported by Anthropic. "
+                        "Combine them into a single system message."
+                    )
                 system_text = msg.content
             else:
                 api_messages.append({"role": msg.role, "content": msg.content})
@@ -56,13 +69,17 @@ class AnthropicClient:
                 temperature=temperature,
                 system=system_text,
                 messages=api_messages,
+                timeout=timeout or self._timeout,
             )
         except anthropic.RateLimitError as exc:
-            raise AIRateLimitClientError(str(exc)) from exc
+            logger.warning("Anthropic rate limit hit: %s", sanitize_error(str(exc)))
+            raise AIRateLimitClientError(sanitize_error(str(exc))) from exc
         except anthropic.APIConnectionError as exc:
-            raise AIConnectionClientError(str(exc)) from exc
+            logger.error("Anthropic connection error: %s", sanitize_error(str(exc)))
+            raise AIConnectionClientError(sanitize_error(str(exc))) from exc
         except anthropic.APIError as exc:
-            raise AIClientError(str(exc)) from exc
+            logger.error("Anthropic API error: %s", sanitize_error(str(exc)))
+            raise AIClientError(sanitize_error(str(exc))) from exc
 
         # Extract text from content blocks
         text_parts = [

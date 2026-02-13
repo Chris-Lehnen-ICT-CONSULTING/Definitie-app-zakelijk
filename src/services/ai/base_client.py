@@ -8,8 +8,21 @@ directly from openai/anthropic SDKs.
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, field
 from typing import Any, Protocol, runtime_checkable
+
+# ---------------------------------------------------------------------------
+# Shared helpers
+# ---------------------------------------------------------------------------
+
+_API_KEY_RE = re.compile(r"sk-[\w-]{10,}")
+
+
+def sanitize_error(message: str) -> str:
+    """Redact API keys from error messages to prevent leakage in logs."""
+    return _API_KEY_RE.sub("[REDACTED]", message)
+
 
 # ---------------------------------------------------------------------------
 # Data types
@@ -71,6 +84,7 @@ class AsyncAIClient(Protocol):
         model: str,
         temperature: float = 0.7,
         max_tokens: int = 300,
+        timeout: float | None = None,
     ) -> ChatResponse:
         """Send a chat completion request and return a provider-agnostic response.
 
