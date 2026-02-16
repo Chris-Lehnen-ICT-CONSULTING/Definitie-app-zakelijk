@@ -38,7 +38,7 @@ class PromptResult:
 
     text: str
     token_count: int
-    components_used: list[str]
+    components_used: tuple[str, ...]
     feedback_integrated: bool
     optimization_applied: bool
     metadata: dict[str, Any]

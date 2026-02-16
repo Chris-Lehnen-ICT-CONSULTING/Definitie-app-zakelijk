@@ -13,6 +13,8 @@ Deze module integreert alle business logic van de Context Aware builder:
 import logging
 from typing import Any
 
+from utils.xml_source_formatter import confidence_to_level
+
 from .base_module import BasePromptModule, ModuleContext, ModuleOutput
 
 logger = logging.getLogger(__name__)
@@ -355,22 +357,13 @@ Refereer context-specifieke verbanden.
         sections = ["ADDITIONELE BRONNEN:"]
 
         for source in sources:
-            level = self._confidence_to_level(source.confidence)
+            level = confidence_to_level(source.confidence)
             sections.append(
                 f"  [{level}] {source.source_type.title()} "
                 f"(confidence={source.confidence:.2f}): {source.content[:150]}..."
             )
 
         return sections
-
-    @staticmethod
-    def _confidence_to_level(confidence: float) -> str:
-        """Vertaal confidence naar level label (DEF-315)."""
-        if confidence >= 0.8:
-            return "high"
-        if confidence >= 0.5:
-            return "medium"
-        return "low"
 
     def _format_abbreviations_detailed(self, expanded_terms: dict) -> list[str]:
         """
