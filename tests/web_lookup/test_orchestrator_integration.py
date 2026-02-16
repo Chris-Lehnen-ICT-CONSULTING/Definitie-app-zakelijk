@@ -28,6 +28,8 @@ class _StubAIService:
         class _Gen:
             model = "stub"
             tokens_used = 0
+            text = "DEFINITIE-TEKST"
+            metadata = {}
 
         return _Gen()
 

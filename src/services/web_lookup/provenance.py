@@ -36,6 +36,11 @@ def build_provenance(
             legal_meta = _extract_legal_metadata_from_dict(r)
             if legal_meta:
                 source_dict["legal"] = legal_meta
+                # DEF-315: flat keys voor XML formatter
+                source_dict["ecli"] = legal_meta.get("ecli", "")
+                source_dict["wet"] = legal_meta.get("law", "")
+                source_dict["artikel"] = legal_meta.get("article", "")
+                source_dict["citatie"] = legal_meta.get("citation_text", "")
 
         simplified.append(source_dict)
 
