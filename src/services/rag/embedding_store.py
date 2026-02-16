@@ -61,16 +61,30 @@ class EmbeddingStore:
         if not metadata_json:
             return None
 
-        metadata = json.loads(metadata_json)
+        try:
+            metadata = json.loads(metadata_json)
+        except json.JSONDecodeError:
+            logger.warning(
+                "Ongeldige JSON in metadata van collection %d, "
+                "dimensievalidatie overgeslagen",
+                collection_id,
+            )
+            return None
         return metadata.get("dimensions")
 
     def _validate_embedding(
         self, embedding: np.ndarray, expected_dims: int | None
     ) -> None:
-        """Valideer embedding dimensies tegen collection configuratie."""
-        if expected_dims is None:
-            return
-        if embedding.shape[0] != expected_dims:
+        """Valideer type, shape en dimensies van embedding."""
+        if not isinstance(embedding, np.ndarray):
+            raise TypeError(
+                f"Embedding moet numpy.ndarray zijn, kreeg: {type(embedding).__name__}"
+            )
+        if embedding.ndim != 1:
+            raise ValueError(
+                f"Embedding moet 1-dimensionaal zijn, kreeg shape: {embedding.shape}"
+            )
+        if expected_dims is not None and embedding.shape[0] != expected_dims:
             raise ValueError(
                 f"Embedding dimensie {embedding.shape[0]} matcht niet met "
                 f"collection dimensie {expected_dims}"
@@ -89,6 +103,8 @@ class EmbeddingStore:
         Returns:
             collection_id
         """
+        if dimensions <= 0:
+            raise ValueError(f"Dimensions moet positief zijn, kreeg: {dimensions}")
         metadata = json.dumps({"dimensions": dimensions, "model": model})
         conn = self._connect()
         try:
@@ -107,6 +123,9 @@ class EmbeddingStore:
                 model,
             )
             return collection_id
+        except Exception:
+            conn.rollback()
+            raise
         finally:
             conn.close()
 
@@ -128,6 +147,8 @@ class EmbeddingStore:
         Returns:
             chunk_id
         """
+        if not chunk_text or not chunk_text.strip():
+            raise ValueError("chunk_text mag niet leeg zijn")
         conn = self._connect()
         try:
             dims = self._get_collection_dimensions(conn, collection_id)
@@ -155,6 +176,9 @@ class EmbeddingStore:
                 "Chunk opgeslagen (id=%d, collection=%d)", chunk_id, collection_id
             )
             return chunk_id
+        except Exception:
+            conn.rollback()
+            raise
         finally:
             conn.close()
 
@@ -165,7 +189,7 @@ class EmbeddingStore:
         chunks: list[dict],
         embeddings: list[np.ndarray],
     ) -> list[int]:
-        """Sla meerdere chunks op via executemany().
+        """Sla meerdere chunks op in één transactie.
 
         Eén connectie, één transactie voor de hele batch.
 
@@ -193,38 +217,32 @@ class EmbeddingStore:
             for emb in embeddings:
                 self._validate_embedding(emb, dims)
 
-            # Track max id before insert to determine new IDs
-            cursor = conn.execute("SELECT COALESCE(MAX(id), 0) FROM rag_chunks")
-            max_id_before = cursor.fetchone()[0]
-
-            rows = [
-                (
-                    collection_id,
-                    document_id,
-                    chunk["chunk_text"],
-                    emb.astype(np.float32).tobytes(),
-                    chunk["chunk_index"],
-                    chunk.get("rechtsgebied"),
-                    chunk.get("wet_regeling"),
-                    chunk.get("artikel_lid"),
-                )
-                for chunk, emb in zip(chunks, embeddings, strict=True)
-            ]
-
-            conn.executemany(
+            chunk_ids = []
+            sql = (
                 "INSERT INTO rag_chunks "
                 "(collection_id, document_id, chunk_text, embedding, chunk_index, "
                 "rechtsgebied, wet_regeling, artikel_lid) "
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-                rows,
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
             )
-            conn.commit()
+            for chunk, emb in zip(chunks, embeddings, strict=True):
+                if not chunk["chunk_text"] or not chunk["chunk_text"].strip():
+                    raise ValueError("chunk_text mag niet leeg zijn")
+                cursor = conn.execute(
+                    sql,
+                    (
+                        collection_id,
+                        document_id,
+                        chunk["chunk_text"],
+                        emb.astype(np.float32).tobytes(),
+                        chunk["chunk_index"],
+                        chunk.get("rechtsgebied"),
+                        chunk.get("wet_regeling"),
+                        chunk.get("artikel_lid"),
+                    ),
+                )
+                chunk_ids.append(cursor.lastrowid)
 
-            cursor = conn.execute(
-                "SELECT id FROM rag_chunks WHERE id > ? ORDER BY id",
-                (max_id_before,),
-            )
-            chunk_ids = [row[0] for row in cursor.fetchall()]
+            conn.commit()
 
             logger.info(
                 "Batch opgeslagen: %d chunks in collection %d",
@@ -232,6 +250,9 @@ class EmbeddingStore:
                 collection_id,
             )
             return chunk_ids
+        except Exception:
+            conn.rollback()
+            raise
         finally:
             conn.close()
 
@@ -344,5 +365,8 @@ class EmbeddingStore:
             count = cursor.rowcount
             logger.info("%d chunks verwijderd uit collection %d", count, collection_id)
             return count
+        except Exception:
+            conn.rollback()
+            raise
         finally:
             conn.close()

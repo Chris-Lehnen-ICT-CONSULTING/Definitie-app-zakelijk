@@ -502,6 +502,14 @@ class TestDimensionValidation:
         chunk_id = store.store_chunk(cid, doc_id, "test", emb, 0)
         assert chunk_id > 0
 
+    def test_negative_dimensions_rejected(self, store):
+        with pytest.raises(ValueError, match="positief"):
+            store.create_collection("bad", dimensions=-5)
+
+    def test_zero_dimensions_rejected(self, store):
+        with pytest.raises(ValueError, match="positief"):
+            store.create_collection("bad", dimensions=0)
+
     def test_matching_dimensions_accepted(self, store, collection_id, document_id):
         emb = _make_embedding(0)
         assert emb.shape[0] == DIMS
@@ -521,22 +529,151 @@ class TestDimensionValidation:
 class TestEdgeCases:
     def test_no_print_statements(self):
         """Acceptatiecriterium: 0 print() statements."""
+        import ast
         import inspect
 
         import services.rag.embedding_store as mod
 
         source = inspect.getsource(mod)
-        # Filter out 'print' in comments and strings
-        lines = source.split("\n")
-        for line in lines:
-            stripped = line.strip()
-            if stripped.startswith("#"):
-                continue
-            if "print(" in stripped and not stripped.startswith(("'", '"', "#")):
-                pytest.fail(f"Found print() statement: {stripped}")
+        tree = ast.parse(source)
+        for node in ast.walk(tree):
+            if (
+                isinstance(node, ast.Call)
+                and isinstance(node.func, ast.Name)
+                and node.func.id == "print"
+            ):
+                pytest.fail(f"Found print() on line {node.lineno}")
 
     def test_uses_logging(self):
         """Verifieert dat de module logging gebruikt."""
         import services.rag.embedding_store as mod
 
         assert hasattr(mod, "logger")
+
+    def test_non_ndarray_embedding_raises(self, store, collection_id, document_id):
+        with pytest.raises(TypeError, match=r"numpy\.ndarray"):
+            store.store_chunk(
+                collection_id,
+                document_id,
+                "test",
+                [0.1] * DIMS,
+                0,
+            )
+
+    def test_2d_embedding_raises(self, store, collection_id, document_id):
+        emb_2d = np.zeros((1, DIMS), dtype=np.float32)
+        with pytest.raises(ValueError, match="1-dimensionaal"):
+            store.store_chunk(collection_id, document_id, "test", emb_2d, 0)
+
+    @pytest.mark.parametrize("bad_text", ["", "   ", None])
+    def test_empty_chunk_text_raises(self, store, collection_id, document_id, bad_text):
+        emb = _make_embedding(0)
+        with pytest.raises((ValueError, TypeError)):
+            store.store_chunk(
+                collection_id,
+                document_id,
+                bad_text,
+                emb,
+                0,
+            )
+
+
+# ---------------------------------------------------------------------------
+# Tests: review items — ontbrekende tests
+# ---------------------------------------------------------------------------
+class TestReviewMissingTests:
+    """Tests geidentificeerd in code review als ontbrekend."""
+
+    def test_zero_norm_query_returns_empty(self, store, collection_id, document_id):
+        """Zero-norm query vector moet [] teruggeven."""
+        store.store_chunk(
+            collection_id,
+            document_id,
+            "test",
+            _make_embedding(0),
+            0,
+        )
+        zero_query = np.zeros(DIMS, dtype=np.float32)
+        results = store.search_similar(zero_query, collection_id)
+        assert results == []
+
+    def test_invalid_document_id_foreign_key(self, store, collection_id):
+        """FK constraint: ongeldig document_id moet IntegrityError geven."""
+        emb = _make_embedding(0)
+        with pytest.raises(sqlite3.IntegrityError):
+            store.store_chunk(
+                collection_id,
+                document_id=99999,
+                chunk_text="test",
+                embedding=emb,
+                chunk_index=0,
+            )
+
+    def test_delete_nonexistent_collection_returns_zero(self, store):
+        """Delete op niet-bestaande collection moet 0 teruggeven."""
+        count = store.delete_collection_embeddings(99999)
+        assert count == 0
+
+    def test_connection_cleanup_after_error(self, store, collection_id, document_id):
+        """Na een error moet de store nog bruikbaar zijn."""
+        wrong_emb = np.zeros(DIMS + 1, dtype=np.float32)
+        with pytest.raises(ValueError, match="matcht niet"):
+            store.store_chunk(
+                collection_id,
+                document_id,
+                "test",
+                wrong_emb,
+                0,
+            )
+
+        # Store moet nog werken na de error
+        good_emb = _make_embedding(0)
+        chunk_id = store.store_chunk(
+            collection_id,
+            document_id,
+            "test",
+            good_emb,
+            0,
+        )
+        assert chunk_id > 0
+
+    def test_store_batch_rollback_on_failure(self, store, collection_id, document_id):
+        """Bij failure midden in batch mogen er geen partial inserts overblijven."""
+        chunks = [
+            {"chunk_text": "good chunk", "chunk_index": 0},
+            {"chunk_text": "bad chunk", "chunk_index": 1},
+        ]
+        good_emb = _make_embedding(0)
+        bad_emb = np.zeros(DIMS + 1, dtype=np.float32)  # Verkeerde dimensie
+
+        with pytest.raises(ValueError, match="matcht niet"):
+            store.store_batch(
+                collection_id,
+                document_id,
+                chunks,
+                [good_emb, bad_emb],
+            )
+
+        # Niets mag opgeslagen zijn
+        results = store.search_similar(_make_embedding(0), collection_id)
+        assert results == []
+
+    def test_zero_norm_stored_embedding_gets_zero_score(
+        self,
+        store,
+        collection_id,
+        document_id,
+    ):
+        """Opgeslagen zero-vector moet score 0.0 krijgen, geen crash."""
+        zero_emb = np.zeros(DIMS, dtype=np.float32)
+        normal_emb = _make_embedding(42)
+
+        store.store_chunk(collection_id, document_id, "zero", zero_emb, 0)
+        store.store_chunk(collection_id, document_id, "normal", normal_emb, 1)
+
+        results = store.search_similar(normal_emb, collection_id, top_k=2)
+        assert len(results) == 2
+
+        # De zero-vector moet score ~0.0 krijgen
+        zero_result = next(r for r in results if r["chunk_text"] == "zero")
+        assert zero_result["score"] == pytest.approx(0.0, abs=1e-5)
