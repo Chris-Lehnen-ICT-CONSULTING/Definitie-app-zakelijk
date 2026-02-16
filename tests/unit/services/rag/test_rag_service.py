@@ -349,6 +349,11 @@ class TestFormatContext:
         assert "</bron>" in result
         assert "Tekst hier." in result
 
+    def test_type_rag_attribute(self, service):
+        """Elke <bron> krijgt type='rag' attribuut (DEF-315 compatible)."""
+        result = service._format_context([{"chunk_text": "X", "score": 0.5}])
+        assert 'type="rag"' in result
+
     def test_score_attribute(self, service):
         result = service._format_context([{"chunk_text": "X", "score": 0.8567}])
         assert 'score="0.86"' in result
@@ -387,6 +392,34 @@ class TestFormatContext:
         assert 'nr="2"' in result
         assert result.count("<bron ") == 2
         assert result.count("</bron>") == 2
+
+    def test_escapes_xml_special_chars_in_text(self, service):
+        """XML-speciale tekens in chunk_text worden ge-escaped."""
+        result = service._format_context(
+            [{"chunk_text": 'Art. 1 lid <3> & "bijlage"', "score": 0.9}]
+        )
+        assert "&lt;3&gt;" in result
+        assert "&amp;" in result
+        # Originele onveilige tekens mogen NIET voorkomen in de body
+        assert "<3>" not in result
+
+    def test_escapes_xml_special_chars_in_attributes(self, service):
+        """XML-speciale tekens in attributen worden ge-escaped via quoteattr."""
+        result = service._format_context(
+            [
+                {
+                    "chunk_text": "Tekst",
+                    "score": 0.8,
+                    "rechtsgebied": 'recht & "plicht"',
+                    "wet_regeling": "BW <boek 7>",
+                    "artikel_lid": "1&2",
+                }
+            ]
+        )
+        # quoteattr escaped & < > " en kiest juiste quoting
+        assert "recht &amp; " in result
+        assert "BW &lt;boek 7&gt;" in result
+        assert "1&amp;2" in result
 
 
 # ---------------------------------------------------------------------------
