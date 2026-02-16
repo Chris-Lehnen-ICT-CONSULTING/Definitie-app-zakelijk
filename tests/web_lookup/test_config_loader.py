@@ -26,7 +26,7 @@ def test_load_web_lookup_config_defaults():
 
     wikipedia = providers["wikipedia"]
     assert wikipedia.get("enabled") is True
-    assert wikipedia.get("weight") == 0.7
+    assert wikipedia.get("weight") == 0.85
     assert wikipedia.get("cache_ttl") == 7200
 
     overheid = providers["sru_overheid"]

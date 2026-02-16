@@ -4,7 +4,7 @@ Enhanced Context Awareness Module - Intelligent context processing met adaptieve
 Deze module integreert alle business logic van de Context Aware builder:
 1. Context richness scoring (0.0-1.0)
 2. Dynamische prompt aanpassing op basis van context kwaliteit
-3. Confidence indicators met emoji's (🔴🟡🟢)
+3. Confidence indicators (high/medium/low levels)
 4. Advanced source formatting
 5. Abbreviation/expansion handling
 6. Verwerking van V2-contexten (organisatorisch, juridisch, wettelijk)
@@ -355,25 +355,22 @@ Refereer context-specifieke verbanden.
         sections = ["ADDITIONELE BRONNEN:"]
 
         for source in sources:
-            if self.confidence_indicators:
-                # Confidence indicator emojis
-                if source.confidence < 0.5:
-                    confidence_indicator = "🔴"
-                elif source.confidence < 0.8:
-                    confidence_indicator = "🟡"
-                else:
-                    confidence_indicator = "🟢"
-
-                sections.append(
-                    f"  {confidence_indicator} {source.source_type.title()} "
-                    f"({source.confidence:.2f}): {source.content[:150]}..."
-                )
-            else:
-                sections.append(
-                    f"  • {source.source_type.title()}: {source.content[:150]}..."
-                )
+            level = self._confidence_to_level(source.confidence)
+            sections.append(
+                f"  [{level}] {source.source_type.title()} "
+                f"(confidence={source.confidence:.2f}): {source.content[:150]}..."
+            )
 
         return sections
+
+    @staticmethod
+    def _confidence_to_level(confidence: float) -> str:
+        """Vertaal confidence naar level label (DEF-315)."""
+        if confidence >= 0.8:
+            return "high"
+        if confidence >= 0.5:
+            return "medium"
+        return "low"
 
     def _format_abbreviations_detailed(self, expanded_terms: dict) -> list[str]:
         """

@@ -96,6 +96,9 @@ class DefinitionTaskModule(BasePromptModule):
             # Finale instructies header
             sections.append("### 🎯 FINALE INSTRUCTIES:")
 
+            # DEF-315: XML bronnen instructie
+            sections.append(self._build_bronnen_instructie())
+
             # Definitie opdracht
             sections.append(self._build_task_assignment(begrip))
 
@@ -155,6 +158,17 @@ class DefinitionTaskModule(BasePromptModule):
             Lijst met dependency
         """
         return ["semantic_categorisation", "context_awareness"]
+
+    def _build_bronnen_instructie(self) -> str:
+        """DEF-315: Instructie aan model over XML bronnenformat."""
+        return (
+            "#### BRONNEN INSTRUCTIE:\n"
+            'Je ontvangt bronnen in XML-formaat (<bronnen><bron type="..." confidence="..." level="...">).\n'
+            "- type: herkomst (rag=documentbibliotheek, web=online bronnen, document=geüploade documenten)\n"
+            "- confidence/level: betrouwbaarheid (high/medium/low)\n"
+            'Gebruik bij voorkeur bronnen met level="high". '
+            "Verwijs naar bronnen via hun nr attribuut met [Bron nr]."
+        )
 
     def _build_task_assignment(self, begrip: str) -> str:
         """Bouw de definitie opdracht."""
