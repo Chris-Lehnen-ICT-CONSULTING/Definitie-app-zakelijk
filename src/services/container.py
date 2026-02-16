@@ -718,6 +718,26 @@ class ServiceContainer:
             logger.info("⚡ EmbeddingService lazy-loaded (DEF-269)")
         return self._lazy_instances["embedding_service"]
 
+    @property
+    def embedding_store(self):
+        """
+        Get or create EmbeddingStore instance (LAZY-LOADED).
+
+        DEF-304: SQLite BLOB + numpy cosine similarity voor RAG pipeline.
+        Only loaded when RAG storage/search is triggered.
+
+        Returns:
+            Singleton instance van EmbeddingStore
+        """
+        if "embedding_store" not in self._lazy_instances:
+            from services.rag.embedding_store import EmbeddingStore
+
+            self._lazy_instances["embedding_store"] = EmbeddingStore(
+                db_path=str(self.db_path)
+            )
+            logger.info("⚡ EmbeddingStore lazy-loaded (DEF-304)")
+        return self._lazy_instances["embedding_store"]
+
     # UI-services worden niet in de servicescontainer opgebouwd. Gebruik UI-container.
 
     # Utility methods
@@ -758,6 +778,7 @@ class ServiceContainer:
             "term_based_classifier": self.term_based_classifier,
             "document_chunker": self.document_chunker,
             "embedding_service": lambda: self.embedding_service,
+            "embedding_store": lambda: self.embedding_store,
         }
 
         if name in service_map:
