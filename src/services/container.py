@@ -719,6 +719,29 @@ class ServiceContainer:
         return self._lazy_instances["embedding_service"]
 
     @property
+    def rag_service(self):
+        """
+        Get or create RAGService instance (LAZY-LOADED).
+
+        DEF-291: Hoofdservice die DocumentChunker, EmbeddingService en
+        EmbeddingStore combineert voor document ingest en context retrieval.
+
+        Returns:
+            Singleton instance van RAGService
+        """
+        if "rag_service" not in self._lazy_instances:
+            from services.rag.rag_service import RAGService
+
+            self._lazy_instances["rag_service"] = RAGService(
+                document_chunker=self.document_chunker(),
+                embedding_service=self.embedding_service,
+                embedding_store=self.embedding_store,
+                db_path=str(self.db_path),
+            )
+            logger.info("⚡ RAGService lazy-loaded (DEF-291)")
+        return self._lazy_instances["rag_service"]
+
+    @property
     def embedding_store(self):
         """
         Get or create EmbeddingStore instance (LAZY-LOADED).
@@ -779,6 +802,7 @@ class ServiceContainer:
             "document_chunker": self.document_chunker,
             "embedding_service": lambda: self.embedding_service,
             "embedding_store": lambda: self.embedding_store,
+            "rag_service": lambda: self.rag_service,
         }
 
         if name in service_map:
