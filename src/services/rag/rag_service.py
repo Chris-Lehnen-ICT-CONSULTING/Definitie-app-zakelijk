@@ -12,6 +12,7 @@ import json
 import logging
 import sqlite3
 from dataclasses import dataclass
+from xml.sax.saxutils import escape, quoteattr
 
 from services.rag.document_chunker import DocumentChunker
 from services.rag.embedding_service import EmbeddingService
@@ -266,19 +267,19 @@ class RAGService:
 
         lines = ["<bronnen>"]
         for i, chunk in enumerate(chunks, 1):
-            attrs = [f'nr="{i}"']
+            attrs = [f'nr="{i}"', 'type="rag"']
             if "score" in chunk:
                 attrs.append(f'score="{chunk["score"]:.2f}"')
             if chunk.get("rechtsgebied"):
-                attrs.append(f'rechtsgebied="{chunk["rechtsgebied"]}"')
+                attrs.append(f"rechtsgebied={quoteattr(chunk['rechtsgebied'])}")
             if chunk.get("wet_regeling"):
-                attrs.append(f'regeling="{chunk["wet_regeling"]}"')
+                attrs.append(f"regeling={quoteattr(chunk['wet_regeling'])}")
             if chunk.get("artikel_lid"):
-                attrs.append(f'artikel="{chunk["artikel_lid"]}"')
+                attrs.append(f"artikel={quoteattr(chunk['artikel_lid'])}")
 
             attr_str = " ".join(attrs)
             lines.append(f"  <bron {attr_str}>")
-            lines.append(f"    {chunk['chunk_text']}")
+            lines.append(f"    {escape(chunk['chunk_text'])}")
             lines.append("  </bron>")
 
         lines.append("</bronnen>")
