@@ -12,11 +12,11 @@ import json
 import logging
 import sqlite3
 from dataclasses import dataclass
-from xml.sax.saxutils import escape, quoteattr
 
 from services.rag.document_chunker import DocumentChunker
 from services.rag.embedding_service import EmbeddingService
 from services.rag.embedding_store import EmbeddingStore
+from utils.xml_source_formatter import format_bron, wrap_bronnen
 
 logger = logging.getLogger(__name__)
 
@@ -258,32 +258,30 @@ class RAGService:
     def _format_context(self, chunks: list[dict]) -> str:
         """Format chunks als XML <bronnen> voor de prompt.
 
-        XML-tags format zodat metadata (score, rechtsgebied, regeling, artikel)
-        als attributen op de tag zitten — structureel gescheiden van de tekst.
-        Werkt identiek voor OpenAI én Anthropic (DEF-314 compatible).
+        Delegeert naar de shared xml_source_formatter utility (DEF-315).
+        Metadata (score, confidence, level, rechtsgebied, regeling, artikel)
+        zitten als attributen op de tag — structureel gescheiden van de tekst.
         """
         if not chunks:
             return ""
 
-        lines = ["<bronnen>"]
+        bron_strings = []
         for i, chunk in enumerate(chunks, 1):
-            attrs = [f'nr="{i}"', 'type="rag"']
-            if "score" in chunk:
-                attrs.append(f'score="{chunk["score"]:.2f}"')
-            if chunk.get("rechtsgebied"):
-                attrs.append(f"rechtsgebied={quoteattr(chunk['rechtsgebied'])}")
-            if chunk.get("wet_regeling"):
-                attrs.append(f"regeling={quoteattr(chunk['wet_regeling'])}")
-            if chunk.get("artikel_lid"):
-                attrs.append(f"artikel={quoteattr(chunk['artikel_lid'])}")
+            score = chunk.get("score")
+            bron_strings.append(
+                format_bron(
+                    nr=i,
+                    type="rag",
+                    chunk_text=chunk["chunk_text"],
+                    score=score,
+                    confidence=score,
+                    rechtsgebied=chunk.get("rechtsgebied"),
+                    regeling=chunk.get("wet_regeling"),
+                    artikel=chunk.get("artikel_lid"),
+                )
+            )
 
-            attr_str = " ".join(attrs)
-            lines.append(f"  <bron {attr_str}>")
-            lines.append(f"    {escape(chunk['chunk_text'])}")
-            lines.append("  </bron>")
-
-        lines.append("</bronnen>")
-        return "\n".join(lines)
+        return wrap_bronnen(bron_strings)
 
     def get_collection_stats(self, collection_id: int) -> dict:
         """Return collection metadata + document/chunk counts.
