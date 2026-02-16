@@ -12,6 +12,7 @@ class _StubAIService:
             model = "stub"
             tokens_used = 0
             text = "DEFINITIE-TEKST"
+            metadata = {}
 
         return _Gen()
 
@@ -147,9 +148,9 @@ async def test_e2e_orchestrator_prompt_augmentation(monkeypatch):
     assert sources[0].get("used_in_prompt") is True
     assert sources[1].get("used_in_prompt") is True
 
-    # Prompt contains augmentation header and max 2 snippets
+    # DEF-315: Prompt contains XML <bronnen> block with max 2 bron items
     prompt_text = ai_service.last_prompt
     assert prompt_text is not None
-    assert "### Contextinformatie uit bronnen:" in prompt_text
-    # There should be exactly 2 list items (max_snippets=2)
-    assert prompt_text.count("- ") >= 2
+    assert "<bronnen>" in prompt_text
+    assert prompt_text.count("<bron ") <= 2
+    assert 'type="web"' in prompt_text

@@ -22,6 +22,7 @@ from services.interfaces import GenerationRequest
 from services.web_lookup.config_loader import load_web_lookup_config
 from services.web_lookup.sanitization import sanitize_snippet
 from utils.type_helpers import ensure_string
+from utils.xml_source_formatter import format_bron, wrap_bronnen
 
 logger = logging.getLogger(__name__)
 
@@ -143,13 +144,8 @@ class PromptServiceV2:
                 begrip=request.begrip, context=enriched_context
             )
 
-            # Epic 3: Optional prompt augmentation with web lookup context
-            prompt_text = self._maybe_augment_with_web_context(
-                prompt_text, enriched_context
-            )
-
-            # EPIC-018/US-229: Optional document snippets injectie
-            prompt_text = self._maybe_augment_with_document_snippets(
+            # DEF-315: Collect all sources (RAG + web + document) in one <bronnen> block
+            prompt_text = self._collect_and_inject_bronnen(
                 prompt_text, enriched_context
             )
 
@@ -195,25 +191,76 @@ class PromptServiceV2:
             )
             raise
 
-    def _maybe_augment_with_document_snippets(
+    # ==============================
+    # DEF-315: XML source formatting
+    # ==============================
+
+    def _collect_and_inject_bronnen(
         self, prompt_text: str, enriched_context: EnrichedContext
     ) -> str:
-        """Voeg (optionele) document-snippets toe aan de prompt.
+        """Verzamel alle bronnen (RAG + web + document) in één <bronnen> blok."""
+        try:
+            all_brons: list[str] = []
+            nr_offset = 0
+
+            # 1. RAG bronnen (from enriched_context.metadata)
+            rag_chunks = (enriched_context.metadata or {}).get("rag_chunks", [])
+            for chunk in rag_chunks:
+                nr_offset += 1
+                all_brons.append(
+                    format_bron(
+                        nr=nr_offset,
+                        type="rag",
+                        chunk_text=chunk.get("chunk_text", ""),
+                        score=chunk.get("score"),
+                        confidence=chunk.get("score"),
+                        rechtsgebied=chunk.get("rechtsgebied"),
+                        regeling=chunk.get("wet_regeling"),
+                        artikel=chunk.get("artikel_lid"),
+                    )
+                )
+
+            # 2. Web bronnen
+            web_brons = self._collect_web_brons(enriched_context, nr_offset)
+            nr_offset += len(web_brons)
+            all_brons.extend(web_brons)
+
+            # 3. Document bronnen
+            doc_brons = self._collect_document_brons(enriched_context, nr_offset)
+            all_brons.extend(doc_brons)
+
+            if not all_brons:
+                return prompt_text
+
+            block = wrap_bronnen(all_brons)
+            return f"{prompt_text}\n\n{block}"
+
+        except Exception:
+            # Fail-safe: do not break generation if source collection fails
+            logger.warning(
+                "Source collection failed; returning original prompt", exc_info=True
+            )
+            return prompt_text
+
+    def _collect_document_brons(
+        self, enriched_context: EnrichedContext, nr_offset: int
+    ) -> list[str]:
+        """Collect document snippets as XML <bron type="document"> strings.
 
         Besturing via env-vars:
         - DOCUMENT_SNIPPETS_ENABLED (default: true)
-        - DOCUMENT_SNIPPETS_MAX (default: 2)
+        - DOCUMENT_SNIPPETS_MAX (default: 16)
         - DOCUMENT_SNIPPETS_MAX_CHARS (default: 800)
         """
         try:
             enabled = os.getenv("DOCUMENT_SNIPPETS_ENABLED", "true").lower() == "true"
             if not enabled:
-                return prompt_text
+                return []
 
             docs_meta = (enriched_context.metadata or {}).get("documents", {})
             snippets = (docs_meta or {}).get("snippets", [])
             if not snippets:
-                return prompt_text
+                return []
 
             try:
                 max_snippets = int(os.getenv("DOCUMENT_SNIPPETS_MAX", "16"))
@@ -224,7 +271,7 @@ class PromptServiceV2:
             except Exception:
                 max_chars = 800
 
-            lines: list[str] = ["📄 DOCUMENTCONTEXT (snippets):"]
+            brons: list[str] = []
             total = 0
             count = 0
             for s in snippets:
@@ -238,23 +285,24 @@ class PromptServiceV2:
                 if remaining <= 0:
                     break
                 snippet_text = safe[:remaining]
-                # Note: we prefix with a bullet for readability
-                prefix = f"• {title}"
-                if cite:
-                    prefix += f" ({cite})"
-                lines.append(f"{prefix}: {snippet_text}")
+
+                brons.append(
+                    format_bron(
+                        nr=nr_offset + count + 1,
+                        type="document",
+                        chunk_text=snippet_text,
+                        confidence=0.70,
+                        titel=title,
+                        citatie=cite or "",
+                    )
+                )
                 total += len(snippet_text)
                 count += 1
 
-            if len(lines) <= 1:
-                return prompt_text
-
-            block = "\n".join(lines)
-            # Voeg bovenaan toe (context eerst)
-            return f"{block}\n\n{prompt_text}"
+            return brons
         except (KeyError, TypeError, AttributeError):
-            # DEF-246: Snippet injection failed, return original prompt
-            return prompt_text
+            # DEF-246: Snippet collection failed, return empty list
+            return []
 
     # ==============================
     # Epic 3: Prompt Augmentation
@@ -267,14 +315,19 @@ class PromptServiceV2:
         )
         raise NotImplementedError(msg)
 
-    def _maybe_augment_with_web_context(
-        self, prompt_text: str, enriched_context: EnrichedContext
-    ) -> str:
+    def _collect_web_brons(
+        self, enriched_context: EnrichedContext, nr_offset: int
+    ) -> list[str]:
+        """Collect web lookup sources as XML <bron type="web"> strings.
+
+        Keeps all existing selection, sorting, sanitization and budget logic.
+        Returns a list of formatted <bron> strings instead of modifying prompt text.
+        """
         try:
             aug = self._aug_cfg or {}
             if not aug.get("enabled", False):
                 logger.info("Prompt augmentation disabled by config; skipping")
-                return prompt_text
+                return []
 
             web_ctx = (
                 enriched_context.metadata.get("web_lookup")
@@ -283,14 +336,14 @@ class PromptServiceV2:
             )
             if not web_ctx or not isinstance(web_ctx, dict):
                 logger.info("No web_lookup context found; skipping prompt augmentation")
-                return prompt_text
+                return []
 
             sources = web_ctx.get("sources") or []
             if not sources:
                 logger.info(
                     "No web_lookup sources available; skipping prompt augmentation"
                 )
-                return prompt_text
+                return []
 
             # Select items: if include_all_hits, ignore used_in_prompt and take all
             def _is_auth(src: dict) -> bool:
@@ -353,11 +406,7 @@ class PromptServiceV2:
                     cut = cut[:last_space]
                 return cut
 
-            header = aug.get("section_header", "### Contextinformatie uit bronnen:")
-            position = aug.get("position", "after_context")
-
-            injected_lines = []
-            injected_lines.append(header)
+            brons: list[str] = []
             tokens_used = 0
             added = 0
 
@@ -370,9 +419,25 @@ class PromptServiceV2:
                 est = approx_tokens(safe)
                 if tokens_used + est > total_budget:
                     break
-                # STORY 3.1: Use provider-neutral "Bron X" format
-                label = f"Bron {added + 1}"
-                injected_lines.append(f"- {label}: {safe}")
+
+                # DEF-315: Extract legal metadata from source
+                legal = src.get("legal", {}) or {}
+
+                brons.append(
+                    format_bron(
+                        nr=nr_offset + added + 1,
+                        type="web",
+                        chunk_text=safe,
+                        score=float(src.get("score", 0.0) or 0.0),
+                        confidence=float(src.get("score", 0.0) or 0.0),
+                        provider=src.get("provider", ""),
+                        url=src.get("url", ""),
+                        ecli=legal.get("ecli", ""),
+                        wet=legal.get("law", ""),
+                        artikel=legal.get("article", ""),
+                        citatie=legal.get("citation_text", ""),
+                    )
+                )
                 tokens_used += est
                 added += 1
 
@@ -382,20 +447,15 @@ class PromptServiceV2:
                     total_budget,
                     max_tokens_per_snippet,
                 )
-                return prompt_text
+                return []
 
-            block = "\n".join(injected_lines)
             logger.info(
-                "Prompt augmentation added %s snippet(s), approx_tokens=%s, position=%s",
+                "Prompt augmentation collected %s web bron(s), approx_tokens=%s",
                 added,
                 tokens_used,
-                position,
             )
-            if position == "prepend":
-                return f"{block}\n\n{prompt_text}"
-            # Default append behavior for after_context/before_examples
-            return f"{prompt_text}\n\n{block}"
+            return brons
 
         except Exception:
             # Fail-safe: do not break generation if augmentation fails
-            return prompt_text
+            return []
