@@ -8,6 +8,7 @@ from services.rag.document_chunker import DocumentChunker
 from services.rag.embedding_service import EmbeddingService
 from services.rag.embedding_store import EmbeddingStore
 from services.rag.models import ChunkingResult, ChunkMetadata, DocumentChunk
+from services.rag.rag_service import RAGContext, RAGService
 
 __all__ = [
     "ChunkMetadata",
@@ -16,4 +17,6 @@ __all__ = [
     "DocumentChunker",
     "EmbeddingService",
     "EmbeddingStore",
+    "RAGContext",
+    "RAGService",
 ]
