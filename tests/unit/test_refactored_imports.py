@@ -4,6 +4,7 @@ Test imports for refactored modules.
 
 import os
 import sys
+from unittest.mock import patch
 
 import pytest
 
@@ -29,6 +30,7 @@ def test_ui_imports():
     assert UIComponents
 
 
+@patch.dict("os.environ", {"OPENAI_API_KEY": "sk-test-fake"})
 def test_services_imports():
     """Test services module imports (nieuwe architectuur)."""
     from services.service_factory import get_definition_service
@@ -47,6 +49,7 @@ def test_session_state_defaults():
     assert "beoordeling_gen" in defaults
 
 
+@patch.dict("os.environ", {"OPENAI_API_KEY": "sk-test-fake"})
 def test_definition_service_creation():
     """Test dat service via factory kan worden verkregen."""
     from services.service_factory import get_definition_service
