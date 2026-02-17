@@ -24,6 +24,16 @@ from src.config.config_manager import (
     get_component_config,  # Centrale component configuratie
 )
 
+# DEF-314: ExampleType → task_type mapping for ModelRouter
+_EXAMPLE_TYPE_TO_TASK_TYPE = {
+    "VOORBEELDZINNEN": "examples",
+    "PRAKTIJKVOORBEELDEN": "examples",
+    "TEGENVOORBEELDEN": "counter_examples",
+    "SYNONIEMEN": "synonyms",
+    "ANTONIEMEN": "antonyms",
+    "TOELICHTING": "explanation",
+}
+
 # Importeer resilience en caching systemen voor robuuste voorbeeld generatie
 from utils.integrated_resilience import (
     with_full_resilience,  # Volledig resilience systeem
@@ -104,16 +114,33 @@ class UnifiedExamplesGenerator:
         self.generation_count = 0
         self.error_count = 0
         self.cache_hits = 0
-        # Initialize AI service V2
-        self.ai_service = AIServiceV2(
-            default_model=get_component_config("ai_service").get(
-                "model", "gpt-4o-mini"
-            ),
-            use_cache=True,
-        )
+        self._ai_service_override: AIServiceV2 | None = None
         # Semaphore to limit concurrent API calls (OpenAI typically allows 8-10 concurrent)
         # Set to 6 to safely handle all 6 example types without overwhelming the API
         self._concurrent_limit = asyncio.Semaphore(6)
+
+    @property
+    def ai_service(self) -> AIServiceV2:
+        """DEF-314: Always fetch from container so provider switches take effect."""
+        if self._ai_service_override is not None:
+            return self._ai_service_override
+        try:
+            from utils.container_manager import get_cached_container
+
+            return get_cached_container().orchestrator().ai_service
+        except Exception:
+            logger.warning("Container not available, using standalone AIServiceV2")
+            return AIServiceV2(use_cache=True)
+
+    @ai_service.setter
+    def ai_service(self, value: AIServiceV2) -> None:
+        """Allow override (used in tests)."""
+        self._ai_service_override = value
+
+    @staticmethod
+    def _get_task_type(example_type: ExampleType) -> str:
+        """DEF-314: Map ExampleType to ModelRouter task_type."""
+        return _EXAMPLE_TYPE_TO_TASK_TYPE.get(example_type.name, "examples")
 
     def _get_config_for_type(self, example_type: ExampleType) -> dict:
         """Get configuration for a specific example type from central config."""
@@ -178,8 +205,7 @@ class UnifiedExamplesGenerator:
 
         # Get configuration for this example type if not specified
         config = self._get_config_for_type(request.example_type)
-        if request.model is None:
-            request.model = config.get("model")
+        # DEF-314: model comes from task_type routing, not config
         if request.temperature is None:  # Use config if not specified
             request.temperature = config.get("temperature", 0.5)
 
@@ -255,7 +281,7 @@ class UnifiedExamplesGenerator:
             response = self._run_async_safe(
                 self.ai_service.generate_definition(
                     prompt=prompt,
-                    model=request.model,
+                    task_type=self._get_task_type(request.example_type),
                     temperature=request.temperature,
                     max_tokens=2000,  # Consistent across sync and async
                 )
@@ -271,7 +297,7 @@ class UnifiedExamplesGenerator:
         except Exception as e:
             logger.error(
                 f"Synchronous generation failed for {request.example_type.value}: {e}. "
-                f"begrip={request.begrip}, model={request.model}",
+                f"begrip={request.begrip}",
                 exc_info=True,
             )
             msg = f"Synchronous generation failed: {e}"
@@ -288,7 +314,7 @@ class UnifiedExamplesGenerator:
         try:
             response = await self.ai_service.generate_definition(
                 prompt=prompt,
-                model=request.model,
+                task_type=self._get_task_type(request.example_type),
                 temperature=request.temperature,
                 max_tokens=2000,  # Consistent met sync versie
             )
@@ -296,7 +322,7 @@ class UnifiedExamplesGenerator:
         except Exception as e:
             logger.error(
                 f"Asynchronous generation failed for {request.example_type.value}: {e}. "
-                f"begrip={request.begrip}, model={request.model}",
+                f"begrip={request.begrip}",
                 exc_info=True,
             )
             msg = f"Asynchronous generation failed: {e}"
@@ -316,7 +342,7 @@ class UnifiedExamplesGenerator:
             try:
                 response = await self.ai_service.generate_definition(
                     prompt=prompt,
-                    model=request.model,
+                    task_type=self._get_task_type(request.example_type),
                     temperature=request.temperature,
                     max_tokens=2000,
                 )
@@ -349,7 +375,7 @@ class UnifiedExamplesGenerator:
                 if attempt == max_retries:
                     logger.error(
                         f"Generation failed after {max_retries + 1} attempts for {request.example_type.value}: {e}. "
-                        f"begrip={request.begrip}, model={request.model}",
+                        f"begrip={request.begrip}",
                         exc_info=True,
                     )
                     msg = f"Generation failed after {max_retries + 1} attempts: {e}"
@@ -365,14 +391,21 @@ class UnifiedExamplesGenerator:
         """Cached example generation with robust cache keys."""
         cache = get_robust_cache()
 
-        # Generate robust cache key
+        # DEF-314: Include provider+model in cache key so provider switches invalidate
+        task_type = self._get_task_type(request.example_type)
+        try:
+            provider, model = self.ai_service._model_router.get_model(task_type)
+            cache_model = f"{provider}/{model}"
+        except Exception:
+            cache_model = request.model
+
         cache_key = cache.generate_robust_key(
             example_type=request.example_type.value,
             begrip=request.begrip,
             definitie=request.definitie,
             context_dict=request.context_dict,
             max_examples=request.max_examples,
-            model=request.model,
+            model=cache_model,
             temperature=request.temperature,
         )
 
@@ -481,7 +514,7 @@ class UnifiedExamplesGenerator:
         try:
             response = await self.ai_service.generate_definition(
                 prompt=prompt,
-                model=request.model,
+                task_type=self._get_task_type(request.example_type),
                 temperature=request.temperature,
                 max_tokens=1500,
             )
@@ -490,7 +523,7 @@ class UnifiedExamplesGenerator:
         except Exception as e:
             logger.error(
                 f"Resilient explanation generation failed: {e}. "
-                f"begrip={request.begrip}, model={request.model}",
+                f"begrip={request.begrip}",
                 exc_info=True,
             )
             msg = f"Resilient generation failed: {e}"
@@ -503,7 +536,7 @@ class UnifiedExamplesGenerator:
         try:
             response = await self.ai_service.generate_definition(
                 prompt=prompt,
-                model=request.model,
+                task_type=self._get_task_type(request.example_type),
                 temperature=request.temperature,
                 max_tokens=1500,
             )
@@ -511,7 +544,7 @@ class UnifiedExamplesGenerator:
         except Exception as e:
             logger.error(
                 f"Resilient generation failed for {request.example_type.value}: {e}. "
-                f"begrip={request.begrip}, model={request.model}",
+                f"begrip={request.begrip}",
                 exc_info=True,
             )
             msg = f"Resilient generation failed: {e}"
@@ -828,6 +861,12 @@ def get_examples_generator() -> UnifiedExamplesGenerator:
     if _generator is None:
         _generator = UnifiedExamplesGenerator()
     return _generator
+
+
+def reset_examples_generator() -> None:
+    """Reset the global generator (called on provider switch)."""
+    global _generator
+    _generator = None
 
 
 # Convenience functions for different example types

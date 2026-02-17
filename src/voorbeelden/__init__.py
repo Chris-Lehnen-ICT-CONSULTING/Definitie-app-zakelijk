@@ -20,17 +20,9 @@ from .unified_voorbeelden import (
     genereer_tegenvoorbeelden,  # Genereert tegenvoorbeelden ter verduidelijking
     genereer_toelichting,  # Genereert uitgebreide toelichting
     genereer_voorbeeld_zinnen,  # Genereert voorbeeld zinnen met de term
-    get_examples_generator,  # Hoofdklassen voor voorbeeld generatie; Convenience functies voor directe voorbeeld generatie; Batch functies voor efficiënte bulk generatie; Utility functies voor generator management; Factory functie voor generator instanties
+    get_examples_generator,  # Factory functie voor generator instanties
+    reset_examples_generator,  # Reset generator bij provider-switch
 )
-
-# Achterwaartse compatibiliteit - check voor legacy bestanden zonder import side-effects
-# Gebruik find_spec om te voorkomen dat er een OpenAI client wordt geinstantieerd tijdens test collection
-try:
-    import importlib.util as _importlib_util
-
-    LEGACY_AVAILABLE = _importlib_util.find_spec("voorbeelden.voorbeelden") is not None
-except Exception:
-    LEGACY_AVAILABLE = False
 
 # Exporteer publieke interface - alle voorbeeld generatie componenten
 __all__ = [
@@ -52,6 +44,7 @@ __all__ = [
     "genereer_voorbeeld_zinnen",  # Directe functie voor voorbeeld zinnen
     # Utility functies voor generator management
     "get_examples_generator",  # Factory functie voor generator instanties
+    "reset_examples_generator",  # Reset bij provider-switch
 ]
 
 # Versie informatie en package metadata
