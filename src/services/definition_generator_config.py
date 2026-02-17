@@ -240,9 +240,7 @@ class UnifiedGeneratorConfig:
         if os.getenv("CACHE_STRATEGY"):
             config.cache.strategy = CacheStrategy(os.getenv("CACHE_STRATEGY"))
 
-        gpt_model = os.getenv("GPT_MODEL")
-        if gpt_model:
-            config.gpt.model = gpt_model
+        # DEF-314: GPT_MODEL env var removed — model selection via ModelRouter
 
         gpt_temperature = os.getenv("GPT_TEMPERATURE")
         if gpt_temperature:

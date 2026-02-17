@@ -1,4 +1,4 @@
-import os
+import logging
 import re
 from typing import cast
 
@@ -7,13 +7,30 @@ from openai import OpenAI, OpenAIError
 # Importeer context afkortingen mapping
 from services.definition_generator_context import CONTEXT_AFKORTINGEN
 
-# ✅ Initialiseer de OpenAI-client met de api_key uit de omgeving
-_client = OpenAI(
-    api_key=(os.getenv("OPENAI_API_KEY") or os.getenv("OPENAI_API_KEY_PROD"))
-)
+logger = logging.getLogger(__name__)
 
-# Default model voor voorbeelden generatie
-_DEFAULT_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+
+def _get_client() -> OpenAI:
+    """Get OpenAI client (lazy, avoids module-level env access)."""
+    import os
+
+    return OpenAI(
+        api_key=(os.getenv("OPENAI_API_KEY") or os.getenv("OPENAI_API_KEY_PROD"))
+    )
+
+
+def _get_model(task_type: str) -> str:
+    """DEF-314: Get model via ModelRouter, fallback to config default."""
+    try:
+        from utils.container_manager import get_cached_container
+
+        router = get_cached_container().model_router()
+        _, model = router.get_model(task_type)
+        return model
+    except Exception:
+        from config.config_manager import get_default_model
+
+        return get_default_model()
 
 
 def _expand_context_abbreviations(context_items: list[str]) -> str:
@@ -57,8 +74,8 @@ def genereer_voorbeeld_zinnen(
         f"Wettelijke basis:        {_expand_context_abbreviations(context_dict.get('wettelijk', []))}"
     )
     try:
-        resp = _client.chat.completions.create(
-            model=_DEFAULT_MODEL,
+        resp = _get_client().chat.completions.create(
+            model=_get_model("examples"),
             messages=[{"role": "user", "content": prompt}],
             temperature=0.5,
             max_tokens=200,
@@ -97,8 +114,8 @@ def genereer_praktijkvoorbeelden(
         f"Wettelijke basis:        {_expand_context_abbreviations(context_dict.get('wettelijk', []))}"
     )
     try:
-        resp = _client.chat.completions.create(
-            model=_DEFAULT_MODEL,
+        resp = _get_client().chat.completions.create(
+            model=_get_model("examples"),
             messages=[{"role": "user", "content": prompt}],
             temperature=0.5,
             max_tokens=800,
@@ -143,8 +160,8 @@ def genereer_tegenvoorbeelden(
         f"Wettelijke basis:        {_expand_context_abbreviations(context_dict.get('wettelijk', []))}"
     )
     try:
-        resp = _client.chat.completions.create(
-            model=_DEFAULT_MODEL,
+        resp = _get_client().chat.completions.create(
+            model=_get_model("counter_examples"),
             messages=[{"role": "user", "content": prompt}],
             temperature=0.5,
             max_tokens=300,
@@ -186,8 +203,8 @@ def genereer_synoniemen(
         f"Wettelijke basis:        {_expand_context_abbreviations(context_dict.get('wettelijk', []))}"
     )
     try:
-        resp = _client.chat.completions.create(
-            model=_DEFAULT_MODEL,
+        resp = _get_client().chat.completions.create(
+            model=_get_model("synonyms"),
             messages=[{"role": "user", "content": prompt}],
             temperature=0.4,
             max_tokens=200,
@@ -218,8 +235,8 @@ def genereer_antoniemen(
         f"Wettelijke basis:        {_expand_context_abbreviations(context_dict.get('wettelijk', []))}"
     )
     try:
-        resp = _client.chat.completions.create(
-            model=_DEFAULT_MODEL,
+        resp = _get_client().chat.completions.create(
+            model=_get_model("antonyms"),
             messages=[{"role": "user", "content": prompt}],
             temperature=0.5,
             max_tokens=150,
@@ -250,8 +267,8 @@ def genereer_toelichting(
         f"Wettelijke basis:        {_expand_context_abbreviations(context_dict.get('wettelijk', []))}"
     )
     try:
-        resp = _client.chat.completions.create(
-            model=_DEFAULT_MODEL,
+        resp = _get_client().chat.completions.create(
+            model=_get_model("explanation"),
             messages=[{"role": "user", "content": prompt}],
             temperature=0.4,
             max_tokens=220,

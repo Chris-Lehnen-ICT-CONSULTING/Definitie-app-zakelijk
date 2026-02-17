@@ -99,7 +99,7 @@ class MetricSnapshot:
 class CostCalculator:
     """Calculate API costs based on usage."""
 
-    # OpenAI pricing (as of 2025, subject to change)
+    # DEF-314: Broadened pricing lookup (not only gpt-4/gpt-4.1)
     PRICING = {
         "gpt-4": {
             "input": 0.00003,  # per token
@@ -109,12 +109,39 @@ class CostCalculator:
             "input": 0.00003,
             "output": 0.00006,
         },
+        "gpt-4o-mini": {
+            "input": 0.0000015,
+            "output": 0.000006,
+        },
+        "gpt-5.2": {
+            "input": 0.00003,
+            "output": 0.00006,
+        },
+        "gpt-5-mini": {
+            "input": 0.0000015,
+            "output": 0.000006,
+        },
+        "claude-sonnet-4-5-20250929": {
+            "input": 0.000003,
+            "output": 0.000015,
+        },
+        "claude-opus-4-5-20251101": {
+            "input": 0.000015,
+            "output": 0.000075,
+        },
+        "claude-haiku-4-5-20251001": {
+            "input": 0.0000008,
+            "output": 0.000004,
+        },
     }
+
+    # Default pricing for unknown models
+    _DEFAULT_PRICING = {"input": 0.00003, "output": 0.00006}
 
     @classmethod
     def calculate_cost(cls, model: str, input_tokens: int, output_tokens: int) -> float:
         """Calculate cost for API call."""
-        pricing = cls.PRICING.get(model, cls.PRICING["gpt-4.1"])
+        pricing = cls.PRICING.get(model, cls._DEFAULT_PRICING)
         return input_tokens * pricing["input"] + output_tokens * pricing["output"]
 
     @classmethod

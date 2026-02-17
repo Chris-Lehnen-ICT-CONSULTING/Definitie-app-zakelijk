@@ -2,18 +2,29 @@
 Async voorbeelden (examples) generation for DefinitieAgent.
 Provides concurrent generation of all example types for improved performance.
 
-Temperature settings are now loaded from config.yaml for consistency.
+DEF-314: All AI calls now go through AIServiceV2 with task_type routing.
+Temperature settings are loaded from config.yaml for consistency.
 """
 
 import logging
 from collections.abc import Callable
 from dataclasses import dataclass
-from typing import cast
+from typing import TYPE_CHECKING
 
 from config.config_manager import get_prompt_temperature
-from utils.async_api import async_cached, async_gpt_call
+from utils.async_api import async_cached
+
+if TYPE_CHECKING:
+    from services.ai_service_v2 import AIServiceV2
 
 logger = logging.getLogger(__name__)
+
+
+def _get_ai_service() -> "AIServiceV2":
+    """Get singleton AIServiceV2 from the service container."""
+    from utils.container_manager import get_cached_container
+
+    return get_cached_container().orchestrator().ai_service
 
 
 @dataclass
@@ -32,10 +43,26 @@ class ExampleGenerationResult:
 
 
 class AsyncExampleGenerator:
-    """Async generator for all types of examples and related content."""
+    """Async generator for all types of examples and related content.
+
+    DEF-314: Uses AIServiceV2 with task_type for all AI calls.
+    """
 
     def __init__(self):
         self.logger = logging.getLogger(__name__)
+
+    async def _ai_call(
+        self, prompt: str, task_type: str, temperature: float, max_tokens: int
+    ) -> str:
+        """Route AI call through AIServiceV2 with task_type."""
+        ai_service = _get_ai_service()
+        result = await ai_service.generate_definition(
+            prompt=prompt,
+            task_type=task_type,
+            temperature=temperature,
+            max_tokens=max_tokens,
+        )
+        return result.text
 
     @async_cached(ttl=1800)  # 30 minutes
     async def _generate_voorbeeld_zinnen(
@@ -52,9 +79,9 @@ class AsyncExampleGenerator:
         )
 
         try:
-            response = await async_gpt_call(
+            response = await self._ai_call(
                 prompt=prompt,
-                model=None,
+                task_type="examples",
                 temperature=get_prompt_temperature("voorbeeldzinnen"),
                 max_tokens=200,
             )
@@ -63,7 +90,6 @@ class AsyncExampleGenerator:
             zinnen = []
             for line in response.splitlines():
                 zin = line.strip()
-                # Remove numbering if present
                 if zin and (zin[0].isdigit() or zin.startswith("-")):
                     zin = zin.lstrip("0123456789.- ")
                 if zin:
@@ -91,18 +117,16 @@ class AsyncExampleGenerator:
         )
 
         try:
-            response = await async_gpt_call(
+            response = await self._ai_call(
                 prompt=prompt,
-                model="gpt-4",
+                task_type="examples",
                 temperature=get_prompt_temperature("praktijkvoorbeelden"),
                 max_tokens=400,
             )
 
-            # Parse response into separate examples
             voorbeelden = []
             for line in response.splitlines():
                 voorbeeld = line.strip()
-                # Remove numbering if present
                 if voorbeeld and (voorbeeld[0].isdigit() or voorbeeld.startswith("-")):
                     voorbeeld = voorbeeld.lstrip("0123456789.- ")
                 if voorbeeld and len(voorbeeld) > 10:
@@ -128,18 +152,16 @@ class AsyncExampleGenerator:
         )
 
         try:
-            response = await async_gpt_call(
+            response = await self._ai_call(
                 prompt=prompt,
-                model="gpt-4",
+                task_type="counter_examples",
                 temperature=get_prompt_temperature("tegenvoorbeelden"),
                 max_tokens=300,
             )
 
-            # Parse response into separate counter-examples
             tegenvoorbeelden = []
             for line in response.splitlines():
                 voorbeeld = line.strip()
-                # Remove numbering if present
                 if voorbeeld and (voorbeeld[0].isdigit() or voorbeeld.startswith("-")):
                     voorbeeld = voorbeeld.lstrip("0123456789.- ")
                 if voorbeeld and len(voorbeeld) > 10:
@@ -166,14 +188,11 @@ class AsyncExampleGenerator:
         )
 
         try:
-            return cast(
-                str,
-                await async_gpt_call(
-                    prompt=prompt,
-                    model="gpt-4",
-                    temperature=get_prompt_temperature("synoniemen"),
-                    max_tokens=150,
-                ),
+            return await self._ai_call(
+                prompt=prompt,
+                task_type="synonyms",
+                temperature=get_prompt_temperature("synoniemen"),
+                max_tokens=150,
             )
         except Exception as e:
             self.logger.error(f"Error generating synonyms: {e!s}")
@@ -194,14 +213,11 @@ class AsyncExampleGenerator:
         )
 
         try:
-            return cast(
-                str,
-                await async_gpt_call(
-                    prompt=prompt,
-                    model="gpt-4",
-                    temperature=get_prompt_temperature("antoniemen"),
-                    max_tokens=150,
-                ),
+            return await self._ai_call(
+                prompt=prompt,
+                task_type="antonyms",
+                temperature=get_prompt_temperature("antoniemen"),
+                max_tokens=150,
             )
         except Exception as e:
             self.logger.error(f"Error generating antonyms: {e!s}")
@@ -222,14 +238,11 @@ class AsyncExampleGenerator:
         )
 
         try:
-            return cast(
-                str,
-                await async_gpt_call(
-                    prompt=prompt,
-                    model="gpt-4",
-                    temperature=get_prompt_temperature("toelichting"),
-                    max_tokens=200,
-                ),
+            return await self._ai_call(
+                prompt=prompt,
+                task_type="explanation",
+                temperature=get_prompt_temperature("toelichting"),
+                max_tokens=200,
             )
         except Exception as e:
             self.logger.error(f"Error generating explanation: {e!s}")

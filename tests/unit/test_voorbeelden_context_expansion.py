@@ -73,10 +73,11 @@ class TestContextAbbreviationExpansion:
             assert "(" in result  # Bevat uitleg tussen haakjes
             assert ")" in result
 
-    @patch("src.voorbeelden.voorbeelden._client.chat.completions.create")
-    def test_voorbeeld_zinnen_uses_expansion(self, mock_create):
+    @patch("src.voorbeelden.voorbeelden._get_client")
+    def test_voorbeeld_zinnen_uses_expansion(self, mock_get_client):
         """Test dat genereer_voorbeeld_zinnen afkortingen expandeert in prompt."""
         # Mock OpenAI response
+        mock_create = mock_get_client.return_value.chat.completions.create
         mock_response = Mock()
         mock_response.choices = [
             Mock(message=Mock(content="Voorbeeld zin 1\nVoorbeeld zin 2"))
@@ -97,10 +98,11 @@ class TestContextAbbreviationExpansion:
         assert "ZM (Zittende Magistratuur)" in called_prompt
         assert "Strafrecht" in called_prompt  # Reguliere tekst blijft ongewijzigd
 
-    @patch("src.voorbeelden.voorbeelden._client.chat.completions.create")
-    def test_praktijkvoorbeelden_uses_expansion(self, mock_create):
+    @patch("src.voorbeelden.voorbeelden._get_client")
+    def test_praktijkvoorbeelden_uses_expansion(self, mock_get_client):
         """Test dat genereer_praktijkvoorbeelden afkortingen expandeert in prompt."""
         # Mock OpenAI response
+        mock_create = mock_get_client.return_value.chat.completions.create
         mock_response = Mock()
         mock_response.choices = [
             Mock(message=Mock(content="1. Voorbeeld 1\n2. Voorbeeld 2"))
@@ -123,10 +125,11 @@ class TestContextAbbreviationExpansion:
         assert "OM (Openbaar Ministerie)" in called_prompt
         assert "ZM (Zittende Magistratuur)" in called_prompt
 
-    @patch("src.voorbeelden.voorbeelden._client.chat.completions.create")
-    def test_tegenvoorbeelden_uses_expansion(self, mock_create):
+    @patch("src.voorbeelden.voorbeelden._get_client")
+    def test_tegenvoorbeelden_uses_expansion(self, mock_get_client):
         """Test dat genereer_tegenvoorbeelden afkortingen expandeert in prompt."""
         # Mock OpenAI response
+        mock_create = mock_get_client.return_value.chat.completions.create
         mock_response = Mock()
         mock_response.choices = [
             Mock(message=Mock(content="1. Tegenvoorbeeld 1\n2. Tegenvoorbeeld 2"))
@@ -148,10 +151,11 @@ class TestContextAbbreviationExpansion:
         called_prompt = mock_create.call_args[1]["messages"][0]["content"]
         assert "DJI (Dienst Justitiële Inrichtingen)" in called_prompt
 
-    @patch("src.voorbeelden.voorbeelden._client.chat.completions.create")
-    def test_expansion_with_multiple_context_types(self, mock_create):
+    @patch("src.voorbeelden.voorbeelden._get_client")
+    def test_expansion_with_multiple_context_types(self, mock_get_client):
         """Test dat expansie werkt voor alle context types (org, jur, wet)."""
         # Mock OpenAI response
+        mock_create = mock_get_client.return_value.chat.completions.create
         mock_response = Mock()
         mock_response.choices = [Mock(message=Mock(content="Voorbeeld"))]
         mock_create.return_value = mock_response
@@ -176,12 +180,13 @@ class TestContextAbbreviationExpansion:
 class TestSynoniemenAntonieменToelichting:
     """Test dat synoniemen, antoniemen en toelichting ook afkortingen expanderen."""
 
-    @patch("src.voorbeelden.voorbeelden._client.chat.completions.create")
-    def test_synoniemen_uses_expansion(self, mock_create):
+    @patch("src.voorbeelden.voorbeelden._get_client")
+    def test_synoniemen_uses_expansion(self, mock_get_client):
         """Test dat genereer_synoniemen afkortingen expandeert in prompt."""
         # Mock OpenAI response
         from src.voorbeelden.voorbeelden import genereer_synoniemen
 
+        mock_create = mock_get_client.return_value.chat.completions.create
         mock_response = Mock()
         mock_response.choices = [Mock(message=Mock(content="synoniem1\nsynoniem2"))]
         mock_create.return_value = mock_response
@@ -199,12 +204,13 @@ class TestSynoniemenAntonieменToelichting:
         called_prompt = mock_create.call_args[1]["messages"][0]["content"]
         assert "KMAR (Koninklijke Marechaussee)" in called_prompt
 
-    @patch("src.voorbeelden.voorbeelden._client.chat.completions.create")
-    def test_antoniemen_uses_expansion(self, mock_create):
+    @patch("src.voorbeelden.voorbeelden._get_client")
+    def test_antoniemen_uses_expansion(self, mock_get_client):
         """Test dat genereer_antoniemen afkortingen expandeert in prompt."""
         # Mock OpenAI response
         from src.voorbeelden.voorbeelden import genereer_antoniemen
 
+        mock_create = mock_get_client.return_value.chat.completions.create
         mock_response = Mock()
         mock_response.choices = [Mock(message=Mock(content="antoniem1\nantoniem2"))]
         mock_create.return_value = mock_response
@@ -222,12 +228,13 @@ class TestSynoniemenAntonieменToelichting:
         called_prompt = mock_create.call_args[1]["messages"][0]["content"]
         assert "CJIB (Centraal Justitieel Incassobureau)" in called_prompt
 
-    @patch("src.voorbeelden.voorbeelden._client.chat.completions.create")
-    def test_toelichting_uses_expansion(self, mock_create):
+    @patch("src.voorbeelden.voorbeelden._get_client")
+    def test_toelichting_uses_expansion(self, mock_get_client):
         """Test dat genereer_toelichting afkortingen expandeert in prompt."""
         # Mock OpenAI response
         from src.voorbeelden.voorbeelden import genereer_toelichting
 
+        mock_create = mock_get_client.return_value.chat.completions.create
         mock_response = Mock()
         mock_response.choices = [Mock(message=Mock(content="Dit is de toelichting."))]
         mock_create.return_value = mock_response

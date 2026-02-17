@@ -104,11 +104,15 @@ class UnifiedExamplesGenerator:
         self.generation_count = 0
         self.error_count = 0
         self.cache_hits = 0
-        # Initialize AI service V2
+        # DEF-314: Initialize AI service V2 with ModelRouter
+        try:
+            from utils.container_manager import get_cached_container
+
+            router = get_cached_container().model_router()
+        except Exception:
+            router = None
         self.ai_service = AIServiceV2(
-            default_model=get_component_config("ai_service").get(
-                "model", "gpt-4o-mini"
-            ),
+            model_router=router,
             use_cache=True,
         )
         # Semaphore to limit concurrent API calls (OpenAI typically allows 8-10 concurrent)
