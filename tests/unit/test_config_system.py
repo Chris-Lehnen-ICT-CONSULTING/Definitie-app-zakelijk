@@ -80,7 +80,7 @@ class TestConfigManager:
             # Temperature env var still works
             assert api_config.default_temperature == 0.5
             # Model is NOT overridable via env var (DEF-314: removed)
-            assert api_config.default_model == "gpt-4.1"
+            assert api_config.default_model == "gpt-5.2"
 
     def test_configuration_validation(self):
         """Test configuration validation."""

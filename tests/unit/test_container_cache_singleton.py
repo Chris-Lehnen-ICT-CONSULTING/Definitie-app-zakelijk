@@ -10,6 +10,7 @@ Fix: Verwijder alle parameters van get_cached_container().
 """
 
 import logging
+import os
 from unittest.mock import patch
 
 import pytest
@@ -173,6 +174,7 @@ class TestContainerCacheSingleton:
         assert cache_info.misses == 1, "Moet exact 1 miss hebben"
         assert cache_info.hits == 9, "Moet exact 9 hits hebben"
 
+    @patch.dict("os.environ", {"OPENAI_API_KEY": "sk-test-fake"})
     def test_container_services_persistent(self):
         """Verify services remain same across multiple get_cached_container calls."""
         # Arrange
@@ -278,6 +280,7 @@ class TestContainerIntegration:
         """Cleanup na elke test."""
         clear_container_cache()
 
+    @patch.dict("os.environ", {"OPENAI_API_KEY": "sk-test-fake"})
     def test_lazy_service_loading(self):
         """Verify lazy loading works correctly with cached container."""
         # Arrange
