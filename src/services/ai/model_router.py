@@ -34,8 +34,30 @@ class ModelRouter:
                 standard: "claude-haiku-4-5-20251001"
     """
 
+    _DEFAULT_CONFIG: dict[str, Any] = {
+        "active_provider": "openai",
+        "task_tiers": {
+            "critical": [
+                "definition_core",
+                "explanation",
+                "examples",
+                "validation",
+            ],
+            "standard": ["synonyms", "antonyms"],
+        },
+        "providers": {
+            "openai": {"critical": "gpt-5.2", "standard": "gpt-5-mini"},
+            "anthropic": {
+                "critical": "claude-opus-4-5-20251101",
+                "standard": "claude-haiku-4-5-20251001",
+            },
+        },
+    }
+
     def __init__(self, config: dict[str, Any]):
-        self._config = config
+        self._config = (
+            {**self._DEFAULT_CONFIG, **config} if config else dict(self._DEFAULT_CONFIG)
+        )
         logger.info(
             "ModelRouter initialized: provider=%s, tiers=%s",
             self.active_provider,

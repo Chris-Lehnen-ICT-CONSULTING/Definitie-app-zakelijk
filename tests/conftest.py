@@ -8,6 +8,7 @@ import os
 import socket
 import sys
 from pathlib import Path
+from unittest.mock import patch
 
 import pytest
 
@@ -276,6 +277,25 @@ def chdir_tmp_path(tmp_path, monkeypatch):
     """
     monkeypatch.chdir(tmp_path)
     return tmp_path
+
+
+# Prevent tiktoken BPE download — provide fake encoder for RAG tests.
+# Must run before _disable_network blocks sockets.
+@pytest.fixture(autouse=True, scope="session")
+def _mock_tiktoken():
+    class FakeEncoder:
+        def encode(self, text):
+            return list(range(max(1, len(text) // 4)))
+
+        def decode(self, tokens):
+            return "x" * (len(tokens) * 4)
+
+    fake = FakeEncoder()
+    with (
+        patch("services.rag.token_counter._encoder", fake),
+        patch("services.rag.embedding_service._encoder", fake),
+    ):
+        yield
 
 
 # Hard-block all outbound network access during tests unless explicitly allowed.
