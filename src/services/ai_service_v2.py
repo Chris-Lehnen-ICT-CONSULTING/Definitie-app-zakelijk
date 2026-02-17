@@ -106,8 +106,8 @@ class AIServiceV2(AIServiceInterface):
         self.use_cache = use_cache
         self._token_encoders: dict[str, Any] = {}  # Cache encoders per model
 
-        # Initialize default model encoder if available
-        if TIKTOKEN_AVAILABLE:
+        # Initialize default model encoder if available (tiktoken only supports OpenAI models)
+        if TIKTOKEN_AVAILABLE and not self.default_model.startswith("claude"):
             self._get_or_create_encoder(self.default_model)
 
     def _get_client(self) -> AsyncGPTClient:

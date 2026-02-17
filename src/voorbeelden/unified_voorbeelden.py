@@ -129,9 +129,8 @@ class UnifiedExamplesGenerator:
 
             return get_cached_container().orchestrator().ai_service
         except Exception:
-            logger.warning("Container not available, creating standalone AIServiceV2")
-            self._ai_service_override = AIServiceV2(use_cache=True)
-            return self._ai_service_override
+            logger.warning("Container not available, using standalone AIServiceV2")
+            return AIServiceV2(use_cache=True)
 
     @ai_service.setter
     def ai_service(self, value: AIServiceV2) -> None:
@@ -392,14 +391,21 @@ class UnifiedExamplesGenerator:
         """Cached example generation with robust cache keys."""
         cache = get_robust_cache()
 
-        # Generate robust cache key
+        # DEF-314: Include provider+model in cache key so provider switches invalidate
+        task_type = self._get_task_type(request.example_type)
+        try:
+            provider, model = self.ai_service._model_router.get_model(task_type)
+            cache_model = f"{provider}/{model}"
+        except Exception:
+            cache_model = request.model
+
         cache_key = cache.generate_robust_key(
             example_type=request.example_type.value,
             begrip=request.begrip,
             definitie=request.definitie,
             context_dict=request.context_dict,
             max_examples=request.max_examples,
-            model=request.model,
+            model=cache_model,
             temperature=request.temperature,
         )
 

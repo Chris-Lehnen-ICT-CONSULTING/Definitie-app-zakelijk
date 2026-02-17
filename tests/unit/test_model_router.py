@@ -1,5 +1,7 @@
 """Unit tests for ModelRouter (DEF-314)."""
 
+from unittest.mock import MagicMock, patch
+
 import pytest
 
 from services.ai.model_router import ModelRouter
@@ -78,16 +80,20 @@ class TestProviderLookup:
         assert provider == "openai"
 
     def test_anthropic_provider(self, routing_config):
-        routing_config["active_provider"] = "anthropic"
-        router = ModelRouter(routing_config)
-        provider, model = router.get_model("definition_core")
+        mock_cfg = MagicMock()
+        mock_cfg.api.ai_provider = "anthropic"
+        with patch("config.config_manager.get_config_manager", return_value=mock_cfg):
+            router = ModelRouter(routing_config)
+            provider, model = router.get_model("definition_core")
         assert provider == "anthropic"
         assert model == "claude-opus-4-5-20251101"
 
     def test_anthropic_standard_tier(self, routing_config):
-        routing_config["active_provider"] = "anthropic"
-        router = ModelRouter(routing_config)
-        _, model = router.get_model("synonyms")
+        mock_cfg = MagicMock()
+        mock_cfg.api.ai_provider = "anthropic"
+        with patch("config.config_manager.get_config_manager", return_value=mock_cfg):
+            router = ModelRouter(routing_config)
+            _, model = router.get_model("synonyms")
         assert model == "claude-haiku-4-5-20251001"
 
     def test_active_provider_property(self, router):
@@ -114,9 +120,11 @@ class TestGetAvailableModels:
         assert models == {"critical": "gpt-5.2", "standard": "gpt-5-mini"}
 
     def test_returns_tiers_for_anthropic(self, routing_config):
-        routing_config["active_provider"] = "anthropic"
-        router = ModelRouter(routing_config)
-        models = router.get_available_models()
+        mock_cfg = MagicMock()
+        mock_cfg.api.ai_provider = "anthropic"
+        with patch("config.config_manager.get_config_manager", return_value=mock_cfg):
+            router = ModelRouter(routing_config)
+            models = router.get_available_models()
         assert models == {
             "critical": "claude-opus-4-5-20251101",
             "standard": "claude-haiku-4-5-20251001",

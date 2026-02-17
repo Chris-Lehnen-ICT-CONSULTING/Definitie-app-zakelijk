@@ -68,7 +68,13 @@ class ModelRouter:
 
     @property
     def active_provider(self) -> str:
-        return self._config["active_provider"]
+        """Return current provider, synced with ENV (set by sidebar on switch)."""
+        try:
+            from config.config_manager import get_config_manager
+
+            return get_config_manager().api.ai_provider
+        except Exception:
+            return self._config.get("active_provider", "openai")
 
     def get_available_models(self) -> dict[str, str]:
         """For UI: returns {tier: model} of the active provider."""
