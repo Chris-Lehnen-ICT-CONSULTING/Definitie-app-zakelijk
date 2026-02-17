@@ -159,9 +159,22 @@ class AsyncGPTClient:
         await self.rate_limiter.acquire()
 
         try:
+            # DEF-314: Resolve model via ModelRouter when None
+            resolved_model = model
+            if resolved_model is None:
+                try:
+                    from utils.container_manager import get_cached_container
+
+                    router = get_cached_container().model_router()
+                    _, resolved_model = router.get_model("definition_core")
+                except Exception:
+                    from config.config_manager import get_default_model
+
+                    resolved_model = get_default_model()
+
             result = await self._make_request_with_retries(
                 prompt=prompt,
-                model=model or "gpt-4",
+                model=resolved_model,
                 temperature=temperature,
                 max_tokens=max_tokens,
                 system_prompt=system_prompt,

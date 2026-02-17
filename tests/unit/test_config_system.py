@@ -63,20 +63,24 @@ class TestConfigManager:
         assert hasattr(api_config, "default_temperature")
 
     def test_environment_variable_override(self):
-        """Test environment variable overrides."""
+        """Test environment variable overrides.
+
+        DEF-314: OPENAI_DEFAULT_MODEL env var removed — model selection
+        is now handled by ModelRouter. Only temperature override remains.
+        """
         with patch.dict(
             os.environ,
             {
-                "OPENAI_DEFAULT_MODEL": "gpt-3.5-turbo",
                 "OPENAI_DEFAULT_TEMPERATURE": "0.5",
             },
         ):
             config_manager = ConfigManager()
             api_config = config_manager.get_config(ConfigSection.API)
 
-            # Environment variables should override config values
-            assert api_config.default_model == "gpt-3.5-turbo"
+            # Temperature env var still works
             assert api_config.default_temperature == 0.5
+            # Model is NOT overridable via env var (DEF-314: removed)
+            assert api_config.default_model == "gpt-4.1"
 
     def test_configuration_validation(self):
         """Test configuration validation."""

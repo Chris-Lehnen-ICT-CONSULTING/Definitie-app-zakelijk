@@ -11,23 +11,33 @@ from ui.session_state import SessionStateManager
 
 logger = logging.getLogger(__name__)
 
-# Provider configurations
+# Provider configurations (DEF-314: default_model resolved dynamically from ModelRouter)
 _PROVIDERS = {
     "openai": {
         "label": "OpenAI (GPT)",
         "env_key": "OPENAI_API_KEY",
-        "default_model": "gpt-4.1",
         "key_prefix": "sk-",
         "key_hint": "sk-...",
     },
     "anthropic": {
         "label": "Anthropic (Claude)",
         "env_key": "ANTHROPIC_API_KEY",
-        "default_model": "claude-sonnet-4-5-20250929",
         "key_prefix": "sk-ant-",
         "key_hint": "sk-ant-...",
     },
 }
+
+
+def _get_active_model() -> str:
+    """DEF-314: Get the active critical-tier model from ModelRouter."""
+    try:
+        from utils.container_manager import get_cached_container
+
+        router = get_cached_container().model_router()
+        _, model = router.get_model("definition_core")
+        return model
+    except Exception:
+        return "unknown"
 
 
 def render_ai_provider_sidebar() -> None:
@@ -96,7 +106,7 @@ def render_ai_provider_sidebar() -> None:
 
         if active_key:
             st.success(f"Active: {active_config['label']}")
-            st.caption(f"Model: `{active_config['default_model']}`")
+            st.caption(f"Model: `{_get_active_model()}`")
         else:
             st.warning(f"Geen API key voor {active_config['label']}")
 
@@ -121,6 +131,14 @@ def _apply_provider_change(provider: str, api_key: str) -> None:
         reset_container()
     except Exception:
         logger.warning("Container reset failed during provider change", exc_info=True)
+
+    # DEF-314: Reset examples generator so it picks up new provider
+    try:
+        from voorbeelden.unified_voorbeelden import reset_examples_generator
+
+        reset_examples_generator()
+    except Exception:
+        logger.debug("Could not reset examples generator", exc_info=True)
 
     # Clear the cached TabbedInterface so it gets a fresh container
     try:

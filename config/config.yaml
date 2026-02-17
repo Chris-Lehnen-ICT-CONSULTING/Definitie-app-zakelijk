@@ -2,7 +2,7 @@ api:
   ai_provider: openai
   anthropic_api_key: ''
   default_max_tokens: 300
-  default_model: gpt-4.1
+  default_model: gpt-5.2
   default_temperature: 0.9
   max_retries: 3
   model_settings:
@@ -24,6 +24,25 @@ api:
   openai_api_key: ''
   request_timeout: 30.0
   retry_backoff_factor: 1.5
+model_routing:
+  active_provider: openai
+  task_tiers:
+    critical:
+    - definition_core
+    - explanation
+    - examples
+    - counter_examples
+    - ontological_model
+    standard:
+    - synonyms
+    - antonyms
+  providers:
+    openai:
+      critical: gpt-5.2
+      standard: gpt-5-mini
+    anthropic:
+      critical: claude-opus-4-5-20251101
+      standard: claude-haiku-4-5-20251001
 cache:
   cache_dir: cache
   cleanup_interval: 600

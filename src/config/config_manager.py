@@ -52,7 +52,7 @@ class APIConfig:
 
     openai_api_key: str = ""  # OpenAI API sleutel voor AI model toegang
     default_model: str = (
-        "gpt-4.1"  # Standaard AI model voor definitie generatie (stabiel voor juridische definities)
+        "gpt-5.2"  # Standaard AI model voor definitie generatie (DEF-314: via ModelRouter)
     )
     default_temperature: float = (
         0.0  # Creativiteit niveau (0.0 = deterministisch voor juridische definities)
@@ -506,8 +506,7 @@ class ConfigManager:
         if api_key:
             self.api.openai_api_key = api_key
 
-        if model := os.getenv("OPENAI_DEFAULT_MODEL"):
-            self.api.default_model = model
+        # DEF-314: OPENAI_DEFAULT_MODEL env var removed — model selection via ModelRouter
 
         if temp := os.getenv("OPENAI_DEFAULT_TEMPERATURE"):
             self.api.default_temperature = float(temp)
@@ -551,7 +550,10 @@ class ConfigManager:
             config_dict: Dictionary met configuratie instellingen
         """
         for section_name, section_config in config_dict.items():
-            if section_name == "ai_components":
+            if section_name == "model_routing":
+                # DEF-314: Store model_routing config for ModelRouter
+                self._model_routing_config = section_config
+            elif section_name == "ai_components":
                 # Deprecated: Speciale behandeling voor ai_components
                 self.ai_components = section_config
             elif section_name == "prompt_temperatures":

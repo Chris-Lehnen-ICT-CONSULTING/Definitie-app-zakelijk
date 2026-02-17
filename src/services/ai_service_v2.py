@@ -34,6 +34,7 @@ from services.ai.base_client import (
     AIRateLimitClientError,
     AsyncAIClient,
 )
+from services.ai.model_router import ModelRouter
 from services.interfaces import (
     AIBatchRequest,
     AIGenerationResult,
@@ -59,19 +60,22 @@ class AIServiceV2(AIServiceInterface):
     def __init__(
         self,
         rate_limit_config: RateLimitConfig | None = None,
-        default_model: str = "gpt-4o-mini",
+        default_model: str | None = None,
         use_cache: bool = True,
         ai_client: AsyncAIClient | None = None,
+        model_router: ModelRouter | None = None,
     ):
         """
         Initialize AIServiceV2 with configuration.
 
         Args:
             rate_limit_config: Optional rate limit configuration, uses config_manager if None
-            default_model: Default model to use for AI calls
+            default_model: Default model to use for AI calls (deprecated, use model_router)
             use_cache: Whether to enable caching
             ai_client: Optional pre-configured AI client (provider-agnostic)
+            model_router: DEF-314: ModelRouter for task-type based model selection
         """
+        self._model_router = model_router
         # Get rate limit config from config_manager if not provided
         if rate_limit_config is None:
             # Use default rate limit from config_manager
@@ -92,12 +96,18 @@ class AIServiceV2(AIServiceInterface):
         self._rate_limit_config = rate_limit_config
         self._ai_client = ai_client
         self._client: AsyncGPTClient | None = None
-        self.default_model = default_model
+        # DEF-314: Resolve default_model via ModelRouter if not explicitly provided
+        if default_model is not None:
+            self.default_model = default_model
+        elif model_router is not None:
+            _, self.default_model = model_router.get_model("definition_core")
+        else:
+            self.default_model = get_config_manager().api.default_model
         self.use_cache = use_cache
         self._token_encoders: dict[str, Any] = {}  # Cache encoders per model
 
-        # Initialize default model encoder if available
-        if TIKTOKEN_AVAILABLE:
+        # Initialize default model encoder if available (tiktoken only supports OpenAI models)
+        if TIKTOKEN_AVAILABLE and not self.default_model.startswith("claude"):
             self._get_or_create_encoder(self.default_model)
 
     def _get_client(self) -> AsyncGPTClient:
@@ -148,6 +158,7 @@ class AIServiceV2(AIServiceInterface):
         model: str | None = None,
         system_prompt: str | None = None,
         timeout_seconds: int = 30,
+        task_type: str | None = None,
     ) -> AIGenerationResult:
         """
         Generate a definition using AI based on the given prompt.
@@ -156,9 +167,10 @@ class AIServiceV2(AIServiceInterface):
             prompt: The prompt for the AI model
             temperature: Creativity parameter (0.0 = deterministic, 1.0 = creative)
             max_tokens: Maximum tokens in response
-            model: Optional specific model to use
+            model: Optional specific model to use (overrides task_type)
             system_prompt: Optional system prompt for context
             timeout_seconds: Timeout for the AI call
+            task_type: DEF-314: Task type for ModelRouter lookup (e.g. 'definition_core')
 
         Returns:
             AIGenerationResult with generated text and metadata
@@ -167,7 +179,13 @@ class AIServiceV2(AIServiceInterface):
             AIServiceError: On AI service errors (rate limits, timeouts, etc.)
         """
         start_time = time.time()
-        model_to_use = model or self.default_model
+        # DEF-314: model param takes precedence; then task_type via ModelRouter; then default
+        if model is not None:
+            model_to_use = model
+        elif task_type is not None and self._model_router is not None:
+            _, model_to_use = self._model_router.get_model(task_type)
+        else:
+            model_to_use = self.default_model
 
         try:
             # Generate V1-compatible cache key
