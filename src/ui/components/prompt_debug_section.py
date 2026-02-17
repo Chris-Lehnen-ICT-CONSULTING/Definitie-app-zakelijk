@@ -155,7 +155,15 @@ class PromptDebugSection:
 
             col1, col2 = st.columns(2)
             with col1:
-                st.selectbox("Model", ["gpt-4.1", "gpt-4"], key="test_model")
+                # DEF-314: Dynamic model list from ModelRouter
+                try:
+                    from utils.container_manager import get_cached_container
+
+                    _router = get_cached_container().model_router()
+                    _models = list(_router.get_available_models().values())
+                except Exception:
+                    _models = ["(config niet geladen)"]
+                st.selectbox("Model", _models, key="test_model")
 
             with col2:
                 st.slider(

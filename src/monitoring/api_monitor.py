@@ -99,22 +99,33 @@ class MetricSnapshot:
 class CostCalculator:
     """Calculate API costs based on usage."""
 
-    # OpenAI pricing (as of 2025, subject to change)
+    # DEF-314: Active model pricing (matches config.yaml model_routing)
     PRICING = {
-        "gpt-4": {
+        "gpt-5.2": {
             "input": 0.00003,  # per token
             "output": 0.00006,  # per token
         },
-        "gpt-4.1": {
-            "input": 0.00003,
-            "output": 0.00006,
+        "gpt-5-mini": {
+            "input": 0.0000015,
+            "output": 0.000006,
+        },
+        "claude-opus-4-5-20251101": {
+            "input": 0.000015,
+            "output": 0.000075,
+        },
+        "claude-haiku-4-5-20251001": {
+            "input": 0.0000008,
+            "output": 0.000004,
         },
     }
+
+    # Default pricing for unknown models
+    _DEFAULT_PRICING = {"input": 0.00003, "output": 0.00006}
 
     @classmethod
     def calculate_cost(cls, model: str, input_tokens: int, output_tokens: int) -> float:
         """Calculate cost for API call."""
-        pricing = cls.PRICING.get(model, cls.PRICING["gpt-4.1"])
+        pricing = cls.PRICING.get(model, cls._DEFAULT_PRICING)
         return input_tokens * pricing["input"] + output_tokens * pricing["output"]
 
     @classmethod
@@ -125,7 +136,7 @@ class CostCalculator:
         output_tokens = int(avg_tokens * 0.3)
 
         daily_cost = daily_requests * cls.calculate_cost(
-            "gpt-4", input_tokens, output_tokens
+            "gpt-5.2", input_tokens, output_tokens
         )
         return daily_cost * 30
 
@@ -604,7 +615,7 @@ async def record_api_call(
     success: bool,
     error_type: str | None = None,
     tokens_used: int = 0,
-    model: str = "gpt-4",
+    model: str = "gpt-5.2",
     cache_hit: bool = False,
     priority: str = "normal",
     retry_count: int = 0,

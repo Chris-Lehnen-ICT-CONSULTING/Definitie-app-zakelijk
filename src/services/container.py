@@ -15,6 +15,7 @@ from config.config_manager import (
     get_default_model,
     get_default_temperature,
 )
+from services.ai.model_router import ModelRouter
 from services.definition_generator_config import UnifiedGeneratorConfig
 from services.definition_repository import DefinitionRepository
 
@@ -155,6 +156,33 @@ class ServiceContainer:
 
     # Service factory methods
 
+    def model_router(self) -> ModelRouter:
+        """Get or create ModelRouter singleton.
+
+        DEF-314: Centralized model routing — replaces hardcoded model names.
+        """
+        if "model_router" not in self._instances:
+            config_mgr = get_config_manager()
+            # Load model_routing section from config.yaml
+            routing_config = getattr(config_mgr, "_model_routing_config", None)
+            if routing_config is None:
+                # Fallback: load directly from YAML
+                from pathlib import Path
+
+                import yaml
+
+                config_path = Path("config/config.yaml")
+                if config_path.exists():
+                    with open(config_path) as f:
+                        full_config = yaml.safe_load(f)
+                    routing_config = full_config.get("model_routing", {})
+                else:
+                    routing_config = {}
+
+            self._instances["model_router"] = ModelRouter(routing_config)
+            logger.info("ModelRouter singleton created")
+        return self._instances["model_router"]
+
     def generator(self) -> DefinitionGeneratorInterface:
         """
         Get of create DefinitionGenerator instance.
@@ -256,11 +284,11 @@ class ServiceContainer:
             # Create provider-agnostic AI client (singleton)
             ai_client = self._get_ai_client()
 
-            # Create AI service (still eager - needed for orchestrator init check)
+            # DEF-314: Create AI service with ModelRouter for task-type routing
             ai_service = AIServiceV2(
-                default_model=self.generator_config.gpt.model,
                 use_cache=True,
                 ai_client=ai_client,
+                model_router=self.model_router(),
             )
 
             # DEF-232: CleaningService is now native async - no adapter needed
@@ -333,25 +361,21 @@ class ServiceContainer:
             results = classifier.classify_batch(begrippen_list)
         """
         if "ontological_classifier" not in self._instances:
-            from services.ai_service_v2 import AIServiceV2
             from services.classification.ontological_classifier import (
                 OntologicalClassifier,
             )
 
-            # Reuse singleton AI client
-            ai_client = self._get_ai_client()
-
-            # Reuse AI service with same config as generator
-            ai_service = AIServiceV2(
-                default_model=self.generator_config.gpt.model,
-                use_cache=True,
-                ai_client=ai_client,
-            )
+            # DEF-314: Reuse singleton AIServiceV2 from orchestrator
+            # instead of creating a second instance
+            orchestrator = self.orchestrator()
+            ai_service = orchestrator.ai_service
 
             self._instances["ontological_classifier"] = OntologicalClassifier(
                 ai_service
             )
-            logger.info("OntologicalClassifier (standalone) initialized")
+            logger.info(
+                "OntologicalClassifier initialized (reusing orchestrator AI service)"
+            )
 
         return self._instances["ontological_classifier"]
 
@@ -782,6 +806,7 @@ class ServiceContainer:
             Service instance of None
         """
         service_map = {
+            "model_router": self.model_router,
             "generator": self.generator,
             # Legacy validator verwijderd; geen mapping meer beschikbaar
             "repository": self.repository,

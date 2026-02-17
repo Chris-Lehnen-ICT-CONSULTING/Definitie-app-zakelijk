@@ -420,7 +420,7 @@ class ServiceAdapter:
                 "context": ensure_dict(safe_dict_get(md, "context", {})),
                 "generation_id": ensure_string(safe_dict_get(md, "generation_id", "")),
                 "duration": safe_dict_get(md, "processing_time", 0.0),
-                "model": ensure_string(safe_dict_get(md, "model", "gpt-4")),
+                "model": ensure_string(safe_dict_get(md, "model", "")),
             }
             for k in (
                 "web_lookup_status",

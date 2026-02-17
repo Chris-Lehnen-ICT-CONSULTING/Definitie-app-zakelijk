@@ -298,6 +298,15 @@ class SynonymOrchestrator:
             ai_count = 0
             for suggestion in ai_suggestions:
                 try:
+                    # DEF-314: Resolve model name dynamically via ModelRouter
+                    try:
+                        from utils.container_manager import get_cached_container
+
+                        _router = get_cached_container().model_router()
+                        _, _enrichment_model = _router.get_model("synonyms")
+                    except Exception:
+                        _enrichment_model = "unknown"
+
                     self.registry.add_group_member(
                         group_id=cast(int, group.id),
                         term=suggestion.synoniem,
@@ -307,7 +316,7 @@ class SynonymOrchestrator:
                         context_json=json.dumps(
                             {
                                 "rationale": suggestion.rationale,
-                                "model": "gpt-4-turbo",
+                                "model": _enrichment_model,
                                 "triggered_by": "definition_generation",
                                 "timestamp": datetime.now(UTC).isoformat(),
                             }
