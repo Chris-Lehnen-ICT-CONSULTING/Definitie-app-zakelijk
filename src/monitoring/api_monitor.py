@@ -99,31 +99,15 @@ class MetricSnapshot:
 class CostCalculator:
     """Calculate API costs based on usage."""
 
-    # DEF-314: Broadened pricing lookup (not only gpt-4/gpt-4.1)
+    # DEF-314: Active model pricing (matches config.yaml model_routing)
     PRICING = {
-        "gpt-4": {
+        "gpt-5.2": {
             "input": 0.00003,  # per token
             "output": 0.00006,  # per token
-        },
-        "gpt-4.1": {
-            "input": 0.00003,
-            "output": 0.00006,
-        },
-        "gpt-4o-mini": {
-            "input": 0.0000015,
-            "output": 0.000006,
-        },
-        "gpt-5.2": {
-            "input": 0.00003,
-            "output": 0.00006,
         },
         "gpt-5-mini": {
             "input": 0.0000015,
             "output": 0.000006,
-        },
-        "claude-sonnet-4-5-20250929": {
-            "input": 0.000003,
-            "output": 0.000015,
         },
         "claude-opus-4-5-20251101": {
             "input": 0.000015,
@@ -152,7 +136,7 @@ class CostCalculator:
         output_tokens = int(avg_tokens * 0.3)
 
         daily_cost = daily_requests * cls.calculate_cost(
-            "gpt-4", input_tokens, output_tokens
+            "gpt-5.2", input_tokens, output_tokens
         )
         return daily_cost * 30
 
@@ -631,7 +615,7 @@ async def record_api_call(
     success: bool,
     error_type: str | None = None,
     tokens_used: int = 0,
-    model: str = "gpt-4",
+    model: str = "gpt-5.2",
     cache_hit: bool = False,
     priority: str = "normal",
     retry_count: int = 0,

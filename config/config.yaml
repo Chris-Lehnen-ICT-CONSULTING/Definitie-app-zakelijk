@@ -92,25 +92,6 @@ rate_limiting:
   requests_per_minute: 60
   target_response_time: 2.0
   tokens_per_second: 2.0
-model_routing:
-  active_provider: openai
-  task_tiers:
-    critical:
-    - definition_core
-    - explanation
-    - examples
-    - counter_examples
-    - ontological_model
-    standard:
-    - synonyms
-    - antonyms
-  providers:
-    openai:
-      critical: gpt-5.2
-      standard: gpt-5-mini
-    anthropic:
-      critical: claude-opus-4-5-20251101
-      standard: claude-haiku-4-5-20251001
 resilience:
   base_delay: 1.0
   degraded_threshold: 0.8

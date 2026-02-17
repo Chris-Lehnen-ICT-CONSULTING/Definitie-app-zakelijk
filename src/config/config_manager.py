@@ -52,7 +52,7 @@ class APIConfig:
 
     openai_api_key: str = ""  # OpenAI API sleutel voor AI model toegang
     default_model: str = (
-        "gpt-4.1"  # Standaard AI model voor definitie generatie (stabiel voor juridische definities)
+        "gpt-5.2"  # Standaard AI model voor definitie generatie (DEF-314: via ModelRouter)
     )
     default_temperature: float = (
         0.0  # Creativiteit niveau (0.0 = deterministisch voor juridische definities)
