@@ -114,18 +114,29 @@ class UnifiedExamplesGenerator:
         self.generation_count = 0
         self.error_count = 0
         self.cache_hits = 0
-        # DEF-314: Use container's AIServiceV2 singleton (shares provider config)
-        try:
-            from utils.container_manager import get_cached_container
-
-            container = get_cached_container()
-            self.ai_service = container.orchestrator().ai_service
-        except Exception:
-            logger.warning("Container not available, creating standalone AIServiceV2")
-            self.ai_service = AIServiceV2(use_cache=True)
+        self._ai_service_override: AIServiceV2 | None = None
         # Semaphore to limit concurrent API calls (OpenAI typically allows 8-10 concurrent)
         # Set to 6 to safely handle all 6 example types without overwhelming the API
         self._concurrent_limit = asyncio.Semaphore(6)
+
+    @property
+    def ai_service(self) -> AIServiceV2:
+        """DEF-314: Always fetch from container so provider switches take effect."""
+        if self._ai_service_override is not None:
+            return self._ai_service_override
+        try:
+            from utils.container_manager import get_cached_container
+
+            return get_cached_container().orchestrator().ai_service
+        except Exception:
+            logger.warning("Container not available, creating standalone AIServiceV2")
+            self._ai_service_override = AIServiceV2(use_cache=True)
+            return self._ai_service_override
+
+    @ai_service.setter
+    def ai_service(self, value: AIServiceV2) -> None:
+        """Allow override (used in tests)."""
+        self._ai_service_override = value
 
     @staticmethod
     def _get_task_type(example_type: ExampleType) -> str:
@@ -844,6 +855,12 @@ def get_examples_generator() -> UnifiedExamplesGenerator:
     if _generator is None:
         _generator = UnifiedExamplesGenerator()
     return _generator
+
+
+def reset_examples_generator() -> None:
+    """Reset the global generator (called on provider switch)."""
+    global _generator
+    _generator = None
 
 
 # Convenience functions for different example types

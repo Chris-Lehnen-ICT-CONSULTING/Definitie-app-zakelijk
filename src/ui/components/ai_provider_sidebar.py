@@ -132,6 +132,14 @@ def _apply_provider_change(provider: str, api_key: str) -> None:
     except Exception:
         logger.warning("Container reset failed during provider change", exc_info=True)
 
+    # DEF-314: Reset examples generator so it picks up new provider
+    try:
+        from voorbeelden.unified_voorbeelden import reset_examples_generator
+
+        reset_examples_generator()
+    except Exception:
+        logger.debug("Could not reset examples generator", exc_info=True)
+
     # Clear the cached TabbedInterface so it gets a fresh container
     try:
         from main import get_tabbed_interface

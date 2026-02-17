@@ -20,7 +20,8 @@ from .unified_voorbeelden import (
     genereer_tegenvoorbeelden,  # Genereert tegenvoorbeelden ter verduidelijking
     genereer_toelichting,  # Genereert uitgebreide toelichting
     genereer_voorbeeld_zinnen,  # Genereert voorbeeld zinnen met de term
-    get_examples_generator,  # Hoofdklassen voor voorbeeld generatie; Convenience functies voor directe voorbeeld generatie; Batch functies voor efficiënte bulk generatie; Utility functies voor generator management; Factory functie voor generator instanties
+    get_examples_generator,  # Factory functie voor generator instanties
+    reset_examples_generator,  # Reset generator bij provider-switch
 )
 
 # Exporteer publieke interface - alle voorbeeld generatie componenten
@@ -43,6 +44,7 @@ __all__ = [
     "genereer_voorbeeld_zinnen",  # Directe functie voor voorbeeld zinnen
     # Utility functies voor generator management
     "get_examples_generator",  # Factory functie voor generator instanties
+    "reset_examples_generator",  # Reset bij provider-switch
 ]
 
 # Versie informatie en package metadata

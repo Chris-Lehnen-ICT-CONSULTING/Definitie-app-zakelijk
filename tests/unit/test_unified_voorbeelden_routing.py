@@ -2,7 +2,7 @@
 
 Verifies that each ExampleType maps to the correct ModelRouter task_type,
 ensuring critical-tier tasks use the powerful model and standard-tier tasks
-use the cheaper model.
+use the cheaper model. Also tests that provider switches propagate correctly.
 """
 
 from unittest.mock import AsyncMock, MagicMock, patch
@@ -15,6 +15,7 @@ from voorbeelden.unified_voorbeelden import (
     ExampleType,
     GenerationMode,
     UnifiedExamplesGenerator,
+    reset_examples_generator,
 )
 
 
@@ -133,3 +134,51 @@ class TestTaskTypeRoutingInGeneration:
             assert (
                 "model" not in call_kwargs
             ), f"{example_type.name} should not pass model= parameter"
+
+
+class TestAiServicePropertyAndProviderSwitch:
+    """Verify ai_service is a live property, not a stale captured reference."""
+
+    def test_ai_service_is_property(self):
+        """ai_service should be a property on the class."""
+        assert isinstance(
+            UnifiedExamplesGenerator.ai_service, property
+        ), "ai_service must be a property, not a plain attribute"
+
+    def test_setter_allows_override(self):
+        """Setting ai_service stores an override (used in tests)."""
+        with patch(
+            "utils.container_manager.get_cached_container",
+            side_effect=RuntimeError("no container"),
+        ):
+            gen = UnifiedExamplesGenerator()
+        mock_service = MagicMock()
+        gen.ai_service = mock_service
+        assert gen.ai_service is mock_service
+
+    def test_property_fetches_from_container(self):
+        """Without override, ai_service fetches from container each time."""
+        mock_container = MagicMock()
+        service_a = MagicMock(name="service_a")
+        service_b = MagicMock(name="service_b")
+        mock_container.orchestrator.return_value.ai_service = service_a
+
+        with patch(
+            "utils.container_manager.get_cached_container",
+            return_value=mock_container,
+        ):
+            gen = UnifiedExamplesGenerator()
+            # First access
+            assert gen.ai_service is service_a
+
+            # Simulate provider switch: container returns different service
+            mock_container.orchestrator.return_value.ai_service = service_b
+            assert gen.ai_service is service_b
+
+    def test_reset_examples_generator_clears_global(self):
+        """reset_examples_generator() sets the module global to None."""
+        import voorbeelden.unified_voorbeelden as mod
+
+        mod._generator = MagicMock()
+        reset_examples_generator()
+        assert mod._generator is None
