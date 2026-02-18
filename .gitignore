@@ -172,6 +172,8 @@ reports/
 .bmad-core/
 .bmad-*/
 .bmad/
+.claude/
+CLAUDE.md
 .codex/
 .cursor/
 .skills/
