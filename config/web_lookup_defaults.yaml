@@ -134,14 +134,20 @@ web_lookup:
     enabled: true
     # Include all hits in the prompt initially (overridden by token budget safeguards in code)
     include_all_hits: true
-    max_snippets: 3
-    max_tokens_per_snippet: 100
-    total_token_budget: 400
+    max_snippets: 5
+    max_tokens_per_snippet: 300
+    total_token_budget: 1500
     prioritize_juridical: true
     # DEF-315: section_header en snippet_separator deprecated — XML format is zelf-beschrijvend
     # section_header: "### Contextinformatie uit bronnen:"
     # snippet_separator: "\n- "
     # position: "after_context"
+
+  # DEF-316: RAG injection budgets — begrenst tokens bij injectie in prompt
+  rag_injection:
+    max_tokens_per_chunk: 600       # Trunceer individuele chunks (chunks zijn max 1000 bij aanmaak)
+    total_token_budget: 2500        # Totaalbudget voor alle RAG-bronnen samen
+    max_chunks: 5                   # Max chunks bij injectie (zelfde als top_k, afdwingbaar)
 
   sru:
     circuit_breaker:

@@ -63,6 +63,23 @@ class PromptServiceV2:
     Connects DefinitionGeneratorPrompts to V2 orchestrator.
     """
 
+    @staticmethod
+    def _approx_tokens(s: str) -> int:
+        """Schat het aantal tokens (1 token ≈ 4 tekens)."""
+        return max(1, (len(s) + 3) // 4)
+
+    @staticmethod
+    def _truncate_to_tokens(s: str, limit: int) -> str:
+        """Trunceer tekst tot een geschat token-limiet, op woordgrens."""
+        char_limit = max(1, limit * 4)
+        if len(s) <= char_limit:
+            return s
+        cut = s[:char_limit]
+        last_space = cut.rfind(" ")
+        if last_space > 20:
+            cut = cut[:last_space]
+        return cut
+
     def __init__(self, config: PromptServiceConfig | None = None):
         """Initialize with existing advanced prompt generator."""
         self.config = config or PromptServiceConfig()
@@ -77,12 +94,14 @@ class PromptServiceV2:
         )
         self.context_manager = HybridContextManager(context_config)
 
-        # Load prompt augmentation config (Epic 3)
+        # Load prompt augmentation config (Epic 3) + RAG injection config (DEF-316)
         try:
             wl_cfg = load_web_lookup_config().get("web_lookup", {})
             self._aug_cfg = wl_cfg.get("prompt_augmentation", {})
+            self._rag_injection_cfg = wl_cfg.get("rag_injection", {})
         except Exception:
             self._aug_cfg = {}
+            self._rag_injection_cfg = {}
 
     async def build_generation_prompt(
         self,
@@ -204,20 +223,42 @@ class PromptServiceV2:
             nr_offset = 0
 
             # 1. RAG bronnen (from enriched_context.metadata)
+            # DEF-316: Truncatie per chunk + totaalbudget
             rag_chunks = (enriched_context.metadata or {}).get("rag_chunks", [])
-            for chunk in rag_chunks:
+            rag_cfg = self._rag_injection_cfg or {}
+            max_per_chunk = int(rag_cfg.get("max_tokens_per_chunk", 600))
+            rag_budget = int(rag_cfg.get("total_token_budget", 2500))
+            max_rag_chunks = int(rag_cfg.get("max_chunks", 5))
+
+            rag_tokens_used = 0
+            for chunk in rag_chunks[:max_rag_chunks]:
+                raw_text = chunk.get("chunk_text", "")
+                truncated = self._truncate_to_tokens(raw_text, max_per_chunk)
+                est = self._approx_tokens(truncated)
+                if rag_tokens_used + est > rag_budget:
+                    break
                 nr_offset += 1
                 all_brons.append(
                     format_bron(
                         nr=nr_offset,
                         type="rag",
-                        chunk_text=chunk.get("chunk_text", ""),
+                        chunk_text=truncated,
                         score=chunk.get("score"),
                         confidence=chunk.get("score"),
                         rechtsgebied=chunk.get("rechtsgebied"),
                         regeling=chunk.get("wet_regeling"),
                         artikel=chunk.get("artikel_lid"),
                     )
+                )
+                rag_tokens_used += est
+
+            if rag_chunks:
+                logger.info(
+                    "RAG injection: %d/%d chunks used, ~%d tokens (budget: %d)",
+                    nr_offset,
+                    len(rag_chunks),
+                    rag_tokens_used,
+                    rag_budget,
                 )
 
             # 2. Web bronnen
@@ -391,21 +432,6 @@ class PromptServiceV2:
                 # Set a generous budget to avoid early truncation; final model limits still apply
                 total_budget = max(total_budget, 5000)
 
-            def approx_tokens(s: str) -> int:
-                return max(1, (len(s) + 3) // 4)
-
-            def truncate_to_tokens(s: str, limit: int) -> str:
-                # Convert tokens to char budget
-                char_limit = max(1, limit * 4)
-                if len(s) <= char_limit:
-                    return s
-                # Truncate on word boundary near limit
-                cut = s[:char_limit]
-                last_space = cut.rfind(" ")
-                if last_space > 20:
-                    cut = cut[:last_space]
-                return cut
-
             brons: list[str] = []
             tokens_used = 0
             added = 0
@@ -415,8 +441,8 @@ class PromptServiceV2:
                     break
                 raw = src.get("snippet") or ""
                 safe = sanitize_snippet(raw, max_length=2000)
-                safe = truncate_to_tokens(safe, max_tokens_per_snippet)
-                est = approx_tokens(safe)
+                safe = self._truncate_to_tokens(safe, max_tokens_per_snippet)
+                est = self._approx_tokens(safe)
                 if tokens_used + est > total_budget:
                     break
 
