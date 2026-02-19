@@ -787,6 +787,27 @@ class ServiceContainer:
             logger.info("⚡ EmbeddingStore lazy-loaded (DEF-304)")
         return self._lazy_instances["embedding_store"]
 
+    @property
+    def rag_management_service(self):
+        """
+        Get or create RAGManagementService instance (LAZY-LOADED).
+
+        DEF-365: CRUD beheer voor RAG collections en documenten.
+        Only loaded when RAG management page is accessed.
+
+        Returns:
+            Singleton instance van RAGManagementService
+        """
+        if "rag_management_service" not in self._lazy_instances:
+            from services.rag.rag_management_service import RAGManagementService
+
+            self._lazy_instances["rag_management_service"] = RAGManagementService(
+                db_path=str(self.db_path),
+                embedding_store=self.embedding_store,
+            )
+            logger.info("⚡ RAGManagementService lazy-loaded (DEF-365)")
+        return self._lazy_instances["rag_management_service"]
+
     # UI-services worden niet in de servicescontainer opgebouwd. Gebruik UI-container.
 
     # Utility methods
@@ -830,6 +851,7 @@ class ServiceContainer:
             "embedding_service": lambda: self.embedding_service,
             "embedding_store": lambda: self.embedding_store,
             "rag_service": lambda: self.rag_service,
+            "rag_management_service": lambda: self.rag_management_service,
         }
 
         if name in service_map:
