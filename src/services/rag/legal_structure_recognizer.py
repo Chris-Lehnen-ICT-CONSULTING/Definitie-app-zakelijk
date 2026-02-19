@@ -72,10 +72,11 @@ _RE_PARAGRAAF = re.compile(
     re.MULTILINE,
 )
 
-# Artikel: "Artikel 1", "Art. 1", "ARTIKEL 1", "artikel 1a", "Artikel 10:1" (BW)
+# Artikel: "Artikel 1", "Art. 1", "ARTIKEL 1", "artikel 1a", "Artikel 10:1" (BW),
+# "Artikel 5.3.2" (samengestelde nummers)
 # Geen $ anchor: tekst mag na het nummer volgen (bijv. "Artikel 1 Strafvordering")
 _RE_ARTIKEL = re.compile(
-    r"^(?:ARTIKEL|Artikel|artikel|Art\.?)\s+(\d+(?::\d+)?[a-zA-Z]?)\.?\s*",
+    r"^(?:ARTIKEL|Artikel|artikel|Art\.?)\s+(\d+(?:[.:]\d+)*[a-zA-Z]?)\.?\s*",
     re.MULTILINE,
 )
 
@@ -231,8 +232,8 @@ class LegalStructureRecognizer:
         """Detecteer de naam van de wet/regeling uit de tekst header."""
         if not tekst:
             return None
-        # Zoek in eerste 500 karakters
-        header = tekst[:500]
+        # Zoek in eerste 2000 karakters (PDF headers/metadata kunnen lang zijn)
+        header = tekst[:2000]
         m = _RE_WET_NAAM.search(header)
         if m:
             return m.group(1).strip()
