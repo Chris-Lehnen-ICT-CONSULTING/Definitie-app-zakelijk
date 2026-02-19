@@ -367,6 +367,70 @@ class TestForceerSplitOpZinnen:
         assert "Einde." in reconstructed
 
 
+# ── DEF-360: MAX_TOKENS_PER_CHUNK afdwingen ─────────────────────
+
+
+class TestMaxTokensEnforcement:
+    """DEF-360: Alle chunks moeten <= max_tokens zijn, ook hoofdstukken en leden."""
+
+    def test_groot_hoofdstuk_wordt_gesplitst(self):
+        """Hoofdstuk > max_tokens moet gesplitst worden op zinsgrenzen."""
+        lang_hoofdstuk = "HOOFDSTUK 1. ALGEMENE BEPALINGEN\n" + (
+            "Dit is een lange bepaling over de wet. " * 100
+        )
+        tekst = lang_hoofdstuk + "\nArtikel 1\nKort.\nArtikel 2\nOok kort.\n"
+        strategy = JuridischeChunkingStrategy(max_tokens=200)
+        chunks = strategy.chunk(tekst, "test.pdf", "application/pdf")
+        for chunk in chunks:
+            # Marge voor zinsgrens-rounding
+            assert chunk.token_count <= 200 + 30, (
+                f"Chunk te groot: {chunk.token_count} tokens, "
+                f"type={chunk.metadata.structuur_type}"
+            )
+
+    def test_groot_lid_wordt_gesplitst(self):
+        """Individueel lid > max_tokens moet sub-gesplitst worden."""
+        lang_lid = (
+            "1. " + "Dit is een extreem lang lid met veel juridische tekst. " * 80
+        )
+        tekst = (
+            "Artikel 1\n"
+            + lang_lid
+            + "\n2. Kort lid.\n\n"
+            + "Artikel 2\nAndere bepaling.\n"
+        )
+        strategy = JuridischeChunkingStrategy(max_tokens=200)
+        chunks = strategy.chunk(tekst, "test.pdf", "application/pdf")
+        for chunk in chunks:
+            assert (
+                chunk.token_count <= 200 + 30
+            ), f"Chunk te groot: {chunk.token_count} tokens"
+
+    def test_groot_hoofdstuk_behoudt_metadata(self):
+        """Gesplitst hoofdstuk behoudt structuur_type in metadata."""
+        lang = "HOOFDSTUK 1. BEPALINGEN\n" + "Lange tekst hier. " * 100
+        tekst = lang + "\nArtikel 1\nKort.\nArtikel 2\nOok kort.\n"
+        strategy = JuridischeChunkingStrategy(max_tokens=200)
+        chunks = strategy.chunk(tekst, "test.pdf", "application/pdf")
+        hoofdstuk_chunks = [
+            c for c in chunks if c.metadata.structuur_type == "hoofdstuk"
+        ]
+        assert len(hoofdstuk_chunks) >= 2
+
+    def test_klein_hoofdstuk_niet_gesplitst(self):
+        """Hoofdstuk <= max_tokens blijft één chunk."""
+        tekst = (
+            "HOOFDSTUK 1. KORTE TITEL\nKorte tekst.\n\n"
+            "Artikel 1\nBepaling.\nArtikel 2\nAndere bepaling.\n"
+        )
+        strategy = JuridischeChunkingStrategy(max_tokens=1000)
+        chunks = strategy.chunk(tekst, "test.pdf", "application/pdf")
+        hoofdstuk_chunks = [
+            c for c in chunks if c.metadata.structuur_type == "hoofdstuk"
+        ]
+        assert len(hoofdstuk_chunks) == 1
+
+
 # ── DEF-358: split_zinnen behoudt leestekens ────────────────────
 
 

@@ -319,6 +319,10 @@ class RAGService:
     def get_collection_stats(self, collection_id: int) -> dict:
         """Return collection metadata + document/chunk counts.
 
+        Telt live via COUNT(*) queries — de kolommen document_count en
+        chunk_count in rag_collections worden niet actief bijgewerkt
+        en zijn onbetrouwbaar (DEF-363). Gebruik altijd deze methode.
+
         Returns:
             Dict met: collection_id, name, document_count, chunk_count,
             dimensions, model.
