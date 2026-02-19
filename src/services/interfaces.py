@@ -176,6 +176,8 @@ class GenerationRequest:
     )
     # Document context (EPIC-018): compacte samenvatting van geselecteerde documenten
     document_context: str | None = None
+    # RAG collection (DEF-271): optionele collection voor RAG context retrieval
+    rag_collection_id: int | None = None
 
 
 @dataclass
