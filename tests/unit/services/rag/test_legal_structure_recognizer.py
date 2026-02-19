@@ -154,6 +154,21 @@ class TestDetecteerWetNaam:
         naam = recognizer.detecteer_wet_naam(tekst)
         assert naam is None
 
+    def test_wet_naam_na_500_tekens(self, recognizer):
+        """DEF-361: Wet-naam voorbij 500 tekens (bijv. PDF metadata) moet gevonden worden."""
+        padding = "x" * 800 + "\n"
+        tekst = padding + "Wetboek van Strafvordering\n\nArtikel 1\n"
+        naam = recognizer.detecteer_wet_naam(tekst)
+        assert naam is not None
+        assert "Strafvordering" in naam
+
+    def test_wet_naam_net_buiten_2000_tekens(self, recognizer):
+        """Wet-naam voorbij 2000 tekens wordt niet gevonden (bedoeld gedrag)."""
+        padding = "x" * 2100 + "\n"
+        tekst = padding + "Wetboek van Strafrecht\n\nArtikel 1\n"
+        naam = recognizer.detecteer_wet_naam(tekst)
+        assert naam is None
+
 
 class TestPaginaGrenzen:
     def test_pdf_pagina_nummers(self, recognizer, sample_pdf_tekst):
@@ -201,6 +216,49 @@ class TestFormfeedNormalisatie:
         elementen = recognizer.detecteer_structuur(tekst)
         artikelen = [e for e in elementen if e.type == "artikel"]
         assert len(artikelen) == 3
+
+
+class TestSamengesteldeArtikelnummers:
+    """DEF-362: Punt-notatie (5.3.2) moet correct herkend worden."""
+
+    def test_punt_notatie_herkend(self, recognizer):
+        """Artikel 5.3.2 moet als '5.3.2' herkend worden, niet als '5'."""
+        tekst = (
+            "Artikel 5.3.2 De verdachte heeft recht op bijstand.\n\n"
+            "Artikel 5.3.7 De raadsman kan inzage vorderen.\n"
+        )
+        elementen = recognizer.detecteer_structuur(tekst)
+        artikelen = [e for e in elementen if e.type == "artikel"]
+        assert len(artikelen) == 2
+        assert artikelen[0].nummer == "5.3.2"
+        assert artikelen[1].nummer == "5.3.7"
+
+    def test_diepe_punt_notatie(self, recognizer):
+        """Diepere nesting (5.3.21) wordt volledig gevangen."""
+        tekst = "Artikel 5.3.21 Bijzondere bepaling.\n\nArtikel 6 Normale bepaling.\n"
+        elementen = recognizer.detecteer_structuur(tekst)
+        artikelen = [e for e in elementen if e.type == "artikel"]
+        assert artikelen[0].nummer == "5.3.21"
+        assert artikelen[1].nummer == "6"
+
+    def test_bestaande_formaten_blijven_werken(self, recognizer):
+        """BW dubbelpunt, letter-suffix, en simpele nummers werken nog."""
+        tekst = (
+            "Artikel 10:1 BW bepaling.\n\n"
+            "Artikel 5a Aparte bepaling.\n\n"
+            "Artikel 3 Gewone bepaling.\n"
+        )
+        elementen = recognizer.detecteer_structuur(tekst)
+        artikelen = [e for e in elementen if e.type == "artikel"]
+        assert len(artikelen) == 3
+        assert artikelen[0].nummer == "10:1"
+        assert artikelen[1].nummer == "5a"
+        assert artikelen[2].nummer == "3"
+
+    def test_is_juridisch_met_punt_notatie(self, recognizer):
+        """Document met punt-notatie artikelen is juridisch."""
+        tekst = "Artikel 5.3.2 Eerste bepaling.\n\nArtikel 5.3.7 Tweede bepaling.\n"
+        assert recognizer.is_juridisch_document(tekst) is True
 
 
 class TestArtikelRegexZonderDollarAnchor:

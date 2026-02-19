@@ -99,6 +99,9 @@ class EmbeddingStore:
         """Maak nieuwe collection aan met dimensie-metadata.
 
         Slaat {"dimensions": N, "model": "..."} op in rag_collections.metadata_json.
+        NB: de kolommen document_count en chunk_count in rag_collections
+        worden niet bijgewerkt — gebruik RAGService.get_collection_stats()
+        voor actuele tellingen (DEF-363).
 
         Returns:
             collection_id
