@@ -505,3 +505,28 @@ class TestCleanupAllDocuments:
         chunk_count = conn.execute("SELECT COUNT(*) FROM rag_chunks").fetchone()[0]
         conn.close()
         assert chunk_count == 0
+
+    def test_verwijdert_upload_bestanden(
+        self, service, collection_id, db_path, tmp_path
+    ):
+        """Cleanup verwijdert ook bestanden van schijf via file_path."""
+        # Maak een tijdelijk bestand aan
+        upload_file = tmp_path / "test_upload.pdf"
+        upload_file.write_text("dummy content")
+        assert upload_file.exists()
+
+        # Seed: document met file_path
+        conn = sqlite3.connect(db_path)
+        conn.execute(
+            "INSERT INTO rag_documents "
+            "(collection_id, filename, chunk_count, file_path) "
+            "VALUES (?, 'test.pdf', 0, ?)",
+            (collection_id, str(upload_file)),
+        )
+        conn.commit()
+        conn.close()
+
+        service.cleanup_all_documents()
+
+        # Bestand moet van schijf verwijderd zijn
+        assert not upload_file.exists()

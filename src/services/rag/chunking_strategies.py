@@ -300,21 +300,49 @@ class JuridischeChunkingStrategy(ChunkingStrategy):
         rechtsgebied: str | None,
         wet_naam: str | None,
     ) -> list[DocumentChunk]:
-        """Fallback: hele tekst als 1 chunk."""
-        metadata = ChunkMetadata(
-            bronbestand=bronbestand,
-            chunk_index=0,
-            rechtsgebied=rechtsgebied,
-            wet_regeling=wet_naam,
-            structuur_type="generiek",
-        )
-        return [
-            DocumentChunk(
-                tekst=tekst.strip(),
-                metadata=metadata,
-                token_count=tel_tokens(tekst),
+        """Fallback: tekst als chunk(s). Splitst op zinsgrenzen als > max_tokens."""
+        tekst = tekst.strip()
+        token_count = tel_tokens(tekst)
+
+        if token_count <= self.max_tokens:
+            metadata = ChunkMetadata(
+                bronbestand=bronbestand,
+                chunk_index=0,
+                rechtsgebied=rechtsgebied,
+                wet_regeling=wet_naam,
+                structuur_type="generiek",
             )
-        ]
+            return [
+                DocumentChunk(
+                    tekst=tekst,
+                    metadata=metadata,
+                    token_count=token_count,
+                )
+            ]
+
+        # Te groot: split op zinsgrenzen
+        delen = forceer_split_op_zinnen(tekst, self.max_tokens)
+        chunks: list[DocumentChunk] = []
+        vorige = ""
+        for i, deel in enumerate(delen):
+            overlap = bereken_overlap(vorige, self.overlap_ratio)
+            metadata = ChunkMetadata(
+                bronbestand=bronbestand,
+                chunk_index=i,
+                rechtsgebied=rechtsgebied,
+                wet_regeling=wet_naam,
+                structuur_type="generiek",
+            )
+            chunks.append(
+                DocumentChunk(
+                    tekst=deel,
+                    metadata=metadata,
+                    token_count=tel_tokens(deel),
+                    overlap_tekst=overlap,
+                )
+            )
+            vorige = deel
+        return chunks
 
     def _merge_kleine_chunks(self, chunks: list[DocumentChunk]) -> list[DocumentChunk]:
         """Merge chunks die onder het minimum token count zitten."""

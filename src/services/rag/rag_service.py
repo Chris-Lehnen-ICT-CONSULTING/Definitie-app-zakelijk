@@ -12,6 +12,7 @@ import json
 import logging
 import sqlite3
 from dataclasses import dataclass
+from pathlib import Path
 
 from services.rag.document_chunker import DocumentChunker
 from services.rag.embedding_service import EmbeddingService
@@ -285,16 +286,31 @@ class RAGService:
         return wrap_bronnen(bron_strings)
 
     def cleanup_all_documents(self) -> int:
-        """Verwijder alle documenten en chunks (CASCADE).
+        """Verwijder alle documenten, chunks (CASCADE) en upload-bestanden.
 
         Returns:
             Aantal verwijderde documenten.
         """
         conn = self._connect()
         try:
+            # Haal file_paths op voordat we verwijderen
+            file_paths = [
+                row[0]
+                for row in conn.execute(
+                    "SELECT file_path FROM rag_documents WHERE file_path IS NOT NULL"
+                ).fetchall()
+            ]
             count = conn.execute("SELECT COUNT(*) FROM rag_documents").fetchone()[0]
             conn.execute("DELETE FROM rag_documents")
             conn.commit()
+
+            # Verwijder bestanden van schijf
+            for fp in file_paths:
+                try:
+                    Path(fp).unlink(missing_ok=True)
+                except OSError as e:
+                    logger.warning("Upload verwijderen mislukt: %s — %s", fp, e)
+
             logger.info("Alle RAG documenten verwijderd: %d documenten", count)
             return count
         finally:

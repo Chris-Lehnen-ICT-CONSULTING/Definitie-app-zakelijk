@@ -151,6 +151,28 @@ class TestJuridischeChunkingStrategy:
             )  # kleine marge voor \n\n merge overhead
 
 
+class TestMaakEnkeleChunkSplit:
+    """DEF-357 #13: _maak_enkele_chunk() splitst grote tekst zonder structuur."""
+
+    def test_grote_tekst_zonder_structuur_wordt_gesplitst(self):
+        """Juridisch document zonder structuur maar > max_tokens → meerdere chunks."""
+        # Tekst zonder artikel-structuur maar groot genoeg
+        grote_tekst = "Dit is een lang juridisch document zonder artikelen. " * 200
+        strategy = JuridischeChunkingStrategy(max_tokens=200)
+        chunks = strategy.chunk(grote_tekst, "groot.pdf", "application/pdf")
+        assert len(chunks) > 1
+        for chunk in chunks:
+            # Marge voor zinsgrens-rounding + woord-split overhead
+            assert chunk.token_count <= 200 + 30
+
+    def test_kleine_tekst_zonder_structuur_niet_gesplitst(self):
+        """Korte tekst zonder structuur → 1 chunk."""
+        korte_tekst = "Dit is een korte tekst."
+        strategy = JuridischeChunkingStrategy()
+        chunks = strategy.chunk(korte_tekst, "kort.pdf", "application/pdf")
+        assert len(chunks) == 1
+
+
 # ── Generieke strategie ──────────────────────────────────────────
 
 
