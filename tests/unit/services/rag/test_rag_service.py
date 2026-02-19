@@ -31,7 +31,8 @@ CREATE TABLE rag_documents (
     file_type VARCHAR(50),
     chunk_count INTEGER,
     rechtsgebied VARCHAR(100),
-    processed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    processed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    file_path VARCHAR(500)
 );
 
 CREATE TABLE rag_chunks (
@@ -430,3 +431,102 @@ class TestRAGContext:
         ctx = RAGContext(chunks=[], formatted_context="", collection_id=1, query="q")
         with pytest.raises(AttributeError):
             ctx.query = "mutated"
+
+
+# ---------------------------------------------------------------------------
+# cleanup_all_documents (DEF-358)
+# ---------------------------------------------------------------------------
+class TestCleanupAllDocuments:
+    def test_leeg_scenario(self, service):
+        """Cleanup op lege database retourneert 0."""
+        count = service.cleanup_all_documents()
+        assert count == 0
+
+    def test_verwijdert_documenten(
+        self, service, mock_chunker, mock_embedder, store, collection_id, db_path
+    ):
+        """Cleanup verwijdert alle documenten en retourneert correct aantal."""
+        # Seed: voeg 2 documenten toe
+        conn = sqlite3.connect(db_path)
+        conn.execute(
+            "INSERT INTO rag_documents (collection_id, filename, chunk_count) "
+            "VALUES (?, 'a.pdf', 1)",
+            (collection_id,),
+        )
+        conn.execute(
+            "INSERT INTO rag_documents (collection_id, filename, chunk_count) "
+            "VALUES (?, 'b.pdf', 1)",
+            (collection_id,),
+        )
+        conn.commit()
+        conn.close()
+
+        count = service.cleanup_all_documents()
+        assert count == 2
+
+        # Verifieer database leeg
+        conn = sqlite3.connect(db_path)
+        remaining = conn.execute("SELECT COUNT(*) FROM rag_documents").fetchone()[0]
+        conn.close()
+        assert remaining == 0
+
+    def test_cascade_verwijdert_chunks(
+        self, service, mock_chunker, mock_embedder, store, collection_id, db_path
+    ):
+        """Cleanup cascade verwijdert ook bijbehorende chunks."""
+        # Seed: document + chunks
+        conn = sqlite3.connect(db_path)
+        conn.execute(
+            "INSERT INTO rag_documents (id, collection_id, filename, chunk_count) "
+            "VALUES (100, ?, 'test.pdf', 1)",
+            (collection_id,),
+        )
+        conn.commit()
+        conn.close()
+
+        emb = np.random.randn(DIMS).astype(np.float32)
+        store.store_batch(
+            collection_id=collection_id,
+            document_id=100,
+            chunks=[{"chunk_text": "Test chunk", "chunk_index": 0}],
+            embeddings=[emb],
+        )
+
+        # Verifieer chunks bestaan
+        conn = sqlite3.connect(db_path)
+        chunk_count = conn.execute("SELECT COUNT(*) FROM rag_chunks").fetchone()[0]
+        conn.close()
+        assert chunk_count > 0
+
+        service.cleanup_all_documents()
+
+        # Chunks moeten ook weg zijn (CASCADE)
+        conn = sqlite3.connect(db_path)
+        chunk_count = conn.execute("SELECT COUNT(*) FROM rag_chunks").fetchone()[0]
+        conn.close()
+        assert chunk_count == 0
+
+    def test_verwijdert_upload_bestanden(
+        self, service, collection_id, db_path, tmp_path
+    ):
+        """Cleanup verwijdert ook bestanden van schijf via file_path."""
+        # Maak een tijdelijk bestand aan
+        upload_file = tmp_path / "test_upload.pdf"
+        upload_file.write_text("dummy content")
+        assert upload_file.exists()
+
+        # Seed: document met file_path
+        conn = sqlite3.connect(db_path)
+        conn.execute(
+            "INSERT INTO rag_documents "
+            "(collection_id, filename, chunk_count, file_path) "
+            "VALUES (?, 'test.pdf', 0, ?)",
+            (collection_id, str(upload_file)),
+        )
+        conn.commit()
+        conn.close()
+
+        service.cleanup_all_documents()
+
+        # Bestand moet van schijf verwijderd zijn
+        assert not upload_file.exists()

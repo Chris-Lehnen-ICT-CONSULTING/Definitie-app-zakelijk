@@ -171,6 +171,90 @@ class TestPaginaGrenzen:
             assert elem.pagina_nummer is None
 
 
+class TestFormfeedNormalisatie:
+    """DEF-356: Formfeed-only tekst moet correct verwerkt worden."""
+
+    def test_formfeed_only_is_juridisch(self, recognizer, sample_formfeed_only_tekst):
+        """Tekst met alleen formfeeds (geen newlines) moet als juridisch herkend worden."""
+        assert recognizer.is_juridisch_document(sample_formfeed_only_tekst) is True
+
+    def test_formfeed_only_detecteert_artikelen(
+        self, recognizer, sample_formfeed_only_tekst
+    ):
+        """Artikelen gescheiden door formfeeds moeten gedetecteerd worden."""
+        elementen = recognizer.detecteer_structuur(sample_formfeed_only_tekst)
+        artikelen = [e for e in elementen if e.type == "artikel"]
+        assert len(artikelen) == 3
+
+    def test_formfeed_pagina_nummers(self, recognizer, sample_formfeed_only_tekst):
+        """Formfeed-gescheiden artikelen krijgen correcte paginanummers."""
+        elementen = recognizer.detecteer_structuur(sample_formfeed_only_tekst)
+        artikelen = [e for e in elementen if e.type == "artikel"]
+        assert artikelen[0].pagina_nummer == 1
+        assert artikelen[1].pagina_nummer == 2
+        assert artikelen[2].pagina_nummer == 3
+
+    def test_gemixte_formfeed_newline(self, recognizer):
+        """Mix van formfeeds en newlines werkt correct."""
+        tekst = "Artikel 1\nEerste.\f\nArtikel 2\nTweede.\n\fArtikel 3\nDerde.\n"
+        assert recognizer.is_juridisch_document(tekst) is True
+        elementen = recognizer.detecteer_structuur(tekst)
+        artikelen = [e for e in elementen if e.type == "artikel"]
+        assert len(artikelen) == 3
+
+
+class TestArtikelRegexZonderDollarAnchor:
+    """DEF-356: Artikel regex moet ook matchen als er tekst na het nummer staat."""
+
+    def test_artikel_met_tekst_erna(self, recognizer):
+        """'Artikel 1 Strafvordering heeft...' moet matchen."""
+        tekst = (
+            "Artikel 1 Strafvordering heeft betrekking op strafbare feiten.\n\n"
+            "Artikel 2 De officier van justitie is belast met de vervolging.\n"
+        )
+        assert recognizer.is_juridisch_document(tekst) is True
+
+    def test_artikel_nummering_correct_met_tekst_erna(self, recognizer):
+        """Artikelnummer moet correct geëxtraheerd worden ondanks trailing tekst."""
+        tekst = (
+            "Artikel 1 Strafvordering betreft.\n\n"
+            "Artikel 2 De vervolging geschiedt.\n"
+        )
+        elementen = recognizer.detecteer_structuur(tekst)
+        artikelen = [e for e in elementen if e.type == "artikel"]
+        assert len(artikelen) == 2
+        assert artikelen[0].nummer == "1"
+        assert artikelen[1].nummer == "2"
+
+
+class TestLetterLeden:
+    """DEF-356: Letter-leden (a., b., c.) herkenning."""
+
+    def test_letter_leden_gedetecteerd(
+        self, recognizer, sample_artikel_met_letter_leden
+    ):
+        """Letter-leden worden herkend door detecteer_leden()."""
+        leden = recognizer.detecteer_leden(
+            sample_artikel_met_letter_leden, include_letter_leden=True
+        )
+        nummers = [lid.nummer for lid in leden]
+        assert "a" in nummers
+        assert "b" in nummers
+        assert "c" in nummers
+        assert "1" in nummers
+
+    def test_letter_leden_exclusief(self, recognizer, sample_artikel_met_letter_leden):
+        """Met include_letter_leden=False worden alleen numerieke leden gedetecteerd."""
+        leden = recognizer.detecteer_leden(
+            sample_artikel_met_letter_leden, include_letter_leden=False
+        )
+        nummers = [lid.nummer for lid in leden]
+        assert "a" not in nummers
+        assert "1" in nummers
+        assert "2" in nummers
+        assert "3" in nummers
+
+
 class TestDefinitieblokDetectie:
     def test_definitieblok_herkend(self, recognizer, sample_definitieblok):
         tekst = sample_definitieblok + "\nArtikel 2\nAndere bepaling."

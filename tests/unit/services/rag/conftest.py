@@ -90,3 +90,41 @@ def sample_pdf_tekst() -> str:
         "\f"
         "Artikel 3\nDerde artikel tekst.\n"
     )
+
+
+@pytest.fixture
+def sample_formfeed_only_tekst() -> str:
+    """PDF-tekst met ALLEEN formfeeds, GEEN newlines (Wetboek v. Strafvordering scenario)."""
+    return (
+        "Artikel 1 De verdachte heeft recht op bijstand."
+        "\f"
+        "Artikel 2 De rechter beslist over de voorlopige hechtenis."
+        "\f"
+        "Artikel 3 Het openbaar ministerie is belast met de opsporing."
+    )
+
+
+@pytest.fixture
+def sample_artikel_met_letter_leden() -> str:
+    """Artikel met zowel numerieke als letter-leden."""
+    return (
+        "Artikel 1\n"
+        "1. In deze wet wordt verstaan onder:\n"
+        "a. basisregistratie: een registratie;\n"
+        "b. ingezetene: een persoon;\n"
+        "c. college: het bestuur.\n"
+        "2. De minister kan nadere regels stellen.\n"
+        "3. Dit artikel is niet van toepassing op bijzondere gevallen.\n"
+    )
+
+
+@pytest.fixture
+def sample_groot_generiek_document() -> str:
+    """Groot generiek document dat paragraaf-split nodig heeft."""
+    sectie = "Dit is een lange paragraaf met veel tekst. " * 50  # ~500 tokens
+    return (
+        "# Groot Document\n\n"
+        f"## Sectie 1\n\n{sectie}\n\n"
+        f"Een tweede paragraaf met andere inhoud. {sectie}\n\n"
+        f"## Sectie 2\n\n{sectie}\n"
+    )
