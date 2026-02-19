@@ -618,6 +618,43 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                 )
 
             # =====================================
+            # PHASE 2.7: RAG chunks → provenance_sources (DEF-364)
+            # =====================================
+            if rag_chunks:
+                for chunk in rag_chunks:
+                    title = (
+                        chunk.get("wet_regeling")
+                        or chunk.get("rechtsgebied")
+                        or "RAG document"
+                    )
+                    citation_parts = [
+                        p
+                        for p in [
+                            chunk.get("rechtsgebied"),
+                            chunk.get("wet_regeling"),
+                            chunk.get("artikel_lid"),
+                        ]
+                        if p
+                    ]
+                    provenance_sources.append(
+                        {
+                            "provider": "rag",
+                            "title": title,
+                            "url": None,
+                            "snippet": chunk.get("chunk_text", ""),
+                            "score": float(chunk.get("score", 0.0)),
+                            "used_in_prompt": True,
+                            "source_label": f"RAG: {title}",
+                            "is_authoritative": False,
+                            "legal": (
+                                {"citation_text": " · ".join(citation_parts)}
+                                if citation_parts
+                                else None
+                            ),
+                        }
+                    )
+
+            # =====================================
             # PHASE 2.9: Merge document snippets into provenance sources (EPIC-018)
             # =====================================
             try:
