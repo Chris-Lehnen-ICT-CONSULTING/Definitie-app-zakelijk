@@ -195,6 +195,48 @@ class DocumentUploadRenderer:
                     st.markdown("**Juridische Verwijzingen:**")
                     st.write(", ".join(aggregated["aggregated_legal_refs"][:5]))
 
+            # DEF-271: RAG ingest knop voor geselecteerde documenten
+            if selected_docs:
+                if st.button(
+                    "Indexeer voor RAG",
+                    key="rag_ingest_selected",
+                    help="Indexeer geselecteerde documenten voor RAG context retrieval",
+                ):
+                    try:
+                        from utils.container_manager import get_cached_container
+
+                        container = get_cached_container()
+                        rag_svc = container.rag_service
+                        coll_id = rag_svc._ensure_collection("user_documents")
+
+                        ingested = 0
+                        for doc_id in selected_docs:
+                            doc = next(
+                                (
+                                    d
+                                    for d in documents
+                                    if d.id == doc_id
+                                    and d.processing_status == "success"
+                                ),
+                                None,
+                            )
+                            if doc and doc.extracted_text:
+                                rag_svc.ingest_document(
+                                    tekst=doc.extracted_text,
+                                    collection_id=coll_id,
+                                    filename=doc.filename,
+                                )
+                                ingested += 1
+
+                        if ingested > 0:
+                            st.success(f"{ingested} document(en) geindexeerd voor RAG")
+                        else:
+                            st.warning(
+                                "Geen documenten met tekst gevonden om te indexeren"
+                            )
+                    except Exception as e:
+                        st.error(f"Indexering mislukt: {e}")
+
         # Document management - buiten expander om nesting te voorkomen
         if documents and st.checkbox("🗂️ Toon document beheer", value=False):
             st.markdown("#### 🗂️ Document Beheer")

@@ -324,6 +324,8 @@ class ServiceContainer:
                 web_lookup_service=self.web_lookup(),
                 # Architecture v3.1: inject SynonymOrchestrator for synonym enrichment
                 synonym_orchestrator=synonym_orch,
+                # DEF-271: RAG context retrieval service
+                rag_service=self.rag_service,
             )
             logger.debug("DefinitionOrchestratorV2 instance created")
 
