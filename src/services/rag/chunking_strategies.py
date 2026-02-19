@@ -137,7 +137,7 @@ class JuridischeChunkingStrategy(ChunkingStrategy):
                 )
             ]
 
-        # Hoofdstukken/afdelingen/paragrafen/bijlagen/titels/boeken: als label
+        # Hoofdstukken/afdelingen/paragrafen/bijlagen/titels/boeken
         if elem.type in (
             "hoofdstuk",
             "afdeling",
@@ -146,18 +146,23 @@ class JuridischeChunkingStrategy(ChunkingStrategy):
             "titel",
             "boek",
         ):
-            return [
-                self._maak_chunk(
-                    elem.tekst,
-                    bronbestand,
-                    rechtsgebied,
-                    wet_naam,
-                    elem,
-                    token_count,
-                    vorige_tekst,
-                    0,
-                )
-            ]
+            if token_count <= self.max_tokens:
+                return [
+                    self._maak_chunk(
+                        elem.tekst,
+                        bronbestand,
+                        rechtsgebied,
+                        wet_naam,
+                        elem,
+                        token_count,
+                        vorige_tekst,
+                        0,
+                    )
+                ]
+            # Te groot: split op zinsgrenzen, bewaar type+nummer als metadata
+            return self._forceer_split(
+                elem.tekst, bronbestand, rechtsgebied, wet_naam, elem, vorige_tekst
+            )
 
         # Artikel <= max_tokens: 1 chunk
         if token_count <= self.max_tokens:
@@ -210,20 +215,40 @@ class JuridischeChunkingStrategy(ChunkingStrategy):
 
         for i, lid in enumerate(leden):
             lid_tokens = tel_tokens(lid.tekst)
-            chunk = self._maak_chunk(
-                lid.tekst,
-                bronbestand,
-                rechtsgebied,
-                wet_naam,
-                elem,
-                lid_tokens,
-                vorige,
-                i,
-                lid_nummer=lid.nummer,
-                structuur_type="lid",
-            )
-            chunks.append(chunk)
-            vorige = lid.tekst
+
+            if lid_tokens > self.max_tokens:
+                # Lid te groot: sub-split op zinsgrenzen
+                sub_delen = forceer_split_op_zinnen(lid.tekst, self.max_tokens)
+                for deel in sub_delen:
+                    chunk = self._maak_chunk(
+                        deel,
+                        bronbestand,
+                        rechtsgebied,
+                        wet_naam,
+                        elem,
+                        tel_tokens(deel),
+                        vorige,
+                        len(chunks),
+                        lid_nummer=lid.nummer,
+                        structuur_type="lid",
+                    )
+                    chunks.append(chunk)
+                    vorige = deel
+            else:
+                chunk = self._maak_chunk(
+                    lid.tekst,
+                    bronbestand,
+                    rechtsgebied,
+                    wet_naam,
+                    elem,
+                    lid_tokens,
+                    vorige,
+                    i,
+                    lid_nummer=lid.nummer,
+                    structuur_type="lid",
+                )
+                chunks.append(chunk)
+                vorige = lid.tekst
 
         return chunks
 

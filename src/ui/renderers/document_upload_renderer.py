@@ -243,6 +243,21 @@ class DocumentUploadRenderer:
 
             # DEF-271: RAG ingest knop voor geselecteerde documenten
             if selected_docs:
+                # DEF-361: Rechtsgebied selectie voor metadata enrichment
+                st.selectbox(
+                    "Rechtsgebied",
+                    options=[
+                        "",
+                        "strafrecht",
+                        "civiel recht",
+                        "bestuursrecht",
+                        "staatsrecht",
+                        "belastingrecht",
+                    ],
+                    key="rag_rechtsgebied",
+                    help="Selecteer het rechtsgebied voor betere RAG retrieval",
+                )
+
                 if st.button(
                     "Indexeer voor RAG",
                     key="rag_ingest_selected",
@@ -255,6 +270,10 @@ class DocumentUploadRenderer:
                         rag_svc = container.rag_service
                         coll_id = rag_svc._ensure_collection("user_documents")
 
+                        rechtsgebied = (
+                            SessionStateManager.get_value("rag_rechtsgebied", "")
+                            or None
+                        )
                         ingested = 0
                         for doc_id in selected_docs:
                             doc = next(
@@ -273,6 +292,7 @@ class DocumentUploadRenderer:
                                     tekst=doc.extracted_text,
                                     collection_id=coll_id,
                                     filename=doc.filename,
+                                    rechtsgebied=rechtsgebied,
                                     file_path=str(stored_path) if stored_path else None,
                                 )
                                 ingested += 1
