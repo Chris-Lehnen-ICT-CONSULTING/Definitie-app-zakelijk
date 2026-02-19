@@ -330,6 +330,44 @@ def create_new_tables(conn: sqlite3.Connection) -> None:
 
     logger.info("All indexes created/verified")
 
+    # DEF-356: file_path kolom voor upload-opslag
+    _add_column_if_not_exists(conn, "rag_documents", "file_path", "VARCHAR(500)")
+
+
+_ALLOWED_COL_TYPES = frozenset(
+    {
+        "TEXT",
+        "INTEGER",
+        "REAL",
+        "BLOB",
+        "BOOLEAN",
+        "VARCHAR(100)",
+        "VARCHAR(255)",
+        "VARCHAR(500)",
+        "TIMESTAMP",
+        "TIMESTAMP DEFAULT CURRENT_TIMESTAMP",
+    }
+)
+
+
+def _add_column_if_not_exists(
+    conn: sqlite3.Connection, table: str, column: str, col_type: str
+) -> None:
+    """Voeg kolom toe als die nog niet bestaat (idempotent).
+
+    col_type moet in _ALLOWED_COL_TYPES staan (DDL kan niet geparameteriseerd).
+    """
+    if col_type not in _ALLOWED_COL_TYPES:
+        raise ValueError(f"Onbekend kolomtype: {col_type!r}")
+    try:
+        conn.execute(f"ALTER TABLE [{table}] ADD COLUMN [{column}] {col_type}")
+        logger.info("Column '%s' added to table '%s'", column, table)
+    except sqlite3.OperationalError as e:
+        if "duplicate column name" in str(e).lower():
+            logger.info("Column '%s' already exists in '%s'", column, table)
+        else:
+            raise
+
 
 # ---------------------------------------------------------------------------
 # Stap 3: Verification

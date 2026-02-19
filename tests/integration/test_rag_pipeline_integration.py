@@ -77,7 +77,8 @@ def rag_db():
             file_type VARCHAR(50),
             chunk_count INTEGER,
             rechtsgebied VARCHAR(100),
-            processed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            processed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            file_path VARCHAR(500)
         );
         CREATE TABLE IF NOT EXISTS rag_chunks (
             id INTEGER PRIMARY KEY AUTOINCREMENT,

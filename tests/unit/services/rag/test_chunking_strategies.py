@@ -5,8 +5,8 @@ import pytest
 from services.rag.chunking_strategies import (
     GeneriekChunkingStrategy,
     JuridischeChunkingStrategy,
-    _bereken_overlap,
 )
+from services.rag.chunking_utils import bereken_overlap, forceer_split_op_zinnen
 from services.rag.token_counter import tel_tokens
 
 # ── Overlap helper ───────────────────────────────────────────────
@@ -14,18 +14,18 @@ from services.rag.token_counter import tel_tokens
 
 class TestBerekenOverlap:
     def test_lege_tekst(self):
-        assert _bereken_overlap("", 0.12) == ""
+        assert bereken_overlap("", 0.12) == ""
 
     def test_korte_tekst_geen_overlap(self):
         # Very short text -> less than 5 target tokens -> empty
-        assert _bereken_overlap("Ja.", 0.12) == ""
+        assert bereken_overlap("Ja.", 0.12) == ""
 
     def test_overlap_bevat_volledige_zinnen(self):
         tekst = (
             "Eerste zin over de wet. Tweede zin over de regeling. "
             "Derde zin over de procedure. Vierde zin over het besluit."
         )
-        overlap = _bereken_overlap(tekst, 0.3)
+        overlap = bereken_overlap(tekst, 0.3)
         assert len(overlap) > 0
         # Overlap moet uit volledige woorden bestaan (geen mid-word cuts)
         assert not overlap.startswith(" ")
@@ -34,7 +34,7 @@ class TestBerekenOverlap:
         """Overlap tokens moeten ~ratio van de brontekst zijn."""
         tekst = "Dit is een langere tekst met meerdere zinnen. " * 10
         bron_tokens = tel_tokens(tekst)
-        overlap = _bereken_overlap(tekst, 0.12)
+        overlap = bereken_overlap(tekst, 0.12)
         overlap_tokens = tel_tokens(overlap)
         # Should be roughly 12% (allow 5-25% due to sentence boundary rounding)
         assert overlap_tokens <= bron_tokens * 0.25
@@ -45,7 +45,7 @@ class TestBerekenOverlap:
         tekst = (
             "Mr. De Vries was aanwezig. Dr. Jansen was afwezig. Het besluit is genomen."
         )
-        overlap = _bereken_overlap(tekst, 0.5)
+        overlap = bereken_overlap(tekst, 0.5)
         # Should contain "Mr." or "Dr." intact (not split mid-abbreviation)
         assert "Mr" in overlap or "Dr" in overlap or "besluit" in overlap
 
@@ -151,6 +151,28 @@ class TestJuridischeChunkingStrategy:
             )  # kleine marge voor \n\n merge overhead
 
 
+class TestMaakEnkeleChunkSplit:
+    """DEF-357 #13: _maak_enkele_chunk() splitst grote tekst zonder structuur."""
+
+    def test_grote_tekst_zonder_structuur_wordt_gesplitst(self):
+        """Juridisch document zonder structuur maar > max_tokens → meerdere chunks."""
+        # Tekst zonder artikel-structuur maar groot genoeg
+        grote_tekst = "Dit is een lang juridisch document zonder artikelen. " * 200
+        strategy = JuridischeChunkingStrategy(max_tokens=200)
+        chunks = strategy.chunk(grote_tekst, "groot.pdf", "application/pdf")
+        assert len(chunks) > 1
+        for chunk in chunks:
+            # Marge voor zinsgrens-rounding + woord-split overhead
+            assert chunk.token_count <= 200 + 30
+
+    def test_kleine_tekst_zonder_structuur_niet_gesplitst(self):
+        """Korte tekst zonder structuur → 1 chunk."""
+        korte_tekst = "Dit is een korte tekst."
+        strategy = JuridischeChunkingStrategy()
+        chunks = strategy.chunk(korte_tekst, "kort.pdf", "application/pdf")
+        assert len(chunks) == 1
+
+
 # ── Generieke strategie ──────────────────────────────────────────
 
 
@@ -198,3 +220,176 @@ class TestGeneriekChunkingStrategy:
         assert len(chunks) > 0
         with pytest.raises(AttributeError):
             chunks[0].tekst = "gewijzigd"  # type: ignore[misc]
+
+
+# ── DEF-356: Formfeed normalisatie in chunking ──────────────────
+
+
+class TestFormfeedChunking:
+    """DEF-356: Formfeed-only tekst wordt correct gechunkt."""
+
+    def test_juridisch_formfeed_only_meerdere_chunks(self, sample_formfeed_only_tekst):
+        """PDF met alleen formfeeds levert meerdere chunks op."""
+        # min_tokens=1 om merging uit te schakelen voor korte test-tekst
+        strategy = JuridischeChunkingStrategy(min_tokens=1)
+        chunks = strategy.chunk(
+            sample_formfeed_only_tekst, "wet.pdf", "application/pdf"
+        )
+        assert len(chunks) >= 3
+
+    def test_juridisch_formfeed_geen_formfeeds_in_chunks(
+        self, sample_formfeed_only_tekst
+    ):
+        """Chunk-tekst mag geen formfeed characters bevatten."""
+        strategy = JuridischeChunkingStrategy()
+        chunks = strategy.chunk(
+            sample_formfeed_only_tekst, "wet.pdf", "application/pdf"
+        )
+        for chunk in chunks:
+            assert "\f" not in chunk.tekst
+
+    def test_generiek_formfeed_normalisatie(self):
+        """Generieke strategie normaliseert formfeeds in chunk-tekst."""
+        tekst = "# Sectie 1\fTekst na formfeed.\n\n# Sectie 2\fMeer tekst."
+        strategy = GeneriekChunkingStrategy()
+        chunks = strategy.chunk(tekst, "doc.pdf", "application/pdf")
+        for chunk in chunks:
+            assert "\f" not in chunk.tekst
+
+
+class TestArtikelMetTekstErna:
+    """DEF-356: Artikel regex matcht ook als er tekst na het nummer staat."""
+
+    def test_artikel_met_trailing_tekst_wordt_gechunkt(self):
+        """Artikelen met tekst na het nummer worden als aparte chunks opgeslagen."""
+        tekst = (
+            "Artikel 1 Strafvordering betreft de opsporing van feiten.\n\n"
+            "Artikel 2 De officier van justitie is belast met de vervolging.\n\n"
+            "Artikel 3 De rechter oordeelt over de strafzaak.\n"
+        )
+        strategy = JuridischeChunkingStrategy(min_tokens=1)
+        chunks = strategy.chunk(tekst, "sv.pdf", "application/pdf")
+        assert len(chunks) == 3
+
+    def test_bw_notatie_met_trailing_tekst(self):
+        """BW-notatie (10:1) met trailing tekst wordt correct gedetecteerd."""
+        tekst = (
+            "Artikel 10:1 Een overeenkomst in de zin van dit boek.\n\n"
+            "Artikel 10:2 De overeenkomst heeft rechtsgevolgen.\n"
+        )
+        strategy = JuridischeChunkingStrategy(min_tokens=1)
+        chunks = strategy.chunk(tekst, "bw.pdf", "application/pdf")
+        artikelen = [c for c in chunks if c.metadata.artikel_nummer]
+        assert len(artikelen) == 2
+        assert artikelen[0].metadata.artikel_nummer == "10:1"
+
+
+class TestLetterLedenChunking:
+    """DEF-356: Letter-leden worden NIET als splitpunt gebruikt."""
+
+    def test_letter_leden_niet_als_splitpunt(self, sample_artikel_met_letter_leden):
+        """Artikel met letter-leden wordt niet gesplitst op a., b., c."""
+        tekst = sample_artikel_met_letter_leden + "\nArtikel 2\nKort.\n"
+        strategy = JuridischeChunkingStrategy(max_tokens=500)
+        chunks = strategy.chunk(tekst, "wet.pdf", "application/pdf")
+        # Letter-leden moeten in dezelfde chunk als hun parent-lid zitten
+        chunk_met_letters = [c for c in chunks if "basisregistratie" in c.tekst]
+        assert len(chunk_met_letters) == 1
+        assert (
+            "a." in chunk_met_letters[0].tekst
+            or "ingezetene" in chunk_met_letters[0].tekst
+        )
+
+
+class TestGroteSectieSplit:
+    """DEF-356: Generieke strategie splitst grote secties op paragraaf-grenzen."""
+
+    def test_grote_sectie_gesplitst(self, sample_groot_generiek_document):
+        """Sectie > max_tokens wordt gesplitst op paragraaf-grenzen."""
+        strategy = GeneriekChunkingStrategy(max_tokens=300)
+        chunks = strategy.chunk(
+            sample_groot_generiek_document, "doc.md", "text/markdown"
+        )
+        assert len(chunks) > 3
+        for chunk in chunks:
+            assert chunk.token_count <= 300 + 50  # marge voor zinsgrens-rounding
+
+    def test_chunk_index_sequentieel_na_split(self, sample_groot_generiek_document):
+        """Na paragraaf-split zijn chunk indices nog steeds sequentieel."""
+        strategy = GeneriekChunkingStrategy(max_tokens=300)
+        chunks = strategy.chunk(
+            sample_groot_generiek_document, "doc.md", "text/markdown"
+        )
+        indices = [c.metadata.chunk_index for c in chunks]
+        assert indices == list(range(len(chunks)))
+
+
+# ── DEF-356: forceer_split_op_zinnen utility ────────────────────
+
+
+class TestForceerSplitOpZinnen:
+    def test_korte_tekst_niet_gesplitst(self):
+        delen = forceer_split_op_zinnen("Korte zin.", 1000)
+        assert len(delen) == 1
+
+    def test_lange_tekst_gesplitst(self):
+        tekst = "Dit is een zin. " * 100
+        delen = forceer_split_op_zinnen(tekst, 50)
+        assert len(delen) > 1
+        for deel in delen:
+            assert tel_tokens(deel) <= 50 + 20  # marge
+
+    def test_lege_tekst(self):
+        assert forceer_split_op_zinnen("", 100) == []
+
+    def test_whitespace_only(self):
+        assert forceer_split_op_zinnen("   ", 100) == []
+
+    def test_mega_zin_wordt_gesplitst(self):
+        """Een enkele zin > max_tokens wordt op woordgrenzen gesplitst."""
+        mega_zin = "woord " * 200  # ~200 tokens, geen zinsgrenzen
+        delen = forceer_split_op_zinnen(mega_zin.strip(), 50)
+        assert len(delen) > 1
+        for deel in delen:
+            # Marge nodig: BPE tokeniseert "woord woord" anders dan losse woorden
+            assert tel_tokens(deel) <= 50 + 30
+
+    def test_mega_zin_tussen_normale_zinnen(self):
+        """Mix van normale en mega-zinnen wordt correct gesplitst."""
+        normaal = "Korte zin. Nog een. "
+        mega = "woord " * 150
+        tekst = normaal + mega.strip() + ". Einde."
+        delen = forceer_split_op_zinnen(tekst, 50)
+        assert len(delen) > 1
+        # Alle tekst moet behouden zijn
+        reconstructed = " ".join(delen)
+        assert "Korte zin." in reconstructed
+        assert "Einde." in reconstructed
+
+
+# ── DEF-358: split_zinnen behoudt leestekens ────────────────────
+
+
+class TestSplitZinnenLeestekens:
+    """DEF-358: split_zinnen() moet leestekens behouden."""
+
+    def test_punten_behouden(self):
+        from services.rag.chunking_utils import split_zinnen
+
+        zinnen = split_zinnen("Eerste zin. Tweede zin. Derde zin.")
+        assert all(z.endswith(".") for z in zinnen)
+
+    def test_vraagteken_behouden(self):
+        from services.rag.chunking_utils import split_zinnen
+
+        zinnen = split_zinnen("Wat is dit? Een ander punt. Klaar!")
+        assert zinnen[0].endswith("?")
+        assert zinnen[1].endswith(".")
+        assert zinnen[2].endswith("!")
+
+    def test_afkortingen_niet_gesplitst(self):
+        from services.rag.chunking_utils import split_zinnen
+
+        zinnen = split_zinnen("Mr. De Vries was er. Dr. Jansen ook.")
+        # "Mr." en "Dr." mogen niet als zinsgrens
+        assert len(zinnen) == 2

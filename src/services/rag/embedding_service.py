@@ -78,9 +78,9 @@ class EmbeddingService:
         """
         if not text or not text.strip():
             raise ValueError("text mag niet None of leeg zijn")
-        truncated = self._truncate(text)
+        truncated_text = self._truncate(text)
         response = self.client.embeddings.create(
-            input=truncated,
+            input=truncated_text,
             model=self.MODEL,
             dimensions=self.DIMENSIONS,
         )
