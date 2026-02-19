@@ -50,22 +50,18 @@ class EmbeddingService:
         """
         self.client = openai.OpenAI(api_key=api_key, max_retries=3)
 
-    def _truncate(self, text: str) -> tuple[str, bool]:
-        """Kap tekst af tot MAX_TOKENS als nodig.
-
-        Returns:
-            Tuple van (tekst, was_truncated).
-        """
+    def _truncate(self, text: str) -> str:
+        """Kap tekst af tot MAX_TOKENS als nodig."""
         enc = _get_encoder()
         tokens = enc.encode(text)
         if len(tokens) <= self.MAX_TOKENS:
-            return text, False
+            return text
         logger.warning(
             "Tekst afgekapt van %d naar %d tokens voor embedding",
             len(tokens),
             self.MAX_TOKENS,
         )
-        return enc.decode(tokens[: self.MAX_TOKENS]), True
+        return enc.decode(tokens[: self.MAX_TOKENS])
 
     def embed(self, text: str) -> np.ndarray:
         """Embed enkele tekst naar een 3072-dimensionale vector.
@@ -82,7 +78,7 @@ class EmbeddingService:
         """
         if not text or not text.strip():
             raise ValueError("text mag niet None of leeg zijn")
-        truncated_text, _ = self._truncate(text)
+        truncated_text = self._truncate(text)
         response = self.client.embeddings.create(
             input=truncated_text,
             model=self.MODEL,
@@ -108,7 +104,7 @@ class EmbeddingService:
         if not texts:
             return []
 
-        truncated = [self._truncate(t)[0] for t in texts]
+        truncated = [self._truncate(t) for t in texts]
         all_embeddings: list[np.ndarray] = []
 
         for i in range(0, len(truncated), self.BATCH_SIZE):

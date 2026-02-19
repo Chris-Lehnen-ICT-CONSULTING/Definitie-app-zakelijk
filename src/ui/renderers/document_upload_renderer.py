@@ -6,6 +6,7 @@ context dienen voor definitie generatie.
 """
 
 import logging
+import re
 from datetime import datetime
 from pathlib import Path
 
@@ -21,18 +22,41 @@ logger = logging.getLogger(__name__)
 UPLOADS_DIR = Path("data/uploads")
 
 
+def _sanitize_filename(name: str) -> str:
+    """Verwijder path-traversal en onveilige karakters uit bestandsnaam."""
+    # Strip directory componenten (path traversal)
+    name = Path(name).name
+    # Alleen alfanumeriek, punt, streepje, underscore
+    name = re.sub(r"[^\w.\-]", "_", name)
+    return name or "unnamed"
+
+
 def _save_uploaded_file(uploaded_file) -> Path | None:
     """Sla geüpload bestand op in data/uploads/ met timestamp prefix."""
     try:
         UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        safe_name = f"{timestamp}_{uploaded_file.name}"
+        clean_name = _sanitize_filename(uploaded_file.name)
+        safe_name = f"{timestamp}_{clean_name}"
         dest = UPLOADS_DIR / safe_name
         dest.write_bytes(uploaded_file.getvalue())
         return dest
     except Exception as e:
         logger.warning("Bestand opslaan mislukt voor %s: %s", uploaded_file.name, e)
         return None
+
+
+def _find_uploaded_file(filename: str) -> Path | None:
+    """Zoek het meest recente upload-bestand met matchende naam."""
+    if not UPLOADS_DIR.exists():
+        return None
+    # Bestanden zijn {timestamp}_{gesanitizede_naam} — zoek op suffix
+    clean_name = _sanitize_filename(filename)
+    matches = sorted(
+        (p for p in UPLOADS_DIR.iterdir() if p.name.endswith(f"_{clean_name}")),
+        reverse=True,  # Nieuwste eerst (timestamp prefix)
+    )
+    return matches[0] if matches else None
 
 
 class DocumentUploadRenderer:
@@ -111,11 +135,7 @@ class DocumentUploadRenderer:
                 )
 
                 # Sla origineel bestand op in data/uploads/
-                saved_path = _save_uploaded_file(uploaded_file)
-                if saved_path and processed_doc.id:
-                    SessionStateManager.set_value(
-                        f"upload_path_{processed_doc.id}", str(saved_path)
-                    )
+                _save_uploaded_file(uploaded_file)
 
                 processed_docs.append(processed_doc)
 
@@ -247,10 +267,8 @@ class DocumentUploadRenderer:
                                 None,
                             )
                             if doc and doc.extracted_text:
-                                # Zoek opgeslagen bestandspad
-                                stored_path = SessionStateManager.get_value(
-                                    f"upload_path_{doc.id}", None
-                                )
+                                # Zoek opgeslagen bestand in uploads dir
+                                stored_path = _find_uploaded_file(doc.filename)
                                 rag_svc.ingest_document(
                                     tekst=doc.extracted_text,
                                     collection_id=coll_id,

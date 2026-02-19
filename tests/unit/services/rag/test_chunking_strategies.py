@@ -5,9 +5,8 @@ import pytest
 from services.rag.chunking_strategies import (
     GeneriekChunkingStrategy,
     JuridischeChunkingStrategy,
-    _bereken_overlap,
 )
-from services.rag.chunking_utils import forceer_split_op_zinnen
+from services.rag.chunking_utils import bereken_overlap, forceer_split_op_zinnen
 from services.rag.token_counter import tel_tokens
 
 # ── Overlap helper ───────────────────────────────────────────────
@@ -15,18 +14,18 @@ from services.rag.token_counter import tel_tokens
 
 class TestBerekenOverlap:
     def test_lege_tekst(self):
-        assert _bereken_overlap("", 0.12) == ""
+        assert bereken_overlap("", 0.12) == ""
 
     def test_korte_tekst_geen_overlap(self):
         # Very short text -> less than 5 target tokens -> empty
-        assert _bereken_overlap("Ja.", 0.12) == ""
+        assert bereken_overlap("Ja.", 0.12) == ""
 
     def test_overlap_bevat_volledige_zinnen(self):
         tekst = (
             "Eerste zin over de wet. Tweede zin over de regeling. "
             "Derde zin over de procedure. Vierde zin over het besluit."
         )
-        overlap = _bereken_overlap(tekst, 0.3)
+        overlap = bereken_overlap(tekst, 0.3)
         assert len(overlap) > 0
         # Overlap moet uit volledige woorden bestaan (geen mid-word cuts)
         assert not overlap.startswith(" ")
@@ -35,7 +34,7 @@ class TestBerekenOverlap:
         """Overlap tokens moeten ~ratio van de brontekst zijn."""
         tekst = "Dit is een langere tekst met meerdere zinnen. " * 10
         bron_tokens = tel_tokens(tekst)
-        overlap = _bereken_overlap(tekst, 0.12)
+        overlap = bereken_overlap(tekst, 0.12)
         overlap_tokens = tel_tokens(overlap)
         # Should be roughly 12% (allow 5-25% due to sentence boundary rounding)
         assert overlap_tokens <= bron_tokens * 0.25
@@ -46,7 +45,7 @@ class TestBerekenOverlap:
         tekst = (
             "Mr. De Vries was aanwezig. Dr. Jansen was afwezig. Het besluit is genomen."
         )
-        overlap = _bereken_overlap(tekst, 0.5)
+        overlap = bereken_overlap(tekst, 0.5)
         # Should contain "Mr." or "Dr." intact (not split mid-abbreviation)
         assert "Mr" in overlap or "Dr" in overlap or "besluit" in overlap
 
@@ -324,19 +323,51 @@ class TestForceerSplitOpZinnen:
     def test_whitespace_only(self):
         assert forceer_split_op_zinnen("   ", 100) == []
 
+    def test_mega_zin_wordt_gesplitst(self):
+        """Een enkele zin > max_tokens wordt op woordgrenzen gesplitst."""
+        mega_zin = "woord " * 200  # ~200 tokens, geen zinsgrenzen
+        delen = forceer_split_op_zinnen(mega_zin.strip(), 50)
+        assert len(delen) > 1
+        for deel in delen:
+            # Marge nodig: BPE tokeniseert "woord woord" anders dan losse woorden
+            assert tel_tokens(deel) <= 50 + 30
 
-# ── DEF-356: ChunkMetadata.truncated ────────────────────────────
+    def test_mega_zin_tussen_normale_zinnen(self):
+        """Mix van normale en mega-zinnen wordt correct gesplitst."""
+        normaal = "Korte zin. Nog een. "
+        mega = "woord " * 150
+        tekst = normaal + mega.strip() + ". Einde."
+        delen = forceer_split_op_zinnen(tekst, 50)
+        assert len(delen) > 1
+        # Alle tekst moet behouden zijn
+        reconstructed = " ".join(delen)
+        assert "Korte zin." in reconstructed
+        assert "Einde." in reconstructed
 
 
-class TestTruncatedMetadata:
-    def test_truncated_default_false(self):
-        from services.rag.models import ChunkMetadata
+# ── DEF-358: split_zinnen behoudt leestekens ────────────────────
 
-        meta = ChunkMetadata(bronbestand="test.pdf", chunk_index=0)
-        assert meta.truncated is False
 
-    def test_truncated_settable(self):
-        from services.rag.models import ChunkMetadata
+class TestSplitZinnenLeestekens:
+    """DEF-358: split_zinnen() moet leestekens behouden."""
 
-        meta = ChunkMetadata(bronbestand="test.pdf", chunk_index=0, truncated=True)
-        assert meta.truncated is True
+    def test_punten_behouden(self):
+        from services.rag.chunking_utils import split_zinnen
+
+        zinnen = split_zinnen("Eerste zin. Tweede zin. Derde zin.")
+        assert all(z.endswith(".") for z in zinnen)
+
+    def test_vraagteken_behouden(self):
+        from services.rag.chunking_utils import split_zinnen
+
+        zinnen = split_zinnen("Wat is dit? Een ander punt. Klaar!")
+        assert zinnen[0].endswith("?")
+        assert zinnen[1].endswith(".")
+        assert zinnen[2].endswith("!")
+
+    def test_afkortingen_niet_gesplitst(self):
+        from services.rag.chunking_utils import split_zinnen
+
+        zinnen = split_zinnen("Mr. De Vries was er. Dr. Jansen ook.")
+        # "Mr." en "Dr." mogen niet als zinsgrens
+        assert len(zinnen) == 2

@@ -29,9 +29,6 @@ from services.rag.token_counter import tel_tokens
 
 logger = logging.getLogger(__name__)
 
-# Backwards-compatible re-exports
-_bereken_overlap = bereken_overlap
-
 
 # ── Abstract Strategy ────────────────────────────────────────────
 
@@ -274,7 +271,7 @@ class JuridischeChunkingStrategy(ChunkingStrategy):
         structuur_type: str | None = None,
     ) -> DocumentChunk:
         """Maak een DocumentChunk aan met metadata en overlap."""
-        overlap = _bereken_overlap(vorige_tekst, self.overlap_ratio)
+        overlap = bereken_overlap(vorige_tekst, self.overlap_ratio)
 
         metadata = ChunkMetadata(
             bronbestand=bronbestand,
@@ -388,7 +385,7 @@ class GeneriekChunkingStrategy(ChunkingStrategy):
 
             if token_count <= self.max_tokens:
                 # Sectie past in één chunk
-                overlap = _bereken_overlap(vorige_tekst, self.overlap_ratio)
+                overlap = bereken_overlap(vorige_tekst, self.overlap_ratio)
                 heading = self._extract_heading(sectie_tekst)
                 metadata = ChunkMetadata(
                     bronbestand=bronbestand,
@@ -447,7 +444,7 @@ class GeneriekChunkingStrategy(ChunkingStrategy):
         chunks: list[DocumentChunk] = []
         vorige = vorige_tekst
         for i, deel in enumerate(delen):
-            overlap = _bereken_overlap(vorige, self.overlap_ratio)
+            overlap = bereken_overlap(vorige, self.overlap_ratio)
             metadata = ChunkMetadata(
                 bronbestand=bronbestand,
                 chunk_index=start_index + i,
@@ -503,13 +500,21 @@ class GeneriekChunkingStrategy(ChunkingStrategy):
         merged: list[str] = []
         for sectie in secties:
             tokens = tel_tokens(sectie)
-            if merged and tokens < self.min_tokens:
+            if (
+                merged
+                and tokens < self.min_tokens
+                and tel_tokens(merged[-1]) + tokens <= self.max_tokens
+            ):
                 merged[-1] = merged[-1] + "\n\n" + sectie
             else:
                 merged.append(sectie)
 
         # Check of de laatste nog te klein is
-        if len(merged) > 1 and tel_tokens(merged[-1]) < self.min_tokens:
+        if (
+            len(merged) > 1
+            and tel_tokens(merged[-1]) < self.min_tokens
+            and tel_tokens(merged[-2]) + tel_tokens(merged[-1]) <= self.max_tokens
+        ):
             merged[-2] = merged[-2] + "\n\n" + merged[-1]
             merged.pop()
 
