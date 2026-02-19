@@ -1,0 +1,79 @@
+{
+  "timestamp": "2026-02-19T16:58:24.366235",
+  "wettekst": "data/wetteksten/wid.txt",
+  "collection_id": 2,
+  "chunks_ingested": 5,
+  "terms_tested": 5,
+  "terms_improved": 3,
+  "avg_score_zonder_rag": 0.8640000000000001,
+  "avg_score_met_rag": 0.874,
+  "avg_score_lift": 0.009999999999999898,
+  "go_no_go": "GO",
+  "results": [
+    {
+      "begrip": "identificeren",
+      "definitie_zonder_rag": "Proces  \nhandeling die de identiteit van een verdachte vaststelt door vergelijking van opgegeven persoonsgegevens met een identiteitsdocument en met registraties in ketensystemen op basis van een uniek documentnummer of registratienummer.",
+      "score_zonder_rag": 0.85,
+      "violations_zonder_rag": 11,
+      "definitie_met_rag": "Handeling waarbij een opsporingsambtenaar de identiteit van een verdachte vaststelt door identiteitsgegevens te verifiëren aan de hand van een identiteitsbewijs als bedoeld in de Wet op de identificatieplicht, aangevuld met biometrische vergelijking en koppeling aan een strafrechtsketennummer op basis van gegevens uit meerdere registers en bestanden [Bron 1] [Bron 2].",
+      "score_met_rag": 0.88,
+      "violations_met_rag": 7,
+      "rag_chunks_count": 5,
+      "score_verschil": 0.030000000000000027,
+      "beter_met_rag": true,
+      "error": null
+    },
+    {
+      "begrip": "identiteitsbewijs",
+      "definitie_zonder_rag": "Soort  \ndocument dat de identiteit van een verdachte vaststelt aan de hand van naam, geboortedatum, nationaliteit, een gezichtsopname en een uniek documentnummer, uitgegeven door een bevoegde autoriteit en als zodanig aangewezen in regelgeving over identificatieplicht.",
+      "score_zonder_rag": 0.89,
+      "violations_zonder_rag": 7,
+      "definitie_met_rag": "Document dat door een bevoegde autoriteit is afgegeven, de identiteit van een verdachte vastlegt aan de hand van persoons- en documentkenmerken en een uniek documentnummer draagt als bedoeld in artikel 1 van de Wet op de identificatieplicht [Bron 1].",
+      "score_met_rag": 0.9,
+      "violations_met_rag": 6,
+      "rag_chunks_count": 5,
+      "score_verschil": 0.010000000000000009,
+      "beter_met_rag": true,
+      "error": null
+    },
+    {
+      "begrip": "toonplicht",
+      "definitie_zonder_rag": "Verplichting voor een burger om op vordering van een opsporingsambtenaar een geldig identiteitsdocument ter inzage te geven ter vaststelling van de identiteit.",
+      "score_zonder_rag": 0.81,
+      "violations_zonder_rag": 8,
+      "definitie_met_rag": "Proces  \nverplichting tot het op vordering van een opsporingsambtenaar ter inzage aanbieden van een identiteitsbewijs als bedoeld in artikel 1 van de Wet op de identificatieplicht [Bron 5].",
+      "score_met_rag": 0.9,
+      "violations_met_rag": 7,
+      "rag_chunks_count": 5,
+      "score_verschil": 0.08999999999999997,
+      "beter_met_rag": true,
+      "error": null
+    },
+    {
+      "begrip": "identiteit",
+      "definitie_zonder_rag": "Soort  \ngegevensconstructie die een verdachte, slachtoffer, getuige of functionaris binnen een strafzaak eenduidig onderscheidt door koppeling van vastgelegde identificerende gegevens uit meerdere bronnen aan één uniek registratienummer binnen de strafrechtketenadministratie.",
+      "score_zonder_rag": 0.89,
+      "violations_zonder_rag": 7,
+      "definitie_met_rag": "Soort  \ngegevensverzameling die een verdachte of veroordeelde binnen de strafrechtspleging eenduidig onderscheidt van andere verdachten of veroordeelden door koppeling van vastgestelde identificerende persoonsgegevens, biometrische kenmerken en een toegekend strafrechtsketennummer [Bron 1].",
+      "score_met_rag": 0.85,
+      "violations_met_rag": 9,
+      "rag_chunks_count": 5,
+      "score_verschil": -0.040000000000000036,
+      "beter_met_rag": false,
+      "error": null
+    },
+    {
+      "begrip": "reisdocument",
+      "definitie_zonder_rag": "Soort  \ndocument dat door een bevoegde bestuursautoriteit op naam van een houder wordt verstrekt, een uniek documentnummer bevat en de identiteit en nationaliteit van de houder vastlegt voor grensoverschrijding en identiteitsvaststelling.",
+      "score_zonder_rag": 0.88,
+      "violations_zonder_rag": 7,
+      "definitie_met_rag": "Document dat door een bevoegde autoriteit wordt afgegeven, de identiteit en nationaliteit van de houder vastlegt, een documentnummer als unieke identificatie draagt en de houder als rechthebbende aanwijst voor grensoverschrijding en terugkeer naar het grondgebied van afgifte.",
+      "score_met_rag": 0.84,
+      "violations_met_rag": 9,
+      "rag_chunks_count": 5,
+      "score_verschil": -0.040000000000000036,
+      "beter_met_rag": false,
+      "error": null
+    }
+  ]
+}
