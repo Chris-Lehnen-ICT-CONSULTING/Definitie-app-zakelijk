@@ -86,6 +86,8 @@ def get_provider_label(provider: str) -> str:
         "overheid": "Overheid.nl",
         "rechtspraak": "Rechtspraak.nl",
         "wiktionary": "Wiktionary NL",
+        "rag": "RAG Document",
+        "documents": "Geüpload document",
     }
     return labels.get(provider, provider.replace("_", " ").title())
 
