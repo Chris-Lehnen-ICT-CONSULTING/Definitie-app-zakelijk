@@ -93,6 +93,8 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
         web_lookup_service: Optional["WebLookupServiceInterface"] = None,
         # Synonym enrichment (Architecture v3.1)
         synonym_orchestrator: Optional["SynonymOrchestrator"] = None,
+        # RAG context retrieval (DEF-271)
+        rag_service: Any | None = None,
     ):
         """
         Clean dependency injection - no session state access.
@@ -139,12 +141,16 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
         # Architecture v3.1: optional synonym enrichment
         self.synonym_orchestrator = synonym_orchestrator
 
+        # DEF-271: RAG context retrieval
+        self.rag_service = rag_service
+
         logger.info(
             "DefinitionOrchestratorV2 initialized with configuration: "
             f"feedback_loop={self.config.enable_feedback_loop}, "
             f"enhancement={self.config.enable_enhancement}, "
             f"caching={self.config.enable_caching}, "
-            f"synonym_enrichment={'enabled' if synonym_orchestrator else 'disabled'}"
+            f"synonym_enrichment={'enabled' if synonym_orchestrator else 'disabled'}, "
+            f"rag_service={'enabled' if rag_service else 'disabled'}"
         )
 
     @property
@@ -546,6 +552,69 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                 logger.warning(
                     f"Generation {generation_id}: Web lookup service not available - "
                     f"proceeding WITHOUT external context enrichment"
+                )
+
+            # =====================================
+            # PHASE 2.6: RAG Context Retrieval (DEF-271)
+            # =====================================
+            rag_chunks: list[Any] = []
+            all_rag_chunks: list[Any] = []
+            rag_status = "not_available"
+            rag_collection_id: int | None = None
+            rag_min_score = float(os.getenv("RAG_MIN_SCORE", "0.3"))
+
+            if self.rag_service:
+                try:
+                    import asyncio
+
+                    # Bepaal collection: uit request of default
+                    rag_collection_id = getattr(
+                        sanitized_request, "rag_collection_id", None
+                    )
+                    if rag_collection_id is None:
+                        rag_collection_id = self.rag_service._ensure_collection(
+                            "user_documents"
+                        )
+
+                    # Async wrap: retrieve_context() is synchroon (numpy)
+                    rag_context = await asyncio.to_thread(
+                        self.rag_service.retrieve_context,
+                        query=sanitized_request.begrip,
+                        collection_id=rag_collection_id,
+                        top_k=5,
+                    )
+
+                    # Score threshold: filter lage-score chunks
+                    all_rag_chunks = rag_context.chunks
+                    rag_chunks = [
+                        c for c in all_rag_chunks if c.get("score", 0) >= rag_min_score
+                    ]
+
+                    context = context or {}
+                    context["rag_chunks"] = rag_chunks
+
+                    rag_status = "success"
+                    logger.info(
+                        "Generation %s: RAG retrieval: %d chunks retrieved, "
+                        "%d after filtering (min_score=%.2f), collection=%d",
+                        generation_id,
+                        len(all_rag_chunks),
+                        len(rag_chunks),
+                        rag_min_score,
+                        rag_collection_id,
+                    )
+                except Exception as e:
+                    rag_status = "error"
+                    logger.warning(
+                        "Generation %s: RAG retrieval failed: %s - proceeding without",
+                        generation_id,
+                        e,
+                    )
+            else:
+                logger.debug(
+                    "Generation %s: RAG service not available - "
+                    "proceeding without RAG context",
+                    generation_id,
                 )
 
             # =====================================
@@ -986,6 +1055,16 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                         if enriched_synonyms
                         else []
                     ),
+                    # DEF-271: RAG context metadata
+                    "rag_status": rag_status,
+                    "rag_chunks_count": len(rag_chunks),
+                    "rag_chunks_filtered": (
+                        len(all_rag_chunks) - len(rag_chunks)
+                        if rag_status == "success"
+                        else 0
+                    ),
+                    "rag_collection_id": rag_collection_id,
+                    "rag_min_score_used": rag_min_score,
                     # Add voorbeelden to metadata so UI can display them
                     "voorbeelden": voorbeelden if voorbeelden else {},
                     # DEF-151: Store complete generation prompt metadata for audit trail
@@ -1109,6 +1188,10 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                     "synonym_enrichment_status": synonym_enrichment_status,
                     "enriched_synonyms_count": len(enriched_synonyms),
                     "ai_pending_synonyms_count": ai_pending_count,
+                    # DEF-271: RAG status
+                    "rag_status": rag_status,
+                    "rag_chunks_count": len(rag_chunks),
+                    "rag_available": self.rag_service is not None,
                 },
             )
 
