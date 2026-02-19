@@ -398,9 +398,13 @@ class AIServiceV2(AIServiceInterface):
             try:
                 self._token_encoders[model] = _tiktoken.encoding_for_model(model)  # type: ignore[union-attr]
                 logger.debug(f"Created token encoder for model: {model}")
-            except Exception as e:
-                logger.warning(f"Failed to initialize tiktoken for {model}: {e}")
-                self._token_encoders[model] = None
+            except (KeyError, ValueError):
+                # Model not in tiktoken registry — fall back to o200k_base
+                # (used by all modern OpenAI models: gpt-4o, gpt-4.1, gpt-5, o1, o3, etc.)
+                self._token_encoders[model] = _tiktoken.get_encoding("o200k_base")  # type: ignore[union-attr]
+                logger.debug(
+                    f"Model '{model}' not in tiktoken registry, using o200k_base fallback"
+                )
 
         return self._token_encoders[model]
 
