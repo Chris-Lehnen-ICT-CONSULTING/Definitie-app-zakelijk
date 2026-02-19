@@ -30,7 +30,8 @@ CREATE TABLE rag_documents (
     file_type VARCHAR(50),
     chunk_count INTEGER,
     rechtsgebied VARCHAR(100),
-    processed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    processed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    file_path VARCHAR(500)
 );
 
 CREATE TABLE rag_chunks (
