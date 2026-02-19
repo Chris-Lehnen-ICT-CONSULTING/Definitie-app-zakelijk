@@ -574,3 +574,358 @@ class TestXMLSourceFormatter:
 
     def test_wrap_bronnen_empty(self):
         assert wrap_bronnen([]) == ""
+
+
+# ===========================================================================
+# Test 9: Meerdere documenten in één collection (DEF-317 scenario 2)
+# ===========================================================================
+@pytest.mark.integration
+class TestRAGMultiDocument:
+    """Upload 3 documenten in dezelfde collection, verifieer multi-doc retrieval."""
+
+    DOCS = [
+        {
+            "tekst": (
+                "Wet op de identificatieplicht\n\n"
+                "Artikel 1\n"
+                "Een ieder die de leeftijd van veertien jaar heeft bereikt, is verplicht "
+                "op de eerste vordering van een opsporingsambtenaar een identiteitsbewijs "
+                "ter inzage aan te bieden.\n"
+            ),
+            "filename": "wid.txt",
+            "rechtsgebied": "publiekrecht",
+        },
+        {
+            "tekst": (
+                "Algemene wet bestuursrecht\n\n"
+                "Artikel 1:1\n"
+                "1. Onder bestuursorgaan wordt verstaan:\n"
+                "a. een orgaan van een rechtspersoon die krachtens publiekrecht is ingesteld.\n"
+                "b. een ander persoon of college, met enig openbaar gezag bekleed.\n"
+            ),
+            "filename": "awb.txt",
+            "rechtsgebied": "bestuursrecht",
+        },
+        {
+            "tekst": (
+                "Burgerlijk Wetboek Boek 6\n\n"
+                "Artikel 162\n"
+                "1. Hij die jegens een ander een onrechtmatige daad pleegt, welke hem kan "
+                "worden toegerekend, is verplicht de schade die de ander dientengevolge "
+                "lijdt, te vergoeden.\n"
+            ),
+            "filename": "bw6.txt",
+            "rechtsgebied": "civielrecht",
+        },
+    ]
+
+    def test_multi_doc_ingest(self, rag_service, collection_id):
+        """Upload 3 documenten in dezelfde collection — alle slagen."""
+        doc_ids = []
+        for doc in self.DOCS:
+            doc_id = rag_service.ingest_document(
+                tekst=doc["tekst"],
+                collection_id=collection_id,
+                filename=doc["filename"],
+                rechtsgebied=doc["rechtsgebied"],
+            )
+            assert doc_id > 0
+            doc_ids.append(doc_id)
+
+        assert len(set(doc_ids)) == 3  # Unieke IDs
+
+        stats = rag_service.get_collection_stats(collection_id)
+        assert stats["document_count"] == 3
+        assert stats["chunk_count"] >= 3  # Minimaal 1 chunk per doc
+
+    def test_multi_doc_retrieval_has_correct_document_ids(
+        self,
+        rag_service,
+        mock_embedding_service,
+        embedding_store,
+        collection_id,
+        rag_db,
+    ):
+        """Bronvermelding per chunk heeft de correcte document_id."""
+        doc_ids = []
+        for doc in self.DOCS:
+            doc_id = rag_service.ingest_document(
+                tekst=doc["tekst"],
+                collection_id=collection_id,
+                filename=doc["filename"],
+                rechtsgebied=doc["rechtsgebied"],
+            )
+            doc_ids.append(doc_id)
+
+        # Haal een willekeurige opgeslagen embedding op als query-basis
+        conn = sqlite3.connect(rag_db)
+        row = conn.execute(
+            "SELECT embedding FROM rag_chunks WHERE collection_id = ? LIMIT 1",
+            (collection_id,),
+        ).fetchone()
+        conn.close()
+        stored_vec = np.frombuffer(row[0], dtype=np.float32).copy()
+
+        mock_embedding_service.embed.side_effect = None
+        mock_embedding_service.embed.return_value = _similar_embedding(stored_vec, 0.01)
+
+        ctx = rag_service.retrieve_context(
+            query="bestuursorgaan", collection_id=collection_id, top_k=10
+        )
+
+        assert len(ctx.chunks) > 0
+        # Elke chunk moet een geldig document_id hebben
+        for chunk in ctx.chunks:
+            assert chunk["document_id"] in doc_ids
+
+    def test_multi_doc_results_from_multiple_documents(
+        self,
+        rag_service,
+        mock_embedding_service,
+        embedding_store,
+        collection_id,
+        rag_db,
+    ):
+        """Zoekresultaten bevatten chunks uit meerdere documenten."""
+        doc_ids = []
+        for doc in self.DOCS:
+            doc_id = rag_service.ingest_document(
+                tekst=doc["tekst"],
+                collection_id=collection_id,
+                filename=doc["filename"],
+                rechtsgebied=doc["rechtsgebied"],
+            )
+            doc_ids.append(doc_id)
+
+        # Haal alle embeddings op en maak query-vector als gemiddelde
+        conn = sqlite3.connect(rag_db)
+        rows = conn.execute(
+            "SELECT embedding FROM rag_chunks WHERE collection_id = ?",
+            (collection_id,),
+        ).fetchall()
+        conn.close()
+        all_vecs = [np.frombuffer(r[0], dtype=np.float32).copy() for r in rows]
+        avg_vec = np.mean(all_vecs, axis=0).astype(np.float32)
+        avg_vec = avg_vec / np.linalg.norm(avg_vec)
+
+        mock_embedding_service.embed.side_effect = None
+        mock_embedding_service.embed.return_value = avg_vec
+
+        ctx = rag_service.retrieve_context(
+            query="wet", collection_id=collection_id, top_k=10
+        )
+
+        returned_doc_ids = {chunk["document_id"] for chunk in ctx.chunks}
+        # Met gemiddelde vector als query verwachten we hits uit meerdere docs
+        assert (
+            len(returned_doc_ids) >= 2
+        ), f"Verwacht resultaten uit ≥2 documenten, kreeg {returned_doc_ids}"
+
+
+# ===========================================================================
+# Test 10: Irrelevante zoekopdracht (DEF-317 scenario 3)
+# ===========================================================================
+@pytest.mark.integration
+class TestRAGIrrelevantSearch:
+    """Zoek op irrelevante term in juridische collection → lage scores."""
+
+    def test_irrelevant_query_low_scores(
+        self,
+        rag_service,
+        mock_embedding_service,
+        embedding_store,
+        collection_id,
+        rag_db,
+    ):
+        """Zoek op 'pizza' in juridische collection → lage scores."""
+        rag_service.ingest_document(
+            tekst=(
+                "Wet op de identificatieplicht\n\n"
+                "Artikel 1\n"
+                "Een ieder die de leeftijd van veertien jaar heeft bereikt, is verplicht "
+                "op de eerste vordering van een opsporingsambtenaar een identiteitsbewijs "
+                "ter inzage aan te bieden.\n"
+            ),
+            collection_id=collection_id,
+            filename="wid.txt",
+            rechtsgebied="publiekrecht",
+        )
+
+        # Haal opgeslagen embedding op en maak een orthogonale query-vector
+        conn = sqlite3.connect(rag_db)
+        row = conn.execute(
+            "SELECT embedding FROM rag_chunks WHERE collection_id = ? LIMIT 1",
+            (collection_id,),
+        ).fetchone()
+        conn.close()
+        stored_vec = np.frombuffer(row[0], dtype=np.float32).copy()
+
+        # Query-vector orthogonaal aan opgeslagen chunks → lage cosine similarity
+        mock_embedding_service.embed.side_effect = None
+        mock_embedding_service.embed.return_value = _distant_embedding(stored_vec)
+
+        ctx = rag_service.retrieve_context(
+            query="pizza bezorging", collection_id=collection_id
+        )
+
+        assert isinstance(ctx, RAGContext)
+        # Geen crash, graceful response
+        if ctx.chunks:
+            # Alle scores moeten laag zijn (< 0.3)
+            for chunk in ctx.chunks:
+                assert (
+                    chunk["score"] < 0.3
+                ), f"Irrelevante query 'pizza' kreeg score {chunk['score']:.3f}"
+
+    def test_irrelevant_query_no_crash(
+        self, rag_service, mock_embedding_service, collection_id
+    ):
+        """Irrelevante query op lege collection crasht niet."""
+        mock_embedding_service.embed.side_effect = None
+        mock_embedding_service.embed.return_value = _random_embedding(seed=999)
+
+        ctx = rag_service.retrieve_context(query="pizza", collection_id=collection_id)
+        assert isinstance(ctx, RAGContext)
+        assert ctx.chunks == []
+
+
+# ===========================================================================
+# Test 11: Edge cases (DEF-317 scenario 4)
+# ===========================================================================
+@pytest.mark.integration
+class TestRAGEdgeCases:
+    """Document met 1 zin, groot document, leeg document."""
+
+    def test_single_sentence_document(self, rag_service, collection_id):
+        """Document met 1 zin → minimaal 1 chunk."""
+        doc_id = rag_service.ingest_document(
+            tekst="De wet is van toepassing op alle ingezetenen.",
+            collection_id=collection_id,
+            filename="kort.txt",
+        )
+        assert doc_id > 0
+        stats = rag_service.get_collection_stats(collection_id)
+        assert stats["chunk_count"] >= 1
+
+    def test_large_document_completes(self, rag_service, collection_id):
+        """Groot document (~50 paragrafen) verwerkt zonder errors."""
+        # Genereer synthetisch groot document
+        paragraphs = []
+        for i in range(50):
+            paragraphs.append(
+                f"Artikel {i + 1}\n"
+                f"De bepalingen van dit hoofdstuk zijn van toepassing op alle "
+                f"bestuursorganen die belast zijn met de uitvoering van paragraaf {i + 1}. "
+                f"Het bevoegd gezag draagt zorg voor de naleving van de in het eerste lid "
+                f"bedoelde verplichtingen. De minister kan nadere regels stellen omtrent "
+                f"de wijze waarop aan deze verplichtingen wordt voldaan.\n"
+            )
+        large_text = "\n\n".join(paragraphs)
+
+        doc_id = rag_service.ingest_document(
+            tekst=large_text,
+            collection_id=collection_id,
+            filename="groot_document.txt",
+            rechtsgebied="bestuursrecht",
+        )
+        assert doc_id > 0
+
+        stats = rag_service.get_collection_stats(collection_id)
+        assert stats["chunk_count"] >= 5  # Groot doc moet meerdere chunks opleveren
+
+    def test_empty_document_raises_error(self, rag_service, collection_id):
+        """Leeg document → ValueError, geen crash."""
+        with pytest.raises(ValueError, match="tekst mag niet leeg zijn"):
+            rag_service.ingest_document(
+                tekst="",
+                collection_id=collection_id,
+                filename="leeg.txt",
+            )
+
+    def test_whitespace_only_document_raises_error(self, rag_service, collection_id):
+        """Alleen whitespace → ValueError, geen crash."""
+        with pytest.raises(ValueError, match="tekst mag niet leeg zijn"):
+            rag_service.ingest_document(
+                tekst="   \n\n\t   ",
+                collection_id=collection_id,
+                filename="whitespace.txt",
+            )
+
+
+# ===========================================================================
+# Test 12: Collection isolatie (DEF-317 scenario 5)
+# ===========================================================================
+@pytest.mark.integration
+class TestRAGCollectionIsolation:
+    """Document in collection A niet vindbaar in collection B."""
+
+    def test_search_in_wrong_collection_returns_nothing(
+        self, rag_service, mock_embedding_service, embedding_store, rag_db
+    ):
+        """Document in collection A → zoeken in collection B retourneert het NIET."""
+        cid_a = rag_service._ensure_collection("collection_a")
+        cid_b = rag_service._ensure_collection("collection_b")
+
+        # Ingest in collection A
+        rag_service.ingest_document(
+            tekst=(
+                "Artikel 1\n"
+                "De identificatieplicht geldt voor iedereen ouder dan veertien jaar."
+            ),
+            collection_id=cid_a,
+            filename="doc_a.txt",
+        )
+
+        # Haal opgeslagen embedding op uit collection A
+        conn = sqlite3.connect(rag_db)
+        row = conn.execute(
+            "SELECT embedding FROM rag_chunks WHERE collection_id = ? LIMIT 1",
+            (cid_a,),
+        ).fetchone()
+        conn.close()
+        stored_vec = np.frombuffer(row[0], dtype=np.float32).copy()
+
+        mock_embedding_service.embed.side_effect = None
+        mock_embedding_service.embed.return_value = _similar_embedding(stored_vec, 0.01)
+
+        # Zoek in collection B → GEEN resultaten
+        ctx_b = rag_service.retrieve_context(
+            query="identificatieplicht", collection_id=cid_b
+        )
+        assert (
+            ctx_b.chunks == []
+        ), f"Collection B zou leeg moeten zijn, maar bevat {len(ctx_b.chunks)} chunks"
+
+    def test_search_in_correct_collection_finds_results(
+        self, rag_service, mock_embedding_service, embedding_store, rag_db
+    ):
+        """Zoeken in collection A retourneert het WEL."""
+        cid_a = rag_service._ensure_collection("collection_correct")
+
+        rag_service.ingest_document(
+            tekst=(
+                "Artikel 1\n"
+                "De identificatieplicht geldt voor iedereen ouder dan veertien jaar."
+            ),
+            collection_id=cid_a,
+            filename="doc_correct.txt",
+        )
+
+        # Haal opgeslagen embedding op
+        conn = sqlite3.connect(rag_db)
+        row = conn.execute(
+            "SELECT embedding FROM rag_chunks WHERE collection_id = ? LIMIT 1",
+            (cid_a,),
+        ).fetchone()
+        conn.close()
+        stored_vec = np.frombuffer(row[0], dtype=np.float32).copy()
+
+        mock_embedding_service.embed.side_effect = None
+        mock_embedding_service.embed.return_value = _similar_embedding(stored_vec, 0.01)
+
+        # Zoek in collection A → WEL resultaten
+        ctx_a = rag_service.retrieve_context(
+            query="identificatieplicht", collection_id=cid_a
+        )
+        assert len(ctx_a.chunks) > 0, "Collection A zou resultaten moeten bevatten"
+        assert ctx_a.chunks[0]["score"] > 0.5
