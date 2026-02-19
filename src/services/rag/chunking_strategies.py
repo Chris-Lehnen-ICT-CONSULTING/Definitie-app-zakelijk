@@ -12,6 +12,14 @@ import re
 from abc import ABC, abstractmethod
 from dataclasses import replace
 
+from services.rag.chunking_utils import (
+    MAX_TOKENS_PER_CHUNK,
+    MIN_TOKENS_PER_CHUNK,
+    OVERLAP_RATIO_GENERIEK,
+    OVERLAP_RATIO_JURIDISCH,
+    bereken_overlap,
+    forceer_split_op_zinnen,
+)
 from services.rag.legal_structure_recognizer import (
     JuridischeStructuur,
     LegalStructureRecognizer,
@@ -21,60 +29,8 @@ from services.rag.token_counter import tel_tokens
 
 logger = logging.getLogger(__name__)
 
-# Defaults
-MAX_TOKENS_PER_CHUNK = 1000
-MIN_TOKENS_PER_CHUNK = 50
-OVERLAP_RATIO_JURIDISCH = 0.12
-OVERLAP_RATIO_GENERIEK = 0.10
-
-# Abbreviation-safe sentence boundary: split on . ! ? followed by whitespace,
-# but NOT after common Dutch/legal abbreviations.
-_ZINSGRENS_RE = re.compile(
-    r"(?<![Mm]r)(?<![Dd]r)(?<![Dd]rs)(?<![Ii]ng)(?<![Ii]r)"
-    r"(?<![Aa]rt)(?<![Nn]r)(?<![Rr]esp)(?<![Bb]ijv)"
-    r"(?<![Ee]vt)(?<![Zz]gn)"
-    r"[.!?]\s+",
-)
-
-
-def _split_zinnen(tekst: str) -> list[str]:
-    """Split tekst op zinsgrenzen, veilig voor Nederlandse afkortingen."""
-    delen = _ZINSGRENS_RE.split(tekst.strip())
-    return [d for d in delen if d]
-
-
-# ── Overlap helper ───────────────────────────────────────────────
-
-
-def _bereken_overlap(tekst: str, ratio: float) -> str:
-    """
-    Bereken overlap-tekst: neem ~ratio van de tekst, afgekapt op zinsgrens.
-
-    Returns de laatste paar zinnen die samen ~ratio van de token count vormen.
-    """
-    if not tekst:
-        return ""
-
-    tokens_totaal = tel_tokens(tekst)
-    doel_tokens = int(tokens_totaal * ratio)
-    if doel_tokens < 5:
-        return ""
-
-    zinnen = _split_zinnen(tekst)
-    if not zinnen:
-        return ""
-
-    # Neem zinnen van achteren tot we doel bereiken
-    overlap_zinnen: list[str] = []
-    token_count = 0
-    for zin in reversed(zinnen):
-        zin_tokens = tel_tokens(zin)
-        if token_count + zin_tokens > doel_tokens and overlap_zinnen:
-            break
-        overlap_zinnen.insert(0, zin)
-        token_count += zin_tokens
-
-    return " ".join(overlap_zinnen)
+# Backwards-compatible re-exports
+_bereken_overlap = bereken_overlap
 
 
 # ── Abstract Strategy ────────────────────────────────────────────
@@ -121,8 +77,14 @@ class JuridischeChunkingStrategy(ChunkingStrategy):
         if not tekst or not tekst.strip():
             return []
 
+        # Recognizer eerst: detecteert pagina-grenzen via \f chars,
+        # normaliseert daarna intern voor regex matching.
         structuur = self._recognizer.detecteer_structuur(tekst)
         wet_naam = self._recognizer.detecteer_wet_naam(tekst)
+
+        # Normaliseer formfeeds NA detectie, zodat chunk-tekst
+        # geen \f meer bevat (fallback paden).
+        tekst = tekst.replace("\f", "\n")
 
         if not structuur:
             # Fallback: hele tekst als 1 chunk
@@ -228,8 +190,12 @@ class JuridischeChunkingStrategy(ChunkingStrategy):
         wet_naam: str | None,
         vorige_tekst: str,
     ) -> list[DocumentChunk]:
-        """Split een groot artikel op lid-grenzen."""
-        leden = self._recognizer.detecteer_leden(elem.tekst)
+        """Split een groot artikel op numerieke lid-grenzen.
+
+        Letter-leden (a., b.) worden niet als splitpunt gebruikt:
+        ze blijven onderdeel van hun parent-lid.
+        """
+        leden = self._recognizer.detecteer_leden(elem.tekst, include_letter_leden=False)
 
         if not leden:
             # Geen leden gevonden, forceer split op zinsgrenzen
@@ -274,50 +240,23 @@ class JuridischeChunkingStrategy(ChunkingStrategy):
         vorige_tekst: str,
     ) -> list[DocumentChunk]:
         """Forceer split op zinsgrenzen wanneer geen leden beschikbaar zijn."""
-        zinnen = _split_zinnen(tekst)
+        delen = forceer_split_op_zinnen(tekst, self.max_tokens)
         chunks: list[DocumentChunk] = []
-        huidige_tekst_delen: list[str] = []
-        huidige_tokens = 0
         vorige = vorige_tekst
-        sub_index = 0
 
-        for zin in zinnen:
-            zin_tokens = tel_tokens(zin)
-            if huidige_tokens + zin_tokens > self.max_tokens and huidige_tekst_delen:
-                chunk_tekst = " ".join(huidige_tekst_delen)
-                chunk = self._maak_chunk(
-                    chunk_tekst,
-                    bronbestand,
-                    rechtsgebied,
-                    wet_naam,
-                    elem,
-                    huidige_tokens,
-                    vorige,
-                    sub_index,
-                )
-                chunks.append(chunk)
-                vorige = chunk_tekst
-                huidige_tekst_delen = []
-                huidige_tokens = 0
-                sub_index += 1
-
-            huidige_tekst_delen.append(zin)
-            huidige_tokens += zin_tokens
-
-        # Laatste rest
-        if huidige_tekst_delen:
-            chunk_tekst = " ".join(huidige_tekst_delen)
+        for i, deel in enumerate(delen):
             chunk = self._maak_chunk(
-                chunk_tekst,
+                deel,
                 bronbestand,
                 rechtsgebied,
                 wet_naam,
                 elem,
-                tel_tokens(chunk_tekst),
+                tel_tokens(deel),
                 vorige,
-                sub_index,
+                i,
             )
             chunks.append(chunk)
+            vorige = deel
 
         return chunks
 
@@ -434,38 +373,118 @@ class GeneriekChunkingStrategy(ChunkingStrategy):
         if not tekst or not tekst.strip():
             return []
 
+        # Normaliseer formfeeds (PDF page breaks) naar newlines.
+        tekst = tekst.replace("\f", "\n")
+
         secties = self._split_op_headings(tekst)
         secties = self._merge_kleine_secties(secties)
 
         chunks: list[DocumentChunk] = []
         vorige_tekst = ""
+        chunk_index = 0
 
-        for i, sectie_tekst in enumerate(secties):
+        for sectie_tekst in secties:
             token_count = tel_tokens(sectie_tekst)
-            overlap = _bereken_overlap(vorige_tekst, self.overlap_ratio)
 
-            # Detecteer sectie heading
-            heading = self._extract_heading(sectie_tekst)
+            if token_count <= self.max_tokens:
+                # Sectie past in één chunk
+                overlap = _bereken_overlap(vorige_tekst, self.overlap_ratio)
+                heading = self._extract_heading(sectie_tekst)
+                metadata = ChunkMetadata(
+                    bronbestand=bronbestand,
+                    chunk_index=chunk_index,
+                    sectie=heading,
+                    rechtsgebied=rechtsgebied,
+                    structuur_type="generiek",
+                )
+                chunks.append(
+                    DocumentChunk(
+                        tekst=sectie_tekst.strip(),
+                        metadata=metadata,
+                        token_count=token_count,
+                        overlap_tekst=overlap,
+                    )
+                )
+                vorige_tekst = sectie_tekst
+                chunk_index += 1
+            else:
+                # Sectie te groot: split op paragraaf-grenzen, daarna zinsgrenzen
+                sub_chunks = self._split_grote_sectie(
+                    sectie_tekst, bronbestand, rechtsgebied, vorige_tekst, chunk_index
+                )
+                chunks.extend(sub_chunks)
+                if sub_chunks:
+                    vorige_tekst = sub_chunks[-1].tekst
+                    chunk_index += len(sub_chunks)
 
+        return chunks
+
+    def _split_grote_sectie(
+        self,
+        sectie_tekst: str,
+        bronbestand: str,
+        rechtsgebied: str | None,
+        vorige_tekst: str,
+        start_index: int,
+    ) -> list[DocumentChunk]:
+        """Split een te grote sectie op paragraaf-grenzen, dan zinsgrenzen."""
+        heading = self._extract_heading(sectie_tekst)
+
+        # Stap 1: split op paragraaf-grenzen (\n\n)
+        paragrafen = [p.strip() for p in sectie_tekst.split("\n\n") if p.strip()]
+
+        delen: list[str] = []
+        for paragraaf in paragrafen:
+            if tel_tokens(paragraaf) > self.max_tokens:
+                # Paragraaf te groot: split op zinsgrenzen
+                delen.extend(forceer_split_op_zinnen(paragraaf, self.max_tokens))
+            else:
+                delen.append(paragraaf)
+
+        # Merge kleine delen terug samen (onder min_tokens)
+        delen = self._merge_kleine_delen(delen)
+
+        chunks: list[DocumentChunk] = []
+        vorige = vorige_tekst
+        for i, deel in enumerate(delen):
+            overlap = _bereken_overlap(vorige, self.overlap_ratio)
             metadata = ChunkMetadata(
                 bronbestand=bronbestand,
-                chunk_index=i,
+                chunk_index=start_index + i,
                 sectie=heading,
                 rechtsgebied=rechtsgebied,
                 structuur_type="generiek",
             )
-
             chunks.append(
                 DocumentChunk(
-                    tekst=sectie_tekst.strip(),
+                    tekst=deel,
                     metadata=metadata,
-                    token_count=token_count,
+                    token_count=tel_tokens(deel),
                     overlap_tekst=overlap,
                 )
             )
-            vorige_tekst = sectie_tekst
+            vorige = deel
 
         return chunks
+
+    def _merge_kleine_delen(self, delen: list[str]) -> list[str]:
+        """Merge delen die onder min_tokens zitten."""
+        if len(delen) <= 1:
+            return delen
+
+        merged: list[str] = []
+        for deel in delen:
+            tokens = tel_tokens(deel)
+            if (
+                merged
+                and tokens < self.min_tokens
+                and tel_tokens(merged[-1]) + tokens <= self.max_tokens
+            ):
+                merged[-1] = merged[-1] + "\n\n" + deel
+            else:
+                merged.append(deel)
+
+        return merged
 
     def _split_op_headings(self, tekst: str) -> list[str]:
         """Split tekst op heading-grenzen (Markdown #, blank+CAPS)."""

@@ -44,50 +44,52 @@ class JuridischeStructuur:
 
 # Titel: "TITEL 1", "Titel I"
 _RE_TITEL = re.compile(
-    r"^(?:TITEL|Titel)\s+(\d+|[IVXLC]+)\.?\s*.*$",
+    r"^(?:TITEL|Titel)\s+(\d+|[IVXLC]+)\.?\s*.*",
     re.MULTILINE,
 )
 
 # Boek: "BOEK 1", "Boek 7"
 _RE_BOEK = re.compile(
-    r"^(?:BOEK|Boek)\s+(\d+|[IVXLC]+)\.?\s*.*$",
+    r"^(?:BOEK|Boek)\s+(\d+|[IVXLC]+)\.?\s*.*",
     re.MULTILINE,
 )
 
 # Hoofdstuk: "HOOFDSTUK 1", "Hoofdstuk I", "Hoofdstuk 1. Algemene bepalingen"
 _RE_HOOFDSTUK = re.compile(
-    r"^(?:HOOFDSTUK|Hoofdstuk)\s+(\d+|[IVXLC]+)\.?\s*.*$",
+    r"^(?:HOOFDSTUK|Hoofdstuk)\s+(\d+|[IVXLC]+)\.?\s*.*",
     re.MULTILINE,
 )
 
 # Afdeling: "Afdeling 1", "AFDELING 2. Titel"
 _RE_AFDELING = re.compile(
-    r"^(?:AFDELING|Afdeling)\s+(\d+|[IVXLC]+)\.?\s*.*$",
+    r"^(?:AFDELING|Afdeling)\s+(\d+|[IVXLC]+)\.?\s*.*",
     re.MULTILINE,
 )
 
 # Paragraaf: "Paragraaf 1", "§ 1", "PARAGRAAF 2"
 _RE_PARAGRAAF = re.compile(
-    r"^(?:PARAGRAAF|Paragraaf|§)\s+(\d+|[IVXLC]+)\.?\s*.*$",
+    r"^(?:PARAGRAAF|Paragraaf|§)\s+(\d+|[IVXLC]+)\.?\s*.*",
     re.MULTILINE,
 )
 
 # Artikel: "Artikel 1", "Art. 1", "ARTIKEL 1", "artikel 1a", "Artikel 10:1" (BW)
+# Geen $ anchor: tekst mag na het nummer volgen (bijv. "Artikel 1 Strafvordering")
 _RE_ARTIKEL = re.compile(
-    r"^(?:ARTIKEL|Artikel|artikel|Art\.?)\s+(\d+(?::\d+)?[a-zA-Z]?)\.?\s*$",
+    r"^(?:ARTIKEL|Artikel|artikel|Art\.?)\s+(\d+(?::\d+)?[a-zA-Z]?)\.?\s*",
     re.MULTILINE,
 )
 
 # Bijlage: "Bijlage I", "BIJLAGE A", "Bijlage 1"
 _RE_BIJLAGE = re.compile(
-    r"^(?:BIJLAGE|Bijlage)\s+([IVXLCA-Z0-9]+)\.?\s*.*$",
+    r"^(?:BIJLAGE|Bijlage)\s+([IVXLCA-Z0-9]+)\.?\s*.*",
     re.MULTILINE,
 )
 
-# Lid: genummerde opsomming aan begin van regel ("1. ", "2. ")
+# Lid: genummerde of geletterde opsomming aan begin van regel
+# Group 1: numeriek ("1.", "2."), Group 2: letter ("a.", "b.")
 # Alleen bruikbaar binnen de context van een artikel
 _RE_LID = re.compile(
-    r"^(\d+)\.\s+\S",
+    r"^(?:(\d+)|([a-z]))\.\s+\S",
     re.MULTILINE,
 )
 
@@ -184,12 +186,15 @@ class LegalStructureRecognizer:
         # Markeer definitieblokken
         return self._markeer_definitieblokken(elementen)
 
-    def detecteer_leden(self, artikel_tekst: str) -> list[JuridischeStructuur]:
+    def detecteer_leden(
+        self, artikel_tekst: str, include_letter_leden: bool = True
+    ) -> list[JuridischeStructuur]:
         """
-        Detecteer leden (genummerde opsommingen) binnen een artikel.
+        Detecteer leden (genummerde en geletterde opsommingen) binnen een artikel.
 
         Args:
             artikel_tekst: Tekst van een enkel artikel.
+            include_letter_leden: Of letter-leden (a., b.) meegenomen worden.
 
         Returns:
             Lijst van lid-elementen, gesorteerd op positie.
@@ -197,10 +202,14 @@ class LegalStructureRecognizer:
         leden: list[JuridischeStructuur] = []
 
         for m in _RE_LID.finditer(artikel_tekst):
+            numeriek = m.group(1)  # "1", "2", etc. of None
+            letter = m.group(2)  # "a", "b", etc. of None
+            if letter and not include_letter_leden:
+                continue
             leden.append(
                 JuridischeStructuur(
                     type="lid",
-                    nummer=m.group(1),
+                    nummer=numeriek or letter or "",
                     start=m.start(),
                     eind=m.end(),
                     tekst="",

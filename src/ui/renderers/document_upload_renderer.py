@@ -6,6 +6,8 @@ context dienen voor definitie generatie.
 """
 
 import logging
+from datetime import datetime
+from pathlib import Path
 
 import streamlit as st
 
@@ -14,6 +16,23 @@ from document_processing.document_processor import get_document_processor
 from ui.session_state import SessionStateManager
 
 logger = logging.getLogger(__name__)
+
+
+UPLOADS_DIR = Path("data/uploads")
+
+
+def _save_uploaded_file(uploaded_file) -> Path | None:
+    """Sla geüpload bestand op in data/uploads/ met timestamp prefix."""
+    try:
+        UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        safe_name = f"{timestamp}_{uploaded_file.name}"
+        dest = UPLOADS_DIR / safe_name
+        dest.write_bytes(uploaded_file.getvalue())
+        return dest
+    except Exception as e:
+        logger.warning("Bestand opslaan mislukt voor %s: %s", uploaded_file.name, e)
+        return None
 
 
 class DocumentUploadRenderer:
@@ -90,6 +109,13 @@ class DocumentUploadRenderer:
                 processed_doc = processor.process_uploaded_file(
                     file_content, uploaded_file.name, uploaded_file.type
                 )
+
+                # Sla origineel bestand op in data/uploads/
+                saved_path = _save_uploaded_file(uploaded_file)
+                if saved_path and processed_doc.id:
+                    SessionStateManager.set_value(
+                        f"upload_path_{processed_doc.id}", str(saved_path)
+                    )
 
                 processed_docs.append(processed_doc)
 
@@ -221,10 +247,15 @@ class DocumentUploadRenderer:
                                 None,
                             )
                             if doc and doc.extracted_text:
+                                # Zoek opgeslagen bestandspad
+                                stored_path = SessionStateManager.get_value(
+                                    f"upload_path_{doc.id}", None
+                                )
                                 rag_svc.ingest_document(
                                     tekst=doc.extracted_text,
                                     collection_id=coll_id,
                                     filename=doc.filename,
+                                    file_path=str(stored_path) if stored_path else None,
                                 )
                                 ingested += 1
 

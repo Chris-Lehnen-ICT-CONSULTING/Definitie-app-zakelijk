@@ -7,6 +7,7 @@ from services.rag.chunking_strategies import (
     JuridischeChunkingStrategy,
     _bereken_overlap,
 )
+from services.rag.chunking_utils import forceer_split_op_zinnen
 from services.rag.token_counter import tel_tokens
 
 # ── Overlap helper ───────────────────────────────────────────────
@@ -198,3 +199,144 @@ class TestGeneriekChunkingStrategy:
         assert len(chunks) > 0
         with pytest.raises(AttributeError):
             chunks[0].tekst = "gewijzigd"  # type: ignore[misc]
+
+
+# ── DEF-356: Formfeed normalisatie in chunking ──────────────────
+
+
+class TestFormfeedChunking:
+    """DEF-356: Formfeed-only tekst wordt correct gechunkt."""
+
+    def test_juridisch_formfeed_only_meerdere_chunks(self, sample_formfeed_only_tekst):
+        """PDF met alleen formfeeds levert meerdere chunks op."""
+        # min_tokens=1 om merging uit te schakelen voor korte test-tekst
+        strategy = JuridischeChunkingStrategy(min_tokens=1)
+        chunks = strategy.chunk(
+            sample_formfeed_only_tekst, "wet.pdf", "application/pdf"
+        )
+        assert len(chunks) >= 3
+
+    def test_juridisch_formfeed_geen_formfeeds_in_chunks(
+        self, sample_formfeed_only_tekst
+    ):
+        """Chunk-tekst mag geen formfeed characters bevatten."""
+        strategy = JuridischeChunkingStrategy()
+        chunks = strategy.chunk(
+            sample_formfeed_only_tekst, "wet.pdf", "application/pdf"
+        )
+        for chunk in chunks:
+            assert "\f" not in chunk.tekst
+
+    def test_generiek_formfeed_normalisatie(self):
+        """Generieke strategie normaliseert formfeeds in chunk-tekst."""
+        tekst = "# Sectie 1\fTekst na formfeed.\n\n# Sectie 2\fMeer tekst."
+        strategy = GeneriekChunkingStrategy()
+        chunks = strategy.chunk(tekst, "doc.pdf", "application/pdf")
+        for chunk in chunks:
+            assert "\f" not in chunk.tekst
+
+
+class TestArtikelMetTekstErna:
+    """DEF-356: Artikel regex matcht ook als er tekst na het nummer staat."""
+
+    def test_artikel_met_trailing_tekst_wordt_gechunkt(self):
+        """Artikelen met tekst na het nummer worden als aparte chunks opgeslagen."""
+        tekst = (
+            "Artikel 1 Strafvordering betreft de opsporing van feiten.\n\n"
+            "Artikel 2 De officier van justitie is belast met de vervolging.\n\n"
+            "Artikel 3 De rechter oordeelt over de strafzaak.\n"
+        )
+        strategy = JuridischeChunkingStrategy(min_tokens=1)
+        chunks = strategy.chunk(tekst, "sv.pdf", "application/pdf")
+        assert len(chunks) == 3
+
+    def test_bw_notatie_met_trailing_tekst(self):
+        """BW-notatie (10:1) met trailing tekst wordt correct gedetecteerd."""
+        tekst = (
+            "Artikel 10:1 Een overeenkomst in de zin van dit boek.\n\n"
+            "Artikel 10:2 De overeenkomst heeft rechtsgevolgen.\n"
+        )
+        strategy = JuridischeChunkingStrategy(min_tokens=1)
+        chunks = strategy.chunk(tekst, "bw.pdf", "application/pdf")
+        artikelen = [c for c in chunks if c.metadata.artikel_nummer]
+        assert len(artikelen) == 2
+        assert artikelen[0].metadata.artikel_nummer == "10:1"
+
+
+class TestLetterLedenChunking:
+    """DEF-356: Letter-leden worden NIET als splitpunt gebruikt."""
+
+    def test_letter_leden_niet_als_splitpunt(self, sample_artikel_met_letter_leden):
+        """Artikel met letter-leden wordt niet gesplitst op a., b., c."""
+        tekst = sample_artikel_met_letter_leden + "\nArtikel 2\nKort.\n"
+        strategy = JuridischeChunkingStrategy(max_tokens=500)
+        chunks = strategy.chunk(tekst, "wet.pdf", "application/pdf")
+        # Letter-leden moeten in dezelfde chunk als hun parent-lid zitten
+        chunk_met_letters = [c for c in chunks if "basisregistratie" in c.tekst]
+        assert len(chunk_met_letters) == 1
+        assert (
+            "a." in chunk_met_letters[0].tekst
+            or "ingezetene" in chunk_met_letters[0].tekst
+        )
+
+
+class TestGroteSectieSplit:
+    """DEF-356: Generieke strategie splitst grote secties op paragraaf-grenzen."""
+
+    def test_grote_sectie_gesplitst(self, sample_groot_generiek_document):
+        """Sectie > max_tokens wordt gesplitst op paragraaf-grenzen."""
+        strategy = GeneriekChunkingStrategy(max_tokens=300)
+        chunks = strategy.chunk(
+            sample_groot_generiek_document, "doc.md", "text/markdown"
+        )
+        assert len(chunks) > 3
+        for chunk in chunks:
+            assert chunk.token_count <= 300 + 50  # marge voor zinsgrens-rounding
+
+    def test_chunk_index_sequentieel_na_split(self, sample_groot_generiek_document):
+        """Na paragraaf-split zijn chunk indices nog steeds sequentieel."""
+        strategy = GeneriekChunkingStrategy(max_tokens=300)
+        chunks = strategy.chunk(
+            sample_groot_generiek_document, "doc.md", "text/markdown"
+        )
+        indices = [c.metadata.chunk_index for c in chunks]
+        assert indices == list(range(len(chunks)))
+
+
+# ── DEF-356: forceer_split_op_zinnen utility ────────────────────
+
+
+class TestForceerSplitOpZinnen:
+    def test_korte_tekst_niet_gesplitst(self):
+        delen = forceer_split_op_zinnen("Korte zin.", 1000)
+        assert len(delen) == 1
+
+    def test_lange_tekst_gesplitst(self):
+        tekst = "Dit is een zin. " * 100
+        delen = forceer_split_op_zinnen(tekst, 50)
+        assert len(delen) > 1
+        for deel in delen:
+            assert tel_tokens(deel) <= 50 + 20  # marge
+
+    def test_lege_tekst(self):
+        assert forceer_split_op_zinnen("", 100) == []
+
+    def test_whitespace_only(self):
+        assert forceer_split_op_zinnen("   ", 100) == []
+
+
+# ── DEF-356: ChunkMetadata.truncated ────────────────────────────
+
+
+class TestTruncatedMetadata:
+    def test_truncated_default_false(self):
+        from services.rag.models import ChunkMetadata
+
+        meta = ChunkMetadata(bronbestand="test.pdf", chunk_index=0)
+        assert meta.truncated is False
+
+    def test_truncated_settable(self):
+        from services.rag.models import ChunkMetadata
+
+        meta = ChunkMetadata(bronbestand="test.pdf", chunk_index=0, truncated=True)
+        assert meta.truncated is True

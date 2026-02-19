@@ -22,6 +22,7 @@ class ChunkMetadata:
     artikel_nummer: str | None = None
     lid_nummer: str | None = None
     structuur_type: str | None = None  # hoofdstuk|artikel|lid|bijlage|generiek
+    truncated: bool = False  # Vangnet: True als embedding-tekst afgekapt moest worden
 
 
 @dataclass(frozen=True)

@@ -98,6 +98,7 @@ class RAGService:
         filename: str,
         file_type: str = "text/plain",
         rechtsgebied: str | None = None,
+        file_path: str | None = None,
     ) -> int:
         """Chunk, embed en sla een document op in één call.
 
@@ -120,9 +121,9 @@ class RAGService:
         try:
             cursor = conn.execute(
                 "INSERT INTO rag_documents "
-                "(collection_id, filename, file_type, rechtsgebied, chunk_count) "
-                "VALUES (?, ?, ?, ?, 0)",
-                (collection_id, filename, file_type, rechtsgebied),
+                "(collection_id, filename, file_type, rechtsgebied, chunk_count, file_path) "
+                "VALUES (?, ?, ?, ?, 0, ?)",
+                (collection_id, filename, file_type, rechtsgebied, file_path),
             )
             conn.commit()
             document_id = cursor.lastrowid
@@ -282,6 +283,22 @@ class RAGService:
             )
 
         return wrap_bronnen(bron_strings)
+
+    def cleanup_all_documents(self) -> int:
+        """Verwijder alle documenten en chunks (CASCADE).
+
+        Returns:
+            Aantal verwijderde documenten.
+        """
+        conn = self._connect()
+        try:
+            count = conn.execute("SELECT COUNT(*) FROM rag_documents").fetchone()[0]
+            conn.execute("DELETE FROM rag_documents")
+            conn.commit()
+            logger.info("Alle RAG documenten verwijderd: %d documenten", count)
+            return count
+        finally:
+            conn.close()
 
     def get_collection_stats(self, collection_id: int) -> dict:
         """Return collection metadata + document/chunk counts.
