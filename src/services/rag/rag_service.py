@@ -157,6 +157,9 @@ class RAGService:
             embeddings = self._embedder.embed_batch(chunk_texts)
 
             # Stap 4: Store chunks + embeddings
+            # Bepaal bron_type op basis van rechtsgebied (default heuristiek)
+            bron_type = "wetgeving" if rechtsgebied else None
+
             chunk_dicts = [
                 {
                     "chunk_text": c.tekst,
@@ -164,6 +167,15 @@ class RAGService:
                     "rechtsgebied": c.metadata.rechtsgebied,
                     "wet_regeling": c.metadata.wet_regeling,
                     "artikel_lid": c.metadata.artikel_nummer,
+                    "bron_type": bron_type,
+                    "metadata": {
+                        "artikel_nummer": c.metadata.artikel_nummer,
+                        "lid_nummer": c.metadata.lid_nummer,
+                        "structuur_type": c.metadata.structuur_type,
+                        "bronbestand": c.metadata.bronbestand,
+                        "pagina_nummer": c.metadata.pagina_nummer,
+                        "sectie": c.metadata.sectie,
+                    },
                 }
                 for c in result.chunks
             ]
@@ -263,6 +275,9 @@ class RAGService:
         Delegeert naar de shared xml_source_formatter utility (DEF-315).
         Metadata (score, confidence, level, rechtsgebied, regeling, artikel)
         zitten als attributen op de tag — structureel gescheiden van de tekst.
+
+        Lees-conventie: artikel_lid wordt al door search_similar() gevuld
+        via metadata.artikel_nummer met fallback op de legacy kolom.
         """
         if not chunks:
             return ""

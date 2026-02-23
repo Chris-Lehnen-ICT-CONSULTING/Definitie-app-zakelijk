@@ -44,11 +44,16 @@ CREATE TABLE rag_chunks (
     rechtsgebied VARCHAR(100),
     wet_regeling VARCHAR(255),
     artikel_lid VARCHAR(100),
+    bron_type VARCHAR(50),
+    metadata TEXT DEFAULT '{}',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE INDEX idx_chunks_collection ON rag_chunks(collection_id);
 CREATE INDEX idx_chunks_document ON rag_chunks(document_id);
+CREATE INDEX idx_chunks_rechtsgebied ON rag_chunks(rechtsgebied);
+CREATE INDEX idx_chunks_wet_regeling ON rag_chunks(wet_regeling);
+CREATE INDEX idx_chunks_bron_type ON rag_chunks(bron_type);
 """
 
 DIMS = 8  # Small dimension for fast tests
@@ -334,6 +339,8 @@ class TestSearchSimilar:
             rechtsgebied="civiel",
             wet_regeling="BW",
             artikel_lid="art. 6:1",
+            bron_type="wetgeving",
+            metadata={"artikel_nummer": "art. 6:1", "lid_nummer": "1"},
         )
         results = store.search_similar(emb, collection_id, top_k=1)
         result = results[0]
@@ -345,6 +352,8 @@ class TestSearchSimilar:
             "rechtsgebied",
             "wet_regeling",
             "artikel_lid",
+            "bron_type",
+            "metadata",
             "document_id",
             "chunk_index",
             "created_at",
@@ -353,6 +362,9 @@ class TestSearchSimilar:
         assert result["rechtsgebied"] == "civiel"
         assert result["wet_regeling"] == "BW"
         assert result["artikel_lid"] == "art. 6:1"
+        assert result["bron_type"] == "wetgeving"
+        assert result["metadata"]["artikel_nummer"] == "art. 6:1"
+        assert result["metadata"]["lid_nummer"] == "1"
 
     def test_top_k_limits_results(self, store, collection_id, document_id):
         for i in range(10):
@@ -678,3 +690,152 @@ class TestReviewMissingTests:
         # De zero-vector moet score ~0.0 krijgen
         zero_result = next(r for r in results if r["chunk_text"] == "zero")
         assert zero_result["score"] == pytest.approx(0.0, abs=1e-5)
+
+
+# ---------------------------------------------------------------------------
+# Tests: JSONB metadata (DEF-370)
+# ---------------------------------------------------------------------------
+class TestMetadataJSONB:
+    """Tests voor bron_type en JSONB metadata kolommen."""
+
+    def test_store_chunk_with_metadata(
+        self, store, collection_id, document_id, db_path
+    ):
+        """Metadata dict wordt opgeslagen als JSONB."""
+        emb = _make_embedding(0)
+        meta = {
+            "artikel_nummer": "art. 1",
+            "lid_nummer": "3",
+            "structuur_type": "artikel",
+        }
+        chunk_id = store.store_chunk(
+            collection_id,
+            document_id,
+            "Artikel 1 lid 3.",
+            emb,
+            0,
+            bron_type="wetgeving",
+            metadata=meta,
+        )
+
+        # Verifieer opslag in DB
+        conn = sqlite3.connect(db_path)
+        row = conn.execute(
+            "SELECT bron_type, json(metadata) FROM rag_chunks WHERE id = ?",
+            (chunk_id,),
+        ).fetchone()
+        conn.close()
+
+        assert row[0] == "wetgeving"
+        stored_meta = json.loads(row[1])
+        assert stored_meta["artikel_nummer"] == "art. 1"
+        assert stored_meta["lid_nummer"] == "3"
+
+    def test_store_chunk_without_metadata_defaults_empty(
+        self, store, collection_id, document_id, db_path
+    ):
+        """Zonder metadata → lege dict als JSONB opgeslagen."""
+        emb = _make_embedding(0)
+        chunk_id = store.store_chunk(collection_id, document_id, "test", emb, 0)
+
+        conn = sqlite3.connect(db_path)
+        row = conn.execute(
+            "SELECT json(metadata) FROM rag_chunks WHERE id = ?",
+            (chunk_id,),
+        ).fetchone()
+        conn.close()
+
+        stored_meta = json.loads(row[0])
+        assert stored_meta == {}
+
+    def test_store_batch_with_metadata(self, store, collection_id, document_id):
+        """Batch store met bron_type en metadata."""
+        chunks = [
+            {
+                "chunk_text": "Artikel 1",
+                "chunk_index": 0,
+                "bron_type": "wetgeving",
+                "metadata": {"artikel_nummer": "art. 1"},
+            },
+            {
+                "chunk_text": "Pagina 2",
+                "chunk_index": 1,
+                "bron_type": "pdf",
+                "metadata": {"pagina_nummer": 2, "bronbestand": "doc.pdf"},
+            },
+        ]
+        embeddings = [_make_embedding(i) for i in range(2)]
+
+        ids = store.store_batch(collection_id, document_id, chunks, embeddings)
+        assert len(ids) == 2
+
+        results = store.search_similar(_make_embedding(0), collection_id, top_k=2)
+        bron_types = {r["bron_type"] for r in results}
+        assert "wetgeving" in bron_types
+        assert "pdf" in bron_types
+
+    def test_search_returns_parsed_metadata(self, store, collection_id, document_id):
+        """search_similar() retourneert metadata als dict, niet als string."""
+        emb = _make_embedding(0)
+        meta = {"artikel_nummer": "art. 5", "structuur_type": "lid"}
+        store.store_chunk(collection_id, document_id, "test", emb, 0, metadata=meta)
+
+        results = store.search_similar(emb, collection_id, top_k=1)
+        assert isinstance(results[0]["metadata"], dict)
+        assert results[0]["metadata"]["artikel_nummer"] == "art. 5"
+
+    def test_search_metadata_fallback_artikel_lid(
+        self, store, collection_id, document_id
+    ):
+        """Legacy data: artikel_lid kolom als fallback als metadata leeg is."""
+        emb = _make_embedding(0)
+        # Sla op met artikel_lid maar zonder metadata.artikel_nummer
+        store.store_chunk(
+            collection_id,
+            document_id,
+            "legacy chunk",
+            emb,
+            0,
+            artikel_lid="art. 42",
+        )
+
+        results = store.search_similar(emb, collection_id, top_k=1)
+        # Fallback: artikel_lid moet gevuld zijn vanuit de legacy kolom
+        assert results[0]["artikel_lid"] == "art. 42"
+
+    def test_search_metadata_artikel_nummer_overrides_legacy(
+        self, store, collection_id, document_id
+    ):
+        """metadata.artikel_nummer heeft prioriteit boven legacy artikel_lid kolom."""
+        emb = _make_embedding(0)
+        store.store_chunk(
+            collection_id,
+            document_id,
+            "new style chunk",
+            emb,
+            0,
+            artikel_lid="old_value",
+            metadata={"artikel_nummer": "new_value"},
+        )
+
+        results = store.search_similar(emb, collection_id, top_k=1)
+        assert results[0]["artikel_lid"] == "new_value"
+
+    def test_search_empty_metadata_returns_empty_dict(
+        self, store, collection_id, document_id
+    ):
+        """Chunk zonder metadata → lege dict in search resultaat."""
+        emb = _make_embedding(0)
+        store.store_chunk(collection_id, document_id, "no meta", emb, 0)
+
+        results = store.search_similar(emb, collection_id, top_k=1)
+        assert results[0]["metadata"] == {}
+        assert results[0]["bron_type"] is None
+
+    def test_parse_metadata_edge_cases(self):
+        """_parse_metadata helper edge cases."""
+        assert EmbeddingStore._parse_metadata(None) == {}
+        assert EmbeddingStore._parse_metadata("") == {}
+        assert EmbeddingStore._parse_metadata("invalid json") == {}
+        assert EmbeddingStore._parse_metadata("[]") == {}
+        assert EmbeddingStore._parse_metadata('{"key": "val"}') == {"key": "val"}

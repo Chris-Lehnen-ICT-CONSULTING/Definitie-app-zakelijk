@@ -45,6 +45,8 @@ CREATE TABLE rag_chunks (
     rechtsgebied VARCHAR(100),
     wet_regeling VARCHAR(255),
     artikel_lid VARCHAR(100),
+    bron_type VARCHAR(50),
+    metadata TEXT DEFAULT '{}',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
