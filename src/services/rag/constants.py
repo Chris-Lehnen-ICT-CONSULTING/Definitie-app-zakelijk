@@ -29,6 +29,10 @@ COLLECTION_TYPES: tuple[CollectionType, ...] = (
 
 COLLECTION_TYPE_MAP: dict[str, CollectionType] = {ct.key: ct for ct in COLLECTION_TYPES}
 
+# Geldige bron_type waarden voor rag_chunks.bron_type.
+# Let op: dit is een aparte taxonomie van de `externe_bronnen` tabel
+# (schema.sql CHECK: 'database', 'api', 'file', 'manual') — die tabel
+# beschrijft externe datakoppelingen, niet RAG-brondocumenten.
 BRON_TYPES: tuple[str, ...] = ("wetgeving", "website", "pdf", "api")
 
 __all__ = [

@@ -132,6 +132,13 @@ class RAGService:
         else:
             rechtsgebied = None
 
+        # DEF-378 Bug 5: valideer bron_type vóór stap 1 (voor INSERT + chunking + embedding)
+        if bron_type is not None and bron_type not in BRON_TYPES:
+            raise ValueError(
+                f"Ongeldig bron_type '{bron_type}'. "
+                f"Geldige waarden: {', '.join(BRON_TYPES)}"
+            )
+
         # Stap 1: Registreer document
         conn = self._connect()
         try:
@@ -172,19 +179,15 @@ class RAGService:
             embeddings = self._embedder.embed_batch(chunk_texts)
 
             # Stap 4: Store chunks + embeddings
-            # Valideer bron_type als opgegeven
-            if bron_type is not None and bron_type not in BRON_TYPES:
-                raise ValueError(
-                    f"Ongeldig bron_type '{bron_type}'. "
-                    f"Geldige waarden: {', '.join(BRON_TYPES)}"
-                )
-
             chunk_dicts = [
                 {
                     "chunk_text": c.tekst,
                     "chunk_index": c.metadata.chunk_index,
                     "rechtsgebied": c.metadata.rechtsgebied,
                     "wet_regeling": c.metadata.wet_regeling,
+                    # artikel_lid kolom bevat alleen het artikelnummer; lid_nummer
+                    # leeft uitsluitend in de metadata JSON (zie lees-conventie in
+                    # embedding_store.search_similar → artikel_lid fallback).
                     "artikel_lid": c.metadata.artikel_nummer,
                     "bron_type": bron_type,
                     "metadata": {
@@ -318,7 +321,10 @@ class RAGService:
                     rechtsgebied=chunk.get("rechtsgebied"),
                     regeling=chunk.get("wet_regeling"),
                     artikel=chunk.get("artikel_lid"),
-                    bronbestand=chunk.get("metadata", {}).get("bronbestand"),
+                    # DEF-378 Bug 9: fallback op filename voor pre-DEF-372 chunks
+                    # waarbij bronbestand nog niet in de metadata JSON stond.
+                    bronbestand=chunk.get("metadata", {}).get("bronbestand")
+                    or chunk.get("filename"),
                 )
             )
 
