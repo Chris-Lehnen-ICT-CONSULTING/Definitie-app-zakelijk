@@ -95,20 +95,29 @@ class EmbeddingStore:
         collection_name: str,
         dimensions: int = 3072,
         model: str = "text-embedding-3-large",
+        extra_metadata: dict | None = None,
     ) -> int:
         """Maak nieuwe collection aan met dimensie-metadata.
 
-        Slaat {"dimensions": N, "model": "..."} op in rag_collections.metadata_json.
+        Slaat {"dimensions": N, "model": "...", ...extra} op in
+        rag_collections.metadata_json.
         NB: de kolommen document_count en chunk_count in rag_collections
         worden niet bijgewerkt — gebruik RAGService.get_collection_stats()
         voor actuele tellingen (DEF-363).
+
+        Args:
+            extra_metadata: Optionele extra velden (bijv. type, rechtsgebied)
+                die worden samengevoegd in metadata_json.
 
         Returns:
             collection_id
         """
         if dimensions <= 0:
             raise ValueError(f"Dimensions moet positief zijn, kreeg: {dimensions}")
-        metadata = json.dumps({"dimensions": dimensions, "model": model})
+        meta = {"dimensions": dimensions, "model": model}
+        if extra_metadata:
+            meta.update(extra_metadata)
+        metadata = json.dumps(meta)
         conn = self._connect()
         try:
             cursor = conn.execute(
