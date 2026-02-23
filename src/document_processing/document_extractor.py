@@ -104,27 +104,26 @@ def _extract_text_file(content: bytes) -> str:
 
 
 def _extract_pdf(content: bytes) -> str | None:
-    """Extraheer tekst uit PDF."""
+    """Extraheer tekst uit PDF via PyMuPDF (betere Unicode-handling dan PyPDF2)."""
     try:
-        # Probeer PyPDF2 te gebruiken als beschikbaar
-        try:
-            import io
+        import io
 
-            import PyPDF2
+        import fitz  # pymupdf
 
-            pdf_reader = PyPDF2.PdfReader(io.BytesIO(content))
-            text_parts = []
+        pdf_document = fitz.open(stream=io.BytesIO(content), filetype="pdf")
+        text_parts = []
 
-            for page in pdf_reader.pages:
-                text_parts.append(page.extract_text())
+        for page in pdf_document:
+            text_parts.append(page.get_text())
 
-            # Gebruik form feed (\f) als pagina-scheiding voor locatiebepaling
-            return "\f".join(text_parts)
+        pdf_document.close()
 
-        except ImportError:
-            logger.warning("PyPDF2 niet beschikbaar - PDF extractie overgeslagen")
-            return "⚠️ PDF extractie vereist PyPDF2 library (pip install PyPDF2)"
+        # Gebruik form feed (\f) als pagina-scheiding voor locatiebepaling
+        return "\f".join(text_parts)
 
+    except ImportError:
+        logger.warning("PyMuPDF niet beschikbaar - PDF extractie overgeslagen")
+        return "⚠️ PDF extractie vereist PyMuPDF library (pip install pymupdf)"
     except Exception as e:
         logger.error(f"Fout bij PDF extractie: {e}")
         return None

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import sqlite3
 from unittest.mock import MagicMock, patch
 
@@ -638,3 +639,203 @@ class TestCleanupAllDocuments:
 
         # Bestand moet van schijf verwijderd zijn
         assert not upload_file.exists()
+
+
+# ---------------------------------------------------------------------------
+# Metadata opslag — DEF-372
+# ---------------------------------------------------------------------------
+def _make_chunk_with_metadata(tekst: str, index: int, **meta_kwargs) -> DocumentChunk:
+    """Chunk met volledig gevulde ChunkMetadata voor metadata-tests."""
+    return DocumentChunk(
+        tekst=tekst,
+        metadata=ChunkMetadata(
+            bronbestand=meta_kwargs.get("bronbestand", "wet.pdf"),
+            chunk_index=index,
+            rechtsgebied=meta_kwargs.get("rechtsgebied"),
+            wet_regeling=meta_kwargs.get("wet_regeling"),
+            artikel_nummer=meta_kwargs.get("artikel_nummer"),
+            lid_nummer=meta_kwargs.get("lid_nummer"),
+            structuur_type=meta_kwargs.get("structuur_type"),
+            pagina_nummer=meta_kwargs.get("pagina_nummer"),
+            sectie=meta_kwargs.get("sectie"),
+        ),
+        token_count=len(tekst.split()),
+    )
+
+
+class TestMetadataOpslag:
+    """DEF-372: null-filtering en correcte opslag van chunk-metadata."""
+
+    def test_none_waarden_niet_in_json(
+        self, service, mock_chunker, mock_embedder, collection_id, db_path
+    ):
+        """None-velden verschijnen niet als null in de metadata JSON."""
+        chunk = _make_chunk_with_metadata(
+            "Artikel 1.",
+            0,
+            bronbestand="wet.pdf",
+            # alle optionele velden zijn None
+        )
+        mock_chunker.chunk_tekst.return_value = ChunkingResult(
+            chunks=(chunk,),
+            bronbestand="wet.pdf",
+            bestandstype="text/plain",
+            totaal_tokens=3,
+        )
+        mock_embedder.embed_batch.return_value = [_make_embedding(0)]
+
+        doc_id = service.ingest_document("Artikel 1.", collection_id, "wet.pdf")
+
+        conn = sqlite3.connect(db_path)
+        row = conn.execute(
+            "SELECT json(metadata) AS metadata FROM rag_chunks WHERE document_id = ?",
+            (doc_id,),
+        ).fetchone()
+        conn.close()
+
+        meta = json.loads(row[0])
+        assert "artikel_nummer" not in meta
+        assert "lid_nummer" not in meta
+        assert "structuur_type" not in meta
+        assert "pagina_nummer" not in meta
+        assert "sectie" not in meta
+        # bronbestand is verplicht (str), moet wél aanwezig zijn
+        assert meta["bronbestand"] == "wet.pdf"
+
+    def test_gevulde_velden_correct_opgeslagen(
+        self, service, mock_chunker, mock_embedder, collection_id, db_path
+    ):
+        """Niet-None metadata-velden worden correct in JSON opgeslagen."""
+        chunk = _make_chunk_with_metadata(
+            "Artikel 3 lid 2.",
+            0,
+            bronbestand="awb.pdf",
+            artikel_nummer="3",
+            lid_nummer="2",
+            structuur_type="artikel",
+            pagina_nummer=0,
+            sectie="Hoofdstuk 1",
+        )
+        mock_chunker.chunk_tekst.return_value = ChunkingResult(
+            chunks=(chunk,),
+            bronbestand="awb.pdf",
+            bestandstype="application/pdf",
+            totaal_tokens=4,
+        )
+        mock_embedder.embed_batch.return_value = [_make_embedding(0)]
+
+        doc_id = service.ingest_document("Artikel 3 lid 2.", collection_id, "awb.pdf")
+
+        conn = sqlite3.connect(db_path)
+        row = conn.execute(
+            "SELECT json(metadata) AS metadata FROM rag_chunks WHERE document_id = ?",
+            (doc_id,),
+        ).fetchone()
+        conn.close()
+
+        meta = json.loads(row[0])
+        assert meta["bronbestand"] == "awb.pdf"
+        assert meta["artikel_nummer"] == "3"
+        assert meta["lid_nummer"] == "2"
+        assert meta["structuur_type"] == "artikel"
+        assert meta["pagina_nummer"] == 0  # int nul is een valide waarde
+        assert meta["sectie"] == "Hoofdstuk 1"
+
+    def test_pagina_nummer_nul_behouden(
+        self, service, mock_chunker, mock_embedder, collection_id, db_path
+    ):
+        """pagina_nummer=0 wordt niet gefilterd (0 is een valide waarde, niet None)."""
+        chunk = _make_chunk_with_metadata(
+            "Tekst.", 0, bronbestand="test.pdf", pagina_nummer=0
+        )
+        mock_chunker.chunk_tekst.return_value = ChunkingResult(
+            chunks=(chunk,),
+            bronbestand="test.pdf",
+            bestandstype="text/plain",
+            totaal_tokens=2,
+        )
+        mock_embedder.embed_batch.return_value = [_make_embedding(0)]
+
+        doc_id = service.ingest_document("Tekst.", collection_id, "test.pdf")
+
+        conn = sqlite3.connect(db_path)
+        row = conn.execute(
+            "SELECT json(metadata) AS metadata FROM rag_chunks WHERE document_id = ?",
+            (doc_id,),
+        ).fetchone()
+        conn.close()
+
+        meta = json.loads(row[0])
+        assert "pagina_nummer" in meta
+        assert meta["pagina_nummer"] == 0
+
+    def test_alleen_bronbestand_als_optionelen_none(
+        self, service, mock_chunker, mock_embedder, collection_id, db_path
+    ):
+        """Als alle optionele velden None zijn, bevat metadata alleen bronbestand."""
+        chunk = _make_chunk_with_metadata("Tekst.", 0, bronbestand="doc.txt")
+        mock_chunker.chunk_tekst.return_value = ChunkingResult(
+            chunks=(chunk,),
+            bronbestand="doc.txt",
+            bestandstype="text/plain",
+            totaal_tokens=2,
+        )
+        mock_embedder.embed_batch.return_value = [_make_embedding(0)]
+
+        doc_id = service.ingest_document("Tekst.", collection_id, "doc.txt")
+
+        conn = sqlite3.connect(db_path)
+        row = conn.execute(
+            "SELECT json(metadata) AS metadata FROM rag_chunks WHERE document_id = ?",
+            (doc_id,),
+        ).fetchone()
+        conn.close()
+
+        meta = json.loads(row[0])
+        assert set(meta.keys()) == {"bronbestand"}
+
+    def test_lege_string_niet_in_metadata(
+        self, service, mock_chunker, mock_embedder, collection_id, db_path
+    ):
+        """DEF-378 Bug 1: lege string velden worden gefilterd (v != '')."""
+        chunk = _make_chunk_with_metadata(
+            "Tekst.", 0, bronbestand="test.pdf", sectie=""
+        )
+        mock_chunker.chunk_tekst.return_value = ChunkingResult(
+            chunks=(chunk,),
+            bronbestand="test.pdf",
+            bestandstype="text/plain",
+            totaal_tokens=2,
+        )
+        mock_embedder.embed_batch.return_value = [_make_embedding(0)]
+
+        doc_id = service.ingest_document("Tekst.", collection_id, "test.pdf")
+
+        conn = sqlite3.connect(db_path)
+        row = conn.execute(
+            "SELECT json(metadata) AS metadata FROM rag_chunks WHERE document_id = ?",
+            (doc_id,),
+        ).fetchone()
+        conn.close()
+
+        meta = json.loads(row[0])
+        assert "sectie" not in meta
+        assert meta["bronbestand"] == "test.pdf"
+
+    def test_ongeldige_bron_type_gooit_valueerror_en_ruimt_op(
+        self, service, mock_chunker, mock_embedder, collection_id, db_path
+    ):
+        """DEF-378 Bug 7: ongeldige bron_type gooit ValueError vóór INSERT."""
+        with pytest.raises(ValueError, match="Ongeldig bron_type"):
+            service.ingest_document(
+                "Tekst.", collection_id, "test.pdf", bron_type="onbekend_type"
+            )
+
+        # Geen orphan rij in rag_documents (validatie vindt vóór INSERT plaats)
+        conn = sqlite3.connect(db_path)
+        count = conn.execute(
+            "SELECT COUNT(*) FROM rag_documents WHERE collection_id = ?",
+            (collection_id,),
+        ).fetchone()[0]
+        conn.close()
+        assert count == 0

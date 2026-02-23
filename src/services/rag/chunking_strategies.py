@@ -295,8 +295,20 @@ class JuridischeChunkingStrategy(ChunkingStrategy):
         lid_nummer: str | None = None,
         structuur_type: str | None = None,
     ) -> DocumentChunk:
-        """Maak een DocumentChunk aan met metadata en overlap."""
+        """Maak een DocumentChunk aan met metadata en overlap.
+
+        De overlap_tekst wordt geprependt aan tekst zodat embeddings context
+        van het vorige chunk meekrijgen (Bevinding 5, DEF-380).
+        """
         overlap = bereken_overlap(vorige_tekst, self.overlap_ratio)
+
+        # Prepend overlap aan tekst zodat de embedding context van het vorige
+        # chunk meeneemt. token_count wordt herberekend van de gecombineerde tekst.
+        if overlap:
+            tekst_met_overlap = overlap + "\n\n" + tekst
+            token_count = tel_tokens(tekst_met_overlap)
+        else:
+            tekst_met_overlap = tekst
 
         metadata = ChunkMetadata(
             bronbestand=bronbestand,
@@ -312,7 +324,7 @@ class JuridischeChunkingStrategy(ChunkingStrategy):
         )
 
         return DocumentChunk(
-            tekst=tekst,
+            tekst=tekst_met_overlap,
             metadata=metadata,
             token_count=token_count,
             overlap_tekst=overlap,
@@ -381,18 +393,48 @@ class JuridischeChunkingStrategy(ChunkingStrategy):
                 and chunk.token_count < self.min_tokens
                 and merged[-1].token_count + chunk.token_count <= self.max_tokens
             ):
-                # Merge met vorige chunk (frozen: create new instance)
+                # Merge met vorige chunk (frozen: create new instance).
+                # Bevinding 2 (DEF-380): bewaar artikel_nummer van de geabsorbeerde
+                # chunk als die er één heeft en de vorige niet (bijv. kort artikel
+                # gemerged in een hoofdstuk-chunk verliest anders zijn nummer).
                 prev = merged[-1]
                 combined = prev.tekst + "\n\n" + chunk.tekst
                 combined_tokens = tel_tokens(combined)
+                new_artikel_nummer = (
+                    chunk.metadata.artikel_nummer or prev.metadata.artikel_nummer
+                )
+                new_metadata = replace(prev.metadata, artikel_nummer=new_artikel_nummer)
                 merged[-1] = DocumentChunk(
                     tekst=combined,
-                    metadata=prev.metadata,
+                    metadata=new_metadata,
                     token_count=combined_tokens,
                     overlap_tekst=prev.overlap_tekst,
                 )
             else:
                 merged.append(chunk)
+
+        # Bevinding 6 (DEF-380): post-pass voor het laatste element — analoog aan
+        # GeneriekChunkingStrategy._merge_kleine_secties(). Vangt het geval op
+        # waarbij de laatste chunk te klein is maar de voorlaatste voldoende ruimte heeft.
+        if (
+            len(merged) > 1
+            and merged[-1].token_count < self.min_tokens
+            and merged[-2].token_count + merged[-1].token_count <= self.max_tokens
+        ):
+            prev = merged[-2]
+            last = merged[-1]
+            combined = prev.tekst + "\n\n" + last.tekst
+            new_artikel_nummer = (
+                last.metadata.artikel_nummer or prev.metadata.artikel_nummer
+            )
+            new_metadata = replace(prev.metadata, artikel_nummer=new_artikel_nummer)
+            merged[-2] = DocumentChunk(
+                tekst=combined,
+                metadata=new_metadata,
+                token_count=tel_tokens(combined),
+                overlap_tekst=prev.overlap_tekst,
+            )
+            merged.pop()
 
         return merged
 

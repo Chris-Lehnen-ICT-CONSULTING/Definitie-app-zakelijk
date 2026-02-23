@@ -157,7 +157,7 @@ class EmbeddingStore:
         """Sla chunk-tekst + metadata + embedding op in één INSERT.
 
         Valideert embedding dimensies tegen collection metadata.
-        Metadata wordt opgeslagen als JSONB via jsonb() wrapper.
+        Metadata wordt opgeslagen als JSON via json() wrapper (compatibel met alle SQLite versies).
 
         Args:
             bron_type: Brontype filter ("wetgeving", "website", "pdf", "api").
@@ -178,7 +178,7 @@ class EmbeddingStore:
                 "INSERT INTO rag_chunks "
                 "(collection_id, document_id, chunk_text, embedding, chunk_index, "
                 "rechtsgebied, wet_regeling, artikel_lid, bron_type, metadata) "
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, jsonb(?))",
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, json(?))",
                 (
                     collection_id,
                     document_id,
@@ -244,7 +244,7 @@ class EmbeddingStore:
                 "INSERT INTO rag_chunks "
                 "(collection_id, document_id, chunk_text, embedding, chunk_index, "
                 "rechtsgebied, wet_regeling, artikel_lid, bron_type, metadata) "
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, jsonb(?))"
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, json(?))"
             )
             for chunk, emb in zip(chunks, embeddings, strict=True):
                 if not chunk["chunk_text"] or not chunk["chunk_text"].strip():
@@ -316,12 +316,18 @@ class EmbeddingStore:
         conn = self._connect()
         try:
             conn.row_factory = sqlite3.Row
+            # DEF-378 Bug 9: JOIN met rag_documents om filename als fallback
+            # beschikbaar te stellen voor chunks zonder bronbestand in metadata
+            # (pre-DEF-372 geïngeste documenten).
             cursor = conn.execute(
-                "SELECT id, chunk_text, embedding, rechtsgebied, wet_regeling, "
-                "artikel_lid, bron_type, json(metadata) AS metadata, "
-                "document_id, chunk_index, created_at "
-                "FROM rag_chunks "
-                "WHERE collection_id = ? AND embedding IS NOT NULL",
+                "SELECT rc.id, rc.chunk_text, rc.embedding, rc.rechtsgebied, "
+                "rc.wet_regeling, rc.artikel_lid, rc.bron_type, "
+                "json(rc.metadata) AS metadata, "
+                "rc.document_id, rc.chunk_index, rc.created_at, "
+                "rd.filename "
+                "FROM rag_chunks rc "
+                "LEFT JOIN rag_documents rd ON rc.document_id = rd.id "
+                "WHERE rc.collection_id = ? AND rc.embedding IS NOT NULL",
                 (collection_id,),
             )
             rows = cursor.fetchall()
@@ -373,6 +379,7 @@ class EmbeddingStore:
                         "document_id": row["document_id"],
                         "chunk_index": row["chunk_index"],
                         "created_at": row["created_at"],
+                        "filename": row["filename"],
                     }
                 )
 

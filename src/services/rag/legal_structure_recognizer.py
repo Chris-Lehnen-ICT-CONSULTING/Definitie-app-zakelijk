@@ -25,6 +25,7 @@ STRUCTUUR_TYPES = (
     "lid",
     "bijlage",
     "definitieblok",
+    "inleiding",
 )
 
 
@@ -175,6 +176,23 @@ class LegalStructureRecognizer:
 
         # Sorteer op positie
         elementen.sort(key=lambda e: e.start)
+
+        # Voeg inleiding-chunk toe als er tekst is vóór het eerste herkende element
+        if elementen and elementen[0].start > 0:
+            inleiding_tekst = tekst_norm[: elementen[0].start].strip()
+            if inleiding_tekst:
+                pagina = self._bepaal_pagina(0, pagina_grenzen)
+                elementen.insert(
+                    0,
+                    JuridischeStructuur(
+                        type="inleiding",
+                        nummer="",
+                        start=0,
+                        eind=0,  # Wordt overschreven door de positie-loop hieronder
+                        tekst=inleiding_tekst,
+                        pagina_nummer=pagina,
+                    ),
+                )
 
         # Vul tekst en eind-posities in
         for i, elem in enumerate(elementen):

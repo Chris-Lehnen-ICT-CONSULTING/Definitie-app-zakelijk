@@ -286,12 +286,16 @@ class DocumentUploadRenderer:
                             if doc and doc.extracted_text:
                                 # Zoek opgeslagen bestand in uploads dir
                                 stored_path = _find_uploaded_file(doc.filename)
+                                # DEF-378 Bug 2: heuristiek — wetgeving-documenten
+                                # met rechtsgebied krijgen bron_type "wetgeving".
+                                bron_type = "wetgeving" if rechtsgebied else None
                                 rag_svc.ingest_document(
                                     tekst=doc.extracted_text,
                                     collection_id=coll_id,
                                     filename=doc.filename,
                                     rechtsgebied=rechtsgebied,
                                     file_path=str(stored_path) if stored_path else None,
+                                    bron_type=bron_type,
                                 )
                                 ingested += 1
 

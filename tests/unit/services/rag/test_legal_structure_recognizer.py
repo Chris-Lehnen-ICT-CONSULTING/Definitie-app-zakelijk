@@ -371,3 +371,61 @@ class TestDefinitieblokDetectie:
         elementen = recognizer.detecteer_structuur(tekst)
         defblokken = [e for e in elementen if e.type == "definitieblok"]
         assert len(defblokken) == 1
+
+
+class TestInleidingChunk:
+    """DEF-380 Bevinding 1: Tekst vóór het eerste herkende structuurelement als 'inleiding'."""
+
+    def test_inleiding_aanwezig_als_tekst_voor_eerste_element(self, recognizer):
+        """Considerans/opschrift vóór Artikel 1 levert een inleiding-chunk op."""
+        tekst = (
+            "Wetboek van Strafvordering\n\n"
+            "Wij Willem-Alexander, bij de gratie Gods, Koning der Nederlanden,\n"
+            "Allen die deze zullen zien of horen lezen, saluut!\n\n"
+            "Artikel 1 Strafvordering heeft alleen plaats op de wijze bij de wet voorzien.\n\n"
+            "Artikel 2 De officier van justitie is belast met de vervolging.\n"
+        )
+        elementen = recognizer.detecteer_structuur(tekst)
+        inleiding_elems = [e for e in elementen if e.type == "inleiding"]
+        assert len(inleiding_elems) == 1
+        assert "Wetboek van Strafvordering" in inleiding_elems[0].tekst
+        assert "Willem-Alexander" in inleiding_elems[0].tekst
+
+    def test_inleiding_staat_eerste_in_lijst(self, recognizer):
+        """Inleiding heeft start=0 en staat voor alle andere elementen."""
+        tekst = (
+            "Opschrift en considerans tekst hier.\n\n"
+            "Artikel 1 Eerste bepaling.\n\n"
+            "Artikel 2 Tweede bepaling.\n"
+        )
+        elementen = recognizer.detecteer_structuur(tekst)
+        assert elementen[0].type == "inleiding"
+        assert elementen[0].start == 0
+
+    def test_geen_inleiding_als_document_begint_met_artikel(self, recognizer):
+        """Als tekst direct begint met een structuurelement: geen inleiding."""
+        tekst = "Artikel 1 Eerste bepaling.\n\nArtikel 2 Tweede bepaling.\n"
+        elementen = recognizer.detecteer_structuur(tekst)
+        inleiding_elems = [e for e in elementen if e.type == "inleiding"]
+        assert len(inleiding_elems) == 0
+
+    def test_inleiding_heeft_geen_artikel_nummer(self, recognizer):
+        """Inleiding-element heeft nummer='' (geen artikelnummer)."""
+        tekst = "Opschrift.\n\nArtikel 1 Bepaling.\n\nArtikel 2 Andere bepaling.\n"
+        elementen = recognizer.detecteer_structuur(tekst)
+        inleiding = next(e for e in elementen if e.type == "inleiding")
+        assert inleiding.nummer == ""
+
+    def test_inleiding_bevat_juiste_tekst(self, recognizer):
+        """Inleiding.tekst is (onderdeel van) de tekst vóór het eerste element."""
+        intro = "Wij koningen en ingezetenen verklaren hierbij het volgende."
+        tekst = intro + "\n\nArtikel 1 Bepaling.\n\nArtikel 2 Andere bepaling.\n"
+        elementen = recognizer.detecteer_structuur(tekst)
+        inleiding = next(e for e in elementen if e.type == "inleiding")
+        assert intro in inleiding.tekst
+
+    def test_inleiding_in_structuur_types(self):
+        """'inleiding' staat in STRUCTUUR_TYPES constant."""
+        from services.rag.legal_structure_recognizer import STRUCTUUR_TYPES
+
+        assert "inleiding" in STRUCTUUR_TYPES

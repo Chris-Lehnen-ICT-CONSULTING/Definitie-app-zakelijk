@@ -14,7 +14,7 @@ import sqlite3
 from dataclasses import dataclass
 from pathlib import Path
 
-from services.rag.constants import RECHTSGEBIEDEN, normaliseer_rechtsgebied
+from services.rag.constants import BRON_TYPES, RECHTSGEBIEDEN, normaliseer_rechtsgebied
 from services.rag.document_chunker import DocumentChunker
 from services.rag.embedding_service import EmbeddingService
 from services.rag.embedding_store import EmbeddingStore
@@ -101,6 +101,7 @@ class RAGService:
         file_type: str = "text/plain",
         rechtsgebied: str | None = None,
         file_path: str | None = None,
+        bron_type: str | None = None,
     ) -> int:
         """Chunk, embed en sla een document op in één call.
 
@@ -130,6 +131,13 @@ class RAGService:
             rechtsgebied = genormaliseerd
         else:
             rechtsgebied = None
+
+        # DEF-378 Bug 5: valideer bron_type vóór stap 1 (voor INSERT + chunking + embedding)
+        if bron_type is not None and bron_type not in BRON_TYPES:
+            raise ValueError(
+                f"Ongeldig bron_type '{bron_type}'. "
+                f"Geldige waarden: {', '.join(BRON_TYPES)}"
+            )
 
         # Stap 1: Registreer document
         conn = self._connect()
@@ -171,24 +179,28 @@ class RAGService:
             embeddings = self._embedder.embed_batch(chunk_texts)
 
             # Stap 4: Store chunks + embeddings
-            # Bepaal bron_type op basis van rechtsgebied (default heuristiek)
-            bron_type = "wetgeving" if rechtsgebied else None
-
             chunk_dicts = [
                 {
                     "chunk_text": c.tekst,
                     "chunk_index": c.metadata.chunk_index,
                     "rechtsgebied": c.metadata.rechtsgebied,
                     "wet_regeling": c.metadata.wet_regeling,
+                    # artikel_lid kolom bevat alleen het artikelnummer; lid_nummer
+                    # leeft uitsluitend in de metadata JSON (zie lees-conventie in
+                    # embedding_store.search_similar → artikel_lid fallback).
                     "artikel_lid": c.metadata.artikel_nummer,
                     "bron_type": bron_type,
                     "metadata": {
-                        "artikel_nummer": c.metadata.artikel_nummer,
-                        "lid_nummer": c.metadata.lid_nummer,
-                        "structuur_type": c.metadata.structuur_type,
-                        "bronbestand": c.metadata.bronbestand,
-                        "pagina_nummer": c.metadata.pagina_nummer,
-                        "sectie": c.metadata.sectie,
+                        k: v
+                        for k, v in {
+                            "artikel_nummer": c.metadata.artikel_nummer,
+                            "lid_nummer": c.metadata.lid_nummer,
+                            "structuur_type": c.metadata.structuur_type,
+                            "bronbestand": c.metadata.bronbestand,
+                            "pagina_nummer": c.metadata.pagina_nummer,
+                            "sectie": c.metadata.sectie,
+                        }.items()
+                        if v is not None and v != ""
                     },
                 }
                 for c in result.chunks
@@ -309,6 +321,10 @@ class RAGService:
                     rechtsgebied=chunk.get("rechtsgebied"),
                     regeling=chunk.get("wet_regeling"),
                     artikel=chunk.get("artikel_lid"),
+                    # DEF-378 Bug 9: fallback op filename voor pre-DEF-372 chunks
+                    # waarbij bronbestand nog niet in de metadata JSON stond.
+                    bronbestand=chunk.get("metadata", {}).get("bronbestand")
+                    or chunk.get("filename"),
                 )
             )
 

@@ -357,6 +357,7 @@ class TestSearchSimilar:
             "document_id",
             "chunk_index",
             "created_at",
+            "filename",  # DEF-378 Bug 9: toegevoegd via JOIN met rag_documents
         }
         assert set(result.keys()) == expected_keys
         assert result["rechtsgebied"] == "civiel"
