@@ -258,6 +258,112 @@ class TestIngestDocument:
         conn.close()
         assert count == 0
 
+    def test_rechtsgebied_normalisatie(
+        self, service, mock_chunker, mock_embedder, collection_id, db_path
+    ):
+        """DEF-371: Rechtsgebied wordt genormaliseerd bij ingest."""
+        chunks = [_make_chunk("Chunk.", 0)]
+        mock_chunker.chunk_tekst.return_value = ChunkingResult(
+            chunks=tuple(chunks),
+            bronbestand="test.pdf",
+            bestandstype="application/pdf",
+            totaal_tokens=5,
+        )
+        mock_embedder.embed_batch.return_value = [_make_embedding(0)]
+
+        # "Civiel recht" moet genormaliseerd worden naar "burgerlijk_recht"
+        doc_id = service.ingest_document(
+            tekst="Tekst.",
+            collection_id=collection_id,
+            filename="test.pdf",
+            rechtsgebied="Civiel recht",
+        )
+
+        conn = sqlite3.connect(db_path)
+        row = conn.execute(
+            "SELECT rechtsgebied FROM rag_documents WHERE id = ?",
+            (doc_id,),
+        ).fetchone()
+        conn.close()
+        assert row[0] == "burgerlijk_recht"
+
+    def test_onbekend_rechtsgebied_raises_valueerror(
+        self, service, mock_chunker, mock_embedder, collection_id
+    ):
+        """DEF-371: Onbekend rechtsgebied geeft ValueError (strict)."""
+        chunks = [_make_chunk("Chunk.", 0)]
+        mock_chunker.chunk_tekst.return_value = ChunkingResult(
+            chunks=tuple(chunks),
+            bronbestand="test.pdf",
+            bestandstype="application/pdf",
+            totaal_tokens=5,
+        )
+        mock_embedder.embed_batch.return_value = [_make_embedding(0)]
+
+        with pytest.raises(ValueError, match="Onbekend rechtsgebied"):
+            service.ingest_document(
+                tekst="Tekst.",
+                collection_id=collection_id,
+                filename="test.pdf",
+                rechtsgebied="onbekend_gebied",
+            )
+
+    def test_rechtsgebied_none_wordt_null(
+        self, service, mock_chunker, mock_embedder, collection_id, db_path
+    ):
+        """DEF-371: rechtsgebied=None wordt als NULL opgeslagen."""
+        chunks = [_make_chunk("Chunk.", 0)]
+        mock_chunker.chunk_tekst.return_value = ChunkingResult(
+            chunks=tuple(chunks),
+            bronbestand="test.pdf",
+            bestandstype="application/pdf",
+            totaal_tokens=5,
+        )
+        mock_embedder.embed_batch.return_value = [_make_embedding(0)]
+
+        doc_id = service.ingest_document(
+            tekst="Tekst.",
+            collection_id=collection_id,
+            filename="test.pdf",
+            rechtsgebied=None,
+        )
+
+        conn = sqlite3.connect(db_path)
+        row = conn.execute(
+            "SELECT rechtsgebied FROM rag_documents WHERE id = ?",
+            (doc_id,),
+        ).fetchone()
+        conn.close()
+        assert row[0] is None
+
+    def test_rechtsgebied_whitespace_wordt_null(
+        self, service, mock_chunker, mock_embedder, collection_id, db_path
+    ):
+        """DEF-371: whitespace-only rechtsgebied wordt als NULL opgeslagen."""
+        chunks = [_make_chunk("Chunk.", 0)]
+        mock_chunker.chunk_tekst.return_value = ChunkingResult(
+            chunks=tuple(chunks),
+            bronbestand="test.pdf",
+            bestandstype="application/pdf",
+            totaal_tokens=5,
+        )
+        mock_embedder.embed_batch.return_value = [_make_embedding(0)]
+
+        doc_id = service.ingest_document(
+            tekst="Tekst.",
+            collection_id=collection_id,
+            filename="test.pdf",
+            rechtsgebied="   ",
+        )
+
+        conn = sqlite3.connect(db_path)
+        row = conn.execute(
+            "SELECT rechtsgebied FROM rag_documents WHERE id = ?",
+            (doc_id,),
+        ).fetchone()
+        conn.close()
+        assert row[0] is None
+
 
 # ---------------------------------------------------------------------------
 # retrieve_context

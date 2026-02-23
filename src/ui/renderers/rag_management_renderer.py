@@ -99,11 +99,13 @@ class RAGManagementRenderer:
                 key="rag_new_collection_type",
             )
 
-            rg_options = [""] + list(RECHTSGEBIEDEN)
+            rg_keys = [""] + list(RECHTSGEBIEDEN.keys())
             st.selectbox(
                 "Rechtsgebied (optioneel)",
-                options=rg_options,
-                format_func=lambda x: x if x else "— geen —",
+                options=rg_keys,
+                format_func=lambda x: (
+                    RECHTSGEBIEDEN.get(x, "— geen —") if x else "— geen —"
+                ),
                 key="rag_new_collection_rg",
             )
 

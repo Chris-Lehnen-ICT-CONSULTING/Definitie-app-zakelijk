@@ -88,7 +88,7 @@ class BetrouwbaarheidsCalculator:
         # Strafrecht
         "Wetboek van Strafrecht",
         "Wetboek van Strafvordering",
-        # Civiel recht
+        # Burgerlijk recht
         "Burgerlijk Wetboek",
         "Wetboek van Burgerlijke Rechtsvordering",
         # Bestuursrecht

@@ -296,8 +296,8 @@ class PatternMatcher:
                 "griffierecht",
                 "dwangsom bij niet tijdig beslissen",
             },
-            # CIVIEL RECHT (100+ termen)
-            "civiel_recht": {
+            # BURGERLIJK RECHT (100+ termen)
+            "burgerlijk_recht": {
                 # Personen en rechtspersonen
                 "natuurlijk persoon",
                 "rechtspersoon",

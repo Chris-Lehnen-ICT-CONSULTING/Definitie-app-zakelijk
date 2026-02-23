@@ -145,7 +145,7 @@ class TestContextFlowPerformance:
                 juridische_context=[
                     "Strafrecht",
                     "Bestuursrecht",
-                    "Civiel recht",
+                    "Burgerlijk recht",
                     "Internationaal recht",
                 ],
                 wettelijke_basis=[
@@ -560,7 +560,7 @@ class TestWorstCaseScenarios:
                 request = GenerationRequest(
                     begrip="civil",
                     organisatorische_context=["Rechtspraak", "Notariaat"],
-                    juridische_context=["Civiel recht", "Familierecht"],
+                    juridische_context=["Burgerlijk recht", "Familierecht"],
                     wettelijke_basis=["Burgerlijk Wetboek", "Wet op het notarisambt"],
                 )
 

@@ -552,7 +552,7 @@ class TestPrimaryPathNoWarningNoLog:
             mock_adapter = MagicMock()
             mock_adapter.get_merged_context.return_value = {
                 "organisatorische_context": ["OM"],
-                "juridische_context": ["Civiel recht"],
+                "juridische_context": ["Burgerlijk recht"],
                 "wettelijke_basis": ["BW"],
             }
             mock_get_adapter.return_value = mock_adapter

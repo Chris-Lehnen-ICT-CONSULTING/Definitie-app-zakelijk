@@ -4,7 +4,12 @@ RAG (Retrieval-Augmented Generation) services voor de Definitie-app.
 Juridisch-aware document chunking en embedding voor de RAG-pipeline.
 """
 
-from services.rag.constants import COLLECTION_TYPE_MAP, COLLECTION_TYPES, RECHTSGEBIEDEN
+from services.rag.constants import (
+    COLLECTION_TYPE_MAP,
+    COLLECTION_TYPES,
+    RECHTSGEBIEDEN,
+    normaliseer_rechtsgebied,
+)
 from services.rag.document_chunker import DocumentChunker
 from services.rag.embedding_service import EmbeddingService
 from services.rag.embedding_store import EmbeddingStore
@@ -25,4 +30,5 @@ __all__ = [
     "RAGContext",
     "RAGManagementService",
     "RAGService",
+    "normaliseer_rechtsgebied",
 ]

@@ -11,6 +11,8 @@ from dataclasses import dataclass, field
 from difflib import get_close_matches
 from typing import Any
 
+from services.rag.constants import RECHTSGEBIEDEN
+
 logger = logging.getLogger(__name__)
 
 
@@ -98,18 +100,8 @@ class ASTRAValidator:
         r"^[A-Z][a-z]+\s+\d+",  # Hoofdstuk 3, Afdeling 2
     ]
 
-    # Known legal domains
-    LEGAL_DOMAINS = [
-        "Strafrecht",
-        "Bestuursrecht",
-        "Civiel recht",
-        "Jeugdrecht",
-        "Vreemdelingenrecht",
-        "Sanctierecht",
-        "Penitentiair recht",
-        "Familierecht",
-        "Arbeidsrecht",
-    ]
+    # Known legal domains — afgeleid uit de centrale waardelijst (DEF-376)
+    LEGAL_DOMAINS = list(RECHTSGEBIEDEN.values())
 
     def __init__(self):
         """Initialize the validator."""

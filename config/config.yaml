@@ -151,9 +151,20 @@ ui:
   - Raad voor de Kinderbescherming
   legal_contexts:
   - Strafrecht
-  - Civiel recht
+  - Burgerlijk recht
   - Bestuursrecht
+  - Staatsrecht
+  - Belastingrecht
+  - Ondernemingsrecht
+  - Arbeidsrecht
+  - Europees recht
   - Internationaal recht
+  - Migratierecht
+  - Jeugdrecht
+  - Vreemdelingenrecht
+  - Sanctierecht
+  - Penitentiair recht
+  - Familierecht
   - Anders...
   organizational_contexts:
   - OM

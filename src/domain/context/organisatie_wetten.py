@@ -133,7 +133,7 @@ class OrganisatieWettenMapper:
             "Wetboek van Strafvordering",
             "Wet op de economische delicten",
         ],
-        "Civiel recht": [
+        "Burgerlijk recht": [
             "Burgerlijk Wetboek",
             "Wetboek van Burgerlijke Rechtsvordering",
         ],
