@@ -1,7 +1,9 @@
-"""Tests voor RAG constants (DEF-365)."""
+"""Tests voor RAG constants (DEF-365, DEF-379)."""
 
 from services.rag.constants import (
+    BRON_TYPES,
     COLLECTION_TYPE_MAP,
+    COLLECTION_TYPE_TO_BRON_TYPE,
     COLLECTION_TYPES,
     RECHTSGEBIEDEN,
     CollectionType,
@@ -32,6 +34,34 @@ class TestCollectionTypes:
         assert ct.key
         assert ct.label
         assert ct.icon
+
+
+class TestCollectionTypeToBronType:
+    """DEF-379: COLLECTION_TYPE_TO_BRON_TYPE mapping."""
+
+    def test_alle_collection_types_aanwezig(self):
+        """Elke collection type key heeft een entry in de mapping."""
+        for ct in COLLECTION_TYPES:
+            assert ct.key in COLLECTION_TYPE_TO_BRON_TYPE
+
+    def test_wetgeving_mapped_naar_wetgeving(self):
+        """Collection type 'wetgeving' → bron_type 'wetgeving'."""
+        assert COLLECTION_TYPE_TO_BRON_TYPE["wetgeving"] == "wetgeving"
+
+    def test_pdf_types_mapped_naar_pdf(self):
+        """kamerstukken, beleid en keten zijn PDF-brondocumenten → 'pdf'."""
+        for key in ("kamerstukken", "beleid", "keten"):
+            assert COLLECTION_TYPE_TO_BRON_TYPE[key] == "pdf"
+
+    def test_vrij_is_none(self):
+        """Collection type 'vrij' heeft geen vaste bron-vorm → None."""
+        assert COLLECTION_TYPE_TO_BRON_TYPE["vrij"] is None
+
+    def test_bron_types_zijn_geldig(self):
+        """Alle non-None waarden in de mapping zijn geldige BRON_TYPES."""
+        for bron_type in COLLECTION_TYPE_TO_BRON_TYPE.values():
+            if bron_type is not None:
+                assert bron_type in BRON_TYPES
 
 
 class TestRechtsgebieden:
