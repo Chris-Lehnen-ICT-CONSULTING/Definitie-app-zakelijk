@@ -183,12 +183,16 @@ class RAGService:
                     "artikel_lid": c.metadata.artikel_nummer,
                     "bron_type": bron_type,
                     "metadata": {
-                        "artikel_nummer": c.metadata.artikel_nummer,
-                        "lid_nummer": c.metadata.lid_nummer,
-                        "structuur_type": c.metadata.structuur_type,
-                        "bronbestand": c.metadata.bronbestand,
-                        "pagina_nummer": c.metadata.pagina_nummer,
-                        "sectie": c.metadata.sectie,
+                        k: v
+                        for k, v in {
+                            "artikel_nummer": c.metadata.artikel_nummer,
+                            "lid_nummer": c.metadata.lid_nummer,
+                            "structuur_type": c.metadata.structuur_type,
+                            "bronbestand": c.metadata.bronbestand,
+                            "pagina_nummer": c.metadata.pagina_nummer,
+                            "sectie": c.metadata.sectie,
+                        }.items()
+                        if v is not None
                     },
                 }
                 for c in result.chunks
