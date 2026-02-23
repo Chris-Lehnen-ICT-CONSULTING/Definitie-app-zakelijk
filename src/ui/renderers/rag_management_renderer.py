@@ -11,7 +11,11 @@ from pathlib import Path
 
 import streamlit as st
 
-from services.rag.constants import COLLECTION_TYPES, RECHTSGEBIEDEN
+from services.rag.constants import (
+    COLLECTION_TYPE_TO_BRON_TYPE,
+    COLLECTION_TYPES,
+    RECHTSGEBIEDEN,
+)
 from services.rag.rag_management_service import RAGManagementService
 from services.rag.rag_service import RAGService
 from ui.session_state import SessionStateManager
@@ -184,10 +188,10 @@ class RAGManagementRenderer:
         )
 
         with tab_upload:
-            self._render_document_upload(collection_id)
+            self._render_document_upload(collection_id, collection)
 
         with tab_text:
-            self._render_text_input(collection_id)
+            self._render_text_input(collection_id, collection)
 
         st.markdown("---")
 
@@ -216,7 +220,7 @@ class RAGManagementRenderer:
             with col3:
                 self._render_delete_document_button(doc)
 
-    def _render_document_upload(self, collection_id: int) -> None:
+    def _render_document_upload(self, collection_id: int, collection: dict) -> None:
         """Render file uploader + ingest."""
         uploaded = st.file_uploader(
             "Upload document",
@@ -228,15 +232,21 @@ class RAGManagementRenderer:
         if uploaded and st.button(
             "Indexeer document", type="primary", key=f"rag_ingest_{collection_id}"
         ):
-            self._ingest_uploaded_file(collection_id, uploaded)
+            self._ingest_uploaded_file(collection_id, uploaded, collection)
 
-    def _ingest_uploaded_file(self, collection_id: int, uploaded) -> None:
+    def _ingest_uploaded_file(
+        self, collection_id: int, uploaded, collection: dict
+    ) -> None:
         """Verwerk en ingest een geüpload bestand."""
         filename = uploaded.name
 
         if self._mgmt.check_duplicate_document(collection_id, filename):
             st.warning(f"Document '{filename}' bestaat al in deze collection.")
             return
+
+        # DEF-379 Bevinding 1+2: extraheer rechtsgebied en bron_type uit collection
+        rechtsgebied = collection.get("rechtsgebied") or None
+        bron_type = COLLECTION_TYPE_TO_BRON_TYPE.get(collection.get("type_key", "vrij"))
 
         with st.spinner(f"Verwerken van {filename}..."):
             try:
@@ -259,6 +269,8 @@ class RAGManagementRenderer:
                     filename=filename,
                     file_type=uploaded.type or "application/octet-stream",
                     file_path=str(saved_path) if saved_path else None,
+                    rechtsgebied=rechtsgebied,
+                    bron_type=bron_type,
                 )
                 st.success(f"'{filename}' geïndexeerd")
                 st.rerun()
@@ -266,7 +278,7 @@ class RAGManagementRenderer:
                 st.error(f"Indexering mislukt: {e}")
                 logger.error("Ingest mislukt voor %s: %s", filename, e, exc_info=True)
 
-    def _render_text_input(self, collection_id: int) -> None:
+    def _render_text_input(self, collection_id: int, collection: dict) -> None:
         """Render tekstveld + ingest."""
         st.text_area(
             "Plak tekst",
@@ -298,6 +310,12 @@ class RAGManagementRenderer:
                 st.warning(f"Document '{name.strip()}' bestaat al in deze collection.")
                 return
 
+            # DEF-379 Bevinding 1+2: extraheer rechtsgebied en bron_type uit collection
+            rechtsgebied = collection.get("rechtsgebied") or None
+            bron_type = COLLECTION_TYPE_TO_BRON_TYPE.get(
+                collection.get("type_key", "vrij")
+            )
+
             with st.spinner("Tekst indexeren..."):
                 try:
                     self._rag.ingest_document(
@@ -305,6 +323,8 @@ class RAGManagementRenderer:
                         collection_id=collection_id,
                         filename=name.strip(),
                         file_type="text/plain",
+                        rechtsgebied=rechtsgebied,
+                        bron_type=bron_type,
                     )
                     st.success(f"'{name.strip()}' geïndexeerd")
                     st.rerun()
