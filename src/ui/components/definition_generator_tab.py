@@ -114,6 +114,9 @@ class DefinitionGeneratorTab:
         # EPIC-018: Badge/indicator voor gebruikte documentcontext
         self._render_document_context_badge(generation_result)
 
+        # DEF-364: RAG status indicator
+        self._render_rag_status_indicator(agent_result, saved_record)
+
         # Cache definition ID for Expert/Edit tabs
         self._cache_definition_id(saved_definition_id, saved_record)
 
@@ -175,6 +178,56 @@ class DefinitionGeneratorTab:
                 )
         except Exception as e:
             logger.warning(f"Failed to render document context badge: {e}")
+
+    def _render_rag_status_indicator(
+        self,
+        agent_result: dict[str, Any],
+        saved_record: Any,
+    ) -> None:
+        """DEF-364: Render RAG status indicator na definitie-generatie."""
+        try:
+            from ui.components.sources_renderer import _extract_metadata_value
+
+            rag_status = _extract_metadata_value(
+                saved_record, agent_result, "rag_status"
+            )
+            if not rag_status:
+                return
+
+            chunks_count = int(
+                _extract_metadata_value(saved_record, agent_result, "rag_chunks_count")
+                or 0
+            )
+            chunks_filtered = int(
+                _extract_metadata_value(
+                    saved_record, agent_result, "rag_chunks_filtered"
+                )
+                or 0
+            )
+            collection_id = _extract_metadata_value(
+                saved_record, agent_result, "rag_collection_id"
+            )
+            min_score = _extract_metadata_value(
+                saved_record, agent_result, "rag_min_score_used"
+            )
+
+            if rag_status == "success" and chunks_count > 0:
+                st.info(
+                    f"🔎 {chunks_count} RAG chunks gebruikt uit collection {collection_id}"
+                    f" ({chunks_filtered} weggefilterd, min_score={min_score})"
+                )
+            elif rag_status == "success" and chunks_count == 0:
+                st.caption("ℹ️ Geen relevante RAG context gevonden voor deze term")
+            elif rag_status == "error":
+                st.warning(
+                    "⚠️ RAG retrieval mislukt — definitie gegenereerd zonder RAG context"
+                )
+            elif rag_status == "not_available":
+                st.caption(
+                    "📭 Geen documenten geïndexeerd — upload documenten en klik 'Indexeer voor RAG'"
+                )
+        except Exception as e:
+            logger.debug(f"RAG status indicator render skipped: {e}")
 
     def _cache_definition_id(self, saved_definition_id: Any, saved_record: Any) -> None:
         """Cache definition ID for Expert/Edit tabs."""

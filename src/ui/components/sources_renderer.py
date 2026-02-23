@@ -330,6 +330,15 @@ class SourcesRenderer:
             msg = "ℹ️ Geen relevante externe bronnen gevonden."
         st.info(msg)
 
+    @staticmethod
+    def _score_color(score: float) -> str:
+        """DEF-364: Return color indicator for RAG score."""
+        if score > 0.7:
+            return "🟢"
+        if score >= 0.5:
+            return "🟠"
+        return "🔴"
+
     def _render_sources_list(self, sources: list[dict[str, Any]]) -> None:
         """Render the list of sources with expanders."""
         for idx, src in enumerate(sources):
@@ -351,9 +360,14 @@ class SourcesRenderer:
             snippet = src.get("snippet") or src.get("context") or ""
             is_authoritative = src.get("is_authoritative", False)
             legal_meta = src.get("legal")
+            is_rag = src.get("provider") == "rag"
+
+            # DEF-364: Score color for RAG sources
+            score_indicator = f" {self._score_color(score)}" if is_rag else ""
 
             with st.expander(
-                f"{idx+1}. {provider_label} — {title[:80]}", expanded=(idx == 0)
+                f"{idx+1}. {provider_label} — {title[:80]}{score_indicator}",
+                expanded=(idx == 0),
             ):
                 # Show badges
                 col1, col2, col3 = st.columns([1, 1, 2])
@@ -363,6 +377,11 @@ class SourcesRenderer:
                 with col2:
                     if used:
                         st.info("→ In prompt")
+
+                # DEF-364: RAG source details
+                if is_rag:
+                    self._render_rag_source_details(src, score, snippet, legal_meta)
+                    continue
 
                 # Document source: show filename/location
                 if src.get("provider") == "documents":
@@ -388,3 +407,25 @@ class SourcesRenderer:
                     )
                 if url:
                     st.markdown(f"[🔗 Open bron]({url})")
+
+    def _render_rag_source_details(
+        self,
+        src: dict[str, Any],
+        score: float,
+        snippet: str,
+        legal_meta: dict[str, Any] | None,
+    ) -> None:
+        """DEF-364: Render details for a RAG source."""
+        # Score with color
+        color = self._score_color(score)
+        st.markdown(f"**Relevantie**: {color} {score:.2f}")
+
+        # Legal citation
+        if legal_meta and legal_meta.get("citation_text"):
+            st.markdown(f"**Juridische verwijzing**: {legal_meta['citation_text']}")
+
+        # Chunk text
+        if snippet:
+            st.markdown(
+                f"**Fragment**: {snippet[:500]}{'...' if len(snippet) > 500 else ''}"
+            )
