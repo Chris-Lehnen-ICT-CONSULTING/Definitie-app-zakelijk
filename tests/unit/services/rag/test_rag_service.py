@@ -684,11 +684,12 @@ class TestMetadataOpslag:
         )
         mock_embedder.embed_batch.return_value = [_make_embedding(0)]
 
-        service.ingest_document("Artikel 1.", collection_id, "wet.pdf")
+        doc_id = service.ingest_document("Artikel 1.", collection_id, "wet.pdf")
 
         conn = sqlite3.connect(db_path)
         row = conn.execute(
-            "SELECT json(metadata) AS metadata FROM rag_chunks LIMIT 1"
+            "SELECT json(metadata) AS metadata FROM rag_chunks WHERE document_id = ?",
+            (doc_id,),
         ).fetchone()
         conn.close()
 
@@ -723,11 +724,12 @@ class TestMetadataOpslag:
         )
         mock_embedder.embed_batch.return_value = [_make_embedding(0)]
 
-        service.ingest_document("Artikel 3 lid 2.", collection_id, "awb.pdf")
+        doc_id = service.ingest_document("Artikel 3 lid 2.", collection_id, "awb.pdf")
 
         conn = sqlite3.connect(db_path)
         row = conn.execute(
-            "SELECT json(metadata) AS metadata FROM rag_chunks LIMIT 1"
+            "SELECT json(metadata) AS metadata FROM rag_chunks WHERE document_id = ?",
+            (doc_id,),
         ).fetchone()
         conn.close()
 
@@ -754,11 +756,12 @@ class TestMetadataOpslag:
         )
         mock_embedder.embed_batch.return_value = [_make_embedding(0)]
 
-        service.ingest_document("Tekst.", collection_id, "test.pdf")
+        doc_id = service.ingest_document("Tekst.", collection_id, "test.pdf")
 
         conn = sqlite3.connect(db_path)
         row = conn.execute(
-            "SELECT json(metadata) AS metadata FROM rag_chunks LIMIT 1"
+            "SELECT json(metadata) AS metadata FROM rag_chunks WHERE document_id = ?",
+            (doc_id,),
         ).fetchone()
         conn.close()
 
@@ -779,13 +782,60 @@ class TestMetadataOpslag:
         )
         mock_embedder.embed_batch.return_value = [_make_embedding(0)]
 
-        service.ingest_document("Tekst.", collection_id, "doc.txt")
+        doc_id = service.ingest_document("Tekst.", collection_id, "doc.txt")
 
         conn = sqlite3.connect(db_path)
         row = conn.execute(
-            "SELECT json(metadata) AS metadata FROM rag_chunks LIMIT 1"
+            "SELECT json(metadata) AS metadata FROM rag_chunks WHERE document_id = ?",
+            (doc_id,),
         ).fetchone()
         conn.close()
 
         meta = json.loads(row[0])
         assert set(meta.keys()) == {"bronbestand"}
+
+    def test_lege_string_niet_in_metadata(
+        self, service, mock_chunker, mock_embedder, collection_id, db_path
+    ):
+        """DEF-378 Bug 1: lege string velden worden gefilterd (v != '')."""
+        chunk = _make_chunk_with_metadata(
+            "Tekst.", 0, bronbestand="test.pdf", sectie=""
+        )
+        mock_chunker.chunk_tekst.return_value = ChunkingResult(
+            chunks=(chunk,),
+            bronbestand="test.pdf",
+            bestandstype="text/plain",
+            totaal_tokens=2,
+        )
+        mock_embedder.embed_batch.return_value = [_make_embedding(0)]
+
+        doc_id = service.ingest_document("Tekst.", collection_id, "test.pdf")
+
+        conn = sqlite3.connect(db_path)
+        row = conn.execute(
+            "SELECT json(metadata) AS metadata FROM rag_chunks WHERE document_id = ?",
+            (doc_id,),
+        ).fetchone()
+        conn.close()
+
+        meta = json.loads(row[0])
+        assert "sectie" not in meta
+        assert meta["bronbestand"] == "test.pdf"
+
+    def test_ongeldige_bron_type_gooit_valueerror_en_ruimt_op(
+        self, service, mock_chunker, mock_embedder, collection_id, db_path
+    ):
+        """DEF-378 Bug 7: ongeldige bron_type gooit ValueError vóór INSERT."""
+        with pytest.raises(ValueError, match="Ongeldig bron_type"):
+            service.ingest_document(
+                "Tekst.", collection_id, "test.pdf", bron_type="onbekend_type"
+            )
+
+        # Geen orphan rij in rag_documents (validatie vindt vóór INSERT plaats)
+        conn = sqlite3.connect(db_path)
+        count = conn.execute(
+            "SELECT COUNT(*) FROM rag_documents WHERE collection_id = ?",
+            (collection_id,),
+        ).fetchone()[0]
+        conn.close()
+        assert count == 0
