@@ -122,7 +122,7 @@ class RAGService:
         if rechtsgebied and rechtsgebied.strip():
             genormaliseerd = normaliseer_rechtsgebied(rechtsgebied)
             if genormaliseerd is None:
-                geldige = ", ".join(RECHTSGEBIEDEN.keys())
+                geldige = ", ".join(RECHTSGEBIEDEN.values())
                 raise ValueError(
                     f"Onbekend rechtsgebied '{rechtsgebied}'. "
                     f"Geldige waarden: {geldige}"

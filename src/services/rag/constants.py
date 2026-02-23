@@ -1,11 +1,14 @@
-"""Constanten voor de RAG pipeline (DEF-365, DEF-371, DEF-376).
+"""Constanten voor de RAG pipeline (DEF-365, DEF-371, DEF-376, DEF-377).
 
-Collection types en rechtsgebieden — DRY bron voor UI en service laag.
+Collection types — DRY bron voor UI en service laag.
+Rechtsgebied-logica leeft in domain.rechtsgebieden (DEF-377: circulaire import fix).
 """
 
 from __future__ import annotations
 
 from typing import NamedTuple
+
+from domain.rechtsgebieden import RECHTSGEBIEDEN, normaliseer_rechtsgebied
 
 
 class CollectionType(NamedTuple):
@@ -26,56 +29,10 @@ COLLECTION_TYPES: tuple[CollectionType, ...] = (
 
 COLLECTION_TYPE_MAP: dict[str, CollectionType] = {ct.key: ct for ct in COLLECTION_TYPES}
 
-RECHTSGEBIEDEN: dict[str, str] = {
-    "strafrecht": "Strafrecht",
-    "burgerlijk_recht": "Burgerlijk recht",
-    "bestuursrecht": "Bestuursrecht",
-    "staatsrecht": "Staatsrecht",
-    "belastingrecht": "Belastingrecht",
-    "ondernemingsrecht": "Ondernemingsrecht",
-    "arbeidsrecht": "Arbeidsrecht",
-    "europees_recht": "Europees recht",
-    "internationaal_recht": "Internationaal recht",
-    "migratierecht": "Migratierecht",
-    "jeugdrecht": "Jeugdrecht",
-    "vreemdelingenrecht": "Vreemdelingenrecht",
-    "sanctierecht": "Sanctierecht",
-    "penitentiair_recht": "Penitentiair recht",
-    "familierecht": "Familierecht",
-}
-
-
-def _register_alias(lookup: dict[str, str], alias: str, key: str) -> None:
-    """Registreer een lookup-alias met collision-detectie."""
-    existing = lookup.get(alias)
-    if existing is not None and existing != key:
-        raise RuntimeError(
-            f"Rechtsgebied lookup collision: '{alias}' mapt naar zowel "
-            f"'{existing}' als '{key}'"
-        )
-    lookup[alias] = key
-
-
-# Reverse-lookup: diverse varianten → genormaliseerde key
-# Alleen lowercase entries — normaliseer_rechtsgebied() doet altijd .lower()
-_RECHTSGEBIED_LOOKUP: dict[str, str] = {}
-for _key, _label in RECHTSGEBIEDEN.items():
-    _register_alias(_RECHTSGEBIED_LOOKUP, _key, _key)
-    _register_alias(_RECHTSGEBIED_LOOKUP, _label.lower(), _key)
-
-# Extra aliassen voor gangbare varianten
-_register_alias(_RECHTSGEBIED_LOOKUP, "civiel recht", "burgerlijk_recht")
-_register_alias(_RECHTSGEBIED_LOOKUP, "civiel_recht", "burgerlijk_recht")
-_register_alias(_RECHTSGEBIED_LOOKUP, "privaatrecht", "burgerlijk_recht")
-
-del _key, _label
-
-
-def normaliseer_rechtsgebied(invoer: str | None) -> str | None:
-    """Normaliseer vrije tekst naar een gestandaardiseerde rechtsgebied-key.
-
-    Returns None als de invoer leeg is of het rechtsgebied niet herkend wordt.
-    """
-    if not invoer or not invoer.strip():
-        return None
-    return _RECHTSGEBIED_LOOKUP.get(invoer.strip().lower())
+__all__ = [
+    "COLLECTION_TYPES",
+    "COLLECTION_TYPE_MAP",
+    "RECHTSGEBIEDEN",
+    "CollectionType",
+    "normaliseer_rechtsgebied",
+]

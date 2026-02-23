@@ -2,12 +2,12 @@
 Context options (business knowledge) extracted from UI components.
 
 Keeping these lists centralized avoids scattering domain knowledge across the UI.
-Rechtsgebieden komen uit services.rag.constants (single source of truth, DEF-376).
+Rechtsgebieden komen uit domain.rechtsgebieden (single source of truth, DEF-376, DEF-377).
 """
 
 from typing import Final
 
-from services.rag.constants import RECHTSGEBIEDEN
+from domain.rechtsgebieden import RECHTSGEBIEDEN
 
 # Organizations in the Dutch justice domain (ASTRA-aligned examples)
 ORGANIZATIONS: Final[list[str]] = [

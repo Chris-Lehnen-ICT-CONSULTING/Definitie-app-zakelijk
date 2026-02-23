@@ -18,7 +18,7 @@ from typing import Any, ClassVar, cast
 
 import yaml  # YAML bestand parser voor configuratie bestanden
 
-from services.rag.constants import RECHTSGEBIEDEN
+from domain.rechtsgebieden import RECHTSGEBIEDEN
 
 logger = logging.getLogger(__name__)  # Logger instantie voor deze module
 
