@@ -119,7 +119,7 @@ class TestPromptServiceV2Integration:
         request = GenerationRequest(
             id="test-005",
             begrip="dwangmiddel",
-            juridische_context=["Strafrecht", "Bestuursrecht", "Civiel recht"],
+            juridische_context=["Strafrecht", "Bestuursrecht", "Burgerlijk recht"],
         )
 
         prompt = prompt_service.build_prompt(request)
@@ -127,7 +127,7 @@ class TestPromptServiceV2Integration:
         # All legal contexts should appear
         assert "Strafrecht" in prompt
         assert "Bestuursrecht" in prompt
-        assert "Civiel recht" in prompt
+        assert "Burgerlijk recht" in prompt
 
         # Section header should exist
         assert any(

@@ -231,7 +231,7 @@ class TestRAGIngestAndRetrieve:
             collection_id=collection_id,
             filename="registratie_test.txt",
             file_type="text/plain",
-            rechtsgebied="civielrecht",
+            rechtsgebied="burgerlijk_recht",
         )
 
         conn = sqlite3.connect(rag_db)
@@ -243,7 +243,7 @@ class TestRAGIngestAndRetrieve:
 
         assert row is not None
         assert row["filename"] == "registratie_test.txt"
-        assert row["rechtsgebied"] == "civielrecht"
+        assert row["rechtsgebied"] == "burgerlijk_recht"
 
 
 # ===========================================================================
@@ -615,7 +615,7 @@ class TestRAGMultiDocument:
                 "lijdt, te vergoeden.\n"
             ),
             "filename": "bw6.txt",
-            "rechtsgebied": "civielrecht",
+            "rechtsgebied": "burgerlijk_recht",
         },
     ]
 

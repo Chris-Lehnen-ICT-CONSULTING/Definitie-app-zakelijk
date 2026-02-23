@@ -23,7 +23,7 @@ class TestPerformance:
         request = GenerationRequest(
             begrip="test",
             organisatorische_context=["OM", "DJI", "Rechtspraak", "CJIB", "KMAR"],
-            juridische_context=["Strafrecht", "Bestuursrecht", "Civiel recht"],
+            juridische_context=["Strafrecht", "Bestuursrecht", "Burgerlijk recht"],
             wettelijke_basis=["Art. 27 Sv", "Art. 67 Sv", "AWB", "BW", "WvSr"],
         )
 
@@ -88,7 +88,7 @@ class TestPerformance:
         context = EnrichedContext(
             base_context={
                 "organisatorisch": ["OM", "DJI", "Rechtspraak", "CJIB", "KMAR"],
-                "juridisch": ["Strafrecht", "Bestuursrecht", "Civiel recht"],
+                "juridisch": ["Strafrecht", "Bestuursrecht", "Burgerlijk recht"],
                 "wettelijk": ["Art. 27 Sv", "Art. 67 Sv", "AWB", "BW", "WvSr"],
                 "domein": ["Justice", "Security"],
                 "technisch": [],

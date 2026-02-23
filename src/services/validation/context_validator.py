@@ -9,6 +9,8 @@ import logging
 from dataclasses import dataclass
 from typing import Any
 
+from services.rag.constants import RECHTSGEBIEDEN
+
 logger = logging.getLogger(__name__)
 
 
@@ -49,14 +51,7 @@ class ContextValidator:
         "Justitie en Veiligheid",
     }
 
-    VALID_JURIDISCH = {
-        "Strafrecht",
-        "Civiel recht",
-        "Bestuursrecht",
-        "Internationaal recht",
-        "Europees recht",
-        "Migratierecht",
-    }
+    VALID_JURIDISCH = set(RECHTSGEBIEDEN.values())
 
     VALID_WETTELIJK = {
         "Wetboek van Strafvordering (huidig)",

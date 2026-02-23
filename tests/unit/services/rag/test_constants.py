@@ -38,7 +38,13 @@ class TestRechtsgebieden:
     def test_not_empty(self):
         assert len(RECHTSGEBIEDEN) > 0
 
-    def test_all_strings(self):
-        for rg in RECHTSGEBIEDEN:
-            assert isinstance(rg, str)
-            assert rg.strip() == rg
+    def test_keys_are_snake_case(self):
+        for key in RECHTSGEBIEDEN:
+            assert isinstance(key, str)
+            assert key == key.lower()
+            assert " " not in key
+
+    def test_labels_are_titlecase(self):
+        for label in RECHTSGEBIEDEN.values():
+            assert isinstance(label, str)
+            assert label[0].isupper()
