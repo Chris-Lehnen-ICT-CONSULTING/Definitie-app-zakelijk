@@ -511,3 +511,133 @@ class TestSplitZinnenLeestekens:
         zinnen = split_zinnen("Mr. De Vries was er. Dr. Jansen ook.")
         # "Mr." en "Dr." mogen niet als zinsgrens
         assert len(zinnen) == 2
+
+
+# ── DEF-380 Bevinding 2: artikel_nummer bewaard bij merge ────────
+
+
+class TestMergeArtikelNummerPreservation:
+    """DEF-380 Bevinding 2: artikel_nummer bewaard bij merge van kleine artikel-chunk."""
+
+    def test_artikel_nummer_bewaard_als_prev_geen_nummer_heeft(self):
+        """Klein artikel gemerged in hoofdstuk-chunk behoudt artikel_nummer."""
+        from services.rag.models import ChunkMetadata, DocumentChunk
+
+        strategy = JuridischeChunkingStrategy(min_tokens=30, max_tokens=200)
+        meta_hoofdstuk = ChunkMetadata(
+            bronbestand="test.pdf",
+            chunk_index=0,
+            structuur_type="hoofdstuk",
+            artikel_nummer=None,
+        )
+        meta_artikel = ChunkMetadata(
+            bronbestand="test.pdf",
+            chunk_index=1,
+            structuur_type="artikel",
+            artikel_nummer="7",
+        )
+        groot = DocumentChunk(
+            tekst="Hoofdstuk inhoud. " * 10,
+            metadata=meta_hoofdstuk,
+            token_count=50,
+        )
+        klein = DocumentChunk(
+            tekst="Artikel 7 tekst.",
+            metadata=meta_artikel,
+            token_count=5,
+        )
+        result = strategy._merge_kleine_chunks([groot, klein])
+        assert len(result) == 1
+        # Na fix: artikel_nummer="7" bewaard (was None voor de fix)
+        assert result[0].metadata.artikel_nummer == "7"
+
+    def test_artikel_nummer_bewaard_in_integratie(self):
+        """Integratietest: klein artikel in hoofdstuk behoudt artikel_nummer via chunk()."""
+        strategy = JuridischeChunkingStrategy(min_tokens=50, max_tokens=500)
+        tekst = (
+            "HOOFDSTUK 1. ALGEMENE BEPALINGEN\n"
+            "Uitgebreide inhoud van het hoofdstuk met relevante tekst. " * 8 + "\n\n"
+            "Artikel 5\nKort artikel.\n"
+        )
+        chunks = strategy.chunk(tekst, "test.pdf", "application/pdf")
+        chunk_met_kort = next((c for c in chunks if "Kort artikel" in c.tekst), None)
+        assert chunk_met_kort is not None, "Geen chunk met 'Kort artikel' gevonden"
+        # Na fix: artikel_nummer "5" bewaard ondanks merge in hoofdstuk-chunk
+        assert chunk_met_kort.metadata.artikel_nummer == "5"
+
+    def test_beide_chunks_hebben_nummer_geabsorbeerde_wint(self):
+        """Als beide chunks artikel_nummer hebben, wint de geabsorbeerde (specifiekste)."""
+        from services.rag.models import ChunkMetadata, DocumentChunk
+
+        strategy = JuridischeChunkingStrategy(min_tokens=30, max_tokens=200)
+        meta_1 = ChunkMetadata(
+            bronbestand="test.pdf",
+            chunk_index=0,
+            artikel_nummer="1",
+        )
+        meta_2 = ChunkMetadata(
+            bronbestand="test.pdf",
+            chunk_index=1,
+            artikel_nummer="2",
+        )
+        groot = DocumentChunk(
+            tekst="Artikel 1 tekst. " * 10, metadata=meta_1, token_count=50
+        )
+        klein = DocumentChunk(tekst="Artikel 2 kort.", metadata=meta_2, token_count=5)
+
+        result = strategy._merge_kleine_chunks([groot, klein])
+        assert len(result) == 1
+        # Geabsorbeerde chunk (artikel 2) wint
+        assert result[0].metadata.artikel_nummer == "2"
+
+
+# ── DEF-380 Bevinding 6: post-pass laatste chunk ─────────────────
+
+
+class TestMergeKleineChunksPostPass:
+    """DEF-380 Bevinding 6: post-pass voor kleine laatste chunk."""
+
+    def test_kleine_laatste_chunk_gemerged(self):
+        """Laatste kleine chunk wordt gemerged als voorlaatste voldoende ruimte heeft."""
+        from dataclasses import replace as dc_replace
+
+        from services.rag.models import ChunkMetadata, DocumentChunk
+
+        strategy = JuridischeChunkingStrategy(min_tokens=30, max_tokens=200)
+        meta = ChunkMetadata(bronbestand="test.pdf", chunk_index=0)
+
+        groot = DocumentChunk(
+            tekst="Lang " * 40,
+            metadata=dc_replace(meta, chunk_index=0),
+            token_count=80,
+        )
+        klein = DocumentChunk(
+            tekst="Klein.",
+            metadata=dc_replace(meta, chunk_index=1),
+            token_count=3,  # < min=30
+        )
+        result = strategy._merge_kleine_chunks([groot, klein])
+        assert len(result) == 1
+        assert "Klein." in result[0].tekst
+
+    def test_kleine_laatste_chunk_blijft_als_geen_ruimte(self):
+        """Kleine laatste chunk blijft staan als merge max_tokens zou overschrijden."""
+        from dataclasses import replace as dc_replace
+
+        from services.rag.models import ChunkMetadata, DocumentChunk
+
+        strategy = JuridischeChunkingStrategy(min_tokens=30, max_tokens=100)
+        meta = ChunkMetadata(bronbestand="test.pdf", chunk_index=0)
+
+        groot = DocumentChunk(
+            tekst="A " * 50,
+            metadata=dc_replace(meta, chunk_index=0),
+            token_count=98,  # bijna vol
+        )
+        klein = DocumentChunk(
+            tekst="Klein.",
+            metadata=dc_replace(meta, chunk_index=1),
+            token_count=5,  # 98+5=103 > 100 → kan niet mergen
+        )
+        result = strategy._merge_kleine_chunks([groot, klein])
+        assert len(result) == 2  # Kan niet mergen, beide blijven
