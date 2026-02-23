@@ -14,6 +14,7 @@ import sqlite3
 from dataclasses import dataclass
 from pathlib import Path
 
+from services.rag.constants import RECHTSGEBIEDEN, normaliseer_rechtsgebied
 from services.rag.document_chunker import DocumentChunker
 from services.rag.embedding_service import EmbeddingService
 from services.rag.embedding_store import EmbeddingStore
@@ -116,6 +117,19 @@ class RAGService:
         """
         if not tekst or not tekst.strip():
             raise ValueError("tekst mag niet leeg zijn")
+
+        # DEF-371: Normaliseer rechtsgebied naar gestandaardiseerde key
+        if rechtsgebied and rechtsgebied.strip():
+            genormaliseerd = normaliseer_rechtsgebied(rechtsgebied)
+            if genormaliseerd is None:
+                geldige = ", ".join(RECHTSGEBIEDEN.keys())
+                raise ValueError(
+                    f"Onbekend rechtsgebied '{rechtsgebied}'. "
+                    f"Geldige waarden: {geldige}"
+                )
+            rechtsgebied = genormaliseerd
+        else:
+            rechtsgebied = None
 
         # Stap 1: Registreer document
         conn = self._connect()

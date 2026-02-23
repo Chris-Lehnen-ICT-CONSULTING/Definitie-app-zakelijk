@@ -43,7 +43,7 @@ class ContextFilter:
         # Juridical domain patterns (zonder word boundary aan einde voor -e, -elijk, etc.)
         self.jur_patterns = {
             "Strafrecht": r"\bstrafrecht\w*|\bstrafzaak\w*",
-            "Civiel recht": r"\bciviel\s+recht\w*|\bcivielrecht\w*|\bciviele\s+zaak\w*",
+            "Burgerlijk recht": r"\b(civiel|burgerlijk)\s+recht\w*|\bcivielrecht\w*|\bciviele\s+zaak\w*|\bburgerlijk\s+wetboek\b",
             "Bestuursrecht": r"\bbestuursrecht\w*|\bbestuurlijk\w*",
         }
 

@@ -18,6 +18,8 @@ from typing import Any, ClassVar, cast
 
 import yaml  # YAML bestand parser voor configuratie bestanden
 
+from services.rag.constants import RECHTSGEBIEDEN
+
 logger = logging.getLogger(__name__)  # Logger instantie voor deze module
 
 
@@ -149,13 +151,7 @@ class UIConfig:
     )
 
     legal_contexts: list[str] = field(
-        default_factory=lambda: [
-            "Strafrecht",
-            "Civiel recht",
-            "Bestuursrecht",
-            "Internationaal recht",
-            "Anders...",
-        ]
+        default_factory=lambda: list(RECHTSGEBIEDEN.values()) + ["Anders..."]
     )
 
     # Veelgebruikte wetten voor UI-selecties

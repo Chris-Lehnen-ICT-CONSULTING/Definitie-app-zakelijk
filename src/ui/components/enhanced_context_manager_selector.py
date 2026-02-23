@@ -9,6 +9,7 @@ from typing import Any, ClassVar, cast
 import streamlit as st
 
 from services.context.context_manager import ContextSource, get_context_manager
+from services.rag.constants import RECHTSGEBIEDEN
 from validation.sanitizer import ContentType, SanitizationLevel, get_sanitizer
 
 logger = logging.getLogger(__name__)
@@ -33,14 +34,7 @@ class EnhancedContextManagerSelector:
         "Justitie en Veiligheid",
     ]
 
-    JUR_OPTIONS: ClassVar[list[str]] = [
-        "Strafrecht",
-        "Civiel recht",
-        "Bestuursrecht",
-        "Internationaal recht",
-        "Europees recht",
-        "Migratierecht",
-    ]
+    JUR_OPTIONS: ClassVar[list[str]] = list(RECHTSGEBIEDEN.values())
 
     WET_OPTIONS: ClassVar[list[str]] = [
         "Wetboek van Strafrecht",

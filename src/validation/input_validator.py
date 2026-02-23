@@ -13,6 +13,8 @@ from enum import Enum
 from pathlib import Path
 from typing import Any
 
+from services.rag.constants import RECHTSGEBIEDEN
+
 UTC = UTC  # Python 3.10 compatibility - must be after all imports
 
 logger = logging.getLogger(__name__)
@@ -460,12 +462,7 @@ class InputValidator:
         if not isinstance(context, list):
             return False
 
-        valid_contexts = {
-            "Strafrecht",
-            "Civiel recht",
-            "Bestuursrecht",
-            "Europees recht",
-            "Internationaal recht",
+        valid_contexts = set(RECHTSGEBIEDEN.values()) | {
             "Grondwet",
             "Verdragen",
             "Anders",
