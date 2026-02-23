@@ -146,9 +146,62 @@ class TestJuridischeChunkingStrategy:
         )
         chunks = strategy.chunk(tekst, "test.txt", "text/plain")
         for chunk in chunks:
+            # Marge: 10 voor merge overhead + 12% van max_tokens voor overlap-prepend
+            assert chunk.token_count <= 100 + 10 + int(
+                100 * 0.15
+            ), f"Chunk te groot: {chunk.token_count} tokens"
+
+
+class TestOverlapPrepend:
+    """DEF-380 Bevinding 5: Overlap wordt geprependt aan chunk_tekst voor opslag."""
+
+    def test_tweede_chunk_begint_met_overlap(self):
+        """De tekst van een chunk met overlap bevat de overlap-inhoud."""
+        strategy = JuridischeChunkingStrategy(overlap_ratio=0.15)
+        tekst = (
+            "Artikel 1\n"
+            "Dit is een eerste artikel met voldoende tekst voor overlap. "
+            "Het heeft meerdere zinnen zodat overlap berekend kan worden. "
+            "De derde zin zorgt voor extra context.\n\n"
+            "Artikel 2\n"
+            "Dit is het tweede artikel. Het volgt op het eerste.\n\n"
+            "Artikel 3\n"
+            "Dit is het derde artikel met eigen inhoud.\n"
+        )
+        chunks = strategy.chunk(tekst, "test.pdf", "application/pdf")
+
+        chunks_met_overlap = [c for c in chunks if c.overlap_tekst]
+        for chunk in chunks_met_overlap:
             assert (
-                chunk.token_count <= 100 + 10
-            )  # kleine marge voor \n\n merge overhead
+                chunk.overlap_tekst in chunk.tekst
+            ), "Overlap niet geprependt in chunk tekst"
+
+    def test_eerste_chunk_geen_overlap_prefix(self):
+        """De eerste chunk heeft geen overlap (geen vorige tekst)."""
+        strategy = JuridischeChunkingStrategy()
+        tekst = (
+            "Artikel 1\n"
+            "Eerste artikel met veel tekst om een goede chunk te vormen.\n\n"
+            "Artikel 2\n"
+            "Tweede artikel.\n"
+        )
+        chunks = strategy.chunk(tekst, "test.pdf", "application/pdf")
+        assert chunks[0].overlap_tekst == ""
+
+    def test_overlap_tekst_veld_beschikbaar(self):
+        """overlap_tekst veld is beschikbaar op alle chunks als string."""
+        strategy = JuridischeChunkingStrategy(overlap_ratio=0.20)
+        tekst = (
+            "Artikel 1\n"
+            "Lang eerste artikel met genoeg tekst voor overlap. "
+            "Tweede zin voor meer context. Derde zin ook mee.\n\n"
+            "Artikel 2\n"
+            "Tweede artikel.\n\nArtikel 3\nDerde.\n"
+        )
+        chunks = strategy.chunk(tekst, "test.pdf", "application/pdf")
+        for chunk in chunks:
+            assert hasattr(chunk, "overlap_tekst")
+            assert isinstance(chunk.overlap_tekst, str)
 
 
 class TestMaakEnkeleChunkSplit:
@@ -382,8 +435,8 @@ class TestMaxTokensEnforcement:
         strategy = JuridischeChunkingStrategy(max_tokens=200)
         chunks = strategy.chunk(tekst, "test.pdf", "application/pdf")
         for chunk in chunks:
-            # Marge voor zinsgrens-rounding
-            assert chunk.token_count <= 200 + 30, (
+            # Marge voor zinsgrens-rounding (+30) en overlap-prepend (+30 = ~12% van max)
+            assert chunk.token_count <= 200 + 60, (
                 f"Chunk te groot: {chunk.token_count} tokens, "
                 f"type={chunk.metadata.structuur_type}"
             )
@@ -402,8 +455,9 @@ class TestMaxTokensEnforcement:
         strategy = JuridischeChunkingStrategy(max_tokens=200)
         chunks = strategy.chunk(tekst, "test.pdf", "application/pdf")
         for chunk in chunks:
+            # Marge voor zinsgrens-rounding (+30) en overlap-prepend (+30 = ~12% van max)
             assert (
-                chunk.token_count <= 200 + 30
+                chunk.token_count <= 200 + 60
             ), f"Chunk te groot: {chunk.token_count} tokens"
 
     def test_groot_hoofdstuk_behoudt_metadata(self):

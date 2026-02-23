@@ -157,7 +157,7 @@ class EmbeddingStore:
         """Sla chunk-tekst + metadata + embedding op in één INSERT.
 
         Valideert embedding dimensies tegen collection metadata.
-        Metadata wordt opgeslagen als JSONB via jsonb() wrapper.
+        Metadata wordt opgeslagen als JSON via json() wrapper (compatibel met alle SQLite versies).
 
         Args:
             bron_type: Brontype filter ("wetgeving", "website", "pdf", "api").
@@ -178,7 +178,7 @@ class EmbeddingStore:
                 "INSERT INTO rag_chunks "
                 "(collection_id, document_id, chunk_text, embedding, chunk_index, "
                 "rechtsgebied, wet_regeling, artikel_lid, bron_type, metadata) "
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, jsonb(?))",
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, json(?))",
                 (
                     collection_id,
                     document_id,
@@ -244,7 +244,7 @@ class EmbeddingStore:
                 "INSERT INTO rag_chunks "
                 "(collection_id, document_id, chunk_text, embedding, chunk_index, "
                 "rechtsgebied, wet_regeling, artikel_lid, bron_type, metadata) "
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, jsonb(?))"
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, json(?))"
             )
             for chunk, emb in zip(chunks, embeddings, strict=True):
                 if not chunk["chunk_text"] or not chunk["chunk_text"].strip():

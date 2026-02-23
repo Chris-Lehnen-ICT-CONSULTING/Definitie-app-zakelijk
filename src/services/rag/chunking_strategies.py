@@ -295,8 +295,20 @@ class JuridischeChunkingStrategy(ChunkingStrategy):
         lid_nummer: str | None = None,
         structuur_type: str | None = None,
     ) -> DocumentChunk:
-        """Maak een DocumentChunk aan met metadata en overlap."""
+        """Maak een DocumentChunk aan met metadata en overlap.
+
+        De overlap_tekst wordt geprependt aan tekst zodat embeddings context
+        van het vorige chunk meekrijgen (Bevinding 5, DEF-380).
+        """
         overlap = bereken_overlap(vorige_tekst, self.overlap_ratio)
+
+        # Prepend overlap aan tekst zodat de embedding context van het vorige
+        # chunk meeneemt. token_count wordt herberekend van de gecombineerde tekst.
+        if overlap:
+            tekst_met_overlap = overlap + "\n\n" + tekst
+            token_count = tel_tokens(tekst_met_overlap)
+        else:
+            tekst_met_overlap = tekst
 
         metadata = ChunkMetadata(
             bronbestand=bronbestand,
@@ -312,7 +324,7 @@ class JuridischeChunkingStrategy(ChunkingStrategy):
         )
 
         return DocumentChunk(
-            tekst=tekst,
+            tekst=tekst_met_overlap,
             metadata=metadata,
             token_count=token_count,
             overlap_tekst=overlap,
