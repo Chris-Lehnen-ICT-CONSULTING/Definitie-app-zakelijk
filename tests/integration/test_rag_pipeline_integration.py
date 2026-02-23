@@ -90,6 +90,8 @@ def rag_db():
             rechtsgebied VARCHAR(100),
             wet_regeling VARCHAR(255),
             artikel_lid VARCHAR(100),
+            bron_type VARCHAR(50),
+            metadata TEXT DEFAULT '{}',
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
         CREATE INDEX IF NOT EXISTS idx_chunks_collection ON rag_chunks(collection_id);
