@@ -743,7 +743,9 @@ class TestMetadataOpslag:
         self, service, mock_chunker, mock_embedder, collection_id, db_path
     ):
         """pagina_nummer=0 wordt niet gefilterd (0 is een valide waarde, niet None)."""
-        chunk = _make_chunk_with_metadata("Tekst.", 0, pagina_nummer=0)
+        chunk = _make_chunk_with_metadata(
+            "Tekst.", 0, bronbestand="test.pdf", pagina_nummer=0
+        )
         mock_chunker.chunk_tekst.return_value = ChunkingResult(
             chunks=(chunk,),
             bronbestand="test.pdf",
@@ -764,10 +766,10 @@ class TestMetadataOpslag:
         assert "pagina_nummer" in meta
         assert meta["pagina_nummer"] == 0
 
-    def test_geen_metadata_geeft_lege_dict(
+    def test_alleen_bronbestand_als_optionelen_none(
         self, service, mock_chunker, mock_embedder, collection_id, db_path
     ):
-        """Als alle optionele velden None zijn behalve bronbestand, is metadata compact."""
+        """Als alle optionele velden None zijn, bevat metadata alleen bronbestand."""
         chunk = _make_chunk_with_metadata("Tekst.", 0, bronbestand="doc.txt")
         mock_chunker.chunk_tekst.return_value = ChunkingResult(
             chunks=(chunk,),

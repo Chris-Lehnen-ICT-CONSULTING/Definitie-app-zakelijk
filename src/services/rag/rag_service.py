@@ -14,7 +14,7 @@ import sqlite3
 from dataclasses import dataclass
 from pathlib import Path
 
-from services.rag.constants import RECHTSGEBIEDEN, normaliseer_rechtsgebied
+from services.rag.constants import BRON_TYPES, RECHTSGEBIEDEN, normaliseer_rechtsgebied
 from services.rag.document_chunker import DocumentChunker
 from services.rag.embedding_service import EmbeddingService
 from services.rag.embedding_store import EmbeddingStore
@@ -101,6 +101,7 @@ class RAGService:
         file_type: str = "text/plain",
         rechtsgebied: str | None = None,
         file_path: str | None = None,
+        bron_type: str | None = None,
     ) -> int:
         """Chunk, embed en sla een document op in één call.
 
@@ -171,8 +172,12 @@ class RAGService:
             embeddings = self._embedder.embed_batch(chunk_texts)
 
             # Stap 4: Store chunks + embeddings
-            # Bepaal bron_type op basis van rechtsgebied (default heuristiek)
-            bron_type = "wetgeving" if rechtsgebied else None
+            # Valideer bron_type als opgegeven
+            if bron_type is not None and bron_type not in BRON_TYPES:
+                raise ValueError(
+                    f"Ongeldig bron_type '{bron_type}'. "
+                    f"Geldige waarden: {', '.join(BRON_TYPES)}"
+                )
 
             chunk_dicts = [
                 {
@@ -192,7 +197,7 @@ class RAGService:
                             "pagina_nummer": c.metadata.pagina_nummer,
                             "sectie": c.metadata.sectie,
                         }.items()
-                        if v is not None
+                        if v is not None and v != ""
                     },
                 }
                 for c in result.chunks
@@ -313,6 +318,7 @@ class RAGService:
                     rechtsgebied=chunk.get("rechtsgebied"),
                     regeling=chunk.get("wet_regeling"),
                     artikel=chunk.get("artikel_lid"),
+                    bronbestand=chunk.get("metadata", {}).get("bronbestand"),
                 )
             )
 
