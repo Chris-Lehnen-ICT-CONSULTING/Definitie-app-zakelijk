@@ -29,7 +29,10 @@ COLLECTION_TYPES: tuple[CollectionType, ...] = (
 
 COLLECTION_TYPE_MAP: dict[str, CollectionType] = {ct.key: ct for ct in COLLECTION_TYPES}
 
+BRON_TYPES: tuple[str, ...] = ("wetgeving", "website", "pdf", "api")
+
 __all__ = [
+    "BRON_TYPES",
     "COLLECTION_TYPES",
     "COLLECTION_TYPE_MAP",
     "RECHTSGEBIEDEN",
