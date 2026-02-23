@@ -176,7 +176,7 @@ class TestRAGIngestAndRetrieve:
             tekst=sample_juridisch_document,
             collection_id=collection_id,
             filename="wet_brp.txt",
-            rechtsgebied="publiekrecht",
+            rechtsgebied="bestuursrecht",
         )
         assert doc_id > 0
 
@@ -256,14 +256,14 @@ class TestRAGChunksInPromptInjection:
             {
                 "chunk_text": "Er is een basisregistratie personen.",
                 "score": 0.92,
-                "rechtsgebied": "publiekrecht",
+                "rechtsgebied": "bestuursrecht",
                 "wet_regeling": "Wet BRP",
                 "artikel_lid": "Artikel 2 lid 1",
             },
             {
                 "chunk_text": "Ingezetene is degene die zijn adres heeft in een gemeente.",
                 "score": 0.85,
-                "rechtsgebied": "publiekrecht",
+                "rechtsgebied": "bestuursrecht",
                 "wet_regeling": "Wet BRP",
                 "artikel_lid": "Artikel 1 sub b",
             },
@@ -401,7 +401,7 @@ class TestRAGTokenBudget:
             {
                 "chunk_text": f"Juridische tekst chunk {i}. " * 10,
                 "score": 0.9 - i * 0.05,
-                "rechtsgebied": "publiekrecht",
+                "rechtsgebied": "bestuursrecht",
                 "wet_regeling": "TestWet",
                 "artikel_lid": f"Art. {i}",
             }
@@ -436,7 +436,7 @@ class TestRAGTokenBudget:
             {
                 "chunk_text": "W" * 1000,
                 "score": 0.9 - i * 0.01,
-                "rechtsgebied": "publiekrecht",
+                "rechtsgebied": "bestuursrecht",
                 "wet_regeling": "TestWet",
                 "artikel_lid": f"Art. {i}",
             }
@@ -560,7 +560,7 @@ class TestXMLSourceFormatter:
             chunk_text="Testtekst",
             score=0.88,
             confidence=0.88,
-            rechtsgebied="publiekrecht",
+            rechtsgebied="bestuursrecht",
         )
         assert 'type="rag"' in result
         assert 'score="0.88"' in result
@@ -593,7 +593,7 @@ class TestRAGMultiDocument:
                 "ter inzage aan te bieden.\n"
             ),
             "filename": "wid.txt",
-            "rechtsgebied": "publiekrecht",
+            "rechtsgebied": "bestuursrecht",
         },
         {
             "tekst": (
@@ -748,7 +748,7 @@ class TestRAGIrrelevantSearch:
             ),
             collection_id=collection_id,
             filename="wid.txt",
-            rechtsgebied="publiekrecht",
+            rechtsgebied="bestuursrecht",
         )
 
         # Haal opgeslagen embedding op en maak een orthogonale query-vector
