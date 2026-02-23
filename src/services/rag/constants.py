@@ -35,10 +35,23 @@ COLLECTION_TYPE_MAP: dict[str, CollectionType] = {ct.key: ct for ct in COLLECTIO
 # beschrijft externe datakoppelingen, niet RAG-brondocumenten.
 BRON_TYPES: tuple[str, ...] = ("wetgeving", "website", "pdf", "api")
 
+# DEF-379: mapping van collection type key naar bron_type voor rag_chunks.
+# Alleen "wetgeving" heeft een directe equivalent in BRON_TYPES.
+# Overige types (kamerstukken, beleid, keten, vrij) geven None terug —
+# bron_type blijft dan NULL in de database.
+COLLECTION_TYPE_TO_BRON_TYPE: dict[str, str | None] = {
+    "wetgeving": "wetgeving",
+    "kamerstukken": None,
+    "beleid": None,
+    "keten": None,
+    "vrij": None,
+}
+
 __all__ = [
     "BRON_TYPES",
     "COLLECTION_TYPES",
     "COLLECTION_TYPE_MAP",
+    "COLLECTION_TYPE_TO_BRON_TYPE",
     "RECHTSGEBIEDEN",
     "CollectionType",
     "normaliseer_rechtsgebied",
