@@ -48,10 +48,14 @@ class TestCollectionTypeToBronType:
         """Collection type 'wetgeving' → bron_type 'wetgeving'."""
         assert COLLECTION_TYPE_TO_BRON_TYPE["wetgeving"] == "wetgeving"
 
-    def test_overige_types_zijn_none(self):
-        """Collection types zonder directe bron_type → None."""
-        for key in ("kamerstukken", "beleid", "keten", "vrij"):
-            assert COLLECTION_TYPE_TO_BRON_TYPE[key] is None
+    def test_pdf_types_mapped_naar_pdf(self):
+        """kamerstukken, beleid en keten zijn PDF-brondocumenten → 'pdf'."""
+        for key in ("kamerstukken", "beleid", "keten"):
+            assert COLLECTION_TYPE_TO_BRON_TYPE[key] == "pdf"
+
+    def test_vrij_is_none(self):
+        """Collection type 'vrij' heeft geen vaste bron-vorm → None."""
+        assert COLLECTION_TYPE_TO_BRON_TYPE["vrij"] is None
 
     def test_bron_types_zijn_geldig(self):
         """Alle non-None waarden in de mapping zijn geldige BRON_TYPES."""
