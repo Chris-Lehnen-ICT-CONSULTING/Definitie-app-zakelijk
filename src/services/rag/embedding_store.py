@@ -151,16 +151,24 @@ class EmbeddingStore:
         rechtsgebied: str | None = None,
         wet_regeling: str | None = None,
         artikel_lid: str | None = None,
+        bron_type: str | None = None,
+        metadata: dict | None = None,
     ) -> int:
         """Sla chunk-tekst + metadata + embedding op in één INSERT.
 
         Valideert embedding dimensies tegen collection metadata.
+        Metadata wordt opgeslagen als JSONB via jsonb() wrapper.
+
+        Args:
+            bron_type: Brontype filter ("wetgeving", "website", "pdf", "api").
+            metadata: Extensibele metadata dict (opgeslagen als JSONB).
 
         Returns:
             chunk_id
         """
         if not chunk_text or not chunk_text.strip():
             raise ValueError("chunk_text mag niet leeg zijn")
+        metadata_json = json.dumps(metadata or {})
         conn = self._connect()
         try:
             dims = self._get_collection_dimensions(conn, collection_id)
@@ -169,8 +177,8 @@ class EmbeddingStore:
             cursor = conn.execute(
                 "INSERT INTO rag_chunks "
                 "(collection_id, document_id, chunk_text, embedding, chunk_index, "
-                "rechtsgebied, wet_regeling, artikel_lid) "
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                "rechtsgebied, wet_regeling, artikel_lid, bron_type, metadata) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, jsonb(?))",
                 (
                     collection_id,
                     document_id,
@@ -180,6 +188,8 @@ class EmbeddingStore:
                     rechtsgebied,
                     wet_regeling,
                     artikel_lid,
+                    bron_type,
+                    metadata_json,
                 ),
             )
             conn.commit()
@@ -233,12 +243,13 @@ class EmbeddingStore:
             sql = (
                 "INSERT INTO rag_chunks "
                 "(collection_id, document_id, chunk_text, embedding, chunk_index, "
-                "rechtsgebied, wet_regeling, artikel_lid) "
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+                "rechtsgebied, wet_regeling, artikel_lid, bron_type, metadata) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, jsonb(?))"
             )
             for chunk, emb in zip(chunks, embeddings, strict=True):
                 if not chunk["chunk_text"] or not chunk["chunk_text"].strip():
                     raise ValueError("chunk_text mag niet leeg zijn")
+                metadata_json = json.dumps(chunk.get("metadata") or {})
                 cursor = conn.execute(
                     sql,
                     (
@@ -250,6 +261,8 @@ class EmbeddingStore:
                         chunk.get("rechtsgebied"),
                         chunk.get("wet_regeling"),
                         chunk.get("artikel_lid"),
+                        chunk.get("bron_type"),
+                        metadata_json,
                     ),
                 )
                 chunk_ids.append(cursor.lastrowid)
@@ -268,6 +281,17 @@ class EmbeddingStore:
         finally:
             conn.close()
 
+    @staticmethod
+    def _parse_metadata(raw: str | None) -> dict:
+        """Parse metadata JSON string naar dict. Lege/ongeldige waarden → {}."""
+        if not raw:
+            return {}
+        try:
+            parsed = json.loads(raw)
+            return parsed if isinstance(parsed, dict) else {}
+        except (json.JSONDecodeError, TypeError):
+            return {}
+
     def search_similar(
         self,
         query_embedding: np.ndarray,
@@ -280,16 +304,22 @@ class EmbeddingStore:
         2. Cosine similarity: dot(a,b) / (norm(a) * norm(b))
         3. Sorteer op score, return top_k
 
+        Metadata wordt geparsed naar dict. Lees-conventie (overgangsperiode):
+        artikel_lid veld wordt gevuld uit metadata.artikel_nummer met
+        fallback op de legacy artikel_lid kolom.
+
         Returns:
             list[dict] met keys: chunk_id, chunk_text, score, rechtsgebied,
-            wet_regeling, artikel_lid, document_id, chunk_index, created_at
+            wet_regeling, artikel_lid, bron_type, metadata,
+            document_id, chunk_index, created_at
         """
         conn = self._connect()
         try:
             conn.row_factory = sqlite3.Row
             cursor = conn.execute(
                 "SELECT id, chunk_text, embedding, rechtsgebied, wet_regeling, "
-                "artikel_lid, document_id, chunk_index, created_at "
+                "artikel_lid, bron_type, json(metadata) AS metadata, "
+                "document_id, chunk_index, created_at "
                 "FROM rag_chunks "
                 "WHERE collection_id = ? AND embedding IS NOT NULL",
                 (collection_id,),
@@ -324,6 +354,12 @@ class EmbeddingStore:
             results = []
             for idx in top_indices:
                 row = rows[idx]
+                meta = self._parse_metadata(row["metadata"])
+
+                # Lees-conventie: metadata.artikel_nummer met fallback op
+                # legacy artikel_lid kolom
+                artikel_lid = meta.get("artikel_nummer") or row["artikel_lid"]
+
                 results.append(
                     {
                         "chunk_id": row["id"],
@@ -331,7 +367,9 @@ class EmbeddingStore:
                         "score": float(similarities[idx]),
                         "rechtsgebied": row["rechtsgebied"],
                         "wet_regeling": row["wet_regeling"],
-                        "artikel_lid": row["artikel_lid"],
+                        "artikel_lid": artikel_lid,
+                        "bron_type": row["bron_type"],
+                        "metadata": meta,
                         "document_id": row["document_id"],
                         "chunk_index": row["chunk_index"],
                         "created_at": row["created_at"],
