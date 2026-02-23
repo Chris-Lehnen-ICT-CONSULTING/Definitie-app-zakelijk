@@ -1,11 +1,14 @@
-"""Constanten voor de RAG pipeline (DEF-365).
+"""Constanten voor de RAG pipeline (DEF-365, DEF-371, DEF-376, DEF-377).
 
-Collection types en rechtsgebieden — DRY bron voor UI en service laag.
+Collection types — DRY bron voor UI en service laag.
+Rechtsgebied-logica leeft in domain.rechtsgebieden (DEF-377: circulaire import fix).
 """
 
 from __future__ import annotations
 
 from typing import NamedTuple
+
+from domain.rechtsgebieden import RECHTSGEBIEDEN, normaliseer_rechtsgebied
 
 
 class CollectionType(NamedTuple):
@@ -26,10 +29,10 @@ COLLECTION_TYPES: tuple[CollectionType, ...] = (
 
 COLLECTION_TYPE_MAP: dict[str, CollectionType] = {ct.key: ct for ct in COLLECTION_TYPES}
 
-RECHTSGEBIEDEN: tuple[str, ...] = (
-    "strafrecht",
-    "civiel recht",
-    "bestuursrecht",
-    "staatsrecht",
-    "belastingrecht",
-)
+__all__ = [
+    "COLLECTION_TYPES",
+    "COLLECTION_TYPE_MAP",
+    "RECHTSGEBIEDEN",
+    "CollectionType",
+    "normaliseer_rechtsgebied",
+]

@@ -14,6 +14,7 @@ import streamlit as st
 
 from document_processing.document_extractor import supported_file_types
 from document_processing.document_processor import get_document_processor
+from services.rag.constants import RECHTSGEBIEDEN
 from ui.session_state import SessionStateManager
 
 logger = logging.getLogger(__name__)
@@ -243,17 +244,14 @@ class DocumentUploadRenderer:
 
             # DEF-271: RAG ingest knop voor geselecteerde documenten
             if selected_docs:
-                # DEF-361: Rechtsgebied selectie voor metadata enrichment
+                # DEF-361/DEF-371: Rechtsgebied selectie uit centrale waardelijst
+                rg_keys = [""] + list(RECHTSGEBIEDEN.keys())
                 st.selectbox(
                     "Rechtsgebied",
-                    options=[
-                        "",
-                        "strafrecht",
-                        "civiel recht",
-                        "bestuursrecht",
-                        "staatsrecht",
-                        "belastingrecht",
-                    ],
+                    options=rg_keys,
+                    format_func=lambda x: (
+                        RECHTSGEBIEDEN.get(x, "— selecteer —") if x else "— selecteer —"
+                    ),
                     key="rag_rechtsgebied",
                     help="Selecteer het rechtsgebied voor betere RAG retrieval",
                 )

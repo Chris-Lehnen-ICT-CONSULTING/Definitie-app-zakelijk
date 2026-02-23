@@ -2,9 +2,12 @@
 Context options (business knowledge) extracted from UI components.
 
 Keeping these lists centralized avoids scattering domain knowledge across the UI.
+Rechtsgebieden komen uit domain.rechtsgebieden (single source of truth, DEF-376, DEF-377).
 """
 
 from typing import Final
+
+from domain.rechtsgebieden import RECHTSGEBIEDEN
 
 # Organizations in the Dutch justice domain (ASTRA-aligned examples)
 ORGANIZATIONS: Final[list[str]] = [
@@ -21,16 +24,8 @@ ORGANIZATIONS: Final[list[str]] = [
     "Raad voor de Kinderbescherming",
 ]
 
-# Legal domains (NORA-aligned examples)
-LEGAL_DOMAINS: Final[list[str]] = [
-    "Strafrecht",
-    "Bestuursrecht",
-    "Civiel recht",
-    "Jeugdrecht",
-    "Vreemdelingenrecht",
-    "Sanctierecht",
-    "Penitentiair recht",
-]
+# Legal domains — afgeleid uit de centrale RECHTSGEBIEDEN waardelijst
+LEGAL_DOMAINS: Final[list[str]] = list(RECHTSGEBIEDEN.values())
 
 # Common laws frequently referenced
 COMMON_LAWS: Final[list[str]] = [
