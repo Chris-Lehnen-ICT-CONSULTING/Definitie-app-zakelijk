@@ -292,6 +292,10 @@ class RAGManagementRenderer:
                 st.error("Voer een documentnaam in.")
                 return
 
+            if self._mgmt.check_duplicate_document(collection_id, name.strip()):
+                st.warning(f"Document '{name.strip()}' bestaat al in deze collection.")
+                return
+
             with st.spinner("Tekst indexeren..."):
                 try:
                     self._rag.ingest_document(
