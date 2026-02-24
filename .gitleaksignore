@@ -16,12 +16,17 @@ docs/portal/rendered/architectuur/structured-logging-architecture.html:generic-a
 # WARNING: This key was exposed in git history - it has been rotated and is no longer valid
 7ecc95cde3539bb6d11033c15c5751aa0296cb4a:scripts/fetch_linear_issues.py:linear-api-key:5
 c4e00ff087c4735615149818bf44b47fd0da8f23:scripts/fetch_linear_issues.py:linear-api-key:5
+9f664c4a16f7b6560d204e3f063a315962b8027c:scripts/fetch_linear_issues.py:linear-api-key:5
 
 # Historical .gitleaksignore entries (self-referential - old rotated keys in ignore file)
 140d440a027e1abfcbc7fec19427382f0297a992:.gitleaksignore:generic-api-key:5
 140d440a027e1abfcbc7fec19427382f0297a992:.gitleaksignore:generic-api-key:6
 140d440a027e1abfcbc7fec19427382f0297a992:.gitleaksignore:generic-api-key:7
 140d440a027e1abfcbc7fec19427382f0297a992:.gitleaksignore:generic-api-key:10
+72b7b62f469070ec0312f300cc7337c8c682e351:.gitleaksignore:generic-api-key:5
+72b7b62f469070ec0312f300cc7337c8c682e351:.gitleaksignore:generic-api-key:6
+72b7b62f469070ec0312f300cc7337c8c682e351:.gitleaksignore:generic-api-key:7
+72b7b62f469070ec0312f300cc7337c8c682e351:.gitleaksignore:generic-api-key:10
 
 # Historical .env files (removed from repo, secrets already rotated)
 # Note: Line numbers are 1-indexed in gitleaks fingerprints
@@ -30,6 +35,10 @@ cf4122e873efed859e022774b00c66c6e4280948:.env:env-file-exposure:1
 
 # Legacy package docs (example keys in documentation, not real secrets)
 0b706cc1e0a4be76782d0f0c505f99bb74072368:REBUILD_PACKAGE/requirements/TECHNICAL_ARCHITECTURE.md:database-connection-string:1782
+3332484ac2a31a5173dcd4db6609e345406f5331:REBUILD_PACKAGE/requirements/TECHNICAL_ARCHITECTURE.md:database-connection-string:1782
 ec1cf514d0198766ee371cbebd63ee8a468daecc:ai_code_reviewer_package/BUILD.md:generic-api-key:104
 ec1cf514d0198766ee371cbebd63ee8a468daecc:ai_code_reviewer_package/BUILD.md:generic-api-key:115
 ec1cf514d0198766ee371cbebd63ee8a468daecc:ai_code_reviewer_package/BUILD.md:generic-api-key:120
+6426a9a8e1e19756226139a89520f92ccc30cc63:ai_code_reviewer_package/BUILD.md:generic-api-key:104
+6426a9a8e1e19756226139a89520f92ccc30cc63:ai_code_reviewer_package/BUILD.md:generic-api-key:115
+6426a9a8e1e19756226139a89520f92ccc30cc63:ai_code_reviewer_package/BUILD.md:generic-api-key:120
