@@ -197,6 +197,7 @@ def test_indexeert_alle_nieuwe_regels(regels_dir: Path, tmp_path: Path) -> None:
         patch("index_toetsregels.EmbeddingService"),
         patch("index_toetsregels.EmbeddingStore"),
         patch("index_toetsregels.sqlite3.connect") as mock_connect,
+        patch.dict("os.environ", {"OPENAI_API_KEY": "test-key"}),
     ):
         mock_conn = MagicMock()
         mock_conn.execute.return_value.fetchone.return_value = None  # niet geïndexeerd
@@ -207,6 +208,7 @@ def test_indexeert_alle_nieuwe_regels(regels_dir: Path, tmp_path: Path) -> None:
     assert resultaat["geindexeerd"] == 2
     assert resultaat["overgeslagen"] == 0
     assert resultaat["fouten"] == 0
+    assert resultaat["succes"] is True
     assert mock_rag.ingest_document.call_count == 2
 
 
@@ -224,6 +226,7 @@ def test_slaat_al_geindexeerde_over(regels_dir: Path, tmp_path: Path) -> None:
         patch("index_toetsregels.EmbeddingService"),
         patch("index_toetsregels.EmbeddingStore"),
         patch("index_toetsregels.sqlite3.connect") as mock_connect,
+        patch.dict("os.environ", {"OPENAI_API_KEY": "test-key"}),
     ):
         # Eerste regel al geïndexeerd, tweede niet
         mock_conn = MagicMock()
@@ -255,6 +258,7 @@ def test_telt_fouten_bij_ingest_fout(regels_dir: Path, tmp_path: Path) -> None:
         patch("index_toetsregels.EmbeddingService"),
         patch("index_toetsregels.EmbeddingStore"),
         patch("index_toetsregels.sqlite3.connect") as mock_connect,
+        patch.dict("os.environ", {"OPENAI_API_KEY": "test-key"}),
     ):
         mock_conn = MagicMock()
         mock_conn.execute.return_value.fetchone.return_value = None
@@ -264,3 +268,85 @@ def test_telt_fouten_bij_ingest_fout(regels_dir: Path, tmp_path: Path) -> None:
 
     assert resultaat["fouten"] == 2
     assert resultaat["geindexeerd"] == 0
+    assert resultaat["succes"] is False
+
+
+# ---------------------------------------------------------------------------
+# Nieuwe tests voor foutpaden (bevindingen codereview)
+# ---------------------------------------------------------------------------
+
+
+def test_laad_toetsregels_dir_bestaat_niet(tmp_path: Path) -> None:
+    """FileNotFoundError als de directory niet bestaat."""
+    niet_bestaand = tmp_path / "bestaat_niet"
+    with pytest.raises(FileNotFoundError, match="Toetsregels directory niet gevonden"):
+        laad_toetsregels(niet_bestaand)
+
+
+def test_laad_toetsregels_corrupt_json_wordt_overgeslagen(tmp_path: Path) -> None:
+    """Corrupt JSON-bestand wordt overgeslagen; geldige bestanden worden wel geladen."""
+    (tmp_path / "GOED.json").write_text('{"naam": "geldig"}', encoding="utf-8")
+    (tmp_path / "KAPOT.json").write_text("dit is geen json {{{", encoding="utf-8")
+
+    regels = laad_toetsregels(tmp_path)
+
+    assert len(regels) == 1
+    assert regels[0]["naam"] == "geldig"
+
+
+def test_succes_veld_false_bij_fouten(regels_dir: Path, tmp_path: Path) -> None:
+    """Resultaat bevat succes=False als er fouten waren."""
+    db_path = str(tmp_path / "test.db")
+    mock_rag = MagicMock()
+    mock_rag._ensure_collection.return_value = 1
+    mock_rag.ingest_document.side_effect = RuntimeError("fout")
+    mock_rag.get_collection_stats.return_value = {"document_count": 0, "chunk_count": 0}
+
+    with (
+        patch("index_toetsregels.REGELS_DIR", regels_dir),
+        patch("index_toetsregels.RAGService", return_value=mock_rag),
+        patch("index_toetsregels.DocumentChunker"),
+        patch("index_toetsregels.EmbeddingService"),
+        patch("index_toetsregels.EmbeddingStore"),
+        patch("index_toetsregels.sqlite3.connect") as mock_connect,
+        patch.dict("os.environ", {"OPENAI_API_KEY": "test-key"}),
+    ):
+        mock_conn = MagicMock()
+        mock_conn.execute.return_value.fetchone.return_value = None
+        mock_connect.return_value = mock_conn
+        resultaat = index_toetsregels(db_path=db_path)
+
+    assert resultaat["succes"] is False
+
+
+def test_dry_run_succes_veld_is_true(regels_dir: Path) -> None:
+    """dry-run geeft altijd succes=True terug."""
+    with patch("index_toetsregels.REGELS_DIR", regels_dir):
+        resultaat = index_toetsregels(dry_run=True)
+    assert resultaat["succes"] is True
+
+
+def test_pragma_foreign_keys_wordt_ingesteld(regels_dir: Path, tmp_path: Path) -> None:
+    """sqlite3 verbinding in index_toetsregels gebruikt PRAGMA foreign_keys=ON."""
+    db_path = str(tmp_path / "test.db")
+    mock_rag = MagicMock()
+    mock_rag._ensure_collection.return_value = 1
+    mock_rag.get_collection_stats.return_value = {"document_count": 0, "chunk_count": 0}
+
+    with (
+        patch("index_toetsregels.REGELS_DIR", regels_dir),
+        patch("index_toetsregels.RAGService", return_value=mock_rag),
+        patch("index_toetsregels.DocumentChunker"),
+        patch("index_toetsregels.EmbeddingService"),
+        patch("index_toetsregels.EmbeddingStore"),
+        patch("index_toetsregels.sqlite3.connect") as mock_connect,
+        patch.dict("os.environ", {"OPENAI_API_KEY": "test-key"}),
+    ):
+        mock_conn = MagicMock()
+        mock_conn.execute.return_value.fetchone.return_value = None
+        mock_connect.return_value = mock_conn
+        index_toetsregels(db_path=db_path)
+
+    # Eerste execute-aanroep is PRAGMA foreign_keys=ON
+    pragma_call = mock_conn.execute.call_args_list[0]
+    assert "PRAGMA foreign_keys" in pragma_call[0][0]

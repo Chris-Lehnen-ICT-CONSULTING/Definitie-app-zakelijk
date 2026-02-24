@@ -279,6 +279,13 @@ class JuridischeChunkingStrategy(ChunkingStrategy):
         if not leden:
             # Geen letter-leden gevonden (onverwacht gezien _RE_DEFINITIE_START);
             # val terug op forceer-split zonder prefix
+            logger.warning(
+                "Definitieblok in '%s' (elem %s) is te groot maar bevat geen "
+                "detecteerbare letter-leden — val terug op forceer-split. "
+                "Chunk-kwaliteit kan lager zijn.",
+                bronbestand,
+                elem.nummer or "onbekend",
+            )
             return self._forceer_split(
                 elem.tekst, bronbestand, rechtsgebied, wet_naam, elem, vorige_tekst
             )
