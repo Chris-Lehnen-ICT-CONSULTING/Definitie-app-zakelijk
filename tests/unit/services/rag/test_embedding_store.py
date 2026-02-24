@@ -840,3 +840,188 @@ class TestMetadataJSONB:
         assert EmbeddingStore._parse_metadata("invalid json") == {}
         assert EmbeddingStore._parse_metadata("[]") == {}
         assert EmbeddingStore._parse_metadata('{"key": "val"}') == {"key": "val"}
+
+
+# ---------------------------------------------------------------------------
+# DEF-373: Pre-retrieval filtering + fallback
+# ---------------------------------------------------------------------------
+
+
+class TestSearchSimilarFiltering:
+    """Tests voor rechtsgebied/wet_regeling/bron_type filters in search_similar."""
+
+    @pytest.fixture
+    def store(self, tmp_path):
+        path = str(tmp_path / "filter_test.db")
+        conn = sqlite3.connect(path)
+        conn.executescript(SCHEMA_SQL)
+        conn.close()
+        return EmbeddingStore(db_path=path)
+
+    @pytest.fixture
+    def coll(self, store):
+        return store.create_collection("filter_coll", dimensions=DIMS)
+
+    @pytest.fixture
+    def doc(self, store, coll, tmp_path):
+        path = str(tmp_path / "filter_test.db")
+        conn = sqlite3.connect(path)
+        cursor = conn.execute(
+            "INSERT INTO rag_documents (collection_id, filename, file_type) VALUES (?,?,?)",
+            (coll, "test.pdf", "pdf"),
+        )
+        conn.commit()
+        doc_id = cursor.lastrowid
+        conn.close()
+        return doc_id
+
+    def _store_chunk(
+        self,
+        store,
+        coll,
+        doc,
+        tekst,
+        rechtsgebied=None,
+        wet_regeling=None,
+        bron_type=None,
+        seed=0,
+    ):
+        emb = _make_embedding(seed)
+        store.store_chunk(
+            coll,
+            doc,
+            tekst,
+            emb,
+            seed,
+            rechtsgebied=rechtsgebied,
+            wet_regeling=wet_regeling,
+            bron_type=bron_type,
+        )
+        return emb
+
+    def test_filter_op_rechtsgebied(self, store, coll, doc):
+        """Alleen chunks met matching rechtsgebied worden teruggegeven."""
+        emb_str = self._store_chunk(
+            store, coll, doc, "Strafrecht chunk", rechtsgebied="strafrecht", seed=0
+        )
+        self._store_chunk(
+            store,
+            coll,
+            doc,
+            "Burgerlijk recht chunk",
+            rechtsgebied="burgerlijk_recht",
+            seed=1,
+        )
+
+        results = store.search_similar(
+            emb_str, coll, top_k=5, rechtsgebied="strafrecht"
+        )
+        assert all(r["rechtsgebied"] == "strafrecht" for r in results)
+        assert len(results) == 1
+
+    def test_filter_op_bron_type(self, store, coll, doc):
+        """bron_type filter sluit chunks van andere brontypes uit."""
+        emb = self._store_chunk(
+            store, coll, doc, "Wetgeving chunk", bron_type="wetgeving", seed=0
+        )
+        self._store_chunk(store, coll, doc, "PDF chunk", bron_type="pdf", seed=1)
+
+        results = store.search_similar(emb, coll, top_k=5, bron_type="wetgeving")
+        assert len(results) == 1
+        assert results[0]["bron_type"] == "wetgeving"
+
+    def test_geen_filter_geeft_alle_chunks(self, store, coll, doc):
+        """Zonder filter worden alle chunks doorzocht."""
+        self._store_chunk(store, coll, doc, "A", rechtsgebied="strafrecht", seed=0)
+        self._store_chunk(
+            store, coll, doc, "B", rechtsgebied="burgerlijk_recht", seed=1
+        )
+        emb = _make_embedding(0)
+        results = store.search_similar(emb, coll, top_k=10)
+        assert len(results) == 2
+
+
+class TestSearchSimilarWithFallback:
+    """Tests voor de 3-traps fallback strategie (DEF-373)."""
+
+    @pytest.fixture
+    def store(self, tmp_path):
+        path = str(tmp_path / "fallback_test.db")
+        conn = sqlite3.connect(path)
+        conn.executescript(SCHEMA_SQL)
+        conn.close()
+        return EmbeddingStore(db_path=path)
+
+    @pytest.fixture
+    def coll(self, store):
+        return store.create_collection("fallback_coll", dimensions=DIMS)
+
+    @pytest.fixture
+    def doc(self, store, coll, tmp_path):
+        path = str(tmp_path / "fallback_test.db")
+        conn = sqlite3.connect(path)
+        cursor = conn.execute(
+            "INSERT INTO rag_documents (collection_id, filename, file_type) VALUES (?,?,?)",
+            (coll, "test.pdf", "pdf"),
+        )
+        conn.commit()
+        doc_id = cursor.lastrowid
+        conn.close()
+        return doc_id
+
+    def test_geen_fallback_bij_genoeg_resultaten(self, store, coll, doc):
+        """was_fallback=False als filters genoeg resultaten geven."""
+        emb = _make_embedding(0)
+        store.store_chunk(coll, doc, "chunk A", emb, 0, rechtsgebied="strafrecht")
+        store.store_chunk(coll, doc, "chunk B", emb, 1, rechtsgebied="strafrecht")
+
+        results, was_fallback = store.search_similar_with_fallback(
+            emb, coll, top_k=5, rechtsgebied="strafrecht", min_results=2
+        )
+        assert len(results) == 2
+        assert was_fallback is False
+
+    def test_fallback_bij_te_weinig_resultaten(self, store, coll, doc):
+        """Valt terug op bredere zoekopdracht als filter < min_results geeft."""
+        emb = _make_embedding(0)
+        # Geen chunks met rechtsgebied="strafrecht", wel zonder filter
+        store.store_chunk(coll, doc, "chunk A", emb, 0, rechtsgebied="burgerlijk_recht")
+        store.store_chunk(coll, doc, "chunk B", emb, 1, rechtsgebied="burgerlijk_recht")
+
+        results, was_fallback = store.search_similar_with_fallback(
+            emb, coll, top_k=5, rechtsgebied="strafrecht", min_results=2
+        )
+        assert len(results) == 2
+        assert was_fallback is True
+
+    def test_fallback_stap2_rechtsgebied_geeft_resultaten(self, store, coll, doc):
+        """Stap 2 (alleen rechtsgebied) slaagt als wet_regeling filter te streng is."""
+        emb = _make_embedding(0)
+        # Chunk heeft rechtsgebied maar niet de gevraagde wet_regeling
+        store.store_chunk(
+            coll, doc, "chunk X", emb, 0, rechtsgebied="strafrecht", wet_regeling="WvSv"
+        )
+        store.store_chunk(
+            coll, doc, "chunk Y", emb, 1, rechtsgebied="strafrecht", wet_regeling="WvSv"
+        )
+
+        results, was_fallback = store.search_similar_with_fallback(
+            emb,
+            coll,
+            top_k=5,
+            rechtsgebied="strafrecht",
+            wet_regeling="onbekende_wet",
+            min_results=2,
+        )
+        # Stap 1 geeft 0 (onbekende_wet), stap 2 (alleen rechtsgebied) geeft 2
+        assert len(results) == 2
+        assert was_fallback is True
+
+    def test_lege_collectie_geeft_lege_resultaten(self, store, coll):
+        """Lege collectie → lege resultaten, geen crash."""
+        emb = _make_embedding(0)
+        results, was_fallback = store.search_similar_with_fallback(
+            emb, coll, top_k=5, rechtsgebied="strafrecht"
+        )
+        assert results == []
+        assert was_fallback is True

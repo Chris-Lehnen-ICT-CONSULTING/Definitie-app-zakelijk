@@ -641,3 +641,64 @@ class TestMergeKleineChunksPostPass:
         )
         result = strategy._merge_kleine_chunks([groot, klein])
         assert len(result) == 2  # Kan niet mergen, beide blijven
+
+
+# ── DEF-375: Definitieblokken atomic chunking edge case ──────────────────────
+
+
+class TestDefinitieblokkenSplit:
+    """Tests voor het splitsen van grote definitieblokken (DEF-375)."""
+
+    def _maak_groot_definitieblok(self, n_definities: int = 60) -> str:
+        """Genereer een synthetisch definitieblok met n letter-leden (> 1000 tokens).
+
+        Inclusief artikel-header zodat de LegalStructureRecognizer het correct
+        herkent als definitieblok en _split_definitieblok() aanroept.
+        """
+        regels = ["Artikel 1.", "In deze wet wordt verstaan onder:"]
+        for i, letter in enumerate("abcdefghijklmnopqrstuvwxyz" * 3):
+            if i >= n_definities:
+                break
+            # ~20 woorden per definitie zodat total > 1000 tokens
+            regels.append(
+                f"{letter}. {letter.upper()}-begrip: dit is een uitgebreide definitie "
+                f"van begrip {letter} die meerdere woorden bevat om voldoende tokens "
+                f"te genereren voor deze testcase in het kader van de wet;"
+            )
+        return "\n".join(regels)
+
+    def test_klein_definitieblok_blijft_atomic(self):
+        """Definitieblok binnen max_tokens wordt nooit gesplitst."""
+        strategy = JuridischeChunkingStrategy(max_tokens=1000)
+        tekst = "Artikel 1.\nIn deze wet wordt verstaan onder:\na. begrip: korte definitie;\nb. ander begrip: ook kort."
+        chunks = strategy.chunk(tekst, "wet.xml", "text/xml")
+        # Klein blok = exact 1 chunk (atomic), ongeacht filters
+        assert len(chunks) == 1
+        assert "begrip" in chunks[0].tekst
+
+    def test_groot_definitieblok_wordt_gesplitst(self):
+        """Definitieblok > max_tokens wordt gesplitst in meerdere chunks."""
+        strategy = JuridischeChunkingStrategy(max_tokens=100)
+        tekst = self._maak_groot_definitieblok(n_definities=10)
+        chunks = strategy.chunk(tekst, "wet.xml", "text/xml")
+        # Groot blok moet meer dan 1 chunk opleveren
+        assert len(chunks) > 1
+
+    def test_openingszin_aanwezig_in_elk_subchunk(self):
+        """Elke sub-chunk bevat de openingszin als context-prefix."""
+        strategy = JuridischeChunkingStrategy(max_tokens=100)
+        tekst = self._maak_groot_definitieblok(n_definities=10)
+        chunks = strategy.chunk(tekst, "wet.xml", "text/xml")
+        for chunk in chunks:
+            assert "In deze wet wordt verstaan onder:" in chunk.tekst
+
+    def test_subchunks_bevatten_letter_leden(self):
+        """Sub-chunks bevatten de letter-lid tekst (a., b., etc.)."""
+        strategy = JuridischeChunkingStrategy(max_tokens=100)
+        tekst = self._maak_groot_definitieblok(n_definities=5)
+        chunks = strategy.chunk(tekst, "wet.xml", "text/xml")
+        # Minstens één letter-lid moet in de chunks terugkomen
+        letters_gevonden = any(
+            any(f"{letter}." in c.tekst for letter in "abcde") for c in chunks
+        )
+        assert letters_gevonden
