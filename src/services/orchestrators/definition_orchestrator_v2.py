@@ -20,6 +20,7 @@ import uuid
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any, Optional, cast
 
+from domain.rechtsgebieden import normaliseer_rechtsgebied
 from services.exceptions import (
     DatabaseConnectionError,
     DatabaseConstraintError,
@@ -576,12 +577,25 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                             "user_documents"
                         )
 
+                    # Normaliseer rechtsgebied uit juridische_context (DEF-373)
+                    # juridische_context is een list[str]; truthiness vangt
+                    # zowel None als [] op — beide resulteren in geen filter.
+                    juridische_context = getattr(
+                        sanitized_request, "juridische_context", None
+                    )
+                    rag_rechtsgebied = (
+                        normaliseer_rechtsgebied(juridische_context[0])
+                        if juridische_context  # False voor None én []
+                        else None
+                    )
+
                     # Async wrap: retrieve_context() is synchroon (numpy)
                     rag_context = await asyncio.to_thread(
                         self.rag_service.retrieve_context,
                         query=sanitized_request.begrip,
                         collection_id=rag_collection_id,
                         top_k=5,
+                        rechtsgebied=rag_rechtsgebied,
                     )
 
                     # Score threshold: filter lage-score chunks
