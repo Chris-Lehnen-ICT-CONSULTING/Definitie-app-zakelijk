@@ -122,20 +122,25 @@ class JuridischeChunkingStrategy(ChunkingStrategy):
         """Chunk een enkel structuur-element."""
         token_count = tel_tokens(elem.tekst)
 
-        # Definitieblokken: altijd atomic
+        # Definitieblokken: atomic als binnen limiet, anders split op letter-leden
         if elem.type == "definitieblok":
-            return [
-                self._maak_chunk(
-                    elem.tekst,
-                    bronbestand,
-                    rechtsgebied,
-                    wet_naam,
-                    elem,
-                    token_count,
-                    vorige_tekst,
-                    0,
-                )
-            ]
+            if token_count <= self.max_tokens:
+                return [
+                    self._maak_chunk(
+                        elem.tekst,
+                        bronbestand,
+                        rechtsgebied,
+                        wet_naam,
+                        elem,
+                        token_count,
+                        vorige_tekst,
+                        0,
+                    )
+                ]
+            # Te groot: split op letter-leden met openingszin als context-prefix
+            return self._split_definitieblok(
+                elem, bronbestand, rechtsgebied, wet_naam, vorige_tekst
+            )
 
         # Hoofdstukken/afdelingen/paragrafen/bijlagen/titels/boeken
         if elem.type in (
@@ -249,6 +254,63 @@ class JuridischeChunkingStrategy(ChunkingStrategy):
                 )
                 chunks.append(chunk)
                 vorige = lid.tekst
+
+        return chunks
+
+    def _split_definitieblok(
+        self,
+        elem: JuridischeStructuur,
+        bronbestand: str,
+        rechtsgebied: str | None,
+        wet_naam: str | None,
+        vorige_tekst: str,
+    ) -> list[DocumentChunk]:
+        """Split een te groot definitieblok op letter-leden (a., b., c.).
+
+        Prepend de openingszin ("In deze wet wordt verstaan onder:") aan elk
+        sub-chunk zodat de embedding altijd de overkoepelende context bevat.
+
+        Aparte methode i.p.v. _split_op_leden() hergebruiken omdat:
+        - _split_op_leden() gebruikt include_letter_leden=False hardcoded
+        - Prefix-logica (openingszin) is uniek voor definitieblokken
+        """
+        leden = self._recognizer.detecteer_leden(elem.tekst, include_letter_leden=True)
+
+        if not leden:
+            # Geen letter-leden gevonden (onverwacht gezien _RE_DEFINITIE_START);
+            # val terug op forceer-split zonder prefix
+            logger.warning(
+                "Definitieblok in '%s' (elem %s) is te groot maar bevat geen "
+                "detecteerbare letter-leden — val terug op forceer-split. "
+                "Chunk-kwaliteit kan lager zijn.",
+                bronbestand,
+                elem.nummer or "onbekend",
+            )
+            return self._forceer_split(
+                elem.tekst, bronbestand, rechtsgebied, wet_naam, elem, vorige_tekst
+            )
+
+        openingszin = elem.tekst[: leden[0].start].strip()
+        chunks: list[DocumentChunk] = []
+        vorige = vorige_tekst
+
+        for i, lid in enumerate(leden):
+            chunk_tekst = f"{openingszin}\n{lid.tekst}" if openingszin else lid.tekst
+            chunk_tokens = tel_tokens(chunk_tekst)
+            chunk = self._maak_chunk(
+                chunk_tekst,
+                bronbestand,
+                rechtsgebied,
+                wet_naam,
+                elem,
+                chunk_tokens,
+                vorige,
+                i,
+                lid_nummer=lid.nummer,
+                structuur_type="definitieblok_lid",
+            )
+            chunks.append(chunk)
+            vorige = chunk_tekst
 
         return chunks
 
