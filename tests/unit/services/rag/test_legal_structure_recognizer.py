@@ -372,6 +372,77 @@ class TestDefinitieblokDetectie:
         defblokken = [e for e in elementen if e.type == "definitieblok"]
         assert len(defblokken) == 1
 
+    def test_in_deze_titel_wordt_verstaan_onder(self, recognizer):
+        """Wetboekstijl: definitieartikel begrensd tot een titel (Wvs Artikel 51a)."""
+        tekst = (
+            "Artikel 51a\n"
+            "1. In deze titel wordt verstaan onder:\n"
+            "a. slachtoffer: degene die als rechtstreeks gevolg van een strafbaar feit schade heeft;\n"
+            "b. nabestaande: de echtgenoot of geregistreerd partner;\n"
+            "c. wettelijk vertegenwoordiger: de ouder of voogd.\n\n"
+            "Artikel 51b\n"
+            "Het slachtoffer heeft bepaalde rechten.\n"
+        )
+        elementen = recognizer.detecteer_structuur(tekst)
+        defblokken = [e for e in elementen if e.type == "definitieblok"]
+        assert len(defblokken) == 1
+
+    def test_in_dit_wetboek_wordt_verstaan_onder(self, recognizer):
+        """Wetboekstijl: scope is het gehele wetboek."""
+        tekst = (
+            "Artikel 1\n"
+            "In dit wetboek wordt verstaan onder:\n"
+            "a. rechter: de bevoegde rechterlijke instantie;\n"
+            "b. officier: de officier van justitie.\n\n"
+            "Artikel 2\n"
+            "Andere bepaling.\n"
+        )
+        elementen = recognizer.detecteer_structuur(tekst)
+        defblokken = [e for e in elementen if e.type == "definitieblok"]
+        assert len(defblokken) == 1
+
+    def test_in_deze_afdeling_wordt_verstaan_onder(self, recognizer):
+        """Afdelingsscope: definitieartikel binnen een afdeling (Wvs 5.5.14)."""
+        tekst = (
+            "Artikel 5.5.14\n"
+            "In deze afdeling wordt verstaan onder:\n"
+            "a. bevriezingsbevel: bevel als bedoeld in artikel 5.5.1;\n"
+            "b. bevoegde autoriteit: de rechtbank of officier van justitie.\n\n"
+            "Artikel 5.5.15\n"
+            "Andere bepaling.\n"
+        )
+        elementen = recognizer.detecteer_structuur(tekst)
+        defblokken = [e for e in elementen if e.type == "definitieblok"]
+        assert len(defblokken) == 1
+
+    def test_in_de_bepalingen_van_deze_titel(self, recognizer):
+        """Uitgebreide scope-formulering met 'bepalingen van' (Wvs 5.8.1)."""
+        tekst = (
+            "Artikel 5.8.1\n"
+            "In de bepalingen van deze titel wordt verstaan onder:\n"
+            "a. Europees beschermingsbevel: een uitvoerbare beslissing;\n"
+            "b. beschermingsstaat: de staat die het bevel ten uitvoer legt.\n\n"
+            "Artikel 5.8.2\n"
+            "Andere bepaling.\n"
+        )
+        elementen = recognizer.detecteer_structuur(tekst)
+        defblokken = [e for e in elementen if e.type == "definitieblok"]
+        assert len(defblokken) == 1
+
+    def test_in_deze_titel_en_de_daarop_rustende_bepalingen(self, recognizer):
+        """Titel met tussenwoorden (Wvs 5.7.1: 'en de daarop rustende bepalingen')."""
+        tekst = (
+            "Artikel 5.7.1\n"
+            "In deze titel en de daarop rustende bepalingen wordt verstaan onder:\n"
+            "a. kaderbesluit: kaderbesluit 2009/315/JBZ;\n"
+            "b. uitvaardigende staat: de staat die het verzoek indient.\n\n"
+            "Artikel 5.7.2\n"
+            "Andere bepaling.\n"
+        )
+        elementen = recognizer.detecteer_structuur(tekst)
+        defblokken = [e for e in elementen if e.type == "definitieblok"]
+        assert len(defblokken) == 1
+
 
 class TestInleidingChunk:
     """DEF-380 Bevinding 1: Tekst vóór het eerste herkende structuurelement als 'inleiding'."""
