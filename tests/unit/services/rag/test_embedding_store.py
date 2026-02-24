@@ -863,9 +863,8 @@ class TestSearchSimilarFiltering:
         return store.create_collection("filter_coll", dimensions=DIMS)
 
     @pytest.fixture
-    def doc(self, store, coll, tmp_path):
-        path = str(tmp_path / "filter_test.db")
-        conn = sqlite3.connect(path)
+    def doc(self, store, coll):
+        conn = sqlite3.connect(store._db_path)
         cursor = conn.execute(
             "INSERT INTO rag_documents (collection_id, filename, file_type) VALUES (?,?,?)",
             (coll, "test.pdf", "pdf"),
@@ -940,6 +939,24 @@ class TestSearchSimilarFiltering:
         results = store.search_similar(emb, coll, top_k=10)
         assert len(results) == 2
 
+    def test_lege_string_rechtsgebied_filtert_op_lege_waarde(self, store, coll, doc):
+        """Lege string "" filtert op chunks met rechtsgebied="" (is not None check)."""
+        # Chunk zonder rechtsgebied (None) en chunk met lege string
+        emb = _make_embedding(0)
+        store.store_chunk(coll, doc, "geen rechtsgebied", emb, 0, rechtsgebied=None)
+        # Geen chunk met rechtsgebied="" in DB → filter geeft 0 resultaten
+        results = store.search_similar(emb, coll, top_k=5, rechtsgebied="")
+        # Lege string filtert op exacte match "" — geen chunk heeft dat → 0
+        assert len(results) == 0
+
+    def test_none_rechtsgebied_filtert_niet(self, store, coll, doc):
+        """rechtsgebied=None resulteert in geen WHERE-clause (alle chunks)."""
+        self._store_chunk(store, coll, doc, "A", rechtsgebied="strafrecht", seed=0)
+        self._store_chunk(store, coll, doc, "B", rechtsgebied=None, seed=1)
+        emb = _make_embedding(0)
+        results = store.search_similar(emb, coll, top_k=10, rechtsgebied=None)
+        assert len(results) == 2
+
 
 class TestSearchSimilarWithFallback:
     """Tests voor de 3-traps fallback strategie (DEF-373)."""
@@ -957,9 +974,8 @@ class TestSearchSimilarWithFallback:
         return store.create_collection("fallback_coll", dimensions=DIMS)
 
     @pytest.fixture
-    def doc(self, store, coll, tmp_path):
-        path = str(tmp_path / "fallback_test.db")
-        conn = sqlite3.connect(path)
+    def doc(self, store, coll):
+        conn = sqlite3.connect(store._db_path)
         cursor = conn.execute(
             "INSERT INTO rag_documents (collection_id, filename, file_type) VALUES (?,?,?)",
             (coll, "test.pdf", "pdf"),
