@@ -297,16 +297,24 @@ class EmbeddingStore:
         query_embedding: np.ndarray,
         collection_id: int,
         top_k: int = 5,
+        rechtsgebied: str | None = None,
+        wet_regeling: str | None = None,
+        bron_type: str | None = None,
     ) -> list[dict]:
         """Zoek meest relevante chunks via cosine similarity.
 
-        1. Laad alle embeddings uit collection
+        1. Laad alle embeddings uit collection (optioneel gefilterd)
         2. Cosine similarity: dot(a,b) / (norm(a) * norm(b))
         3. Sorteer op score, return top_k
 
         Metadata wordt geparsed naar dict. Lees-conventie (overgangsperiode):
         artikel_lid veld wordt gevuld uit metadata.artikel_nummer met
         fallback op de legacy artikel_lid kolom.
+
+        Args:
+            rechtsgebied: Filter op rechtsgebied (optioneel).
+            wet_regeling: Filter op wet/regeling (optioneel).
+            bron_type: Filter op brontype (optioneel).
 
         Returns:
             list[dict] met keys: chunk_id, chunk_text, score, rechtsgebied,
@@ -319,7 +327,7 @@ class EmbeddingStore:
             # DEF-378 Bug 9: JOIN met rag_documents om filename als fallback
             # beschikbaar te stellen voor chunks zonder bronbestand in metadata
             # (pre-DEF-372 geïngeste documenten).
-            cursor = conn.execute(
+            sql = (
                 "SELECT rc.id, rc.chunk_text, rc.embedding, rc.rechtsgebied, "
                 "rc.wet_regeling, rc.artikel_lid, rc.bron_type, "
                 "json(rc.metadata) AS metadata, "
@@ -327,9 +335,21 @@ class EmbeddingStore:
                 "rd.filename "
                 "FROM rag_chunks rc "
                 "LEFT JOIN rag_documents rd ON rc.document_id = rd.id "
-                "WHERE rc.collection_id = ? AND rc.embedding IS NOT NULL",
-                (collection_id,),
+                "WHERE rc.collection_id = ? AND rc.embedding IS NOT NULL"
             )
+            params: list = [collection_id]
+
+            if rechtsgebied is not None:
+                sql += " AND rc.rechtsgebied = ?"
+                params.append(rechtsgebied)
+            if wet_regeling is not None:
+                sql += " AND rc.wet_regeling = ?"
+                params.append(wet_regeling)
+            if bron_type is not None:
+                sql += " AND rc.bron_type = ?"
+                params.append(bron_type)
+
+            cursor = conn.execute(sql, params)
             rows = cursor.fetchall()
 
             if not rows:
@@ -386,6 +406,55 @@ class EmbeddingStore:
             return results
         finally:
             conn.close()
+
+    def search_similar_with_fallback(
+        self,
+        query_embedding: np.ndarray,
+        collection_id: int,
+        top_k: int = 5,
+        rechtsgebied: str | None = None,
+        wet_regeling: str | None = None,
+        bron_type: str | None = None,
+        min_results: int = 2,
+    ) -> tuple[list[dict], bool]:
+        """Zoek met filters; val terug op bredere zoekopdracht bij < min_results.
+
+        3-traps fallback (DEF-373):
+          1. Alle filters (rechtsgebied + wet_regeling + bron_type)
+          2. Alleen rechtsgebied (drop wet_regeling en bron_type)
+             — stap 2 is een no-op als geen wet_regeling/bron_type is opgegeven;
+             dan wordt stap 3 direct bereikt.
+          3. Geen filters (breedste zoekopdracht)
+
+        Returns:
+            Tuple van (resultaten, was_fallback_gebruikt).
+            was_fallback_gebruikt=True als een bredere zoekopdracht is gebruikt.
+        """
+        results = self.search_similar(
+            query_embedding,
+            collection_id,
+            top_k,
+            rechtsgebied=rechtsgebied,
+            wet_regeling=wet_regeling,
+            bron_type=bron_type,
+        )
+        if len(results) >= min_results:
+            return results, False
+
+        # Poging 2: alleen rechtsgebied
+        if wet_regeling or bron_type:
+            results = self.search_similar(
+                query_embedding,
+                collection_id,
+                top_k,
+                rechtsgebied=rechtsgebied,
+            )
+            if len(results) >= min_results:
+                return results, True
+
+        # Poging 3: geen filters
+        results = self.search_similar(query_embedding, collection_id, top_k)
+        return results, True
 
     def get_embedding(self, chunk_id: int) -> np.ndarray | None:
         """Haal enkele embedding op.

@@ -18,6 +18,7 @@ from services.rag.constants import BRON_TYPES, RECHTSGEBIEDEN, normaliseer_recht
 from services.rag.document_chunker import DocumentChunker
 from services.rag.embedding_service import EmbeddingService
 from services.rag.embedding_store import EmbeddingStore
+from services.rag.metadata_schemas import valideer_chunk_metadata
 from utils.xml_source_formatter import format_bron, wrap_bronnen
 
 logger = logging.getLogger(__name__)
@@ -190,18 +191,21 @@ class RAGService:
                     # embedding_store.search_similar → artikel_lid fallback).
                     "artikel_lid": c.metadata.artikel_nummer,
                     "bron_type": bron_type,
-                    "metadata": {
-                        k: v
-                        for k, v in {
-                            "artikel_nummer": c.metadata.artikel_nummer,
-                            "lid_nummer": c.metadata.lid_nummer,
-                            "structuur_type": c.metadata.structuur_type,
-                            "bronbestand": c.metadata.bronbestand,
-                            "pagina_nummer": c.metadata.pagina_nummer,
-                            "sectie": c.metadata.sectie,
-                        }.items()
-                        if v is not None and v != ""
-                    },
+                    "metadata": valideer_chunk_metadata(
+                        bron_type,
+                        {
+                            k: v
+                            for k, v in {
+                                "artikel_nummer": c.metadata.artikel_nummer,
+                                "lid_nummer": c.metadata.lid_nummer,
+                                "structuur_type": c.metadata.structuur_type,
+                                "bronbestand": c.metadata.bronbestand,
+                                "pagina_nummer": c.metadata.pagina_nummer,
+                                "sectie": c.metadata.sectie,
+                            }.items()
+                            if v is not None and v != ""
+                        },
+                    ),
                 }
                 for c in result.chunks
             ]
@@ -257,8 +261,19 @@ class RAGService:
         query: str,
         collection_id: int,
         top_k: int = 5,
+        rechtsgebied: str | None = None,
+        wet_regeling: str | None = None,
+        bron_type: str | None = None,
     ) -> RAGContext:
         """Embed query, zoek vergelijkbare chunks, return RAGContext.
+
+        Gebruikt 3-traps fallback (DEF-373): als gefilterde zoekopdracht te weinig
+        resultaten geeft, wordt teruggevallen op een bredere zoekopdracht.
+
+        Args:
+            rechtsgebied: Filter op rechtsgebied (optioneel).
+            wet_regeling: Filter op wet/regeling (optioneel).
+            bron_type: Filter op brontype (optioneel).
 
         Returns:
             RAGContext met raw chunks en formatted context string.
@@ -273,11 +288,22 @@ class RAGService:
 
         query_embedding = self._embedder.embed(query)
 
-        results = self._store.search_similar(
+        results, was_fallback = self._store.search_similar_with_fallback(
             query_embedding=query_embedding,
             collection_id=collection_id,
             top_k=top_k,
+            rechtsgebied=rechtsgebied,
+            wet_regeling=wet_regeling,
+            bron_type=bron_type,
         )
+
+        if was_fallback:
+            logger.info(
+                "Context retrieved met fallback (te weinig resultaten bij filters): "
+                "query='%s', rechtsgebied=%r",
+                query[:50],
+                rechtsgebied,
+            )
 
         formatted = self._format_context(results)
 
