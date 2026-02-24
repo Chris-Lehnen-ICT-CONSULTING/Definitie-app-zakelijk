@@ -97,11 +97,19 @@ _RE_LID = re.compile(
 
 # Definitieblok patronen
 _RE_DEFINITIE_START = re.compile(
-    r"(?:In\s+deze\s+(?:wet|regeling|verordening|besluit|algemene\s+maatregel)"
-    r"\s+wordt\s+verstaan\s+onder|"
+    r"(?:"
+    # "In deze wet/titel/afdeling/..." (eventueel met tussenwoorden zoals
+    # "en de daarop rustende bepalingen")
+    r"In\s+deze\s+(?:wet|regeling|verordening|besluit|algemene\s+maatregel|titel|afdeling|paragraaf)"
+    r"(?:\s+\w+){0,5}\s+wordt\s+verstaan\s+onder"
+    r"|"
     r"Voor\s+de\s+toepassing\s+van\s+deze\s+(?:wet|regeling|verordening|besluit)"
-    r"\s+wordt\s+verstaan\s+onder|"
-    r"In\s+dit\s+(?:besluit|artikel)\s+wordt\s+verstaan\s+onder)",
+    r"\s+wordt\s+verstaan\s+onder"
+    r"|"
+    # "In dit besluit/artikel/wetboek/hoofdstuk"
+    r"In\s+dit\s+(?:besluit|artikel|wetboek|hoofdstuk)\s+wordt\s+verstaan\s+onder|"
+    # "In de bepalingen van deze titel/afdeling/..."
+    r"In\s+de\s+bepalingen\s+van\s+deze\s+\w+\s+wordt\s+verstaan\s+onder)",
     re.IGNORECASE,
 )
 
