@@ -170,9 +170,6 @@ reports/
 .env
 /.tmp_test_dbs/
 # 💚 AI tooling configuration (local only)
-.bmad-core/
-.bmad-*/
-.bmad/
 .claude/
 CLAUDE.md
 .codex/
