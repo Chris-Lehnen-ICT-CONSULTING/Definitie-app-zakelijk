@@ -54,12 +54,20 @@ class OpenAIClient:
             {"role": m.role, "content": m.content} for m in messages  # type: ignore[misc]
         ]
         try:
+            # Newer models (gpt-5+, o1+, o3+) require max_completion_tokens
+            # instead of max_tokens. Detect and use the correct parameter.
+            uses_new_param = any(model.startswith(p) for p in ("gpt-5", "o1", "o3"))
+            token_kwargs = (
+                {"max_completion_tokens": max_tokens}
+                if uses_new_param
+                else {"max_tokens": max_tokens}
+            )
             response = await self._client.chat.completions.create(
                 model=model,
                 messages=sdk_messages,
                 temperature=temperature,
-                max_tokens=max_tokens,
                 timeout=timeout or self._timeout,
+                **token_kwargs,
             )
         except RateLimitError as exc:
             logger.warning("OpenAI rate limit hit: %s", sanitize_error(str(exc)))
