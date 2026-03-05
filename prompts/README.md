@@ -238,3 +238,62 @@ prompt-forge forge "beschrijving van de taak" -r
 ```
 Pas de prompt aan met: [wijzigingen]
 ```
+
+---
+
+## Hookify Regels
+
+Hookify regels dwingen CLAUDE.md constraints automatisch af tijdens Claude Code sessies. Ze zijn opgeslagen in `.claude/hookify.*.local.md`.
+
+### Actieve Regels
+
+| Regel | Event | Action | Doel |
+|-------|-------|--------|------|
+| `prompt-first-workflow` | prompt | warn | Herinnering voor prompt-first workflow |
+| `silent-exception` | file | block | Blokkeer `except Exception: pass/return` |
+| `no-root-files` | file | block | Geen bestanden in project root |
+| `forbidden-class-names` | file | warn | Enforce V2 canonical names |
+| `large-change-warning` | prompt | warn | Waarschuw bij grote refactoring |
+| `database-location` | file | block | Database alleen in `data/` |
+| `context-names` | file | warn | Nederlandse context namen |
+| `file-location` | file | warn | Tests in `tests/`, scripts in `scripts/` |
+| `backwards-compat` | file | warn | Geen backwards-compat hacks |
+
+### Event Types
+
+| Event | Wanneer | Voorbeeld |
+|-------|---------|-----------|
+| `prompt` | Bij user input | Detecteer "refactor everything" |
+| `file` | Bij file writes | Detecteer silent exceptions |
+| `bash` | Bij bash commands | (Nog niet gebruikt) |
+| `stop` | Bij session end | (Nog niet gebruikt) |
+
+### Action Types
+
+| Action | Effect |
+|--------|--------|
+| `warn` | Toont waarschuwing, gaat door |
+| `block` | Blokkeert de actie |
+
+### Regel Toevoegen
+
+Maak een nieuw bestand `.claude/hookify.<naam>.local.md`:
+
+```markdown
+---
+name: regel-naam
+enabled: true
+event: file|prompt|bash|stop
+action: warn|block
+conditions:
+  - field: file_content|file_path|user_prompt
+    operator: regex_match
+    pattern: <regex>
+---
+
+**TITEL IN HOOFDLETTERS**
+
+Beschrijving van het probleem en de oplossing.
+```
+
+**Zie:** DEF-254 voor implementatie details, CLAUDE.md §Critical Rules voor de constraints
