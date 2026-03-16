@@ -9,9 +9,9 @@
 |---------|-----------|
 | Container | Singleton `ServiceContainer` — lazy-loaded properties per service |
 | Naamgeving | `{Feature}Service` of `{Feature}OrchestratorV2` voor multi-step |
-| Async | Async-first voor alle I/O (AI calls, DB, web) |
+| Async | Async-first voor AI calls en web I/O; database laag is sync (raw sqlite3) |
 | Config | `config.yaml` (bron van waarheid) + optionele env overlay |
-| Errors | `DefinitionServiceError` hiërarchie met domein-context (begrip, veld) |
+| Errors | `DefinitionServiceError` (domein) + `AIClientError` (provider, in base_client.py) |
 
 ## Data Models
 
@@ -27,9 +27,8 @@
 | Patroon | Conventie |
 |---------|-----------|
 | Driver | Raw `sqlite3` — geen ORM |
-| Repository | `DefinitieRepository` (low-level) + `DefinitionRepositoryInterface` (service) |
-| Migraties | `database/migrations/v{N}_migration.py` — versioned SQL modules |
-| JSON velden | `validation_issues`, `wettelijke_basis` als TEXT JSON; helpers voor serialisatie |
+| Repository | `DefinitieRepository` (DB) → `DefinitionRepository` (service, impl. `DefinitionRepositoryInterface`) |
+| Migraties | `database/migrations/v{N}_migration.py` — Python modules met inline SQL (v5+) |
 
 ## LLM Integratie
 
@@ -39,8 +38,7 @@
 | Calls | Altijd via `AIServiceV2.generate_definition()` — nooit direct |
 | Model selectie | Via `ModelRouter.get_model()` — geen hardcoded model namen |
 | Rate limiting | Time-windowed + async semaphore (`AsyncRateLimiter`) |
-| Retries | Exponential backoff (factor 1.5, max 3) |
-| API keys | Altijd sanitizen via `sanitize_error()` in error messages |
+| Retries | Exponential backoff (factor 1.5 in AIServiceV2; max 3) |
 
 ## Anti-patronen
 
