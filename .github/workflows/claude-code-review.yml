@@ -93,24 +93,56 @@ jobs:
             Judge prompt: "You are a Verification Judge. You receive findings from 4 review agents.
             Your job is to FILTER false positives and VERIFY each finding.
 
-            For EACH finding:
-            1. Read the actual file and line mentioned
-            2. Verify the issue exists in the current code (not just the diff)
-            3. Check against known false positive patterns:
-               - LOC-threshold blindness (arbitrary size limits < 1000 LOC)
-               - Pattern zealotry (enterprise patterns forced on simple code)
-               - Verification failure (claiming code is missing without checking)
-               - Style vs Bug confusion (lint issues reported as bugs)
-               - Premature optimization (performance claims without metrics)
-            4. Apply consensus rules:
-               - 2+ agents report same issue with confidence >= 70 → CONFIRMED
-               - 1 agent with confidence >= 90 → CONFIRMED
-               - 1 agent with confidence 70-89, no corroboration → NEEDS_REVIEW
-               - Agents contradict each other → use evidence to decide
-            5. Apply weights: Architecture 2.0x, Security 1.5x, Bug Hunter 1.5x, Test & Quality 1.0x
+            ## HARD REJECTION RULES (from verified skill protocols)
 
-            Return ONLY confirmed/needs-review findings. Drop everything else.
-            For each finding include: severity, file, line, description, evidence, consensus status, weighted score.
+            Apply these 5 rules to EVERY finding. If a finding fails ANY rule, REJECT it
+            and log the rejection reason.
+
+            RULE 1 — Evidence Required (source: verification-before-completion)
+            Reject if the agent provides no grep/read output proving the issue exists.
+            A finding that says 'this could fail' without showing the actual code path = REJECTED.
+
+            RULE 2 — No Performative Agreement (source: receiving-code-review)
+            Reject if the finding merely restates a generic best practice without connecting
+            it to this specific codebase. Example: 'consider adding error handling' without
+            showing which error is unhandled = REJECTED.
+
+            RULE 3 — Data First (source: analysis-mode)
+            Reject if the finding makes claims without citing a specific file, line, or rule.
+            No source reference = REJECTED.
+
+            RULE 4 — YAGNI Check (source: receiving-code-review)
+            Reject suggestions to add features, abstractions, or code that is not needed
+            for the current change. 'You should also add X' = REJECTED unless X fixes a
+            concrete bug or security issue in the diff.
+
+            RULE 5 — Push Back With Evidence (source: receiving-code-review)
+            You MAY override an agent's finding if you can prove with code evidence that
+            the issue does not exist or is already handled. Document your counter-evidence.
+
+            ## FALSE POSITIVE PATTERNS (reject on match)
+
+            - LOC-threshold blindness: arbitrary size limits below 1000 LOC
+            - Pattern zealotry: enterprise patterns forced on simple code
+            - Verification failure: claiming code is missing without checking
+            - Style vs Bug confusion: lint issues reported as bugs
+            - Premature optimization: performance claims without profiling/metrics
+
+            ## CONSENSUS RULES
+
+            - 2+ agents report same issue with confidence >= 70 → CONFIRMED
+            - 1 agent with confidence >= 90 → CONFIRMED
+            - 1 agent with confidence 70-89, no corroboration → NEEDS_REVIEW
+            - Agents contradict each other → use evidence to decide
+            - Apply weights: Architecture 2.0x, Security 1.5x, Bug Hunter 1.5x, Test & Quality 1.0x
+
+            ## OUTPUT FORMAT
+
+            For each SURVIVING finding: severity, file, line, description, evidence, consensus status, weighted score.
+
+            For each REJECTED finding: one-line summary + which rule (1-5) or pattern caused rejection.
+
+            Return both lists — the coordinator needs both for the summary comment.
             [Include all findings from Phase 2 here]"
 
             ## PHASE 4: Post Results
@@ -142,7 +174,13 @@ jobs:
             - 🟠 High: X
             - 🟡 Medium: X
             - 🔵 Low: X
-            - ❌ Filtered (false positives): X
+            - ❌ Filtered: X
+
+            ### Filtered (false positives)
+
+            | Finding | Rejected by | Reason |
+            |---------|-------------|--------|
+            | ... | Rule 1-5 or pattern name | One-line explanation |
 
             ---
             *Multi-agent review powered by [Claude Code Action](https://github.com/anthropics/claude-code-action)*
