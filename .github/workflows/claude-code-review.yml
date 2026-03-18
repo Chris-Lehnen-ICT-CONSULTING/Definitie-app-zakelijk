@@ -45,7 +45,11 @@ jobs:
                - If DIFF_LOC > 400: set LARGE_DIFF = true. Add warning to summary.
                Pass the DIFF_LOC value to the Judge.
 
-            Store the diff, project conventions, and diff size — you will pass these to each agent.
+            6. Check for spec-protocol: scan the PR body for a linked issue (patterns like ALG-XX, PRO-XX, DEF-XX, ADH-XX, AIK-XX).
+               If no issue link is found, set MISSING_SPEC = true.
+               This is informational only — the review proceeds regardless.
+
+            Store the diff, project conventions, diff size, and spec status — you will pass these to each agent.
 
             ## PHASE 2: Spawn Review Agents (PARALLEL)
 
@@ -53,6 +57,9 @@ jobs:
             - If .tsx/.jsx files are present: spawn agents 1, 2, 3, 4, AND 4b — all 5 IN PARALLEL (single message, 5 tool calls).
             - If NO .tsx/.jsx files: spawn agents 1, 2, 3, 4 — all 4 IN PARALLEL (single message, 4 tool calls).
             Each agent receives: the PR diff, changed files, and project conventions from Phase 1.
+            IMPORTANT: Include the FULL content of `.claude/rules/review-guidelines.md` (read in Phase 1)
+            directly in each agent's prompt as a [REVIEW GUIDELINES] block. Do NOT instruct agents to
+            read it themselves — this saves tool calls and guarantees the guidelines are in context.
             Each agent MUST return findings in this exact format per finding:
 
             ```
@@ -71,14 +78,14 @@ jobs:
             error handling gaps, null/undefined risks, off-by-one errors, race conditions.
             Do NOT report style issues or suggestions. Only report real bugs with evidence.
             TOOL RESTRICTION: You have access to Read, Grep, and Glob ONLY. Do NOT use Bash, Edit, or Write under any circumstances. Findings produced using disallowed tools will be invalidated.
-            [Include PR diff and conventions here]"
+            [Include: PR diff, changed files, project conventions, and review-guidelines.md content]"
 
             ### Agent 2: Security Reviewer (weight: 1.5x)
             Prompt: "You are a Security Reviewer. Focus ONLY on: OWASP Top 10, injection vulnerabilities,
             hardcoded secrets, missing input validation, authentication/authorization flaws, path traversal.
             Do NOT report general code quality. Only report security issues with exploit path or risk description.
             TOOL RESTRICTION: You have access to Read, Grep, and Glob ONLY. Do NOT use Bash, Edit, or Write under any circumstances. Findings produced using disallowed tools will be invalidated.
-            [Include PR diff and conventions here]"
+            [Include: PR diff, changed files, project conventions, and review-guidelines.md content]"
 
             ### Agent 3: Architecture Reviewer (weight: 2.0x)
             Prompt: "You are an Architecture Reviewer. Focus ONLY on: SOLID violations, coupling issues,
@@ -94,7 +101,7 @@ jobs:
 
             Do NOT report style or formatting. Only report architectural issues backed by code evidence.
             TOOL RESTRICTION: You have access to Read, Grep, and Glob ONLY. Do NOT use Bash, Edit, or Write under any circumstances. Findings produced using disallowed tools will be invalidated.
-            [Include PR diff and conventions here]"
+            [Include: PR diff, changed files, project conventions, and review-guidelines.md content]"
 
             ### Agent 4: Test & Quality (weight: 1.0x)
             Prompt: "You are a Test & Quality Reviewer. Focus ONLY on: missing test coverage for new code,
@@ -102,7 +109,7 @@ jobs:
             misleading naming that could cause bugs.
             Do NOT report trivial style issues. Only report quality gaps with evidence.
             TOOL RESTRICTION: You have access to Read, Grep, and Glob ONLY. Do NOT use Bash, Edit, or Write under any circumstances. Findings produced using disallowed tools will be invalidated.
-            [Include PR diff and conventions here]"
+            [Include: PR diff, changed files, project conventions, and review-guidelines.md content]"
 
             ### Agent 4b: Frontend Quality (only spawned if .tsx/.jsx files in diff)
             Prompt: "You are a Frontend Quality Reviewer for React/TypeScript code.
@@ -120,7 +127,7 @@ jobs:
             Format per check: CHECK: [name] | RESULT: PASS/FAIL | FILE: path | LINE: number | EVIDENCE: snippet
             Only check files in the PR diff, not the entire codebase.
             TOOL RESTRICTION: You have access to Read, Grep, and Glob ONLY. Do NOT use Bash, Edit, or Write under any circumstances. Findings produced using disallowed tools will be invalidated.
-            [Include PR diff and conventions here]"
+            [Include: PR diff, changed files, project conventions, and review-guidelines.md content]"
 
             ## PHASE 3: Verification Judge (SEQUENTIAL — after Phase 2)
 
@@ -216,6 +223,7 @@ jobs:
             **Agents:** Bug Hunter (1.5x) · Security (1.5x) · Architecture (2.0x) · Test & Quality (1.0x) {if 4b: "· Frontend Quality (1.0x)"}
             **Judge:** Verification + false positive filtering + severity downgrade
             **Diff size:** {DIFF_LOC} LOC {if LARGE_DIFF: "⚠️ Large diff — review confidence reduced"}
+            {if MISSING_SPEC: "⚠️ No linked issue/spec found — review limited to technical quality"}
 
             ### Findings
 
@@ -238,6 +246,17 @@ jobs:
 
             ---
             *Multi-agent review powered by [Claude Code Action](https://github.com/anthropics/claude-code-action)*
+
+            <!-- REVIEW-METRICS
+            date: {YYYY-MM-DD}
+            agents: {4 or 5}
+            findings_raw: {total findings before judge}
+            findings_after_filter: {surviving findings}
+            false_positives_filtered: {rejected findings}
+            critical: {count}, high: {count}, medium: {count}, low: {count}
+            diff_loc: {DIFF_LOC}
+            has_spec: {true/false}
+            -->
             ```
 
             If NO findings survive the Judge, post:
