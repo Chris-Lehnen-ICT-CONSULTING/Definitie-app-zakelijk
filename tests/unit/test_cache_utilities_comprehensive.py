@@ -164,10 +164,11 @@ class TestFileCache:
             "ttl": 1,
             "size": 100,
         }
-        # Create cache file
-        cache_file = Path(self.temp_dir) / f"{cache_key}.pkl"
-        with open(cache_file, "wb") as f:
-            pickle.dump("test_value", f)
+        # Create cache file (JSON+HMAC format)
+        from utils.safe_serializer import safe_save
+
+        cache_file = Path(self.temp_dir) / f"{cache_key}.json"
+        safe_save("test_value", cache_file)
 
         result = self.cache.get(cache_key)
         assert result is None
@@ -195,8 +196,8 @@ class TestFileCache:
             "size": 100,
         }
 
-        # Create corrupted cache file
-        cache_file = Path(self.temp_dir) / f"{cache_key}.pkl"
+        # Create corrupted cache file (now .json extension)
+        cache_file = Path(self.temp_dir) / f"{cache_key}.json"
         with open(cache_file, "w") as f:
             f.write("corrupted")
 
@@ -578,10 +579,11 @@ class TestCacheManager:
         file_path = self.manager._file_path("key1")
         assert file_path.exists()
 
-        # Load from file
-        with open(file_path, "rb") as f:
-            data = pickle.load(f)
-            assert data["value"] == "value1"
+        # Load from file (now JSON+HMAC format)
+        from utils.safe_serializer import safe_load
+
+        data = safe_load(file_path)
+        assert data["value"] == "value1"
 
     def test_file_persistence_error(self):
         """Test handling of file persistence errors."""

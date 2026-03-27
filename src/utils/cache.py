@@ -9,7 +9,6 @@ import hashlib  # Hash functionaliteit voor cache keys
 import json  # JSON verwerking voor metadata opslag
 import logging  # Logging faciliteiten voor debug en monitoring
 import os  # Operating system interface voor bestandsoperaties
-import pickle  # Python object serialisatie voor cache data
 import threading  # Thread synchronization voor race condition preventie
 from collections import OrderedDict
 from collections.abc import Callable
@@ -21,6 +20,8 @@ from datetime import (  # Datum en tijd voor TTL management, timezone
 from functools import wraps  # Decorator utilities voor cache functionaliteit
 from pathlib import Path  # Object-georiënteerde pad manipulatie
 from typing import Any, Optional  # Type hints voor betere code documentatie
+
+from utils.safe_serializer import safe_load, safe_save
 
 logger = logging.getLogger(__name__)  # Logger instantie voor cache module
 
@@ -106,13 +107,12 @@ class FileCache:
             self._delete_entry(cache_key)
             return None
 
-        cache_file = self.cache_dir / f"{cache_key}.pkl"
+        cache_file = self.cache_dir / f"{cache_key}.json"
 
         try:
             if cache_file.exists():
-                with open(cache_file, "rb") as f:
-                    return pickle.load(f)
-        except Exception as e:
+                return safe_load(cache_file)
+        except (ValueError, OSError) as e:
             logger.warning(f"Failed to load cache entry {cache_key}: {e}")
             self._delete_entry(cache_key)
 
@@ -126,12 +126,11 @@ class FileCache:
         if ttl is None:
             ttl = self.config.default_ttl
 
-        cache_file = self.cache_dir / f"{cache_key}.pkl"
+        cache_file = self.cache_dir / f"{cache_key}.json"
 
         try:
             # Save the cached value
-            with open(cache_file, "wb") as f:
-                pickle.dump(value, f)
+            safe_save(value, cache_file)
 
             # Update metadata
             self.metadata[cache_key] = {
@@ -153,7 +152,7 @@ class FileCache:
 
     def _delete_entry(self, cache_key: str):
         """Delete cache entry."""
-        cache_file = self.cache_dir / f"{cache_key}.pkl"
+        cache_file = self.cache_dir / f"{cache_key}.json"
 
         try:
             if cache_file.exists():
@@ -544,7 +543,7 @@ class CacheManager:
         return hashlib.md5(key.encode(), usedforsecurity=False).hexdigest()
 
     def _file_path(self, key: str) -> Path:
-        return Path(self.cache_dir) / f"cm_{self._hash(key)}.pkl"
+        return Path(self.cache_dir) / f"cm_{self._hash(key)}.json"
 
     def _expired(self, expires_at: float) -> bool:
         return self._now() > expires_at
@@ -579,8 +578,7 @@ class CacheManager:
                     fp.unlink()
         # Persist to disk
         try:
-            with open(self._file_path(key), "wb") as f:
-                pickle.dump({"value": value, "expires_at": expires_at}, f)
+            safe_save({"value": value, "expires_at": expires_at}, self._file_path(key))
         except Exception as e:
             logger.warning(
                 f"CacheManager: failed to persist key {key}: {e}",
@@ -615,8 +613,7 @@ class CacheManager:
         fp = self._file_path(key)
         if fp.exists():
             try:
-                with open(fp, "rb") as f:
-                    payload = pickle.load(f)
+                payload = safe_load(fp)
                 value = payload.get("value")
                 expires_at = float(payload.get("expires_at", 0))
                 if not self._expired(expires_at):
@@ -653,7 +650,7 @@ class CacheManager:
             self._store.clear()
         # Remove files written by CacheManager
         try:
-            for p in Path(self.cache_dir).glob("cm_*.pkl"):
+            for p in Path(self.cache_dir).glob("cm_*.json"):
                 try:
                     p.unlink()
                 except OSError as e:
