@@ -292,12 +292,14 @@ class UIComponents:
         """Render the modified definition tab."""
         st.markdown("### ✍️ Aangepaste definitie + toetsing")
 
-        aangepaste_definitie = st.text_area(
-            "Pas de definitie aan (optioneel):",
-            value=SessionStateManager.get_value("gegenereerd"),
-            height=100,
+        SessionStateManager.initialize_session_state(
+            {"aangepaste_definitie": SessionStateManager.get_value("gegenereerd", "")}
         )
-        SessionStateManager.set_value("aangepaste_definitie", aangepaste_definitie)
+        st.text_area(
+            "Pas de definitie aan (optioneel):",
+            height=100,
+            key="aangepaste_definitie",
+        )
 
         return st.button("🔁 Hercontroleer aangepaste definitie")
 
@@ -323,13 +325,13 @@ class UIComponents:
         """Render the expert review tab."""
         st.markdown("### 📋 Expert-review")
 
-        expert_review = st.text_area(
+        SessionStateManager.initialize_session_state({"expert_review": ""})
+        st.text_area(
             "Ruimte voor toelichting of beoordeling door een expert (bijv. juridisch adviseur)",
             placeholder="Voer hier aanvullende opmerkingen, risico's of goedkeuring in...",
-            value=SessionStateManager.get_value("expert_review", ""),
             height=150,
+            key="expert_review",
         )
-        SessionStateManager.set_value("expert_review", expert_review)
 
         st.success(
             "✅ Deze toelichting wordt automatisch opgeslagen in de log (JSON en CSV)."
