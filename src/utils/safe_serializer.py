@@ -30,7 +30,11 @@ def _get_hmac_key() -> bytes:
 
     _KEY_FILE.parent.mkdir(parents=True, exist_ok=True)
     new_key = os.urandom(32)
-    _KEY_FILE.write_bytes(new_key)
+    fd = os.open(str(_KEY_FILE), os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+    try:
+        os.write(fd, new_key)
+    finally:
+        os.close(fd)
     logger.info("Generated new HMAC key for cache integrity")
     return new_key
 
