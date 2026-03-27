@@ -30,15 +30,13 @@ class GlobalContextRenderer:
     def render_begrip_input(self) -> str:
         """Render begrip invoerveld en sla op in session state."""
         _default_st.markdown("### 📝 Definitie Aanvraag")
-        begrip = _default_st.text_input(
+        _DefaultSM.initialize_session_state({"begrip_input": ""})
+        return _default_st.text_input(
             "Voer een term in waarvoor een definitie moet worden gegenereerd",
-            value=_DefaultSM.get_value("begrip", ""),
             placeholder="bijv. authenticatie, verificatie, identiteitsvaststelling...",
             help="Het centrale begrip waarvoor een definitie gegenereerd wordt",
             key="begrip_input",
         )
-        _DefaultSM.set_value("begrip", begrip)
-        return begrip
 
     def render_context_selector(self) -> dict[str, Any]:
         """Render context selector met fallback."""
@@ -118,21 +116,23 @@ class GlobalContextRenderer:
         col1, col2, col3 = _default_st.columns(3)
 
         with col1:
-            datum_voorstel = _default_st.date_input(
+            _DefaultSM.initialize_session_state(
+                {"datum_voorstel": datetime.now(UTC).date()}
+            )
+            _default_st.date_input(
                 "📅 Datum voorstel",
-                value=_DefaultSM.get_value("datum_voorstel", datetime.now(UTC).date()),
+                key="datum_voorstel",
                 help="Datum waarop deze definitie wordt voorgesteld",
             )
-            _DefaultSM.set_value("datum_voorstel", datum_voorstel)
 
         with col2:
-            voorgesteld_door = _default_st.text_input(
+            _DefaultSM.initialize_session_state({"voorgesteld_door": ""})
+            _default_st.text_input(
                 "👤 Voorgesteld door",
-                value=_DefaultSM.get_value("voorgesteld_door", ""),
                 placeholder="Naam van voorsteller",
                 help="Persoon of organisatie die deze definitie voorstelt",
+                key="voorgesteld_door",
             )
-            _DefaultSM.set_value("voorgesteld_door", voorgesteld_door)
 
         with col3:
             ketenpartner_opties = [
