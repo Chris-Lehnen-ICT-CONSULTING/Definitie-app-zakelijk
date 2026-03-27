@@ -89,9 +89,9 @@ class TestXSSScriptTags:
 
 
 class TestXSSProtocols:
-    """Verify dangerous protocol removal."""
+    """Verify dangerous protocol removal in URL attributes."""
 
-    def test_javascript_protocol(self, sanitizer):
+    def test_javascript_protocol_in_href(self, sanitizer):
         result = sanitizer.sanitize(
             '<a href="javascript:alert(1)">click</a>',
             ContentType.HTML,
@@ -99,7 +99,7 @@ class TestXSSProtocols:
         )
         assert "javascript:" not in result.sanitized_value.lower()
 
-    def test_vbscript_protocol(self, sanitizer):
+    def test_vbscript_protocol_in_href(self, sanitizer):
         result = sanitizer.sanitize(
             '<a href="vbscript:msgbox(1)">click</a>',
             ContentType.HTML,
@@ -107,13 +107,30 @@ class TestXSSProtocols:
         )
         assert "vbscript:" not in result.sanitized_value.lower()
 
-    def test_data_protocol(self, sanitizer):
+    def test_data_protocol_in_href(self, sanitizer):
         result = sanitizer.sanitize(
             '<a href="data:text/html,<script>alert(1)</script>">click</a>',
             ContentType.HTML,
             SanitizationLevel.STRICT,
         )
         assert "data:" not in result.sanitized_value.lower()
+
+    def test_javascript_protocol_in_src(self, sanitizer):
+        result = sanitizer.sanitize(
+            '<img src="javascript:alert(1)">',
+            ContentType.HTML,
+            SanitizationLevel.STRICT,
+        )
+        assert "javascript:" not in result.sanitized_value.lower()
+
+    def test_data_in_prose_not_stripped(self, sanitizer):
+        """data: in normal text should not be removed."""
+        result = sanitizer.sanitize(
+            "De data: zie bijlage voor meer informatie.",
+            ContentType.HTML,
+            SanitizationLevel.MODERATE,
+        )
+        assert "data:" in result.sanitized_value
 
 
 class TestXSSIframes:
@@ -127,6 +144,107 @@ class TestXSSIframes:
         )
         assert "<iframe" not in result.sanitized_value.lower()
         assert "Safe text" in result.sanitized_value
+
+
+class TestCaseInsensitive:
+    """Verify case-insensitive matching (re.IGNORECASE in sanitize engine)."""
+
+    def test_uppercase_onclick(self, sanitizer):
+        result = sanitizer.sanitize(
+            '<div ONCLICK="alert(1)">test</div>',
+            ContentType.HTML,
+            SanitizationLevel.STRICT,
+        )
+        assert "onclick" not in result.sanitized_value.lower()
+
+    def test_mixed_case_onerror(self, sanitizer):
+        result = sanitizer.sanitize(
+            '<img src=x OnError="alert(1)">',
+            ContentType.HTML,
+            SanitizationLevel.STRICT,
+        )
+        assert "onerror" not in result.sanitized_value.lower()
+
+    def test_mixed_case_javascript_protocol(self, sanitizer):
+        result = sanitizer.sanitize(
+            '<a href="JaVaScRiPt:alert(1)">click</a>',
+            ContentType.HTML,
+            SanitizationLevel.STRICT,
+        )
+        assert "javascript:" not in result.sanitized_value.lower()
+
+
+class TestFalsePositivePrevention:
+    """Verify non-event attributes starting with 'on' are preserved."""
+
+    def test_ongoing_attribute_preserved(self, sanitizer):
+        """MODERATE level: attributes stay, only dangerous ones are removed."""
+        result = sanitizer.sanitize(
+            '<div ongoing="true">text</div>',
+            ContentType.HTML,
+            SanitizationLevel.MODERATE,
+        )
+        assert "ongoing" in result.sanitized_value
+
+    def test_one_attribute_preserved(self, sanitizer):
+        """MODERATE level: attributes stay, only dangerous ones are removed."""
+        result = sanitizer.sanitize(
+            '<div one="1">text</div>',
+            ContentType.HTML,
+            SanitizationLevel.MODERATE,
+        )
+        assert "one" in result.sanitized_value
+
+    def test_ontvangen_in_text_preserved(self, sanitizer):
+        """Dutch word 'ontvangen' should not be stripped."""
+        result = sanitizer.sanitize(
+            "Het document is ontvangen door de gemeente.",
+            ContentType.HTML,
+            SanitizationLevel.MODERATE,
+        )
+        assert "ontvangen" in result.sanitized_value
+
+
+class TestSVGVectors:
+    """Verify SVG-based XSS vectors are caught."""
+
+    def test_svg_onload(self, sanitizer):
+        result = sanitizer.sanitize(
+            '<svg onload="alert(1)">',
+            ContentType.HTML,
+            SanitizationLevel.STRICT,
+        )
+        assert "onload" not in result.sanitized_value
+
+    def test_svg_animate_onbegin_not_in_allowlist(self, sanitizer):
+        """onbegin is not a standard DOM event handler, so it passes through."""
+        result = sanitizer.sanitize(
+            '<svg><animate onbegin="alert(1)">',
+            ContentType.HTML,
+            SanitizationLevel.MODERATE,
+        )
+        assert "onbegin" in result.sanitized_value
+
+
+class TestModerateLevel:
+    """Verify XSS rules fire at MODERATE level too."""
+
+    def test_onclick_at_moderate(self, sanitizer):
+        result = sanitizer.sanitize(
+            '<div onclick="alert(1)">test</div>',
+            ContentType.HTML,
+            SanitizationLevel.MODERATE,
+        )
+        assert "onclick" not in result.sanitized_value
+
+    def test_event_handler_at_moderate(self, sanitizer):
+        """Event handler rules are MODERATE, so they should fire at MODERATE."""
+        result = sanitizer.sanitize(
+            '<img src=x onerror="alert(1)">',
+            ContentType.HTML,
+            SanitizationLevel.MODERATE,
+        )
+        assert "onerror" not in result.sanitized_value
 
 
 class TestNormalContentPreserved:
