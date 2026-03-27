@@ -841,12 +841,11 @@ class ExpertReviewTab:
             )
 
         # Reviewer info
+        SessionStateManager.initialize_session_state({"reviewer_name_input": ""})
         reviewer_name = st.text_input(
             "Reviewer naam",
-            value=SessionStateManager.get_value("reviewer_name", ""),
             key="reviewer_name_input",
         )
-        SessionStateManager.set_value("reviewer_name", reviewer_name)
 
         # Review actions
         st.markdown("---")
@@ -1273,14 +1272,14 @@ class ExpertReviewTab:
                     )
 
                     # Override toggle
-                    override_actief = st.checkbox(
+                    SessionStateManager.initialize_session_state(
+                        {"override_actief": False}
+                    )
+                    st.checkbox(
                         "Activeer runtime override",
-                        value=SessionStateManager.get_value("override_actief", False),
+                        key="override_actief",
                         help="Overschrijft de standaard configuratie met deze woorden",
                     )
-
-                    # Update session state
-                    SessionStateManager.set_value("override_actief", override_actief)
                     SessionStateManager.set_value(
                         "override_verboden_woorden", nieuwe_woorden
                     )
