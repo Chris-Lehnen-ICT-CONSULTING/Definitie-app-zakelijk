@@ -3,15 +3,86 @@ Feature Status API voor real-time dashboard updates
 """
 
 import json
+import logging
 from datetime import UTC, datetime
 
 UTC = UTC  # Python 3.10 compatibility
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware
+
+from security.security_middleware import (
+    ValidationRequest,
+    get_security_middleware,
+)
+
+logger = logging.getLogger(__name__)
 
 app = FastAPI(title="Feature Status API")
+
+
+class SecurityHeadersMiddleware(BaseHTTPMiddleware):
+    """FastAPI middleware that wires SecurityMiddleware into the request pipeline.
+
+    Validates requests via SecurityMiddleware.validate_request() and
+    adds security headers to all responses.
+    """
+
+    async def dispatch(self, request: Request, call_next):
+        security = get_security_middleware()
+
+        # Build ValidationRequest from FastAPI request
+        client_ip = request.client.host if request.client else "unknown"
+        user_agent = request.headers.get("user-agent", "unknown")
+
+        body_data = {}
+        if request.method in ("POST", "PUT", "PATCH"):
+            try:
+                body_bytes = await request.body()
+                body_data = json.loads(body_bytes) if body_bytes else {}
+            except (json.JSONDecodeError, ValueError):
+                body_data = {}
+
+        validation_request = ValidationRequest(
+            endpoint=request.url.path,
+            method=request.method,
+            data=body_data,
+            headers=dict(request.headers),
+            source_ip=client_ip,
+            user_agent=user_agent,
+            timestamp=datetime.now(UTC),
+        )
+
+        validation_response = await security.validate_request(validation_request)
+
+        if not validation_response.allowed:
+            logger.warning(
+                "Security middleware blocked request: %s %s from %s — %s",
+                request.method,
+                request.url.path,
+                client_ip,
+                "; ".join(validation_response.validation_errors),
+            )
+            return Response(
+                content=json.dumps({"detail": "Request blocked by security policy"}),
+                status_code=403,
+                media_type="application/json",
+                headers=validation_response.response_headers,
+            )
+
+        response = await call_next(request)
+
+        # Add security headers to all responses
+        for header, value in validation_response.response_headers.items():
+            response.headers[header] = value
+
+        return response
+
+
+# Security middleware (must be added before CORS so it runs after CORS)
+app.add_middleware(SecurityHeadersMiddleware)
 
 # CORS voor browser toegang
 app.add_middleware(
