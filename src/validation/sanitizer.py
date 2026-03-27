@@ -186,7 +186,7 @@ class ContentSanitizer:
             ),
             SanitizationRule(
                 name="dangerous_attributes",
-                pattern=r'[\s/]*(on\w+)\s*=\s*["\'][^"\']*["\']',
+                pattern=r'[\s/]*(?:on(?:abort|animationend|animationiteration|animationstart|auxclick|beforeinput|beforeunload|blur|cancel|canplay|canplaythrough|change|click|close|contextmenu|copy|cuechange|cut|dblclick|drag|dragend|dragenter|dragleave|dragover|dragstart|drop|durationchange|emptied|ended|error|focus|focusin|focusout|formdata|gotpointercapture|hashchange|input|invalid|keydown|keypress|keyup|languagechange|load|loadeddata|loadedmetadata|loadstart|lostpointercapture|message|messageerror|mousedown|mouseenter|mouseleave|mousemove|mouseout|mouseover|mouseup|offline|online|pagehide|pageshow|paste|pause|play|playing|pointercancel|pointerdown|pointerenter|pointerleave|pointermove|pointerout|pointerover|pointerup|popstate|progress|ratechange|reset|resize|scroll|scrollend|search|securitypolicyviolation|seeked|seeking|select|slotchange|stalled|storage|submit|suspend|timeupdate|toggle|touchcancel|touchend|touchmove|touchstart|transitioncancel|transitionend|transitionrun|transitionstart|unhandledrejection|unload|volumechange|waiting|wheel))\s*=\s*["\'][^"\']*["\']',
                 replacement="",
                 content_types=[ContentType.HTML],
                 level=SanitizationLevel.MODERATE,
@@ -194,7 +194,7 @@ class ContentSanitizer:
             ),
             SanitizationRule(
                 name="dangerous_attributes_unquoted",
-                pattern=r"[\s/]*(on\w+)\s*=\s*[^\s>]+",
+                pattern=r"[\s/]*(?:on(?:abort|animationend|animationiteration|animationstart|auxclick|beforeinput|beforeunload|blur|cancel|canplay|canplaythrough|change|click|close|contextmenu|copy|cuechange|cut|dblclick|drag|dragend|dragenter|dragleave|dragover|dragstart|drop|durationchange|emptied|ended|error|focus|focusin|focusout|formdata|gotpointercapture|hashchange|input|invalid|keydown|keypress|keyup|languagechange|load|loadeddata|loadedmetadata|loadstart|lostpointercapture|message|messageerror|mousedown|mouseenter|mouseleave|mousemove|mouseout|mouseover|mouseup|offline|online|pagehide|pageshow|paste|pause|play|playing|pointercancel|pointerdown|pointerenter|pointerleave|pointermove|pointerout|pointerover|pointerup|popstate|progress|ratechange|reset|resize|scroll|scrollend|search|securitypolicyviolation|seeked|seeking|select|slotchange|stalled|storage|submit|suspend|timeupdate|toggle|touchcancel|touchend|touchmove|touchstart|transitioncancel|transitionend|transitionrun|transitionstart|unhandledrejection|unload|volumechange|waiting|wheel))\s*=\s*[^\s>]{1,1000}",
                 replacement="",
                 content_types=[ContentType.HTML],
                 level=SanitizationLevel.MODERATE,
@@ -202,11 +202,11 @@ class ContentSanitizer:
             ),
             SanitizationRule(
                 name="dangerous_protocols",
-                pattern=r"(javascript|vbscript|data)\s*:",
+                pattern=r'(?:href|src|action|formaction|poster|background)\s*=\s*["\']?\s*(?:javascript|vbscript|data)\s*:',
                 replacement="",
                 content_types=[ContentType.HTML],
                 level=SanitizationLevel.MODERATE,
-                description="Remove dangerous protocol schemes",
+                description="Remove dangerous protocol schemes in URL attributes",
             ),
             SanitizationRule(
                 name="iframe_removal",
