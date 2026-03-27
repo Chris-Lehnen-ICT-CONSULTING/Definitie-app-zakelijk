@@ -473,9 +473,9 @@ class DefinitionEditTab:
         status_code = definition.metadata.get("status") if definition.metadata else None
         disabled = status_code in ("established", "archived")
 
+        SessionStateManager.initialize_session_state({k("begrip"): definition.begrip})
         begrip = st.text_input(
             "Begrip",
-            value=definition.begrip,
             key=k("begrip"),
             disabled=disabled,
             help="Het juridische begrip dat gedefinieerd wordt",
@@ -485,9 +485,11 @@ class DefinitionEditTab:
         st.markdown("**Definitie:**")
 
         # Use text area as fallback (st_quill requires additional setup)
+        SessionStateManager.initialize_session_state(
+            {k("definitie"): definition.definitie}
+        )
         definitie_text = st.text_area(
             "Definitie tekst",
-            value=definition.definitie,
             height=200,
             key=k("definitie"),
             disabled=disabled,
@@ -702,9 +704,11 @@ class DefinitionEditTab:
             )
 
         # Toelichting
+        SessionStateManager.initialize_session_state(
+            {k("toelichting"): definition.toelichting or ""}
+        )
         toelichting = st.text_area(
             "Toelichting (optioneel)",
-            value=definition.toelichting or "",
             height=100,
             key=k("toelichting"),
             disabled=disabled,
@@ -1010,8 +1014,9 @@ class DefinitionEditTab:
         with st.sidebar:
             st.markdown("---")
 
+            SessionStateManager.initialize_session_state({"auto_save_enabled": True})
             auto_save_enabled = st.checkbox(
-                "Auto-save inschakelen", value=True, key="auto_save_enabled"
+                "Auto-save inschakelen", key="auto_save_enabled"
             )
 
             if auto_save_enabled:
