@@ -40,8 +40,9 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         body_data = {}
         if request.method in ("POST", "PUT", "PATCH"):
             try:
-                body_data = await request.json()
-            except Exception:
+                body_bytes = await request.body()
+                body_data = json.loads(body_bytes) if body_bytes else {}
+            except (json.JSONDecodeError, ValueError):
                 body_data = {}
 
         validation_request = ValidationRequest(
