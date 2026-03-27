@@ -6,8 +6,6 @@ Provides health monitoring, failover strategies, and request queue persistence.
 import asyncio
 import json
 import logging
-import os
-import pickle
 import time
 from collections.abc import Callable
 from dataclasses import asdict, dataclass
@@ -19,6 +17,7 @@ from pathlib import Path
 from typing import Any
 
 from utils.enhanced_retry import AdaptiveRetryManager
+from utils.safe_serializer import safe_load, safe_save
 from utils.smart_rate_limiter import RequestPriority, SmartRateLimiter
 
 logger = logging.getLogger(__name__)
@@ -363,21 +362,31 @@ class ResilienceFramework:
     def _load_persistent_state(self):
         """Load persistent state from disk.
 
-        Handles corrupt pickle files by removing them and starting fresh.
+        Handles corrupt or tampered files by removing them and starting fresh.
+        Migrates old .pkl files by removing them (state rebuilds naturally).
         """
-        state_file = Path("cache/resilience_state.pkl")
+        state_file = Path("cache/resilience_state.json")
+        old_pkl_file = Path("cache/resilience_state.pkl")
+
+        # Migrate: remove old pickle file if it exists
+        if old_pkl_file.exists():
+            logger.info("Removing old pickle resilience state (migrated to JSON+HMAC)")
+            try:
+                old_pkl_file.unlink()
+            except OSError:
+                pass
+
         if not state_file.exists():
             return
 
         try:
-            with open(state_file, "rb") as f:
-                state = pickle.load(f)
-                self.dead_letter_queue.queue = state.get("dead_letter_queue", [])
-                self.fallback_cache = state.get("fallback_cache", {})
-                logger.info("Loaded persistent resilience state")
-        except (pickle.UnpicklingError, EOFError) as e:
-            # Corrupt pickle file - remove and start fresh
-            logger.error(f"Corrupt resilience state file, removing: {e}")
+            state = safe_load(state_file)
+            self.dead_letter_queue.queue = state.get("dead_letter_queue", [])
+            self.fallback_cache = state.get("fallback_cache", {})
+            logger.info("Loaded persistent resilience state")
+        except ValueError as e:
+            # Tampered or corrupt file - remove and start fresh
+            logger.error(f"Integrity check failed for resilience state, removing: {e}")
             try:
                 state_file.unlink()
             except OSError as unlink_err:
@@ -389,39 +398,24 @@ class ResilienceFramework:
             logger.error(f"Invalid resilience state structure: {e}")
 
     def _save_persistent_state(self):
-        """Save persistent state to disk using atomic write.
+        """Save persistent state to disk using JSON + HMAC.
 
-        Uses temp file + os.replace() to prevent corruption on crash.
+        safe_save() handles atomic write internally.
         """
-        state_file = Path("cache/resilience_state.pkl")
-        temp_file = state_file.with_suffix(".pkl.tmp")
+        state_file = Path("cache/resilience_state.json")
 
         try:
-            state_file.parent.mkdir(exist_ok=True)
-
             state = {
                 "dead_letter_queue": self.dead_letter_queue.queue,
                 "fallback_cache": self.fallback_cache,
                 "timestamp": datetime.now(UTC),
             }
 
-            # Write to temp file first (atomic write pattern)
-            with open(temp_file, "wb") as f:
-                pickle.dump(state, f)
-                f.flush()
-                os.fsync(f.fileno())  # Ensure data is on disk
-
-            # Atomic rename (safe on POSIX, best-effort on Windows)
-            os.replace(temp_file, state_file)
+            safe_save(state, state_file)
             logger.debug("Saved persistent resilience state")
         except OSError as e:
             logger.error(f"Could not save persistent state: {e}")
-            # Clean up temp file if it exists
-            try:
-                temp_file.unlink(missing_ok=True)
-            except OSError:
-                pass
-        except (pickle.PicklingError, TypeError) as e:
+        except TypeError as e:
             logger.error(f"Could not serialize resilience state: {e}")
 
     async def start(self):
