@@ -31,71 +31,50 @@ class AuditHelpers:
     def build_insert_columns(
         record: DefinitieRecord, wb_value: str, include_legacy: bool
     ) -> tuple[list[str], list[Any]]:
-        """Compose insert columns/values for definities table."""
-        columns = [
-            "begrip",
-            "definitie",
-            "categorie",
-            "organisatorische_context",
-            "juridische_context",
-            "wettelijke_basis",
-            "ufo_categorie",
-            "toelichting_proces",
-            "status",
-            "version_number",
-            "previous_version_id",
-            "validation_score",
-            "validation_date",
-            "validation_issues",
-            "source_type",
-            "source_reference",
-            "imported_from",
-            "created_at",
-            "updated_at",
-            "created_by",
-            "updated_by",
-            "approved_by",
-            "approved_at",
-            "approval_notes",
-            "last_exported_at",
-            "export_destinations",
-            "generation_prompt_data",
-        ]
+        """Compose insert columns/values for definities table.
 
-        values: list[Any] = [
-            record.begrip,
-            record.definitie,
-            record.categorie,
-            record.organisatorische_context,
-            record.juridische_context,
-            wb_value,
-            record.ufo_categorie,
-            record.toelichting_proces,
-            record.status,
-            record.version_number,
-            record.previous_version_id,
-            record.validation_score,
-            record.validation_date,
-            record.validation_issues,
-            record.source_type,
-            record.source_reference,
-            record.imported_from,
-            record.created_at,
-            record.updated_at,
-            record.created_by,
-            record.updated_by,
-            record.approved_by,
-            record.approved_at,
-            record.approval_notes,
-            record.last_exported_at,
-            record.export_destinations,
-            record.generation_prompt_data,
+        Uses paired tuples so column/value additions are always atomic.
+        """
+        pairs: list[tuple[str, Any]] = [
+            ("begrip", record.begrip),
+            ("definitie", record.definitie),
+            ("categorie", record.categorie),
+            ("organisatorische_context", record.organisatorische_context),
+            ("juridische_context", record.juridische_context),
+            ("wettelijke_basis", wb_value),
+            ("ufo_categorie", record.ufo_categorie),
+            ("toelichting_proces", record.toelichting_proces),
+            ("status", record.status),
+            ("version_number", record.version_number),
+            ("previous_version_id", record.previous_version_id),
+            ("validation_score", record.validation_score),
+            ("validation_date", record.validation_date),
+            ("validation_issues", record.validation_issues),
+            ("source_type", record.source_type),
+            ("source_reference", record.source_reference),
+            ("imported_from", record.imported_from),
+            ("created_at", record.created_at),
+            ("updated_at", record.updated_at),
+            ("created_by", record.created_by),
+            ("updated_by", record.updated_by),
+            ("approved_by", record.approved_by),
+            ("approved_at", record.approved_at),
+            ("approval_notes", record.approval_notes),
+            ("last_exported_at", record.last_exported_at),
+            ("export_destinations", record.export_destinations),
+            ("generation_prompt_data", record.generation_prompt_data),
         ]
 
         if include_legacy:
-            columns.extend(["datum_voorstel", "ketenpartners"])
-            values.extend([record.datum_voorstel, record.ketenpartners])
+            pairs.extend(
+                [
+                    ("datum_voorstel", record.datum_voorstel),
+                    ("ketenpartners", record.ketenpartners),
+                ]
+            )
 
+        columns = [col for col, _ in pairs]
+        values = [val for _, val in pairs]
         return columns, values
 
     def row_to_record(self, row: sqlite3.Row) -> DefinitieRecord:
