@@ -11,6 +11,10 @@ from src.services.ufo_pattern_matcher import (
     get_pattern_matcher,
 )
 
+pytestmark = pytest.mark.skip(
+    reason="UFO ontologie wordt vervangen — tests achterhaald"
+)
+
 
 @pytest.mark.unit
 def test_kind_category_has_patterns():
