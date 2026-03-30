@@ -1,7 +1,9 @@
-"""Tests voor de insert helper van DefinitieRepository."""
+"""Tests voor de insert helper (AuditHelpers.build_insert_columns)."""
 
+import sqlite3
 from datetime import UTC, datetime, timezone
 
+from database.audit_helpers import AuditHelpers
 from database.definitie_repository import DefinitieRecord, DefinitieRepository
 
 
@@ -40,7 +42,7 @@ def _make_record() -> DefinitieRecord:
 
 def test_build_insert_columns_without_legacy():
     record = _make_record()
-    columns, values = DefinitieRepository._build_insert_columns(
+    columns, values = AuditHelpers.build_insert_columns(
         record, record.wettelijke_basis or "[]", include_legacy=False
     )
 
@@ -82,10 +84,48 @@ def test_build_insert_columns_without_legacy():
 
 def test_build_insert_columns_with_legacy():
     record = _make_record()
-    columns, values = DefinitieRepository._build_insert_columns(
+    columns, values = AuditHelpers.build_insert_columns(
         record, record.wettelijke_basis or "[]", include_legacy=True
     )
 
     assert columns[-2:] == ["datum_voorstel", "ketenpartners"]
     assert values[-2:] == [record.datum_voorstel, record.ketenpartners]
     assert len(columns) == len(values)
+
+
+def test_backward_compat_facade_delegates():
+    """Verify DefinitieRepository._build_insert_columns still works."""
+    record = _make_record()
+    columns, values = DefinitieRepository._build_insert_columns(
+        record, record.wettelijke_basis or "[]", include_legacy=False
+    )
+    assert columns[0] == "begrip"
+    assert len(columns) == len(values)
+
+
+def test_backward_compat_facade_with_legacy():
+    """Verify facade forwards include_legacy=True correctly."""
+    record = _make_record()
+    columns, values = DefinitieRepository._build_insert_columns(
+        record, record.wettelijke_basis or "[]", include_legacy=True
+    )
+    assert columns[-2:] == ["datum_voorstel", "ketenpartners"]
+    assert len(columns) == len(values)
+
+
+def test_has_legacy_columns_in_conn_with_legacy():
+    """Test legacy column detection on a schema with legacy columns."""
+    conn = sqlite3.connect(":memory:")
+    conn.execute(
+        "CREATE TABLE definities (id INTEGER, datum_voorstel TEXT, ketenpartners TEXT)"
+    )
+    assert AuditHelpers.has_legacy_columns_in_conn(conn) is True
+    conn.close()
+
+
+def test_has_legacy_columns_in_conn_without_legacy():
+    """Test legacy column detection on a schema without legacy columns."""
+    conn = sqlite3.connect(":memory:")
+    conn.execute("CREATE TABLE definities (id INTEGER, begrip TEXT)")
+    assert AuditHelpers.has_legacy_columns_in_conn(conn) is False
+    conn.close()
