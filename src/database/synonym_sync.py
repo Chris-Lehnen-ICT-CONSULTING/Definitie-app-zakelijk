@@ -10,8 +10,9 @@ logger = logging.getLogger(__name__)
 class SynonymSyncService:
     """Sync synoniemen naar de synonym registry (Architecture v3.1, PHASE 3.3)."""
 
-    def __init__(self, db: DatabaseConnection):
+    def __init__(self, db: DatabaseConnection, get_registry_fn=None):
         self._db = db
+        self._get_registry_fn = get_registry_fn
 
     def sync_synonyms_to_registry(
         self,
@@ -28,16 +29,19 @@ class SynonymSyncService:
             edited_by: Wie de synoniemen heeft bewerkt
             get_definitie_fn: Callable om definitie op te halen (injected vanuit facade)
         """
-        from src.services.container import get_container
-
         definitie = get_definitie_fn(definitie_id)
         if not definitie:
             logger.warning(f"Definitie {definitie_id} niet gevonden - sync skipped")
             return
 
         try:
-            container = get_container()
-            registry = container.synonym_registry()
+            if self._get_registry_fn:
+                registry = self._get_registry_fn()
+            else:
+                # Lazy fallback voor backward compat
+                from src.services.container import get_container
+
+                registry = get_container().synonym_registry()
         except Exception as e:
             logger.error(f"Failed to get synonym registry: {e}")
             raise

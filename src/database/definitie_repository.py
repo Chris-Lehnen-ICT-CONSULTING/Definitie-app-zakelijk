@@ -56,8 +56,17 @@ class DefinitieRepository:
             self._db, self._audit, self._duplicates, self._search
         )
         self._import_export = DefinitieImportExportRepository(self._db, self._audit)
-        self._synonym_sync = SynonymSyncService(self._db)
+        self._synonym_sync = SynonymSyncService(
+            self._db, get_registry_fn=self._get_synonym_registry
+        )
         self._voorbeelden = VoorbeeldenRepository(self._db, self._synonym_sync)
+
+    @staticmethod
+    def _get_synonym_registry():
+        """Lazy registry lookup — houdt database laag vrij van service imports."""
+        from src.services.container import get_container
+
+        return get_container().synonym_registry()
 
     # === Backward-compat: connection access ===
     def _get_connection(self, timeout: float = 30.0) -> sqlite3.Connection:
