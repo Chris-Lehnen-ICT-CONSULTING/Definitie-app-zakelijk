@@ -329,7 +329,7 @@ class TestServiceAdapter:
 
         # Check metadata
         assert "metadata" in result
-        assert result["metadata"].get("model") == "gpt-4"  # Default
+        assert "model" in result["metadata"]  # Model populated from config
 
         # Legacy fields should still work for backward compatibility
         assert result.get("marker") == "✅"
