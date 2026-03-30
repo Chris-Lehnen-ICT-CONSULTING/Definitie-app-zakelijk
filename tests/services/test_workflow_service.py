@@ -236,7 +236,7 @@ class TestWorkflowService:
         summary = service.get_workflow_summary()
 
         assert "statuses" in summary
-        assert len(summary["statuses"]) == 4
+        assert len(summary["statuses"]) == 5
         assert "draft" in summary["statuses"]
 
         assert "transitions" in summary

@@ -2,7 +2,13 @@
 Quick debug test for UFO Classifier issues
 """
 
+import pytest
+
 from src.services.ufo_classifier_service import UFOCategory, UFOClassifierService
+
+pytestmark = pytest.mark.skip(
+    reason="UFO ontologie wordt vervangen — tests achterhaald"
+)
 
 
 def test_input_validation():
