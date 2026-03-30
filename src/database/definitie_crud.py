@@ -9,7 +9,7 @@ from database.audit_helpers import AuditHelpers
 from database.db_connection import DatabaseConnection
 from database.definitie_duplicates import DefinitieDuplicateRepository
 from database.definitie_search import DefinitieSearchRepository
-from database.models import DefinitieRecord, DefinitieStatus
+from database.models import DefinitieRecord, DefinitieStatus, normalize_wettelijke_basis
 
 logger = logging.getLogger(__name__)
 
@@ -135,14 +135,7 @@ class DefinitieCrudRepository:
                 params.append(categorie)
 
             if wettelijke_basis is not None:
-                try:
-                    norm = sorted({str(x).strip() for x in (wettelijke_basis or [])})
-                    wb_json = json.dumps(norm, ensure_ascii=False)
-                except Exception as e:
-                    logger.debug(
-                        f"Wettelijke basis normalisatie gefaald in find_definitie: {e}"
-                    )
-                    wb_json = json.dumps(wettelijke_basis or [], ensure_ascii=False)
+                wb_json = normalize_wettelijke_basis(wettelijke_basis)
                 query += " AND (wettelijke_basis = ? OR (wettelijke_basis IS NULL AND ? = '[]'))"
                 params.extend([wb_json, wb_json])
 
@@ -181,14 +174,7 @@ class DefinitieCrudRepository:
                 syn_params.append(categorie)
 
             if wettelijke_basis is not None:
-                try:
-                    norm = sorted({str(x).strip() for x in (wettelijke_basis or [])})
-                    wb_json = json.dumps(norm, ensure_ascii=False)
-                except Exception as e:
-                    logger.debug(
-                        f"Wettelijke basis normalisatie gefaald in synonym query: {e}"
-                    )
-                    wb_json = json.dumps(wettelijke_basis or [], ensure_ascii=False)
+                wb_json = normalize_wettelijke_basis(wettelijke_basis)
                 syn_query += " AND (d.wettelijke_basis = ? OR (d.wettelijke_basis IS NULL AND ? = '[]'))"
                 syn_params.extend([wb_json, wb_json])
 
@@ -208,7 +194,11 @@ class DefinitieCrudRepository:
             return None
 
     def update_definitie(
-        self, definitie_id: int, updates: dict[str, Any], updated_by: str | None = None
+        self,
+        definitie_id: int,
+        updates: dict[str, Any],
+        updated_by: str | None = None,
+        _skip_audit: bool = False,
     ) -> bool:
         """Update bestaande definitie."""
         with self._db.get_connection() as conn:
@@ -236,6 +226,9 @@ class DefinitieCrudRepository:
                 "wettelijke_basis",
                 "toelichting_proces",
                 "ketenpartners",
+                "approved_by",
+                "approved_at",
+                "approval_notes",
             }
 
             set_clauses = []
@@ -277,12 +270,13 @@ class DefinitieCrudRepository:
                 )
                 return False
 
-            self._audit.log_geschiedenis(
-                definitie_id,
-                "updated",
-                updated_by,
-                f"Definitie geupdate: {list(updates.keys())}",
-            )
+            if not _skip_audit:
+                self._audit.log_geschiedenis(
+                    definitie_id,
+                    "updated",
+                    updated_by,
+                    f"Definitie geupdate: {list(updates.keys())}",
+                )
 
             logger.info(f"Updated definitie {definitie_id}")
             return True
@@ -306,7 +300,9 @@ class DefinitieCrudRepository:
                 }
             )
 
-        success = self.update_definitie(definitie_id, updates, changed_by)
+        success = self.update_definitie(
+            definitie_id, updates, changed_by, _skip_audit=True
+        )
 
         if success:
             self._audit.log_geschiedenis(

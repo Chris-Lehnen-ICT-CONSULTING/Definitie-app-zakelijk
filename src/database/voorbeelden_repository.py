@@ -13,6 +13,40 @@ from models.voorbeelden_validation import validate_save_voorbeelden_input
 
 logger = logging.getLogger(__name__)
 
+_TYPE_MAPPING = {
+    "voorbeeldzinnen": "sentence",
+    "zinnen": "sentence",
+    "voorbeeldzin": "sentence",
+    "sentences": "sentence",
+    "sentence": "sentence",
+    "example_sentences": "sentence",
+    "praktijkvoorbeelden": "practical",
+    "praktijk": "practical",
+    "praktijkvoorbeeld": "practical",
+    "practical_examples": "practical",
+    "practical": "practical",
+    "tegenvoorbeelden": "counter",
+    "tegen": "counter",
+    "counterexamples": "counter",
+    "counter": "counter",
+    "synoniemen": "synonyms",
+    "synonym": "synonyms",
+    "synonyms": "synonyms",
+    "antoniemen": "antonyms",
+    "antonym": "antonyms",
+    "antonyms": "antonyms",
+    "toelichting": "explanation",
+    "uitleg": "explanation",
+    "notes": "explanation",
+    "comment": "explanation",
+    "explanation": "explanation",
+}
+
+
+def normalize_voorbeeld_type(tp: str) -> str:
+    """Normaliseer voorbeeld_type naar schema-waarden."""
+    return _TYPE_MAPPING.get((tp or "").strip().lower(), (tp or "").strip().lower())
+
 
 class VoorbeeldenRepository:
     """Repository voor voorbeelden (zinnen, praktijk, tegen, synoniemen, etc.)."""
@@ -94,40 +128,8 @@ class VoorbeeldenRepository:
                     (definitie_id,),
                 )
 
-                def _normalize_type(tp: str) -> str:
-                    t = (tp or "").strip().lower()
-                    mapping = {
-                        "voorbeeldzinnen": "sentence",
-                        "zinnen": "sentence",
-                        "voorbeeldzin": "sentence",
-                        "sentences": "sentence",
-                        "sentence": "sentence",
-                        "example_sentences": "sentence",
-                        "praktijkvoorbeelden": "practical",
-                        "praktijk": "practical",
-                        "praktijkvoorbeeld": "practical",
-                        "practical_examples": "practical",
-                        "practical": "practical",
-                        "tegenvoorbeelden": "counter",
-                        "tegen": "counter",
-                        "counterexamples": "counter",
-                        "counter": "counter",
-                        "synoniemen": "synonyms",
-                        "synonym": "synonyms",
-                        "synonyms": "synonyms",
-                        "antoniemen": "antonyms",
-                        "antonym": "antonyms",
-                        "antonyms": "antonyms",
-                        "toelichting": "explanation",
-                        "uitleg": "explanation",
-                        "notes": "explanation",
-                        "comment": "explanation",
-                        "explanation": "explanation",
-                    }
-                    return mapping.get(t, t)
-
                 for voorbeeld_type, examples in voorbeelden_dict.items():
-                    norm_type = _normalize_type(voorbeeld_type)
+                    norm_type = normalize_voorbeeld_type(voorbeeld_type)
                     if not examples:
                         continue
 
@@ -208,44 +210,10 @@ class VoorbeeldenRepository:
 
                 conn.commit()
 
-                # Voorkeursterm persistency
-                try:
-                    if voorkeursterm:
-                        cursor.execute(
-                            "UPDATE definities SET voorkeursterm = ? WHERE id = ?",
-                            (voorkeursterm.strip(), definitie_id),
-                        )
-                        conn.commit()
-                    else:
-                        cursor.execute(
-                            "UPDATE definities SET voorkeursterm = NULL WHERE id = ?",
-                            (definitie_id,),
-                        )
-                        conn.commit()
-                except Exception as e:
-                    logger.warning(
-                        f"Voorkeursterm update gefaald voor definitie {definitie_id}: {e}. "
-                        f"Eerdere per-row waarde blijft behouden.",
-                        extra={
-                            "component": "definitie_repository",
-                            "operation": "update_voorkeursterm",
-                            "definitie_id": definitie_id,
-                            "error_type": type(e).__name__,
-                        },
-                    )
-
-                # PHASE 3.3: Sync synoniemen naar registry
-                synoniemen = voorbeelden_dict.get("synoniemen", [])
-                if synoniemen:
-                    try:
-                        self._synonym_sync.sync_synonyms_to_registry(
-                            definitie_id=definitie_id,
-                            synoniemen=synoniemen,
-                            edited_by=gegenereerd_door,
-                            get_definitie_fn=get_definitie_fn,
-                        )
-                    except Exception as e:
-                        logger.warning(f"Synonym sync to registry failed: {e}")
+                self._update_voorkeursterm(conn, definitie_id, voorkeursterm)
+                self._sync_synoniemen(
+                    voorbeelden_dict, definitie_id, gegenereerd_door, get_definitie_fn
+                )
 
                 logger.info(f"Successfully saved {len(saved_ids)} voorbeelden")
                 return saved_ids
@@ -254,6 +222,49 @@ class VoorbeeldenRepository:
                 conn.rollback()
                 logger.error(f"Failed to save voorbeelden: {e}")
                 raise
+
+    def _update_voorkeursterm(self, conn, definitie_id: int, voorkeursterm: str | None):
+        """Persisteer voorkeursterm op definitie-niveau."""
+        try:
+            cursor = conn.cursor()
+            if voorkeursterm:
+                cursor.execute(
+                    "UPDATE definities SET voorkeursterm = ? WHERE id = ?",
+                    (voorkeursterm.strip(), definitie_id),
+                )
+            else:
+                cursor.execute(
+                    "UPDATE definities SET voorkeursterm = NULL WHERE id = ?",
+                    (definitie_id,),
+                )
+            conn.commit()
+        except Exception as e:
+            logger.warning(
+                f"Voorkeursterm update gefaald voor definitie {definitie_id}: {e}. "
+                f"Eerdere per-row waarde blijft behouden.",
+                extra={
+                    "component": "definitie_repository",
+                    "operation": "update_voorkeursterm",
+                    "definitie_id": definitie_id,
+                    "error_type": type(e).__name__,
+                },
+            )
+
+    def _sync_synoniemen(
+        self, voorbeelden_dict, definitie_id, gegenereerd_door, get_definitie_fn
+    ):
+        """Sync synoniemen naar registry (PHASE 3.3)."""
+        synoniemen = voorbeelden_dict.get("synoniemen", [])
+        if synoniemen:
+            try:
+                self._synonym_sync.sync_synonyms_to_registry(
+                    definitie_id=definitie_id,
+                    synoniemen=synoniemen,
+                    edited_by=gegenereerd_door,
+                    get_definitie_fn=get_definitie_fn,
+                )
+            except Exception as e:
+                logger.warning(f"Synonym sync to registry failed: {e}")
 
     def get_voorbeelden(
         self,

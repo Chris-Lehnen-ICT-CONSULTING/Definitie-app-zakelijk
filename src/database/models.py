@@ -14,6 +14,16 @@ from typing import Any, cast
 logger = logging.getLogger(__name__)
 
 
+def normalize_wettelijke_basis(basis: list[str] | None) -> str:
+    """Normaliseer wettelijke basis naar gesorteerde, unieke JSON string."""
+    try:
+        norm = sorted({str(x).strip() for x in (basis or [])})
+        return json.dumps(norm, ensure_ascii=False)
+    except Exception as e:
+        logger.debug(f"Wettelijke basis normalisatie gefaald, gebruik raw dump: {e}")
+        return json.dumps(basis or [], ensure_ascii=False)
+
+
 class DefinitieStatus(Enum):
     """Status van een definitie in het systeem."""
 
@@ -124,14 +134,7 @@ class DefinitieRecord:
 
     def set_wettelijke_basis(self, basis: list[str]):
         """Set wettelijke basis als JSON string."""
-        try:
-            norm = sorted({str(x).strip() for x in (basis or [])})
-            self.wettelijke_basis = json.dumps(norm, ensure_ascii=False)
-        except Exception as e:
-            logger.debug(
-                f"Wettelijke basis normalisatie gefaald, gebruik raw dump: {e}"
-            )
-            self.wettelijke_basis = json.dumps(basis or [], ensure_ascii=False)
+        self.wettelijke_basis = normalize_wettelijke_basis(basis)
 
     def get_export_destinations_list(self) -> list[str]:
         """Haal export destinations op als list."""
