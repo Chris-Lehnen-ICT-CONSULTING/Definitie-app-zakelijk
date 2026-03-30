@@ -15,13 +15,25 @@ logger = logging.getLogger(__name__)
 
 
 class DatabaseConnection:
-    """Connection provider — beheert SQLite lifecycle, schema-init, pragmas."""
+    """Connection provider — beheert SQLite lifecycle, schema-init, pragmas.
+
+    Cached connection: PRAGMAs worden eenmaal gezet bij eerste aanroep.
+    Veilig voor single-threaded Streamlit (check_same_thread=False).
+    """
 
     def __init__(self, db_path: str = "data/definities.db"):
         self.db_path = db_path
+        self._conn: sqlite3.Connection | None = None
 
     def get_connection(self, timeout: float = 30.0) -> sqlite3.Connection:
-        """Maak database connectie met proper timeout en settings."""
+        """Retourneer cached connectie. PRAGMAs worden eenmaal gezet."""
+        if self._conn is not None:
+            try:
+                self._conn.execute("SELECT 1")
+                return self._conn
+            except sqlite3.Error:
+                self._conn = None
+
         conn = sqlite3.connect(
             self.db_path,
             timeout=timeout,
@@ -34,6 +46,7 @@ class DatabaseConnection:
         conn.execute("PRAGMA foreign_keys=ON")
         conn.execute("PRAGMA busy_timeout=5000")
         conn.row_factory = sqlite3.Row
+        self._conn = conn
         return conn
 
     def has_legacy_columns(self) -> bool:

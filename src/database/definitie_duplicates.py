@@ -1,12 +1,11 @@
 """Duplicate detection voor definities."""
 
-import json
 import logging
 from typing import Any
 
 from database.audit_helpers import AuditHelpers
 from database.db_connection import DatabaseConnection
-from database.models import DuplicateMatch
+from database.models import DuplicateMatch, normalize_wettelijke_basis
 
 logger = logging.getLogger(__name__)
 
@@ -48,14 +47,7 @@ class DefinitieDuplicateRepository:
                 exact_params.append(categorie)
 
             if wettelijke_basis is not None:
-                try:
-                    norm = sorted({str(x).strip() for x in (wettelijke_basis or [])})
-                    wb_json = json.dumps(norm, ensure_ascii=False)
-                except Exception as e:
-                    logger.debug(
-                        f"Wettelijke basis normalisatie gefaald in find_duplicates: {e}"
-                    )
-                    wb_json = json.dumps(wettelijke_basis or [], ensure_ascii=False)
+                wb_json = normalize_wettelijke_basis(wettelijke_basis)
                 exact_query += " AND (wettelijke_basis = ? OR (wettelijke_basis IS NULL AND ? = '[]'))"
                 exact_params.extend([wb_json, wb_json])
 
@@ -94,14 +86,7 @@ class DefinitieDuplicateRepository:
                 syn_params.append(categorie)
 
             if wettelijke_basis is not None:
-                try:
-                    norm = sorted({str(x).strip() for x in (wettelijke_basis or [])})
-                    wb_json = json.dumps(norm, ensure_ascii=False)
-                except Exception as e:
-                    logger.debug(
-                        f"Wettelijke basis normalisatie gefaald in duplicates synonym: {e}"
-                    )
-                    wb_json = json.dumps(wettelijke_basis or [], ensure_ascii=False)
+                wb_json = normalize_wettelijke_basis(wettelijke_basis)
                 syn_query += " AND (d.wettelijke_basis = ? OR (d.wettelijke_basis IS NULL AND ? = '[]'))"
                 syn_params.extend([wb_json, wb_json])
 
@@ -141,14 +126,7 @@ class DefinitieDuplicateRepository:
                 juridische_context,
             ]
             if wettelijke_basis is not None:
-                try:
-                    norm = sorted({str(x).strip() for x in (wettelijke_basis or [])})
-                    wb_json = json.dumps(norm, ensure_ascii=False)
-                except Exception as e:
-                    logger.debug(
-                        f"Wettelijke basis normalisatie gefaald in count_exact: {e}"
-                    )
-                    wb_json = json.dumps(wettelijke_basis or [], ensure_ascii=False)
+                wb_json = normalize_wettelijke_basis(wettelijke_basis)
                 query += " AND (wettelijke_basis = ? OR (wettelijke_basis IS NULL AND ? = '[]'))"
                 params.extend([wb_json, wb_json])
             cur = conn.execute(query, params)
