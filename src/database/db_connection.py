@@ -7,9 +7,6 @@ Wordt als connection provider doorgegeven aan sub-repositories (compositie).
 import logging
 import sqlite3
 from pathlib import Path
-from typing import Any
-
-from database.models import DefinitieRecord
 
 logger = logging.getLogger(__name__)
 
@@ -53,88 +50,12 @@ class DatabaseConnection:
         """Check if database has legacy columns (datum_voorstel, ketenpartners)."""
         try:
             with self.get_connection() as conn:
-                return self.has_legacy_columns_in_conn(conn)
+                cursor = conn.execute("PRAGMA table_info(definities)")
+                columns = {row[1] for row in cursor.fetchall()}
+                return "datum_voorstel" in columns and "ketenpartners" in columns
         except Exception as e:
             logger.warning(f"Legacy columns check gefaald: {e}")
             return False
-
-    @staticmethod
-    def has_legacy_columns_in_conn(conn: sqlite3.Connection) -> bool:
-        """Determine legacy column presence using an existing connection."""
-        cursor = conn.execute("PRAGMA table_info(definities)")
-        columns = {row[1] for row in cursor.fetchall()}
-        return "datum_voorstel" in columns and "ketenpartners" in columns
-
-    @staticmethod
-    def build_insert_columns(
-        record: DefinitieRecord, wb_value: str, include_legacy: bool
-    ) -> tuple[list[str], list[Any]]:
-        """Compose insert columns/values for definities table."""
-        columns = [
-            "begrip",
-            "definitie",
-            "categorie",
-            "organisatorische_context",
-            "juridische_context",
-            "wettelijke_basis",
-            "ufo_categorie",
-            "toelichting_proces",
-            "status",
-            "version_number",
-            "previous_version_id",
-            "validation_score",
-            "validation_date",
-            "validation_issues",
-            "source_type",
-            "source_reference",
-            "imported_from",
-            "created_at",
-            "updated_at",
-            "created_by",
-            "updated_by",
-            "approved_by",
-            "approved_at",
-            "approval_notes",
-            "last_exported_at",
-            "export_destinations",
-            "generation_prompt_data",
-        ]
-
-        values: list[Any] = [
-            record.begrip,
-            record.definitie,
-            record.categorie,
-            record.organisatorische_context,
-            record.juridische_context,
-            wb_value,
-            record.ufo_categorie,
-            record.toelichting_proces,
-            record.status,
-            record.version_number,
-            record.previous_version_id,
-            record.validation_score,
-            record.validation_date,
-            record.validation_issues,
-            record.source_type,
-            record.source_reference,
-            record.imported_from,
-            record.created_at,
-            record.updated_at,
-            record.created_by,
-            record.updated_by,
-            record.approved_by,
-            record.approved_at,
-            record.approval_notes,
-            record.last_exported_at,
-            record.export_destinations,
-            record.generation_prompt_data,
-        ]
-
-        if include_legacy:
-            columns.extend(["datum_voorstel", "ketenpartners"])
-            values.extend([record.datum_voorstel, record.ketenpartners])
-
-        return columns, values
 
     def init_database(self):
         """Initialiseer database met schema."""
