@@ -77,13 +77,13 @@ class DefinitieRepository:
 
     @staticmethod
     def _has_legacy_columns_in_conn(conn: sqlite3.Connection) -> bool:
-        return DatabaseConnection.has_legacy_columns_in_conn(conn)
+        return AuditHelpers.has_legacy_columns_in_conn(conn)
 
     @staticmethod
     def _build_insert_columns(
         record: DefinitieRecord, wb_value: str, include_legacy: bool
     ) -> tuple[list[str], list[Any]]:
-        return DatabaseConnection.build_insert_columns(record, wb_value, include_legacy)
+        return AuditHelpers.build_insert_columns(record, wb_value, include_legacy)
 
     def _init_database(self):
         self._db.init_database()

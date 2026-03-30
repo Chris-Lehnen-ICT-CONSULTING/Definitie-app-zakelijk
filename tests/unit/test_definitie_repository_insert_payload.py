@@ -1,7 +1,8 @@
-"""Tests voor de insert helper van DefinitieRepository."""
+"""Tests voor de insert helper (AuditHelpers.build_insert_columns)."""
 
 from datetime import UTC, datetime, timezone
 
+from database.audit_helpers import AuditHelpers
 from database.definitie_repository import DefinitieRecord, DefinitieRepository
 
 
@@ -40,7 +41,7 @@ def _make_record() -> DefinitieRecord:
 
 def test_build_insert_columns_without_legacy():
     record = _make_record()
-    columns, values = DefinitieRepository._build_insert_columns(
+    columns, values = AuditHelpers.build_insert_columns(
         record, record.wettelijke_basis or "[]", include_legacy=False
     )
 
@@ -82,10 +83,20 @@ def test_build_insert_columns_without_legacy():
 
 def test_build_insert_columns_with_legacy():
     record = _make_record()
-    columns, values = DefinitieRepository._build_insert_columns(
+    columns, values = AuditHelpers.build_insert_columns(
         record, record.wettelijke_basis or "[]", include_legacy=True
     )
 
     assert columns[-2:] == ["datum_voorstel", "ketenpartners"]
     assert values[-2:] == [record.datum_voorstel, record.ketenpartners]
+    assert len(columns) == len(values)
+
+
+def test_backward_compat_facade_delegates():
+    """Verify DefinitieRepository._build_insert_columns still works."""
+    record = _make_record()
+    columns, values = DefinitieRepository._build_insert_columns(
+        record, record.wettelijke_basis or "[]", include_legacy=False
+    )
+    assert columns[0] == "begrip"
     assert len(columns) == len(values)
