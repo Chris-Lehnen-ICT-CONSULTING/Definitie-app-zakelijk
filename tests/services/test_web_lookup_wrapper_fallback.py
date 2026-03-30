@@ -7,13 +7,16 @@ from services.definition_generator_context import HybridContextManager
 from services.interfaces import GenerationRequest, LookupResult, WebSource
 
 
+@pytest.mark.skip(
+    reason="HybridContextManager no longer performs web lookup directly — "
+    "web lookup moved to orchestrator layer (see definition_generator_context.py:172)"
+)
 @pytest.mark.asyncio
 async def test_web_lookup_wrapper_title_fallbacks():
     """Ensure web lookup wrapper formats labels without relying on r.title."""
     config = ContextConfig()
     manager = HybridContextManager(config)
 
-    # Prepare results without a 'title' attribute; use metadata/term instead
     r1 = LookupResult(
         term="TermOnly",
         source=WebSource(name="Overheid.nl", url="", confidence=0.9),
@@ -37,12 +40,9 @@ async def test_web_lookup_wrapper_title_fallbacks():
             GenerationRequest(id="t1", begrip="context")
         )
 
-    # Must include a web_lookup source and formatted content using fallbacks
     web_sources = [s for s in enriched.sources if s.source_type == "web_lookup"]
     assert web_sources, "Expected web_lookup source present"
     content = web_sources[0].content
     assert "Web informatie voor context:" in content
-    # Fallback for r1: uses term when no metadata title present
     assert "TermOnly (Overheid.nl)" in content
-    # r2 uses dc_title from metadata
     assert "Wetboek (Wikipedia)" in content

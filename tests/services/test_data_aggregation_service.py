@@ -20,7 +20,9 @@ class TestDataAggregationService:
     @pytest.fixture
     def mock_repository(self):
         """Create mock repository."""
-        return Mock(spec=DefinitieRepository)
+        repo = Mock(spec=DefinitieRepository)
+        repo.get_voorbeelden_by_type.return_value = {}
+        return repo
 
     @pytest.fixture
     def service(self, mock_repository):
@@ -51,9 +53,10 @@ class TestDataAggregationService:
         return record
 
     def test_aggregate_definitie_for_export_with_record(
-        self, service, sample_definitie_record
+        self, service, sample_definitie_record, mock_repository
     ):
         """Test export aggregatie met definitie record."""
+        mock_repository.get_voorbeelden_by_type.return_value = {}
         # Act
         result = service.aggregate_definitie_for_export(
             definitie_record=sample_definitie_record
@@ -76,6 +79,7 @@ class TestDataAggregationService:
         """Test export aggregatie met definitie ID."""
         # Arrange
         mock_repository.get_definitie.return_value = sample_definitie_record
+        mock_repository.get_voorbeelden_by_type.return_value = {}
 
         # Act
         result = service.aggregate_definitie_for_export(definitie_id=1)
