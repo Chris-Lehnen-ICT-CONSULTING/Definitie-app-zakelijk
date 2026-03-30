@@ -1,640 +1,104 @@
 """
-DefinitieRepository - Database laag voor definitie management systeem.
-Biedt CRUD operaties, duplicate detection, en import/export functionaliteit.
+DefinitieRepository - Facade voor de database laag (DEF-389).
 
-Deze module bevat alle database operaties voor het beheren van definities,
-inclusief opslaan, ophalen, zoeken en duplicaat detectie.
+Delegeert naar gefocuste sub-modules. Alle publieke symbolen worden
+ge-re-exporteerd voor backward compatibility.
 """
 
-import json  # JSON encoding en decoding voor metadata opslag
-import logging  # Logging functionaliteit voor debug en monitoring
-import sqlite3  # SQLite database interface voor lokale database opslag
-from dataclasses import (  # Dataclass decorators voor gestructureerde data
-    asdict,
-    dataclass,
+import logging
+import sqlite3
+from pathlib import Path
+from typing import Any
+
+from database.audit_helpers import AuditHelpers
+from database.db_connection import DatabaseConnection
+from database.definitie_crud import DefinitieCrudRepository
+from database.definitie_duplicates import DefinitieDuplicateRepository
+from database.definitie_import_export import DefinitieImportExportRepository
+from database.definitie_search import DefinitieSearchRepository
+from database.models import (
+    DefinitieRecord,
+    DefinitieStatus,
+    DuplicateMatch,
+    SourceType,
+    VoorbeeldenRecord,
 )
-from datetime import UTC, datetime  # Datum en tijd functionaliteit voor timestamps
-from enum import Enum  # Enumeratie types voor constante waarden
-from pathlib import Path  # Object-georiënteerde pad manipulatie
-from typing import Any, cast  # Type hints voor betere code documentatie
+from database.synonym_sync import SynonymSyncService
+from database.voorbeelden_repository import VoorbeeldenRepository
+from domain.ontological_categories import OntologischeCategorie
 
-from pydantic import ValidationError  # Pydantic validation errors (DEF-74)
+__all__ = [
+    "DefinitieRecord",
+    "DefinitieRepository",
+    "DefinitieStatus",
+    "DuplicateMatch",
+    "SourceType",
+    "VoorbeeldenRecord",
+    "clear_repository_singleton",
+    "get_definitie_repository",
+    "validate_and_get_repository",
+]
 
-from domain.ontological_categories import (
-    OntologischeCategorie,  # Import ontologische categorieën voor classificatie
-)
-from models.voorbeelden_validation import (
-    validate_save_voorbeelden_input,  # Pydantic validation voor voorbeelden (DEF-74)
-)
-
-logger = logging.getLogger(__name__)  # Maak logger instantie voor database module
-
-
-class DefinitieStatus(Enum):
-    """Status van een definitie in het systeem.
-
-    Definieert de verschillende statusen die een definitie kan hebben
-    tijdens de levenscyclus van concept tot definitieve vaststelling.
-    """
-
-    IMPORTED = "imported"  # Geïmporteerde definitie, klaar voor toetsing
-    DRAFT = "draft"  # Concept definitie, nog in bewerking
-    REVIEW = "review"  # Definitie is ingediend voor review door experts
-    ESTABLISHED = "established"  # Definitief vastgestelde definitie, klaar voor gebruik
-    ARCHIVED = (
-        "archived"  # Gearchiveerde definitie (niet meer actief, bewaard voor historie)
-    )
-
-
-class SourceType(Enum):
-    """Type van de bron waaruit definitie komt.
-
-    Houdt bij hoe een definitie is ontstaan voor traceerbaarheid.
-    """
-
-    GENERATED = "generated"  # AI-gegenereerde definitie
-    IMPORTED = "imported"  # Geïmporteerd uit extern systeem
-    MANUAL = "manual"  # Handmatig ingevoerde definitie
-
-
-@dataclass
-class DefinitieRecord:
-    """Representatie van een definitie record in de database.
-
-    Deze klasse definieert de structuur van een definitie record
-    met alle metadata die nodig is voor beheer en traceerbaarheid.
-    """
-
-    # Basis definitie informatie
-    id: int | None = None  # Unieke database ID
-    begrip: str = ""  # Het begrip dat gedefinieerd wordt
-    definitie: str = ""  # De definitie tekst zelf
-    categorie: str = ""  # Ontologische categorie
-    organisatorische_context: str = ""  # Organisatie context
-    juridische_context: str | None = ""  # Juridische context
-    # Wettelijke basis (JSON array als TEXT)
-    wettelijke_basis: str | None = None
-    # UFO-categorie (OntoUML/UFO metamodel)
-    ufo_categorie: str | None = None
-
-    # Procesmatige velden
-    toelichting_proces: str | None = (
-        None  # Procesmatige toelichting/opmerkingen (review/validatie notities)
-    )
-
-    # Status en versioning - Houdt bij in welke fase de definitie zich bevindt
-    status: str = DefinitieStatus.DRAFT.value  # Huidige status van de definitie
-    version_number: int = 1  # Versienummer voor versiebeheer
-    previous_version_id: int | None = None  # Verwijzing naar vorige versie
-
-    # Validation - Kwaliteitscontrole informatie
-    validation_score: float | None = None  # Kwaliteitsscore (0.0-1.0)
-    validation_date: datetime | None = None  # Wanneer laatste validatie plaatsvond
-    validation_issues: str | None = None  # JSON string met gevonden problemen
-    # Source tracking - Herkomst van de definitie
-    source_type: str = SourceType.GENERATED.value  # Hoe is definitie ontstaan
-    source_reference: str | None = None  # Referentie naar originele bron
-    imported_from: str | None = None  # Van welk systeem geïmporteerd
-
-    # Voorkeursterm (single source of truth op definitie-niveau)
-    voorkeursterm: str | None = None
-
-    # Metadata - Algemene record informatie
-    created_at: datetime | None = None  # Wanneer record is aangemaakt
-    updated_at: datetime | None = None  # Laatste wijziging
-    created_by: str | None = (
-        None  # Wie heeft record aangemaakt (ook gebruikt voor voorgesteld_door)
-    )
-    updated_by: str | None = None  # Wie heeft record laatst gewijzigd
-
-    # Legacy metadata fields
-    datum_voorstel: datetime | None = None  # Datum van voorstel
-    ketenpartners: str | None = None  # JSON string van ketenpartner array
-
-    # Approval - Goedkeuring workflow informatie
-    approved_by: str | None = None  # Wie heeft definitie goedgekeurd
-    approved_at: datetime | None = None  # Wanneer goedgekeurd
-    approval_notes: str | None = None  # Opmerkingen bij goedkeuring
-
-    # Export - Export tracking informatie
-    last_exported_at: datetime | None = None  # Laatste export datum
-    export_destinations: str | None = None  # JSON string met export bestemmingen
-
-    # Generation Prompt Storage (DEF-151) - Stores complete prompt used for AI generation
-    generation_prompt_data: str | None = (
-        None  # JSON string met prompt, model, tokens, etc.
-    )
-
-    # Deprecated (aanwezig in sommige databases, niet meer gebruikt)
-    voorkeursterm_is_begrip: bool | None = None
-
-    def to_dict(self) -> dict[str, Any]:
-        """Converteer naar dictionary voor JSON serialization.
-
-        Returns:
-            Dictionary representatie van dit record
-        """
-        # Converteer dataclass naar dictionary
-        result = asdict(self)
-        # Converteer datetime objecten naar ISO strings voor JSON compatibiliteit
-        for key, value in result.items():
-            if isinstance(value, datetime):  # Controleer of waarde een datetime is
-                result[key] = value.isoformat()  # Converteer naar ISO formaat string
-        return result  # Geef dictionary terug
-
-    def get_validation_issues_list(self) -> list[dict[str, Any]]:
-        """Haal validation issues op als list.
-
-        Returns:
-            Lijst van validation issues als dictionaries
-        """
-        # Controleer of er validation issues zijn
-        if not self.validation_issues:
-            return []  # Geef lege lijst terug als geen issues
-        try:
-            # Probeer JSON string te parsen naar lijst
-            return cast(list[dict[str, Any]], json.loads(self.validation_issues))
-        except json.JSONDecodeError:
-            # Als parsing faalt, geef lege lijst terug
-            return []
-
-    def set_validation_issues(self, issues: list[dict[str, Any]]):
-        """Set validation issues als JSON string.
-
-        Args:
-            issues: Lijst van validation issues om op te slaan
-        """
-        # Converteer lijst naar JSON string en sla op
-        self.validation_issues = json.dumps(issues, ensure_ascii=False)
-
-    # Wettelijke basis helpers
-    def get_wettelijke_basis_list(self) -> list[str]:
-        """Haal wettelijke basis op als list."""
-        if not self.wettelijke_basis:
-            return []
-        try:
-            return cast(list[str], json.loads(self.wettelijke_basis))
-        except json.JSONDecodeError:
-            return []
-
-    def set_wettelijke_basis(self, basis: list[str]):
-        """Set wettelijke basis als JSON string."""
-        try:
-            # Normaliseer: unieke, gestripte, lower-preserving volgorde gesorteerd voor consistente opslag
-            norm = sorted({str(x).strip() for x in (basis or [])})
-            self.wettelijke_basis = json.dumps(norm, ensure_ascii=False)
-        except Exception as e:
-            # Fallback: ruwe dump
-            logger.debug(
-                f"Wettelijke basis normalisatie gefaald, gebruik raw dump: {e}"
-            )
-            self.wettelijke_basis = json.dumps(basis or [], ensure_ascii=False)
-
-    def get_export_destinations_list(self) -> list[str]:
-        """Haal export destinations op als list.
-
-        Returns:
-            Lijst van export bestemmingen
-        """
-        # Controleer of er export bestemmingen zijn
-        if not self.export_destinations:
-            return []  # Geef lege lijst terug als geen bestemmingen
-        try:
-            # Probeer JSON string te parsen naar lijst
-            return cast(list[str], json.loads(self.export_destinations))
-        except json.JSONDecodeError:
-            # Als parsing faalt, geef lege lijst terug
-            return []
-
-    def add_export_destination(self, destination: str):
-        """Voeg export destination toe.
-
-        Args:
-            destination: Nieuwe export bestemming om toe te voegen
-        """
-        # Haal huidige lijst van bestemmingen op
-        destinations = self.get_export_destinations_list()
-        # Voeg nieuwe bestemming toe als deze nog niet bestaat
-        if destination not in destinations:
-            destinations.append(destination)  # Voeg toe aan lijst
-            # Sla bijgewerkte lijst op als JSON string
-            self.export_destinations = json.dumps(destinations)
-
-    def get_ketenpartners_list(self) -> list[str]:
-        """Haal ketenpartners op als list."""
-        if not self.ketenpartners:
-            return []
-        try:
-            return cast(list[str], json.loads(self.ketenpartners))
-        except json.JSONDecodeError:
-            return []
-
-    def set_ketenpartners(self, partners: list[str]):
-        """Set ketenpartners als JSON string."""
-        self.ketenpartners = json.dumps(partners, ensure_ascii=False)
-
-
-@dataclass
-class VoorbeeldenRecord:
-    """Representatie van een voorbeelden record in de database."""
-
-    id: int | None = None
-    definitie_id: int = 0
-    voorbeeld_type: str = ""  # sentence, practical, counter, etc.
-    voorbeeld_tekst: str = ""
-    voorbeeld_volgorde: int = 1
-    is_voorkeursterm: bool = False  # Indicates if this synonym is the preferred term
-
-    # Generation metadata
-    gegenereerd_door: str = "system"
-    generation_model: str | None = None
-    generation_parameters: str | None = None  # JSON string
-
-    # Status
-    actief: bool = True
-    beoordeeld: bool = False
-    beoordeeling: str | None = None  # 'goed', 'matig', 'slecht'
-    beoordeeling_notities: str | None = None
-    beoordeeld_door: str | None = None
-    beoordeeld_op: datetime | None = None
-
-    # Metadata
-    aangemaakt_op: datetime | None = None
-    bijgewerkt_op: datetime | None = None
-
-    def to_dict(self) -> dict[str, Any]:
-        """Converteer naar dictionary voor JSON serialization."""
-        result = asdict(self)
-        # Convert datetime objects to ISO strings
-        for key, value in result.items():
-            if isinstance(value, datetime):
-                result[key] = value.isoformat()
-        return result
-
-    def get_generation_parameters_dict(self) -> dict[str, Any]:
-        """Haal generation parameters op als dictionary."""
-        if not self.generation_parameters:
-            return {}
-        try:
-            return cast(dict[str, Any], json.loads(self.generation_parameters))
-        except json.JSONDecodeError:
-            return {}
-
-    def set_generation_parameters(self, params: dict[str, Any]):
-        """Stel generatie parameters in als JSON string.
-
-        Args:
-            params: Dictionary met generatie parameters
-        """
-        self.generation_parameters = json.dumps(params, ensure_ascii=False)
-
-
-@dataclass
-class DuplicateMatch:
-    """Representatie van een mogelijk duplicaat match.
-
-    Deze klasse houdt informatie bij over een gevonden duplicaat,
-    inclusief de match score en redenen voor de match.
-    """
-
-    definitie_record: DefinitieRecord
-    match_score: float
-    match_reasons: list[str]
+logger = logging.getLogger(__name__)
 
 
 class DefinitieRepository:
-    """Repository voor definitie management met volledige CRUD operaties.
-
-    Deze klasse biedt een database abstractie laag voor alle definitie
-    operaties, inclusief opslag, zoeken, duplicaat detectie en export.
-    """
+    """Facade — delegeert naar gefocuste sub-repositories."""
 
     def __init__(self, db_path: str = "data/definities.db"):
-        """
-        Initialiseer repository met database connectie.
-
-        Args:
-            db_path: Pad naar SQLite database bestand
-        """
         self.db_path = db_path
-        self._init_database()
-
-    def _get_connection(self, timeout: float = 30.0) -> sqlite3.Connection:
-        """
-        Maak database connectie met proper timeout en settings.
-
-        Args:
-            timeout: Connection timeout in seconden
-
-        Returns:
-            SQLite connection object
-        """
-        conn = sqlite3.connect(
-            self.db_path,
-            timeout=timeout,  # Voorkom "database is locked" errors
-            isolation_level=None,  # Autocommit mode
-            check_same_thread=False,  # Multi-threading ondersteuning
+        self._db = DatabaseConnection(db_path)
+        self._db.init_database()
+        self._audit = AuditHelpers(self._db)
+        self._duplicates = DefinitieDuplicateRepository(self._db, self._audit)
+        self._search = DefinitieSearchRepository(self._db, self._audit)
+        self._crud = DefinitieCrudRepository(
+            self._db, self._audit, self._duplicates, self._search
         )
-        # Zet pragmas voor betere performance en concurrency
-        conn.execute("PRAGMA journal_mode=WAL")  # Write-Ahead Logging
-        conn.execute("PRAGMA synchronous=NORMAL")  # Snellere writes
-        conn.execute("PRAGMA temp_store=MEMORY")  # Temp tables in memory
-        conn.execute("PRAGMA foreign_keys=ON")  # Foreign key constraints
-        conn.row_factory = sqlite3.Row  # Enables column access by name
-        return conn
+        self._import_export = DefinitieImportExportRepository(self._db, self._audit)
+        self._synonym_sync = SynonymSyncService(
+            self._db, get_registry_fn=self._get_synonym_registry
+        )
+        self._voorbeelden = VoorbeeldenRepository(self._db, self._synonym_sync)
+
+    @staticmethod
+    def _get_synonym_registry():
+        """Lazy registry lookup — houdt database laag vrij van service imports."""
+        from src.services.container import get_container
+
+        return get_container().synonym_registry()
+
+    # === Backward-compat: connection access ===
+    def _get_connection(self, timeout: float = 30.0) -> sqlite3.Connection:
+        return self._db.get_connection(timeout)
 
     def _has_legacy_columns(self) -> bool:
-        """Check if database has legacy columns (datum_voorstel, ketenpartners)."""
-        try:
-            with self._get_connection() as conn:
-                return self._has_legacy_columns_in_conn(conn)
-        except Exception as e:
-            logger.warning(f"Legacy columns check gefaald: {e}")
-            return False
+        return self._db.has_legacy_columns()
 
     @staticmethod
     def _has_legacy_columns_in_conn(conn: sqlite3.Connection) -> bool:
-        """Determine legacy column presence using an existing connection."""
-
-        cursor = conn.execute("PRAGMA table_info(definities)")
-        columns = {row[1] for row in cursor.fetchall()}
-        return "datum_voorstel" in columns and "ketenpartners" in columns
+        return DatabaseConnection.has_legacy_columns_in_conn(conn)
 
     @staticmethod
     def _build_insert_columns(
-        record: "DefinitieRecord", wb_value: str, include_legacy: bool
+        record: DefinitieRecord, wb_value: str, include_legacy: bool
     ) -> tuple[list[str], list[Any]]:
-        """Compose insert columns/values for definities table."""
-
-        columns = [
-            "begrip",
-            "definitie",
-            "categorie",
-            "organisatorische_context",
-            "juridische_context",
-            "wettelijke_basis",
-            "ufo_categorie",
-            "toelichting_proces",
-            "status",
-            "version_number",
-            "previous_version_id",
-            "validation_score",
-            "validation_date",
-            "validation_issues",
-            "source_type",
-            "source_reference",
-            "imported_from",
-            "created_at",
-            "updated_at",
-            "created_by",
-            "updated_by",
-            "approved_by",
-            "approved_at",
-            "approval_notes",
-            "last_exported_at",
-            "export_destinations",
-            "generation_prompt_data",
-        ]
-
-        values: list[Any] = [
-            record.begrip,
-            record.definitie,
-            record.categorie,
-            record.organisatorische_context,
-            record.juridische_context,
-            wb_value,
-            record.ufo_categorie,
-            record.toelichting_proces,
-            record.status,
-            record.version_number,
-            record.previous_version_id,
-            record.validation_score,
-            record.validation_date,
-            record.validation_issues,
-            record.source_type,
-            record.source_reference,
-            record.imported_from,
-            record.created_at,
-            record.updated_at,
-            record.created_by,
-            record.updated_by,
-            record.approved_by,
-            record.approved_at,
-            record.approval_notes,
-            record.last_exported_at,
-            record.export_destinations,
-            record.generation_prompt_data,
-        ]
-
-        if include_legacy:
-            columns.extend(["datum_voorstel", "ketenpartners"])
-            values.extend([record.datum_voorstel, record.ketenpartners])
-
-        return columns, values
+        return DatabaseConnection.build_insert_columns(record, wb_value, include_legacy)
 
     def _init_database(self):
-        """Initialiseer database met schema."""
-        # Zorg dat database directory bestaat
-        db_dir = Path(self.db_path).parent
-        db_dir.mkdir(parents=True, exist_ok=True)
-
-        # Laad schema
-        schema_path = Path(__file__).parent / "schema.sql"
-        if schema_path.exists():
-            with self._get_connection() as conn:
-                # Check if database is already initialized
-                # Check for BOTH definities AND synonym_groups tables
-                # (synonym_groups might be created by migration before definities exists)
-                cursor = conn.execute(
-                    """
-                    SELECT COUNT(*) FROM sqlite_master
-                    WHERE type='table' AND name IN ('definities', 'synonym_groups')
-                    """
-                )
-                table_count = cursor.fetchone()[0]
-
-                if table_count == 0:
-                    # No tables exist - create full schema
-                    with open(schema_path, encoding="utf-8") as f:
-                        schema_sql = f.read()
-                        try:
-                            # Use executescript for better multi-statement handling
-                            conn.executescript(schema_sql)
-                            logger.info("Database schema created successfully")
-                        except sqlite3.Error as e:
-                            logger.warning(f"Schema execution warning: {e}")
-                            # Fallback to individual statements if executescript fails
-                else:
-                    # At least one table exists - skip schema creation to avoid conflicts
-                    logger.debug(
-                        f"Database tables already exist ({table_count} found), skipping schema creation"
-                    )
-        else:
-            # Fallback schema creation if schema.sql not found
-            logger.warning("schema.sql not found, creating basic schema")
-            with self._get_connection() as conn:
-                conn.execute(
-                    """
-                    CREATE TABLE IF NOT EXISTS definities (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        begrip VARCHAR(255) NOT NULL,
-                        definitie TEXT NOT NULL,
-                        categorie VARCHAR(50) NOT NULL DEFAULT 'proces',
-                        organisatorische_context VARCHAR(255) NOT NULL,
-                        juridische_context VARCHAR(255),
-                        wettelijke_basis TEXT,
-                        status VARCHAR(50) NOT NULL DEFAULT 'draft',
-                        version_number INTEGER NOT NULL DEFAULT 1,
-                        validation_score DECIMAL(3,2),
-                        created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                        updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                        created_by VARCHAR(255),
-                        source_type VARCHAR(50) DEFAULT 'generated',
-                        datum_voorstel TIMESTAMP,
-                        ketenpartners TEXT
-                    )
-                """
-                )
-                conn.commit()
+        self._db.init_database()
 
     def _split_sql_statements(self, sql: str) -> list[str]:
-        """Split SQL bestand in individuele statements."""
-        statements = []
-        current_statement = ""
-        in_multiline = False
+        return self._db.split_sql_statements(sql)
 
-        for line in sql.split("\n"):
-            line = line.strip()
-
-            # Skip comments and empty lines
-            if line.startswith("--") or not line:
-                continue
-
-            # Add line to current statement
-            if current_statement:
-                current_statement += " " + line
-            else:
-                current_statement = line
-
-            # Check if statement is complete (ends with semicolon)
-            if line.endswith(";") and not in_multiline:
-                # Make sure it's a valid statement
-                stmt = current_statement.strip()
-                if stmt and not stmt.startswith("--"):
-                    statements.append(stmt)
-                current_statement = ""
-
-            # Handle multi-line statements (basic check for CREATE, INSERT etc.)
-            if any(
-                keyword in line.upper()
-                for keyword in ["CREATE", "INSERT", "UPDATE", "DELETE", "ALTER"]
-            ):
-                in_multiline = True
-            if line.endswith(";"):
-                in_multiline = False
-
-        # Add any remaining statement
-        if current_statement.strip():
-            statements.append(current_statement.strip())
-
-        return statements
-
+    # === CRUD ===
     def create_definitie(
         self, record: DefinitieRecord, allow_duplicate: bool = False
     ) -> int:
-        """
-        Maak nieuwe definitie aan.
-
-        Args:
-            record: DefinitieRecord object
-
-        Returns:
-            ID van nieuw aangemaakte record
-        """
-        # DEF-198: Clean architecture - import from utils/, callback registered by UI
-        from utils.progress_callback import operation_progress
-
-        with operation_progress("saving_to_database"), self._get_connection() as conn:
-            # Check voor duplicates: permit indien expliciet toegestaan
-            if not allow_duplicate:
-                duplicates = self.find_duplicates(
-                    record.begrip,
-                    record.organisatorische_context,
-                    record.juridische_context or "",
-                    categorie=record.categorie,  # categorie IS onderdeel van duplicate-criteria (TYPE vs ROLE zijn verschillend)
-                    wettelijke_basis=(
-                        json.loads(record.wettelijke_basis)
-                        if record.wettelijke_basis
-                        else []
-                    ),
-                )
-
-                if duplicates and any(
-                    d.definitie_record.status != DefinitieStatus.ARCHIVED.value
-                    for d in duplicates
-                ):
-                    msg = f"Definitie voor '{record.begrip}' bestaat al in deze context"
-                    raise ValueError(msg)
-
-            # Set timestamps
-            now = datetime.now(UTC)
-            record.created_at = now
-            record.updated_at = now
-
-            # Insert record - check which columns exist
-            # Ensure NOT NULL columns receive defaults where appropriate
-            wb_value = (
-                record.wettelijke_basis if record.wettelijke_basis is not None else "[]"
-            )
-
-            include_legacy = self._has_legacy_columns_in_conn(conn)
-            columns, values = self._build_insert_columns(
-                record, wb_value, include_legacy
-            )
-            column_sql = ", ".join(columns)
-            placeholders = ", ".join("?" for _ in columns)
-
-            cursor = conn.execute(
-                f"INSERT INTO definities ({column_sql}) VALUES ({placeholders})",
-                tuple(values),
-            )
-
-            record_id = cursor.lastrowid
-
-            # Ensure record_id is not None (should always have a value after INSERT)
-            if record_id is None:
-                raise RuntimeError("Failed to get lastrowid after INSERT")
-
-            # Log creation
-            self._log_geschiedenis(
-                record_id,
-                "created",
-                record.created_by,
-                f"Nieuwe definitie aangemaakt voor '{record.begrip}'",
-            )
-
-            logger.info(f"Created definitie {record_id} voor '{record.begrip}'")
-            return record_id
+        return self._crud.create_definitie(record, allow_duplicate)
 
     def get_definitie(self, definitie_id: int) -> DefinitieRecord | None:
-        """
-        Haal definitie op op basis van ID.
-
-        Args:
-            definitie_id: Database ID
-
-        Returns:
-            DefinitieRecord of None als niet gevonden
-        """
-        with self._get_connection() as conn:
-            cursor = conn.execute(
-                "SELECT * FROM definities WHERE id = ?", (definitie_id,)
-            )
-            row = cursor.fetchone()
-
-            if row:
-                return self._row_to_record(row)
-            return None
+        return self._crud.get_definitie(definitie_id)
 
     def find_definitie(
         self,
@@ -645,113 +109,53 @@ class DefinitieRepository:
         categorie: str | None = None,
         wettelijke_basis: list[str] | None = None,
     ) -> DefinitieRecord | None:
-        """
-        Zoek definitie op basis van begrip en context.
+        return self._crud.find_definitie(
+            begrip,
+            organisatorische_context,
+            juridische_context,
+            status,
+            categorie,
+            wettelijke_basis,
+        )
 
-        Args:
-            begrip: Het begrip
-            organisatorische_context: Organisatorische context
-            juridische_context: Juridische context
-            status: Optionele status filter
-            categorie: Optionele ontologische categorie filter
+    def update_definitie(
+        self, definitie_id: int, updates: dict[str, Any], updated_by: str | None = None
+    ) -> bool:
+        return self._crud.update_definitie(definitie_id, updates, updated_by)
 
-        Returns:
-            DefinitieRecord of None
-        """
-        with self._get_connection() as conn:
-            query = """
-                SELECT * FROM definities
-                WHERE begrip = ? AND organisatorische_context = ?
-                AND (juridische_context = ? OR (juridische_context IS NULL AND ? = ''))
-            """
-            params = [
-                begrip,
-                organisatorische_context,
-                juridische_context,
-                juridische_context,
-            ]
+    def change_status(
+        self,
+        definitie_id: int,
+        new_status: DefinitieStatus,
+        changed_by: str | None = None,
+        notes: str | None = None,
+    ) -> bool:
+        return self._crud.change_status(definitie_id, new_status, changed_by, notes)
 
-            # Add categorie filter if provided
-            if categorie is not None:
-                query += " AND categorie = ?"
-                params.append(categorie)
+    def get_all(self) -> list[DefinitieRecord]:
+        return self._crud.get_all()
 
-            # Wettelijke basis (als lijst meegegeven): vergelijk als exact JSON string
-            if wettelijke_basis is not None:
-                try:
-                    norm = sorted({str(x).strip() for x in (wettelijke_basis or [])})
-                    wb_json = json.dumps(norm, ensure_ascii=False)
-                except Exception as e:
-                    logger.debug(
-                        f"Wettelijke basis normalisatie gefaald in find_definitie: {e}"
-                    )
-                    wb_json = json.dumps(wettelijke_basis or [], ensure_ascii=False)
-                query += " AND (wettelijke_basis = ? OR (wettelijke_basis IS NULL AND ? = '[]'))"
-                params.extend([wb_json, wb_json])
+    def get_by_status(self, status: str) -> list[DefinitieRecord]:
+        return self._crud.get_by_status(status)
 
-            if status:
-                query += " AND status = ?"
-                params.append(status.value)
+    # === Search ===
+    def search_definities(
+        self,
+        query: str | None = None,
+        categorie: OntologischeCategorie | None = None,
+        organisatorische_context: str | None = None,
+        status: DefinitieStatus | None = None,
+        limit: int | None = 100,
+    ) -> list[DefinitieRecord]:
+        return self._search.search_definities(
+            query,
+            categorie,
+            organisatorische_context,
+            status,
+            limit,
+        )
 
-            query += " ORDER BY version_number DESC LIMIT 1"
-
-            cursor = conn.execute(query, params)
-            row = cursor.fetchone()
-
-            if row:
-                return self._row_to_record(row)
-
-            # Geen directe begrip-hit: probeer exacte synoniem-match (case-insensitive)
-            syn_query = """
-                SELECT d.*
-                FROM definities d
-                JOIN definitie_voorbeelden v ON v.definitie_id = d.id
-                WHERE LOWER(v.voorbeeld_tekst) = LOWER(?)
-                  AND v.voorbeeld_type = 'synonyms'
-                  AND v.actief = TRUE
-                  AND d.organisatorische_context = ?
-                  AND (d.juridische_context = ? OR (d.juridische_context IS NULL AND ? = ''))
-            """
-            syn_params = [
-                begrip,
-                organisatorische_context,
-                juridische_context,
-                juridische_context,
-            ]
-
-            # Add categorie filter if provided
-            if categorie is not None:
-                syn_query += " AND d.categorie = ?"
-                syn_params.append(categorie)
-
-            if wettelijke_basis is not None:
-                try:
-                    norm = sorted({str(x).strip() for x in (wettelijke_basis or [])})
-                    wb_json = json.dumps(norm, ensure_ascii=False)
-                except Exception as e:
-                    logger.debug(
-                        f"Wettelijke basis normalisatie gefaald in synonym query: {e}"
-                    )
-                    wb_json = json.dumps(wettelijke_basis or [], ensure_ascii=False)
-                syn_query += " AND (d.wettelijke_basis = ? OR (d.wettelijke_basis IS NULL AND ? = '[]'))"
-                syn_params.extend([wb_json, wb_json])
-
-            if status:
-                syn_query += " AND d.status = ?"
-                syn_params.append(status.value)
-            else:
-                # Exclude archived by default for synonym path to mimic duplicate-gate behavior
-                syn_query += " AND d.status != 'archived'"
-
-            syn_query += " ORDER BY d.version_number DESC LIMIT 1"
-
-            cursor = conn.execute(syn_query, syn_params)
-            row = cursor.fetchone()
-            if row:
-                return self._row_to_record(row)
-
-            return None
-
+    # === Duplicates ===
     def find_duplicates(
         self,
         begrip: str,
@@ -760,118 +164,13 @@ class DefinitieRepository:
         categorie: str | None = None,
         wettelijke_basis: list[str] | None = None,
     ) -> list[DuplicateMatch]:
-        """
-        Zoek mogelijke duplicaten voor een begrip.
-
-        Args:
-            begrip: Het begrip om te checken
-            organisatorische_context: Organisatorische context
-            juridische_context: Juridische context
-            categorie: Optionele ontologische categorie filter
-
-        Returns:
-            List van DuplicateMatch objecten
-        """
-        matches = []
-
-        with self._get_connection() as conn:
-            # Build exact match query - MUST match all 5 fields:
-            # begrip + organisatorische_context + juridische_context + wettelijke_basis + categorie
-            # (DEF-138: Replaces removed UNIQUE INDEX with application-level check)
-            # Use COALESCE to normalize NULL/''/None to empty string for exact comparison
-            exact_query = """
-                SELECT * FROM definities
-                WHERE begrip = ?
-                AND organisatorische_context = ?
-                AND COALESCE(juridische_context, '') = COALESCE(?, '')
-                AND status != 'archived'
-            """
-            exact_params = [
-                begrip,
-                organisatorische_context,
-                juridische_context or "",  # Normalize None to ''
-            ]
-
-            # Add categorie filter if provided
-            if categorie is not None:
-                exact_query += " AND categorie = ?"
-                exact_params.append(categorie)
-
-            if wettelijke_basis is not None:
-                try:
-                    norm = sorted({str(x).strip() for x in (wettelijke_basis or [])})
-                    wb_json = json.dumps(norm, ensure_ascii=False)
-                except Exception as e:
-                    logger.debug(
-                        f"Wettelijke basis normalisatie gefaald in find_duplicates: {e}"
-                    )
-                    wb_json = json.dumps(wettelijke_basis or [], ensure_ascii=False)
-                exact_query += " AND (wettelijke_basis = ? OR (wettelijke_basis IS NULL AND ? = '[]'))"
-                exact_params.extend([wb_json, wb_json])
-
-            cursor = conn.execute(exact_query, exact_params)
-
-            for row in cursor.fetchall():
-                record = self._row_to_record(row)
-                matches.append(
-                    DuplicateMatch(
-                        definitie_record=record,
-                        match_score=1.0,
-                        match_reasons=["Exact match: begrip + context"],
-                    )
-                )
-
-            # Exact synoniem-match (case-insensitive) — same exact match logic for juridische_context
-            syn_query = """
-                SELECT d.*
-                FROM definities d
-                JOIN definitie_voorbeelden v ON v.definitie_id = d.id
-                WHERE LOWER(v.voorbeeld_tekst) = LOWER(?)
-                  AND v.voorbeeld_type = 'synonyms'
-                  AND v.actief = TRUE
-                  AND d.organisatorische_context = ?
-                  AND COALESCE(d.juridische_context, '') = COALESCE(?, '')
-                  AND d.status != 'archived'
-            """
-            syn_params = [
-                begrip,
-                organisatorische_context,
-                juridische_context or "",  # Normalize None to ''
-            ]
-
-            # Add categorie filter if provided
-            if categorie is not None:
-                syn_query += " AND d.categorie = ?"
-                syn_params.append(categorie)
-
-            if wettelijke_basis is not None:
-                try:
-                    norm = sorted({str(x).strip() for x in (wettelijke_basis or [])})
-                    wb_json = json.dumps(norm, ensure_ascii=False)
-                except Exception as e:
-                    logger.debug(
-                        f"Wettelijke basis normalisatie gefaald in duplicates synonym: {e}"
-                    )
-                    wb_json = json.dumps(wettelijke_basis or [], ensure_ascii=False)
-                syn_query += " AND (d.wettelijke_basis = ? OR (d.wettelijke_basis IS NULL AND ? = '[]'))"
-                syn_params.extend([wb_json, wb_json])
-
-            cursor = conn.execute(syn_query, syn_params)
-            for row in cursor.fetchall():
-                record = self._row_to_record(row)
-                matches.append(
-                    DuplicateMatch(
-                        definitie_record=record,
-                        match_score=1.0,
-                        match_reasons=["Exact match: synoniem + context"],
-                    )
-                )
-
-            # DEF-176: Fuzzy matching verwijderd - was ineffectief (Jaccard op woorden
-            # vangt geen typos, meervouden of samenstellingen). Exact + synoniem match
-            # is voldoende voor duplicate detection.
-
-        return sorted(matches, key=lambda x: x.match_score, reverse=True)
+        return self._duplicates.find_duplicates(
+            begrip,
+            organisatorische_context,
+            juridische_context,
+            categorie,
+            wettelijke_basis,
+        )
 
     def count_exact_by_context(
         self,
@@ -881,497 +180,38 @@ class DefinitieRepository:
         juridische_context: str = "",
         wettelijke_basis: list[str] | None = None,
     ) -> int:
-        """Tel definities met exact zelfde begrip + context (jur optional empty), status != archived.
+        return self._duplicates.count_exact_by_context(
+            begrip=begrip,
+            organisatorische_context=organisatorische_context,
+            juridische_context=juridische_context,
+            wettelijke_basis=wettelijke_basis,
+        )
 
-        - Wettelijke_basis wordt orde-onafhankelijk vergeleken via genormaliseerde JSON string.
-        - Gebruik voor validatieregels (CON-01) om meervoud te signaleren.
-        """
-        with self._get_connection() as conn:
-            query = (
-                "SELECT COUNT(*) AS cnt FROM definities "
-                "WHERE begrip = ? AND organisatorische_context = ? "
-                "AND (juridische_context = ? OR (juridische_context IS NULL AND ? = '')) "
-                "AND status != 'archived'"
-            )
-            params: list = [
-                begrip,
-                organisatorische_context,
-                juridische_context,
-                juridische_context,
-            ]
-            if wettelijke_basis is not None:
-                try:
-                    norm = sorted({str(x).strip() for x in (wettelijke_basis or [])})
-                    wb_json = json.dumps(norm, ensure_ascii=False)
-                except Exception as e:
-                    logger.debug(
-                        f"Wettelijke basis normalisatie gefaald in count_exact: {e}"
-                    )
-                    wb_json = json.dumps(wettelijke_basis or [], ensure_ascii=False)
-                query += " AND (wettelijke_basis = ? OR (wettelijke_basis IS NULL AND ? = '[]'))"
-                params.extend([wb_json, wb_json])
-            cur = conn.execute(query, params)
-            row = cur.fetchone()
-            return int(row[0]) if row else 0
-
-    def update_definitie(
-        self, definitie_id: int, updates: dict[str, Any], updated_by: str | None = None
-    ) -> bool:
-        """
-        Update bestaande definitie.
-
-        Args:
-            definitie_id: Database ID
-            updates: Dictionary met velden om te updaten
-            updated_by: Wie de update uitvoert
-
-        Returns:
-            True als succesvol geupdate
-        """
-        with self._get_connection() as conn:
-            # Haal huidige record op
-            current = self.get_definitie(definitie_id)
-            if not current:
-                return False
-
-            # Build update query - Use whitelist for security
-            allowed_fields = {
-                "begrip",
-                "definitie",
-                "bron",
-                "status",
-                "categorie",
-                "ufo_categorie",
-                "ontologie",
-                "validated",
-                "validation_notes",
-                "reviewed_by",
-                "review_date",
-                "improved_version",
-                "context_info",
-                "metadata",
-                # context fields
-                "organisatorische_context",
-                "juridische_context",
-                "wettelijke_basis",
-                # procesmatige velden
-                "toelichting_proces",
-                # version_number niet direct setbaar; wordt atomisch verhoogd
-                # aanvullende legacy/meta velden
-                "ketenpartners",
-            }
-
-            set_clauses = []
-            params = []
-
-            for field, value in updates.items():
-                if hasattr(current, field) and field in allowed_fields:
-                    set_clauses.append(f"{field} = ?")
-                    params.append(value)
-
-            if not set_clauses:
-                return False
-
-            # Add metadata
-            set_clauses.append("updated_at = ?")
-            params.append(datetime.now(UTC))
-
-            if updated_by:
-                set_clauses.append("updated_by = ?")
-                params.append(updated_by)
-
-            # Optimistic locking met atomische versie verhoging
-            expected_version = updates.get("version_number")
-            # Verhoog versie altijd bij update
-            set_clauses.append("version_number = version_number + 1")
-
-            # Build query safely from whitelisted fields
-            where_clause = "id = ?"
-            where_params: list[Any] = [definitie_id]
-            if expected_version is not None:
-                where_clause += " AND version_number = ?"
-                where_params.append(expected_version)
-
-            query = (
-                "UPDATE definities SET "
-                + ", ".join(set_clauses)
-                + f" WHERE {where_clause}"
-            )
-            cursor = conn.execute(query, params + where_params)
-            if cursor.rowcount == 0 and expected_version is not None:
-                # Versieconflict
-                logger.warning(
-                    f"Optimistic lock failed for definitie {definitie_id} (expected version {expected_version})"
-                )
-                return False
-
-            # Log update
-            self._log_geschiedenis(
-                definitie_id,
-                "updated",
-                updated_by,
-                f"Definitie geupdate: {list(updates.keys())}",
-            )
-
-            logger.info(f"Updated definitie {definitie_id}")
-            return True
-
-    def change_status(
-        self,
-        definitie_id: int,
-        new_status: DefinitieStatus,
-        changed_by: str | None = None,
-        notes: str | None = None,
-    ) -> bool:
-        """
-        Wijzig status van definitie.
-
-        Args:
-            definitie_id: Database ID
-            new_status: Nieuwe status
-            changed_by: Wie de wijziging uitvoert
-            notes: Optionele notities
-
-        Returns:
-            True als succesvol gewijzigd
-        """
-        updates: dict[str, Any] = {"status": new_status.value}
-
-        if new_status == DefinitieStatus.ESTABLISHED and changed_by:
-            updates.update(
-                {
-                    "approved_by": changed_by,
-                    "approved_at": datetime.now(UTC),
-                    "approval_notes": notes,
-                }
-            )
-
-        success = self.update_definitie(definitie_id, updates, changed_by)
-
-        if success:
-            self._log_geschiedenis(
-                definitie_id,
-                "status_changed",
-                changed_by,
-                f"Status gewijzigd naar {new_status.value}",
-            )
-
-        return success
-
-    def get_all(self) -> list[DefinitieRecord]:
-        """
-        Haal alle definities op zonder limit.
-
-        Returns:
-            List van alle DefinitieRecord objecten
-        """
-        return self.search_definities(limit=None)
-
-    def get_by_status(self, status: str) -> list[DefinitieRecord]:
-        """
-        Haal definities op gefilterd op status.
-
-        Args:
-            status: Status waarde (string zoals 'draft', 'established', etc.)
-
-        Returns:
-            List van DefinitieRecord objecten met de gegeven status
-
-        Raises:
-            ValueError: Als status geen geldige DefinitieStatus waarde is
-        """
-        try:
-            status_enum = DefinitieStatus(status)
-        except ValueError as e:
-            valid_statuses = ", ".join([s.value for s in DefinitieStatus])
-            raise ValueError(
-                f"Ongeldige status '{status}'. Toegestane waarden: {valid_statuses}"
-            ) from e
-
-        return self.search_definities(status=status_enum, limit=None)
-
-    def search_definities(
-        self,
-        query: str | None = None,
-        categorie: OntologischeCategorie | None = None,
-        organisatorische_context: str | None = None,
-        status: DefinitieStatus | None = None,
-        limit: int | None = 100,
-    ) -> list[DefinitieRecord]:
-        """
-        Zoek definities met verschillende filters.
-
-        Args:
-            query: Zoekterm (zoekt in begrip en definitie)
-            categorie: Filter op categorie
-            organisatorische_context: Filter op organisatie
-            status: Filter op status
-            limit: Maximum aantal resultaten (None voor onbeperkt)
-
-        Returns:
-            List van DefinitieRecord objecten
-        """
-        with self._get_connection() as conn:
-            where_clauses: list[str] = []
-            params: list[Any] = []
-
-            if query:
-                where_clauses.append("(begrip LIKE ? OR definitie LIKE ?)")
-                search_term = f"%{query}%"
-                params.extend([search_term, search_term])
-
-            if categorie:
-                where_clauses.append("categorie = ?")
-                params.append(categorie.value)
-
-            if organisatorische_context:
-                where_clauses.append("organisatorische_context = ?")
-                params.append(organisatorische_context)
-
-            if status:
-                where_clauses.append("status = ?")
-                params.append(status.value)
-
-            base_query = "SELECT * FROM definities"
-            if where_clauses:
-                base_query += " WHERE " + " AND ".join(where_clauses)
-
-            base_query += " ORDER BY begrip, created_at DESC"
-
-            if limit:
-                # Validate limit is a positive integer for security
-                if isinstance(limit, int) and limit > 0:
-                    base_query += " LIMIT ?"
-                    params.append(limit)
-                else:
-                    logger.warning(f"Invalid limit value ignored: {limit}")
-
-            cursor = conn.execute(base_query, params)
-            return [self._row_to_record(row) for row in cursor.fetchall()]
-
+    # === Import/Export ===
     def get_statistics(self) -> dict[str, Any]:
-        """Haal database statistieken op."""
-        with self._get_connection() as conn:
-            stats = {}
-
-            # Total counts
-            cursor = conn.execute("SELECT COUNT(*) FROM definities")
-            stats["total_definities"] = cursor.fetchone()[0]
-
-            # Counts by status
-            cursor = conn.execute(
-                """
-                SELECT status, COUNT(*) FROM definities GROUP BY status
-            """
-            )
-            stats["by_status"] = dict(cursor.fetchall())
-
-            # Counts by category
-            cursor = conn.execute(
-                """
-                SELECT categorie, COUNT(*) FROM definities GROUP BY categorie
-            """
-            )
-            stats["by_category"] = dict(cursor.fetchall())
-
-            # Average validation score
-            cursor = conn.execute(
-                """
-                SELECT AVG(validation_score) FROM definities
-                WHERE validation_score IS NOT NULL
-            """
-            )
-            avg_score = cursor.fetchone()[0]
-            stats["average_validation_score"] = (
-                round(avg_score, 3) if avg_score else None
-            )
-
-            return stats
+        return self._import_export.get_statistics()
 
     def export_to_json(
         self, file_path: str, filters: dict[str, Any] | None = None
     ) -> int:
-        """
-        Exporteer definities naar JSON bestand.
-
-        Args:
-            file_path: Pad voor export bestand
-            filters: Optionele filters (status, categorie, etc.)
-
-        Returns:
-            Aantal geëxporteerde definities
-        """
-        # Apply filters to get records
-        # Extract filter values with proper typing
-        filter_categorie: OntologischeCategorie | None = (
-            filters.get("categorie") if filters else None
+        return self._import_export.export_to_json(
+            file_path,
+            filters,
+            search_fn=self.search_definities,
         )
-        filter_org_context: str | None = (
-            filters.get("organisatorische_context") if filters else None
-        )
-        filter_status: DefinitieStatus | None = (
-            filters.get("status") if filters else None
-        )
-        records = self.search_definities(
-            categorie=filter_categorie,
-            organisatorische_context=filter_org_context,
-            status=filter_status,
-            limit=None,  # No limit for export
-        )
-
-        # Convert filters to serializable format
-        serializable_filters = {}
-        if filters:
-            for key, value in filters.items():
-                if hasattr(value, "value"):  # Enum
-                    serializable_filters[key] = value.value
-                else:
-                    serializable_filters[key] = value
-
-        # Convert to dict format
-        export_data = {
-            "export_info": {
-                "timestamp": datetime.now(UTC).isoformat(),
-                "total_count": len(records),
-                "filters_applied": serializable_filters,
-            },
-            "definities": [record.to_dict() for record in records],
-        }
-
-        # Write to file
-        with open(file_path, "w", encoding="utf-8") as f:
-            json.dump(export_data, f, ensure_ascii=False, indent=2)
-
-        # Log export
-        self._log_import_export("export", file_path, len(records), len(records), 0)
-
-        logger.info(f"Exported {len(records)} definities to {file_path}")
-        return len(records)
 
     def import_from_json(
         self, file_path: str, import_by: str | None = None
     ) -> tuple[int, int, list[str]]:
-        """
-        Importeer definities uit JSON bestand.
-
-        Args:
-            file_path: Pad naar import bestand
-            import_by: Wie de import uitvoert
-
-        Returns:
-            Tuple van (succesvol, gefaald, error_messages)
-        """
-        successful = 0
-        failed = 0
-        errors = []
-
-        try:
-            with open(file_path, encoding="utf-8") as f:
-                data = json.load(f)
-
-            definities = data.get("definities", [])
-
-            for item in definities:
-                try:
-                    # Create record from dict
-                    record = DefinitieRecord(
-                        **{
-                            k: v
-                            for k, v in item.items()
-                            if k in DefinitieRecord.__dataclass_fields__
-                        }
-                    )
-
-                    # Set import metadata
-                    record.source_type = SourceType.IMPORTED.value
-                    record.imported_from = file_path
-                    record.created_by = import_by
-
-                    # Clear ID and timestamps for new record
-                    record.id = None
-                    record.created_at = None
-                    record.updated_at = None
-
-                    self.create_definitie(record)
-                    successful += 1
-
-                except Exception as e:
-                    failed += 1
-                    errors.append(
-                        f"Failed to import '{item.get('begrip', 'unknown')}': {e!s}"
-                    )
-
-        except Exception as e:
-            errors.append(f"Failed to read import file: {e!s}")
-
-        # Log import
-        self._log_import_export(
-            "import", file_path, successful + failed, successful, failed
+        return self._import_export.import_from_json(
+            file_path,
+            import_by,
+            create_fn=self.create_definitie,
         )
 
-        logger.info(f"Import completed: {successful} successful, {failed} failed")
-        return successful, failed, errors
-
+    # === Audit helpers (backward compat) ===
     def _row_to_record(self, row: sqlite3.Row) -> DefinitieRecord:
-        """Converteer database row naar DefinitieRecord."""
-        # sqlite3.Row supports keys() to introspect available columns
-        _keys = set(row.keys()) if hasattr(row, "keys") else set()
-        return DefinitieRecord(
-            id=row["id"],
-            begrip=row["begrip"],
-            definitie=row["definitie"],
-            categorie=row["categorie"],
-            organisatorische_context=row["organisatorische_context"],
-            juridische_context=row["juridische_context"],
-            wettelijke_basis=(
-                row.get("wettelijke_basis")
-                if isinstance(row, dict)
-                else row["wettelijke_basis"]
-            ),
-            ufo_categorie=(row["ufo_categorie"] if "ufo_categorie" in _keys else None),
-            toelichting_proces=(
-                row["toelichting_proces"] if "toelichting_proces" in _keys else None
-            ),
-            status=row["status"],
-            version_number=row["version_number"],
-            previous_version_id=row["previous_version_id"],
-            validation_score=row["validation_score"],
-            validation_date=(
-                datetime.fromisoformat(row["validation_date"])
-                if row["validation_date"]
-                else None
-            ),
-            validation_issues=row["validation_issues"],
-            source_type=row["source_type"],
-            source_reference=row["source_reference"],
-            imported_from=row["imported_from"],
-            created_at=(
-                datetime.fromisoformat(row["created_at"]) if row["created_at"] else None
-            ),
-            updated_at=(
-                datetime.fromisoformat(row["updated_at"]) if row["updated_at"] else None
-            ),
-            created_by=row["created_by"],
-            updated_by=row["updated_by"],
-            approved_by=row["approved_by"],
-            approved_at=(
-                datetime.fromisoformat(row["approved_at"])
-                if row["approved_at"]
-                else None
-            ),
-            approval_notes=row["approval_notes"],
-            last_exported_at=(
-                datetime.fromisoformat(row["last_exported_at"])
-                if row["last_exported_at"]
-                else None
-            ),
-            export_destinations=row["export_destinations"],
-            generation_prompt_data=(
-                row["generation_prompt_data"]
-                if "generation_prompt_data" in _keys
-                else None
-            ),
-        )
+        return self._audit.row_to_record(row)
 
     def _log_geschiedenis(
         self,
@@ -1380,22 +220,9 @@ class DefinitieRepository:
         gewijzigd_door: str | None = None,
         reden: str | None = None,
     ):
-        """Log wijziging in geschiedenis tabel."""
-        with self._get_connection() as conn:
-            # Haal begrip op voor de geschiedenis log
-            begrip_result = conn.execute(
-                "SELECT begrip FROM definities WHERE id = ?", (definitie_id,)
-            ).fetchone()
-            begrip = begrip_result["begrip"] if begrip_result else "unknown"
-
-            conn.execute(
-                """
-                INSERT INTO definitie_geschiedenis
-                (definitie_id, begrip, wijziging_type, wijziging_reden, gewijzigd_door)
-                VALUES (?, ?, ?, ?, ?)
-            """,
-                (definitie_id, begrip, wijziging_type, reden, gewijzigd_door),
-            )
+        self._audit.log_geschiedenis(
+            definitie_id, wijziging_type, gewijzigd_door, reden
+        )
 
     def _log_import_export(
         self,
@@ -1405,30 +232,11 @@ class DefinitieRepository:
         succesvol: int,
         gefaald: int,
     ):
-        """Log import/export operatie."""
-        with self._get_connection() as conn:
-            conn.execute(
-                """
-                INSERT INTO import_export_logs
-                (operatie_type, bron_bestemming, aantal_verwerkt, aantal_succesvol,
-                 aantal_gefaald, bestand_pad, status, voltooid_op)
-                VALUES (?, ?, ?, ?, ?, ?, 'completed', ?)
-            """,
-                (
-                    operatie_type,
-                    bestand_pad,
-                    verwerkt,
-                    succesvol,
-                    gefaald,
-                    bestand_pad,
-                    datetime.now(UTC),
-                ),
-            )
+        self._audit.log_import_export(
+            operatie_type, bestand_pad, verwerkt, succesvol, gefaald
+        )
 
-    # ========================================
-    # VOORBEELDEN MANAGEMENT
-    # ========================================
-
+    # === Voorbeelden ===
     def save_voorbeelden(
         self,
         definitie_id: int,
@@ -1438,261 +246,15 @@ class DefinitieRepository:
         gegenereerd_door: str = "system",
         voorkeursterm: str | None = None,
     ) -> list[int]:
-        """
-        Sla voorbeelden op voor een definitie.
-
-        Args:
-            definitie_id: ID van de definitie
-            voorbeelden_dict: Dictionary met voorbeelden per type
-            generation_model: Model gebruikt voor generatie
-            generation_params: Parameters gebruikt voor generatie
-            gegenereerd_door: Wie heeft de voorbeelden gegenereerd
-            voorkeursterm: Optionele voorkeursterm (wordt opgeslagen als synoniem met is_voorkeursterm=TRUE)
-
-        Returns:
-            List van IDs van de opgeslagen voorbeelden
-        """
-        logger.info(f"Saving voorbeelden voor definitie {definitie_id}")
-
-        # DEF-74: Validate input using Pydantic schema BEFORE database operations
-        try:
-            validated = validate_save_voorbeelden_input(
-                definitie_id=definitie_id,
-                voorbeelden_dict=voorbeelden_dict,
-                generation_model=generation_model,
-                generation_params=generation_params,
-                gegenereerd_door=gegenereerd_door,
-                voorkeursterm=voorkeursterm,
-            )
-            # Use validated & cleaned data for rest of method
-            voorbeelden_dict = validated.voorbeelden_dict
-            definitie_id = validated.definitie_id
-            gegenereerd_door = validated.gegenereerd_door
-        except ValidationError as e:
-            logger.error(
-                f"❌ Validation failed for definitie {definitie_id}: {e}",
-                exc_info=True,
-                extra={
-                    "definitie_id": definitie_id,
-                    "error_details": e.errors(),
-                    "error_count": len(e.errors()),
-                },
-            )
-            raise  # Re-raise for caller to handle
-
-        # Safety guard: doe niets als er geen nieuwe voorbeelden zijn doorgegeven
-        try:
-            total_new = 0
-            for _k, _v in (voorbeelden_dict or {}).items():
-                if isinstance(_v, list):
-                    total_new += len([x for x in _v if str(x).strip()])
-            if total_new == 0:
-                logger.info(
-                    "No new examples provided for definitie %s — skipping overwrite",
-                    definitie_id,
-                )
-                return []
-        except Exception as e:
-            # In geval van unexpected structuur proberen we alsnog door te gaan
-            logger.debug(
-                f"Voorbeelden structuur parsing gefaald voor definitie {definitie_id}: {e}"
-            )
-
-        with self._get_connection() as conn:
-            try:
-                cursor = conn.cursor()
-                saved_ids = []
-
-                # Zet bestaande voorbeelden inactief (we vervangen door nieuwe set)
-                cursor.execute(
-                    """
-                    UPDATE definitie_voorbeelden
-                    SET actief = FALSE, bijgewerkt_op = CURRENT_TIMESTAMP
-                    WHERE definitie_id = ? AND actief = TRUE
-                """,
-                    (definitie_id,),
-                )
-
-                # Helper: normaliseer voorbeeld_type naar schema-waarden
-                def _normalize_type(tp: str) -> str:
-                    t = (tp or "").strip().lower()
-                    mapping = {
-                        # Voorbeeldzinnen
-                        "voorbeeldzinnen": "sentence",
-                        "zinnen": "sentence",
-                        "voorbeeldzin": "sentence",
-                        "sentences": "sentence",
-                        "sentence": "sentence",
-                        "example_sentences": "sentence",
-                        # Praktijkvoorbeelden
-                        "praktijkvoorbeelden": "practical",
-                        "praktijk": "practical",
-                        "praktijkvoorbeeld": "practical",
-                        "practical_examples": "practical",
-                        "practical": "practical",
-                        # Tegenvoorbeelden
-                        "tegenvoorbeelden": "counter",
-                        "tegen": "counter",
-                        "counterexamples": "counter",
-                        "counter": "counter",
-                        # Synoniemen / Antoniemen
-                        "synoniemen": "synonyms",
-                        "synonym": "synonyms",
-                        "synonyms": "synonyms",
-                        "antoniemen": "antonyms",
-                        "antonym": "antonyms",
-                        "antonyms": "antonyms",
-                        # Toelichting
-                        "toelichting": "explanation",
-                        "uitleg": "explanation",
-                        "notes": "explanation",
-                        "comment": "explanation",
-                        "explanation": "explanation",
-                    }
-                    return mapping.get(t, t)
-
-                # Voeg nieuwe voorbeelden toe
-                for voorbeeld_type, examples in voorbeelden_dict.items():
-                    norm_type = _normalize_type(voorbeeld_type)
-                    if not examples:  # Skip lege lists
-                        continue
-
-                    for idx, voorbeeld_tekst in enumerate(examples, 1):
-                        if not voorbeeld_tekst.strip():  # Skip lege voorbeelden
-                            continue
-
-                        # Voorkeursterm wordt alleen op definitie-niveau opgeslagen; flags op rij-niveau niet meer gebruikt
-
-                        # Maak VoorbeeldenRecord
-                        record = VoorbeeldenRecord(
-                            definitie_id=definitie_id,
-                            voorbeeld_type=norm_type,
-                            voorbeeld_tekst=voorbeeld_tekst.strip(),
-                            voorbeeld_volgorde=idx,
-                            gegenereerd_door=gegenereerd_door,
-                            generation_model=generation_model,
-                            actief=True,
-                        )
-
-                        if generation_params:
-                            record.set_generation_parameters(generation_params)
-
-                        # Check of deze combinatie al bestaat
-                        cursor.execute(
-                            """
-                            SELECT id FROM definitie_voorbeelden
-                            WHERE definitie_id = ? AND voorbeeld_type = ? AND voorbeeld_volgorde = ?
-                        """,
-                            (
-                                record.definitie_id,
-                                record.voorbeeld_type,
-                                record.voorbeeld_volgorde,
-                            ),
-                        )
-
-                        existing = cursor.fetchone()
-                        if existing:
-                            # Update existing record
-                            cursor.execute(
-                                """
-                                UPDATE definitie_voorbeelden
-                                SET voorbeeld_tekst = ?, actief = TRUE,
-                                    gegenereerd_door = ?, generation_model = ?,
-                                    generation_parameters = ?,
-                                    bijgewerkt_op = CURRENT_TIMESTAMP
-                                WHERE id = ?
-                            """,
-                                (
-                                    record.voorbeeld_tekst,
-                                    record.gegenereerd_door,
-                                    record.generation_model,
-                                    record.generation_parameters,
-                                    existing[0],
-                                ),
-                            )
-                            saved_ids.append(existing[0])
-                        else:
-                            # Insert new record
-                            cursor.execute(
-                                """
-                                INSERT INTO definitie_voorbeelden (
-                                    definitie_id, voorbeeld_type, voorbeeld_tekst, voorbeeld_volgorde,
-                                    gegenereerd_door, generation_model, generation_parameters, actief,
-                                    aangemaakt_op, bijgewerkt_op
-                                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-                            """,
-                                (
-                                    record.definitie_id,
-                                    record.voorbeeld_type,
-                                    record.voorbeeld_tekst,
-                                    record.voorbeeld_volgorde,
-                                    record.gegenereerd_door,
-                                    record.generation_model,
-                                    record.generation_parameters,
-                                    record.actief,
-                                ),
-                            )
-                            saved_ids.append(cursor.lastrowid)
-
-                        logger.debug(
-                            f"Saved {voorbeeld_type} voorbeeld {idx}: {voorbeeld_tekst[:50]}..."
-                        )
-
-                conn.commit()
-
-                # Voorkeursterm persistency (Single Source: definities.voorkeursterm TEXT):
-                # - Sla gekozen term op in definities.voorkeursterm (None = geen).
-                try:
-                    if voorkeursterm:
-                        # Single source: zet tekstkolom
-                        cursor.execute(
-                            "UPDATE definities SET voorkeursterm = ? WHERE id = ?",
-                            (
-                                voorkeursterm.strip(),
-                                definitie_id,
-                            ),
-                        )
-                        conn.commit()
-                    else:
-                        # Clear voorkeursterm
-                        cursor.execute(
-                            "UPDATE definities SET voorkeursterm = NULL WHERE id = ?",
-                            (definitie_id,),
-                        )
-                        conn.commit()
-                except Exception as e:
-                    # DEF-215: Upgraded from debug to warning - voorkeursterm update failure
-                    # should be visible for troubleshooting, but non-blocking for save flow
-                    logger.warning(
-                        f"Voorkeursterm update gefaald voor definitie {definitie_id}: {e}. "
-                        f"Eerdere per-row waarde blijft behouden.",
-                        extra={
-                            "component": "definitie_repository",
-                            "operation": "update_voorkeursterm",
-                            "definitie_id": definitie_id,
-                            "error_type": type(e).__name__,
-                        },
-                    )
-
-                # PHASE 3.3: Sync synoniemen naar registry (Architecture v3.1)
-                synoniemen = voorbeelden_dict.get("synoniemen", [])
-                if synoniemen:
-                    try:
-                        self._sync_synonyms_to_registry(
-                            definitie_id=definitie_id,
-                            synoniemen=synoniemen,
-                            edited_by=gegenereerd_door,
-                        )
-                    except Exception as e:
-                        logger.warning(f"Synonym sync to registry failed: {e}")
-
-                logger.info(f"Successfully saved {len(saved_ids)} voorbeelden")
-                return saved_ids
-
-            except Exception as e:
-                conn.rollback()
-                logger.error(f"Failed to save voorbeelden: {e}")
-                raise
+        return self._voorbeelden.save_voorbeelden(
+            definitie_id,
+            voorbeelden_dict,
+            generation_model,
+            generation_params,
+            gegenereerd_door,
+            voorkeursterm,
+            get_definitie_fn=self.get_definitie,
+        )
 
     def get_voorbeelden(
         self,
@@ -1700,128 +262,15 @@ class DefinitieRepository:
         voorbeeld_type: str | None = None,
         actief_only: bool = True,
     ) -> list[VoorbeeldenRecord]:
-        """
-        Haal voorbeelden op voor een definitie.
-
-        Args:
-            definitie_id: ID van de definitie
-            voorbeeld_type: Specifiek type voorbeelden (optioneel)
-            actief_only: Alleen actieve voorbeelden
-
-        Returns:
-            List van VoorbeeldenRecord objecten
-        """
-        with self._get_connection() as conn:
-            cursor = conn.cursor()
-
-            query = """
-                SELECT id, definitie_id, voorbeeld_type, voorbeeld_tekst, voorbeeld_volgorde,
-                       gegenereerd_door, generation_model, generation_parameters, actief,
-                       beoordeeld, beoordeeling, beoordeeling_notities, beoordeeld_door,
-                       beoordeeld_op, aangemaakt_op, bijgewerkt_op
-                FROM definitie_voorbeelden
-                WHERE definitie_id = ?
-            """
-            params: list[Any] = [definitie_id]
-
-            if voorbeeld_type:
-                query += " AND voorbeeld_type = ?"
-                params.append(voorbeeld_type)
-
-            if actief_only:
-                query += " AND actief = TRUE"
-
-            query += " ORDER BY voorbeeld_type, voorbeeld_volgorde"
-
-            cursor.execute(query, params)
-            rows = cursor.fetchall()
-
-            voorbeelden = []
-            for row in rows:
-                record = VoorbeeldenRecord(
-                    id=row["id"],
-                    definitie_id=row["definitie_id"],
-                    voorbeeld_type=row["voorbeeld_type"],
-                    voorbeeld_tekst=row["voorbeeld_tekst"],
-                    voorbeeld_volgorde=row["voorbeeld_volgorde"],
-                    is_voorkeursterm=False,
-                    gegenereerd_door=row["gegenereerd_door"],
-                    generation_model=row["generation_model"],
-                    generation_parameters=row["generation_parameters"],
-                    actief=bool(row["actief"]),
-                    beoordeeld=bool(row["beoordeeld"]),
-                    beoordeeling=row["beoordeeling"],
-                    beoordeeling_notities=row["beoordeeling_notities"],
-                    beoordeeld_door=row["beoordeeld_door"],
-                    beoordeeld_op=(
-                        datetime.fromisoformat(row["beoordeeld_op"])
-                        if row["beoordeeld_op"]
-                        else None
-                    ),
-                    aangemaakt_op=(
-                        datetime.fromisoformat(row["aangemaakt_op"])
-                        if row["aangemaakt_op"]
-                        else None
-                    ),
-                    bijgewerkt_op=(
-                        datetime.fromisoformat(row["bijgewerkt_op"])
-                        if row["bijgewerkt_op"]
-                        else None
-                    ),
-                )
-                voorbeelden.append(record)
-
-            return voorbeelden
+        return self._voorbeelden.get_voorbeelden(
+            definitie_id, voorbeeld_type, actief_only
+        )
 
     def get_voorbeelden_by_type(self, definitie_id: int) -> dict[str, list[str]]:
-        """
-        Haal voorbeelden op gegroepeerd per type.
-
-        Args:
-            definitie_id: ID van de definitie
-
-        Returns:
-            Dictionary met voorbeelden per type
-        """
-        voorbeelden_records = self.get_voorbeelden(definitie_id)
-
-        voorbeelden_dict: dict[str, list[str]] = {}
-        for record in voorbeelden_records:
-            if record.voorbeeld_type not in voorbeelden_dict:
-                voorbeelden_dict[record.voorbeeld_type] = []
-            voorbeelden_dict[record.voorbeeld_type].append(record.voorbeeld_tekst)
-
-        return voorbeelden_dict
+        return self._voorbeelden.get_voorbeelden_by_type(definitie_id)
 
     def get_voorkeursterm(self, definitie_id: int) -> str | None:
-        """
-        Haal de voorkeursterm op voor een definitie.
-
-        Args:
-            definitie_id: ID van de definitie
-
-        Returns:
-            De voorkeursterm tekst, of None als er geen is
-        """
-        # 0) Single source: tekstkolom op definitie
-        with self._get_connection() as conn:
-            try:
-                cur = conn.execute(
-                    "SELECT voorkeursterm FROM definities WHERE id = ?",
-                    (definitie_id,),
-                )
-                row = cur.fetchone()
-                if row:
-                    vt = row[0]
-                    if vt and str(vt).strip():
-                        return str(vt)
-            except Exception as e:
-                logger.warning(
-                    f"Voorkeursterm ophalen gefaald voor definitie {definitie_id}: {e}"
-                )
-
-        # 1) Geen voorkeursterm opgeslagen
-        return None
+        return self._voorbeelden.get_voorkeursterm(definitie_id)
 
     def beoordeel_voorbeeld(
         self,
@@ -1830,304 +279,37 @@ class DefinitieRepository:
         beoordeeling_notities: str = "",
         beoordeeld_door: str = "user",
     ) -> bool:
-        """
-        Beoordeel een voorbeeld.
-
-        Args:
-            voorbeeld_id: ID van het voorbeeld
-            beoordeeling: 'goed', 'matig', 'slecht'
-            beoordeeling_notities: Optionele notities
-            beoordeeld_door: Wie beoordeelt het voorbeeld
-
-        Returns:
-            True als succesvol
-        """
-        if beoordeeling not in ["goed", "matig", "slecht"]:
-            msg = "Beoordeeling moet 'goed', 'matig' of 'slecht' zijn"
-            raise ValueError(msg)
-
-        with self._get_connection() as conn:
-            try:
-                cursor = conn.cursor()
-                cursor.execute(
-                    """
-                    UPDATE definitie_voorbeelden
-                    SET beoordeeld = TRUE, beoordeeling = ?, beoordeeling_notities = ?,
-                        beoordeeld_door = ?, beoordeeld_op = CURRENT_TIMESTAMP
-                    WHERE id = ?
-                """,
-                    (
-                        beoordeeling,
-                        beoordeeling_notities,
-                        beoordeeld_door,
-                        voorbeeld_id,
-                    ),
-                )
-
-                conn.commit()
-
-                if cursor.rowcount > 0:
-                    logger.info(
-                        f"Voorbeeld {voorbeeld_id} beoordeeld als '{beoordeeling}'"
-                    )
-                    return True
-                logger.warning(f"Voorbeeld {voorbeeld_id} niet gevonden")
-                return False
-
-            except Exception as e:
-                conn.rollback()
-                logger.error(f"Failed to beoordeel voorbeeld {voorbeeld_id}: {e}")
-                raise
+        return self._voorbeelden.beoordeel_voorbeeld(
+            voorbeeld_id,
+            beoordeeling,
+            beoordeeling_notities,
+            beoordeeld_door,
+        )
 
     def delete_voorbeelden(
         self, definitie_id: int, voorbeeld_type: str | None = None
     ) -> int:
-        """
-        Verwijder voorbeelden voor een definitie.
+        return self._voorbeelden.delete_voorbeelden(definitie_id, voorbeeld_type)
 
-        Args:
-            definitie_id: ID van de definitie
-            voorbeeld_type: Specifiek type om te verwijderen (optioneel)
-
-        Returns:
-            Aantal verwijderde voorbeelden
-        """
-        with self._get_connection() as conn:
-            cursor = conn.cursor()
-
-            if voorbeeld_type:
-                cursor.execute(
-                    """
-                    DELETE FROM definitie_voorbeelden
-                    WHERE definitie_id = ? AND voorbeeld_type = ?
-                """,
-                    (definitie_id, voorbeeld_type),
-                )
-            else:
-                cursor.execute(
-                    """
-                    DELETE FROM definitie_voorbeelden
-                    WHERE definitie_id = ?
-                """,
-                    (definitie_id,),
-                )
-
-            deleted_count = cursor.rowcount
-            conn.commit()
-
-            logger.info(
-                f"Deleted {deleted_count} voorbeelden voor definitie {definitie_id}"
-            )
-            return deleted_count
-
+    # === Synonym sync (backward compat) ===
     def _sync_synonyms_to_registry(
         self, definitie_id: int, synoniemen: list[str], edited_by: str
     ):
-        """
-        Sync manual synoniemen naar registry (scoped to definitie_id).
-
-        Logic (Architecture v3.1, PHASE 3.3):
-        1. Find/create group voor definitie.begrip
-        2. Add/update synoniemen als active (source=manual, definitie_id=X)
-        3. Deprecate synoniemen in group met definitie_id=X maar NIET in input
-        4. Cache invalidation (automatic via callbacks)
-
-        FIXES APPLIED:
-        - CRI-01: Transaction rollback voor atomicity
-        - HIGH-02: Error handling voor registry initialization
-        - HIGH-03: Input validation (empty, length, duplicates)
-
-        Args:
-            definitie_id: ID van de definitie
-            synoniemen: Lijst van synoniem termen
-            edited_by: Wie de synoniemen heeft bewerkt
-
-        Raises:
-            Exception: Bij registry initialization failure (caught by caller in save_voorbeelden)
-        """
-        from src.services.container import get_container
-
-        # Haal definitie op om begrip te krijgen (BEFORE getting registry)
-        definitie = self.get_definitie(definitie_id)
-        if not definitie:
-            logger.warning(f"Definitie {definitie_id} niet gevonden - sync skipped")
-            return
-
-        # HIGH-02 FIX: Add error handling voor registry initialization
-        try:
-            container = get_container()
-            registry = container.synonym_registry()
-        except Exception as e:
-            logger.error(f"Failed to get synonym registry: {e}")
-            raise  # Re-raise to caller (save_voorbeelden will catch and log warning)
-
-        # HIGH-03 FIX: Input validation
-        input_terms = set()
-        skipped_terms = []
-        validated_synonyms = []
-
-        for syn in synoniemen:
-            syn_normalized = syn.strip().lower()
-
-            # Validation 1: Empty check
-            if not syn_normalized:
-                skipped_terms.append(f"empty: '{syn}'")
-                continue
-
-            # Validation 2: Length check (prevent database errors)
-            if len(syn_normalized) > 255:
-                skipped_terms.append(
-                    f"too long ({len(syn_normalized)} chars): '{syn_normalized[:50]}...'"
-                )
-                continue
-
-            # Validation 3: Duplicate check (case-insensitive within input)
-            if syn_normalized in input_terms:
-                skipped_terms.append(f"duplicate: '{syn}'")
-                continue
-
-            # Validation 4: Special characters warning (not blocking)
-            if not syn_normalized.replace(" ", "").replace("-", "").isalnum():
-                logger.debug(f"Synonym contains special characters: '{syn_normalized}'")
-
-            input_terms.add(syn_normalized)
-            validated_synonyms.append(syn_normalized)
-
-        # Log skipped terms
-        if skipped_terms:
-            logger.warning(
-                f"Skipped {len(skipped_terms)} invalid synonyms for definitie {definitie_id}: "
-                f"{', '.join(skipped_terms[:5])}"
-            )
-
-        # Early return if no valid synonyms
-        if not validated_synonyms:
-            logger.info(f"No valid synonyms to sync for definitie {definitie_id}")
-            return
-
-        # CRI-01: Use registry methods directly (they handle their own transactions)
-        # NO manual transaction management - let registry handle commits per operation
-        try:
-            # Get/create group voor dit begrip
-            group = registry.get_or_create_group(
-                canonical_term=definitie.begrip, created_by=edited_by
-            )
-
-            # Get existing manual members voor deze definitie
-            existing = registry.get_group_members(
-                group_id=group.id,
-                filters={"definitie_id": definitie_id, "source": "manual"},
-            )
-
-            existing_terms = {m.term: m for m in existing}
-
-            # Counters for logging
-            added_count = 0
-            reactivated_count = 0
-            deprecated_count = 0
-
-            # Add/update from validated input
-            for syn_normalized in validated_synonyms:
-                if syn_normalized in existing_terms:
-                    # Reactivate if deprecated
-                    member = existing_terms[syn_normalized]
-                    if member.status == "deprecated":
-                        registry.update_member_status(
-                            member_id=member.id,
-                            new_status="active",
-                            reviewed_by=edited_by,
-                        )
-                        reactivated_count += 1
-                        logger.debug(
-                            f"Reactivated synonym '{syn_normalized}' for definitie {definitie_id}"
-                        )
-                else:
-                    # Check if term exists in ANY group (prevents cross-definitie duplicates)
-                    # FIX: Query ALL members for this term across all groups to detect duplicates
-                    all_members_for_term = registry.get_group_members(
-                        group_id=group.id,
-                        filters={"source": "manual"},  # Only check manual entries
-                    )
-                    term_exists_in_group = any(
-                        m.term == syn_normalized for m in all_members_for_term
-                    )
-
-                    if term_exists_in_group:
-                        # Term already exists in group but not in our scoped query
-                        # Log warning and skip (prevents duplicate error)
-                        logger.warning(
-                            f"Synonym '{syn_normalized}' already exists in group {group.id}, "
-                            f"skipping duplicate add for definitie {definitie_id}"
-                        )
-                        continue
-
-                    # Add new synonym (safe now - no duplicates)
-                    try:
-                        registry.add_group_member(
-                            group_id=group.id,
-                            term=syn_normalized,
-                            weight=1.0,  # Manual = high confidence
-                            status="active",
-                            source="manual",
-                            definitie_id=definitie_id,  # SCOPED!
-                            created_by=edited_by,
-                        )
-                        added_count += 1
-                        logger.debug(
-                            f"Added manual synonym '{syn_normalized}' for definitie {definitie_id}"
-                        )
-                    except ValueError as e:
-                        # Handle residual duplicate errors gracefully
-                        if "bestaat al" in str(e):
-                            logger.warning(
-                                f"Duplicate synonym '{syn_normalized}' detected during add: {e}"
-                            )
-                        else:
-                            raise
-
-            # Deprecate removed (NOT in validated input)
-            for term, member in existing_terms.items():
-                if term not in input_terms and member.status == "active":
-                    registry.update_member_status(
-                        member_id=member.id,
-                        new_status="deprecated",
-                        reviewed_by=edited_by,
-                    )
-                    deprecated_count += 1
-                    logger.debug(
-                        f"Deprecated synonym '{term}' for definitie {definitie_id}"
-                    )
-
-            logger.info(
-                f"Synced {len(validated_synonyms)} manual synonyms for definitie {definitie_id} "
-                f"(added: {added_count}, reactivated: {reactivated_count}, deprecated: {deprecated_count})"
-            )
-
-        except Exception as e:
-            logger.error(f"Synonym sync failed for definitie {definitie_id}: {e}")
-            raise  # Re-raise to caller (save_voorbeelden will catch and log warning)
+        self._synonym_sync.sync_synonyms_to_registry(
+            definitie_id,
+            synoniemen,
+            edited_by,
+            get_definitie_fn=self.get_definitie,
+        )
 
 
-# Convenience functions
-# DEF-181: Singleton cache to prevent duplicate repository initialization
+# === Singleton pattern ===
 _repository_singleton: DefinitieRepository | None = None
 
 
 def _validate_repository_connection(repo: DefinitieRepository) -> bool:
-    """
-    Validate that the repository's database connection is still alive.
-
-    Used by caching mechanisms to detect stale connections and trigger
-    re-initialization when needed.
-
-    Args:
-        repo: The cached DefinitieRepository instance
-
-    Returns:
-        True if connection is valid, False if stale/broken
-    """
+    """Validate that the repository's database connection is still alive."""
     try:
-        # Quick health check - use _get_connection() to verify db access works
         with repo._get_connection() as conn:
             conn.execute("SELECT 1")
         return True
@@ -2137,22 +319,9 @@ def _validate_repository_connection(repo: DefinitieRepository) -> bool:
 
 
 def get_definitie_repository(db_path: str | None = None) -> DefinitieRepository:
-    """Haal gedeelde repository instance op (singleton pattern).
-
-    DEF-181 Fix: Previously created new instance on every call, causing
-    50-100ms overhead per TabbedInterface cold start. Now uses module-level
-    singleton for ~0ms after first call.
-
-    Args:
-        db_path: Optional database path. If None, uses default data/definities.db.
-                 NOTE: Once singleton is created, db_path parameter is IGNORED.
-
-    Returns:
-        Cached DefinitieRepository singleton instance.
-    """
+    """Haal gedeelde repository instance op (singleton pattern)."""
     global _repository_singleton
 
-    # If singleton exists, warn if caller expects a different db_path
     if _repository_singleton is not None:
         if db_path is not None:
             current_path = getattr(_repository_singleton, "db_path", None)
@@ -2164,9 +333,7 @@ def get_definitie_repository(db_path: str | None = None) -> DefinitieRepository:
                 )
         return _repository_singleton
 
-    # First call - create singleton
     if not db_path:
-        # Default database in project directory
         project_root = Path(__file__).parent.parent.parent
         db_path = str(project_root / "data" / "definities.db")
 
@@ -2177,10 +344,7 @@ def get_definitie_repository(db_path: str | None = None) -> DefinitieRepository:
 
 
 def clear_repository_singleton() -> None:
-    """Clear de repository singleton (voor testing/development).
-
-    Gebruik spaarzaam! Forceert nieuwe instantie bij volgende get_definitie_repository() call.
-    """
+    """Clear de repository singleton (voor testing/development)."""
     global _repository_singleton
     if _repository_singleton is not None:
         logger.info("DefinitieRepository singleton cleared")
@@ -2188,19 +352,7 @@ def clear_repository_singleton() -> None:
 
 
 def validate_and_get_repository(db_path: str | None = None) -> DefinitieRepository:
-    """
-    Get repository with connection validation.
-
-    If the cached repository has a stale connection, clears the cache
-    and creates a new instance.
-
-    Args:
-        db_path: Optional database path
-
-    Returns:
-        Valid DefinitieRepository instance
-    """
-    # Read module-level singleton (no global needed - only reading, not assigning)
+    """Get repository with connection validation."""
     if _repository_singleton is not None:
         if not _validate_repository_connection(_repository_singleton):
             logger.info("Stale repository connection detected, reinitializing...")

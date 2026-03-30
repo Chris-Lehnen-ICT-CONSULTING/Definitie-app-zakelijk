@@ -96,7 +96,7 @@ class TestCleanTextAsync:
 
         assert isinstance(result, CleaningResult)
         # Should have extracted ontology rule applied
-        assert isinstance(result.applied_rules, list)
+        assert isinstance(result.applied_rules, (list, tuple))
 
     @pytest.mark.asyncio
     async def test_clean_text_error_handling(self):

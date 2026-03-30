@@ -20,11 +20,9 @@ def test_service_factory_returns_same_instance():
     """Herhaalde aanroepen met dezelfde config moeten dezelfde instance geven."""
     # Zorg voor geldige API key zodat initialisatie niet faalt in tests
     os.environ.setdefault("OPENAI_API_KEY", "test")
-    config = {"db_path": ":memory:"}
-
     # Zorg dat caching niet wordt uitgeschakeld door pytest detectie
     os.environ.pop("PYTEST_CURRENT_TEST", None)
-    service1 = get_definition_service(config)
-    service2 = get_definition_service(config)
+    service1 = get_definition_service()
+    service2 = get_definition_service()
 
     assert service1 is service2
