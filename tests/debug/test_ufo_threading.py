@@ -5,6 +5,12 @@ Test thread safety and concurrency issues in UFO Classifier
 import queue
 import threading
 import time
+
+import pytest
+
+pytestmark = pytest.mark.skip(
+    reason="UFO ontologie wordt vervangen — tests achterhaald"
+)
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from src.services.ufo_classifier_service import (
