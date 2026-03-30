@@ -68,8 +68,8 @@ class DefinitieCrudRepository:
                 record.wettelijke_basis if record.wettelijke_basis is not None else "[]"
             )
 
-            include_legacy = DatabaseConnection.has_legacy_columns_in_conn(conn)
-            columns, values = DatabaseConnection.build_insert_columns(
+            include_legacy = AuditHelpers.has_legacy_columns_in_conn(conn)
+            columns, values = AuditHelpers.build_insert_columns(
                 record, wb_value, include_legacy
             )
             column_sql = ", ".join(columns)

@@ -6,6 +6,7 @@ Bevat record-conversie, geschiedenis-logging, en import/export-logging.
 import logging
 import sqlite3
 from datetime import UTC, datetime
+from typing import Any
 
 from database.db_connection import DatabaseConnection
 from database.models import DefinitieRecord
@@ -18,6 +19,63 @@ class AuditHelpers:
 
     def __init__(self, db: DatabaseConnection):
         self._db = db
+
+    @staticmethod
+    def has_legacy_columns_in_conn(conn: sqlite3.Connection) -> bool:
+        """Determine legacy column presence using an existing connection."""
+        cursor = conn.execute("PRAGMA table_info(definities)")
+        columns = {row[1] for row in cursor.fetchall()}
+        return "datum_voorstel" in columns and "ketenpartners" in columns
+
+    @staticmethod
+    def build_insert_columns(
+        record: DefinitieRecord, wb_value: str, include_legacy: bool
+    ) -> tuple[list[str], list[Any]]:
+        """Compose insert columns/values for definities table.
+
+        Uses paired tuples so column/value additions are always atomic.
+        """
+        pairs: list[tuple[str, Any]] = [
+            ("begrip", record.begrip),
+            ("definitie", record.definitie),
+            ("categorie", record.categorie),
+            ("organisatorische_context", record.organisatorische_context),
+            ("juridische_context", record.juridische_context),
+            ("wettelijke_basis", wb_value),
+            ("ufo_categorie", record.ufo_categorie),
+            ("toelichting_proces", record.toelichting_proces),
+            ("status", record.status),
+            ("version_number", record.version_number),
+            ("previous_version_id", record.previous_version_id),
+            ("validation_score", record.validation_score),
+            ("validation_date", record.validation_date),
+            ("validation_issues", record.validation_issues),
+            ("source_type", record.source_type),
+            ("source_reference", record.source_reference),
+            ("imported_from", record.imported_from),
+            ("created_at", record.created_at),
+            ("updated_at", record.updated_at),
+            ("created_by", record.created_by),
+            ("updated_by", record.updated_by),
+            ("approved_by", record.approved_by),
+            ("approved_at", record.approved_at),
+            ("approval_notes", record.approval_notes),
+            ("last_exported_at", record.last_exported_at),
+            ("export_destinations", record.export_destinations),
+            ("generation_prompt_data", record.generation_prompt_data),
+        ]
+
+        if include_legacy:
+            pairs.extend(
+                [
+                    ("datum_voorstel", record.datum_voorstel),
+                    ("ketenpartners", record.ketenpartners),
+                ]
+            )
+
+        columns = [col for col, _ in pairs]
+        values = [val for _, val in pairs]
+        return columns, values
 
     def row_to_record(self, row: sqlite3.Row) -> DefinitieRecord:
         """Converteer database row naar DefinitieRecord."""
