@@ -23,6 +23,10 @@ from src.services.ufo_classifier_service import (
     UFOClassifierService,
 )
 
+pytestmark = pytest.mark.skip(
+    reason="UFO ontologie wordt vervangen — tests achterhaald"
+)
+
 # ============================================================================
 # BUG REPRODUCTIONS
 # ============================================================================

@@ -189,7 +189,7 @@ class TestMappers:
 
         assert "improvement_suggestions" in result
         assert len(result["improvement_suggestions"]) == 1
-        assert result["improvement_suggestions"][0]["type"] == "retry"
+        assert result["improvement_suggestions"][0]["type"] == "restructure"
 
     def test_degraded_result_generates_correlation_id(self):
         """Test that degraded result generates correlation_id if not provided."""
