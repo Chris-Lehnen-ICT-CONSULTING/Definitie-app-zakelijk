@@ -28,7 +28,7 @@ class WetgevingMetadata(BaseModel):
 class WebsiteMetadata(BaseModel):
     # url is optioneel: ChunkMetadata levert dit veld nog niet — zie DEF-374
     url: str | None = None
-    domein: str | None = None
+    website_domein: str | None = None
     laatst_gescraped: str | None = None
     sectie: str | None = None
 

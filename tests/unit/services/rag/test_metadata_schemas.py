@@ -49,12 +49,12 @@ class TestWebsiteMetadata:
         assert m.url is None
 
     def test_valide_website_metadata_met_url(self):
-        m = WebsiteMetadata(url="https://example.com", domein="example.com")
+        m = WebsiteMetadata(url="https://example.com", website_domein="example.com")
         assert m.url == "https://example.com"
 
     def test_optionele_velden_zijn_none(self):
         m = WebsiteMetadata(url="https://x.nl")
-        assert m.domein is None
+        assert m.website_domein is None
         assert m.sectie is None
 
 
