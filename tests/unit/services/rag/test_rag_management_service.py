@@ -11,6 +11,8 @@ import pytest
 from services.rag.embedding_store import EmbeddingStore
 from services.rag.rag_management_service import RAGManagementService
 
+pytestmark = [pytest.mark.unit]
+
 # ---------------------------------------------------------------------------
 # Schema (mirrors v5_migration tables)
 # ---------------------------------------------------------------------------

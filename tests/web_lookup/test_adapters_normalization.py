@@ -1,5 +1,9 @@
 from datetime import datetime
 
+import pytest
+
+pytestmark = [pytest.mark.unit]
+
 
 def test_wikipedia_build_lookup_result_contract_like():
     from services.web_lookup.wikipedia_service import WikipediaService

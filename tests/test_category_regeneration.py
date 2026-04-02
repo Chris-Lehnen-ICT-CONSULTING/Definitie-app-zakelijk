@@ -8,6 +8,8 @@ import streamlit as st
 from src.ui.components.category_regeneration_helper import CategoryRegenerationHelper
 from src.ui.components.definition_generator_tab import DefinitionGeneratorTab
 
+pytestmark = [pytest.mark.unit]
+
 
 class TestCategoryRegeneration:
     """Test class voor category regeneration flow."""

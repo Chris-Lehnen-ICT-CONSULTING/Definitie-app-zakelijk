@@ -4,8 +4,12 @@ import sqlite3
 from contextlib import contextmanager
 from unittest.mock import Mock
 
+import pytest
+
 from services.definition_repository import DefinitionRepository
 from services.interfaces import Definition
+
+pytestmark = [pytest.mark.unit]
 
 
 class _BadIterable:

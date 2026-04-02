@@ -20,6 +20,8 @@ import pytest
 # Early import to ensure module is in sys.modules before patching
 import ui.components_adapter as _components_adapter_module
 
+pytestmark = [pytest.mark.unit]
+
 # =============================================================================
 # Test Fixtures
 # =============================================================================

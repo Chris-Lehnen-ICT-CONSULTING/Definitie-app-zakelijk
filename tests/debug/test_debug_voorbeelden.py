@@ -6,6 +6,10 @@ import logging
 import os
 import sys
 
+import pytest
+
+pytestmark = [pytest.mark.unit]
+
 # Setup logging
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"

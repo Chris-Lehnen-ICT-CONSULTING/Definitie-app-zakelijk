@@ -6,6 +6,8 @@ from services.prompts.modules.base_module import ModuleContext
 from services.prompts.modules.expertise_module import ExpertiseModule
 from services.prompts.modules.grammar_module import GrammarModule
 
+pytestmark = [pytest.mark.unit]
+
 
 def _ctx(begrip: str = "validatie"):
     enriched = EnrichedContext(

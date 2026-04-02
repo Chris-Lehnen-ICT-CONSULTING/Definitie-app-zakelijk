@@ -7,6 +7,8 @@ import pytest
 
 from services.rag.embedding_service import EmbeddingService
 
+pytestmark = [pytest.mark.unit]
+
 
 @pytest.fixture
 def service():

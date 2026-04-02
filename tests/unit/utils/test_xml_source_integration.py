@@ -8,6 +8,8 @@ import pytest
 
 from utils.xml_source_formatter import format_bron, wrap_bronnen
 
+pytestmark = [pytest.mark.unit]
+
 
 def _simulate_collect_bronnen(
     rag_chunks: list[dict],

@@ -7,6 +7,8 @@ import pytest
 from src.database.definitie_repository import DefinitieRecord
 from src.services.category_service import CategoryService
 
+pytestmark = [pytest.mark.unit]
+
 
 class TestCategoryService:
     """Test class voor CategoryService."""

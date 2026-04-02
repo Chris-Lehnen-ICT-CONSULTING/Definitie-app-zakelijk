@@ -10,9 +10,13 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
+import pytest
+
 from services.definition_generator_context import EnrichedContext
 from services.interfaces import GenerationRequest
 from services.prompts.prompt_service_v2 import PromptServiceV2
+
+pytestmark = [pytest.mark.unit]
 
 # Optional dependency: skip this debug script if tiktoken is unavailable
 try:  # pragma: no cover - debug utility

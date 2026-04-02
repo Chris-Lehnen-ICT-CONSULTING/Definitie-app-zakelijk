@@ -4,6 +4,8 @@ import pytest
 
 from utils.xml_source_formatter import confidence_to_level, format_bron, wrap_bronnen
 
+pytestmark = [pytest.mark.unit]
+
 
 # ---------------------------------------------------------------------------
 # confidence_to_level

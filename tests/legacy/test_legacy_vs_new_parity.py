@@ -410,6 +410,10 @@ import pytest
 
 # Deze suite is legacy en informatief; in PR-profielen wordt deze niet uitgevoerd.
 # Markeer als xfail in geval van onverwachte regressies tijdens transitie.
-pytestmark = pytest.mark.xfail(
-    reason="Legacy vs new parity suite (informative, excluded from PR)", strict=False
-)
+pytestmark = [
+    pytest.mark.regression,
+    pytest.mark.xfail(
+        reason="Legacy vs new parity suite (informative, excluded from PR)",
+        strict=False,
+    ),
+]

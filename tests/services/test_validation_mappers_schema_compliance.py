@@ -2,6 +2,8 @@ import uuid
 
 import pytest
 
+pytestmark = [pytest.mark.unit]
+
 
 def test_ensure_schema_compliance_adds_correlation_id_when_missing():
     from services.validation.mappers import ensure_schema_compliance

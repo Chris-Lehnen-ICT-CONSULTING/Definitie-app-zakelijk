@@ -2,6 +2,8 @@ import types
 
 import pytest
 
+pytestmark = [pytest.mark.unit]
+
 
 def _make_validator(monkeypatch, count_return: int):
     # Lazy import module

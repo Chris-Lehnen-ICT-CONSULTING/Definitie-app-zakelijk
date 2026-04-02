@@ -1,5 +1,7 @@
 import pytest
 
+pytestmark = [pytest.mark.unit]
+
 
 def test_load_web_lookup_config_defaults():
     """Loads default YAML and exposes expected structure and provider settings."""

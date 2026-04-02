@@ -10,8 +10,12 @@ sys.path.append("src")
 
 from datetime import datetime
 
+import pytest
+
 from export.export_txt import exporteer_naar_txt
 from ui.session_state import SessionStateManager
+
+pytestmark = [pytest.mark.integration, pytest.mark.slow]
 
 
 def test_metadata_fields():

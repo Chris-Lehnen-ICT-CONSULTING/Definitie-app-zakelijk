@@ -11,6 +11,7 @@ from pathlib import Path
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
+import pytest
 from services.prompts.modules.ess_rules_module import EssRulesModule
 
 from services.definition_generator_context import EnrichedContext
@@ -22,6 +23,8 @@ from services.prompts.modules.semantic_categorisation_module import (
     SemanticCategorisationModule,
 )
 from services.prompts.modules.template_module import TemplateModule
+
+pytestmark = [pytest.mark.unit]
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="%(levelname)s - %(message)s")

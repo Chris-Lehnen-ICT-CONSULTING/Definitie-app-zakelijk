@@ -23,6 +23,8 @@ from services.interfaces import (
     DefinitionRepositoryInterface,
 )
 
+pytestmark = [pytest.mark.unit]
+
 
 class TestServiceContainer:
     """Test suite voor ServiceContainer."""

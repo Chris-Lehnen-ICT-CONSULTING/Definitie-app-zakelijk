@@ -9,6 +9,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
+pytestmark = [pytest.mark.integration]
+
 
 @pytest.mark.integration
 @pytest.mark.asyncio

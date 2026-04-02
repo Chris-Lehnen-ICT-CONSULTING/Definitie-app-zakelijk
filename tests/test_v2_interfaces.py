@@ -28,6 +28,8 @@ from src.services.interfaces import (
     ValidationServiceInterface,
 )
 
+pytestmark = [pytest.mark.unit]
+
 
 class TestPromptServiceInterface:
     """Test suite voor PromptServiceInterface."""

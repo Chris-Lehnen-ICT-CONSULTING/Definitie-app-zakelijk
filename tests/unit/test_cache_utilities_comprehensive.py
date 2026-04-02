@@ -31,6 +31,8 @@ from utils.cache import (
     get_cache_stats,
 )
 
+pytestmark = [pytest.mark.unit]
+
 
 class TestCacheConfig:
     """Test CacheConfig initialization and defaults."""

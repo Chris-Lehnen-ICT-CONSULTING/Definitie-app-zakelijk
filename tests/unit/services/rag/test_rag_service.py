@@ -12,6 +12,8 @@ import pytest
 from services.rag.models import ChunkingResult, ChunkMetadata, DocumentChunk
 from services.rag.rag_service import RAGContext, RAGService
 
+pytestmark = [pytest.mark.unit]
+
 # ---------------------------------------------------------------------------
 # Schema (mirrors v5_migration tables)
 # ---------------------------------------------------------------------------

@@ -8,6 +8,8 @@ from pathlib import Path
 
 import pytest
 
+pytestmark = [pytest.mark.unit]
+
 
 class TestPER007DocumentationCompliance:
     """Validate PER-007 implementation documentation after consolidation."""

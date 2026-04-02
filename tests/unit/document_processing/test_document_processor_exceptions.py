@@ -10,6 +10,10 @@ import logging
 import re
 from unittest.mock import MagicMock, patch
 
+import pytest
+
+pytestmark = [pytest.mark.unit]
+
 
 class TestExtractLegalReferencesExceptions:
     """Tests for _extract_legal_references error handling."""

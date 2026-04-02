@@ -22,6 +22,8 @@ from utils.xml_source_formatter import (
     wrap_bronnen,
 )
 
+pytestmark = [pytest.mark.integration]
+
 DIMENSIONS = EmbeddingService.DIMENSIONS  # 3072
 
 

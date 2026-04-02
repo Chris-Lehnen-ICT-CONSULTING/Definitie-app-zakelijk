@@ -16,6 +16,8 @@ from services.validation.interfaces import (
 )
 from tests.contracts.mock_orchestrator import MockValidationOrchestrator
 
+pytestmark = [pytest.mark.contract]
+
 
 class SchemaValidator:
     """Helper for JSON schema validation with format checking and extra guards."""

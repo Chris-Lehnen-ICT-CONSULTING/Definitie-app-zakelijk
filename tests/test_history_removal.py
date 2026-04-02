@@ -13,6 +13,8 @@ from unittest.mock import Mock, patch
 
 import pytest
 
+pytestmark = [pytest.mark.integration]
+
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
