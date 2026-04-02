@@ -23,6 +23,8 @@ import pytest
 # This resolves "module 'ui' has no attribute 'components_adapter'" errors
 import ui.components_adapter as _components_adapter_module
 
+pytestmark = [pytest.mark.unit]
+
 
 class TestContextFallbackLogging:
     """Test that context fallback logs errors correctly (AC1)."""

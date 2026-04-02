@@ -1,5 +1,7 @@
 import pytest
 
+pytestmark = [pytest.mark.unit]
+
 
 def test_snippet_sanitization_strips_tags_and_blocks_protocols():
     try:

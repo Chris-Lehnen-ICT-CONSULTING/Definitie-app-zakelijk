@@ -74,6 +74,9 @@ if __name__ == "__main__":
         print("🔍 Check the fixes and try again")
 
 # Markeer als legacy/informatief, uitgesloten in PR-profielen
-pytestmark = pytest.mark.xfail(
-    reason="Legacy builder activation script (excluded in PR)", strict=False
-)
+pytestmark = [
+    pytest.mark.regression,
+    pytest.mark.xfail(
+        reason="Legacy builder activation script (excluded in PR)", strict=False
+    ),
+]

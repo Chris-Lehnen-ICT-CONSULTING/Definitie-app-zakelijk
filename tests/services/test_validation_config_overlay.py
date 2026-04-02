@@ -7,6 +7,8 @@ from pathlib import Path
 import pytest
 import yaml
 
+pytestmark = [pytest.mark.unit]
+
 
 @pytest.mark.unit
 def test_config_load_from_yaml_file():

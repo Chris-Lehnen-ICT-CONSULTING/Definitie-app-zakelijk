@@ -1,3 +1,7 @@
+import pytest
+
+pytestmark = [pytest.mark.golden]
+
 #!/usr/bin/env python3
 """
 Test data for golden tests.

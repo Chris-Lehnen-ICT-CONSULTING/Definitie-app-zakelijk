@@ -17,6 +17,8 @@ import pytest
 from src.services.prompts.modules.base_module import ModuleContext
 from src.services.prompts.modules.expertise_module import ExpertiseModule
 
+pytestmark = [pytest.mark.unit]
+
 
 class TestExpertiseTransformation:
     """Test suite for expertise module transformation to stakeholder focus."""

@@ -3,6 +3,8 @@ from unittest.mock import patch
 
 import pytest
 
+pytestmark = [pytest.mark.unit]
+
 
 @pytest.mark.parametrize(
     "placeholder",

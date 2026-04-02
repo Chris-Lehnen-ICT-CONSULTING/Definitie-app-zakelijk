@@ -35,6 +35,8 @@ from src.services.prompts.modules import (
     TemplateModule,
 )
 
+pytestmark = [pytest.mark.integration]
+
 logger = logging.getLogger(__name__)
 
 

@@ -13,6 +13,8 @@ from services.definition_generator_context import EnrichedContext, HybridContext
 from services.interfaces import GenerationRequest
 from services.prompts.prompt_service_v2 import PromptServiceV2
 
+pytestmark = [pytest.mark.acceptance]
+
 
 class TestAcceptanceCriteria:
     """Full acceptance tests - validate architecture decisions"""

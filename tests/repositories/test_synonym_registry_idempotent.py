@@ -16,6 +16,8 @@ import pytest
 
 from src.repositories.synonym_registry import SynonymRegistry
 
+pytestmark = [pytest.mark.integration]
+
 
 class TestAddGroupMemberIdempotent:
     """Tests voor add_group_member() idempotent behavior."""

@@ -10,6 +10,8 @@ import pytest
 from src.services.interfaces import Definition, DefinitionResponse
 from src.services.service_factory import ServiceAdapter
 
+pytestmark = [pytest.mark.unit]
+
 
 @pytest.fixture
 def adapter_with_orchestrator():

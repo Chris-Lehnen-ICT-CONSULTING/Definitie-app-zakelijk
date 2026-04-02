@@ -6,6 +6,8 @@ from services.interfaces import GenerationRequest
 from services.prompts.modules.base_module import ModuleContext
 from services.prompts.modules.context_awareness_module import ContextAwarenessModule
 
+pytestmark = [pytest.mark.unit]
+
 
 def make_request() -> GenerationRequest:
     return GenerationRequest(

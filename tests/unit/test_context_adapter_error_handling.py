@@ -14,6 +14,8 @@ import pytest
 
 from ui.helpers.context_adapter import ContextAdapter
 
+pytestmark = [pytest.mark.unit]
+
 
 class TestSetInSessionStateErrorHandling:
     """Tests for set_in_session_state exception handling."""

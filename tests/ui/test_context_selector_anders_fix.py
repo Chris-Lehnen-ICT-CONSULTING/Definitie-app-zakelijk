@@ -8,6 +8,8 @@ from unittest.mock import MagicMock, Mock, patch
 import pytest
 import streamlit as st
 
+pytestmark = [pytest.mark.unit]
+
 # Import after mocking streamlit
 with patch("streamlit.multiselect"), patch("streamlit.text_input"):
     from src.ui.components.enhanced_context_manager_selector import (

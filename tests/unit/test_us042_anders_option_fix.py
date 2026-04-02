@@ -30,6 +30,8 @@ import streamlit as st
 # Import the components we're testing
 from src.ui.components.context_selector import ContextSelector
 
+pytestmark = [pytest.mark.unit]
+
 
 class TestAndersOptionBasicFunctionality:
     """Test basic Anders... option functionality."""

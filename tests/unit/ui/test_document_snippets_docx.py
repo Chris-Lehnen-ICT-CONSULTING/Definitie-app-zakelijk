@@ -2,6 +2,8 @@ import io
 
 import pytest
 
+pytestmark = [pytest.mark.unit]
+
 docx = pytest.importorskip("docx")
 
 

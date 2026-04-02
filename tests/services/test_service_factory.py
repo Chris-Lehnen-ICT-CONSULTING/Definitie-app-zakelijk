@@ -29,6 +29,8 @@ from services.service_factory import (
     get_definition_service,
 )
 
+pytestmark = [pytest.mark.unit]
+
 
 @pytest.fixture
 def mock_container():

@@ -11,6 +11,8 @@ from fastapi.testclient import TestClient
 from api.feature_status_api import app
 from security.security_middleware import ValidationResponse
 
+pytestmark = [pytest.mark.unit]
+
 
 @pytest.fixture
 def client():

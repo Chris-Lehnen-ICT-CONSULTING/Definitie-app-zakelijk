@@ -1,5 +1,7 @@
 import pytest
 
+pytestmark = [pytest.mark.unit]
+
 
 def test_ecli_boost_in_contract_mapping():
     from services.interfaces import LookupResult, WebSource

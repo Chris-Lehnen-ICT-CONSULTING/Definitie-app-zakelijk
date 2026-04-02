@@ -16,11 +16,15 @@ from pathlib import Path
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
+import pytest
+
 from database.definitie_repository import (
     DefinitieRecord,
     DefinitieRepository,
     DefinitieStatus,
 )
+
+pytestmark = [pytest.mark.integration]
 
 
 def test_duplicate_detection_performance():

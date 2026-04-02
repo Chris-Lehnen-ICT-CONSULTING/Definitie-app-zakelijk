@@ -24,6 +24,8 @@ from validate_synonyms import (
     validate_normalization_consistency,
 )
 
+pytestmark = [pytest.mark.integration]
+
 
 @pytest.fixture
 def fixtures_dir() -> Path:

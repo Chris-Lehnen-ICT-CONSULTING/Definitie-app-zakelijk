@@ -26,6 +26,8 @@ from voorbeelden.unified_voorbeelden import (
     genereer_alle_voorbeelden_async,
 )
 
+pytestmark = [pytest.mark.performance]
+
 
 @pytest.fixture
 def mock_ai_response():

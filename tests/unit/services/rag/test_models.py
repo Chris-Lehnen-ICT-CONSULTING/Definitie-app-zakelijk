@@ -4,6 +4,8 @@ import pytest
 
 from services.rag.models import ChunkingResult, ChunkMetadata, DocumentChunk
 
+pytestmark = [pytest.mark.unit]
+
 
 class TestChunkMetadata:
     def test_required_fields(self):

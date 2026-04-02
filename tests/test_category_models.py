@@ -10,6 +10,8 @@ from src.models.category_models import (
     DefinitionCategory,
 )
 
+pytestmark = [pytest.mark.unit]
+
 
 class TestCategoryModels:
     """Test class voor category domain models."""

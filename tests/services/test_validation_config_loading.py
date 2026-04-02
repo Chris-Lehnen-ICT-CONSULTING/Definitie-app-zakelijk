@@ -3,6 +3,8 @@ from textwrap import dedent
 
 import pytest
 
+pytestmark = [pytest.mark.unit]
+
 
 @pytest.mark.unit
 def test_validation_config_from_yaml_parses_expected_sections(tmp_path):

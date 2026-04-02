@@ -6,6 +6,8 @@ import pytest
 
 from services.policies.approval_gate_policy import DEFAULT_POLICY, GatePolicyService
 
+pytestmark = [pytest.mark.unit]
+
 
 class _StubYAML:
     def __init__(

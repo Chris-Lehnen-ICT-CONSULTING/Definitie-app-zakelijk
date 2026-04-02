@@ -17,6 +17,8 @@ import pytest
 
 from src.repositories.synonym_registry import SynonymRegistry
 
+pytestmark = [pytest.mark.integration]
+
 
 class TestSynonymRegistryDelete:
     """Tests voor delete_group() method."""

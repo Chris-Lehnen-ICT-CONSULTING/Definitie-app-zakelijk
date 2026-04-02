@@ -14,6 +14,8 @@ from services.validation.mappers import (
     ensure_schema_compliance,
 )
 
+pytestmark = [pytest.mark.contract]
+
 
 def test_dataclass_to_schema_minimal_maps_core_fields():
     dc = DCValidationResult(is_valid=True, definition_text="txt", score=0.8)

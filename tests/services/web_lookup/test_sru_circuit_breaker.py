@@ -17,6 +17,8 @@ import pytest
 
 from src.services.web_lookup.sru_service import SRUService
 
+pytestmark = [pytest.mark.unit]
+
 
 class TestCircuitBreaker:
     """Test circuit breaker behavior in SRU service."""

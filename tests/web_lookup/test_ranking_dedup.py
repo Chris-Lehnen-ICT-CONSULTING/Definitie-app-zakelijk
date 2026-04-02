@@ -2,6 +2,8 @@ from datetime import UTC, datetime, timezone
 
 import pytest
 
+pytestmark = [pytest.mark.unit]
+
 
 def _mk_result(provider: str, title: str, url: str, score: float, content_hash: str):
     """Factory for minimal WebLookupResult-like dicts for ranking/dedup tests."""

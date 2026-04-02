@@ -14,6 +14,8 @@ import pytest
 
 from utils.cache import cached, clear_cache, get_cache_stats
 
+pytestmark = [pytest.mark.unit]
+
 # Import CacheManager and EnhancedCache if they exist
 try:
     from utils.cache import CacheManager

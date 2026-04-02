@@ -34,6 +34,8 @@ from services.orchestrators.validation_orchestrator_v2 import ValidationOrchestr
 from services.validation.interfaces import ValidationContext, ValidationRequest
 from services.validation.modular_validation_service import ModularValidationService
 
+pytestmark = [pytest.mark.performance]
+
 
 class TestStory24PerformanceBaseline:
     """Baseline performance tests for Story 2.4 interface migration."""

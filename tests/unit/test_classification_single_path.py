@@ -15,6 +15,8 @@ import pytest
 
 from domain.ontological_categories import OntologischeCategorie
 
+pytestmark = [pytest.mark.unit]
+
 
 class TestSinglePathClassification:
     """Test single-path classification behavior."""

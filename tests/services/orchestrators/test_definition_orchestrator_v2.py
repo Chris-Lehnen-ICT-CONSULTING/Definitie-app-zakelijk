@@ -27,6 +27,8 @@ from services.interfaces import (
 )
 from services.orchestrators.definition_orchestrator_v2 import DefinitionOrchestratorV2
 
+pytestmark = [pytest.mark.integration]
+
 
 class TestDefinitionOrchestratorV2:
     """Test suite for DefinitionOrchestratorV2."""

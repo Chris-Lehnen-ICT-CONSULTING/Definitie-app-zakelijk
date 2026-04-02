@@ -29,6 +29,8 @@ from src.services.container import ServiceContainer
 from src.services.interfaces import GenerationRequest
 from src.services.prompts.prompt_service_v2 import PromptServiceV2
 
+pytestmark = [pytest.mark.unit]
+
 
 class TestContextFieldTypes:
     """Test correct data types for context fields."""

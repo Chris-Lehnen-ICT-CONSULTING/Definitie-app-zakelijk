@@ -24,6 +24,8 @@ from validation.dutch_text_validator import DutchTextType, DutchTextValidator
 from validation.input_validator import InputValidator, ValidationSchema
 from validation.sanitizer import ContentSanitizer, ContentType, SanitizationLevel
 
+pytestmark = [pytest.mark.unit]
+
 
 class TestInputValidator:
     """Test suite for InputValidator class."""

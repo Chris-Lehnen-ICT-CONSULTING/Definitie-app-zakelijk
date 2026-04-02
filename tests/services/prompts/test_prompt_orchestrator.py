@@ -9,6 +9,8 @@ from services.prompts.modules.base_module import (
 )
 from services.prompts.modules.prompt_orchestrator import PromptOrchestrator
 
+pytestmark = [pytest.mark.unit]
+
 
 class _OkModule(BasePromptModule):
     def __init__(self, module_id: str, deps: list[str] | None = None, text: str = "OK"):

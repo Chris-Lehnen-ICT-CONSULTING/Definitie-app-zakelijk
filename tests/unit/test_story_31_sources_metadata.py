@@ -23,6 +23,8 @@ from services.web_lookup.provenance import (
     build_provenance,
 )
 
+pytestmark = [pytest.mark.unit]
+
 
 class TestLegacyGenerationResultSources:
     """Test that sources are accessible in LegacyGenerationResult wrapper."""

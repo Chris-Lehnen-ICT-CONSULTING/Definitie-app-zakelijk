@@ -11,10 +11,14 @@ from pathlib import Path
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent))
 
+import pytest
+
 from domain.ontological_categories import OntologischeCategorie
 from services.container import get_container
 from services.interfaces import GenerationRequest
 from services.workflow_service import WorkflowAction, WorkflowService
+
+pytestmark = [pytest.mark.regression]
 
 
 def print_section(title: str):

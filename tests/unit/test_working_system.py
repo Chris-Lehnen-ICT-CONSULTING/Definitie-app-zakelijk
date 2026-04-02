@@ -23,6 +23,8 @@ from config.config_manager import ConfigSection, get_config, get_config_manager
 from toetsregels.loader import load_toetsregels
 from utils.cache import cached, clear_cache, configure_cache, get_cache_stats
 
+pytestmark = [pytest.mark.unit]
+
 
 class TestConfigurationSystem:
     """Test configuration management system."""

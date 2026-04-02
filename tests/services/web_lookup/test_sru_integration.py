@@ -7,6 +7,8 @@ bij searches die geen resultaten opleveren.
 
 import pytest
 
+pytestmark = [pytest.mark.integration]
+
 
 class TestSRUCircuitBreakerIntegration:
     """Integration tests for circuit breaker in realistic scenarios."""

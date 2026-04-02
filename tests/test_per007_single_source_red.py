@@ -8,6 +8,8 @@ from unittest.mock import Mock, patch
 
 import pytest
 
+pytestmark = [pytest.mark.integration, pytest.mark.red_phase]
+
 
 class TestSingleSourceOfTruth:
     """Tests that MUST fail initially - proving multiple paths exist"""

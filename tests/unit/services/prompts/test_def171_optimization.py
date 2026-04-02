@@ -16,6 +16,8 @@ from services.prompts.modules.integrity_rules_module import IntegrityRulesModule
 from services.prompts.modules.metrics_module import MetricsModule
 from services.prompts.modules.structure_rules_module import StructureRulesModule
 
+pytestmark = [pytest.mark.unit]
+
 
 def create_test_context(begrip: str, ontologische_categorie: str) -> ModuleContext:
     """Helper to create minimal test context."""

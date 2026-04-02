@@ -4,6 +4,8 @@ from typing import Any
 
 import pytest
 
+pytestmark = [pytest.mark.integration]
+
 
 # Minimal stubs for required services
 @dataclass

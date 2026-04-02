@@ -2,6 +2,8 @@ import inspect
 
 import pytest
 
+pytestmark = [pytest.mark.contract]
+
 
 def test_web_lookup_contract_dataclass_structure():
     """WebLookupResult contract exposes required fields per epic spec."""

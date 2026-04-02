@@ -1,6 +1,9 @@
 import os
 
+import pytest
 from dotenv import load_dotenv
+
+pytestmark = [pytest.mark.unit]
 
 load_dotenv()
 

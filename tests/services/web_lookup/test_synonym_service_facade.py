@@ -29,6 +29,8 @@ from src.services.web_lookup.synonym_service import (
     get_synonym_service,
 )
 
+pytestmark = [pytest.mark.unit]
+
 
 class TestJuridischeSynoniemServiceFacade:
     """Test suite voor façade backward compatibility."""
