@@ -15,7 +15,11 @@ st.session_state = {}
 
 from datetime import datetime
 
+import pytest
+
 from src.ui.session_state import SessionStateManager
+
+pytestmark = [pytest.mark.unit]
 
 
 def test_session_state_keys_exist():

@@ -13,7 +13,11 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
 import os
 
+import pytest
+
 from services.service_factory import get_definition_service
+
+pytestmark = [pytest.mark.unit]
 
 
 def test_service_factory_returns_same_instance():

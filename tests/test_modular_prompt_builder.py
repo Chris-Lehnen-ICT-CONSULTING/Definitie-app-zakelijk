@@ -16,6 +16,8 @@ from services.prompts.modular_prompt_builder import (
     PromptComponentConfig,
 )
 
+pytestmark = [pytest.mark.integration]
+
 
 def create_test_context(
     ontologische_categorie: str | None = None,

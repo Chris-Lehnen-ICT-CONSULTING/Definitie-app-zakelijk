@@ -13,6 +13,8 @@ from services.definition_repository import DefinitionRepository
 from services.exceptions import DatabaseConstraintError, DuplicateDefinitionError
 from services.interfaces import Definition, GenerationRequest
 
+pytestmark = [pytest.mark.integration]
+
 
 class TestDefinitionSaveIntegration:
     """Integration tests voor definition save operations."""

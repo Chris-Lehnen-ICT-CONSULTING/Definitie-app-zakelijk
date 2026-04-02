@@ -5,6 +5,8 @@ import pytest
 from services.definition_generator_context import EnrichedContext
 from services.prompts.prompt_service_v2 import PromptServiceV2
 
+pytestmark = [pytest.mark.unit]
+
 
 def _make_enriched_context(rag_chunks: list[dict]) -> EnrichedContext:
     """Helper: maak EnrichedContext met RAG chunks."""

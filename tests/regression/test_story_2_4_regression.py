@@ -29,6 +29,8 @@ from services.interfaces import (
 )
 from services.orchestrators.definition_orchestrator_v2 import DefinitionOrchestratorV2
 
+pytestmark = [pytest.mark.regression]
+
 
 class TestStory24RegressionSuite:
     """Regression tests for Story 2.4 interface migration."""

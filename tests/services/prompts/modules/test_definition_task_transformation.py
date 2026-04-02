@@ -17,6 +17,8 @@ import pytest
 from src.services.prompts.modules.base_module import EnrichedContext, ModuleContext
 from src.services.prompts.modules.definition_task_module import DefinitionTaskModule
 
+pytestmark = [pytest.mark.unit]
+
 
 class TestDefinitionTaskTransformation:
     """Test suite for definition task module language transformation."""

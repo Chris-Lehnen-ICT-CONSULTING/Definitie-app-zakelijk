@@ -16,6 +16,8 @@ from services.data_aggregation_service import (
 )
 from services.export_service import ExportFormat, ExportService
 
+pytestmark = [pytest.mark.unit]
+
 
 class TestExportService:
     """Test cases voor ExportService."""

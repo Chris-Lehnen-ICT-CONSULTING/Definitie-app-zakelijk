@@ -14,6 +14,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import aiohttp
 import pytest
 
+pytestmark = [pytest.mark.unit]
+
 # Import async security components
 try:
     from security.security_middleware import (

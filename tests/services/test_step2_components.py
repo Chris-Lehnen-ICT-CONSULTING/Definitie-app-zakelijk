@@ -24,6 +24,8 @@ from services.definition_generator_monitoring import GenerationMonitor, MetricTy
 from services.definition_generator_prompts import UnifiedPromptBuilder
 from services.interfaces import Definition, GenerationRequest
 
+pytestmark = [pytest.mark.unit]
+
 
 class TestHybridContextManager:
     """Test de HybridContextManager functionaliteit."""

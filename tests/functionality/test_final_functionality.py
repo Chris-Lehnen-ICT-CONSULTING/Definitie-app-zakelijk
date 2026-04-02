@@ -38,6 +38,8 @@ from voorbeelden.unified_voorbeelden import (
     genereer_voorbeeld_zinnen,
 )
 
+pytestmark = [pytest.mark.integration, pytest.mark.slow]
+
 
 def test_individual_generation():
     """Test individuele generatie functies."""

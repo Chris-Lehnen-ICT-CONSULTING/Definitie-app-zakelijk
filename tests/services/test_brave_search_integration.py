@@ -10,6 +10,8 @@ import pytest
 from services.interfaces import LookupRequest, LookupResult, WebSource
 from services.modern_web_lookup_service import ModernWebLookupService
 
+pytestmark = [pytest.mark.integration]
+
 
 @pytest.mark.asyncio
 async def test_brave_search_integrated_in_lookup_flow(monkeypatch):

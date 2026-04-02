@@ -7,6 +7,8 @@ import pytest
 from services.rag.document_chunker import DocumentChunker
 from services.rag.token_counter import tel_tokens
 
+pytestmark = [pytest.mark.unit]
+
 
 @pytest.fixture
 def chunker():

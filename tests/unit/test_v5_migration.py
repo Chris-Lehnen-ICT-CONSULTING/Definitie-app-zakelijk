@@ -21,6 +21,8 @@ from src.database.migrations.v5_migration import (
     verify_migration,
 )
 
+pytestmark = [pytest.mark.unit]
+
 
 # ---------------------------------------------------------------------------
 # Helpers: create a realistic test database with the 13 existing tables

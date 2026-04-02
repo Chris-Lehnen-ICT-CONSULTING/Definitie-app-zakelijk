@@ -8,6 +8,8 @@ import pytest
 from domain.ontological_categories import OntologischeCategorie
 from ontologie.improved_classifier import ImprovedOntologyClassifier
 
+pytestmark = [pytest.mark.unit]
+
 
 class TestCompoundWordEdgeCases:
     """Test edge cases for compound word classification."""

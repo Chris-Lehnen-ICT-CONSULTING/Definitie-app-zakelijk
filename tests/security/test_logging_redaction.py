@@ -1,6 +1,10 @@
 import logging
 
+import pytest
+
 from utils.logging_filters import PIIRedactingFilter
+
+pytestmark = [pytest.mark.integration]
 
 
 def _capture_logs(logger: logging.Logger, level=logging.INFO):

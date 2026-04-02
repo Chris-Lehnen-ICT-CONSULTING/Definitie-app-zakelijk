@@ -32,6 +32,8 @@ from services.validation.types import (
     normalize_to_unified,
 )
 
+pytestmark = [pytest.mark.unit]
+
 # ==============================================================================
 # Test Fixtures
 # ==============================================================================

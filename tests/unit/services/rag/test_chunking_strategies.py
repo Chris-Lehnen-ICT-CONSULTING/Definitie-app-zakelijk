@@ -9,6 +9,8 @@ from services.rag.chunking_strategies import (
 from services.rag.chunking_utils import bereken_overlap, forceer_split_op_zinnen
 from services.rag.token_counter import tel_tokens
 
+pytestmark = [pytest.mark.unit]
+
 # ── Overlap helper ───────────────────────────────────────────────
 
 

@@ -21,6 +21,8 @@ from services.prompts.modular_prompt_builder import (
     PromptComponentConfig,
 )
 
+pytestmark = [pytest.mark.integration]
+
 
 def create_test_context(category="proces", org_context=None, domain=None):
     """Create test context with configurable parameters."""

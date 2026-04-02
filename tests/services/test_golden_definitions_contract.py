@@ -1,6 +1,8 @@
 import pytest
 import yaml
 
+pytestmark = [pytest.mark.contract]
+
 
 def _load_cases():
     import os

@@ -11,9 +11,10 @@ import sys
 
 import pytest
 
-pytestmark = pytest.mark.skip(
-    reason="UFO ontologie wordt vervangen — tests achterhaald"
-)
+pytestmark = [
+    pytest.mark.unit,
+    pytest.mark.skip(reason="UFO ontologie wordt vervangen — tests achterhaald"),
+]
 import threading
 import time
 import traceback

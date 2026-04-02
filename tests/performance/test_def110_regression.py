@@ -20,6 +20,8 @@ from pathlib import Path
 
 import pytest
 
+pytestmark = [pytest.mark.performance]
+
 
 class TestDEF110Regression:
     """Monitor performance regression patterns from DEF-110."""

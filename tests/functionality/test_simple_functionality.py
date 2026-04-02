@@ -32,6 +32,8 @@ from voorbeelden.unified_voorbeelden import (
     genereer_synoniemen,
 )
 
+pytestmark = [pytest.mark.integration, pytest.mark.slow]
+
 
 def test_synoniemen_antoniemen():
     """Test synoniemen en antoniemen generatie (moet 5 items returnen)."""

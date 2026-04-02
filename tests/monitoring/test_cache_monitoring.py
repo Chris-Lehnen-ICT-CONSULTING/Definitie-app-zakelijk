@@ -6,6 +6,8 @@ import pytest
 
 from src.monitoring.cache_monitoring import CacheMonitor, CacheOperation, CacheSnapshot
 
+pytestmark = [pytest.mark.unit]
+
 
 def test_cache_monitor_tracks_operations():
     """Test that cache monitor correctly tracks operations."""

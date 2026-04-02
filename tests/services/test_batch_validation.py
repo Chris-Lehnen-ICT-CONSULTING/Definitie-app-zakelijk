@@ -5,6 +5,8 @@ import os
 
 import pytest
 
+pytestmark = [pytest.mark.integration]
+
 
 @pytest.mark.unit
 @pytest.mark.asyncio

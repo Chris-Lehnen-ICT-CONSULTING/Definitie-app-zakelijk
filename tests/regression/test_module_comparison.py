@@ -9,11 +9,15 @@ from pathlib import Path
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent))
 
+import pytest
+
 from src.services.definition_generator_context import EnrichedContext
 from src.services.prompts.modular_prompt_builder import (
     ModularPromptBuilder,
     PromptComponentConfig,
 )
+
+pytestmark = [pytest.mark.regression]
 
 
 def compare_module_outputs():

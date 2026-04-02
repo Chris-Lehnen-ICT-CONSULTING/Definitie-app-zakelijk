@@ -20,6 +20,8 @@ from database.migrations.v6_migration import (
     verify_migration,
 )
 
+pytestmark = [pytest.mark.unit]
+
 # ---------------------------------------------------------------------------
 # Pre-migration schema (mirrors v5 state)
 # ---------------------------------------------------------------------------

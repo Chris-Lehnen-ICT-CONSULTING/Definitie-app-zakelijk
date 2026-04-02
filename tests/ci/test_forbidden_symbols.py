@@ -11,6 +11,8 @@ from collections.abc import Iterator
 
 import pytest
 
+pytestmark = [pytest.mark.unit]
+
 # Repository root
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 SRC = ROOT / "src"

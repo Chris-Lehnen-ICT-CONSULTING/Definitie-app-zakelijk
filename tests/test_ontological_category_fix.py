@@ -13,6 +13,8 @@ from services.interfaces import GenerationRequest
 from services.orchestrators.definition_orchestrator_v2 import DefinitionOrchestratorV2
 from services.prompts.prompt_service_v2 import PromptServiceConfig, PromptServiceV2
 
+pytestmark = [pytest.mark.unit]
+
 
 class TestOntologicalCategoryFix:
     """Test ontological category template selection fix."""

@@ -28,6 +28,8 @@ from services.interfaces import (
 )
 from services.service_factory import ServiceAdapter
 
+pytestmark = [pytest.mark.unit]
+
 
 class TestOverallScoreRobustness:
     """

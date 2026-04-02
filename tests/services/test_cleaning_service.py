@@ -13,6 +13,8 @@ import pytest
 from services.cleaning_service import CleaningConfig, CleaningService
 from services.interfaces import CleaningResult, Definition
 
+pytestmark = [pytest.mark.unit]
+
 
 class TestCleaningServiceInit:
     """Test CleaningService initialization."""
