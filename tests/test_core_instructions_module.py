@@ -19,7 +19,7 @@ from src.services.prompts.modular_prompt_builder import (
     PromptComponentConfig,
 )
 
-pytestmark = [pytest.mark.unit]
+pytestmark = [pytest.mark.regression]
 
 
 class TestCoreInstructionsModule:

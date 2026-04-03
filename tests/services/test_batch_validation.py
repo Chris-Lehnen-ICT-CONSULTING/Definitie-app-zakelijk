@@ -252,7 +252,6 @@ SKIP_TIMING = pytest.mark.skipif(
 )
 
 
-@pytest.mark.unit
 @pytest.mark.asyncio
 @SKIP_TIMING
 async def test_batch_validate_performance_benefit():

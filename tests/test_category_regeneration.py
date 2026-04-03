@@ -8,7 +8,7 @@ import streamlit as st
 from src.ui.components.category_regeneration_helper import CategoryRegenerationHelper
 from src.ui.components.definition_generator_tab import DefinitionGeneratorTab
 
-pytestmark = [pytest.mark.unit]
+pytestmark = [pytest.mark.regression]
 
 
 class TestCategoryRegeneration:
@@ -22,9 +22,7 @@ class TestCategoryRegeneration:
     @pytest.fixture
     def generator_tab(self, mock_checker):
         """DefinitionGeneratorTab instance."""
-        with patch(
-            "src.ui.components.definition_generator_tab.get_definitie_repository"
-        ):
+        with patch("database.definitie_repository.get_definitie_repository"):
             return DefinitionGeneratorTab(mock_checker)
 
     @patch("streamlit.warning")

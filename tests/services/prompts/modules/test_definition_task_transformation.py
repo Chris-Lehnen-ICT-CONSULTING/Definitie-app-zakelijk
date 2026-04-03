@@ -17,7 +17,7 @@ import pytest
 from src.services.prompts.modules.base_module import EnrichedContext, ModuleContext
 from src.services.prompts.modules.definition_task_module import DefinitionTaskModule
 
-pytestmark = [pytest.mark.unit]
+pytestmark = [pytest.mark.red_phase]
 
 
 class TestDefinitionTaskTransformation:

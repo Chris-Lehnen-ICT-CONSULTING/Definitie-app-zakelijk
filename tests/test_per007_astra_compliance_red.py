@@ -11,7 +11,7 @@ import pytest
 from services.definition_generator_context import HybridContextManager
 from services.interfaces import GenerationRequest
 
-pytestmark = [pytest.mark.unit, pytest.mark.red_phase]
+pytestmark = [pytest.mark.red_phase]
 
 
 class TestASTRACompliance:
