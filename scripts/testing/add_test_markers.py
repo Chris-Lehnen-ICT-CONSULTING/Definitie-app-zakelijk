@@ -11,30 +11,12 @@ import re
 import sys
 from pathlib import Path
 
-TESTS_DIR = Path(__file__).resolve().parent.parent.parent / "tests"
-
-# Classification markers (not functional markers like asyncio, skip, xfail)
-CLASSIFICATION_MARKERS = {
-    "unit",
-    "integration",
-    "smoke",
-    "smoke_web_lookup",
-    "contract",
-    "compliance",
-    "regression",
-    "performance",
-    "benchmark",
-    "acceptance",
-    "golden",
-    "red_phase",
-    "antipattern",
-    "ontological_category",
-    "slow",
-    "tdd",
-    "flaky",
-    "baseline",
-    "parity",
-}
+from _marker_utils import (
+    CLASSIFICATION_MARKERS,
+    TESTS_DIR,
+    extract_pytestmark_block,
+    find_test_files,
+)
 
 # Directory -> marker(s) mapping
 DIRECTORY_MARKERS: dict[str, list[str]] = {
@@ -76,44 +58,14 @@ FILENAME_PATTERNS: list[tuple[str, list[str]]] = [
 ]
 
 
-def find_test_files() -> list[Path]:
-    """Find all test_*.py files, excluding archived and __pycache__."""
-    files = []
-    for f in sorted(TESTS_DIR.rglob("test_*.py")):
-        rel = f.relative_to(TESTS_DIR)
-        parts = rel.parts
-        if any(p in ("archived", "__pycache__", ".pytest_cache") for p in parts):
-            continue
-        files.append(f)
-    return files
-
-
-def _extract_pytestmark_block(content: str) -> str | None:
-    """Extract the full pytestmark assignment block (may span multiple lines)."""
-    lines = content.splitlines()
-    block_lines: list[str] = []
-    in_block = False
-    bracket_depth = 0
-    for line in lines:
-        stripped = line.strip()
-        if not in_block and stripped.startswith("pytestmark"):
-            in_block = True
-        if in_block:
-            block_lines.append(stripped)
-            bracket_depth += stripped.count("[") - stripped.count("]")
-            if bracket_depth <= 0 and not stripped.endswith("\\"):
-                break
-    return " ".join(block_lines) if block_lines else None
-
-
 def get_existing_pytestmark(content: str) -> tuple[bool, bool, str | None]:
     """Check if file has pytestmark.
 
     Returns:
         (has_pytestmark, has_classification_marker, existing_pytestmark_line)
     """
-    block = _extract_pytestmark_block(content)
-    if block is None:
+    block = extract_pytestmark_block(content)
+    if not block:
         return False, False, None
     has_classification = any(
         f"pytest.mark.{m}" in block for m in CLASSIFICATION_MARKERS

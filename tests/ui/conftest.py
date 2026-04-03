@@ -61,22 +61,23 @@ def mock_streamlit_session():
     mock_st = MagicMock()
     mock_st.session_state = mock_session_state
 
-    # Remove cached session_state module to force fresh import with mock
+    # Remove cached session_state module to force fresh import with mock.
+    # Without this, Streamlit imports from other tests pollute the module cache,
+    # causing SessionStateManager to reference the real st.session_state.
     saved_module = sys.modules.pop("ui.session_state", None)
 
-    with patch.dict("sys.modules", {"streamlit": mock_st}):
-        # Import fresh within the patched context
-        from ui.session_state import SessionStateManager
+    try:
+        with patch.dict("sys.modules", {"streamlit": mock_st}):
+            from ui.session_state import SessionStateManager
 
-        yield MockStreamlitSession(
-            manager=SessionStateManager,
-            session_state=mock_session_state,
-            mock_st=mock_st,
-        )
-
-    # Restore original module if it existed
-    if saved_module is not None:
-        sys.modules["ui.session_state"] = saved_module
+            yield MockStreamlitSession(
+                manager=SessionStateManager,
+                session_state=mock_session_state,
+                mock_st=mock_st,
+            )
+    finally:
+        if saved_module is not None:
+            sys.modules["ui.session_state"] = saved_module
 
 
 @pytest.fixture
@@ -95,10 +96,11 @@ def mock_streamlit_cleanup():
 
     saved_module = sys.modules.pop("ui.session_state", None)
 
-    with patch.dict("sys.modules", {"streamlit": mock_st}):
-        from ui.session_state import force_cleanup_voorbeelden
+    try:
+        with patch.dict("sys.modules", {"streamlit": mock_st}):
+            from ui.session_state import force_cleanup_voorbeelden
 
-        yield force_cleanup_voorbeelden, mock_session_state
-
-    if saved_module is not None:
-        sys.modules["ui.session_state"] = saved_module
+            yield force_cleanup_voorbeelden, mock_session_state
+    finally:
+        if saved_module is not None:
+            sys.modules["ui.session_state"] = saved_module
