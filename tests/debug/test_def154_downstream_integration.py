@@ -17,6 +17,8 @@ from src.services.prompts.modules.expertise_module import ExpertiseModule
 from src.services.prompts.modules.grammar_module import GrammarModule
 from src.services.prompts.modules.template_module import TemplateModule
 
+pytestmark = [pytest.mark.unit]
+
 
 def make_mock_context(begrip: str):
     """Create a mock context for testing."""

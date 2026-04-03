@@ -27,6 +27,8 @@ from src.services.container import ServiceContainer
 from src.services.context.context_manager import ContextManager
 from src.services.interfaces import GenerationRequest
 
+pytestmark = [pytest.mark.compliance]
+
 
 @pytest.mark.xfail(
     strict=False,

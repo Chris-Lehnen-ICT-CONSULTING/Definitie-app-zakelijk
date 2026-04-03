@@ -13,6 +13,8 @@ from services.rag.metadata_schemas import (
     valideer_chunk_metadata,
 )
 
+pytestmark = [pytest.mark.unit]
+
 
 class TestWetgevingMetadata:
     def test_alle_velden_optioneel(self):

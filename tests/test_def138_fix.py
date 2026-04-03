@@ -18,6 +18,10 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 # Import validator using the correct file name (with hyphen)
 import importlib.util
 
+import pytest
+
+pytestmark = [pytest.mark.integration]
+
 spec = importlib.util.spec_from_file_location(
     "ARAI_01", Path(__file__).parent.parent / "src/toetsregels/regels/ARAI-01.py"
 )

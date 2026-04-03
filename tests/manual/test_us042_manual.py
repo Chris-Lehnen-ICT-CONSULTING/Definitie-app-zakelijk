@@ -15,8 +15,11 @@ from pathlib import Path
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
+import pytest
 import streamlit as st
 from ui.components.context_selector import ContextSelector
+
+pytestmark = [pytest.mark.integration]
 
 
 def main():

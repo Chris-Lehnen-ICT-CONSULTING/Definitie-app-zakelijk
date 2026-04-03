@@ -1,5 +1,7 @@
 import pytest
 
+pytestmark = [pytest.mark.unit]
+
 
 def test_calculate_weighted_score_basic():
     from services.validation.aggregation import calculate_weighted_score

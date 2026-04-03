@@ -4,6 +4,8 @@ import pytest
 
 from services.rag.constants import RECHTSGEBIEDEN, normaliseer_rechtsgebied
 
+pytestmark = [pytest.mark.unit]
+
 
 class TestNormaliseerRechtsgebied:
     """Tests voor de normaliseer_rechtsgebied() functie."""

@@ -24,6 +24,8 @@ from voorbeelden.unified_voorbeelden import (
     genereer_alle_voorbeelden_async,
 )
 
+pytestmark = [pytest.mark.performance]
+
 
 async def test_voorbeelden_generatie():
     """Test voorbeelden generatie met nieuwe rate limiter."""

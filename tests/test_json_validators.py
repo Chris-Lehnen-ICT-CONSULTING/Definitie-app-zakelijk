@@ -9,6 +9,8 @@ import pytest
 from ai_toetser import ModularToetser, toets_definitie
 from ai_toetser.json_validator_loader import json_validator_loader
 
+pytestmark = [pytest.mark.unit]
+
 
 def test_load_all_validators():
     """Test dat alle validators geladen kunnen worden."""

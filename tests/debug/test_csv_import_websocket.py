@@ -8,6 +8,10 @@ import io
 import time
 from pathlib import Path
 
+import pytest
+
+pytestmark = [pytest.mark.unit]
+
 
 def create_test_csv(num_rows: int) -> bytes:
     """Create a test CSV with specified number of rows."""

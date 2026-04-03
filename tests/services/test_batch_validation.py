@@ -5,6 +5,8 @@ import os
 
 import pytest
 
+pytestmark = [pytest.mark.integration]
+
 
 @pytest.mark.unit
 @pytest.mark.asyncio
@@ -250,7 +252,6 @@ SKIP_TIMING = pytest.mark.skipif(
 )
 
 
-@pytest.mark.unit
 @pytest.mark.asyncio
 @SKIP_TIMING
 async def test_batch_validate_performance_benefit():

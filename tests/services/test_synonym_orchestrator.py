@@ -38,6 +38,8 @@ from src.repositories.synonym_registry import SynonymRegistry
 from src.services.gpt4_synonym_suggester import GPT4SynonymSuggester, SynonymSuggestion
 from src.services.synonym_orchestrator import SynonymOrchestrator
 
+pytestmark = [pytest.mark.unit]
+
 # ========================================
 # FIXTURES
 # ========================================

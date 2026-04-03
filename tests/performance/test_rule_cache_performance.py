@@ -17,6 +17,8 @@ from toetsregels.manager import ToetsregelManager
 # Import the implementations
 from toetsregels.rule_cache import RuleCache, get_rule_cache
 
+pytestmark = [pytest.mark.performance]
+
 
 class TestRuleCachePerformance:
     """Test performance improvements van RuleCache."""

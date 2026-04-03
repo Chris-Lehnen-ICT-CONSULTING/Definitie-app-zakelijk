@@ -1,3 +1,8 @@
+import pytest
+
+pytestmark = [pytest.mark.unit]
+
+
 def test_bwb_sru_endpoint_has_x_connection_and_version():
     from services.web_lookup.sru_service import SRUService
 

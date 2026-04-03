@@ -31,6 +31,8 @@ import pytest
 from domain.ontological_categories import OntologischeCategorie
 from ontologie.improved_classifier import ImprovedOntologyClassifier
 
+pytestmark = [pytest.mark.unit]
+
 
 class TestCompoundWordPatterns:
     """Test suite for compound word pattern matching (DEF-138)."""

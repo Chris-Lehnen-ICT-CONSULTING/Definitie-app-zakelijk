@@ -12,6 +12,8 @@ from services.prompts.modules.semantic_categorisation_module import (
 )
 from services.prompts.modules.structure_rules_module import StructureRulesModule
 
+pytestmark = [pytest.mark.integration]
+
 
 def _make_context(
     begrip: str = "authenticatie",

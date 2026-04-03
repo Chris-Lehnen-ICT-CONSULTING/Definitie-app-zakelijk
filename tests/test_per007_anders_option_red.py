@@ -11,6 +11,8 @@ import streamlit as st
 from services.definition_generator_context import HybridContextManager
 from services.interfaces import GenerationRequest
 
+pytestmark = [pytest.mark.red_phase]
+
 
 class TestAndersOption:
     """Tests for custom 'Anders...' option - MUST fail initially"""

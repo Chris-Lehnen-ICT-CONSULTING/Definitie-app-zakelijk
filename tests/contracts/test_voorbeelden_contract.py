@@ -13,6 +13,8 @@ import pytest
 # For type hints: dict[str, list[str] | str]
 from voorbeelden import genereer_alle_voorbeelden
 
+pytestmark = [pytest.mark.contract]
+
 
 def test_voorbeelden_canonical_keys():
     """Test dat voorbeelden altijd canonieke keys hebben."""

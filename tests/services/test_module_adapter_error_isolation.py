@@ -1,5 +1,7 @@
 import pytest
 
+pytestmark = [pytest.mark.unit]
+
 
 class _BoomRule:
     code = "TST_999"

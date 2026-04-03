@@ -14,6 +14,10 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 # Import the specific validator modules directly
 import importlib.util
 
+import pytest
+
+pytestmark = [pytest.mark.unit]
+
 
 def load_validator_module(rule_name):
     """Load a specific validator module."""

@@ -3,6 +3,8 @@ from typing import Any
 
 import pytest
 
+pytestmark = [pytest.mark.contract]
+
 
 @pytest.mark.unit
 @pytest.mark.contract

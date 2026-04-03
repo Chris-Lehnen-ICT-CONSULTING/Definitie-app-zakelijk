@@ -22,6 +22,8 @@ import pytest
 
 from database.definitie_repository import DefinitieRecord, DefinitieRepository
 
+pytestmark = [pytest.mark.integration]
+
 # ============================================================================
 # FIXTURES
 # ============================================================================

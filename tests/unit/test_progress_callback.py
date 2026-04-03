@@ -25,6 +25,8 @@ from utils.progress_callback import (
     unregister_progress_callback,
 )
 
+pytestmark = [pytest.mark.unit]
+
 
 @pytest.fixture(autouse=True)
 def reset_callback():

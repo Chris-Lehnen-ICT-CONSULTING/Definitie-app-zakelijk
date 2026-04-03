@@ -32,6 +32,8 @@ from src.services.context.context_manager import ContextManager
 from src.services.interfaces import GenerationRequest
 from src.services.prompts.prompt_service_v2 import PromptServiceV2
 
+pytestmark = [pytest.mark.performance]
+
 
 @dataclass
 class PerformanceMetrics:

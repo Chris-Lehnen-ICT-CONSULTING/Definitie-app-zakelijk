@@ -8,7 +8,11 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
+import pytest
+
 from src.services.service_factory import ServiceFactory
+
+pytestmark = [pytest.mark.unit]
 
 # Enable debug logging
 logging.basicConfig(

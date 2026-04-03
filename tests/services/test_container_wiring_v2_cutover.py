@@ -2,6 +2,8 @@ import inspect
 
 import pytest
 
+pytestmark = [pytest.mark.unit]
+
 
 @pytest.mark.unit
 def test_container_orchestrator_exists_and_is_validation_orchestrator_v2():

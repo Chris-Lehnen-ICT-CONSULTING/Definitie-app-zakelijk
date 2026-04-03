@@ -45,6 +45,8 @@ from voorbeelden.unified_voorbeelden import (
     get_examples_generator,
 )
 
+pytestmark = [pytest.mark.integration, pytest.mark.slow]
+
 # Load dotenv and skip if no API key configured
 load_dotenv()
 if not os.getenv("OPENAI_API_KEY"):

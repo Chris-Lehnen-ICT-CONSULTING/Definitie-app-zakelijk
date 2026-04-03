@@ -21,10 +21,14 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
 
+import pytest
+
 from services.prompts.modular_prompt_adapter import (
     ModularPromptAdapter,
     get_cached_orchestrator,
 )
+
+pytestmark = [pytest.mark.unit]
 
 print("\n" + "=" * 80)
 print("TEST: PromptOrchestrator Singleton Caching")

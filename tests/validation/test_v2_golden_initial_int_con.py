@@ -3,6 +3,8 @@ import pytest
 from services.validation.modular_validation_service import ModularValidationService
 from toetsregels.manager import get_toetsregel_manager
 
+pytestmark = [pytest.mark.unit]
+
 
 class _FakeDef:
     def __init__(self, id, begrip, org=None, jur=None, categorie=None, status="draft"):

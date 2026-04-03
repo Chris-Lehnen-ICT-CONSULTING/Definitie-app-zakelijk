@@ -13,7 +13,11 @@ import streamlit as st
 # Initialize mock session state
 st.session_state = {}
 
+import pytest
+
 from src.ui.session_state import SessionStateManager
+
+pytestmark = [pytest.mark.unit]
 
 
 def simulate_generation_flow():

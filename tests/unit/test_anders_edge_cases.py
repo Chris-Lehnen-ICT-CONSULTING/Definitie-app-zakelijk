@@ -30,6 +30,8 @@ from src.ui.components.enhanced_context_manager_selector import (
     EnhancedContextManagerSelector as ContextSelector,
 )
 
+pytestmark = [pytest.mark.unit]
+
 
 class TestMaliciousInputPrevention:
     """Test protection against malicious input in Anders fields."""

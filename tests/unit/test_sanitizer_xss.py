@@ -8,6 +8,8 @@ import pytest
 
 from validation.sanitizer import ContentSanitizer, ContentType, SanitizationLevel
 
+pytestmark = [pytest.mark.unit]
+
 
 @pytest.fixture
 def sanitizer():

@@ -10,7 +10,11 @@ from pathlib import Path
 # Voeg src toe aan sys.path voor directe imports
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
+import pytest
+
 from services.container import ServiceContainer
+
+pytestmark = [pytest.mark.unit]
 
 
 def test_get_service_validator_returns_none():

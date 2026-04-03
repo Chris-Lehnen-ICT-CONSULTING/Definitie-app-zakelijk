@@ -15,6 +15,8 @@ from database.definitie_repository import (
 from domain.ontological_categories import OntologischeCategorie
 from integration.definitie_checker import CheckAction, DefinitieChecker
 
+pytestmark = [pytest.mark.integration]
+
 
 @pytest.fixture(autouse=True)
 def _cleanup_test_records():

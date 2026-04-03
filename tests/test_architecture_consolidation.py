@@ -9,6 +9,8 @@ from pathlib import Path
 
 import pytest
 
+pytestmark = [pytest.mark.compliance]
+
 
 class TestArchitectureConsolidation:
     """Test suite for validating architecture documentation consolidation."""

@@ -28,6 +28,8 @@ from src.services.interfaces import (
     ValidationServiceInterface,
 )
 
+pytestmark = [pytest.mark.unit]
+
 
 class TestPromptServiceInterface:
     """Test suite voor PromptServiceInterface."""
@@ -174,7 +176,6 @@ class TestSecurityServiceInterface:
             async def redact_pii(
                 self, text: str, redaction_level: str = "medium"
             ) -> str:
-                # Simpele mock redactie
                 return text.replace("John Doe", "[REDACTED]")
 
             async def validate_compliance(
@@ -182,14 +183,10 @@ class TestSecurityServiceInterface:
             ) -> dict[str, bool]:
                 return {"GDPR": True, "AVG": True}
 
-            async def encrypt_sensitive_data(
-                self, data: dict[str, Any], encryption_keys: list[str]
-            ) -> dict[str, Any]:
-                encrypted_data = data.copy()
-                for key in encryption_keys:
-                    if key in encrypted_data:
-                        encrypted_data[key] = f"ENCRYPTED_{encrypted_data[key]}"
-                return encrypted_data
+            async def sanitize_request(
+                self, request: GenerationRequest
+            ) -> GenerationRequest:
+                return request
 
         service = ConcreteSecurityService()
         redacted = await service.redact_pii("Hello John Doe")
@@ -207,21 +204,28 @@ class TestMonitoringServiceInterface:
             def __init__(self):
                 self.metrics = []
 
-            async def track_generation_metrics(
-                self, request_id: str, metrics: dict[str, Any]
-            ) -> None:
-                self.metrics.append({"id": request_id, "metrics": metrics})
+            async def start_generation(self, generation_id: str) -> None:
+                self.metrics.append({"id": generation_id, "event": "start"})
 
-            async def log_performance(
+            async def complete_generation(
                 self,
-                operation: str,
-                duration: float,
+                generation_id: str,
                 success: bool,
-                metadata: dict[str, Any] | None = None,
+                duration: float,
+                token_count: int | None = None,
+                **kwargs: Any,
             ) -> None:
                 self.metrics.append(
-                    {"operation": operation, "duration": duration, "success": success}
+                    {"id": generation_id, "success": success, "duration": duration}
                 )
+
+            async def track_error(
+                self,
+                generation_id: str,
+                error: Exception,
+                error_type: str | None = None,
+            ) -> None:
+                self.metrics.append({"id": generation_id, "error": str(error)})
 
             def get_metrics_summary(
                 self, time_range: tuple | None = None
@@ -229,7 +233,7 @@ class TestMonitoringServiceInterface:
                 return {"total_operations": len(self.metrics)}
 
         service = ConcreteMonitoringService()
-        await service.track_generation_metrics("test-123", {"tokens": 100})
+        await service.start_generation("test-123")
         summary = service.get_metrics_summary()
         assert summary["total_operations"] == 1
 
@@ -269,11 +273,18 @@ class TestFeedbackEngineInterface:
                     ]
                 return self.feedback_store[:limit]
 
-            async def integrate_feedback(
-                self, prompt: str, feedback_items: list[dict[str, Any]]
-            ) -> str:
-                feedback_text = " ".join([f["content"] for f in feedback_items])
-                return f"{prompt}\n\nFeedback: {feedback_text}"
+            async def get_feedback_for_request(
+                self, begrip: str, categorie: str | None = None
+            ) -> list[dict[str, Any]]:
+                return [f for f in self.feedback_store if f.get("begrip") == begrip]
+
+            async def process_validation_feedback(
+                self,
+                definition_id: str,
+                validation_result: ValidationResult,
+                original_request: GenerationRequest,
+            ) -> dict[str, Any]:
+                return {"processed": True, "definition_id": definition_id}
 
         engine = ConcreteFeedbackEngine()
         result = await engine.process_feedback("def-123", "quality", "Good definition")
@@ -363,7 +374,7 @@ class TestInterfaceCompatibility:
         assert hasattr(cleaning_service, "clean_definition")
         assert hasattr(enhancement_service, "enhance_definition")
         assert hasattr(security_service, "redact_pii")
-        assert hasattr(monitoring_service, "track_generation_metrics")
+        assert hasattr(monitoring_service, "start_generation")
         assert hasattr(feedback_engine, "process_feedback")
 
 

@@ -11,6 +11,8 @@ import pytest
 
 from services.workflow_service import DefinitionStatus, StatusChange, WorkflowService
 
+pytestmark = [pytest.mark.unit]
+
 
 class TestWorkflowService:
     """Test suite voor WorkflowService."""

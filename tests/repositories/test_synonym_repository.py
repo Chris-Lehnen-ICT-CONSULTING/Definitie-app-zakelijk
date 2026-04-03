@@ -22,6 +22,8 @@ from src.repositories.synonym_repository import (
     SynonymSuggestionRecord,
 )
 
+pytestmark = [pytest.mark.integration]
+
 
 class TestSynonymSuggestionRecord:
     """Tests voor SynonymSuggestionRecord dataclass."""

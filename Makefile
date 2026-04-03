@@ -12,9 +12,9 @@ lint:
 	@echo "[lint] Black check on src/ and config/"
 	@$(PY) -m black --check src config
 
-test:
-	@echo "[test] Running fast default test subset (fail-fast)"
-	@pytest -q -m "not (integration or performance or benchmark or acceptance or slow or regression)" --maxfail=1
+test: test-markers-check
+	@echo "[test] Running unit tests (fail-fast)"
+	@pytest -q -m unit --maxfail=1
 
 .PHONY: test-all test-unit test-integration test-acceptance test-performance test-smoke
 
@@ -45,8 +45,8 @@ test-smoke:
 .PHONY: test-parallel test-cov test-cov-ci
 
 test-parallel:
-	@echo "[test-parallel] Running fast subset in parallel"
-	@pytest -q -n auto -m "not (integration or performance or benchmark or acceptance or slow or regression)"
+	@echo "[test-parallel] Running unit tests in parallel"
+	@pytest -q -n auto -m unit
 
 test-cov:
 	@echo "[test-cov] Running coverage on src (term-missing)"
@@ -58,13 +58,17 @@ test-cov-ci:
 
 .PHONY: test-durations
 test-durations:
-	@echo "[test-durations] Showing 20 slowest tests"
-	@pytest -q --durations=20 -m "not (integration or performance or benchmark or acceptance or slow)"
+	@echo "[test-durations] Showing 20 slowest unit tests"
+	@pytest -q --durations=20 -m unit
 
 .PHONY: smoke-web-lookup
 smoke-web-lookup:
 	@echo "[smoke] Running Web Lookup smoke tests"
 	@PYTHONPATH=src pytest -q -m smoke_web_lookup
+
+test-markers-check:
+	@echo "[markers] Checking test marker coverage"
+	@$(PY) scripts/testing/check_test_markers.py
 
 status: validation-status
 

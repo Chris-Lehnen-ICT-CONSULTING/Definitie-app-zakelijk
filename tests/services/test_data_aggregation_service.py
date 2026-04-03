@@ -13,6 +13,8 @@ from services.data_aggregation_service import (
     DefinitieExportData,
 )
 
+pytestmark = [pytest.mark.unit]
+
 
 class TestDataAggregationService:
     """Test cases voor DataAggregationService."""

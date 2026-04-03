@@ -20,6 +20,8 @@ from database.definitie_repository import DefinitieRecord, DefinitieStatus, Sour
 from services.definition_repository import DefinitionRepository
 from services.interfaces import Definition
 
+pytestmark = [pytest.mark.unit]
+
 
 @pytest.fixture
 def mock_legacy_repo():

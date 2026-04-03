@@ -7,6 +7,8 @@ import pytest
 from services.ai.model_router import ModelRouter
 from services.ai_service_v2 import AIServiceV2
 
+pytestmark = [pytest.mark.unit]
+
 
 @pytest.fixture
 def mock_model_router():

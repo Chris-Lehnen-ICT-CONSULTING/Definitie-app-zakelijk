@@ -6,8 +6,12 @@ Tests the complete refactoring from legacy to modular architecture.
 
 import asyncio
 
+import pytest
+
 from services.container import ServiceContainer
 from services.interfaces import GenerationRequest
+
+pytestmark = [pytest.mark.regression]
 
 
 async def test_story_2_4_integration():

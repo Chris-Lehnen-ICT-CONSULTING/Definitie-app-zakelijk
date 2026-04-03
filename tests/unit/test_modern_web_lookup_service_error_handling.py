@@ -5,6 +5,8 @@ import pytest
 from services.interfaces import LookupRequest, LookupResult, WebSource
 from services.modern_web_lookup_service import ModernWebLookupService, SourceConfig
 
+pytestmark = [pytest.mark.unit]
+
 
 class _BadMeta(dict):
     """Metadata dict that raises for specific keys to trigger logging."""

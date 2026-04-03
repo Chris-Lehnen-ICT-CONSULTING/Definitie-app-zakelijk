@@ -18,6 +18,8 @@ from utils.safe_serializer import (
     safe_save,
 )
 
+pytestmark = [pytest.mark.unit]
+
 
 @pytest.fixture
 def tmp_file(tmp_path):

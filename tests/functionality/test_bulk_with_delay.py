@@ -31,6 +31,8 @@ from voorbeelden.unified_voorbeelden import (
     get_examples_generator,
 )
 
+pytestmark = [pytest.mark.integration, pytest.mark.slow]
+
 
 async def test_bulk_generation_with_delay():
     """Test bulk generatie met delay voor rate limiting."""

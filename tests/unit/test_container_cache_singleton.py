@@ -21,6 +21,8 @@ from utils.container_manager import (
     get_container_stats,
 )
 
+pytestmark = [pytest.mark.unit]
+
 
 class TestContainerCacheSingleton:
     """Tests voor singleton cache behavior van ServiceContainer."""

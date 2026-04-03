@@ -6,6 +6,8 @@ import pytest
 from services.interfaces import LookupRequest, LookupResult, WebSource
 from services.modern_web_lookup_service import ModernWebLookupService
 
+pytestmark = [pytest.mark.unit]
+
 
 @pytest.mark.asyncio
 async def test_parallel_lookup_concurrency_and_timeout(monkeypatch):

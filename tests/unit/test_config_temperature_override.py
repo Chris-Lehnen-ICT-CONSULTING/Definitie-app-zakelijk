@@ -4,6 +4,8 @@ import pytest
 
 from config.config_adapters import get_api_config
 
+pytestmark = [pytest.mark.unit]
+
 
 class TestTemperatureOverride:
     """Test dat temperature overrides correct werken zonder defaults te overschrijven."""

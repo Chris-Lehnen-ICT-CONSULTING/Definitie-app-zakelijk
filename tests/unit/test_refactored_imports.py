@@ -8,6 +8,8 @@ from unittest.mock import patch
 
 import pytest
 
+pytestmark = [pytest.mark.unit]
+
 # Add src to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 

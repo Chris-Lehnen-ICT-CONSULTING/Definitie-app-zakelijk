@@ -1,6 +1,6 @@
 """Tests voor category domain models."""
 
-from datetime import datetime
+from datetime import UTC, datetime
 
 import pytest
 
@@ -9,6 +9,8 @@ from src.models.category_models import (
     CategoryUpdateEvent,
     DefinitionCategory,
 )
+
+pytestmark = [pytest.mark.unit]
 
 
 class TestCategoryModels:
@@ -42,7 +44,7 @@ class TestCategoryModels:
 
         # Assert
         assert isinstance(result.timestamp, datetime)
-        assert (datetime.now() - result.timestamp).total_seconds() < 1
+        assert (datetime.now(UTC) - result.timestamp).total_seconds() < 1
 
     def test_category_update_event_full(self):
         """Test CategoryUpdateEvent met alle velden."""

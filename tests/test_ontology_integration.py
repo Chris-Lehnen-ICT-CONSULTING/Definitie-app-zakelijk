@@ -7,6 +7,10 @@ import os
 import sys
 from pathlib import Path
 
+import pytest
+
+pytestmark = [pytest.mark.integration]
+
 # Voeg src toe aan path
 sys.path.insert(0, str(Path(__file__).parent / "src"))
 

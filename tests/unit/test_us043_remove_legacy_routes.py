@@ -35,6 +35,8 @@ from src.services.container import ServiceContainer
 from src.services.interfaces import GenerationRequest
 from src.services.prompts.prompt_service_v2 import PromptServiceV2
 
+pytestmark = [pytest.mark.unit]
+
 
 class TestSingleContextFlowPath:
     """Verify there's only one path from UI to prompt for context."""

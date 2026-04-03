@@ -22,6 +22,8 @@ from utils.cache import CacheManager, cached
 from utils.resilience import ResilienceFramework
 from utils.smart_rate_limiter import SmartRateLimiter
 
+pytestmark = [pytest.mark.performance]
+
 # Check if OPENAI_API_KEY is available
 HAS_OPENAI_KEY = bool(os.environ.get("OPENAI_API_KEY"))
 

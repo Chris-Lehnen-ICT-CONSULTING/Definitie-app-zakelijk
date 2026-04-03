@@ -19,6 +19,8 @@ from services.definition_generator_config import UnifiedGeneratorConfig
 from services.definition_generator_context import ContextSource, EnrichedContext
 from services.prompts.modules.base_module import ModuleContext
 
+pytestmark = [pytest.mark.unit]
+
 
 def _make_context(shared_state: dict[str, Any] | None = None) -> ModuleContext:
     """Create a ModuleContext for testing."""

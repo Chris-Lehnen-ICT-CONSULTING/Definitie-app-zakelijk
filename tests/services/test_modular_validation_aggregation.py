@@ -2,6 +2,8 @@
 
 import pytest
 
+pytestmark = [pytest.mark.unit]
+
 
 @pytest.mark.unit
 def test_weighted_sum_aggregation_formula():

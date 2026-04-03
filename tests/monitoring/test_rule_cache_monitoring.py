@@ -4,6 +4,8 @@ import pytest
 
 from toetsregels.rule_cache import RuleCache, get_rule_cache
 
+pytestmark = [pytest.mark.unit]
+
 
 @pytest.fixture
 def rule_cache():

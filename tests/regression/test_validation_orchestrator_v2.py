@@ -7,8 +7,12 @@ Tests that the refactored validation flow works correctly.
 import asyncio
 import uuid
 
+import pytest
+
 from services.container import ServiceContainer
 from services.validation.interfaces import ValidationContext
+
+pytestmark = [pytest.mark.regression]
 
 
 async def test_validation_orchestrator_v2():

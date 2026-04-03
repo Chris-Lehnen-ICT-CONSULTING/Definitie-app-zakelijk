@@ -12,6 +12,8 @@ import pytest
 
 from src.services.container import ServiceContainer
 
+pytestmark = [pytest.mark.integration]
+
 
 class TestSynonymContainerIntegration:
     """Test synonym system integration with ServiceContainer."""

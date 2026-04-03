@@ -11,6 +11,8 @@ from unittest.mock import Mock
 
 import pytest
 
+pytestmark = [pytest.mark.unit]
+
 
 class TestDUP01:
     """Test suite voor DUP_01 duplicate detection rule."""

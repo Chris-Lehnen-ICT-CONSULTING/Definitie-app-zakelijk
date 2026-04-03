@@ -3,6 +3,8 @@ import pytest
 from services.validation.modular_validation_service import ModularValidationService
 from toetsregels.manager import get_toetsregel_manager
 
+pytestmark = [pytest.mark.unit]
+
 
 @pytest.mark.asyncio
 async def test_con01_flags_context_wording_more_generic():

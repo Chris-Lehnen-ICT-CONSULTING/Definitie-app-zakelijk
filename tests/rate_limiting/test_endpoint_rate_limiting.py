@@ -16,6 +16,8 @@ from utils.smart_rate_limiter import (
     with_smart_rate_limit,
 )
 
+pytestmark = [pytest.mark.performance]
+
 
 @pytest.mark.performance
 @pytest.mark.integration

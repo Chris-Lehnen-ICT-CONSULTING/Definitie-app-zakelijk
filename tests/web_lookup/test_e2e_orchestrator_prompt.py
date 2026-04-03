@@ -1,5 +1,7 @@
 import pytest
 
+pytestmark = [pytest.mark.unit]
+
 
 class _StubAIService:
     def __init__(self):

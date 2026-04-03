@@ -7,6 +7,8 @@ import time
 
 import pytest
 
+pytestmark = [pytest.mark.performance]
+
 
 @pytest.mark.performance
 @pytest.mark.asyncio

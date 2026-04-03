@@ -23,6 +23,8 @@ from services.prompts.modules.base_module import ModuleContext
 # Import generic JSON-based rule module (DEF-156 Phase 1: consolidated from 5 duplicates)
 from services.prompts.modules.json_based_rules_module import JSONBasedRulesModule
 
+pytestmark = [pytest.mark.unit]
+
 
 def _make_context(
     begrip: str = "authenticatie",
