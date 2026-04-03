@@ -38,7 +38,7 @@ class TestCategoryService:
     ):
         """Test succesvolle categorie update."""
         # Arrange
-        mock_repository.get_definitie_by_id.return_value = sample_definition
+        mock_repository.get_definitie.return_value = sample_definition
         mock_repository.update_definitie.return_value = True
 
         # Act
@@ -47,9 +47,10 @@ class TestCategoryService:
         # Assert
         assert success is True
         assert error is None
-        assert sample_definition.categorie == "REL"
-        mock_repository.get_definitie_by_id.assert_called_once_with(1)
-        mock_repository.update_definitie.assert_called_once_with(sample_definition)
+        mock_repository.get_definitie.assert_called_once_with(1)
+        mock_repository.update_definitie.assert_called_once_with(
+            definitie_id=1, updates={"categorie": "REL"}, updated_by="web_user"
+        )
 
     def test_update_category_invalid_category(self, category_service):
         """Test update met ongeldige categorie."""
@@ -65,7 +66,7 @@ class TestCategoryService:
     ):
         """Test update wanneer definitie niet bestaat."""
         # Arrange
-        mock_repository.get_definitie_by_id.return_value = None
+        mock_repository.get_definitie.return_value = None
 
         # Act
         success, error = category_service.update_category(999, "REL")
@@ -79,7 +80,7 @@ class TestCategoryService:
     ):
         """Test update met database fout."""
         # Arrange
-        mock_repository.get_definitie_by_id.return_value = sample_definition
+        mock_repository.get_definitie.return_value = sample_definition
         mock_repository.update_definitie.return_value = False
 
         # Act
@@ -92,7 +93,7 @@ class TestCategoryService:
     def test_update_category_exception(self, category_service, mock_repository):
         """Test update met exception."""
         # Arrange
-        mock_repository.get_definitie_by_id.side_effect = Exception(
+        mock_repository.get_definitie.side_effect = Exception(
             "Database connection error"
         )
 
@@ -121,7 +122,7 @@ class TestCategoryService:
         """Test validatie voor goedgekeurde definitie."""
         # Arrange
         definition = Mock(spec=DefinitieRecord)
-        definition.status = "APPROVED"
+        definition.status = "established"
 
         # Act
         is_valid, error = category_service.validate_category_change(definition, "REL")
@@ -149,7 +150,7 @@ class TestCategoryService:
         """Test alle geldige categorieën."""
         # Arrange
         valid_categories = ["ENT", "REL", "ACT", "ATT", "AUT", "STA", "OTH"]
-        mock_repository.get_definitie_by_id.return_value = sample_definition
+        mock_repository.get_definitie.return_value = sample_definition
         mock_repository.update_definitie.return_value = True
 
         # Act & Assert
@@ -157,4 +158,3 @@ class TestCategoryService:
             success, error = category_service.update_category(1, category)
             assert success is True
             assert error is None
-            assert sample_definition.categorie == category
