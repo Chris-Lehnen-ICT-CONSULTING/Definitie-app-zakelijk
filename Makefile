@@ -12,7 +12,7 @@ lint:
 	@echo "[lint] Black check on src/ and config/"
 	@$(PY) -m black --check src config
 
-test:
+test: test-markers-check
 	@echo "[test] Running unit tests (fail-fast)"
 	@pytest -q -m unit --maxfail=1
 
