@@ -49,12 +49,12 @@ test-parallel:
 	@pytest -q -n auto -m unit
 
 test-cov:
-	@echo "[test-cov] Running coverage on src (term-missing)"
-	@pytest -q --cov=src --cov-report=term-missing -m "not (performance or benchmark)"
+	@echo "[test-cov] Running coverage on unit + integration tests"
+	@pytest -q --cov=src --cov-report=term-missing -m "unit or integration"
 
 test-cov-ci:
 	@echo "[test-cov-ci] Coverage with threshold (85%)"
-	@pytest -q --cov=src --cov-report=term-missing --cov-fail-under=85 -m "not (performance or benchmark)"
+	@pytest -q --cov=src --cov-report=term-missing --cov-fail-under=85 -m "unit or integration"
 
 .PHONY: test-durations
 test-durations:
