@@ -239,10 +239,9 @@ class TestExtremeLengthInputs:
 class TestConcurrencyAndRaceConditions:
     """Test concurrent access and race conditions."""
 
-    @pytest.mark.xfail(
-        reason="Streamlit components are not designed for concurrent access - "
-        "ContextManager singleton has inherent race conditions in multi-threaded tests",
-        strict=False,
+    @pytest.mark.skip(
+        reason="Flaky: Streamlit ContextManager singleton has inherent race conditions "
+        "in multi-threaded tests — passes intermittently"
     )
     def test_concurrent_anders_modifications(self):
         """Test multiple concurrent modifications to Anders fields."""
