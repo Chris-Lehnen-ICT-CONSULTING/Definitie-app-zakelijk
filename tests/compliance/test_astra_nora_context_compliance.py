@@ -30,10 +30,6 @@ from src.services.interfaces import GenerationRequest
 pytestmark = [pytest.mark.compliance]
 
 
-@pytest.mark.xfail(
-    strict=False,
-    reason="Activating compliance tests; features pending (US-041/042/043)",
-)
 class TestAuditTrailCompliance:
     """Test ASTRA audit trail requirements."""
 
@@ -43,6 +39,9 @@ class TestAuditTrailCompliance:
         with patch("src.services.audit.audit_logger.AuditLogger") as mock_logger:
             yield mock_logger
 
+    @pytest.mark.xfail(
+        reason="GenerationRequest API changed (missing id)", strict=False
+    )
     def test_context_decisions_logged(self, audit_logger):
         """Every context decision must be logged for audit."""
         request = GenerationRequest(
@@ -93,6 +92,7 @@ class TestAuditTrailCompliance:
         # This test documents the requirement
         assert retention_days == 2555, "Legal domain requires 7 year retention"
 
+    @pytest.mark.xfail(reason="Patches non-existent audit module", strict=False)
     def test_audit_log_completeness(self):
         """Audit log must capture complete context flow."""
         events = []
@@ -113,10 +113,6 @@ class TestAuditTrailCompliance:
             # This test documents the requirement
 
 
-@pytest.mark.xfail(
-    strict=False,
-    reason="Activating compliance tests; features pending (US-041/042/043)",
-)
 class TestPrivacyCompliance:
     """Test NORA privacy and data protection requirements."""
 
@@ -145,6 +141,9 @@ class TestPrivacyCompliance:
                 pattern, context_str
             ), f"PII pattern {pattern} found in context"
 
+    @pytest.mark.xfail(
+        reason="ContextManager.set_context/get_context API changed", strict=False
+    )
     def test_data_minimization(self):
         """Only necessary context data should be collected."""
         manager = ContextManager()
@@ -168,6 +167,7 @@ class TestPrivacyCompliance:
 
         # Context should not be used for other purposes
 
+    @pytest.mark.xfail(reason="Patches non-existent storage module", strict=False)
     def test_data_encryption_at_rest(self):
         """Sensitive context data should be encrypted at rest."""
         # This test documents the requirement
@@ -178,13 +178,12 @@ class TestPrivacyCompliance:
             # mock_encrypt should be called
 
 
-@pytest.mark.xfail(
-    strict=False,
-    reason="Activating compliance tests; features pending (US-041/042/043)",
-)
 class TestInteroperabilityStandards:
     """Test NORA interoperability requirements."""
 
+    @pytest.mark.xfail(
+        reason="GenerationRequest API changed (missing id)", strict=False
+    )
     def test_standard_data_formats(self):
         """Context must use standard data formats."""
         request = GenerationRequest(
@@ -208,6 +207,9 @@ class TestInteroperabilityStandards:
 
         # This test documents the vocabulary requirement
 
+    @pytest.mark.xfail(
+        reason="GenerationRequest has no api_version field", strict=False
+    )
     def test_api_versioning(self):
         """Context API must support versioning."""
         request = GenerationRequest(
@@ -220,10 +222,6 @@ class TestInteroperabilityStandards:
         assert hasattr(request, "api_version") or "version" in request.__dict__
 
 
-@pytest.mark.xfail(
-    strict=False,
-    reason="Activating compliance tests; features pending (US-041/042/043)",
-)
 class TestSecurityRequirements:
     """Test ASTRA security requirements."""
 
@@ -272,13 +270,12 @@ class TestSecurityRequirements:
         # Access should be role-based
 
 
-@pytest.mark.xfail(
-    strict=False,
-    reason="Activating compliance tests; features pending (US-041/042/043)",
-)
 class TestTransparencyRequirements:
     """Test NORA transparency and explainability requirements."""
 
+    @pytest.mark.xfail(
+        reason="GenerationRequest API changed (missing id)", strict=False
+    )
     def test_context_usage_transparency(self):
         """Users must understand how context affects output."""
         request = GenerationRequest(
@@ -301,6 +298,7 @@ class TestTransparencyRequirements:
 
         # This documents the requirement
 
+    @pytest.mark.xfail(reason="Patches non-existent monitoring module", strict=False)
     def test_context_lineage_tracking(self):
         """Track how context flows through the system."""
         lineage = []
@@ -314,10 +312,6 @@ class TestTransparencyRequirements:
             # Lineage should be tracked
 
 
-@pytest.mark.xfail(
-    strict=False,
-    reason="Activating compliance tests; features pending (US-041/042/043)",
-)
 class TestAccessibilityCompliance:
     """Test DigiToegankelijk accessibility requirements."""
 
@@ -333,10 +327,6 @@ class TestAccessibilityCompliance:
         # Should handle both languages
 
 
-@pytest.mark.xfail(
-    strict=False,
-    reason="Activating compliance tests; features pending (US-041/042/043)",
-)
 class TestDataGovernance:
     """Test data governance compliance."""
 
@@ -359,10 +349,6 @@ class TestDataGovernance:
         # This documents metadata requirements
 
 
-@pytest.mark.xfail(
-    strict=False,
-    reason="Activating compliance tests; features pending (US-041/042/043)",
-)
 class TestComplianceReporting:
     """Test compliance reporting capabilities."""
 
@@ -384,12 +370,14 @@ class TestComplianceReporting:
 
         # Should generate comprehensive report
 
+    @pytest.mark.xfail(reason="Patches non-existent compliance module", strict=False)
     def test_compliance_monitoring(self):
         """Continuous compliance monitoring."""
         with patch("src.services.compliance.monitor") as mock_monitor:
             # Should continuously monitor
             mock_monitor.assert_called()
 
+    @pytest.mark.xfail(reason="Patches non-existent alerts module", strict=False)
     def test_compliance_alerts(self):
         """Alert on compliance violations."""
         with patch("src.services.alerts.send"):
@@ -400,10 +388,6 @@ class TestComplianceReporting:
             # mock_alert.assert_called()
 
 
-@pytest.mark.xfail(
-    strict=False,
-    reason="Activating compliance tests; features pending (US-041/042/043)",
-)
 class TestJusticeDomainSpecific:
     """Test justice domain specific compliance."""
 

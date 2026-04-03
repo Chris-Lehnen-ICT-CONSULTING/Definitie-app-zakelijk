@@ -8,13 +8,7 @@ Dit script test de nieuwe V2 orchestrator door een eenvoudige definitie
 te genereren en te controleren of ontological categories correct werken.
 """
 
-# Legacy compatibility: markeer deze suite als informatief en uitgesloten in PR-profiel
-pytestmark = [
-    pytest.mark.regression,
-    pytest.mark.xfail(
-        reason="Legacy fallback/CLI-style script (excluded in PR)", strict=False
-    ),
-]
+pytestmark = [pytest.mark.regression]
 
 import asyncio
 import os
