@@ -26,6 +26,8 @@ import pytest
 from config.feature_flags import FeatureFlags
 from src.services.interfaces import GenerationRequest
 
+pytestmark = [pytest.mark.unit]
+
 
 @pytest.mark.skip(
     reason="Feature flags for context flow not yet implemented (US-041/042/043)"

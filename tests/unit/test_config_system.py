@@ -28,6 +28,8 @@ from config.config_manager import (
     set_config,
 )
 
+pytestmark = [pytest.mark.unit]
+
 
 class TestConfigManager:
     """Test suite for ConfigManager class."""

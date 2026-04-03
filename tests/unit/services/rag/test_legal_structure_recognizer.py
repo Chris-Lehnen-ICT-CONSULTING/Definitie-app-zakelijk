@@ -6,6 +6,8 @@ from services.rag.legal_structure_recognizer import (
     LegalStructureRecognizer,
 )
 
+pytestmark = [pytest.mark.unit]
+
 
 @pytest.fixture
 def recognizer():

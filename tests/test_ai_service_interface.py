@@ -20,6 +20,8 @@ from src.services.interfaces import (
     AITimeoutError,
 )
 
+pytestmark = [pytest.mark.unit]
+
 
 class TestAIGenerationResult:
     """Test suite voor AIGenerationResult dataclass."""

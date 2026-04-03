@@ -27,6 +27,8 @@ from services.validation.interfaces import (
     ValidationResult,
 )
 
+pytestmark = [pytest.mark.unit]
+
 
 class TestValidationOrchestratorV2Unit:
     """Unit tests for ValidationOrchestratorV2 class."""

@@ -22,7 +22,10 @@ from services.modern_web_lookup_service import ModernWebLookupService
 from tests.fixtures.web_lookup_mocks import SRUServiceStub, wikipedia_lookup_stub
 
 # Skip all tests in this file until fixtures are restored
-pytestmark = pytest.mark.skip(reason="Fixtures removed, will restore incrementally")
+pytestmark = [
+    pytest.mark.unit,
+    pytest.mark.skip(reason="Fixtures removed, will restore incrementally"),
+]
 
 
 @pytest.mark.asyncio

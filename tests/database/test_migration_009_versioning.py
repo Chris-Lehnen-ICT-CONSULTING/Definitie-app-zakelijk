@@ -22,6 +22,8 @@ from database.definitie_repository import (
 )
 from domain.ontological_categories import OntologischeCategorie
 
+pytestmark = [pytest.mark.integration]
+
 
 class TestMigration009Versioning:
     """Test versioning system after UNIQUE INDEX removal."""

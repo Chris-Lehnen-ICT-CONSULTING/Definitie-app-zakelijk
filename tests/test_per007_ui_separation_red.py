@@ -11,6 +11,8 @@ from services.definition_generator_context import EnrichedContext, HybridContext
 from services.interfaces import GenerationRequest
 from services.prompts.prompt_service_v2 import PromptServiceV2
 
+pytestmark = [pytest.mark.red_phase]
+
 
 class TestUIPreviewRejection:
     """Tests that MUST fail in RED phase - proving UI strings are wrongly accepted"""

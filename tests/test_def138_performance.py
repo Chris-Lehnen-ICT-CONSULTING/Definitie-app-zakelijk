@@ -10,6 +10,8 @@ import pytest
 
 from ontologie.improved_classifier import ImprovedOntologyClassifier
 
+pytestmark = [pytest.mark.performance]
+
 
 class TestClassificationPerformance:
     """Performance tests for DEF-138 fixes."""

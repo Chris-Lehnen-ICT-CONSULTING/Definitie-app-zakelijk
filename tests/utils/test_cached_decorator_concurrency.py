@@ -19,6 +19,8 @@ import pytest
 
 from utils.cache import cached, clear_cache, configure_cache
 
+pytestmark = [pytest.mark.unit]
+
 
 @pytest.fixture(autouse=True)
 def _clean_cache():

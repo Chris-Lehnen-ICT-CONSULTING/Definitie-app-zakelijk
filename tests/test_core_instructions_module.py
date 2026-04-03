@@ -19,6 +19,8 @@ from src.services.prompts.modular_prompt_builder import (
     PromptComponentConfig,
 )
 
+pytestmark = [pytest.mark.regression]
+
 
 class TestCoreInstructionsModule:
     """Test suite voor CoreInstructionsModule."""

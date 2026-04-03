@@ -24,6 +24,8 @@ from toetsregels.loader import load_toetsregels
 from utils.cache import cached, clear_cache, get_cache_stats
 from validation.sanitizer import get_sanitizer, sanitize_content
 
+pytestmark = [pytest.mark.performance]
+
 # NOTE: Resilience imports removed in DEF-197 (dead code cleanup)
 # - OptimizedResilience: module deleted
 # - SmartRateLimiter: test class removed (outdated API)

@@ -3,8 +3,12 @@
 import sqlite3
 from datetime import UTC, datetime, timezone
 
+import pytest
+
 from database.audit_helpers import AuditHelpers
 from database.definitie_repository import DefinitieRecord, DefinitieRepository
+
+pytestmark = [pytest.mark.unit]
 
 
 def _make_record() -> DefinitieRecord:

@@ -15,6 +15,8 @@ from services.classification.term_config import (
     reset_config_cache,
 )
 
+pytestmark = [pytest.mark.unit]
+
 
 class TestTermPatternConfig:
     """Tests voor TermPatternConfig loader."""

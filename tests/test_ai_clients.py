@@ -29,6 +29,8 @@ from services.ai.base_client import (
 )
 from services.ai.openai_client import OpenAIClient
 
+pytestmark = [pytest.mark.unit]
+
 # ---------------------------------------------------------------------------
 # Factory tests
 # ---------------------------------------------------------------------------

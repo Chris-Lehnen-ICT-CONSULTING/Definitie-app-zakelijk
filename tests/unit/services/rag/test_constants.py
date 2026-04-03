@@ -1,5 +1,7 @@
 """Tests voor RAG constants (DEF-365, DEF-379)."""
 
+import pytest
+
 from services.rag.constants import (
     BRON_TYPES,
     COLLECTION_TYPE_MAP,
@@ -8,6 +10,8 @@ from services.rag.constants import (
     RECHTSGEBIEDEN,
     CollectionType,
 )
+
+pytestmark = [pytest.mark.unit]
 
 
 class TestCollectionTypes:

@@ -12,6 +12,8 @@ from pathlib import Path
 
 import pytest
 
+pytestmark = [pytest.mark.smoke]
+
 # Ensure src on path
 sys.path.insert(0, str(Path(__file__).parents[2] / "src"))
 

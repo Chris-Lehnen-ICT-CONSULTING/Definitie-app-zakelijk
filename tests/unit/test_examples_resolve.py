@@ -13,8 +13,12 @@ import streamlit as st
 # Ensure Streamlit session state exists before importing project modules
 st.session_state = {}
 
+import pytest
+
 from src.ui.helpers.examples import resolve_examples
 from src.ui.session_state import SessionStateManager
+
+pytestmark = [pytest.mark.unit]
 
 
 def _reset_session_state() -> None:

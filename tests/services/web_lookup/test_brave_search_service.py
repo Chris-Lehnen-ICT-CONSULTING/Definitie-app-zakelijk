@@ -15,6 +15,8 @@ import pytest
 from services.interfaces import LookupResult, WebSource
 from services.web_lookup.brave_search_service import BraveSearchService
 
+pytestmark = [pytest.mark.unit]
+
 
 @pytest.mark.asyncio
 async def test_brave_search_successful_lookup():

@@ -10,6 +10,8 @@ from unittest.mock import Mock, patch
 
 import pytest
 
+pytestmark = [pytest.mark.performance]
+
 # DEF-90 Performance targets
 MAX_ORCHESTRATOR_INIT_WITH_VALIDATION_MS = 400  # With both lazy loads
 MAX_VALIDATION_LOAD_TIME_MS = 500  # Validation creation time

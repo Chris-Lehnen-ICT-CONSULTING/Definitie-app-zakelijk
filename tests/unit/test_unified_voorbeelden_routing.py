@@ -18,6 +18,8 @@ from voorbeelden.unified_voorbeelden import (
     reset_examples_generator,
 )
 
+pytestmark = [pytest.mark.unit]
+
 
 class TestExampleTypeToTaskTypeMapping:
     """Verify the static mapping is correct."""

@@ -33,6 +33,10 @@ from pathlib import Path
 from typing import Any, Optional
 from unittest.mock import MagicMock, Mock, patch
 
+import pytest
+
+pytestmark = [pytest.mark.regression]
+
 # Voeg src directory toe aan Python path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))

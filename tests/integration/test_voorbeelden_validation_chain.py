@@ -16,6 +16,8 @@ from pydantic import ValidationError
 
 from database.definitie_repository import DefinitieRepository
 
+pytestmark = [pytest.mark.integration]
+
 # Test Data Constants
 
 

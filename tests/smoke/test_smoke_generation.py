@@ -5,6 +5,10 @@ import asyncio
 import logging
 import sys
 
+import pytest
+
+pytestmark = [pytest.mark.smoke]
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 

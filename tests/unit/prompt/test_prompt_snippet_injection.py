@@ -1,5 +1,7 @@
 import pytest
 
+pytestmark = [pytest.mark.unit]
+
 
 def test_prompt_includes_document_snippets_as_xml_brons():
     """DEF-315: Document snippets produce <bron type="document"> XML tags."""

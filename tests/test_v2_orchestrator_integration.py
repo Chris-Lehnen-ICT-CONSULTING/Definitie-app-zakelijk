@@ -26,6 +26,8 @@ from src.services.orchestrators.definition_orchestrator_v2 import (
     DefinitionOrchestratorV2,
 )
 
+pytestmark = [pytest.mark.integration]
+
 
 @pytest.fixture
 def mock_services():

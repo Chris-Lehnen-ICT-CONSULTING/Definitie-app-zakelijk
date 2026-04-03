@@ -18,6 +18,8 @@ import pytest
 
 from src.utils.smart_rate_limiter import TokenBucket
 
+pytestmark = [pytest.mark.unit]
+
 
 class TestTokenBucketAcquire:
     """Test blocking acquire() with timeout parameter."""
