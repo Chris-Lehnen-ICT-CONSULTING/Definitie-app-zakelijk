@@ -6,6 +6,8 @@ import pytest
 
 from services.ai.model_router import ModelRouter
 
+pytestmark = [pytest.mark.unit]
+
 
 @pytest.fixture
 def routing_config():

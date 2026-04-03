@@ -21,6 +21,8 @@ from services.web_lookup.wikipedia_synonym_extractor import (
     extract_wikipedia_synonyms,
 )
 
+pytestmark = [pytest.mark.unit]
+
 
 @pytest.fixture
 def extractor():

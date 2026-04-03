@@ -2,6 +2,8 @@ from datetime import UTC, datetime, timezone
 
 import pytest
 
+pytestmark = [pytest.mark.unit]
+
 
 def test_build_provenance_records_structure_and_ordering():
     try:

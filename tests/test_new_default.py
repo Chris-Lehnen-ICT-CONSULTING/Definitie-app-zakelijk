@@ -27,6 +27,8 @@ if not os.getenv("OPENAI_API_KEY"):
 # Import service factory
 from services.service_factory import get_definition_service
 
+pytestmark = [pytest.mark.unit]
+
 # Get service zonder environment variable
 service = get_definition_service()
 

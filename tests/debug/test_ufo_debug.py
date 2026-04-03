@@ -6,9 +6,10 @@ import pytest
 
 from src.services.ufo_classifier_service import UFOCategory, UFOClassifierService
 
-pytestmark = pytest.mark.skip(
-    reason="UFO ontologie wordt vervangen — tests achterhaald"
-)
+pytestmark = [
+    pytest.mark.unit,
+    pytest.mark.skip(reason="UFO ontologie wordt vervangen — tests achterhaald"),
+]
 
 
 def test_input_validation():

@@ -5,9 +5,11 @@ from unittest.mock import MagicMock, Mock
 
 import pytest
 
+from database.definitie_repository import DefinitieRecord
 from models.category_models import CategoryChangeResult
-from src.database.definitie_repository import DefinitieRecord
-from src.services.category_service import CategoryService
+from services.category_service import CategoryService
+
+pytestmark = [pytest.mark.unit]
 
 
 class TestCategoryServiceV2:
@@ -38,7 +40,7 @@ class TestCategoryServiceV2:
     ):
         """Test succesvolle categorie update met v2."""
         # Arrange
-        mock_repository.get_definitie_by_id.return_value = sample_definition
+        mock_repository.get_definitie.return_value = sample_definition
         mock_repository.update_definitie.return_value = True
 
         # Act
@@ -63,8 +65,8 @@ class TestCategoryServiceV2:
         """Test update met validatie fout."""
         # Arrange
         definition = Mock(spec=DefinitieRecord)
-        definition.status = "APPROVED"  # Goedgekeurde definities mogen niet wijzigen
-        mock_repository.get_definitie_by_id.return_value = definition
+        definition.status = "established"  # Vastgestelde definities mogen niet wijzigen
+        mock_repository.get_definitie.return_value = definition
 
         # Act
         result = category_service.update_category_v2(
@@ -80,7 +82,7 @@ class TestCategoryServiceV2:
     ):
         """Test dat legacy method nog werkt."""
         # Arrange
-        mock_repository.get_definitie_by_id.return_value = sample_definition
+        mock_repository.get_definitie.return_value = sample_definition
         mock_repository.update_definitie.return_value = True
 
         # Act

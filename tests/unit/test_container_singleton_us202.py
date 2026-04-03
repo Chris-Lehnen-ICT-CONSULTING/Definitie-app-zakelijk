@@ -13,6 +13,8 @@ Fix: All paths now use get_cached_service_container() which uses session state.
 
 import pytest
 
+pytestmark = [pytest.mark.integration]
+
 
 class TestContainerSingleton:
     """Test ServiceContainer singleton behavior after US-202 fix."""

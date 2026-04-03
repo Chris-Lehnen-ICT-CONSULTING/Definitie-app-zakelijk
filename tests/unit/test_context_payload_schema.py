@@ -25,6 +25,8 @@ from jsonschema import Draft7Validator, ValidationError, validate
 
 from src.services.interfaces import GenerationRequest
 
+pytestmark = [pytest.mark.unit]
+
 # Define the context payload schema
 CONTEXT_PAYLOAD_SCHEMA_V1 = {
     "$schema": "http://json-schema.org/draft-07/schema#",

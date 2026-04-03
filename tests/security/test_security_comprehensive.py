@@ -32,6 +32,8 @@ from validation.sanitizer import (
     sanitize_user_input,
 )
 
+pytestmark = [pytest.mark.integration]
+
 
 class TestSecurityMiddleware:
     """Test security middleware functionality."""

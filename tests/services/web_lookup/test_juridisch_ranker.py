@@ -35,6 +35,8 @@ from src.services.web_lookup.juridisch_ranker import (
     is_juridische_bron,
 )
 
+pytestmark = [pytest.mark.unit]
+
 
 class TestIsJuridischeBron:
     """Test suite voor is_juridische_bron() - domain matching."""

@@ -12,6 +12,8 @@ from services.validation.mappers import (
     ensure_schema_compliance,
 )
 
+pytestmark = [pytest.mark.unit]
+
 
 @dataclass
 class MockValidationResult:

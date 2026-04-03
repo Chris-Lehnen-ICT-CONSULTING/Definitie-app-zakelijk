@@ -6,6 +6,8 @@ from services.definition_generator_config import ContextConfig
 from services.definition_generator_context import HybridContextManager
 from services.interfaces import GenerationRequest, LookupResult, WebSource
 
+pytestmark = [pytest.mark.unit]
+
 
 @pytest.mark.skip(
     reason="HybridContextManager no longer performs web lookup directly — "

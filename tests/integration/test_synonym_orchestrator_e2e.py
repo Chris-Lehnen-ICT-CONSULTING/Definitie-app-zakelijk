@@ -22,10 +22,13 @@ import pytest
 
 # Skip all tests if OPENAI_API_KEY not available (e2e tests need real API)
 HAS_OPENAI_KEY = bool(os.environ.get("OPENAI_API_KEY"))
-pytestmark = pytest.mark.skipif(
-    not HAS_OPENAI_KEY,
-    reason="OPENAI_API_KEY not set - e2e tests require real API access",
-)
+pytestmark = [
+    pytest.mark.integration,
+    pytest.mark.skipif(
+        not HAS_OPENAI_KEY,
+        reason="OPENAI_API_KEY not set - e2e tests require real API access",
+    ),
+]
 
 from src.database.definitie_repository import DefinitieRecord
 from src.services.definition_repository import (

@@ -11,6 +11,8 @@ from unittest.mock import MagicMock, Mock, patch
 
 import pytest
 
+pytestmark = [pytest.mark.performance]
+
 # DEF-66 Performance targets
 MAX_CONTAINER_INIT_MS = 200  # Maximum acceptable container initialization time
 MAX_TABBED_INTERFACE_INIT_MS = (

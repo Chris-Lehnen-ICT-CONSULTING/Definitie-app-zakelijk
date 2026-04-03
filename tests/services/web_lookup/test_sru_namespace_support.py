@@ -20,6 +20,8 @@ import pytest
 
 from src.services.web_lookup.sru_service import SRUConfig, SRUService
 
+pytestmark = [pytest.mark.unit]
+
 
 class TestSRUNamespaceSupport:
     """Test SRU 1.2 en 2.0 namespace parsing."""

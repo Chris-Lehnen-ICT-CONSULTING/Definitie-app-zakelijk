@@ -24,6 +24,8 @@ from src.monitoring.performance_tracker import (
     reset_tracker,
 )
 
+pytestmark = [pytest.mark.unit]
+
 
 @pytest.fixture
 def temp_db():

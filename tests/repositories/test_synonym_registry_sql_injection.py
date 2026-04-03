@@ -16,6 +16,8 @@ import pytest
 
 from src.repositories.synonym_registry import SynonymRegistry
 
+pytestmark = [pytest.mark.integration]
+
 
 class TestSynonymRegistryOrderByValidation:
     """Tests voor order_by parameter validation (SQL injection prevention)."""

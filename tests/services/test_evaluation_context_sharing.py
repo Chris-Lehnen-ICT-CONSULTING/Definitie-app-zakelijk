@@ -4,6 +4,8 @@ from unittest.mock import Mock, call, patch
 
 import pytest
 
+pytestmark = [pytest.mark.unit]
+
 
 @pytest.mark.unit
 def test_evaluation_context_dataclass_structure():

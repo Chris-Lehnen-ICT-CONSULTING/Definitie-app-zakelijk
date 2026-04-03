@@ -32,6 +32,8 @@ import pytest
 
 from src.services.prompts.modules.base_module import ModuleContext
 
+pytestmark = [pytest.mark.red_phase]
+
 
 class TestQualityEnhancementTransformation:
     """Test suite for error prevention to quality enhancement transformation."""

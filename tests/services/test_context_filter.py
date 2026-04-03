@@ -6,6 +6,8 @@ import pytest
 
 from src.services.web_lookup.context_filter import ContextFilter, ContextMatch
 
+pytestmark = [pytest.mark.unit]
+
 
 class TestContextFilter:
     """Test suite voor ContextFilter."""

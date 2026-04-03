@@ -6,10 +6,14 @@ Tests that both bugs are resolved:
 2. definitie_origineel uses opschonen_enhanced() for full cleaning
 """
 
+import pytest
+
 from opschoning.opschoning_enhanced import (
     extract_definition_from_gpt_response,
     opschonen_enhanced,
 )
+
+pytestmark = [pytest.mark.unit]
 
 
 def test_markdown_dash_removal():

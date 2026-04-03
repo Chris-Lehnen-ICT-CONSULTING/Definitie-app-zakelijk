@@ -9,6 +9,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
+pytestmark = [pytest.mark.smoke]
+
 # Forceer DEV_MODE voor deze smoke test
 os.environ["DEV_MODE"] = "true"
 

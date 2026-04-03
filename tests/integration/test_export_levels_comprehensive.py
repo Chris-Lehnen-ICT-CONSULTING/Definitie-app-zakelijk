@@ -29,6 +29,8 @@ from database.definitie_repository import (
 from services.data_aggregation_service import DataAggregationService
 from services.export_service import ExportFormat, ExportLevel, ExportService
 
+pytestmark = [pytest.mark.integration]
+
 
 @pytest.fixture
 def populated_db(tmp_path):
