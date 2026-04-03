@@ -37,16 +37,28 @@ CLASSIFICATION_MARKERS = {
 }
 
 
+def _extract_pytestmark_block(content: str) -> str:
+    """Extract the full pytestmark assignment block (may span multiple lines)."""
+    lines = content.splitlines()
+    block_lines: list[str] = []
+    in_block = False
+    bracket_depth = 0
+    for line in lines:
+        stripped = line.strip()
+        if not in_block and stripped.startswith("pytestmark"):
+            in_block = True
+        if in_block:
+            block_lines.append(stripped)
+            bracket_depth += stripped.count("[") - stripped.count("]")
+            if bracket_depth <= 0 and not stripped.endswith("\\"):
+                break
+    return " ".join(block_lines)
+
+
 def check_file(filepath: Path) -> bool:
     """Return True if file has a pytestmark with a classification marker."""
-    content = filepath.read_text()
-    for line in content.splitlines():
-        stripped = line.strip()
-        if stripped.startswith("pytestmark"):
-            for marker in CLASSIFICATION_MARKERS:
-                if f"pytest.mark.{marker}" in stripped:
-                    return True
-    return False
+    block = _extract_pytestmark_block(filepath.read_text())
+    return any(f"pytest.mark.{m}" in block for m in CLASSIFICATION_MARKERS)
 
 
 def main() -> int:

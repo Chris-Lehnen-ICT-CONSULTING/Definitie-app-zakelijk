@@ -71,8 +71,8 @@ FILENAME_PATTERNS: list[tuple[str, list[str]]] = [
     (r"_regression", ["regression"]),
     (r"_smoke", ["smoke"]),
     (r"_contract", ["contract"]),
-    (r"_red\b", ["unit", "red_phase"]),
-    (r"_antipattern", ["unit", "antipattern"]),
+    (r"_red\b", ["red_phase"]),
+    (r"_antipattern", ["antipattern"]),
 ]
 
 
@@ -88,22 +88,37 @@ def find_test_files() -> list[Path]:
     return files
 
 
+def _extract_pytestmark_block(content: str) -> str | None:
+    """Extract the full pytestmark assignment block (may span multiple lines)."""
+    lines = content.splitlines()
+    block_lines: list[str] = []
+    in_block = False
+    bracket_depth = 0
+    for line in lines:
+        stripped = line.strip()
+        if not in_block and stripped.startswith("pytestmark"):
+            in_block = True
+        if in_block:
+            block_lines.append(stripped)
+            bracket_depth += stripped.count("[") - stripped.count("]")
+            if bracket_depth <= 0 and not stripped.endswith("\\"):
+                break
+    return " ".join(block_lines) if block_lines else None
+
+
 def get_existing_pytestmark(content: str) -> tuple[bool, bool, str | None]:
     """Check if file has pytestmark.
 
     Returns:
         (has_pytestmark, has_classification_marker, existing_pytestmark_line)
     """
-    for line in content.splitlines():
-        stripped = line.strip()
-        if stripped.startswith("pytestmark"):
-            has_classification = False
-            for marker in CLASSIFICATION_MARKERS:
-                if f"pytest.mark.{marker}" in stripped:
-                    has_classification = True
-                    break
-            return True, has_classification, stripped
-    return False, False, None
+    block = _extract_pytestmark_block(content)
+    if block is None:
+        return False, False, None
+    has_classification = any(
+        f"pytest.mark.{m}" in block for m in CLASSIFICATION_MARKERS
+    )
+    return True, has_classification, block
 
 
 def has_per_function_markers(content: str) -> list[str]:
