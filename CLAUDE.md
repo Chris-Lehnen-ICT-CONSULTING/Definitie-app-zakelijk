@@ -43,10 +43,14 @@ tests/
 # Run
 make dev
 
-# Test
-make test          # snelle subset
-make test-all      # volledig
-make test-cov      # met coverage (threshold 85%)
+# Test (marker-gebaseerd, alle test files hebben pytestmark)
+make test              # unit tests (-m unit), fail-fast
+make test-integration  # integration tests (-m integration)
+make test-all          # volledige suite (alle markers)
+make test-cov          # coverage op unit + integration (threshold 85%)
+make test-parallel     # unit tests parallel (-n auto)
+make test-smoke        # smoke tests
+make test-markers-check  # CI guard: check dat alle files markers hebben
 
 # Lint
 make lint          # ruff + black
@@ -72,4 +76,4 @@ Project-specifieke rules staan in `.claude/rules/` en laden automatisch.
 
 Feature branch: `feature/DEF-XX-beschrijving`
 
-*Versie: 1.0 · 10 maart 2026 · Extendeert: ~/.claude/CLAUDE.md v7.0*
+*Versie: 1.0 · 10 maart 2026 · Extendeert: ~/.claude/CLAUDE.md v7.1*
