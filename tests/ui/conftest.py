@@ -5,6 +5,7 @@ This module provides reusable fixtures for testing Streamlit UI components,
 particularly the SessionStateManager which requires mocking of st.session_state.
 """
 
+import sys
 from typing import NamedTuple
 from unittest.mock import MagicMock, patch
 
@@ -60,6 +61,9 @@ def mock_streamlit_session():
     mock_st = MagicMock()
     mock_st.session_state = mock_session_state
 
+    # Remove cached session_state module to force fresh import with mock
+    saved_module = sys.modules.pop("ui.session_state", None)
+
     with patch.dict("sys.modules", {"streamlit": mock_st}):
         # Import fresh within the patched context
         from ui.session_state import SessionStateManager
@@ -69,6 +73,10 @@ def mock_streamlit_session():
             session_state=mock_session_state,
             mock_st=mock_st,
         )
+
+    # Restore original module if it existed
+    if saved_module is not None:
+        sys.modules["ui.session_state"] = saved_module
 
 
 @pytest.fixture
@@ -85,7 +93,12 @@ def mock_streamlit_cleanup():
     mock_st = MagicMock()
     mock_st.session_state = mock_session_state
 
+    saved_module = sys.modules.pop("ui.session_state", None)
+
     with patch.dict("sys.modules", {"streamlit": mock_st}):
         from ui.session_state import force_cleanup_voorbeelden
 
         yield force_cleanup_voorbeelden, mock_session_state
+
+    if saved_module is not None:
+        sys.modules["ui.session_state"] = saved_module
