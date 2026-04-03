@@ -32,7 +32,7 @@ import pytest
 
 from src.services.prompts.modules.base_module import ModuleContext
 
-pytestmark = [pytest.mark.unit]
+pytestmark = [pytest.mark.red_phase]
 
 
 class TestQualityEnhancementTransformation:
