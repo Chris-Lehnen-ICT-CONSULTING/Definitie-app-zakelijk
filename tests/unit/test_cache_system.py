@@ -578,6 +578,7 @@ class TestCacheIntegration:
         assert len(results) == 50  # 5 workers * 10 operations each
 
 
+@pytest.mark.slow
 @pytest.mark.skipif(CacheManager is None, reason="CacheManager not available")
 class TestCachePerformance:
     """Performance tests for cache system."""

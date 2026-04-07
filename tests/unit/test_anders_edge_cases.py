@@ -434,6 +434,7 @@ class TestUnicodeAndEncodingEdgeCases:
 class TestMemoryStress:
     """Test memory handling under stress conditions."""
 
+    @pytest.mark.slow
     def test_memory_leak_prevention(self):
         """Test that repeated Anders operations don't leak memory."""
         import tracemalloc

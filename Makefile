@@ -13,8 +13,8 @@ lint:
 	@$(PY) -m black --check src config
 
 test: test-markers-check
-	@echo "[test] Running unit tests (fail-fast)"
-	@pytest -q -m unit --maxfail=1
+	@echo "[test] Running fast unit tests (fail-fast, excludes slow)"
+	@pytest -q -m "unit and not slow" --maxfail=1
 
 .PHONY: test-all test-unit test-integration test-acceptance test-performance test-smoke
 
