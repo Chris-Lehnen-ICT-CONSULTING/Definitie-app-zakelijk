@@ -18,7 +18,7 @@ import pytest
 
 from src.utils.smart_rate_limiter import TokenBucket
 
-pytestmark = [pytest.mark.unit]
+pytestmark = [pytest.mark.unit, pytest.mark.slow]
 
 
 class TestTokenBucketAcquire:
