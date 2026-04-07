@@ -17,7 +17,7 @@ import pytest
 
 from src.services.web_lookup.sru_service import SRUService
 
-pytestmark = [pytest.mark.unit]
+pytestmark = [pytest.mark.unit, pytest.mark.slow]
 
 
 class TestCircuitBreaker:
