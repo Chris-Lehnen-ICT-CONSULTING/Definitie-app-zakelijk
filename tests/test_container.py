@@ -18,6 +18,9 @@ from services.interfaces import GenerationRequest
 pytestmark = [pytest.mark.unit]
 
 
+SLOW_INTEGRATION = pytest.mark.slow
+
+
 def test_container_creation():
     """Test container aanmaken."""
     print("\n=== Testing Container Creation ===")
@@ -73,6 +76,7 @@ def test_service_creation():
     print("✅ get_service() werkt")
 
 
+@SLOW_INTEGRATION
 async def test_service_integration():
     """Test services via container."""
     print("\n=== Testing Service Integration ===")
