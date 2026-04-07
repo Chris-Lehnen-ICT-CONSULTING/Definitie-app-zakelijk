@@ -182,6 +182,7 @@ class TestCacheBehavior:
         # Entry moet in cache zitten
         assert "raadsman" in orchestrator._cache
 
+    @pytest.mark.slow
     def test_cache_ttl_expiration(self, orchestrator, mock_registry, sample_synonyms):
         """Test TTL expiration verwijdert oude entries."""
         # Arrange
