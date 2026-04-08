@@ -23,7 +23,7 @@ if str(src_path) not in sys.path:
 # Ensure tests directory is on sys.path to import our mock module
 sys.path.insert(0, str(Path(__file__).parent))
 try:
-    from mocks.streamlit_mock import get_streamlit_mock  # type: ignore
+    from fixtures.streamlit_mock import get_streamlit_mock  # type: ignore
 
     sys.modules["streamlit"] = get_streamlit_mock()
 except Exception:  # pragma: no cover - inline fallback
