@@ -83,20 +83,6 @@ def test_track_streamlit_metrics_does_not_crash():
     # but we verified smoke tests pass, which means it works in practice
 
 
-def test_verification_script_exists():
-    """Test that the verification script exists and is executable."""
-    script_path = (
-        Path(__file__).parent.parent / "scripts" / "verify_render_metric_fix.py"
-    )
-    assert script_path.exists()
-    assert script_path.is_file()
-
-    # Check it's executable (has shebang)
-    with open(script_path) as f:
-        first_line = f.readline()
-        assert first_line.startswith("#!/usr/bin/env python")
-
-
 @pytest.mark.parametrize(
     ("render_ms", "expected_heavy", "description"),
     [

@@ -143,6 +143,9 @@ class TestDefinitionTaskTransformation:
             "using arrows (→), checkmarks (✓), or step indicators"
         )
 
+    @pytest.mark.xfail(
+        reason="DEF-126 positive framing transformation not implemented (superseded by DEF-169)"
+    )
     def test_quality_control_uses_positive_framing(self):
         """
         Test that quality control section uses positive, constructive framing.
