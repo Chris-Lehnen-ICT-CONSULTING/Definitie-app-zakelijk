@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import re
+import sys
 from pathlib import Path
 from uuid import UUID, uuid4
 
@@ -14,7 +15,10 @@ from services.validation.interfaces import (
     ValidationContext,
     ValidationRequest,
 )
-from tests.contracts.mock_orchestrator import MockValidationOrchestrator
+
+# Add contracts directory to path for mock_orchestrator import
+sys.path.insert(0, str(Path(__file__).parent))
+from mock_orchestrator import MockValidationOrchestrator
 
 pytestmark = [pytest.mark.contract]
 
