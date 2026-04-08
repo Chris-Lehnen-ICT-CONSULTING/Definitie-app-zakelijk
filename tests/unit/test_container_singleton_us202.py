@@ -65,10 +65,14 @@ class TestContainerSingleton:
         Before fix: 2 different containers were created.
         After fix: 1 shared singleton container.
         """
-        # Clear all caches to start fresh
+        # Clear all caches and stale session state to start fresh
         from utils.container_manager import clear_container_cache
 
         clear_container_cache()
+
+        import streamlit as st
+
+        st.session_state.pop("service_container", None)
 
         # Simulate the app startup flow:
         # 1. SessionStateManager.initialize_session_state() creates container
