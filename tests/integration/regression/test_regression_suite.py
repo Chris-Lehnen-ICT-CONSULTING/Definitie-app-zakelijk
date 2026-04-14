@@ -70,7 +70,6 @@ class TestImportStructure(unittest.TestCase):
         ]
 
         self.optional_modules = [
-            "hybrid_context.hybrid_context_engine",
             "document_processing.document_processor",
             "voorbeelden.unified_voorbeelden",
         ]
@@ -414,7 +413,7 @@ class TestCoreFunctionality(unittest.TestCase):
         """Test het validatie systeem."""
         try:
             # Test basis validatie functionaliteit die kritiek is
-            from ai_toetser.modular_toetser import toets_definitie
+            from toetsregels.json_validator_loader import json_validator_loader
 
             # Test validatie van een goede definitie
             test_definitie = (
@@ -422,28 +421,13 @@ class TestCoreFunctionality(unittest.TestCase):
             )
             test_begrip = "verificatie"
 
-            # Gebruik minimale toetsregels voor test
-            test_toetsregels = {
-                "test_rule": {
-                    "uitleg": "Test regel voor unit test",
-                    "gewicht": 1.0,
-                    "categorie": "test",
-                }
-            }
-
-            result = toets_definitie(test_definitie, test_toetsregels, test_begrip)
+            result = json_validator_loader.validate_definitie(
+                definitie=test_definitie,
+                begrip=test_begrip,
+                regel_ids=json_validator_loader.get_all_regel_ids()[:3],
+                context={},
+            )
             assert result is not None
-
-            # Test optionele validator klasse
-            try:
-                from ai_toetser.modular_toetser import ModularToetser
-
-                validator = ModularToetser()
-                assert validator is not None
-            except ImportError:
-                logger.info(
-                    "⚠️ ModularToetser klasse niet beschikbaar, maar toets_definitie werkt"
-                )
 
             logger.info("✅ Validatie systeem succesvol getest")
 
@@ -586,24 +570,21 @@ class TestErrorHandlingAndRobustness(unittest.TestCase):
     def test_invalid_input_handling(self):
         """Test handling van ongeldige input."""
         try:
-            from ai_toetser.modular_toetser import toets_definitie
+            from toetsregels.json_validator_loader import json_validator_loader
 
-            # Minimale toetsregels voor test
-            test_toetsregels = {
-                "test_rule": {
-                    "uitleg": "Test regel voor unit test",
-                    "gewicht": 1.0,
-                    "categorie": "test",
-                }
-            }
+            regel_ids = json_validator_loader.get_all_regel_ids()[:3]
 
             # Test met lege input
-            result = toets_definitie("", test_toetsregels, "")
+            result = json_validator_loader.validate_definitie(
+                definitie="", begrip="", regel_ids=regel_ids, context={}
+            )
             assert result is not None
 
             # Test met zeer lange input
             long_text = "x" * 10000
-            result = toets_definitie(long_text, test_toetsregels, "test")
+            result = json_validator_loader.validate_definitie(
+                definitie=long_text, begrip="test", regel_ids=regel_ids, context={}
+            )
             assert result is not None
 
             logger.info("✅ Invalid input handling succesvol")

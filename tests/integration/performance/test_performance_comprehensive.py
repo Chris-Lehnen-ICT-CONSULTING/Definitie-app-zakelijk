@@ -15,11 +15,12 @@ from unittest.mock import MagicMock, patch
 import psutil
 import pytest
 
-# Import modules for performance testing
-from ai_toetser.modular_toetser import ModularToetser
 from config import get_api_config
 from config.config_manager import ConfigSection, get_config_manager
 from document_processing.document_extractor import extract_text_from_file
+
+# Import modules for performance testing
+from toetsregels.json_validator_loader import JSONValidatorLoader
 from toetsregels.loader import load_toetsregels
 from utils.cache import cached, clear_cache, get_cache_stats
 from validation.sanitizer import get_sanitizer, sanitize_content
@@ -97,13 +98,33 @@ class PerformanceMonitor:
         }
 
 
+class _ValidatorCompat:
+    """Compatibility wrapper: maps old ModularToetser API to JSONValidatorLoader."""
+
+    def __init__(self):
+        self._loader = JSONValidatorLoader()
+
+    def validate_definition(self, definitie, toetsregels, **kwargs):
+        regel_ids = (
+            list(toetsregels.keys())
+            if toetsregels
+            else self._loader.get_all_regel_ids()[:5]
+        )
+        return self._loader.validate_definitie(
+            definitie=definitie,
+            begrip=kwargs.get("begrip", "test"),
+            regel_ids=regel_ids,
+            context=kwargs.get("context", {}),
+        )
+
+
 class TestAIToetserPerformance:
     """Test AI Toetser performance under various conditions."""
 
     def setup_method(self):
         """Setup for each test method."""
         self.monitor = PerformanceMonitor()
-        self.toetser = ModularToetser()
+        self.toetser = _ValidatorCompat()
         self.toetsregels = load_toetsregels().get("regels", {})
 
     def test_single_validation_performance(self):
@@ -477,7 +498,7 @@ class TestSystemPerformanceIntegration:
         toetsregels = load_toetsregels().get("regels", {})
 
         # 2. Initialize components
-        toetser = ModularToetser()
+        toetser = _ValidatorCompat()
         get_sanitizer()
 
         # 3. Process content
@@ -507,7 +528,7 @@ class TestSystemPerformanceIntegration:
 
     def test_sustained_load_performance(self):
         """Test performance under sustained load."""
-        toetser = ModularToetser()
+        toetser = _ValidatorCompat()
         toetsregels = load_toetsregels().get("regels", {})
 
         measurement = self.monitor.start_measurement("sustained_load")
@@ -559,7 +580,7 @@ class TestPerformanceRegression:
 
     def test_performance_baselines(self):
         """Test that performance meets established baselines."""
-        toetser = ModularToetser()
+        toetser = _ValidatorCompat()
         toetsregels = load_toetsregels().get("regels", {})
 
         # Test single validation baseline
