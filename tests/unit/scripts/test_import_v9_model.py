@@ -92,6 +92,194 @@ class TestCategorieMapping:
 
 
 # ---------------------------------------------------------------------------
+# Parse functies (review fix: coverage van Excel parsing logica)
+# ---------------------------------------------------------------------------
+def _make_mock_workbook(sheet_name: str, rows: list[tuple]) -> MagicMock:
+    """Maak een mock openpyxl Workbook met één sheet."""
+    wb = MagicMock()
+    ws = MagicMock()
+    ws.iter_rows.return_value = iter(rows)
+    wb.__getitem__ = lambda self, name: ws
+    return wb
+
+
+class TestParseBegrippen:
+    def test_parses_basic_row(self):
+        rows = [
+            (
+                "Persoon",
+                "Soort",
+                "Een natuurlijk persoon",
+                "BW",
+                "Voorbeeld 1",
+                "Voorbeeld 2",
+                None,
+                "Tegen 1",
+                None,
+                None,
+                "https://example.com",
+            ),
+        ]
+        wb = _make_mock_workbook("Begrippen", rows)
+        result = import_v9_model.parse_begrippen(wb)
+        assert len(result) == 1
+        assert result[0]["term_text"] == "Persoon"
+        assert result[0]["categorie_6"] == "Soort"
+        assert result[0]["ufo_categorie"] == "Kind"
+        assert result[0]["definitie"] == "Een natuurlijk persoon"
+        assert result[0]["wettelijke_basis"] == "BW"
+        assert result[0]["voorbeelden"] == ["Voorbeeld 1", "Voorbeeld 2"]
+        assert result[0]["tegenvoorbeelden"] == ["Tegen 1"]
+        assert result[0]["bron_url"] == "https://example.com"
+
+    def test_skips_empty_rows(self):
+        rows = [(None, None, None, None, None, None, None, None, None, None, None)]
+        wb = _make_mock_workbook("Begrippen", rows)
+        assert import_v9_model.parse_begrippen(wb) == []
+
+    def test_dash_wettelijke_basis_becomes_none(self):
+        rows = [("Term", "Soort", "Def", "-", None, None, None, None, None, None, None)]
+        wb = _make_mock_workbook("Begrippen", rows)
+        result = import_v9_model.parse_begrippen(wb)
+        assert result[0]["wettelijke_basis"] is None
+
+    def test_unknown_categorie_gives_none_ufo(self):
+        rows = [
+            ("Term", "Onbekend", "Def", None, None, None, None, None, None, None, None)
+        ]
+        wb = _make_mock_workbook("Begrippen", rows)
+        result = import_v9_model.parse_begrippen(wb)
+        assert result[0]["categorie_6"] == "Onbekend"
+        assert result[0]["ufo_categorie"] is None
+
+
+class TestParseTaxonomie:
+    def test_parses_is_a_relation(self):
+        rows = [
+            ("Persoon", "Entiteit", None, "CORRECT", "BW", None, None),
+        ]
+        wb = _make_mock_workbook("Taxonomie met Verificatie", rows)
+        result = import_v9_model.parse_taxonomie(wb)
+        assert len(result) == 1
+        assert result[0]["source"] == "Persoon"
+        assert result[0]["target"] == "Entiteit"
+        assert result[0]["type"] == "is_a"
+        assert result[0]["verificatie"] == "CORRECT"
+
+    def test_skips_header_row(self):
+        rows = [("Begrip", "is-een (supertype)", None, None, None, None, None)]
+        wb = _make_mock_workbook("Taxonomie met Verificatie", rows)
+        assert import_v9_model.parse_taxonomie(wb) == []
+
+    def test_skips_empty_rows(self):
+        rows = [(None, None, None, None, None, None, None)]
+        wb = _make_mock_workbook("Taxonomie met Verificatie", rows)
+        assert import_v9_model.parse_taxonomie(wb) == []
+
+
+class TestParseRelaties:
+    def test_parses_relation(self):
+        rows = [("Identiteit", "identificeert", "Entiteit", "Fundamenteel")]
+        wb = _make_mock_workbook("Relaties", rows)
+        result = import_v9_model.parse_relaties(wb)
+        assert len(result) == 1
+        assert result[0]["source"] == "Identiteit"
+        assert result[0]["type"] == "identificeert"
+        assert result[0]["target"] == "Entiteit"
+        assert result[0]["toelichting"] == "Fundamenteel"
+
+    def test_skips_incomplete_rows(self):
+        rows = [("Alleen bron", None, None, None)]
+        wb = _make_mock_workbook("Relaties", rows)
+        assert import_v9_model.parse_relaties(wb) == []
+
+
+class TestParseWettelijkeGrondslagen:
+    def test_parses_grondslag(self):
+        rows = [
+            (
+                "Art. 27a Sv",
+                "Sv",
+                "ID vaststelling",
+                "Begrip1, Begrip2",
+                "https://wetten.nl",
+            )
+        ]
+        wb = _make_mock_workbook("Wettelijke grondslagen", rows)
+        result = import_v9_model.parse_wettelijke_grondslagen(wb)
+        assert len(result) == 1
+        assert result[0]["wet_artikel"] == "Art. 27a Sv"
+        assert result[0]["bron_url"] == "https://wetten.nl"
+
+
+# ---------------------------------------------------------------------------
+# Idempotency (review fix)
+# ---------------------------------------------------------------------------
+class TestIdempotency:
+    def test_raises_on_duplicate_model(self, db_path):
+        begrippen = [
+            {
+                "term_text": "Test",
+                "categorie_6": "Soort",
+                "ufo_categorie": "Kind",
+                "wettelijke_basis": None,
+            }
+        ]
+        # Eerste import slaagt
+        import_v9_model.import_model(
+            db_path=db_path,
+            begrippen=begrippen,
+            taxonomie=[],
+            relaties=[],
+            grondslagen=[],
+        )
+        # Tweede import faalt
+        with pytest.raises(RuntimeError, match="bestaat al"):
+            import_v9_model.import_model(
+                db_path=db_path,
+                begrippen=begrippen,
+                taxonomie=[],
+                relaties=[],
+                grondslagen=[],
+            )
+
+
+# ---------------------------------------------------------------------------
+# Voorbeelden in snapshot (review fix)
+# ---------------------------------------------------------------------------
+class TestVoorbeeldenInSnapshot:
+    def test_voorbeelden_stored_in_snapshot(self, db_path):
+        begrippen = [
+            {
+                "term_text": "Persoon",
+                "categorie_6": "Soort",
+                "ufo_categorie": "Kind",
+                "wettelijke_basis": None,
+                "voorbeelden": ["Jan", "Piet"],
+                "tegenvoorbeelden": ["Een hond"],
+            }
+        ]
+        stats = import_v9_model.import_model(
+            db_path=db_path,
+            begrippen=begrippen,
+            taxonomie=[],
+            relaties=[],
+            grondslagen=[],
+        )
+        conn = sqlite3.connect(str(db_path))
+        snapshot = json.loads(
+            conn.execute(
+                "SELECT snapshot_json FROM ontological_models WHERE id=?",
+                (stats["model_id"],),
+            ).fetchone()[0]
+        )
+        conn.close()
+        assert "voorbeelden" in snapshot
+        assert snapshot["voorbeelden"]["Persoon"]["voorbeelden"] == ["Jan", "Piet"]
+        assert snapshot["voorbeelden"]["Persoon"]["tegenvoorbeelden"] == ["Een hond"]
+
+
+# ---------------------------------------------------------------------------
 # import_model
 # ---------------------------------------------------------------------------
 class TestImportModel:

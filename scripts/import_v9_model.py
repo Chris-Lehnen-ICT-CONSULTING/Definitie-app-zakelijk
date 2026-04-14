@@ -187,6 +187,18 @@ def import_model(
     conn.execute("PRAGMA foreign_keys=ON")
 
     try:
+        # 0. Idempotency check (review fix: voorkom duplicaten bij dubbel draaien)
+        existing = conn.execute(
+            "SELECT id FROM ontological_models "
+            "WHERE model_name = ? AND version_number = ?",
+            ("Identiteitsbehandeling v9", 9),
+        ).fetchone()
+        if existing:
+            raise RuntimeError(
+                f"Model 'Identiteitsbehandeling v9' (versie 9) bestaat al "
+                f"(id={existing[0]}). Verwijder het eerst of gebruik een ander versienummer."
+            )
+
         # 1. Maak ontological_models record
         cursor = conn.execute(
             "INSERT INTO ontological_models (model_name, version_number, snapshot_json) "
@@ -286,7 +298,19 @@ def import_model(
             "Relaties geïmporteerd: %d (overgeslagen: %d)", rel_imported, rel_skipped
         )
 
-        # 5. Golden set markeren in snapshot
+        # 5. Voorbeelden/tegenvoorbeelden bewaren in snapshot
+        # (review fix: ontology_terms schema heeft geen kolommen hiervoor,
+        # dus bewaren we ze als mapping in de model snapshot)
+        voorbeelden_map = {
+            b["term_text"]: {
+                "voorbeelden": b.get("voorbeelden", []),
+                "tegenvoorbeelden": b.get("tegenvoorbeelden", []),
+            }
+            for b in begrippen
+            if b.get("voorbeelden") or b.get("tegenvoorbeelden")
+        }
+
+        # 6. Golden set markeren in snapshot
         golden_ids = {
             term: term_id_map[term] for term in GOLDEN_SET if term in term_id_map
         }
@@ -303,11 +327,17 @@ def import_model(
                         "golden_set": GOLDEN_SET,
                         "golden_set_ids": golden_ids,
                         "wettelijke_grondslagen": grondslagen,
+                        "voorbeelden": voorbeelden_map,
                     },
                     ensure_ascii=False,
                 ),
                 model_id,
             ),
+        )
+
+        logger.info(
+            "Voorbeelden bewaard: %d termen met voorbeelden/tegenvoorbeelden",
+            len(voorbeelden_map),
         )
 
         stats = {
