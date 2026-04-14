@@ -354,18 +354,21 @@ class RAGService:
                 chunks=[], formatted_context="", collection_id=0, query=query
             )
 
-        # Zoek per collection en merge resultaten
+        # Embed query eenmalig (review fix: voorkom N API calls bij N collections)
+        query_embedding = self._embedder.embed(query)
+
+        # Zoek per collection met pre-computed embedding
         all_chunks: list[dict] = []
         for cid in collection_ids:
-            ctx = self.retrieve_context(
-                query=query,
+            results, _was_fallback = self._store.search_similar_with_fallback(
+                query_embedding=query_embedding,
                 collection_id=cid,
                 top_k=top_k,
                 rechtsgebied=rechtsgebied,
                 wet_regeling=wet_regeling,
                 bron_type=bron_type,
             )
-            all_chunks.extend(ctx.chunks)
+            all_chunks.extend(results)
 
         # Sort op score desc, neem top_k
         all_chunks.sort(key=lambda c: c.get("score", 0), reverse=True)

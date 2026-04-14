@@ -513,7 +513,7 @@ class RAGManagementRenderer:
             idx = chunk.get("chunk_index", "?")
 
             with st.expander(
-                f"Chunk #{idx} \u2014 {token_count} tokens{quality_badge}",
+                f"Chunk #{idx} \u2014 ~{token_count} tokens (geschat){quality_badge}",
                 expanded=False,
             ):
                 st.markdown(chunk.get("chunk_text", ""))
