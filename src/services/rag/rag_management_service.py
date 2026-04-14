@@ -223,6 +223,97 @@ class RAGManagementService:
         finally:
             conn.close()
 
+    def list_chunks(
+        self,
+        document_id: int,
+        offset: int = 0,
+        limit: int = 50,
+    ) -> list[dict]:
+        """Chunks van een document met paginering (DEF-367).
+
+        Returns:
+            Lijst van dicts met: id, chunk_text, chunk_index, rechtsgebied,
+            wet_regeling, artikel_lid, bron_type, metadata, created_at.
+        """
+        conn = self._connect()
+        try:
+            conn.row_factory = sqlite3.Row
+            rows = conn.execute(
+                "SELECT id, chunk_text, chunk_index, rechtsgebied, "
+                "wet_regeling, artikel_lid, bron_type, "
+                "json(metadata) AS metadata, created_at "
+                "FROM rag_chunks WHERE document_id = ? "
+                "ORDER BY chunk_index ASC "
+                "LIMIT ? OFFSET ?",
+                (document_id, limit, offset),
+            ).fetchall()
+            result = []
+            for row in rows:
+                d = dict(row)
+                d["metadata"] = _parse_metadata(d.get("metadata"))
+                # Token count schatting (~4 chars per token)
+                d["token_count"] = len(d.get("chunk_text", "")) // 4
+                result.append(d)
+            return result
+        finally:
+            conn.close()
+
+    def count_chunks(self, document_id: int) -> int:
+        """Tel chunks van een document (DEF-367).
+
+        Returns:
+            Aantal chunks.
+        """
+        conn = self._connect()
+        try:
+            row = conn.execute(
+                "SELECT COUNT(*) FROM rag_chunks WHERE document_id = ?",
+                (document_id,),
+            ).fetchone()
+            return row[0] if row else 0
+        finally:
+            conn.close()
+
+    def search_chunks(
+        self,
+        collection_id: int,
+        keyword: str,
+        limit: int = 50,
+    ) -> list[dict]:
+        """Zoek chunks op trefwoord in chunk_text (DEF-367).
+
+        Gebruikt LIKE voor eenvoudige tekstzoekfunctie.
+
+        Returns:
+            Lijst van dicts met: id, document_id, chunk_text, chunk_index,
+            rechtsgebied, wet_regeling, artikel_lid, bron_type, metadata,
+            filename, created_at.
+        """
+        conn = self._connect()
+        try:
+            conn.row_factory = sqlite3.Row
+            rows = conn.execute(
+                "SELECT rc.id, rc.document_id, rc.chunk_text, rc.chunk_index, "
+                "rc.rechtsgebied, rc.wet_regeling, rc.artikel_lid, "
+                "rc.bron_type, json(rc.metadata) AS metadata, "
+                "rc.created_at, rd.filename "
+                "FROM rag_chunks rc "
+                "LEFT JOIN rag_documents rd ON rc.document_id = rd.id "
+                "WHERE rc.collection_id = ? AND rc.chunk_text LIKE ? "
+                "ORDER BY rc.chunk_index ASC "
+                "LIMIT ?",
+                (collection_id, f"%{keyword}%", limit),
+            ).fetchall()
+            result = []
+            for row in rows:
+                d = dict(row)
+                d["metadata"] = _parse_metadata(d.get("metadata"))
+                d["token_count"] = len(d.get("chunk_text", "")) // 4
+                result.append(d)
+            return result
+        finally:
+            conn.close()
+
 
 def _parse_metadata(metadata_json: str | None) -> dict:
     """Parse metadata_json, return leeg dict bij None of invalid JSON."""
