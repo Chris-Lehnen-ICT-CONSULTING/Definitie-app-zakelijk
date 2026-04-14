@@ -7,6 +7,7 @@ met ondersteuning voor meerdere tabs en complete workflow beheer.
 
 import asyncio  # Used by _render_category_preview delegate + test patching target
 import logging  # Logging faciliteiten voor debug en monitoring
+import sqlite3  # Voor specifieke exception handling in RAG selector
 from datetime import (
     UTC,
     datetime,  # Datum en tijd functionaliteit
@@ -354,14 +355,19 @@ class TabbedInterface:
         """Delegate (backward compat)."""
         return self.global_context_renderer.render_context_summary(context_data)
 
+    @staticmethod
+    @st.cache_data(ttl=30)
+    def _load_rag_collections() -> list[dict]:
+        """Laad RAG collections met 30s cache (review fix: voorkom N+1 bij elke rerun)."""
+        from services.container import get_container
+
+        container = get_container()
+        return container.rag_management_service.list_collections()
+
     def _render_rag_collection_selector(self) -> None:
         """DEF-366: Render RAG collection selector voor definitie-generatie."""
         try:
-            from services.container import get_container
-
-            container = get_container()
-            mgmt = container.rag_management_service
-            collections = mgmt.list_collections()
+            collections = self._load_rag_collections()
 
             if not collections:
                 return
@@ -389,6 +395,8 @@ class TabbedInterface:
                 SessionStateManager.set_value(
                     "rag_selected_collection_ids", selected or None
                 )
+        except (ImportError, sqlite3.Error) as e:
+            logger.warning("RAG collection selector niet beschikbaar: %s", e)
         except Exception as e:
             logger.debug("RAG collection selector skipped: %s", e)
 
