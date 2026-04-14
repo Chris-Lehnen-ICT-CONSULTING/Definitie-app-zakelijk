@@ -58,7 +58,7 @@ make lint          # ruff + black
 
 ## Kritieke Constraints
 
-- ai_toetser/ en prompt builders NIET wijzigen zonder overleg
+- Prompt builders NIET wijzigen zonder overleg
 - `config/toetsregels.json` is single source of truth voor validatieregels
 - Geen persoonsdata in logs, API keys alleen via `.env`
 
