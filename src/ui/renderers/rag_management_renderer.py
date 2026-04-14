@@ -353,6 +353,192 @@ class RAGManagementRenderer:
                 SessionStateManager.set_value(confirm_key, True)
                 st.warning("Klik nogmaals")
 
+    # ── Zoek-test (DEF-366) ───────────────────────────────────
+
+    def render_search_test(self, collection_id: int) -> None:
+        """DEF-366: Render zoek-test panel voor RAG retrieval testen."""
+        st.markdown("### \U0001f50d Zoek-test")
+        st.caption("Test RAG retrieval: typ een term en bekijk gerankte resultaten.")
+
+        st.text_input(
+            "Zoekterm",
+            key="rag_search_query",
+            placeholder="bijv. identiteitsbehandeling",
+        )
+
+        if st.button("Zoeken", type="primary", key="rag_search_btn"):
+            query = SessionStateManager.get_value("rag_search_query", "")
+            if not query or not query.strip():
+                st.error("Voer een zoekterm in.")
+                return
+
+            with st.spinner("Zoeken in RAG collection..."):
+                try:
+                    ctx = self._rag.retrieve_context(
+                        query=query.strip(),
+                        collection_id=collection_id,
+                        top_k=10,
+                    )
+                    SessionStateManager.set_value("rag_search_results", ctx.chunks)
+                except Exception as e:
+                    st.error(f"Zoeken mislukt: {e}")
+                    logger.error("RAG search test failed: %s", e, exc_info=True)
+                    return
+
+        results = SessionStateManager.get_value("rag_search_results", [])
+        if not results:
+            st.info("Nog geen zoekresultaten. Typ een term en klik 'Zoeken'.")
+            return
+
+        rag_min_score = 0.3
+        st.markdown(f"**{len(results)} resultaten** (min_score={rag_min_score})")
+
+        for i, chunk in enumerate(results, 1):
+            score = chunk.get("score", 0)
+            # Kleurcodering op score
+            if score > 0.7:
+                color = "\U0001f7e2"  # groen
+            elif score >= 0.5:
+                color = "\U0001f7e0"  # oranje
+            else:
+                color = "\U0001f534"  # rood
+
+            filtered = " \u2014 *weggefilterd*" if score < rag_min_score else ""
+            filename = chunk.get("filename") or chunk.get("metadata", {}).get(
+                "bronbestand", "?"
+            )
+
+            with st.expander(
+                f"{color} #{i} Score: {score:.3f} | {filename}{filtered}",
+                expanded=(i <= 3),
+            ):
+                st.markdown(chunk.get("chunk_text", "")[:500])
+                if len(chunk.get("chunk_text", "")) > 500:
+                    st.caption(f"... ({len(chunk['chunk_text'])} tekens totaal)")
+
+                meta_cols = st.columns(4)
+                with meta_cols[0]:
+                    st.caption(f"Rechtsgebied: {chunk.get('rechtsgebied', '—')}")
+                with meta_cols[1]:
+                    st.caption(f"Wet/regeling: {chunk.get('wet_regeling', '—')}")
+                with meta_cols[2]:
+                    st.caption(f"Artikel: {chunk.get('artikel_lid', '—')}")
+                with meta_cols[3]:
+                    st.caption(f"Bron type: {chunk.get('bron_type', '—')}")
+
+    # ── Chunk Browser (DEF-367) ─────────────────────────────
+
+    def render_chunk_browser(self, collection_id: int) -> None:
+        """DEF-367: Render chunk browser voor document-inspectie."""
+        st.markdown("### \U0001f9e9 Chunk Browser")
+        st.caption(
+            "Inspecteer chunks per document. Handig voor het debuggen van retrieval."
+        )
+
+        documents = self._mgmt.list_documents(collection_id)
+        if not documents:
+            st.info("Geen documenten in deze collection.")
+            return
+
+        # Document selector
+        doc_options = {
+            d["id"]: f"{d['filename']} ({d.get('chunk_count', 0)} chunks)"
+            for d in documents
+        }
+        doc_ids = list(doc_options.keys())
+
+        selected_doc = st.selectbox(
+            "Document",
+            options=doc_ids,
+            format_func=lambda x: doc_options.get(x, str(x)),
+            key=f"rag_chunk_doc_{collection_id}",
+        )
+
+        if selected_doc is None:
+            return
+
+        # Trefwoord filter
+        col_filter, col_page = st.columns([3, 1])
+        with col_filter:
+            st.text_input(
+                "Filter op trefwoord",
+                key="rag_chunk_keyword",
+                placeholder="typ om te filteren...",
+            )
+        with col_page:
+            if not SessionStateManager.get_value("rag_chunk_page", None):
+                SessionStateManager.set_value("rag_chunk_page", 1)
+            page = st.number_input("Pagina", key="rag_chunk_page")
+
+        keyword = SessionStateManager.get_value("rag_chunk_keyword", "")
+        page_size = 20
+
+        # Haal chunks op
+        if keyword and keyword.strip():
+            chunks = self._mgmt.search_chunks(
+                collection_id=collection_id,
+                keyword=keyword.strip(),
+                limit=page_size,
+            )
+            # Filter op document
+            chunks = [c for c in chunks if c.get("document_id") == selected_doc]
+            total = len(chunks)
+        else:
+            total = self._mgmt.count_chunks(selected_doc)
+            offset = (page - 1) * page_size
+            chunks = self._mgmt.list_chunks(
+                document_id=selected_doc,
+                offset=offset,
+                limit=page_size,
+            )
+
+        if not chunks:
+            st.info("Geen chunks gevonden.")
+            return
+
+        total_pages = max(1, (total + page_size - 1) // page_size)
+        st.caption(f"Pagina {page}/{total_pages} \u2014 {total} chunks totaal")
+
+        for chunk in chunks:
+            token_count = chunk.get("token_count", 0)
+            # Kwaliteitsmarker
+            quality_issues = []
+            if token_count < 50:
+                quality_issues.append("\u26a0\ufe0f te kort")
+            meta = chunk.get("metadata", {})
+            if not meta:
+                quality_issues.append("\u26a0\ufe0f geen metadata")
+
+            quality_badge = f" | {'  '.join(quality_issues)}" if quality_issues else ""
+            idx = chunk.get("chunk_index", "?")
+
+            with st.expander(
+                f"Chunk #{idx} \u2014 ~{token_count} tokens (geschat){quality_badge}",
+                expanded=False,
+            ):
+                st.markdown(chunk.get("chunk_text", ""))
+                st.markdown("---")
+                meta_cols = st.columns(5)
+                with meta_cols[0]:
+                    st.caption(f"Rechtsgebied: {chunk.get('rechtsgebied', '—')}")
+                with meta_cols[1]:
+                    st.caption(f"Wet/regeling: {chunk.get('wet_regeling', '—')}")
+                with meta_cols[2]:
+                    st.caption(f"Artikel: {chunk.get('artikel_lid', '—')}")
+                with meta_cols[3]:
+                    st.caption(f"Bron type: {chunk.get('bron_type', '—')}")
+                with meta_cols[4]:
+                    st.caption(f"Tokens: ~{token_count}")
+
+                if meta:
+                    with st.expander("Metadata JSON", expanded=False):
+                        import json
+
+                        st.code(
+                            json.dumps(meta, indent=2, ensure_ascii=False),
+                            language="json",
+                        )
+
     @staticmethod
     def _save_upload(file_content: bytes, filename: str) -> Path | None:
         """Sla upload op in data/uploads/ met timestamp prefix."""

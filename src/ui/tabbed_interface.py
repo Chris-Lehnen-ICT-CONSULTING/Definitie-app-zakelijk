@@ -7,6 +7,7 @@ met ondersteuning voor meerdere tabs en complete workflow beheer.
 
 import asyncio  # Used by _render_category_preview delegate + test patching target
 import logging  # Logging faciliteiten voor debug en monitoring
+import sqlite3  # Voor specifieke exception handling in RAG selector
 from datetime import (
     UTC,
     datetime,  # Datum en tijd functionaliteit
@@ -354,8 +355,56 @@ class TabbedInterface:
         """Delegate (backward compat)."""
         return self.global_context_renderer.render_context_summary(context_data)
 
+    @staticmethod
+    @st.cache_data(ttl=30)
+    def _load_rag_collections() -> list[dict]:
+        """Laad RAG collections met 30s cache (review fix: voorkom N+1 bij elke rerun)."""
+        from services.container import get_container
+
+        container = get_container()
+        return container.rag_management_service.list_collections()
+
+    def _render_rag_collection_selector(self) -> None:
+        """DEF-366: Render RAG collection selector voor definitie-generatie."""
+        try:
+            collections = self._load_rag_collections()
+
+            if not collections:
+                return
+
+            with st.expander("🔎 RAG Collections", expanded=False):
+                options = {
+                    c["id"]: f"{c['type_icon']} {c['name']} ({c['chunk_count']} chunks)"
+                    for c in collections
+                }
+                all_ids = list(options.keys())
+
+                prev = SessionStateManager.get_value(
+                    "rag_selected_collection_ids", None
+                )
+
+                selected = st.multiselect(
+                    "Zoek in collections",
+                    options=all_ids,
+                    default=prev if prev else all_ids,
+                    format_func=lambda x: options.get(x, str(x)),
+                    key="rag_collection_multiselect",
+                    help="Selecteer in welke RAG collections gezocht wordt bij generatie. Standaard: alle.",
+                )
+
+                SessionStateManager.set_value(
+                    "rag_selected_collection_ids", selected or None
+                )
+        except (ImportError, sqlite3.Error) as e:
+            logger.warning("RAG collection selector niet beschikbaar: %s", e)
+        except Exception as e:
+            logger.debug("RAG collection selector skipped: %s", e)
+
     def _render_quick_generate_button(self, begrip: str, context_data: dict[str, Any]):
         """Render snelle genereer definitie knop."""
+        # DEF-366: Collection selector boven de generate knop
+        self._render_rag_collection_selector()
+
         col1, col2, col3 = st.columns([2, 1, 1])
 
         with col1:
