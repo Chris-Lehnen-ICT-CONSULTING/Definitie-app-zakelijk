@@ -6,8 +6,7 @@ Test dat alle 45 validators correct geladen en uitgevoerd worden.
 
 import pytest
 
-from ai_toetser import ModularToetser, toets_definitie
-from ai_toetser.json_validator_loader import json_validator_loader
+from toetsregels.json_validator_loader import json_validator_loader
 
 pytestmark = [pytest.mark.unit]
 
@@ -34,8 +33,11 @@ def test_validate_with_json_validators():
     # Test met enkele regels
     toetsregels = {"CON-01": {}, "ESS-01": {}, "STR-01": {}}
 
-    results = toets_definitie(
-        definitie=definitie, toetsregels=toetsregels, begrip="persoon"
+    results = json_validator_loader.validate_definitie(
+        definitie=definitie,
+        begrip="persoon",
+        regel_ids=list(toetsregels.keys()),
+        context={},
     )
 
     # Check resultaten

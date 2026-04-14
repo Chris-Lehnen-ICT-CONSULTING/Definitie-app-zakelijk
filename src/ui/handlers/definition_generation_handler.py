@@ -24,14 +24,6 @@ from ui.session_state import SessionStateManager as _DefaultSM
 from utils.type_helpers import ensure_dict
 
 # Hybrid context imports - optionele module voor hybride context verrijking
-try:
-    import importlib.util
-
-    HYBRID_CONTEXT_AVAILABLE = (
-        importlib.util.find_spec("hybrid_context.hybrid_context_engine") is not None
-    )
-except ImportError:
-    HYBRID_CONTEXT_AVAILABLE = False
 
 logger = logging.getLogger(__name__)
 
@@ -228,21 +220,6 @@ class DefinitionGenerationHandler:
                             else:
                                 # Niet gekozen → stop huidige generatie
                                 return
-
-                # Check of hybrid context gebruikt moet worden
-                use_hybrid = HYBRID_CONTEXT_AVAILABLE and (
-                    len(selected_doc_ids) > 0
-                    or (
-                        document_context
-                        and document_context.get("document_count", 0) > 0
-                    )
-                )
-
-                if use_hybrid:
-                    st.info(
-                        "🔄 Hybrid context activief - "
-                        "combineer document en web context..."
-                    )
 
                 # Altijd V2-servicepad gebruiken (geen legacy fallback)
                 from ui.helpers.async_bridge import run_async
