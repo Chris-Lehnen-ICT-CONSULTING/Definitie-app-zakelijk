@@ -715,7 +715,7 @@ class DefinitionRepository(DefinitionRepositoryInterface):
                     return []
                 return list(_json.loads(val)) if isinstance(val, str) else list(val)
             except (json.JSONDecodeError, TypeError, ValueError) as e:
-                logger.debug(f"JSON list parsing failed: {e}")
+                logger.warning("JSON list parsing failed for value %r: %s", val, e)
                 return []
 
         definition = Definition(
