@@ -262,6 +262,11 @@ class DefinitionGenerationHandler:
                         snippet_window=window_chars,
                     )
 
+                # DEF-366: RAG collection selectie uit session state
+                rag_collection_ids = SessionStateManager.get_value(
+                    "rag_selected_collection_ids", None
+                )
+
                 service_result = run_async(
                     self.definition_service.generate_definition(
                         begrip=begrip,
@@ -282,6 +287,7 @@ class DefinitionGenerationHandler:
                         },
                         document_context=doc_summary,
                         document_snippets=doc_snippets,
+                        rag_collection_ids=rag_collection_ids,
                     ),
                     timeout=120,
                 )
