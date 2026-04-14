@@ -532,6 +532,8 @@ class ServiceAdapter:
                 context=context_text,
                 options=opts or None,
                 document_context=(doc_context or None),
+                # DEF-366: Multi-collection RAG support
+                rag_collection_ids=safe_dict_get(kwargs, "rag_collection_ids", None),
             )
 
             # Compose additional context (documents/web lookup augmentation, etc.)

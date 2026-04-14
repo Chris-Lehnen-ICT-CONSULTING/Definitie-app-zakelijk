@@ -568,14 +568,19 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                 try:
                     import asyncio
 
-                    # Bepaal collection: uit request of default
-                    rag_collection_id = getattr(
-                        sanitized_request, "rag_collection_id", None
+                    # DEF-366: Multi-collection support
+                    rag_collection_ids = getattr(
+                        sanitized_request, "rag_collection_ids", None
                     )
-                    if rag_collection_id is None:
-                        rag_collection_id = self.rag_service._ensure_collection(
-                            "user_documents"
+                    # Fallback naar single collection_id (backward compatible)
+                    if not rag_collection_ids:
+                        rag_collection_id = getattr(
+                            sanitized_request, "rag_collection_id", None
                         )
+                        if rag_collection_id is None:
+                            rag_collection_id = self.rag_service._ensure_collection(
+                                "user_documents"
+                            )
 
                     # Normaliseer rechtsgebied uit juridische_context (DEF-373)
                     # juridische_context is een list[str]; truthiness vangt
@@ -589,14 +594,25 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                         else None
                     )
 
-                    # Async wrap: retrieve_context() is synchroon (numpy)
-                    rag_context = await asyncio.to_thread(
-                        self.rag_service.retrieve_context,
-                        query=sanitized_request.begrip,
-                        collection_id=rag_collection_id,
-                        top_k=5,
-                        rechtsgebied=rag_rechtsgebied,
-                    )
+                    # DEF-366: Gebruik multi-collection als collection_ids opgegeven
+                    if rag_collection_ids:
+                        rag_context = await asyncio.to_thread(
+                            self.rag_service.retrieve_context_multi,
+                            query=sanitized_request.begrip,
+                            collection_ids=rag_collection_ids,
+                            top_k=5,
+                            rechtsgebied=rag_rechtsgebied,
+                        )
+                        rag_collection_id = rag_context.collection_id
+                    else:
+                        # Async wrap: retrieve_context() is synchroon (numpy)
+                        rag_context = await asyncio.to_thread(
+                            self.rag_service.retrieve_context,
+                            query=sanitized_request.begrip,
+                            collection_id=rag_collection_id,
+                            top_k=5,
+                            rechtsgebied=rag_rechtsgebied,
+                        )
 
                     # Score threshold: filter lage-score chunks
                     all_rag_chunks = rag_context.chunks

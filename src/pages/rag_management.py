@@ -76,7 +76,19 @@ renderer = RAGManagementRenderer(
 selected_id = renderer.render_sidebar()
 
 if selected_id is not None:
-    renderer.render_document_panel(selected_id)
+    # DEF-366/DEF-367: Tabs voor documenten, zoek-test en chunk browser
+    tab_docs, tab_search, tab_chunks = st.tabs(
+        ["\U0001f4c4 Documenten", "\U0001f50d Zoek-test", "\U0001f9e9 Chunk Browser"]
+    )
+
+    with tab_docs:
+        renderer.render_document_panel(selected_id)
+
+    with tab_search:
+        renderer.render_search_test(selected_id)
+
+    with tab_chunks:
+        renderer.render_chunk_browser(selected_id)
 else:
     st.info("Selecteer een collection in de sidebar of maak een nieuwe aan.")
 

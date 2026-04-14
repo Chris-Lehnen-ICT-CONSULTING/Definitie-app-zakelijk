@@ -841,3 +841,111 @@ class TestMetadataOpslag:
         ).fetchone()[0]
         conn.close()
         assert count == 0
+
+
+# ---------------------------------------------------------------------------
+# retrieve_context_multi (DEF-366)
+# ---------------------------------------------------------------------------
+class TestRetrieveContextMulti:
+    def test_merges_results_from_multiple_collections(
+        self, service, mock_embedder, store, db_path
+    ):
+        """Resultaten uit meerdere collections worden gemerged en gesorteerd."""
+        cid1 = store.create_collection("coll-1", dimensions=DIMS, model="test")
+        cid2 = store.create_collection("coll-2", dimensions=DIMS, model="test")
+
+        # Insert docs + chunks in beide collections
+        conn = sqlite3.connect(db_path)
+        for cid, text in [
+            (cid1, "Chunk uit collection 1"),
+            (cid2, "Chunk uit collection 2"),
+        ]:
+            cursor = conn.execute(
+                "INSERT INTO rag_documents (collection_id, filename, file_type, chunk_count) "
+                "VALUES (?, 'test.pdf', 'text/plain', 1)",
+                (cid,),
+            )
+            doc_id = cursor.lastrowid
+            emb = _make_embedding(seed=cid)
+            conn.execute(
+                "INSERT INTO rag_chunks (collection_id, document_id, chunk_text, embedding, chunk_index) "
+                "VALUES (?, ?, ?, ?, 0)",
+                (cid, doc_id, text, emb.tobytes()),
+            )
+        conn.commit()
+        conn.close()
+
+        mock_embedder.embed.return_value = _make_embedding(seed=cid1)
+
+        ctx = service.retrieve_context_multi(
+            query="test query",
+            collection_ids=[cid1, cid2],
+            top_k=5,
+        )
+
+        assert isinstance(ctx, RAGContext)
+        assert len(ctx.chunks) == 2
+        # Gesorteerd op score desc
+        assert ctx.chunks[0]["score"] >= ctx.chunks[1]["score"]
+
+    def test_none_collection_ids_searches_all(
+        self, service, mock_embedder, store, db_path
+    ):
+        """None collection_ids doorzoekt alle collections."""
+        cid = store.create_collection("all-coll", dimensions=DIMS, model="test")
+        conn = sqlite3.connect(db_path)
+        cursor = conn.execute(
+            "INSERT INTO rag_documents (collection_id, filename, file_type, chunk_count) "
+            "VALUES (?, 'test.pdf', 'text/plain', 1)",
+            (cid,),
+        )
+        doc_id = cursor.lastrowid
+        emb = _make_embedding(seed=42)
+        conn.execute(
+            "INSERT INTO rag_chunks (collection_id, document_id, chunk_text, embedding, chunk_index) "
+            "VALUES (?, ?, 'Alle collections chunk', ?, 0)",
+            (cid, doc_id, emb.tobytes()),
+        )
+        conn.commit()
+        conn.close()
+
+        mock_embedder.embed.return_value = _make_embedding(seed=42)
+
+        ctx = service.retrieve_context_multi(query="test", collection_ids=None)
+        assert len(ctx.chunks) >= 1
+
+    def test_empty_query_returns_empty(self, service):
+        """Lege query retourneert lege RAGContext."""
+        ctx = service.retrieve_context_multi(query="", collection_ids=[1])
+        assert ctx.chunks == []
+        assert ctx.formatted_context == ""
+
+    def test_top_k_limits_results(self, service, mock_embedder, store, db_path):
+        """top_k beperkt het aantal geretourneerde chunks."""
+        cid1 = store.create_collection("tk-1", dimensions=DIMS, model="test")
+        cid2 = store.create_collection("tk-2", dimensions=DIMS, model="test")
+
+        conn = sqlite3.connect(db_path)
+        for cid in [cid1, cid2]:
+            for i in range(3):
+                cursor = conn.execute(
+                    "INSERT INTO rag_documents (collection_id, filename, file_type, chunk_count) "
+                    "VALUES (?, ?, 'text/plain', 1)",
+                    (cid, f"doc-{i}.txt"),
+                )
+                doc_id = cursor.lastrowid
+                emb = _make_embedding(seed=cid * 10 + i)
+                conn.execute(
+                    "INSERT INTO rag_chunks (collection_id, document_id, chunk_text, embedding, chunk_index) "
+                    "VALUES (?, ?, ?, ?, ?)",
+                    (cid, doc_id, f"Chunk {cid}-{i}", emb.tobytes(), i),
+                )
+        conn.commit()
+        conn.close()
+
+        mock_embedder.embed.return_value = _make_embedding(seed=0)
+
+        ctx = service.retrieve_context_multi(
+            query="test", collection_ids=[cid1, cid2], top_k=2
+        )
+        assert len(ctx.chunks) == 2

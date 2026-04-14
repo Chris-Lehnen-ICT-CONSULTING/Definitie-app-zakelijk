@@ -312,3 +312,115 @@ class TestCheckDuplicateDocument:
         """Duplicate check is collection-scoped."""
         other_cid = store.create_collection("other", dimensions=DIMS, model="test")
         assert service.check_duplicate_document(other_cid, "test.pdf") is False
+
+
+# ---------------------------------------------------------------------------
+# list_chunks (DEF-367)
+# ---------------------------------------------------------------------------
+def _insert_chunks(db_path, collection_id, doc_id, count=3):
+    """Helper: insert test chunks in de database."""
+    conn = sqlite3.connect(db_path)
+    emb = np.random.randn(DIMS).astype(np.float32)
+    for i in range(count):
+        meta = json.dumps({"artikel_nummer": f"art-{i}"})
+        conn.execute(
+            "INSERT INTO rag_chunks "
+            "(collection_id, document_id, chunk_text, embedding, chunk_index, "
+            "rechtsgebied, wet_regeling, metadata) "
+            "VALUES (?, ?, ?, ?, ?, 'strafrecht', 'Sr', json(?))",
+            (collection_id, doc_id, f"Chunk tekst {i} " * 20, emb.tobytes(), i, meta),
+        )
+    conn.commit()
+    conn.close()
+
+
+class TestListChunks:
+    def test_returns_chunks_for_document(self, service, collection_id, doc_id, db_path):
+        _insert_chunks(db_path, collection_id, doc_id, count=3)
+        chunks = service.list_chunks(doc_id)
+        assert len(chunks) == 3
+        assert chunks[0]["chunk_index"] == 0
+        assert chunks[2]["chunk_index"] == 2
+
+    def test_pagination(self, service, collection_id, doc_id, db_path):
+        _insert_chunks(db_path, collection_id, doc_id, count=5)
+        page1 = service.list_chunks(doc_id, offset=0, limit=2)
+        page2 = service.list_chunks(doc_id, offset=2, limit=2)
+        assert len(page1) == 2
+        assert len(page2) == 2
+        assert page1[0]["chunk_index"] != page2[0]["chunk_index"]
+
+    def test_token_count_estimated(self, service, collection_id, doc_id, db_path):
+        _insert_chunks(db_path, collection_id, doc_id, count=1)
+        chunks = service.list_chunks(doc_id)
+        assert "token_count" in chunks[0]
+        assert chunks[0]["token_count"] > 0
+
+    def test_metadata_parsed(self, service, collection_id, doc_id, db_path):
+        _insert_chunks(db_path, collection_id, doc_id, count=1)
+        chunks = service.list_chunks(doc_id)
+        meta = chunks[0]["metadata"]
+        assert isinstance(meta, dict)
+        assert meta.get("artikel_nummer") == "art-0"
+
+    def test_empty_document(self, service, collection_id, doc_id):
+        chunks = service.list_chunks(doc_id)
+        assert chunks == []
+
+
+# ---------------------------------------------------------------------------
+# count_chunks (DEF-367)
+# ---------------------------------------------------------------------------
+class TestCountChunks:
+    def test_count(self, service, collection_id, doc_id, db_path):
+        _insert_chunks(db_path, collection_id, doc_id, count=5)
+        assert service.count_chunks(doc_id) == 5
+
+    def test_zero_for_empty_doc(self, service, doc_id):
+        assert service.count_chunks(doc_id) == 0
+
+    def test_nonexistent_doc(self, service):
+        assert service.count_chunks(99999) == 0
+
+
+# ---------------------------------------------------------------------------
+# search_chunks (DEF-367)
+# ---------------------------------------------------------------------------
+class TestSearchChunks:
+    def test_finds_matching_chunks(self, service, collection_id, doc_id, db_path):
+        _insert_chunks(db_path, collection_id, doc_id, count=3)
+        results = service.search_chunks(collection_id, keyword="Chunk tekst")
+        assert len(results) == 3
+
+    def test_keyword_filters(self, service, collection_id, doc_id, db_path):
+        """Zoekt alleen chunks die het trefwoord bevatten."""
+        conn = sqlite3.connect(db_path)
+        emb = np.random.randn(DIMS).astype(np.float32)
+        conn.execute(
+            "INSERT INTO rag_chunks "
+            "(collection_id, document_id, chunk_text, embedding, chunk_index, metadata) "
+            "VALUES (?, ?, 'Specifiek zoekwoord hier', ?, 0, '{}')",
+            (collection_id, doc_id, emb.tobytes()),
+        )
+        conn.execute(
+            "INSERT INTO rag_chunks "
+            "(collection_id, document_id, chunk_text, embedding, chunk_index, metadata) "
+            "VALUES (?, ?, 'Heel iets anders', ?, 1, '{}')",
+            (collection_id, doc_id, emb.tobytes()),
+        )
+        conn.commit()
+        conn.close()
+
+        results = service.search_chunks(collection_id, keyword="zoekwoord")
+        assert len(results) == 1
+        assert "zoekwoord" in results[0]["chunk_text"]
+
+    def test_includes_filename(self, service, collection_id, doc_id, db_path):
+        _insert_chunks(db_path, collection_id, doc_id, count=1)
+        results = service.search_chunks(collection_id, keyword="Chunk")
+        assert results[0].get("filename") == "test.pdf"
+
+    def test_no_results(self, service, collection_id, doc_id, db_path):
+        _insert_chunks(db_path, collection_id, doc_id, count=1)
+        results = service.search_chunks(collection_id, keyword="NIET_BESTAAND_XYZ")
+        assert results == []

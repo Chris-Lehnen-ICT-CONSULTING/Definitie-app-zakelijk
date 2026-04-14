@@ -321,6 +321,74 @@ class RAGService:
             query=query,
         )
 
+    def retrieve_context_multi(
+        self,
+        query: str,
+        collection_ids: list[int] | None = None,
+        top_k: int = 5,
+        rechtsgebied: str | None = None,
+        wet_regeling: str | None = None,
+        bron_type: str | None = None,
+    ) -> RAGContext:
+        """Zoek in meerdere collections tegelijk (DEF-366).
+
+        Mergt resultaten van alle opgegeven collections, gesorteerd op score.
+        Als collection_ids None of leeg is, zoek in alle bestaande collections.
+        """
+        if not query or not query.strip():
+            return RAGContext(
+                chunks=[], formatted_context="", collection_id=0, query=query or ""
+            )
+
+        # Bepaal welke collections te doorzoeken
+        if not collection_ids:
+            conn = self._connect()
+            try:
+                rows = conn.execute("SELECT id FROM rag_collections").fetchall()
+                collection_ids = [r[0] for r in rows]
+            finally:
+                conn.close()
+
+        if not collection_ids:
+            return RAGContext(
+                chunks=[], formatted_context="", collection_id=0, query=query
+            )
+
+        # Zoek per collection en merge resultaten
+        all_chunks: list[dict] = []
+        for cid in collection_ids:
+            ctx = self.retrieve_context(
+                query=query,
+                collection_id=cid,
+                top_k=top_k,
+                rechtsgebied=rechtsgebied,
+                wet_regeling=wet_regeling,
+                bron_type=bron_type,
+            )
+            all_chunks.extend(ctx.chunks)
+
+        # Sort op score desc, neem top_k
+        all_chunks.sort(key=lambda c: c.get("score", 0), reverse=True)
+        merged = all_chunks[:top_k]
+
+        formatted = self._format_context(merged)
+
+        logger.info(
+            "Multi-collection search: query='%s', %d collections, "
+            "%d total chunks, %d after top_k",
+            query[:50],
+            len(collection_ids),
+            len(all_chunks),
+            len(merged),
+        )
+
+        return RAGContext(
+            chunks=merged,
+            formatted_context=formatted,
+            collection_id=collection_ids[0] if len(collection_ids) == 1 else 0,
+            query=query,
+        )
+
     def _format_context(self, chunks: list[dict]) -> str:
         """Format chunks als XML <bronnen> voor de prompt.
 
