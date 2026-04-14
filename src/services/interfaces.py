@@ -178,6 +178,8 @@ class GenerationRequest:
     document_context: str | None = None
     # RAG collection (DEF-271): optionele collection voor RAG context retrieval
     rag_collection_id: int | None = None
+    # RAG multi-collection (DEF-366): zoek in meerdere collections tegelijk
+    rag_collection_ids: list[int] | None = None
 
 
 @dataclass
