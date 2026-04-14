@@ -9,7 +9,6 @@ from unittest.mock import patch
 
 import pytest
 
-from ai_toetser.modular_toetser import ModularToetser
 from config.config_adapters import (
     get_api_config,
     get_cache_config,
@@ -20,6 +19,7 @@ from config.config_adapters import (
 
 # Import available modules
 from config.config_manager import ConfigSection, get_config, get_config_manager
+from toetsregels.json_validator_loader import JSONValidatorLoader
 from toetsregels.loader import load_toetsregels
 from utils.cache import cached, clear_cache, configure_cache, get_cache_stats
 
@@ -165,53 +165,52 @@ class TestCacheSystem:
         assert second_time < first_time
 
 
-class TestModularToetser:
-    """Test ModularToetser with proper parameters."""
+class TestJSONValidatorLoader:
+    """Test JSONValidatorLoader with proper parameters."""
 
     def setup_method(self):
         """Setup with required toetsregels."""
-        self.toetser = ModularToetser()
+        self.loader = JSONValidatorLoader()
 
         # Load real toetsregels
         try:
-            self.toetsregels = load_toetsregels().get("regels", {})
+            self.regel_ids = self.loader.get_all_regel_ids()[:5]
         except Exception:
-            # Fallback minimal toetsregels for testing
-            self.toetsregels = {
-                "CON-01": {
-                    "naam": "Context test",
-                    "beschrijving": "Test rule",
-                    "herkenbaar_patronen": [],
-                }
-            }
+            self.regel_ids = ["CON-01"]
 
-    def test_toetser_initialization(self):
-        """Test that ModularToetser initializes."""
-        assert self.toetser is not None
-        assert hasattr(self.toetser, "validate_definition")
+    def test_loader_initialization(self):
+        """Test that JSONValidatorLoader initializes."""
+        assert self.loader is not None
+        assert hasattr(self.loader, "validate_definitie")
 
     def test_basic_validation_works(self):
         """Test that basic validation actually works."""
         definition = "Een test definitie voor validatie."
 
         try:
-            result = self.toetser.validate_definition(
-                definitie=definition, toetsregels=self.toetsregels
+            result = self.loader.validate_definitie(
+                definitie=definition,
+                begrip="test",
+                regel_ids=self.regel_ids,
+                context={},
             )
             # Should return a list
             assert isinstance(result, list)
         except Exception as e:
             # If it fails, at least it should fail gracefully
-            assert "definitie" in str(e).lower() or "toetsregels" in str(e).lower()
+            assert "definitie" in str(e).lower() or "regel" in str(e).lower()
 
     def test_validation_with_context(self):
         """Test validation with context parameters."""
         definition = "Een definitie in context."
-        context = {"organisatie": ["DJI"], "juridisch": ["Strafrecht"]}
+        context = {"contexten": {"organisatie": ["DJI"], "juridisch": ["Strafrecht"]}}
 
         try:
-            result = self.toetser.validate_definition(
-                definitie=definition, toetsregels=self.toetsregels, contexten=context
+            result = self.loader.validate_definitie(
+                definitie=definition,
+                begrip="test",
+                regel_ids=self.regel_ids,
+                context=context,
             )
             assert isinstance(result, list)
         except Exception as e:
@@ -220,12 +219,9 @@ class TestModularToetser:
 
     def test_available_rules(self):
         """Test getting available rules."""
-        try:
-            rules = self.toetser.get_available_rules()
-            assert isinstance(rules, list)
-        except Exception:
-            # May not be implemented yet
-            pass
+        rules = self.loader.get_all_regel_ids()
+        assert isinstance(rules, list)
+        assert len(rules) >= 45
 
 
 class TestSystemIntegration:
@@ -251,30 +247,26 @@ class TestSystemIntegration:
         result = config_cache_integration_unique(5)
         assert result == 10
 
-    def test_cache_toetser_integration(self):
-        """Test cache and toetser integration."""
-        toetser = ModularToetser()
-        toetsregels = {"CON-01": {"naam": "test", "beschrijving": "test"}}
+    def test_cache_validator_integration(self):
+        """Test cache and validator loader integration."""
+        loader = JSONValidatorLoader()
 
         call_count = 0
 
         @cached(ttl=60)
-        def toetser_integration_unique(definition):
+        def validator_integration_unique(definition):
             nonlocal call_count
             call_count += 1
-            try:
-                return toetser.validate_definition(
-                    definitie=definition, toetsregels=toetsregels
-                )
-            except Exception:
-                return ["validation_error"]
+            return loader.validate_definitie(
+                definitie=definition, begrip="test", regel_ids=["CON-01"], context={}
+            )
 
         # First call
-        result1 = toetser_integration_unique("test definition")
+        result1 = validator_integration_unique("test definition")
         assert call_count == 1
 
         # Second call should use cache
-        result2 = toetser_integration_unique("test definition")
+        result2 = validator_integration_unique("test definition")
         assert call_count == 1
         assert result1 == result2
 
@@ -331,17 +323,15 @@ class TestErrorHandling:
         with pytest.raises(ValueError, match=r".+"):
             error_handling_test_unique()
 
-    def test_toetser_error_handling(self):
-        """Test toetser error handling."""
-        toetser = ModularToetser()
+    def test_validator_error_handling(self):
+        """Test validator loader error handling — None input handled gracefully."""
+        loader = JSONValidatorLoader()
 
-        # Test with invalid inputs
-        try:
-            # This should handle None gracefully or raise clear error
-            toetser.validate_definition(definitie=None, toetsregels={})
-        except Exception as e:
-            # Should fail with clear error message
-            assert isinstance(e, Exception)
+        # validate_definitie handles None gracefully (logs error, returns results)
+        result = loader.validate_definitie(
+            definitie=None, begrip="test", regel_ids=["CON-01"], context={}
+        )
+        assert isinstance(result, list)
 
 
 class TestPerformanceBasics:

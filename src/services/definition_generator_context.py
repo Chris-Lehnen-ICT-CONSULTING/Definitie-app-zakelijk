@@ -132,20 +132,7 @@ class HybridContextManager:
         self._context_cache: dict[str, Any] = {}
 
         # Initialize components
-        self._init_hybrid_engine()
-
         logger.info("HybridContextManager geïnitialiseerd")
-
-    def _init_hybrid_engine(self):
-        """Initialiseer hybrid context engine."""
-        try:
-            from hybrid_context.hybrid_context_engine import get_hybrid_context_engine
-
-            self._hybrid_engine = get_hybrid_context_engine()
-            logger.info("Hybrid context engine geïnitialiseerd")
-        except ImportError:
-            logger.warning("Hybrid context engine niet beschikbaar")
-            self._hybrid_engine = None
 
     async def build_enriched_context(
         self, request: GenerationRequest
@@ -171,13 +158,6 @@ class HybridContextManager:
 
         # Web lookup is handled by orchestrator - results passed via enriched context metadata
         # HybridContextManager no longer performs web lookup directly
-
-        # Hybrid context bron (generation pattern)
-        if self._hybrid_engine:
-            hybrid_source = await self._get_hybrid_context(request)
-            if hybrid_source:
-                sources.append(hybrid_source)
-                confidence_scores["hybrid_context"] = hybrid_source.confidence
 
         # Document context (als beschikbaar)
         if hasattr(request, "document_context") and request.document_context:
@@ -328,41 +308,6 @@ class HybridContextManager:
                         expanded[clean_word] = abbreviations[clean_word]
 
         return expanded
-
-    async def _get_hybrid_context(
-        self, request: GenerationRequest
-    ) -> ContextSource | None:
-        """Verkrijg context van hybrid context engine."""
-        try:
-            # Deze methode zou de hybrid context engine aanroepen
-            # Voor nu een placeholder implementatie
-            if self._hybrid_engine:
-                hybrid_data = await self._call_hybrid_engine(request)
-                if hybrid_data:
-                    return ContextSource(
-                        source_type="hybrid_context",
-                        confidence=0.85,
-                        content=hybrid_data.get("context_summary", ""),
-                        metadata=hybrid_data.get("metadata", {}),
-                    )
-        except Exception as e:
-            logger.warning(f"Hybrid context mislukt voor '{request.begrip}': {e}")
-
-        return None
-
-    async def _call_hybrid_engine(
-        self, request: GenerationRequest
-    ) -> dict[str, Any] | None:
-        """Roep hybrid context engine aan."""
-        # Placeholder voor hybrid context engine call
-        # In werkelijke implementatie zou dit een complexe AI context engine aanroepen
-        return {
-            "context_summary": f"Hybrid context voor {request.begrip} gebaseerd op multiple bronnen",
-            "metadata": {
-                "sources_used": ["documents", "knowledge_base", "rules"],
-                "confidence": 0.85,
-            },
-        }
 
     async def _get_rule_interpretation_context(
         self, request: GenerationRequest

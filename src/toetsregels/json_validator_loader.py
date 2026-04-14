@@ -32,9 +32,8 @@ class JSONValidatorLoader:
             regels_dir: Directory met JSON/Python validator paren
         """
         if regels_dir is None:
-            # Default naar de standaard locatie
-            src_dir = Path(__file__).parent.parent
-            self.regels_dir = src_dir / "toetsregels" / "regels"
+            # Default naar de standaard locatie (regels/ subdir van toetsregels/)
+            self.regels_dir = Path(__file__).parent / "regels"
         else:
             self.regels_dir = Path(regels_dir)
 
