@@ -808,6 +808,26 @@ class ServiceContainer:
             logger.info("⚡ RAGManagementService lazy-loaded (DEF-365)")
         return self._lazy_instances["rag_management_service"]
 
+    @property
+    def ontology_model_service(self):
+        """
+        Get or create OntologyModelService instance (LAZY-LOADED).
+
+        DEF-403: Lees en beheer ontologische modellen.
+        Only loaded when ontology features are accessed.
+
+        Returns:
+            Singleton instance van OntologyModelService
+        """
+        if "ontology_model_service" not in self._lazy_instances:
+            from services.ontology.ontology_model_service import OntologyModelService
+
+            self._lazy_instances["ontology_model_service"] = OntologyModelService(
+                db_path=str(self.db_path),
+            )
+            logger.info("⚡ OntologyModelService lazy-loaded (DEF-403)")
+        return self._lazy_instances["ontology_model_service"]
+
     # UI-services worden niet in de servicescontainer opgebouwd. Gebruik UI-container.
 
     # Utility methods
@@ -852,6 +872,7 @@ class ServiceContainer:
             "embedding_store": lambda: self.embedding_store,
             "rag_service": lambda: self.rag_service,
             "rag_management_service": lambda: self.rag_management_service,
+            "ontology_model_service": lambda: self.ontology_model_service,
         }
 
         if name in service_map:
