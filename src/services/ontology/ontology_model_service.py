@@ -69,7 +69,7 @@ class OntologyModelService:
                 try:
                     snapshot = json.loads(row["snapshot_json"])
                 except json.JSONDecodeError:
-                    pass
+                    logger.warning("Ongeldige snapshot_json voor model %d", model_id)
 
             terms = self._load_terms(conn, model_id)
             relationships = self._load_relationships(conn, model_id)
@@ -98,11 +98,11 @@ class OntologyModelService:
             row = conn.execute(
                 "SELECT id FROM ontological_models WHERE model_name = ?", (name,)
             ).fetchone()
-            if row is None:
-                return None
-            return self.get_model(row["id"])
+            model_id = row["id"] if row else None
         finally:
             conn.close()
+        # Connectie gesloten voordat we get_model aanroepen (review fix: voorkom dubbele connectie)
+        return self.get_model(model_id) if model_id is not None else None
 
     # ── Term operaties ──────────────────────────────────
 
@@ -195,10 +195,15 @@ class OntologyModelService:
             all_parents = set(children_of.keys())
             roots = all_parents - all_children
 
-            def build_tree(term: str) -> dict:
+            def build_tree(term: str, visited: set | None = None) -> dict:
+                if visited is None:
+                    visited = set()
                 node: dict = {"children": {}}
                 for child in sorted(children_of.get(term, [])):
-                    node["children"][child] = build_tree(child)
+                    if child in visited:
+                        logger.warning("Cyclus gedetecteerd: %s → %s", term, child)
+                        continue
+                    node["children"][child] = build_tree(child, visited | {child})
                 return node
 
             tree = {}
