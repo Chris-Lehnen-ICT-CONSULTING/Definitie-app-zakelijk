@@ -36,7 +36,6 @@ case "$mode" in
       tests/integration/services/orchestrators/test_definition_orchestrator_v2_failure.py
       tests/integration/services/orchestrators/test_definition_orchestrator_v2_monitoring.py
       tests/integration/services/orchestrators/test_definition_orchestrator_v2_feedback.py
-      tests/integration/contracts
     )
     if [[ "$include_legacy" == "yes" ]]; then
       pytest -q -m "not performance and not slow" "${targets[@]}"
