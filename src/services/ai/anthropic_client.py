@@ -10,6 +10,7 @@ import logging
 
 import anthropic
 from anthropic import AsyncAnthropic
+from anthropic.types import MessageParam
 
 from services.ai.base_client import (
     AIClientError,
@@ -47,7 +48,7 @@ class AnthropicClient:
 
         # Anthropic uses a separate `system` parameter (not a system message in the list)
         system_text: str | anthropic.NotGiven = anthropic.NOT_GIVEN
-        api_messages: list[dict[str, str]] = []
+        api_messages: list[MessageParam] = []
         system_count = 0
 
         for msg in messages:
@@ -60,7 +61,10 @@ class AnthropicClient:
                     )
                 system_text = msg.content
             else:
-                api_messages.append({"role": msg.role, "content": msg.content})
+                # role is "user" of "assistant" voor non-system messages
+                api_messages.append(
+                    {"role": msg.role, "content": msg.content}  # type: ignore[typeddict-item]
+                )
 
         try:
             response = await self._client.messages.create(
