@@ -29,9 +29,8 @@ case "$mode" in
     # Focus op high-signal suites; integration/UI gaan naar nightly
     # Allowlist van high-signal tests die stabiel zijn
     targets=(
-      tests/integration/contracts/test_modular_validation_service_contract.py
+      tests/integration/contracts
       tests/unit/services/test_validation_aggregation_utils.py
-      tests/integration/contracts/test_validation_degraded_contract.py
       tests/integration/services/orchestrators/test_definition_orchestrator_v2_happy.py
       tests/integration/services/orchestrators/test_definition_orchestrator_v2_failure.py
       tests/integration/services/orchestrators/test_definition_orchestrator_v2_monitoring.py
