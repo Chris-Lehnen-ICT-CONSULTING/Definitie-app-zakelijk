@@ -8,7 +8,7 @@ DEF-314: Replaces 12+ hardcoded model references across the codebase.
 """
 
 import logging
-from typing import Any
+from typing import Any, cast
 
 logger = logging.getLogger(__name__)
 
@@ -82,7 +82,7 @@ class ModelRouter:
         """Map task type to tier. Unknown tasks default to 'critical' (safest)."""
         for tier, tasks in self._config.get("task_tiers", {}).items():
             if task_type in tasks:
-                return tier
+                return cast("str", tier)
         logger.warning(
             "Unknown task_type '%s', defaulting to 'critical' tier", task_type
         )
@@ -94,9 +94,9 @@ class ModelRouter:
         try:
             from config.config_manager import get_config_manager
 
-            return get_config_manager().api.ai_provider
+            return cast("str", get_config_manager().api.ai_provider)
         except Exception:
-            return self._config.get("active_provider", "openai")
+            return cast("str", self._config.get("active_provider", "openai"))
 
     def get_available_models(self) -> dict[str, str]:
         """For UI: returns {tier: model} of the active provider."""

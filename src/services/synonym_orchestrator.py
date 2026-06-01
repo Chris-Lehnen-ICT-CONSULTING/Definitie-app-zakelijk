@@ -209,7 +209,7 @@ class SynonymOrchestrator:
                 f"(statuses: {statuses}, min_weight: {min_weight})"
             )
 
-            return synonyms[:max_results]
+            return cast("list[Any]", synonyms[:max_results])
 
         except Exception as e:
             logger.error(f"Registry query failed for '{term}': {e}", exc_info=True)
