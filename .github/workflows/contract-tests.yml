@@ -1,5 +1,6 @@
 name: Contract Tests
 
+# DEF-406 follow-up: ALG-309/PR #193 unblock via self-trigger paths
 on:
   pull_request:
     paths:
