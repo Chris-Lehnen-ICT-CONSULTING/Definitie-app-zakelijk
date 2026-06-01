@@ -5,7 +5,7 @@ on:
     paths:
       - 'src/services/validation/**'
       - 'src/services/interfaces/**'
-      - 'tests/contracts/**'
+      - 'tests/integration/contracts/**'
       - 'docs/architectuur/contracts/**'
   push:
     branches:
@@ -51,9 +51,9 @@ jobs:
         OPENAI_API_KEY: dummy
         OPENAI_API_KEY_PROD: dummy
       run: |
-        python -m pytest tests/contracts -m contract -v --tb=short \
+        python -m pytest tests/integration/contracts -m contract -v --tb=short \
           --junitxml=pytest.xml --cov=src/services/validation --cov-report=term-missing:skip-covered --cov-report=xml \
-          || python -m pytest tests/contracts -v --tb=short \
+          || python -m pytest tests/integration/contracts -v --tb=short \
           --junitxml=pytest.xml --cov=src/services/validation --cov-report=term-missing:skip-covered --cov-report=xml
 
     - name: Validate validation_result.schema.json
