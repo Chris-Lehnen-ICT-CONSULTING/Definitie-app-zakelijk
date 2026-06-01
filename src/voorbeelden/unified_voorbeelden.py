@@ -19,10 +19,10 @@ from datetime import (  # Datum en tijd functionaliteit voor timestamps, timezon
 from enum import Enum  # Enumeraties voor voorbeeld types en modi
 from typing import Any, cast  # Type hints voor betere code documentatie
 
-from services.ai_service_v2 import AIServiceV2  # V2 AI service interface
-from src.config.config_manager import (
+from config.config_manager import (
     get_component_config,  # Centrale component configuratie
 )
+from services.ai_service_v2 import AIServiceV2  # V2 AI service interface
 
 # DEF-314: ExampleType → task_type mapping for ModelRouter
 _EXAMPLE_TYPE_TO_TASK_TYPE = {

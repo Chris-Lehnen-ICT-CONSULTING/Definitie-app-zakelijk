@@ -27,7 +27,7 @@ class SchemaValidator:
     """Helper for JSON schema validation with format checking and extra guards."""
 
     def __init__(self) -> None:
-        base = Path(__file__).parents[2]
+        base = Path(__file__).parents[3]
         # Prefer English path; fallback to Dutch 'architectuur' for repo layout
         schema_path = (
             base / "docs/architecture/contracts/schemas/validation_result.schema.json"
