@@ -13,9 +13,9 @@ from typing import Any
 
 import streamlit as st
 
-from src.repositories.synonym_registry import SynonymRegistry
-from src.utils.dict_helpers import safe_dict_get
+from repositories.synonym_registry import SynonymRegistry
 from ui.cached_services import get_cached_service_container
+from utils.dict_helpers import safe_dict_get
 
 logger = logging.getLogger(__name__)
 
