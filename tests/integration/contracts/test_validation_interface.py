@@ -28,6 +28,11 @@ class SchemaValidator:
 
     def __init__(self) -> None:
         base = Path(__file__).parents[3]
+        # Fail loud if this file is moved without updating the parents-index
+        assert (base / "docs").is_dir(), (
+            f"schema-base resolved to {base!r} but no docs/ found there; "
+            "test_validation_interface.py likely moved — update Path(__file__).parents[N]"
+        )
         # Prefer English path; fallback to Dutch 'architectuur' for repo layout
         schema_path = (
             base / "docs/architecture/contracts/schemas/validation_result.schema.json"
