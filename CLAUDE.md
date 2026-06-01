@@ -76,4 +76,4 @@ Project-specifieke rules staan in `.claude/rules/` en laden automatisch.
 
 Feature branch: `feature/DEF-XX-beschrijving`
 
-*Versie: 1.0 · 10 maart 2026 · Extendeert: ~/.claude/CLAUDE.md v7.1*
+*Versie: 1.0 · 10 maart 2026 · Extendeert: ~/.claude/CLAUDE.md v7.2*
