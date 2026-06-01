@@ -11,6 +11,7 @@ from __future__ import annotations
 import json
 import logging
 import sqlite3
+from typing import cast
 
 import numpy as np
 
@@ -70,7 +71,7 @@ class EmbeddingStore:
                 collection_id,
             )
             return None
-        return metadata.get("dimensions")
+        return cast("int | None", metadata.get("dimensions"))
 
     def _validate_embedding(
         self, embedding: np.ndarray, expected_dims: int | None
@@ -126,7 +127,9 @@ class EmbeddingStore:
                 (collection_name, metadata),
             )
             conn.commit()
+            # Na succesvolle INSERT mag lastrowid niet None zijn
             collection_id = cursor.lastrowid
+            assert collection_id is not None, "lastrowid na INSERT mag niet None zijn"
             logger.info(
                 "Collection '%s' aangemaakt (id=%d, dimensions=%d, model=%s)",
                 collection_name,
@@ -193,7 +196,9 @@ class EmbeddingStore:
                 ),
             )
             conn.commit()
+            # Na succesvolle INSERT mag lastrowid niet None zijn
             chunk_id = cursor.lastrowid
+            assert chunk_id is not None, "lastrowid na INSERT mag niet None zijn"
             logger.debug(
                 "Chunk opgeslagen (id=%d, collection=%d)", chunk_id, collection_id
             )
@@ -265,7 +270,10 @@ class EmbeddingStore:
                         metadata_json,
                     ),
                 )
-                chunk_ids.append(cursor.lastrowid)
+                # Na succesvolle INSERT mag lastrowid niet None zijn
+                row_id = cursor.lastrowid
+                assert row_id is not None, "lastrowid na INSERT mag niet None zijn"
+                chunk_ids.append(row_id)
 
             conn.commit()
 

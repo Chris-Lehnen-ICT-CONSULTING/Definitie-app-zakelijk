@@ -261,7 +261,11 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
 
     def get_stats(self) -> dict:
         """Get statistics from orchestrator and services."""
-        stats = {"orchestrator": {"requests_processed": 0, "success_rate": 0.0}}
+        # dict[str, dict[str, Any]] om gemengde value types toe te staan
+        # (numerieke counters + error/status strings in fallback paden)
+        stats: dict[str, dict[str, Any]] = {
+            "orchestrator": {"requests_processed": 0, "success_rate": 0.0}
+        }
 
         # Include validation stats if available
         if hasattr(self.validation_service, "get_stats"):

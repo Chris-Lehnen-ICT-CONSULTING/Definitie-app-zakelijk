@@ -10,6 +10,7 @@ import json
 import logging
 import sqlite3
 from pathlib import Path
+from typing import cast
 
 from services.rag.constants import COLLECTION_TYPE_MAP
 from services.rag.embedding_service import EmbeddingService
@@ -118,7 +119,7 @@ class RAGManagementService:
             collection_id,
             collection_type,
         )
-        return collection_id
+        return cast("int", collection_id)
 
     def delete_collection(self, collection_id: int) -> bool:
         """Verwijder collection met CASCADE (documenten, chunks, bestanden).
@@ -320,7 +321,7 @@ def _parse_metadata(metadata_json: str | None) -> dict:
     if not metadata_json:
         return {}
     try:
-        return json.loads(metadata_json)
+        return cast("dict", json.loads(metadata_json))
     except (json.JSONDecodeError, TypeError):
         return {}
 
