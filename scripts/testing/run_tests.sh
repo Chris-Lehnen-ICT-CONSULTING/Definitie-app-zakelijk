@@ -29,14 +29,14 @@ case "$mode" in
     # Focus op high-signal suites; integration/UI gaan naar nightly
     # Allowlist van high-signal tests die stabiel zijn
     targets=(
-      tests/services/test_modular_validation_service_contract.py
-      tests/services/test_validation_aggregation_utils.py
-      tests/services/orchestrators/test_validation_degraded_contract.py
-      tests/services/orchestrators/test_definition_orchestrator_v2_happy.py
-      tests/services/orchestrators/test_definition_orchestrator_v2_failure.py
-      tests/services/orchestrators/test_definition_orchestrator_v2_monitoring.py
-      tests/services/orchestrators/test_definition_orchestrator_v2_feedback.py
-      tests/contracts
+      tests/integration/contracts/test_modular_validation_service_contract.py
+      tests/unit/services/test_validation_aggregation_utils.py
+      tests/integration/contracts/test_validation_degraded_contract.py
+      tests/integration/services/orchestrators/test_definition_orchestrator_v2_happy.py
+      tests/integration/services/orchestrators/test_definition_orchestrator_v2_failure.py
+      tests/integration/services/orchestrators/test_definition_orchestrator_v2_monitoring.py
+      tests/integration/services/orchestrators/test_definition_orchestrator_v2_feedback.py
+      tests/integration/contracts
     )
     if [[ "$include_legacy" == "yes" ]]; then
       pytest -q -m "not performance and not slow" "${targets[@]}"
