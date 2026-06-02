@@ -18,12 +18,14 @@ from unittest.mock import patch
 import pytest
 
 from services.validation.types import (
+    _VALIDATION_RESULT_REQUIRED_KEYS,
     CONTRACT_VERSION,
     AcceptanceGate,
     CategoryScores,
     ImprovementSuggestion,
     ValidationResult,
     ViolationDict,
+    _assert_validation_result_keys,
     create_degraded_result,
     create_validation_result,
     get_blocking_violations,
@@ -1391,3 +1393,79 @@ class TestLegacyDictConversionEdgeCases:
         assert normalized["overall_score"] == 0.0
         # None score < 0.5, so not acceptable
         assert normalized["is_acceptable"] is False
+
+
+# ==============================================================================
+# Tests voor _assert_validation_result_keys (DEF-408 post-merge review hotfix)
+# ==============================================================================
+
+
+class TestAssertValidationResultKeys:
+    """Lichtgewicht runtime-validatie van ValidationResult shape — coverage gap
+    uit DEF-408 post-merge review (PR #197 test-coverage-analyzer HIGH).
+    """
+
+    def _full_payload(self) -> dict[str, Any]:
+        """Volledige minimale ValidationResult-shape voor parametrized tests."""
+        return {
+            "version": "1.0.0",
+            "overall_score": 0.8,
+            "is_acceptable": True,
+            "violations": [],
+            "passed_rules": [],
+            "detailed_scores": {},
+            "system": {"correlation_id": "test"},
+        }
+
+    def test_happy_path_full_payload_passes(self) -> None:
+        """Complete dict moet zonder error passeren."""
+        payload = self._full_payload()
+        # Geen return-waarde, alleen geen raise
+        _assert_validation_result_keys(payload)
+
+    def test_extra_keys_allowed(self) -> None:
+        """Onverwachte extra keys mogen er zijn (forward compat)."""
+        payload = self._full_payload()
+        payload["acceptance_gate"] = {"passed": True}
+        payload["future_field"] = "ignored"
+        _assert_validation_result_keys(payload)
+
+    @pytest.mark.parametrize("missing_key", sorted(_VALIDATION_RESULT_REQUIRED_KEYS))
+    def test_raises_typeerror_per_missing_required_key(self, missing_key: str) -> None:
+        """Elke required key apart weghalen moet TypeError raisen — borgt dat
+        _VALIDATION_RESULT_REQUIRED_KEYS niet stil leeg gaat."""
+        payload = self._full_payload()
+        del payload[missing_key]
+
+        with pytest.raises(TypeError) as exc_info:
+            _assert_validation_result_keys(payload)
+
+        assert missing_key in str(exc_info.value)
+        assert "ontbreekt vereiste keys" in str(exc_info.value)
+
+    def test_empty_dict_lists_all_missing(self) -> None:
+        """Lege dict moet ALLE required keys in de error tonen — borgt sorted ordering."""
+        with pytest.raises(TypeError) as exc_info:
+            _assert_validation_result_keys({})
+
+        message = str(exc_info.value)
+        for required_key in _VALIDATION_RESULT_REQUIRED_KEYS:
+            assert required_key in message
+        # Sorted ordering check — voorkomt non-deterministische error-messages
+        sorted_keys_str = str(sorted(_VALIDATION_RESULT_REQUIRED_KEYS))
+        assert sorted_keys_str in message
+
+    def test_required_keys_constant_not_empty(self) -> None:
+        """Borg dat _VALIDATION_RESULT_REQUIRED_KEYS niet per ongeluk leeg wordt."""
+        assert len(_VALIDATION_RESULT_REQUIRED_KEYS) >= 7
+        # Borg dat key-set niet stil verandert zonder test-update
+        expected = {
+            "version",
+            "overall_score",
+            "is_acceptable",
+            "violations",
+            "passed_rules",
+            "detailed_scores",
+            "system",
+        }
+        assert expected == _VALIDATION_RESULT_REQUIRED_KEYS
