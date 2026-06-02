@@ -69,11 +69,13 @@ for req in "${REQ_FILES[@]}"; do
   fi
 done
 
-INSTALLED=$(echo "$INSTALLED" | grep -v '^$' | sort -u)
+INSTALLED=$(echo "$INSTALLED" | grep -v '^$' | sort -u || true)
 
 if [ -z "$INSTALLED" ]; then
-  echo "FOUT: geen packages gevonden in requirements*.txt" >&2
-  exit 1
+  # Lege/whitespace-only requirements is een geldige staat (initiële project
+  # of na dependency-cleanup) — geen packages = geen collision mogelijk.
+  echo "INFO: geen packages in requirements*.txt — niets te checken."
+  exit 0
 fi
 
 # Vind overlap (set-intersection)
