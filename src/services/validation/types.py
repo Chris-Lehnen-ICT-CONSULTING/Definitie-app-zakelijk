@@ -227,9 +227,18 @@ def _assert_validation_result_keys(data: dict[str, Any]) -> None:
     wordt toegepast. Voorkomt stille downstream KeyError/TypeError door een
     misvormde input vroeg te vangen met een duidelijke foutmelding.
 
-    Geen volledige Pydantic-validatie (waarde-types worden niet gecheckt) —
-    bewust licht om de hot path niet te belasten. Voor strict schema-validatie:
-    zie `docs/architectuur/contracts/schemas/validation_result.schema.json`.
+    **Wat deze helper WEL checkt:**
+    - Aanwezigheid van alle keys in `_VALIDATION_RESULT_REQUIRED_KEYS`.
+
+    **Wat deze helper NIET checkt (bewuste trade-off):**
+    - Value-types (bv. `overall_score` als string ipv float passeert).
+    - Value-ranges (bv. score buiten [0.0, 1.0] passeert).
+    - Geneste structuur (bv. `system` zonder `correlation_id` passeert).
+    - Onverwachte extra keys (forward-compat — extra keys mogen).
+
+    Bewust licht om de hot path niet te belasten. Voor strict schema-validatie
+    met value-types: zie `docs/architectuur/contracts/schemas/validation_result.schema.json`
+    of overweeg Pydantic `TypeAdapter` (DEF-408 review-bevinding HIGH-2).
 
     Raises:
         TypeError: als er required keys ontbreken.
