@@ -6,15 +6,31 @@
 # (pytest.ini) zou een PyPI-pakket met dezelfde naam stilletjes de in-repo
 # module shadowen — een dependency-confusion attack vector.
 #
-# Faalt met exit 1 als overlap gevonden + lijst de conflicten.
-# Faalt met exit 1 bij setup-fouten (missende files, lege src/).
+# Exit codes:
+#   0 = geen collisions (of lege requirements: geen check mogelijk)
+#   1 = collision gevonden, OF setup-fout (missende src/, lege src/)
 #
 # Gebruik:
 #   bash scripts/ci/check_namespace_collisions.sh
 #
 # Geconvergeerd voor:
-# - Lokaal pre-commit hook (alleen bij requirements*.txt changes)
+# - Lokaal pre-commit hook (bij requirements*.txt of nieuwe src/<pkg>/__init__.py)
 # - CI step (elke push/PR)
+#
+# Bekende scope-limieten (DEF-409 Optie A — lichte aanpak):
+#   - PEP 508 direct-URL syntax `pkg @ git+https://...` wordt NIET geparst.
+#     Editable `-e ... #egg=NAME` wordt wel gevangen. Voor strict coverage
+#     overweeg `pip install packaging && python -c "..."` migratie.
+#   - `-r other-requirements.txt` includes worden NIET recursief gevolgd.
+#     Alleen toplevel requirements.txt + requirements-dev.txt worden gescand.
+#   - PyPI distribution-namen ≠ altijd Python import-namen (bv. `PyYAML` →
+#     import `yaml`, `beautifulsoup4` → `bs4`). De check vergelijkt
+#     distribution-namen (= attack-vector voor dependency-confusion) tegen
+#     src/ dirnamen (= import-namen). Mismatches als PyYAML/yaml passeren
+#     dus stil. Voor strict coverage: importlib.metadata.packages_distributions().
+#   - PEP 420 namespace packages (zonder __init__.py) triggeren pre-commit hook
+#     niet; CI step vangt ze wel op want `find -type d` werkt schemaloos.
+#   - Test-fixtures voor regressie-vangst: aparte issue (zie DEF-409 review).
 
 set -euo pipefail
 
