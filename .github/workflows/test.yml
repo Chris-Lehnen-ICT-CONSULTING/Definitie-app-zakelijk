@@ -40,6 +40,9 @@ jobs:
           pip install -r requirements.txt
           pip install -r requirements-dev.txt
 
+      - name: Check namespace-collisions (DEF-409)
+        run: bash scripts/ci/check_namespace_collisions.sh
+
       - name: Run linting (services only)
         run: |
           # Run ruff if available (focus on services for signal)
