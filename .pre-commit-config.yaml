@@ -94,5 +94,8 @@ repos:
         entry: bash scripts/ci/check_namespace_collisions.sh
         language: system
         pass_filenames: false
-        files: ^requirements.*\.txt$
+        # Triggert ook bij toevoeging van nieuwe src/<package>/__init__.py
+        # zodat een nieuwe top-level die per ongeluk een PyPI-naam matcht
+        # lokaal wordt gevangen, niet pas in CI.
+        files: ^(requirements.*\.txt|src/[^/]+/__init__\.py)$
         stages: [pre-commit]
