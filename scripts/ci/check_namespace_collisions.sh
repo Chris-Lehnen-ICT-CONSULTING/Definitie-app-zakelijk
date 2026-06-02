@@ -48,16 +48,27 @@ if [ -z "$TOP_LEVELS" ]; then
   exit 1
 fi
 
-# Verzamel package-namen uit requirements*.txt
-# Strip versie-specifiers, comments, lege regels, frontmatter (---).
-# Normaliseer: lowercase, _ ipv -
+# Verzamel package-namen uit requirements*.txt.
+# Parsing-volgorde matters — eerst gevaarlijke ontsnappingsroutes filteren:
+#   1. Pip directives (-r, -c, -i, --index-url, etc.) — skip volledig, anders
+#      verschijnt 'extra_index_url' als package-naam
+#   2. Editable VCS installs (-e git+...#egg=NAME) — extract egg-name
+#   3. Inline comments strippen (pkg==1.0  # note) vóór andere transforms
+#   4. Env markers (numpy; python_version >= "3.10") — strip
+#   5. YAML frontmatter (---)
+#   6. Comments / lege regels
+#   7. Extras: requests[security] → requests
+#   8. Version specs: pkg>=1.0 → pkg
 INSTALLED=""
 for req in "${REQ_FILES[@]}"; do
   if [ -f "$req" ]; then
     pkgs=$(
-      grep -v '^[[:space:]]*#' "$req" \
-        | grep -v '^[[:space:]]*$' \
+      sed -E 's/^[[:space:]]*-e[[:space:]]+.*#egg=([^[:space:]&]+).*/\1/' "$req" \
+        | grep -vE '^[[:space:]]*(-[a-zA-Z]|--[a-zA-Z])' \
+        | sed 's/#.*$//' \
+        | sed 's/;.*$//' \
         | grep -v '^---' \
+        | grep -v '^[[:space:]]*$' \
         | sed 's/[<>=!~].*//' \
         | sed 's/\[.*\]//' \
         | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' \
@@ -74,7 +85,10 @@ INSTALLED=$(echo "$INSTALLED" | grep -v '^$' | sort -u || true)
 if [ -z "$INSTALLED" ]; then
   # Lege/whitespace-only requirements is een geldige staat (initiële project
   # of na dependency-cleanup) — geen packages = geen collision mogelijk.
-  echo "INFO: geen packages in requirements*.txt — niets te checken."
+  # Maar log explicit hoeveel src/-packages ongecontroleerd blijven zodat
+  # reviewers de stille staat niet missen (MEDIUM uit security-review).
+  src_count=$(echo "$TOP_LEVELS" | wc -l | tr -d '[:space:]')
+  echo "INFO: geen packages in requirements*.txt — $src_count src/-modules ongecontroleerd."
   exit 0
 fi
 
