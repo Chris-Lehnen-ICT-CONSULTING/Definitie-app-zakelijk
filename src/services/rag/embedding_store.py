@@ -11,6 +11,7 @@ from __future__ import annotations
 import json
 import logging
 import sqlite3
+from typing import cast
 
 import numpy as np
 
@@ -70,7 +71,7 @@ class EmbeddingStore:
                 collection_id,
             )
             return None
-        return metadata.get("dimensions")
+        return cast("int | None", metadata.get("dimensions"))
 
     def _validate_embedding(
         self, embedding: np.ndarray, expected_dims: int | None
@@ -126,7 +127,10 @@ class EmbeddingStore:
                 (collection_name, metadata),
             )
             conn.commit()
+            # Expliciete check (geen assert) zodat het ook onder python -O werkt.
             collection_id = cursor.lastrowid
+            if collection_id is None:
+                raise RuntimeError("INSERT gaf geen lastrowid terug")
             logger.info(
                 "Collection '%s' aangemaakt (id=%d, dimensions=%d, model=%s)",
                 collection_name,
@@ -193,7 +197,10 @@ class EmbeddingStore:
                 ),
             )
             conn.commit()
+            # Expliciete check (geen assert) zodat het ook onder python -O werkt.
             chunk_id = cursor.lastrowid
+            if chunk_id is None:
+                raise RuntimeError("INSERT gaf geen lastrowid terug")
             logger.debug(
                 "Chunk opgeslagen (id=%d, collection=%d)", chunk_id, collection_id
             )
@@ -265,7 +272,11 @@ class EmbeddingStore:
                         metadata_json,
                     ),
                 )
-                chunk_ids.append(cursor.lastrowid)
+                # Expliciete check (geen assert) zodat het ook onder python -O werkt.
+                row_id = cursor.lastrowid
+                if row_id is None:
+                    raise RuntimeError("INSERT gaf geen lastrowid terug")
+                chunk_ids.append(row_id)
 
             conn.commit()
 

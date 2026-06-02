@@ -13,6 +13,7 @@ import logging
 import sqlite3
 from dataclasses import dataclass
 from pathlib import Path
+from typing import cast
 
 from services.rag.constants import BRON_TYPES, RECHTSGEBIEDEN, normaliseer_rechtsgebied
 from services.rag.document_chunker import DocumentChunker
@@ -78,7 +79,7 @@ class RAGService:
             )
             row = cursor.fetchone()
             if row is not None:
-                return row[0]
+                return cast("int", row[0])
         finally:
             conn.close()
 
@@ -92,7 +93,7 @@ class RAGService:
             collection_name,
             collection_id,
         )
-        return collection_id
+        return cast("int", collection_id)
 
     def ingest_document(
         self,
@@ -150,7 +151,11 @@ class RAGService:
                 (collection_id, filename, file_type, rechtsgebied, file_path),
             )
             conn.commit()
+            # Expliciete check (geen assert) zodat het ook onder python -O werkt
+            # en bij INSERT OR IGNORE op duplicate geen None doorpropageert.
             document_id = cursor.lastrowid
+            if document_id is None:
+                raise RuntimeError("INSERT gaf geen lastrowid terug")
         except Exception:
             conn.rollback()
             raise
@@ -425,7 +430,7 @@ class RAGService:
                 )
             )
 
-        return wrap_bronnen(bron_strings)
+        return cast("str", wrap_bronnen(bron_strings))
 
     def cleanup_all_documents(self) -> int:
         """Verwijder alle documenten, chunks (CASCADE) en upload-bestanden.
@@ -454,7 +459,7 @@ class RAGService:
                     logger.warning("Upload verwijderen mislukt: %s — %s", fp, e)
 
             logger.info("Alle RAG documenten verwijderd: %d documenten", count)
-            return count
+            return cast("int", count)
         finally:
             conn.close()
 
