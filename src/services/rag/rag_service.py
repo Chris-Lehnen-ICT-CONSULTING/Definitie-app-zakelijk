@@ -151,11 +151,11 @@ class RAGService:
                 (collection_id, filename, file_type, rechtsgebied, file_path),
             )
             conn.commit()
-            # Na een succesvolle INSERT mag lastrowid niet None zijn
+            # Expliciete check (geen assert) zodat het ook onder python -O werkt
+            # en bij INSERT OR IGNORE op duplicate geen None doorpropageert.
             document_id = cursor.lastrowid
-            assert (
-                document_id is not None
-            ), "cursor.lastrowid na INSERT mag niet None zijn"
+            if document_id is None:
+                raise RuntimeError("INSERT gaf geen lastrowid terug")
         except Exception:
             conn.rollback()
             raise
