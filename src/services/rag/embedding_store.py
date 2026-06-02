@@ -127,9 +127,10 @@ class EmbeddingStore:
                 (collection_name, metadata),
             )
             conn.commit()
-            # Na succesvolle INSERT mag lastrowid niet None zijn
+            # Expliciete check (geen assert) zodat het ook onder python -O werkt.
             collection_id = cursor.lastrowid
-            assert collection_id is not None, "lastrowid na INSERT mag niet None zijn"
+            if collection_id is None:
+                raise RuntimeError("INSERT gaf geen lastrowid terug")
             logger.info(
                 "Collection '%s' aangemaakt (id=%d, dimensions=%d, model=%s)",
                 collection_name,
@@ -196,9 +197,10 @@ class EmbeddingStore:
                 ),
             )
             conn.commit()
-            # Na succesvolle INSERT mag lastrowid niet None zijn
+            # Expliciete check (geen assert) zodat het ook onder python -O werkt.
             chunk_id = cursor.lastrowid
-            assert chunk_id is not None, "lastrowid na INSERT mag niet None zijn"
+            if chunk_id is None:
+                raise RuntimeError("INSERT gaf geen lastrowid terug")
             logger.debug(
                 "Chunk opgeslagen (id=%d, collection=%d)", chunk_id, collection_id
             )
@@ -270,9 +272,10 @@ class EmbeddingStore:
                         metadata_json,
                     ),
                 )
-                # Na succesvolle INSERT mag lastrowid niet None zijn
+                # Expliciete check (geen assert) zodat het ook onder python -O werkt.
                 row_id = cursor.lastrowid
-                assert row_id is not None, "lastrowid na INSERT mag niet None zijn"
+                if row_id is None:
+                    raise RuntimeError("INSERT gaf geen lastrowid terug")
                 chunk_ids.append(row_id)
 
             conn.commit()
