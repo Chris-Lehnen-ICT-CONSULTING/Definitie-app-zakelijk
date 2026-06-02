@@ -29,7 +29,7 @@ from __future__ import annotations
 import logging
 import uuid
 from datetime import UTC, datetime
-from typing import Any, Literal, NotRequired
+from typing import Any, Literal, NotRequired, cast
 
 from typing_extensions import TypedDict
 
@@ -286,7 +286,7 @@ def create_validation_result(
         "is_acceptable": is_acceptable,
         "violations": violations,
         "passed_rules": passed_rules,
-        "detailed_scores": detailed_scores,
+        "detailed_scores": cast("CategoryScores", detailed_scores),
         "system": system,
     }
 
@@ -419,7 +419,7 @@ def normalize_to_unified(
         if not result.get("system", {}).get("correlation_id"):
             result["system"] = {**result.get("system", {})}
             result["system"]["correlation_id"] = correlation_id or str(uuid.uuid4())
-        return result
+        return cast("ValidationResult", result)
 
     # Case 2: Dataclass with __dataclass_fields__
     if hasattr(result, "__dataclass_fields__"):
@@ -475,7 +475,7 @@ def _convert_dataclass_to_unified(
         violation: ViolationDict = {
             "code": getattr(v, "code", "VAL-UNK-000"),
             "severity": severity,  # type: ignore[typeddict-item]
-            "message": message,
+            "message": str(message),
             "rule_id": getattr(v, "rule_id", "unknown"),
             "category": getattr(v, "category", "system"),
         }
@@ -571,7 +571,7 @@ def _convert_dataclass_to_unified(
         "is_acceptable": is_acceptable,
         "violations": violations,
         "passed_rules": passed_rules,
-        "detailed_scores": detailed_scores,
+        "detailed_scores": cast("CategoryScores", detailed_scores),
         "system": system,
     }
 
@@ -610,7 +610,9 @@ def _convert_legacy_dict_to_unified(
             violation: ViolationDict = {
                 "code": v.get("code", "VAL-UNK-000"),
                 "severity": v.get("severity", "warning"),
-                "message": v.get("message", v.get("description", "Unknown violation")),
+                "message": str(
+                    v.get("message", v.get("description", "Unknown violation"))
+                ),
                 "rule_id": v.get("rule_id", "unknown"),
                 "category": v.get("category", "system"),
             }
@@ -669,7 +671,7 @@ def _convert_legacy_dict_to_unified(
         "is_acceptable": is_acceptable,
         "violations": violations,
         "passed_rules": passed_rules,
-        "detailed_scores": detailed_scores,
+        "detailed_scores": cast("CategoryScores", detailed_scores),
         "system": system,
     }
 
@@ -751,7 +753,7 @@ def get_category_score(result: ValidationResult, category: CategoryType) -> floa
         Score for the category (0.0-1.0), defaults to overall_score if not found
     """
     scores = result.get("detailed_scores", {})
-    return scores.get(category, result.get("overall_score", 0.0))
+    return cast("float", scores.get(category, result.get("overall_score", 0.0)))
 
 
 # ==============================================================================

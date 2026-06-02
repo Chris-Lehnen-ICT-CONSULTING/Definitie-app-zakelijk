@@ -49,9 +49,9 @@ jobs:
 
       - name: Run type checking (services only)
         run: |
-          # Focus type checking op services-laag; advisory (niet-brekend)
+          # Focus type checking op services-laag — strict sinds DEF-408
           if command -v mypy &> /dev/null; then
-            mypy src/services --ignore-missing-imports || true
+            mypy src/services --ignore-missing-imports
           fi
 
       - name: Run PR test suite (profiles)

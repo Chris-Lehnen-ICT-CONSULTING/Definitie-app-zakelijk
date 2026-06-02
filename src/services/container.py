@@ -7,7 +7,7 @@ Dit maakt het makkelijk om services te configureren, testen en swappen.
 
 import logging
 import os
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 from config.config_manager import (
     get_component_config,
@@ -928,7 +928,7 @@ def get_container() -> ServiceContainer:
     # DEF-249: Unified singleton pattern - delegate to @lru_cache version
     from utils.container_manager import get_cached_container
 
-    return get_cached_container()
+    return cast("ServiceContainer", get_cached_container())
 
 
 def reset_container() -> None:

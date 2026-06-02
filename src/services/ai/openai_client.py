@@ -7,6 +7,7 @@ Wraps the OpenAI SDK and maps its errors to provider-agnostic types.
 from __future__ import annotations
 
 import logging
+from typing import Any
 
 from openai import (
     APIConnectionError,
@@ -57,7 +58,9 @@ class OpenAIClient:
             # Newer models (gpt-5+, o1+, o3+) require max_completion_tokens
             # instead of max_tokens. Detect and use the correct parameter.
             uses_new_param = any(model.startswith(p) for p in ("gpt-5", "o1", "o3"))
-            token_kwargs = (
+            # dict[str, Any] zodat de **unpacking matcht met de OpenAI SDK overload
+            # (zonder Any inferrert mypy dict[str, int] wat geen overload-variant matcht).
+            token_kwargs: dict[str, Any] = (
                 {"max_completion_tokens": max_tokens}
                 if uses_new_param
                 else {"max_tokens": max_tokens}
