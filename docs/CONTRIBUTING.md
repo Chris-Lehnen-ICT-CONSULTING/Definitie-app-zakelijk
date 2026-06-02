@@ -70,7 +70,7 @@ security  services  toetsregels  tools  ui  utils  validation  voorbeelden
 
 `scripts/ci/check_namespace_collisions.sh` faalt bij elke overlap. Runt op twee plekken:
 
-- **Pre-commit hook** (`.pre-commit-config.yaml`, `id: check-namespace-collisions`) — alleen bij wijziging van `requirements*.txt`
+- **Pre-commit hook** (`.pre-commit-config.yaml`, `id: check-namespace-collisions`) — bij wijziging van `requirements*.txt` of nieuwe `src/<package>/__init__.py`
 - **CI** (`.github/workflows/test.yml`, "Check namespace-collisions" step) — bij elke push/PR
 
 Bij conflict: drie fix-opties (in volgorde van impact):
@@ -78,6 +78,13 @@ Bij conflict: drie fix-opties (in volgorde van impact):
 1. **Hernoem de src/-package** (bv. naar `definitieagent.X`) — zie DEF-409 Optie B
 2. **Verwijder de botsende PyPI-dependency** uit `requirements*.txt`
 3. **Vervang door een specifiekere package** met andere naam
+
+**Scope-limieten** (Optie A — lichte aanpak, niet strict PEP 508 parser):
+
+- `pkg @ git+https://...` direct-URL syntax wordt niet gevangen (`-e ... #egg=NAME` wel)
+- `-r nested-requirements.txt` includes worden niet recursief gevolgd
+- Distribution-name vs import-name mismatches (bv. `PyYAML` → `yaml`) passeren stil
+- Voor strict coverage: zie follow-up issue voor `packaging`-based Python rewrite
 
 ## Testing
 
