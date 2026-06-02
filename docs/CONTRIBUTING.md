@@ -51,6 +51,34 @@ if cursor.lastrowid is None:
 - ALTIJD met comment waarom: `# type: ignore[arg-type]  # SDK quirk: <reden>`
 - Bij SDK-upgrade: review of de ignore nog nodig is
 
+## Dependency-confusion policy (sinds DEF-409)
+
+`pytest.ini` heeft `pythonpath = src`, dus alle `src/X` subpackages zijn importeerbaar als top-level (`from services import …`). Veel `src/` top-level namen bestaan ook als PyPI-package (`config`, `models`, `services`, `database`, `security`, `monitoring`, `analysis`, `tools`, `validation`, `data`, `domain`, `export`, `pages`, `repositories`, `ui`, `utils`). Als zo'n PyPI-package via een transitive dependency in de venv terechtkomt, kan een `import services` per ongeluk de PyPI-package importeren in plaats van de in-repo module — een dependency-confusion attack vector.
+
+**Reserved top-level names** (mogen NIET als requirements.txt-dependency verschijnen):
+
+```
+analysis  api  cache  cli  config  data  database  document_processing
+domain  export  exports  integration  log  logs  models  monitoring
+ontologie  opschoning  orchestration  pages  reports  repositories
+security  services  toetsregels  tools  ui  utils  validation  voorbeelden
+```
+
+(Zie `ls src/` voor de huidige autoritatieve lijst.)
+
+### Geautomatiseerde check
+
+`scripts/ci/check_namespace_collisions.sh` faalt bij elke overlap. Runt op twee plekken:
+
+- **Pre-commit hook** (`.pre-commit-config.yaml`, `id: check-namespace-collisions`) — alleen bij wijziging van `requirements*.txt`
+- **CI** (`.github/workflows/test.yml`, "Check namespace-collisions" step) — bij elke push/PR
+
+Bij conflict: drie fix-opties (in volgorde van impact):
+
+1. **Hernoem de src/-package** (bv. naar `definitieagent.X`) — zie DEF-409 Optie B
+2. **Verwijder de botsende PyPI-dependency** uit `requirements*.txt`
+3. **Vervang door een specifiekere package** met andere naam
+
 ## Testing
 
 Zie `.claude/rules/patterns.md` Anti-patronen + `CLAUDE.md` Verificatie bij oplevering.
