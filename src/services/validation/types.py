@@ -203,6 +203,45 @@ class ValidationResult(TypedDict, total=False):
 # ==============================================================================
 
 
+# Vereiste keys per ValidationResult JSON-schema. Wordt gebruikt door
+# _assert_validation_result_keys() om externe data (bv. uit Case 1 in
+# normalize_to_unified) lichtgewicht te valideren voordat we cast'en.
+_VALIDATION_RESULT_REQUIRED_KEYS = frozenset(
+    {
+        "version",
+        "overall_score",
+        "is_acceptable",
+        "violations",
+        "passed_rules",
+        "detailed_scores",
+        "system",
+    }
+)
+
+
+def _assert_validation_result_keys(data: dict[str, Any]) -> None:
+    """Lichtgewicht runtime-validatie van ValidationResult-shape.
+
+    Gebruikt voor externe data (Case 1 in `normalize_to_unified`): controleert
+    dat alle required keys aanwezig zijn voordat `cast(ValidationResult, ...)`
+    wordt toegepast. Voorkomt stille downstream KeyError/TypeError door een
+    misvormde input vroeg te vangen met een duidelijke foutmelding.
+
+    Geen volledige Pydantic-validatie (waarde-types worden niet gecheckt) —
+    bewust licht om de hot path niet te belasten. Voor strict schema-validatie:
+    zie `docs/architectuur/contracts/schemas/validation_result.schema.json`.
+
+    Raises:
+        TypeError: als er required keys ontbreken.
+    """
+    missing = _VALIDATION_RESULT_REQUIRED_KEYS - data.keys()
+    if missing:
+        raise TypeError(
+            f"ValidationResult ontbreekt vereiste keys: {sorted(missing)}. "
+            f"Got keys: {sorted(data.keys())}"
+        )
+
+
 def create_validation_result(
     overall_score: float,
     is_acceptable: bool,
@@ -279,7 +318,10 @@ def create_validation_result(
     if duration_ms is not None:
         system["duration_ms"] = duration_ms
 
-    # Build result
+    # Build result.
+    # cast(CategoryScores, ...) is veilig: detailed_scores is in deze functie
+    # zelf gebouwd uit overall_score (een float) en heeft daardoor de CategoryScores-shape
+    # (`total=False` TypedDict accepteert optional float-keys). Geen externe data.
     result: ValidationResult = {
         "version": CONTRACT_VERSION,
         "overall_score": overall_score,
@@ -419,6 +461,9 @@ def normalize_to_unified(
         if not result.get("system", {}).get("correlation_id"):
             result["system"] = {**result.get("system", {})}
             result["system"]["correlation_id"] = correlation_id or str(uuid.uuid4())
+        # Runtime validation: externe data — verifieer essentiële keys
+        # voordat we cast'en, anders crasht downstream code laat.
+        _assert_validation_result_keys(result)
         return cast("ValidationResult", result)
 
     # Case 2: Dataclass with __dataclass_fields__
@@ -565,6 +610,8 @@ def _convert_dataclass_to_unified(
     # Build final result
     is_acceptable = getattr(result, "is_valid", overall_score >= 0.5)
 
+    # cast(CategoryScores, ...) veilig: detailed_scores is hier zelf gebouwd
+    # (geen externe bron) en past binnen het total=False TypedDict-contract.
     unified: ValidationResult = {
         "version": CONTRACT_VERSION,
         "overall_score": overall_score,
@@ -665,6 +712,8 @@ def _convert_legacy_dict_to_unified(
         "timestamp": result.get("timestamp", datetime.now(UTC).isoformat()),
     }
 
+    # cast(CategoryScores, ...) veilig: detailed_scores is hier zelf gebouwd
+    # (geen externe bron) en past binnen het total=False TypedDict-contract.
     unified: ValidationResult = {
         "version": CONTRACT_VERSION,
         "overall_score": overall_score,

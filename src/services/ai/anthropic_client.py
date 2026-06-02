@@ -7,6 +7,7 @@ Wraps the Anthropic SDK and maps its errors to provider-agnostic types.
 from __future__ import annotations
 
 import logging
+from typing import Literal
 
 import anthropic
 from anthropic import AsyncAnthropic
@@ -60,10 +61,15 @@ class AnthropicClient:
                         "Combine them into a single system message."
                     )
                 system_text = msg.content
+            elif msg.role in ("user", "assistant"):
+                # Expliciete narrow naar Literal["user","assistant"]: zonder dit
+                # ziet mypy alleen msg.role: str en valideert de TypedDict niet.
+                role: Literal["user", "assistant"] = msg.role
+                api_messages.append({"role": role, "content": msg.content})
             else:
-                # role is "user" of "assistant" voor non-system messages
-                api_messages.append(
-                    {"role": msg.role, "content": msg.content}  # type: ignore[typeddict-item]
+                raise AIClientError(
+                    f"Unsupported message role for Anthropic: {msg.role!r}. "
+                    "Expected 'system', 'user', or 'assistant'."
                 )
 
         try:
