@@ -1,16 +1,15 @@
 name: Contract Tests
 
-# DEF-406 follow-up: ALG-309/PR #193 unblock via self-trigger paths
-# (Self-trigger ook gebruikt door DEF-409/PR #199 — required check unblock)
-# (Self-trigger ook gebruikt door PR #200 — required check unblock voor quality-gate fix)
+# Draait op ELKE PR — geen paths-filter.
+# Reden: "Validation Contract Tests" is een REQUIRED status check. Met een
+# paths-filter bleef de check ongetriggerd op PRs die de gefilterde paden niet
+# raken (bv. dependency-bumps in requirements.txt), waardoor de merge permanent
+# BLOCKED was op een nooit-gerapporteerde required check. De vroegere
+# self-trigger-hack (PR #193/#199/#200: een comment-edit op dit bestand) is
+# hiermee overbodig. Een dependency-bump kán contracten breken, dus validatie
+# op elke PR is inhoudelijk juist.
 on:
   pull_request:
-    paths:
-      - 'src/services/validation/**'
-      - 'src/services/interfaces/**'
-      - 'tests/integration/contracts/**'
-      - 'docs/architectuur/contracts/**'
-      - '.github/workflows/contract-tests.yml'
   push:
     branches:
       - main
