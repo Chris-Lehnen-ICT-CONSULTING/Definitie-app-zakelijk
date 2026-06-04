@@ -186,8 +186,40 @@ def test_collect_src_top_levels_negeert_ruis(tmp_path):
     (src / "__pycache__").mkdir()
     (src / ".hidden").mkdir()
     (src / "pkg.egg-info").mkdir()
-    (src / "main.py").write_text("x = 1\n")
+    (src / "__init__.py").write_text("")
     assert ns.collect_src_top_levels(src) == {"domain"}
+
+
+def test_collect_src_top_levels_neemt_top_level_py_modules_mee(tmp_path):
+    # src/main.py is met pythonpath=src importeerbaar als `main` en dus
+    # shadowbaar — moet meegenomen worden (gap S6 uit de review).
+    src = tmp_path / "src"
+    (src / "domain").mkdir(parents=True)
+    (src / "main.py").write_text("x = 1\n")
+    (src / "__init__.py").write_text("")
+    assert ns.collect_src_top_levels(src) == {"domain", "main"}
+
+
+def test_print_collisions_toont_dist_suffix(capsys):
+    # Bij een import↔distributie-mismatch moet de herkomst-dist zichtbaar zijn.
+    ns._print_collisions({"yaml": "pyyaml"})
+    err = capsys.readouterr().err
+    assert "yaml  (via dist 'pyyaml')" in err
+    # Bij gelijke naam geen suffix.
+    ns._print_collisions({"services": "services"})
+    err2 = capsys.readouterr().err
+    assert "- services\n" in err2
+    assert "via dist" not in err2.split("- services")[1].split("\n")[0]
+
+
+def test_missende_include_warnt_en_skipt(tmp_path, capsys):
+    base = tmp_path / "requirements.txt"
+    base.write_text("requests==2.0\n-r ontbreekt.txt\n")
+    names = ns.collect_distributions([base])
+    assert names == {"requests"}  # stille deps in ontbrekend bestand gemist...
+    assert (
+        "include-target niet gevonden" in capsys.readouterr().err
+    )  # ...maar wél zichtbaar
 
 
 # --------------------------------------------------------------------------- #
@@ -225,6 +257,27 @@ def test_main_exit1_lege_src(tmp_path):
     req = tmp_path / "requirements.txt"
     req.write_text("requests==2.0\n")
     assert ns.main(["--src", str(src), "--requirement", str(req)]) == 1
+
+
+def test_main_default_pad_op_echte_repo():
+    # Zonder args valt main() terug op de repo-layout (DEFAULT_SRC/REQ_FILES).
+    # De echte repo mag geen collision hebben.
+    assert ns.main([]) == 0
+
+
+def test_collect_distributions_aggregeert_meerdere_files(tmp_path):
+    a = tmp_path / "requirements.txt"
+    b = tmp_path / "requirements-dev.txt"
+    a.write_text("requests==2.0\npytest==8.0\n")
+    b.write_text("pytest==8.0\nruff==0.3\n")  # pytest dubbel → gededupliceerd
+    assert ns.collect_distributions([a, b]) == {"requests", "pytest", "ruff"}
+
+
+def test_find_collisions_gebruikt_vooraf_gescande_distributions(tmp_path):
+    # Met expliciete `distributions` worden de req_files niet (her)geparsed.
+    src = _make_src(tmp_path, "domain", "uniquepkg")
+    collisions = ns.find_collisions([], src, dist_map={}, distributions={"uniquepkg"})
+    assert collisions == {"uniquepkg": "uniquepkg"}
 
 
 # --------------------------------------------------------------------------- #

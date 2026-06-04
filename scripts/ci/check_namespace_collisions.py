@@ -107,6 +107,11 @@ def iter_requirement_lines(
         include = _INCLUDE_RE.match(_strip_comment(raw).strip())
         if include:
             target = (req_file.parent / include.group(1).strip()).resolve()
+            if not target.is_file():
+                print(
+                    f"WAARSCHUWING: include-target niet gevonden, overgeslagen: {target}",
+                    file=sys.stderr,
+                )
             yield from iter_requirement_lines(target, _seen)
         else:
             yield raw
@@ -138,34 +143,45 @@ def build_distribution_import_map() -> dict[str, set[str]]:
 def import_names_for(dist: str, dist_map: dict[str, set[str]]) -> set[str]:
     """Resolve de import-namen van een distributie. Valt terug op de canonieke
     naam met `-`→`_` wanneer het pakket niet geïnstalleerd is (en dus niet in
-    de metadata-map zit)."""
-    return dist_map.get(dist) or {dist.replace("-", "_")}
+    de metadata-map zit). Een expliciete lege set (distributie zonder top-level
+    imports) blijft leeg — alleen een ontbrekende sleutel triggert de fallback."""
+    names = dist_map.get(dist)
+    return names if names is not None else {dist.replace("-", "_")}
 
 
 def collect_src_top_levels(src_dir: Path) -> set[str]:
-    """Verzamel de genormaliseerde top-level package-namen onder src/."""
-    return {
-        child.name.lower()
-        for child in src_dir.iterdir()
-        if child.is_dir()
-        and not child.name.startswith(".")
-        and child.name != "__pycache__"
-        and not child.name.endswith(".egg-info")
-    }
+    """Verzamel de genormaliseerde top-level import-namen onder src/: zowel
+    package-directories als losse top-level `.py` modules. Beide zijn met
+    `pythonpath=src` importeerbaar en dus shadowbaar (`src/main.py` → `main`)."""
+    tops: set[str] = set()
+    for child in src_dir.iterdir():
+        if child.name.startswith(".") or child.name == "__pycache__":
+            continue
+        if child.is_dir() and not child.name.endswith(".egg-info"):
+            tops.add(child.name.lower())
+        elif child.is_file() and child.suffix == ".py" and child.stem != "__init__":
+            tops.add(child.stem.lower())
+    return tops
 
 
 def find_collisions(
     req_files: Iterable[Path],
     src_dir: Path,
     dist_map: dict[str, set[str]] | None = None,
+    distributions: set[str] | None = None,
 ) -> dict[str, str]:
     """Geef {import_naam: distributie} voor elke src/ top-level die door de
-    import-naam van een vereiste distributie geshadowd wordt."""
+    import-naam van een vereiste distributie geshadowd wordt.
+
+    `distributions` mag vooraf-gescand worden meegegeven (door `main`) zodat de
+    requirement-files niet twee keer geparsed hoeven te worden."""
     src_tops = collect_src_top_levels(Path(src_dir))
+    if distributions is None:
+        distributions = collect_distributions(req_files)
     if dist_map is None:
         dist_map = build_distribution_import_map()
     collisions: dict[str, str] = {}
-    for dist in collect_distributions(req_files):
+    for dist in distributions:
         for name in import_names_for(dist, dist_map) & src_tops:
             collisions[name] = dist
     return collisions
@@ -206,7 +222,10 @@ def _print_collisions(collisions: dict[str, str]) -> None:
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description=__doc__.splitlines()[1])
+    parser = argparse.ArgumentParser(
+        description="Detecteer dependency-confusion collisions tussen "
+        "requirements*.txt en src/ top-levels."
+    )
     parser.add_argument("--src", type=Path, default=DEFAULT_SRC, help="src/ directory")
     parser.add_argument(
         "--requirement",
@@ -231,7 +250,8 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     existing = [f for f in req_files if Path(f).is_file()]
-    if not collect_distributions(existing):
+    distributions = collect_distributions(existing)
+    if not distributions:
         # Lege/whitespace-only requirements is een geldige staat — geen
         # packages = geen collision mogelijk. Log wel hoeveel src/-modules
         # ongecontroleerd blijven zodat reviewers de stille staat niet missen.
@@ -241,7 +261,7 @@ def main(argv: list[str] | None = None) -> int:
         )
         return 0
 
-    collisions = find_collisions(existing, src_dir)
+    collisions = find_collisions(existing, src_dir, distributions=distributions)
     if collisions:
         _print_collisions(collisions)
         return 1
