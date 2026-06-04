@@ -87,7 +87,11 @@ Bij conflict: drie fix-opties (in volgorde van impact):
 - ✅ `-r`/`-c` includes worden recursief gevolgd (met cycle-guard)
 - ✅ Distribution-name vs import-name mismatches (bv. `PyYAML` → `yaml`) worden opgelost via `importlib.metadata.packages_distributions()`
 
-**Residuele limiet:** een naamloze bare VCS-URL zonder `#egg=` (`git+https://...`) kan statisch niet benoemd worden en wordt overgeslagen.
+**Residuele limieten** (heuristiek, defense-in-depth — geen sluitende garantie):
+
+- De distributie→import mapping leunt op `importlib.metadata` van de **actieve omgeving**. Voor een dependency die (nog) niet geïnstalleerd is, valt de check terug op de genormaliseerde distributienaam als import-naam. Een distributie waarvan de import-naam afwijkt (bv. dist `evil-thing` met top-level `services`) wordt dan gemist. **Mitigatie:** de CI-stap draait ná `pip install -r requirements*.txt`, dus daar zijn alle deps geïnstalleerd en wordt de echte import-naam wél geresolved. In de pre-commit hook (lokaal) geldt de fallback.
+- Een naamloze bare VCS-/wheel-URL zonder `#egg=` (`git+https://...`, `https://.../pkg-1.0.whl`) kan statisch niet benoemd worden en wordt overgeslagen (in CI wel gedekt via install-first).
+- Top-level `.py` modules én package-directories onder `src/` worden beide gecheckt; PEP 420 namespace-subpackages (geen top-level) vallen buiten scope.
 
 ## Testing
 
