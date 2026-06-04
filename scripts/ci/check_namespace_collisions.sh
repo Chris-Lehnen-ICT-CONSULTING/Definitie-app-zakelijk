@@ -1,129 +1,33 @@
 #!/usr/bin/env bash
-# check_namespace_collisions.sh — DEF-409
+# check_namespace_collisions.sh — DEF-409 / DEF-410
 #
-# Detecteert dependency-confusion risico: src/ top-level packages die ook
-# bestaan als PyPI-package in requirements*.txt. Met `pythonpath = src`
-# (pytest.ini) zou een PyPI-pakket met dezelfde naam stilletjes de in-repo
-# module shadowen — een dependency-confusion attack vector.
+# Thin shim. De detectielogica is in DEF-410 herschreven naar Python en leeft
+# nu in check_namespace_collisions.py (PEP 508 strict parser via `packaging`,
+# distribution→import mapping, recursieve -r/-c includes, formele pytest-tests).
 #
-# Exit codes:
-#   0 = geen collisions (of lege requirements: geen check mogelijk)
-#   1 = collision gevonden, OF setup-fout (missende src/, lege src/)
+# Dit script blijft het stabiele entrypoint zodat de CI-stap
+# (.github/workflows/test.yml) en de pre-commit hook (.pre-commit-config.yaml)
+# ongewijzigd blijven werken.
 #
-# Gebruik:
-#   bash scripts/ci/check_namespace_collisions.sh
+# Interpreter-keuze (eerste die bestaat):
+#   1. $PYTHON env-var (expliciete override)
+#   2. repo .venv/bin/python (zodat pre-commit ook zonder geactiveerde venv het
+#      `packaging`-pakket vindt)
+#   3. python3 op PATH (CI installeert deps in de actieve env)
 #
-# Geconvergeerd voor:
-# - Lokaal pre-commit hook (bij requirements*.txt of nieuwe src/<pkg>/__init__.py)
-# - CI step (elke push/PR)
-#
-# Bekende scope-limieten (DEF-409 Optie A — lichte aanpak):
-#   - PEP 508 direct-URL syntax `pkg @ git+https://...` wordt NIET geparst.
-#     Editable `-e ... #egg=NAME` wordt wel gevangen. Voor strict coverage
-#     overweeg `pip install packaging && python -c "..."` migratie.
-#   - `-r other-requirements.txt` includes worden NIET recursief gevolgd.
-#     Alleen toplevel requirements.txt + requirements-dev.txt worden gescand.
-#   - PyPI distribution-namen ≠ altijd Python import-namen (bv. `PyYAML` →
-#     import `yaml`, `beautifulsoup4` → `bs4`). De check vergelijkt
-#     distribution-namen (= attack-vector voor dependency-confusion) tegen
-#     src/ dirnamen (= import-namen). Mismatches als PyYAML/yaml passeren
-#     dus stil. Voor strict coverage: importlib.metadata.packages_distributions().
-#   - PEP 420 namespace packages (zonder __init__.py) triggeren pre-commit hook
-#     niet; CI step vangt ze wel op want `find -type d` werkt schemaloos.
-#   - Test-fixtures voor regressie-vangst: aparte issue (zie DEF-409 review).
+# Exit codes en argumenten worden 1-op-1 doorgegeven aan het Python-script.
 
 set -euo pipefail
 
-REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
-SRC_DIR="$REPO_ROOT/src"
-REQ_FILES=(
-  "$REPO_ROOT/requirements.txt"
-  "$REPO_ROOT/requirements-dev.txt"
-)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
-if [ ! -d "$SRC_DIR" ]; then
-  echo "FOUT: src/ directory niet gevonden op $SRC_DIR" >&2
-  exit 1
+if [ -n "${PYTHON:-}" ]; then
+  PY="$PYTHON"
+elif [ -x "$REPO_ROOT/.venv/bin/python" ]; then
+  PY="$REPO_ROOT/.venv/bin/python"
+else
+  PY="python3"
 fi
 
-# Verzamel top-level src/-package-namen (normaliseren: lowercase, _ ipv -)
-# Exclude: __pycache__, *.egg-info, hidden dirs, niet-directories
-TOP_LEVELS=$(
-  find "$SRC_DIR" -mindepth 1 -maxdepth 1 -type d \
-    -not -name '__pycache__' \
-    -not -name '.*' \
-    -not -name '*.egg-info' \
-    -exec basename {} \; \
-  | tr '[:upper:]' '[:lower:]' \
-  | tr '-' '_' \
-  | sort -u
-)
-
-if [ -z "$TOP_LEVELS" ]; then
-  echo "FOUT: geen top-level packages gevonden in $SRC_DIR" >&2
-  exit 1
-fi
-
-# Verzamel package-namen uit requirements*.txt.
-# Parsing-volgorde matters — eerst gevaarlijke ontsnappingsroutes filteren:
-#   1. Pip directives (-r, -c, -i, --index-url, etc.) — skip volledig, anders
-#      verschijnt 'extra_index_url' als package-naam
-#   2. Editable VCS installs (-e git+...#egg=NAME) — extract egg-name
-#   3. Inline comments strippen (pkg==1.0  # note) vóór andere transforms
-#   4. Env markers (numpy; python_version >= "3.10") — strip
-#   5. YAML frontmatter (---)
-#   6. Comments / lege regels
-#   7. Extras: requests[security] → requests
-#   8. Version specs: pkg>=1.0 → pkg
-INSTALLED=""
-for req in "${REQ_FILES[@]}"; do
-  if [ -f "$req" ]; then
-    pkgs=$(
-      sed -E 's/^[[:space:]]*-e[[:space:]]+.*#egg=([^[:space:]&]+).*/\1/' "$req" \
-        | grep -vE '^[[:space:]]*(-[a-zA-Z]|--[a-zA-Z])' \
-        | sed 's/#.*$//' \
-        | sed 's/;.*$//' \
-        | grep -v '^---' \
-        | grep -v '^[[:space:]]*$' \
-        | sed 's/[<>=!~].*//' \
-        | sed 's/\[.*\]//' \
-        | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' \
-        | tr '[:upper:]' '[:lower:]' \
-        | tr '-' '_' \
-        || true
-    )
-    INSTALLED="$INSTALLED"$'\n'"$pkgs"
-  fi
-done
-
-INSTALLED=$(echo "$INSTALLED" | grep -v '^$' | sort -u || true)
-
-if [ -z "$INSTALLED" ]; then
-  # Lege/whitespace-only requirements is een geldige staat (initiële project
-  # of na dependency-cleanup) — geen packages = geen collision mogelijk.
-  # Maar log explicit hoeveel src/-packages ongecontroleerd blijven zodat
-  # reviewers de stille staat niet missen (MEDIUM uit security-review).
-  src_count=$(echo "$TOP_LEVELS" | wc -l | tr -d '[:space:]')
-  echo "INFO: geen packages in requirements*.txt — $src_count src/-modules ongecontroleerd."
-  exit 0
-fi
-
-# Vind overlap (set-intersection)
-COLLISIONS=$(comm -12 <(echo "$INSTALLED") <(echo "$TOP_LEVELS") || true)
-
-if [ -n "$COLLISIONS" ]; then
-  echo "❌ DEPENDENCY-CONFUSION RISICO: src/ top-level packages botsen met PyPI-deps:" >&2
-  echo "$COLLISIONS" | sed 's/^/  - /' >&2
-  echo "" >&2
-  echo "Met pythonpath=src zou de PyPI-package de in-repo module stil kunnen" >&2
-  echo "shadowen. Mogelijke fixes:" >&2
-  echo "  1. Hernoem de src/-package (bv. naar definitieagent.X — zie DEF-409)" >&2
-  echo "  2. Verwijder de botsende PyPI-dependency uit requirements*.txt" >&2
-  echo "  3. Vervang door een specifiekere PyPI-package met andere naam" >&2
-  echo "" >&2
-  echo "Zie docs/CONTRIBUTING.md sectie 'Dependency-confusion policy'." >&2
-  exit 1
-fi
-
-echo "✓ Geen namespace-collisions tussen requirements*.txt en src/ top-levels."
-exit 0
+exec "$PY" "$SCRIPT_DIR/check_namespace_collisions.py" "$@"
