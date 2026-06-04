@@ -68,10 +68,12 @@ security  services  toetsregels  tools  ui  utils  validation  voorbeelden
 
 ### Geautomatiseerde check
 
-`scripts/ci/check_namespace_collisions.sh` faalt bij elke overlap. Runt op twee plekken:
+`scripts/ci/check_namespace_collisions.py` faalt bij elke overlap (DEF-410 Python-rewrite; `scripts/ci/check_namespace_collisions.sh` is een thin shim die het Python-script aanroept en blijft het stabiele entrypoint). Runt op twee plekken:
 
 - **Pre-commit hook** (`.pre-commit-config.yaml`, `id: check-namespace-collisions`) — bij wijziging van `requirements*.txt` of nieuwe `src/<package>/__init__.py`
 - **CI** (`.github/workflows/test.yml`, "Check namespace-collisions" step) — bij elke push/PR
+
+Regressie-vangnet: `tests/ci/test_check_namespace_collisions.py` (parametrized, dekt alle parser-stages). Interpreter: standaard `python3`; override met de `PYTHON` env-var wanneer `packaging` daar geïnstalleerd staat (`packaging` zit in `requirements.txt`).
 
 Bij conflict: drie fix-opties (in volgorde van impact):
 
@@ -79,12 +81,13 @@ Bij conflict: drie fix-opties (in volgorde van impact):
 2. **Verwijder de botsende PyPI-dependency** uit `requirements*.txt`
 3. **Vervang door een specifiekere package** met andere naam
 
-**Scope-limieten** (Optie A — lichte aanpak, niet strict PEP 508 parser):
+**Strict coverage** (DEF-410 — `packaging`-based parser, dicht de DEF-409 Optie A-gaten):
 
-- `pkg @ git+https://...` direct-URL syntax wordt niet gevangen (`-e ... #egg=NAME` wel)
-- `-r nested-requirements.txt` includes worden niet recursief gevolgd
-- Distribution-name vs import-name mismatches (bv. `PyYAML` → `yaml`) passeren stil
-- Voor strict coverage: zie follow-up issue voor `packaging`-based Python rewrite
+- ✅ PEP 508 direct-URL `pkg @ git+https://...` wordt gevangen (via `packaging.requirements.Requirement`); `-e ... #egg=NAME` en `...#egg=NAME`-URL's eveneens
+- ✅ `-r`/`-c` includes worden recursief gevolgd (met cycle-guard)
+- ✅ Distribution-name vs import-name mismatches (bv. `PyYAML` → `yaml`) worden opgelost via `importlib.metadata.packages_distributions()`
+
+**Residuele limiet:** een naamloze bare VCS-URL zonder `#egg=` (`git+https://...`) kan statisch niet benoemd worden en wordt overgeslagen.
 
 ## Testing
 
