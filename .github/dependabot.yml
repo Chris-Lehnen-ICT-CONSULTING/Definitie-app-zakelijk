@@ -30,6 +30,12 @@ updates:
     ignore:
       - dependency-name: "mando"
         update-types: ["version-update:semver-major", "version-update:semver-minor", "version-update:semver-patch"]
+      # Tijdelijk uitgesloten — vereisen een bewuste, app-geteste upgrade i.p.v. een gegroepeerde bump.
+      # VERWIJDEREN zodra de bijbehorende stories klaar zijn:
+      #   - streamlit: DEF-411 (gecoördineerd met pandas 3.0)
+      #   - anthropic: aparte SDK-upgrade-story (0.49 → 0.105+, changelog-review + generatie-smoke)
+      - dependency-name: "streamlit"
+      - dependency-name: "anthropic"
 
   # GitHub Actions updates
   - package-ecosystem: "github-actions"
