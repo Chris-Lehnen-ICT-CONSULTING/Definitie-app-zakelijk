@@ -41,7 +41,7 @@ jobs:
         GITHUB_REPO: ${{ github.repository }}
         GITHUB_PROJECT_NUMBER: '1'  # Pas aan naar jouw project nummer
       run: |
-        python scripts/update_feature_status.py
+        python scripts/docs/update_feature_status.py
 
     - name: Commit and push changes
       run: |

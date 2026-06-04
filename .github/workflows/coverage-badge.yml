@@ -27,7 +27,10 @@ jobs:
 
     - name: Generate coverage report
       run: |
-        pytest tests/unit/services tests/integration/services tests/integration/contracts --cov=src/services --cov-report=xml --cov-report=term
+        # PYTHONPATH=. zet de repo-root op sys.path zodat 'from src.X'-imports resolven.
+        # De coverage-job installeert het pakket niet editable (anders dan lokaal), waardoor
+        # 'src' anders geen importeerbaar package is → ModuleNotFoundError bij collection.
+        PYTHONPATH=. pytest tests/unit/services tests/integration/services tests/integration/contracts --cov=src/services --cov-report=xml --cov-report=term
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v6
