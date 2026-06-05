@@ -91,8 +91,14 @@ repos:
         stages: [pre-commit]
       - id: check-namespace-collisions
         name: Check dependency-confusion (src/ vs requirements.txt) — DEF-409
-        entry: bash scripts/ci/check_namespace_collisions.sh
-        language: system
+        # language: python met additional_dependencies maakt de hook
+        # zelfvoorzienend (DEF-411): de Python-rewrite (DEF-410) heeft `packaging`
+        # nodig, maar de pre-commit-verify CI-job draait geen `pip install -r
+        # requirements.txt`. Een geïsoleerde hook-venv garandeert `packaging`
+        # ongeacht de ambient interpreter.
+        entry: python scripts/ci/check_namespace_collisions.py
+        language: python
+        additional_dependencies: ["packaging"]
         pass_filenames: false
         # Triggert ook bij toevoeging van nieuwe src/<package>/__init__.py
         # zodat een nieuwe top-level die per ongeluk een PyPI-naam matcht
