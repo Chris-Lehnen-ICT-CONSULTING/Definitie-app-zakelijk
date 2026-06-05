@@ -29,9 +29,6 @@ from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
 
-# Voeg src toe aan path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
-
 from config.synonym_config import SynonymConfiguration, SynonymPolicy
 from models.synonym_models import WeightedSynonym
 from repositories.synonym_registry import SynonymRegistry
