@@ -32,11 +32,11 @@ import pytest
 # Voeg src toe aan path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
-from src.config.synonym_config import SynonymConfiguration, SynonymPolicy
-from src.models.synonym_models import WeightedSynonym
-from src.repositories.synonym_registry import SynonymRegistry
-from src.services.gpt4_synonym_suggester import GPT4SynonymSuggester, SynonymSuggestion
-from src.services.synonym_orchestrator import SynonymOrchestrator
+from config.synonym_config import SynonymConfiguration, SynonymPolicy
+from models.synonym_models import WeightedSynonym
+from repositories.synonym_registry import SynonymRegistry
+from services.gpt4_synonym_suggester import GPT4SynonymSuggester, SynonymSuggestion
+from services.synonym_orchestrator import SynonymOrchestrator
 
 pytestmark = [pytest.mark.unit]
 
@@ -96,7 +96,7 @@ def pragmatic_config():
 def orchestrator(mock_registry, mock_gpt4, strict_config):
     """Create orchestrator met mocked dependencies en strict config."""
     with patch(
-        "src.services.synonym_orchestrator.get_synonym_config",
+        "services.synonym_orchestrator.get_synonym_config",
         return_value=strict_config,
     ):
         return SynonymOrchestrator(registry=mock_registry, gpt4_suggester=mock_gpt4)
@@ -420,7 +420,7 @@ class TestGovernancePolicy:
         # Arrange
         strict_cfg = SynonymConfiguration(policy=SynonymPolicy.STRICT)
         with patch(
-            "src.services.synonym_orchestrator.get_synonym_config",
+            "services.synonym_orchestrator.get_synonym_config",
             return_value=strict_cfg,
         ):
             orch = SynonymOrchestrator(mock_registry, mock_gpt4)
@@ -438,7 +438,7 @@ class TestGovernancePolicy:
         # Arrange
         pragmatic_cfg = SynonymConfiguration(policy=SynonymPolicy.PRAGMATIC)
         with patch(
-            "src.services.synonym_orchestrator.get_synonym_config",
+            "services.synonym_orchestrator.get_synonym_config",
             return_value=pragmatic_cfg,
         ):
             orch = SynonymOrchestrator(mock_registry, mock_gpt4)
