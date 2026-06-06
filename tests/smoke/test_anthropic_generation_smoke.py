@@ -19,12 +19,15 @@ from __future__ import annotations
 
 from unittest.mock import AsyncMock, MagicMock, PropertyMock, patch
 
+import anthropic
 import pytest
 from anthropic.types import Message, TextBlock, Usage
 
 from services.ai.anthropic_client import AnthropicClient
+from services.ai.base_client import AIClientError
 from services.ai.model_router import ModelRouter
 from services.ai_service_v2 import AIServiceV2
+from services.interfaces import AIServiceError
 from utils.async_api import RateLimitConfig
 
 pytestmark = [pytest.mark.smoke]
@@ -119,12 +122,60 @@ async def test_generate_definition_end_to_end_via_anthropic() -> None:
 
 
 @pytest.mark.asyncio
+async def test_multiple_content_blocks_are_joined() -> None:
+    """Een Message met meerdere TextBlocks levert de samengevoegde tekst op.
+
+    Borgt de extractie `"\\n".join(text_parts)` in AnthropicClient tegen de
+    pydantic-modellen van de nieuwe SDK — de meest relevante response-edge bij
+    een model-bump.
+    """
+    multi_block = Message(
+        id="msg_smoke_multiblock",
+        content=[
+            TextBlock(type="text", text="Eerste deel van de definitie."),
+            TextBlock(type="text", text="Tweede deel van de definitie."),
+        ],
+        model=_ANTHROPIC_MODEL,
+        role="assistant",
+        stop_reason="end_turn",
+        stop_sequence=None,
+        type="message",
+        usage=Usage(input_tokens=10, output_tokens=20),
+    )
+
+    with (
+        patch("services.ai.anthropic_client.AsyncAnthropic") as mock_sdk_cls,
+        patch.object(
+            ModelRouter,
+            "active_provider",
+            new_callable=PropertyMock,
+            return_value="anthropic",
+        ),
+    ):
+        mock_sdk = MagicMock()
+        mock_sdk.messages.create = AsyncMock(return_value=multi_block)
+        mock_sdk_cls.return_value = mock_sdk
+
+        service = AIServiceV2(
+            rate_limit_config=RateLimitConfig(max_retries=1),
+            ai_client=AnthropicClient(api_key="sk-ant-smoke"),
+            model_router=_anthropic_router(),
+            use_cache=False,
+        )
+
+        result = await service.generate_definition(
+            prompt="Definieer 'verdachte'.",
+            task_type="definition_core",
+        )
+
+    assert result.text == (
+        "Eerste deel van de definitie.\nTweede deel van de definitie."
+    )
+
+
+@pytest.mark.asyncio
 async def test_generate_definition_error_maps_to_service_error() -> None:
     """Een Anthropic APIError propageert als AIServiceError door het hele pad."""
-    import anthropic
-
-    from services.interfaces import AIServiceError
-
     with (
         patch("services.ai.anthropic_client.AsyncAnthropic") as mock_sdk_cls,
         patch.object(
@@ -151,8 +202,11 @@ async def test_generate_definition_error_maps_to_service_error() -> None:
             use_cache=False,
         )
 
-        with pytest.raises(AIServiceError):
+        with pytest.raises(AIServiceError) as exc_info:
             await service.generate_definition(
                 prompt="Definieer 'verdachte'.",
                 task_type="definition_core",
             )
+
+    # De mapping behoudt de oorzaakketen: AIServiceError ← AIClientError ← APIError
+    assert isinstance(exc_info.value.__cause__, AIClientError)
