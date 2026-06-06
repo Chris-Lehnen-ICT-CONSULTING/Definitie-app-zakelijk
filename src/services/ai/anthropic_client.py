@@ -47,8 +47,10 @@ class AnthropicClient:
         if not messages:
             raise AIClientError("messages must not be empty")
 
-        # Anthropic uses a separate `system` parameter (not a system message in the list)
-        system_text: str | anthropic.NotGiven = anthropic.NOT_GIVEN
+        # Anthropic uses a separate `system` parameter (not a system message in the list).
+        # SDK ≥0.52 verving de NotGiven-sentinel voor request-params door Omit/omit;
+        # messages.create() typeert `system` nu als `str | Iterable[TextBlockParam] | Omit`.
+        system_text: str | anthropic.Omit = anthropic.omit
         api_messages: list[MessageParam] = []
         system_count = 0
 
