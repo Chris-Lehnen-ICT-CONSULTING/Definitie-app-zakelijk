@@ -30,11 +30,8 @@ updates:
     ignore:
       - dependency-name: "mando"
         update-types: ["version-update:semver-major", "version-update:semver-minor", "version-update:semver-patch"]
-      # Tijdelijk uitgesloten — vereist een bewuste, app-geteste upgrade i.p.v. een gegroepeerde bump.
-      # VERWIJDEREN zodra de bijbehorende story klaar is:
-      #   - anthropic: aparte SDK-upgrade-story (0.49 → 0.105+, changelog-review + generatie-smoke) → DEF-412
       # streamlit-ignore verwijderd in DEF-411 (streamlit 1.58.0 + pandas 3.0.3 upgrade)
-      - dependency-name: "anthropic"
+      # anthropic-ignore verwijderd in DEF-412 (anthropic 0.105.2 upgrade + generatie-smoke)
 
   # GitHub Actions updates
   - package-ecosystem: "github-actions"
