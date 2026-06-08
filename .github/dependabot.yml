@@ -30,6 +30,10 @@ updates:
     ignore:
       - dependency-name: "mando"
         update-types: ["version-update:semver-major", "version-update:semver-minor", "version-update:semver-patch"]
+      # pydantic-core is door pydantic exact gepind (pydantic==2.13.4 → pydantic-core==2.46.4).
+      # Los bumpen breekt de install (ResolutionImpossible) — zie de kapotte groep-PR #220.
+      # Alleen gecoördineerd met een pydantic-upgrade bumpen, daarom hier genegeerd.
+      - dependency-name: "pydantic-core"
       # streamlit-ignore verwijderd in DEF-411 (streamlit 1.58.0 + pandas 3.0.3 upgrade)
       # anthropic-ignore verwijderd in DEF-412 (anthropic 0.105.2 upgrade + generatie-smoke)
 
