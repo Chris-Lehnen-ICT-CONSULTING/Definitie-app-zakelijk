@@ -4,7 +4,7 @@ Unit tests voor Comprehensive Fix B: Context filtering en relevance scoring.
 
 import pytest
 
-from src.services.web_lookup.context_filter import ContextFilter, ContextMatch
+from services.web_lookup.context_filter import ContextFilter, ContextMatch
 
 pytestmark = [pytest.mark.unit]
 

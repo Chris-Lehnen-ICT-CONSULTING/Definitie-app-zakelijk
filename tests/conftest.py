@@ -91,13 +91,34 @@ def event_loop():
 
 @pytest.fixture(autouse=True)
 def reset_singletons():
-    """Reset singleton instances between tests."""
-    # Reset the global container if it exists
+    """Reset gedeelde singleton-/globale state tussen tests (DEF-414).
+
+    Zonder deze resets lekken de ServiceContainer-singleton, de
+    container_manager LRU-cache en Streamlit's session_state door naar volgende
+    tests in hetzelfde proces. Dat veroorzaakte order-afhankelijke (flaky)
+    failures: tests slaagden in isolatie maar faalden na een vervuilende test.
+    """
+    # 1. services.container global singleton
     try:
         from services.container import reset_container
 
         reset_container()
     except ImportError:
+        pass
+    # 2. utils.container_manager LRU-cache (get_cached_container singleton)
+    try:
+        from utils.container_manager import clear_container_cache
+
+        clear_container_cache()
+    except ImportError:
+        pass
+    # 3. Streamlit session_state (gedeelde mock-dict over alle tests)
+    try:
+        import streamlit as st
+
+        if hasattr(st, "session_state"):
+            st.session_state.clear()
+    except Exception:
         pass
 
 

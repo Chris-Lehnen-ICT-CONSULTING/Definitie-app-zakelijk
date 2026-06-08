@@ -4,7 +4,7 @@ from datetime import UTC, datetime
 
 import pytest
 
-from src.models.category_models import (
+from models.category_models import (
     CategoryChangeResult,
     CategoryUpdateEvent,
     DefinitionCategory,

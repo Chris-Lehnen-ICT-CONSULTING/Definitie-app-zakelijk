@@ -24,10 +24,10 @@ from typing import Any
 
 import pytest
 
-from src.services.definition_generator_config import UnifiedGeneratorConfig
-from src.services.definition_generator_context import EnrichedContext
-from src.services.prompts.modular_prompt_adapter import get_cached_orchestrator
-from src.services.prompts.modules import (
+from services.definition_generator_config import UnifiedGeneratorConfig
+from services.definition_generator_context import EnrichedContext
+from services.prompts.modular_prompt_adapter import get_cached_orchestrator
+from services.prompts.modules import (
     ExpertiseModule,
     GrammarModule,
     ModuleContext,
