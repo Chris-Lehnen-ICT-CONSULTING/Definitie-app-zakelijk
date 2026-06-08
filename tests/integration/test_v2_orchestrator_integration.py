@@ -11,7 +11,7 @@ from unittest.mock import AsyncMock, MagicMock, Mock
 
 import pytest
 
-from src.services.interfaces import (
+from services.interfaces import (
     AIGenerationResult,
     CleaningResult,
     Definition,
@@ -22,7 +22,7 @@ from src.services.interfaces import (
     ValidationResult,
     ValidationViolation,
 )
-from src.services.orchestrators.definition_orchestrator_v2 import (
+from services.orchestrators.definition_orchestrator_v2 import (
     DefinitionOrchestratorV2,
 )
 

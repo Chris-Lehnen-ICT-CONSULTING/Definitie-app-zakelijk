@@ -14,8 +14,8 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from src.services.prompts.modules.base_module import EnrichedContext, ModuleContext
-from src.services.prompts.modules.definition_task_module import DefinitionTaskModule
+from services.prompts.modules.base_module import EnrichedContext, ModuleContext
+from services.prompts.modules.definition_task_module import DefinitionTaskModule
 
 pytestmark = [pytest.mark.red_phase]
 

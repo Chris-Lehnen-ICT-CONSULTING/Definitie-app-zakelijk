@@ -10,7 +10,7 @@ Tests that:
 
 import pytest
 
-from src.services.container import ServiceContainer
+from services.container import ServiceContainer
 
 pytestmark = [pytest.mark.integration]
 

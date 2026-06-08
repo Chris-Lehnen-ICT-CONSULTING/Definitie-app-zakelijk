@@ -7,8 +7,8 @@ from unittest.mock import AsyncMock, Mock
 
 import pytest
 
-from src.services.interfaces import Definition, DefinitionResponse
-from src.services.service_factory import ServiceAdapter
+from services.interfaces import Definition, DefinitionResponse
+from services.service_factory import ServiceAdapter
 
 pytestmark = [pytest.mark.unit]
 
