@@ -8,7 +8,7 @@ Oefent het volledige generatie-pad uit tegen de geïnstalleerde Anthropic SDK:
                 → AsyncAnthropic.messages.create()   (gemockt)
 
 Alleen de buitenste netwerk-call (`messages.create`) is gemockt; de
-`AnthropicClient` gebruikt de échte `anthropic.NOT_GIVEN`-sentinel,
+`AnthropicClient` gebruikt het échte `anthropic.omit`-sentinel,
 `anthropic.types.MessageParam` en bouwt zijn `ChatResponse` uit een échte
 `anthropic.types.Message` (geen losse MagicMock). Zo bewijst de smoke dat onze
 response-extractie (`block.text`, `usage.input_tokens/output_tokens`,
@@ -31,6 +31,27 @@ from services.interfaces import AIServiceError
 from utils.async_api import RateLimitConfig
 
 pytestmark = [pytest.mark.smoke]
+
+
+@pytest.fixture(autouse=True)
+def _force_heuristic_token_estimate():
+    """Forceer de heuristische token-schatting i.p.v. tiktoken.
+
+    Voor een claude-model valt `_estimate_tokens` terug op
+    `tiktoken.get_encoding("o200k_base")`, wat de BPE-vocab probeert te
+    downloaden. De suite blokkeert netwerk (conftest `_disable_network`), dus op
+    een koude cache (verse CI-runner) zou dat falen. Deze smoke test het
+    SDK-pad, niet de token-telling — de heuristiek (char×0.75) is hermetisch.
+
+    Scope-note: het tiktoken-telpad valt hierdoor BEWUST buiten deze smoke;
+    token-counting is geen onderdeel van wat deze SDK-bump-smoke borgt. De
+    `tokens_used > 0`-assert blijft een rooktest dat *een* telling geproduceerd
+    wordt. De tiktoken-tak hoort in een aparte (offline) unit-test gedekt te
+    worden, niet hier.
+    """
+    with patch("services.ai_service_v2.TIKTOKEN_AVAILABLE", False):
+        yield
+
 
 _REPRESENTATIVE_TEXT = (
     "Een verdachte is een natuurlijke persoon tegen wie een redelijk vermoeden "
