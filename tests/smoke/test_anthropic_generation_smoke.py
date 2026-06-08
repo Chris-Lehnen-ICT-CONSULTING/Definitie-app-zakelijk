@@ -42,6 +42,12 @@ def _force_heuristic_token_estimate():
     downloaden. De suite blokkeert netwerk (conftest `_disable_network`), dus op
     een koude cache (verse CI-runner) zou dat falen. Deze smoke test het
     SDK-pad, niet de token-telling — de heuristiek (char×0.75) is hermetisch.
+
+    Scope-note: het tiktoken-telpad valt hierdoor BEWUST buiten deze smoke;
+    token-counting is geen onderdeel van wat deze SDK-bump-smoke borgt. De
+    `tokens_used > 0`-assert blijft een rooktest dat *een* telling geproduceerd
+    wordt. De tiktoken-tak hoort in een aparte (offline) unit-test gedekt te
+    worden, niet hier.
     """
     with patch("services.ai_service_v2.TIKTOKEN_AVAILABLE", False):
         yield
