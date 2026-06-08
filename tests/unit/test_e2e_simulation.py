@@ -15,7 +15,7 @@ st.session_state = {}
 
 import pytest
 
-from src.ui.session_state import SessionStateManager
+from ui.session_state import SessionStateManager
 
 pytestmark = [pytest.mark.unit]
 

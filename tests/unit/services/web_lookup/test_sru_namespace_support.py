@@ -18,7 +18,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from src.services.web_lookup.sru_service import SRUConfig, SRUService
+from services.web_lookup.sru_service import SRUConfig, SRUService
 
 pytestmark = [pytest.mark.unit]
 
@@ -306,7 +306,7 @@ class TestSRUDiagnosticLogging:
           <srw:numberOfRecords>0</srw:numberOfRecords>
         </srw:searchRetrieveResponse>"""
 
-        with patch("src.services.web_lookup.sru_service.logger"):
+        with patch("services.web_lookup.sru_service.logger"):
             results = svc._parse_sru_response(xml_with_diag, term="test", config=cfg)
 
             # Verify empty results (geen crash)

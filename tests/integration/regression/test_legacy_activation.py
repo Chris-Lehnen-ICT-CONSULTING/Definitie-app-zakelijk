@@ -8,9 +8,9 @@ import pytest
 # Add project root to path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from src.services.definition_generator_config import UnifiedGeneratorConfig
-from src.services.definition_generator_context import EnrichedContext
-from src.services.definition_generator_prompts import UnifiedPromptBuilder
+from services.definition_generator_config import UnifiedGeneratorConfig
+from services.definition_generator_context import EnrichedContext
+from services.definition_generator_prompts import UnifiedPromptBuilder
 
 
 def test_legacy_activation():

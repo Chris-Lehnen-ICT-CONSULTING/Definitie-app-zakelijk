@@ -25,9 +25,9 @@ from unittest.mock import MagicMock, Mock, patch
 
 import pytest
 
-from src.services.container import ServiceContainer
-from src.services.interfaces import GenerationRequest
-from src.services.prompts.prompt_service_v2 import PromptServiceV2
+from services.container import ServiceContainer
+from services.interfaces import GenerationRequest
+from services.prompts.prompt_service_v2 import PromptServiceV2
 
 pytestmark = [pytest.mark.unit]
 
@@ -218,9 +218,7 @@ class TestContextPropagationFlow:
     @pytest.fixture
     def service_container(self):
         """Create ServiceContainer with mocked dependencies."""
-        with patch(
-            "src.services.container.ServiceContainer.__init__", return_value=None
-        ):
+        with patch("services.container.ServiceContainer.__init__", return_value=None):
             container = ServiceContainer()
             container._orchestrator = Mock()
             container._prompt_service = PromptServiceV2()

@@ -26,7 +26,7 @@ from unittest.mock import MagicMock, Mock, patch
 
 import pytest
 
-from src.ui.components.enhanced_context_manager_selector import (
+from ui.components.enhanced_context_manager_selector import (
     EnhancedContextManagerSelector as ContextSelector,
 )
 
@@ -275,7 +275,7 @@ class TestConcurrencyAndRaceConditions:
                     patch("streamlit.warning") as _warn,
                     patch("streamlit.write") as _write,
                     patch(
-                        "src.ui.components.enhanced_context_manager_selector.get_context_manager",
+                        "ui.components.enhanced_context_manager_selector.get_context_manager",
                         return_value=mock_context,
                     ),
                 ):

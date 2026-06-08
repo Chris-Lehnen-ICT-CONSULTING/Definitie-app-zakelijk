@@ -31,9 +31,9 @@ from unittest.mock import MagicMock, Mock, patch
 
 import pytest
 
-from src.services.container import ServiceContainer
-from src.services.interfaces import GenerationRequest
-from src.services.prompts.prompt_service_v2 import PromptServiceV2
+from services.container import ServiceContainer
+from services.interfaces import GenerationRequest
+from services.prompts.prompt_service_v2 import PromptServiceV2
 
 pytestmark = [pytest.mark.unit]
 
@@ -69,7 +69,7 @@ class TestSingleContextFlowPath:
     def test_context_manager_centralization(self):
         """Verify all context operations go through ContextManager."""
         # This test ensures context is managed centrally
-        from src.services.context.context_manager import ContextManager
+        from services.context.context_manager import ContextManager
 
         manager = ContextManager()
 
@@ -198,7 +198,7 @@ class TestPerformanceImprovement:
     def test_no_redundant_context_operations(self):
         """Ensure no redundant context operations occur."""
         with patch(
-            "src.services.prompts.prompt_service_v2.PromptServiceV2._format_context"
+            "services.prompts.prompt_service_v2.PromptServiceV2._format_context"
         ) as mock_format:
             request = GenerationRequest(
                 begrip="test",
@@ -223,7 +223,7 @@ class TestLegacyCodeRemoval:
         """V1 context handlers should not exist."""
         # Check that V1 modules are removed or deprecated
         try:
-            from src.services.context_handler_v1 import ContextHandlerV1
+            from services.context_handler_v1 import ContextHandlerV1
 
             msg = "V1 context handler still exists"
             raise AssertionError(msg)
@@ -239,7 +239,7 @@ class TestLegacyCodeRemoval:
 
     def test_deprecated_context_methods_marked(self):
         """Any remaining legacy methods should be marked deprecated."""
-        from src.services.container import ServiceContainer
+        from services.container import ServiceContainer
 
         container = ServiceContainer()
 
@@ -269,7 +269,7 @@ class TestSessionStateEncapsulation:
 
             # Should not be able to access directly
             # Context should go through proper interfaces
-            from src.services.context.context_manager import ContextManager
+            from services.context.context_manager import ContextManager
 
             ContextManager()
             # Should use manager methods, not direct access
@@ -277,7 +277,7 @@ class TestSessionStateEncapsulation:
 
     def test_context_modifications_go_through_manager(self):
         """All context modifications should go through ContextManager."""
-        from src.services.context.context_manager import ContextManager
+        from services.context.context_manager import ContextManager
 
         manager = ContextManager()
 
@@ -300,7 +300,7 @@ class TestSessionStateEncapsulation:
 
     def test_no_context_leakage_between_requests(self):
         """Context should not leak between different requests."""
-        from src.services.context.context_manager import ContextManager
+        from services.context.context_manager import ContextManager
 
         manager = ContextManager()
 
@@ -385,7 +385,7 @@ class TestCodeMaintainability:
 
     def test_single_source_of_truth(self):
         """Context structure should have single source of truth."""
-        from src.services.interfaces import GenerationRequest
+        from services.interfaces import GenerationRequest
 
         # Context fields should be defined in one place
         context_fields = [
@@ -402,7 +402,7 @@ class TestCodeMaintainability:
 
     def test_context_validation_centralized(self):
         """Context validation should be centralized."""
-        from src.services.validation.context_validator import ContextValidator
+        from services.validation.context_validator import ContextValidator
 
         validator = ContextValidator()
 
@@ -426,7 +426,7 @@ class TestCodeMaintainability:
 
     def test_clear_context_flow_documentation(self):
         """Context flow should be clearly documented."""
-        from src.services.prompts import prompt_service_v2
+        from services.prompts import prompt_service_v2
 
         # Check for documentation
         assert prompt_service_v2.__doc__ is not None
@@ -487,7 +487,7 @@ class TestFeatureFlags:
         # Test with flag enabled
         os.environ["USE_MODERN_CONTEXT_FLOW"] = "true"
 
-        from src.services.feature_flags import is_feature_enabled
+        from services.feature_flags import is_feature_enabled
 
         assert is_feature_enabled("modern_context_flow")
 
@@ -498,7 +498,7 @@ class TestFeatureFlags:
 
     def test_gradual_rollout_percentage(self):
         """Support percentage-based rollout."""
-        from src.services.feature_flags import get_rollout_percentage
+        from services.feature_flags import get_rollout_percentage
 
         # Should support gradual rollout
         percentage = get_rollout_percentage("modern_context_flow")
@@ -507,7 +507,7 @@ class TestFeatureFlags:
     def test_fallback_to_legacy_if_error(self):
         """Should fallback to legacy flow if modern flow fails."""
         with patch(
-            "src.services.prompts.prompt_service_v2.PromptServiceV2.build_prompt"
+            "services.prompts.prompt_service_v2.PromptServiceV2.build_prompt"
         ) as mock_modern:
             mock_modern.side_effect = Exception("Modern flow failed")
 
@@ -520,7 +520,7 @@ class TestMonitoring:
 
     def test_context_flow_metrics(self):
         """Context flow should emit metrics."""
-        with patch("src.services.monitoring.metrics.record"):
+        with patch("services.monitoring.metrics.record"):
             request = GenerationRequest(
                 begrip="test",
                 organisatorische_context=["DJI"],

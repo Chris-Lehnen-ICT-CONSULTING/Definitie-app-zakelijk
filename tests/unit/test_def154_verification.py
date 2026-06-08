@@ -9,10 +9,10 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from src.services.prompts.modules.base_module import ModuleContext
-from src.services.prompts.modules.expertise_module import ExpertiseModule
-from src.services.prompts.modules.grammar_module import GrammarModule
-from src.services.prompts.modules.template_module import TemplateModule
+from services.prompts.modules.base_module import ModuleContext
+from services.prompts.modules.expertise_module import ExpertiseModule
+from services.prompts.modules.grammar_module import GrammarModule
+from services.prompts.modules.template_module import TemplateModule
 
 pytestmark = [pytest.mark.unit]
 

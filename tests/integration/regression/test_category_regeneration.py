@@ -5,8 +5,8 @@ from unittest.mock import MagicMock, Mock, patch
 import pytest
 import streamlit as st
 
-from src.ui.components.category_regeneration_helper import CategoryRegenerationHelper
-from src.ui.components.definition_generator_tab import DefinitionGeneratorTab
+from ui.components.category_regeneration_helper import CategoryRegenerationHelper
+from ui.components.definition_generator_tab import DefinitionGeneratorTab
 
 pytestmark = [pytest.mark.regression]
 
@@ -27,7 +27,7 @@ class TestCategoryRegeneration:
 
     @patch("streamlit.warning")
     @patch("streamlit.info")
-    @patch("src.ui.components.definition_generator_tab.SessionStateManager")
+    @patch("ui.components.definition_generator_tab.SessionStateManager")
     def test_trigger_regeneration_with_category(
         self, mock_session, mock_info, mock_warning, generator_tab
     ):
@@ -67,7 +67,7 @@ class TestCategoryRegeneration:
         }
 
         with patch(
-            "src.ui.components.category_regeneration_helper.SessionStateManager"
+            "ui.components.category_regeneration_helper.SessionStateManager"
         ) as mock_sm:
             mock_sm.get_value.return_value = test_data
 
@@ -81,7 +81,7 @@ class TestCategoryRegeneration:
     def test_category_regeneration_helper_no_request(self):
         """Test helper wanneer geen regeneration request."""
         with patch(
-            "src.ui.components.category_regeneration_helper.SessionStateManager"
+            "ui.components.category_regeneration_helper.SessionStateManager"
         ) as mock_sm:
             mock_sm.get_value.return_value = None
 

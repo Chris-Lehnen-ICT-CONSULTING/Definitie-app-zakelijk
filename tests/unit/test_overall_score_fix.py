@@ -66,8 +66,8 @@ def test_normalize_validation_always_includes_overall_score():
 
     from unittest.mock import MagicMock
 
-    from src.services.container import ServiceContainer
-    from src.services.service_factory import ServiceAdapter
+    from services.container import ServiceContainer
+    from services.service_factory import ServiceAdapter
 
     # Create a mock container
     container = MagicMock(spec=ServiceContainer)

@@ -16,7 +16,7 @@ import time
 
 import pytest
 
-from src.utils.smart_rate_limiter import TokenBucket
+from utils.smart_rate_limiter import TokenBucket
 
 pytestmark = [pytest.mark.unit, pytest.mark.slow]
 

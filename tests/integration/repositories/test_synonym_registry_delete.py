@@ -15,7 +15,7 @@ from pathlib import Path
 
 import pytest
 
-from src.repositories.synonym_registry import SynonymRegistry
+from repositories.synonym_registry import SynonymRegistry
 
 pytestmark = [pytest.mark.integration]
 

@@ -23,9 +23,9 @@ from unittest.mock import MagicMock, Mock, patch
 
 import pytest
 
-from src.services.container import ServiceContainer
-from src.services.context.context_manager import ContextManager
-from src.services.interfaces import GenerationRequest
+from services.container import ServiceContainer
+from services.context.context_manager import ContextManager
+from services.interfaces import GenerationRequest
 
 pytestmark = [pytest.mark.compliance]
 
@@ -36,7 +36,7 @@ class TestAuditTrailCompliance:
     @pytest.fixture
     def audit_logger(self):
         """Mock audit logger."""
-        with patch("src.services.audit.audit_logger.AuditLogger") as mock_logger:
+        with patch("services.audit.audit_logger.AuditLogger") as mock_logger:
             yield mock_logger
 
     @pytest.mark.xfail(
@@ -97,7 +97,7 @@ class TestAuditTrailCompliance:
         """Audit log must capture complete context flow."""
         events = []
 
-        with patch("src.services.audit.audit_logger.log_event") as mock_log:
+        with patch("services.audit.audit_logger.log_event") as mock_log:
             mock_log.side_effect = lambda e: events.append(e)
 
             # Simulate complete flow
@@ -171,7 +171,7 @@ class TestPrivacyCompliance:
     def test_data_encryption_at_rest(self):
         """Sensitive context data should be encrypted at rest."""
         # This test documents the requirement
-        with patch("src.services.storage.encrypt"):
+        with patch("services.storage.encrypt"):
             pass
 
             # When storing context
@@ -303,7 +303,7 @@ class TestTransparencyRequirements:
         """Track how context flows through the system."""
         lineage = []
 
-        with patch("src.services.monitoring.track_lineage") as mock_track:
+        with patch("services.monitoring.track_lineage") as mock_track:
             mock_track.side_effect = lambda x: lineage.append(x)
 
             GenerationRequest(begrip="test", organisatorische_context=["DJI"])
@@ -373,14 +373,14 @@ class TestComplianceReporting:
     @pytest.mark.xfail(reason="Patches non-existent compliance module", strict=False)
     def test_compliance_monitoring(self):
         """Continuous compliance monitoring."""
-        with patch("src.services.compliance.monitor") as mock_monitor:
+        with patch("services.compliance.monitor") as mock_monitor:
             # Should continuously monitor
             mock_monitor.assert_called()
 
     @pytest.mark.xfail(reason="Patches non-existent alerts module", strict=False)
     def test_compliance_alerts(self):
         """Alert on compliance violations."""
-        with patch("src.services.alerts.send"):
+        with patch("services.alerts.send"):
             # Simulate violation
             pass
 

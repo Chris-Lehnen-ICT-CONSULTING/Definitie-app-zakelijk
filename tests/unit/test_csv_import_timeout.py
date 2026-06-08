@@ -73,7 +73,7 @@ def test_import_service():
     print("Test 3: Import service call")
 
     try:
-        from src.services.container import ServiceContainer
+        from services.container import ServiceContainer
         from ui.helpers.async_bridge import run_async_safe
 
         # Initialize service container
@@ -145,7 +145,7 @@ def test_direct_coroutine():
     print("Test 5: Direct coroutine execution")
 
     try:
-        from src.services.container import ServiceContainer
+        from services.container import ServiceContainer
 
         container = ServiceContainer()
         import_service = container.definition_import

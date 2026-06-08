@@ -21,7 +21,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from src.services.web_lookup.juridisch_ranker import (
+from services.web_lookup.juridisch_ranker import (
     ARTIKEL_PATTERN,
     JURIDISCHE_DOMEINEN,
     JURIDISCHE_KEYWORDS,

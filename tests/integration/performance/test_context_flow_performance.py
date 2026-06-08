@@ -27,10 +27,10 @@ import numpy as np
 import psutil
 import pytest
 
-from src.services.container import ServiceContainer
-from src.services.context.context_manager import ContextManager
-from src.services.interfaces import GenerationRequest
-from src.services.prompts.prompt_service_v2 import PromptServiceV2
+from services.container import ServiceContainer
+from services.context.context_manager import ContextManager
+from services.interfaces import GenerationRequest
+from services.prompts.prompt_service_v2 import PromptServiceV2
 
 pytestmark = [pytest.mark.performance]
 
