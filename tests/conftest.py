@@ -89,6 +89,24 @@ def event_loop():
     loop.close()
 
 
+@pytest.fixture(autouse=True, scope="session")
+def _warm_config_manager():
+    """Initialiseer de config_manager-singleton één keer in de project-root (DEF-413).
+
+    De singleton wordt anders lazy aangemaakt door de eerste test die config
+    nodig heeft. Draait die test in een `chdir`'d tmp-dir (bv. via
+    chdir_tmp_path), dan vindt ConfigManager `config.yaml` niet → lege api_key →
+    "API key niet geconfigureerd" + netwerk-fouten in alle volgende
+    container-tests. Eager warmen (cwd = root, env al gezet) voorkomt dat.
+    """
+    try:
+        from config.config_manager import get_config_manager
+
+        get_config_manager()
+    except Exception:
+        pass
+
+
 @pytest.fixture(autouse=True)
 def reset_singletons():
     """Reset gedeelde singleton-/globale state tussen tests (DEF-414).
@@ -315,6 +333,11 @@ def _mock_tiktoken():
     with (
         patch("services.rag.token_counter._encoder", fake),
         patch("services.rag.embedding_service._encoder", fake),
+        # AIServiceV2 token-estimatie: forceer de heuristiek i.p.v. tiktoken.
+        # tiktoken.encoding_for_model("gpt-5.2") raist KeyError en de o200k_base
+        # fallback wil downloaden (geblokkeerd) → netwerk-fouten in generator-tests
+        # (DEF-413). De char-heuristiek is hermetisch en functioneel equivalent.
+        patch("services.ai_service_v2.TIKTOKEN_AVAILABLE", False),
     ):
         yield
 
