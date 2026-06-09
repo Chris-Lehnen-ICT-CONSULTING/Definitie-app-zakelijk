@@ -30,15 +30,15 @@ pytestmark = [
     ),
 ]
 
-from src.database.definitie_repository import DefinitieRecord
-from src.services.definition_repository import (
+from database.definitie_repository import DefinitieRecord
+from services.definition_repository import (
     DefinitionRepository,  # Use services repository
 )
-from src.services.interfaces import Definition, GenerationRequest
-from src.services.orchestrators.definition_orchestrator_v2 import (
+from services.interfaces import Definition, GenerationRequest
+from services.orchestrators.definition_orchestrator_v2 import (
     DefinitionOrchestratorV2,
 )
-from src.services.synonym_orchestrator import SynonymOrchestrator, WeightedSynonym
+from services.synonym_orchestrator import SynonymOrchestrator, WeightedSynonym
 
 logger = logging.getLogger(__name__)
 
@@ -51,7 +51,7 @@ logger = logging.getLogger(__name__)
 @pytest.fixture
 def container(initialized_synonym_db):
     """Create a test container with initialized synonym database."""
-    from src.services.container import ServiceContainer, reset_container
+    from services.container import ServiceContainer, reset_container
 
     # Reset global container to ensure test isolation
     reset_container()
@@ -65,7 +65,7 @@ def container(initialized_synonym_db):
 
     # Override global container for this test
     # This ensures _sync_synonyms_to_registry() uses the TEST database
-    import src.services.container as container_module
+    import services.container as container_module
 
     container_module._default_container = test_container
 

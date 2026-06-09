@@ -55,7 +55,7 @@ logger = logging.getLogger(__name__)
 if TYPE_CHECKING:
     # Forward-declared interfaces for type checking without import errors
     from services.interfaces import PromptResult, WebLookupServiceInterface
-    from src.services.synonym_orchestrator import SynonymOrchestrator
+    from services.synonym_orchestrator import SynonymOrchestrator
 
 
 class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):

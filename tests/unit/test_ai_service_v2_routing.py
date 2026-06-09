@@ -115,3 +115,37 @@ class TestTaskTypeRouting:
             )
 
             assert result.model == "gpt-5.2"  # default from router's critical tier
+
+
+class TestTokenEstimateTiktokenBranch:
+    """Borgt het tiktoken-telpad expliciet (DEF-413).
+
+    De globale test-fixture forceert TIKTOKEN_AVAILABLE=False (hermetisch, geen
+    o200k_base-download). Deze test heractiveert het tiktoken-pad lokaal met een
+    gemockte encoder, zodat de tiktoken-tak van _estimate_tokens niet onbewaakt
+    blijft.
+    """
+
+    def test_estimate_tokens_uses_tiktoken_when_available(self, ai_service):
+        fake_encoder = MagicMock()
+        fake_encoder.encode.return_value = list(range(7))  # 7 tokens
+        fake_tiktoken = MagicMock()
+        # gpt-5.2 is niet mapbaar → encoding_for_model raist KeyError → o200k_base fallback
+        fake_tiktoken.encoding_for_model.side_effect = KeyError("gpt-5.2")
+        fake_tiktoken.get_encoding.return_value = fake_encoder
+
+        with (
+            patch("services.ai_service_v2.TIKTOKEN_AVAILABLE", True),
+            patch("services.ai_service_v2._tiktoken", fake_tiktoken),
+        ):
+            count = ai_service._estimate_tokens("prompt", "response", "gpt-5.2")
+
+        assert count == 7
+        fake_tiktoken.get_encoding.assert_called_once_with("o200k_base")
+        fake_encoder.encode.assert_called_once_with("promptresponse")
+
+    def test_estimate_tokens_heuristic_when_tiktoken_unavailable(self, ai_service):
+        with patch("services.ai_service_v2.TIKTOKEN_AVAILABLE", False):
+            count = ai_service._estimate_tokens("abcd", "efgh", "gpt-5.2")
+        # char-heuristiek: > 0 en geen tiktoken nodig
+        assert count > 0

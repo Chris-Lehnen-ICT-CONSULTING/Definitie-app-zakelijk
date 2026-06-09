@@ -11,7 +11,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from src.services.interfaces import (
+from services.interfaces import (
     CleaningResult,
     CleaningServiceInterface,
     Definition,

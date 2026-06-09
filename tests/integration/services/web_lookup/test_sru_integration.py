@@ -26,7 +26,7 @@ class TestSRUCircuitBreakerIntegration:
         """
         import time
 
-        from src.services.web_lookup.sru_service import SRUService
+        from services.web_lookup.sru_service import SRUService
 
         # Create service with circuit breaker enabled
         service = SRUService(
@@ -80,7 +80,7 @@ class TestSRUCircuitBreakerIntegration:
         - Rechtspraak mag 3 lege queries doen
         - get_attempts() toont max 3 query strategies
         """
-        from src.services.web_lookup.sru_service import SRUService
+        from services.web_lookup.sru_service import SRUService
 
         service = SRUService(
             circuit_breaker_config={
@@ -119,7 +119,7 @@ class TestSRUCircuitBreakerIntegration:
         Dit test de fix voor SRU 2.0 responses die niet geparsed werden door
         namespace mismatch (http://docs.oasis-open.org/ns/search-ws/sruResponse).
         """
-        from src.services.web_lookup.sru_service import SRUService
+        from services.web_lookup.sru_service import SRUService
 
         service = SRUService()
 
@@ -147,7 +147,7 @@ class TestSRUCircuitBreakerIntegration:
         - wetgeving_nl: oai_dc (SRU 2.0)
         - rechtspraak: dc
         """
-        from src.services.web_lookup.sru_service import SRUService
+        from services.web_lookup.sru_service import SRUService
 
         service = SRUService()
 

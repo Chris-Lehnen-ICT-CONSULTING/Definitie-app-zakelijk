@@ -4,8 +4,8 @@ from unittest.mock import MagicMock, Mock
 
 import pytest
 
-from src.database.definitie_repository import DefinitieRecord
-from src.services.category_service import CategoryService
+from database.definitie_repository import DefinitieRecord
+from services.category_service import CategoryService
 
 pytestmark = [pytest.mark.unit]
 

@@ -432,6 +432,14 @@ class ConfigManager:
 
         self.environment = environment
         self.config_dir = Path(config_dir)
+        # DEF-413: resolveer een relatieve config_dir tegen de project-root i.p.v.
+        # de huidige werkdir. Anders breekt config-loading zodra de app (of een
+        # test via chdir) vanuit een andere cwd draait → lege config/api_key.
+        if not self.config_dir.is_absolute():
+            project_root = Path(__file__).resolve().parents[2]
+            root_candidate = project_root / config_dir
+            if root_candidate.exists():
+                self.config_dir = root_candidate
         # Use single config.yaml instead of environment-specific files
         self.config_file = self.config_dir / "config.yaml"
         # No default config needed - everything in config.yaml
