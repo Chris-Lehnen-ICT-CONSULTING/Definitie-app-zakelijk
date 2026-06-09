@@ -13,8 +13,8 @@ import pytest
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from src.services.definition_generator_context import EnrichedContext
-from src.services.prompts.modular_prompt_builder import (
+from services.definition_generator_context import EnrichedContext
+from services.prompts.modular_prompt_builder import (
     ModularPromptBuilder,
     PromptComponentConfig,
 )

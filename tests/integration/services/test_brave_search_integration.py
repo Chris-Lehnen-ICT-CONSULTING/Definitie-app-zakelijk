@@ -13,6 +13,36 @@ from services.modern_web_lookup_service import ModernWebLookupService
 pytestmark = [pytest.mark.integration]
 
 
+def _brave_disabled() -> bool:
+    """True als Brave Search uit staat in config (config/web_lookup_defaults.yaml).
+
+    Brave is bewust uitgeschakeld (2025-10-09, MCP niet werkend). Deze tests
+    verwachten Brave aan; ze herleven automatisch zodra brave_search.enabled=true.
+    (DEF-413)
+    """
+    try:
+        from services.web_lookup.config_loader import load_web_lookup_config
+
+        cfg = load_web_lookup_config()
+        return not (
+            cfg.get("web_lookup", {})
+            .get("providers", {})
+            .get("brave_search", {})
+            .get("enabled", False)
+        )
+    except Exception:
+        return True
+
+
+_BRAVE_DISABLED = _brave_disabled()
+_BRAVE_SKIP_REASON = (
+    "Brave Search uitgeschakeld in config/web_lookup_defaults.yaml "
+    "(enabled=false sinds 2025-10-09, MCP niet werkend). Herleeft automatisch "
+    "wanneer brave_search.enabled=true. (DEF-413)"
+)
+
+
+@pytest.mark.skipif(_BRAVE_DISABLED, reason=_BRAVE_SKIP_REASON)
 @pytest.mark.asyncio
 async def test_brave_search_integrated_in_lookup_flow(monkeypatch):
     """Test dat Brave Search wordt aangeroepen in normale lookup flow."""
@@ -82,6 +112,7 @@ async def test_brave_search_integrated_in_lookup_flow(monkeypatch):
     assert len(brave_results) > 0, "Brave Search result should be in results"
 
 
+@pytest.mark.skipif(_BRAVE_DISABLED, reason=_BRAVE_SKIP_REASON)
 @pytest.mark.asyncio
 async def test_brave_search_mixed_with_wikipedia(monkeypatch):
     """Test mixing van Brave Search en Wikipedia resultaten."""
@@ -158,6 +189,7 @@ async def test_brave_search_mixed_with_wikipedia(monkeypatch):
     assert any("Wikipedia" in s for s in sources), "Should have Wikipedia result"
 
 
+@pytest.mark.skipif(_BRAVE_DISABLED, reason=_BRAVE_SKIP_REASON)
 @pytest.mark.asyncio
 async def test_brave_search_ranking_with_confidence(monkeypatch):
     """Test dat Brave Search correct wordt gerankt op basis van confidence."""
@@ -232,6 +264,7 @@ async def test_brave_search_ranking_with_confidence(monkeypatch):
     assert "Brave" in results[0].source.name, "Brave Search should be ranked first"
 
 
+@pytest.mark.skipif(_BRAVE_DISABLED, reason=_BRAVE_SKIP_REASON)
 @pytest.mark.asyncio
 async def test_brave_search_in_juridical_context(monkeypatch):
     """Test dat Brave Search wordt gebruikt in juridische context."""
@@ -375,6 +408,7 @@ async def test_brave_search_deduplication(monkeypatch):
     assert results[0].source.url == "https://duplicate.com/page"
 
 
+@pytest.mark.skipif(_BRAVE_DISABLED, reason=_BRAVE_SKIP_REASON)
 @pytest.mark.asyncio
 async def test_brave_search_configuration_loaded():
     """Test dat Brave Search configuratie correct wordt geladen."""

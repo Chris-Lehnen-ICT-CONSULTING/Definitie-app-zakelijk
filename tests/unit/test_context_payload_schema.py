@@ -23,7 +23,7 @@ import jsonschema
 import pytest
 from jsonschema import Draft7Validator, ValidationError, validate
 
-from src.services.interfaces import GenerationRequest
+from services.interfaces import GenerationRequest
 
 pytestmark = [pytest.mark.unit]
 

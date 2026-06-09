@@ -17,7 +17,7 @@ from datetime import datetime
 
 import pytest
 
-from src.ui.session_state import SessionStateManager
+from ui.session_state import SessionStateManager
 
 pytestmark = [pytest.mark.unit]
 

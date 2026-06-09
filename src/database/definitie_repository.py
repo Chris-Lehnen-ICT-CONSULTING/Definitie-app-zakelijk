@@ -64,7 +64,7 @@ class DefinitieRepository:
     @staticmethod
     def _get_synonym_registry():
         """Lazy registry lookup — houdt database laag vrij van service imports."""
-        from src.services.container import get_container
+        from services.container import get_container
 
         return get_container().synonym_registry()
 

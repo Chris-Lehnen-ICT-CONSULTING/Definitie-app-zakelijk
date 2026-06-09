@@ -12,7 +12,7 @@ pytestmark = [pytest.mark.unit]
 
 # Import after mocking streamlit
 with patch("streamlit.multiselect"), patch("streamlit.text_input"):
-    from src.ui.components.enhanced_context_manager_selector import (
+    from ui.components.enhanced_context_manager_selector import (
         EnhancedContextManagerSelector as ContextSelector,
     )
 

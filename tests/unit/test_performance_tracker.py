@@ -16,7 +16,7 @@ import time
 
 import pytest
 
-from src.monitoring.performance_tracker import (
+from monitoring.performance_tracker import (
     PerformanceBaseline,
     PerformanceMetric,
     PerformanceTracker,

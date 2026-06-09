@@ -9,7 +9,7 @@ from pathlib import Path
 
 import pytest
 
-from src.database.migrations.v5_migration import (
+from database.migrations.v5_migration import (
     EXPECTED_EXISTING_TABLES,
     MIGRATION_VERSION,
     NEW_TABLES,

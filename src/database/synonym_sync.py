@@ -39,7 +39,7 @@ class SynonymSyncService:
                 registry = self._get_registry_fn()
             else:
                 # Lazy fallback voor backward compat
-                from src.services.container import get_container
+                from services.container import get_container
 
                 registry = get_container().synonym_registry()
         except Exception as e:

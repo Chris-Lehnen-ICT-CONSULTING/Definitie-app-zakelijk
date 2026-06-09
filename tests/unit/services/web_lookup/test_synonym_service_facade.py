@@ -23,8 +23,8 @@ from unittest.mock import MagicMock, Mock
 
 import pytest
 
-from src.models.synonym_models import WeightedSynonym
-from src.services.web_lookup.synonym_service import (
+from models.synonym_models import WeightedSynonym
+from services.web_lookup.synonym_service import (
     JuridischeSynoniemService,
     get_synonym_service,
 )
@@ -608,7 +608,7 @@ class TestSingletonFactory(TestJuridischeSynoniemServiceFacade):
         - Expected: Same instance object
         """
         # Reset singleton
-        import src.services.web_lookup.synonym_service as module
+        import services.web_lookup.synonym_service as module
 
         module._singleton = None
 
@@ -627,7 +627,7 @@ class TestSingletonFactory(TestJuridischeSynoniemServiceFacade):
         - Warning logged
         """
         # Reset singleton
-        import src.services.web_lookup.synonym_service as module
+        import services.web_lookup.synonym_service as module
 
         module._singleton = None
 
