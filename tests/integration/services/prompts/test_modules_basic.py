@@ -59,7 +59,9 @@ def test_definition_task_module_validate_and_execute():
     assert out.success is True
     content = out.content
     assert "FINALE INSTRUCTIES" in content
-    assert "CHECKLIST" in content
+    # De checklist-sectie heet sinds de module-herstructurering "CONSTRUCTIE GUIDE"
+    # (zie DefinitionTaskModule._build_checklist); voorheen "CHECKLIST" (verouderde assertie, DEF-413).
+    assert "CONSTRUCTIE GUIDE" in content
     assert "Ontologische marker" in content
     assert "Promptmetadata" in content
     assert "authenticatie" in content
