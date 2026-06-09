@@ -14,8 +14,8 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from src.services.prompts.modules.base_module import ModuleContext
-from src.services.prompts.modules.expertise_module import ExpertiseModule
+from services.prompts.modules.base_module import ModuleContext
+from services.prompts.modules.expertise_module import ExpertiseModule
 
 pytestmark = [pytest.mark.unit]
 

@@ -4,7 +4,7 @@ import time
 
 import pytest
 
-from src.monitoring.cache_monitoring import CacheMonitor, CacheOperation, CacheSnapshot
+from monitoring.cache_monitoring import CacheMonitor, CacheOperation, CacheSnapshot
 
 pytestmark = [pytest.mark.unit]
 

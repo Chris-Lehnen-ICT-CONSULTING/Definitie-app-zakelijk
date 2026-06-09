@@ -16,7 +16,7 @@ from unittest.mock import MagicMock, Mock, patch
 
 import pytest
 
-from src.monitoring.performance_tracker import (
+from monitoring.performance_tracker import (
     PerformanceTracker,
     get_tracker,
     reset_tracker,
@@ -49,10 +49,10 @@ class TestTimerScope:
 
     def test_no_module_level_timer(self):
         """Verify dat _startup_start NIET bestaat op module level."""
-        import src.main
+        import main
 
         # Check dat oude module-level timer NIET bestaat
-        assert not hasattr(src.main, "_startup_start"), (
+        assert not hasattr(main, "_startup_start"), (
             "Module-level timer '_startup_start' gevonden! "
             "Dit veroorzaakt cumulative timing bug."
         )
@@ -61,10 +61,10 @@ class TestTimerScope:
         """Verify dat timer binnen main() functie wordt gezet."""
         import inspect
 
-        import src.main
+        import main
 
         # Haal source code van main() op
-        main_source = inspect.getsource(src.main.main)
+        main_source = inspect.getsource(main.main)
 
         # Check dat timers binnen function scope staan (niet op module level)
         # De huidige implementatie gebruikt init_start, interface_start, render_start
@@ -81,10 +81,10 @@ class TestTimerScope:
     @pytest.mark.skip(
         reason="Test mocks outdated TabbedInterface instantiation pattern - main.py now uses @st.cache_resource"
     )
-    @patch("src.main.SessionStateManager")
-    @patch("src.main.TabbedInterface")
-    @patch("src.main.time.perf_counter")
-    @patch("src.monitoring.performance_tracker.get_tracker")  # Patch where it's called
+    @patch("main.SessionStateManager")
+    @patch("main.TabbedInterface")
+    @patch("main.time.perf_counter")
+    @patch("monitoring.performance_tracker.get_tracker")  # Patch where it's called
     def test_timer_resets_per_main_call(
         self, mock_get_tracker, mock_perf_counter, mock_interface, mock_session_manager
     ):
@@ -103,10 +103,10 @@ class TestTimerScope:
         mock_perf_counter.side_effect = [1.0, 1.05, 2.0, 2.03]
 
         # Import and call main twice
-        from src.main import main
+        from main import main
 
         # First call
-        with patch("src.main.st") as mock_st:  # Mock streamlit
+        with patch("main.st") as mock_st:  # Mock streamlit
             mock_st.session_state = MagicMock()  # Mock session_state
             main()
 
@@ -117,7 +117,7 @@ class TestTimerScope:
         assert 40 < first_time < 60, f"Expected ~50ms, got {first_time}ms"
 
         # Second call
-        with patch("src.main.st") as mock_st:  # Mock streamlit
+        with patch("main.st") as mock_st:  # Mock streamlit
             mock_st.session_state = MagicMock()  # Mock session_state
             main()
 
@@ -140,9 +140,9 @@ class TestTimerScope:
 class TestMetricNaming:
     """Test dat metric correct hernoemd is."""
 
-    @patch("src.main.SessionStateManager")
-    @patch("src.main.TabbedInterface")
-    @patch("src.monitoring.performance_tracker.get_tracker")
+    @patch("main.SessionStateManager")
+    @patch("main.TabbedInterface")
+    @patch("monitoring.performance_tracker.get_tracker")
     def test_uses_streamlit_rerun_ms_metric(
         self, mock_get_tracker, mock_interface, mock_session_manager
     ):
@@ -153,9 +153,9 @@ class TestMetricNaming:
         mock_interface_instance = MagicMock()
         mock_interface.return_value = mock_interface_instance
 
-        from src.main import main
+        from main import main
 
-        with patch("src.main.st") as mock_st:  # Mock streamlit
+        with patch("main.st") as mock_st:  # Mock streamlit
             mock_st.session_state = MagicMock()  # Mock session_state
             main()
 
@@ -168,9 +168,9 @@ class TestMetricNaming:
             call_args[0][0] == "streamlit_rerun_ms"
         ), f"Expected metric name 'streamlit_rerun_ms', got '{call_args[0][0]}'"
 
-    @patch("src.main.SessionStateManager")
-    @patch("src.main.TabbedInterface")
-    @patch("src.monitoring.performance_tracker.get_tracker")
+    @patch("main.SessionStateManager")
+    @patch("main.TabbedInterface")
+    @patch("monitoring.performance_tracker.get_tracker")
     def test_uses_check_regression_with_new_name(
         self, mock_get_tracker, mock_interface, mock_session_manager
     ):
@@ -182,9 +182,9 @@ class TestMetricNaming:
         mock_interface_instance = MagicMock()
         mock_interface.return_value = mock_interface_instance
 
-        from src.main import main
+        from main import main
 
-        with patch("src.main.st") as mock_st:  # Mock streamlit
+        with patch("main.st") as mock_st:  # Mock streamlit
             mock_st.session_state = MagicMock()  # Mock session_state
             main()
 
@@ -204,9 +204,9 @@ class TestMetricNaming:
 class TestRerunTimingRealistic:
     """Test dat rerun tijd realistisch is."""
 
-    @patch("src.main.SessionStateManager")
-    @patch("src.main.TabbedInterface")
-    @patch("src.monitoring.performance_tracker.get_tracker")
+    @patch("main.SessionStateManager")
+    @patch("main.TabbedInterface")
+    @patch("monitoring.performance_tracker.get_tracker")
     def test_rerun_time_reasonable(
         self, mock_get_tracker, mock_interface, mock_session_manager
     ):
@@ -217,9 +217,9 @@ class TestRerunTimingRealistic:
         mock_interface_instance = MagicMock()
         mock_interface.return_value = mock_interface_instance
 
-        from src.main import main
+        from main import main
 
-        with patch("src.main.st") as mock_st:  # Mock streamlit
+        with patch("main.st") as mock_st:  # Mock streamlit
             mock_st.session_state = MagicMock()  # Mock session_state
             main()
 
@@ -377,7 +377,7 @@ class TestDocumentation:
 
     def test_track_rerun_performance_docstring(self):
         """Verify dat _track_rerun_performance docstring correct is."""
-        from src.main import _track_rerun_performance
+        from main import _track_rerun_performance
 
         doc = _track_rerun_performance.__doc__
 
@@ -400,9 +400,9 @@ class TestDocumentation:
 class TestIntegration:
     """Integration tests voor complete flow."""
 
-    @patch("src.main.SessionStateManager")
-    @patch("src.main.TabbedInterface")
-    @patch("src.monitoring.performance_tracker.get_tracker")
+    @patch("main.SessionStateManager")
+    @patch("main.TabbedInterface")
+    @patch("monitoring.performance_tracker.get_tracker")
     def test_complete_flow_with_real_tracker(
         self,
         mock_get_tracker,
@@ -422,9 +422,9 @@ class TestIntegration:
         mock_interface_instance = MagicMock()
         mock_interface.return_value = mock_interface_instance
 
-        from src.main import main
+        from main import main
 
-        with patch("src.main.st") as mock_st:  # Mock streamlit
+        with patch("main.st") as mock_st:  # Mock streamlit
             mock_st.session_state = MagicMock()  # Mock session_state
             # Call main meerdere keren
             main()

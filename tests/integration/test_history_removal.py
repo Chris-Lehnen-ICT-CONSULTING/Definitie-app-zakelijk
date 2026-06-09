@@ -38,7 +38,7 @@ class TestHistoryTabRemoval:
     def test_tabbed_interface_loads_without_history(self):
         """Test that TabbedInterface can be instantiated without History tab."""
         try:
-            from src.ui.tabbed_interface import TabbedInterface
+            from ui.tabbed_interface import TabbedInterface
 
             # Mock Streamlit and other dependencies
             with (
@@ -70,7 +70,7 @@ class TestHistoryTabRemoval:
 
     def test_tab_configuration_excludes_history(self):
         """Verify history is not in tab configuration."""
-        from src.ui.tabbed_interface import TabbedInterface
+        from ui.tabbed_interface import TabbedInterface
 
         with patch("streamlit.session_state", {}):
             interface = TabbedInterface()
@@ -84,7 +84,7 @@ class TestHistoryTabRemoval:
 
     def test_no_history_in_tab_rendering(self):
         """Test that tab rendering logic doesn't reference history tab."""
-        from src.ui.tabbed_interface import TabbedInterface
+        from ui.tabbed_interface import TabbedInterface
 
         with (
             patch("streamlit.columns"),
@@ -231,7 +231,7 @@ class TestHistoryTabRemoval:
         for module_name, class_name in tabs_to_test:
             try:
                 module = __import__(
-                    f"src.ui.components.{module_name}", fromlist=[class_name]
+                    f"ui.components.{module_name}", fromlist=[class_name]
                 )
                 tab_class = getattr(module, class_name)
 
@@ -245,7 +245,7 @@ class TestHistoryTabRemoval:
 
     def test_no_broken_navigation_references(self):
         """Check that navigation doesn't reference non-existent history tab."""
-        from src.ui.tabbed_interface import TabbedInterface
+        from ui.tabbed_interface import TabbedInterface
 
         with patch("streamlit.session_state", {}):
             interface = TabbedInterface()
@@ -286,7 +286,7 @@ class TestApplicationFunctionality:
     @patch("streamlit.session_state", {})
     def test_definition_generation_flow(self):
         """Test that definition generation flow works without history."""
-        from src.ui.tabbed_interface import TabbedInterface
+        from ui.tabbed_interface import TabbedInterface
 
         interface = TabbedInterface()
 
@@ -315,7 +315,7 @@ class TestApplicationFunctionality:
     def test_export_functionality(self):
         """Test that export functionality doesn't depend on history."""
         try:
-            from src.ui.components.export_tab import ExportTab
+            from ui.components.export_tab import ExportTab
 
             # Mock repository
             mock_repo = Mock()
@@ -338,7 +338,7 @@ class TestPerformanceImprovement:
         import time
 
         start = time.time()
-        from src.ui.tabbed_interface import TabbedInterface
+        from ui.tabbed_interface import TabbedInterface
 
         end = time.time()
 
@@ -356,7 +356,7 @@ class TestPerformanceImprovement:
 
         tracemalloc.start()
 
-        from src.ui.tabbed_interface import TabbedInterface
+        from ui.tabbed_interface import TabbedInterface
 
         with patch("streamlit.session_state", {}):
             TabbedInterface()

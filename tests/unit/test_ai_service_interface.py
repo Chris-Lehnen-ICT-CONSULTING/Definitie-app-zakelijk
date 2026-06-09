@@ -11,7 +11,7 @@ from typing import Any
 
 import pytest
 
-from src.services.interfaces import (
+from services.interfaces import (
     AIBatchRequest,
     AIGenerationResult,
     AIRateLimitError,

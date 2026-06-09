@@ -24,7 +24,7 @@ from unittest.mock import MagicMock, Mock, patch
 import pytest
 
 from config.feature_flags import FeatureFlags
-from src.services.interfaces import GenerationRequest
+from services.interfaces import GenerationRequest
 
 pytestmark = [pytest.mark.unit]
 
@@ -204,7 +204,7 @@ class TestABTesting:
         """Test that A/B test metrics are tracked."""
         flags = FeatureFlags()
 
-        with patch("src.services.metrics.track_event") as mock_track:
+        with patch("services.metrics.track_event") as mock_track:
             user_id = "test_user"
 
             # User in treatment group
@@ -258,10 +258,10 @@ class TestFallbackMechanisms:
         """Should fallback to legacy if modern flow fails."""
         with (
             patch(
-                "src.services.prompts.prompt_service_v2.PromptServiceV2.build_prompt"
+                "services.prompts.prompt_service_v2.PromptServiceV2.build_prompt"
             ) as mock_modern,
             patch(
-                "src.services.prompts.prompt_service_v1.PromptServiceV1.build_prompt"
+                "services.prompts.prompt_service_v1.PromptServiceV1.build_prompt"
             ) as mock_legacy,
         ):
 
@@ -273,7 +273,7 @@ class TestFallbackMechanisms:
             flags.set_flag("modern_context_flow", True)
 
             # Should fallback gracefully
-            from src.services.prompts.prompt_builder import PromptBuilder
+            from services.prompts.prompt_builder import PromptBuilder
 
             builder = PromptBuilder(feature_flags=flags)
 
@@ -504,7 +504,7 @@ class TestFlagMonitoring:
         """Track how often flags are checked."""
         flags = FeatureFlags()
 
-        with patch("src.services.metrics.increment_counter") as mock_counter:
+        with patch("services.metrics.increment_counter") as mock_counter:
             for i in range(100):
                 flags.is_enabled_for_user("modern_context_flow", f"user_{i}")
 
@@ -531,7 +531,7 @@ class TestFlagMonitoring:
         """Track errors related to feature flags."""
         flags = FeatureFlags()
 
-        with patch("src.services.monitoring.log_error") as mock_log:
+        with patch("services.monitoring.log_error") as mock_log:
             # Simulate error with feature
             error = Exception("Context flow error")
             flags.track_error("modern_context_flow", error)

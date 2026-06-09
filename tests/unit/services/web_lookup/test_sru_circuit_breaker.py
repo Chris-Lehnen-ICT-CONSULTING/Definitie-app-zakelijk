@@ -15,7 +15,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from src.services.web_lookup.sru_service import SRUService
+from services.web_lookup.sru_service import SRUService
 
 pytestmark = [pytest.mark.unit, pytest.mark.slow]
 
