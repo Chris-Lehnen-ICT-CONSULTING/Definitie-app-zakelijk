@@ -1,6 +1,6 @@
 [tool.black]
 line-length = 88
-target-version = ['py311']
+target-version = ['py313']
 include = '\.pyi?$'
 extend-exclude = '''
 /(
@@ -24,7 +24,7 @@ extend-exclude = '''
 [tool.ruff]
 # Same as Black
 line-length = 88
-target-version = "py311"
+target-version = "py313"
 
 # Exclude similar to Black
 extend-exclude = [
@@ -114,6 +114,7 @@ ignore = [
     "N802",    # Function name lowercase - exceptions for special methods
     "N806",    # Variable lowercase - constants acceptable
     "N814",    # Camelcase imports - external APIs
+    "UP047",   # PEP 695 generic functions - aparte migratie, niet forceren bij py313-bump (DEF-426)
 ]
 
 # Allow autofix for all enabled rules
@@ -172,7 +173,7 @@ indent-style = "space"
 line-ending = "auto"
 
 [tool.mypy]
-python_version = "3.11"
+python_version = "3.13"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = false
