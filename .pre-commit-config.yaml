@@ -105,3 +105,14 @@ repos:
         # lokaal wordt gevangen, niet pas in CI.
         files: ^(requirements.*\.txt|src/[^/]+/__init__\.py)$
         stages: [pre-commit]
+      - id: pip-audit
+        name: pip-audit (CVE-scan dependencies) — DEF-426
+        # Op pre-push (niet elke commit): pip-audit bevraagt de advisory-DB en is
+        # traag. always_run zodat nieuwe CVE's ook zonder dependency-wijziging
+        # gevangen worden. Self-contained via additional_dependencies.
+        entry: pip-audit --requirement requirements.txt --desc
+        language: python
+        additional_dependencies: [pip-audit]
+        pass_filenames: false
+        always_run: true
+        stages: [pre-push]
