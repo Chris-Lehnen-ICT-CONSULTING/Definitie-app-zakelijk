@@ -46,14 +46,22 @@ make dev
 make test              # unit tests (-m unit), fail-fast
 make test-integration  # integration tests (-m integration)
 make test-all          # volledige suite (alle markers)
-make test-cov          # coverage op unit + integration (threshold 85%)
+make test-cov          # coverage unit+integration (GEEN threshold; zie test-cov-ci)
+make test-cov-ci       # coverage met --cov-fail-under=85 (CI-gate)
 make test-parallel     # unit tests parallel (-n auto)
 make test-smoke        # smoke tests
 make test-markers-check  # CI guard: check dat alle files markers hebben
 
-# Lint
+# Lint / dependency-audit
 make lint          # ruff + black
+make audit         # pip-audit CVE-scan (requirements.txt)
 ```
+
+### Coverage-baseline (DEF-416, gemeten 2026-06-10)
+
+- **Werkelijke unit-coverage = 45%** (34.660 statements, 18.952 missed) — vers `.coverage`-artefact. De 85%-drempel in `test-cov-ci` is **aspiratie**, geen huidige realiteit.
+- ⚠️ De volledige `unit or integration`-suite **hangt** op een integration-test → `test-cov`/`test-cov-ci` voltooien momenteel niet. De 85%-gate is dus in CI niet afdwingbaar tot de hang is opgelost (zie DEF-420/DEF-416).
+- Drempel-policy (45% ratchet-vloer vs 80/85 doel; badge `minimum_coverage`) = bewuste Fase 1-beslissing, nog open.
 
 ## Kritieke Constraints
 
