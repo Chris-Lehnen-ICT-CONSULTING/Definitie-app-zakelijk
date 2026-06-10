@@ -13,7 +13,7 @@
 
 ## Tech Stack
 
-- Python 3.11
+- Python 3.13
 - Streamlit 1.51 (frontend)
 - FastAPI + Uvicorn (API)
 - SQLite 3 (`data/definities.db`)

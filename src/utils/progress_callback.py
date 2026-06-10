@@ -84,7 +84,7 @@ def notify_progress(operation_name: str, active: bool) -> None:
 
 
 @contextmanager
-def operation_progress(operation_name: str) -> Generator[None, None, None]:
+def operation_progress(operation_name: str) -> Generator[None]:
     """Context manager for tracking operation progress.
 
     Sets progress to True on entry, False on exit.
