@@ -23,15 +23,14 @@
 ## Structuur
 
 ```
-src/
+src/   (selectie; volledige lijst: `ls -d src/*/`)
 ├── main.py               ← Streamlit entry point
-├── ai_toetser/           ← Validatie engine (KRITIEK - niet wijzigen zonder overleg)
 ├── api/                  ← FastAPI routes
 ├── database/             ← SQLite + migraties (schema.sql)
 ├── domain/               ← Domein-entiteiten
 ├── orchestration/        ← DefinitieAgent orchestrator
-├── services/             ← Business logica
-├── toetsregels/          ← 45 validatieregels
+├── services/             ← Business logica (incl. services/ai/ + services/validation/ — AI-validatie engine, KRITIEK: niet wijzigen zonder overleg)
+├── toetsregels/          ← 53 validatieregels (regels/*.json)
 ├── ui/                   ← Streamlit componenten + SessionStateManager
 └── validation/           ← ModularValidationService
 tests/
@@ -59,7 +58,7 @@ make lint          # ruff + black
 ## Kritieke Constraints
 
 - Prompt builders NIET wijzigen zonder overleg
-- `config/toetsregels.json` is single source of truth voor validatieregels
+- `config/toetsregels/toetsregels_config.yaml` is single source of truth voor validatieregels
 - Geen persoonsdata in logs, API keys alleen via `.env`
 
 ## Lokale Rules
