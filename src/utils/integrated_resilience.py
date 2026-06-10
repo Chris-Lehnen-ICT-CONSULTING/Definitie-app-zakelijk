@@ -207,8 +207,13 @@ class IntegratedResilienceSystem:
                 msg = f"Rate limit timeout for {endpoint_name}"
                 raise TimeoutError(msg)
 
-            # Step 2: Execute with retry logic and resilience
-            result = await self._execute_with_retry_and_resilience(
+            # Step 2: Execute with retry logic and resilience.
+            # DEF-428: begrens de UITVOERING met de geconfigureerde timeout. Zonder
+            # deze wait_for bewaakte `timeout` alleen rate-limit-acquire, waardoor
+            # een hangende provider-call de hele app oneindig kon blokkeren (een
+            # hang van 32 min werd gemeten). De timeout geldt nu voor de volledige
+            # operatie inclusief retries.
+            execution = self._execute_with_retry_and_resilience(
                 func,
                 *args,
                 endpoint_name=endpoint_name,
@@ -216,6 +221,10 @@ class IntegratedResilienceSystem:
                 enable_fallback=enable_fallback,
                 **kwargs,
             )
+            if timeout is not None:
+                result = await asyncio.wait_for(execution, timeout)
+            else:
+                result = await execution
 
             # Step 3: Record successful execution
             duration = time.time() - start_time
