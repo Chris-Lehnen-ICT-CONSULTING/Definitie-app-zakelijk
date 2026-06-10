@@ -1,6 +1,6 @@
 PY?=python
 
-.PHONY: dev lint test status validation-status
+.PHONY: dev lint audit test status validation-status
 
 dev:
 	@echo "[dev] Starting Streamlit app via run script..."
@@ -11,6 +11,10 @@ lint:
 	@$(PY) -m ruff check src config
 	@echo "[lint] Black check on src/ and config/"
 	@$(PY) -m black --check src config
+
+audit:
+	@echo "[audit] pip-audit CVE-scan op requirements.txt (DEF-426)"
+	@$(PY) -m pip_audit --requirement requirements.txt --desc
 
 test: test-markers-check
 	@echo "[test] Running fast unit tests (fail-fast, excludes slow)"
