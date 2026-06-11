@@ -12,12 +12,15 @@ from typing import Any
 from openai import (
     APIConnectionError,
     AsyncOpenAI,
+    AuthenticationError,
     OpenAIError,
+    PermissionDeniedError,
     RateLimitError,
 )
 from openai.types.chat import ChatCompletionMessageParam
 
 from services.ai.base_client import (
+    AIAuthenticationClientError,
     AIClientError,
     AIConnectionClientError,
     AIRateLimitClientError,
@@ -75,6 +78,10 @@ class OpenAIClient:
         except RateLimitError as exc:
             logger.warning("OpenAI rate limit hit: %s", sanitize_error(str(exc)))
             raise AIRateLimitClientError(sanitize_error(str(exc))) from exc
+        except (AuthenticationError, PermissionDeniedError) as exc:
+            # DEF-429: invalid/missing key is permanent — fail fast, do not retry.
+            logger.error("OpenAI authentication error: %s", sanitize_error(str(exc)))
+            raise AIAuthenticationClientError(sanitize_error(str(exc))) from exc
         except APIConnectionError as exc:
             logger.error("OpenAI connection error: %s", sanitize_error(str(exc)))
             raise AIConnectionClientError(sanitize_error(str(exc))) from exc
