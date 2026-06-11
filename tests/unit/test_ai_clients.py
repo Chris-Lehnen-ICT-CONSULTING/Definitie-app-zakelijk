@@ -20,6 +20,7 @@ import pytest
 from services.ai import create_ai_client
 from services.ai.anthropic_client import AnthropicClient
 from services.ai.base_client import (
+    AIAuthenticationClientError,
     AIClientError,
     AIConnectionClientError,
     AIRateLimitClientError,
@@ -129,6 +130,48 @@ class TestOpenAIClient:
         with pytest.raises(AIConnectionClientError):
             await client.chat_completion(messages=messages, model="gpt-4")
 
+    @patch("services.ai.openai_client.AsyncOpenAI")
+    async def test_openai_client_maps_authentication_error(self, mock_openai_cls):
+        """OpenAI AuthenticationError maps to AIAuthenticationClientError (DEF-429).
+
+        An invalid/missing API key is a permanent error; mapping it to a
+        distinct type lets the retry layer fail fast instead of retrying.
+        """
+        mock_client_instance = MagicMock()
+        mock_client_instance.chat.completions.create = AsyncMock(
+            side_effect=openai.AuthenticationError(
+                "invalid api key",
+                response=MagicMock(status_code=401, headers={}),
+                body=None,
+            )
+        )
+        mock_openai_cls.return_value = mock_client_instance
+
+        client = OpenAIClient(api_key="sk-test")
+        messages = [ChatMessage(role="user", content="Hello")]
+
+        with pytest.raises(AIAuthenticationClientError):
+            await client.chat_completion(messages=messages, model="gpt-4")
+
+    @patch("services.ai.openai_client.AsyncOpenAI")
+    async def test_openai_client_maps_permission_denied_error(self, mock_openai_cls):
+        """OpenAI PermissionDeniedError maps to AIAuthenticationClientError (DEF-429)."""
+        mock_client_instance = MagicMock()
+        mock_client_instance.chat.completions.create = AsyncMock(
+            side_effect=openai.PermissionDeniedError(
+                "permission denied",
+                response=MagicMock(status_code=403, headers={}),
+                body=None,
+            )
+        )
+        mock_openai_cls.return_value = mock_client_instance
+
+        client = OpenAIClient(api_key="sk-test")
+        messages = [ChatMessage(role="user", content="Hello")]
+
+        with pytest.raises(AIAuthenticationClientError):
+            await client.chat_completion(messages=messages, model="gpt-4")
+
 
 # ---------------------------------------------------------------------------
 # Anthropic client tests
@@ -206,6 +249,50 @@ class TestAnthropicClient:
         messages = [ChatMessage(role="user", content="Hello")]
 
         with pytest.raises(AIConnectionClientError):
+            await client.chat_completion(
+                messages=messages, model="claude-sonnet-4-5-20250929"
+            )
+
+    @patch("services.ai.anthropic_client.AsyncAnthropic")
+    async def test_anthropic_client_maps_authentication_error(self, mock_anthropic_cls):
+        """Anthropic AuthenticationError maps to AIAuthenticationClientError (DEF-429)."""
+        mock_client_instance = MagicMock()
+        mock_client_instance.messages.create = AsyncMock(
+            side_effect=anthropic.AuthenticationError(
+                message="invalid api key",
+                response=MagicMock(status_code=401, headers={}),
+                body=None,
+            )
+        )
+        mock_anthropic_cls.return_value = mock_client_instance
+
+        client = AnthropicClient(api_key="sk-ant-test")
+        messages = [ChatMessage(role="user", content="Hello")]
+
+        with pytest.raises(AIAuthenticationClientError):
+            await client.chat_completion(
+                messages=messages, model="claude-sonnet-4-5-20250929"
+            )
+
+    @patch("services.ai.anthropic_client.AsyncAnthropic")
+    async def test_anthropic_client_maps_permission_denied_error(
+        self, mock_anthropic_cls
+    ):
+        """Anthropic PermissionDeniedError maps to AIAuthenticationClientError (DEF-429)."""
+        mock_client_instance = MagicMock()
+        mock_client_instance.messages.create = AsyncMock(
+            side_effect=anthropic.PermissionDeniedError(
+                message="permission denied",
+                response=MagicMock(status_code=403, headers={}),
+                body=None,
+            )
+        )
+        mock_anthropic_cls.return_value = mock_client_instance
+
+        client = AnthropicClient(api_key="sk-ant-test")
+        messages = [ChatMessage(role="user", content="Hello")]
+
+        with pytest.raises(AIAuthenticationClientError):
             await client.chat_completion(
                 messages=messages, model="claude-sonnet-4-5-20250929"
             )
