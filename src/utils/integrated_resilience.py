@@ -166,7 +166,8 @@ class IntegratedResilienceSystem:
             *args: Function arguments
             endpoint_name: Name of the endpoint for monitoring
             priority: Request priority
-            timeout: Request timeout
+            timeout: Totaal-timeout (in seconden) over de volledige operatie —
+                rate-limit-acquire + alle retries; None = onbegrensd (DEF-428)
             enable_fallback: Whether to enable fallback responses
             model: AI model being used (for cost calculation)
             expected_tokens: Expected token usage
@@ -207,8 +208,13 @@ class IntegratedResilienceSystem:
                 msg = f"Rate limit timeout for {endpoint_name}"
                 raise TimeoutError(msg)
 
-            # Step 2: Execute with retry logic and resilience
-            result = await self._execute_with_retry_and_resilience(
+            # Step 2: Execute with retry logic and resilience.
+            # DEF-428: begrens de UITVOERING met de geconfigureerde timeout. Zonder
+            # deze wait_for bewaakte `timeout` alleen rate-limit-acquire, waardoor
+            # een hangende provider-call de hele app oneindig kon blokkeren (een
+            # hang van 32 min werd gemeten). De timeout geldt nu voor de volledige
+            # operatie inclusief retries.
+            execution = self._execute_with_retry_and_resilience(
                 func,
                 *args,
                 endpoint_name=endpoint_name,
@@ -216,6 +222,10 @@ class IntegratedResilienceSystem:
                 enable_fallback=enable_fallback,
                 **kwargs,
             )
+            if timeout is not None:
+                result = await asyncio.wait_for(execution, timeout)
+            else:
+                result = await execution
 
             # Step 3: Record successful execution
             duration = time.time() - start_time
@@ -370,7 +380,8 @@ def with_full_resilience(
     Args:
         endpoint_name: Name of the endpoint for monitoring
         priority: Request priority
-        timeout: Request timeout
+        timeout: Totaal-timeout (s) over de volledige operatie incl. alle
+            retries; None = onbegrensd (DEF-428)
         enable_fallback: Whether to enable fallback responses
         model: AI model being used
         expected_tokens: Expected token usage

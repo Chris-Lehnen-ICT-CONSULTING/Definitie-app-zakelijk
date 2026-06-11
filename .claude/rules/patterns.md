@@ -44,5 +44,5 @@
 
 - `print()` in productie-code — gebruik logger
 - Hardcoded model namen — gebruik `ModelRouter`
-- Validatieregels in code — `config/toetsregels.json` is de bron
+- Validatieregels in code — `config/toetsregels/toetsregels_config.yaml` is de bron
 - Sync+async mixen — commit to async voor V2 services

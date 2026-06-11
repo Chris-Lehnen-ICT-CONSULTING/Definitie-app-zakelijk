@@ -5,6 +5,7 @@ Test alle componenten van UI tot definitie generatie.
 """
 
 import asyncio
+import os
 import sys
 from pathlib import Path
 
@@ -19,6 +20,14 @@ from services.interfaces import GenerationRequest
 from services.workflow_service import WorkflowAction, WorkflowService
 
 pytestmark = [pytest.mark.regression]
+
+# DEF-429: skip zonder API-key — echte AI-generatie zonder key geeft trage
+# retries/timeouts (in CI een hang). Lokaal mét key draait de test normaal.
+if not os.getenv("OPENAI_API_KEY", "").startswith("sk-"):
+    pytest.skip(
+        "Geen geldige OPENAI_API_KEY (sk-...) — integration-test vereist echte AI-generatie",
+        allow_module_level=True,
+    )
 
 
 def print_section(title: str):

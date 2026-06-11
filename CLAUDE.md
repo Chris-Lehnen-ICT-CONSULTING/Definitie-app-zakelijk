@@ -13,7 +13,7 @@
 
 ## Tech Stack
 
-- Python 3.11
+- Python 3.13
 - Streamlit 1.51 (frontend)
 - FastAPI + Uvicorn (API)
 - SQLite 3 (`data/definities.db`)
@@ -23,15 +23,14 @@
 ## Structuur
 
 ```
-src/
+src/   (selectie; volledige lijst: `ls -d src/*/`)
 ├── main.py               ← Streamlit entry point
-├── ai_toetser/           ← Validatie engine (KRITIEK - niet wijzigen zonder overleg)
 ├── api/                  ← FastAPI routes
 ├── database/             ← SQLite + migraties (schema.sql)
 ├── domain/               ← Domein-entiteiten
 ├── orchestration/        ← DefinitieAgent orchestrator
-├── services/             ← Business logica
-├── toetsregels/          ← 45 validatieregels
+├── services/             ← Business logica (incl. services/ai/ + services/validation/ — AI-validatie engine, KRITIEK: niet wijzigen zonder overleg)
+├── toetsregels/          ← 53 validatieregels (regels/*.json)
 ├── ui/                   ← Streamlit componenten + SessionStateManager
 └── validation/           ← ModularValidationService
 tests/
@@ -47,19 +46,28 @@ make dev
 make test              # unit tests (-m unit), fail-fast
 make test-integration  # integration tests (-m integration)
 make test-all          # volledige suite (alle markers)
-make test-cov          # coverage op unit + integration (threshold 85%)
+make test-cov          # coverage op unit-tests (deterministisch)
+make test-cov-ci       # coverage met ratchet-vloer 45% (CI-gate, unit-only)
 make test-parallel     # unit tests parallel (-n auto)
 make test-smoke        # smoke tests
 make test-markers-check  # CI guard: check dat alle files markers hebben
 
-# Lint
+# Lint / dependency-audit
 make lint          # ruff + black
+make audit         # pip-audit CVE-scan (requirements.txt)
 ```
+
+### Coverage-baseline (DEF-416, gemeten 2026-06-10)
+
+- **Baseline unit-coverage = 46%** (45,9%; 34.663 statements, 18.754 missed) — vers `.coverage`-artefact, gate slaagt op de 45%-vloer.
+- **Gate = unit-only.** De `integration`-suite bevat meerdere real-API/timing-tests die zonder geldige respons **hangen** (verspreid over markers; zie DEF-428/DEF-429). Een gate met `integration` kan daardoor niet betrouwbaar voltooien, dus `test-cov(-ci)` meten **alleen `unit`** (deterministisch).
+- **Ratchet-vloer = 45%** (baseline). Verhogen richting 80/85% naarmate coverage groeit (Fase 1). Integration-coverage komt erbij zodra de hangs zijn opgelost.
+- ⚠️ 3 unit-tests in `test_cache_utilities_comprehensive.py` falen (cache-systeem) — los van coverage; blokkeren wel een groene gate. Apart op te pakken.
 
 ## Kritieke Constraints
 
 - Prompt builders NIET wijzigen zonder overleg
-- `config/toetsregels.json` is single source of truth voor validatieregels
+- `config/toetsregels/toetsregels_config.yaml` is single source of truth voor validatieregels
 - Geen persoonsdata in logs, API keys alleen via `.env`
 
 ## Lokale Rules
