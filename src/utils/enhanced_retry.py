@@ -19,6 +19,7 @@ from pathlib import Path
 from typing import Any
 
 from services.ai.base_client import (
+    AIAuthenticationClientError,
     AIClientError,
     AIConnectionClientError,
     AIRateLimitClientError,
@@ -151,6 +152,14 @@ class AdaptiveRetryManager:
                 else:
                     logger.warning("Circuit breaker OPEN - rejecting request")
                     return False
+
+            # DEF-429: authentication failures (invalid/missing key) are
+            # permanent — fail fast instead of retrying through backoff.
+            # Checked before the broad AIClientError match below, since
+            # AIAuthenticationClientError subclasses it.
+            if isinstance(error, AIAuthenticationClientError):
+                await self._record_failure(error)
+                return False
 
             # Check max retries
             if attempt >= self.config.max_retries:

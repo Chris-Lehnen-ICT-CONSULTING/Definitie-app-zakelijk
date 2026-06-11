@@ -12,6 +12,7 @@ Usage:
 from __future__ import annotations
 
 from services.ai.base_client import (
+    AIAuthenticationClientError,
     AIClientError,
     AIConnectionClientError,
     AIRateLimitClientError,
@@ -59,6 +60,7 @@ def create_ai_client(
 
 
 __all__ = [
+    "AIAuthenticationClientError",
     "AIClientError",
     "AIConnectionClientError",
     "AIRateLimitClientError",
