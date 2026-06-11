@@ -166,7 +166,8 @@ class IntegratedResilienceSystem:
             *args: Function arguments
             endpoint_name: Name of the endpoint for monitoring
             priority: Request priority
-            timeout: Request timeout
+            timeout: Totaal-timeout (in seconden) over de volledige operatie —
+                rate-limit-acquire + alle retries; None = onbegrensd (DEF-428)
             enable_fallback: Whether to enable fallback responses
             model: AI model being used (for cost calculation)
             expected_tokens: Expected token usage
@@ -379,7 +380,8 @@ def with_full_resilience(
     Args:
         endpoint_name: Name of the endpoint for monitoring
         priority: Request priority
-        timeout: Request timeout
+        timeout: Totaal-timeout (s) over de volledige operatie incl. alle
+            retries; None = onbegrensd (DEF-428)
         enable_fallback: Whether to enable fallback responses
         model: AI model being used
         expected_tokens: Expected token usage
