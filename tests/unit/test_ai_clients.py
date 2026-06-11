@@ -154,6 +154,31 @@ class TestOpenAIClient:
             await client.chat_completion(messages=messages, model="gpt-4")
 
     @patch("services.ai.openai_client.AsyncOpenAI")
+    async def test_openai_auth_error_does_not_leak_key(self, mock_openai_cls):
+        """DEF-429: the mapped auth error redacts any API key in its message.
+
+        The auth branch is the most likely place for a key to surface, so the
+        raised AIAuthenticationClientError must be sanitized.
+        """
+        mock_client_instance = MagicMock()
+        mock_client_instance.chat.completions.create = AsyncMock(
+            side_effect=openai.AuthenticationError(
+                "Incorrect API key provided: sk-proj-abc123def456xyz789",
+                response=MagicMock(status_code=401, headers={}),
+                body=None,
+            )
+        )
+        mock_openai_cls.return_value = mock_client_instance
+
+        client = OpenAIClient(api_key="sk-test")
+        messages = [ChatMessage(role="user", content="Hello")]
+
+        with pytest.raises(AIAuthenticationClientError) as exc_info:
+            await client.chat_completion(messages=messages, model="gpt-4")
+        assert "sk-proj" not in str(exc_info.value)
+        assert "[REDACTED]" in str(exc_info.value)
+
+    @patch("services.ai.openai_client.AsyncOpenAI")
     async def test_openai_client_maps_permission_denied_error(self, mock_openai_cls):
         """OpenAI PermissionDeniedError maps to AIAuthenticationClientError (DEF-429)."""
         mock_client_instance = MagicMock()
