@@ -26,12 +26,14 @@ async def test_with_full_resilience_bounds_execution_time():
         await asyncio.sleep(6)
         return "zou nooit teruggegeven mogen worden"
 
-    loop = asyncio.get_event_loop()
+    loop = asyncio.get_running_loop()
     start = loop.time()
     with pytest.raises((asyncio.TimeoutError, TimeoutError)):
         await hangs()
     elapsed = loop.time() - start
-    assert elapsed < 3.0, (
+    # Strak genoeg boven de 0.5s-timeout om een echte regressie te vangen,
+    # ruim genoeg om event-loop-jitter niet flaky te maken.
+    assert elapsed < 1.5, (
         f"decorator-timeout begrenst de uitvoering niet: {elapsed:.1f}s "
         f"(verwacht afbreken rond 0.5s, niet ~6s)"
     )
