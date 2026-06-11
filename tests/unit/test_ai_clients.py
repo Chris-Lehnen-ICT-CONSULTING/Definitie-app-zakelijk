@@ -175,8 +175,10 @@ class TestOpenAIClient:
 
         with pytest.raises(AIAuthenticationClientError) as exc_info:
             await client.chat_completion(messages=messages, model="gpt-4")
-        assert "sk-proj" not in str(exc_info.value)
-        assert "[REDACTED]" in str(exc_info.value)
+        message = str(exc_info.value)
+        assert "sk-proj" not in message
+        assert "abc123def456xyz789" not in message  # full key fragment redacted
+        assert "[REDACTED]" in message
 
     @patch("services.ai.openai_client.AsyncOpenAI")
     async def test_openai_client_maps_permission_denied_error(self, mock_openai_cls):
