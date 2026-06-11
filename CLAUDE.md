@@ -59,7 +59,7 @@ make audit         # pip-audit CVE-scan (requirements.txt)
 
 ### Coverage-baseline (DEF-416, gemeten 2026-06-10)
 
-- **Baseline unit-coverage = 45%** (34.660 statements, 18.952 missed) — vers `.coverage`-artefact.
+- **Baseline unit-coverage = 46%** (45,9%; 34.663 statements, 18.754 missed) — vers `.coverage`-artefact, gate slaagt op de 45%-vloer.
 - **Gate = unit-only.** De `integration`-suite bevat meerdere real-API/timing-tests die zonder geldige respons **hangen** (verspreid over markers; zie DEF-428/DEF-429). Een gate met `integration` kan daardoor niet betrouwbaar voltooien, dus `test-cov(-ci)` meten **alleen `unit`** (deterministisch).
 - **Ratchet-vloer = 45%** (baseline). Verhogen richting 80/85% naarmate coverage groeit (Fase 1). Integration-coverage komt erbij zodra de hangs zijn opgelost.
 - ⚠️ 3 unit-tests in `test_cache_utilities_comprehensive.py` falen (cache-systeem) — los van coverage; blokkeren wel een groene gate. Apart op te pakken.
