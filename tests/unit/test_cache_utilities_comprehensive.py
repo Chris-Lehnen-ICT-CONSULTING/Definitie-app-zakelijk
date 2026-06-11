@@ -34,6 +34,22 @@ from utils.cache import (
 pytestmark = [pytest.mark.unit]
 
 
+@pytest.fixture(autouse=True)
+def _reset_global_cache():
+    """Reset de globale cache naar defaults vóór én na elke test (DEF-426).
+
+    Diverse tests muteren globale state (configure_cache, enable_cache=False,
+    stats). Onder pytest-randomly (willekeurige volgorde) lekt die mutatie naar
+    andere tests → seed-afhankelijke failures. Een reset per test maakt de suite
+    order-onafhankelijk en deterministisch.
+    """
+    configure_cache()
+    clear_cache()
+    yield
+    configure_cache()
+    clear_cache()
+
+
 class TestCacheConfig:
     """Test CacheConfig initialization and defaults."""
 
