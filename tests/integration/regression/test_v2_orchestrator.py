@@ -22,6 +22,14 @@ sys.path.insert(0, str(Path(__file__).parent / "src"))
 from services.interfaces import GenerationRequest
 from services.service_factory import get_definition_service
 
+# DEF-429: skip zonder API-key — echte AI-generatie zonder key geeft trage
+# retries/timeouts (in CI een hang). Lokaal mét key draait de test normaal.
+if not os.getenv("OPENAI_API_KEY", "").startswith("sk-"):
+    pytest.skip(
+        "Geen geldige OPENAI_API_KEY (sk-...) — integration-test vereist echte AI-generatie",
+        allow_module_level=True,
+    )
+
 
 async def test_v2_orchestrator():
     """Test de V2 orchestrator met ontological category functionaliteit."""
