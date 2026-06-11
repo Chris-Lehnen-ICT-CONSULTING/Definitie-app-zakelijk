@@ -64,6 +64,14 @@ class AIConnectionClientError(AIClientError):
     """Connection or network error talking to the AI provider."""
 
 
+class AIAuthenticationClientError(AIClientError):
+    """Authentication/authorization failure (invalid or missing API key).
+
+    DEF-429: a permanent error — the retry layer must fail fast on this
+    instead of retrying, otherwise generation hangs for minutes on backoff.
+    """
+
+
 # ---------------------------------------------------------------------------
 # Protocol
 # ---------------------------------------------------------------------------
