@@ -5,6 +5,7 @@ Tests the complete refactoring from legacy to modular architecture.
 """
 
 import asyncio
+import os
 
 import pytest
 
@@ -12,6 +13,14 @@ from services.container import ServiceContainer
 from services.interfaces import GenerationRequest
 
 pytestmark = [pytest.mark.regression]
+
+# DEF-429: skip zonder API-key — echte AI-generatie zonder key geeft trage
+# retries/timeouts (in CI een hang). Lokaal mét key draait de test normaal.
+if not os.getenv("OPENAI_API_KEY", "").startswith("sk-"):
+    pytest.skip(
+        "Geen geldige OPENAI_API_KEY (sk-...) — integration-test vereist echte AI-generatie",
+        allow_module_level=True,
+    )
 
 
 async def test_story_2_4_integration():

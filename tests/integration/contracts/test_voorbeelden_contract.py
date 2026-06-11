@@ -4,6 +4,7 @@ Schema tests voor het canonieke VoorbeeldenDict contract.
 Test dat voorbeelden altijd de juiste structuur hebben en geen legacy keys bevatten.
 """
 
+import os
 from typing import Any
 
 import pytest
@@ -14,6 +15,18 @@ import pytest
 from voorbeelden import genereer_alle_voorbeelden
 
 pytestmark = [pytest.mark.contract]
+
+# DEF-429: skip zonder GELDIGE API-key. Deze test doet echte AI-generatie (6
+# voorbeeld-types); zonder (of met dummy-)key geeft dat trage retries/timeouts
+# (in CI een hang >120s). De contract-job zet bewust OPENAI_API_KEY=dummy, dus
+# we checken op een echt sleutel-prefix (`sk-`), niet alleen op aanwezigheid.
+# Lokaal mét echte key draait hij normaal. Echte fix (fail-fast bij
+# ongeldige key + cross-loop in _run_async_safe) is getrackt in DEF-429.
+if not os.getenv("OPENAI_API_KEY", "").startswith("sk-"):
+    pytest.skip(
+        "Geen geldige OPENAI_API_KEY (sk-...) — integration-test vereist echte AI-generatie",
+        allow_module_level=True,
+    )
 
 
 def test_voorbeelden_canonical_keys():

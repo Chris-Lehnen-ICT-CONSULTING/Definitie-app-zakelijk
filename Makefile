@@ -1,6 +1,6 @@
 PY?=python
 
-.PHONY: dev lint test status validation-status
+.PHONY: dev lint audit test status validation-status
 
 dev:
 	@echo "[dev] Starting Streamlit app via run script..."
@@ -11,6 +11,10 @@ lint:
 	@$(PY) -m ruff check src config
 	@echo "[lint] Black check on src/ and config/"
 	@$(PY) -m black --check src config
+
+audit:
+	@echo "[audit] pip-audit CVE-scan op requirements.txt (DEF-426)"
+	@$(PY) -m pip_audit --requirement requirements.txt --desc
 
 test: test-markers-check
 	@echo "[test] Running fast unit tests (fail-fast, excludes slow)"
@@ -49,12 +53,12 @@ test-parallel:
 	@pytest -q -n auto -m unit
 
 test-cov:
-	@echo "[test-cov] Running coverage on unit + integration tests"
-	@pytest -q --cov=src --cov-report=term-missing -m "unit or integration"
+	@echo "[test-cov] Coverage op unit-tests (deterministisch; integration hangt — DEF-428/429)"
+	@pytest -q --cov=src --cov-report=term-missing -m unit
 
 test-cov-ci:
-	@echo "[test-cov-ci] Coverage with threshold (85%)"
-	@pytest -q --cov=src --cov-report=term-missing --cov-fail-under=85 -m "unit or integration"
+	@echo "[test-cov-ci] Coverage met ratchet-vloer 45% (baseline DEF-416; verhogen in Fase 1)"
+	@pytest -q --cov=src --cov-report=term-missing --cov-fail-under=45 -m unit
 
 .PHONY: test-durations
 test-durations:

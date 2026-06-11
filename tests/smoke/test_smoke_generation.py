@@ -3,11 +3,16 @@
 
 import asyncio
 import logging
+import os
 import sys
 
 import pytest
 
 pytestmark = [pytest.mark.smoke]
+
+# Skip-guard: deze smoke-test doet een ECHTE AI-generatie (kost API-calls).
+# Draait alleen via `make test-smoke` (smoke-marker) én alleen met een API-key.
+_HAS_API_KEY = bool(os.getenv("OPENAI_API_KEY") or os.getenv("ANTHROPIC_API_KEY"))
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -15,8 +20,8 @@ logger = logging.getLogger(__name__)
 sys.path.insert(0, "src")
 
 
-async def smoke_test():
-    """Test basis definitie generatie functionaliteit."""
+async def _run_generation_smoke() -> bool:
+    """Test basis definitie generatie functionaliteit. Returnt True bij succes."""
 
     from services.service_factory import get_definition_service
 
@@ -67,8 +72,17 @@ async def smoke_test():
         return False
 
 
+@pytest.mark.asyncio
+@pytest.mark.skipif(
+    not _HAS_API_KEY, reason="geen AI API-key beschikbaar (OPENAI/ANTHROPIC)"
+)
+async def test_smoke_generation():
+    """Pytest-collecteerbare smoke-test (vereist API-key, draait via make test-smoke)."""
+    assert await _run_generation_smoke(), "Definitie-generatie smoke-test faalde"
+
+
 if __name__ == "__main__":
-    success = asyncio.run(smoke_test())
+    success = asyncio.run(_run_generation_smoke())
 
     if success:
         print("\n" + "=" * 60)
