@@ -14,6 +14,7 @@ from anthropic import AsyncAnthropic
 from anthropic.types import MessageParam
 
 from services.ai.base_client import (
+    AIAuthenticationClientError,
     AIClientError,
     AIConnectionClientError,
     AIRateLimitClientError,
@@ -86,6 +87,10 @@ class AnthropicClient:
         except anthropic.RateLimitError as exc:
             logger.warning("Anthropic rate limit hit: %s", sanitize_error(str(exc)))
             raise AIRateLimitClientError(sanitize_error(str(exc))) from exc
+        except (anthropic.AuthenticationError, anthropic.PermissionDeniedError) as exc:
+            # DEF-429: invalid/missing key is permanent — fail fast, do not retry.
+            logger.error("Anthropic authentication error: %s", sanitize_error(str(exc)))
+            raise AIAuthenticationClientError(sanitize_error(str(exc))) from exc
         except anthropic.APIConnectionError as exc:
             logger.error("Anthropic connection error: %s", sanitize_error(str(exc)))
             raise AIConnectionClientError(sanitize_error(str(exc))) from exc
