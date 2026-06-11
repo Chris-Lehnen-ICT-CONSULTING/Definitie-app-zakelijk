@@ -16,9 +16,9 @@ pytestmark = [pytest.mark.regression]
 
 # DEF-429: skip zonder API-key — echte AI-generatie zonder key geeft trage
 # retries/timeouts (in CI een hang). Lokaal mét key draait de test normaal.
-if not os.getenv("OPENAI_API_KEY"):
+if not os.getenv("OPENAI_API_KEY", "").startswith("sk-"):
     pytest.skip(
-        "OPENAI_API_KEY niet gezet — integration-test vereist echte AI-generatie",
+        "Geen geldige OPENAI_API_KEY (sk-...) — integration-test vereist echte AI-generatie",
         allow_module_level=True,
     )
 
