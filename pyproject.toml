@@ -90,6 +90,9 @@ ignore = [
     "PLW0603", # Global statement - used for singleton patterns
     "PLW0127", # Self-assignment (UTC = UTC) - Python 3.10 compatibility pattern
     "PLW2901", # Loop variable overwritten - intentional in many cases
+    "PLW0108", # Unnecessary lambda - DEF-430: surfaced by ruff 0.15.x (10 hits,
+    #            9 in validation rule tables); only --unsafe-fixes available, so
+    #            inlining is behaviour-risky in validation code. Intentional style.
     "PLC2401", # Non-ASCII characters in names - Dutch variable names allowed
     "PLR0911", # Too many return statements - complex validation logic
     "PLR0912", # Too many branches - complex validation logic

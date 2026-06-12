@@ -139,11 +139,11 @@ jobs:
           python-version: '3.11'
 
       - name: Install ruff (pinned for a deterministic count)
-        # Exact pin: the baseline count is tied to the ruff version. This matches
-        # the pre-commit lint authority (.pre-commit-config.yaml). When ruff is
+        # Exact pin: the baseline count is tied to the ruff version. Kept in sync
+        # with the pre-commit rev + requirements-dev.txt (DEF-430). When ruff is
         # bumped project-wide, re-measure and update scripts/complexity_baseline.txt
         # in the same change. The count is stable across 0.14.x–0.15.x (verified).
-        run: pip install ruff==0.14.5
+        run: pip install ruff==0.15.16
 
       - name: Check complexity has not grown
         run: python scripts/complexity_ratchet.py
