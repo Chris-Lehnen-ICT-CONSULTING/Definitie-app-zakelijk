@@ -164,9 +164,12 @@ jobs:
       - name: Install dependencies (mypy pinned for a deterministic count)
         # Exact pin: the error count is tied to the mypy version. When mypy is
         # bumped, re-measure and update scripts/mypy_baseline.txt in the same
-        # change. Project deps are installed so imports resolve for type-checking.
+        # change. BOTH requirements files are installed: requirements-dev.txt
+        # ships type stubs that resolve 6 errors (without it the count is 98,
+        # not 92). The explicit pin runs last so it wins over the dev floor.
         run: |
           pip install -r requirements.txt
+          pip install -r requirements-dev.txt
           pip install mypy==1.18.2
 
       - name: Check mypy errors have not grown
