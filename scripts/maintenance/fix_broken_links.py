@@ -66,7 +66,9 @@ class LinkFixer:
             return None
 
         # Remove anchor from path
-        clean_path = link_path.split("#")[0] if "#" in link_path else link_path
+        clean_path = (
+            link_path.split("#", maxsplit=1)[0] if "#" in link_path else link_path
+        )
 
         # Resolve relative paths
         if clean_path.startswith("../"):
