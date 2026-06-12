@@ -125,10 +125,33 @@ jobs:
             exit 1
           fi
 
+  complexity-ratchet:
+    name: Complexity Ratchet (DEF-418)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Install ruff (pinned for a deterministic count)
+        # Exact pin: the baseline count is tied to the ruff version. This matches
+        # the pre-commit lint authority (.pre-commit-config.yaml). When ruff is
+        # bumped project-wide, re-measure and update scripts/complexity_baseline.txt
+        # in the same change. The count is stable across 0.14.x–0.15.x (verified).
+        run: pip install ruff==0.14.5
+
+      - name: Check complexity has not grown
+        run: python scripts/complexity_ratchet.py
+
   quality-summary:
     name: Quality Gate Summary
     runs-on: ubuntu-latest
-    needs: [verify-pre-commit, preflight-checks, validate-branch-name]
+    needs: [verify-pre-commit, preflight-checks, validate-branch-name, complexity-ratchet]
     if: always()
 
     steps:
@@ -139,9 +162,11 @@ jobs:
           echo "Pre-commit: ${{ needs.verify-pre-commit.result }}"
           echo "Preflight: ${{ needs.preflight-checks.result }}"
           echo "Branch name: ${{ needs.validate-branch-name.result }}"
+          echo "Complexity ratchet: ${{ needs.complexity-ratchet.result }}"
 
           if [ "${{ needs.verify-pre-commit.result }}" != "success" ] || \
-             [ "${{ needs.preflight-checks.result }}" != "success" ]; then
+             [ "${{ needs.preflight-checks.result }}" != "success" ] || \
+             [ "${{ needs.complexity-ratchet.result }}" != "success" ]; then
             echo "❌ Quality gates failed"
             exit 1
           fi
