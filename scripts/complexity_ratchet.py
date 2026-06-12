@@ -50,21 +50,35 @@ def count_violations() -> tuple[int, Counter[str]]:
         ],
         capture_output=True,
         text=True,
-        check=False,  # ruff exits non-zero when violations exist; that's expected
+        check=False,
     )
-    if not result.stdout.strip():
-        # No output usually means ruff itself failed (e.g. config error).
+    # ruff exit codes: 0 = no violations, 1 = violations found (expected here),
+    # >= 2 = ruff itself failed (bad config, invalid rule, crash).
+    if result.returncode >= 2:
         sys.stderr.write(result.stderr)
-        raise SystemExit("complexity_ratchet: ruff produced no JSON output")
+        raise SystemExit(f"complexity_ratchet: ruff failed (exit {result.returncode})")
 
-    violations = json.loads(result.stdout)
+    try:
+        violations = json.loads(result.stdout)
+    except json.JSONDecodeError as exc:
+        sys.stderr.write(result.stdout)
+        raise SystemExit(
+            f"complexity_ratchet: ruff produced invalid JSON ({exc})"
+        ) from exc
+
     per_code = Counter(v["code"] for v in violations)
     return len(violations), per_code
 
 
 def read_baseline(path: Path = BASELINE_PATH) -> int:
     """Read the committed baseline count."""
-    return int(path.read_text(encoding="utf-8").strip())
+    try:
+        return int(path.read_text(encoding="utf-8").strip())
+    except (FileNotFoundError, ValueError) as exc:
+        raise SystemExit(
+            f"complexity_ratchet: cannot read baseline at {path} ({exc}). "
+            "Restore scripts/complexity_baseline.txt to a single integer."
+        ) from exc
 
 
 def write_baseline(value: int, path: Path = BASELINE_PATH) -> None:
@@ -77,7 +91,9 @@ def _format_breakdown(per_code: Counter[str]) -> str:
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(
+        description=(__doc__ or "").strip().splitlines()[0]
+    )
     parser.add_argument(
         "--update",
         action="store_true",
