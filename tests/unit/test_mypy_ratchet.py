@@ -54,6 +54,18 @@ class TestCountErrors:
         )
         assert mr.count_errors() == 1
 
+    def test_decoy_in_diagnostic_does_not_match(self, monkeypatch):
+        """A diagnostic line mentioning 'Found N errors' must not be counted."""
+        self._mock_run(
+            monkeypatch,
+            returncode=1,
+            stdout=(
+                'src/x.py:1: error: Bad string "Found 5 errors" here\n'
+                "Found 92 errors in 29 files (checked 371 source files)\n"
+            ),
+        )
+        assert mr.count_errors() == 92
+
     def test_success_line_is_zero(self, monkeypatch):
         self._mock_run(
             monkeypatch,
