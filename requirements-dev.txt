@@ -7,9 +7,16 @@ pytest-randomly>=4.1.0
 pytest-xdist>=3.5.0
 pytest-timeout>=2.4.0
 coverage[toml]>=7.0
-ruff>=0.15.16
-mypy>=1.8.0
-types-PyYAML>=6.0.0
+# DEF-430: gate-bepalende tools exact gepind voor reproduceerbare lint/type
+# + complexity/mypy-ratchet-baselines. Bij bump: pre-commit rev + de gate-pins in
+# quality-gates.yml meebumpen en de baselines herverifiëren.
+ruff==0.15.16
+mypy==1.18.2
+types-PyYAML==6.0.12.20250915
+# black bewust NIET exact gepind: 25.11.0 (de pre-commit-rev waar de codebase op
+# geformatteerd is) heeft CVE-2026-32274; de fix (26.3.1) herformatteert 23+ files.
+# Floor laat pip-audit naar de gefixte latest resolven. De black-26-migratie
+# (reformat + pre-commit-rev-bump) is een aparte follow-up.
 black>=24.0.0
 isort>=5.13.0
 
