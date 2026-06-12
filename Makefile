@@ -1,6 +1,6 @@
 PY?=python
 
-.PHONY: dev lint complexity-check mypy-check audit test status validation-status
+.PHONY: dev lint complexity-check mypy-check pins-check audit test status validation-status
 
 dev:
 	@echo "[dev] Starting Streamlit app via run script..."
@@ -19,6 +19,10 @@ complexity-check:
 mypy-check:
 	@echo "[mypy] Ratchet on src/ (DEF-419) — fails if type-errors grow above baseline"
 	@$(PY) scripts/mypy_ratchet.py
+
+pins-check:
+	@echo "[pins] Tool-pin consistency (DEF-430) — ruff/mypy must match across all sources"
+	@$(PY) scripts/check_tool_pins.py
 
 audit:
 	@echo "[audit] pip-audit CVE-scan op requirements.txt (DEF-426)"
