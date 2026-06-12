@@ -130,14 +130,9 @@ unfixable = []
 "tests/**/*.py" = ["PT017", "PT018", "PT028", "PT030", "B023", "PLW1641", "N811"]
 # Manual test files - more relaxed standards
 "tests/manual_*.py" = ["SIM115", "F401"]
-# Legacy files may have more issues
-"src/orchestration/definitie_agent.py" = ["PLR0912", "PLR0915"]
-"src/services/container.py" = ["PLC0415", "PLW0603"]
-"src/services/service_factory.py" = ["PLC0415"]
-# Validation files with complex logic
-"src/validation/definitie_validator.py" = ["PLR0912", "PLR0915"]
-"src/validation/input_validator.py" = ["PLR0912"]
-"src/validation/sanitizer.py" = ["PLR0912"]
+# DEF-418: removed 6 dead complexity per-file-ignores (PLR0912/0915/PLC0415/PLW0603
+# are already in the global ignore, so these were redundant). The complexity ratchet
+# (scripts/complexity_ratchet.py) now tracks these files too.
 # Analysis scripts may have unused arguments
 "src/analysis/*.py" = ["ARG001"]
 # Ignore ALL errors in archief/archive directories
