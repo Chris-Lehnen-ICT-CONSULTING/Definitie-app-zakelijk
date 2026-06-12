@@ -148,10 +148,34 @@ jobs:
       - name: Check complexity has not grown
         run: python scripts/complexity_ratchet.py
 
+  mypy-ratchet:
+    name: Mypy Ratchet (DEF-419)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies (mypy pinned for a deterministic count)
+        # Exact pin: the error count is tied to the mypy version. When mypy is
+        # bumped, re-measure and update scripts/mypy_baseline.txt in the same
+        # change. Project deps are installed so imports resolve for type-checking.
+        run: |
+          pip install -r requirements.txt
+          pip install mypy==1.18.2
+
+      - name: Check mypy errors have not grown
+        run: python scripts/mypy_ratchet.py
+
   quality-summary:
     name: Quality Gate Summary
     runs-on: ubuntu-latest
-    needs: [verify-pre-commit, preflight-checks, validate-branch-name, complexity-ratchet]
+    needs: [verify-pre-commit, preflight-checks, validate-branch-name, complexity-ratchet, mypy-ratchet]
     if: always()
 
     steps:
@@ -163,10 +187,12 @@ jobs:
           echo "Preflight: ${{ needs.preflight-checks.result }}"
           echo "Branch name: ${{ needs.validate-branch-name.result }}"
           echo "Complexity ratchet: ${{ needs.complexity-ratchet.result }}"
+          echo "Mypy ratchet: ${{ needs.mypy-ratchet.result }}"
 
           if [ "${{ needs.verify-pre-commit.result }}" != "success" ] || \
              [ "${{ needs.preflight-checks.result }}" != "success" ] || \
-             [ "${{ needs.complexity-ratchet.result }}" != "success" ]; then
+             [ "${{ needs.complexity-ratchet.result }}" != "success" ] || \
+             [ "${{ needs.mypy-ratchet.result }}" != "success" ]; then
             echo "❌ Quality gates failed"
             exit 1
           fi
