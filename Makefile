@@ -1,6 +1,6 @@
 PY?=python
 
-.PHONY: dev lint complexity-check audit test status validation-status
+.PHONY: dev lint complexity-check mypy-check audit test status validation-status
 
 dev:
 	@echo "[dev] Starting Streamlit app via run script..."
@@ -15,6 +15,10 @@ lint:
 complexity-check:
 	@echo "[complexity] Ratchet on src/ (DEF-418) — fails if violations grow above baseline"
 	@$(PY) scripts/complexity_ratchet.py
+
+mypy-check:
+	@echo "[mypy] Ratchet on src/ (DEF-419) — fails if type-errors grow above baseline"
+	@$(PY) scripts/mypy_ratchet.py
 
 audit:
 	@echo "[audit] pip-audit CVE-scan op requirements.txt (DEF-426)"
