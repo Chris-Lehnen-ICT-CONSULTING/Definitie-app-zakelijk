@@ -23,7 +23,9 @@ from pathlib import Path
 
 MYPY_ARGS = ("src/", "--check-untyped-defs")
 BASELINE_PATH = Path(__file__).with_name("mypy_baseline.txt")
-_FOUND_RE = re.compile(r"Found (\d+) errors?")
+# Anchored on the mypy summary line ("Found N errors in M files ...") at line
+# start so a diagnostic line that happens to contain "Found N error" cannot match.
+_FOUND_RE = re.compile(r"^Found (\d+) errors? in \d+ files?", re.MULTILINE)
 _SUCCESS_RE = re.compile(r"Success: no issues found")
 
 
