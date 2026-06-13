@@ -16,12 +16,24 @@ import pytest
 # This is redundant with pytest.ini but ensures it's available during collection
 project_root = Path(__file__).parent.parent
 src_path = project_root / "src"
-if str(src_path) not in sys.path:
-    sys.path.insert(0, str(src_path))
+
+# tests/ must be importable for the fixtures.streamlit_mock helper below, but it
+# MUST rank BELOW src/ on sys.path. Otherwise tests/integration/__init__.py is
+# importable as the top-level package `integration` and shadows the real
+# src/integration package — collection then fails with
+# `ModuleNotFoundError: No module named 'integration.definitie_checker'`
+# depending on import order (DEF-429). Append (low priority), then force src
+# to the front so top-level package names always resolve to src, not tests/.
+tests_dir = str(Path(__file__).parent)
+if tests_dir not in sys.path:
+    sys.path.append(tests_dir)
+
+src_str = str(src_path)
+if src_str in sys.path:
+    sys.path.remove(src_str)
+sys.path.insert(0, src_str)
 
 # Install a minimal Streamlit mock BEFORE importing modules that might reference it
-# Ensure tests directory is on sys.path to import our mock module
-sys.path.insert(0, str(Path(__file__).parent))
 try:
     from fixtures.streamlit_mock import get_streamlit_mock  # type: ignore
 
