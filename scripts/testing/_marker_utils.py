@@ -8,7 +8,7 @@ from pathlib import Path
 
 TESTS_DIR = Path(__file__).resolve().parent.parent.parent / "tests"
 
-EXCLUDED_DIRS = {"archived", "__pycache__", ".pytest_cache"}
+EXCLUDED_DIRS = {"archived", "__pycache__", ".pytest_cache", "manual"}
 
 # Classification markers (not functional markers like asyncio, skip, xfail)
 CLASSIFICATION_MARKERS = {
