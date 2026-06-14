@@ -207,7 +207,11 @@ class SmartRateLimiter:
         }
 
         # Background task for processing queues
-        self._processing_task = None
+        self._processing_task: asyncio.Task | None = None
+        # DEF-429: loop waarop de processor-taak draait. Wordt gebruikt om
+        # cross-loop-hergebruik (singleton over wegwerp-asyncio.run-loops) te
+        # detecteren en de processor op de huidige loop te herstarten.
+        self._processor_loop: asyncio.AbstractEventLoop | None = None
         self._shutdown = False
 
         # Load historical data
@@ -247,10 +251,37 @@ class SmartRateLimiter:
             logger.warning(f"Could not save rate limit history: {e}")
 
     async def start(self):
-        """Start the background processing task."""
-        if self._processing_task is None:
-            self._processing_task = asyncio.create_task(self._process_queues())
-            logger.info("Smart rate limiter started")
+        """Start the background processing task on the current event loop."""
+        self._ensure_processor_running()
+
+    def _ensure_processor_running(self) -> None:
+        """DEF-429: (her)start de queue-processor op de HUIDIGE event-loop.
+
+        Het ``_integrated_system``-singleton hergebruikt deze limiter over
+        opeenvolgende wegwerp-``asyncio.run()``-loops. De achtergrondtaak
+        blijft dan achter op een gesloten loop, waardoor ``acquire()``
+        oneindig op een dode processor wacht (cross-loop deadlock). Detecteer
+        een ontbrekende/afgeronde taak of een andere/gesloten loop en herstart
+        de processor op de actieve loop.
+        """
+        current_loop = asyncio.get_running_loop()
+        task = self._processing_task
+        prev_loop = self._processor_loop
+        needs_restart = (
+            task is None
+            or task.done()
+            or prev_loop is not current_loop
+            or (prev_loop is not None and prev_loop.is_closed())
+        )
+        if not needs_restart:
+            return
+
+        # De oude taak hangt aan een andere/gesloten loop; niet awaiten of
+        # cancellen (die loop draait niet meer) — referentie loslaten volstaat.
+        self._shutdown = False
+        self._processing_task = asyncio.create_task(self._process_queues())
+        self._processor_loop = current_loop
+        logger.info("Smart rate limiter processor (re)started on current loop")
 
     async def stop(self):
         """Stop the background processing task."""
@@ -286,6 +317,10 @@ class SmartRateLimiter:
         """
         if request_id is None:
             request_id = f"req_{int(time.time() * 1000)}"
+
+        # DEF-429: borg dat de queue-processor op de huidige event-loop draait
+        # (zelf-helend bij singleton-hergebruik over nieuwe asyncio.run-loops).
+        self._ensure_processor_running()
 
         self.stats["total_requests"] += 1
 
