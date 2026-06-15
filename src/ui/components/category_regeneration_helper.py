@@ -24,14 +24,12 @@ class CategoryRegenerationHelper:
             SessionStateManager.clear_value("regenerate_with_category")
 
             # Toon info aan gebruiker
-            st.info(
-                f"""
+            st.info(f"""
             🔄 **Category Regeneration Mode**
             - Begrip: {regen_data['begrip']}
             - Nieuwe categorie: {regen_data['category']}
             - {regen_data['feedback']}
-            """
-            )
+            """)
 
             return cast(dict[Any, Any], regen_data)
 

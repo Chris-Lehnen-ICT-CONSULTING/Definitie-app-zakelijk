@@ -167,7 +167,9 @@ class VoorbeeldenRecovery:
             total_new += len(items)
 
         if total_new == 0:
-            print(f"  ⏭️  ID {def_id} ({definition['begrip']}): geen nieuwe voorbeelden")
+            print(
+                f"  ⏭️  ID {def_id} ({definition['begrip']}): geen nieuwe voorbeelden"
+            )
             return 0
 
         print(

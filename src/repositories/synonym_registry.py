@@ -124,12 +124,10 @@ class SynonymRegistry:
     def _verify_tables_exist(self):
         """Verify synonym tables exist in database."""
         with self._get_connection() as conn:
-            cursor = conn.execute(
-                """
+            cursor = conn.execute("""
                 SELECT name FROM sqlite_master
                 WHERE type='table' AND name IN ('synonym_groups', 'synonym_group_members')
-                """
-            )
+                """)
             tables = {row["name"] for row in cursor.fetchall()}
 
             missing = {"synonym_groups", "synonym_group_members"} - tables
@@ -955,23 +953,19 @@ class SynonymRegistry:
             stats["total_members"] = cursor.fetchone()["count"]
 
             # Members by status
-            cursor = conn.execute(
-                """
+            cursor = conn.execute("""
                 SELECT status, COUNT(*) as count
                 FROM synonym_group_members
                 GROUP BY status
-                """
-            )
+                """)
             stats["members_by_status"] = dict(cursor.fetchall())
 
             # Members by source
-            cursor = conn.execute(
-                """
+            cursor = conn.execute("""
                 SELECT source, COUNT(*) as count
                 FROM synonym_group_members
                 GROUP BY source
-                """
-            )
+                """)
             stats["members_by_source"] = dict(cursor.fetchall())
 
             # Average group size
@@ -983,8 +977,7 @@ class SynonymRegistry:
                 stats["avg_group_size"] = 0.0
 
             # Top 10 largest groups
-            cursor = conn.execute(
-                """
+            cursor = conn.execute("""
                 SELECT
                     g.canonical_term,
                     g.domain,
@@ -994,8 +987,7 @@ class SynonymRegistry:
                 GROUP BY g.id
                 ORDER BY member_count DESC
                 LIMIT 10
-                """
-            )
+                """)
             stats["top_groups"] = [
                 {
                     "canonical_term": row["canonical_term"],

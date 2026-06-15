@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Legacy: test om te verifiëren dat legacy builder actief is (informatief)."""
+
 import os
 import sys
 

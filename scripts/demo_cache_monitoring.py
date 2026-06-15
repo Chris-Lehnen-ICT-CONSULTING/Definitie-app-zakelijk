@@ -5,6 +5,7 @@ Demo script for cache monitoring functionality.
 This script demonstrates the cache monitoring infrastructure with
 RuleCache and generates example snapshot output.
 """
+
 import sys
 from pathlib import Path
 

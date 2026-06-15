@@ -167,8 +167,7 @@ if st.button("🚀 Start Test"):
 # Informatie
 with st.sidebar:
     st.markdown("### i️ Rate Limiter Info")
-    st.markdown(
-        """
+    st.markdown("""
     **Endpoint Configuraties:**
     - `examples_generation_*`: 3 req/s
     - `definition_generation`: 2 req/s
@@ -179,17 +178,14 @@ with st.sidebar:
     - Priority-based queueing
     - Adaptive rate adjustment
     - Graceful degradation
-    """
-    )
+    """)
 
     st.markdown("### 🔍 Wat te verwachten")
-    st.markdown(
-        """
+    st.markdown("""
     - **Quick Test**: Alle 3 requests zouden moeten slagen
     - **Stress Test**: Eerste ~3-5 slagen, rest krijgt timeout
     - **Parallel**: Elke endpoint werkt onafhankelijk
-    """
-    )
+    """)
 
 if __name__ == "__main__":
     st.write("Run with: `streamlit run test_ui_rate_limiter.py`")

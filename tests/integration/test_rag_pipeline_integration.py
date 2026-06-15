@@ -62,8 +62,7 @@ def rag_db():
         db_path = f.name
 
     conn = sqlite3.connect(db_path)
-    conn.executescript(
-        """
+    conn.executescript("""
         CREATE TABLE IF NOT EXISTS rag_collections (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             collection_name VARCHAR(255) NOT NULL UNIQUE,
@@ -99,8 +98,7 @@ def rag_db():
         CREATE INDEX IF NOT EXISTS idx_chunks_collection ON rag_chunks(collection_id);
         CREATE INDEX IF NOT EXISTS idx_chunks_document ON rag_chunks(document_id);
         PRAGMA foreign_keys=ON;
-    """
-    )
+    """)
     conn.close()
 
     yield db_path

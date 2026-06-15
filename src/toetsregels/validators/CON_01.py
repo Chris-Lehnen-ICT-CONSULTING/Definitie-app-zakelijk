@@ -173,7 +173,11 @@ class CON01Validator:
             return True, f"✔️ {self.id}: definitie komt overeen met goed voorbeeld", 1.0
 
         # Fallback - niets herkend
-        return True, f"✔️ {self.id}: geen expliciete contextverwijzing aangetroffen", 0.9
+        return (
+            True,
+            f"✔️ {self.id}: geen expliciete contextverwijzing aangetroffen",
+            0.9,
+        )
 
     def validate(
         self, definitie: str, begrip: str, context: dict | None = None
