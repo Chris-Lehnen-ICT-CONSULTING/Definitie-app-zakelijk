@@ -10,7 +10,7 @@ coverage[toml]>=7.0
 # DEF-430: gate-bepalende tools exact gepind voor reproduceerbare lint/type
 # + complexity/mypy-ratchet-baselines. Bij bump: pre-commit rev + de gate-pins in
 # quality-gates.yml meebumpen en de baselines herverifiëren.
-ruff==0.15.16
+ruff==0.15.17
 mypy==1.18.2
 types-PyYAML==6.0.12.20250915
 # black exact-gepind op de format-autoriteit (.pre-commit-config.yaml rev) — DEF-432.
