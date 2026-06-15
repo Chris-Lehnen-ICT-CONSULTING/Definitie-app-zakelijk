@@ -38,12 +38,10 @@ class DefinitieImportExportRepository:
             )
             stats["by_category"] = dict(cursor.fetchall())
 
-            cursor = conn.execute(
-                """
+            cursor = conn.execute("""
                 SELECT AVG(validation_score) FROM definities
                 WHERE validation_score IS NOT NULL
-            """
-            )
+            """)
             avg_score = cursor.fetchone()[0]
             stats["average_validation_score"] = (
                 round(avg_score, 3) if avg_score else None

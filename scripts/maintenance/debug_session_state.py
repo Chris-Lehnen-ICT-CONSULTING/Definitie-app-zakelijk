@@ -158,10 +158,8 @@ with col2:
 
 st.markdown("---")
 st.markdown("### Instructies")
-st.markdown(
-    """
+st.markdown("""
 1. **Problematische waardes**: 'Anders...', 'toetsen', 'en nu' zijn vaak de boosdoeners
 2. **Oplossing**: Wis de betreffende context en probeer opnieuw
 3. **Preventie**: Selecteer nooit 'Anders...' zonder direct een waarde in te voeren
-"""
-)
+""")

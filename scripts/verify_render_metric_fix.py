@@ -8,6 +8,7 @@ Expected behavior:
 - Operations < 5s → Not heavy (UI reruns, fast operations)
 - Operations > 5s → Heavy (API calls, voorbeelden generation)
 """
+
 import sys
 from pathlib import Path
 

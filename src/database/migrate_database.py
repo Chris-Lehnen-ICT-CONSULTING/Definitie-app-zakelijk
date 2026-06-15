@@ -102,8 +102,7 @@ def _ensure_definitie_voorbeelden_indexes(conn: sqlite3.Connection) -> None:
     conn.execute(
         "CREATE INDEX IF NOT EXISTS idx_voorbeelden_actief ON definitie_voorbeelden(actief)"
     )
-    conn.executescript(
-        """
+    conn.executescript("""
         CREATE TRIGGER IF NOT EXISTS update_voorbeelden_timestamp
             AFTER UPDATE ON definitie_voorbeelden
             FOR EACH ROW
@@ -113,8 +112,7 @@ def _ensure_definitie_voorbeelden_indexes(conn: sqlite3.Connection) -> None:
             SET bijgewerkt_op = CURRENT_TIMESTAMP
             WHERE id = NEW.id;
         END;
-        """
-    )
+        """)
 
 
 def _create_definities_table(
@@ -304,13 +302,11 @@ def migrate_database(db_path: str = "data/definities.db"):
 
                         # Set default waarde voor datum_voorstel
                         if column_name == "datum_voorstel":
-                            conn.execute(
-                                """
+                            conn.execute("""
                                 UPDATE definities
                                 SET datum_voorstel = created_at
                                 WHERE datum_voorstel IS NULL
-                            """
-                            )
+                            """)
                             logger.info("✅ Default waardes gezet voor datum_voorstel")
 
                     except sqlite3.Error as e:
@@ -350,8 +346,7 @@ def migrate_database(db_path: str = "data/definities.db"):
                     logger.info("✅ Kolom 'voorkeursterm' toegevoegd aan 'definities'")
                     # Backfill vanuit gemarkeerde synoniemen → definities.voorkeursterm = voorbeeld_tekst
                     try:
-                        conn.execute(
-                            """
+                        conn.execute("""
                             UPDATE definities
                             SET voorkeursterm = (
                                 SELECT v.voorbeeld_tekst FROM definitie_voorbeelden v
@@ -362,16 +357,13 @@ def migrate_database(db_path: str = "data/definities.db"):
                                 LIMIT 1
                             )
                             WHERE voorkeursterm IS NULL
-                            """
-                        )
+                            """)
                         # Backfill vanuit boolean vlag → begrip als voorkeursterm
-                        conn.execute(
-                            """
+                        conn.execute("""
                             UPDATE definities
                             SET voorkeursterm = begrip
                             WHERE voorkeursterm IS NULL AND voorkeursterm_is_begrip = TRUE
-                            """
-                        )
+                            """)
                         logger.info("✅ Backfill voor 'voorkeursterm' uitgevoerd")
                     except sqlite3.Error as e:
                         logger.warning(f"Backfill voorkeursterm mislukt: {e}")
@@ -424,8 +416,7 @@ def migrate_database(db_path: str = "data/definities.db"):
                         "ALTER TABLE definitie_voorbeelden RENAME TO definitie_voorbeelden_old"
                     )
                     _create_definitie_voorbeelden_table(conn)
-                    conn.execute(
-                        """
+                    conn.execute("""
                         INSERT INTO definitie_voorbeelden (
                             id, definitie_id, voorbeeld_type, voorbeeld_tekst, voorbeeld_volgorde,
                             gegenereerd_door, generation_model, generation_parameters, actief,
@@ -438,8 +429,7 @@ def migrate_database(db_path: str = "data/definities.db"):
                             beoordeeld, beoordeeling, beoordeeling_notities, beoordeeld_door, beoordeeld_op,
                             aangemaakt_op, bijgewerkt_op
                         FROM definitie_voorbeelden_old
-                        """
-                    )
+                        """)
                     # Indexes en trigger
                     try:
                         _ensure_definitie_voorbeelden_indexes(conn)
@@ -459,8 +449,7 @@ def migrate_database(db_path: str = "data/definities.db"):
                     conn.execute("PRAGMA foreign_keys=OFF")
                     conn.execute("ALTER TABLE definities RENAME TO definities_old")
                     _create_definities_table(conn)
-                    conn.execute(
-                        """
+                    conn.execute("""
                         INSERT INTO definities (
                             id, begrip, definitie, categorie, organisatorische_context, juridische_context,
                             wettelijke_basis, ufo_categorie, toelichting_proces, status, version_number, previous_version_id,
@@ -475,8 +464,7 @@ def migrate_database(db_path: str = "data/definities.db"):
                             created_at, updated_at, created_by, updated_by, approved_by, approved_at, approval_notes,
                             last_exported_at, export_destinations, datum_voorstel, ketenpartners, voorkeursterm
                         FROM definities_old
-                        """
-                    )
+                        """)
                     # Recreate indexes
                     try:
                         _ensure_definities_indexes(conn)
@@ -505,8 +493,7 @@ def migrate_database(db_path: str = "data/definities.db"):
                     )
                     _create_definitie_voorbeelden_table(conn)
                     # Copy data
-                    conn.execute(
-                        """
+                    conn.execute("""
                         INSERT INTO definitie_voorbeelden (
                             id, definitie_id, voorbeeld_type, voorbeeld_tekst, voorbeeld_volgorde,
                             gegenereerd_door, generation_model, generation_parameters, actief,
@@ -519,8 +506,7 @@ def migrate_database(db_path: str = "data/definities.db"):
                             beoordeeld, beoordeeling, beoordeeling_notities, beoordeeld_door, beoordeeld_op,
                             aangemaakt_op, bijgewerkt_op
                         FROM definitie_voorbeelden_old2
-                        """
-                    )
+                        """)
                     # Recreate indexes + trigger
                     try:
                         _ensure_definitie_voorbeelden_indexes(conn)

@@ -64,7 +64,9 @@ class DatabaseManager:
 
         with col2:
             if st.button(
-                "🗑️ Reset Database", type="secondary", disabled=(confirm_text != "RESET")
+                "🗑️ Reset Database",
+                type="secondary",
+                disabled=(confirm_text != "RESET"),
             ):
                 self._execute_database_reset()
 

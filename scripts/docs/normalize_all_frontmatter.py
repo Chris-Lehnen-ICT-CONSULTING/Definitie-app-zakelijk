@@ -10,6 +10,7 @@ Rules:
 - All: ensure owner, applies_to, last_verified exist
 - Normalize status values to canonical set
 """
+
 from __future__ import annotations
 
 import re

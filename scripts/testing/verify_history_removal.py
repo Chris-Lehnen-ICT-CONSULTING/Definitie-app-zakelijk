@@ -209,12 +209,10 @@ class HistoryRemovalVerifier:
             cursor = conn.cursor()
 
             # Check history table
-            cursor.execute(
-                """
+            cursor.execute("""
                 SELECT name FROM sqlite_master
                 WHERE type='table' AND name='definitie_geschiedenis'
-            """
-            )
+            """)
             if cursor.fetchone():
                 print("  ✅ History table exists (OK - data preserved)")
 
@@ -228,12 +226,10 @@ class HistoryRemovalVerifier:
             test_id = None
             try:
                 # Include categorie field which appears to be required
-                cursor.execute(
-                    """
+                cursor.execute("""
                     INSERT INTO definities (begrip, definitie, organisatorische_context, juridische_context, categorie)
                     VALUES ('__TEST_HISTORY__', 'Test', '[]', '[]', 'proces')
-                """
-                )
+                """)
                 test_id = cursor.lastrowid
 
                 # Check if trigger created history

@@ -336,12 +336,10 @@ class SynonymMigration:
 
         # Check if table exists
         with self.registry._get_connection() as conn:
-            cursor = conn.execute(
-                """
+            cursor = conn.execute("""
                 SELECT name FROM sqlite_master
                 WHERE type='table' AND name='synonym_suggestions'
-                """
-            )
+                """)
             if not cursor.fetchone():
                 logger.info("synonym_suggestions table not found")
                 logger.info("Skipping Source 2")
@@ -359,16 +357,14 @@ class SynonymMigration:
                 return
 
             # Fetch all approved suggestions
-            cursor = conn.execute(
-                """
+            cursor = conn.execute("""
                 SELECT
                     hoofdterm, synoniem, confidence, context_data,
                     reviewed_by, reviewed_at, created_at
                 FROM synonym_suggestions
                 WHERE status = 'approved'
                 ORDER BY hoofdterm, confidence DESC
-                """
-            )
+                """)
             suggestions = cursor.fetchall()
 
         logger.info(f"Processing {len(suggestions)} approved suggestions...")
@@ -497,20 +493,17 @@ class SynonymMigration:
 
         with self.registry._get_connection() as conn:
             # Check if table exists
-            cursor = conn.execute(
-                """
+            cursor = conn.execute("""
                 SELECT name FROM sqlite_master
                 WHERE type='table' AND name='definitie_voorbeelden'
-                """
-            )
+                """)
             if not cursor.fetchone():
                 logger.info("definitie_voorbeelden table not found")
                 logger.info("Skipping Source 3")
                 return
 
             # Fetch all definitions with synonym examples
-            cursor = conn.execute(
-                """
+            cursor = conn.execute("""
                 SELECT
                     dv.definitie_id,
                     dv.voorbeeld_tekst,
@@ -519,8 +512,7 @@ class SynonymMigration:
                 JOIN definities d ON d.id = dv.definitie_id
                 WHERE dv.voorbeeld_type = 'synonyms' AND dv.actief = TRUE
                 ORDER BY dv.definitie_id
-                """
-            )
+                """)
             voorbeelden = cursor.fetchall()
 
         if not voorbeelden:
@@ -666,27 +658,23 @@ class SynonymMigration:
 
         # Check for orphaned members (should be 0)
         with self.registry._get_connection() as conn:
-            cursor = conn.execute(
-                """
+            cursor = conn.execute("""
                 SELECT COUNT(*) as count
                 FROM synonym_group_members m
                 WHERE NOT EXISTS (
                     SELECT 1 FROM synonym_groups g WHERE g.id = m.group_id
                 )
-                """
-            )
+                """)
             orphaned_members = cursor.fetchone()["count"]
 
             # Check for groups without members
-            cursor = conn.execute(
-                """
+            cursor = conn.execute("""
                 SELECT COUNT(*) as count
                 FROM synonym_groups g
                 WHERE NOT EXISTS (
                     SELECT 1 FROM synonym_group_members m WHERE m.group_id = g.id
                 )
-                """
-            )
+                """)
             empty_groups = cursor.fetchone()["count"]
 
         validation = {
@@ -767,33 +755,27 @@ class SynonymMigration:
 
         with self.registry._get_connection() as conn:
             # Count what will be deleted
-            cursor = conn.execute(
-                """
+            cursor = conn.execute("""
                 SELECT COUNT(*) as count FROM synonym_groups
                 WHERE created_by LIKE 'migration_%'
-                """
-            )
+                """)
             groups_to_delete = cursor.fetchone()["count"]
 
-            cursor = conn.execute(
-                """
+            cursor = conn.execute("""
                 SELECT COUNT(*) as count FROM synonym_group_members m
                 JOIN synonym_groups g ON g.id = m.group_id
                 WHERE g.created_by LIKE 'migration_%'
-                """
-            )
+                """)
             members_to_delete = cursor.fetchone()["count"]
 
             logger.info(f"Will delete {groups_to_delete} groups")
             logger.info(f"Will delete {members_to_delete} members")
 
             # Execute deletion (CASCADE will delete members)
-            cursor = conn.execute(
-                """
+            cursor = conn.execute("""
                 DELETE FROM synonym_groups
                 WHERE created_by LIKE 'migration_%'
-                """
-            )
+                """)
             groups_deleted = cursor.rowcount
 
             logger.info(f"Deleted {groups_deleted} groups (and their members)")

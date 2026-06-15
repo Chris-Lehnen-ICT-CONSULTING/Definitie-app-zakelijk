@@ -67,8 +67,7 @@ class PerformanceTracker:
         try:
             with sqlite3.connect(self.db_path) as conn:
                 # Performance metrics table
-                conn.execute(
-                    """
+                conn.execute("""
                     CREATE TABLE IF NOT EXISTS performance_metrics (
                         id INTEGER PRIMARY KEY AUTOINCREMENT,
                         metric_name TEXT NOT NULL,
@@ -77,20 +76,16 @@ class PerformanceTracker:
                         metadata TEXT,
                         CONSTRAINT chk_value_positive CHECK (value >= 0)
                     )
-                """
-                )
+                """)
 
                 # Index voor snelle queries
-                conn.execute(
-                    """
+                conn.execute("""
                     CREATE INDEX IF NOT EXISTS idx_performance_metrics_name_timestamp
                     ON performance_metrics(metric_name, timestamp DESC)
-                """
-                )
+                """)
 
                 # Performance baselines table
-                conn.execute(
-                    """
+                conn.execute("""
                     CREATE TABLE IF NOT EXISTS performance_baselines (
                         metric_name TEXT PRIMARY KEY,
                         baseline_value REAL NOT NULL,
@@ -101,8 +96,7 @@ class PerformanceTracker:
                         CONSTRAINT chk_confidence_range CHECK (confidence >= 0 AND confidence <= 1),
                         CONSTRAINT chk_sample_count CHECK (sample_count > 0)
                     )
-                """
-                )
+                """)
 
                 conn.commit()
                 logger.info("Performance tracking schema geïnitialiseerd")
@@ -306,12 +300,10 @@ class PerformanceTracker:
         """
         try:
             with sqlite3.connect(self.db_path) as conn:
-                cursor = conn.execute(
-                    """SELECT metric_name, baseline_value, confidence,
+                cursor = conn.execute("""SELECT metric_name, baseline_value, confidence,
                               sample_count, last_updated
                        FROM performance_baselines
-                       ORDER BY metric_name"""
-                )
+                       ORDER BY metric_name""")
 
                 return [
                     PerformanceBaseline(

@@ -791,8 +791,7 @@ class TestDraftManagement:
         cursor = conn.cursor()
 
         # Create simplified definities table for testing
-        cursor.execute(
-            """
+        cursor.execute("""
             CREATE TABLE definities (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 begrip VARCHAR(255) NOT NULL,
@@ -806,8 +805,7 @@ class TestDraftManagement:
                 created_by VARCHAR(255),
                 UNIQUE(begrip, organisatorische_context, juridische_context, categorie, status)
             )
-        """
-        )
+        """)
         conn.commit()
         conn.close()
 

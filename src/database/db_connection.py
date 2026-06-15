@@ -65,12 +65,10 @@ class DatabaseConnection:
         schema_path = Path(__file__).parent / "schema.sql"
         if schema_path.exists():
             with self.get_connection() as conn:
-                cursor = conn.execute(
-                    """
+                cursor = conn.execute("""
                     SELECT COUNT(*) FROM sqlite_master
                     WHERE type='table' AND name IN ('definities', 'synonym_groups')
-                    """
-                )
+                    """)
                 table_count = cursor.fetchone()[0]
 
                 if table_count == 0:
@@ -88,8 +86,7 @@ class DatabaseConnection:
         else:
             logger.warning("schema.sql not found, creating basic schema")
             with self.get_connection() as conn:
-                conn.execute(
-                    """
+                conn.execute("""
                     CREATE TABLE IF NOT EXISTS definities (
                         id INTEGER PRIMARY KEY AUTOINCREMENT,
                         begrip VARCHAR(255) NOT NULL,
@@ -108,8 +105,7 @@ class DatabaseConnection:
                         datum_voorstel TIMESTAMP,
                         ketenpartners TEXT
                     )
-                """
-                )
+                """)
                 conn.commit()
 
     def split_sql_statements(self, sql: str) -> list[str]:

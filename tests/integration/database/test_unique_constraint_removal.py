@@ -43,12 +43,10 @@ def test_db_path(tmp_path):
     cursor = conn.cursor()
 
     # Check if UNIQUE INDEX exists
-    cursor.execute(
-        """
+    cursor.execute("""
         SELECT COUNT(*) FROM sqlite_master
         WHERE type='index' AND name='idx_definities_unique_full'
-    """
-    )
+    """)
     index_exists = cursor.fetchone()[0] > 0
 
     if not index_exists:
@@ -90,12 +88,10 @@ class TestPreMigration:
         cursor = conn.cursor()
 
         # Check index exists
-        cursor.execute(
-            """
+        cursor.execute("""
             SELECT name, sql FROM sqlite_master
             WHERE type='index' AND name='idx_definities_unique_full'
-        """
-        )
+        """)
         result = cursor.fetchone()
 
         assert result is not None, "UNIQUE INDEX should exist before migration"
@@ -221,12 +217,10 @@ class TestPostMigration:
             conn.commit()
 
         # Check index does NOT exist
-        cursor.execute(
-            """
+        cursor.execute("""
             SELECT COUNT(*) FROM sqlite_master
             WHERE type='index' AND name='idx_definities_unique_full'
-        """
-        )
+        """)
         count = cursor.fetchone()[0]
 
         assert count == 0, "UNIQUE INDEX should NOT exist after migration"
@@ -534,12 +528,10 @@ class TestRollback:
             conn.commit()
 
         # Verify INDEX removed
-        cursor.execute(
-            """
+        cursor.execute("""
             SELECT COUNT(*) FROM sqlite_master
             WHERE type='index' AND name='idx_definities_unique_full'
-        """
-        )
+        """)
         assert cursor.fetchone()[0] == 0
 
         # Apply rollback (no duplicates exist)
@@ -557,12 +549,10 @@ class TestRollback:
             conn.commit()
 
         # Verify INDEX restored
-        cursor.execute(
-            """
+        cursor.execute("""
             SELECT COUNT(*) FROM sqlite_master
             WHERE type='index' AND name='idx_definities_unique_full'
-        """
-        )
+        """)
         assert (
             cursor.fetchone()[0] == 1
         ), "UNIQUE INDEX should be restored after rollback"

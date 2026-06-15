@@ -823,13 +823,11 @@ class DefinitionRepository(DefinitionRepositoryInterface):
                 stats["total_definitions"] = cursor.fetchone()[0]
 
                 # Tel per status
-                cursor.execute(
-                    """
+                cursor.execute("""
                     SELECT status, COUNT(*)
                     FROM definities
                     GROUP BY status
-                """
-                )
+                """)
                 stats["by_status"] = {row[0]: row[1] for row in cursor.fetchall()}
 
         except sqlite3.Error as exc:
