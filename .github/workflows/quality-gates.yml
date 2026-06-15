@@ -175,6 +175,11 @@ jobs:
       - name: Check mypy errors have not grown
         run: python scripts/mypy_ratchet.py
 
+      - name: Check mypy override list has not grown (DEF-431)
+        # Pure stdlib (tomllib) — parses pyproject.toml, no mypy run needed.
+        # Blocks grandfathering new untyped modules into [[tool.mypy.overrides]].
+        run: python scripts/mypy_overrides_ratchet.py
+
   quality-summary:
     name: Quality Gate Summary
     runs-on: ubuntu-latest
