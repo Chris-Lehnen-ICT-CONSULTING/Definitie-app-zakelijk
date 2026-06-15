@@ -165,18 +165,18 @@ class SRUService:
             logger.debug(f"ThreadedResolver niet beschikbaar: {e}")
             _threaded = None
 
-        self.family = 0
+        self.family: socket.AddressFamily = socket.AF_UNSPEC
         try:
             if str(os.getenv("SRU_FORCE_IPV4", "")).lower() in {"1", "true", "yes"}:
                 self.family = socket.AF_INET
         except Exception as e:
             logger.debug(f"Socket family detectie gefaald: {e}")
-            self.family = 0
+            self.family = socket.AF_UNSPEC
 
         connector = aiohttp.TCPConnector(
             ttl_dns_cache=300,
             resolver=_threaded() if _threaded else None,
-            family=self.family or 0,
+            family=self.family,
         )
         # SRU-servers verwachten XML responses
         self.headers.setdefault("Accept", "application/xml, text/xml;q=0.9, */*;q=0.8")
