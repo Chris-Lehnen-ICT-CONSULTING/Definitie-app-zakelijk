@@ -1,6 +1,8 @@
 """Synonym registry synchronisatie service."""
 
 import logging
+from collections.abc import Callable
+from typing import Any
 
 from database.db_connection import DatabaseConnection
 
@@ -10,7 +12,11 @@ logger = logging.getLogger(__name__)
 class SynonymSyncService:
     """Sync synoniemen naar de synonym registry (Architecture v3.1, PHASE 3.3)."""
 
-    def __init__(self, db: DatabaseConnection, get_registry_fn=None):
+    def __init__(
+        self,
+        db: DatabaseConnection,
+        get_registry_fn: Callable[[], Any] | None = None,
+    ) -> None:
         self._db = db
         self._get_registry_fn = get_registry_fn
 
@@ -19,8 +25,8 @@ class SynonymSyncService:
         definitie_id: int,
         synoniemen: list[str],
         edited_by: str,
-        get_definitie_fn=None,
-    ):
+        get_definitie_fn: Callable[[int], Any] | None = None,
+    ) -> None:
         """Sync manual synoniemen naar registry (scoped to definitie_id).
 
         Args:
@@ -29,6 +35,9 @@ class SynonymSyncService:
             edited_by: Wie de synoniemen heeft bewerkt
             get_definitie_fn: Callable om definitie op te halen (injected vanuit facade)
         """
+        if get_definitie_fn is None:
+            logger.warning("get_definitie_fn niet geïnjecteerd - sync skipped")
+            return
         definitie = get_definitie_fn(definitie_id)
         if not definitie:
             logger.warning(f"Definitie {definitie_id} niet gevonden - sync skipped")

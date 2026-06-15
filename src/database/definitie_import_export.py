@@ -2,6 +2,7 @@
 
 import json
 import logging
+from collections.abc import Callable
 from datetime import UTC, datetime
 from typing import Any
 
@@ -53,7 +54,8 @@ class DefinitieImportExportRepository:
         self,
         file_path: str,
         filters: dict[str, Any] | None = None,
-        search_fn=None,
+        *,
+        search_fn: Callable[..., Any],
     ) -> int:
         """Exporteer definities naar JSON bestand.
 
@@ -109,7 +111,8 @@ class DefinitieImportExportRepository:
         self,
         file_path: str,
         import_by: str | None = None,
-        create_fn=None,
+        *,
+        create_fn: Callable[..., Any],
     ) -> tuple[int, int, list[str]]:
         """Importeer definities uit JSON bestand.
 

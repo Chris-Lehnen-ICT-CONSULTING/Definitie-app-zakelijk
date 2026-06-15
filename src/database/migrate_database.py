@@ -253,7 +253,7 @@ def _normalize_wettelijke_basis(conn: sqlite3.Connection) -> int:
         return 0
 
 
-def migrate_database(db_path: str = "data/definities.db"):
+def migrate_database(db_path: str = "data/definities.db") -> bool:
     """
     Voer database migratie uit.
 
@@ -533,7 +533,7 @@ def migrate_database(db_path: str = "data/definities.db"):
         return False
 
 
-def verify_migration(db_path: str = "data/definities.db"):
+def verify_migration(db_path: str = "data/definities.db") -> bool:
     """
     Verifieer dat de migratie succesvol was.
 
