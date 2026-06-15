@@ -144,7 +144,13 @@ class MemoryCacheBackend(CacheBackend):
             return
 
         # Find LRU entry
-        lru_key = min(self._cache.keys(), key=lambda k: self._cache[k].last_accessed)
+        # last_accessed is via __post_init__ altijd gezet (nooit None na init);
+        # `or 0.0` borgt een vergelijkbare float voor de type-checker (LRU-veilig:
+        # een onverhoopt niet-gezette entry telt als oudste).
+        lru_key = min(
+            self._cache.keys(),
+            key=lambda k: self._cache[k].last_accessed or 0.0,
+        )
 
         await self.delete(lru_key)
         self._stats["evictions"] += 1
@@ -550,7 +556,7 @@ def cache_definition_generation(ttl: int = 3600):
     """
 
     def decorator(func):
-        cache = {}
+        cache: dict[str, Any] = {}
 
         def _create_cache_key(*args, **kwargs):
             """Create cache key from function arguments."""
