@@ -21,12 +21,10 @@ def run_migration():
 
     try:
         # Check if tables already exist
-        cursor.execute(
-            """
+        cursor.execute("""
             SELECT name FROM sqlite_master
             WHERE type='table' AND name IN ('synonym_groups', 'synonym_group_members')
-            """
-        )
+            """)
         existing = [row[0] for row in cursor.fetchall()]
 
         if existing:
@@ -35,8 +33,7 @@ def run_migration():
             return
 
         print("Creating synonym_groups table...")
-        cursor.execute(
-            """
+        cursor.execute("""
             CREATE TABLE synonym_groups (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
 
@@ -49,12 +46,10 @@ def run_migration():
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 created_by TEXT
             )
-            """
-        )
+            """)
 
         print("Creating synonym_group_members table...")
-        cursor.execute(
-            """
+        cursor.execute("""
             CREATE TABLE synonym_group_members (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
 
@@ -104,8 +99,7 @@ def run_migration():
                 FOREIGN KEY(definitie_id) REFERENCES definities(id) ON DELETE CASCADE,
                 UNIQUE(group_id, term)
             )
-            """
-        )
+            """)
 
         print("Creating indexes...")
         cursor.execute("CREATE INDEX idx_sgm_group ON synonym_group_members(group_id)")
@@ -128,8 +122,7 @@ def run_migration():
         )
 
         print("Creating triggers...")
-        cursor.execute(
-            """
+        cursor.execute("""
             CREATE TRIGGER update_synonym_groups_timestamp
                 AFTER UPDATE ON synonym_groups
                 FOR EACH ROW
@@ -137,11 +130,9 @@ def run_migration():
             BEGIN
                 UPDATE synonym_groups SET updated_at = CURRENT_TIMESTAMP WHERE id = NEW.id;
             END
-            """
-        )
+            """)
 
-        cursor.execute(
-            """
+        cursor.execute("""
             CREATE TRIGGER update_synonym_group_members_timestamp
                 AFTER UPDATE ON synonym_group_members
                 FOR EACH ROW
@@ -149,8 +140,7 @@ def run_migration():
             BEGIN
                 UPDATE synonym_group_members SET updated_at = CURRENT_TIMESTAMP WHERE id = NEW.id;
             END
-            """
-        )
+            """)
 
         conn.commit()
         print("✓ Migration completed successfully!")

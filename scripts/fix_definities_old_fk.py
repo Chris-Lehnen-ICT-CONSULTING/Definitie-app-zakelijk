@@ -58,8 +58,7 @@ def fix_definitie_drafts(conn: sqlite3.Connection) -> None:
     conn.execute("ALTER TABLE definitie_drafts RENAME TO definitie_drafts_old")
 
     # Step 3: Create new table with correct FK
-    conn.execute(
-        """
+    conn.execute("""
         CREATE TABLE definitie_drafts (
             definitie_id INTEGER PRIMARY KEY REFERENCES definities(id) ON DELETE CASCADE,
 
@@ -70,17 +69,14 @@ def fix_definitie_drafts(conn: sqlite3.Connection) -> None:
             saved_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
             saved_by VARCHAR(255) DEFAULT 'system'
         )
-    """
-    )
+    """)
 
     # Step 4: Copy data
-    conn.execute(
-        """
+    conn.execute("""
         INSERT INTO definitie_drafts (definitie_id, draft_content, saved_at, saved_by)
         SELECT definitie_id, draft_content, saved_at, saved_by
         FROM definitie_drafts_old
-    """
-    )
+    """)
 
     # Step 5: Recreate indexes (drop first if exists)
     conn.execute("DROP INDEX IF EXISTS idx_drafts_saved_at")
@@ -111,8 +107,7 @@ def fix_synonym_group_members(conn: sqlite3.Connection) -> None:
     )
 
     # Step 3: Create new table with correct FK
-    conn.execute(
-        """
+    conn.execute("""
         CREATE TABLE synonym_group_members (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
 
@@ -162,12 +157,10 @@ def fix_synonym_group_members(conn: sqlite3.Connection) -> None:
             FOREIGN KEY(definitie_id) REFERENCES definities(id) ON DELETE CASCADE,
             UNIQUE(group_id, term)
         )
-    """
-    )
+    """)
 
     # Step 4: Copy data
-    conn.execute(
-        """
+    conn.execute("""
         INSERT INTO synonym_group_members (
             id, group_id, term, weight, is_preferred, status, source,
             context_json, definitie_id, usage_count, last_used_at,
@@ -178,8 +171,7 @@ def fix_synonym_group_members(conn: sqlite3.Connection) -> None:
             context_json, definitie_id, usage_count, last_used_at,
             created_at, updated_at, created_by, reviewed_by, reviewed_at
         FROM synonym_group_members_old
-    """
-    )
+    """)
 
     # Step 5: Recreate indexes (drop first if exists)
     index_names = [
@@ -210,8 +202,7 @@ def fix_synonym_group_members(conn: sqlite3.Connection) -> None:
 
     # Step 6: Recreate trigger (drop first if exists)
     conn.execute("DROP TRIGGER IF EXISTS update_synonym_group_members_timestamp")
-    conn.execute(
-        """
+    conn.execute("""
         CREATE TRIGGER update_synonym_group_members_timestamp
         AFTER UPDATE ON synonym_group_members
         FOR EACH ROW
@@ -219,8 +210,7 @@ def fix_synonym_group_members(conn: sqlite3.Connection) -> None:
         BEGIN
             UPDATE synonym_group_members SET updated_at = CURRENT_TIMESTAMP WHERE id = NEW.id;
         END
-    """
-    )
+    """)
 
     # Step 7: Drop old table
     conn.execute("DROP TABLE synonym_group_members_old")
@@ -245,8 +235,7 @@ def fix_generation_logs(conn: sqlite3.Connection) -> None:
     conn.execute("ALTER TABLE generation_logs RENAME TO generation_logs_old")
 
     # Step 3: Create new table with correct FK (simplified - only key fields shown)
-    conn.execute(
-        """
+    conn.execute("""
         CREATE TABLE generation_logs (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             definitie_id INTEGER UNIQUE,
@@ -283,12 +272,10 @@ def fix_generation_logs(conn: sqlite3.Connection) -> None:
             CHECK (tokens_completion IS NULL OR tokens_completion >= 0),
             CHECK (duration_ms IS NULL OR duration_ms >= 0)
         )
-    """
-    )
+    """)
 
     # Step 4: Copy data (if any)
-    conn.execute(
-        """
+    conn.execute("""
         INSERT INTO generation_logs (
             id, definitie_id, prompt_full_text, prompt_template_version,
             prompt_template_name, prompt_modules_used, model_name,
@@ -309,8 +296,7 @@ def fix_generation_logs(conn: sqlite3.Connection) -> None:
             generation_status, error_message, error_type, error_traceback,
             additional_metadata, logged_at, updated_at
         FROM generation_logs_old
-    """
-    )
+    """)
 
     # Step 5: Recreate indexes (drop first if exists)
     index_names = [
@@ -337,8 +323,7 @@ def fix_generation_logs(conn: sqlite3.Connection) -> None:
 
     # Step 6: Recreate trigger (drop first if exists)
     conn.execute("DROP TRIGGER IF EXISTS update_generation_logs_timestamp")
-    conn.execute(
-        """
+    conn.execute("""
         CREATE TRIGGER update_generation_logs_timestamp
         AFTER UPDATE ON generation_logs
         FOR EACH ROW
@@ -346,8 +331,7 @@ def fix_generation_logs(conn: sqlite3.Connection) -> None:
         BEGIN
             UPDATE generation_logs SET updated_at = CURRENT_TIMESTAMP WHERE id = NEW.id;
         END
-    """
-    )
+    """)
 
     # Step 7: Drop old table
     conn.execute("DROP TABLE generation_logs_old")
@@ -363,38 +347,32 @@ def verify_fk_integrity(conn: sqlite3.Connection) -> bool:
     print("\n🔍 Verifying FK integrity...")
 
     # Check definitie_drafts
-    result = conn.execute(
-        """
+    result = conn.execute("""
         SELECT COUNT(*) FROM definitie_drafts d
         WHERE NOT EXISTS (SELECT 1 FROM definities WHERE id = d.definitie_id)
-    """
-    ).fetchone()[0]
+    """).fetchone()[0]
 
     if result > 0:
         print(f"❌ Found {result} orphaned drafts!")
         return False
 
     # Check synonym_group_members
-    result = conn.execute(
-        """
+    result = conn.execute("""
         SELECT COUNT(*) FROM synonym_group_members s
         WHERE s.definitie_id IS NOT NULL
         AND NOT EXISTS (SELECT 1 FROM definities WHERE id = s.definitie_id)
-    """
-    ).fetchone()[0]
+    """).fetchone()[0]
 
     if result > 0:
         print(f"❌ Found {result} orphaned synonym members!")
         return False
 
     # Check generation_logs
-    result = conn.execute(
-        """
+    result = conn.execute("""
         SELECT COUNT(*) FROM generation_logs g
         WHERE g.definitie_id IS NOT NULL
         AND NOT EXISTS (SELECT 1 FROM definities WHERE id = g.definitie_id)
-    """
-    ).fetchone()[0]
+    """).fetchone()[0]
 
     if result > 0:
         print(f"❌ Found {result} orphaned generation logs!")

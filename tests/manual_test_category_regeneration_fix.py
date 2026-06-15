@@ -30,8 +30,7 @@ def test_category_change_flow():
 
     st.title("🧪 Category Regeneration Fix Test")
 
-    st.markdown(
-        """
+    st.markdown("""
     ## Test Scenario
 
     1. Genereer een definitie
@@ -43,8 +42,7 @@ def test_category_change_flow():
     ## Bug die we fixen:
     - ❌ **Oud**: Preview verdween direct door st.rerun()
     - ✅ **Nieuw**: Preview blijft zichtbaar met 3 actie knoppen
-    """
-    )
+    """)
 
     # Mock generation result
     if st.button("🎭 Mock een gegenereerde definitie"):
@@ -96,8 +94,7 @@ def test_category_change_flow():
             )
             st.write(f"- last_generation_result keys: {list(current_result.keys())}")
 
-            st.markdown(
-                """
+            st.markdown("""
             **Verwacht gedrag na fix:**
             1. Klik "🔄 Wijzig Categorie"
             2. Selector verschijnt
@@ -107,8 +104,7 @@ def test_category_change_flow():
                - Oude vs nieuwe categorie
                - Huidige definitie
                - 3 actie knoppen (Direct/Handmatig/Behoud)
-            """
-            )
+            """)
 
 
 if __name__ == "__main__":

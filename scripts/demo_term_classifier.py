@@ -182,8 +182,7 @@ def main():
     # Summary
     # =========================================================================
     print_header("Summary")
-    print(
-        """
+    print("""
     ✅ Domain overrides: Expliciete classificatie voor ambigue termen
     ✅ Config-driven weights: YAML configuratie voor patterns
     ✅ Priority cascade: Tie-breaking bij gelijke scores
@@ -201,8 +200,7 @@ def main():
     - Domain overrides: 4 terms
     - Suffix patterns: 18 patterns across 3 categories
     - Category priority: EXEMPLAAR > TYPE > RESULTAAT > PROCES
-    """
-    )
+    """)
 
     print("\n" + "=" * 70)
     print("  End of Demonstration")

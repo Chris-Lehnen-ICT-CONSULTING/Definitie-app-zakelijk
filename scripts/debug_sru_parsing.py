@@ -284,8 +284,7 @@ def main():
     print("AANBEVELINGEN VOOR VERBETERING")
     print("=" * 60)
 
-    print(
-        """
+    print("""
 1. NAMESPACE MISMATCH PROBLEEM:
    - SRU 1.2 gebruikt: http://www.loc.gov/zing/srw/
    - SRU 2.0 gebruikt: http://docs.oasis-open.org/ns/search-ws/sruResponse
@@ -310,8 +309,7 @@ def main():
    - Deze worden nu geparst maar niet gelogd in main flow
 
    OPLOSSING: Log diagnostics op WARNING level voor betere debugging
-"""
-    )
+""")
 
 
 if __name__ == "__main__":

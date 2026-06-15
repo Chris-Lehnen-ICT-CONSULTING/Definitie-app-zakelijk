@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 """Fix all test files that use GenerationRequest without id parameter."""
+
 import os
 import re
 

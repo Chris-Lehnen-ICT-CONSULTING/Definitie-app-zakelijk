@@ -537,7 +537,9 @@ class DefinitionGeneratorTab:
                     f"✅ Definitie succesvol gegenereerd! (Score: {agent_result.final_score:.2f})"
                 )
             else:
-                st.warning(f"⚠️ Generatie gedeeltelijk succesvol: {agent_result.reason}")
+                st.warning(
+                    f"⚠️ Generatie gedeeltelijk succesvol: {agent_result.reason}"
+                )
 
     def _render_degraded_mode_warning(self, system_info: dict) -> None:
         """DEF-215: Render warning banner for degraded validation mode."""

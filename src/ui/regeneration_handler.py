@@ -24,14 +24,12 @@ class RegenerationHandler:
 
             # Show info
             if begrip and category:
-                st.info(
-                    f"""
+                st.info(f"""
                 🔄 **Regeneratie Mode Actief**
                 - Begrip: {begrip}
                 - Nieuwe categorie: {category}
                 - De definitie wordt gegenereerd voor de nieuwe ontologische categorie
-                """
-                )
+                """)
 
                 return begrip, category
 

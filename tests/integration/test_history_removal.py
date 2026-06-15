@@ -121,12 +121,10 @@ class TestHistoryTabRemoval:
 
         try:
             # Check history table exists
-            cursor.execute(
-                """
+            cursor.execute("""
                 SELECT name FROM sqlite_master
                 WHERE type='table' AND name='definitie_geschiedenis'
-            """
-            )
+            """)
             assert cursor.fetchone() is not None, "History table should still exist"
 
             # Check we can query it
