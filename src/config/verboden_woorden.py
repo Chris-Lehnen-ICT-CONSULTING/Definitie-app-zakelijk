@@ -46,7 +46,7 @@ def laad_verboden_woorden() -> list[str]:
 
 
 # ✅ Functie: sla aangepaste woordenlijst op
-def sla_verboden_woorden_op(woordenlijst: list[str]):
+def sla_verboden_woorden_op(woordenlijst: list[str]) -> None:
     try:
         verboden_woorden_path = os.path.join(
             os.path.dirname(__file__), "verboden_woorden.json"
@@ -111,7 +111,9 @@ PAD_LOG = os.path.abspath(
 
 
 # ✅ Functie: logt individueel testresultaat naar JSONL-logbestand
-def log_test_verboden_woord(woord: str, zin: str, komt_voor: bool, regex_match: bool):
+def log_test_verboden_woord(
+    woord: str, zin: str, komt_voor: bool, regex_match: bool
+) -> None:
     """
     Logt een individuele test van een verboden woord op een zin naar een JSONL-logbestand.
     Inclusief: woord, zin, resultaten en timestamp.

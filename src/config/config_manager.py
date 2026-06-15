@@ -469,7 +469,7 @@ class ConfigManager:
 
         logger.info(f"Configuration loaded for environment: {environment.value}")
 
-    def _load_configuration(self):
+    def _load_configuration(self) -> None:
         """Load configuration from files and environment variables."""
         # Geen .env laden; vertrouw op al ingestelde omgeving
 
@@ -482,7 +482,7 @@ class ConfigManager:
         # Validate configuration
         self._validate_configuration()
 
-    def _load_from_yaml(self):
+    def _load_from_yaml(self) -> None:
         """Load configuration from single config.yaml file."""
         try:
             # Load single production config
@@ -499,7 +499,7 @@ class ConfigManager:
         except Exception as e:
             logger.warning(f"Failed to load YAML configuration: {e}")
 
-    def _load_from_environment(self):
+    def _load_from_environment(self) -> None:
         """Laad configuratie uit omgevingsvariabelen.
 
         Overschrijft standaard waarden met omgevingsvariabelen
@@ -547,7 +547,7 @@ class ConfigManager:
         if rph := os.getenv("RATE_LIMIT_RPH"):
             self.rate_limiting.requests_per_hour = int(rph)
 
-    def _apply_config_dict(self, config_dict: dict[str, Any]):
+    def _apply_config_dict(self, config_dict: dict[str, Any]) -> None:
         """Pas configuratie dictionary toe op config objecten.
 
         Args:
@@ -571,7 +571,7 @@ class ConfigManager:
                     if hasattr(section_obj, key):
                         setattr(section_obj, key, value)
 
-    def _validate_configuration(self):
+    def _validate_configuration(self) -> None:
         """Valideer configuratie instellingen.
 
         Controleert of alle configuratie waarden geldig zijn en
@@ -617,7 +617,7 @@ class ConfigManager:
         """Get configuration for a specific section."""
         return getattr(self, section.value)
 
-    def set_config(self, section: ConfigSection, key: str, value: Any):
+    def set_config(self, section: ConfigSection, key: str, value: Any) -> None:
         """Set configuration value and trigger callbacks."""
         config_obj = getattr(self, section.value)
         if hasattr(config_obj, key):
@@ -632,7 +632,7 @@ class ConfigManager:
             msg = f"Invalid config key: {section.value}.{key}"
             raise ValueError(msg)
 
-    def register_change_callback(self, section: str, callback: Callable):
+    def register_change_callback(self, section: str, callback: Callable) -> None:
         """Register callback for configuration changes."""
         if section not in self._change_callbacks:
             self._change_callbacks[section] = []
@@ -640,7 +640,7 @@ class ConfigManager:
 
     def _trigger_callbacks(
         self, section: str, key: str, old_value: Any, new_value: Any
-    ):
+    ) -> None:
         """Trigger registered callbacks for configuration changes."""
         if section in self._change_callbacks:
             for callback in self._change_callbacks[section]:
@@ -649,7 +649,7 @@ class ConfigManager:
                 except Exception as e:
                     logger.error(f"Callback error: {e}")
 
-    def save_configuration(self):
+    def save_configuration(self) -> None:
         """Save current configuration to YAML file."""
         config_dict = {
             "api": self._dataclass_to_dict(self.api),
@@ -682,13 +682,13 @@ class ConfigManager:
         "token",
     }
 
-    def _dataclass_to_dict(self, obj) -> dict[str, Any]:
+    def _dataclass_to_dict(self, obj: Any) -> dict[str, Any]:
         """Convert dataclass to dictionary, excluding sensitive fields.
 
         DEF-247: Sensitive fields (API keys, secrets) are never written to disk.
         They should be loaded from environment variables only.
         """
-        result = {}
+        result: dict[str, Any] = {}
         for field_name, field_value in obj.__dict__.items():
             # DEF-247: Never persist sensitive fields - write empty string instead
             if field_name in self._SENSITIVE_FIELDS:
@@ -700,7 +700,7 @@ class ConfigManager:
                 result[field_name] = field_value
         return result
 
-    def reload_configuration(self):
+    def reload_configuration(self) -> None:
         """Reload configuration from files."""
         logger.info("Reloading configuration...")
         self._load_configuration()
@@ -779,7 +779,7 @@ def get_config(section: ConfigSection) -> Any:
     return get_config_manager().get_config(section)
 
 
-def set_config(section: ConfigSection, key: str, value: Any):
+def set_config(section: ConfigSection, key: str, value: Any) -> None:
     """Convenience function to set configuration value."""
     get_config_manager().set_config(section, key, value)
 
@@ -823,7 +823,7 @@ def get_prompt_temperature(prompt_type: str) -> float:
     return config.api.default_temperature
 
 
-def fill_ai_defaults(**kwargs) -> dict:
+def fill_ai_defaults(**kwargs: Any) -> dict[str, Any]:
     """Fill AI request parameters with defaults from config where None."""
     if "model" in kwargs and kwargs["model"] is None:
         kwargs["model"] = get_default_model()
@@ -864,12 +864,12 @@ def get_component_config(component: str, sub_component: str | None = None) -> di
     }
 
 
-def reload_config():
+def reload_config() -> None:
     """Convenience function to reload configuration."""
     get_config_manager().reload_configuration()
 
 
-def save_config():
+def save_config() -> None:
     """Convenience function to save configuration."""
     get_config_manager().save_configuration()
 

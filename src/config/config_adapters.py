@@ -6,6 +6,9 @@ Delegates to the top-level config adapters defined in config.__init__.
 from __future__ import annotations
 
 from . import (
+    APIConfigAdapter,
+    CacheConfigAdapter,
+    PathsConfigAdapter,
     get_api_config as _get_api_config,
     get_cache_config as _get_cache_config,
     get_paths_config as _get_paths_config,
@@ -13,15 +16,15 @@ from . import (
 from .config_manager import get_default_model, get_default_temperature
 
 
-def get_api_config():
+def get_api_config() -> APIConfigAdapter:
     return _get_api_config()
 
 
-def get_cache_config():
+def get_cache_config() -> CacheConfigAdapter:
     return _get_cache_config()
 
 
-def get_paths_config():
+def get_paths_config() -> PathsConfigAdapter:
     return _get_paths_config()
 
 

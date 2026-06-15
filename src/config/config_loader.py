@@ -7,12 +7,13 @@ de oude config_loader gebruikt. Gebruik voor nieuwe code:
 """
 
 import warnings
+from typing import Any, cast
 
 from toetsregels.loader import load_toetsregels as new_load_toetsregels
 
 
 # Legacy functie naam
-def laad_toetsregels(path=None):
+def laad_toetsregels(path: str | None = None) -> dict[str, Any]:
     """
     DEPRECATED: Gebruik toetsregels.loader.load_toetsregels
 
@@ -28,11 +29,11 @@ def laad_toetsregels(path=None):
 
     # Gebruik nieuwe loader, maar return alleen regels dict
     result = new_load_toetsregels()
-    return result.get("regels", {})
+    return cast(dict[str, Any], result.get("regels", {}))
 
 
 # Voor het laden van verboden woorden (blijft in config)
-def laad_verboden_woorden(path=None):
+def laad_verboden_woorden(path: str | None = None) -> Any:
     """Laad verboden woorden uit JSON."""
     import json
     import os
