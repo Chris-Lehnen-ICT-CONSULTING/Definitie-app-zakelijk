@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 class PerformanceMonitor:
     """Monitor voor het bijhouden van performance metrics."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.metrics: dict[str, list] = {}
         self.active_timers: dict[str, float] = {}
 
@@ -65,7 +65,7 @@ class PerformanceMonitor:
 
         return summary
 
-    def log_summary(self):
+    def log_summary(self) -> None:
         """Log een performance summary."""
         summary = self.get_summary()
 
@@ -89,7 +89,9 @@ def get_performance_monitor() -> PerformanceMonitor:
     return _performance_monitor
 
 
-def measure_performance(operation_name: str | None = None):
+def measure_performance(
+    operation_name: str | None = None,
+) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
     """
     Decorator voor het meten van functie performance.
 
@@ -104,7 +106,7 @@ def measure_performance(operation_name: str | None = None):
 
     def decorator(func: Callable) -> Callable:
         @wraps(func)
-        async def async_wrapper(*args, **kwargs) -> Any:
+        async def async_wrapper(*args: Any, **kwargs: Any) -> Any:
             name = operation_name or func.__name__
             monitor = get_performance_monitor()
 
@@ -115,7 +117,7 @@ def measure_performance(operation_name: str | None = None):
                 monitor.stop_timer(name)
 
         @wraps(func)
-        def sync_wrapper(*args, **kwargs) -> Any:
+        def sync_wrapper(*args: Any, **kwargs: Any) -> Any:
             name = operation_name or func.__name__
             monitor = get_performance_monitor()
 
@@ -134,7 +136,7 @@ def measure_performance(operation_name: str | None = None):
 
 
 # Utility functies voor manual timing
-def start_timing(operation: str):
+def start_timing(operation: str) -> None:
     """Start timing voor een operatie."""
     monitor = get_performance_monitor()
     monitor.start_timer(operation)
@@ -146,7 +148,7 @@ def stop_timing(operation: str) -> float:
     return monitor.stop_timer(operation)
 
 
-def log_performance_summary():
+def log_performance_summary() -> None:
     """Log de performance summary."""
     monitor = get_performance_monitor()
     monitor.log_summary()

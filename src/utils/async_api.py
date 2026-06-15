@@ -43,7 +43,7 @@ class AsyncRateLimiter:
         self.semaphore = asyncio.Semaphore(config.max_concurrent)
         self._lock = asyncio.Lock()
 
-    async def acquire(self):
+    async def acquire(self) -> None:
         """Acquire permission to make an API call."""
         async with self._lock:
             now = datetime.now(UTC)
@@ -76,7 +76,7 @@ class AsyncRateLimiter:
 
         await self.semaphore.acquire()
 
-    def release(self):
+    def release(self) -> None:
         """Release semaphore after API call."""
         self.semaphore.release()
 
@@ -117,7 +117,7 @@ class AsyncGPTClient:
         max_tokens: int = 300,
         use_cache: bool = True,
         system_prompt: str | None = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> str:
         """
         Make async chat completion request with caching and rate limiting.
@@ -203,7 +203,7 @@ class AsyncGPTClient:
         temperature: float,
         max_tokens: int,
         system_prompt: str | None = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> str:
         """Make API request with exponential backoff retries."""
         last_error = None
@@ -227,7 +227,7 @@ class AsyncGPTClient:
                 if response.tokens_used:
                     self.session_stats["total_tokens"] += response.tokens_used
 
-                return result
+                return cast(str, result)
 
             except AIClientError as e:
                 last_error = e
@@ -251,7 +251,7 @@ class AsyncGPTClient:
         temperature: float = 0.01,
         max_tokens: int = 300,
         progress_callback: Callable[[int, int], None] | None = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> list[str]:
         """
         Process multiple prompts concurrently.
@@ -314,7 +314,7 @@ class AsyncGPTClient:
         """Get session statistics."""
         return self.session_stats.copy()
 
-    async def close(self):
+    async def close(self) -> None:
         """Close the async client."""
         if hasattr(self._ai_client, "close"):
             await self._ai_client.close()
@@ -337,7 +337,7 @@ async def async_gpt_call(
     model: str | None = None,
     temperature: float = 0.01,
     max_tokens: int = 300,
-    **kwargs,
+    **kwargs: Any,
 ) -> str:
     """
     Convenience function for async GPT calls.
@@ -368,7 +368,7 @@ async def async_batch_gpt_calls(
     temperature: float = 0.01,
     max_tokens: int = 300,
     progress_callback: Callable[[int, int], None] | None = None,
-    **kwargs,
+    **kwargs: Any,
 ) -> list[str]:
     """
     Convenience function for batch async GPT calls.
@@ -395,7 +395,9 @@ async def async_batch_gpt_calls(
     )
 
 
-def async_cached(ttl: int = 3600):
+def async_cached(
+    ttl: int = 3600,
+) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
     """
     Decorator for async functions with caching.
 
@@ -406,9 +408,9 @@ def async_cached(ttl: int = 3600):
         Decorated async function
     """
 
-    def decorator(func):
+    def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
         @wraps(func)
-        async def wrapper(*args, **kwargs):
+        async def wrapper(*args: Any, **kwargs: Any) -> Any:
             # Generate cache key
             cache_key = _cache._generate_cache_key(func.__name__, *args, **kwargs)
 
@@ -431,7 +433,7 @@ def async_cached(ttl: int = 3600):
     return decorator
 
 
-async def cleanup_async_resources():
+async def cleanup_async_resources() -> None:
     """Clean up async resources on shutdown."""
     global _async_client
     if _async_client:
