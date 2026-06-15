@@ -199,12 +199,6 @@ disallow_untyped_defs = false
 module = [
     "src.api.feature_status_api",
     "src.cli.performance_cli",
-    "src.config",
-    "src.config.config_adapters",
-    "src.config.config_loader",
-    "src.config.config_manager",
-    "src.config.feature_flags",
-    "src.config.verboden_woorden",
     "src.database.audit_helpers",
     "src.database.db_connection",
     "src.database.definitie_import_export",
