@@ -85,7 +85,7 @@ def black_versions() -> dict[str, str]:
             re.MULTILINE,
         ),
         ".pre-commit-config.yaml": _extract(
-            r"psf/black.*?rev:\s*(\S+)",
+            r"github\.com/psf/black\b.*?rev:\s*(\S+)",
             PRE_COMMIT.read_text(encoding="utf-8"),
             "black rev in .pre-commit-config.yaml",
             re.DOTALL,
