@@ -645,8 +645,9 @@ class DefinitionWorkflowService:
 
     def _get_policy(self):
         # Prefer geïnjecteerde service; val terug op best-effort loader
-        if getattr(self, "gate_policy_service", None):
-            return self.gate_policy_service.get_policy()
+        gate_policy_service = getattr(self, "gate_policy_service", None)
+        if gate_policy_service:
+            return gate_policy_service.get_policy()
         if GatePolicyService:
             try:
                 return GatePolicyService().get_policy()

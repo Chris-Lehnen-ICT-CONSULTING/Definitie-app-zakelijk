@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 
 
 # Eenvoudige module-level cache om herhaalde zware initialisatie te voorkomen
-_SERVICE_ADAPTER_CACHE: dict[tuple, "ServiceAdapter"] = {}
+_SERVICE_ADAPTER_CACHE: dict[str, "ServiceAdapter"] = {}
 
 
 def _freeze_config(value: Any) -> Any:
