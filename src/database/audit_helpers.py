@@ -143,7 +143,7 @@ class AuditHelpers:
         wijziging_type: str,
         gewijzigd_door: str | None = None,
         reden: str | None = None,
-    ):
+    ) -> None:
         """Log wijziging in geschiedenis tabel."""
         with self._db.get_connection() as conn:
             begrip_result = conn.execute(
@@ -167,7 +167,7 @@ class AuditHelpers:
         verwerkt: int,
         succesvol: int,
         gefaald: int,
-    ):
+    ) -> None:
         """Log import/export operatie."""
         with self._db.get_connection() as conn:
             conn.execute(

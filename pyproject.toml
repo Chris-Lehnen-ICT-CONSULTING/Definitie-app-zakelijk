@@ -199,14 +199,11 @@ disallow_untyped_defs = false
 module = [
     "src.api.feature_status_api",
     "src.cli.performance_cli",
-    "src.database.audit_helpers",
-    "src.database.db_connection",
-    "src.database.definitie_import_export",
+    # DEF-435: facade is volledig geannoteerd, maar de `from database.* import`-
+    # delegate-classes resolven onder de huidige mypy-config naar Any (src-layout
+    # import-resolutie), wat ~22 spurieuze no-any-return geeft. Deferred tot de
+    # import-resolutie is opgelost (apart van de batch-1 annotatie-afbouw).
     "src.database.definitie_repository",
-    "src.database.migrate_database",
-    "src.database.models",
-    "src.database.synonym_sync",
-    "src.database.voorbeelden_repository",
     "src.document_processing.document_extractor",
     "src.document_processing.document_processor",
     "src.integration.definitie_checker",
