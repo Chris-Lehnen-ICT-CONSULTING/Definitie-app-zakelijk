@@ -22,6 +22,11 @@ import uuid
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from pathlib import Path
+from typing import TYPE_CHECKING, Any, TypedDict
+
+if TYPE_CHECKING:
+    from services.interfaces import DefinitionOrchestratorInterface
+    from services.rag.rag_service import RAGService
 
 # src/ op het pad zetten
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -43,7 +48,17 @@ logger = logging.getLogger(__name__)
 
 COLLECTION_NAME = "smoke_test_wid"
 
-TEST_TERMS = [
+
+class TermConfig(TypedDict):
+    """Configuratie per testterm — begrip met zijn context-lijsten."""
+
+    begrip: str
+    organisatorische_context: list[str]
+    juridische_context: list[str]
+    wettelijke_basis: list[str]
+
+
+TEST_TERMS: list[TermConfig] = [
     {
         "begrip": "identificeren",
         "organisatorische_context": ["Strafrechtketen"],
@@ -114,7 +129,7 @@ class SmokeTestReport:
 # ── Core functies ─────────────────────────────────────────────────
 
 
-def ingest_wettekst(rag_service, wettekst_path: str) -> tuple[int, int]:
+def ingest_wettekst(rag_service: "RAGService", wettekst_path: str) -> tuple[int, int]:
     """Ingest wettekst in RAG pipeline. Retourneert (collection_id, chunk_count)."""
     logger.info(f"\n{'='*60}")
     logger.info("STAP 1: Wettekst ingesten in RAG")
@@ -149,12 +164,12 @@ def ingest_wettekst(rag_service, wettekst_path: str) -> tuple[int, int]:
 
 
 async def generate_definition(
-    orchestrator,
+    orchestrator: "DefinitionOrchestratorInterface",
     begrip: str,
     org_ctx: list[str],
     jur_ctx: list[str],
     wet_basis: list[str],
-) -> tuple[str, float, int, dict]:
+) -> tuple[str, float, int, dict[str, Any]]:
     """Genereer definitie via orchestrator. Retourneert (tekst, score, violation_count, metadata)."""
     request = GenerationRequest(
         id=str(uuid.uuid4()),
@@ -189,7 +204,9 @@ async def generate_definition(
     return definitie, score, violation_count, metadata
 
 
-def preview_rag_chunks(rag_service, begrip: str, collection_id: int) -> list[str]:
+def preview_rag_chunks(
+    rag_service: "RAGService", begrip: str, collection_id: int
+) -> list[str]:
     """Haal RAG chunks op en geef preview terug."""
     context = rag_service.retrieve_context(
         query=begrip, collection_id=collection_id, top_k=5
@@ -364,7 +381,7 @@ async def run_smoke_test(
     return report
 
 
-def _print_summary(report: SmokeTestReport):
+def _print_summary(report: SmokeTestReport) -> None:
     """Print samenvatting naar console."""
     logger.info(f"\n{'='*60}")
     logger.info("RESULTAAT")
@@ -411,7 +428,7 @@ def _print_summary(report: SmokeTestReport):
         )
 
 
-def _write_report(report: SmokeTestReport, output_dir: str):
+def _write_report(report: SmokeTestReport, output_dir: str) -> None:
     """Schrijf rapport als markdown en JSON."""
     out = Path(output_dir)
     out.mkdir(parents=True, exist_ok=True)
@@ -528,7 +545,7 @@ def _write_report(report: SmokeTestReport, output_dir: str):
 # ── CLI ───────────────────────────────────────────────────────────
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(
         description="RAG Smoke Test — DEF-318: bewijs dat RAG-context definities verbetert"
     )
