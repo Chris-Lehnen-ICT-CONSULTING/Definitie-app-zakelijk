@@ -227,6 +227,9 @@ class AsyncGPTClient:
                 if response.tokens_used:
                     self.session_stats["total_tokens"] += response.tokens_used
 
+                # ChatResponse.text is contractueel `str`; de cast onderdrukt enkel
+                # de Any die ontstaat doordat AsyncAIClient via de services.ai-import
+                # naar Any resolvet (DEF-439). Weghalen zodra die resolutie gefixt is.
                 return cast(str, result)
 
             except AIClientError as e:
