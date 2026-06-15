@@ -6,8 +6,10 @@ the availability of features, especially during migration from V1 to V2.
 
 import logging
 import os
+from collections.abc import Callable
 from dataclasses import dataclass
 from enum import Enum
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -128,7 +130,7 @@ class FeatureFlags:
         return {flag.name: flag.is_enabled() for flag in cls.get_all_flags().values()}
 
     @classmethod
-    def log_feature_status(cls):
+    def log_feature_status(cls) -> None:
         """Log the status of all feature flags."""
         logger.info("=== Feature Flags Status ===")
         for _name, flag in cls.get_all_flags().items():
@@ -180,15 +182,17 @@ class FeatureFlags:
         return True
 
 
-def guard_legacy_route(feature_flag: FeatureFlag):
+def guard_legacy_route(
+    feature_flag: FeatureFlag,
+) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
     """Decorator to guard legacy routes with feature flags.
 
     Args:
         feature_flag: The feature flag to check
     """
 
-    def decorator(func):
-        def wrapper(*args, **kwargs):
+    def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
             if not feature_flag.is_enabled():
                 logger.info(
                     f"Legacy route '{func.__name__}' is disabled by feature flag '{feature_flag.name}'"

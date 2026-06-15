@@ -55,7 +55,7 @@ class APIConfigAdapter:
         model: str | None = None,
         temperature: float | None = None,
         max_tokens: int | None = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> dict[str, Any]:
         base = self.get_model_config(model)
         # Apply explicit overrides (None preserves defaults)
