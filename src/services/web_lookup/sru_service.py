@@ -176,7 +176,7 @@ class SRUService:
         connector = aiohttp.TCPConnector(
             ttl_dns_cache=300,
             resolver=_threaded() if _threaded else None,
-            family=self.family or socket.AF_UNSPEC,
+            family=self.family,
         )
         # SRU-servers verwachten XML responses
         self.headers.setdefault("Accept", "application/xml, text/xml;q=0.9, */*;q=0.8")
