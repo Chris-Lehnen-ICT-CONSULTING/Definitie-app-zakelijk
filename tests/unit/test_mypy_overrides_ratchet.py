@@ -61,6 +61,41 @@ class TestCountOverrides:
         )
         assert mor.count_overrides(p) == 3
 
+    def test_string_module_counts_one(self, tmp_path):
+        # mypy accepts `module` as a bare string, not only a list.
+        p = _write(
+            tmp_path,
+            "[[tool.mypy.overrides]]\n"
+            "disallow_untyped_defs = false\n"
+            'module = "pkg.mod"\n',
+        )
+        assert mor.count_overrides(p) == 1
+
+    def test_dedups_modules_across_blocks(self, tmp_path):
+        # Same module listed twice must count once (true exemption breadth).
+        p = _write(
+            tmp_path,
+            "[[tool.mypy.overrides]]\n"
+            "disallow_untyped_defs = false\n"
+            'module = ["a.b", "c.d"]\n\n'
+            "[[tool.mypy.overrides]]\n"
+            "disallow_untyped_defs = false\n"
+            'module = ["a.b"]\n',
+        )
+        assert mor.count_overrides(p) == 2
+
+    def test_wildcard_module_is_rejected(self, tmp_path):
+        # A wildcard would exempt a whole subtree while counting as one entry —
+        # dodging both gates. The teller must fail closed (DEF-431 review).
+        p = _write(
+            tmp_path,
+            "[[tool.mypy.overrides]]\n"
+            "disallow_untyped_defs = false\n"
+            'module = ["src.services.*"]\n',
+        )
+        with pytest.raises(SystemExit):
+            mor.count_overrides(p)
+
 
 class TestBaselineRoundtrip:
     def test_write_then_read(self, tmp_path):
@@ -88,8 +123,19 @@ class TestMainExitCodes:
     def test_shrink_passes_without_update(self, tmp_path, monkeypatch, capsys):
         monkeypatch.setattr(mor, "count_overrides", lambda *a, **k: 140)
         monkeypatch.setattr(mor, "read_baseline", lambda *a, **k: 145)
+        written: list[int] = []
+        monkeypatch.setattr(mor, "write_baseline", lambda v, *a, **k: written.append(v))
         assert mor.main([]) == 0
         assert "dropped" in capsys.readouterr().out
+        assert written == []  # shrink WITHOUT --update must not touch the baseline
+
+    def test_shrink_with_update_writes_lower_baseline(self, tmp_path, monkeypatch):
+        monkeypatch.setattr(mor, "count_overrides", lambda *a, **k: 140)
+        monkeypatch.setattr(mor, "read_baseline", lambda *a, **k: 145)
+        written: list[int] = []
+        monkeypatch.setattr(mor, "write_baseline", lambda v, *a, **k: written.append(v))
+        assert mor.main(["--update"]) == 0
+        assert written == [140]  # --update ratchets the baseline down to the count
 
 
 class TestRealConfigConsistent:

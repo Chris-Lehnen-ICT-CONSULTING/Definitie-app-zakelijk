@@ -29,19 +29,35 @@ BASELINE_PATH = Path(__file__).with_name("mypy_overrides_baseline.txt")
 
 
 def count_overrides(pyproject: Path = PYPROJECT_PATH) -> int:
-    """Return the number of modules exempted from disallow_untyped_defs.
+    """Return the number of UNIQUE modules exempted from disallow_untyped_defs.
 
-    Sums the ``module`` entries of every ``[[tool.mypy.overrides]]`` block that
-    sets ``disallow_untyped_defs = false``.
+    Counts the distinct ``module`` entries of every ``[[tool.mypy.overrides]]``
+    block that sets ``disallow_untyped_defs = false``.
+
+    Fails closed on wildcard patterns (``*``): a single ``"src.services.*"`` entry
+    would count as one but exempt an entire subtree from typing, dodging BOTH this
+    teller (count stays flat) and the error-count ratchet (exempting modules only
+    lowers the error count). Only exact module paths are allowed so the count
+    reflects the true exemption breadth.
     """
     data = tomllib.loads(pyproject.read_text(encoding="utf-8"))
     overrides = data.get("tool", {}).get("mypy", {}).get("overrides", [])
-    total = 0
+    modules: set[str] = set()
     for block in overrides:
-        if block.get("disallow_untyped_defs") is False:
-            module = block.get("module", [])
-            total += len(module) if isinstance(module, list) else 1
-    return total
+        if block.get("disallow_untyped_defs") is not False:
+            continue
+        raw = block.get("module", [])
+        names = raw if isinstance(raw, list) else [raw]
+        for name in names:
+            if "*" in name:
+                raise SystemExit(
+                    f"mypy_overrides_ratchet: wildcard module pattern {name!r} is "
+                    "not allowed in a disallow_untyped_defs=false override — it "
+                    "would exempt a whole subtree while counting as one entry. "
+                    "Use exact module paths so the debt-teller stays honest."
+                )
+            modules.add(name)
+    return len(modules)
 
 
 def read_baseline(path: Path = BASELINE_PATH) -> int:
