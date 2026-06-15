@@ -125,7 +125,7 @@ def create_test_data() -> list[DefinitieRecord]:
     ]
 
 
-def setup_database(db_path: str | None = None, include_test_data: bool = True):
+def setup_database(db_path: str | None = None, include_test_data: bool = True) -> None:
     """
     Setup complete database met schema en optioneel test data.
 
@@ -218,7 +218,7 @@ def setup_database(db_path: str | None = None, include_test_data: bool = True):
     logger.info("  python tools/definitie_manager.py stats")
 
 
-def create_sample_export():
+def create_sample_export() -> None:
     """Maak voorbeeld export bestand."""
     export_path = (
         Path(__file__).parent.parent.parent / "exports" / "sample_definitions.json"
