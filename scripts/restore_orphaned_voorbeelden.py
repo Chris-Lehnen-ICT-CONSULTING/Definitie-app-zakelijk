@@ -50,8 +50,7 @@ def restore_orphaned_voorbeelden(db_path: str, dry_run: bool = True):
         return
 
     # Get orphaned records
-    cursor.execute(
-        """
+    cursor.execute("""
         SELECT
             definitie_id, voorbeeld_type, voorbeeld_tekst, voorbeeld_volgorde,
             gegenereerd_door, generation_model, generation_parameters,
@@ -60,8 +59,7 @@ def restore_orphaned_voorbeelden(db_path: str, dry_run: bool = True):
         FROM definitie_voorbeelden_old2
         WHERE definitie_id = 39
         ORDER BY voorbeeld_volgorde
-    """
-    )
+    """)
 
     orphaned_records = cursor.fetchall()
 

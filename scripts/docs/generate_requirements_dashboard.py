@@ -13,6 +13,7 @@ Notes:
 - Epic content is rendered with a very small Markdown-to-HTML converter (headers, lists, code blocks,
   paragraphs). This is intentionally lightweight to avoid new dependencies.
 """
+
 from __future__ import annotations
 
 import re
@@ -267,8 +268,7 @@ def collect_epics() -> dict[str, dict[str, str]]:
 
 def write_assets() -> None:
     css = ASSETS_DIR / "style.css"
-    css.write_text(
-        """
+    css.write_text("""
 html { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
 body { margin: 24px; color: #111; }
 h1, h2, h3 { margin: 0.6em 0 0.3em; }
@@ -283,8 +283,7 @@ a:hover { text-decoration: underline; }
 .code { background: #0b1022; color: #e2e8f0; padding: 12px; border-radius: 6px; overflow-x: auto; }
 .breadcrumbs { font-size: 14px; margin-bottom: 12px; color: #6b7280; }
 input[type="search"]{ padding:8px 10px; width: 320px; border:1px solid #e5e7eb; border-radius:6px; }
-        """.strip()
-    )
+        """.strip())
 
 
 def render_index(
@@ -499,31 +498,27 @@ def render_collapsible_epic_view(
             "\n".join(render_req_li(r) for r in reqs)
             or "<li><span class='muted'>Geen gekoppelde requirements</span></li>"
         )
-        sections.append(
-            f"""
+        sections.append(f"""
 <details open>
   <summary><strong>{eid}</strong> — {title} <span class='muted'>({len(reqs)} REQ)</span></summary>
   <ul>
     {items}
   </ul>
 </details>
-            """.strip()
-        )
+            """.strip())
 
     if orphans:
         items = "\n".join(
             render_req_li(r) for r in sorted(orphans, key=lambda x: str(x.get("id")))
         )
-        sections.append(
-            f"""
+        sections.append(f"""
 <details>
   <summary><strong>UNLINKED</strong> — Requirements zonder epic <span class='muted'>({len(orphans)} REQ)</span></summary>
   <ul>
     {items}
   </ul>
 </details>
-            """.strip()
-        )
+            """.strip())
 
     html = f"""
 <!doctype html>

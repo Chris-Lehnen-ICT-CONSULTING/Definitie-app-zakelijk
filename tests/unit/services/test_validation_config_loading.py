@@ -13,8 +13,7 @@ def test_validation_config_from_yaml_parses_expected_sections(tmp_path):
         reason="ValidationConfig module not implemented yet",
     )
 
-    yaml_content = dedent(
-        """
+    yaml_content = dedent("""
         enabled_codes:
           - ESS_01
           - CON_01
@@ -29,8 +28,7 @@ def test_validation_config_from_yaml_parses_expected_sections(tmp_path):
         params:
           ESS_01:
             min_length: 12
-        """
-    )
+        """)
 
     cfg_file = tmp_path / "validation_rules.yaml"
     cfg_file.write_text(yaml_content, encoding="utf-8")

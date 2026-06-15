@@ -96,8 +96,7 @@ class DataMigrator:
         """Migrate definitions table."""
         logger.info("Migrating definitions...")
 
-        cursor = source_conn.execute(
-            """
+        cursor = source_conn.execute("""
             SELECT
                 id, begrip, definitie, categorie,
                 organisatorische_context, juridische_context, wettelijke_basis,
@@ -111,8 +110,7 @@ class DataMigrator:
             FROM definities
             WHERE status != 'archived'
             ORDER BY id
-        """
-        )
+        """)
 
         rows = cursor.fetchall()
         logger.info(f"Found {len(rows)} definitions to migrate")
@@ -207,8 +205,7 @@ class DataMigrator:
         """Migrate definition examples."""
         logger.info("Migrating examples...")
 
-        cursor = source_conn.execute(
-            """
+        cursor = source_conn.execute("""
             SELECT
                 id, definitie_id, voorbeeld_type, voorbeeld_tekst, voorbeeld_volgorde,
                 gegenereerd_door, generation_model, generation_parameters,
@@ -216,8 +213,7 @@ class DataMigrator:
                 beoordeeld_door, beoordeeld_op,
                 aangemaakt_op, bijgewerkt_op
             FROM definitie_voorbeelden
-        """
-        )
+        """)
 
         rows = cursor.fetchall()
         logger.info(f"Found {len(rows)} examples to migrate")
@@ -285,16 +281,14 @@ class DataMigrator:
         """Migrate definition history."""
         logger.info("Migrating history...")
 
-        cursor = source_conn.execute(
-            """
+        cursor = source_conn.execute("""
             SELECT
                 id, definitie_id, begrip, definitie_oude_waarde, definitie_nieuwe_waarde,
                 wijziging_type, wijziging_reden,
                 gewijzigd_door, gewijzigd_op,
                 context_snapshot
             FROM definitie_geschiedenis
-        """
-        )
+        """)
 
         rows = cursor.fetchall()
         logger.info(f"Found {len(rows)} history entries to migrate")
@@ -355,14 +349,12 @@ class DataMigrator:
         """Migrate definition tags."""
         logger.info("Migrating tags...")
 
-        cursor = source_conn.execute(
-            """
+        cursor = source_conn.execute("""
             SELECT
                 id, definitie_id, tag_naam, tag_waarde,
                 toegevoegd_door, toegevoegd_op
             FROM definitie_tags
-        """
-        )
+        """)
 
         rows = cursor.fetchall()
         logger.info(f"Found {len(rows)} tags to migrate")

@@ -180,48 +180,32 @@ def generate_smart_criteria(req_id: str, title: str) -> str:
         )
 
     if req_num <= 35:  # Validation requirements
-        return (
-            """- **Specific**: Validation rule for """
-            + title.lower()
-            + """
+        return """- **Specific**: Validation rule for """ + title.lower() + """
 - **Measurable**: Rule catches 95%+ of targeted quality issues
 - **Achievable**: Implementable with current validation framework
 - **Relevant**: Ensures definition quality meets justice standards
 - **Time-bound**: Implementation within validation epic timeline"""
-        )
 
     if req_num <= 50:  # UI requirements
-        return (
-            """- **Specific**: User interface for """
-            + title.lower()
-            + """
+        return """- **Specific**: User interface for """ + title.lower() + """
 - **Measurable**: Response time < 200ms, accessibility score > 95
 - **Achievable**: Using Streamlit framework capabilities
 - **Relevant**: Improves user productivity and experience
 - **Time-bound**: Aligned with UI epic completion milestone"""
-        )
 
     if req_num <= 70:  # Integration requirements
-        return (
-            """- **Specific**: Integration with """
-            + title.lower()
-            + """
+        return """- **Specific**: Integration with """ + title.lower() + """
 - **Measurable**: 99.9% uptime, < 2s response time
 - **Achievable**: Using established integration patterns
 - **Relevant**: Enables data exchange with justice chain partners
 - **Time-bound**: Based on chain partner availability schedule"""
-        )
 
     # Performance requirements
-    return (
-        """- **Specific**: Performance optimization for """
-        + title.lower()
-        + """
+    return """- **Specific**: Performance optimization for """ + title.lower() + """
 - **Measurable**: Meet defined SLA targets (response time, throughput)
 - **Achievable**: Through caching, optimization, and scaling
 - **Relevant**: Ensures system meets production requirements
 - **Time-bound**: Before production deployment"""
-    )
 
 
 def add_domain_context(content: str, req_id: str) -> str:

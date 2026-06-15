@@ -397,39 +397,33 @@ class DefinitionEditRepository(DefinitionRepository):
                 cursor = conn.cursor()
 
                 # Recent changes
-                cursor.execute(
-                    """
+                cursor.execute("""
                     SELECT COUNT(*) 
                     FROM definities 
                     WHERE updated_at > datetime('now', '-7 days')
-                """
-                )
+                """)
                 stats["recent_changes"] = cursor.fetchone()[0]
 
                 # Most active users
-                cursor.execute(
-                    """
+                cursor.execute("""
                     SELECT updated_by, COUNT(*) as count
                     FROM definities
                     WHERE updated_by IS NOT NULL
                     GROUP BY updated_by
                     ORDER BY count DESC
                     LIMIT 5
-                """
-                )
+                """)
                 stats["most_active_users"] = [
                     {"user": row[0], "count": row[1]} for row in cursor.fetchall()
                 ]
 
                 # Categories distribution
-                cursor.execute(
-                    """
+                cursor.execute("""
                     SELECT categorie, COUNT(*) as count
                     FROM definities
                     WHERE status != 'archived'
                     GROUP BY categorie
-                """
-                )
+                """)
                 stats["by_category"] = dict(cursor.fetchall())
 
         except Exception as e:

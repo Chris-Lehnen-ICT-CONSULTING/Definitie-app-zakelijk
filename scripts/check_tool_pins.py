@@ -11,6 +11,9 @@ Sources:
          .github/workflows/quality-gates.yml (``pip install ruff==``)
 - mypy:  requirements-dev.txt (``mypy==``),
          .github/workflows/quality-gates.yml (``pip install mypy==``)
+- black: requirements-dev.txt (``black==``), .pre-commit-config.yaml (``rev:``)
+         — the pre-commit rev is the format authority and must match the pinned
+         dev version (DEF-432).
 
 Usage:
     python scripts/check_tool_pins.py
@@ -73,6 +76,23 @@ def mypy_versions() -> dict[str, str]:
     }
 
 
+def black_versions() -> dict[str, str]:
+    return {
+        "requirements-dev.txt": _extract(
+            r"^black==(\S+)",
+            REQ_DEV.read_text(encoding="utf-8"),
+            "black in requirements-dev",
+            re.MULTILINE,
+        ),
+        ".pre-commit-config.yaml": _extract(
+            r"github\.com/psf/black\b.*?rev:\s*(\S+)",
+            PRE_COMMIT.read_text(encoding="utf-8"),
+            "black rev in .pre-commit-config.yaml",
+            re.DOTALL,
+        ),
+    }
+
+
 def inconsistency(tool: str, versions: dict[str, str]) -> str | None:
     """Return an error message if the versions disagree, else None."""
     if len(set(versions.values())) > 1:
@@ -84,7 +104,11 @@ def inconsistency(tool: str, versions: dict[str, str]) -> str | None:
 def main() -> int:
     errors = [
         msg
-        for tool, versions in (("ruff", ruff_versions()), ("mypy", mypy_versions()))
+        for tool, versions in (
+            ("ruff", ruff_versions()),
+            ("mypy", mypy_versions()),
+            ("black", black_versions()),
+        )
         if (msg := inconsistency(tool, versions))
     ]
     if errors:
@@ -96,7 +120,11 @@ def main() -> int:
 
     ruff = next(iter(ruff_versions().values()))
     mypy = next(iter(mypy_versions().values()))
-    print(f"OK: ruff=={ruff} and mypy=={mypy} consistent across all sources.")
+    black = next(iter(black_versions().values()))
+    print(
+        f"OK: ruff=={ruff}, mypy=={mypy} and black=={black} "
+        "consistent across all sources."
+    )
     return 0
 
 

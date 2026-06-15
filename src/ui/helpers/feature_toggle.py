@@ -23,8 +23,7 @@ def render_feature_flag_toggle():
 
         # Show info about legacy removal
         with st.expander("ℹ️ About V2 Services"):
-            st.markdown(
-                """
+            st.markdown("""
             **V2 Services are now the default and only path.**
 
             Changes per US-043:
@@ -34,8 +33,7 @@ def render_feature_flag_toggle():
             - Full async support
 
             For more info, see EPIC-010 documentation.
-            """
-            )
+            """)
 
         return True  # Always return True for V2
 

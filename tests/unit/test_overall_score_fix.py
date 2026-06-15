@@ -112,8 +112,7 @@ if __name__ == "__main__":
     print("\n" + "=" * 50)
     print("CONCLUSION: The fix is ROBUST")
     print("=" * 50)
-    print(
-        """
+    print("""
 The change from:
     "final_score": validation_details["overall_score"]
 
@@ -129,5 +128,4 @@ Is a robust fix that:
 The root cause analysis shows that normalize_validation() ALWAYS includes
 'overall_score' in its output, so this should rarely happen. However, the
 defensive .get() approach is still good practice for robustness.
-"""
-    )
+""")
