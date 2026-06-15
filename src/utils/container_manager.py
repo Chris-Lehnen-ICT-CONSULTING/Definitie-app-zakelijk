@@ -15,6 +15,11 @@ from functools import lru_cache
 from typing import Any
 
 from services.container import ContainerConfigs, ServiceContainer
+from services.interfaces import (
+    DefinitionOrchestratorInterface,
+    DefinitionRepositoryInterface,
+    WebLookupServiceInterface,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -82,7 +87,7 @@ def get_cached_container() -> ServiceContainer:
 # separate cache entries. All code now uses get_cached_container() singleton.
 
 
-def clear_container_cache():
+def clear_container_cache() -> None:
     """
     Clear de ServiceContainer cache voor development/testing.
 
@@ -131,7 +136,7 @@ def get_container_stats() -> dict[str, Any]:
 
 # Lazy loading helpers voor specifieke services
 @lru_cache(maxsize=1)
-def get_cached_orchestrator():
+def get_cached_orchestrator() -> DefinitionOrchestratorInterface:
     """
     Get de orchestrator service met lazy loading.
 
@@ -143,7 +148,7 @@ def get_cached_orchestrator():
 
 
 @lru_cache(maxsize=1)
-def get_cached_repository():
+def get_cached_repository() -> DefinitionRepositoryInterface:
     """
     Get de repository service met lazy loading.
 
@@ -155,7 +160,7 @@ def get_cached_repository():
 
 
 @lru_cache(maxsize=1)
-def get_cached_web_lookup():
+def get_cached_web_lookup() -> WebLookupServiceInterface:
     """
     Get de web lookup service met lazy loading.
 
@@ -167,7 +172,7 @@ def get_cached_web_lookup():
 
 
 # Development helper voor debugging
-def debug_container_state():
+def debug_container_state() -> None:
     """
     Print debug informatie over de container state.
 

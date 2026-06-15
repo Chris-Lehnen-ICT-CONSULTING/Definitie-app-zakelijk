@@ -14,6 +14,7 @@ Usage:
 import logging
 import os
 from pathlib import Path
+from typing import Any
 
 from pythonjsonlogger import jsonlogger
 
@@ -24,7 +25,12 @@ class CustomJsonFormatter(jsonlogger.JsonFormatter):
     Adds environment information and standardizes field names for consistency.
     """
 
-    def add_fields(self, log_data: dict, record: logging.LogRecord, message_dict: dict):
+    def add_fields(
+        self,
+        log_data: dict[str, Any],
+        record: logging.LogRecord,
+        message_dict: dict[str, Any],
+    ) -> None:
         """Add custom fields to the log record.
 
         Args:
@@ -50,7 +56,9 @@ class CustomJsonFormatter(jsonlogger.JsonFormatter):
             log_data["component"] = record.component
 
 
-def setup_structured_logging(enable_json: bool = False, log_file: str | None = None):
+def setup_structured_logging(
+    enable_json: bool = False, log_file: str | None = None
+) -> None:
     """Configure structured logging.
 
     This function sets up JSON-formatted logging when enabled. It maintains
@@ -92,7 +100,9 @@ def setup_structured_logging(enable_json: bool = False, log_file: str | None = N
     root.setLevel(logging.INFO)
 
 
-def log_with_context(logger: logging.Logger, level: str, message: str, **context):
+def log_with_context(
+    logger: logging.Logger, level: str, message: str, **context: Any
+) -> None:
     """Log a message with structured context fields.
 
     This is a convenience function for adding structured context to log messages.
