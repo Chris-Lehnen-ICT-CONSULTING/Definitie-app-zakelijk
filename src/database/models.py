@@ -119,7 +119,7 @@ class DefinitieRecord:
         except json.JSONDecodeError:
             return []
 
-    def set_validation_issues(self, issues: list[dict[str, Any]]):
+    def set_validation_issues(self, issues: list[dict[str, Any]]) -> None:
         """Set validation issues als JSON string."""
         self.validation_issues = json.dumps(issues, ensure_ascii=False)
 
@@ -132,7 +132,7 @@ class DefinitieRecord:
         except json.JSONDecodeError:
             return []
 
-    def set_wettelijke_basis(self, basis: list[str]):
+    def set_wettelijke_basis(self, basis: list[str]) -> None:
         """Set wettelijke basis als JSON string."""
         self.wettelijke_basis = normalize_wettelijke_basis(basis)
 
@@ -145,7 +145,7 @@ class DefinitieRecord:
         except json.JSONDecodeError:
             return []
 
-    def add_export_destination(self, destination: str):
+    def add_export_destination(self, destination: str) -> None:
         """Voeg export destination toe."""
         destinations = self.get_export_destinations_list()
         if destination not in destinations:
@@ -161,7 +161,7 @@ class DefinitieRecord:
         except json.JSONDecodeError:
             return []
 
-    def set_ketenpartners(self, partners: list[str]):
+    def set_ketenpartners(self, partners: list[str]) -> None:
         """Set ketenpartners als JSON string."""
         self.ketenpartners = json.dumps(partners, ensure_ascii=False)
 
@@ -211,7 +211,7 @@ class VoorbeeldenRecord:
         except json.JSONDecodeError:
             return {}
 
-    def set_generation_parameters(self, params: dict[str, Any]):
+    def set_generation_parameters(self, params: dict[str, Any]) -> None:
         """Stel generatie parameters in als JSON string."""
         self.generation_parameters = json.dumps(params, ensure_ascii=False)
 

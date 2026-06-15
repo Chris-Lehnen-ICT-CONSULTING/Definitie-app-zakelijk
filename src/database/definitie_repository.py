@@ -62,7 +62,7 @@ class DefinitieRepository:
         self._voorbeelden = VoorbeeldenRepository(self._db, self._synonym_sync)
 
     @staticmethod
-    def _get_synonym_registry():
+    def _get_synonym_registry() -> Any:
         """Lazy registry lookup — houdt database laag vrij van service imports."""
         from services.container import get_container
 
@@ -85,7 +85,7 @@ class DefinitieRepository:
     ) -> tuple[list[str], list[Any]]:
         return AuditHelpers.build_insert_columns(record, wb_value, include_legacy)
 
-    def _init_database(self):
+    def _init_database(self) -> None:
         self._db.init_database()
 
     def _split_sql_statements(self, sql: str) -> list[str]:
@@ -219,7 +219,7 @@ class DefinitieRepository:
         wijziging_type: str,
         gewijzigd_door: str | None = None,
         reden: str | None = None,
-    ):
+    ) -> None:
         self._audit.log_geschiedenis(
             definitie_id, wijziging_type, gewijzigd_door, reden
         )
@@ -231,7 +231,7 @@ class DefinitieRepository:
         verwerkt: int,
         succesvol: int,
         gefaald: int,
-    ):
+    ) -> None:
         self._audit.log_import_export(
             operatie_type, bestand_pad, verwerkt, succesvol, gefaald
         )
@@ -294,7 +294,7 @@ class DefinitieRepository:
     # === Synonym sync (backward compat) ===
     def _sync_synonyms_to_registry(
         self, definitie_id: int, synoniemen: list[str], edited_by: str
-    ):
+    ) -> None:
         self._synonym_sync.sync_synonyms_to_registry(
             definitie_id,
             synoniemen,
