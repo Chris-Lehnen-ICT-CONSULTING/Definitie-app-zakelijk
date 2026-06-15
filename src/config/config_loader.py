@@ -33,8 +33,12 @@ def laad_toetsregels(path: str | None = None) -> dict[str, Any]:
 
 
 # Voor het laden van verboden woorden (blijft in config)
-def laad_verboden_woorden(path: str | None = None) -> Any:
-    """Laad verboden woorden uit JSON."""
+def laad_verboden_woorden(path: str | None = None) -> dict[str, Any]:
+    """Laad verboden woorden uit JSON.
+
+    Het bestand heeft de vorm ``{"verboden_woorden": [...]}`` (zie
+    ``verboden_woorden.sla_verboden_woorden_op``).
+    """
     import json
     import os
 
@@ -43,7 +47,7 @@ def laad_verboden_woorden(path: str | None = None) -> Any:
         path = os.path.join(base_dir, "verboden_woorden.json")
 
     with open(path, encoding="utf-8") as f:
-        return json.load(f)
+        return cast(dict[str, Any], json.load(f))
 
 
 # Backward compatibility
