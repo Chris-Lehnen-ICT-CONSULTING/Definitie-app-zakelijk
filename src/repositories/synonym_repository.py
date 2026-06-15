@@ -129,12 +129,10 @@ class SynonymRepository:
     def _verify_table_exists(self):
         """Verify synonym_suggestions table exists."""
         with self._get_connection() as conn:
-            cursor = conn.execute(
-                """
+            cursor = conn.execute("""
                 SELECT name FROM sqlite_master
                 WHERE type='table' AND name='synonym_suggestions'
-                """
-            )
+                """)
             if not cursor.fetchone():
                 logger.warning(
                     "synonym_suggestions table does not exist. "
@@ -453,26 +451,22 @@ class SynonymRepository:
             stats: dict[str, Any] = {}
 
             # Total counts by status
-            cursor = conn.execute(
-                """
+            cursor = conn.execute("""
                 SELECT status, COUNT(*) as count
                 FROM synonym_suggestions
                 GROUP BY status
-                """
-            )
+                """)
             stats["by_status"] = dict(cursor.fetchall())
 
             # Total count
             stats["total"] = sum(stats["by_status"].values())
 
             # Average confidence by status
-            cursor = conn.execute(
-                """
+            cursor = conn.execute("""
                 SELECT status, AVG(confidence) as avg_confidence
                 FROM synonym_suggestions
                 GROUP BY status
-                """
-            )
+                """)
             stats["avg_confidence_by_status"] = {
                 row["status"]: round(row["avg_confidence"], 3)
                 for row in cursor.fetchall()
@@ -489,13 +483,11 @@ class SynonymRepository:
                 stats["approval_rate"] = 0.0
 
             # Recent activity (last 7 days)
-            cursor = conn.execute(
-                """
+            cursor = conn.execute("""
                 SELECT COUNT(*) as count
                 FROM synonym_suggestions
                 WHERE created_at >= datetime('now', '-7 days')
-                """
-            )
+                """)
             stats["created_last_7_days"] = cursor.fetchone()["count"]
 
             return stats

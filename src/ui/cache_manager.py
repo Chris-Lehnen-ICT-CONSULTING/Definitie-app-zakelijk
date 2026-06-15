@@ -103,8 +103,7 @@ class CacheManager:
         """Display information about caching benefits."""
         st.subheader("i️ Cache Information")
 
-        st.info(
-            """
+        st.info("""
         **Caching Benefits:**
         - ⚡ Faster response times for repeated requests
         - 💰 Reduced API costs by avoiding duplicate calls
@@ -116,8 +115,7 @@ class CacheManager:
         - Example generation (30 minutes TTL)
         - Synonym/antonym generation (2 hours TTL)
         - GPT prompt responses (1 hour TTL)
-        """
-        )
+        """)
 
     @staticmethod
     def render_cache_dashboard():

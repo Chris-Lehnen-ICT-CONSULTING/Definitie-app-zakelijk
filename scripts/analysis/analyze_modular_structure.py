@@ -92,7 +92,9 @@ def analyze_component_output():
                     f"✓ Check: Bevat 'één zin'? {'Ja' if 'één' in output else 'Nee ⚠️'}"
                 )
             elif i == 2:  # Context component
-                print(f"\n✓ Check: Bevat 'DJI'? {'Ja' if 'DJI' in output else 'Nee ⚠️'}")
+                print(
+                    f"\n✓ Check: Bevat 'DJI'? {'Ja' if 'DJI' in output else 'Nee ⚠️'}"
+                )
                 print(
                     f"✓ Check: Bevat 'Rechtspraak'? {'Ja' if 'Rechtspraak' in output else 'Nee ⚠️'}"
                 )

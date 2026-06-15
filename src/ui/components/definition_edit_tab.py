@@ -1438,7 +1438,9 @@ class DefinitionEditTab:
         elif results["valid"]:
             st.success(f"✅ Validatie geslaagd! Score: {results['score']:.2f}")
         else:
-            st.warning(f"⚠️ Validatie problemen gevonden. Score: {results['score']:.2f}")
+            st.warning(
+                f"⚠️ Validatie problemen gevonden. Score: {results['score']:.2f}"
+            )
 
         # Let op: Geen extra 'Uitleg bij alle regels' sectie meer.
         # De gedeelde renderer toont inline uitleg per regel om duplicatie te voorkomen.

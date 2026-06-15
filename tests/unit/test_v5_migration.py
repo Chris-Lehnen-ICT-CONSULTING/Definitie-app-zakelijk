@@ -29,8 +29,7 @@ pytestmark = [pytest.mark.unit]
 # ---------------------------------------------------------------------------
 def _create_existing_tables(conn: sqlite3.Connection) -> None:
     """Create minimal versions of all 13 existing production tables."""
-    conn.executescript(
-        """\
+    conn.executescript("""\
         CREATE TABLE IF NOT EXISTS definities (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             begrip VARCHAR(255) NOT NULL,
@@ -134,8 +133,7 @@ def _create_existing_tables(conn: sqlite3.Connection) -> None:
             sample_count INTEGER NOT NULL,
             last_updated REAL NOT NULL
         );
-        """
-    )
+        """)
 
 
 def _insert_sample_data(conn: sqlite3.Connection) -> None:
