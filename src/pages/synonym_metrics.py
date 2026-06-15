@@ -45,8 +45,7 @@ st.markdown(
 )
 
 # Info banner
-st.info(
-    """
+st.info("""
     **💡 Dashboard Overzicht:**
     - **🚀 Cache Performance:** Hit rate, size, TTL metrics
     - **🤖 GPT-4 Enrichment:** Success rate, avg duration, timeouts
@@ -54,8 +53,7 @@ st.info(
     - **📈 Top Synonyms:** Most used synonyms by usage count
 
     **Architecture:** Synonym Orchestrator v3.1 (Graph-Based Registry)
-"""
-)
+""")
 
 st.markdown("---")
 

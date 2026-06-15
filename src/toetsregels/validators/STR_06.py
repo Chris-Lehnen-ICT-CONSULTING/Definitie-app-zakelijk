@@ -67,9 +67,7 @@ class STR06Validator:
                 if goede:
                     result = "✔️ STR-06: geen informatiebehoefte, formulering volgt goed voorbeeld"
                 else:
-                    result = (
-                        "✔️ STR-06: geen formuleringen die informatiebehoefte suggereren"
-                    )
+                    result = "✔️ STR-06: geen formuleringen die informatiebehoefte suggereren"
 
             elif fout:
                 result = f"❌ STR-06: formuleringen suggereren informatiebehoefte ({', '.join(info_termen)}), lijkt op fout voorbeeld"

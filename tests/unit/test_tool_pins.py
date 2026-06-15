@@ -56,5 +56,12 @@ class TestRealConfigConsistent:
         versions = ctp.mypy_versions()
         assert len(set(versions.values())) == 1, versions
 
+    def test_black_consistent(self):
+        # DEF-432: black exact-gepind en consistent tussen requirements-dev en
+        # de pre-commit-rev (format-autoriteit). Voorkomt de drift die de
+        # black-26-migratie noodzakelijk maakte.
+        versions = ctp.black_versions()
+        assert len(set(versions.values())) == 1, versions
+
     def test_main_passes_on_real_repo(self):
         assert ctp.main() == 0

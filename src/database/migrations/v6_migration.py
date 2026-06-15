@@ -120,8 +120,7 @@ def migrate_data(conn: sqlite3.Connection) -> dict[str, int]:
     stats: dict[str, int] = {}
 
     # Migreer artikel_lid naar metadata JSON (alleen als metadata nog leeg)
-    cursor = conn.execute(
-        """
+    cursor = conn.execute("""
         UPDATE rag_chunks SET metadata = jsonb(json_object(
             'artikel_nummer', artikel_lid,
             'bronbestand', NULL,
@@ -129,8 +128,7 @@ def migrate_data(conn: sqlite3.Connection) -> dict[str, int]:
             'lid_nummer', NULL
         )) WHERE artikel_lid IS NOT NULL
           AND (metadata IS NULL OR metadata = '{}')
-        """
-    )
+        """)
     stats["metadata_migrated"] = cursor.rowcount
     logger.info("Metadata gemigreerd voor %d chunks", cursor.rowcount)
 
@@ -142,12 +140,10 @@ def migrate_data(conn: sqlite3.Connection) -> dict[str, int]:
     logger.info("Lege metadata gevuld voor %d chunks", cursor.rowcount)
 
     # Zet bron_type = 'wetgeving' voor chunks met rechtsgebied
-    cursor = conn.execute(
-        """
+    cursor = conn.execute("""
         UPDATE rag_chunks SET bron_type = 'wetgeving'
         WHERE rechtsgebied IS NOT NULL AND bron_type IS NULL
-        """
-    )
+        """)
     stats["bron_type_set"] = cursor.rowcount
     logger.info("bron_type gezet voor %d chunks", cursor.rowcount)
 

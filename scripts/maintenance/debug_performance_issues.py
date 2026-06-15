@@ -523,8 +523,7 @@ def main():
     print("SUMMARY & RECOMMENDATIONS")
     print("=" * 80)
 
-    print(
-        """
+    print("""
 1. SERVICE INITIALIZATION (6x issue):
    Problem: ServiceContainer initialized multiple times despite caching
    Root Cause: Mixed caching strategies (lru_cache + Streamlit session state)
@@ -549,8 +548,7 @@ def main():
    Problem: Potential race conditions in concurrent initialization
    Root Cause: No locking mechanism for singleton creation
    Solution: Add threading.Lock() for thread-safe singleton initialization
-    """
-    )
+    """)
 
     print("=" * 80)
     print("Debugging complete!")

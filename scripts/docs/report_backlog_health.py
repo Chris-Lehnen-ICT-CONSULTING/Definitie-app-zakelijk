@@ -9,6 +9,7 @@ Generates a lightweight report about the docs backlog:
 
 Outputs a JSON report (optional) and prints a summary.
 """
+
 from __future__ import annotations
 
 import argparse

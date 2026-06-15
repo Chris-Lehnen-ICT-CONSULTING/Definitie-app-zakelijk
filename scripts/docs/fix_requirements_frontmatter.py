@@ -11,6 +11,7 @@ Adds missing keys according to Documentation Policy:
 If a file lacks frontmatter, a minimal one is inserted using the ID inferred
 from filename and default status 'Backlog'.
 """
+
 from __future__ import annotations
 
 import re

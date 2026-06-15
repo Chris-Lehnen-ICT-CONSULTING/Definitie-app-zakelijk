@@ -3,6 +3,7 @@
 FORENSIC TEST: Verify alleged contradictions in validation rules.
 Tests each claimed contradiction to determine if they are real or phantom bugs.
 """
+
 import json
 import os
 import sys
@@ -176,7 +177,9 @@ def test_contradiction_3():
 
     # Line 261: validation matrix
     if "Vermijd 'die', 'waarin', 'zoals'" in content:
-        print("  ⚠️ Validation matrix says to avoid 'die', 'waarin', 'zoals' (line 261)")
+        print(
+            "  ⚠️ Validation matrix says to avoid 'die', 'waarin', 'zoals' (line 261)"
+        )
 
     # BUT: Check if these are actually used in good examples
     _ = init_validators()  # Initialize validators for test setup
@@ -250,8 +253,7 @@ def analyze_severity():
     print("SEVERITY ANALYSIS")
     print("=" * 80)
 
-    print(
-        """
+    print("""
 CONTRADICTION 1 (STR-01 vs ESS-02): REAL - HIGH SEVERITY
 - STR-01 forbids starting with "is"
 - ESS-02 examples suggest "is een activiteit/categorie/exemplaar"
@@ -279,8 +281,7 @@ CONTRADICTION 4 ("een" prohibition): MISREPORTED - LOW SEVERITY
 CONTRADICTION 5 (Context Traceability): NOT TESTED - UNKNOWN
 - Would need to test full generation flow
 - Likely a guidance issue, not a blocking contradiction
-"""
-    )
+""")
 
 
 def main():
@@ -297,8 +298,7 @@ def main():
     print("\n" + "=" * 80)
     print("FORENSIC CONCLUSION")
     print("=" * 80)
-    print(
-        """
+    print("""
 The system has REAL contradictions but is NOT "UNUSABLE":
 
 1. TWO HIGH-SEVERITY contradictions exist (STR-01 vs ESS-02, ErrorPrevention vs Grammar)
@@ -313,8 +313,7 @@ The real issue IS the validation-vs-generation mindset mismatch:
 - Technical fixes alone won't solve the philosophical mismatch
 
 DEF-126 is RIGHT about root cause, but DEF-151 exaggerates severity.
-"""
-    )
+""")
 
 
 if __name__ == "__main__":

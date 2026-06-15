@@ -35,8 +35,7 @@ def export_definitions(conn: sqlite3.Connection) -> list[dict[str, Any]]:
     cursor = conn.cursor()
 
     # Export all definition fields
-    cursor.execute(
-        """
+    cursor.execute("""
         SELECT
             id,
             begrip,
@@ -70,8 +69,7 @@ def export_definitions(conn: sqlite3.Connection) -> list[dict[str, Any]]:
             voorkeursterm
         FROM definities
         ORDER BY created_at DESC
-    """
-    )
+    """)
 
     definitions = []
     for row in cursor.fetchall():
@@ -115,12 +113,10 @@ def export_voorbeelden(
     cursor = conn.cursor()
 
     # Check if voorbeelden table exists
-    cursor.execute(
-        """
+    cursor.execute("""
         SELECT name FROM sqlite_master
         WHERE type='table' AND name='voorbeelden'
-    """
-    )
+    """)
 
     if not cursor.fetchone():
         # Table doesn't exist, return empty list

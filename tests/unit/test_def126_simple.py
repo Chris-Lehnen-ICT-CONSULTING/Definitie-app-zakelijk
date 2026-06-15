@@ -141,8 +141,7 @@ def main():
     print("💡 KEY FINDINGS:")
     print("=" * 80)
 
-    print(
-        """
+    print("""
 1. PROBLEM: Multiple modules inject overlapping category instructions:
    - SemanticCategorisationModule: Full ESS-02 instructions for ALL categories
    - ExpertiseModule: Word type advice (werkwoord/deverbaal mapping)
@@ -165,8 +164,7 @@ def main():
    - Remove all "determine category" instructions
    - Other modules use shared state, no own category logic
    - Expected reduction: 92% fewer tokens for category instructions
-"""
-    )
+""")
 
     # Check for already-created analysis documents
     analysis_docs = [

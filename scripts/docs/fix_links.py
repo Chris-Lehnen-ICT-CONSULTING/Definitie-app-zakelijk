@@ -15,6 +15,7 @@ Rules implemented:
 
 The script attempts safe in-place modifications for .md and .html under docs/.
 """
+
 from __future__ import annotations
 
 import re

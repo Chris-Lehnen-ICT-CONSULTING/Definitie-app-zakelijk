@@ -36,12 +36,10 @@ class TestMigration009Versioning:
 
         # Verify UNIQUE INDEX does not exist
         with repo._get_connection() as conn:
-            cursor = conn.execute(
-                """
+            cursor = conn.execute("""
                 SELECT name FROM sqlite_master
                 WHERE type = 'index' AND name = 'idx_definities_unique_full'
-                """
-            )
+                """)
             result = cursor.fetchone()
             assert result is None, "UNIQUE INDEX should not exist after migration 009"
 
@@ -371,13 +369,11 @@ class TestMigration009SafetyChecks:
     def test_index_does_not_exist(self, repo):
         """Verify UNIQUE INDEX was removed by migration 009."""
         with repo._get_connection() as conn:
-            cursor = conn.execute(
-                """
+            cursor = conn.execute("""
                 SELECT name, sql
                 FROM sqlite_master
                 WHERE type = 'index' AND name = 'idx_definities_unique_full'
-                """
-            )
+                """)
             result = cursor.fetchone()
 
         assert result is None, (
@@ -388,15 +384,13 @@ class TestMigration009SafetyChecks:
     def test_other_indices_intact(self, repo):
         """Verify other indices are still present."""
         with repo._get_connection() as conn:
-            cursor = conn.execute(
-                """
+            cursor = conn.execute("""
                 SELECT name FROM sqlite_master
                 WHERE type = 'index'
                   AND tbl_name = 'definities'
                   AND name LIKE 'idx_definities_%'
                 ORDER BY name
-                """
-            )
+                """)
             indices = [row[0] for row in cursor.fetchall()]
 
         # Should have these indices (but NOT unique_full)
@@ -419,8 +413,7 @@ class TestMigration009SafetyChecks:
     def test_no_unintended_duplicates(self, repo):
         """Verify no duplicate entries exist after migration."""
         with repo._get_connection() as conn:
-            cursor = conn.execute(
-                """
+            cursor = conn.execute("""
                 SELECT
                     begrip,
                     organisatorische_context,
@@ -433,8 +426,7 @@ class TestMigration009SafetyChecks:
                 GROUP BY begrip, organisatorische_context, juridische_context,
                          wettelijke_basis, categorie
                 HAVING COUNT(*) > 1
-                """
-            )
+                """)
             duplicates = cursor.fetchall()
 
         # After migration, there should be no unintended duplicates

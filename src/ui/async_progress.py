@@ -287,15 +287,13 @@ class AsyncDefinitionUI:
         with col3:
             st.metric("Total Time Saved", "45.2s", "↑12.3s")
 
-        st.info(
-            """
+        st.info("""
         **Async Processing Benefits:**
         - 🚀 **3-5x faster** processing through parallel API calls
         - ⚡ **Real-time progress** tracking with cancellation support
         - 📊 **Better resource utilization** with intelligent rate limiting
         - 🔄 **Concurrent generation** of all examples and content
-        """
-        )
+        """)
 
 
 def render_async_mode_toggle():

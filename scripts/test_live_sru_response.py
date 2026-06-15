@@ -143,8 +143,7 @@ async def main():
     print(f"\n{'='*80}")
     print("CONCLUSIES")
     print(f"{'='*80}")
-    print(
-        """
+    print("""
 De test resultaten tonen aan:
 
 1. SRU 2.0 endpoints (Wetgeving.nl) gebruiken een ANDERE namespace:
@@ -157,8 +156,7 @@ De test resultaten tonen aan:
    maar de records worden niet eerst gevonden.
 
 OPLOSSING: Probeer BEIDE namespaces bij het zoeken naar records.
-"""
-    )
+""")
 
 
 if __name__ == "__main__":

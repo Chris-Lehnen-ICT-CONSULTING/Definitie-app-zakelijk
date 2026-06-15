@@ -67,8 +67,7 @@ st.markdown(
 )
 
 # Info banner
-st.info(
-    """
+st.info("""
     **💡 Architecture v3.1 Workflow:**
     1. GPT-4 genereert synonym suggesties via `SynonymOrchestrator.ensure_synonyms()`
     2. Suggesties worden opgeslagen als **ai_pending** members in `synonym_groups` tables
@@ -78,8 +77,7 @@ st.info(
 
     **📊 Data Source:** SynonymRegistry (v3.1) - `synonym_groups` + `synonym_members` tables
     **🔄 Cache:** TTL cache met invalidatie via SynonymOrchestrator
-"""
-)
+""")
 
 st.markdown("---")
 

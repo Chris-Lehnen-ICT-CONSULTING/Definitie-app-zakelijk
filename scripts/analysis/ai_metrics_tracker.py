@@ -54,8 +54,7 @@ class AIMetricsTracker:
     def init_database(self):
         """Initialiseer SQLite database voor metrics."""
         with sqlite3.connect(self.db_path) as conn:
-            conn.execute(
-                """
+            conn.execute("""
                 CREATE TABLE IF NOT EXISTS review_metrics (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     agent_name TEXT NOT NULL,
@@ -68,11 +67,9 @@ class AIMetricsTracker:
                     duration_seconds REAL NOT NULL,
                     files_reviewed INTEGER NOT NULL
                 )
-            """
-            )
+            """)
 
-            conn.execute(
-                """
+            conn.execute("""
                 CREATE TABLE IF NOT EXISTS issue_patterns (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     agent_name TEXT NOT NULL,
@@ -81,8 +78,7 @@ class AIMetricsTracker:
                     occurrences INTEGER DEFAULT 1,
                     last_seen TIMESTAMP NOT NULL
                 )
-            """
-            )
+            """)
 
             conn.commit()
 
