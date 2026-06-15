@@ -57,7 +57,7 @@ class DatabaseConnection:
             logger.warning(f"Legacy columns check gefaald: {e}")
             return False
 
-    def init_database(self):
+    def init_database(self) -> None:
         """Initialiseer database met schema."""
         db_dir = Path(self.db_path).parent
         db_dir.mkdir(parents=True, exist_ok=True)

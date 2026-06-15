@@ -1,6 +1,8 @@
 """Voorbeelden management repository."""
 
 import logging
+import sqlite3
+from collections.abc import Callable
 from datetime import datetime
 from typing import Any
 
@@ -63,7 +65,7 @@ class VoorbeeldenRepository:
         generation_params: dict[str, Any] | None = None,
         gegenereerd_door: str = "system",
         voorkeursterm: str | None = None,
-        get_definitie_fn=None,
+        get_definitie_fn: Callable[..., Any] | None = None,
     ) -> list[int]:
         """Sla voorbeelden op voor een definitie.
 
@@ -223,7 +225,9 @@ class VoorbeeldenRepository:
                 logger.error(f"Failed to save voorbeelden: {e}")
                 raise
 
-    def _update_voorkeursterm(self, conn, definitie_id: int, voorkeursterm: str | None):
+    def _update_voorkeursterm(
+        self, conn: sqlite3.Connection, definitie_id: int, voorkeursterm: str | None
+    ) -> None:
         """Persisteer voorkeursterm op definitie-niveau."""
         try:
             cursor = conn.cursor()
@@ -251,8 +255,12 @@ class VoorbeeldenRepository:
             )
 
     def _sync_synoniemen(
-        self, voorbeelden_dict, definitie_id, gegenereerd_door, get_definitie_fn
-    ):
+        self,
+        voorbeelden_dict: dict[str, list[str]],
+        definitie_id: int,
+        gegenereerd_door: str,
+        get_definitie_fn: Callable[..., Any] | None,
+    ) -> None:
         """Sync synoniemen naar registry (PHASE 3.3)."""
         synoniemen = voorbeelden_dict.get("synoniemen", [])
         if synoniemen:
@@ -436,7 +444,7 @@ class VoorbeeldenRepository:
                     (definitie_id,),
                 )
 
-            deleted_count = cursor.rowcount
+            deleted_count = int(cursor.rowcount)
             conn.commit()
 
             logger.info(
