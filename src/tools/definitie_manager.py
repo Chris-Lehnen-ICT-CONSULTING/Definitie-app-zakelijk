@@ -41,7 +41,7 @@ class DefinitieManagerCLI:
             self.repository
         )  # Maak definitie checker instantie
 
-    def cmd_list(self, args):
+    def cmd_list(self, args: argparse.Namespace) -> None:
         """List definities met optionele filters."""
         logger.info("DEFINITIES OVERZICHT")
         logger.info("=" * 50)
@@ -80,7 +80,7 @@ class DefinitieManagerCLI:
 
         logger.info(f"\nTotaal: {len(definities)} definities")
 
-    def cmd_show(self, args):
+    def cmd_show(self, args: argparse.Namespace) -> None:
         """Toon details van specifieke definitie."""
         definitie = self.repository.get_definitie(args.id)
 
@@ -127,7 +127,7 @@ class DefinitieManagerCLI:
                     f"   - {issue.get('rule_id', 'Unknown')}: {issue.get('description', 'No description')}"
                 )
 
-    def cmd_check(self, args):
+    def cmd_check(self, args: argparse.Namespace) -> None:
         """Check voor duplicates zonder definitie te genereren."""
         logger.info("DUPLICATE CHECK")
         logger.info("=" * 30)
@@ -169,7 +169,7 @@ class DefinitieManagerCLI:
                 )
                 logger.info(f"      Redenen: {', '.join(dup.match_reasons)}")
 
-    def cmd_generate(self, args):
+    def cmd_generate(self, args: argparse.Namespace) -> None:
         """Genereer nieuwe definitie met duplicate checking."""
         logger.info("DEFINITIE GENERATIE")
         logger.info("=" * 30)
@@ -202,7 +202,7 @@ class DefinitieManagerCLI:
         else:
             logger.error(f"Generatie gefaald: {metadata.get('error', 'Unknown error')}")
 
-    def cmd_approve(self, args):
+    def cmd_approve(self, args: argparse.Namespace) -> None:
         """Keur definitie goed."""
         success = self.checker.approve_definition(
             definitie_id=args.id, approved_by=args.approved_by, notes=args.notes
@@ -213,7 +213,7 @@ class DefinitieManagerCLI:
         else:
             logger.error(f"Kon definitie {args.id} niet goedkeuren")
 
-    def cmd_status(self, args):
+    def cmd_status(self, args: argparse.Namespace) -> None:
         """Wijzig status van definitie."""
         new_status = DefinitieStatus(args.status)
 
@@ -231,7 +231,7 @@ class DefinitieManagerCLI:
         else:
             logger.error(f"Kon status van definitie {args.id} niet wijzigen")
 
-    def cmd_export(self, args):
+    def cmd_export(self, args: argparse.Namespace) -> None:
         """Exporteer definities naar JSON."""
         filters = {}
         if args.status:
@@ -244,7 +244,7 @@ class DefinitieManagerCLI:
         count = self.repository.export_to_json(args.file, filters)
         logger.info(f"{count} definities geëxporteerd naar {args.file}")
 
-    def cmd_import(self, args):
+    def cmd_import(self, args: argparse.Namespace) -> None:
         """Importeer definities uit JSON."""
         successful, failed, errors = self.repository.import_from_json(
             args.file, args.imported_by or "cli_user"
@@ -261,7 +261,7 @@ class DefinitieManagerCLI:
             if len(errors) > 5:
                 logger.warning(f"   ... en {len(errors) - 5} meer fouten")
 
-    def cmd_stats(self, args):
+    def cmd_stats(self, args: argparse.Namespace) -> None:
         """Toon database statistieken."""
         stats = self.repository.get_statistics()
 
@@ -282,7 +282,7 @@ class DefinitieManagerCLI:
                 f"\nGemiddelde validation score: {stats['average_validation_score']}"
             )
 
-    def cmd_pending(self, args):
+    def cmd_pending(self, args: argparse.Namespace) -> None:
         """Toon definities die wachten op goedkeuring."""
         pending = self.checker.get_pending_definitions()
 
@@ -310,7 +310,7 @@ class DefinitieManagerCLI:
         logger.info(f"\nTotaal {len(pending)} definities in review")
 
 
-def create_parser():
+def create_parser() -> argparse.ArgumentParser:
     """Maak argument parser voor CLI."""
     parser = argparse.ArgumentParser(
         description="Definitie Manager CLI - Beheer definitie database",
@@ -434,7 +434,7 @@ Voorbeelden:
     return parser
 
 
-def main():
+def main() -> None:
     """Main CLI entry point."""
     parser = create_parser()
     args = parser.parse_args()
