@@ -6,6 +6,7 @@ voor elegante foutafhandeling in de hele applicatie.
 """
 
 import logging
+from collections.abc import Callable
 from functools import wraps
 from typing import Any
 
@@ -30,11 +31,11 @@ class ExportError(DefinitieAgentError):
     """Exception for export functionality errors."""
 
 
-def handle_api_error(func):
+def handle_api_error(func: Callable[..., Any]) -> Callable[..., Any]:
     """Decorator to handle API errors gracefully."""
 
     @wraps(func)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args: Any, **kwargs: Any) -> Any:
         try:
             return func(*args, **kwargs)
         except Exception as e:
@@ -45,11 +46,11 @@ def handle_api_error(func):
     return wrapper
 
 
-def handle_validation_error(func):
+def handle_validation_error(func: Callable[..., Any]) -> Callable[..., Any]:
     """Decorator to handle validation errors gracefully."""
 
     @wraps(func)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args: Any, **kwargs: Any) -> Any:
         try:
             return func(*args, **kwargs)
         except Exception as e:
@@ -60,7 +61,9 @@ def handle_validation_error(func):
     return wrapper
 
 
-def safe_execute(func, default_value: Any = None, error_message: str = ""):
+def safe_execute(
+    func: Callable[..., Any], default_value: Any = None, error_message: str = ""
+) -> Any:
     """
     Voer een functie veilig uit en geef standaardwaarde terug bij fout.
 
@@ -87,7 +90,7 @@ def safe_execute(func, default_value: Any = None, error_message: str = ""):
 
 def log_and_display_error(
     error: Exception, context: str = "", show_technical: bool = False
-):
+) -> str:
     """
     Log fout en geef gebruikersvriendelijk bericht terug.
 

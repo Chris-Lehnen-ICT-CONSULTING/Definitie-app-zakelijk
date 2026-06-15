@@ -8,8 +8,10 @@ DEBUG_EXAMPLES environment variable.
 import logging
 import os
 import uuid
+from collections.abc import Callable
 from datetime import UTC, datetime
 from functools import wraps
+from typing import Any
 
 # Check if debug mode is enabled
 DEBUG_ENABLED = os.getenv("DEBUG_EXAMPLES", "false").lower() == "true"
@@ -35,7 +37,7 @@ else:
 class VoorbeeldenDebugger:
     """Debug tracker for voorbeelden generation flow."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize debug tracker."""
         self.generation_id: str | None = None
         self.enabled = DEBUG_ENABLED
@@ -58,7 +60,7 @@ class VoorbeeldenDebugger:
 
         return generation_id
 
-    def log_point(self, point: str, generation_id: str, **kwargs):
+    def log_point(self, point: str, generation_id: str, **kwargs: Any) -> None:
         """Log a specific point in the flow.
 
         Args:
@@ -88,8 +90,8 @@ class VoorbeeldenDebugger:
         self,
         generation_id: str,
         point: str,
-        state_getter=None,
-    ):
+        state_getter: Callable[[str], Any] | None = None,
+    ) -> None:
         """Log relevant session state for debugging.
 
         DEF-173: Refactored to accept state_getter callback instead of importing
@@ -166,7 +168,7 @@ class VoorbeeldenDebugger:
 
     def log_cache_interaction(
         self, generation_id: str, cache_key: str, hit: bool, ttl: int | None = None
-    ):
+    ) -> None:
         """Log cache interactions.
 
         Args:
@@ -190,7 +192,7 @@ class VoorbeeldenDebugger:
         prompt_length: int,
         response_length: int,
         duration_ms: int,
-    ):
+    ) -> None:
         """Log API call details.
 
         Args:
@@ -208,7 +210,7 @@ class VoorbeeldenDebugger:
         logger.debug(f"[{generation_id}]   Response: {response_length} chars")
         logger.debug(f"[{generation_id}]   Duration: {duration_ms}ms")
 
-    def log_error(self, generation_id: str, point: str, error: Exception):
+    def log_error(self, generation_id: str, point: str, error: Exception) -> None:
         """Log errors in the flow.
 
         Args:
@@ -222,7 +224,7 @@ class VoorbeeldenDebugger:
 
     def end_generation(
         self, generation_id: str, success: bool, results: dict | None = None
-    ):
+    ) -> None:
         """End tracking of generation flow.
 
         Args:
@@ -251,16 +253,18 @@ class VoorbeeldenDebugger:
 debugger = VoorbeeldenDebugger()
 
 
-def debug_flow_point(point: str):
+def debug_flow_point(
+    point: str,
+) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
     """Decorator to mark flow points for debugging.
 
     Args:
         point: Flow point identifier (A, B, C, C2, D)
     """
 
-    def decorator(func):
+    def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
         @wraps(func)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
             if not DEBUG_ENABLED:
                 return func(*args, **kwargs)
 
