@@ -164,7 +164,7 @@ class TokenBucket:
             tokens_needed = tokens - current_tokens
             return tokens_needed / self.rate
 
-    def update_rate(self, new_rate: float):
+    def update_rate(self, new_rate: float) -> None:
         """Update the token generation rate."""
         self.rate = max(0.1, min(10.0, new_rate))  # Bounds check
         logger.debug(f"Token bucket rate updated to {self.rate:.2f} tokens/sec")
@@ -217,7 +217,7 @@ class SmartRateLimiter:
         # Load historical data
         self._load_historical_data()
 
-    def _load_historical_data(self):
+    def _load_historical_data(self) -> None:
         """Load historical rate limiting data."""
         try:
             history_file = Path("cache/rate_limit_history.json")
@@ -232,7 +232,7 @@ class SmartRateLimiter:
         except Exception as e:
             logger.warning(f"Could not load rate limit history: {e}")
 
-    def _save_historical_data(self):
+    def _save_historical_data(self) -> None:
         """Save historical data for future optimization."""
         try:
             history_file = Path("cache/rate_limit_history.json")
@@ -250,7 +250,7 @@ class SmartRateLimiter:
         except Exception as e:
             logger.warning(f"Could not save rate limit history: {e}")
 
-    async def start(self):
+    async def start(self) -> None:
         """Start the background processing task on the current event loop."""
         self._ensure_processor_running()
 
@@ -283,7 +283,7 @@ class SmartRateLimiter:
         self._processor_loop = current_loop
         logger.info("Smart rate limiter processor (re)started on current loop")
 
-    async def stop(self):
+    async def stop(self) -> None:
         """Stop the background processing task."""
         self._shutdown = True
         if self._processing_task:
@@ -363,7 +363,7 @@ class SmartRateLimiter:
             self.stats["total_dropped"] += 1
             return False
 
-    async def _process_queues(self):
+    async def _process_queues(self) -> None:
         """Background task to process priority queues."""
         while not self._shutdown:
             try:
@@ -401,7 +401,7 @@ class SmartRateLimiter:
                 logger.error(f"Error in queue processing: {e}")
                 await asyncio.sleep(1.0)  # Back off on error
 
-    def _update_queue_stats(self, queue_wait_time: float):
+    def _update_queue_stats(self, queue_wait_time: float) -> None:
         """Update queue time statistics."""
         if self.stats["avg_queue_time"] == 0:
             self.stats["avg_queue_time"] = queue_wait_time
@@ -417,7 +417,7 @@ class SmartRateLimiter:
         response_time: float,
         success: bool,
         priority: RequestPriority = RequestPriority.NORMAL,
-    ):
+    ) -> None:
         """Record response metrics for dynamic rate adjustment."""
         metric = ResponseMetrics(
             timestamp=datetime.now(UTC),
@@ -437,7 +437,7 @@ class SmartRateLimiter:
                 alpha * response_time + (1 - alpha) * self.stats["avg_response_time"]
             )
 
-    async def _adjust_rate_if_needed(self):
+    async def _adjust_rate_if_needed(self) -> None:
         """Dynamically adjust rate based on API performance."""
         now = time.time()
         if now - self.last_adjustment < self.config.adjustment_interval:
@@ -561,7 +561,7 @@ def with_smart_rate_limit(
     endpoint_name: str = "",
     priority: RequestPriority = RequestPriority.NORMAL,
     timeout: float | None = None,
-):
+) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
     """
     Decorator for smart rate limiting with priority queuing.
 
@@ -576,8 +576,8 @@ def with_smart_rate_limit(
             return await some_api_call()
     """
 
-    def decorator(func: Callable):
-        async def wrapper(*args, **kwargs):
+    def decorator(func: Callable) -> Callable[..., Any]:
+        async def wrapper(*args: Any, **kwargs: Any) -> Any:
             # Gebruik endpoint naam of functie naam voor endpoint-specifieke limiter
             actual_endpoint = endpoint_name or func.__name__
             limiter = await get_smart_limiter(actual_endpoint)
@@ -608,7 +608,7 @@ def with_smart_rate_limit(
     return decorator
 
 
-async def test_smart_rate_limiter():
+async def test_smart_rate_limiter() -> None:
     """Test the smart rate limiting system."""
     logger.info("Testing Smart Rate Limiter")
     logger.info("=" * 40)
@@ -622,13 +622,16 @@ async def test_smart_rate_limiter():
 
     try:
         # Test different priority requests
-        async def simulate_request(priority: RequestPriority, delay: float = 0.5):
+        async def simulate_request(
+            priority: RequestPriority, delay: float = 0.5
+        ) -> str:
             @with_smart_rate_limit(priority=priority)
-            async def mock_api_call():
+            async def mock_api_call() -> str:
                 await asyncio.sleep(delay)  # Simulate API call
                 return f"Response for {priority.name} request"
 
-            return await mock_api_call()
+            # De decorator retourneert Callable[..., Any], dus de aanroep is Any.
+            return cast(str, await mock_api_call())
 
         # Submit various priority requests
         tasks = []
@@ -666,7 +669,7 @@ async def test_smart_rate_limiter():
         await limiter.stop()
 
 
-async def cleanup_smart_limiters():
+async def cleanup_smart_limiters() -> None:
     """Clean up all endpoint-specific rate limiters."""
     for endpoint_name, limiter in _smart_limiters.items():
         await limiter.stop()
