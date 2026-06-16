@@ -280,8 +280,7 @@ module = [
     "src.toetsregels.cached_manager",
     "src.toetsregels.manager",
     "src.toetsregels.rule_cache",
-    # DEF-435 PR 4b: cache + resilience-cluster volgen in een aparte PR.
-    "src.utils.cache",
+    # DEF-435 PR 4c: resilience-cluster (incl. 8 echte type-fixes) volgt apart.
     "src.utils.enhanced_retry",
     "src.utils.integrated_resilience",
     "src.utils.resilience",

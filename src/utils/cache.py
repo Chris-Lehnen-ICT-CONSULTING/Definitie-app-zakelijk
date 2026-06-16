@@ -57,7 +57,7 @@ class FileCache:
         )  # Metadata bestand locatie
         self._load_metadata()  # Laad bestaande metadata
 
-    def _load_metadata(self):
+    def _load_metadata(self) -> None:
         """Load cache metadata."""
         try:
             if self.metadata_file.exists():
@@ -69,7 +69,7 @@ class FileCache:
             logger.warning(f"Failed to load cache metadata: {e}")
             self.metadata = {}
 
-    def _save_metadata(self):
+    def _save_metadata(self) -> None:
         """Save cache metadata."""
         try:
             with open(self.metadata_file, "w") as f:
@@ -77,7 +77,7 @@ class FileCache:
         except Exception as e:
             logger.error(f"Failed to save cache metadata: {e}")
 
-    def _generate_cache_key(self, *args, **kwargs) -> str:
+    def _generate_cache_key(self, *args: Any, **kwargs: Any) -> str:
         """Generate cache key from function arguments."""
         # Create a deterministic hash from arguments
         content = json.dumps(
@@ -150,7 +150,7 @@ class FileCache:
             # to keep callers resilient in degraded mode.
             return True
 
-    def _delete_entry(self, cache_key: str):
+    def _delete_entry(self, cache_key: str) -> None:
         """Delete cache entry."""
         cache_file = self.cache_dir / f"{cache_key}.json"
 
@@ -171,7 +171,7 @@ class FileCache:
                 f"Failed to delete cache entry {cache_key}: {e}", exc_info=True
             )
 
-    def _cleanup_old_entries(self):
+    def _cleanup_old_entries(self) -> None:
         """Remove old cache entries to stay within size limit."""
         if len(self.metadata) <= self.config.max_cache_size:
             return
@@ -184,7 +184,7 @@ class FileCache:
         for cache_key, _ in sorted_entries[:entries_to_remove]:
             self._delete_entry(cache_key)
 
-    def clear(self):
+    def clear(self) -> None:
         """Clear all cache entries."""
         try:
             for cache_key in list(self.metadata.keys()):
@@ -221,7 +221,7 @@ _stats = {"hits": 0, "misses": 0, "evictions": 0}
 _stats_lock = threading.Lock()
 
 
-def _generate_key_from_args(func_name: str, *args, **kwargs) -> str:
+def _generate_key_from_args(func_name: str, *args: Any, **kwargs: Any) -> str:
     content = json.dumps(
         {"func": func_name, "args": args, "kwargs": sorted(kwargs.items())},
         sort_keys=True,
@@ -234,7 +234,7 @@ def cached(
     ttl: int | None = None,
     cache_key_func: Callable | None = None,
     cache_manager: Optional["CacheManager"] = None,
-):
+) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
     """
     Thread-safe decorator to cache function results.
 
@@ -259,9 +259,9 @@ def cached(
     # Function-level lock (shared across all calls to this decorated function)
     _func_lock = threading.Lock()
 
-    def decorator(func):
+    def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
         @wraps(func)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
             # Generate cache key
             if cache_key_func:
                 cache_key = cache_key_func(*args, **kwargs)
@@ -318,7 +318,7 @@ def cached(
     return decorator
 
 
-def cache_gpt_call(prompt: str, model: str | None = None, **kwargs) -> str:
+def cache_gpt_call(prompt: str, model: str | None = None, **kwargs: Any) -> str:
     """
     Generate cache key for GPT API calls.
 
@@ -361,7 +361,7 @@ def get_cache_stats() -> dict[str, Any]:
     }
 
 
-def clear_cache():
+def clear_cache() -> None:
     """Clear global cache.
 
     DEF-229: Thread-safe reset of stats to prevent race conditions.
@@ -379,7 +379,7 @@ def configure_cache(
     default_ttl: int = 3600,
     max_cache_size: int = 1000,
     enable_cache: bool = True,
-):
+) -> None:
     """
     Configure global cache settings.
 
@@ -406,7 +406,9 @@ def configure_cache(
 
 
 # Specialized cache decorators for common use cases
-def cache_definition_generation(ttl: int = 3600):
+def cache_definition_generation(
+    ttl: int = 3600,
+) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
     """Cache decorator specifically for definition generation."""
 
     def cache_key_func(
@@ -415,8 +417,8 @@ def cache_definition_generation(ttl: int = 3600):
         model: str | None = None,
         temperature: float | None = None,
         max_tokens: int | None = None,
-        **kwargs,
-    ):
+        **kwargs: Any,
+    ) -> str:
         # Include all parameters in cache key to ensure proper caching
         cache_params = {
             "model": model,
@@ -433,10 +435,14 @@ def cache_definition_generation(ttl: int = 3600):
     return cached(ttl=ttl, cache_key_func=cache_key_func)
 
 
-def cache_example_generation(ttl: int = 1800):  # 30 minutes
+def cache_example_generation(
+    ttl: int = 1800,
+) -> Callable[[Callable[..., Any]], Callable[..., Any]]:  # 30 minutes
     """Cache decorator specifically for example generation."""
 
-    def cache_key_func(begrip: str, definitie: str, context_dict: dict, **kwargs):
+    def cache_key_func(
+        begrip: str, definitie: str, context_dict: dict, **kwargs: Any
+    ) -> str:
         return cache_gpt_call(
             prompt=f"examples_{begrip}",
             definitie=definitie,
@@ -447,10 +453,12 @@ def cache_example_generation(ttl: int = 1800):  # 30 minutes
     return cached(ttl=ttl, cache_key_func=cache_key_func)
 
 
-def cache_synonym_generation(ttl: int = 7200):  # 2 hours
+def cache_synonym_generation(
+    ttl: int = 7200,
+) -> Callable[[Callable[..., Any]], Callable[..., Any]]:  # 2 hours
     """Cache decorator specifically for synonym generation."""
 
-    def cache_key_func(begrip: str, context_dict: dict, **kwargs):
+    def cache_key_func(begrip: str, context_dict: dict, **kwargs: Any) -> str:
         return cache_gpt_call(
             prompt=f"synonyms_{begrip}",
             context=json.dumps(context_dict, sort_keys=True),
@@ -463,7 +471,9 @@ def cache_synonym_generation(ttl: int = 7200):  # 2 hours
 # Async cache support functions
 
 
-def cache_async_result(ttl: int | None = None):
+def cache_async_result(
+    ttl: int | None = None,
+) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
     """
     Async version of the cached decorator.
 
@@ -476,9 +486,9 @@ def cache_async_result(ttl: int | None = None):
             return await some_expensive_async_computation(param1, param2)
     """
 
-    def decorator(func):
+    def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
         @wraps(func)
-        async def wrapper(*args, **kwargs):
+        async def wrapper(*args: Any, **kwargs: Any) -> Any:
             # Generate cache key
             cache_key = _cache._generate_cache_key(func.__name__, *args, **kwargs)
 
