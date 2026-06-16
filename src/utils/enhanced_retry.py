@@ -106,7 +106,7 @@ class AdaptiveRetryManager:
         # Load historical data if available
         self._load_historical_data()
 
-    def _load_historical_data(self):
+    def _load_historical_data(self) -> None:
         """Load historical retry data for adaptive learning."""
         try:
             history_file = Path("cache/retry_history.json")
@@ -119,7 +119,7 @@ class AdaptiveRetryManager:
         except Exception as e:
             logger.warning(f"Could not load retry history: {e}")
 
-    def _save_historical_data(self):
+    def _save_historical_data(self) -> None:
         """Save historical data for future adaptive learning."""
         try:
             history_file = Path("cache/retry_history.json")
@@ -232,7 +232,7 @@ class AdaptiveRetryManager:
         # Apply exponential backoff on top of adaptive base
         return base_delay * (1.5**attempt)
 
-    async def record_success(self, duration: float, endpoint: str = ""):
+    async def record_success(self, duration: float, endpoint: str = "") -> None:
         """Record successful request for adaptive learning."""
         async with self._lock:
             now = datetime.now(UTC)
@@ -264,7 +264,7 @@ class AdaptiveRetryManager:
             if self.circuit_state.total_requests % 100 == 0:
                 self._save_historical_data()
 
-    async def _record_failure(self, error: Exception):
+    async def _record_failure(self, error: Exception) -> None:
         """Record request failure for circuit breaker logic."""
         now = datetime.now(UTC)
         error_type = type(error).__name__
@@ -350,7 +350,9 @@ def get_retry_manager(config: RetryConfig | None = None) -> AdaptiveRetryManager
     return _retry_manager
 
 
-def with_enhanced_retry(config: RetryConfig | None = None, endpoint_name: str = ""):
+def with_enhanced_retry(
+    config: RetryConfig | None = None, endpoint_name: str = ""
+) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
     """
     Decorator for enhanced retry logic with circuit breaker pattern.
 
@@ -364,17 +366,20 @@ def with_enhanced_retry(config: RetryConfig | None = None, endpoint_name: str = 
             return await some_api_call()
     """
 
-    def decorator(func: Callable):
+    def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
         @wraps(func)
-        async def wrapper(*args, **kwargs):
+        async def wrapper(*args: Any, **kwargs: Any) -> Any:
             retry_manager = get_retry_manager(config)
-            last_error = None
+            last_error: Exception | None = None
             start_time = time.time()
 
             for attempt in range(retry_manager.config.max_retries + 1):
                 try:
                     # Check circuit breaker before attempt
                     if attempt > 0:
+                        # attempt > 0 betekent dat een vorige iteratie last_error
+                        # in de except-tak heeft gezet.
+                        assert last_error is not None
                         if not await retry_manager.should_retry(last_error, attempt):
                             logger.error(
                                 f"Max retries exceeded or circuit breaker open for {func.__name__}"
@@ -419,33 +424,33 @@ def with_enhanced_retry(config: RetryConfig | None = None, endpoint_name: str = 
                         raise e
 
             # This should never be reached, but just in case
-            raise last_error
+            raise last_error or RuntimeError("retry loop exited without a result")
 
         return wrapper
 
     return decorator
 
 
-async def test_retry_system():
+async def test_retry_system() -> None:
     """Test the enhanced retry system."""
     logger.info("Testing Enhanced Retry System")
     logger.info("=" * 40)
 
     retry_manager = get_retry_manager()
 
-    # Simulate various error scenarios
-    @with_enhanced_retry(config=RetryConfig(max_retries=3, base_delay=0.1))
-    async def failing_function(fail_count: int = 2):
-        if hasattr(failing_function, "call_count"):
-            failing_function.call_count += 1
-        else:
-            failing_function.call_count = 1
+    # Simulate various error scenarios. Een list-counter (i.p.v. een function-
+    # attribuut) houdt de teller type-clean en gedraagt zich identiek.
+    call_count = [0]
 
-        if failing_function.call_count <= fail_count:
+    @with_enhanced_retry(config=RetryConfig(max_retries=3, base_delay=0.1))
+    async def failing_function(fail_count: int = 2) -> str:
+        call_count[0] += 1
+
+        if call_count[0] <= fail_count:
             msg = "Simulated rate limit error"
             raise AIRateLimitClientError(msg)
 
-        return f"Success after {failing_function.call_count} attempts"
+        return f"Success after {call_count[0]} attempts"
 
     try:
         # Test successful retry
@@ -455,7 +460,7 @@ async def test_retry_system():
         # Test circuit breaker
         for _i in range(6):  # Trigger circuit breaker
             try:
-                failing_function.call_count = 0  # Reset counter
+                call_count[0] = 0  # Reset counter
                 await failing_function(10)  # Will always fail
             except Exception:
                 pass  # DEF-246: Intentional - testing circuit breaker behavior
