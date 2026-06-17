@@ -20,7 +20,7 @@ from utils.container_manager import (
 logger = logging.getLogger(__name__)
 
 
-def get_cached_service_container(config: dict | None = None):
+def get_cached_service_container(config: dict[str, Any] | None = None) -> Any:
     """
     Get de gecachte ServiceContainer singleton instance.
 
@@ -41,7 +41,7 @@ def get_cached_service_container(config: dict | None = None):
     return get_cached_container()
 
 
-def initialize_services_once():
+def initialize_services_once() -> None:
     """
     Initialize services in Streamlit session state als nog niet aanwezig.
 
@@ -77,7 +77,7 @@ def initialize_services_once():
         )
 
 
-def get_service(service_name: str):
+def get_service(service_name: str) -> Any:
     """
     Helper functie om een service op te halen uit de gecachte container.
 
@@ -95,7 +95,7 @@ def get_service(service_name: str):
     return container.get_service(service_name)
 
 
-def clear_service_cache():
+def clear_service_cache() -> None:
     """
     Clear de service cache (gebruik spaarzaam!).
 
