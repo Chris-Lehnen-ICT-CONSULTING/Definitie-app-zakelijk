@@ -110,7 +110,7 @@ class DeadLetterQueue:
             "total_expired": 0,
         }
 
-    async def add(self, failed_request: FailedRequest):
+    async def add(self, failed_request: FailedRequest) -> None:
         """Add a failed request to the dead letter queue."""
         async with self._lock:
             if len(self.queue) >= self.max_size:
@@ -150,7 +150,7 @@ class DeadLetterQueue:
 
             return retryable
 
-    async def remove(self, request_id: str, processed: bool = True):
+    async def remove(self, request_id: str, processed: bool = True) -> None:
         """Remove a request from the queue."""
         async with self._lock:
             self.queue = [req for req in self.queue if req.request_id != request_id]
@@ -177,13 +177,13 @@ class HealthMonitor:
         self._monitoring_task: asyncio.Task | None = None
         self._shutdown = False
 
-    async def start_monitoring(self):
+    async def start_monitoring(self) -> None:
         """Start health monitoring background task."""
         if self._monitoring_task is None:
             self._monitoring_task = asyncio.create_task(self._monitor_health())
             logger.info("Health monitoring started")
 
-    async def stop_monitoring(self):
+    async def stop_monitoring(self) -> None:
         """Stop health monitoring."""
         self._shutdown = True
         if self._monitoring_task:
@@ -199,7 +199,7 @@ class HealthMonitor:
 
     async def register_endpoint(
         self, name: str, health_check_func: Callable | None = None
-    ):
+    ) -> None:
         """Register an endpoint for health monitoring."""
         self.endpoints[name] = HealthMetrics(
             endpoint_name=name,
@@ -215,7 +215,9 @@ class HealthMonitor:
         self.health_history[name] = []
         logger.info(f"Registered endpoint for monitoring: {name}")
 
-    async def record_request(self, endpoint: str, success: bool, response_time: float):
+    async def record_request(
+        self, endpoint: str, success: bool, response_time: float
+    ) -> None:
         """Record a request result for health metrics."""
         if endpoint not in self.endpoints:
             await self.register_endpoint(endpoint)
@@ -247,7 +249,7 @@ class HealthMonitor:
         # Update health status
         await self._update_health_status(endpoint)
 
-    async def _update_health_status(self, endpoint: str):
+    async def _update_health_status(self, endpoint: str) -> None:
         """Update health status based on metrics."""
         metrics = self.endpoints[endpoint]
         old_status = metrics.status
@@ -279,7 +281,7 @@ class HealthMonitor:
                 f"Health status changed for {endpoint}: {old_status.value} → {new_status.value}"
             )
 
-    async def _monitor_health(self):
+    async def _monitor_health(self) -> None:
         """Background task for periodic health monitoring."""
         while not self._shutdown:
             try:
@@ -296,7 +298,7 @@ class HealthMonitor:
                     ]
 
                     if recent_history:
-                        healthy_time = 0
+                        healthy_time = 0.0
                         total_time = 3600  # 1 hour in seconds
 
                         for i, (timestamp, status) in enumerate(recent_history):
@@ -359,7 +361,7 @@ class ResilienceFramework:
         # Load persistent state
         self._load_persistent_state()
 
-    def _load_persistent_state(self):
+    def _load_persistent_state(self) -> None:
         """Load persistent state from disk.
 
         Handles corrupt or tampered files by removing them and starting fresh.
@@ -397,7 +399,7 @@ class ResilienceFramework:
             # Invalid state structure
             logger.error(f"Invalid resilience state structure: {e}")
 
-    def _save_persistent_state(self):
+    def _save_persistent_state(self) -> None:
         """Save persistent state to disk using JSON + HMAC.
 
         safe_save() handles atomic write internally.
@@ -418,7 +420,7 @@ class ResilienceFramework:
         except TypeError as e:
             logger.error(f"Could not serialize resilience state: {e}")
 
-    async def start(self):
+    async def start(self) -> None:
         """Start the resilience framework."""
         await self.health_monitor.start_monitoring()
 
@@ -430,7 +432,7 @@ class ResilienceFramework:
 
         logger.info("Resilience framework started")
 
-    async def stop(self):
+    async def stop(self) -> None:
         """Stop the resilience framework."""
         self._shutdown = True
 
@@ -461,11 +463,11 @@ class ResilienceFramework:
     async def execute_with_resilience(
         self,
         func: Callable,
-        *args,
+        *args: Any,
         endpoint_name: str = "",
         priority: RequestPriority = RequestPriority.NORMAL,
         enable_fallback: bool = True,
-        **kwargs,
+        **kwargs: Any,
     ) -> Any:
         """
         Execute a function with full resilience support.
@@ -570,7 +572,7 @@ class ResilienceFramework:
 
     async def _cache_fallback_response(
         self, func: Callable, args: tuple, kwargs: dict, result: Any
-    ):
+    ) -> None:
         """Cache successful response for fallback."""
         cache_key = self._generate_cache_key(func, args, kwargs)
         self.fallback_cache[cache_key] = (result, datetime.now(UTC))
@@ -584,7 +586,7 @@ class ResilienceFramework:
         }
         return json.dumps(key_data, sort_keys=True)
 
-    async def _process_dead_letter_queue(self):
+    async def _process_dead_letter_queue(self) -> None:
         """Background task to process failed requests."""
         while not self._shutdown:
             try:
@@ -628,7 +630,7 @@ class ResilienceFramework:
                 logger.error(f"Error in dead letter queue processing: {e}")
                 await asyncio.sleep(5.0)
 
-    async def _cleanup_fallback_cache(self):
+    async def _cleanup_fallback_cache(self) -> None:
         """Background task to cleanup expired fallback cache entries."""
         while not self._shutdown:
             try:
@@ -686,7 +688,7 @@ def with_resilience(
     endpoint_name: str = "",
     priority: RequestPriority = RequestPriority.NORMAL,
     enable_fallback: bool = True,
-):
+) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
     """
     Decorator for resilient function execution.
 
@@ -701,8 +703,8 @@ def with_resilience(
             return await some_gpt_call()
     """
 
-    def decorator(func: Callable):
-        async def wrapper(*args, **kwargs):
+    def decorator(func: Callable) -> Callable[..., Any]:
+        async def wrapper(*args: Any, **kwargs: Any) -> Any:
             framework = await get_resilience_framework()
             return await framework.execute_with_resilience(
                 func,
@@ -718,7 +720,7 @@ def with_resilience(
     return decorator
 
 
-async def test_resilience_framework():
+async def test_resilience_framework() -> None:
     """Test the resilience framework."""
     logger.info("Testing Resilience Framework")
     logger.info("=" * 40)
@@ -731,7 +733,7 @@ async def test_resilience_framework():
         call_count = 0
 
         @with_resilience(endpoint_name="test_api", enable_fallback=True)
-        async def test_function(should_fail: bool = False):
+        async def test_function(should_fail: bool = False) -> str:
             nonlocal call_count
             call_count += 1
 
