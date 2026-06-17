@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 class GlobalContextRenderer:
     """Render globale context UI boven de tab navigatie."""
 
-    def __init__(self, context_selector):
+    def __init__(self, context_selector: Any) -> None:
         self.context_selector = context_selector
 
     # ------------------------------------------------------------------
@@ -66,7 +66,7 @@ class GlobalContextRenderer:
         if any(context_data.values()):
             self.render_context_summary(context_data)
 
-        return context_data
+        return cast(dict[str, Any], context_data)
 
     def render_simplified_context_selector(self) -> dict[str, Any]:
         """Render context selector via ContextManager-only implementatie."""
@@ -87,7 +87,7 @@ class GlobalContextRenderer:
                 "wettelijke_basis": [],
             }
 
-    def render_context_summary(self, context_data: dict[str, Any]):
+    def render_context_summary(self, context_data: dict[str, Any]) -> None:
         """Render samenvatting van geselecteerde context."""
         summary_parts = []
 
@@ -111,7 +111,7 @@ class GlobalContextRenderer:
     # Metadata
     # ------------------------------------------------------------------
 
-    def render_metadata_fields(self):
+    def render_metadata_fields(self) -> None:
         """Render metadata velden voor definitie voorstel."""
         col1, col2, col3 = _default_st.columns(3)
 
@@ -191,7 +191,9 @@ class GlobalContextRenderer:
     # Ontologische categorie
     # ------------------------------------------------------------------
 
-    async def determine_ontological_category(self, begrip, org_context, jur_context):
+    async def determine_ontological_category(
+        self, begrip: str, org_context: Any, jur_context: Any
+    ) -> tuple[Any, Any, Any]:
         """Bepaal automatisch de ontologische categorie.
 
         Gebruikt ImprovedOntologyClassifier met 3-context support.
@@ -234,11 +236,11 @@ class GlobalContextRenderer:
     def render_category_preview(
         self,
         *,
-        _st=None,
-        _sm=None,
-        _asyncio_run=None,
-        _determine_fn=None,
-    ):
+        _st: Any = None,
+        _sm: Any = None,
+        _asyncio_run: Any = None,
+        _determine_fn: Any = None,
+    ) -> None:
         """Toon voorgestelde ontologische categorie met mogelijkheid tot override.
 
         DEF-36: Preview van pre-geclassificeerde categorie voor gebruiker.
