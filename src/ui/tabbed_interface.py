@@ -12,7 +12,7 @@ from datetime import (
     UTC,
     datetime,  # Datum en tijd functionaliteit
 )
-from typing import Any  # Type hints voor betere code documentatie
+from typing import Any, cast  # Type hints voor betere code documentatie
 
 import streamlit as st  # Streamlit web interface framework
 
@@ -61,7 +61,7 @@ logger = logging.getLogger(__name__)  # Logger instantie voor deze module
 class TabbedInterface:
     """Main tabbed interface controller voor DefinitieAgent."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialiseer tabbed interface met alle benodigde services."""
         # US-202 FIX: Get container via session state singleton to prevent duplicate initialization
         from ui.cached_services import get_cached_service_container
@@ -93,8 +93,8 @@ class TabbedInterface:
                     }
 
                 async def generate_definition(
-                    self, begrip: str, context_dict: dict, **kwargs
-                ):
+                    self, begrip: str, context_dict: dict[str, Any], **kwargs: Any
+                ) -> dict[str, Any]:
                     # Uniform V2 response vorm; UI kan hiermee omgaan
                     return {
                         "success": False,
@@ -181,7 +181,7 @@ class TabbedInterface:
             },
         }
 
-    def render(self):
+    def render(self) -> None:
         """Render de volledige tabbed interface."""
         # AI Provider sidebar (provider selection + API key)
         from ui.components.ai_provider_sidebar import render_ai_provider_sidebar
@@ -213,25 +213,36 @@ class TabbedInterface:
 
     # ------- Delegates to DefinitionGenerationHandler (DEF-141) -------
 
-    def _handle_definition_generation(self, begrip: str, context_data: dict[str, Any]):
+    def _handle_definition_generation(
+        self, begrip: str, context_data: dict[str, Any]
+    ) -> None:
         """Delegate (backward compat). Passes module-level st/SM for test patching."""
-        return self.generation_handler.handle_definition_generation(
+        self.generation_handler.handle_definition_generation(
             begrip, context_data, _st=st, _sm=SessionStateManager
         )
 
-    def _handle_duplicate_check(self, begrip: str, context_data: dict[str, Any]):
+    def _handle_duplicate_check(
+        self, begrip: str, context_data: dict[str, Any]
+    ) -> None:
         """Delegate (backward compat). Passes module-level st/SM for test patching."""
-        return self.generation_handler.handle_duplicate_check(
+        self.generation_handler.handle_duplicate_check(
             begrip, context_data, _st=st, _sm=SessionStateManager
         )
 
     def _get_document_context(self) -> dict[str, Any] | None:
         """Delegate (backward compat)."""
-        return self.generation_handler._get_document_context(_sm=SessionStateManager)
+        # DEF-439: generation_handler-import resolveert naar Any -> cast op de grens
+        return cast(
+            "dict[str, Any] | None",
+            self.generation_handler._get_document_context(_sm=SessionStateManager),
+        )
 
     def _build_document_context_summary(self, aggregated: dict[str, Any]) -> str:
         """Delegate (backward compat)."""
-        return self.generation_handler._build_document_context_summary(aggregated)
+        # DEF-439: generation_handler-import resolveert naar Any -> cast op de grens
+        return cast(
+            str, self.generation_handler._build_document_context_summary(aggregated)
+        )
 
     def _build_document_snippets(
         self,
@@ -242,34 +253,44 @@ class TabbedInterface:
         snippet_window: int = 280,
     ) -> list[dict[str, Any]]:
         """Delegate (backward compat)."""
-        return self.generation_handler._build_document_snippets(
-            begrip=begrip,
-            selected_doc_ids=selected_doc_ids,
-            max_snippets_total=max_snippets_total,
-            per_doc_max=per_doc_max,
-            snippet_window=snippet_window,
+        # DEF-439: generation_handler-import resolveert naar Any -> cast op de grens
+        return cast(
+            "list[dict[str, Any]]",
+            self.generation_handler._build_document_snippets(
+                begrip=begrip,
+                selected_doc_ids=selected_doc_ids,
+                max_snippets_total=max_snippets_total,
+                per_doc_max=per_doc_max,
+                snippet_window=snippet_window,
+            ),
         )
 
     # ------- Rendering methods -------
 
     # ------- Delegates to GlobalContextRenderer (DEF-141) -------
 
-    async def _determine_ontological_category(self, begrip, org_context, jur_context):
+    async def _determine_ontological_category(
+        self, begrip: str, org_context: Any, jur_context: Any
+    ) -> tuple[Any, Any, Any]:
         """Delegate (backward compat)."""
-        return await self.global_context_renderer.determine_ontological_category(
-            begrip, org_context, jur_context
+        # DEF-439: renderer-import resolveert naar Any -> cast op de grens
+        return cast(
+            "tuple[Any, Any, Any]",
+            await self.global_context_renderer.determine_ontological_category(
+                begrip, org_context, jur_context
+            ),
         )
 
-    def _render_category_preview(self):
+    def _render_category_preview(self) -> None:
         """Delegate (backward compat). Passes module-level refs for test patching."""
-        return self.global_context_renderer.render_category_preview(
+        self.global_context_renderer.render_category_preview(
             _st=st,
             _sm=SessionStateManager,
             _asyncio_run=asyncio.run,
             _determine_fn=self._determine_ontological_category,
         )
 
-    def _render_header(self):
+    def _render_header(self) -> None:
         """Render applicatie header."""
 
         # Header met logo en titel
@@ -292,7 +313,7 @@ class TabbedInterface:
         with col3:
             self._render_status_indicator()
 
-    def _render_status_indicator(self):
+    def _render_status_indicator(self) -> None:
         """Render systeem status indicator."""
         # Simple health check
         try:
@@ -305,7 +326,7 @@ class TabbedInterface:
         except Exception as e:
             st.error(f"❌ Systeem Issue\\n{str(e)[:50]}...")
 
-    def _render_global_context(self):
+    def _render_global_context(self) -> None:
         """Render globale context selector (delegeert naar GlobalContextRenderer)."""
         gcr = self.global_context_renderer
 
@@ -345,15 +366,19 @@ class TabbedInterface:
 
     def _render_simplified_context_selector(self) -> dict[str, Any]:
         """Delegate (backward compat)."""
-        return self.global_context_renderer.render_simplified_context_selector()
+        # DEF-439: renderer-import resolveert naar Any -> cast op de grens
+        return cast(
+            "dict[str, Any]",
+            self.global_context_renderer.render_simplified_context_selector(),
+        )
 
-    def _render_metadata_fields(self):
+    def _render_metadata_fields(self) -> None:
         """Delegate (backward compat)."""
-        return self.global_context_renderer.render_metadata_fields()
+        self.global_context_renderer.render_metadata_fields()
 
-    def _render_context_summary(self, context_data: dict[str, Any]):
+    def _render_context_summary(self, context_data: dict[str, Any]) -> None:
         """Delegate (backward compat)."""
-        return self.global_context_renderer.render_context_summary(context_data)
+        self.global_context_renderer.render_context_summary(context_data)
 
     @staticmethod
     @st.cache_data(ttl=30)
@@ -362,7 +387,8 @@ class TabbedInterface:
         from services.container import get_container
 
         container = get_container()
-        return container.rag_management_service.list_collections()
+        # DEF-439: services-import resolveert naar Any -> cast op de grens
+        return cast("list[dict]", container.rag_management_service.list_collections())
 
     def _render_rag_collection_selector(self) -> None:
         """DEF-366: Render RAG collection selector voor definitie-generatie."""
@@ -400,7 +426,9 @@ class TabbedInterface:
         except Exception as e:
             logger.debug("RAG collection selector skipped: %s", e)
 
-    def _render_quick_generate_button(self, begrip: str, context_data: dict[str, Any]):
+    def _render_quick_generate_button(
+        self, begrip: str, context_data: dict[str, Any]
+    ) -> None:
         """Render snelle genereer definitie knop."""
         # DEF-366: Collection selector boven de generate knop
         self._render_rag_collection_selector()
@@ -437,7 +465,7 @@ class TabbedInterface:
                 self._clear_all_fields()
                 st.rerun()
 
-    def _clear_all_fields(self):
+    def _clear_all_fields(self) -> None:
         """Wis alle velden inclusief classificatie state."""
         fields_to_clear = [
             "begrip",
@@ -455,19 +483,19 @@ class TabbedInterface:
         for field in fields_to_clear:
             SessionStateManager.clear_value(field)
 
-    def _render_document_upload_section(self):
+    def _render_document_upload_section(self) -> None:
         """Delegate to DocumentUploadRenderer (DEF-141)."""
         self.document_upload_renderer.render_document_upload_section()
 
-    def _process_uploaded_files(self, uploaded_files):
+    def _process_uploaded_files(self, uploaded_files: Any) -> None:
         """Delegate to DocumentUploadRenderer (DEF-141)."""
         self.document_upload_renderer._process_uploaded_files(uploaded_files)
 
-    def _render_uploaded_documents_list(self):
+    def _render_uploaded_documents_list(self) -> None:
         """Delegate to DocumentUploadRenderer (DEF-141)."""
         self.document_upload_renderer.render_uploaded_documents_list()
 
-    def _render_main_tabs(self):
+    def _render_main_tabs(self) -> None:
         """Render de hoofdtabbladen met radio-gestuurde navigatie."""
         # Stel beschikbare keys samen
         tab_keys = list(self.tab_config.keys())
@@ -492,7 +520,7 @@ class TabbedInterface:
         # Render alleen de geselecteerde tab
         self._render_tab_content(selected_key)
 
-    def _render_tab_content(self, tab_key: str):
+    def _render_tab_content(self, tab_key: str) -> None:
         """Render inhoud van specifiek tabblad."""
         config = self.tab_config[tab_key]
 
@@ -541,7 +569,7 @@ class TabbedInterface:
                         "💡 Dit lijkt op een ontbrekende method. Controleer of alle tab methods geïmplementeerd zijn."
                     )
 
-    def _render_footer(self):
+    def _render_footer(self) -> None:
         """Render applicatie footer."""
         st.markdown("---")
 
@@ -577,7 +605,7 @@ class TabbedInterface:
         """Stub: file upload handler (patched in tests)."""
         return False
 
-    def _handle_export(self):  # pragma: no cover
+    def _handle_export(self) -> None:  # pragma: no cover
         """Stub: export handler (patched in tests)."""
         return
 
@@ -589,7 +617,7 @@ class TabbedInterface:
         """Stub: progress update (patched in tests)."""
         return {"progress": 0.0}
 
-    def _handle_user_interaction(self):  # pragma: no cover
+    def _handle_user_interaction(self) -> str:  # pragma: no cover
         """Stub: user interaction handler (patched in tests)."""
         return "ok"
 
@@ -601,12 +629,12 @@ class TabbedInterface:
         """Stub: sync backend state (patched in tests)."""
         return {}
 
-    def _integrate_with_backend(self):  # pragma: no cover
+    def _integrate_with_backend(self) -> bool:  # pragma: no cover
         """Stub: backend integration step (patched in tests)."""
         return True
 
 
-def render_tabbed_interface():
+def render_tabbed_interface() -> None:
     """Main entry point voor tabbed interface."""
     # Initialize session state
     SessionStateManager.initialize_session_state()
@@ -616,7 +644,7 @@ def render_tabbed_interface():
     interface.render()
 
 
-def initialize_session_state():
+def initialize_session_state() -> None:
     """Compat helper voor tests: initialiseer Streamlit sessiestatus.
 
     Sommige tests importeren deze functie direct uit ui.tabbed_interface.
@@ -629,16 +657,22 @@ if __name__ == "__main__":
 
 
 # Test helper hook: some tests patch this symbol directly
-def generate_definition(*args, **kwargs):  # pragma: no cover - patch target for tests
+def generate_definition(
+    *args: Any, **kwargs: Any
+) -> None:  # pragma: no cover - patch target for tests
     msg = "UI-level generate_definition is a test patch target only"
     raise NotImplementedError(msg)
 
 
-def process_uploaded_file(*args, **kwargs):  # pragma: no cover - patch target for tests
+def process_uploaded_file(
+    *args: Any, **kwargs: Any
+) -> None:  # pragma: no cover - patch target for tests
     msg = "process_uploaded_file is a test patch target only"
     raise NotImplementedError(msg)
 
 
-def export_to_txt(*args, **kwargs):  # pragma: no cover - patch target for tests
+def export_to_txt(
+    *args: Any, **kwargs: Any
+) -> None:  # pragma: no cover - patch target for tests
     msg = "export_to_txt is a test patch target only"
     raise NotImplementedError(msg)

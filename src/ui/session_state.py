@@ -68,7 +68,7 @@ class SessionStateManager:
     }
 
     @staticmethod
-    def initialize_session_state():
+    def initialize_session_state() -> None:
         """Initialiseer alle sessie status variabelen met standaardwaarden.
 
         Doorloopt alle standaardwaarden en zet ze in de sessie status
@@ -101,7 +101,7 @@ class SessionStateManager:
         return st.session_state.get(key, default)
 
     @staticmethod
-    def set_value(key: str, value: Any):
+    def set_value(key: str, value: Any) -> None:
         """
         Zet waarde in sessie status.
 
@@ -113,7 +113,7 @@ class SessionStateManager:
         st.session_state[key] = value
 
     @staticmethod
-    def clear_value(key: str):
+    def clear_value(key: str) -> None:
         """
         Verwijder een specifieke waarde uit sessie status.
 
@@ -130,7 +130,7 @@ class SessionStateManager:
         definitie_gecorrigeerd: str,
         marker: str = "",
         beoordeling_gen: list[str] | None = None,
-    ):
+    ) -> None:
         """
         Update sessie status met definitie generatie resultaten.
 
@@ -161,7 +161,7 @@ class SessionStateManager:
         synoniemen: str = "",
         antoniemen: str = "",
         bronnen_gebruikt: str = "",
-    ):
+    ) -> None:
         """
         Update sessie status met AI-gegenereerde content.
 
@@ -296,7 +296,7 @@ class SessionStateManager:
         }
 
     @staticmethod
-    def clear_definition_results():
+    def clear_definition_results() -> None:
         """Wis alle definitie-gerelateerde resultaten uit sessie status."""
         # Lijst van sleutels die gewist moeten worden
         keys_to_clear = [
