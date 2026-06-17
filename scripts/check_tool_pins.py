@@ -1,19 +1,21 @@
 #!/usr/bin/env python3
-"""Tool-pin consistency guard (DEF-430).
+"""Tool-pin consistency guard (DEF-430, DEF-442).
 
-The ruff version is declared in three places and mypy in two; if they drift the
-complexity/mypy ratchet baselines silently become wrong. This asserts they are
+ruff and black are each declared in two places; if they drift the
+complexity/format baselines silently become wrong. This asserts they are
 identical across all sources. Pure file parsing — no tools installed, fully
-deterministic, so it runs in the unit suite.
+deterministic, so it runs in the unit suite AND as a dedicated CI gate
+(quality-gates.yml) so it cannot be skipped by profile-based test selection.
 
-Sources:
-- ruff:  requirements-dev.txt (``ruff==``), .pre-commit-config.yaml (``rev:``),
-         .github/workflows/quality-gates.yml (``pip install ruff==``)
-- mypy:  requirements-dev.txt (``mypy==``),
-         .github/workflows/quality-gates.yml (``pip install mypy==``)
+Sources (DEF-442: the workflow no longer hardcodes versions — both the mypy- and
+complexity-ratchet jobs derive their pin from requirements-dev.txt, so it is the
+single source of truth and is not cross-checked here):
+- ruff:  requirements-dev.txt (``ruff==``), .pre-commit-config.yaml (``rev:``)
 - black: requirements-dev.txt (``black==``), .pre-commit-config.yaml (``rev:``)
          — the pre-commit rev is the format authority and must match the pinned
          dev version (DEF-432).
+- mypy:  requirements-dev.txt (``mypy==``) only — single source, nothing to
+         cross-check; the baseline measurement is tied to this pin.
 
 Usage:
     python scripts/check_tool_pins.py
@@ -27,7 +29,6 @@ from pathlib import Path
 _ROOT = Path(__file__).resolve().parents[1]
 REQ_DEV = _ROOT / "requirements-dev.txt"
 PRE_COMMIT = _ROOT / ".pre-commit-config.yaml"
-QUALITY_GATES = _ROOT / ".github" / "workflows" / "quality-gates.yml"
 
 
 def _extract(pattern: str, text: str, label: str, flags: int = 0) -> str:
@@ -52,26 +53,17 @@ def ruff_versions() -> dict[str, str]:
             "ruff rev in .pre-commit-config.yaml",
             re.DOTALL,
         ),
-        "quality-gates.yml": _extract(
-            r"pip install ruff==(\S+)",
-            QUALITY_GATES.read_text(encoding="utf-8"),
-            "ruff in quality-gates.yml",
-        ),
     }
 
 
 def mypy_versions() -> dict[str, str]:
+    # DEF-442: single source — the workflow derives its mypy pin from this file.
     return {
         "requirements-dev.txt": _extract(
             r"^mypy==(\S+)",
             REQ_DEV.read_text(encoding="utf-8"),
             "mypy in requirements-dev",
             re.MULTILINE,
-        ),
-        "quality-gates.yml": _extract(
-            r"pip install mypy==(\S+)",
-            QUALITY_GATES.read_text(encoding="utf-8"),
-            "mypy in quality-gates.yml",
         ),
     }
 
