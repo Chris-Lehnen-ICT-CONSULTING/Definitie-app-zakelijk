@@ -63,7 +63,7 @@ class IntegratedConfig:
     enable_monitoring: bool = True  # Monitoring aan/uit schakelaar
     enable_cost_tracking: bool = True  # Kosten tracking voor API calls
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Initialiseer standaard configuraties voor alle resilience componenten."""
         # Zet standaard retry configuratie als deze niet is opgegeven
         if self.retry_config is None:
@@ -116,7 +116,7 @@ class IntegratedResilienceSystem:
         self._started = False
         self._shutdown = False
 
-    async def start(self):
+    async def start(self) -> None:
         """Start all resilience components."""
         if self._started:
             return
@@ -127,7 +127,7 @@ class IntegratedResilienceSystem:
         self._started = True
         logger.info("🚀 Integrated resilience system started")
 
-    async def stop(self):
+    async def stop(self) -> None:
         """Stop all resilience components."""
         if not self._started:
             return
@@ -149,14 +149,14 @@ class IntegratedResilienceSystem:
     async def execute_with_full_resilience(
         self,
         func: Callable,
-        *args,
+        *args: Any,
         endpoint_name: str = "",
         priority: RequestPriority = RequestPriority.NORMAL,
         timeout: float | None = None,
         enable_fallback: bool = True,
         model: str | None = None,
         expected_tokens: int = 0,
-        **kwargs,
+        **kwargs: Any,
     ) -> Any:
         """
         Execute function with full resilience support.
@@ -271,11 +271,11 @@ class IntegratedResilienceSystem:
     async def _execute_with_retry_and_resilience(
         self,
         func: Callable,
-        *args,
+        *args: Any,
         endpoint_name: str,
         priority: RequestPriority,
         enable_fallback: bool,
-        **kwargs,
+        **kwargs: Any,
     ) -> Any:
         """Execute function with retry logic and resilience framework."""
         last_error: Exception | None = None
@@ -373,7 +373,7 @@ def with_full_resilience(
     enable_fallback: bool = True,
     model: str | None = None,
     expected_tokens: int = 0,
-):
+) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
     """
     Decorator providing full resilience support.
 
@@ -398,9 +398,9 @@ def with_full_resilience(
             return await call_gpt_api(term, context)
     """
 
-    def decorator(func: Callable):
+    def decorator(func: Callable) -> Callable[..., Any]:
         @wraps(func)
-        async def wrapper(*args, **kwargs):
+        async def wrapper(*args: Any, **kwargs: Any) -> Any:
             system = await get_integrated_system()
             return await system.execute_with_full_resilience(
                 func,
@@ -420,7 +420,9 @@ def with_full_resilience(
 
 
 # Convenience functions for different use cases
-def with_critical_resilience(endpoint_name: str = "", timeout: float = 10.0):
+def with_critical_resilience(
+    endpoint_name: str = "", timeout: float = 10.0
+) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
     """Decorator for critical operations with high priority."""
     return with_full_resilience(
         endpoint_name=endpoint_name,
@@ -430,7 +432,9 @@ def with_critical_resilience(endpoint_name: str = "", timeout: float = 10.0):
     )
 
 
-def with_background_resilience(endpoint_name: str = "", timeout: float = 60.0):
+def with_background_resilience(
+    endpoint_name: str = "", timeout: float = 60.0
+) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
     """Decorator for background operations with low priority."""
     return with_full_resilience(
         endpoint_name=endpoint_name,
@@ -440,7 +444,9 @@ def with_background_resilience(endpoint_name: str = "", timeout: float = 60.0):
     )
 
 
-def with_cost_optimized_resilience(endpoint_name: str = "", model: str | None = None):
+def with_cost_optimized_resilience(
+    endpoint_name: str = "", model: str | None = None
+) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
     """Decorator for cost-optimized operations."""
     return with_full_resilience(
         endpoint_name=endpoint_name,
@@ -450,7 +456,7 @@ def with_cost_optimized_resilience(endpoint_name: str = "", model: str | None = 
     )
 
 
-async def test_integrated_system():
+async def test_integrated_system() -> None:
     """Test the integrated resilience system."""
     logger.info("Testing Integrated Resilience System")
     logger.info("=" * 45)
@@ -465,7 +471,7 @@ async def test_integrated_system():
         model=None,
         expected_tokens=200,
     )
-    async def test_function(should_fail: bool = False, delay: float = 0.5):
+    async def test_function(should_fail: bool = False, delay: float = 0.5) -> str:
         nonlocal call_count
         call_count += 1
 
@@ -489,7 +495,7 @@ async def test_integrated_system():
 
         # Test critical operation
         @with_critical_resilience(endpoint_name="critical_test")
-        async def critical_function():
+        async def critical_function() -> str:
             return "Critical operation completed"
 
         result = await critical_function()
@@ -497,7 +503,7 @@ async def test_integrated_system():
 
         # Test background operation
         @with_background_resilience(endpoint_name="background_test")
-        async def background_function():
+        async def background_function() -> str:
             await asyncio.sleep(0.1)
             return "Background operation completed"
 
@@ -534,7 +540,7 @@ async def test_integrated_system():
 
 
 # Cleanup function for application shutdown
-async def cleanup_integrated_system():
+async def cleanup_integrated_system() -> None:
     """Clean up integrated system on application shutdown."""
     global _integrated_system
     if _integrated_system:
