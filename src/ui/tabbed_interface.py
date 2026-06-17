@@ -382,13 +382,16 @@ class TabbedInterface:
 
     @staticmethod
     @st.cache_data(ttl=30)
-    def _load_rag_collections() -> list[dict]:
+    def _load_rag_collections() -> list[dict[str, Any]]:
         """Laad RAG collections met 30s cache (review fix: voorkom N+1 bij elke rerun)."""
         from services.container import get_container
 
         container = get_container()
         # DEF-439: services-import resolveert naar Any -> cast op de grens
-        return cast("list[dict]", container.rag_management_service.list_collections())
+        return cast(
+            "list[dict[str, Any]]",
+            container.rag_management_service.list_collections(),
+        )
 
     def _render_rag_collection_selector(self) -> None:
         """DEF-366: Render RAG collection selector voor definitie-generatie."""
