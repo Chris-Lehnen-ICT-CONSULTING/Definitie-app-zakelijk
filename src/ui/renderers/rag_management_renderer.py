@@ -236,7 +236,7 @@ class RAGManagementRenderer:
             self._ingest_uploaded_file(collection_id, uploaded, collection)
 
     def _ingest_uploaded_file(
-        self, collection_id: int, uploaded: Any, collection: dict
+        self, collection_id: int, uploaded: Any, collection: dict[str, Any]
     ) -> None:
         """Verwerk en ingest een geüpload bestand."""
         filename = uploaded.name
