@@ -30,7 +30,7 @@ class CSVImporter:
         """Initialize met repository dependency."""
         self.repository = repository
 
-    def render(self):
+    def render(self) -> None:
         """Render CSV import sectie - verplaatst van _render_import_section."""
         st.markdown("### CSV Import")
         st.info("Upload een CSV bestand met definities om te importeren.")
@@ -84,7 +84,7 @@ class CSVImporter:
 
     def _process_import(
         self, df: pd.DataFrame, skip_duplicates: bool, auto_validate: bool
-    ):
+    ) -> None:
         """Verwerk CSV import - exact verplaatst van origineel."""
         # Local import for record construction (avoids top-level database import)
         from database.definitie_repository import DefinitieRecord

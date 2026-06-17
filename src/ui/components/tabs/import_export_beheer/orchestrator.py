@@ -10,7 +10,7 @@ from __future__ import (
 )
 
 import logging
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import streamlit as st
 
@@ -31,7 +31,7 @@ logger = logging.getLogger(__name__)
 class ImportExportOrchestrator:
     """Orchestreert alle import/export/beheer componenten."""
 
-    def __init__(self, repository: DefinitieRepository):
+    def __init__(self, repository: DefinitieRepository) -> None:
         """Initialize orchestrator met repository en componenten."""
         self.repository = repository
         self.session_state = SessionStateManager()
@@ -43,10 +43,10 @@ class ImportExportOrchestrator:
         self.database_manager = DatabaseManager(repository)
 
         # Lazy load service wanneer nodig
-        self._service = None
+        self._service: Any = None
 
     @property
-    def service(self):
+    def service(self) -> Any:
         """Lazy load definition service."""
         if self._service is None:
             try:
@@ -62,7 +62,7 @@ class ImportExportOrchestrator:
                 self._service = _DummyService()
         return self._service
 
-    def render(self):
+    def render(self) -> None:
         """Render de hoofdinterface met tabs."""
         st.markdown("## 📦 Import, Export & Beheer")
 

@@ -31,7 +31,7 @@ class DatabaseManager:
         """Initialize met repository dependency."""
         self.repository = repository
 
-    def render(self):
+    def render(self) -> None:
         """Render database management sectie - verplaatst van _render_database_management."""
         st.markdown("### Database Beheer")
 
@@ -96,7 +96,7 @@ class DatabaseManager:
             logger.error(f"Error getting stats: {e}")
             return {"total": 0, "established": 0, "draft": 0, "size": "Error"}
 
-    def _execute_database_reset(self):
+    def _execute_database_reset(self) -> None:
         """Reset de database - exact verplaatst van origineel."""
         with st.spinner("Database resetten..."):
             try:
