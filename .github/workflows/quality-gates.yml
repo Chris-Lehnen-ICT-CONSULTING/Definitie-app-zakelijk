@@ -138,12 +138,13 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install ruff (pinned for a deterministic count)
-        # Exact pin: the baseline count is tied to the ruff version. Kept in sync
-        # with the pre-commit rev + requirements-dev.txt (DEF-430). When ruff is
-        # bumped project-wide, re-measure and update scripts/complexity_baseline.txt
-        # in the same change. The count is stable across 0.14.x–0.15.x (verified).
-        run: pip install ruff==0.15.16
+      - name: Install ruff (single source from requirements-dev.txt)
+        # DEF-442: derive the pin from requirements-dev.txt instead of hardcoding,
+        # so a ruff bump there flows into this job (and the pin-gate keeps it in
+        # sync with the pre-commit rev). The baseline count is tied to the ruff
+        # version — when ruff is bumped, re-measure scripts/complexity_baseline.txt
+        # in the same change. Stable across 0.14.x–0.15.x (verified).
+        run: pip install "$(grep -E '^ruff==' requirements-dev.txt)"
 
       - name: Check complexity has not grown
         run: python scripts/complexity_ratchet.py
@@ -161,16 +162,16 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install dependencies (mypy pinned for a deterministic count)
-        # Exact pin: the error count is tied to the mypy version. When mypy is
-        # bumped, re-measure and update scripts/mypy_baseline.txt in the same
-        # change. BOTH requirements files are installed: requirements-dev.txt
-        # ships type stubs that resolve 6 errors (without it the count is 98,
-        # not 92). The explicit pin runs last so it wins over the dev floor.
+      - name: Install dependencies (mypy from requirements-dev.txt)
+        # DEF-442: single source — mypy is pinned only in requirements-dev.txt, so
+        # a bump there flows into this job and the ratchet runs under the new
+        # version (baseline drift becomes a visible CI failure). The error count is
+        # tied to the mypy version — when bumped, re-measure scripts/mypy_baseline.txt
+        # in the same change. BOTH requirements files are installed: requirements-dev.txt
+        # ships type stubs that resolve 6 errors (without it the count is higher).
         run: |
           pip install -r requirements.txt
           pip install -r requirements-dev.txt
-          pip install mypy==1.18.2
 
       - name: Check mypy errors have not grown
         run: python scripts/mypy_ratchet.py
@@ -180,10 +181,29 @@ jobs:
         # Blocks grandfathering new untyped modules into [[tool.mypy.overrides]].
         run: python scripts/mypy_overrides_ratchet.py
 
+  tool-pins:
+    name: Tool Pin Consistency (DEF-430/442)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Check tool pins are in sync
+        # DEF-442: dedicated gate so a deps-only PR (e.g. dependabot bumping
+        # requirements-dev.txt) cannot skip the pin check via profile-based test
+        # selection. Pure stdlib file parsing — no tools installed.
+        run: python scripts/check_tool_pins.py
+
   quality-summary:
     name: Quality Gate Summary
     runs-on: ubuntu-latest
-    needs: [verify-pre-commit, preflight-checks, validate-branch-name, complexity-ratchet, mypy-ratchet]
+    needs: [verify-pre-commit, preflight-checks, validate-branch-name, complexity-ratchet, mypy-ratchet, tool-pins]
     if: always()
 
     steps:
@@ -196,11 +216,13 @@ jobs:
           echo "Branch name: ${{ needs.validate-branch-name.result }}"
           echo "Complexity ratchet: ${{ needs.complexity-ratchet.result }}"
           echo "Mypy ratchet: ${{ needs.mypy-ratchet.result }}"
+          echo "Tool pins: ${{ needs.tool-pins.result }}"
 
           if [ "${{ needs.verify-pre-commit.result }}" != "success" ] || \
              [ "${{ needs.preflight-checks.result }}" != "success" ] || \
              [ "${{ needs.complexity-ratchet.result }}" != "success" ] || \
-             [ "${{ needs.mypy-ratchet.result }}" != "success" ]; then
+             [ "${{ needs.mypy-ratchet.result }}" != "success" ] || \
+             [ "${{ needs.tool-pins.result }}" != "success" ]; then
             echo "❌ Quality gates failed"
             exit 1
           fi
