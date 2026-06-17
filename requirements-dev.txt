@@ -35,5 +35,5 @@ freezegun>=1.4.0
 
 # Performance testing
 pytest-benchmark>=4.0.0
-locust>=2.20.0
+locust>=2.44.3
 memory-profiler>=0.61.0
