@@ -36,7 +36,7 @@ def ensure_session_value(key: str, default: Any = None) -> Any:
     return SessionStateManager.get_value(key, default=default)
 
 
-def update_session_values(**kwargs) -> None:
+def update_session_values(**kwargs: Any) -> None:
     """
     Update multiple session state values at once.
 
@@ -88,17 +88,17 @@ def get_service_safe(service_name: str) -> Any:
         return None
 
 
-def get_orchestrator():
+def get_orchestrator() -> Any:
     """Get orchestrator service with error handling."""
     return get_service_safe("orchestrator")
 
 
-def get_repository():
+def get_repository() -> Any:
     """Get repository service with error handling."""
     return get_service_safe("repository")
 
 
-def get_web_lookup():
+def get_web_lookup() -> Any:
     """Get web lookup service with error handling."""
     return get_service_safe("web_lookup")
 
@@ -186,7 +186,7 @@ def safe_operation(
 
     def decorator(func: Callable[..., T]) -> Callable[..., T | Any]:
         @wraps(func)
-        def wrapper(*args, **kwargs) -> T | Any:
+        def wrapper(*args: Any, **kwargs: Any) -> T | Any:
             try:
                 return func(*args, **kwargs)
             except Exception as e:

@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
+from typing import Any, cast
 
 import streamlit as st
 
@@ -83,7 +84,7 @@ class RAGManagementRenderer:
         )
 
         SessionStateManager.set_value("rag_selected_collection", selected_id)
-        return selected_id
+        return cast(int | None, selected_id)
 
     def _render_create_collection_form(self) -> None:
         """Render formulier voor nieuwe collection."""
@@ -235,7 +236,7 @@ class RAGManagementRenderer:
             self._ingest_uploaded_file(collection_id, uploaded, collection)
 
     def _ingest_uploaded_file(
-        self, collection_id: int, uploaded, collection: dict
+        self, collection_id: int, uploaded: Any, collection: dict
     ) -> None:
         """Verwerk en ingest een geüpload bestand."""
         filename = uploaded.name

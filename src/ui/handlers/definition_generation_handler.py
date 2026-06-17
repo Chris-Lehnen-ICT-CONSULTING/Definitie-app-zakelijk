@@ -35,7 +35,9 @@ class DefinitionGenerationHandler:
     deze handler dezelfde services deelt als de orchestrator.
     """
 
-    def __init__(self, checker: DefinitieChecker, definition_service, repository):
+    def __init__(
+        self, checker: DefinitieChecker, definition_service: Any, repository: Any
+    ) -> None:
         self.checker = checker
         self.definition_service = definition_service
         self.repository = repository
@@ -49,9 +51,9 @@ class DefinitionGenerationHandler:
         begrip: str,
         context_data: dict[str, Any],
         *,
-        _st=None,
-        _sm=None,
-    ):
+        _st: Any = None,
+        _sm: Any = None,
+    ) -> None:
         """Handle definitie generatie met voorafgaande duplicate-check en keuze.
 
         Args:
@@ -476,9 +478,9 @@ class DefinitionGenerationHandler:
         begrip: str,
         context_data: dict[str, Any],
         *,
-        _st=None,
-        _sm=None,
-    ):
+        _st: Any = None,
+        _sm: Any = None,
+    ) -> None:
         """Handle duplicate check vanaf hoofdniveau."""
         st = _st if _st is not None else _default_st
         SessionStateManager = _sm if _sm is not None else _DefaultSM
@@ -516,7 +518,7 @@ class DefinitionGenerationHandler:
     # Internal helpers
     # ------------------------------------------------------------------
 
-    def _get_document_context(self, *, _sm=None) -> dict[str, Any] | None:
+    def _get_document_context(self, *, _sm: Any = None) -> dict[str, Any] | None:
         """Krijg document context voor definitie generatie."""
         SessionStateManager = _sm if _sm is not None else _DefaultSM
         try:
