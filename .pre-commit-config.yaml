@@ -1,9 +1,10 @@
 repos:
   # Ruff - Fast Python linting
-  # DEF-430: kept in sync with ruff== in requirements-dev.txt + the complexity
-  # ratchet gate (quality-gates.yml). Bump all three together.
+  # DEF-430/442: kept in sync with ruff== in requirements-dev.txt (the single
+  # source the CI jobs install from). Bump both together — check_tool_pins (CI gate)
+  # enforces it; re-verify scripts/complexity_baseline.txt on a bump.
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.16
+    rev: v0.15.17
     hooks:
       - id: ruff
         name: Ruff linting
