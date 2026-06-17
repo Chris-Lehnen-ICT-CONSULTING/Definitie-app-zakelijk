@@ -9,6 +9,7 @@ import logging
 import re
 from datetime import datetime
 from pathlib import Path
+from typing import Any
 
 import streamlit as st
 
@@ -32,7 +33,7 @@ def _sanitize_filename(name: str) -> str:
     return name or "unnamed"
 
 
-def _save_uploaded_file(uploaded_file) -> Path | None:
+def _save_uploaded_file(uploaded_file: Any) -> Path | None:
     """Sla geüpload bestand op in data/uploads/ met timestamp prefix."""
     try:
         UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
@@ -63,7 +64,7 @@ def _find_uploaded_file(filename: str) -> Path | None:
 class DocumentUploadRenderer:
     """Render document upload, processing en beheer UI."""
 
-    def render_document_upload_section(self):
+    def render_document_upload_section(self) -> None:
         """Render document upload sectie voor context enrichment."""
         with st.expander("📄 Document Upload voor Context Verrijking", expanded=False):
             st.markdown(
@@ -113,7 +114,7 @@ class DocumentUploadRenderer:
             # Toon bestaande documenten
             self.render_uploaded_documents_list()
 
-    def _process_uploaded_files(self, uploaded_files):
+    def _process_uploaded_files(self, uploaded_files: Any) -> None:
         """Verwerk geüploade bestanden."""
         processor = get_document_processor()
 
@@ -162,7 +163,7 @@ class DocumentUploadRenderer:
             # Update session state
             SessionStateManager.set_value("documents_updated", True)
 
-    def render_uploaded_documents_list(self):
+    def render_uploaded_documents_list(self) -> None:
         """Render lijst van geüploade documenten."""
         processor = get_document_processor()
         documents = processor.get_processed_documents()

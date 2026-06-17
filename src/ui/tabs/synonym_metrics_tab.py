@@ -15,7 +15,7 @@ Architecture Reference:
 import logging
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 import streamlit as st
 
@@ -33,11 +33,11 @@ class SynonymMetricsTab:
     - Top synonyms by usage
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize metrics tab."""
         self.enrichment_log_path = Path("logs/synonym_enrichment.log")
 
-    def render(self):
+    def render(self) -> None:
         """Render main metrics dashboard."""
         st.title("📊 Synonym System Metrics")
 
@@ -67,7 +67,7 @@ class SynonymMetricsTab:
         elif metric_category == "top_usage":
             self._render_top_usage_metrics()
 
-    def _render_cache_metrics(self):
+    def _render_cache_metrics(self) -> None:
         """Render cache performance metrics."""
         st.subheader("🚀 Cache Performance")
 
@@ -82,7 +82,9 @@ class SynonymMetricsTab:
 
             with col1:
                 hit_rate = cache_stats["hit_rate"]
-                delta_color = "normal" if hit_rate >= 0.8 else "inverse"
+                delta_color: Literal["normal", "inverse"] = (
+                    "normal" if hit_rate >= 0.8 else "inverse"
+                )
                 st.metric(
                     "Cache Hit Rate",
                     f"{hit_rate:.1%}",
@@ -133,7 +135,7 @@ class SynonymMetricsTab:
             st.error(f"❌ Failed to load cache metrics: {e}")
             logger.error(f"Cache metrics render failed: {e}", exc_info=True)
 
-    def _render_enrichment_metrics(self):
+    def _render_enrichment_metrics(self) -> None:
         """Render GPT-4 enrichment statistics."""
         st.subheader("🤖 GPT-4 Enrichment Analytics")
 
@@ -151,7 +153,9 @@ class SynonymMetricsTab:
 
             with col1:
                 success_rate = enrichment_stats["success_rate"]
-                delta_color = "normal" if success_rate >= 0.95 else "inverse"
+                delta_color: Literal["normal", "inverse"] = (
+                    "normal" if success_rate >= 0.95 else "inverse"
+                )
                 st.metric(
                     "Success Rate",
                     f"{success_rate:.1%}",
@@ -186,7 +190,7 @@ class SynonymMetricsTab:
             st.error(f"❌ Failed to parse enrichment logs: {e}")
             logger.error(f"Enrichment metrics parse failed: {e}", exc_info=True)
 
-    def _render_approval_metrics(self):
+    def _render_approval_metrics(self) -> None:
         """Render approval workflow statistics."""
         st.subheader("✅ Approval Workflow")
 
@@ -286,7 +290,7 @@ class SynonymMetricsTab:
             st.error(f"❌ Failed to load approval metrics: {e}")
             logger.error(f"Approval metrics render failed: {e}", exc_info=True)
 
-    def _render_top_usage_metrics(self):
+    def _render_top_usage_metrics(self) -> None:
         """Render top used synonyms."""
         st.subheader("📈 Top Used Synonyms")
 

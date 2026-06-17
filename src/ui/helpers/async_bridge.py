@@ -8,7 +8,7 @@ Per US-043: All async-to-sync conversions should go through this module.
 
 import asyncio
 import logging
-from collections.abc import Coroutine
+from collections.abc import Callable, Coroutine
 from typing import Any, TypeVar
 
 logger = logging.getLogger(__name__)
@@ -116,7 +116,7 @@ def run_parallel(
     return run_async(gather_async(*coros), timeout=timeout)
 
 
-def create_async_callback(coro_func):
+def create_async_callback(coro_func: Callable[..., Any]) -> Callable[..., Any]:
     """Create a sync callback that runs an async function.
 
     Useful for Streamlit callbacks that need to call async services.
@@ -131,7 +131,7 @@ def create_async_callback(coro_func):
         st.button("Generate", on_click=create_async_callback(async_generate))
     """
 
-    def sync_wrapper(*args, **kwargs):
+    def sync_wrapper(*args: Any, **kwargs: Any) -> Any:
         coro = coro_func(*args, **kwargs)
         return run_async(coro)
 
@@ -143,8 +143,8 @@ def create_async_callback(coro_func):
 
 # Service-specific wrappers for UI usage
 def generate_definition_sync(
-    service_adapter, begrip: str, context_dict: dict, **kwargs
-):
+    service_adapter: Any, begrip: str, context_dict: dict[str, Any], **kwargs: Any
+) -> Any:
     """Sync wrapper for generating definitions from UI.
 
     This wraps the async generate_definition method from ServiceAdapter
@@ -173,7 +173,7 @@ def generate_definition_sync(
 
 
 def search_web_sources_sync(
-    service_factory, term: str, sources: list | None = None
+    service_factory: Any, term: str, sources: list | None = None
 ) -> dict:
     """Sync wrapper for web lookup from UI.
 
@@ -187,7 +187,7 @@ def search_web_sources_sync(
     """
     from services.interfaces import LookupRequest
 
-    async def do_search():
+    async def do_search() -> dict[str, Any]:
         request = LookupRequest(term=term, sources=sources, max_results=5)
         results = await service_factory.web_lookup.lookup(request)
 

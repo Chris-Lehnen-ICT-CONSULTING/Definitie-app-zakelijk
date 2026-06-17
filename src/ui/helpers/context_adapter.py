@@ -184,7 +184,7 @@ class ContextAdapter:
             )
             return False, [str(exc)]
 
-    def prepare_generation_request(self, begrip: str, **kwargs) -> dict[str, Any]:
+    def prepare_generation_request(self, begrip: str, **kwargs: Any) -> dict[str, Any]:
         """
         Prepare a generation request with context.
 
