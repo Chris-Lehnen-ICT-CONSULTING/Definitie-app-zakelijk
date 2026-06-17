@@ -27,14 +27,15 @@ class ProgressState:
 class AsyncProgressTracker:
     """Progress tracker for async operations."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.state = ProgressState()
-        self.progress_bar = None
-        self.status_text = None
-        self.time_text = None
-        self.cancel_button = None
+        # Streamlit-widget handles (DeltaGenerator/bool); Any tot setup_ui ze zet
+        self.progress_bar: Any = None
+        self.status_text: Any = None
+        self.time_text: Any = None
+        self.cancel_button: Any = None
 
-    def setup_ui(self, container):
+    def setup_ui(self, container: Any) -> None:
         """Setup progress UI components."""
         with container:
             self.status_text = st.empty()
@@ -48,7 +49,7 @@ class AsyncProgressTracker:
             with col3:
                 st.empty()  # Spacer
 
-    def start(self, total_steps: int, message: str = "Starting..."):
+    def start(self, total_steps: int, message: str = "Starting...") -> None:
         """Start progress tracking."""
         self.state.current_step = 0
         self.state.total_steps = total_steps
@@ -59,7 +60,7 @@ class AsyncProgressTracker:
 
         self.update_ui()
 
-    def update(self, step: int, message: str):
+    def update(self, step: int, message: str) -> None:
         """Update progress."""
         if not self.state.is_running:
             return
@@ -68,21 +69,21 @@ class AsyncProgressTracker:
         self.state.current_message = message
         self.update_ui()
 
-    def finish(self, message: str = "Complete!"):
+    def finish(self, message: str = "Complete!") -> None:
         """Finish progress tracking."""
         self.state.current_step = self.state.total_steps
         self.state.current_message = message
         self.state.is_running = False
         self.update_ui()
 
-    def cancel(self):
+    def cancel(self) -> None:
         """Cancel the operation."""
         self.state.is_cancelled = True
         self.state.is_running = False
         self.state.current_message = "Cancelled"
         self.update_ui()
 
-    def update_ui(self):
+    def update_ui(self) -> None:
         """Update UI components."""
         if not (self.progress_bar and self.status_text and self.time_text):
             return
@@ -117,13 +118,13 @@ class AsyncProgressTracker:
 class AsyncDefinitionUI:
     """UI wrapper for async definition processing."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.service = get_async_service()
         self.progress_tracker = AsyncProgressTracker()
 
     def render_async_processing_button(
         self, form_data: dict[str, Any], toetsregels: dict[str, Any]
-    ):
+    ) -> None:
         """Render button for async definition processing."""
         col1, col2 = st.columns([3, 1])
 
@@ -140,7 +141,7 @@ class AsyncDefinitionUI:
 
     def run_async_definition_processing(
         self, form_data: dict[str, Any], toetsregels: dict[str, Any]
-    ):
+    ) -> None:
         """Run async definition processing with real-time progress."""
         # Create progress container
         progress_container = st.container()
@@ -161,11 +162,14 @@ class AsyncDefinitionUI:
         self.display_async_results(result, result_container)
 
     async def _async_processing_wrapper(
-        self, form_data: dict[str, Any], toetsregels: dict[str, Any], progress_container
+        self,
+        form_data: dict[str, Any],
+        toetsregels: dict[str, Any],
+        progress_container: Any,
     ) -> AsyncProcessingResult:
         """Wrapper for async processing with progress tracking."""
 
-        def progress_callback(message: str, step: int, total: int):
+        def progress_callback(message: str, step: int, total: int) -> None:
             """Progress callback for UI updates."""
             self.progress_tracker.update(step, message)
 
@@ -199,7 +203,9 @@ class AsyncDefinitionUI:
                 success=False, processing_time=0, error_message=str(e)
             )
 
-    def display_async_results(self, result: AsyncProcessingResult, container):
+    def display_async_results(
+        self, result: AsyncProcessingResult, container: Any
+    ) -> None:
         """Display async processing results."""
         with container:
             if result.success:
@@ -271,7 +277,7 @@ class AsyncDefinitionUI:
                 if result.processing_time > 0:
                     st.info(f"Failed after {result.processing_time:.2f}s")
 
-    def show_async_stats(self):
+    def show_async_stats(self) -> None:
         """Show async processing statistics."""
         st.subheader("🚀 Async Processing Statistics")
 
@@ -296,7 +302,7 @@ class AsyncDefinitionUI:
         """)
 
 
-def render_async_mode_toggle():
+def render_async_mode_toggle() -> bool:
     """Render toggle for async mode."""
     with st.sidebar, st.expander("⚡ Async Mode"):
         async_enabled = st.checkbox(
@@ -315,7 +321,7 @@ def render_async_mode_toggle():
         return async_enabled
 
 
-def render_async_dashboard():
+def render_async_dashboard() -> None:
     """Render async processing dashboard."""
     st.title("🚀 Async Processing Dashboard")
 
@@ -348,6 +354,6 @@ def render_async_dashboard():
             "voorsteller": "demo",
             "ketenpartners": [],
         }
-        sample_rules = {}
+        sample_rules: dict[str, Any] = {}
 
         ui.run_async_definition_processing(sample_data, sample_rules)

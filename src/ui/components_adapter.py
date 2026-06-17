@@ -36,7 +36,7 @@ class UIComponentsAdapter:
     - Handelt backwards compatibility af
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialiseer adapter."""
         self.service = get_definition_service()
         logger.info("UIComponentsAdapter geïnitialiseerd")
@@ -311,7 +311,7 @@ def get_ui_adapter() -> UIComponentsAdapter:
     return _adapter_instance
 
 
-def render_export_button_new():
+def render_export_button_new() -> None:
     """
     Nieuwe export button die de clean services gebruikt.
 

@@ -12,7 +12,7 @@ class CacheManager:
     """Cache management interface for Streamlit."""
 
     @staticmethod
-    def display_cache_stats():
+    def display_cache_stats() -> None:
         """Display cache statistics in Streamlit."""
         stats = get_cache_stats()
 
@@ -37,7 +37,7 @@ class CacheManager:
             st.write(f"**Newest Entry:** {stats['newest_entry']}")
 
     @staticmethod
-    def display_cache_controls():
+    def display_cache_controls() -> None:
         """Display cache control buttons."""
         st.subheader("🛠️ Cache Management")
 
@@ -54,7 +54,7 @@ class CacheManager:
                 st.rerun()
 
     @staticmethod
-    def display_cache_settings():
+    def display_cache_settings() -> None:
         """Display cache configuration settings."""
         st.subheader("⚙️ Cache Settings")
 
@@ -99,7 +99,7 @@ class CacheManager:
                 st.success("Cache settings applied!")
 
     @staticmethod
-    def display_cache_info():
+    def display_cache_info() -> None:
         """Display information about caching benefits."""
         st.subheader("i️ Cache Information")
 
@@ -118,7 +118,7 @@ class CacheManager:
         """)
 
     @staticmethod
-    def render_cache_dashboard():
+    def render_cache_dashboard() -> None:
         """Render complete cache management dashboard."""
         st.title("🗄️ Cache Management Dashboard")
 
@@ -141,7 +141,7 @@ class CacheManager:
         CacheManager.display_cache_info()
 
 
-def render_cache_sidebar():
+def render_cache_sidebar() -> None:
     """Render cache information in sidebar."""
     with st.sidebar, st.expander("📊 Cache Status"):
         stats = get_cache_stats()
