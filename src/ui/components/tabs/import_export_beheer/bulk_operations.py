@@ -29,7 +29,7 @@ class BulkOperations:
         """Initialize met repository dependency."""
         self.repository = repository
 
-    def render(self):
+    def render(self) -> None:
         """Render bulk operations sectie - verplaatst van _render_bulk_actions."""
         st.markdown("### Bulk Status Wijziging")
 
@@ -59,7 +59,7 @@ class BulkOperations:
             if st.button("⚡ Wijzig Status", type="primary"):
                 self._execute_bulk_status_change(from_status, to_status)
 
-    def _execute_bulk_status_change(self, from_status: str, to_status: str):
+    def _execute_bulk_status_change(self, from_status: str, to_status: str) -> None:
         """Voer bulk status wijziging uit - exact verplaatst van origineel."""
         with st.spinner("Status wijzigen..."):
             try:
