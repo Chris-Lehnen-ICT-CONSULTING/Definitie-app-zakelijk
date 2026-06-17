@@ -378,8 +378,11 @@ def with_enhanced_retry(
                     # Check circuit breaker before attempt
                     if attempt > 0:
                         # attempt > 0 betekent dat een vorige iteratie last_error
-                        # in de except-tak heeft gezet.
-                        assert last_error is not None
+                        # in de except-tak heeft gezet. Expliciete guard (i.p.v.
+                        # assert) blijft -O-bestendig en narrowt voor mypy.
+                        if last_error is None:
+                            msg = "retry op attempt>0 zonder voorafgaande fout"
+                            raise RuntimeError(msg)
                         if not await retry_manager.should_retry(last_error, attempt):
                             logger.error(
                                 f"Max retries exceeded or circuit breaker open for {func.__name__}"
