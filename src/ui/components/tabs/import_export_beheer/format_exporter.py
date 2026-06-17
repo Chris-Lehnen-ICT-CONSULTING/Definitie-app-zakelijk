@@ -9,7 +9,7 @@ from __future__ import (
 )
 
 import logging
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import streamlit as st
 
@@ -262,7 +262,7 @@ class FormatExporter:
                 logger.exception("Bulk export fout")
 
     def _generate_individual_export(
-        self, definitions: list, format: str, level: str
+        self, definitions: list[Any], format: str, level: str
     ) -> None:
         """Genereer export voor individueel geselecteerde definities."""
         with st.spinner(f"Export genereren voor {len(definitions)} definitie(s)..."):
@@ -278,7 +278,7 @@ class FormatExporter:
                 logger.exception("Individual export fout")
 
     def _execute_export(
-        self, definitions: list, format: str, level: str, export_type: str
+        self, definitions: list[Any], format: str, level: str, export_type: str
     ) -> None:
         """Voer de daadwerkelijke export uit (herbruikbaar voor bulk en individual)."""
         # Map format naar ExportFormat enum
