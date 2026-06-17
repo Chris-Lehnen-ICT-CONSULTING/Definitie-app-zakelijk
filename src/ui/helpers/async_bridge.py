@@ -143,7 +143,7 @@ def create_async_callback(coro_func: Callable[..., Any]) -> Callable[..., Any]:
 
 # Service-specific wrappers for UI usage
 def generate_definition_sync(
-    service_adapter: Any, begrip: str, context_dict: dict, **kwargs: Any
+    service_adapter: Any, begrip: str, context_dict: dict[str, Any], **kwargs: Any
 ) -> Any:
     """Sync wrapper for generating definitions from UI.
 
