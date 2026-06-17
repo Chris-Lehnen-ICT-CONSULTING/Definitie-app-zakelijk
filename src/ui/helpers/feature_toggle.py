@@ -7,7 +7,7 @@ Services should not depend on these UI elements.
 import streamlit as st
 
 
-def render_feature_flag_toggle():
+def render_feature_flag_toggle() -> bool:
     """
     Render a toggle for new services in the Streamlit sidebar.
 
