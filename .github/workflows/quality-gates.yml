@@ -138,13 +138,14 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install ruff (single source from requirements-dev.txt)
-        # DEF-442: derive the pin from requirements-dev.txt instead of hardcoding,
-        # so a ruff bump there flows into this job (and the pin-gate keeps it in
-        # sync with the pre-commit rev). The baseline count is tied to the ruff
-        # version — when ruff is bumped, re-measure scripts/complexity_baseline.txt
-        # in the same change. Stable across 0.14.x–0.15.x (verified).
-        run: pip install "$(grep -E '^ruff==' requirements-dev.txt)"
+      - name: Install dev tools (ruff from requirements-dev.txt)
+        # DEF-442: install from requirements-dev.txt instead of hardcoding, so a
+        # ruff bump there flows into this job (and the pin-gate keeps it in sync
+        # with the pre-commit rev). Same approach as the mypy job — robust against
+        # comments/markers, no fragile shell extraction. The baseline count is tied
+        # to the ruff version — when ruff is bumped, re-measure
+        # scripts/complexity_baseline.txt in the same change.
+        run: pip install -r requirements-dev.txt
 
       - name: Check complexity has not grown
         run: python scripts/complexity_ratchet.py
