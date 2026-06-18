@@ -45,7 +45,7 @@ class DefinitionEditTab:
 
         logger.info("DefinitionEditTab initialized")
 
-    def render(self):
+    def render(self) -> None:
         """Render de edit tab interface."""
         st.markdown("## ✏️ Definitie Editor")
         st.markdown(
@@ -196,7 +196,7 @@ class DefinitionEditTab:
         # Auto-save status
         self._render_auto_save_status()
 
-    def _render_definition_selector(self):
+    def _render_definition_selector(self) -> None:
         """Render definition selection interface."""
         st.markdown("### 📋 Selecteer Definitie")
 
@@ -252,7 +252,7 @@ class DefinitionEditTab:
         if SessionStateManager.get_value("edit_search_results") is not None:
             self._render_search_results()
 
-    def _render_search_results(self):
+    def _render_search_results(self) -> None:
         """Render search results."""
         results = SessionStateManager.get_value("edit_search_results")
 
@@ -275,7 +275,7 @@ class DefinitionEditTab:
             try:
                 import pandas as pd  # Lazy import voor UI
 
-                def _join_list(v):
+                def _join_list(v: Any) -> str:
                     try:
                         return ", ".join([str(x) for x in (v or [])])
                     except (TypeError, AttributeError):
@@ -455,7 +455,7 @@ class DefinitionEditTab:
                             self._start_edit_session(int(d.id))
                 st.markdown("---")
 
-    def _render_editor(self):
+    def _render_editor(self) -> None:
         """Render the rich text editor."""
         st.markdown("### ✏️ Bewerk Definitie")
 
@@ -736,7 +736,7 @@ class DefinitionEditTab:
         # Track changes for auto-save
         self._track_changes()
 
-    def _render_action_buttons(self):
+    def _render_action_buttons(self) -> None:
         """Render action buttons for saving and validation."""
         # Reden voor wijziging (persistente input boven de knoppen) - ID-gescope
         def_id = SessionStateManager.get_value("editing_definition_id")
@@ -785,7 +785,7 @@ class DefinitionEditTab:
         # Full-width panel (onder de knoppen) voor validatieresultaten
         self._render_fullwidth_validation_results()
 
-    def _render_examples_section(self):
+    def _render_examples_section(self) -> None:
         """Render sectie voor AI-gegenereerde voorbeelden (edit-tab)."""
         def_id = SessionStateManager.get_value("editing_definition_id")
         if not def_id:
@@ -862,7 +862,7 @@ class DefinitionEditTab:
                 },
             )
 
-    def _render_metadata_panel(self):
+    def _render_metadata_panel(self) -> None:
         """Render compact metadata panel."""
         definition = SessionStateManager.get_value("editing_definition")
         if not definition:
@@ -909,7 +909,7 @@ class DefinitionEditTab:
             if definition.bron:
                 st.caption(f"**Bron Referentie:** {definition.bron}")
 
-    def _render_generation_prompt_section(self, definition):
+    def _render_generation_prompt_section(self, definition: Any) -> None:
         """
         Render generation prompt viewer (DEF-151).
 
@@ -960,7 +960,7 @@ class DefinitionEditTab:
             )
             # Silently fail - not critical
 
-    def _render_version_history(self):
+    def _render_version_history(self) -> None:
         """Render compact version history panel."""
         definition_id = SessionStateManager.get_value("editing_definition_id")
         if not definition_id:
@@ -1005,7 +1005,7 @@ class DefinitionEditTab:
 
                     st.divider()
 
-    def _render_auto_save_status(self):
+    def _render_auto_save_status(self) -> None:
         """Render auto-save status indicator."""
         if not SessionStateManager.get_value("editing_definition_id"):
             return
@@ -1031,7 +1031,7 @@ class DefinitionEditTab:
                 else:
                     st.info("💾 Auto-save actief")
 
-    def _render_status_badge(self, status: str):
+    def _render_status_badge(self, status: str) -> None:
         """Render a status badge."""
         colors = {
             "imported": "🔵",
@@ -1053,7 +1053,7 @@ class DefinitionEditTab:
 
     def _search_definitions(
         self, search_term: str, status_filter: str, limit: int = 50
-    ):
+    ) -> None:
         """Search for definitions."""
         try:
             # Build filters
@@ -1109,7 +1109,7 @@ class DefinitionEditTab:
             )
             st.error(f"❌ Fout bij zoeken: {e!s}")
 
-    def _start_edit_session(self, definition_id: int):
+    def _start_edit_session(self, definition_id: int) -> None:
         """Start edit session for a definition."""
         try:
             # Start session
@@ -1202,7 +1202,7 @@ class DefinitionEditTab:
                 f"Probeer de pagina te verversen."
             )
 
-    def _save_definition(self):
+    def _save_definition(self) -> None:
         """Save the edited definition."""
         try:
             definition_id = SessionStateManager.get_value("editing_definition_id")
@@ -1305,7 +1305,7 @@ class DefinitionEditTab:
                 f"Kopieer je tekst naar een veilige plek en probeer opnieuw."
             )
 
-    def _validate_definition(self):
+    def _validate_definition(self) -> dict[str, Any] | None:
         """Validate the current definition and return results (do not render here)."""
         try:
             # Create definition object from current state
@@ -1336,8 +1336,10 @@ class DefinitionEditTab:
                 },
             )
 
-            # Validate
-            results = self.edit_service._validate_definition(definition)
+            # Validate (DEF-439: edit_service resolveert naar Any -> expliciet getypeerd)
+            results: dict[str, Any] | None = self.edit_service._validate_definition(
+                definition
+            )
 
             # Als de service None teruggeeft (alleen async API beschikbaar), gebruik UI async-bridge
             if results is None:
@@ -1421,7 +1423,7 @@ class DefinitionEditTab:
             # KeyError: missing key, TypeError: wrong type, AttributeError: missing method
             pass
 
-    def _show_validation_results(self, results: dict[str, Any]):
+    def _show_validation_results(self, results: dict[str, Any]) -> None:
         """Show validation results."""
         # Als V2 ruwe data aanwezig is: render gedetailleerde output gelijk aan generatie-tab
         v2 = results.get("raw_v2") if isinstance(results, dict) else None
@@ -1536,7 +1538,7 @@ class DefinitionEditTab:
             if violations:
                 st.markdown("#### ❌ Gevallen regels")
 
-                def _v_key(v):
+                def _v_key(v: dict[str, Any]) -> tuple[int, int, str]:
                     rid = str(v.get("rule_id") or v.get("code") or "")
                     return self._rule_sort_key(rid)
 
@@ -1604,7 +1606,7 @@ class DefinitionEditTab:
             # TypeError: wrong type, ValueError: JSON decode, OSError: file read error
             return "", ""
 
-    def _rule_sort_key(self, rule_id: str):
+    def _rule_sort_key(self, rule_id: str) -> tuple[int, int, str]:
         """Zelfde groeperings- en sorteersleutel als generator-tab."""
         rid = (rule_id or "").upper().replace("_", "-")
         prefix = rid.split("-", 1)[0] if "-" in rid else rid[:4]
@@ -1633,7 +1635,7 @@ class DefinitionEditTab:
             num = 9999
         return (grp, num, rid)
 
-    def _undo_changes(self):
+    def _undo_changes(self) -> None:
         """Undo recent changes."""
         try:
             # Reload original definition
@@ -1656,7 +1658,7 @@ class DefinitionEditTab:
             )
             st.error(f"Fout bij ongedaan maken: {e!s}")
 
-    def _cancel_edit(self):
+    def _cancel_edit(self) -> None:
         """Cancel the edit session."""
         # Clear edit state using SessionStateManager
         for key in ["editing_definition_id", "editing_definition", "edit_session"]:
@@ -1665,7 +1667,7 @@ class DefinitionEditTab:
         st.info("Edit sessie geannuleerd")
         st.rerun()
 
-    def _revert_to_version(self, version_id: int):
+    def _revert_to_version(self, version_id: int) -> None:
         """Revert to a specific version."""
         try:
             definition_id = SessionStateManager.get_value("editing_definition_id")
@@ -1698,7 +1700,7 @@ class DefinitionEditTab:
             )
             st.error(f"Fout bij herstellen: {e!s}")
 
-    def _refresh_current_definition(self):
+    def _refresh_current_definition(self) -> None:
         """Refresh the current definition from database."""
         try:
             definition_id = SessionStateManager.get_value("editing_definition_id")
@@ -1718,7 +1720,7 @@ class DefinitionEditTab:
                 },
             )
 
-    def _track_changes(self):
+    def _track_changes(self) -> None:
         """Track changes for auto-save."""
         auto_save_enabled = SessionStateManager.get_value("auto_save_enabled")
         if not auto_save_enabled:
@@ -1743,7 +1745,7 @@ class DefinitionEditTab:
         ]
 
         # Vergelijk ook V2 contextlijsten (genormaliseerd)
-        def _norm_list(v):
+        def _norm_list(v: Any) -> list[str]:
             try:
                 return sorted([str(x).strip() for x in (v or [])])
             except (TypeError, AttributeError):
@@ -1782,7 +1784,7 @@ class DefinitionEditTab:
                     pass
             self._perform_auto_save()
 
-    def _perform_auto_save(self):
+    def _perform_auto_save(self) -> None:
         """Perform auto-save."""
         try:
             definition_id = SessionStateManager.get_value("editing_definition_id")
@@ -1824,7 +1826,7 @@ class DefinitionEditTab:
                 },
             )
 
-    def _restore_auto_save(self, auto_save_content: dict[str, Any]):
+    def _restore_auto_save(self, auto_save_content: dict[str, Any]) -> None:
         """Restore from auto-save."""
         try:
             def_id = SessionStateManager.get_value("editing_definition_id")
@@ -1879,7 +1881,7 @@ class DefinitionEditTab:
             )
             st.error(f"Fout bij herstellen auto-save: {e!s}")
 
-    def _format_datetime(self, dt) -> str:
+    def _format_datetime(self, dt: Any) -> str:
         """Format datetime for display."""
         if isinstance(dt, str):
             try:
@@ -1894,10 +1896,10 @@ class DefinitionEditTab:
 
     # _hydrate_editor_fields verwijderd: niet nodig met ID-gescope widget keys
 
-    def _ensure_edit_session_state(self):
+    def _ensure_edit_session_state(self) -> None:
         """Ensure edit session state variables exist via SessionStateManager."""
         # Gebruik SessionStateManager voor consistentie met de rest van de applicatie
-        edit_defaults = {
+        edit_defaults: dict[str, Any] = {
             "editing_definition_id": None,
             "editing_definition": None,
             "edit_session": None,
