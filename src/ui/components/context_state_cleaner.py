@@ -13,7 +13,7 @@ class ContextStateCleaner:
     """Clean en valideer context session state waardes."""
 
     @staticmethod
-    def clean_session_state():
+    def clean_session_state() -> None:
         """
         Verwijder ongeldige waardes uit session state bij app start.
         Dit voorkomt "default not in options" errors.
@@ -109,7 +109,7 @@ class ContextStateCleaner:
         return filtered
 
 
-def init_context_cleaner(force_clean=False):
+def init_context_cleaner(force_clean: bool = False) -> None:
     """Initialize context cleaner on app start.
 
     Args:
@@ -121,7 +121,7 @@ def init_context_cleaner(force_clean=False):
         logger.info("Context state cleaned on app initialization")
 
 
-def reset_all_context():
+def reset_all_context() -> None:
     """Complete reset of all context fields."""
     logger.warning("FORCE RESET: Clearing all context fields")
 

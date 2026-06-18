@@ -52,7 +52,7 @@ class EnhancedContextManagerSelector:
         "Europees Verdrag voor de Rechten van de Mens",
     ]
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize with ContextManager and sanitizer."""
         self.context_manager = get_context_manager()
         self.sanitizer = get_sanitizer()

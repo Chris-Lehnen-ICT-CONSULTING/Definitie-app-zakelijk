@@ -20,7 +20,7 @@ class PromptDebugSection:
     def render(
         generation_result: Any | None = None,
         voorbeelden_prompts: dict[str, str] | None = None,
-    ):
+    ) -> None:
         """
         Render de prompt debug sectie.
 
