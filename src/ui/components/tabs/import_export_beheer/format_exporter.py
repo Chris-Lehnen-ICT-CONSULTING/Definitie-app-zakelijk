@@ -9,7 +9,7 @@ from __future__ import (
 )
 
 import logging
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import streamlit as st
 
@@ -38,7 +38,7 @@ class FormatExporter:
             repository=repository, data_aggregation_service=data_agg
         )
 
-    def render(self):
+    def render(self) -> None:
         """Render export sectie - verplaatst van _render_export_section."""
         st.markdown("### Export Definities")
 
@@ -55,7 +55,7 @@ class FormatExporter:
         else:
             self._render_individual_export()
 
-    def _render_bulk_export(self):
+    def _render_bulk_export(self) -> None:
         """Render bulk export UI."""
         # Export filters
         col1, col2, col3, col4 = st.columns(4)
@@ -103,7 +103,7 @@ class FormatExporter:
                 export_format, export_level, status_filter, limit
             )
 
-    def _render_individual_export(self):
+    def _render_individual_export(self) -> None:
         """Render individuele definitie selectie UI."""
         st.markdown("#### Selecteer Definities")
 
@@ -237,7 +237,7 @@ class FormatExporter:
 
     def _generate_bulk_export(
         self, format: str, level: str, status_filter: str, limit: int
-    ):
+    ) -> None:
         """Genereer bulk export bestand via ExportService."""
         with st.spinner("Bulk export genereren..."):
             try:
@@ -261,7 +261,9 @@ class FormatExporter:
                 st.error(f"Fout bij genereren bulk export: {e!s}")
                 logger.exception("Bulk export fout")
 
-    def _generate_individual_export(self, definitions: list, format: str, level: str):
+    def _generate_individual_export(
+        self, definitions: list[Any], format: str, level: str
+    ) -> None:
         """Genereer export voor individueel geselecteerde definities."""
         with st.spinner(f"Export genereren voor {len(definitions)} definitie(s)..."):
             try:
@@ -276,8 +278,8 @@ class FormatExporter:
                 logger.exception("Individual export fout")
 
     def _execute_export(
-        self, definitions: list, format: str, level: str, export_type: str
-    ):
+        self, definitions: list[Any], format: str, level: str, export_type: str
+    ) -> None:
         """Voer de daadwerkelijke export uit (herbruikbaar voor bulk en individual)."""
         # Map format naar ExportFormat enum
         format_map = {
