@@ -8,7 +8,7 @@ from __future__ import (
 
 import logging
 from datetime import datetime
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import streamlit as st
 
@@ -38,7 +38,7 @@ class ExpertReviewTab:
         """Initialiseer expert review tab."""
         self.repository = repository
 
-    def render(self):
+    def render(self) -> None:
         """Render expert review tab."""
         # Prefill: toon laatst gegenereerde definitie met context (read-only) indien beschikbaar
         self._render_prefill_readonly_context()
@@ -57,7 +57,7 @@ class ExpertReviewTab:
         # Review history
         self._render_review_history()
 
-    def _render_review_queue(self):
+    def _render_review_queue(self) -> None:
         """Render lijst van definities awaiting review."""
         st.markdown("### 📋 Review Wachtrij")
 
@@ -173,7 +173,7 @@ class ExpertReviewTab:
                 try:
                     import pandas as pd
 
-                    def _join_list(v):
+                    def _join_list(v: Any) -> str:
                         try:
                             return ", ".join([str(x) for x in (v or [])])
                         except TypeError:
@@ -331,7 +331,7 @@ class ExpertReviewTab:
         except Exception as e:
             st.error(f"❌ Kon review queue niet laden: {e!s}")
 
-    def _render_review_queue_item(self, definitie: DefinitieRecord):
+    def _render_review_queue_item(self, definitie: DefinitieRecord) -> None:
         """Render één item in review queue."""
         with st.container():
             col1, col2, col3, col4 = st.columns([3, 1, 1, 1])
@@ -394,7 +394,7 @@ class ExpertReviewTab:
 
             st.markdown("---")
 
-    def _render_definition_review(self):
+    def _render_definition_review(self) -> None:
         """Render detailed definition review interface."""
         selected_def = SessionStateManager.get_value("selected_review_definition")
 
@@ -416,7 +416,7 @@ class ExpertReviewTab:
         # Review formulier met Re-validate knop en validatieweergave
         self._render_review_form(selected_def)
 
-    def _render_definition_details(self, definitie: DefinitieRecord):
+    def _render_definition_details(self, definitie: DefinitieRecord) -> None:
         """Render uitgebreide definitie details."""
         with st.expander("📋 Definitie Details", expanded=True):
             col1, col2 = st.columns([2, 1])
@@ -523,7 +523,7 @@ class ExpertReviewTab:
         # Validation issues
         self._render_validation_issues(definitie)
 
-    def _render_validation_issues(self, definitie: DefinitieRecord):
+    def _render_validation_issues(self, definitie: DefinitieRecord) -> None:
         """Render validation issues voor review."""
         issues = definitie.get_validation_issues_list()
 
@@ -563,7 +563,7 @@ class ExpertReviewTab:
                         f"- {issue.get('rule_id', 'Unknown')}: {issue.get('description', 'No description')}"
                     )
 
-    def _render_review_actions(self, definitie: DefinitieRecord):
+    def _render_review_actions(self, definitie: DefinitieRecord) -> None:
         """Render US-155 acties: Vaststellen, Afwijzen, Maak bewerkbaar."""
         from ui.cached_services import get_cached_service_container
 
@@ -782,7 +782,7 @@ class ExpertReviewTab:
                 else:
                     st.error("❌ Herstellen mislukt")
 
-    def _render_comparison_view(self, definitie: DefinitieRecord):
+    def _render_comparison_view(self, definitie: DefinitieRecord) -> None:
         """Render side-by-side comparison view voor edits."""
         st.markdown("#### ✏️ Definitie Bewerking")
 
@@ -817,7 +817,7 @@ class ExpertReviewTab:
             else:
                 SessionStateManager.clear_value(f"edited_definition_{definitie.id}")
 
-    def _render_review_form(self, definitie: DefinitieRecord):
+    def _render_review_form(self, definitie: DefinitieRecord) -> None:
         """Render review form met approval options."""
         st.markdown("#### 🎯 Review Beslissing")
 
@@ -939,7 +939,7 @@ class ExpertReviewTab:
                 "Failed to render validation results for definitie %s", definitie.id
             )
 
-    def _render_review_history(self):
+    def _render_review_history(self) -> None:
         """Render review geschiedenis."""
         if st.checkbox("📜 Toon Review Geschiedenis", key="show_history"):
             st.markdown("### 📜 Recente Reviews")
@@ -973,7 +973,7 @@ class ExpertReviewTab:
 
     def _submit_review(
         self, definitie: DefinitieRecord, decision: str, comments: str, reviewer: str
-    ):
+    ) -> None:
         """Submit review decision."""
         if not reviewer.strip():
             st.error("❌ Voer reviewer naam in")
@@ -1085,11 +1085,11 @@ class ExpertReviewTab:
 
     def _save_review_draft(
         self, definitie: DefinitieRecord, decision: str, comments: str
-    ):
+    ) -> None:
         """Save review als draft."""
         st.info("💾 Draft opgeslagen (functionaliteit komt binnenkort)")
 
-    def _revalidate_definition(self, definitie: DefinitieRecord):
+    def _revalidate_definition(self, definitie: DefinitieRecord) -> None:
         """Re-validate definitie met current rules en toon details (gedeeld)."""
         try:
             from services.interfaces import Definition
@@ -1141,12 +1141,12 @@ class ExpertReviewTab:
         except Exception as e:
             st.error(f"❌ Re-validatie mislukt: {e!s}")
 
-    def _clear_review_session(self, definitie_id: int):
+    def _clear_review_session(self, definitie_id: int) -> None:
         """Clear review session data."""
         SessionStateManager.clear_value("selected_review_definition")
         SessionStateManager.clear_value(f"edited_definition_{definitie_id}")
 
-    def _show_definition_preview(self, definitie: DefinitieRecord):
+    def _show_definition_preview(self, definitie: DefinitieRecord) -> None:
         """Show quick definition preview."""
         with st.expander(f"👁️ Preview: {definitie.begrip}", expanded=True):
             st.info(definitie.definitie)
@@ -1221,7 +1221,7 @@ class ExpertReviewTab:
         """Parseer org/jur (JSON/str) en wet (helper) naar lijsten."""
         import json as _json
 
-        def _parse(val) -> list[str]:
+        def _parse(val: Any) -> list[str]:
             try:
                 if not val:
                     return []
@@ -1245,7 +1245,7 @@ class ExpertReviewTab:
         )
         return org_list, jur_list, wet_list
 
-    def _render_verboden_woorden_management(self):
+    def _render_verboden_woorden_management(self) -> None:
         """Render verboden woorden runtime management interface."""
         st.markdown("### 🚫 Verboden Woorden Management")
 
@@ -1376,7 +1376,7 @@ class ExpertReviewTab:
                     SessionStateManager.set_value("override_verboden_woorden", "")
                     st.rerun()
 
-    def _render_prefill_readonly_context(self):
+    def _render_prefill_readonly_context(self) -> None:
         """Render read-only contextpaneel voor laatst gegenereerde definitie (prefill)."""
         try:
             sel_id = SessionStateManager.get_value("selected_review_definition_id")
