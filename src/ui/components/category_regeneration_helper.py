@@ -36,7 +36,9 @@ class CategoryRegenerationHelper:
         return None
 
     @staticmethod
-    def apply_regeneration_context(begrip_field, category_field=None):
+    def apply_regeneration_context(
+        begrip_field: Any, category_field: Any = None
+    ) -> bool:
         """Apply regeneration context to form fields.
 
         Args:
