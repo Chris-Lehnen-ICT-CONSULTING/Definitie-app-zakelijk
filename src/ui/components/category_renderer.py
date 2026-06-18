@@ -31,7 +31,7 @@ logger = logging.getLogger(__name__)
 class CategoryRenderer:
     """Renderer voor ontologische categorie selectie en weergave."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialiseer category renderer."""
         self.workflow_service = WorkflowService()
 
@@ -167,7 +167,7 @@ class CategoryRenderer:
             logger.warning(f"UFO category default index calculation failed: {e}")
             default_index = 0
 
-        def _persist_ufo_selection(key: str, def_id: int | None):
+        def _persist_ufo_selection(key: str, def_id: int | None) -> None:
             try:
                 if not def_id:
                     return

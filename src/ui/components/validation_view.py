@@ -170,7 +170,7 @@ def _build_detailed_assessment(validation_result: dict) -> list[str]:
     lines.append(summary)
 
     # Violations (sorted)
-    def _v_key(v):
+    def _v_key(v: dict[str, Any]) -> tuple[int, int]:
         rid = str(v.get("rule_id") or v.get("code") or "")
         return _rule_sort_key(rid)
 
