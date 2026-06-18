@@ -280,7 +280,6 @@ module = [
     "src.toetsregels.cached_manager",
     "src.toetsregels.manager",
     "src.toetsregels.rule_cache",
-    "src.ui.components.expert_review_tab",
     "src.validation.definitie_validator",
     "src.validation.dutch_text_validator",
     "src.validation.input_validator",
