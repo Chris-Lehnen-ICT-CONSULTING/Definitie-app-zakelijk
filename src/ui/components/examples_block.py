@@ -308,7 +308,7 @@ def render_examples_block(
                 st.code(current_examples)
 
     # Render lists (Edit tab style)
-    def _render_list(title: str, key_name: str, empty_msg: str = "—"):
+    def _render_list(title: str, key_name: str, empty_msg: str = "—") -> None:
         st.markdown(f"#### {title}")
         items = []
         try:

@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 class SynonymReviewComponent:
     """Component for reviewing AI-pending synonyms after definition generation."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize synonym review component."""
         self.container = get_cached_service_container()
 
