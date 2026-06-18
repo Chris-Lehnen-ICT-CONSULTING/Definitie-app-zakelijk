@@ -60,14 +60,14 @@ class DefinitionGeneratorTab:
         self.category_renderer = CategoryRenderer()
         self.voorbeelden_renderer = VoorbeeldenRenderer()
 
-    def render(self):
+    def render(self) -> None:
         """Render definitie generatie tab."""
         st.info(
             "💡 Gebruik de hoofdknoppen boven de tabs om definities te genereren. Resultaten worden hier getoond."
         )
         self._render_results_section()
 
-    def _render_results_section(self):
+    def _render_results_section(self) -> None:
         """Render resultaten van generatie of duplicate check."""
         check_result = SessionStateManager.get_value("last_check_result")
         generation_result = SessionStateManager.get_value("last_generation_result")
@@ -88,7 +88,7 @@ class DefinitionGeneratorTab:
         if generation_result:
             self._render_generation_results(generation_result)
 
-    def _render_generation_results(self, generation_result: dict[str, Any]):
+    def _render_generation_results(self, generation_result: dict[str, Any]) -> None:
         """Render resultaten van definitie generatie."""
         st.markdown("### 🚀 Generatie Resultaten")
 
@@ -316,9 +316,9 @@ class DefinitionGeneratorTab:
             logger.warning(f"Failed to cache multi-definitie result: {e}")
 
     def _cache_definition_text(
-        self, definitie_to_show: str, generation_result: dict[str, Any]
+        self, definitie_to_show: Any, generation_result: dict[str, Any]
     ) -> None:
-        """Cache definition text in session state."""
+        """Cache definition text in session state (normaliseert via ensure_string)."""
         try:
             SessionStateManager.set_value(
                 "current_definition_text", ensure_string(definitie_to_show)
