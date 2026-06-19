@@ -47,7 +47,7 @@ class TestPromptSecurityIssues:
     @pytest.mark.xfail(
         reason="DEF-448: begrip/context nog niet gesanitizet vóór de prompt; "
         "sanitization-laag is een open dreigingsmodel-beslissing.",
-        strict=False,
+        strict=True,
     )
     def test_sql_injection_attempt(self):
         """Test that SQL injection attempts are handled safely."""
@@ -73,7 +73,7 @@ class TestPromptSecurityIssues:
     @pytest.mark.xfail(
         reason="DEF-448: begrip/context nog niet gesanitizet vóór de prompt; "
         "sanitization-laag is een open dreigingsmodel-beslissing.",
-        strict=False,
+        strict=True,
     )
     def test_prompt_injection_attempts(self):
         """Test that prompt injection attempts are neutralized."""
@@ -99,7 +99,7 @@ class TestPromptSecurityIssues:
     @pytest.mark.xfail(
         reason="DEF-448: begrip/context nog niet gesanitizet vóór de prompt; "
         "echte XSS-boundary ligt bovendien op de render-laag (unsafe_allow_html).",
-        strict=False,
+        strict=True,
     )
     def test_xss_prevention_in_context(self):
         """Test that XSS attempts in context are prevented."""
@@ -132,15 +132,16 @@ class TestPromptSecurityIssues:
             very_long_input, context, UnifiedGeneratorConfig()
         )
 
-        # Should handle gracefully; hard limit = PromptComponentConfig.max_prompt_length (35000)
-        assert len(prompt) <= 35000  # Reasonable upper limit
+        # Should handle gracefully; hard limit = PromptComponentConfig.max_prompt_length
+        max_len = PromptComponentConfig().max_prompt_length
+        assert len(prompt) <= max_len  # Reasonable upper limit
         assert prompt is not None
 
         # Test very long context
         long_context_list = ["item" + str(i) for i in range(1000)]
         context = create_test_context(org_context=long_context_list)
         prompt = builder.build_prompt("test", context, UnifiedGeneratorConfig())
-        assert len(prompt) <= 35000
+        assert len(prompt) <= max_len
 
     def test_unicode_and_encoding_attacks(self):
         """Test handling of unicode and encoding attacks."""
