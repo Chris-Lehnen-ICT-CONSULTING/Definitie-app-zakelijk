@@ -258,10 +258,6 @@ module = [
     "src.services.web_lookup.wikipedia_synonym_extractor",
     "src.services.web_lookup.wiktionary_service",
     "src.services.workflow_service",
-    "src.validation.definitie_validator",
-    "src.validation.dutch_text_validator",
-    "src.validation.input_validator",
-    "src.validation.sanitizer",
     "src.voorbeelden.robust_cache",
     "src.voorbeelden.unified_voorbeelden",
 ]

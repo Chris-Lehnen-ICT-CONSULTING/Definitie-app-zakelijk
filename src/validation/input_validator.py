@@ -98,7 +98,7 @@ class ValidationSchema:
         self.field_rules: dict[str, list[ValidationRule]] = {}
         self.global_rules: list[ValidationRule] = []
 
-    def add_rule(self, rule: ValidationRule):
+    def add_rule(self, rule: ValidationRule) -> None:
         """Add a validation rule to the schema."""
         self.rules.append(rule)
 
@@ -109,7 +109,7 @@ class ValidationSchema:
                 self.field_rules[rule.field_name] = []
             self.field_rules[rule.field_name].append(rule)
 
-    def required(self, field_name: str, message: str = ""):
+    def required(self, field_name: str, message: str = "") -> "ValidationSchema":
         """Add required field validation."""
         rule = ValidationRule(
             field_name=field_name,
@@ -120,7 +120,9 @@ class ValidationSchema:
         self.add_rule(rule)
         return self
 
-    def type_check(self, field_name: str, expected_type: type, message: str = ""):
+    def type_check(
+        self, field_name: str, expected_type: type, message: str = ""
+    ) -> "ValidationSchema":
         """Add type validation."""
         rule = ValidationRule(
             field_name=field_name,
@@ -139,7 +141,7 @@ class ValidationSchema:
         min_length: int | None = None,
         max_length: int | None = None,
         message: str = "",
-    ):
+    ) -> "ValidationSchema":
         """Add length validation."""
         rule = ValidationRule(
             field_name=field_name,
@@ -153,7 +155,9 @@ class ValidationSchema:
         self.add_rule(rule)
         return self
 
-    def pattern(self, field_name: str, pattern: str, flags: int = 0, message: str = ""):
+    def pattern(
+        self, field_name: str, pattern: str, flags: int = 0, message: str = ""
+    ) -> "ValidationSchema":
         """Add pattern validation."""
         rule = ValidationRule(
             field_name=field_name,
@@ -172,7 +176,7 @@ class ValidationSchema:
         min_value: int | float | None = None,
         max_value: int | float | None = None,
         message: str = "",
-    ):
+    ) -> "ValidationSchema":
         """Add range validation."""
         rule = ValidationRule(
             field_name=field_name,
@@ -186,7 +190,9 @@ class ValidationSchema:
         self.add_rule(rule)
         return self
 
-    def enum(self, field_name: str, allowed_values: list[Any], message: str = ""):
+    def enum(
+        self, field_name: str, allowed_values: list[Any], message: str = ""
+    ) -> "ValidationSchema":
         """Add enum validation."""
         rule = ValidationRule(
             field_name=field_name,
@@ -200,7 +206,7 @@ class ValidationSchema:
 
     def custom(
         self, field_name: str, validator: Callable[[Any], bool], message: str = ""
-    ):
+    ) -> "ValidationSchema":
         """Add custom validation."""
         rule = ValidationRule(
             field_name=field_name,
@@ -217,7 +223,7 @@ class ValidationSchema:
         rule_name: str,
         validator: Callable[[dict[str, Any]], bool],
         message: str = "",
-    ):
+    ) -> "ValidationSchema":
         """Add business rule validation."""
         rule = ValidationRule(
             field_name=rule_name,
@@ -239,7 +245,7 @@ class InputValidator:
         self.config = config
         self.load_built_in_schemas()
 
-    def load_built_in_schemas(self):
+    def load_built_in_schemas(self) -> None:
         """Load built-in validation schemas."""
         # Definition generation schema
         definition_schema = ValidationSchema("definition_generation")
@@ -668,7 +674,7 @@ class InputValidator:
             if not r.passed and r.severity == ValidationSeverity.WARNING
         ]
 
-    def add_schema(self, schema: ValidationSchema):
+    def add_schema(self, schema: ValidationSchema) -> None:
         """Add a custom validation schema."""
         self.schemas[schema.schema_name] = schema
 
@@ -776,11 +782,13 @@ def get_input_errors(
 
 
 # Validation decorators
-def validate_input_decorator(schema_name: str):
+def validate_input_decorator(
+    schema_name: str,
+) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
     """Decorator to validate function inputs."""
 
-    def decorator(func):
-        def wrapper(*args, **kwargs):
+    def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
             # Assume first argument is data to validate
             if args:
                 data = args[0] if isinstance(args[0], dict) else kwargs
@@ -802,7 +810,7 @@ def validate_input_decorator(schema_name: str):
     return decorator
 
 
-async def test_input_validator():
+async def test_input_validator() -> None:
     """Test the input validation system."""
     logger.info("Testing Input Validation System")
     logger.info("=" * 35)
