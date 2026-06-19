@@ -14,9 +14,6 @@ import pytest
 
 pytestmark = [pytest.mark.unit]
 
-# Add project root to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
