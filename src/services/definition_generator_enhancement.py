@@ -81,7 +81,7 @@ class EnhancementStrategy(ABC):
 class ClarityEnhancer(EnhancementStrategy):
     """Enhancement voor helderheid van definities."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         # Patterns die onduidelijkheid indiceren
         self.unclear_patterns = [
             r"\b(enigszins|soms|wellicht|mogelijk|misschien)\b",  # Vague terms
@@ -235,7 +235,7 @@ class ContextIntegrationEnhancer(EnhancementStrategy):
 class CompletenessEnhancer(EnhancementStrategy):
     """Enhancement voor volledigheid van definities."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         # Aspecten die vaak missen in definities
         self.completeness_aspects = {
             "doel": ["doel", "bedoeling", "functie", "nut"],
@@ -300,7 +300,7 @@ class CompletenessEnhancer(EnhancementStrategy):
 class LinguisticEnhancer(EnhancementStrategy):
     """Enhancement voor taalkundige kwaliteit."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         # Common linguistic improvements
         self.linguistic_patterns = {
             # Passive to active voice suggestions
@@ -386,7 +386,7 @@ class DefinitionEnhancer:
             f"DefinitionEnhancer geïnitialiseerd met {len(self.strategies)} strategieën"
         )
 
-    def _init_strategies(self):
+    def _init_strategies(self) -> None:
         """Initialiseer beschikbare enhancement strategieën."""
         # Altijd beschikbare strategieën
         self.strategies.append(ClarityEnhancer())

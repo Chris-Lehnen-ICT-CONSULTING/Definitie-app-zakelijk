@@ -78,7 +78,7 @@ class GenerationMetrics:
     quality_score: float | None = None
     validation_passed: bool = True
 
-    def finish(self, success: bool = True, error: str | None = None):
+    def finish(self, success: bool = True, error: str | None = None) -> None:
         """Mark deze generatie als voltooid."""
         self.end_time = datetime.now(UTC)
         self.duration = (self.end_time - self.start_time).total_seconds()
@@ -147,7 +147,7 @@ class GenerationMonitor:
         success: bool = True,
         error: str | None = None,
         definition: Definition | None = None,
-    ):
+    ) -> None:
         """
         Beëindig monitoring van een generatie.
 
@@ -196,7 +196,7 @@ class GenerationMonitor:
 
     def record_context_metrics(
         self, generation_id: str, sources: int, confidence: float, richness_score: float
-    ):
+    ) -> None:
         """Record context-related metrics."""
         if not self.config.enable_monitoring or not generation_id:
             return
@@ -213,7 +213,7 @@ class GenerationMonitor:
 
     def record_prompt_metrics(
         self, generation_id: str, prompt_length: int, strategy: str
-    ):
+    ) -> None:
         """Record prompt-related metrics."""
         if not self.config.enable_monitoring or not generation_id:
             return
@@ -227,7 +227,7 @@ class GenerationMonitor:
                 MetricType.PROMPT_LENGTH, prompt_length, {"strategy": strategy}
             )
 
-    def record_cache_hit(self, generation_id: str, hit: bool):
+    def record_cache_hit(self, generation_id: str, hit: bool) -> None:
         """Record cache hit/miss."""
         if not self.config.enable_monitoring or not generation_id:
             return
@@ -237,7 +237,7 @@ class GenerationMonitor:
 
         self._record_metric(MetricType.CACHE_HIT_RATE, 1 if hit else 0)
 
-    def record_enhancement(self, generation_id: str, applied: bool):
+    def record_enhancement(self, generation_id: str, applied: bool) -> None:
         """Record enhancement application."""
         if not self.config.enable_monitoring or not generation_id:
             return
@@ -249,7 +249,7 @@ class GenerationMonitor:
 
     def _record_definition_metrics(
         self, definition: Definition, metrics: GenerationMetrics
-    ):
+    ) -> None:
         """Record metrics van de gegenereerde definitie."""
         definition_length = len(definition.definitie)
         metrics.definition_length = definition_length
@@ -270,7 +270,7 @@ class GenerationMonitor:
         metric_type: MetricType,
         value: float,
         metadata: dict[str, Any] | None = None,
-    ):
+    ) -> None:
         """Record een metric entry."""
         entry = MetricEntry(
             timestamp=datetime.now(UTC), value=value, metadata=metadata or {}
@@ -278,7 +278,7 @@ class GenerationMonitor:
 
         self.metrics[metric_type].append(entry)
 
-    def _record_error(self, begrip: str, error: str):
+    def _record_error(self, begrip: str, error: str) -> None:
         """Record een error voor tracking."""
         error_entry = {
             "timestamp": datetime.now(UTC),
@@ -291,7 +291,7 @@ class GenerationMonitor:
         # Check for alert conditions
         self._check_error_rate_alert()
 
-    def _check_error_rate_alert(self):
+    def _check_error_rate_alert(self) -> None:
         """Check of we een error rate alert moeten triggeren."""
         if not self.config.enable_alerts:
             return
@@ -321,7 +321,7 @@ class GenerationMonitor:
                 },
             )
 
-    def _trigger_alert(self, alert_type: str, data: dict[str, Any]):
+    def _trigger_alert(self, alert_type: str, data: dict[str, Any]) -> None:
         """Trigger een monitoring alert."""
         logger.warning(f"MONITORING ALERT [{alert_type}]: {data}")
 
@@ -372,7 +372,7 @@ class GenerationMonitor:
             "alerts_enabled": self.config.enable_alerts,
         }
 
-    def reset_metrics(self):
+    def reset_metrics(self) -> None:
         """Reset alle metrics (voor testing)."""
         self.metrics.clear()
         self.active_generations.clear()
@@ -406,7 +406,7 @@ def get_monitor(config: MonitoringConfig | None = None) -> GenerationMonitor:
     return _monitor_instance
 
 
-def reset_monitor():
+def reset_monitor() -> None:
     """Reset de globale monitor instance."""
     global _monitor_instance
     if _monitor_instance:
