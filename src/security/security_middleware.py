@@ -7,6 +7,7 @@ import asyncio
 import json
 import logging
 import re
+from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 
@@ -90,7 +91,7 @@ class ValidationResponse:
 class SecurityMiddleware:
     """Main security middleware for request validation."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.validator = get_validator()
         self.sanitizer = get_sanitizer()
         self.security_events: list[SecurityEvent] = []
@@ -361,7 +362,7 @@ class SecurityMiddleware:
             del self.blocked_ips[ip]
         return False
 
-    def _block_ip_temporarily(self, ip: str):
+    def _block_ip_temporarily(self, ip: str) -> None:
         """Block IP address temporarily."""
         self.blocked_ips[ip] = datetime.now(UTC)
         logger.warning(f"IP {ip} temporarily blocked due to security threat")
@@ -414,7 +415,7 @@ class SecurityMiddleware:
         )
         return not burst_requests >= endpoint_config["burst_limit"]
 
-    def _record_request(self, ip: str):
+    def _record_request(self, ip: str) -> None:
         """Record a successful request."""
         if ip not in self.request_tracking:
             self.request_tracking[ip] = []
@@ -605,11 +606,15 @@ def get_security_middleware() -> SecurityMiddleware:
     return _security_middleware
 
 
-def security_middleware_decorator(endpoint_name: str = ""):
+def security_middleware_decorator(
+    endpoint_name: str = "",
+) -> Callable[[Callable[..., Awaitable[Any]]], Callable[..., Awaitable[Any]]]:
     """Decorator to apply security middleware to functions."""
 
-    def decorator(func):
-        async def wrapper(*args, **kwargs):
+    def decorator(
+        func: Callable[..., Awaitable[Any]],
+    ) -> Callable[..., Awaitable[Any]]:
+        async def wrapper(*args: Any, **kwargs: Any) -> Any:
             middleware = get_security_middleware()
 
             # Extract request data (assuming first argument is request data)
@@ -645,7 +650,7 @@ def security_middleware_decorator(endpoint_name: str = ""):
     return decorator
 
 
-async def test_security_middleware():
+async def test_security_middleware() -> None:
     """Test the security middleware system."""
     logger.info("Testing Security Middleware")
     logger.info("=" * 30)

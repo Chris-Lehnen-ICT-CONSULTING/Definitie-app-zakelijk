@@ -62,7 +62,7 @@ class ImprovedOntologyClassifier:
             f"{sum(len(w) for w in self.config.suffix_weights.values())} patterns"
         )
 
-    def _init_patterns(self):
+    def _init_patterns(self) -> None:
         """
         Initialize Nederlandse linguistic patterns per categorie.
 

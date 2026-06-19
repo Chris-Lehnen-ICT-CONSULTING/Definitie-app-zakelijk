@@ -116,7 +116,7 @@ class ToetsregelManager:
 
         self._load_configuration()
 
-    def _load_configuration(self):
+    def _load_configuration(self) -> None:
         """Laad manager configuratie."""
         try:
             if self.config_file.exists():
@@ -406,7 +406,7 @@ class ToetsregelManager:
         logger.info(f"Totaal {len(all_rules)} regels geladen")
         return all_rules
 
-    def clear_cache(self):
+    def clear_cache(self) -> None:
         """Leeg alle caches."""
         self._regels_cache.clear()
         self._sets_cache.clear()
@@ -423,7 +423,7 @@ class ToetsregelManager:
             "available_sets": len(self.get_available_sets()),
         }
 
-    def reload_configuration(self):
+    def reload_configuration(self) -> None:
         """Herlaad configuratie."""
         self.clear_cache()
         self._load_configuration()

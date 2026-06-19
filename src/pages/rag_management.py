@@ -51,7 +51,7 @@ st.caption(
 
 
 @st.cache_resource
-def get_services():
+def get_services() -> dict[str, object]:
     """Initialize RAG management services (cached per session)."""
     container = get_container()
     return {

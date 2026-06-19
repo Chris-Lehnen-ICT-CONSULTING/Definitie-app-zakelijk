@@ -2,6 +2,7 @@
 
 import logging
 import time
+from collections.abc import Iterator
 from contextlib import contextmanager
 from dataclasses import dataclass
 from typing import Any
@@ -47,7 +48,9 @@ class CacheMonitor:
         self._operations: list[CacheOperation] = []
 
     @contextmanager
-    def track_operation(self, operation: str, key: str = ""):
+    def track_operation(
+        self, operation: str, key: str = ""
+    ) -> Iterator[dict[str, Any]]:
         """Context manager to track cache operation."""
         if not self.enabled:
             yield {}
@@ -121,7 +124,7 @@ class CacheMonitor:
             return self._operations[-limit:]
         return self._operations.copy()
 
-    def clear_operations(self):
+    def clear_operations(self) -> None:
         """Clear recorded operations history."""
         self._operations.clear()
         logger.info(f"Cleared operation history for {self.cache_name}")

@@ -22,12 +22,12 @@ from monitoring.performance_tracker import get_tracker
 
 
 @click.group()
-def performance():
+def performance() -> None:
     """Performance baseline management commands."""
 
 
 @performance.command()
-def status():
+def status() -> None:
     """Show overall performance status met baseline vergelijkingen."""
     tracker = get_tracker()
     baselines = tracker.get_all_baselines()
@@ -76,7 +76,7 @@ def status():
 
 
 @performance.command()
-def baselines():
+def baselines() -> None:
     """Toon alle performance baselines."""
     tracker = get_tracker()
     baselines = tracker.get_all_baselines()
@@ -109,7 +109,7 @@ def baselines():
 @performance.command()
 @click.argument("metric_name")
 @click.option("--limit", default=10, help="Aantal metingen om te tonen")
-def history(metric_name: str, limit: int):
+def history(metric_name: str, limit: int) -> None:
     """Toon geschiedenis van een specifieke metric.
 
     \b
@@ -171,7 +171,7 @@ def history(metric_name: str, limit: int):
 
 @performance.command()
 @click.argument("metric_name")
-def delete_baseline(metric_name: str):
+def delete_baseline(metric_name: str) -> None:
     """Verwijder baseline voor een metric (voor testing/reset).
 
     WAARSCHUWING: Dit verwijdert de baseline en alle metingen!
@@ -208,7 +208,7 @@ def delete_baseline(metric_name: str):
 
 
 @performance.command()
-def reset_all():
+def reset_all() -> None:
     """Reset ALLE performance data (voor testing).
 
     WAARSCHUWING: Dit verwijdert alle baselines en metingen!
@@ -238,7 +238,7 @@ def reset_all():
 @performance.command()
 @click.argument("old_name")
 @click.argument("new_name")
-def rename_metric(old_name: str, new_name: str):
+def rename_metric(old_name: str, new_name: str) -> None:
     """Rename een performance metric (voor migrations).
 
     Dit hernoemt de metric in BOTH metrics en baselines tables.
@@ -269,7 +269,7 @@ def rename_metric(old_name: str, new_name: str):
 
 
 @performance.command()
-def migrate_startup_metric():
+def migrate_startup_metric() -> None:
     """Migrate oude 'app_startup_ms' metric naar nieuwe 'streamlit_rerun_ms'.
 
     Deze command is safe om meerdere keren te runnen - het checkt eerst of migratie nodig is.
