@@ -193,8 +193,11 @@ Formuleer nu de definitie van **{begrip}** volgens deze specificaties:"""
                 "resultaat": "uitkomst/gevolg",
                 "exemplaar": "specifiek geval",
             }
-            if ontological_category in category_hints:
-                ont_cat = f"\n🎯 Focus: Dit is een **{ontological_category}** ({category_hints[ontological_category]})"
+            # Normaliseer case zodat de focus-regel consistent is met de guidance
+            # in SemanticCategorisationModule (die ook .lower() gebruikt). DEF-447.
+            normalized = ontological_category.lower()
+            if normalized in category_hints:
+                ont_cat = f"\n🎯 Focus: Dit is een **{normalized}** ({category_hints[normalized]})"
 
         return f"""📋 **CONSTRUCTIE GUIDE - Bouw je definitie op:**
 → Begint met zelfstandig naamwoord (geen lidwoord/koppelwerkwoord)
