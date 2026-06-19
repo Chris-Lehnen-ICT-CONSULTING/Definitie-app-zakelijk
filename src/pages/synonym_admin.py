@@ -31,6 +31,7 @@ if str(src_path) not in sys.path:
 
 import streamlit as st
 
+from models.synonym_models import SynonymGroupMember
 from repositories.synonym_registry import SynonymRegistry
 from services.container import get_container
 from services.gpt4_synonym_suggester import GPT4SynonymSuggester
@@ -87,7 +88,7 @@ st.markdown("---")
 
 
 @st.cache_resource
-def get_services():
+def get_services() -> dict[str, object]:
     """Initialize v3.1 services (cached per session)."""
     container = get_container()
     return {
@@ -374,7 +375,7 @@ if view_mode == "Groepen Browser":
                         ]
 
                         # Helper functions to render member cards (refactored for complexity)
-                        def render_member_properties(m):
+                        def render_member_properties(m: SynonymGroupMember) -> None:
                             """Render member properties section."""
                             st.markdown("**📋 Properties:**")
                             st.write(f"• Status: {m.status}")
@@ -395,7 +396,9 @@ if view_mode == "Groepen Browser":
                                     # DEF-246: Invalid JSON in context field
                                     pass
 
-                        def render_member_edit_controls(m):
+                        def render_member_edit_controls(
+                            m: SynonymGroupMember,
+                        ) -> tuple[float, bool, str]:
                             """Render member edit controls and return new values."""
                             st.markdown("**✏️ Edit:**")
                             status_options = [
@@ -426,8 +429,11 @@ if view_mode == "Groepen Browser":
                             return new_weight, new_is_preferred, new_status
 
                         def handle_member_actions(
-                            m, new_weight, new_is_preferred, new_status
-                        ):
+                            m: SynonymGroupMember,
+                            new_weight: float,
+                            new_is_preferred: bool,
+                            new_status: str,
+                        ) -> None:
                             """Handle save/delete actions for a member."""
                             col1, col2 = st.columns(2)
 
@@ -469,7 +475,9 @@ if view_mode == "Groepen Browser":
                                             "⚠️ Klik nogmaals om definitief te verwijderen"
                                         )
 
-                        def render_member_card(m, status_emoji):
+                        def render_member_card(
+                            m: SynonymGroupMember, status_emoji: str
+                        ) -> None:
                             """Render member card with edit/delete options (no nested expander)."""
                             confidence_pct = m.weight * 100
                             preferred_flag = " ⭐" if m.is_preferred else ""

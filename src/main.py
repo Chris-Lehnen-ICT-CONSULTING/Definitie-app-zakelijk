@@ -71,7 +71,7 @@ st.set_page_config(
 
 
 @st.cache_resource
-def get_tabbed_interface():
+def get_tabbed_interface() -> TabbedInterface:
     """
     Cached TabbedInterface instance (reused across reruns).
 
@@ -95,7 +95,7 @@ def get_tabbed_interface():
     return TabbedInterface()
 
 
-def main():
+def main() -> None:
     """Hoofd applicatie functie.
 
     Deze functie is het startpunt voor de DefinitieAgent applicatie.
@@ -167,7 +167,9 @@ def _is_heavy_operation(render_ms: float) -> bool:
     return render_ms > heavy_threshold_ms
 
 
-def _track_streamlit_metrics(init_ms: float, interface_ms: float, render_ms: float):
+def _track_streamlit_metrics(
+    init_ms: float, interface_ms: float, render_ms: float
+) -> None:
     """Track separate Streamlit performance metrics for granular monitoring.
 
     This function tracks three distinct phases of Streamlit request handling:

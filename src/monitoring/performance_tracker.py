@@ -62,7 +62,7 @@ class PerformanceTracker:
         self.db_path = db_path
         self._ensure_schema()
 
-    def _ensure_schema(self):
+    def _ensure_schema(self) -> None:
         """Create performance tables als deze niet bestaan."""
         try:
             with sqlite3.connect(self.db_path) as conn:

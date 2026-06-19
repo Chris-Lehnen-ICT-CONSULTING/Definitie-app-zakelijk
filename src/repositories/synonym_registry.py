@@ -121,7 +121,7 @@ class SynonymRegistry:
         conn.row_factory = sqlite3.Row
         return conn
 
-    def _verify_tables_exist(self):
+    def _verify_tables_exist(self) -> None:
         """Verify synonym tables exist in database."""
         with self._get_connection() as conn:
             cursor = conn.execute("""
@@ -885,7 +885,7 @@ class SynonymRegistry:
     # CACHE INVALIDATION
     # ========================================
 
-    def register_invalidation_callback(self, callback: Callable[[str], None]):
+    def register_invalidation_callback(self, callback: Callable[[str], None]) -> None:
         """
         Registreer callback voor cache updates.
 
@@ -901,7 +901,7 @@ class SynonymRegistry:
             f"(total: {len(self._invalidation_callbacks)})"
         )
 
-    def _trigger_invalidation(self, term: str):
+    def _trigger_invalidation(self, term: str) -> None:
         """
         Trigger alle cache invalidation callbacks voor term.
 

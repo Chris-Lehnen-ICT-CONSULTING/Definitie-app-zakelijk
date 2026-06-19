@@ -197,29 +197,11 @@ exclude = [
 [[tool.mypy.overrides]]
 disallow_untyped_defs = false
 module = [
-    "src.api.feature_status_api",
-    "src.cli.performance_cli",
     # DEF-435: facade is volledig geannoteerd, maar de `from database.* import`-
     # delegate-classes resolven onder de huidige mypy-config naar Any (src-layout
     # import-resolutie), wat ~22 spurieuze no-any-return geeft. Deferred tot de
     # import-resolutie is opgelost (apart van de batch-1 annotatie-afbouw).
     "src.database.definitie_repository",
-    "src.document_processing.document_extractor",
-    "src.document_processing.document_processor",
-    "src.integration.definitie_checker",
-    "src.main",
-    "src.models.category_models",
-    "src.models.synonym_models",
-    "src.monitoring.api_monitor",
-    "src.monitoring.cache_monitoring",
-    "src.monitoring.performance_tracker",
-    "src.ontologie.improved_classifier",
-    "src.orchestration.definitie_agent",
-    "src.pages.rag_management",
-    "src.pages.synonym_admin",
-    "src.repositories.synonym_registry",
-    "src.repositories.synonym_repository",
-    "src.security.security_middleware",
     "src.services",
     "src.services.ai_service_v2",
     "src.services.category_state_manager",
@@ -276,10 +258,6 @@ module = [
     "src.services.web_lookup.wikipedia_synonym_extractor",
     "src.services.web_lookup.wiktionary_service",
     "src.services.workflow_service",
-    "src.toetsregels.adapter",
-    "src.toetsregels.cached_manager",
-    "src.toetsregels.manager",
-    "src.toetsregels.rule_cache",
     "src.validation.definitie_validator",
     "src.validation.dutch_text_validator",
     "src.validation.input_validator",
