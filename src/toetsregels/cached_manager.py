@@ -93,7 +93,7 @@ class CachedToetsregelManager:
         """Haal lijst van beschikbare regels op."""
         return list(self.get_all_regels().keys())
 
-    def clear_cache(self):
+    def clear_cache(self) -> None:
         """Leeg alle caches."""
         self.cache.clear_cache()
         logger.info("Toetsregel caches geleegd via RuleCache")
@@ -106,7 +106,7 @@ class CachedToetsregelManager:
             **cache_stats,
         }
 
-    def reload_configuration(self):
+    def reload_configuration(self) -> None:
         """
         Herlaad configuratie.
 

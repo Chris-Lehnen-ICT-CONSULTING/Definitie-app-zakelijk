@@ -218,7 +218,7 @@ def _extract_json(content: bytes) -> str:
         data = json.loads(content.decode("utf-8"))
 
         # Converteer JSON naar leesbare tekst
-        def extract_values(obj, level=0):
+        def extract_values(obj: Any, level: int = 0) -> list[str]:
             if level > 10:  # Prevent infinite recursion
                 return []
 

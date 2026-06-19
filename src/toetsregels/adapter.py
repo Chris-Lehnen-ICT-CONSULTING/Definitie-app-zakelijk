@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 class ToetsregelsCompatibilityAdapter:
     """Adapter om oude toetsregels interface te emuleren."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.manager = get_toetsregel_manager()
         self._legacy_cache: dict[str, Any] | None = None
 
@@ -45,12 +45,12 @@ class ToetsregelsCompatibilityAdapter:
         )
         return legacy_data
 
-    def clear_cache(self):
+    def clear_cache(self) -> None:
         """Leeg legacy cache."""
         self._legacy_cache = None
         self.manager.clear_cache()
 
-    def reload(self):
+    def reload(self) -> None:
         """Herlaad alles."""
         self.clear_cache()
         self.manager.reload_configuration()
@@ -159,7 +159,7 @@ def validate_against_rules(
 
 
 # Functies voor configuratie integratie
-def integrate_with_config_manager():
+def integrate_with_config_manager() -> None:
     """Integreer toetsregels met ConfigManager."""
     try:
         from config.config_manager import get_config_manager
@@ -179,7 +179,7 @@ def integrate_with_config_manager():
 
 
 # Migratie helpers
-def migrate_legacy_code_usage():
+def migrate_legacy_code_usage() -> dict[str, list[str]]:
     """
     Helper om legacy code gebruik te identificeren.
     Scan naar patronen die moeten worden gemigreerd.
