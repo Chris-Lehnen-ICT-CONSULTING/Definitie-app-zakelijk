@@ -6,7 +6,6 @@ Run this after removing the History tab to ensure no broken functionality.
 import json
 import os
 import sqlite3
-import sys
 from datetime import datetime
 from pathlib import Path
 from unittest.mock import Mock, patch
