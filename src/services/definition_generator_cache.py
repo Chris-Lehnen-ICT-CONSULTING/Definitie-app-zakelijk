@@ -11,6 +11,7 @@ import logging
 import pickle
 import time
 from abc import ABC, abstractmethod
+from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any, cast
 
@@ -30,7 +31,7 @@ class CacheEntry:
     access_count: int = 0
     last_accessed: float | None = None
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if self.last_accessed is None:
             self.last_accessed = self.created_at
 
@@ -44,7 +45,7 @@ class CacheEntry:
         """Get age of cache entry in seconds."""
         return time.time() - self.created_at
 
-    def touch(self):
+    def touch(self) -> None:
         """Update last accessed time and increment access count."""
         self.last_accessed = time.time()
         self.access_count += 1
@@ -138,7 +139,7 @@ class MemoryCacheBackend(CacheBackend):
             ),
         }
 
-    async def _evict_lru(self):
+    async def _evict_lru(self) -> None:
         """Evict least recently used entry."""
         if not self._cache:
             return
@@ -172,7 +173,7 @@ class RedisCacheBackend(CacheBackend):
             "errors": 0,
         }
 
-    async def _get_redis(self):
+    async def _get_redis(self) -> Any:
         """Get Redis connection (lazy initialization)."""
         if self._redis is None:
             try:
@@ -539,7 +540,7 @@ class DefinitionGeneratorCache:
 
         return stats
 
-    def _update_hit_rate(self):
+    def _update_hit_rate(self) -> None:
         """Update cache hit rate."""
         if self._cache_stats["requests"] > 0:
             self._cache_stats["hit_rate"] = (
@@ -548,22 +549,24 @@ class DefinitionGeneratorCache:
 
 
 # Decorator for caching function results (from definitie_generator)
-def cache_definition_generation(ttl: int = 3600):
+def cache_definition_generation(
+    ttl: int = 3600,
+) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
     """
     Decorator for caching definition generation results.
 
     Enhanced version of the decorator from definitie_generator/generator.py
     """
 
-    def decorator(func):
+    def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
         cache: dict[str, Any] = {}
 
-        def _create_cache_key(*args, **kwargs):
+        def _create_cache_key(*args: Any, **kwargs: Any) -> str:
             """Create cache key from function arguments."""
             key_data = str(args) + str(sorted(kwargs.items()))
             return hashlib.md5(key_data.encode(), usedforsecurity=False).hexdigest()
 
-        async def async_wrapper(*args, **kwargs):
+        async def async_wrapper(*args: Any, **kwargs: Any) -> Any:
             key = _create_cache_key(*args, **kwargs)
 
             # Check cache
@@ -582,7 +585,7 @@ def cache_definition_generation(ttl: int = 3600):
 
             return result
 
-        def sync_wrapper(*args, **kwargs):
+        def sync_wrapper(*args: Any, **kwargs: Any) -> Any:
             key = _create_cache_key(*args, **kwargs)
 
             # Check cache
