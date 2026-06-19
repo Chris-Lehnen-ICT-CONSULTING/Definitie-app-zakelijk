@@ -99,7 +99,7 @@ class WorkflowService:
         "restore_from_archive": ["admin"],
     }
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialiseer de workflow service."""
         logger.info("WorkflowService initialized")
 
@@ -686,7 +686,7 @@ class WorkflowService:
 
         return impacts
 
-    def _emit_category_changed_event(self, event_data: dict[str, Any]):
+    def _emit_category_changed_event(self, event_data: dict[str, Any]) -> None:
         """
         Emit event voor category change (voor event-driven architecture).
 

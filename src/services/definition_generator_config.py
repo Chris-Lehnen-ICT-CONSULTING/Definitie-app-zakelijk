@@ -48,7 +48,7 @@ class GPTConfig:
     organization: str | None = None
     provider: str = "openai"  # AI provider: "openai" or "anthropic"
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Load API key from environment if not provided."""
         # Load provider from environment
         if env_provider := os.getenv("AI_PROVIDER"):
@@ -84,7 +84,7 @@ class CacheConfig:
     include_context_in_key: bool = True
     include_model_in_key: bool = True
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Load Redis URL from environment if not provided."""
         if self.redis_url is None:
             self.redis_url = os.getenv("REDIS_URL", "redis://localhost:6379")
@@ -221,7 +221,7 @@ class UnifiedGeneratorConfig:
     enable_batch_processing: bool = False
     enable_feedback_learning: bool = True
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Apply fixed defaults (single-environment setup)."""
         self.monitoring.log_level = "DEBUG"
         self.monitoring.log_errors = True
