@@ -5,8 +5,6 @@ Test alle 6 componenten afzonderlijk en als geheel.
 Volgt MODULAIRE_PROMPT_ARCHITECTUUR_WORKFLOW.md testing strategie.
 """
 
-from unittest.mock import Mock
-
 import pytest
 
 from services.definition_generator_config import UnifiedGeneratorConfig
@@ -112,6 +110,23 @@ class TestBasicPromptGeneration:
 
         # Prompt moet volledige lengte hebben nu alle componenten geïmplementeerd zijn
         assert 5000 < len(prompt) < 20000  # Volledige prompt met alle 6 componenten
+
+    def test_build_prompt_includes_begrip(self):
+        """Integratie-invariant: het te definiëren begrip komt voor in de
+        geassembleerde prompt (stabiel contract, niet gebonden aan exacte
+        sectie-bewoording — vervangt de verwijderde brittle string-asserts)."""
+        builder = ModularPromptBuilder()
+        context = create_test_context(
+            ontologische_categorie="proces", organisatorisch=["NP"]
+        )
+        config = UnifiedGeneratorConfig()
+
+        prompt = builder.build_prompt(
+            "voorwaardelijke_invrijheidstelling", context, config
+        )
+
+        assert isinstance(prompt, str) and prompt.strip()
+        assert "voorwaardelijke_invrijheidstelling" in prompt
 
 
 if __name__ == "__main__":
