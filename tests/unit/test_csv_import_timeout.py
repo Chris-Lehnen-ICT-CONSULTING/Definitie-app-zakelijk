@@ -6,9 +6,7 @@ Dit script test de async/sync bridge met dezelfde aanpak als de CSV import.
 
 import asyncio
 import logging
-import sys
 import time
-from pathlib import Path
 
 import pytest
 
