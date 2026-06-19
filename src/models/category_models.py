@@ -41,7 +41,7 @@ class CategoryChangeResult:
     new_category: str | None = None
     timestamp: datetime | None = None
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if self.timestamp is None:
             self.timestamp = datetime.now(UTC)
 
@@ -57,6 +57,6 @@ class CategoryUpdateEvent:
     reason: str | None = None
     timestamp: datetime | None = None
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if self.timestamp is None:
             self.timestamp = datetime.now(UTC)

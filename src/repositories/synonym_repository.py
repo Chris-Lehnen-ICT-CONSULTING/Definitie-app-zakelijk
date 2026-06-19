@@ -79,7 +79,7 @@ class SynonymSuggestionRecord:
         except json.JSONDecodeError:
             return {}
 
-    def set_context(self, context: dict[str, Any]):
+    def set_context(self, context: dict[str, Any]) -> None:
         """Stel context data in als JSON string."""
         self.context_data = json.dumps(context, ensure_ascii=False)
 
@@ -126,7 +126,7 @@ class SynonymRepository:
         conn.row_factory = sqlite3.Row
         return conn
 
-    def _verify_table_exists(self):
+    def _verify_table_exists(self) -> None:
         """Verify synonym_suggestions table exists."""
         with self._get_connection() as conn:
             cursor = conn.execute("""

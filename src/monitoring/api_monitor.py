@@ -144,7 +144,7 @@ class CostCalculator:
 class MetricsCollector:
     """Collects and aggregates API metrics."""
 
-    def __init__(self, retention_hours: int = 24):
+    def __init__(self, retention_hours: int = 24) -> None:
         self.retention_hours = retention_hours
         self.api_calls: deque = deque()
         self.metrics_history: dict[str, deque] = defaultdict(lambda: deque())
@@ -157,7 +157,7 @@ class MetricsCollector:
         # Set up default alerts
         self._setup_default_alerts()
 
-    def _setup_default_alerts(self):
+    def _setup_default_alerts(self) -> None:
         """Set up default alert conditions."""
         self.alerts = [
             Alert(
@@ -194,7 +194,7 @@ class MetricsCollector:
             ),
         ]
 
-    def _load_historical_data(self):
+    def _load_historical_data(self) -> None:
         """Load historical metrics data."""
         try:
             history_file = Path("cache/api_metrics.json")
@@ -215,7 +215,7 @@ class MetricsCollector:
         except Exception as e:
             logger.warning(f"Could not load historical metrics: {e}")
 
-    def _save_historical_data(self):
+    def _save_historical_data(self) -> None:
         """Save historical data to disk."""
         try:
             history_file = Path("cache/api_metrics.json")
@@ -238,7 +238,7 @@ class MetricsCollector:
         except Exception as e:
             logger.warning(f"Could not save metrics history: {e}")
 
-    async def record_api_call(self, api_call: APICall):
+    async def record_api_call(self, api_call: APICall) -> None:
         """Record an API call for metrics."""
         async with self._lock:
             self.api_calls.append(api_call)
@@ -254,7 +254,7 @@ class MetricsCollector:
             # Check alerts
             await self._check_alerts()
 
-    async def _generate_snapshot(self, endpoint: str):
+    async def _generate_snapshot(self, endpoint: str) -> None:
         """Generate metrics snapshot for an endpoint."""
         now = datetime.now(UTC)
         recent_calls = [
@@ -332,7 +332,7 @@ class MetricsCollector:
         ):
             self.metrics_history[endpoint].popleft()
 
-    async def _check_alerts(self):
+    async def _check_alerts(self) -> None:
         """Check alert conditions."""
         now = datetime.now(UTC)
 
@@ -619,7 +619,7 @@ async def record_api_call(
     cache_hit: bool = False,
     priority: str = "normal",
     retry_count: int = 0,
-):
+) -> None:
     """Convenience function to record an API call."""
     collector = get_metrics_collector()
 
@@ -649,7 +649,7 @@ async def record_api_call(
     await collector.record_api_call(api_call)
 
 
-async def test_api_monitor():
+async def test_api_monitor() -> None:
     """Test the API monitoring system."""
     logger.info("Testing API Monitor")
     logger.info("=" * 30)

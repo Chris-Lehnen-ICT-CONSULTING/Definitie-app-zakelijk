@@ -9,7 +9,7 @@ service layer via ServiceAdapter.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, cast
 
 # --- Minimal legacy-shaped result structures ---
 
@@ -117,9 +117,10 @@ class DefinitieAgent:
         # Obtain V2 adapter and generate definition asynchronously via run_async
         adapter = get_definition_service()
 
-        async def _task():
-            return await adapter.generate_definition(
-                begrip, context_dict, **extra_kwargs
+        async def _task() -> dict[str, Any]:
+            return cast(
+                "dict[str, Any]",
+                await adapter.generate_definition(begrip, context_dict, **extra_kwargs),
             )
 
         # Run coroutine synchronously without UI bridge
@@ -188,7 +189,7 @@ class GenerationResult:
     voorbeelden_error: str | None = None
 
     @property
-    def prompt_template(self):
+    def prompt_template(self) -> str:
         return (
             self.metadata.get("prompt_template", "Geen prompt beschikbaar")
             if self.metadata

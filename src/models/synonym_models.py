@@ -24,7 +24,7 @@ class SynonymGroup:
     updated_at: datetime | None = None
     created_by: str | None = None
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Valideer canonical_term is niet leeg."""
         if not self.canonical_term or not self.canonical_term.strip():
             msg = "canonical_term mag niet leeg zijn"
@@ -70,7 +70,7 @@ class SynonymGroupMember:
     reviewed_by: str | None = None
     reviewed_at: datetime | None = None
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Valideer velden."""
         if not self.term or not self.term.strip():
             msg = "term mag niet leeg zijn"
@@ -128,7 +128,7 @@ class WeightedSynonym:
     is_preferred: bool
     usage_count: int = 0
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Valideer velden."""
         if not (0.0 <= self.weight <= 1.0):
             msg = f"weight moet tussen 0.0 en 1.0 zijn: {self.weight}"

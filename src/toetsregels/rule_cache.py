@@ -130,7 +130,7 @@ class RuleCache:
     _instance = None
     _lock = threading.Lock()
 
-    def __new__(cls):
+    def __new__(cls) -> "RuleCache":
         if cls._instance is None:
             with cls._lock:
                 # Double-check locking pattern voor thread safety
@@ -139,7 +139,7 @@ class RuleCache:
                     cls._instance._initialized = False
         return cls._instance
 
-    def __init__(self):
+    def __init__(self) -> None:
         if self._initialized:
             return
 
@@ -276,7 +276,7 @@ class RuleCache:
 
         return weights
 
-    def clear_cache(self):
+    def clear_cache(self) -> None:
         """
         Clear de cache voor regels.
 

@@ -502,7 +502,7 @@ class DocumentProcessor:
 
         return hints
 
-    def _load_metadata(self):
+    def _load_metadata(self) -> None:
         """Laad document metadata uit bestand."""
         if self.metadata_file.exists():
             try:
@@ -536,7 +536,7 @@ class DocumentProcessor:
                 )
                 self._documents_cache.clear()
 
-    def _save_metadata(self):
+    def _save_metadata(self) -> None:
         """Sla document metadata op in bestand."""
         try:
             data = {
