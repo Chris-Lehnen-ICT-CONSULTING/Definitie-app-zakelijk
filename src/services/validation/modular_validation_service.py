@@ -11,6 +11,7 @@ from __future__ import annotations
 import logging
 import re
 import uuid
+from collections.abc import ItemsView, KeysView, ValuesView
 from typing import Any
 
 from services.validation.interfaces import CONTRACT_VERSION
@@ -62,16 +63,16 @@ class ValidationResultWrapper:
     def get(self, key: str, default: Any = None) -> Any:
         return safe_dict_get(self._data, key, default)
 
-    def keys(self):
+    def keys(self) -> KeysView[str]:
         return self._data.keys()
 
-    def values(self):
+    def values(self) -> ValuesView[Any]:
         return self._data.values()
 
-    def items(self):
+    def items(self) -> ItemsView[str, Any]:
         return self._data.items()
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"ValidationResultWrapper({self._data!r})"
 
     def to_dict(self) -> dict[str, Any]:
@@ -1742,7 +1743,7 @@ class ModularValidationService:
             # Parallelle verwerking met semaphore voor concurrency control
             semaphore = asyncio.Semaphore(max_concurrency)
 
-            async def validate_with_semaphore(item):
+            async def validate_with_semaphore(item: Any) -> dict[str, Any]:
                 async with semaphore:
                     if hasattr(item, "begrip"):
                         return await self.validate_definition(
