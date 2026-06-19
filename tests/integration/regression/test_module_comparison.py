@@ -3,12 +3,6 @@
 Vergelijk oude vs nieuwe CoreInstructionsModule implementatie.
 """
 
-import sys
-from pathlib import Path
-
-# Add project root to path
-sys.path.insert(0, str(Path(__file__).parent))
-
 import pytest
 
 from services.definition_generator_context import EnrichedContext
