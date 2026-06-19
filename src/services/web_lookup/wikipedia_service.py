@@ -6,6 +6,7 @@ Strangler Fig pattern voor web lookup modernisering.
 """
 
 import logging
+from types import TracebackType
 from typing import Any, cast
 from urllib.parse import quote
 
@@ -60,14 +61,19 @@ class WikipediaService:
                 logger.warning(f"Kon synoniemen service niet laden: {e}")
                 self._synonym_service = None
 
-    async def __aenter__(self):
+    async def __aenter__(self) -> "WikipediaService":
         """Async context manager entry."""
         self.session = aiohttp.ClientSession(
             headers=self.headers, timeout=aiohttp.ClientTimeout(total=30)
         )
         return self
 
-    async def __aexit__(self, exc_type, exc_val, exc_tb):
+    async def __aexit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: TracebackType | None,
+    ) -> None:
         """Async context manager exit."""
         if self.session:
             await self.session.close()

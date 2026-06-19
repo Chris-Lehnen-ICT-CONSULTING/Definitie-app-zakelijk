@@ -63,7 +63,7 @@ class ModernWebLookupService(WebLookupServiceInterface):
     met moderne, testbare en onderhoudbare implementaties.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.sources: dict[str, SourceConfig] = {}
         self._config: dict[str, Any] | None = None
         self._provider_weights: dict[str, float] = {}
@@ -877,7 +877,7 @@ class ModernWebLookupService(WebLookupServiceInterface):
             from .web_lookup.brave_search_service import BraveSearchService
 
             # Wrap MCP function voor dependency injection
-            async def mcp_search_wrapper(query: str, count: int):
+            async def mcp_search_wrapper(query: str, count: int) -> list[Any]:
                 """Wrapper om MCP tool te gebruiken."""
                 try:
                     # Gebruik de MCP tool direct
