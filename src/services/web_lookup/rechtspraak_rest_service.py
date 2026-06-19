@@ -9,6 +9,7 @@ from __future__ import annotations
 import logging
 import re
 import xml.etree.ElementTree as ET
+from types import TracebackType
 from typing import Any, cast
 
 try:
@@ -39,7 +40,7 @@ class RechtspraakRESTService:
             "Accept": "application/xml, application/rdf+xml;q=0.9, */*;q=0.8",
         }
 
-    async def __aenter__(self):
+    async def __aenter__(self) -> RechtspraakRESTService:
         if not AIOHTTP_AVAILABLE:  # pragma: no cover
             msg = "aiohttp vereist voor Rechtspraak REST service"
             raise RuntimeError(msg)
@@ -50,7 +51,12 @@ class RechtspraakRESTService:
         )
         return self
 
-    async def __aexit__(self, exc_type, exc, tb):
+    async def __aexit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc: BaseException | None,
+        tb: TracebackType | None,
+    ) -> None:
         if self.session:
             await self.session.close()
 

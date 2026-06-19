@@ -17,6 +17,7 @@ from __future__ import annotations
 import logging
 import os
 import re
+from collections.abc import Iterator
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
 
@@ -328,16 +329,16 @@ def _get_legacy_keywords() -> set[str]:
 class _KeywordsProxy:
     """Proxy class to make JURIDISCHE_KEYWORDS behave like a set."""
 
-    def __contains__(self, item):
+    def __contains__(self, item: object) -> bool:
         return item in _get_legacy_keywords()
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[str]:
         return iter(_get_legacy_keywords())
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(_get_legacy_keywords())
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return repr(_get_legacy_keywords())
 
 
