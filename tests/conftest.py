@@ -17,16 +17,19 @@ import pytest
 project_root = Path(__file__).parent.parent
 src_path = project_root / "src"
 
-# tests/ must be importable for the fixtures.streamlit_mock helper below, but it
-# MUST rank BELOW src/ on sys.path. Otherwise tests/integration/__init__.py is
-# importable as the top-level package `integration` and shadows the real
-# src/integration package — collection then fails with
-# `ModuleNotFoundError: No module named 'integration.definitie_checker'`
-# depending on import order (DEF-429). Append (low priority), then force src
-# to the front so top-level package names always resolve to src, not tests/.
-tests_dir = str(Path(__file__).parent)
-if tests_dir not in sys.path:
-    sys.path.append(tests_dir)
+# DEF-439: project_root (parent van tests/) op sys.path, NIET tests/ zelf.
+# tests/ heeft een __init__.py, dus testmodules resolven dan als fully-qualified
+# `tests.*` (bv. tests.integration) en botsen niet meer met gelijknamige
+# src-packages (tests/integration vs src/integration, tests/unit/validation vs
+# src/validation, ...) onder --import-mode=importlib. Zou tests/ wél op path staan,
+# dan is tests/integration/__init__.py importeerbaar als bare `integration` en
+# shadowt het de echte src/integration → collection faalt met
+# `ModuleNotFoundError: No module named 'integration.definitie_checker'`.
+# project_root staat low-priority (append); src wordt daarna naar voren geforceerd
+# zodat bare top-level namen altijd naar src resolven.
+root_str = str(project_root)
+if root_str not in sys.path:
+    sys.path.append(root_str)
 
 src_str = str(src_path)
 if src_str in sys.path:
@@ -35,7 +38,7 @@ sys.path.insert(0, src_str)
 
 # Install a minimal Streamlit mock BEFORE importing modules that might reference it
 try:
-    from fixtures.streamlit_mock import get_streamlit_mock  # type: ignore
+    from tests.fixtures.streamlit_mock import get_streamlit_mock  # type: ignore
 
     sys.modules["streamlit"] = get_streamlit_mock()
 except Exception:  # pragma: no cover - inline fallback

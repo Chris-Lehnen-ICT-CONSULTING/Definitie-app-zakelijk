@@ -16,7 +16,10 @@ from services.validation.interfaces import (
     ValidationRequest,
 )
 
-# Add contracts directory to path for mock_orchestrator import
+# DEF-439: bewust behouden insert — voegt de niet-botsende contracts/-dir toe
+# voor de sibling-helper mock_orchestrator. `contracts` botst niet met een
+# src-package, dus dit geeft geen package-name-shadowing (anders dan de elders
+# verwijderde tests-dir-inserts). Niet "voor consistentie" weghalen.
 sys.path.insert(0, str(Path(__file__).parent))
 from mock_orchestrator import MockValidationOrchestrator
 
