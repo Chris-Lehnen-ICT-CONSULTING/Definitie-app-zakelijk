@@ -157,19 +157,33 @@ class TestHistoryTabRemoval:
             )
             test_id = cursor.lastrowid
 
+            # INSERT alleen mag (nog) geen history-entry geven: de trigger is AFTER UPDATE
+            cursor.execute(
+                "SELECT COUNT(*) FROM definitie_geschiedenis WHERE definitie_id = ?",
+                (test_id,),
+            )
+            assert cursor.fetchone()[0] == 0, "INSERT mag geen history-entry aanmaken"
+
             # UPDATE triggert log_definitie_changes (AFTER UPDATE)
             cursor.execute(
                 "UPDATE definities SET definitie = ? WHERE id = ?",
                 ("Gewijzigde test definitie", test_id),
             )
 
+            # Verifieer precies één entry met de juiste gelogde waarden
             cursor.execute(
-                "SELECT COUNT(*) FROM definitie_geschiedenis WHERE definitie_id = ?",
+                """
+                SELECT begrip, definitie_nieuwe_waarde
+                FROM definitie_geschiedenis WHERE definitie_id = ?
+            """,
                 (test_id,),
             )
-            history_count = cursor.fetchone()[0]
-
-            assert history_count > 0, "UPDATE-trigger moet history-entries aanmaken"
+            rows = cursor.fetchall()
+            # >=1: naast log_definitie_changes vuurt ook update_definities_timestamp
+            # een geneste UPDATE, die de history-trigger nogmaals laat loggen.
+            assert len(rows) >= 1, "UPDATE moet een history-entry aanmaken"
+            assert all(r[0] == "TEST_HISTORY_CHECK" for r in rows)
+            assert all(r[1] == "Gewijzigde test definitie" for r in rows)
         finally:
             conn.close()
 
