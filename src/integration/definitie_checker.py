@@ -74,7 +74,7 @@ class DefinitieChecker:
             "enable_validation": True,
         }
 
-    def _get_integrated_service(self):
+    def _get_integrated_service(self) -> Any:
         """Lazy load service adapter (V2) to avoid circular imports.
 
         Vervangt de niet-bestaande services.integrated_service door de
@@ -246,7 +246,7 @@ class DefinitieChecker:
             if enable_hybrid:
                 extra_kwargs["enable_hybrid"] = enable_hybrid
 
-            async def _task():
+            async def _task() -> Any:
                 return await adapter.generate_definition(
                     begrip, context_dict, **extra_kwargs
                 )
@@ -322,7 +322,7 @@ class DefinitieChecker:
         categorie = OntologischeCategorie(existing.categorie)
         adapter = self._get_integrated_service()
 
-        def _to_list(val):
+        def _to_list(val: Any) -> list[Any]:
             try:
                 if not val:
                     return []
@@ -348,7 +348,7 @@ class DefinitieChecker:
             "wettelijk": [],
         }
 
-        async def _task2():
+        async def _task2() -> Any:
             return await adapter.generate_definition(
                 begrip=existing.begrip,
                 context_dict=context_dict,
