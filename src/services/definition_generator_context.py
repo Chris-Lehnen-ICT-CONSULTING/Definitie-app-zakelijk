@@ -52,7 +52,7 @@ class ContextSource:
     content: str
     metadata: dict[str, Any] | None = None
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if self.metadata is None:
             self.metadata = {}
 
@@ -257,7 +257,7 @@ class HybridContextManager:
 
     def _parse_context_string(
         self, context_string: str, context_dict: dict[str, list[str]]
-    ):
+    ) -> None:
         """Parse context string naar verschillende categorieën."""
         context_parts = context_string.split(",")
 
