@@ -1413,7 +1413,7 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
         definition: Definition,
         validation_result: ValidationResult,
         generation_id: str,
-    ):
+    ) -> None:
         """Save failed attempt for feedback learning."""
         try:
             if hasattr(self.repository, "save_failed_attempt"):

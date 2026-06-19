@@ -60,7 +60,7 @@ class PatternMatcher:
     Performance is geen concern - focus op volledigheid en correctheid.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.patterns = self._initialize_comprehensive_patterns()
         self.compiled_patterns = self._compile_all_patterns()
         self.legal_vocabulary = self._initialize_legal_vocabulary()

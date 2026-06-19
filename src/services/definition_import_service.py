@@ -47,7 +47,7 @@ class SingleImportResult:
 class DefinitionImportService:
     """Service voor enkelvoudige import (MVP)."""
 
-    def __init__(self, repository, validation_orchestrator):
+    def __init__(self, repository: Any, validation_orchestrator: Any) -> None:
         """
         Args:
             repository: DefinitionRepository service
