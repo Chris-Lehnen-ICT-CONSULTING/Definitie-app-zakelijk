@@ -27,7 +27,10 @@ class TestSynonymRegistryOrderByValidation:
         """Create registry with test database and apply schema."""
         # Apply full schema (includes definities table needed for FK)
         schema_path = (
-            Path(__file__).parent.parent.parent / "src" / "database" / "schema.sql"
+            Path(__file__).parent.parent.parent.parent
+            / "src"
+            / "database"
+            / "schema.sql"
         )
 
         with sqlite3.connect(test_db_path) as conn:
