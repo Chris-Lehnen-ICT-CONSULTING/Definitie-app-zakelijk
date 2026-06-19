@@ -12,7 +12,11 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, cast
 
-from database.definitie_repository import DefinitieRepository, DefinitieStatus
+from database.definitie_repository import (
+    DefinitieRecord,
+    DefinitieRepository,
+    DefinitieStatus,
+)
 from services.workflow_service import WorkflowService
 
 # US-160: Policy service voor gate-checks
@@ -39,7 +43,7 @@ class WorkflowResult:
     gate_status: str | None = None  # pass | override_required | blocked
     gate_reasons: list[str] | None = None
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if self.timestamp is None:
             self.timestamp = datetime.now()
 
@@ -536,7 +540,7 @@ class DefinitionWorkflowService:
                 "reasons": ["Technische fout bij gate-preview"],
             }
 
-    def _evaluate_gate(self, definition) -> dict[str, Any]:
+    def _evaluate_gate(self, definition: DefinitieRecord) -> dict[str, Any]:
         """Implementeert Option B gate-logica.
 
         Verwacht DefinitieRecord met velden:
@@ -553,7 +557,7 @@ class DefinitionWorkflowService:
         # 1) Context aanwezig? (JSON arrays in TEXT voor org/jur; wet via helper)
         import json as _json
 
-        def _parse_list(val):
+        def _parse_list(val: Any) -> list[Any]:
             try:
                 if not val:
                     return []
@@ -643,7 +647,7 @@ class DefinitionWorkflowService:
 
         return {"status": "pass", "reasons": []}
 
-    def _get_policy(self):
+    def _get_policy(self) -> Any:
         # Prefer geïnjecteerde service; val terug op best-effort loader
         gate_policy_service = getattr(self, "gate_policy_service", None)
         if gate_policy_service:
