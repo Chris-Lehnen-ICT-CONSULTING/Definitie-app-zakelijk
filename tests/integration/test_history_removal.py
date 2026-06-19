@@ -46,12 +46,12 @@ class TestHistoryTabRemoval:
                 # Should instantiate without errors
                 interface = TabbedInterface()
 
-                # Verify expected tabs exist
+                # Verify expected tabs exist (export/management zijn bij de
+                # refactor geconsolideerd in import_export_beheer_tab — DEF-447)
                 assert hasattr(interface, "definition_tab")
                 assert hasattr(interface, "edit_tab")
                 assert hasattr(interface, "expert_tab")
-                assert hasattr(interface, "export_tab")
-                assert hasattr(interface, "management_tab")
+                assert hasattr(interface, "import_export_beheer_tab")
 
                 # History tab should either not exist or be None
                 if hasattr(interface, "history_tab"):
@@ -132,23 +132,22 @@ class TestHistoryTabRemoval:
             conn.close()
 
     def test_database_triggers_still_work(self):
-        """Verify database triggers for history still function."""
-        db_path = Path("data/definities.db")
+        """Verify de history-trigger (log_definitie_changes) functioneert.
 
-        if not db_path.exists():
-            pytest.skip("Database not found")
+        Deterministisch tegen een in-memory DB opgebouwd uit schema.sql (de
+        bron van waarheid) i.p.v. de muteerbare live data/definities.db — die
+        kan een onvolledige trigger-set hebben. De trigger vuurt AFTER UPDATE,
+        dus: insert -> update -> verwacht een history-entry. (DEF-447)
+        """
+        schema_path = Path("src/database/schema.sql")
+        if not schema_path.exists():
+            pytest.skip("schema.sql niet gevonden")
 
-        conn = sqlite3.connect(db_path)
-        cursor = conn.cursor()
-
+        conn = sqlite3.connect(":memory:")
         try:
-            # Get the column names to understand what's required
-            cursor.execute("PRAGMA table_info(definities)")
-            columns = cursor.fetchall()
-            [col[1] for col in columns if col[3] == 1]  # col[3] is notnull flag
+            conn.executescript(schema_path.read_text(encoding="utf-8"))
+            cursor = conn.cursor()
 
-            # Insert test record with all required fields
-            # Note: categorie field appears to be required based on error
             cursor.execute(
                 """
                 INSERT INTO definities (begrip, definitie, organisatorische_context, juridische_context, categorie)
@@ -156,30 +155,21 @@ class TestHistoryTabRemoval:
             """,
                 ("TEST_HISTORY_CHECK", "Test definitie", "[]", "[]", "proces"),
             )
-
             test_id = cursor.lastrowid
 
-            # Check if trigger created history entry
+            # UPDATE triggert log_definitie_changes (AFTER UPDATE)
             cursor.execute(
-                """
-                SELECT COUNT(*) FROM definitie_geschiedenis
-                WHERE definitie_id = ?
-            """,
-                (test_id,),
+                "UPDATE definities SET definitie = ? WHERE id = ?",
+                ("Gewijzigde test definitie", test_id),
             )
 
+            cursor.execute(
+                "SELECT COUNT(*) FROM definitie_geschiedenis WHERE definitie_id = ?",
+                (test_id,),
+            )
             history_count = cursor.fetchone()[0]
 
-            # Clean up
-            cursor.execute("DELETE FROM definities WHERE id = ?", (test_id,))
-            conn.commit()
-
-            # Triggers should still create history
-            assert history_count > 0, "Triggers should still create history entries"
-
-        except sqlite3.IntegrityError as e:
-            # If still fails, just skip the test with informative message
-            pytest.skip(f"Database schema issue: {e}")
+            assert history_count > 0, "UPDATE-trigger moet history-entries aanmaken"
         finally:
             conn.close()
 
@@ -214,12 +204,12 @@ class TestHistoryTabRemoval:
 
     def test_other_tabs_remain_functional(self):
         """Test that other tabs can still be instantiated."""
+        # export/management zijn geconsolideerd in tabs.import_export_beheer (DEF-447)
         tabs_to_test = [
             ("definition_generator_tab", "DefinitionGeneratorTab"),
             ("definition_edit_tab", "DefinitionEditTab"),
             ("expert_review_tab", "ExpertReviewTab"),
-            ("export_tab", "ExportTab"),
-            ("management_tab", "ManagementTab"),
+            ("tabs.import_export_beheer", "ImportExportBeheerTab"),
         ]
 
         for module_name, class_name in tabs_to_test:
