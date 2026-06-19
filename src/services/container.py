@@ -32,6 +32,7 @@ from services.modern_web_lookup_service import ModernWebLookupService
 
 # V2 Architecture imports
 from services.orchestrators.definition_orchestrator_v2 import DefinitionOrchestratorV2
+from services.security_service import SecurityService
 
 # UnifiedDefinitionGenerator vervangen door DefinitionOrchestrator
 # from services.unified_definition_generator import UnifiedDefinitionGenerator
@@ -315,7 +316,7 @@ class ServiceContainer:
                 repository=self.repository(),
                 # Optional services
                 enhancement_service=None,  # Not implemented yet
-                security_service=None,  # Not implemented yet
+                security_service=SecurityService(),  # DEF-448: conservatieve sanitization
                 monitoring=None,  # Not implemented yet
                 feedback_engine=None,  # Not implemented yet
                 # Configuration
