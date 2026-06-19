@@ -12,7 +12,11 @@ from dataclasses import (  # Dataclass decorators voor gestructureerde data
 )
 from datetime import datetime  # Datum/tijd functionaliteit voor timestamps
 from enum import Enum  # Enumeratie types voor constante waarden
-from typing import Any, TypedDict  # Type hints voor flexibele type definities
+from typing import (  # Type hints voor flexibele type definities
+    Any,
+    TypedDict,
+    cast,
+)
 
 # =====================================
 # V2 CANONICAL CONTRACTS (EPIC-010)
@@ -113,12 +117,15 @@ class GenerationResult:
     voorbeelden_error: str | None = None
 
     @property
-    def prompt_template(self):
+    def prompt_template(self) -> str:
         """Get prompt template from metadata for debug section"""
-        return (
-            self.metadata.get("prompt_template", "Geen prompt beschikbaar")
-            if self.metadata
-            else "Geen prompt beschikbaar"
+        return cast(
+            str,
+            (
+                self.metadata.get("prompt_template", "Geen prompt beschikbaar")
+                if self.metadata
+                else "Geen prompt beschikbaar"
+            ),
         )
 
 
@@ -778,7 +785,7 @@ class AIGenerationResult:
         default_factory=dict
     )  # Extra metadata zoals tokens_estimated flag
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Post-initialisatie voor metadata validatie."""
         if self.tokens_used is None and "tokens_estimated" not in self.metadata:
             self.metadata["tokens_estimated"] = True
@@ -1228,6 +1235,6 @@ class DefinitionResponseV2:
     error: str | None = None
     metadata: dict[str, Any] | None = None
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if self.metadata is None:
             self.metadata = {}
