@@ -468,7 +468,7 @@ class DefinitionEditRepository(DefinitionRepository):
         except Exception as e:
             logger.error(f"Error adding history entry: {e}")
 
-    def _row_to_dict(self, row: sqlite3.Row, description) -> dict[str, Any]:
+    def _row_to_dict(self, row: sqlite3.Row, description: Any) -> dict[str, Any]:
         """Convert database row to dictionary."""
         result = {}
         for idx, col in enumerate(description):

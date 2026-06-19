@@ -17,7 +17,7 @@ from typing import Any, cast
 logger = logging.getLogger(__name__)
 
 
-def _safe_import_yaml():
+def _safe_import_yaml() -> Any:
     try:
         import yaml  # type: ignore
 

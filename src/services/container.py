@@ -39,11 +39,24 @@ from services.security_service import SecurityService
 from services.workflow_service import WorkflowService
 
 if TYPE_CHECKING:
+    from ontologie.improved_classifier import ImprovedOntologyClassifier
     from repositories.synonym_registry import SynonymRegistry
+    from services.ai.base_client import AsyncAIClient
+    from services.classification.ontological_classifier import OntologicalClassifier
     from services.data_aggregation_service import DataAggregationService
+    from services.definition_import_service import DefinitionImportService
+    from services.definition_workflow_service import DefinitionWorkflowService
     from services.export_service import ExportService
     from services.gpt4_synonym_suggester import GPT4SynonymSuggester
+    from services.ontology.ontology_model_service import OntologyModelService
+    from services.policies.approval_gate_policy import GatePolicyService
+    from services.rag.document_chunker import DocumentChunker
+    from services.rag.embedding_service import EmbeddingService
+    from services.rag.embedding_store import EmbeddingStore
+    from services.rag.rag_management_service import RAGManagementService
+    from services.rag.rag_service import RAGService
     from services.synonym_orchestrator import SynonymOrchestrator
+    from services.validation.interfaces import ValidationOrchestratorInterface
     from services.web_lookup.synonym_service import JuridischeSynoniemService
 
 logger = logging.getLogger(__name__)
@@ -90,7 +103,7 @@ class ServiceContainer:
             },
         )
 
-    def _load_configuration(self):
+    def _load_configuration(self) -> None:
         """Laad configuratie uit environment en config dict."""
         # Basis configuratie
         self.db_path = self.config.get("db_path", "data/definities.db")
@@ -202,7 +215,9 @@ class ServiceContainer:
 
     # Legacy validator() method removed - validation now handled by V2 orchestrator
     @property
-    def validator(self):  # pragma: no cover - compatibility shim for tests' specs
+    def validator(
+        self,
+    ) -> Any:  # pragma: no cover - compatibility shim for tests' specs
         """Legacy attribute intentionally unavailable.
 
         Exposed as a property raising AttributeError so:
@@ -244,7 +259,7 @@ class ServiceContainer:
 
         return self._instances["repository"]
 
-    def _get_ai_client(self):
+    def _get_ai_client(self) -> "AsyncAIClient":
         """Get or create singleton AI client for the configured provider."""
         if "_ai_client" not in self._instances:
             from services.ai import create_ai_client
@@ -332,7 +347,7 @@ class ServiceContainer:
 
         return self._instances["orchestrator"]
 
-    def validation_orchestrator(self):
+    def validation_orchestrator(self) -> "ValidationOrchestratorInterface":
         """
         Get ValidationOrchestratorV2 instance (DEF-90: lazy-loaded via orchestrator).
 
@@ -342,9 +357,11 @@ class ServiceContainer:
         # DEF-90: Validation is now lazy-loaded via orchestrator property
         # Access orchestrator.validation_service to trigger lazy load if needed
         orchestrator = self.orchestrator()
-        return orchestrator.validation_service
+        # cast: DefinitionOrchestratorInterface lacks the concrete V2
+        # ``validation_service`` property, so mypy infers Any here.
+        return cast("ValidationOrchestratorInterface", orchestrator.validation_service)
 
-    def ontological_classifier(self):
+    def ontological_classifier(self) -> "OntologicalClassifier":
         """
         Get of create OntologicalClassifier instance (U/F/O classifier).
 
@@ -382,7 +399,7 @@ class ServiceContainer:
 
         return self._instances["ontological_classifier"]
 
-    def term_based_classifier(self):
+    def term_based_classifier(self) -> "ImprovedOntologyClassifier":
         """
         Get of create ImprovedOntologyClassifier instance (term-based classifier).
 
@@ -550,7 +567,7 @@ class ServiceContainer:
     # duplicate_detector() method removed
 
     # ===== Approval Gate Policy (US-160) =====
-    def gate_policy(self):
+    def gate_policy(self) -> "GatePolicyService":
         """
         Get or create GatePolicyService instance (LAZY-LOADED).
 
@@ -582,7 +599,7 @@ class ServiceContainer:
             logger.debug("WorkflowService instance aangemaakt")
         return self._instances["workflow"]
 
-    def definition_workflow_service(self):
+    def definition_workflow_service(self) -> "DefinitionWorkflowService":
         """
         Get of create DefinitionWorkflowService instance (LAZY-LOADED).
 
@@ -688,7 +705,7 @@ class ServiceContainer:
             logger.info("⚡ ExportService lazy-loaded")
         return self._lazy_instances["export_service"]
 
-    def import_service(self):
+    def import_service(self) -> "DefinitionImportService":
         """
         Get or create DefinitionImportService instance (CSV batch helper) (LAZY-LOADED).
 
@@ -708,7 +725,7 @@ class ServiceContainer:
             logger.info("⚡ DefinitionImportService lazy-loaded (CSV helper)")
         return self._lazy_instances["import_service"]
 
-    def document_chunker(self):
+    def document_chunker(self) -> "DocumentChunker":
         """
         Get or create DocumentChunker instance (LAZY-LOADED).
 
@@ -726,7 +743,7 @@ class ServiceContainer:
         return self._lazy_instances["document_chunker"]
 
     @property
-    def embedding_service(self):
+    def embedding_service(self) -> "EmbeddingService":
         """
         Get or create EmbeddingService instance (LAZY-LOADED).
 
@@ -746,7 +763,7 @@ class ServiceContainer:
         return self._lazy_instances["embedding_service"]
 
     @property
-    def rag_service(self):
+    def rag_service(self) -> "RAGService":
         """
         Get or create RAGService instance (LAZY-LOADED).
 
@@ -769,7 +786,7 @@ class ServiceContainer:
         return self._lazy_instances["rag_service"]
 
     @property
-    def embedding_store(self):
+    def embedding_store(self) -> "EmbeddingStore":
         """
         Get or create EmbeddingStore instance (LAZY-LOADED).
 
@@ -789,7 +806,7 @@ class ServiceContainer:
         return self._lazy_instances["embedding_store"]
 
     @property
-    def rag_management_service(self):
+    def rag_management_service(self) -> "RAGManagementService":
         """
         Get or create RAGManagementService instance (LAZY-LOADED).
 
@@ -810,7 +827,7 @@ class ServiceContainer:
         return self._lazy_instances["rag_management_service"]
 
     @property
-    def ontology_model_service(self):
+    def ontology_model_service(self) -> "OntologyModelService":
         """
         Get or create OntologyModelService instance (LAZY-LOADED).
 
@@ -833,13 +850,13 @@ class ServiceContainer:
 
     # Utility methods
 
-    def reset(self):
+    def reset(self) -> None:
         """Reset alle service instances (eager and lazy)."""
         self._instances.clear()
         self._lazy_instances.clear()
         logger.debug("Alle service instances gereset (eager + lazy)")
 
-    def get_service(self, name: str):
+    def get_service(self, name: str) -> Any:
         """
         Get een service op naam.
 
@@ -898,7 +915,7 @@ class ServiceContainer:
         """
         return getattr(self, "_container_id", "UNKNOWN")
 
-    def update_config(self, config: dict[str, Any]):
+    def update_config(self, config: dict[str, Any]) -> None:
         """
         Update configuratie en reset services.
 
