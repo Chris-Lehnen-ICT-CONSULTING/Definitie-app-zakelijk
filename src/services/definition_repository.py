@@ -8,6 +8,7 @@ uit de database met een clean interface.
 import json
 import logging
 import sqlite3
+from collections.abc import Iterator, Sequence
 from contextlib import contextmanager, suppress
 from datetime import datetime
 from typing import Any, cast
@@ -709,7 +710,7 @@ class DefinitionRepository(DefinitionRepositoryInterface):
         import json as _json
 
         # Parse context JSON arrays (safe fallbacks)
-        def _parse_list(val):
+        def _parse_list(val: Any) -> list[Any]:
             try:
                 if not val:
                     return []
@@ -778,7 +779,7 @@ class DefinitionRepository(DefinitionRepositoryInterface):
         return definition
 
     @contextmanager
-    def _get_connection(self):
+    def _get_connection(self) -> Iterator[sqlite3.Connection]:
         """Context manager voor database connecties."""
         conn = sqlite3.connect(self.db_path)
         conn.row_factory = sqlite3.Row
@@ -787,7 +788,9 @@ class DefinitionRepository(DefinitionRepositoryInterface):
         finally:
             conn.close()
 
-    def _row_to_record(self, row: sqlite3.Row, description) -> DefinitieRecord:
+    def _row_to_record(
+        self, row: sqlite3.Row, description: Sequence[Any]
+    ) -> DefinitieRecord:
         """Converteer database row naar DefinitieRecord."""
         # Map row naar record attributes
         record_data = {}
