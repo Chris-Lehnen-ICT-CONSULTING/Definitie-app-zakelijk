@@ -85,6 +85,7 @@ class MockStreamlit:
         self.text_input = _noop
         self.text_area = _noop
         self.selectbox = _noop
+        self.radio = _noop
         self.multiselect = _noop
         self.checkbox = _noop
         self.button = _noop
