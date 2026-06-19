@@ -16,6 +16,10 @@ NOTE: Dit is een NIEUWE standalone classifier voor U/F/O classificatie.
 import logging
 from dataclasses import dataclass
 from enum import Enum
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from services.ai_service_v2 import AIServiceV2
 
 # Voorlopig gebruik maken van bestaande types, later mogelijk eigen implementatie
 # FUTURE: Wanneer LevelClassifier beschikbaar is, vervang door:
@@ -103,7 +107,7 @@ class OntologicalClassifier:
         result = classifier.classify("Overeenkomst")
     """
 
-    def __init__(self, ai_service):
+    def __init__(self, ai_service: "AIServiceV2") -> None:
         """
         Initialiseer classifier
 
