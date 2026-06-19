@@ -46,12 +46,43 @@ class TestSanitizeRequest:
         out = _sanitize(req)
         assert out.begrip == "natuurinclusief bouwen (C++)"
 
-    def test_begrip_never_empty(self):
-        # Begrip dat volledig uit markup bestaat valt terug op het origineel
-        original = "<iframe src=x></iframe>"
-        req = GenerationRequest(id="t", begrip=original)
+    def test_fully_malicious_begrip_uses_placeholder_not_raw(self):
+        # Begrip dat volledig uit markup/injectie bestaat mag NIET terugvallen op
+        # het ruwe origineel (dat zou de payload doorlaten). Placeholder i.p.v.
+        for original in ("<iframe src=x></iframe>", "{system: hack}"):
+            req = GenerationRequest(id="t", begrip=original)
+            out = _sanitize(req)
+            assert out.begrip, "begrip mag nooit leeg zijn"
+            assert "<iframe" not in out.begrip
+            assert "{system:" not in out.begrip
+            assert out.begrip == "[ongeldig begrip]"
+
+    @pytest.mark.parametrize(
+        "field",
+        [
+            "context",
+            "extra_instructies",
+            "document_context",
+        ],
+    )
+    def test_each_freetext_field_sanitized(self, field):
+        req = GenerationRequest(
+            id="t", begrip="term", **{field: "<script>alert(1)</script> x"}
+        )
         out = _sanitize(req)
-        assert out.begrip, "begrip mag nooit leeg gesanitizet worden"
+        assert "<script>" not in getattr(out, field)
+        assert "x" in getattr(out, field)
+
+    @pytest.mark.parametrize(
+        "field",
+        ["juridische_context", "wettelijke_basis", "organisatorische_context"],
+    )
+    def test_each_context_list_sanitized(self, field):
+        req = GenerationRequest(
+            id="t", begrip="term", **{field: ["{system: hack} Strafrecht"]}
+        )
+        out = _sanitize(req)
+        assert all("{system:" not in v for v in getattr(out, field))
 
     def test_sanitizes_context_lists(self):
         req = GenerationRequest(

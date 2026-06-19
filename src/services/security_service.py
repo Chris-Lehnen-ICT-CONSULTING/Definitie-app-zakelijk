@@ -8,8 +8,17 @@ context-velden van het request worden gesanitizet vóór ze de LLM-prompt bereik
 2. Expliciete prompt-injectie-control-markers worden geneutraliseerd.
 
 Conservatief: alleen bekende aanvalspatronen worden geraakt; legitieme begrippen
-en context (leestekens, ``C++``, organisatienamen) blijven intact. Het begrip
-wordt nooit naar een lege string gesanitizet (val terug op het origineel).
+en context (leestekens, ``C++``, organisatienamen) blijven intact.
+
+LET OP — defense-in-depth, geen volledige garantie: de regex-neutralisatie dekt
+alleen bekende, expliciete markers. Andere talen, parafrases, unicode-varianten
+of splitsing over velden worden niet gevangen. De PRIMAIRE verdediging blijft
+structureel: het begrip staat in een gelabeld veld in de prompt. Sanitization
+verkleint het aanvalsoppervlak, het sluit prompt-injectie niet uit.
+
+Een begrip dat volledig uit markup/injectie bestaat sanitizet naar leeg en valt
+NIET terug op het origineel (dat zou de payload alsnog doorlaten) maar op een
+veilige placeholder.
 """
 
 import logging
@@ -39,9 +48,15 @@ _INJECTION_PATTERNS: list[re.Pattern[str]] = [
     re.compile(r"```.*?```", re.DOTALL),  # markdown code-fence injectie
 ]
 
-# PII-patronen voor redact_pii (basis: e-mail, BSN-achtige 9-cijferreeks, telefoon).
+# Placeholder voor een begrip dat na sanitization volledig leeg blijkt.
+_EMPTY_BEGRIP_PLACEHOLDER = "[ongeldig begrip]"
+
+# PII-patronen voor redact_pii (basis-subset: e-mail, BSN-achtige 9-cijferreeks,
+# telefoon). LET OP: dit is best-effort — geen elfproef-BSN-validatie, geen namen/
+# adressen/IBAN. validate_compliance op basis hiervan is dus géén volledige
+# compliance-garantie, alleen een subset-check.
 _EMAIL_RE = re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}")
-_BSN_RE = re.compile(r"\b\d{9}\b")
+_BSN_RE = re.compile(r"(?<!\d)\d{9}(?!\d)")
 _PHONE_RE = re.compile(r"\b(?:\+31|0)\s?(?:\d[\s-]?){8,9}\d\b")
 
 
@@ -73,10 +88,13 @@ class SecurityService(SecurityServiceInterface):
     async def sanitize_request(self, request: GenerationRequest) -> GenerationRequest:
         """Sanitize de vrije-tekst- en context-velden van het request.
 
-        Het begrip valt terug op het origineel als sanitization het zou legen,
-        zodat de generatie nooit met een leeg begrip verdergaat.
+        Een begrip dat volledig uit markup/injectie bestaat sanitizet naar leeg;
+        dan vallen we op een veilige placeholder terug (NIET op het ruwe
+        origineel), zodat de payload de prompt niet bereikt.
         """
-        sanitized_begrip = self._sanitize_text(request.begrip) or request.begrip
+        sanitized_begrip = self._sanitize_text(request.begrip)
+        if not sanitized_begrip:
+            sanitized_begrip = _EMPTY_BEGRIP_PLACEHOLDER
         return replace(
             request,
             begrip=sanitized_begrip,
@@ -101,7 +119,8 @@ class SecurityService(SecurityServiceInterface):
     async def validate_compliance(
         self, definition: Definition, compliance_rules: list[str] | None = None
     ) -> dict[str, bool]:
-        """Basis-compliance: controleert dat de definitie geen PII bevat."""
+        """Best-effort PII-check (subset). GEEN volledige compliance-garantie:
+        detecteert alleen e-mail/9-cijferreeks/telefoon, geen namen/adressen/IBAN."""
         text = (
             f"{definition.begrip} {definition.definitie} {definition.toelichting or ''}"
         )
