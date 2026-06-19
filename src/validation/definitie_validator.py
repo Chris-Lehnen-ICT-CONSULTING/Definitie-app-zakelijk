@@ -104,7 +104,7 @@ class ValidationRegelInterpreter:
     die gebruikt kunnen worden voor automatische kwaliteitscontrole.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.rule_manager = get_toetsregel_manager()
 
     def for_validation(self, regel_data: dict[str, Any]) -> ValidationCriterion:
@@ -290,7 +290,7 @@ class DefinitieValidator:
     te interpreteren en toe te passen. Biedt gedetailleerde feedback en scores.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.rule_manager = get_toetsregel_manager()
         self.interpreter = ValidationRegelInterpreter()
 
