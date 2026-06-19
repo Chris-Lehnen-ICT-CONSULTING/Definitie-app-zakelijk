@@ -147,7 +147,7 @@ class DataAggregationService:
             # Context uit definitie record (V2: drie lijsten)
             import json as _json
 
-            def _parse_list(val) -> list[str]:
+            def _parse_list(val: Any) -> list[str]:
                 try:
                     if not val:
                         return []

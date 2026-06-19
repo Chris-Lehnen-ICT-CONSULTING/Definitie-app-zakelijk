@@ -18,7 +18,7 @@ class NullDefinitionRepository(DefinitionRepositoryInterface):
     Perfect voor development zonder database.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """No database needed!"""
         self._stats = {
             "total_saves": 0,

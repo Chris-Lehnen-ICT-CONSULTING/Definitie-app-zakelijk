@@ -381,7 +381,7 @@ class AIServiceV2(AIServiceInterface):
         logger.info(f"Completed batch generation of {len(requests)} requests")
         return final_results
 
-    def _get_or_create_encoder(self, model: str):
+    def _get_or_create_encoder(self, model: str) -> Any:
         """
         Get or create a token encoder for the specified model.
 

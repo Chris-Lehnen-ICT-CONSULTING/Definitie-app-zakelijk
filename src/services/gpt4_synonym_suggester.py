@@ -32,7 +32,7 @@ class SynonymSuggestion:
     confidence: float
     rationale: str
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Valideer velden."""
         if not self.synoniem or not self.synoniem.strip():
             msg = "synoniem mag niet leeg zijn"
@@ -61,7 +61,7 @@ class GPT4SynonymSuggester:
     - Logs requests for debugging
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialiseer suggester (placeholder)."""
         logger.info("GPT4SynonymSuggester initialized (placeholder mode)")
 

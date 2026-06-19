@@ -4,6 +4,8 @@ Dit package bevat alle service componenten inclusief
 geïntegreerde services en orchestratie functionaliteiten.
 """
 
+from typing import Any
+
 # Import nieuwe services - lazy imports to avoid circular dependencies
 from services.container import ContainerConfigs, ServiceContainer, get_container
 from services.definition_generator_cache import DefinitionGeneratorCache
@@ -15,7 +17,7 @@ from services.modern_web_lookup_service import ModernWebLookupService
 
 
 # Lazy import factory functions
-def get_definition_service(*args, **kwargs):
+def get_definition_service(*args: Any, **kwargs: Any) -> Any:
     from services.service_factory import get_definition_service as _get_service
 
     return _get_service(*args, **kwargs)
