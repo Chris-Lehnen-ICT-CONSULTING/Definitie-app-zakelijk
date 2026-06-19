@@ -71,7 +71,7 @@ class UnifiedPromptBuilder:
             f"UnifiedPromptBuilder geïnitialiseerd met {len(self.builders)} strategies"
         )
 
-    def _init_builders(self):
+    def _init_builders(self) -> None:
         """Initialiseer beschikbare prompt builders."""
         # Modular builder - enige actieve strategy
         self.builders["modular"] = ModularPromptBuilder()
@@ -131,7 +131,7 @@ class UnifiedPromptBuilder:
             return True
         return False
 
-    def clear_forced_strategy(self):
+    def clear_forced_strategy(self) -> None:
         """Clear geforceerde strategy."""
         if hasattr(self, "_forced_strategy"):
             delattr(self, "_forced_strategy")
