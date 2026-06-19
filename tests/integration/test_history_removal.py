@@ -6,7 +6,6 @@ Run this after removing the History tab to ensure no broken functionality.
 import json
 import os
 import sqlite3
-import sys
 from datetime import datetime
 from pathlib import Path
 from unittest.mock import Mock, patch
@@ -14,9 +13,6 @@ from unittest.mock import Mock, patch
 import pytest
 
 pytestmark = [pytest.mark.integration]
-
-# Add project root to path
-sys.path.insert(0, str(Path(__file__).parent.parent))
 
 
 class TestHistoryTabRemoval:

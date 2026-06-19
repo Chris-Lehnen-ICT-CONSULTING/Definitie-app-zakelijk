@@ -6,16 +6,11 @@ Dit script test de async/sync bridge met dezelfde aanpak als de CSV import.
 
 import asyncio
 import logging
-import sys
 import time
-from pathlib import Path
 
 import pytest
 
 pytestmark = [pytest.mark.unit]
-
-# Add project root to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
