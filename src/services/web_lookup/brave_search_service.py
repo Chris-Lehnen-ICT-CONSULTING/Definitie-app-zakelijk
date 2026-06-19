@@ -8,6 +8,7 @@ Gebruikt dezelfde LookupResult interface als andere providers voor naadloze inte
 import logging
 from datetime import UTC, datetime
 from hashlib import sha256
+from types import TracebackType
 from typing import Any, cast
 
 from ..interfaces import LookupResult, WebSource
@@ -53,7 +54,7 @@ class BraveSearchService:
                 logger.warning(f"Kon synoniemen service niet laden: {e}")
                 self._synonym_service = None
 
-    async def __aenter__(self):
+    async def __aenter__(self) -> "BraveSearchService":
         """Async context manager entry - no session needed for MCP."""
         # DEF-248: MCP search function moet via constructor worden geïnjecteerd
         # of later via set_mcp_search() worden ingesteld.
@@ -66,7 +67,12 @@ class BraveSearchService:
             )
         return self
 
-    async def __aexit__(self, exc_type, exc_val, exc_tb):
+    async def __aexit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: TracebackType | None,
+    ) -> None:
         """Async context manager exit - no cleanup needed for MCP."""
 
     async def lookup(
