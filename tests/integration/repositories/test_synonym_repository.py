@@ -95,7 +95,7 @@ class TestSynonymRepository:
         """Create repository with test database and apply migration."""
         # Apply synonym_suggestions migration
         migration_path = (
-            Path(__file__).parent.parent.parent
+            Path(__file__).parent.parent.parent.parent
             / "src"
             / "database"
             / "migrations"
@@ -375,7 +375,7 @@ class TestIntegration:
         """Create repository with test database and apply migration."""
         # Apply synonym_suggestions migration
         migration_path = (
-            Path(__file__).parent.parent.parent
+            Path(__file__).parent.parent.parent.parent
             / "src"
             / "database"
             / "migrations"
