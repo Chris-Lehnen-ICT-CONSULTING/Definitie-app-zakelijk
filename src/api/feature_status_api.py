@@ -8,10 +8,11 @@ from datetime import UTC, datetime
 
 UTC = UTC  # Python 3.10 compatibility
 from pathlib import Path
+from typing import Any, cast
 
 from fastapi import FastAPI, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
-from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
 
 from security.security_middleware import (
     ValidationRequest,
@@ -30,14 +31,16 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
     adds security headers to all responses.
     """
 
-    async def dispatch(self, request: Request, call_next):
+    async def dispatch(
+        self, request: Request, call_next: RequestResponseEndpoint
+    ) -> Response:
         security = get_security_middleware()
 
         # Build ValidationRequest from FastAPI request
         client_ip = request.client.host if request.client else "unknown"
         user_agent = request.headers.get("user-agent", "unknown")
 
-        body_data = {}
+        body_data: dict[str, Any] = {}
         if request.method in ("POST", "PUT", "PATCH"):
             try:
                 body_bytes = await request.body()
@@ -99,7 +102,7 @@ CACHE_DURATION = 300  # 5 minuten
 
 
 @app.get("/api/feature-status")
-async def get_feature_status():
+async def get_feature_status() -> dict[str, Any]:
     """Get current feature status from GitHub or cache"""
     global _feature_cache, _cache_timestamp
 
@@ -107,7 +110,7 @@ async def get_feature_status():
     if _feature_cache and _cache_timestamp:
         cache_age = (datetime.now(UTC) - _cache_timestamp).seconds
         if cache_age < CACHE_DURATION:
-            return _feature_cache
+            return cast(dict[str, Any], _feature_cache)
 
     # Load from JSON file (or fetch from GitHub)
     try:
@@ -118,7 +121,7 @@ async def get_feature_status():
             / "feature-status.json"
         )
         with open(json_path) as f:
-            data = json.load(f)
+            data: dict[str, Any] = json.load(f)
 
         # Update cache
         _feature_cache = data
@@ -130,7 +133,7 @@ async def get_feature_status():
 
 
 @app.get("/api/feature-status/summary")
-async def get_feature_summary():
+async def get_feature_summary() -> dict[str, Any]:
     """Get summary statistics only"""
     data = await get_feature_status()
     return {
@@ -141,19 +144,19 @@ async def get_feature_summary():
 
 
 @app.get("/api/feature-status/epic/{epic_id}")
-async def get_epic_status(epic_id: str):
+async def get_epic_status(epic_id: str) -> dict[str, Any]:
     """Get status for specific epic"""
     data = await get_feature_status()
 
     for epic in data.get("epics", []):
         if epic["id"] == epic_id:
-            return epic
+            return cast(dict[str, Any], epic)
 
     raise HTTPException(status_code=404, detail=f"Epic {epic_id} not found")
 
 
 @app.get("/api/feature-status/by-status/{status}")
-async def get_features_by_status(status: str):
+async def get_features_by_status(status: str) -> dict[str, Any]:
     """Get all features with specific status"""
     valid_statuses = ["complete", "in-progress", "not-started"]
     if status not in valid_statuses:
