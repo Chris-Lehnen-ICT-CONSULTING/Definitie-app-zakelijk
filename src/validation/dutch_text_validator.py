@@ -6,6 +6,7 @@ Provides specialized validation for Dutch language content, government terminolo
 import json
 import logging
 import re
+from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import UTC, datetime
 
@@ -66,7 +67,7 @@ class DutchValidationResult:
 class DutchTextValidator:
     """Main Dutch text validation system."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.validation_rules: dict[DutchTextType, list[DutchValidationRule]] = {}
         self.dutch_dictionary: set[str] = set()
         self.government_terms: set[str] = set()
@@ -76,7 +77,7 @@ class DutchTextValidator:
         self.load_validation_rules()
         self.load_dutch_dictionaries()
 
-    def load_validation_rules(self):
+    def load_validation_rules(self) -> None:
         """Load Dutch text validation rules."""
 
         # General Dutch text rules
@@ -235,7 +236,7 @@ class DutchTextValidator:
         self.validation_rules[DutchTextType.FORMAL] = government_rules + general_rules
         self.validation_rules[DutchTextType.TECHNICAL] = technical_rules + general_rules
 
-    def load_dutch_dictionaries(self):
+    def load_dutch_dictionaries(self) -> None:
         """Load Dutch dictionaries and terminology."""
 
         # Basic Dutch words (sample)
@@ -670,11 +671,13 @@ def suggest_dutch_improvements(
     return validator.suggest_improvements(text, text_type)
 
 
-def dutch_text_decorator(text_type: DutchTextType = DutchTextType.GENERAL):
+def dutch_text_decorator(
+    text_type: DutchTextType = DutchTextType.GENERAL,
+) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
     """Decorator to validate Dutch text in function arguments."""
 
-    def decorator(func):
-        def wrapper(*args, **kwargs):
+    def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
             # Validate text arguments
             for _i, arg in enumerate(args):
                 if (
@@ -698,7 +701,7 @@ def dutch_text_decorator(text_type: DutchTextType = DutchTextType.GENERAL):
     return decorator
 
 
-async def test_dutch_validator():
+async def test_dutch_validator() -> None:
     """Test the Dutch text validation system."""
     logger.info("Testing Dutch Text Validator")
     logger.info("=" * 35)

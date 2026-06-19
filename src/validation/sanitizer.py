@@ -7,6 +7,7 @@ import html
 import json
 import logging
 import re
+from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import UTC, datetime
 
@@ -69,7 +70,7 @@ class SanitizationResult:
 class ContentSanitizer:
     """Main content sanitization system."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.rules: dict[ContentType, list[SanitizationRule]] = {}
         self.sanitization_history: list[dict[str, Any]] = []
         self.load_sanitization_rules()
@@ -171,7 +172,7 @@ class ContentSanitizer:
 
         return escaped
 
-    def load_sanitization_rules(self):
+    def load_sanitization_rules(self) -> None:
         """Load built-in sanitization rules."""
 
         # HTML sanitization rules
@@ -641,11 +642,11 @@ def detect_threats(text: str) -> list[str]:
 def sanitize_input_decorator(
     content_type: ContentType = ContentType.PLAIN_TEXT,
     level: SanitizationLevel = SanitizationLevel.MODERATE,
-):
+) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
     """Decorator to sanitize function inputs."""
 
-    def decorator(func):
-        def wrapper(*args, **kwargs):
+    def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
             sanitizer = get_sanitizer()
 
             # Sanitize args
@@ -673,7 +674,7 @@ def sanitize_input_decorator(
     return decorator
 
 
-async def test_sanitizer():
+async def test_sanitizer() -> None:
     """Test the sanitization system."""
     logger.info("Testing Content Sanitizer")
     logger.info("=" * 28)
