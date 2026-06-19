@@ -153,7 +153,7 @@ def v2_orchestrator(mock_services):
         validation_service=mock_services["validation_service"],
         repository=mock_services["repository"],
         security_service=mock_services["security_service"],
-        monitoring_service=mock_services["monitoring_service"],
+        monitoring=mock_services["monitoring_service"],
         feedback_engine=mock_services["feedback_engine"],
         enhancement_service=mock_services["enhancement_service"],
     )
