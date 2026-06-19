@@ -29,7 +29,7 @@ logger = logging.getLogger(__name__)
 enrichment_logger = logging.getLogger("synonym_enrichment")
 
 
-def _setup_enrichment_logger():
+def _setup_enrichment_logger() -> None:
     """
     Setup dedicated file handler voor enrichment logging.
 
@@ -424,7 +424,9 @@ class SynonymOrchestrator:
             synonyms, _, _ = self._cache[term_normalized]
             return synonyms
 
-    def _store_in_cache(self, term_normalized: str, synonyms: list[WeightedSynonym]):
+    def _store_in_cache(
+        self, term_normalized: str, synonyms: list[WeightedSynonym]
+    ) -> None:
         """
         Store synoniemen in cache met timestamp.
 
@@ -456,7 +458,7 @@ class SynonymOrchestrator:
                 f"(cache size: {len(self._cache)})"
             )
 
-    def invalidate_cache(self, term: str | None = None):
+    def invalidate_cache(self, term: str | None = None) -> None:
         """
         Invalidate cache (called by registry callbacks).
 
@@ -535,7 +537,7 @@ class SynonymOrchestrator:
                 "ttl_seconds": self.config.cache_ttl_seconds,
             }
 
-    def reset_cache_stats(self):
+    def reset_cache_stats(self) -> None:
         """
         Reset cache statistics (voor testing).
 

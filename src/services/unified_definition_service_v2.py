@@ -12,7 +12,7 @@ class UnifiedDefinitionService:  # pragma: no cover - stub for tests
     _instance = None
 
     @classmethod
-    def get_instance(cls, *args: Any, **kwargs: Any):
+    def get_instance(cls, *args: Any, **kwargs: Any) -> Any:
         if cls._instance is None:
             cls._instance = object()
         return cls._instance

@@ -51,7 +51,7 @@ class LegacyGenerationResult:
     Deze class biedt die interface terwijl intern de nieuwe service data gebruikt.
     """
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: Any) -> None:
         """Initialiseer met alle kwargs als attributen."""
         for key, value in kwargs.items():
             setattr(self, key, value)
@@ -72,18 +72,18 @@ class LegacyGenerationResult:
         if not hasattr(self, "total_processing_time"):
             self.total_processing_time = getattr(self, "processing_time", 0.0)
         if not hasattr(self, "iterations"):
-            self.iterations = []
+            self.iterations: list[Any] = []
         # NO MORE best iteration — V2 doesn't use iterations
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: str) -> Any:
         """Dict-like access voor backward compatibility."""
         return getattr(self, key, None)
 
-    def get(self, key, default=None):
+    def get(self, key: str, default: Any = None) -> Any:
         """Dict-like get method."""
         return getattr(self, key, default)
 
-    def __contains__(self, key):
+    def __contains__(self, key: str) -> bool:
         """Support 'in' operator voor dict-like behavior."""
         return hasattr(self, key)
 
@@ -360,7 +360,7 @@ class ServiceAdapter:
         """Handle regeneration context enhancement if present (deprecated - always returns base instructions)."""
         return cast(str, ensure_string(safe_dict_get(kwargs, "extra_instructies", "")))
 
-    def to_ui_response(self, response, agent_result: dict) -> dict:
+    def to_ui_response(self, response: Any, agent_result: dict) -> dict:
         """Convert orchestrator response to canonical UI format.
 
         Creates a UIResponseDict with all required fields populated.
@@ -464,7 +464,9 @@ class ServiceAdapter:
             logger.debug(f"Could not extract saved_definition_id: {e}")
         return result
 
-    async def generate_definition(self, begrip: str, context_dict: dict, **kwargs):
+    async def generate_definition(
+        self, begrip: str, context_dict: dict, **kwargs: Any
+    ) -> dict[str, Any]:
         """
         Legacy compatible definitie generatie (SYNC for legacy UI).
 
@@ -692,7 +694,7 @@ class ServiceAdapter:
 # Intentionally avoid binding a static reference so tests can patch the symbol.
 
 
-def get_service(*args, **kwargs):
+def get_service(*args: Any, **kwargs: Any) -> Any:
     """Legacy alias for obtaining the definition service (adapter by default)."""
     return get_definition_service(*args, **kwargs)
 
@@ -717,8 +719,8 @@ class ServiceFactory:
 
     # Legacy Dutch-named wrapper used by some historical tests
     def genereer_definitie(
-        self, begrip: str, context: str | dict | None = None, **kwargs
-    ):
+        self, begrip: str, context: str | dict | None = None, **kwargs: Any
+    ) -> dict:
         """Sync wrapper is verwijderd. Gebruik UI async_bridge vanuit de UI-laag."""
         msg = (
             "genereer_definitie (sync) is verwijderd uit services. "
@@ -727,7 +729,9 @@ class ServiceFactory:
         raise NotImplementedError(msg)
 
     # Modern wrapper
-    def generate_definition(self, begrip: str, context_dict: dict, **kwargs):
+    def generate_definition(
+        self, begrip: str, context_dict: dict, **kwargs: Any
+    ) -> dict:
         """Sync wrapper is verwijderd; zie NotImplementedError boven."""
         return self.genereer_definitie(begrip=begrip, context=context_dict, **kwargs)
 
@@ -735,7 +739,7 @@ class ServiceFactory:
         return self._adapter.get_stats()
 
 
-def get_definition_service():
+def get_definition_service() -> "ServiceAdapter":
     """
     Get the V2 service (always returns V2 container).
 
@@ -750,7 +754,7 @@ def get_definition_service():
     if not is_pytest:
         cached = safe_dict_get(_SERVICE_ADAPTER_CACHE, key)
         if cached is not None:
-            return cached
+            return cast("ServiceAdapter", cached)
 
     # Get singleton container directly (no config parameter)
     container = get_cached_container()
