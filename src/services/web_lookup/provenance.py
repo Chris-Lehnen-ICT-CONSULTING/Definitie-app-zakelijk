@@ -64,7 +64,7 @@ def _is_authoritative_source(provider: str) -> bool:
     return provider in ["rechtspraak", "overheid"]
 
 
-def _extract_legal_metadata(result) -> dict[str, Any] | None:
+def _extract_legal_metadata(result: Any) -> dict[str, Any] | None:
     """Extract juridical metadata from legal sources.
 
     This version works with objects that have attributes.

@@ -90,7 +90,7 @@ class ContextManager:
     ensuring consistency, validation, and audit trail compliance.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the context manager."""
         self._context: ContextData | None = None
         self._audit_trail: list[ContextAuditEntry] = []
