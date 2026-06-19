@@ -88,7 +88,7 @@ class ServiceContextAdapter:
         return cast("dict[str, Any]", merged)
 
     def prepare_generation_request(
-        self, begrip: str, context_data: dict[str, Any] | None = None, **kwargs
+        self, begrip: str, context_data: dict[str, Any] | None = None, **kwargs: Any
     ) -> dict[str, Any]:
         """
         Prepare a generation request with context.

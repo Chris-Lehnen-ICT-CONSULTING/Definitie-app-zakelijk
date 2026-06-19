@@ -83,7 +83,7 @@ def rank_and_dedup(
     deduped = list(by_hash.values()) + list(by_url.values())
 
     # Sort deterministically
-    def _key(x: dict[str, Any]):
+    def _key(x: dict[str, Any]) -> tuple[float, int, str, str]:
         return (
             -_final_score(x, provider_weights),
             -int(bool(x.get("is_authoritative", False))),

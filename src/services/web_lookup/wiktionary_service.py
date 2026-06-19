@@ -8,6 +8,7 @@ nl.wiktionary.org om een korte definitie op te halen.
 from __future__ import annotations
 
 import logging
+from types import TracebackType
 from typing import Any, cast
 from urllib.parse import quote
 
@@ -40,7 +41,7 @@ class WiktionaryService:
             "User-Agent": "DefinitieApp/1.0 (https://github.com/definitie-app; support@definitie-app.nl)",
         }
 
-    async def __aenter__(self):
+    async def __aenter__(self) -> WiktionaryService:
         if not AIOHTTP_AVAILABLE:
             msg = "aiohttp vereist voor WiktionaryService"
             raise RuntimeError(msg)
@@ -49,7 +50,12 @@ class WiktionaryService:
         )
         return self
 
-    async def __aexit__(self, exc_type, exc_val, exc_tb):
+    async def __aexit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: TracebackType | None,
+    ) -> None:
         if self.session:
             await self.session.close()
 

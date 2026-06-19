@@ -29,6 +29,7 @@ from datetime import UTC
 
 UTC = UTC  # Python 3.10 compatibility
 
+from types import TracebackType
 from typing import cast
 
 from ..interfaces import LookupResult, WebSource
@@ -149,7 +150,7 @@ class SRUService:
             ),
         }
 
-    async def __aenter__(self):
+    async def __aenter__(self) -> "SRUService":
         """Async context manager entry."""
         if not AIOHTTP_AVAILABLE:
             msg = "aiohttp is vereist voor SRU service"
@@ -188,7 +189,12 @@ class SRUService:
         )
         return self
 
-    async def __aexit__(self, exc_type, exc_val, exc_tb):
+    async def __aexit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: TracebackType | None,
+    ) -> None:
         """Async context manager exit."""
         if self.session:
             await self.session.close()

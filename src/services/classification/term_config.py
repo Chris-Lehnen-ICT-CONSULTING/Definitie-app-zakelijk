@@ -40,11 +40,11 @@ class TermPatternConfig:
     category_priority: list[str]
     confidence_thresholds: dict[str, float]
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Valideer config na initialisatie."""
         self._validate()
 
-    def _validate(self):
+    def _validate(self) -> None:
         """Valideer config structuur."""
         # 1. Threshold keys (prevents missing keys)
         required_thresholds = {"high", "medium", "low"}
@@ -166,7 +166,7 @@ def load_term_config(
     return config
 
 
-def reset_config_cache():
+def reset_config_cache() -> None:
     """
     Reset de config cache (voor testing).
 

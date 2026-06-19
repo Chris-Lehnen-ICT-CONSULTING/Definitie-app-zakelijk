@@ -29,7 +29,7 @@ class ContextMatch:
 class ContextFilter:
     """Filter en score results op basis van context relevantie."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize context filter met keyword patterns."""
         # Organizational context patterns (case-insensitive)
         self.org_patterns = {
