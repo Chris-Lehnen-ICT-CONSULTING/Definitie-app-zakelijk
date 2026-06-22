@@ -23,7 +23,7 @@ class TemplateModule(BasePromptModule):
     om consistente definities te bevorderen.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize de template module."""
         super().__init__(
             module_id="template",

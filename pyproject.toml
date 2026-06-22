@@ -202,17 +202,6 @@ module = [
     # import-resolutie), wat ~22 spurieuze no-any-return geeft. Deferred tot de
     # import-resolutie is opgelost (apart van de batch-1 annotatie-afbouw).
     "src.database.definitie_repository",
-    "src.services.prompts.modules.context_awareness_module",
-    "src.services.prompts.modules.definition_task_module",
-    "src.services.prompts.modules.error_prevention_module",
-    "src.services.prompts.modules.expertise_module",
-    "src.services.prompts.modules.grammar_module",
-    "src.services.prompts.modules.integrity_rules_module",
-    "src.services.prompts.modules.metrics_module",
-    "src.services.prompts.modules.output_specification_module",
-    "src.services.prompts.modules.semantic_categorisation_module",
-    "src.services.prompts.modules.structure_rules_module",
-    "src.services.prompts.modules.template_module",
     "src.voorbeelden.robust_cache",
     "src.voorbeelden.unified_voorbeelden",
 ]
