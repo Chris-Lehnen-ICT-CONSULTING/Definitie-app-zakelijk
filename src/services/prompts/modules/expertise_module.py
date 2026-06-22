@@ -27,7 +27,7 @@ class ExpertiseModule(BasePromptModule):
     basis taken definieert.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize de expertise module."""
         super().__init__(
             module_id="expertise",

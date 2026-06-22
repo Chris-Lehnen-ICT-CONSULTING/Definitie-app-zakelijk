@@ -36,7 +36,7 @@ class SemanticCategorisationModule(BasePromptModule):
     ontologische categorie van het begrip.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize de semantic categorisation module."""
         super().__init__(
             module_id="semantic_categorisation",
