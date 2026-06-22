@@ -11,16 +11,16 @@ Legacy validator removed (US-043):
 
 import logging
 import os
-from typing import Any, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from services.container import ContainerConfigs, ServiceContainer
 from utils.container_manager import get_cached_container
 from utils.dict_helpers import safe_dict_get
 from utils.type_helpers import ensure_dict, ensure_list, ensure_string
 
-# TYPE_CHECKING import verwijderd - UnifiedDefinitionGenerator niet meer nodig
-# if TYPE_CHECKING:
-#     from services.unified_definition_generator import UnifiedDefinitionGenerator
+if TYPE_CHECKING:
+    # Alleen voor type-annotaties; geen runtime-import nodig (DEF-451).
+    from services.interfaces import DefinitionResponse, DefinitionResponseV2
 
 logger = logging.getLogger(__name__)
 
@@ -360,12 +360,23 @@ class ServiceAdapter:
         """Handle regeneration context enhancement if present (deprecated - always returns base instructions)."""
         return cast(str, ensure_string(safe_dict_get(kwargs, "extra_instructies", "")))
 
-    def to_ui_response(self, response: Any, agent_result: dict) -> dict:
+    def to_ui_response(
+        self, response: Any, agent_result: dict | None = None
+    ) -> dict[str, Any]:
         """Convert orchestrator response to canonical UI format.
 
+        Dit is de enige serialisatie-seam tussen het getypeerde orchestrator-response
+        en de canonieke UI-dict (DEF-451): bevat de failure-afhandeling en de legacy
+        compat-aliassen die voorheen in ``generate_definition`` stonden.
         Creates a UIResponseDict with all required fields populated.
         No best iteration attr, no is_valid, only the canonical V2 format.
         """
+
+        # Failure-pad: voorheen vóór de to_ui_response-aanroep in generate_definition.
+        if not getattr(response, "success", False) or not getattr(
+            response, "definition", None
+        ):
+            return self._create_failure_response(response)
 
         # Extract definition text
         definitie_text = ""
@@ -462,16 +473,30 @@ class ServiceAdapter:
         except (TypeError, ValueError, AttributeError) as e:
             # DEF-229: Log ID extraction failures (non-critical, UI still works)
             logger.debug(f"Could not extract saved_definition_id: {e}")
+
+        # Legacy compat-aliassen (voorheen toegevoegd in generate_definition, DEF-451)
+        result["final_definitie"] = result["definitie_gecorrigeerd"]  # Legacy alias
+        result["marker"] = ensure_string(
+            safe_dict_get(response.definition.metadata, "marker", "")
+        )
+        result["validation_score"] = result["final_score"]  # Legacy alias
+        result["prompt_text"] = ensure_string(
+            safe_dict_get(result["metadata"], "prompt_text", "")
+        )
+        result["prompt_template"] = safe_dict_get(
+            result["metadata"], "prompt_template", ""
+        )
         return result
 
     async def generate_definition(
         self, begrip: str, context_dict: dict, **kwargs: Any
-    ) -> dict[str, Any]:
+    ) -> "DefinitionResponse | DefinitionResponseV2":
         """
-        Legacy compatible definitie generatie (SYNC for legacy UI).
+        Genereer een definitie en retourneer het getypeerde orchestrator-response.
 
-        Vertaalt de legacy interface naar de nieuwe service calls.
-        Deze methode is sync om legacy UI compatibility te behouden.
+        Vertaalt de legacy dict-interface naar een GenerationRequest en delegeert naar
+        de V2-orchestrator. De servicelaag lekt geen UI-dict meer (DEF-451): serialisatie
+        naar de canonieke dict gebeurt apart via ``to_ui_response``.
         """
         from services.interfaces import GenerationRequest
         from utils.progress_callback import operation_progress
@@ -554,37 +579,11 @@ class ServiceAdapter:
                     # DEF-229: Log snippet normalization failures
                     logger.warning(f"Failed to normalize document snippets: {e}")
 
-            # Handle V2 orchestrator async call properly
-            response = await self.orchestrator.create_definition(
+            # DEF-451: servicelaag retourneert het getypeerde domeinobject; UI-serialisatie
+            # naar de canonieke dict gebeurt apart via to_ui_response.
+            return await self.orchestrator.create_definition(
                 request, context=extra_context or None
             )
-
-            # Early return for failure case
-            if not response.success or not response.definition:
-                return self._create_failure_response(response)
-
-            # Convert to canonical UI format using normalization
-            ui_response = self.to_ui_response(response, {})
-
-            # Add minimal legacy compatibility fields
-            return {
-                **ui_response,
-                "success": True,
-                "final_definitie": ui_response[
-                    "definitie_gecorrigeerd"
-                ],  # Legacy alias
-                "marker": ensure_string(
-                    safe_dict_get(response.definition.metadata, "marker", "")
-                ),
-                "validation_score": ui_response["final_score"],  # Legacy alias
-                # Ensure prompt fields are available for debug
-                "prompt_text": ensure_string(
-                    safe_dict_get(ui_response["metadata"], "prompt_text", "")
-                ),
-                "prompt_template": safe_dict_get(
-                    ui_response["metadata"], "prompt_template", ""
-                ),
-            }
 
     def _create_failure_response(self, response: Any) -> dict:
         """Create a standardized failure response."""
