@@ -321,6 +321,11 @@ class TestOrchestratorInterface:
             ) -> DefinitionResponse:
                 return DefinitionResponse(success=True, definition=definition)
 
+            @property
+            def validation_service(self):
+                # Abstract op de interface; deze stub gebruikt validatie niet.
+                return MagicMock()
+
         orchestrator = ConcreteOrchestrator()
         request = GenerationRequest(id="test", begrip="test_begrip")
 
