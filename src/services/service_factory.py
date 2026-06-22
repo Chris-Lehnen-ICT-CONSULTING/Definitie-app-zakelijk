@@ -360,6 +360,33 @@ class ServiceAdapter:
         """Handle regeneration context enhancement if present (deprecated - always returns base instructions)."""
         return cast(str, ensure_string(safe_dict_get(kwargs, "extra_instructies", "")))
 
+    def _build_ui_metadata(self, response: Any) -> dict[str, Any]:
+        """Bouw het metadata-deel van de UI-response (incl. geselecteerde web-lookup-velden)."""
+        metadata: dict[str, Any] = {}
+        if not (response.definition and response.definition.metadata):
+            return metadata
+        md = response.definition.metadata
+        metadata = {
+            "prompt_template": safe_dict_get(md, "prompt_template"),
+            "prompt_text": safe_dict_get(md, "prompt_text"),
+            "context": ensure_dict(safe_dict_get(md, "context", {})),
+            "generation_id": ensure_string(safe_dict_get(md, "generation_id", "")),
+            "duration": safe_dict_get(md, "processing_time", 0.0),
+            "model": ensure_string(safe_dict_get(md, "model", "")),
+        }
+        for k in (
+            "web_lookup_status",
+            "web_lookup_available",
+            "web_lookup_timeout",
+            "web_sources_count",
+            "web_lookup_debug",
+            "web_lookup_debug_available",
+        ):
+            v = safe_dict_get(md, k)
+            if v is not None:
+                metadata[k] = v
+        return metadata
+
     def to_ui_response(self, response: Any) -> dict[str, Any]:
         """Convert orchestrator response to canonical UI format.
 
@@ -421,28 +448,7 @@ class ServiceAdapter:
                 )
 
         # Build metadata (include selected web lookup fields for UI status/debugging)
-        metadata = {}
-        if response.definition and response.definition.metadata:
-            md = response.definition.metadata
-            metadata = {
-                "prompt_template": safe_dict_get(md, "prompt_template"),
-                "prompt_text": safe_dict_get(md, "prompt_text"),
-                "context": ensure_dict(safe_dict_get(md, "context", {})),
-                "generation_id": ensure_string(safe_dict_get(md, "generation_id", "")),
-                "duration": safe_dict_get(md, "processing_time", 0.0),
-                "model": ensure_string(safe_dict_get(md, "model", "")),
-            }
-            for k in (
-                "web_lookup_status",
-                "web_lookup_available",
-                "web_lookup_timeout",
-                "web_sources_count",
-                "web_lookup_debug",
-                "web_lookup_debug_available",
-            ):
-                v = safe_dict_get(md, k)
-                if v is not None:
-                    metadata[k] = v
+        metadata = self._build_ui_metadata(response)
 
         # Extract sources
         sources = []
