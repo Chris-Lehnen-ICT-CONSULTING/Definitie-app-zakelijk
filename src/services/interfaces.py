@@ -13,10 +13,17 @@ from dataclasses import (  # Dataclass decorators voor gestructureerde data
 from datetime import datetime  # Datum/tijd functionaliteit voor timestamps
 from enum import Enum  # Enumeratie types voor constante waarden
 from typing import (  # Type hints voor flexibele type definities
+    TYPE_CHECKING,
     Any,
     TypedDict,
     cast,
 )
+
+if TYPE_CHECKING:
+    # Alleen voor type-checking geïmporteerd: services.validation.interfaces
+    # importeert op zijn beurt uit deze module (Definition), dus een runtime-import
+    # zou een circulaire import veroorzaken.
+    from services.validation.interfaces import ValidationOrchestratorInterface
 
 # =====================================
 # V2 CANONICAL CONTRACTS (EPIC-010)
@@ -559,6 +566,22 @@ class DefinitionOrchestratorInterface(ABC):
             True indien succesvol
         """
         return False  # Default implementatie
+
+    @property
+    def validation_service(self) -> "ValidationOrchestratorInterface":
+        """
+        Lazy-loaded validatie-orchestrator gekoppeld aan deze orchestrator.
+
+        Onderdeel van het contract zodat consumers (bv. de ServiceContainer)
+        ``orchestrator.validation_service`` getypeerd kunnen benaderen zonder cast.
+        Niet-abstract met een NotImplementedError-default, conform de stijl van
+        ``get_definition``/``update_definition_status``: implementaties die geen
+        validatie aanbieden hoeven de property niet te overschrijven.
+
+        Returns:
+            ValidationOrchestratorInterface instance (lazy-loaded, cached)
+        """
+        raise NotImplementedError  # Default implementatie
 
 
 # Web Lookup Data Transfer Objects
