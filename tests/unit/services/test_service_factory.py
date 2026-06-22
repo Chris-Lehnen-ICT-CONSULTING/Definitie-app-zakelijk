@@ -20,6 +20,7 @@ from services.container import ContainerConfigs, ServiceContainer
 from services.interfaces import (
     Definition,
     DefinitionResponse,
+    DefinitionResponseV2,
     GenerationRequest,
     ValidationResult,
 )
@@ -346,6 +347,33 @@ class TestServiceAdapter:
         # EPIC-010: domein field verwijderd
         assert call_args.organisatie == "Test Org"
         assert call_args.extra_instructies == "Extra info"
+
+    @pytest.mark.asyncio
+    async def test_generate_definition_returns_typed_response(
+        self, service_adapter, mock_orchestrator
+    ):
+        """DEF-451: generate_definition geeft het getypeerde response-object terug
+        (geen UI-dict); to_ui_response is de serialisatie-seam naar de canonieke dict.
+        """
+        mock_response = DefinitionResponse(
+            success=True,
+            definition=Definition(begrip="Test", definitie="Test def"),
+            validation=None,
+        )
+        mock_orchestrator.create_definition.return_value = mock_response
+
+        response = await service_adapter.generate_definition("Test", {})
+
+        # Servicelaag lekt geen dict meer: het is het domeinobject zelf
+        assert not isinstance(response, dict)
+        assert isinstance(response, (DefinitionResponse, DefinitionResponseV2))
+        assert response is mock_response
+
+        # to_ui_response maakt er de canonieke UI-dict van
+        ui = service_adapter.to_ui_response(response)
+        assert isinstance(ui, dict)
+        assert ui["success"] is True
+        assert ui["definitie_gecorrigeerd"] == "Test def"
 
     @pytest.mark.asyncio
     async def test_generate_definition_failure(
