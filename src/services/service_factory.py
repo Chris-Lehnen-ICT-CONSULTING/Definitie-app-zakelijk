@@ -360,9 +360,7 @@ class ServiceAdapter:
         """Handle regeneration context enhancement if present (deprecated - always returns base instructions)."""
         return cast(str, ensure_string(safe_dict_get(kwargs, "extra_instructies", "")))
 
-    def to_ui_response(
-        self, response: Any, agent_result: dict | None = None
-    ) -> dict[str, Any]:
+    def to_ui_response(self, response: Any) -> dict[str, Any]:
         """Convert orchestrator response to canonical UI format.
 
         Dit is de enige serialisatie-seam tussen het getypeerde orchestrator-response
