@@ -389,6 +389,13 @@ class TestClassificationFlow:
                 "validation_details": {},
             }
 
+            # DEF-451: de handler serialiseert het run_async-resultaat via
+            # definition_service.to_ui_response(). Geef het in de test ongewijzigd
+            # door, zodat service_result een bruikbare dict is — onafhankelijk van of
+            # definition_service een mock of een (via _SERVICE_ADAPTER_CACHE
+            # gepollueerde) echte ServiceAdapter is. Voorkomt order-afhankelijke flakiness.
+            interface.generation_handler.definition_service.to_ui_response = lambda r: r
+
             mock_session.get_value.side_effect = (
                 lambda k, d=None: classification_state.get(k, d)
             )
