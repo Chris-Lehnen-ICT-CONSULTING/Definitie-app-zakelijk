@@ -23,7 +23,7 @@ class IntegrityRulesModule(BasePromptModule):
     van definities valideren.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize de integrity rules module."""
         super().__init__(
             module_id="integrity_rules",

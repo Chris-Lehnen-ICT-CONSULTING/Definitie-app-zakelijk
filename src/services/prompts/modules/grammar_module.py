@@ -23,7 +23,7 @@ class GrammarModule(BasePromptModule):
     voor het formuleren van definities.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize de grammar module."""
         super().__init__(
             module_id="grammar",
