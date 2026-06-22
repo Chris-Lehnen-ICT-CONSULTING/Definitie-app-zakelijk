@@ -357,9 +357,9 @@ class ServiceContainer:
         # DEF-90: Validation is now lazy-loaded via orchestrator property
         # Access orchestrator.validation_service to trigger lazy load if needed
         orchestrator = self.orchestrator()
-        # cast: DefinitionOrchestratorInterface lacks the concrete V2
-        # ``validation_service`` property, so mypy infers Any here.
-        return cast("ValidationOrchestratorInterface", orchestrator.validation_service)
+        # DefinitionOrchestratorInterface exposeert nu de validation_service-property
+        # (getypeerd als ValidationOrchestratorInterface), dus geen cast meer nodig.
+        return orchestrator.validation_service
 
     def ontological_classifier(self) -> "OntologicalClassifier":
         """
