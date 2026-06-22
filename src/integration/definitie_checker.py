@@ -247,9 +247,11 @@ class DefinitieChecker:
                 extra_kwargs["enable_hybrid"] = enable_hybrid
 
             async def _task() -> Any:
-                return await adapter.generate_definition(
+                # DEF-451: serialiseer het getypeerde response naar de UI-dict
+                response = await adapter.generate_definition(
                     begrip, context_dict, **extra_kwargs
                 )
+                return adapter.to_ui_response(response)
 
             integrated_result = asyncio.run(asyncio.wait_for(_task(), timeout=120))
 
@@ -349,7 +351,8 @@ class DefinitieChecker:
         }
 
         async def _task2() -> Any:
-            return await adapter.generate_definition(
+            # DEF-451: serialiseer het getypeerde response naar de UI-dict
+            response = await adapter.generate_definition(
                 begrip=existing.begrip,
                 context_dict=context_dict,
                 categorie=categorie.value,
@@ -359,6 +362,7 @@ class DefinitieChecker:
                     else ""
                 ),
             )
+            return adapter.to_ui_response(response)
 
         integrated_result = asyncio.run(asyncio.wait_for(_task2(), timeout=120))
 
@@ -709,12 +713,10 @@ def generate_or_retrieve_definition(
 
         # Step 3: Generate using integrated service (async API, V2 dict response)
         try:
-            # ServiceAdapter.generate_definition is async and returns a V2 UIResponse-like dict
-            integrated_result = (
-                await self._get_integrated_service().generate_definition(
-                    begrip, context
-                )
-            )
+            # ServiceAdapter.generate_definition is async; serialiseer naar UI-dict (DEF-451)
+            _svc = self._get_integrated_service()
+            _response = await _svc.generate_definition(begrip, context)
+            integrated_result = _svc.to_ui_response(_response)
 
             # Expect a dict: { success: bool, definitie_gecorrigeerd: str, final_score: float, ... }
             if isinstance(integrated_result, dict) and integrated_result.get("success"):

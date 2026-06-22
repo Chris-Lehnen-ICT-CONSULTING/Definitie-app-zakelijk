@@ -269,7 +269,7 @@ class DefinitionGenerationHandler:
                     "rag_selected_collection_ids", None
                 )
 
-                service_result = run_async(
+                _response = run_async(
                     self.definition_service.generate_definition(
                         begrip=begrip,
                         context_dict={
@@ -293,6 +293,8 @@ class DefinitionGenerationHandler:
                     ),
                     timeout=120,
                 )
+                # DEF-451: serialiseer het getypeerde response naar de canonieke UI-dict
+                service_result = self.definition_service.to_ui_response(_response)
 
                 # Converteer naar checker formaat voor UI compatibility
                 check_result = None
