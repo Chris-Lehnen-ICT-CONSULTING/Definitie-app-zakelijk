@@ -72,7 +72,7 @@ class EvaluationContext:
     tokens: Any = field(default_factory=lambda: ReadOnlySequence(()))
     metadata: dict[str, Any] = field(default_factory=dict)
 
-    def __post_init__(self):  # type: ignore[override]
+    def __post_init__(self) -> None:  # type: ignore[override]
         # Wrap tokens in a read-only sequence (compare equal to lists, no append)
         if not isinstance(self.tokens, ReadOnlySequence):
             object.__setattr__(self, "tokens", ReadOnlySequence(self.tokens))

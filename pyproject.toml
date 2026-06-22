@@ -213,11 +213,6 @@ module = [
     "src.services.prompts.modules.semantic_categorisation_module",
     "src.services.prompts.modules.structure_rules_module",
     "src.services.prompts.modules.template_module",
-    "src.services.validation.astra_validator",
-    "src.services.validation.config",
-    "src.services.validation.context_validator",
-    "src.services.validation.modular_validation_service",
-    "src.services.validation.types_internal",
     "src.voorbeelden.robust_cache",
     "src.voorbeelden.unified_voorbeelden",
 ]
