@@ -78,7 +78,8 @@ async def test_overall_score_param(
         score_present, score_value
     )
 
-    result = await adapter.generate_definition("Test", {})
+    _response = await adapter.generate_definition("Test", {})
+    result = adapter.to_ui_response(_response)
 
     assert result["final_score"] == expected
     assert result["validation_details"]["overall_score"] == expected
