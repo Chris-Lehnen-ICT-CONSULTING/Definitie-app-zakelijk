@@ -117,7 +117,8 @@ class TestOverallScoreRobustness:
             85.5
         )
 
-        result = await service_adapter.generate_definition("Test", {})
+        _response = await service_adapter.generate_definition("Test", {})
+        result = service_adapter.to_ui_response(_response)
 
         assert result["validation_details"]["overall_score"] == 85.5
         assert result["final_score"] == 85.5
@@ -132,7 +133,8 @@ class TestOverallScoreRobustness:
             90
         )
 
-        result = await service_adapter.generate_definition("Test", {})
+        _response = await service_adapter.generate_definition("Test", {})
+        result = service_adapter.to_ui_response(_response)
 
         assert result["validation_details"]["overall_score"] == 90.0
         assert result["final_score"] == 90.0
@@ -146,7 +148,8 @@ class TestOverallScoreRobustness:
             include_score=False
         )
 
-        result = await service_adapter.generate_definition("Test", {})
+        _response = await service_adapter.generate_definition("Test", {})
+        result = service_adapter.to_ui_response(_response)
 
         # Should default to 0.0 when missing
         assert result["validation_details"]["overall_score"] == 0.0
@@ -161,7 +164,8 @@ class TestOverallScoreRobustness:
             None
         )
 
-        result = await service_adapter.generate_definition("Test", {})
+        _response = await service_adapter.generate_definition("Test", {})
+        result = service_adapter.to_ui_response(_response)
 
         # Should default to 0.0 when None
         assert result["validation_details"]["overall_score"] == 0.0
@@ -175,7 +179,8 @@ class TestOverallScoreRobustness:
             ""
         )
 
-        result = await service_adapter.generate_definition("Test", {})
+        _response = await service_adapter.generate_definition("Test", {})
+        result = service_adapter.to_ui_response(_response)
 
         # Empty string should default to 0.0
         assert result["validation_details"]["overall_score"] == 0.0
@@ -189,7 +194,8 @@ class TestOverallScoreRobustness:
             "75.5"
         )
 
-        result = await service_adapter.generate_definition("Test", {})
+        _response = await service_adapter.generate_definition("Test", {})
+        result = service_adapter.to_ui_response(_response)
 
         # Should convert string to float
         assert result["validation_details"]["overall_score"] == 75.5
@@ -202,7 +208,8 @@ class TestOverallScoreRobustness:
         orchestrator = mock_container.orchestrator.return_value
         orchestrator.create_definition.return_value = self.create_validation_response(0)
 
-        result = await service_adapter.generate_definition("Test", {})
+        _response = await service_adapter.generate_definition("Test", {})
+        result = service_adapter.to_ui_response(_response)
 
         # Zero should be preserved, not replaced with default
         assert result["validation_details"]["overall_score"] == 0.0
@@ -216,7 +223,8 @@ class TestOverallScoreRobustness:
             -25.5
         )
 
-        result = await service_adapter.generate_definition("Test", {})
+        _response = await service_adapter.generate_definition("Test", {})
+        result = service_adapter.to_ui_response(_response)
 
         # Negative values should be preserved
         assert result["validation_details"]["overall_score"] == -25.5
@@ -231,7 +239,8 @@ class TestOverallScoreRobustness:
             large_score
         )
 
-        result = await service_adapter.generate_definition("Test", {})
+        _response = await service_adapter.generate_definition("Test", {})
+        result = service_adapter.to_ui_response(_response)
 
         assert result["validation_details"]["overall_score"] == large_score
         assert result["final_score"] == large_score
@@ -244,7 +253,8 @@ class TestOverallScoreRobustness:
             validation_exists=False
         )
 
-        result = await service_adapter.generate_definition("Test", {})
+        _response = await service_adapter.generate_definition("Test", {})
+        result = service_adapter.to_ui_response(_response)
 
         # Should handle gracefully with defaults
         assert result["validation_details"]["overall_score"] == 0.0
@@ -261,7 +271,8 @@ class TestOverallScoreRobustness:
             True
         )
 
-        result = await service_adapter.generate_definition("Test", {})
+        _response = await service_adapter.generate_definition("Test", {})
+        result = service_adapter.to_ui_response(_response)
 
         # True converts to 1.0 in Python
         assert result["validation_details"]["overall_score"] == 1.0
@@ -275,7 +286,8 @@ class TestOverallScoreRobustness:
             False
         )
 
-        result = await service_adapter.generate_definition("Test", {})
+        _response = await service_adapter.generate_definition("Test", {})
+        result = service_adapter.to_ui_response(_response)
 
         # False converts to 0.0 in Python but should not trigger the 'or' clause
         assert result["validation_details"]["overall_score"] == 0.0
@@ -355,7 +367,9 @@ class TestConcurrentValidations:
             for i, adapter in enumerate(adapters)
         ]
 
-        results = await asyncio.gather(*tasks)
+        responses = await asyncio.gather(*tasks)
+        # DEF-451: serialiseer elk getypeerd response naar de UI-dict
+        results = [adapters[i].to_ui_response(r) for i, r in enumerate(responses)]
 
         # Verify results
         expected_scores = [100.0, 0.0, 50.5, 0.0, -10.0]
@@ -423,7 +437,12 @@ class TestConcurrentValidations:
             tasks.append(adapter.generate_definition(f"Test{i}", {}))
 
         # Some tasks might fail, use gather with return_exceptions
-        results = await asyncio.gather(*tasks, return_exceptions=True)
+        responses = await asyncio.gather(*tasks, return_exceptions=True)
+        # DEF-451: serialiseer niet-exception responses naar de UI-dict
+        results = [
+            r if isinstance(r, Exception) else adapters[i].to_ui_response(r)
+            for i, r in enumerate(responses)
+        ]
 
         # Check that valid ones succeeded
         for i, result in enumerate(results):
@@ -484,7 +503,9 @@ class TestProductionReadiness:
         # Process batch
         tasks = [adapter.generate_definition(f"Test{i}", {}) for i in range(batch_size)]
 
-        results = await asyncio.gather(*tasks)
+        responses = await asyncio.gather(*tasks)
+        # DEF-451: serialiseer elk getypeerd response naar de UI-dict
+        results = [adapter.to_ui_response(r) for r in responses]
 
         # Verify all processed correctly
         assert len(results) == batch_size
@@ -523,7 +544,8 @@ class TestProductionReadiness:
 
         # Should handle gracefully or raise appropriate error
         try:
-            result = await adapter.generate_definition("Test", {})
+            _response = await adapter.generate_definition("Test", {})
+            result = adapter.to_ui_response(_response)
             # If it succeeds, check for safe defaults
             if "validation_details" in result:
                 assert isinstance(result["validation_details"], dict)
@@ -599,7 +621,8 @@ class TestDocumentedBehavior:
                 message="Success",
             )
 
-            result = await adapter.generate_definition("Test", {})
+            _response = await adapter.generate_definition("Test", {})
+            result = adapter.to_ui_response(_response)
 
             # Verify the conversion logic
             expected = float(test_dict.get("overall_score") or 0.0)
@@ -641,7 +664,8 @@ class TestDocumentedBehavior:
             message="Success",
         )
 
-        result = await adapter.generate_definition("Test", {})
+        _response = await adapter.generate_definition("Test", {})
+        result = adapter.to_ui_response(_response)
 
         # Line 297 uses validation_details.get("overall_score", 0.0)
         assert result["final_score"] == 0.0  # Default when missing
