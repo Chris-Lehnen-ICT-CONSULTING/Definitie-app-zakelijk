@@ -19,8 +19,12 @@ from utils.dict_helpers import safe_dict_get
 from utils.type_helpers import ensure_dict, ensure_list, ensure_string
 
 if TYPE_CHECKING:
-    # Alleen voor type-annotaties; geen runtime-import nodig (DEF-451).
-    from services.interfaces import DefinitionResponse, DefinitionResponseV2
+    # Alleen voor type-annotaties; geen runtime-import nodig (DEF-451/DEF-452).
+    from services.interfaces import (
+        DefinitionResponse,
+        DefinitionResponseV2,
+        UIResponseDict,
+    )
 
 logger = logging.getLogger(__name__)
 
@@ -387,7 +391,7 @@ class ServiceAdapter:
                 metadata[k] = v
         return metadata
 
-    def to_ui_response(self, response: Any) -> dict[str, Any]:
+    def to_ui_response(self, response: Any) -> "UIResponseDict":
         """Convert orchestrator response to canonical UI format.
 
         Dit is de enige serialisatie-seam tussen het getypeerde orchestrator-response
@@ -491,7 +495,9 @@ class ServiceAdapter:
         result["prompt_template"] = safe_dict_get(
             result["metadata"], "prompt_template", ""
         )
-        return result
+        # cast: result wordt incrementeel opgebouwd (dict[str, Any]); de shape voldoet
+        # aan UIResponseDict maar mypy kan dat niet verifiëren bij stapsgewijze opbouw.
+        return cast("UIResponseDict", result)
 
     async def generate_definition(
         self, begrip: str, context_dict: dict, **kwargs: Any
@@ -590,19 +596,28 @@ class ServiceAdapter:
                 request, context=extra_context or None
             )
 
-    def _create_failure_response(self, response: Any) -> dict:
-        """Create a standardized failure response."""
-        return {
-            "success": False,
-            "error_message": getattr(response, "message", None) or "Generatie mislukt",
-            "definitie_gecorrigeerd": "Generatie mislukt",
-            "voorbeelden": {},
-            "metadata": (
-                getattr(response, "definition", None)
-                and getattr(response.definition, "metadata", {})
-            )
-            or {},
-        }
+    def _create_failure_response(self, response: Any) -> "UIResponseDict":
+        """Create a standardized failure response.
+
+        Bewust een gedeeltelijke UIResponseDict (success=False + error_message); de
+        cast houdt de gedragsvorm exact gelijk aan vóór DEF-452 (consumers gebruiken
+        ``.get(...)``), terwijl het publieke contract getypeerd blijft.
+        """
+        return cast(
+            "UIResponseDict",
+            {
+                "success": False,
+                "error_message": getattr(response, "message", None)
+                or "Generatie mislukt",
+                "definitie_gecorrigeerd": "Generatie mislukt",
+                "voorbeelden": {},
+                "metadata": (
+                    getattr(response, "definition", None)
+                    and getattr(response.definition, "metadata", {})
+                )
+                or {},
+            },
+        )
 
     def get_stats(self) -> dict:
         """Get statistieken van alle services."""
