@@ -371,9 +371,10 @@ class ServiceAdapter:
         """
 
         # Failure-pad: voorheen vóór de to_ui_response-aanroep in generate_definition.
-        if not getattr(response, "success", False) or not getattr(
-            response, "definition", None
-        ):
+        # Directe attribute-access (response is altijd DefinitionResponse(V2), beide
+        # hebben success/definition) — matcht het oude generate_definition-gedrag en
+        # maskeert geen type-fouten (review-MEDIUM #283).
+        if not response.success or not response.definition:
             return self._create_failure_response(response)
 
         # Extract definition text
