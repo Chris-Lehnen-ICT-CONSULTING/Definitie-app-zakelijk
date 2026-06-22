@@ -15,6 +15,7 @@ from enum import Enum  # Enumeratie types voor constante waarden
 from typing import (  # Type hints voor flexibele type definities
     TYPE_CHECKING,
     Any,
+    NotRequired,
     TypedDict,
     cast,
 )
@@ -102,6 +103,16 @@ class UIResponseDict(TypedDict):
     voorbeelden: dict[str, list[str] | str]  # Was: VoorbeeldenDict (removed in DEF-82)
     metadata: MetadataDict
     sources: list[dict[str, Any]]
+
+    # DEF-452: optionele velden die to_ui_response/_create_failure_response toevoegen.
+    # NotRequired zodat ze niet verplicht zijn op elke variant (bv. failure-pad).
+    saved_definition_id: NotRequired[int]  # Alleen na succesvolle opslag
+    error_message: NotRequired[str]  # Alleen op het failure-pad
+    final_definitie: NotRequired[str]  # Legacy alias voor definitie_gecorrigeerd
+    marker: NotRequired[str]  # Legacy kwaliteits-marker
+    validation_score: NotRequired[float]  # Legacy alias voor final_score
+    prompt_text: NotRequired[str]  # Debug: gebruikte prompt-tekst
+    prompt_template: NotRequired[str]  # Debug: gebruikte prompt-template
 
 
 # GenerationResult compatibility class for tests (EPIC-010 FASE 1 shim)
