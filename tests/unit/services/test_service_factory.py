@@ -293,7 +293,7 @@ class TestServiceAdapter:
         mock_orchestrator.create_definition.return_value = mock_response
 
         # Execute
-        result = await service_adapter.generate_definition(
+        _response = await service_adapter.generate_definition(
             begrip="Test",
             context_dict={
                 "organisatorisch": ["Org context"],
@@ -302,6 +302,7 @@ class TestServiceAdapter:
             organisatie="Test Org",
             extra_instructies="Extra info",
         )
+        result = service_adapter.to_ui_response(_response)
 
         # Verify V2 contract fields
         assert result["success"] is True
@@ -362,9 +363,10 @@ class TestServiceAdapter:
         mock_orchestrator.create_definition.return_value = mock_response
 
         # Execute
-        result = await service_adapter.generate_definition(
+        _response = await service_adapter.generate_definition(
             begrip="Test", context_dict={}
         )
+        result = service_adapter.to_ui_response(_response)
 
         # Verify
         assert result["success"] is False
@@ -383,9 +385,10 @@ class TestServiceAdapter:
         mock_orchestrator.create_definition.return_value = mock_response
 
         # Execute
-        result = await service_adapter.generate_definition(
+        _response = await service_adapter.generate_definition(
             begrip="Test", context_dict={}
         )
+        result = service_adapter.to_ui_response(_response)
 
         # Verify
         assert result["error_message"] == "Generatie mislukt"
@@ -597,7 +600,8 @@ class TestOverallScoreHandling:
         mock_orchestrator.create_definition.return_value = mock_response
 
         # Execute
-        result = await service_adapter.generate_definition("Test", {})
+        _response = await service_adapter.generate_definition("Test", {})
+        result = service_adapter.to_ui_response(_response)
 
         # Verify overall_score is properly handled
         assert result["validation_details"]["overall_score"] == 85.5
@@ -639,7 +643,8 @@ class TestOverallScoreHandling:
         mock_orchestrator.create_definition.return_value = mock_response
 
         # Execute
-        result = await service_adapter.generate_definition("Test", {})
+        _response = await service_adapter.generate_definition("Test", {})
+        result = service_adapter.to_ui_response(_response)
 
         # Verify defaults to 0.0 when missing
         assert result["validation_details"]["overall_score"] == 0.0
@@ -679,7 +684,8 @@ class TestOverallScoreHandling:
         mock_orchestrator.create_definition.return_value = mock_response
 
         # Execute
-        result = await service_adapter.generate_definition("Test", {})
+        _response = await service_adapter.generate_definition("Test", {})
+        result = service_adapter.to_ui_response(_response)
 
         # Verify defaults to 0.0 when None
         assert result["validation_details"]["overall_score"] == 0.0
@@ -721,7 +727,8 @@ class TestOverallScoreHandling:
         mock_orchestrator.create_definition.return_value = mock_response
 
         # Execute - should handle gracefully
-        result = await service_adapter.generate_definition("Test", {})
+        _response = await service_adapter.generate_definition("Test", {})
+        result = service_adapter.to_ui_response(_response)
 
         # Verify error handling - string can't be converted to float, defaults to 0.0
         # The code uses `float(result.get("overall_score") or 0.0)` which will raise ValueError
@@ -769,7 +776,8 @@ class TestOverallScoreHandling:
         mock_orchestrator.create_definition.return_value = mock_response
 
         # Execute
-        result = await service_adapter.generate_definition("Test", {})
+        _response = await service_adapter.generate_definition("Test", {})
+        result = service_adapter.to_ui_response(_response)
 
         # Verify string is converted to float
         assert result["validation_details"]["overall_score"] == 75.5
@@ -810,7 +818,8 @@ class TestOverallScoreHandling:
 
         # Execute - should handle type error
         try:
-            await service_adapter.generate_definition("Test", {})
+            _response = await service_adapter.generate_definition("Test", {})
+            service_adapter.to_ui_response(_response)
             # List can't be converted to float, would raise TypeError
         except (TypeError, ValueError):
             pass  # Expected - documenting behavior
@@ -849,7 +858,8 @@ class TestOverallScoreHandling:
 
         # Execute - should handle type error
         try:
-            await service_adapter.generate_definition("Test", {})
+            _response = await service_adapter.generate_definition("Test", {})
+            service_adapter.to_ui_response(_response)
             # Dict can't be converted to float, would raise TypeError
         except (TypeError, ValueError):
             pass  # Expected - documenting behavior
@@ -889,7 +899,8 @@ class TestOverallScoreHandling:
         mock_orchestrator.create_definition.return_value = mock_response
 
         # Execute
-        result = await service_adapter.generate_definition("Test", {})
+        _response = await service_adapter.generate_definition("Test", {})
+        result = service_adapter.to_ui_response(_response)
 
         # Verify zero is properly handled (not replaced with default)
         assert result["validation_details"]["overall_score"] == 0.0
@@ -931,7 +942,8 @@ class TestOverallScoreHandling:
         mock_orchestrator.create_definition.return_value = mock_response
 
         # Execute
-        result = await service_adapter.generate_definition("Test", {})
+        _response = await service_adapter.generate_definition("Test", {})
+        result = service_adapter.to_ui_response(_response)
 
         # Verify negative value is preserved (business logic might need this)
         assert result["validation_details"]["overall_score"] == -10.5
@@ -973,7 +985,8 @@ class TestOverallScoreHandling:
         mock_orchestrator.create_definition.return_value = mock_response
 
         # Execute
-        result = await service_adapter.generate_definition("Test", {})
+        _response = await service_adapter.generate_definition("Test", {})
+        result = service_adapter.to_ui_response(_response)
 
         # Verify large value is handled properly
         assert result["validation_details"]["overall_score"] == 999999999.99
@@ -1063,7 +1076,9 @@ class TestOverallScoreHandling:
             adapters[2].generate_definition("Test3", {}),
         ]
 
-        results = await asyncio.gather(*tasks)
+        responses = await asyncio.gather(*tasks)
+        # DEF-451: serialiseer elk getypeerd response naar de UI-dict
+        results = [adapters[i].to_ui_response(r) for i, r in enumerate(responses)]
 
         # Verify all handled correctly
         assert results[0]["final_score"] == 95.0
@@ -1096,7 +1111,8 @@ class TestOverallScoreHandling:
         mock_orchestrator.create_definition.return_value = mock_response
 
         # Execute
-        result = await service_adapter.generate_definition("Test", {})
+        _response = await service_adapter.generate_definition("Test", {})
+        result = service_adapter.to_ui_response(_response)
 
         # Verify defaults are used when validation is None
         assert result["validation_details"]["overall_score"] == 0.0
@@ -1167,7 +1183,7 @@ class TestIntegrationScenarios:
         orchestrator.create_definition.return_value = response
 
         # Execute
-        result = await adapter.generate_definition(
+        _response = await adapter.generate_definition(
             begrip="Complex",
             context_dict={
                 "organisatorisch": ["O1", "O2"],
@@ -1175,6 +1191,7 @@ class TestIntegrationScenarios:
                 "domein": ["D1", "D2", "D3"],
             },
         )
+        result = adapter.to_ui_response(_response)
 
         # Verify complex mapping (voorbeelden from metadata now)
         assert result["success"] is True

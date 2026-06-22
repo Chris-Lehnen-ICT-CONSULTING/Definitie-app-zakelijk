@@ -118,10 +118,13 @@ class DefinitieAgent:
         adapter = get_definition_service()
 
         async def _task() -> dict[str, Any]:
-            return cast(
-                "dict[str, Any]",
-                await adapter.generate_definition(begrip, context_dict, **extra_kwargs),
+            # DEF-451: serialiseer het getypeerde response naar de canonieke UI-dict.
+            # cast: adapter resolveert naar Any onder src-layout import-resolutie (DEF-439),
+            # net als voorheen; to_ui_response levert feitelijk dict[str, Any].
+            response = await adapter.generate_definition(
+                begrip, context_dict, **extra_kwargs
             )
+            return cast("dict[str, Any]", adapter.to_ui_response(response))
 
         # Run coroutine synchronously without UI bridge
         v2_result = asyncio.run(asyncio.wait_for(_task(), timeout=120))
