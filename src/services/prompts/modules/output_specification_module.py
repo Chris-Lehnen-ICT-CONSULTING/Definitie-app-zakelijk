@@ -23,7 +23,7 @@ class OutputSpecificationModule(BasePromptModule):
     en waarschuwt voor karakter limieten waar nodig.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize de output specification module."""
         super().__init__(
             module_id="output_specification",

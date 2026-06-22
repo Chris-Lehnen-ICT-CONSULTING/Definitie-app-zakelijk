@@ -24,7 +24,7 @@ class ErrorPreventionModule(BasePromptModule):
     past context-specifieke verboden toe.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize de error prevention module."""
         super().__init__(
             module_id="error_prevention",

@@ -25,7 +25,7 @@ class DefinitionTaskModule(BasePromptModule):
     opdracht, kwaliteitscontrole en metadata.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize de definition task module."""
         super().__init__(
             module_id="definition_task",

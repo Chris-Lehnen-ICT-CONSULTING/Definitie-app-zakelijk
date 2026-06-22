@@ -23,7 +23,7 @@ class StructureRulesModule(BasePromptModule):
     opbouw van definities valideren.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize de structure rules module."""
         super().__init__(
             module_id="structure_rules",

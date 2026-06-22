@@ -13,6 +13,7 @@ Deze module integreert alle business logic van de Context Aware builder:
 import logging
 from typing import Any
 
+from services.definition_generator_context import ContextSource, EnrichedContext
 from utils.xml_source_formatter import confidence_to_level
 
 from .base_module import BasePromptModule, ModuleContext, ModuleOutput
@@ -59,7 +60,7 @@ Refereer context-specifieke verbanden.
 🧪 TEST: Kan een expert de context raden ZONDER label?
 """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize de enhanced context awareness module."""
         super().__init__(
             module_id="context_awareness",
@@ -169,7 +170,7 @@ Refereer context-specifieke verbanden.
         """
         return []
 
-    def _calculate_context_score(self, enriched_context) -> float:
+    def _calculate_context_score(self, enriched_context: EnrichedContext) -> float:
         """
         Bereken context richheid score (0.0 - 1.0).
 
@@ -344,7 +345,9 @@ Refereer context-specifieke verbanden.
 
         return sections
 
-    def _format_sources_with_confidence(self, sources) -> list[str]:
+    def _format_sources_with_confidence(
+        self, sources: list[ContextSource]
+    ) -> list[str]:
         """
         Format sources met confidence indicators.
 
