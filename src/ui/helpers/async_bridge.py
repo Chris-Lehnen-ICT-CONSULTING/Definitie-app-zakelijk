@@ -166,10 +166,12 @@ def generate_definition_sync(
     logger.debug(f"Using timeout of {timeout}s for definition generation")
 
     # ServiceAdapter.generate_definition is async, dus we gebruiken run_async
-    return run_async(
+    # DEF-451: het getypeerde response wordt hier geserialiseerd naar de UI-dict
+    _response = run_async(
         service_adapter.generate_definition(begrip, context_dict, **kwargs),
         timeout=timeout,
     )
+    return service_adapter.to_ui_response(_response)
 
 
 def search_web_sources_sync(
