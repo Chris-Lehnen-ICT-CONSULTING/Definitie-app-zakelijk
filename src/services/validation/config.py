@@ -13,7 +13,7 @@ from dataclasses import dataclass, field
 from typing import Any, cast
 
 
-def _safe_import_yaml():
+def _safe_import_yaml() -> Any:
     try:
         import yaml  # type: ignore
 

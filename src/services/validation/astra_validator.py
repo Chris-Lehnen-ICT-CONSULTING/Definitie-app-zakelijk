@@ -26,13 +26,13 @@ class ValidationResult:
     compliance_score: float = 1.0
     details: dict[str, Any] = field(default_factory=dict)
 
-    def add_warning(self, warning: str):
+    def add_warning(self, warning: str) -> None:
         """Add a warning message."""
         self.warnings.append(warning)
         # Reduce compliance score for each warning
         self.compliance_score = max(0.0, self.compliance_score - 0.1)
 
-    def add_suggestion(self, suggestion: str):
+    def add_suggestion(self, suggestion: str) -> None:
         """Add a suggestion for improvement."""
         self.suggestions.append(suggestion)
 
@@ -103,9 +103,9 @@ class ASTRAValidator:
     # Known legal domains — afgeleid uit de centrale waardelijst (DEF-376)
     LEGAL_DOMAINS = list(RECHTSGEBIEDEN.values())
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the validator."""
-        self.validation_cache = {}
+        self.validation_cache: dict[str, Any] = {}
         logger.info("ASTRA Validator initialized with warning-based approach")
 
     def validate_with_warnings(self, context: dict[str, list[str]]) -> ValidationResult:
@@ -155,7 +155,7 @@ class ASTRAValidator:
 
     def _validate_organizations(
         self, organizations: list[str], result: ValidationResult
-    ):
+    ) -> None:
         """Validate organizational context entries."""
         for org in organizations:
             if not self._is_valid_astra_org(org):
@@ -175,7 +175,7 @@ class ASTRAValidator:
 
     def _validate_legal_references(
         self, references: list[str], result: ValidationResult
-    ):
+    ) -> None:
         """Validate legal reference format."""
         for ref in references:
             if not self._is_valid_legal_format(ref):
@@ -191,7 +191,9 @@ class ASTRAValidator:
                         f"Overweeg: '{corrected}' in plaats van '{ref}'"
                     )
 
-    def _validate_legal_domains(self, domains: list[str], result: ValidationResult):
+    def _validate_legal_domains(
+        self, domains: list[str], result: ValidationResult
+    ) -> None:
         """Validate legal domain entries."""
         for domain in domains:
             if not self._is_known_legal_domain(domain):

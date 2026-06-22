@@ -62,7 +62,7 @@ class ContextValidator:
         "Algemene verordening gegevensbescherming",
     }
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the validator."""
         logger.info("ContextValidator initialized")
 
