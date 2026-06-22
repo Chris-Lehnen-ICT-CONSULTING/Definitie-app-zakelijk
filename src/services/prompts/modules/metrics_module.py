@@ -24,7 +24,7 @@ class MetricsModule(BasePromptModule):
     worden voor monitoring en verbetering van definitie kwaliteit.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize de metrics module."""
         super().__init__(
             module_id="metrics",
