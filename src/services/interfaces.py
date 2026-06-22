@@ -568,20 +568,21 @@ class DefinitionOrchestratorInterface(ABC):
         return False  # Default implementatie
 
     @property
+    @abstractmethod
     def validation_service(self) -> "ValidationOrchestratorInterface":
         """
         Lazy-loaded validatie-orchestrator gekoppeld aan deze orchestrator.
 
         Onderdeel van het contract zodat consumers (bv. de ServiceContainer)
         ``orchestrator.validation_service`` getypeerd kunnen benaderen zonder cast.
-        Niet-abstract met een NotImplementedError-default, conform de stijl van
-        ``get_definition``/``update_definition_status``: implementaties die geen
-        validatie aanbieden hoeven de property niet te overschrijven.
+        Abstract (i.t.t. ``get_definition``/``update_definition_status``): er is geen
+        zinvolle sentinel voor een niet-optionele ``ValidationOrchestratorInterface``
+        (None zou het return-type schenden), dus de verplichting wordt bij instantiatie
+        afgedwongen i.p.v. pas bij property-toegang.
 
         Returns:
             ValidationOrchestratorInterface instance (lazy-loaded, cached)
         """
-        raise NotImplementedError  # Default implementatie
 
 
 # Web Lookup Data Transfer Objects
