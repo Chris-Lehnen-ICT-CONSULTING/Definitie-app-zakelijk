@@ -92,26 +92,6 @@ class TestAuditTrailCompliance:
         # This test documents the requirement
         assert retention_days == 2555, "Legal domain requires 7 year retention"
 
-    @pytest.mark.xfail(reason="Patches non-existent audit module", strict=False)
-    def test_audit_log_completeness(self):
-        """Audit log must capture complete context flow."""
-        events = []
-
-        with patch("services.audit.audit_logger.log_event") as mock_log:
-            mock_log.side_effect = lambda e: events.append(e)
-
-            # Simulate complete flow
-            GenerationRequest(
-                begrip="test",
-                organisatorische_context=["DJI"],
-                juridische_context=["Strafrecht"],
-                wettelijke_basis=["Test wet"],
-            )
-
-            # Expected audit events
-
-            # This test documents the requirement
-
 
 class TestPrivacyCompliance:
     """Test NORA privacy and data protection requirements."""
@@ -166,16 +146,6 @@ class TestPrivacyCompliance:
         # This test documents the requirement
 
         # Context should not be used for other purposes
-
-    @pytest.mark.xfail(reason="Patches non-existent storage module", strict=False)
-    def test_data_encryption_at_rest(self):
-        """Sensitive context data should be encrypted at rest."""
-        # This test documents the requirement
-        with patch("services.storage.encrypt"):
-            pass
-
-            # When storing context
-            # mock_encrypt should be called
 
 
 class TestInteroperabilityStandards:
@@ -298,19 +268,6 @@ class TestTransparencyRequirements:
 
         # This documents the requirement
 
-    @pytest.mark.xfail(reason="Patches non-existent monitoring module", strict=False)
-    def test_context_lineage_tracking(self):
-        """Track how context flows through the system."""
-        lineage = []
-
-        with patch("services.monitoring.track_lineage") as mock_track:
-            mock_track.side_effect = lambda x: lineage.append(x)
-
-            GenerationRequest(begrip="test", organisatorische_context=["DJI"])
-
-            # Process through system
-            # Lineage should be tracked
-
 
 class TestAccessibilityCompliance:
     """Test DigiToegankelijk accessibility requirements."""
@@ -369,23 +326,6 @@ class TestComplianceReporting:
         }
 
         # Should generate comprehensive report
-
-    @pytest.mark.xfail(reason="Patches non-existent compliance module", strict=False)
-    def test_compliance_monitoring(self):
-        """Continuous compliance monitoring."""
-        with patch("services.compliance.monitor") as mock_monitor:
-            # Should continuously monitor
-            mock_monitor.assert_called()
-
-    @pytest.mark.xfail(reason="Patches non-existent alerts module", strict=False)
-    def test_compliance_alerts(self):
-        """Alert on compliance violations."""
-        with patch("services.alerts.send"):
-            # Simulate violation
-            pass
-
-            # Should trigger alert
-            # mock_alert.assert_called()
 
 
 class TestJusticeDomainSpecific:
