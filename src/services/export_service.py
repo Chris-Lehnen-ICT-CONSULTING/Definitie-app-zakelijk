@@ -846,8 +846,20 @@ class ExportService:
                         }
                     )
 
-        # Sorteer op datum (nieuwste eerst)
-        exports.sort(key=lambda x: cast(datetime, x["created"]), reverse=True)
+        # Sorteer op de export-timestamp in de bestandsnaam (nieuwste eerst).
+        # st_ctime alléén is onbetrouwbaar: bij (vrijwel) gelijktijdig aangemaakte
+        # bestanden zijn de ctimes gelijk en valt de volgorde terug op de
+        # filesystem-iteratie — die verschilt per OS/filesystem (DEF-427: lokaal
+        # vs CI). De naam bevat de canonieke export-tijd (<YYYYMMDD>_<HHMMSS>);
+        # val terug op ctime als die niet parsebaar is.
+        def _export_sort_key(entry: dict[str, Any]) -> datetime:
+            parts = Path(entry["file"]).stem.split("_")
+            try:
+                return datetime.strptime(f"{parts[-2]}_{parts[-1]}", "%Y%m%d_%H%M%S")
+            except (ValueError, IndexError):
+                return cast(datetime, entry["created"])
+
+        exports.sort(key=_export_sort_key, reverse=True)
 
         return exports
 
