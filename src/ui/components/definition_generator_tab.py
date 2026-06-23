@@ -16,6 +16,7 @@ import streamlit as st
 
 if TYPE_CHECKING:
     from database.definitie_repository import DefinitieRecord
+    from services.interfaces import UIResponseDict
 
 from integration.definitie_checker import DefinitieChecker
 from services.category_service import CategoryService
@@ -340,9 +341,12 @@ class DefinitionGeneratorTab:
         except Exception as e:
             logger.debug(f"Synonym review UI skipped: {e}")
 
-    def _render_generation_details(self, agent_result: dict[str, Any]) -> None:
+    def _render_generation_details(self, agent_result: UIResponseDict) -> None:
         """Render generation details expander."""
         with st.expander("📊 Generatie Details", expanded=False):
+            # Defensief vangnet: agent_result is getypeerd als UIResponseDict, maar de
+            # upstream-keten is nog niet getypeerd (komt runtime uit safe_dict_get → Any).
+            # Verwijderen zodra de hele keten getypeerd is (DEF-452 fase 3+).
             if isinstance(agent_result, dict):
                 col1, col2, col3 = st.columns(3)
                 with col1:
@@ -350,18 +354,24 @@ class DefinitionGeneratorTab:
                         "validation_score", agent_result.get("final_score", 0.0)
                     )
                     st.metric("Finale Score", f"{score:.2f}")
-                    if agent_result.get("marker"):
-                        st.caption(agent_result["marker"])
+                    marker = agent_result.get("marker")
+                    if marker:
+                        st.caption(marker)
 
                 with col2:
-                    processing_time = agent_result.get("processing_time", 0.0)
-                    st.metric("Verwerkingstijd", f"{processing_time:.1f}s")
-                    st.metric("Succes", "Ja" if agent_result.get("success") else "Nee")
+                    # DEF-455: echte verwerkingstijd zit in metadata["duration"]
+                    # (was dode read agent_result["processing_time"] → altijd 0.0,
+                    # die key bestaat niet in UIResponseDict).
+                    duration = agent_result["metadata"].get("duration", 0.0)
+                    st.metric("Verwerkingstijd", f"{duration:.1f}s")
+                    st.metric("Succes", "Ja" if agent_result["success"] else "Nee")
 
                 with col3:
-                    if "toetsresultaten" in agent_result:
-                        violations = len(agent_result["toetsresultaten"])
-                        st.metric("Violations", violations)
+                    # DEF-455: violations zitten in validation_details["violations"]
+                    # (was dode read "toetsresultaten" in agent_result → die key
+                    # bestond nooit, dus de tegel rendde nooit).
+                    violations = len(agent_result["validation_details"]["violations"])
+                    st.metric("Violations", violations)
 
     def _render_validation_section(self, agent_result: dict[str, Any]) -> None:
         """Render validation section - delegates to ValidationRenderer."""
@@ -430,7 +440,7 @@ class DefinitionGeneratorTab:
 
     def _render_prompt_debug_section(
         self,
-        agent_result: dict[str, Any],
+        agent_result: UIResponseDict,
         generation_result: dict[str, Any],
         saved_record: Any,
     ) -> None:
