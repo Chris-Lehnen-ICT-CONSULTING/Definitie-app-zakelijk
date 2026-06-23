@@ -212,10 +212,12 @@ module = [
 [tool.coverage.run]
 source = ["src"]
 branch = false
+# Bewust GEEN blanket-omit van migrations: dat zijn Python-modules met inline SQL
+# (database/migrations/v{N}_migration.py) die testbare logica kunnen bevatten —
+# uit de noemer halen zou een meetgat verbergen i.p.v. dichten. (__pycache__ is
+# sowieso een no-op voor coverage.)
 omit = [
-    "*/__pycache__/*",
-    "*/migrations/*",
-    "src/*/__main__.py",
+    "*/__main__.py",
 ]
 
 [tool.coverage.report]
