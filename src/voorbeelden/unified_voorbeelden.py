@@ -107,6 +107,12 @@ class ExampleResponse:
     cached: bool = False
 
 
+# DEF-428: bovengrens voor de sync->async-bridge zodat een vastlopende
+# generatie-call de (UI-)thread niet oneindig kan bevriezen. Ruim boven de
+# legitieme generatieduur (per-call timeouts 20-45s, bulk ~30-60s) maar bounded.
+_ASYNC_SAFE_TIMEOUT_S = 120.0
+
+
 class UnifiedExamplesGenerator:
     """Unified system for generating all types of examples."""
 
@@ -158,8 +164,16 @@ class UnifiedExamplesGenerator:
         config_key = type_mapping.get(example_type, "voorbeeldzinnen")
         return get_component_config("voorbeelden", config_key)
 
-    def _run_async_safe(self, coro):
-        """Run async coroutine safely, detecting existing event loop."""
+    def _run_async_safe(self, coro, timeout: float | None = _ASYNC_SAFE_TIMEOUT_S):
+        """Run async coroutine safely, detecting existing event loop.
+
+        DEF-428: dwingt een timeout af zodat een vastlopende generatie-call de
+        (UI-)thread niet oneindig bevriest, maar netjes faalt met TimeoutError.
+        Een TimeoutError is geen RuntimeError en wordt dus NIET door de
+        no-loop-fallback hieronder opgevangen — hij propageert naar de caller.
+        """
+        # asyncio.wait_for cancelt de coroutine binnen de loop bij overschrijding.
+        wrapped = asyncio.wait_for(coro, timeout=timeout) if timeout else coro
         try:
             # Check if there's already a running event loop
             asyncio.get_running_loop()
@@ -172,17 +186,19 @@ class UnifiedExamplesGenerator:
                 loop = asyncio.new_event_loop()
                 asyncio.set_event_loop(loop)
                 try:
-                    return loop.run_until_complete(coro)
+                    return loop.run_until_complete(wrapped)
                 finally:
                     loop.close()
 
             with concurrent.futures.ThreadPoolExecutor() as executor:
                 future = executor.submit(run_in_thread)
-                return future.result()
+                # future.result-timeout = backstop bovenop asyncio.wait_for, voor
+                # het geval de thread zelf op een niet-cancelbare call vastloopt.
+                return future.result(timeout=timeout)
 
         except RuntimeError:
             # No event loop running, safe to use asyncio.run()
-            return asyncio.run(coro)
+            return asyncio.run(wrapped)
 
     @debug_flow_point("A")
     def generate_examples(self, request: ExampleRequest) -> ExampleResponse:
