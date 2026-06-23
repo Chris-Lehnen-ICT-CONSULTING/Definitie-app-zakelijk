@@ -205,3 +205,26 @@ module = [
     "src.voorbeelden.robust_cache",
     "src.voorbeelden.unified_voorbeelden",
 ]
+
+# DEF-420: centrale coverage-config (was nergens gedefinieerd; verspreide ini-keys
+# verwijderd). source=src matcht de gate `--cov=src`. omit/exclude_lines halen
+# niet-meetbare regels uit de noemer → eerlijke meting; gate-vloer ongewijzigd (45%).
+[tool.coverage.run]
+source = ["src"]
+branch = false
+omit = [
+    "*/__pycache__/*",
+    "*/migrations/*",
+    "src/*/__main__.py",
+]
+
+[tool.coverage.report]
+show_missing = true
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "@(abc\\.)?abstractmethod",
+]
