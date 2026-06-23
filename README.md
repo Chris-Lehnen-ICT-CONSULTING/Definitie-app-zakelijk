@@ -83,7 +83,7 @@ Let op voor ontwikkelaars:
 ### ✏️ Auto‑load Bewerk‑tab (V2)
 
 - Acceptabel resultaat (quality gate OK): de orchestrator slaat automatisch op als concept en levert het ID terug; de Bewerk‑tab laadt direct met deze definitie.
-- Niet‑acceptabel resultaat: wordt niet opgeslagen. In de Generator‑tab verschijnt de knop “Bewaar als concept en bewerk” om expliciet als draft op te slaan en direct te bewerken.
+- Niet‑acceptabel resultaat: wordt niet opgeslagen.
 - Geen dubbele opslag: de UI gebruikt het ID uit de orchestrator (`saved_definition_id`); er is geen fallback‑insert meer in de UI.
 
 ## 🎯 Overzicht
