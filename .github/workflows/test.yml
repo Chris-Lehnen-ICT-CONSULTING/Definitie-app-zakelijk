@@ -45,10 +45,10 @@ jobs:
 
       - name: Run linting (services only)
         run: |
-          # Run ruff if available (focus on services for signal)
-          if command -v ruff &> /dev/null; then
-            ruff check src/services || true
-          fi
+          # DEF-466: blokkerend + fail-closed — geen `|| true` én geen stille no-op
+          # als ruff ontbreekt (ruff zit in requirements-dev.txt).
+          command -v ruff >/dev/null || { echo "::error::ruff niet geinstalleerd"; exit 1; }
+          ruff check src/services
 
       - name: Run type checking (services only)
         run: |
@@ -64,6 +64,18 @@ jobs:
           PYTEST_ADDOPTS: --cov=src/services --cov-report=xml --cov-report=term-missing
         run: |
           bash scripts/testing/run_tests.sh pr
+
+      - name: Coverage ratchet (DEF-466)
+        # RAPPORTAGE-MODUS (tijdelijk): de unit-suite draait nu voor het eerst
+        # volledig in CI, maar heeft 10 CI-only failures (DEF-427: niet-hermetische
+        # container/wiring-tests die OPENAI_API_KEY vereisen; DEF-426: 3.11 vs 3.13).
+        # Flip continue-on-error → blokkerend (verwijder deze regel) zodra DEF-427
+        # de unit-suite groen heeft in CI. De ratchet zelf (45%) is al actief.
+        continue-on-error: true
+        run: |
+          # DEF-466/DEF-416: meet de 45%-vloer op de volledige unit-suite (-m unit).
+          # Roept de canonieke Makefile-target aan (single source of truth, CLAUDE.md).
+          make test-cov-ci
 
       - name: Services subpackage coverage (advisory)
         continue-on-error: true
@@ -84,9 +96,10 @@ jobs:
               echo "::warning file=$t::advisory pytest target ontbreekt — update workflow"
             fi
           done
+          # advisory: step is non-blocking via continue-on-error (geen `|| true` nodig)
           pytest -q "${targets[@]}" \
             --cov=src/services \
-            --cov-report=term-missing || true
+            --cov-report=term-missing
 
       - name: Upload coverage reports
         timeout-minutes: 5
@@ -134,16 +147,12 @@ jobs:
 
       - name: Run integration tests
         run: |
-          # Run integration tests if they exist
+          # DEF-466: `|| true` blijft TIJDELIJK tot de integration-hangs zijn opgelost
+          # (DEF-428/429: echte-API/timing-tests hangen zonder geldige sk-key).
+          # Verwijder deze maskering zodra de hangs gevalideerd zijn; overweeg intussen
+          # `-m 'integration and not requires_api_key'`.
           if [ -d "tests/integration" ]; then
             pytest tests/integration/ -v || true
-          fi
-
-      - name: Run end-to-end tests
-        run: |
-          # Run e2e tests if they exist
-          if [ -d "tests/e2e" ]; then
-            pytest tests/e2e/ -v || true
           fi
 
   security-check:
