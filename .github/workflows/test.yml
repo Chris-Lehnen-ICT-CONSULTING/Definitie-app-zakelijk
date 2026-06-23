@@ -45,10 +45,10 @@ jobs:
 
       - name: Run linting (services only)
         run: |
-          # DEF-466: blokkerend — geen `|| true`-maskering meer (src/services is ruff-clean)
-          if command -v ruff &> /dev/null; then
-            ruff check src/services
-          fi
+          # DEF-466: blokkerend + fail-closed — geen `|| true` én geen stille no-op
+          # als ruff ontbreekt (ruff zit in requirements-dev.txt).
+          command -v ruff >/dev/null || { echo "::error::ruff niet geinstalleerd"; exit 1; }
+          ruff check src/services
 
       - name: Run type checking (services only)
         run: |
@@ -70,7 +70,8 @@ jobs:
           # DEF-466/DEF-416: dwingt de 45%-vloer af op de volledige unit-suite.
           # Unit-only (deterministisch); integration hangt nog (DEF-428/429).
           # Verhoog de vloer richting 80/85% naarmate coverage groeit.
-          pytest -q --cov=src --cov-report=term-missing --cov-fail-under=45 -m unit
+          # Roept de canonieke Makefile-target aan (single source of truth, CLAUDE.md).
+          make test-cov-ci
 
       - name: Services subpackage coverage (advisory)
         continue-on-error: true
