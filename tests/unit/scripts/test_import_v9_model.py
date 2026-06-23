@@ -17,6 +17,11 @@ import sys
 
 # Voeg scripts/ toe aan path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent / "scripts"))
+
+# DEF-466: scripts/import_v9_model.py importeert openpyxl (optionele tooling-dep,
+# niet in requirements*.txt). Skip de hele module netjes als openpyxl ontbreekt
+# (zoals in CI) i.p.v. een harde collectie-fout die de coverage-gate breekt.
+pytest.importorskip("openpyxl")
 import import_v9_model
 
 # Schema voor test database (matches v5_migration)
