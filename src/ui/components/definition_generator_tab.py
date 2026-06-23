@@ -28,7 +28,7 @@ from ui.components.voorbeelden_renderer import VoorbeeldenRenderer
 from ui.helpers.context_helpers import has_min_one_context
 from ui.session_state import SessionStateManager
 from utils.dict_helpers import safe_dict_get
-from utils.type_helpers import ensure_dict, ensure_string
+from utils.type_helpers import ensure_string
 
 logger = logging.getLogger(__name__)
 
@@ -687,75 +687,3 @@ class DefinitionGeneratorTab:
     def _show_settings_modal(self) -> None:
         """Toon instellingen modal."""
         st.info("⚙️ Settings modal coming soon...")
-
-    def _render_save_as_draft_option(
-        self,
-        generation_result: dict[str, Any],
-        agent_result: dict[str, Any],
-    ) -> None:
-        """Render option to save unacceptable definition as draft."""
-        try:
-            vdet = agent_result.get("validation_details") or {}
-            acceptable = bool(vdet.get("is_acceptable", False))
-            definitie_text = agent_result.get(
-                "definitie_gecorrigeerd"
-            ) or agent_result.get("definitie", "")
-
-            if definitie_text and not acceptable:
-                st.warning("❗ Deze generatie voldoet niet aan de kwaliteitsdrempel.")
-                can_save = has_min_one_context()
-                if not can_save:
-                    st.caption(
-                        "Minstens één context vereist om als concept op te slaan."
-                    )
-                if st.button("💾 Bewaar als concept en bewerk", disabled=not can_save):
-                    self._save_as_draft(generation_result, definitie_text)
-        except Exception as e:
-            logger.warning(f"Could not render save-as-draft option: {e}")
-
-    def _save_as_draft(
-        self, generation_result: dict[str, Any], definitie_text: str
-    ) -> None:
-        """Save definition as draft concept."""
-        from services.interfaces import Definition
-        from ui.cached_services import get_cached_service_container
-
-        container = get_cached_service_container()
-        repo = container.repository()
-
-        begrip_val = ensure_string(generation_result.get("begrip", ""))
-        ctx = ensure_dict(SessionStateManager.get_value("global_context", {}))
-        org_list = ctx.get("organisatorische_context", []) or []
-        jur_list = ctx.get("juridische_context", []) or []
-        wet_list = ctx.get("wettelijke_basis", []) or []
-        categorie = (
-            ensure_string(safe_dict_get(generation_result, "determined_category", ""))
-            or None
-        )
-
-        if not (org_list or jur_list or wet_list):
-            st.error(
-                "Kan niet opslaan: voeg minimaal één context toe (organisatorisch of juridisch of wettelijk)."
-            )
-            return
-
-        new_def = Definition(
-            begrip=begrip_val,
-            definitie=definitie_text,
-            organisatorische_context=list(org_list),
-            juridische_context=list(jur_list),
-            wettelijke_basis=list(wet_list),
-            categorie=categorie,
-            created_by="legacy_ui",
-            metadata={"status": "draft"},
-        )
-        try:
-            new_id = repo.save(new_def)
-            SessionStateManager.set_value("editing_definition_id", int(new_id))
-            SessionStateManager.set_value("edit_organisatorische_context", org_list)
-            SessionStateManager.set_value("edit_juridische_context", jur_list)
-            SessionStateManager.set_value("edit_wettelijke_basis", wet_list)
-            SessionStateManager.set_value("selected_review_definition_id", int(new_id))
-            st.success("✅ Concept opgeslagen. Open de Bewerk-tab om te bewerken.")
-        except Exception as se:
-            st.error(f"Opslaan mislukt: {se}")
