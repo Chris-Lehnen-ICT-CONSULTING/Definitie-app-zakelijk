@@ -45,9 +45,9 @@ jobs:
 
       - name: Run linting (services only)
         run: |
-          # Run ruff if available (focus on services for signal)
+          # DEF-466: blokkerend — geen `|| true`-maskering meer (src/services is ruff-clean)
           if command -v ruff &> /dev/null; then
-            ruff check src/services || true
+            ruff check src/services
           fi
 
       - name: Run type checking (services only)
@@ -64,6 +64,13 @@ jobs:
           PYTEST_ADDOPTS: --cov=src/services --cov-report=xml --cov-report=term-missing
         run: |
           bash scripts/testing/run_tests.sh pr
+
+      - name: Coverage ratchet (DEF-466, blokkerend)
+        run: |
+          # DEF-466/DEF-416: dwingt de 45%-vloer af op de volledige unit-suite.
+          # Unit-only (deterministisch); integration hangt nog (DEF-428/429).
+          # Verhoog de vloer richting 80/85% naarmate coverage groeit.
+          pytest -q --cov=src --cov-report=term-missing --cov-fail-under=45 -m unit
 
       - name: Services subpackage coverage (advisory)
         continue-on-error: true
@@ -84,9 +91,10 @@ jobs:
               echo "::warning file=$t::advisory pytest target ontbreekt — update workflow"
             fi
           done
+          # advisory: step is non-blocking via continue-on-error (geen `|| true` nodig)
           pytest -q "${targets[@]}" \
             --cov=src/services \
-            --cov-report=term-missing || true
+            --cov-report=term-missing
 
       - name: Upload coverage reports
         timeout-minutes: 5
@@ -134,16 +142,12 @@ jobs:
 
       - name: Run integration tests
         run: |
-          # Run integration tests if they exist
+          # DEF-466: `|| true` blijft TIJDELIJK tot de integration-hangs zijn opgelost
+          # (DEF-428/429: echte-API/timing-tests hangen zonder geldige sk-key).
+          # Verwijder deze maskering zodra de hangs gevalideerd zijn; overweeg intussen
+          # `-m 'integration and not requires_api_key'`.
           if [ -d "tests/integration" ]; then
             pytest tests/integration/ -v || true
-          fi
-
-      - name: Run end-to-end tests
-        run: |
-          # Run e2e tests if they exist
-          if [ -d "tests/e2e" ]; then
-            pytest tests/e2e/ -v || true
           fi
 
   security-check:
