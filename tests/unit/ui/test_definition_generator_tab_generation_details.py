@@ -95,3 +95,44 @@ def test_processing_time_key_is_not_read() -> None:
     calls = _metric_calls(mock_st)
     assert ("Verwerkingstijd", "1.2s") in calls
     assert ("Verwerkingstijd", "99.9s") not in calls
+
+
+def test_violations_zero_renders_zero() -> None:
+    """Bij een lege violations-lijst toont de tegel expliciet 0 (rendert nu altijd)."""
+    tab = _make_tab()
+    agent_result = _agent_result(duration=0.0, violations=0)
+
+    with patch("ui.components.definition_generator_tab.st") as mock_st:
+        mock_st.columns.return_value = (MagicMock(), MagicMock(), MagicMock())
+        tab._render_generation_details(agent_result)
+
+    assert ("Violations", 0) in _metric_calls(mock_st)
+
+
+def test_missing_duration_defaults_to_zero() -> None:
+    """metadata.duration is NotRequired (total=False) → ontbreken geeft 0.0s, geen crash."""
+    tab = _make_tab()
+    agent_result = _agent_result(duration=0.0, violations=0)
+    agent_result["metadata"] = {}  # geen duration-key
+
+    with patch("ui.components.definition_generator_tab.st") as mock_st:
+        mock_st.columns.return_value = (MagicMock(), MagicMock(), MagicMock())
+        tab._render_generation_details(agent_result)
+
+    assert ("Verwerkingstijd", "0.0s") in _metric_calls(mock_st)
+
+
+def test_legacy_toetsresultaten_key_is_ignored() -> None:
+    """Legacy 'toetsresultaten'-key beïnvloedt de Violations-telling niet."""
+    tab = _make_tab()
+    agent_result = _agent_result(duration=0.0, violations=2)
+    # Achtergebleven legacy-key met afwijkend aantal mag niet leidend zijn.
+    agent_result["toetsresultaten"] = list(range(99))
+
+    with patch("ui.components.definition_generator_tab.st") as mock_st:
+        mock_st.columns.return_value = (MagicMock(), MagicMock(), MagicMock())
+        tab._render_generation_details(agent_result)
+
+    calls = _metric_calls(mock_st)
+    assert ("Violations", 2) in calls
+    assert ("Violations", 99) not in calls

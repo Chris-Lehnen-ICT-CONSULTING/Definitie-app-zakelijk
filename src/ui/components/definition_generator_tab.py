@@ -344,6 +344,9 @@ class DefinitionGeneratorTab:
     def _render_generation_details(self, agent_result: UIResponseDict) -> None:
         """Render generation details expander."""
         with st.expander("📊 Generatie Details", expanded=False):
+            # Defensief vangnet: agent_result is getypeerd als UIResponseDict, maar de
+            # upstream-keten is nog niet getypeerd (komt runtime uit safe_dict_get → Any).
+            # Verwijderen zodra de hele keten getypeerd is (DEF-452 fase 3+).
             if isinstance(agent_result, dict):
                 col1, col2, col3 = st.columns(3)
                 with col1:
