@@ -62,7 +62,8 @@ make audit         # pip-audit CVE-scan (requirements.txt)
 - **Baseline unit-coverage = 46%** (45,9%; 34.663 statements, 18.754 missed) — vers `.coverage`-artefact, gate slaagt op de 45%-vloer.
 - **Gate = unit-only.** De `integration`-suite bevat meerdere real-API/timing-tests die zonder geldige respons **hangen** (verspreid over markers; zie DEF-428/DEF-429). Een gate met `integration` kan daardoor niet betrouwbaar voltooien, dus `test-cov(-ci)` meten **alleen `unit`** (deterministisch).
 - **Ratchet-vloer = 45%** (baseline). Verhogen richting 80/85% naarmate coverage groeit (Fase 1). Integration-coverage komt erbij zodra de hangs zijn opgelost.
-- ⚠️ 3 unit-tests in `test_cache_utilities_comprehensive.py` falen (cache-systeem) — los van coverage; blokkeren wel een groene gate. Apart op te pakken.
+- **Bewuste afwijking van de globale 80%-regel (DEF-405).** De globale `code-quality`-skill hanteert ≥80% als blocker; dit project draait een **ratchet-vloer van 45%** omdat de echte unit-coverage 46% is — een eerlijke, niet-zakkende ondergrens die per stap omhoog gaat richting 80/85%, i.p.v. een onhaalbare 80%-gate die de pipeline permanent rood zet. Single source of truth = `make test-cov-ci` (`--cov-fail-under=45`, aangeroepen door CI in `test.yml`). `make test-cov` (lokaal) draait bewust **zonder** vloer voor dev-snelheid; alleen de CI-gate handhaaft.
+- De cache-unit-tests draaien sinds DEF-427 groen (de eerdere 3 falende `test_cache_utilities_comprehensive.py`-tests zijn opgelost; unit-suite groen in CI).
 
 ## Kritieke Constraints
 
@@ -84,4 +85,4 @@ Project-specifieke rules staan in `.claude/rules/` en laden automatisch.
 
 Feature branch: `feature/DEF-XX-beschrijving`
 
-*Versie: 1.0 · 10 maart 2026 · Extendeert: ~/.claude/CLAUDE.md v7.2*
+*Versie: 1.0 · 10 maart 2026 · Extendeert: ~/.claude/CLAUDE.md v8.0*
