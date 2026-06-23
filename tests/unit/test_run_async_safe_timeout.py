@@ -58,3 +58,49 @@ async def test_timeout_raises_on_hang_in_running_loop(
 
     with pytest.raises(TimeoutError):
         generator._run_async_safe(_hang(), timeout=0.05)
+
+
+def test_timeout_none_bypasses_wait_for(generator: UnifiedExamplesGenerator) -> None:
+    """timeout=None behoudt het oude gedrag (geen wrapping) en levert het resultaat."""
+
+    async def _quick() -> str:
+        return "ok"
+
+    assert generator._run_async_safe(_quick(), timeout=None) == "ok"
+
+
+def test_coro_exception_propagates_no_running_loop(
+    generator: UnifiedExamplesGenerator,
+) -> None:
+    """Een snelle coro-fout propageert ongewijzigd (wordt geen TimeoutError)."""
+
+    async def _boom() -> None:
+        raise ValueError("boom")
+
+    with pytest.raises(ValueError, match="boom"):
+        generator._run_async_safe(_boom(), timeout=5)
+
+
+@pytest.mark.asyncio
+async def test_returns_result_in_running_loop(
+    generator: UnifiedExamplesGenerator,
+) -> None:
+    """Thread-pool-pad levert ook het resultaat van een snelle coro (happy-path)."""
+
+    async def _quick() -> str:
+        return "ok"
+
+    assert generator._run_async_safe(_quick(), timeout=5) == "ok"
+
+
+@pytest.mark.asyncio
+async def test_coro_exception_propagates_in_running_loop(
+    generator: UnifiedExamplesGenerator,
+) -> None:
+    """Coro-fout propageert ook via het thread-pad ongewijzigd (geen TimeoutError)."""
+
+    async def _boom() -> None:
+        raise ValueError("boom")
+
+    with pytest.raises(ValueError, match="boom"):
+        generator._run_async_safe(_boom(), timeout=5)
