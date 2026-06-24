@@ -496,8 +496,12 @@ class WorkflowService:
                         error=update_result.message,
                     )
 
-                # Gebruik werkelijke oude categorie uit database
-                actual_old_category = update_result.previous_category
+                # Gebruik werkelijke oude categorie uit database.
+                # DEF-439: previous_category is str|None — val terug op de
+                # reeds bekende oude categorie als de DB None teruggeeft.
+                actual_old_category = (
+                    update_result.previous_category or actual_old_category
+                )
 
                 # Log voor audit trail
                 logger.info(

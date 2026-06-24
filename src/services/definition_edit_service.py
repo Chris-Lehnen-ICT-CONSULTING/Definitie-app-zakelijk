@@ -29,8 +29,8 @@ class DefinitionEditService:
 
     def __init__(
         self,
-        repository: DefinitionEditRepository = None,
-        validation_service: ModularValidationService = None,
+        repository: DefinitionEditRepository | None = None,
+        validation_service: ModularValidationService | None = None,
     ):
         """
         Initialize the edit service.
@@ -398,6 +398,10 @@ class DefinitionEditService:
 
             updates = []
             for definition in definitions:
+                # DEF-439: batch_update verwacht non-optional ids; sla door-id-loze
+                # definities over (kunnen toch niet geadresseerd worden).
+                if definition.id is None:
+                    continue
                 # Check if field contains search term
                 field_value = getattr(definition, field, None)
                 if field_value and search_term in field_value:
@@ -458,6 +462,9 @@ class DefinitionEditService:
             "validation_score",
             "version_number",
         ]
+        # DEF-439: metadata is dict|None (dataclass); narrow vóór indexed writes.
+        if updated.metadata is None:
+            updated.metadata = {}
         for field in metadata_fields:
             if field in updates:
                 updated.metadata[field] = updates[field]
@@ -527,8 +534,9 @@ class DefinitionEditService:
                         and definition.metadata.get("juridische_context")
                     ):
                         context_dict = {
-                            "juridische_context": definition.metadata.get(
-                                "juridische_context"
+                            # DEF-439: waarde als list (context_dict = dict[str, list]).
+                            "juridische_context": list(
+                                definition.metadata.get("juridische_context") or []
                             )
                         }
                     results = fn(

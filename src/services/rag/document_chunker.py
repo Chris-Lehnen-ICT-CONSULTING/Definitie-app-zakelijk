@@ -12,6 +12,7 @@ import logging
 
 from document_processing.document_extractor import extract_text_from_file
 from services.rag.chunking_strategies import (
+    ChunkingStrategy,
     GeneriekChunkingStrategy,
     JuridischeChunkingStrategy,
 )
@@ -68,6 +69,7 @@ class DocumentChunker:
         try:
             is_juridisch = self._recognizer.is_juridisch_document(tekst)
 
+            strategy: ChunkingStrategy  # DEF-439: gemeenschappelijke basis
             if is_juridisch:
                 strategy = self._juridisch_strategy
                 logger.info(

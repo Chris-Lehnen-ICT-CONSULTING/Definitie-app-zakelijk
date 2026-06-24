@@ -65,7 +65,9 @@ class ServiceContextAdapter:
             value: Context value
             source: Source of the context
         """
-        self.context_manager.set_context(key, value, source)
+        # DEF-439: ContextManager.set_context(context_data: dict, source, ...) —
+        # zet de waarde als single-key context_data i.p.v. losse (key, value).
+        self.context_manager.set_context({key: value}, source)
         logger.debug(f"Set context for key '{key}' from {source.value}")
 
     def get_merged_context(
