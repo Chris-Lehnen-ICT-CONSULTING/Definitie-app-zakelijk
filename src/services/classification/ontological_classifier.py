@@ -172,10 +172,16 @@ Geef antwoord in JSON formaat:
 }}
 """
 
-            # Call AI service
+            # Call AI service.
+            # DEF-439: AIServiceV2 exposeert geen generate_text; gebruik
+            # generate_definition (lager temperature voor deterministische
+            # classificatie) en lees het tekstveld van het resultaat.
             import json
 
-            response = await self.ai_service.generate_text(prompt, temperature=0.3)
+            ai_result = await self.ai_service.generate_definition(
+                prompt, temperature=0.3
+            )
+            response = ai_result.text
 
             # Parse response
             response_data = json.loads(response)
