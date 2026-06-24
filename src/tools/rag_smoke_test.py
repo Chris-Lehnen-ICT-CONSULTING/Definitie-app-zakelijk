@@ -180,7 +180,10 @@ async def generate_definition(
         actor="rag_smoke_test",
     )
 
-    response = await orchestrator.create_definition(request)
+    # DEF-439: create_definition geeft DefinitionResponse | DefinitionResponseV2;
+    # .error/.validation_result/.metadata zitten op de V2-variant (runtime-type) →
+    # cast naar Any voor attribuut-toegang (geen gedragswijziging).
+    response: Any = await orchestrator.create_definition(request)
 
     if not response.success:
         return f"[ERROR: {response.error}]", 0.0, 0, {}

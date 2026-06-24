@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import logging
 import os
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 import streamlit as st
 
@@ -72,13 +72,15 @@ def _extract_sources(
         if isinstance(metadata, dict):
             sources = metadata.get("sources")
             if sources is not None:
-                return sources
+                # DEF-439: cast Any-waarde uit dict naar declared return type.
+                return cast("list[dict[str, Any]]", sources)
 
     # 2) Direct sources key on agent_result dict (V2 format)
     if isinstance(agent_result, dict):
         sources = agent_result.get("sources")
         if sources is not None:
-            return sources
+            # DEF-439: cast Any-waarde uit dict naar declared return type.
+            return cast("list[dict[str, Any]]", sources)
 
     return None
 
@@ -123,16 +125,28 @@ class SourcesRenderer:
             )
 
             # Show status information
-            self._render_status_info(status_meta, available_meta, timeout_meta)
+            # DEF-439: cast union-metadata naar de smallere param-types (non-behavioral).
+            self._render_status_info(
+                cast("str | None", status_meta),
+                cast("bool | None", available_meta),
+                cast("float | None", timeout_meta),
+            )
 
             # Debug toggles
             self._render_debug_toggles(
-                saved_record, agent_result, status_meta, available_meta, timeout_meta
+                saved_record,
+                agent_result,
+                cast("str | None", status_meta),
+                cast("bool | None", available_meta),
+                cast("float | None", timeout_meta),
             )
 
             # Handle no sources case
             if not sources:
-                self._render_no_sources_message(status_meta, available_meta)
+                self._render_no_sources_message(
+                    cast("str | None", status_meta),
+                    cast("bool | None", available_meta),
+                )
                 return
 
             # Render sources list

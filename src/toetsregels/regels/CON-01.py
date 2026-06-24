@@ -82,7 +82,7 @@ class CON01Validator:
 
         # 0️⃣ Extra check: er mag niet meer dan 1 definitie bestaan met exact zelfde begrip + context (synoniemen tellen niet mee)
         try:
-            if DefinitieRepository and begrip:
+            if DefinitieRepository is not None and begrip:  # DEF-439
                 repo = DefinitieRepository()
 
                 def _as_str_one(val: Any) -> str:

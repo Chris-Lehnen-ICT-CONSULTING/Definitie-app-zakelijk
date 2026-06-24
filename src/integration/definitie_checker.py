@@ -57,7 +57,9 @@ class DefinitieChecker:
     Checkt bestaande definities voordat nieuwe worden gegenereerd.
     """
 
-    def __init__(self, repository: DefinitieRepository = None):
+    def __init__(
+        self, repository: DefinitieRepository | None = None
+    ):  # DEF-439: pattern 1
         """
         Initialiseer checker met repository.
 
@@ -67,7 +69,8 @@ class DefinitieChecker:
         self.repository = repository or get_definitie_repository()
 
         # Lazy load integrated service to avoid circular import
-        self.integrated_service = None
+        # DEF-439: pattern 6 (lazy-loaded ServiceAdapter, getypeerd als Any) — null tot eerste gebruik
+        self.integrated_service: Any = None
         self._service_config = {
             "mode": "AUTO",
             "enable_monitoring": True,
@@ -443,7 +446,8 @@ class DefinitieChecker:
         Returns:
             Aantal geëxporteerde definities
         """
-        filters = {"status": DefinitieStatus.ESTABLISHED}
+        # DEF-439: pattern 6 (mixed value-types: DefinitieStatus + str)
+        filters: dict[str, Any] = {"status": DefinitieStatus.ESTABLISHED}
         if organisatorische_context:
             filters["organisatorische_context"] = organisatorische_context
 

@@ -11,7 +11,7 @@ import time  # Tijd functies voor retry timing en rate limiting
 from collections.abc import Callable
 from dataclasses import dataclass  # Dataklassen voor gestructureerde configuratie
 from functools import wraps  # Decorator utilities voor resilience wrappers
-from typing import Any  # Type hints voor betere code documentatie
+from typing import Any, cast  # Type hints voor betere code documentatie
 
 # Lazy import for monitoring to avoid import errors during testing
 try:
@@ -51,13 +51,13 @@ class IntegratedConfig:
     """Configuratie voor geïntegreerd resilience systeem met alle componenten."""
 
     # Retry configuratie - herhaalpogingen bij fouten
-    retry_config: RetryConfig = None
+    retry_config: RetryConfig | None = None  # DEF-439: pattern 1
 
     # Rate limiting configuratie - API call throttling
-    rate_limit_config: RateLimitConfig = None
+    rate_limit_config: RateLimitConfig | None = None  # DEF-439: pattern 1
 
     # Resilience configuratie - circuit breakers en fallbacks
-    resilience_config: ResilienceConfig = None
+    resilience_config: ResilienceConfig | None = None  # DEF-439: pattern 1
 
     # Monitoring configuratie - metrics en cost tracking
     enable_monitoring: bool = True  # Monitoring aan/uit schakelaar
@@ -102,6 +102,8 @@ class IntegratedResilienceSystem:
         self.config = config or IntegratedConfig()
 
         # Initialize components
+        # DEF-439: __post_init__ vult deze configs altijd (nooit None na init) — pattern 8
+        assert self.config.retry_config is not None
         self.retry_manager = AdaptiveRetryManager(self.config.retry_config)
         # Rate limiters worden nu per endpoint aangemaakt in execute_with_full_resilience
         self.rate_limiters: dict[str, SmartRateLimiter] = (
@@ -193,6 +195,8 @@ class IntegratedResilienceSystem:
                     logger.info(f"Using specific config for endpoint: {endpoint_name}")
                 except ImportError:
                     # Gebruik default configuratie
+                    # DEF-439: __post_init__ garandeert non-None — pattern 8
+                    assert self.config.rate_limit_config is not None
                     endpoint_config = self.config.rate_limit_config
                     logger.debug(f"Using default config for endpoint: {endpoint_name}")
 
@@ -238,7 +242,9 @@ class IntegratedResilienceSystem:
                     duration=duration,
                     success=True,
                     tokens_used=expected_tokens,
-                    model=model,
+                    model=cast(
+                        str, model
+                    ),  # DEF-439: pattern 4 (None blijft None at runtime)
                     cache_hit=False,  # Would need to check cache
                     priority=priority.name.lower(),
                 )
@@ -262,7 +268,9 @@ class IntegratedResilienceSystem:
                     success=False,
                     error_type=type(e).__name__,
                     tokens_used=0,
-                    model=model,
+                    model=cast(
+                        str, model
+                    ),  # DEF-439: pattern 4 (None blijft None at runtime)
                     priority=priority.name.lower(),
                 )
 
@@ -280,7 +288,10 @@ class IntegratedResilienceSystem:
         """Execute function with retry logic and resilience framework."""
         last_error: Exception | None = None
 
-        for attempt in range(self.config.retry_config.max_retries + 1):
+        # DEF-439: __post_init__ garandeert non-None — pattern 8
+        retry_config = self.config.retry_config
+        assert retry_config is not None
+        for attempt in range(retry_config.max_retries + 1):
             try:
                 # Check if we should retry
                 if attempt > 0 and last_error is not None:
@@ -319,7 +330,9 @@ class IntegratedResilienceSystem:
                     f"Attempt {attempt + 1} failed for {endpoint_name}: {e!s}"
                 )
 
-                if attempt == self.config.retry_config.max_retries:
+                if (
+                    attempt == retry_config.max_retries
+                ):  # DEF-439: pattern 8 (zie boven)
                     raise e
 
         # This should never be reached due to the raise in the except block above,

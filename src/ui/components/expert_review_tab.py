@@ -8,7 +8,7 @@ from __future__ import (
 
 import logging
 from datetime import datetime
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 import streamlit as st
 
@@ -23,6 +23,7 @@ if TYPE_CHECKING:
         DefinitieRecord,
         DefinitieRepository,
     )
+    from database.models import DefinitieStatus
 
 # Status values as string literals (avoids runtime import of DefinitieStatus enum)
 _STATUS_DRAFT = "draft"
@@ -80,7 +81,9 @@ class ExpertReviewTab:
 
             # Haal definities op met geselecteerde status
             pending_reviews = self.repository.search_definities(
-                status=selected_status, limit=50
+                # DEF-439: status constants are DefinitieStatus.value strings by design
+                status=cast("DefinitieStatus", selected_status),
+                limit=50,
             )
 
             if not pending_reviews:
@@ -664,7 +667,8 @@ class ExpertReviewTab:
                         # Leeg ("") betekent verwijderen (NULL)
                         if selected_ufo == "" and current_ufo is not None:
                             _ = self.repository.update_definitie(
-                                definitie.id,
+                                # DEF-439: definitie.id is int at runtime (loaded record)
+                                cast(int, definitie.id),
                                 {"ufo_categorie": None},
                                 updated_by=user,
                             )
@@ -673,7 +677,8 @@ class ExpertReviewTab:
                             and selected_ufo != current_ufo
                         ):
                             _ = self.repository.update_definitie(
-                                definitie.id,
+                                # DEF-439: definitie.id is int at runtime (loaded record)
+                                cast(int, definitie.id),
                                 {"ufo_categorie": selected_ufo},
                                 updated_by=user,
                             )
@@ -947,7 +952,9 @@ class ExpertReviewTab:
             try:
                 # Haal recent reviewed definities op
                 recent_reviews = self.repository.search_definities(
-                    status=_STATUS_ESTABLISHED, limit=10
+                    # DEF-439: status constants are DefinitieStatus.value strings by design
+                    status=cast("DefinitieStatus", _STATUS_ESTABLISHED),
+                    limit=10,
                 )
 
                 if recent_reviews:
@@ -1006,7 +1013,10 @@ class ExpertReviewTab:
 
             # Update alles in één keer indien er wijzigingen zijn
             if updates:
-                self.repository.update_definitie(definitie.id, updates, reviewer)
+                # DEF-439: definitie.id is int at runtime (loaded record)
+                self.repository.update_definitie(
+                    cast(int, definitie.id), updates, reviewer
+                )
 
             # Process decision
             if "Goedkeuren" in decision:
@@ -1035,7 +1045,8 @@ class ExpertReviewTab:
                                     else ""
                                 )
                             )
-                        self._clear_review_session(definitie.id)
+                        # DEF-439: definitie.id is int at runtime (loaded record)
+                        self._clear_review_session(cast(int, definitie.id))
                         st.rerun()
                     else:
                         # Toon duidelijke melding incl. gate redenen indien aanwezig
@@ -1061,21 +1072,27 @@ class ExpertReviewTab:
             elif "Wijzigingen Vereist" in decision:
                 # Keep in review status but add feedback
                 self.repository.update_definitie(
-                    definitie.id, {"approval_notes": comments}, reviewer
+                    # DEF-439: definitie.id is int at runtime (loaded record)
+                    cast(int, definitie.id),
+                    {"approval_notes": comments},
+                    reviewer,
                 )
                 st.warning("⚠️ Wijzigingen gemarkeerd - definitie blijft in review")
 
             elif "Afwijzen" in decision:
                 success = self.repository.change_status(
-                    definitie.id,
-                    _STATUS_ARCHIVED,
+                    # DEF-439: definitie.id is int at runtime; status constant is a
+                    # DefinitieStatus.value string by design
+                    cast(int, definitie.id),
+                    cast("DefinitieStatus", _STATUS_ARCHIVED),
                     reviewer,
                     f"Afgewezen: {comments}",
                 )
 
                 if success:
                     st.error("❌ Definitie afgewezen")
-                    self._clear_review_session(definitie.id)
+                    # DEF-439: definitie.id is int at runtime (loaded record)
+                    self._clear_review_session(cast(int, definitie.id))
                     st.rerun()
                 else:
                     st.error("❌ Kon definitie niet afwijzen")

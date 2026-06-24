@@ -317,7 +317,8 @@ class UnifiedExamplesGenerator:
                 self.ai_service.generate_definition(
                     prompt=prompt,
                     task_type=self._get_task_type(request.example_type),
-                    temperature=request.temperature,
+                    # DEF-439: temperature is non-None na generate_examples (regel 244-245).
+                    temperature=cast(float, request.temperature),
                     max_tokens=2000,  # Consistent across sync and async
                 )
             )
@@ -350,7 +351,8 @@ class UnifiedExamplesGenerator:
             response = await self.ai_service.generate_definition(
                 prompt=prompt,
                 task_type=self._get_task_type(request.example_type),
-                temperature=request.temperature,
+                # DEF-439: temperature is non-None na generate_examples (regel 244-245).
+                temperature=cast(float, request.temperature),
                 max_tokens=2000,  # Consistent met sync versie
             )
             return self._parse_response(response.text, request.example_type)
@@ -378,7 +380,8 @@ class UnifiedExamplesGenerator:
                 response = await self.ai_service.generate_definition(
                     prompt=prompt,
                     task_type=self._get_task_type(request.example_type),
-                    temperature=request.temperature,
+                    # DEF-439: temperature is non-None na generate_examples (regel 244-245).
+                    temperature=cast(float, request.temperature),
                     max_tokens=2000,
                 )
                 result = self._parse_response(response.text, request.example_type)
@@ -428,8 +431,14 @@ class UnifiedExamplesGenerator:
 
         # DEF-314: Include provider+model in cache key so provider switches invalidate
         task_type = self._get_task_type(request.example_type)
+        # DEF-439: cache_model is str | None (request.model-fallback kan None zijn).
+        cache_model: str | None
         try:
-            provider, model = self.ai_service._model_router.get_model(task_type)
+            # DEF-439: _model_router kan None zijn → guard ipv directe attr-access.
+            model_router = self.ai_service._model_router
+            if model_router is None:
+                raise AttributeError("model_router is None")
+            provider, model = model_router.get_model(task_type)
             cache_model = f"{provider}/{model}"
         except Exception:
             cache_model = request.model
@@ -550,7 +559,8 @@ class UnifiedExamplesGenerator:
             response = await self.ai_service.generate_definition(
                 prompt=prompt,
                 task_type=self._get_task_type(request.example_type),
-                temperature=request.temperature,
+                # DEF-439: temperature is non-None na generate_examples (regel 244-245).
+                temperature=cast(float, request.temperature),
                 max_tokens=1500,
             )
             # Voor explanation, return de hele response als één item
@@ -572,7 +582,8 @@ class UnifiedExamplesGenerator:
             response = await self.ai_service.generate_definition(
                 prompt=prompt,
                 task_type=self._get_task_type(request.example_type),
-                temperature=request.temperature,
+                # DEF-439: temperature is non-None na generate_examples (regel 244-245).
+                temperature=cast(float, request.temperature),
                 max_tokens=1500,
             )
             return self._parse_response(response.text, request.example_type)
@@ -1214,7 +1225,11 @@ async def test_unified_examples():
     for mode in modes:
         logger.info(f"Testing {mode.value} mode...")
 
-        examples = genereer_voorbeeld_zinnen(begrip, definitie, context_dict, mode)
+        # DEF-439: union-annotatie zodat de latere loop-rebind (dict-values
+        # list[str] | str) hetzelfde scope-type deelt. Waarde blijft list[str].
+        examples: list[str] | str = genereer_voorbeeld_zinnen(
+            begrip, definitie, context_dict, mode
+        )
         logger.info(f"Generated {len(examples)} example sentences")
 
         if examples:

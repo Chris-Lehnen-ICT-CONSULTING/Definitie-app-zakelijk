@@ -275,25 +275,27 @@ class DocumentUploadRenderer:
                         )
                         ingested = 0
                         for doc_id in selected_docs:
-                            doc = next(
-                                (
-                                    d
-                                    for d in documents
-                                    if d.id == doc_id
-                                    and d.processing_status == "success"
-                                ),
-                                None,
+                            sel_doc = (
+                                next(  # DEF-439: aparte naam i.p.v. loop-var hergebruik
+                                    (
+                                        d
+                                        for d in documents
+                                        if d.id == doc_id
+                                        and d.processing_status == "success"
+                                    ),
+                                    None,
+                                )
                             )
-                            if doc and doc.extracted_text:
+                            if sel_doc and sel_doc.extracted_text:
                                 # Zoek opgeslagen bestand in uploads dir
-                                stored_path = _find_uploaded_file(doc.filename)
+                                stored_path = _find_uploaded_file(sel_doc.filename)
                                 # DEF-378 Bug 2: heuristiek — wetgeving-documenten
                                 # met rechtsgebied krijgen bron_type "wetgeving".
                                 bron_type = "wetgeving" if rechtsgebied else None
                                 rag_svc.ingest_document(
-                                    tekst=doc.extracted_text,
+                                    tekst=sel_doc.extracted_text,
                                     collection_id=coll_id,
-                                    filename=doc.filename,
+                                    filename=sel_doc.filename,
                                     rechtsgebied=rechtsgebied,
                                     file_path=str(stored_path) if stored_path else None,
                                     bron_type=bron_type,

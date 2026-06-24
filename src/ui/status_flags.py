@@ -29,7 +29,7 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass
 from enum import Enum
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 from ui.session_state import SessionStateManager
 
@@ -175,7 +175,10 @@ class GenerationStatus:
     @staticmethod
     def get_error() -> str | None:
         """Get current error message, if any."""
-        return SessionStateManager.get_value(GenerationStatus.ERROR_KEY)
+        # DEF-439: get_value returns Any → cast naar declared returntype.
+        return cast(
+            "str | None", SessionStateManager.get_value(GenerationStatus.ERROR_KEY)
+        )
 
     @staticmethod
     def get_result() -> Any | None:
@@ -190,7 +193,10 @@ class GenerationStatus:
     @staticmethod
     def get_current_begrip() -> str | None:
         """Get begrip currently being processed."""
-        return SessionStateManager.get_value(GenerationStatus.BEGRIP_KEY)
+        # DEF-439: get_value returns Any → cast naar declared returntype.
+        return cast(
+            "str | None", SessionStateManager.get_value(GenerationStatus.BEGRIP_KEY)
+        )
 
     @staticmethod
     def should_trigger_auto() -> bool:
@@ -290,8 +296,9 @@ class EditSessionStatus:
         )
 
         # Increment version for race condition detection
-        current_version = SessionStateManager.get_value(
-            EditSessionStatus.VERSION_KEY, 0
+        # DEF-439: get_value returns Any → cast zodat new_version int blijft.
+        current_version = cast(
+            int, SessionStateManager.get_value(EditSessionStatus.VERSION_KEY, 0)
         )
         new_version = current_version + 1
         SessionStateManager.set_value(EditSessionStatus.VERSION_KEY, new_version)
@@ -360,7 +367,11 @@ class EditSessionStatus:
     @staticmethod
     def get_definition_id() -> int | None:
         """Get ID of currently edited definition."""
-        return SessionStateManager.get_value(EditSessionStatus.DEFINITION_ID_KEY)
+        # DEF-439: get_value returns Any → cast naar declared returntype.
+        return cast(
+            "int | None",
+            SessionStateManager.get_value(EditSessionStatus.DEFINITION_ID_KEY),
+        )
 
     @staticmethod
     def get_definition() -> Any | None:
@@ -370,7 +381,11 @@ class EditSessionStatus:
     @staticmethod
     def get_session() -> dict[str, Any] | None:
         """Get current edit session metadata."""
-        return SessionStateManager.get_value(EditSessionStatus.SESSION_KEY)
+        # DEF-439: get_value returns Any → cast naar declared returntype.
+        return cast(
+            "dict[str, Any] | None",
+            SessionStateManager.get_value(EditSessionStatus.SESSION_KEY),
+        )
 
     @staticmethod
     def reset() -> None:
