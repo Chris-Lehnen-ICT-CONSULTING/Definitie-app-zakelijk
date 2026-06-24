@@ -67,8 +67,11 @@ class DUP01:
             }
 
         try:
-            # Zoek bestaande definities voor dit begrip
-            existing = self.repository.search_definitions(search_term=begrip)
+            # Zoek bestaande definities voor dit begrip.
+            # DEF-439: DefinitionRepository levert het service-laag-contract
+            # `search(query) -> list[Definition]` (dataclasses), niet het
+            # niet-bestaande `search_definitions` met dict-records.
+            existing = self.repository.search(begrip)
 
             if not existing:
                 return {
@@ -81,17 +84,15 @@ class DUP01:
 
             # Check voor exacte of bijna-exacte duplicates
             for record in existing:
-                if record.get("begrip", "").lower() == begrip.lower():
-                    existing_def = record.get("definitie_gecorrigeerd") or record.get(
-                        "definitie", ""
-                    )
+                if (record.begrip or "").lower() == begrip.lower():
+                    existing_def = record.definitie or ""
                     normalized_existing = self._normalize_text(existing_def)
 
                     # Exacte match
                     if normalized_new == normalized_existing:
                         return {
                             "voldoet": False,
-                            "toelichting": f"Exacte duplicate gevonden (ID: {record.get('id')})",
+                            "toelichting": f"Exacte duplicate gevonden (ID: {record.id})",
                             "suggestie": "Gebruik de bestaande definitie of pas deze substantieel aan",
                         }
 
@@ -102,7 +103,7 @@ class DUP01:
                     if similarity > 0.9:
                         return {
                             "voldoet": False,
-                            "toelichting": f"Zeer vergelijkbare definitie gevonden ({int(similarity*100)}% overlap, ID: {record.get('id')})",
+                            "toelichting": f"Zeer vergelijkbare definitie gevonden ({int(similarity*100)}% overlap, ID: {record.id})",
                             "suggestie": "Overweeg de bestaande definitie te updaten in plaats van een nieuwe toe te voegen",
                         }
 

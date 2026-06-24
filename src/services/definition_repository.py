@@ -216,8 +216,11 @@ class DefinitionRepository(DefinitionRepositoryInterface):
         self._stats["total_searches"] += 1
 
         try:
-            # Gebruik legacy search
-            results = self.legacy_repo.search(search_term=query, limit=limit)
+            # Gebruik legacy search.
+            # DEF-439: de DB-laag DefinitieRepository exposeert `search_definities`
+            # met parameter `query` — niet `search(search_term=...)`. Het oude
+            # aanroep-pad gooide stil AttributeError → search() gaf altijd [].
+            results = self.legacy_repo.search_definities(query=query, limit=limit)
 
             # Converteer records naar definitions
             definitions = []
