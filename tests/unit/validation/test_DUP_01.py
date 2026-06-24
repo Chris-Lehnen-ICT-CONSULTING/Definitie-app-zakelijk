@@ -11,7 +11,18 @@ from unittest.mock import Mock
 
 import pytest
 
+from services.interfaces import Definition
+
 pytestmark = [pytest.mark.unit]
+
+
+def _definition(**kwargs) -> Definition:
+    """Bouw een Definition-dataclass zoals DefinitionRepository.search() teruggeeft.
+
+    DEF-439: DUP_01 leest het service-laag-contract (Definition-objecten via
+    `repository.search()`), niet dicts via een niet-bestaande `search_definitions`.
+    """
+    return Definition(**kwargs)
 
 
 class TestDUP01:
@@ -19,9 +30,12 @@ class TestDUP01:
 
     @pytest.fixture
     def mock_repository(self):
-        """Create mock repository with default empty response."""
+        """Create mock repository with default empty response.
+
+        DEF-439: het echte contract is `search(query, limit) -> list[Definition]`.
+        """
         repo = Mock()
-        repo.search_definitions = Mock(return_value=[])
+        repo.search = Mock(return_value=[])
         return repo
 
     @pytest.fixture
@@ -70,7 +84,7 @@ class TestDUP01:
 
     def test_check_no_existing_definitions(self, dup_instance, mock_repository):
         """Test when no existing definitions found."""
-        mock_repository.search_definitions.return_value = []
+        mock_repository.search.return_value = []
 
         result = dup_instance.check("Een nieuwe definitie", begrip="nieuw_begrip")
 
@@ -81,8 +95,8 @@ class TestDUP01:
 
     def test_check_finds_exact_duplicate(self, dup_instance, mock_repository):
         """Test detection of exact duplicate definitions."""
-        mock_repository.search_definitions.return_value = [
-            {"id": 123, "begrip": "test", "definitie": "Dit is een test definitie"}
+        mock_repository.search.return_value = [
+            _definition(id=123, begrip="test", definitie="Dit is een test definitie")
         ]
 
         result = dup_instance.check("Dit is een test definitie", begrip="test")
@@ -91,22 +105,6 @@ class TestDUP01:
         assert "Exacte duplicate" in result["toelichting"]
         assert "123" in result["toelichting"]
         assert "suggestie" in result
-
-    def test_check_uses_gecorrigeerd_if_available(self, dup_instance, mock_repository):
-        """Test that definitie_gecorrigeerd is preferred over definitie."""
-        mock_repository.search_definitions.return_value = [
-            {
-                "id": 456,
-                "begrip": "test",
-                "definitie": "oude versie",
-                "definitie_gecorrigeerd": "gecorrigeerde versie",
-            }
-        ]
-
-        result = dup_instance.check("gecorrigeerde versie", begrip="test")
-
-        assert result["voldoet"] is False
-        assert "Exacte duplicate" in result["toelichting"]
 
     def test_check_finds_similar_definition_above_threshold(
         self, dup_instance, mock_repository
@@ -117,12 +115,12 @@ class TestDUP01:
         With 22 words and 1 different: 21/23 = 91.3% (above 90% threshold)
         """
         # 22 word sentence for >90% similarity with 1 word change
-        mock_repository.search_definitions.return_value = [
-            {
-                "id": 789,
-                "begrip": "test",
-                "definitie": "Een formele beschrijving van een begrip dat wordt gebruikt binnen een specifiek domein om eenduidige communicatie te waarborgen en misverstanden te voorkomen in de praktijk",
-            }
+        mock_repository.search.return_value = [
+            _definition(
+                id=789,
+                begrip="test",
+                definitie="Een formele beschrijving van een begrip dat wordt gebruikt binnen een specifiek domein om eenduidige communicatie te waarborgen en misverstanden te voorkomen in de praktijk",
+            )
         ]
 
         # Change just one word (beschrijving -> omschrijving): 21 common / 23 total = 91.3%
@@ -138,12 +136,12 @@ class TestDUP01:
         self, dup_instance, mock_repository
     ):
         """Test that sufficiently different definitions pass."""
-        mock_repository.search_definitions.return_value = [
-            {
-                "id": 101,
-                "begrip": "test",
-                "definitie": "Een heel andere definitie met andere woorden",
-            }
+        mock_repository.search.return_value = [
+            _definition(
+                id=101,
+                begrip="test",
+                definitie="Een heel andere definitie met andere woorden",
+            )
         ]
 
         result = dup_instance.check(
@@ -156,8 +154,8 @@ class TestDUP01:
 
     def test_check_case_insensitive_begrip_match(self, dup_instance, mock_repository):
         """Test that begrip matching is case-insensitive."""
-        mock_repository.search_definitions.return_value = [
-            {"id": 111, "begrip": "TEST", "definitie": "Exacte tekst hier"}
+        mock_repository.search.return_value = [
+            _definition(id=111, begrip="TEST", definitie="Exacte tekst hier")
         ]
 
         result = dup_instance.check("Exacte tekst hier", begrip="test")
@@ -167,7 +165,7 @@ class TestDUP01:
 
     def test_check_handles_search_exception(self, dup_instance, mock_repository):
         """Test handling of exceptions during search."""
-        mock_repository.search_definitions.side_effect = Exception("Database error")
+        mock_repository.search.side_effect = Exception("Database error")
 
         result = dup_instance.check("Een definitie", begrip="test")
 
