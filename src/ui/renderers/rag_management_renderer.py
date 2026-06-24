@@ -486,7 +486,7 @@ class RAGManagementRenderer:
             total = len(chunks)
         else:
             total = self._mgmt.count_chunks(selected_doc)
-            offset = (page - 1) * page_size
+            offset = cast(int, (page - 1) * page_size)  # DEF-439
             chunks = self._mgmt.list_chunks(
                 document_id=selected_doc,
                 offset=offset,

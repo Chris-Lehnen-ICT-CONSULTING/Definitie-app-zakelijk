@@ -115,12 +115,12 @@ class TabbedInterface:
 
             self.definition_service = _DummyService()
 
-        # Maak DefinitieChecker met de service
+        # Maak DefinitieChecker met de service.
+        # DEF-439: de oude `checker._definition_service = ...`-injectie is
+        # verwijderd — het attribuut werd nergens gelezen (DefinitieChecker
+        # resolvet zijn service lazy via _get_integrated_service()), dus de
+        # write was dood en misleidend.
         self.checker = DefinitieChecker(self.repository)
-        # Update checker om nieuwe service te gebruiken indien beschikbaar
-        if hasattr(self.definition_service, "get_service_info"):
-            # V2 service heeft get_service_info methode
-            self.checker._definition_service = self.definition_service
 
         self.context_selector = (
             ContextSelector()

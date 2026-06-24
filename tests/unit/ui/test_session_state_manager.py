@@ -98,6 +98,38 @@ class TestSessionStateManagerCore:
         assert mock_streamlit_session.session_state["key"] == "new"
 
     # =========================================================================
+    # initialize_session_state defaults (DEF-439)
+    # =========================================================================
+
+    def test_initialize_session_state_seeds_extra_defaults(
+        self, mock_streamlit_session
+    ):
+        """DEF-439: een meegegeven defaults-dict seedt afwezige keys.
+
+        Vóór de fix nam initialize_session_state geen argument — de ~9 call-sites
+        die een seed-dict meegaven (bv. edit-velden voorvullen) werden genegeerd
+        (TypeError/no-op) → velden niet voorgevuld.
+        """
+        with patch("ui.cached_services.initialize_services_once"):
+            mock_streamlit_session.manager.initialize_session_state(
+                {"begrip_input": "Identiteitsbewijs"}
+            )
+        assert (
+            mock_streamlit_session.session_state["begrip_input"] == "Identiteitsbewijs"
+        )
+
+    def test_initialize_session_state_defaults_do_not_overwrite(
+        self, mock_streamlit_session
+    ):
+        """DEF-439: bestaande session-waarden worden niet overschreven (setdefault)."""
+        mock_streamlit_session.session_state["begrip_input"] = "Bestaand"
+        with patch("ui.cached_services.initialize_services_once"):
+            mock_streamlit_session.manager.initialize_session_state(
+                {"begrip_input": "Nieuw"}
+            )
+        assert mock_streamlit_session.session_state["begrip_input"] == "Bestaand"
+
+    # =========================================================================
     # clear_value tests
     # =========================================================================
 

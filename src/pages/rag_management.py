@@ -13,6 +13,11 @@ Features:
 import logging
 import sys
 from pathlib import Path
+from typing import TYPE_CHECKING, cast
+
+if TYPE_CHECKING:
+    from services.rag.rag_management_service import RAGManagementService
+    from services.rag.rag_service import RAGService
 
 # Add src/ to path for imports (consistent met main.py)
 src_path = Path(__file__).parent.parent
@@ -69,8 +74,9 @@ services = get_services()
 from ui.renderers.rag_management_renderer import RAGManagementRenderer
 
 renderer = RAGManagementRenderer(
-    management_service=services["management"],
-    rag_service=services["rag"],
+    # DEF-439: get_services() typeert dict[str, object]; runtime concrete services — pattern 4
+    management_service=cast("RAGManagementService", services["management"]),
+    rag_service=cast("RAGService", services["rag"]),
 )
 
 selected_id = renderer.render_sidebar()

@@ -115,6 +115,9 @@ class TestPromptExtractionFallback:
             from ui.components_adapter import UIComponentsAdapter
 
             adapter = UIComponentsAdapter()
+            # DEF-439: UI-service wordt nu in de UI-laag opgebouwd; injecteer de
+            # mock zodat de except-fallback-paden getest blijven.
+            adapter._ui_service = mock_service.ui_service
             result = adapter._collect_ui_data_for_export()
 
             # Assert: logger.warning was called for prompt extraction
@@ -159,6 +162,9 @@ class TestPromptExtractionFallback:
             from ui.components_adapter import UIComponentsAdapter
 
             adapter = UIComponentsAdapter()
+            # DEF-439: UI-service wordt nu in de UI-laag opgebouwd; injecteer de
+            # mock zodat de except-fallback-paden getest blijven.
+            adapter._ui_service = mock_service.ui_service
             adapter._collect_ui_data_for_export()
 
             # Check telemetry in warning call
@@ -204,6 +210,9 @@ class TestPromptExtractionFallback:
             from ui.components_adapter import UIComponentsAdapter
 
             adapter = UIComponentsAdapter()
+            # DEF-439: UI-service wordt nu in de UI-laag opgebouwd; injecteer de
+            # mock zodat de except-fallback-paden getest blijven.
+            adapter._ui_service = mock_service.ui_service
             result = adapter._collect_ui_data_for_export()
 
             # Assert: prompt_text extracted successfully
@@ -242,6 +251,9 @@ class TestExportFormatsFallback:
             from ui.components_adapter import UIComponentsAdapter
 
             adapter = UIComponentsAdapter()
+            # DEF-439: UI-service wordt nu in de UI-laag opgebouwd; injecteer de
+            # mock zodat de except-fallback-paden getest blijven.
+            adapter._ui_service = mock_service.ui_service
             result = adapter.get_export_formats()
 
             # Assert: logger.error called
@@ -275,6 +287,9 @@ class TestExportFormatsFallback:
             from ui.components_adapter import UIComponentsAdapter
 
             adapter = UIComponentsAdapter()
+            # DEF-439: UI-service wordt nu in de UI-laag opgebouwd; injecteer de
+            # mock zodat de except-fallback-paden getest blijven.
+            adapter._ui_service = mock_service.ui_service
             result = adapter.get_export_formats()
 
             mock_logger.error.assert_called_once()
@@ -297,6 +312,9 @@ class TestExportFormatsFallback:
             from ui.components_adapter import UIComponentsAdapter
 
             adapter = UIComponentsAdapter()
+            # DEF-439: UI-service wordt nu in de UI-laag opgebouwd; injecteer de
+            # mock zodat de except-fallback-paden getest blijven.
+            adapter._ui_service = mock_service.ui_service
             result = adapter.get_export_formats()
 
             mock_logger.error.assert_called_once()
@@ -319,6 +337,9 @@ class TestExportFormatsFallback:
             from ui.components_adapter import UIComponentsAdapter
 
             adapter = UIComponentsAdapter()
+            # DEF-439: UI-service wordt nu in de UI-laag opgebouwd; injecteer de
+            # mock zodat de except-fallback-paden getest blijven.
+            adapter._ui_service = mock_service.ui_service
             adapter.get_export_formats()
 
             call_kwargs = mock_logger.error.call_args[1]
@@ -340,6 +361,9 @@ class TestExportFormatsFallback:
             from ui.components_adapter import UIComponentsAdapter
 
             adapter = UIComponentsAdapter()
+            # DEF-439: UI-service wordt nu in de UI-laag opgebouwd; injecteer de
+            # mock zodat de except-fallback-paden getest blijven.
+            adapter._ui_service = mock_service.ui_service
             result = adapter.get_export_formats()
 
             assert len(result) == 3
@@ -368,6 +392,9 @@ class TestExportFormatsFallback:
             from ui.components_adapter import UIComponentsAdapter
 
             adapter = UIComponentsAdapter()
+            # DEF-439: UI-service wordt nu in de UI-laag opgebouwd; injecteer de
+            # mock zodat de except-fallback-paden getest blijven.
+            adapter._ui_service = mock_service.ui_service
             result = adapter.get_export_formats()
 
             assert result == expected_formats
@@ -390,6 +417,9 @@ class TestExportFormatsFallback:
             from ui.components_adapter import UIComponentsAdapter
 
             adapter = UIComponentsAdapter()
+            # DEF-439: UI-service wordt nu in de UI-laag opgebouwd; injecteer de
+            # mock zodat de except-fallback-paden getest blijven.
+            adapter._ui_service = mock_service.ui_service
 
             with pytest.raises(ValueError, match="unexpected"):
                 adapter.get_export_formats()
@@ -429,6 +459,9 @@ class TestExportDefinitionErrorHandling:
             from ui.components_adapter import UIComponentsAdapter
 
             adapter = UIComponentsAdapter()
+            # DEF-439: UI-service wordt nu in de UI-laag opgebouwd; injecteer de
+            # mock zodat de except-fallback-paden getest blijven.
+            adapter._ui_service = mock_service.ui_service
             result = adapter.export_definition(format="txt")
 
             # Assert: returns False
@@ -473,6 +506,9 @@ class TestExportDefinitionErrorHandling:
             from ui.components_adapter import UIComponentsAdapter
 
             adapter = UIComponentsAdapter()
+            # DEF-439: UI-service wordt nu in de UI-laag opgebouwd; injecteer de
+            # mock zodat de except-fallback-paden getest blijven.
+            adapter._ui_service = mock_service.ui_service
             result = adapter.export_definition(format="txt")
 
             assert result is False
@@ -509,6 +545,9 @@ class TestExportDefinitionErrorHandling:
             from ui.components_adapter import UIComponentsAdapter
 
             adapter = UIComponentsAdapter()
+            # DEF-439: UI-service wordt nu in de UI-laag opgebouwd; injecteer de
+            # mock zodat de except-fallback-paden getest blijven.
+            adapter._ui_service = mock_service.ui_service
 
             for exc in [
                 AttributeError("a"),
@@ -551,6 +590,9 @@ class TestExportDefinitionErrorHandling:
             from ui.components_adapter import UIComponentsAdapter
 
             adapter = UIComponentsAdapter()
+            # DEF-439: UI-service wordt nu in de UI-laag opgebouwd; injecteer de
+            # mock zodat de except-fallback-paden getest blijven.
+            adapter._ui_service = mock_service.ui_service
 
             with pytest.raises(ImportError, match="missing module"):
                 adapter.export_definition(format="txt")
@@ -583,6 +625,9 @@ class TestPrepareForReviewErrorHandling:
             from ui.components_adapter import UIComponentsAdapter
 
             adapter = UIComponentsAdapter()
+            # DEF-439: UI-service wordt nu in de UI-laag opgebouwd; injecteer de
+            # mock zodat de except-fallback-paden getest blijven.
+            adapter._ui_service = mock_service.ui_service
             result = adapter.prepare_for_review(definition_id=1)
 
             assert result is False
@@ -617,6 +662,9 @@ class TestPrepareForReviewErrorHandling:
             from ui.components_adapter import UIComponentsAdapter
 
             adapter = UIComponentsAdapter()
+            # DEF-439: UI-service wordt nu in de UI-laag opgebouwd; injecteer de
+            # mock zodat de except-fallback-paden getest blijven.
+            adapter._ui_service = mock_service.ui_service
             result = adapter.prepare_for_review(definition_id=1)
 
             assert result is False
@@ -643,6 +691,9 @@ class TestPrepareForReviewErrorHandling:
             from ui.components_adapter import UIComponentsAdapter
 
             adapter = UIComponentsAdapter()
+            # DEF-439: UI-service wordt nu in de UI-laag opgebouwd; injecteer de
+            # mock zodat de except-fallback-paden getest blijven.
+            adapter._ui_service = mock_service.ui_service
 
             for exc in [
                 AttributeError("a"),
@@ -674,6 +725,9 @@ class TestPrepareForReviewErrorHandling:
             from ui.components_adapter import UIComponentsAdapter
 
             adapter = UIComponentsAdapter()
+            # DEF-439: UI-service wordt nu in de UI-laag opgebouwd; injecteer de
+            # mock zodat de except-fallback-paden getest blijven.
+            adapter._ui_service = mock_service.ui_service
 
             # OSError is NOT in the caught list for prepare_for_review
             with pytest.raises(OSError, match="file error"):
@@ -699,6 +753,9 @@ class TestPrepareForReviewErrorHandling:
             from ui.components_adapter import UIComponentsAdapter
 
             adapter = UIComponentsAdapter()
+            # DEF-439: UI-service wordt nu in de UI-laag opgebouwd; injecteer de
+            # mock zodat de except-fallback-paden getest blijven.
+            adapter._ui_service = mock_service.ui_service
             result = adapter.prepare_for_review(definition_id=1)
 
             assert result is True

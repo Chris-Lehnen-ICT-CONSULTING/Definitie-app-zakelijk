@@ -23,7 +23,7 @@ from services.workflow_service import WorkflowService
 try:  # pragma: no cover - import guard for isolated tests
     from services.policies.approval_gate_policy import GatePolicyService
 except Exception:  # pragma: no cover - optional during tests
-    GatePolicyService = None  # type: ignore[assignment]
+    GatePolicyService = None  # type: ignore[assignment,misc]
 
 logger = logging.getLogger(__name__)
 
@@ -528,7 +528,9 @@ class DefinitionWorkflowService:
             definition = (
                 get_method(definition_id)
                 if callable(get_method)
-                else self.repository.get(definition_id)
+                # DEF-439: defensieve fallback voor repo-varianten zonder
+                # get_definitie (service-laag heeft .get); cast houdt mypy rustig.
+                else cast(Any, self.repository).get(definition_id)
             )
             if not definition:
                 return {"status": "blocked", "reasons": ["Definitie niet gevonden"]}
@@ -652,7 +654,8 @@ class DefinitionWorkflowService:
         gate_policy_service = getattr(self, "gate_policy_service", None)
         if gate_policy_service:
             return gate_policy_service.get_policy()
-        if GatePolicyService:
+        # DEF-439: GatePolicyService is None bij gefaalde optionele import.
+        if GatePolicyService is not None:
             try:
                 return GatePolicyService().get_policy()
             except Exception:  # pragma: no cover

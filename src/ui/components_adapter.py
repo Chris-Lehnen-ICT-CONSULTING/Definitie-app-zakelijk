@@ -39,7 +39,21 @@ class UIComponentsAdapter:
     def __init__(self) -> None:
         """Initialiseer adapter."""
         self.service = get_definition_service()
+        # DEF-439: UI-services worden in de UI-laag beheerd (niet meer via de
+        # serviceslaag). Lazy opgebouwd zodat constructie geen DB raakt tot nodig.
+        self._ui_service: Any = None
         logger.info("UIComponentsAdapter geïnitialiseerd")
+
+    def _get_ui_service(self) -> Any:
+        """Lazy DefinitionUIService (UI-laag facade voor review/export-operaties)."""
+        if self._ui_service is None:
+            from database.definitie_repository import get_definitie_repository
+            from ui.services.definition_ui_service import DefinitionUIService
+
+            self._ui_service = DefinitionUIService(
+                repository=get_definitie_repository()
+            )
+        return self._ui_service
 
     def export_definition(self, format: str = "txt") -> bool:
         """
@@ -243,7 +257,7 @@ class UIComponentsAdapter:
             True als succesvol
         """
         try:
-            result = self.service.ui_service.prepare_definition_for_review(
+            result = self._get_ui_service().prepare_definition_for_review(
                 definitie_id=definition_id,
                 reviewer_notes=notes,
                 user=SessionStateManager.get_value("current_user", "web_user"),
@@ -276,7 +290,7 @@ class UIComponentsAdapter:
         """
         try:
             return cast(
-                list[dict[str, Any]], self.service.ui_service.get_export_formats()
+                list[dict[str, Any]], self._get_ui_service().get_export_formats()
             )
         except (AttributeError, RuntimeError, ConnectionError) as e:
             # DEF-252 follow-up: Log and notify user about fallback to basic formats

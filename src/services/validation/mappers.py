@@ -10,7 +10,7 @@ import uuid
 from datetime import UTC, datetime
 
 UTC = UTC  # Python 3.10 compatibility
-from typing import Any
+from typing import Any, cast
 
 from services.interfaces import ValidationResult as DataclassResult
 from services.validation.interfaces import (
@@ -54,9 +54,10 @@ def dataclass_to_schema_dict(
             severity = str(severity.value)
 
         # Map description to message (legacy field name)
-        message = getattr(v, "message", None)
-        if not message:
-            message = getattr(v, "description", str(v))
+        # DEF-439: garandeer een str (description kan None zijn → TypedDict eist str)
+        message = (
+            getattr(v, "message", None) or getattr(v, "description", None) or str(v)
+        )
 
         violation: RuleViolation = {
             "code": getattr(v, "code", "VAL-UNK-000"),
@@ -195,7 +196,8 @@ def ensure_schema_compliance(
             if "system" not in result:
                 result["system"] = {}
             result["system"]["correlation_id"] = correlation_id or str(uuid.uuid4())
-        return result
+        # DEF-439: runtime-gevalideerde shape (version+system aanwezig) → TypedDict
+        return cast(TypedDictResult, result)
 
     # If it's a dataclass, convert it
     if hasattr(result, "__dataclass_fields__"):

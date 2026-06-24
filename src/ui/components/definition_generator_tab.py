@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import logging
 import os
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 import streamlit as st
 
@@ -196,14 +196,22 @@ class DefinitionGeneratorTab:
                 return
 
             chunks_count = int(
-                _extract_metadata_value(saved_record, agent_result, "rag_chunks_count")
-                or 0
+                cast(  # DEF-439: metadata value is broadly typed, runtime is numeric/str
+                    Any,
+                    _extract_metadata_value(
+                        saved_record, agent_result, "rag_chunks_count"
+                    )
+                    or 0,
+                )
             )
             chunks_filtered = int(
-                _extract_metadata_value(
-                    saved_record, agent_result, "rag_chunks_filtered"
+                cast(  # DEF-439: metadata value is broadly typed, runtime is numeric/str
+                    Any,
+                    _extract_metadata_value(
+                        saved_record, agent_result, "rag_chunks_filtered"
+                    )
+                    or 0,
                 )
-                or 0
             )
             collection_id = _extract_metadata_value(
                 saved_record, agent_result, "rag_collection_id"
@@ -449,6 +457,7 @@ class DefinitionGeneratorTab:
             from ui.components.prompt_debug_section import PromptDebugSection
 
             prompt_template: str | None = None
+            meta: Any = {}  # DEF-439: common type (dict|MetadataDict) for both branches
             if isinstance(agent_result, dict):
                 meta = agent_result.get("metadata") or {}
                 if isinstance(meta, dict):

@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import logging
 import os
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 import streamlit as st
 
@@ -31,9 +31,11 @@ def _extract_metadata_value(
     2. agent_result.metadata[key] (dict format)
     3. agent_result.metadata[key] (object format)
     """
-    # Try saved_record first
-    if saved_record and getattr(saved_record, "metadata", None):
-        meta = saved_record.metadata
+    # Try saved_record first.
+    # DEF-439: DefinitieRecord declareert geen `metadata`; lees defensief via
+    # getattr zodat de check mypy-clean is en gedrag identiek blijft.
+    meta = getattr(saved_record, "metadata", None) if saved_record else None
+    if meta:
         if isinstance(meta, dict) and key in meta:
             return meta.get(key)
 
@@ -63,19 +65,22 @@ def _extract_sources(
     Note: Legacy object-attribute fallbacks removed in DEF-263 after audit confirmed
     no legacy formats are used in the codebase. All code paths use V2 dict format.
     """
-    # 1) Try saved_record.metadata (DB format)
-    if saved_record and getattr(saved_record, "metadata", None):
-        metadata = saved_record.metadata
+    # 1) Try saved_record.metadata (DB format).
+    # DEF-439: defensieve getattr i.p.v. directe attribuut-toegang (zie boven).
+    metadata = getattr(saved_record, "metadata", None) if saved_record else None
+    if metadata:
         if isinstance(metadata, dict):
             sources = metadata.get("sources")
             if sources is not None:
-                return sources
+                # DEF-439: cast Any-waarde uit dict naar declared return type.
+                return cast("list[dict[str, Any]]", sources)
 
     # 2) Direct sources key on agent_result dict (V2 format)
     if isinstance(agent_result, dict):
         sources = agent_result.get("sources")
         if sources is not None:
-            return sources
+            # DEF-439: cast Any-waarde uit dict naar declared return type.
+            return cast("list[dict[str, Any]]", sources)
 
     return None
 
@@ -120,16 +125,28 @@ class SourcesRenderer:
             )
 
             # Show status information
-            self._render_status_info(status_meta, available_meta, timeout_meta)
+            # DEF-439: cast union-metadata naar de smallere param-types (non-behavioral).
+            self._render_status_info(
+                cast("str | None", status_meta),
+                cast("bool | None", available_meta),
+                cast("float | None", timeout_meta),
+            )
 
             # Debug toggles
             self._render_debug_toggles(
-                saved_record, agent_result, status_meta, available_meta, timeout_meta
+                saved_record,
+                agent_result,
+                cast("str | None", status_meta),
+                cast("bool | None", available_meta),
+                cast("float | None", timeout_meta),
             )
 
             # Handle no sources case
             if not sources:
-                self._render_no_sources_message(status_meta, available_meta)
+                self._render_no_sources_message(
+                    cast("str | None", status_meta),
+                    cast("bool | None", available_meta),
+                )
                 return
 
             # Render sources list
@@ -284,10 +301,10 @@ class SourcesRenderer:
         agent_attr_sources = None
         agent_top_sources = None
 
-        if saved_record and getattr(saved_record, "metadata", None):
-            m = saved_record.metadata
-            if isinstance(m, dict):
-                saved_meta_sources = m.get("sources")
+        # DEF-439: defensieve getattr (DefinitieRecord declareert geen metadata).
+        m = getattr(saved_record, "metadata", None) if saved_record else None
+        if isinstance(m, dict):
+            saved_meta_sources = m.get("sources")
 
         if isinstance(agent_result, dict):
             m = agent_result.get("metadata")

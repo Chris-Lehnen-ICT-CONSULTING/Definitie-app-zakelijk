@@ -261,7 +261,7 @@ class GenerationMonitor:
         )
 
         # Enhancement check
-        enhanced = definition.metadata.get("enhanced", False)
+        enhanced = (definition.metadata or {}).get("enhanced", False)  # DEF-439
         metrics.enhancement_applied = enhanced
         self._record_metric(MetricType.ENHANCEMENT_RATE, 1 if enhanced else 0)
 

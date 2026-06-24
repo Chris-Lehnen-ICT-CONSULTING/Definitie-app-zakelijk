@@ -70,7 +70,7 @@ class CON01Validator:
 
         Returns None als check niet nodig of OK, anders (False, melding).
         """
-        if not (DefinitieRepository and begrip):
+        if not (DefinitieRepository is not None and begrip):  # DEF-439: pattern 7
             return None
 
         try:

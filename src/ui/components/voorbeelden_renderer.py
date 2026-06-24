@@ -314,11 +314,10 @@ class VoorbeeldenRenderer:
             "antoniemen": _as_list(canon.get("antoniemen")),
         }
         # Toelichting optioneel opslaan als één regel
-        if (
-            isinstance(canon.get("toelichting"), str)
-            and canon.get("toelichting").strip()
-        ):
-            to_save["toelichting"] = [canon.get("toelichting").strip()]  # type: ignore[index]
+        # DEF-439: bind eenmalig zodat mypy het str-type kan narrowen (non-behavioral).
+        toelichting = canon.get("toelichting")
+        if isinstance(toelichting, str) and toelichting.strip():
+            to_save["toelichting"] = [toelichting.strip()]
 
         return to_save
 

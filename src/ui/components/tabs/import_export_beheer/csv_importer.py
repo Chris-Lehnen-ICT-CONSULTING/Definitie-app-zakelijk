@@ -106,7 +106,9 @@ class CSVImporter:
             try:
                 # Check duplicaat
                 if skip_duplicates:
-                    existing = self.repository.find_by_begrip(
+                    # DEF-439: DB-laag DefinitieRepository heet find_definitie
+                    # (begrip + organisatorische_context), niet find_by_begrip.
+                    existing = self.repository.find_definitie(
                         row.get("begrip", ""), row.get("context", "")
                     )
                     if existing:
@@ -123,8 +125,8 @@ class CSVImporter:
                     validation_score=0.0,
                 )
 
-                # Save
-                self.repository.save(record)
+                # Save (DEF-439: DB-laag heet create_definitie, niet save)
+                self.repository.create_definitie(record)
                 imported += 1
 
                 # Auto validatie indien gewenst

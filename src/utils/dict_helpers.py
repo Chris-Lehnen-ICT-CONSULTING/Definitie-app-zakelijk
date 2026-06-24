@@ -5,11 +5,12 @@ This module provides safe dictionary manipulation functions
 with support for nested access and type validation.
 """
 
+from collections.abc import Mapping
 from typing import Any
 
 
 def safe_dict_get(
-    dictionary: dict[str, Any] | None,
+    dictionary: Mapping[str, Any] | None,
     key: str,
     default: Any = None,
     expected_type: type | None = None,
