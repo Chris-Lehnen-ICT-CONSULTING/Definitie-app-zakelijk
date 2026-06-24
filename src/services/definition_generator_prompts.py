@@ -10,6 +10,7 @@ Unified prompt building systeem dat alle prompt strategieën combineert:
 import logging
 from abc import ABC, abstractmethod
 from enum import Enum
+from typing import cast
 
 from services.definition_generator_config import UnifiedGeneratorConfig
 from services.definition_generator_context import EnrichedContext
@@ -74,7 +75,9 @@ class UnifiedPromptBuilder:
     def _init_builders(self) -> None:
         """Initialiseer beschikbare prompt builders."""
         # Modular builder - enige actieve strategy
-        self.builders["modular"] = ModularPromptBuilder()
+        # DEF-439: ModularPromptBuilder implementeert het PromptBuilder-contract
+        # (duck-typed, geen nominale subclass) → cast voor de dict[str, PromptBuilder].
+        self.builders["modular"] = cast(PromptBuilder, ModularPromptBuilder())
         logger.info("ModularPromptBuilder geïnitialiseerd als primaire strategy")
 
         # ARCHIVED: Legacy en context-aware builders zijn gearchiveerd
