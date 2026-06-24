@@ -67,8 +67,11 @@ class BulkOperations:
                 updated = 0
 
                 for definition in definitions:
-                    definition.status = to_status
-                    self.repository.update(definition)
+                    # DEF-439: DB-laag heet update_definitie(id, updates: dict),
+                    # niet update(record).
+                    self.repository.update_definitie(
+                        definition.id, {"status": to_status}
+                    )
                     updated += 1
 
                 st.success(
