@@ -318,6 +318,10 @@ class DefinitionResponse:
 class DefinitionGeneratorInterface(ABC):
     """Interface voor definitie generatie services die AI models aansturen."""
 
+    def get_stats(self) -> dict[str, Any]:
+        """Statistieken van deze service (DEF-439: default leeg; impls overriden)."""
+        return {}
+
     @abstractmethod
     async def generate(self, request: GenerationRequest) -> Definition:
         """
@@ -391,6 +395,10 @@ class DefinitionValidatorInterface(ABC):
 
 class DefinitionRepositoryInterface(ABC):
     """Interface voor definitie opslag services met database operaties."""
+
+    def get_stats(self) -> dict[str, Any]:
+        """Statistieken van deze repository (DEF-439: default leeg; impls overriden)."""
+        return {}
 
     @abstractmethod
     def save(self, definition: Definition) -> int:
@@ -506,6 +514,10 @@ class DefinitionRepositoryInterface(ABC):
 
 class DefinitionOrchestratorInterface(ABC):
     """Interface voor het orkestreren van definitie operaties."""
+
+    def get_stats(self) -> dict[str, Any]:
+        """Statistieken van de orchestrator (DEF-439: default leeg; impls overriden)."""
+        return {}
 
     @abstractmethod
     async def create_definition(

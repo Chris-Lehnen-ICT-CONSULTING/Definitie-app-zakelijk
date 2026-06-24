@@ -137,7 +137,9 @@ class UnifiedExamplesGenerator:
         try:
             from utils.container_manager import get_cached_container
 
-            return get_cached_container().orchestrator().ai_service
+            # DEF-439: ai_service is een V2-attribuut, niet op de interface.
+            orchestrator: Any = get_cached_container().orchestrator()
+            return cast(AIServiceV2, orchestrator.ai_service)
         except Exception:
             logger.warning("Container not available, using standalone AIServiceV2")
             return AIServiceV2(use_cache=True)
