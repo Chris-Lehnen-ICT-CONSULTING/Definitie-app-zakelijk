@@ -204,11 +204,7 @@ exclude = [
 [[tool.mypy.overrides]]
 disallow_untyped_defs = false
 module = [
-    # DEF-435: facade is volledig geannoteerd, maar de `from database.* import`-
-    # delegate-classes resolven onder de huidige mypy-config naar Any (src-layout
-    # import-resolutie), wat ~22 spurieuze no-any-return geeft. Deferred tot de
-    # import-resolutie is opgelost (apart van de batch-1 annotatie-afbouw).
-    "database.definitie_repository",
+    # DEF-437 batch 4c: laatste KRITIEKE override; ~13 errors te annoteren.
     "voorbeelden.robust_cache",
     "voorbeelden.unified_voorbeelden",
 ]
