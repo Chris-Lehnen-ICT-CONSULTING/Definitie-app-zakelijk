@@ -18,7 +18,7 @@ from utils.type_helpers import ensure_dict
 
 if TYPE_CHECKING:
     from database.definitie_repository import DefinitieRecord
-    from integration.definitie_checker import CheckResult
+    from integration.definitie_checker import DefinitieCheckResult
 
 logger = logging.getLogger(__name__)
 
@@ -37,7 +37,7 @@ class DuplicateCheckRenderer:
     - Navigation actions (use existing, edit, generate new)
     """
 
-    def render_check_results(self, check_result: CheckResult) -> None:
+    def render_check_results(self, check_result: DefinitieCheckResult) -> None:
         """Render complete duplicate check results section.
 
         Displays:

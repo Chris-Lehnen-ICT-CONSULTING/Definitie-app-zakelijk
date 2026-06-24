@@ -388,7 +388,9 @@ class ServiceContainer:
             # DEF-314: Reuse singleton AIServiceV2 from orchestrator
             # instead of creating a second instance
             orchestrator = self.orchestrator()
-            ai_service = orchestrator.ai_service
+            # DEF-439: ai_service is een attribuut van de concrete V2-orchestrator,
+            # niet van de interface (vgl. de validation_service-property).
+            ai_service = cast(Any, orchestrator).ai_service
 
             self._instances["ontological_classifier"] = OntologicalClassifier(
                 ai_service

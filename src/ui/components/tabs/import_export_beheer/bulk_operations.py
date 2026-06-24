@@ -68,7 +68,10 @@ class BulkOperations:
 
                 for definition in definitions:
                     # DEF-439: DB-laag heet update_definitie(id, updates: dict),
-                    # niet update(record).
+                    # niet update(record). Sla records zonder id over (kunnen toch
+                    # niet geadresseerd worden) — houdt het id-type non-optional.
+                    if definition.id is None:
+                        continue
                     self.repository.update_definitie(
                         definition.id, {"status": to_status}
                     )

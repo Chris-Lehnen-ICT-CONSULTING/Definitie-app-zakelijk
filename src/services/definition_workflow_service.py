@@ -528,7 +528,9 @@ class DefinitionWorkflowService:
             definition = (
                 get_method(definition_id)
                 if callable(get_method)
-                else self.repository.get(definition_id)
+                # DEF-439: defensieve fallback voor repo-varianten zonder
+                # get_definitie (service-laag heeft .get); cast houdt mypy rustig.
+                else cast(Any, self.repository).get(definition_id)
             )
             if not definition:
                 return {"status": "blocked", "reasons": ["Definitie niet gevonden"]}

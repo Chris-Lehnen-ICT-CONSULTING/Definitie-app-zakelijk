@@ -236,7 +236,8 @@ async def run_smoke_test(
     config = ContainerConfigs.development()
     config["use_database"] = False
     container = ServiceContainer(config)
-    orchestrator = container.orchestrator()
+    # DEF-439: rag_service is een V2-attribuut, niet op de interface.
+    orchestrator: Any = container.orchestrator()
     rag_service = container.rag_service
 
     if not rag_service:
