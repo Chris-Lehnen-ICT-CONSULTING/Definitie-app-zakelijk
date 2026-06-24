@@ -297,7 +297,8 @@ class DefinitionGenerationHandler:
                 service_result = self.definition_service.to_ui_response(_response)
 
                 # Converteer naar checker formaat voor UI compatibility
-                check_result = None
+                # DEF-439: aparte naam — deze post-generatie tak heeft geen check-result
+                check_result_ui = None
                 agent_result = service_result
 
                 # Voor auto-load in Bewerk-tab
@@ -365,7 +366,7 @@ class DefinitionGenerationHandler:
                     "last_generation_result",
                     {
                         "begrip": begrip,
-                        "check_result": check_result,
+                        "check_result": check_result_ui,  # DEF-439
                         "agent_result": agent_result,
                         "saved_record": saved_record,
                         "saved_definition_id": saved_definition_id,

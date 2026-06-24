@@ -216,8 +216,11 @@ class DefinitionRepository(DefinitionRepositoryInterface):
         self._stats["total_searches"] += 1
 
         try:
-            # Gebruik legacy search
-            results = self.legacy_repo.search(search_term=query, limit=limit)
+            # Gebruik legacy search.
+            # DEF-439: de DB-laag DefinitieRepository exposeert `search_definities`
+            # met parameter `query` — niet `search(search_term=...)`. Het oude
+            # aanroep-pad gooide stil AttributeError → search() gaf altijd [].
+            results = self.legacy_repo.search_definities(query=query, limit=limit)
 
             # Converteer records naar definitions
             definitions = []
@@ -274,11 +277,13 @@ class DefinitionRepository(DefinitionRepositoryInterface):
         self._stats["total_deletes"] += 1
 
         try:
-            # Gebruik legacy delete (soft delete via status)
+            # Gebruik legacy delete (soft delete via status).
+            # DEF-439: update_definitie(id, updates: dict) — niet (id, record).
             record = self.legacy_repo.get_definitie(definition_id)
             if record:
-                record.status = DefinitieStatus.ARCHIVED.value
-                self.legacy_repo.update_definitie(definition_id, record)
+                self.legacy_repo.update_definitie(
+                    definition_id, {"status": DefinitieStatus.ARCHIVED.value}
+                )
                 return True
             return False
 
@@ -353,8 +358,15 @@ class DefinitionRepository(DefinitionRepositoryInterface):
         try:
             # Use database-level duplicate detection (exact + synonym match)
             # DuplicateDetectionService removed - was dead code (DEF-176)
+            # DEF-439: find_duplicates verwacht losse velden, geen record.
+            # org/jur-context zijn op de record reeds JSON-strings (DB-formaat).
             record = self._definition_to_record(definition)
-            matches = self.legacy_repo.find_duplicates(record)
+            matches = self.legacy_repo.find_duplicates(
+                begrip=record.begrip,
+                organisatorische_context=record.organisatorische_context,
+                juridische_context=record.juridische_context or "",
+                categorie=record.categorie,
+            )
 
             duplicates = []
             for match in matches:
@@ -380,7 +392,9 @@ class DefinitionRepository(DefinitionRepositoryInterface):
             Lijst van definities met de gegeven status
         """
         try:
-            records = self.legacy_repo.get_by_status(status, limit)
+            # DEF-439: DB-laag get_by_status(status) kent geen limit-arg;
+            # begrens in Python.
+            records = self.legacy_repo.get_by_status(status)[:limit]
 
             definitions = []
             for record in records:
@@ -742,6 +756,11 @@ class DefinitionRepository(DefinitionRepositoryInterface):
             },
         )
 
+        # DEF-439: metadata is dataclass-typed dict|None; __post_init__ zet het
+        # naar {} maar mypy ziet dat niet — narrow expliciet vóór indexed writes.
+        if definition.metadata is None:
+            definition.metadata = {}
+
         # Parse eventuele JSON velden
         if record.validation_issues:
             with suppress(json.JSONDecodeError, ValueError):
@@ -759,7 +778,10 @@ class DefinitionRepository(DefinitionRepositoryInterface):
         # DEF-156: Load voorbeelden from database and populate metadata
         # This ensures voorbeelden persist when loading definitions in Bewerk tab
         try:
-            voorbeelden_db = self.get_voorbeelden_by_type(record.id)
+            # DEF-439: record.id is int|None; skip voorbeelden bij ontbrekend id.
+            voorbeelden_db = (
+                self.get_voorbeelden_by_type(record.id) if record.id is not None else {}
+            )
             if voorbeelden_db and any(voorbeelden_db.values()):
                 # Canonicalize DB keys to UI-expected format
                 # DB uses: sentence, practical, counter, synonyms, antonyms, explanation

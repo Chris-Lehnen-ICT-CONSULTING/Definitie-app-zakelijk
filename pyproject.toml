@@ -174,6 +174,13 @@ line-ending = "auto"
 python_version = "3.13"
 warn_return_any = true
 warn_unused_configs = true
+# DEF-439: src-layout import-resolutie. Zonder deze twee settings resolven
+# `from database.* import X` / `from services.* import X` naar Any (mypy vindt het
+# package niet onder src/ en ignore_missing_imports maakt het stilzwijgend Any).
+# Met mypy_path=src + explicit_package_bases resolven ze echt → reële type-checks.
+# Neveneffect: module-namen in [[tool.mypy.overrides]] verliezen de `src.`-prefix.
+mypy_path = "src"
+explicit_package_bases = true
 # DEF-431 Fase 2: globaal getypeerde signatures afdwingen. Legacy-modules zijn
 # vrijgesteld via de [[tool.mypy.overrides]] onderaan (de krimpende debt-teller).
 # check_untyped_defs staat globaal aan sinds DEF-438 (de 6 src/services-errors
@@ -197,13 +204,9 @@ exclude = [
 [[tool.mypy.overrides]]
 disallow_untyped_defs = false
 module = [
-    # DEF-435: facade is volledig geannoteerd, maar de `from database.* import`-
-    # delegate-classes resolven onder de huidige mypy-config naar Any (src-layout
-    # import-resolutie), wat ~22 spurieuze no-any-return geeft. Deferred tot de
-    # import-resolutie is opgelost (apart van de batch-1 annotatie-afbouw).
-    "src.database.definitie_repository",
-    "src.voorbeelden.robust_cache",
-    "src.voorbeelden.unified_voorbeelden",
+    # DEF-437 batch 4c: laatste KRITIEKE override; ~13 errors te annoteren.
+    "voorbeelden.robust_cache",
+    "voorbeelden.unified_voorbeelden",
 ]
 
 # DEF-420: centrale coverage-config (was nergens gedefinieerd; verspreide ini-keys

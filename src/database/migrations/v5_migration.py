@@ -12,6 +12,7 @@ import shutil
 import sqlite3
 from datetime import datetime
 from pathlib import Path
+from typing import cast  # DEF-439
 
 logger = logging.getLogger(__name__)
 
@@ -188,7 +189,7 @@ def _get_table_names(conn: sqlite3.Connection) -> list[str]:
 def _get_row_count(conn: sqlite3.Connection, table: str) -> int:
     """Return the row count for a given table."""
     cursor = conn.execute(f"SELECT COUNT(*) FROM [{table}]")
-    return cursor.fetchone()[0]
+    return cast(int, cursor.fetchone()[0])  # DEF-439: pattern 3
 
 
 # ---------------------------------------------------------------------------
