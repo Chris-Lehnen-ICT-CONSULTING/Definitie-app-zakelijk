@@ -24,7 +24,13 @@ if TYPE_CHECKING:
     # Alleen voor type-checking geïmporteerd: services.validation.interfaces
     # importeert op zijn beurt uit deze module (Definition), dus een runtime-import
     # zou een circulaire import veroorzaken.
-    from services.validation.interfaces import ValidationOrchestratorInterface
+    from services.validation.interfaces import (
+        ValidationOrchestratorInterface,
+        # DEF-439: TypedDict-variant; het V2-pad (DefinitionResponseV2,
+        # FeedbackEngineInterface) draagt deze, niet de legacy dataclass hieronder.
+        # String-annotaties vereist (deze module heeft geen __future__ annotations).
+        ValidationResult as ValidationResultTD,
+    )
 
 # =====================================
 # V2 CANONICAL CONTRACTS (EPIC-010)
@@ -644,7 +650,7 @@ class LookupRequest:
     context: str | None = None
     max_results: int = 5
     include_examples: bool = True
-    timeout: int = 30
+    timeout: float = 30  # DEF-439: duur in seconden (kan fractioneel zijn via env)
 
 
 @dataclass
@@ -1190,7 +1196,7 @@ class FeedbackEngineInterface(ABC):
     async def process_validation_feedback(
         self,
         definition_id: str,
-        validation_result: ValidationResult,
+        validation_result: "ValidationResultTD",
         original_request: GenerationRequest,
     ) -> dict[str, Any]:
         """
@@ -1278,7 +1284,7 @@ class DefinitionResponseV2:
 
     success: bool = True
     definition: Definition | None = None
-    validation_result: ValidationResult | None = None
+    validation_result: "ValidationResultTD | None" = None
     error: str | None = None
     metadata: dict[str, Any] | None = None
 
