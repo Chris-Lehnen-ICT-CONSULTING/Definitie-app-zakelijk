@@ -486,9 +486,11 @@ class CategoryRenderer:
             return
 
         if result.action == WorkflowAction.SHOW_REGENERATION_PREVIEW:
-            generation_result["category_change_state"] = result.preview_data.get(
-                "category_change_state"
-            )
+            # DEF-439: preview_data is bij deze action altijd gezet (zelfde
+            # requires_regeneration-invariant in workflow_service); (… or {}) is non-behavioral.
+            generation_result["category_change_state"] = (
+                result.preview_data or {}
+            ).get("category_change_state")
             SessionStateManager.set_value("show_category_selector", False)
         elif result.action == WorkflowAction.SHOW_ERROR:
             logger.error(f"Category change workflow error: {result.error}")
