@@ -10,6 +10,7 @@ from __future__ import annotations
 import logging
 import uuid
 from collections.abc import Iterable
+from typing import Any
 
 from services.interfaces import (
     CleaningServiceInterface,
@@ -87,7 +88,7 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
                     cleaned_text = cleaning.cleaned_text if cleaning else text
 
                 # Build context dict with all relevant fields
-                context_dict = None
+                context_dict: dict[str, Any] | None = None
                 if context:
                     context_dict = {}
                     if context.profile:
@@ -153,7 +154,7 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
                     text = cleaned.cleaned_text if cleaned else definition.definitie
 
                 # Build context dict with all relevant fields
-                context_dict = None
+                context_dict: dict[str, Any] | None = None
                 if context:
                     context_dict = {}
                     if context.profile:

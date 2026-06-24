@@ -33,6 +33,7 @@ from services.interfaces import (
     Definition,
     DefinitionOrchestratorInterface,
     DefinitionRepositoryInterface,
+    DefinitionResponse,
     DefinitionResponseV2,
     EnhancementServiceInterface as EnhancementService,
     FeedbackEngineInterface as FeedbackEngine,
@@ -41,9 +42,16 @@ from services.interfaces import (
     OrchestratorConfig,
     PromptServiceInterface as PromptServiceV2,
     SecurityServiceInterface as SecurityService,
+    ValidationServiceInterface,
+)
+
+# DEF-439: de V2-pipeline werkt met de TypedDict-ValidationResult (output van de
+# modulaire validatie via ensure_schema_compliance), niet met de legacy dataclass
+# services.interfaces.ValidationResult. Annotaties uitgelijnd op het runtime-type.
+from services.validation.interfaces import (
+    ValidationOrchestratorInterface,
     ValidationResult,
 )
-from services.validation.interfaces import ValidationOrchestratorInterface
 from utils.dict_helpers import safe_dict_get
 from utils.type_helpers import ensure_dict, ensure_list, ensure_string
 
@@ -77,12 +85,12 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
         prompt_service: Optional[
             "PromptServiceV2"
         ] = None,  # DEF-66: Now optional for lazy loading
-        ai_service: "IntelligentAIService" = None,
+        ai_service: Optional["IntelligentAIService"] = None,
         validation_service: Optional[
             "ValidationOrchestratorInterface"
         ] = None,  # DEF-90: Now optional for lazy loading
-        cleaning_service: "CleaningServiceInterface" = None,
-        repository: "DefinitionRepositoryInterface" = None,
+        cleaning_service: Optional["CleaningServiceInterface"] = None,
+        repository: Optional["DefinitionRepositoryInterface"] = None,
         # Optional services
         enhancement_service: Optional["EnhancementService"] = None,
         security_service: Optional["SecurityService"] = None,
@@ -167,9 +175,14 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
         """
         if self._prompt_service is None:
             logger.debug("DEF-66: Lazy-loading PromptServiceV2 on first access")
-            from services.prompts.prompt_service_v2 import PromptServiceV2
+            # DEF-439: concrete impl implementeert PromptServiceInterface duck-typed
+            # (geen nominale subclass). Lokaal anders aliassen zodat de module-alias
+            # PromptServiceV2 (= de interface) beschikbaar blijft voor de cast.
+            from services.prompts.prompt_service_v2 import (
+                PromptServiceV2 as _PromptServiceV2Impl,
+            )
 
-            self._prompt_service = PromptServiceV2()
+            self._prompt_service = cast("PromptServiceV2", _PromptServiceV2Impl())
             logger.debug("DEF-66: PromptServiceV2 initialized successfully")
 
         return self._prompt_service
@@ -227,8 +240,12 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             cleaning_adapter = self.cleaning_service
 
             # Create ValidationOrchestratorV2
+            # DEF-439: ModularValidationService implementeert ValidationServiceInterface
+            # duck-typed (geen nominale subclass) → cast naar het contract-type.
             self._validation_service = ValidationOrchestratorV2(
-                validation_service=modular_validation_service,
+                validation_service=cast(
+                    ValidationServiceInterface, modular_validation_service
+                ),
                 cleaning_service=cleaning_adapter,
             )
 
@@ -1290,24 +1307,27 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
 
     # Note: Main create_definition method is already implemented above
 
+    # DEF-439: deze legacy-stubs implementeren DefinitionOrchestratorInterface, dat
+    # DefinitionResponse (niet de V2-variant) als returntype declareert. Stubs geven
+    # nu de base-response terug (message i.p.v. error) — contract-conform.
     async def update_definition(
         self, definition_id: int, updates: dict[str, Any]
-    ) -> DefinitionResponseV2:
+    ) -> DefinitionResponse:
         """Update definition - placeholder for future implementation."""
         _ = definition_id, updates  # Mark as used
         logger.warning("update_definition not yet implemented in V2")
-        return DefinitionResponseV2(
+        return DefinitionResponse(
             success=False,
-            error="update_definition not yet implemented in V2 orchestrator",
+            message="update_definition not yet implemented in V2 orchestrator",
         )
 
-    async def validate_and_save(self, definition: Definition) -> DefinitionResponseV2:
+    async def validate_and_save(self, definition: Definition) -> DefinitionResponse:
         """Validate and save - placeholder for future implementation."""
         _ = definition  # Mark as used
         logger.warning("validate_and_save not yet implemented in V2")
-        return DefinitionResponseV2(
+        return DefinitionResponse(
             success=False,
-            error="validate_and_save not yet implemented in V2 orchestrator",
+            message="validate_and_save not yet implemented in V2 orchestrator",
         )
 
     # =====================================
@@ -1456,7 +1476,7 @@ Genereer een heldere, precieze definitie die voldoet aan Nederlandse kwaliteitse
 
         return PromptResult(
             text=basic_prompt,
-            token_count=len(basic_prompt.split()) * 1.3,  # Rough estimate
+            token_count=int(len(basic_prompt.split()) * 1.3),  # Rough estimate
             components_used=("legacy_fallback",),  # frozen dataclass needs tuple
             feedback_integrated=False,
             optimization_applied=False,
