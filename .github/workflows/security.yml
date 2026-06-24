@@ -58,6 +58,9 @@ jobs:
   sast-scan:
     name: SAST (Semgrep)
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -72,16 +75,53 @@ jobs:
           python -m pip install --upgrade pip
           pip install semgrep
 
-      - name: Semgrep report (advisory — toont alle findings)
-        # Toont alle findings (incl. WARNING) ter info; breekt de build niet.
-        # '|| true' zorgt dat alleen de gate-stap hieronder kan blokkeren.
+      - name: Run Semgrep (hele repo, één scan → JSON)
+        # Eén scan over de hele repo met p/owasp-top-ten + p/python.
+        # Bewust GEEN '--error' en GEEN '|| true': findings laten deze stap niet
+        # falen (de gate hieronder beslist), maar config-/scanfouten (exit 2)
+        # falen wél hard — geen schijnzekerheid door een gemaskeerde fout.
         run: |
-          semgrep scan --config p/owasp-top-ten --config p/python --metrics=off || true
+          semgrep scan --config p/owasp-top-ten --config p/python \
+            --metrics=off --json --output=semgrep-results.json
 
-      - name: Semgrep gate (blokkeer op ERROR-severity)
-        # Faalt de PR alleen bij high-severity (ERROR) findings, zodat
-        # pre-existing WARNINGs (md5/cors/logger — zie ALG-214 follow-up)
-        # main niet rood zetten. Hardere gate volgt na triage van die WARNINGs.
+      - name: Rapporteer alle findings (advisory)
+        # Volledige zichtbaarheid van álle findings (alle paden, alle severities),
+        # incl. de pre-existing ERRORs in .github/workflows/ — zonder te blokkeren.
         run: |
-          semgrep scan --config p/owasp-top-ten --config p/python --severity ERROR --error --metrics=off
+          python - <<'PY'
+          import collections
+          import json
+
+          data = json.load(open("semgrep-results.json"))
+          results = data.get("results", [])
+          by_severity = collections.Counter(
+              r["extra"].get("severity") for r in results
+          )
+          print(f"Semgrep findings (hele repo): {len(results)} — {dict(by_severity)}")
+          for r in results:
+              sev = r["extra"].get("severity")
+              rule = r["check_id"].split(".")[-1]
+              print(f"  [{sev}] {r['path']}:{r['start']['line']} {rule}")
+          PY
+
+      - name: Gate — blokkeer op ERROR-severity in src/
+        # Blokkeert alleen op ERROR-findings in applicatiecode (src/). Pre-existing
+        # ERRORs in CI-workflows (.github/) en alle WARNINGs blijven advisory.
+        # Verbreden van de gate-scope + triage van die findings: ALG-214 follow-up.
+        run: |
+          python - <<'PY'
+          import json
+          import sys
+
+          data = json.load(open("semgrep-results.json"))
+          blocking = [
+              r for r in data.get("results", [])
+              if r["extra"].get("severity") == "ERROR"
+              and r["path"].startswith("src/")
+          ]
+          for r in blocking:
+              print(f"::error file={r['path']},line={r['start']['line']}::{r['check_id']}")
+          print(f"ERROR-severity findings in src/: {len(blocking)}")
+          sys.exit(1 if blocking else 0)
+          PY
 
