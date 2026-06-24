@@ -107,6 +107,16 @@ class ExampleResponse:
     cached: bool = False
 
 
+# DEF-428: bovengrens voor de sync->async-bridge zodat een vastlopende
+# generatie-call de (UI-)thread niet oneindig kan bevriezen. Ruim boven de
+# legitieme generatieduur (per-call timeouts 20-45s, bulk ~30-60s) maar bounded.
+_ASYNC_SAFE_TIMEOUT_S = 120.0
+# Kleine marge zodat de coöperatieve asyncio.wait_for (binnen de loop) als eerste
+# vuurt; de thread-backstop bevrijdt de caller alleen als de worker niet-cancelbaar
+# vastloopt. Voorkomt ook dat de worst-case ~2× de timeout wordt.
+_ASYNC_SAFE_BACKSTOP_GRACE_S = 5.0
+
+
 class UnifiedExamplesGenerator:
     """Unified system for generating all types of examples."""
 
@@ -158,31 +168,54 @@ class UnifiedExamplesGenerator:
         config_key = type_mapping.get(example_type, "voorbeeldzinnen")
         return get_component_config("voorbeelden", config_key)
 
-    def _run_async_safe(self, coro):
-        """Run async coroutine safely, detecting existing event loop."""
+    def _run_async_safe(self, coro, timeout: float | None = _ASYNC_SAFE_TIMEOUT_S):
+        """Run async coroutine safely, detecting existing event loop.
+
+        DEF-428: dwingt een timeout af zodat een vastlopende generatie-call de
+        (UI-)thread niet oneindig bevriest, maar netjes faalt met TimeoutError.
+        Een TimeoutError is geen RuntimeError en wordt dus NIET door de
+        no-loop-fallback hieronder opgevangen — hij propageert naar de caller.
+        """
+        # asyncio.wait_for cancelt de coroutine binnen de loop bij overschrijding.
+        wrapped = (
+            asyncio.wait_for(coro, timeout=timeout) if timeout is not None else coro
+        )
+
+        # Bepaal het pad op basis van een draaiende loop — bewust ALLEEN dit in de
+        # try/except, zodat een RuntimeError uit de coro-executie niet per ongeluk
+        # naar de asyncio.run-fallback valt (en een al-geconsumeerde coro herdraait).
         try:
-            # Check if there's already a running event loop
             asyncio.get_running_loop()
-            # If we're in an event loop, we can't use asyncio.run()
-            # Instead, we'll run in a thread pool
-            import concurrent.futures
-
-            def run_in_thread():
-                # Create new event loop in thread
-                loop = asyncio.new_event_loop()
-                asyncio.set_event_loop(loop)
-                try:
-                    return loop.run_until_complete(coro)
-                finally:
-                    loop.close()
-
-            with concurrent.futures.ThreadPoolExecutor() as executor:
-                future = executor.submit(run_in_thread)
-                return future.result()
-
         except RuntimeError:
-            # No event loop running, safe to use asyncio.run()
-            return asyncio.run(coro)
+            # Geen draaiende loop → veilig asyncio.run().
+            return asyncio.run(wrapped)
+
+        # Wel een draaiende loop: kan asyncio.run() niet gebruiken → eigen loop in
+        # een worker-thread.
+        import concurrent.futures
+
+        def run_in_thread():
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            try:
+                return loop.run_until_complete(wrapped)
+            finally:
+                loop.close()
+
+        executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
+        future = executor.submit(run_in_thread)
+        try:
+            # Backstop iets ruimer dan wait_for, zodat de coöperatieve cancel eerst
+            # vuurt; bevrijdt de caller alsnog als de worker niet-cancelbaar hangt.
+            backstop = (
+                None if timeout is None else timeout + _ASYNC_SAFE_BACKSTOP_GRACE_S
+            )
+            return future.result(timeout=backstop)
+        finally:
+            # NIET wachten op een vastgelopen worker — dat zou de (UI-)thread alsnog
+            # bevriezen. shutdown(wait=False) laat een eventuele hangende thread los;
+            # in het normale geval is de worker al klaar en is dit een no-op.
+            executor.shutdown(wait=False)
 
     @debug_flow_point("A")
     def generate_examples(self, request: ExampleRequest) -> ExampleResponse:
