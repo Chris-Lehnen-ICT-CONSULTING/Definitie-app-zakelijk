@@ -68,16 +68,29 @@ class SessionStateManager:
     }
 
     @staticmethod
-    def initialize_session_state() -> None:
+    def initialize_session_state(defaults: dict[str, Any] | None = None) -> None:
         """Initialiseer alle sessie status variabelen met standaardwaarden.
 
         Doorloopt alle standaardwaarden en zet ze in de sessie status
         als ze nog niet bestaan.
+
+        Args:
+            defaults: Optionele extra caller-specifieke seed-waarden (bv. een
+                edit-veld voorvullen met de geladen definitie). DEF-439: dit
+                argument werd voorheen genegeerd (signatuur nam 0 args), waardoor
+                de ~9 call-sites die een seed-dict meegaven geen effect hadden.
+                Seeding is setdefault-style: bestaande waarden blijven staan.
         """
         # Doorloop alle standaardwaarden en initialiseer ze
         for key, default_value in SessionStateManager.DEFAULT_VALUES.items():
             if key not in st.session_state:  # Controleer of sleutel al bestaat
                 st.session_state[key] = default_value  # Zet standaardwaarde
+
+        # DEF-439: seed caller-specifieke defaults (alleen indien nog afwezig)
+        if defaults:
+            for key, value in defaults.items():
+                if key not in st.session_state:
+                    st.session_state[key] = value
 
         # US-202: Initialize services met caching om herinitialisatie te voorkomen
         # Import hier om circulaire import te voorkomen
