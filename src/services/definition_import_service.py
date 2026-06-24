@@ -149,8 +149,11 @@ class DefinitionImportService:
         if preview.duplicates and strategy == "overwrite":
             try:
                 target = preview.duplicates[0]
-                if getattr(target, "id", None):
-                    definition.id = int(target.id)
+                # DEF-439: gebruik de getattr-waarde (Any) zodat int(...) niet
+                # over int|None struikelt; guard blijft behouden.
+                target_id = getattr(target, "id", None)
+                if target_id:
+                    definition.id = int(target_id)
             except (TypeError, ValueError, AttributeError) as e:
                 # Fallback: laat id None → create nieuwe definitie
                 logger.warning(

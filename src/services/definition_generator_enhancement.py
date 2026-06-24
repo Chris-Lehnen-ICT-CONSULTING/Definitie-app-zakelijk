@@ -446,7 +446,7 @@ class DefinitionEnhancer:
 
         # Update metadata
         if applied_enhancements:
-            enhanced_metadata = current_definition.metadata.copy()
+            enhanced_metadata = (current_definition.metadata or {}).copy()  # DEF-439
             enhanced_metadata["enhanced"] = True
             enhanced_metadata["enhancement_applied"] = [
                 e.enhancement_type.value for e in applied_enhancements

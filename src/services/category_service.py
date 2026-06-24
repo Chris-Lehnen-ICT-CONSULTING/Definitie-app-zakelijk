@@ -78,7 +78,9 @@ class CategoryService:
                 definition, new_category
             )
             if not is_valid:
-                return CategoryChangeResult(success=False, message=error_msg)
+                return CategoryChangeResult(
+                    success=False, message=error_msg or ""  # DEF-439
+                )
 
             # Bewaar oude categorie
             old_category = definition.categorie

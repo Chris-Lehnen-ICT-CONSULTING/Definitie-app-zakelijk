@@ -71,6 +71,8 @@ class ModernWebLookupService(WebLookupServiceInterface):
         self._debug_attempts: list[dict[str, Any]] = []
 
         # Initialize domein components als beschikbaar
+        # DEF-439: expliciete optionele annotatie (None in else-tak).
+        self.betrouwbaarheids_calculator: BetrouwbaarheidsCalculator | None
         if DOMAIN_AVAILABLE:
             self.betrouwbaarheids_calculator = BetrouwbaarheidsCalculator()
         else:
