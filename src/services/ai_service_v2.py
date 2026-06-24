@@ -372,7 +372,10 @@ class AIServiceV2(AIServiceInterface):
         # Process results, re-raising any exceptions
         final_results = []
         for i, result in enumerate(results):
-            if isinstance(result, Exception):
+            # DEF-439: gather(return_exceptions=True) kan ook een BaseException
+            # (bv. CancelledError) teruggeven; isinstance(Exception) liet die
+            # eerder als "resultaat" doorglippen.
+            if isinstance(result, BaseException):
                 # Re-raise the exception with context
                 batch_error_msg = f"Batch request {i} failed: {result!s}"
                 raise AIServiceError(batch_error_msg) from result

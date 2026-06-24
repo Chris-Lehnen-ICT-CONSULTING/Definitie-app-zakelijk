@@ -186,7 +186,7 @@ class TestDefinitionRepository:
     def test_search(self, repository, mock_legacy_repo, sample_record):
         """Test zoekfunctionaliteit."""
         # Setup
-        mock_legacy_repo.search.return_value = [sample_record]
+        mock_legacy_repo.search_definities.return_value = [sample_record]
 
         # Execute
         results = repository.search("identiteit", limit=5)
@@ -195,8 +195,8 @@ class TestDefinitionRepository:
         assert len(results) == 1
         assert results[0].begrip == "Identiteitsbewijs"
         assert repository._stats["total_searches"] == 1
-        mock_legacy_repo.search.assert_called_once_with(
-            search_term="identiteit", limit=5
+        mock_legacy_repo.search_definities.assert_called_once_with(
+            query="identiteit", limit=5
         )
 
     def test_search_with_none_records(self, repository, mock_legacy_repo):
@@ -216,7 +216,10 @@ class TestDefinitionRepository:
             mock_convert.side_effect = lambda r: (
                 None if r == invalid_record else valid_definition
             )
-            mock_legacy_repo.search.return_value = [valid_record, invalid_record]
+            mock_legacy_repo.search_definities.return_value = [
+                valid_record,
+                invalid_record,
+            ]
 
             # Execute
             results = repository.search("test")
@@ -228,7 +231,7 @@ class TestDefinitionRepository:
     def test_search_empty_results(self, repository, mock_legacy_repo):
         """Test zoeken zonder resultaten."""
         # Setup
-        mock_legacy_repo.search.return_value = []
+        mock_legacy_repo.search_definities.return_value = []
 
         # Execute
         results = repository.search("nonexistent")
@@ -240,7 +243,7 @@ class TestDefinitionRepository:
     def test_search_error_handling(self, repository, mock_legacy_repo):
         """Test error handling bij search."""
         # Setup
-        mock_legacy_repo.search.side_effect = Exception("Query failed")
+        mock_legacy_repo.search_definities.side_effect = Exception("Query failed")
 
         # Execute
         results = repository.search("test")
@@ -297,10 +300,10 @@ class TestDefinitionRepository:
         mock_legacy_repo.get_definitie.assert_called_once_with(123)
         mock_legacy_repo.update_definitie.assert_called_once()
 
-        # Check that status was set to ARCHIVED
+        # DEF-439: soft delete geeft een updates-dict door (niet een record).
         update_call = mock_legacy_repo.update_definitie.call_args[0]
         assert update_call[0] == 123
-        assert update_call[1].status == DefinitieStatus.ARCHIVED.value
+        assert update_call[1] == {"status": DefinitieStatus.ARCHIVED.value}
 
     def test_delete_nonexistent(self, repository, mock_legacy_repo):
         """Test delete van niet-bestaande definitie."""
@@ -409,7 +412,12 @@ class TestDefinitionRepository:
         # Verify
         assert len(results) == 1
         assert results[0].begrip == "Identiteitsbewijs"
+        # DEF-439: find_duplicates wordt aangeroepen met losse keyword-velden
+        # (begrip/organisatorische_context/...), niet met een record.
         mock_legacy_repo.find_duplicates.assert_called_once()
+        call_kwargs = mock_legacy_repo.find_duplicates.call_args.kwargs
+        assert call_kwargs["begrip"] == "Test"
+        assert "organisatorische_context" in call_kwargs
 
     def test_find_duplicates_with_none_conversion(self, repository, mock_legacy_repo):
         """Test find_duplicates wanneer conversie None teruggeeft."""
@@ -455,7 +463,8 @@ class TestDefinitionRepository:
         # Verify
         assert len(results) == 1
         assert results[0].begrip == "Identiteitsbewijs"
-        mock_legacy_repo.get_by_status.assert_called_once_with("draft", 10)
+        # DEF-439: DB-laag get_by_status(status) zonder limit; limit in Python.
+        mock_legacy_repo.get_by_status.assert_called_once_with("draft")
 
     def test_get_by_status_with_none_conversion(self, repository, mock_legacy_repo):
         """Test get_by_status wanneer conversie None teruggeeft."""
@@ -758,7 +767,7 @@ class TestDefinitionRepositoryIntegration:
         record = DefinitieRecord(
             id=100, begrip="UpdateTest", definitie="Original", status="draft"
         )
-        mock_legacy_repo.search.return_value = [record]
+        mock_legacy_repo.search_definities.return_value = [record]
 
         # Execute
         results = repository.search("UpdateTest")

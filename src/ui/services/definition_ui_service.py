@@ -203,7 +203,7 @@ class DefinitionUIService:
 
         return prepared_data
 
-    def get_export_formats(self) -> list[dict[str, str]]:
+    def get_export_formats(self) -> list[dict[str, Any]]:  # DEF-439
         """
         Haal beschikbare export formaten op.
 
@@ -212,7 +212,7 @@ class DefinitionUIService:
         """
         formats = []
         for format in ExportFormat:
-            format_info = {
+            format_info: dict[str, Any] = {  # DEF-439
                 "value": format.value,
                 "label": format.value.upper(),
                 "description": self._get_format_description(format),

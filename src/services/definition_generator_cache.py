@@ -384,7 +384,7 @@ class DefinitionGeneratorCache:
 
         if self.config.strategy == CacheStrategy.REDIS:
             return RedisCacheBackend(
-                redis_url=self.config.redis_url,
+                redis_url=cast(str, self.config.redis_url),  # DEF-439
                 db=self.config.redis_db,
                 prefix=self.config.redis_prefix,
             )
@@ -392,7 +392,7 @@ class DefinitionGeneratorCache:
         if self.config.strategy == CacheStrategy.HYBRID:
             memory_backend = MemoryCacheBackend(max_entries=self.config.max_entries)
             redis_backend = RedisCacheBackend(
-                redis_url=self.config.redis_url,
+                redis_url=cast(str, self.config.redis_url),  # DEF-439
                 db=self.config.redis_db,
                 prefix=self.config.redis_prefix,
             )
@@ -461,7 +461,7 @@ class DefinitionGeneratorCache:
                 self._update_hit_rate()
 
                 logger.debug(f"Cache hit for key: {key[:50]}...")
-                return entry.data
+                return cast("Definition", entry.data)  # DEF-439
 
             self._cache_stats["misses"] += 1
             self._update_hit_rate()

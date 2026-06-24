@@ -39,6 +39,7 @@ from services.security_service import SecurityService
 from services.workflow_service import WorkflowService
 
 if TYPE_CHECKING:
+    from database.definitie_repository import DefinitieRepository
     from ontologie.improved_classifier import ImprovedOntologyClassifier
     from repositories.synonym_registry import SynonymRegistry
     from services.ai.base_client import AsyncAIClient
@@ -115,6 +116,8 @@ class ServiceContainer:
         # AI provider selection
         config_mgr = get_config_manager()
         self.ai_provider = config_mgr.api.ai_provider
+        # DEF-439: expliciete annotatie zodat beide branches (str / Any|None) passen.
+        self.ai_api_key: str | None
         if self.ai_provider == "anthropic":
             self.ai_api_key = config_mgr.api.anthropic_api_key
         else:
@@ -195,7 +198,7 @@ class ServiceContainer:
 
             self._instances["model_router"] = ModelRouter(routing_config)
             logger.info("ModelRouter singleton created")
-        return self._instances["model_router"]
+        return cast("ModelRouter", self._instances["model_router"])
 
     def generator(self) -> DefinitionGeneratorInterface:
         """
@@ -211,7 +214,7 @@ class ServiceContainer:
             orchestrator_instance = self.orchestrator()
             self._instances["generator"] = orchestrator_instance
             logger.debug("DefinitionOrchestratorV2 instance aangemaakt als generator")
-        return self._instances["generator"]
+        return cast("DefinitionGeneratorInterface", self._instances["generator"])
 
     # Legacy validator() method removed - validation now handled by V2 orchestrator
     @property
@@ -257,7 +260,7 @@ class ServiceContainer:
                     "NullDefinitionRepository instance aangemaakt (no database)"
                 )
 
-        return self._instances["repository"]
+        return cast("DefinitionRepositoryInterface", self._instances["repository"])
 
     def _get_ai_client(self) -> "AsyncAIClient":
         """Get or create singleton AI client for the configured provider."""
@@ -266,9 +269,10 @@ class ServiceContainer:
 
             self._instances["_ai_client"] = create_ai_client(
                 provider=self.ai_provider,
-                api_key=self.ai_api_key,
+                # DEF-439: ai_api_key is str|None; create_ai_client valideert zelf.
+                api_key=cast(str, self.ai_api_key),
             )
-        return self._instances["_ai_client"]
+        return cast("AsyncAIClient", self._instances["_ai_client"])
 
     def orchestrator(self) -> DefinitionOrchestratorInterface:
         """
@@ -345,7 +349,7 @@ class ServiceContainer:
             )
             logger.debug("DefinitionOrchestratorV2 instance created")
 
-        return self._instances["orchestrator"]
+        return cast("DefinitionOrchestratorInterface", self._instances["orchestrator"])
 
     def validation_orchestrator(self) -> "ValidationOrchestratorInterface":
         """
@@ -388,7 +392,9 @@ class ServiceContainer:
             # DEF-314: Reuse singleton AIServiceV2 from orchestrator
             # instead of creating a second instance
             orchestrator = self.orchestrator()
-            ai_service = orchestrator.ai_service
+            # DEF-439: ai_service is een attribuut van de concrete V2-orchestrator,
+            # niet van de interface (vgl. de validation_service-property).
+            ai_service = cast(Any, orchestrator).ai_service
 
             self._instances["ontological_classifier"] = OntologicalClassifier(
                 ai_service
@@ -397,7 +403,7 @@ class ServiceContainer:
                 "OntologicalClassifier initialized (reusing orchestrator AI service)"
             )
 
-        return self._instances["ontological_classifier"]
+        return cast("OntologicalClassifier", self._instances["ontological_classifier"])
 
     def term_based_classifier(self) -> "ImprovedOntologyClassifier":
         """
@@ -430,7 +436,9 @@ class ServiceContainer:
                 "ImprovedOntologyClassifier (term-based) initialized with YAML config"
             )
 
-        return self._instances["term_based_classifier"]
+        return cast(
+            "ImprovedOntologyClassifier", self._instances["term_based_classifier"]
+        )
 
     def web_lookup(self) -> WebLookupServiceInterface:
         """
@@ -451,7 +459,7 @@ class ServiceContainer:
                     f"Definitions will be generated WITHOUT external context enrichment!"
                 )
                 self._instances["web_lookup"] = None
-        return self._instances["web_lookup"]
+        return cast("WebLookupServiceInterface", self._instances["web_lookup"])
 
     def synonym_registry(self) -> "SynonymRegistry":
         """
@@ -469,7 +477,7 @@ class ServiceContainer:
             self._instances["synonym_registry"] = SynonymRegistry(self.db_path)
             logger.info(f"SynonymRegistry initialized with db: {self.db_path}")
 
-        return self._instances["synonym_registry"]
+        return cast("SynonymRegistry", self._instances["synonym_registry"])
 
     def gpt4_synonym_suggester(self) -> "GPT4SynonymSuggester":
         """
@@ -496,7 +504,7 @@ class ServiceContainer:
                 # Don't fail hard - allow app to start without enrichment
                 self._instances["gpt4_synonym_suggester"] = None
 
-        return self._instances["gpt4_synonym_suggester"]
+        return cast("GPT4SynonymSuggester", self._instances["gpt4_synonym_suggester"])
 
     def synonym_orchestrator(self) -> "SynonymOrchestrator":
         """
@@ -539,7 +547,7 @@ class ServiceContainer:
                 "SynonymOrchestrator initialized with TTL cache and invalidation callbacks wired"
             )
 
-        return self._instances["synonym_orchestrator"]
+        return cast("SynonymOrchestrator", self._instances["synonym_orchestrator"])
 
     def synonym_service(self) -> "JuridischeSynoniemService":
         """
@@ -561,7 +569,7 @@ class ServiceContainer:
             self._instances["synonym_service"] = JuridischeSynoniemService(orchestrator)
             logger.info("JuridischeSynoniemService initialized as orchestrator façade")
 
-        return self._instances["synonym_service"]
+        return cast("JuridischeSynoniemService", self._instances["synonym_service"])
 
     # DuplicateDetectionService removed - was dead code (DEF-176)
     # duplicate_detector() method removed
@@ -585,7 +593,7 @@ class ServiceContainer:
             )
             self._lazy_instances["gate_policy"] = GatePolicyService(base_path)
             logger.info("⚡ GatePolicyService lazy-loaded (config: %s)", base_path)
-        return self._lazy_instances["gate_policy"]
+        return cast("GatePolicyService", self._lazy_instances["gate_policy"])
 
     def workflow(self) -> WorkflowService:
         """
@@ -597,7 +605,7 @@ class ServiceContainer:
         if "workflow" not in self._instances:
             self._instances["workflow"] = WorkflowService()
             logger.debug("WorkflowService instance aangemaakt")
-        return self._instances["workflow"]
+        return cast("WorkflowService", self._instances["workflow"])
 
     def definition_workflow_service(self) -> "DefinitionWorkflowService":
         """
@@ -628,14 +636,19 @@ class ServiceContainer:
             self._lazy_instances["definition_workflow_service"] = (
                 DefinitionWorkflowService(
                     workflow_service=workflow_service,
-                    repository=repository,
+                    # DEF-439: services annoteren de DB-laag DefinitieRepository,
+                    # maar krijgen runtime de service-laag (compat-methods aanwezig).
+                    repository=cast("DefinitieRepository", repository),
                     event_bus=event_bus,
                     audit_logger=audit_logger,
                     gate_policy_service=gate_policy_service,
                 )
             )
             logger.info("⚡ DefinitionWorkflowService lazy-loaded (US-072)")
-        return self._lazy_instances["definition_workflow_service"]
+        return cast(
+            "DefinitionWorkflowService",
+            self._lazy_instances["definition_workflow_service"],
+        )
 
     def cleaning_service(self) -> CleaningServiceInterface:
         """
@@ -649,7 +662,7 @@ class ServiceContainer:
 
             self._instances["cleaning_service"] = CleaningService(self.cleaning_config)
             logger.debug("CleaningService instance aangemaakt")
-        return self._instances["cleaning_service"]
+        return cast("CleaningServiceInterface", self._instances["cleaning_service"])
 
     def data_aggregation_service(self) -> "DataAggregationService":
         """
@@ -666,10 +679,12 @@ class ServiceContainer:
             # Use existing repository instance
             repo = self.repository()
             self._lazy_instances["data_aggregation_service"] = DataAggregationService(
-                repo
+                cast("DefinitieRepository", repo)  # DEF-439: zie workflow-service
             )
             logger.info("⚡ DataAggregationService lazy-loaded")
-        return self._lazy_instances["data_aggregation_service"]
+        return cast(
+            "DataAggregationService", self._lazy_instances["data_aggregation_service"]
+        )
 
     def export_service(self) -> "ExportService":
         """
@@ -694,7 +709,7 @@ class ServiceContainer:
             export_dir = self.config.get("export_dir", "exports")
 
             self._lazy_instances["export_service"] = ExportService(
-                repository=repo,
+                repository=cast("DefinitieRepository", repo),  # DEF-439
                 data_aggregation_service=data_agg_service,
                 export_dir=export_dir,
                 validation_orchestrator=self.orchestrator(),
@@ -703,7 +718,7 @@ class ServiceContainer:
                 ),
             )
             logger.info("⚡ ExportService lazy-loaded")
-        return self._lazy_instances["export_service"]
+        return cast("ExportService", self._lazy_instances["export_service"])
 
     def import_service(self) -> "DefinitionImportService":
         """
@@ -723,7 +738,7 @@ class ServiceContainer:
                 repository=repo, validation_orchestrator=validator
             )
             logger.info("⚡ DefinitionImportService lazy-loaded (CSV helper)")
-        return self._lazy_instances["import_service"]
+        return cast("DefinitionImportService", self._lazy_instances["import_service"])
 
     def document_chunker(self) -> "DocumentChunker":
         """
@@ -740,7 +755,7 @@ class ServiceContainer:
 
             self._lazy_instances["document_chunker"] = DocumentChunker()
             logger.info("⚡ DocumentChunker lazy-loaded (DEF-290)")
-        return self._lazy_instances["document_chunker"]
+        return cast("DocumentChunker", self._lazy_instances["document_chunker"])
 
     @property
     def embedding_service(self) -> "EmbeddingService":
@@ -757,10 +772,11 @@ class ServiceContainer:
             from services.rag.embedding_service import EmbeddingService
 
             self._lazy_instances["embedding_service"] = EmbeddingService(
-                api_key=self.openai_api_key,
+                # DEF-439: openai_api_key is Any|None; runtime-gedrag onveranderd.
+                api_key=cast(str, self.openai_api_key),
             )
             logger.info("⚡ EmbeddingService lazy-loaded (DEF-269)")
-        return self._lazy_instances["embedding_service"]
+        return cast("EmbeddingService", self._lazy_instances["embedding_service"])
 
     @property
     def rag_service(self) -> "RAGService":
@@ -783,7 +799,7 @@ class ServiceContainer:
                 db_path=str(self.db_path),
             )
             logger.info("⚡ RAGService lazy-loaded (DEF-291)")
-        return self._lazy_instances["rag_service"]
+        return cast("RAGService", self._lazy_instances["rag_service"])
 
     @property
     def embedding_store(self) -> "EmbeddingStore":
@@ -803,7 +819,7 @@ class ServiceContainer:
                 db_path=str(self.db_path)
             )
             logger.info("⚡ EmbeddingStore lazy-loaded (DEF-304)")
-        return self._lazy_instances["embedding_store"]
+        return cast("EmbeddingStore", self._lazy_instances["embedding_store"])
 
     @property
     def rag_management_service(self) -> "RAGManagementService":
@@ -824,7 +840,9 @@ class ServiceContainer:
                 embedding_store=self.embedding_store,
             )
             logger.info("⚡ RAGManagementService lazy-loaded (DEF-365)")
-        return self._lazy_instances["rag_management_service"]
+        return cast(
+            "RAGManagementService", self._lazy_instances["rag_management_service"]
+        )
 
     @property
     def ontology_model_service(self) -> "OntologyModelService":
@@ -844,7 +862,9 @@ class ServiceContainer:
                 db_path=str(self.db_path),
             )
             logger.info("⚡ OntologyModelService lazy-loaded (DEF-403)")
-        return self._lazy_instances["ontology_model_service"]
+        return cast(
+            "OntologyModelService", self._lazy_instances["ontology_model_service"]
+        )
 
     # UI-services worden niet in de servicescontainer opgebouwd. Gebruik UI-container.
 

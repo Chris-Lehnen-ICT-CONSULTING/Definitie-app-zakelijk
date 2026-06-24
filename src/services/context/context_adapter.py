@@ -6,7 +6,7 @@ For Streamlit integration, use ui/helpers/context_adapter.py instead.
 """
 
 import logging
-from typing import Any, cast
+from typing import Any
 
 from services.context.context_manager import (
     ContextManager,
@@ -45,9 +45,11 @@ class ServiceContextAdapter:
         Returns:
             Context dictionary
         """
-        if key:
-            return self.context_manager.get_context(key) or {}
-        return self.context_manager.get_current_context() or {}
+        # DEF-439: ContextManager exposeert één get_context() -> ContextData | None
+        # (geen per-key of get_current_context-API). De `key`-parameter blijft voor
+        # signatuur-compat maar de manager levert de volledige context.
+        data = self.context_manager.get_context()
+        return data.to_dict() if data else {}
 
     def set_context(
         self,
@@ -63,7 +65,9 @@ class ServiceContextAdapter:
             value: Context value
             source: Source of the context
         """
-        self.context_manager.set_context(key, value, source)
+        # DEF-439: ContextManager.set_context(context_data: dict, source, ...) —
+        # zet de waarde als single-key context_data i.p.v. losse (key, value).
+        self.context_manager.set_context({key: value}, source)
         logger.debug(f"Set context for key '{key}' from {source.value}")
 
     def get_merged_context(
@@ -78,14 +82,16 @@ class ServiceContextAdapter:
         Returns:
             Merged context dictionary
         """
-        # Start with ContextManager's merged context
-        merged = self.context_manager.get_merged_context()
+        # DEF-439: ContextManager kent geen aparte get_merged_context; de enige
+        # context is get_context() -> ContextData. Serialiseer die als basis.
+        data = self.context_manager.get_context()
+        merged: dict[str, Any] = data.to_dict() if data else {}
 
         # Add any additional context (highest priority)
         if additional_context:
             merged.update(additional_context)
 
-        return cast("dict[str, Any]", merged)
+        return merged
 
     def prepare_generation_request(
         self, begrip: str, context_data: dict[str, Any] | None = None, **kwargs: Any

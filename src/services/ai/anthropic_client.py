@@ -7,7 +7,7 @@ Wraps the Anthropic SDK and maps its errors to provider-agnostic types.
 from __future__ import annotations
 
 import logging
-from typing import Literal
+from typing import Literal, cast
 
 import anthropic
 from anthropic import AsyncAnthropic
@@ -65,9 +65,9 @@ class AnthropicClient:
                     )
                 system_text = msg.content
             elif msg.role in ("user", "assistant"):
-                # Expliciete narrow naar Literal["user","assistant"]: zonder dit
-                # ziet mypy alleen msg.role: str en valideert de TypedDict niet.
-                role: Literal["user", "assistant"] = msg.role
+                # De elif garandeert user/assistant op runtime; mypy narrowt een
+                # str-attribuut niet via `in (...)`, dus expliciete cast (DEF-439).
+                role = cast(Literal["user", "assistant"], msg.role)
                 api_messages.append({"role": role, "content": msg.content})
             else:
                 raise AIClientError(

@@ -99,9 +99,12 @@ def get_services() -> dict[str, object]:
 
 
 services = get_services()
-registry: SynonymRegistry = services["registry"]
-orchestrator: SynonymOrchestrator = services["orchestrator"]
-gpt4_suggester: GPT4SynonymSuggester = services["gpt4_suggester"]
+# DEF-439: get_services() typeert dict[str, object]; runtime zijn dit de concrete services — pattern 4
+registry: SynonymRegistry = cast(SynonymRegistry, services["registry"])
+orchestrator: SynonymOrchestrator = cast(SynonymOrchestrator, services["orchestrator"])
+gpt4_suggester: GPT4SynonymSuggester = cast(
+    GPT4SynonymSuggester, services["gpt4_suggester"]
+)
 
 # ========================================
 # STATISTICS PANEL
@@ -443,7 +446,7 @@ if view_mode == "Groepen Browser":
                                 ):
                                     try:
                                         registry.update_member(
-                                            m.id,
+                                            cast(int, m.id),  # DEF-439: pattern 4
                                             weight=new_weight,
                                             is_preferred=new_is_preferred,
                                             status=new_status,
@@ -461,7 +464,9 @@ if view_mode == "Groepen Browser":
                                         f"confirm_delete_m_{m.id}", False
                                     ):
                                         try:
-                                            registry.delete_member(m.id)
+                                            registry.delete_member(
+                                                cast(int, m.id)
+                                            )  # DEF-439: pattern 4
                                             orchestrator.invalidate_cache(m.term)
                                             st.success("✅ Verwijderd!")
                                             st.rerun()

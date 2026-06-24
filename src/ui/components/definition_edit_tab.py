@@ -25,8 +25,8 @@ class DefinitionEditTab:
 
     def __init__(
         self,
-        repository: DefinitionEditRepository = None,
-        validation_service: ModularValidationService = None,
+        repository: DefinitionEditRepository | None = None,  # DEF-439
+        validation_service: ModularValidationService | None = None,  # DEF-439
     ):
         """
         Initialiseer definition edit tab.
@@ -992,7 +992,9 @@ class DefinitionEditTab:
                             key=f"revert_{entry.get('id')}",
                             use_container_width=True,
                         ):
-                            self._revert_to_version(entry.get("id"))
+                            self._revert_to_version(
+                                cast(int, entry.get("id"))
+                            )  # DEF-439
 
                     # Change details (collapsed)
                     if entry.get("wijziging_reden"):
@@ -1057,7 +1059,7 @@ class DefinitionEditTab:
         """Search for definitions."""
         try:
             # Build filters
-            filters = {}
+            filters: dict[str, Any] = {}  # DEF-439
             # Map label → code (als we labels doorgeven)
             status_label_to_code = {
                 "Alle": None,

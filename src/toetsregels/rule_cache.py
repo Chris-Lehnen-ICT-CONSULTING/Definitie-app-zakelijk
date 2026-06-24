@@ -127,8 +127,9 @@ class RuleCache:
     alle caching wordt afgehandeld door de @cached decorator.
     """
 
-    _instance = None
+    _instance: "RuleCache | None" = None
     _lock = threading.Lock()
+    _initialized: bool = False  # DEF-439: pattern 6 (class-level type-declaratie)
 
     def __new__(cls) -> "RuleCache":
         if cls._instance is None:
@@ -154,6 +155,8 @@ class RuleCache:
         }
 
         # Initialize monitoring
+        # DEF-439: pattern 6 (union-annotatie vóór eerste assignment)
+        self._monitor: CacheMonitor | None
         if MONITORING_AVAILABLE:
             self._monitor = CacheMonitor("RuleCache", enabled=True)
             logger.info(f"RuleCache geïnitialiseerd met monitoring: {self.regels_dir}")
