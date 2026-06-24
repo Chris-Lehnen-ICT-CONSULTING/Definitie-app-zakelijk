@@ -10,7 +10,8 @@ import logging
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from services.definition_repository import DefinitionRepository
+    # DEF-439: container.repository() levert het interface-contract — pattern 6
+    from services.interfaces import DefinitionRepositoryInterface
 
 logger = logging.getLogger(__name__)
 
@@ -18,7 +19,7 @@ logger = logging.getLogger(__name__)
 class DUP01:
     """Detecteer duplicate definities in database."""
 
-    repository: DefinitionRepository | None
+    repository: DefinitionRepositoryInterface | None
 
     def __init__(self) -> None:
         """Initialize duplicate detector."""
