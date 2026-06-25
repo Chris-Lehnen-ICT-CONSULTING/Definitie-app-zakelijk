@@ -17,8 +17,49 @@ import pytest
 import utils.integrated_resilience as ir
 from utils.enhanced_retry import AdaptiveRetryManager, RetryConfig, RetryStrategy
 from utils.integrated_resilience import with_full_resilience
+from utils.smart_rate_limiter import RequestPriority
 
 pytestmark = [pytest.mark.unit]
+
+
+@pytest.mark.asyncio
+async def test_record_success_records_real_duration_not_zero(monkeypatch):
+    """DEF-462: de duurmetric is de echte poging-duur, niet structureel ~0.
+
+    Vóór de fix was `duration = time.time() - time.time()` → altijd ~0, waardoor
+    `record_success` (adaptieve-retry-leren) met een lege metric werd gevoed.
+    """
+    monkeypatch.setattr(ir, "_integrated_system", None)
+    system = ir.IntegratedResilienceSystem()
+    await system.start()
+    try:
+        captured: list[float] = []
+
+        async def fake_record_success(duration: float, endpoint: str = "") -> None:
+            captured.append(duration)
+
+        monkeypatch.setattr(system.retry_manager, "record_success", fake_record_success)
+
+        async def work() -> str:
+            await asyncio.sleep(0.05)
+            return "ok"
+
+        result = await system._execute_with_retry_and_resilience(
+            work,
+            endpoint_name="def462",
+            priority=RequestPriority.NORMAL,
+            enable_fallback=False,
+        )
+
+        assert result == "ok"
+        assert captured, "record_success is niet aangeroepen"
+        # Vóór de fix ~0; nu ~de 0.05s sleep van de geslaagde poging.
+        assert (
+            captured[0] >= 0.04
+        ), f"duration te klein (lijkt op de oude bug): {captured[0]}"
+    finally:
+        await system.stop()
+        monkeypatch.setattr(ir, "_integrated_system", None)
 
 
 @pytest.mark.asyncio
