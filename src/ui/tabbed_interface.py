@@ -384,9 +384,11 @@ class TabbedInterface:
     @st.cache_data(ttl=30)
     def _load_rag_collections() -> list[dict[str, Any]]:
         """Laad RAG collections met 30s cache (review fix: voorkom N+1 bij elke rerun)."""
-        from services.container import get_container
+        # DEF-465: UI gebruikt de gecachte container-accessor uit de UI-laag, geen
+        # directe services.container-import (architectuurgrens; forbidden-pattern).
+        from ui.cached_services import get_cached_service_container
 
-        container = get_container()
+        container = get_cached_service_container()
         # DEF-439: services-import resolveert naar Any -> cast op de grens
         return cast(
             "list[dict[str, Any]]",
