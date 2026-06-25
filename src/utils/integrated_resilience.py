@@ -232,7 +232,16 @@ class IntegratedResilienceSystem:
                 **kwargs,
             )
             if timeout is not None:
-                result = await asyncio.wait_for(execution, timeout)
+                # DEF-477: `timeout` is de TOTAAL-timeout (acquire + uitvoering).
+                # rate_limiter.acquire kreeg hierboven al de volle `timeout`; trek
+                # het verbruikte deel af zodat de uitvoering niet opnieuw het volle
+                # budget krijgt (anders kon de totale operatie tot ~2× de timeout
+                # duren). Resterend budget <= 0 → de acquire heeft alles verbruikt.
+                remaining = timeout - (time.time() - start_time)
+                if remaining <= 0:
+                    msg = f"Operation timeout for {endpoint_name}"
+                    raise TimeoutError(msg)
+                result = await asyncio.wait_for(execution, remaining)
             else:
                 result = await execution
 
@@ -371,6 +380,10 @@ class IntegratedResilienceSystem:
 
 # Global integrated system
 _integrated_system: IntegratedResilienceSystem | None = None
+# DEF-477: serialiseer de lazy init. Zonder lock publiceerde de oude code de
+# instance vóór await start(), waardoor een tweede coroutine een nog-niet-gestarte
+# instance kon terugkrijgen (en kon dubbel-creëren onder concurrency).
+_integrated_system_lock = asyncio.Lock()
 
 
 async def get_integrated_system(
@@ -379,8 +392,14 @@ async def get_integrated_system(
     """Get or create global integrated resilience system."""
     global _integrated_system
     if _integrated_system is None:
-        _integrated_system = IntegratedResilienceSystem(config)
-        await _integrated_system.start()
+        async with _integrated_system_lock:
+            # Double-check: een andere coroutine kan de init hebben afgerond
+            # terwijl wij op de lock wachtten.
+            if _integrated_system is None:
+                system = IntegratedResilienceSystem(config)
+                await system.start()
+                # Pas publiceren ná start(): nooit een ongestarte instance lekken.
+                _integrated_system = system
     return _integrated_system
 
 
