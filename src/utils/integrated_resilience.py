@@ -187,6 +187,10 @@ class IntegratedResilienceSystem:
             endpoint_name = func.__name__
 
         start_time = time.time()
+        # DEF-477: aparte monotone klok voor het timeout-budget — time.time()
+        # (wall-clock) kan bij NTP-sync verspringen; start_time blijft wall-clock
+        # voor duur-logging/metrics.
+        budget_start = time.monotonic()
         request_id = f"{endpoint_name}_{int(time.time() * 1000)}"
 
         try:
@@ -237,7 +241,7 @@ class IntegratedResilienceSystem:
                 # het verbruikte deel af zodat de uitvoering niet opnieuw het volle
                 # budget krijgt (anders kon de totale operatie tot ~2× de timeout
                 # duren). Resterend budget <= 0 → de acquire heeft alles verbruikt.
-                remaining = timeout - (time.time() - start_time)
+                remaining = timeout - (time.monotonic() - budget_start)
                 if remaining <= 0:
                     msg = f"Operation timeout for {endpoint_name}"
                     raise TimeoutError(msg)
@@ -380,26 +384,32 @@ class IntegratedResilienceSystem:
 
 # Global integrated system
 _integrated_system: IntegratedResilienceSystem | None = None
-# DEF-477: serialiseer de lazy init. Zonder lock publiceerde de oude code de
-# instance vóór await start(), waardoor een tweede coroutine een nog-niet-gestarte
-# instance kon terugkrijgen (en kon dubbel-creëren onder concurrency).
-_integrated_system_lock = asyncio.Lock()
 
 
 async def get_integrated_system(
     config: IntegratedConfig | None = None,
 ) -> IntegratedResilienceSystem:
-    """Get or create global integrated resilience system."""
+    """Get or create global integrated resilience system.
+
+    DEF-477: de oude code publiceerde de instance VÓÓR ``await start()``, zodat
+    een tweede coroutine een nog-niet-gestarte instance kon terugkrijgen. Een
+    ``asyncio.Lock`` zou dit serialiseren, maar is loop-gebonden — en deze app
+    overbrugt sync→async via wisselende event loops (zie DEF-429 cross-loop), dus
+    een module-level lock riskeert een "bound to a different loop"-crash. In
+    plaats daarvan: bouw+start een LOKALE instance en publiceer pas ná start;
+    wint een andere coroutine de race, dan stoppen we onze duplicaat netjes.
+    """
     global _integrated_system
     if _integrated_system is None:
-        async with _integrated_system_lock:
-            # Double-check: een andere coroutine kan de init hebben afgerond
-            # terwijl wij op de lock wachtten.
-            if _integrated_system is None:
-                system = IntegratedResilienceSystem(config)
-                await system.start()
-                # Pas publiceren ná start(): nooit een ongestarte instance lekken.
-                _integrated_system = system
+        system = IntegratedResilienceSystem(config)
+        await system.start()
+        if _integrated_system is None:
+            # Publiceer pas ná start(): nooit een ongestarte instance lekken.
+            _integrated_system = system
+        else:
+            # Een andere coroutine publiceerde tijdens onze start(); ruim de
+            # duplicaat op (stop() cancelt diens achtergrondtaken → geen leak).
+            await system.stop()
     return _integrated_system
 
 

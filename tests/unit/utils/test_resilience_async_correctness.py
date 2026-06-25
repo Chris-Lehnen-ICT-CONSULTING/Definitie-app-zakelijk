@@ -16,6 +16,7 @@ import pytest
 
 import utils.integrated_resilience as ir
 from utils.enhanced_retry import AdaptiveRetryManager, RetryConfig, RetryStrategy
+from utils.integrated_resilience import with_full_resilience
 
 pytestmark = [pytest.mark.unit]
 
@@ -34,18 +35,61 @@ async def test_get_integrated_system_never_returns_unstarted_instance(monkeypatc
 
     monkeypatch.setattr(ir.IntegratedResilienceSystem, "start", slow_start)
 
-    system_a, system_b = await asyncio.gather(
-        ir.get_integrated_system(),
-        ir.get_integrated_system(),
-    )
+    # Leg `_started` vast OP het returnmoment van elke caller. Vóór de fix
+    # publiceerde de eerste caller de instance vóór start(), waardoor de tweede
+    # caller hem ongestart (_started False) terugkreeg — wat alleen zichtbaar is
+    # als we op het returnmoment meten, niet ná de gather.
+    observed_started: list[bool] = []
+
+    async def call() -> ir.IntegratedResilienceSystem:
+        system = await ir.get_integrated_system()
+        observed_started.append(system._started)
+        return system
 
     try:
-        assert system_a is system_b  # geen dubbele creatie
-        # Vóór de fix kon de tweede call een instance terugkrijgen waarvan
-        # start() nog liep (_started False).
-        assert system_a._started is True
+        system_a, system_b = await asyncio.gather(call(), call())
+        assert system_a is system_b  # geen dubbele publicatie
+        assert all(
+            observed_started
+        ), f"een caller kreeg een ongestarte instance: {observed_started}"
     finally:
-        await system_a.stop()
+        if ir._integrated_system is not None:
+            await ir._integrated_system.stop()
+        monkeypatch.setattr(ir, "_integrated_system", None)
+
+
+@pytest.mark.asyncio
+async def test_total_timeout_budget_subtracts_acquire_time(monkeypatch):
+    """De acquire-tijd wordt van het totaal-timeout-budget afgetrokken (DEF-477).
+
+    Met een trage acquire (~0.2s) en een totaal-timeout van 0.3s houdt de
+    uitvoering nog ~0.1s over. Een functie die 0.2s draait — ruim binnen 0.3s,
+    maar buiten het resterende budget — moet daarom alsnog een TimeoutError
+    geven. Vóór de fix kreeg de uitvoering opnieuw het volle budget (0.3s) en
+    slaagde de call.
+    """
+    from utils.smart_rate_limiter import SmartRateLimiter
+
+    async def slow_acquire(self, *args, **kwargs) -> bool:
+        await asyncio.sleep(0.2)
+        return True
+
+    monkeypatch.setattr(SmartRateLimiter, "acquire", slow_acquire)
+    monkeypatch.setattr(ir, "_integrated_system", None)
+
+    @with_full_resilience(
+        endpoint_name="def477_budget", timeout=0.3, enable_fallback=False
+    )
+    async def work() -> str:
+        await asyncio.sleep(0.2)
+        return "klaar"
+
+    try:
+        with pytest.raises((asyncio.TimeoutError, TimeoutError)):
+            await work()
+    finally:
+        if ir._integrated_system is not None:
+            await ir._integrated_system.stop()
         monkeypatch.setattr(ir, "_integrated_system", None)
 
 
