@@ -30,6 +30,7 @@ except (ImportError, ModuleNotFoundError):
 from utils.enhanced_retry import (
     AdaptiveRetryManager,
     RetryConfig,  # Adaptieve retry management
+    RetryStrategy,
 )
 from utils.resilience import (
     ResilienceConfig,  # Basis resilience framework
@@ -71,7 +72,11 @@ class IntegratedConfig:
                 max_retries=5,  # Maximum aantal herhaalpogingen
                 base_delay=1.0,  # Basis vertraging tussen pogingen
                 max_delay=60.0,
-                strategy="adaptive",
+                # DEF-477: enum, niet de string "adaptive" — RetryStrategy is een
+                # plain Enum, dus "adaptive" == RetryStrategy.ADAPTIVE is False,
+                # waardoor _calculate_delay naar de else-tak (vaste base_delay)
+                # viel i.p.v. de adaptieve backoff aan te roepen.
+                strategy=RetryStrategy.ADAPTIVE,
                 failure_threshold=3,
                 recovery_timeout=30.0,
             )
