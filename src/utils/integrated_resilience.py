@@ -325,6 +325,7 @@ class IntegratedResilienceSystem:
                     await asyncio.sleep(delay)
 
                 # Execute with resilience framework
+                attempt_start = time.monotonic()
                 result = await self.resilience_framework.execute_with_resilience(
                     func,
                     *args,
@@ -335,7 +336,10 @@ class IntegratedResilienceSystem:
                 )
 
                 # Record success
-                duration = time.time() - time.time()  # This would be tracked properly
+                # DEF-462: meet de echte duur van deze poging. Was
+                # `time.time() - time.time()` → altijd ~0, waardoor record_success
+                # (adaptieve-retry-leren) met een lege metric gevoed werd.
+                duration = time.monotonic() - attempt_start
                 await self.retry_manager.record_success(duration, endpoint_name)
 
                 return result
