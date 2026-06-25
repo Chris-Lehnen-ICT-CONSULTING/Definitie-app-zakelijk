@@ -9,7 +9,11 @@ i.p.v. de adaptieve backoff (`_get_adaptive_delay`) aan te roepen.
 
 import pytest
 
-from utils.enhanced_retry import RetryStrategy
+from utils.enhanced_retry import (
+    AdaptiveRetryManager,
+    RetryConfig,
+    RetryStrategy,
+)
 from utils.integrated_resilience import IntegratedConfig
 
 pytestmark = [pytest.mark.unit]
@@ -24,18 +28,41 @@ def test_default_retry_config_uses_adaptive_enum_not_string():
     assert not isinstance(config.retry_config.strategy, str)
 
 
-def test_adaptive_strategy_selects_adaptive_delay_branch():
-    """De enum laat `_calculate_delay` de adaptieve tak kiezen, niet de else."""
-    from utils.enhanced_retry import RetryStrategy as _RS
-
-    config = IntegratedConfig()
-    strategy = config.retry_config.strategy
-
-    # Reproduceer de tak-selectie uit AdaptiveRetryManager._calculate_delay:
-    # alleen bij de enum komt de uitvoering bij de ADAPTIVE-tak terecht.
-    selected = (
-        "adaptive"
-        if strategy == _RS.ADAPTIVE
-        else "fixed-fallback"  # de else-tak die de bug veroorzaakte
+@pytest.mark.asyncio
+async def test_adaptive_strategy_grows_delay_with_attempt():
+    """Gedragstest: met ADAPTIVE roept `get_retry_delay` de adaptieve tak aan,
+    waardoor de delay oploopt met het attempt-nummer (i.p.v. de else-tak met een
+    constante base_delay). Dit is exact het gedrag dat de string-bug brak.
+    """
+    config = RetryConfig(
+        base_delay=1.0,
+        max_delay=60.0,
+        jitter=False,  # determinisme
+        strategy=RetryStrategy.ADAPTIVE,
     )
-    assert selected == "adaptive"
+    manager = AdaptiveRetryManager(config)
+
+    # Generieke fout → geen rate-limit/connection-multiplier.
+    delay_first = await manager.get_retry_delay(ValueError("x"), attempt=0)
+    delay_later = await manager.get_retry_delay(ValueError("x"), attempt=3)
+
+    assert delay_later > delay_first  # adaptieve backoff loopt op
+
+
+@pytest.mark.asyncio
+async def test_fixed_strategy_keeps_delay_constant():
+    """Contrast: met FIXED_DELAY blijft de delay constant over attempts — bewijst
+    dat `get_retry_delay` daadwerkelijk op de strategie-enum routeert (en de
+    ADAPTIVE-test hierboven dus de echte tak raakt, niet toevallig groeit)."""
+    config = RetryConfig(
+        base_delay=1.0,
+        max_delay=60.0,
+        jitter=False,
+        strategy=RetryStrategy.FIXED_DELAY,
+    )
+    manager = AdaptiveRetryManager(config)
+
+    delay_first = await manager.get_retry_delay(ValueError("x"), attempt=0)
+    delay_later = await manager.get_retry_delay(ValueError("x"), attempt=3)
+
+    assert delay_first == delay_later == config.base_delay
