@@ -240,11 +240,9 @@ class IntegratedResilienceSystem:
                 # rate_limiter.acquire kreeg hierboven al de volle `timeout`; trek
                 # het verbruikte deel af zodat de uitvoering niet opnieuw het volle
                 # budget krijgt (anders kon de totale operatie tot ~2× de timeout
-                # duren). Resterend budget <= 0 → de acquire heeft alles verbruikt.
-                remaining = timeout - (time.monotonic() - budget_start)
-                if remaining <= 0:
-                    msg = f"Operation timeout for {endpoint_name}"
-                    raise TimeoutError(msg)
+                # duren). Bij een uitgeput budget (<=0) raised wait_for direct een
+                # TimeoutError, dus geen aparte guard nodig.
+                remaining = max(0.0, timeout - (time.monotonic() - budget_start))
                 result = await asyncio.wait_for(execution, remaining)
             else:
                 result = await execution
