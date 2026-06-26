@@ -91,25 +91,30 @@ class TestConfigManager:
             assert get_default_model() == "gpt-5.2"
 
     def test_default_temperature_no_config_drift(self):
-        """DEF-460: config.yaml default_temperature mag niet driften van de
+        """DEF-460: de gecommitte config.yaml mag niet driften van de
         code-default 0.0 ('deterministisch voor juridische definities').
 
         config.yaml wint bij opstart; een afwijkende waarde maakt fallback-paden
         (fill_ai_defaults, get_model_config, legacy generator-wiring) onbedoeld
-        niet-deterministisch.
+        niet-deterministisch. Leest het bestand DIRECT (hermetisch — geen
+        ConfigManager-cache, env-overlay of afhankelijkheid van test-ordening).
         """
+        from pathlib import Path
+
         from config.config_manager import APIConfig
 
-        # Code-default is de bron van waarheid voor de bedoelde determinisme.
-        assert APIConfig().default_temperature == 0.0
+        # Code-default is de bron van waarheid voor het bedoelde determinisme.
+        code_default = APIConfig().default_temperature
+        assert code_default == 0.0
 
-        # Geladen config (uit config.yaml) mag daar niet van afwijken.
-        with patch.dict(os.environ):
-            os.environ.pop("OPENAI_DEFAULT_TEMPERATURE", None)
-            loaded = ConfigManager().get_config(ConfigSection.API)
-        assert loaded.default_temperature == 0.0, (
-            f"config.yaml default_temperature={loaded.default_temperature} "
-            "drift van code-default 0.0 (DEF-460)"
+        # De gecommitte config.yaml mag daar niet van afwijken.
+        config_path = Path(__file__).resolve().parents[2] / "config" / "config.yaml"
+        with open(config_path) as f:
+            committed = yaml.safe_load(f)
+        file_default = committed["api"]["default_temperature"]
+        assert file_default == code_default, (
+            f"config.yaml default_temperature={file_default} drift van "
+            f"code-default {code_default} (DEF-460)"
         )
 
     def test_configuration_validation(self):
@@ -316,33 +321,23 @@ class TestConfigurationAdapters:
 class TestConfigurationPersistence:
     """Test suite for configuration persistence and hot-reloading."""
 
-    def test_configuration_saving(self):
+    def test_configuration_saving(self, tmp_path):
         """Test configuration saving.
 
-        DEF-460: herstelt zowel de in-memory waarde ALS het bestand in een
-        finally-blok. Voorheen werd alleen in-memory teruggezet, waardoor de
-        testwaarde (een non-default) in de gecommitte config.yaml lekte en
-        config-drift veroorzaakte.
+        DEF-460: geïsoleerd op tmp_path zodat de test nooit de repo-config.yaml
+        schrijft. Voorheen muteerde deze test het echte bestand (en lekte de
+        testwaarde in de repo → config-drift). tmp_path-isolatie is parallel-veilig
+        (`make test-parallel`, `-n auto`) en heeft geen herstel nodig.
         """
-        config_manager = ConfigManager()
+        config_manager = ConfigManager(config_dir=str(tmp_path))
 
-        # Change a configuration value
-        original_temp = config_manager.get_config(ConfigSection.API).default_temperature
-        try:
-            config_manager.set_config(ConfigSection.API, "default_temperature", 0.7)
+        config_manager.set_config(ConfigSection.API, "default_temperature", 0.7)
+        config_manager.save_configuration()
 
-            # Save configuration
-            config_manager.save_configuration()
-
-            # Verify change was saved
-            loaded = config_manager.get_config(ConfigSection.API).default_temperature
-            assert loaded == 0.7
-        finally:
-            # Restore in-memory AND on-disk so the committed config.yaml blijft schoon.
-            config_manager.set_config(
-                ConfigSection.API, "default_temperature", original_temp
-            )
-            config_manager.save_configuration()
+        # In-memory én op-disk (tmp) reflecteren de opgeslagen waarde.
+        assert config_manager.get_config(ConfigSection.API).default_temperature == 0.7
+        written = yaml.safe_load((tmp_path / "config.yaml").read_text())
+        assert written["api"]["default_temperature"] == 0.7
 
     def test_configuration_reloading(self):
         """Test configuration reloading."""
@@ -551,12 +546,14 @@ class TestSensitiveFieldsFiltering:
         assert "my-password" not in result_str
         assert "bearer-token" not in result_str
 
-    def test_save_configuration_does_not_persist_api_key(self):
+    def test_save_configuration_does_not_persist_api_key(self, tmp_path):
         """save_configuration() should not write API key to disk.
 
         DEF-247: Integration test - write config, read file, verify key is empty.
+        DEF-460: geïsoleerd op tmp_path (schrijft niet de repo-config.yaml;
+        parallel-veilig).
         """
-        config_manager = ConfigManager()
+        config_manager = ConfigManager(config_dir=str(tmp_path))
 
         # Set a fake API key
         original_key = config_manager.api.openai_api_key
