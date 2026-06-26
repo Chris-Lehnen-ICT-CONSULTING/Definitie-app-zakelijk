@@ -90,6 +90,28 @@ class TestConfigManager:
 
             assert get_default_model() == "gpt-5.2"
 
+    def test_default_temperature_no_config_drift(self):
+        """DEF-460: config.yaml default_temperature mag niet driften van de
+        code-default 0.0 ('deterministisch voor juridische definities').
+
+        config.yaml wint bij opstart; een afwijkende waarde maakt fallback-paden
+        (fill_ai_defaults, get_model_config, legacy generator-wiring) onbedoeld
+        niet-deterministisch.
+        """
+        from config.config_manager import APIConfig
+
+        # Code-default is de bron van waarheid voor de bedoelde determinisme.
+        assert APIConfig().default_temperature == 0.0
+
+        # Geladen config (uit config.yaml) mag daar niet van afwijken.
+        with patch.dict(os.environ):
+            os.environ.pop("OPENAI_DEFAULT_TEMPERATURE", None)
+            loaded = ConfigManager().get_config(ConfigSection.API)
+        assert loaded.default_temperature == 0.0, (
+            f"config.yaml default_temperature={loaded.default_temperature} "
+            "drift van code-default 0.0 (DEF-460)"
+        )
+
     def test_configuration_validation(self):
         """Test configuration validation."""
         config_manager = ConfigManager()
@@ -295,23 +317,32 @@ class TestConfigurationPersistence:
     """Test suite for configuration persistence and hot-reloading."""
 
     def test_configuration_saving(self):
-        """Test configuration saving."""
+        """Test configuration saving.
+
+        DEF-460: herstelt zowel de in-memory waarde ALS het bestand in een
+        finally-blok. Voorheen werd alleen in-memory teruggezet, waardoor de
+        testwaarde (een non-default) in de gecommitte config.yaml lekte en
+        config-drift veroorzaakte.
+        """
         config_manager = ConfigManager()
 
         # Change a configuration value
         original_temp = config_manager.get_config(ConfigSection.API).default_temperature
-        config_manager.set_config(ConfigSection.API, "default_temperature", 0.9)
+        try:
+            config_manager.set_config(ConfigSection.API, "default_temperature", 0.7)
 
-        # Save configuration
-        config_manager.save_configuration()
+            # Save configuration
+            config_manager.save_configuration()
 
-        # Verify change was saved
-        assert config_manager.get_config(ConfigSection.API).default_temperature == 0.9
-
-        # Reset to original value
-        config_manager.set_config(
-            ConfigSection.API, "default_temperature", original_temp
-        )
+            # Verify change was saved
+            loaded = config_manager.get_config(ConfigSection.API).default_temperature
+            assert loaded == 0.7
+        finally:
+            # Restore in-memory AND on-disk so the committed config.yaml blijft schoon.
+            config_manager.set_config(
+                ConfigSection.API, "default_temperature", original_temp
+            )
+            config_manager.save_configuration()
 
     def test_configuration_reloading(self):
         """Test configuration reloading."""
