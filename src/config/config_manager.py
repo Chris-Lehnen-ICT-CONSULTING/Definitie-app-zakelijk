@@ -780,7 +780,7 @@ def get_default_model() -> str:
     # would re-enter the singleton and create a duplicate.
     from services.ai.model_router import ModelRouter
 
-    return ModelRouter.from_config().get_model("definition_core")[1]
+    return ModelRouter.from_config().default_definition_model()
 
 
 def get_default_temperature() -> float:

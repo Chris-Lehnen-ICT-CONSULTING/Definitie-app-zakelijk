@@ -81,6 +81,7 @@ class ModelRouter:
 
             routing = getattr(get_config_manager(), "_model_routing_config", None)
         except Exception:
+            logger.debug("Config unavailable for ModelRouter; using _DEFAULT_CONFIG")
             routing = None
         return cls(routing or {})
 
@@ -141,6 +142,14 @@ class ModelRouter:
         """
         provider = self.active_provider
         return cast("str", self._config["providers"][provider]["critical"])
+
+    def default_definition_model(self) -> str:
+        """Resolve the model used for core definition generation.
+
+        Single helper so callers don't repeat ``get_model("definition_core")[1]``
+        and the ``definition_core`` routing key stays encapsulated in ModelRouter.
+        """
+        return self.get_model("definition_core")[1]
 
     def get_pricing(self, model: str) -> dict[str, float]:
         """Return {input, output} per-token pricing for a model.
