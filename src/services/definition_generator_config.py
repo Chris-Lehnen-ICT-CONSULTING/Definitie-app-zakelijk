@@ -77,7 +77,7 @@ class GPTConfig:
             return self.model
         from services.ai.model_router import ModelRouter
 
-        return ModelRouter.from_config().get_model("definition_core")[1]
+        return ModelRouter.from_config().default_definition_model()
 
 
 @dataclass

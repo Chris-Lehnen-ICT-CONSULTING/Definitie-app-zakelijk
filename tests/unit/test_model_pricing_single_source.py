@@ -5,7 +5,7 @@ zodat dataclass-defaults niet meer kunnen afwijken en de pricing-tabel
 meebeweegt met een modelwissel.
 """
 
-from unittest.mock import MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
@@ -66,6 +66,24 @@ class TestModelRouterPricing:
         )
         assert router.get_pricing("gpt-x") == {"input": 0.001, "output": 0.002}
 
+    def test_get_pricing_unknown_model_fallback_values(self):
+        """Onbekend model → exacte fallback-waarden (niet alleen de vorm)."""
+        router = ModelRouter({})
+        assert router.get_pricing("does-not-exist") == GPT52_PRICING
+
+    def test_get_active_pricing_exact_values(self):
+        """get_active_pricing levert de exacte tarieven, niet enkel de keys."""
+        pricing = ModelRouter({}).get_active_pricing()
+        assert pricing["gpt-5.2"] == GPT52_PRICING
+        assert pricing["claude-haiku-4-5-20251001"] == {
+            "input": 0.0000008,
+            "output": 0.000004,
+        }
+
+    def test_default_definition_model_helper(self):
+        """De helper resolveert het definition_core-model (geen magic-index)."""
+        assert ModelRouter({}).default_definition_model() == "gpt-5.2"
+
 
 class TestCostCalculatorSingleSource:
     """CostCalculator rekent met pricing uit ModelRouter, niet uit een eigen tabel."""
@@ -94,6 +112,44 @@ class TestCostCalculatorSingleSource:
         cost = CostCalculator.calculate_cost("gpt-5.2", 1000, 1000)
         expected = 1000 * GPT52_PRICING["input"] + 1000 * GPT52_PRICING["output"]
         assert cost == pytest.approx(expected)
+
+    def test_router_falls_back_to_from_config_when_container_fails(self):
+        """Except-tak: container kapot → _router() valt terug op from_config()."""
+        from monitoring.api_monitor import CostCalculator
+
+        with patch(
+            "services.container.get_container", side_effect=RuntimeError("boom")
+        ):
+            router = CostCalculator._router()
+        assert router.get_critical_model() == "gpt-5.2"
+
+    def test_estimate_monthly_cost_uses_router_critical_model(self):
+        """Maandraming gebruikt router-resolved critical model + pricing."""
+        from monitoring.api_monitor import CostCalculator
+
+        # 1000 req/dag, 1000 tokens → 700 in / 300 out per request
+        # per request: 700*0.00003 + 300*0.00006 = 0.039 ; *1000*30 = 1170
+        cost = CostCalculator.estimate_monthly_cost(1000, 1000)
+        assert cost == pytest.approx(1170.0)
+
+    async def test_record_api_call_resolves_model_when_none(self):
+        """record_api_call(model=None) → kost berekend met critical model."""
+        from monitoring import api_monitor
+
+        collector = MagicMock()
+        collector.record_api_call = AsyncMock()
+        with patch.object(api_monitor, "get_metrics_collector", return_value=collector):
+            await api_monitor.record_api_call(
+                endpoint="e",
+                function_name="f",
+                duration=0.1,
+                success=True,
+                tokens_used=1000,
+                model=None,
+            )
+        recorded = collector.record_api_call.call_args[0][0]
+        # 700*0.00003 + 300*0.00006 = 0.039 (gpt-5.2 critical pricing)
+        assert recorded.cost == pytest.approx(0.039)
 
 
 class TestDataclassDefaultsResolveViaRouter:
