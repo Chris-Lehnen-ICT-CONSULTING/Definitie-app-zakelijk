@@ -32,7 +32,13 @@ class ModelRouter:
             anthropic:
                 critical: "claude-opus-4-5-20251101"
                 standard: "claude-haiku-4-5-20251001"
+        pricing:  # per-token input/output cost, keyed by model name
+            "gpt-5.2": {input: 0.00003, output: 0.00006}
+            ...
     """
+
+    # Last-resort pricing when a model is absent from the pricing map.
+    _DEFAULT_PRICING: dict[str, float] = {"input": 0.00003, "output": 0.00006}
 
     _DEFAULT_CONFIG: dict[str, Any] = {
         "active_provider": "openai",
@@ -52,7 +58,31 @@ class ModelRouter:
                 "standard": "claude-haiku-4-5-20251001",
             },
         },
+        # DEF-458: canonical pricing — single source for CostCalculator.
+        "pricing": {
+            "gpt-5.2": {"input": 0.00003, "output": 0.00006},
+            "gpt-5-mini": {"input": 0.0000015, "output": 0.000006},
+            "claude-opus-4-5-20251101": {"input": 0.000015, "output": 0.000075},
+            "claude-haiku-4-5-20251001": {"input": 0.0000008, "output": 0.000004},
+        },
     }
+
+    @classmethod
+    def from_config(cls) -> "ModelRouter":
+        """Build a router from the active config, bypassing the service container.
+
+        Reads the optional ``model_routing`` section via ConfigManager and falls
+        back to ``_DEFAULT_CONFIG``. Container-free on purpose: it is safe to call
+        during container construction (e.g. from ``get_default_model``) without
+        triggering singleton re-entrancy.
+        """
+        try:
+            from config.config_manager import get_config_manager
+
+            routing = getattr(get_config_manager(), "_model_routing_config", None)
+        except Exception:
+            routing = None
+        return cls(routing or {})
 
     def __init__(self, config: dict[str, Any]):
         self._config = (
@@ -102,3 +132,28 @@ class ModelRouter:
         """For UI: returns {tier: model} of the active provider."""
         provider = self.active_provider
         return dict(self._config["providers"][provider])
+
+    def get_critical_model(self) -> str:
+        """Return the active provider's critical-tier model.
+
+        Used as the canonical default model for cost estimates and as the
+        resolution target when no explicit model is configured.
+        """
+        provider = self.active_provider
+        return cast("str", self._config["providers"][provider]["critical"])
+
+    def get_pricing(self, model: str) -> dict[str, float]:
+        """Return {input, output} per-token pricing for a model.
+
+        Falls back to a safe default for unknown models instead of raising,
+        so cost accounting never crashes on a model swap.
+        """
+        pricing = self._config.get("pricing", {})
+        return dict(pricing.get(model, self._DEFAULT_PRICING))
+
+    def get_active_pricing(self) -> dict[str, dict[str, float]]:
+        """Return the full pricing map (canonical source for CostCalculator)."""
+        return {
+            model: dict(prices)
+            for model, prices in self._config.get("pricing", {}).items()
+        }

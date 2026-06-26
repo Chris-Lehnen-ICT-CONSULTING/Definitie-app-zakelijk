@@ -69,6 +69,8 @@ class TestConfigManager:
 
         DEF-314: OPENAI_DEFAULT_MODEL env var removed — model selection
         is now handled by ModelRouter. Only temperature override remains.
+        DEF-458: default_model is no longer a hardcoded config value but an
+        empty placeholder; the concrete model resolves via ModelRouter.
         """
         with patch.dict(
             os.environ,
@@ -81,8 +83,12 @@ class TestConfigManager:
 
             # Temperature env var still works
             assert api_config.default_temperature == 0.5
-            # Model is NOT overridable via env var (DEF-314: removed)
-            assert api_config.default_model == "gpt-5.2"
+            # Model is NOT overridable via env var (DEF-314: removed) and is no
+            # longer hardcoded in config (DEF-458: single-sourced in ModelRouter).
+            assert api_config.default_model == ""
+            from config.config_manager import get_default_model
+
+            assert get_default_model() == "gpt-5.2"
 
     def test_configuration_validation(self):
         """Test configuration validation."""
