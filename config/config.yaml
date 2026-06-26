@@ -3,7 +3,7 @@ api:
   anthropic_api_key: ''
   default_max_tokens: 300
   default_model: ''
-  default_temperature: 0.9
+  default_temperature: 0.0
   max_retries: 3
   model_settings: {}
   openai_api_key: ''
