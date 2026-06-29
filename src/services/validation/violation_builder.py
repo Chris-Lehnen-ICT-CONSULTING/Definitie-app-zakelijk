@@ -19,6 +19,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+import yaml
+
 logger = logging.getLogger(__name__)
 
 
@@ -50,29 +52,38 @@ _CONFIG_PATH: Path = (
 )
 
 
+def _sorted_by_prefix_len(mapping: dict[str, str]) -> dict[str, str]:
+    """Orden prefixes op aflopende lengte (langste/meest specifieke eerst).
+
+    ``category_for_rule`` pakt de eerste match via ``startswith``; door de
+    langste prefix vooraan te zetten wint altijd de meest specifieke,
+    ongeacht de bronvolgorde in de YAML (defensief tegen herordening).
+    """
+    return dict(sorted(mapping.items(), key=lambda kv: len(kv[0]), reverse=True))
+
+
 @functools.lru_cache(maxsize=1)
 def _load_category_prefixes() -> dict[str, str]:
     """Laad de prefix→category mapping uit toetsregels_config.yaml.
 
     Valt terug op de ingebouwde ``_CATEGORY_PREFIXES`` als het bestand of de
     sectie ontbreekt/onleesbaar is, zodat categorisatie nooit breekt op een
-    config-probleem. Gecached (load-once); ``cache_clear()`` voor tests.
+    config-probleem. De mapping wordt op aflopende prefix-lengte geordend
+    (longest-prefix-match). Gecached (load-once); ``cache_clear()`` voor tests.
     """
     try:
-        import yaml
-
         with open(_CONFIG_PATH, encoding="utf-8") as f:
             data = yaml.safe_load(f) or {}
         mapping = data.get("violation_category_prefixes")
         if isinstance(mapping, dict) and mapping:
-            return {str(k): str(v) for k, v in mapping.items()}
-    except Exception:
+            return _sorted_by_prefix_len({str(k): str(v) for k, v in mapping.items()})
+    except (OSError, yaml.YAMLError):
         logger.debug(
             "Kon violation_category_prefixes niet laden uit %s; gebruik code-fallback",
             _CONFIG_PATH,
             exc_info=True,
         )
-    return dict(_CATEGORY_PREFIXES)
+    return _sorted_by_prefix_len(dict(_CATEGORY_PREFIXES))
 
 
 # Severity mapping voor aanbeveling/prioriteit combinaties
