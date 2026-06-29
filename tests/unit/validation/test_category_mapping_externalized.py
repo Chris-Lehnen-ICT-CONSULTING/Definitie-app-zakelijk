@@ -40,6 +40,10 @@ class TestCategoryRegression:
             ("VER-03", "taal"),
             ("LANG-INF-001", "taal"),
             ("ONBEKEND-99", "system"),
+            # Edge cases: case-insensitieve tak (c.upper()) en niet-string input.
+            ("str-01", "structuur"),
+            ("", "system"),
+            (None, "system"),
         ],
     )
     def test_category_for_rule(self, code, expected):
@@ -86,3 +90,46 @@ class TestExternalizedSource:
         vb._load_category_prefixes.cache_clear()
         assert vb._load_category_prefixes() == _CATEGORY_PREFIXES
         assert category_for_rule("ESS-02") == "juridisch"
+
+    def _write_cfg(self, tmp_path, monkeypatch, body: str) -> None:
+        cfg = tmp_path / "toetsregels_config.yaml"
+        cfg.write_text(body, encoding="utf-8")
+        monkeypatch.setattr(vb, "_CONFIG_PATH", cfg)
+        vb._load_category_prefixes.cache_clear()
+
+    def test_fallback_on_empty_section(self, tmp_path, monkeypatch):
+        """Aanwezige maar lege sectie ({}) → code-fallback (niet-leeg-guard)."""
+        self._write_cfg(tmp_path, monkeypatch, "violation_category_prefixes: {}\n")
+        assert vb._load_category_prefixes() == _CATEGORY_PREFIXES
+
+    def test_fallback_on_non_dict_section(self, tmp_path, monkeypatch):
+        """Sectie van het verkeerde type (YAML-list) → code-fallback (type-guard)."""
+        self._write_cfg(
+            tmp_path,
+            monkeypatch,
+            "violation_category_prefixes:\n  - STR-\n  - CON-\n",
+        )
+        assert vb._load_category_prefixes() == _CATEGORY_PREFIXES
+
+    def test_fallback_on_corrupt_yaml(self, tmp_path, monkeypatch):
+        """Onparseerbare YAML → code-fallback (YAMLError-tak)."""
+        self._write_cfg(
+            tmp_path, monkeypatch, "violation_category_prefixes: [unbalanced\n"
+        )
+        assert vb._load_category_prefixes() == _CATEGORY_PREFIXES
+
+    def test_longest_prefix_wins_regardless_of_order(self, tmp_path, monkeypatch):
+        """Bij overlappende prefixes met verschillende categorie wint de langste,
+        onafhankelijk van de bronvolgorde (longest-prefix-match)."""
+        # Korte prefix staat bewust vóór de langere in de bron.
+        self._write_cfg(
+            tmp_path,
+            monkeypatch,
+            textwrap.dedent("""\
+                violation_category_prefixes:
+                  "AB": taal
+                  "ABC-": juridisch
+                """),
+        )
+        assert category_for_rule("ABC-01") == "juridisch"
+        assert category_for_rule("AB-99") == "taal"
