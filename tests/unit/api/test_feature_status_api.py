@@ -48,7 +48,9 @@ class TestCacheTTL:
 
         Met .seconds zou timedelta(days=1, seconds=10).seconds == 10 (< 300) de
         stale cache onterecht als vers serveren. Met total_seconds() == 86410
-        verloopt de cache correct.
+        verloopt de cache correct. De >24u-offset is essentieel: een offset
+        binnen één dag zou .seconds en .total_seconds() gelijk maken en de bug
+        niet blootleggen.
         """
         fsa._feature_cache = {"sentinel": "STALE"}
         fsa._cache_timestamp = datetime.now(UTC) - timedelta(days=1, seconds=10)
@@ -57,6 +59,32 @@ class TestCacheTTL:
         monkeypatch.setattr(fsa.json, "load", lambda f: {"sentinel": "FRESH"})
 
         assert _call() == {"sentinel": "FRESH"}
+
+    def test_cache_just_over_duration_is_reloaded(self, monkeypatch):
+        """Grensgeval: net ouder dan CACHE_DURATION (operator `<`) → herladen."""
+        fsa._feature_cache = {"sentinel": "STALE"}
+        fsa._cache_timestamp = datetime.now(UTC) - timedelta(
+            seconds=fsa.CACHE_DURATION + 5
+        )
+
+        monkeypatch.setattr("builtins.open", mock_open(read_data="{}"))
+        monkeypatch.setattr(fsa.json, "load", lambda f: {"sentinel": "FRESH"})
+
+        assert _call() == {"sentinel": "FRESH"}
+
+    def test_cache_miss_loads_file_and_fills_cache(self, monkeypatch):
+        """Happy path: lege cache → file-read → data returnen én cache vullen."""
+        fsa._feature_cache = None
+        fsa._cache_timestamp = None
+
+        monkeypatch.setattr("builtins.open", mock_open(read_data="{}"))
+        monkeypatch.setattr(fsa.json, "load", lambda f: {"sentinel": "FROM_FILE"})
+
+        result = _call()
+        assert result == {"sentinel": "FROM_FILE"}
+        # cache is daarna gevuld
+        assert fsa._feature_cache == {"sentinel": "FROM_FILE"}
+        assert fsa._cache_timestamp is not None
 
 
 class TestInfoDisclosure:
