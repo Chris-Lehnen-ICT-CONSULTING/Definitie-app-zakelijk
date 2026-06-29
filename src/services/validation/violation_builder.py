@@ -77,7 +77,11 @@ def _load_category_prefixes() -> dict[str, str]:
         mapping = data.get("violation_category_prefixes")
         if isinstance(mapping, dict) and mapping:
             return _sorted_by_prefix_len({str(k): str(v) for k, v in mapping.items()})
-    except (OSError, yaml.YAMLError):
+    except (OSError, yaml.YAMLError, UnicodeDecodeError):
+        # UnicodeDecodeError (subclass van ValueError, niet van OSError/YAMLError)
+        # kan optreden bij een config-bestand met ongeldige UTF-8 — vang het
+        # expliciet zodat de invariant "categorisatie nooit breekt op een
+        # config-probleem" blijft gelden.
         logger.debug(
             "Kon violation_category_prefixes niet laden uit %s; gebruik code-fallback",
             _CONFIG_PATH,
