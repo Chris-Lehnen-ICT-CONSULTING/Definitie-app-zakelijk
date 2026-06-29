@@ -118,6 +118,20 @@ class TestExternalizedSource:
         )
         assert vb._load_category_prefixes() == _CATEGORY_PREFIXES
 
+    def test_fallback_on_invalid_utf8(self, tmp_path, monkeypatch):
+        """Config met ongeldige UTF-8 bytes → code-fallback (UnicodeDecodeError-tak).
+
+        Borgt dat de genarrowde except ook UnicodeDecodeError (subclass van
+        ValueError, niet van OSError/YAMLError) afvangt — invariant: laden
+        breekt nooit op een config-probleem.
+        """
+        cfg = tmp_path / "toetsregels_config.yaml"
+        cfg.write_bytes(b"violation_category_prefixes:\n  \xff\xfe: taal\n")
+        monkeypatch.setattr(vb, "_CONFIG_PATH", cfg)
+        vb._load_category_prefixes.cache_clear()
+        assert vb._load_category_prefixes() == _CATEGORY_PREFIXES
+        assert category_for_rule("ESS-02") == "juridisch"
+
     def test_longest_prefix_wins_regardless_of_order(self, tmp_path, monkeypatch):
         """Bij overlappende prefixes met verschillende categorie wint de langste,
         onafhankelijk van de bronvolgorde (longest-prefix-match)."""
