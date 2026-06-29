@@ -144,6 +144,23 @@ categories:
     rules:
       - "DUP-01"
 
+# DEF-394: coarse prefix -> violation-category mapping (single source).
+# Consumed by services/validation/violation_builder.category_for_rule().
+# Volgorde = matchvolgorde; houd in sync met de code-fallback _CATEGORY_PREFIXES.
+violation_category_prefixes:
+  "STR-": structuur
+  "CON-": samenhang
+  "ESS-": juridisch
+  "VAL-": juridisch
+  "SAM-": samenhang
+  "ARAI": taal
+  "ARAI-": taal
+  "AR-": taal
+  "AR": taal
+  "INT-": structuur
+  "VER-": taal
+  "LANG-": taal
+
 # Priority ordering
 priority:
   levels:
