@@ -241,15 +241,20 @@ class TestDefinitionRepository:
         assert repository._stats["total_searches"] == 1
 
     def test_search_error_handling(self, repository, mock_legacy_repo):
-        """Test error handling bij search."""
+        """DEF-469: een DB-fout bij search wordt een RepositoryError.
+
+        Vroeger gaf search een lege lijst terug bij élke fout, waardoor de
+        duplicaat-toetsregel DUP_01 een DB-fout niet van "niets gevonden" kon
+        onderscheiden. Nu propageert de fout typed.
+        """
+        from services.exceptions import RepositoryError
+
         # Setup
         mock_legacy_repo.search_definities.side_effect = Exception("Query failed")
 
-        # Execute
-        results = repository.search("test")
-
-        # Verify - should return empty list on error
-        assert results == []
+        # Execute / Verify
+        with pytest.raises(RepositoryError):
+            repository.search("test")
         assert repository._stats["total_searches"] == 1
 
     def test_update(self, repository, mock_legacy_repo, sample_definition):
@@ -440,17 +445,22 @@ class TestDefinitionRepository:
     def test_find_duplicates_error_handling(
         self, repository, mock_legacy_repo, sample_definition
     ):
-        """Test error handling in find_duplicates."""
+        """DEF-469: een fout in duplicaat-detectie wordt een RepositoryError.
+
+        Vroeger gaf find_duplicates bij élke exception een lege lijst terug,
+        waardoor een DB-fout niet van "geen duplicaten" te onderscheiden was en
+        een duplicaat als uniek record kon passeren. Nu propageert de fout typed.
+        """
+        from services.exceptions import RepositoryError
+
         # Setup
         mock_legacy_repo.find_duplicates.side_effect = Exception(
             "Duplicate check failed"
         )
 
-        # Execute
-        results = repository.find_duplicates(sample_definition)
-
-        # Verify
-        assert results == []
+        # Execute / Verify
+        with pytest.raises(RepositoryError):
+            repository.find_duplicates(sample_definition)
 
     def test_get_by_status(self, repository, mock_legacy_repo, sample_record):
         """Test get_by_status functionaliteit."""
