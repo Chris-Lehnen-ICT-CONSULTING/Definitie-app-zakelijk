@@ -139,15 +139,81 @@ def test_process_import_continues_after_row_error():
 # --------------------------------------------------------------------------- #
 # Service-laag: lengtelimiet op stringvelden
 # --------------------------------------------------------------------------- #
-def test_payload_to_definition_caps_field_length():
+def test_payload_to_definition_caps_both_fields():
+    """Zowel begrip als definitie worden afgekapt op _MAX_FIELD_LENGTH."""
     from services.definition_import_service import (
         _MAX_FIELD_LENGTH,
         DefinitionImportService,
     )
 
     svc = DefinitionImportService(repository=Mock(), validation_orchestrator=Mock())
-    payload = {"begrip": "x" * (_MAX_FIELD_LENGTH + 5000), "definitie": "y"}
+    payload = {
+        "begrip": "x" * (_MAX_FIELD_LENGTH + 5000),
+        "definitie": "y" * (_MAX_FIELD_LENGTH + 5000),
+    }
 
     definition = svc._payload_to_definition(payload)
 
-    assert len(definition.begrip) <= _MAX_FIELD_LENGTH
+    assert len(definition.begrip) == _MAX_FIELD_LENGTH
+    assert len(definition.definitie) == _MAX_FIELD_LENGTH
+
+
+def test_payload_to_definition_warns_on_truncation():
+    """Truncatie wordt niet stil gedaan maar gelogd als waarschuwing."""
+    from services import definition_import_service as svc_mod
+    from services.definition_import_service import (
+        _MAX_FIELD_LENGTH,
+        DefinitionImportService,
+    )
+
+    svc = DefinitionImportService(repository=Mock(), validation_orchestrator=Mock())
+    payload = {"begrip": "x" * (_MAX_FIELD_LENGTH + 1), "definitie": "y"}
+
+    with patch.object(svc_mod.logger, "warning") as mock_warning:
+        svc._payload_to_definition(payload)
+
+    assert mock_warning.called
+
+
+# --------------------------------------------------------------------------- #
+# CSV-bulkpad: lengtelimiet op het record dat naar de DB gaat
+# --------------------------------------------------------------------------- #
+def test_process_import_caps_field_length():
+    """Het CSV-bulkpad kapt begrip/definitie af vóór create_definitie."""
+    from ui.components.tabs.import_export_beheer.csv_importer import _MAX_FIELD_LENGTH
+
+    importer, repo = _make_importer()
+    df = pd.DataFrame(
+        [
+            {
+                "begrip": "b" * (_MAX_FIELD_LENGTH + 100),
+                "definitie": "d" * (_MAX_FIELD_LENGTH + 100),
+                "context": "Algemeen",
+            }
+        ]
+    )
+
+    with patch(f"{_CSV_MODULE}.st"):
+        importer._process_import(df, skip_duplicates=False, auto_validate=False)
+
+    record = repo.create_definitie.call_args.args[0]
+    assert len(record.begrip) == _MAX_FIELD_LENGTH
+    assert len(record.definitie) == _MAX_FIELD_LENGTH
+
+
+# --------------------------------------------------------------------------- #
+# _cell_str helper
+# --------------------------------------------------------------------------- #
+@pytest.mark.parametrize(
+    ("value", "expected"),
+    [
+        (None, ""),
+        (float("nan"), ""),
+        ("  spaties  ", "spaties"),
+        (123, "123"),
+    ],
+)
+def test_cell_str_normalises(value, expected):
+    from ui.components.tabs.import_export_beheer.csv_importer import _cell_str
+
+    assert _cell_str(value) == expected
