@@ -188,6 +188,16 @@ class AdaptiveRetryManager:
         elif self.config.strategy == RetryStrategy.ADAPTIVE:
             delay = await self._get_adaptive_delay(error_type, attempt)
         else:
+            # DEF-477: alle RetryStrategy-leden zijn hierboven gedekt; deze tak is
+            # onbereikbaar voor een geldige enum. Een onverwachte waarde (zoals de
+            # eerdere string "adaptive") degradeerde hier STIL naar base_delay —
+            # waardoor die bug lang onopgemerkt bleef. Log nu luid i.p.v. stil
+            # (geen raise: dit pad draait tijdens error-handling, niet crashen).
+            logger.warning(
+                "Onbekende/ongeldige retry-strategy %r — terugval op base_delay. "
+                "Verwacht een RetryStrategy-enum.",
+                self.config.strategy,
+            )
             delay = self.config.base_delay
 
         # Apply error-specific multipliers

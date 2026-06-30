@@ -53,9 +53,8 @@ class APIConfig:
     """API configuratie instellingen voor externe service communicatie."""
 
     openai_api_key: str = ""  # OpenAI API sleutel voor AI model toegang
-    default_model: str = (
-        "gpt-5.2"  # Standaard AI model voor definitie generatie (DEF-314: via ModelRouter)
-    )
+    # DEF-458: geen hardcoded model; leeg = resolve via ModelRouter (single source).
+    default_model: str = ""
     default_temperature: float = (
         0.0  # Creativiteit niveau (0.0 = deterministisch voor juridische definities)
     )
@@ -66,26 +65,10 @@ class APIConfig:
     ai_provider: str = "openai"  # AI provider: "openai" or "anthropic"
     anthropic_api_key: str = ""  # Anthropic API key for Claude models
 
-    # Model-specifieke instellingen per AI model type
-    model_settings: dict[str, dict[str, Any]] = field(
-        default_factory=lambda: {
-            "gpt-4": {  # GPT-4 configuratie - hoogste kwaliteit
-                "max_tokens": 300,  # Standaard token limiet voor GPT-4
-                "temperature": 0.01,  # Zeer lage temperatuur voor consistentie
-                "cost_per_token": 0.00003,  # Kosten per token in USD
-            },
-            "gpt-4.1": {  # GPT-4.1 configuratie - stabiel voor juridische definities
-                "max_tokens": 300,  # Standaard token limiet
-                "temperature": 0.0,  # Maximale consistentie (deterministisch)
-                "cost_per_token": 0.00003,  # Kosten per token in USD
-            },
-            "claude-sonnet-4-5-20250929": {
-                "max_tokens": 300,
-                "temperature": 0.0,
-                "cost_per_token": 0.000003,
-            },
-        }
-    )
+    # Model-specifieke instellingen per AI model type.
+    # DEF-458: leeg by default — per-model overrides zijn optioneel; modelnaam +
+    # pricing zijn single-sourced in ModelRouter, niet hier.
+    model_settings: dict[str, dict[str, Any]] = field(default_factory=dict)
 
 
 @dataclass
@@ -273,10 +256,9 @@ class MonitoringConfig:
     health_check_interval: int = 30
     cost_calculation_interval: int = 300
 
-    # OpenAI pricing (per 1K tokens)
-    openai_pricing: dict[str, float] = field(
-        default_factory=lambda: {"gpt-4": 0.03, "gpt-4.1": 0.03}
-    )
+    # DEF-458: pricing is single-sourced in ModelRouter (CostCalculator leest
+    # daaruit); deze legacy-tabel is leeg en wordt niet meer geraadpleegd.
+    openai_pricing: dict[str, float] = field(default_factory=dict)
 
 
 @dataclass
@@ -785,9 +767,20 @@ def set_config(section: ConfigSection, key: str, value: Any) -> None:
 
 
 def get_default_model() -> str:
-    """Get the default AI model from configuration."""
+    """Get the default AI model.
+
+    DEF-458: an explicit ``default_model`` in config wins; otherwise the model
+    is resolved from ModelRouter (single source) so the name never drifts.
+    """
     api_config: APIConfig = get_config(ConfigSection.API)
-    return api_config.default_model
+    if api_config.default_model:
+        return api_config.default_model
+    # Container-free resolution: get_default_model() runs during container
+    # construction (container.py wiring), so going through the container here
+    # would re-enter the singleton and create a duplicate.
+    from services.ai.model_router import ModelRouter
+
+    return ModelRouter.from_config().default_definition_model()
 
 
 def get_default_temperature() -> float:
