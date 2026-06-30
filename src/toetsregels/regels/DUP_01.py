@@ -114,10 +114,17 @@ class DUP01:
             }
 
         except Exception as e:
+            # DEF-469: fail-CLOSED. Bij een technische fout (bv. DB-error uit
+            # repository.search) kunnen we duplicaten NIET uitsluiten. Eerder gaf
+            # deze tak `voldoet: True` terug, waardoor een mogelijk duplicaat stil
+            # passeerde. Markeer nu als niet-voldaan zodat de definitie handmatige
+            # controle krijgt.
             logger.error(f"Error during duplicate check: {e}")
             return {
-                "voldoet": True,
-                "toelichting": "Duplicate check mislukt (technische fout)",
+                "voldoet": False,
+                "toelichting": "Duplicaatcontrole kon niet worden uitgevoerd "
+                "(technische fout) - handmatige controle vereist",
+                "suggestie": "Controleer handmatig op bestaande definities voor dit begrip",
             }
 
     def _normalize_text(self, text: str) -> str:

@@ -22,7 +22,10 @@ from datetime import (  # Datum en tijd functionaliteit voor timestamps, timezon
 )
 from enum import Enum  # Enumeraties voor monitoring types en severity levels
 from pathlib import Path  # Object-georiënteerde pad manipulatie
-from typing import Any  # Type hints voor betere code documentatie
+from typing import TYPE_CHECKING, Any  # Type hints voor betere code documentatie
+
+if TYPE_CHECKING:
+    from services.ai.model_router import ModelRouter
 
 logger = logging.getLogger(__name__)  # Logger instantie voor API monitor module
 
@@ -97,35 +100,34 @@ class MetricSnapshot:
 
 
 class CostCalculator:
-    """Calculate API costs based on usage."""
+    """Calculate API costs based on usage.
 
-    # DEF-314: Active model pricing (matches config.yaml model_routing)
-    PRICING = {
-        "gpt-5.2": {
-            "input": 0.00003,  # per token
-            "output": 0.00006,  # per token
-        },
-        "gpt-5-mini": {
-            "input": 0.0000015,
-            "output": 0.000006,
-        },
-        "claude-opus-4-5-20251101": {
-            "input": 0.000015,
-            "output": 0.000075,
-        },
-        "claude-haiku-4-5-20251001": {
-            "input": 0.0000008,
-            "output": 0.000004,
-        },
-    }
+    DEF-458: Pricing and the default model are resolved from ModelRouter
+    (the single source of truth), not a local hardcoded table.
+    """
 
-    # Default pricing for unknown models
-    _DEFAULT_PRICING = {"input": 0.00003, "output": 0.00006}
+    @classmethod
+    def _router(cls) -> "ModelRouter":
+        """Resolve the ModelRouter.
+
+        Prefers the wired singleton; falls back to a bare ModelRouter with
+        canonical ``_DEFAULT_CONFIG`` so cost accounting never needs its own
+        hardcoded model name or pricing table.
+        """
+        from services.ai.model_router import ModelRouter
+
+        try:
+            from services.container import get_container
+
+            return get_container().model_router()
+        except Exception:
+            logger.debug("ModelRouter singleton unavailable; using config defaults")
+            return ModelRouter.from_config()
 
     @classmethod
     def calculate_cost(cls, model: str, input_tokens: int, output_tokens: int) -> float:
-        """Calculate cost for API call."""
-        pricing = cls.PRICING.get(model, cls._DEFAULT_PRICING)
+        """Calculate cost for an API call using ModelRouter pricing."""
+        pricing = cls._router().get_pricing(model)
         return input_tokens * pricing["input"] + output_tokens * pricing["output"]
 
     @classmethod
@@ -135,8 +137,9 @@ class CostCalculator:
         input_tokens = int(avg_tokens * 0.7)
         output_tokens = int(avg_tokens * 0.3)
 
+        model = cls._router().get_critical_model()
         daily_cost = daily_requests * cls.calculate_cost(
-            "gpt-5.2", input_tokens, output_tokens
+            model, input_tokens, output_tokens
         )
         return daily_cost * 30
 
@@ -615,13 +618,20 @@ async def record_api_call(
     success: bool,
     error_type: str | None = None,
     tokens_used: int = 0,
-    model: str = "gpt-5.2",
+    model: str | None = None,
     cache_hit: bool = False,
     priority: str = "normal",
     retry_count: int = 0,
 ) -> None:
-    """Convenience function to record an API call."""
+    """Convenience function to record an API call.
+
+    DEF-458: ``model`` defaults to the active critical model via ModelRouter
+    when not supplied, instead of a hardcoded name.
+    """
     collector = get_metrics_collector()
+
+    if model is None:
+        model = CostCalculator._router().get_critical_model()
 
     # Calculate cost
     cost = 0.0

@@ -584,7 +584,6 @@ def with_smart_rate_limit(
             request_id = f"{actual_endpoint}_{int(time.time() * 1000)}"
 
             # Wait for rate limit permission
-            time.time()
             if not await limiter.acquire(priority, timeout, request_id):
                 msg = f"Rate limit timeout for {func.__name__}"
                 raise TimeoutError(msg)
