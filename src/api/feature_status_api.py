@@ -4,6 +4,7 @@ Feature Status API voor real-time dashboard updates
 
 import json
 import logging
+import threading
 from datetime import UTC, datetime
 
 UTC = UTC  # Python 3.10 compatibility
@@ -98,6 +99,9 @@ app.add_middleware(
 # Cache voor performance
 _feature_cache = None
 _cache_timestamp = None
+# threading.Lock (geen asyncio.Lock: loop-gebonden = cross-loop-risk, zie DEF-429/477).
+# Het kritieke blok bevat geen await, dus de lock kan niet over een await heen gehouden worden.
+_cache_lock = threading.Lock()
 CACHE_DURATION = 300  # 5 minuten
 
 
@@ -106,30 +110,36 @@ async def get_feature_status() -> dict[str, Any]:
     """Get current feature status from GitHub or cache"""
     global _feature_cache, _cache_timestamp
 
-    # Check cache
-    if _feature_cache and _cache_timestamp:
-        cache_age = (datetime.now(UTC) - _cache_timestamp).seconds
-        if cache_age < CACHE_DURATION:
-            return cast(dict[str, Any], _feature_cache)
+    with _cache_lock:
+        # Check cache (total_seconds() i.p.v. .seconds: anders rolt de TTL na 24u om)
+        if _feature_cache and _cache_timestamp:
+            cache_age = (datetime.now(UTC) - _cache_timestamp).total_seconds()
+            if cache_age < CACHE_DURATION:
+                return cast(dict[str, Any], _feature_cache)
 
-    # Load from JSON file (or fetch from GitHub)
-    try:
-        json_path = (
-            Path(__file__).parent.parent.parent
-            / "docs"
-            / "architectuur"
-            / "feature-status.json"
-        )
-        with open(json_path) as f:
-            data: dict[str, Any] = json.load(f)
+        # Load from JSON file (or fetch from GitHub)
+        try:
+            json_path = (
+                Path(__file__).parent.parent.parent
+                / "docs"
+                / "architectuur"
+                / "feature-status.json"
+            )
+            with open(json_path) as f:
+                data: dict[str, Any] = json.load(f)
 
-        # Update cache
-        _feature_cache = data
-        _cache_timestamp = datetime.now(UTC)
+            # Update cache
+            _feature_cache = data
+            _cache_timestamp = datetime.now(UTC)
 
-        return data
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e)) from e
+            return data
+        except Exception as e:
+            # Geen interne exception-tekst lekken naar de client (info-disclosure).
+            logger.exception("Kon feature-status niet laden")
+            raise HTTPException(
+                status_code=500,
+                detail="Internal server error while loading feature status",
+            ) from e
 
 
 @app.get("/api/feature-status/summary")
