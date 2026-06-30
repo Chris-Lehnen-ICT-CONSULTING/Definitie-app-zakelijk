@@ -18,7 +18,7 @@ types-PyYAML==6.0.12.20250915
 # 26.5.1 is CVE-vrij (25.11.0 had GHSA-3936-cmfr-pm3m/CVE-2026-32274). Bewaakt door
 # scripts/check_tool_pins.py zodat de pin en de pre-commit-rev niet driften.
 black==26.5.1
-isort>=5.13.0
+isort>=8.0.1
 
 # Documentation
 mkdocs>=1.5.0
