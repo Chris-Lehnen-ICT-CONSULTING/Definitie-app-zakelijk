@@ -187,6 +187,10 @@ class IntegratedResilienceSystem:
             endpoint_name = func.__name__
 
         start_time = time.time()
+        # DEF-477: aparte monotone klok voor het timeout-budget — time.time()
+        # (wall-clock) kan bij NTP-sync verspringen; start_time blijft wall-clock
+        # voor duur-logging/metrics.
+        budget_start = time.monotonic()
         request_id = f"{endpoint_name}_{int(time.time() * 1000)}"
 
         try:
@@ -232,7 +236,14 @@ class IntegratedResilienceSystem:
                 **kwargs,
             )
             if timeout is not None:
-                result = await asyncio.wait_for(execution, timeout)
+                # DEF-477: `timeout` is de TOTAAL-timeout (acquire + uitvoering).
+                # rate_limiter.acquire kreeg hierboven al de volle `timeout`; trek
+                # het verbruikte deel af zodat de uitvoering niet opnieuw het volle
+                # budget krijgt (anders kon de totale operatie tot ~2× de timeout
+                # duren). Bij een uitgeput budget (<=0) raised wait_for direct een
+                # TimeoutError, dus geen aparte guard nodig.
+                remaining = max(0.0, timeout - (time.monotonic() - budget_start))
+                result = await asyncio.wait_for(execution, remaining)
             else:
                 result = await execution
 
@@ -314,6 +325,7 @@ class IntegratedResilienceSystem:
                     await asyncio.sleep(delay)
 
                 # Execute with resilience framework
+                attempt_start = time.monotonic()
                 result = await self.resilience_framework.execute_with_resilience(
                     func,
                     *args,
@@ -324,7 +336,10 @@ class IntegratedResilienceSystem:
                 )
 
                 # Record success
-                duration = time.time() - time.time()  # This would be tracked properly
+                # DEF-462: meet de echte duur van deze poging. Was
+                # `time.time() - time.time()` → altijd ~0, waardoor record_success
+                # (adaptieve-retry-leren) met een lege metric gevoed werd.
+                duration = time.monotonic() - attempt_start
                 await self.retry_manager.record_success(duration, endpoint_name)
 
                 return result
@@ -376,11 +391,27 @@ _integrated_system: IntegratedResilienceSystem | None = None
 async def get_integrated_system(
     config: IntegratedConfig | None = None,
 ) -> IntegratedResilienceSystem:
-    """Get or create global integrated resilience system."""
+    """Get or create global integrated resilience system.
+
+    DEF-477: de oude code publiceerde de instance VÓÓR ``await start()``, zodat
+    een tweede coroutine een nog-niet-gestarte instance kon terugkrijgen. Een
+    ``asyncio.Lock`` zou dit serialiseren, maar is loop-gebonden — en deze app
+    overbrugt sync→async via wisselende event loops (zie DEF-429 cross-loop), dus
+    een module-level lock riskeert een "bound to a different loop"-crash. In
+    plaats daarvan: bouw+start een LOKALE instance en publiceer pas ná start;
+    wint een andere coroutine de race, dan stoppen we onze duplicaat netjes.
+    """
     global _integrated_system
     if _integrated_system is None:
-        _integrated_system = IntegratedResilienceSystem(config)
-        await _integrated_system.start()
+        system = IntegratedResilienceSystem(config)
+        await system.start()
+        if _integrated_system is None:
+            # Publiceer pas ná start(): nooit een ongestarte instance lekken.
+            _integrated_system = system
+        else:
+            # Een andere coroutine publiceerde tijdens onze start(); ruim de
+            # duplicaat op (stop() cancelt diens achtergrondtaken → geen leak).
+            await system.stop()
     return _integrated_system
 
 

@@ -163,6 +163,65 @@ def test_async_patterns_in_orchestrator():
         )
 
 
+# DEF-476: UI-code mag geen directe asyncio.run() doen — uitgezonderd de bridge zelf.
+_ASYNCIO_RUN_ALLOWLIST = {
+    "src/ui/helpers/async_bridge.py",  # de legitieme async-bridge zelf
+}
+
+
+def test_no_direct_asyncio_run_in_ui_layer():
+    """DEF-476: UI-code (pages + ui) mag geen directe asyncio.run()-aanroep doen.
+
+    In Streamlit draait al een event loop; een directe wegwerp-run() gooit
+    RuntimeError of hangt bij een al draaiende loop. UI-code moet via de
+    async-bridge (``ui.helpers.async_bridge.run_async``) gaan, die een
+    draaiende loop detecteert en de coroutine via een thread isoleert.
+
+    Beperkingen (bewuste best-effort source-scan): commentaar wordt genegeerd via
+    een simpele ``#``-split (mist een ``#`` in een stringliteral); alias-imports
+    (``from asyncio import run``) worden niet gevangen. Black dwingt de canonieke
+    vorm af, dus het reële risico is gedekt.
+    """
+    ui_dirs = [SRC / "pages", SRC / "ui"]
+    pattern = re.compile(r"\basyncio\.run\s*\(")
+    violations = []
+    scanned = 0
+
+    for ui_dir in ui_dirs:
+        assert ui_dir.exists(), f"verwachte UI-map ontbreekt: {ui_dir}"
+        for filepath in ui_dir.rglob("*.py"):
+            if "__pycache__" in str(filepath):
+                continue
+            rel_path = str(filepath.relative_to(ROOT))
+            if rel_path in _ASYNCIO_RUN_ALLOWLIST:
+                continue
+            scanned += 1
+            text = filepath.read_text(encoding="utf-8", errors="ignore")
+            for lineno, line in enumerate(text.splitlines(), 1):
+                code = line.split("#", 1)[0]  # negeer commentaar
+                if pattern.search(code):
+                    violations.append(f"{rel_path}:{lineno}")
+
+    assert scanned > 0, "guard scande geen enkel bestand — mapstructuur gewijzigd?"
+
+    if violations:
+        pytest.fail(
+            "Directe asyncio.run() in UI-laag "
+            "(gebruik ui.helpers.async_bridge.run_async):\n"
+            + "\n".join(f"  {v}" for v in violations)
+        )
+
+
+def test_synonym_admin_uses_async_bridge():
+    """DEF-476: synonym_admin roept de async-bridge aan i.p.v. directe asyncio.run.
+
+    Positieve tegenhanger van de negatieve guard: borgt dat de fix daadwerkelijk
+    via ``run_async`` loopt (een refactor die de call zou weglaten valt op).
+    """
+    src = (SRC / "pages" / "synonym_admin.py").read_text(encoding="utf-8")
+    assert "run_async(" in src, "synonym_admin moet de async-bridge gebruiken"
+
+
 def test_no_legacy_response_fields_in_core():
     """Guard against V1 response field usage in core modules.
 

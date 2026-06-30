@@ -18,10 +18,15 @@ from typing import Any
 
 import pandas as pd
 
+from services.exceptions import RepositoryError
 from services.interfaces import Definition
 from services.validation.interfaces import ValidationResult
 
 logger = logging.getLogger(__name__)
+
+# DEF-470: maximale lengte van vrije tekstvelden (begrip/definitie) bij import.
+# Begrenst ongebonden string-conversie van mogelijk malformed/grote CSV-cellen.
+_MAX_FIELD_LENGTH = 10_000
 
 
 @dataclass
@@ -111,6 +116,20 @@ class DefinitionImportService:
                 validation=None,
                 duplicates=[],
                 error="Validatie timeout - probeer opnieuw",
+            )
+        except RepositoryError:
+            # DEF-469: duplicaatcontrole faalde (DB-fout). Fail-closed: NIET
+            # opslaan, anders riskeren we een dubbel record. Toon de fout.
+            logger.exception("Duplicaatcontrole mislukt tijdens import")
+            return SingleImportResult(
+                success=False,
+                definition_id=None,
+                validation=None,
+                duplicates=[],
+                error=(
+                    "Duplicaatcontrole mislukt - import afgebroken om dubbele "
+                    "records te voorkomen."
+                ),
             )
 
         # Bepaal strategie: 'skip' (default) of 'overwrite'
@@ -247,8 +266,22 @@ class DefinitionImportService:
 
     # -------- intern --------
     def _payload_to_definition(self, payload: dict[str, Any]) -> Definition:
-        begrip = str(payload.get("begrip", "")).strip()
-        definitie = str(payload.get("definitie", "")).strip()
+        # DEF-470: begrens vrije tekstvelden zodat een extreem lange CSV-cel
+        # niet ongebonden door de keten propageert.
+        begrip_raw = str(payload.get("begrip", "")).strip()
+        definitie_raw = str(payload.get("definitie", "")).strip()
+        if (
+            len(begrip_raw) > _MAX_FIELD_LENGTH
+            or len(definitie_raw) > _MAX_FIELD_LENGTH
+        ):
+            logger.warning(
+                "Importveld afgekapt op %s tekens (begrip=%s, definitie=%s)",
+                _MAX_FIELD_LENGTH,
+                len(begrip_raw),
+                len(definitie_raw),
+            )
+        begrip = begrip_raw[:_MAX_FIELD_LENGTH]
+        definitie = definitie_raw[:_MAX_FIELD_LENGTH]
         categorie = payload.get("categorie") or None
         org = payload.get("organisatorische_context") or []
         jur = payload.get("juridische_context") or []

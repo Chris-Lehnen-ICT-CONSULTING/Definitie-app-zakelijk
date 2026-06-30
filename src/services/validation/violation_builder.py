@@ -13,14 +13,21 @@ doordat ze via to_dict() worden geretourneerd).
 
 from __future__ import annotations
 
+import functools
 import logging
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any
+
+import yaml
 
 logger = logging.getLogger(__name__)
 
 
-# Categorie prefixes voor rule_id -> category mapping
+# Categorie prefixes voor rule_id -> category mapping.
+# DEF-394: dit is de CODE-FALLBACK. De canonieke bron is de sectie
+# `violation_category_prefixes` in config/toetsregels/toetsregels_config.yaml
+# (zie _load_category_prefixes). Houd beide in sync — een test borgt dat.
 _CATEGORY_PREFIXES: dict[str, str] = {
     "STR-": "structuur",
     "CON-": "samenhang",
@@ -35,6 +42,53 @@ _CATEGORY_PREFIXES: dict[str, str] = {
     "VER-": "taal",
     "LANG-": "taal",
 }
+
+# Canonieke config-bron voor de prefix→category mapping (DEF-394).
+_CONFIG_PATH: Path = (
+    Path(__file__).resolve().parents[3]
+    / "config"
+    / "toetsregels"
+    / "toetsregels_config.yaml"
+)
+
+
+def _sorted_by_prefix_len(mapping: dict[str, str]) -> dict[str, str]:
+    """Orden prefixes op aflopende lengte (langste/meest specifieke eerst).
+
+    ``category_for_rule`` pakt de eerste match via ``startswith``; door de
+    langste prefix vooraan te zetten wint altijd de meest specifieke,
+    ongeacht de bronvolgorde in de YAML (defensief tegen herordening).
+    """
+    return dict(sorted(mapping.items(), key=lambda kv: len(kv[0]), reverse=True))
+
+
+@functools.lru_cache(maxsize=1)
+def _load_category_prefixes() -> dict[str, str]:
+    """Laad de prefix→category mapping uit toetsregels_config.yaml.
+
+    Valt terug op de ingebouwde ``_CATEGORY_PREFIXES`` als het bestand of de
+    sectie ontbreekt/onleesbaar is, zodat categorisatie nooit breekt op een
+    config-probleem. De mapping wordt op aflopende prefix-lengte geordend
+    (longest-prefix-match). Gecached (load-once); ``cache_clear()`` voor tests.
+    """
+    try:
+        with open(_CONFIG_PATH, encoding="utf-8") as f:
+            data = yaml.safe_load(f) or {}
+        mapping = data.get("violation_category_prefixes")
+        if isinstance(mapping, dict) and mapping:
+            return _sorted_by_prefix_len({str(k): str(v) for k, v in mapping.items()})
+    except (OSError, yaml.YAMLError, UnicodeDecodeError):
+        # UnicodeDecodeError (subclass van ValueError, niet van OSError/YAMLError)
+        # kan optreden bij een config-bestand met ongeldige UTF-8 — vang het
+        # expliciet zodat de invariant "categorisatie nooit breekt op een
+        # config-probleem" blijft gelden.
+        logger.debug(
+            "Kon violation_category_prefixes niet laden uit %s; gebruik code-fallback",
+            _CONFIG_PATH,
+            exc_info=True,
+        )
+    return _sorted_by_prefix_len(dict(_CATEGORY_PREFIXES))
+
 
 # Severity mapping voor aanbeveling/prioriteit combinaties
 _SEVERITY_LEVEL_MAP: dict[tuple[str, str], str] = {
@@ -57,7 +111,7 @@ def category_for_rule(code: str) -> str:
         Category string: "structuur", "samenhang", "juridisch", "taal", of "system"
     """
     c = str(code)
-    for prefix, category in _CATEGORY_PREFIXES.items():
+    for prefix, category in _load_category_prefixes().items():
         if c.startswith(prefix) or c.upper().startswith(prefix):
             return category
     return "system"

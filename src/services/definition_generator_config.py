@@ -32,8 +32,8 @@ class CacheStrategy(Enum):
 class GPTConfig:
     """GPT-specific configuration (from all implementations)."""
 
-    # Model configuration (optimized from definitie_generator)
-    model: str = "gpt-5.2"
+    # Model configuration — DEF-458: no hardcoded default; resolved via ModelRouter.
+    model: str | None = None
     temperature: float = 0.0  # Optimized for consistency
     max_tokens: int = 350  # Balanced for quality/cost
 
@@ -65,6 +65,19 @@ class GPTConfig:
             self.api_base = os.getenv("OPENAI_API_BASE")
         if self.organization is None and self.provider != "anthropic":
             self.organization = os.getenv("OPENAI_ORGANIZATION")
+
+    @property
+    def resolved_model(self) -> str:
+        """Concrete model name: explicit override or ModelRouter resolution.
+
+        DEF-458: keeps the model name single-sourced in ModelRouter while still
+        allowing an explicit override on the dataclass.
+        """
+        if self.model:
+            return self.model
+        from services.ai.model_router import ModelRouter
+
+        return ModelRouter.from_config().default_definition_model()
 
 
 @dataclass
@@ -281,7 +294,7 @@ class UnifiedGeneratorConfig:
         """Convert configuration to dictionary for serialization."""
         return {
             "gpt": {
-                "model": self.gpt.model,
+                "model": self.gpt.resolved_model,
                 "temperature": self.gpt.temperature,
                 "max_tokens": self.gpt.max_tokens,
                 "retry_count": self.gpt.retry_count,
