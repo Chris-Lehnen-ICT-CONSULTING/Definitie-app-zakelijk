@@ -440,17 +440,22 @@ class TestDefinitionRepository:
     def test_find_duplicates_error_handling(
         self, repository, mock_legacy_repo, sample_definition
     ):
-        """Test error handling in find_duplicates."""
+        """DEF-469: een fout in duplicaat-detectie wordt een RepositoryError.
+
+        Vroeger gaf find_duplicates bij élke exception een lege lijst terug,
+        waardoor een DB-fout niet van "geen duplicaten" te onderscheiden was en
+        een duplicaat als uniek record kon passeren. Nu propageert de fout typed.
+        """
+        from services.exceptions import RepositoryError
+
         # Setup
         mock_legacy_repo.find_duplicates.side_effect = Exception(
             "Duplicate check failed"
         )
 
-        # Execute
-        results = repository.find_duplicates(sample_definition)
-
-        # Verify
-        assert results == []
+        # Execute / Verify
+        with pytest.raises(RepositoryError):
+            repository.find_duplicates(sample_definition)
 
     def test_get_by_status(self, repository, mock_legacy_repo, sample_record):
         """Test get_by_status functionaliteit."""
