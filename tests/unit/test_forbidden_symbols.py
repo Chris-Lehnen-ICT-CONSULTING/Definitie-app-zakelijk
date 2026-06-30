@@ -163,11 +163,9 @@ def test_async_patterns_in_orchestrator():
         )
 
 
-# DEF-476: UI-code mag geen directe asyncio.run() doen — uitgezonderd de bridge
-# zelf en dood pakket dat apart wordt verwijderd.
+# DEF-476: UI-code mag geen directe asyncio.run() doen — uitgezonderd de bridge zelf.
 _ASYNCIO_RUN_ALLOWLIST = {
     "src/ui/helpers/async_bridge.py",  # de legitieme async-bridge zelf
-    "src/ui/async_progress.py",  # dood pakket, verwijderen via DEF-444
 }
 
 
