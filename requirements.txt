@@ -27,7 +27,7 @@ markdown-it-py==4.2.0
 MarkupSafe==3.0.3
 mdurl==0.1.2
 multidict==6.7.1
-numpy==2.4.6
+numpy==2.5.0
 openai==2.44.0
 packaging==26.2
 pandas==3.0.4
