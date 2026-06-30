@@ -612,7 +612,12 @@ class ModernWebLookupService(WebLookupServiceInterface):
                             if fb_res and fb_res.success:
                                 result = fb_res
                                 break
-                        except Exception:
+                        except Exception as e:
+                            # DEF-469: per-source-fallback (probeer volgende variant).
+                            # Log voor observability zodat een totale faal traceerbaar is.
+                            logger.debug(
+                                "Wikipedia synoniem-fallback faalde, volgende: %s", e
+                            )
                             continue
 
                 if result and result.success:
@@ -662,7 +667,9 @@ class ModernWebLookupService(WebLookupServiceInterface):
                         if wikt_res and wikt_res.success:
                             wikt_result = wikt_res
                             break
-                    except Exception:
+                    except Exception as e:
+                        # DEF-469: per-stage-fallback; log voor observability.
+                        logger.debug("Wiktionary-stage faalde, volgende: %s", e)
                         continue
 
                 if not (wikt_result and wikt_result.success):
@@ -697,7 +704,12 @@ class ModernWebLookupService(WebLookupServiceInterface):
                             if wikt_fb_res and wikt_fb_res.success:
                                 wikt_result = wikt_fb_res
                                 break
-                        except Exception:
+                        except Exception as e:
+                            # DEF-469: per-source-fallback; log voor observability.
+                            logger.debug(
+                                "Wiktionary heuristische fallback faalde, volgende: %s",
+                                e,
+                            )
                             continue
 
                 if wikt_result and wikt_result.success:
