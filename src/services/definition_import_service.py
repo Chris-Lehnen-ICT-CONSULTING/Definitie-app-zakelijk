@@ -23,6 +23,10 @@ from services.validation.interfaces import ValidationResult
 
 logger = logging.getLogger(__name__)
 
+# DEF-470: maximale lengte van vrije tekstvelden (begrip/definitie) bij import.
+# Begrenst ongebonden string-conversie van mogelijk malformed/grote CSV-cellen.
+_MAX_FIELD_LENGTH = 10_000
+
 
 @dataclass
 class SingleImportPreview:
@@ -247,8 +251,10 @@ class DefinitionImportService:
 
     # -------- intern --------
     def _payload_to_definition(self, payload: dict[str, Any]) -> Definition:
-        begrip = str(payload.get("begrip", "")).strip()
-        definitie = str(payload.get("definitie", "")).strip()
+        # DEF-470: begrens vrije tekstvelden zodat een extreem lange CSV-cel
+        # niet ongebonden door de keten propageert.
+        begrip = str(payload.get("begrip", "")).strip()[:_MAX_FIELD_LENGTH]
+        definitie = str(payload.get("definitie", "")).strip()[:_MAX_FIELD_LENGTH]
         categorie = payload.get("categorie") or None
         org = payload.get("organisatorische_context") or []
         jur = payload.get("juridische_context") or []
