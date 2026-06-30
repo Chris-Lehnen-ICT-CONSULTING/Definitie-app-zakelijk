@@ -163,6 +163,36 @@ def test_async_patterns_in_orchestrator():
         )
 
 
+def test_no_direct_asyncio_run_in_streamlit_pages():
+    """DEF-476: Streamlit-pages mogen geen directe asyncio.run()-aanroep doen.
+
+    In Streamlit draait al een event loop; een directe wegwerp-run() gooit
+    RuntimeError of hangt bij een al draaiende loop. UI-code moet via de
+    async-bridge (``ui.helpers.async_bridge.run_async``) gaan, die een
+    draaiende loop detecteert en de coroutine via een thread isoleert.
+    """
+    pages_dir = SRC / "pages"
+    pattern = re.compile(r"\basyncio\.run\(")
+    violations = []
+
+    if pages_dir.exists():
+        for filepath in pages_dir.rglob("*.py"):
+            if "__pycache__" in str(filepath):
+                continue
+            text = filepath.read_text(encoding="utf-8", errors="ignore")
+            for lineno, line in enumerate(text.splitlines(), 1):
+                code = line.split("#", 1)[0]  # negeer commentaar
+                if pattern.search(code):
+                    violations.append(f"{filepath.relative_to(ROOT)}:{lineno}")
+
+    if violations:
+        pytest.fail(
+            "Directe asyncio.run() in Streamlit-pages "
+            "(gebruik ui.helpers.async_bridge.run_async):\n"
+            + "\n".join(f"  {v}" for v in violations)
+        )
+
+
 def test_no_legacy_response_fields_in_core():
     """Guard against V1 response field usage in core modules.
 
