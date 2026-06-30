@@ -128,7 +128,7 @@ class DefinitionImportService:
                 duplicates=[],
                 error=(
                     "Duplicaatcontrole mislukt - import afgebroken om dubbele "
-                    "records te voorkomen. Probeer het later opnieuw."
+                    "records te voorkomen."
                 ),
             )
 
