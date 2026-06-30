@@ -7,11 +7,26 @@ business logic for the definition edit interface.
 
 import logging
 from datetime import datetime, timedelta
+from enum import Enum
 from typing import Any, cast
 
 from services.definition_edit_repository import DefinitionEditRepository
 from services.interfaces import Definition
 from services.validation.modular_validation_service import ModularValidationService
+
+
+class AutoSaveResult(Enum):
+    """Uitkomst van een auto-save (DEF-469).
+
+    Onderscheidt expliciet "opgeslagen", "uitgeschakeld" en "mislukt" zodat de UI
+    de gebruiker kan waarschuwen bij een echte fout i.p.v. een mislukte save te
+    verwarren met een uitgeschakelde/overgeslagen save.
+    """
+
+    SAVED = "saved"
+    DISABLED = "disabled"
+    FAILED = "failed"
+
 
 logger = logging.getLogger(__name__)
 
@@ -164,7 +179,7 @@ class DefinitionEditService:
             logger.error(f"Error saving definition: {e}")
             return {"success": False, "error": str(e)}
 
-    def auto_save(self, definitie_id: int, content: dict[str, Any]) -> bool:
+    def auto_save(self, definitie_id: int, content: dict[str, Any]) -> AutoSaveResult:
         """
         Auto-save draft versie.
 
@@ -173,21 +188,24 @@ class DefinitionEditService:
             content: Content om op te slaan
 
         Returns:
-            True als succesvol
+            AutoSaveResult: SAVED bij succes, DISABLED als auto-save uit staat,
+            FAILED bij een fout (DEF-469: zodat de UI bij een echte fout kan
+            waarschuwen i.p.v. die te verwarren met "uitgeschakeld").
         """
         if not self.auto_save_enabled:
-            return False
+            return AutoSaveResult.DISABLED
 
         try:
             # Add timestamp
             content["auto_save_timestamp"] = datetime.now().isoformat()
 
-            # Save draft
-            return cast(bool, self.repository.auto_save_draft(definitie_id, content))
+            # Save draft (repository raiset bij een DB-fout — niet langer stil False)
+            self.repository.auto_save_draft(definitie_id, content)
+            return AutoSaveResult.SAVED
 
         except Exception as e:
-            logger.error(f"Auto-save failed: {e}")
-            return False
+            logger.error(f"Auto-save failed: {e}", exc_info=True)
+            return AutoSaveResult.FAILED
 
     def restore_auto_save(self, definitie_id: int) -> dict[str, Any] | None:
         """
