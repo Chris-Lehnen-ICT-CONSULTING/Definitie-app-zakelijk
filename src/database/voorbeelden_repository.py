@@ -210,13 +210,18 @@ class VoorbeeldenRepository:
                             f"Saved {voorbeeld_type} voorbeeld {idx}: {voorbeeld_tekst[:50]}..."
                         )
 
-                # DEF-469: voorkeursterm binnen DEZELFDE transactie persisteren
-                # (vóór commit), zodat een fout terugrolt en zichtbaar propageert
-                # i.p.v. de door de gebruiker gekozen voorkeursterm stil te verliezen.
+                # DEF-469: voorkeursterm-update niet langer stil slikken. Een fout
+                # propageert nu (de aanroeper/gebruiker ziet dat de voorkeursterm
+                # niet is opgeslagen) i.p.v. de keuze stil te verliezen. De call
+                # staat vóór commit zodat hij meelift zodra de save écht atomair
+                # wordt; volledige rollback-atomariteit valt onder DEF-391 — deze
+                # connectie draait nu in autocommit (isolation_level=None).
                 self._update_voorkeursterm(conn, definitie_id, voorkeursterm)
 
                 conn.commit()
 
+                # synoniemen-sync draait ná de commit: idempotente, herhaalbare
+                # best-effort sync naar een afgeleide tabel.
                 self._sync_synoniemen(
                     voorbeelden_dict, definitie_id, gegenereerd_door, get_definitie_fn
                 )
