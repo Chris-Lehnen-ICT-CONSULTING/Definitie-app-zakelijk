@@ -12,6 +12,7 @@ from datetime import datetime
 from typing import Any, cast
 
 from services.definition_repository import DefinitionRepository
+from services.exceptions import RepositoryError
 from services.interfaces import Definition
 
 logger = logging.getLogger(__name__)
@@ -189,7 +190,13 @@ class DefinitionEditRepository(DefinitionRepository):
             draft_content: Draft content om op te slaan
 
         Returns:
-            True als succesvol, False anders
+            True als succesvol.
+
+        Raises:
+            RepositoryError: bij een DB-fout. DEF-469: niet langer stil False —
+                anders kan de service-laag een echte fout niet onderscheiden van
+                "uitgeschakeld" en krijgt de gebruiker geen feedback dat zijn
+                concept niet is opgeslagen.
         """
         try:
             with self._get_connection() as conn:
@@ -215,8 +222,7 @@ class DefinitionEditRepository(DefinitionRepository):
                 return True
 
         except Exception as e:
-            logger.error(f"Error auto-saving draft: {e}")
-            return False
+            raise RepositoryError("auto_save_draft") from e
 
     def get_latest_auto_save(self, definitie_id: int) -> dict[str, Any] | None:
         """
@@ -380,8 +386,11 @@ class DefinitionEditRepository(DefinitionRepository):
                 return definitions
 
         except Exception as e:
-            logger.error(f"Error in advanced search: {e}")
-            return []
+            # DEF-469: NIET stil [] teruggeven — dat maskeert een DB-fout als
+            # "geen resultaten" (false negative), wat in de search-and-replace-flow
+            # tot verkeerde conclusies leidt. Re-raise; beide callers (UI + service)
+            # hebben een generieke except die dit als echte fout toont.
+            raise RepositoryError("search_with_filters") from e
 
     def get_statistics(self) -> dict[str, Any]:
         """

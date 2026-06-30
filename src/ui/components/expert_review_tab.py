@@ -696,7 +696,13 @@ class ExpertReviewTab:
                     )
                     if res.success:
                         st.success("✅ Definitie vastgesteld")
-                        st.rerun()
+                        if res.warning:
+                            # DEF-469: niet-fatale waarschuwing (bv. ketenpartners
+                            # niet opgeslagen). Toon en herlaad niet, zodat de
+                            # gebruiker de melding ziet.
+                            st.warning(res.warning)
+                        else:
+                            st.rerun()
                     else:
                         st.error(
                             f"❌ Vaststellen mislukt: {res.error_message or 'Onbekende fout'}"

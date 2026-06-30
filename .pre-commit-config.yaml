@@ -66,6 +66,9 @@ repos:
         stages: [pre-commit]
       - id: forbidden-patterns
         name: Check forbidden patterns (streamlit in services)
+        # DEF-465: `|| true` blijft tot de hardcoded-key-check test-fixtures en
+        # docstring-voorbeelden (sk-test/sk-ant-smoke/"sk-...") uitsluit — anders
+        # blokkeert de hook op pure false positives. Zie DEF-465-comment.
         entry: bash -c 'bash scripts/ci/check-forbidden-patterns.sh || true'
         language: system
         pass_filenames: false
