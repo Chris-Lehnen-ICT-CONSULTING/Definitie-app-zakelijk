@@ -17,7 +17,6 @@ Features:
 This page replaces legacy src/pages/synonym_review.py (which used old YAML workflow).
 """
 
-import asyncio
 import json
 import logging
 import sys
@@ -36,6 +35,7 @@ from repositories.synonym_registry import SynonymRegistry
 from services.container import get_container
 from services.gpt4_synonym_suggester import GPT4SynonymSuggester
 from services.synonym_orchestrator import SynonymOrchestrator
+from ui.helpers.async_bridge import run_async
 from ui.session_state import SessionStateManager
 
 logger = logging.getLogger(__name__)
@@ -193,11 +193,15 @@ if st.button("🤖 Genereer Suggesties", type="primary", use_container_width=Tru
     else:
         with st.spinner(f"🔄 GPT-4 genereert synoniemen voor '{term}'..."):
             try:
-                # Use orchestrator's ensure_synonyms (async)
-                synonyms, ai_pending_count = asyncio.run(
+                # Use orchestrator's ensure_synonyms (async) via de UI async-bridge.
+                # DEF-476: geen directe asyncio.run() in Streamlit-context — die
+                # gooit RuntimeError/hangt bij een al draaiende event loop; run_async
+                # detecteert dat en isoleert de coroutine via een thread.
+                synonyms, ai_pending_count = run_async(
                     orchestrator.ensure_synonyms(
                         term=term.strip(), min_count=min_count, context=None
-                    )
+                    ),
+                    timeout=60.0,  # GPT-4 synoniem-generatie kan traag zijn
                 )
 
                 if ai_pending_count > 0:
