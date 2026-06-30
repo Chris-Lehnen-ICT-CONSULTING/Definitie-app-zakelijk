@@ -11,6 +11,7 @@ from enum import Enum
 from typing import Any, cast
 
 from services.definition_edit_repository import DefinitionEditRepository
+from services.exceptions import RepositoryError
 from services.interfaces import Definition
 from services.validation.modular_validation_service import ModularValidationService
 
@@ -26,6 +27,9 @@ class AutoSaveResult(Enum):
     SAVED = "saved"
     DISABLED = "disabled"
     FAILED = "failed"
+
+    # Let op: vergelijk met `is` (elk enum-lid is truthy — een `if auto_save(...)`
+    # zou dus altijd waar zijn).
 
 
 logger = logging.getLogger(__name__)
@@ -203,7 +207,9 @@ class DefinitionEditService:
             self.repository.auto_save_draft(definitie_id, content)
             return AutoSaveResult.SAVED
 
-        except Exception as e:
+        except RepositoryError as e:
+            # Gericht op de repository-fout: onverwachte (programmeer)fouten laten
+            # we bewust doorbubbelen i.p.v. te maskeren als "FAILED".
             logger.error(f"Auto-save failed: {e}", exc_info=True)
             return AutoSaveResult.FAILED
 
