@@ -39,6 +39,10 @@ _CSV_ENCODINGS = ("utf-8-sig", "cp1252", "latin-1")
 # Maximale bestandsgrootte (10 MB) — boven deze grens weigeren we de import.
 _MAX_FILE_SIZE_MB = 10
 _MAX_FILE_SIZE_BYTES = _MAX_FILE_SIZE_MB * 1024 * 1024
+# Maximale lengte van vrije tekstvelden (begrip/definitie) — gelijk aan de
+# limiet in DefinitionImportService zodat beide importpaden dezelfde invariant
+# afdwingen.
+_MAX_FIELD_LENGTH = 10_000
 
 logger = logging.getLogger(__name__)
 
@@ -150,6 +154,9 @@ class CSVImporter:
                 continue
             except pd.errors.EmptyDataError as e:
                 raise ValueError("Het CSV-bestand bevat geen data.") from e
+            except pd.errors.ParserError as e:
+                # Geen rauwe pandas-parserdetails naar de UI lekken.
+                raise ValueError("Het CSV-bestand heeft een ongeldig formaat.") from e
 
             if df.empty and len(df.columns) == 0:
                 raise ValueError("Het CSV-bestand bevat geen data.")
@@ -192,6 +199,10 @@ class CSVImporter:
                         "(begrip en/of definitie is leeg)"
                     )
                     continue
+
+                # Begrens vrije tekstvelden (zelfde invariant als de service-laag)
+                begrip = begrip[:_MAX_FIELD_LENGTH]
+                definitie = definitie[:_MAX_FIELD_LENGTH]
 
                 context = _cell_str(row.get("context", "")) or "Algemeen"
                 categorie = _cell_str(row.get("categorie", "")) or "Type"

@@ -253,8 +253,20 @@ class DefinitionImportService:
     def _payload_to_definition(self, payload: dict[str, Any]) -> Definition:
         # DEF-470: begrens vrije tekstvelden zodat een extreem lange CSV-cel
         # niet ongebonden door de keten propageert.
-        begrip = str(payload.get("begrip", "")).strip()[:_MAX_FIELD_LENGTH]
-        definitie = str(payload.get("definitie", "")).strip()[:_MAX_FIELD_LENGTH]
+        begrip_raw = str(payload.get("begrip", "")).strip()
+        definitie_raw = str(payload.get("definitie", "")).strip()
+        if (
+            len(begrip_raw) > _MAX_FIELD_LENGTH
+            or len(definitie_raw) > _MAX_FIELD_LENGTH
+        ):
+            logger.warning(
+                "Importveld afgekapt op %s tekens (begrip=%s, definitie=%s)",
+                _MAX_FIELD_LENGTH,
+                len(begrip_raw),
+                len(definitie_raw),
+            )
+        begrip = begrip_raw[:_MAX_FIELD_LENGTH]
+        definitie = definitie_raw[:_MAX_FIELD_LENGTH]
         categorie = payload.get("categorie") or None
         org = payload.get("organisatorische_context") or []
         jur = payload.get("juridische_context") or []
