@@ -232,8 +232,11 @@ class DefinitionRepository(DefinitionRepositoryInterface):
             return definitions
 
         except Exception as e:
-            logger.error(f"Fout bij zoeken naar '{query}': {e}")
-            return []
+            # DEF-469: NIET stil een lege lijst teruggeven — dan kan de aanroeper
+            # (o.a. de duplicaat-toetsregel DUP_01) een DB-fout niet van "niets
+            # gevonden" onderscheiden en zou een duplicaat ongemerkt passeren.
+            # Re-raise als typed RepositoryError zodat de aanroeper fail-closed kan.
+            raise RepositoryError("search", query) from e
 
     def update(self, definition_id: int, definition: Definition) -> bool:
         """
