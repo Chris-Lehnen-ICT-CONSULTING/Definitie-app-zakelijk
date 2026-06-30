@@ -381,7 +381,8 @@ class DefinitionRepository(DefinitionRepositoryInterface):
             # een DB-fout niet van "geen duplicaten" onderscheiden en glipt een
             # duplicaat door als uniek record (data-integriteit). Re-raise als
             # typed RepositoryError zodat de aanroeper fail-closed kan afbreken.
-            logger.error(f"Fout bij duplicaat detectie: {e}")
+            # Loggen gebeurt bij de aanroeper (met volledige exception-chain via
+            # `from e`); hier dubbel loggen zou alleen ruis geven.
             raise RepositoryError("find_duplicates", definition.begrip) from e
 
     def get_by_status(self, status: str, limit: int = 50) -> list[Definition]:

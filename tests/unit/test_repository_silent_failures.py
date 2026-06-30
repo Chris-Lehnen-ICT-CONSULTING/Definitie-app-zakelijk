@@ -65,4 +65,7 @@ async def test_import_single_fails_closed_when_duplicate_check_errors():
 
     assert result.success is False
     assert result.error
+    # De foutmelding is generiek — geen rauwe DB-/exception-details naar de UI.
+    assert "sqlite" not in result.error.lower()
+    assert "find_duplicates" not in result.error
     repo.save.assert_not_called()
