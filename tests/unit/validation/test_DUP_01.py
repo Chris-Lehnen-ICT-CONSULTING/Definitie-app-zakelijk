@@ -164,13 +164,18 @@ class TestDUP01:
         assert "Exacte duplicate" in result["toelichting"]
 
     def test_check_handles_search_exception(self, dup_instance, mock_repository):
-        """Test handling of exceptions during search."""
+        """DEF-469: fail-CLOSED bij een fout tijdens de duplicaatcontrole.
+
+        Vroeger gaf deze tak `voldoet: True` (fail-open) terug, waardoor een
+        mogelijk duplicaat stil passeerde bij een DB-fout. Nu faalt de regel
+        zodat de definitie handmatige controle krijgt.
+        """
         mock_repository.search.side_effect = Exception("Database error")
 
         result = dup_instance.check("Een definitie", begrip="test")
 
-        assert result["voldoet"] is True
-        assert "technische fout" in result["toelichting"]
+        assert result["voldoet"] is False
+        assert "handmatige controle" in result["toelichting"]
 
     # ==================== Normalize Text Helper ====================
 
