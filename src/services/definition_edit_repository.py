@@ -190,7 +190,13 @@ class DefinitionEditRepository(DefinitionRepository):
             draft_content: Draft content om op te slaan
 
         Returns:
-            True als succesvol, False anders
+            True als succesvol.
+
+        Raises:
+            RepositoryError: bij een DB-fout. DEF-469: niet langer stil False —
+                anders kan de service-laag een echte fout niet onderscheiden van
+                "uitgeschakeld" en krijgt de gebruiker geen feedback dat zijn
+                concept niet is opgeslagen.
         """
         try:
             with self._get_connection() as conn:
@@ -216,8 +222,7 @@ class DefinitionEditRepository(DefinitionRepository):
                 return True
 
         except Exception as e:
-            logger.error(f"Error auto-saving draft: {e}")
-            return False
+            raise RepositoryError("auto_save_draft") from e
 
     def get_latest_auto_save(self, definitie_id: int) -> dict[str, Any] | None:
         """

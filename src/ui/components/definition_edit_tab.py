@@ -13,7 +13,7 @@ import streamlit as st
 
 from config.config_manager import ConfigSection, get_config
 from services.definition_edit_repository import DefinitionEditRepository
-from services.definition_edit_service import DefinitionEditService
+from services.definition_edit_service import AutoSaveResult, DefinitionEditService
 from services.validation.modular_validation_service import ModularValidationService
 from ui.session_state import SessionStateManager
 
@@ -1814,9 +1814,17 @@ class DefinitionEditTab:
                 "status": SessionStateManager.get_value(k("status")),
             }
 
-            # Save
-            if self.edit_service.auto_save(definition_id, content):
+            # Save (DEF-469: onderscheid SAVED / DISABLED / FAILED)
+            result = self.edit_service.auto_save(definition_id, content)
+            if result is AutoSaveResult.SAVED:
                 SessionStateManager.set_value("last_auto_save", datetime.now())
+            elif result is AutoSaveResult.FAILED:
+                # Niet stil falen: waarschuw de gebruiker dat het concept niet is
+                # opgeslagen (anders denkt die ten onrechte dat het bewaard is).
+                st.warning(
+                    "⚠️ Concept kon niet automatisch worden opgeslagen — "
+                    "sla handmatig op om verlies te voorkomen."
+                )
 
         except (KeyError, TypeError, AttributeError, ValueError) as e:
             logger.warning(
