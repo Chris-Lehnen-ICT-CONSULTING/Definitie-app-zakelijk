@@ -241,15 +241,20 @@ class TestDefinitionRepository:
         assert repository._stats["total_searches"] == 1
 
     def test_search_error_handling(self, repository, mock_legacy_repo):
-        """Test error handling bij search."""
+        """DEF-469: een DB-fout bij search wordt een RepositoryError.
+
+        Vroeger gaf search een lege lijst terug bij élke fout, waardoor de
+        duplicaat-toetsregel DUP_01 een DB-fout niet van "niets gevonden" kon
+        onderscheiden. Nu propageert de fout typed.
+        """
+        from services.exceptions import RepositoryError
+
         # Setup
         mock_legacy_repo.search_definities.side_effect = Exception("Query failed")
 
-        # Execute
-        results = repository.search("test")
-
-        # Verify - should return empty list on error
-        assert results == []
+        # Execute / Verify
+        with pytest.raises(RepositoryError):
+            repository.search("test")
         assert repository._stats["total_searches"] == 1
 
     def test_update(self, repository, mock_legacy_repo, sample_definition):

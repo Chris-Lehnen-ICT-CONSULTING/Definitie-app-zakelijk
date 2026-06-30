@@ -210,9 +210,18 @@ class VoorbeeldenRepository:
                             f"Saved {voorbeeld_type} voorbeeld {idx}: {voorbeeld_tekst[:50]}..."
                         )
 
+                # DEF-469: voorkeursterm-update niet langer stil slikken. Een fout
+                # propageert nu (de aanroeper/gebruiker ziet dat de voorkeursterm
+                # niet is opgeslagen) i.p.v. de keuze stil te verliezen. De call
+                # staat vóór commit zodat hij meelift zodra de save écht atomair
+                # wordt; volledige rollback-atomariteit valt onder DEF-391 — deze
+                # connectie draait nu in autocommit (isolation_level=None).
+                self._update_voorkeursterm(conn, definitie_id, voorkeursterm)
+
                 conn.commit()
 
-                self._update_voorkeursterm(conn, definitie_id, voorkeursterm)
+                # synoniemen-sync draait ná de commit: idempotente, herhaalbare
+                # best-effort sync naar een afgeleide tabel.
                 self._sync_synoniemen(
                     voorbeelden_dict, definitie_id, gegenereerd_door, get_definitie_fn
                 )
@@ -228,30 +237,22 @@ class VoorbeeldenRepository:
     def _update_voorkeursterm(
         self, conn: sqlite3.Connection, definitie_id: int, voorkeursterm: str | None
     ) -> None:
-        """Persisteer voorkeursterm op definitie-niveau."""
-        try:
-            cursor = conn.cursor()
-            if voorkeursterm:
-                cursor.execute(
-                    "UPDATE definities SET voorkeursterm = ? WHERE id = ?",
-                    (voorkeursterm.strip(), definitie_id),
-                )
-            else:
-                cursor.execute(
-                    "UPDATE definities SET voorkeursterm = NULL WHERE id = ?",
-                    (definitie_id,),
-                )
-            conn.commit()
-        except Exception as e:
-            logger.warning(
-                f"Voorkeursterm update gefaald voor definitie {definitie_id}: {e}. "
-                f"Eerdere per-row waarde blijft behouden.",
-                extra={
-                    "component": "definitie_repository",
-                    "operation": "update_voorkeursterm",
-                    "definitie_id": definitie_id,
-                    "error_type": type(e).__name__,
-                },
+        """Persisteer voorkeursterm op definitie-niveau.
+
+        DEF-469: draait binnen de transactie van de aanroeper (geen eigen commit,
+        geen stille swallow). Een fout rolt zo terug en propageert zichtbaar i.p.v.
+        de door de gebruiker gekozen voorkeursterm stil te verliezen.
+        """
+        cursor = conn.cursor()
+        if voorkeursterm:
+            cursor.execute(
+                "UPDATE definities SET voorkeursterm = ? WHERE id = ?",
+                (voorkeursterm.strip(), definitie_id),
+            )
+        else:
+            cursor.execute(
+                "UPDATE definities SET voorkeursterm = NULL WHERE id = ?",
+                (definitie_id,),
             )
 
     def _sync_synoniemen(
