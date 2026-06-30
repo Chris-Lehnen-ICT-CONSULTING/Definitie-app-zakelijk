@@ -12,6 +12,7 @@ from datetime import datetime
 from typing import Any, cast
 
 from services.definition_repository import DefinitionRepository
+from services.exceptions import RepositoryError
 from services.interfaces import Definition
 
 logger = logging.getLogger(__name__)
@@ -380,8 +381,11 @@ class DefinitionEditRepository(DefinitionRepository):
                 return definitions
 
         except Exception as e:
-            logger.error(f"Error in advanced search: {e}")
-            return []
+            # DEF-469: NIET stil [] teruggeven — dat maskeert een DB-fout als
+            # "geen resultaten" (false negative), wat in de search-and-replace-flow
+            # tot verkeerde conclusies leidt. Re-raise; beide callers (UI + service)
+            # hebben een generieke except die dit als echte fout toont.
+            raise RepositoryError("search_with_filters") from e
 
     def get_statistics(self) -> dict[str, Any]:
         """

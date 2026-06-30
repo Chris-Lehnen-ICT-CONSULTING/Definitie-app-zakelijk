@@ -42,6 +42,9 @@ class WorkflowResult:
     # US-160: Gate-uitkomst voor UI en logging
     gate_status: str | None = None  # pass | override_required | blocked
     gate_reasons: list[str] | None = None
+    # DEF-469: niet-fatale waarschuwing (bv. transitie geslaagd, maar een
+    # secundaire schrijfactie zoals ketenpartners faalde). UI kan dit tonen.
+    warning: str | None = None
 
     def __post_init__(self) -> None:
         if self.timestamp is None:
@@ -278,6 +281,7 @@ class DefinitionWorkflowService:
                 )
 
             # Update ketenpartners indien opgegeven
+            ketenpartners_warning: str | None = None
             if ketenpartners is not None:
                 try:
                     self.repository.update_definitie(
@@ -290,8 +294,17 @@ class DefinitionWorkflowService:
                         updated_by=user,
                     )
                 except Exception as e:  # pragma: no cover
-                    logger.warning(
-                        f"Kon ketenpartners niet opslaan voor {definition_id}: {e}"
+                    # DEF-469: de status-transitie is al gecommit; re-raise zou
+                    # ten onrechte "vaststellen mislukt" melden. Maar maskeer de
+                    # fout niet stil: log als error én geef een waarschuwing terug
+                    # zodat de UI kan tonen dat de ketenpartners niet zijn opgeslagen.
+                    logger.error(
+                        f"Kon ketenpartners niet opslaan voor {definition_id}: {e}",
+                        exc_info=True,
+                    )
+                    ketenpartners_warning = (
+                        "Definitie is vastgesteld, maar de ketenpartners konden "
+                        "niet worden opgeslagen. Controleer en sla ze opnieuw op."
                     )
 
             # Log audit trail
@@ -328,6 +341,7 @@ class DefinitionWorkflowService:
                 events=events,
                 gate_status=gate["status"],
                 gate_reasons=gate["reasons"],
+                warning=ketenpartners_warning,
             )
 
         except Exception as e:
@@ -659,7 +673,14 @@ class DefinitionWorkflowService:
             try:
                 return GatePolicyService().get_policy()
             except Exception:  # pragma: no cover
-                pass
+                # DEF-469: niet stil terugvallen op defaults — een fout hier kan
+                # betekenen dat een afwijkend geconfigureerde gate-policy genegeerd
+                # wordt (verkeerde goedkeuring/afkeuring). Log expliciet; de
+                # fallback naar defaults blijft als laatste vangnet.
+                logger.error(
+                    "GatePolicyService.get_policy() faalde, val terug op defaults",
+                    exc_info=True,
+                )
 
         # Fallback naar defaults uit policy module
         class _Defaults:
