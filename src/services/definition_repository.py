@@ -211,7 +211,15 @@ class DefinitionRepository(DefinitionRepositoryInterface):
             limit: Maximum aantal resultaten
 
         Returns:
-            Lijst van gevonden definities
+            Lijst van gevonden definities (lege lijst = 0 matches).
+
+        Raises:
+            RepositoryError: bij een backend-fout. DEF-469: search faalt bewust
+                fail-closed (raise) i.p.v. stil [] terug te geven, zodat callers
+                (o.a. DUP_01) een DB-fout van "niets gevonden" kunnen onderscheiden.
+                Let op: `update`/`delete` behouden hun bool value-contract — die
+                hebben geen prod-callers die een fout-vs-False-onderscheid nodig
+                hebben (zie DEF-469 caller-audit).
         """
         self._stats["total_searches"] += 1
 
