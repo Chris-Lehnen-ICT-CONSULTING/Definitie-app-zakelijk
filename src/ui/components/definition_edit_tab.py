@@ -1821,7 +1821,10 @@ class DefinitionEditTab:
             elif result is AutoSaveResult.FAILED:
                 # Niet stil falen: waarschuw de gebruiker dat het concept niet is
                 # opgeslagen (anders denkt die ten onrechte dat het bewaard is).
-                st.warning("⚠️ Concept kon niet automatisch worden opgeslagen.")
+                st.warning(
+                    "⚠️ Concept kon niet automatisch worden opgeslagen — "
+                    "sla handmatig op om verlies te voorkomen."
+                )
 
         except (KeyError, TypeError, AttributeError, ValueError) as e:
             logger.warning(
