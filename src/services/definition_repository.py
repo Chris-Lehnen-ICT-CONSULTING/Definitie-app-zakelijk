@@ -377,8 +377,12 @@ class DefinitionRepository(DefinitionRepositoryInterface):
             return duplicates
 
         except Exception as e:
+            # DEF-469: NIET stil een lege lijst teruggeven — dan kan de aanroeper
+            # een DB-fout niet van "geen duplicaten" onderscheiden en glipt een
+            # duplicaat door als uniek record (data-integriteit). Re-raise als
+            # typed RepositoryError zodat de aanroeper fail-closed kan afbreken.
             logger.error(f"Fout bij duplicaat detectie: {e}")
-            return []
+            raise RepositoryError("find_duplicates", definition.begrip) from e
 
     def get_by_status(self, status: str, limit: int = 50) -> list[Definition]:
         """
