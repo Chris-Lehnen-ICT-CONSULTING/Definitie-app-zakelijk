@@ -80,6 +80,30 @@ def test_approve_no_warning_when_ketenpartners_ok():
     assert result.warning is None
 
 
+def test_approve_no_warning_and_no_save_when_no_ketenpartners():
+    """Zonder ketenpartners wordt er geen ketenpartners-save gedaan, geen warning."""
+    from services.definition_workflow_service import DefinitionWorkflowService
+
+    svc = DefinitionWorkflowService.__new__(DefinitionWorkflowService)
+    definition = Mock()
+    definition.status = "review"
+
+    svc.repository = Mock()
+    svc.repository.get_definitie.return_value = definition
+    svc.repository.change_status.return_value = True
+    svc.workflow_service = Mock()
+    svc.workflow_service.can_change_status.return_value = True
+    svc.audit_logger = None
+    svc.event_bus = None
+    svc._evaluate_gate = Mock(return_value={"status": "pass", "reasons": []})
+
+    result = svc.approve(1, "tester", ketenpartners=None)
+
+    assert result.success is True
+    assert result.warning is None
+    svc.repository.update_definitie.assert_not_called()
+
+
 # --------------------------------------------------------------------------- #
 # #8 _get_policy(): logt bij loader-fout en valt terug op defaults
 # --------------------------------------------------------------------------- #
