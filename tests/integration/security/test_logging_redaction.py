@@ -31,7 +31,8 @@ def test_logging_filter_redacts_openai_key():
         logger.info("Using OPENAI_API_KEY=sk-ABCDEFGHIJKLmnopQRSTuvwx1234567890")
         assert stream, "No log captured"
         msg = stream[-1]
-        assert "sk-" in msg
+        # _mask_token levert "sk***7890": prefix + laatste 4, koppelteken verdwijnt.
+        assert "sk***" in msg
         assert "[REDACTED]" in msg or "***" in msg
         assert "sk-ABCDEFGHIJKL" not in msg  # middelste deel gemaskeerd
     finally:
