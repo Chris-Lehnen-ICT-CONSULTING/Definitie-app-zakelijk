@@ -77,9 +77,9 @@ def test_save_voorbeelden_propagates_voorkeursterm_error(tmp_path, monkeypatch):
     """End-to-end: een voorkeursterm-fout propageert (niet langer stil geslikt).
 
     Dit is de kern van DEF-469: de gebruiker/aanroeper ziet dat de voorkeursterm
-    niet is opgeslagen i.p.v. een stille `logger.warning`. (Volledige rollback-
-    atomariteit van de multi-step save valt onder DEF-391; deze connectie draait
-    in autocommit, dus reeds geschreven voorbeelden-rijen blijven hier bestaan.)
+    niet is opgeslagen i.p.v. een stille `logger.warning`. Sinds DEF-391 draait de
+    save bovendien in een expliciete transactie, dus de partiële inserts rollen
+    volledig terug — er blijven geen weesrijen achter.
     """
     from database.definitie_repository import DefinitieRecord, DefinitieRepository
 
@@ -104,3 +104,6 @@ def test_save_voorbeelden_propagates_voorkeursterm_error(tmp_path, monkeypatch):
         repo.save_voorbeelden(
             def_id, {"sentence": ["Voorbeeld X"]}, voorkeursterm="term"
         )
+
+    # DEF-391: de partiële insert is teruggerold — geen weesrijen.
+    assert repo.get_voorbeelden(def_id) == []
