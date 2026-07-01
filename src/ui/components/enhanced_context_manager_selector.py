@@ -8,7 +8,7 @@ from typing import Any, ClassVar, cast
 
 import streamlit as st
 
-from services.context.context_manager import ContextSource, get_context_manager
+from services.context.context_manager import ContextSource
 from services.rag.constants import RECHTSGEBIEDEN
 from validation.sanitizer import ContentType, SanitizationLevel, get_sanitizer
 
@@ -53,8 +53,14 @@ class EnhancedContextManagerSelector:
     ]
 
     def __init__(self) -> None:
-        """Initialize with ContextManager and sanitizer."""
-        self.context_manager = get_context_manager()
+        """Initialize with de sessie-gescopede ContextAdapter en sanitizer.
+
+        DEF-484: gebruikt de per-sessie ContextAdapter i.p.v. de proces-globale
+        ContextManager-singleton (die context tussen Streamlit-sessies lekte).
+        """
+        from ui.helpers.context_adapter import get_context_adapter
+
+        self.context_adapter = get_context_adapter()
         self.sanitizer = get_sanitizer()
         self.max_custom_length = 200
 
@@ -67,9 +73,8 @@ class EnhancedContextManagerSelector:
         """
         st.markdown("### 🎯 Context Configuratie")
 
-        # Get current context from ContextManager
-        current_context = self.context_manager.get_context()
-        current_data = current_context.to_dict() if current_context else {}
+        # DEF-484: huidige context per-sessie ophalen (niet proces-globaal).
+        current_data = self.context_adapter.get_from_session_state()
 
         col1, col2, col3 = st.columns(3)
 
@@ -113,8 +118,8 @@ class EnhancedContextManagerSelector:
             "wettelijke_basis": wet_context,
         }
 
-        # Store in ContextManager
-        self.context_manager.set_context(
+        # DEF-484: per-sessie opslaan via de adapter (SessionStateManager).
+        self.context_adapter.set_in_session_state(
             context_data,
             source=ContextSource.UI,
             actor="user",

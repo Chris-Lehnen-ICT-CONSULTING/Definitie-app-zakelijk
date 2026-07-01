@@ -86,8 +86,15 @@ class ContextManager:
     """
     Centralized context management service.
 
-    This service is the ONLY way to access or modify context data,
-    ensuring consistency, validation, and audit trail compliance.
+    Levert gecentraliseerde validatie en (voor niet-UI-gebruik) een audit-trail
+    voor context-data.
+
+    ⚠️ DEF-484: de stateful ``set_context``/``get_context``/``_context`` hieronder
+    zijn PROCES-GLOBAAL (één instance via ``get_context_manager()`` gedeeld over
+    alle Streamlit-sessies) en dus NIET sessie-veilig. Gebruik ze niet voor
+    per-gebruiker UI-context — dat lekt tussen sessies. De UI-laag bewaart context
+    per-sessie via ``SessionStateManager`` en gebruikt hier alleen de stateless
+    ``validate_context``.
     """
 
     def __init__(self) -> None:
@@ -270,6 +277,15 @@ class ContextManager:
                 entries = entries[-limit:]
 
             return entries
+
+    def validate_context(self, context_data: dict[str, Any]) -> dict[str, Any]:
+        """Valideer context-data zonder op te slaan (stateless, sessie-veilig).
+
+        DEF-484: publiek toegangspunt voor validatie zonder de proces-globale
+        ``_context`` te muteren. De UI-laag gebruikt dit en bewaart het resultaat
+        per-sessie via ``SessionStateManager``.
+        """
+        return self._validate_context(context_data)
 
     def _validate_context(self, context_data: dict[str, Any]) -> dict[str, Any]:
         """
