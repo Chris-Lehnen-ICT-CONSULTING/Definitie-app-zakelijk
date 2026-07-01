@@ -1,6 +1,6 @@
 PY?=python
 
-.PHONY: dev lint complexity-check mypy-check overrides-check pins-check audit test status validation-status
+.PHONY: dev lint complexity-check mypy-check overrides-check pins-check audit lock lock-check test status validation-status
 
 dev:
 	@echo "[dev] Starting Streamlit app via run script..."
@@ -31,6 +31,20 @@ pins-check:
 audit:
 	@echo "[audit] pip-audit CVE-scan op requirements.txt (DEF-426)"
 	@$(PY) -m pip_audit --requirement requirements.txt --desc
+
+lock:
+	@echo "[lock] Compileer hashed requirements uit .in-bronnen (DEF-426)"
+	uv pip compile requirements.in --universal --generate-hashes -o requirements.txt
+	uv pip compile requirements-dev.in --universal --generate-hashes -c requirements.txt -o requirements-dev.txt
+
+lock-check:
+	@echo "[lock-check] Verifieer dat requirements*.txt in sync is met de .in-bronnen (DEF-426)"
+	@# --no-header: vergelijk alleen de body (de header bevat het -o-pad dat verschilt).
+	@uv pip compile requirements.in --universal --generate-hashes --no-header -o /tmp/req.lock.check 2>/dev/null
+	@uv pip compile requirements-dev.in --universal --generate-hashes --no-header -c requirements.txt -o /tmp/req-dev.lock.check 2>/dev/null
+	@sed '1,2d' requirements.txt | diff - /tmp/req.lock.check >/dev/null 2>&1 || { echo "FOUT: requirements.txt niet in sync met requirements.in — draai 'make lock'"; exit 1; }
+	@sed '1,2d' requirements-dev.txt | diff - /tmp/req-dev.lock.check >/dev/null 2>&1 || { echo "FOUT: requirements-dev.txt niet in sync met requirements-dev.in — draai 'make lock'"; exit 1; }
+	@echo "OK: requirements-locks in sync met .in-bronnen."
 
 test: test-markers-check
 	@echo "[test] Running fast unit tests (fail-fast, excludes slow)"
