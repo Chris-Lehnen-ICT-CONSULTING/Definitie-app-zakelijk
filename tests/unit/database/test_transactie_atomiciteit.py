@@ -76,6 +76,33 @@ def test_transaction_nesting_joins_outer_rollback(tmp_path):
     assert count == 0
 
 
+def test_connection_is_autocommit(tmp_path):
+    """transaction() gaat uit van autocommit (isolation_level=None); anders zou
+    een expliciete BEGIN IMMEDIATE botsen met een impliciete module-transactie."""
+    db = _db(tmp_path)
+    assert db.get_connection().isolation_level is None
+
+
+def test_read_within_transaction_does_not_commit(tmp_path):
+    """Een read (SELECT) binnen een lopende transactie mag die transactie niet
+    committen — bewijst dat de kale-conn reads (get_definitie/log_geschiedenis)
+    de transactie van de aanroeper niet vroegtijdig sluiten."""
+    db = _db(tmp_path)
+
+    def _write_read_then_fail() -> None:
+        with db.transaction() as conn:
+            conn.execute("INSERT INTO t (x) VALUES (1)")
+            # Read midden in de transactie (zoals get_definitie doet).
+            conn.execute("SELECT COUNT(*) FROM t").fetchone()
+            raise RuntimeError("faalt na read")
+
+    with pytest.raises(RuntimeError):
+        _write_read_then_fail()
+
+    count = db.get_connection().execute("SELECT COUNT(*) FROM t").fetchone()[0]
+    assert count == 0
+
+
 def test_transaction_nesting_commits_together(tmp_path):
     db = _db(tmp_path)
     with db.transaction() as outer:
@@ -163,6 +190,61 @@ def test_update_definitie_rolls_back_on_audit_failure(tmp_path, monkeypatch):
 
     with pytest.raises(sqlite3.OperationalError):
         repo.update_definitie(def_id, {"definitie": "Gewijzigde definitie"})
+
+    record = repo.get_definitie(def_id)
+    assert record is not None
+    assert record.definitie == "Originele definitie"
+
+
+def test_change_status_rolls_back_on_audit_failure(tmp_path, monkeypatch):
+    """change_status omhult update_definitie (join) + audit-log in één transactie.
+    Faalt de audit-stap, dan rolt de statuswijziging mee terug."""
+    from database.definitie_repository import DefinitieStatus
+
+    repo = DefinitieRepository(str(tmp_path / "change_status_rollback.db"))
+    def_id = repo.create_definitie(
+        DefinitieRecord(
+            begrip="status_begrip",
+            definitie="Definitie voor status-test",
+            categorie="proces",
+            organisatorische_context="TEST_ORG",
+        )
+    )
+    original = repo.get_definitie(def_id)
+    assert original is not None
+
+    monkeypatch.setattr(repo._audit, "log_geschiedenis", _raise)
+    with pytest.raises(sqlite3.OperationalError):
+        repo.change_status(def_id, DefinitieStatus.ESTABLISHED, changed_by="tester")
+
+    # De statuswijziging is teruggerold — status blijft de oorspronkelijke.
+    record = repo.get_definitie(def_id)
+    assert record is not None
+    assert record.status == original.status
+
+
+def test_beoordeel_voorbeeld_not_found_returns_false(tmp_path):
+    """Het rowcount==0-pad (niet-bestaand voorbeeld) geeft False zonder crash."""
+    repo = DefinitieRepository(str(tmp_path / "beoordeel_notfound.db"))
+    assert repo.beoordeel_voorbeeld(999999, "goed") is False
+
+
+def test_update_definitie_optimistic_lock_returns_false(tmp_path):
+    """Optimistic-lock mismatch (rowcount==0) geeft False; de no-op transactie
+    commit zonder zij-effect en laat de definitie ongewijzigd."""
+    repo = DefinitieRepository(str(tmp_path / "optimistic_lock.db"))
+    def_id = repo.create_definitie(
+        DefinitieRecord(
+            begrip="lock_begrip",
+            definitie="Originele definitie",
+            categorie="proces",
+            organisatorische_context="TEST_ORG",
+        )
+    )
+
+    # version_number=999 matcht niet → WHERE mismatch → rowcount 0.
+    ok = repo.update_definitie(def_id, {"definitie": "Nieuw", "version_number": 999})
+    assert ok is False
 
     record = repo.get_definitie(def_id)
     assert record is not None
