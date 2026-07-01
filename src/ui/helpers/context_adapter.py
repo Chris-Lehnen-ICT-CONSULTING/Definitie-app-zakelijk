@@ -60,8 +60,11 @@ class ContextAdapter:
         from ui.session_state import SessionStateManager
 
         # Per-sessie opgeslagen, gevalideerde context heeft voorrang.
+        # Defensief: alleen een dict accepteren; een corrupte/legacy niet-dict
+        # waarde valt door naar de losse-velden-fallback i.p.v. dict() te laten
+        # crashen (review PR #325).
         stored = SessionStateManager.get_value(_CONTEXT_STATE_KEY)
-        if stored:
+        if isinstance(stored, dict):
             return dict(stored)
 
         # Fallback: losse context-velden uit session state (backward compatibility).
@@ -81,12 +84,12 @@ class ContextAdapter:
         logger.debug(f"Retrieved context from session state: {list(context.keys())}")
         return context
 
-    def sync_to_context_manager(self) -> None:
+    def sync_to_session_state(self) -> None:
         """
-        Persisteer de huidige context per-sessie.
+        Persisteer de huidige context per-sessie via SessionStateManager.
 
-        DEF-484: naam behouden voor backward compatibility, maar bewaart nu
-        per-sessie via SessionStateManager i.p.v. in de proces-globale singleton.
+        DEF-484: hernoemd van ``sync_to_context_manager`` (geen callers) omdat de
+        opslag nu per-sessie is i.p.v. in de proces-globale ContextManager.
         """
         context = self.get_from_session_state()
         if context:
