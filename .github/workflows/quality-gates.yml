@@ -19,7 +19,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
-          python-version: '3.11'
+          python-version: '3.13'
 
       - name: Install dependencies
         run: |
@@ -136,7 +136,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
-          python-version: '3.11'
+          python-version: '3.13'
 
       - name: Install dev tools (ruff from requirements-dev.txt)
         # DEF-442: install from requirements-dev.txt instead of hardcoding, so a
@@ -161,7 +161,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
-          python-version: '3.11'
+          python-version: '3.13'
 
       - name: Install dependencies (mypy from requirements-dev.txt)
         # DEF-442: single source — mypy is pinned only in requirements-dev.txt, so
@@ -193,7 +193,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
-          python-version: '3.11'
+          python-version: '3.13'
 
       - name: Check tool pins are in sync
         # DEF-442: dedicated gate so a deps-only PR (e.g. dependabot bumping

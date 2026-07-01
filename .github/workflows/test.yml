@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.11"]
+        python-version: ["3.13"]
     env:
       # DEF-427: unit-tests bouwen de DI-container, die een niet-lege OPENAI_API_KEY
       # vereist. Lokaal komt die uit .env; in CI ontbreekt .env → "API key is required".
@@ -139,7 +139,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
-          python-version: "3.11"
+          python-version: "3.13"
 
       - name: Install dependencies
         run: |
