@@ -1,0 +1,40 @@
+# Development dependencies
+pytest>=9.0.3
+pytest-cov>=4.1.0
+pytest-asyncio>=1.4.0
+pytest-mock>=3.15.1
+pytest-randomly>=4.1.0
+pytest-xdist>=3.5.0
+pytest-timeout>=2.4.0
+coverage[toml]>=7.0
+# DEF-430/442: gate-bepalende tools exact gepind voor reproduceerbare lint/type
+# + complexity/mypy-ratchet-baselines. Dit bestand is de single source — de
+# quality-gates.yml-jobs installeren hieruit (DEF-442). Bij bump: de pre-commit rev
+# meebumpen (bewaakt door check_tool_pins, CI-gate) en de baselines herverifiëren.
+ruff==0.15.20
+mypy==1.18.2
+types-PyYAML==6.0.12.20250915
+# black exact-gepind op de format-autoriteit (.pre-commit-config.yaml rev) — DEF-432.
+# 26.5.1 is CVE-vrij (25.11.0 had GHSA-3936-cmfr-pm3m/CVE-2026-32274). Bewaakt door
+# scripts/check_tool_pins.py zodat de pin en de pre-commit-rev niet driften.
+black==26.5.1
+isort>=8.0.1
+
+# Documentation
+mkdocs>=1.5.0
+mkdocs-material>=9.7.6
+
+# Code quality
+pre-commit>=3.6.0
+pylint>=4.0.6
+
+# Testing utilities
+faker>=22.0.0
+factory-boy>=3.3.0
+responses>=0.24.0
+freezegun>=1.4.0
+
+# Performance testing
+pytest-benchmark>=4.0.0
+locust>=2.44.3
+memory-profiler>=0.61.0
