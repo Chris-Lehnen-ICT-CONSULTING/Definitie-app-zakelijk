@@ -20,7 +20,7 @@ if rg -q "import streamlit|from streamlit" src/services/ 2>/dev/null; then
     echo -e "${RED}❌ Found streamlit imports in services/${NC}"
     rg -n "import streamlit|from streamlit" src/services/ 2>/dev/null || true
     echo -e "${YELLOW}   → Services must not depend on UI framework${NC}"
-    ((VIOLATIONS++))
+    VIOLATIONS=$((VIOLATIONS + 1))
 fi
 
 # Check 2: No UI imports in services/utils
@@ -35,7 +35,7 @@ if [ -n "$UI_VIOLATIONS" ]; then
     echo -e "${RED}❌ Found UI imports in services/utils${NC}"
     echo "$UI_VIOLATIONS"
     echo -e "${YELLOW}   → Services/utils must not import from UI layer${NC}"
-    ((VIOLATIONS++))
+    VIOLATIONS=$((VIOLATIONS + 1))
 fi
 
 # Check 3: No top-level repository imports in UI (should go through services)
@@ -45,7 +45,7 @@ if [ -n "$DB_VIOLATIONS" ]; then
     echo -e "${RED}❌ Found direct database imports in UI${NC}"
     echo "$DB_VIOLATIONS"
     echo -e "${YELLOW}   → UI should access data through services${NC}"
-    ((VIOLATIONS++))
+    VIOLATIONS=$((VIOLATIONS + 1))
 fi
 
 # Check 3b: No direct get_container() imports in UI (use cached_services instead)
@@ -55,7 +55,7 @@ if [ -n "$CONTAINER_VIOLATIONS" ]; then
     echo -e "${RED}❌ Found direct get_container() imports in UI${NC}"
     echo "$CONTAINER_VIOLATIONS"
     echo -e "${YELLOW}   → Use 'from ui.cached_services import get_cached_service_container' instead${NC}"
-    ((VIOLATIONS++))
+    VIOLATIONS=$((VIOLATIONS + 1))
 fi
 
 # Check 4: No asyncio.run() in services (use async/await properly)
@@ -63,15 +63,23 @@ if rg -q "asyncio\.run\(" src/services/ 2>/dev/null; then
     echo -e "${RED}❌ Found asyncio.run() in services/${NC}"
     rg -n "asyncio\.run\(" src/services/ 2>/dev/null || true
     echo -e "${YELLOW}   → Use async/await properly without asyncio.run()${NC}"
-    ((VIOLATIONS++))
+    VIOLATIONS=$((VIOLATIONS + 1))
 fi
 
-# Check 5: No hardcoded API keys
-if rg -q "api_key\s*=\s*[\"'][A-Za-z0-9]" --type py 2>/dev/null; then
+# Check 5: No hardcoded API keys in production code (DEF-465).
+# Scope: src/ only. Test-fixtures (tests/) gebruiken bewust nep-keys
+# (sk-test/sk-ant-test/...), en docstring-placeholders bevatten een ellipsis
+# (api_key="sk-..."); beide zijn geen echte secrets en worden uitgesloten.
+# De autoritatieve secret-gate is de aparte gitleaks-hook; dit is defense-in-depth.
+# De 2e rg sluit alleen regels uit waarvan de api_key-WAARDE zelf een ellipsis-
+# placeholder bevat (bv. api_key="sk-..."), niet elke regel met losse "..." —
+# zodat een echte key met een "..." in een comment wél gevangen blijft.
+KEY_VIOLATIONS=$(rg -n "api_key\s*=\s*[\"'][A-Za-z0-9]" src/ 2>/dev/null | rg -v "api_key\s*=\s*[\"'][^\"']*\.\.\." || true)
+if [ -n "$KEY_VIOLATIONS" ]; then
     echo -e "${RED}❌ Potential hardcoded API key found${NC}"
-    rg -n "api_key\s*=\s*[\"'][A-Za-z0-9]" --type py 2>/dev/null || true
+    echo "$KEY_VIOLATIONS"
     echo -e "${YELLOW}   → Use environment variables for secrets${NC}"
-    ((VIOLATIONS++))
+    VIOLATIONS=$((VIOLATIONS + 1))
 fi
 
 # Check 6: No V1 references (we're on V2)
