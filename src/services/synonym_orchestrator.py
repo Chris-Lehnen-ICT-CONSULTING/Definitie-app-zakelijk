@@ -45,15 +45,18 @@ def _setup_enrichment_logger() -> None:
     if enrichment_logger.handlers:
         return
 
-    # Create logs directory if not exists
-    import os
+    # Create logs directory if not exists.
+    # DEF-465: project-root-relatief i.p.v. cwd-relatief ("logs"), zodat de map
+    # niet per ongeluk onder src/ ontstaat wanneer het proces vanuit src/ draait.
+    from pathlib import Path
 
-    logs_dir = "logs"
-    os.makedirs(logs_dir, exist_ok=True)
+    project_root = Path(__file__).resolve().parents[2]
+    logs_dir = project_root / "logs"
+    logs_dir.mkdir(parents=True, exist_ok=True)
 
-    # File handler: logs/synonym_enrichment.log
+    # File handler: <project_root>/logs/synonym_enrichment.log
     file_handler = logging.FileHandler(
-        os.path.join(logs_dir, "synonym_enrichment.log"), encoding="utf-8"
+        logs_dir / "synonym_enrichment.log", encoding="utf-8"
     )
     file_handler.setLevel(logging.DEBUG)
 
