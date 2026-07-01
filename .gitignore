@@ -86,6 +86,8 @@ build/temp/
 # 💚 Test files
 # Alleen root-level test helpers negeren; laat tests/ intact
 /test_*.py
+# DEF-426: vangnet tegen root-vervuiling door test-CSV-artefacten
+/test_import_*.csv
 
 # 💚 Legacy code
 oude legacy broncode om te controleren/
