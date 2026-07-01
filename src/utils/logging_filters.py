@@ -92,4 +92,23 @@ class PIIRedactingFilter(logging.Filter):
         return args
 
 
-__all__ = ["PIIRedactingFilter"]
+def install_pii_redaction_filter(logger: logging.Logger | None = None) -> None:
+    """Installeer de PII-redactie op de HANDLERS van ``logger`` (default: root).
+
+    DEF-486: een filter dat via ``Logger.addFilter`` op een logger hangt, wordt
+    door Python **alleen** toegepast op records die direct op díe logger worden
+    gelogd — niet op records die vanuit child-loggers (``getLogger(__name__)``)
+    propageren naar de handlers van een ancestor. Redactie moet daarom op de
+    *handlers* zitten, want die verwerken álle propagerende records.
+
+    Idempotent: voegt per handler hoogstens één ``PIIRedactingFilter`` toe.
+    Roep dit aan *nadat* de handlers bestaan (bv. ná ``logging.basicConfig`` of
+    ``dictConfig``).
+    """
+    target = logger if logger is not None else logging.getLogger()
+    for handler in target.handlers:
+        if not any(isinstance(f, PIIRedactingFilter) for f in handler.filters):
+            handler.addFilter(PIIRedactingFilter())
+
+
+__all__ = ["PIIRedactingFilter", "install_pii_redaction_filter"]

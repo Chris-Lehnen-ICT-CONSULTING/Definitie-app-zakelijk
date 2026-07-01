@@ -45,12 +45,12 @@ logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 try:
-    # Voeg PII/redactie filter toe aan root logger
-    from utils.logging_filters import PIIRedactingFilter
+    # DEF-486: hang het PII/redactie-filter op de HANDLERS van de root-logger,
+    # niet op de root-logger zelf. Een logger-filter geldt niet voor records die
+    # van child-loggers (getLogger(__name__)) propageren; een handler-filter wel.
+    from utils.logging_filters import install_pii_redaction_filter
 
-    _root = logging.getLogger()
-    if not any(isinstance(f, PIIRedactingFilter) for f in _root.filters):
-        _root.addFilter(PIIRedactingFilter())
+    install_pii_redaction_filter()
 except Exception as e:  # Fail-safe: logging mag nooit breken
     # SECURITY: Log fout want PII-filter is niet actief
     _startup_logger = logging.getLogger(__name__)
