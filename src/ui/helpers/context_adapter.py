@@ -6,7 +6,7 @@ while routing all context operations through the centralized ContextManager.
 """
 
 import logging
-from typing import Any, cast
+from typing import Any
 
 from services.context.context_manager import (
     ContextManager,
@@ -19,13 +19,19 @@ from services.context.context_manager import (
 
 logger = logging.getLogger(__name__)
 
+# DEF-484: key waaronder de per-sessie gevalideerde context in SessionStateManager
+# (= st.session_state, per Streamlit-sessie geïsoleerd) wordt bewaard.
+_CONTEXT_STATE_KEY = "context_data"
+
 
 class ContextAdapter:
     """
-    Adapter for migrating UI components to ContextManager.
+    Adapter tussen UI-componenten en de context-opslag.
 
-    Provides compatibility layer for existing code while ensuring
-    all context operations go through the centralized manager.
+    DEF-484: context wordt PER-SESSIE bewaard via ``SessionStateManager``
+    (st.session_state is per Streamlit-sessie geïsoleerd), niet in de
+    proces-globale ``ContextManager``-singleton (die lekte tussen sessies).
+    ``ContextManager`` wordt hier alleen nog gebruikt voor stateless validatie.
     """
 
     def __init__(self, context_manager: ContextManager | None = None):
@@ -33,17 +39,19 @@ class ContextAdapter:
         Initialize the adapter.
 
         Args:
-            context_manager: Optional ContextManager instance, uses singleton if not provided
+            context_manager: Optionele ContextManager (alleen voor validatie);
+                gebruikt de singleton als niet opgegeven.
         """
         self.context_manager = context_manager or get_context_manager()
         logger.info("ContextAdapter initialized")
 
     def get_from_session_state(self) -> dict[str, Any]:
         """
-        Get context from session state (legacy compatibility).
+        Haal de per-sessie context op uit SessionStateManager.
 
-        This method provides backward compatibility for code that expects
-        to read context from st.session_state directly.
+        DEF-484: leest de per-sessie opgeslagen (gevalideerde) context; valt terug
+        op losse context-velden voor backward compatibility. Leest NIET meer de
+        proces-globale ContextManager._context (dat lekte tussen sessies).
 
         Returns:
             Context dictionary compatible with legacy code
@@ -51,59 +59,44 @@ class ContextAdapter:
         # Late import to break circular dependency (DEF-86)
         from ui.session_state import SessionStateManager
 
-        # First check if ContextManager has context
-        current = self.context_manager.get_context()
-        if current is not None:
-            return cast(dict[str, Any], current.to_dict())
+        # Per-sessie opgeslagen, gevalideerde context heeft voorrang.
+        # Defensief: alleen een dict accepteren; een corrupte/legacy niet-dict
+        # waarde valt door naar de losse-velden-fallback i.p.v. dict() te laten
+        # crashen (review PR #325).
+        stored = SessionStateManager.get_value(_CONTEXT_STATE_KEY)
+        if isinstance(stored, dict):
+            return dict(stored)
 
-        # Fallback to session state for backward compatibility
-        context = {}
-
-        # Extract context fields from session state via SessionStateManager
-        begrip = SessionStateManager.get_value("begrip")
-        if begrip is not None:
-            context["begrip"] = begrip
-
-        wet_context = SessionStateManager.get_value("wet_context")
-        if wet_context is not None:
-            context["wet_context"] = wet_context
-
-        organisatie = SessionStateManager.get_value("organisatie")
-        if organisatie is not None:
-            context["organisatie"] = organisatie
-
-        juridische_context = SessionStateManager.get_value("juridische_context")
-        if juridische_context is not None:
-            context["juridische_context"] = juridische_context
-
-        organisatorische_context = SessionStateManager.get_value(
-            "organisatorische_context"
-        )
-        if organisatorische_context is not None:
-            context["organisatorische_context"] = organisatorische_context
-
-        extra_instructies = SessionStateManager.get_value("extra_instructies")
-        if extra_instructies is not None:
-            context["extra_instructies"] = extra_instructies
+        # Fallback: losse context-velden uit session state (backward compatibility).
+        context: dict[str, Any] = {}
+        for key in (
+            "begrip",
+            "wet_context",
+            "organisatie",
+            "juridische_context",
+            "organisatorische_context",
+            "extra_instructies",
+        ):
+            value = SessionStateManager.get_value(key)
+            if value is not None:
+                context[key] = value
 
         logger.debug(f"Retrieved context from session state: {list(context.keys())}")
         return context
 
-    def sync_to_context_manager(self) -> None:
+    def sync_to_session_state(self) -> None:
         """
-        Sync session state context to ContextManager.
+        Persisteer de huidige context per-sessie via SessionStateManager.
 
-        This ensures the centralized manager has the latest context
-        from the UI session state.
+        DEF-484: hernoemd van ``sync_to_context_manager`` (geen callers) omdat de
+        opslag nu per-sessie is i.p.v. in de proces-globale ContextManager.
         """
         context = self.get_from_session_state()
         if context:
-            self.context_manager.set_context(
-                context_data=context,
-                source=ContextSource.UI,  # Session state comes from UI
-                actor="ui",
+            self.set_in_session_state(
+                context_data=context, source=ContextSource.UI, actor="ui"
             )
-            logger.info("Synced session state to ContextManager")
+            logger.info("Synced session context")
 
     def get_merged_context(
         self, additional_context: dict[str, Any] | None = None
@@ -117,13 +110,8 @@ class ContextAdapter:
         Returns:
             Merged context dictionary
         """
-        # Start with ContextManager context (if any)
+        # DEF-484: start met de per-sessie context (geen proces-globale _context).
         merged: dict[str, Any] = {}
-        current = self.context_manager.get_context()
-        if current is not None:
-            merged.update(current.to_dict())
-
-        # Add session state context (may override)
         session_context = self.get_from_session_state()
         if session_context:
             merged.update(session_context)
@@ -141,23 +129,26 @@ class ContextAdapter:
         source: ContextSource = ContextSource.UI,
         actor: str = "ui",
     ) -> bool:
-        """Store provided context in the central manager.
+        """Bewaar de opgegeven context per-sessie.
 
-        This mirrors the previous pattern of updating st.session_state but
-        now routes through ContextManager for a single source of truth.
+        DEF-484: valideert via de stateless ``ContextManager.validate_context`` en
+        bewaart het resultaat per-sessie via ``SessionStateManager`` (niet in de
+        proces-globale singleton). ``source``/``actor`` blijven in de signatuur
+        voor backward compatibility.
 
         Returns:
             True if context was set successfully, False otherwise.
         """
+        from ui.session_state import SessionStateManager
+
         try:
-            self.context_manager.set_context(
-                context_data=context_data, source=source, actor=actor
-            )
+            validated = self.context_manager.validate_context(context_data)
+            SessionStateManager.set_value(_CONTEXT_STATE_KEY, validated)
             return True
         except (AttributeError, KeyError, TypeError, ValueError) as exc:
             # DEF-252: Narrow exception types and structured logging
             logger.error(
-                f"Failed to set context in manager: {type(exc).__name__}: {exc}",
+                f"Failed to set context in session: {type(exc).__name__}: {exc}",
                 extra={"event": "context_set_error", "error_type": type(exc).__name__},
             )
             return False
@@ -165,13 +156,11 @@ class ContextAdapter:
     def validate(self) -> tuple[bool, list[str]]:
         """Lightweight validation hook for UI.
 
-        Returns (is_valid, messages). Uses ContextManager semantics: if current
-        context can be retrieved, consider it valid. UI-specific validation
-        remains in the component.
+        Returns (is_valid, messages). DEF-484: valideert de per-sessie context
+        stateless via ContextManager.validate_context.
         """
         try:
-            current = self.context_manager.get_context()
-            _ = current.to_dict() if current is not None else {}
+            self.context_manager.validate_context(self.get_from_session_state())
             return True, []
         except (AttributeError, KeyError, TypeError, ValueError) as exc:
             # DEF-252: Narrow exception types and structured logging
