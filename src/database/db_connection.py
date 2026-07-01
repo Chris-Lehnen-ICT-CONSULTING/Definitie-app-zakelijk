@@ -75,11 +75,23 @@ class DatabaseConnection:
         conn.execute("BEGIN IMMEDIATE")
         try:
             yield conn
-        except BaseException:
-            conn.execute("ROLLBACK")
-            raise
-        else:
             conn.execute("COMMIT")
+        except BaseException:
+            # Rol terug als er nog een transactie openstaat — dit dekt zowel een
+            # fout in de body als een falende COMMIT. Zonder deze guard zou op de
+            # langlevende singleton-connectie de write-lock lekken en zou
+            # `in_transaction` vals True blijven, waardoor élke volgende
+            # transaction()-call degradeert tot een commit-loze join (stil
+            # dataverlies). De ROLLBACK-fout wordt gelogd maar nooit doorgegooid,
+            # zodat de oorspronkelijke exception via `raise` behouden blijft.
+            if conn.in_transaction:
+                try:
+                    conn.execute("ROLLBACK")
+                except sqlite3.Error:
+                    logger.warning(
+                        "ROLLBACK na fout in transaction() mislukt", exc_info=True
+                    )
+            raise
 
     def has_legacy_columns(self) -> bool:
         """Check if database has legacy columns (datum_voorstel, ketenpartners)."""
