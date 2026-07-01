@@ -46,7 +46,7 @@ def create_test_csv(num_rows: int) -> bytes:
     return output.getvalue().encode("utf-8-sig")
 
 
-def test_websocket_timeout_scenarios():
+def test_websocket_timeout_scenarios(tmp_path):
     """Test different CSV sizes for WebSocket timeout issues."""
 
     test_scenarios = [
@@ -81,8 +81,10 @@ def test_websocket_timeout_scenarios():
         else:
             print("✅ Should complete without timeout")
 
-        # Save test CSV for manual testing
-        test_file = Path(f"test_import_{num_rows}_rows.csv")
+        # Save test CSV for manual testing (DEF-426: naar tmp_path i.p.v. de
+        # repo-root, zodat de test de projectroot niet vervuilt; permanente
+        # kopieën staan in tests/fixtures/import/).
+        test_file = tmp_path / f"test_import_{num_rows}_rows.csv"
         test_file.write_bytes(csv_data)
         print(f"Test file saved: {test_file}")
 
@@ -122,8 +124,8 @@ if __name__ == "__main__":
     print("WebSocket Timeout Test Suite")
     print("=" * 60)
 
-    # Test different scenarios
-    test_websocket_timeout_scenarios()
+    # Test different scenarios (handmatige run schrijft naar de huidige map)
+    test_websocket_timeout_scenarios(Path("."))
 
     print("\n" + "=" * 60)
     print("Testing yielding strategy...")
