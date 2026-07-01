@@ -66,10 +66,15 @@ if rg -q "asyncio\.run\(" src/services/ 2>/dev/null; then
     ((VIOLATIONS++))
 fi
 
-# Check 5: No hardcoded API keys
-if rg -q "api_key\s*=\s*[\"'][A-Za-z0-9]" --type py 2>/dev/null; then
+# Check 5: No hardcoded API keys in production code (DEF-465).
+# Scope: src/ only. Test-fixtures (tests/) gebruiken bewust nep-keys
+# (sk-test/sk-ant-test/...), en docstring-placeholders bevatten een ellipsis
+# (api_key="sk-..."); beide zijn geen echte secrets en worden uitgesloten.
+# De autoritatieve secret-gate is de aparte gitleaks-hook; dit is defense-in-depth.
+KEY_VIOLATIONS=$(rg -n "api_key\s*=\s*[\"'][A-Za-z0-9]" src/ 2>/dev/null | rg -v "\.\.\." || true)
+if [ -n "$KEY_VIOLATIONS" ]; then
     echo -e "${RED}❌ Potential hardcoded API key found${NC}"
-    rg -n "api_key\s*=\s*[\"'][A-Za-z0-9]" --type py 2>/dev/null || true
+    echo "$KEY_VIOLATIONS"
     echo -e "${YELLOW}   → Use environment variables for secrets${NC}"
     ((VIOLATIONS++))
 fi
