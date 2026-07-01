@@ -144,21 +144,27 @@ class AuditHelpers:
         gewijzigd_door: str | None = None,
         reden: str | None = None,
     ) -> None:
-        """Log wijziging in geschiedenis tabel."""
-        with self._db.get_connection() as conn:
-            begrip_result = conn.execute(
-                "SELECT begrip FROM definities WHERE id = ?", (definitie_id,)
-            ).fetchone()
-            begrip = begrip_result["begrip"] if begrip_result else "unknown"
+        """Log wijziging in geschiedenis tabel.
 
-            conn.execute(
-                """
-                INSERT INTO definitie_geschiedenis
-                (definitie_id, begrip, wijziging_type, wijziging_reden, gewijzigd_door)
-                VALUES (?, ?, ?, ?, ?)
-            """,
-                (definitie_id, begrip, wijziging_type, reden, gewijzigd_door),
-            )
+        DEF-391: gebruikt een kale connectie (geen committende ``with conn:``)
+        zodat de INSERT meelift in de transactie van de aanroeper wanneer die
+        binnen ``DatabaseConnection.transaction()`` draait. Standalone draait de
+        connectie in autocommit, dus de INSERT commit dan direct.
+        """
+        conn = self._db.get_connection()
+        begrip_result = conn.execute(
+            "SELECT begrip FROM definities WHERE id = ?", (definitie_id,)
+        ).fetchone()
+        begrip = begrip_result["begrip"] if begrip_result else "unknown"
+
+        conn.execute(
+            """
+            INSERT INTO definitie_geschiedenis
+            (definitie_id, begrip, wijziging_type, wijziging_reden, gewijzigd_door)
+            VALUES (?, ?, ?, ?, ?)
+        """,
+            (definitie_id, begrip, wijziging_type, reden, gewijzigd_door),
+        )
 
     def log_import_export(
         self,

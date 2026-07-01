@@ -36,10 +36,8 @@ class DefinitieCrudRepository:
         # DEF-198: Clean architecture - import from utils/, callback registered by UI
         from utils.progress_callback import operation_progress
 
-        with (
-            operation_progress("saving_to_database"),
-            self._db.get_connection() as conn,
-        ):
+        with operation_progress("saving_to_database"):
+            # Duplicaat-check buiten de transactie (read-only validatie).
             if not allow_duplicate:
                 duplicates = self._duplicates.find_duplicates(
                     record.begrip,
@@ -68,44 +66,48 @@ class DefinitieCrudRepository:
                 record.wettelijke_basis if record.wettelijke_basis is not None else "[]"
             )
 
-            include_legacy = AuditHelpers.has_legacy_columns_in_conn(conn)
-            columns, values = AuditHelpers.build_insert_columns(
-                record, wb_value, include_legacy
-            )
-            column_sql = ", ".join(columns)
-            placeholders = ", ".join("?" for _ in columns)
+            # DEF-391: INSERT + audit-log atomair (all-or-nothing).
+            with self._db.transaction() as conn:
+                include_legacy = AuditHelpers.has_legacy_columns_in_conn(conn)
+                columns, values = AuditHelpers.build_insert_columns(
+                    record, wb_value, include_legacy
+                )
+                column_sql = ", ".join(columns)
+                placeholders = ", ".join("?" for _ in columns)
 
-            cursor = conn.execute(
-                f"INSERT INTO definities ({column_sql}) VALUES ({placeholders})",
-                tuple(values),
-            )
+                cursor = conn.execute(
+                    f"INSERT INTO definities ({column_sql}) VALUES ({placeholders})",
+                    tuple(values),
+                )
 
-            record_id = cursor.lastrowid
+                record_id = cursor.lastrowid
 
-            if record_id is None:
-                raise RuntimeError("Failed to get lastrowid after INSERT")
+                if record_id is None:
+                    raise RuntimeError("Failed to get lastrowid after INSERT")
 
-            self._audit.log_geschiedenis(
-                record_id,
-                "created",
-                record.created_by,
-                f"Nieuwe definitie aangemaakt voor '{record.begrip}'",
-            )
+                self._audit.log_geschiedenis(
+                    record_id,
+                    "created",
+                    record.created_by,
+                    f"Nieuwe definitie aangemaakt voor '{record.begrip}'",
+                )
 
             logger.info(f"Created definitie {record_id} voor '{record.begrip}'")
             return record_id
 
     def get_definitie(self, definitie_id: int) -> DefinitieRecord | None:
-        """Haal definitie op op basis van ID."""
-        with self._db.get_connection() as conn:
-            cursor = conn.execute(
-                "SELECT * FROM definities WHERE id = ?", (definitie_id,)
-            )
-            row = cursor.fetchone()
+        """Haal definitie op op basis van ID.
 
-            if row:
-                return self._audit.row_to_record(row)
-            return None
+        DEF-391: kale connectie (geen committende ``with conn:``) zodat een read
+        binnen een lopende transaction() die transactie niet vroegtijdig sluit.
+        """
+        conn = self._db.get_connection()
+        cursor = conn.execute("SELECT * FROM definities WHERE id = ?", (definitie_id,))
+        row = cursor.fetchone()
+
+        if row:
+            return self._audit.row_to_record(row)
+        return None
 
     def find_definitie(
         self,
@@ -201,68 +203,68 @@ class DefinitieCrudRepository:
         _skip_audit: bool = False,
     ) -> bool:
         """Update bestaande definitie."""
-        with self._db.get_connection() as conn:
-            current = self.get_definitie(definitie_id)
-            if not current:
-                return False
+        current = self.get_definitie(definitie_id)
+        if not current:
+            return False
 
-            allowed_fields = {
-                "begrip",
-                "definitie",
-                "bron",
-                "status",
-                "categorie",
-                "ufo_categorie",
-                "ontologie",
-                "validated",
-                "validation_notes",
-                "reviewed_by",
-                "review_date",
-                "improved_version",
-                "context_info",
-                "metadata",
-                "organisatorische_context",
-                "juridische_context",
-                "wettelijke_basis",
-                "toelichting_proces",
-                "ketenpartners",
-                "approved_by",
-                "approved_at",
-                "approval_notes",
-            }
+        allowed_fields = {
+            "begrip",
+            "definitie",
+            "bron",
+            "status",
+            "categorie",
+            "ufo_categorie",
+            "ontologie",
+            "validated",
+            "validation_notes",
+            "reviewed_by",
+            "review_date",
+            "improved_version",
+            "context_info",
+            "metadata",
+            "organisatorische_context",
+            "juridische_context",
+            "wettelijke_basis",
+            "toelichting_proces",
+            "ketenpartners",
+            "approved_by",
+            "approved_at",
+            "approval_notes",
+        }
 
-            set_clauses = []
-            params = []
+        set_clauses = []
+        params = []
 
-            for field, value in updates.items():
-                if hasattr(current, field) and field in allowed_fields:
-                    set_clauses.append(f"{field} = ?")
-                    params.append(value)
+        for field, value in updates.items():
+            if hasattr(current, field) and field in allowed_fields:
+                set_clauses.append(f"{field} = ?")
+                params.append(value)
 
-            if not set_clauses:
-                return False
+        if not set_clauses:
+            return False
 
-            set_clauses.append("updated_at = ?")
-            params.append(datetime.now(UTC))
+        set_clauses.append("updated_at = ?")
+        params.append(datetime.now(UTC))
 
-            if updated_by:
-                set_clauses.append("updated_by = ?")
-                params.append(updated_by)
+        if updated_by:
+            set_clauses.append("updated_by = ?")
+            params.append(updated_by)
 
-            expected_version = updates.get("version_number")
-            set_clauses.append("version_number = version_number + 1")
+        expected_version = updates.get("version_number")
+        set_clauses.append("version_number = version_number + 1")
 
-            where_clause = "id = ?"
-            where_params: list[Any] = [definitie_id]
-            if expected_version is not None:
-                where_clause += " AND version_number = ?"
-                where_params.append(expected_version)
+        where_clause = "id = ?"
+        where_params: list[Any] = [definitie_id]
+        if expected_version is not None:
+            where_clause += " AND version_number = ?"
+            where_params.append(expected_version)
 
-            query = (
-                "UPDATE definities SET "
-                + ", ".join(set_clauses)
-                + f" WHERE {where_clause}"
-            )
+        query = (
+            "UPDATE definities SET " + ", ".join(set_clauses) + f" WHERE {where_clause}"
+        )
+
+        # DEF-391: UPDATE + audit-log atomair (all-or-nothing).
+        with self._db.transaction() as conn:
             cursor = conn.execute(query, params + where_params)
             if cursor.rowcount == 0 and expected_version is not None:
                 logger.warning(
@@ -278,8 +280,8 @@ class DefinitieCrudRepository:
                     f"Definitie geupdate: {list(updates.keys())}",
                 )
 
-            logger.info(f"Updated definitie {definitie_id}")
-            return True
+        logger.info(f"Updated definitie {definitie_id}")
+        return True
 
     def change_status(
         self,
@@ -300,17 +302,21 @@ class DefinitieCrudRepository:
                 }
             )
 
-        success = self.update_definitie(
-            definitie_id, updates, changed_by, _skip_audit=True
-        )
-
-        if success:
-            self._audit.log_geschiedenis(
-                definitie_id,
-                "status_changed",
-                changed_by,
-                f"Status gewijzigd naar {new_status.value}",
+        # DEF-391: status-UPDATE + audit-log atomair. update_definitie opent zelf
+        # een transaction() die hier aansluit (nesting-guard) i.p.v. apart te
+        # committen, zodat de statuswijziging en de audit-trail all-or-nothing zijn.
+        with self._db.transaction():
+            success = self.update_definitie(
+                definitie_id, updates, changed_by, _skip_audit=True
             )
+
+            if success:
+                self._audit.log_geschiedenis(
+                    definitie_id,
+                    "status_changed",
+                    changed_by,
+                    f"Status gewijzigd naar {new_status.value}",
+                )
 
         return success
 
