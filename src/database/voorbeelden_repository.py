@@ -116,10 +116,16 @@ class VoorbeeldenRepository:
                 f"Voorbeelden structuur parsing gefaald voor definitie {definitie_id}: {e}"
             )
 
-        with self._db.get_connection() as conn:
-            try:
+        saved_ids: list[int] = []
+
+        # DEF-391: de hele save is nu atomair. De connectie draait in autocommit
+        # (isolation_level=None), dus transaction() voert expliciet
+        # BEGIN/COMMIT/ROLLBACK uit — faalt een stap (bv. de voorkeursterm-update),
+        # dan rollen de deactivering én de partiële inserts volledig terug i.p.v.
+        # de bestaande voorbeelden te verliezen.
+        try:
+            with self._db.transaction() as conn:
                 cursor = conn.cursor()
-                saved_ids = []
 
                 cursor.execute(
                     """
@@ -204,35 +210,34 @@ class VoorbeeldenRepository:
                                     record.actief,
                                 ),
                             )
-                            saved_ids.append(cursor.lastrowid)
+                            last_id = cursor.lastrowid
+                            if last_id is None:
+                                raise RuntimeError(
+                                    "INSERT definitie_voorbeelden gaf geen lastrowid"
+                                )
+                            saved_ids.append(last_id)
 
                         logger.debug(
                             f"Saved {voorbeeld_type} voorbeeld {idx}: {voorbeeld_tekst[:50]}..."
                         )
 
-                # DEF-469: voorkeursterm-update niet langer stil slikken. Een fout
-                # propageert nu (de aanroeper/gebruiker ziet dat de voorkeursterm
-                # niet is opgeslagen) i.p.v. de keuze stil te verliezen. De call
-                # staat vóór commit zodat hij meelift zodra de save écht atomair
-                # wordt; volledige rollback-atomariteit valt onder DEF-391 — deze
-                # connectie draait nu in autocommit (isolation_level=None).
+                # DEF-469/DEF-391: voorkeursterm-update binnen dezelfde transactie
+                # (geen stille swallow); faalt hij, dan rolt de hele save terug en
+                # propageert de fout zichtbaar.
                 self._update_voorkeursterm(conn, definitie_id, voorkeursterm)
 
-                conn.commit()
+        except Exception as e:
+            logger.error(f"Failed to save voorbeelden: {e}")
+            raise
 
-                # synoniemen-sync draait ná de commit: idempotente, herhaalbare
-                # best-effort sync naar een afgeleide tabel.
-                self._sync_synoniemen(
-                    voorbeelden_dict, definitie_id, gegenereerd_door, get_definitie_fn
-                )
+        # synoniemen-sync draait ná de commit: idempotente, herhaalbare
+        # best-effort sync naar een afgeleide tabel.
+        self._sync_synoniemen(
+            voorbeelden_dict, definitie_id, gegenereerd_door, get_definitie_fn
+        )
 
-                logger.info(f"Successfully saved {len(saved_ids)} voorbeelden")
-                return saved_ids
-
-            except Exception as e:
-                conn.rollback()
-                logger.error(f"Failed to save voorbeelden: {e}")
-                raise
+        logger.info(f"Successfully saved {len(saved_ids)} voorbeelden")
+        return saved_ids
 
     def _update_voorkeursterm(
         self, conn: sqlite3.Connection, definitie_id: int, voorkeursterm: str | None
@@ -388,8 +393,10 @@ class VoorbeeldenRepository:
             msg = "Beoordeeling moet 'goed', 'matig' of 'slecht' zijn"
             raise ValueError(msg)
 
-        with self._db.get_connection() as conn:
-            try:
+        try:
+            # DEF-391: expliciete transactie i.p.v. no-op commit/rollback onder
+            # autocommit.
+            with self._db.transaction() as conn:
                 cursor = conn.cursor()
                 cursor.execute(
                     """
@@ -405,21 +412,16 @@ class VoorbeeldenRepository:
                         voorbeeld_id,
                     ),
                 )
+                rowcount = cursor.rowcount
+        except Exception as e:
+            logger.error(f"Failed to beoordeel voorbeeld {voorbeeld_id}: {e}")
+            raise
 
-                conn.commit()
-
-                if cursor.rowcount > 0:
-                    logger.info(
-                        f"Voorbeeld {voorbeeld_id} beoordeeld als '{beoordeeling}'"
-                    )
-                    return True
-                logger.warning(f"Voorbeeld {voorbeeld_id} niet gevonden")
-                return False
-
-            except Exception as e:
-                conn.rollback()
-                logger.error(f"Failed to beoordeel voorbeeld {voorbeeld_id}: {e}")
-                raise
+        if rowcount > 0:
+            logger.info(f"Voorbeeld {voorbeeld_id} beoordeeld als '{beoordeeling}'")
+            return True
+        logger.warning(f"Voorbeeld {voorbeeld_id} niet gevonden")
+        return False
 
     def delete_voorbeelden(
         self, definitie_id: int, voorbeeld_type: str | None = None

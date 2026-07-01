@@ -6,6 +6,8 @@ Wordt als connection provider doorgegeven aan sub-repositories (compositie).
 
 import logging
 import sqlite3
+from collections.abc import Iterator
+from contextlib import contextmanager
 from pathlib import Path
 
 logger = logging.getLogger(__name__)
@@ -45,6 +47,51 @@ class DatabaseConnection:
         conn.row_factory = sqlite3.Row
         self._conn = conn
         return conn
+
+    @contextmanager
+    def transaction(self, timeout: float = 30.0) -> Iterator[sqlite3.Connection]:
+        """Expliciete transactie met rollback (DEF-391).
+
+        De connectie draait in autocommit-modus (``isolation_level=None``);
+        daardoor bieden ``with conn:`` en losse ``conn.commit()``/``rollback()``
+        géén atomiciteit. Deze context manager voert expliciet
+        ``BEGIN IMMEDIATE``/``COMMIT``/``ROLLBACK`` uit zodat een multi-step
+        operatie die halverwege faalt volledig terugrolt.
+
+        Nesting: als de connectie al in een transactie zit sluit de binnenste
+        aan zonder nieuwe ``BEGIN`` (SQLite kent geen geneste transacties) —
+        de buitenste bepaalt commit/rollback.
+
+        Let op: aangeroepen helpers mogen binnen deze scope géén committende
+        ``with conn:`` gebruiken (die zou de transactie vroegtijdig sluiten);
+        gebruik een kale ``conn = self.get_connection()``.
+        """
+        conn = self.get_connection(timeout)
+        if conn.in_transaction:
+            # Sluit aan bij de lopende transactie van de aanroeper.
+            yield conn
+            return
+
+        conn.execute("BEGIN IMMEDIATE")
+        try:
+            yield conn
+            conn.execute("COMMIT")
+        except BaseException:
+            # Rol terug als er nog een transactie openstaat — dit dekt zowel een
+            # fout in de body als een falende COMMIT. Zonder deze guard zou op de
+            # langlevende singleton-connectie de write-lock lekken en zou
+            # `in_transaction` vals True blijven, waardoor élke volgende
+            # transaction()-call degradeert tot een commit-loze join (stil
+            # dataverlies). De ROLLBACK-fout wordt gelogd maar nooit doorgegooid,
+            # zodat de oorspronkelijke exception via `raise` behouden blijft.
+            if conn.in_transaction:
+                try:
+                    conn.execute("ROLLBACK")
+                except sqlite3.Error:
+                    logger.warning(
+                        "ROLLBACK na fout in transaction() mislukt", exc_info=True
+                    )
+            raise
 
     def has_legacy_columns(self) -> bool:
         """Check if database has legacy columns (datum_voorstel, ketenpartners)."""
