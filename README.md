@@ -2,7 +2,7 @@
 
 **Nederlandse AI-powered Definitie Generator voor Juridische en Overheidscontexten**
 
-![Version](https://img.shields.io/badge/version-2.3.0-blue.svg)
+[![Version](https://img.shields.io/badge/version-2.3.0-blue.svg)](./CHANGELOG.md)
 [![Python](https://img.shields.io/badge/python-3.13-blue.svg)](https://python.org)
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?style=flat-square)](https://pre-commit.com/)
 [![Tests](https://img.shields.io/badge/tests-2500%2B%20unit-green.svg)](./tests/)
