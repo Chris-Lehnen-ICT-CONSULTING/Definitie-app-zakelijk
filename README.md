@@ -2,11 +2,11 @@
 
 **Nederlandse AI-powered Definitie Generator voor Juridische en Overheidscontexten**
 
-[![Version](https://img.shields.io/badge/version-2.3.0-blue.svg)](./CHANGELOG.md)
-[![Python](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://python.org)
+![Version](https://img.shields.io/badge/version-2.3.0-blue.svg)
+[![Python](https://img.shields.io/badge/python-3.13-blue.svg)](https://python.org)
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?style=flat-square)](https://pre-commit.com/)
-[![Tests](https://img.shields.io/badge/tests-919%20tests-yellow.svg)](./tests/)
-[![Code Quality](https://img.shields.io/badge/ruff-960%20issues-orange.svg)](./docs/architectuur/)
+[![Tests](https://img.shields.io/badge/tests-2500%2B%20unit-green.svg)](./tests/)
+[![Code Quality](https://img.shields.io/badge/ruff-clean%20(C901%20ratchet)-brightgreen.svg)](./docs/architectuur/)
 [![Security](https://img.shields.io/badge/security-basic%20only-red.svg)](./docs/architectuur/)
 [![License](https://img.shields.io/badge/license-Private-red.svg)]()
 
@@ -17,7 +17,7 @@
 
 ```bash
 # Start app met automatische env-mapping (aanbevolen)
-bash scripts/run_app.sh
+bash scripts/deployment/run_app.sh
 
 # Alternatief: direct via Streamlit (gebruik omgeving)
 OPENAI_API_KEY="$OPENAI_API_KEY_PROD" streamlit run src/main.py
@@ -76,7 +76,7 @@ Let op voor ontwikkelaars:
 - Altijd actief: web lookup draait automatisch wanneer de service beschikbaar is (geen feature flag).
 - Timeout: configureer via `WEB_LOOKUP_TIMEOUT_SECONDS` (default: 10.0s). Liever kwaliteit dan snelheid? Verhoog deze waarde.
 - Debug in UI: in Generator‑tab staat een checkbox “🐛 Debug: Toon ruwe web_lookup data (JSON)” onder “📚 Gebruikte Bronnen”.
-- Snelle test: `python scripts/test_web_lookup.py <term>` (respecteert `WEB_LOOKUP_TIMEOUT_SECONDS`).
+- Snelle test: `python scripts/testing/test_web_lookup.py <term>` (respecteert `WEB_LOOKUP_TIMEOUT_SECONDS`).
 - Configbestand: `config/web_lookup_defaults.yaml` (provider‑weights, sanitization, caching). Eigen config via `WEB_LOOKUP_CONFIG=/pad/naar/config.yaml`.
 - Documentatie: [Web Lookup Configuratie](docs/technisch/web_lookup_config.md)
 
@@ -88,16 +88,16 @@ Let op voor ontwikkelaars:
 
 ## 🎯 Overzicht
 
-DefinitieAgent is een AI-applicatie voor het genereren van hoogwaardige Nederlandse definities volgens strenge overheidsstandaarden. Het systeem gebruikt GPT-4 met 45 kwaliteitsregels en biedt een modulaire architectuur voor uitbreidbaarheid.
+DefinitieAgent is een AI-applicatie voor het genereren van hoogwaardige Nederlandse definities volgens strenge overheidsstandaarden. Het systeem gebruikt geavanceerde LLM's (GPT-5-familie / Claude, via `ModelRouter`) met 53 kwaliteitsregels en biedt een modulaire architectuur voor uitbreidbaarheid.
 
 ### ✨ Kernfuncties
 
-- 🤖 **AI Definitie Generatie** met GPT-4 (✅ 99% test coverage, temp=0 consistentie)
+- 🤖 **AI Definitie Generatie** met GPT-5-familie / Claude via `ModelRouter` (temp=0 consistentie)
 - ✏️ **Definition Edit Interface** ✅ NIEUW - Rich text editor met version history en auto-save
 - 🧭 **Radio‑tabs navigatie** ✅ NIEUW – Sneller schakelen tussen tabs (zonder JS‑workarounds)
 - 🔗 **Generator → Bewerk** ✅ Eén‑klik doorsturen met de juiste definitie
 - ⭐ **Expert Prefill** ✅ Expert‑tab toont direct de laatst gegenereerde definitie (alleen lezen)
-- 📋 **45 Kwaliteitsregels** voor validatie (Python modules in src/toetsregels/regels/)
+- 📋 **53 Kwaliteitsregels** voor validatie (JSON-regels in `src/toetsregels/regels/*.json`)
 - 🏗️ **Modulaire Architectuur** ValidationOrchestratorV2 + PromptServiceV2
 - 🌐 **Web Lookup Epic 3** Backend werkt, prompt augmentatie geïntegreerd
 - 📄 **Document Upload** voor kennisbasis uitbreiding
@@ -127,8 +127,9 @@ pip install -r requirements-dev.txt
 streamlit run src/main.py
 ```
 
-### 🔑 Environment-variabelen (geen .env)
-- De app leest `OPENAI_API_KEY` rechtstreeks uit de omgeving.
+### 🔑 Environment-variabelen (.env wordt geladen)
+- De app laadt bij startup een `.env` uit de projectroot (`load_dotenv(override=True)` in `src/main.py`). Kopieer `.env.example` → `.env` en vul je sleutel in.
+- Alternatief leest de app `OPENAI_API_KEY` rechtstreeks uit de omgeving; een gezette shell-variabele werkt dus ook.
 - In VS Code mappen we `OPENAI_API_KEY` vanuit `OPENAI_API_KEY_PROD` via de launch-config.
 - In de terminal kun je hetzelfde doen met het script of een inline export:
 
@@ -136,13 +137,13 @@ streamlit run src/main.py
 # VS Code (launch): OPENAI_API_KEY <- ${env:OPENAI_API_KEY_PROD}
 
 # Terminal (script):
-bash scripts/run_app.sh
+bash scripts/deployment/run_app.sh
 
 # Terminal (inline):
 OPENAI_API_KEY="$OPENAI_API_KEY_PROD" streamlit run src/main.py
 ```
 
-Let op: we laden geen `.env`; stel je sleutel in via je shell of VS Code.
+Let op: `.env` (projectroot) wordt geladen én overschrijft bestaande env-waarden (`override=True`). Commit je `.env` nooit — hij staat in `.gitignore`.
 
 ## 🧪 Testing
 
@@ -170,7 +171,7 @@ Parallel en coverage:
 ```bash
 make test-parallel     # snelle subset parallel (-n auto)
 make test-cov          # coverage (term-missing)
-make test-cov-ci       # coverage + threshold (85%)
+make test-cov-ci       # coverage + ratchet-vloer (45%, unit-only; DEF-416)
 ```
 
 Netwerkpolicy (tests): outbound netwerktoegang is standaard geblokkeerd. Sta toe met `ALLOW_NETWORK=1` (alleen waar nodig):
@@ -274,7 +275,7 @@ definitie-app/
 │
 ├── 📁 src/                   # Source code
 │   ├── services/             # Service layer met DI
-│   ├── toetsregels/          # 45 validatie regels
+│   ├── toetsregels/          # 53 validatie regels (JSON)
 │   ├── ui/                   # Streamlit UI componenten
 │   └── main.py               # Main entry
 │
@@ -288,11 +289,11 @@ definitie-app/
 └── 📁 data/                  # Database & uploads
 
 ### 🧰 Handige scripts
-- `scripts/run_app.sh`: start de app en mapt automatisch `OPENAI_API_KEY` vanuit `OPENAI_API_KEY_PROD` indien nodig.
-- `scripts/test_web_lookup.py`: test web lookup buiten de UI (timeout via `WEB_LOOKUP_TIMEOUT_SECONDS`).
+- `scripts/deployment/run_app.sh`: start de app en mapt automatisch `OPENAI_API_KEY` vanuit `OPENAI_API_KEY_PROD` indien nodig.
+- `scripts/testing/test_web_lookup.py`: test web lookup buiten de UI (timeout via `WEB_LOOKUP_TIMEOUT_SECONDS`).
 - `scripts/validation/validation-status-updater.py`: draait component-checks en schrijft status naar `reports/status/validation-status.json`.
 - `make validation-status`: kortere alias voor de status-updater.
-- `scripts/ai-agent-wrapper.py`: snelle AI‑kwaliteitsronde (probeert Ruff/Black/Pytest; auto‑fix waar mogelijk).
+- `scripts/docs/ai-agent-wrapper.py`: snelle AI‑kwaliteitsronde (probeert Ruff/Black/Pytest; auto‑fix waar mogelijk).
 ```
 
 ## 📊 Project Status (Updated 2025-09-03)
@@ -428,7 +429,7 @@ Zie de documentatie in `docs/guidelines/` voor development guidelines.
 
 ### 📖 **Voor Nieuwe Contributors**
 1. **Start met**: Critical fixes (immediate impact)
-2. **Test je werk**: `python scripts/ai_code_reviewer.py`
+2. **Test je werk**: `python scripts/docs/ai_code_reviewer.py`
 3. **Check documentatie**: Zie [docs/INDEX.md](docs/INDEX.md) voor overzicht
 
 ## 🔧 Development (Updated by Quinn QA)
@@ -454,7 +455,7 @@ Zie de documentatie in `docs/guidelines/` voor development guidelines.
 - **Test coverage**: Minimaal 60% voor nieuwe modules
 
 ### 🤖 AI Code Review Integration
-- **Automated quality checks** via `scripts/ai_code_reviewer.py`
+- **Automated quality checks** via `scripts/docs/ai_code_reviewer.py`
 - **BMAD framework** voor development workflow
 - **Quinn QA agent** voor architecture reviews
 
