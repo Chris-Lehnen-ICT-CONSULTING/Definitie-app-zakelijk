@@ -88,12 +88,17 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
 # Security middleware (must be added before CORS so it runs after CORS)
 app.add_middleware(SecurityHeadersMiddleware)
 
-# CORS voor browser toegang
+# CORS voor browser toegang — alleen de lokale Streamlit-frontend (default poort
+# 8501), geen wildcard (DEF-425). De API bindt op localhost, dus alleen lokale
+# origins zijn legitiem.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "http://localhost:8501",
+        "http://127.0.0.1:8501",
+    ],
     allow_methods=["GET"],
-    allow_headers=["*"],
+    allow_headers=[],  # alleen GET zonder custom headers; simple headers mogen altijd
 )
 
 # Cache voor performance
@@ -190,4 +195,6 @@ async def get_features_by_status(status: str) -> dict[str, Any]:
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    # Bind bewust op loopback (DEF-425): deze API is een lokaal dashboard-hulpje
+    # en mag niet op alle netwerkinterfaces (0.0.0.0) exposed worden.
+    uvicorn.run(app, host="127.0.0.1", port=8000)
