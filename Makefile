@@ -4,7 +4,7 @@ PY?=python
 
 dev:
 	@echo "[dev] Starting Streamlit app via run script..."
-	bash scripts/run_app.sh
+	bash scripts/deployment/run_app.sh
 
 lint:
 	@echo "[lint] Ruff check on src/ and config/"
