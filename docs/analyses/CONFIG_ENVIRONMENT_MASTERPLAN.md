@@ -140,7 +140,7 @@ def _load_config_file(self, env_override: str | None = None) -> dict[str, Any]:
 
 ```yaml
 api:
-  openai_api_key: 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
+  openai_api_key: sk-proj-<GEREDACTEERD-2026-07-02-ZIE-DEF-491>
 ```
 
 ### Impact
@@ -368,7 +368,7 @@ min_quality_score: 0.7            # ← Dead code
 
 1. Roteer API key bij OpenAI:
    - Log in op https://platform.openai.com/api-keys
-   - Revoke: `sk-proj-6SnmTLs9uW...`
+   - Revoke: `sk-proj-<GEREDACTEERD-2026-07-02-ZIE-DEF-491>...`
    - Generate new key
    - Update lokale `.env` file
 

@@ -161,7 +161,7 @@ Found **24 secrets** in git history:
 
 **Example:**
 ```
-Secret: sk-proj-6SnmTLs9uWdDD1c7gjlp... (truncated)
+Secret: sk-proj-<GEREDACTEERD-2026-07-02-ZIE-DEF-491>... (truncated)
 File: config/config_development.yaml
 Commit: 0b706cc1e0a4be76782d0f0c505f99bb74072368
 Date: 2025-10-03T14:32:53Z
@@ -288,7 +288,7 @@ See docs/analyses/SECURITY_AUDIT_REPORT.md for details."
 
 ```bash
 # 1. Verify current keys are different
-echo "Git history key pattern: sk-proj-6SnmTLs9uWdDD1c7gjlp..."
+echo "Git history key pattern: sk-proj-<GEREDACTEERD-2026-07-02-ZIE-DEF-491>..."
 echo "Current env key: ${OPENAI_API_KEY:0:20}..."
 
 # 2. Check OpenAI dashboard
