@@ -29,6 +29,7 @@ mdurl==0.1.2
 multidict==6.7.1
 numpy==2.5.0
 openai==2.44.0
+openpyxl==3.1.5  # Excel-export (export_service.to_excel engine) — DEF-506/DEF-519
 packaging==26.2
 pandas==3.0.3
 pillow==12.2.0
