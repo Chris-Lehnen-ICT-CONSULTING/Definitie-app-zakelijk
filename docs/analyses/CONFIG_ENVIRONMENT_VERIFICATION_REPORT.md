@@ -119,7 +119,7 @@ $ grep -r "is_development()" src/
 
 1. **Sept 3, 2025** (commit 8e9147e4): API key ADDED
    ```yaml
-   openai_api_key: sk-proj-***REMOVED-DEF-491***...
+   openai_api_key: sk-proj-<GEREDACTEERD-2026-07-02-ZIE-DEF-491>...
    ```
 
 2. **Sept 4, 2025** (commit 39c739b8): ✅ SECURITY FIX
@@ -135,7 +135,7 @@ $ grep -r "is_development()" src/
 
 4. **Sept 5, 2025** (commit e0c0cefc): 🔴 **API KEY RE-ADDED**
    ```yaml
-   openai_api_key: sk-proj-***REMOVED-DEF-491***...
+   openai_api_key: sk-proj-<GEREDACTEERD-2026-07-02-ZIE-DEF-491>...
    ```
    Commit message: "feat: complete requirements normalization"
    **NO MENTION of API key change in commit message**
@@ -143,7 +143,7 @@ $ grep -r "is_development()" src/
 5. **Current State** (Oct 7, 2025): 🔴 **STILL EXPOSED**
    ```bash
    $ head -20 config/config_development.yaml | grep -A2 "openai"
-   openai_api_key: sk-proj-***REMOVED-DEF-491***...
+   openai_api_key: sk-proj-<GEREDACTEERD-2026-07-02-ZIE-DEF-491>...
    ```
 
 **Result**: 🔴 **MASTERPLAN INCOMPLETE**
@@ -370,14 +370,14 @@ Phase 4: Documentation (LOW)
 **Tasks**:
 1. **Rotate API key** at OpenAI dashboard
    - Log in: https://platform.openai.com/api-keys
-   - Revoke: `sk-proj-***REMOVED-DEF-491***...`
+   - Revoke: `sk-proj-<GEREDACTEERD-2026-07-02-ZIE-DEF-491>...`
    - Generate new key
    - Update local `.env` file with new key
 
 2. **Remove hardcoded key** from config
    ```bash
    # Edit config/config_development.yaml line 15
-   - openai_api_key: sk-proj-***REMOVED-DEF-491***...
+   - openai_api_key: sk-proj-<GEREDACTEERD-2026-07-02-ZIE-DEF-491>...
    + # API key should be loaded from environment variable OPENAI_API_KEY
    + # Never commit actual API keys to version control
    + openai_api_key: ${OPENAI_API_KEY}
