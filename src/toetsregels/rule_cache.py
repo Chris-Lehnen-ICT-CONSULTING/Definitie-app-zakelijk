@@ -10,12 +10,17 @@ ModularValidationService — zonder UI/Streamlit-afhankelijkheid.
 import json
 import logging
 import threading
+import time
 from pathlib import Path
 from typing import Any, cast
 
 from utils.cache import cached, clear_cache as _global_cache_clear
 
 logger = logging.getLogger(__name__)
+
+# TTL (seconden) voor de proces-lokale in-memory memo in RuleCache.
+# Gelijk aan de @cached-TTL zodat memo en FileCache dezelfde levensduur delen.
+_MEMO_TTL_S = 3600
 
 # Import monitoring infrastructure
 try:
@@ -154,6 +159,12 @@ class RuleCache:
             "get_single_calls": 0,
         }
 
+        # DEF-496: proces-lokale in-memory memo voor de bulk-regels.
+        # De @cached-loader leest bij elke hit nog van disk (FileCache.get →
+        # safe_load); deze memo houdt het resultaat binnen de TTL in geheugen.
+        self._rules_memo: dict[str, dict[str, Any]] | None = None
+        self._rules_memo_ts: float = 0.0
+
         # Initialize monitoring
         # DEF-439: pattern 6 (union-annotatie vóór eerste assignment)
         self._monitor: CacheMonitor | None
@@ -165,6 +176,27 @@ class RuleCache:
             logger.info(
                 f"RuleCache geïnitialiseerd zonder monitoring: {self.regels_dir}"
             )
+
+    def _load_all_rules(self) -> dict[str, dict[str, Any]]:
+        """
+        Haal de bulk-regels op uit de proces-lokale in-memory memo.
+
+        Binnen de TTL wordt de eerder geladen dict direct uit geheugen
+        teruggegeven, zodat get_all_rules() tijdens validatie niet
+        herhaaldelijk ~300KB JSON van disk deserialiseert. Buiten de TTL
+        (of na clear_cache) valt het terug op de @cached-loader. DEF-496.
+        """
+        now = time.monotonic()
+        memo = self._rules_memo
+        if memo is not None and (now - self._rules_memo_ts) < _MEMO_TTL_S:
+            return memo
+
+        rules = cast(
+            dict[str, dict[str, Any]], _load_all_rules_cached(str(self.regels_dir))
+        )
+        self._rules_memo = rules
+        self._rules_memo_ts = now
+        return rules
 
     def get_all_rules(self) -> dict[str, dict[str, Any]]:
         """
@@ -181,7 +213,7 @@ class RuleCache:
                 # Check if this is a cache hit or miss
                 # Since we're using @cached decorator, we can't directly detect
                 # but we can track the call
-                rules = _load_all_rules_cached(str(self.regels_dir))
+                rules = self._load_all_rules()
 
                 # Heuristic: if this is the first call, it's a miss
                 if self.stats["get_all_calls"] == 1:
@@ -191,11 +223,9 @@ class RuleCache:
                     result["result"] = "hit"
                     result["source"] = "memory"
 
-                return cast(dict[str, dict[str, Any]], rules)
+                return rules
         else:
-            return cast(
-                dict[str, dict[str, Any]], _load_all_rules_cached(str(self.regels_dir))
-            )
+            return self._load_all_rules()
 
     def get_rule(self, regel_id: str) -> dict[str, Any] | None:
         """
@@ -286,6 +316,10 @@ class RuleCache:
         Let op: gebruikt de globale cachefacade en kan ook andere
         decorator-caches legen, conform eerdere Streamlit-clear semantiek.
         """
+        # DEF-496: invalideer de in-memory memo zodat een clear echt herlaadt.
+        self._rules_memo = None
+        self._rules_memo_ts = 0.0
+
         if self._monitor:
             with self._monitor.track_operation("clear", "cache") as result:
                 try:
