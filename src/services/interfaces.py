@@ -130,7 +130,9 @@ class GenerationResult:
     """
     Compatibility wrapper for legacy interface.
     This is a temporary shim for EPIC-010 FASE 1 to fix test imports.
-    The actual implementation is in src/orchestration/definitie_agent.py
+    Het V2-pad gebruikt canonieke response-dicts; er is geen actieve
+    implementatie meer (de legacy orchestration.definitie_agent-shim is
+    verwijderd in DEF-494).
     """
 
     definitie: str
