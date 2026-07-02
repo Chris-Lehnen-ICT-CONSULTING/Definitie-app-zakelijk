@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VALOR Ontology Architecture</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.9.1/mermaid.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: #0f1117;
+            color: #e0e0e0;
+            min-height: 100vh;
+        }
+        header {
+            background: linear-gradient(135deg, #1a237e 0%, #4527a0 50%, #00695c 100%);
+            padding: 2rem 2rem 1.5rem;
+            border-bottom: 3px solid #f9a825;
+        }
+        header h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 0.3rem;
+        }
+        header p {
+            color: #b0bec5;
+            font-size: 0.95rem;
+        }
+        header a {
+            color: #90caf9;
+            text-decoration: none;
+        }
+        header a:hover { text-decoration: underline; }
+
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            padding: 1rem 2rem;
+            background: #1a1d27;
+            border-bottom: 1px solid #2a2d3a;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.8rem;
+            color: #b0b8c0;
+        }
+        .legend-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 3px;
+            flex-shrink: 0;
+        }
+
+        .diagram-container {
+            padding: 2rem;
+            display: flex;
+            justify-content: center;
+            overflow-x: auto;
+        }
+        .mermaid {
+            width: 100%;
+        }
+        .mermaid svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1rem;
+            padding: 1.5rem 2rem 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .info-card {
+            background: #1a1d27;
+            border: 1px solid #2a2d3a;
+            border-radius: 8px;
+            padding: 1.2rem;
+            border-left: 4px solid;
+        }
+        .info-card h3 {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+        .info-card p {
+            font-size: 0.85rem;
+            color: #90a0a8;
+            line-height: 1.5;
+        }
+        .card-l0 { border-left-color: #1a237e; }
+        .card-l0 h3 { color: #5c6bc0; }
+        .card-l1 { border-left-color: #283593; }
+        .card-l1 h3 { color: #7986cb; }
+        .card-l2 { border-left-color: #4527a0; }
+        .card-l2 h3 { color: #9575cd; }
+        .card-tess { border-left-color: #f9a825; }
+        .card-tess h3 { color: #f9a825; }
+        .card-l3 { border-left-color: #00695c; }
+        .card-l3 h3 { color: #4db6ac; }
+        .card-l4 { border-left-color: #e65100; }
+        .card-l4 h3 { color: #ff8a65; }
+
+        footer {
+            text-align: center;
+            padding: 1.5rem;
+            color: #555;
+            font-size: 0.8rem;
+            border-top: 1px solid #1a1d27;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>VALOR Ontology Architecture</h1>
+    <p>Modulaire ontologie-architectuur gebaseerd op gUFO/UFO &mdash; bron: <a href="https://github.com/leonardDune/valor-ontology" target="_blank">leonardDune/valor-ontology</a></p>
+</header>
+
+<div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#1a237e"></div> Layer 0 - Foundation</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#283593"></div> Layer 1 - UFO Extensions</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#4527a0"></div> Layer 2 - Ontological Bridges</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#f9a825"></div> Tessera - Epistemic Anchor</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#00695c"></div> Layer 3 - Perspectives</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#e65100"></div> Layer 4 - Application</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#b71c1c"></div> VALOR Core</div>
+    <div class="legend-item" style="margin-left: 1rem; border-left: 2px dashed #666; padding-left: 1rem;">
+        Doorgetrokken lijn = directe dependency | Stippellijn = theoretische grounding
+    </div>
+</div>
+
+<div class="diagram-container">
+    <pre class="mermaid">
+flowchart TD
+    classDef foundation fill:#1a237e,stroke:#3949ab,color:#ffffff,stroke-width:2px
+    classDef ufoExt fill:#283593,stroke:#3f51b5,color:#ffffff,stroke-width:2px
+    classDef bridge fill:#4527a0,stroke:#673ab7,color:#ffffff,stroke-width:2px
+    classDef perspective fill:#00695c,stroke:#00897b,color:#ffffff,stroke-width:2px
+    classDef application fill:#e65100,stroke:#ff6d00,color:#ffffff,stroke-width:2px
+    classDef valorCore fill:#b71c1c,stroke:#e53935,color:#ffffff,stroke-width:2px
+    classDef tess fill:#f9a825,stroke:#f57f17,color:#1a1a1a,stroke-width:2px
+
+    subgraph L0["LAYER 0 - Foundational Ontology"]
+        gufo["gUFO Core<br/>Entity, Event, Relator<br/>Quality, Kind, Role, Phase"]
+    end
+    class gufo foundation
+
+    subgraph L1["LAYER 1 - UFO Domain Extensions"]
+        ufob["UFO-B<br/>Events, Dispositions<br/>Causal Relations"]
+        ufoc["UFO-C<br/>Agents, Commitments<br/>Social Relations"]
+        ufol["UFO-L<br/>Rights, Duties<br/>Norms, Policies"]
+    end
+    class ufob,ufoc,ufol ufoExt
+
+    subgraph L2["LAYER 2 - Ontological Extensions"]
+        coodm["COoDM<br/>Decisions, Preferences<br/>Deliberation"]
+        cover["COVER<br/>Value, Risk<br/>Value Experience"]
+        acta["ACTA<br/>Transactions<br/>DEMO Grounding"]
+    end
+    class coodm,cover,acta bridge
+
+    subgraph TESS["TESSERA - Cross-Perspectival Epistemic Layer"]
+        tessera["Tessera<br/>Elk model-element = claim<br/>Proposed - Contested - Accepted - Rejected"]
+    end
+    class tessera tess
+
+    subgraph L3["LAYER 3 - Perspective Modules"]
+        causa["Causa<br/>Causale mechanismen"]
+        socia["Socia<br/>Stakeholders, macht"]
+        lexa["Lexa<br/>Normen, rechten"]
+        actaP["Acta Perspectief<br/>Service transacties"]
+        axia["Axia<br/>Waarden, spanningen"]
+        delibera["Delibera<br/>Besluitvorming"]
+        forma["Forma<br/>Ontologische structuur"]
+    end
+    class causa,socia,lexa,actaP,axia,delibera,forma perspective
+
+    subgraph L4["LAYER 4 - Application Ontology"]
+        app["Application<br/>DesignSpace, Phase<br/>Alternative, Participant"]
+        capax["Capax<br/>Capabilities, Permissions"]
+        nexus["Nexus<br/>Cross-module Relations"]
+        sysont["SysOnt<br/>System Configuration"]
+    end
+    class app,capax,nexus,sysont application
+
+    subgraph VC["VALOR CORE"]
+        valorCore["valor-core<br/>Unified Graph<br/>SPARQL Endpoint"]
+        demos["Demos<br/>Example Scenarios"]
+    end
+    class valorCore,demos valorCore
+
+    gufo -->|extends with events| ufob
+    gufo -->|extends with social| ufoc
+    gufo -->|extends with legal| ufol
+
+    ufob -->|causal grounding| coodm
+    ufoc -->|agent grounding| coodm
+    ufoc -->|social grounding| cover
+    ufol -->|legal authority| acta
+
+    coodm -->|beliefs as claims| tessera
+    cover -->|value as claims| tessera
+    acta -->|transactions as claims| tessera
+
+    tessera -->|causal| causa
+    tessera -->|stakeholder| socia
+    tessera -->|legal| lexa
+    tessera -->|transaction| actaP
+    tessera -->|value| axia
+    tessera -->|process| delibera
+    tessera -->|engineering| forma
+
+    ufob -.->|event theory| causa
+    ufoc -.->|agent theory| socia
+    ufol -.->|Hohfeld| lexa
+    acta -.->|DEMO pattern| actaP
+    cover -.->|value theory| axia
+    coodm -.->|COoDM + IBIS| delibera
+    gufo -.->|gUFO conformance| forma
+
+    causa --> app
+    socia --> app
+    lexa --> app
+    actaP --> app
+    axia --> app
+    delibera --> app
+    forma --> app
+
+    app --> capax
+    app --> nexus
+    app --> sysont
+
+    capax --> valorCore
+    nexus --> valorCore
+    sysont --> valorCore
+    demos -.->|example data| valorCore
+    </pre>
+</div>
+
+<div class="info-grid">
+    <div class="info-card card-l0">
+        <h3>Layer 0 - Foundation</h3>
+        <p>gUFO Core: de gecureerde subset van Guizzardi's Unified Foundational Ontology. Definieert de basisbegrippen (Entity, Event, Relator, Quality) en het Type-systeem (Kind, Role, Phase, Category). Gebruikt OWL 2 Punning voor second-order typing.</p>
+    </div>
+    <div class="info-card card-l1">
+        <h3>Layer 1 - UFO Extensions</h3>
+        <p><strong>UFO-B</strong>: Events, disposities, causale relaties en event-mereologie. <strong>UFO-C</strong>: Agents, social commitments, claims en intentionele staten. <strong>UFO-L</strong>: Hohfeld's juridisch raamwerk met rights, duties, norms en policies.</p>
+    </div>
+    <div class="info-card card-l2">
+        <h3>Layer 2 - Ontological Bridges</h3>
+        <p><strong>COoDM</strong>: Besluitvorming - Decision als Intention, Preference als Belief. <strong>COVER</strong>: Waarde en risico - ValueExperience als Event, ValueObject als enabler. <strong>ACTA</strong>: Transacties gebaseerd op DEMO met bidirectionele grounding naar LegalRelators.</p>
+    </div>
+    <div class="info-card card-tess">
+        <h3>Tessera - Epistemic Anchor</h3>
+        <p>Het hart van VALOR: elk model-element is een <em>claim</em> (subclass van ufoc:Belief) met epistemische status: Proposed, Contested, Accepted, Rejected of Reconsidered. Gedeelde properties: epistemicStatus, hasEvidence, claimedBy, inPhase. Maakt unified querying mogelijk over alle perspectieven.</p>
+    </div>
+    <div class="info-card card-l3">
+        <h3>Layer 3 - 7 Perspectives</h3>
+        <p>Zeven analytische lenzen op dezelfde design space: <strong>Causa</strong> (causaliteit), <strong>Socia</strong> (stakeholders), <strong>Lexa</strong> (juridisch), <strong>Acta</strong> (transacties), <strong>Axia</strong> (waarden), <strong>Delibera</strong> (democratisch proces), <strong>Forma</strong> (ontologische structuur). Elke lens erft van Tessera.</p>
+    </div>
+    <div class="info-card card-l4">
+        <h3>Layer 4 - Application en VALOR Core</h3>
+        <p><strong>Application</strong>: DesignSpace, Alternatives, Phases, PhaseTransitions. <strong>Capax</strong>: capabilities en permissions. <strong>Nexus</strong>: cross-module relaties. <strong>SysOnt</strong>: systeemconfiguratie. Alles samengebracht in <strong>valor-core</strong> als unified graph op een Fuseki SPARQL endpoint.</p>
+    </div>
+</div>
+
+<footer>
+    VALOR Ontology Architecture Diagram - gegenereerd op basis van github.com/leonardDune/valor-ontology
+</footer>
+
+<script>
+    mermaid.initialize({
+        startOnLoad: true,
+        theme: 'dark',
+        flowchart: {
+            useMaxWidth: true,
+            htmlLabels: true,
+            curve: 'basis',
+            rankSpacing: 60,
+            nodeSpacing: 30
+        }
+    });
+</script>
+
+</body>
+</html>

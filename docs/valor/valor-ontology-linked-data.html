@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VALOR-O Linked Data Architecture</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.9.1/mermaid.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: #0d1117;
+            color: #c9d1d9;
+            line-height: 1.5;
+        }
+        header {
+            background: linear-gradient(135deg, #161b22 0%, #0d1117 100%);
+            padding: 1.5rem 2rem;
+            border-bottom: 2px solid #f0883e;
+        }
+        header h1 { font-size: 1.5rem; color: #f0f6fc; }
+        header p { color: #8b949e; font-size: 0.9rem; margin-top: 0.3rem; }
+        header a { color: #58a6ff; text-decoration: none; }
+
+        .tabs {
+            display: flex;
+            gap: 0;
+            background: #161b22;
+            border-bottom: 1px solid #30363d;
+            padding: 0 2rem;
+            overflow-x: auto;
+        }
+        .tab {
+            padding: 0.7rem 1.2rem;
+            cursor: pointer;
+            color: #8b949e;
+            border-bottom: 2px solid transparent;
+            font-size: 0.85rem;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+        .tab:hover { color: #c9d1d9; }
+        .tab.active { color: #f0f6fc; border-bottom-color: #f0883e; }
+
+        .diagram-panel {
+            display: none;
+            padding: 1.5rem 2rem;
+            overflow-x: auto;
+        }
+        .diagram-panel.active { display: block; }
+        .diagram-panel h2 {
+            font-size: 1rem;
+            color: #f0883e;
+            margin-bottom: 0.3rem;
+        }
+        .diagram-panel .subtitle {
+            font-size: 0.8rem;
+            color: #8b949e;
+            margin-bottom: 1rem;
+        }
+        .diagram-output {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+        .diagram-output svg { max-width: 100%; height: auto; }
+
+        footer {
+            text-align: center;
+            padding: 1rem;
+            color: #484f58;
+            font-size: 0.75rem;
+            border-top: 1px solid #21262d;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>VALOR-O Linked Data Architecture</h1>
+    <p>Gebaseerd op de werkelijke RDF triples uit <a href="https://github.com/leonardDune/valor-ontology" target="_blank">leonardDune/valor-ontology</a></p>
+</header>
+
+<div class="tabs">
+    <div class="tab active" data-tab="imports">owl:imports Graph</div>
+    <div class="tab" data-tab="gufo">gUFO Core Classes</div>
+    <div class="tab" data-tab="ufobcl">UFO-B/C/L Classes</div>
+    <div class="tab" data-tab="coodm">COoDM + COVER</div>
+    <div class="tab" data-tab="acta">ACTA Transactions</div>
+    <div class="tab" data-tab="tessera">Tessera Epistemic</div>
+    <div class="tab" data-tab="app">Application Layer</div>
+</div>
+
+<div id="imports" class="diagram-panel active">
+    <h2>owl:imports Dependency Graph</h2>
+    <p class="subtitle">Elke pijl = een owl:imports declaratie uit de .trig bestanden</p>
+    <div class="diagram-output" data-diagram="imports"></div>
+</div>
+
+<div id="gufo" class="diagram-panel">
+    <h2>gUFO Core - Individual Taxonomy</h2>
+    <p class="subtitle">14 klassen uit 00a-gufo-core.trig | rdfs:subClassOf relaties</p>
+    <div class="diagram-output" data-diagram="gufo"></div>
+</div>
+
+<div id="ufobcl" class="diagram-panel">
+    <h2>UFO-B + UFO-C + UFO-L Class Hierarchy</h2>
+    <p class="subtitle">Alle rdfs:subClassOf uit 00b, 00c, 00d | Grijs = gUFO superclass</p>
+    <div class="diagram-output" data-diagram="ufobcl"></div>
+</div>
+
+<div id="coodm" class="diagram-panel">
+    <h2>COoDM + COVER - Decision Making and Value</h2>
+    <p class="subtitle">Klassen en properties uit 00e-coodm.trig en 00f-cover.trig</p>
+    <div class="diagram-output" data-diagram="coodm"></div>
+</div>
+
+<div id="acta" class="diagram-panel">
+    <h2>ACTA - Transaction Ontology</h2>
+    <p class="subtitle">Klassen uit 00g-acta.trig | DEMO-gebaseerd transactiemodel</p>
+    <div class="diagram-output" data-diagram="acta"></div>
+</div>
+
+<div id="tessera" class="diagram-panel">
+    <h2>Tessera - Epistemic Claim Infrastructure</h2>
+    <p class="subtitle">Klassen en properties uit 00j-tessera.trig | Hart van VALOR</p>
+    <div class="diagram-output" data-diagram="tessera"></div>
+</div>
+
+<div id="app" class="diagram-panel">
+    <h2>Application Layer + VALOR Core</h2>
+    <p class="subtitle">Klassen uit 00k-application.trig en 00s-valor-core.trig</p>
+    <div class="diagram-output" data-diagram="app"></div>
+</div>
+
+<footer>
+    Gegenereerd uit de RDF triples van github.com/leonardDune/valor-ontology | owl:imports, rdfs:subClassOf, rdfs:domain, rdfs:range
+</footer>
+
+<script>
+var diagrams = {
+
+imports: `flowchart BT
+    classDef l0 fill:#1a237e,stroke:#3949ab,color:#fff,stroke-width:2px
+    classDef l1 fill:#283593,stroke:#5c6bc0,color:#fff,stroke-width:2px
+    classDef l2 fill:#4527a0,stroke:#7e57c2,color:#fff,stroke-width:2px
+    classDef tss fill:#f57f17,stroke:#f9a825,color:#000,stroke-width:2px
+    classDef l3 fill:#00695c,stroke:#26a69a,color:#fff,stroke-width:2px
+    classDef l4 fill:#bf360c,stroke:#e64a19,color:#fff,stroke-width:2px
+    classDef vc fill:#b71c1c,stroke:#e53935,color:#fff,stroke-width:2px
+
+    gufoM["00a gufo-core"]:::l0
+    ufobM["00b ufo-b"]:::l1
+    ufocM["00c ufo-c"]:::l1
+    ufolM["00d ufo-l"]:::l1
+    tessM["00j tessera"]:::tss
+    coodmM["00e coodm"]:::l2
+    coverM["00f cover"]:::l2
+    actaM["00g acta"]:::l2
+    causaM["00h causa"]:::l3
+    sociaM["00i socia"]:::l3
+    appM["00k application"]:::l4
+    axiaM["00l axia"]:::l3
+    deliberaM["00m delibera"]:::l3
+    formaM["00n forma"]:::l3
+    capaxM["00o capax"]:::l3
+    nexusM["00q nexus"]:::l3
+    sysontM["00r sysont"]:::l3
+    valorcoreM["00s valor-core"]:::vc
+
+    ufobM -->|imports| gufoM
+    ufocM -->|imports| gufoM
+    ufocM -->|imports| ufobM
+    ufolM -->|imports| gufoM
+    ufolM -->|imports| ufobM
+    ufolM -->|imports| ufocM
+    tessM -->|imports| gufoM
+    tessM -->|imports| ufocM
+    coodmM -->|imports| gufoM
+    coodmM -->|imports| ufobM
+    coodmM -->|imports| ufocM
+    coodmM -->|imports| ufolM
+    coodmM -->|imports| tessM
+    coverM -->|imports| gufoM
+    coverM -->|imports| ufobM
+    coverM -->|imports| ufocM
+    coverM -->|imports| coodmM
+    actaM -->|imports| gufoM
+    actaM -->|imports| ufobM
+    actaM -->|imports| ufocM
+    actaM -->|imports| ufolM
+    actaM -->|imports| coverM
+    actaM -->|imports| tessM
+    appM -->|imports| gufoM
+    appM -->|imports| ufocM
+    appM -->|imports| tessM`,
+
+gufo: `flowchart TD
+    classDef kind fill:#1565c0,stroke:#0d47a1,color:#fff,stroke-width:2px
+    classDef aspect fill:#6a1b9a,stroke:#4a148c,color:#fff,stroke-width:2px
+    classDef evtcls fill:#00838f,stroke:#006064,color:#fff,stroke-width:2px
+    classDef typecls fill:#4e342e,stroke:#3e2723,color:#fff,stroke-width:2px
+    classDef abstcls fill:#37474f,stroke:#263238,color:#fff,stroke-width:2px
+
+    ind["gufo:Individual"]:::kind
+    conc["gufo:ConcreteIndividual"]:::kind
+    abst["gufo:AbstractIndividual"]:::abstcls
+
+    endur["gufo:Endurant"]:::kind
+    obj["gufo:Object"]:::kind
+    fc["gufo:FunctionalComplex"]:::kind
+    coll["gufo:Collection"]:::kind
+
+    asp["gufo:Aspect"]:::aspect
+    intr["gufo:IntrinsicAspect"]:::aspect
+    im["gufo:IntrinsicMode"]:::aspect
+    qual["gufo:Quality"]:::aspect
+    extr["gufo:ExtrinsicAspect"]:::aspect
+    rel["gufo:Relator"]:::aspect
+    em["gufo:ExtrinsicMode"]:::aspect
+    intm["gufo:IntentionalMode"]:::aspect
+
+    evt["gufo:Event"]:::evtcls
+    act["gufo:Action"]:::evtcls
+    part["gufo:Participation"]:::evtcls
+    sit["gufo:Situation"]:::evtcls
+
+    qv["gufo:QualityValue"]:::abstcls
+
+    ind --> conc
+    ind --> abst
+    conc --> endur
+    conc --> evt
+    conc --> sit
+    endur --> obj
+    obj --> fc
+    endur --> coll
+    endur --> asp
+    asp --> intr
+    asp --> extr
+    intr --> im
+    im --> intm
+    intr --> qual
+    extr --> rel
+    extr --> em
+    evt --> act
+    evt --> part
+    abst --> qv
+
+    subgraph types["gufo Type Taxonomy"]
+        tp["gufo:Type"]:::typecls
+        ent["gufo:EndurantType"]:::typecls
+        sort["gufo:Sortal"]:::typecls
+        nsort["gufo:NonSortal"]:::typecls
+        knd["gufo:Kind"]:::typecls
+        sk["gufo:SubKind"]:::typecls
+        role["gufo:Role"]:::typecls
+        phase["gufo:Phase"]:::typecls
+        cat["gufo:Category"]:::typecls
+        mix["gufo:Mixin"]:::typecls
+        rmix["gufo:RoleMixin"]:::typecls
+        evtt["gufo:EventType"]:::typecls
+        sitt["gufo:SituationType"]:::typecls
+    end
+
+    tp --> ent
+    tp --> evtt
+    tp --> sitt
+    ent --> sort
+    ent --> nsort
+    sort --> knd
+    sort --> sk
+    sort --> role
+    sort --> phase
+    nsort --> cat
+    nsort --> mix
+    nsort --> rmix`,
+
+ufobcl: `flowchart TD
+    classDef gufoRef fill:#37474f,stroke:#546e7a,color:#cfd8dc,stroke-width:1px
+    classDef ufobCls fill:#1565c0,stroke:#0d47a1,color:#fff,stroke-width:2px
+    classDef ufocCls fill:#2e7d32,stroke:#1b5e20,color:#fff,stroke-width:2px
+    classDef ufolCls fill:#ad1457,stroke:#880e4f,color:#fff,stroke-width:2px
+
+    gEvent["gufo:Event"]:::gufoRef
+    gIntrMode["gufo:IntrinsicMode"]:::gufoRef
+    gSit["gufo:Situation"]:::gufoRef
+    gFC["gufo:FunctionalComplex"]:::gufoRef
+    gRel["gufo:Relator"]:::gufoRef
+    gEM["gufo:ExtrinsicMode"]:::gufoRef
+    gIntMode["gufo:IntentionalMode"]:::gufoRef
+    gNormBase["gufo:IntrinsicMode "]:::gufoRef
+
+    subgraph UFOB["UFO-B Events"]
+        ae["ufob:AtomicEvent"]:::ufobCls
+        ce["ufob:ComplexEvent"]:::ufobCls
+        disp["ufob:Disposition"]:::ufobCls
+        cr["ufob:CausalRelation"]:::ufobCls
+        fl["ufob:FeedbackLoop"]:::ufobCls
+        rl["ufob:ReinforcingLoop"]:::ufobCls
+        bl["ufob:BalancingLoop"]:::ufobCls
+    end
+
+    gEvent --> ae
+    gEvent --> ce
+    gIntrMode --> disp
+    gSit --> cr
+    gSit --> fl
+    fl --> rl
+    fl --> bl
+
+    subgraph UFOC["UFO-C Social"]
+        agent["ufoc:Agent"]:::ufocCls
+        phyA["ufoc:PhysicalAgent"]:::ufocCls
+        socA["ufoc:SocialAgent"]:::ufocCls
+        instA["ufoc:InstitutionalAgent"]:::ufocCls
+        collA["ufoc:CollectiveSocialAgent"]:::ufocCls
+        belief["ufoc:Belief"]:::ufocCls
+        desire["ufoc:Desire"]:::ufocCls
+        goal["ufoc:Goal"]:::ufocCls
+        intent["ufoc:Intention"]:::ufocCls
+        concern["ufoc:Concern"]:::ufocCls
+        sRel["ufoc:SocialRelator"]:::ufocCls
+        sCom["ufoc:SocialCommitment"]:::ufocCls
+        sCl["ufoc:SocialClaim"]:::ufocCls
+        norm["ufoc:Norm"]:::ufocCls
+    end
+
+    gFC --> agent
+    agent --> phyA
+    agent --> socA
+    socA --> instA
+    socA --> collA
+    gIntMode --> belief
+    gIntMode --> desire
+    desire --> goal
+    goal --> intent
+    gIntMode --> concern
+    gRel --> sRel
+    gEM --> sCom
+    gEM --> sCl
+    gNormBase --> norm
+
+    subgraph UFOL["UFO-L Legal"]
+        lSub["ufol:LegalSubject"]:::ufolCls
+        lRel["ufol:LegalRelator"]:::ufolCls
+        clRR["ufol:ClaimRightRelator"]:::ufolCls
+        compR["ufol:CompetenceRelator"]:::ufolCls
+        immR["ufol:ImmunityRelator"]:::ufolCls
+        libR["ufol:LibertyRelator"]:::ufolCls
+        rMode["ufol:RightMode"]:::ufolCls
+        dMode["ufol:DutyMode"]:::ufolCls
+        lNorm["ufol:LegalNorm"]:::ufolCls
+        condN["ufol:ConductNorm"]:::ufolCls
+        compN["ufol:CompetenceNorm"]:::ufolCls
+        lFact["ufol:LegalFact"]:::ufolCls
+        lAct["ufol:LegalAct"]:::ufolCls
+        pol["ufol:Policy"]:::ufolCls
+    end
+
+    agent --> lSub
+    sRel --> lRel
+    lRel --> clRR
+    lRel --> compR
+    lRel --> immR
+    lRel --> libR
+    sCl --> rMode
+    sCom --> dMode
+    norm --> lNorm
+    lNorm --> condN
+    lNorm --> compN
+    gEvent --> lFact
+    lFact --> lAct
+    gEM --> pol`,
+
+coodm: `flowchart TD
+    classDef gufoRef fill:#37474f,stroke:#546e7a,color:#cfd8dc,stroke-width:1px
+    classDef coodmCls fill:#e65100,stroke:#bf360c,color:#fff,stroke-width:2px
+    classDef coverCls fill:#00695c,stroke:#004d40,color:#fff,stroke-width:2px
+
+    gSit1["gufo:Situation"]:::gufoRef
+    gAct1["gufo:Action"]:::gufoRef
+    gEvtT1["gufo:EventType"]:::gufoRef
+    gEvt1["gufo:Event"]:::gufoRef
+    gRM1["gufo:RoleMixin"]:::gufoRef
+    gRel1["gufo:Relator"]:::gufoRef
+    uIntent1["ufoc:Intention"]:::gufoRef
+    uGoal1["ufoc:Goal"]:::gufoRef
+    uBelief1["ufoc:Belief"]:::gufoRef
+
+    subgraph COODM["COoDM - Decision Making"]
+        dSit["coodm:DecisionSituation"]:::coodmCls
+        delib["coodm:Deliberation"]:::coodmCls
+        dAlt["coodm:DecisionAlternative"]:::coodmCls
+        dec["coodm:Decision"]:::coodmCls
+        dGoal["coodm:DecisionGoal"]:::coodmCls
+        pref["coodm:Preference"]:::coodmCls
+    end
+
+    gSit1 --> dSit
+    gAct1 --> delib
+    gSit1 --> dAlt
+    uIntent1 --> dec
+    uGoal1 --> dGoal
+    uBelief1 --> pref
+
+    delib -->|triggeredBy| dSit
+    delib -->|considers| dAlt
+    delib -->|resultedIn| dec
+    dec -->|decisionGoal| dGoal
+    delib -->|hasPreference| pref
+
+    subgraph COVER["COVER - Value and Risk"]
+        vType["cover:ValueType"]:::coverCls
+        vExp["cover:ValueExperience"]:::coverCls
+        vBeh["cover:ValueBeholder"]:::coverCls
+        vBen["cover:ValueBeneficiary"]:::coverCls
+        vAsc["cover:ValueAscription"]:::coverCls
+        vPerc["cover:ValuePerception"]:::coverCls
+        vAss["cover:ValueAssertion"]:::coverCls
+        vObj["cover:ValueObject"]:::coverCls
+        vProp["cover:ValueProposition"]:::coverCls
+        bvp["cover:BusinessVP"]:::coverCls
+        ovp["cover:OfferingVP"]:::coverCls
+        vTen["cover:ValueTension"]:::coverCls
+    end
+
+    gEvtT1 --> vType
+    gEvt1 --> vExp
+    gRM1 --> vBeh
+    gRM1 --> vBen
+    gRM1 --> vObj
+    gRel1 --> vAsc
+    vAsc --> vPerc
+    vAsc --> vAss
+    vAss --> vProp
+    vProp --> bvp
+    vProp --> ovp
+    gSit1 --> vTen
+
+    vExp -->|ofType| vType
+    vExp -->|enabledBy| vObj
+    vAsc -->|ascribesValueTo| vExp
+    vTen -->|involvesTension| vExp
+    pref -.->|groundsAscription| vAsc`,
+
+acta: `flowchart TD
+    classDef gufoRef fill:#37474f,stroke:#546e7a,color:#cfd8dc,stroke-width:1px
+    classDef actaCls fill:#4a148c,stroke:#6a1b9a,color:#fff,stroke-width:2px
+    classDef actaAct fill:#1a237e,stroke:#283593,color:#fff,stroke-width:2px
+    classDef actaFact fill:#004d40,stroke:#00695c,color:#fff,stroke-width:2px
+
+    gSocRel1["ufoc:SocialRelator"]:::gufoRef
+    gAction1["gufo:Action"]:::gufoRef
+    gSituation1["gufo:Situation"]:::gufoRef
+    lRelator1["ufol:LegalRelator"]:::gufoRef
+    lPolicy1["ufol:Policy"]:::gufoRef
+    vExp1["cover:ValueExperience"]:::gufoRef
+
+    subgraph roles1["Transaction Roles"]
+        initR1["acta:Initiator"]:::actaCls
+        execR1["acta:Executor"]:::actaCls
+    end
+
+    subgraph tx1["Transaction Structure"]
+        trans1["acta:Transaction"]:::actaCls
+        origTx1["acta:OriginalTransaction"]:::actaCls
+        infoTx1["acta:InformationalTransaction"]:::actaCls
+        docTx1["acta:DocumentalTransaction"]:::actaCls
+        pubTx1["acta:PublicServiceTransaction"]:::actaCls
+    end
+
+    gSocRel1 --> trans1
+    trans1 --> origTx1
+    trans1 --> infoTx1
+    trans1 --> docTx1
+    trans1 --> pubTx1
+
+    subgraph acts1["Coordination Acts"]
+        reqAct1["acta:RequestAct"]:::actaAct
+        promAct1["acta:PromiseAct"]:::actaAct
+        declAct1["acta:DeclareAct"]:::actaAct
+        accAct1["acta:AcceptAct"]:::actaAct
+        declnAct1["acta:DeclineAct"]:::actaAct
+        rejAct1["acta:RejectAct"]:::actaAct
+        revAct1["acta:RevokeAct"]:::actaAct
+        prodAct1["acta:ProductionAct"]:::actaAct
+    end
+
+    gAction1 --> reqAct1
+    gAction1 --> promAct1
+    gAction1 --> declAct1
+    gAction1 --> accAct1
+    gAction1 --> declnAct1
+    gAction1 --> rejAct1
+    gAction1 --> revAct1
+    gAction1 --> prodAct1
+
+    subgraph results1["Transaction Results"]
+        txRes1["acta:TransactionResult"]:::actaFact
+        posRes1["acta:PositiveResult"]:::actaFact
+        negRes1["acta:NegativeResult"]:::actaFact
+    end
+
+    gSituation1 --> txRes1
+    txRes1 --> posRes1
+    txRes1 --> negRes1
+
+    trans1 -->|hasInitiator| initR1
+    trans1 -->|hasExecutor| execR1
+    trans1 -->|hasResult| txRes1
+    trans1 -->|groundedIn| lRelator1
+    trans1 -->|guidedByPolicy| lPolicy1
+    prodAct1 -->|createsLegalRelator| lRelator1
+    txRes1 -->|enablesExperience| vExp1`,
+
+tessera: `flowchart TD
+    classDef gufoRef fill:#37474f,stroke:#546e7a,color:#cfd8dc,stroke-width:1px
+    classDef tessCls fill:#f57f17,stroke:#ff8f00,color:#000,stroke-width:2px
+    classDef metaCls fill:#4e342e,stroke:#6d4c41,color:#fff,stroke-width:2px
+
+    uBelief2["ufoc:Belief"]:::gufoRef
+    uAgent2["ufoc:Agent"]:::gufoRef
+    gIntrM2["gufo:IntrinsicMode"]:::gufoRef
+    gEvt2["gufo:Event"]:::gufoRef
+    uSO2["ufoc:SocialObject"]:::gufoRef
+
+    subgraph core2["Tessera Core"]
+        tess2["valor:Tessera"]:::tessCls
+        agtess2["valor:AgentTessera"]:::tessCls
+    end
+
+    uBelief2 --> tess2
+    tess2 --> agtess2
+
+    subgraph epistemic2["Epistemic State Machine"]
+        es2["valor:EpistemicStatus"]:::metaCls
+        ct2["valor:ClaimType"]:::metaCls
+        ul2["valor:UncertaintyLevel"]:::metaCls
+        gdi2["valor:GDIFlag"]:::metaCls
+    end
+
+    gIntrM2 --> es2
+    gIntrM2 --> ct2
+    gIntrM2 --> ul2
+    gIntrM2 --> gdi2
+
+    subgraph evidence2["Evidence System"]
+        ev2["valor:Evidence"]:::metaCls
+        evt2b["valor:EvidenceType"]:::metaCls
+    end
+
+    uSO2 --> ev2
+    gIntrM2 --> evt2b
+
+    subgraph decision2["Decision Episodes"]
+        de2["valor:DecisionEpisode"]:::metaCls
+        et2["valor:EpisodeType"]:::metaCls
+        vote2["valor:Vote"]:::metaCls
+        vp2["valor:VotePosition"]:::metaCls
+    end
+
+    gEvt2 --> de2
+    gIntrM2 --> et2
+    gIntrM2 --> vote2
+    gIntrM2 --> vp2
+
+    tess2 -->|epistemicStatus| es2
+    tess2 -->|claimType| ct2
+    tess2 -->|claimedBy| uAgent2
+    tess2 -->|hasEvidence| ev2
+    tess2 -->|uncertaintyLevel| ul2
+    tess2 -->|supports| tess2
+    tess2 -->|undermines| tess2
+    tess2 -->|qualifies| tess2
+    tess2 -->|presupposes| tess2
+    tess2 -->|reconsideredFrom| de2
+    ev2 -->|evidenceType| evt2b
+    de2 -->|hasVote| vote2
+    de2 -->|concernsTessera| tess2
+    vote2 -->|castBy| uAgent2
+    vote2 -->|forTessera| tess2
+    vote2 -->|votePosition| vp2
+    es2 -->|allowedTransitionTo| es2`,
+
+app: `flowchart TD
+    classDef gufoRef fill:#37474f,stroke:#546e7a,color:#cfd8dc,stroke-width:1px
+    classDef appCls fill:#e65100,stroke:#ff6d00,color:#fff,stroke-width:2px
+    classDef roleCls fill:#4527a0,stroke:#7e57c2,color:#fff,stroke-width:2px
+    classDef valCls fill:#b71c1c,stroke:#e53935,color:#fff,stroke-width:2px
+    classDef ethCls fill:#1b5e20,stroke:#2e7d32,color:#fff,stroke-width:2px
+
+    gFC3["gufo:FunctionalComplex"]:::gufoRef
+    gSit3["gufo:Situation"]:::gufoRef
+    uAgent3["ufoc:Agent"]:::gufoRef
+    uSO3["ufoc:SocialObject"]:::gufoRef
+    vDE3["valor:DecisionEpisode"]:::gufoRef
+
+    subgraph appLayer3["Application Ontology"]
+        ds3["app:DesignSpace"]:::appCls
+        dp3["app:DesignPhase"]:::appCls
+        da3["app:DesignAlternative"]:::appCls
+        pt3["app:PhaseTransition"]:::appCls
+        par3["app:Participant"]:::appCls
+    end
+
+    gFC3 --> ds3
+    gSit3 --> dp3
+    gSit3 --> da3
+    vDE3 --> pt3
+    uAgent3 --> par3
+
+    ds3 -->|hasPhase| dp3
+    ds3 -->|hasAlternative| da3
+    ds3 -->|hasParticipant| par3
+    dp3 -->|hasPhaseTransition| pt3
+
+    subgraph roles3["Participant Roles"]
+        initR3["app:InitiatorRole"]:::roleCls
+        facR3["app:FacilitatorRole"]:::roleCls
+        conR3["app:ContributorRole"]:::roleCls
+        expR3["app:ExpertRole"]:::roleCls
+        obsR3["app:ObserverRole"]:::roleCls
+        engR3["app:EngineerRole"]:::roleCls
+    end
+
+    par3 --> initR3
+    par3 --> facR3
+    par3 --> conR3
+    par3 --> expR3
+    par3 --> obsR3
+    par3 --> engR3
+
+    subgraph valorCore3["VALOR Core"]
+        issue3["valor:Issue"]:::valCls
+        cic3["valor:CollectiveIntentionalCommunity"]:::valCls
+        ic3["valor:IssueCommunity"]:::valCls
+    end
+
+    uSO3 --> issue3
+    cic3 --> ic3
+
+    issue3 -->|hasDesignSpace| ds3
+    ds3 -->|addressesIssue| issue3
+    ic3 -->|hasConcernAbout| issue3
+
+    subgraph ethics3["Ethics Framework"]
+        hard3["valor:HardEthicsCompliance"]:::ethCls
+        soft3["valor:SoftEthicsCommitment"]:::ethCls
+    end
+
+    ds3 -.-> hard3
+    ds3 -.-> soft3`
+
+};
+
+// Track which diagrams have been rendered
+var rendered = {};
+
+mermaid.initialize({
+    startOnLoad: false,
+    theme: 'dark',
+    flowchart: {
+        useMaxWidth: true,
+        htmlLabels: true,
+        curve: 'basis',
+        rankSpacing: 50,
+        nodeSpacing: 25
+    }
+});
+
+async function renderDiagram(tabId) {
+    if (rendered[tabId]) return;
+    var container = document.querySelector('[data-diagram="' + tabId + '"]');
+    if (!container || !diagrams[tabId]) return;
+    try {
+        var result = await mermaid.render('mermaid-' + tabId, diagrams[tabId]);
+        container.innerHTML = result.svg;
+        rendered[tabId] = true;
+    } catch (err) {
+        container.innerHTML = '<p style="color:#e53935;padding:1rem;">Render fout: ' + err.message + '</p>';
+        console.error('Mermaid error for tab ' + tabId + ':', err);
+    }
+}
+
+function showTab(tabId) {
+    document.querySelectorAll('.diagram-panel').forEach(function(p) { p.classList.remove('active'); });
+    document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+    document.getElementById(tabId).classList.add('active');
+    document.querySelector('[data-tab="' + tabId + '"]').classList.add('active');
+    renderDiagram(tabId);
+}
+
+// Tab click handlers
+document.querySelectorAll('.tab').forEach(function(tab) {
+    tab.addEventListener('click', function() {
+        showTab(this.getAttribute('data-tab'));
+    });
+});
+
+// Render the first tab on load
+renderDiagram('imports');
+</script>
+
+</body>
+</html>
