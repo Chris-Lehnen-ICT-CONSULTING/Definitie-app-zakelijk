@@ -51,7 +51,7 @@ Na grondige multi-agent analyse is de **DefinitieAgent codebase** beoordeeld als
 
 ```yaml
 # ❌ COMMITTED TO GIT
-openai_api_key: sk-proj-***REMOVED-DEF-491***...
+openai_api_key: sk-proj-<GEREDACTEERD-2026-07-02-ZIE-DEF-491>...
 ```
 
 **Actieplan**:
