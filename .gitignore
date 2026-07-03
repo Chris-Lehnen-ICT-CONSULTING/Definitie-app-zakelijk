@@ -46,6 +46,8 @@ logs/
 *.log
 
 # 💚 Exports (generated files) - NEW STRUCTURE
+# DEF-501/DEF-509: hele exports/ is runtime-output
+exports/
 exports/definitions/
 exports/reports/
 # Ignore test export artifacts (timestamped files)
@@ -126,6 +128,7 @@ data/*.db.backup*
 archive/
 archived/
 archief/
+_archief/
 # Allow curated handovers under docs/archief/handovers
 docs/archief/
 !docs/archief/handovers/
@@ -135,6 +138,10 @@ qa.qaLocation/
 # 💚 Upload folders
 data/uploaded_documents/
 uploads/
+
+# 💚 Runtime test-artefacten (DEF-501/DEF-509)
+data/rag-smoke-test-results/
+data/test_uploaded_documents_placeholders/
 
 # 💚 Database duplicates
 /definities.db
