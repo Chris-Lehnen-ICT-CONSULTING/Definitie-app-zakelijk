@@ -1,9 +1,10 @@
-"""Unit tests voor feature_status_api hardening (DEF-473).
+"""Unit tests voor feature_status_api hardening (DEF-473, DEF-425).
 
-Borgt drie fixes:
+Borgt de fixes:
 1. TTL-berekening gebruikt total_seconds() i.p.v. .seconds (geen 24u-rollover-bug).
 2. HTTP 500 lekt geen interne exception-tekst (info-disclosure).
 3. De module-cache wordt thread-safe gelezen/geschreven (lock aanwezig).
+4. CORS is beperkt tot lokale Streamlit-origins en alleen GET (DEF-425).
 """
 
 import asyncio
@@ -103,6 +104,44 @@ class TestInfoDisclosure:
         assert exc_info.value.status_code == 500
         assert secret not in str(exc_info.value.detail)
         assert "internal" in str(exc_info.value.detail).lower()
+
+
+class TestCORSHardening:
+    """DEF-425: geen wildcard-CORS; alleen lokale Streamlit-origins en GET."""
+
+    @staticmethod
+    def _cors_kwargs():
+        from fastapi.middleware.cors import CORSMiddleware
+
+        for middleware in fsa.app.user_middleware:
+            if middleware.cls is CORSMiddleware:
+                return middleware.kwargs
+        raise AssertionError("CORSMiddleware niet gevonden op de app")
+
+    def test_no_wildcard_origins(self):
+        kwargs = self._cors_kwargs()
+        origins = kwargs["allow_origins"]
+        assert "*" not in origins
+        assert set(origins) == {
+            "http://localhost:8501",
+            "http://127.0.0.1:8501",
+        }
+
+    def test_only_get_method_allowed(self):
+        kwargs = self._cors_kwargs()
+        assert kwargs["allow_methods"] == ["GET"]
+
+    def test_no_wildcard_headers(self):
+        kwargs = self._cors_kwargs()
+        assert "*" not in kwargs["allow_headers"]
+
+    def test_dev_server_binds_loopback_only(self):
+        """Het __main__-blok bindt op 127.0.0.1, niet op alle interfaces."""
+        import inspect
+
+        source = inspect.getsource(fsa)
+        assert 'host="0.0.0.0"' not in source
+        assert 'host="127.0.0.1"' in source
 
 
 class TestThreadSafety:
