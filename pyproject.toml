@@ -136,8 +136,6 @@ unfixable = []
 # DEF-418: removed 6 dead complexity per-file-ignores (PLR0912/0915/PLC0415/PLW0603
 # are already in the global ignore, so these were redundant). The complexity ratchet
 # (scripts/complexity_ratchet.py) now tracks these files too.
-# Analysis scripts may have unused arguments
-"src/analysis/*.py" = ["ARG001"]
 # Ignore ALL errors in archief/archive directories
 "**/archief/**/*.py" = ["ALL"]
 "**/ARCHIEF/**/*.py" = ["ALL"]

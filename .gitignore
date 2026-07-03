@@ -147,7 +147,6 @@ data/test_uploaded_documents_placeholders/
 /definities.db
 /test.db
 data/definities.db
-src/data/
 *.db-shm
 *.db-wal
 
