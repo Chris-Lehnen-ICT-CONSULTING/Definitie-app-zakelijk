@@ -44,7 +44,7 @@ class GlobalContextRenderer:
 
         try:
             context_data = self.context_selector.render()
-            _default_st.success("✅ Context selector succesvol geladen")
+            logger.debug("Context selector succesvol geladen")
         except Exception as e:
             logger.error(f"Context selector crashed: {e}", exc_info=True)
             _default_st.error(f"❌ Context selector fout: {type(e).__name__}: {e!s}")

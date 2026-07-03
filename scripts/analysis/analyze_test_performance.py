@@ -23,10 +23,6 @@ def analyze_test_performance():
         "--durations=50",
         "--tb=no",
         "-q",
-        "--ignore=tests/performance/test_ufo_performance.py",
-        "--ignore=tests/services/test_ufo_classifier_comprehensive.py",
-        "--ignore=tests/services/test_ufo_classifier_service.py",
-        "--ignore=tests/services/test_ufo_classifier_service_correctness.py",
         "-m",
         "not slow",
     ]
