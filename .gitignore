@@ -140,7 +140,6 @@ uploads/
 /definities.db
 /test.db
 data/definities.db
-src/data/
 *.db-shm
 *.db-wal
 
