@@ -97,7 +97,9 @@ class DocumentProcessor:
         """Verwijder least-recently-used documenten boven de cache-bound (DEF-514)."""
         while len(self._documents_cache) > self.max_documents:
             evicted_id, evicted_doc = self._documents_cache.popitem(last=False)
-            logger.info(
+            # WARNING: dit is dataverwijdering (document verdwijnt ook uit
+            # metadata bij de eerstvolgende save), geen routine-cache-actie
+            logger.warning(
                 f"Documentcache-bound ({self.max_documents}) bereikt: "
                 f"LRU-document {evicted_doc.filename} (ID: {evicted_id}) verwijderd"
             )
