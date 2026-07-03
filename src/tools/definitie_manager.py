@@ -76,7 +76,7 @@ class DefinitieManagerCLI:
             )
             logger.info(f"   Definitie: {definitie.definitie[:100]}...")
             if definitie.approved_by:
-                logger.info(f"   Goedgekeurd door: {definitie.approved_by}")
+                logger.info("   Goedgekeurd: ja (approver geanonimiseerd)")
 
         logger.info(f"\nTotaal: {len(definities)} definities")
 
@@ -104,19 +104,15 @@ class DefinitieManagerCLI:
         logger.info(f"{definitie.definitie}")
 
         logger.info("\nMETADATA:")
-        logger.info(
-            f"Aangemaakt: {definitie.created_at} door {definitie.created_by or 'Unknown'}"
-        )
-        logger.info(
-            f"Gewijzigd: {definitie.updated_at} door {definitie.updated_by or 'Unknown'}"
-        )
+        logger.info(f"Aangemaakt: {definitie.created_at} (auteur geanonimiseerd)")
+        logger.info(f"Gewijzigd: {definitie.updated_at} (auteur geanonimiseerd)")
 
         if definitie.approved_by:
             logger.info(
-                f"Goedgekeurd: {definitie.approved_at} door {definitie.approved_by}"
+                f"Goedgekeurd: {definitie.approved_at} (approver geanonimiseerd)"
             )
             if definitie.approval_notes:
-                logger.info(f"Notities: {definitie.approval_notes}")
+                logger.info("Notities: genoteerd (inhoud geanonimiseerd)")
 
         # Show validation issues if any
         issues = definitie.get_validation_issues_list()
@@ -209,7 +205,7 @@ class DefinitieManagerCLI:
         )
 
         if success:
-            logger.info(f"Definitie {args.id} goedgekeurd door {args.approved_by}")
+            logger.info(f"Definitie {args.id} goedgekeurd (approver geanonimiseerd)")
         else:
             logger.error(f"Kon definitie {args.id} niet goedkeuren")
 
@@ -303,7 +299,7 @@ class DefinitieManagerCLI:
                 else "   Score: N/A"
             )
             logger.info(
-                f"   Aangemaakt: {definitie.created_at} door {definitie.created_by}"
+                f"   Aangemaakt: {definitie.created_at} (auteur geanonimiseerd)"
             )
             logger.info(f"   Definitie: {definitie.definitie[:80]}...")
 

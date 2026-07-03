@@ -637,8 +637,15 @@ class DefinitionGeneratorTab:
     # ============ Action methods ============
 
     def _edit_definition(self, definitie: DefinitieRecord) -> None:
-        """Bewerk gegenereerde definitie."""
-        st.info("🔄 Edit functionality coming soon...")
+        """Open de Bewerk-tab met deze definitie geladen (DEF-495).
+
+        Gebruikt het bestaande auto-load-mechanisme van DefinitionEditTab:
+        die leest `editing_definition_id` en start zelf een bewerksessie.
+        """
+        SessionStateManager.set_value("editing_definition_id", definitie.id)
+        SessionStateManager.set_value("active_tab", "edit")
+        SessionStateManager.set_value("pending_tab_switch", "edit")
+        st.rerun()
 
     def _submit_for_review(self, definitie: DefinitieRecord) -> None:
         """Submit definitie voor expert review via DefinitionWorkflowService."""
@@ -702,7 +709,3 @@ class DefinitionGeneratorTab:
         SessionStateManager.clear_value("last_check_result")
         SessionStateManager.clear_value("last_generation_result")
         SessionStateManager.clear_value("selected_definition")
-
-    def _show_settings_modal(self) -> None:
-        """Toon instellingen modal."""
-        st.info("⚙️ Settings modal coming soon...")
