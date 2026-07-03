@@ -25,11 +25,14 @@ from services.ai.base_client import (
 
 logger = logging.getLogger(__name__)
 
-# DEF-441: sampling-params (temperature/top_p/top_k) zijn verwijderd op
-# Opus 4.7+, Sonnet 5 en Fable/Mythos 5 — meesturen geeft een 400
-# ("`temperature` is deprecated for this model"). Allowlist van families
-# die de parameter nog accepteren; elk ander (nieuw) model krijgt hem
-# niet mee. Weglaten is altijd geldig, dus fail-safe voor model-bumps.
+# DEF-441: sampling-params zijn verwijderd op Opus 4.7+, Sonnet 5 en
+# Fable/Mythos 5 — meesturen geeft een 400 ("`temperature` is deprecated
+# for this model"). Deze client kent alleen `temperature` (top_p/top_k
+# zitten niet in de signature). Allowlist van families die de parameter
+# nog accepteren; elk ander (nieuw) model krijgt hem niet mee — weglaten
+# is altijd geldig, dus fail-safe voor model-bumps. "claude-3" dekt
+# bewust de hele 3.x-familie. Let op: modelselectie zelf woont in
+# ModelRouter; een modelbump raakt dus mogelijk óók deze lijst.
 _TEMPERATURE_MODEL_FAMILIES = (
     "claude-3",
     "opus-4-0",
@@ -45,7 +48,16 @@ _TEMPERATURE_MODEL_FAMILIES = (
 def _accepts_temperature(model: str) -> bool:
     """Accepteert dit model de temperature-parameter nog?"""
     model_lc = model.lower()
-    return any(family in model_lc for family in _TEMPERATURE_MODEL_FAMILIES)
+    for family in _TEMPERATURE_MODEL_FAMILIES:
+        start = model_lc.find(family)
+        if start == -1:
+            continue
+        # Grens-check: "opus-4-1" mag niet matchen binnen "opus-4-10" —
+        # na de familie mag geen cijfer volgen (wel "-", "@" of einde).
+        end = start + len(family)
+        if end == len(model_lc) or not model_lc[end].isdigit():
+            return True
+    return False
 
 
 class AnthropicClient:
