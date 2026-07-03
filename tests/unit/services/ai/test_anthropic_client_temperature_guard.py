@@ -57,11 +57,15 @@ class TestTemperatureOmittedOnModernModels:
             "claude-fable-5",
             "claude-mythos-5",
             "claude-opus-5",  # hypothetisch toekomstig model → fail-safe weglaten
+            # substring-collisie: bevat "opus-4-1" maar is een 4.7+-achtige
+            # toekomstversie — mag NIET door de allowlist lekken (review #351)
+            "claude-opus-4-10",
         ],
     )
     async def test_temperature_is_omitted(self, model: str) -> None:
         kwargs = await _capture_create_kwargs(model)
-        sent = kwargs.get("temperature", anthropic.omit)
+        assert "temperature" in kwargs, "create-call hoort temperature=omit te dragen"
+        sent = kwargs["temperature"]
         assert isinstance(sent, anthropic.Omit), (
             f"temperature werd meegestuurd naar {model} — dat geeft een 400 "
             "('temperature is deprecated for this model', DEF-441)"
@@ -82,6 +86,7 @@ class TestTemperatureSentOnLegacyModels:
             "claude-sonnet-4-5-20250929",
             "claude-haiku-4-5-20251001",
             "claude-3-haiku-20240307",
+            "Claude-Opus-4-6",  # case-insensitief (guard lowercased het model)
         ],
     )
     async def test_temperature_is_sent_unchanged(self, model: str) -> None:
@@ -90,3 +95,6 @@ class TestTemperatureSentOnLegacyModels:
             f"temperature ontbreekt voor {model} — gedrag voor oudere modellen "
             "moet ongewijzigd blijven (acceptatiecriterium DEF-441)"
         )
+        # De guard mag geen andere create-kwargs beïnvloeden
+        assert kwargs["model"] == model
+        assert kwargs["messages"] == [{"role": "user", "content": "hi"}]
