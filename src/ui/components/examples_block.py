@@ -147,7 +147,7 @@ def _sync_voorbeelden_to_widgets(
             SessionStateManager.set_value(widget_key, content)
 
             if force_overwrite:
-                logger.debug(f"[SYNC] {widget_key} = '{content[:50]}...'")
+                logger.debug(f"[SYNC] {widget_key} (len={len(content)})")
 
     except Exception as e:
         logger.error(
