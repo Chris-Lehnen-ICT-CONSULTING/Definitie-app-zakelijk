@@ -23,13 +23,6 @@ if TYPE_CHECKING:
         DefinitieRecord,
         DefinitieRepository,
     )
-    from database.models import DefinitieStatus
-
-# Status values as string literals (avoids runtime import of DefinitieStatus enum)
-_STATUS_DRAFT = "draft"
-_STATUS_REVIEW = "review"
-_STATUS_ESTABLISHED = "established"
-_STATUS_ARCHIVED = "archived"
 
 
 class ExpertReviewTab:
@@ -63,10 +56,13 @@ class ExpertReviewTab:
         st.markdown("### 📋 Review Wachtrij")
 
         try:
+            # Lazy import: UI-laaggrens verbiedt top-level database-imports
+            from database.models import DefinitieStatus
+
             # Status filter: In review of Gearchiveerd
             status_options = {
-                "In review": _STATUS_REVIEW,
-                "Gearchiveerd": _STATUS_ARCHIVED,
+                "In review": DefinitieStatus.REVIEW,
+                "Gearchiveerd": DefinitieStatus.ARCHIVED,
             }
 
             selected_status_label = st.selectbox(
@@ -81,8 +77,7 @@ class ExpertReviewTab:
 
             # Haal definities op met geselecteerde status
             pending_reviews = self.repository.search_definities(
-                # DEF-439: status constants are DefinitieStatus.value strings by design
-                status=cast("DefinitieStatus", selected_status),
+                status=selected_status,
                 limit=50,
             )
 
@@ -956,10 +951,12 @@ class ExpertReviewTab:
             st.markdown("### 📜 Recente Reviews")
 
             try:
+                # Lazy import: UI-laaggrens verbiedt top-level database-imports
+                from database.models import DefinitieStatus
+
                 # Haal recent reviewed definities op
                 recent_reviews = self.repository.search_definities(
-                    # DEF-439: status constants are DefinitieStatus.value strings by design
-                    status=cast("DefinitieStatus", _STATUS_ESTABLISHED),
+                    status=DefinitieStatus.ESTABLISHED,
                     limit=10,
                 )
 
@@ -1086,11 +1083,13 @@ class ExpertReviewTab:
                 st.warning("⚠️ Wijzigingen gemarkeerd - definitie blijft in review")
 
             elif "Afwijzen" in decision:
+                # Lazy import: UI-laaggrens verbiedt top-level database-imports
+                from database.models import DefinitieStatus
+
                 success = self.repository.change_status(
-                    # DEF-439: definitie.id is int at runtime; status constant is a
-                    # DefinitieStatus.value string by design
+                    # DEF-439: definitie.id is int at runtime (loaded record)
                     cast(int, definitie.id),
-                    cast("DefinitieStatus", _STATUS_ARCHIVED),
+                    DefinitieStatus.ARCHIVED,
                     reviewer,
                     f"Afgewezen: {comments}",
                 )
