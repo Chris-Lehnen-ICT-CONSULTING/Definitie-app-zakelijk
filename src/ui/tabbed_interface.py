@@ -476,6 +476,7 @@ class TabbedInterface:
         """Wis alle velden inclusief classificatie state."""
         fields_to_clear = [
             "begrip",
+            "begrip_input",  # widget-key; anders vult de DEF-500-mirror begrip terug
             "org_context",
             "jur_context",
             "wet_basis",
