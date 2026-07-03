@@ -155,6 +155,9 @@ jobs:
           # DEF-506: dummy is bewust GEEN sk-prefix zodat de module-level
           # skip-guards (echte-AI-tests) blijven skippen, terwijl de
           # DI-container-tests wel een key zien (precedent: test-job, DEF-427).
+          # Sinds PR #349 is anthropic de default-provider → de container vereist
+          # óók een niet-lege ANTHROPIC_API_KEY (zelfde conventie als de test-job).
+          ANTHROPIC_API_KEY: dummy
           OPENAI_API_KEY: dummy
         run: |
           # DEF-506: integration-gate is BLOKKEREND — `|| true` (DEF-466) is weg.
