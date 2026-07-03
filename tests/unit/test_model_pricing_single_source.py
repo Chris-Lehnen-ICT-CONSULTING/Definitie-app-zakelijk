@@ -18,6 +18,20 @@ pytestmark = [pytest.mark.unit]
 GPT52_PRICING = {"input": 0.00003, "output": 0.00006}
 
 
+@pytest.fixture
+def force_openai():
+    """Pin de actieve provider op openai voor deze test.
+
+    De default-provider is anthropic (config.yaml); deze tests borgen de
+    openai-routing/-pricing als concreet voorbeeld en moeten dus onafhankelijk
+    zijn van de globale default.
+    """
+    mock_cfg = MagicMock()
+    mock_cfg.api.ai_provider = "openai"
+    with patch("config.config_manager.get_config_manager", return_value=mock_cfg):
+        yield
+
+
 class TestModelRouterPricing:
     """ModelRouter is de canonieke bron voor pricing."""
 
@@ -32,6 +46,7 @@ class TestModelRouterPricing:
         for model in (
             "gpt-5.2",
             "gpt-5-mini",
+            "claude-opus-4-8",
             "claude-opus-4-5-20251101",
             "claude-haiku-4-5-20251001",
         ):
@@ -43,7 +58,7 @@ class TestModelRouterPricing:
         pricing = router.get_pricing("does-not-exist")
         assert set(pricing) == {"input", "output"}
 
-    def test_get_critical_model_openai(self):
+    def test_get_critical_model_openai(self, force_openai):
         router = ModelRouter({})
         assert router.get_critical_model() == "gpt-5.2"
 
@@ -52,7 +67,8 @@ class TestModelRouterPricing:
         mock_cfg.api.ai_provider = "anthropic"
         with patch("config.config_manager.get_config_manager", return_value=mock_cfg):
             router = ModelRouter({})
-            assert router.get_critical_model() == "claude-opus-4-5-20251101"
+            # Default Anthropic-model = hoogste Opus voor alle tiers.
+            assert router.get_critical_model() == "claude-opus-4-8"
 
     def test_config_override_replaces_pricing(self):
         """config.yaml model_routing kan pricing overschrijven (single source)."""
@@ -80,7 +96,7 @@ class TestModelRouterPricing:
             "output": 0.000004,
         }
 
-    def test_default_definition_model_helper(self):
+    def test_default_definition_model_helper(self, force_openai):
         """De helper resolveert het definition_core-model (geen magic-index)."""
         assert ModelRouter({}).default_definition_model() == "gpt-5.2"
 
@@ -113,7 +129,7 @@ class TestCostCalculatorSingleSource:
         expected = 1000 * GPT52_PRICING["input"] + 1000 * GPT52_PRICING["output"]
         assert cost == pytest.approx(expected)
 
-    def test_router_falls_back_to_from_config_when_container_fails(self):
+    def test_router_falls_back_to_from_config_when_container_fails(self, force_openai):
         """Except-tak: container kapot → _router() valt terug op from_config()."""
         from monitoring.api_monitor import CostCalculator
 
@@ -123,7 +139,7 @@ class TestCostCalculatorSingleSource:
             router = CostCalculator._router()
         assert router.get_critical_model() == "gpt-5.2"
 
-    def test_estimate_monthly_cost_uses_router_critical_model(self):
+    def test_estimate_monthly_cost_uses_router_critical_model(self, force_openai):
         """Maandraming gebruikt router-resolved critical model + pricing."""
         from monitoring.api_monitor import CostCalculator
 
@@ -132,7 +148,7 @@ class TestCostCalculatorSingleSource:
         cost = CostCalculator.estimate_monthly_cost(1000, 1000)
         assert cost == pytest.approx(1170.0)
 
-    async def test_record_api_call_resolves_model_when_none(self):
+    async def test_record_api_call_resolves_model_when_none(self, force_openai):
         """record_api_call(model=None) → kost berekend met critical model."""
         from monitoring import api_monitor
 
@@ -160,7 +176,7 @@ class TestDataclassDefaultsResolveViaRouter:
 
         assert GPTConfig().model is None
 
-    def test_gptconfig_resolved_model_is_active_model(self):
+    def test_gptconfig_resolved_model_is_active_model(self, force_openai):
         from services.definition_generator_config import GPTConfig
 
         assert GPTConfig().resolved_model == "gpt-5.2"
@@ -176,7 +192,7 @@ class TestDataclassDefaultsResolveViaRouter:
 
         assert APIConfig().default_model == ""
 
-    def test_get_default_model_resolves_via_router(self):
+    def test_get_default_model_resolves_via_router(self, force_openai):
         """get_default_model() valt terug op ModelRouter als config leeg is."""
         from config import config_manager
 

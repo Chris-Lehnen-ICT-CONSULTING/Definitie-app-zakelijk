@@ -88,7 +88,8 @@ class TestConfigManager:
             assert api_config.default_model == ""
             from config.config_manager import get_default_model
 
-            assert get_default_model() == "gpt-5.2"
+            # Default-provider = anthropic → hoogste Opus voor alle vragen.
+            assert get_default_model() == "claude-opus-4-8"
 
     def test_default_temperature_no_config_drift(self):
         """DEF-460: de gecommitte config.yaml mag niet driften van de
@@ -115,6 +116,27 @@ class TestConfigManager:
         assert file_default == code_default, (
             f"config.yaml default_temperature={file_default} drift van "
             f"code-default {code_default} (DEF-460)"
+        )
+
+    def test_default_provider_is_anthropic(self):
+        """De default AI-provider is Anthropic (hoogste Opus voor alle vragen).
+
+        Borgt zowel de code-default (APIConfig) als de gecommitte config.yaml,
+        zodat een per ongeluk teruggedraaide provider-default hier faalt.
+        Leest config.yaml DIRECT (hermetisch — geen ConfigManager-cache/env-overlay).
+        """
+        from pathlib import Path
+
+        from config.config_manager import APIConfig
+
+        assert APIConfig().ai_provider == "anthropic"
+
+        config_path = Path(__file__).resolve().parents[2] / "config" / "config.yaml"
+        with open(config_path) as f:
+            committed = yaml.safe_load(f)
+        assert committed["api"]["ai_provider"] == "anthropic", (
+            f"config.yaml ai_provider={committed['api']['ai_provider']} — "
+            "default moet 'anthropic' zijn (hoogste Opus voor alle AI-vragen)"
         )
 
     def test_configuration_validation(self):
