@@ -46,7 +46,7 @@ def render_ai_provider_sidebar() -> None:
         st.markdown("### AI Provider")
 
         # Current provider from env or SessionState
-        current_provider = os.getenv("AI_PROVIDER", "openai").lower()
+        current_provider = os.getenv("AI_PROVIDER", "anthropic").lower()
 
         # Provider selection
         provider_options = list(_PROVIDERS.keys())
@@ -100,8 +100,8 @@ def render_ai_provider_sidebar() -> None:
             _apply_provider_change(selected_provider, entered_key or existing_key)
 
         # Status display
-        active_provider = os.getenv("AI_PROVIDER", "openai").lower()
-        active_config = _PROVIDERS.get(active_provider, _PROVIDERS["openai"])
+        active_provider = os.getenv("AI_PROVIDER", "anthropic").lower()
+        active_config = _PROVIDERS.get(active_provider, _PROVIDERS["anthropic"])
         active_key = os.getenv(active_config["env_key"], "")
 
         if active_key:

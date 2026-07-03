@@ -41,6 +41,7 @@ jobs:
           # Smoke tests draaien offline: SDK-call gemockt + conftest network-guard.
           # De anthropic-smoke schakelt tiktoken uit (zie fixture) zodat geen
           # o200k_base-download nodig is op een koude CI-cache.
+          ANTHROPIC_API_KEY: dummy
           OPENAI_API_KEY: dummy
           OPENAI_API_KEY_PROD: dummy
         run: |

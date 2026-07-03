@@ -29,6 +29,8 @@ def routing_config():
                 "critical": "gpt-5.2",
                 "standard": "gpt-5-mini",
             },
+            # Arbitraire testwaarden om routing te bewijzen — NIET de app-default
+            # (die is claude-opus-4-8, zie _DEFAULT_CONFIG in model_router.py).
             "anthropic": {
                 "critical": "claude-opus-4-5-20251101",
                 "standard": "claude-haiku-4-5-20251001",
@@ -39,7 +41,12 @@ def routing_config():
 
 @pytest.fixture
 def router(routing_config):
-    return ModelRouter(routing_config)
+    # Pin provider=openai zodat deze routing-asserties deterministisch zijn,
+    # onafhankelijk van de globale default-provider in config.yaml (nu anthropic).
+    mock_cfg = MagicMock()
+    mock_cfg.api.ai_provider = "openai"
+    with patch("config.config_manager.get_config_manager", return_value=mock_cfg):
+        yield ModelRouter(routing_config)
 
 
 class TestTierMapping:

@@ -42,3 +42,15 @@ ec1cf514d0198766ee371cbebd63ee8a468daecc:ai_code_reviewer_package/BUILD.md:gener
 6426a9a8e1e19756226139a89520f92ccc30cc63:ai_code_reviewer_package/BUILD.md:generic-api-key:104
 6426a9a8e1e19756226139a89520f92ccc30cc63:ai_code_reviewer_package/BUILD.md:generic-api-key:115
 6426a9a8e1e19756226139a89520f92ccc30cc63:ai_code_reviewer_package/BUILD.md:generic-api-key:120
+
+# DEF-491 follow-up (2026-07-03, expliciet akkoord Chris): de history-scrub
+# herschreef alle commit-SHA's, waardoor bovenstaande fingerprints niet meer
+# matchen. Hieronder dezelfde (geroteerde/inactieve) findings opnieuw met de
+# post-rewrite SHA's. Geen nieuwe acceptaties.
+# Linear-key: geroteerd 2025-01-25; HEAD-code gebruikt LINEAR_API_KEY env-var.
+95be7c2e829fb0de6d1b7dafb9d9435348425e75:scripts/fetch_linear_issues.py:linear-api-key:5
+cf95556e9d104ebfe588edd8373db36e74f646a9:.gitleaksignore:generic-api-key:5
+cf95556e9d104ebfe588edd8373db36e74f646a9:.gitleaksignore:generic-api-key:6
+cf95556e9d104ebfe588edd8373db36e74f646a9:.gitleaksignore:generic-api-key:7
+cf95556e9d104ebfe588edd8373db36e74f646a9:.gitleaksignore:generic-api-key:10
+e2af435dd79e1d544908e2691cf2c1fa67906ccc:REBUILD_PACKAGE/requirements/TECHNICAL_ARCHITECTURE.md:database-connection-string:1782

@@ -5,6 +5,7 @@ Document Processor - Verwerk geüploade documenten voor context enrichment.
 import hashlib  # Hash functionaliteit voor unieke document identifiers
 import json  # JSON verwerking voor metadata opslag
 import logging  # Logging faciliteiten voor debug en monitoring
+from collections import OrderedDict  # LRU-geordende cache (DEF-514)
 from dataclasses import (  # Dataklassen voor gestructureerde document data
     asdict,
     dataclass,
@@ -59,22 +60,49 @@ class ProcessedDocument:
 class DocumentProcessor:
     """Processor voor geüploade documenten met tekstextractie en analyse."""
 
+    # DEF-514: bovengrens voor de in-memory documentcache (LRU-eviction)
+    MAX_CACHED_DOCUMENTS = 100
+
     def __init__(
-        self, storage_dir: str = "data/uploaded_documents"
+        self,
+        storage_dir: str = "data/uploaded_documents",
+        max_documents: int = MAX_CACHED_DOCUMENTS,
     ):  # Standaard opslag directory
         """
         Initialiseer document processor.
 
         Args:
             storage_dir: Directory voor opslag van document metadata
+            max_documents: Maximum aantal documenten in de cache (LRU-eviction).
+
+        Note (DEF-514, bewuste keuze): de in-memory cache is de single source
+        of truth voor ``_save_metadata`` — het metadata-bestand wordt bij elke
+        save volledig herschreven vanuit de cache. Evicted documenten los op
+        schijf bewaren zou ze bij de volgende ``_load_metadata`` gewoon weer
+        inladen (waarmee de bound zinloos wordt) en vereist merge-bookkeeping.
+        Daarom propageert LRU-eviction consistent naar het metadata-bestand
+        bij de eerstvolgende save.
         """
         self.storage_dir = Path(storage_dir)
         self.storage_dir.mkdir(parents=True, exist_ok=True)
         self.metadata_file = self.storage_dir / "documents_metadata.json"
-        self._documents_cache: dict[str, ProcessedDocument] = {}
+        self.max_documents = max_documents
+        # DEF-514: OrderedDict zodat recency-orde (LRU) expliciet bijgehouden wordt
+        self._documents_cache: OrderedDict[str, ProcessedDocument] = OrderedDict()
         # DEF-229: Track persistence failures for observability
         self._persistence_failed = False
         self._load_metadata()
+
+    def _evict_lru_if_needed(self) -> None:
+        """Verwijder least-recently-used documenten boven de cache-bound (DEF-514)."""
+        while len(self._documents_cache) > self.max_documents:
+            evicted_id, evicted_doc = self._documents_cache.popitem(last=False)
+            # WARNING: dit is dataverwijdering (document verdwijnt ook uit
+            # metadata bij de eerstvolgende save), geen routine-cache-actie
+            logger.warning(
+                f"Documentcache-bound ({self.max_documents}) bereikt: "
+                f"LRU-document {evicted_doc.filename} (ID: {evicted_id}) verwijderd"
+            )
 
     def process_uploaded_file(
         self, file_content: bytes, filename: str, mime_type: str | None = None
@@ -97,6 +125,7 @@ class DocumentProcessor:
             # Check of document al verwerkt is
             if doc_id in self._documents_cache:
                 logger.info(f"Document {filename} al eerder verwerkt, hergebruik cache")
+                self._documents_cache.move_to_end(doc_id)  # DEF-514: LRU-touch
                 return cast(ProcessedDocument, self._documents_cache[doc_id])
 
             # Krijg bestandsinfo
@@ -154,6 +183,7 @@ class DocumentProcessor:
 
             # Sla document op in cache en metadata
             self._documents_cache[doc_id] = doc
+            self._evict_lru_if_needed()  # DEF-514: begrens cache vóór persist
             self._save_metadata()
 
             logger.info(f"Document {filename} succesvol verwerkt (ID: {doc_id})")
@@ -186,7 +216,10 @@ class DocumentProcessor:
 
     def get_document_by_id(self, doc_id: str) -> ProcessedDocument | None:
         """Krijg document op basis van ID."""
-        return self._documents_cache.get(doc_id)
+        doc = self._documents_cache.get(doc_id)
+        if doc is not None:
+            self._documents_cache.move_to_end(doc_id)  # DEF-514: LRU-touch
+        return doc
 
     def remove_document(self, doc_id: str) -> bool:
         """Verwijder document uit cache."""
@@ -512,6 +545,10 @@ class DocumentProcessor:
                 for doc_data in data.get("documents", []):
                     doc = ProcessedDocument.from_dict(doc_data)
                     self._documents_cache[doc.id] = doc
+
+                # DEF-514: handhaaf cache-bound ook bij laden; de opgeslagen
+                # volgorde is de LRU-orde van de vorige sessie (oudste eerst)
+                self._evict_lru_if_needed()
 
                 logger.info(
                     f"Metadata geladen voor {len(self._documents_cache)} documenten"
