@@ -1,4 +1,6 @@
-PY?=python
+# DEF-513: kale `python` bestaat niet op macOS/CI-runners (alleen `python3`) —
+# prefereer de project-venv, val terug op python3. Overridebaar: `make PY=... <target>`.
+PY?=$(shell [ -x .venv/bin/python ] && echo .venv/bin/python || echo python3)
 
 .PHONY: dev lint complexity-check mypy-check overrides-check pins-check audit lock lock-check test status validation-status
 
