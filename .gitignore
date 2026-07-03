@@ -199,3 +199,6 @@ Huidige_Versie/
 
 # 💚 Backup bestanden
 *.bak
+
+# story-runner marker
+.story-runner-spec-done
