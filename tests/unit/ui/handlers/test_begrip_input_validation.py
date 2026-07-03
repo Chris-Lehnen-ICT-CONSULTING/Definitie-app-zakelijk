@@ -35,12 +35,17 @@ class TestValidateBegripInput:
             "e-mail",
             "ne bis in idem",
             "artikel 12-procedure",
+            "artikel 6:162 BW",  # wetsartikel-notatie met dubbele punt
+            "3:15 BW",
             "P&O-beleid",
+            "en/of-constructie",
             "(straf)recht",
             "identiteitsvaststelling, herhaald",
             "Militaire Ambtenarenwet 1931",
             "'s-Gravenhaags begrip",
+            "’s-Gravenhaagse notatie",  # curly apostrof (U+2019)
             "café-exploitatie",
+            "a" * 100,  # grens-geldig: exact de maximale lengte
         ],
     )
     def test_geldige_begrippen_passeren(self, begrip: str) -> None:
@@ -49,12 +54,14 @@ class TestValidateBegripInput:
     @pytest.mark.parametrize(
         ("begrip", "reden_fragment"),
         [
-            ("", "begrip in"),
-            ("   ", "begrip in"),
+            ("", "voer eerst een begrip in"),
+            ("   ", "voer eerst een begrip in"),
             (GAT_ROMMEL, "ongeldige tekens"),
-            ("!!!", "letter"),
-            ("12345", "letter"),
-            ("a" * 101, "te lang"),
+            ("!!!", "minimaal één letter"),
+            ("12345", "minimaal één letter"),
+            ("×÷", "minimaal één letter"),  # U+00D7/U+00F7 zijn geen letters
+            ("a×b", "ongeldige tekens"),  # × zit ook niet in de allowlist
+            ("a" * 101, "te lang"),  # grens-ongeldig: net over het maximum
             ("begrip 💡", "ongeldige tekens"),
             ("<script>alert(1)</script>", "ongeldige tekens"),
         ],
@@ -97,6 +104,30 @@ class TestHandlerWeigertOngeldigBegrip:
         handler.definition_service.generate_definition.assert_not_called()
         handler.checker.check_definitie.assert_not_called()
         handler.repository.assert_not_called()
+        mock_st.spinner.assert_not_called()
+
+    def test_afwijzing_wordt_gelogd(self, caplog: pytest.LogCaptureFixture) -> None:
+        handler = self._handler()
+        with caplog.at_level(
+            "WARNING", logger="ui.handlers.definition_generation_handler"
+        ):
+            handler.handle_definition_generation(
+                GAT_ROMMEL, {}, _st=MagicMock(), _sm=MagicMock()
+            )
+        weigeringen = [r for r in caplog.records if "Generatie geweigerd" in r.message]
+        assert len(weigeringen) == 1
+
+    def test_duplicate_check_weigert_ongeldig_begrip(self) -> None:
+        """Zusterpad (review #352): dezelfde gate geldt voor de duplicate-check."""
+        handler = self._handler()
+        mock_st = MagicMock()
+        mock_st.error = Mock()
+
+        handler.handle_duplicate_check(GAT_ROMMEL, {}, _st=mock_st, _sm=MagicMock())
+
+        mock_st.error.assert_called_once()
+        assert "ongeldige tekens" in mock_st.error.call_args[0][0]
+        handler.checker.check_definitie.assert_not_called()
         mock_st.spinner.assert_not_called()
 
     def test_geldig_begrip_passeert_de_invoervalidatie(self) -> None:
