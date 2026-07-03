@@ -31,12 +31,16 @@ class GlobalContextRenderer:
         """Render begrip invoerveld en sla op in session state."""
         _default_st.markdown("### 📝 Definitie Aanvraag")
         _DefaultSM.initialize_session_state({"begrip_input": ""})
-        return _default_st.text_input(
+        value = _default_st.text_input(
             "Voer een term in waarvoor een definitie moet worden gegenereerd",
             placeholder="bijv. authenticatie, verificatie, identiteitsvaststelling...",
             help="Het centrale begrip waarvoor een definitie gegenereerd wordt",
             key="begrip_input",
         )
+        # DEF-500: spiegel de widget-waarde naar de niet-widget-key "begrip";
+        # render_category_preview en de auto-generatie-trigger lezen die key.
+        _DefaultSM.set_value("begrip", value)
+        return value
 
     def render_context_selector(self) -> dict[str, Any]:
         """Render context selector met fallback."""
