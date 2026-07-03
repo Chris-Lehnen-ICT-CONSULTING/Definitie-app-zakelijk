@@ -188,6 +188,26 @@ class DocumentUploadRenderer:
                 doc_labels.append(label)
 
         if doc_options:
+            # DEF-514: filter geëvicte document-IDs uit de eerdere selectie —
+            # een onbekende default laat st.multiselect crashen, en de
+            # gebruiker mag niet stil een selectie verliezen
+            stored_selection = SessionStateManager.get_value("selected_documents", [])
+            valid_selection = [d for d in stored_selection if d in doc_options]
+            if len(valid_selection) < len(stored_selection):
+                removed_count = len(stored_selection) - len(valid_selection)
+                logger.warning(
+                    f"{removed_count} eerder geselecteerde document(en) niet meer "
+                    "beschikbaar (opgeruimd na cache-limiet); selectie opgeschoond"
+                )
+                # Eénmalig: na set_value matcht de opgeslagen selectie weer
+                # met de beschikbare opties, dus deze melding herhaalt niet
+                st.info(
+                    f"ℹ️ {removed_count} eerder geselecteerde document(en) zijn "
+                    "niet meer beschikbaar (opgeruimd na cache-limiet) en uit "
+                    "de selectie verwijderd — upload opnieuw indien nodig."
+                )
+                SessionStateManager.set_value("selected_documents", valid_selection)
+
             selected_docs = st.multiselect(
                 "Selecteer documenten voor context verrijking",
                 options=doc_options,
@@ -196,7 +216,7 @@ class DocumentUploadRenderer:
                     for doc_id, label in zip(doc_options, doc_labels, strict=False)
                     if doc_id == x
                 ),
-                default=SessionStateManager.get_value("selected_documents", []),
+                default=valid_selection,
                 help="Geselecteerde documenten worden gebruikt "
                 "voor context en bronvermelding",
             )

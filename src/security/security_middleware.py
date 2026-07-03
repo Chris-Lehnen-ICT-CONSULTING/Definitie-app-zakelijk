@@ -377,29 +377,30 @@ class SecurityMiddleware:
             request.endpoint, self.rate_limits["default"]
         )
 
-        # Initialize tracking for IP if not exists
-        if ip not in self.request_tracking:
-            self.request_tracking[ip] = []
-
         # Clean old requests (older than 1 hour)
         cutoff_time = current_time - timedelta(hours=1)
-        self.request_tracking[ip] = [
-            req_time for req_time in self.request_tracking[ip] if req_time > cutoff_time
+        recent_requests = [
+            req_time
+            for req_time in self.request_tracking.get(ip, [])
+            if req_time > cutoff_time
         ]
 
+        # DEF-514: verwijder lege IP-keys na cleanup zodat request_tracking
+        # niet onbegrensd groeit met dode entries (blocked_ips wordt al opgeruimd)
+        if recent_requests:
+            self.request_tracking[ip] = recent_requests
+        else:
+            self.request_tracking.pop(ip, None)
+
         # Check hourly limit
-        hourly_requests = len(self.request_tracking[ip])
+        hourly_requests = len(recent_requests)
         if hourly_requests >= endpoint_config["requests_per_hour"]:
             return False
 
         # Check minute limit
         minute_cutoff = current_time - timedelta(minutes=1)
         minute_requests = len(
-            [
-                req_time
-                for req_time in self.request_tracking[ip]
-                if req_time > minute_cutoff
-            ]
+            [req_time for req_time in recent_requests if req_time > minute_cutoff]
         )
         if minute_requests >= endpoint_config["requests_per_minute"]:
             return False
@@ -407,11 +408,7 @@ class SecurityMiddleware:
         # Check burst limit (last 10 seconds)
         burst_cutoff = current_time - timedelta(seconds=10)
         burst_requests = len(
-            [
-                req_time
-                for req_time in self.request_tracking[ip]
-                if req_time > burst_cutoff
-            ]
+            [req_time for req_time in recent_requests if req_time > burst_cutoff]
         )
         return not burst_requests >= endpoint_config["burst_limit"]
 

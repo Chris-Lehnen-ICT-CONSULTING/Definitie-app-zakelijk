@@ -7,6 +7,7 @@ It provides helpful warnings and suggestions to improve compliance.
 
 import logging
 import re
+from collections import OrderedDict
 from dataclasses import dataclass, field
 from difflib import get_close_matches
 from typing import Any
@@ -103,10 +104,34 @@ class ASTRAValidator:
     # Known legal domains — afgeleid uit de centrale waardelijst (DEF-376)
     LEGAL_DOMAINS = list(RECHTSGEBIEDEN.values())
 
+    # DEF-514: bovengrens voor de validatiecache (LRU-eviction)
+    MAX_VALIDATION_CACHE_ENTRIES = 500
+
     def __init__(self) -> None:
         """Initialize the validator."""
-        self.validation_cache: dict[str, Any] = {}
+        # DEF-514: begrensde LRU-cache — gebruik _cache_get/_cache_set zodat
+        # de cache nooit onbegrensd kan groeien
+        self.validation_cache: OrderedDict[str, Any] = OrderedDict()
         logger.info("ASTRA Validator initialized with warning-based approach")
+
+    def _cache_get(self, key: str) -> Any | None:
+        """Get a cached validation result and refresh its LRU recency (DEF-514)."""
+        if key in self.validation_cache:
+            self.validation_cache.move_to_end(key)
+            return self.validation_cache[key]
+        return None
+
+    def _cache_set(self, key: str, value: Any) -> None:
+        """Store a validation result with LRU eviction at the bound (DEF-514)."""
+        if key in self.validation_cache:
+            self.validation_cache.move_to_end(key)
+        self.validation_cache[key] = value
+        while len(self.validation_cache) > self.MAX_VALIDATION_CACHE_ENTRIES:
+            evicted_key, _ = self.validation_cache.popitem(last=False)
+            logger.debug(
+                f"Validation cache bound ({self.MAX_VALIDATION_CACHE_ENTRIES}) "
+                f"reached: evicted LRU entry {evicted_key!r}"
+            )
 
     def validate_with_warnings(self, context: dict[str, list[str]]) -> ValidationResult:
         """
