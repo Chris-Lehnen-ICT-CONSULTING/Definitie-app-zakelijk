@@ -37,6 +37,9 @@ class FakeSessionStateManager:
         for key, value in defaults.items():
             self.store.setdefault(key, value)
 
+    def clear_value(self, key):
+        self.store.pop(key, None)
+
 
 def _make_streamlit_mock() -> MagicMock:
     """Streamlit-mock die unpacking en falsy selectbox correct simuleert."""
@@ -86,6 +89,46 @@ class TestBegripKeySync:
 
         assert fake_sm.get_value("begrip") == ""
 
+    def test_changed_term_invalidates_cached_classification(self, renderer):
+        """Nieuwe term → gecachte categorie van de vorige term moet vervallen."""
+        fake_sm = FakeSessionStateManager()
+        fake_sm.set_value("begrip", "authenticatie")
+        fake_sm.set_value("determined_category", "proces")
+        fake_sm.set_value("category_reasoning", "oude redenering")
+        fake_sm.set_value("category_scores", {"proces": 2})
+        fake_st = _make_streamlit_mock()
+        fake_st.text_input.return_value = "identiteitsvaststelling"
+
+        with (
+            patch("ui.renderers.global_context_renderer._default_st", fake_st),
+            patch("ui.renderers.global_context_renderer._DefaultSM", fake_sm),
+        ):
+            renderer.render_begrip_input()
+
+        assert fake_sm.get_value("begrip") == "identiteitsvaststelling"
+        assert fake_sm.get_value("determined_category") is None, (
+            "Stale classificatie bleef staan — generatie zou de categorie "
+            "van de vórige term gebruiken"
+        )
+        assert fake_sm.get_value("category_reasoning") is None
+        assert fake_sm.get_value("category_scores") is None
+
+    def test_unchanged_term_keeps_cached_classification(self, renderer):
+        """Zelfde term op een rerun → cache blijft (geen herclassificatie nodig)."""
+        fake_sm = FakeSessionStateManager()
+        fake_sm.set_value("begrip", "authenticatie")
+        fake_sm.set_value("determined_category", "proces")
+        fake_st = _make_streamlit_mock()
+        fake_st.text_input.return_value = "authenticatie"
+
+        with (
+            patch("ui.renderers.global_context_renderer._default_st", fake_st),
+            patch("ui.renderers.global_context_renderer._DefaultSM", fake_sm),
+        ):
+            renderer.render_begrip_input()
+
+        assert fake_sm.get_value("determined_category") == "proces"
+
 
 class TestCatch22Regression:
     """End-to-end op renderer-niveau: invoer → preview → classificatie."""
@@ -130,6 +173,36 @@ class TestCatch22Regression:
             OntologischeCategorie.PROCES.value
         ), "Catch-22 DEF-500: classificatie draaide niet na term + context"
 
+    @pytest.mark.parametrize("widget_value", ["", "   "], ids=["leeg", "whitespace"])
+    def test_preview_skips_classification_for_blank_mirrored_input(
+        self, renderer, widget_value
+    ):
+        """Lege/whitespace widget-waarde via de mirror mag niet classificeren."""
+        fake_sm = FakeSessionStateManager()
+        fake_sm.set_value(
+            "global_context",
+            {"organisatorische_context": ["Justitie"], "juridische_context": []},
+        )
+        fake_st = _make_streamlit_mock()
+        fake_st.text_input.return_value = widget_value
+        classify = AsyncMock()
+
+        with (
+            patch("ui.renderers.global_context_renderer._default_st", fake_st),
+            patch("ui.renderers.global_context_renderer._DefaultSM", fake_sm),
+        ):
+            renderer.render_begrip_input()
+
+        renderer.render_category_preview(
+            _st=fake_st,
+            _sm=fake_sm,
+            _asyncio_run=asyncio.run,
+            _determine_fn=classify,
+        )
+
+        classify.assert_not_called()
+        assert fake_sm.get_value("determined_category") is None
+
     def test_preview_skips_classification_without_input(self, renderer):
         """Zonder ingevoerde term mag de classifier niet draaien."""
         fake_sm = FakeSessionStateManager()
@@ -148,4 +221,31 @@ class TestCatch22Regression:
         )
 
         classify.assert_not_called()
+        assert fake_sm.get_value("determined_category") is None
+
+    def test_preview_survives_classifier_failure(self, renderer):
+        """Classifier-exception → warning-pad: geen crash, geen cache."""
+        fake_sm = FakeSessionStateManager()
+        fake_sm.set_value(
+            "global_context",
+            {"organisatorische_context": ["Justitie"], "juridische_context": []},
+        )
+        fake_st = _make_streamlit_mock()
+        fake_st.text_input.return_value = "authenticatie"
+        classify = AsyncMock(side_effect=RuntimeError("classifier kapot"))
+
+        with (
+            patch("ui.renderers.global_context_renderer._default_st", fake_st),
+            patch("ui.renderers.global_context_renderer._DefaultSM", fake_sm),
+        ):
+            renderer.render_begrip_input()
+
+        renderer.render_category_preview(
+            _st=fake_st,
+            _sm=fake_sm,
+            _asyncio_run=asyncio.run,
+            _determine_fn=classify,
+        )
+
+        classify.assert_called_once()
         assert fake_sm.get_value("determined_category") is None
