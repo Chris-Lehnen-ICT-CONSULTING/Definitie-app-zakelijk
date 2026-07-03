@@ -101,7 +101,7 @@ def render_ai_provider_sidebar() -> None:
 
         # Status display
         active_provider = os.getenv("AI_PROVIDER", "anthropic").lower()
-        active_config = _PROVIDERS.get(active_provider, _PROVIDERS["openai"])
+        active_config = _PROVIDERS.get(active_provider, _PROVIDERS["anthropic"])
         active_key = os.getenv(active_config["env_key"], "")
 
         if active_key:
