@@ -218,7 +218,8 @@ class VoorbeeldenRepository:
                             saved_ids.append(last_id)
 
                         logger.debug(
-                            f"Saved {voorbeeld_type} voorbeeld {idx}: {voorbeeld_tekst[:50]}..."
+                            f"Saved {voorbeeld_type} voorbeeld {idx} "
+                            f"(id={saved_ids[-1]}, len={len(voorbeeld_tekst)})"
                         )
 
                 # DEF-469/DEF-391: voorkeursterm-update binnen dezelfde transactie
