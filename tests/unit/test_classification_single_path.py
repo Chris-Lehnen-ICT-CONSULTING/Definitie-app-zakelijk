@@ -222,6 +222,10 @@ class TestSinglePathClassification:
         assert "category_reasoning" in cleared_fields
         assert "category_scores" in cleared_fields
         assert "manual_ontological_category" in cleared_fields
+        # DEF-500: ook de widget-key moet mee, anders vult de begrip-mirror
+        # de zojuist gewiste key direct weer met de oude veldinhoud
+        assert "begrip" in cleared_fields
+        assert "begrip_input" in cleared_fields
 
     def test_no_fallback_classification_in_generation(self, mock_interface):
         """Verify _handle_definition_generation does NOT call _determine_ontological_category."""
