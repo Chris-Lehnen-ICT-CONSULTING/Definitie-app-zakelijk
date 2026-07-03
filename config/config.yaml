@@ -1,5 +1,5 @@
 api:
-  ai_provider: openai
+  ai_provider: anthropic
   anthropic_api_key: ''
   default_max_tokens: 300
   default_model: ''

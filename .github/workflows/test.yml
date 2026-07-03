@@ -18,10 +18,13 @@ jobs:
       matrix:
         python-version: ["3.13"]
     env:
-      # DEF-427: unit-tests bouwen de DI-container, die een niet-lege OPENAI_API_KEY
+      # DEF-427: unit-tests bouwen de DI-container, die een niet-lege API-key
       # vereist. Lokaal komt die uit .env; in CI ontbreekt .env → "API key is required".
+      # Default-provider = anthropic → ANTHROPIC_API_KEY is nu de vereiste key; de
+      # OPENAI-keys blijven staan voor tests die naar openai wisselen.
       # `dummy` is niet-leeg (container bouwt) én niet-`sk-` (integration-skip-guards
       # blijven skippen → geen echte API-calls). Conventie van contract-tests/ci/coverage-badge.
+      ANTHROPIC_API_KEY: dummy
       OPENAI_API_KEY: dummy
       OPENAI_API_KEY_PROD: dummy
 

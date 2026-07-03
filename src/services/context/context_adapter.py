@@ -123,7 +123,7 @@ class ServiceContextAdapter:
         # Add any additional kwargs
         request.update(kwargs)
 
-        logger.debug(f"Prepared generation request for '{begrip}'")
+        logger.debug(f"Prepared generation request (begrip_len={len(begrip)})")
         return request
 
 
