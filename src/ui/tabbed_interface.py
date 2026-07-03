@@ -55,6 +55,8 @@ from ui.session_state import (
 # Module-level constants
 UTC = UTC  # Voor Python 3.10 compatibility
 
+APP_VERSION = "2.3.0"  # Applicatieversie — single source voor header/footer (DEF-511)
+
 logger = logging.getLogger(__name__)  # Logger instantie voor deze module
 
 
@@ -298,9 +300,9 @@ class TabbedInterface:
 
         with col2:
             st.markdown(
-                """
+                f"""
                 <div style="text-align: center;">
-                    <h1>🧠 DefinitieAgent 2.0</h1>
+                    <h1>🧠 DefinitieAgent {APP_VERSION}</h1>
                     <p style="font-size: 18px; color: #666;">
                         AI-ondersteunde definitie generatie en kwaliteitscontrole
                     </p>
@@ -343,7 +345,7 @@ class TabbedInterface:
         st.markdown("### 📝 Metadata")
         try:
             gcr.render_metadata_fields()
-            st.success("✅ Metadata velden succesvol geladen")
+            logger.debug("Metadata velden succesvol geladen")
         except Exception as e:
             logger.error(f"Metadata fields crashed: {e}", exc_info=True)
             st.error(f"❌ Metadata velden fout: {type(e).__name__}: {e!s}")
@@ -359,7 +361,7 @@ class TabbedInterface:
         st.markdown("---")
         try:
             self._render_quick_generate_button(begrip, context_data)
-            st.success("✅ Quick generate button succesvol geladen")
+            logger.debug("Quick generate button succesvol geladen")
         except Exception as e:
             logger.error(f"Quick generate button crashed: {e}", exc_info=True)
             st.error(f"❌ Quick generate button fout: {type(e).__name__}: {e!s}")
@@ -510,6 +512,17 @@ class TabbedInterface:
         if default_key not in tab_keys:
             default_key = tab_keys[0]
 
+        # DEF-495: programmatische tab-switch (bijv. "Bewerk Definitie" knop).
+        # De radio bewaart zijn eigen widget-state over reruns heen; een
+        # one-shot flag zet die state vóór widget-instantiatie om, anders
+        # wint de oude radio-keuze na st.rerun().
+        pending_tab = SessionStateManager.get_value("pending_tab_switch")
+        if pending_tab is not None:
+            SessionStateManager.clear_value("pending_tab_switch")
+            if pending_tab in tab_keys:
+                default_key = pending_tab
+                SessionStateManager.set_value("main_tabs_radio", pending_tab)
+
         # Radio-navigatie
         selected_key = st.radio(
             "Navigatie",
@@ -588,7 +601,9 @@ class TabbedInterface:
             st.markdown(
                 """
                 <div style="text-align: center; color: #666; font-size: 12px;">
-                    DefinitieAgent 2.0 | Laatste update: """
+                    DefinitieAgent """
+                + APP_VERSION
+                + """ | Laatste update: """
                 + datetime.now(UTC).strftime("%Y-%m-%d %H:%M")
                 + """
                 </div>

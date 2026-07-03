@@ -62,7 +62,7 @@ class APIConfig:
     request_timeout: float = 30.0  # Timeout in seconden voor API verzoeken
     max_retries: int = 3  # Maximum aantal herhaalpogingen bij mislukte verzoeken
     retry_backoff_factor: float = 1.5  # Exponentiële vertraging tussen pogingen
-    ai_provider: str = "openai"  # AI provider: "openai" or "anthropic"
+    ai_provider: str = "anthropic"  # AI provider: "anthropic" (default) or "openai"
     anthropic_api_key: str = ""  # Anthropic API key for Claude models
 
     # Model-specifieke instellingen per AI model type.
