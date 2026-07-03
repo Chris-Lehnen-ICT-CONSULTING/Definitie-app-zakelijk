@@ -1,10 +1,20 @@
 import asyncio
+import os
 from dataclasses import dataclass
 from typing import Any
 
 import pytest
 
 pytestmark = [pytest.mark.integration]
+
+# DEF-506: skip zonder API-key — create_definition doet echte generatie-calls
+# (voorbeelden-pad) ondanks de stub-services; zonder geldige sk-key geeft dat
+# trage retries/timeouts (in CI een hang). Zelfde guard-patroon als DEF-429.
+if not os.getenv("OPENAI_API_KEY", "").startswith("sk-"):
+    pytest.skip(
+        "Geen geldige OPENAI_API_KEY (sk-...) — integration-test vereist echte AI-generatie",
+        allow_module_level=True,
+    )
 
 
 # Minimal stubs for required services
