@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """Test auto-load functionality for edit tab."""
 
-import os
 import sys
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
+# DEF-500-bijvangst: GEEN sys.path.insert van tests/ hier — dat shadowt
+# src/integration met tests/integration bij een kale `pytest tests/unit`-run
+# (zie DEF-439-toelichting in tests/conftest.py). pytest.ini pythonpath=src
+# dekt de imports.
 from unittest.mock import MagicMock, Mock, patch
 
 import streamlit as st
