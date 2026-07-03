@@ -88,7 +88,8 @@ class TestConfigManager:
             assert api_config.default_model == ""
             from config.config_manager import get_default_model
 
-            assert get_default_model() == "gpt-5.2"
+            # Default-provider = anthropic → hoogste Opus voor alle vragen.
+            assert get_default_model() == "claude-opus-4-8"
 
     def test_default_temperature_no_config_drift(self):
         """DEF-460: de gecommitte config.yaml mag niet driften van de
