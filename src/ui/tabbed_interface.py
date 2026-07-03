@@ -55,6 +55,8 @@ from ui.session_state import (
 # Module-level constants
 UTC = UTC  # Voor Python 3.10 compatibility
 
+APP_VERSION = "2.3.0"  # Applicatieversie — single source voor header/footer (DEF-511)
+
 logger = logging.getLogger(__name__)  # Logger instantie voor deze module
 
 
@@ -298,9 +300,9 @@ class TabbedInterface:
 
         with col2:
             st.markdown(
-                """
+                f"""
                 <div style="text-align: center;">
-                    <h1>🧠 DefinitieAgent 2.0</h1>
+                    <h1>🧠 DefinitieAgent {APP_VERSION}</h1>
                     <p style="font-size: 18px; color: #666;">
                         AI-ondersteunde definitie generatie en kwaliteitscontrole
                     </p>
@@ -588,7 +590,9 @@ class TabbedInterface:
             st.markdown(
                 """
                 <div style="text-align: center; color: #666; font-size: 12px;">
-                    DefinitieAgent 2.0 | Laatste update: """
+                    DefinitieAgent """
+                + APP_VERSION
+                + """ | Laatste update: """
                 + datetime.now(UTC).strftime("%Y-%m-%d %H:%M")
                 + """
                 </div>
