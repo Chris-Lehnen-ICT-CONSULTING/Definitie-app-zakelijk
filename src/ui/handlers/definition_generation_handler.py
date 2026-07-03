@@ -31,9 +31,11 @@ logger = logging.getLogger(__name__)
 # DEF-553: grens-validatie van het begrip vóór generatie. De quality-gate
 # toetst alleen de gegenereerde definitietekst, niet het begrip zelf —
 # zonder deze check belandt betekenisloze invoer als concept in de database.
+# De letter-subranges À-Ö/Ø-ö/ø-ÿ sluiten × (U+00D7) en ÷ (U+00F7) uit;
+# ":" is toegestaan voor wetsartikel-notatie (bv. "artikel 6:162 BW").
 _BEGRIP_MAX_LENGTH = 100
-_BEGRIP_HAS_LETTER = re.compile(r"[A-Za-zÀ-ÿ]")
-_BEGRIP_ALLOWED_CHARS = re.compile(r"^[0-9A-Za-zÀ-ÿ&/().,'’\- ]+$")
+_BEGRIP_HAS_LETTER = re.compile(r"[A-Za-zÀ-ÖØ-öø-ÿ]")
+_BEGRIP_ALLOWED_CHARS = re.compile(r"[0-9A-Za-zÀ-ÖØ-öø-ÿ&/():.,'’\- ]+")
 
 
 def validate_begrip_input(begrip: str) -> str | None:
@@ -49,10 +51,10 @@ def validate_begrip_input(begrip: str) -> str | None:
         return f"het begrip is te lang (maximaal {_BEGRIP_MAX_LENGTH} tekens)"
     if not _BEGRIP_HAS_LETTER.search(stripped):
         return "het begrip moet minimaal één letter bevatten"
-    if not _BEGRIP_ALLOWED_CHARS.match(stripped):
+    if not _BEGRIP_ALLOWED_CHARS.fullmatch(stripped):
         return (
             "het begrip bevat ongeldige tekens; toegestaan zijn letters, "
-            "cijfers, spaties en - & / ( ) . , '"
+            "cijfers, spaties en - & / ( ) : . , '"
         )
     return None
 
@@ -99,6 +101,9 @@ class DefinitionGenerationHandler:
             st.error(f"❌ Generatie geweigerd: {afwijsreden}.")
             logger.warning("Generatie geweigerd: ongeldig begrip (%s)", afwijsreden)
             return
+        # Genormaliseerd doorgeven: consistente sleutels voor duplicate-check
+        # en opslag (de allowlist staat rand-spaties toe, opslag hoort ze niet).
+        begrip = begrip.strip()
 
         try:
             with st.spinner("🔄 Genereren van definitie met hybride context..."):
@@ -525,6 +530,18 @@ class DefinitionGenerationHandler:
         """Handle duplicate check vanaf hoofdniveau."""
         st = _st if _st is not None else _default_st
         SessionStateManager = _sm if _sm is not None else _DefaultSM
+
+        # DEF-553: zelfde invoergrens als generatie — de duplicate-check
+        # verwerkt hetzelfde begrip-veld.
+        afwijsreden = validate_begrip_input(begrip)
+        if afwijsreden:
+            st.error(f"❌ Duplicate-check geweigerd: {afwijsreden}.")
+            logger.warning(
+                "Duplicate-check geweigerd: ongeldig begrip (%s)", afwijsreden
+            )
+            return
+        begrip = begrip.strip()
+
         try:
             with st.spinner("🔍 Controleren op duplicates..."):
                 org_context = context_data.get("organisatorische_context", [])
