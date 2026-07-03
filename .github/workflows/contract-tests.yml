@@ -50,7 +50,9 @@ jobs:
     - name: Run contract tests (with JUnit + coverage)
       env:
         PYTHONPATH: src
-        # Provide dummy API keys to satisfy clients; tests only verify structure
+        # Provide dummy API keys to satisfy clients; tests only verify structure.
+        # Default-provider = anthropic → ANTHROPIC_API_KEY vereist voor client-bouw.
+        ANTHROPIC_API_KEY: dummy
         OPENAI_API_KEY: dummy
         OPENAI_API_KEY_PROD: dummy
       run: |
