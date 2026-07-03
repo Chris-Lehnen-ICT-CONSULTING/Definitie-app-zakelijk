@@ -30,7 +30,7 @@ make test
 ```
 
 ### 📄 Documenten als context (upload)
-- Voor tekstextractie uit DOCX/PDF installeer lokaal: `pip install python-docx PyPDF2`.
+- Tekstextractie uit DOCX/PDF werkt out-of-the-box: `python-docx` en `PyMuPDF` zitten in `requirements.txt` (geen extra installatie nodig).
 - Niet ondersteund: legacy `.doc` en OCR voor gescande PDF’s.
 - Upload documenten via de Generator‑tab (expander “📄 Document Upload voor Context Verrijking”), selecteer ze, en genereer:
   - De prompt gebruikt een compacte samenvatting (document_context) en (optioneel) snippets uit de documenten.
@@ -102,7 +102,7 @@ DefinitieAgent is een AI-applicatie voor het genereren van hoogwaardige Nederlan
 - 🌐 **Web Lookup Epic 3** Backend werkt, prompt augmentatie geïntegreerd
 - 📄 **Document Upload** voor kennisbasis uitbreiding
 - ⚡ **Performance Issues** 6x service init, 45x regel laden, 7.250 prompt tokens
-- 🖥️ **11 Streamlit UI Tabs** (inclusief nieuwe Edit tab)
+- 🖥️ **4 hoofdtabs + 3 beheerpagina's** (Generator, Bewerk, Expert Review, Import/Export & Beheer + RAG-, synoniemen- en metrics-beheer)
 - 🔒 **Security** ❌ Geen authentication/encryption (productie blocker)
 - 📦 **Single Source of Truth** (voorstel) voor toetsregels = prompt instructies
 
