@@ -92,7 +92,7 @@ class DefinitieCrudRepository:
                     f"Nieuwe definitie aangemaakt voor '{record.begrip}'",
                 )
 
-            logger.info(f"Created definitie {record_id} voor '{record.begrip}'")
+            logger.info(f"Created definitie {record_id}")
             return record_id
 
     def get_definitie(self, definitie_id: int) -> DefinitieRecord | None:
