@@ -39,7 +39,12 @@ def routing_config():
 
 @pytest.fixture
 def router(routing_config):
-    return ModelRouter(routing_config)
+    # Pin provider=openai zodat deze routing-asserties deterministisch zijn,
+    # onafhankelijk van de globale default-provider in config.yaml (nu anthropic).
+    mock_cfg = MagicMock()
+    mock_cfg.api.ai_provider = "openai"
+    with patch("config.config_manager.get_config_manager", return_value=mock_cfg):
+        yield ModelRouter(routing_config)
 
 
 class TestTierMapping:

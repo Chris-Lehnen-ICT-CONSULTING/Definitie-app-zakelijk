@@ -21,7 +21,7 @@ class ModelRouter:
     2. Tier + active provider → concrete model name
 
     Config structure (from config.yaml 'model_routing' section):
-        active_provider: "openai"
+        active_provider: "anthropic"
         task_tiers:
             critical: [definition_core, explanation, examples, ...]
             standard: [synonyms, antonyms]
@@ -30,8 +30,8 @@ class ModelRouter:
                 critical: "gpt-5.2"
                 standard: "gpt-5-mini"
             anthropic:
-                critical: "claude-opus-4-5-20251101"
-                standard: "claude-haiku-4-5-20251001"
+                critical: "claude-opus-4-8"
+                standard: "claude-opus-4-8"
         pricing:  # per-token input/output cost, keyed by model name
             "gpt-5.2": {input: 0.00003, output: 0.00006}
             ...
@@ -41,7 +41,9 @@ class ModelRouter:
     _DEFAULT_PRICING: dict[str, float] = {"input": 0.00003, "output": 0.00006}
 
     _DEFAULT_CONFIG: dict[str, Any] = {
-        "active_provider": "openai",
+        # Default provider = Anthropic; het hoogste Opus-model (claude-opus-4-8)
+        # bedient elke tier, zodat alle AI-vragen van de app op Opus 4.8 draaien.
+        "active_provider": "anthropic",
         "task_tiers": {
             "critical": [
                 "definition_core",
@@ -54,14 +56,18 @@ class ModelRouter:
         "providers": {
             "openai": {"critical": "gpt-5.2", "standard": "gpt-5-mini"},
             "anthropic": {
-                "critical": "claude-opus-4-5-20251101",
-                "standard": "claude-haiku-4-5-20251001",
+                "critical": "claude-opus-4-8",
+                "standard": "claude-opus-4-8",
             },
         },
         # DEF-458: canonical pricing — single source for CostCalculator.
+        # Anthropic-tarieven per token: Opus 4.8 = $5/$25 per 1M tokens.
         "pricing": {
             "gpt-5.2": {"input": 0.00003, "output": 0.00006},
             "gpt-5-mini": {"input": 0.0000015, "output": 0.000006},
+            "claude-opus-4-8": {"input": 0.000005, "output": 0.000025},
+            # Alternatieve Anthropic-modellen (niet default) — pricing behouden
+            # zodat een handmatige modelwissel correct wordt doorgerekend.
             "claude-opus-4-5-20251101": {"input": 0.000015, "output": 0.000075},
             "claude-haiku-4-5-20251001": {"input": 0.0000008, "output": 0.000004},
         },
