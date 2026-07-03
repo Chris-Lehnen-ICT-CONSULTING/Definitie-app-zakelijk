@@ -25,6 +25,28 @@ from services.ai.base_client import (
 
 logger = logging.getLogger(__name__)
 
+# DEF-441: sampling-params (temperature/top_p/top_k) zijn verwijderd op
+# Opus 4.7+, Sonnet 5 en Fable/Mythos 5 — meesturen geeft een 400
+# ("`temperature` is deprecated for this model"). Allowlist van families
+# die de parameter nog accepteren; elk ander (nieuw) model krijgt hem
+# niet mee. Weglaten is altijd geldig, dus fail-safe voor model-bumps.
+_TEMPERATURE_MODEL_FAMILIES = (
+    "claude-3",
+    "opus-4-0",
+    "opus-4-1",
+    "opus-4-5",
+    "opus-4-6",
+    "sonnet-4",
+    "haiku-3",
+    "haiku-4",
+)
+
+
+def _accepts_temperature(model: str) -> bool:
+    """Accepteert dit model de temperature-parameter nog?"""
+    model_lc = model.lower()
+    return any(family in model_lc for family in _TEMPERATURE_MODEL_FAMILIES)
+
 
 class AnthropicClient:
     """AsyncAIClient implementation backed by the Anthropic SDK."""
@@ -75,11 +97,21 @@ class AnthropicClient:
                     "Expected 'system', 'user', or 'assistant'."
                 )
 
+        temperature_param: float | anthropic.Omit = anthropic.omit
+        if _accepts_temperature(model):
+            temperature_param = temperature
+        else:
+            logger.debug(
+                "temperature weggelaten voor model %s "
+                "(sampling-params verwijderd op Opus 4.7+/Sonnet 5/Fable 5, DEF-441)",
+                model,
+            )
+
         try:
             response = await self._client.messages.create(
                 model=model,
                 max_tokens=max_tokens,
-                temperature=temperature,
+                temperature=temperature_param,
                 system=system_text,
                 messages=api_messages,
                 timeout=timeout or self._timeout,
