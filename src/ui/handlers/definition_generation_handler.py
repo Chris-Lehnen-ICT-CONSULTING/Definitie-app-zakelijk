@@ -145,7 +145,7 @@ class DefinitionGenerationHandler:
                     )
 
                 # Krijg document context en selected document IDs
-                document_context = self._get_document_context(_sm=_sm)
+                document_context = self._get_document_context(_st=st, _sm=_sm)
                 selected_doc_ids = SessionStateManager.get_value(
                     "selected_documents", []
                 )
@@ -521,8 +521,17 @@ class DefinitionGenerationHandler:
     # Internal helpers
     # ------------------------------------------------------------------
 
-    def _get_document_context(self, *, _sm: Any = None) -> dict[str, Any] | None:
-        """Krijg document context voor definitie generatie."""
+    def _get_document_context(
+        self, *, _st: Any = None, _sm: Any = None
+    ) -> dict[str, Any] | None:
+        """Krijg document context voor definitie generatie.
+
+        DEF-514: geselecteerde documenten die inmiddels uit de begrensde
+        documentcache zijn geëvict, vallen niet stil weg — de gebruiker
+        krijgt een expliciete waarschuwing en de generatie gaat door met
+        de resterende documenten.
+        """
+        st = _st if _st is not None else _default_st
         SessionStateManager = _sm if _sm is not None else _DefaultSM
         try:
             selected_docs = SessionStateManager.get_value("selected_documents", [])
@@ -530,7 +539,27 @@ class DefinitionGenerationHandler:
                 return None
 
             processor = get_document_processor()
-            aggregated_context = processor.get_aggregated_context(selected_docs)
+
+            # DEF-514: detecteer geëvicte selecties expliciet
+            available_docs: list[str] = []
+            for doc_id in selected_docs:
+                if processor.get_document_by_id(doc_id) is None:
+                    logger.warning(
+                        f"Geselecteerd document '{doc_id}' is niet meer beschikbaar "
+                        "(opgeruimd na cache-limiet); generatie gaat door met de "
+                        "resterende documenten"
+                    )
+                    st.warning(
+                        f"⚠️ Document '{doc_id}' is niet meer beschikbaar "
+                        "(opgeruimd na cache-limiet) — upload opnieuw indien nodig"
+                    )
+                else:
+                    available_docs.append(doc_id)
+
+            if not available_docs:
+                return None
+
+            aggregated_context = processor.get_aggregated_context(available_docs)
 
             if aggregated_context["document_count"] == 0:
                 return None
