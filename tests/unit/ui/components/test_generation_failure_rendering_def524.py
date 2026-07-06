@@ -111,13 +111,13 @@ class TestRenderGenerationDetailsFaalpad:
                 SimpleNamespace(), _failure_dict()  # type: ignore[arg-type]
             )
 
-        metric_labels = [str(c.args[0]) for c in st.metric.call_args_list]
+        metrics = {str(c.args[0]): c.args[1] for c in st.metric.call_args_list}
         assert (
-            "Violations" in metric_labels
-        ), f"Violations-tegel niet gerenderd; metrics: {metric_labels}"
+            metrics.get("Violations") == 0
+        ), f"Violations-tegel hoort 0 te tonen zonder validation_details; metrics: {metrics}"
 
     def test_render_details_crasht_niet_zonder_metadata(self):
-        """Ook een dict zonder metadata-key mag niet crashen."""
+        """Ook een dict zonder metadata-key mag niet crashen (defaults renderen)."""
         from ui.components.definition_generator_tab import DefinitionGeneratorTab
 
         kale_dict = _failure_dict()
@@ -126,6 +126,36 @@ class TestRenderGenerationDetailsFaalpad:
         with patch("ui.components.definition_generator_tab.st", st):
             DefinitionGeneratorTab._render_generation_details(
                 SimpleNamespace(), kale_dict  # type: ignore[arg-type]
+            )
+
+        metrics = {str(c.args[0]): c.args[1] for c in st.metric.call_args_list}
+        assert metrics.get("Verwerkingstijd") == "0.0s", f"metrics: {metrics}"
+        assert metrics.get("Succes") == "Nee", f"metrics: {metrics}"
+
+    def test_render_details_telt_violations_uit_validation_details(self):
+        """De violations-telling volgt daadwerkelijk validation_details."""
+        from ui.components.definition_generator_tab import DefinitionGeneratorTab
+
+        dict_met_violations = _failure_dict(
+            validation_details={"violations": [{"rule": "a"}, {"rule": "b"}]}
+        )
+        st = _mock_st()
+        with patch("ui.components.definition_generator_tab.st", st):
+            DefinitionGeneratorTab._render_generation_details(
+                SimpleNamespace(), dict_met_violations  # type: ignore[arg-type]
+            )
+
+        metrics = {str(c.args[0]): c.args[1] for c in st.metric.call_args_list}
+        assert metrics.get("Violations") == 2, f"metrics: {metrics}"
+
+    def test_render_details_crasht_niet_op_lege_dict(self):
+        """AC: het render-pad crasht op géén enkele result-dict-vorm."""
+        from ui.components.definition_generator_tab import DefinitionGeneratorTab
+
+        st = _mock_st()
+        with patch("ui.components.definition_generator_tab.st", st):
+            DefinitionGeneratorTab._render_generation_details(
+                SimpleNamespace(), {}  # type: ignore[arg-type]
             )
 
         assert st.metric.called
@@ -153,6 +183,28 @@ class TestRenderGenerationStatusFaalpad:
             "400 temperature" in samengevoegd
         ), f"Echte foutoorzaak niet zichtbaar; meldingen: {meldingen}"
         assert "Onbekende fout" not in samengevoegd
+        # Kern-regressie DEF-524: een echte fout mag niet als deel-succes framen.
+        assert "mislukt" in samengevoegd
+        assert "gedeeltelijk succesvol" not in samengevoegd
+
+    def test_status_valt_terug_op_reason_zonder_error_message(self):
+        """Middenbranch van de precedentie: error_message → reason → default."""
+        from ui.components.definition_generator_tab import DefinitionGeneratorTab
+
+        kale_dict = _failure_dict(reason="alleen-reden-aanwezig")
+        del kale_dict["error_message"]
+        st = _mock_st()
+        with patch("ui.components.definition_generator_tab.st", st):
+            DefinitionGeneratorTab._render_generation_status(
+                SimpleNamespace(), kale_dict
+            )
+
+        meldingen = [
+            str(c.args[0])
+            for mock in (st.warning, st.error)
+            for c in mock.call_args_list
+        ]
+        assert any("alleen-reden-aanwezig" in m for m in meldingen), meldingen
 
     def test_status_zonder_oorzaak_valt_terug_op_default(self):
         from ui.components.definition_generator_tab import DefinitionGeneratorTab
