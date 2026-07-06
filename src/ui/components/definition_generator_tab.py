@@ -383,7 +383,9 @@ class DefinitionGeneratorTab:
                     # DEF-455: violations zitten in validation_details["violations"]
                     # (was dode read "toetsresultaten" in agent_result → die key
                     # bestond nooit, dus de tegel rendde nooit).
-                    validation_details = agent_result.get("validation_details") or {}
+                    validation_details: dict[str, Any] = dict(
+                        agent_result.get("validation_details") or {}
+                    )
                     violations = len(validation_details.get("violations") or [])
                     st.metric("Violations", violations)
 
