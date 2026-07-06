@@ -607,7 +607,9 @@ class ServiceAdapter:
             "UIResponseDict",
             {
                 "success": False,
+                # DefinitionResponseV2 draagt de oorzaak in .error; legacy in .message
                 "error_message": getattr(response, "message", None)
+                or getattr(response, "error", None)
                 or "Generatie mislukt",
                 "definitie_origineel": "",
                 "definitie_gecorrigeerd": "Generatie mislukt",
