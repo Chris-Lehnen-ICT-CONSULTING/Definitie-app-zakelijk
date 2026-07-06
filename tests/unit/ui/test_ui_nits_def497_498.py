@@ -51,6 +51,7 @@ class TestStatusbadgeDef497:
 
         boodschap = str(st.error.call_args.args[0])
         assert "\\n" not in boodschap, f"Letterlijke backslash-n: {boodschap!r}"
+        assert "\n" in boodschap, f"Geen regeleinde op foutpad: {boodschap!r}"
 
 
 class TestDubbeleKopDef498:
