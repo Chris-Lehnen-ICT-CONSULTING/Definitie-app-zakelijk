@@ -40,13 +40,15 @@ class _FakeSessionStateManager:
         cls._store.pop(key, None)
 
 
-def _mock_streamlit(*, checkbox: bool = False) -> MagicMock:
+def _mock_streamlit(
+    *, checkbox: bool = False, status_filter: str = "In review"
+) -> MagicMock:
     """Mock van de streamlit-module zoals de tab die gebruikt."""
     st = MagicMock()
 
     def _selectbox(label: str, options: Any = None, **_kwargs: Any) -> Any:
         if "Status filter" in label:
-            return "In review"
+            return status_filter
         # Overige selectboxen (bv. "Sorteer op"): eerste optie
         return next(iter(options)) if options else None
 
@@ -59,6 +61,14 @@ def _mock_streamlit(*, checkbox: bool = False) -> MagicMock:
         MagicMock() for _ in (spec if isinstance(spec, (list, tuple)) else range(spec))
     ]
     return st
+
+
+@pytest.fixture(autouse=True)
+def _reset_fake_session_state():
+    """Voorkom order-afhankelijke vervuiling via de class-level _store."""
+    _FakeSessionStateManager._store.clear()
+    yield
+    _FakeSessionStateManager._store.clear()
 
 
 @pytest.fixture
@@ -85,10 +95,17 @@ def _tab(repo: DefinitieRepository):
     return ExpertReviewTab(repo)
 
 
-def test_review_wachtrij_laadt_met_statusfilter_in_review(repo):
-    """Wachtrij met één record in review: geen foutmelding, record getoond."""
-    _maak_record(repo, DefinitieStatus.REVIEW)
-    st = _mock_streamlit(checkbox=False)  # kaartweergave
+@pytest.mark.parametrize(
+    ("filter_label", "record_status"),
+    [
+        ("In review", DefinitieStatus.REVIEW),
+        ("Gearchiveerd", DefinitieStatus.ARCHIVED),
+    ],
+)
+def test_review_wachtrij_laadt_met_statusfilter(repo, filter_label, record_status):
+    """Wachtrij per statusfilter: geen foutmelding, record getoond."""
+    _maak_record(repo, record_status)
+    st = _mock_streamlit(checkbox=False, status_filter=filter_label)  # kaartweergave
 
     with (
         patch("ui.components.expert_review_tab.st", st),

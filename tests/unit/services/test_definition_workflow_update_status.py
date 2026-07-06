@@ -48,6 +48,19 @@ def test_update_status_converteert_string_naar_enum(service_met_mock_repo):
     )
 
 
+@pytest.mark.parametrize("invoer", ["DRAFT", "Draft", "dRaFt"])
+def test_update_status_is_case_insensitive(service_met_mock_repo, invoer):
+    """De gedocumenteerde case-insensitieve conversie blijft werken."""
+    service, repository = service_met_mock_repo
+
+    ok = service.update_status(definition_id=42, new_status=invoer, user="tester")
+
+    assert ok is True
+    assert (
+        repository.change_status.call_args.kwargs["new_status"] is DefinitieStatus.DRAFT
+    )
+
+
 def test_update_status_ongeldige_status_geeft_false(service_met_mock_repo):
     service, repository = service_met_mock_repo
 
