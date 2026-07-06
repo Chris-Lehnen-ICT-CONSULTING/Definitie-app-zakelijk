@@ -53,9 +53,11 @@ class GlobalContextRenderer:
         return value
 
     def render_context_selector(self) -> dict[str, Any]:
-        """Render context selector met fallback."""
-        _default_st.markdown("### 🎯 Context Configuratie")
+        """Render context selector met fallback.
 
+        DEF-498: de sectiekop is eigendom van de selector (elke render-route
+        print hem zelf) — hier niet nogmaals renderen, anders dubbele kop.
+        """
         try:
             context_data = self.context_selector.render()
             logger.debug("Context selector succesvol geladen")
