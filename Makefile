@@ -90,7 +90,9 @@ test-cov:
 
 test-cov-ci:
 	@echo "[test-cov-ci] Coverage met ratchet-vloer 45% (baseline DEF-416; verhogen in Fase 1)"
-	@pytest -q --cov=src --cov-report=term-missing --cov-fail-under=45 -m unit
+	@# DEF-564: -n 4 — unit-suite is xdist-veilig (precedent: test-parallel);
+	@# pytest-cov aggregeert workers correct. Zelfde gate-semantiek, sneller.
+	@pytest -q -n 4 --dist loadfile --cov=src --cov-report=term-missing --cov-fail-under=45 -m unit
 
 .PHONY: test-durations
 test-durations:
