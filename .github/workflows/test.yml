@@ -184,9 +184,12 @@ jobs:
           # gebruiken de default-repository (cwd-relatieve data/definities.db)
           # en zijn dus niet hermetisch onder parallelle workers → serieel in
           # de volgende stap. Hermetisch maken = DEF-562.
+          # LET OP: --ignore werkt hier NIET (pytest 9 + deze config negeert
+          # het stil — empirisch geverifieerd, run 28798987445 draaide de
+          # performance-map gewoon mee). --deselect op de map werkt wél.
           if [ -d "tests/integration" ]; then
             pytest tests/integration/ -v -n 4 --dist loadfile \
-              --ignore=tests/integration/performance \
+              --deselect tests/integration/performance \
               --deselect tests/integration/test_duplicate_detection_fix.py \
               --deselect tests/integration/test_history_removal.py \
               --deselect tests/integration/compliance/test_architecture_consolidation.py \
