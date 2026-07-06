@@ -599,9 +599,9 @@ class ServiceAdapter:
     def _create_failure_response(self, response: Any) -> "UIResponseDict":
         """Create a standardized failure response.
 
-        Bewust een gedeeltelijke UIResponseDict (success=False + error_message); de
-        cast houdt de gedragsvorm exact gelijk aan vóór DEF-452 (consumers gebruiken
-        ``.get(...)``), terwijl het publieke contract getypeerd blijft.
+        DEF-524: contract-compleet — alle verplichte UIResponseDict-keys aanwezig,
+        zodat het render-pad nooit op een KeyError stukloopt bij gefaalde generatie
+        (voorheen ontbraken o.a. validation_details en final_score).
         """
         return cast(
             "UIResponseDict",
@@ -609,13 +609,17 @@ class ServiceAdapter:
                 "success": False,
                 "error_message": getattr(response, "message", None)
                 or "Generatie mislukt",
+                "definitie_origineel": "",
                 "definitie_gecorrigeerd": "Generatie mislukt",
+                "final_score": 0.0,
+                "validation_details": self.normalize_validation(None),
                 "voorbeelden": {},
                 "metadata": (
                     getattr(response, "definition", None)
                     and getattr(response.definition, "metadata", {})
                 )
                 or {},
+                "sources": [],
             },
         )
 
