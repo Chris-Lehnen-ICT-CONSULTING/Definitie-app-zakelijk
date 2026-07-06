@@ -323,10 +323,10 @@ class TabbedInterface:
             total_definitions = stats.get("total_definities", 0)
 
             st.success(
-                f"✅ Systeem Online\\n{total_definitions} definities beschikbaar"
+                f"✅ Systeem Online\n\n{total_definitions} definities beschikbaar"
             )
         except Exception as e:
-            st.error(f"❌ Systeem Issue\\n{str(e)[:50]}...")
+            st.error(f"❌ Systeem Issue\n\n{str(e)[:50]}...")
 
     def _render_global_context(self) -> None:
         """Render globale context selector (delegeert naar GlobalContextRenderer)."""
