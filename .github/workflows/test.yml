@@ -36,6 +36,9 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: pip  # DEF-561: hergebruik wheel-cache tussen runs
+          cache-dependency-path: |
+            requirements.txt
+            requirements-dev.txt
 
       - name: Cache pip packages
         uses: actions/cache@v6
@@ -147,6 +150,9 @@ jobs:
         with:
           python-version: "3.13"
           cache: pip  # DEF-561: hergebruik wheel-cache tussen runs
+          cache-dependency-path: |
+            requirements.txt
+            requirements-dev.txt
 
       - name: Install dependencies
         run: |
@@ -174,9 +180,15 @@ jobs:
           # tests uit één bestand op één worker (beperkt shared-state-risico).
           # tests/integration/performance draait APART en serieel (volgende
           # stap): timing-asserts zijn onbetrouwbaar onder CPU-concurrentie.
+          # DEF-561/review: test_duplicate_detection_fix + test_history_removal
+          # gebruiken de default-repository (cwd-relatieve data/definities.db)
+          # en zijn dus niet hermetisch onder parallelle workers → serieel in
+          # de volgende stap. Hermetisch maken = DEF-562.
           if [ -d "tests/integration" ]; then
             pytest tests/integration/ -v -n 4 --dist loadfile \
               --ignore=tests/integration/performance \
+              --deselect tests/integration/test_duplicate_detection_fix.py \
+              --deselect tests/integration/test_history_removal.py \
               --deselect tests/integration/compliance/test_architecture_consolidation.py \
               --deselect tests/integration/compliance/test_per007_documentation_compliance.py \
               --deselect tests/integration/database/test_unique_constraint_removal.py \
@@ -191,7 +203,7 @@ jobs:
               --deselect tests/integration/test_voorbeelden_validation_chain.py
           fi
 
-      - name: Run performance tests (serieel)
+      - name: Run performance + niet-hermetische tests (serieel)
         env:
           ANTHROPIC_API_KEY: dummy
           OPENAI_API_KEY: dummy
@@ -199,9 +211,12 @@ jobs:
           # DEF-561: timing-asserts (throughput/latency-drempels) draaien
           # serieel, zonder xdist-CPU-concurrentie — dezelfde drempels
           # faalden op run 28795785672 al flaky op een trage runner-VM.
+          # Ook serieel: de twee default-DB-tests (zie stap hierboven, DEF-562).
           # Deselects = pre-existing failures uit DEF-506 (perf-subset).
           if [ -d "tests/integration/performance" ]; then
             pytest tests/integration/performance/ -v \
+              tests/integration/test_duplicate_detection_fix.py \
+              tests/integration/test_history_removal.py \
               --deselect tests/integration/performance/test_def110_regression.py \
               --deselect tests/integration/performance/test_per007_performance.py \
               --deselect tests/integration/performance/test_performance_comprehensive.py \
