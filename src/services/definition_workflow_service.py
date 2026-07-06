@@ -483,7 +483,7 @@ class DefinitionWorkflowService:
         Returns:
             bool: True if successful
         """
-        from models.enums import DefinitieStatus
+        from database.models import DefinitieStatus
 
         try:
             # Convert string to enum (case insensitive)
