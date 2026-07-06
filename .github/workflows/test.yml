@@ -35,6 +35,7 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
+          cache: pip  # DEF-561: hergebruik wheel-cache tussen runs
 
       - name: Cache pip packages
         uses: actions/cache@v6
@@ -145,6 +146,7 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: "3.13"
+          cache: pip  # DEF-561: hergebruik wheel-cache tussen runs
 
       - name: Install dependencies
         run: |
@@ -152,7 +154,7 @@ jobs:
           pip install -r requirements.txt
           pip install -r requirements-dev.txt
 
-      - name: Run integration tests
+      - name: Run integration tests (parallel, zonder performance)
         env:
           # DEF-506: dummy is bewust GEEN sk-prefix zodat de module-level
           # skip-guards (echte-AI-tests) blijven skippen, terwijl de
@@ -163,21 +165,21 @@ jobs:
           OPENAI_API_KEY: dummy
         run: |
           # DEF-506: integration-gate is BLOKKEREND — `|| true` (DEF-466) is weg.
-          # De oorspronkelijke hangs (DEF-428/429) zijn opgelost; de suite loopt
-          # deterministisch door (lokaal gevalideerd: 0 timeout-kills, ~11 min).
           # Onderstaande --deselect's zijn bestanden met pre-existing failures
           # (61 tests over 16 bestanden, gedocumenteerd in DEF-506/PR) — dat is
-          # tech-debt, geen maskering: de resterende selectie (lokaal 345 passed /
-          # 36 skipped / 18 xfail / 4 xpass, exit 0, ~10 min) blokkeert nu wél.
+          # tech-debt, geen maskering.
+          # DEF-561: -n 4 --dist loadfile — de 13 trage generatie-tests zijn
+          # sleep-bound (geneste retry-lagen op de dummy-key, ~40s/stuk) en
+          # parallelliseren perfect: lokaal ~10,5 min → 3m48s. loadfile houdt
+          # tests uit één bestand op één worker (beperkt shared-state-risico).
+          # tests/integration/performance draait APART en serieel (volgende
+          # stap): timing-asserts zijn onbetrouwbaar onder CPU-concurrentie.
           if [ -d "tests/integration" ]; then
-            pytest tests/integration/ -v \
+            pytest tests/integration/ -v -n 4 --dist loadfile \
+              --ignore=tests/integration/performance \
               --deselect tests/integration/compliance/test_architecture_consolidation.py \
               --deselect tests/integration/compliance/test_per007_documentation_compliance.py \
               --deselect tests/integration/database/test_unique_constraint_removal.py \
-              --deselect tests/integration/performance/test_def110_regression.py \
-              --deselect tests/integration/performance/test_per007_performance.py \
-              --deselect tests/integration/performance/test_performance_comprehensive.py \
-              --deselect tests/integration/performance/test_rule_cache_performance.py \
               --deselect tests/integration/regression/test_category_regeneration.py \
               --deselect tests/integration/regression/test_regression_suite.py \
               --deselect tests/integration/regression/test_story_2_4_regression.py \
@@ -187,6 +189,23 @@ jobs:
               --deselect tests/integration/test_synonym_orchestrator_e2e.py \
               --deselect tests/integration/test_validate_synonyms.py \
               --deselect tests/integration/test_voorbeelden_validation_chain.py
+          fi
+
+      - name: Run performance tests (serieel)
+        env:
+          ANTHROPIC_API_KEY: dummy
+          OPENAI_API_KEY: dummy
+        run: |
+          # DEF-561: timing-asserts (throughput/latency-drempels) draaien
+          # serieel, zonder xdist-CPU-concurrentie — dezelfde drempels
+          # faalden op run 28795785672 al flaky op een trage runner-VM.
+          # Deselects = pre-existing failures uit DEF-506 (perf-subset).
+          if [ -d "tests/integration/performance" ]; then
+            pytest tests/integration/performance/ -v \
+              --deselect tests/integration/performance/test_def110_regression.py \
+              --deselect tests/integration/performance/test_per007_performance.py \
+              --deselect tests/integration/performance/test_performance_comprehensive.py \
+              --deselect tests/integration/performance/test_rule_cache_performance.py
           fi
 
   security-check:
