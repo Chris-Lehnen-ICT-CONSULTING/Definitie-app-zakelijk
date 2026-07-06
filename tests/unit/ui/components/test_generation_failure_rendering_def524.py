@@ -85,6 +85,19 @@ class TestFailureResponseContract:
         )
         assert result["error_message"] == "Generatie mislukt"
 
+    def test_failure_response_v2_error_attribuut_wordt_doorgegeven(self):
+        """DefinitionResponseV2 draagt de oorzaak in .error (niet .message) —
+        geverifieerd E2E: 401-provider-fout bleef anders onzichtbaar."""
+        result = _adapter()._create_failure_response(
+            SimpleNamespace(
+                success=False,
+                definition=None,
+                message=None,
+                error="Generation failed: AI API error: Error code: 401",
+            )
+        )
+        assert "401" in result["error_message"]
+
 
 class TestRenderGenerationDetailsFaalpad:
     def test_render_details_crasht_niet_op_gefaald_resultaat(self):
