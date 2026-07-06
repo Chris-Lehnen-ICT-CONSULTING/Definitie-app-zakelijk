@@ -370,15 +370,21 @@ class DefinitionGeneratorTab:
                     # DEF-455: echte verwerkingstijd zit in metadata["duration"]
                     # (was dode read agent_result["processing_time"] → altijd 0.0,
                     # die key bestaat niet in UIResponseDict).
-                    duration = agent_result["metadata"].get("duration", 0.0)
+                    # DEF-524: .get() met defaults — het faalpad leverde historisch
+                    # onvolledige dicts; kale key-access crashte de hele tab.
+                    metadata = agent_result.get("metadata") or {}
+                    duration = metadata.get("duration", 0.0)
                     st.metric("Verwerkingstijd", f"{duration:.1f}s")
-                    st.metric("Succes", "Ja" if agent_result["success"] else "Nee")
+                    st.metric(
+                        "Succes", "Ja" if agent_result.get("success", False) else "Nee"
+                    )
 
                 with col3:
                     # DEF-455: violations zitten in validation_details["violations"]
                     # (was dode read "toetsresultaten" in agent_result → die key
                     # bestond nooit, dus de tegel rendde nooit).
-                    violations = len(agent_result["validation_details"]["violations"])
+                    validation_details = agent_result.get("validation_details") or {}
+                    violations = len(validation_details.get("violations") or [])
                     st.metric("Violations", violations)
 
     def _render_validation_section(self, agent_result: dict[str, Any]) -> None:
@@ -546,10 +552,14 @@ class DefinitionGeneratorTab:
                 score = self._extract_score_from_result(agent_result)
                 st.success(f"✅ Definitie succesvol gegenereerd! (Score: {score:.2f})")
             else:
+                # DEF-524: het faalpad zet de echte oorzaak in error_message;
+                # de oude read op "reason" bestond daar nooit → "Onbekende fout".
                 reason = ensure_string(
-                    safe_dict_get(agent_result, "reason", "Onbekende fout")
+                    safe_dict_get(agent_result, "error_message")
+                    or safe_dict_get(agent_result, "reason")
+                    or "Onbekende fout"
                 )
-                st.warning(f"⚠️ Generatie gedeeltelijk succesvol: {reason}")
+                st.warning(f"⚠️ Generatie mislukt: {reason}")
         elif hasattr(agent_result, "success"):
             if agent_result.success:
                 st.success(
