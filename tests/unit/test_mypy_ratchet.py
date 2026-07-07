@@ -173,3 +173,27 @@ class TestServicesSubtreeGuard:
         # dirty services subtree still fails.
         self._stub(monkeypatch, current=3, baseline=5, services=2)
         assert mr.main([]) == 1
+
+    def test_update_with_dirty_services_does_not_ratchet(self, monkeypatch):
+        # The most dangerous combination: --update + global shrink + dirty
+        # services. The guard must fire BEFORE the ratchet writes, so a broken
+        # services subtree is never cemented into a lower baseline.
+        self._stub(monkeypatch, current=3, baseline=5, services=1)
+        written: list[int] = []
+        monkeypatch.setattr(mr, "write_baseline", lambda v: written.append(v))
+        assert mr.main(["--update"]) == 1
+        assert written == []  # baseline NOT lowered while services is dirty
+
+    def test_update_with_clean_services_still_ratchets(self, monkeypatch):
+        # Mirror: clean services + shrink + --update must still ratchet down.
+        self._stub(monkeypatch, current=3, baseline=5, services=0)
+        written: list[int] = []
+        monkeypatch.setattr(mr, "write_baseline", lambda v: written.append(v))
+        assert mr.main(["--update"]) == 0
+        assert written == [3]
+
+    def test_guard_active_at_lower_bound_baseline_one(self, monkeypatch):
+        # Boundary: the guard must be active for the smallest positive baseline
+        # (catches an off-by-one like `baseline >= 2`).
+        self._stub(monkeypatch, current=1, baseline=1, services=1)
+        assert mr.main([]) == 1

@@ -26,7 +26,13 @@ MYPY_ARGS = ("src/", "--check-untyped-defs")
 # used to be a standalone `mypy src/services` gate in test.yml (removed in
 # DEF-568 as redundant while the global baseline is 0). This ratchet re-asserts
 # it whenever the global baseline is raised above 0 — see main().
-SERVICES_ARGS = ("src/services", "--check-untyped-defs")
+# `--follow-imports=silent` scopes error REPORTING to files under src/services:
+# followed modules (src/domain, src/database, ...) are still type-analysed but
+# their errors are not counted here, so the guard cannot misattribute a
+# domain/utils error to services. Real errors in src/services are always
+# reported (they live in the passed files). `--check-untyped-defs` mirrors
+# MYPY_ARGS (config already sets it; kept explicit for parity).
+SERVICES_ARGS = ("src/services", "--check-untyped-defs", "--follow-imports=silent")
 BASELINE_PATH = Path(__file__).with_name("mypy_baseline.txt")
 # Anchored on the mypy summary line ("Found N errors in M files ...") at line
 # start so a diagnostic line that happens to contain "Found N error" cannot match.
