@@ -73,12 +73,12 @@ jobs:
           command -v ruff >/dev/null || { echo "::error::ruff niet geinstalleerd"; exit 1; }
           ruff check src/services
 
-      - name: Run type checking (services only)
-        run: |
-          # Focus type checking op services-laag — strict sinds DEF-408
-          if command -v mypy &> /dev/null; then
-            mypy src/services --ignore-missing-imports
-          fi
+      # DEF-568: mypy `src/services` weggehaald van het kritieke pad (was ~42s) —
+      # aantoonbaar redundant. De blokkerende `Mypy Ratchet`-job (quality-gates.yml)
+      # draait al parallel `mypy src/ --check-untyped-defs` met baseline 0; omdat
+      # src/services ⊂ src/ borgt die gate de services-subtree al schoon
+      # (gemeten 2026-07-07: beide invocaties 0 errors). Zie DEF-567 (verkeerde
+      # diagnose) → DEF-568 (echte fix): unit-job 2m26s → ~1m44s.
 
       - name: Run PR test suite (profiles)
         env:
