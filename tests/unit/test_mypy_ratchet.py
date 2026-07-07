@@ -100,8 +100,13 @@ class TestBaselineIO:
 
 
 class TestDecision:
-    def _stub(self, monkeypatch, current, baseline):
-        monkeypatch.setattr(mr, "count_errors", lambda: current)
+    def _stub(self, monkeypatch, current, baseline, services=0):
+        # count_errors dispatches on its args: the global src/ scope returns
+        # `current`, the src/services subtree returns `services` (default clean).
+        def fake_count(args=mr.MYPY_ARGS):
+            return services if tuple(args) == mr.SERVICES_ARGS else current
+
+        monkeypatch.setattr(mr, "count_errors", fake_count)
         monkeypatch.setattr(mr, "read_baseline", lambda: baseline)
 
     def test_growth_fails(self, monkeypatch):
@@ -125,3 +130,70 @@ class TestDecision:
         monkeypatch.setattr(mr, "write_baseline", lambda v: written.append(v))
         assert mr.main(["--update"]) == 0
         assert written == [88]
+
+
+class TestServicesSubtreeGuard:
+    """DEF-569: while the global baseline is > 0, the KRITIEK src/services
+    subtree must still be proven mypy-clean (the aggregate count does not
+    partition per subtree). When baseline == 0 the guard is skipped."""
+
+    def _stub(self, monkeypatch, current, baseline, services):
+        def fake_count(args=mr.MYPY_ARGS):
+            return services if tuple(args) == mr.SERVICES_ARGS else current
+
+        monkeypatch.setattr(mr, "count_errors", fake_count)
+        monkeypatch.setattr(mr, "read_baseline", lambda: baseline)
+
+    def test_baseline_zero_skips_services_check(self, monkeypatch):
+        # Guard must NOT invoke the services scope when baseline == 0 — that
+        # would re-add the ~42s cost DEF-568 removed. Track the scopes queried.
+        queried: list[tuple] = []
+
+        def fake_count(args=mr.MYPY_ARGS):
+            queried.append(tuple(args))
+            return 0
+
+        monkeypatch.setattr(mr, "count_errors", fake_count)
+        monkeypatch.setattr(mr, "read_baseline", lambda: 0)
+        assert mr.main([]) == 0
+        assert mr.SERVICES_ARGS not in queried
+
+    def test_baseline_positive_services_dirty_fails(self, monkeypatch):
+        # Global count is AT baseline (main ratchet would pass), but the
+        # services subtree has an error → the guard must fail the gate.
+        self._stub(monkeypatch, current=5, baseline=5, services=1)
+        assert mr.main([]) == 1
+
+    def test_baseline_positive_services_clean_passes(self, monkeypatch):
+        self._stub(monkeypatch, current=5, baseline=5, services=0)
+        assert mr.main([]) == 0
+
+    def test_baseline_positive_services_dirty_fails_even_on_shrink(self, monkeypatch):
+        # Even when the global count shrank (would normally pass/ratchet), a
+        # dirty services subtree still fails.
+        self._stub(monkeypatch, current=3, baseline=5, services=2)
+        assert mr.main([]) == 1
+
+    def test_update_with_dirty_services_does_not_ratchet(self, monkeypatch):
+        # The most dangerous combination: --update + global shrink + dirty
+        # services. The guard must fire BEFORE the ratchet writes, so a broken
+        # services subtree is never cemented into a lower baseline.
+        self._stub(monkeypatch, current=3, baseline=5, services=1)
+        written: list[int] = []
+        monkeypatch.setattr(mr, "write_baseline", lambda v: written.append(v))
+        assert mr.main(["--update"]) == 1
+        assert written == []  # baseline NOT lowered while services is dirty
+
+    def test_update_with_clean_services_still_ratchets(self, monkeypatch):
+        # Mirror: clean services + shrink + --update must still ratchet down.
+        self._stub(monkeypatch, current=3, baseline=5, services=0)
+        written: list[int] = []
+        monkeypatch.setattr(mr, "write_baseline", lambda v: written.append(v))
+        assert mr.main(["--update"]) == 0
+        assert written == [3]
+
+    def test_guard_active_at_lower_bound_baseline_one(self, monkeypatch):
+        # Boundary: the guard must be active for the smallest positive baseline
+        # (catches an off-by-one like `baseline >= 2`).
+        self._stub(monkeypatch, current=1, baseline=1, services=1)
+        assert mr.main([]) == 1
