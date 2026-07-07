@@ -62,6 +62,10 @@ class APIConfig:
     request_timeout: float = 30.0  # Timeout in seconden voor API verzoeken
     max_retries: int = 3  # Maximum aantal herhaalpogingen bij mislukte verzoeken
     retry_backoff_factor: float = 1.5  # Exponentiële vertraging tussen pogingen
+    # DEF-566: expliciete velden voor de async_api-retrylaag; defaults identiek
+    # aan de eerdere getattr-fallbacks in ai_service_v2 (3 / 1.5).
+    rate_limit_max_retries: int = 3
+    rate_limit_backoff_factor: float = 1.5
     ai_provider: str = "anthropic"  # AI provider: "anthropic" (default) or "openai"
     anthropic_api_key: str = ""  # Anthropic API key for Claude models
 
@@ -525,6 +529,15 @@ class ConfigManager:
         # Rate limiting instellingen
         if rpm := os.getenv("RATE_LIMIT_RPM"):
             self.rate_limiting.requests_per_minute = int(rpm)
+
+        # DEF-566: retry-knoppen voor CI-testruns (productie-default ongewijzigd).
+        # async_api's retry-lus leest rate_limit_max_retries/backoff via getattr
+        # met defaults 3/1.5 (ai_service_v2) — deze overrides maken dat stuurbaar.
+        if v := os.getenv("AI_RATE_LIMIT_MAX_RETRIES"):
+            self.api.rate_limit_max_retries = int(v)
+
+        if v := os.getenv("AI_RATE_LIMIT_BACKOFF_FACTOR"):
+            self.api.rate_limit_backoff_factor = float(v)
 
         if rph := os.getenv("RATE_LIMIT_RPH"):
             self.rate_limiting.requests_per_hour = int(rph)
