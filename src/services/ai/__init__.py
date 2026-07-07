@@ -11,6 +11,8 @@ Usage:
 
 from __future__ import annotations
 
+import os
+
 from services.ai.base_client import (
     AIAuthenticationClientError,
     AIClientError,
@@ -40,20 +42,29 @@ def create_ai_client(
 
     Raises:
         ValueError: If *provider* is not supported or *api_key* is empty.
+
+    Env-overrides (DEF-566, voor CI-testruns — productie-default ongewijzigd):
+        AI_CLIENT_TIMEOUT: overschrijft *timeout* (seconden).
+        AI_SDK_MAX_RETRIES: SDK-interne retries (default 2 = SDK-default).
     """
     if not api_key:
         msg = f"API key is required for provider {provider!r}"
         raise ValueError(msg)
 
+    timeout = float(os.getenv("AI_CLIENT_TIMEOUT") or timeout)
+    max_retries = int(os.getenv("AI_SDK_MAX_RETRIES") or 2)
+
     if provider == "openai":
         from services.ai.openai_client import OpenAIClient
 
-        return OpenAIClient(api_key=api_key, timeout=timeout)
+        return OpenAIClient(api_key=api_key, timeout=timeout, max_retries=max_retries)
 
     if provider == "anthropic":
         from services.ai.anthropic_client import AnthropicClient
 
-        return AnthropicClient(api_key=api_key, timeout=timeout)
+        return AnthropicClient(
+            api_key=api_key, timeout=timeout, max_retries=max_retries
+        )
 
     msg = f"Unsupported AI provider: {provider!r}. Choose from {_SUPPORTED_PROVIDERS}"
     raise ValueError(msg)
