@@ -35,9 +35,15 @@ logger = logging.getLogger(__name__)
 class OpenAIClient:
     """AsyncAIClient implementation backed by the OpenAI SDK."""
 
-    def __init__(self, api_key: str, timeout: float = 30.0) -> None:
+    def __init__(
+        self, api_key: str, timeout: float = 30.0, max_retries: int = 2
+    ) -> None:
+        # DEF-566: max_retries gaat 1-op-1 naar de SDK (default 2 = SDK-default);
+        # CI-testruns zetten 0 via create_ai_client om retry-stapeling te stoppen.
         self._timeout = timeout
-        self._client = AsyncOpenAI(api_key=api_key, timeout=timeout)
+        self._client = AsyncOpenAI(
+            api_key=api_key, timeout=timeout, max_retries=max_retries
+        )
 
     @property
     def provider_name(self) -> str:
