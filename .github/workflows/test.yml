@@ -27,6 +27,14 @@ jobs:
       ANTHROPIC_API_KEY: dummy
       OPENAI_API_KEY: dummy
       OPENAI_API_KEY_PROD: dummy
+      # DEF-567: dummy-key-calls in de unit-suite falen toch — stop de
+      # retry-stapeling (SDK 0 retries, 2s timeout, 1 poging in de async_api-laag),
+      # net als op de integration-job (DEF-566). Productie-defaults ongewijzigd:
+      # deze knoppen bestaan alleen via env. Kritieke pad unit-job ~2m31s → ~1,5-2 min.
+      AI_CLIENT_TIMEOUT: "2"
+      AI_SDK_MAX_RETRIES: "0"
+      AI_RATE_LIMIT_MAX_RETRIES: "1"
+      AI_RATE_LIMIT_BACKOFF_FACTOR: "1.0"
 
     steps:
       - uses: actions/checkout@v7
