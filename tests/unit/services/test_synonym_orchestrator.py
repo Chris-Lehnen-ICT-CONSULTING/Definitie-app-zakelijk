@@ -32,7 +32,7 @@ import pytest
 from config.synonym_config import SynonymConfiguration, SynonymPolicy
 from models.synonym_models import WeightedSynonym
 from repositories.synonym_registry import SynonymRegistry
-from services.gpt4_synonym_suggester import GPT4SynonymSuggester, SynonymSuggestion
+from services.gpt4_synonym_suggester import SynonymSuggester, SynonymSuggestion
 from services.synonym_orchestrator import SynonymOrchestrator
 
 pytestmark = [pytest.mark.unit]
@@ -56,8 +56,8 @@ def mock_registry():
 
 @pytest.fixture
 def mock_gpt4():
-    """Mock GPT4SynonymSuggester voor testing."""
-    mock = Mock(spec=GPT4SynonymSuggester)
+    """Mock SynonymSuggester voor testing."""
+    mock = Mock(spec=SynonymSuggester)
     # suggest_synonyms is async, so use AsyncMock
     mock.suggest_synonyms = AsyncMock(return_value=[])
     return mock
