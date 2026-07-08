@@ -48,7 +48,7 @@ st.markdown(
 st.info("""
     **💡 Dashboard Overzicht:**
     - **🚀 Cache Performance:** Hit rate, size, TTL metrics
-    - **🤖 GPT-4 Enrichment:** Success rate, avg duration, timeouts
+    - **🤖 AI Enrichment:** Success rate, avg duration, timeouts
     - **✅ Approval Workflow:** Pending review count, approval rate
     - **📈 Top Synonyms:** Most used synonyms by usage count
 
