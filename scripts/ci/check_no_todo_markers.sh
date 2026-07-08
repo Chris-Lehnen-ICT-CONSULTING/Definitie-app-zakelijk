@@ -38,9 +38,18 @@ fi
 set +e
 OUTPUT_COMMENT=$(rg -n -i -S -e "$PATTERN_START|$PATTERN_INLINE" \
   "${COMMENT_TARGETS[@]}" --glob '!**/*.md' --glob '!**/*.html')
+RC_COMMENT=$?
 OUTPUT_STRING=$(rg -n -e "$STRING_MARKERS" \
   "${STRING_TARGETS[@]}" --glob '!**/*.md' --glob '!**/*.html')
+RC_STRING=$?
 set -e
+
+# rg-exitcode: 0=match, 1=geen match, >=2=echte fout. Een fout mag NIET stil
+# als 'schoon' doorglippen (anders faalt de gate open).
+if [ "$RC_COMMENT" -ge 2 ] || [ "$RC_STRING" -ge 2 ]; then
+  echo "❌ ripgrep-executiefout (comment=$RC_COMMENT string=$RC_STRING)" >&2
+  exit 2
+fi
 
 OUTPUT=$(printf '%s\n%s\n' "$OUTPUT_COMMENT" "$OUTPUT_STRING" | rg -v '^\s*$' || true)
 
