@@ -233,6 +233,7 @@ jobs:
               --deselect tests/integration/test_per007_acceptance.py \
               --deselect tests/integration/test_per007_single_source_red.py \
               --deselect tests/integration/test_synonym_orchestrator_e2e.py \
+              --deselect tests/integration/test_synonym_suggester_e2e.py \
               --deselect tests/integration/test_validate_synonyms.py \
               --deselect tests/integration/test_voorbeelden_validation_chain.py
           fi

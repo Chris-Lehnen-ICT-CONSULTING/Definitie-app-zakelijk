@@ -4,12 +4,20 @@ Borgt dat de gate docstring/string-TODO's in src/ vangt zonder false positives
 op legitieme lowercase status-waarden of placeholders.
 """
 
+import shutil
 import subprocess
 from pathlib import Path
 
 import pytest
 
-pytestmark = pytest.mark.unit
+# De gate vereist ripgrep; zonder rg exit het script met code 2. Sommige
+# test-runners (bv. de CI unit-job) hebben rg niet geïnstalleerd — skip daar.
+pytestmark = [
+    pytest.mark.unit,
+    pytest.mark.skipif(
+        shutil.which("rg") is None, reason="ripgrep (rg) niet geïnstalleerd"
+    ),
+]
 
 _REPO_ROOT = Path(__file__).resolve().parents[3]
 _SCRIPT = _REPO_ROOT / "scripts" / "ci" / "check_no_todo_markers.sh"
