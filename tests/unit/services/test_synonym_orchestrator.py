@@ -5,7 +5,7 @@ Test Coverage:
 - Cache behavior (8 tests)
 - Version counter / race conditions (3 tests)
 - Governance policy (4 tests)
-- GPT-4 enrichment (7 tests)
+- AI enrichment (7 tests)
 - Error handling (2 tests)
 - Thread safety (1 test)
 - Health check (3 tests)
@@ -30,10 +30,10 @@ from unittest.mock import AsyncMock, Mock, patch
 import pytest
 
 from config.synonym_config import SynonymConfiguration, SynonymPolicy
-from models.synonym_models import WeightedSynonym
+from models.synonym_models import SynonymSuggestion, WeightedSynonym
 from repositories.synonym_registry import SynonymRegistry
-from services.gpt4_synonym_suggester import SynonymSuggester, SynonymSuggestion
 from services.synonym_orchestrator import SynonymOrchestrator
+from services.synonym_suggester import SynonymSuggester
 
 pytestmark = [pytest.mark.unit]
 
@@ -96,7 +96,7 @@ def orchestrator(mock_registry, mock_gpt4, strict_config):
         "services.synonym_orchestrator.get_synonym_config",
         return_value=strict_config,
     ):
-        return SynonymOrchestrator(registry=mock_registry, gpt4_suggester=mock_gpt4)
+        return SynonymOrchestrator(registry=mock_registry, suggester=mock_gpt4)
 
 
 @pytest.fixture
@@ -489,18 +489,18 @@ class TestGovernancePolicy:
 
 
 # ========================================
-# GPT-4 ENRICHMENT TESTS (3 tests)
+# AI ENRICHMENT TESTS (3 tests)
 # ========================================
 
 
-class TestGPT4Enrichment:
-    """Test GPT-4 enrichment flow."""
+class TestAIEnrichment:
+    """Test AI enrichment flow."""
 
     @pytest.mark.asyncio
     async def test_fast_path_sufficient_synonyms_no_gpt4(
         self, orchestrator, mock_registry, mock_gpt4, sample_synonyms
     ):
-        """Test fast path: voldoende synoniemen aanwezig, geen GPT-4 call."""
+        """Test fast path: voldoende synoniemen aanwezig, geen AI call."""
         # Arrange
         mock_registry.get_synonyms.return_value = sample_synonyms  # 3 synonyms
         term = "raadsman"
@@ -511,14 +511,14 @@ class TestGPT4Enrichment:
         # Assert
         assert len(result) == 3
         assert ai_count == 0
-        # GPT-4 moet NIET aangeroepen worden
+        # AI moet NIET aangeroepen worden
         mock_gpt4.suggest_synonyms.assert_not_called()
 
     @pytest.mark.asyncio
     async def test_slow_path_gpt4_called_when_insufficient(
         self, orchestrator, mock_registry, mock_gpt4
     ):
-        """Test slow path: GPT-4 wordt aangeroepen bij onvoldoende synoniemen."""
+        """Test slow path: AI wordt aangeroepen bij onvoldoende synoniemen."""
         # Arrange
         # Eerste query: slechts 2 synonyms
         initial_synonyms = [
@@ -539,7 +539,7 @@ class TestGPT4Enrichment:
         ]
         mock_registry.get_synonyms.return_value = initial_synonyms
 
-        # GPT-4 suggesties
+        # AI suggesties
         gpt4_suggestions = [
             SynonymSuggestion(
                 synoniem="rechtsbijstandverlener", confidence=0.85, rationale="Test"
@@ -594,11 +594,11 @@ class TestGPT4Enrichment:
 
         # Assert
         assert ai_count == 2  # 2 AI suggestions toegevoegd
-        # GPT-4 moet aangeroepen zijn
+        # AI moet aangeroepen zijn
         mock_gpt4.suggest_synonyms.assert_called_once()
         # Group moet aangemaakt zijn
         mock_registry.get_or_create_group.assert_called_once_with(
-            canonical_term=term, created_by="gpt4_enrichment"
+            canonical_term=term, created_by="ai_enrichment"
         )
         # Members moeten toegevoegd zijn
         assert mock_registry.add_group_member.call_count == 2
@@ -636,11 +636,11 @@ class TestGPT4Enrichment:
 
     @pytest.mark.asyncio
     async def test_gpt4_timeout_handling(self, orchestrator, mock_registry, mock_gpt4):
-        """Test GPT-4 timeout handling."""
+        """Test AI timeout handling."""
         # Arrange
         mock_registry.get_synonyms.return_value = []  # Geen synonyms
 
-        # GPT-4 timeout simuleren
+        # AI timeout simuleren
         async def timeout_side_effect(*args, **kwargs):
             await asyncio.sleep(10)  # Langer dan timeout
             return []
@@ -661,7 +661,7 @@ class TestGPT4Enrichment:
     async def test_gpt4_empty_suggestions_handling(
         self, orchestrator, mock_registry, mock_gpt4
     ):
-        """Test handling van lege GPT-4 suggesties."""
+        """Test handling van lege AI suggesties."""
         # Arrange
         initial_synonyms = [
             WeightedSynonym(
@@ -673,7 +673,7 @@ class TestGPT4Enrichment:
             ),
         ]
         mock_registry.get_synonyms.return_value = initial_synonyms
-        # GPT-4 returnt geen suggesties
+        # AI returnt geen suggesties
         mock_gpt4.suggest_synonyms.return_value = []
 
         term = "raadsman"
@@ -695,7 +695,7 @@ class TestGPT4Enrichment:
         # Arrange
         mock_registry.get_synonyms.return_value = []  # Geen synonyms
 
-        # GPT-4 gooit exception
+        # AI gooit exception
         mock_gpt4.suggest_synonyms.side_effect = RuntimeError("API error")
 
         term = "raadsman"

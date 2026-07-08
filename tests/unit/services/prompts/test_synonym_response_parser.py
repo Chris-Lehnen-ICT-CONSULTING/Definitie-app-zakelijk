@@ -2,7 +2,7 @@ import pytest
 
 pytestmark = pytest.mark.unit
 
-from services.gpt4_synonym_suggester import SynonymSuggestion
+from models.synonym_models import SynonymSuggestion
 from services.prompts.synonym_response_parser import parse_synonym_response
 
 
