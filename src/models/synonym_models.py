@@ -143,3 +143,29 @@ class WeightedSynonym:
             "is_preferred": self.is_preferred,
             "usage_count": self.usage_count,
         }
+
+
+@dataclass
+class SynonymSuggestion:
+    """
+    Synoniem-suggestie met metadata.
+
+    Attributes:
+        synoniem: Het voorgestelde synoniem
+        confidence: Confidence score (0.0-1.0)
+        rationale: Uitleg waarom dit een goed synoniem is
+    """
+
+    synoniem: str
+    confidence: float
+    rationale: str
+
+    def __post_init__(self) -> None:
+        """Valideer velden."""
+        if not self.synoniem or not self.synoniem.strip():
+            msg = "synoniem mag niet leeg zijn"
+            raise ValueError(msg)
+
+        if not (0.0 <= self.confidence <= 1.0):
+            msg = f"confidence moet tussen 0.0 en 1.0 zijn: {self.confidence}"
+            raise ValueError(msg)
