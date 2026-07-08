@@ -5,7 +5,7 @@ Test Coverage:
 - Cache behavior (8 tests)
 - Version counter / race conditions (3 tests)
 - Governance policy (4 tests)
-- GPT-4 enrichment (7 tests)
+- AI enrichment (7 tests)
 - Error handling (2 tests)
 - Thread safety (1 test)
 - Health check (3 tests)
@@ -30,10 +30,10 @@ from unittest.mock import AsyncMock, Mock, patch
 import pytest
 
 from config.synonym_config import SynonymConfiguration, SynonymPolicy
-from models.synonym_models import WeightedSynonym
+from models.synonym_models import SynonymSuggestion, WeightedSynonym
 from repositories.synonym_registry import SynonymRegistry
-from services.gpt4_synonym_suggester import SynonymSuggester, SynonymSuggestion
 from services.synonym_orchestrator import SynonymOrchestrator
+from services.synonym_suggester import SynonymSuggester
 
 pytestmark = [pytest.mark.unit]
 
@@ -55,7 +55,7 @@ def mock_registry():
 
 
 @pytest.fixture
-def mock_gpt4():
+def mock_suggester():
     """Mock SynonymSuggester voor testing."""
     mock = Mock(spec=SynonymSuggester)
     # suggest_synonyms is async, so use AsyncMock
@@ -69,7 +69,7 @@ def strict_config():
     return SynonymConfiguration(
         policy=SynonymPolicy.STRICT,
         min_synonyms_threshold=5,
-        gpt4_timeout_seconds=30,
+        ai_timeout_seconds=30,
         cache_ttl_seconds=3600,
         cache_max_size=1000,
         min_weight_for_weblookup=0.7,
@@ -82,7 +82,7 @@ def pragmatic_config():
     return SynonymConfiguration(
         policy=SynonymPolicy.PRAGMATIC,
         min_synonyms_threshold=5,
-        gpt4_timeout_seconds=30,
+        ai_timeout_seconds=30,
         cache_ttl_seconds=3600,
         cache_max_size=1000,
         min_weight_for_weblookup=0.7,
@@ -90,13 +90,13 @@ def pragmatic_config():
 
 
 @pytest.fixture
-def orchestrator(mock_registry, mock_gpt4, strict_config):
+def orchestrator(mock_registry, mock_suggester, strict_config):
     """Create orchestrator met mocked dependencies en strict config."""
     with patch(
         "services.synonym_orchestrator.get_synonym_config",
         return_value=strict_config,
     ):
-        return SynonymOrchestrator(registry=mock_registry, gpt4_suggester=mock_gpt4)
+        return SynonymOrchestrator(registry=mock_registry, suggester=mock_suggester)
 
 
 @pytest.fixture
@@ -412,7 +412,7 @@ class TestVersionCounter:
 class TestGovernancePolicy:
     """Test governance policy enforcement."""
 
-    def test_strict_policy_only_active_status(self, mock_registry, mock_gpt4):
+    def test_strict_policy_only_active_status(self, mock_registry, mock_suggester):
         """Test STRICT policy returnt alleen 'active' status."""
         # Arrange
         strict_cfg = SynonymConfiguration(policy=SynonymPolicy.STRICT)
@@ -420,7 +420,7 @@ class TestGovernancePolicy:
             "services.synonym_orchestrator.get_synonym_config",
             return_value=strict_cfg,
         ):
-            orch = SynonymOrchestrator(mock_registry, mock_gpt4)
+            orch = SynonymOrchestrator(mock_registry, mock_suggester)
             mock_registry.get_synonyms.return_value = []
 
             # Act
@@ -430,7 +430,7 @@ class TestGovernancePolicy:
             call_args = mock_registry.get_synonyms.call_args
             assert call_args[1]["statuses"] == ["active"]
 
-    def test_pragmatic_policy_includes_ai_pending(self, mock_registry, mock_gpt4):
+    def test_pragmatic_policy_includes_ai_pending(self, mock_registry, mock_suggester):
         """Test PRAGMATIC policy includeert 'active' + 'ai_pending'."""
         # Arrange
         pragmatic_cfg = SynonymConfiguration(policy=SynonymPolicy.PRAGMATIC)
@@ -438,7 +438,7 @@ class TestGovernancePolicy:
             "services.synonym_orchestrator.get_synonym_config",
             return_value=pragmatic_cfg,
         ):
-            orch = SynonymOrchestrator(mock_registry, mock_gpt4)
+            orch = SynonymOrchestrator(mock_registry, mock_suggester)
             mock_registry.get_synonyms.return_value = []
 
             # Act
@@ -489,18 +489,18 @@ class TestGovernancePolicy:
 
 
 # ========================================
-# GPT-4 ENRICHMENT TESTS (3 tests)
+# AI ENRICHMENT TESTS (3 tests)
 # ========================================
 
 
-class TestGPT4Enrichment:
-    """Test GPT-4 enrichment flow."""
+class TestAIEnrichment:
+    """Test AI enrichment flow."""
 
     @pytest.mark.asyncio
-    async def test_fast_path_sufficient_synonyms_no_gpt4(
-        self, orchestrator, mock_registry, mock_gpt4, sample_synonyms
+    async def test_fast_path_sufficient_synonyms_no_ai(
+        self, orchestrator, mock_registry, mock_suggester, sample_synonyms
     ):
-        """Test fast path: voldoende synoniemen aanwezig, geen GPT-4 call."""
+        """Test fast path: voldoende synoniemen aanwezig, geen AI call."""
         # Arrange
         mock_registry.get_synonyms.return_value = sample_synonyms  # 3 synonyms
         term = "raadsman"
@@ -511,14 +511,14 @@ class TestGPT4Enrichment:
         # Assert
         assert len(result) == 3
         assert ai_count == 0
-        # GPT-4 moet NIET aangeroepen worden
-        mock_gpt4.suggest_synonyms.assert_not_called()
+        # AI moet NIET aangeroepen worden
+        mock_suggester.suggest_synonyms.assert_not_called()
 
     @pytest.mark.asyncio
-    async def test_slow_path_gpt4_called_when_insufficient(
-        self, orchestrator, mock_registry, mock_gpt4
+    async def test_slow_path_ai_called_when_insufficient(
+        self, orchestrator, mock_registry, mock_suggester
     ):
-        """Test slow path: GPT-4 wordt aangeroepen bij onvoldoende synoniemen."""
+        """Test slow path: AI wordt aangeroepen bij onvoldoende synoniemen."""
         # Arrange
         # Eerste query: slechts 2 synonyms
         initial_synonyms = [
@@ -539,8 +539,8 @@ class TestGPT4Enrichment:
         ]
         mock_registry.get_synonyms.return_value = initial_synonyms
 
-        # GPT-4 suggesties
-        gpt4_suggestions = [
+        # AI suggesties
+        ai_suggestions = [
             SynonymSuggestion(
                 synoniem="rechtsbijstandverlener", confidence=0.85, rationale="Test"
             ),
@@ -548,7 +548,7 @@ class TestGPT4Enrichment:
                 synoniem="juridisch adviseur", confidence=0.75, rationale="Test"
             ),
         ]
-        mock_gpt4.suggest_synonyms.return_value = gpt4_suggestions
+        mock_suggester.suggest_synonyms.return_value = ai_suggestions
 
         # Mock group creation
         mock_group = Mock()
@@ -594,18 +594,18 @@ class TestGPT4Enrichment:
 
         # Assert
         assert ai_count == 2  # 2 AI suggestions toegevoegd
-        # GPT-4 moet aangeroepen zijn
-        mock_gpt4.suggest_synonyms.assert_called_once()
+        # AI moet aangeroepen zijn
+        mock_suggester.suggest_synonyms.assert_called_once()
         # Group moet aangemaakt zijn
         mock_registry.get_or_create_group.assert_called_once_with(
-            canonical_term=term, created_by="gpt4_enrichment"
+            canonical_term=term, created_by="ai_enrichment"
         )
         # Members moeten toegevoegd zijn
         assert mock_registry.add_group_member.call_count == 2
 
     @pytest.mark.asyncio
     async def test_juridische_context_bereikt_suggester(
-        self, orchestrator, mock_registry, mock_gpt4
+        self, orchestrator, mock_registry, mock_suggester
     ):
         """DEF-459: producer-context-keys bereiken de suggester (key-mismatch fix).
 
@@ -615,7 +615,7 @@ class TestGPT4Enrichment:
         """
         # Arrange: forceer slow path (te weinig bestaande synoniemen).
         mock_registry.get_synonyms.return_value = []
-        mock_gpt4.suggest_synonyms.return_value = []
+        mock_suggester.suggest_synonyms.return_value = []
 
         context = {
             "organisatorisch": ["Gemeente X"],
@@ -629,24 +629,26 @@ class TestGPT4Enrichment:
         )
 
         # Assert: juridische context doorgegeven aan suggester (niet langer None)
-        mock_gpt4.suggest_synonyms.assert_called_once()
-        _, kwargs = mock_gpt4.suggest_synonyms.call_args
+        mock_suggester.suggest_synonyms.assert_called_once()
+        _, kwargs = mock_suggester.suggest_synonyms.call_args
         assert kwargs["context"] is not None
         assert "Wetboek van Strafvordering" in str(kwargs["context"])
 
     @pytest.mark.asyncio
-    async def test_gpt4_timeout_handling(self, orchestrator, mock_registry, mock_gpt4):
-        """Test GPT-4 timeout handling."""
+    async def test_ai_timeout_handling(
+        self, orchestrator, mock_registry, mock_suggester
+    ):
+        """Test AI timeout handling."""
         # Arrange
         mock_registry.get_synonyms.return_value = []  # Geen synonyms
 
-        # GPT-4 timeout simuleren
+        # AI timeout simuleren
         async def timeout_side_effect(*args, **kwargs):
             await asyncio.sleep(10)  # Langer dan timeout
             return []
 
-        mock_gpt4.suggest_synonyms.side_effect = timeout_side_effect
-        orchestrator.config.gpt4_timeout_seconds = 0.1  # Korte timeout
+        mock_suggester.suggest_synonyms.side_effect = timeout_side_effect
+        orchestrator.config.ai_timeout_seconds = 0.1  # Korte timeout
 
         term = "raadsman"
 
@@ -658,10 +660,10 @@ class TestGPT4Enrichment:
         assert len(result) == 0  # Existing (leeg) wordt gereturned
 
     @pytest.mark.asyncio
-    async def test_gpt4_empty_suggestions_handling(
-        self, orchestrator, mock_registry, mock_gpt4
+    async def test_ai_empty_suggestions_handling(
+        self, orchestrator, mock_registry, mock_suggester
     ):
-        """Test handling van lege GPT-4 suggesties."""
+        """Test handling van lege AI suggesties."""
         # Arrange
         initial_synonyms = [
             WeightedSynonym(
@@ -673,8 +675,8 @@ class TestGPT4Enrichment:
             ),
         ]
         mock_registry.get_synonyms.return_value = initial_synonyms
-        # GPT-4 returnt geen suggesties
-        mock_gpt4.suggest_synonyms.return_value = []
+        # AI returnt geen suggesties
+        mock_suggester.suggest_synonyms.return_value = []
 
         term = "raadsman"
 
@@ -688,15 +690,15 @@ class TestGPT4Enrichment:
         mock_registry.get_or_create_group.assert_not_called()
 
     @pytest.mark.asyncio
-    async def test_gpt4_generic_exception_handling(
-        self, orchestrator, mock_registry, mock_gpt4
+    async def test_ai_generic_exception_handling(
+        self, orchestrator, mock_registry, mock_suggester
     ):
         """Test generic exception handling in enrichment flow."""
         # Arrange
         mock_registry.get_synonyms.return_value = []  # Geen synonyms
 
-        # GPT-4 gooit exception
-        mock_gpt4.suggest_synonyms.side_effect = RuntimeError("API error")
+        # AI gooit exception
+        mock_suggester.suggest_synonyms.side_effect = RuntimeError("API error")
 
         term = "raadsman"
 

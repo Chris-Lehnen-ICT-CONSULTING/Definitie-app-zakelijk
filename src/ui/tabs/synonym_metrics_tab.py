@@ -3,7 +3,7 @@ Synonym Metrics Dashboard Tab - PHASE 4.2 Implementation.
 
 Provides real-time metrics en monitoring voor Synonym Orchestrator v3.1:
 - Cache performance (hit rate, size, stats)
-- GPT-4 enrichment analytics (success rate, timing)
+- AI enrichment analytics (success rate, timing)
 - Approval workflow statistics (pending review count)
 - Top used synonyms
 
@@ -28,7 +28,7 @@ class SynonymMetricsTab:
 
     Renders monitoring dashboard met:
     - Cache performance metrics
-    - GPT-4 enrichment statistics
+    - AI enrichment statistics
     - Approval workflow stats
     - Top synonyms by usage
     """
@@ -47,7 +47,7 @@ class SynonymMetricsTab:
             options=["cache", "enrichment", "approval", "top_usage"],
             format_func=lambda x: {
                 "cache": "🚀 Cache Performance",
-                "enrichment": "🤖 GPT-4 Enrichment",
+                "enrichment": "🤖 AI Enrichment",
                 "approval": "✅ Approval Workflow",
                 "top_usage": "📈 Top Synonyms",
             }[x],
@@ -136,8 +136,8 @@ class SynonymMetricsTab:
             logger.error(f"Cache metrics render failed: {e}", exc_info=True)
 
     def _render_enrichment_metrics(self) -> None:
-        """Render GPT-4 enrichment statistics."""
-        st.subheader("🤖 GPT-4 Enrichment Analytics")
+        """Render AI enrichment statistics."""
+        st.subheader("🤖 AI Enrichment Analytics")
 
         if not self.enrichment_log_path.exists():
             st.warning(f"⚠️ Enrichment log niet gevonden: {self.enrichment_log_path}")
@@ -363,7 +363,7 @@ class SynonymMetricsTab:
             with open(self.enrichment_log_path, encoding="utf-8") as f:
                 for line in f:
                     # Parse log line
-                    # Format: 2025-10-10 14:32:15 - INFO - Starting GPT-4 enrichment for 'term'
+                    # Format: 2025-10-10 14:32:15 - INFO - Starting AI-enrichment for 'term'
                     if "Enrichment complete" in line:
                         parts = line.split(" - ")
                         if len(parts) >= 3:

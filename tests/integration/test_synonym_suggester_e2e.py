@@ -24,8 +24,9 @@ pytestmark = [
     ),
 ]
 
+from models.synonym_models import SynonymSuggestion
 from services.container import ServiceContainer
-from services.gpt4_synonym_suggester import SynonymSuggester, SynonymSuggestion
+from services.synonym_suggester import SynonymSuggester
 
 
 @pytest.mark.asyncio
@@ -33,7 +34,7 @@ async def test_suggest_synonyms_echte_roundtrip():
     """De suggester levert echte, geldige suggesties op via het geconfigureerde model."""
     container = ServiceContainer({"db_path": ":memory:", "use_json_rules": False})
 
-    suggester = container.gpt4_synonym_suggester()
+    suggester = container.synonym_suggester()
     assert isinstance(suggester, SynonymSuggester)
 
     result = await suggester.suggest_synonyms(
