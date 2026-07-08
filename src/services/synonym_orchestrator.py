@@ -23,7 +23,7 @@ from typing import Any, cast
 from config.synonym_config import SynonymPolicy, get_synonym_config
 from models.synonym_models import WeightedSynonym
 from repositories.synonym_registry import SynonymRegistry
-from services.gpt4_synonym_suggester import GPT4SynonymSuggester
+from services.gpt4_synonym_suggester import SynonymSuggester
 
 logger = logging.getLogger(__name__)
 enrichment_logger = logging.getLogger("synonym_enrichment")
@@ -100,13 +100,13 @@ class SynonymOrchestrator:
         Cache Layer (TTL) → Registry Layer (DB) → GPT-4 Enrichment
     """
 
-    def __init__(self, registry: SynonymRegistry, gpt4_suggester: GPT4SynonymSuggester):
+    def __init__(self, registry: SynonymRegistry, gpt4_suggester: SynonymSuggester):
         """
         Initialiseer orchestrator met dependencies.
 
         Args:
             registry: SynonymRegistry voor DB toegang
-            gpt4_suggester: GPT4SynonymSuggester voor AI enrichment
+            gpt4_suggester: SynonymSuggester voor AI enrichment
         """
         self.registry = registry
         self.gpt4_suggester = gpt4_suggester
