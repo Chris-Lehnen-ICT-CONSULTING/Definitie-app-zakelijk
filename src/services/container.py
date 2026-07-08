@@ -43,12 +43,13 @@ if TYPE_CHECKING:
     from ontologie.improved_classifier import ImprovedOntologyClassifier
     from repositories.synonym_registry import SynonymRegistry
     from services.ai.base_client import AsyncAIClient
+    from services.ai_service_v2 import AIServiceV2
     from services.classification.ontological_classifier import OntologicalClassifier
     from services.data_aggregation_service import DataAggregationService
     from services.definition_import_service import DefinitionImportService
     from services.definition_workflow_service import DefinitionWorkflowService
     from services.export_service import ExportService
-    from services.gpt4_synonym_suggester import GPT4SynonymSuggester
+    from services.gpt4_synonym_suggester import SynonymSuggester
     from services.ontology.ontology_model_service import OntologyModelService
     from services.policies.approval_gate_policy import GatePolicyService
     from services.rag.document_chunker import DocumentChunker
@@ -274,6 +275,18 @@ class ServiceContainer:
             )
         return cast("AsyncAIClient", self._instances["_ai_client"])
 
+    def ai_service(self) -> "AIServiceV2":
+        """Model-onafhankelijke AIServiceV2 (singleton) — DEF-459."""
+        if "ai_service" not in self._instances:
+            from services.ai_service_v2 import AIServiceV2
+
+            self._instances["ai_service"] = AIServiceV2(
+                use_cache=True,
+                ai_client=self._get_ai_client(),
+                model_router=self.model_router(),
+            )
+        return cast("AIServiceV2", self._instances["ai_service"])
+
     def orchestrator(self) -> DefinitionOrchestratorInterface:
         """
         Get of create DefinitionOrchestrator instance.
@@ -284,7 +297,6 @@ class ServiceContainer:
         if "orchestrator" not in self._instances:
             # V2 is now the only orchestrator
             # DEF-232: CleaningServiceAdapterV1toV2 removed - CleaningService is now native async
-            from services.ai_service_v2 import AIServiceV2
             from services.interfaces import OrchestratorConfig as V2OrchestratorConfig
 
             # DEF-66: PromptServiceV2 import removed - lazy loaded by orchestrator
@@ -301,15 +313,9 @@ class ServiceContainer:
             # modular_validation_service = ...  # REMOVED - lazy loaded
             # validation_orchestrator = ...  # REMOVED - lazy loaded
 
-            # Create provider-agnostic AI client (singleton)
-            ai_client = self._get_ai_client()
-
-            # DEF-314: Create AI service with ModelRouter for task-type routing
-            ai_service = AIServiceV2(
-                use_cache=True,
-                ai_client=ai_client,
-                model_router=self.model_router(),
-            )
+            # DEF-314: Model-onafhankelijke AIServiceV2 (singleton, task-type routing)
+            # DEF-459: gedeeld via ai_service() zodat SynonymSuggester dezelfde krijgt
+            ai_service = self.ai_service()
 
             # DEF-232: CleaningService is now native async - no adapter needed
             cleaning_service = self.cleaning_service()
@@ -479,32 +485,35 @@ class ServiceContainer:
 
         return cast("SynonymRegistry", self._instances["synonym_registry"])
 
-    def gpt4_synonym_suggester(self) -> "GPT4SynonymSuggester":
+    def gpt4_synonym_suggester(self) -> "SynonymSuggester":
         """
-        Get or create GPT4SynonymSuggester instance.
+        Get or create SynonymSuggester instance.
+
+        DEF-459: model-onafhankelijk — roept het geconfigureerde model aan via
+        de gedeelde AIServiceV2 (ModelRouter, task_type="synonyms").
 
         Returns:
-            Singleton instance van GPT4SynonymSuggester (placeholder mode)
+            Singleton instance van SynonymSuggester
         """
         if "gpt4_synonym_suggester" not in self._instances:
-            from services.gpt4_synonym_suggester import GPT4SynonymSuggester
+            from services.gpt4_synonym_suggester import SynonymSuggester
 
             try:
-                # Initialize suggester (placeholder implementation)
-                # API key validation will be added when GPT-4 integration is implemented
-                self._instances["gpt4_synonym_suggester"] = GPT4SynonymSuggester()
+                self._instances["gpt4_synonym_suggester"] = SynonymSuggester(
+                    ai_service=self.ai_service()
+                )
                 logger.info(
-                    "GPT4SynonymSuggester initialized (placeholder mode - no actual API calls)"
+                    "SynonymSuggester initialized (model-onafhankelijk via ModelRouter)"
                 )
             except Exception as e:
                 logger.warning(
-                    f"GPT4SynonymSuggester initialization warning: {e}. "
+                    f"SynonymSuggester initialization warning: {e}. "
                     "Synonym enrichment will not be available."
                 )
                 # Don't fail hard - allow app to start without enrichment
                 self._instances["gpt4_synonym_suggester"] = None
 
-        return cast("GPT4SynonymSuggester", self._instances["gpt4_synonym_suggester"])
+        return cast("SynonymSuggester", self._instances["gpt4_synonym_suggester"])
 
     def synonym_orchestrator(self) -> "SynonymOrchestrator":
         """
@@ -525,13 +534,12 @@ class ServiceContainer:
             # Handle case where suggester failed to initialize
             if gpt4_suggester is None:
                 logger.warning(
-                    "GPT4SynonymSuggester not available - "
-                    "creating dummy suggester for orchestrator"
+                    "SynonymSuggester not available - "
+                    "creating fallback suggester for orchestrator"
                 )
-                # Create a dummy suggester that always returns empty results
-                from services.gpt4_synonym_suggester import GPT4SynonymSuggester
+                from services.gpt4_synonym_suggester import SynonymSuggester
 
-                gpt4_suggester = GPT4SynonymSuggester()
+                gpt4_suggester = SynonymSuggester(ai_service=self.ai_service())
 
             # Create orchestrator
             orchestrator = SynonymOrchestrator(

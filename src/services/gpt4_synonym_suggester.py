@@ -1,18 +1,21 @@
-"""
-GPT4SynonymSuggester - Placeholder voor GPT-4 based synonym suggestion service.
+"""SynonymSuggester - model-onafhankelijke synoniem-suggestie service (DEF-459).
 
-Deze module bevat een placeholder implementatie voor GPT-4 synonym suggestions.
-Volledige implementatie wordt in een latere fase toegevoegd.
+Roept het geconfigureerde model aan via AIServiceV2 + ModelRouter
+(task_type="synonyms") met een dedicated juridische onderzoeksprompt en een
+defensieve response-parser. Geen provider- of modelnaam wordt gehardcodeerd;
+de router kiest provider + model.
 
 Architecture Reference:
     docs/architectuur/synonym-orchestrator-architecture-v3.1.md
     Lines 330-502: SynonymOrchestrator specification (dependency)
-
-TODO: Implement full GPT-4 integration in future phase
 """
 
 import logging
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from services.ai_service_v2 import AIServiceV2
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +23,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class SynonymSuggestion:
     """
-    GPT-4 synonym suggestie met metadata.
+    Synoniem-suggestie met metadata.
 
     Attributes:
         synoniem: Het voorgestelde synoniem
@@ -43,79 +46,75 @@ class SynonymSuggestion:
             raise ValueError(msg)
 
 
-class GPT4SynonymSuggester:
-    """
-    GPT-4 based synonym suggestion service (PLACEHOLDER).
+class SynonymSuggester:
+    """Model-onafhankelijke synoniem-suggester (DEF-459).
 
-    Dit is een placeholder implementatie die leeg blijft totdat volledige
-    GPT-4 integratie wordt geïmplementeerd in een latere fase.
-
-    Responsibilities (Future):
-    - Call GPT-4 API voor synonym suggesties
-    - Parse en valideer response
-    - Handle retries en timeouts
-    - Return SynonymSuggestion objecten
-
-    Current Status:
-    - Returns empty list (allows testing other components)
-    - Logs requests for debugging
+    Roept het geconfigureerde model aan via AIServiceV2 + ModelRouter
+    (task_type="synonyms") met een dedicated juridische onderzoeksprompt.
+    Nooit een modelnaam hardcoden — de router kiest provider + model.
     """
 
-    def __init__(self) -> None:
-        """Initialiseer suggester (placeholder)."""
-        logger.info("GPT4SynonymSuggester initialized (placeholder mode)")
-
-    async def suggest_synonyms(
-        self, term: str, definitie: str | None = None, context: str | None = None
-    ) -> list[SynonymSuggestion]:
-        """
-        Suggest synonyms using GPT-4 (PLACEHOLDER).
-
-        TODO: Implement GPT-4 API call with:
-        - Prompt engineering voor juridische synoniemen
-        - Temperature control (0.3 voor consistency)
-        - Response parsing en validatie
-        - Retry logic met exponential backoff
-        - Timeout handling
-
-        Args:
-            term: De term waarvoor synoniemen gezocht worden
-            definitie: Optionele definitie voor context
-            context: Optionele extra context (tokens, domain, etc.)
-
-        Returns:
-            Lijst van SynonymSuggestion objecten (EMPTY voor placeholder)
-
-        Architecture Reference:
-            Lines 400-482: ensure_synonyms flow specification
-        """
-        logger.info(
-            f"GPT-4 synonym suggestion requested for '{term}' "
-            f"(definitie: {bool(definitie)}, context: {bool(context)}) "
-            f"[NOT IMPLEMENTED - placeholder mode]"
-        )
-
-        # Placeholder: return empty list
-        # This allows SynonymOrchestrator to be tested without GPT-4 dependency
-        return []
-
-    def get_stats(self) -> dict:
-        """
-        Get suggester statistics (placeholder).
-
-        TODO: Implement stats tracking:
-        - Total API calls
-        - Success/failure counts
-        - Average response time
-        - Token usage
-
-        Returns:
-            Dictionary met statistieken (placeholder)
-        """
-        return {
+    def __init__(self, ai_service: "AIServiceV2", timeout_seconds: int = 30) -> None:
+        self._ai_service = ai_service
+        self._timeout = timeout_seconds
+        self._stats: dict[str, int] = {
             "total_calls": 0,
             "success_count": 0,
             "failure_count": 0,
-            "avg_response_time": 0.0,
-            "status": "placeholder",
         }
+        logger.info(
+            "SynonymSuggester initialized (model-onafhankelijk via ModelRouter)"
+        )
+
+    async def suggest_synonyms(
+        self,
+        term: str,
+        definitie: str | None = None,
+        context: list[str] | str | None = None,
+    ) -> list[SynonymSuggestion]:
+        """Vraag synoniemen op bij het geconfigureerde model.
+
+        Args:
+            term: De juridische term waarvoor synoniemen gezocht worden.
+            definitie: Optionele definitie als betekenis-anker.
+            context: Optionele juridische context (lijst of enkele string).
+
+        Returns:
+            Lijst van SynonymSuggestion objecten; leeg bij fout of geen resultaat.
+        """
+        from services.prompts.synonym_research_prompt import (
+            build_synonym_research_prompt,
+        )
+        from services.prompts.synonym_response_parser import parse_synonym_response
+
+        self._stats["total_calls"] += 1
+        if isinstance(context, list):
+            juridische_context: list[str] | None = context
+        elif isinstance(context, str) and context:
+            juridische_context = [context]
+        else:
+            juridische_context = None
+
+        system_prompt, user_prompt = build_synonym_research_prompt(
+            term=term, definitie=definitie, juridische_context=juridische_context
+        )
+        try:
+            result = await self._ai_service.generate_definition(
+                prompt=user_prompt,
+                system_prompt=system_prompt,
+                task_type="synonyms",
+                temperature=0.3,
+                max_tokens=800,
+                timeout_seconds=self._timeout,
+            )
+            suggestions = parse_synonym_response(getattr(result, "text", ""))
+            self._stats["success_count"] += 1
+            return suggestions
+        except Exception as exc:
+            self._stats["failure_count"] += 1
+            logger.warning("SynonymSuggester: AI-call mislukt voor '%s': %s", term, exc)
+            return []
+
+    def get_stats(self) -> dict:
+        """Geef suggester-statistieken (calls/successen/fouten + status)."""
+        return {**self._stats, "status": "active"}
