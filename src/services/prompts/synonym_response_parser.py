@@ -12,7 +12,7 @@ import json
 import logging
 from typing import Any
 
-from services.gpt4_synonym_suggester import SynonymSuggestion
+from models.synonym_models import SynonymSuggestion
 
 logger = logging.getLogger(__name__)
 

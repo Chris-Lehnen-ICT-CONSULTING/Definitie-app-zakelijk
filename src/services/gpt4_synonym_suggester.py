@@ -11,39 +11,16 @@ Architecture Reference:
 """
 
 import logging
-from dataclasses import dataclass
 from typing import TYPE_CHECKING
+
+from models.synonym_models import SynonymSuggestion
+from services.prompts.synonym_research_prompt import build_synonym_research_prompt
+from services.prompts.synonym_response_parser import parse_synonym_response
 
 if TYPE_CHECKING:
     from services.ai_service_v2 import AIServiceV2
 
 logger = logging.getLogger(__name__)
-
-
-@dataclass
-class SynonymSuggestion:
-    """
-    Synoniem-suggestie met metadata.
-
-    Attributes:
-        synoniem: Het voorgestelde synoniem
-        confidence: Confidence score (0.0-1.0)
-        rationale: Uitleg waarom dit een goed synoniem is
-    """
-
-    synoniem: str
-    confidence: float
-    rationale: str
-
-    def __post_init__(self) -> None:
-        """Valideer velden."""
-        if not self.synoniem or not self.synoniem.strip():
-            msg = "synoniem mag niet leeg zijn"
-            raise ValueError(msg)
-
-        if not (0.0 <= self.confidence <= 1.0):
-            msg = f"confidence moet tussen 0.0 en 1.0 zijn: {self.confidence}"
-            raise ValueError(msg)
 
 
 class SynonymSuggester:
@@ -82,11 +59,6 @@ class SynonymSuggester:
         Returns:
             Lijst van SynonymSuggestion objecten; leeg bij fout of geen resultaat.
         """
-        from services.prompts.synonym_research_prompt import (
-            build_synonym_research_prompt,
-        )
-        from services.prompts.synonym_response_parser import parse_synonym_response
-
         self._stats["total_calls"] += 1
         if isinstance(context, list):
             juridische_context: list[str] | None = context
