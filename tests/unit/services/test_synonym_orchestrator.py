@@ -604,6 +604,37 @@ class TestGPT4Enrichment:
         assert mock_registry.add_group_member.call_count == 2
 
     @pytest.mark.asyncio
+    async def test_juridische_context_bereikt_suggester(
+        self, orchestrator, mock_registry, mock_gpt4
+    ):
+        """DEF-459: producer-context-keys bereiken de suggester (key-mismatch fix).
+
+        De definitie-orchestrator stuurt context met keys
+        organisatorisch/juridisch/wettelijk. Vóór de fix las de orchestrator
+        alleen 'tokens' → suggester kreeg altijd context=None.
+        """
+        # Arrange: forceer slow path (te weinig bestaande synoniemen).
+        mock_registry.get_synonyms.return_value = []
+        mock_gpt4.suggest_synonyms.return_value = []
+
+        context = {
+            "organisatorisch": ["Gemeente X"],
+            "juridisch": ["Wetboek van Strafvordering"],
+            "wettelijk": [],
+        }
+
+        # Act
+        await orchestrator.ensure_synonyms(
+            term="verdachte", min_count=5, context=context
+        )
+
+        # Assert: juridische context doorgegeven aan suggester (niet langer None)
+        mock_gpt4.suggest_synonyms.assert_called_once()
+        _, kwargs = mock_gpt4.suggest_synonyms.call_args
+        assert kwargs["context"] is not None
+        assert "Wetboek van Strafvordering" in str(kwargs["context"])
+
+    @pytest.mark.asyncio
     async def test_gpt4_timeout_handling(self, orchestrator, mock_registry, mock_gpt4):
         """Test GPT-4 timeout handling."""
         # Arrange
