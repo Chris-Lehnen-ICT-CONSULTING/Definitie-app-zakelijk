@@ -297,7 +297,7 @@ class SynonymOrchestrator:
                     definitie=context.get("definitie") if context else None,
                     context=_flatten_juridische_context(context) if context else None,
                 ),
-                timeout=self.config.gpt4_timeout_seconds,
+                timeout=self.config.ai_timeout_seconds,
             )
 
             duration = (datetime.now(UTC) - start_time).total_seconds()
@@ -368,7 +368,7 @@ class SynonymOrchestrator:
             duration = (datetime.now(UTC) - start_time).total_seconds()
             enrichment_logger.error(
                 f"AI-enrichment timeout for '{term}' after {duration:.2f}s "
-                f"(timeout threshold: {self.config.gpt4_timeout_seconds}s)"
+                f"(timeout threshold: {self.config.ai_timeout_seconds}s)"
             )
             return existing, 0  # Fail gracefully
 

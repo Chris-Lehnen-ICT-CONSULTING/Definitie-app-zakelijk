@@ -7,7 +7,7 @@ alle calls delegeert naar SynonymOrchestrator (graph-based registry + TTL cache)
 
 De oude YAML-based implementatie is vervangen door:
 - SynonymRegistry (DB layer) → Graph-based synonym_groups/members
-- SynonymOrchestrator (Business logic) → TTL cache + GPT-4 enrichment + governance
+- SynonymOrchestrator (Business logic) → TTL cache + AI-enrichment + governance
 - JuridischeSynoniemService (Façade) → Backward compatibility wrapper
 
 Architecture Reference:
