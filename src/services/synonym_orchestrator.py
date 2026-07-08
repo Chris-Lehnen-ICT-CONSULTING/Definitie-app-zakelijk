@@ -29,6 +29,23 @@ logger = logging.getLogger(__name__)
 enrichment_logger = logging.getLogger("synonym_enrichment")
 
 
+def _flatten_juridische_context(context: dict) -> list[str] | None:
+    """Combineer producer-context-keys tot een platte lijst voor de prompt (DEF-459).
+
+    De definitie-orchestrator levert context aan met keys
+    ``juridisch``/``wettelijk``/``organisatorisch``; de suggester verwacht een
+    platte lijst juridische context. Deze helper trekt dat recht.
+    """
+    items: list[str] = []
+    for key in ("juridisch", "wettelijk", "organisatorisch"):
+        val = context.get(key)
+        if isinstance(val, list):
+            items.extend(str(v) for v in val if v)
+        elif isinstance(val, str) and val:
+            items.append(val)
+    return items or None
+
+
 def _setup_enrichment_logger() -> None:
     """
     Setup dedicated file handler voor enrichment logging.
@@ -278,7 +295,7 @@ class SynonymOrchestrator:
                 self.gpt4_suggester.suggest_synonyms(
                     term=term,
                     definitie=context.get("definitie") if context else None,
-                    context=context.get("tokens") if context else None,
+                    context=_flatten_juridische_context(context) if context else None,
                 ),
                 timeout=self.config.gpt4_timeout_seconds,
             )
