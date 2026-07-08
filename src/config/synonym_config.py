@@ -52,9 +52,9 @@ class SynonymConfiguration:
 
     Attributes:
         policy: Governance policy (strict vs pragmatic)
-        min_synonyms_threshold: Minimum synoniemen voordat GPT-4 enrichment start
-        gpt4_timeout_seconds: Timeout voor GPT-4 API calls
-        gpt4_max_retries: Maximum retry pogingen bij GPT-4 failures
+        min_synonyms_threshold: Minimum synoniemen voordat AI-enrichment start
+        ai_timeout_seconds: Timeout voor AI API calls
+        ai_max_retries: Maximum retry pogingen bij AI failures
         cache_ttl_seconds: Time-to-live voor TTL cache (in seconden)
         cache_max_size: Maximum aantal entries in cache
         min_weight_for_weblookup: Minimum weight voor synoniemen in weblookup
@@ -66,8 +66,8 @@ class SynonymConfiguration:
 
     # Enrichment
     min_synonyms_threshold: int = 5
-    gpt4_timeout_seconds: int = 30
-    gpt4_max_retries: int = 3
+    ai_timeout_seconds: int = 30
+    ai_max_retries: int = 3
 
     # Caching
     cache_ttl_seconds: int = 3600  # 1 hour
@@ -144,8 +144,8 @@ class SynonymConfiguration:
 
             # Parse numeric fields
             min_synonyms = config_data.get("min_synonyms", 5)
-            gpt4_timeout = config_data.get("gpt4_timeout", 30)
-            gpt4_retries = config_data.get("gpt4_max_retries", 3)
+            ai_timeout = config_data.get("ai_timeout", 30)
+            ai_retries = config_data.get("ai_max_retries", 3)
             cache_ttl = config_data.get("cache_ttl", 3600)
             cache_max = config_data.get("cache_max_size", 1000)
             min_weight = config_data.get("min_weight", 0.7)
@@ -155,8 +155,8 @@ class SynonymConfiguration:
             config = cls(
                 policy=policy,
                 min_synonyms_threshold=min_synonyms,
-                gpt4_timeout_seconds=gpt4_timeout,
-                gpt4_max_retries=gpt4_retries,
+                ai_timeout_seconds=ai_timeout,
+                ai_max_retries=ai_retries,
                 cache_ttl_seconds=cache_ttl,
                 cache_max_size=cache_max,
                 min_weight_for_weblookup=min_weight,
@@ -200,27 +200,25 @@ class SynonymConfiguration:
                 f"min_synonyms_threshold moet >= 1 zijn, got: {self.min_synonyms_threshold}"
             )
 
-        if self.gpt4_timeout_seconds < 5:
+        if self.ai_timeout_seconds < 5:
             errors.append(
-                f"gpt4_timeout_seconds moet >= 5 zijn (te kort voor API call), "
-                f"got: {self.gpt4_timeout_seconds}"
+                f"ai_timeout_seconds moet >= 5 zijn (te kort voor API call), "
+                f"got: {self.ai_timeout_seconds}"
             )
 
-        if self.gpt4_timeout_seconds > 300:
+        if self.ai_timeout_seconds > 300:
             errors.append(
-                f"gpt4_timeout_seconds moet <= 300 zijn (5 min max), "
-                f"got: {self.gpt4_timeout_seconds}"
+                f"ai_timeout_seconds moet <= 300 zijn (5 min max), "
+                f"got: {self.ai_timeout_seconds}"
             )
 
-        if self.gpt4_max_retries < 0:
-            errors.append(
-                f"gpt4_max_retries moet >= 0 zijn, got: {self.gpt4_max_retries}"
-            )
+        if self.ai_max_retries < 0:
+            errors.append(f"ai_max_retries moet >= 0 zijn, got: {self.ai_max_retries}")
 
-        if self.gpt4_max_retries > 10:
+        if self.ai_max_retries > 10:
             errors.append(
-                f"gpt4_max_retries moet <= 10 zijn (excessive retries), "
-                f"got: {self.gpt4_max_retries}"
+                f"ai_max_retries moet <= 10 zijn (excessive retries), "
+                f"got: {self.ai_max_retries}"
             )
 
         # Cache validation
@@ -277,8 +275,8 @@ class SynonymConfiguration:
         return {
             "policy": self.policy.value,
             "min_synonyms_threshold": self.min_synonyms_threshold,
-            "gpt4_timeout_seconds": self.gpt4_timeout_seconds,
-            "gpt4_max_retries": self.gpt4_max_retries,
+            "ai_timeout_seconds": self.ai_timeout_seconds,
+            "ai_max_retries": self.ai_max_retries,
             "cache_ttl_seconds": self.cache_ttl_seconds,
             "cache_max_size": self.cache_max_size,
             "min_weight_for_weblookup": self.min_weight_for_weblookup,

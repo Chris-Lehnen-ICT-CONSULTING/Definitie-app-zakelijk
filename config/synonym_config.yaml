@@ -40,14 +40,14 @@ synonym_configuration:
   #
   # Range: 5-300 seconds (5s min, 5 min max)
   # Default: 30
-  gpt4_timeout: 30
+  ai_timeout: 30
 
   # Maximum retry attempts for GPT-4 API failures
   # How many times to retry if GPT-4 call fails
   #
   # Range: 0-10
   # Default: 3
-  gpt4_max_retries: 3
+  ai_max_retries: 3
 
   # ========================================
   # CACHING SETTINGS
