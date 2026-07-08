@@ -17,6 +17,7 @@ from pathlib import Path  # Object-georiënteerde bestandspad manipulatie
 from typing import Any, ClassVar, cast
 
 import yaml  # YAML bestand parser voor configuratie bestanden
+from dotenv import load_dotenv  # .env laden ongeacht entry-point (DEF-572)
 
 from domain.rechtsgebieden import RECHTSGEBIEDEN
 
@@ -457,7 +458,14 @@ class ConfigManager:
 
     def _load_configuration(self) -> None:
         """Load configuration from files and environment variables."""
-        # Geen .env laden; vertrouw op al ingestelde omgeving
+        # DEF-572: laad .env vóór het lezen van env-vars. Streamlit-subpagina's
+        # draaien main.py (met diens load_dotenv) NIET als entry-point; zonder
+        # dit leest een directe navigatie naar bv. /synonym_admin een lege env,
+        # cachet een keyless config, en crasht met "API key is required".
+        # Expliciet project-root-pad i.p.v. find_dotenv()-stackwalk (deterministisch
+        # ongeacht CWD). override=False: expliciet gezette env-vars (CI/tests) leiden.
+        env_path = Path(__file__).resolve().parents[2] / ".env"
+        load_dotenv(env_path, override=False)
 
         # Load from YAML files
         self._load_from_yaml()

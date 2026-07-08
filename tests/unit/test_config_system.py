@@ -620,5 +620,39 @@ class TestSensitiveFieldsFiltering:
         assert result["openai_api_key"] == ""
 
 
+class TestDotenvLoading:
+    """DEF-572: ConfigManager moet .env zelf laden.
+
+    Streamlit-subpagina's draaien main.py (en diens load_dotenv) niet als
+    entry-point. Zonder eigen load_dotenv leest ConfigManager een lege env,
+    cachet een keyless config, en crasht de pagina met 'API key is required'.
+    """
+
+    def test_config_manager_roept_load_dotenv_aan(self):
+        """Regressie-guard: construeren van ConfigManager laadt .env."""
+        calls = []
+        with patch(
+            "config.config_manager.load_dotenv",
+            side_effect=lambda *a, **k: calls.append(True),
+        ):
+            ConfigManager()
+        assert calls, "ConfigManager moet load_dotenv aanroepen (.env altijd geladen)"
+
+    def test_dotenv_geladen_key_wordt_opgepikt(self, monkeypatch):
+        """Een door .env geladen ANTHROPIC_API_KEY bereikt de config."""
+        monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+
+        def fake_load_dotenv(*args, **kwargs):
+            # Simuleer dat .env de key zet (zoals bij subpagina-entry nodig is).
+            os.environ["ANTHROPIC_API_KEY"] = "sk-ant-def572-test"
+            return True
+
+        with patch("config.config_manager.load_dotenv", side_effect=fake_load_dotenv):
+            cm = ConfigManager()
+
+        assert cm.api.anthropic_api_key == "sk-ant-def572-test"
+        monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
