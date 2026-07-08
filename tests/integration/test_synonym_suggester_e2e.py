@@ -9,11 +9,12 @@ import os
 
 import pytest
 
-# Skip zonder bruikbare key: default-provider is anthropic; de suggester werkt ook
-# met OpenAI (sk-...). Guard op beide, zodat de test alleen draait met echte toegang.
-_HAS_KEY = os.environ.get("OPENAI_API_KEY", "").startswith("sk-") or bool(
-    os.environ.get("ANTHROPIC_API_KEY")
-)
+# Skip zonder ECHTE key: default-provider is anthropic; de suggester werkt ook
+# met OpenAI. Guard op de echte key-prefixes (sk-.../sk-ant-...) zodat CI-dummy-keys
+# ('dummy') de test niet laten draaien — die zou dan op een connection-error falen.
+_HAS_KEY = os.environ.get("OPENAI_API_KEY", "").startswith("sk-") or os.environ.get(
+    "ANTHROPIC_API_KEY", ""
+).startswith("sk-ant-")
 
 pytestmark = [
     pytest.mark.integration,
