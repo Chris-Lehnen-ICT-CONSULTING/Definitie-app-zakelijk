@@ -33,7 +33,7 @@ import streamlit as st
 from models.synonym_models import SynonymGroupMember
 from repositories.synonym_registry import SynonymRegistry
 from services.container import get_container
-from services.gpt4_synonym_suggester import GPT4SynonymSuggester
+from services.gpt4_synonym_suggester import SynonymSuggester
 from services.synonym_orchestrator import SynonymOrchestrator
 from ui.helpers.async_bridge import run_async
 from ui.session_state import SessionStateManager
@@ -102,9 +102,7 @@ services = get_services()
 # DEF-439: get_services() typeert dict[str, object]; runtime zijn dit de concrete services — pattern 4
 registry: SynonymRegistry = cast(SynonymRegistry, services["registry"])
 orchestrator: SynonymOrchestrator = cast(SynonymOrchestrator, services["orchestrator"])
-gpt4_suggester: GPT4SynonymSuggester = cast(
-    GPT4SynonymSuggester, services["gpt4_suggester"]
-)
+gpt4_suggester: SynonymSuggester = cast(SynonymSuggester, services["gpt4_suggester"])
 
 # ========================================
 # STATISTICS PANEL

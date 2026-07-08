@@ -23,10 +23,27 @@ from typing import Any, cast
 from config.synonym_config import SynonymPolicy, get_synonym_config
 from models.synonym_models import WeightedSynonym
 from repositories.synonym_registry import SynonymRegistry
-from services.gpt4_synonym_suggester import GPT4SynonymSuggester
+from services.gpt4_synonym_suggester import SynonymSuggester
 
 logger = logging.getLogger(__name__)
 enrichment_logger = logging.getLogger("synonym_enrichment")
+
+
+def _flatten_juridische_context(context: dict) -> list[str] | None:
+    """Combineer producer-context-keys tot een platte lijst voor de prompt (DEF-459).
+
+    De definitie-orchestrator levert context aan met keys
+    ``juridisch``/``wettelijk``/``organisatorisch``; de suggester verwacht een
+    platte lijst juridische context. Deze helper trekt dat recht.
+    """
+    items: list[str] = []
+    for key in ("juridisch", "wettelijk", "organisatorisch"):
+        val = context.get(key)
+        if isinstance(val, list):
+            items.extend(str(v) for v in val if v)
+        elif isinstance(val, str) and val:
+            items.append(val)
+    return items or None
 
 
 def _setup_enrichment_logger() -> None:
@@ -100,13 +117,13 @@ class SynonymOrchestrator:
         Cache Layer (TTL) → Registry Layer (DB) → GPT-4 Enrichment
     """
 
-    def __init__(self, registry: SynonymRegistry, gpt4_suggester: GPT4SynonymSuggester):
+    def __init__(self, registry: SynonymRegistry, gpt4_suggester: SynonymSuggester):
         """
         Initialiseer orchestrator met dependencies.
 
         Args:
             registry: SynonymRegistry voor DB toegang
-            gpt4_suggester: GPT4SynonymSuggester voor AI enrichment
+            gpt4_suggester: SynonymSuggester voor AI enrichment
         """
         self.registry = registry
         self.gpt4_suggester = gpt4_suggester
@@ -278,7 +295,7 @@ class SynonymOrchestrator:
                 self.gpt4_suggester.suggest_synonyms(
                     term=term,
                     definitie=context.get("definitie") if context else None,
-                    context=context.get("tokens") if context else None,
+                    context=_flatten_juridische_context(context) if context else None,
                 ),
                 timeout=self.config.gpt4_timeout_seconds,
             )
