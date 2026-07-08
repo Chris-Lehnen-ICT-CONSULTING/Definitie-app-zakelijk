@@ -1,7 +1,7 @@
 """
 SynonymRepository - Database laag voor synonym suggestions management.
 
-Biedt CRUD operaties voor GPT-4 synonym suggestions workflow:
+Biedt CRUD operaties voor de AI-synonym-suggestions workflow:
 - Save suggestions (pending status)
 - Get pending/approved/rejected suggestions
 - Update suggestion status (approve/reject)

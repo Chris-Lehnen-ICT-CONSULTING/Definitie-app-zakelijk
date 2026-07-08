@@ -4,7 +4,7 @@ pytestmark = pytest.mark.unit
 
 from unittest.mock import AsyncMock, MagicMock
 
-from services.gpt4_synonym_suggester import SynonymSuggester, SynonymSuggestion
+from services.synonym_suggester import SynonymSuggester
 
 
 def _fake_ai_service(text: str) -> MagicMock:

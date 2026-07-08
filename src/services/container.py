@@ -49,7 +49,6 @@ if TYPE_CHECKING:
     from services.definition_import_service import DefinitionImportService
     from services.definition_workflow_service import DefinitionWorkflowService
     from services.export_service import ExportService
-    from services.gpt4_synonym_suggester import SynonymSuggester
     from services.ontology.ontology_model_service import OntologyModelService
     from services.policies.approval_gate_policy import GatePolicyService
     from services.rag.document_chunker import DocumentChunker
@@ -58,6 +57,7 @@ if TYPE_CHECKING:
     from services.rag.rag_management_service import RAGManagementService
     from services.rag.rag_service import RAGService
     from services.synonym_orchestrator import SynonymOrchestrator
+    from services.synonym_suggester import SynonymSuggester
     from services.validation.interfaces import ValidationOrchestratorInterface
     from services.web_lookup.synonym_service import JuridischeSynoniemService
 
@@ -485,7 +485,7 @@ class ServiceContainer:
 
         return cast("SynonymRegistry", self._instances["synonym_registry"])
 
-    def gpt4_synonym_suggester(self) -> "SynonymSuggester":
+    def synonym_suggester(self) -> "SynonymSuggester":
         """
         Get or create SynonymSuggester instance.
 
@@ -495,11 +495,11 @@ class ServiceContainer:
         Returns:
             Singleton instance van SynonymSuggester
         """
-        if "gpt4_synonym_suggester" not in self._instances:
-            from services.gpt4_synonym_suggester import SynonymSuggester
+        if "synonym_suggester" not in self._instances:
+            from services.synonym_suggester import SynonymSuggester
 
             try:
-                self._instances["gpt4_synonym_suggester"] = SynonymSuggester(
+                self._instances["synonym_suggester"] = SynonymSuggester(
                     ai_service=self.ai_service()
                 )
                 logger.info(
@@ -511,15 +511,15 @@ class ServiceContainer:
                     "Synonym enrichment will not be available."
                 )
                 # Don't fail hard - allow app to start without enrichment
-                self._instances["gpt4_synonym_suggester"] = None
+                self._instances["synonym_suggester"] = None
 
-        return cast("SynonymSuggester", self._instances["gpt4_synonym_suggester"])
+        return cast("SynonymSuggester", self._instances["synonym_suggester"])
 
     def synonym_orchestrator(self) -> "SynonymOrchestrator":
         """
         Get or create SynonymOrchestrator instance.
 
-        Wires registry + GPT-4 suggester + cache invalidation callbacks.
+        Wires registry + suggester + cache invalidation callbacks.
 
         Returns:
             Singleton instance van SynonymOrchestrator
@@ -529,22 +529,20 @@ class ServiceContainer:
 
             # Get dependencies
             registry = self.synonym_registry()
-            gpt4_suggester = self.gpt4_synonym_suggester()
+            suggester = self.synonym_suggester()
 
             # Handle case where suggester failed to initialize
-            if gpt4_suggester is None:
+            if suggester is None:
                 logger.warning(
                     "SynonymSuggester not available - "
                     "creating fallback suggester for orchestrator"
                 )
-                from services.gpt4_synonym_suggester import SynonymSuggester
+                from services.synonym_suggester import SynonymSuggester
 
-                gpt4_suggester = SynonymSuggester(ai_service=self.ai_service())
+                suggester = SynonymSuggester(ai_service=self.ai_service())
 
             # Create orchestrator
-            orchestrator = SynonymOrchestrator(
-                registry=registry, gpt4_suggester=gpt4_suggester
-            )
+            orchestrator = SynonymOrchestrator(registry=registry, suggester=suggester)
 
             # Wire cache invalidation callbacks
             # When registry data changes, orchestrator cache must be invalidated
@@ -908,7 +906,7 @@ class ServiceContainer:
             "definition_workflow_service": self.definition_workflow_service,
             "import_service": self.import_service,
             "synonym_registry": self.synonym_registry,
-            "gpt4_synonym_suggester": self.gpt4_synonym_suggester,
+            "synonym_suggester": self.synonym_suggester,
             "synonym_orchestrator": self.synonym_orchestrator,
             "synonym_service": self.synonym_service,
             "ontological_classifier": self.ontological_classifier,
