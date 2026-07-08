@@ -42,6 +42,29 @@ async def test_suggest_synonyms_geeft_juridische_context_door_aan_prompt():
 
 
 @pytest.mark.asyncio
+async def test_suggest_synonyms_geeft_definitie_door_aan_prompt():
+    ai = _fake_ai_service('{"synoniemen": []}')
+    suggester = SynonymSuggester(ai_service=ai)
+    await suggester.suggest_synonyms(
+        term="verdachte", definitie="persoon tegen wie een vervolging loopt"
+    )
+    _, kwargs = ai.generate_definition.call_args
+    assert "persoon tegen wie een vervolging loopt" in kwargs["prompt"]
+
+
+@pytest.mark.asyncio
+async def test_suggest_synonyms_context_als_losse_string():
+    # context mag ook een enkele string zijn (niet alleen een lijst).
+    ai = _fake_ai_service('{"synoniemen": []}')
+    suggester = SynonymSuggester(ai_service=ai)
+    await suggester.suggest_synonyms(
+        term="verdachte", context="Wetboek van Strafvordering"
+    )
+    _, kwargs = ai.generate_definition.call_args
+    assert "Wetboek van Strafvordering" in kwargs["prompt"]
+
+
+@pytest.mark.asyncio
 async def test_suggest_synonyms_lege_output_geeft_lege_lijst():
     ai = _fake_ai_service('{"synoniemen": []}')
     suggester = SynonymSuggester(ai_service=ai)
@@ -70,3 +93,22 @@ def test_get_stats_behouden():
     suggester = SynonymSuggester(ai_service=MagicMock())
     stats = suggester.get_stats()
     assert "status" in stats
+
+
+@pytest.mark.asyncio
+async def test_stats_tellen_success_en_failure():
+    # De tellers moeten écht ophogen — anders is get_stats betekenisloos.
+    ai = _fake_ai_service('{"synoniemen": []}')
+    suggester = SynonymSuggester(ai_service=ai)
+
+    await suggester.suggest_synonyms(term="verdachte")
+    stats = suggester.get_stats()
+    assert stats["total_calls"] == 1
+    assert stats["success_count"] == 1
+    assert stats["failure_count"] == 0
+
+    ai.generate_definition = AsyncMock(side_effect=RuntimeError("boom"))
+    await suggester.suggest_synonyms(term="verdachte")
+    stats = suggester.get_stats()
+    assert stats["total_calls"] == 2
+    assert stats["failure_count"] == 1
