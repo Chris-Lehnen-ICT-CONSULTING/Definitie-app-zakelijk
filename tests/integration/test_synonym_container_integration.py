@@ -39,16 +39,16 @@ class TestSynonymContainerIntegration:
         registry2 = container.synonym_registry()
         assert registry is registry2
 
-    def test_gpt4_synonym_suggester_initialization(self, container):
-        """Test that gpt4_synonym_suggester can be initialized."""
-        suggester = container.gpt4_synonym_suggester()
+    def test_synonym_suggester_initialization(self, container):
+        """Test that synonym_suggester can be initialized."""
+        suggester = container.synonym_suggester()
 
         # Placeholder mode - should still initialize
         assert suggester is not None
         assert hasattr(suggester, "suggest_synonyms")
 
         # Test singleton pattern
-        suggester2 = container.gpt4_synonym_suggester()
+        suggester2 = container.synonym_suggester()
         assert suggester is suggester2
 
     def test_synonym_orchestrator_initialization(self, container):
@@ -63,7 +63,7 @@ class TestSynonymContainerIntegration:
 
         # Verify dependencies are wired
         assert orchestrator.registry is not None
-        assert orchestrator.gpt4_suggester is not None
+        assert orchestrator.suggester is not None
 
         # Test singleton pattern
         orchestrator2 = container.synonym_orchestrator()
@@ -105,7 +105,7 @@ class TestSynonymContainerIntegration:
         registry = container.get_service("synonym_registry")
         assert registry is not None
 
-        suggester = container.get_service("gpt4_synonym_suggester")
+        suggester = container.get_service("synonym_suggester")
         assert suggester is not None
 
         orchestrator = container.get_service("synonym_orchestrator")
@@ -126,13 +126,13 @@ class TestSynonymContainerIntegration:
         registry = orchestrator.registry
         assert registry is not None
 
-        gpt4_suggester = orchestrator.gpt4_suggester
-        assert gpt4_suggester is not None
+        suggester = orchestrator.suggester
+        assert suggester is not None
 
         # Verify they match the singleton instances
         assert orchestrator is container.synonym_orchestrator()
         assert registry is container.synonym_registry()
-        assert gpt4_suggester is container.gpt4_synonym_suggester()
+        assert suggester is container.synonym_suggester()
 
     def test_orchestrator_cache_stats(self, container):
         """Test that orchestrator exposes cache statistics."""
@@ -158,13 +158,13 @@ class TestSynonymContainerIntegration:
         """Test that container reset clears synonym services."""
         # Initialize all services
         container.synonym_registry()
-        container.gpt4_synonym_suggester()
+        container.synonym_suggester()
         container.synonym_orchestrator()
         service = container.synonym_service()
 
         # Verify they're cached
         assert "synonym_registry" in container._instances
-        assert "gpt4_synonym_suggester" in container._instances
+        assert "synonym_suggester" in container._instances
         assert "synonym_orchestrator" in container._instances
         assert "synonym_service" in container._instances
 
@@ -173,7 +173,7 @@ class TestSynonymContainerIntegration:
 
         # Verify instances are cleared
         assert "synonym_registry" not in container._instances
-        assert "gpt4_synonym_suggester" not in container._instances
+        assert "synonym_suggester" not in container._instances
         assert "synonym_orchestrator" not in container._instances
         assert "synonym_service" not in container._instances
 

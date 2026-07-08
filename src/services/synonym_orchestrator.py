@@ -4,7 +4,7 @@ SynonymOrchestrator - Business logic layer voor Synonym Orchestrator Architectur
 Deze module implementeert de orchestrator laag die:
 - TTL caching met invalidatie biedt
 - Governance policy enforcement toepast
-- GPT-4 enrichment coördineert (sync tijdens definitiegeneratie)
+- AI-enrichment coördineert (sync tijdens definitiegeneratie)
 - Cache metrics tracked
 
 Architecture Reference:
@@ -23,7 +23,7 @@ from typing import Any, cast
 from config.synonym_config import SynonymPolicy, get_synonym_config
 from models.synonym_models import WeightedSynonym
 from repositories.synonym_registry import SynonymRegistry
-from services.gpt4_synonym_suggester import SynonymSuggester
+from services.synonym_suggester import SynonymSuggester
 
 logger = logging.getLogger(__name__)
 enrichment_logger = logging.getLogger("synonym_enrichment")
@@ -51,12 +51,12 @@ def _setup_enrichment_logger() -> None:
     Setup dedicated file handler voor enrichment logging.
 
     Configured once at module level - enrichment logs go to dedicated file
-    for easier monitoring and debugging of GPT-4 enrichment flow.
+    for easier monitoring and debugging of AI-enrichment flow.
 
     Log Format:
-        2025-10-10 14:32:15 - INFO - Starting GPT-4 enrichment for 'term'
+        2025-10-10 14:32:15 - INFO - Starting AI-enrichment for 'term'
         2025-10-10 14:32:23 - INFO - Enrichment complete: 3 suggestions, 8.2s
-        2025-10-10 14:32:45 - ERROR - GPT-4 timeout for 'term' after 30.1s
+        2025-10-10 14:32:45 - ERROR - AI-enrichment timeout for 'term' after 30.1s
     """
     # Only setup once (idempotent)
     if enrichment_logger.handlers:
@@ -110,23 +110,23 @@ class SynonymOrchestrator:
     Responsibilities:
     - Get synonyms met governance policy enforcement
     - TTL caching met invalidatie
-    - GPT-4 enrichment (sync tijdens definitiegeneratie)
+    - AI-enrichment (sync tijdens definitiegeneratie)
     - Usage tracking
 
     Architecture:
-        Cache Layer (TTL) → Registry Layer (DB) → GPT-4 Enrichment
+        Cache Layer (TTL) → Registry Layer (DB) → AI-Enrichment
     """
 
-    def __init__(self, registry: SynonymRegistry, gpt4_suggester: SynonymSuggester):
+    def __init__(self, registry: SynonymRegistry, suggester: SynonymSuggester):
         """
         Initialiseer orchestrator met dependencies.
 
         Args:
             registry: SynonymRegistry voor DB toegang
-            gpt4_suggester: SynonymSuggester voor AI enrichment
+            suggester: SynonymSuggester voor AI enrichment
         """
         self.registry = registry
-        self.gpt4_suggester = gpt4_suggester
+        self.suggester = suggester
         self.config = get_synonym_config()  # Centraal!
 
         # TTL Cache: {term_normalized: (synonyms, timestamp, version)}
@@ -239,16 +239,16 @@ class SynonymOrchestrator:
         self, term: str, min_count: int = 5, context: dict | None = None
     ) -> tuple[list[WeightedSynonym], int]:
         """
-        Ensure term has min_count synoniemen (GPT-4 sync OK!).
+        Ensure term has min_count synoniemen (AI-sync OK!).
 
         Called VÓÓRdat definitiegeneratie start. Als er onvoldoende synoniemen
-        zijn in de registry, wordt GPT-4 enrichment getriggerd (sync blocking).
+        zijn in de registry, wordt AI-enrichment getriggerd (sync blocking).
 
         Flow:
         1. Check existing via get_synonyms_for_lookup()
         2. If >= min_count → return existing (fast path ✅)
-        3. Else → GPT-4 enrichment (slow path):
-           - Call GPT-4 suggester (with timeout)
+        3. Else → AI-enrichment (slow path):
+           - Call suggester (with timeout)
            - Save suggestions as ai_pending (NOT active!)
            - Re-fetch synonyms (nu met ai_pending if policy allows)
            - Return enriched list
@@ -258,7 +258,7 @@ class SynonymOrchestrator:
             min_count: Minimum aantal synoniemen (default: 5)
             context: Optionele context dict met:
                 - 'definitie': Definitie text voor context
-                - 'tokens': Extra tokens voor GPT-4
+                - 'tokens': Extra tokens voor AI-enrichment
                 - 'domain': Juridisch domein
 
         Returns:
@@ -281,23 +281,23 @@ class SynonymOrchestrator:
             )
             return existing[:min_count], 0  # ✅ Fast path
 
-        # Slow path: GPT-4 enrichment (sync blocking OK - user clicked "Genereer")
+        # Slow path: AI-enrichment (sync blocking OK - user clicked "Genereer")
         enrichment_logger.info(
-            f"Starting GPT-4 enrichment for '{term}' "
+            f"Starting AI-enrichment for '{term}' "
             f"(only {len(existing)} found, need {min_count})"
         )
 
         start_time = datetime.now(UTC)
 
         try:
-            # Call GPT-4 with timeout
+            # Call the suggester with timeout
             ai_suggestions = await asyncio.wait_for(
-                self.gpt4_suggester.suggest_synonyms(
+                self.suggester.suggest_synonyms(
                     term=term,
                     definitie=context.get("definitie") if context else None,
                     context=_flatten_juridische_context(context) if context else None,
                 ),
-                timeout=self.config.gpt4_timeout_seconds,
+                timeout=self.config.ai_timeout_seconds,
             )
 
             duration = (datetime.now(UTC) - start_time).total_seconds()
@@ -305,14 +305,14 @@ class SynonymOrchestrator:
             # Handle empty suggestions (placeholder mode or no results)
             if not ai_suggestions:
                 enrichment_logger.warning(
-                    f"GPT-4 returned no suggestions for '{term}' "
+                    f"AI returned no suggestions for '{term}' "
                     f"(duration: {duration:.2f}s)"
                 )
                 return existing, 0
 
             # Save as ai_pending (NOT active - requires approval!)
             group = self.registry.get_or_create_group(
-                canonical_term=term, created_by="gpt4_enrichment"
+                canonical_term=term, created_by="ai_enrichment"
             )
 
             ai_count = 0
@@ -341,7 +341,7 @@ class SynonymOrchestrator:
                                 "timestamp": datetime.now(UTC).isoformat(),
                             }
                         ),
-                        created_by="gpt4_suggester",
+                        created_by="synonym_suggester",
                     )
                     ai_count += 1
                 except ValueError as e:
@@ -367,15 +367,15 @@ class SynonymOrchestrator:
         except TimeoutError:
             duration = (datetime.now(UTC) - start_time).total_seconds()
             enrichment_logger.error(
-                f"GPT-4 timeout for '{term}' after {duration:.2f}s "
-                f"(timeout threshold: {self.config.gpt4_timeout_seconds}s)"
+                f"AI-enrichment timeout for '{term}' after {duration:.2f}s "
+                f"(timeout threshold: {self.config.ai_timeout_seconds}s)"
             )
             return existing, 0  # Fail gracefully
 
         except Exception as e:
             duration = (datetime.now(UTC) - start_time).total_seconds()
             enrichment_logger.error(
-                f"GPT-4 enrichment failed for '{term}' after {duration:.2f}s: {e}",
+                f"AI-enrichment failed for '{term}' after {duration:.2f}s: {e}",
                 exc_info=True,
             )
             return existing, 0  # Fail gracefully

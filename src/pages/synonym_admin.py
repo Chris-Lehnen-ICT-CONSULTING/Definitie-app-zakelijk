@@ -11,7 +11,7 @@ Features:
 - Pagination voor large datasets
 - Individual review cards met approve/reject/revert
 - Bulk operations (approve all, reject all visible)
-- GPT-4 synonym generation via SynonymOrchestrator
+- AI synonym generation via SynonymOrchestrator
 - Cache metrics monitoring
 
 This page replaces legacy src/pages/synonym_review.py (which used old YAML workflow).
@@ -33,8 +33,8 @@ import streamlit as st
 from models.synonym_models import SynonymGroupMember
 from repositories.synonym_registry import SynonymRegistry
 from services.container import get_container
-from services.gpt4_synonym_suggester import SynonymSuggester
 from services.synonym_orchestrator import SynonymOrchestrator
+from services.synonym_suggester import SynonymSuggester
 from ui.helpers.async_bridge import run_async
 from ui.session_state import SessionStateManager
 
@@ -70,7 +70,7 @@ st.markdown(
 # Info banner
 st.info("""
     **💡 Architecture v3.1 Workflow:**
-    1. GPT-4 genereert synonym suggesties via `SynonymOrchestrator.ensure_synonyms()`
+    1. AI genereert synonym suggesties via `SynonymOrchestrator.ensure_synonyms()`
     2. Suggesties worden opgeslagen als **ai_pending** members in `synonym_groups` tables
     3. Review suggesties in deze interface
     4. **Approve** → status `active` (gebruikt in web lookups)
@@ -94,7 +94,7 @@ def get_services() -> dict[str, object]:
     return {
         "registry": container.synonym_registry(),
         "orchestrator": container.synonym_orchestrator(),
-        "gpt4_suggester": container.gpt4_synonym_suggester(),
+        "synonym_suggester": container.synonym_suggester(),
     }
 
 
@@ -102,7 +102,7 @@ services = get_services()
 # DEF-439: get_services() typeert dict[str, object]; runtime zijn dit de concrete services — pattern 4
 registry: SynonymRegistry = cast(SynonymRegistry, services["registry"])
 orchestrator: SynonymOrchestrator = cast(SynonymOrchestrator, services["orchestrator"])
-gpt4_suggester: SynonymSuggester = cast(SynonymSuggester, services["gpt4_suggester"])
+suggester: SynonymSuggester = cast(SynonymSuggester, services["synonym_suggester"])
 
 # ========================================
 # STATISTICS PANEL
@@ -158,10 +158,10 @@ except Exception as e:
 st.markdown("---")
 
 # ========================================
-# GPT-4 GENERATION SECTION
+# AI GENERATION SECTION
 # ========================================
 
-st.markdown("## 🚀 Genereer Nieuwe Synoniemen (GPT-4)")
+st.markdown("## 🚀 Genereer Nieuwe Synoniemen (AI)")
 st.markdown("**Genereer AI-gestuurde synonym suggesties via SynonymOrchestrator**")
 
 col1, col2 = st.columns([3, 1])
@@ -189,7 +189,7 @@ if st.button("🤖 Genereer Suggesties", type="primary", use_container_width=Tru
     if not term or not term.strip():
         st.error("❌ Voer eerst een term in")
     else:
-        with st.spinner(f"🔄 GPT-4 genereert synoniemen voor '{term}'..."):
+        with st.spinner(f"🔄 AI genereert synoniemen voor '{term}'..."):
             try:
                 # Use orchestrator's ensure_synonyms (async) via de UI async-bridge.
                 # DEF-476: geen directe asyncio.run() in Streamlit-context — die
@@ -199,7 +199,7 @@ if st.button("🤖 Genereer Suggesties", type="primary", use_container_width=Tru
                     orchestrator.ensure_synonyms(
                         term=term.strip(), min_count=min_count, context=None
                     ),
-                    timeout=60.0,  # GPT-4 synoniem-generatie kan traag zijn
+                    timeout=60.0,  # AI synoniem-generatie kan traag zijn
                 )
 
                 if ai_pending_count > 0:
