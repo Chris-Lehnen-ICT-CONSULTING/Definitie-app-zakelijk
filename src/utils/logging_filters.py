@@ -31,8 +31,14 @@ def _redact_text(text: str) -> str:
 
     s = text
 
-    # 1) OpenAI sleutelpatroon (sk-<alnum>..)
-    s = re.sub(r"sk-[A-Za-z0-9]{16,}", lambda m: _mask_token(m.group(0)), s)
+    # 1) API-sleutels met `sk-`-prefix (OpenAI én Anthropic).
+    # DEF-583: `-` en `_` horen in de charset. De oude regel eiste 16+ *alfanumerieke*
+    # tekens direct ná `sk-`, waardoor de moderne formaten er ongeredigeerd door
+    # glipten: `sk-proj-...` breekt af na 4 tekens, `sk-ant-api03-...` na 3.
+    # Anthropic is de default provider, dus dat was de sleutel die in productie in
+    # een traceback kon belanden. De `sk-`-prefix is specifiek genoeg om
+    # over-redactie te voorkomen (anders dan de base64-regel, zie DEF-580).
+    s = re.sub(r"sk-[A-Za-z0-9_-]{16,}", lambda m: _mask_token(m.group(0)), s)
 
     # 2) Lange hex tokens (32-64 tekens)
     s = re.sub(r"\b[0-9a-fA-F]{32,64}\b", REDACTED, s)
