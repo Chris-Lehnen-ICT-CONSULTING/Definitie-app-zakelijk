@@ -8,6 +8,7 @@ import argparse  # Command line argument parsing voor CLI interface
 import logging  # Logging faciliteiten voor debug en monitoring
 import sys  # Systeem interface voor path manipulatie
 from pathlib import Path  # Object-georiënteerde pad manipulatie
+from typing import Any
 
 # Voeg src directory toe aan Python path voor module imports
 sys.path.insert(0, str(Path(__file__).parent.parent))  # Relatief pad naar src directory
@@ -233,7 +234,9 @@ class DefinitieManagerCLI:
 
     def cmd_export(self, args: argparse.Namespace) -> None:
         """Exporteer definities naar JSON."""
-        filters = {}
+        # Heterogene waarden (DefinitieStatus, str, OntologischeCategorie);
+        # export_to_json verwacht dict[str, Any].
+        filters: dict[str, Any] = {}
         if args.status:
             filters["status"] = DefinitieStatus(args.status)
         if args.context:
