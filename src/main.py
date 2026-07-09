@@ -40,23 +40,12 @@ from utils.structured_logging import setup_structured_logging
 if os.getenv("STRUCTURED_LOGGING", "false").lower() == "true":
     setup_structured_logging(enable_json=True, log_file="logs/app.json.log")
 
-# Configureer basis logging (fallback als structured logging niet enabled is)
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
-try:
-    # DEF-486: hang het PII/redactie-filter op de HANDLERS van de root-logger,
-    # niet op de root-logger zelf. Een logger-filter geldt niet voor records die
-    # van child-loggers (getLogger(__name__)) propageren; een handler-filter wel.
-    from utils.logging_filters import install_pii_redaction_filter
+# Configureer basis logging + PII-redactie (fallback als structured logging uit staat).
+# DEF-571: dezelfde bootstrap draait op elke subpagina — main.py is niet het enige
+# entrypoint. Fail-safe en idempotent; zie utils/logging_bootstrap.py.
+from utils.logging_bootstrap import ensure_logging_configured
 
-    install_pii_redaction_filter()
-except Exception as e:  # Fail-safe: logging mag nooit breken
-    # SECURITY: Log fout want PII-filter is niet actief
-    _startup_logger = logging.getLogger(__name__)
-    _startup_logger.error(
-        f"PII redactie filter initialisatie gefaald - gevoelige data kan in logs verschijnen: {e}"
-    )
+ensure_logging_configured()
 
 # Initialiseer logger - Stel logging in voor deze module
 logger = logging.getLogger(__name__)  # Verkrijg logger instantie voor dit bestand

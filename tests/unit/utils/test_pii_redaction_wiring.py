@@ -171,6 +171,28 @@ def test_install_is_idempotent_count_and_behaviour():
         parent.removeHandler(handler)
 
 
+def test_install_redacts_pii_in_positional_arg():
+    """DEF-571: PII die als %s-argument wordt meegegeven (zoals de gelogde
+    synoniem-term in SynonymSuggester) wordt via het handler-pad geredigeerd."""
+    parent = logging.getLogger(_unique("arg"))
+    parent.setLevel(logging.WARNING)
+    stream, handler = _capture(parent)
+    install_pii_redaction_filter(parent)
+    child = logging.getLogger(f"{parent.name}.child")
+    child.setLevel(logging.WARNING)
+    try:
+        # term-arg bevat een e-mailadres (PII); moet geredigeerd worden.
+        child.warning("AI-call mislukt voor '%s': %s", "user@example.com", "boom")
+        assert stream
+        msg = stream[-1]
+        assert "user@example.com" not in msg
+        assert "[REDACTED]" in msg
+    finally:
+        for f in list(handler.filters):
+            handler.removeFilter(f)
+        parent.removeHandler(handler)
+
+
 def test_install_on_logger_without_handlers_is_noop():
     """Zonder handlers is install een veilige no-op (geen crash)."""
     logger = logging.getLogger(_unique("empty"))
