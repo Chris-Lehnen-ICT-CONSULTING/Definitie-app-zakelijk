@@ -17,14 +17,22 @@ from utils.logging_filters import PIIRedactingFilter
 
 @pytest.fixture
 def uvicorn_loggers_met_handler():
-    """Boots uvicorn's dictConfig na: eigen handler, geen propagatie."""
+    """Boots uvicorn's dictConfig na: eigen handler, geen propagatie.
+
+    Dwingt de uitgangssituatie af in plaats van hem aan te nemen: een andere
+    test in dezelfde sessie kan de filter al geïnstalleerd hebben, wat deze
+    tests anders order-afhankelijk maakt (groen solo, rood in de volle suite).
+    """
     from api.feature_status_api import _UVICORN_LOGGERS
 
     origineel: dict[str, tuple] = {}
     for naam in _UVICORN_LOGGERS:
         lg = logging.getLogger(naam)
         origineel[naam] = (list(lg.handlers), lg.propagate)
-        lg.handlers = [logging.StreamHandler()]
+        verse_handler = logging.StreamHandler()
+        for f in list(verse_handler.filters):
+            verse_handler.removeFilter(f)
+        lg.handlers = [verse_handler]
         lg.propagate = False
     try:
         yield _UVICORN_LOGGERS
@@ -35,21 +43,27 @@ def uvicorn_loggers_met_handler():
             lg.propagate = propagate
 
 
-def test_uvicorn_loggers_krijgen_pii_filter(uvicorn_loggers_met_handler):
-    from api.feature_status_api import install_uvicorn_pii_redaction
+def _heeft_pii_filter(logger_naam: str) -> bool:
+    handlers = logging.getLogger(logger_naam).handlers
+    return bool(handlers) and all(
+        any(isinstance(f, PIIRedactingFilter) for f in h.filters) for h in handlers
+    )
 
-    # Vóór de hook: geen enkele filter.
-    for naam in uvicorn_loggers_met_handler:
-        for handler in logging.getLogger(naam).handlers:
-            assert not any(isinstance(f, PIIRedactingFilter) for f in handler.filters)
+
+def test_uvicorn_loggers_krijgen_pii_filter(uvicorn_loggers_met_handler):
+    """De hook hangt de filter op elk van uvicorn's eigen loggers.
+
+    Bewust géén "vóór de hook zijn er geen filters"-precondition: de fixture
+    garandeert verse handlers, dus zo'n assertie toetst niets en kan alleen nog
+    rood worden door interferentie van een andere test in dezelfde sessie.
+    Faalt de hook, dan faalt de assertie hieronder.
+    """
+    from api.feature_status_api import install_uvicorn_pii_redaction
 
     install_uvicorn_pii_redaction()
 
     for naam in uvicorn_loggers_met_handler:
-        for handler in logging.getLogger(naam).handlers:
-            assert any(
-                isinstance(f, PIIRedactingFilter) for f in handler.filters
-            ), f"{naam} mist de PII-redactie"
+        assert _heeft_pii_filter(naam), f"{naam} mist de PII-redactie"
 
 
 def test_access_log_met_pii_wordt_geredigeerd(uvicorn_loggers_met_handler):
