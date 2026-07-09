@@ -85,14 +85,21 @@ async def test_ai_fout_logt_afgekapte_term(caplog):
     # integraal in de warning-log belanden — hij wordt afgekapt.
     import logging
 
+    from services.synonym_suggester import _MAX_LOGGED_TERM
+
     ai = MagicMock()
     ai.generate_definition = AsyncMock(side_effect=RuntimeError("boom"))
     suggester = SynonymSuggester(ai_service=ai)
-    lange_term = "A" * 500
+    # Spaties erin: een lange aaneengesloten alfanumerieke reeks wordt door de
+    # PII-filter zelf als base64-token geredigeerd zodra die op de root-handler
+    # staat, wat deze test order-afhankelijk zou maken.
+    lange_term = "ab " * 200
     with caplog.at_level(logging.WARNING):
         await suggester.suggest_synonyms(term=lange_term)
-    # De volledige 500-teken term mag niet in de log staan.
-    assert ("A" * 200) not in caplog.text
+    # Assert de exacte cap: `not in (term[:200])` zou ook een cap van 199
+    # goedkeuren en de bedoelde grens van 80 niet bewaken.
+    assert lange_term[: _MAX_LOGGED_TERM + 1] not in caplog.text
+    assert lange_term[:_MAX_LOGGED_TERM] in caplog.text
     # Er is wél een warning gelogd.
     assert "mislukt" in caplog.text.lower()
 

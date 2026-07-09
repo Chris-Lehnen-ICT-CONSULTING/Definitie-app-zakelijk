@@ -146,7 +146,11 @@ def _ensure_definities_indexes(conn: sqlite3.Connection) -> None:
     )
 
 
-logging.basicConfig(level=logging.INFO)
+from utils.logging_bootstrap import ensure_logging_configured
+
+# DEF-571: eigen entrypoint — main.py draait hier niet.
+ensure_logging_configured()
+
 logger = logging.getLogger(__name__)
 
 

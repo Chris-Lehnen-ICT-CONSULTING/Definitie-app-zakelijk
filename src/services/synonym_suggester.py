@@ -90,7 +90,7 @@ class SynonymSuggester:
             self._stats["failure_count"] += 1
             logger.warning(
                 "SynonymSuggester: AI-call mislukt voor '%s': %s",
-                term[:_MAX_LOGGED_TERM],
+                str(term)[:_MAX_LOGGED_TERM],
                 exc,
             )
             return []

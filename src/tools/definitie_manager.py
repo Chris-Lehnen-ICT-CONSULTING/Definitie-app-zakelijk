@@ -25,6 +25,11 @@ from integration.definitie_checker import (
     DefinitieChecker,
     generate_or_retrieve_definition,  # Integratie en duplicaat checking
 )
+from utils.logging_bootstrap import ensure_logging_configured
+
+# DEF-571: eigen entrypoint — main.py draait hier niet, dus zonder deze aanroep
+# ontbreekt de PII-redactie. "%(message)s" houdt de console-output schoon.
+ensure_logging_configured(fmt="%(message)s")
 
 logger = logging.getLogger(__name__)  # Logger instantie voor CLI tool
 
@@ -459,5 +464,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO, format="%(message)s")
     main()

@@ -19,6 +19,10 @@ from datetime import datetime
 import click
 
 from monitoring.performance_tracker import get_tracker
+from utils.logging_bootstrap import ensure_logging_configured
+
+# DEF-571: eigen entrypoint — main.py draait hier niet.
+ensure_logging_configured(fmt="%(message)s")
 
 
 @click.group()

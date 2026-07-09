@@ -21,6 +21,10 @@ from database.definitie_repository import (
     SourceType,  # Status en bron type enumeraties
     get_definitie_repository,
 )
+from utils.logging_bootstrap import ensure_logging_configured
+
+# DEF-571: eigen entrypoint — main.py draait hier niet.
+ensure_logging_configured(fmt="%(message)s")
 
 logger = logging.getLogger(__name__)
 
@@ -236,8 +240,6 @@ def create_sample_export() -> None:
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO, format="%(message)s")
-
     import argparse
 
     parser = argparse.ArgumentParser(description="Setup definitie database")

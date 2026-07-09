@@ -12,26 +12,43 @@ er geen heeft. Deze bootstrap garandeert eerst een handler, dan de filter.
 from __future__ import annotations
 
 import logging
+import os
 
 from utils.logging_filters import install_pii_redaction_filter
+from utils.structured_logging import setup_structured_logging
 
 _LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+_JSON_LOG_FILE = "logs/app.json.log"
 
 
-def ensure_logging_configured(level: int = logging.INFO) -> None:
+def ensure_logging_configured(
+    level: int = logging.INFO, fmt: str = _LOG_FORMAT
+) -> None:
     """Garandeer een geconfigureerde root-logger met actieve PII-redactie.
 
-    Idempotent en veilig vanaf elk entrypoint. `basicConfig` doet niets als de
-    root-logger al handlers heeft, dus een bestaande configuratie (structured
-    logging, dictConfig, Streamlit) blijft intact; alleen de redactie-filter
-    wordt er alsnog op gehangen.
+    Idempotent en veilig vanaf elk entrypoint. De volgorde is wezenlijk:
+    structured logging voegt zijn JSON-handler toe, `basicConfig` doet daarna
+    niets meer (er zijn dan handlers), en de redactie-filter komt op álle
+    handlers — inclusief de JSON-handler. Omgekeerd zou de JSON-handler
+    ongefilterd blijven.
+
+    STRUCTURED_LOGGING hoort hier en niet in `main.py`: subpagina's draaien
+    main.py niet en kregen anders nooit de JSON-handler.
+
+    Args:
+        level: Log-level voor de root-logger.
+        fmt: Formatstring. CLI-tools gebruiken `"%(message)s"` voor schone
+            console-output; `basicConfig` is een no-op zodra er handlers zijn,
+            dus het format moet hier meekomen en niet later gezet worden.
 
     Faalt nooit: logging mag de applicatie niet breken. Slaagt de redactie
     niet, dan wordt dat als error gelogd (gevoelige data kan dan in de logs
     verschijnen).
     """
     try:
-        logging.basicConfig(level=level, format=_LOG_FORMAT)
+        if os.getenv("STRUCTURED_LOGGING", "false").lower() == "true":
+            setup_structured_logging(enable_json=True, log_file=_JSON_LOG_FILE)
+        logging.basicConfig(level=level, format=fmt)
         install_pii_redaction_filter()
     except Exception as exc:
         logging.getLogger(__name__).error(

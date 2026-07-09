@@ -96,6 +96,14 @@ def _setup_enrichment_logger() -> None:
     # Prevent propagation to root logger (avoid duplicate logs)
     enrichment_logger.propagate = False
 
+    # DEF-571: propagate=False betekent dat deze records de root-handlers nooit
+    # bereiken — de PII-redactie op root dekt ze dus niet. Deze logger schrijft
+    # de term bij elke enrichment naar logs/synonym_enrichment.log, dus de
+    # filter moet expliciet op zijn eigen handlers.
+    from utils.logging_filters import install_pii_redaction_filter
+
+    install_pii_redaction_filter(enrichment_logger)
+
     enrichment_logger.info("Enrichment logger initialized")
 
 
