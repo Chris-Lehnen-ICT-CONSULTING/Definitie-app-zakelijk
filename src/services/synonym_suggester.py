@@ -22,6 +22,10 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
+# DEF-571: kap de gelogde term af zodat een (mogelijk geïnjecteerde) lange
+# invoer niet integraal in de logs belandt. Aanvullend op de PII-redactie.
+_MAX_LOGGED_TERM = 80
+
 
 class SynonymSuggester:
     """Model-onafhankelijke synoniem-suggester (DEF-459).
@@ -84,7 +88,11 @@ class SynonymSuggester:
             return suggestions
         except Exception as exc:
             self._stats["failure_count"] += 1
-            logger.warning("SynonymSuggester: AI-call mislukt voor '%s': %s", term, exc)
+            logger.warning(
+                "SynonymSuggester: AI-call mislukt voor '%s': %s",
+                str(term)[:_MAX_LOGGED_TERM],
+                exc,
+            )
             return []
 
     def get_stats(self) -> dict:

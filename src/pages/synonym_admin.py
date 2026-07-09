@@ -37,6 +37,10 @@ from services.synonym_orchestrator import SynonymOrchestrator
 from services.synonym_suggester import SynonymSuggester
 from ui.helpers.async_bridge import run_async
 from ui.session_state import SessionStateManager
+from utils.logging_bootstrap import ensure_logging_configured
+
+# DEF-571: subpagina's zijn eigen entrypoints — main.py draait hier niet.
+ensure_logging_configured()
 
 logger = logging.getLogger(__name__)
 

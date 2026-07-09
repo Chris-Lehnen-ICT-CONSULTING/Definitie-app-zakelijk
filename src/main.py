@@ -7,7 +7,6 @@ handling initialization, configuration, and launching the main user interface.
 """
 
 import logging
-import os
 import sys
 import time
 from pathlib import Path
@@ -34,29 +33,12 @@ from utils.progress_callback import register_progress_callback
 # DEF-198: Clean architecture - services import from utils/, UI registers callback
 register_progress_callback(SessionStateManager.set_value)
 
-# Setup structured logging if enabled via environment variable
-from utils.structured_logging import setup_structured_logging
+# Configureer logging: structured logging (indien STRUCTURED_LOGGING=true),
+# basisconfig en PII-redactie. DEF-571: dezelfde bootstrap draait op elk
+# entrypoint — main.py is er maar één van. Fail-safe en idempotent.
+from utils.logging_bootstrap import ensure_logging_configured
 
-if os.getenv("STRUCTURED_LOGGING", "false").lower() == "true":
-    setup_structured_logging(enable_json=True, log_file="logs/app.json.log")
-
-# Configureer basis logging (fallback als structured logging niet enabled is)
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
-try:
-    # DEF-486: hang het PII/redactie-filter op de HANDLERS van de root-logger,
-    # niet op de root-logger zelf. Een logger-filter geldt niet voor records die
-    # van child-loggers (getLogger(__name__)) propageren; een handler-filter wel.
-    from utils.logging_filters import install_pii_redaction_filter
-
-    install_pii_redaction_filter()
-except Exception as e:  # Fail-safe: logging mag nooit breken
-    # SECURITY: Log fout want PII-filter is niet actief
-    _startup_logger = logging.getLogger(__name__)
-    _startup_logger.error(
-        f"PII redactie filter initialisatie gefaald - gevoelige data kan in logs verschijnen: {e}"
-    )
+ensure_logging_configured()
 
 # Initialiseer logger - Stel logging in voor deze module
 logger = logging.getLogger(__name__)  # Verkrijg logger instantie voor dit bestand
