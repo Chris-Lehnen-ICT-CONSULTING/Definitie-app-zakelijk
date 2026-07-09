@@ -128,7 +128,7 @@ streamlit run src/main.py
 ```
 
 ### 🔑 Environment-variabelen (.env wordt geladen)
-- De app laadt bij startup een `.env` uit de projectroot (`load_dotenv(override=True)` in `src/main.py`). Kopieer `.env.example` → `.env` en vul je sleutel in.
+- De app laadt bij startup een `.env` uit de projectroot (`load_project_dotenv()` in `src/config/dotenv_loader.py`). Kopieer `.env.example` → `.env` en vul je sleutel in.
 - Alternatief leest de app `OPENAI_API_KEY` rechtstreeks uit de omgeving; een gezette shell-variabele werkt dus ook.
 - In VS Code mappen we `OPENAI_API_KEY` vanuit `OPENAI_API_KEY_PROD` via de launch-config.
 - In de terminal kun je hetzelfde doen met het script of een inline export:
@@ -143,7 +143,11 @@ bash scripts/deployment/run_app.sh
 OPENAI_API_KEY="$OPENAI_API_KEY_PROD" streamlit run src/main.py
 ```
 
-Let op: `.env` (projectroot) wordt geladen én overschrijft bestaande env-waarden (`override=True`). Commit je `.env` nooit — hij staat in `.gitignore`.
+Let op: `.env` (projectroot) **vult aan** en overschrijft niets (`override=False`, DEF-573). Een expliciet gezette env-variabele — in je shell, in CI of via `docker run -e` — wint dus van `.env`. Heb je een verouderde `export OPENAI_API_KEY=...` in je shell staan, dan gebruikt de app die en niet de sleutel uit `.env`.
+
+Zet `DEFINITIE_DISABLE_DOTENV=1` om het laden van `.env` volledig over te slaan (de unit-tests doen dit voor hermeticiteit).
+
+Commit je `.env` nooit — hij staat in `.gitignore`.
 
 ## 🧪 Testing
 

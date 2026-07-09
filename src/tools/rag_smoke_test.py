@@ -31,9 +31,10 @@ if TYPE_CHECKING:
 # src/ op het pad zetten
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from dotenv import load_dotenv
+# DEF-573: via de gedeelde loader — override=False, deterministisch pad.
+from config.dotenv_loader import load_project_dotenv
 
-load_dotenv(override=True)
+load_project_dotenv()
 
 from services.container import ContainerConfigs, ServiceContainer
 from services.interfaces import GenerationRequest
