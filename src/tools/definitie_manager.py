@@ -8,23 +8,28 @@ import argparse  # Command line argument parsing voor CLI interface
 import logging  # Logging faciliteiten voor debug en monitoring
 import sys  # Systeem interface voor path manipulatie
 from pathlib import Path  # Object-georiënteerde pad manipulatie
+from typing import Any
 
 # Voeg src directory toe aan Python path voor module imports
 sys.path.insert(0, str(Path(__file__).parent.parent))  # Relatief pad naar src directory
-
-from generation.definitie_generator import (
-    OntologischeCategorie,  # Ontologische categorieën
-)
 
 # Importeer database en core componenten voor definitie management
 from database.definitie_repository import (
     DefinitieStatus,  # Status en bron type enumeraties
     get_definitie_repository,
 )
+from domain.ontological_categories import (
+    OntologischeCategorie,  # Ontologische categorieën
+)
 from integration.definitie_checker import (
     DefinitieChecker,
     generate_or_retrieve_definition,  # Integratie en duplicaat checking
 )
+from utils.logging_bootstrap import ensure_logging_configured
+
+# DEF-571: eigen entrypoint — main.py draait hier niet, dus zonder deze aanroep
+# ontbreekt de PII-redactie. "%(message)s" houdt de console-output schoon.
+ensure_logging_configured(fmt="%(message)s")
 
 logger = logging.getLogger(__name__)  # Logger instantie voor CLI tool
 
@@ -229,7 +234,9 @@ class DefinitieManagerCLI:
 
     def cmd_export(self, args: argparse.Namespace) -> None:
         """Exporteer definities naar JSON."""
-        filters = {}
+        # Heterogene waarden (DefinitieStatus, str, OntologischeCategorie);
+        # export_to_json verwacht dict[str, Any].
+        filters: dict[str, Any] = {}
         if args.status:
             filters["status"] = DefinitieStatus(args.status)
         if args.context:
@@ -459,5 +466,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO, format="%(message)s")
     main()

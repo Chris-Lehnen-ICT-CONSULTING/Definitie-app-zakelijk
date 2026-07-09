@@ -37,11 +37,11 @@ load_dotenv(override=True)
 
 from services.container import ContainerConfigs, ServiceContainer
 from services.interfaces import GenerationRequest
+from utils.logging_bootstrap import ensure_logging_configured
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(message)s",
-)
+# DEF-571: eigen entrypoint — main.py draait hier niet.
+ensure_logging_configured(fmt="%(message)s")
+
 logger = logging.getLogger(__name__)
 
 # ── Test configuratie ─────────────────────────────────────────────

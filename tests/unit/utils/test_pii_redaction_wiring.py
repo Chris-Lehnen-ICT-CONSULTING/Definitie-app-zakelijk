@@ -171,6 +171,88 @@ def test_install_is_idempotent_count_and_behaviour():
         parent.removeHandler(handler)
 
 
+def test_install_redacts_pii_in_positional_arg():
+    """DEF-571: PII die als %s-argument wordt meegegeven (zoals de gelogde
+    synoniem-term in SynonymSuggester) wordt via het handler-pad geredigeerd."""
+    parent = logging.getLogger(_unique("arg"))
+    parent.setLevel(logging.WARNING)
+    stream, handler = _capture(parent)
+    install_pii_redaction_filter(parent)
+    child = logging.getLogger(f"{parent.name}.child")
+    child.setLevel(logging.WARNING)
+    try:
+        # term-arg bevat een e-mailadres (PII); moet geredigeerd worden.
+        child.warning("AI-call mislukt voor '%s': %s", "user@example.com", "boom")
+        assert stream
+        msg = stream[-1]
+        assert "user@example.com" not in msg
+        assert "[REDACTED]" in msg
+    finally:
+        for f in list(handler.filters):
+            handler.removeFilter(f)
+        parent.removeHandler(handler)
+
+
+def test_redacts_exception_object_passed_as_arg():
+    """DEF-571/DEF-575: een Exception als %s-arg is geen str en ontsnapte aan
+    `_redact_args` — terwijl `logger.error("... %s", exc)` een veelgebruikt
+    patroon is (o.a. synonym_suggester.py)."""
+    parent = logging.getLogger(_unique("excarg"))
+    parent.setLevel(logging.ERROR)
+    stream, handler = _capture(parent)
+    handler.setLevel(logging.ERROR)
+    install_pii_redaction_filter(parent)
+    try:
+        fout = ValueError("contact user@example.com voor details")
+        parent.error("mislukt: %s", fout)
+        assert stream
+        assert "user@example.com" not in stream[-1]
+        assert "[REDACTED]" in stream[-1]
+    finally:
+        for f in list(handler.filters):
+            handler.removeFilter(f)
+        parent.removeHandler(handler)
+
+
+def test_redacts_pii_in_exception_traceback():
+    """DEF-575: de formatter rendert de traceback ná de filter, dus PII in een
+    exception-message ontsnapte aan de redactie."""
+    parent = logging.getLogger(_unique("exctb"))
+    parent.setLevel(logging.ERROR)
+    stream, handler = _capture(parent)
+    handler.setLevel(logging.ERROR)
+    handler.setFormatter(logging.Formatter("%(message)s"))
+    install_pii_redaction_filter(parent)
+    try:
+        try:
+            raise ValueError("contact user@example.com voor details")
+        except ValueError:
+            parent.error("registry query gefaald", exc_info=True)
+        assert stream
+        assert "Traceback" in stream[-1], "traceback ontbreekt in de output"
+        assert "user@example.com" not in stream[-1]
+        assert "[REDACTED]" in stream[-1]
+    finally:
+        for f in list(handler.filters):
+            handler.removeFilter(f)
+        parent.removeHandler(handler)
+
+
+def test_numerieke_args_blijven_intact():
+    """Regressie: de arg-redactie mag %d-formatting niet slopen."""
+    parent = logging.getLogger(_unique("num"))
+    parent.setLevel(logging.INFO)
+    stream, handler = _capture(parent)
+    install_pii_redaction_filter(parent)
+    try:
+        parent.info("gevonden: %d van %d", 3, 10)
+        assert stream[-1] == "gevonden: 3 van 10"
+    finally:
+        for f in list(handler.filters):
+            handler.removeFilter(f)
+        parent.removeHandler(handler)
+
+
 def test_install_on_logger_without_handlers_is_noop():
     """Zonder handlers is install een veilige no-op (geen crash)."""
     logger = logging.getLogger(_unique("empty"))

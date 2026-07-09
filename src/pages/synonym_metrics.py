@@ -22,6 +22,10 @@ import streamlit as st
 
 # Import de metrics tab component
 from ui.tabs.synonym_metrics_tab import SynonymMetricsTab
+from utils.logging_bootstrap import ensure_logging_configured
+
+# DEF-571: subpagina's zijn eigen entrypoints — main.py draait hier niet.
+ensure_logging_configured()
 
 # Page config
 st.set_page_config(

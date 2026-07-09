@@ -10,10 +10,6 @@ from pathlib import Path  # Object-georiënteerde pad manipulatie
 # Voeg src directory toe aan Python path voor module imports
 sys.path.insert(0, str(Path(__file__).parent.parent))  # Relatief pad naar src directory
 
-from generation.definitie_generator import (
-    OntologischeCategorie,  # Ontologische categorieën
-)
-
 # Importeer database componenten voor setup en initialisatie
 from database.definitie_repository import (
     DefinitieRecord,  # Repository en data modellen
@@ -21,6 +17,13 @@ from database.definitie_repository import (
     SourceType,  # Status en bron type enumeraties
     get_definitie_repository,
 )
+from domain.ontological_categories import (
+    OntologischeCategorie,  # Ontologische categorieën
+)
+from utils.logging_bootstrap import ensure_logging_configured
+
+# DEF-571: eigen entrypoint — main.py draait hier niet.
+ensure_logging_configured(fmt="%(message)s")
 
 logger = logging.getLogger(__name__)
 
@@ -236,8 +239,6 @@ def create_sample_export() -> None:
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO, format="%(message)s")
-
     import argparse
 
     parser = argparse.ArgumentParser(description="Setup definitie database")
