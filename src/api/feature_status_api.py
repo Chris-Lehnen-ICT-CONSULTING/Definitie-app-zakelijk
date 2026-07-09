@@ -19,6 +19,11 @@ from security.security_middleware import (
     ValidationRequest,
     get_security_middleware,
 )
+from utils.logging_bootstrap import ensure_logging_configured
+
+# DEF-571: eigen entrypoint (uvicorn-import én __main__) — main.py draait hier
+# niet, dus zonder deze aanroep ontbreekt de PII-redactie in dit proces.
+ensure_logging_configured()
 
 logger = logging.getLogger(__name__)
 

@@ -80,6 +80,24 @@ async def test_suggest_synonyms_ai_fout_degradeert_naar_leeg():
 
 
 @pytest.mark.asyncio
+async def test_ai_fout_logt_afgekapte_term(caplog):
+    # DEF-571: bij een AI-fout mag de (mogelijk geïnjecteerde/lange) term niet
+    # integraal in de warning-log belanden — hij wordt afgekapt.
+    import logging
+
+    ai = MagicMock()
+    ai.generate_definition = AsyncMock(side_effect=RuntimeError("boom"))
+    suggester = SynonymSuggester(ai_service=ai)
+    lange_term = "A" * 500
+    with caplog.at_level(logging.WARNING):
+        await suggester.suggest_synonyms(term=lange_term)
+    # De volledige 500-teken term mag niet in de log staan.
+    assert ("A" * 200) not in caplog.text
+    # Er is wél een warning gelogd.
+    assert "mislukt" in caplog.text.lower()
+
+
+@pytest.mark.asyncio
 async def test_suggest_synonyms_confidence_blijft_in_bereik():
     ai = _fake_ai_service(
         '{"synoniemen": [{"synoniem": "x", "confidence": 5.0, "rationale": "y"}]}'

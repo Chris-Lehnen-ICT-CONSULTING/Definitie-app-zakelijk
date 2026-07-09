@@ -202,3 +202,6 @@ Huidige_Versie/
 
 # story-runner marker
 .story-runner-spec-done
+
+# Playwright MCP artefacten (snapshots, console-logs)
+.playwright-mcp/

@@ -27,6 +27,10 @@ if str(src_path) not in sys.path:
 import streamlit as st
 
 from services.container import get_container
+from utils.logging_bootstrap import ensure_logging_configured
+
+# DEF-571: subpagina's zijn eigen entrypoints — main.py draait hier niet.
+ensure_logging_configured()
 
 logger = logging.getLogger(__name__)
 
